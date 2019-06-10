@@ -5,7 +5,6 @@ import {AgGridReact} from 'ag-grid-react';
 import map from 'lodash.map';
 import HadronDocument from 'hadron-document';
 import mongodbns from 'mongodb-ns';
-import GridStore from 'stores/grid-store';
 import BreadcrumbComponent from 'components/breadcrumb';
 import CellRenderer from 'components/table-view/cell-renderer';
 import RowNumberRenderer from 'components/table-view/row-number-renderer';
@@ -86,7 +85,7 @@ class DocumentTableView extends React.Component {
   }
 
   componentDidMount() {
-    this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
+    this.unsubscribeGridStore = this.props.store.gridStore.listen(this.modifyColumns.bind(this));
   }
 
   componentWillUnmount() {
@@ -884,6 +883,7 @@ DocumentTableView.propTypes = {
   removeDocument: PropTypes.func,
   updateDocument: PropTypes.func,
   start: PropTypes.number,
+  store: PropTypes.object.isRequired,
   table: PropTypes.object.isRequired,
   tz: PropTypes.string.isRequired
 };

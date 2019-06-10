@@ -1,5 +1,5 @@
-import CRUDStore from './crud-store';
-import GridStore from './grid-store';
+import configureStore, { setDataProvider } from './crud-store';
+import configureGridStore from './grid-store';
 
-export default CRUDStore;
-export { CRUDStore, GridStore };
+export default configureStore;
+export { configureGridStore, setDataProvider };

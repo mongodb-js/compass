@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { StoreConnector } from 'hadron-react-components';
-import Store from 'stores/crud-store';
 import DocumentList from 'components/document-list';
-import Actions from 'actions';
 
-class ConnectedDocumentList extends React.Component {
+class ConnectedDocumentList extends Component {
+  static displayName = 'ConnectedDocumentList';
+  static propTypes = {
+    store: PropTypes.object.isRequired,
+    actions: PropTypes.object.isRequired
+  }
+
   /**
    * Connected DocumentList Component to store and render.
    *
@@ -12,17 +17,15 @@ class ConnectedDocumentList extends React.Component {
    */
   render() {
     return (
-      <StoreConnector store={Store}>
+      <StoreConnector store={this.props.store}>
         <DocumentList
-          {...Actions}
+          {...this.props.actions}
           {...this.props}
-          pageLoadedListenable={Store}
+          pageLoadedListenable={this.props.store}
           isExportable />
       </StoreConnector>
     );
   }
 }
-
-ConnectedDocumentList.displayName = 'ConnectedDocumentList';
 
 export default ConnectedDocumentList;

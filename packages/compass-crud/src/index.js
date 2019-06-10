@@ -1,6 +1,10 @@
 import Document from 'components/document';
 import DocumentList from 'components/document-list';
 import InsertDocumentDialog from 'components/insert-document-dialog';
+import ConnectedDocumentList from 'components/connected-document-list';
+import configureActions from 'actions';
+import configureStore from 'stores/crud-store';
+
 
 import {
   StandardEditor,
@@ -13,7 +17,16 @@ import {
   ObjectIdEditor
 } from 'components/editor';
 
-let COLLECTION_TAB_ROLE;
+const COLLECTION_TAB_ROLE = {
+  component: ConnectedDocumentList,
+  name: 'Documents',
+  hasQueryHistory: true,
+  order: 1,
+  configureStore: configureStore,
+  storeName: 'CRUD.Store',
+  configureActions: configureActions,
+  actionName: 'CRUD.Actions'
+};
 
 const DOCUMENT_ROLE = {
   component: Document,
@@ -59,17 +72,6 @@ const OBJECT_ID_EDITOR_ROLE = {
  * @param {AppRegistry} appRegistry - The app registry.
  */
 const activate = (appRegistry) => {
-  const ConnectedDocumentList = require('components/connected-document-list').default;
-  const Actions = require('actions').default;
-  const CRUDStore = require('stores/crud-store').default;
-
-  COLLECTION_TAB_ROLE = {
-    component: ConnectedDocumentList,
-    name: 'Documents',
-    hasQueryHistory: true,
-    order: 1
-  };
-
   appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
   appRegistry.registerRole('CRUD.Document', DOCUMENT_ROLE);
   appRegistry.registerRole('CRUD.Editor.Standard', STANDARD_EDITOR_ROLE);
@@ -80,8 +82,6 @@ const activate = (appRegistry) => {
   appRegistry.registerRole('CRUD.Editor.Null', NULL_EDITOR_ROLE);
   appRegistry.registerRole('CRUD.Editor.Undefined', UNDEFINED_EDITOR_ROLE);
   appRegistry.registerRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
-  appRegistry.registerAction('CRUD.Actions', Actions);
-  appRegistry.registerStore('CRUD.Store', CRUDStore);
 };
 
 /**
@@ -100,9 +100,15 @@ const deactivate = (appRegistry) => {
   appRegistry.deregisterRole('CRUD.Editor.Null', NULL_EDITOR_ROLE);
   appRegistry.deregisterRole('CRUD.Editor.Undefined', UNDEFINED_EDITOR_ROLE);
   appRegistry.deregisterRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
-  appRegistry.deregisterAction('CRUD.Actions');
-  appRegistry.deregisterStore('CRUD.Store');
 };
 
 export default DocumentList;
-export { activate, deactivate, DocumentList, Document, InsertDocumentDialog };
+export {
+  activate,
+  deactivate,
+  DocumentList,
+  Document,
+  InsertDocumentDialog,
+  configureStore,
+  configureActions
+};

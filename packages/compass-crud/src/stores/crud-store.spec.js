@@ -3,8 +3,8 @@ import DataService from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import { expectedDocs, checkPageRange, NUM_DOCS } from '../../test/aggrid-helper';
-import { activate as statusActivate } from '@mongodb-js/compass-status';
-import CRUDStore from 'stores/crud-store';
+import configureStore, { setDataProvider } from 'stores/crud-store';
+import configureActions from 'actions';
 
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',
@@ -13,131 +13,150 @@ const CONNECTION = new Connection({
   mongodb_database_name: 'admin'
 });
 
-describe('CRUDStore', () => {
+describe('store', () => {
+  let dataProvider;
   const dataService = new DataService(CONNECTION);
-  const collectionStore = {
-    isReadonly: () => {
-      return false;
-    }
-  };
-  const appRegistry = new AppRegistry();
+  const localAppRegistry = new AppRegistry();
+  const globalAppRegistry = new AppRegistry();
 
   before((done) => {
-    global.hadronApp.appRegistry = appRegistry;
-    global.hadronApp.appRegistry.registerStore('App.CollectionStore', collectionStore);
-    global.hadronApp.appRegistry.registerStore('CRUD.Store', CRUDStore);
-    statusActivate(appRegistry);
-
-    global.hadronApp.appRegistry.onActivated();
-    dataService.connect(() => {
-      global.hadronApp.appRegistry.emit('data-service-connected', null, dataService);
+    dataService.connect((err, ds) => {
+      if (!err) {
+        dataProvider = ds;
+      }
       done();
     });
   });
 
   after((done) => {
-    global.hadronApp.appRegistry = undefined;
     dataService.disconnect(done);
   });
 
   describe('#getInitialState', () => {
+    let store;
+    let actions;
+
     beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        actions: actions,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        }
+      });
     });
 
     it('sets the default filter', () => {
-      expect(CRUDStore.state.query.filter).to.deep.equal({});
+      expect(store.state.query.filter).to.deep.equal({});
     });
 
     it('sets the default sort', () => {
-      expect(CRUDStore.state.query.sort).to.deep.equal([[ '_id', 1 ]]);
+      expect(store.state.query.sort).to.deep.equal([[ '_id', 1 ]]);
     });
 
     it('sets the default limit', () => {
-      expect(CRUDStore.state.query.limit).to.equal(0);
+      expect(store.state.query.limit).to.equal(0);
     });
 
     it('sets the default skip', () => {
-      expect(CRUDStore.state.query.skip).to.equal(0);
+      expect(store.state.query.skip).to.equal(0);
     });
 
     it('sets the default project', () => {
-      expect(CRUDStore.state.query.project).to.equal(null);
+      expect(store.state.query.project).to.equal(null);
     });
 
     it('sets the default collation', () => {
-      expect(CRUDStore.state.query.collation).to.equal(null);
+      expect(store.state.query.collation).to.equal(null);
     });
 
     it('sets the default namespace', () => {
-      expect(CRUDStore.state.ns).to.equal('');
+      expect(store.state.ns).to.equal('');
     });
 
     it('sets the default error', () => {
-      expect(CRUDStore.state.error).to.equal(null);
+      expect(store.state.error).to.equal(null);
     });
 
     it('sets the default documents', () => {
-      expect(CRUDStore.state.docs).to.deep.equal([]);
+      expect(store.state.docs).to.deep.equal([]);
     });
 
     it('sets the default count', () => {
-      expect(CRUDStore.state.count).to.equal(0);
+      expect(store.state.count).to.equal(0);
     });
 
     it('sets the default table doc', () => {
-      expect(CRUDStore.state.table.doc).to.equal(null);
+      expect(store.state.table.doc).to.equal(null);
     });
 
     it('sets the default table path', () => {
-      expect(CRUDStore.state.table.path).to.deep.equal([]);
+      expect(store.state.table.path).to.deep.equal([]);
     });
 
     it('sets the default table types', () => {
-      expect(CRUDStore.state.table.types).to.deep.equal([]);
+      expect(store.state.table.types).to.deep.equal([]);
     });
 
     it('sets the default table edit params', () => {
-      expect(CRUDStore.state.table.editParams).to.equal(null);
+      expect(store.state.table.editParams).to.equal(null);
     });
 
     it('sets the default insert doc', () => {
-      expect(CRUDStore.state.insert.doc).to.equal(null);
+      expect(store.state.insert.doc).to.equal(null);
     });
 
     it('sets the default insert message', () => {
-      expect(CRUDStore.state.insert.message).to.equal('');
+      expect(store.state.insert.message).to.equal('');
     });
 
     it('sets the default insert mode', () => {
-      expect(CRUDStore.state.insert.mode).to.equal('modifying');
+      expect(store.state.insert.mode).to.equal('modifying');
     });
 
     it('sets the default insert open status', () => {
-      expect(CRUDStore.state.insert.isOpen).to.equal(false);
+      expect(store.state.insert.isOpen).to.equal(false);
     });
 
     it('sets the default isEditable status', () => {
-      expect(CRUDStore.state.isEditable).to.equal(true);
+      expect(store.state.isEditable).to.equal(true);
     });
 
     it('sets the default view', () => {
-      expect(CRUDStore.state.view).to.equal('List');
+      expect(store.state.view).to.equal('List');
     });
   });
 
   describe('#onCollectionChanged', () => {
+    let store;
+    let actions;
+
+    beforeEach(() => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions
+      });
+    });
+
     context('when the collection is not readonly', () => {
       beforeEach(() => {
-        CRUDStore.state = CRUDStore.getInitialState();
-        CRUDStore.state.table.path = [ 'test-path' ];
-        CRUDStore.state.table.types = [ 'test-types' ];
-        CRUDStore.state.table.doc = {};
-        CRUDStore.state.table.editParams = {};
+        store.state.table.path = [ 'test-path' ];
+        store.state.table.types = [ 'test-types' ];
+        store.state.table.doc = {};
+        store.state.table.editParams = {};
       });
 
       it('resets the state for the new editable collection', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
           expect(state.table.doc).to.equal(null);
@@ -149,31 +168,34 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.onCollectionChanged('compass-crud.another');
+        store.onCollectionChanged('compass-crud.another');
       });
     });
 
     context('when the collection is readonly', () => {
+      let store;
+      let actions;
+
       beforeEach(() => {
-        collectionStore.isReadonly = () => {
-          return true;
-        };
-
-        CRUDStore.state = CRUDStore.getInitialState();
-        CRUDStore.state.table.path = [ 'test-path' ];
-        CRUDStore.state.table.types = [ 'test-types' ];
-        CRUDStore.state.table.doc = {};
-        CRUDStore.state.table.editParams = {};
-      });
-
-      afterEach(() => {
-        collectionStore.isReadonly = () => {
-          return false;
-        };
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions,
+          isReadonly: true
+        });
+        store.state.table.path = [ 'test-path' ];
+        store.state.table.types = [ 'test-types' ];
+        store.state.table.doc = {};
+        store.state.table.editParams = {};
       });
 
       it('resets the state for the new readonly collection', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
           expect(state.table.doc).to.equal(null);
@@ -185,18 +207,30 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.onCollectionChanged('compass-crud.another');
+        store.onCollectionChanged('compass-crud.another');
       });
     });
 
     context('when running in a readonly context', () => {
+      let store;
+      let actions;
+
       beforeEach(() => {
         process.env.HADRON_READONLY = 'true';
-        CRUDStore.state = CRUDStore.getInitialState();
-        CRUDStore.state.table.path = [ 'test-path' ];
-        CRUDStore.state.table.types = [ 'test-types' ];
-        CRUDStore.state.table.doc = {};
-        CRUDStore.state.table.editParams = {};
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions
+        });
+        store.state.table.path = [ 'test-path' ];
+        store.state.table.types = [ 'test-types' ];
+        store.state.table.doc = {};
+        store.state.table.editParams = {};
       });
 
       afterEach(() => {
@@ -204,7 +238,7 @@ describe('CRUDStore', () => {
       });
 
       it('resets the state for the new readonly collection', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
           expect(state.table.doc).to.equal(null);
@@ -216,40 +250,31 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.onCollectionChanged('compass-crud.another');
+        store.onCollectionChanged('compass-crud.another');
       });
-    });
-  });
-
-  describe('#emit collection-changed', () => {
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-      CRUDStore.state.table.path = [ 'test-path' ];
-      CRUDStore.state.table.types = [ 'test-types' ];
-      CRUDStore.state.table.doc = {};
-      CRUDStore.state.table.editParams = {};
-    });
-
-    it('resets the state for the new collection', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
-        expect(state.table.path).to.deep.equal([]);
-        expect(state.table.types).to.deep.equal([]);
-        expect(state.table.doc).to.equal(null);
-        expect(state.table.editParams).to.equal(null);
-        expect(state.collection).to.equal('another');
-        expect(state.ns).to.equal('compass-crud.another');
-        unsubscribe();
-        done();
-      });
-
-      global.hadronApp.appRegistry.emit('collection-changed', 'compass-crud.another');
     });
   });
 
   describe('#onQueryChanged', () => {
     context('when a project is present', () => {
+      let store;
+      let actions;
+
+      beforeEach(() => {
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions,
+          ns: 'compass-crud.test'
+        });
+      });
+
       const query = {
-        ns: 'compass-crud.test',
         filter: { name: 'test' },
         sort: { name: 1 },
         collation: { locale: 'simple' },
@@ -258,12 +283,8 @@ describe('CRUDStore', () => {
         project: { name: 1 }
       };
 
-      beforeEach(() => {
-        CRUDStore.state = CRUDStore.getInitialState();
-      });
-
       it('tiggers with the reset documents and isEditable false', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.error).to.equal(null);
           expect(state.docs).to.deep.equal([]);
           expect(state.count).to.equal(0);
@@ -272,13 +293,29 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.onQueryChanged(query);
+        store.onQueryChanged(query);
       });
     });
 
     context('when a project is not present', () => {
+      let store;
+      let actions;
+
+      beforeEach(() => {
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions,
+          namespace: 'compass-crud.test'
+        });
+      });
+
       const query = {
-        ns: 'compass-crud.test',
         filter: { name: 'test' },
         sort: { name: 1 },
         collation: { locale: 'simple' },
@@ -286,12 +323,8 @@ describe('CRUDStore', () => {
         skip: 5
       };
 
-      beforeEach(() => {
-        CRUDStore.state = CRUDStore.getInitialState();
-      });
-
       it('tiggers with the reset documents with isEditable true', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.error).to.equal(null);
           expect(state.docs).to.deep.equal([]);
           expect(state.count).to.equal(0);
@@ -300,15 +333,27 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.onQueryChanged(query);
+        store.onQueryChanged(query);
       });
     });
   });
 
   describe('#removeDocument', () => {
+    let store;
+    let actions;
+
     beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-      CRUDStore.state.ns = 'compass-crud.test';
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
+      });
     });
 
     context('when there is no error', () => {
@@ -316,13 +361,13 @@ describe('CRUDStore', () => {
       const hadronDoc = new HadronDocument(doc);
 
       beforeEach(() => {
-        CRUDStore.state.docs = [ hadronDoc ];
-        CRUDStore.state.count = 1;
-        CRUDStore.state.end = 1;
+        store.state.docs = [ hadronDoc ];
+        store.state.count = 1;
+        store.state.end = 1;
       });
 
       it('deletes the document from the collection', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.end).to.equal(0);
@@ -330,7 +375,7 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.removeDocument(hadronDoc);
+        store.removeDocument(hadronDoc);
       });
     });
 
@@ -339,13 +384,13 @@ describe('CRUDStore', () => {
       const hadronDoc = new HadronDocument(doc);
 
       beforeEach(() => {
-        CRUDStore.state.docs = [ hadronDoc ];
-        CRUDStore.state.count = 1;
-        CRUDStore.state.end = 1;
+        store.state.docs = [ hadronDoc ];
+        store.state.count = 1;
+        store.state.end = 1;
       });
 
       it('deletes the document from the collection', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.end).to.equal(0);
@@ -353,7 +398,7 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.removeDocument(hadronDoc);
+        store.removeDocument(hadronDoc);
       });
     });
 
@@ -376,15 +421,27 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.removeDocument(hadronDoc);
+        store.removeDocument(hadronDoc);
       });
     });
   });
 
   describe('#updateDocument', () => {
+    let store;
+    let actions;
+
     beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-      CRUDStore.state.ns = 'compass-crud.test';
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
+      });
     });
 
     context('when there is no error', () => {
@@ -392,17 +449,17 @@ describe('CRUDStore', () => {
       const hadronDoc = new HadronDocument(doc);
 
       beforeEach(() => {
-        CRUDStore.state.docs = [ hadronDoc ];
+        store.state.docs = [ hadronDoc ];
       });
 
       it('replaces the document in the list', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.docs[0]).to.not.equal(hadronDoc);
           unsubscribe();
           done();
         });
 
-        CRUDStore.updateDocument(hadronDoc);
+        store.updateDocument(hadronDoc);
       });
     });
 
@@ -425,15 +482,27 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.updateDocument(hadronDoc);
+        store.updateDocument(hadronDoc);
       });
     });
   });
 
   describe('#insertDocument', () => {
+    let store;
+    let actions;
+
     beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-      CRUDStore.state.ns = 'compass-crud.test';
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
+      });
     });
 
     context('when there is no error', () => {
@@ -445,7 +514,7 @@ describe('CRUDStore', () => {
         const doc = new HadronDocument({ name: 'testing' });
 
         it('inserts the document', (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
+          const unsubscribe = store.listen((state) => {
             expect(state.docs.length).to.equal(1);
             expect(state.count).to.equal(1);
             expect(state.end).to.equal(1);
@@ -456,7 +525,7 @@ describe('CRUDStore', () => {
             done();
           });
 
-          CRUDStore.insertDocument(doc);
+          store.insertDocument(doc);
         });
       });
 
@@ -464,12 +533,12 @@ describe('CRUDStore', () => {
         const doc = new HadronDocument({ name: 'testing' });
 
         beforeEach(() => {
-          CRUDStore.state.query.filter = { name: 'something' };
+          store.state.query.filter = { name: 'something' };
         });
 
 
         it('inserts the document but does not add to the list', (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
+          const unsubscribe = store.listen((state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(1);
             expect(state.insert.doc).to.equal(null);
@@ -479,7 +548,7 @@ describe('CRUDStore', () => {
             done();
           });
 
-          CRUDStore.insertDocument(doc);
+          store.insertDocument(doc);
         });
       });
     });
@@ -488,7 +557,7 @@ describe('CRUDStore', () => {
       const doc = new HadronDocument({ '$name': 'testing' });
 
       beforeEach(() => {
-        CRUDStore.state.insert.doc = doc;
+        store.state.insert.doc = doc;
       });
 
       afterEach((done) => {
@@ -496,7 +565,7 @@ describe('CRUDStore', () => {
       });
 
       it('does not insert the document', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.insert.doc).to.not.equal(null);
@@ -506,7 +575,7 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.insertDocument(doc);
+        store.insertDocument(doc);
       });
     });
   });
@@ -514,38 +583,50 @@ describe('CRUDStore', () => {
   describe('#openInsertDocumentDialog', () => {
     const doc = { _id: 1, name: 'test' };
 
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-    });
-
     context('when clone is true', () => {
       it('removes _id from the document', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.insert.doc.elements.at(0).key).to.equal('name');
           unsubscribe();
           done();
         });
 
-        CRUDStore.openInsertDocumentDialog(doc, true);
+        store.openInsertDocumentDialog(doc, true);
       });
     });
 
     context('when clone is false', () => {
       it('does not remove _id from the document', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.insert.doc.elements.at(0).key).to.equal('_id');
           unsubscribe();
           done();
         });
 
-        CRUDStore.openInsertDocumentDialog(doc, false);
+        store.openInsertDocumentDialog(doc, false);
       });
     });
   });
 
   describe('#emit query-changed', () => {
+    let store;
+    let actions;
+
+    beforeEach(() => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
+      });
+    });
+
     const query = {
-      ns: 'compass-crud.test',
       filter: { name: 'test' },
       sort: { name: 1 },
       collation: { locale: 'simple' },
@@ -554,12 +635,8 @@ describe('CRUDStore', () => {
       project: { name: 1 }
     };
 
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-    });
-
     it('tiggers with the reset documents', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
+      const unsubscribe = store.listen((state) => {
         expect(state.error).to.equal(null);
         expect(state.docs).to.deep.equal([]);
         expect(state.count).to.equal(0);
@@ -572,16 +649,29 @@ describe('CRUDStore', () => {
   });
 
   describe('#drillDown', () => {
+    let store;
+    let actions;
+
+    beforeEach(() => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
+      });
+    });
+
     const doc = { field4: 'value' };
     const element = new Element('field3', 'value');
     const editParams = { colId: 1, rowIndex: 0 };
 
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-    });
-
     it('sets the drill down state', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
+      const unsubscribe = store.listen((state) => {
         expect(state.table.doc).to.deep.equal(doc);
         expect(state.table.path).to.deep.equal([ 'field3' ]);
         expect(state.table.types).to.deep.equal([ 'String' ]);
@@ -590,49 +680,88 @@ describe('CRUDStore', () => {
         done();
       });
 
-      CRUDStore.drillDown(doc, element, editParams);
+      store.drillDown(doc, element, editParams);
     });
   });
 
   describe('#pathChanged', () => {
+    let store;
+    let actions;
+
+    beforeEach(() => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
+      });
+    });
+
     const path = ['field1', 'field2'];
     const types = ['Object', 'Array'];
 
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-    });
-
     it('sets the path and types state', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
+      const unsubscribe = store.listen((state) => {
         expect(state.table.path).to.deep.equal(path);
         expect(state.table.types).to.deep.equal(types);
         unsubscribe();
         done();
       });
 
-      CRUDStore.pathChanged(path, types);
+      store.pathChanged(path, types);
     });
   });
 
   describe('#viewChanged', () => {
+    let store;
+    let actions;
+
     beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
+      });
     });
 
     it('sets the view', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
+      const unsubscribe = store.listen((state) => {
         expect(state.view).to.equal('Table');
         unsubscribe();
         done();
       });
 
-      CRUDStore.viewChanged('Table');
+      store.viewChanged('Table');
     });
   });
 
   describe('#refreshDocuments', () => {
-    beforeEach((done) => {
-      CRUDStore.state = CRUDStore.getInitialState();
+    let store;
+    let actions;
+
+    beforeEach(() => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
+      });
       dataService.insertOne('compass-crud.test', { name: 'testing' }, {}, done);
     });
 
@@ -641,12 +770,8 @@ describe('CRUDStore', () => {
     });
 
     context('when there is no error', () => {
-      beforeEach(() => {
-        CRUDStore.state.ns = 'compass-crud.test';
-      });
-
       it('resets the documents to the first page', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.error).to.equal(null);
           expect(state.docs).to.have.length(1);
           expect(state.count).to.equal(1);
@@ -655,18 +780,17 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.refreshDocuments();
+        store.refreshDocuments();
       });
     });
 
     context('when there is an error', () => {
       beforeEach(() => {
-        CRUDStore.state.ns = 'compass-crud.test';
-        CRUDStore.state.query.filter = { '$iamnotanoperator': 1 };
+        store.state.query.filter = { '$iamnotanoperator': 1 };
       });
 
       it('resets the documents to the first page', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           expect(state.error).to.not.equal(null);
           expect(state.docs).to.have.length(0);
           expect(state.count).to.equal(null);
@@ -675,14 +799,13 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.refreshDocuments();
+        store.refreshDocuments();
       });
     });
   });
 
   describe('#getNextPage/#getPrevPage', () => {
     before((done) => {
-      CRUDStore.state.ns = 'compass-crud.test';
       dataService.insertMany('compass-crud.test', expectedDocs, {}, done);
     });
 
@@ -691,36 +814,28 @@ describe('CRUDStore', () => {
     });
 
     context('when there is no skip or limit', () => {
-      before(() => {
-        CRUDStore.state = CRUDStore.getInitialState();
-      });
-
-      beforeEach(() => {
-        CRUDStore.state.ns = 'compass-crud.test';
-      });
-
       /* Don't test getNextPage(0) because not possible */
       for (let i = 1; i < 3; i++) {
         it('gets the next page for ' + i, (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
+          const unsubscribe = store.listen((state) => {
             unsubscribe();
             checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, 0);
             expect(state.counter).to.equal(NUM_DOCS * i);
             done();
           });
-          CRUDStore.getNextPage(i);
+          store.getNextPage(i);
         });
       }
 
       for (let i = 1; i >= 0; i--) {
         it('gets the prev page for ' + i, (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
+          const unsubscribe = store.listen((state) => {
             unsubscribe();
             checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, 0);
             expect(state.counter).to.equal(NUM_DOCS * i);
             done();
           });
-          CRUDStore.getPrevPage(i);
+          store.getPrevPage(i);
         });
       }
     });
@@ -728,36 +843,32 @@ describe('CRUDStore', () => {
     context('when there is a skip', () => {
       const skip = 5;
 
-      before(() => {
-        CRUDStore.state = CRUDStore.getInitialState();
-      });
-
       beforeEach(() => {
-        CRUDStore.state.ns = 'compass-crud.test';
-        CRUDStore.state.query.skip = skip;
+        store.state.ns = 'compass-crud.test';
+        store.state.query.skip = skip;
       });
 
       for (let i = 1; i < 3; i++) {
         it('gets the next page for ' + i, (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
+          const unsubscribe = store.listen((state) => {
             unsubscribe();
             checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, 0);
             expect(state.counter).to.equal(NUM_DOCS * i);
             done();
           });
-          CRUDStore.getNextPage(i);
+          store.getNextPage(i);
         });
       }
 
       for (let i = 1; i >= 0; i--) {
         it('gets the prev page for ' + i, (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
+          const unsubscribe = store.listen((state) => {
             unsubscribe();
             checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, 0);
             expect(state.counter).to.equal(NUM_DOCS * i);
             done();
           });
-          CRUDStore.getPrevPage(i);
+          store.getPrevPage(i);
         });
       }
     });
@@ -765,36 +876,32 @@ describe('CRUDStore', () => {
     context('when there is a limit', () => {
       const limit = 50;
 
-      before(() => {
-        CRUDStore.state = CRUDStore.getInitialState();
-      });
-
       beforeEach(() => {
-        CRUDStore.state.ns = 'compass-crud.test';
-        CRUDStore.state.query.limit = limit;
+        store.state.ns = 'compass-crud.test';
+        store.state.query.limit = limit;
       });
 
       for (let i = 1; i < 3; i++) {
         it('gets the next page for ' + i, (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
+          const unsubscribe = store.listen((state) => {
             unsubscribe();
             checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, limit);
             expect(state.counter).to.equal(NUM_DOCS * i);
             done();
           });
-          CRUDStore.getNextPage(i);
+          store.getNextPage(i);
         });
       }
 
       for (let i = 1; i >= 0; i--) {
         it('gets the prev page for ' + i, (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
+          const unsubscribe = store.listen((state) => {
             unsubscribe();
             checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, limit);
             expect(state.counter).to.equal(NUM_DOCS * i);
             done();
           });
-          CRUDStore.getPrevPage(i);
+          store.getPrevPage(i);
         });
       }
     });
@@ -803,37 +910,33 @@ describe('CRUDStore', () => {
       const limit = 50;
       const skip = 2;
 
-      before(() => {
-        CRUDStore.state = CRUDStore.getInitialState();
-      });
-
       beforeEach(() => {
-        CRUDStore.state.ns = 'compass-crud.test';
-        CRUDStore.state.query.limit = limit;
-        CRUDStore.state.query.skip = skip;
+        store.state.ns = 'compass-crud.test';
+        store.state.query.limit = limit;
+        store.state.query.skip = skip;
       });
 
       for (let i = 1; i < 3; i++) {
         it('gets the next page for ' + i, (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
+          const unsubscribe = store.listen((state) => {
             unsubscribe();
             checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, limit);
             expect(state.counter).to.equal(NUM_DOCS * i);
             done();
           });
-          CRUDStore.getNextPage(i);
+          store.getNextPage(i);
         });
       }
 
       for (let i = 1; i >= 0; i--) {
         it('gets the prev page for ' + i, (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
+          const unsubscribe = store.listen((state) => {
             unsubscribe();
             checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, limit);
             expect(state.counter).to.equal(NUM_DOCS * i);
             done();
           });
-          CRUDStore.getPrevPage(i);
+          store.getPrevPage(i);
         });
       }
     });
@@ -842,64 +945,60 @@ describe('CRUDStore', () => {
       const limit = 55;
       const skip = 3;
 
-      before(() => {
-        CRUDStore.state = CRUDStore.getInitialState();
-      });
-
       beforeEach(() => {
-        CRUDStore.state.ns = 'compass-crud.test';
-        CRUDStore.state.query.limit = limit;
-        CRUDStore.state.query.skip = skip;
+        store.state.ns = 'compass-crud.test';
+        store.state.query.limit = limit;
+        store.state.query.skip = skip;
       });
 
       it('next to page 1', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           unsubscribe();
           checkPageRange(state.error, state.docs, state.start, state.end, state.page, 1, skip, limit);
           expect(state.counter).to.equal(NUM_DOCS);
           done();
         });
-        CRUDStore.getNextPage(1);
+        store.getNextPage(1);
       });
 
       it('prev to page 0', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           unsubscribe();
           checkPageRange(state.error, state.docs, state.start, state.end, state.page, 0, skip, limit);
           expect(state.counter).to.equal(0);
           done();
         });
-        CRUDStore.getPrevPage(0);
+        store.getPrevPage(0);
       });
 
       it('next to page 1', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           unsubscribe();
           checkPageRange(state.error, state.docs, state.start, state.end, state.page, 1, skip, limit);
           expect(state.counter).to.equal(NUM_DOCS);
           done();
         });
-        CRUDStore.getNextPage(1);
+        store.getNextPage(1);
       });
 
       it('next to page 2', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           unsubscribe();
           checkPageRange(state.error, state.docs, state.start, state.end, state.page, 2, skip, limit);
           expect(state.counter).to.equal(NUM_DOCS * 2);
           done();
         });
-        CRUDStore.getNextPage(2);
+        store.getNextPage(2);
       });
 
       it('prev to page 1', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
+        const unsubscribe = store.listen((state) => {
           unsubscribe();
           checkPageRange(state.error, state.docs, state.start, state.end, state.page, 1, skip, limit);
           expect(state.counter).to.equal(NUM_DOCS);
           done();
         });
-        CRUDStore.getPrevPage(1);
+        store.getPrevPage(1);
       });
     });
   });

@@ -6,6 +6,8 @@ import { AppContainer } from 'react-hot-loader';
 import { activate } from 'plugin';
 import ConnectedDocumentList from 'components/connected-document-list';
 import { activate as statusActivate } from '@mongodb-js/compass-status';
+import configureStore, { setDataProvider } from 'stores';
+import configureActions from 'actions';
 
 window.jQuery = require('jquery');
 
@@ -24,13 +26,9 @@ global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
 // Activate our plugin with the Hadron App Registry
-const CollectionStore = require('./stores/collection-store');
-const NamespaceStore = require('./stores/namespace-store');
 const QueryChangedStore = require('./stores/query-changed-store');
 const QueryBar = require('./components/query-bar');
 const TextWriteButton = require('./components/text-write-button');
-appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
-appRegistry.registerStore('App.CollectionStore', CollectionStore);
 appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
 appRegistry.registerComponent('Query.QueryBar', QueryBar);
 appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteButton);
@@ -46,6 +44,16 @@ root.style = 'height: 100vh';
 root.id = 'root';
 document.body.appendChild(root);
 
+const localAppRegistry = new AppRegistry();
+const actions = configureActions();
+const store = configureStore({
+  actions: actions,
+  localAppRegistry: localAppRegistry,
+  globalAppRegistry: appRegistry,
+  namespace: `${DB}.${COLL}`,
+  isReadonly: false
+});
+
 // Create a HMR enabled render function
 const render = Component => {
   // if needing to debug the Status Plugin within this component, uncomment
@@ -54,7 +62,7 @@ const render = Component => {
 
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <Component store={store} actions={actions} />
     </AppContainer>,
     document.getElementById('root')
   );
@@ -84,16 +92,10 @@ const dataService = new DataService(connection);
 appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
-  if (!error) appRegistry.getAction('Status.Actions').done();
+  if (!error) appRegistry.emit('compass:status:done');
 
-  appRegistry.emit('data-service-connected', error, ds);
-
-  // Set the namespace for the CRUD plugin.
-  CollectionStore.setCollection({ _id: `${DB}.${COLL}` });
-  appRegistry.emit('collection-changed', `${DB}.${COLL}`);
-  QueryChangedStore.onQueryStoreChanged({ ns: `${DB}.${COLL}` });
-  appRegistry.emit('query-changed', { ns: `${DB}.${COLL}` });
-
+  setDataProvider(store, error, ds);
+  localAppRegistry.emit('query-changed', { ns: `${DB}.${COLL}` });
 
   // global.hadronApp.appRegistry.emit('instance-refreshed', { instance: {
   //   dataLake: {
