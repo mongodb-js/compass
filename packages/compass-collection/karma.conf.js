@@ -23,6 +23,6 @@ module.exports = function(config) {
     client: {
       useIframe: false
     },
-    logLevel: config.LOG_ERROR
+    logLevel: config.LOG_DEBUG
   });
 };

@@ -1,3 +1,4 @@
+import AppRegistry from 'hadron-app-registry';
 import reducer, {
   selectNamespace,
   createTab,
@@ -16,22 +17,36 @@ import reducer, {
 } from 'modules/tabs';
 
 describe('tabs module', () => {
+  const localAppRegistry = new AppRegistry();
+
   describe('#selectNamespace', () => {
     it('returns the SELECT_NAMESPACE action', () => {
-      expect(selectNamespace('db.coll', true)).to.deep.equal({
+      expect(selectNamespace('db.coll', true, 'db.test')).to.deep.equal({
         type: SELECT_NAMESPACE,
         namespace: 'db.coll',
-        isReadonly: true
+        isReadonly: true,
+        sourceName: 'db.test'
       });
     });
   });
 
   describe('#createTab', () => {
     it('returns the CREATE_TAB action', () => {
-      expect(createTab('db.coll', true)).to.deep.equal({
+      expect(
+        createTab('id', 'db.coll', true, [], [], [], null, null, [], localAppRegistry, 'db.test')
+      ).to.deep.equal({
+        id: 'id',
         type: CREATE_TAB,
         namespace: 'db.coll',
-        isReadonly: true
+        isReadonly: true,
+        scopedModals: [],
+        sourceName: 'db.test',
+        statsPlugin: null,
+        statsStore: null,
+        tabs: [],
+        views: [],
+        queryHistoryIndexes: [],
+        localAppRegistry: localAppRegistry
       });
     });
   });
