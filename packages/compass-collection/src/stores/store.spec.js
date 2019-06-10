@@ -2,7 +2,7 @@ import AppRegistry from 'hadron-app-registry';
 import store from 'stores';
 import { reset } from 'modules';
 
-describe('Aggregation Store', () => {
+describe('Collection Store', () => {
   before(() => {
     store.dispatch(reset());
   });
