@@ -2,8 +2,7 @@ import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
-import { expectedDocs, checkPageRange, NUM_DOCS } from '../../test/aggrid-helper';
-import configureStore, { setDataProvider } from 'stores/crud-store';
+import configureStore from 'stores/crud-store';
 import configureActions from 'actions';
 
 const CONNECTION = new Connection({
@@ -14,16 +13,12 @@ const CONNECTION = new Connection({
 });
 
 describe('store', () => {
-  let dataProvider;
   const dataService = new DataService(CONNECTION);
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
 
   before((done) => {
-    dataService.connect((err, ds) => {
-      if (!err) {
-        dataProvider = ds;
-      }
+    dataService.connect(() => {
       done();
     });
   });
@@ -173,9 +168,6 @@ describe('store', () => {
     });
 
     context('when the collection is readonly', () => {
-      let store;
-      let actions;
-
       beforeEach(() => {
         actions = configureActions();
         store = configureStore({
@@ -212,9 +204,6 @@ describe('store', () => {
     });
 
     context('when running in a readonly context', () => {
-      let store;
-      let actions;
-
       beforeEach(() => {
         process.env.HADRON_READONLY = 'true';
         actions = configureActions();
@@ -270,7 +259,7 @@ describe('store', () => {
             dataProvider: dataService
           },
           actions: actions,
-          ns: 'compass-crud.test'
+          namespace: 'compass-crud.test'
         });
       });
 
@@ -582,6 +571,22 @@ describe('store', () => {
 
   describe('#openInsertDocumentDialog', () => {
     const doc = { _id: 1, name: 'test' };
+    let store;
+    let actions;
+
+    beforeEach(() => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
+      });
+    });
 
     context('when clone is true', () => {
       it('removes _id from the document', (done) => {
@@ -605,46 +610,6 @@ describe('store', () => {
 
         store.openInsertDocumentDialog(doc, false);
       });
-    });
-  });
-
-  describe('#emit query-changed', () => {
-    let store;
-    let actions;
-
-    beforeEach(() => {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: null,
-          dataProvider: dataService
-        },
-        actions: actions,
-        namespace: 'compass-crud.test'
-      });
-    });
-
-    const query = {
-      filter: { name: 'test' },
-      sort: { name: 1 },
-      collation: { locale: 'simple' },
-      limit: 10,
-      skip: 5,
-      project: { name: 1 }
-    };
-
-    it('tiggers with the reset documents', (done) => {
-      const unsubscribe = store.listen((state) => {
-        expect(state.error).to.equal(null);
-        expect(state.docs).to.deep.equal([]);
-        expect(state.count).to.equal(0);
-        unsubscribe();
-        done();
-      });
-
-      global.hadronApp.appRegistry.emit('query-changed', query);
     });
   });
 
@@ -750,7 +715,7 @@ describe('store', () => {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach((done) => {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -800,205 +765,6 @@ describe('store', () => {
         });
 
         store.refreshDocuments();
-      });
-    });
-  });
-
-  describe('#getNextPage/#getPrevPage', () => {
-    before((done) => {
-      dataService.insertMany('compass-crud.test', expectedDocs, {}, done);
-    });
-
-    after((done) => {
-      dataService.deleteMany('compass-crud.test', {}, {}, done);
-    });
-
-    context('when there is no skip or limit', () => {
-      /* Don't test getNextPage(0) because not possible */
-      for (let i = 1; i < 3; i++) {
-        it('gets the next page for ' + i, (done) => {
-          const unsubscribe = store.listen((state) => {
-            unsubscribe();
-            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, 0);
-            expect(state.counter).to.equal(NUM_DOCS * i);
-            done();
-          });
-          store.getNextPage(i);
-        });
-      }
-
-      for (let i = 1; i >= 0; i--) {
-        it('gets the prev page for ' + i, (done) => {
-          const unsubscribe = store.listen((state) => {
-            unsubscribe();
-            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, 0);
-            expect(state.counter).to.equal(NUM_DOCS * i);
-            done();
-          });
-          store.getPrevPage(i);
-        });
-      }
-    });
-
-    context('when there is a skip', () => {
-      const skip = 5;
-
-      beforeEach(() => {
-        store.state.ns = 'compass-crud.test';
-        store.state.query.skip = skip;
-      });
-
-      for (let i = 1; i < 3; i++) {
-        it('gets the next page for ' + i, (done) => {
-          const unsubscribe = store.listen((state) => {
-            unsubscribe();
-            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, 0);
-            expect(state.counter).to.equal(NUM_DOCS * i);
-            done();
-          });
-          store.getNextPage(i);
-        });
-      }
-
-      for (let i = 1; i >= 0; i--) {
-        it('gets the prev page for ' + i, (done) => {
-          const unsubscribe = store.listen((state) => {
-            unsubscribe();
-            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, 0);
-            expect(state.counter).to.equal(NUM_DOCS * i);
-            done();
-          });
-          store.getPrevPage(i);
-        });
-      }
-    });
-
-    context('when there is a limit', () => {
-      const limit = 50;
-
-      beforeEach(() => {
-        store.state.ns = 'compass-crud.test';
-        store.state.query.limit = limit;
-      });
-
-      for (let i = 1; i < 3; i++) {
-        it('gets the next page for ' + i, (done) => {
-          const unsubscribe = store.listen((state) => {
-            unsubscribe();
-            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, limit);
-            expect(state.counter).to.equal(NUM_DOCS * i);
-            done();
-          });
-          store.getNextPage(i);
-        });
-      }
-
-      for (let i = 1; i >= 0; i--) {
-        it('gets the prev page for ' + i, (done) => {
-          const unsubscribe = store.listen((state) => {
-            unsubscribe();
-            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, limit);
-            expect(state.counter).to.equal(NUM_DOCS * i);
-            done();
-          });
-          store.getPrevPage(i);
-        });
-      }
-    });
-
-    context('when there is a skip and limit', () => {
-      const limit = 50;
-      const skip = 2;
-
-      beforeEach(() => {
-        store.state.ns = 'compass-crud.test';
-        store.state.query.limit = limit;
-        store.state.query.skip = skip;
-      });
-
-      for (let i = 1; i < 3; i++) {
-        it('gets the next page for ' + i, (done) => {
-          const unsubscribe = store.listen((state) => {
-            unsubscribe();
-            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, limit);
-            expect(state.counter).to.equal(NUM_DOCS * i);
-            done();
-          });
-          store.getNextPage(i);
-        });
-      }
-
-      for (let i = 1; i >= 0; i--) {
-        it('gets the prev page for ' + i, (done) => {
-          const unsubscribe = store.listen((state) => {
-            unsubscribe();
-            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, limit);
-            expect(state.counter).to.equal(NUM_DOCS * i);
-            done();
-          });
-          store.getPrevPage(i);
-        });
-      }
-    });
-
-    context('when skipping around pages', () => {
-      const limit = 55;
-      const skip = 3;
-
-      beforeEach(() => {
-        store.state.ns = 'compass-crud.test';
-        store.state.query.limit = limit;
-        store.state.query.skip = skip;
-      });
-
-      it('next to page 1', (done) => {
-        const unsubscribe = store.listen((state) => {
-          unsubscribe();
-          checkPageRange(state.error, state.docs, state.start, state.end, state.page, 1, skip, limit);
-          expect(state.counter).to.equal(NUM_DOCS);
-          done();
-        });
-        store.getNextPage(1);
-      });
-
-      it('prev to page 0', (done) => {
-        const unsubscribe = store.listen((state) => {
-          unsubscribe();
-          checkPageRange(state.error, state.docs, state.start, state.end, state.page, 0, skip, limit);
-          expect(state.counter).to.equal(0);
-          done();
-        });
-        store.getPrevPage(0);
-      });
-
-      it('next to page 1', (done) => {
-        const unsubscribe = store.listen((state) => {
-          unsubscribe();
-          checkPageRange(state.error, state.docs, state.start, state.end, state.page, 1, skip, limit);
-          expect(state.counter).to.equal(NUM_DOCS);
-          done();
-        });
-        store.getNextPage(1);
-      });
-
-      it('next to page 2', (done) => {
-        const unsubscribe = store.listen((state) => {
-          unsubscribe();
-          checkPageRange(state.error, state.docs, state.start, state.end, state.page, 2, skip, limit);
-          expect(state.counter).to.equal(NUM_DOCS * 2);
-          done();
-        });
-        store.getNextPage(2);
-      });
-
-      it('prev to page 1', (done) => {
-        const unsubscribe = store.listen((state) => {
-          unsubscribe();
-          checkPageRange(state.error, state.docs, state.start, state.end, state.page, 1, skip, limit);
-          expect(state.counter).to.equal(NUM_DOCS);
-          done();
-        });
-        store.getPrevPage(1);
       });
     });
   });

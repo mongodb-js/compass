@@ -583,7 +583,6 @@ const configureStore = (options = {}) => {
       }
 
       this.globalAppRegistry.emit('compass:status:show-progress-bar');
-
       this.dataService.count(this.state.ns, query.filter, countOptions, (err, count) => {
         this.dataService.find(this.state.ns, query.filter, findOptions, (error, documents) => {
           const length = documents ? documents.length : 0;

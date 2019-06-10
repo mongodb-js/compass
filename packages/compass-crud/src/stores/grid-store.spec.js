@@ -1,4 +1,4 @@
-/* eslint guard-for-in: 0 */
+/* eslint guard-for-in: 0 no-loop-func: 0 */
 import configureStore from 'stores/grid-store';
 import configureActions from 'actions';
 import { assert } from 'chai';
@@ -31,6 +31,7 @@ describe('store', () => {
       describe('editOnly=true', () => {
         before((done) => {
           store = configureStore({ actions: actions });
+          store.resetColumns(arrayCols);
           expect(store.columns).to.deep.equal(arrayCols);
           expect(store.showing).to.deep.equal(arrayShowing);
           done();
@@ -65,6 +66,7 @@ describe('store', () => {
       describe('editOnly=false', () => {
         before((done) => {
           store = configureStore({ actions: actions });
+          store.resetColumns(arrayCols);
           expect(store.columns).to.deep.equal(arrayCols);
           expect(store.showing).to.deep.equal(arrayShowing);
           done();
@@ -109,6 +111,7 @@ describe('store', () => {
           describe('mark removed is same element as added', () => {
             before((done) => {
               store = configureStore({ actions: actions });
+              store.resetColumns(arrayCols);
               store.elementMarkRemoved(1, 'id1');
               expect(store.columns).to.deep.equal({
                 0: {id1: 'String', id2: 'Int64'},
@@ -165,6 +168,7 @@ describe('store', () => {
           describe('mark removed is before added', () => {
             before((done) => {
               store = configureStore({ actions: actions });
+              store.resetColumns(arrayCols);
               store.elementMarkRemoved(0, 'id1');
               expect(store.columns).to.deep.equal({
                 0: {id2: 'Int64'},
@@ -222,6 +226,7 @@ describe('store', () => {
           describe('mark removed is after added', () => {
             before((done) => {
               store = configureStore({ actions: actions });
+              store.resetColumns(arrayCols);
               store.elementMarkRemoved(2, 'id1');
               expect(store.columns).to.deep.equal({
                 0: {id1: 'String', id2: 'Int64'},
@@ -419,6 +424,7 @@ describe('store', () => {
     describe('isArray=false', () => {
       before((done) => {
         store = configureStore({ actions: actions });
+        store.resetColumns(columns);
         done();
       });
       describe('Removing from a column that already exists with the same type', () => {
@@ -498,6 +504,7 @@ describe('store', () => {
         describe('last column is now empty', () => {
           before((done) => {
             store = configureStore({ actions: actions });
+            store.resetColumns(arrayCols);
             expect(store.columns).to.deep.equal(arrayCols);
             expect(store.showing).to.deep.equal(arrayShowing);
             done();
@@ -532,6 +539,7 @@ describe('store', () => {
         describe('last column is not empty', () => {
           before((done) => {
             store = configureStore({ actions: actions });
+            store.resetColumns(arrayCols);
             expect(store.columns).to.deep.equal(arrayCols);
             expect(store.showing).to.deep.equal(arrayShowing);
             done();
@@ -568,6 +576,7 @@ describe('store', () => {
         describe('last column is now empty', () => {
           before((done) => {
             store = configureStore({ actions: actions });
+            store.resetColumns(arrayCols);
             expect(store.columns).to.deep.equal(arrayCols);
             expect(store.showing).to.deep.equal(arrayShowing);
             done();
@@ -601,6 +610,7 @@ describe('store', () => {
         describe('last column is not empty', () => {
           before((done) => {
             store = configureStore({ actions: actions });
+            store.resetColumns(arrayCols);
             expect(store.columns).to.deep.equal(arrayCols);
             expect(store.showing).to.deep.equal(arrayShowing);
             done();
@@ -638,6 +648,7 @@ describe('store', () => {
       describe('element being removed was staged', () => {
         before((done) => {
           store = configureStore({ actions: actions });
+          store.resetColumns(arrayCols);
           store.elementMarkRemoved(1, 'id1');
           expect(store.columns).to.deep.equal({
             0: {id1: 'String', id2: 'Int64'},
@@ -688,6 +699,7 @@ describe('store', () => {
         describe('element marked as removed is after element removed', () => {
           before((done) => {
             store = configureStore({ actions: actions });
+            store.resetColumns(arrayCols);
             store.elementMarkRemoved(2, 'id1');
             expect(store.columns).to.deep.equal({
               0: {id1: 'String', id2: 'Int64'},
@@ -742,6 +754,7 @@ describe('store', () => {
   describe('#elementTypeChanged', () => {
     before((done) => {
       store = configureStore({ actions: actions });
+      store.resetColumns({field1: {3: 'Object'}});
       done();
     });
     describe('Changing the type of the last item', () => {
@@ -778,6 +791,7 @@ describe('store', () => {
     describe('Changing the type to Mixed', () => {
       before((done) => {
         store = configureStore({ actions: actions });
+        store.resetColumns({field1: {3: 'Date', 2: 'Date'}});
         done();
       });
       it('triggers correctly', (done) => {
@@ -816,6 +830,7 @@ describe('store', () => {
   describe('#elementMarkRemoved', () => {
     before((done) => {
       store = configureStore({ actions: actions });
+      store.resetColumns(columns);
       showing.field1 = 'Object';
       showing.field5 = 'Mixed';
       expect(store.columns).to.deep.equal(columns);
