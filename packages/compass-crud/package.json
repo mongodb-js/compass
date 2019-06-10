@@ -30,12 +30,14 @@
   ],
   "dependency-check": {
     "ignore": [
-      "@mongodb-js/compass-status"
+      "@mongodb-js/compass-status",
+      "@mongodb-js/compass-query-bar"
     ]
   },
   "license": "Apache-2.0",
   "peerDependencies": {
     "@mongodb-js/compass-status": "^3.5.0",
+    "@mongodb-js/compass-query-bar": "^4.0.2",
     "hadron-react-bson": "^3.1.2",
     "hadron-react-components": "^3.2.1",
     "prop-types": "^15.5.8",
@@ -46,6 +48,7 @@
   },
   "devDependencies": {
     "@mongodb-js/compass-status": "^3.5.0",
+    "@mongodb-js/compass-query-bar": "^4.0.2",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
@@ -105,6 +108,9 @@
     "less-loader": "^4.0.5",
     "mocha": "^4.1.0",
     "mocha-webpack": "^2.0.0-beta.0",
+    "mongodb-ace-autocompleter": "^0.1.0",
+    "mongodb-ace-mode": "^0.3.0",
+    "mongodb-ace-theme-query": "0.0.2",
     "mongodb-connection-model": "^13.1.5",
     "mongodb-data-service": "^14.0.3",
     "mongodb-js-fmt": "^0.0.3",
@@ -122,6 +128,7 @@
     "pre-commit": "^1.1.3",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
+    "react-ace": "^6.4.0",
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.8.0",
     "react-fontawesome": "^1.6.1",

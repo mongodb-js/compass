@@ -6,6 +6,7 @@ import { AppContainer } from 'react-hot-loader';
 import { activate } from 'plugin';
 import ConnectedDocumentList from 'components/connected-document-list';
 import { activate as statusActivate } from '@mongodb-js/compass-status';
+import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
 import configureStore, { setDataProvider } from 'stores';
 import configureActions from 'actions';
 
@@ -27,10 +28,8 @@ global.hadronApp.appRegistry = appRegistry;
 
 // Activate our plugin with the Hadron App Registry
 const QueryChangedStore = require('./stores/query-changed-store');
-const QueryBar = require('./components/query-bar');
 const TextWriteButton = require('./components/text-write-button');
 appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
-appRegistry.registerComponent('Query.QueryBar', QueryBar);
 appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteButton);
 
 statusActivate(appRegistry);
@@ -45,6 +44,18 @@ root.id = 'root';
 document.body.appendChild(root);
 
 const localAppRegistry = new AppRegistry();
+activateQueryBar(localAppRegistry);
+
+const queryBarRole = localAppRegistry.getRole('Query.QueryBar')[0];
+const queryBarActions = queryBarRole.configureActions();
+const queryBarStore = queryBarRole.configureStore({
+  localAppRegistry: localAppRegistry,
+  serverVersion: '4.2.0',
+  actions: queryBarActions
+});
+localAppRegistry.registerStore(queryBarRole.storeName, queryBarStore);
+localAppRegistry.registerAction(queryBarRole.actionName, queryBarActions);
+
 const actions = configureActions();
 const store = configureStore({
   actions: actions,

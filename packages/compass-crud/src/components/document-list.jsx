@@ -14,6 +14,17 @@ import './ag-grid-dist.css';
  * Component for the entire document list.
  */
 class DocumentList extends React.Component {
+  constructor(props) {
+    super(props);
+    if (props.isExportable) {
+      const appRegistry = props.store.localAppRegistry;
+      this.queryBarRole = appRegistry.getRole('Query.QueryBar')[0];
+      this.queryBar = this.queryBarRole.component;
+      this.queryBarStore = appRegistry.getStore(this.queryBarRole.storeName);
+      this.queryBarActions = appRegistry.getAction(this.queryBarRole.actionName);
+    }
+  }
+
   /**
    * Handle opening of the insert dialog.
    */
@@ -80,8 +91,12 @@ class DocumentList extends React.Component {
    */
   renderQueryBar() {
     if (this.props.isExportable) {
-      const QueryBar = global.hadronApp.appRegistry.getComponent('Query.QueryBar');
-      return (<QueryBar buttonLabel="Find" />);
+      return (
+        <this.queryBar
+          store={this.queryBarStore}
+          actions={this.queryBarActions}
+          buttonLabel="Find" />
+      );
     }
   }
 
@@ -118,6 +133,7 @@ DocumentList.propTypes = {
   insertDocument: PropTypes.func,
   isEditable: PropTypes.bool.isRequired,
   isExportable: PropTypes.bool.isRequired,
+  store: PropTypes.object.isRequired,
   openInsertDocumentDialog: PropTypes.func,
   view: PropTypes.string.isRequired,
   version: PropTypes.string.isRequired,
