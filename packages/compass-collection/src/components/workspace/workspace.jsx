@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
@@ -41,7 +41,7 @@ const KEY_OPEN_BRKT = 219;
 /**
  * The collection workspace contains tabs of multiple collections.
  */
-class Workspace extends PureComponent {
+class Workspace extends Component {
   static displayName = 'Workspace';
 
   static propTypes = {
@@ -137,6 +137,7 @@ class Workspace extends PureComponent {
    * @returns {Component} The component.
    */
   renderTabs() {
+    console.log('renderTabs', this.props.tabs);
     return this.props.tabs.map((tab, i) => {
       return (
         <CollectionTab
