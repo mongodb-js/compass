@@ -137,7 +137,6 @@ class Workspace extends Component {
    * @returns {Component} The component.
    */
   renderTabs() {
-    console.log('renderTabs', this.props.tabs);
     return this.props.tabs.map((tab, i) => {
       return (
         <CollectionTab

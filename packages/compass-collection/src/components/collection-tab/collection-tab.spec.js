@@ -6,7 +6,6 @@ import CollectionTab from 'components/collection-tab';
 import styles from './collection-tab.less';
 
 describe('CollectionTab [Component]', () => {
-  const connect = (c) => { return c; };
   const localAppRegistry = new AppRegistry();
 
   context('when the tab is active', () => {
@@ -20,15 +19,13 @@ describe('CollectionTab [Component]', () => {
       selectTabSpy = sinon.spy();
       moveTabSpy = sinon.spy();
       component = mount(
-        <CollectionTab.DecoratedComponent
+        <CollectionTab
           namespace="db.coll"
           subTab="Documents"
           isActive
           isReadonly={false}
           index={1}
           localAppRegistry={localAppRegistry}
-          connectDropTarget={connect}
-          connectDragSource={connect}
           closeTab={closeTabSpy}
           moveTab={moveTabSpy}
           selectTab={selectTabSpy} />
@@ -77,11 +74,9 @@ describe('CollectionTab [Component]', () => {
       selectTabSpy = sinon.spy();
       moveTabSpy = sinon.spy();
       component = mount(
-        <CollectionTab.DecoratedComponent
+        <CollectionTab
           namespace="db.coll"
           subTab="Documents"
-          connectDropTarget={connect}
-          connectDragSource={connect}
           isActive={false}
           isReadonly={false}
           index={1}
@@ -138,15 +133,13 @@ describe('CollectionTab [Component]', () => {
       selectTabSpy = sinon.spy();
       moveTabSpy = sinon.spy();
       component = mount(
-        <CollectionTab.DecoratedComponent
+        <CollectionTab
           namespace="db.coll"
           subTab="Documents"
           isActive
           index={1}
           isReadonly
           localAppRegistry={localAppRegistry}
-          connectDropTarget={connect}
-          connectDragSource={connect}
           closeTab={closeTabSpy}
           moveTab={moveTabSpy}
           selectTab={selectTabSpy} />
