@@ -18,3 +18,5 @@ test/
 coverage/
 lib/index.html
 lib/index.js.map
+xvfb.init
+azure-pipelines.yml
