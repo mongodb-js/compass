@@ -112,6 +112,7 @@ export const dropDatabase = () => {
         if (e) {
           return stopWithError(dispatch, e);
         }
+        global.hadronApp.appRegistry.emit('database-dropped', dbName);
         global.hadronApp.appRegistry.emit('refresh-data');
         dispatch(reset());
       });
