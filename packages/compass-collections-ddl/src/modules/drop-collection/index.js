@@ -117,10 +117,12 @@ export const dropCollection = () => {
 
     try {
       dispatch(toggleIsRunning(true));
-      ds.dropCollection(`${dbName}.${collectionName}`, (e) => {
+      const namespace = `${dbName}.${collectionName}`;
+      ds.dropCollection(namespace, (e) => {
         if (e) {
           return stopWithError(dispatch, e);
         }
+        global.hadronApp.appRegistry.emit('collection-dropped', namespace);
         global.hadronApp.appRegistry.emit('refresh-data');
         dispatch(reset());
       });
