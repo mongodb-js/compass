@@ -79,7 +79,7 @@ class DuplicateViewModal extends PureComponent {
               autoFocus
               id="create-view-name"
               name="Enter a View Name"
-              value={this.props.name}
+              value={this.props.name || ''}
               onChangeHandler={this.onNameChange}
             />
             {this.props.error ? (
