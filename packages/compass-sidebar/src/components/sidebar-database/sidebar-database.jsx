@@ -67,6 +67,7 @@ class SidebarDatabase extends PureComponent {
     if (this.NamespaceStore.ns !== db) {
       this.CollectionStore.setCollection({});
       this.NamespaceStore.ns = db;
+      global.hadronApp.appRegistry.emit('database-selected', db);
       const ipc = require('hadron-ipc');
       ipc.call('window:hide-collection-submenu');
     }
