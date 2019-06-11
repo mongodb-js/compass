@@ -6,18 +6,18 @@ import styles from './create-tab.less';
 
 describe('CreateTab [Component]', () => {
   let component;
-  let createTabSpy;
+  let createNewTabSpy;
 
   beforeEach(() => {
-    createTabSpy = sinon.spy();
+    createNewTabSpy = sinon.spy();
 
     component = mount(
-      <CreateTab activeNamespace="db.coll" createTab={createTabSpy} />
+      <CreateTab activeNamespace="db.coll" createTab={createNewTabSpy} />
     );
   });
 
   afterEach(() => {
-    createTabSpy = null;
+    createNewTabSpy = null;
     component = null;
   });
 
@@ -28,7 +28,7 @@ describe('CreateTab [Component]', () => {
   context('when clicking the create button', () => {
     it('calls the action', () => {
       component.find(`.${styles['create-tab']}`).simulate('click');
-      expect(createTabSpy.calledWith('db.coll')).to.equal(true);
+      expect(createNewTabSpy.calledWith('db.coll')).to.equal(true);
     });
   });
 });

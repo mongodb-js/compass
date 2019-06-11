@@ -22,7 +22,7 @@ describe('Workspace [Component]', () => {
         selectTab={() => {}}
         prevTab={prevTabSpy}
         nextTab={nextTabSpy}
-        createTab={() => {}} />
+        createNewTab={() => {}} />
     );
   });
 

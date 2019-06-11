@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { WithDragDropContext } from 'hadron-react-components';
 import {
-  preCreateTab,
+  createNewTab,
   closeTab,
   prevTab,
   nextTab,
@@ -47,7 +47,7 @@ class Workspace extends PureComponent {
   static propTypes = {
     tabs: PropTypes.array.isRequired,
     closeTab: PropTypes.func.isRequired,
-    preCreateTab: PropTypes.func.isRequired,
+    createNewTab: PropTypes.func.isRequired,
     prevTab: PropTypes.func.isRequired,
     nextTab: PropTypes.func.isRequired,
     moveTab: PropTypes.func.isRequired,
@@ -101,10 +101,14 @@ class Workspace extends PureComponent {
             evt.preventDefault();
           }
         } else if (evt.keyCode === KEY_T) {
-          this.props.preCreateTab(this.activeNamespace());
+          this.props.createNewTab(this.activeNamespace());
         }
       }
     }
+  }
+
+  activeTab() {
+    return this.props.tabs.find(tab => tab.isActive);
   }
 
   /**
@@ -113,8 +117,18 @@ class Workspace extends PureComponent {
    * @returns {String} The active namespace in the list.
    */
   activeNamespace() {
-    const activeTab = this.props.tabs.find(tab => tab.isActive);
+    const activeTab = this.activeTab();
     return activeTab ? activeTab.namespace : '';
+  }
+
+  activeIsReadonly() {
+    const activeTab = this.activeTab();
+    return activeTab ? activeTab.isReadonly : false;
+  }
+
+  activeSourceName() {
+    const activeTab = this.activeTab();
+    return activeTab ? activeTab.sourceName : undefined;
   }
 
   /**
@@ -183,8 +197,10 @@ class Workspace extends PureComponent {
           <div className={classnames(styles['workspace-tabs-container'])}>
             {this.renderTabs()}
             <CreateTab
-              createTab={this.props.preCreateTab}
-              activeNamespace={this.activeNamespace()}/>
+              createNewTab={this.props.createNewTab}
+              activeNamespace={this.activeNamespace()}
+              activeIsReadonly={this.activeIsReadonly()}
+              activeSourceName={this.activeSourceName()} />
           </div>
           <div onClick={this.props.nextTab} className={classnames(styles['workspace-tabs-next'])}>
             <i className="fa fa-chevron-right" aria-hidden/>
@@ -216,7 +232,7 @@ const mapStateToProps = state => ({
 const MappedWorkspace = connect(
   mapStateToProps,
   {
-    preCreateTab,
+    createNewTab,
     closeTab,
     prevTab,
     nextTab,

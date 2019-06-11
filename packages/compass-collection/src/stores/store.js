@@ -5,7 +5,7 @@ import reducer from 'modules';
 import { appRegistryActivated } from 'modules/app-registry';
 import { dataServiceConnected } from 'modules/data-service';
 import { serverVersionChanged } from 'modules/server-version';
-import { preSelectNamespace, preCreateTab } from 'modules/tabs';
+import { selectOrCreateTab, createNewTab } from 'modules/tabs';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -24,7 +24,7 @@ store.onActivated = (appRegistry) => {
     if (ns) {
       const namespace = toNS(ns);
       if (namespace.collection) {
-        store.dispatch(preCreateTab(ns, isReadonly, sourceName));
+        store.dispatch(createNewTab(ns, isReadonly, sourceName));
       }
     }
   });
@@ -38,7 +38,7 @@ store.onActivated = (appRegistry) => {
     if (ns) {
       const namespace = toNS(ns);
       if (namespace.collection) {
-        store.dispatch(preSelectNamespace(ns, isReadonly, sourceName));
+        store.dispatch(selectOrCreateTab(ns, isReadonly, sourceName));
       }
     }
   });
