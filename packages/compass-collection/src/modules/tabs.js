@@ -1,5 +1,6 @@
 import { ObjectId } from 'bson';
 import createContext from 'modules/context';
+import toNS from 'mongodb-ns';
 
 /**
  * The prefix.
@@ -50,6 +51,8 @@ export const CHANGE_ACTIVE_SUB_TAB = `${PREFIX}/tabs/CHANGE_ACTIVE_SUBTAB`;
  * Clear tabs
  */
 export const CLEAR_TABS = `${PREFIX}/tabs/CLEAR`;
+export const COLLECTION_DROPPED = `${PREFIX}/tabs/COLLECTION_DROPPED`;
+export const DATABASE_DROPPED = `${PREFIX}/tabs/DATABASE_DROPPED`;
 
 /**
  * The initial state.
@@ -159,6 +162,31 @@ const doCloseTab = (state, action) => {
   }, []);
 };
 
+const doCollectionDropped = (state, action) => {
+  const tabs = state.filter((tab) => {
+    return tab.namespace !== action.namespace;
+  });
+  if (tabs.length > 0) {
+    if (tabs.findIndex(tab => tab.isActive) < 0) {
+      tabs[0].isActive = true;
+    }
+  }
+  return tabs;
+};
+
+const doDatabaseDropped = (state, action) => {
+  const tabs = state.filter((tab) => {
+    const tabDbName = toNS(tab.namespace).database;
+    return tabDbName !== action.name;
+  });
+  if (tabs.length > 0) {
+    if (tabs.findIndex(tab => tab.isActive) < 0) {
+      tabs[0].isActive = true;
+    }
+  }
+  return tabs;
+};
+
 /**
  * Handle move tab actions.
  *
@@ -242,7 +270,9 @@ const MAPPINGS = {
   [PREV_TAB]: doPrevTab,
   [SELECT_TAB]: doSelectTab,
   [CHANGE_ACTIVE_SUB_TAB]: doChangeActiveSubTab,
-  [CLEAR_TABS]: doClearTabs
+  [CLEAR_TABS]: doClearTabs,
+  [COLLECTION_DROPPED]: doCollectionDropped,
+  [DATABASE_DROPPED]: doDatabaseDropped
 };
 
 /**
@@ -359,6 +389,16 @@ export const selectTab = (index) => ({
  */
 export const clearTabs = () => ({
   type: CLEAR_TABS
+});
+
+export const collectionDropped = (namespace) => ({
+  type: COLLECTION_DROPPED,
+  namespace: namespace
+});
+
+export const databaseDropped = (name) => ({
+  type: DATABASE_DROPPED,
+  name: name
 });
 
 /**

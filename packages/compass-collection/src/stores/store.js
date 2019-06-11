@@ -5,7 +5,13 @@ import reducer from 'modules';
 import { appRegistryActivated } from 'modules/app-registry';
 import { dataServiceConnected } from 'modules/data-service';
 import { serverVersionChanged } from 'modules/server-version';
-import { selectOrCreateTab, createNewTab, clearTabs } from 'modules/tabs';
+import {
+  selectOrCreateTab,
+  createNewTab,
+  clearTabs,
+  collectionDropped,
+  databaseDropped
+} from 'modules/tabs';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -55,7 +61,17 @@ store.onActivated = (appRegistry) => {
    *
    * @param {String} namespace - The namespace.
    */
-  appRegistry.on('collection-dropped', () => {
+  appRegistry.on('collection-dropped', (namespace) => {
+    store.dispatch(collectionDropped(namespace));
+  });
+
+  /**
+   * Remove any open tabs when database dropped.
+   *
+   * @param {String} name - The name.
+   */
+  appRegistry.on('database-dropped', (name) => {
+    store.dispatch(databaseDropped(name));
   });
 
   /**
