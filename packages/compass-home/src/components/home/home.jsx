@@ -81,7 +81,6 @@ class Home extends PureComponent {
     this.databaseRole = this.getRoleOrNull('Database.Workspace');
     this.instanceRole = this.getRoleOrNull('Instance.Workspace');
     this.globalModals = this.getRoleOrNull('Global.Modal');
-    this.InstanceHeader = this.getComponentOrNull('InstanceHeader.Component');
     this.importRole = this.getRoleOrNull('Import.Modal');
     this.exportRole = this.getRoleOrNull('Export.Modal');
     this.exportToLangRole = this.getRoleOrNull('ExportToLanguage.Modal');
@@ -212,15 +211,6 @@ class Home extends PureComponent {
     return null;
   }
 
-  renderInstanceHeader() {
-    if (this.InstanceHeader) {
-      return (
-        <this.InstanceHeader sidebarCollapsed={this.props.isCollapsed}/>
-      );
-    }
-    return null;
-  }
-
   renderSidebar() {
     if (this.SidebarComponent) {
       return (
@@ -242,7 +232,6 @@ class Home extends PureComponent {
   renderHome() {
     return (
       <div className={classnames(styles['home-view'])} data-test-id="home-view">
-        {this.renderInstanceHeader()}
         <div className={classnames(styles['home-view-page'])}>
           <div className={this.getContentClasses()}>
             {this.renderContent()}

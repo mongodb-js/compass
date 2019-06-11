@@ -1,7 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
-import InstancePlugin from '@mongodb-js/compass-instance-header';
 import SidebarPlugin from '@mongodb-js/compass-sidebar';
 
 import classnames from 'classnames';
@@ -32,7 +31,6 @@ describe('Home [Component]', () => {
 
 
     global.hadronApp.appRegistry.registerComponent('Sidebar.Component', SidebarPlugin);
-    global.hadronApp.appRegistry.registerComponent('InstanceHeader.Component', InstancePlugin);
     [
       'Collection.Workspace', 'Database.Workspace', 'Instance.Workspace', 'Find',
       'Global.Modal', 'Import.Modal', 'Export.Modal', 'ExportToLanguage.Modal',
@@ -88,9 +86,6 @@ describe('Home [Component]', () => {
         expect(component.find(`.${classnames(styles['home-view-page'])}`)).to.be.present();
         expect(component.find(`.${classnames(styles['home-view-page-content'])}`)).to.be.present();
       });
-      it('renders the instance header', () => {
-        expect(component.find(InstancePlugin)).to.be.present();
-      });
       it('renders the content as not collapsed', () => {
         expect(component.find('.content-sidebar-expanded')).to.be.present();
       });
@@ -134,9 +129,6 @@ describe('Home [Component]', () => {
         expect(component.find(`.${classnames(styles['home-view'])}`)).to.be.present();
         expect(component.find(`.${classnames(styles['home-view-page'])}`)).to.be.present();
         expect(component.find(`.${classnames(styles['home-view-page-content'])}`)).to.be.present();
-      });
-      it('renders the instance header', () => {
-        expect(component.find(InstancePlugin)).to.be.present();
       });
       it('renders the content as not collapsed', () => {
         expect(component.find('.content-sidebar-expanded')).to.be.present();
@@ -187,9 +179,6 @@ describe('Home [Component]', () => {
           expect(component.find(`.${classnames(styles['home-view-page'])}`)).to.be.present();
           expect(component.find(`.${classnames(styles['home-view-page-content'])}`)).to.be.present();
         });
-        it('renders the instance header', () => {
-          expect(component.find(InstancePlugin)).to.be.present();
-        });
         it('renders the content as not collapsed', () => {
           expect(component.find('.content-sidebar-expanded')).to.be.present();
         });
@@ -231,9 +220,6 @@ describe('Home [Component]', () => {
           expect(component.find(`.${classnames(styles['home-view'])}`)).to.be.present();
           expect(component.find(`.${classnames(styles['home-view-page'])}`)).to.be.present();
           expect(component.find(`.${classnames(styles['home-view-page-content'])}`)).to.be.present();
-        });
-        it('renders the instance header', () => {
-          expect(component.find(InstancePlugin)).to.be.present();
         });
         it('renders the content as not collapsed', () => {
           expect(component.find('.content-sidebar-expanded')).to.be.present();
@@ -277,9 +263,6 @@ describe('Home [Component]', () => {
           expect(component.find(`.${classnames(styles['home-view-page'])}`)).to.be.present();
           expect(component.find(`.${classnames(styles['home-view-page-content'])}`)).to.be.present();
         });
-        it('renders the instance header', () => {
-          expect(component.find(InstancePlugin)).to.be.present();
-        });
         it('renders the content as not collapsed', () => {
           expect(component.find('.content-sidebar-expanded')).to.be.present();
         });
@@ -321,9 +304,6 @@ describe('Home [Component]', () => {
           expect(component.find(`.${classnames(styles['home-view'])}`)).to.be.present();
           expect(component.find(`.${classnames(styles['home-view-page'])}`)).to.be.present();
           expect(component.find(`.${classnames(styles['home-view-page-content'])}`)).to.be.present();
-        });
-        it('renders the instance header', () => {
-          expect(component.find(InstancePlugin)).to.be.present();
         });
         it('renders the content as collapsed', () => {
           expect(component.find('.content-sidebar-collapsed')).to.be.present();
