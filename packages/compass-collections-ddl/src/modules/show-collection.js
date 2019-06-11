@@ -25,6 +25,11 @@ export const showCollection = (name) => {
         readonly: collection.readonly,
         capped: collection.capped
       });
+      dispatch(
+        appRegistryEmit(
+          'select-namespace', collection._id, collection.readonly, collection.view_on
+        )
+      );
       dispatch(appRegistryEmit('collection-selected', { view: 'table' }));
       if (!state.isDataLake) {
         const ipc = require('hadron-ipc');
