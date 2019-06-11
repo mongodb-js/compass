@@ -39,7 +39,8 @@ const setupStore = (
   namespace,
   serverVersion,
   isReadonly,
-  actions) => {
+  actions,
+  allowWrites) => {
   const store = role.configureStore({
     localAppRegistry: localAppRegistry,
     globalAppRegistry: globalAppRegistry,
@@ -50,7 +51,8 @@ const setupStore = (
     namespace: namespace,
     serverVersion: serverVersion,
     isReadonly: isReadonly,
-    actions: actions
+    actions: actions,
+    allowWrites: allowWrites
   });
   localAppRegistry.registerStore(role.storeName, store);
 
@@ -77,7 +79,9 @@ const setupPlugin = (
   dataService,
   namespace,
   serverVersion,
-  isReadonly) => {
+  isReadonly,
+  allowWrites) => {
+  const actions = role.configureActions();
   const store = setupStore(
     role,
     globalAppRegistry,
@@ -85,9 +89,10 @@ const setupPlugin = (
     dataService,
     namespace,
     serverVersion,
-    isReadonly
+    isReadonly,
+    actions,
+    allowWrites
   );
-  const actions = role.configureActions();
   const plugin = role.component;
   return (<plugin store={store} actions={actions} />);
 };
@@ -110,7 +115,8 @@ const setupScopedModals = (
   dataService,
   namespace,
   serverVersion,
-  isReadonly) => {
+  isReadonly,
+  allowWrites) => {
   const roles = globalAppRegistry.getRole('Collection.ScopedModal');
   if (roles) {
     return roles.map((role) => {
@@ -121,7 +127,8 @@ const setupScopedModals = (
         dataService,
         namespace,
         serverVersion,
-        isReadonly
+        isReadonly,
+        allowWrites
       );
     });
   }
@@ -173,7 +180,8 @@ const createContext = (state, namespace, isReadonly, isDataLake) => {
     namespace,
     serverVersion,
     isReadonly,
-    queryBarActions
+    queryBarActions,
+    !isDataLake
   );
 
   // Setup each of the tabs inside the collection tab. They will all get
@@ -189,7 +197,8 @@ const createContext = (state, namespace, isReadonly, isDataLake) => {
       namespace,
       serverVersion,
       isReadonly,
-      actions
+      actions,
+      !isDataLake
     );
 
     // Add the tab.
@@ -214,7 +223,9 @@ const createContext = (state, namespace, isReadonly, isDataLake) => {
     state.dataService,
     namespace,
     serverVersion,
-    isReadonly
+    isReadonly,
+    {},
+    !isDataLake
   );
 
   // Setup the scoped modals
@@ -224,7 +235,8 @@ const createContext = (state, namespace, isReadonly, isDataLake) => {
     state.dataService,
     namespace,
     serverVersion,
-    isReadonly
+    isReadonly,
+    !isDataLake
   );
 
   return {
