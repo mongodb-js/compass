@@ -5,7 +5,7 @@ import reducer from 'modules';
 import { appRegistryActivated } from 'modules/app-registry';
 import { dataServiceConnected } from 'modules/data-service';
 import { serverVersionChanged } from 'modules/server-version';
-import { selectOrCreateTab, createNewTab } from 'modules/tabs';
+import { selectOrCreateTab, createNewTab, clearTabs } from 'modules/tabs';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -41,6 +41,13 @@ store.onActivated = (appRegistry) => {
         store.dispatch(selectOrCreateTab(ns, isReadonly, sourceName));
       }
     }
+  });
+
+  /**
+   * Clear the tabs when selecting a database.
+   */
+  appRegistry.on('database-selected', () => {
+    store.dispatch(clearTabs());
   });
 
   /**

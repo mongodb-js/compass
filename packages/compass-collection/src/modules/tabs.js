@@ -47,9 +47,23 @@ export const NEXT_TAB = `${PREFIX}/tabs/NEXT_TAB`;
 export const CHANGE_ACTIVE_SUB_TAB = `${PREFIX}/tabs/CHANGE_ACTIVE_SUBTAB`;
 
 /**
+ * Clear tabs
+ */
+export const CLEAR_TABS = `${PREFIX}/tabs/CLEAR`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = [];
+
+/**
+ * Clear all the tabs.
+ *
+ * @returns {Array} The initial state.
+ */
+const doClearTabs = () => {
+  return INITIAL_STATE;
+};
 
 /**
  * Handles namespace selected actions.
@@ -229,7 +243,8 @@ const MAPPINGS = {
   [NEXT_TAB]: doNextTab,
   [PREV_TAB]: doPrevTab,
   [SELECT_TAB]: doSelectTab,
-  [CHANGE_ACTIVE_SUB_TAB]: doChangeActiveSubTab
+  [CHANGE_ACTIVE_SUB_TAB]: doChangeActiveSubTab,
+  [CLEAR_TABS]: doClearTabs
 };
 
 /**
@@ -336,6 +351,15 @@ export const prevTab = () => ({
 export const selectTab = (index) => ({
   type: SELECT_TAB,
   index: index
+});
+
+/**
+ * Action creator for clearing tabs.
+ *
+ * @returns {Object} The action.
+ */
+export const clearTabs = () => ({
+  type: CLEAR_TABS
 });
 
 /**
