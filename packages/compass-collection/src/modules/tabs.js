@@ -58,8 +58,6 @@ export const INITIAL_STATE = [];
 
 /**
  * Clear all the tabs.
- *
- * @returns {Array} The initial state.
  */
 const doClearTabs = () => {
   return INITIAL_STATE;
@@ -289,8 +287,9 @@ export const createTab = (id, namespace, isReadonly, sourceName, context) => ({
  *
  * @returns {Object} The namespace selected action.
  */
-export const selectNamespace = (namespace, isReadonly, sourceName, context) => ({
+export const selectNamespace = (id, namespace, isReadonly, sourceName, context) => ({
   type: SELECT_NAMESPACE,
+  id: id,
   namespace: namespace,
   isReadonly: ((isReadonly === undefined) ? false : isReadonly),
   sourceName: sourceName,
