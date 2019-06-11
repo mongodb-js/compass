@@ -12,7 +12,11 @@ describe('CreateTab [Component]', () => {
     createNewTabSpy = sinon.spy();
 
     component = mount(
-      <CreateTab activeNamespace="db.coll" createTab={createNewTabSpy} />
+      <CreateTab
+        activeNamespace="db.coll"
+        activeIsReadonly={false}
+        activeSourceName=""
+        createNewTab={createNewTabSpy} />
     );
   });
 

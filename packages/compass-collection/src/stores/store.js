@@ -23,7 +23,7 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('open-namespace-in-new-tab', (ns, isReadonly, sourceName) => {
     if (ns) {
       const namespace = toNS(ns);
-      if (namespace.collection) {
+      if (namespace.collection !== '') {
         store.dispatch(createNewTab(ns, isReadonly, sourceName));
       }
     }
@@ -37,7 +37,7 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('select-namespace', (ns, isReadonly, sourceName) => {
     if (ns) {
       const namespace = toNS(ns);
-      if (namespace.collection) {
+      if (namespace.collection !== '') {
         store.dispatch(selectOrCreateTab(ns, isReadonly, sourceName));
       }
     }

@@ -141,7 +141,7 @@ const createContext = (state, namespace, isReadonly) => {
   const serverVersion = state.serverVersion;
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = state.appRegistry;
-  const roles = globalAppRegistry.getRole('Collection.Tab');
+  const roles = globalAppRegistry.getRole('Collection.Tab') || [];
 
   // Filter roles for feature support in the server.
   const filteredRoles = roles.filter((role) => {
@@ -159,7 +159,7 @@ const createContext = (state, namespace, isReadonly) => {
   // and put them in the app registry for use by all the plugins. This way
   // there is only 1 query bar store per collection tab instead of one per
   // plugin that uses it.
-  const queryBarRole = globalAppRegistry.getRole('Query.QueryBar')[0];
+  const queryBarRole = globalAppRegistry.getRole('Query.QueryBar');
   localAppRegistry.registerRole('Query.QueryBar', queryBarRole);
   const queryBarActions = setupActions(queryBarRole, localAppRegistry);
   setupStore(

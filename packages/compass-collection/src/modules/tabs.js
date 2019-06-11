@@ -94,7 +94,6 @@ const doSelectNamespace = (state, action) => {
  * @returns {Object} The new state.
  */
 const doCreateTab = (state, action) => {
-  console.log('doCreateTab', action);
   const newState = state.map((tab) => {
     return { ...tab, isActive: false };
   });
@@ -390,7 +389,6 @@ export const createNewTab = (namespace, isReadonly, sourceName) => {
   return (dispatch, getState) => {
     const state = getState();
     const context = createContext(state, namespace, isReadonly, sourceName);
-    console.log('context', context);
     dispatch(
       createTab(
         new ObjectId().toHexString(),
