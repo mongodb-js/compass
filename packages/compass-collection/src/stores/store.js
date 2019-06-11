@@ -51,6 +51,14 @@ store.onActivated = (appRegistry) => {
   });
 
   /**
+   * Remove any open tabs when collection dropped.
+   *
+   * @param {String} namespace - The namespace.
+   */
+  appRegistry.on('collection-dropped', () => {
+  });
+
+  /**
    * Modify the source pipeline.
    *
    * @param {String} ns - The namespace.

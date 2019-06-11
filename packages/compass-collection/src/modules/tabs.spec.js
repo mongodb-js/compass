@@ -18,8 +18,9 @@ import reducer, {
 describe('tabs module', () => {
   describe('#selectNamespace', () => {
     it('returns the SELECT_NAMESPACE action', () => {
-      expect(selectNamespace('db.coll', true, 'db.test', {})).to.deep.equal({
+      expect(selectNamespace('t', 'db.coll', true, 'db.test', {})).to.deep.equal({
         type: SELECT_NAMESPACE,
+        id: 't',
         namespace: 'db.coll',
         isReadonly: true,
         sourceName: 'db.test',
