@@ -15,11 +15,6 @@ const appRegistry = Object.freeze(new AppRegistry());
 app.appRegistry = appRegistry;
 
 /**
- * Location of the internal plugins.
- */
-const INTERNAL_PLUGINS = path.join(__dirname, '..', 'internal-plugins');
-
-/**
  * The root dir.
  */
 const ROOT = path.join(__dirname, '..', '..');
@@ -45,7 +40,7 @@ const DEV_PLUGINS = path.join(os.homedir(), DISTRIBUTION[PLUGINS_DIR]);
  *   root directory.
  */
 app.pluginManager = new PluginManager(
-  [ INTERNAL_PLUGINS, DEV_PLUGINS ],
+  [ DEV_PLUGINS ],
   ROOT,
   DISTRIBUTION.plugins
 );
