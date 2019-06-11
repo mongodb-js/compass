@@ -8,7 +8,7 @@ import TypeChecker from 'hadron-type-checker';
 const MIXED = 'Mixed';
 
 const configureStore = (options = {}) => {
-  const store = Reflux.createStore( {
+  const store = Reflux.createStore({
 
     init() {
       const actions = options.actions;

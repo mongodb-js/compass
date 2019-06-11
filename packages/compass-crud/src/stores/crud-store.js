@@ -651,6 +651,8 @@ const configureStore = (options = {}) => {
       options.dataProvider.error,
       options.dataProvider.dataProvider
     );
+
+    store.refreshDocuments();
   }
 
   const gridStore = configureGridStore(options);

@@ -5,7 +5,6 @@ import ConnectedDocumentList from 'components/connected-document-list';
 import configureActions from 'actions';
 import configureStore from 'stores/crud-store';
 
-
 import {
   StandardEditor,
   DateEditor,
