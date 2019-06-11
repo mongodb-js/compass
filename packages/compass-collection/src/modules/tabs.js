@@ -388,7 +388,7 @@ export const selectOrCreateTab = (namespace, isReadonly, sourceName) => {
 export const createNewTab = (namespace, isReadonly, sourceName) => {
   return (dispatch, getState) => {
     const state = getState();
-    const context = createContext(state, namespace, isReadonly, sourceName);
+    const context = createContext(state, namespace, isReadonly, state.isDataLake, sourceName);
     dispatch(
       createTab(
         new ObjectId().toHexString(),
@@ -412,7 +412,7 @@ export const createNewTab = (namespace, isReadonly, sourceName) => {
 export const replaceTabContent = (namespace, isReadonly, sourceName) => {
   return (dispatch, getState) => {
     const state = getState();
-    const context = createContext(state, namespace, isReadonly, sourceName);
+    const context = createContext(state, namespace, isReadonly, state.isDataLake, sourceName);
     dispatch(
       selectNamespace(
         new ObjectId().toHexString(),

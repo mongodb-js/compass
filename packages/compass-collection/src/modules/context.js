@@ -137,7 +137,7 @@ const setupScopedModals = (
  *
  * @returns {Object} The tab context.
  */
-const createContext = (state, namespace, isReadonly) => {
+const createContext = (state, namespace, isReadonly, isDataLake) => {
   const serverVersion = state.serverVersion;
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = state.appRegistry;
@@ -145,6 +145,9 @@ const createContext = (state, namespace, isReadonly) => {
 
   // Filter roles for feature support in the server.
   const filteredRoles = roles.filter((role) => {
+    if (['Indexes', 'Validation', 'Explain Plan'].includes(role.name) && isDataLake) {
+      return true;
+    }
     if (!role.minimumServerVersion) return true;
     return semver.gte(serverVersion, role.minimumServerVersion);
   });
@@ -159,7 +162,7 @@ const createContext = (state, namespace, isReadonly) => {
   // and put them in the app registry for use by all the plugins. This way
   // there is only 1 query bar store per collection tab instead of one per
   // plugin that uses it.
-  const queryBarRole = globalAppRegistry.getRole('Query.QueryBar');
+  const queryBarRole = globalAppRegistry.getRole('Query.QueryBar')[0];
   localAppRegistry.registerRole('Query.QueryBar', queryBarRole);
   const queryBarActions = setupActions(queryBarRole, localAppRegistry);
   setupStore(

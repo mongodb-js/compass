@@ -8,6 +8,9 @@ import dataService, {
 import serverVersion, {
   INITIAL_STATE as SERVER_VERSION_INITIAL_STATE
 } from './server-version';
+import isDataLake, {
+  INITIAL_STATE as IS_DATA_LAKE_INITIAL_STATE
+} from './is-data-lake';
 import tabs, {
   INITIAL_STATE as TABS_INITIAL_STATE
 } from './tabs';
@@ -24,7 +27,8 @@ export const INITIAL_STATE = {
   appRegistry: APP_REGISTRY_INITIAL_STATE,
   dataService: DATA_SERVICE_INITIAL_STATE,
   serverVersion: SERVER_VERSION_INITIAL_STATE,
-  tabs: TABS_INITIAL_STATE
+  tabs: TABS_INITIAL_STATE,
+  isDataLake: IS_DATA_LAKE_INITIAL_STATE
 };
 
 /**
@@ -43,23 +47,12 @@ const MAPPINGS = {
   [RESET]: doReset
 };
 
-/**
- * appRegistry,
- * dataService,
- * serverVersion,
- * tabs: [
- *   {
- *     namespace: 'db.coll',
- *     isActive: true,
- *     isReadonly: false
- *   }
- * ]
- */
 const appReducer = combineReducers({
   appRegistry,
   dataService,
   serverVersion,
-  tabs
+  tabs,
+  isDataLake
 });
 
 /**
