@@ -25,6 +25,7 @@ export const showDatabase = (name) => {
         const ipc = require('hadron-ipc');
         collectionStore.setCollection({});
         namespaceStore.ns = name;
+        dispatch(appRegistryEmit('select-database', name));
         dispatch(appRegistryEmit('database-selected', { view: 'table' }));
         ipc.call('window:hide-collection-submenu');
       }
