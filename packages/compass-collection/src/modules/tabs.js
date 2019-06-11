@@ -363,13 +363,13 @@ export const changeActiveSubTab = (activeSubTab, id) => ({
 export const selectOrCreateTab = (namespace, isReadonly, sourceName) => {
   return (dispatch, getState) => {
     const state = getState();
-    if (state.length === 0) {
+    if (state.tabs.length === 0) {
       dispatch(createNewTab(namespace, isReadonly, sourceName));
     } else {
       // If the namespace is equal to the active tab's namespace, then
       // there is no need to do anything.
-      const activeIndex = state.findIndex(tab => tab.isActive);
-      const activeNamespace = state[activeIndex].namespace;
+      const activeIndex = state.tabs.findIndex(tab => tab.isActive);
+      const activeNamespace = state.tabs[activeIndex].namespace;
       if (namespace !== activeNamespace) {
         dispatch(replaceTabContent(namespace, isReadonly, sourceName));
       }
