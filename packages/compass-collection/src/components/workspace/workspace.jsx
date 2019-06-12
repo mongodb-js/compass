@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 import {
   createNewTab,
   closeTab,
@@ -40,6 +42,7 @@ const KEY_OPEN_BRKT = 219;
 /**
  * The collection workspace contains tabs of multiple collections.
  */
+@DragDropContext(HTML5Backend)
 class Workspace extends PureComponent {
   static displayName = 'Workspace';
 
