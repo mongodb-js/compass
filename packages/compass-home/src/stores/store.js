@@ -66,7 +66,7 @@ store.onActivated = (appRegistry) => {
     store.dispatch(dataServiceDisconnected(appRegistry));
   });
 
-  appRegistry.on('database-selected', (ns) => {
+  appRegistry.on('select-database', (ns) => {
     store.dispatch(changeNamespace(ns));
     store.dispatch(updateTitle(ns));
   });

@@ -194,7 +194,7 @@ describe('HomeStore [Store]', () => {
     context('on database-changed', () => {
       beforeEach(() => {
         expect(store.getState()).to.deep.equal(initialState);
-        global.hadronApp.appRegistry.emit('database-selected', 'test.coll');
+        global.hadronApp.appRegistry.emit('select-database', 'test.coll');
       });
       it('dispatches the change namespace action', () => {
         expect(store.getState().namespace).to.equal('test.coll');
