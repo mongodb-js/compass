@@ -171,6 +171,7 @@ class Workspace extends PureComponent {
           sourceName={activeTab.sourceName}
           tabs={activeTab.tabs}
           views={activeTab.views}
+          scopedModals={activeTab.scopedModals}
           queryHistoryIndexes={activeTab.queryHistoryIndexes}
           statsPlugin={activeTab.statsPlugin}
           statsStore={activeTab.statsStore}

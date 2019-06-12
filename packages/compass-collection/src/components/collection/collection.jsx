@@ -14,6 +14,7 @@ class Collection extends Component {
     isReadonly: PropTypes.bool.isRequired,
     tabs: PropTypes.array.isRequired,
     views: PropTypes.array.isRequired,
+    scopedModals: PropTypes.array.isRequired,
     queryHistoryIndexes: PropTypes.array.isRequired,
     statsPlugin: PropTypes.func.isRequired,
     statsStore: PropTypes.object.isRequired,
@@ -33,6 +34,19 @@ class Collection extends Component {
     }
     this.props.localAppRegistry.emit('subtab-changed', name);
     this.props.changeActiveSubTab(idx, this.props.id);
+  }
+
+  /**
+   * Render the scoped modals.
+   *
+   * @returns {Array} The modal components.
+   */
+  renderScopedModals() {
+    return this.props.scopedModals.map((modal) => {
+      return (
+        <modal.component store={modal.store} actions={modal.actions} key={modal.key} />
+      );
+    });
   }
 
   /**
@@ -56,6 +70,7 @@ class Collection extends Component {
           mountAllViews
           activeTabIndex={this.props.activeSubTab}
           onTabClicked={this.onSubTabClicked} />
+        {this.renderScopedModals()}
       </div>
     );
   }

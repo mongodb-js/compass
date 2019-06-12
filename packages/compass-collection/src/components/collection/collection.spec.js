@@ -22,6 +22,7 @@ describe('Collection [Component]', () => {
         queryHistoryIndexes={[]}
         statsPlugin={statsPlugin}
         statsStore={statsStore}
+        scopedModals={[]}
         localAppRegistry={localAppRegistry}
         activeSubTab={0}
         changeActiveSubTab={changeSubTabSpy}

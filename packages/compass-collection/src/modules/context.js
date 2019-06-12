@@ -80,7 +80,8 @@ const setupPlugin = (
   namespace,
   serverVersion,
   isReadonly,
-  allowWrites) => {
+  allowWrites,
+  key) => {
   const actions = role.configureActions();
   const store = setupStore(
     role,
@@ -94,7 +95,12 @@ const setupPlugin = (
     allowWrites
   );
   const plugin = role.component;
-  return (<plugin store={store} actions={actions} />);
+  return {
+    component: plugin,
+    store: store,
+    actions: actions,
+    key: key
+  };
 };
 
 /**
@@ -119,7 +125,7 @@ const setupScopedModals = (
   allowWrites) => {
   const roles = globalAppRegistry.getRole('Collection.ScopedModal');
   if (roles) {
-    return roles.map((role) => {
+    return roles.map((role, i) => {
       return setupPlugin(
         role,
         globalAppRegistry,
@@ -128,7 +134,8 @@ const setupScopedModals = (
         namespace,
         serverVersion,
         isReadonly,
-        allowWrites
+        allowWrites,
+        i
       );
     });
   }
