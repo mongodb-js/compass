@@ -24,7 +24,7 @@ class TypeColumn extends PureComponent {
   };
 
   _textTooltip() {
-    const info = pick(this.props.index.extra, ['weights', 'default_language', 'language_override']);
+    const info = pick(this.props.index.extra, ['weights', 'default_language', 'language_override', 'wildcardProjection']);
     return map(info, (v, k) => {
       return format('%s: %j', k, v);
     }).join('<br />');
@@ -37,7 +37,7 @@ class TypeColumn extends PureComponent {
    */
   renderType() {
     let tooltipOptions = {};
-    if (this.props.index.type === 'text') {
+    if (this.props.index.type === 'text' || 'wildcard') {
       const tooltipText = `${this._textTooltip()}`;
       tooltipOptions = {
         'data-tip': tooltipText,

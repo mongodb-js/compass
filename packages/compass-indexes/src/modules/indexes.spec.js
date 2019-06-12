@@ -214,7 +214,7 @@ const defaultSort = [
       'partialFilterExpression': {'y': 1}}, 'id': 'citibike.trips.AAAA',
     'unique': false, 'sparse': false, 'ttl': true, 'hashed': false,
     'geo': false, 'compound': false, 'single': true, 'partial': true,
-    'text': false, 'collation': false, 'type': 'regular',
+    'text': false, 'wildcard': false, 'collation': false, 'type': 'regular',
     'cardinality': 'single', 'properties': ['partial', 'ttl']
   },
   {
@@ -228,7 +228,7 @@ const defaultSort = [
         'normalization': true, 'backwards': true, 'version': '57.1'}},
     'id': 'citibike.trips.BBBB', 'unique': false, 'sparse': false,
     'ttl': false, 'hashed': false, 'geo': false, 'compound': false,
-    'single': true, 'partial': false, 'text': false, 'collation': true,
+    'single': true, 'partial': false, 'text': false, 'wildcard': false, 'collation': true,
     'type': 'regular', 'cardinality': 'single', 'properties': ['collation']
   },
   {
@@ -239,7 +239,7 @@ const defaultSort = [
     'extra': {'background': false, '2dsphereIndexVersion': 3},
     'id': 'citibike.trips.CCCC', 'unique': false, 'sparse': false,
     'ttl': false, 'hashed': false, 'geo': true, 'compound': true,
-    'single': false, 'partial': false, 'text': false, 'collation': false,
+    'single': false, 'partial': false, 'text': false, 'wildcard': false, 'collation': false,
     'type': 'geospatial', 'cardinality': 'compound', 'properties': []
   },
   {
@@ -248,7 +248,7 @@ const defaultSort = [
     'usageHost': 'computername.local:27017', 'version': 2, 'extra': {},
     'id': 'citibike.trips._id_', 'unique': true, 'sparse': false,
     'ttl': false, 'hashed': false, 'geo': false, 'compound': false,
-    'single': true, 'partial': false, 'text': false, 'collation': false,
+    'single': true, 'partial': false, 'text': false, 'wildcard': false, 'collation': false,
     'type': 'regular', 'cardinality': 'single', 'properties': ['unique']
   }
 ];
@@ -264,7 +264,7 @@ const usageSort = [
     'extra': {'background': false, 'expireAfterSeconds': 300,
       'partialFilterExpression': {'y': 1}}, 'id': 'citibike.trips.AAAA',
     'unique': false, 'sparse': false, 'ttl': true, 'hashed': false, 'geo': false,
-    'compound': false, 'single': true, 'partial': true, 'text': false,
+    'compound': false, 'single': true, 'partial': true, 'text': false, 'wildcard': false,
     'collation': false, 'type': 'regular', 'cardinality': 'single',
     'properties': ['partial', 'ttl']
   },
@@ -277,7 +277,7 @@ const usageSort = [
     'version': 2, 'extra': {'background': false, '2dsphereIndexVersion': 3},
     'id': 'citibike.trips.CCCC', 'unique': false, 'sparse': false,
     'ttl': false, 'hashed': false, 'geo': true, 'compound': true,
-    'single': false, 'partial': false, 'text': false, 'collation': false,
+    'single': false, 'partial': false, 'text': false, 'wildcard': false, 'collation': false,
     'type': 'geospatial', 'cardinality': 'compound', 'properties': []
   },
   {
@@ -288,7 +288,7 @@ const usageSort = [
     'usageHost': 'computername.local:27017', 'version': 2, 'extra': {},
     'id': 'citibike.trips._id_', 'unique': true, 'sparse': false, 'ttl': false,
     'hashed': false, 'geo': false, 'compound': false, 'single': true,
-    'partial': false, 'text': false, 'collation': false, 'type': 'regular',
+    'partial': false, 'text': false, 'wildcard': false, 'collation': false, 'type': 'regular',
     'cardinality': 'single', 'properties': ['unique']
   },
   {
@@ -303,7 +303,7 @@ const usageSort = [
         'normalization': true, 'backwards': true, 'version': '57.1'}},
     'id': 'citibike.trips.BBBB', 'unique': false, 'sparse': false,
     'ttl': false, 'hashed': false, 'geo': false, 'compound': false,
-    'single': true, 'partial': false, 'text': false, 'collation': true,
+    'single': true, 'partial': false, 'text': false, 'wildcard': false, 'collation': true,
     'type': 'regular', 'cardinality': 'single', 'properties': ['collation']
   }
 ];

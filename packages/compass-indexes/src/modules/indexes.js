@@ -100,9 +100,9 @@ const _field = (f) => {
  * @returns {Array} The index models.
  */
 const _convertToModels = (indexes) => {
-  const maxSize = max(indexes, (index) => {
+  const maxSize = max(indexes.map((index) => {
     return index.size;
-  }).size;
+  }));
   return map(indexes, (index) => {
     const model = new IndexModel(new IndexModel().parse(index));
     model.relativeSize = model.size / maxSize * 100;

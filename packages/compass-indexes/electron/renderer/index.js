@@ -6,6 +6,7 @@ import { AppContainer } from 'react-hot-loader';
 import IndexesPlugin, { activate } from 'plugin';
 import DeploymentStateStore from './stores/deployment-state-store';
 import TextWriteButton from './components/text-write-button';
+import { activate as fieldStoreActivate } from '@mongodb-js/compass-field-store';
 import Collation from './components/collation';
 import configureStore, { setDataProvider } from 'stores';
 
@@ -17,6 +18,8 @@ import 'less/index.less';
 
 const appRegistry = new AppRegistry();
 
+const NS = 'venues.restaurants';
+
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
@@ -25,11 +28,12 @@ activate(appRegistry);
 
 const localAppRegistry = new AppRegistry();
 const store = configureStore({
-  namespace: 'echo.artists',
+  namespace: NS,
   isReadonly: false,
   localAppRegistry: localAppRegistry,
   globalAppRegistry: appRegistry
 });
+fieldStoreActivate(localAppRegistry);
 
 appRegistry.registerStore('DeploymentAwareness.WriteStateStore', DeploymentStateStore);
 appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteButton);
@@ -50,11 +54,19 @@ const scopedModals = scopedModalRoles.map((role, i) => {
   const scopedStore = role.configureStore({
     localAppRegistry: localAppRegistry,
     globalAppRegistry: appRegistry,
-    namespace: 'echo.artists',
+    namespace: NS,
     isReadonly: false
   });
   return (<role.component store={scopedStore} key={i} />);
 });
+
+const fieldStore = localAppRegistry.getStore('Field.Store');
+const confFieldStore = fieldStore({
+  localAppRegistry: localAppRegistry,
+  namespace: NS
+});
+localAppRegistry.registerStore('Field.Store', confFieldStore);
+
 
 // Create a HMR enabled render function
 const render = Component => {
@@ -91,28 +103,9 @@ const dataService = new DataService(connection);
 dataService.connect((error, ds) => {
   setDataProvider(store, error, ds);
   localAppRegistry.emit('data-service-connected', error, ds);
-  localAppRegistry.emit('fields-changed', {
-    fields: {
-      harry: {
-        name: 'harry', path: 'harry', count: 1, type: 'Number'
-      },
-      potter: {
-        name: 'potter', path: 'potter', count: 1, type: 'Boolean'
-      }
-    },
-    topLevelFields: [ 'harry', 'potter' ],
-    aceFields: [
-      { name: 'harry',
-        value: 'harry',
-        score: 1,
-        meta: 'field',
-        version: '0.0.0' },
-      { name: 'potter',
-        value: 'potter',
-        score: 1,
-        meta: 'field',
-        version: '0.0.0' }
-    ]
+  ds.find(NS, {}, {limit: 1}, (err, s) => {
+    if (err) console.log(`ERROR: ${err.message}`);
+    localAppRegistry.emit('documents-refreshed', null, s);
   });
 });
 

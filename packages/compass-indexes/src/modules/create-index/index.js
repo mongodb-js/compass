@@ -38,21 +38,25 @@ import isUnique, {
 import isTtl, {
   INITIAL_STATE as IS_TTL_INITIAL_STATE
 } from 'modules/create-index/is-ttl';
+import isWildcard, {
+  INITIAL_STATE as IS_WILDCARD_INITIAL_STATE
+} from 'modules/create-index/is-wildcard';
 import isPartialFilterExpression, {
   INITIAL_STATE as IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE
 } from 'modules/create-index/is-partial-filter-expression';
 import ttl, {
   INITIAL_STATE as TTL_INITIAL_STATE
 } from 'modules/create-index/ttl';
+import wildcardProjection, {
+  INITIAL_STATE as WILDCARD_PROJECTION_INITIAL_STATE
+} from 'modules/create-index/wildcard-projection';
 import partialFilterExpression, {
   INITIAL_STATE as PARTIAL_FILTER_EXPRESSION_INITIAL_STATE
 } from 'modules/create-index/partial-filter-expression';
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
 } from 'modules/create-index/name';
-import namespace, {
-  INITIAL_STATE as NAMESPACE_INITIAL_STATE
-} from 'modules/namespace';
+import namespace from 'modules/namespace';
 
 import schemaFields from 'modules/create-index/schema-fields';
 import { RESET_FORM } from 'modules/reset-form';
@@ -76,8 +80,10 @@ const reducer = combineReducers({
   isBackground,
   isUnique,
   isTtl,
+  isWildcard,
   isPartialFilterExpression,
   ttl,
+  wildcardProjection,
   partialFilterExpression,
   name,
   namespace
@@ -105,11 +111,12 @@ const rootReducer = (state, action) => {
       isBackground: IS_BACKGROUND_INITIAL_STATE,
       isUnique: IS_UNIQUE_INITIAL_STATE,
       isTtl: IS_TTL_INITIAL_STATE,
+      isWildcard: IS_WILDCARD_INITIAL_STATE,
       isPartialFilterExpression: IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
       ttl: TTL_INITIAL_STATE,
+      wildcardProjection: WILDCARD_PROJECTION_INITIAL_STATE,
       partialFilterExpression: PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
-      name: NAME_INITIAL_STATE,
-      namespace: NAMESPACE_INITIAL_STATE
+      name: NAME_INITIAL_STATE
     };
   }
   return reducer(state, action);
@@ -145,7 +152,8 @@ export const createIndex = () => {
     options.unique = state.isUnique;
     options.name = state.name;
     if (state.name === '') {
-      options.name = `${state.fields[0].name}_${spec[state.fields[0].name]}`;
+      const n = `${state.fields[0].name}_${spec[state.fields[0].name]}`;
+      options.name = n.replace(/\$\*\*/gi, 'wildcard');
     }
     if (state.isCustomCollation) {
       options.collation = state.collation;
@@ -157,13 +165,21 @@ export const createIndex = () => {
         return;
       }
     }
-    try {
-      if (state.isPartialFilterExpression) {
-        options.partialFilterExpression = EJSON.parse(state.partialFilterExpression);
+    if (state.isWildcard) {
+      try {
+        options.wildcardProjection = EJSON.parse(state.wildcardProjection);
+      } catch (err) {
+        dispatch(handleError(`Bad WildcardProjection: ${String(err)}`));
+        return;
       }
-    } catch (err) {
-      dispatch(handleError(`Bad PartialFilterExpression: ${String(err)}`));
-      return;
+    }
+    if (state.isPartialFilterExpression) {
+      try {
+        options.partialFilterExpression = EJSON.parse(state.partialFilterExpression);
+      } catch (err) {
+        dispatch(handleError(`Bad PartialFilterExpression: ${String(err)}`));
+        return;
+      }
     }
     dispatch(toggleInProgress(true));
     const ns = state.namespace;

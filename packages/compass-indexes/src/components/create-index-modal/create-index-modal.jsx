@@ -31,6 +31,10 @@ import {
 } from 'modules/create-index/is-partial-filter-expression';
 import { toggleIsTtl } from 'modules/create-index/is-ttl';
 import { changeTtl } from 'modules/create-index/ttl';
+import { toggleIsWildcard } from 'modules/create-index/is-wildcard';
+import {
+  changeWildcardProjection
+} from 'modules/create-index/wildcard-projection';
 import {
   changePartialFilterExpression
 } from 'modules/create-index/partial-filter-expression';
@@ -42,14 +46,8 @@ import { openLink } from 'modules/link';
 import { createIndex } from 'modules/create-index';
 import { resetForm } from 'modules/reset-form';
 
-/**
- * The help URL for collation.
- */
-const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation';
-const HELP_URL_BACKGROUND = 'https://docs.mongodb.com/manual/core/index-creation/#index-creation-background';
-const HELP_URL_UNIQUE = 'https://docs.mongodb.com/manual/core/index-unique/#index-type-unique';
-const HELP_URL_TTL = 'https://docs.mongodb.com/manual/core/index-ttl';
-const HELP_URL_PARTIAL_FILTER_EXPRESSION = 'https://docs.mongodb.com/manual/core/index-partial';
+import getIndexHelpLink from 'utils/index-link-helper';
+
 /**
  * Component for the create index modal.
  */
@@ -67,6 +65,8 @@ class CreateIndexModal extends PureComponent {
     isUnique: PropTypes.bool.isRequired,
     isTtl: PropTypes.bool.isRequired,
     ttl: PropTypes.string.isRequired,
+    isWildcard: PropTypes.bool.isRequired,
+    wildcardProjection: PropTypes.string.isRequired,
     isPartialFilterExpression: PropTypes.bool.isRequired,
     partialFilterExpression: PropTypes.string.isRequired,
     isCustomCollation: PropTypes.bool.isRequired,
@@ -81,12 +81,14 @@ class CreateIndexModal extends PureComponent {
     toggleShowOptions: PropTypes.func.isRequired,
     toggleIsBackground: PropTypes.func.isRequired,
     toggleIsTtl: PropTypes.func.isRequired,
+    toggleIsWildcard: PropTypes.func.isRequired,
     toggleIsPartialFilterExpression: PropTypes.func.isRequired,
     toggleIsCustomCollation: PropTypes.func.isRequired,
     resetForm: PropTypes.func.isRequired,
     createIndex: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     changeTtl: PropTypes.func.isRequired,
+    changeWildcardProjection: PropTypes.func.isRequired,
     changePartialFilterExpression: PropTypes.func.isRequired,
     changeCollationOption: PropTypes.func.isRequired,
     changeName: PropTypes.func.isRequired
@@ -188,7 +190,7 @@ class CreateIndexModal extends PureComponent {
           data-test-id="toggle-is-background"
           titleClassName={classnames(styles['create-index-modal-options-checkbox'])}
           checked={this.props.isBackground}
-          helpUrl={HELP_URL_BACKGROUND}
+          helpUrl={getIndexHelpLink('BACKGROUND')}
           onClickHandler={() => (this.props.toggleIsBackground(!this.props.isBackground))}
           onLinkClickHandler={this.props.openLink} />
         <ModalCheckbox
@@ -196,7 +198,7 @@ class CreateIndexModal extends PureComponent {
           data-test-id="toggle-is-unique"
           titleClassName={classnames(styles['create-index-modal-options-checkbox'])}
           checked={this.props.isUnique}
-          helpUrl={HELP_URL_UNIQUE}
+          helpUrl={getIndexHelpLink('UNIQUE')}
           onClickHandler={() => (this.props.toggleIsUnique(!this.props.isUnique))}
           onLinkClickHandler={this.props.openLink} />
         <ModalCheckbox
@@ -204,7 +206,7 @@ class CreateIndexModal extends PureComponent {
           data-test-id="toggle-is-ttl"
           titleClassName={classnames(styles['create-index-modal-options-param'])}
           checked={this.props.isTtl}
-          helpUrl={HELP_URL_TTL}
+          helpUrl={getIndexHelpLink('TTL')}
           onClickHandler={() => (this.props.toggleIsTtl(!this.props.isTtl))}
           onLinkClickHandler={this.props.openLink} />
         {this.renderTtl()}
@@ -213,7 +215,7 @@ class CreateIndexModal extends PureComponent {
           data-test-id="toggle-is-pfe"
           titleClassName={classnames(styles['create-index-modal-options-param'])}
           checked={this.props.isPartialFilterExpression}
-          helpUrl={HELP_URL_PARTIAL_FILTER_EXPRESSION}
+          helpUrl={getIndexHelpLink('PARTIAL')}
           onClickHandler={() => (this.props.toggleIsPartialFilterExpression(!this.props.isPartialFilterExpression))}
           onLinkClickHandler={this.props.openLink} />
         {this.renderPartialFilterExpression()}
@@ -222,10 +224,19 @@ class CreateIndexModal extends PureComponent {
           data-test-id="toggle-is-custom-collation"
           titleClassName={classnames(styles['create-index-modal-options-param'])}
           checked={this.props.isCustomCollation}
-          helpUrl={HELP_URL_COLLATION}
+          helpUrl={getIndexHelpLink('COLLATION_REF')}
           onClickHandler={() => (this.props.toggleIsCustomCollation(!this.props.isCustomCollation))}
           onLinkClickHandler={this.props.openLink} />
         {this.renderCollation()}
+        <ModalCheckbox
+          name="Wildcard Projection"
+          data-test-id="toggle-is-wildcard"
+          titleClassName={classnames(styles['create-index-modal-options-param'])}
+          checked={this.props.isWildcard}
+          helpUrl={getIndexHelpLink('WILDCARD')}
+          onClickHandler={() => (this.props.toggleIsWildcard(!this.props.isWildcard))}
+          onLinkClickHandler={this.props.openLink} />
+        {this.renderWildcard()}
       </div>
     );
   }
@@ -239,6 +250,19 @@ class CreateIndexModal extends PureComponent {
             name="seconds"
             value={this.props.ttl}
             onChangeHandler={(evt) => (this.props.changeTtl(evt.target.value))} />
+        </div>
+      );
+    }
+  }
+  renderWildcard() {
+    if (this.props.showOptions && this.props.isWildcard) {
+      return (
+        <div className={classnames(styles['create-index-modal-options-param-wrapper'])}>
+          <ModalInput
+            id="wildcard-projection-value"
+            name=""
+            value={this.props.wildcardProjection}
+            onChangeHandler={(evt) => (this.props.changeWildcardProjection(evt.target.value))} />
         </div>
       );
     }
@@ -383,6 +407,8 @@ const mapStateToProps = (state) => ({
   isBackground: state.isBackground,
   isTtl: state.isTtl,
   ttl: state.ttl,
+  isWildcard: state.isWildcard,
+  wildcardProjection: state.wildcardProjection,
   isUnique: state.isUnique,
   isPartialFilterExpression: state.isPartialFilterExpression,
   partialFilterExpression: state.partialFilterExpression,
@@ -406,11 +432,13 @@ const MappedCreateIndexModal = connect(
     toggleIsVisible,
     toggleIsBackground,
     toggleIsTtl,
+    toggleIsWildcard,
     toggleIsUnique,
     toggleIsPartialFilterExpression,
     toggleIsCustomCollation,
     changePartialFilterExpression,
     changeTtl,
+    changeWildcardProjection,
     changeCollationOption,
     openLink,
     changeName,

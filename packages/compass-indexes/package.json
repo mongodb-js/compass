@@ -49,13 +49,14 @@
     "react-redux": "^5.0.6",
     "react-select-plus": "^1.2.0",
     "react-tooltip": "^3.2.6",
-    "mongodb-index-model": "^2.4.0",
+    "mongodb-index-model": "^2.5.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0"
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.2",
     "@mongodb-js/compass-deployment-awareness": "^6.4.1",
+    "@mongodb-js/compass-field-store": "5.0.0",
     "@storybook/react": "^3.2.0",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.10.1",
@@ -112,6 +113,7 @@
     "mongodb": "^3.2.0",
     "mongodb-data-service": "^14.0.2",
     "mongodb-extended-json": "^1.10.0",
+    "mongodb-index-model": "^2.5.0",
     "mongodb-js-fmt": "^1.0.0",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-language-model": "^1.3.0",

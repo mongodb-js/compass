@@ -2,6 +2,7 @@ const HELP_URLS = {
   SINGLE: 'https://docs.mongodb.org/manual/core/index-single/',
   COMPOUND: 'https://docs.mongodb.org/manual/core/index-compound/',
   UNIQUE: 'https://docs.mongodb.org/manual/core/index-unique/',
+  BACKGROUND: 'https://docs.mongodb.com/manual/core/index-creation/#index-creation-background',
   PARTIAL: 'https://docs.mongodb.org/manual/core/index-partial/',
   SPARSE: 'https://docs.mongodb.org/manual/core/index-sparse/',
   TTL: 'https://docs.mongodb.org/manual/core/index-ttl/',
@@ -9,10 +10,12 @@ const HELP_URLS = {
   '2DSPHERE': 'https://docs.mongodb.org/manual/core/2dsphere/',
   GEOHAYSTACK: 'https://docs.mongodb.org/manual/core/geohaystack/',
   GEOSPATIAL: 'https://docs.mongodb.org/manual/applications/geospatial-indexes/#geospatial-indexes',
+  WILDCARD: 'https://docs.mongodb.org/manual/core/wildcard/',
   TEXT: 'https://docs.mongodb.org/manual/core/index-text/',
   HASHED: 'https://docs.mongodb.org/manual/core/index-hashed/',
   REGULAR: 'https://docs.mongodb.com/manual/indexes/#single-field',
   COLLATION: 'https://docs.mongodb.com/master/reference/bson-type-comparison-order/#collation',
+  COLLATION_REF: 'https://docs.mongodb.com/master/reference/collation',
   UNKNOWN: null
 };
 

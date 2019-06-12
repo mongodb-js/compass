@@ -68,7 +68,9 @@ class CreateIndexField extends PureComponent {
    * @param {object} field - The selected field object.
    */
   selectFieldName(field) {
-    this.props.updateFieldName(this.props.idx, field.label);
+    if (field !== null) {
+      this.props.updateFieldName(this.props.idx, field.label);
+    }
   }
 
   /**
@@ -120,7 +122,7 @@ class CreateIndexField extends PureComponent {
           <Select
             value={this.props.field.type}
             placeholder={DEFAULT_FIELD.type}
-            options={this.getDropdownTypes(INDEX_TYPES)}
+            options={this.getDropdownTypes()}
             onChange={this.selectFieldType.bind(this)}
             clearable={false}
             searchable={false}

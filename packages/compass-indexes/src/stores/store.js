@@ -42,6 +42,7 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('refresh-data', () => {
       store.dispatch(loadIndexesFromDb());
     });
+    // TODO: could save the version to check for wildcard indexes
   }
 
   if (options.globalAppRegistry) {
