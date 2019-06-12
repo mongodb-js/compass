@@ -115,4 +115,13 @@ store.onActivated = (appRegistry) => {
   store.dispatch(appRegistryActivated(appRegistry));
 };
 
+store.subscribe(() => {
+  const state = store.getState();
+  if (state.tabs.length === 0) {
+    if (state.appRegistry) {
+      state.appRegistry.emit('all-collection-tabs-closed');
+    }
+  }
+});
+
 export default store;

@@ -5,10 +5,6 @@ import { reset } from 'modules';
 describe('Collection Store', () => {
   const appRegistry = new AppRegistry();
 
-  before(() => {
-    store.dispatch(reset());
-  });
-
   describe('#onActivated', () => {
     beforeEach(() => {
       store.onActivated(appRegistry);
