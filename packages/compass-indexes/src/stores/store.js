@@ -56,9 +56,12 @@ const configureStore = (options = {}) => {
   }
 
   if (options.namespace) {
+    store.dispatch(namespaceChanged(options.namespace));
+  }
+
+  if (options.isReadonly) {
     const isReadonlyView = options.isReadonly;
     store.dispatch(readonlyViewChanged(isReadonlyView));
-    store.dispatch(namespaceChanged(options.namespace));
   }
 
   if (options.dataProvider) {
