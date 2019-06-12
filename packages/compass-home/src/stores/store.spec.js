@@ -191,18 +191,6 @@ describe('HomeStore [Store]', () => {
       //   expect(store.getState()).to.deep.equal(initialState);
       // });
     });
-    context('on collection-changed', () => {
-      beforeEach(() => {
-        expect(store.getState()).to.deep.equal(initialState);
-        global.hadronApp.appRegistry.emit('collection-changed', 'test.coll');
-      });
-      it('dispatches the change namespace action', () => {
-        expect(store.getState().namespace).to.equal('test.coll');
-      });
-      it('dispatches the changetitle action', () => {
-        expect(store.getState().title).to.equal(' - /test.coll');
-      });
-    });
     context('on database-changed', () => {
       beforeEach(() => {
         expect(store.getState()).to.deep.equal(initialState);

@@ -36,12 +36,6 @@ const RP_RECOMMEND = `${RECOMMEND} to Primary Preferred or Secondary Preferred`;
  */
 const RS_RECOMMEND = `${RP_RECOMMEND} or provide a replica set name for a full topology connection.`;
 
-/**
- * Resize minicharts after sidebar has finished collapsing, should be the same
- * as the "@compass-sidebar-transition-time" variable in sidebar styles
- */
-const COMPASS_SIDEBAR_TRANSITION_TIME_MS = 400;
-
 class Home extends PureComponent {
   static displayName = 'HomeComponent';
 
@@ -81,9 +75,6 @@ class Home extends PureComponent {
     this.databaseRole = this.getRoleOrNull('Database.Workspace');
     this.instanceRole = this.getRoleOrNull('Instance.Workspace');
     this.globalModals = this.getRoleOrNull('Global.Modal');
-    this.importRole = this.getRoleOrNull('Import.Modal');
-    this.exportRole = this.getRoleOrNull('Export.Modal');
-    this.exportToLangRole = this.getRoleOrNull('ExportToLanguage.Modal');
     this.findInPageRole = this.getRoleOrNull('Find');
   }
 
@@ -111,15 +102,7 @@ class Home extends PureComponent {
 
   collapseSidebar() {
     this.props.toggleIsCollapsed(!this.props.isCollapsed);
-    if (this.SchemaActions) {
-      setTimeout(this.SchemaActions.resizeMiniCharts, COMPASS_SIDEBAR_TRANSITION_TIME_MS);
-    }
-
-    // Probably would prefer an onChartsActivated lifecycle method here...
-    const ChartActions = global.hadronApp.appRegistry.getAction('Chart.Actions');
-    if (ChartActions !== undefined) {
-      setTimeout(ChartActions.resizeChart, COMPASS_SIDEBAR_TRANSITION_TIME_MS);
-    }
+    global.hadronApp.appRegistry.emit('sidebar-toggle');
   }
 
   renderCollectionView() {
@@ -170,33 +153,10 @@ class Home extends PureComponent {
     return this.renderCollectionView();
   }
 
-  renderImportModal() {
-    if (this.importRole) {
-      const Import = this.importRole[0].component;
-      return (<Import />);
-    }
-    return null;
-  }
-
-  renderExportModal() {
-    if (this.exportRole) {
-      const Export = this.exportRole[0].component;
-      return (<Export />);
-    }
-    return null;
-  }
   renderFindInPage() {
     if (this.findInPageRole) {
       const Find = this.findInPageRole[0].component;
       return (<Find/>);
-    }
-    return null;
-  }
-
-  renderExportToLangModal() {
-    if (this.exportToLangRole) {
-      const ExportToLanguage = this.exportToLangRole[0].component;
-      return (<ExportToLanguage />);
     }
     return null;
   }
@@ -220,15 +180,6 @@ class Home extends PureComponent {
     return null;
   }
 
-  renderQueryHistory() {
-    if (this.QueryHistoryComponent) {
-      return (
-        <this.QueryHistoryComponent />
-      );
-    }
-    return null;
-  }
-
   renderHome() {
     return (
       <div className={classnames(styles['home-view'])} data-test-id="home-view">
@@ -237,10 +188,6 @@ class Home extends PureComponent {
             {this.renderContent()}
           </div>
           {this.renderSidebar()}
-          {this.renderQueryHistory()}
-          {this.renderImportModal()}
-          {this.renderExportModal()}
-          {this.renderExportToLangModal()}
           {this.renderFindInPage()}
           {this.renderGlobalModals()}
         </div>

@@ -33,8 +33,7 @@ describe('Home [Component]', () => {
     global.hadronApp.appRegistry.registerComponent('Sidebar.Component', SidebarPlugin);
     [
       'Collection.Workspace', 'Database.Workspace', 'Instance.Workspace', 'Find',
-      'Global.Modal', 'Import.Modal', 'Export.Modal', 'ExportToLanguage.Modal',
-      'Application.Connect', 'QueryHistory.Component'
+      'Global.Modal', 'Application.Connect'
     ].map((name) => (
       global.hadronApp.appRegistry.registerRole(name, {component: getComponent(name)})
     ));
@@ -97,15 +96,6 @@ describe('Home [Component]', () => {
       it('renders the sidebar', () => {
         expect(component.find(SidebarPlugin)).to.be.present();
       });
-      it('renders the importModal', () => {
-        expect(component.find('.Import')).to.be.present();
-      });
-      it('renders the exportModal', () => {
-        expect(component.find('.Export')).to.be.present();
-      });
-      it('renders the exportToLangModal', () => {
-        expect(component.find('.ExportToLanguage')).to.be.present();
-      });
       it('renders the find', () => {
         expect(component.find('.Find')).to.be.present();
       });
@@ -145,15 +135,6 @@ describe('Home [Component]', () => {
       it('renders the sidebar', () => {
         expect(component.find(SidebarPlugin)).to.be.present();
       });
-      it('renders the importModal', () => {
-        expect(component.find('.Import')).to.be.present();
-      });
-      it('renders the exportModal', () => {
-        expect(component.find('.Export')).to.be.present();
-      });
-      it('renders the exportToLangModal', () => {
-        expect(component.find('.ExportToLanguage')).to.be.present();
-      });
       it('renders the find', () => {
         expect(component.find('.Find')).to.be.present();
       });
@@ -188,15 +169,6 @@ describe('Home [Component]', () => {
         it('renders the sidebar', () => {
           expect(component.find(SidebarPlugin)).to.be.present();
         });
-        it('renders the importModal', () => {
-          expect(component.find('.Import')).to.be.present();
-        });
-        it('renders the exportModal', () => {
-          expect(component.find('.Export')).to.be.present();
-        });
-        it('renders the exportToLangModal', () => {
-          expect(component.find('.ExportToLanguage')).to.be.present();
-        });
         it('renders the find', () => {
           expect(component.find('.Find')).to.be.present();
         });
@@ -229,15 +201,6 @@ describe('Home [Component]', () => {
         });
         it('renders the sidebar', () => {
           expect(component.find(SidebarPlugin)).to.be.present();
-        });
-        it('renders the importModal', () => {
-          expect(component.find('.Import')).to.be.present();
-        });
-        it('renders the exportModal', () => {
-          expect(component.find('.Export')).to.be.present();
-        });
-        it('renders the exportToLangModal', () => {
-          expect(component.find('.ExportToLanguage')).to.be.present();
         });
         it('renders the find', () => {
           expect(component.find('.Find')).to.be.present();
@@ -272,15 +235,6 @@ describe('Home [Component]', () => {
         it('renders the sidebar', () => {
           expect(component.find(SidebarPlugin)).to.be.present();
         });
-        it('renders the importModal', () => {
-          expect(component.find('.Import')).to.be.present();
-        });
-        it('renders the exportModal', () => {
-          expect(component.find('.Export')).to.be.present();
-        });
-        it('renders the exportToLangModal', () => {
-          expect(component.find('.ExportToLanguage')).to.be.present();
-        });
         it('renders the find', () => {
           expect(component.find('.Find')).to.be.present();
         });
@@ -313,15 +267,6 @@ describe('Home [Component]', () => {
         });
         it('renders the sidebar', () => {
           expect(component.find(SidebarPlugin)).to.be.present();
-        });
-        it('renders the importModal', () => {
-          expect(component.find('.Import')).to.be.present();
-        });
-        it('renders the exportModal', () => {
-          expect(component.find('.Export')).to.be.present();
-        });
-        it('renders the exportToLangModal', () => {
-          expect(component.find('.ExportToLanguage')).to.be.present();
         });
         it('renders the find', () => {
           expect(component.find('.Find')).to.be.present();

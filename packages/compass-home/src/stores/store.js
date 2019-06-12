@@ -66,14 +66,14 @@ store.onActivated = (appRegistry) => {
     store.dispatch(dataServiceDisconnected(appRegistry));
   });
 
-  appRegistry.on('collection-changed', (ns) => {
+  appRegistry.on('database-changed', (ns) => {
     store.dispatch(changeNamespace(ns));
     store.dispatch(updateTitle(ns));
   });
 
-  appRegistry.on('database-changed', (ns) => {
-    store.dispatch(changeNamespace(ns));
-    store.dispatch(updateTitle(ns));
+  appRegistry.on('all-collection-tabs-closed', () => {
+    store.dispatch(changeNamespace(''));
+    store.dispatch(updateTitle(''));
   });
 };
 
