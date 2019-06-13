@@ -75,11 +75,8 @@ class OptionEditor extends Component {
    * @returns {Boolean} If the component should update.
    */
   shouldComponentUpdate(nextProps) {
+    this.boundOnFieldsChanged(nextProps.schemaFields);
     return nextProps.autoPopulated || nextProps.serverVersion !== this.props.serverVersion;
-  }
-
-  componentDidUpdate() {
-    this.boundOnFieldsChanged(this.props.schemaFields);
   }
 
   /**
