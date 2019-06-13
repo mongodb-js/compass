@@ -50,7 +50,7 @@
   "peerDependencies": {
     "@mongodb-js/compass-aggregations": "^4.0.0-rc.6",
     "@mongodb-js/compass-collection-stats": "^4.2.4",
-    "@mongodb-js/compass-crud": "^7.0.1",
+    "@mongodb-js/compass-crud": "^7.0.2",
     "@mongodb-js/compass-deployment-awareness": "^8.0.0",
     "@mongodb-js/compass-explain-plan": "^3.0.0",
     "@mongodb-js/compass-export-to-language": "^4.1.0",
@@ -69,7 +69,7 @@
     "@mongodb-js/compass-aggregations": "^4.0.0-rc.6",
     "@mongodb-js/compass-collection-stats": "^4.2.4",
     "@mongodb-js/compass-deployment-awareness": "^8.0.0",
-    "@mongodb-js/compass-crud": "^7.0.1",
+    "@mongodb-js/compass-crud": "^7.0.2",
     "@mongodb-js/compass-explain-plan": "^3.0.0",
     "@mongodb-js/compass-export-to-language": "^4.1.0",
     "@mongodb-js/compass-field-store": "^5.0.0",
