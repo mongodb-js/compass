@@ -170,8 +170,6 @@ const createContext = (state, namespace, isReadonly, isDataLake) => {
   const views = [];
   const queryHistoryIndexes = [];
 
-  // @todo: Durran: Setup fields.
-
   // Setup the query bar plugin. Need to instantiate the store and actions
   // and put them in the app registry for use by all the plugins. This way
   // there is only 1 query bar store per collection tab instead of one per
@@ -245,6 +243,14 @@ const createContext = (state, namespace, isReadonly, isDataLake) => {
     isReadonly,
     !isDataLake
   );
+
+  const configureFieldStore = globalAppRegistry.getStore('Field.Store');
+  configureFieldStore({
+    localAppRegistry: localAppRegistry,
+    globalAppRegistry: globalAppRegistry,
+    namespace: namespace,
+    serverVersion: serverVersion
+  });
 
   return {
     tabs: tabs,
