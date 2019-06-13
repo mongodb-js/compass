@@ -90,7 +90,7 @@ class OptionEditor extends Component {
   }
 
   onFieldsChanged(fields) {
-    this.completer.update(fields.aceFields);
+    this.completer.update(fields);
   }
 
   /**

@@ -29,9 +29,10 @@ root.id = 'root';
 document.body.appendChild( root );
 
 const actions = configureActions();
+const localAppRegistry = new AppRegistry();
 const store = configureStore({
-  localAppRegistry: new AppRegistry(),
   globalAppRegistry: appRegistry,
+  localAppRegistry: localAppRegistry,
   serverVersion: '4.2.0',
   namespace: 'echo.artists',
   actions: actions,
@@ -58,6 +59,19 @@ const render = Component => {
     document.getElementById('root')
   );
 };
+
+localAppRegistry.emit('fields-changed', { aceFields: [
+  { name: 'harry',
+    value: 'harry',
+    score: 1,
+    meta: 'field',
+    version: '0.0.0' },
+  { name: 'potter',
+    value: 'potter',
+    score: 1,
+    meta: 'field',
+    version: '0.0.0' }
+]});
 
 // Render our plugin
 render(QueryBarPlugin);

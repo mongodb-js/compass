@@ -113,8 +113,7 @@ class QueryBar extends Component {
   };
 
   state = {
-    hasFocus: false,
-    schemaFields: []
+    hasFocus: false
   }
 
   componentWillUnmount() {
@@ -230,7 +229,7 @@ class QueryBar extends Component {
         inputType={OPTION_DEFINITION[option].type}
         onChange={this.onChange.bind(this, option)}
         onApply={this.onApplyButtonClicked}
-        schemaFields={this.state.schemaFields}
+        schemaFields={this.props.schemaFields}
       />
     );
   }
