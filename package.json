@@ -373,7 +373,7 @@
     "mongodb-collection-model": "^2.0.4",
     "mongodb-connection-model": "^13.1.5",
     "mongodb-core": "^3.2.2",
-    "mongodb-data-service": "^14.0.4",
+    "mongodb-data-service": "^14.0.5",
     "mongodb-database-model": "^0.1.3",
     "mongodb-explain-plan-model": "^0.2.2",
     "mongodb-extended-json": "^1.10.1",
