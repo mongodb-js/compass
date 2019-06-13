@@ -244,7 +244,6 @@ const createContext = (state, namespace, isReadonly, isDataLake) => {
     !isDataLake
   );
 
-  console.log('globalAppRegistry', globalAppRegistry);
   const configureFieldStore = globalAppRegistry.getStore('Field.Store');
   configureFieldStore({
     localAppRegistry: localAppRegistry,
