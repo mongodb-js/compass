@@ -10,7 +10,6 @@ const connect = require('mongodb-connection-model').connect;
 const getIndexes = require('mongodb-index-model').fetch;
 const createSampleStream = require('mongodb-collection-sample');
 const parseNamespace = require('mongodb-ns');
-const translate = require('mongodb-js-errors').translate;
 const debug = require('debug')('mongodb-data-service:native-client');
 const { getInstance } = require('./instance-detail-helper');
 
@@ -1120,13 +1119,10 @@ class NativeClient extends EventEmitter {
    * @returns {Error} The error with message translated.
    */
   _translateMessage(error) {
-    var mapping = translate(error);
-    if (mapping) {
-      if (typeof error === 'string') {
-        error = { message: error };
-      } else {
-        error.message = mapping.message;
-      }
+    if (typeof error === 'string') {
+      error = { message: error };
+    } else {
+      error.message = error.message || error.err || error.errmsg;
     }
     return error;
   }

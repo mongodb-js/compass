@@ -110,10 +110,9 @@ describe('NativeClient', function() {
         ns: 'data-service'
       });
       var badClient = new NativeClient(badConnection);
-      var message = 'MongoDB not running on the provided host and port';
       it('maps the error message', function(done) {
         badClient.connect(function(error) {
-          expect(error.message).to.equal(message);
+          expect(error.message).to.include('connect');
           done();
         });
       });
@@ -453,7 +452,7 @@ describe('NativeClient', function() {
       client.top(function(err, result) {
         if (client.isMongos) {
           assert(err);
-          expect(err.message).to.equal('Top command is not available in mongos');
+          expect(err.message).to.contain('top');
           done();
           return;
         }
