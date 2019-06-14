@@ -29,7 +29,9 @@ import error, {
 } from 'modules/create-view/error';
 
 import { reset, RESET } from 'modules/create-view/reset';
-import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
+import appRegistry, {
+  globalAppRegistryEmit
+} from 'mongodb-redux-common/app-registry';
 
 const parseNs = require('mongodb-ns');
 
@@ -51,6 +53,7 @@ export const INITIAL_STATE = {
  * The main reducer.
  */
 const reducer = combineReducers({
+  appRegistry,
   isRunning,
   isVisible,
   name,

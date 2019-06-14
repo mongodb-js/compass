@@ -9,9 +9,10 @@ describe('create view module', () => {
         const dataService = 'data-service';
 
         it('returns the reset state', () => {
-          expect(reducer({ dataService: dataService }, reset())).to.deep.equal({
+          expect(reducer({ dataService: dataService, appRegistry: 'test' }, reset())).to.deep.equal({
             ...INITIAL_STATE,
-            dataService: dataService
+            dataService: dataService,
+            appRegistry: 'test'
           });
         });
       });
