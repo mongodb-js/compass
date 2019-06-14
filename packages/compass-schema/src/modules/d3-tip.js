@@ -312,21 +312,20 @@
     //
     // Returns an Object {n, s, e, w, nw, sw, ne, se}
     function getScreenBBox() {
-      console.log('target', target);
-      console.log('d3.event', d3.event);
-      let targetel = target || d3.event.target;
+      let targetel = target;
+      if (!targetel) targetel = d3.event.target;
 
-      while ('undefined' === typeof targetel.getScreenCTM && 'undefined' === targetel.parentNode) {
+      while ('undefined' === typeof targetel.getScreenCTM && 'undefined' !== targetel.parentNode) {
         targetel = targetel.parentNode;
       }
 
-      const bbox = {},
-        matrix = targetel.getScreenCTM(),
-        tbbox = targetel.getBBox(),
-        width = tbbox.width,
-        height = tbbox.height,
-        x = tbbox.x,
-        y = tbbox.y;
+      const bbox = {};
+      const matrix = targetel.getScreenCTM();
+      const tbbox = targetel.getBBox();
+      const width = tbbox.width;
+      const height = tbbox.height;
+      const x = tbbox.x;
+      const y = tbbox.y;
 
       point.x = x;
       point.y = y;
