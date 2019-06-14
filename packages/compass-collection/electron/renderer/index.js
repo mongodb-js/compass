@@ -12,6 +12,7 @@ import { activate as activateStats } from '@mongodb-js/compass-collection-stats'
 import { activate as activateExplain } from '@mongodb-js/compass-explain-plan';
 import { activate as activateIndexes } from '@mongodb-js/compass-indexes';
 import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
+import { activate as activateQueryHistory } from '@mongodb-js/compass-query-history';
 import { activate as activateValidation } from '@mongodb-js/compass-schema-validation';
 import { activate as activateSchema } from '@mongodb-js/compass-schema';
 import { activate as activateFields } from '@mongodb-js/compass-field-store';
@@ -43,6 +44,7 @@ activateAgg(appRegistry);
 activateDA(appRegistry);
 activateStats(appRegistry);
 activateQueryBar(appRegistry);
+activateQueryHistory(appRegistry);
 activateExplain(appRegistry);
 activateIndexes(appRegistry);
 activateSchema(appRegistry);

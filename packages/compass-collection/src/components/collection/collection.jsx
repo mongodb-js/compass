@@ -57,20 +57,24 @@ class Collection extends Component {
   render() {
     return (
       <div className={classnames(styles.collection, 'clearfix')}>
-        <CollectionHeader
-          namespace={this.props.namespace}
-          isReadonly={this.props.isReadonly}
-          statsPlugin={this.props.statsPlugin}
-          statsStore={this.props.statsStore}
-          sourceName={this.props.sourceName} />
-        <TabNavBar
-          theme="light"
-          tabs={this.props.tabs}
-          views={this.props.views}
-          mountAllViews
-          activeTabIndex={this.props.activeSubTab}
-          onTabClicked={this.onSubTabClicked} />
-        {this.renderScopedModals()}
+        <div className={classnames(styles['collection-container'])}>
+          <CollectionHeader
+            namespace={this.props.namespace}
+            isReadonly={this.props.isReadonly}
+            statsPlugin={this.props.statsPlugin}
+            statsStore={this.props.statsStore}
+            sourceName={this.props.sourceName} />
+          <TabNavBar
+            theme="light"
+            tabs={this.props.tabs}
+            views={this.props.views}
+            mountAllViews
+            activeTabIndex={this.props.activeSubTab}
+            onTabClicked={this.onSubTabClicked} />
+        </div>
+        <div className={classnames(styles['collection-modal-container'])}>
+          {this.renderScopedModals()}
+        </div>
       </div>
     );
   }
