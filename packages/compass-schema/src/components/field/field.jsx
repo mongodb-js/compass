@@ -68,7 +68,13 @@ class Field extends Component {
       fieldList = [];
     } else {
       fieldList = fields.map((field) => {
-        return <Field key={field.name} {...field} />;
+        return (
+          <Field
+            key={field.name}
+            actions={this.props.actions}
+            localAppRegistry={this.props.localAppRegistry}
+            {...field} />
+        );
       });
     }
     return (
@@ -92,14 +98,14 @@ class Field extends Component {
    */
   getNestedDocType() {
     // check for directly nested document first
-    const docType = find(this.props.types, 'name', 'Document');
+    const docType = find(this.props.types, { name: 'Document' });
     if (docType) {
       return docType;
     }
     // otherwise check for nested documents inside an array
-    const arrType = find(this.props.types, 'name', 'Array');
+    const arrType = find(this.props.types, { name: 'Array' });
     if (arrType) {
-      return find(arrType.types, 'name', 'Document');
+      return find(arrType.types, { name: 'Document' });
     }
     return null;
   }
