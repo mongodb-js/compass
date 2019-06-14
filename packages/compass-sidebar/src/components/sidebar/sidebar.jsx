@@ -231,15 +231,13 @@ class Sidebar extends PureComponent {
         <button
           className={classnames(styles['compass-sidebar-toggle'], 'btn btn-default btn-sm')}
           onClick={this.handleCollapse.bind(this)}
-          data-test-id="toggle-sidebar"
-        >
+          data-test-id="toggle-sidebar">
           <i className={collapsedButton}/>
         </button>
 
         <SidebarInstanceProperties
           instance={this.props.instance}
-          activeNamespace={this.props.databases.activeNamespace}
-        />
+          activeNamespace={this.props.databases.activeNamespace} />
         <div
           className={classnames(styles['compass-sidebar-filter'])}
           onClick={this.handleSearchFocus.bind(this)}>
