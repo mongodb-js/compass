@@ -697,6 +697,9 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('fields-changed', (fields) => {
       store.setState({ schemaFields: fields.aceFields });
     });
+    localAppRegistry.on('subtab-changed', () => {
+      options.actions.refreshEditor();
+    });
 
     // Put the query changed store in the app registry
     // if it is not already there.
