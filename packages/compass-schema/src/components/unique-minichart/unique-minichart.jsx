@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ValueBubble from 'components/value-bubble';
-import sample from 'lodash.sample';
+import sampleSize from 'lodash.samplesize';
 
 class UniqueMiniChart extends Component {
   static displayName = 'UniqueMiniChartComponent';
 
   static propTypes = {
+    localAppRegistry: PropTypes.object.isRequired,
     fieldName: PropTypes.string.isRequired,
     queryValue: PropTypes.string,
     type: PropTypes.object.isRequired,
@@ -15,14 +16,14 @@ class UniqueMiniChart extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { sample: sample(this.props.type.values, 20) };
+    this.state = { sample: sampleSize(this.props.type.values, 20) };
   }
 
   onRefresh(e) {
     e.stopPropagation();
     e.preventDefault();
     this.setState({
-      sample: sample(this.props.type.values, 20)
+      sample: sampleSize(this.props.type.values, 20)
     });
   }
 
@@ -41,6 +42,7 @@ class UniqueMiniChart extends Component {
     const randomValueList = samp.map((value, i) => {
       return (
         <ValueBubble
+          localAppRegistry={this.props.localAppRegistry}
           key={`${fieldName}-${typeName}-${i}`}
           value={value}
           queryValue={this.props.queryValue}

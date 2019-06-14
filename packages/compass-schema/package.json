@@ -168,7 +168,7 @@
     "lodash.min": "^4.0.1",
     "lodash.pluck": "^3.1.2",
     "lodash.range": "^3.2.0",
-    "lodash.sample": "^4.2.1",
+    "lodash.samplesize": "^4.2.0",
     "lodash.slice": "^4.2.0",
     "lodash.sortby": "^4.7.0",
     "lodash.sortbyorder": "^3.4.4",
