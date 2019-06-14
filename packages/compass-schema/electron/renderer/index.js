@@ -66,7 +66,7 @@ const dataService = new DataService(connection);
 
 dataService.connect((error, ds) => {
   setDataProvider(store, error, ds);
-  setNamespace(store, 'echo.artists');
+  setNamespace(store, 'echo.asdfadsfadsfsdfas');
 });
 
 // Create a HMR enabled render function

@@ -20,7 +20,7 @@ const MAPBOX_API_URL = 'https://compass-maps.mongodb.com/api.mapbox.com';
 mapboxgl.accessToken = TOKEN;
 mapboxgl.config.API_URL = MAPBOX_API_URL;
 
-const minicharts_d3fns_geo = (globalAppRegistry) => {
+const minicharts_d3fns_geo = (localAppRegistry) => {
   // --- beginning chart setup ---
   let width = 400;
   let height = 100;
@@ -58,7 +58,7 @@ const minicharts_d3fns_geo = (globalAppRegistry) => {
     let update = null;
 
     function querybuilder() {
-      const QueryAction = globalAppRegistry.getAction('Query.Actions');
+      const QueryAction = localAppRegistry.getAction('Query.Actions');
 
       if (circleCenter && circleOuter) {
         mileDistance = turfDistance(

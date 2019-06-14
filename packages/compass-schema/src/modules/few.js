@@ -11,13 +11,13 @@ import { hasDistinctValue } from 'mongodb-query-util';
 
 require('./d3-tip')(d3);
 
-const minicharts_d3fns_few = (globalAppRegistry) => {
+const minicharts_d3fns_few = (localAppRegistry) => {
   // --- beginning chart setup ---
   let width = 400; // default width
   let height = 100; // default height
   let el;
 
-  const QueryAction = globalAppRegistry.getAction('Query.Actions');
+  const QueryAction = localAppRegistry.getAction('Query.Actions');
 
   const barHeight = 25;
   const brushHeight = 80;
