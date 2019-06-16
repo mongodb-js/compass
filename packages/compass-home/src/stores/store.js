@@ -76,6 +76,11 @@ store.onActivated = (appRegistry) => {
     store.dispatch(updateTitle(ns));
   });
 
+  appRegistry.on('open-namespace-in-new-tab', (ns) => {
+    store.dispatch(changeNamespace(ns));
+    store.dispatch(updateTitle(ns));
+  });
+
   appRegistry.on('all-collection-tabs-closed', () => {
     store.dispatch(changeNamespace(''));
     store.dispatch(updateTitle(''));
