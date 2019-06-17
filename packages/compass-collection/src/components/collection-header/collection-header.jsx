@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import toNS from 'mongodb-ns';
-import { TextButton } from 'hadron-react-buttons';
 
 import styles from './collection-header.less';
 
@@ -31,24 +30,12 @@ class CollectionHeader extends Component {
    */
   renderReadonly() {
     if (this.props.isReadonly) {
-      const modifyClass = classnames({
-        [styles['collection-header-title-readonly-modify-button']]: true,
-        'btn': true,
-        'btn-default': true,
-        'btn-xs': true
-      });
       return (
         <div className={classnames(styles['collection-header-title-readonly'])}>
           <span className={classnames(styles['collection-header-title-readonly-on'])}>
             (on: {this.props.sourceName})
           </span>
-          <span className={classnames(styles['collection-header-title-readonly-modify'])}>
-            <TextButton
-              text="Modify Source"
-              title="Modify View Source"
-              clickHandler={this.onModifySource}
-              className={modifyClass} />
-          </span>
+          <span className={classnames(styles['collection-header-title-readonly-modify'])} />
           <span className={classnames(styles['collection-header-title-readonly-indicator'])}>
             <i className="fa fa-eye" aria-hidden="true" />
             Read Only

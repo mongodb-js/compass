@@ -150,7 +150,10 @@ class CollectionTab extends PureComponent {
     if (this.props.isReadonly) {
       return (
         <div className={classnames(styles['collection-tab-info-readonly'])}>
-          <i className="fa fa-eye" aria-hidden="true" />
+          <i
+            className={classnames('fa', styles['collection-tab-info-view-icon'])}
+            title="Read-only View"
+            aria-hidden="true" />
         </div>
       );
     }
