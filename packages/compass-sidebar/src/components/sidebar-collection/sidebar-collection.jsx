@@ -127,7 +127,6 @@ class SidebarCollection extends PureComponent {
         <MenuItem eventKey="1" onClick={this.onOpenInNewTab.bind(this)}>Open in New Tab</MenuItem>
         <MenuItem eventKey="2" onClick={this.onDrop.bind(this)} disabled={!this.props.isWritable || this.props.isDataLake}>Drop View</MenuItem>
         <MenuItem eventKey="3" onClick={this.onDuplicateView.bind(this)} disabled={!this.props.isWritable}>Duplicate View</MenuItem>
-        <MenuItem eventKey="4" onClick={this.onModifySource.bind(this)} disabled={!this.props.isWritable}>Modify Source</MenuItem>
       </DropdownButton>
     );
   }

@@ -99,8 +99,5 @@ describe('SidebarCollection [Component]', () => {
     it('registers as readonly', () => {
       expect(component.find('[data-test-id="sidebar-collection-is-readonly"]')).to.be.present();
     });
-    it('has the view icon', () => {
-      expect(component.find('.fa-eye')).to.be.present();
-    });
   });
 });
