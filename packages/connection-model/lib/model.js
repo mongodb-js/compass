@@ -1,44 +1,55 @@
-var toURL = require('url').format;
-var format = require('util').format;
-var AmpersandModel = require('ampersand-model');
-var AmpersandCollection = require('ampersand-rest-collection');
-var ReadPreference = require('mongodb-core').ReadPreference;
-var assign = require('lodash.assign');
-var defaults = require('lodash.defaults');
-var clone = require('lodash.clone');
-var includes = require('lodash.includes');
-var parse = require('mongodb-url');
-var dataTypes = require('./data-types');
-var fs = require('fs');
-
-var Connection = {};
-var props = {};
-var derived = {};
-
-function localPortGenerator() {
-  // Choose a random ephemeral port to serve our (perhaps many) SSH Tunnels.
-  // IANA says 29170-29998 is unassigned,
-  // but Nintendo used 29900+ according to Wikipedia.
-  // https://en.wikipedia.org/wiki/Ephemeral_port
-  // https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
-  // http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?&page=127
-  const startPort = 29170;
-  const endPort = 29899;
-  return parseInt(
-    (Math.random() * (endPort - startPort + 1) + startPort).toString(), 10);
-}
+const toURL = require('url').format;
+const format = require('util').format;
+const AmpersandModel = require('ampersand-model');
+const AmpersandCollection = require('ampersand-rest-collection');
+const ReadPreference = require('mongodb-core').ReadPreference;
+const parseConnectionString = require('mongodb-core').parseConnectionString;
+const assign = require('lodash.assign');
+const defaults = require('lodash.defaults');
+const clone = require('lodash.clone');
+const includes = require('lodash.includes');
+const unescape = require('lodash.unescape');
+const dataTypes = require('./data-types');
+const localPortGenerator = require('./local-port-generator');
+const fs = require('fs');
 
 /**
- * @constant {Object} - Allowed values for the 'connectionType' field
+ * Defining constants
  */
-var CONNECTION_TYPE_VALUES = {
-  NODE_DRIVER: 'NODE_DRIVER',
-  STITCH_ON_PREM: 'STITCH_ON_PREM',
-  STITCH_ATLAS: 'STITCH_ATLAS'
-};
+const CONNECTION_TYPE_VALUES = require('../constants/connection-type-values');
+const AUTH_MECHANISM_TO_AUTHENTICATION = require('../constants/auth-mechanism-to-authentication');
+const AUTHENICATION_TO_AUTH_MECHANISM = require('../constants/authenication-to-auth-mechanism');
+const AUTHENTICATION_VALUES = require('../constants/authentication-values');
+const AUTHENTICATION_TO_FIELD_NAMES = require('../constants/authentication-to-field-names');
+const SSL_VALUES = require('../constants/ssl-values');
+const SSH_TUNNEL_VALUES = require('../constants/ssh-tunnel-values');
+const READ_PREFERENCE_VALUES = [
+  ReadPreference.PRIMARY,
+  ReadPreference.PRIMARY_PREFERRED,
+  ReadPreference.SECONDARY,
+  ReadPreference.SECONDARY_PREFERRED,
+  ReadPreference.NEAREST
+];
 
 /**
- * # Top-Level
+ * Defining default values
+ */
+const AUTHENTICATION_DEFAULT = 'NONE';
+const READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY;
+const MONGODB_DATABASE_NAME_DEFAULT = 'admin';
+const MONGODB_NAMESPACE_DEFAULT = 'test';
+const KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
+const SSL_DEFAULT = 'NONE';
+const SSH_TUNNEL_DEFAULT = 'NONE';
+const DRIVER_OPTIONS_DEFAULT = { connectWithNoPrimary: true };
+
+const props = {};
+const derived = {};
+
+let Connection = {};
+
+/**
+ * Assigning observable top-level properties of a state class
  */
 assign(props, {
   /**
@@ -49,137 +60,18 @@ assign(props, {
    *   PRODUCTION
    *   Analyics Box
    */
-  name: {
-    type: 'string',
-    default: 'Local'
-  },
-  hostname: {
-    type: 'string',
-    default: 'localhost'
-  },
-  connectionType: {
-    type: 'string',
-    default: CONNECTION_TYPE_VALUES.NODE_DRIVER
-  },
-  stitchServiceName: {
-    type: 'string'
-  },
-  stitchClientAppId: {
-    type: 'string'
-  },
-  stitchGroupId: {
-    type: 'string'
-  },
-  stitchBaseUrl: {
-    type: 'string'
-  },
-  port: {
-    type: 'port',
-    default: 27017
-  },
-  ns: {
-    type: 'string',
-    default: undefined
-  },
-  app_name: {
-    type: 'string',
-    default: undefined
-  },
-  extra_options: {
+  name: { type: 'string', default: 'Local' },
+  ns: { type: 'string', default: undefined },
+  isSrvRecord: { type: 'boolean', default: false },
+  auth: { type: 'object', default: undefined },
+  hostname: { type: 'string', default: 'localhost' },
+  port: { type: 'port', default: 27017 },
+  hosts: {
     type: 'object',
-    default: function() {
-      return {};
-    }
+    default: () => [{ host: 'localhost', port: 27017 }]
   },
-  replica_set_name: {
-    type: 'string',
-    default: undefined
-  },
-  isSrvRecord: {
-    type: 'boolean',
-    default: false
-  }
-});
-
-assign(derived, {
-  /**
-   * @see http://npm.im/mongodb-instance-model
-   */
-  instance_id: {
-    deps: ['hostname', 'port'],
-    fn: function() {
-      return format('%s:%s', this.hostname, this.port);
-    }
-  }
-});
-
-/**
- * The read preference values.
- */
-var READ_PREFERENCE_VALUES = [
-  ReadPreference.PRIMARY,
-  ReadPreference.PRIMARY_PREFERRED,
-  ReadPreference.SECONDARY,
-  ReadPreference.SECONDARY_PREFERRED,
-  ReadPreference.NEAREST
-];
-
-/**
- * The default read preference.
- */
-var READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY;
-
-assign(props, {
-  /**
-   * @property {String} authentication - `auth_mechanism` for humans.
-   */
-  read_preference: {
-    type: 'string',
-    values: READ_PREFERENCE_VALUES,
-    default: READ_PREFERENCE_DEFAULT
-  }
-});
-
-/**
- * @constant {Array} - Allowed values for the `authentication` field.
- */
-var AUTHENTICATION_VALUES = [
-  /**
-   * Use no authentication.
-   */
-  'NONE',
-  /**
-   * Allow the driver to autodetect and select SCRAM-SHA-1
-   * or MONGODB-CR depending on server capabilities.
-   */
-  'MONGODB',
-  /**
-   * @enterprise
-   * @see http://bit.ly/mongodb-node-driver-x509
-   */
-  'X509',
-  /**
-   * @enterprise
-   * @see http://bit.ly/mongodb-node-driver-kerberos
-   */
-  'KERBEROS',
-  /**
-   * @enterprise
-   * @see http://bit.ly/mongodb-node-driver-ldap
-   */
-  'LDAP',
-  'SCRAM-SHA-256'
-];
-
-/**
- * @constant {String} - The default value for `authentication`.
- */
-var AUTHENTICATION_DEFAULT = 'NONE';
-
-assign(props, {
-  /**
-   * @property {String} authentication - `auth_mechanism` for humans.
-   */
+  extraOptions: { type: 'object', default: () => ({}) },
+  connectionType: { type: 'string', default: CONNECTION_TYPE_VALUES.NODE_DRIVER },
   authentication: {
     type: 'string',
     values: AUTHENTICATION_VALUES,
@@ -188,100 +80,124 @@ assign(props, {
 });
 
 /**
- * @constant {Object} - Maps driver auth_mechanism to `authentication`.
+ * Connection string options
  */
-var AUTHENICATION_TO_AUTH_MECHANISM = {
-  NONE: undefined,
-  MONGODB: 'DEFAULT',
-  KERBEROS: 'GSSAPI',
-  X509: 'MONGODB-X509',
-  LDAP: 'PLAIN',
-  'SCRAM-SHA-256': 'SCRAM-SHA-256'
+const CONNECTION_STRING_OPTIONS = {
+  replicaSet: { type: 'string', default: undefined },
+  connectTimeoutMS: { type: 'number', default: undefined },
+  socketTimeoutMS: { type: 'number', default: undefined },
+  compression: { type: 'object', default: undefined },
+  /**
+   * Connection Pool Option
+   */
+  maxPoolSize: { type: 'number', default: undefined },
+  minPoolSize: { type: 'number', default: undefined },
+  maxIdleTimeMS: { type: 'number', default: undefined },
+  waitQueueMultiple: { type: 'number', default: undefined },
+  waitQueueTimeoutMS: { type: 'number', default: undefined },
+  /**
+   * Write Concern Options
+   */
+  w: { type: 'any', default: undefined },
+  wTimeoutMS: { type: 'number', default: undefined },
+  journal: { type: 'boolean', default: undefined },
+  /**
+   * Read Concern Options
+   */
+  readConcernLevel: { type: 'string', default: undefined },
+  /**
+   * Read Preference Options
+   */
+  readPreference: {
+    type: 'string',
+    values: READ_PREFERENCE_VALUES,
+    default: READ_PREFERENCE_DEFAULT
+  },
+  maxStalenessSeconds: { type: 'number', default: undefined },
+  readPreferenceTags: { type: 'object', default: undefined },
+  /**
+   * Read Preference Options
+   */
+  authSource: { type: 'string', default: undefined },
+  authMechanism: { type: 'string', default: undefined },
+  authMechanismProperties: { type: 'object', default: undefined },
+  gssapiServiceName: { type: 'string', default: undefined },
+  gssapiServiceRealm: { type: 'string', default: undefined },
+  gssapiCanonicalizeHostName: { type: 'boolean', default: undefined },
+  /**
+   * Server Selection and Discovery Options
+   */
+  localThresholdMS: { type: 'number', default: undefined },
+  serverSelectionTimeoutMS: { type: 'number', default: undefined },
+  serverSelectionTryOnce: { type: 'boolean', default: undefined },
+  heartbeatFrequencyMS: { type: 'number', default: undefined },
+  /**
+   * Miscellaneous Configuration
+   */
+  appname: { type: 'string', default: undefined },
+  retryWrites: { type: 'boolean', default: undefined },
+  uuidRepresentation: {
+    type: 'string',
+    values: ['standard', 'csharpLegacy', 'javaLegacy', 'pythonLegacy'],
+    default: undefined
+  }
 };
 
+assign(props, CONNECTION_STRING_OPTIONS);
+
+/**
+ * Stitch attributes
+ */
+assign(props, {
+  stitchServiceName: { type: 'string' },
+  stitchClientAppId: { type: 'string' },
+  stitchGroupId: { type: 'string' },
+  stitchBaseUrl: { type: 'string' }
+});
+
+/**
+ * Assigning derived (computed) properties of a state class
+ */
 assign(derived, {
   /**
-   * Converts the value of `authentication` (for humans)
-   * into the `auth_mechanism` value for the driver.
+   * @see http://npm.im/mongodb-instance-model
    */
-  driver_auth_mechanism: {
+  instanceId: {
+    type: 'string',
+    deps: ['hostname', 'port'],
+    fn() {
+      return format('%s:%s', this.hostname, this.port);
+    }
+  },
+  /**
+   * Converts the value of `authentication` (for humans)
+   * into the `authMechanism` value for the driver.
+   */
+  driverAuthMechanism: {
     type: 'string',
     deps: ['authentication'],
-    fn: function() {
+    fn() {
       return AUTHENICATION_TO_AUTH_MECHANISM[this.authentication];
     }
   }
 });
 
 /**
- * @constant {Object} - Maps `authentication` to driver auth_mechanism.
- */
-var AUTH_MECHANISM_TO_AUTHENTICATION = {
-  '': 'NONE',
-  DEFAULT: 'MONGODB',
-  'SCRAM-SHA-1': 'MONGODB',
-  'SCRAM-SHA-256': 'SCRAM-SHA-256',
-  'MONGODB-CR': 'MONGODB',
-  'MONGODB-X509': 'X509',
-  GSSAPI: 'KERBEROS',
-  SSPI: 'KERBEROS',
-  PLAIN: 'LDAP',
-  LDAP: 'LDAP'
-};
-
-/**
- * @constant {Object} - Array of field names associated with each `authentication`.
- */
-var AUTHENTICATION_TO_FIELD_NAMES = {
-  NONE: [],
-  MONGODB: [
-    'mongodb_username', // required
-    'mongodb_password', // required
-    'mongodb_database_name' // optional
-  ],
-  'SCRAM-SHA-256': [
-    'mongodb_username', // required
-    'mongodb_password', // required
-    'mongodb_database_name' // optional
-  ],
-  KERBEROS: [
-    'kerberos_principal', // required
-    'kerberos_password', // optional
-    'kerberos_service_name', // optional
-    'kerberos_canonicalize_hostname'
-  ],
-  X509: [
-    'x509_username' // required
-  ],
-  LDAP: [
-    'ldap_username', // required
-    'ldap_password' // required
-  ]
-};
-
-/**
- * ### `authentication = MONGODB`
+ * `authentication = MONGODB`
  *
  * @example
- *   var c = new Connection({
- *     mongodb_username: 'arlo',
- *     mongodb_password: 'w@of'
+ *   const c = new Connection({
+ *     mongodbUsername: 'arlo',
+ *     mongodbPassword: 'w@of'
  *   });
- *   console.log(c.driver_url)
+ *   console.log(c.driverUrl)
  *   >>> mongodb://arlo:w%40of@localhost:27017?slaveOk=true&authSource=admin
- *   console.log(c.driver_options)
- *   >>> { db: { readPreference: 'nearest' },
- *     replSet: { connectWithNoPrimary: true } }
+ *   console.log(c.driverOptions)
+ *   >>> { db: { readPreference: 'nearest' }, replSet: { connectWithNoPrimary: true } }
  */
 assign(props, {
-  mongodb_username: {
-    type: 'string',
-    default: undefined
-  },
-  mongodb_password: {
-    type: 'string',
-    default: undefined
-  },
+  mongodbUsername: { type: 'string', default: undefined },
+  mongodbPassword: { type: 'string', default: undefined },
   /**
    * The database name associated with the user's credentials.
    * If `authentication === 'MONGODB'`,
@@ -289,36 +205,27 @@ assign(props, {
    *
    * @see http://docs.mongodb.org/manual/reference/connection-string/#uri.authSource
    */
-  mongodb_database_name: {
-    type: 'string',
-    default: undefined
-  },
+  mongodbDatabaseName: { type: 'string', default: undefined },
   /**
    * Whether BSON values should be promoted to their JS type counterparts.
    */
-  promote_values: {
-    type: 'boolean'
-  }
+  promoteValues: { type: 'boolean' }
 });
 
-var MONGODB_DATABASE_NAME_DEFAULT = 'admin';
-var MONGODB_NAMESPACE_DEFAULT = 'test';
-
 /**
- * ### `authentication = KERBEROS`
+ * `authentication = KERBEROS`
  *
  * @example
- *   var c = new Connection({
- *     kerberos_service_name: 'mongodb',
- *     kerberos_password: 'w@@f',
- *     kerberos_principal: 'arlo/dog@krb5.mongodb.parts',
+ *   const c = new Connection({
+ *     kerberosServiceName: 'mongodb',
+ *     kerberosPassword: 'w@@f',
+ *     kerberosPrincipal: 'arlo/dog@krb5.mongodb.parts',
  *     ns: 'kerberos'
  *   });
- *   console.log(c.driver_url)
+ *   console.log(c.driverUrl)
  *   >>> mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI
- *   console.log(c.driver_options)
- *   >>> { db: { readPreference: 'nearest' },
- *     replSet: { connectWithNoPrimary: true } }
+ *   console.log(c.driverOptions)
+ *   >>> { db: { readPreference: 'nearest' }, replSet: { connectWithNoPrimary: true } }
  *
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-kerberos
@@ -330,12 +237,9 @@ assign(props, {
    * “ftp” (FTP), “krbtgt” (authentication; cf. ticket-granting ticket),
    * and “pop” (email).
    *
-   * Formerly kerberos_service_name
+   * Formerly kerberosServiceName
    */
-  kerberos_service_name: {
-    type: 'string',
-    default: undefined
-  },
+  kerberosServiceName: { type: 'string', default: undefined },
   /**
    * The format of a typical Kerberos V5 principal is `primary/instance@REALM`.
    *
@@ -345,12 +249,9 @@ assign(props, {
    *
    * @see http://bit.ly/kerberos-principal
    * @note (imlucas): When passed to the driver, this should be
-   * `mongodb://#{encodeURIComponent(this.kerberos_principal)}`
+   * `mongodb://#{encodeURIComponent(this.kerberosPrincipal)}`
    */
-  kerberos_principal: {
-    type: 'string',
-    default: undefined
-  },
+  kerberosPrincipal: { type: 'string', default: undefined },
   /**
    * You can optionally include a password for a kerberos connection.
    * Including a password is useful on windows if you don’t have a
@@ -358,33 +259,23 @@ assign(props, {
    * If no password is supplied, it is expected that a valid kerberos
    * ticket has already been created for the principal.
    */
-  kerberos_password: {
-    type: 'string',
-    default: undefined
-  },
-
-  kerberos_canonicalize_hostname: {
-    type: 'boolean',
-    default: false
-  }
+  kerberosPassword: { type: 'string', default: undefined },
+  kerberosCanonicalizeHostname: { type: 'boolean', default: false }
 });
 
-var KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
-
 /**
- * ### `authentication = LDAP`
+ * `authentication = LDAP`
  *
  * @example
- *    var c = new Connection({
- *     ldap_username: 'arlo',
- *     ldap_password: 'w@of',
+ *    const c = new Connection({
+ *     ldapUsername: 'arlo',
+ *     ldapPassword: 'w@of',
  *     ns: 'ldap'
  *   });
- *   console.log(c.driver_url)
+ *   console.log(c.driverUrl)
  *   >>> mongodb://arlo:w%40of@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN
- *   console.log(c.driver_options)
- *   >>> { db: { readPreference: 'nearest' },
- *     replSet: { connectWithNoPrimary: true } }
+ *   console.log(c.driverOptions)
+ *   >>> { db: { readPreference: 'nearest' }, replSet: { connectWithNoPrimary: true } }
  *
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-ldap
@@ -394,37 +285,30 @@ assign(props, {
    * @see http://bit.ly/mongodb-node-driver-ldap
    * @see http://bit.ly/mongodb-ldap
    */
-  ldap_username: {
-    type: 'string',
-    default: undefined
-  },
+  ldapUsername: { type: 'string', default: undefined },
   /**
    * @see http://bit.ly/mongodb-node-driver-ldap
    * @see http://bit.ly/mongodb-ldap
    */
-  ldap_password: {
-    type: 'string',
-    default: undefined
-  }
+  ldapPassword: { type: 'string', default: undefined }
 });
 
 /**
- * ### `authentication = X509`
+ * `authentication = X509`
  *
  * @todo (imlucas): We've been assuming authenticaiton=X509 that SSL=ALL is implied,
- * but the driver docs only send `ssl_private_key` and `ssl_certificate`
+ * but the driver docs only send `sslKey` and `sslCert`
  * so we may need to add another value to `SSL_VALUES`.  Need to verify this and
  * then update the example below.
  *
  * @example
- *   var c = new Connection({
- *    'x509_username': 'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,ST=Pennsylvania,C=US',
+ *   const c = new Connection({
+ *    'x509Username': 'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,ST=Pennsylvania,C=US',
  *   });
- *   console.log(c.driver_url)
+ *   console.log(c.driverUrl)
  *   >>> mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia%252CST%253DPennsylvania%252CC%253DUS@localhost:27017?slaveOk=true&authMechanism=MONGODB-X509
- *   console.log(c.driver_options)
- *   >>> { db: { readPreference: 'nearest' },
- *    replSet: { connectWithNoPrimary: true } }
+ *   console.log(c.driverOptions)
+ *   >>> { db: { readPreference: 'nearest' }, replSet: { connectWithNoPrimary: true } }
  *
  * @see http://bit.ly/mongodb-node-driver-x509
  * @see http://bit.ly/mongodb-x509
@@ -433,118 +317,42 @@ assign(props, {
   /**
    * The x.509 certificate derived user name, e.g. "CN=user,OU=OrgUnit,O=myOrg,..."
    */
-  x509_username: {
-    type: 'string',
-    default: undefined
-  }
+  x509Username: { type: 'string', default: undefined }
 });
 
 /**
- * ## SSL
- *
- * @note (imlucas): Not to be confused with `authentication=X509`!
+ * SSL
  */
-/**
- * @constant {Array} - Allowed values for the `ssl` field.
- */
-var SSL_VALUES = [
-  /**
-   * Do not use SSL for anything.
-   */
-  'NONE',
-  /**
-   * Use system CA.
-   */
-  'SYSTEMCA',
-  /**
-   * Use SSL if available.
-   */
-  'IFAVAILABLE',
-  /**
-   * Use SSL but do not perform any validation of the certificate chain.
-   */
-  'UNVALIDATED',
-  /**
-   * The driver should validate the server certificate and fail to connect if validation fails.
-   */
-  'SERVER',
-  /**
-   * The driver must present a valid certificate and validate the server certificate.
-   */
-  'ALL'
-];
-
-/**
- * @constant {String} - The default value for `ssl`.
- */
-var SSL_DEFAULT = 'NONE';
-
 assign(props, {
-  ssl: {
-    type: 'string',
-    values: SSL_VALUES,
-    default: SSL_DEFAULT
-  },
+  ssl: { type: 'any', default: undefined },
+  sslType: { type: 'string', values: SSL_VALUES, default: SSL_DEFAULT },
   /**
    * Array of valid certificates either as Buffers or Strings
    * (needs to have a mongod server with ssl support, 2.4 or higher).
    */
-  ssl_ca: {
-    type: 'any',
-    default: undefined
-  },
-
+  sslCA: { type: 'any', default: undefined },
   /**
    * String or buffer containing the certificate we wish to present
    * (needs to have a mongod server with ssl support, 2.4 or higher).
    */
-  ssl_certificate: {
-    type: 'any',
-    default: undefined
-  },
+  sslCert: { type: 'any', default: undefined },
   /**
    * String or buffer containing the certificate private key we wish to present
    * (needs to have a mongod server with ssl support, 2.4 or higher).
    */
-  ssl_private_key: {
-    type: 'any',
-    default: undefined
-  },
+  sslKey: { type: 'any', default: undefined },
   /**
    * String or buffer containing the certificate password
    * (needs to have a mongod server with ssl support, 2.4 or higher).
    */
-  ssl_private_key_password: {
-    type: 'string',
-    default: undefined
-  }
+  sslPass: { type: 'string', default: undefined }
 });
 
 /**
- * @constant {Array} - Allowed values for the `ssh_tunnel` field.
+ * SSH TUNNEL
  */
-var SSH_TUNNEL_VALUES = [
-  /**
-   * Do not use SSH tunneling.
-   */
-  'NONE',
-  /**
-   * The tunnel is created with username and password only.
-   */
-  'USER_PASSWORD',
-  /**
-   * The tunnel is created using an identity file.
-   */
-  'IDENTITY_FILE'
-];
-
-/**
- * @constant {String} - The default value for `ssh_tunnel`.
- */
-var SSH_TUNNEL_DEFAULT = 'NONE';
-
 assign(props, {
-  ssh_tunnel: {
+  sshTunnel: {
     type: 'string',
     values: SSH_TUNNEL_VALUES,
     default: SSH_TUNNEL_DEFAULT
@@ -552,186 +360,190 @@ assign(props, {
   /**
    * The hostname of the SSH remote host.
    */
-  ssh_tunnel_hostname: {
-    type: 'string',
-    default: undefined
-  },
+  sshTunnelHostname: { type: 'string', default: undefined },
   /**
    * The SSH port of the remote host.
    */
-  ssh_tunnel_port: {
-    type: 'port',
-    default: 22
-  },
+  sshTunnelPort: { type: 'port', default: 22 },
   /**
    * Bind the localhost endpoint of the SSH Tunnel to this port.
    */
-  ssh_tunnel_bind_to_local_port: {
-    type: 'port',
-    default: undefined
-  },
+  sshTunnelBindToLocalPort: { type: 'port', default: undefined },
   /**
    * The optional SSH username for the remote host.
    */
-  ssh_tunnel_username: {
-    type: 'string',
-    default: undefined
-  },
+  sshTunnelUsername: { type: 'string', default: undefined },
   /**
    * The optional SSH password for the remote host.
    */
-  ssh_tunnel_password: {
-    type: 'string',
-    default: undefined
-  },
+  sshTunnelPassword: { type: 'string', default: undefined },
   /**
    * The optional path to the SSH identity file for the remote host.
    */
-  ssh_tunnel_identity_file: {
-    type: 'any',
-    default: undefined
-  },
+  sshTunnelIdentityFile: { type: 'any', default: undefined },
   /**
-   * The optional passphrase for `ssh_tunnel_identity_file`.
+   * The optional passphrase for `sshTunnelIdentityFile`.
    */
-  ssh_tunnel_passphrase: {
-    type: 'string',
-    default: undefined
-  }
+  sshTunnelPassphrase: { type: 'string', default: undefined }
 });
 
 /**
- * ## Driver Connection Options
+ * Driver Connection Options
  *
  * So really everything above is all about putting
  * a human API on top of the two arguments `scout-server`
  * will always blindly pass to the driver when connecting to mongodb:
- * `MongoClient.connect(model.driver_url, model.driver_options)`.
+ * `MongoClient.connect(model.driverUrl, model.driverOptions)`.
  */
-var DRIVER_OPTIONS_DEFAULT = {
-  connectWithNoPrimary: true
-};
-
 assign(derived, {
   /**
    * Get the URL which can be passed to `MongoClient.connect(url)`.
    * @see http://bit.ly/mongoclient-connect
    * @return {String}
    */
-  driver_url: {
+  driverUrl: {
     cache: false,
     /* eslint complexity: 0 */
-    fn: function() {
+    fn() {
       const AUTH_TOKEN = 'AUTH_TOKEN';
-      var req = {
+      const req = {
         protocol: this.isSrvRecord ? 'mongodb+srv' : 'mongodb',
         slashes: true,
-        hostname: this.hostname,
-        port: this.isSrvRecord ? null : this.port,
         pathname: '/',
         query: {}
       };
 
-      if (this.replica_set_name) {
-        req.query.replicaSet = this.replica_set_name;
-      }
-
-      req.query.readPreference = this.read_preference;
-
-      if (this.app_name) {
-        req.query.appname = this.app_name;
+      if (this.hosts.length === 1) {
+        req.hostname = this.hostname;
+        req.port = this.isSrvRecord ? null : this.port;
+      } else {
+        req.host = this.hosts.map((item) => `${item.host}:${item.port}`).join(',');
       }
 
       if (this.ns) {
         req.pathname = format('/%s', this.ns);
       }
 
-      const encodeAuthForUrlFormat = () => {
-        if (this.authentication === 'MONGODB') {
-          req.auth = AUTH_TOKEN;
-          req.query.authSource = this.mongodb_database_name || MONGODB_DATABASE_NAME_DEFAULT;
-        } else if (this.authentication === 'SCRAM-SHA-256') {
-          req.auth = AUTH_TOKEN;
-          req.query.authSource = this.mongodb_database_name || MONGODB_DATABASE_NAME_DEFAULT;
-          req.query.authMechanism = this.driver_auth_mechanism;
-        } else if (this.authentication === 'KERBEROS') {
-          defaults(req.query, {
-            gssapiServiceName: this.kerberos_service_name,
-            authMechanism: this.driver_auth_mechanism
-          });
-          req.auth = AUTH_TOKEN;
-        } else if (this.authentication === 'X509') {
-          req.auth = this.x509_username;
-          defaults(req.query, {
-            authMechanism: this.driver_auth_mechanism
-          });
-        } else if (this.authentication === 'LDAP') {
-          req.auth = AUTH_TOKEN;
+      // Encode auth for url format
+      if (this.authentication === 'MONGODB') {
+        req.auth = AUTH_TOKEN;
+        req.query.authSource = this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
+      } else if (this.authentication === 'SCRAM-SHA-256') {
+        req.auth = AUTH_TOKEN;
+        req.query.authSource = this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
+        req.query.authMechanism = this.driverAuthMechanism;
+      } else if (this.authentication === 'KERBEROS') {
+        req.auth = AUTH_TOKEN;
+        defaults(req.query, {
+          gssapiServiceName: this.kerberosServiceName,
+          authMechanism: this.driverAuthMechanism
+        });
+      } else if (this.authentication === 'X509') {
+        req.auth = this.x509Username;
+        defaults(req.query, { authMechanism: this.driverAuthMechanism });
+      } else if (this.authentication === 'LDAP') {
+        req.auth = AUTH_TOKEN;
+        defaults(req.query, { authMechanism: this.driverAuthMechanism });
+      }
 
-          defaults(req.query, {
-            authMechanism: this.driver_auth_mechanism
-          });
+      Object.keys(CONNECTION_STRING_OPTIONS).forEach((item) => {
+        if (typeof this[item] !== 'undefined' && !req.query[item]) {
+          if (item === 'compression') {
+            if (this.compression.compressors) {
+              req.query.compressors = this.compression.compressors.join(',');
+            }
+
+            if (this.compression.zlibCompressionLevel) {
+              req.query.zlibCompressionLevel = this.compression.zlibCompressionLevel;
+            }
+          } else if (item === 'authMechanismProperties') {
+            if (this.authMechanismProperties) {
+              req.query.authMechanismProperties = Object
+                .keys(this.authMechanismProperties)
+                .map((tag) => `${tag}:${this.authMechanismProperties[tag]}`)
+                .join(',');
+            }
+          } else if (item === 'readPreferenceTags') {
+            if (this.readPreferenceTags) {
+              req.query.readPreferenceTags = Object
+                .keys(this.readPreferenceTags)
+                .map((tag) => `${tag}:${this.readPreferenceTags[tag]}`)
+                .join(',');
+            }
+          } else {
+            req.query[item] = this[item];
+          }
         }
-      };
-      encodeAuthForUrlFormat();
+      });
 
-      if (includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.ssl)) {
+      if (this.ssl) {
+        req.query.ssl = this.ssl;
+      } else if (includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.sslType)) {
         req.query.ssl = 'true';
-      } else if (this.ssl === 'IFAVAILABLE') {
+      } else if (this.sslType === 'IFAVAILABLE') {
         req.query.ssl = 'prefer';
-      } else if (this.ssl === 'NONE') {
+      } else if (this.sslType === 'NONE') {
         req.query.ssl = 'false';
       }
-      var reqClone = clone(req);
-      if (this.ssh_tunnel !== 'NONE') {
+
+      const reqClone = clone(req);
+
+      if (this.sshTunnel !== 'NONE') {
         // Populate the SSH Tunnel options correctly
-        reqClone.hostname = this.ssh_tunnel_options.localAddr;
-        reqClone.port = this.ssh_tunnel_options.localPort;
+        reqClone.hostname = this.sshTunnelOptions.localAddr;
+        reqClone.port = this.sshTunnelOptions.localPort;
       }
-      var result = toURL(reqClone);
+
+      let result = toURL(reqClone);
 
       // Post url.format() workaround for
       // https://github.com/nodejs/node/issues/1802
       if (this.authentication === 'MONGODB' || this.authentication === 'SCRAM-SHA-256') {
         const authField = format(
           '%s:%s',
-          encodeURIComponent(this.mongodb_username),
-          encodeURIComponent(this.mongodb_password)
+          encodeURIComponent(this.mongodbUsername),
+          encodeURIComponent(this.mongodbPassword)
         );
 
         // The auth component comes straight after the mongodb:// so
         // a single string replace should always work
         result = result.replace(AUTH_TOKEN, authField, 1);
       }
+
       if (this.authentication === 'LDAP') {
         const authField = format(
           '%s:%s',
-          encodeURIComponent(this.ldap_username),
-          encodeURIComponent(this.ldap_password)
+          encodeURIComponent(this.ldapUsername),
+          encodeURIComponent(this.ldapPassword)
         );
         result = result.replace(AUTH_TOKEN, authField, 1);
         result = `${result}&authSource=$external`;
       }
+
       if (this.authentication === 'KERBEROS') {
-        if (this.kerberos_password) {
+        if (this.kerberosPassword) {
           const authField = format(
             '%s:%s',
-            encodeURIComponent(this.kerberos_principal),
-            encodeURIComponent(this.kerberos_password)
+            encodeURIComponent(this.kerberosPrincipal),
+            encodeURIComponent(this.kerberosPassword)
           );
           result = result.replace(AUTH_TOKEN, authField, 1);
         } else {
           const authField = format(
             '%s:',
-            encodeURIComponent(this.kerberos_principal)
+            encodeURIComponent(this.kerberosPrincipal)
           );
+
           result = result.replace(AUTH_TOKEN, authField, 1);
         }
+
         result = `${result}&authSource=$external`;
-        if (this.kerberos_canonicalize_hostname) {
+
+        if (this.kerberosCanonicalizeHostname) {
           result = `${result}&authMechanismProperties=CANONICALIZE_HOST_NAME:true`;
         }
       }
+
       return result;
     }
   },
@@ -741,57 +553,46 @@ assign(derived, {
    * @see http://mongodb.github.io/node-mongodb-native/2.0/api/MongoClient.html#.connect
    * @return {Object}
    */
-  driver_options: {
+  driverOptions: {
     cache: false,
-    fn: function() {
-      var opts = clone(DRIVER_OPTIONS_DEFAULT, true);
-      if (this.ssl === 'SERVER') {
+    fn() {
+      const opts = clone(DRIVER_OPTIONS_DEFAULT, true);
+
+      if (this.sslType === 'SERVER') {
+        assign(opts, { sslValidate: true, sslCA: this.sslCA });
+      } else if (this.sslType === 'ALL') {
         assign(opts, {
           sslValidate: true,
-          sslCA: this.ssl_ca
-        });
-      } else if (this.ssl === 'ALL') {
-        assign(opts, {
-          sslValidate: true,
-          sslCA: this.ssl_ca,
-          sslKey: this.ssl_private_key,
-          sslCert: this.ssl_certificate
+          sslCA: this.sslCA,
+          sslKey: this.sslKey,
+          sslCert: this.sslCert
         });
 
-        if (this.ssl_private_key_password) {
-          opts.sslPass = this.ssl_private_key_password;
+        if (this.sslPass) {
+          opts.sslPass = this.sslPass;
         }
 
         if (this.authentication === 'X509') {
           opts.checkServerIdentity = false;
           opts.sslValidate = false;
         }
-      } else if (this.ssl === 'UNVALIDATED') {
-        assign(opts, {
-          checkServerIdentity: false,
-          sslValidate: false
-        });
-      } else if (this.ssl === 'SYSTEMCA') {
-        assign(opts, {
-          checkServerIdentity: true,
-          sslValidate: true
-        });
-      } else if (this.ssl === 'IFAVAILABLE') {
-        assign(opts, {
-          checkServerIdentity: false,
-          sslValidate: true
-        });
+      } else if (this.sslType === 'UNVALIDATED') {
+        assign(opts, { checkServerIdentity: false, sslValidate: false });
+      } else if (this.sslType === 'SYSTEMCA') {
+        assign(opts, { checkServerIdentity: true, sslValidate: true });
+      } else if (this.sslType === 'IFAVAILABLE') {
+        assign(opts, { checkServerIdentity: false, sslValidate: true });
       }
 
       // assign and overwrite all extra options provided by user
-      assign(opts, this.extra_options);
+      assign(opts, this.extraOptions);
 
       // only set promoteValues if it is defined
-      if (this.promote_values !== undefined) {
-        opts.promoteValues = this.promote_values;
+      if (this.promoteValues !== undefined) {
+        opts.promoteValues = this.promoteValues;
       }
 
-      opts.readPreference = this.read_preference;
+      opts.readPreference = this.readPreference;
 
       return opts;
     }
@@ -800,36 +601,39 @@ assign(derived, {
    * @return {Object} The options passed to our SSHTunnel and also
    * downwards to http://npm.im/ssh2
    */
-  ssh_tunnel_options: {
+  sshTunnelOptions: {
     cache: false,
-    fn: function() {
-      if (this.ssh_tunnel === 'NONE') {
+    fn() {
+      if (this.sshTunnel === 'NONE') {
         return {};
       }
-      if (!this.ssh_tunnel_bind_to_local_port) {
-        this.ssh_tunnel_bind_to_local_port = localPortGenerator();
+
+      if (!this.sshTunnelBindToLocalPort) {
+        this.sshTunnelBindToLocalPort = localPortGenerator();
       }
-      var opts = {
+
+      const opts = {
         readyTimeout: 5000,
         forwardTimeout: 5000,
         keepaliveInterval: 5000,
         srcAddr: '127.0.0.1',  // OS should figure out an ephemeral srcPort
         dstPort: this.port,
         dstAddr: this.hostname,
-        localPort: this.ssh_tunnel_bind_to_local_port,
+        localPort: this.sshTunnelBindToLocalPort,
         localAddr: '127.0.0.1',
-        host: this.ssh_tunnel_hostname,
-        port: this.ssh_tunnel_port,
-        username: this.ssh_tunnel_username
+        host: this.sshTunnelHostname,
+        port: this.sshTunnelPort,
+        username: this.sshTunnelUsername
       };
 
-      if (this.ssh_tunnel === 'USER_PASSWORD') {
-        opts.password = this.ssh_tunnel_password;
-      } else if (this.ssh_tunnel === 'IDENTITY_FILE') {
+      if (this.sshTunnel === 'USER_PASSWORD') {
+        opts.password = this.sshTunnelPassword;
+      } else if (this.sshTunnel === 'IDENTITY_FILE') {
         /* eslint no-sync: 0 */
-        if (this.ssh_tunnel_identity_file && this.ssh_tunnel_identity_file[0]) {
+        if (this.sshTunnelIdentityFile && this.sshTunnelIdentityFile[0]) {
           // @note: COMPASS-2263: Handle the case where the file no longer exists.
-          const fileName = this.ssh_tunnel_identity_file[0];
+          const fileName = this.sshTunnelIdentityFile[0];
+
           try {
             opts.privateKey = fs.readFileSync(fileName);
           } catch (e) {
@@ -837,10 +641,12 @@ assign(derived, {
             console.error(`Could not locate ssh tunnel identity file: ${fileName}`);
           }
         }
-        if (this.ssh_tunnel_passphrase) {
-          opts.passphrase = this.ssh_tunnel_passphrase;
+
+        if (this.sshTunnelPassphrase) {
+          opts.passphrase = this.sshTunnelPassphrase;
         }
       }
+
       return opts;
     }
   }
@@ -848,75 +654,86 @@ assign(derived, {
 
 /**
  * An ampersand.js model to represent a connection to a MongoDB database.
- * It does not actually talk to MongoDB.  It is just a higher-level
+ * It does not actually talk to MongoDB. It is just a higher-level
  * abstraction that prepares arguments for `MongoClient.connect`.
  */
 Connection = AmpersandModel.extend({
   namespace: 'Connection',
-  idAttribute: 'instance_id',
-  props: props,
-  derived: derived,
-  dataTypes: dataTypes,
-  initialize: function(attrs) {
+  idAttribute: 'instanceId',
+  props,
+  derived,
+  dataTypes,
+  initialize(attrs) {
     if (attrs) {
       if (typeof attrs === 'string') {
         try {
           attrs = Connection.from(attrs);
         } catch (e) {
           this.validationError = e;
+
           return;
         }
       }
 
-      if (attrs.ssl_ca && !Array.isArray(attrs.ssl_ca)) {
-        this.ssl_ca = attrs.ssl_ca = [attrs.ssl_ca];
+      if (attrs.sslCA && !Array.isArray(attrs.sslCA)) {
+        this.sslCA = attrs.sslCA = [attrs.sslCA];
       }
-      if (attrs.ssh_tunnel && attrs.ssh_tunnel !== 'NONE') {
+
+      if (attrs.sshTunnel && attrs.sshTunnel !== 'NONE') {
         const port = localPortGenerator();
-        attrs.ssh_tunnel_bind_to_local_port = port;
-        this.ssh_tunnel_bind_to_local_port = port;
+
+        attrs.sshTunnelBindToLocalPort = port;
+        this.sshTunnelBindToLocalPort = port;
       }
+
       this.parse(attrs);
     }
   },
-  parse: function(attrs) {
+  parse(attrs) {
     if (!attrs) {
       return attrs;
     }
-    if (attrs.mongodb_username && attrs.authentication !== 'SCRAM-SHA-256') {
+
+    if (attrs.mongodbUsername && attrs.authentication !== 'SCRAM-SHA-256') {
       this.authentication = attrs.authentication = 'MONGODB';
-    } else if (attrs.kerberos_principal) {
+    } else if (attrs.kerberosPrincipal) {
       this.authentication = attrs.authentication = 'KERBEROS';
-    } else if (attrs.ldap_username) {
+    } else if (attrs.ldapUsername) {
       this.authentication = attrs.authentication = 'LDAP';
-    } else if (attrs.x509_username) {
+    } else if (attrs.x509Username) {
       this.authentication = attrs.authentication = 'X509';
     }
 
-    if (attrs.authentication === 'MONGODB' || attrs.authentication === 'SCRAM-SHA-256') {
-      if (!attrs.mongodb_database_name) {
-        attrs.mongodb_database_name = MONGODB_DATABASE_NAME_DEFAULT;
+    if (
+      attrs.authentication === 'MONGODB' ||
+      attrs.authentication === 'SCRAM-SHA-256'
+    ) {
+      if (!attrs.mongodbDatabaseName) {
+        attrs.mongodbDatabaseName = MONGODB_DATABASE_NAME_DEFAULT;
       }
-      this.mongodb_database_name = attrs.mongodb_database_name;
+
+      this.mongodbDatabaseName = attrs.mongodbDatabaseName;
     }
+
     if (attrs.authentication === 'KERBEROS') {
-      if (!attrs.kerberos_service_name) {
-        attrs.kerberos_service_name = KERBEROS_SERVICE_NAME_DEFAULT;
+      if (!attrs.kerberosServiceName) {
+        attrs.kerberosServiceName = KERBEROS_SERVICE_NAME_DEFAULT;
       }
-      this.kerberos_service_name = attrs.kerberos_service_name;
+
+      this.kerberosServiceName = attrs.kerberosServiceName;
     }
+
     return attrs;
   },
-
-  validate: function(attrs) {
+  validate(attrs) {
     try {
-      this.validate_ssl(attrs);
-      this.validate_mongodb(attrs);
-      this.validate_kerberos(attrs);
-      this.validate_x509(attrs);
-      this.validate_ldap(attrs);
-      this.validate_ssh_tunnel(attrs);
-      this.validate_stitch(attrs);
+      this.validateSsl(attrs);
+      this.validateMongodb(attrs);
+      this.validateKerberos(attrs);
+      this.validateX509(attrs);
+      this.validateLdap(attrs);
+      this.validateSshTunnel(attrs);
+      this.validateStitch(attrs);
     } catch (err) {
       return err;
     }
@@ -925,38 +742,47 @@ Connection = AmpersandModel.extend({
    * Enforce constraints for SSL.
    * @param {Object} attrs - Incoming attributes.
    */
-  validate_ssl: function(attrs) {
-    if (!attrs.ssl || includes(['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'], attrs.ssl)) {
+  validateSsl(attrs) {
+    if (
+      !attrs.sslType ||
+      includes(['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'], attrs.sslType)
+    ) {
       return;
     }
-    if (attrs.ssl === 'SERVER' && !attrs.ssl_ca) {
-      throw new TypeError('ssl_ca is required when ssl is SERVER.');
-    } else if (attrs.ssl === 'ALL') {
-      if (!attrs.ssl_ca) {
-        throw new TypeError('ssl_ca is required when ssl is ALL.');
+
+    if (attrs.sslType === 'SERVER' && !attrs.sslCA) {
+      throw new TypeError('sslCA is required when ssl is SERVER.');
+    } else if (attrs.sslType === 'ALL') {
+      if (!attrs.sslCA) {
+        throw new TypeError('sslCA is required when ssl is ALL.');
       }
 
-      if (!attrs.ssl_private_key) {
-        throw new TypeError('ssl_private_key is required when ssl is ALL.');
+      if (!attrs.sslKey) {
+        throw new TypeError('sslKey is required when ssl is ALL.');
       }
 
-      if (!attrs.ssl_certificate) {
-        throw new TypeError('ssl_certificate is required when ssl is ALL.');
+      if (!attrs.sslCert) {
+        throw new TypeError('sslCert is required when ssl is ALL.');
       }
     }
   },
-  validate_mongodb: function(attrs) {
-    if (attrs.authentication === 'MONGODB' || attrs.authentication === 'SCRAM-SHA-256') {
-      if (!attrs.mongodb_username) {
-        throw new TypeError(format(
-          'The mongodb_username field is required when '
-          + 'using MONGODB or SCRAM-SHA-256 for authentication.'));
+  validateMongodb(attrs) {
+    if (
+      attrs.authentication === 'MONGODB' ||
+      attrs.authentication === 'SCRAM-SHA-256'
+    ) {
+      if (!attrs.mongodbUsername) {
+        throw new TypeError(
+          'The mongodbUsername field is required when ' +
+          'using MONGODB or SCRAM-SHA-256 for authentication.'
+        );
       }
 
-      if (!attrs.mongodb_password) {
-        throw new TypeError(format(
-          'The mongodb_password field is required when '
-          + 'using MONGODB or SCRAM-SHA-256 for authentication.'));
+      if (!attrs.mongodbPassword) {
+        throw new TypeError(
+          'The mongodbPassword field is required when ' +
+          'using MONGODB or SCRAM-SHA-256 for authentication.'
+        );
       }
     }
   },
@@ -964,84 +790,85 @@ Connection = AmpersandModel.extend({
    * Enforce constraints for Kerberos.
    * @param {Object} attrs - Incoming attributes.
    */
-  validate_kerberos: function(attrs) {
+  validateKerberos(attrs) {
     if (attrs.authentication !== 'KERBEROS') {
-      if (attrs.kerberos_service_name) {
+      if (attrs.kerberosServiceName) {
         throw new TypeError(format(
-          'The kerberos_service_name field does not apply when '
-          + 'using %s for authentication.', attrs.authentication));
+          'The kerberosServiceName field does not apply when ' +
+          'using %s for authentication.', attrs.authentication));
       }
-      if (attrs.kerberos_principal) {
+      if (attrs.kerberosPrincipal) {
         throw new TypeError(format(
-          'The kerberos_principal field does not apply when '
-          + 'using %s for authentication.', attrs.authentication));
+          'The kerberosPrincipal field does not apply when ' +
+          'using %s for authentication.', attrs.authentication));
       }
-      if (attrs.kerberos_password) {
+      if (attrs.kerberosPassword) {
         throw new TypeError(format(
-          'The kerberos_password field does not apply when '
-          + 'using %s for authentication.', attrs.authentication));
+          'The kerberosPassword field does not apply when ' +
+          'using %s for authentication.', attrs.authentication));
       }
-    }
-
-    if (attrs.authentication === 'KERBEROS') {
-      if (!attrs.kerberos_principal) {
-        throw new TypeError(format(
-          'The kerberos_principal field is required when '
-          + 'using KERBEROS for authentication.'));
-      }
+    } else if (!attrs.kerberosPrincipal) {
+      throw new TypeError(
+        'The kerberosPrincipal field is required when using KERBEROS for authentication.'
+      );
     }
   },
-  validate_x509: function(attrs) {
+  validateX509(attrs) {
     if (attrs.authentication === 'X509') {
-      if (!attrs.x509_username) {
-        throw new TypeError(format(
-          'The x509_username field is required when '
-          + 'using X509 for authentication.'));
+      if (!attrs.x509Username) {
+        throw new TypeError(
+          'The x509Username field is required when using X509 for authentication.'
+        );
       }
     }
   },
-  validate_ldap: function(attrs) {
+  validateLdap(attrs) {
     if (attrs.authentication === 'LDAP') {
-      if (!attrs.ldap_username) {
+      if (!attrs.ldapUsername) {
         throw new TypeError(format(
-          'The ldap_username field is required when '
-          + 'using LDAP for authentication.'));
+          'The ldapUsername field is required when ' +
+          'using LDAP for authentication.'));
       }
-      if (!attrs.ldap_password) {
+      if (!attrs.ldapPassword) {
         throw new TypeError(format(
-          'The ldap_password field is required when '
-          + 'using LDAP for authentication.'));
+          'The ldapPassword field is required when ' +
+          'using LDAP for authentication.'));
       }
     }
   },
-  validate_ssh_tunnel: function(attrs) {
-    if (!attrs.ssh_tunnel || attrs.ssh_tunnel === SSH_TUNNEL_DEFAULT) {
+  validateSshTunnel(attrs) {
+    if (!attrs.sshTunnel || attrs.sshTunnel === SSH_TUNNEL_DEFAULT) {
       return;
     }
-    if (attrs.ssh_tunnel === 'USER_PASSWORD') {
-      this.validate_standard_ssh_tunnel_options(attrs);
-      if (!attrs.ssh_tunnel_password) {
-        throw new TypeError('ssl_tunnel_password is required when ssh_tunnel is USER_PASSWORD.');
+
+    if (attrs.sshTunnel === 'USER_PASSWORD') {
+      this.validateStandardSshTunnelOptions(attrs);
+
+      if (!attrs.sshTunnelPassword) {
+        throw new TypeError('sslTunnelPassword is required when sshTunnel is USER_PASSWORD.');
       }
-    } else if (attrs.ssh_tunnel === 'IDENTITY_FILE') {
-      this.validate_standard_ssh_tunnel_options(attrs);
-      if (!attrs.ssh_tunnel_identity_file) {
-        throw new TypeError('ssl_tunnel_identity_file is required when ssh_tunnel is IDENTITY_FILE.');
+    } else if (attrs.sshTunnel === 'IDENTITY_FILE') {
+      this.validateStandardSshTunnelOptions(attrs);
+
+      if (!attrs.sshTunnelIdentityFile) {
+        throw new TypeError('sslTunnelIdentityFile is required when sshTunnel is IDENTITY_FILE.');
       }
     }
   },
-  validate_standard_ssh_tunnel_options: function(attrs) {
-    if (!attrs.ssh_tunnel_username) {
-      throw new TypeError('ssl_tunnel_username is required when ssh_tunnel is not NONE.');
+  validateStandardSshTunnelOptions(attrs) {
+    if (!attrs.sshTunnelUsername) {
+      throw new TypeError('sslTunnelUsername is required when sshTunnel is not NONE.');
     }
-    if (!attrs.ssh_tunnel_hostname) {
-      throw new TypeError('ssl_tunnel_hostname is required when ssh_tunnel is not NONE.');
+
+    if (!attrs.sshTunnelHostname) {
+      throw new TypeError('sslTunnelHostname is required when sshTunnel is not NONE.');
     }
-    if (!attrs.ssh_tunnel_port) {
-      throw new TypeError('ssl_tunnel_port is required when ssh_tunnel is not NONE.');
+
+    if (!attrs.sshTunnelPort) {
+      throw new TypeError('sslTunnelPort is required when sshTunnel is not NONE.');
     }
   },
-  validate_stitch: function(attrs) {
+  validateStitch(attrs) {
     if (attrs.connectionType === CONNECTION_TYPE_VALUES.STITCH_ATLAS) {
       if (!attrs.stitchClientAppId) {
         throw new TypeError('stitchClientAppId is required when connectionType is STITCH_ATLAS.');
@@ -1050,12 +877,15 @@ Connection = AmpersandModel.extend({
       if (!attrs.stitchClientAppId) {
         throw new TypeError('stitchClientAppId is required when connectionType is STITCH_ON_PREM.');
       }
+
       if (!attrs.stitchBaseUrl) {
         throw new TypeError('stitchBaseUrl is required when connectionType is STITCH_ON_PREM.');
       }
+
       if (!attrs.stitchGroupId) {
         throw new TypeError('stitchGroupId is required when connectionType is STITCH_ON_PREM.');
       }
+
       if (!attrs.stitchServiceName) {
         throw new TypeError('stitchServiceName is required when connectionType is STITCH_ON_PREM.');
       }
@@ -1063,12 +893,15 @@ Connection = AmpersandModel.extend({
       if (attrs.stitchClientAppId) {
         throw new TypeError('stitchClientAppId should not be provided when connectionType is NODE_DRIVER.');
       }
+
       if (attrs.stitchBaseUrl) {
         throw new TypeError('stitchBaseUrl should not be provided when connectionType is NODE_DRIVER.');
       }
+
       if (attrs.stitchGroupId) {
         throw new TypeError('stitchGroupId should not be provided when connectionType is NODE_DRIVER.');
       }
+
       if (attrs.stitchServiceName) {
         throw new TypeError('stitchServiceName should not be provided when connectionType is NODE_DRIVER.');
       }
@@ -1080,87 +913,104 @@ Connection = AmpersandModel.extend({
  * For easy command line integration.
  *
  * @example
- *   var args = require('minimist')(process.argv.slice(2));
- *   var Connection = require('mongodb-connection-model');
- *   var createClient = require('scout-client');
+ *   const args = require('minimist')(process.argv.slice(2));
+ *   const Connection = require('mongodb-connection-model');
+ *   const createClient = require('scout-client');
  *   args.endpoint = args.endpoint || 'https://localhost:29017';
- *   var client = createClient(args.endpoint, Connection.from(args._[0]));
+ *   const client = createClient(args.endpoint, Connection.from(args._[0]));
  *
  * @param {String} [url]
- * @return {Connection}
+ * @param {Function} [callback]
  */
-Connection.from = function(url) {
+Connection.from = (url, callback) => {
+  const MONGO = 'mongodb://';
+  const MONGO_SRV = 'mongodb+srv://';
+
+  let isSrvRecord = false;
+
   /* eslint camelcase:0 */
   if (!url) {
     url = 'mongodb://localhost:27017';
   }
 
-  var parsed = parse(url);
-  var attrs = {
-    hostname: parsed.servers[0].host,
-    port: parsed.servers[0].port
-  };
-
-  attrs.isSrvRecord = parsed.isSrvRecord;
-
-  // Don't want to inherit the drivers default values
-  // into our model's default values so only set `ns`
-  // if it was actually in the URL and not a default.
-  if (url.indexOf(parsed.dbName) > -1) {
-    attrs.ns = parsed.dbName;
+  if (url.indexOf(MONGO) === -1 && url.indexOf(MONGO_SRV) === -1) {
+    url = `${MONGO}${url}`;
   }
 
-  if (parsed.auth && parsed.auth.user) {
-    /**
-     * @todo (imlucas): This case is ambiguous... support `mongodb+ldap://user:pass@host`.
-     */
-    if (parsed.auth.password) {
-      parsed.authMechanism = 'DEFAULT';
-    } else {
-      parsed.authMechanism = 'MONGODB-X509';
-    }
+  if (url.indexOf(MONGO_SRV) > -1) {
+    isSrvRecord = true;
   }
 
-  if (parsed.rs_options) {
-    if (parsed.rs_options.rs_name) {
-      attrs.replica_set_name = parsed.rs_options.rs_name;
-    }
-  }
+  const unescapedUrl = unescape(url);
 
-  if (parsed.auth && parsed.db_options) {
-    // Handles cannonicalizing all possible values for each
-    // `authentication` into the correct one.
-    attrs.authentication = AUTH_MECHANISM_TO_AUTHENTICATION[parsed.db_options.authMechanism];
-
-    if (parsed.db_options.read_preference) {
-      attrs.read_preference = parsed.db_options.read_preference;
+  parseConnectionString(unescapedUrl, (error, parsed) => {
+    if (error) {
+      return callback(error);
     }
 
-    if (attrs.authentication === 'LDAP') {
-      attrs.ldap_username = decodeURIComponent(parsed.auth.user);
-      attrs.ldap_password = decodeURIComponent(parsed.auth.password);
-    } else if (attrs.authentication === 'X509') {
-      attrs.x509_username = decodeURIComponent(parsed.auth.user);
-    } else if (attrs.authentication === 'KERBEROS') {
-      attrs.kerberos_principal = decodeURIComponent(parsed.auth.user);
-      attrs.kerberos_password = decodeURIComponent(parsed.auth.password);
-    // attrs.kerberos_service_name = parsed.
-    } else {
-      if (!attrs.authentication) {
-        attrs.authentication = 'MONGODB';
+    const attrs = Object.assign(
+      {},
+      {
+        hosts: parsed.hosts,
+        hostname: parsed.hosts[0].host,
+        port: parsed.hosts[0].port,
+        auth: parsed.auth,
+        isSrvRecord
+      },
+      parsed.options
+    );
+
+    // We don't inherit the drivers default values
+    // into our model's default values so only set `ns`
+    // if it was actually in the URL and not a default.
+    if (url.indexOf(parsed.defaultDatabase) > -1) {
+      attrs.ns = parsed.defaultDatabase;
+    }
+
+    // The `authentication` value for humans
+    let authentication = null;
+
+    if (attrs.authMechanism) {
+      authentication = attrs.authMechanism;
+    } else if (attrs.auth && attrs.auth.username && attrs.auth.password) {
+      authentication = 'DEFAULT';
+    } else if (attrs.auth && attrs.auth.username) {
+      authentication = 'MONGODB-X509';
+    }
+
+    attrs.authentication = authentication
+      ? AUTH_MECHANISM_TO_AUTHENTICATION[authentication]
+      : AUTHENTICATION_DEFAULT;
+
+    if (parsed.auth) {
+      const user = decodeURIComponent(parsed.auth.username);
+      const password = decodeURIComponent(parsed.auth.password);
+
+      if (attrs.authentication === 'LDAP') {
+        attrs.ldapUsername = user;
+        attrs.ldapPassword = password;
+      } else if (attrs.authentication === 'X509') {
+        attrs.x509Username = user;
+      } else if (attrs.authentication === 'KERBEROS') {
+        attrs.kerberosPrincipal = user;
+        attrs.kerberosPassword = password;
+      } else if (attrs.authentication === 'MONGODB') {
+        attrs.mongodbUsername = user;
+        attrs.mongodbPassword = password;
+
+        // authSource takes precedence, but fall back to admin
+        // @note Durran: This is not the documented behaviour of the connection string
+        // but the shell also does not fall back to the dbName and will use admin.
+        attrs.mongodbDatabaseName = decodeURIComponent(
+          attrs.authSource || Connection.MONGODB_DATABASE_NAME_DEFAULT
+        );
+
+        Object.assign(attrs, Connection._improveAtlasDefaults(url, attrs.auth.password, attrs.ns));
       }
-      attrs.mongodb_username = decodeURIComponent(parsed.auth.user);
-      attrs.mongodb_password = decodeURIComponent(parsed.auth.password);
-      // authSource takes precedence, but fall back to admin
-      // @note Durran: This is not the documented behaviour of the connection string
-      //   but the shell also does not fall back to the dbName and will use admin.
-      attrs.mongodb_database_name = decodeURIComponent(
-        parsed.db_options.authSource || Connection.MONGODB_DATABASE_NAME_DEFAULT);
     }
-    Object.assign(attrs, Connection._improveAtlasDefaults(url, attrs.mongodb_password, attrs.ns));
-  }
 
-  return new Connection(attrs);
+    return callback(null, new Connection(attrs));
+  });
 };
 
 /**
@@ -1168,23 +1018,27 @@ Connection.from = function(url) {
  * providing better default values.
  *
  * @param {String} url - The connection string URL.
- * @param {String} mongodb_password - The mongodb_password
+ * @param {String} mongodbPassword - The mongodbPassword
  *   which the user may need to change.
- * @param {String} namespace - The namespace (ns) to connect to.
+ * @param {String} ns - The namespace to connect to.
  * @returns {Object} Connection attributes to override
  * @private
  */
-Connection._improveAtlasDefaults = function(url, mongodb_password, namespace) {
-  var atlasConnectionAttrs = {};
+Connection._improveAtlasDefaults = (url, mongodbPassword, ns) => {
+  const atlasConnectionAttrs = {};
+
   if (Connection.isAtlas(url)) {
-    atlasConnectionAttrs.ssl = 'SYSTEMCA';
-    if (mongodb_password.match(/^.?PASSWORD.?$/i)) {
-      atlasConnectionAttrs.mongodb_password = '';
+    atlasConnectionAttrs.sslType = 'SYSTEMCA';
+
+    if (mongodbPassword.match(/^.?PASSWORD.?$/i)) {
+      atlasConnectionAttrs.mongodbPassword = '';
     }
-    if (!namespace || namespace.match(/^.?DATABASE.?$/i)) {
+
+    if (!ns || ns.match(/^.?DATABASE.?$/i)) {
       atlasConnectionAttrs.ns = Connection.MONGODB_DATABASE_NAME_DEFAULT;
     }
   }
+
   return atlasConnectionAttrs;
 };
 
@@ -1195,17 +1049,11 @@ Connection._improveAtlasDefaults = function(url, mongodb_password, namespace) {
  * @param {String} authentication - @see {Connection#authentication}
  * @return {Array}
  */
-Connection.getFieldNames = function(authentication) {
-  return AUTHENTICATION_TO_FIELD_NAMES[authentication];
-};
+Connection.getFieldNames = (authentication) => AUTHENTICATION_TO_FIELD_NAMES[authentication];
 
-Connection.isAtlas = function(str) {
-  return str.match(/mongodb.net[:/]/i);
-};
+Connection.isAtlas = (str) => str.match(/mongodb.net[:/]/i);
 
-Connection.isURI = function(str) {
-  return (str.startsWith('mongodb://')) || (str.startsWith('mongodb+srv://'));
-};
+Connection.isURI = (str) => (str.startsWith('mongodb://')) || (str.startsWith('mongodb+srv://'));
 
 Connection.AUTHENTICATION_VALUES = AUTHENTICATION_VALUES;
 Connection.AUTHENTICATION_DEFAULT = AUTHENTICATION_DEFAULT;
@@ -1221,8 +1069,8 @@ Connection.READ_PREFERENCE_VALUES = READ_PREFERENCE_VALUES;
 Connection.READ_PREFERENCE_DEFAULT = READ_PREFERENCE_DEFAULT;
 Connection.CONNECTION_TYPE_VALUES = CONNECTION_TYPE_VALUES;
 
-var ConnectionCollection = AmpersandCollection.extend({
-  comparator: 'instance_id',
+const ConnectionCollection = AmpersandCollection.extend({
+  comparator: 'instanceId',
   model: Connection,
   modelType: 'ConnectionCollection'
 });

@@ -1,12 +1,10 @@
 module.exports = {
   port: {
-    set: function(newVal) {
-      var port = parseInt(newVal, 10);
-      if (newVal === '' || isNaN(port)) {
-        return {
-          type: 'undefined',
-          val: undefined
-        };
+    set: (val) => {
+      const port = parseInt(val, 10);
+
+      if (val === '' || isNaN(port)) {
+        return { type: 'undefined', val: undefined };
       }
 
       if (port < 0) {
@@ -17,10 +15,7 @@ module.exports = {
         throw new TypeError('port number must be below 65536');
       }
 
-      return {
-        type: 'port',
-        val: newVal
-      };
+      return { type: 'port', val };
     }
   }
 };

@@ -12,7 +12,7 @@ function SSHTunnel(model) {
   assert(model.port, 'port required');
 
   this.model = model;
-  this.options = this.model.ssh_tunnel_options;
+  this.options = this.model.sshTunnelOptions;
   this.options.debug = function(msg) {
     ssh2debug(msg);
   };
@@ -55,16 +55,21 @@ SSHTunnel.prototype.createTunnel = function(done) {
 };
 
 SSHTunnel.prototype.forward = function(done) {
-  var timedOut = false;
-  var timeout = setTimeout(() => {
-    timedOut = true;
-    this.tunnel.end();
-    done(new Error('Timed out while waiting for forwardOut'));
-  }, this.options.forwardTimeout);
+  let isTimedOut = false;
+
+  const timeout = setTimeout(
+    () => {
+      isTimedOut = true;
+      this.tunnel.end();
+      done(new Error('Timed out while waiting for forwardOut'));
+    },
+    this.options.forwardTimeout
+  );
 
   const onForward = (err, stream) => {
-    if (timedOut) {
+    if (isTimedOut) {
       debug('port forward timed out.');
+
       return null;
     }
 
@@ -73,32 +78,46 @@ SSHTunnel.prototype.forward = function(done) {
     if (err) {
       debug('error forwarding', err);
       this.tunnel.end();
+
       return done(err);
     }
 
     stream.on('close', () => debug('port forward stream is closed.'));
-
     debug('successfully forwarded');
     done(null, stream);
   };
-  debug('forwarding', this.options.srcAddr, this.options.srcPort,
-    this.options.dstAddr, this.options.dstPort);
-  this.tunnel.forwardOut(this.options.srcAddr, this.options.srcPort,
-    this.options.dstAddr, this.options.dstPort, onForward);
+  debug(
+    'forwarding',
+    this.options.srcAddr,
+    this.options.srcPort,
+    this.options.dstAddr,
+    this.options.dstPort
+  );
+  this.tunnel.forwardOut(
+    this.options.srcAddr,
+    this.options.srcPort,
+    this.options.dstAddr,
+    this.options.dstPort,
+    onForward
+  );
 };
 
 SSHTunnel.prototype.createServer = function(done) {
   if (this.server) {
     debug('already started server');
     done();
+
     return this.server;
   }
+
   this.server = net.createServer((connection) => {
     this.forward((err, stream) => {
       if (err) {
         debug('Forward failed', err);
+
         return done(err);
       }
+
       connection.pipe(stream).pipe(connection);
       debug('tunnel pipeline created.');
 
@@ -141,9 +160,11 @@ SSHTunnel.prototype.listen = function(done) {
     this.createServer.bind(this)
   ], (err) => {
     if (err) {
-      err.message = 'Error creating SSH Tunnel: ' + err.message;
+      err.message = `Error creating SSH Tunnel: ${err.message}`;
+
       return done(err);
     }
+
     done();
   });
 
@@ -159,6 +180,7 @@ SSHTunnel.prototype.close = function() {
   if (this.tunnel) {
     this.tunnel.end();
   }
+
   if (this.server) {
     this.server.close();
   }
@@ -169,13 +191,16 @@ SSHTunnel.prototype.close = function() {
   });
 };
 
-module.exports = function(model, done) {
-  var tunnel = new SSHTunnel(model);
-  if (model.ssh_tunnel === 'NONE') {
+module.exports = (model, done) => {
+  const tunnel = new SSHTunnel(model);
+
+  if (model.sshTunnel === 'NONE') {
     done();
+
     return tunnel;
   }
 
   tunnel.listen(done);
+
   return tunnel;
 };

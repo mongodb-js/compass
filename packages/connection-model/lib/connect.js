@@ -1,45 +1,42 @@
-var fs = require('fs');
-var async = require('async');
-var omit = require('lodash.omit');
-var includes = require('lodash.includes');
-var clone = require('lodash.clone');
-var assign = require('lodash.assign');
-var isString = require('lodash.isstring');
-var isFunction = require('lodash.isfunction');
-var MongoClient = require('mongodb').MongoClient;
-var parseURL = require('mongodb/lib/url_parser');
-var Connection = require('./extended-model');
-var createSSHTunnel = require('./ssh-tunnel');
-var EventEmitter = require('events').EventEmitter;
-var debug = require('debug')('mongodb-connection-model:connect');
+const fs = require('fs');
+const async = require('async');
+const includes = require('lodash.includes');
+const clone = require('lodash.clone');
+const assign = require('lodash.assign');
+const isString = require('lodash.isstring');
+const isFunction = require('lodash.isfunction');
+const omit = require('lodash.omit');
+const MongoClient = require('mongodb').MongoClient;
+const parseConnectionString = require('mongodb-core').parseConnectionString;
+const Connection = require('./extended-model');
+const createSSHTunnel = require('./ssh-tunnel');
+const EventEmitter = require('events').EventEmitter;
+const debug = require('debug')('mongodb-connection-model:connect');
 
-function needToLoadSSLFiles(model) {
-  return !includes(['NONE', 'UNVALIDATED'], model.ssl);
-}
+const needToLoadSSLFiles = (model) => !includes(['NONE', 'UNVALIDATED'], model.ssl);
 
-function loadOptions(model, done) {
+const loadOptions = (model, done) => {
   if (!needToLoadSSLFiles(model)) {
-    process.nextTick(function() {
-      done(null, model.driver_options);
-    });
+    process.nextTick(() => done(null, model.driverOptions));
+
     return;
   }
 
-  var tasks = {};
-  var opts = clone(model.driver_options, true);
-  Object.keys(opts).map(function(key) {
+  const tasks = {};
+  const opts = clone(model.driverOptions, true);
+
+  Object.keys(opts).map((key) => {
     if (key.indexOf('ssl') === -1) {
       return;
     }
 
     if (Array.isArray(opts[key])) {
-      opts[key].forEach(function(value) {
+      opts[key].forEach((value) => {
         if (typeof value === 'string') {
-          tasks[key] = function(cb) {
-            async.parallel(opts[key].map(function(k) {
-              return fs.readFile.bind(null, k);
-            }), cb);
-          };
+          tasks[key] = (cb) => async.parallel(
+            opts[key].map((k) => fs.readFile.bind(null, k)),
+            cb
+          );
         }
       });
     }
@@ -47,22 +44,26 @@ function loadOptions(model, done) {
     if (typeof opts[key] !== 'string') {
       return;
     }
+
     if (key === 'sslPass') {
       return;
     }
 
     tasks[key] = fs.readFile.bind(null, opts[key]);
   });
-  async.parallel(tasks, function(err, res) {
+
+  async.parallel(tasks, (err, res) => {
     if (err) {
       return done(err);
     }
-    Object.keys(res).map(function(key) {
+
+    Object.keys(res).map((key) => {
       opts[key] = res[key];
     });
+
     done(null, opts);
   });
-}
+};
 
 /**
  * Make sure the driver doesn't puke on the URL and cause
@@ -71,20 +72,22 @@ function loadOptions(model, done) {
  * @param {Connection} model
  * @param {Function} done
  */
-function validateURL(model, done) {
-  var url = model.driver_url;
-  parseURL(url, {}, function(err, result) {
+const validateURL = (model, done) => {
+  const url = model.driverUrl;
+
+  parseConnectionString(url, {}, (err, result) => {
     // URL parsing errors are just generic `Error` instances
     // so overwrite name so mongodb-js-server will know
     // the message is safe to display.
     if (err) {
       err.name = 'MongoError';
     }
+
     done(err, result);
   });
-}
+};
 
-function getStatusStateString(evt) {
+const getStatusStateString = (evt) => {
   if (!evt) {
     return 'UNKNOWN';
   }
@@ -104,61 +107,54 @@ function getStatusStateString(evt) {
   if (evt.complete) {
     return 'COMPLETE';
   }
-}
+};
 
-function getTasks(model, setupListeners) {
-  var options = {};
-  var tunnel;
-  var client;
-  var state = new EventEmitter();
-  var tasks = {};
-  var _statuses = {};
+const getTasks = (model, setupListeners) => {
+  const state = new EventEmitter();
+  const tasks = {};
+  const _statuses = {};
+  let options = {};
+  let tunnel;
+  let client;
 
-  var status = function(message, cb) {
+  const status = (message, cb) => {
     if (_statuses[message]) {
       return _statuses[message];
     }
 
-    var ctx = function(err, opts) {
+    const ctx = (error, opts) => {
       options = opts;
-      if (err) {
-        state.emit('status', {
-          message: message,
-          error: err
-        });
+
+      if (error) {
+        state.emit('status', { message, error });
+
         if (cb) {
-          return cb(err);
+          return cb(error);
         }
-        return err;
+
+        return error;
       }
 
-      state.emit('status', {
-        message: message,
-        complete: true
-      });
+      state.emit('status', { message, complete: true });
+
       if (cb) {
         return cb();
       }
     };
 
-    ctx.skip = function(reason) {
-      state.emit('status', {
-        message: message,
-        skipped: true,
-        reason: reason
-      });
+    ctx.skip = (reason) => {
+      state.emit('status', { message, skipped: true, reason });
+
       if (cb) {
         return cb();
       }
     };
 
     if (!ctx._initialized) {
-      state.emit('status', {
-        message: message,
-        pending: true
-      });
+      state.emit('status', { message, pending: true });
       ctx._initialized = true;
     }
+
     return ctx;
   };
 
@@ -168,8 +164,9 @@ function getTasks(model, setupListeners) {
    * TODO (imlucas) dns.lookup() model.hostname and model.ssh_tunnel_hostname to check for typos
    */
   assign(tasks, {
-    'Load SSL files': function(cb) {
-      var ctx = status('Load SSL files', cb);
+    'Load SSL files': (cb) => {
+      const ctx = status('Load SSL files', cb);
+
       if (!needToLoadSSLFiles(model)) {
         return ctx.skip('The selected SSL mode does not need to load any files.');
       }
@@ -179,9 +176,10 @@ function getTasks(model, setupListeners) {
   });
 
   assign(tasks, {
-    'Create SSH Tunnel': function(cb) {
-      var ctx = status('Create SSH Tunnel', cb);
-      if (model.ssh_tunnel === 'NONE') {
+    'Create SSH Tunnel': (cb) => {
+      const ctx = status('Create SSH Tunnel', cb);
+
+      if (model.sshTunnel === 'NONE') {
         return ctx.skip('The selected SSH Tunnel mode is NONE.');
       }
 
@@ -190,45 +188,47 @@ function getTasks(model, setupListeners) {
   });
 
   assign(tasks, {
-    'Connect to MongoDB': function(cb) {
-      var ctx = status('Connect to MongoDB');
+    'Connect to MongoDB': (cb) => {
+      const ctx = status('Connect to MongoDB');
+
       // @note: Durran:
       // This check here is to prevent the options getting set to a string when a URI
       // is passed through. This is a temporary solution until we refactor all of this.
       if (isString(options) || !options) {
         options = {};
       }
-      const validOptions = omit(
-        options,
-        'db_options',
-        'server_options',
-        'rs_options',
-        'mongos_options',
-        'dbName',
-        'servers',
-        'auth'
-      );
+
+      const validOptions = omit(options, 'auth');
+
       validOptions.useNewUrlParser = true;
-      const mongoClient = new MongoClient(model.driver_url, validOptions);
+
+      const mongoClient = new MongoClient(model.driverUrl, validOptions);
+
       if (setupListeners) {
         setupListeners(mongoClient);
       }
-      mongoClient.connect(function(err, _client) {
+
+      mongoClient.connect((err, _client) => {
         ctx(err);
+
         if (err) {
           if (tunnel) {
             debug('data-service connection error, shutting down ssh tunnel');
             tunnel.close();
           }
+
           return cb(err);
         }
+
         client = _client;
+
         if (tunnel) {
-          client.on('close', function() {
+          client.on('close', () => {
             debug('data-service disconnected. shutting down ssh tunnel');
             tunnel.close();
           });
         }
+
         cb();
       });
     }
@@ -247,70 +247,66 @@ function getTasks(model, setupListeners) {
 
   Object.defineProperties(tasks, {
     model: {
-      get: function() {
-        return model;
-      },
+      get: () => model,
       enumerable: false
     },
-    driver_options: {
-      get: function() {
-        return options;
-      },
+    driverOptions: {
+      get: () => options,
       enumerable: false
     },
     client: {
-      get: function() {
-        return client;
-      },
+      get: () => client,
       enumerable: false
     },
     tunnel: {
-      get: function() {
-        return tunnel;
-      },
+      get: () => tunnel,
       enumerable: false
     },
     state: {
-      get: function() {
-        return state;
-      },
+      get: () => state,
       enumerable: false
     }
   });
 
   return tasks;
-}
+};
 
-function connect(model, setupListeners, done) {
+const connect = (model, setupListeners, done) => {
   if (model.serialize === undefined) {
     model = new Connection(model);
   }
 
   if (!isFunction(done)) {
-    done = function(err) {
+    done = (err) => {
       if (err) {
         throw err;
       }
     };
   }
 
-  var tasks = getTasks(model, setupListeners);
-  var logTaskStatus = require('debug')('mongodb-connection-model:connect:status');
-  tasks.state.on('status', function(evt) {
+  const tasks = getTasks(model, setupListeners);
+  const logTaskStatus = require('debug')('mongodb-connection-model:connect:status');
+
+  tasks.state.on('status', (evt) => {
     logTaskStatus('%s [%s]', evt.message, getStatusStateString(evt));
   });
 
   logTaskStatus('Connecting...');
-  async.series(tasks, function(err) {
+
+  async.series(tasks, (err) => {
     if (err) {
       logTaskStatus('Error connecting:', err);
+
       return done(err);
     }
+
     logTaskStatus('Successfully connected');
+
     return done(null, tasks.client);
   });
+
   return tasks.state;
-}
+};
 
 module.exports = connect;
 module.exports.loadOptions = loadOptions;

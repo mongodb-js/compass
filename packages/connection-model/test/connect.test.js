@@ -1,58 +1,66 @@
 /* eslint no-console:0 */
-var assert = require('assert');
-var Connection = require('../');
-var connect = Connection.connect;
-var mock = require('mock-require');
-var sinon = require('sinon');
+const assert = require('assert');
+const Connection = require('../');
+const connect = Connection.connect;
+const mock = require('mock-require');
+const sinon = require('sinon');
 
-function setupListeners() {}
+const setupListeners = () => {};
 
 // TODO: These instances are now turned off
-var data = require('mongodb-connection-fixture');
+const data = require('mongodb-connection-fixture');
 
-describe('mongodb-connection#connect', function() {
+describe('connection model connector', () => {
   describe('local', function() {
     this.slow(2000);
     this.timeout(10000);
+
     before(require('mongodb-runner/mocha/before')({ port: 27018 }));
+
     after(require('mongodb-runner/mocha/after')({ port: 27018 }));
-    it('should connect to `localhost:27018 with model`', function(done) {
-      var model = Connection.from('mongodb://localhost:27018');
-      connect(model, setupListeners, function(err) {
-        assert.equal(err, null);
-        done();
+
+    it('should connect to `localhost:27018 with model`', (done) => {
+      Connection.from('mongodb://localhost:27018', (parseErr, model) => {
+        assert.equal(parseErr, null);
+        connect(model, setupListeners, (connectErr) => {
+          assert.equal(connectErr, null);
+          done();
+        });
       });
     });
-    it('should connect to `localhost:27018 with object`', function(done) {
-      connect({port: 27018, host: 'localhost'}, setupListeners, function(err) {
+
+    it('should connect to `localhost:27018 with object`', (done) => {
+      connect({port: 27018, host: 'localhost'}, setupListeners, (err) => {
         assert.equal(err, null);
         done();
       });
     });
 
-    describe('ssh tunnel failures', function() {
-      var spy = sinon.spy();
-      mock('../lib/ssh-tunnel', function(model, cb) {
+    describe('ssh tunnel failures', () => {
+      const spy = sinon.spy();
+
+      mock('../lib/ssh-tunnel', (model, cb) => {
         // simulate successful tunnel creation
         cb();
         // then return a mocked tunnel object with a spy close() function
         return {close: spy};
       });
 
-      var MockConnection = mock.reRequire('../lib/extended-model');
-      var mockConnect = mock.reRequire('../lib/connect');
+      const MockConnection = mock.reRequire('../lib/extended-model');
+      const mockConnect = mock.reRequire('../lib/connect');
 
-      it('should close ssh tunnel if the connection fails', function(done) {
-        var model = new MockConnection({
+      it('should close ssh tunnel if the connection fails', (done) => {
+        const model = new MockConnection({
           hostname: 'localhost',
           port: '27017',
-          ssh_tunnel: 'USER_PASSWORD',
-          ssh_tunnel_hostname: 'my.ssh-server.com',
-          ssh_tunnel_password: 'password',
-          ssh_tunnel_username: 'my-user'
+          sshTunnel: 'USER_PASSWORD',
+          sshTunnelHostname: 'my.ssh-server.com',
+          sshTunnelPassword: 'password',
+          sshTunnelUsername: 'my-user'
         });
+
         assert(model.isValid());
-        mockConnect(model, setupListeners, function(err) {
+        mockConnect(model, setupListeners, (err) => {
           // must throw error here, because the connection details are invalid
           assert.ok(err);
           console.log(err.message);
@@ -69,24 +77,26 @@ describe('mongodb-connection#connect', function() {
     this.slow(5000);
     this.timeout(10000);
 
-    data.MATRIX.map(function(d) {
-      it.skip('should connect to ' + d.name, function(done) {
-        connect(d, setupListeners, function(err, _db) {
+    data.MATRIX.map((d) => {
+      it.skip('should connect to ' + d.name, (done) => {
+        connect(d, setupListeners, (err, _db) => {
           if (err) {
             return done(err);
           }
+
           _db.close();
           done();
         });
       });
     });
 
-    data.SSH_TUNNEL_MATRIX.map(function(d) {
-      it.skip('connects via the ssh_tunnel to ' + d.ssh_tunnel_hostname, function(done) {
-        connect(d, setupListeners, function(err, _db) {
+    data.SSH_TUNNEL_MATRIX.map((d) => {
+      it.skip(`connects via the sshTunnel to ${d.sshTunnelHostname}`, (done) => {
+        connect(d, setupListeners, (err, _db) => {
           if (err) {
             return done(err);
           }
+
           _db.close();
           done();
         });
