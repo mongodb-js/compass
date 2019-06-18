@@ -78,8 +78,8 @@ class DetailViewComponent extends React.Component {
         </header>
         <div className="rt-details__body">
           <div className="rt-details__opinfo">
-            <div className="rt-details__collection-slow">{this.state.data.ns}</div>
             <div className="rt-details__op">{this.state.data.op}</div>
+            <div className="rt-details__collection-slow">{this.state.data.ns}</div>
             <div className="rt-details__time">{this.state.data.ms_running + ' ms'}</div>
           </div>
           <ul className="rt-details__list">
