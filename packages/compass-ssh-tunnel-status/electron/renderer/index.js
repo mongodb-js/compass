@@ -59,6 +59,8 @@ const dataService = new DataService(connection);
 
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
+  ds.client.model.ssh_tunnel = 'USER_PASSWORD';
+  ds.client.model.ssh_tunnel_hostname = '123.45.67.89';
   appRegistry.emit('data-service-connected', error, ds);
 });
 
