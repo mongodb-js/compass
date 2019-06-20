@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import {
   SINGLE,
   SHARDED,
@@ -10,6 +11,8 @@ import Single from 'components/single';
 import Sharded from 'components/sharded';
 import ReplicaSet from 'components/replica-set';
 import Unknown from 'components/unknown';
+
+import styles from './deployment-awareness.less';
 
 /**
  * The deployment awareness component.
@@ -36,6 +39,7 @@ class DeploymentAwarenessComponent extends React.Component {
       case SHARDED:
         return (<Sharded servers={this.props.servers} />);
       case REPLICA_SET_NO_PRIMARY:
+        return (<ReplicaSet {...this.props} />);
       case REPLICA_SET_WITH_PRIMARY:
         return (<ReplicaSet {...this.props} />);
       default:
@@ -50,7 +54,7 @@ class DeploymentAwarenessComponent extends React.Component {
    */
   render() {
     return (
-      <div>
+      <div className={classnames(styles['deployment-awareness'])}>
         {this.renderTopologyInfo()}
       </div>
     );

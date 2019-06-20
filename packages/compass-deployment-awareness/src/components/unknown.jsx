@@ -45,9 +45,6 @@ class Unknown extends React.Component {
   render() {
     return (
       <div className={classnames(styles['topology-unknown'])}>
-        <div className={classnames(styles['topology-unknown-name'])}>
-          Unknown
-        </div>
         { this.props.isDataLake ? null : this.renderPill() }
         <div className={classnames(styles['topology-unknown-nodes'])}>
           {this.renderServerCount()}

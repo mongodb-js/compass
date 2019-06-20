@@ -14,11 +14,6 @@ describe('<Unknown />', () => {
       const servers = [{ address: '127.0.0.1:27017', type: RS_PRIMARY }];
       const component = shallow(<Unknown servers={servers} isDataLake={false} />);
 
-      it('renders the name', () => {
-        const node = component.find(`.${styles['topology-unknown-name']}`);
-        expect(node).to.have.text('Unknown');
-      });
-
       it('renders the unknown icon', () => {
         const node = component.find('.mms-icon-unknown');
         expect(node).to.be.present();
@@ -42,11 +37,6 @@ describe('<Unknown />', () => {
       ];
       const component = shallow(<Unknown servers={servers} isDataLake={false} />);
 
-      it('renders the name', () => {
-        const node = component.find(`.${styles['topology-unknown-name']}`);
-        expect(node).to.have.text('Unknown');
-      });
-
       it('renders the unknown icon', () => {
         const node = component.find('.mms-icon-unknown');
         expect(node).to.be.present();
@@ -66,11 +56,6 @@ describe('<Unknown />', () => {
     context('connected to DataLake', () => {
       const servers = [{ address: '127.0.0.1:27017', type: RS_PRIMARY }];
       const component = shallow(<Unknown servers={servers} isDataLake />);
-
-      it('renders the name', () => {
-        const node = component.find(`.${styles['topology-unknown-name']}`);
-        expect(node).to.have.text('Unknown');
-      });
 
       it('renders the node count', () => {
         const node = component.find(`.${styles['topology-unknown-nodes']}`);

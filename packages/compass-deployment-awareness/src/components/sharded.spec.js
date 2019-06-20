@@ -11,11 +11,6 @@ describe('<Sharded />', () => {
       const servers = [{ address: '127.0.0.1:27017', type: ServerType.MONGOS }];
       const component = shallow(<Sharded servers={servers} />);
 
-      it('renders the name', () => {
-        const node = component.find(`.${styles['topology-sharded-name']}`);
-        expect(node).to.have.text('Cluster');
-      });
-
       it('renders the sharded icon', () => {
         const node = component.find('.mms-icon-cluster');
         expect(node).to.be.present();
@@ -38,11 +33,6 @@ describe('<Sharded />', () => {
         { address: '127.0.0.1:27018', type: ServerType.MONGOS }
       ];
       const component = shallow(<Sharded servers={servers} />);
-
-      it('renders the name', () => {
-        const node = component.find(`.${styles['topology-sharded-name']}`);
-        expect(node).to.have.text('Cluster');
-      });
 
       it('renders the sharded icon', () => {
         const node = component.find('.mms-icon-cluster');
