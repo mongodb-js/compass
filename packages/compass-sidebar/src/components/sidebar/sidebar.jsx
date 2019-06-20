@@ -41,6 +41,7 @@ class Sidebar extends PureComponent {
   constructor(props) {
     super(props);
     this.StatusActions = global.hadronApp.appRegistry.getAction('Status.Actions');
+    this.InstanceHeader = global.hadronApp.appRegistry.getComponent('InstanceHeader.Component');
   }
 
   componentWillReceiveProps() {
@@ -234,7 +235,7 @@ class Sidebar extends PureComponent {
           data-test-id="toggle-sidebar">
           <i className={collapsedButton}/>
         </button>
-
+        <this.InstanceHeader sidebarCollapsed={this.props.isCollapsed} />
         <SidebarInstanceProperties
           instance={this.props.instance}
           activeNamespace={this.props.databases.activeNamespace} />

@@ -6,6 +6,9 @@ import { AppContainer } from 'react-hot-loader';
 import SidebarPlugin, { activate } from 'plugin';
 import DeploymentStateStore from './stores/deployment-state-store';
 import { activate as appActivate } from '@mongodb-js/compass-app-stores';
+import { activate as headerActivate } from '@mongodb-js/compass-instance-header';
+import { activate as awarenessActivate } from '@mongodb-js/compass-deployment-awareness';
+import { activate as versionActivate } from '@mongodb-js/compass-server-version';
 import InstanceModel from 'mongodb-instance-model';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
@@ -22,8 +25,9 @@ global.hadronApp.instance = new InstanceModel();
 
 activate(appRegistry);
 appActivate(appRegistry);
-
-appRegistry.registerStore('DeploymentAwareness.WriteStateStore', DeploymentStateStore);
+headerActivate(appRegistry);
+awarenessActivate(appRegistry);
+versionActivate(appRegistry);
 
 appRegistry.onActivated();
 
