@@ -82,6 +82,7 @@ const doSelectNamespace = (state, action) => {
         namespace: action.namespace,
         isActive: true,
         activeSubTab: 0,
+        activeSubTabName: action.context.tabs[0],
         isReadonly: action.isReadonly,
         tabs: action.context.tabs,
         views: action.context.views,
@@ -117,6 +118,7 @@ const doCreateTab = (state, action) => {
     namespace: action.namespace,
     isActive: true,
     activeSubTab: 0,
+    activeSubTabName: action.context.tabs[0],
     isReadonly: action.isReadonly,
     tabs: action.context.tabs,
     views: action.context.views,
@@ -198,7 +200,9 @@ const doDatabaseDropped = (state, action) => {
 const doMoveTab = (state, action) => {
   if (action.fromIndex === action.toIndex) return state;
   const newState = state.map((tab) => ({ ...tab }));
+  console.log('newState before splice', newState);
   newState.splice(action.toIndex, 0, newState.splice(action.fromIndex, 1)[0]);
+  console.log('newState after splice', newState);
   return newState;
 };
 
@@ -254,7 +258,12 @@ const doSelectTab = (state, action) => {
  */
 const doChangeActiveSubTab = (state, action) => {
   return state.map((tab) => {
-    return { ...tab, activeSubTab: (action.id === tab.id) ? action.activeSubTab : tab.activeSubTab };
+    const subTab = (action.id === tab.id) ? action.activeSubTab : tab.activeSubTab;
+    return {
+      ...tab,
+      activeSubTab: subTab,
+      activeSubTabName: tab.tabs[subTab]
+    };
   });
 };
 

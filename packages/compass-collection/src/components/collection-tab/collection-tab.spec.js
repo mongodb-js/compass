@@ -22,7 +22,7 @@ describe('CollectionTab [Component]', () => {
       component = mount(
         <CollectionTab.DecoratedComponent
           namespace="db.coll"
-          subTab="Documents"
+          activeSubTabName="Documents"
           isActive
           isReadonly={false}
           index={1}
@@ -79,7 +79,7 @@ describe('CollectionTab [Component]', () => {
       component = mount(
         <CollectionTab.DecoratedComponent
           namespace="db.coll"
-          subTab="Documents"
+          activeSubTabName="Documents"
           isActive={false}
           isReadonly={false}
           index={1}
@@ -158,7 +158,7 @@ describe('CollectionTab [Component]', () => {
     });
 
     it('renders the readonly icon', () => {
-      expect(component.find('.fa-eye')).to.be.present();
+      expect(component.find(`.${styles['collection-tab-info-view-icon']}`)).to.be.present();
     });
   });
 });

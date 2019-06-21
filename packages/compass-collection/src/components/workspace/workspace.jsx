@@ -149,6 +149,7 @@ class Workspace extends PureComponent {
           isReadonly={tab.isReadonly}
           isActive={tab.isActive}
           closeTab={this.props.closeTab}
+          activeSubTabName={tab.activeSubTabName}
           selectTab={this.props.selectTab}
           moveTab={this.props.moveTab} />
       );

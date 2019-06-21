@@ -72,6 +72,7 @@ class CollectionTab extends PureComponent {
     connectDropTarget: PropTypes.func.isRequired,
     selectTab: PropTypes.func.isRequired,
     moveTab: PropTypes.func.isRequired,
+    activeSubTabName: PropTypes.string.isRequired,
     index: PropTypes.number.isRequired,
     localAppRegistry: PropTypes.object.isRequired
   };
@@ -84,8 +85,6 @@ class CollectionTab extends PureComponent {
   constructor(props) {
     super(props);
     this.tabRef = React.createRef();
-    this.state = { subtab: 'Documents' };
-    this.onSubtabChanged = this.handleSubtabChange.bind(this);
   }
 
   /**
@@ -93,7 +92,6 @@ class CollectionTab extends PureComponent {
    */
   componentDidMount() {
     this.scrollTab();
-    this.props.localAppRegistry.on('subtab-changed', this.onSubtabChanged);
   }
 
   /**
@@ -105,22 +103,6 @@ class CollectionTab extends PureComponent {
     if (!prevProps.isActive) {
       this.scrollTab();
     }
-  }
-
-  /**
-   * Remove app registry listeners on unmount.
-   */
-  compnentWillUnmount() {
-    this.props.localAppRegistry.removeListener('subtab-changed', this.onSubtabChanged);
-  }
-
-  /**
-   * Handle subtab changing.
-   *
-   * @param {String} name - The name.
-   */
-  handleSubtabChange(name) {
-    this.setState({ subtab: name });
   }
 
   /**
@@ -181,7 +163,7 @@ class CollectionTab extends PureComponent {
               {this.renderReadonly()}
             </div>
             <div className={classnames(styles['collection-tab-info-subtab'])}>
-              {this.state.subtab}
+              {this.props.activeSubTabName}
             </div>
           </div>
           <div className={classnames(styles['collection-tab-close'])} onClick={this.closeTab}>
