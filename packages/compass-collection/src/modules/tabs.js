@@ -200,9 +200,7 @@ const doDatabaseDropped = (state, action) => {
 const doMoveTab = (state, action) => {
   if (action.fromIndex === action.toIndex) return state;
   const newState = state.map((tab) => ({ ...tab }));
-  console.log('newState before splice', newState);
   newState.splice(action.toIndex, 0, newState.splice(action.fromIndex, 1)[0]);
-  console.log('newState after splice', newState);
   return newState;
 };
 
