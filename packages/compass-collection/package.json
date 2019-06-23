@@ -44,18 +44,20 @@
       "react-dom",
       "debug",
       "hadron-ipc",
+      "hadron-react-buttons",
       "hadron-react-components"
     ]
   },
   "license": "Apache-2.0",
   "peerDependencies": {
     "hadron-ipc": "^1.1.0",
+    "hadron-react-buttons": "^3.1.0",
     "hadron-react-components": "^3.2.1",
     "react": "^16.8.0",
     "react-dom": "^16.8.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-aggregations": "^4.0.0-rc.6",
+    "@mongodb-js/compass-aggregations": "^4.0.4",
     "@mongodb-js/compass-collection-stats": "^4.2.4",
     "@mongodb-js/compass-deployment-awareness": "^8.0.0",
     "@mongodb-js/compass-crud": "^7.0.2",
@@ -105,6 +107,7 @@
     "hadron-app-registry": "^7.1.0",
     "hadron-ipc": "^1.1.0",
     "hadron-react-bson": "^3.1.0",
+    "hadron-react-buttons": "^3.1.0",
     "hadron-react-components": "^3.2.1",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
@@ -130,7 +133,7 @@
     "mongodb-ace-theme": "^0.0.1",
     "mongodb-ace-theme-query": "0.0.2",
     "mongodb-connection-model": "^13.0.1",
-    "mongodb-data-service": "^12.4.17",
+    "mongodb-data-service": "^14.0.1",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-metrics": "^4.2.0",
     "mongodb-js-precommit": "^2.0.0",
