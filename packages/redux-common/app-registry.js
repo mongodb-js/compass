@@ -69,9 +69,9 @@ const globalAppRegistryActivated = (appRegistry) => ({
  * @param {String} name - The event name.
  * @param {Object} metadata - The event metadata.
  */
-const appRegistryEmit = (appRegistry, name, metadata) => {
+const appRegistryEmit = (appRegistry, name, ...metadata) => {
   if (appRegistry) {
-    appRegistry.emit(name, metadata);
+    appRegistry.emit(name, ...metadata);
   }
 };
 
@@ -83,9 +83,9 @@ const appRegistryEmit = (appRegistry, name, metadata) => {
  *
  * @returns {Function} The thunk function.
  */
-const localAppRegistryEmit = (name, metadata) => {
+const localAppRegistryEmit = (name, ...metadata) => {
   return (dispatch, getState) => {
-    appRegistryEmit(getState().appRegistry.localAppRegistry, name, metadata);
+    appRegistryEmit(getState().appRegistry.localAppRegistry, name, ...metadata);
   };
 };
 
@@ -97,9 +97,9 @@ const localAppRegistryEmit = (name, metadata) => {
  *
  * @returns {Function} The thunk function.
  */
-const globalAppRegistryEmit = (name, metadata) => {
+const globalAppRegistryEmit = (name, ...metadata) => {
   return (dispatch, getState) => {
-    appRegistryEmit(getState().appRegistry.globalAppRegistry, name, metadata);
+    appRegistryEmit(getState().appRegistry.globalAppRegistry, name, ...metadata);
   };
 };
 
