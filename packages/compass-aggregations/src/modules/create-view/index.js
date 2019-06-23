@@ -150,14 +150,7 @@ export const createView = () => {
         }
         debug('View created!');
         dispatch(globalAppRegistryEmit('refresh-data'));
-        dispatch(globalAppRegistryEmit(
-          'open-namespace-in-new-tab',
-          {
-            namespace: `${database}.${viewName}`,
-            isReadonly: true,
-            viewSource: viewSource
-          }
-        ));
+        dispatch(globalAppRegistryEmit('open-namespace-in-new-tab', `${database}.${viewName}`, true, viewSource));
         dispatch(reset());
       });
     } catch (e) {
