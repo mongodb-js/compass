@@ -114,7 +114,7 @@ export const MERGE = '$merge';
  *
  * @returns {Object} An empty stage.
  */
-const emptyStage = () => ({
+export const emptyStage = () => ({
   id: new ObjectId().toHexString(),
   stageOperator: null,
   stage: '',

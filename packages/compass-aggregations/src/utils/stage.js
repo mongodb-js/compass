@@ -1,12 +1,10 @@
-import { EMPTY_STAGE } from '../constants';
-import { ObjectId } from 'bson';
 import { generateStage } from 'modules/stage';
+import { emptyStage } from 'modules/pipeline';
 import isString from 'lodash.isstring';
 
 export const generateStageWithDefaults = (props = {}) => {
   return {
-    ...EMPTY_STAGE,
-    id: new ObjectId().toHexString(),
+    ...emptyStage(),
     ...props
   };
 };
