@@ -16,6 +16,7 @@ class CollectionHeader extends Component {
     namespace: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     statsPlugin: PropTypes.func.isRequired,
+    selectOrCreateTab: PropTypes.func.isRequired,
     statsStore: PropTypes.object.isRequired,
     sourceName: PropTypes.string,
     editViewName: PropTypes.string
@@ -23,10 +24,13 @@ class CollectionHeader extends Component {
 
   modifySource = () => {
     console.log('#modifySource', this.props.sourceName);
+    // @todo: Durran: Need to know if the source is a view and the source source name.
+    this.props.selectOrCreateTab(this.props.sourceName, true, null, this.props.namespace);
   }
 
   returnToView = () => {
     console.log('#returnToView', this.props.editViewName);
+    this.props.selectOrCreateTab(this.props.editViewName, true, this.props.namespace, null);
   }
 
   /**
@@ -61,6 +65,7 @@ class CollectionHeader extends Component {
             (on: {this.props.sourceName})
           </span>
           {this.renderModifySource()}
+          {this.renderReturnToView()}
           <span className={classnames(styles['collection-header-title-readonly-indicator'])}>
             <i className="fa fa-eye" aria-hidden="true" />
             Read Only
@@ -68,6 +73,7 @@ class CollectionHeader extends Component {
         </div>
       );
     }
+    return this.renderReturnToView();
   }
 
   /**
@@ -78,13 +84,13 @@ class CollectionHeader extends Component {
   renderReturnToView() {
     if (this.props.editViewName) {
       return (
-        <div className={classnames(styles['collection-header-title-return'])}>
+        <span className={classnames(styles['collection-header-title-return'])}>
           <TextButton
             id="return-to-view"
             className="btn btn-default btn-xs"
             text="< Return To View"
             clickHandler={this.returnToView} />
-        </div>
+        </span>
       );
     }
   }
@@ -134,7 +140,6 @@ class CollectionHeader extends Component {
             {collection}
           </span>
           {this.renderReadonly()}
-          {this.renderReturnToView()}
         </div>
       </div>
     );

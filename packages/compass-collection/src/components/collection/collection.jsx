@@ -17,6 +17,7 @@ class Collection extends Component {
     scopedModals: PropTypes.array.isRequired,
     queryHistoryIndexes: PropTypes.array.isRequired,
     statsPlugin: PropTypes.func.isRequired,
+    selectOrCreateTab: PropTypes.func.isRequired,
     statsStore: PropTypes.object.isRequired,
     localAppRegistry: PropTypes.object.isRequired,
     activeSubTab: PropTypes.number.isRequired,
@@ -65,6 +66,7 @@ class Collection extends Component {
             statsPlugin={this.props.statsPlugin}
             statsStore={this.props.statsStore}
             editViewName={this.props.editViewName}
+            selectOrCreateTab={this.props.selectOrCreateTab}
             sourceName={this.props.sourceName} />
           <TabNavBar
             theme="light"

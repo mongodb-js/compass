@@ -6,6 +6,7 @@ import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import {
   createNewTab,
+  selectOrCreateTab,
   closeTab,
   prevTab,
   nextTab,
@@ -50,6 +51,7 @@ class Workspace extends PureComponent {
     tabs: PropTypes.array.isRequired,
     closeTab: PropTypes.func.isRequired,
     createNewTab: PropTypes.func.isRequired,
+    selectOrCreateTab: PropTypes.func.isRequired,
     prevTab: PropTypes.func.isRequired,
     nextTab: PropTypes.func.isRequired,
     moveTab: PropTypes.func.isRequired,
@@ -182,6 +184,7 @@ class Workspace extends PureComponent {
           statsStore={activeTab.statsStore}
           activeSubTab={activeTab.activeSubTab}
           changeActiveSubTab={this.props.changeActiveSubTab}
+          selectOrCreateTab={this.props.selectOrCreateTab}
           localAppRegistry={activeTab.localAppRegistry} />
       );
     }
@@ -238,6 +241,7 @@ const MappedWorkspace = connect(
   mapStateToProps,
   {
     createNewTab,
+    selectOrCreateTab,
     closeTab,
     prevTab,
     nextTab,
