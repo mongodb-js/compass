@@ -25,12 +25,15 @@ store.onActivated = (appRegistry) => {
    * When a collection namespace is selected in the sidebar.
    *
    * @param {String} ns - The namespace.
+   * @param {Boolean} isReaonly - If the collection is a view.
+   * @param {String} sourceName - The source namespace, if this is a view.
+   * @param {String} editViewName - The name of the view we are editing.
    */
-  appRegistry.on('open-namespace-in-new-tab', (ns, isReadonly, sourceName) => {
+  appRegistry.on('open-namespace-in-new-tab', (ns, isReadonly, sourceName, editViewName) => {
     if (ns) {
       const namespace = toNS(ns);
       if (namespace.collection !== '') {
-        store.dispatch(createNewTab(ns, isReadonly, sourceName));
+        store.dispatch(createNewTab(ns, isReadonly, sourceName, editViewName));
       }
     }
   });
@@ -39,12 +42,15 @@ store.onActivated = (appRegistry) => {
    * When a collection namespace is selected in the sidebar.
    *
    * @param {String} ns - The namespace.
+   * @param {Boolean} isReaonly - If the collection is a view.
+   * @param {String} sourceName - The source namespace, if this is a view.
+   * @param {String} editViewName - The name of the view we are editing.
    */
-  appRegistry.on('select-namespace', (ns, isReadonly, sourceName) => {
+  appRegistry.on('select-namespace', (ns, isReadonly, sourceName, editViewName) => {
     if (ns) {
       const namespace = toNS(ns);
       if (namespace.collection !== '') {
-        store.dispatch(selectOrCreateTab(ns, isReadonly, sourceName));
+        store.dispatch(selectOrCreateTab(ns, isReadonly, sourceName, editViewName));
       }
     }
   });

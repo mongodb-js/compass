@@ -97,6 +97,7 @@ dataService.connect((error, ds) => {
   appRegistry.emit('server-version-changed', '4.2.0');
   appRegistry.emit('select-namespace', 'citibike.trips', false);
   appRegistry.emit('open-namespace-in-new-tab', 'echo.bandsReadonly', true, 'echo.bands');
+  appRegistry.emit('open-namespace-in-new-tab', 'echo.bands', false, null, 'echo.bandsReadonly');
 });
 
 if (module.hot) {

@@ -92,6 +92,7 @@ const doSelectNamespace = (state, action) => {
         statsStore: action.context.statsStore,
         scopedModals: action.context.scopedModals,
         sourceName: action.sourceName,
+        editViewName: action.editViewName,
         localAppRegistry: action.context.localAppRegistry
       });
     } else {
@@ -128,6 +129,7 @@ const doCreateTab = (state, action) => {
     statsStore: action.context.statsStore,
     scopedModals: action.context.scopedModals,
     sourceName: action.sourceName,
+    editViewName: action.editViewName,
     localAppRegistry: action.context.localAppRegistry
   });
   return newState;
@@ -301,16 +303,18 @@ export default function reducer(state = INITIAL_STATE, action) {
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the collection readonly?
  * @param {String} sourceName - The source namespace.
+ * @param {String} editViewName - The name of the view we are editing.
  * @param {Object} context - The tab context.
  *
  * @returns {Object} The create tab action.
  */
-export const createTab = (id, namespace, isReadonly, sourceName, context) => ({
+export const createTab = (id, namespace, isReadonly, sourceName, editViewName, context) => ({
   type: CREATE_TAB,
   id: id,
   namespace: namespace,
   isReadonly: isReadonly || false,
   sourceName: sourceName,
+  editViewName: editViewName,
   context: context
 });
 
@@ -320,16 +324,18 @@ export const createTab = (id, namespace, isReadonly, sourceName, context) => ({
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the collection readonly?
  * @param {String} sourceName - The source namespace.
+ * @param {String} editViewName - The name of the view we are editing.
  * @param {Object} context - The tab context.
  *
  * @returns {Object} The namespace selected action.
  */
-export const selectNamespace = (id, namespace, isReadonly, sourceName, context) => ({
+export const selectNamespace = (id, namespace, isReadonly, sourceName, editViewName, context) => ({
   type: SELECT_NAMESPACE,
   id: id,
   namespace: namespace,
   isReadonly: ((isReadonly === undefined) ? false : isReadonly),
   sourceName: sourceName,
+  editViewName: editViewName,
   context: context
 });
 
@@ -429,19 +435,20 @@ export const changeActiveSubTab = (activeSubTab, id) => ({
  * @param {String} namespace - The namespace to select.
  * @param {Boolean} isReadonly - If the ns is readonly.
  * @param {String} sourceName - The ns of the resonly view source.
+ * @param {String} editViewName - The name of the view we are editing.
  */
-export const selectOrCreateTab = (namespace, isReadonly, sourceName) => {
+export const selectOrCreateTab = (namespace, isReadonly, sourceName, editViewName) => {
   return (dispatch, getState) => {
     const state = getState();
     if (state.tabs.length === 0) {
-      dispatch(createNewTab(namespace, isReadonly, sourceName));
+      dispatch(createNewTab(namespace, isReadonly, sourceName, editViewName));
     } else {
       // If the namespace is equal to the active tab's namespace, then
       // there is no need to do anything.
       const activeIndex = state.tabs.findIndex(tab => tab.isActive);
       const activeNamespace = state.tabs[activeIndex].namespace;
       if (namespace !== activeNamespace) {
-        dispatch(replaceTabContent(namespace, isReadonly, sourceName));
+        dispatch(replaceTabContent(namespace, isReadonly, sourceName, editViewName));
       }
     }
   };
@@ -454,17 +461,26 @@ export const selectOrCreateTab = (namespace, isReadonly, sourceName) => {
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - If the namespace is readonly.
  * @param {String} sourceName - The view source namespace.
+ * @param {String} editViewName - The name of the view we are editing.
  */
-export const createNewTab = (namespace, isReadonly, sourceName) => {
+export const createNewTab = (namespace, isReadonly, sourceName, editViewName) => {
   return (dispatch, getState) => {
     const state = getState();
-    const context = createContext(state, namespace, isReadonly, state.isDataLake, sourceName);
+    const context = createContext(
+      state,
+      namespace,
+      isReadonly,
+      state.isDataLake,
+      sourceName,
+      editViewName
+    );
     dispatch(
       createTab(
         new ObjectId().toHexString(),
         namespace,
         isReadonly,
         sourceName,
+        editViewName,
         context,
       )
     );
@@ -478,17 +494,26 @@ export const createNewTab = (namespace, isReadonly, sourceName) => {
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - If the namespace is readonly.
  * @param {String} sourceName - The view source namespace.
+ * @param {String} editViewName - The name of the view we are editing.
  */
-export const replaceTabContent = (namespace, isReadonly, sourceName) => {
+export const replaceTabContent = (namespace, isReadonly, sourceName, editViewName) => {
   return (dispatch, getState) => {
     const state = getState();
-    const context = createContext(state, namespace, isReadonly, state.isDataLake, sourceName);
+    const context = createContext(
+      state,
+      namespace,
+      isReadonly,
+      state.isDataLake,
+      sourceName,
+      editViewName
+    );
     dispatch(
       selectNamespace(
         new ObjectId().toHexString(),
         namespace,
         isReadonly,
         sourceName,
+        editViewName,
         context
       )
     );

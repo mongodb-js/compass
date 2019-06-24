@@ -40,7 +40,9 @@ const setupStore = (
   serverVersion,
   isReadonly,
   actions,
-  allowWrites) => {
+  allowWrites,
+  sourceName,
+  editViewName) => {
   const store = role.configureStore({
     localAppRegistry: localAppRegistry,
     globalAppRegistry: globalAppRegistry,
@@ -52,7 +54,9 @@ const setupStore = (
     serverVersion: serverVersion,
     isReadonly: isReadonly,
     actions: actions,
-    allowWrites: allowWrites
+    allowWrites: allowWrites,
+    sourceName: sourceName,
+    editViewName: editViewName
   });
   localAppRegistry.registerStore(role.storeName, store);
 
@@ -148,10 +152,12 @@ const setupScopedModals = (
  * @param {Object} state - The store state.
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the namespace readonly.
+ * @param {String} sourceName - The name of the view source.
+ * @param {String} editViewName - The name of the view we are editing.
  *
  * @returns {Object} The tab context.
  */
-const createContext = (state, namespace, isReadonly, isDataLake) => {
+const createContext = (state, namespace, isReadonly, isDataLake, sourceName, editViewName) => {
   const serverVersion = state.serverVersion;
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = state.appRegistry;
@@ -203,7 +209,9 @@ const createContext = (state, namespace, isReadonly, isDataLake) => {
       serverVersion,
       isReadonly,
       actions,
-      !isDataLake
+      !isDataLake,
+      sourceName,
+      editViewName
     );
 
     // Add the tab.

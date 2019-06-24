@@ -18,12 +18,13 @@ import reducer, {
 describe('tabs module', () => {
   describe('#selectNamespace', () => {
     it('returns the SELECT_NAMESPACE action', () => {
-      expect(selectNamespace('t', 'db.coll', true, 'db.test', {})).to.deep.equal({
+      expect(selectNamespace('t', 'db.coll', true, 'db.test', 'db.view', {})).to.deep.equal({
         type: SELECT_NAMESPACE,
         id: 't',
         namespace: 'db.coll',
         isReadonly: true,
         sourceName: 'db.test',
+        editViewName: 'db.view',
         context: {}
       });
     });
@@ -32,13 +33,14 @@ describe('tabs module', () => {
   describe('#createTab', () => {
     it('returns the CREATE_TAB action', () => {
       expect(
-        createTab('id', 'db.coll', true, 'db.test', {})
+        createTab('id', 'db.coll', true, 'db.test', 'db.view', {})
       ).to.deep.equal({
         id: 'id',
         type: CREATE_TAB,
         namespace: 'db.coll',
         isReadonly: true,
         sourceName: 'db.test',
+        editViewName: 'db.view',
         context: {}
       });
     });

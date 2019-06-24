@@ -22,6 +22,7 @@ class Collection extends Component {
     activeSubTab: PropTypes.number.isRequired,
     id: PropTypes.string.isRequired,
     sourceName: PropTypes.string,
+    editViewName: PropTypes.string,
     changeActiveSubTab: PropTypes.func.isRequired
   };
 
@@ -63,6 +64,7 @@ class Collection extends Component {
             isReadonly={this.props.isReadonly}
             statsPlugin={this.props.statsPlugin}
             statsStore={this.props.statsStore}
+            editViewName={this.props.editViewName}
             sourceName={this.props.sourceName} />
           <TabNavBar
             theme="light"

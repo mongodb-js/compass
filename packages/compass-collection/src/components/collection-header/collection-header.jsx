@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import toNS from 'mongodb-ns';
+import { TextButton } from 'hadron-react-buttons';
 
 import styles from './collection-header.less';
 
@@ -16,11 +17,35 @@ class CollectionHeader extends Component {
     isReadonly: PropTypes.bool.isRequired,
     statsPlugin: PropTypes.func.isRequired,
     statsStore: PropTypes.object.isRequired,
-    sourceName: PropTypes.string
+    sourceName: PropTypes.string,
+    editViewName: PropTypes.string
   };
 
-  onModifySource = () => {
-    // this.props.modifySource(sourceName);
+  modifySource = () => {
+    console.log('#modifySource', this.props.sourceName);
+  }
+
+  returnToView = () => {
+    console.log('#returnToView', this.props.editViewName);
+  }
+
+  /**
+   * Render the modify source button.
+   *
+   * @returns {Component} The component.
+   */
+  renderModifySource() {
+    if (!this.props.editViewName) {
+      return (
+        <span className={classnames(styles['collection-header-title-readonly-modify'])}>
+          <TextButton
+            id="modify-source"
+            className="btn btn-default btn-xs"
+            text="Modify Source"
+            clickHandler={this.modifySource} />
+        </span>
+      );
+    }
   }
 
   /**
@@ -35,11 +60,30 @@ class CollectionHeader extends Component {
           <span className={classnames(styles['collection-header-title-readonly-on'])}>
             (on: {this.props.sourceName})
           </span>
-          <span className={classnames(styles['collection-header-title-readonly-modify'])} />
+          {this.renderModifySource()}
           <span className={classnames(styles['collection-header-title-readonly-indicator'])}>
             <i className="fa fa-eye" aria-hidden="true" />
             Read Only
           </span>
+        </div>
+      );
+    }
+  }
+
+  /**
+   * If we are modifying a source pipeline, then render the return to view button.
+   *
+   * @returns {Component} The component.
+   */
+  renderReturnToView() {
+    if (this.props.editViewName) {
+      return (
+        <div className={classnames(styles['collection-header-title-return'])}>
+          <TextButton
+            id="return-to-view"
+            className="btn btn-default btn-xs"
+            text="< Return To View"
+            clickHandler={this.returnToView} />
         </div>
       );
     }
@@ -90,6 +134,7 @@ class CollectionHeader extends Component {
             {collection}
           </span>
           {this.renderReadonly()}
+          {this.renderReturnToView()}
         </div>
       </div>
     );
