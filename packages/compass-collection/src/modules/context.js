@@ -28,6 +28,9 @@ const setupActions = (role, localAppRegistry) => {
  * @param {String} serverVersion - The server version.
  * @param {Boolean} isReadonly - If the collection is a readonly view.
  * @param {Object} actions - The actions for the store.
+ * @param {Boolean} allowWrites - If writes are allowed.
+ * @param {String} sourceName - The source namespace for the view.
+ * @param {String} editViewName - The name of the view we are editing.
  *
  * @returns {Object} The configured store.
  */
