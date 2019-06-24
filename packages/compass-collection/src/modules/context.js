@@ -121,6 +121,7 @@ const setupPlugin = (
  * @param {String} namespace - The namespace.
  * @param {String} serverVersion - The server version.
  * @param {Boolean} isReadonly - If the collection is a readonly view.
+ * @param {Boolean} allowWrites - If we allow writes.
  *
  * @returns {Array} The components.
  */
