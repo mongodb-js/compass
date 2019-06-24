@@ -300,6 +300,7 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * Action creator for create tab.
  *
+ * @param {String} id - The tab id.
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the collection readonly?
  * @param {String} sourceName - The source namespace.
@@ -321,6 +322,7 @@ export const createTab = (id, namespace, isReadonly, sourceName, editViewName, c
 /**
  * Action creator for namespace selected.
  *
+ * @param {String} id - The tab id.
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the collection readonly?
  * @param {String} sourceName - The source namespace.
