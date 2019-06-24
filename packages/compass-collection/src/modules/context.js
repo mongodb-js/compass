@@ -76,6 +76,8 @@ const setupStore = (
  * @param {String} namespace - The namespace.
  * @param {String} serverVersion - The server version.
  * @param {Boolean} isReadonly - If the collection is a readonly view.
+ * @param {Boolean} allowWrites - If writes are allowed.
+ * @param {String} key - The plugin key.
  *
  * @returns {Component} The plugin.
  */
