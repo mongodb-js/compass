@@ -157,6 +157,7 @@ const setupScopedModals = (
  * @param {Object} state - The store state.
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the namespace readonly.
+ * @param {Boolean} isDataLake - If we are hitting the data lake.
  * @param {String} sourceName - The name of the view source.
  * @param {String} editViewName - The name of the view we are editing.
  *
