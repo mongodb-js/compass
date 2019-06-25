@@ -29,28 +29,30 @@ SSHTunnel.prototype.createTunnel = function(done) {
   };
 
   this.tunnel = new ssh2.Client();
-  this.tunnel.on('end', function() {
-    debug('ssh tunnel is disconnected.');
-  })
-  .on('close', (closeError) => {
-    if (!hadError && closeError) {
-      hadError = closeError;
-    }
+  this.tunnel
+    .on('end', function() {
+      debug('ssh tunnel is disconnected.');
+    })
+    .on('close', (closeError) => {
+      if (!hadError && closeError) {
+        hadError = closeError;
+      }
 
-    if (hadError) {
-      debug('ssh tunnel is closed due to errors.');
-    } else {
-      debug('ssh tunnel is closed.');
-    }
-    this.tunnel.end();
-  })
-  .on('error', onStartupError)
-  .on('ready', () => {
-    debug('ssh tunnel is ready.');
-    this.tunnel.removeListener('error', onStartupError);
-    done();
-  })
-  .connect(this.options);
+      if (hadError) {
+        debug('ssh tunnel is closed due to errors.');
+      } else {
+        debug('ssh tunnel is closed.');
+      }
+      this.tunnel.end();
+    })
+    .on('error', onStartupError)
+    .on('ready', () => {
+      debug('ssh tunnel is ready.');
+      this.tunnel.removeListener('error', onStartupError);
+      done();
+    })
+    .connect(this.options);
+
   return this.tunnel;
 };
 
@@ -110,42 +112,44 @@ SSHTunnel.prototype.createServer = function(done) {
     return this.server;
   }
 
-  this.server = net.createServer((connection) => {
-    this.forward((err, stream) => {
-      if (err) {
-        debug('Forward failed', err);
+  this.server = net
+    .createServer((connection) => {
+      this.forward((err, stream) => {
+        if (err) {
+          debug('Forward failed', err);
 
-        return done(err);
-      }
+          return done(err);
+        }
 
-      connection.pipe(stream).pipe(connection);
-      debug('tunnel pipeline created.');
+        connection.pipe(stream).pipe(connection);
+        debug('tunnel pipeline created.');
 
-      stream.on('close', () => {
-        debug('closing server');
-        this.server.close();
+        stream.on('close', () => {
+          debug('closing server');
+          this.server.close();
+        });
       });
+    })
+    .on('error', (err) => {
+      if (err.message.indexOf('listen EADDRINUSE') === 0) {
+        err.message = `Local port ${this.options.localPort} ` +
+        '(chosen randomly) is already in use. ' +
+        'You can click connect to try again with a different port.';
+      }
+      debug('createServer error', err);
+      done(err);
+      this.tunnel.end();
+    })
+    .on('close', () => this.tunnel.end())
+    .listen(this.options.localPort, this.options.localAddr, () => {
+      debug('local tcp server listening.');
+      this.emit('status', {
+        message: 'Create SSH Tunnel',
+        complete: true
+      });
+      done();
     });
-  })
-  .on('error', (err) => {
-    if (err.message.indexOf('listen EADDRINUSE') === 0) {
-      err.message = `Local port ${this.options.localPort} ` +
-      '(chosen randomly) is already in use. ' +
-      'You can click connect to try again with a different port.';
-    }
-    debug('createServer error', err);
-    done(err);
-    this.tunnel.end();
-  })
-  .on('close', () => this.tunnel.end())
-  .listen(this.options.localPort, this.options.localAddr, () => {
-    debug('local tcp server listening.');
-    this.emit('status', {
-      message: 'Create SSH Tunnel',
-      complete: true
-    });
-    done();
-  });
+
   return this.server;
 };
 

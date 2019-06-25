@@ -616,7 +616,7 @@ assign(derived, {
         readyTimeout: 5000,
         forwardTimeout: 5000,
         keepaliveInterval: 5000,
-        srcAddr: '127.0.0.1',  // OS should figure out an ephemeral srcPort
+        srcAddr: '127.0.0.1', // OS should figure out an ephemeral srcPort
         dstPort: this.port,
         dstAddr: this.hostname,
         localPort: this.sshTunnelBindToLocalPort,

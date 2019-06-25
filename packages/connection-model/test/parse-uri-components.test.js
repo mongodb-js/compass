@@ -121,7 +121,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.ssl).to.be.equal(true);
             done();
           }
-         );
+        );
       });
 
       it('should parse connectTimeoutMS', (done) => {
@@ -132,7 +132,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.connectTimeoutMS).to.be.equal(300000);
             done();
           }
-         );
+        );
       });
 
       it('should parse socketTimeoutMS with w', (done) => {
@@ -143,7 +143,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.socketTimeoutMS).to.be.equal(30000);
             done();
           }
-         );
+        );
       });
 
       it('should parse socketTimeoutMS with multiple servers', (done) => {
@@ -154,7 +154,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.socketTimeoutMS).to.be.equal(5000);
             done();
           }
-         );
+        );
       });
 
       it('should parse compressors with snappy value', (done) => {
@@ -167,7 +167,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.compression.compressors).to.include('snappy');
             done();
           }
-         );
+        );
       });
 
       it('should parse compressors with zlib value', (done) => {
@@ -180,7 +180,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.compression.compressors).to.include('zlib');
             done();
           }
-         );
+        );
       });
 
       it('should throw the error if compressors contain invalid value', (done) => {
@@ -190,7 +190,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(error).to.exist;
             done();
           }
-         );
+        );
       });
 
       it('should parse compressors with snappy and zlib values', (done) => {
@@ -204,7 +204,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.compression.compressors).to.include('snappy');
             done();
           }
-         );
+        );
       });
 
       it('should parse zlibCompressionLevel', (done) => {
@@ -219,7 +219,7 @@ describe('connection model partser should parse URI components such as', () => {
             });
             done();
           }
-         );
+        );
       });
 
       it('should throw the error if zlibCompressionLevel has invalid value', (done) => {
@@ -229,7 +229,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(error).to.exist;
             done();
           }
-         );
+        );
       });
     });
 
@@ -243,7 +243,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.maxPoolSize).to.be.equal(10);
             done();
           }
-         );
+        );
       });
 
       it('should parse maxIdleTimeMS', (done) => {
@@ -254,7 +254,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.maxIdleTimeMS).to.be.equal(30000);
             done();
           }
-         );
+        );
       });
 
       it('should parse waitQueueMultiple', (done) => {
@@ -265,7 +265,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.waitQueueMultiple).to.be.equal(10);
             done();
           }
-         );
+        );
       });
 
       it('should parse escaped URI with maxIdleTimeMS, waitQueueTimeoutMS, waitQueueTimeoutMS and journal', (done) => {
@@ -279,7 +279,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.waitQueueTimeoutMS).to.be.equal(100);
             done();
           }
-         );
+        );
       });
     });
 
@@ -292,7 +292,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.w).to.be.equal(1);
             done();
           }
-         );
+        );
       });
 
       it('should parse write concern w option with majority value', (done) => {
@@ -303,7 +303,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.w).to.be.equal('majority');
             done();
           }
-         );
+        );
       });
 
       it('should parse write concern w option with tag set value', (done) => {
@@ -314,7 +314,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.w).to.be.equal('MultipleDC');
             done();
           }
-         );
+        );
       });
 
       it('should parse wTimeoutMS', (done) => {
@@ -325,7 +325,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.wTimeoutMS).to.be.equal(1000); // Returned value was camelCased
             done();
           }
-         );
+        );
       });
 
       it('should parse journal', (done) => {
@@ -336,7 +336,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.journal).to.be.equal(true);
             done();
           }
-         );
+        );
       });
 
       it('should parse j option', (done) => {
@@ -347,7 +347,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.journal).to.be.equal(true); // Converts j=true to journal=true
             done();
           }
-         );
+        );
       });
 
       it('should parse wtimeout', (done) => {
@@ -358,7 +358,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.wTimeoutMS).to.be.equal(2500); // Converts jwtimeout to wTimeoutMS
             done();
           }
-         );
+        );
       });
     });
 
@@ -371,7 +371,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.readConcernLevel).to.be.equal('local');
             done();
           }
-         );
+        );
       });
 
       it('should parse readConcernLevel with majority value', (done) => {
@@ -382,7 +382,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.readConcernLevel).to.be.equal('majority');
             done();
           }
-         );
+        );
       });
     });
 
@@ -396,7 +396,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.maxStalenessSeconds).to.be.equal(120);
             done();
           }
-         );
+        );
       });
 
       it('should throw the error if readPreference has invalid value', (done) => {
@@ -406,7 +406,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(error).to.exist;
             done();
           }
-         );
+        );
       });
 
       it('should parse readPreference and readPreferenceTags', (done) => {
@@ -419,7 +419,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.readPreferenceTags).to.eql({ dc: 'ny', rack: 1 });
             done();
           }
-         );
+        );
       });
     });
 
@@ -433,7 +433,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.authSource).to.equal('admin');
             done();
           }
-         );
+        );
       });
 
       it('should parse authSource and authMechanism', (done) => {
@@ -445,7 +445,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.authMechanism).to.be.equal('SCRAM-SHA-256');
             done();
           }
-         );
+        );
       });
 
       it('should throw the error if authMechanism has invalid value', (done) => {
@@ -455,7 +455,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(error).to.exist;
             done();
           }
-         );
+        );
       });
 
       it('should parse authMechanismProperties', (done) => {
@@ -472,7 +472,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.authMechanism).to.equal('GSSAPI');
             done();
           }
-         );
+        );
       });
 
       it('should parse authMechanismProperties', (done) => {
@@ -483,7 +483,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.gssapiServiceName).to.be.equal('mongodb');
             done();
           }
-         );
+        );
       });
     });
 
@@ -498,7 +498,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.heartbeatFrequencyMS).to.be.equal(20000);
             done();
           }
-         );
+        );
       });
 
       it('should parse serverSelectionTryOnce', (done) => {
@@ -509,7 +509,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.serverSelectionTryOnce).to.be.equal(false);
             done();
           }
-         );
+        );
       });
     });
 
@@ -522,7 +522,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.appname).to.be.equal('foo');
             done();
           }
-         );
+        );
       });
 
       it('should parse retryWrites with invalid value eql 1', (done) => {
@@ -533,7 +533,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.retryWrites).to.be.equal(false); // retryWrites expects a bool value. Other values are being treated as false
             done();
           }
-         );
+        );
       });
 
       it('should parse retryWrites with invalid value eql 3', (done) => {
@@ -544,7 +544,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.retryWrites).to.be.equal(false);
             done();
           }
-         );
+        );
       });
 
       it('should parse retryWrites with false value', (done) => {
@@ -555,7 +555,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.retryWrites).to.be.equal(false);
             done();
           }
-         );
+        );
       });
 
       it('should parse retryWrites with true value', (done) => {
@@ -566,7 +566,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.retryWrites).to.be.equal(true);
             done();
           }
-         );
+        );
       });
 
       it('should parse uuidRepresentation', (done) => {
@@ -577,7 +577,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(result.uuidRepresentation).to.be.equal('csharpLegacy');
             done();
           }
-         );
+        );
       });
     });
   });
