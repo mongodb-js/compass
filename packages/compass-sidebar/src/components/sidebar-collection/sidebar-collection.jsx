@@ -39,15 +39,15 @@ class SidebarCollection extends PureComponent {
     const source = this.props.collections.find((coll) => {
       return toNS(coll._id).collection === this.props.view_on;
     });
-    console.log('onOpenInNewTab', this.props, this.source);
+    console.log('onOpenInNewTab', this.props, source);
     global.hadronApp.appRegistry.emit(
       'open-namespace-in-new-tab',
       this.props._id,
       this.props.readonly,
-      this.props.view_on,
+      `${this.props.database}.${this.props.view_on}`,
       null,
       source ? source.readonly : false,
-      source ? source.view_on : null
+      source ? `${this.props.database}.${source.view_on}` : null,
     );
   }
 
@@ -75,12 +75,12 @@ class SidebarCollection extends PureComponent {
     const source = this.props.collections.find((coll) => {
       return toNS(coll._id).collection === this.props.view_on;
     });
-    console.log('onModifySource', this.props, this.source);
+    console.log('onModifySource', this.props, source);
     global.hadronApp.appRegistry.emit(
       'open-namespace-in-new-tab',
-      this.props.view_on,
+      `${this.props.database}.${this.props.view_on}`,
       source ? source.readonly : false,
-      source ? source.view_on : null,
+      source ? `${this.props.database}.${source.view_on}` : null,
       this.props._id,
       null,
       null
