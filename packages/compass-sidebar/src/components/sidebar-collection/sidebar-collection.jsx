@@ -37,7 +37,7 @@ class SidebarCollection extends PureComponent {
 
   onOpenInNewTab() {
     const source = this.props.collections.find((coll) => {
-      return coll._id === this.props.view_on;
+      return toNS(coll._id).collection === this.props.view_on;
     });
     console.log('onOpenInNewTab', this.props, this.source);
     global.hadronApp.appRegistry.emit(
@@ -73,7 +73,7 @@ class SidebarCollection extends PureComponent {
 
   onModifySource() {
     const source = this.props.collections.find((coll) => {
-      return coll._id === this.props.view_on;
+      return toNS(coll._id).collection === this.props.view_on;
     });
     console.log('onModifySource', this.props, this.source);
     global.hadronApp.appRegistry.emit(
