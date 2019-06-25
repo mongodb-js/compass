@@ -13,16 +13,16 @@ npm install --save mongodb-connection-model
 
 ```javascript
 const Connection = require('mongodb-connection-model');
-const model = new Connection();
+const с = new Connection();
 ```
 
 ## Properties
 
-MongoDB connection model is based on Ampersand.js framework and consist of [props](https://ampersandjs.com/docs/#ampersand-state-props) and [derived props](https://ampersandjs.com/docs/#ampersand-state-derived). The props object describes the observable properties of Ampersand state class.
+MongoDB connection model is based on Ampersand.js framework and consist of [props](https://ampersandjs.com/docs/#ampersand-state-props) and [derived props](https://ampersandjs.com/docs/#ampersand-state-derived). The props object describes the observable properties that MongoDB connection model gets from the Node.js Driver API.
 
 ```javascript
-const model = new Connection();
-const props = model.getAttributes({ props: true });
+const с = new Connection();
+const props = с.getAttributes({ props: true });
 ```
 
 ### General Properties
@@ -123,15 +123,15 @@ const props = model.getAttributes({ props: true });
 ### MONGODB authentication
 
 ```javascript
-const model = new Connection({
+const c = new Connection({
   mongodbUsername: 'arlo',
   mongodbPassword: 'w@of'
 });
 
-console.log(model.driverUrl)
+console.log(c.driverUrl)
 >>> 'mongodb://arlo:w%40of@localhost:27017/?slaveOk=true&authSource=admin'
 
-console.log(model.driverOptions)
+console.log(c.driverOptions)
 >>> {
   db: { readPreference: 'nearest' },
   replSet: { connectWithNoPrimary: true }
@@ -148,17 +148,17 @@ console.log(model.driverOptions)
 ### KERBEROS authentication
 
 ```javascript
-const model = new Connection({
+const c = new Connection({
   kerberosServiceName: 'mongodb',
   kerberosPrincipal: 'arlo/dog@krb5.mongodb.parts',
   kerberosPassword: 'w@@f',
   ns: 'toys'
 });
 
-console.log(model.driverUrl)
+console.log(c.driverUrl)
 >>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/toys?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
 
-console.log(model.driverOptions)
+console.log(c.driverOptions)
 >>> {
   db: { readPreference: 'nearest' },
   replSet: { connectWithNoPrimary: true }
@@ -181,24 +181,48 @@ console.log(model.driverOptions)
 
 ### LDAP authentication
 
+![][enterprise_img]
+
+```javascript
+const c = new Connection({
+  ldapUsername: 'arlo',
+  ldapPassword: 'w@of',
+  ns: 'toys'
+});
+
+console.log(c.driverUrl)
+>>> 'mongodb://arlo:w%40of@localhost:27017/toys?slaveOk=true&authMechanism=PLAIN'
+
+console.log(c.driverOptions)
+>>> {
+  db: { readPreference: 'nearest' },
+  replSet: { connectWithNoPrimary: true }
+}
+```
+
 | Property | Type | Description | Default |
 | ----- | ---- | ---------- |  ----  |
 | `ldapUsername` | String | LDAP username | `undefined` |
 | `ldapPassword` | String | LDAP password | `undefined` |
+
+#### See Also
+
+- [node.js driver LDAP reference](http://bit.ly/mongodb-node-driver-ldap)
+- [node.js driver X509 functional test][ldap-functional]
 
 ### X509 authentication
 
 ![][enterprise_img]
 
 ```javascript
-const model = new Connection({
+const c = new Connection({
   x509Username: 'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,ST=Pennsylvania,C=US'
 });
 
-console.log(model.driverUrl)
+console.log(c.driverUrl)
 >>> 'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia%252CST%253DPennsylvania%252CC%253DUS@localhost:27017?slaveOk=true&authMechanism=MONGODB-X509'
 
-console.log(model.driverOptions)
+console.log(c.driverOptions)
 >>> {
   db: { readPreference: 'nearest' },
   replSet: { connectWithNoPrimary: true }
@@ -216,128 +240,34 @@ console.log(model.driverOptions)
 
 ### SSL
 
+> **Note**: Not to be confused with `authentication=X509`.
+
 | Property | Type | Description | Default |
 | ----- | ---- | ---------- |  ----  |
 | `ssl` | Number/String | A boolean to enable or disables TLS/SSL for the connection | `undefined` |
-| `sslType` | String | How to use SSL. Possible values: `NONE`, `SYSTEMCA`, `IFAVAILABLE`, `UNVALIDATED`, `SERVER`, `ALL` | `NONE` |
+| `sslType` | String | The desired ssl strategy. Possible values: `NONE`, `SYSTEMCA`, `IFAVAILABLE`, `UNVALIDATED`, `SERVER`, `ALL` | `NONE` |
 | `sslCA` | Buffer/String | Array of valid certificates | `undefined` |
 | `sslCert` | Buffer/String | The certificate | `undefined` |
 | `sslKey` | Buffer/String | The certificate private key | `undefined` |
 | `sslPass` | Buffer/String | The certificate password | `undefined` |
 
-### SSH TUNNEL
+Description of sslType values:
 
-| Property | Type | Description | Default |
-| ----- | ---- | ---------- |  ----  |
-| `sshTunnel` | String | How to use SSH tunneling. Possible values: `NONE`, `USER_PASSWORD`, `IDENTITY_FILE` | `undefined` |
-| `sshTunnelHostname` | String | The hostname of the SSH remote host | `undefined` |
-| `sshTunnelPort` | Port | The SSH port of the remote host | `22` |
-| `sshTunnelBindToLocalPort` | Port | Bind the localhost endpoint of the SSH Tunnel to this port | `undefined` |
-| `sshTunnelUsername` | String | The optional SSH username for the remote host | `undefined` |
-| `sshTunnelPassword` | String | The optional SSH password for the remote host | `undefined` |
-| `sshTunnelIdentityFile` | String/Array | The optional path to the SSH identity file for the remote host | `undefined` |
-| `sshTunnelPassphrase` | String | The optional passphrase for `sshTunnelIdentityFile` | `undefined` |
+- `SYSTEMCA` - SSL required, validate using System CA, with host verification.
+- `IFAVAILABLE` - The driver should try SSL first, fall back to no SSL if unavailable, and use the system's Certificate Authority.
+- `SERVER` - The driver should validate the server certificate and fail to connect if validation fails. See also [node.js driver "Validate Server Certificate" docs][driver-ssl-server].
+- `ALL` - The driver must present a valid certificate and validate the server certificate. See also [node.js driver "Validate Server Certificate and Present Valid Certificate" docs][driver-ssl-all].
+- `NONE` - No SSL. (Not recommended)
+- `UNVALIDATED` - Use SSL but do not perform any validation of the certificate chain. See also [node.js driver "No Certificate Validation" docs][driver-ssl-none]. **Very** not recommended and likely to be deprecated in future releases because it exposes potential Man-In-The-Middle attack vectors.
 
-## Derived Properties
-
-Derived properties (also known as computed properties) are properties of the state object that depend on other properties to determine their value.
-
-```javascript
-const model = new Connection();
-const derivedProps = model.getAttributes({ derived: true });
-```
-
-| Derived Property | Type | Description | Default |
-| ----- | ---- | ---------- |  ----  |
-| `instanceId` | String | The mongoscope | `localhost:27017` |
-| `driverAuthMechanism` | String | Converts the value of `authStrategy` for humans into the `authMechanism` value for the driver | `undefined` |
-| `driverUrl` | String | The first argument `mongoscope-server` passes to `mongodb.connect` | `mongodb://localhost:27017/?slaveOk=true` |
-| `driverOptions` | String | The second argument `mongoscope-server` passes to `mongodb.connect` | `{}` |
-
-
-<a name="authentication-ldap"></a>
-#### A6. LDAP
-
-![][enterprise_img]
-
-- `ldap_username` (**required**, String)
-- `ldap_password` (**required**, String)
-
-##### See Also
-
-- [node.js driver LDAP reference](http://bit.ly/mongodb-node-driver-ldap)
-- [node.js driver X509 functional test][ldap-functional]
-
-```javascript
-var c = new Connection({
- ldap_username: 'arlo',
- ldap_password: 'w@of',
- ns: 'toys'
-});
-console.log(c.driver_url)
->>> 'mongodb://arlo:w%40of@localhost:27017/toys?slaveOk=true&authMechanism=PLAIN'
-console.log(c.driver_options)
->>> { db: { readPreference: 'nearest' },
-  replSet: { connectWithNoPrimary: true } }
-```
-
-### Trait: SSL
-
-> **Note**: Not to be confused with `authentication=X509`.
-
-- `ssl` (optional, String) ... The desired ssl strategy [Default: `NONE`]
-  - `SYSTEMCA` SSL required, validate using System CA, with host verification.
-  - `IFAVAILABLE` Try SSL first and fall back to no SSL if unavailable, validate using System CA, no host verification.
-  - `SERVER` Driver should validate Server certificate.
-  - `ALL` Driver should validate Server certificate and present valid Certificate.
-  - `NONE` No SSL. (Not recommended)
-  - `UNVALIDATED` No validation of certificate chain. (**Very** not recommended)
-
-#### SYSTEMCA
-
-SSL required, validate using System CA, with host verification.
-
-#### IFAVAILABLE
-
-The driver should try SSL first, fall back to no SSL if unavailable, and use the system's Certificate Authority.
-
-#### SERVER
-
-The driver should validate the server certificate and fail to connect if validation fails.
-
-See also [node.js driver "Validate Server Certificate" docs][driver-ssl-server].
-
-#### ALL
-
-The driver must present a valid certificate and validate the server certificate.
-
-See also [node.js driver "Validate Server Certificate and Present Valid Certificate" docs][driver-ssl-all].
-
-#### NONE
-
-Do not use SSL for anything.
-
-#### UNVALIDATED
-
-Use SSL but do not perform any validation of the certificate chain.
-
-See also [node.js driver "No Certificate Validation" docs][driver-ssl-none].
-
-**Very** not recommended and likely to be deprecated in future releases because it exposes potential Man-In-The-Middle attack vectors.
-
-##### See also
+#### See also
 
 - [node.js driver SSL implementation][driver-ssl-impl]
 - [node.js driver SSL tutorial][driver-ssl-tutorial]
 
-### Trait: SSH Tunnel
+### SSH TUNNEL
 
 > New in mongodb-connection-model@5.0.0
-
-- `ssh_tunnel` (optional, String) ... The desired SSH tunnel strategy [Default: `NONE`]
-  - `NONE` Do not use SSH tunneling.
-  - `USER_PASSWORD` The tunnel is created with SSH username and password only.
-  - `IDENTITY_FILE` The tunnel is created using an identity file.
 
 Because [authentication](#authentication) is quite difficult for operators to migrate to, the most common method of securing a MongoDB deployment is to use an [SSH tunnel][sf-ssh-tunnel].  This allows operators to leverage their existing SSH security infrastructure to also provide secure access to MongoDB.  For a standard deployment of MongoDB on AWS, this is almost always to strategy.  Because of this, we now support creating SSH tunnels automatically when connecting to MongoDB.
 
@@ -346,18 +276,19 @@ const connect = require('mongodb-connection-model').connect;
 const options = {
   hostname: 'localhost',
   port: 27017,
-  ssh_tunnel: 'IDENTITY_FILE',
-  ssh_tunnel_hostname: 'ec2-11-111-111-111.compute-1.amazonaws.com',
-  ssh_tunnel_username: 'ubuntu',
-  ssh_tunnel_identity_file: ['/Users/albert/.ssh/my-key-aws-pair.pem']
+  sshTunnel: 'IDENTITY_FILE',
+  sshTunnelHostname: 'ec2-11-111-111-111.compute-1.amazonaws.com',
+  sshTunnelUsername: 'ubuntu',
+  sshTunnelIdentityFile: ['/Users/albert/.ssh/my-key-aws-pair.pem']
 };
 
-connect(options, (err, db) => {
-  if (err) {
-    return console.log(err);
+connect(options, (connectError, db) => {
+  if (connectError) {
+    return console.log(connectError);
   }
-  db.db('mongodb').collection('fanclub').count((err2, count) => {
-    console.log('counted:', err2, count);
+
+  db.db('mongodb').collection('fanclub').count((error, count) => {
+    console.log('counted:', error, count);
     db.close();
   });
 });
@@ -373,21 +304,40 @@ port number.
 ssh -i ~/.ssh/my-key-aws-pair.pem -L <random port>:localhost:27017 ubuntu@ec2-11-111-111-111.compute-1.amazonaws.com
 ```
 
-#### ST1. NONE
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `sshTunnel` | String | The desired SSH tunnel strategy. Possible values: `NONE`, `USER_PASSWORD`, `IDENTITY_FILE` | `undefined` |
+| `sshTunnelHostname` | String | The hostname of the SSH remote host | `undefined` |
+| `sshTunnelPort` | Port | The SSH port of the remote host | `22` |
+| `sshTunnelBindToLocalPort` | Port | Bind the localhost endpoint of the SSH Tunnel to this port | `undefined` |
+| `sshTunnelUsername` | String | The optional SSH username for the remote host | `undefined` |
+| `sshTunnelPassword` | String | The optional SSH password for the remote host | `undefined` |
+| `sshTunnelIdentityFile` | String/Array | The optional path to the SSH identity file for the remote host | `undefined` |
+| `sshTunnelPassphrase` | String | The optional passphrase for `sshTunnelIdentityFile` | `undefined` |
 
-Do not use SSH tunneling. (Default)
+Description of sshTunnel values:
 
-#### ST2. USER_PASSWORD
+- `NONE` - Do not use SSH tunneling.
+- `USER_PASSWORD` - The tunnel is created with SSH username and password only.
+- `IDENTITY_FILE` - The tunnel is created using an identity file.
 
-The tunnel is created with SSH username and password only.
+## Derived Properties
 
-#### ST3. IDENTITY_FILE
+Derived properties (also known as computed properties) are properties of the state object that depend on other properties to determine their value.
 
-The tunnel is created using an identity file.
+```javascript
+const c = new Connection();
+const derivedProps = c.getAttributes({ derived: true });
+```
+
+| Derived Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `instanceId` | String | The mongoscope | `localhost:27017` |
+| `driverAuthMechanism` | String | Converts the value of `authStrategy` for humans into the `authMechanism` value for the driver | `undefined` |
+| `driverUrl` | String | The first argument `mongoscope-server` passes to `mongodb.connect` | `mongodb://localhost:27017/?slaveOk=true` |
+| `driverOptions` | String | The second argument `mongoscope-server` passes to `mongodb.connect` | `{}` |
 
 ## Events
-
-### status
 
 > New in mongodb-connection-model@5.0.0
 
@@ -398,10 +348,10 @@ const connect = require('mongodb-connection-model').connect;
 const options = {
   hostname: 'localhost',
   port: 27017,
-  ssh_tunnel: 'IDENTITY_FILE',
-  ssh_tunnel_hostname: 'ec2-11-111-111-111.compute-1.amazonaws.com',
-  ssh_tunnel_username: 'ubuntu',
-  ssh_tunnel_identity_file: ['/Users/albert/.ssh/my-key-aws-pair.pem']
+  sshTunnel: 'IDENTITY_FILE',
+  sshTunnelHostname: 'ec2-11-111-111-111.compute-1.amazonaws.com',
+  sshTunnelUsername: 'ubuntu',
+  sshTunnelIdentityFile: ['/Users/albert/.ssh/my-key-aws-pair.pem']
 };
 
 connect(options).on('status', (evt) => console.log('status:', evt));
@@ -429,9 +379,9 @@ const options = {
   hostname: 'localhost',
   port: 27017,
   ssl: 'ALL',
-  ssl_ca: '~/.ssl/my-ca.pem',
-  ssl_certificate: '~/.ssl/my-server.pem',
-  ssl_private_key: '~/.ssl/my-server.pem'
+  sslCA: '~/.ssl/my-ca.pem',
+  sslCert: '~/.ssl/my-server.pem',
+  sslKey: '~/.ssl/my-server.pem'
 };
 
 connect(options).on('status', (evt) => console.log('status:', evt));
