@@ -2,6 +2,7 @@
 
 > MongoDB connection model.
 
+The main purpose of the MongoDB connection model is to be a domain model around a MongoDB connection. It encapsulates generating a [Connection String URI](https://docs.mongodb.com/manual/reference/connection-string/) from a group of attributes and parses URI using the [MongoDB Node.JS Driver URI Parser](https://github.com/mongodb-js/mongodb-core/blob/master/lib/uri_parser.js).
 
 ## Installation
 
@@ -11,9 +12,49 @@ npm install --save mongodb-connection-model
 
 ## Usage
 
+### Building URI
+
 ```javascript
 const Connection = require('mongodb-connection-model');
-const с = new Connection();
+const c = new Connection({ appname: 'My App' });
+
+console.log(c.driverUrl)
+>>> 'mongodb://localhost:27017/?readPreference=primary&appname=My%20App&ssl=false'
+```
+
+### Parsing URI
+
+```javascript
+const Connection = require('mongodb-connection-model');
+Connection.from(
+  'mongodb://someUsername:testPassword@localhost',
+  (error, result) => {
+    console.log(result);
+    >>> `{
+      hosts: [{ host: 'localhost', port: 27017 }],
+      hostname: 'localhost',
+      port: 27017,
+      auth: {
+        username: 'someUsername',
+        password: 'testPassword',
+        db: 'admin'
+      },
+      isSrvRecord: false,
+      authStrategy: 'MONGODB',
+      mongodbUsername: 'someUsername',
+      mongodbPassword: 'testPassword',
+      mongodbDatabaseName: 'admin',
+      name: 'Local',
+      extraOptions: {},
+      connectionType: 'NODE_DRIVER',
+      readPreference: 'primary',
+      kerberosCanonicalizeHostname: false,
+      sslType: 'NONE',
+      sshTunnel: 'NONE',
+      sshTunnelPort: 22
+    }`
+  }
+);
 ```
 
 ## Properties
@@ -27,20 +68,28 @@ const props = с.getAttributes({ props: true });
 
 ### General Properties
 
+```javascript
+const c = new Connection({ isSrvRecord: true });
+```
+
 | Property | Type | Description | Default |
 | ----- | ---- | ---------- |  ----  |
 | `name` | String | User specified name | `My MongoDB` |
 | `ns` | String | A valid [ns][ns] the user can read from | `undefined` |
 | `isSrvRecord` | Boolean | Indicates SRV record | `false` |
 | `auth` | Object | Authentication from driver (username, user, db, password) | `undefined` |
-| `hostname` | String | Hostname of a MongoDB Instance. In case of replica set the first host and port will be taken | `localhost` |
+| `hostname` | String | Hostname of a MongoDB Instance. In case of the replica set the first host and port will be taken | `localhost` |
 | `port` | Number | TCP port of a MongoDB Instance | `27017` |
 | `hosts` | Array | Contains all hosts and ports for replica set | `[{ host: 'localhost', port: 27017 }]` |
 | `extraOptions` | Object | Extra options passed to the node driver as part of `driverOptions` | `{}` |
-| `connectionType` | String | Possible values: `NODE_DRIVER`, `STITCH_ON_PREM`, `STITCH_ATLAS` | `NODE_DRIVER` |
+| `connectionType` | String | The desired connection type. Possible values: `NODE_DRIVER`, `STITCH_ON_PREM`, `STITCH_ATLAS` | `NODE_DRIVER` |
 | `authStrategy` | String | The desired authentication strategy. Possible values: `NONE`, `MONGODB`, `X509`, `KERBEROS`, `LDAP`, `SCRAM-SHA-256` | `NONE` |
 
 ### Connection string options
+
+```javascript
+const c = new Connection({ appname: 'My App', replicaSet: 'testing' });
+```
 
 #### General connection string options
 
@@ -49,7 +98,7 @@ const props = с.getAttributes({ props: true });
 | `replicaSet` | String | Specifies the name of the replica set, if the mongod is a member of a replica set | `undefined` |
 | `connectTimeoutMS` | Number | The time in milliseconds to attempt a connection before timing out | `undefined` |
 | `socketTimeoutMS` | Number | The time in milliseconds to attempt a send or receive on a socket before the attempt times out | `undefined` |
-| `compression` | Object | Comma-delimited string of compressors to enable network compression for communication between this client and a mongod/mongos instance | `undefined` |
+| `compression` | Object | Object includes compressors and a compression level. You can specify the following compressors: `snappy`, `zlib` (Available in MongoDB 3.6 or greater) | `undefined` |
 
 #### Connection Pool Option
 
