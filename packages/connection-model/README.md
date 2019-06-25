@@ -1,6 +1,6 @@
 # mongodb-connection-model [![][travis_img]][travis_url] [![][npm_img]][npm_url] [![][inch_img]][inch_url]
 
-> MongoDB connection model.
+> MongoDB connection model
 
 The main purpose of the MongoDB connection model is to be a domain model around a MongoDB connection. It encapsulates generating a [Connection String URI](https://docs.mongodb.com/manual/reference/connection-string/) from a group of attributes and parses URI using the [MongoDB Node.JS Driver URI Parser](https://github.com/mongodb-js/mongodb-core/blob/master/lib/uri_parser.js).
 
@@ -26,6 +26,7 @@ console.log(c.driverUrl)
 
 ```javascript
 const Connection = require('mongodb-connection-model');
+
 Connection.from(
   'mongodb://someUsername:testPassword@localhost',
   (error, result) => {
@@ -66,6 +67,11 @@ const с = new Connection();
 const props = с.getAttributes({ props: true });
 ```
 
+#### See Also
+
+- [URI Generic Syntax](https://tools.ietf.org/html/rfc3986)
+- [URI Options Specification](https://github.com/mongodb/specifications/blob/master/source/uri-options/uri-options.rst)
+
 ### General Properties
 
 ```javascript
@@ -98,7 +104,7 @@ const c = new Connection({ appname: 'My App', replicaSet: 'testing' });
 | `replicaSet` | String | Specifies the name of the replica set, if the mongod is a member of a replica set | `undefined` |
 | `connectTimeoutMS` | Number | The time in milliseconds to attempt a connection before timing out | `undefined` |
 | `socketTimeoutMS` | Number | The time in milliseconds to attempt a send or receive on a socket before the attempt times out | `undefined` |
-| `compression` | Object | Object includes compressors and a compression level. You can specify the following compressors: `snappy`, `zlib` (Available in MongoDB 3.6 or greater) | `undefined` |
+| `compression` | Object | Object includes compressors and a compression level. The following compressors can be specified: `snappy`, `zlib` (Available in MongoDB 3.6 or greater) | `undefined` |
 
 #### Connection Pool Option
 
@@ -130,7 +136,7 @@ const c = new Connection({ appname: 'My App', replicaSet: 'testing' });
 | ----- | ---- | ---------- |  ----  |
 | `readPreference` | String | Specifies the read preferences for this connection. Possible values: `PRIMARY`, `PRIMARY_PREFERRED`, `SECONDARY`, `SECONDARY_PREFERRED`, `NEAREST` | `PRIMARY` |
 | `maxStalenessSeconds` | Number | Specifies, in seconds, how stale a secondary can be before the client stops using it for read operations | `undefined` |
-| `readPreferenceTags` | Object | Specifies a tag set | `undefined` |
+| `readPreferenceTags` | Object | Default read preference tags for the client | `undefined` |
 
 #### Authentication Options
 
@@ -138,7 +144,7 @@ const c = new Connection({ appname: 'My App', replicaSet: 'testing' });
 | ----- | ---- | ---------- |  ----  |
 | `authSource` | String | Specify the database name associated with the user’s credentials | `undefined` |
 | `authMechanism` | String | Specifies the authentication mechanism that MongoDB will use to authenticate the connection. Possible values: `DEFAULT`, `GSSAPI`, `MONGODB-X509`, `PLAIN`, `SCRAM-SHA-256` | `undefined` |
-| `authMechanismProperties` | Object | Specifies properties for authMechanism | `undefined` |
+| `authMechanismProperties` | Object | Additional options provided for authentication (e.g. to enable hostname canonicalization for GSSAPI) | `undefined` |
 | `gssapiServiceName` | String | Set the Kerberos service name when connecting to Kerberized MongoDB instances | `undefined` |
 | `gssapiServiceRealm` | String | Set the Realm service name | `undefined` |
 | `gssapiCanonicalizeHostName` | Boolean | Whether canonicalized hostname | `undefined` |
@@ -158,7 +164,7 @@ const c = new Connection({ appname: 'My App', replicaSet: 'testing' });
 | ----- | ---- | ---------- |  ----  |
 | `appname` | String | An application name passed to server as client metadata | `undefined` |
 | `retryWrites` | Boolean | Enable retryable writes | `undefined` |
-| `uuidRepresentation` | String | Possible values: `standard`, `csharpLegacy`, `javaLegacy`, `pythonLegacy` | `undefined` |
+| `uuidRepresentation` | String | The legacy representation of UUID. Possible values: `standard`, `csharpLegacy`, `javaLegacy`, `pythonLegacy` | `undefined` |
 
 ### Stitch attributes
 
@@ -214,12 +220,12 @@ console.log(c.driverOptions)
 }
 ```
 
-> @note (imlucas): Kerberos on Windows is broken out as it's own state for UX consideration.
+> @note (imlucas): Kerberos on Windows is broken out as it's own state for UX consideration
 
 | Property | Type | Description | Default |
 | ----- | ---- | ---------- |  ----  |
 | `kerberosServiceName` | String | Any program or computer you access over a network | `undefined` |
-| `kerberosPrincipal` | String | The format of a typical Kerberos V5 principal is primary/instance@REALM | `undefined` |
+| `kerberosPrincipal` | String | The format of a typical Kerberos V5 principal is `primary/instance@REALM` | `undefined` |
 | `kerberosPassword` | String | You can optionally include a password for a kerberos connection | `undefined` |
 | `kerberosCanonicalizeHostname` | Boolean | Whether canonicalized kerberos hostname | `undefined` |
 
@@ -289,7 +295,7 @@ console.log(c.driverOptions)
 
 ### SSL
 
-> **Note**: Not to be confused with `authentication=X509`.
+> **Note**: Not to be confused with `authentication=X509`
 
 | Property | Type | Description | Default |
 | ----- | ---- | ---------- |  ----  |
@@ -300,13 +306,13 @@ console.log(c.driverOptions)
 | `sslKey` | Buffer/String | The certificate private key | `undefined` |
 | `sslPass` | Buffer/String | The certificate password | `undefined` |
 
-Description of sslType values:
+Description of `sslType` values:
 
 - `SYSTEMCA` - SSL required, validate using System CA, with host verification.
 - `IFAVAILABLE` - The driver should try SSL first, fall back to no SSL if unavailable, and use the system's Certificate Authority.
 - `SERVER` - The driver should validate the server certificate and fail to connect if validation fails. See also [node.js driver "Validate Server Certificate" docs][driver-ssl-server].
 - `ALL` - The driver must present a valid certificate and validate the server certificate. See also [node.js driver "Validate Server Certificate and Present Valid Certificate" docs][driver-ssl-all].
-- `NONE` - No SSL. (Not recommended)
+- `NONE` - No SSL (Not recommended).
 - `UNVALIDATED` - Use SSL but do not perform any validation of the certificate chain. See also [node.js driver "No Certificate Validation" docs][driver-ssl-none]. **Very** not recommended and likely to be deprecated in future releases because it exposes potential Man-In-The-Middle attack vectors.
 
 #### See also
@@ -364,7 +370,7 @@ ssh -i ~/.ssh/my-key-aws-pair.pem -L <random port>:localhost:27017 ubuntu@ec2-11
 | `sshTunnelIdentityFile` | String/Array | The optional path to the SSH identity file for the remote host | `undefined` |
 | `sshTunnelPassphrase` | String | The optional passphrase for `sshTunnelIdentityFile` | `undefined` |
 
-Description of sshTunnel values:
+Description of `sshTunnel` values:
 
 - `NONE` - Do not use SSH tunneling.
 - `USER_PASSWORD` - The tunnel is created with SSH username and password only.
