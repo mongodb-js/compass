@@ -29,7 +29,7 @@ describe('connection model partser should parse URI components such as', () => {
           expect(result.auth.username).to.be.equal('someUsername');
           expect(result.auth.password).to.be.equal('testPassword');
           expect(result.auth.db).to.be.equal('admin');
-          expect(result.authentication).to.be.equal('MONGODB');
+          expect(result.authStrategy).to.be.equal('MONGODB');
           done();
         }
       );
@@ -42,7 +42,7 @@ describe('connection model partser should parse URI components such as', () => {
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');
           expect(result.auth).to.be.equal(null);
-          expect(result.authentication).to.be.equal('NONE');
+          expect(result.authStrategy).to.be.equal('NONE');
           done();
         }
       );

@@ -1,7 +1,7 @@
-// Allowed values for the `authentication` field
+// Allowed values for the `authStrategy` field
 module.exports = [
   /**
-   * Use no authentication.
+   * Use no authentication strategy.
    */
   'NONE',
   /**

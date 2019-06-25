@@ -186,7 +186,7 @@ describe('connection model parser should parse URI strings for common connection
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');
           expect(result.port).to.be.equal(27017);
-          expect(result.authentication).to.be.equal('MONGODB');
+          expect(result.authStrategy).to.be.equal('MONGODB');
           expect(result.mongodbUsername).to.be.equal('@rlo');
           expect(result.mongodbPassword).to.be.equal('w@of');
           expect(result.mongodbDatabaseName).to.be.equal('@dmin'); // this is the authSource, not dbName!
@@ -202,7 +202,7 @@ describe('connection model parser should parse URI strings for common connection
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');
           expect(result.port).to.be.equal(27017);
-          expect(result.authentication).to.be.equal('LDAP');
+          expect(result.authStrategy).to.be.equal('LDAP');
           expect(result.ldapUsername).to.be.equal('arlo');
           expect(result.ldapPassword).to.be.equal('w@of');
           expect(result.ns).to.be.equal('ldap');
@@ -220,7 +220,7 @@ describe('connection model parser should parse URI strings for common connection
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');
           expect(result.port).to.be.equal(27017);
-          expect(result.authentication).to.be.equal('X509');
+          expect(result.authStrategy).to.be.equal('X509');
           expect(result.x509Username).to.be.equal('CN=client,OU=arlo,O=MongoDB,L=Philadelphia,ST=Pennsylvania,C=US');
           expect(result.ns).to.be.equal('x509');
           done();
@@ -236,7 +236,7 @@ describe('connection model parser should parse URI strings for common connection
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');
           expect(result.port).to.be.equal(27017);
-          expect(result.authentication).to.be.equal('KERBEROS');
+          expect(result.authStrategy).to.be.equal('KERBEROS');
           expect(result.kerberosPrincipal).to.be.equal('arlo/dog@krb5.mongodb.parts');
           expect(result.kerberosPassword).to.be.equal('w@@f');
           expect(result.ns).to.be.equal('kerberos');
@@ -356,7 +356,7 @@ describe('connection model parser should parse URI strings for common connection
           expect(result.auth.password).to.be.equal('D1fficultP@ssw0rd');
           expect(result.auth.db).to.be.equal('admin');
           expect(result.ns).to.be.equal('admin');
-          expect(result.authentication).to.be.equal('MONGODB');
+          expect(result.authStrategy).to.be.equal('MONGODB');
           done();
         }
       );

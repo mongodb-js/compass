@@ -12,137 +12,248 @@ npm install --save mongodb-connection-model
 ## Usage
 
 ```javascript
-var Connection = require('mongodb-connection-model');
+const Connection = require('mongodb-connection-model');
+const model = new Connection();
 ```
 
 ## Properties
 
-- `hostname` (optional, String) ... Hostname of a MongoDB Instance [Default: `localhost`].
-- `port` (optional, Number) ... TCP port of a MongoDB Instance [Default: `27017`].
-- `name` (optional, String) ... User specified name [Default: `My MongoDB`].
-- `ns` (optional, String) ... A valid [ns][ns] the user can read from [Default: `undefined`].
-- `app_name` (optional, String) ... An application name passed to server as client metadata [Default: `undefined`].
-- `extra_options` (optional, Object) ... Extra options passed to the node driver as part of `driver_options` [Default: `{}`].
-
-## Derived Properties
-
-- `instance_id` (String) ... The mongoscope `instance_id` [Default: `localhost:27017`].
-- `driver_url` (String) ... The first argument `mongoscope-server` passes to `mongodb.connect` [Default: `mongodb://localhost:27017/?slaveOk=true`].
-- `driver_options` (Object) ... The second argument `mongoscope-server` passes to `mongodb.connect` [Default: `{}`].
-s
-
-## Traits
-
-It's useful to think of the remaining properties as two primary traits: `authentication` and `ssl`.
-
-<a name="authentication"></a>
-### Trait: Authentication
-
-- `authentication` (optional, String) ... The desired authentication strategy [Default: `NONE`]
-  - `NONE` Use no authentication.
-  - `MONGODB` Allow the driver to auto-detect and select SCRAM-SHA-1 or MONGODB-CR depending on server capabilities.
-  - `KERBEROS`
-  - `X509`
-  - `LDAP`
-
-<a name="authentication-none"></a>
-#### A1. No Authentication
+MongoDB connection model is based on Ampersand.js framework and consist of [props](https://ampersandjs.com/docs/#ampersand-state-props) and [derived props](https://ampersandjs.com/docs/#ampersand-state-derived). The props object describes the observable properties of Ampersand state class.
 
 ```javascript
-var model = new Connection({
-  authentication: 'NONE'
-});
-console.log(model.driver_url);
->>> 'mongodb://localhost:27017/?slaveOk=true'
-
-console.log(new Connection().driver_url);
->>> 'mongodb://localhost:27017/?slaveOk=true'
+const model = new Connection();
+const props = model.getAttributes({ props: true });
 ```
 
-<a name="authentication-mongodb"></a>
-#### A2. MongoDB
+### General Properties
 
-- `mongodb_username` (**required**, String)
-- `mongodb_password` (**required**, String)
-- `mongodb_database_name` (optional, String) [Default: `admin`]
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `name` | String | User specified name | `My MongoDB` |
+| `ns` | String | A valid [ns][ns] the user can read from | `undefined` |
+| `isSrvRecord` | Boolean | Indicates SRV record | `false` |
+| `auth` | Object | Authentication from driver (username, user, db, password) | `undefined` |
+| `hostname` | String | Hostname of a MongoDB Instance. In case of replica set the first host and port will be taken | `localhost` |
+| `port` | Number | TCP port of a MongoDB Instance | `27017` |
+| `hosts` | Array | Contains all hosts and ports for replica set | `[{ host: 'localhost', port: 27017 }]` |
+| `extraOptions` | Object | Extra options passed to the node driver as part of `driverOptions` | `{}` |
+| `connectionType` | String | Possible values: `NODE_DRIVER`, `STITCH_ON_PREM`, `STITCH_ATLAS` | `NODE_DRIVER` |
+| `authStrategy` | String | The desired authentication strategy. Possible values: `NONE`, `MONGODB`, `X509`, `KERBEROS`, `LDAP`, `SCRAM-SHA-256` | `NONE` |
+
+### Connection string options
+
+#### General connection string options
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `replicaSet` | String | Specifies the name of the replica set, if the mongod is a member of a replica set | `undefined` |
+| `connectTimeoutMS` | Number | The time in milliseconds to attempt a connection before timing out | `undefined` |
+| `socketTimeoutMS` | Number | The time in milliseconds to attempt a send or receive on a socket before the attempt times out | `undefined` |
+| `compression` | Object | Comma-delimited string of compressors to enable network compression for communication between this client and a mongod/mongos instance | `undefined` |
+
+#### Connection Pool Option
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `maxPoolSize` | Number | The maximum number of connections in the connection pool | `undefined` |
+| `minPoolSize` | Number | The minimum number of connections in the connection pool | `undefined` |
+| `maxIdleTimeMS` | Number | The maximum number of milliseconds that a connection can remain idle in the pool before being removed and closed | `undefined` |
+| `waitQueueMultiple` | Number | A number that the driver multiples the maxPoolSize value to, to provide the maximum number of threads allowed to wait for a connection to become available from the pool | `undefined` |
+| `waitQueueTimeoutMS` | Number | The maximum time in milliseconds that a thread can wait for a connection to become available | `undefined` |
+
+#### Write Concern Options
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `w` | Number/String | Corresponds to the write concern [w Option](https://docs.mongodb.com/manual/reference/write-concern/#wc-w) | `undefined` |
+| `wTimeoutMS` | Number | Corresponds to the write concern [wtimeout](https://docs.mongodb.com/manual/reference/write-concern/#wc-wtimeout) | `undefined` |
+| `journal` | Boolean | Corresponds to the write concern [j Option](https://docs.mongodb.com/manual/reference/write-concern/#wc-j) | `undefined` |
+
+#### Read Concern Options
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `readConcernLevel` | String | The level of isolation | `undefined` |
+
+#### Read Preference Options
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `readPreference` | String | Specifies the read preferences for this connection. Possible values: `PRIMARY`, `PRIMARY_PREFERRED`, `SECONDARY`, `SECONDARY_PREFERRED`, `NEAREST` | `PRIMARY` |
+| `maxStalenessSeconds` | Number | Specifies, in seconds, how stale a secondary can be before the client stops using it for read operations | `undefined` |
+| `readPreferenceTags` | Object | Specifies a tag set | `undefined` |
+
+#### Authentication Options
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `authSource` | String | Specify the database name associated with the user’s credentials | `undefined` |
+| `authMechanism` | String | Specifies the authentication mechanism that MongoDB will use to authenticate the connection. Possible values: `DEFAULT`, `GSSAPI`, `MONGODB-X509`, `PLAIN`, `SCRAM-SHA-256` | `undefined` |
+| `authMechanismProperties` | Object | Specifies properties for authMechanism | `undefined` |
+| `gssapiServiceName` | String | Set the Kerberos service name when connecting to Kerberized MongoDB instances | `undefined` |
+| `gssapiServiceRealm` | String | Set the Realm service name | `undefined` |
+| `gssapiCanonicalizeHostName` | Boolean | Whether canonicalized hostname | `undefined` |
+
+#### Server Selection and Discovery Options
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `localThresholdMS` | Number | The size (in milliseconds) of the latency window for selecting among multiple suitable MongoDB instances | `undefined` |
+| `serverSelectionTimeoutMS` | Number | Specifies how long (in milliseconds) to block for server selection before throwing an exception | `undefined` |
+| `serverSelectionTryOnce` | Boolean | Instructs the driver to scan the MongoDB deployment exactly once after server selection fails and then either select a server or raise an error | `undefined` |
+| `heartbeatFrequencyMS` | Number | Controls when the driver checks the state of the MongoDB deployment | `undefined` |
+
+#### Miscellaneous Configuration
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `appname` | String | An application name passed to server as client metadata | `undefined` |
+| `retryWrites` | Boolean | Enable retryable writes | `undefined` |
+| `uuidRepresentation` | String | Possible values: `standard`, `csharpLegacy`, `javaLegacy`, `pythonLegacy` | `undefined` |
+
+### Stitch attributes
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `stitchServiceName` | String | Stitch service name | `undefined` |
+| `stitchClientAppId` | String | Stitch сlient app ID | `undefined` |
+| `stitchGroupId` | String | Stitch group ID | `undefined` |
+| `stitchBaseUrl` | String | Stitch base Url | `undefined` |
+
+### MONGODB authentication
 
 ```javascript
-var c = new Connection({
-  mongodb_username: 'arlo',
-  mongodb_password: 'w@of'
+const model = new Connection({
+  mongodbUsername: 'arlo',
+  mongodbPassword: 'w@of'
 });
-console.log(c.driver_url)
+
+console.log(model.driverUrl)
 >>> 'mongodb://arlo:w%40of@localhost:27017/?slaveOk=true&authSource=admin'
-console.log(c.driver_options)
->>> { db: { readPreference: 'nearest' },
-  replSet: { connectWithNoPrimary: true } }
+
+console.log(model.driverOptions)
+>>> {
+  db: { readPreference: 'nearest' },
+  replSet: { connectWithNoPrimary: true }
+}
 ```
 
-<a name="authentication-kerberos"></a>
-#### A3. Kerberos
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `mongodbUsername` | String | MongoDB username | `undefined` |
+| `mongodbPassword` | String | MongoDB password | `undefined` |
+| `mongodbDatabaseName` | String | The database name associated with the user's credentials | `undefined` |
+| `promoteValues` | Boolean | Whether BSON values should be promoted to their JS type counterparts | `undefined` |
 
-![][enterprise_img]
+### KERBEROS authentication
 
-- `kerberos_principal` (**required**, String) ... The format of a typical Kerberos V5 principal is `primary/instance@REALM`.
-- `kerberos_password` (optional, String) ... [Default: `undefined`].
-- `kerberos_service_name` (optional, String) ... [Default: `mongodb`].
+```javascript
+const model = new Connection({
+  kerberosServiceName: 'mongodb',
+  kerberosPrincipal: 'arlo/dog@krb5.mongodb.parts',
+  kerberosPassword: 'w@@f',
+  ns: 'toys'
+});
 
-##### See Also
+console.log(model.driverUrl)
+>>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/toys?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
+
+console.log(model.driverOptions)
+>>> {
+  db: { readPreference: 'nearest' },
+  replSet: { connectWithNoPrimary: true }
+}
+```
+
+> @note (imlucas): Kerberos on Windows is broken out as it's own state for UX consideration.
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `kerberosServiceName` | String | Any program or computer you access over a network | `undefined` |
+| `kerberosPrincipal` | String | The format of a typical Kerberos V5 principal is primary/instance@REALM | `undefined` |
+| `kerberosPassword` | String | You can optionally include a password for a kerberos connection | `undefined` |
+| `kerberosCanonicalizeHostname` | Boolean | Whether canonicalized kerberos hostname | `undefined` |
+
+#### See Also
 
 - [node.js driver Kerberos reference](http://bit.ly/mongodb-node-driver-kerberos)
 - [node.js driver Kerberos functional test][kerberos-functional]
 
-```javascript
- var c = new Connection({
-   kerberos_service_name: 'mongodb',
-   kerberos_password: 'w@@f',
-   kerberos_principal: 'arlo/dog@krb5.mongodb.parts',
-   ns: 'toys'
- });
- console.log(c.driver_url)
- >>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/toys?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
- console.log(c.driver_options)
- >>> { db: { readPreference: 'nearest' },
-   replSet: { connectWithNoPrimary: true } }
-```
+### LDAP authentication
 
-#### A4. Kerberos on Windows
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `ldapUsername` | String | LDAP username | `undefined` |
+| `ldapPassword` | String | LDAP password | `undefined` |
 
-> @note (imlucas): Broken out as it's own state for UX consideration.
-
-```javascript
-var model = new Connection({
-  kerberos_principal: 'arlo/admin@MONGODB.PARTS',
-  kerberos_password: 'B@sil',
-  kerberos_service_name: 'MongoDB',
-  ns: 'cat_toys'
-});
-console.log(model.driver_url);
->>> 'mongodb://arlo%252Fadmin%2540MONGODB.PARTS:B%40sil@localhost:27017/cat_toys?slaveOk=true&gssapiServiceName=MongoDB&authMechanism=GSSAPI'
-```
-
-<a name="authentication-x509"></a>
-#### A5. X509
+### X509 authentication
 
 ![][enterprise_img]
 
-- `x509_username` (**required**, String) ... The x.509 certificate derived user name, e.g. `CN=user,OU=OrgUnit,O=myOrg,...`.
+```javascript
+const model = new Connection({
+  x509Username: 'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,ST=Pennsylvania,C=US'
+});
 
-##### See Also
+console.log(model.driverUrl)
+>>> 'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia%252CST%253DPennsylvania%252CC%253DUS@localhost:27017?slaveOk=true&authMechanism=MONGODB-X509'
+
+console.log(model.driverOptions)
+>>> {
+  db: { readPreference: 'nearest' },
+  replSet: { connectWithNoPrimary: true }
+}
+```
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `x509Username` | String | The x.509 certificate derived user name, e.g. `CN=user,OU=OrgUnit,O=myOrg,...` | `undefined` |
+
+#### See Also
 
 - [node.js driver X509 reference](http://bit.ly/mongodb-node-driver-x509)
 - [node.js driver X509 functional test][x509-functional]
 
+### SSL
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `ssl` | Number/String | A boolean to enable or disables TLS/SSL for the connection | `undefined` |
+| `sslType` | String | How to use SSL. Possible values: `NONE`, `SYSTEMCA`, `IFAVAILABLE`, `UNVALIDATED`, `SERVER`, `ALL` | `NONE` |
+| `sslCA` | Buffer/String | Array of valid certificates | `undefined` |
+| `sslCert` | Buffer/String | The certificate | `undefined` |
+| `sslKey` | Buffer/String | The certificate private key | `undefined` |
+| `sslPass` | Buffer/String | The certificate password | `undefined` |
+
+### SSH TUNNEL
+
+| Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `sshTunnel` | String | How to use SSH tunneling. Possible values: `NONE`, `USER_PASSWORD`, `IDENTITY_FILE` | `undefined` |
+| `sshTunnelHostname` | String | The hostname of the SSH remote host | `undefined` |
+| `sshTunnelPort` | Port | The SSH port of the remote host | `22` |
+| `sshTunnelBindToLocalPort` | Port | Bind the localhost endpoint of the SSH Tunnel to this port | `undefined` |
+| `sshTunnelUsername` | String | The optional SSH username for the remote host | `undefined` |
+| `sshTunnelPassword` | String | The optional SSH password for the remote host | `undefined` |
+| `sshTunnelIdentityFile` | String/Array | The optional path to the SSH identity file for the remote host | `undefined` |
+| `sshTunnelPassphrase` | String | The optional passphrase for `sshTunnelIdentityFile` | `undefined` |
+
+## Derived Properties
+
+Derived properties (also known as computed properties) are properties of the state object that depend on other properties to determine their value.
+
 ```javascript
-var c = new Connection({
-  x509_username: 'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,ST=Pennsylvania,C=US'
-});
-console.log(c.driver_url)
->>> 'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia%252CST%253DPennsylvania%252CC%253DUS@localhost:27017?slaveOk=true&authMechanism=MONGODB-X509'
-console.log(c.driver_options)
->>> { db: { readPreference: 'nearest' },
-  replSet: { connectWithNoPrimary: true } }
+const model = new Connection();
+const derivedProps = model.getAttributes({ derived: true });
 ```
+
+| Derived Property | Type | Description | Default |
+| ----- | ---- | ---------- |  ----  |
+| `instanceId` | String | The mongoscope | `localhost:27017` |
+| `driverAuthMechanism` | String | Converts the value of `authStrategy` for humans into the `authMechanism` value for the driver | `undefined` |
+| `driverUrl` | String | The first argument `mongoscope-server` passes to `mongodb.connect` | `mongodb://localhost:27017/?slaveOk=true` |
+| `driverOptions` | String | The second argument `mongoscope-server` passes to `mongodb.connect` | `{}` |
+
 
 <a name="authentication-ldap"></a>
 #### A6. LDAP

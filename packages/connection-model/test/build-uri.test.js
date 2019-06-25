@@ -149,7 +149,7 @@ describe('connection model builder', () => {
         sslCA: fixture.ssl.ca,
         sslCert: fixture.ssl.server,
         sslKey: fixture.ssl.server,
-        authentication: 'X509',
+        authStrategy: 'X509',
         x509Username: 'testing'
       });
       const options = Object.assign(
@@ -263,7 +263,7 @@ describe('connection model builder', () => {
       const c = new Connection({
         mongodbUsername: '@rlo',
         mongodbPassword: 'w@of',
-        authentication: 'SCRAM-SHA-256'
+        authStrategy: 'SCRAM-SHA-256'
       });
 
       expect(c.driverUrl).to.be.equal('mongodb://%40rlo:w%40of@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false');
@@ -374,7 +374,7 @@ describe('connection model builder', () => {
     });
 
     it('and include non-dependent attribute if it was changed', (done) => {
-      const c = new Connection({ authentication: 'LDAP' });
+      const c = new Connection({ authStrategy: 'LDAP' });
 
       c.ldapUsername = 'ldap-user';
       c.ldapPassword = 'ldap-password';
@@ -389,7 +389,7 @@ describe('connection model builder', () => {
 
     it('and urlencode ldapPassword when using LDAP auth', (done) => {
       const c = new Connection({
-        authentication: 'LDAP',
+        authStrategy: 'LDAP',
         ldapUsername: 'arlo',
         ldapPassword: 'w@of',
         ns: 'ldap'
@@ -407,7 +407,7 @@ describe('connection model builder', () => {
     it('and urlencode ldapUsername when using LDAP auth', (done) => {
       // COMPASS-745 - should urlencode @ once onl
       const c = new Connection({
-        authentication: 'LDAP',
+        authStrategy: 'LDAP',
         ldapUsername: 'arlo@t.co',
         ldapPassword: 'woof',
         ns: 'ldap'
@@ -424,7 +424,7 @@ describe('connection model builder', () => {
 
     it('and urlencode credentials when using X509 auth', (done) => {
       const c = new Connection({
-        authentication: 'X509',
+        authStrategy: 'X509',
         x509Username: 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US'
       });
 
@@ -443,15 +443,15 @@ describe('connection model builder', () => {
   });
 
   describe('should build a connection object with', () => {
-    context('authentication', () => {
-      it('and set authentication to SCRAM-SHA-256', (done) => {
+    context('authStrategy', () => {
+      it('and set authStrategy to SCRAM-SHA-256', (done) => {
         const c = new Connection({
           mongodbUsername: 'arlo',
           mongodbPassword: 'woof',
-          authentication: 'SCRAM-SHA-256'
+          authStrategy: 'SCRAM-SHA-256'
         });
 
-        expect(c.authentication).to.be.equal('SCRAM-SHA-256');
+        expect(c.authStrategy).to.be.equal('SCRAM-SHA-256');
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -461,7 +461,7 @@ describe('connection model builder', () => {
 
       it('and throw the error if auth is SCRAM-SHA-256 and mongodbUsername is missing', () => {
         const attrs = {
-          authentication: 'SCRAM-SHA-256',
+          authStrategy: 'SCRAM-SHA-256',
           mongodbPassword: 'woof'
         };
         const c = new Connection(attrs);
@@ -474,7 +474,7 @@ describe('connection model builder', () => {
       it('and throw the error if auth is SCRAM-SHA-256 and mongodbPassword is missing', () => {
         const attrs = {
           mongodbUsername: 'arlo',
-          authentication: 'SCRAM-SHA-256'
+          authStrategy: 'SCRAM-SHA-256'
         };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
@@ -496,13 +496,13 @@ describe('connection model builder', () => {
         expect(error.message).to.include('kerberosServiceName field does not apply');
       });
 
-      it('and set authentication to MONGODB', (done) => {
+      it('and set authStrategy to MONGODB', (done) => {
         const c = new Connection({
           mongodbUsername: 'arlo',
           mongodbPassword: 'woof'
         });
 
-        expect(c.authentication).to.be.equal('MONGODB');
+        expect(c.authStrategy).to.be.equal('MONGODB');
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -511,7 +511,7 @@ describe('connection model builder', () => {
       });
 
       it('and throw the error if auth is MONGODB and mongodbUsername is missing', () => {
-        const attrs = { authentication: 'MONGODB', mongodbPassword: 'woof' };
+        const attrs = { authStrategy: 'MONGODB', mongodbPassword: 'woof' };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
 
@@ -533,10 +533,10 @@ describe('connection model builder', () => {
         });
       });
 
-      it('and set authentication to LDAP', (done) => {
+      it('and set authStrategy to LDAP', (done) => {
         const c = new Connection({ ldapUsername: 'arlo', ldapPassword: 'w@of'});
 
-        expect(c.authentication).to.be.equal('LDAP');
+        expect(c.authStrategy).to.be.equal('LDAP');
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -545,7 +545,7 @@ describe('connection model builder', () => {
       });
 
       it('and throw the error if auth is LDAP and ldapUsername is missing', () => {
-        const attrs = { authentication: 'LDAP' };
+        const attrs = { authStrategy: 'LDAP' };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
 
@@ -554,7 +554,7 @@ describe('connection model builder', () => {
       });
 
       it('and throw the error if auth is LDAP and ldapPassword is missing', () => {
-        const attrs = { authentication: 'LDAP', ldapUsername: 'arlo' };
+        const attrs = { authStrategy: 'LDAP', ldapUsername: 'arlo' };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
 
@@ -562,12 +562,12 @@ describe('connection model builder', () => {
         expect(error.message).to.include('ldapPassword field is required');
       });
 
-      it('and set authentication to X509', (done) => {
+      it('and set authStrategy to X509', (done) => {
         const c = new Connection({
           x509Username: 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US'
         });
 
-        expect(c.authentication).to.be.equal('X509');
+        expect(c.authStrategy).to.be.equal('X509');
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -576,7 +576,7 @@ describe('connection model builder', () => {
       });
 
       it('and throw the error if auth is X509 and x509Username is missing', () => {
-        const attrs = { authentication: 'X509' };
+        const attrs = { authStrategy: 'X509' };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
 
@@ -584,12 +584,12 @@ describe('connection model builder', () => {
         expect(error.message).to.include('x509Username field is required');
       });
 
-      it('and set authentication to KERBEROS', (done) => {
+      it('and set authStrategy to KERBEROS', (done) => {
         const c = new Connection({
           kerberosPrincipal: 'lucas@kerb.mongodb.parts'
         });
 
-        expect(c.authentication).to.be.equal('KERBEROS');
+        expect(c.authStrategy).to.be.equal('KERBEROS');
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -598,7 +598,7 @@ describe('connection model builder', () => {
       });
 
       it('and throw the error if auth is KERBEROS and kerberosPrincipal is missing', () => {
-        const attrs = { authentication: 'KERBEROS' };
+        const attrs = { authStrategy: 'KERBEROS' };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
 
@@ -608,7 +608,7 @@ describe('connection model builder', () => {
 
       it('and should *only* require a kerberosPrincipal', () => {
         const attrs = {
-          authentication: 'KERBEROS',
+          authStrategy: 'KERBEROS',
           kerberosPrincipal: 'lucas@kerb.mongodb.parts'
         };
         const c = new Connection(attrs);

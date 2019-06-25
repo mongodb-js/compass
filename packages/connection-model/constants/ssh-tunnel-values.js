@@ -1,4 +1,4 @@
-// Allowed values for the `ssl` field
+// Allowed values for the `sshTunnel` field
 module.exports = [
   /**
    * Do not use SSH tunneling.

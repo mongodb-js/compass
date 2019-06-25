@@ -17,11 +17,11 @@ const fs = require('fs');
  * Defining constants
  */
 const CONNECTION_TYPE_VALUES = require('../constants/connection-type-values');
-const AUTH_MECHANISM_TO_AUTHENTICATION = require('../constants/auth-mechanism-to-authentication');
-const AUTHENICATION_TO_AUTH_MECHANISM = require('../constants/authenication-to-auth-mechanism');
-const AUTHENTICATION_VALUES = require('../constants/authentication-values');
-const AUTHENTICATION_TO_FIELD_NAMES = require('../constants/authentication-to-field-names');
-const SSL_VALUES = require('../constants/ssl-values');
+const AUTH_MECHANISM_TO_AUTH_STRATEGY = require('../constants/auth-mechanism-to-auth-strategy');
+const AUTHENICATION_TO_AUTH_MECHANISM = require('../constants/auth-strategy-to-auth-mechanism');
+const AUTH_STRATEGY_VALUES = require('../constants/auth-strategy-values');
+const AUTH_STRATEGY_TO_FIELD_NAMES = require('../constants/auth-strategy-to-field-names');
+const SSL_TYPE_VALUES = require('../constants/ssl-type-values');
 const SSH_TUNNEL_VALUES = require('../constants/ssh-tunnel-values');
 const READ_PREFERENCE_VALUES = [
   ReadPreference.PRIMARY,
@@ -34,7 +34,7 @@ const READ_PREFERENCE_VALUES = [
 /**
  * Defining default values
  */
-const AUTHENTICATION_DEFAULT = 'NONE';
+const AUTH_STRATEGY_DEFAULT = 'NONE';
 const READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY;
 const MONGODB_DATABASE_NAME_DEFAULT = 'admin';
 const MONGODB_NAMESPACE_DEFAULT = 'test';
@@ -67,15 +67,15 @@ assign(props, {
   hostname: { type: 'string', default: 'localhost' },
   port: { type: 'port', default: 27017 },
   hosts: {
-    type: 'object',
+    type: 'array',
     default: () => [{ host: 'localhost', port: 27017 }]
   },
   extraOptions: { type: 'object', default: () => ({}) },
   connectionType: { type: 'string', default: CONNECTION_TYPE_VALUES.NODE_DRIVER },
-  authentication: {
+  authStrategy: {
     type: 'string',
-    values: AUTHENTICATION_VALUES,
-    default: AUTHENTICATION_DEFAULT
+    values: AUTH_STRATEGY_VALUES,
+    default: AUTH_STRATEGY_DEFAULT
   }
 });
 
@@ -116,7 +116,7 @@ const CONNECTION_STRING_OPTIONS = {
   maxStalenessSeconds: { type: 'number', default: undefined },
   readPreferenceTags: { type: 'object', default: undefined },
   /**
-   * Read Preference Options
+   * Authentication Options
    */
   authSource: { type: 'string', default: undefined },
   authMechanism: { type: 'string', default: undefined },
@@ -149,41 +149,14 @@ assign(props, CONNECTION_STRING_OPTIONS);
  * Stitch attributes
  */
 assign(props, {
-  stitchServiceName: { type: 'string' },
-  stitchClientAppId: { type: 'string' },
-  stitchGroupId: { type: 'string' },
-  stitchBaseUrl: { type: 'string' }
+  stitchServiceName: { type: 'string', default: undefined },
+  stitchClientAppId: { type: 'string', default: undefined },
+  stitchGroupId: { type: 'string', default: undefined },
+  stitchBaseUrl: { type: 'string', default: undefined }
 });
 
 /**
- * Assigning derived (computed) properties of a state class
- */
-assign(derived, {
-  /**
-   * @see http://npm.im/mongodb-instance-model
-   */
-  instanceId: {
-    type: 'string',
-    deps: ['hostname', 'port'],
-    fn() {
-      return format('%s:%s', this.hostname, this.port);
-    }
-  },
-  /**
-   * Converts the value of `authentication` (for humans)
-   * into the `authMechanism` value for the driver.
-   */
-  driverAuthMechanism: {
-    type: 'string',
-    deps: ['authentication'],
-    fn() {
-      return AUTHENICATION_TO_AUTH_MECHANISM[this.authentication];
-    }
-  }
-});
-
-/**
- * `authentication = MONGODB`
+ * `authStrategy = MONGODB`
  *
  * @example
  *   const c = new Connection({
@@ -200,7 +173,7 @@ assign(props, {
   mongodbPassword: { type: 'string', default: undefined },
   /**
    * The database name associated with the user's credentials.
-   * If `authentication === 'MONGODB'`,
+   * If `authStrategy === 'MONGODB'`,
    * The value for `authSource` to pass to the driver.
    *
    * @see http://docs.mongodb.org/manual/reference/connection-string/#uri.authSource
@@ -209,11 +182,11 @@ assign(props, {
   /**
    * Whether BSON values should be promoted to their JS type counterparts.
    */
-  promoteValues: { type: 'boolean' }
+  promoteValues: { type: 'boolean', default: undefined }
 });
 
 /**
- * `authentication = KERBEROS`
+ * `authStrategy = KERBEROS`
  *
  * @example
  *   const c = new Connection({
@@ -264,7 +237,7 @@ assign(props, {
 });
 
 /**
- * `authentication = LDAP`
+ * `authStrategy = LDAP`
  *
  * @example
  *    const c = new Connection({
@@ -294,7 +267,7 @@ assign(props, {
 });
 
 /**
- * `authentication = X509`
+ * `authStrategy = X509`
  *
  * @todo (imlucas): We've been assuming authenticaiton=X509 that SSL=ALL is implied,
  * but the driver docs only send `sslKey` and `sslCert`
@@ -325,7 +298,7 @@ assign(props, {
  */
 assign(props, {
   ssl: { type: 'any', default: undefined },
-  sslType: { type: 'string', values: SSL_VALUES, default: SSL_DEFAULT },
+  sslType: { type: 'string', values: SSL_TYPE_VALUES, default: SSL_DEFAULT },
   /**
    * Array of valid certificates either as Buffers or Strings
    * (needs to have a mongod server with ssl support, 2.4 or higher).
@@ -388,6 +361,33 @@ assign(props, {
 });
 
 /**
+ * Assigning derived (computed) properties of a state class
+ */
+assign(derived, {
+  /**
+   * @see http://npm.im/mongodb-instance-model
+   */
+  instanceId: {
+    type: 'string',
+    deps: ['hostname', 'port'],
+    fn() {
+      return format('%s:%s', this.hostname, this.port);
+    }
+  },
+  /**
+   * Converts the value of `authStrategy` for humans
+   * into the `authMechanism` value for the driver.
+   */
+  driverAuthMechanism: {
+    type: 'string',
+    deps: ['authStrategy'],
+    fn() {
+      return AUTHENICATION_TO_AUTH_MECHANISM[this.authStrategy];
+    }
+  }
+});
+
+/**
  * Driver Connection Options
  *
  * So really everything above is all about putting
@@ -425,23 +425,23 @@ assign(derived, {
       }
 
       // Encode auth for url format
-      if (this.authentication === 'MONGODB') {
+      if (this.authStrategy === 'MONGODB') {
         req.auth = AUTH_TOKEN;
         req.query.authSource = this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
-      } else if (this.authentication === 'SCRAM-SHA-256') {
+      } else if (this.authStrategy === 'SCRAM-SHA-256') {
         req.auth = AUTH_TOKEN;
         req.query.authSource = this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
         req.query.authMechanism = this.driverAuthMechanism;
-      } else if (this.authentication === 'KERBEROS') {
+      } else if (this.authStrategy === 'KERBEROS') {
         req.auth = AUTH_TOKEN;
         defaults(req.query, {
           gssapiServiceName: this.kerberosServiceName,
           authMechanism: this.driverAuthMechanism
         });
-      } else if (this.authentication === 'X509') {
+      } else if (this.authStrategy === 'X509') {
         req.auth = this.x509Username;
         defaults(req.query, { authMechanism: this.driverAuthMechanism });
-      } else if (this.authentication === 'LDAP') {
+      } else if (this.authStrategy === 'LDAP') {
         req.auth = AUTH_TOKEN;
         defaults(req.query, { authMechanism: this.driverAuthMechanism });
       }
@@ -498,7 +498,7 @@ assign(derived, {
 
       // Post url.format() workaround for
       // https://github.com/nodejs/node/issues/1802
-      if (this.authentication === 'MONGODB' || this.authentication === 'SCRAM-SHA-256') {
+      if (this.authStrategy === 'MONGODB' || this.authStrategy === 'SCRAM-SHA-256') {
         const authField = format(
           '%s:%s',
           encodeURIComponent(this.mongodbUsername),
@@ -510,7 +510,7 @@ assign(derived, {
         result = result.replace(AUTH_TOKEN, authField, 1);
       }
 
-      if (this.authentication === 'LDAP') {
+      if (this.authStrategy === 'LDAP') {
         const authField = format(
           '%s:%s',
           encodeURIComponent(this.ldapUsername),
@@ -520,7 +520,7 @@ assign(derived, {
         result = `${result}&authSource=$external`;
       }
 
-      if (this.authentication === 'KERBEROS') {
+      if (this.authStrategy === 'KERBEROS') {
         if (this.kerberosPassword) {
           const authField = format(
             '%s:%s',
@@ -572,7 +572,7 @@ assign(derived, {
           opts.sslPass = this.sslPass;
         }
 
-        if (this.authentication === 'X509') {
+        if (this.authStrategy === 'X509') {
           opts.checkServerIdentity = false;
           opts.sslValidate = false;
         }
@@ -694,19 +694,19 @@ Connection = AmpersandModel.extend({
       return attrs;
     }
 
-    if (attrs.mongodbUsername && attrs.authentication !== 'SCRAM-SHA-256') {
-      this.authentication = attrs.authentication = 'MONGODB';
+    if (attrs.mongodbUsername && attrs.authStrategy !== 'SCRAM-SHA-256') {
+      this.authStrategy = attrs.authStrategy = 'MONGODB';
     } else if (attrs.kerberosPrincipal) {
-      this.authentication = attrs.authentication = 'KERBEROS';
+      this.authStrategy = attrs.authStrategy = 'KERBEROS';
     } else if (attrs.ldapUsername) {
-      this.authentication = attrs.authentication = 'LDAP';
+      this.authStrategy = attrs.authStrategy = 'LDAP';
     } else if (attrs.x509Username) {
-      this.authentication = attrs.authentication = 'X509';
+      this.authStrategy = attrs.authStrategy = 'X509';
     }
 
     if (
-      attrs.authentication === 'MONGODB' ||
-      attrs.authentication === 'SCRAM-SHA-256'
+      attrs.authStrategy === 'MONGODB' ||
+      attrs.authStrategy === 'SCRAM-SHA-256'
     ) {
       if (!attrs.mongodbDatabaseName) {
         attrs.mongodbDatabaseName = MONGODB_DATABASE_NAME_DEFAULT;
@@ -715,7 +715,7 @@ Connection = AmpersandModel.extend({
       this.mongodbDatabaseName = attrs.mongodbDatabaseName;
     }
 
-    if (attrs.authentication === 'KERBEROS') {
+    if (attrs.authStrategy === 'KERBEROS') {
       if (!attrs.kerberosServiceName) {
         attrs.kerberosServiceName = KERBEROS_SERVICE_NAME_DEFAULT;
       }
@@ -768,20 +768,20 @@ Connection = AmpersandModel.extend({
   },
   validateMongodb(attrs) {
     if (
-      attrs.authentication === 'MONGODB' ||
-      attrs.authentication === 'SCRAM-SHA-256'
+      attrs.authStrategy === 'MONGODB' ||
+      attrs.authStrategy === 'SCRAM-SHA-256'
     ) {
       if (!attrs.mongodbUsername) {
         throw new TypeError(
           'The mongodbUsername field is required when ' +
-          'using MONGODB or SCRAM-SHA-256 for authentication.'
+          'using MONGODB or SCRAM-SHA-256 for authStrategy.'
         );
       }
 
       if (!attrs.mongodbPassword) {
         throw new TypeError(
           'The mongodbPassword field is required when ' +
-          'using MONGODB or SCRAM-SHA-256 for authentication.'
+          'using MONGODB or SCRAM-SHA-256 for authStrategy.'
         );
       }
     }
@@ -791,48 +791,48 @@ Connection = AmpersandModel.extend({
    * @param {Object} attrs - Incoming attributes.
    */
   validateKerberos(attrs) {
-    if (attrs.authentication !== 'KERBEROS') {
+    if (attrs.authStrategy !== 'KERBEROS') {
       if (attrs.kerberosServiceName) {
         throw new TypeError(format(
           'The kerberosServiceName field does not apply when ' +
-          'using %s for authentication.', attrs.authentication));
+          'using %s for authStrategy.', attrs.authStrategy));
       }
       if (attrs.kerberosPrincipal) {
         throw new TypeError(format(
           'The kerberosPrincipal field does not apply when ' +
-          'using %s for authentication.', attrs.authentication));
+          'using %s for authStrategy.', attrs.authStrategy));
       }
       if (attrs.kerberosPassword) {
         throw new TypeError(format(
           'The kerberosPassword field does not apply when ' +
-          'using %s for authentication.', attrs.authentication));
+          'using %s for authStrategy.', attrs.authStrategy));
       }
     } else if (!attrs.kerberosPrincipal) {
       throw new TypeError(
-        'The kerberosPrincipal field is required when using KERBEROS for authentication.'
+        'The kerberosPrincipal field is required when using KERBEROS for authStrategy.'
       );
     }
   },
   validateX509(attrs) {
-    if (attrs.authentication === 'X509') {
+    if (attrs.authStrategy === 'X509') {
       if (!attrs.x509Username) {
         throw new TypeError(
-          'The x509Username field is required when using X509 for authentication.'
+          'The x509Username field is required when using X509 for authStrategy.'
         );
       }
     }
   },
   validateLdap(attrs) {
-    if (attrs.authentication === 'LDAP') {
+    if (attrs.authStrategy === 'LDAP') {
       if (!attrs.ldapUsername) {
         throw new TypeError(format(
           'The ldapUsername field is required when ' +
-          'using LDAP for authentication.'));
+          'using LDAP for authStrategy.'));
       }
       if (!attrs.ldapPassword) {
         throw new TypeError(format(
           'The ldapPassword field is required when ' +
-          'using LDAP for authentication.'));
+          'using LDAP for authStrategy.'));
       }
     }
   },
@@ -967,34 +967,34 @@ Connection.from = (url, callback) => {
       attrs.ns = parsed.defaultDatabase;
     }
 
-    // The `authentication` value for humans
-    let authentication = null;
+    // The `authStrategy` value for humans
+    let authStrategy = null;
 
     if (attrs.authMechanism) {
-      authentication = attrs.authMechanism;
+      authStrategy = attrs.authMechanism;
     } else if (attrs.auth && attrs.auth.username && attrs.auth.password) {
-      authentication = 'DEFAULT';
+      authStrategy = 'DEFAULT';
     } else if (attrs.auth && attrs.auth.username) {
-      authentication = 'MONGODB-X509';
+      authStrategy = 'MONGODB-X509';
     }
 
-    attrs.authentication = authentication
-      ? AUTH_MECHANISM_TO_AUTHENTICATION[authentication]
-      : AUTHENTICATION_DEFAULT;
+    attrs.authStrategy = authStrategy
+      ? AUTH_MECHANISM_TO_AUTH_STRATEGY[authStrategy]
+      : AUTH_STRATEGY_DEFAULT;
 
     if (parsed.auth) {
       const user = decodeURIComponent(parsed.auth.username);
       const password = decodeURIComponent(parsed.auth.password);
 
-      if (attrs.authentication === 'LDAP') {
+      if (attrs.authStrategy === 'LDAP') {
         attrs.ldapUsername = user;
         attrs.ldapPassword = password;
-      } else if (attrs.authentication === 'X509') {
+      } else if (attrs.authStrategy === 'X509') {
         attrs.x509Username = user;
-      } else if (attrs.authentication === 'KERBEROS') {
+      } else if (attrs.authStrategy === 'KERBEROS') {
         attrs.kerberosPrincipal = user;
         attrs.kerberosPassword = password;
-      } else if (attrs.authentication === 'MONGODB') {
+      } else if (attrs.authStrategy === 'MONGODB') {
         attrs.mongodbUsername = user;
         attrs.mongodbPassword = password;
 
@@ -1043,21 +1043,21 @@ Connection._improveAtlasDefaults = (url, mongodbPassword, ns) => {
 };
 
 /**
- * For a given `authentication` strategy, what are the applicable
+ * For a given `authStrategy` strategy, what are the applicable
  * field names for say a form?
  *
- * @param {String} authentication - @see {Connection#authentication}
+ * @param {String} authStrategy - The desired authentication strategy
  * @return {Array}
  */
-Connection.getFieldNames = (authentication) => AUTHENTICATION_TO_FIELD_NAMES[authentication];
+Connection.getFieldNames = (authStrategy) => AUTH_STRATEGY_TO_FIELD_NAMES[authStrategy];
 
 Connection.isAtlas = (str) => str.match(/mongodb.net[:/]/i);
 
 Connection.isURI = (str) => (str.startsWith('mongodb://')) || (str.startsWith('mongodb+srv://'));
 
-Connection.AUTHENTICATION_VALUES = AUTHENTICATION_VALUES;
-Connection.AUTHENTICATION_DEFAULT = AUTHENTICATION_DEFAULT;
-Connection.SSL_VALUES = SSL_VALUES;
+Connection.AUTH_STRATEGY_VALUES = AUTH_STRATEGY_VALUES;
+Connection.AUTH_STRATEGY_DEFAULT = AUTH_STRATEGY_DEFAULT;
+Connection.SSL_TYPE_VALUES = SSL_TYPE_VALUES;
 Connection.SSL_DEFAULT = SSL_DEFAULT;
 Connection.SSH_TUNNEL_VALUES = SSH_TUNNEL_VALUES;
 Connection.SSH_TUNNEL_DEFAULT = SSH_TUNNEL_DEFAULT;

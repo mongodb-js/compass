@@ -37,23 +37,23 @@ module.exports = Connection.extend(storageMixin, {
   },
   session: { selected: { type: 'boolean', default: false } },
   derived: {
-    // canonical username independent of authentication method
+    // Canonical username independent of authentication strategy
     username: {
-      deps: ['authentication'],
+      deps: ['authStrategy'],
       fn: function() {
-        if (this.authentication === 'NONE') {
+        if (this.authStrategy === 'NONE') {
           return '';
         }
-        if (this.authentication === 'MONGODB') {
+        if (this.authStrategy === 'MONGODB') {
           return this.mongodbUsername;
         }
-        if (this.authentication === 'KERBEROS') {
+        if (this.authStrategy === 'KERBEROS') {
           return this.kerberosPrincipal;
         }
-        if (this.authentication === 'X509') {
+        if (this.authStrategy === 'X509') {
           return this.x509Username;
         }
-        if (this.authentication === 'LDAP') {
+        if (this.authStrategy === 'LDAP') {
           return this.ldapUsername;
         }
       }

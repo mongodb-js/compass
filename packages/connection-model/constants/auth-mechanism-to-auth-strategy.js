@@ -1,4 +1,4 @@
-// Maps `authMechanism` to `authentication`
+// Maps `authMechanism` to `authStrategy`
 module.exports = {
   DEFAULT: 'MONGODB',
   'SCRAM-SHA-1': 'MONGODB',

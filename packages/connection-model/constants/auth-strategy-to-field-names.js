@@ -1,4 +1,4 @@
-// Array of field names associated with each `authentication`
+// Array of field names associated with each `authStrategy`
 module.exports = {
   NONE: [],
   MONGODB: [
