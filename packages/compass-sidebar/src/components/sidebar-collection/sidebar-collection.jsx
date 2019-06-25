@@ -94,7 +94,7 @@ class SidebarCollection extends PureComponent {
   handleClick() {
     if (this.NamespaceStore.ns !== this.props._id) {
       const source = this.props.collections.find((coll) => {
-        return coll._id === this.props.view_on;
+        return toNS(coll._id).collection === this.props.view_on;
       });
       this.CollectionStore.setCollection({
         _id: this.props._id,
@@ -107,7 +107,7 @@ class SidebarCollection extends PureComponent {
         pipeline: this.props.pipeline,
         activeNamespace: this.props.activeNamespace
       });
-      console.log('handleClick', this.props, this.source);
+      console.log('handleClick', this.props, source);
       global.hadronApp.appRegistry.emit(
         'select-namespace',
         this.props._id,
