@@ -95,9 +95,9 @@ appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
   appRegistry.emit('server-version-changed', '4.2.0');
-  appRegistry.emit('select-namespace', 'citibike.trips', false);
-  appRegistry.emit('open-namespace-in-new-tab', 'echo.bandsReadonly', true, 'echo.bands');
-  appRegistry.emit('open-namespace-in-new-tab', 'echo.bands', false, null, 'echo.bandsReadonly');
+  appRegistry.emit('select-namespace', 'citibike.trips', false, null, null, null);
+  appRegistry.emit('open-namespace-in-new-tab', 'citibike.tripsOfShortDuration', true, 'citibike.trips', null, false, null);
+  // appRegistry.emit('open-namespace-in-new-tab', 'echo.bands', false, null, 'echo.bandsReadonly');
 });
 
 if (module.hot) {

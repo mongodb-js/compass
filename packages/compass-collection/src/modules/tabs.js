@@ -77,12 +77,13 @@ const doClearTabs = () => {
 const doSelectNamespace = (state, action) => {
   return state.reduce((newState, tab) => {
     if (tab.isActive) {
+      const subTabIndex = action.editViewName ? 1 : 0;
       newState.push({
         id: action.id,
         namespace: action.namespace,
         isActive: true,
-        activeSubTab: 0,
-        activeSubTabName: action.context.tabs[0],
+        activeSubTab: subTabIndex,
+        activeSubTabName: action.context.tabs[subTabIndex],
         isReadonly: action.isReadonly,
         tabs: action.context.tabs,
         views: action.context.views,
@@ -93,6 +94,8 @@ const doSelectNamespace = (state, action) => {
         scopedModals: action.context.scopedModals,
         sourceName: action.sourceName,
         editViewName: action.editViewName,
+        sourceReadonly: action.sourceReadonly,
+        sourceViewOn: action.sourceViewOn,
         localAppRegistry: action.context.localAppRegistry
       });
     } else {
@@ -114,12 +117,13 @@ const doCreateTab = (state, action) => {
   const newState = state.map((tab) => {
     return { ...tab, isActive: false };
   });
+  const subTabIndex = action.editViewName ? 1 : 0;
   newState.push({
     id: action.id,
     namespace: action.namespace,
     isActive: true,
-    activeSubTab: 0,
-    activeSubTabName: action.context.tabs[0],
+    activeSubTab: subTabIndex,
+    activeSubTabName: action.context.tabs[subTabIndex],
     isReadonly: action.isReadonly,
     tabs: action.context.tabs,
     views: action.context.views,
@@ -130,6 +134,8 @@ const doCreateTab = (state, action) => {
     scopedModals: action.context.scopedModals,
     sourceName: action.sourceName,
     editViewName: action.editViewName,
+    sourceReadonly: action.sourceReadonly,
+    sourceViewOn: action.sourceViewOn,
     localAppRegistry: action.context.localAppRegistry
   });
   return newState;
@@ -309,14 +315,16 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The create tab action.
  */
-export const createTab = (id, namespace, isReadonly, sourceName, editViewName, context) => ({
+export const createTab = (id, namespace, isReadonly, sourceName, editViewName, context, sourceReadonly, sourceViewOn) => ({
   type: CREATE_TAB,
   id: id,
   namespace: namespace,
   isReadonly: isReadonly || false,
   sourceName: sourceName,
   editViewName: editViewName,
-  context: context
+  context: context,
+  sourceReadonly: sourceReadonly,
+  sourceViewOn: sourceViewOn
 });
 
 /**
@@ -331,14 +339,16 @@ export const createTab = (id, namespace, isReadonly, sourceName, editViewName, c
  *
  * @returns {Object} The namespace selected action.
  */
-export const selectNamespace = (id, namespace, isReadonly, sourceName, editViewName, context) => ({
+export const selectNamespace = (id, namespace, isReadonly, sourceName, editViewName, context, sourceReadonly, sourceViewOn) => ({
   type: SELECT_NAMESPACE,
   id: id,
   namespace: namespace,
   isReadonly: ((isReadonly === undefined) ? false : isReadonly),
   sourceName: sourceName,
   editViewName: editViewName,
-  context: context
+  context: context,
+  sourceReadonly: sourceReadonly,
+  sourceViewOn: sourceViewOn
 });
 
 /**
@@ -439,18 +449,20 @@ export const changeActiveSubTab = (activeSubTab, id) => ({
  * @param {String} sourceName - The ns of the resonly view source.
  * @param {String} editViewName - The name of the view we are editing.
  */
-export const selectOrCreateTab = (namespace, isReadonly, sourceName, editViewName) => {
+export const selectOrCreateTab = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn) => {
   return (dispatch, getState) => {
     const state = getState();
     if (state.tabs.length === 0) {
-      dispatch(createNewTab(namespace, isReadonly, sourceName, editViewName));
+      dispatch(createNewTab(namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn));
     } else {
       // If the namespace is equal to the active tab's namespace, then
       // there is no need to do anything.
       const activeIndex = state.tabs.findIndex(tab => tab.isActive);
       const activeNamespace = state.tabs[activeIndex].namespace;
       if (namespace !== activeNamespace) {
-        dispatch(replaceTabContent(namespace, isReadonly, sourceName, editViewName));
+        dispatch(
+          replaceTabContent(namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn)
+        );
       }
     }
   };
@@ -465,7 +477,7 @@ export const selectOrCreateTab = (namespace, isReadonly, sourceName, editViewNam
  * @param {String} sourceName - The view source namespace.
  * @param {String} editViewName - The name of the view we are editing.
  */
-export const createNewTab = (namespace, isReadonly, sourceName, editViewName) => {
+export const createNewTab = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn) => {
   return (dispatch, getState) => {
     const state = getState();
     const context = createContext(
@@ -484,6 +496,8 @@ export const createNewTab = (namespace, isReadonly, sourceName, editViewName) =>
         sourceName,
         editViewName,
         context,
+        !!sourceReadonly,
+        sourceViewOn
       )
     );
   };
@@ -498,7 +512,7 @@ export const createNewTab = (namespace, isReadonly, sourceName, editViewName) =>
  * @param {String} sourceName - The view source namespace.
  * @param {String} editViewName - The name of the view we are editing.
  */
-export const replaceTabContent = (namespace, isReadonly, sourceName, editViewName) => {
+export const replaceTabContent = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn) => {
   return (dispatch, getState) => {
     const state = getState();
     const context = createContext(
@@ -516,7 +530,9 @@ export const replaceTabContent = (namespace, isReadonly, sourceName, editViewNam
         isReadonly,
         sourceName,
         editViewName,
-        context
+        context,
+        !!sourceReadonly,
+        sourceViewOn
       )
     );
   };

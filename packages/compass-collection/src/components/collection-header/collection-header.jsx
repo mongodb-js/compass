@@ -19,18 +19,29 @@ class CollectionHeader extends Component {
     selectOrCreateTab: PropTypes.func.isRequired,
     statsStore: PropTypes.object.isRequired,
     sourceName: PropTypes.string,
+    sourceReadonly: PropTypes.bool.isRequired,
+    sourceViewOn: PropTypes.string,
     editViewName: PropTypes.string
   };
 
   modifySource = () => {
-    console.log('#modifySource', this.props.sourceName);
-    // @todo: Durran: Need to know if the source is a view and the source source name.
-    this.props.selectOrCreateTab(this.props.sourceName, true, null, this.props.namespace);
+    this.props.selectOrCreateTab(
+      this.props.sourceName,
+      this.props.sourceReadonly,
+      this.props.sourceViewOn,
+      this.props.namespace
+    );
   }
 
   returnToView = () => {
-    console.log('#returnToView', this.props.editViewName);
-    this.props.selectOrCreateTab(this.props.editViewName, true, this.props.namespace, null);
+    this.props.selectOrCreateTab(
+      this.props.editViewName,
+      true,
+      this.props.namespace,
+      null,
+      this.props.isReadonly,
+      this.props.sourceName
+    );
   }
 
   /**

@@ -23,6 +23,8 @@ class Collection extends Component {
     activeSubTab: PropTypes.number.isRequired,
     id: PropTypes.string.isRequired,
     sourceName: PropTypes.string,
+    sourceReadonly: PropTypes.bool.isRequired,
+    sourceViewOn: PropTypes.string,
     editViewName: PropTypes.string,
     changeActiveSubTab: PropTypes.func.isRequired
   };
@@ -66,6 +68,8 @@ class Collection extends Component {
             statsPlugin={this.props.statsPlugin}
             statsStore={this.props.statsStore}
             editViewName={this.props.editViewName}
+            sourceReadonly={this.props.sourceReadonly}
+            sourceViewOn={this.props.sourceViewOn}
             selectOrCreateTab={this.props.selectOrCreateTab}
             sourceName={this.props.sourceName} />
           <TabNavBar

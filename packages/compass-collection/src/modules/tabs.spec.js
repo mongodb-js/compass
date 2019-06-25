@@ -25,6 +25,8 @@ describe('tabs module', () => {
         isReadonly: true,
         sourceName: 'db.test',
         editViewName: 'db.view',
+        sourceReadonly: undefined,
+        sourceViewOn: undefined,
         context: {}
       });
     });
@@ -41,6 +43,8 @@ describe('tabs module', () => {
         isReadonly: true,
         sourceName: 'db.test',
         editViewName: 'db.view',
+        sourceReadonly: undefined,
+        sourceViewOn: undefined,
         context: {}
       });
     });

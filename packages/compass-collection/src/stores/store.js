@@ -29,11 +29,13 @@ store.onActivated = (appRegistry) => {
    * @param {String} sourceName - The source namespace, if this is a view.
    * @param {String} editViewName - The name of the view we are editing.
    */
-  appRegistry.on('open-namespace-in-new-tab', (ns, isReadonly, sourceName, editViewName) => {
+  appRegistry.on('open-namespace-in-new-tab', (ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn) => {
     if (ns) {
       const namespace = toNS(ns);
       if (namespace.collection !== '') {
-        store.dispatch(createNewTab(ns, isReadonly, sourceName, editViewName));
+        store.dispatch(
+          createNewTab(ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn)
+        );
       }
     }
   });
@@ -46,11 +48,13 @@ store.onActivated = (appRegistry) => {
    * @param {String} sourceName - The source namespace, if this is a view.
    * @param {String} editViewName - The name of the view we are editing.
    */
-  appRegistry.on('select-namespace', (ns, isReadonly, sourceName, editViewName) => {
+  appRegistry.on('select-namespace', (ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn) => {
     if (ns) {
       const namespace = toNS(ns);
       if (namespace.collection !== '') {
-        store.dispatch(selectOrCreateTab(ns, isReadonly, sourceName, editViewName));
+        store.dispatch(
+          selectOrCreateTab(ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn)
+        );
       }
     }
   });
@@ -78,22 +82,6 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('database-dropped', (name) => {
     store.dispatch(databaseDropped(name));
-  });
-
-  /**
-   * Modify the source pipeline.
-   *
-   * @param {String} ns - The namespace.
-   * @param {String} sourceName - The source name that will be edited.
-   * @param {Boolean} isSourceReadonly - If the source is also a view.
-   * @param {String} sourceSourceName - If the source is a view, its source name.
-   */
-  appRegistry.on('modify-source-pipeline', () => {
-    // If tabs are open.
-    // - If modifying source from sidebar open in new tab.
-    //   - Back stays in same tab.
-    // - If modifying source from the header select-namespace.
-    //   - Back stays in same tab.
   });
 
   /**
