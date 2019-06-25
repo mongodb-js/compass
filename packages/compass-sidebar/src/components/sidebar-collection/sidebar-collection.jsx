@@ -20,6 +20,7 @@ class SidebarCollection extends PureComponent {
     description: PropTypes.string.isRequired,
     view_on: PropTypes.any, // undefined or string if view
     pipeline: PropTypes.any, // undefined or array if view
+    collections: PropTypes.array.isRequired,
     type: PropTypes.oneOf(['collection', 'view']),
     isDataLake: PropTypes.bool.isRequired
   };
@@ -35,11 +36,17 @@ class SidebarCollection extends PureComponent {
   }
 
   onOpenInNewTab() {
+    const source = this.props.collections.find((coll) => {
+      return coll._id === this.props.view_on;
+    });
     global.hadronApp.appRegistry.emit(
       'open-namespace-in-new-tab',
       this.props._id,
       this.props.readonly,
-      this.props.view_on
+      this.props.view_on,
+      null,
+      source ? source.readonly : false,
+      source ? source.view_on : null
     );
   }
 
@@ -55,16 +62,26 @@ class SidebarCollection extends PureComponent {
 
   onDuplicateView() {
     global.hadronApp.appRegistry.emit(
-      'duplicate-view',
-      this.props.view_on,
-      this.props.pipeline
+      'open-create-view', {
+        source: this.props.view_on,
+        pipeline: this.props.pipeline,
+        duplicate: true
+      }
     );
   }
 
   onModifySource() {
+    const source = this.props.collections.find((coll) => {
+      return coll._id === this.props.view_on;
+    });
     global.hadronApp.appRegistry.emit(
-      'modify-source-pipeline',
-      this.props.view_on
+      'open-namespace-in-new-tab',
+      this.props.view_on,
+      source ? source.readonly : false,
+      source ? source.view_on : null,
+      this.props._id,
+      null,
+      null
     );
   }
 
@@ -74,6 +91,9 @@ class SidebarCollection extends PureComponent {
 
   handleClick() {
     if (this.NamespaceStore.ns !== this.props._id) {
+      const source = this.props.collections.find((coll) => {
+        return coll._id === this.props.view_on;
+      });
       this.CollectionStore.setCollection({
         _id: this.props._id,
         database: this.props.database,
@@ -89,7 +109,10 @@ class SidebarCollection extends PureComponent {
         'select-namespace',
         this.props._id,
         this.props.readonly,
-        this.props.view_on
+        this.props.view_on,
+        null,
+        source ? source.readonly : false,
+        source ? source.view_on : null
       );
       if (!this.props.isDataLake) {
         const ipc = require('hadron-ipc');
@@ -127,6 +150,7 @@ class SidebarCollection extends PureComponent {
         <MenuItem eventKey="1" onClick={this.onOpenInNewTab.bind(this)}>Open in New Tab</MenuItem>
         <MenuItem eventKey="2" onClick={this.onDrop.bind(this)} disabled={!this.props.isWritable || this.props.isDataLake}>Drop View</MenuItem>
         <MenuItem eventKey="3" onClick={this.onDuplicateView.bind(this)} disabled={!this.props.isWritable}>Duplicate View</MenuItem>
+        <MenuItem eventKey="4" onClick={this.onModifySource.bind(this)} disabled={!this.props.isWritable}>Modify Source</MenuItem>
       </DropdownButton>
     );
   }

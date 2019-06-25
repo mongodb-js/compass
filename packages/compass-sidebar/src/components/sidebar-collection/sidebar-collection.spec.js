@@ -17,6 +17,7 @@ describe('SidebarCollection [Component]', () => {
         database="db"
         capped={false}
         power_of_two={false}
+        collections={[]}
         readonly={false}
         isWritable
         isDataLake={false}
@@ -51,6 +52,7 @@ describe('SidebarCollection [Component]', () => {
         database="db"
         capped={false}
         power_of_two={false}
+        collections={[]}
         readonly={false}
         isWritable
         isDataLake={false}
@@ -74,6 +76,7 @@ describe('SidebarCollection [Component]', () => {
       component = mount(<SidebarCollection
         _id="echo.albums"
         database="echo"
+        collections={[]}
         capped={false}
         power_of_two={false}
         type="view"

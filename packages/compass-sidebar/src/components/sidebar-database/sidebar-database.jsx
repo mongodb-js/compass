@@ -44,7 +44,8 @@ class SidebarDatabase extends PureComponent {
           activeNamespace: this.props.activeNamespace,
           isWritable: this.props.isWritable,
           description: this.props.description,
-          isDataLake: this.props.isDataLake
+          isDataLake: this.props.isDataLake,
+          collections: this.props.collections
         };
         return (
           <SidebarCollection key={c._id} {...props} />
