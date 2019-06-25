@@ -39,7 +39,6 @@ class SidebarCollection extends PureComponent {
     const source = this.props.collections.find((coll) => {
       return toNS(coll._id).collection === this.props.view_on;
     });
-    console.log('onOpenInNewTab', this.props, source);
     global.hadronApp.appRegistry.emit(
       'open-namespace-in-new-tab',
       this.props._id,
@@ -75,7 +74,6 @@ class SidebarCollection extends PureComponent {
     const source = this.props.collections.find((coll) => {
       return toNS(coll._id).collection === this.props.view_on;
     });
-    console.log('onModifySource', this.props, source);
     global.hadronApp.appRegistry.emit(
       'open-namespace-in-new-tab',
       `${this.props.database}.${this.props.view_on}`,
@@ -107,7 +105,6 @@ class SidebarCollection extends PureComponent {
         pipeline: this.props.pipeline,
         activeNamespace: this.props.activeNamespace
       });
-      console.log('handleClick', this.props, source);
       global.hadronApp.appRegistry.emit(
         'select-namespace',
         this.props._id,
