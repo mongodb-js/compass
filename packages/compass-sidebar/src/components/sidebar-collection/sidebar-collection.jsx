@@ -19,6 +19,7 @@ class SidebarCollection extends PureComponent {
     isWritable: PropTypes.bool.isRequired,
     description: PropTypes.string.isRequired,
     view_on: PropTypes.any, // undefined or string if view
+    sourcePipeline: PropTypes.array,
     pipeline: PropTypes.any, // undefined or array if view
     collections: PropTypes.array.isRequired,
     type: PropTypes.oneOf(['collection', 'view']),
@@ -47,6 +48,7 @@ class SidebarCollection extends PureComponent {
       null,
       source ? source.readonly : false,
       source ? `${this.props.database}.${source.view_on}` : null,
+      this.props.pipeline
     );
   }
 
@@ -81,7 +83,8 @@ class SidebarCollection extends PureComponent {
       source ? `${this.props.database}.${source.view_on}` : null,
       this.props._id,
       null,
-      null
+      null,
+      this.props.pipeline
     );
   }
 
@@ -112,7 +115,8 @@ class SidebarCollection extends PureComponent {
         `${this.props.database}.${this.props.view_on}`,
         null,
         source ? source.readonly : false,
-        source ? `${this.props.database}.${source.view_on}` : null
+        source ? `${this.props.database}.${source.view_on}` : null,
+        this.props.pipeline
       );
       if (!this.props.isDataLake) {
         const ipc = require('hadron-ipc');
@@ -207,7 +211,6 @@ class SidebarCollection extends PureComponent {
   }
 
   render() {
-    console.log('sidebar collection props', this.props);
     const collectionName = this.getCollectionName();
     const active =
       this.props.activeNamespace === this.props._id
