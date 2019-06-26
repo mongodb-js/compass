@@ -73,7 +73,7 @@ class CollectionHeader extends Component {
       return (
         <div className={classnames(styles['collection-header-title-readonly'])}>
           <span className={classnames(styles['collection-header-title-readonly-on'])}>
-            (on: {this.props.sourceName})
+            (view on: {this.props.sourceName})
           </span>
           {this.renderModifySource()}
           {this.renderReturnToView()}

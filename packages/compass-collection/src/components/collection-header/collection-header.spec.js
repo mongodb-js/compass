@@ -73,7 +73,7 @@ describe('CollectionHeader [Component]', () => {
 
     it('renders the source collection', () => {
       expect(component.find(`.${styles['collection-header-title-readonly-on']}`)).
-        to.have.text('(on: orig.coll)');
+        to.have.text('(view on: orig.coll)');
     });
 
     it('renders the readonly icon', () => {
