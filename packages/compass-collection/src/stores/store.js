@@ -29,16 +29,27 @@ store.onActivated = (appRegistry) => {
    * @param {String} sourceName - The source namespace, if this is a view.
    * @param {String} editViewName - The name of the view we are editing.
    */
-  appRegistry.on('open-namespace-in-new-tab', (ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn) => {
-    if (ns) {
-      const namespace = toNS(ns);
-      if (namespace.collection !== '') {
-        store.dispatch(
-          createNewTab(ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn)
-        );
+  appRegistry.on(
+    'open-namespace-in-new-tab',
+    (ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline) => {
+      if (ns) {
+        const namespace = toNS(ns);
+        if (namespace.collection !== '') {
+          store.dispatch(
+            createNewTab(
+              ns,
+              isReadonly,
+              sourceName,
+              editViewName,
+              sourceReadonly,
+              sourceViewOn,
+              sourcePipeline
+            )
+          );
+        }
       }
     }
-  });
+  );
 
   /**
    * When a collection namespace is selected in the sidebar.
@@ -48,16 +59,27 @@ store.onActivated = (appRegistry) => {
    * @param {String} sourceName - The source namespace, if this is a view.
    * @param {String} editViewName - The name of the view we are editing.
    */
-  appRegistry.on('select-namespace', (ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn) => {
-    if (ns) {
-      const namespace = toNS(ns);
-      if (namespace.collection !== '') {
-        store.dispatch(
-          selectOrCreateTab(ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn)
-        );
+  appRegistry.on(
+    'select-namespace',
+    (ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline) => {
+      if (ns) {
+        const namespace = toNS(ns);
+        if (namespace.collection !== '') {
+          store.dispatch(
+            selectOrCreateTab(
+              ns,
+              isReadonly,
+              sourceName,
+              editViewName,
+              sourceReadonly,
+              sourceViewOn,
+              sourcePipeline
+            )
+          );
+        }
       }
     }
-  });
+  );
 
   /**
    * Clear the tabs when selecting a database.
