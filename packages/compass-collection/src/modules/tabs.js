@@ -449,11 +449,11 @@ export const changeActiveSubTab = (activeSubTab, id) => ({
  * @param {String} sourceName - The ns of the resonly view source.
  * @param {String} editViewName - The name of the view we are editing.
  */
-export const selectOrCreateTab = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn) => {
+export const selectOrCreateTab = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline) => {
   return (dispatch, getState) => {
     const state = getState();
     if (state.tabs.length === 0) {
-      dispatch(createNewTab(namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn));
+      dispatch(createNewTab(namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline));
     } else {
       // If the namespace is equal to the active tab's namespace, then
       // there is no need to do anything.
@@ -461,7 +461,7 @@ export const selectOrCreateTab = (namespace, isReadonly, sourceName, editViewNam
       const activeNamespace = state.tabs[activeIndex].namespace;
       if (namespace !== activeNamespace) {
         dispatch(
-          replaceTabContent(namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn)
+          replaceTabContent(namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline)
         );
       }
     }
@@ -477,7 +477,7 @@ export const selectOrCreateTab = (namespace, isReadonly, sourceName, editViewNam
  * @param {String} sourceName - The view source namespace.
  * @param {String} editViewName - The name of the view we are editing.
  */
-export const createNewTab = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn) => {
+export const createNewTab = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline) => {
   return (dispatch, getState) => {
     const state = getState();
     const context = createContext(
@@ -486,7 +486,8 @@ export const createNewTab = (namespace, isReadonly, sourceName, editViewName, so
       isReadonly,
       state.isDataLake,
       sourceName,
-      editViewName
+      editViewName,
+      sourcePipeline
     );
     dispatch(
       createTab(
@@ -512,7 +513,7 @@ export const createNewTab = (namespace, isReadonly, sourceName, editViewName, so
  * @param {String} sourceName - The view source namespace.
  * @param {String} editViewName - The name of the view we are editing.
  */
-export const replaceTabContent = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn) => {
+export const replaceTabContent = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline) => {
   return (dispatch, getState) => {
     const state = getState();
     const context = createContext(
@@ -521,7 +522,8 @@ export const replaceTabContent = (namespace, isReadonly, sourceName, editViewNam
       isReadonly,
       state.isDataLake,
       sourceName,
-      editViewName
+      editViewName,
+      sourcePipeline
     );
     dispatch(
       selectNamespace(
