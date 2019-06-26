@@ -8,7 +8,8 @@ import configureStore, {
   setLocalAppRegistry,
   setIsAtlas,
   setAllowWrites,
-  setOutResultsFn
+  setOutResultsFn,
+  setViewSource
 } from './store';
 export default configureStore;
 export {
@@ -21,5 +22,6 @@ export {
   setLocalAppRegistry,
   setIsAtlas,
   setAllowWrites,
-  setOutResultsFn
+  setOutResultsFn,
+  setViewSource
 };

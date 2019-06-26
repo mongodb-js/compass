@@ -33,7 +33,7 @@ const configureStore = (options = {}) => {
      */
     localAppRegistry.on('open-create-view', (meta) => {
       debug('open-create-view', meta.source, meta.pipeline);
-      store.dispatch(open(meta.source, meta.pipeline));
+      store.dispatch(open(meta.source, meta.pipeline, false));
     });
   }
 

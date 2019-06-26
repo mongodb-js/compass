@@ -11,6 +11,7 @@ import { serverVersionChanged } from 'modules/server-version';
 import { setIsAtlasDeployed } from 'modules/is-atlas-deployed';
 import { allowWrites } from 'modules/allow-writes';
 import { outResultsFnChanged } from 'modules/out-results-fn';
+import { modifyView } from 'modules';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
@@ -121,6 +122,17 @@ export const setGlobalAppRegistry = (store, appRegistry) => {
 };
 
 /**
+ * Set the view source.
+ *
+ * @param {Store} store - The store.
+ * @param {String} name - The name.
+ * @param {Array} pipeline - The pipeline.
+ */
+export const setViewSource = (store, name, pipeline) => {
+  store.dispatch(modifyView(name, pipeline));
+};
+
+/**
  * One method configure store call.
  *
  * @param {Options} options - The options.
@@ -204,6 +216,10 @@ const configureStore = (options = {}) => {
   }
   if (options.outResultsFn) {
     setOutResultsFn(store, options.outResultsFn);
+  }
+
+  if (options.editViewName) {
+    setViewSource(store, options.editViewName, options.sourcePipeline);
   }
 
   return store;

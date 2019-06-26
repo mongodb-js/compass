@@ -1,6 +1,6 @@
 import { toJSString as toShellString, parseFilter } from 'mongodb-query-parser';
-import bson from 'bson';
 import transpiler from 'bson-transpilers';
+import { emptyStage } from 'modules/pipeline';
 
 /**
  * JS lang constant.
@@ -201,6 +201,16 @@ export const createPipeline = (text) => {
   }
 };
 
+export const createPipelineFromView = (pipeline) => {
+  return pipeline.map((stage) => {
+    return createStage(
+      Object.keys(stage)[0],
+      toShellString(Object.values(stage)[0], INDENT),
+      null
+    );
+  });
+};
+
 /**
  * Create a single stage in the pipeline.
  *
@@ -210,16 +220,13 @@ export const createPipeline = (text) => {
  *
  * @returns {Object} The stage.
  */
-const createStage = (stageOperator, stage, syntaxError) => ({
-  id: new bson.ObjectId().toHexString(),
-  stageOperator: stageOperator,
-  stage: stage,
-  isValid: syntaxError ? false : true,
-  isEnabled: true,
-  isExpanded: true,
-  isLoading: false,
-  isComplete: false,
-  previewDocuments: [],
-  syntaxError: syntaxError,
-  error: null
-});
+export const createStage = (stageOperator, stage, syntaxError) => {
+  const newStage = emptyStage();
+  return {
+    ...newStage,
+    stageOperator: stageOperator,
+    stage: stage,
+    isValid: syntaxError ? false : true,
+    syntaxError: syntaxError
+  };
+};

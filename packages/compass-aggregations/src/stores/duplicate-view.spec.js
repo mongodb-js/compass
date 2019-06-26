@@ -21,7 +21,14 @@ describe('DuplicateViewStore [Store]', () => {
 
     context('when open create view is emitted', () => {
       beforeEach(() => {
-        appRegistry.emit('duplicate-view', 'dataService.test', [{ $project: { a: 1 }}]);
+        appRegistry.emit(
+          'open-create-view',
+          {
+            source: 'dataService.test',
+            pipeline: [{ $project: { a: 1 }}],
+            duplicate: true
+          }
+        );
       });
 
       it('dispatches the toggle action', () => {

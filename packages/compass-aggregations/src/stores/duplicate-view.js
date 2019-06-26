@@ -24,11 +24,10 @@ store.onActivated = (appRegistry) => {
   /**
    * Handle duplicate view actions.
    *
-   * @param {String} source - The source.
-   * @param {Array} pipeline - The pipeline.
+   * @param {Object} meta - The metadata.
    */
-  appRegistry.on('duplicate-view', (source, pipeline) => {
-    store.dispatch(open(source, pipeline));
+  appRegistry.on('open-create-view', (meta) => {
+    store.dispatch(open(meta.source, meta.pipeline, meta.duplicate));
   });
 };
 

@@ -4,11 +4,13 @@ import reducer, {
   restoreSavedPipeline,
   clonePipeline,
   newPipeline,
+  modifyView,
   RESET,
   CLEAR_PIPELINE,
   RESTORE_PIPELINE,
   NEW_PIPELINE,
-  CLONE_PIPELINE
+  CLONE_PIPELINE,
+  MODIFY_VIEW
 } from 'modules';
 import { toggleOverview, TOGGLE_OVERVIEW } from 'modules/is-overview-on';
 import { largeLimitChanged, LARGE_LIMIT_CHANGED } from 'modules/large-limit';
@@ -73,6 +75,16 @@ describe('root [ module ]', () => {
       expect(maxTimeMSChanged(100)).to.deep.equal({
         type: MAX_TIME_MS_CHANGED,
         maxTimeMS: 100
+      });
+    });
+  });
+
+  describe('#modifyView', () => {
+    it('returns the MODIFY_VIEW action', () => {
+      expect(modifyView('db.testing', [])).to.deep.equal({
+        type: MODIFY_VIEW,
+        name: 'db.testing',
+        pipeline: []
       });
     });
   });

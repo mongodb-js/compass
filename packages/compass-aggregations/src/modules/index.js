@@ -62,7 +62,8 @@ import restorePipeline, {
 import importPipeline, {
   INITIAL_STATE as IMPORT_PIPELINE_INITIAL_STATE,
   CONFIRM_NEW,
-  createPipeline
+  createPipeline,
+  createPipelineFromView
 } from './import-pipeline';
 import { getObjectStore } from 'utils/indexed-db';
 import appRegistry, {
@@ -156,6 +157,7 @@ export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
 export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
 
 export const NEW_FROM_PASTE = 'aggregations/NEW_FROM_PASTE';
+export const MODIFY_VIEW = 'aggregations/MODIFY_VIEW';
 
 /**
  * The main application reducer.
@@ -369,6 +371,25 @@ const doConfirmNewFromText = (state) => {
   };
 };
 
+const doModifyView = (state, action) => {
+  const pipe = createPipelineFromView(action.pipeline);
+  return {
+    ...state,
+    name: action.name,
+    collation: {},
+    collationString: '',
+    isCollationExpanded: false,
+    id: new ObjectId().toHexString(),
+    pipeline: pipe,
+    importPipeline: {
+      isOpen: false,
+      isConfirmationNeeded: false,
+      text: '',
+      syntaxError: null
+    }
+  };
+};
+
 /**
  * When <StageEditor /> is empty and you paste
  * what could be an aggregation pipeline.
@@ -475,6 +496,7 @@ const doProjectionsChanged = (state) => {
   });
   return newState;
 };
+
 /**
  * The action to state modifier mappings.
  */
@@ -490,7 +512,8 @@ const MAPPINGS = {
   [APPLY_SETTINGS]: doApplySettings,
   [SAVING_PIPELINE_APPLY]: doApplySavingPipeline,
   [PROJECTIONS_CHANGED]: doProjectionsChanged,
-  [NEW_FROM_PASTE]: doNewFromPastedText
+  [NEW_FROM_PASTE]: doNewFromPastedText,
+  [MODIFY_VIEW]: doModifyView
 };
 
 /**
@@ -632,3 +655,17 @@ export const openCreateView = () => {
     dispatch(localAppRegistryEmit('open-create-view', meta));
   };
 };
+
+/**
+ * Action creator for modifying a view.
+ *
+ * @param {String} viewName - The view name.
+ * @param {Array} viewPipeline - The view pipeline.
+ *
+ * @returns {Object} The action.
+ */
+export const modifyView = (viewName, viewPipeline) => ({
+  type: MODIFY_VIEW,
+  name: viewName,
+  pipeline: viewPipeline
+});
