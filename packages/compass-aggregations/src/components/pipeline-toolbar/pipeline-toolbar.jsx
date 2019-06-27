@@ -32,6 +32,8 @@ class PipelineToolbar extends PureComponent {
     isAutoPreviewing: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     name: PropTypes.string,
+    editViewName: PropTypes.string,
+    updateView: PropTypes.func.isRequired,
     collationCollapseToggled: PropTypes.func.isRequired,
     isCollationExpanded: PropTypes.bool.isRequired,
     isOverviewOn: PropTypes.bool.isRequired,
@@ -64,6 +66,7 @@ class PipelineToolbar extends PureComponent {
         <PipelineBuilderToolbar
           isAtlasDeployed={this.props.isAtlasDeployed}
           savedPipelinesListToggle={this.props.savedPipelinesListToggle}
+          updateView={this.props.updateView}
           getSavedPipelines={this.props.getSavedPipelines}
           savedPipeline={this.props.savedPipeline}
           clonePipeline={this.props.clonePipeline}
@@ -76,6 +79,7 @@ class PipelineToolbar extends PureComponent {
           isModified={this.props.isModified}
           setIsModified={this.props.setIsModified}
           name={this.props.name}
+          editViewName={this.props.editViewName}
           collationCollapseToggled={this.props.collationCollapseToggled}
           isCollationExpanded={this.props.isCollationExpanded}
           isOverviewOn={this.props.isOverviewOn}

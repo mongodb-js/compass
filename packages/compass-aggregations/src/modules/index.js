@@ -5,6 +5,7 @@ import { ObjectId } from 'bson';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
+import editViewName, { INITIAL_STATE as EDIT_VIEW_NAME_INITIAL_STATE } from './edit-view-name';
 import inputDocuments, {
   INITIAL_STATE as INPUT_INITIAL_STATE
 } from './input-documents';
@@ -128,7 +129,8 @@ export const INITIAL_STATE = {
   isFullscreenOn: FULLSCREEN_INITIAL_STATE,
   savingPipeline: SAVING_PIPELINE_INITIAL_STATE,
   projections: PROJECTIONS_INITIAL_STATE,
-  outResultsFn: OUT_RESULTS_FN_INITIAL_STATE
+  outResultsFn: OUT_RESULTS_FN_INITIAL_STATE,
+  editViewName: EDIT_VIEW_NAME_INITIAL_STATE
 };
 
 /**
@@ -197,6 +199,7 @@ const appReducer = combineReducers({
   isFullscreenOn,
   savingPipeline,
   projections,
+  editViewName,
   outResultsFn
 });
 
@@ -375,7 +378,7 @@ const doModifyView = (state, action) => {
   const pipe = createPipelineFromView(action.pipeline);
   return {
     ...state,
-    name: action.name,
+    editViewName: action.name,
     collation: {},
     collationString: '',
     isCollationExpanded: false,
@@ -669,3 +672,46 @@ export const modifyView = (viewName, viewPipeline) => ({
   name: viewName,
   pipeline: viewPipeline
 });
+
+export const updateView = () => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const ds = state.dataService.dataService;
+    const viewNamespace = state.editViewName;
+    const viewPipeline = state.pipeline.map((p) => p.executor);
+    const options = {
+      viewOn: state.namespace,
+      pipeline: viewPipeline
+    };
+
+    // dispatch(clearError());
+
+    try {
+      // dispatch(toggleIsRunning(true));
+      debug('calling data-service.updateCollection', viewNamespace);
+      ds.updateCollection(viewNamespace, options, (e) => {
+        if (e) {
+          debug('error updating view', e);
+          // return stopWithError(dispatch, e);
+        }
+        // debug('View updated!');
+        dispatch(
+          globalAppRegistryEmit(
+            'select-namespace',
+            viewNamespace,
+            true,
+            state.namespace,
+            null,
+            'sourceReadonly',
+            'sourceViewOn',
+            'sourcePipeline'
+          )
+        );
+        // dispatch(reset());
+      });
+    } catch (e) {
+      debug('Unexpected error updating view', e);
+      // return stopWithError(dispatch, e);
+    }
+  };
+};

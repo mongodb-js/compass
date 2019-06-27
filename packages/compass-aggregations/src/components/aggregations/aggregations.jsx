@@ -27,7 +27,8 @@ import {
   deletePipeline,
   newPipeline,
   clonePipeline,
-  openCreateView
+  openCreateView,
+  updateView
 } from 'modules';
 import {
   runStage,
@@ -143,7 +144,8 @@ const mapStateToProps = (state) => ({
   maxTimeMS: state.maxTimeMS,
   isFullscreenOn: state.isFullscreenOn,
   savingPipeline: state.savingPipeline,
-  projections: state.projections
+  projections: state.projections,
+  editViewName: state.editViewName
 });
 
 /**
@@ -211,6 +213,7 @@ const MappedAggregations = connect(
     savingPipelineOpen,
     projectionsChanged,
     newPipelineFromPaste,
+    updateView,
     openCreateView
   }
 )(Aggregations);

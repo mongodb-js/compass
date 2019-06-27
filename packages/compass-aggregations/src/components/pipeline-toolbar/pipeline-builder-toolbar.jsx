@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { IconButton } from 'hadron-react-buttons';
+import { IconButton, TextButton } from 'hadron-react-buttons';
 import { Tooltip } from 'hadron-react-components';
 import { Dropdown, MenuItem, Button } from 'react-bootstrap';
 import OverviewToggler from './overview-toggler';
@@ -31,6 +31,7 @@ class PipelineBuilderToolbar extends PureComponent {
 
     nameChanged: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
+    editViewName: PropTypes.string,
 
     setIsModified: PropTypes.func.isRequired,
     isModified: PropTypes.bool.isRequired,
@@ -40,6 +41,7 @@ class PipelineBuilderToolbar extends PureComponent {
 
     isOverviewOn: PropTypes.bool.isRequired,
     toggleOverview: PropTypes.func.isRequired,
+    updateView: PropTypes.func.isRequired,
 
     serverVersion: PropTypes.string.isRequired,
     openCreateView: PropTypes.func.isRequired,
@@ -159,7 +161,7 @@ class PipelineBuilderToolbar extends PureComponent {
   }
 
   renderSavedPipelineListToggler() {
-    if (!this.props.isAtlasDeployed) {
+    if (!this.props.isAtlasDeployed && !this.props.editViewName) {
       const clickHandler = this.props.savedPipeline.isListVisible
         ? this.handleSavedPipelinesClose
         : this.handleSavedPipelinesOpen;
@@ -188,32 +190,34 @@ class PipelineBuilderToolbar extends PureComponent {
   }
 
   renderNewPipelineActionsItem() {
-    return (
-      <div>
-        <Dropdown id="new-pipeline-actions" className="btn-group">
-          <Button
-            variant="default"
-            className={classnames(
-              'btn-xs',
-              styles['pipeline-builder-toolbar-new-button']
-            )}
-            onClick={this.props.newPipeline}>
-            <i className="fa fa-plus-circle" />
-          </Button>
-          <Dropdown.Toggle className="btn-default btn-xs btn" />
+    if (!this.props.editViewName) {
+      return (
+        <div>
+          <Dropdown id="new-pipeline-actions" className="btn-group">
+            <Button
+              variant="default"
+              className={classnames(
+                'btn-xs',
+                styles['pipeline-builder-toolbar-new-button']
+              )}
+              onClick={this.props.newPipeline}>
+              <i className="fa fa-plus-circle" />
+            </Button>
+            <Dropdown.Toggle className="btn-default btn-xs btn" />
 
-          <Dropdown.Menu>
-            <MenuItem onClick={this.props.newPipelineFromText}>
-              New Pipeline From Text
-            </MenuItem>
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
-    );
+            <Dropdown.Menu>
+              <MenuItem onClick={this.props.newPipelineFromText}>
+                New Pipeline From Text
+              </MenuItem>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
+      );
+    }
   }
 
   renderSavedPipelineNameItem() {
-    if (!this.props.isAtlasDeployed) {
+    if (!this.props.isAtlasDeployed && !this.props.editViewName) {
       return (
         <div className={styles['pipeline-builder-toolbar-add-wrapper']}>
           <div className={styles['pipeline-builder-toolbar-name']}>
@@ -226,7 +230,7 @@ class PipelineBuilderToolbar extends PureComponent {
   }
 
   renderSavePipelineActionsItem() {
-    if (!this.props.isAtlasDeployed) {
+    if (!this.props.isAtlasDeployed && !this.props.editViewName) {
       const savePipelineClassName = classnames({
         btn: true,
         'btn-xs': true,
@@ -270,6 +274,20 @@ class PipelineBuilderToolbar extends PureComponent {
     );
   }
 
+  renderUpdateViewButton() {
+    if (this.props.editViewName) {
+      return (
+        <div>
+          <TextButton
+            className="btn btn-xs btn-primary"
+            text="Update View"
+            title="Update View"
+            clickHandler={this.updateView} />
+        </div>
+      );
+    }
+  }
+
   /**
    * Renders the pipeline builder toolbar.
    *
@@ -288,6 +306,7 @@ class PipelineBuilderToolbar extends PureComponent {
           isCollationExpanded={this.props.isCollationExpanded}
           collationCollapseToggled={this.props.collationCollapseToggled}
         />
+        {this.renderUpdateViewButton()}
         {this.renderSavedPipelineNameItem()}
         {this.renderSavePipelineActionsItem()}
         {this.renderExportToLanguageItem()}

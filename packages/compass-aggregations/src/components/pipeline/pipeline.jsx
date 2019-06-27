@@ -7,6 +7,7 @@ import classnames from 'classnames';
 import PipelineToolbar from 'components/pipeline-toolbar';
 import CollationToolbar from './collation-toolbar';
 import Splitter from './splitter';
+import ModifySourceBanner from 'components/modify-source-banner';
 
 import PipelineWorkspace from 'components/pipeline-workspace';
 import SavePipeline from 'components/save-pipeline';
@@ -77,6 +78,8 @@ class Pipeline extends PureComponent {
     gotoOutResults: PropTypes.func.isRequired,
     gotoMergeResults: PropTypes.func.isRequired,
     name: PropTypes.string,
+    editViewName: PropTypes.string,
+    updateView: PropTypes.func.isRequired,
     importPipelineError: PropTypes.string,
     collation: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
     collationChanged: PropTypes.func.isRequired,
@@ -222,6 +225,7 @@ class Pipeline extends PureComponent {
         <PipelineToolbar
           isAtlasDeployed={this.props.isAtlasDeployed}
           savedPipelinesListToggle={this.props.savedPipelinesListToggle}
+          updateView={this.props.updateView}
           getSavedPipelines={this.props.getSavedPipelines}
           exportToLanguage={this.props.exportToLanguage}
           saveCurrentPipeline={this.props.saveCurrentPipeline}
@@ -234,6 +238,7 @@ class Pipeline extends PureComponent {
           toggleAutoPreview={this.props.toggleAutoPreview}
           nameChanged={this.props.nameChanged}
           setIsModified={this.props.setIsModified}
+          editViewName={this.props.editViewName}
           isModified={this.props.isModified}
           isCommenting={this.props.isCommenting}
           isSampling={this.props.isSampling}
@@ -252,6 +257,7 @@ class Pipeline extends PureComponent {
         />
         {this.renderCollationToolbar()}
         <Splitter isCollationExpanded={this.props.isCollationExpanded} />
+        <ModifySourceBanner editViewName={this.props.editViewName} />
         <PipelineWorkspace {...this.props} />
         {this.renderSavePipeline()}
         <Settings
