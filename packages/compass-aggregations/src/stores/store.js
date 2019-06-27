@@ -218,6 +218,10 @@ const configureStore = (options = {}) => {
     setOutResultsFn(store, options.outResultsFn);
   }
 
+  if (options.sourceName) {
+    // Set the source name - only if this collection is a view.
+  }
+
   if (options.editViewName) {
     setViewSource(store, options.editViewName, options.sourcePipeline);
   }

@@ -157,9 +157,9 @@ export const createView = () => {
             true,
             viewSource,
             null,
-            'sourceReadonly',
-            'sourceViewOn',
-            'sourcePipeline'
+            state.isReadonly,
+            state.sourceName,
+            viewPipeline
           )
         );
         dispatch(reset());

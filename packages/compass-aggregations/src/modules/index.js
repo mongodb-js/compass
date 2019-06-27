@@ -702,9 +702,9 @@ export const updateView = () => {
             true,
             state.namespace,
             null,
-            'sourceReadonly',
-            'sourceViewOn',
-            'sourcePipeline'
+            state.isReadonly,
+            state.sourceName,
+            viewPipeline
           )
         );
         // dispatch(reset());
