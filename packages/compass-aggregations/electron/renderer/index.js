@@ -4,7 +4,7 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import AggregationsPlugin, { activate, CreateViewPlugin, DuplicateViewPlugin } from 'plugin';
-import configureStore, { setDataProvider, setNamespace, setViewSource } from 'stores';
+import configureStore, { setDataProvider, setNamespace } from 'stores';
 import configureCreateViewStore from 'stores/create-view';
 import ExportToLanguagePlugin, {
   configureStore as configureExportToLangStore
@@ -75,7 +75,7 @@ dataService.connect((error, ds) => {
   setDataProvider(store, error, ds);
   setDataProvider(createViewStore, error, ds);
   setNamespace(store, 'citibike.trips');
-  setViewSource(store, 'citibike.tripsOfShortDuration', [{ $match: { gender: 1 }}]);
+  // setViewSource(store, 'citibike.tripsOfShortDuration', [{ $match: { gender: 1 }}]);
 });
 
 // Create a HMR enabled render function

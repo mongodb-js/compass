@@ -209,6 +209,7 @@ describe('Aggregation Store', () => {
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',
             editViewName: null,
+            sourceName: null,
             appRegistry: INITIAL_STATE.appRegistry,
             comments: INITIAL_STATE.comments,
             sample: INITIAL_STATE.sample,

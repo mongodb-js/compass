@@ -140,6 +140,12 @@ class Pipeline extends PureComponent {
     return null;
   }
 
+  renderModifySourceBanner() {
+    if (this.props.editViewName) {
+      return (<ModifySourceBanner editViewName={this.props.editViewName} />);
+    }
+  }
+
   /**
    * Render the restore modal if neccessary.
    *
@@ -257,7 +263,7 @@ class Pipeline extends PureComponent {
         />
         {this.renderCollationToolbar()}
         <Splitter isCollationExpanded={this.props.isCollationExpanded} />
-        <ModifySourceBanner editViewName={this.props.editViewName} />
+        {this.renderModifySourceBanner()}
         <PipelineWorkspace {...this.props} />
         {this.renderSavePipeline()}
         <Settings

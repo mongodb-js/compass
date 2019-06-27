@@ -6,6 +6,8 @@ import { ObjectId } from 'bson';
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
 import editViewName, { INITIAL_STATE as EDIT_VIEW_NAME_INITIAL_STATE } from './edit-view-name';
+import sourceName, { INITIAL_STATE as SOURCE_NAME_INITIAL_STATE } from './source-name';
+
 import inputDocuments, {
   INITIAL_STATE as INPUT_INITIAL_STATE
 } from './input-documents';
@@ -130,7 +132,8 @@ export const INITIAL_STATE = {
   savingPipeline: SAVING_PIPELINE_INITIAL_STATE,
   projections: PROJECTIONS_INITIAL_STATE,
   outResultsFn: OUT_RESULTS_FN_INITIAL_STATE,
-  editViewName: EDIT_VIEW_NAME_INITIAL_STATE
+  editViewName: EDIT_VIEW_NAME_INITIAL_STATE,
+  sourceName: SOURCE_NAME_INITIAL_STATE
 };
 
 /**
@@ -200,6 +203,7 @@ const appReducer = combineReducers({
   savingPipeline,
   projections,
   editViewName,
+  sourceName,
   outResultsFn
 });
 
@@ -214,6 +218,7 @@ const appReducer = combineReducers({
 const doNamespaceChanged = (state, action) => {
   const newState = {
     ...INITIAL_STATE,
+    sourceName: state.sourceName,
     isAtlasDeployed: state.isAtlasDeployed,
     outResultsFn: state.outResultsFn,
     allowWrites: state.allowWrites,
@@ -482,7 +487,7 @@ const doApplySavingPipeline = (state) => {
   return newState;
 };
 
-import { gatherProjections } from 'modules/stage';
+import { gatherProjections, generateStage } from 'modules/stage';
 
 const doProjectionsChanged = (state) => {
   const newState = {
@@ -647,7 +652,7 @@ export const openCreateView = () => {
   return (dispatch, getState) => {
     const state = getState();
     const sourceNs = state.namespace;
-    const sourcePipeline = state.pipeline.map((p) => p.executor);
+    const sourcePipeline = state.pipeline.map((p) => (p.executor || generateStage(p)));
 
     const meta = {
       source: sourceNs,
@@ -678,7 +683,7 @@ export const updateView = () => {
     const state = getState();
     const ds = state.dataService.dataService;
     const viewNamespace = state.editViewName;
-    const viewPipeline = state.pipeline.map((p) => p.executor);
+    const viewPipeline = state.pipeline.map((p) => (p.executor || generateStage(p)));
     const options = {
       viewOn: state.namespace,
       pipeline: viewPipeline

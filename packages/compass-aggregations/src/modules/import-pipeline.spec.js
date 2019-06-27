@@ -343,6 +343,19 @@ describe('import pipeline module', () => {
             );
           });
         });
+
+        context('when the stages contain string keys with special characters', () => {
+          const text = "[{$project: { 'COUNT(*)': '$COUNT(*)', 'MAX(age)': '$MAX(age)', 'MIN(age)': '$MIN(age)', _id: 0 }}]";
+          let stage;
+
+          before(() => {
+            stage = createPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal('{\n  \'COUNT(*)\': \'$COUNT(*)\',\n  \'MAX(age)\': \'$MAX(age)\',\n  \'MIN(age)\': \'$MIN(age)\',\n  _id: 0\n}');
+          });
+        });
       });
     });
   });
