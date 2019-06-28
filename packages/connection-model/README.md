@@ -50,7 +50,7 @@ Connection.from(
       connectionType: 'NODE_DRIVER',
       readPreference: 'primary',
       kerberosCanonicalizeHostname: false,
-      sslType: 'NONE',
+      sslMethod: 'NONE',
       sshTunnel: 'NONE',
       sshTunnelPort: 22
     }`
@@ -300,13 +300,13 @@ console.log(c.driverOptions)
 | Property | Type | Description | Default |
 | ----- | ---- | ---------- |  ----  |
 | `ssl` | Number/String | A boolean to enable or disables TLS/SSL for the connection | `undefined` |
-| `sslType` | String | The desired ssl strategy. Possible values: `NONE`, `SYSTEMCA`, `IFAVAILABLE`, `UNVALIDATED`, `SERVER`, `ALL` | `NONE` |
+| `sslMethod` | String | The desired ssl method. Possible values: `NONE`, `SYSTEMCA`, `IFAVAILABLE`, `UNVALIDATED`, `SERVER`, `ALL` | `NONE` |
 | `sslCA` | Buffer/String | Array of valid certificates | `undefined` |
 | `sslCert` | Buffer/String | The certificate | `undefined` |
 | `sslKey` | Buffer/String | The certificate private key | `undefined` |
 | `sslPass` | Buffer/String | The certificate password | `undefined` |
 
-Description of `sslType` values:
+Description of `sslMethod` values:
 
 - `SYSTEMCA` - SSL required, validate using System CA, with host verification.
 - `IFAVAILABLE` - The driver should try SSL first, fall back to no SSL if unavailable, and use the system's Certificate Authority.

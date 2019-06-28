@@ -1,4 +1,4 @@
-// Allowed values for the `sslType` field
+// Allowed values for the `sslMethod` field
 module.exports = [
   /**
    * Do not use SSL for anything.

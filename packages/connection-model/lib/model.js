@@ -21,7 +21,7 @@ const AUTH_MECHANISM_TO_AUTH_STRATEGY = require('../constants/auth-mechanism-to-
 const AUTHENICATION_TO_AUTH_MECHANISM = require('../constants/auth-strategy-to-auth-mechanism');
 const AUTH_STRATEGY_VALUES = require('../constants/auth-strategy-values');
 const AUTH_STRATEGY_TO_FIELD_NAMES = require('../constants/auth-strategy-to-field-names');
-const SSL_TYPE_VALUES = require('../constants/ssl-type-values');
+const SSL_METHOD_VALUES = require('../constants/ssl-method-values');
 const SSH_TUNNEL_VALUES = require('../constants/ssh-tunnel-values');
 const READ_PREFERENCE_VALUES = [
   ReadPreference.PRIMARY,
@@ -298,7 +298,7 @@ assign(props, {
  */
 assign(props, {
   ssl: { type: 'any', default: undefined },
-  sslType: { type: 'string', values: SSL_TYPE_VALUES, default: SSL_DEFAULT },
+  sslMethod: { type: 'string', values: SSL_METHOD_VALUES, default: SSL_DEFAULT },
   /**
    * Array of valid certificates either as Buffers or Strings
    * (needs to have a mongod server with ssl support, 2.4 or higher).
@@ -478,11 +478,11 @@ assign(derived, {
 
       if (this.ssl) {
         req.query.ssl = this.ssl;
-      } else if (includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.sslType)) {
+      } else if (includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.sslMethod)) {
         req.query.ssl = 'true';
-      } else if (this.sslType === 'IFAVAILABLE') {
+      } else if (this.sslMethod === 'IFAVAILABLE') {
         req.query.ssl = 'prefer';
-      } else if (this.sslType === 'NONE') {
+      } else if (this.sslMethod === 'NONE') {
         req.query.ssl = 'false';
       }
 
@@ -558,9 +558,9 @@ assign(derived, {
     fn() {
       const opts = clone(DRIVER_OPTIONS_DEFAULT, true);
 
-      if (this.sslType === 'SERVER') {
+      if (this.sslMethod === 'SERVER') {
         assign(opts, { sslValidate: true, sslCA: this.sslCA });
-      } else if (this.sslType === 'ALL') {
+      } else if (this.sslMethod === 'ALL') {
         assign(opts, {
           sslValidate: true,
           sslCA: this.sslCA,
@@ -576,11 +576,11 @@ assign(derived, {
           opts.checkServerIdentity = false;
           opts.sslValidate = false;
         }
-      } else if (this.sslType === 'UNVALIDATED') {
+      } else if (this.sslMethod === 'UNVALIDATED') {
         assign(opts, { checkServerIdentity: false, sslValidate: false });
-      } else if (this.sslType === 'SYSTEMCA') {
+      } else if (this.sslMethod === 'SYSTEMCA') {
         assign(opts, { checkServerIdentity: true, sslValidate: true });
-      } else if (this.sslType === 'IFAVAILABLE') {
+      } else if (this.sslMethod === 'IFAVAILABLE') {
         assign(opts, { checkServerIdentity: false, sslValidate: true });
       }
 
@@ -744,15 +744,15 @@ Connection = AmpersandModel.extend({
    */
   validateSsl(attrs) {
     if (
-      !attrs.sslType ||
-      includes(['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'], attrs.sslType)
+      !attrs.sslMethod ||
+      includes(['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'], attrs.sslMethod)
     ) {
       return;
     }
 
-    if (attrs.sslType === 'SERVER' && !attrs.sslCA) {
+    if (attrs.sslMethod === 'SERVER' && !attrs.sslCA) {
       throw new TypeError('sslCA is required when ssl is SERVER.');
-    } else if (attrs.sslType === 'ALL') {
+    } else if (attrs.sslMethod === 'ALL') {
       if (!attrs.sslCA) {
         throw new TypeError('sslCA is required when ssl is ALL.');
       }
@@ -1028,7 +1028,7 @@ Connection._improveAtlasDefaults = (url, mongodbPassword, ns) => {
   const atlasConnectionAttrs = {};
 
   if (Connection.isAtlas(url)) {
-    atlasConnectionAttrs.sslType = 'SYSTEMCA';
+    atlasConnectionAttrs.sslMethod = 'SYSTEMCA';
 
     if (mongodbPassword.match(/^.?PASSWORD.?$/i)) {
       atlasConnectionAttrs.mongodbPassword = '';
@@ -1057,7 +1057,7 @@ Connection.isURI = (str) => (str.startsWith('mongodb://')) || (str.startsWith('m
 
 Connection.AUTH_STRATEGY_VALUES = AUTH_STRATEGY_VALUES;
 Connection.AUTH_STRATEGY_DEFAULT = AUTH_STRATEGY_DEFAULT;
-Connection.SSL_TYPE_VALUES = SSL_TYPE_VALUES;
+Connection.SSL_METHOD_VALUES = SSL_METHOD_VALUES;
 Connection.SSL_DEFAULT = SSL_DEFAULT;
 Connection.SSH_TUNNEL_VALUES = SSH_TUNNEL_VALUES;
 Connection.SSH_TUNNEL_DEFAULT = SSH_TUNNEL_DEFAULT;

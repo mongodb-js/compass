@@ -38,14 +38,14 @@ describe('connection model builder', () => {
       });
     });
 
-    it('when the connection is a srv record and sslType is NONE', () => {
-      const c = new Connection({ isSrvRecord: true, sslType: 'NONE' });
+    it('when the connection is a srv record and sslMethod is NONE', () => {
+      const c = new Connection({ isSrvRecord: true, sslMethod: 'NONE' });
 
       expect(c.driverUrl).to.be.equal('mongodb+srv://localhost/?readPreference=primary&ssl=false');
     });
 
-    it('when sslType is NONE', (done) => {
-      const c = new Connection({ sslType: 'NONE' });
+    it('when sslMethod is NONE', (done) => {
+      const c = new Connection({ sslMethod: 'NONE' });
 
       expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&ssl=false');
 
@@ -55,8 +55,8 @@ describe('connection model builder', () => {
       });
     });
 
-    it('when sslType is UNVALIDATED', (done) => {
-      const c = new Connection({ sslType: 'UNVALIDATED' });
+    it('when sslMethod is UNVALIDATED', (done) => {
+      const c = new Connection({ sslMethod: 'UNVALIDATED' });
       const options = Object.assign(
         {},
         Connection.DRIVER_OPTIONS_DEFAULT,
@@ -77,8 +77,8 @@ describe('connection model builder', () => {
       });
     });
 
-    it('when sslType is SYSTEMCA', (done) => {
-      const c = new Connection({ sslType: 'SYSTEMCA' });
+    it('when sslMethod is SYSTEMCA', (done) => {
+      const c = new Connection({ sslMethod: 'SYSTEMCA' });
       const options = Object.assign(
         {},
         Connection.DRIVER_OPTIONS_DEFAULT,
@@ -99,8 +99,8 @@ describe('connection model builder', () => {
       });
     });
 
-    it('when sslType is IFAVAILABLE', (done) => {
-      const c = new Connection({ sslType: 'IFAVAILABLE' });
+    it('when sslMethod is IFAVAILABLE', (done) => {
+      const c = new Connection({ sslMethod: 'IFAVAILABLE' });
       const options = Object.assign(
         {},
         Connection.DRIVER_OPTIONS_DEFAULT,
@@ -121,8 +121,8 @@ describe('connection model builder', () => {
       });
     });
 
-    it('when sslType is SERVER', (done) => {
-      const c = new Connection({ sslType: 'SERVER', sslCA: fixture.ssl.ca });
+    it('when sslMethod is SERVER', (done) => {
+      const c = new Connection({ sslMethod: 'SERVER', sslCA: fixture.ssl.ca });
       const options = Object.assign(
         {},
         Connection.DRIVER_OPTIONS_DEFAULT,
@@ -143,9 +143,9 @@ describe('connection model builder', () => {
       });
     });
 
-    it('when sslType is ALL and using X509 auth', (done) => {
+    it('when sslMethod is ALL and using X509 auth', (done) => {
       const c = new Connection({
-        sslType: 'ALL',
+        sslMethod: 'ALL',
         sslCA: fixture.ssl.ca,
         sslCert: fixture.ssl.server,
         sslKey: fixture.ssl.server,
@@ -175,9 +175,9 @@ describe('connection model builder', () => {
       });
     });
 
-    it('when sslType is ALL and passwordless private keys', (done) => {
+    it('when sslMethod is ALL and passwordless private keys', (done) => {
       const c = new Connection({
-        sslType: 'ALL',
+        sslMethod: 'ALL',
         sslCA: fixture.ssl.ca,
         sslCert: fixture.ssl.server,
         sslKey: fixture.ssl.server
@@ -217,9 +217,9 @@ describe('connection model builder', () => {
       });
     });
 
-    it('when sslType is ALL and password protected private keys', (done) => {
+    it('when sslMethod is ALL and password protected private keys', (done) => {
       const c = new Connection({
-        sslType: 'ALL',
+        sslMethod: 'ALL',
         sslCA: fixture.ssl.ca,
         sslCert: fixture.ssl.server,
         sslKey: fixture.ssl.server,
@@ -724,9 +724,9 @@ describe('connection model builder', () => {
         expect(c.sshTunnelBindToLocalPort).to.exist;
       });
 
-      it('when sslType ia ALL should load all of the files from the filesystem', (done) => {
+      it('when sslMethod ia ALL should load all of the files from the filesystem', (done) => {
         const c = new Connection({
-          sslType: 'ALL',
+          sslMethod: 'ALL',
           sslCA: [fixture.ssl.ca],
           sslCert: fixture.ssl.server,
           sslKey: fixture.ssl.server

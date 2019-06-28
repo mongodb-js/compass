@@ -19,7 +19,7 @@ describe('connection model parser should parse URI strings for common connection
         expect(error).to.not.exist;
         expect(result.replicaSet).to.be.equal('a-compass-atlas-test-shard-0');
         expect(result.readPreference).to.be.equal('secondary');
-        expect(result.sslType).to.be.equal('SYSTEMCA');
+        expect(result.sslMethod).to.be.equal('SYSTEMCA');
         expect(result.mongodbPassword).to.be.equal('');
         expect(result.ns).to.be.equal('admin');
         expect(result.driverUrl).to.include('authSource=admin');
@@ -41,7 +41,7 @@ describe('connection model parser should parse URI strings for common connection
 
       Connection.from(modifiedAtlasConnection, (error, result) => {
         expect(error).to.not.exist;
-        expect(result.sslType).to.be.equal('SYSTEMCA');
+        expect(result.sslMethod).to.be.equal('SYSTEMCA');
         expect(result.mongodbPassword).to.be.equal(userPass);
         done();
       });
@@ -55,7 +55,7 @@ describe('connection model parser should parse URI strings for common connection
 
       Connection.from(modifiedAtlasConnection, (error, result) => {
         expect(error).to.not.exist;
-        expect(result.sslType).to.be.equal('NONE');
+        expect(result.sslMethod).to.be.equal('NONE');
         done();
       });
     });
@@ -65,7 +65,7 @@ describe('connection model parser should parse URI strings for common connection
 
       Connection.from(modifiedAtlasConnection, (error, result) => {
         expect(error).to.not.exist;
-        expect(result.sslType).to.be.equal('SYSTEMCA');
+        expect(result.sslMethod).to.be.equal('SYSTEMCA');
         done();
       });
     });

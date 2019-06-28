@@ -16,7 +16,7 @@ try {
 /**
  * Configuration for connecting to a MongoDB Deployment.
  */
-module.exports = Connection.extend(storageMixin, {
+const ExtendedConnection = Connection.extend(storageMixin, {
   idAttribute: '_id',
   namespace: 'Connections',
   storage: {
@@ -33,7 +33,8 @@ module.exports = Connection.extend(storageMixin, {
     isFavorite: { type: 'boolean', default: false },
     name: { type: 'string', default: 'Local' },
     ns: { type: 'string', default: undefined },
-    isSrvRecord: { type: 'boolean', default: false }
+    isSrvRecord: { type: 'boolean', default: false },
+    appname: { type: 'string', default: undefined }
   },
   session: { selected: { type: 'boolean', default: false } },
   derived: {
@@ -63,3 +64,20 @@ module.exports = Connection.extend(storageMixin, {
     return Connection.prototype.serialize.call(this, { all: true });
   }
 });
+
+/**
+ * Create a connection from a URI. This needs to ensure we create our subclass
+ * or we won't have the storage mixin available.
+ *
+ * @param {String} url - The mongodb url to create from.
+ * @param {Function} callback - The callback function.
+ */
+ExtendedConnection.from = (url, callback) => Connection.from(url, (error, c) => {
+  if (error) {
+    return callback(error);
+  }
+
+  callback(null, new ExtendedConnection(c.getAttributes({ props: true })));
+});
+
+module.exports = ExtendedConnection;
