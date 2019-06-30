@@ -1,10 +1,21 @@
 import find from 'lodash.find';
+import toNS from 'mongodb-ns';
 import { appRegistryEmit } from 'modules/app-registry';
 
 /**
- * Collection store name in the app registry.
+ * Get the source of a collection from a list of collections.
+ *
+ * @param {Object} collection - The collection.
+ * @param {Array} collection - The database's collections.
+ *
+ * @returns {Object} The source or null.
  */
-const COLLECTION_STORE = 'App.CollectionStore';
+const getSource = (collection, collections) => {
+  if (!collection.readonly) return null;
+  return collections.find((coll) => {
+    return toNS(coll._id).collection === collection.view_on;
+  });
+};
 
 /**
  * Show the collection.
@@ -16,21 +27,26 @@ export const showCollection = (name) => {
     const state = getState();
     const appRegistry = state.appRegistry;
     if (appRegistry) {
-      const collectionStore = appRegistry.getStore(COLLECTION_STORE);
+      // Get the collection to select.
       const collection = find(state.collections, (coll) => {
         return coll._id === `${state.databaseName}.${name}`;
       });
-      collectionStore.setCollection({
-        _id: collection._id,
-        readonly: collection.readonly,
-        capped: collection.capped
-      });
-      dispatch(
-        appRegistryEmit(
-          'select-namespace', collection._id, collection.readonly, collection.view_on
-        )
+      // Get the source of the view, if a view.
+      const source = getSource(collection, state.collections);
+
+      appRegistryEmit(
+        'select-namespace',
+        collection.props._id,
+        collection.readonly,
+        `${state.databaseName}.${collection.view_on}`,
+        null,
+        source ? source.readonly : false,
+        source ? `${state.databaseName}.${source.view_on}` : null,
+        collection.pipeline
       );
+
       dispatch(appRegistryEmit('collection-selected', { view: 'table' }));
+
       if (!state.isDataLake) {
         const ipc = require('hadron-ipc');
         ipc.call('window:show-collection-submenu');
