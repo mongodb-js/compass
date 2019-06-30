@@ -34,6 +34,19 @@ export const showCollection = (name) => {
       // Get the source of the view, if a view.
       const source = getSource(collection, state.collections);
 
+      console.log('collection', collection);
+      console.log('source', source);
+      console.log(
+        'emitting select-namespace',
+        collection._id,
+        collection.readonly,
+        `${state.databaseName}.${collection.view_on}`,
+        null,
+        source ? source.readonly : false,
+        source ? `${state.databaseName}.${source.view_on}` : null,
+        collection.pipeline
+      );
+
       appRegistryEmit(
         'select-namespace',
         collection._id,
