@@ -71,14 +71,14 @@ store.onActivated = (appRegistry) => {
     store.dispatch(updateTitle(ns));
   });
 
-  appRegistry.on('database-selected', (ns) => {
+  appRegistry.on('select-namespace', (ns) => {
     store.dispatch(changeNamespace(ns));
     store.dispatch(updateTitle(ns));
   });
 
-  appRegistry.on('select-namespace', (ns) => {
-    store.dispatch(changeNamespace(ns));
-    store.dispatch(updateTitle(ns));
+  appRegistry.on('select-instance', () => {
+    store.dispatch(changeNamespace(''));
+    store.dispatch(updateTitle(''));
   });
 
   appRegistry.on('open-namespace-in-new-tab', (ns) => {
