@@ -48,11 +48,11 @@ export const appRegistryActivated = (appRegistry) => ({
  *
  * @returns {Function} The thunk function.
  */
-export const appRegistryEmit = (name, metadata) => {
+export const appRegistryEmit = (name, ...metadata) => {
   return (dispatch, getState) => {
     const state = getState();
     if (state.appRegistry) {
-      state.appRegistry.emit(name, metadata);
+      state.appRegistry.emit(name, ...metadata);
     }
   };
 };
