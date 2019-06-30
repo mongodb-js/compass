@@ -678,6 +678,9 @@ export const modifyView = (viewName, viewPipeline) => ({
   pipeline: viewPipeline
 });
 
+/**
+ * Updates a view.
+ */
 export const updateView = () => {
   return (dispatch, getState) => {
     const state = getState();
@@ -689,17 +692,13 @@ export const updateView = () => {
       pipeline: viewPipeline
     };
 
-    // dispatch(clearError());
-
     try {
       // dispatch(toggleIsRunning(true));
       debug('calling data-service.updateCollection', viewNamespace);
       ds.updateCollection(viewNamespace, options, (e) => {
         if (e) {
           debug('error updating view', e);
-          // return stopWithError(dispatch, e);
         }
-        // debug('View updated!');
         dispatch(
           globalAppRegistryEmit(
             'select-namespace',
@@ -712,11 +711,9 @@ export const updateView = () => {
             viewPipeline
           )
         );
-        // dispatch(reset());
       });
     } catch (e) {
       debug('Unexpected error updating view', e);
-      // return stopWithError(dispatch, e);
     }
   };
 };

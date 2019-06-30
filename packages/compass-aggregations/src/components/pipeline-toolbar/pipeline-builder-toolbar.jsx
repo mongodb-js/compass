@@ -277,12 +277,13 @@ class PipelineBuilderToolbar extends PureComponent {
   renderUpdateViewButton() {
     if (this.props.editViewName) {
       return (
-        <div>
+        <div className={classnames(styles['pipeline-builder-toolbar-update-view'])}>
           <TextButton
             className="btn btn-xs btn-primary"
             text="Update View"
             title="Update View"
-            clickHandler={this.updateView} />
+            disabled={!this.props.isModified}
+            clickHandler={this.props.updateView} />
         </div>
       );
     }
