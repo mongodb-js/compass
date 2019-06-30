@@ -58,7 +58,7 @@ class SidebarDatabase extends PureComponent {
   }
 
   handleDBClick(db) {
-    global.hadronApp.appRegistry.emit('database-selected', db);
+    global.hadronApp.appRegistry.emit('select-database', db);
     const ipc = require('hadron-ipc');
     ipc.call('window:hide-collection-submenu');
   }
