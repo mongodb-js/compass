@@ -51,7 +51,6 @@ export const appRegistryActivated = (appRegistry) => ({
 export const appRegistryEmit = (name, ...metadata) => {
   return (dispatch, getState) => {
     const state = getState();
-    console.log('appRegistryEmit', state, name, ...metadata);
     if (state.appRegistry) {
       state.appRegistry.emit(name, ...metadata);
     }
