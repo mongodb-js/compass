@@ -22,13 +22,6 @@ class SidebarDatabase extends PureComponent {
     isDataLake: PropTypes.bool.isRequired
   };
 
-  constructor(props) {
-    super(props);
-    const appRegistry = global.hadronApp.appRegistry;
-    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
-  }
-
   getCollectionComponents() {
     if (this.props.expanded) {
       return this.props.collections.map(c => {
@@ -65,13 +58,9 @@ class SidebarDatabase extends PureComponent {
   }
 
   handleDBClick(db) {
-    if (this.NamespaceStore.ns !== db) {
-      this.CollectionStore.setCollection({});
-      this.NamespaceStore.ns = db;
-      global.hadronApp.appRegistry.emit('database-selected', db);
-      const ipc = require('hadron-ipc');
-      ipc.call('window:hide-collection-submenu');
-    }
+    global.hadronApp.appRegistry.emit('database-selected', db);
+    const ipc = require('hadron-ipc');
+    ipc.call('window:hide-collection-submenu');
   }
 
   handleArrowClick() {
@@ -190,4 +179,3 @@ class SidebarDatabase extends PureComponent {
 }
 
 export default SidebarDatabase;
-

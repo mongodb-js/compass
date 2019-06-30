@@ -26,16 +26,6 @@ class SidebarCollection extends PureComponent {
     isDataLake: PropTypes.bool.isRequired
   };
 
-  constructor(props) {
-    super(props);
-    this.CollectionStore = global.hadronApp.appRegistry.getStore(
-      'App.CollectionStore'
-    );
-    this.NamespaceStore = global.hadronApp.appRegistry.getStore(
-      'App.NamespaceStore'
-    );
-  }
-
   onOpenInNewTab() {
     const source = this.props.collections.find((coll) => {
       return toNS(coll._id).collection === this.props.view_on;
@@ -93,35 +83,22 @@ class SidebarCollection extends PureComponent {
   }
 
   handleClick() {
-    if (this.NamespaceStore.ns !== this.props._id) {
-      const source = this.props.collections.find((coll) => {
-        return toNS(coll._id).collection === this.props.view_on;
-      });
-      this.CollectionStore.setCollection({
-        _id: this.props._id,
-        database: this.props.database,
-        capped: this.props.capped,
-        power_of_two: this.props.power_of_two,
-        readonly: this.props.readonly,
-        type: this.props.type,
-        view_on: this.props.view_on,
-        pipeline: this.props.pipeline,
-        activeNamespace: this.props.activeNamespace
-      });
-      global.hadronApp.appRegistry.emit(
-        'select-namespace',
-        this.props._id,
-        this.props.readonly,
-        `${this.props.database}.${this.props.view_on}`,
-        null,
-        source ? source.readonly : false,
-        source ? `${this.props.database}.${source.view_on}` : null,
-        this.props.pipeline
-      );
-      if (!this.props.isDataLake) {
-        const ipc = require('hadron-ipc');
-        ipc.call('window:show-collection-submenu');
-      }
+    const source = this.props.collections.find((coll) => {
+      return toNS(coll._id).collection === this.props.view_on;
+    });
+    global.hadronApp.appRegistry.emit(
+      'select-namespace',
+      this.props._id,
+      this.props.readonly,
+      `${this.props.database}.${this.props.view_on}`,
+      null,
+      source ? source.readonly : false,
+      source ? `${this.props.database}.${source.view_on}` : null,
+      this.props.pipeline
+    );
+    if (!this.props.isDataLake) {
+      const ipc = require('hadron-ipc');
+      ipc.call('window:show-collection-submenu');
     }
   }
 
