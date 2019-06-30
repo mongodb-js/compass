@@ -40,22 +40,22 @@ export const showCollection = (name) => {
         'emitting select-namespace',
         collection._id,
         collection.readonly,
-        `${state.databaseName}.${collection.view_on}`,
+        collection.readonly ? `${state.databaseName}.${collection.view_on}` : null,
         null,
         source ? source.readonly : false,
         source ? `${state.databaseName}.${source.view_on}` : null,
-        collection.pipeline
+        collection.pipeline || null
       );
 
       appRegistryEmit(
         'select-namespace',
         collection._id,
         collection.readonly,
-        `${state.databaseName}.${collection.view_on}`,
+        collection.readonly ? `${state.databaseName}.${collection.view_on}` : null,
         null,
         source ? source.readonly : false,
         source ? `${state.databaseName}.${source.view_on}` : null,
-        collection.pipeline
+        collection.pipeline || null
       );
 
       dispatch(appRegistryEmit('collection-selected', { view: 'table' }));
