@@ -36,7 +36,7 @@ export const showCollection = (name) => {
 
       appRegistryEmit(
         'select-namespace',
-        collection.props._id,
+        collection._id,
         collection.readonly,
         `${state.databaseName}.${collection.view_on}`,
         null,
