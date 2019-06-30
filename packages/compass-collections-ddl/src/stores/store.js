@@ -71,7 +71,7 @@ store.onActivated = (appRegistry) => {
    *
    * @param {String} ns - The namespace.
    */
-  appRegistry.on('database-changed', (ns) => {
+  appRegistry.on('select-database', (ns) => {
     const state = store.getState();
     const databaseName = state.databaseName;
     if (ns && !ns.includes('.') && ns !== databaseName) {

@@ -54,7 +54,7 @@ describe('DdlStore [Store]', () => {
       context('when the database name changes', () => {
         context('when the name is missing', () => {
           beforeEach(() => {
-            appRegistry.emit('database-changed');
+            appRegistry.emit('select-database');
           });
 
           it('does not load collections', () => {
@@ -64,7 +64,7 @@ describe('DdlStore [Store]', () => {
 
         context('when the name is a collection', () => {
           beforeEach(() => {
-            appRegistry.emit('database-changed', 'name.test');
+            appRegistry.emit('select-database', 'name.test');
           });
 
           it('does not load collections', () => {
@@ -74,7 +74,7 @@ describe('DdlStore [Store]', () => {
 
         context('when the name is different', () => {
           beforeEach(() => {
-            appRegistry.emit('database-changed', 'db1');
+            appRegistry.emit('select-database', 'db1');
           });
 
           it('loads the collections', () => {
