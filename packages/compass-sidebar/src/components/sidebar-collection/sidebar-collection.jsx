@@ -188,6 +188,7 @@ class SidebarCollection extends PureComponent {
   }
 
   render() {
+    console.log('SidebarCollection#render', this.props);
     const collectionName = this.getCollectionName();
     const active =
       this.props.activeNamespace === this.props._id
