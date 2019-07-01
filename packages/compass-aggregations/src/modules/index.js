@@ -380,6 +380,7 @@ const doConfirmNewFromText = (state) => {
 };
 
 const doModifyView = (state, action) => {
+  console.log('#doModifyView', action);
   const pipe = createPipelineFromView(action.pipeline);
   return {
     ...state,
