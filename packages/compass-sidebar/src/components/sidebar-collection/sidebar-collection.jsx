@@ -84,6 +84,8 @@ class SidebarCollection extends PureComponent {
   /**
    * Get the collection metadata needed for the collection plugin.
    *
+   * @param {String} editViewName - The name of the view to edit.
+   *
    * @returns {Object} The metadata.
    */
   collectionMetadata(editViewName) {
