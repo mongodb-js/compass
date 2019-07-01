@@ -51,6 +51,7 @@ var SortableTable = function (_React$Component) {
   _createClass(SortableTable, [{
     key: 'onBodyRowMouseEnter',
 
+
     /**
      * Fires when the user's mouse cursor hovers over a <tr>.
      *
@@ -148,17 +149,10 @@ var SortableTable = function (_React$Component) {
       var sortClass = 'sort-' + this.props.sortOrder.toLowerCase();
       var cells = map(this.props.columns, function (col, idx) {
         var active = _this2._sortColumnMatch(_this2.props.sortColumn, col) ? ' ' + BASE + '-th-is-active' : '';
-        var sortIcon = _this2.props.sortable ? React.createElement(FontAwesome, {
-          className: BASE + '-sort-icon',
-          name: sortClass,
-          fixedWidth: true
-        }) : null;
+        var sortIcon = _this2.props.sortable ? React.createElement(FontAwesome, { className: BASE + '-sort-icon', name: sortClass, fixedWidth: true }) : null;
         return React.createElement(
           'th',
-          {
-            className: 'sortable-table-th' + active,
-            key: 'th-' + idx,
-            onClick: _this2.onColumnHeaderClicked.bind(_this2, idx) },
+          { className: 'sortable-table-th' + active, key: 'th-' + idx, onClick: _this2.onColumnHeaderClicked.bind(_this2, idx) },
           col,
           sortIcon
         );
@@ -248,8 +242,7 @@ var SortableTable = function (_React$Component) {
         return React.createElement(
           'tr',
           {
-            className: BASE + '-tbody-tr',
-            key: 'tr-' + rowIndex,
+            className: BASE + '-tbody-tr', key: 'tr-' + rowIndex,
             onMouseEnter: _this3.onBodyRowMouseEnter.bind(_this3, rowIndex),
             onMouseLeave: _this3.onBodyRowMouseLeave.bind(_this3, rowIndex) },
           cells

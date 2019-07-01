@@ -67,6 +67,7 @@ var OptionSelector = function (_React$Component) {
           DropdownButton,
           {
             bsSize: this.props.bsSize,
+            className: this.props.className,
             id: this.props.id,
             onSelect: this.props.onSelect,
             title: this.props.title,
@@ -91,6 +92,7 @@ var OptionSelector = function (_React$Component) {
 
 OptionSelector.propTypes = {
   id: PropTypes.string.isRequired,
+  className: PropTypes.string,
   bsSize: PropTypes.string,
   options: PropTypes.object.isRequired,
   label: PropTypes.string,

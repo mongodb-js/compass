@@ -10,11 +10,15 @@ describe('<OptionSelector />', () => {
     }
     const onSelect = () => {};
     const component = shallow(
-      <OptionSelector id="selector" bsSize="xs" options={options} title="test" onSelect={onSelect} />
+      <OptionSelector id="selector" bsSize="xs" className="selector-class" options={options} title="test" onSelect={onSelect} />
     );
 
     it('sets the base class', () => {
       expect(component.hasClass('option-selector')).to.equal(true);
+    });
+
+    it.only('sets the button class', () => {
+      expect(component.find('#selector').hasClass('selector-class')).to.equal(true);
     });
   });
 
