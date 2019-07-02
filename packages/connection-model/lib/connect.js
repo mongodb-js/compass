@@ -13,7 +13,10 @@ const createSSHTunnel = require('./ssh-tunnel');
 const EventEmitter = require('events').EventEmitter;
 const debug = require('debug')('mongodb-connection-model:connect');
 
-const needToLoadSSLFiles = (model) => !includes(['NONE', 'UNVALIDATED'], model.ssl);
+const needToLoadSSLFiles = (model) => !includes(
+  ['NONE', 'UNVALIDATED'],
+  model.sslType
+);
 
 const loadOptions = (model, done) => {
   if (!needToLoadSSLFiles(model)) {

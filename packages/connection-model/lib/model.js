@@ -1,4 +1,5 @@
-const toURL = require('url').format;
+const URL = require('url');
+const toURL = URL.format;
 const format = require('util').format;
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
@@ -407,15 +408,19 @@ assign(derived, {
     fn() {
       const AUTH_TOKEN = 'AUTH_TOKEN';
       const req = {
-        protocol: this.isSrvRecord ? 'mongodb+srv' : 'mongodb',
+        protocol: 'mongodb',
+        port: null,
         slashes: true,
         pathname: '/',
         query: {}
       };
 
-      if (this.hosts.length === 1) {
+      if (this.isSrvRecord) {
+        req.protocol = 'mongodb+srv';
         req.hostname = this.hostname;
-        req.port = this.isSrvRecord ? null : this.port;
+      } else if (this.hosts.length === 1) {
+        req.hostname = this.hostname;
+        req.port = this.port;
       } else {
         req.host = this.hosts.map((item) => `${item.host}:${item.port}`).join(',');
       }
@@ -948,12 +953,13 @@ Connection.from = (url, callback) => {
       return callback(error);
     }
 
+    const extraParsed = URL.parse(unescapedUrl, true);
     const attrs = Object.assign(
       {},
       {
         hosts: parsed.hosts,
-        hostname: parsed.hosts[0].host,
-        port: parsed.hosts[0].port,
+        hostname: isSrvRecord ? extraParsed.hostname : parsed.hosts[0].host,
+        port: isSrvRecord ? parseInt(extraParsed.port, 10) : parsed.hosts[0].port,
         auth: parsed.auth,
         isSrvRecord
       },
