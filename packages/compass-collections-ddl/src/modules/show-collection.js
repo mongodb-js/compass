@@ -36,13 +36,15 @@ export const showCollection = (name) => {
 
       dispatch(appRegistryEmit(
         'select-namespace',
-        collection._id,
-        collection.readonly,
-        collection.readonly ? `${state.databaseName}.${collection.view_on}` : null,
-        null,
-        source ? source.readonly : false,
-        source ? `${state.databaseName}.${source.view_on}` : null,
-        collection.pipeline || null
+        {
+          namespace: collection._id,
+          isReadonly: collection.readonly,
+          sourceName: collection.readonly ? `${state.databaseName}.${collection.view_on}` : null,
+          editViewName: null,
+          isSourceReadonly: source ? source.readonly : false,
+          sourceViewOn: source ? `${state.databaseName}.${source.view_on}` : null,
+          sourcePipeline: collection.pipeline || null
+        }
       ));
 
       dispatch(appRegistryEmit('collection-selected', { view: 'table' }));
