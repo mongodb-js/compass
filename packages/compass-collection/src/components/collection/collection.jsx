@@ -26,6 +26,7 @@ class Collection extends Component {
     sourceReadonly: PropTypes.bool.isRequired,
     sourceViewOn: PropTypes.string,
     editViewName: PropTypes.string,
+    pipeline: PropTypes.array,
     changeActiveSubTab: PropTypes.func.isRequired
   };
 
@@ -71,6 +72,7 @@ class Collection extends Component {
             sourceReadonly={this.props.sourceReadonly}
             sourceViewOn={this.props.sourceViewOn}
             selectOrCreateTab={this.props.selectOrCreateTab}
+            pipeline={this.props.pipeline}
             sourceName={this.props.sourceName} />
           <TabNavBar
             theme="light"

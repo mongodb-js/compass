@@ -185,6 +185,7 @@ class Workspace extends PureComponent {
           statsPlugin={activeTab.statsPlugin}
           statsStore={activeTab.statsStore}
           activeSubTab={activeTab.activeSubTab}
+          pipeline={activeTab.pipeline}
           changeActiveSubTab={this.props.changeActiveSubTab}
           selectOrCreateTab={this.props.selectOrCreateTab}
           localAppRegistry={activeTab.localAppRegistry} />

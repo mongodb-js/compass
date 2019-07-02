@@ -21,7 +21,8 @@ class CollectionHeader extends Component {
     sourceName: PropTypes.string,
     sourceReadonly: PropTypes.bool.isRequired,
     sourceViewOn: PropTypes.string,
-    editViewName: PropTypes.string
+    editViewName: PropTypes.string,
+    pipeline: PropTypes.array
   };
 
   modifySource = () => {
@@ -29,7 +30,10 @@ class CollectionHeader extends Component {
       this.props.sourceName,
       this.props.sourceReadonly,
       this.props.sourceViewOn,
-      this.props.namespace
+      this.props.namespace,
+      false,
+      null,
+      this.props.pipeline
     );
   }
 
@@ -40,7 +44,8 @@ class CollectionHeader extends Component {
       this.props.namespace,
       null,
       this.props.isReadonly,
-      this.props.sourceName
+      this.props.sourceName,
+      this.props.pipeline
     );
   }
 
@@ -69,7 +74,7 @@ class CollectionHeader extends Component {
    * @returns {Component} The component.
    */
   renderReadonly() {
-    if (this.props.isReadonly) {
+    if (this.props.isReadonly && !this.props.editViewName) {
       return (
         <div className={classnames(styles['collection-header-title-readonly'])}>
           <span className={classnames(styles['collection-header-title-readonly-on'])}>

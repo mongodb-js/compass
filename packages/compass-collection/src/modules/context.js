@@ -277,7 +277,8 @@ const createContext = (state, namespace, isReadonly, isDataLake, sourceName, edi
     statsPlugin: statsPlugin,
     statsStore: statsStore,
     scopedModals: scopedModals,
-    localAppRegistry: localAppRegistry
+    localAppRegistry: localAppRegistry,
+    sourcePipeline: sourcePipeline
   };
 };
 

@@ -57,7 +57,7 @@
     "react-dom": "^16.8.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-aggregations": "^4.0.4",
+    "@mongodb-js/compass-aggregations": "^4.0.6",
     "@mongodb-js/compass-collection-stats": "^4.2.4",
     "@mongodb-js/compass-crud": "^7.0.2",
     "@mongodb-js/compass-deployment-awareness": "^8.0.0",

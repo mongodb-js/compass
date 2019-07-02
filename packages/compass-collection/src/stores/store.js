@@ -24,62 +24,50 @@ store.onActivated = (appRegistry) => {
   /**
    * When a collection namespace is selected in the sidebar.
    *
-   * @param {String} ns - The namespace.
-   * @param {Boolean} isReaonly - If the collection is a view.
-   * @param {String} sourceName - The source namespace, if this is a view.
-   * @param {String} editViewName - The name of the view we are editing.
+   * @param {Object} metatada - The metadata.
    */
-  appRegistry.on(
-    'open-namespace-in-new-tab',
-    (ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline) => {
-      if (ns) {
-        const namespace = toNS(ns);
-        if (namespace.collection !== '') {
-          store.dispatch(
-            createNewTab(
-              ns,
-              isReadonly,
-              sourceName,
-              editViewName,
-              sourceReadonly,
-              sourceViewOn,
-              sourcePipeline
-            )
-          );
-        }
+  appRegistry.on('open-namespace-in-new-tab', (metadata) => {
+    if (metadata.namespace) {
+      const namespace = toNS(metadata.namespace);
+      if (namespace.collection !== '') {
+        store.dispatch(
+          createNewTab(
+            metadata.namespace,
+            metadata.isReadonly,
+            metadata.sourceName,
+            metadata.editViewName,
+            metadata.isSourceReadonly,
+            metadata.sourceViewOn,
+            metadata.sourcePipeline
+          )
+        );
       }
     }
-  );
+  });
 
   /**
    * When a collection namespace is selected in the sidebar.
    *
-   * @param {String} ns - The namespace.
-   * @param {Boolean} isReaonly - If the collection is a view.
-   * @param {String} sourceName - The source namespace, if this is a view.
-   * @param {String} editViewName - The name of the view we are editing.
+   * @param {Object} metatada - The metadata.
    */
-  appRegistry.on(
-    'select-namespace',
-    (ns, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline) => {
-      if (ns) {
-        const namespace = toNS(ns);
-        if (namespace.collection !== '') {
-          store.dispatch(
-            selectOrCreateTab(
-              ns,
-              isReadonly,
-              sourceName,
-              editViewName,
-              sourceReadonly,
-              sourceViewOn,
-              sourcePipeline
-            )
-          );
-        }
+  appRegistry.on('select-namespace', (metadata) => {
+    if (metadata.namespace) {
+      const namespace = toNS(metadata.namespace);
+      if (namespace.collection !== '') {
+        store.dispatch(
+          selectOrCreateTab(
+            metadata.namespace,
+            metadata.isReadonly,
+            metadata.sourceName,
+            metadata.editViewName,
+            metadata.isSourceReadonly,
+            metadata.sourceViewOn,
+            metadata.sourcePipeline
+          )
+        );
       }
     }
-  );
+  });
 
   /**
    * Clear the tabs when selecting a database.

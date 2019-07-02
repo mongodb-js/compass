@@ -45,7 +45,7 @@ describe('Collection Store', () => {
     context('when a namespace is selected', () => {
       context.skip('when the namespace has a collection', () => {
         beforeEach(() => {
-          appRegistry.emit('select-namespace', 'db.coll');
+          appRegistry.emit('select-namespace', { namespace: 'db.coll' });
         });
 
         it('creates a tab in the store', () => {
@@ -55,7 +55,7 @@ describe('Collection Store', () => {
 
       context('when the namespace does not have a collection', () => {
         beforeEach(() => {
-          appRegistry.emit('select-namespace', 'db');
+          appRegistry.emit('select-namespace', { namespace: 'db' });
         });
 
         it('does not create a tab in the store', () => {
@@ -65,7 +65,7 @@ describe('Collection Store', () => {
 
       context('when the namespace is null', () => {
         beforeEach(() => {
-          appRegistry.emit('select-namespace', null);
+          appRegistry.emit('select-namespace', { namespace: null });
         });
 
         it('does not create a tab in the store', () => {
@@ -75,7 +75,7 @@ describe('Collection Store', () => {
 
       context('when the namespace is undefined', () => {
         beforeEach(() => {
-          appRegistry.emit('select-namespace');
+          appRegistry.emit('select-namespace', {});
         });
 
         it('does not create a tab in the store', () => {
@@ -85,7 +85,7 @@ describe('Collection Store', () => {
 
       context('when the namespace is empty', () => {
         beforeEach(() => {
-          appRegistry.emit('select-namespace', '');
+          appRegistry.emit('select-namespace', { namespace: '' });
         });
 
         it('does not create a tab in the store', () => {
@@ -97,7 +97,7 @@ describe('Collection Store', () => {
     context('when a opening a namespace in a new tab', () => {
       context.skip('when the namespace has a collection', () => {
         beforeEach(() => {
-          appRegistry.emit('open-namespace-in-new-tab', 'db.coll');
+          appRegistry.emit('open-namespace-in-new-tab', { namespace: 'db.coll' });
         });
 
         it('creates a tab in the store', () => {
@@ -107,7 +107,7 @@ describe('Collection Store', () => {
 
       context('when the namespace does not have a collection', () => {
         beforeEach(() => {
-          appRegistry.emit('open-namespace-in-new-tab', 'db');
+          appRegistry.emit('open-namespace-in-new-tab', { namespace: 'db' });
         });
 
         it('does not create a tab in the store', () => {
@@ -117,7 +117,7 @@ describe('Collection Store', () => {
 
       context('when the namespace is null', () => {
         beforeEach(() => {
-          appRegistry.emit('open-namespace-in-new-tab', null);
+          appRegistry.emit('open-namespace-in-new-tab', { namespace: null });
         });
 
         it('does not create a tab in the store', () => {
@@ -127,7 +127,7 @@ describe('Collection Store', () => {
 
       context('when the namespace is undefined', () => {
         beforeEach(() => {
-          appRegistry.emit('open-namespace-in-new-tab');
+          appRegistry.emit('open-namespace-in-new-tab', {});
         });
 
         it('does not create a tab in the store', () => {
@@ -137,7 +137,7 @@ describe('Collection Store', () => {
 
       context('when the namespace is empty', () => {
         beforeEach(() => {
-          appRegistry.emit('open-namespace-in-new-tab', '');
+          appRegistry.emit('open-namespace-in-new-tab', { namespace: '' });
         });
 
         it('does not create a tab in the store', () => {
