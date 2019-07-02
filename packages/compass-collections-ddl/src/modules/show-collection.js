@@ -39,7 +39,7 @@ export const showCollection = (name) => {
         {
           namespace: collection._id,
           isReadonly: collection.readonly,
-          sourceName: collection.readonly ? `${state.databaseName}.${collection.view_on}` : null,
+          sourceName: collection.readonly ? collection.view_on : null,
           editViewName: null,
           isSourceReadonly: source ? source.readonly : false,
           sourceViewOn: source ? `${state.databaseName}.${source.view_on}` : null,
