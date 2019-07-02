@@ -27,6 +27,7 @@ store.onActivated = (appRegistry) => {
    * @param {Object} metatada - The metadata.
    */
   appRegistry.on('open-namespace-in-new-tab', (metadata) => {
+    console.log('open-namespace-in-new-tab', metadata);
     if (metadata.namespace) {
       const namespace = toNS(metadata.namespace);
       if (namespace.collection !== '') {
@@ -51,6 +52,7 @@ store.onActivated = (appRegistry) => {
    * @param {Object} metatada - The metadata.
    */
   appRegistry.on('select-namespace', (metadata) => {
+    console.log('select-namespace', metadata);
     if (metadata.namespace) {
       const namespace = toNS(metadata.namespace);
       if (namespace.collection !== '') {
