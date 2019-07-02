@@ -90,6 +90,9 @@ class SidebarCollection extends PureComponent {
    */
   collectionMetadata(editViewName) {
     const source = this.props.collections.find((coll) => {
+      console.log('coll', coll);
+      console.log('ns coll', toNS(coll._id).collection);
+      console.log('props');
       return toNS(coll._id).collection === this.props.view_on;
     });
     return {
