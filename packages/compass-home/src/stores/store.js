@@ -71,9 +71,9 @@ store.onActivated = (appRegistry) => {
     store.dispatch(updateTitle(ns));
   });
 
-  appRegistry.on('select-namespace', (ns) => {
-    store.dispatch(changeNamespace(ns));
-    store.dispatch(updateTitle(ns));
+  appRegistry.on('select-namespace', (meta) => {
+    store.dispatch(changeNamespace(meta.namespace));
+    store.dispatch(updateTitle(meta.namespace));
   });
 
   appRegistry.on('select-instance', () => {
@@ -81,9 +81,9 @@ store.onActivated = (appRegistry) => {
     store.dispatch(updateTitle(''));
   });
 
-  appRegistry.on('open-namespace-in-new-tab', (ns) => {
-    store.dispatch(changeNamespace(ns));
-    store.dispatch(updateTitle(ns));
+  appRegistry.on('open-namespace-in-new-tab', (meta) => {
+    store.dispatch(changeNamespace(meta.namespace));
+    store.dispatch(updateTitle(meta.namespace));
   });
 
   appRegistry.on('all-collection-tabs-closed', () => {
