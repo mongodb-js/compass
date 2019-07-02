@@ -18,6 +18,9 @@ import isRunning, {
 import isVisible, {
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
 } from 'modules/create-view/is-visible';
+import isDuplicating, {
+  INITIAL_STATE as IS_DUPLICATING_INITIAL_STATE
+} from 'modules/create-view/is-duplicating';
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
 } from 'modules/create-view/name';
@@ -43,6 +46,7 @@ const OPEN = 'aggregations/create-view/OPEN';
 export const INITIAL_STATE = {
   isRunning: IS_RUNNING_INITIAL_STATE,
   isVisible: IS_VISIBLE_INITIAL_STATE,
+  isDuplicating: IS_DUPLICATING_INITIAL_STATE,
   name: NAME_INITIAL_STATE,
   error: ERROR_INITIAL_STATE,
   source: SOURCE_INITIAL_STATE,
@@ -55,6 +59,7 @@ export const INITIAL_STATE = {
 const reducer = combineReducers({
   appRegistry,
   isRunning,
+  isDuplicating,
   isVisible,
   name,
   error,
@@ -82,6 +87,7 @@ const rootReducer = (state, action) => {
       ...state,
       ...INITIAL_STATE,
       isVisible: true,
+      isDuplicating: action.duplicate,
       source: action.source,
       pipeline: action.pipeline
     };
@@ -115,10 +121,11 @@ const stopWithError = (dispatch, err) => {
  * @param {Array} sourcePipeline - The pipeline to use for the view.
  * @returns {Object} The action.
  */
-export const open = (sourceNs, sourcePipeline) => ({
+export const open = (sourceNs, sourcePipeline, duplicate) => ({
   type: OPEN,
   source: sourceNs,
-  pipeline: sourcePipeline
+  pipeline: sourcePipeline,
+  duplicate: duplicate
 });
 
 /**
@@ -153,13 +160,15 @@ export const createView = () => {
         dispatch(
           globalAppRegistryEmit(
             'open-namespace-in-new-tab',
-            `${database}.${viewName}`,
-            true,
-            viewSource,
-            null,
-            state.isReadonly,
-            state.sourceName,
-            viewPipeline
+            {
+              namespace: `${database}.${viewName}`,
+              isReadonly: true,
+              sourceName: viewSource,
+              editViewName: null,
+              isSourceReadonly: state.isReadonly,
+              sourceViewOn: state.sourceName,
+              sourcePipeline: viewPipeline
+            }
           )
         );
         dispatch(reset());

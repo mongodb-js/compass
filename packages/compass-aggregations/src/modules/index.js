@@ -702,13 +702,14 @@ export const updateView = () => {
         dispatch(
           globalAppRegistryEmit(
             'select-namespace',
-            viewNamespace,
-            true,
-            state.namespace,
-            null,
-            state.isReadonly,
-            state.sourceName,
-            viewPipeline
+            { namespace: viewNamespace,
+              isReaonly: true,
+              sourceName: state.namespace,
+              editViewName: null,
+              isSourceReadonly: state.isReadonly,
+              sourceViewOn: state.sourceName,
+              sourcePipeline: viewPipeline
+            }
           )
         );
       });

@@ -602,7 +602,15 @@ export const gotoMergeResults = (index) => {
     if (state.outResultsFn) {
       state.outResultsFn(outNamespace);
     } else {
-      dispatch(globalAppRegistryEmit('open-namespace-in-new-tab', outNamespace, false));
+      dispatch(
+        globalAppRegistryEmit(
+          'open-namespace-in-new-tab',
+          {
+            namespace: outNamespace,
+            isReadonly: false
+          }
+        )
+      );
     }
   };
 };
@@ -622,7 +630,15 @@ export const gotoOutResults = collection => {
     if (state.outResultsFn) {
       state.outResultsFn(outNamespace);
     } else {
-      dispatch(globalAppRegistryEmit('open-namespace-in-new-tab', outNamespace, false));
+      dispatch(
+        globalAppRegistryEmit(
+          'open-namespace-in-new-tab',
+          {
+            namespace: outNamespace,
+            isReadonly: false
+          }
+        )
+      );
     }
   };
 };

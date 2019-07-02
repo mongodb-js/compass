@@ -24,6 +24,7 @@ class CreateViewModal extends PureComponent {
 
     name: PropTypes.string,
     changeViewName: PropTypes.func.isRequired,
+    isDuplicating: PropTypes.bool.isRequired,
 
     source: PropTypes.string.isRequired,
     pipeline: PropTypes.array.isRequired,
@@ -36,7 +37,8 @@ class CreateViewModal extends PureComponent {
     source: '',
     pipeline: [],
     isRunning: false,
-    isVisible: false
+    isVisible: false,
+    isDuplicating: false
   };
 
   onNameChange = (evt) => {
@@ -67,7 +69,7 @@ class CreateViewModal extends PureComponent {
         onHide={this.onCancel}
         dialogClassName={styles['create-view-modal']}>
         <Modal.Header>
-          <Modal.Title>Create a View</Modal.Title>
+          <Modal.Title>{this.props.isDuplicating ? 'Duplicate View' : 'Create a View'}</Modal.Title>
         </Modal.Header>
 
         <Modal.Body className={styles['create-view-modal-body']}>
@@ -128,6 +130,7 @@ class CreateViewModal extends PureComponent {
 const mapStateToProps = (state) => ({
   isRunning: state.isRunning,
   isVisible: state.isVisible,
+  isDuplicating: state.isDuplicating,
   name: state.name,
   error: state.error,
   source: state.source,
