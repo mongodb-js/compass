@@ -92,7 +92,7 @@ class SidebarCollection extends PureComponent {
     const source = this.props.collections.find((coll) => {
       console.log('coll', coll);
       console.log('ns coll', toNS(coll._id).collection);
-      console.log('props');
+      console.log('props', this.props);
       return toNS(coll._id).collection === this.props.view_on;
     });
     return {
