@@ -22,6 +22,7 @@ class OptionWriteSelector extends React.Component {
     label: PropTypes.string,
     title: PropTypes.string,
     bsSize: PropTypes.string,
+    className: PropTypes.string,
     id: PropTypes.string.isRequired,
     isCollectionLevel: PropTypes.bool,
     onSelect: PropTypes.func.isRequired,
@@ -89,7 +90,8 @@ class OptionWriteSelector extends React.Component {
           bsSize={this.props.bsSize}
           options={this.props.options}
           disabled={!this.isWritable()}
-          onSelect={this.props.onSelect}/>
+          onSelect={this.props.onSelect}
+          className={this.props.className}/>
         {tooltip}
       </div>
     );
