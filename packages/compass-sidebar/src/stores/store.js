@@ -1,6 +1,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import reducer from 'modules';
 import thunk from 'redux-thunk';
+import { globalAppRegistryActivated } from 'mongodb-redux-common/app-registry';
 
 import { changeInstance } from 'modules/instance';
 import { filterDatabases } from 'modules/databases';
@@ -12,6 +13,8 @@ import { toggleIsDataLake } from 'modules/is-data-lake';
 const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
+  store.dispatch(globalAppRegistryActivated(appRegistry));
+
   appRegistry.on('instance-refreshed', (state) => {
     store.dispatch(changeInstance(state.instance));
     store.dispatch(filterDatabases(null, state.instance.databases, null));
@@ -25,11 +28,15 @@ store.onActivated = (appRegistry) => {
     store.dispatch(changeDescription(state.description));
   });
 
-  appRegistry.on('collection-changed', (ns) => {
+  appRegistry.on('select-namespace', (ns) => {
     store.dispatch(filterDatabases(null, null, ns || ''));
   });
 
-  appRegistry.on('database-changed', (ns) => {
+  appRegistry.on('open-namespace-in-new-tab', (ns) => {
+    store.dispatch(filterDatabases(null, null, ns || ''));
+  });
+
+  appRegistry.on('select-database', (ns) => {
     store.dispatch(filterDatabases(null, null, ns || ''));
   });
 

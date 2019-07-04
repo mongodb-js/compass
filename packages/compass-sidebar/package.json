@@ -142,5 +142,8 @@
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2",
     "webpack-sources": "1.0.1"
+  },
+  "dependencies": {
+    "mongodb-redux-common": "0.0.2"
   }
 }

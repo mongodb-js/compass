@@ -1,5 +1,8 @@
 import { combineReducers } from 'redux';
 
+import appRegistry, {
+  INITIAL_STATE as APP_REGISTRY_INITIAL_STATE
+} from 'mongodb-redux-common/app-registry';
 import databases, {
   INITIAL_STATE as DATABASES_INITIAL_STATE
 } from 'modules/databases';
@@ -27,6 +30,7 @@ import { RESET } from 'modules/reset';
  * The reducer.
  */
 const reducer = combineReducers({
+  appRegistry,
   databases,
   description,
   instance,

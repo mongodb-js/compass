@@ -4,12 +4,14 @@ import PropTypes from 'prop-types';
 import cloneDeep from 'lodash.clonedeep';
 import ReactTooltip from 'react-tooltip';
 import { AutoSizer, List } from 'react-virtualized';
+import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 
 import classnames from 'classnames';
 import styles from './sidebar.less';
 
-import SidebarDatabase from 'components/sidebar-database';
+import SidebarTitle from 'components/sidebar-title';
 import SidebarInstanceProperties from 'components/sidebar-instance-properties';
+import SidebarDatabase from 'components/sidebar-database';
 
 import { toggleIsCollapsed } from 'modules/is-collapsed';
 import { filterDatabases, changeDatabases } from 'modules/databases';
@@ -38,12 +40,6 @@ class Sidebar extends PureComponent {
     isDataLake: PropTypes.bool.isRequired
   };
 
-  constructor(props) {
-    super(props);
-    this.StatusActions = global.hadronApp.appRegistry.getAction('Status.Actions');
-    this.InstanceHeader = global.hadronApp.appRegistry.getComponent('InstanceHeader.Component');
-  }
-
   componentWillReceiveProps() {
     this.list.recomputeRowHeights();
   }
@@ -54,18 +50,9 @@ class Sidebar extends PureComponent {
     ReactTooltip.rebuild();
   }
 
-  getSidebarClasses() {
-  }
-
-  getToggleClasses() {
-  }
-
   handleCollapse() {
     if (!this.props.isCollapsed) {
       this.props.onCollapse();
-      if (this.StatusActions) {
-        this.StatusActions.configure({ sidebar: false });
-      }
       this.props.toggleIsCollapsed(!this.props.isCollapsed);
     }
   }
@@ -73,9 +60,6 @@ class Sidebar extends PureComponent {
   handleExpand() {
     if (this.props.isCollapsed) {
       this.props.onCollapse();
-      if (this.StatusActions) {
-        this.StatusActions.configure({ sidebar: false });
-      }
       this.props.toggleIsCollapsed(!this.props.isCollapsed);
     }
   }
@@ -100,7 +84,7 @@ class Sidebar extends PureComponent {
 
   handleCreateDatabaseClick(isWritable) {
     if (isWritable) {
-      global.hadronApp.appRegistry.emit('open-create-database');
+      this.props.globalAppRegistryEmit('open-create-database');
     }
   }
 
@@ -187,6 +171,7 @@ class Sidebar extends PureComponent {
       collections: db.collections,
       expanded: this.props.databases.expandedDblist[db._id],
       onClick: this._onDBClick.bind(this),
+      globalAppRegistryEmit: this.props.globalAppRegistryEmit,
       key,
       style,
       index,
@@ -227,15 +212,10 @@ class Sidebar extends PureComponent {
     return (
       <div
         className={classnames(styles['compass-sidebar'], styles[collapsed])}
-        data-test-id="instance-sidebar"
         onClick={this.handleExpand.bind(this)}>
-        <button
-          className={classnames(styles['compass-sidebar-toggle'], 'btn btn-default btn-sm')}
-          onClick={this.handleCollapse.bind(this)}
-          data-test-id="toggle-sidebar">
-          <i className={collapsedButton}/>
-        </button>
-        <this.InstanceHeader sidebarCollapsed={this.props.isCollapsed} />
+        <SidebarTitle
+          name="My Cluster"
+          globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
         <SidebarInstanceProperties
           instance={this.props.instance}
           activeNamespace={this.props.databases.activeNamespace} />
@@ -247,7 +227,7 @@ class Sidebar extends PureComponent {
             data-test-id="sidebar-filter-input"
             ref="filter"
             className={classnames(styles['compass-sidebar-search-input'])}
-            placeholder="filter"
+            placeholder="Filter your data"
             onChange={this.handleFilter.bind(this)} />
         </div>
         <div className={classnames(styles['compass-sidebar-content'])}>
@@ -293,7 +273,8 @@ const MappedSidebar = connect(
     toggleIsCollapsed,
     filterDatabases,
     changeDatabases,
-    changeFilterRegex
+    changeFilterRegex,
+    globalAppRegistryEmit
   },
 )(Sidebar);
 
