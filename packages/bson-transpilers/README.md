@@ -3,7 +3,7 @@
 [![downloads][5]][6]
 
 Transpilers for building BSON documents in any language. Current support
-provided for `shell` and `javascript` as inputs. `java`, `c#` and `python` as
+provided for `shell` `javascript` and `python` as inputs. `java`, `c#`, `node`, `shell` and `python` as
 outputs.
 
 # Usage
