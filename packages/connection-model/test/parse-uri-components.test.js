@@ -1,17 +1,59 @@
 const Connection = require('../');
 const chai = require('chai');
 const expect = chai.expect;
+const proxyquire = require('proxyquire');
+
+// To test SRV connection strings we need to use `proxyquire`.
+// Because driver parser resolves the SRV record and uses the result as the list
+// of hosts to connect to. Since tests don't have real data that can be resolved
+// the driver check would always fail.
+// To make tests work we need to mock dns methods.
+let stubHostname = '';
+const stubs = {
+  'dns': {
+    resolveSrv: (uri, callback) => callback(null, [{ name: stubHostname }]),
+    resolveTxt: (addresses, callback) => callback(null),
+    // To get access to the deeply nested dependencies we need to move them to the global level
+    '@global': true
+  }
+};
+const stubedConnection = proxyquire('../', stubs);
 
 chai.use(require('chai-subset'));
 
 describe('connection model partser should parse URI components such as', () => {
   describe('prefix', () => {
-    it('should not set isSrvRecord', (done) => {
+    it('should set isSrvRecord to false', (done) => {
       Connection.from(
         'mongodb://mongodb1.example.com:27317,mongodb2.example.com:27017/?replicaSet=mySet&authSource=authDB',
         (error, result) => {
           expect(error).to.not.exist;
           expect(result.isSrvRecord).to.be.equal(false);
+          done();
+        }
+      );
+    });
+
+    it('should set isSrvRecord to true', (done) => {
+      stubHostname = 'server.example.com';
+      stubedConnection.from(
+        `mongodb+srv://${stubHostname}/?connectTimeoutMS=300000&authSource=aDifferentAuthDB`,
+        (error, result) => {
+          expect(error).to.not.exist;
+          expect(result.isSrvRecord).to.be.equal(true);
+          done();
+        }
+      );
+    });
+
+    it('should set only one hostname without decorating it with the replica set info', (done) => {
+      stubHostname = 'test.mongodb.net';
+      stubedConnection.from(
+        `mongodb+srv://admin:qwerty@${stubHostname}/admin`,
+        (error, result) => {
+          expect(error).to.not.exist;
+          expect(result.isSrvRecord).to.be.equal(true);
+          expect(result.hostname).to.be.equal('test.mongodb.net');
           done();
         }
       );

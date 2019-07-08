@@ -52,13 +52,14 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "lodash.foreach": "^4.5.0",
     "mocha": "^3.2.0",
-    "mock-require": "^2.0.1",
+    "mock-require": "^2.0.2",
     "mongodb-connection-fixture": "^0.0.14",
     "mongodb-data-service": "^14.0.5",
     "mongodb-js-fmt": "^1.0.0",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-runner": "^4.6.0",
     "pre-commit": "^1.1.2",
+    "proxyquire": "^2.1.0",
     "sinon": "^1.17.7",
     "uuid": "^3.3.2"
   }

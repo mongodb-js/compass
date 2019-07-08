@@ -415,10 +415,17 @@ assign(derived, {
         query: {}
       };
 
+      // In the `mongodb+srv` protocol the comma separated list of host names is
+      // replaced with a single hostname.
+      // The format is: `mongodb+srv://{hostname}.{domainname}/{options}`
       if (this.isSrvRecord) {
         req.protocol = 'mongodb+srv';
         req.hostname = this.hostname;
       } else if (this.hosts.length === 1) {
+        // Driver adds sharding info to the original hostname.
+        // And returnes a list of all coresponding hosts.
+        // If driver returns a list of hosts which size is equal one,
+        // we can use hostname attribute that stores unmodified value.
         req.hostname = this.hostname;
         req.port = this.port;
       } else {
@@ -953,18 +960,35 @@ Connection.from = (url, callback) => {
       return callback(error);
     }
 
-    const extraParsed = URL.parse(unescapedUrl, true);
-    const attrs = Object.assign(
+    let attrs = Object.assign(
       {},
       {
         hosts: parsed.hosts,
-        hostname: isSrvRecord ? extraParsed.hostname : parsed.hosts[0].host,
-        port: isSrvRecord ? parseInt(extraParsed.port, 10) : parsed.hosts[0].port,
+        hostname: parsed.hosts[0].host,
+        port: parsed.hosts[0].port,
         auth: parsed.auth,
         isSrvRecord
       },
       parsed.options
     );
+
+    if (isSrvRecord) {
+      // Driver does not return the original hostname.
+      // We do extra parsing to get this value.
+      // See JIRA ticket: NODE-2048
+      // Note: If driver will change the behavior,
+      // we should remove extra parsing and update tests.
+      // See also: https://github.com/mongodb/specifications/blob/master/source/initial-dns-seedlist-discovery/initial-dns-seedlist-discovery.rst#specification
+      const extraParsed = URL.parse(unescapedUrl, true);
+
+      attrs = Object.assign(
+        attrs,
+        {
+          hostname: extraParsed.hostname,
+          port: parseInt(extraParsed.port, 10),
+        }
+      );
+    }
 
     // We don't inherit the drivers default values
     // into our model's default values so only set `ns`

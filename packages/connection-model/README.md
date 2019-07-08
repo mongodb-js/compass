@@ -337,14 +337,14 @@ const options = {
   sshTunnelIdentityFile: ['/Users/albert/.ssh/my-key-aws-pair.pem']
 };
 
-connect(options, (connectError, db) => {
-  if (connectError) {
-    return console.log(connectError);
+connect(options, (connectionError, client) => {
+  if (connectionError) {
+    return console.log(connectionError);
   }
 
-  db.db('mongodb').collection('fanclub').count((error, count) => {
-    console.log('counted:', error, count);
-    db.close();
+  client.db('mongodb').collection('fanclub').count((countingError, count) => {
+    console.log('counted:', countingError, count);
+    client.close();
   });
 });
 ```
