@@ -20,7 +20,7 @@ class OptionWriteSelector extends React.Component {
 
   static propTypes = {
     label: PropTypes.string,
-    title: PropTypes.string,
+    title: PropTypes.oneOfType([ PropTypes.string, PropTypes.object ]),
     bsSize: PropTypes.string,
     className: PropTypes.string,
     id: PropTypes.string.isRequired,
