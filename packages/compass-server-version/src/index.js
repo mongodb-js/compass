@@ -7,8 +7,7 @@ import ServerVersionStore from 'stores';
 const ROLE = {
   name: 'ServerVersion',
   component: ServerVersionPlugin,
-  alignment: 'right',
-  order: 10
+  order: 3
 };
 
 /**
@@ -16,7 +15,7 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  appRegistry.registerRole('Header.Item', ROLE);
+  appRegistry.registerRole('InstanceDetail.Item', ROLE);
   appRegistry.registerStore('ServerVersion.Store', ServerVersionStore);
 }
 
@@ -25,7 +24,7 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('Header.Item', ROLE);
+  appRegistry.deregisterRole('InstanceDetail.Item', ROLE);
   appRegistry.deregisterStore('ServerVersion.Store');
 }
 
