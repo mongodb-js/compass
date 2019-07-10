@@ -1,13 +1,13 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import SidebarInstanceProperties from 'components/sidebar-instance-properties';
+import SidebarInstance from 'components/sidebar-instance';
 
-describe('SidebarInstanceProperties [Component]', () => {
+describe('SidebarInstance [Component]', () => {
   let component;
   describe('empty instance', () => {
     beforeEach(() => {
-      component = mount(<SidebarInstanceProperties
+      component = mount(<SidebarInstance
         instance={{databases: null, collections: null}}
       />);
     });
@@ -25,7 +25,7 @@ describe('SidebarInstanceProperties [Component]', () => {
   });
   describe('nonempty instance', () => {
     beforeEach(() => {
-      component = mount(<SidebarInstanceProperties
+      component = mount(<SidebarInstance
         instance={{databases: [1, 2, 3], collections: [6, 7]}}
       />);
     });
@@ -44,7 +44,7 @@ describe('SidebarInstanceProperties [Component]', () => {
   describe('nonempty instance', () => {
     beforeEach(() => {
       sinon.spy(global.hadronApp.appRegistry, 'emit');
-      component = mount(<SidebarInstanceProperties
+      component = mount(<SidebarInstance
         instance={{databases: [1, 2, 3], collections: [6, 7]}}
       />);
     });

@@ -10,7 +10,7 @@ import classnames from 'classnames';
 import styles from './sidebar.less';
 
 import SidebarTitle from 'components/sidebar-title';
-import SidebarInstanceProperties from 'components/sidebar-instance-properties';
+import SidebarInstance from 'components/sidebar-instance';
 import SidebarDatabase from 'components/sidebar-database';
 
 import { toggleIsCollapsed } from 'modules/is-collapsed';
@@ -37,7 +37,8 @@ class Sidebar extends PureComponent {
     filterDatabases: PropTypes.func.isRequired,
     changeDatabases: PropTypes.func.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
-    isDataLake: PropTypes.bool.isRequired
+    isDataLake: PropTypes.bool.isRequired,
+    globalAppRegistryEmit: PropTypes.func.isRequired
   };
 
   componentWillReceiveProps() {
@@ -216,9 +217,10 @@ class Sidebar extends PureComponent {
         <SidebarTitle
           name="My Cluster"
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
-        <SidebarInstanceProperties
+        <SidebarInstance
           instance={this.props.instance}
-          activeNamespace={this.props.databases.activeNamespace} />
+          isExpanded={true}
+          globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
         <div
           className={classnames(styles['compass-sidebar-filter'])}
           onClick={this.handleSearchFocus.bind(this)}>
