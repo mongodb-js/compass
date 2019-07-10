@@ -38,17 +38,9 @@ describe('SshTunnelStatus [Component]', () => {
       expect(component.find(`.${styles['ssh-tunnel-status']}`)).to.be.present();
     });
 
-    it('renders the lock', () => {
-      expect(component.find('.fa-lock')).to.be.present();
-    });
-
-    it('renders the label', () => {
-      expect(component.find(`.${styles['ssh-tunnel-status-label']}`)).to.be.present();
-    });
-
     it('renders the label test', () => {
-      expect(component.find(`.${styles['ssh-tunnel-status-label-is-static']}`)).to.have.
-        text('SSH connection via:');
+      expect(component.find(`.${styles['ssh-tunnel-status-label']}`)).to.have.
+        text('SSH connection via');
     });
 
     it('renders the host/port string', () => {

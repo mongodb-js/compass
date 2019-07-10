@@ -31,14 +31,11 @@ class SshTunnelStatus extends Component {
       <div
         data-test-id="ssh-tunnel-status"
         className={classnames(styles['ssh-tunnel-status'])}>
-        <i className="fa fa-lock" aria-hidden />
         <div className={classnames(styles['ssh-tunnel-status-label'])}>
-          <div className={classnames(styles['ssh-tunnel-status-label-is-static'])}>
-            SSH connection via:
-          </div>
-          <div className={classnames(styles['ssh-tunnel-status-string'])}>
-            {this.props.sshTunnelHostPortString}
-          </div>
+          SSH connection via
+        </div>
+        <div className={classnames(styles['ssh-tunnel-status-string'])}>
+          {this.props.sshTunnelHostPortString}
         </div>
       </div>
     );

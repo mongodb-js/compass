@@ -1,41 +1,22 @@
 @import (reference) "~less/compass/_theme.less";
+@compass-sidebar-base-background-color: #42494f;
 
 .ssh-tunnel-status {
-  margin-left: 25px;
+  background-color: @compass-sidebar-base-background-color;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 4px 0px 4px 10px;
-
-  i {
-    &-lock { font-size: 12px; }
-    color: @green2;
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    text-align: right;
-  }
+  flex-direction: column;
+  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  padding: 6px 12px 6px 12px;
 
   &-label {
+    text-transform: uppercase;
     color: @pw;
-    font-size: 12px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    &-is-static {
-      font-size: 11px;
-      font-weight: bold;
-      color: @green2;
-      user-select: none;
-      -webkit-user-select: none;
-      text-transform: uppercase;
-      padding-left: 5px;
-      padding-right: 5px;
-    }
+    font-weight: bold;
   }
 
   &-string {
-    text-decoration: none;
+    color: #AAAAAA;
+    text-overflow: ellipsis;
   }
 }
