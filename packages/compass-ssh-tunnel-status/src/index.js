@@ -7,7 +7,6 @@ import SshTunnelStatusStore from 'stores';
 const ROLE = {
   name: 'SshTunnelStatus',
   component: SshTunnelStatusPlugin,
-  alignment: 'left',
   order: 1
 };
 
@@ -16,7 +15,7 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  appRegistry.registerRole('Header.Item', ROLE);
+  appRegistry.registerRole('InstanceDetails.Item', ROLE);
   appRegistry.registerStore('SshTunnelStatus.Store', SshTunnelStatusStore);
 }
 
@@ -25,7 +24,7 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('Header.Item', ROLE);
+  appRegistry.deregisterRole('InstanceDetails.Item', ROLE);
   appRegistry.deregisterStore('SshTunnelStatus.Store');
 }
 
