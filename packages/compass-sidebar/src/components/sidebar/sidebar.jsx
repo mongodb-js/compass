@@ -14,6 +14,7 @@ import SidebarInstance from 'components/sidebar-instance';
 import SidebarDatabase from 'components/sidebar-database';
 
 import { toggleIsCollapsed } from 'modules/is-collapsed';
+import { toggleIsDetailsExpanded } from 'modules/is-details-expanded';
 import { filterDatabases, changeDatabases } from 'modules/databases';
 import { changeFilterRegex } from 'modules/filter-regex';
 
@@ -31,9 +32,12 @@ class Sidebar extends PureComponent {
     filterRegex: PropTypes.any.isRequired,
     instance: PropTypes.object.isRequired,
     isCollapsed: PropTypes.bool.isRequired,
+    isDetailsExpanded: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     onCollapse: PropTypes.func.isRequired,
     toggleIsCollapsed: PropTypes.func.isRequired,
+    toggleIsDetailsExpanded: PropTypes.func.isRequired,
+    detailsPlugins: PropTypes.array.isRequired,
     filterDatabases: PropTypes.func.isRequired,
     changeDatabases: PropTypes.func.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
@@ -207,8 +211,8 @@ class Sidebar extends PureComponent {
     const collapsed = this.props.isCollapsed ?
       'compass-sidebar-collapsed' :
       'compass-sidebar-expanded';
-    const collapsedButton = 'fa' +
-      (this.props.isCollapsed ? ' fa-caret-right' : ' fa-caret-left');
+    // const collapsedButton = 'fa' +
+      // (this.props.isCollapsed ? ' fa-caret-right' : ' fa-caret-left');
 
     return (
       <div
@@ -219,7 +223,9 @@ class Sidebar extends PureComponent {
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
         <SidebarInstance
           instance={this.props.instance}
-          isExpanded={true}
+          isExpanded={this.props.isDetailsExpanded}
+          detailsPlugins={this.props.detailsPlugins}
+          toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
         <div
           className={classnames(styles['compass-sidebar-filter'])}
@@ -260,6 +266,7 @@ const mapStateToProps = (state, ownProps) => ({
   instance: state.instance,
   isCollapsed: state.isCollapsed,
   isDblistExpanded: state.isDblistExpanded,
+  isDetailsExpanded: state.isDetailsExpanded,
   isWritable: state.isWritable,
   onCollapse: ownProps.onCollapse,
   isDataLake: state.isDataLake
@@ -273,6 +280,7 @@ const MappedSidebar = connect(
   mapStateToProps,
   {
     toggleIsCollapsed,
+    toggleIsDetailsExpanded,
     filterDatabases,
     changeDatabases,
     changeFilterRegex,

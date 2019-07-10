@@ -36,6 +36,7 @@ class SidebarDatabase extends PureComponent {
           pipeline: c.pipeline,
           type: c.type,
           activeNamespace: this.props.activeNamespace,
+          globalAppRegistryEmit: this.props.globalAppRegistryEmit,
           isWritable: this.props.isWritable,
           description: this.props.description,
           isDataLake: this.props.isDataLake,

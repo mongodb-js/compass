@@ -26,7 +26,7 @@ const instance = {
 };
 
 
-describe('IndexesStore [Store]', () => {
+describe('SidebarStore [Store]', () => {
   beforeEach(() => {
     store.dispatch(reset());
   });
@@ -85,7 +85,7 @@ describe('IndexesStore [Store]', () => {
     context('when collection changes', () => {
       beforeEach(() => {
         expect(store.getState().databases.activeNamespace).to.equal('');
-        appRegistry.emit('collection-changed', 'test.coll');
+        appRegistry.emit('select-namespace', 'test.coll');
       });
       it('updates databases.activeNamespace', () => {
         expect(store.getState().databases.activeNamespace).to.equal('test.coll');
@@ -95,7 +95,7 @@ describe('IndexesStore [Store]', () => {
     context('when db changes', () => {
       beforeEach(() => {
         expect(store.getState().databases.activeNamespace).to.equal('');
-        appRegistry.emit('database-changed', 'test');
+        appRegistry.emit('select-database', 'test');
       });
       it('updates databases.activeNamespace', () => {
         expect(store.getState().databases.activeNamespace).to.equal('test');

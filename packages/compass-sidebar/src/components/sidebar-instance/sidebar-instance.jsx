@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { LOADING_STATE } from 'constants/sidebar-constants';
 import SidebarInstanceStats from 'components/sidebar-instance-stats';
+import SidebarInstanceDetails from 'components/sidebar-instance-details';
 
 import classnames from 'classnames';
 import styles from './sidebar-instance.less';
@@ -11,16 +11,22 @@ class SidebarInstance extends PureComponent {
   static propTypes = {
     instance: PropTypes.object,
     isExpanded: PropTypes.bool.isRequired,
-    globalAppRegistryEmit: PropTypes.func.isRequired
+    toggleIsDetailsExpanded: PropTypes.func.isRequired,
+    globalAppRegistryEmit: PropTypes.func.isRequired,
+    detailsPlugins: PropTypes.array.isRequired
   };
 
   render() {
     return (
-      <div className={classnames(styles['compass-sidebar-instance'])}>
+      <div className={classnames(styles['sidebar-instance'])}>
         <SidebarInstanceStats
           instance={this.props.instance}
           isExpanded={this.props.isExpanded}
+          toggleIsExpanded={this.props.toggleIsDetailsExpanded}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
+        <SidebarInstanceDetails
+          detailsPlugins={this.props.detailsPlugins}
+          isExpanded={this.props.isExpanded} />
       </div>
     );
   }

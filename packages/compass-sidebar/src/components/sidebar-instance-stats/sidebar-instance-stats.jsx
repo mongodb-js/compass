@@ -10,6 +10,7 @@ class SidebarInstanceStats extends PureComponent {
   static propTypes = {
     instance: PropTypes.object,
     isExpanded: PropTypes.bool.isRequired,
+    toggleIsExpanded: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired
   };
 
@@ -18,17 +19,12 @@ class SidebarInstanceStats extends PureComponent {
   }
 
   onToggleExpanded = () => {
-
+    this.props.toggleIsExpanded(!this.props.isExpanded);
   }
 
   getArrowIconClasses() {
     const expanded = this.props.isExpanded ? 'fa fa-rotate-90' : '';
-    return classnames(
-      'mms-icon-right-arrow',
-      styles['compass-sidebar-icon'],
-      styles['compass-sidebar-icon-expand'],
-      expanded
-    );
+    return classnames('mms-icon-right-arrow', expanded);
   }
 
   render() {
@@ -44,24 +40,30 @@ class SidebarInstanceStats extends PureComponent {
       'fa-repeat');
 
     return (
-      <div className={classnames(styles['compass-sidebar-instance-stats'])}>
-        <div className={classnames(styles['compass-sidebar-instance-stats-expand'])}>
-          <i onClick={this.onToggleExpanded} className={this.getArrowIconClasses()} />
+      <div className={classnames(styles['sidebar-instance-stats'])}>
+        <div
+          className={classnames(styles['sidebar-instance-stats-expand'])}
+          onClick={this.onToggleExpanded}>
+          <i className={this.getArrowIconClasses()} />
         </div>
-        <div className={classnames(styles['compass-sidebar-instance-stats-column'])}>
-          <span className={classnames(styles['compass-sidebar-instance-stats-strong-property'])}>
+        <div className={classnames(styles['sidebar-instance-stats-column'])}>
+          <span
+            id="sidebar-instance-stats-dbs"
+            className={classnames(styles['sidebar-instance-stats-strong-property'])}>
             {numDbs}
           </span> DBs
         </div>
-        <div className={classnames(styles['compass-sidebar-instance-stats-column'])}>
-          <span className={classnames(styles['compass-sidebar-instance-stats-strong-property'])}>
+        <div className={classnames(styles['sidebar-instance-stats-column'])}>
+          <span
+            id="sidebar-instance-stats-collections"
+            className={classnames(styles['sidebar-instance-stats-strong-property'])}>
             {numCollections}
           </span> Collections
         </div>
-        <div className={classnames(styles['compass-sidebar-instance-stats-refresh-button-container'])}>
+        <div className={classnames(styles['sidebar-instance-stats-refresh-button-container'])}>
           <button
             onClick={this.onRefresh}
-            className={classnames(styles['compass-sidebar-instance-stats-refresh-button'])}>
+            className={classnames(styles['sidebar-instance-stats-refresh-button'])}>
             <i className={refreshName}/>
           </button>
         </div>

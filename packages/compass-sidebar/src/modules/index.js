@@ -1,8 +1,6 @@
 import { combineReducers } from 'redux';
 
-import appRegistry, {
-  INITIAL_STATE as APP_REGISTRY_INITIAL_STATE
-} from 'mongodb-redux-common/app-registry';
+import appRegistry from 'mongodb-redux-common/app-registry';
 import databases, {
   INITIAL_STATE as DATABASES_INITIAL_STATE
 } from 'modules/databases';
@@ -18,6 +16,9 @@ import filterRegex, {
 import isCollapsed, {
   INITIAL_STATE as IS_COLLAPSED_INITIAL_STATE
 } from 'modules/is-collapsed';
+import isDetailsExpanded, {
+  INITIAL_STATE as IS_DETAILS_EXPANDED_INITIAL_STATE
+} from 'modules/is-details-expanded';
 import isWritable, {
   INITIAL_STATE as IS_WRITABLE_INITIAL_STATE
 } from 'modules/is-writable';
@@ -36,6 +37,7 @@ const reducer = combineReducers({
   instance,
   filterRegex,
   isCollapsed,
+  isDetailsExpanded,
   isWritable,
   isDataLake
 });
@@ -57,6 +59,7 @@ const rootReducer = (state, action) => {
       instance: INSTANCE_INITIAL_STATE,
       filterRegex: FILTER_REGEX_INITIAL_STATE,
       isCollapsed: IS_COLLAPSED_INITIAL_STATE,
+      isDetailsExpanded: IS_DETAILS_EXPANDED_INITIAL_STATE,
       isWritable: IS_WRITABLE_INITIAL_STATE,
       isDataLake: DL_INITIAL_STATE
     };
