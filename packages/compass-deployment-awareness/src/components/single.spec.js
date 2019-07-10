@@ -21,12 +21,12 @@ describe('<Single />', () => {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', () => {
-        const node = component.find(`.${styles['topology-single-address']}`);
+        const node = component.find(`.${styles['topology-single-host-address']}`);
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
-        const node = component.find(`.${styles['topology-single-type']}`);
+        const node = component.find(`.${styles['topology-single-cluster-type']}`);
         expect(node).to.have.text('Standalone');
       });
     });
@@ -36,12 +36,12 @@ describe('<Single />', () => {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', () => {
-        const node = component.find(`.${styles['topology-single-address']}`);
+        const node = component.find(`.${styles['topology-single-host-address']}`);
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
-        const node = component.find(`.${styles['topology-single-type']}`);
+        const node = component.find(`.${styles['topology-single-cluster-type']}`);
         expect(node).to.have.text('Primary');
       });
     });
@@ -51,12 +51,12 @@ describe('<Single />', () => {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', () => {
-        const node = component.find(`.${styles['topology-single-address']}`);
+        const node = component.find(`.${styles['topology-single-host-address']}`);
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
-        const node = component.find(`.${styles['topology-single-type']}`);
+        const node = component.find(`.${styles['topology-single-cluster-type']}`);
         expect(node).to.have.text('Secondary');
       });
     });
@@ -66,12 +66,12 @@ describe('<Single />', () => {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', () => {
-        const node = component.find(`.${styles['topology-single-address']}`);
+        const node = component.find(`.${styles['topology-single-host-address']}`);
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
-        const node = component.find(`.${styles['topology-single-type']}`);
+        const node = component.find(`.${styles['topology-single-cluster-type']}`);
         expect(node).to.have.text('Arbiter');
       });
     });
@@ -81,12 +81,12 @@ describe('<Single />', () => {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', () => {
-        const node = component.find(`.${styles['topology-single-address']}`);
+        const node = component.find(`.${styles['topology-single-host-address']}`);
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
-        const node = component.find(`.${styles['topology-single-type']}`);
+        const node = component.find(`.${styles['topology-single-cluster-type']}`);
         expect(node).to.have.text('Ghost');
       });
     });
@@ -96,12 +96,12 @@ describe('<Single />', () => {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', () => {
-        const node = component.find(`.${styles['topology-single-address']}`);
+        const node = component.find(`.${styles['topology-single-host-address']}`);
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
-        const node = component.find(`.${styles['topology-single-type']}`);
+        const node = component.find(`.${styles['topology-single-cluster-type']}`);
         expect(node).to.have.text('Unknown');
       });
     });
@@ -111,12 +111,12 @@ describe('<Single />', () => {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', () => {
-        const node = component.find(`.${styles['topology-single-address']}`);
+        const node = component.find(`.${styles['topology-single-host-address']}`);
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
-        const node = component.find(`.${styles['topology-single-type']}`);
+        const node = component.find(`.${styles['topology-single-cluster-type']}`);
         expect(node).to.have.text('Other');
       });
     });
@@ -126,12 +126,12 @@ describe('<Single />', () => {
       const component = shallow(<Single server={server} isDataLake={false}/>);
 
       it('renders the address', () => {
-        const node = component.find(`.${styles['topology-single-address']}`);
+        const node = component.find(`.${styles['topology-single-host-address']}`);
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
-        const node = component.find(`.${styles['topology-single-type']}`);
+        const node = component.find(`.${styles['topology-single-cluster-type']}`);
         expect(node).to.have.text('Possible Primary');
       });
     });
@@ -141,12 +141,12 @@ describe('<Single />', () => {
       const component = shallow(<Single server={server} isDataLake/>);
 
       it('renders the address', () => {
-        const node = component.find(`.${styles['topology-single-address']}`);
+        const node = component.find(`.${styles['topology-single-host-address']}`);
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('does not renders the humanized type', () => {
-        const node = component.find(`.${styles['topology-single-type']}`);
+        const node = component.find(`.${styles['topology-single-cluster-type']}`);
         expect(node).to.be.not.present();
       });
     });

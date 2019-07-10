@@ -22,9 +22,24 @@ class Sharded extends React.Component {
   renderServerCount() {
     const count = this.props.servers.length;
     if (count > 1) {
-      return `${count} mongoses`;
+      return `${count} Mongoses`;
     }
-    return `${count} mongos`;
+    return `${count} Mongos`;
+  }
+
+  /**
+   * Renders the server list.
+   *
+   * @returns {Array} The server list.
+   */
+  renderServers() {
+    return this.props.servers.map((server, i) => {
+      return (
+        <div className={classnames(styles['topology-sharded-host-address'])} key={i}>
+          {server.address}
+        </div>
+      );
+    });
   }
 
   /**
@@ -35,12 +50,22 @@ class Sharded extends React.Component {
   render() {
     return (
       <div className={classnames(styles['topology-sharded'])}>
-        <div className={classnames(styles['topology-sharded-type'])}>
-          <i className="mms-icon-cluster" />
-          <span className={classnames(styles['topology-sharded-type-name'])}>Sharded Cluster</span>
+        <div className={classnames(styles['topology-sharded-host'])}>
+          <div className={classnames(styles['topology-sharded-host-title'])}>
+            {this.props.servers.length > 1 ? 'HOSTS' : 'HOST'}
+          </div>
+          {this.renderServers()}
         </div>
-        <div className={classnames(styles['topology-sharded-mongos'])}>
-          {this.renderServerCount()}
+        <div className={classnames(styles['topology-sharded-cluster'])}>
+          <div className={classnames(styles['topology-sharded-cluster-title'])}>
+            CLUSTER
+          </div>
+          <div className={classnames(styles['topology-sharded-cluster-name'])}>
+            Sharded
+          </div>
+          <div className={classnames(styles['topology-sharded-cluster-nodes'])}>
+            {this.renderServerCount()}
+          </div>
         </div>
       </div>
     );

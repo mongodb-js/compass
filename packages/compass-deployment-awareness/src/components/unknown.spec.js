@@ -14,18 +14,13 @@ describe('<Unknown />', () => {
       const servers = [{ address: '127.0.0.1:27017', type: RS_PRIMARY }];
       const component = shallow(<Unknown servers={servers} isDataLake={false} />);
 
-      it('renders the unknown icon', () => {
-        const node = component.find('.mms-icon-unknown');
-        expect(node).to.be.present();
-      });
-
       it('renders the node count', () => {
-        const node = component.find(`.${styles['topology-unknown-nodes']}`);
-        expect(node).to.have.text('1 server');
+        const node = component.find(`.${styles['topology-unknown-cluster-nodes']}`);
+        expect(node).to.have.text('1 Server');
       });
 
       it('renders the unknown text', () => {
-        const node = component.find(`.${styles['topology-unknown-type-name']}`);
+        const node = component.find(`.${styles['topology-unknown-cluster-type']}`);
         expect(node).to.have.text('Unknown');
       });
     });
@@ -37,18 +32,13 @@ describe('<Unknown />', () => {
       ];
       const component = shallow(<Unknown servers={servers} isDataLake={false} />);
 
-      it('renders the unknown icon', () => {
-        const node = component.find('.mms-icon-unknown');
-        expect(node).to.be.present();
-      });
-
       it('renders the node count', () => {
-        const node = component.find(`.${styles['topology-unknown-nodes']}`);
-        expect(node).to.have.text('2 servers');
+        const node = component.find(`.${styles['topology-unknown-cluster-nodes']}`);
+        expect(node).to.have.text('2 Servers');
       });
 
       it('renders the unknown text', () => {
-        const node = component.find(`.${styles['topology-unknown-type-name']}`);
+        const node = component.find(`.${styles['topology-unknown-cluster-type']}`);
         expect(node).to.have.text('Unknown');
       });
     });
@@ -57,13 +47,8 @@ describe('<Unknown />', () => {
       const servers = [{ address: '127.0.0.1:27017', type: RS_PRIMARY }];
       const component = shallow(<Unknown servers={servers} isDataLake />);
 
-      it('renders the node count', () => {
-        const node = component.find(`.${styles['topology-unknown-nodes']}`);
-        expect(node).to.have.text('1 server');
-      });
-
       it('renders the unknown text', () => {
-        const node = component.find(`.${styles['topology-unknown-type-name']}`);
+        const node = component.find(`.${styles['topology-unknown-cluster-type']}`);
         expect(node).to.be.not.present();
       });
     });

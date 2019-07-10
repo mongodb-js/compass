@@ -18,23 +18,13 @@ describe('<ReplicaSet />', () => {
       );
 
       it('renders the name', () => {
-        const node = component.find(`.${styles['topology-replica-set-name']}`);
-        expect(node).to.have.text('test');
-      });
-
-      it('renders the replica set icon', () => {
-        const node = component.find('.mms-icon-replica-set');
-        expect(node).to.be.present();
+        const node = component.find(`.${styles['topology-replica-set-cluster-name']}`);
+        expect(node).to.have.text('Replica Set (test)');
       });
 
       it('renders the node count', () => {
-        const node = component.find(`.${styles['topology-replica-set-nodes']}`);
-        expect(node).to.have.text('1 node');
-      });
-
-      it('renders the replica set text', () => {
-        const node = component.find(`.${styles['topology-replica-set-type-name']}`);
-        expect(node).to.have.text('Replica Set');
+        const node = component.find(`.${styles['topology-replica-set-cluster-nodes']}`);
+        expect(node).to.have.text('1 Node');
       });
     });
 
@@ -51,23 +41,13 @@ describe('<ReplicaSet />', () => {
       );
 
       it('renders the name', () => {
-        const node = component.find(`.${styles['topology-replica-set-name']}`);
-        expect(node).to.have.text('test');
-      });
-
-      it('renders the replica set icon', () => {
-        const node = component.find('.mms-icon-replica-set');
-        expect(node).to.be.present();
+        const node = component.find(`.${styles['topology-replica-set-cluster-name']}`);
+        expect(node).to.have.text('Replica Set (test)');
       });
 
       it('renders the node count', () => {
-        const node = component.find(`.${styles['topology-replica-set-nodes']}`);
-        expect(node).to.have.text('2 nodes');
-      });
-
-      it('renders the replica set text', () => {
-        const node = component.find(`.${styles['topology-replica-set-type-name']}`);
-        expect(node).to.have.text('Replica Set');
+        const node = component.find(`.${styles['topology-replica-set-cluster-nodes']}`);
+        expect(node).to.have.text('2 Nodes');
       });
     });
   });

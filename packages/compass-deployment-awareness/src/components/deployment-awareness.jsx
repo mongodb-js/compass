@@ -43,7 +43,7 @@ class DeploymentAwarenessComponent extends React.Component {
       case REPLICA_SET_WITH_PRIMARY:
         return (<ReplicaSet {...this.props} />);
       default:
-        return (<Unknown servers={this.props.servers} />);
+        return (<Unknown servers={this.props.servers} isDataLake={this.props.isDataLake}/>);
     }
   }
 

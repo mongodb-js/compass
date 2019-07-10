@@ -23,18 +23,45 @@ class Unknown extends React.Component {
   renderServerCount() {
     const count = this.props.servers.length;
     if (count > 1) {
-      return `${count} servers`;
+      return `${count} Servers`;
     }
-    return `${count} server`;
+    return `${count} Server`;
   }
 
-  renderPill() {
+  /**
+   * Render the cluster info.
+   *
+   * @returns {Component} The cluster info.
+   */
+  renderCluster() {
     return (
-      <div className={classnames(styles['topology-unknown-type'])}>
-        <i className="mms-icon-unknown" />
-        <span className={classnames(styles['topology-unknown-type-name'])}>Unknown</span>
+      <div className={classnames(styles['topology-unknown-cluster'])}>
+        <div className={classnames(styles['topology-unknown-cluster-title'])}>
+          CLUSTER
+        </div>
+        <div className={classnames(styles['topology-unknown-cluster-type'])}>
+          Unknown
+        </div>
+        <div className={classnames(styles['topology-unknown-cluster-nodes'])}>
+          {this.renderServerCount()}
+        </div>
       </div>
     );
+  }
+
+  /**
+   * Renders the server list.
+   *
+   * @returns {Array} The server list.
+   */
+  renderServers() {
+    return this.props.servers.map((server, i) => {
+      return (
+        <div className={classnames(styles['topology-unknown-host-address'])} key={i}>
+          {server.address}
+        </div>
+      );
+    });
   }
 
   /**
@@ -45,10 +72,13 @@ class Unknown extends React.Component {
   render() {
     return (
       <div className={classnames(styles['topology-unknown'])}>
-        { this.props.isDataLake ? null : this.renderPill() }
-        <div className={classnames(styles['topology-unknown-nodes'])}>
-          {this.renderServerCount()}
+        <div className={classnames(styles['topology-unknown-host'])}>
+          <div className={classnames(styles['topology-unknown-host-title'])}>
+            {this.props.servers.length > 1 ? 'HOSTS' : 'HOST'}
+          </div>
+          {this.renderServers()}
         </div>
+        { this.props.isDataLake ? null : this.renderCluster() }
       </div>
     );
   }

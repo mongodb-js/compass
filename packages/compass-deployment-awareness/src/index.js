@@ -47,13 +47,13 @@ const READ_STATE_STORE = `${BASE}.ReadStateStore`;
 const ROLE = {
   name: BASE,
   component: DeploymentAwarenessComponent,
-  alignment: 'left'
+  order: 2
 };
 
 /**
  * Header item constant.
  */
-const HEADER_ITEM = 'Header.Item';
+const DETAILS_ITEM = 'InstanceDetails.Item';
 
 /**
  * Activate all the components in the Deployment Awareness package.
@@ -61,7 +61,7 @@ const HEADER_ITEM = 'Header.Item';
  * @param {AppRegistry} appRegistry - The app registry.
  */
 function activate(appRegistry) {
-  appRegistry.registerRole(HEADER_ITEM, ROLE);
+  appRegistry.registerRole(DETAILS_ITEM, ROLE);
   appRegistry.registerComponent(TEXT_READ_BUTTON, TextReadButton);
   appRegistry.registerComponent(TEXT_WRITE_BUTTON, TextWriteButton);
   appRegistry.registerAction(ACTIONS, DeploymentAwarenessActions);
@@ -76,7 +76,7 @@ function activate(appRegistry) {
  * @param {AppRegistry} appRegistry - The app registry.
  */
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole(HEADER_ITEM, ROLE);
+  appRegistry.deregisterRole(DETAILS_ITEM, ROLE);
   appRegistry.deregisterComponent(TEXT_READ_BUTTON);
   appRegistry.deregisterComponent(TEXT_WRITE_BUTTON);
   appRegistry.deregisterAction(ACTIONS);

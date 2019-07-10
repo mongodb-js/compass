@@ -16,10 +16,20 @@ class Single extends React.Component {
     isDataLake: PropTypes.bool.isRequired
   }
 
-  renderPill() {
+  /**
+   * Render the cluster info.
+   *
+   * @returns {Component} The cluster info.
+   */
+  renderCluster() {
     return (
-      <div className={classnames(styles['topology-single-type'])}>
-        {humanize(this.props.server.type)}
+      <div className={classnames(styles['topology-single-cluster'])}>
+        <div className={classnames(styles['topology-single-cluster-title'])}>
+          CLUSTER
+        </div>
+        <div className={classnames(styles['topology-single-cluster-type'])}>
+          {humanize(this.props.server.type)}
+        </div>
       </div>
     );
   }
@@ -32,10 +42,15 @@ class Single extends React.Component {
   render() {
     return (
       <div className={classnames(styles['topology-single'])}>
-        <div className={classnames(styles['topology-single-address'])}>
-          {this.props.server.address}
+        <div className={classnames(styles['topology-single-host'])}>
+          <div className={classnames(styles['topology-single-host-title'])}>
+            HOST
+          </div>
+          <div className={classnames(styles['topology-single-host-address'])}>
+            {this.props.server.address}
+          </div>
         </div>
-        { this.props.isDataLake ? null : this.renderPill() }
+        { this.props.isDataLake ? null : this.renderCluster() }
       </div>
     );
   }

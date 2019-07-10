@@ -5,34 +5,26 @@
     display: flex;
     flex-direction: column;
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 14px;
+    padding: 0px 12px 0px 12px;
   }
 
   &-sharded {
-    &-type {
-      text-transform: uppercase;
-      margin-left: 10px;
-      padding: 2px 0px 2px 0px;
+    &-host, &-cluster {
+      display: flex;
+      flex-direction: column;
+      padding: 6px 0px 6px 0px;
 
-      i {
-        margin-right: 5px;
+      &-title {
+        text-transform: uppercase;
+        color: @pw;
+        font-weight: bold;
       }
 
-      &-name {
-        margin-right: 5px;
+      &-address, &-name, &-nodes {
+        color: @gray9;
+        text-overflow: ellipsis;
       }
-    }
-
-    &-mongos {
-      text-transform: uppercase;
-      color: @pw;
-      border-radius: 14px;
-      border-style: solid;
-      border-color: #bfbfbf;
-      border-width: 1px;
-      padding: 0 8px;
-      margin: 0px 10px 0px 10px;
-      font-weight: bold;
     }
   }
 }

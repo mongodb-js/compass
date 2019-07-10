@@ -24,9 +24,24 @@ class ReplicaSet extends React.Component {
   renderServerCount() {
     const count = this.props.servers.length;
     if (count > 1) {
-      return `${count} nodes`;
+      return `${count} Nodes`;
     }
-    return `${count} node`;
+    return `${count} Node`;
+  }
+
+  /**
+   * Renders the server list.
+   *
+   * @returns {Array} The server list.
+   */
+  renderServers() {
+    return this.props.servers.map((server, i) => {
+      return (
+        <div className={classnames(styles['topology-replica-set-host-address'])} key={i}>
+          {server.address}
+        </div>
+      );
+    });
   }
 
   /**
@@ -37,15 +52,22 @@ class ReplicaSet extends React.Component {
   render() {
     return (
       <div className={classnames(styles['topology-replica-set'])}>
-        <div className={classnames(styles['topology-replica-set-name'])}>
-          {this.props.setName}
+        <div className={classnames(styles['topology-replica-set-host'])}>
+          <div className={classnames(styles['topology-replica-set-host-title'])}>
+            {this.props.servers.length > 1 ? 'HOSTS' : 'HOST'}
+          </div>
+          {this.renderServers()}
         </div>
-        <div className={classnames(styles['topology-replica-set-type'])}>
-          <i className="mms-icon-replica-set" />
-          <span className={classnames(styles['topology-replica-set-type-name'])}>Replica Set</span>
-        </div>
-        <div className={classnames(styles['topology-replica-set-nodes'])}>
-          {this.renderServerCount()}
+        <div className={classnames(styles['topology-replica-set-cluster'])}>
+          <div className={classnames(styles['topology-replica-set-cluster-title'])}>
+            CLUSTER
+          </div>
+          <div className={classnames(styles['topology-replica-set-cluster-name'])}>
+            Replica Set ({this.props.setName})
+          </div>
+          <div className={classnames(styles['topology-replica-set-cluster-nodes'])}>
+            {this.renderServerCount()}
+          </div>
         </div>
       </div>
     );
