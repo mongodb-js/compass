@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 
 import appRegistry from 'mongodb-redux-common/app-registry';
+import detailsPlugins from 'modules/details-plugins';
 import databases, {
   INITIAL_STATE as DATABASES_INITIAL_STATE
 } from 'modules/databases';
@@ -34,6 +35,7 @@ const reducer = combineReducers({
   appRegistry,
   databases,
   description,
+  detailsPlugins,
   instance,
   filterRegex,
   isCollapsed,

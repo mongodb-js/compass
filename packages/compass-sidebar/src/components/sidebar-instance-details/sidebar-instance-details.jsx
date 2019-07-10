@@ -11,11 +11,18 @@ class SidebarInstanceDetails extends PureComponent {
     detailsPlugins: PropTypes.array.isRequired
   };
 
+  constructor(props) {
+    super(props);
+    this.details = props.detailsPlugins.map((role, i) => {
+      return (<role.component key={i} />);
+    });
+  }
+
   renderPlugins() {
     if (this.props.isExpanded) {
       return (
         <div className={classnames(styles['sidebar-instance-details-container'])}>
-          {this.props.detailsPlugins}
+          {this.details}
         </div>
       );
     }

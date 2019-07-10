@@ -262,6 +262,7 @@ class Sidebar extends PureComponent {
 const mapStateToProps = (state, ownProps) => ({
   databases: state.databases,
   description: state.description,
+  detailsPlugins: state.detailsPlugins,
   filterRegex: state.filterRegex,
   instance: state.instance,
   isCollapsed: state.isCollapsed,

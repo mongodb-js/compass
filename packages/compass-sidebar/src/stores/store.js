@@ -9,11 +9,13 @@ import { reset } from 'modules/reset';
 import { toggleIsWritable } from 'modules/is-writable';
 import { changeDescription } from 'modules/description';
 import { toggleIsDataLake } from 'modules/is-data-lake';
+import { loadDetailsPlugins } from 'modules/details-plugins';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
   store.dispatch(globalAppRegistryActivated(appRegistry));
+  store.dispatch(loadDetailsPlugins(appRegistry));
 
   appRegistry.on('instance-refreshed', (state) => {
     store.dispatch(changeInstance(state.instance));
@@ -44,6 +46,5 @@ store.onActivated = (appRegistry) => {
     store.dispatch(reset());
   });
 };
-
 
 export default store;
