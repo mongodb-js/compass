@@ -1,7 +1,22 @@
 @import (reference) "~less/compass/_theme.less";
+@compass-sidebar-base-background-color: #42494f;
 
 .server-version {
-  text-decoration: none;
-  padding: 4px 0px 4px 10px;
-  font-size: 12px;
+  background-color: @compass-sidebar-base-background-color;
+  display: flex;
+  flex-direction: column;
+  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  padding: 6px 12px 6px 12px;
+
+  &-edition {
+    text-transform: uppercase;
+    color: @pw;
+    font-weight: bold;
+  }
+
+  &-text {
+    color: #AAAAAA;
+    text-overflow: ellipsis;
+  }
 }

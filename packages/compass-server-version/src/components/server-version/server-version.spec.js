@@ -25,7 +25,7 @@ describe('ServerVersion [Component]', () => {
     const component = mount(<ServerVersion versionNumber="3.4.6" versionDistro="Community" />);
 
     it('renders the version number and distro', () => {
-      expect(component.find(`.${styles['server-version']}`)).to.have.
+      expect(component.find(`.${styles['server-version-text']}`)).to.have.
         text('MongoDB 3.4.6 Community');
     });
   });
@@ -34,7 +34,7 @@ describe('ServerVersion [Component]', () => {
     const component = mount(<ServerVersion versionNumber="3.4.6" versionDistro="Community" isDataLake dataLakeVersion="1.0.1"/>);
 
     it('renders the version number and distro', () => {
-      expect(component.find(`.${styles['server-version']}`)).to.have.
+      expect(component.find(`.${styles['server-version-text']}`)).to.have.
       text('Atlas Data Lake 1.0.1');
     });
   });
@@ -42,7 +42,7 @@ describe('ServerVersion [Component]', () => {
     const component = mount(<ServerVersion versionNumber="3.4.6" versionDistro="Community" isDataLake dataLakeVersion={null}/>);
 
     it('renders the version number and distro', () => {
-      expect(component.find(`.${styles['server-version']}`)).to.have.
+      expect(component.find(`.${styles['server-version-text']}`)).to.have.
       text('Atlas Data Lake ');
     });
   });
