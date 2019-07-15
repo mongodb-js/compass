@@ -985,7 +985,7 @@ Connection.from = (url, callback) => {
         attrs,
         {
           hostname: extraParsed.hostname,
-          port: parseInt(extraParsed.port, 10),
+          port: parseInt(extraParsed.port, 10)
         }
       );
     }
