@@ -6,7 +6,6 @@ const { FormInput } = require('hadron-react-components');
 const DEFAULT_HOST = 'localhost';
 
 class HostInput extends React.PureComponent {
-
   constructor(props) {
     super(props);
     this.isChanged = false;
@@ -21,6 +20,7 @@ class HostInput extends React.PureComponent {
     if (!this.props.lastUsed && !this.isChanged && this.props.hostname === DEFAULT_HOST) {
       return '';
     }
+
     return this.props.hostname;
   }
 

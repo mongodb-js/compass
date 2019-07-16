@@ -7,7 +7,6 @@ const Actions = require('../../actions');
 const TWO_DAYS = 24 * 60 * 60 * 1000;
 
 class Recents extends React.Component {
-
   onRecentClicked(recent) {
     Actions.onConnectionSelected(recent);
   }
@@ -22,26 +21,31 @@ class Recents extends React.Component {
 
   getClassName(recent) {
     let className = 'connect-sidebar-list-item';
+
     if (this.props.currentConnection === recent) {
       className += ' connect-sidebar-list-item-is-active';
     }
+
     return className;
   }
 
   formatLastUsed(model) {
-    if (!model.last_used) return 'Never';
-    if ((new Date() - model.last_used) < TWO_DAYS) {
-      return moment(model.last_used).fromNow();
+    if (!model.lastUsed) return 'Never';
+
+    if ((new Date() - model.lastUsed) < TWO_DAYS) {
+      return moment(model.lastUsed).fromNow();
     }
-    return moment(model.last_used).format('lll');
+
+    return moment(model.lastUsed).format('lll');
   }
 
   renderRecents() {
-    const recents = this.props.connections.filter((connection) => {
-      return !connection.is_favorite;
-    });
+    const recents = this.props.connections
+      .filter((connection) => !connection.isFavorite);
+
     return map(recents, (recent, i) => {
       const title = `${recent.hostname}:${recent.port}`;
+
       return (
         <li
           className={this.getClassName(recent)}
@@ -59,10 +63,8 @@ class Recents extends React.Component {
   }
 
   render() {
-    const recents = this.props.connections.filter((connection) => {
-      return !connection.is_favorite;
-    });
-
+    const recents = this.props.connections
+      .filter((connection) => !connection.isFavorite);
     const clearClassName = 'connect-sidebar-header-recent-clear';
     const clearAllDiv = recents.length > 0
       ? <div onClick={this.onClearConnectionsClicked} className={clearClassName}>Clear All</div>

@@ -11,9 +11,9 @@ describe('<ScramSha256 />', () => {
   describe('#render', () => {
     context('when the form is valid', () => {
       const connection = {
-        mongodb_username: 'user',
-        mongodb_password: 'pass',
-        mongodb_database_name: 'db'
+        mongodbUsername: 'user',
+        mongodbPassword: 'pass',
+        mongodbDatabaseName: 'db'
       };
       const component = mount(
         <ScramSha256 currentConnection={connection} isValid />
@@ -43,8 +43,8 @@ describe('<ScramSha256 />', () => {
     context('when the form is not valid', () => {
       context('when the username is empty', () => {
         const connection = {
-          mongodb_username: '',
-          mongodb_password: 'pass'
+          mongodbUsername: '',
+          mongodbPassword: 'pass'
         };
         const component = mount(
           <ScramSha256 currentConnection={connection} />
@@ -65,8 +65,8 @@ describe('<ScramSha256 />', () => {
 
       context('when the username is null', () => {
         const connection = {
-          mongodb_username: null,
-          mongodb_password: 'pass'
+          mongodbUsername: null,
+          mongodbPassword: 'pass'
         };
         const component = mount(
           <ScramSha256 currentConnection={connection} />
@@ -86,9 +86,7 @@ describe('<ScramSha256 />', () => {
       });
 
       context('when the username is undefined', () => {
-        const connection = {
-          mongodb_password: 'pass'
-        };
+        const connection = { mongodbPassword: 'pass' };
         const component = mount(
           <ScramSha256 currentConnection={connection} />
         );
@@ -107,9 +105,7 @@ describe('<ScramSha256 />', () => {
       });
 
       context('when the password is empty', () => {
-        const connection = {
-          mongodb_password: ''
-        };
+        const connection = { mongodbPassword: '' };
         const component = mount(
           <ScramSha256 currentConnection={connection} />
         );
@@ -128,9 +124,7 @@ describe('<ScramSha256 />', () => {
       });
 
       context('when the password is null', () => {
-        const connection = {
-          mongodb_password: null
-        };
+        const connection = { mongodbPassword: null };
         const component = mount(
           <ScramSha256 currentConnection={connection} />
         );
@@ -149,9 +143,7 @@ describe('<ScramSha256 />', () => {
       });
 
       context('when the password is undefined', () => {
-        const connection = {
-          mongodb_username: 'testing'
-        };
+        const connection = { mongodbUsername: 'testing' };
         const component = mount(
           <ScramSha256 currentConnection={connection} />
         );

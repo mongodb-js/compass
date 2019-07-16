@@ -2,7 +2,6 @@ const React = require('react');
 const Actions = require('../actions');
 
 class AtlasLink extends React.Component {
-
   onLinkClicked() {
     Actions.onVisitAtlasLink();
   }

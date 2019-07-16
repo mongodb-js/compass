@@ -9,7 +9,7 @@ chai.use(chaiEnzyme());
 
 describe('<Favorites />', () => {
   describe('#render', () => {
-    const favorites = [{ name: 'myconn', is_favorite: true }];
+    const favorites = [{ name: 'myconn', isFavorite: true }];
     const component = mount(
       <Favorites currentConnection={{}} connections={favorites} />
     );
@@ -30,7 +30,7 @@ describe('<Favorites />', () => {
       expect(component.find('.connect-sidebar-list-item-name')).to.have.text('myconn');
     });
 
-    it('renders the favorite last_used ', () => {
+    it('renders the favorite lastUsed ', () => {
       expect(component.find('.connect-sidebar-list-item-last-used')).to.have.text('Never');
     });
   });

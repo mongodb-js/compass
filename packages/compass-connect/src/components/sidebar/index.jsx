@@ -6,7 +6,6 @@ const Recents = require('./recents');
 const AtlasLink = require('../atlas-link');
 
 class Sidebar extends React.Component {
-
   render() {
     return (
       <div>

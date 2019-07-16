@@ -3,49 +3,49 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const ReplicaSetNameInput = require('../../lib/components/form/replica-set-name-input');
+const ReplicaSetInput = require('../../lib/components/form/replica-set-input');
 
 chai.use(chaiEnzyme());
 
-describe('<ReplicaSetNameInput />', () => {
+describe('<ReplicaSetInput />', () => {
   describe('#render', () => {
     context('when the ssh tunnel is NONE', () => {
       const component = mount(
-        <ReplicaSetNameInput replicaSetName="myrs" sshTunnel="NONE" />
+        <ReplicaSetInput replicaSet="myrs" sshTunnel="NONE" />
       );
 
       it('renders the replica set name', () => {
-        expect(component.find('input[name="replica_set_name"]')).to.have.value('myrs');
+        expect(component.find('input[name="replicaSet"]')).to.have.value('myrs');
       });
     });
 
     context('when the ssh tunnel is undefined', () => {
       const component = mount(
-        <ReplicaSetNameInput replicaSetName="myrs" />
+        <ReplicaSetInput replicaSet="myrs" />
       );
 
       it('renders the replica set name', () => {
-        expect(component.find('input[name="replica_set_name"]')).to.have.value('myrs');
+        expect(component.find('input[name="replicaSet"]')).to.have.value('myrs');
       });
     });
 
     context('when the ssh tunnel is null', () => {
       const component = mount(
-        <ReplicaSetNameInput replicaSetName="myrs" sshTunnel={null} />
+        <ReplicaSetInput replicaSet="myrs" sshTunnel={null} />
       );
 
       it('renders the replica set name', () => {
-        expect(component.find('input[name="replica_set_name"]')).to.have.value('myrs');
+        expect(component.find('input[name="replicaSet"]')).to.have.value('myrs');
       });
     });
 
     context('when the ssh tunnel is USER_PASSWORD', () => {
       const component = mount(
-        <ReplicaSetNameInput replicaSetName="myrs" sshTunnel="USER_PASSWORD" />
+        <ReplicaSetInput replicaSet="myrs" sshTunnel="USER_PASSWORD" />
       );
 
       it('renders the replica set name', () => {
-        expect(component.find('input[name="replica_set_name"]')).to.not.be.present();
+        expect(component.find('input[name="replicaSet"]')).to.not.be.present();
       });
     });
   });

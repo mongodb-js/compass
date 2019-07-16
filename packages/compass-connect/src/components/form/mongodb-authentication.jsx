@@ -6,7 +6,6 @@ const { FormInput } = require('hadron-react-components');
 const { shell } = require('electron');
 
 class MongoDBAuthentication extends React.Component {
-
   onUsernameChanged(evt) {
     Actions.onUsernameChanged(evt.target.value);
   }
@@ -25,14 +24,14 @@ class MongoDBAuthentication extends React.Component {
 
   getUsernameError() {
     const connection = this.props.currentConnection;
-    if (!this.props.isValid && isEmpty(connection.mongodb_username)) {
+    if (!this.props.isValid && isEmpty(connection.mongodbUsername)) {
       return 'Username is required';
     }
   }
 
   getPasswordError() {
     const connection = this.props.currentConnection;
-    if (!this.props.isValid && isEmpty(connection.mongodb_password)) {
+    if (!this.props.isValid && isEmpty(connection.mongodbPassword)) {
       return 'Password is required';
     }
   }
@@ -45,20 +44,20 @@ class MongoDBAuthentication extends React.Component {
           name="username"
           error={this.getUsernameError()}
           changeHandler={this.onUsernameChanged.bind(this)}
-          value={this.props.currentConnection.mongodb_username || ''} />
+          value={this.props.currentConnection.mongodbUsername || ''} />
         <FormInput
           label="Password"
           name="password"
           type="password"
           error={this.getPasswordError()}
           changeHandler={this.onPasswordChanged.bind(this)}
-          value={this.props.currentConnection.mongodb_password || ''} />
+          value={this.props.currentConnection.mongodbPassword || ''} />
         <FormInput
           label="Authentication Database"
           placeholder="admin"
           name="auth-source"
           changeHandler={this.onAuthSourceChanged.bind(this)}
-          value={this.props.currentConnection.mongodb_database_name || ''}
+          value={this.props.currentConnection.mongodbDatabaseName || ''}
           linkHandler={this.onSourceHelp.bind(this)}/>
       </div>
     );

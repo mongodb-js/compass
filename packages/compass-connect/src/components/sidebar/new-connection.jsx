@@ -3,7 +3,6 @@ const PropTypes = require('prop-types');
 const Actions = require('../../actions');
 
 class NewConnection extends React.Component {
-
   onNewConnectionClicked() {
     Actions.resetConnection();
   }
@@ -11,9 +10,11 @@ class NewConnection extends React.Component {
   getClassName() {
     const connection = this.props.currentConnection;
     let className = 'connect-sidebar-new-connection';
-    if (!connection || (!connection.is_favorite && !connection.last_used)) {
+
+    if (!connection || (!connection.isFavorite && !connection.lastUsed)) {
       className += ' connect-sidebar-new-connection-is-active';
     }
+
     return className;
   }
 

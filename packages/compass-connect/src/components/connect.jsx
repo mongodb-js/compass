@@ -11,7 +11,6 @@ const ConnectForm = require('./form');
 const Actions = require('../actions');
 
 class Connect extends React.Component {
-
   constructor(props) {
     super(props);
     this.dialogOpen = false;
@@ -33,7 +32,9 @@ class Connect extends React.Component {
     const url = shellToURL(clipboardText);
 
     if (url) clipboardText = url;
-    if (clipboardText === this.clipboardText || this.dialogOpen) return;
+    if (clipboardText === this.clipboardText || this.dialogOpen) {
+      return;
+    }
 
     if (Connection.isURI(clipboardText)) {
       this.dialogOpen = true;
@@ -47,6 +48,7 @@ class Connect extends React.Component {
       }, (response) => {
         this.dialogOpen = false;
         this.clipboardText = clipboardText;
+
         if (response === 0) {
           this.autoFillFromClipboard();
         }
@@ -55,13 +57,17 @@ class Connect extends React.Component {
   }
 
   autoFillFromClipboard() {
-    const connection = Connection.from(this.clipboardText);
-    connection.name = '';
+    Connection.from(this.clipboardText, (error, connection) => {
+      if (!error) { // TODO: Handle error
+        connection.name = '';
 
-    if (this.clipboardText.match(/[?&]ssl=true/i)) {
-      connection.ssl = 'SYSTEMCA';
-    }
-    Actions.onConnectionSelected(connection);
+        if (this.clipboardText.match(/[?&]ssl=true/i)) {
+          connection.sslMethod = 'SYSTEMCA';
+        }
+
+        Actions.onConnectionSelected(connection);
+      }
+    });
   }
 
   renderMessage() {
@@ -74,6 +80,7 @@ class Connect extends React.Component {
     } else if (this.props.isConnected) {
       const connection = this.props.currentConnection;
       const server = `${connection.hostname}:${connection.port}`;
+
       return (
         <div className="message success">
           <p>Connected to {server}</p>

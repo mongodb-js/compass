@@ -49,14 +49,16 @@ class FormActions extends React.Component {
 
   getName() {
     const connection = this.props.currentConnection;
-    if (!connection.last_used && !this.isNameChanged && connection.name === DEFAULT_NAME) {
+
+    if (!connection.lastUsed && !this.isNameChanged && connection.name === DEFAULT_NAME) {
       return '';
     }
+
     return connection.name;
   }
 
   renderCreateFavorite() {
-    if (this.getName() !== '' && !this.props.currentConnection.is_favorite) {
+    if (this.getName() !== '' && !this.props.currentConnection.isFavorite) {
       return (
         <button
           type="button"
@@ -69,7 +71,7 @@ class FormActions extends React.Component {
   }
 
   renderDeleteFavorite() {
-    if (this.props.currentConnection.is_favorite) {
+    if (this.props.currentConnection.isFavorite) {
       return (
         <button
           type="button"
@@ -82,7 +84,7 @@ class FormActions extends React.Component {
   }
 
   renderSaveFavorite() {
-    if (this.props.currentConnection.is_favorite) {
+    if (this.props.currentConnection.isFavorite) {
       return (
         <button
           type="button"
@@ -123,7 +125,7 @@ class FormActions extends React.Component {
       <FormGroup id="favorite">
         <FormInput
           label="Favorite Name"
-          name="favorite_name"
+          name="favoriteName"
           placeholder="e.g. Shared Dev, QA Box, PRODUCTION"
           linkHandler={this.onNameHelp.bind(this)}
           changeHandler={this.onNameChanged.bind(this)}

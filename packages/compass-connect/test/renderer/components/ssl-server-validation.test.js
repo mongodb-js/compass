@@ -10,9 +10,7 @@ chai.use(chaiEnzyme());
 describe('<SSLServerValidation />', () => {
   describe('#render', () => {
     context('when the form is valid', () => {
-      const connection = {
-        ssl_ca: ['path/to/file']
-      };
+      const connection = { sslCA: ['path/to/file'] };
       const component = mount(
         <SSLServerValidation currentConnection={connection} isValid />
       );
@@ -28,9 +26,7 @@ describe('<SSLServerValidation />', () => {
 
     context('when the form is invalid', () => {
       context('when the ssl ca is empty', () => {
-        const connection = {
-          ssl_ca: []
-        };
+        const connection = { sslCA: [] };
         const component = mount(
           <SSLServerValidation currentConnection={connection} />
         );
@@ -45,9 +41,7 @@ describe('<SSLServerValidation />', () => {
       });
 
       context('when the ssl ca is null', () => {
-        const connection = {
-          ssl_ca: null
-        };
+        const connection = { sslCA: null };
         const component = mount(
           <SSLServerValidation currentConnection={connection} />
         );

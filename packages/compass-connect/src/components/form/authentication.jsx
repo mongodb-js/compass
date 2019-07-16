@@ -10,32 +10,33 @@ class AuthenticationSection extends React.Component {
   constructor(props) {
     super(props);
     this.setupAuthenticationRoles();
-    this.state = { authenticationMethod: props.currentConnection.authentication };
+    this.state = { authStrategy: props.currentConnection.authStrategy };
   }
 
   componentWillReceiveProps(nextProps) {
-    const authMethod = nextProps.currentConnection.authentication;
-    if (authMethod !== this.state.authenticationMethod) {
-      this.setState({ authenticationMethod: authMethod });
+    const authStrategy = nextProps.currentConnection.authStrategy;
+
+    if (authStrategy !== this.state.authStrategy) {
+      this.setState({ authStrategy });
     }
   }
 
-  onAuthMethodChanged(evt) {
-    this.setState({ authenticationMethod: evt.target.value });
+  onAuthStrategyChanged(evt) {
+    this.setState({ authStrategy: evt.target.value });
     Actions.onAuthenticationMethodChanged(evt.target.value);
   }
 
   setupAuthenticationRoles() {
-    this.roles = global.hadronApp.appRegistry.getRole('Connect.AuthenticationMethod');
-    this.selectOptions = this.roles.map((role) => {
-      return role.selectOption;
-    });
+    this.roles = global.hadronApp.appRegistry.getRole('Connect.AuthStrategy');
+    this.selectOptions = this.roles.map((role) => role.selectOption);
   }
 
-  renderAuthenticationMethod() {
-    const currentRole = find(this.roles, (role) => {
-      return role.name === this.state.authenticationMethod;
-    });
+  renderAuthStrategy() {
+    const currentRole = find(
+      this.roles,
+      (role) => (role.name === this.state.authStrategy)
+    );
+
     if (currentRole.component) {
       return (<currentRole.component {...this.props} />);
     }
@@ -43,14 +44,14 @@ class AuthenticationSection extends React.Component {
 
   render() {
     return (
-      <FormGroup id="authentication" separator>
+      <FormGroup id="authStrategy" separator>
         <FormItemSelect
           label="Authentication"
-          name="authentication"
+          name="authStrategy"
           options={this.selectOptions}
-          changeHandler={this.onAuthMethodChanged.bind(this)}
-          value={this.props.currentConnection.authentication} />
-        {this.renderAuthenticationMethod()}
+          changeHandler={this.onAuthStrategyChanged.bind(this)}
+          value={this.props.currentConnection.authStrategy} />
+        {this.renderAuthStrategy()}
       </FormGroup>
     );
   }

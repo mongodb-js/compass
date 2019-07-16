@@ -9,9 +9,7 @@ chai.use(chaiEnzyme());
 
 describe('<PortInput />', () => {
   describe('#render', () => {
-    const component = mount(
-      <PortInput port="27018" />
-    );
+    const component = mount(<PortInput port="27018" />);
 
     it('renders the port', () => {
       expect(component.find('input[name="port"]')).to.have.value('27018');

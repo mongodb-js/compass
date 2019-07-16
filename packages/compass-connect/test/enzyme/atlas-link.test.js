@@ -9,9 +9,7 @@ chai.use(chaiEnzyme());
 
 describe('<AtlasLink />', () => {
   describe('#render', () => {
-    const component = mount(
-      <AtlasLink />
-    );
+    const component = mount(<AtlasLink />);
 
     it('renders the wrapper div', () => {
       expect(component.find('.connect-atlas-link')).to.be.present();

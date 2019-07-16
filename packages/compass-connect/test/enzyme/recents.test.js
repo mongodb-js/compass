@@ -9,8 +9,7 @@ chai.use(chaiEnzyme());
 
 describe('<Recents />', () => {
   describe('#render', () => {
-    const recents = [{ hostname: 'dev', port: 27000, is_recent: true, is_favorite: false}];
-
+    const recents = [{ hostname: 'dev', port: 27000, is_recent: true, isFavorite: false}];
     const component = mount(
       <Recents currentConnection={{}} connections={recents} />
     );
@@ -39,7 +38,7 @@ describe('<Recents />', () => {
       expect(component.find('.connect-sidebar-list-item-name')).to.have.text('dev:27000');
     });
 
-    it('renders the recent last_used ', () => {
+    it('renders the recent lastUsed ', () => {
       expect(component.find('.connect-sidebar-list-item-last-used')).to.have.text('Never');
     });
   });

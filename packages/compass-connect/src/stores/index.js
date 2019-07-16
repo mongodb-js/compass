@@ -11,19 +11,19 @@ const ipc = require('hadron-ipc');
 const { shell } = require('electron');
 
 /**
- * All the authentication related fields on the connection model, with
+ * All the authentication strategy related fields on the connection model, with
  * the exception of the method.
  */
 const AUTH_FIELDS = [
-  'mongodb_username',
-  'mongodb_password',
-  'mongodb_database_name',
-  'kerberos_principal',
-  'kerberos_password',
-  'kerberos_service_name',
-  'x509_username',
-  'ldap_username',
-  'ldap_password'
+  'mongodbUsername',
+  'mongodbPassword',
+  'mongodbDatabaseName',
+  'kerberosPrincipal',
+  'kerberosPassword',
+  'kerberosServiceName',
+  'x509Username',
+  'ldapUsername',
+  'ldapPassword'
 ];
 
 /**
@@ -31,10 +31,10 @@ const AUTH_FIELDS = [
  * of the method.
  */
 const SSL_FIELDS = [
-  'ssl_ca',
-  'ssl_certificate',
-  'ssl_private_key',
-  'ssl_private_key_password'
+  'sslCA',
+  'sslCert',
+  'sslKey',
+  'sslPass'
 ];
 
 /**
@@ -42,14 +42,14 @@ const SSL_FIELDS = [
  * exception of the method.
  */
 const SSH_TUNNEL_FIELDS = [
-  'ssh_tunnel_hostname',
-  'ssh_tunnel_port',
-  'ssh_tunnel_bind_to_local_port',
-  'ssh_tunnel_username',
-  'ssh_tunnel_password',
-  'ssh_tunnel_identity_file',
-  'ssh_tunnel_passphrase',
-  'replica_set_name'
+  'sshTunnelHostname',
+  'sshTunnelPort',
+  'sshTunnelBindToLocalPort',
+  'sshTunnelUsername',
+  'sshTunnelPassword',
+  'sshTunnelIdentityFile',
+  'sshTunnelPassphrase',
+  'replicaSet'
 ];
 
 /**
@@ -72,7 +72,6 @@ const LEARN_MORE = 'https://www.mongodb.com/cloud/atlas';
  */
 const ConnectStore = Reflux.createStore({
   mixins: [StateMixin.store],
-
   listenables: Actions,
 
   /**
@@ -114,13 +113,13 @@ const ConnectStore = Reflux.createStore({
   },
 
   /**
-   * Changes the auth method.
+   * Changes authStrategy
    *
-   * @param {String} method - The auth method.
+   * @param {String} method - The auth strategy.
    */
   onAuthenticationMethodChanged(method) {
     this._clearAuthFields();
-    this.state.currentConnection.authentication = method;
+    this.state.currentConnection.authStrategy = method;
     this.trigger(this.state);
   },
 
@@ -130,7 +129,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} username - The username.
    */
   onUsernameChanged(username) {
-    this.state.currentConnection.mongodb_username = username;
+    this.state.currentConnection.mongodbUsername = username;
     this.trigger(this.state);
   },
 
@@ -140,7 +139,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} password - The password.
    */
   onPasswordChanged(password) {
-    this.state.currentConnection.mongodb_password = password;
+    this.state.currentConnection.mongodbPassword = password;
     this.trigger(this.state);
   },
 
@@ -150,7 +149,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} authSource - The auth source.
    */
   onAuthSourceChanged(authSource) {
-    this.state.currentConnection.mongodb_database_name = authSource;
+    this.state.currentConnection.mongodbDatabaseName = authSource;
     this.trigger(this.state);
   },
 
@@ -162,9 +161,11 @@ const ConnectStore = Reflux.createStore({
    */
   onHostnameChanged(hostname) {
     this.state.currentConnection.hostname = hostname.trim();
+
     if (hostname.match(/mongodb\.net/i)) {
-      this.state.currentConnection.ssl = 'SYSTEMCA';
+      this.state.currentConnection.sslMethod = 'SYSTEMCA';
     }
+
     this.trigger(this.state);
   },
 
@@ -192,17 +193,17 @@ const ConnectStore = Reflux.createStore({
    * @param {String} readPreference - The read preference.
    */
   onReadPreferenceChanged(readPreference) {
-    this.state.currentConnection.read_preference = readPreference;
+    this.state.currentConnection.readPreference = readPreference;
     this.trigger(this.state);
   },
 
   /**
    * Change the replica set name.
    *
-   * @param {String} replicaSetName - The replica set name.
+   * @param {String} replicaSet - The replica set name.
    */
-  onReplicaSetNameChanged(replicaSetName) {
-    this.state.currentConnection.replica_set_name = replicaSetName.trim();
+  onReplicaSetChanged(replicaSet) {
+    this.state.currentConnection.replicaSet = replicaSet.trim();
     this.trigger(this.state);
   },
 
@@ -213,7 +214,7 @@ const ConnectStore = Reflux.createStore({
    */
   onSSLMethodChanged(method) {
     this._clearSSLFields();
-    this.state.currentConnection.ssl = method;
+    this.state.currentConnection.sslMethod = method;
     this.trigger(this.state);
   },
 
@@ -223,7 +224,7 @@ const ConnectStore = Reflux.createStore({
    * @param {Array} files - The files.
    */
   onSSLCAChanged(files) {
-    this.state.currentConnection.ssl_ca = files;
+    this.state.currentConnection.sslCA = files;
     this.trigger(this.state);
   },
 
@@ -233,7 +234,7 @@ const ConnectStore = Reflux.createStore({
    * @param {Array} files - The files.
    */
   onSSLCertificateChanged(files) {
-    this.state.currentConnection.ssl_certificate = files;
+    this.state.currentConnection.sslCert = files;
     this.trigger(this.state);
   },
 
@@ -243,7 +244,7 @@ const ConnectStore = Reflux.createStore({
    * @param {Array} files - The files.
    */
   onSSLPrivateKeyChanged(files) {
-    this.state.currentConnection.ssl_private_key = files;
+    this.state.currentConnection.sslKey = files;
     this.trigger(this.state);
   },
 
@@ -253,7 +254,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} password - The password.
    */
   onSSLPrivateKeyPasswordChanged(password) {
-    this.state.currentConnection.ssl_private_key_password = password;
+    this.state.currentConnection.sslPass = password;
     this.trigger(this.state);
   },
 
@@ -272,7 +273,7 @@ const ConnectStore = Reflux.createStore({
    */
   onCreateFavorite() {
     const connection = this.state.currentConnection;
-    connection.is_favorite = true;
+    connection.isFavorite = true;
     this._addConnection(connection);
   },
 
@@ -281,7 +282,7 @@ const ConnectStore = Reflux.createStore({
    */
   onCreateRecent() {
     const connection = this.state.currentConnection;
-    connection.last_used = new Date();
+    connection.lastUsed = new Date();
     this._pruneRecents(() => {
       this._addConnection(connection);
     });
@@ -334,7 +335,7 @@ const ConnectStore = Reflux.createStore({
    */
   onSSHTunnelChanged(tunnel) {
     this._clearSSHTunnelFields();
-    this.state.currentConnection.ssh_tunnel = tunnel;
+    this.state.currentConnection.sshTunnel = tunnel;
     this.trigger(this.state);
   },
 
@@ -344,7 +345,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} password - The password.
    */
   onSSHTunnelPasswordChanged(password) {
-    this.state.currentConnection.ssh_tunnel_password = password;
+    this.state.currentConnection.sshTunnelPassword = password;
     this.trigger(this.state);
   },
 
@@ -354,7 +355,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} passphrase - The passphrase.
    */
   onSSHTunnelPassphraseChanged(passphrase) {
-    this.state.currentConnection.ssh_tunnel_passphrase = passphrase;
+    this.state.currentConnection.sshTunnelPassphrase = passphrase;
     this.trigger(this.state);
   },
 
@@ -364,7 +365,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} hostname - The hostname.
    */
   onSSHTunnelHostnameChanged(hostname) {
-    this.state.currentConnection.ssh_tunnel_hostname = hostname;
+    this.state.currentConnection.sshTunnelHostname = hostname;
     this.trigger(this.state);
   },
 
@@ -374,7 +375,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} username - The username.
    */
   onSSHTunnelUsernameChanged(username) {
-    this.state.currentConnection.ssh_tunnel_username = username;
+    this.state.currentConnection.sshTunnelUsername = username;
     this.trigger(this.state);
   },
 
@@ -384,7 +385,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} port - The port.
    */
   onSSHTunnelPortChanged(port) {
-    this.state.currentConnection.ssh_tunnel_port = port;
+    this.state.currentConnection.sshTunnelPort = port;
     this.trigger(this.state);
   },
 
@@ -394,7 +395,7 @@ const ConnectStore = Reflux.createStore({
    * @param {Array} files - The file.
    */
   onSSHTunnelIdentityFileChanged(files) {
-    this.state.currentConnection.ssh_tunnel_identity_file = files;
+    this.state.currentConnection.sshTunnelIdentityFile = files;
     this.trigger(this.state);
   },
 
@@ -418,6 +419,7 @@ const ConnectStore = Reflux.createStore({
    */
   onConnect() {
     const connection = this.state.currentConnection;
+
     if (!connection.isValid()) {
       this.setState({ isValid: false });
     } else {
@@ -430,6 +432,7 @@ const ConnectStore = Reflux.createStore({
           this.StatusActions.done();
           return this.setState({ isValid: false, errorMessage: err.message });
         }
+
         // @note: onCreateRecent will handle the store triggering, no need to do
         //   it twice.
         this.state.isValid = true;
@@ -471,17 +474,21 @@ const ConnectStore = Reflux.createStore({
   },
 
   /**
-   * Update default values for the connection depending on the authentication
+   * Update default values for the connection depending on the authentication strategy
    * method and database values.
    *
    * @todo: Add tests for this.
    */
   updateDefaults() {
     const connection = this.state.currentConnection;
-    if ((connection.authentication === 'MONGODB' || connection.authentication === 'SCRAM-SHA-256') && isEmpty(connection.mongodb_database_name)) {
-      connection.mongodb_database_name = 'admin';
-    } else if (connection.authentication === 'KERBEROS' && isEmpty(connection.kerberos_service_name)) {
-      connection.kerberos_service_name = 'mongodb';
+
+    if (
+      (connection.authStrategy === 'MONGODB' || connection.authStrategy === 'SCRAM-SHA-256') &&
+      isEmpty(connection.mongodbDatabaseName)
+    ) {
+      connection.mongodbDatabaseName = 'admin';
+    } else if (connection.authStrategy === 'KERBEROS' && isEmpty(connection.kerberosServiceName)) {
+      connection.kerberosServiceName = 'mongodb';
     }
   },
 
@@ -525,9 +532,9 @@ const ConnectStore = Reflux.createStore({
   },
 
   _pruneAll(done) {
-    const recents = this.state.connections.filter((connection) => {
-      return !connection.is_favorite;
-    });
+    const recents = this.state.connections
+      .filter((connection) => !connection.isFavorite);
+
     for (let i = 0; i < recents.length; i++) {
       recents[i].destroy({
         success: () => {
@@ -535,23 +542,27 @@ const ConnectStore = Reflux.createStore({
         }
       });
     }
+
     done();
   },
 
   _pruneRecents(done) {
-    const recents = this.state.connections.filter((connection) => {
-      return !connection.is_favorite;
-    });
+    const recents = this.state.connections
+      .filter((connection) => !connection.isFavorite);
+
     if (recents.length === 10) {
-      const sortedRecents = sortBy(recents, 'last_used');
+      const sortedRecents = sortBy(recents, 'lastUsed');
       const toDelete = sortedRecents[9];
+
       toDelete.destroy({
         success: () => {
           this.state.connections.remove(toDelete._id);
+
           return done();
         }
       });
     }
+
     done();
   }
 });

@@ -11,7 +11,6 @@ const HIDDEN = 'showHiddenFiles';
 const MULTI = 'multiSelections';
 
 class FormFileInput extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = { values: props.values };
@@ -20,22 +19,28 @@ class FormFileInput extends React.Component {
   onClick(evt) {
     evt.preventDefault();
     evt.stopPropagation();
+
     const properties = [ OPEN, HIDDEN ];
+
     if (this.props.multi) {
       properties.push(MULTI);
     }
-    const options = { properties: properties };
-    dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), options, (files) => {
-      this.props.changeHandler(files);
-      this.setState({ values: files });
+
+    const options = { properties };
+
+    dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), options, (values) => {
+      this.props.changeHandler(values);
+      this.setState({ values });
     });
   }
 
   getClassName() {
     const className = 'form-item';
+
     if (this.props.error) {
       return `${className} form-item-has-error`;
     }
+
     return className;
   }
 
@@ -51,6 +56,7 @@ class FormFileInput extends React.Component {
     if (this.state.values && this.state.values.length > 0) {
       return this.renderFileNames();
     }
+
     return this.props.multi ? 'Select files...' : 'Select a file...';
   }
 
@@ -71,9 +77,8 @@ class FormFileInput extends React.Component {
   }
 
   renderFileNames() {
-    const baseFiles = this.state.values.map((file) => {
-      return path.basename(file);
-    });
+    const baseFiles = this.state.values.map((file) => path.basename(file));
+
     return baseFiles.join(', ');
   }
 
@@ -86,14 +91,17 @@ class FormFileInput extends React.Component {
   }
 
   render() {
-    const tooltipOptions = this.props.error ? {
-      'data-for': this.getErrorId(),
-      'data-effect': 'solid',
-      'data-place': 'bottom',
-      'data-offset': "{'bottom': -2}",
-      'data-tip': this.props.error,
-      'data-type': 'error'
-    } : {};
+    const tooltipOptions = this.props.error
+      ? {
+        'data-for': this.getErrorId(),
+        'data-effect': 'solid',
+        'data-place': 'bottom',
+        'data-offset': "{'bottom': -2}",
+        'data-tip': this.props.error,
+        'data-type': 'error'
+      }
+      : {};
+
     return (
       <div className={this.getClassName()}>
         <label>
@@ -127,10 +135,7 @@ FormFileInput.propTypes = {
   error: PropTypes.string
 };
 
-FormFileInput.defaultProps = {
-  values: []
-};
-
+FormFileInput.defaultProps = { values: [] };
 FormFileInput.displayName = 'FormFileInput';
 
 module.exports = FormFileInput;

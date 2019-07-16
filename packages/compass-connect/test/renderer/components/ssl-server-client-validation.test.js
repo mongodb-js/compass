@@ -11,10 +11,10 @@ describe('<SSLServerClientValidation />', () => {
   describe('#render', () => {
     context('when the form is valid', () => {
       const connection = {
-        ssl_ca: ['path/to/ca'],
-        ssl_certificate: ['path/to/cert'],
-        ssl_private_key: ['path/to/key'],
-        ssl_private_key_password: 'testing'
+        sslCA: ['path/to/ca'],
+        sslCert: ['path/to/cert'],
+        sslKey: ['path/to/key'],
+        sslPass: 'testing'
       };
       const component = mount(
         <SSLServerClientValidation currentConnection={connection} isValid />
@@ -25,28 +25,28 @@ describe('<SSLServerClientValidation />', () => {
       });
 
       it('renders the ssl ca button', () => {
-        expect(component.find('#ssl_ca').hostNodes()).to.have.text('ca');
+        expect(component.find('#sslCA').hostNodes()).to.have.text('ca');
       });
 
       it('renders the ssl certificate button', () => {
-        expect(component.find('#ssl_certificate').hostNodes()).to.have.text('cert');
+        expect(component.find('#sslCert').hostNodes()).to.have.text('cert');
       });
 
       it('renders the ssl private key button', () => {
-        expect(component.find('#ssl_private_key').hostNodes()).to.have.text('key');
+        expect(component.find('#sslKey').hostNodes()).to.have.text('key');
       });
 
       it('renders the ssl private key password', () => {
-        expect(component.find('input[name="ssl_private_key_password"]')).to.have.value('testing');
+        expect(component.find('input[name="sslPass"]')).to.have.value('testing');
       });
     });
 
     context('when the form is invalid', () => {
       context('when the ssl ca is empty', () => {
         const connection = {
-          ssl_ca: [],
-          ssl_certificate: ['path/to/cert'],
-          ssl_private_key: ['path/to/key']
+          sslCA: [],
+          sslCert: ['path/to/cert'],
+          sslKey: ['path/to/key']
         };
         const component = mount(
           <SSLServerClientValidation currentConnection={connection} />
@@ -63,9 +63,9 @@ describe('<SSLServerClientValidation />', () => {
 
       context('when the ssl ca is null', () => {
         const connection = {
-          ssl_ca: null,
-          ssl_certificate: ['path/to/cert'],
-          ssl_private_key: ['path/to/key']
+          sslCA: null,
+          sslCert: ['path/to/cert'],
+          sslKey: ['path/to/key']
         };
         const component = mount(
           <SSLServerClientValidation currentConnection={connection} />
@@ -82,8 +82,8 @@ describe('<SSLServerClientValidation />', () => {
 
       context('when the ssl ca is undefined', () => {
         const connection = {
-          ssl_certificate: ['path/to/cert'],
-          ssl_private_key: ['path/to/key']
+          sslCert: ['path/to/cert'],
+          sslKey: ['path/to/key']
         };
         const component = mount(
           <SSLServerClientValidation currentConnection={connection} />
@@ -100,9 +100,9 @@ describe('<SSLServerClientValidation />', () => {
 
       context('when the ssl certificate is empty', () => {
         const connection = {
-          ssl_ca: ['path/to/ca'],
-          ssl_certificate: [],
-          ssl_private_key: ['path/to/key']
+          sslCA: ['path/to/ca'],
+          sslCert: [],
+          sslKey: ['path/to/key']
         };
         const component = mount(
           <SSLServerClientValidation currentConnection={connection} />
@@ -119,9 +119,9 @@ describe('<SSLServerClientValidation />', () => {
 
       context('when the ssl certificate is null', () => {
         const connection = {
-          ssl_ca: ['path/to/ca'],
-          ssl_certificate: null,
-          ssl_private_key: ['path/to/key']
+          sslCA: ['path/to/ca'],
+          sslCert: null,
+          sslKey: ['path/to/key']
         };
         const component = mount(
           <SSLServerClientValidation currentConnection={connection} />
@@ -138,8 +138,8 @@ describe('<SSLServerClientValidation />', () => {
 
       context('when the ssl certificate is undefined', () => {
         const connection = {
-          ssl_ca: ['path/to/ca'],
-          ssl_private_key: ['path/to/key']
+          sslCA: ['path/to/ca'],
+          sslKey: ['path/to/key']
         };
         const component = mount(
           <SSLServerClientValidation currentConnection={connection} />
@@ -156,9 +156,9 @@ describe('<SSLServerClientValidation />', () => {
 
       context('when the ssl private key is empty', () => {
         const connection = {
-          ssl_ca: ['path/to/ca'],
-          ssl_private_key: [],
-          ssl_certificate: ['path/to/cert']
+          sslCA: ['path/to/ca'],
+          sslKey: [],
+          sslCert: ['path/to/cert']
         };
         const component = mount(
           <SSLServerClientValidation currentConnection={connection} />
@@ -175,9 +175,9 @@ describe('<SSLServerClientValidation />', () => {
 
       context('when the ssl private key is null', () => {
         const connection = {
-          ssl_ca: ['path/to/ca'],
-          ssl_private_key: null,
-          ssl_certificate: ['path/to/cert']
+          sslCA: ['path/to/ca'],
+          sslKey: null,
+          sslCert: ['path/to/cert']
         };
         const component = mount(
           <SSLServerClientValidation currentConnection={connection} />
@@ -194,8 +194,8 @@ describe('<SSLServerClientValidation />', () => {
 
       context('when the ssl private key is undefined', () => {
         const connection = {
-          ssl_ca: ['path/to/ca'],
-          ssl_certificate: ['path/to/cert']
+          sslCA: ['path/to/ca'],
+          sslCert: ['path/to/cert']
         };
         const component = mount(
           <SSLServerClientValidation currentConnection={connection} />

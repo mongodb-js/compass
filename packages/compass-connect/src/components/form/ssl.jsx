@@ -6,15 +6,15 @@ const FormItemSelect = require('./form-item-select');
 const FormGroup = require('./form-group');
 
 class SSLSection extends React.Component {
-
   constructor(props) {
     super(props);
     this.setupSSLRoles();
-    this.state = { sslMethod: props.currentConnection.ssl };
+    this.state = { sslMethod: props.currentConnection.sslMethod };
   }
 
   componentWillReceiveProps(nextProps) {
-    const sslMethod = nextProps.currentConnection.ssl;
+    const sslMethod = nextProps.currentConnection.sslMethod;
+
     if (sslMethod !== this.state.sslMethod) {
       this.setState({ sslMethod: sslMethod });
     }
@@ -27,15 +27,15 @@ class SSLSection extends React.Component {
 
   setupSSLRoles() {
     this.roles = global.hadronApp.appRegistry.getRole('Connect.SSLMethod');
-    this.selectOptions = this.roles.map((role) => {
-      return role.selectOption;
-    });
+    this.selectOptions = this.roles.map((role) => role.selectOption);
   }
 
   renderSSLMethod() {
-    const currentRole = find(this.roles, (role) => {
-      return role.name === this.state.sslMethod;
-    });
+    const currentRole = find(
+      this.roles,
+      (role) => (role.name === this.state.sslMethod)
+    );
+
     if (currentRole.component) {
       return (<currentRole.component {...this.props} />);
     }
@@ -43,13 +43,13 @@ class SSLSection extends React.Component {
 
   render() {
     return (
-      <FormGroup id="ssl" separator>
+      <FormGroup id="sslMethod" separator>
         <FormItemSelect
           label="SSL"
-          name="ssl"
+          name="sslMethod"
           options={this.selectOptions}
           changeHandler={this.onSSLMethodChanged.bind(this)}
-          value={this.props.currentConnection.ssl} />
+          value={this.props.currentConnection.sslMethod} />
         {this.renderSSLMethod()}
       </FormGroup>
     );

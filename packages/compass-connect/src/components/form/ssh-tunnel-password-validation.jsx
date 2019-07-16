@@ -9,7 +9,6 @@ const FormGroup = require('./form-group');
 const DEFAULT_SSH_TUNNEL_PORT = 22;
 
 class SSHTunnelPasswordValidation extends React.Component {
-
   constructor(props) {
     super(props);
     this.isSSHTunnelPortChanged = false;
@@ -29,11 +28,13 @@ class SSHTunnelPasswordValidation extends React.Component {
 
   onSSHTunnelPortChanged(evt) {
     const value = evt.target.value;
+
     if (value === '') {
       this.isSSHTunnelPortChanged = false;
     } else {
       this.isSSHTunnelPortChanged = true;
     }
+
     Actions.onSSHTunnelPortChanged(value);
   }
 
@@ -43,33 +44,37 @@ class SSHTunnelPasswordValidation extends React.Component {
 
   getPort() {
     const connection = this.props.currentConnection;
-    if (!connection.last_used && !this.isSSHTunnelPortChanged &&
-        connection.ssh_tunnel_port === DEFAULT_SSH_TUNNEL_PORT) {
+
+    if (
+      !connection.lastUsed && !this.isSSHTunnelPortChanged &&
+      connection.sshTunnelPort === DEFAULT_SSH_TUNNEL_PORT
+    ) {
       return '';
     }
-    return connection.ssh_tunnel_port;
+
+    return connection.sshTunnelPort;
   }
 
   getHostnameError() {
-    if (this._isInvalid(this.props.currentConnection.ssh_tunnel_hostname)) {
+    if (this._isInvalid(this.props.currentConnection.sshTunnelHostname)) {
       return 'SSH hostname is required';
     }
   }
 
   getPortError() {
-    if (this._isInvalid(this.props.currentConnection.ssh_tunnel_port)) {
+    if (this._isInvalid(this.props.currentConnection.sshTunnelPort)) {
       return 'SSH tunnel port is required';
     }
   }
 
   getUsernameError() {
-    if (this._isInvalid(this.props.currentConnection.ssh_tunnel_username)) {
+    if (this._isInvalid(this.props.currentConnection.sshTunnelUsername)) {
       return 'SSH username is required';
     }
   }
 
   getPasswordError() {
-    if (this._isInvalid(this.props.currentConnection.ssh_tunnel_password)) {
+    if (this._isInvalid(this.props.currentConnection.sshTunnelPassword)) {
       return 'SSH password is required';
     }
   }
@@ -80,33 +85,33 @@ class SSHTunnelPasswordValidation extends React.Component {
 
   render() {
     return (
-      <FormGroup id="ssh_tunnel_password">
+      <FormGroup id="sshTunnelPassword">
         <FormInput
           label="SSH Hostname"
-          name="ssh_tunnel_hostname"
+          name="sshTunnelHostname"
           error={this.getHostnameError()}
           changeHandler={this.onSSHTunnelHostnameChanged.bind(this)}
-          value={this.props.currentConnection.ssh_tunnel_hostname || ''}
+          value={this.props.currentConnection.sshTunnelHostname || ''}
           linkHandler={this.onHostnameHelp.bind(this)} />
         <FormInput
           label="SSH Tunnel Port"
-          name="ssh_tunnel_port"
+          name="sshTunnelPort"
           error={this.getPortError()}
           changeHandler={this.onSSHTunnelPortChanged.bind(this)}
           value={this.getPort()} />
         <FormInput
           label="SSH Username"
-          name="ssh_tunnel_username"
+          name="sshTunnelUsername"
           error={this.getUsernameError()}
           changeHandler={this.onSSHTunnelUsernameChanged.bind(this)}
-          value={this.props.currentConnection.ssh_tunnel_username || ''} />
+          value={this.props.currentConnection.sshTunnelUsername || ''} />
         <FormInput
           label="SSH Password"
-          name="ssh_tunnel_password"
+          name="sshTunnelPassword"
           type="password"
           error={this.getPasswordError()}
           changeHandler={this.onSSHTunnelPasswordChanged.bind(this)}
-          value={this.props.currentConnection.ssh_tunnel_password || ''} />
+          value={this.props.currentConnection.sshTunnelPassword || ''} />
       </FormGroup>
     );
   }

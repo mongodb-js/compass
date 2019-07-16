@@ -7,33 +7,37 @@ const Actions = require('../../actions');
 const TWO_DAYS = 24 * 60 * 60 * 1000;
 
 class Favorites extends React.Component {
-
   onFavoriteClicked(favorite) {
     Actions.onConnectionSelected(favorite);
   }
 
   getClassName(favorite) {
     let className = 'connect-sidebar-list-item';
+
     if (this.props.currentConnection === favorite) {
       className += ' connect-sidebar-list-item-is-active';
     }
+
     return className;
   }
 
   formatLastUsed(model) {
-    if (!model.last_used) return 'Never';
-    if ((new Date() - model.last_used) < TWO_DAYS) {
-      return moment(model.last_used).fromNow();
+    if (!model.lastUsed) return 'Never';
+
+    if ((new Date() - model.lastUsed) < TWO_DAYS) {
+      return moment(model.lastUsed).fromNow();
     }
-    return moment(model.last_used).format('lll');
+
+    return moment(model.lastUsed).format('lll');
   }
 
   renderFavorites() {
-    const favorites = this.props.connections.filter((connection) => {
-      return connection.is_favorite;
-    });
+    const favorites = this.props.connections
+      .filter((connection) => connection.isFavorite);
+
     return map(favorites, (favorite, i) => {
       const title = `${favorite.hostname}:${favorite.port}`;
+
       return (
         <li
           className={this.getClassName(favorite)}

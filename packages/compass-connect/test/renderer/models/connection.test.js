@@ -4,24 +4,22 @@ const Connection = require('../../../lib/models/connection');
 describe('Connection', () => {
   describe('#new', () => {
     const date = new Date();
-    const connection = new Connection({
-      last_used: date
-    });
+    const connection = new Connection({ lastUsed: date });
 
     it('adds an _id field to the model', () => {
       expect(connection._id).to.not.equal(null);
     });
 
-    it('adds a last_used field to the model', () => {
-      expect(connection.last_used).to.deep.equal(date);
+    it('adds a lastUsed field to the model', () => {
+      expect(connection.lastUsed).to.deep.equal(date);
     });
 
-    it('adds an is_favorite field to the model', () => {
-      expect(connection.is_favorite).to.equal(false);
+    it('adds an isFavorite field to the model', () => {
+      expect(connection.isFavorite).to.equal(false);
     });
 
-    it('sets the correct app_name', () => {
-      expect(connection.app_name).to.equal('Electron');
+    it('sets the correct appname', () => {
+      expect(connection.appname).to.equal('Electron');
     });
   });
 
@@ -36,55 +34,58 @@ describe('Connection', () => {
 
     context('when auth is MONGODB', () => {
       const connection = new Connection({
-        authentication: 'MONGODB',
-        mongodb_username: 'testing'
+        authStrategy: 'MONGODB',
+        mongodbUsername: 'testing'
       });
 
-      it('returns the mongodb_username', () => {
+      it('returns the mongodbUsername', () => {
         expect(connection.username).to.equal('testing');
       });
     });
 
     context('when auth is KERBEROS', () => {
       const connection = new Connection({
-        authentication: 'KERBEROS',
-        kerberos_principal: 'testing'
+        authStrategy: 'KERBEROS',
+        kerberosPrincipal: 'testing'
       });
 
-      it('returns the kerberos_principal', () => {
+      it('returns the kerberosPrincipal', () => {
         expect(connection.username).to.equal('testing');
       });
     });
 
     context('when auth is X509', () => {
       const connection = new Connection({
-        authentication: 'X509',
-        x509_username: 'testing'
+        authStrategy: 'X509',
+        x509Username: 'testing'
       });
 
-      it('returns the x509_username', () => {
+      it('returns the x509Username', () => {
         expect(connection.username).to.equal('testing');
       });
     });
 
     context('when auth is LDAP', () => {
       const connection = new Connection({
-        authentication: 'LDAP',
-        ldap_username: 'testing'
+        authStrategy: 'LDAP',
+        ldapUsername: 'testing'
       });
 
-      it('returns the ldap_username', () => {
+      it('returns the ldapUsername', () => {
         expect(connection.username).to.equal('testing');
       });
     });
   });
 
   describe('.from', () => {
-    const uri = 'mongodb://user:pass@127.0.0.1:27018/db?authSource=test';
-    const connection = Connection.from(uri);
+    it('returns the subclassed connection model', (done) => {
+      const uri = 'mongodb://user:pass@127.0.0.1:27018/db?authSource=test';
 
-    it('returns the subclassed connection model', () => {
-      expect(connection.username).to.equal('user');
+      Connection.from(uri, (error, connection) => {
+        expect(error).to.not.exist;
+        expect(connection.username).to.equal('user');
+        done();
+      });
     });
   });
 });

@@ -5,14 +5,14 @@ const Actions = require('../../actions');
 const FormFileInput = require('./form-file-input');
 
 class SSLServerValidation extends React.Component {
-
   onSSLCAChanged(path) {
     Actions.onSSLCAChanged(path);
   }
 
   getError() {
     const connection = this.props.currentConnection;
-    if (!this.props.isValid && isEmpty(connection.ssl_ca)) {
+
+    if (!this.props.isValid && isEmpty(connection.sslCA)) {
       return 'Certificate authority is required';
     }
   }
@@ -23,7 +23,7 @@ class SSLServerValidation extends React.Component {
         <FormFileInput
           label="Certificate Authority"
           changeHandler={this.onSSLCAChanged.bind(this)}
-          values={this.props.currentConnection.ssl_ca}
+          values={this.props.currentConnection.sslCA}
           error={this.getError()}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities"
           multi />

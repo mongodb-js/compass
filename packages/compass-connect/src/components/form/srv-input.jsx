@@ -4,7 +4,6 @@ const Switch = require('react-ios-switch');
 const Actions = require('../../actions');
 
 class SRVInput extends React.PureComponent {
-
   onSRVRecordToggle() {
     Actions.onSRVRecordToggle();
   }

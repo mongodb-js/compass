@@ -8,7 +8,7 @@ const ConnectionCollection = Collection.extend(storageMixin, {
   namespace: 'Connections',
   storage: {
     backend: 'splice',
-    appName: electronApp.getName()
+    appname: electronApp.getName()
   },
   mainIndex: '_id'
 });

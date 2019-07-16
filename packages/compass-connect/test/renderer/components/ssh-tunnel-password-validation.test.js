@@ -11,10 +11,10 @@ describe('<SSHTunnelPassword />', () => {
   describe('#render', () => {
     context('when the form is valid', () => {
       const connection = {
-        ssh_tunnel_hostname: 'localhost',
-        ssh_tunnel_port: 22,
-        ssh_tunnel_username: 'user',
-        ssh_tunnel_password: 'password'
+        sshTunnelHostname: 'localhost',
+        sshTunnelPort: 22,
+        sshTunnelUsername: 'user',
+        sshTunnelPassword: 'password'
       };
       const component = mount(
         <SSHTunnelPassword currentConnection={connection} isValid />
@@ -25,24 +25,24 @@ describe('<SSHTunnelPassword />', () => {
       });
 
       it('renders the hostname input', () => {
-        expect(component.find('input[name="ssh_tunnel_hostname"]')).to.have.value('localhost');
+        expect(component.find('input[name="sshTunnelHostname"]')).to.have.value('localhost');
       });
 
       it('renders the username input', () => {
-        expect(component.find('input[name="ssh_tunnel_username"]')).to.have.value('user');
+        expect(component.find('input[name="sshTunnelUsername"]')).to.have.value('user');
       });
 
       it('renders the password input', () => {
-        expect(component.find('input[name="ssh_tunnel_password"]')).to.have.value('password');
+        expect(component.find('input[name="sshTunnelPassword"]')).to.have.value('password');
       });
     });
 
     context('when the form is invalid', () => {
       context('when the hostname is empty', () => {
         const connection = {
-          ssh_tunnel_port: 22,
-          ssh_tunnel_username: 'user',
-          ssh_tunnel_password: 'password'
+          sshTunnelPort: 22,
+          sshTunnelUsername: 'user',
+          sshTunnelPassword: 'password'
         };
         const component = mount(
           <SSHTunnelPassword currentConnection={connection} />
@@ -59,9 +59,9 @@ describe('<SSHTunnelPassword />', () => {
 
       context('when the port is empty', () => {
         const connection = {
-          ssh_tunnel_hostname: 'localhost',
-          ssh_tunnel_username: 'user',
-          ssh_tunnel_password: 'password'
+          sshTunnelHostname: 'localhost',
+          sshTunnelUsername: 'user',
+          sshTunnelPassword: 'password'
         };
         const component = mount(
           <SSHTunnelPassword currentConnection={connection} />
@@ -78,9 +78,9 @@ describe('<SSHTunnelPassword />', () => {
 
       context('when the username is empty', () => {
         const connection = {
-          ssh_tunnel_hostname: 'localhost',
-          ssh_tunnel_port: 22,
-          ssh_tunnel_password: 'password'
+          sshTunnelHostname: 'localhost',
+          sshTunnelPort: 22,
+          sshTunnelPassword: 'password'
         };
         const component = mount(
           <SSHTunnelPassword currentConnection={connection} />
@@ -97,9 +97,9 @@ describe('<SSHTunnelPassword />', () => {
 
       context('when the password is empty', () => {
         const connection = {
-          ssh_tunnel_hostname: 'localhost',
-          ssh_tunnel_port: 22,
-          ssh_tunnel_username: 'user'
+          sshTunnelHostname: 'localhost',
+          sshTunnelPort: 22,
+          sshTunnelUsername: 'user'
         };
         const component = mount(
           <SSHTunnelPassword currentConnection={connection} />

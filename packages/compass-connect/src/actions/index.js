@@ -5,7 +5,7 @@ const ConnectActions = Reflux.createActions({
   'onHostnameChanged': { sync: true },
   'onPortChanged': { sync: true },
   'onReadPreferenceChanged': { sync: true },
-  'onReplicaSetNameChanged': { sync: true },
+  'onReplicaSetChanged': { sync: true },
   'onAuthenticationMethodChanged': { sync: true },
   'onUsernameChanged': { sync: true },
   'onPasswordChanged': { sync: true },

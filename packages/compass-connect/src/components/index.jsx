@@ -5,7 +5,6 @@ const Store = require('../stores');
 const Actions = require('../actions');
 
 class ConnectedConnect extends React.Component {
-
   /**
    * Connect Connect Component to store and render.
    *

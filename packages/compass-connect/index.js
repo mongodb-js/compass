@@ -125,9 +125,9 @@ function activate(appRegistry) {
   appRegistry.registerRole('Connect.SSHTunnelMethod', NO_SSH_TUNNEL_ROLE);
   appRegistry.registerRole('Connect.SSHTunnelMethod', PASSWORD_SSH_TUNNEL_ROLE);
   appRegistry.registerRole('Connect.SSHTunnelMethod', IDENTITY_FILE_SSH_TUNNEL_ROLE);
-  appRegistry.registerRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
-  appRegistry.registerRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
-  appRegistry.registerRole('Connect.AuthenticationMethod', SCRAM_SHA_256_AUTH_ROLE);
+  appRegistry.registerRole('Connect.AuthStrategy', NO_AUTH_ROLE);
+  appRegistry.registerRole('Connect.AuthStrategy', MONGODB_AUTH_ROLE);
+  appRegistry.registerRole('Connect.AuthStrategy', SCRAM_SHA_256_AUTH_ROLE);
   appRegistry.registerAction('Connect.Actions', ConnectActions);
   appRegistry.registerStore('Connect.Store', ConnectStore);
 }
@@ -147,9 +147,9 @@ function deactivate(appRegistry) {
   appRegistry.deregisterRole('Connect.SSHTunnelMethod', NO_SSH_TUNNEL_ROLE);
   appRegistry.deregisterRole('Connect.SSHTunnelMethod', PASSWORD_SSH_TUNNEL_ROLE);
   appRegistry.deregisterRole('Connect.SSHTunnelMethod', IDENTITY_FILE_SSH_TUNNEL_ROLE);
-  appRegistry.deregisterRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
-  appRegistry.deregisterRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
-  appRegistry.deregisterRole('Connect.AuthenticationMethod', SCRAM_SHA_256_AUTH_ROLE);
+  appRegistry.deregisterRole('Connect.AuthStrategy', NO_AUTH_ROLE);
+  appRegistry.deregisterRole('Connect.AuthStrategy', MONGODB_AUTH_ROLE);
+  appRegistry.deregisterRole('Connect.AuthStrategy', SCRAM_SHA_256_AUTH_ROLE);
   appRegistry.deregisterAction('Connect.Actions');
   appRegistry.deregisterStore('Connect.Store');
 }

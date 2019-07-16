@@ -11,11 +11,11 @@ describe('<SSHTunnelIdentityFile />', () => {
   describe('#render', () => {
     context('when the form is valid', () => {
       const connection = {
-        ssh_tunnel_hostname: 'localhost',
-        ssh_tunnel_port: 22,
-        ssh_tunnel_username: 'user',
-        ssh_tunnel_identity_file: ['path/to/file'],
-        ssh_tunnel_passphrase: 'password'
+        sshTunnelHostname: 'localhost',
+        sshTunnelPort: 22,
+        sshTunnelUsername: 'user',
+        sshTunnelIdentityFile: ['path/to/file'],
+        sshTunnelPassphrase: 'password'
       };
       const component = mount(
         <SSHTunnelIdentityFile currentConnection={connection} isValid />
@@ -26,33 +26,33 @@ describe('<SSHTunnelIdentityFile />', () => {
       });
 
       it('renders the hostname input', () => {
-        expect(component.find('input[name="ssh_tunnel_hostname"]')).to.have.value('localhost');
+        expect(component.find('input[name="sshTunnelHostname"]')).to.have.value('localhost');
       });
 
       it('renders the username input', () => {
-        expect(component.find('input[name="ssh_tunnel_username"]')).to.have.value('user');
+        expect(component.find('input[name="sshTunnelUsername"]')).to.have.value('user');
       });
 
       it('renders the file input', () => {
-        expect(component.find('#ssh_tunnel_identity_file').hostNodes()).to.have.text('file');
+        expect(component.find('#sshTunnelIdentityFile').hostNodes()).to.have.text('file');
       });
 
       it('renders the passphrase input', () => {
-        expect(component.find('input[name="ssh_tunnel_passphrase"]')).to.have.value('password');
+        expect(component.find('input[name="sshTunnelPassphrase"]')).to.have.value('password');
       });
 
       it('renders the passphrase input as password field', () => {
-        expect(component.find('input[name="ssh_tunnel_passphrase"]')).to.have.attr('type', 'password');
+        expect(component.find('input[name="sshTunnelPassphrase"]')).to.have.attr('type', 'password');
       });
     });
 
     context('when the form is invalid', () => {
       context('when the hostname is empty', () => {
         const connection = {
-          ssh_tunnel_port: 22,
-          ssh_tunnel_username: 'user',
-          ssh_tunnel_identity_file: ['path/to/file'],
-          ssh_tunnel_passphrase: 'password'
+          sshTunnelPort: 22,
+          sshTunnelUsername: 'user',
+          sshTunnelIdentityFile: ['path/to/file'],
+          sshTunnelPassphrase: 'password'
         };
         const component = mount(
           <SSHTunnelIdentityFile currentConnection={connection} />
@@ -69,10 +69,10 @@ describe('<SSHTunnelIdentityFile />', () => {
 
       context('when the port is empty', () => {
         const connection = {
-          ssh_tunnel_hostname: 'localhost',
-          ssh_tunnel_username: 'user',
-          ssh_tunnel_identity_file: ['path/to/file'],
-          ssh_tunnel_passphrase: 'password'
+          sshTunnelHostname: 'localhost',
+          sshTunnelUsername: 'user',
+          sshTunnelIdentityFile: ['path/to/file'],
+          sshTunnelPassphrase: 'password'
         };
         const component = mount(
           <SSHTunnelIdentityFile currentConnection={connection} />
@@ -89,10 +89,10 @@ describe('<SSHTunnelIdentityFile />', () => {
 
       context('when the username is empty', () => {
         const connection = {
-          ssh_tunnel_hostname: 'localhost',
-          ssh_tunnel_port: 22,
-          ssh_tunnel_identity_file: ['path/to/file'],
-          ssh_tunnel_passphrase: 'password'
+          sshTunnelHostname: 'localhost',
+          sshTunnelPort: 22,
+          sshTunnelIdentityFile: ['path/to/file'],
+          sshTunnelPassphrase: 'password'
         };
         const component = mount(
           <SSHTunnelIdentityFile currentConnection={connection} />
@@ -109,10 +109,10 @@ describe('<SSHTunnelIdentityFile />', () => {
 
       context('when the file is empty', () => {
         const connection = {
-          ssh_tunnel_hostname: 'localhost',
-          ssh_tunnel_port: 22,
-          ssh_tunnel_username: 'user',
-          ssh_tunnel_passphrase: 'password'
+          sshTunnelHostname: 'localhost',
+          sshTunnelPort: 22,
+          sshTunnelUsername: 'user',
+          sshTunnelPassphrase: 'password'
         };
         const component = mount(
           <SSHTunnelIdentityFile currentConnection={connection} />

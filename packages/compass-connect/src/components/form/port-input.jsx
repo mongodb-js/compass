@@ -6,7 +6,6 @@ const { FormInput } = require('hadron-react-components');
 const DEFAULT_PORT = 27017;
 
 class PortInput extends React.PureComponent {
-
   constructor(props) {
     super(props);
     this.isChanged = false;
@@ -14,11 +13,13 @@ class PortInput extends React.PureComponent {
 
   onPortChanged(evt) {
     const value = evt.target.value;
+
     if (value === '') {
       this.isChanged = false;
     } else {
       this.isChanged = true;
     }
+
     Actions.onPortChanged(value);
   }
 
@@ -26,6 +27,7 @@ class PortInput extends React.PureComponent {
     if (!this.props.lastUsed && !this.isChanged && this.props.port === DEFAULT_PORT) {
       return '';
     }
+
     return this.props.port;
   }
 

@@ -9,9 +9,7 @@ chai.use(chaiEnzyme());
 
 describe('<FormActions />', () => {
   describe('#render', () => {
-    const connection = {
-      name: 'myconnection'
-    };
+    const connection = { name: 'myconnection' };
     const component = mount(
       <FormActions currentConnection={connection} />
     );
@@ -21,7 +19,7 @@ describe('<FormActions />', () => {
     });
 
     it('renders the name', () => {
-      expect(component.find('input[name="favorite_name"]')).to.have.value('myconnection');
+      expect(component.find('input[name="favoriteName"]')).to.have.value('myconnection');
     });
   });
 });

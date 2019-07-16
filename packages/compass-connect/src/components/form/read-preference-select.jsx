@@ -4,7 +4,6 @@ const Actions = require('../../actions');
 const FormItemSelect = require('./form-item-select');
 
 class ReadPreferenceSelect extends React.PureComponent {
-
   onReadPreferenceChanged(evt) {
     Actions.onReadPreferenceChanged(evt.target.value);
   }
@@ -13,7 +12,7 @@ class ReadPreferenceSelect extends React.PureComponent {
     return (
       <FormItemSelect
         label="Read Preference"
-        name="read_preference"
+        name="readPreference"
         options={[
           {'primary': 'Primary'},
           {'primaryPreferred': 'Primary Preferred'},

@@ -11,9 +11,9 @@ describe('<MongoDBAuthentication />', () => {
   describe('#render', () => {
     context('when the form is valid', () => {
       const connection = {
-        mongodb_username: 'user',
-        mongodb_password: 'pass',
-        mongodb_database_name: 'db'
+        mongodbUsername: 'user',
+        mongodbPassword: 'pass',
+        mongodbDatabaseName: 'db'
       };
       const component = mount(
         <MongoDBAuthentication currentConnection={connection} isValid />
@@ -43,8 +43,8 @@ describe('<MongoDBAuthentication />', () => {
     context('when the form is not valid', () => {
       context('when the username is empty', () => {
         const connection = {
-          mongodb_username: '',
-          mongodb_password: 'pass'
+          mongodbUsername: '',
+          mongodbPassword: 'pass'
         };
         const component = mount(
           <MongoDBAuthentication currentConnection={connection} />
@@ -65,8 +65,8 @@ describe('<MongoDBAuthentication />', () => {
 
       context('when the username is null', () => {
         const connection = {
-          mongodb_username: null,
-          mongodb_password: 'pass'
+          mongodbUsername: null,
+          mongodbPassword: 'pass'
         };
         const component = mount(
           <MongoDBAuthentication currentConnection={connection} />
@@ -87,7 +87,7 @@ describe('<MongoDBAuthentication />', () => {
 
       context('when the username is undefined', () => {
         const connection = {
-          mongodb_password: 'pass'
+          mongodbPassword: 'pass'
         };
         const component = mount(
           <MongoDBAuthentication currentConnection={connection} />
@@ -107,9 +107,7 @@ describe('<MongoDBAuthentication />', () => {
       });
 
       context('when the password is empty', () => {
-        const connection = {
-          mongodb_password: ''
-        };
+        const connection = { mongodbPassword: '' };
         const component = mount(
           <MongoDBAuthentication currentConnection={connection} />
         );
@@ -128,9 +126,7 @@ describe('<MongoDBAuthentication />', () => {
       });
 
       context('when the password is null', () => {
-        const connection = {
-          mongodb_password: null
-        };
+        const connection = { mongodbPassword: null };
         const component = mount(
           <MongoDBAuthentication currentConnection={connection} />
         );
@@ -149,9 +145,7 @@ describe('<MongoDBAuthentication />', () => {
       });
 
       context('when the password is undefined', () => {
-        const connection = {
-          mongodb_username: 'testing'
-        };
+        const connection = { mongodbUsername: 'testing' };
         const component = mount(
           <MongoDBAuthentication currentConnection={connection} />
         );
