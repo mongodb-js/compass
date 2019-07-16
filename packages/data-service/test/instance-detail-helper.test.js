@@ -11,17 +11,22 @@ describe('mongodb-data-service#instance', function() {
     let client;
     let db;
     it('should connect to `localhost:27018`', function(done) {
-      const model = Connection.from('mongodb://localhost:27018/data-service');
-      connect(
-        model,
-        null,
-        function(err, _client) {
-          if (err) {
-            return done(err);
-          }
-          client = _client;
-          db = client.db('data-service');
-          done();
+      Connection.from(
+        'mongodb://localhost:27018/data-service',
+        function(error, model) {
+          assert.equal(error, null);
+          connect(
+            model,
+            null,
+            function(err, _client) {
+              if (err) {
+                return done(err);
+              }
+              client = _client;
+              db = client.db('data-service');
+              done();
+            }
+          );
         }
       );
     });
