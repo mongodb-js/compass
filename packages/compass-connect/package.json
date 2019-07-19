@@ -44,6 +44,8 @@
     "hadron-ipc": "^1.0.0"
   },
   "devDependencies": {
+    "storage-mixin": "^3.0.0",
+    "react-dom": "^16.8.0",
     "@hot-loader/react-dom": "^16.8.2",
     "@mongodb-js/compass-auth-kerberos": "^1.3.1",
     "@mongodb-js/compass-auth-ldap": "^1.2.0",
@@ -114,7 +116,7 @@
     "react": "^16.8.0",
     "react-hot-loader": "^4.1.0",
     "react-storybook-addon-chapters": "^1.1.0",
-    "reflux": "0.4.1",
+    "reflux": "6.4.1",
     "reflux-state-mixin": "^0.8.0",
     "resolve": "^1.4.0",
     "rimraf": "^2.6.1",

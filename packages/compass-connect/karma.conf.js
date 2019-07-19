@@ -4,9 +4,9 @@ module.exports = (config) => {
   config.set({
     basePath: '',
     singleRun: true,
-    files: ['test/**/*.spec.js'],
+    files: ['test/karma-setup.js'],
     reporters: ['mocha'],
-    preprocessors: { 'test/**/*.spec.js': ['webpack', 'sourcemap'] },
+    preprocessors: { 'test/karma-setup.js': ['webpack', 'sourcemap'] },
     browsers: ['Electron'],
     frameworks: ['mocha', 'chai', 'sinon', 'chai-sinon'],
     webpack: webpackConfig,
