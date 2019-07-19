@@ -1,18 +1,28 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const NewConnection = require('./new-connection');
-const Favorites = require('./favorites');
-const Recents = require('./recents');
-const AtlasLink = require('../atlas-link');
+import React from 'react';
+import PropTypes from 'prop-types';
+import NewConnection from './new-connection';
+import Favorites from './favorites';
+import Recents from './recents';
+import AtlasLink from '../atlas-link';
+import classnames from 'classnames';
+
+import styles from './sidebar.less';
 
 class Sidebar extends React.Component {
+  static displayName = 'Sidebar';
+
+  static propTypes = {
+    currentConnection: PropTypes.object.isRequired,
+    connections: PropTypes.object.isRequired
+  };
+
   render() {
     return (
       <div>
-        <div className="connect-sidebar">
+        <div className={classnames(styles['connect-sidebar'])}>
           <AtlasLink />
           <NewConnection {...this.props} />
-          <div className="connect-sidebar-connections">
+          <div className={classnames(styles['connect-sidebar-connections'])}>
             <Favorites {...this.props} />
             <Recents {...this.props} />
           </div>
@@ -22,11 +32,4 @@ class Sidebar extends React.Component {
   }
 }
 
-Sidebar.propTypes = {
-  currentConnection: PropTypes.object.isRequired,
-  connections: PropTypes.object.isRequired
-};
-
-Sidebar.displayName = 'Sidebar';
-
-module.exports = Sidebar;
+export default Sidebar;

@@ -1,39 +1,56 @@
-const find = require('lodash.find');
-const React = require('react');
-const PropTypes = require('prop-types');
-const Actions = require('../../actions');
-const FormItemSelect = require('./form-item-select');
-const FormGroup = require('./form-group');
+import React from 'react';
+import PropTypes from 'prop-types';
+import find from 'lodash.find';
+import Actions from 'actions';
+import FormGroup from './form-group';
+import FormItemSelect from './form-item-select';
 
 class SSHTunnelSection extends React.Component {
+  static displayName = 'SSLSection';
+
+  static propTypes = { currentConnection: PropTypes.object.isRequired };
+
   constructor(props) {
     super(props);
     this.setupSSHTunnelRoles();
-    this.state = { sshTunnelMethod: props.currentConnection.sshTunnel };
+    this.state = { sshTunnel: props.currentConnection.sshTunnel };
   }
 
   componentWillReceiveProps(nextProps) {
     const sshMethod = nextProps.currentConnection.sshTunnel;
 
-    if (sshMethod !== this.state.sshTunnelMethod) {
-      this.setState({ sshTunnelMethod: sshMethod });
+    if (sshMethod !== this.state.sshTunnel) {
+      this.setState({ sshTunnel: sshMethod });
     }
   }
 
+  /**
+   * Handles SSH tunnel change.
+   *
+   * @param {Object} evt - evt.
+   */
   onSSHTunnelChanged(evt) {
-    this.setState({ sshTunnelMethod: evt.target.value });
+    this.setState({ sshTunnel: evt.target.value });
     Actions.onSSHTunnelChanged(evt.target.value);
   }
 
+  /**
+   * Sets options for an SSH tunnel.
+   */
   setupSSHTunnelRoles() {
-    this.roles = global.hadronApp.appRegistry.getRole('Connect.SSHTunnelMethod');
+    this.roles = global.hadronApp.appRegistry.getRole('Connect.SSHTunnel');
     this.selectOptions = this.roles.map((role) => role.selectOption);
   }
 
-  renderSSHTunnelMethod() {
+  /**
+   * Renders an SSL tunnel.
+   *
+   * @returns {React.Component}
+   */
+  renderSSHTunnel() {
     const currentRole = find(
       this.roles,
-      (role) => (role.name === this.state.sshTunnelMethod)
+      (role) => (role.name === this.state.sshTunnel)
     );
 
     if (currentRole.component) {
@@ -50,16 +67,10 @@ class SSHTunnelSection extends React.Component {
           options={this.selectOptions}
           changeHandler={this.onSSHTunnelChanged.bind(this)}
           value={this.props.currentConnection.sshTunnel} />
-        {this.renderSSHTunnelMethod()}
+        {this.renderSSHTunnel()}
       </FormGroup>
     );
   }
 }
 
-SSHTunnelSection.propTypes = {
-  currentConnection: PropTypes.object.isRequired
-};
-
-SSHTunnelSection.displayName = 'SSHTunnelSection';
-
-module.exports = SSHTunnelSection;
+export default SSHTunnelSection;

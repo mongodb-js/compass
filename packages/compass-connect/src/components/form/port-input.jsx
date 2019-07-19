@@ -1,16 +1,25 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const Actions = require('../../actions');
-const { FormInput } = require('hadron-react-components');
+import React from 'react';
+import PropTypes from 'prop-types';
+import Actions from 'actions';
+import { FormInput } from 'hadron-react-components';
 
 const DEFAULT_PORT = 27017;
 
 class PortInput extends React.PureComponent {
+  static displayName = 'PortInput';
+
+  static propTypes = { lastUsed: PropTypes.any, port: PropTypes.any };
+
   constructor(props) {
     super(props);
     this.isChanged = false;
   }
 
+  /**
+   * Changes port.
+   *
+   * @param {Object} evt - evt.
+   */
   onPortChanged(evt) {
     const value = evt.target.value;
 
@@ -23,6 +32,11 @@ class PortInput extends React.PureComponent {
     Actions.onPortChanged(value);
   }
 
+  /**
+   * Gets port.
+   *
+   * @returns {Number} port.
+   */
   getPort() {
     if (!this.props.lastUsed && !this.isChanged && this.props.port === DEFAULT_PORT) {
       return '';
@@ -43,11 +57,4 @@ class PortInput extends React.PureComponent {
   }
 }
 
-PortInput.propTypes = {
-  lastUsed: PropTypes.any,
-  port: PropTypes.any
-};
-
-PortInput.displayName = 'PortInput';
-
-module.exports = PortInput;
+export default PortInput;

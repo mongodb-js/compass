@@ -1,14 +1,34 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const isEmpty = require('lodash.isempty');
-const Actions = require('../../actions');
-const FormFileInput = require('./form-file-input');
+import React from 'react';
+import PropTypes from 'prop-types';
+import isEmpty from 'lodash.isempty';
+import Actions from 'actions';
+import FormFileInput from './form-file-input';
+import classnames from 'classnames';
+
+import styles from '../connect.less';
 
 class SSLServerValidation extends React.Component {
-  onSSLCAChanged(path) {
-    Actions.onSSLCAChanged(path);
+  static displayName = 'SSLServerValidation';
+
+  static propTypes = {
+    currentConnection: PropTypes.object.isRequired,
+    isValid: PropTypes.bool
+  };
+
+  /**
+   * Handles sslCA change.
+   *
+   * @param {Object} evt - evt.
+   */
+  onSSLCAChanged(evt) {
+    Actions.onSSLCAChanged(evt);
   }
 
+  /**
+   * Checks if sslCA is invalid or empty.
+   *
+   * @returns {String} In case of error returns an error message.
+   */
   getError() {
     const connection = this.props.currentConnection;
 
@@ -19,7 +39,7 @@ class SSLServerValidation extends React.Component {
 
   render() {
     return (
-      <div id="ssl-server-validation" className="form-group">
+      <div id="ssl-server-validation" className={classnames(styles['form-group'])}>
         <FormFileInput
           label="Certificate Authority"
           changeHandler={this.onSSLCAChanged.bind(this)}
@@ -32,11 +52,4 @@ class SSLServerValidation extends React.Component {
   }
 }
 
-SSLServerValidation.propTypes = {
-  currentConnection: PropTypes.object.isRequired,
-  isValid: PropTypes.bool
-};
-
-SSLServerValidation.displayName = 'SSLServerValidation';
-
-module.exports = SSLServerValidation;
+export default SSLServerValidation;

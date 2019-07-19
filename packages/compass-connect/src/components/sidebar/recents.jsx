@@ -1,36 +1,78 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const map = require('lodash.map');
-const moment = require('moment');
-const Actions = require('../../actions');
+import React from 'react';
+import PropTypes from 'prop-types';
+import map from 'lodash.map';
+import moment from 'moment';
+import Actions from 'actions';
+import classnames from 'classnames';
+
+import styles from './sidebar.less';
 
 const TWO_DAYS = 24 * 60 * 60 * 1000;
 
 class Recents extends React.Component {
+  static displayName = 'Recents';
+
+  static propTypes = {
+    currentConnection: PropTypes.object.isRequired,
+    connections: PropTypes.oneOfType([
+      PropTypes.object,
+      PropTypes.array
+    ]).isRequired
+  };
+
+  /**
+   * Selects a recent connection.
+   *
+   * @param {Object} recent - A recent connection.
+   */
   onRecentClicked(recent) {
     Actions.onConnectionSelected(recent);
   }
 
+  /**
+   * Deletes a recent connection.
+   *
+   * @param {Object} recent - A recent connection.
+   */
   onClearConnectionClicked(recent) {
     Actions.onDeleteConnection(recent);
   }
 
+  /**
+   * Deletes connections.
+   */
   onClearConnectionsClicked() {
     Actions.onDeleteConnections();
   }
 
+  /**
+   * Gets a proper class name for active and not active recent connections.
+   *
+   * @param {Object} recent - A recent connection.
+   *
+   * @returns {String} - A class name
+   */
   getClassName(recent) {
-    let className = 'connect-sidebar-list-item';
+    const classnamesProps = [styles['connect-sidebar-list-item']];
 
     if (this.props.currentConnection === recent) {
-      className += ' connect-sidebar-list-item-is-active';
+      classnamesProps.push(styles['connect-sidebar-list-item-is-active']);
     }
 
-    return className;
+    return classnames(...classnamesProps);
   }
 
+  /**
+   * Formats lastUsed.
+   *
+   * @param {Object} model - A connection model.
+   *
+   * @returns {String} - A last used moment.
+   */
   formatLastUsed(model) {
-    if (!model.lastUsed) return 'Never';
+    if (!model.lastUsed) {
+      return 'Never';
+    }
 
     if ((new Date() - model.lastUsed) < TWO_DAYS) {
       return moment(model.lastUsed).fromNow();
@@ -39,6 +81,11 @@ class Recents extends React.Component {
     return moment(model.lastUsed).format('lll');
   }
 
+  /**
+   * Render recent connections.
+   *
+   * @returns {React.Component}
+   */
   renderRecents() {
     const recents = this.props.connections
       .filter((connection) => !connection.isFavorite);
@@ -53,10 +100,16 @@ class Recents extends React.Component {
           title={title}
           onClick={this.onRecentClicked.bind(this, recent)}>
           <div>
-            <div className="connect-sidebar-list-item-last-used">{this.formatLastUsed(recent)}</div>
-            <div className="connect-sidebar-list-item-name">{title}</div>
+            <div className={classnames(styles['connect-sidebar-list-item-last-used'])}>
+              {this.formatLastUsed(recent)}
+            </div>
+            <div className={classnames(styles['connect-sidebar-list-item-name'])}>
+              {title}
+            </div>
           </div>
-          <i onClick={this.onClearConnectionClicked.bind(this, recent)} className="fa fa-trash-o fa-lg"></i>
+          <i
+            onClick={this.onClearConnectionClicked.bind(this, recent)}
+            className="fa fa-trash-o fa-lg" />
         </li>
       );
     });
@@ -65,15 +118,15 @@ class Recents extends React.Component {
   render() {
     const recents = this.props.connections
       .filter((connection) => !connection.isFavorite);
-    const clearClassName = 'connect-sidebar-header-recent-clear';
+    const clearClassName = classnames(styles['connect-sidebar-header-recent-clear']);
     const clearAllDiv = recents.length > 0
       ? <div onClick={this.onClearConnectionsClicked} className={clearClassName}>Clear All</div>
       : '';
 
     return (
       <div className="connect-sidebar-connections-recents">
-        <div className="connect-sidebar-header">
-          <div className="connect-sidebar-header-recent">
+        <div className={classnames(styles['connect-sidebar-header'])}>
+          <div className={classnames(styles['connect-sidebar-header-recent'])}>
             <div>
               <i className="fa fa-fw fa-history" />
               <span>Recents</span>
@@ -81,7 +134,7 @@ class Recents extends React.Component {
             {clearAllDiv}
           </div>
         </div>
-        <ul className="connect-sidebar-list">
+        <ul className={classnames(styles['connect-sidebar-list'])}>
           {this.renderRecents()}
         </ul>
       </div>
@@ -89,11 +142,4 @@ class Recents extends React.Component {
   }
 }
 
-Recents.propTypes = {
-  currentConnection: PropTypes.object.isRequired,
-  connections: PropTypes.object.isRequired
-};
-
-Recents.displayName = 'Recents';
-
-module.exports = Recents;
+export default Recents;

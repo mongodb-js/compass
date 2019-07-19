@@ -1,9 +1,21 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const Actions = require('../../actions');
-const { FormInput } = require('hadron-react-components');
+import React from 'react';
+import PropTypes from 'prop-types';
+import Actions from 'actions';
+import { FormInput } from 'hadron-react-components';
 
 class ReplicaSetInput extends React.PureComponent {
+  static displayName = 'ReplicaSetInput';
+
+  static propTypes = {
+    sshTunnel: PropTypes.string,
+    replicaSet: PropTypes.string
+  };
+
+  /**
+   * Handles a replica set change.
+   *
+   * @param {Object} evt - evt.
+   */
   onReplicaSetChanged(evt) {
     Actions.onReplicaSetChanged(evt.target.value);
   }
@@ -25,11 +37,4 @@ class ReplicaSetInput extends React.PureComponent {
   }
 }
 
-ReplicaSetInput.propTypes = {
-  sshTunnel: PropTypes.string,
-  replicaSet: PropTypes.string
-};
-
-ReplicaSetInput.displayName = 'ReplicaSetInput';
-
-module.exports = ReplicaSetInput;
+export default ReplicaSetInput;

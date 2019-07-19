@@ -1,28 +1,62 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const map = require('lodash.map');
-const moment = require('moment');
-const Actions = require('../../actions');
+import React from 'react';
+import PropTypes from 'prop-types';
+import map from 'lodash.map';
+import moment from 'moment';
+import Actions from 'actions';
+import classnames from 'classnames';
+
+import styles from './sidebar.less';
 
 const TWO_DAYS = 24 * 60 * 60 * 1000;
 
 class Favorites extends React.Component {
+  static displayName = 'Favorites';
+
+  static propTypes = {
+    currentConnection: PropTypes.object.isRequired,
+    connections: PropTypes.oneOfType([
+      PropTypes.object,
+      PropTypes.array
+    ]).isRequired
+  };
+
+  /**
+   * Selects a favorite connection.
+   *
+   * @param {Object} favorite - A favorite connection.
+   */
   onFavoriteClicked(favorite) {
     Actions.onConnectionSelected(favorite);
   }
 
+  /**
+   * Gets a proper class name for active and not active favorite connections.
+   *
+   * @param {Object} favorite - A favorite connection.
+   *
+   * @returns {String} - A class name
+   */
   getClassName(favorite) {
-    let className = 'connect-sidebar-list-item';
+    const classnamesProps = [styles['connect-sidebar-list-item']];
 
     if (this.props.currentConnection === favorite) {
-      className += ' connect-sidebar-list-item-is-active';
+      classnamesProps.push(styles['connect-sidebar-list-item-is-active']);
     }
 
-    return className;
+    return classnames(...classnamesProps);
   }
 
+  /**
+   * Formats lastUsed.
+   *
+   * @param {Object} model - A connection model.
+   *
+   * @returns {String} - A last used moment.
+   */
   formatLastUsed(model) {
-    if (!model.lastUsed) return 'Never';
+    if (!model.lastUsed) {
+      return 'Never';
+    }
 
     if ((new Date() - model.lastUsed) < TWO_DAYS) {
       return moment(model.lastUsed).fromNow();
@@ -31,6 +65,11 @@ class Favorites extends React.Component {
     return moment(model.lastUsed).format('lll');
   }
 
+  /**
+   * Render favorite connections.
+   *
+   * @returns {React.Component}
+   */
   renderFavorites() {
     const favorites = this.props.connections
       .filter((connection) => connection.isFavorite);
@@ -45,8 +84,12 @@ class Favorites extends React.Component {
           title={title}
           onClick={this.onFavoriteClicked.bind(this, favorite)}>
           <div>
-            <div className="connect-sidebar-list-item-last-used">{this.formatLastUsed(favorite)}</div>
-            <div className="connect-sidebar-list-item-name">{favorite.name}</div>
+            <div className={classnames(styles['connect-sidebar-list-item-last-used'])}>
+              {this.formatLastUsed(favorite)}
+            </div>
+            <div className={classnames(styles['connect-sidebar-list-item-name'])}>
+              {favorite.name}
+            </div>
           </div>
         </li>
       );
@@ -56,11 +99,11 @@ class Favorites extends React.Component {
   render() {
     return (
       <div className="connect-sidebar-connections-favorites">
-        <div className="connect-sidebar-header">
+        <div className={classnames(styles['connect-sidebar-header'])}>
           <i className="fa fa-fw fa-star" />
           <span>Favorites</span>
         </div>
-        <ul className="connect-sidebar-list">
+        <ul className={classnames(styles['connect-sidebar-list'])}>
           {this.renderFavorites()}
         </ul>
       </div>
@@ -68,11 +111,4 @@ class Favorites extends React.Component {
   }
 }
 
-Favorites.propTypes = {
-  currentConnection: PropTypes.object.isRequired,
-  connections: PropTypes.object.isRequired
-};
-
-Favorites.displayName = 'Favorites';
-
-module.exports = Favorites;
+export default Favorites;

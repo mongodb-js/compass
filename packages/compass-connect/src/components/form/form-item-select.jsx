@@ -1,40 +1,58 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
+import classnames from 'classnames';
+
+import styles from '../connect.less';
 
 class FormItemSelect extends React.Component {
+  static displayName = 'FormItemSelect';
+
+  static propTypes = {
+    label: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    options: PropTypes.arrayOf(PropTypes.object).isRequired,
+    changeHandler: PropTypes.func.isRequired,
+    value: PropTypes.string
+  };
+
+  /**
+   * Prepares options for the form item select.
+   *
+   * @param {Array} options - A list of otions for select.
+   *
+   * @returns {React.Component}
+   */
+  prepareOptions(options) {
+    return options.map((option, i) => {
+      const select = Object.keys(option)[0];
+
+      return (
+        <option key={i} value={select}>
+          {option[select]}
+        </option>
+      );
+    });
+  }
+
   render() {
     return (
-      <div className="form-item">
+      <div className={classnames(styles['form-item'])}>
         <label>
-          <span className="form-item-label">{this.props.label}</span>
+          <span className="form-item-label">
+            {this.props.label}
+          </span>
         </label>
         <select
           name={this.props.name}
           onChange={this.props.changeHandler}
-          className="form-control"
-          value={this.props.value}>
-          {this.props.options.map((option, i) => {
-            const select = Object.keys(option)[0];
-            return (
-              <option key={i} value={select}>
-                {option[select]}
-              </option>
-            );
-          })}
+          className={classnames(styles['form-control'])}
+          value={this.props.value}
+        >
+          {this.prepareOptions(this.props.options)}
         </select>
       </div>
     );
   }
 }
 
-FormItemSelect.propTypes = {
-  label: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  options: PropTypes.arrayOf(PropTypes.object).isRequired,
-  changeHandler: PropTypes.func.isRequired,
-  value: PropTypes.string
-};
-
-FormItemSelect.displayName = 'FormItemSelect';
-
-module.exports = FormItemSelect;
+export default FormItemSelect;

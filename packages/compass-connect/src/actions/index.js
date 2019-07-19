@@ -1,4 +1,4 @@
-const Reflux = require('reflux');
+import Reflux from 'reflux';
 
 const ConnectActions = Reflux.createActions({
   'resetConnection': { sync: true },
@@ -6,7 +6,7 @@ const ConnectActions = Reflux.createActions({
   'onPortChanged': { sync: true },
   'onReadPreferenceChanged': { sync: true },
   'onReplicaSetChanged': { sync: true },
-  'onAuthenticationMethodChanged': { sync: true },
+  'onAuthStrategyChanged': { sync: true },
   'onUsernameChanged': { sync: true },
   'onPasswordChanged': { sync: true },
   'onAuthSourceChanged': { sync: true },
@@ -36,4 +36,4 @@ const ConnectActions = Reflux.createActions({
   'onAtlasLearnMore': { sync: true }
 });
 
-module.exports = ConnectActions;
+export default ConnectActions;

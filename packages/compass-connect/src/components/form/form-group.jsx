@@ -1,15 +1,26 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
+import classnames from 'classnames';
+
+import styles from '../connect.less';
 
 class FormGroup extends React.PureComponent {
+  static displayName = 'FormGroup';
+
+  static propTypes = {
+    id: PropTypes.string,
+    separator: PropTypes.bool,
+    children: PropTypes.oneOfType([PropTypes.array, PropTypes.object])
+  };
+
   getClassName() {
-    let className = 'form-group';
+    const classnamesProps = [styles['form-group']];
 
     if (this.props.separator) {
-      className = `${className} form-group-separator`;
+      classnamesProps.push(styles['form-group-separator']);
     }
 
-    return className;
+    return classnames(...classnamesProps);
   }
 
   render() {
@@ -21,15 +32,4 @@ class FormGroup extends React.PureComponent {
   }
 }
 
-FormGroup.propTypes = {
-  id: PropTypes.string,
-  separator: PropTypes.bool,
-  children: PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.object
-  ])
-};
-
-FormGroup.displayName = 'FormGroup';
-
-module.exports = FormGroup;
+export default FormGroup;

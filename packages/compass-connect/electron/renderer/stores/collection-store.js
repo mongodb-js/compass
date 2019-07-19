@@ -1,11 +1,10 @@
 const Reflux = require('reflux');
-const { NamespaceStore } = require('hadron-reflux-store');
+const { NamespaceStore } = require('mongodb-reflux-store');
 
 /**
  * Sets global collection information.
  */
 const CollectionStore = Reflux.createStore({
-
   /**
    * Initialize the store.
    */
@@ -21,22 +20,25 @@ const CollectionStore = Reflux.createStore({
    */
   setCollection(collection) {
     this.collection = collection;
+
     if (collection._id) {
       NamespaceStore.ns = collection._id;
     }
   },
 
   /**
-   * Set the active tab idx for the current collection
-   * @param {number} idx current tab idx
+   * Set the active tab idx for the current collection.
+   *
+   * @param {Number} idx - The current tab idx.
    */
   setActiveTab(idx) {
     this.activeTabIndex = idx;
   },
 
   /**
-   * Get the active tab idx for the current collection
-   * @returns {number} the current idx
+   * Get the active tab idx for the current collection.
+   *
+   * @returns {Number} The current idx.
    */
   getActiveTab() {
     return this.activeTabIndex;

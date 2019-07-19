@@ -117,7 +117,7 @@ const ConnectStore = Reflux.createStore({
    *
    * @param {String} method - The auth strategy.
    */
-  onAuthenticationMethodChanged(method) {
+  onAuthStrategyChanged(method) {
     this._clearAuthFields();
     this.state.currentConnection.authStrategy = method;
     this.trigger(this.state);

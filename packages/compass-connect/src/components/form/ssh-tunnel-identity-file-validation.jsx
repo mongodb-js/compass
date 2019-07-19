@@ -1,36 +1,68 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { FormInput } = require('hadron-react-components');
-const { shell } = require('electron');
-const isEmpty = require('lodash.isempty');
-const Actions = require('../../actions');
-const FormFileInput = require('./form-file-input');
-const FormGroup = require('./form-group');
+import React from 'react';
+import PropTypes from 'prop-types';
+import isEmpty from 'lodash.isempty';
+import Actions from 'actions';
+import { FormInput } from 'hadron-react-components';
+import { shell } from 'electron';
+import FormFileInput from './form-file-input';
+import FormGroup from './form-group';
 
 const DEFAULT_SSH_TUNNEL_PORT = 22;
 
 class SSHTunnelIdentityFileValidation extends React.Component {
+  static displayName = 'SSHTunnelIdentityFileValidation';
+
+  static propTypes = {
+    currentConnection: PropTypes.object.isRequired,
+    isValid: PropTypes.bool
+  };
+
   constructor(props) {
     super(props);
     this.isSSHTunnelPortChanged = false;
   }
 
+  /**
+   * Handles sshTunnelHostname change.
+   *
+   * @param {Object} evt - evt.
+   */
   onSSHTunnelHostnameChanged(evt) {
     Actions.onSSHTunnelHostnameChanged(evt.target.value);
   }
 
+  /**
+   * Handles sshTunnelUsername change.
+   *
+   * @param {Object} evt - evt.
+   */
   onSSHTunnelUsernameChanged(evt) {
     Actions.onSSHTunnelUsernameChanged(evt.target.value);
   }
 
-  onSSHTunnelIdentityFileChanged(paths) {
-    Actions.onSSHTunnelIdentityFileChanged(paths);
+  /**
+   * Handles sshTunnelIdentityFile change.
+   *
+   * @param {Object} evt - evt.
+   */
+  onSSHTunnelIdentityFileChanged(evt) {
+    Actions.onSSHTunnelIdentityFileChanged(evt);
   }
 
+  /**
+   * Handles sshTunnelPassphrase change.
+   *
+   * @param {Object} evt - evt.
+   */
   onSSHTunnelPassphraseChanged(evt) {
     Actions.onSSHTunnelPassphraseChanged(evt.target.value);
   }
 
+  /**
+   * Handles sshTunnelPort change.
+   *
+   * @param {Object} evt - evt.
+   */
   onSSHTunnelPortChanged(evt) {
     const value = evt.target.value;
 
@@ -43,47 +75,85 @@ class SSHTunnelIdentityFileValidation extends React.Component {
     Actions.onSSHTunnelPortChanged(value);
   }
 
+  /**
+   * Opens "Connect to MongoDB" documentation.
+   */
   onSourceHelp() {
     shell.openExternal('https://docs.mongodb.com/compass/current/connect');
   }
 
+  /**
+   * Gets current sshTunnelPort.
+   *
+   * @returns {Number} sshTunnelPort.
+   */
   getPort() {
     const connection = this.props.currentConnection;
 
-    if (!connection.lastUsed && !this.isSSHTunnelPortChanged &&
-        connection.sshTunnelPort === DEFAULT_SSH_TUNNEL_PORT) {
+    if (
+      !connection.lastUsed &&
+      !this.isSSHTunnelPortChanged &&
+      (connection.sshTunnelPort === DEFAULT_SSH_TUNNEL_PORT)
+    ) {
       return '';
     }
 
     return connection.sshTunnelPort;
   }
 
+  /**
+   * Checks if sshTunnelHostname is invalid.
+   *
+   * @returns {String} In case of error returns an error message.
+   */
   getHostnameError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelHostname)) {
       return 'SSH hostname is required';
     }
   }
 
+  /**
+   * Checks if sshTunnelPort is invalid.
+   *
+   * @returns {String} In case of error returns an error message.
+   */
   getPortError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelPort)) {
       return 'SSH tunnel port is required';
     }
   }
 
+  /**
+   * Checks if sshTunnelUsername is invalid.
+   *
+   * @returns {String} In case of error returns an error message.
+   */
   getUsernameError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelUsername)) {
       return 'SSH username is required';
     }
   }
 
+  /**
+   * Checks if sshTunnelIdentityFile is invalid.
+   *
+   * @returns {String} In case of error returns an error message.
+   */
   getFileError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelIdentityFile)) {
       return 'SSH identity file is required';
     }
   }
 
+  /**
+   * Checks if a field is valid and is not empty.
+   *
+   * @param {String} field - A field that should be validated.
+   *
+   * @returns {Boolean}
+   */
   _isInvalid(field) {
-    return !this.props.isValid && isEmpty(field);
+    return (!this.props.isValid && isEmpty(field));
   }
 
   render() {
@@ -126,11 +196,4 @@ class SSHTunnelIdentityFileValidation extends React.Component {
   }
 }
 
-SSHTunnelIdentityFileValidation.propTypes = {
-  currentConnection: PropTypes.object.isRequired,
-  isValid: PropTypes.bool
-};
-
-SSHTunnelIdentityFileValidation.displayName = 'SSHTunnelIdentityFileValidation';
-
-module.exports = SSHTunnelIdentityFileValidation;
+export default SSHTunnelIdentityFileValidation;

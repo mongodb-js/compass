@@ -1,57 +1,112 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const isEmpty = require('lodash.isempty');
-const Actions = require('../../actions');
-const FormFileInput = require('./form-file-input');
-const { FormInput } = require('hadron-react-components');
-const { shell } = require('electron');
+import React from 'react';
+import PropTypes from 'prop-types';
+import isEmpty from 'lodash.isempty';
+import Actions from 'actions';
+import { FormInput } from 'hadron-react-components';
+import { shell } from 'electron';
+import FormFileInput from './form-file-input';
+import classnames from 'classnames';
+
+import styles from '../connect.less';
 
 class SSLServerClientValidation extends React.Component {
-  onCertificateAuthorityChanged(paths) {
-    Actions.onSSLCAChanged(paths);
+  static displayName = 'SSLServerClientValidation';
+
+  static propTypes = {
+    currentConnection: PropTypes.object.isRequired,
+    isValid: PropTypes.bool
+  };
+
+  /**
+   * Handles sslCA change.
+   *
+   * @param {Object} evt - evt.
+   */
+  onCertificateAuthorityChanged(evt) {
+    Actions.onSSLCAChanged(evt);
   }
 
-  onClientCertificateChanged(paths) {
-    Actions.onSSLCertificateChanged(paths);
+  /**
+   * Handles sslCert change.
+   *
+   * @param {Object} evt - evt.
+   */
+  onClientCertificateChanged(evt) {
+    Actions.onSSLCertificateChanged(evt);
   }
 
-  onClientPrivateKeyChanged(paths) {
-    Actions.onSSLPrivateKeyChanged(paths);
+  /**
+   * Handles sslKey change.
+   *
+   * @param {Object} evt - evt.
+   */
+  onClientPrivateKeyChanged(evt) {
+    Actions.onSSLPrivateKeyChanged(evt);
   }
 
+  /**
+   * Handles sslPass change.
+   *
+   * @param {Object} evt - evt.
+   */
   onClientKeyPasswordChanged(evt) {
     Actions.onSSLPrivateKeyPasswordChanged(evt.target.value);
   }
 
+  /**
+   * Opens documentation about net.ssl.PEMKeyPassword.
+   */
   onPasswordHelp() {
     shell.openExternal('https://docs.mongodb.com/manual/reference/configuration-options/#net.ssl.PEMKeyPassword');
   }
 
+  /**
+   * Checks if sslCA is invalid.
+   *
+   * @returns {String} In case of error returns an error message.
+   */
   getCertAuthError() {
     if (this._isInvalid(this.props.currentConnection.sslCA)) {
       return 'Certificate authority is required';
     }
   }
 
+  /**
+   * Checks if sslCert is invalid.
+   *
+   * @returns {String} In case of error returns an error message.
+   */
   getClientCertError() {
     if (this._isInvalid(this.props.currentConnection.sslCert)) {
       return 'Client certificate is required';
     }
   }
 
+  /**
+   * Checks if sslKey is invalid.
+   *
+   * @returns {String} In case of error returns an error message.
+   */
   getClientKeyError() {
     if (this._isInvalid(this.props.currentConnection.sslKey)) {
       return 'Client private key is required';
     }
   }
 
+  /**
+   * Checks if a field is valid and is not empty.
+   *
+   * @param {String} field - A field that should be validated.
+   *
+   * @returns {Boolean}
+   */
   _isInvalid(field) {
-    return !this.props.isValid && isEmpty(field);
+    return (!this.props.isValid && isEmpty(field));
   }
 
   render() {
     return (
-      <div id="ssl-server-client-validation" className="form-group">
+      <div id="ssl-server-client-validation" className={classnames(styles['form-group'])}>
         <FormFileInput
           label="Certificate Authority"
           id="sslCA"
@@ -86,11 +141,4 @@ class SSLServerClientValidation extends React.Component {
   }
 }
 
-SSLServerClientValidation.propTypes = {
-  currentConnection: PropTypes.object.isRequired,
-  isValid: PropTypes.bool
-};
-
-SSLServerClientValidation.displayName = 'SSLServerClientValidation';
-
-module.exports = SSLServerClientValidation;
+export default SSLServerClientValidation;

@@ -1,27 +1,60 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const isEmpty = require('lodash.isempty');
-const Actions = require('../../actions');
-const { FormInput } = require('hadron-react-components');
-const { shell } = require('electron');
+import React from 'react';
+import PropTypes from 'prop-types';
+import isEmpty from 'lodash.isempty';
+import Actions from 'actions';
+import { FormInput } from 'hadron-react-components';
+import { shell } from 'electron';
+import classnames from 'classnames';
+
+import styles from '../connect.less';
 
 class ScramSha256 extends React.Component {
+  static displayName = 'ScramSha256';
+
+  static propTypes = {
+    currentConnection: PropTypes.object.isRequired,
+    isValid: PropTypes.bool
+  };
+
+  /**
+   * Handles username change.
+   *
+   * @param {Object} evt - evt.
+   */
   onUsernameChanged(evt) {
     Actions.onUsernameChanged(evt.target.value);
   }
 
+  /**
+   * Handles password change.
+   *
+   * @param {Object} evt - evt.
+   */
   onPasswordChanged(evt) {
     Actions.onPasswordChanged(evt.target.value);
   }
 
+  /**
+   * Handles authSource change.
+   *
+   * @param {Object} evt - evt.
+   */
   onAuthSourceChanged(evt) {
     Actions.onAuthSourceChanged(evt.target.value);
   }
 
+  /**
+   * Opens "Authentication Database" documentation.
+   */
   onSourceHelp() {
     shell.openExternal('https://docs.mongodb.com/manual/core/security-users/#user-authentication-database');
   }
 
+  /**
+   * Checks if there is MongoDB username error.
+   *
+   * @returns {String} In case of error returns an error message.
+   */
   getUsernameError() {
     const connection = this.props.currentConnection;
 
@@ -30,6 +63,11 @@ class ScramSha256 extends React.Component {
     }
   }
 
+  /**
+   * Checks if there is MongoDB password error.
+   *
+   * @returns {String} In case of error returns an error message.
+   */
   getPasswordError() {
     const connection = this.props.currentConnection;
 
@@ -40,7 +78,7 @@ class ScramSha256 extends React.Component {
 
   render() {
     return (
-      <div id="scram-sha-256" className="form-group">
+      <div id="scram-sha-256" className={classnames(styles['form-group'])}>
         <FormInput
           label="Username"
           name="username"
@@ -57,7 +95,7 @@ class ScramSha256 extends React.Component {
         <FormInput
           label="Authentication Database"
           placeholder="admin"
-          name="auth-source"
+          name="authSource"
           changeHandler={this.onAuthSourceChanged.bind(this)}
           value={this.props.currentConnection.mongodbDatabaseName || ''}
           linkHandler={this.onSourceHelp.bind(this)}/>
@@ -66,11 +104,4 @@ class ScramSha256 extends React.Component {
   }
 }
 
-ScramSha256.propTypes = {
-  currentConnection: PropTypes.object.isRequired,
-  isValid: PropTypes.bool
-};
-
-ScramSha256.displayName = 'ScramSha256';
-
-module.exports = ScramSha256;
+export default ScramSha256;

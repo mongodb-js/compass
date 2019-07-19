@@ -1,16 +1,30 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { remote } = require('electron');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { remote } from 'electron';
+import shellToURL from 'mongodb-shell-to-url';
+import Connection from 'models/connection';
+import Sidebar from './sidebar';
+import ConnectForm from './form';
+import Actions from 'actions';
+import classnames from 'classnames';
+
+import styles from './connect.less';
+
 const Clipboard = remote.clipboard;
 const dialog = remote.dialog;
 const BrowserWindow = remote.BrowserWindow;
-const shellToURL = require('mongodb-shell-to-url');
-const Connection = require('../models/connection');
-const Sidebar = require('./sidebar');
-const ConnectForm = require('./form');
-const Actions = require('../actions');
 
 class Connect extends React.Component {
+  static displayName = 'Connect';
+
+  static propTypes = {
+    currentConnection: PropTypes.object,
+    connections: PropTypes.object,
+    isValid: PropTypes.bool,
+    isConnected: PropTypes.bool,
+    errorMessage: PropTypes.string
+  };
+
   constructor(props) {
     super(props);
     this.dialogOpen = false;
@@ -27,12 +41,16 @@ class Connect extends React.Component {
     window.removeEventListener('focus', this.checkClipboard);
   }
 
+  /**
+   * Checks whether the clipboard has URI.
+   */
   onCheckClipboard() {
     let clipboardText = (Clipboard.readText() || '').trim();
     const url = shellToURL(clipboardText);
 
     if (url) clipboardText = url;
-    if (clipboardText === this.clipboardText || this.dialogOpen) {
+
+    if ((clipboardText === this.clipboardText) || this.dialogOpen) {
       return;
     }
 
@@ -56,9 +74,12 @@ class Connect extends React.Component {
     }
   }
 
+  /**
+   * Parses a connection string from the clipboard.
+   */
   autoFillFromClipboard() {
     Connection.from(this.clipboardText, (error, connection) => {
-      if (!error) { // TODO: Handle error
+      if (!error) {
         connection.name = '';
 
         if (this.clipboardText.match(/[?&]ssl=true/i)) {
@@ -70,6 +91,11 @@ class Connect extends React.Component {
     });
   }
 
+  /**
+   * Renders a component with messages.
+   *
+   * @returns {React.Component}
+   */
   renderMessage() {
     if (!this.props.isValid && this.props.errorMessage) {
       return (
@@ -90,29 +116,25 @@ class Connect extends React.Component {
   }
 
   render() {
+    const Status = global.hadronApp.appRegistry
+      .getRole('Application.Status')[0].component;
+
     return (
-      <div className="page connect">
-        <Sidebar {...this.props} />
-        <div className="form-container">
-          <header>
-            <h2 data-test-id="connect-header">Connect to Host</h2>
-          </header>
-          {this.renderMessage()}
-          <ConnectForm {...this.props} />
+      <div>
+        <Status />
+        <div className={classnames(styles.page, styles.connect)}>
+          <Sidebar {...this.props} />
+          <div className={classnames(styles['form-container'])}>
+            <header>
+              <h2 data-test-id="connect-header">Connect to Host</h2>
+            </header>
+            {this.renderMessage()}
+            <ConnectForm {...this.props} />
+          </div>
         </div>
       </div>
     );
   }
 }
 
-Connect.propTypes = {
-  currentConnection: PropTypes.object,
-  connections: PropTypes.object,
-  isValid: PropTypes.bool,
-  isConnected: PropTypes.bool,
-  errorMessage: PropTypes.string
-};
-
-Connect.displayName = 'Connect';
-
-module.exports = Connect;
+export default Connect;

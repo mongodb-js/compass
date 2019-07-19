@@ -8,5 +8,5 @@ coverage
 .idea/
 *.iml
 .nvmrc
-test.js
+.nyc_output
 *.swp

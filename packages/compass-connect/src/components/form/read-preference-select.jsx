@@ -1,9 +1,18 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const Actions = require('../../actions');
-const FormItemSelect = require('./form-item-select');
+import React from 'react';
+import PropTypes from 'prop-types';
+import Actions from 'actions';
+import FormItemSelect from './form-item-select';
 
 class ReadPreferenceSelect extends React.PureComponent {
+  static displayName = 'ReadPreferenceSelect';
+
+  static propTypes = { readPreference: PropTypes.string.isRequired };
+
+  /**
+   * Handles a read preference change.
+   *
+   * @param {Object} evt - evt.
+   */
   onReadPreferenceChanged(evt) {
     Actions.onReadPreferenceChanged(evt.target.value);
   }
@@ -26,10 +35,4 @@ class ReadPreferenceSelect extends React.PureComponent {
   }
 }
 
-ReadPreferenceSelect.propTypes = {
-  readPreference: PropTypes.string.isRequired
-};
-
-ReadPreferenceSelect.displayName = 'ReadPreferenceSelect';
-
-module.exports = ReadPreferenceSelect;
+export default ReadPreferenceSelect;

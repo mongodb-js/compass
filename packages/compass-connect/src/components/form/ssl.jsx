@@ -1,11 +1,15 @@
-const find = require('lodash.find');
-const React = require('react');
-const PropTypes = require('prop-types');
-const Actions = require('../../actions');
-const FormItemSelect = require('./form-item-select');
-const FormGroup = require('./form-group');
+import React from 'react';
+import PropTypes from 'prop-types';
+import find from 'lodash.find';
+import Actions from 'actions';
+import FormGroup from './form-group';
+import FormItemSelect from './form-item-select';
 
 class SSLSection extends React.Component {
+  static displayName = 'SSLSection';
+
+  static propTypes = { currentConnection: PropTypes.object.isRequired };
+
   constructor(props) {
     super(props);
     this.setupSSLRoles();
@@ -20,16 +24,29 @@ class SSLSection extends React.Component {
     }
   }
 
+  /**
+   * Handles SSL method change.
+   *
+   * @param {Object} evt - evt.
+   */
   onSSLMethodChanged(evt) {
     this.setState({ sslMethod: evt.target.value });
     Actions.onSSLMethodChanged(evt.target.value);
   }
 
+  /**
+   * Sets options for an SSL method.
+   */
   setupSSLRoles() {
     this.roles = global.hadronApp.appRegistry.getRole('Connect.SSLMethod');
     this.selectOptions = this.roles.map((role) => role.selectOption);
   }
 
+  /**
+   * Renders an SSL method.
+   *
+   * @returns {React.Component}
+   */
   renderSSLMethod() {
     const currentRole = find(
       this.roles,
@@ -56,10 +73,4 @@ class SSLSection extends React.Component {
   }
 }
 
-SSLSection.propTypes = {
-  currentConnection: PropTypes.object.isRequired
-};
-
-SSLSection.displayName = 'SSLSection';
-
-module.exports = SSLSection;
+export default SSLSection;

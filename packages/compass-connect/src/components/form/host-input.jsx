@@ -1,21 +1,35 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const Actions = require('../../actions');
-const { FormInput } = require('hadron-react-components');
+import React from 'react';
+import PropTypes from 'prop-types';
+import Actions from 'actions';
+import { FormInput } from 'hadron-react-components';
 
 const DEFAULT_HOST = 'localhost';
 
 class HostInput extends React.PureComponent {
+  static displayName = 'HostInput';
+
+  static propTypes = { lastUsed: PropTypes.any, hostname: PropTypes.string };
+
   constructor(props) {
     super(props);
     this.isChanged = false;
   }
 
+  /**
+   * Changes a host name.
+   *
+   * @param {Object} evt - evt.
+   */
   onHostnameChanged(evt) {
     this.isChanged = true;
     Actions.onHostnameChanged(evt.target.value);
   }
 
+  /**
+   * Gets a host name.
+   *
+   * @returns {String} hostname.
+   */
   getHostname() {
     if (!this.props.lastUsed && !this.isChanged && this.props.hostname === DEFAULT_HOST) {
       return '';
@@ -36,11 +50,4 @@ class HostInput extends React.PureComponent {
   }
 }
 
-HostInput.propTypes = {
-  lastUsed: PropTypes.any,
-  hostname: PropTypes.string
-};
-
-HostInput.displayName = 'HostInput';
-
-module.exports = HostInput;
+export default HostInput;

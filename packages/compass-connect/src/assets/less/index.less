@@ -1,0 +1,137 @@
+:global {
+  @import "~less/_fonts";
+  @import "~less/compass/_theme";
+
+  // Define global styles here, these will be imported by the Plugin.js.
+  // Note: these styles WILL NOT be used in compass, as compass provides its own set
+  // of global styles. If you are wishing to style a given component, you should be writing a less file per
+  // component as per the CSS Modules ICSS spec. @see components/ToggleButton for an example.
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: @gray1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  // TODO: Temp Global internal-packages/app/styles/info-sprinkle.less
+  // Needs to be migrated to info-sprinkle external dependency with CSS-Module support
+  i.info-sprinkle {
+    .fa-icon;
+    margin-left: 5px;
+    margin-right: 1px;
+    cursor: pointer;
+    font-size: 14px;
+    position: relative;
+    top: 1px;
+    opacity: 0.5;
+
+    &:hover {
+      color: @alertOrange;
+    }
+    &:before {
+      content: @fa-var-info-circle;
+    }
+  }
+
+  a i.info-sprinkle {
+    // Subview info sprinkles need to be more prominently opaque
+    color: #337ab7;
+    opacity: 1.0;
+    text-decoration: none;
+
+    &:hover {
+      color: #23527c;
+    }
+  }
+
+  .form-item {
+    margin: 15px auto 15px;
+    width: 500px;
+    overflow: auto;
+    display: flex;
+    justify-content: flex-end;
+
+    &-has-error {
+      .form-control {
+        border: 1px solid #843534;
+
+        &:focus {
+          border: 1px solid #843534;
+        }
+      }
+
+      label {
+        color: red;
+
+        i {
+          margin-right: 5px;
+        }
+      }
+
+      .form-item-file-button {
+        border: 1px solid #843534;
+      }
+    }
+
+    label {
+      width: 70%;
+      text-align: right;
+      padding: 5px 15px 0 0;
+
+      i {
+        padding-right: 5px;
+      }
+
+      i.help {
+        display: inline-block;
+        font: normal normal normal 14px/1 FontAwesome;
+        font-size: inherit;
+        text-rendering: auto;
+        margin: 0 5px;
+        cursor: pointer;
+        color: #bfbfbe;
+
+        :hover {
+          color: #fbb129;
+        }
+      }
+
+      i.help:before, i.syntax-help:before {
+        content: "\f05a";
+      }
+    }
+
+    &-switch-wrapper {
+      width: 100%;
+    }
+
+    &-file-button {
+      width: 500px !important;
+
+      i {
+        padding-right: 5px;
+      }
+
+      i.help {
+        display: inline-block;
+        font: normal normal normal 14px/1 FontAwesome;
+        font-size: inherit;
+        text-rendering: auto;
+        margin: 0 5px;
+        cursor: pointer;
+        color: #bfbfbe;
+
+        :hover {
+          color: #fbb129;
+        }
+      }
+    }
+  }
+}

@@ -1,11 +1,17 @@
-const find = require('lodash.find');
-const React = require('react');
-const PropTypes = require('prop-types');
-const Actions = require('../../actions');
-const FormGroup = require('./form-group');
-const FormItemSelect = require('./form-item-select');
+import React from 'react';
+import PropTypes from 'prop-types';
+import find from 'lodash.find';
+import Actions from 'actions';
+import FormGroup from './form-group';
+import FormItemSelect from './form-item-select';
 
 class AuthenticationSection extends React.Component {
+  static displayName = 'AuthenticationSection';
+
+  static propTypes = {
+    currentConnection: PropTypes.object.isRequired,
+    isValid: PropTypes.bool
+  };
 
   constructor(props) {
     super(props);
@@ -21,16 +27,29 @@ class AuthenticationSection extends React.Component {
     }
   }
 
+  /**
+   * Changes an authentication strategy.
+   *
+   * @param {Object} evt - evt.
+   */
   onAuthStrategyChanged(evt) {
     this.setState({ authStrategy: evt.target.value });
-    Actions.onAuthenticationMethodChanged(evt.target.value);
+    Actions.onAuthStrategyChanged(evt.target.value);
   }
 
+  /**
+   * Sets options for an authentication strategy.
+   */
   setupAuthenticationRoles() {
     this.roles = global.hadronApp.appRegistry.getRole('Connect.AuthStrategy');
     this.selectOptions = this.roles.map((role) => role.selectOption);
   }
 
+  /**
+   * Renders an authentication strategy component.
+   *
+   * @returns {React.Component}
+   */
   renderAuthStrategy() {
     const currentRole = find(
       this.roles,
@@ -57,11 +76,4 @@ class AuthenticationSection extends React.Component {
   }
 }
 
-AuthenticationSection.propTypes = {
-  currentConnection: PropTypes.object.isRequired,
-  isValid: PropTypes.bool
-};
-
-AuthenticationSection.displayName = 'AuthenticationSection';
-
-module.exports = AuthenticationSection;
+export default AuthenticationSection;

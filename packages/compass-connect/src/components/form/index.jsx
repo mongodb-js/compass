@@ -1,17 +1,26 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const FormGroup = require('./form-group');
-const HostInput = require('./host-input');
-const PortInput = require('./port-input');
-const SRVInput = require('./srv-input');
-const Authentication = require('./authentication');
-const ReplicaSetInput = require('./replica-set-input');
-const ReadPreferenceSelect = require('./read-preference-select');
-const SSL = require('./ssl');
-const SSHTunnel = require('./ssh-tunnel');
-const FormActions = require('./form-actions');
+import React from 'react';
+import PropTypes from 'prop-types';
+import FormGroup from './form-group';
+import HostInput from './host-input';
+import PortInput from './port-input';
+import SRVInput from './srv-input';
+import Authentication from './authentication';
+import ReplicaSetInput from './replica-set-input';
+import ReadPreferenceSelect from './read-preference-select';
+import SSL from './ssl';
+import SSHTunnel from './ssh-tunnel';
+import FormActions from './form-actions';
 
 class ConnectForm extends React.Component {
+  static displayName = 'ConnectForm';
+
+  static propTypes = { currentConnection: PropTypes.object.isRequired };
+
+  /**
+   * Render a port connections.
+   *
+   * @returns {React.Component}
+   */
   renderPort() {
     if (!this.props.currentConnection.isSrvRecord) {
       return (
@@ -37,7 +46,8 @@ class ConnectForm extends React.Component {
           <ReplicaSetInput
             sshTunnel={this.props.currentConnection.sshTunnel}
             replicaSet={this.props.currentConnection.replicaSet} />
-          <ReadPreferenceSelect readPreference={this.props.currentConnection.readPreference} />
+          <ReadPreferenceSelect
+            readPreference={this.props.currentConnection.readPreference} />
         </FormGroup>
         <SSL {...this.props} />
         <SSHTunnel {...this.props} />
@@ -47,10 +57,4 @@ class ConnectForm extends React.Component {
   }
 }
 
-ConnectForm.propTypes = {
-  currentConnection: PropTypes.object.isRequired
-};
-
-ConnectForm.displayName = 'ConnectForm';
-
-module.exports = ConnectForm;
+export default ConnectForm;

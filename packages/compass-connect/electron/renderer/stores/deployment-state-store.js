@@ -11,7 +11,7 @@ const DEFAULT_DESCRIPTION = 'Topology type not yet discovered.';
  */
 const DeploymentStateStore = Reflux.createStore({
   /**
-   * adds a state to the store, similar to React.Component's state
+   * Adds a state to the store, similar to React.Component's state
    * @see https://github.com/yonatanmn/Super-Simple-Flux#reflux-state-mixin
    *
    * If you call `this.setState({...})` this will cause the store to trigger
@@ -23,13 +23,10 @@ const DeploymentStateStore = Reflux.createStore({
    * Initialize the Deployment State store state. The returned object must
    * contain all keys that you might want to modify with this.setState().
    *
-   * @return {Object} initial store state.
+   * @returns {Object} Initial store state.
    */
   getInitialState() {
-    return {
-      isWritable: true,
-      description: DEFAULT_DESCRIPTION
-    };
+    return { isWritable: true, description: DEFAULT_DESCRIPTION };
   }
 });
 
