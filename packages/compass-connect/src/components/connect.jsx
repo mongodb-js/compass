@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { remote } from 'electron';
 import shellToURL from 'mongodb-shell-to-url';
-import Connection from 'models/connection';
+import Connection from 'mongodb-connection-model';
 import Sidebar from './sidebar';
 import ConnectForm from './form';
 import Actions from 'actions';
