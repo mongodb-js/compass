@@ -17,16 +17,6 @@ const ROLE = {
 };
 
 /**
- * The actions name.
- */
-const ACTIONS = 'Connect.Actions';
-
-/**
- * The store name.
- */
-const STORE = 'Connect.Store';
-
-/**
  * No auth role has no component.
  */
 const NO_AUTH_ROLE = {
@@ -160,8 +150,8 @@ function deactivate(appRegistry) {
   appRegistry.deregisterRole('Connect.AuthStrategy', NO_AUTH_ROLE);
   appRegistry.deregisterRole('Connect.AuthStrategy', MONGODB_AUTH_ROLE);
   appRegistry.deregisterRole('Connect.AuthStrategy', SCRAM_SHA_256_AUTH_ROLE);
-  appRegistry.deregisterAction('Connect.Actions', ACTIONS);
-  appRegistry.deregisterStore('Connect.Store', STORE);
+  appRegistry.deregisterAction('Connect.Actions');
+  appRegistry.deregisterStore('Connect.Store');
 }
 
 export default ConnectComponent;

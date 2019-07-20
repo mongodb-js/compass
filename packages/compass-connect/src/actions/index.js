@@ -1,4 +1,4 @@
-import Reflux from 'reflux';
+const Reflux = require('reflux');
 
 const ConnectActions = Reflux.createActions({
   'resetConnection': { sync: true },
@@ -36,4 +36,4 @@ const ConnectActions = Reflux.createActions({
   'onAtlasLearnMore': { sync: true }
 });
 
-export default ConnectActions;
+module.exports = ConnectActions;

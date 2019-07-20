@@ -1,9 +1,9 @@
 const { expect } = require('chai');
 const Reflux = require('reflux');
 const AppRegistry = require('hadron-app-registry');
-const Connection = require('../../../lib/models/connection');
-const Actions = require('../../../lib/actions');
-const IndexStore = require('../../../lib/stores');
+const Connection = require('../../../src/models/connection');
+const Actions = require('../../../src/actions');
+const IndexStore = require('../../../src/stores');
 
 describe('IndexStore', function() {
   this.timeout(60000);
