@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import SidebarInstanceStats from 'components/sidebar-instance-stats';
 import SidebarInstanceDetails from 'components/sidebar-instance-details';
+import NonGenuineWarningPill from 'components/non-genuine-warning-pill';
 
 import classnames from 'classnames';
 import styles from './sidebar-instance.less';
@@ -24,6 +25,7 @@ class SidebarInstance extends PureComponent {
           isExpanded={this.props.isExpanded}
           toggleIsExpanded={this.props.toggleIsDetailsExpanded}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
+        <NonGenuineWarningPill isGenuineMongoDB={false} />
         <SidebarInstanceDetails
           detailsPlugins={this.props.detailsPlugins}
           isExpanded={this.props.isExpanded} />
