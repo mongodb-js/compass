@@ -6,10 +6,7 @@ const Connection = require('./connection');
 const ConnectionCollection = Collection.extend(storageMixin, {
   model: Connection,
   namespace: 'Connections',
-  storage: {
-    backend: 'splice',
-    appname: electronApp.getName()
-  },
+  storage: { backend: 'splice', appname: electronApp.getName() },
   mainIndex: '_id'
 });
 

@@ -9,16 +9,9 @@ const Connection = Model.extend(storageMixin, {
   storage: {
     backend: 'splice',
     appname: electronApp.getName(),
-    secureCondition: function(val, key) {
-      return key.match(/(password|passphrase)/i);
-    }
+    secureCondition: (val, key) => key.match(/(password|passphrase)/i)
   },
-  props: {
-    appname: {
-      type: 'string',
-      default: electronApp.getName()
-    }
-  }
+  props: { appname: { type: 'string', default: electronApp.getName() } }
 });
 
 module.exports = Connection;

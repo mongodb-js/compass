@@ -22,7 +22,5 @@ module.exports = {
     // The path to the storybook directory
     storybook: path.join(__dirname, '/../.storybook')
   },
-  plugin: {
-    autoprefixer: autoprefixer(`electron ${electronVersion}`)
-  }
+  plugin: { autoprefixer: autoprefixer(`electron ${electronVersion}`) }
 };

@@ -107,7 +107,9 @@ describe('Connect [Component]', () => {
     });
 
     it('renders the header', () => {
-      expect(component.find('.error').text()).to.be.equal('Error message');
+      const errorText = component.find(`.${styles.error}`).text();
+
+      expect(errorText).to.be.equal('Error message');
     });
   });
 });

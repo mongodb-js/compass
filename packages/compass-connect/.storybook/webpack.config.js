@@ -1,13 +1,8 @@
 module.exports = {
-  resolve: {
-    extensions: ['', '.js', '.jsx']
-  },
+  resolve: { extensions: ['', '.js', '.jsx'] },
   module: {
     loaders: [
-      {
-        test: /\.less$/,
-        loader: 'style!css!less'
-      },
+      { test: /\.less$/, loader: 'style!css!less' },
       {
         test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         loader: 'url-loader?limit=10000&mimetype=application/font-woff'
