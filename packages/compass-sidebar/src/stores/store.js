@@ -11,6 +11,7 @@ import { changeDescription } from 'modules/description';
 import { toggleIsDataLake } from 'modules/is-data-lake';
 import { loadDetailsPlugins } from 'modules/details-plugins';
 import { toggleIsGenuineMongoDB } from 'modules/is-genuine-mongodb';
+import { toggleIsGenuineMongoDBVisible } from 'modules/is-genuine-mongodb-visible';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -26,10 +27,10 @@ store.onActivated = (appRegistry) => {
     }
     const isGenuine = state.instance.genuineMongoDB === undefined ?
       true :
-      state.instance.genuineMongoDB;
+      state.instance.genuineMongoDB.isGenuine;
 
     store.dispatch(toggleIsGenuineMongoDB(isGenuine));
-    // store.dispatch(toggleIsVisible(!isGenuine.isGenuine));
+    store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
   });
 
   appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {

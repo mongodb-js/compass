@@ -30,6 +30,9 @@ import { RESET } from 'modules/reset';
 import isGenuineMongoDB, {
   INITIAL_STATE as GENUINE_IS
 } from 'modules/is-genuine-mongodb';
+import isGenuineMongoDBVisible, {
+  INITIAL_STATE as IS_VISIBLE_IS
+} from 'modules/is-genuine-mongodb-visible';
 
 /**
  * The reducer.
@@ -45,6 +48,7 @@ const reducer = combineReducers({
   isDetailsExpanded,
   isWritable,
   isGenuineMongoDB,
+  isGenuineMongoDBVisible,
   isDataLake
 });
 
@@ -68,6 +72,7 @@ const rootReducer = (state, action) => {
       isDetailsExpanded: IS_DETAILS_EXPANDED_INITIAL_STATE,
       isWritable: IS_WRITABLE_INITIAL_STATE,
       isGenuineMongoDB: GENUINE_IS,
+      isGenuineMongoDBVisible: IS_VISIBLE_IS,
       isDataLake: DL_INITIAL_STATE
     };
   }

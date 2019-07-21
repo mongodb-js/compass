@@ -69,11 +69,18 @@ const connection = new Connection({
 });
 const dataService = new DataService(connection);
 
+global.hadronApp.instance.genuineMongoDB = { isGenuine: false, dbType: 'cosmos' };
+
+const state = {
+  instance: global.hadronApp.instance
+};
+
 DeploymentStateStore.setToInitial();
 dataService.connect((error, ds) => {
   ds.client.model.ssh_tunnel = 'USER_PASSWORD';
   ds.client.model.ssh_tunnel_hostname = '123.45.67.89';
   appRegistry.emit('data-service-connected', error, ds);
+  appRegistry.emit('instance-refreshed', state);
 });
 
 if (module.hot) {

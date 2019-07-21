@@ -1,0 +1,45 @@
+.non-genuine-warning-modal {
+  width: 500px;
+  padding-left: 40px;
+  padding-right: 40px;
+  display: flex;
+  flex-direction: row;
+  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+
+  .modal-content {
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .modal-header {
+    padding-bottom: 4px;
+  }
+
+  &-message {
+    background-color: #FBB129;
+    color: #303434;
+    border-width: 1px;
+    padding: 8px;
+    margin: 5px 0px;
+  }
+
+  &-p1 {
+    padding-top: 10px;
+
+    a {
+      cursor: pointer;
+    }
+  }
+
+  &-p2 {
+    padding-top: 10px;
+    code {
+      color: #303434;
+      font-family: monospace;
+      font-weight: bold;
+      background-color: transparent;
+    }
+  }
+}

@@ -12,11 +12,14 @@ import styles from './sidebar.less';
 import SidebarTitle from 'components/sidebar-title';
 import SidebarInstance from 'components/sidebar-instance';
 import SidebarDatabase from 'components/sidebar-database';
+import NonGenuineWarningModal from 'components/non-genuine-warning-modal';
 
 import { toggleIsCollapsed } from 'modules/is-collapsed';
 import { toggleIsDetailsExpanded } from 'modules/is-details-expanded';
+import { toggleIsGenuineMongoDBVisible } from 'modules/is-genuine-mongodb-visible';
 import { filterDatabases, changeDatabases } from 'modules/databases';
 import { changeFilterRegex } from 'modules/filter-regex';
+import { openLink } from 'modules/link';
 
 import { TOOLTIP_IDS } from 'constants/sidebar-constants';
 
@@ -40,9 +43,12 @@ class Sidebar extends PureComponent {
     detailsPlugins: PropTypes.array.isRequired,
     filterDatabases: PropTypes.func.isRequired,
     changeDatabases: PropTypes.func.isRequired,
+    openLink: PropTypes.func.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
     isDataLake: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
+    isGenuineMongoDBVisible: PropTypes.bool.isRequired,
+    toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired
   };
 
@@ -243,6 +249,10 @@ class Sidebar extends PureComponent {
         <div className={classnames(styles['compass-sidebar-content'])}>
           {this.renderSidebarScroll()}
         </div>
+        <NonGenuineWarningModal
+          isVisible={this.props.isGenuineMongoDBVisible}
+          toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
+          openLink={this.props.openLink} />
         {this.renderCreateDatabaseButton()}
         <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
         <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
@@ -273,7 +283,8 @@ const mapStateToProps = (state, ownProps) => ({
   isWritable: state.isWritable,
   onCollapse: ownProps.onCollapse,
   isDataLake: state.isDataLake,
-  isGenuineMongoDB: state.isGenuineMongoDB
+  isGenuineMongoDB: state.isGenuineMongoDB,
+  isGenuineMongoDBVisible: state.isGenuineMongoDBVisible
 });
 
 /**
@@ -285,9 +296,11 @@ const MappedSidebar = connect(
   {
     toggleIsCollapsed,
     toggleIsDetailsExpanded,
+    toggleIsGenuineMongoDBVisible,
     filterDatabases,
     changeDatabases,
     changeFilterRegex,
+    openLink,
     globalAppRegistryEmit
   },
 )(Sidebar);
