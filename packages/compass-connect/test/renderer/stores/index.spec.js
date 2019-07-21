@@ -503,24 +503,13 @@ describe('Store', () => {
       Store.state.currentConnection.name = 'myconnection';
     });
 
-    after((done) => {
-      const unsubscribe = Store.listen(() => {
-        unsubscribe();
-        done();
-      });
-
-      Store.onDeleteConnection(Store.state.currentConnection);
+    afterEach(() => {
+      Store.state.currentConnection = new Connection();
     });
 
-    it.only('creates a new favorite in the store', (done) => {
+    it('creates a new favorite in the store', (done) => {
       const unsubscribe = Store.listen((state) => {
         unsubscribe();
-        console.log('----------------------');
-        console.log(state.currentConnection.isFavorite);
-        console.log('----------------------');
-        console.log('----------------------');
-        console.log(state.connections.length);
-        console.log('----------------------');
         expect(state.currentConnection.isFavorite).to.equal(true);
         expect(state.connections.length).to.equal(1);
         done();
