@@ -4,9 +4,7 @@ import Connection from 'mongodb-connection-model';
 import Actions from 'actions';
 import Store from 'stores';
 
-describe('Store', function() {
-  this.timeout(60000);
-
+describe('Store', () => {
   afterEach(() => {
     Store.state = Store.getInitialState();
   });
