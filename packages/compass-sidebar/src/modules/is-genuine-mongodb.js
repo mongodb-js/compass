@@ -1,7 +1,7 @@
 /**
  * Create is genuine MongoDB action.
  */
-export const TOGGLE_IS_GENUINE_MONGODB = 'instance-header/is-genuine-mongodb/TOGGLE_IS_GENUINE_MONGODB';
+export const TOGGLE_IS_GENUINE_MONGODB = 'sidebar/is-genuine-mongodb/TOGGLE_IS_GENUINE_MONGODB';
 
 /**
  * The initial state of the instance header is genuine MongoDB.
