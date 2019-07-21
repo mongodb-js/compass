@@ -498,6 +498,32 @@ describe('Store', () => {
     });
   });
 
+  describe('#onCreateFavorite', () => {
+    before(() => {
+      Store.state.currentConnection.name = 'myconnection';
+    });
+
+    after((done) => {
+      const unsubscribe = Store.listen(() => {
+        unsubscribe();
+        done();
+      });
+
+      Store.onDeleteConnection(Store.state.currentConnection);
+    });
+
+    it.only('creates a new favorite in the store', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        // expect(state.currentConnection.isFavorite).to.equal(true);
+        // expect(state.connections.length).to.equal(1);
+        done();
+      });
+
+      Actions.onCreateFavorite();
+    });
+  });
+
   describe('#updateDefaults', () => {
     context('when auth is mongodb', () => {
       context('when the database name is empty', () => {
