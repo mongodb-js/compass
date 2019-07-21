@@ -234,10 +234,12 @@ class Sidebar extends PureComponent {
         </button>
         <SidebarTitle
           name="My Cluster"
+          isSidebarCollapsed={this.props.isCollapsed}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
         <SidebarInstance
           instance={this.props.instance}
           isExpanded={this.props.isDetailsExpanded}
+          isSidebarCollapsed={this.props.isCollapsed}
           detailsPlugins={this.props.detailsPlugins}
           isGenuineMongoDB={this.props.isGenuineMongoDB}
           toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}

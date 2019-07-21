@@ -12,6 +12,7 @@ describe('SidebarInstance [Component]', () => {
         instance={{databases: null, collections: null}}
         isExpanded
         isGenuineMongoDB
+        isSidebarCollapsed={false}
         detailsPlugins={[]}
         globalAppRegistryEmit={() => {}}
         toggleIsDetailsExpanded={() => {}}

@@ -9,7 +9,7 @@ describe('NonGenuineWarningPill [Component]', () => {
 
   context('when the instance is a non genuine mongo', () => {
     beforeEach(() => {
-      component = mount(<NonGenuineWarningPill isGenuineMongoDB={false} />);
+      component = mount(<NonGenuineWarningPill isGenuineMongoDB={false} isSidebarCollapsed={false} />);
     });
 
     afterEach(() => {
@@ -27,7 +27,21 @@ describe('NonGenuineWarningPill [Component]', () => {
 
   context('when the instance is a genuine mongo', () => {
     beforeEach(() => {
-      component = mount(<NonGenuineWarningPill isGenuineMongoDB />);
+      component = mount(<NonGenuineWarningPill isGenuineMongoDB isSidebarCollapsed={false} />);
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('does not render the pill', () => {
+      expect(component.find(`.${styles['non-genuine-warning-pill']}`)).to.not.be.present();
+    });
+  });
+
+  context('when the instance is collapsed', () => {
+    beforeEach(() => {
+      component = mount(<NonGenuineWarningPill isGenuineMongoDB isSidebarCollapsed />);
     });
 
     afterEach(() => {

@@ -52,6 +52,7 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('data-service-disconnected', () => {
     store.dispatch(reset());
+    // @todo: Set the connection name.
   });
 };
 

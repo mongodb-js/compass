@@ -12,6 +12,7 @@ class SidebarInstance extends PureComponent {
   static propTypes = {
     instance: PropTypes.object,
     isExpanded: PropTypes.bool.isRequired,
+    isSidebarCollapsed: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
@@ -26,9 +27,12 @@ class SidebarInstance extends PureComponent {
           isExpanded={this.props.isExpanded}
           toggleIsExpanded={this.props.toggleIsDetailsExpanded}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
-        <NonGenuineWarningPill isGenuineMongoDB={this.props.isGenuineMongoDB} />
+        <NonGenuineWarningPill
+          isSidebarCollapsed={this.props.isSidebarCollapsed}
+          isGenuineMongoDB={this.props.isGenuineMongoDB} />
         <SidebarInstanceDetails
           detailsPlugins={this.props.detailsPlugins}
+          isSidebarCollapsed={this.props.isSidebarCollapsed}
           isExpanded={this.props.isExpanded} />
       </div>
     );

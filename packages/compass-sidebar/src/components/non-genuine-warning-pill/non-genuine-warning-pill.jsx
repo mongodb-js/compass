@@ -11,6 +11,7 @@ import styles from './non-genuine-warning-pill.less';
 class NonGenuineWarningPill extends PureComponent {
   static displayName = 'NonGenuineWarningPill';
   static propTypes = {
+    isSidebarCollapsed: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired
   }
 
@@ -20,7 +21,7 @@ class NonGenuineWarningPill extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    if (this.props.isGenuineMongoDB) {
+    if (this.props.isGenuineMongoDB || this.props.isSidebarCollapsed) {
       return null;
     }
     return (

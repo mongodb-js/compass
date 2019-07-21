@@ -8,6 +8,7 @@ class SidebarInstanceDetails extends PureComponent {
   static displayName = 'SidebarInstanceDetails';
   static propTypes = {
     isExpanded: PropTypes.bool.isRequired,
+    isSidebarCollapsed: PropTypes.bool.isRequired,
     detailsPlugins: PropTypes.array.isRequired
   };
 
@@ -19,7 +20,7 @@ class SidebarInstanceDetails extends PureComponent {
   }
 
   renderPlugins() {
-    if (this.props.isExpanded) {
+    if (this.props.isExpanded && !this.props.isSidebarCollapsed) {
       return (
         <div className={classnames(styles['sidebar-instance-details-container'])}>
           {this.details}
