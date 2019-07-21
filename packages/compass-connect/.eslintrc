@@ -1,12 +1,6 @@
 {
-  "env": {
-    "mocha": true,
-    "node": true
-  },
-  "globals": {
-    "expect": true,
-    "sinon": true
-  },
+  "env": { "mocha": true, "node": true },
+  "globals": { "expect": true, "sinon": true },
   "rules": {
     "camelcase": 1,
     "new-cap": 0,
@@ -18,5 +12,5 @@
     "mongodb-js/browser",
     "mongodb-js/react"
   ],
-  "plugins": ["react"],
+  "plugins": ["react"]
 }

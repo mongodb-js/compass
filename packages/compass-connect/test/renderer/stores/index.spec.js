@@ -4,7 +4,7 @@ import Connection from 'mongodb-connection-model';
 import Actions from 'actions';
 import Store from 'stores';
 
-describe('IndexStore', function() {
+describe('Store', function() {
   this.timeout(60000);
 
   afterEach(() => {
@@ -27,6 +27,7 @@ describe('IndexStore', function() {
     };
     const extension = function(store) {
       const principal = onKerberosPrincipalChanged.bind(store);
+
       ExtActions.onKerberosPrincipalChanged.listen(principal);
     };
 
