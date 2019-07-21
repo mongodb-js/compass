@@ -70,7 +70,7 @@ const LEARN_MORE = 'https://www.mongodb.com/cloud/atlas';
 /**
  * The store that backs the connect plugin.
  */
-const ConnectStore = Reflux.createStore({
+const Store = Reflux.createStore({
   mixins: [StateMixin.store],
   listenables: Actions,
 
@@ -567,5 +567,5 @@ const ConnectStore = Reflux.createStore({
   }
 });
 
-module.exports = ConnectStore;
+module.exports = Store;
 module.exports.EXTENSION = EXTENSION;

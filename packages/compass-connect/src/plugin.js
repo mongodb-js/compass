@@ -1,7 +1,7 @@
 import React from 'react';
 import { StoreConnector } from 'hadron-react-components';
-import ConnectComponent from 'components/connect';
-import ConnectStore from 'stores';
+import Connect from 'components/connect';
+import Store from 'stores';
 
 class Plugin extends React.Component {
   static displayName = 'ConnectPlugin';
@@ -13,8 +13,8 @@ class Plugin extends React.Component {
    */
   render() {
     return (
-      <StoreConnector store={ConnectStore}>
-        <ConnectComponent {...this.props} />
+      <StoreConnector store={Store}>
+        <Connect {...this.props} />
       </StoreConnector>
     );
   }

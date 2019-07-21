@@ -1,6 +1,6 @@
-import ConnectComponent from './plugin';
-import ConnectActions from 'actions';
-import ConnectStore from 'stores';
+import Connect from './plugin';
+import Actions from 'actions';
+import Store from 'stores';
 import MongoDBAuthentication from 'components/form/mongodb-authentication';
 import ScramSha256 from 'components/form/scram-sha-256';
 import SSLServerValidation from 'components/form/ssl-server-validation';
@@ -13,7 +13,7 @@ import SSHTunnelPasswordValidation from 'components/form/ssh-tunnel-password-val
  */
 const ROLE = {
   name: 'Connect',
-  component: ConnectComponent
+  component: Connect
 };
 
 /**
@@ -128,8 +128,8 @@ function activate(appRegistry) {
   appRegistry.registerRole('Connect.AuthStrategy', NO_AUTH_ROLE);
   appRegistry.registerRole('Connect.AuthStrategy', MONGODB_AUTH_ROLE);
   appRegistry.registerRole('Connect.AuthStrategy', SCRAM_SHA_256_AUTH_ROLE);
-  appRegistry.registerAction('Connect.Actions', ConnectActions);
-  appRegistry.registerStore('Connect.Store', ConnectStore);
+  appRegistry.registerAction('Connect.Actions', Actions);
+  appRegistry.registerStore('Connect.Store', Store);
 }
 
 /**
@@ -154,7 +154,7 @@ function deactivate(appRegistry) {
   appRegistry.deregisterStore('Connect.Store');
 }
 
-export default ConnectComponent;
+export default Connect;
 export {
   MongoDBAuthentication,
   ScramSha256,

@@ -99,7 +99,7 @@ class Connect extends React.Component {
   renderMessage() {
     if (!this.props.isValid && this.props.errorMessage) {
       return (
-        <div className="message error">
+        <div className={`message ${classnames(styles.error)}`}>
           <p>{this.props.errorMessage}</p>
         </div>
       );
@@ -108,7 +108,7 @@ class Connect extends React.Component {
       const server = `${connection.hostname}:${connection.port}`;
 
       return (
-        <div className="message success">
+        <div className={`message ${classnames(styles.success)}`}>
           <p>Connected to {server}</p>
         </div>
       );

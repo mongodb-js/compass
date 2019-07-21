@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 
-const ConnectActions = Reflux.createActions({
+const Actions = Reflux.createActions({
   'resetConnection': { sync: true },
   'onHostnameChanged': { sync: true },
   'onPortChanged': { sync: true },
@@ -36,4 +36,4 @@ const ConnectActions = Reflux.createActions({
   'onAtlasLearnMore': { sync: true }
 });
 
-module.exports = ConnectActions;
+module.exports = Actions;

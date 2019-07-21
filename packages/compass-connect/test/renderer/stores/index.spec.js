@@ -1,20 +1,19 @@
-const { expect } = require('chai');
-const Reflux = require('reflux');
-const AppRegistry = require('hadron-app-registry');
-const Connection = require('../../../src/models/connection');
-const Actions = require('../../../src/actions');
-const IndexStore = require('../../../src/stores');
+import Reflux from 'reflux';
+import AppRegistry from 'hadron-app-registry';
+import Connection from 'mongodb-connection-model';
+import Actions from 'actions';
+import Store from 'stores';
 
 describe('IndexStore', function() {
   this.timeout(60000);
 
   afterEach(() => {
-    IndexStore.state = IndexStore.getInitialState();
+    Store.state = Store.getInitialState();
   });
 
   describe('#getInitialState', () => {
     it('initializes with an empty current connection', () => {
-      expect(IndexStore.state.currentConnection.username).to.equal('');
+      expect(Store.state.currentConnection.username).to.equal('');
     });
   });
 
@@ -34,12 +33,12 @@ describe('IndexStore', function() {
     before(() => {
       const registry = new AppRegistry();
 
-      registry.registerRole(IndexStore.EXTENSION, extension);
-      IndexStore.onActivated(registry);
+      registry.registerRole(Store.EXTENSION, extension);
+      Store.onActivated(registry);
     });
 
     it('binds the store context to the extension', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.kerberosPrincipal).to.equal('testing');
         done();
@@ -52,11 +51,11 @@ describe('IndexStore', function() {
   describe('#resetConnection', () => {
     context('when the form is currently valid', () => {
       before(() => {
-        IndexStore.state.currentConnection.mongodbUsername = 'testing';
+        Store.state.currentConnection.mongodbUsername = 'testing';
       });
 
       it('updates the hostname in the current connection model', (done) => {
-        const unsubscribe = IndexStore.listen((state) => {
+        const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.currentConnection.mongodbUsername).to.equal(undefined);
           done();
@@ -68,11 +67,11 @@ describe('IndexStore', function() {
 
     context('when the form is not valid', () => {
       before(() => {
-        IndexStore.state.isValid = false;
+        Store.state.isValid = false;
       });
 
       it('resets the form to valid', (done) => {
-        const unsubscribe = IndexStore.listen((state) => {
+        const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.isValid).to.equal(true);
           done();
@@ -85,7 +84,7 @@ describe('IndexStore', function() {
 
   describe('#onHostnameChanged', () => {
     it('updates the hostname in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.hostname).to.equal('myserver');
         done();
@@ -96,7 +95,7 @@ describe('IndexStore', function() {
 
     context('when the hostname contains mongodb.net', () => {
       it('updates the hostname and sets the systemca ssl option', (done) => {
-        const unsubscribe = IndexStore.listen((state) => {
+        const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.currentConnection.hostname).to.equal('mongodb.net');
           expect(state.currentConnection.sslMethod).to.equal('SYSTEMCA');
@@ -109,7 +108,7 @@ describe('IndexStore', function() {
 
     context('when it contains trailing spaces', () => {
       it('trims the whitespace', (done) => {
-        const unsubscribe = IndexStore.listen((state) => {
+        const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.currentConnection.hostname).to.equal('example.com');
           done();
@@ -122,11 +121,11 @@ describe('IndexStore', function() {
 
   describe('#onSRVRecordToggle', () => {
     afterEach(() => {
-      IndexStore.state.currentConnection.isSrvRecord = false;
+      Store.state.currentConnection.isSrvRecord = false;
     });
 
     it('updates the srv record property', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.isSrvRecord).to.equal(true);
         done();
@@ -137,7 +136,7 @@ describe('IndexStore', function() {
 
   describe('#onPortChanged', () => {
     it('updates the port in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.port).to.equal('27018');
         done();
@@ -148,7 +147,7 @@ describe('IndexStore', function() {
 
     context('when it contains trailing spaces', () => {
       it('trims the whitespace', (done) => {
-        const unsubscribe = IndexStore.listen((state) => {
+        const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.currentConnection.port).to.equal('27018');
           done();
@@ -161,7 +160,7 @@ describe('IndexStore', function() {
 
   describe('#onReplicaSetChanged', () => {
     it('updates the replica set name in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.replicaSet).to.equal('myreplicaset');
         done();
@@ -172,7 +171,7 @@ describe('IndexStore', function() {
 
     context('when it contains trailing spaces', () => {
       it('trims the whitespace', (done) => {
-        const unsubscribe = IndexStore.listen((state) => {
+        const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.currentConnection.replicaSet).to.equal('myreplicaset');
           done();
@@ -185,7 +184,7 @@ describe('IndexStore', function() {
 
   describe('#onReadPreferenceChanged', () => {
     it('updates the read preference in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.readPreference).to.equal('primaryPreferred');
         done();
@@ -197,7 +196,7 @@ describe('IndexStore', function() {
 
   describe('#onSSHTunnelChanged', () => {
     it('updates the ssh method in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sshTunnel).to.equal('IDENTITY_FILE');
         done();
@@ -208,16 +207,16 @@ describe('IndexStore', function() {
 
     context('when ssl attributes already exist', () => {
       beforeEach(() => {
-        IndexStore.state.currentConnection.sshTunnelHostname = 'host';
-        IndexStore.state.currentConnection.sshTunnelPort = '3000';
-        IndexStore.state.currentConnection.sshTunnelBindToLocalPort = '5000';
-        IndexStore.state.currentConnection.sshTunnelUsername = 'user';
-        IndexStore.state.currentConnection.sshTunnelPassword = 'pass';
-        IndexStore.state.currentConnection.sshTunnelPassphrase = 'pp';
+        Store.state.currentConnection.sshTunnelHostname = 'host';
+        Store.state.currentConnection.sshTunnelPort = '3000';
+        Store.state.currentConnection.sshTunnelBindToLocalPort = '5000';
+        Store.state.currentConnection.sshTunnelUsername = 'user';
+        Store.state.currentConnection.sshTunnelPassword = 'pass';
+        Store.state.currentConnection.sshTunnelPassphrase = 'pp';
       });
 
       it('clears out all previous values', (done) => {
-        const unsubscribe = IndexStore.listen((state) => {
+        const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.currentConnection.sshTunnel).to.equal('IDENTITY_FILE');
           expect(state.currentConnection.sshTunnelHostname).to.equal(undefined);
@@ -237,7 +236,7 @@ describe('IndexStore', function() {
 
   describe('#onSSLMethodChanged', () => {
     it('updates the ssl method in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sslMethod).to.equal('SYSTEMCA');
         done();
@@ -248,14 +247,14 @@ describe('IndexStore', function() {
 
     context('when ssl attributes already exist', () => {
       beforeEach(() => {
-        IndexStore.state.currentConnection.sslCA = ['ca'];
-        IndexStore.state.currentConnection.sslCert = ['cert'];
-        IndexStore.state.currentConnection.sslKey = ['key'];
-        IndexStore.state.currentConnection.sslPass = 'pass';
+        Store.state.currentConnection.sslCA = ['ca'];
+        Store.state.currentConnection.sslCert = ['cert'];
+        Store.state.currentConnection.sslKey = ['key'];
+        Store.state.currentConnection.sslPass = 'pass';
       });
 
       it('clears out all previous values', (done) => {
-        const unsubscribe = IndexStore.listen((state) => {
+        const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.currentConnection.sslMethod).to.equal('SYSTEMCA');
           expect(state.currentConnection.sslCert).to.equal(undefined);
@@ -272,7 +271,7 @@ describe('IndexStore', function() {
 
   describe('#onAuthStrategyChanged', () => {
     it('updates the authentication method in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.authStrategy).to.equal('MONGODB');
         done();
@@ -283,19 +282,19 @@ describe('IndexStore', function() {
 
     context('when auth attributes already exist', () => {
       beforeEach(() => {
-        IndexStore.state.currentConnection.mongodbUsername = 'user';
-        IndexStore.state.currentConnection.mongodbPassword = 'password';
-        IndexStore.state.currentConnection.mongodbDatabaseName = 'foo';
-        IndexStore.state.currentConnection.kerberosPrincipal = 'kerb';
-        IndexStore.state.currentConnection.kerberosPassword = 'pass';
-        IndexStore.state.currentConnection.kerberosServiceName = 'kerb-service';
-        IndexStore.state.currentConnection.x509Username = 'x5user';
-        IndexStore.state.currentConnection.ldapUsername = 'ldapuser';
-        IndexStore.state.currentConnection.ldapPassword = 'ldappass';
+        Store.state.currentConnection.mongodbUsername = 'user';
+        Store.state.currentConnection.mongodbPassword = 'password';
+        Store.state.currentConnection.mongodbDatabaseName = 'foo';
+        Store.state.currentConnection.kerberosPrincipal = 'kerb';
+        Store.state.currentConnection.kerberosPassword = 'pass';
+        Store.state.currentConnection.kerberosServiceName = 'kerb-service';
+        Store.state.currentConnection.x509Username = 'x5user';
+        Store.state.currentConnection.ldapUsername = 'ldapuser';
+        Store.state.currentConnection.ldapPassword = 'ldappass';
       });
 
       it('clears out all previous values', (done) => {
-        const unsubscribe = IndexStore.listen((state) => {
+        const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.currentConnection.authStrategy).to.equal('MONGODB');
           expect(state.currentConnection.mongodbUsername).to.equal(undefined);
@@ -317,7 +316,7 @@ describe('IndexStore', function() {
 
   describe('#onUsernameChanged', () => {
     it('updates the username in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.mongodbUsername).to.equal('user');
         done();
@@ -329,7 +328,7 @@ describe('IndexStore', function() {
 
   describe('#onPasswordChanged', () => {
     it('updates the password in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.mongodbPassword).to.equal('pass');
         done();
@@ -341,7 +340,7 @@ describe('IndexStore', function() {
 
   describe('#onAuthSourceChanged', () => {
     it('updates the auth source in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.mongodbDatabaseName).to.equal('database');
         done();
@@ -353,7 +352,7 @@ describe('IndexStore', function() {
 
   describe('#onSSLCAChanged', () => {
     it('updates the ssl ca field in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sslCA).to.deep.equal(['file']);
         done();
@@ -365,7 +364,7 @@ describe('IndexStore', function() {
 
   describe('#onSSLCertificateChanged', () => {
     it('updates the ssl certificate field in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sslCert).to.deep.equal(['file']);
         done();
@@ -377,7 +376,7 @@ describe('IndexStore', function() {
 
   describe('#onSSLPrivateKeyChanged', () => {
     it('updates the ssl private key field in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sslKey).to.deep.equal(['file']);
         done();
@@ -389,7 +388,7 @@ describe('IndexStore', function() {
 
   describe('#onSSLPrivateKeyPasswordChanged', () => {
     it('updates the ssl private key password field in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sslPass).to.equal('testing');
         done();
@@ -401,7 +400,7 @@ describe('IndexStore', function() {
 
   describe('#onSSHTunnelPortChanged', () => {
     it('updates the SSH Tunnel port in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sshTunnelPort).to.equal('5000');
         done();
@@ -413,7 +412,7 @@ describe('IndexStore', function() {
 
   describe('#onSSHTunnelUsernameChanged', () => {
     it('updates the SSH Tunnel username in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sshTunnelUsername).to.equal('mongodb');
         done();
@@ -425,7 +424,7 @@ describe('IndexStore', function() {
 
   describe('#onSSHTunnelHostnameChanged', () => {
     it('updates the SSH Tunnel hostname in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sshTunnelHostname).to.equal('localhost');
         done();
@@ -437,7 +436,7 @@ describe('IndexStore', function() {
 
   describe('#onSSHTunnelPasswordChanged', () => {
     it('updates the SSH Tunnel password in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sshTunnelPassword).to.equal('mongodb');
         done();
@@ -449,7 +448,7 @@ describe('IndexStore', function() {
 
   describe('#onSSHTunnelPassphraseChanged', () => {
     it('updates the SSH Tunnel passphrase in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sshTunnelPassphrase).to.equal('mongodb');
         done();
@@ -461,7 +460,7 @@ describe('IndexStore', function() {
 
   describe('#onSSHTunnelIdentityFileChanged', () => {
     it('updates the SSH Tunnel identity file in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.sshTunnelIdentityFile).to.deep.equal(['file']);
         done();
@@ -475,7 +474,7 @@ describe('IndexStore', function() {
     const connection = new Connection();
 
     it('sets the current connection in the store', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection).to.equal(connection);
         expect(state.isValid).to.equal(true);
@@ -490,7 +489,7 @@ describe('IndexStore', function() {
 
   describe('#onFavoriteNameChanged', () => {
     it('updates the name on the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.name).to.equal('myconnection');
         done();
@@ -502,20 +501,20 @@ describe('IndexStore', function() {
 
   describe('#onCreateFavorite', () => {
     before(() => {
-      IndexStore.state.currentConnection.name = 'myconnection';
+      Store.state.currentConnection.name = 'myconnection';
     });
 
     after((done) => {
-      const unsubscribe = IndexStore.listen(() => {
+      const unsubscribe = Store.listen(() => {
         unsubscribe();
         done();
       });
 
-      IndexStore.onDeleteConnection(IndexStore.state.currentConnection);
+      Store.onDeleteConnection(Store.state.currentConnection);
     });
 
     it('creates a new favorite in the store', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
+      const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.isFavorite).to.equal(true);
         expect(state.connections.length).to.equal(1);
@@ -529,16 +528,16 @@ describe('IndexStore', function() {
   describe('#onCreateRecent', () => {
     context('when the list is under 10 recent connections', () => {
       after((done) => {
-        const unsubscribe = IndexStore.listen(() => {
+        const unsubscribe = Store.listen(() => {
           unsubscribe();
           done();
         });
 
-        IndexStore.onDeleteConnection(IndexStore.state.currentConnection);
+        Store.onDeleteConnection(Store.state.currentConnection);
       });
 
       it('creates a new recent in the store', (done) => {
-        const unsubscribe = IndexStore.listen((state) => {
+        const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.currentConnection.isFavorite).to.equal(false);
           expect(state.currentConnection.lastUsed).to.not.equal(undefined);
@@ -552,31 +551,31 @@ describe('IndexStore', function() {
 
     context('when the list has 10 recent connections', () => {
       before(() => {
-        IndexStore.state.connections.add(new Connection({ isFavorite: true }));
-        IndexStore.state.connections.add(new Connection({ lastUsed: new Date('2017-01-01') }));
-        IndexStore.state.connections.add(new Connection({ lastUsed: new Date('2017-01-02') }));
-        IndexStore.state.connections.add(new Connection({ lastUsed: new Date('2017-01-03') }));
-        IndexStore.state.connections.add(new Connection({ lastUsed: new Date('2017-01-04') }));
-        IndexStore.state.connections.add(new Connection({ lastUsed: new Date('2017-01-08') }));
-        IndexStore.state.connections.add(new Connection({ lastUsed: new Date('2017-01-09') }));
-        IndexStore.state.connections.add(new Connection({ lastUsed: new Date('2017-01-10') }));
-        IndexStore.state.connections.add(new Connection({ lastUsed: new Date('2017-01-05') }));
-        IndexStore.state.connections.add(new Connection({ lastUsed: new Date('2017-01-06') }));
-        IndexStore.state.connections.add(new Connection({ lastUsed: new Date('2017-01-07') }));
+        Store.state.connections.add(new Connection({ isFavorite: true }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-01') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-02') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-03') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-04') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-08') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-09') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-10') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-05') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-06') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-07') }));
       });
 
       after((done) => {
-        const unsubscribe = IndexStore.listen(() => {
+        const unsubscribe = Store.listen(() => {
           unsubscribe();
-          IndexStore.state.connections.reset();
+          Store.state.connections.reset();
           done();
         });
 
-        IndexStore.onDeleteConnection(IndexStore.state.currentConnection);
+        Store.onDeleteConnection(Store.state.currentConnection);
       });
 
       it('limits the recent connections to 10', (done) => {
-        const unsubscribe = IndexStore.listen((state) => {
+        const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.currentConnection.isFavorite).to.equal(false);
           expect(state.currentConnection.lastUsed).to.not.equal(undefined);
@@ -593,17 +592,17 @@ describe('IndexStore', function() {
     context('when auth is mongodb', () => {
       context('when the database name is empty', () => {
         beforeEach(() => {
-          IndexStore.state.currentConnection.authStrategy = 'MONGODB';
-          IndexStore.state.currentConnection.mongodbDatabaseName = '';
-          IndexStore.updateDefaults();
+          Store.state.currentConnection.authStrategy = 'MONGODB';
+          Store.state.currentConnection.mongodbDatabaseName = '';
+          Store.updateDefaults();
         });
 
         afterEach(() => {
-          IndexStore.state.currentConnection = new Connection();
+          Store.state.currentConnection = new Connection();
         });
 
         it('sets the database name to admin', () => {
-          expect(IndexStore.state.currentConnection.mongodbDatabaseName).to.equal('admin');
+          expect(Store.state.currentConnection.mongodbDatabaseName).to.equal('admin');
         });
       });
     });
@@ -611,16 +610,16 @@ describe('IndexStore', function() {
     context('when auth is kerberos', () => {
       context('when the service name is empty', () => {
         before(() => {
-          IndexStore.state.currentConnection.authStrategy = 'KERBEROS';
-          IndexStore.updateDefaults();
+          Store.state.currentConnection.authStrategy = 'KERBEROS';
+          Store.updateDefaults();
         });
 
         after(() => {
-          IndexStore.state.currentConnection = new Connection();
+          Store.state.currentConnection = new Connection();
         });
 
         it('sets the service name to mongodb', () => {
-          expect(IndexStore.state.currentConnection.kerberosServiceName).to.equal('mongodb');
+          expect(Store.state.currentConnection.kerberosServiceName).to.equal('mongodb');
         });
       });
     });
