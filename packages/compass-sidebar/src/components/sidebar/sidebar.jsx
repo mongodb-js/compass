@@ -42,6 +42,7 @@ class Sidebar extends PureComponent {
     changeDatabases: PropTypes.func.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
     isDataLake: PropTypes.bool.isRequired,
+    isGenuineMongoDB: PropTypes.bool.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired
   };
 
@@ -225,6 +226,7 @@ class Sidebar extends PureComponent {
           instance={this.props.instance}
           isExpanded={this.props.isDetailsExpanded}
           detailsPlugins={this.props.detailsPlugins}
+          isGenuineMongoDB={this.props.isGenuineMongoDB}
           toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
         <div
@@ -270,7 +272,8 @@ const mapStateToProps = (state, ownProps) => ({
   isDetailsExpanded: state.isDetailsExpanded,
   isWritable: state.isWritable,
   onCollapse: ownProps.onCollapse,
-  isDataLake: state.isDataLake
+  isDataLake: state.isDataLake,
+  isGenuineMongoDB: state.isGenuineMongoDB
 });
 
 /**

@@ -27,6 +27,9 @@ import isDataLake, {
   INITIAL_STATE as DL_INITIAL_STATE
 } from './is-data-lake';
 import { RESET } from 'modules/reset';
+import isGenuineMongoDB, {
+  INITIAL_STATE as GENUINE_IS
+} from 'modules/is-genuine-mongodb';
 
 /**
  * The reducer.
@@ -41,6 +44,7 @@ const reducer = combineReducers({
   isCollapsed,
   isDetailsExpanded,
   isWritable,
+  isGenuineMongoDB,
   isDataLake
 });
 
@@ -63,6 +67,7 @@ const rootReducer = (state, action) => {
       isCollapsed: IS_COLLAPSED_INITIAL_STATE,
       isDetailsExpanded: IS_DETAILS_EXPANDED_INITIAL_STATE,
       isWritable: IS_WRITABLE_INITIAL_STATE,
+      isGenuineMongoDB: GENUINE_IS,
       isDataLake: DL_INITIAL_STATE
     };
   }

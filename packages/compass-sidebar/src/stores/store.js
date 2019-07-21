@@ -10,6 +10,7 @@ import { toggleIsWritable } from 'modules/is-writable';
 import { changeDescription } from 'modules/description';
 import { toggleIsDataLake } from 'modules/is-data-lake';
 import { loadDetailsPlugins } from 'modules/details-plugins';
+import { toggleIsGenuineMongoDB } from 'modules/is-genuine-mongodb';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -23,6 +24,12 @@ store.onActivated = (appRegistry) => {
     if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
       store.dispatch(toggleIsDataLake(true));
     }
+    const isGenuine = state.instance.genuineMongoDB === undefined ?
+      true :
+      state.instance.genuineMongoDB;
+
+    store.dispatch(toggleIsGenuineMongoDB(isGenuine));
+    // store.dispatch(toggleIsVisible(!isGenuine.isGenuine));
   });
 
   appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
