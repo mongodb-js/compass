@@ -65,6 +65,7 @@ class Sidebar extends PureComponent {
   handleCollapse() {
     if (!this.props.isCollapsed) {
       this.props.onCollapse();
+      this.props.globalAppRegistryEmit('compass:status:configure', { sidebar: false });
       this.props.toggleIsCollapsed(!this.props.isCollapsed);
     }
   }
@@ -72,6 +73,7 @@ class Sidebar extends PureComponent {
   handleExpand() {
     if (this.props.isCollapsed) {
       this.props.onCollapse();
+      this.props.globalAppRegistryEmit('compass:status:configure', { sidebar: true });
       this.props.toggleIsCollapsed(!this.props.isCollapsed);
     }
   }
@@ -157,8 +159,7 @@ class Sidebar extends PureComponent {
       return (
         <div
           className={classnames(styles['compass-sidebar-button-create-database-container'])}
-          {...tooltipOptions}
-        >
+          {...tooltipOptions}>
           <button
             className={className}
             title="Create Database"
@@ -218,13 +219,19 @@ class Sidebar extends PureComponent {
     const collapsed = this.props.isCollapsed ?
       'compass-sidebar-collapsed' :
       'compass-sidebar-expanded';
-    // const collapsedButton = 'fa' +
-      // (this.props.isCollapsed ? ' fa-caret-right' : ' fa-caret-left');
+    const collapsedButton = 'fa' +
+      (this.props.isCollapsed ? ' fa-caret-right' : ' fa-caret-left');
 
     return (
       <div
         className={classnames(styles['compass-sidebar'], styles[collapsed])}
         onClick={this.handleExpand.bind(this)}>
+        <button
+          className={classnames(styles['compass-sidebar-toggle'], 'btn btn-default btn-sm')}
+          onClick={this.handleCollapse.bind(this)}
+          data-test-id="toggle-sidebar">
+          <i className={collapsedButton}/>
+        </button>
         <SidebarTitle
           name="My Cluster"
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
