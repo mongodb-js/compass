@@ -513,16 +513,5 @@ describe('Store', function() {
 
       Store.onDeleteConnection(Store.state.currentConnection);
     });
-
-    it('creates a new favorite connection in the store', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.currentConnection.isFavorite).to.equal(true);
-        expect(state.connections.length).to.equal(1);
-        done();
-      });
-
-      Actions.onCreateFavorite();
-    });
   });
 });
