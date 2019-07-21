@@ -503,7 +503,7 @@ describe('Store', () => {
       Store.state.currentConnection.name = 'myconnection';
     });
 
-    afterEach(() => {
+    after(() => {
       Store.state.currentConnection = new Connection();
     });
 
@@ -516,6 +516,58 @@ describe('Store', () => {
       });
 
       Actions.onCreateFavorite();
+    });
+  });
+
+  describe('#onCreateRecent', () => {
+    context('when the list is under 10 recent connections', () => {
+      after(() => {
+        Store.state.currentConnection = new Connection();
+      });
+
+      it('creates a new recent in the store', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.currentConnection.isFavorite).to.equal(false);
+          expect(state.currentConnection.lastUsed).to.not.equal(undefined);
+          expect(state.connections.length).to.equal(1);
+          done();
+        });
+
+        Actions.onCreateRecent();
+      });
+    });
+
+    context('when the list has 10 recent connections', () => {
+      before(() => {
+        Store.state.connections.add(new Connection({ isFavorite: true }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-01') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-02') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-03') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-04') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-08') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-09') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-10') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-05') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-06') }));
+        Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-07') }));
+      });
+
+      after(() => {
+        Store.state.currentConnection = new Connection();
+      });
+
+      it('limits the recent connections to 10', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.currentConnection.isFavorite).to.equal(false);
+          expect(state.currentConnection.lastUsed).to.not.equal(undefined);
+          expect(state.connections.length).to.equal(11);
+          done();
+        });
+
+        Actions.onCreateRecent();
+      });
     });
   });
 
