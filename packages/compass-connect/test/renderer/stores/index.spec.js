@@ -498,29 +498,40 @@ describe('Store', () => {
     });
   });
 
-  describe('#onCreateFavorite', () => {
-    before(() => {
-      Store.state.currentConnection.name = 'myconnection';
+  describe('#updateDefaults', () => {
+    context('when auth is mongodb', () => {
+      context('when the database name is empty', () => {
+        beforeEach(() => {
+          Store.state.currentConnection.authStrategy = 'MONGODB';
+          Store.state.currentConnection.mongodbDatabaseName = '';
+          Store.updateDefaults();
+        });
+
+        afterEach(() => {
+          Store.state.currentConnection = new Connection();
+        });
+
+        it('sets the database name to admin', () => {
+          expect(Store.state.currentConnection.mongodbDatabaseName).to.equal('admin');
+        });
+      });
     });
 
-    after((done) => {
-      const unsubscribe = Store.listen(() => {
-        unsubscribe();
-        done();
+    context('when auth is kerberos', () => {
+      context('when the service name is empty', () => {
+        before(() => {
+          Store.state.currentConnection.authStrategy = 'KERBEROS';
+          Store.updateDefaults();
+        });
+
+        after(() => {
+          Store.state.currentConnection = new Connection();
+        });
+
+        it('sets the service name to mongodb', () => {
+          expect(Store.state.currentConnection.kerberosServiceName).to.equal('mongodb');
+        });
       });
-
-      Store.onDeleteConnection(Store.state.currentConnection);
-    });
-
-    it.only('creates a new favorite in the store', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.currentConnection.isFavorite).to.equal(true);
-        expect(state.connections.length).to.equal(1);
-        done();
-      });
-
-      Actions.onCreateFavorite();
     });
   });
 });
