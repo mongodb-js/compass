@@ -514,7 +514,7 @@ describe('Store', function() {
       Store.onDeleteConnection(Store.state.currentConnection);
     });
 
-    it('creates a new favorite in the store', (done) => {
+    it('creates a new favorite connection in the store', (done) => {
       const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection.isFavorite).to.equal(true);
