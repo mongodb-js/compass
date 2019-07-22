@@ -1,7 +1,7 @@
 const merge = require('webpack-merge');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const PeerDepsExternalsPlugin = require('peer-deps-externals-webpack-plugin');
 const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
@@ -60,7 +60,7 @@ const config = {
     // so that the external vendor JavaScript is not part of our compiled bundle
     new PeerDepsExternalsPlugin(),
     // Configure Extract Plugin for dependent global styles into a single CSS file
-    new ExtractTextPlugin({
+    new MiniCssExtractPlugin({
       filename: 'assets/css/index.css',
       allChunks: true,
       ignoreOrder: true // When using CSS modules import order of CSS no longer needs to be preserved
