@@ -498,13 +498,31 @@ describe('Store', () => {
     });
   });
 
-  describe('#onCreateFavorite', () => {
+  describe.only('#onCreateFavorite', () => {
     before(() => {
       Store.state.currentConnection.name = 'myconnection';
     });
 
-    after(() => {
-      Store.state.currentConnection = new Connection();
+    after((done) => {
+      console.log('----------------------');
+      console.log('after');
+      console.log('----------------------');
+      const unsubscribe = Store.listen(() => {
+        console.log('----------------------');
+        console.log('unsubscribe');
+        console.log('----------------------');
+        unsubscribe();
+        console.log('Store.state.connections.reset----------------------');
+        console.log(Store.state.connections.reset);
+        console.log('----------------------');
+        Store.state.connections.reset();
+        console.log('----------------------');
+        console.log('reset');
+        console.log('----------------------');
+        done();
+      });
+
+      Store.onDeleteConnection(Store.state.currentConnection);
     });
 
     it('creates a new favorite in the store', (done) => {
