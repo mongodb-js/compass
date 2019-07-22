@@ -319,14 +319,8 @@ const Store = Reflux.createStore({
    * @param {Connection} connection - The connection to delete.
    */
   onDeleteConnection(connection) {
-    console.log('connection----------------------');
-    console.log(connection);
-    console.log('----------------------');
     connection.destroy({
       success: () => {
-        console.log('this.state.connections.remove----------------------');
-        console.log(this.state.connections.remove);
-        console.log('----------------------');
         this.state.connections.remove(connection._id);
         this.state.currentConnection = new Connection();
         this.trigger(this.state);

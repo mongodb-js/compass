@@ -498,27 +498,14 @@ describe('Store', () => {
     });
   });
 
-  describe.only('#onCreateFavorite', () => {
+  describe('#onCreateFavorite', () => {
     before(() => {
       Store.state.currentConnection.name = 'myconnection';
     });
 
     after((done) => {
-      console.log('----------------------');
-      console.log('after');
-      console.log('----------------------');
       const unsubscribe = Store.listen(() => {
-        console.log('----------------------');
-        console.log('unsubscribe');
-        console.log('----------------------');
         unsubscribe();
-        console.log('Store.state.connections.reset----------------------');
-        console.log(Store.state.connections.reset);
-        console.log('----------------------');
-        Store.state.connections.reset();
-        console.log('----------------------');
-        console.log('reset');
-        console.log('----------------------');
         done();
       });
 
@@ -539,8 +526,13 @@ describe('Store', () => {
 
   describe('#onCreateRecent', () => {
     context('when the list is under 10 recent connections', () => {
-      after(() => {
-        Store.state.currentConnection = new Connection();
+      after((done) => {
+        const unsubscribe = Store.listen(() => {
+          unsubscribe();
+          done();
+        });
+
+        Store.onDeleteConnection(Store.state.currentConnection);
       });
 
       it('creates a new recent in the store', (done) => {
@@ -571,8 +563,14 @@ describe('Store', () => {
         Store.state.connections.add(new Connection({ lastUsed: new Date('2017-01-07') }));
       });
 
-      after(() => {
-        Store.state.currentConnection = new Connection();
+      after((done) => {
+        const unsubscribe = Store.listen(() => {
+          unsubscribe();
+          Store.state.connections.reset();
+          done();
+        });
+
+        Store.onDeleteConnection(Store.state.currentConnection);
       });
 
       it('limits the recent connections to 10', (done) => {
