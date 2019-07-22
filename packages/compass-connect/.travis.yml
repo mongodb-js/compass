@@ -13,6 +13,11 @@ addons:
       - libsecret-1-dev
       - gnome-keyring
       - python-gnomekeyring
+before_install:
+  - npm i -g npm@latest
+  - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
+install:
+  - npm ci
 before_script:
   - |
     export NO_AT_BRIDGE=1
@@ -21,13 +26,8 @@ before_script:
     eval $(echo -n "" | /usr/bin/gnome-keyring-daemon --login);
     eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start);
     /usr/bin/python -c "import gnomekeyring;gnomekeyring.create_sync('login', '');";
-before_install:
-  - npm i -g npm@latest
-  - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
-install:
-  - npm ci
-cache: npm
 script:
   - npm run check
   - npm run cover
   - npm run test:karma
+cache: npm
