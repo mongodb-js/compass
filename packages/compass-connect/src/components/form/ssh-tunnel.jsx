@@ -5,8 +5,8 @@ import Actions from 'actions';
 import FormGroup from './form-group';
 import FormItemSelect from './form-item-select';
 
-class SSHTunnelSection extends React.Component {
-  static displayName = 'SSLSection';
+class SSHTunnel extends React.Component {
+  static displayName = 'SSHTunnel';
 
   static propTypes = { currentConnection: PropTypes.object.isRequired };
 
@@ -73,4 +73,4 @@ class SSHTunnelSection extends React.Component {
   }
 }
 
-export default SSHTunnelSection;
+export default SSHTunnel;

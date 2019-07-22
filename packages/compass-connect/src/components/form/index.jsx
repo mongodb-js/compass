@@ -7,7 +7,7 @@ import SRVInput from './srv-input';
 import Authentication from './authentication';
 import ReplicaSetInput from './replica-set-input';
 import ReadPreferenceSelect from './read-preference-select';
-import SSL from './ssl';
+import SSLMethod from './ssl-method';
 import SSHTunnel from './ssh-tunnel';
 import FormActions from './form-actions';
 
@@ -49,7 +49,7 @@ class ConnectForm extends React.Component {
           <ReadPreferenceSelect
             readPreference={this.props.currentConnection.readPreference} />
         </FormGroup>
-        <SSL {...this.props} />
+        <SSLMethod {...this.props} />
         <SSHTunnel {...this.props} />
         <FormActions {...this.props } />
       </form>

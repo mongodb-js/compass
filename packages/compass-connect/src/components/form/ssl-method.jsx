@@ -5,8 +5,8 @@ import Actions from 'actions';
 import FormGroup from './form-group';
 import FormItemSelect from './form-item-select';
 
-class SSLSection extends React.Component {
-  static displayName = 'SSLSection';
+class SSLMethod extends React.Component {
+  static displayName = 'SSLMethod';
 
   static propTypes = { currentConnection: PropTypes.object.isRequired };
 
@@ -73,4 +73,4 @@ class SSLSection extends React.Component {
   }
 }
 
-export default SSLSection;
+export default SSLMethod;

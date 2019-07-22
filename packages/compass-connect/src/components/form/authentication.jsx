@@ -5,8 +5,8 @@ import Actions from 'actions';
 import FormGroup from './form-group';
 import FormItemSelect from './form-item-select';
 
-class AuthenticationSection extends React.Component {
-  static displayName = 'AuthenticationSection';
+class Authentication extends React.Component {
+  static displayName = 'Authentication';
 
   static propTypes = {
     currentConnection: PropTypes.object.isRequired,
@@ -76,4 +76,4 @@ class AuthenticationSection extends React.Component {
   }
 }
 
-export default AuthenticationSection;
+export default Authentication;
