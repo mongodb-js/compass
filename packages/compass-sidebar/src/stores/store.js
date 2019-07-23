@@ -38,12 +38,12 @@ store.onActivated = (appRegistry) => {
     store.dispatch(changeDescription(state.description));
   });
 
-  appRegistry.on('select-namespace', (ns) => {
-    store.dispatch(filterDatabases(null, null, ns || ''));
+  appRegistry.on('select-namespace', (metadata) => {
+    store.dispatch(filterDatabases(null, null, metadata.namespace || ''));
   });
 
-  appRegistry.on('open-namespace-in-new-tab', (ns) => {
-    store.dispatch(filterDatabases(null, null, ns || ''));
+  appRegistry.on('open-namespace-in-new-tab', (metadata) => {
+    store.dispatch(filterDatabases(null, null, metadata.namespace || ''));
   });
 
   appRegistry.on('select-database', (ns) => {

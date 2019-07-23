@@ -85,7 +85,7 @@ describe('SidebarStore [Store]', () => {
     context('when collection changes', () => {
       beforeEach(() => {
         expect(store.getState().databases.activeNamespace).to.equal('');
-        appRegistry.emit('select-namespace', 'test.coll');
+        appRegistry.emit('select-namespace', { namespace: 'test.coll' });
       });
       it('updates databases.activeNamespace', () => {
         expect(store.getState().databases.activeNamespace).to.equal('test.coll');
