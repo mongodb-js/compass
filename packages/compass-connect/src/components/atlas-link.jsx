@@ -15,7 +15,7 @@ class AtlasLink extends React.Component {
   }
 
   /**
-   * Visits create atlas cluster learn more page.
+   * Visits Atlas page.
    */
   onLearnLinkClicked() {
     Actions.onAtlasLearnMore();

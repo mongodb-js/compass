@@ -30,4 +30,7 @@ script:
   - npm run check
   - npm run cover
   - npm run test:karma
-cache: npm
+cache:
+  directories:
+    - $HOME/.electron
+    - '$HOME/.npm'

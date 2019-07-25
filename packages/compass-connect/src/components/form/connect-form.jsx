@@ -33,8 +33,8 @@ class ConnectForm extends React.Component {
 
   render() {
     return (
-      <form data-test-id="connect-form">
-        <FormGroup id="host-port" separator>
+      <form>
+        <FormGroup separator>
           <HostInput
             lastUsed={this.props.currentConnection.lastUsed}
             hostname={this.props.currentConnection.attributes.hostname} />

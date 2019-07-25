@@ -4,7 +4,8 @@ import { remote } from 'electron';
 import shellToURL from 'mongodb-shell-to-url';
 import Connection from 'mongodb-connection-model';
 import Sidebar from './sidebar';
-import ConnectForm from './form';
+import ConnectForm from './form/connect-form';
+import Help from './form/help';
 import Actions from 'actions';
 import classnames from 'classnames';
 
@@ -19,10 +20,7 @@ class Connect extends React.Component {
 
   static propTypes = {
     currentConnection: PropTypes.object,
-    connections: PropTypes.object,
-    isValid: PropTypes.bool,
-    isConnected: PropTypes.bool,
-    errorMessage: PropTypes.string
+    connections: PropTypes.object
   };
 
   constructor(props) {
@@ -91,30 +89,6 @@ class Connect extends React.Component {
     });
   }
 
-  /**
-   * Renders a component with messages.
-   *
-   * @returns {React.Component}
-   */
-  renderMessage() {
-    if (!this.props.isValid && this.props.errorMessage) {
-      return (
-        <div className={`message ${classnames(styles.error)}`}>
-          <p>{this.props.errorMessage}</p>
-        </div>
-      );
-    } else if (this.props.isConnected) {
-      const connection = this.props.currentConnection;
-      const server = `${connection.hostname}:${connection.port}`;
-
-      return (
-        <div className={`message ${classnames(styles.success)}`}>
-          <p>Connected to {server}</p>
-        </div>
-      );
-    }
-  }
-
   render() {
     const Status = global.hadronApp.appRegistry
       .getRole('Application.Status')[0].component;
@@ -125,11 +99,11 @@ class Connect extends React.Component {
         <div className={classnames(styles.page, styles.connect)}>
           <Sidebar {...this.props} />
           <div className={classnames(styles['form-container'])}>
-            <header>
-              <h2 data-test-id="connect-header">Connect to Host</h2>
-            </header>
-            {this.renderMessage()}
-            <ConnectForm {...this.props} />
+            <div className={classnames(styles['connect-container'])}>
+              <header><h2>New Connection</h2></header>
+              <ConnectForm {...this.props} />
+            </div>
+            <Help />
           </div>
         </div>
       </div>

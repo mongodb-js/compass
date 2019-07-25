@@ -15,7 +15,9 @@ class FormActions extends React.Component {
 
   static propTypes = {
     currentConnection: PropTypes.object.isRequired,
-    isConnected: PropTypes.bool
+    isValid: PropTypes.bool,
+    isConnected: PropTypes.bool,
+    errorMessage: PropTypes.string
   };
 
   constructor(props) {
@@ -103,6 +105,15 @@ class FormActions extends React.Component {
   }
 
   /**
+   * Checks for errors.
+   *
+   * @returns {Boolean} True in case of error.
+   */
+  hasErrors() {
+    return (!this.props.isValid && this.props.errorMessage);
+  }
+
+  /**
    * Renders "Create Favorite" button.
    *
    * @returns {React.Component}
@@ -167,7 +178,6 @@ class FormActions extends React.Component {
         <button
           type="submit"
           name="connect"
-          data-test-id="connect-button"
           className="btn btn-sm btn-primary"
           onClick={this.onConnectClicked.bind(this)}>
           Connect
@@ -186,6 +196,39 @@ class FormActions extends React.Component {
     );
   }
 
+  /**
+   * Renders a component with messages.
+   *
+   * @returns {React.Component}
+   */
+  renderMessage() {
+    const connection = this.props.currentConnection;
+    const server = `${connection.hostname}:${connection.port}`;
+    let message = `Connected to ${server}`;
+    let colorStyle = styles['connection-message-container-success'];
+    let hasMessage = false;
+
+    if (this.hasErrors()) {
+      hasMessage = true;
+      message = this.props.errorMessage;
+      colorStyle = styles['connection-message-container-error'];
+    } else if (this.props.isConnected) {
+      hasMessage = true;
+    }
+
+    if (hasMessage === true) {
+      return (
+        <div className={styles['connection-message-container']}>
+          <div className={classnames(colorStyle)}>
+            <div className={styles['connection-message']}>
+              {message}
+            </div>
+          </div>
+        </div>
+      );
+    }
+  }
+
   render() {
     return (
       <FormGroup id="favorite">
@@ -196,6 +239,7 @@ class FormActions extends React.Component {
           linkHandler={this.onNameHelp.bind(this)}
           changeHandler={this.onNameChanged.bind(this)}
           value={this.getName()} />
+        {this.renderMessage()}
         <div className={classnames(styles.buttons)}>
           {this.renderCreateFavorite()}
           {this.renderDeleteFavorite()}

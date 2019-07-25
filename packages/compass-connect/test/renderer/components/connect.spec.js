@@ -23,76 +23,12 @@ describe('Connect [Component]', () => {
     component: StatusPlugin
   };
 
-  context('when no error is present', () => {
-    context('when the app is not connected', () => {
-      let component;
-
-      beforeEach(() => {
-        component = shallow(
-          <Connect currentConnection={connection} connections={connections} />
-        );
-      });
-
-      afterEach(() => {
-        component = null;
-      });
-
-      before(() => {
-        global.hadronApp = hadronApp;
-        global.hadronApp.appRegistry = appRegistry;
-        global.hadronApp.appRegistry.registerRole('Application.Status', ROLE);
-      });
-
-      it('renders the container', () => {
-        expect(component.find(`.${styles.connect}`)).to.exist;
-      });
-
-      it('renders the header', () => {
-        expect(component.find('h2').text()).to.be.equal('Connect to Host');
-      });
-
-      it('renders the form container', () => {
-        expect(component.find(`.${styles['form-container']}`)).to.exist;
-      });
-    });
-
-    context('when the app is connected', () => {
-      let component;
-
-      beforeEach(() => {
-        component = shallow(
-          <Connect
-            currentConnection={connection}
-            connections={connections}
-            isConnected />
-        );
-      });
-
-      afterEach(() => {
-        component = null;
-      });
-
-      before(() => {
-        global.hadronApp = hadronApp;
-        global.hadronApp.appRegistry = appRegistry;
-        global.hadronApp.appRegistry.registerRole('Application.Status', ROLE);
-      });
-
-      it('renders the success header', () => {
-        expect(component.find('.success')).to.exist;
-      });
-    });
-  });
-
-  context('when an error is present', () => {
+  context('when the app is not connected', () => {
     let component;
 
     beforeEach(() => {
       component = shallow(
-        <Connect
-          currentConnection={connection}
-          connections={connections}
-          errorMessage="Error message" />
+        <Connect currentConnection={connection} connections={connections} />
       );
     });
 
@@ -106,10 +42,43 @@ describe('Connect [Component]', () => {
       global.hadronApp.appRegistry.registerRole('Application.Status', ROLE);
     });
 
-    it('renders the header', () => {
-      const errorText = component.find(`.${styles.error}`).text();
+    it('renders the container', () => {
+      expect(component.find(`.${styles.connect}`)).to.exist;
+    });
 
-      expect(errorText).to.be.equal('Error message');
+    it('renders the header', () => {
+      expect(component.find('h2').text()).to.be.equal('New Connection');
+    });
+
+    it('renders the form container', () => {
+      expect(component.find(`.${styles['form-container']}`)).to.exist;
+    });
+  });
+
+  context('when the app is connected', () => {
+    let component;
+
+    beforeEach(() => {
+      component = shallow(
+        <Connect
+          currentConnection={connection}
+          connections={connections}
+          isConnected />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    before(() => {
+      global.hadronApp = hadronApp;
+      global.hadronApp.appRegistry = appRegistry;
+      global.hadronApp.appRegistry.registerRole('Application.Status', ROLE);
+    });
+
+    it('renders the success header', () => {
+      expect(component.find('.success')).to.exist;
     });
   });
 });
