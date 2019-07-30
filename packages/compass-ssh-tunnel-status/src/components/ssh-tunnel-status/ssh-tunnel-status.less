@@ -1,22 +1,22 @@
 @import (reference) "~less/compass/_theme.less";
-@compass-sidebar-base-background-color: #42494f;
 
 .ssh-tunnel-status {
-  background-color: @compass-sidebar-base-background-color;
+  background: inherit;
   display: flex;
   flex-direction: column;
   font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  padding: 6px 12px 6px 12px;
+  padding: 6px 24px 6px 24px;
 
   &-label {
     text-transform: uppercase;
-    color: @pw;
+    color: @gray5;
     font-weight: bold;
+    font-size: 11px;
   }
 
   &-string {
-    color: #AAAAAA;
+    color: @pw;
     text-overflow: ellipsis;
+    font-size: 14px;
   }
 }
