@@ -1,3 +1,5 @@
+@import (reference) "~less/compass/_theme.less";
+
 .non-genuine-warning-modal {
   width: 500px;
   padding-left: 40px;
@@ -18,11 +20,12 @@
   }
 
   &-message {
-    background-color: #FBB129;
-    color: #303434;
+    background-color: @yellow;
+    color: @gray1;
     border-width: 1px;
     padding: 8px;
     margin: 5px 0px;
+    border-radius: 3px;
   }
 
   &-p1 {
@@ -36,7 +39,7 @@
   &-p2 {
     padding-top: 10px;
     code {
-      color: #303434;
+      color: @gray1;
       font-family: monospace;
       font-weight: bold;
       background-color: transparent;

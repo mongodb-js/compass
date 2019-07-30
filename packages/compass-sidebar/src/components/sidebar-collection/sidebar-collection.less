@@ -1,9 +1,11 @@
 @import (reference) "~less/compass/_theme.less";
 
-@compass-sidebar-base-background-color: #4C5259;
-@compass-sidebar-default-text-color: #9DA4AA;
-@compass-sidebar-active-background-color: #6D7984;
-@compass-sidebar-hover-background-color: #42494f;
+@compass-sidebar-default-text-color: @gray5;
+@compass-sidebar-base-background-color: @gray2;
+@compass-sidebar-hover-background-color: @gray1;
+@compass-sidebar-hover-background-color: lighten(hsl(204, 29%, 18%), 5%);
+@compass-sidebar-active-background-color: @gray4;
+@compass-sidebar-active-background-color: lighten(hsl(201, 11%, 41%), 10%);
 
 .compass-sidebar-item-collection-actions {
   margin-right: 5px;
@@ -44,7 +46,7 @@
     transition: all 180ms ease;
     flex: 1;
     flex-basis: auto;
-    padding-left: 37px;
+    padding-left: 36px;
     overflow: hidden;
     text-overflow: ellipsis;
     color: @pw;
@@ -79,12 +81,11 @@
   /* :hover styles */
 
   &:hover {
-    background-color: @compass-sidebar-hover-background-color;
+    background: @compass-sidebar-hover-background-color;
     color: @pw;
-
     .compass-sidebar-item-collection-actions {
       visibility: visible;
-      background-color: @compass-sidebar-hover-background-color;
+      background: inherit;
     }
   }
 
@@ -96,11 +97,10 @@
 
   &-is-active,
   &-is-active:hover {
-    background-color: @compass-sidebar-active-background-color;
-
+    background: @compass-sidebar-active-background-color;
     .compass-sidebar-item-collection-actions {
       visibility: visible;
-      background-color: @compass-sidebar-active-background-color;
+      background-color: inherit;
     }
   }
 

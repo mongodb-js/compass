@@ -1,11 +1,13 @@
 @import (reference) "~less/compass/_theme.less";
 
-@compass-sidebar-hover-background-color: #42494f;
+@compass-sidebar-title-background-color: @gray1;
+@compass-sidebar-title-background-color: lighten(hsl(204, 29%, 18%), 5%);
 
 .sidebar-title {
-  background-color: @compass-sidebar-hover-background-color;
+  background-color: @compass-sidebar-title-background-color;
+
   padding: 7px 5px 7px 10px;
-  border-bottom: 1px solid @gray0;
+  border-bottom: 1px solid @gray2;
   cursor: pointer;
 
   &-name {

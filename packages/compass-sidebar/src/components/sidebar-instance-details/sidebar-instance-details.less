@@ -1,7 +1,7 @@
 @import (reference) "~less/compass/_theme.less";
 
-@details-background-color: #4C5259;
-@container-background-color: #42494f;
+@details-background-color: @gray1;
+@details-background-color: lighten(hsl(204, 29%, 18%), 2%);
 
 .sidebar-instance-details {
   background-color: @details-background-color;
@@ -9,8 +9,7 @@
   flex-direction: column;
 
   &-container {
-    background-color: @container-background-color;
     border-radius: 5px;
-    margin: 12px;
+    margin: 4px 12px;
   }
 }

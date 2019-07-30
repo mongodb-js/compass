@@ -1,15 +1,18 @@
 @import (reference) "~less/compass/_theme.less";
 
-@compass-sidebar-default-text-color: #9DA4AA;
-@compass-sidebar-base-background-color: #4C5259;
-@compass-sidebar-lite-background-color: #565E65;
-@compass-sidebar-active-background-color: #6D7984;
-@compass-sidebar-hover-background-color: #42494f;
+@compass-sidebar-default-text-color: @gray5;
+@compass-sidebar-base-background-color: @gray2;
+@compass-sidebar-search-background-color: @gray1;
+@compass-sidebar-search-background-color: lighten(hsl(204, 29%, 18%), 5%);
+@compass-sidebar-button-create-database: @gray1;
+@compass-sidebar-button-create-database: lighten(hsl(204, 29%, 18%), 5%);
+@compass-sidebar-hover-background-color: @gray1;
+@compass-sidebar-hover-background-color: lighten(hsl(204, 29%, 18%), 5%);
 @compass-sidebar-transition-time: 400ms;
 
 .compass-sidebar {
   background: @compass-sidebar-base-background-color;
-  color: #bfbfbe;
+  color: @pw;
   display: flex;
   flex-direction: column;
   flex-grow: 0;
@@ -52,7 +55,7 @@
 
   &-filter {
     position: relative;
-    border-bottom: 1px solid @gray0;
+    box-shadow: 0px 2px 2px rgba(0,0,0,.3);
     z-index: 2;
   }
 
@@ -60,15 +63,15 @@
     position: absolute;
     top: 8px;
     left: 11px;
-    color: #fff;
+    color: @pw;
     cursor: pointer;
   }
 
   &-search-input {
     padding: 7px 5px 5px 36px;
     height: auto;
-    background: @compass-sidebar-hover-background-color;
-    color: #fff;
+    background: @compass-sidebar-search-background-color;
+    color: @pw;
     width: 100%;
     border: none;
     font-size: 14px;
@@ -82,7 +85,7 @@
     transition: color 180ms ease-out;
   }
   &-search-input:focus::-webkit-input-placeholder {
-    color: #fff;
+    color: @pw;
   }
 
   &-content {
@@ -99,7 +102,7 @@
     }
   }
   *::-webkit-scrollbar-thumb {
-    background-color: @compass-sidebar-lite-background-color;
+    background-color: @compass-sidebar-base-background-color;
     border: 1px solid rgba(0,0,0,.24);
   }
 
@@ -115,7 +118,7 @@
   }
 
   &-button-create-database {
-    background-color: @compass-sidebar-hover-background-color;
+    background: @compass-sidebar-button-create-database;
     border-radius: 14px;
     border: 0;
     color: @pw;
@@ -141,8 +144,7 @@
 
   &-button-create-database:hover {
     width: 100%;
-    background-color: @compass-sidebar-active-background-color;
-
+    background: @compass-sidebar-hover-background-color;
   }
 
   &-button-create-database:hover {
@@ -152,7 +154,8 @@
   }
 
   &-button-create-database.compass-sidebar-button-is-disabled {
-    background-color: fade(@compass-sidebar-active-background-color, 40%);
+    background: fade(@compass-sidebar-button-create-database, 0.4);
+    opacity: 0.4;
     color: fade(@pw, 40%);
     cursor: not-allowed;
   }
@@ -213,7 +216,7 @@
 
   .compass-sidebar-search-icon {
     top: 10px;
-    color: #fff;
+    color: @pw;
   }
 
   .compass-sidebar-button-create-database-container {

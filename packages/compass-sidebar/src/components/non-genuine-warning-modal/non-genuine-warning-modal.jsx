@@ -12,7 +12,7 @@ import styles from './non-genuine-warning-modal.less';
  * The help URL for collation.
  */
 const P1 = 'Some documented MongoDB features may work differently, be entirely missing'
-  + 'or incomplete, or have unexpected performance characteristics';
+  + 'or incomplete, or have unexpected performance characteristics. ';
 const WARNING_BANNER = 'This server or service appears to be an emulation of MongoDB rather than an official MongoDB product.';
 export const LEARN_MORE_URL = 'https://docs.mongodb.com/compass/master/faq/#how-does-compass-determine-a-connection-is-not-genuine';
 export const MODAL_TITLE = 'Non-Genuine MongoDB Detected';
@@ -64,7 +64,7 @@ class NonGenuineWarningModal extends PureComponent {
           </div>
 
           <div className={classnames(styles['non-genuine-warning-modal-p1'])}>
-            {P1} &nbsp;
+            {P1}
             <a
               onClick={() => this.props.openLink(LEARN_MORE_URL)}
               data-test-id="non-genuine-warning-modal-learn-more-link">
