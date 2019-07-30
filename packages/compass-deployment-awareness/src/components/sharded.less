@@ -5,8 +5,7 @@
     display: flex;
     flex-direction: column;
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    padding: 0px 12px 0px 12px;
+    padding: 0px 24px 0px 24px;
   }
 
   &-sharded {
@@ -17,13 +16,15 @@
 
       &-title {
         text-transform: uppercase;
-        color: @pw;
+        color: @gray5;
         font-weight: bold;
+        font-size: 11px;
       }
 
       &-address, &-name, &-nodes {
-        color: @gray9;
+        color: @pw;
         text-overflow: ellipsis;
+        font-size: 14px;
       }
     }
   }
