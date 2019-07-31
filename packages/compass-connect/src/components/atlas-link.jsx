@@ -4,21 +4,37 @@ import classnames from 'classnames';
 
 import styles from './connect.less';
 
+/**
+ * The link to the create Atlas cluster from Compass page.
+ */
+const ATLAS_CREATE_CLUSTER_LINK = 'https://www.mongodb.com/cloud/atlas/lp/general?jmp=compass';
+
+/**
+ * The link to the create Atlas cluster with more general info page.
+ */
+const ATLAS_LEARN_MORE_LINK = 'https://www.mongodb.com/cloud/atlas';
+
 class AtlasLink extends React.Component {
   static displayName = 'AtlasLink';
 
   /**
-   * Visits create atlas cluster page'.
+   * Visits the create Atlas cluster from Compass page.
    */
-  onLinkClicked() {
-    Actions.onVisitAtlasLink();
+  onCreateClusterClicked() {
+    Actions.onExternalLinkClicked(
+      ATLAS_CREATE_CLUSTER_LINK,
+      'create-atlas-cluster-clicked'
+    );
   }
 
   /**
-   * Visits Atlas page.
+   * Visits the create Atlas cluster with more general info page.
    */
-  onLearnLinkClicked() {
-    Actions.onAtlasLearnMore();
+  onLearnMoreClicked() {
+    Actions.onExternalLinkClicked(
+      ATLAS_LEARN_MORE_LINK,
+      'create-atlas-cluster-learn-more-clicked'
+    );
   }
 
   render() {
@@ -26,7 +42,7 @@ class AtlasLink extends React.Component {
       <div className={classnames(styles['connect-atlas'])}>
         <div
           className={classnames(styles['connect-atlas-link'])}
-          onClick={this.onLinkClicked.bind(this)}>
+          onClick={this.onCreateClusterClicked.bind(this)}>
           <i className="fa fa-fw fa-external-link" />
           Create free Atlas cluster
         </div>
@@ -36,7 +52,7 @@ class AtlasLink extends React.Component {
           </div>
           <div
             className={classnames(styles['connect-atlas-learn-more'])}
-            onClick={this.onLearnLinkClicked.bind(this)}>
+            onClick={this.onLearnMoreClicked.bind(this)}>
             Learn more
           </div>
         </div>

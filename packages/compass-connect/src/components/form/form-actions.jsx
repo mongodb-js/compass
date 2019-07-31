@@ -17,7 +17,9 @@ class FormActions extends React.Component {
     currentConnection: PropTypes.object.isRequired,
     isValid: PropTypes.bool,
     isConnected: PropTypes.bool,
-    errorMessage: PropTypes.string
+    errorMessage: PropTypes.string,
+    syntaxErrorMessage: PropTypes.string,
+    viewType: PropTypes.string
   };
 
   constructor(props) {
@@ -105,11 +107,20 @@ class FormActions extends React.Component {
   }
 
   /**
-   * Checks for errors.
+   * Checks for a syntax error.
    *
-   * @returns {Boolean} True in case of error.
+   * @returns {Boolean} True in case of a syntax error.
    */
-  hasErrors() {
+  hasSyntaxError() {
+    return (!this.props.isValid && this.props.syntaxErrorMessage);
+  }
+
+  /**
+   * Checks for an server error.
+   *
+   * @returns {Boolean} True in case of a server error.
+   */
+  hasError() {
     return (!this.props.isValid && this.props.errorMessage);
   }
 
@@ -123,6 +134,8 @@ class FormActions extends React.Component {
       return (
         <button
           type="button"
+          name="createFavorite"
+          key="createFavorite"
           className="btn btn-sm btn-default"
           onClick={this.onCreateFavorite.bind(this)}>
           Create Favorite
@@ -141,6 +154,8 @@ class FormActions extends React.Component {
       return (
         <button
           type="button"
+          name="deleteFavorite"
+          key="deleteFavorite"
           className="btn btn-sm btn-default"
           onClick={this.onDeleteFavorite.bind(this)}>
           Delete Favorite
@@ -159,6 +174,8 @@ class FormActions extends React.Component {
       return (
         <button
           type="button"
+          name="saveFavorite"
+          key="saveFavorite"
           className="btn btn-sm btn-default"
           onClick={this.onSaveFavorite.bind(this)}>
           Save Favorite
@@ -208,10 +225,14 @@ class FormActions extends React.Component {
     let colorStyle = styles['connection-message-container-success'];
     let hasMessage = false;
 
-    if (this.hasErrors()) {
+    if (this.hasError()) {
       hasMessage = true;
       message = this.props.errorMessage;
       colorStyle = styles['connection-message-container-error'];
+    } else if (this.hasSyntaxError() && this.props.viewType === 'connectionString') {
+      hasMessage = true;
+      message = this.props.syntaxErrorMessage;
+      colorStyle = styles['connection-message-container-syntax-error'];
     } else if (this.props.isConnected) {
       hasMessage = true;
     }
@@ -229,9 +250,14 @@ class FormActions extends React.Component {
     }
   }
 
-  render() {
-    return (
-      <FormGroup id="favorite">
+  /**
+   * Renders a favorite input.
+   *
+   * @returns {React.Component}
+   */
+  renderFavoriteInput() {
+    if (this.props.viewType === 'connectionForm') {
+      return (
         <FormInput
           label="Favorite Name"
           name="favoriteName"
@@ -239,11 +265,32 @@ class FormActions extends React.Component {
           linkHandler={this.onNameHelp.bind(this)}
           changeHandler={this.onNameChanged.bind(this)}
           value={this.getName()} />
+      );
+    }
+  }
+
+  /**
+   * Renders favorite buttons.
+   *
+   * @returns {React.Component}
+   */
+  renderFavoriteButtons() {
+    if (this.props.viewType === 'connectionForm') {
+      return [
+        this.renderCreateFavorite(),
+        this.renderDeleteFavorite(),
+        this.renderSaveFavorite()
+      ];
+    }
+  }
+
+  render() {
+    return (
+      <FormGroup id="favorite">
+        {this.renderFavoriteInput()}
         {this.renderMessage()}
         <div className={classnames(styles.buttons)}>
-          {this.renderCreateFavorite()}
-          {this.renderDeleteFavorite()}
-          {this.renderSaveFavorite()}
+          {this.renderFavoriteButtons()}
           {this.renderConnect()}
         </div>
       </FormGroup>

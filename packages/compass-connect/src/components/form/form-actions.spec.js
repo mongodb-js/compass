@@ -7,37 +7,92 @@ import styles from '../connect.less';
 describe('FormActions [Component]', () => {
   context('when no error is present', () => {
     context('when is not connected', () => {
-      const connection = { name: 'myconnection' };
-      const isConnected = false;
-      let component;
+      context('when it is a connection string view', () => {
+        const connection = { name: 'myconnection' };
+        const isConnected = false;
+        const viewType = 'connectionString';
+        let component;
 
-      beforeEach(() => {
-        component = mount(
-          <FormActions
-            currentConnection={connection}
-            isConnected={isConnected}
-            isValid />
-        );
+        beforeEach(() => {
+          component = mount(
+            <FormActions
+              currentConnection={connection}
+              isConnected={isConnected}
+              viewType={viewType}
+              isValid />
+          );
+        });
+
+        afterEach(() => {
+          component = null;
+        });
+
+        it('renders the wrapper div', () => {
+          expect(component.find(`.${styles['form-group']}`)).to.be.present();
+        });
+
+        it('renders the favoriteName input', () => {
+          expect(component.find('input[name="favoriteName"]')).to.not.be.present();
+        });
+
+        it('does not render any message', () => {
+          const classname = `.${styles['connection-message-container']}`;
+
+          expect(component.find(classname)).to.be.blank();
+        });
+
+        it('renders the connect button', () => {
+          expect(component.find('button[name="connect"]')).to.be.present();
+        });
+
+        it('does not render the create favorite button', () => {
+          expect(component.find('button[name="createFavorite"]')).to.be.not.present();
+        });
       });
 
-      afterEach(() => {
-        component = null;
-      });
+      context('when it is a connection form view', () => {
+        const connection = { name: 'myconnection' };
+        const isConnected = false;
+        const viewType = 'connectionForm';
+        let component;
 
-      it('renders the wrapper div', () => {
-        expect(component.find(`.${styles['form-group']}`)).to.be.present();
-      });
+        beforeEach(() => {
+          component = mount(
+            <FormActions
+              currentConnection={connection}
+              isConnected={isConnected}
+              viewType={viewType}
+              isValid />
+          );
+        });
 
-      it('renders the name', () => {
-        const input = component.find('input[name="favoriteName"]');
+        afterEach(() => {
+          component = null;
+        });
 
-        expect(input).to.have.value('myconnection');
-      });
+        it('renders the wrapper div', () => {
+          expect(component.find(`.${styles['form-group']}`)).to.be.present();
+        });
 
-      it('does not render any message', () => {
-        const classname = `.${styles['connection-message-container']}`;
+        it('renders the favoriteName input', () => {
+          const input = component.find('input[name="favoriteName"]');
 
-        expect(component.find(classname)).to.be.blank();
+          expect(input).to.have.value('myconnection');
+        });
+
+        it('does not render any message', () => {
+          const classname = `.${styles['connection-message-container']}`;
+
+          expect(component.find(classname)).to.be.blank();
+        });
+
+        it('renders the connect button', () => {
+          expect(component.find('button[name="connect"]')).to.be.present();
+        });
+
+        it('does not render the create favorite button', () => {
+          expect(component.find('button[name="createFavorite"]')).to.be.present();
+        });
       });
     });
 
@@ -90,10 +145,102 @@ describe('FormActions [Component]', () => {
       component = null;
     });
 
-    it('renders the error message', () => {
+    it('renders an error message', () => {
       const classname = `.${styles['connection-message-container-error']}`;
 
       expect(component.find(classname)).to.be.present();
+    });
+  });
+
+  context('when a syntax error is present', () => {
+    context('when it is a connection string view', () => {
+      const connection = { name: 'myconnection' };
+      const isValid = false;
+      const syntaxErrorMessage = 'Wrong syntax!';
+      const viewType = 'connectionString';
+      let component;
+
+      beforeEach(() => {
+        component = mount(
+          <FormActions
+            currentConnection={connection}
+            isValid={isValid}
+            viewType={viewType}
+            syntaxErrorMessage={syntaxErrorMessage} />
+        );
+      });
+
+      afterEach(() => {
+        component = null;
+      });
+
+      it('renders a syntax error message', () => {
+        const classname = `.${styles['connection-message-container-syntax-error']}`;
+
+        expect(component.find(classname)).to.be.present();
+      });
+    });
+
+    context('when it is a connection form view', () => {
+      const connection = { name: 'myconnection' };
+      const isValid = false;
+      const syntaxErrorMessage = 'Wrong syntax!';
+      const viewType = 'connectionForm';
+      let component;
+
+      beforeEach(() => {
+        component = mount(
+          <FormActions
+            currentConnection={connection}
+            isValid={isValid}
+            viewType={viewType}
+            syntaxErrorMessage={syntaxErrorMessage} />
+        );
+      });
+
+      afterEach(() => {
+        component = null;
+      });
+
+      it('does not render a syntax error message', () => {
+        const classname = `.${styles['connection-message-container-syntax-error']}`;
+
+        expect(component.find(classname)).to.be.not.present();
+      });
+    });
+  });
+
+  context('when a syntax error and server error are both present', () => {
+    const connection = { name: 'myconnection' };
+    const isValid = false;
+    const errorMessage = 'Error message';
+    const syntaxErrorMessage = 'Wrong syntax!';
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <FormActions
+          currentConnection={connection}
+          isValid={isValid}
+          errorMessage={errorMessage}
+          syntaxErrorMessage={syntaxErrorMessage} />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders only a server error message', () => {
+      const classname = `.${styles['connection-message-container-error']}`;
+
+      expect(component.find(classname)).to.be.present();
+    });
+
+    it('does not render a syntax error message', () => {
+      const classname = `.${styles['connection-message-container-syntax-error']}`;
+
+      expect(component.find(classname)).to.be.not.present();
     });
   });
 });

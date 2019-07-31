@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Actions from 'actions';
 import FormGroup from './form-group';
 import HostInput from './host-input';
 import PortInput from './port-input';
@@ -10,11 +11,21 @@ import ReadPreferenceSelect from './read-preference-select';
 import SSLMethod from './ssl-method';
 import SSHTunnel from './ssh-tunnel';
 import FormActions from './form-actions';
+import classnames from 'classnames';
 
-class ConnectForm extends React.Component {
-  static displayName = 'ConnectForm';
+import styles from '../connect.less';
+
+class ConnectionForm extends React.Component {
+  static displayName = 'ConnectionForm';
 
   static propTypes = { currentConnection: PropTypes.object.isRequired };
+
+  /**
+   * Resests URL validation if form was changed.
+   */
+  onConnectionFormChanged() {
+    Actions.onConnectionFormChanged();
+  }
 
   /**
    * Render a port connections.
@@ -33,7 +44,9 @@ class ConnectForm extends React.Component {
 
   render() {
     return (
-      <form>
+      <form
+        onChange={this.onConnectionFormChanged.bind(this)}
+        className={classnames(styles['connect-form'])} >
         <FormGroup separator>
           <HostInput
             lastUsed={this.props.currentConnection.lastUsed}
@@ -57,4 +70,4 @@ class ConnectForm extends React.Component {
   }
 }
 
-export default ConnectForm;
+export default ConnectionForm;

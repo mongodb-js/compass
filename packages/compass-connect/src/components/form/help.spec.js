@@ -8,7 +8,7 @@ describe('HostInput [Component]', () => {
   let component;
 
   beforeEach(() => {
-    component = mount(<Help />);
+    component = mount(<Help viewType="connectionString" />);
   });
 
   afterEach(() => {

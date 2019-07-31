@@ -26,13 +26,13 @@ describe('FormItemSelect [Component]', () => {
     });
 
     it('renders the wrapper div', () => {
-      const style = `.${styles['form-item']}`;
+      const style = `.${styles['connect-form-item']}`;
 
       expect(component.find(style)).to.be.present();
     });
 
     it('renders the label', () => {
-      const style = '.form-item-label';
+      const style = `.${styles['connect-form-item-label']}`;
 
       expect(component.find(style).text()).to.equal('Test');
     });

@@ -1,8 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import ConnectForm from './connect-form';
+import ConnectionForm from './connection-form';
 
-describe('HostInput [Component]', () => {
+describe('ConnectionForm [Component]', () => {
   const connection = {
     authStrategy: 'MONGODB',
     isSrvRecord: false,
@@ -13,7 +13,7 @@ describe('HostInput [Component]', () => {
 
   beforeEach(() => {
     component = shallow(
-      <ConnectForm currentConnection={connection} isValid />
+      <ConnectionForm currentConnection={connection} isValid />
     );
   });
 

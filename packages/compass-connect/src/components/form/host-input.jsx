@@ -43,7 +43,7 @@ class HostInput extends React.PureComponent {
       <FormInput
         label="Hostname"
         name="hostname"
-        placeholder="localhost"
+        placeholder={DEFAULT_HOST}
         changeHandler={this.onHostnameChanged.bind(this)}
         value={this.getHostname()} />
     );

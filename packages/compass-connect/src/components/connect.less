@@ -17,7 +17,6 @@ form {
   margin-top: 0em;
   background-color: white;
   box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.075);
-  width: 680px;
   padding-top: 20px;
   padding-bottom: 20px;
 }
@@ -104,7 +103,30 @@ label {
     display: flex;
 
     .connect-container {
+      flex-shrink: 0;
       margin-left: 40px;
+      width: 680px;
+
+      .connect-string {
+        margin: 0 10px;
+
+        &-item {
+          overflow: auto;
+          display: flex;
+          flex-direction: column;
+          margin: 0 15px;
+
+          label {
+            text-align: left;
+            padding: 5px 15px 0 0;
+
+            i {
+              opacity: 0.35;
+              top: 0;
+            }
+          }
+        }
+      }
     }
 
     .help-container {
@@ -140,13 +162,20 @@ label {
 
     .connection-message-container {
       width: 100%;
-      padding: 0px 15px 20px 15px;
+      padding: 15px 15px 20px 15px;
       color: @pw;
       font-size: small;
       font-weight: bold;
 
       &-error {
         background: @alertRed;
+        min-height: 30px;
+        padding: 2px 10px;
+        border-radius: 3px;
+      }
+
+      &-syntax-error {
+        background: @warningText;
         min-height: 30px;
         padding: 2px 10px;
         border-radius: 3px;
@@ -214,15 +243,29 @@ label {
         font-size: 24px;
         line-height: 30px;
       }
+
+      .change-view-link {
+        align-self: flex-end;
+        margin-right: 10px;
+
+        a {
+          cursor: pointer;
+          font-weight: bold;
+        }
+      }
     }
   }
 
-  .form-group {
+  .connect-form {
     margin: 0 10px;
 
-    &-separator {
-      margin-bottom: 20px;
-      border-bottom: 1px solid #eeeeee;
+    .form-group {
+      display: block;
+
+      &-separator {
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eeeeee;
+      }
     }
   }
 
@@ -260,9 +303,9 @@ label {
     }
   }
 
-  .form-item {
-    margin: 15px 30px;
-    width: 500px;
+  .connect-form-item {
+    margin: 15px 22px;
+    width: 508px;
     overflow: auto;
     display: flex;
     justify-content: flex-end;
@@ -284,12 +327,12 @@ label {
         }
       }
 
-      .form-item-file-button {
+      .connect-form-item-button {
         border: 1px solid #843534;
       }
     }
 
-    label {
+    &-label {
       width: 70%;
       text-align: right;
       padding: 5px 15px 0 0;

@@ -1,92 +1,77 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { remote } from 'electron';
-import shellToURL from 'mongodb-shell-to-url';
-import Connection from 'mongodb-connection-model';
 import Sidebar from './sidebar';
-import ConnectForm from './form/connect-form';
+import ConnectionForm from './form/connection-form';
+import ConnectionString from './form/connection-string';
 import Help from './form/help';
 import Actions from 'actions';
 import classnames from 'classnames';
 
 import styles from './connect.less';
 
-const Clipboard = remote.clipboard;
-const dialog = remote.dialog;
-const BrowserWindow = remote.BrowserWindow;
-
 class Connect extends React.Component {
   static displayName = 'Connect';
 
   static propTypes = {
     currentConnection: PropTypes.object,
-    connections: PropTypes.object
+    connections: PropTypes.object,
+    viewType: PropTypes.string
   };
 
-  constructor(props) {
-    super(props);
-    this.dialogOpen = false;
-    this.checkClipboard = this.onCheckClipboard.bind(this);
-  }
-
   componentDidMount() {
-    window.addEventListener('focus', this.checkClipboard);
     document.title = `${remote.app.getName()} - Connect`;
-    this.checkClipboard();
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('focus', this.checkClipboard);
   }
 
   /**
-   * Checks whether the clipboard has URI.
+   * Changes viewType.
+   *
+   * @param {String} viewType - viewType.
+   * @param {Object} evt - evt.
    */
-  onCheckClipboard() {
-    let clipboardText = (Clipboard.readText() || '').trim();
-    const url = shellToURL(clipboardText);
-
-    if (url) clipboardText = url;
-
-    if ((clipboardText === this.clipboardText) || this.dialogOpen) {
-      return;
-    }
-
-    if (Connection.isURI(clipboardText)) {
-      this.dialogOpen = true;
-      dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
-        type: 'info',
-        message: 'MongoDB connection string detected',
-        detail: 'Compass detected a MongoDB connection string in your '
-          + 'clipboard. Do you want to use the connection string to '
-          + 'fill out this form?',
-        buttons: ['Yes', 'No']
-      }, (response) => {
-        this.dialogOpen = false;
-        this.clipboardText = clipboardText;
-
-        if (response === 0) {
-          this.autoFillFromClipboard();
-        }
-      });
-    }
+  onChangeViewClicked(viewType, evt) {
+    evt.preventDefault();
+    Actions.onChangeViewClicked(viewType);
   }
 
   /**
-   * Parses a connection string from the clipboard.
+   * Renders the form with connection attributes or the URI input.
+   *
+   * @returns {React.Component}
    */
-  autoFillFromClipboard() {
-    Connection.from(this.clipboardText, (error, connection) => {
-      if (!error) {
-        connection.name = '';
+  renderConnectScreen() {
+    if (this.props.viewType === 'connectionString') {
+      return (<ConnectionString {...this.props} />);
+    }
 
-        if (this.clipboardText.match(/[?&]ssl=true/i)) {
-          connection.sslMethod = 'SYSTEMCA';
-        }
+    return (<ConnectionForm {...this.props} />);
+  }
 
-        Actions.onConnectionSelected(connection);
-      }
-    });
+  /**
+   * Renders the change view type link.
+   *
+   * @returns {React.Component}
+   */
+  renderChangeViewLink() {
+    if (this.props.viewType === 'connectionString') {
+      return (
+        <div className={classnames(styles['change-view-link'])}>
+          <a
+            onClick={this.onChangeViewClicked.bind(this, 'connectionForm')}>
+            Fill in connection fields individually
+          </a>
+        </div>
+      );
+    }
+
+    return (
+      <div className={classnames(styles['change-view-link'])}>
+        <a
+          onClick={this.onChangeViewClicked.bind(this, 'connectionString')}>
+          Paste connection string
+        </a>
+      </div>
+    );
   }
 
   render() {
@@ -100,10 +85,13 @@ class Connect extends React.Component {
           <Sidebar {...this.props} />
           <div className={classnames(styles['form-container'])}>
             <div className={classnames(styles['connect-container'])}>
-              <header><h2>New Connection</h2></header>
-              <ConnectForm {...this.props} />
+              <header>
+                <h2>New Connection</h2>
+                {this.renderChangeViewLink()}
+              </header>
+              {this.renderConnectScreen()}
             </div>
-            <Help />
+            <Help {...this.props} />
           </div>
         </div>
       </div>

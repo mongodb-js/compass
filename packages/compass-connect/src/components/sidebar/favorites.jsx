@@ -26,7 +26,7 @@ class Favorites extends React.Component {
    * @param {Object} favorite - A favorite connection.
    */
   onFavoriteClicked(favorite) {
-    Actions.onConnectionSelected(favorite);
+    Actions.onFavoriteSelected(favorite);
   }
 
   /**

@@ -81,6 +81,171 @@ describe('Store', () => {
     });
   });
 
+  describe('#parseConnectionString', () => {
+    context('when the form is currently valid', () => {
+      context('when customUrl is not empty', () => {
+        const customUrl = 'mongodb://server.example.com/';
+        const driverUrl = 'mongodb://server.example.com:27017/?readPreference=primary&ssl=false';
+
+        beforeEach(() => {
+          Store.state.customUrl = customUrl;
+        });
+
+        it('updates the customUrl in the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.customUrl).to.equal(customUrl);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+
+        it('updates the driverUrl in the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection.driverUrl).to.equal(driverUrl);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+
+        it('does not update the syntaxErrorMessage in the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.syntaxErrorMessage).to.equal(null);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+      });
+
+      context('when customUrl is empty', () => {
+        const customUrl = '';
+        const driverUrl = 'mongodb://localhost:27017/?readPreference=primary&ssl=false';
+
+        beforeEach(() => {
+          Store.state.customUrl = customUrl;
+          Store.state.syntaxErrorMessage = 'Some syntax error';
+        });
+
+        it('updates the customUrl in the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.customUrl).to.equal(customUrl);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+
+        it('updates the driverUrl in the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection.driverUrl).to.equal(driverUrl);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+
+        it('removes the syntaxErrorMessage from the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.syntaxErrorMessage).to.equal(null);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+      });
+    });
+
+    context('when the form is not valid', () => {
+      context('when schema is invalid', () => {
+        const customUrl = 'fake';
+        const driverUrl = 'mongodb://localhost:27017/?readPreference=primary&ssl=false';
+        const syntaxErrorMessage = 'Invalid schema, expected `mongodb` or `mongodb+srv`';
+
+        beforeEach(() => {
+          Store.state.customUrl = customUrl;
+        });
+
+        it('updates the customUrl in the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.customUrl).to.equal(customUrl);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+
+        it('updates the driverUrl in the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection.driverUrl).to.equal(driverUrl);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+
+        it('updates the syntaxErrorMessage in the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.syntaxErrorMessage).to.equal(syntaxErrorMessage);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+      });
+
+      context('when URI is invalid', () => {
+        const customUrl = 'mongodb://localhost/?compressors=bunnies';
+        const driverUrl = 'mongodb://localhost:27017/?readPreference=primary&ssl=false';
+        const syntaxErrorMessage = 'Value for `compressors` must be at least one of: `snappy`, `zlib`';
+
+        beforeEach(() => {
+          Store.state.customUrl = customUrl;
+        });
+
+        it('updates the customUrl in the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.customUrl).to.equal(customUrl);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+
+        it('updates the driverUrl in the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection.driverUrl).to.equal(driverUrl);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+
+        it('updates the syntaxErrorMessage in the current connection model', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.syntaxErrorMessage).to.equal(syntaxErrorMessage);
+            done();
+          });
+
+          Actions.parseConnectionString();
+        });
+      });
+    });
+  });
+
   describe('#onHostnameChanged', () => {
     it('updates the hostname in the current connection model', (done) => {
       const unsubscribe = Store.listen((state) => {
@@ -479,10 +644,117 @@ describe('Store', () => {
         expect(state.isValid).to.equal(true);
         expect(state.isConnected).to.equal(false);
         expect(state.errorMessage).to.equal(null);
+        expect(state.syntaxErrorMessage).to.equal(null);
         done();
       });
 
       Actions.onConnectionSelected(connection);
+    });
+  });
+
+  describe('#onFavoriteSelected', () => {
+    const connection = new Connection();
+
+    it('sets the current connection in the store', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.currentConnection).to.equal(connection);
+        expect(state.isValid).to.equal(true);
+        expect(state.isConnected).to.equal(false);
+        expect(state.errorMessage).to.equal(null);
+        expect(state.syntaxErrorMessage).to.equal(null);
+        expect(state.viewType).to.equal('connectionForm');
+        done();
+      });
+
+      Actions.onFavoriteSelected(connection);
+    });
+  });
+
+  describe('#onConnectionFormChanged', () => {
+    before(() => {
+      Store.state.syntaxErrorMessage = 'Some syntax error';
+    });
+
+    it('removes errors from the store', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.isValid).to.equal(true);
+        expect(state.errorMessage).to.equal(null);
+        expect(state.syntaxErrorMessage).to.equal(null);
+        done();
+      });
+
+      Actions.onConnectionFormChanged();
+    });
+  });
+
+  describe('#onCustomUrlChanged', () => {
+    const customUrl = 'mongodb://localhost/';
+
+    before(() => {
+      Store.state.customUrl = '';
+    });
+
+    it('removes errors from the store', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.customUrl).to.equal(customUrl);
+        done();
+      });
+
+      Actions.onCustomUrlChanged(customUrl);
+    });
+  });
+
+  describe('#onChangeViewClicked', () => {
+    context('when a form is valid', () => {
+      const prevViewType = 'connectionString';
+      const nextViewType = 'connectionForm';
+      const customUrl = 'mongodb://localhost/';
+      const driverUrl = 'mongodb://localhost:27017/?readPreference=primary&ssl=false';
+
+      before(() => {
+        Store.state.isValid = true;
+        Store.state.viewType = prevViewType;
+        Store.state.customUrl = customUrl;
+      });
+
+      it('sets the current connection in the store', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.viewType).to.equal(nextViewType);
+          expect(state.customUrl).to.equal(driverUrl);
+          done();
+        });
+
+        Actions.onChangeViewClicked(nextViewType);
+      });
+    });
+
+    context('when a form is not valid', () => {
+      const prevViewType = 'connectionString';
+      const nextViewType = 'connectionForm';
+      const customUrl = 'fake';
+      const driverUrl = 'mongodb://localhost:27017/?readPreference=primary&ssl=false';
+
+      before(() => {
+        Store.state.isValid = false;
+        Store.state.viewType = prevViewType;
+        Store.state.customUrl = customUrl;
+      });
+
+      it('sets the current connection in the store', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.viewType).to.equal(nextViewType);
+          expect(state.customUrl).to.equal(customUrl);
+          expect(state.currentConnection.driverUrl).to.equal(driverUrl);
+          done();
+        });
+
+        Actions.onChangeViewClicked(nextViewType);
+      });
     });
   });
 
@@ -593,7 +865,7 @@ describe('Store', () => {
         beforeEach(() => {
           Store.state.currentConnection.authStrategy = 'MONGODB';
           Store.state.currentConnection.mongodbDatabaseName = '';
-          Store.updateDefaults();
+          Store._updateDefaults();
         });
 
         afterEach(() => {
@@ -610,7 +882,7 @@ describe('Store', () => {
       context('when the service name is empty', () => {
         before(() => {
           Store.state.currentConnection.authStrategy = 'KERBEROS';
-          Store.updateDefaults();
+          Store._updateDefaults();
         });
 
         after(() => {

@@ -63,10 +63,10 @@ class FormFileInput extends React.Component {
    * @returns {String} - A class name
    */
   getClassName() {
-    const classnamesProps = [styles['form-item']];
+    const classnamesProps = [styles['connect-form-item']];
 
     if (this.props.error) {
-      classnamesProps.push(styles['form-item-has-error']);
+      classnamesProps.push(styles['connect-form-item-has-error']);
     }
 
     return classnames(...classnamesProps);
@@ -162,12 +162,12 @@ class FormFileInput extends React.Component {
         'data-type': 'error'
       }
       : {};
-    const buttonClassName = `${classnames(styles['form-item-file-button'])} btn btn-sm btn-default`;
+    const buttonClassName = `${classnames(styles['connect-form-item-button'])} btn btn-sm btn-default`;
 
     return (
       <div className={this.getClassName()}>
         <label>
-          <span className={classnames(styles['form-item-label'])}>
+          <span className={classnames(styles['connect-form-item-label'])}>
             {this.renderError()}
             {this.props.label}
           </span>
