@@ -18,6 +18,7 @@ describe('<DocumentListView />', () => {
           tz="UTC"
           removeDocument={sinon.spy()}
           updateDocument={sinon.spy()}
+          openImportFileDialog={sinon.spy()}
           openInsertDocumentDialog={sinon.spy()} />
       );
 

@@ -41,6 +41,7 @@ class DocumentListView extends React.Component {
             copyToClipboard={this.props.copyToClipboard}
             removeDocument={this.props.removeDocument}
             updateDocument={this.props.updateDocument}
+            openImportFileDialog={this.props.openImportFileDialog}
             openInsertDocumentDialog={this.props.openInsertDocumentDialog} />
         </li>
       );
@@ -69,6 +70,7 @@ DocumentListView.propTypes = {
   updateDocument: PropTypes.func,
   version: PropTypes.string.isRequired,
   openInsertDocumentDialog: PropTypes.func,
+  openImportFileDialog: PropTypes.func,
   tz: PropTypes.string.isRequired
 };
 

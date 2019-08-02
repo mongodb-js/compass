@@ -339,6 +339,7 @@ EditableDocument.propTypes = {
   tz: PropTypes.string,
   expandAll: PropTypes.bool,
   openInsertDocumentDialog: PropTypes.func.isRequired,
+  openImportFileDialog: PropTypes.func.isRequired,
   copyToClipboard: PropTypes.func.isRequired
 };
 

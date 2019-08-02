@@ -874,6 +874,7 @@ DocumentTableView.propTypes = {
   ns: PropTypes.string.isRequired,
   version: PropTypes.string.isRequired,
   openInsertDocumentDialog: PropTypes.func,
+  openImportFile: PropTypes.func,
   pathChanged: PropTypes.func.isRequired,
   removeColumn: PropTypes.func,
   copyToClipboard: PropTypes.func,

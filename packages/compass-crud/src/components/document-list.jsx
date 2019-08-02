@@ -27,9 +27,15 @@ class DocumentList extends React.Component {
 
   /**
    * Handle opening of the insert dialog.
+   *
+   * @param {String} key - Selected option from the Add Data dropdown menu.
    */
-  handleOpenInsert() {
-    this.props.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
+  handleOpenInsert(key) {
+    if (key === 'insert-document') {
+      this.props.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
+    } else if (key === 'import-file') {
+      this.props.openImportFileDialog();
+    }
   }
 
   /**
@@ -76,7 +82,10 @@ class DocumentList extends React.Component {
       return (
         <InsertDocumentDialog
           closeInsertDocumentDialog={this.props.closeInsertDocumentDialog}
-          insertDocument={this.props.insertDocument}
+          handleInsertDocument={this.props.handleInsertDocument}
+          updateJsonDoc={this.props.updateJsonDoc}
+          toggleInsertDocumentView={this.props.toggleInsertDocumentView}
+          jsonView
           version={this.props.version}
           tz={this.props.tz}
           {...this.props.insert} />
@@ -128,14 +137,17 @@ DocumentList.displayName = 'DocumentList';
 
 DocumentList.propTypes = {
   closeInsertDocumentDialog: PropTypes.func,
+  toggleInsertDocumentView: PropTypes.func.isRequired,
   error: PropTypes.object,
   insert: PropTypes.object,
-  insertDocument: PropTypes.func,
+  handleInsertDocument: PropTypes.func,
   isEditable: PropTypes.bool.isRequired,
   isExportable: PropTypes.bool.isRequired,
   store: PropTypes.object.isRequired,
   openInsertDocumentDialog: PropTypes.func,
+  openImportFileDialog: PropTypes.func,
   view: PropTypes.string.isRequired,
+  updateJsonDoc: PropTypes.func.isRequired,
   version: PropTypes.string.isRequired,
   viewChanged: PropTypes.func.isRequired,
   tz: PropTypes.string

@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { AnimatedIconTextButton } from 'hadron-react-buttons';
+import { Glyphicon } from 'react-bootstrap';
 import { ViewSwitcher } from 'hadron-react-components';
+import { AnimatedIconTextButton } from 'hadron-react-buttons';
 
 const BASE_CLASS = 'document-list';
 const ACTION_BAR_CLASS = `${BASE_CLASS}-action-bar`;
@@ -10,6 +11,8 @@ const MESSAGE_CLASS = `${ACTION_BAR_CLASS}-message`;
 const REFRESH_CLASS = `${ACTION_BAR_CLASS}-refresh`;
 const PAGINATION_CLASS = `${ACTION_BAR_CLASS}-pagination`;
 const VIEW_SWITCHER_CLASS = `${ACTION_BAR_CLASS}-view-switcher`;
+const INSERT_DATA = `btn-primary ${ACTION_BAR_CLASS}-insert-data`;
+const INSERT_DATA_TITLE = `${ACTION_BAR_CLASS}-insert-data-title`;
 
 /**
  * Component for the CRUD toolbar.
@@ -85,16 +88,19 @@ class Toolbar extends React.Component {
 
   renderInsertButton() {
     if (!this.props.readonly) {
-      const TextWriteButton = global.hadronApp.appRegistry.
-        getComponent('DeploymentAwareness.TextWriteButton');
+      const dropdownOptions = { 'import-file': 'Import File', 'insert-document': 'Insert Document' };
+      const OptionWriteSelector = global.hadronApp.appRegistry.
+        getComponent('DeploymentAwareness.OptionWriteSelector');
       return (
-        <TextWriteButton
-          className="btn btn-primary btn-xs open-insert"
-          dataTestId="open-insert-document-modal-button"
+        <OptionWriteSelector
+          className={INSERT_DATA}
+          id="insert-data-dropdown"
           isCollectionLevel
-          text="Insert Document"
+          title={<div className={INSERT_DATA_TITLE}><Glyphicon glyph="save"/><div>ADD DATA</div></div>}
+          options={dropdownOptions}
+          bsSize="xs"
           tooltipId="document-is-not-writable"
-          clickHandler={this.props.insertHandler} />
+          onSelect={this.props.insertHandler} />
       );
     }
   }

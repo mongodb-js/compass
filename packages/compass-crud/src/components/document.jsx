@@ -34,6 +34,7 @@ Document.propTypes = {
   expandAll: PropTypes.bool,
   removeDocument: PropTypes.func,
   updateDocument: PropTypes.func,
+  openImportFileDialog: PropTypes.func,
   openInsertDocumentDialog: PropTypes.func
 };
 

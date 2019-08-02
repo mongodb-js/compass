@@ -32,6 +32,7 @@ describe('<EditableDocument />', () => {
           copyToClipboard={sinon.spy(action)}
           version="3.4.0"
           tz="UTC"
+          openImportFileDialog={sinon.spy(action)}
           openInsertDocumentDialog={sinon.spy(action)} />
       );
     });
@@ -72,6 +73,7 @@ describe('<EditableDocument />', () => {
             copyToClipboard={sinon.spy(action)}
             version="3.4.0"
             tz="UTC"
+            openImportFileDialog={sinon.spy(action)}
             openInsertDocumentDialog={sinon.spy(action)} />
         );
 

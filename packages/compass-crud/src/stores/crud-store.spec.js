@@ -104,12 +104,24 @@ describe('store', () => {
       expect(store.state.insert.doc).to.equal(null);
     });
 
+    it('sets the default insert json doc', () => {
+      expect(store.state.insert.jsonDoc).to.equal(null);
+    });
+
+    it('sets the default insert json view', () => {
+      expect(store.state.insert.jsonView).to.equal(false);
+    });
+
     it('sets the default insert message', () => {
       expect(store.state.insert.message).to.equal('');
     });
 
     it('sets the default insert mode', () => {
       expect(store.state.insert.mode).to.equal('modifying');
+    });
+
+    it('sets the default insert json view', () => {
+      expect(store.state.insert.jsonView).to.equal(false);
     });
 
     it('sets the default insert open status', () => {
@@ -476,7 +488,7 @@ describe('store', () => {
     });
   });
 
-  describe('#insertDocument', () => {
+  describe('#insertOneDocument', () => {
     let store;
     let actions;
 
@@ -508,13 +520,15 @@ describe('store', () => {
             expect(state.count).to.equal(1);
             expect(state.end).to.equal(1);
             expect(state.insert.doc).to.equal(null);
+            expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
+            expect(state.insert.jsonView).to.equal(false);
             expect(state.insert.message).to.equal('');
             unsubscribe();
             done();
           });
 
-          store.insertDocument(doc);
+          store.insertDocument(doc.generateObject());
         });
       });
 
@@ -531,13 +545,15 @@ describe('store', () => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(1);
             expect(state.insert.doc).to.equal(null);
+            expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
+            expect(state.insert.jsonView).to.equal(false);
             expect(state.insert.message).to.equal('');
             unsubscribe();
             done();
           });
 
-          store.insertDocument(doc);
+          store.insertDocument(doc.generateObject());
         });
       });
     });
@@ -558,13 +574,15 @@ describe('store', () => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.insert.doc).to.not.equal(null);
+          expect(state.insert.jsonDoc).to.not.equal(null);
           expect(state.insert.isOpen).to.equal(true);
+          expect(state.insert.jsonView).to.equal(false);
           expect(state.insert.message).to.not.equal('');
           unsubscribe();
           done();
         });
 
-        store.insertDocument(doc);
+        store.insertDocument(doc.generateObject());
       });
     });
   });

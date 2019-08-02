@@ -30,6 +30,18 @@
       display: flex;
     }
 
+    &-insert-data-title {
+      display: flex;
+
+      .glyphicon {
+        top: 2px;
+      }
+
+      div {
+        padding: 0 5px;
+      }
+    }
+
     &-view-switcher {
       margin-left: 5px;
 
@@ -78,5 +90,30 @@
         }
       }
     }
+  }
+}
+
+#insert-data-dropdown {
+  display: flex;
+  padding: 0 12px;
+  color: @pw;
+  background-color: @green2;
+  border-color: darken(@green2, 5%);
+
+	&:hover, &:focus {
+		background: linear-gradient(180deg, #6BA442 0%, #4A7E25 100%);
+		box-shadow: inset 0 -1px 0 0 #3B6A1B, 0 2px 4px 0 rgba(0,0,0,0.1);
+		border: 1px solid #3B6A1B;
+	}
+
+	&:active {
+		background: linear-gradient(180deg, #4A7E25 0%, #6BA442 100%);
+		box-shadow: inset 0 2px 2px 0 #3B6A1B;
+		border: 1px solid #3B6A1B;
+	}
+
+  .caret {
+    position: relative;
+    top: 7px;
   }
 }

@@ -1,6 +1,7 @@
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import toPairs from 'lodash.topairs';
+import jsonParse from 'fast-json-parse';
 import findIndex from 'lodash.findindex';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
@@ -150,8 +151,10 @@ const configureStore = (options = {}) => {
     getInitialInsertState() {
       return {
         doc: null,
+        jsonDoc: null,
         message: '',
         mode: MODIFYING,
+        jsonView: false,
         isOpen: false
       };
     },
@@ -457,6 +460,8 @@ const configureStore = (options = {}) => {
       this.setState({
         insert: {
           doc: hadronDoc,
+          jsonDoc: '',
+          jsonView: true,
           message: '',
           mode: MODIFYING,
           isOpen: true
@@ -465,17 +470,92 @@ const configureStore = (options = {}) => {
     },
 
     /**
-     * Insert the document.
-     *
-     * @param {Document} hadronDoc - The hadron document to insert.
+     * Open an import file dialog from compass-import-export-plugin.
+     * Emits a global app registry event the plugin listens to.
      */
-    insertDocument(hadronDoc) {
-      const doc = hadronDoc.generateObject();
+    openImportFileDialog() {
+      this.globalAppRegistry.emit('import-file');
+    },
+
+    /**
+     * Switch between list and JSON views when inserting a document through Insert Document modal.
+     */
+    toggleInsertDocumentView(view) {
+      if (view === 'JSON') {
+        const jsonDoc = JSON.stringify(this.state.insert.doc.generateObject());
+        const hadronDoc = this.state.insert.doc;
+        this.setState({
+          insert: {
+            doc: hadronDoc,
+            jsonView: true,
+            jsonDoc: jsonDoc,
+            message: '',
+            mode: MODIFYING,
+            isOpen: true
+          }
+        });
+      } else {
+        const hadronDoc = new HadronDocument(jsonParse(this.state.insert.jsonDoc).value, true);
+        const jsonDoc = this.state.insert.jsonDoc;
+        this.setState({
+          insert: {
+            doc: hadronDoc,
+            jsonView: false,
+            jsonDoc: jsonDoc,
+            message: '',
+            mode: MODIFYING,
+            isOpen: true
+          }
+        });
+      }
+    },
+
+    /**
+     * As we are editing a JSON document in Insert Document Dialog, update the
+     * state with the inputed json data.
+     *
+     * @param {String} value - JSON string we are updating.
+     */
+    updateJsonDoc(value) {
+      this.setState({
+        insert: {
+          doc: {},
+          jsonDoc: value,
+          jsonView: true,
+          message: '',
+          mode: MODIFYING,
+          isOpen: true
+        }
+      });
+    },
+
+    /**
+     * Parse document from Json Insert View Modal or generate object from hadron document
+     * view to insert.
+     */
+    handleInsertDocument() {
+      let doc;
+      if (this.state.insert.jsonDoc !== null) {
+        doc = jsonParse(this.state.insert.jsonDoc).value;
+      } else {
+        doc = this.state.insert.doc.generateObject();
+      }
+      this.insertDocument(doc);
+    },
+
+    /**
+     * Insert a single document.
+     *
+     * @param {Object} doc - The hadron document to insert.
+     */
+    insertDocument(doc) {
       this.dataService.insertOne(this.state.ns, doc, {}, (error) => {
         if (error) {
           return this.setState({
             insert: {
-              doc: hadronDoc,
+              doc: new HadronDocument(doc),
+              jsonDoc: JSON.stringify(doc),
+              jsonView: this.state.insert.jsonView,
               message: error.message,
               mode: ERROR,
               isOpen: true

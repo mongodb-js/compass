@@ -15,7 +15,10 @@ const configureActions = () => {
     'getNextPage',
     'getPrevPage',
     'insertDocument',
+    'handleInsertDocument',
+    'toggleInsertDocumentView',
     'openInsertDocumentDialog',
+    'openImportFileDialog',
     'pathChanged',
     'refreshDocuments',
     'removeDocument',
@@ -24,6 +27,7 @@ const configureActions = () => {
     'replaceDoc',
     'resetHeaders',
     'updateDocument',
+    'updateJsonDoc',
     'viewChanged'
   ]);
 
