@@ -652,7 +652,7 @@ const configureStore = (options = {}) => {
       options.dataProvider.dataProvider
     );
 
-    store.refreshDocuments();
+    store.refreshDocuments.bind(store);
   }
 
   const gridStore = configureGridStore(options);
