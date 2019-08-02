@@ -2,14 +2,14 @@ import { createStore, applyMiddleware } from 'redux';
 import reducer from 'modules';
 import thunk from 'redux-thunk';
 
-import { changeAuthentication } from 'modules/authentication';
+import { changeAuthStrategy } from 'modules/auth-strategy';
 import { changeErrorMessage } from 'modules/error-message';
 import { toggleIsAtlas } from 'modules/is-atlas';
 import { toggleIsDataLake } from 'modules/is-data-lake';
 import { toggleIsConnected } from 'modules/is-connected';
 import { changeSshTunnel } from 'modules/ssh-tunnel';
 import { changeUiStatus } from 'modules/ui-status';
-import { changeSsl } from 'modules/ssl';
+import { changeSslMethod } from 'modules/ssl-method';
 import { updateTitle } from 'modules/title';
 import { changeInstanceId } from 'modules/instance-id';
 import { changeNamespace } from 'modules/namespace';
@@ -43,7 +43,7 @@ store.onActivated = (appRegistry) => {
       return;
     }
     const connection = ds.client.model;
-    store.dispatch(changeInstanceId(connection.instance_id));
+    store.dispatch(changeInstanceId(connection.instanceId));
 
     const StatusAction = appRegistry.getAction('Status.Actions');
     if (StatusAction) {
@@ -56,9 +56,9 @@ store.onActivated = (appRegistry) => {
 
     store.dispatch(toggleIsConnected(true));
     store.dispatch(toggleIsAtlas(/mongodb\.net/i.test(connection.hostname)));
-    store.dispatch(changeAuthentication(connection.authentication));
-    store.dispatch(changeSsl(connection.ssl));
-    store.dispatch(changeSshTunnel(connection.ssh_tunnel));
+    store.dispatch(changeAuthStrategy(connection.authStrategy));
+    store.dispatch(changeSslMethod(connection.sslMethod));
+    store.dispatch(changeSshTunnel(connection.sshTunnel));
     store.dispatch(changeUiStatus(UI_STATES.LOADING));
   });
 

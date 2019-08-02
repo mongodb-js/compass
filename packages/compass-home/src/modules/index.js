@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
 
-import authentication, {
-  INITIAL_STATE as AUTH_INITIAL_STATE
-} from 'modules/authentication';
+import authStrategy, {
+  INITIAL_STATE as AUTH_STRATEGY_INITIAL_STATE
+} from 'modules/auth-strategy';
 import errorMessage, {
   INITIAL_STATE as ERROR_MESSAGE_INITIAL_STATE
 } from 'modules/error-message';
@@ -24,9 +24,9 @@ import namespace, {
 import sshTunnel, {
   INITIAL_STATE as SSH_TUNNEL_INITIAL_STATE
 } from 'modules/ssh-tunnel';
-import ssl, {
-  INITIAL_STATE as SSL_INITIAL_STATE
-} from 'modules/ssl';
+import sslMethod, {
+  INITIAL_STATE as SSL_METHOD_INITIAL_STATE
+} from 'modules/ssl-method';
 import uiStatus, {
   INITIAL_STATE as UI_STATUS_INITIAL_STATE
 } from 'modules/ui-status';
@@ -43,7 +43,7 @@ import UI_STATES from 'constants/ui-states';
  * The reducer.
  */
 const reducer = combineReducers({
-  authentication,
+  authStrategy,
   errorMessage,
   isAtlas,
   isDataLake,
@@ -51,7 +51,7 @@ const reducer = combineReducers({
   isConnected,
   namespace,
   sshTunnel,
-  ssl,
+  sslMethod,
   uiStatus,
   instanceId,
   title
@@ -69,7 +69,7 @@ const rootReducer = (state, action) => {
   if (action.type === RESET) {
     return {
       ...state,
-      authentication: AUTH_INITIAL_STATE,
+      authStrategy: AUTH_STRATEGY_INITIAL_STATE,
       errorMessage: ERROR_MESSAGE_INITIAL_STATE,
       isAtlas: IS_ATLAS_INITIAL_STATE,
       isDataLake: IS_DATA_LAKE_INITIAL_STATE,
@@ -77,7 +77,7 @@ const rootReducer = (state, action) => {
       isConnected: IS_CONNECTED_INITIAL_STATE,
       namespace: NAMESPACE_INITIAL_STATE,
       sshTunnel: SSH_TUNNEL_INITIAL_STATE,
-      ssl: SSL_INITIAL_STATE,
+      sslMethod: SSL_METHOD_INITIAL_STATE,
       uiStatus: UI_STATUS_INITIAL_STATE,
       title: TITLE_INITIAL_STATE,
       instanceId: INSTANCE_ID_INITIAL_STATE

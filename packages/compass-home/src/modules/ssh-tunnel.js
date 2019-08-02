@@ -32,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeSshTunnel = (sshTunnel) => ({
   type: CHANGE_SSH_TUNNEL,
-  sshTunnel: sshTunnel
+  sshTunnel
 });

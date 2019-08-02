@@ -17,9 +17,9 @@ describe('HomeStore [Store]', () => {
   describe('#onActivated', () => {
     let hold;
     const initialState = {
-      authentication: 'NONE',
+      authStrategy: 'NONE',
       sshTunnel: 'NONE',
-      ssl: 'NONE',
+      sslMethod: 'NONE',
       errorMessage: '',
       instanceId: '',
       isAtlas: false,
@@ -102,11 +102,11 @@ describe('HomeStore [Store]', () => {
           get: () => {},
           client: {
             model: {
-              instance_id: 'test_id',
+              instanceId: 'test_id',
               hostname: 'mongodb.net',
-              authentication: 'test_auth',
-              ssl: 'test_ssl',
-              ssh_tunnel: 'test_ssh_tunnel'
+              authStrategy: 'test_auth',
+              sslMethod: 'test_ssl',
+              sshTunnel: 'test_ssh_tunnel'
             }
           }
         });
@@ -120,11 +120,11 @@ describe('HomeStore [Store]', () => {
       it('dispatches the isConnected action', () => {
         expect(store.getState().isConnected).to.equal(true);
       });
-      it('dispatches the authentication action', () => {
-        expect(store.getState().authentication).to.equal('test_auth');
+      it('dispatches the authStrategy action', () => {
+        expect(store.getState().authStrategy).to.equal('test_auth');
       });
-      it('dispatches the ssl action', () => {
-        expect(store.getState().ssl).to.equal('test_ssl');
+      it('dispatches the sslMethod action', () => {
+        expect(store.getState().sslMethod).to.equal('test_ssl');
       });
       it('dispatches the sshTunnel action', () => {
         expect(store.getState().sshTunnel).to.equal('test_ssh_tunnel');
@@ -136,11 +136,11 @@ describe('HomeStore [Store]', () => {
           get: () => {},
           client: {
             model: {
-              instance_id: 'test_id',
+              instanceId: 'test_id',
               hostname: 'mongodb.net',
-              authentication: 'test_auth',
-              ssl: 'test_ssl',
-              ssh_tunnel: 'test_ssh_tunnel'
+              authStrategy: 'test_auth',
+              sslMethod: 'test_ssl',
+              sshTunnel: 'test_ssh_tunnel'
             }
           }
         });
@@ -153,8 +153,8 @@ describe('HomeStore [Store]', () => {
           isConnected: true,
           isAtlas: true,
           uiStatus: UI_STATES.COMPLETE,
-          authentication: 'test_auth',
-          ssl: 'test_ssl',
+          authStrategy: 'test_auth',
+          sslMethod: 'test_ssl',
           sshTunnel: 'test_ssh_tunnel',
           isDataLake: false
         });
@@ -178,8 +178,8 @@ describe('HomeStore [Store]', () => {
           isConnected: false,
           isAtlas: false,
           uiStatus: UI_STATES.ERROR,
-          authentication: 'NONE',
-          ssl: 'NONE',
+          authStrategy: 'NONE',
+          sslMethod: 'NONE',
           sshTunnel: 'NONE',
           isDataLake: false
         });
