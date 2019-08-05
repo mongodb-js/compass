@@ -71,7 +71,7 @@
     "hadron-app-registry": "^7.0.0",
     "hadron-plugin-manager": "^5.0.0",
     "hadron-react-components": "^3.2.1",
-    "hadron-spectron": "^0.0.1",
+    "hadron-spectron": "^5.0.0",
     "html-webpack-plugin": "^2.28.0",
     "istanbul-instrumenter-loader": "^3.0.0",
     "jsdom": "^11.1.0",
