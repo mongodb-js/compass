@@ -19,7 +19,6 @@ describe('HomeStore [Store]', () => {
     const initialState = {
       errorMessage: '',
       instanceId: '',
-      isAtlas: false,
       isCollapsed: false,
       isConnected: false,
       namespace: '',
@@ -105,9 +104,6 @@ describe('HomeStore [Store]', () => {
       it('dispatches the change ui status action', () => {
         expect(store.getState().uiStatus).to.equal(UI_STATES.COMPLETE);
       });
-      it('dispatches the isAtlas action', () => {
-        expect(store.getState().isAtlas).to.equal(true);
-      });
       it('dispatches the isConnected action', () => {
         expect(store.getState().isConnected).to.equal(true);
       });
@@ -127,7 +123,6 @@ describe('HomeStore [Store]', () => {
           namespace: '',
           title: ' - test_id',
           isConnected: true,
-          isAtlas: true,
           uiStatus: UI_STATES.COMPLETE,
           isDataLake: false
         });
@@ -149,7 +144,6 @@ describe('HomeStore [Store]', () => {
           namespace: '',
           title: '',
           isConnected: false,
-          isAtlas: false,
           uiStatus: UI_STATES.ERROR,
           isDataLake: false
         });

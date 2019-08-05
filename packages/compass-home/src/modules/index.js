@@ -3,9 +3,6 @@ import { combineReducers } from 'redux';
 import errorMessage, {
   INITIAL_STATE as ERROR_MESSAGE_INITIAL_STATE
 } from 'modules/error-message';
-import isAtlas, {
-  INITIAL_STATE as IS_ATLAS_INITIAL_STATE
-} from 'modules/is-atlas';
 import isDataLake, {
   INITIAL_STATE as IS_DATA_LAKE_INITIAL_STATE
 } from 'modules/is-data-lake';
@@ -35,7 +32,6 @@ import UI_STATES from 'constants/ui-states';
  */
 const reducer = combineReducers({
   errorMessage,
-  isAtlas,
   isDataLake,
   isCollapsed,
   isConnected,
@@ -58,7 +54,6 @@ const rootReducer = (state, action) => {
     return {
       ...state,
       errorMessage: ERROR_MESSAGE_INITIAL_STATE,
-      isAtlas: IS_ATLAS_INITIAL_STATE,
       isDataLake: IS_DATA_LAKE_INITIAL_STATE,
       isCollapsed: IS_COLLAPSED_INITIAL_STATE,
       isConnected: IS_CONNECTED_INITIAL_STATE,

@@ -3,7 +3,6 @@ import reducer from 'modules';
 import thunk from 'redux-thunk';
 
 import { changeErrorMessage } from 'modules/error-message';
-import { toggleIsAtlas } from 'modules/is-atlas';
 import { toggleIsDataLake } from 'modules/is-data-lake';
 import { toggleIsConnected } from 'modules/is-connected';
 import { changeUiStatus } from 'modules/ui-status';
@@ -52,7 +51,6 @@ store.onActivated = (appRegistry) => {
     }
 
     store.dispatch(toggleIsConnected(true));
-    store.dispatch(toggleIsAtlas(/mongodb\.net/i.test(connection.hostname)));
     store.dispatch(changeUiStatus(UI_STATES.LOADING));
   });
 
