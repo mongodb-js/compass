@@ -2,14 +2,11 @@ import { createStore, applyMiddleware } from 'redux';
 import reducer from 'modules';
 import thunk from 'redux-thunk';
 
-import { changeAuthStrategy } from 'modules/auth-strategy';
 import { changeErrorMessage } from 'modules/error-message';
 import { toggleIsAtlas } from 'modules/is-atlas';
 import { toggleIsDataLake } from 'modules/is-data-lake';
 import { toggleIsConnected } from 'modules/is-connected';
-import { changeSshTunnel } from 'modules/ssh-tunnel';
 import { changeUiStatus } from 'modules/ui-status';
-import { changeSslMethod } from 'modules/ssl-method';
 import { updateTitle } from 'modules/title';
 import { changeInstanceId } from 'modules/instance-id';
 import { changeNamespace } from 'modules/namespace';
@@ -56,9 +53,6 @@ store.onActivated = (appRegistry) => {
 
     store.dispatch(toggleIsConnected(true));
     store.dispatch(toggleIsAtlas(/mongodb\.net/i.test(connection.hostname)));
-    store.dispatch(changeAuthStrategy(connection.authStrategy));
-    store.dispatch(changeSslMethod(connection.sslMethod));
-    store.dispatch(changeSshTunnel(connection.sshTunnel));
     store.dispatch(changeUiStatus(UI_STATES.LOADING));
   });
 

@@ -17,9 +17,6 @@ describe('HomeStore [Store]', () => {
   describe('#onActivated', () => {
     let hold;
     const initialState = {
-      authStrategy: 'NONE',
-      sshTunnel: 'NONE',
-      sslMethod: 'NONE',
       errorMessage: '',
       instanceId: '',
       isAtlas: false,
@@ -101,13 +98,7 @@ describe('HomeStore [Store]', () => {
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
           client: {
-            model: {
-              instanceId: 'test_id',
-              hostname: 'mongodb.net',
-              authStrategy: 'test_auth',
-              sslMethod: 'test_ssl',
-              sshTunnel: 'test_ssh_tunnel'
-            }
+            model: { instanceId: 'test_id', hostname: 'mongodb.net' }
           }
         });
       });
@@ -120,28 +111,13 @@ describe('HomeStore [Store]', () => {
       it('dispatches the isConnected action', () => {
         expect(store.getState().isConnected).to.equal(true);
       });
-      it('dispatches the authStrategy action', () => {
-        expect(store.getState().authStrategy).to.equal('test_auth');
-      });
-      it('dispatches the sslMethod action', () => {
-        expect(store.getState().sslMethod).to.equal('test_ssl');
-      });
-      it('dispatches the sshTunnel action', () => {
-        expect(store.getState().sshTunnel).to.equal('test_ssh_tunnel');
-      });
     });
     context('on data-service-disconnected from success', () => {
       beforeEach(() => {
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
           client: {
-            model: {
-              instanceId: 'test_id',
-              hostname: 'mongodb.net',
-              authStrategy: 'test_auth',
-              sslMethod: 'test_ssl',
-              sshTunnel: 'test_ssh_tunnel'
-            }
+            model: { instanceId: 'test_id', hostname: 'mongodb.net' }
           }
         });
         expect(store.getState()).to.deep.equal({
@@ -153,9 +129,6 @@ describe('HomeStore [Store]', () => {
           isConnected: true,
           isAtlas: true,
           uiStatus: UI_STATES.COMPLETE,
-          authStrategy: 'test_auth',
-          sslMethod: 'test_ssl',
-          sshTunnel: 'test_ssh_tunnel',
           isDataLake: false
         });
         global.hadronApp.appRegistry.emit('data-service-disconnected');
@@ -178,9 +151,6 @@ describe('HomeStore [Store]', () => {
           isConnected: false,
           isAtlas: false,
           uiStatus: UI_STATES.ERROR,
-          authStrategy: 'NONE',
-          sslMethod: 'NONE',
-          sshTunnel: 'NONE',
           isDataLake: false
         });
         global.hadronApp.appRegistry.emit('data-service-disconnected');

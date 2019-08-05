@@ -32,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeInstanceId = (instanceId) => ({
   type: CHANGE_INSTANCE_ID,
-  instanceId: instanceId
+  instanceId
 });
