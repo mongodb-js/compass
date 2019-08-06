@@ -71,7 +71,7 @@ const Store = Reflux.createStore({
    */
   init() {
     this.state.connections.fetch({ success: () => this.trigger(this.state) });
-    ipc.on('app:disconnect', this.onDisconnect.bind(this));
+    ipc.on('app:disconnect', this.onDisconnectClicked.bind(this));
   },
 
   /**
@@ -81,7 +81,9 @@ const Store = Reflux.createStore({
    * @param {AppRegistry} appRegistry - The app registry.
    */
   onActivated(appRegistry) {
-    forEach(appRegistry.getRole(EXTENSION) || [], (extension) => {
+    const role = appRegistry.getRole(EXTENSION) || [];
+
+    forEach(role, (extension) => {
       extension(this);
     });
 
@@ -90,7 +92,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Get the initial state of the store.
+   * Gets the initial state of the store.
    *
    * @returns {Object} The state.
    */
@@ -110,44 +112,28 @@ const Store = Reflux.createStore({
   /** --- Reflux actions ---  */
 
   /**
-   * Parses a connection string.
+   * Validates a connection string.
    */
-  parseConnectionString() {
+  validateConnectionString() {
     const customUrl = this.state.customUrl;
 
     if (customUrl === '') {
-      this.resetConnection();
+      this._cleanConnection();
+      this.trigger(this.state);
     } else if (!Connection.isURI(customUrl)) {
       this._setSyntaxErrorMessage('Invalid schema, expected `mongodb` or `mongodb+srv`');
+      this.trigger(this.state);
     } else {
-      Connection.from(customUrl, (error, connection) => {
+      Connection.from(customUrl, (error) => {
         if (error) {
           this._setSyntaxErrorMessage(error.message);
+          this.trigger(this.state);
         } else {
-          connection.name = '';
-
-          if (customUrl.match(/[?&]ssl=true/i)) {
-            connection.sslMethod = 'SYSTEMCA';
-          }
-
-          this.onConnectionSelected(connection);
+          this._resetSyntaxErrorMessage();
+          this.trigger(this.state);
         }
       });
     }
-  },
-
-  /**
-   * Resets the connection after clicking on the new connection section.
-   */
-  resetConnection() {
-    this.setState({
-      currentConnection: new Connection(),
-      isValid: true,
-      isConnected: false,
-      errorMessage: null,
-      syntaxErrorMessage: null,
-      viewType: 'connectionString'
-    });
   },
 
   /**
@@ -172,7 +158,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Changes viewType.
+   * Changes viewType and parses URI to fill in a connection form.
    *
    * @param {String} viewType - A view type.
    */
@@ -181,7 +167,37 @@ const Store = Reflux.createStore({
     const customUrl = this.state.customUrl;
     const isValid = this.state.isValid;
 
-    this.setState({ viewType, customUrl: isValid ? driverUrl : customUrl });
+    this.state.viewType = viewType;
+
+    if (customUrl === '') {
+      this._cleanConnection();
+      this.trigger(this.state);
+    } else if (viewType === 'connectionForm') { // Terget view
+      if (!Connection.isURI(customUrl)) {
+        this.state.currentConnection = new Connection();
+        this.trigger(this.state);
+      } else {
+        this.StatusActions.showIndeterminateProgressBar();
+        Connection.from(customUrl, (error, connection) => {
+          if (!error) {
+            this._resetSyntaxErrorMessage();
+            this.StatusActions.done();
+
+            if (this.state.customUrl.match(/[?&]ssl=true/i)) {
+              connection.sslMethod = 'SYSTEMCA';
+            }
+
+            connection.name = '';
+
+            this.state.currentConnection = connection;
+            this.trigger(this.state);
+          }
+        });
+      }
+    } else {
+      this.state.customUrl = isValid ? driverUrl : customUrl;
+      this.trigger(this.state);
+    }
   },
 
   /**
@@ -196,7 +212,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Select a connection in the sidebar.
+   * Selects a connection in the sidebar.
    *
    * @param {Connection} connection - The connection to select.
    */
@@ -211,62 +227,66 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Connect to the current connection. Will validate the connection first,
-   * then will attempt to connect. If connection is successful then a new
-   * recent connection is created.
+   * To connect through `DataService` we need a proper connection object.
+   * In case of connecting via URI we need to parse URI first to get this object.
+   * In case of connecting via the form we can skip a parsing stage and
+   * validate instead the existing connection object.
    */
-  onConnect() {
-    const connection = this.state.currentConnection;
+  onConnectClicked() {
+    if (this.state.viewType === 'connectionString') {
+      const customUrl = this.state.customUrl;
 
-    if (!connection.isValid()) {
-      this.setState({ isValid: false });
-    } else {
-      this.StatusActions.showIndeterminateProgressBar();
-      this._updateDefaults();
-      this.dataService = new DataService(connection);
-      this.appRegistry.emit('data-service-initialized', this.dataService);
-      this.dataService.connect((error, ds) => {
-        if (error) {
-          this.StatusActions.done();
-
-          return this.setState({
-            isValid: false,
-            errorMessage: error.message,
-            syntaxErrorMessage: null
+      if (customUrl === '') {
+        this._cleanConnection();
+        this._setSyntaxErrorMessage('The connection string can not be empty');
+        this.trigger(this.state);
+      } else {
+        this.StatusActions.showIndeterminateProgressBar();
+        if (!Connection.isURI(customUrl)) {
+          this._setSyntaxErrorMessage('Invalid schema, expected `mongodb` or `mongodb+srv`');
+          this.trigger(this.state);
+        } else {
+          Connection.from(customUrl, (error, connection) => {
+            if (error) {
+              this._setSyntaxErrorMessage(error.message);
+              this.trigger(this.state);
+            } else {
+              this._connect(connection);
+            }
           });
         }
+      }
+    } else {
+      const currentConnection = this.state.currentConnection;
 
-        // @note: onCreateRecent will handle the store triggering, no need to do
-        // it twice.
-        this.setState({
-          isValid: true,
-          isConnected: true,
-          errorMessage: null,
-          syntaxErrorMessage: null
-        });
-
-        this.appRegistry.emit('data-service-connected', error, ds);
-        this.onCreateRecent();
-      });
+      if (!currentConnection.isValid()) {
+        this.setState({ isValid: false });
+      } else {
+        this.StatusActions.showIndeterminateProgressBar();
+        this._connect(currentConnection);
+      }
     }
   },
 
   /**
-   * Create a favorite from the current connection.
+   * Creates a favorite from the current connection.
    */
-  onCreateFavorite() {
+  onCreateFavoriteClicked() {
     const connection = this.state.currentConnection;
+
     connection.isFavorite = true;
+
     this._addConnection(connection);
   },
 
   /**
-   * Create a recent connection from the current connection.
+   * Creates a recent connection from the current connection.
    */
-  onCreateRecent() {
+  onCreateRecentClicked() {
     const connection = this.state.currentConnection;
 
     connection.lastUsed = new Date();
+
     this._pruneRecents(() => {
       this._addConnection(connection);
     });
@@ -286,11 +306,11 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Delete a connection.
+   * Deletes a connection.
    *
    * @param {Connection} connection - The connection to delete.
    */
-  onDeleteConnection(connection) {
+  onDeleteConnectionClicked(connection) {
     connection.destroy({
       success: () => {
         this.state.connections.remove(connection._id);
@@ -301,30 +321,29 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Delete all recents
+   * Deletes all recents.
    *
-   * @param {Connection} connection - The connection to delete.
+   * @param {Connection} connection - Connections to delete.
    */
-  onDeleteConnections() {
+  onDeleteConnectionsClicked() {
     this._pruneAll(() => {
       this.trigger(this.state);
     });
   },
 
   /**
-   * Disconnect the current connection.
+   * Disconnects the current connection.
    */
-  onDisconnect() {
+  onDisconnectClicked() {
     if (this.dataService) {
       this.dataService.disconnect(() => {
         this.appRegistry.emit('data-service-disconnected');
-        this.setState({
-          isValid: true,
-          isConnected: false,
-          errorMessage: null,
-          syntaxErrorMessage: null,
-          viewType: 'connectionString'
-        });
+        this.state.isValid = true;
+        this.state.isConnected = false;
+        this.state.errorMessage = null;
+        this.state.syntaxErrorMessage = null;
+        this.state.viewType = 'connectionString';
+        this.trigger(this.state);
         this.dataService = undefined;
       });
     }
@@ -351,7 +370,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the favorite name.
+   * Changes the favorite name.
    *
    * @param {String} name - The favorite name.
    */
@@ -403,7 +422,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the port.
+   * Changes the port.
    *
    * @param {String} port - The port.
    */
@@ -413,7 +432,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the read preference.
+   * Changes the read preference.
    *
    * @param {String} readPreference - The read preference.
    */
@@ -423,7 +442,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the replica set name.
+   * Changes the replica set name.
    *
    * @param {String} replicaSet - The replica set name.
    */
@@ -433,11 +452,11 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Save a connection.
+   * Saves a connection.
    *
    * @param {Connection} connection - The connection.
    */
-  onSaveConnection(connection) {
+  onSaveConnectionClicked(connection) {
     connection.save({
       success: () => {
         this.trigger(this.state);
@@ -446,7 +465,16 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSL ca.
+   * Resets the connection after clicking on the new connection section.
+   */
+  onResetConnectionClicked() {
+    this.state.viewType = 'connectionString';
+    this._cleanConnection();
+    this.trigger(this.state);
+  },
+
+  /**
+   * Changes the SSL CA.
    *
    * @param {Array} files - The files.
    */
@@ -456,7 +484,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSL certificate.
+   * Changes the SSL certificate.
    *
    * @param {Array} files - The files.
    */
@@ -466,7 +494,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSL method.
+   * Changes the SSL method.
    *
    * @param {String} method - The SSL method.
    */
@@ -477,7 +505,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSL private key.
+   * Changes the SSL private key.
    *
    * @param {Array} files - The files.
    */
@@ -487,7 +515,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSL password.
+   * Changes the SSL password.
    *
    * @param {String} password - The password.
    */
@@ -497,7 +525,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSH tunnel password.
+   * Changes the SSH tunnel password.
    *
    * @param {String} password - The password.
    */
@@ -507,7 +535,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSH tunnel passphrase.
+   * Changes the SSH tunnel passphrase.
    *
    * @param {String} passphrase - The passphrase.
    */
@@ -517,7 +545,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSH tunnel hostname.
+   * Changes the SSH tunnel hostname.
    *
    * @param {String} hostname - The hostname.
    */
@@ -527,7 +555,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSH tunnel username.
+   * Changes the SSH tunnel username.
    *
    * @param {String} username - The username.
    */
@@ -537,7 +565,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSH tunnel port.
+   * Changes the SSH tunnel port.
    *
    * @param {String} port - The port.
    */
@@ -547,7 +575,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSH tunnel identity file.
+   * Changes the SSH tunnel identity file.
    *
    * @param {Array} files - The file.
    */
@@ -557,7 +585,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the SSH tunnel method.
+   * Changes the SSH tunnel method.
    *
    * @param {String} tunnel - The method.
    */
@@ -568,9 +596,9 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Change the srv record flag.
+   * Changes the srv record flag.
    */
-  onSRVRecordToggle() {
+  onSRVRecordToggled() {
     this.state.currentConnection.isSrvRecord = !this.state.currentConnection.isSrvRecord;
     this.trigger(this.state);
   },
@@ -588,10 +616,8 @@ const Store = Reflux.createStore({
   /** --- Help methods ---  */
 
   /**
-   * Update default values for the connection depending on the authentication strategy
-   * method and database values.
-   *
-   * @todo: Add tests for this.
+   * Updates default values for the connection depending on the authentication
+   * strategy method and database values.
    */
   _updateDefaults() {
     const connection = this.state.currentConnection;
@@ -606,30 +632,49 @@ const Store = Reflux.createStore({
     }
   },
 
+  /**
+   * Adds a connection to connections list.
+   *
+   * @param {Object} connection - A connection.
+   */
   _addConnection(connection) {
     this.state.connections.add(connection);
     connection.save();
     this.trigger(this.state);
   },
 
+  /**
+   * Cleans authentication fields.
+   */
   _clearAuthFields() {
     AUTH_FIELDS.forEach((field) => {
       this.state.currentConnection[field] = undefined;
     });
   },
 
+  /**
+   * Cleans ssl fields.
+   */
   _clearSSLFields() {
     SSL_FIELDS.forEach((field) => {
       this.state.currentConnection[field] = undefined;
     });
   },
 
+  /**
+   * Cleans SSH tunnel fields.
+   */
   _clearSSHTunnelFields() {
     SSH_TUNNEL_FIELDS.forEach((field) => {
       this.state.currentConnection[field] = undefined;
     });
   },
 
+  /**
+   * Deletes all recents connections.
+   *
+   * @param {Function} done - The callback function.
+   */
   _pruneAll(done) {
     const recents = this.state.connections
       .filter((connection) => !connection.isFavorite);
@@ -645,6 +690,11 @@ const Store = Reflux.createStore({
     done();
   },
 
+  /**
+   * Keeps 10 recent connections and deletes rest of them.
+   *
+   * @param {Function} done - The callback function.
+   */
   _pruneRecents(done) {
     const recents = this.state.connections
       .filter((connection) => !connection.isFavorite);
@@ -666,18 +716,70 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Sets a syntax error message to the store.
+   * Sets a syntax error message.
    *
    * @param {Object} error - Error.
    */
   _setSyntaxErrorMessage(error) {
-    this.setState({
-      currentConnection: new Connection(),
-      isValid: false,
-      errorMessage: null,
-      syntaxErrorMessage: error
+    this.state.currentConnection = new Connection();
+    this.state.isValid = false;
+    this.state.errorMessage = null;
+    this.state.syntaxErrorMessage = error;
+  },
+
+  /**
+   * Resets a syntax error message.
+   */
+  _resetSyntaxErrorMessage() {
+    this.state.isValid = true;
+    this.state.errorMessage = null;
+    this.state.syntaxErrorMessage = null;
+  },
+
+  /**
+   * Connects to the current connection. If connection is successful then a new
+   * recent connection is created.
+   *
+   * @param {Object} connection - The current connection.
+   */
+  _connect(connection) {
+    this._updateDefaults();
+    this.dataService = new DataService(connection);
+    this.appRegistry.emit('data-service-initialized', this.dataService);
+
+    this.dataService.connect((error, ds) => {
+      if (error) {
+        this.StatusActions.done();
+        this.setState({
+          isValid: false,
+          errorMessage: error.message,
+          syntaxErrorMessage: null
+        });
+      } else {
+        // @note: onCreateRecentClicked will handle the store triggering,
+        // no need to do it twice.
+        this.setState({
+          isValid: true,
+          isConnected: true,
+          errorMessage: null,
+          syntaxErrorMessage: null
+        });
+        this.appRegistry.emit('data-service-connected', error, ds);
+        this.onCreateRecentClicked();
+      }
     });
   },
+
+  /**
+   * Cleans the current connection section.
+   */
+  _cleanConnection() {
+    this.state.currentConnection = new Connection();
+    this.state.isValid = true;
+    this.state.isConnected = false;
+    this.state.errorMessage = null;
+    this.state.syntaxErrorMessage = null;
+  }
 });
 
 module.exports = Store;

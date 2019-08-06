@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Actions from 'actions';
 import { FormInput } from 'hadron-react-components';
+import classnames from 'classnames';
+
+import styles from '../connect.less';
 
 const DEFAULT_PORT = 27017;
 
@@ -47,12 +50,14 @@ class PortInput extends React.PureComponent {
 
   render() {
     return (
-      <FormInput
-        label="Port"
-        name="port"
-        placeholder="27017"
-        changeHandler={this.onPortChanged.bind(this)}
-        value={this.getPort()} />
+      <div className={classnames(styles['connect-form-item-container'])}>
+        <FormInput
+          label="Port"
+          name="port"
+          placeholder="27017"
+          changeHandler={this.onPortChanged.bind(this)}
+          value={this.getPort()} />
+      </div>
     );
   }
 }

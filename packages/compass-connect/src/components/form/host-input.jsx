@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Actions from 'actions';
 import { FormInput } from 'hadron-react-components';
+import classnames from 'classnames';
+
+import styles from '../connect.less';
 
 const DEFAULT_HOST = 'localhost';
 
@@ -40,12 +43,14 @@ class HostInput extends React.PureComponent {
 
   render() {
     return (
-      <FormInput
-        label="Hostname"
-        name="hostname"
-        placeholder={DEFAULT_HOST}
-        changeHandler={this.onHostnameChanged.bind(this)}
-        value={this.getHostname()} />
+      <div className={classnames(styles['connect-form-item-container'])}>
+        <FormInput
+          label="Hostname"
+          name="hostname"
+          placeholder={DEFAULT_HOST}
+          changeHandler={this.onHostnameChanged.bind(this)}
+          value={this.getHostname()} />
+      </div>
     );
   }
 }

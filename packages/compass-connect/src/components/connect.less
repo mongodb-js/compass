@@ -262,10 +262,62 @@ label {
     .form-group {
       display: block;
 
-      &-separator {
-        margin-bottom: 20px;
-        border-bottom: 1px solid #eeeeee;
+      .connect-form-item-container {
+        div {
+          margin: 15px 30px;
+          width: 500px;
+          overflow: auto;
+          display: flex;
+          justify-content: flex-end;
+
+          label {
+            width: 70%;
+            text-align: right;
+            padding: 5px 15px 0 0;
+
+            i {
+              display: inline-block;
+              font: normal normal normal 14px/1 FontAwesome;
+              font-size: inherit;
+              text-rendering: auto;
+              margin: 0 5px;
+              cursor: pointer;
+              color: #bfbfbe;
+
+              :hover {
+                color: #fbb129;
+              }
+            }
+
+            i:before {
+              content: "\f05a";
+            }
+          }
+
+          button {
+            width: 500px !important;
+
+            i {
+              display: inline-block;
+              font: normal normal normal 14px/1 FontAwesome;
+              font-size: inherit;
+              text-rendering: auto;
+              margin: 0 5px;
+              cursor: pointer;
+              color: #bfbfbe;
+
+              :hover {
+                color: #fbb129;
+              }
+            }
+          }
+        }
       }
+    }
+
+    .form-group-separator {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eeeeee;
     }
   }
 

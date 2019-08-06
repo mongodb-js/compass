@@ -35,14 +35,14 @@ class Recents extends React.Component {
    * @param {Object} recent - A recent connection.
    */
   onClearConnectionClicked(recent) {
-    Actions.onDeleteConnection(recent);
+    Actions.onDeleteConnectionClicked(recent);
   }
 
   /**
    * Deletes connections.
    */
   onClearConnectionsClicked() {
-    Actions.onDeleteConnections();
+    Actions.onDeleteConnectionsClicked();
   }
 
   /**

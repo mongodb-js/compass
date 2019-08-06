@@ -16,8 +16,8 @@ class SRVInput extends React.PureComponent {
    *
    * @param {Object} evt - evt.
    */
-  onSRVRecordToggle() {
-    Actions.onSRVRecordToggle();
+  onSRVRecordToggled() {
+    Actions.onSRVRecordToggled();
   }
 
   render() {
@@ -29,7 +29,7 @@ class SRVInput extends React.PureComponent {
         <div className={classnames(styles['connect-form-item-switch-wrapper'])}>
           <Switch
             checked={this.props.isSrvRecord}
-            onChange={this.onSRVRecordToggle.bind(this)}
+            onChange={this.onSRVRecordToggled.bind(this)}
             className={classnames(styles['form-control-switch'])}
             onColor="rgb(19, 170, 82)"
             style={{ backgroundColor: 'rgb(255,255,255)'}} />

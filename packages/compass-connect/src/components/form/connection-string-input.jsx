@@ -30,7 +30,7 @@ class DriverUrlInput extends React.PureComponent {
   constructor(props) {
     super(props);
     this.isChanged = false;
-    this.debounceParseURL = debounce(this.onParseURLDebounced, 650);
+    this.validateConnectionString = debounce(Actions.validateConnectionString, 550);
   }
 
   /**
@@ -51,14 +51,7 @@ class DriverUrlInput extends React.PureComponent {
     Actions.onCustomUrlChanged(customUrl);
 
     this.isChanged = true;
-    this.debounceParseURL();
-  }
-
-  /**
-   * Parses a connection string.
-   */
-  onParseURLDebounced() {
-    Actions.parseConnectionString();
+    this.validateConnectionString();
   }
 
   /**

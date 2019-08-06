@@ -1,20 +1,19 @@
 const Reflux = require('reflux');
 
 const Actions = Reflux.createActions({
-  parseConnectionString: { sync: true },
-  resetConnection: { sync: true },
+  validateConnectionString: { sync: true },
   onAuthSourceChanged: { sync: true },
   onAuthStrategyChanged: { sync: true },
   onChangeViewClicked: { sync: true },
   onConnectionFormChanged: { sync: true },
   onConnectionSelected: { sync: true },
-  onConnect: { sync: true },
-  onCreateFavorite: { sync: true },
-  onCreateRecent: { sync: true },
+  onConnectClicked: { sync: true },
+  onCreateFavoriteClicked: { sync: true },
+  onCreateRecentClicked: { sync: true },
   onCustomUrlChanged: { sync: true },
-  onDeleteConnection: { sync: true },
-  onDeleteConnections: { sync: true },
-  onDisconnect: { sync: true },
+  onDeleteConnectionClicked: { sync: true },
+  onDeleteConnectionsClicked: { sync: true },
+  onDisconnectClicked: { sync: true },
   onExternalLinkClicked: { sync: true },
   onFavoriteNameChanged: { sync: true },
   onFavoriteSelected: { sync: true },
@@ -23,7 +22,8 @@ const Actions = Reflux.createActions({
   onPortChanged: { sync: true },
   onReadPreferenceChanged: { sync: true },
   onReplicaSetChanged: { sync: true },
-  onSaveConnection: { sync: true },
+  onResetConnectionClicked: { sync: true },
+  onSaveConnectionClicked: { sync: true },
   onSSLCAChanged: { sync: true },
   onSSLCertificateChanged: { sync: true },
   onSSLMethodChanged: { sync: true },
@@ -36,7 +36,7 @@ const Actions = Reflux.createActions({
   onSSHTunnelPortChanged: { sync: true },
   onSSHTunnelIdentityFileChanged: { sync: true },
   onSSHTunnelChanged: { sync: true },
-  onSRVRecordToggle: { sync: true },
+  onSRVRecordToggled: { sync: true },
   onUsernameChanged: { sync: true }
 });
 

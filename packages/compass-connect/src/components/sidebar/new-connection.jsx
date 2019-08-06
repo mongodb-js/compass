@@ -14,7 +14,7 @@ class NewConnection extends React.Component {
    * Resets connection when new connection clicked.
    */
   onNewConnectionClicked() {
-    Actions.resetConnection();
+    Actions.onResetConnectionClicked();
   }
 
   /**
