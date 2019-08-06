@@ -1,19 +1,10 @@
 {
-  "env": {
-    "mocha": true,
-    "node": true
-  },
-  "globals": {
-    "expect": true,
-    "sinon": true
-  },
+  "extends": "mongodb-js/compass-plugin", 
   "rules": {
-    "camelcase": 1
-  },
-  "extends": [
-    "mongodb-js/node",
-    "mongodb-js/browser",
-    "mongodb-js/react"
-  ],
-  "plugins": ["react"]
+    "react/self-closing-comp": ["warning", {
+      "component": true,
+      "html": true
+    }],
+    "react/no-multi-comp": [false]
+  }
 }

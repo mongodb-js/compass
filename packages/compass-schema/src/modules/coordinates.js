@@ -13,12 +13,16 @@ import mapboxgl from 'mapbox-gl/dist/mapbox-gl.js';
 const SELECTED_COLOR = '#F68A1E';
 const UNSELECTED_COLOR = '#43B1E5';
 const CONTROL_COLOR = '#ed271c';
-const TOKEN = 'pk.eyJ1IjoibW9uZ29kYi1jb21wYXNzIiwiYSI6ImNpbWUxZjNudjAwZTZ0emtrczByanZ4MzIifQ.6Mha4zoflraopcZKOLSpYQ';
 
-const MAPBOX_API_URL = 'https://compass-maps.mongodb.com/api.mapbox.com';
+const API_URL = 'https://compass-maps.mongodb.com/compass/maptile';
+// If no tile server is provided, use this url instead.
+// const DEFAULT_TILE_URL = API_URL + '/{z}/{x}/{y}';
 
-mapboxgl.accessToken = TOKEN;
-mapboxgl.config.API_URL = MAPBOX_API_URL;
+// The copyright url for HERE maps, if we're using the default tile url
+// const COPYRIGHT_URL = 'https://compass-maps.mongodb.com/compass/copyright';
+
+mapboxgl.config.ACCESS_TOKEN = '12345';
+mapboxgl.config.API_URL = API_URL;
 
 const minicharts_d3fns_geo = (localAppRegistry) => {
   // --- beginning chart setup ---
@@ -52,12 +56,9 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
     let project;
     let unproject;
 
-    // const project = d3.geo.mercator();
-    // const unproject = d3.geo.mercator().invert;
-
     let update = null;
 
-    function querybuilder() {
+    function dispatchQueryActions() {
       const QueryAction = localAppRegistry.getAction('Query.Actions');
 
       if (circleCenter && circleOuter) {
@@ -101,7 +102,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
             circleOuter.lng -= dlng;
           }
           update();
-          querybuilder();
+          dispatchQueryActions();
         } else {
           return;
         }
@@ -110,7 +111,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
         // kind of a dirty hack...
         setTimeout(function() {
           dragging = false;
-          querybuilder();
+          dispatchQueryActions();
         }, 100);
       });
 
@@ -123,7 +124,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
       container.selectAll('line.lasso').remove();
       dispatch.clear();
       if (!dontUpdate) {
-        querybuilder();
+        dispatchQueryActions();
       }
       return;
     }
@@ -234,7 +235,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
       const ll = unproject([p[0], p[1]]);
       circleOuter = ll;
       update();
-      querybuilder();
+      dispatchQueryActions();
     });
 
     container.on('mouseup.circle', function() {
@@ -250,7 +251,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
         if (!circleSelected) {
           circleOuter = ll;
           circleSelected = true;
-          querybuilder();
+          dispatchQueryActions();
         }
       }
     });
@@ -350,7 +351,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
           container: innerDiv[0][0],
           // not allowed to whitelabel the map ever due to OpenStreetMaps license.
           // attributionControl: false,
-          style: 'mapbox://styles/mapbox/light-v9',
+          style: 'mapbox://openmaptiles.4qljc88t',
           center: bounds.getCenter()
         });
         map.dragPan.enable();

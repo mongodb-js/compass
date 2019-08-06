@@ -126,6 +126,7 @@ class Schema extends Component {
 
   /**
    * Renders the zero state during the initial state; renders the schema if not.
+   * @returns {React.Component} Zero state or fields.
    */
   renderContent() {
     if (this.props.samplingState === 'initial') {

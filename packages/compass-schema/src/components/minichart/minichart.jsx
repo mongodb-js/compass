@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import UniqueMiniChart from 'components/unique-minichart';
 import DocumentMinichart from 'components/document-minichart';
 import ArrayMinichart from 'components/array-minichart';
+import CoordinatesMinichart from 'components/coordinates-minichart';
 import D3Component from 'components/d3-component';
+
 import includes from 'lodash.includes';
 import vizFns from 'modules';
 import CONSTANTS from 'constants/schema';
@@ -102,15 +104,13 @@ class MiniChart extends Component {
     if (typeName === 'Coordinates') {
       const height = width / 1.618; // = golden ratio
       return (
-        <D3Component
+        <CoordinatesMinichart
           fieldName={fieldName}
           type={this.props.type}
-          renderMode="div"
           query={queryValue}
           width={width}
           height={height}
           localAppRegistry={this.props.localAppRegistry}
-          fn={vizFns.coordinates}
         />
       );
     }
