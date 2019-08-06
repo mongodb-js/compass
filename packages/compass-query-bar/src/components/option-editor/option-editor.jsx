@@ -21,6 +21,7 @@ const OPTIONS = {
   minLines: 1,
   maxLines: 1,
   highlightActiveLine: false,
+  showPrintMargin: false,
   showGutter: false,
   useWorker: false
 };
