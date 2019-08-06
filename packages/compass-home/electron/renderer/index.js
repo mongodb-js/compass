@@ -25,7 +25,6 @@ import { activate as findInPageActivate } from '@mongodb-js/compass-find-in-page
 import { activate as importExportActivate } from '@mongodb-js/compass-import-export';
 import { activate as indexesActivate } from '@mongodb-js/compass-indexes';
 import { activate as instanceActivate } from '@mongodb-js/compass-instance';
-import { activate as instanceHeaderActivate } from '@mongodb-js/compass-instance-header';
 import { activate as queryBarActivate } from '@mongodb-js/compass-query-bar';
 import { activate as queryHistoryActivate } from '@mongodb-js/compass-query-history';
 import { activate as schemaValidationActivate } from '@mongodb-js/compass-schema-validation';
@@ -69,7 +68,6 @@ findInPageActivate(appRegistry);
 importExportActivate(appRegistry);
 indexesActivate(appRegistry);
 instanceActivate(appRegistry);
-instanceHeaderActivate(appRegistry);
 queryBarActivate(appRegistry);
 queryHistoryActivate(appRegistry);
 schemaValidationActivate(appRegistry);
