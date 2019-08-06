@@ -39,16 +39,44 @@ const attachAttribution = async function(map) {
 };
 
 /**
+ * @example
+ * var doc = {
+ *   _id: ObjectId('5c8c1f86db2e914acc6e8a17'),
+ *   'Start Time': '',
+ *   'End Time': null,
+ *   Name: null,
+ *   Latitude: null,
+ *   Longitude: null,
+ *   Service: null,
+ *   Coordinates: [NaN, NaN]
+ * };
+ * isValidLatLng(doc.Coordinates) // [NaN, NaN];
+ * > false
+ * @param {Array<Double>} value
+ * @returns {Boolean}
+ */
+const isValidLatLng = value => {
+  if (isNaN(+value[0]) || isNaN(+value[1])) {
+    // eslint-disable-next-line no-console
+    console.warn('@mongodb-js/compass-schema:coordinates-minichart: Dropping invalid coordinate value', value);
+    return false;
+  }
+
+  return true;
+};
+
+/**
  * Transforms an array `[lat,long]` coordinates into a GeoJSON Point.
  * @param {Array} value `[long, lat]`
  * @returns {Object}
  */
 const valueToGeoPoint = value => {
-  const [ lat, long ] = [+value[0], +value[1]];
+  const [lat, lng] = [+value[0], +value[1]];
+
   const point = {
     type: 'Point',
-    coordinates: [long, lat],
-    center: [long, lat],
+    coordinates: [lng, lat],
+    center: [lng, lat],
     color: UNSELECTED_COLOR,
     /**
      * Passed to `<CustomPopup />`
@@ -56,7 +84,7 @@ const valueToGeoPoint = value => {
     fields: [
       {
         key: '[longitude, latitude]',
-        value: `[${[long, lat].toString()}]`
+        value: `[${[lng, lat].toString()}]`
       }
     ]
   };
@@ -110,13 +138,15 @@ class CoordinatesMinichart extends PureComponent {
       return;
     }
     const leaflet = this.refs.map.leafletElement;
-    const { type: { values } } = this.props;
+
+    const values = this.props.type.values.filter(isValidLatLng);
+
     let bounds = L.latLngBounds();
 
     if (values.length === 1) {
       bounds = L.latLng(+values[0][1], +values[0][0]).toBounds(800);
     } else {
-      values.forEach((v) => {
+      values.forEach(v => {
         bounds.extend(L.latLng(+v[1], +v[0]));
       });
     }
@@ -168,13 +198,18 @@ class CoordinatesMinichart extends PureComponent {
    * @returns {react.Component}
    */
   renderMapItems() {
-    const { type: { values }, fieldName } = this.props;
+    const {
+      fieldName
+    } = this.props;
 
-    const geopoints = values.map(value => {
-      const v = valueToGeoPoint(value);
-      v.fields[0].key = fieldName;
-      return v;
-    });
+    const values = this.props.type.values.filter(isValidLatLng);
+
+    const geopoints = values
+      .map(value => {
+        const v = valueToGeoPoint(value);
+        v.fields[0].key = fieldName;
+        return v;
+      });
 
     return <GeoscatterMapItem data={geopoints} />;
   }
@@ -189,7 +224,7 @@ class CoordinatesMinichart extends PureComponent {
     return (
       <Map
         minZoom={1}
-        viewport={{center: [0, 0], zoom: 1}}
+        viewport={{ center: [0, 0], zoom: 1 }}
         whenReady={this.whenMapReady}
         ref="map"
         onMoveend={this.onMoveEnd}
