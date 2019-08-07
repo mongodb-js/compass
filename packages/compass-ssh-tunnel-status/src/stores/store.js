@@ -32,14 +32,23 @@ const SshTunnelStatusStore = Reflux.createStore({
    * when connected to a deployment, checks if the connection is via an ssh
    * tunnel, and if so, extracts hostname and port from the connection model
    * and sets the new state.
+   *
+   * @param {Object} err - error.
+   * @param {Object} ds - ds.
    */
   onConnected(err, ds) {
     if (err) return;
-    const sshTunnel = ds.client.model.ssh_tunnel !== 'NONE';
-    const sshTunnelHostname = sshTunnel ? ds.client.model.ssh_tunnel_hostname : '';
-    const sshTunnelPort = sshTunnel ? ds.client.model.ssh_tunnel_options.dstPort : '';
-    const sshTunnelHostPortString = sshTunnel ? this._combineHostPort(
-      sshTunnelHostname, sshTunnelPort, true) : '';
+
+    const sshTunnel = ds.client.model.sshTunnel !== 'NONE';
+    const sshTunnelHostname = sshTunnel
+      ? ds.client.model.sshTunnelHostname
+      : '';
+    const sshTunnelPort = sshTunnel
+      ? ds.client.model.sshTunnelOptions.dstPort
+      : '';
+    const sshTunnelHostPortString = sshTunnel
+      ? this._combineHostPort(sshTunnelHostname, sshTunnelPort, true)
+      : '';
 
     this.setState({
       sshTunnel,
@@ -60,9 +69,10 @@ const SshTunnelStatusStore = Reflux.createStore({
    */
   _combineHostPort(host, port, truncate) {
     if (host.length >= HOST_STRING_LENGTH && truncate) {
-      return host.slice(0, 9) + '...' + host.slice(-9) + ':' + port;
+      return `${host.slice(0, 9)}...${host.slice(-9)}:${port}`;
     }
-    return host + ':' + port;
+
+    return `${host}:${port}`;
   },
 
   /**

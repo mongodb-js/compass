@@ -27,10 +27,8 @@ describe('SshTunnelStatusStore [Store]', () => {
         client: {
           model: {
             sshTunnel: 'USER_PASSWORD',
-            ssh_tunnel_hostname: '123.45.67.8',
-            ssh_tunnel_options: {
-              dstPort: '27019'
-            }
+            sshTunnelHostname: '123.45.67.8',
+            sshTunnelOptions: { dstPort: '27019' }
           }
         }
       };
@@ -51,10 +49,8 @@ describe('SshTunnelStatusStore [Store]', () => {
         client: {
           model: {
             sshTunnel: 'USER_PASSWORD',
-            ssh_tunnel_hostname: 'areallylong.amazonlikeaws.com',
-            ssh_tunnel_options: {
-              dstPort: '27019'
-            }
+            sshTunnelHostname: 'areallylong.amazonlikeaws.com',
+            sshTunnelOptions: { dstPort: '27019' }
           }
         }
       };
