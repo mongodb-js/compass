@@ -110,6 +110,10 @@ export const setLocalAppRegistry = (store, appRegistry) => {
 
 /**
  * Configure the main CRUD store.
+ *
+ * @param {Object} options - Options object to configure store. Defaults to {}.
+ *
+ * @returns {Object} Configured compass-crud store with initial states.
  */
 const configureStore = (options = {}) => {
   const store = Reflux.createStore({
@@ -340,6 +344,8 @@ const configureStore = (options = {}) => {
      * Find the index of the document in the list.
      *
      * @param {Document} doc - The hadron document.
+     *
+     * @returns {String} Document Index from the list.
      */
     findDocumentIndex(doc) {
       return findIndex(this.state.docs, (d) => {
@@ -479,8 +485,11 @@ const configureStore = (options = {}) => {
 
     /**
      * Switch between list and JSON views when inserting a document through Insert Document modal.
+     *
+     * Also modifies doc and jsonDoc states to keep accurate data for each view.
+     * @param {String} view - view we are switching to.
      */
-    toggleInsertDocumentView(view) {
+    toggleInsertDocument(view) {
       if (view === 'JSON') {
         const jsonDoc = JSON.stringify(this.state.insert.doc.generateObject());
         const hadronDoc = this.state.insert.doc;
@@ -511,6 +520,25 @@ const configureStore = (options = {}) => {
     },
 
     /**
+     * Toggle just the jsonView insert state.
+     *
+     * @param {String} view - view we are switching to.
+     */
+    toggleInsertDocumentView(view) {
+      const jsonView = view === 'JSON';
+      this.setState({
+        insert: {
+          doc: {},
+          jsonDoc: this.state.insert.jsonDoc,
+          jsonView: jsonView,
+          message: '',
+          mode: MODIFYING,
+          isOpen: true
+        }
+      });
+    },
+
+    /**
      * As we are editing a JSON document in Insert Document Dialog, update the
      * state with the inputed json data.
      *
@@ -530,25 +558,44 @@ const configureStore = (options = {}) => {
     },
 
     /**
+     * Insert a single document.
+     */
+    insertMany() {
+      const docs = jsonParse(this.state.insert.jsonDoc).value;
+      this.dataService.insertMany(this.state.ns, docs, {}, (error) => {
+        if (error) {
+          return this.setState({
+            insert: {
+              doc: {},
+              jsonDoc: this.state.insert.jsonDoc,
+              jsonView: true,
+              message: error.message,
+              mode: ERROR,
+              isOpen: true
+            }
+          });
+        }
+        this.state.insert = this.getInitialInsertState();
+        // Since we are inserting a bunch of documents and we need to rerun all
+        // the queries and counts for them, let's just refresh the whole set of
+        // documents.
+        this.refreshDocuments();
+      });
+    },
+
+    /**
+     * Insert the document given the document in current state.
      * Parse document from Json Insert View Modal or generate object from hadron document
      * view to insert.
      */
-    handleInsertDocument() {
+    insertDocument() {
       let doc;
-      if (this.state.insert.jsonDoc !== null) {
+      if (this.state.insert.jsonView) {
         doc = jsonParse(this.state.insert.jsonDoc).value;
       } else {
         doc = this.state.insert.doc.generateObject();
       }
-      this.insertDocument(doc);
-    },
 
-    /**
-     * Insert a single document.
-     *
-     * @param {Object} doc - The hadron document to insert.
-     */
-    insertDocument(doc) {
       this.dataService.insertOne(this.state.ns, doc, {}, (error) => {
         if (error) {
           return this.setState({
@@ -562,6 +609,7 @@ const configureStore = (options = {}) => {
             }
           });
         }
+
         // check if the newly inserted document matches the current filter, by
         // running the same filter but targeted only to the doc's _id.
         const filter = Object.assign({}, this.state.query.filter, { _id: doc._id });

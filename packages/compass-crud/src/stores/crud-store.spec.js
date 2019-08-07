@@ -528,7 +528,8 @@ describe('store', () => {
             done();
           });
 
-          store.insertDocument(doc.generateObject());
+          store.state.insert.doc = doc;
+          store.insertDocument();
         });
       });
 
@@ -553,7 +554,8 @@ describe('store', () => {
             done();
           });
 
-          store.insertDocument(doc.generateObject());
+          store.state.insert.doc = doc;
+          store.insertDocument();
         });
       });
     });
@@ -582,10 +584,142 @@ describe('store', () => {
           done();
         });
 
-        store.insertDocument(doc.generateObject());
+        store.state.insert.doc = doc;
+        store.insertDocument();
       });
     });
   });
+
+  describe('#insertManyDocuments', () => {
+    let store;
+    let actions;
+
+    beforeEach(() => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
+      });
+    });
+
+    context('when there is no error', () => {
+      afterEach((done) => {
+        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      });
+
+      context('when the documents match the filter', () => {
+        const docs = '[ { "name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
+
+        it('inserts the document', (done) => {
+          const unsubscribe = store.listen((state) => {
+            expect(state.docs.length).to.equal(2);
+            expect(state.count).to.equal(2);
+            expect(state.end).to.equal(2);
+            expect(state.insert.doc).to.equal(null);
+            expect(state.insert.jsonDoc).to.equal(null);
+            expect(state.insert.isOpen).to.equal(false);
+            expect(state.insert.jsonView).to.equal(false);
+            expect(state.insert.message).to.equal('');
+            unsubscribe();
+            done();
+          });
+
+          store.state.insert.jsonDoc = docs;
+          store.insertMany();
+        });
+      });
+
+      context('when none of the documents match the filter', () => {
+        const docs = '[ { "name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
+
+        beforeEach(() => {
+          store.state.query.filter = { name: 'something' };
+        });
+
+
+        it('inserts both documents but does not add to the list', (done) => {
+          const unsubscribe = store.listen((state) => {
+            expect(state.docs.length).to.equal(0);
+            expect(state.count).to.equal(0);
+            expect(state.end).to.equal(0);
+            expect(state.insert.doc).to.equal(null);
+            expect(state.insert.jsonDoc).to.equal(null);
+            expect(state.insert.isOpen).to.equal(false);
+            expect(state.insert.jsonView).to.equal(false);
+            expect(state.insert.message).to.equal('');
+            unsubscribe();
+            done();
+          });
+
+          store.state.insert.jsonDoc = docs;
+          store.insertMany();
+        });
+      });
+
+      context('when only one of the documents match the filter', () => {
+        const docs = '[ { "name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
+
+        beforeEach(() => {
+          store.state.query.filter = { name: 'Rey' };
+        });
+
+
+        it('inserts both documents but only adds the matching one to the list', (done) => {
+          const unsubscribe = store.listen((state) => {
+            expect(state.docs.length).to.equal(1);
+            expect(state.count).to.equal(1);
+            expect(state.end).to.equal(1);
+            expect(state.insert.doc).to.equal(null);
+            expect(state.insert.jsonDoc).to.equal(null);
+            expect(state.insert.isOpen).to.equal(false);
+            expect(state.insert.jsonView).to.equal(false);
+            expect(state.insert.message).to.equal('');
+            unsubscribe();
+            done();
+          });
+
+          store.state.insert.jsonDoc = docs;
+          store.insertMany();
+        });
+      });
+    });
+
+    context('when there is an error', () => {
+      const docs = '[ { "$name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
+
+      beforeEach(() => {
+        store.state.insert.jsonDoc = JSON.stringify(docs);
+      });
+
+      afterEach((done) => {
+        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      });
+
+      it('does not insert the document', (done) => {
+        const unsubscribe = store.listen((state) => {
+          expect(state.docs.length).to.equal(0);
+          expect(state.count).to.equal(0);
+          expect(state.insert.doc).to.not.equal(null);
+          expect(state.insert.jsonDoc).to.equal(docs);
+          expect(state.insert.isOpen).to.equal(true);
+          expect(state.insert.jsonView).to.equal(true);
+          expect(state.insert.message).to.equal('key $name must not start with \'$\'');
+          unsubscribe();
+          done();
+        });
+
+        store.state.insert.jsonDoc = docs;
+        store.insertMany();
+      });
+    });
+  });
+
 
   describe('#openInsertDocumentDialog', () => {
     const doc = { _id: 1, name: 'test' };

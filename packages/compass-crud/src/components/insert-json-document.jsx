@@ -11,11 +11,11 @@ import 'brace/mode/java';
 
 import 'mongodb-ace-theme';
 
-import styles from './ace-editor.less';
+import styles from './insert-json-document.less';
 
 const EDITOR_COMMENT = '/** \n* Paste one or more documents here\n*/\n';
 
-class AceEditor extends Component {
+class InsertJsonDocument extends Component {
   /**
    * The component constructor.
    *
@@ -75,11 +75,11 @@ class AceEditor extends Component {
   }
 }
 
-AceEditor.displayName = 'AceEditorComponent';
+InsertJsonDocument.displayName = 'InsertJsonDocumentComponent';
 
-AceEditor.propTypes = {
+InsertJsonDocument.propTypes = {
   updateJsonDoc: PropTypes.func,
   jsonDoc: PropTypes.string
 };
 
-export default AceEditor;
+export default InsertJsonDocument;
