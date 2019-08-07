@@ -5,6 +5,7 @@ import StatusSubview from 'components/status-subview';
 import toNS from 'mongodb-ns';
 import get from 'lodash.get';
 import has from 'lodash.has';
+import debounce from 'lodash.debounce';
 
 const debug = require('debug')('mongodb-compass:stores:schema');
 
@@ -291,14 +292,16 @@ const configureStore = (options = {}) => {
           })
           .on('progress', () => {
             sampleCount ++;
-            const newProgress = Math.ceil(sampleCount / numSamples * 100);
-            this.updateStatus(newProgress);
-            if (newProgress > this.state.samplingProgress) {
-              this.setState({
-                samplingProgress: newProgress,
-                samplingTimeMS: new Date() - samplingStart
-              });
-            }
+            debounce(() => {
+              const newProgress = Math.ceil(sampleCount / numSamples * 100);
+              this.updateStatus(newProgress);
+              if (newProgress > this.state.samplingProgress) {
+                this.setState({
+                  samplingProgress: newProgress,
+                  samplingTimeMS: new Date() - samplingStart
+                });
+              }
+            }, 250);
           })
           .on('data', (data) => {
             schema = data;
