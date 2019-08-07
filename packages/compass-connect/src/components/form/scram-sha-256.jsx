@@ -79,26 +79,32 @@ class ScramSha256 extends React.Component {
   render() {
     return (
       <div id="scram-sha-256" className={classnames(styles['form-group'])}>
-        <FormInput
-          label="Username"
-          name="username"
-          error={this.getUsernameError()}
-          changeHandler={this.onUsernameChanged.bind(this)}
-          value={this.props.currentConnection.mongodbUsername || ''} />
-        <FormInput
-          label="Password"
-          name="password"
-          type="password"
-          error={this.getPasswordError()}
-          changeHandler={this.onPasswordChanged.bind(this)}
-          value={this.props.currentConnection.mongodbPassword || ''} />
-        <FormInput
-          label="Authentication Database"
-          placeholder="admin"
-          name="authSource"
-          changeHandler={this.onAuthSourceChanged.bind(this)}
-          value={this.props.currentConnection.mongodbDatabaseName || ''}
-          linkHandler={this.onSourceHelp.bind(this)}/>
+        <div className={classnames(styles['connect-form-item-container'])}>
+          <FormInput
+            label="Username"
+            name="username"
+            error={this.getUsernameError()}
+            changeHandler={this.onUsernameChanged.bind(this)}
+            value={this.props.currentConnection.mongodbUsername || ''} />
+        </div>
+        <div className={classnames(styles['connect-form-item-container'])}>
+          <FormInput
+            label="Password"
+            name="password"
+            type="password"
+            error={this.getPasswordError()}
+            changeHandler={this.onPasswordChanged.bind(this)}
+            value={this.props.currentConnection.mongodbPassword || ''} />
+        </div>
+        <div className={classnames(styles['connect-form-item-container'])}>
+          <FormInput
+            label="Authentication Database"
+            placeholder="admin"
+            name="authSource"
+            changeHandler={this.onAuthSourceChanged.bind(this)}
+            value={this.props.currentConnection.mongodbDatabaseName || ''}
+            linkHandler={this.onSourceHelp.bind(this)}/>
+        </div>
       </div>
     );
   }
