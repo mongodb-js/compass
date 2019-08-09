@@ -55,19 +55,6 @@ const RULES = [
     })
   },
   {
-    store: 'Indexes.LoadIndexesStore',
-    resource: 'Indexes',
-    action: 'fetched',
-    condition: () => true,
-    multi: true,
-    metadata: (state) => ({
-      'index type': state.type,
-      'usage count': state.usageCount,
-      'cardinality': state.cardinality,
-      'properties': state.properties
-    })
-  },
-  {
     store: 'Query.QueryStore',
     resource: 'Query',
     action: 'applied',
@@ -78,51 +65,6 @@ const RULES = [
       'sort': state.sort,
       'skip': state.skip,
       'limit': state.limit
-    })
-  },
-  {
-    store: 'Home.HomeStore',
-    resource: 'Application',
-    action: 'connected',
-    condition: (state) => state.isConnected === true,
-    metadata: (state) => ({
-      'is atlas': state.isAtlas,
-      'authentication method': state.authentication,
-      'ssl method': state.ssl,
-      'ssh tunnel method': state.sshTunnel
-    })
-  },
-  {
-    store: 'Validation.Store',
-    resource: 'Validation Rules',
-    action: 'fetched',
-    condition: () => true,
-    metadata: (state) => ({
-      'rule count': state.validationRules.length,
-      'validation level': state.validationLevel,
-      'validation action': state.validationAction
-    })
-  },
-  {
-    store: 'Explain.Store',
-    resource: 'Explain',
-    action: 'fetched',
-    condition: () => true,
-    metadata: (state) => ({
-      'view mode': state.viewType,
-      'execution time ms': state.executionTimeMillis,
-      'in memory sort': state.inMemorySort,
-      'is collection scan': state.isCollectionScan,
-      'is covered': state.isCovered,
-      'is multi key': state.isMultiKey,
-      'is sharded': state.isSharded,
-      'index type': state.indexType,
-      'index': state.index ? state.index.serialize() : null,
-      'number of docs returned': state.nReturned,
-      'number of shards': state.numShards,
-      'total docs examined': state.totalDocsExamined,
-      'total keys examined': state.totalKeysExamined,
-      'index used': state.usedIndex
     })
   },
   {
