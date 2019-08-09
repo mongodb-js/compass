@@ -5,6 +5,7 @@ import ns from './ns';
 import dataService from './data-service';
 import stats from './stats';
 import appRegistry, { appRegistryEpic } from './app-registry';
+import globalAppRegistry from './global-app-registry';
 import exportData, { exportStartedEpic } from './export';
 import importData, { importStartedEpic } from './import';
 
@@ -19,7 +20,8 @@ export const rootReducer = combineReducers({
   stats,
   exportData,
   importData,
-  appRegistry
+  appRegistry,
+  globalAppRegistry
 });
 
 /**

@@ -64,9 +64,14 @@ export const appRegistryEventEmitted = () => ({
  */
 export const appRegistryEpic = (action$, store) =>
   action$.ofType(APP_REGISTRY_EMIT).map(action => {
-    const appRegistry = store.getState().appRegistry;
+    const state = store.getState();
+    const appRegistry = state.appRegistry;
+    const globalAppRegistry = state.globalAppRegistry;
     if (appRegistry) {
       appRegistry.emit(action.name, ...action.args);
+    }
+    if (globalAppRegistry) {
+      globalAppRegistry.emit(action.name, ...action.args);
     }
     return appRegistryEventEmitted();
   });

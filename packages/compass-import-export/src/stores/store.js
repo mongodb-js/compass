@@ -8,6 +8,7 @@ import { openExport, queryChanged } from 'modules/export';
 import { openImport } from 'modules/import';
 import { dataServiceConnected } from 'modules/data-service';
 import { appRegistryActivated } from 'modules/app-registry';
+import { globalAppRegistryActivated } from 'modules/global-app-registry';
 import { statsReceived } from 'modules/stats';
 
 import { ipcRenderer } from 'electron';
@@ -51,6 +52,11 @@ const configureStore = (options = {}) => {
     appRegistry.getStore('CollectionStats.Store').listen((stats) => {
       store.dispatch(statsReceived(stats));
     });
+  }
+
+  if (options.globalAppRegistry) {
+    const appRegistry = options.globalAppRegistry;
+    store.dispatch(globalAppRegistryActivated(appRegistry));
   }
 
   if (options.dataProvider) {
