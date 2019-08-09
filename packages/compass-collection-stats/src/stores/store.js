@@ -63,6 +63,16 @@ export const setLocalAppRegistry = (store, appRegistry) => {
 };
 
 /**
+ * Set the global app registry.
+ *
+ * @param {Store} store - The store.
+ * @param {AppRegistry} appRegistry - The app registry.
+ */
+export const setGlobalAppRegistry = (store, appRegistry) => {
+  store.globalAppRegistry = appRegistry;
+};
+
+/**
  * Collection Stats store.
  */
 const configureStore = (options = {}) => {
@@ -100,7 +110,11 @@ const configureStore = (options = {}) => {
         } else if (this.dataService) {
           this.dataService.collection(this.ns, {}, (err, result) => {
             if (!err) {
-              this.setState(this._parseCollectionDetails(result));
+              const details = this._parseCollectionDetails(result);
+              this.setState(details);
+              if (this.globalAppRegistry) {
+                this.globalAppRegistry.emit('compass:collection-stats:loaded', details);
+              }
             }
           });
         }
@@ -194,6 +208,11 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('document-inserted', () => {
       refreshInput(store);
     });
+  }
+
+  if (options.globalAppRegistry) {
+    const globalAppRegistry = options.globalAppRegistry;
+    setGlobalAppRegistry(store, globalAppRegistry);
   }
 
   // Set the data provider - this must happen second.
