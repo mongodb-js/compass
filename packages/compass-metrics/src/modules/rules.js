@@ -17,19 +17,6 @@ import schemaStats from 'mongodb-schema/lib/stats';
  */
 const RULES = [
   {
-    store: 'Schema.Store',
-    resource: 'Schema',
-    action: 'sampled',
-    condition: (state) => state.samplingState === 'complete',
-    metadata: (state) => ({
-      'sampling time ms': state.samplingTimeMS,
-      'number of fields': state.schema.fields.length,
-      'schema width': schemaStats.width(state.schema),
-      'schema depth': schemaStats.depth(state.schema),
-      'schema branching factors': schemaStats.branch(state.schema)
-    })
-  },
-  {
     store: 'DeploymentAwareness.Store',
     resource: 'Topology',
     action: 'detected',
@@ -129,6 +116,19 @@ const RULES = [
     metadata: (size, fileType) => ({
       'size': size,
       'file type': fileType
+    })
+  },
+  {
+    registryEvent: 'compass:schema:schema-sampled',
+    resource: 'Schema',
+    action: 'sampled',
+    condition: (state) => state.samplingState === 'complete',
+    metadata: (state) => ({
+      'sampling time ms': state.samplingTimeMS,
+      'number of fields': state.schema.fields.length,
+      'schema width': schemaStats.width(state.schema),
+      'schema depth': schemaStats.depth(state.schema),
+      'schema branching factors': schemaStats.branch(state.schema)
     })
   },
   {
