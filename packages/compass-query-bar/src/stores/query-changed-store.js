@@ -75,10 +75,14 @@ const configureStore = (options = {}) => {
 
         // Call onQueryChanged lifecycle method
         const registry = this.localAppRegistry;
+        const globalRegistry = this.globalAppRegistry;
         if (registry) {
           registry.emit('query-changed', newState);
         } else {
           debug('Error: AppRegistry not available for query-changed-store');
+        }
+        if (globalRegistry) {
+          globalRegistry.emit('compass:query-bar:query-changed', newState);
         }
         this.setState(newState);
       }
@@ -87,6 +91,10 @@ const configureStore = (options = {}) => {
 
   if (options.localAppRegistry) {
     store.localAppRegistry = options.localAppRegistry;
+  }
+
+  if (options.globalAppRegistry) {
+    store.globalAppRegistry = options.globalAppRegistry;
   }
 
   return store;
