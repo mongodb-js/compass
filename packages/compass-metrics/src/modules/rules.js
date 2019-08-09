@@ -28,33 +28,6 @@ const RULES = [
     })
   },
   {
-    store: 'CollectionStats.Store',
-    resource: 'Collection Stats',
-    action: 'fetched',
-    condition: (state) => (state !== undefined),
-    metadata: (state) => ({
-      'document count': state.documentCount,
-      'total document size kb': state.totalDocumentSize,
-      'avg document size kb': state.avgDocumentSize,
-      'index count': state.indexCount,
-      'total index size kb': state.totalIndexSize,
-      'avg index size kb': state.avgIndexSize
-    })
-  },
-  {
-    store: 'Query.QueryStore',
-    resource: 'Query',
-    action: 'applied',
-    condition: (state) => state.queryState === 'apply',
-    metadata: (state) => ({
-      'filter': state.filter,
-      'project': state.project,
-      'sort': state.sort,
-      'skip': state.skip,
-      'limit': state.limit
-    })
-  },
-  {
     registryEvent: 'instance-refreshed',
     resource: 'Deployment',
     action: 'detected',
@@ -82,40 +55,6 @@ const RULES = [
       'server name': state.instance.genuineMongoDB === undefined ? 'mongodb' : state.instance.genuineMongoDB.dbType,
       'is data lake': state.instance.dataLake === undefined ? false : state.instance.dataLake.isDataLake,
       'data lake version': state.instance.dataLake === undefined ? null : state.instance.dataLake.version
-    })
-  },
-  {
-    registryEvent: 'open-export',
-    resource: 'Export',
-    action: 'opened',
-    condition: () => true,
-    metadata: () => ({})
-  },
-  {
-    registryEvent: 'export-finished',
-    resource: 'Export',
-    action: 'completed',
-    condition: () => true,
-    metadata: (size, fileType) => ({
-      'size': size,
-      'file type': fileType
-    })
-  },
-  {
-    registryEvent: 'open-import',
-    resource: 'Import',
-    action: 'opened',
-    condition: () => true,
-    metadata: () => ({})
-  },
-  {
-    registryEvent: 'import-finished',
-    resource: 'Import',
-    action: 'completed',
-    condition: () => true,
-    metadata: (size, fileType) => ({
-      'size': size,
-      'file type': fileType
     })
   },
   {
@@ -177,36 +116,6 @@ const RULES = [
     })
   },
   {
-    registryEvent: 'create-atlas-cluster-clicked',
-    resource: 'AtlasLink',
-    action: 'clicked',
-    condition: () => true,
-    metadata: () => ({})
-  },
-  {
-    registryEvent: 'agg-pipeline-executed',
-    resource: 'Aggregation',
-    action: 'executed',
-    condition: () => true,
-    metadata: (data) => ({
-      numStages: data.numStages,
-      stageOperators: data.stageOperators
-    })
-  },
-  {
-    registryEvent: 'schema-validation-fetched',
-    resource: 'SchemaValidation',
-    action: 'fetched',
-    condition: () => true,
-    metadata: (data) => ({
-      ruleCount: data.ruleCount,
-      validationLevel: data.validationLevel,
-      validationAction: data.validationAction,
-      jsonSchema: data.jsonSchema,
-      collectionSize: data.collectionSize
-    })
-  },
-  {
     registryEvent: 'schema-validation-activated',
     resource: 'SchemaValidation',
     action: 'activated',
@@ -240,6 +149,19 @@ const RULES = [
     metadata: (data) => ({ collectionSize: data.collectionSize })
   },
   {
+    registryEvent: 'schema-validation-fetched',
+    resource: 'SchemaValidation',
+    action: 'fetched',
+    condition: () => true,
+    metadata: (data) => ({
+      ruleCount: data.ruleCount,
+      validationLevel: data.validationLevel,
+      validationAction: data.validationAction,
+      jsonSchema: data.jsonSchema,
+      collectionSize: data.collectionSize
+    })
+  },
+  {
     registryEvent: 'explain-plan-fetched',
     resource: 'Explain',
     action: 'fetched',
@@ -259,6 +181,77 @@ const RULES = [
       totalDocsExamined: data.totalDocsExamined,
       totalKeysExamined: data.totalKeysExamined,
       indexUsed: data.indexUsed
+    })
+  },
+  {
+    registryEvent: 'compass:collection-stats:loaded',
+    resource: 'Collection Stats',
+    action: 'fetched',
+    condition: (state) => (state !== undefined),
+    metadata: (state) => ({
+      'document count': state.documentCount,
+      'total document size kb': state.totalDocumentSize,
+      'avg document size kb': state.avgDocumentSize,
+      'index count': state.indexCount,
+      'total index size kb': state.totalIndexSize,
+      'avg index size kb': state.avgIndexSize
+    })
+  },
+  {
+    registryEvent: 'compass:query-bar:query-changed',
+    resource: 'Query',
+    action: 'applied',
+    condition: (state) => state.queryState === 'apply',
+    metadata: (state) => ({
+      'filter': state.filter,
+      'project': state.project,
+      'sort': state.sort,
+      'skip': state.skip,
+      'limit': state.limit
+    })
+  },
+  {
+    registryEvent: 'open-export',
+    resource: 'Export',
+    action: 'opened',
+    condition: () => true,
+    metadata: () => ({})
+  },
+  {
+    registryEvent: 'export-finished',
+    resource: 'Export',
+    action: 'completed',
+    condition: () => true,
+    metadata: (size, fileType) => ({
+      'size': size,
+      'file type': fileType
+    })
+  },
+  {
+    registryEvent: 'open-import',
+    resource: 'Import',
+    action: 'opened',
+    condition: () => true,
+    metadata: () => ({})
+  },
+  {
+    registryEvent: 'import-finished',
+    resource: 'Import',
+    action: 'completed',
+    condition: () => true,
+    metadata: (size, fileType) => ({
+      'size': size,
+      'file type': fileType
+    })
+  },
+  {
+    registryEvent: 'agg-pipeline-executed',
+    resource: 'Aggregation',
+    action: 'executed',
+    condition: () => true,
+    metadata: (data) => ({
+      numStages: data.numStages,
+      stageOperators: data.stageOperators
     })
   },
   {
@@ -287,6 +280,13 @@ const RULES = [
     metadata: (title) => ({
       tab: title
     })
+  },
+  {
+    registryEvent: 'create-atlas-cluster-clicked',
+    resource: 'AtlasLink',
+    action: 'clicked',
+    condition: () => true,
+    metadata: () => ({})
   },
   {
     store: 'License.Store',
