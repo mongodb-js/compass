@@ -780,7 +780,9 @@ const configureStore = (options = {}) => {
       options.dataProvider.dataProvider
     );
 
-    store.refreshDocuments.bind(store);
+    if (!options.noRefreshOnConfigure) {
+      store.refreshDocuments();
+    }
   }
 
   const gridStore = configureGridStore(options);

@@ -36,11 +36,7 @@ describe('store', () => {
       store = configureStore({
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
-        actions: actions,
-        dataProvider: {
-          error: null,
-          dataProvider: dataService
-        }
+        actions: actions
       });
     });
 
@@ -146,6 +142,7 @@ describe('store', () => {
       store = configureStore({
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
+        namespace: 'compass-crud.another',
         dataProvider: {
           error: null,
           dataProvider: dataService
@@ -189,6 +186,7 @@ describe('store', () => {
             error: null,
             dataProvider: dataService
           },
+          namespace: 'compass-crud.another',
           actions: actions,
           isReadonly: true
         });
@@ -222,6 +220,7 @@ describe('store', () => {
         store = configureStore({
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
+          namespace: 'compass-crud.another',
           dataProvider: {
             error: null,
             dataProvider: dataService
@@ -502,7 +501,8 @@ describe('store', () => {
           dataProvider: dataService
         },
         actions: actions,
-        namespace: 'compass-crud.test'
+        namespace: 'compass-crud.test',
+        noRefreshOnConfigure: true
       });
     });
 
@@ -604,7 +604,8 @@ describe('store', () => {
           dataProvider: dataService
         },
         actions: actions,
-        namespace: 'compass-crud.test'
+        namespace: 'compass-crud.test',
+        noRefreshOnConfigure: true
       });
     });
 
@@ -877,7 +878,8 @@ describe('store', () => {
           dataProvider: dataService
         },
         actions: actions,
-        namespace: 'compass-crud.test'
+        namespace: 'compass-crud.test',
+        noRefreshOnConfigure: true
       });
       dataService.insertOne('compass-crud.test', { name: 'testing' }, {}, done);
     });
