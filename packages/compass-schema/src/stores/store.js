@@ -263,7 +263,9 @@ const configureStore = (options = {}) => {
         });
         this.stopSampling();
         // @note: This is added for telemetry data.
-        this.globalAppRegistry.emit('compass:schema:schema-sampled', this.state);
+        process.nextTick(() => {
+          this.globalAppRegistry.emit('compass:schema:schema-sampled', this.state);
+        });
       };
 
       const countOptions = {

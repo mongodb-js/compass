@@ -69,7 +69,7 @@ const dataService = new DataService(connection);
 dataService.connect((error, ds) => {
   setDataProvider(store, error, ds);
   // setNamespace(store, 'ships.shipwrecks');
-  setNamespace(store, 'stonington.places');
+  setNamespace(store, 'echo.artists');
 });
 
 // Create a HMR enabled render function
