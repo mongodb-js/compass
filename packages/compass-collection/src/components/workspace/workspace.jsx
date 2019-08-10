@@ -177,7 +177,7 @@ class Workspace extends PureComponent {
           sourceName={activeTab.sourceName}
           editViewName={activeTab.editViewName}
           sourceReadonly={activeTab.sourceReadonly}
-          souceViewOn={activeTab.sourceViewOn}
+          sourceViewOn={activeTab.sourceViewOn}
           tabs={activeTab.tabs}
           views={activeTab.views}
           scopedModals={activeTab.scopedModals}

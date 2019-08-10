@@ -74,7 +74,7 @@ class CollectionHeader extends Component {
    * @returns {Component} The component.
    */
   renderReadonly() {
-    if (this.props.isReadonly && !this.props.editViewName) {
+    if (this.props.isReadonly) {
       return (
         <div className={classnames(styles['collection-header-title-readonly'])}>
           <span className={classnames(styles['collection-header-title-readonly-on'])}>
