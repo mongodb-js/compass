@@ -693,12 +693,12 @@ export const updateView = () => {
     };
 
     try {
-      // dispatch(toggleIsRunning(true));
       debug('calling data-service.updateCollection', viewNamespace);
       ds.updateCollection(viewNamespace, options, (e) => {
         if (e) {
           debug('error updating view', e);
         }
+        dispatch(globalAppRegistryEmit('refresh-data'));
         dispatch(
           globalAppRegistryEmit(
             'select-namespace',
