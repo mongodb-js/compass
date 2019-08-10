@@ -103,12 +103,10 @@ class SidebarCollection extends PureComponent {
    * @returns {Object} The metadata.
    */
   collectionMetadata(editViewName) {
-    console.log('props', this.props);
     const source = this.props.collections.find((coll) => {
       return toNS(coll._id).collection === this.props.view_on ||
         coll._id === this.props.view_on;
     });
-    console.log('source', source);
     return {
       namespace: this.props._id,
       isReadonly: this.props.readonly,
@@ -145,8 +143,6 @@ class SidebarCollection extends PureComponent {
    * @param {String} editViewSource - The modify source name.
    */
   showCollection(eventName, editViewSource) {
-    console.log('eventName', eventName);
-    console.log('metadata', this.collectionMetadata(editViewSource));
     this.props.globalAppRegistryEmit(eventName, this.collectionMetadata(editViewSource));
     if (!this.props.isDataLake) {
       const ipc = require('hadron-ipc');
