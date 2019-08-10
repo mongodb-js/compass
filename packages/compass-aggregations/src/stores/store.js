@@ -128,8 +128,8 @@ export const setGlobalAppRegistry = (store, appRegistry) => {
  * @param {String} name - The name.
  * @param {Array} pipeline - The pipeline.
  */
-export const setViewSource = (store, name, pipeline) => {
-  store.dispatch(modifyView(name, pipeline));
+export const setViewSource = (store, name, pipeline, isReadonly, sourceName) => {
+  store.dispatch(modifyView(name, pipeline, isReadonly, sourceName));
 };
 
 /**
@@ -219,8 +219,13 @@ const configureStore = (options = {}) => {
   }
 
   if (options.editViewName) {
-    console.log('MODIFYING', options);
-    setViewSource(store, options.editViewName, options.sourcePipeline);
+    setViewSource(
+      store,
+      options.editViewName,
+      options.sourcePipeline,
+      options.isReadonly,
+      options.sourceName
+    );
   }
 
   return store;

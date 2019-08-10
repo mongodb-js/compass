@@ -225,6 +225,7 @@ describe('Aggregation Store', () => {
             pipeline: INITIAL_STATE.pipeline,
             isModified: INITIAL_STATE.isModified,
             isAtlasDeployed: INITIAL_STATE.isAtlasDeployed,
+            isReadonly: INITIAL_STATE.isReadonly,
             importPipeline: INITIAL_STATE.importPipeline,
             collation: INITIAL_STATE.collation,
             collationString: INITIAL_STATE.collationString,

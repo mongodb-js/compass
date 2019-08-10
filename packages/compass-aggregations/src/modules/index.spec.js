@@ -4,7 +4,7 @@ import reducer, {
   restoreSavedPipeline,
   clonePipeline,
   newPipeline,
-  modifyView,
+  modifySource,
   RESET,
   CLEAR_PIPELINE,
   RESTORE_PIPELINE,
@@ -79,12 +79,14 @@ describe('root [ module ]', () => {
     });
   });
 
-  describe('#modifyView', () => {
+  describe('#modifySource', () => {
     it('returns the MODIFY_VIEW action', () => {
-      expect(modifyView('db.testing', [])).to.deep.equal({
+      expect(modifySource('db.testing', [], true, 'db.test')).to.deep.equal({
         type: MODIFY_VIEW,
         name: 'db.testing',
-        pipeline: []
+        pipeline: [],
+        isReadonly: true,
+        sourceName: 'db.test'
       });
     });
   });

@@ -2,6 +2,7 @@ const debug = require('debug')('mongodb-aggregations:modules:index');
 
 import { combineReducers } from 'redux';
 import { ObjectId } from 'bson';
+import toNS from 'mongodb-ns';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
@@ -33,6 +34,9 @@ import largeLimit, {
 import isAtlasDeployed, {
   INITIAL_STATE as IS_ATLAS_DEPLOYED_INITIAL_STATE
 } from './is-atlas-deployed';
+import isReadonly, {
+  INITIAL_STATE as IS_READONLY_INITIAL_STATE
+} from './is-readonly';
 import allowWrites, {
   INITIAL_STATE as ALLOW_WRITES_INITIAL_STATE
 } from './allow-writes';
@@ -117,6 +121,7 @@ export const INITIAL_STATE = {
   collationString: COLLATION_STRING_INITIAL_STATE,
   isCollationExpanded: COLLATION_COLLAPSER_INITIAL_STATE,
   isAtlasDeployed: IS_ATLAS_DEPLOYED_INITIAL_STATE,
+  isReadonly: IS_READONLY_INITIAL_STATE,
   isOverviewOn: OVERVIEW_INITIAL_STATE,
   comments: COMMENTS_INITIAL_STATE,
   sample: SAMPLE_INITIAL_STATE,
@@ -193,6 +198,7 @@ const appReducer = combineReducers({
   id,
   isModified,
   isAtlasDeployed,
+  isReadonly,
   importPipeline,
   isOverviewOn,
   settings,
@@ -384,6 +390,8 @@ const doModifyView = (state, action) => {
   return {
     ...state,
     editViewName: action.name,
+    isReadonly: action.isReadonly,
+    sourceName: action.sourceName,
     collation: {},
     collationString: '',
     isCollationExpanded: false,
@@ -672,10 +680,19 @@ export const openCreateView = () => {
  *
  * @returns {Object} The action.
  */
-export const modifyView = (viewName, viewPipeline) => ({
+export const modifyView = (viewName, viewPipeline, readonly, source) => {
+  return (dispatch) => {
+    dispatch(modifySource(viewName, viewPipeline, readonly, source));
+    dispatch(runStage(0));
+  };
+};
+
+export const modifySource = (viewName, viewPipeline, readonly, source) => ({
   type: MODIFY_VIEW,
   name: viewName,
-  pipeline: viewPipeline
+  pipeline: viewPipeline,
+  isReadonly: readonly,
+  sourceName: source
 });
 
 /**
@@ -688,7 +705,7 @@ export const updateView = () => {
     const viewNamespace = state.editViewName;
     const viewPipeline = state.pipeline.map((p) => (p.executor || generateStage(p)));
     const options = {
-      viewOn: state.namespace,
+      viewOn: toNS(state.namespace).collection,
       pipeline: viewPipeline
     };
 
@@ -709,8 +726,8 @@ export const updateView = () => {
           isReadonly: true,
           sourceName: state.namespace,
           editViewName: null,
-          isSourceReadonly: state.isReadonly, // NOT GETTING SET
-          sourceViewOn: state.sourceName, // NOT GETTING SET
+          isSourceReadonly: state.isReadonly,
+          sourceViewOn: state.sourceName,
           sourcePipeline: viewPipeline
         };
         debug('selecting namespace', metadata);
