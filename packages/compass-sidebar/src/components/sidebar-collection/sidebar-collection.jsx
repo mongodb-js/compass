@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 import toNS from 'mongodb-ns';
+import { collectionMetadata, getSource } from 'modules/collection';
 
 import classnames from 'classnames';
 import styles from './sidebar-collection.less';
@@ -52,21 +53,35 @@ class SidebarCollection extends PureComponent {
    * Handle opening a collection in a new tab.
    */
   onOpenInNewTab = () => {
-    this.showCollection('open-namespace-in-new-tab');
+    this.showCollection(
+      'open-namespace-in-new-tab',
+      this.props,
+      this.props.collections
+    );
   }
 
   /**
    * Handle selecting modify source from the contextual menu.
    */
   onModifySource = () => {
-    this.showCollection('open-namespace-in-new-tab', this.props._id);
+    const source = getSource(this.props.view_on, this.props.collections);
+    this.showCollection(
+      'open-namespace-in-new-tab',
+      source,
+      this.props.collections,
+      this.props._id
+    );
   }
 
   /**
    * Handle clicking on the collection name.
    */
   onClick = () => {
-    this.showCollection('select-namespace');
+    this.showCollection(
+      'select-namespace',
+      this.props,
+      this.props.collections
+    );
   }
 
   /**
@@ -76,43 +91,6 @@ class SidebarCollection extends PureComponent {
    */
   getCollectionName() {
     return toNS(this.props._id).collection;
-  }
-
-  getSourceName() {
-    if (this.props.readonly) {
-      return `${this.props.database}.${this.props.view_on}`;
-    }
-    return null;
-  }
-
-  getSourceViewOn(source) {
-    if (source && source.view_on) {
-      return `${this.props.database}.${source.view_on}`;
-    }
-    return null;
-  }
-
-  /**
-   * Get the collection metadata needed for the collection plugin.
-   *
-   * @param {String} editViewName - The name of the view to edit.
-   *
-   * @returns {Object} The metadata.
-   */
-  collectionMetadata(editViewName) {
-    const source = this.props.collections.find((coll) => {
-      return toNS(coll._id).collection === this.props.view_on ||
-        coll._id === this.props.view_on;
-    });
-    return {
-      namespace: this.props._id,
-      isReadonly: this.props.readonly,
-      sourceName: this.getSourceName(),
-      isSourceReadonly: source ? source.readonly : false,
-      sourceViewOn: this.getSourceViewOn(source),
-      sourcePipeline: this.props.pipeline,
-      editViewName: editViewName
-    };
   }
 
   /**
@@ -139,8 +117,11 @@ class SidebarCollection extends PureComponent {
    * @param {String} eventName - The event name.
    * @param {String} editViewSource - The modify source name.
    */
-  showCollection(eventName, editViewSource) {
-    this.props.globalAppRegistryEmit(eventName, this.collectionMetadata(editViewSource));
+  showCollection(eventName, collection, collections, editViewSource) {
+    const metadata = collectionMetadata(collection, collections, this.props.database, editViewSource);
+    console.log('this.props', this.props);
+    console.log(eventName, metadata);
+    this.props.globalAppRegistryEmit(eventName, metadata);
     if (!this.props.isDataLake) {
       const ipc = require('hadron-ipc');
       ipc.call('window:show-collection-submenu');
