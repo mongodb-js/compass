@@ -705,19 +705,16 @@ export const updateView = () => {
             { numStages: viewPipeline.length }
           )
         );
-        dispatch(
-          globalAppRegistryEmit(
-            'select-namespace',
-            { namespace: viewNamespace,
-              isReaonly: true,
-              sourceName: state.namespace,
-              editViewName: null,
-              isSourceReadonly: state.isReadonly,
-              sourceViewOn: state.sourceName,
-              sourcePipeline: viewPipeline
-            }
-          )
-        );
+        const metadata = { namespace: viewNamespace,
+          isReaonly: true,
+          sourceName: state.namespace,
+          editViewName: null,
+          isSourceReadonly: state.isReadonly,
+          sourceViewOn: state.sourceName,
+          sourcePipeline: viewPipeline
+        };
+        debug('selecting namespace', metadata);
+        dispatch(globalAppRegistryEmit('select-namespace', metadata));
       });
     } catch (e) {
       debug('Unexpected error updating view', e);
