@@ -45,10 +45,10 @@
   },
   "devDependencies": {
     "@mongodb-js/compass-app-stores": "^3.0.0",
-    "@mongodb-js/compass-deployment-awareness": "^9.0.1",
+    "@mongodb-js/compass-deployment-awareness": "^9.0.2",
     "@mongodb-js/compass-instance-header": "^0.2.2",
-    "@mongodb-js/compass-server-version": "^3.0.2",
-    "@mongodb-js/compass-ssh-tunnel-status": "^3.0.1",
+    "@mongodb-js/compass-server-version": "^3.0.3",
+    "@mongodb-js/compass-ssh-tunnel-status": "^3.0.2",
     "@storybook/react": "^3.2.0",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.10.1",
