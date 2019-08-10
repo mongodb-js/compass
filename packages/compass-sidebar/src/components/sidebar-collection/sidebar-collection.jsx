@@ -79,6 +79,23 @@ class SidebarCollection extends PureComponent {
   }
 
   /**
+   * If a view on collection:
+   *   - this.props.view_on is only collection name.
+   *
+   * If a view on a view:
+   *   - this.props.view_on is a full namespace.
+   */
+  getSourceName(source) {
+    if (this.props.readonly) {
+      if (source.readonly) {
+        return this.props.view_on;
+      }
+      return `${this.props.database}.${this.props.view_on}`;
+    }
+    return null;
+  }
+
+  /**
    * Get the collection metadata needed for the collection plugin.
    *
    * @param {String} editViewName - The name of the view to edit.
@@ -88,14 +105,16 @@ class SidebarCollection extends PureComponent {
   collectionMetadata(editViewName) {
     console.log('props', this.props);
     const source = this.props.collections.find((coll) => {
-      return toNS(coll._id).collection === this.props.view_on;
+      return toNS(coll._id).collection === this.props.view_on ||
+        coll._id === this.props.view_on;
     });
+    console.log('source', source);
     return {
       namespace: this.props._id,
       isReadonly: this.props.readonly,
-      sourceName: this.props.readonly ? `${this.props.database}.${this.props.view_on}` : null,
+      sourceName: this.getSourceName(source),
       isSourceReadonly: source ? source.readonly : false,
-      sourceViewOn: source ? `${this.props.database}.${source.view_on}` : null,
+      sourceViewOn: (source && source.view_on) ? source.view_on : null,
       sourcePipeline: this.props.pipeline,
       editViewName: editViewName
     };
