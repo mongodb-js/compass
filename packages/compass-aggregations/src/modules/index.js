@@ -706,11 +706,11 @@ export const updateView = () => {
           )
         );
         const metadata = { namespace: viewNamespace,
-          isReaonly: true,
+          isReadonly: true,
           sourceName: state.namespace,
           editViewName: null,
-          isSourceReadonly: state.isReadonly,
-          sourceViewOn: state.sourceName,
+          isSourceReadonly: state.isReadonly, // NOT GETTING SET
+          sourceViewOn: state.sourceName, // NOT GETTING SET
           sourcePipeline: viewPipeline
         };
         debug('selecting namespace', metadata);
