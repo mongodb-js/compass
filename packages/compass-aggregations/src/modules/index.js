@@ -701,6 +701,12 @@ export const updateView = () => {
         dispatch(globalAppRegistryEmit('refresh-data'));
         dispatch(
           globalAppRegistryEmit(
+            'compass:aggregations:update-view',
+            { numStages: viewPipeline.length }
+          )
+        );
+        dispatch(
+          globalAppRegistryEmit(
             'select-namespace',
             { namespace: viewNamespace,
               isReaonly: true,

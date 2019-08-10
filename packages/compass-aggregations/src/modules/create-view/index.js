@@ -159,6 +159,12 @@ export const createView = () => {
         dispatch(globalAppRegistryEmit('refresh-data'));
         dispatch(
           globalAppRegistryEmit(
+            'compass:aggregations:create-view',
+            { numStages: viewPipeline.length }
+          )
+        );
+        dispatch(
+          globalAppRegistryEmit(
             'open-namespace-in-new-tab',
             {
               namespace: `${database}.${viewName}`,
