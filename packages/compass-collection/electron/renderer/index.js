@@ -126,7 +126,7 @@ dataService.connect((error, ds) => {
       sourceName: 'citibike.tripsOfShortDuration',
       editViewName: null,
       isSourceReadonly: true,
-      sourceViewOn: null,
+      sourceViewOn: 'citibike.trips',
       sourcePipeline: [{ '$match': { gender: 0 }}]
     }
   );
