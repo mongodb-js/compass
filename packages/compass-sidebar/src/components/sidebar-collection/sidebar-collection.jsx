@@ -85,6 +85,13 @@ class SidebarCollection extends PureComponent {
     return null;
   }
 
+  getSourceViewOn(source) {
+    if (source && source.view_on) {
+      return `${this.props.database}.${source.view_on}`;
+    }
+    return null;
+  }
+
   /**
    * Get the collection metadata needed for the collection plugin.
    *
@@ -102,7 +109,7 @@ class SidebarCollection extends PureComponent {
       isReadonly: this.props.readonly,
       sourceName: this.getSourceName(),
       isSourceReadonly: source ? source.readonly : false,
-      sourceViewOn: (source && source.view_on) ? source.view_on : null,
+      sourceViewOn: this.getSourceViewOn(source),
       sourcePipeline: this.props.pipeline,
       editViewName: editViewName
     };
