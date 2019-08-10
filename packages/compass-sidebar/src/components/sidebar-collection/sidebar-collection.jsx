@@ -78,18 +78,8 @@ class SidebarCollection extends PureComponent {
     return toNS(this.props._id).collection;
   }
 
-  /**
-   * If a view on collection:
-   *   - this.props.view_on is only collection name.
-   *
-   * If a view on a view:
-   *   - this.props.view_on is a full namespace.
-   */
-  getSourceName(source) {
+  getSourceName() {
     if (this.props.readonly) {
-      if (source.readonly) {
-        return this.props.view_on;
-      }
       return `${this.props.database}.${this.props.view_on}`;
     }
     return null;
@@ -110,7 +100,7 @@ class SidebarCollection extends PureComponent {
     return {
       namespace: this.props._id,
       isReadonly: this.props.readonly,
-      sourceName: this.getSourceName(source),
+      sourceName: this.getSourceName(),
       isSourceReadonly: source ? source.readonly : false,
       sourceViewOn: (source && source.view_on) ? source.view_on : null,
       sourcePipeline: this.props.pipeline,
