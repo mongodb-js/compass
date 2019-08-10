@@ -141,7 +141,7 @@ export const createView = () => {
 
     const viewName = state.name;
     const viewSource = state.source;
-    const { database, collection } = parseNs(state.source);
+    const { database } = parseNs(state.source);
     const viewPipeline = state.pipeline;
     const options = {};
 
@@ -149,7 +149,7 @@ export const createView = () => {
 
     try {
       dispatch(toggleIsRunning(true));
-      debug('calling data-service.createView', viewName, collection, viewPipeline, options);
+      debug('calling data-service.createView', viewName, viewSource, viewPipeline, options);
       ds.createView(viewName, viewSource, viewPipeline, options, (e) => {
         if (e) {
           debug('error creating view', e);
