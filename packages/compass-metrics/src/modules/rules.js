@@ -273,6 +273,24 @@ const RULES = [
     })
   },
   {
+    registryEvent: 'compass:aggregations:update-view',
+    resource: 'Aggregation',
+    action: 'viewUpdated',
+    condition: () => true,
+    metadata: (data) => ({
+      numStages: data.numStages
+    })
+  },
+  {
+    registryEvent: 'compass:aggregations:create-view',
+    resource: 'Aggregation',
+    action: 'viewCreated',
+    condition: () => true,
+    metadata: (data) => ({
+      numStages: data.numStages
+    })
+  },
+  {
     registryEvent: 'tour-closed',
     resource: 'Tour',
     action: 'closed',
