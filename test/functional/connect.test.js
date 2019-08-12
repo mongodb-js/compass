@@ -23,8 +23,9 @@ describe.skip('#connect', function() {
       it('renders the home screen', function() {
         return client
           .waitForConnectView()
-          .clickConnectButton()
+          .cickFillInFormLink()
           .waitForStatusBar()
+          .clickConnectButton()
           .waitForHomeView()
           .getDatabasesTabText().should.eventually.equal('Databases');
       });
