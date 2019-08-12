@@ -46,7 +46,9 @@ class Single extends React.Component {
           <div className={classnames(styles['topology-single-host-title'])}>
             HOST
           </div>
-          <div className={classnames(styles['topology-single-host-address'])}>
+          <div
+            className={classnames(styles['topology-single-host-address'])}
+            title={this.props.server.address}>
             {this.props.server.address}
           </div>
         </div>

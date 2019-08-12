@@ -35,7 +35,10 @@ class Sharded extends React.Component {
   renderServers() {
     return this.props.servers.map((server, i) => {
       return (
-        <div className={classnames(styles['topology-sharded-host-address'])} key={i}>
+        <div
+          className={classnames(styles['topology-sharded-host-address'])}
+          key={i}
+          title={server.address}>
           {server.address}
         </div>
       );
