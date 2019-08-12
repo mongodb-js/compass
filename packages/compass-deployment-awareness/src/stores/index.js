@@ -44,7 +44,20 @@ const DeploymentAwarenessStore = Reflux.createStore({
    * @param {Event} evt - The topologyDescriptionChanged event.
    */
   topologyDescriptionChanged(evt) {
-    this.setState(evt.newDescription);
+    const newDescription = evt.newDescription;
+    const servers = [];
+    for (const desc of newDescription.servers.values()) {
+      servers.push({
+        address: desc.address,
+        type: desc.type,
+        tags: desc.tags
+      });
+    }
+    this.setState({
+      topologyType: newDescription.type,
+      setName: newDescription.setName,
+      servers: servers
+    });
   },
 
   /**
