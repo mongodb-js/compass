@@ -6,6 +6,8 @@ import { changeErrorMessage } from 'modules/error-message';
 import { toggleIsDataLake } from 'modules/is-data-lake';
 import { toggleIsConnected } from 'modules/is-connected';
 import { changeUiStatus } from 'modules/ui-status';
+import { updateTitle } from 'modules/title';
+import { changeInstanceId } from 'modules/instance-id';
 import { changeNamespace } from 'modules/namespace';
 import { dataServiceDisconnected } from 'modules';
 
@@ -24,17 +26,21 @@ store.onActivated = (appRegistry) => {
       return;
     }
     store.dispatch(changeUiStatus(UI_STATES.COMPLETE));
+    store.dispatch(updateTitle());
     if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
       store.dispatch(toggleIsDataLake(true));
     }
   });
 
-  appRegistry.on('data-service-connected', (err) => {
+  appRegistry.on('data-service-connected', (err, ds) => {
     if (err) {
       store.dispatch(changeErrorMessage(err.message));
       store.dispatch(changeUiStatus(UI_STATES.ERROR));
       return;
     }
+    const connection = ds.client.model;
+    store.dispatch(changeInstanceId(connection.instanceId));
+
     const StatusAction = appRegistry.getAction('Status.Actions');
     if (StatusAction) {
       StatusAction.configure({
@@ -54,22 +60,27 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('select-database', (ns) => {
     store.dispatch(changeNamespace(ns));
+    store.dispatch(updateTitle(ns));
   });
 
   appRegistry.on('select-namespace', (meta) => {
     store.dispatch(changeNamespace(meta.namespace));
+    store.dispatch(updateTitle(meta.namespace));
   });
 
   appRegistry.on('select-instance', () => {
     store.dispatch(changeNamespace(''));
+    store.dispatch(updateTitle(''));
   });
 
   appRegistry.on('open-namespace-in-new-tab', (meta) => {
     store.dispatch(changeNamespace(meta.namespace));
+    store.dispatch(updateTitle(meta.namespace));
   });
 
   appRegistry.on('all-collection-tabs-closed', () => {
     store.dispatch(changeNamespace(''));
+    store.dispatch(updateTitle(''));
   });
 };
 

@@ -18,6 +18,12 @@ import namespace, {
 import uiStatus, {
   INITIAL_STATE as UI_STATUS_INITIAL_STATE
 } from 'modules/ui-status';
+import instanceId, {
+  INITIAL_STATE as INSTANCE_ID_INITIAL_STATE
+} from 'modules/instance-id';
+import title, {
+  INITIAL_STATE as TITLE_INITIAL_STATE
+} from 'modules/title';
 import { RESET, reset } from 'modules/reset';
 import UI_STATES from 'constants/ui-states';
 
@@ -30,7 +36,9 @@ const reducer = combineReducers({
   isCollapsed,
   isConnected,
   namespace,
-  uiStatus
+  uiStatus,
+  instanceId,
+  title
 });
 
 /**
@@ -50,7 +58,9 @@ const rootReducer = (state, action) => {
       isCollapsed: IS_COLLAPSED_INITIAL_STATE,
       isConnected: IS_CONNECTED_INITIAL_STATE,
       namespace: NAMESPACE_INITIAL_STATE,
-      uiStatus: UI_STATUS_INITIAL_STATE
+      uiStatus: UI_STATUS_INITIAL_STATE,
+      title: TITLE_INITIAL_STATE,
+      instanceId: INSTANCE_ID_INITIAL_STATE
     };
   }
   return reducer(state, action);
