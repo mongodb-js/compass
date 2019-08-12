@@ -18,7 +18,9 @@ class ConnectionString extends React.Component {
 
   render() {
     return (
-      <form className={classnames(styles['connect-string'])}>
+      <form
+        data-test-id="connect-string"
+        className={classnames(styles['connect-string'])}>
         <FormGroup separator>
           <ConnectionStringInput
             lastUsed={this.props.currentConnection.lastUsed}

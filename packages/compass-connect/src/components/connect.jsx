@@ -57,6 +57,7 @@ class Connect extends React.Component {
       return (
         <div className={classnames(styles['change-view-link'])}>
           <a
+            data-test-id="form-view-link"
             onClick={this.onChangeViewClicked.bind(this, 'connectionForm')}>
             Fill in connection fields individually
           </a>
