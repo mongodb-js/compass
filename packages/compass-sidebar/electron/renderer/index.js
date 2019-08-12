@@ -65,7 +65,9 @@ import DataService from 'mongodb-data-service';
 
 const connection = new Connection({
   hostname: '127.0.0.1',
-  port: 27017
+  port: 27017,
+  is_favorite: true,
+  name: 'This is a reallllllllllllllly long connection name'
 });
 const dataService = new DataService(connection);
 
@@ -76,6 +78,7 @@ const state = {
 };
 
 DeploymentStateStore.setToInitial();
+appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   ds.client.model.ssh_tunnel = 'USER_PASSWORD';
   ds.client.model.ssh_tunnel_hostname = '123.45.67.89';

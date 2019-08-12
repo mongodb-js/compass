@@ -12,12 +12,17 @@ import { toggleIsDataLake } from 'modules/is-data-lake';
 import { loadDetailsPlugins } from 'modules/details-plugins';
 import { toggleIsGenuineMongoDB } from 'modules/is-genuine-mongodb';
 import { toggleIsGenuineMongoDBVisible } from 'modules/is-genuine-mongodb-visible';
+import { changeConnectionName } from 'modules/connection-name';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
   store.dispatch(globalAppRegistryActivated(appRegistry));
   store.dispatch(loadDetailsPlugins(appRegistry));
+
+  appRegistry.on('data-service-initialized', (dataService) => {
+    store.dispatch(changeConnectionName(dataService.client.model));
+  });
 
   appRegistry.on('instance-refreshed', (state) => {
     store.dispatch(changeInstance(state.instance));

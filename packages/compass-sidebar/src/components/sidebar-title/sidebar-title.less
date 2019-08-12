@@ -6,13 +6,16 @@
 .sidebar-title {
   background-color: @compass-sidebar-title-background-color;
 
-  padding: 7px 5px 7px 10px;
+  padding: 7px 10px 7px 10px;
   border-bottom: 1px solid @gray2;
   cursor: pointer;
 
   &-name {
     color: @pw;
     font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
     &-icon {
       font-size: 16px;

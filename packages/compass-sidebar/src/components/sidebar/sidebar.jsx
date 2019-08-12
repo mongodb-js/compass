@@ -32,6 +32,7 @@ class Sidebar extends PureComponent {
   static propTypes = {
     databases: PropTypes.object.isRequired,
     description: PropTypes.string.isRequired,
+    connectionName: PropTypes.string.isRequired,
     filterRegex: PropTypes.any.isRequired,
     instance: PropTypes.object.isRequired,
     isCollapsed: PropTypes.bool.isRequired,
@@ -233,7 +234,7 @@ class Sidebar extends PureComponent {
           <i className={collapsedButton}/>
         </button>
         <SidebarTitle
-          name="My Cluster"
+          name={this.props.connectionName}
           isSidebarCollapsed={this.props.isCollapsed}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
         <SidebarInstance
@@ -281,6 +282,7 @@ class Sidebar extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state, ownProps) => ({
+  connectionName: state.connectionName,
   databases: state.databases,
   description: state.description,
   detailsPlugins: state.detailsPlugins,
