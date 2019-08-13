@@ -105,6 +105,7 @@ class MiniChart extends Component {
       const height = width / 1.618; // = golden ratio
       return (
         <CoordinatesMinichart
+          actions={this.props.actions}
           fieldName={fieldName}
           type={this.props.type}
           query={queryValue}

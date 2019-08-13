@@ -14,6 +14,7 @@ const DEFAULT_MAX_TIME_MS = 10000;
 
 const MAX_NUM_DOCUMENTS = 1000;
 const DEFAULT_SAMPLE_SIZE = 1000;
+const METERS_IN_MILE = 1609.344;
 
 const PROMOTE_VALUES = false;
 const DEFAULT_QUERY = {
@@ -95,6 +96,7 @@ const configureStore = (options = {}) => {
       this.analyzingStream = null;
       this.samplingTimer = null;
       this.trickleStop = null;
+      this.geoQueries = {};
 
       this.samplingLock = false;
 
@@ -154,6 +156,35 @@ const configureStore = (options = {}) => {
           samplingState: 'outdated'
         });
       }
+    },
+
+    generateGeoWithin() {
+      const or = Object.values(this.geoQueries).map((geo) => {
+        return { $geoWithin: { $centerSphere: [[ geo.lng, geo.lat ], geo.radius ]}};
+      });
+      return { $or: or };
+    },
+
+    mapCircleAdded(layer) {
+      this.geoQueries[layer._leaflet_id] = {
+        lat: layer._latlng.lat,
+        lng: layer._latlng.lng,
+        radius: layer._mRadius / METERS_IN_MILE
+      };
+      this.localAppRegistry.emit('compass:schema:geo-query', this.generateGeoWithin());
+    },
+
+    mapCircleEdited(layers) {
+      layers.eachLayer((layer) => {
+        this.mapCircleAdded(layer);
+      });
+    },
+
+    mapCircleDeleted(layers) {
+      layers.eachLayer((layer) => {
+        delete this.geoQueries[layer._leaflet_id];
+      });
+      this.localAppRegistry.emit('compass:schema:geo-query', this.generateGeoWithin());
     },
 
     setMaxTimeMS(maxTimeMS) {

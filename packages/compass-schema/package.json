@@ -156,6 +156,7 @@
   "dependencies": {
     "detect-coordinates": "^0.2.0",
     "leaflet": "^1.5.1",
+    "leaflet-draw": "^1.0.4",
     "lodash.assign": "^4.2.0",
     "lodash.debounce": "^4.0.8",
     "lodash.defaults": "^4.2.0",
@@ -184,6 +185,7 @@
     "mongodb-schema-parser": "^0.1.5",
     "pluralize": "^8.0.0",
     "react-leaflet": "^2.4.0",
+    "react-leaflet-draw": "^0.19.0",
     "turf-destination": "^3.0.12",
     "turf-distance": "^3.0.12",
     "turf-point": "^2.0.1"

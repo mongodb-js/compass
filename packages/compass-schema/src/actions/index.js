@@ -30,7 +30,10 @@ const configureActions = () => {
     /**
      * Resize the minicharts.
      */
-    resizeMiniCharts: {sync: true}
+    resizeMiniCharts: {sync: true},
+    mapCircleAdded: {sync: true},
+    mapCircleEdited: {sync: true},
+    mapCircleDeleted: {sync: true}
   });
 };
 

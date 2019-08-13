@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 
 import L from 'leaflet';
 
-import { Map, TileLayer } from 'react-leaflet';
+import { Map, TileLayer, FeatureGroup } from 'react-leaflet';
+import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css'; // Re-uses images from ~leaflet package
 import 'leaflet-defaulticon-compatibility';
 
@@ -119,6 +121,7 @@ class CoordinatesMinichart extends PureComponent {
       values: PropTypes.array
     }),
     width: PropTypes.number.isRequired,
+    actions: PropTypes.object.isRequired,
     height: PropTypes.number.isRequired,
     fieldName: PropTypes.string.isRequired
   };
@@ -214,6 +217,18 @@ class CoordinatesMinichart extends PureComponent {
     return <GeoscatterMapItem data={geopoints} />;
   }
 
+  onCreated = (evt) => {
+    this.props.actions.mapCircleAdded(evt.layer);
+  }
+
+  onEdited = (evt) => {
+    this.props.actions.mapCircleEdited(evt.layers);
+  }
+
+  onDeleted = (evt) => {
+    this.props.actions.mapCircleDeleted(evt.layers);
+  }
+
   /**
    * Values plotted to a leaftlet.js map with attribution
    * to our current map provider, HERE.
@@ -227,10 +242,27 @@ class CoordinatesMinichart extends PureComponent {
         viewport={{ center: [0, 0], zoom: 1 }}
         whenReady={this.whenMapReady}
         ref="map"
-        onMoveend={this.onMoveEnd}
-      >
+        onMoveend={this.onMoveEnd}>
         {this.renderMapItems()}
         <TileLayer url={DEFAULT_TILE_URL} attribution={attributionMessage} />
+        <FeatureGroup>
+          <EditControl
+            position="topright"
+            onEdited={this.onEdited}
+            onCreated={this.onCreated}
+            onDeleted={this.onDeleted}
+            onMounted={this.onMounted}
+            onEditStop={this.onEditStop}
+            onDeleteStop={this.onDeleteStop}
+            draw={{
+              rectangle: false,
+              polyline: false,
+              polygon: false,
+              marker: false,
+              circlemarker: false
+            }}
+          />
+        </FeatureGroup>
       </Map>
     );
   }
