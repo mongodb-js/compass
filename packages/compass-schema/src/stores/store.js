@@ -160,6 +160,7 @@ const configureStore = (options = {}) => {
 
     generateGeoWithin() {
       const queries = Object.values(this.geoQueries);
+      if (queries.length === 0) return {};
       if (queries.length > 1) {
         const or = queries.map((geo) => {
           return { [geo.field]: { $geoWithin: { $centerSphere: [[ geo.lng, geo.lat ], geo.radius ]}}};
