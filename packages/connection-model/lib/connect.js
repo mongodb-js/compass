@@ -204,6 +204,7 @@ const getTasks = (model, setupListeners) => {
       const validOptions = omit(options, 'auth');
 
       validOptions.useNewUrlParser = true;
+      validOptions.useUnifiedTopology = true;
 
       const mongoClient = new MongoClient(model.driverUrl, validOptions);
 
