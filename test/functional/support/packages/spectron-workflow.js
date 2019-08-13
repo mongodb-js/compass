@@ -25,9 +25,8 @@ function addWorkflowCommands(client) {
   client.addCommand('connectToCompass', function() {
     return this
       .waitForConnectView()
-      .cickFillInFormLink()
-      .waitForStatusBar()
       .clickConnectButton()
+      .waitForStatusBar()
       .waitForHomeView()
       .getDatabasesTabText().should.eventually.equal('Databases');
   });
