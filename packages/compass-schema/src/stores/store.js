@@ -177,7 +177,6 @@ const configureStore = (options = {}) => {
         lng: layer._latlng.lng,
         radius: layer._mRadius / METERS_IN_MILE
       };
-      console.log(this.generateGeoWithin());
       this.localAppRegistry.emit('compass:schema:geo-query', this.generateGeoWithin());
     },
 
