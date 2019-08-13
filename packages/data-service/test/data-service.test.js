@@ -423,21 +423,6 @@ describe('DataService', function() {
     });
   });
 
-  describe('#disconnect', function() {
-    after(function(done) {
-      service.connect(done);
-    });
-
-    it('disconnects the database', function(done) {
-      service.disconnect(function() {
-        service.count('data-service.test', {}, {}, function(error) {
-          expect(error.message).to.include('destroyed');
-          done();
-        });
-      });
-    });
-  });
-
   describe('#createCollection', function() {
     after(function(done) {
       service.client.database.dropCollection('foo', {}, function(error) {
