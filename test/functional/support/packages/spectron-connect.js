@@ -6,18 +6,17 @@ function addWaitConnectCommands(client) {
    * Wait for the connect screen to finish loading.
    */
   client.addCommand('waitForConnectView', function() {
-    return this.waitForVisibleInCompass(selector('connect-string'));
+    return this.waitForVisibleInCompass(selector('connect-form'));
   });
 }
 
 
-function addGetLinkToFormViewCommands(client) {
+function addGetConnectCommands(client) {
   /**
-   * Retrieves the user-facing text from the fill in connection
-   * fields individually link.
+   * Retrieves the user-facing text from the connect header.
    */
-  client.addCommand('getLinkToFormViewText', function() {
-    return this.getText(selector('form-view-link'));
+  client.addCommand('getConnectHeaderText', function() {
+    return this.getText(selector('connect-header'));
   });
 }
 
@@ -31,15 +30,6 @@ function addClickConnectCommands(client) {
   });
 }
 
-function addClickLinkToFormViewCommands(client) {
-  /**
-   * click the Fill in connection fields individually
-   * link on the connect screen.
-   */
-  client.addCommand('clickLinkToFormView', function() {
-    return this.click(selector('form-view-link'));
-  });
-}
 
 function addInputConnectCommands(client) {
   /**
@@ -99,8 +89,7 @@ function addInputConnectCommands(client) {
  */
 function addConnectCommands(client) {
   addWaitConnectCommands(client);
-  addGetLinkToFormViewCommands(client);
-  addClickLinkToFormViewCommands(client);
+  addGetConnectCommands(client);
   addClickConnectCommands(client);
   addInputConnectCommands(client);
 }
