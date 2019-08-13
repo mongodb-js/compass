@@ -15,6 +15,7 @@ const DEFAULT_MAX_TIME_MS = 10000;
 const MAX_NUM_DOCUMENTS = 1000;
 const DEFAULT_SAMPLE_SIZE = 1000;
 const METERS_IN_MILE = 1609.344;
+const RADIANS = 3963.2;
 
 const PROMOTE_VALUES = false;
 const DEFAULT_QUERY = {
@@ -176,7 +177,7 @@ const configureStore = (options = {}) => {
         field: field,
         lat: layer._latlng.lat,
         lng: layer._latlng.lng,
-        radius: layer._mRadius / METERS_IN_MILE
+        radius: (layer._mRadius / METERS_IN_MILE) / RADIANS
       };
       this.localAppRegistry.emit('compass:schema:geo-query', this.generateGeoWithin());
     },
