@@ -213,8 +213,8 @@ class InsertDocumentDialog extends React.PureComponent {
 
         <Modal.Body onFocus={this.handleBlur.bind(this)}>
           <div className="insert-document-views">
-            <p>VIEW</p>
             <ViewSwitcher
+              label="View"
               buttonLabels={['JSON', 'List']}
               activeButton={currentView}
               disabled={this.hasErrors()}

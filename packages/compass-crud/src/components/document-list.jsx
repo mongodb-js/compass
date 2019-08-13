@@ -4,6 +4,7 @@ import { ObjectID as ObjectId } from 'bson';
 import { StatusRow } from 'hadron-react-components';
 import InsertDocumentDialog from 'components/insert-document-dialog';
 import DocumentListView from 'components/document-list-view';
+import DocumentJsonView from 'components/document-json-view';
 import DocumentTableView from 'components/document-table-view';
 import Toolbar from 'components/toolbar';
 
@@ -46,8 +47,11 @@ class DocumentList extends React.Component {
   renderViews() {
     if (this.props.view === 'List') {
       return (<DocumentListView {...this.props} />);
+    } else if (this.props.view === 'Table') {
+      return (<DocumentTableView {...this.props} />);
     }
-    return (<DocumentTableView {...this.props} />);
+
+    return (<DocumentJsonView {...this.props} />);
   }
 
   /**
