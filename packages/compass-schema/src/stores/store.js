@@ -227,6 +227,7 @@ const configureStore = (options = {}) => {
      * This function is called when the collection filter changes.
      */
     startSampling() {
+      this.geoQueries = {};
       if (this.samplingLock) {
         return;
       }
