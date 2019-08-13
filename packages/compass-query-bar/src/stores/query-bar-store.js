@@ -700,6 +700,9 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('subtab-changed', () => {
       options.actions.refreshEditor();
     });
+    localAppRegistry.on('compass:schema:geo-query', (query) => {
+      store.setQuery({ filter: query }, true);
+    });
 
     // Put the query changed store in the app registry
     // if it is not already there.
