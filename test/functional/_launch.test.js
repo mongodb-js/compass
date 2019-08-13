@@ -43,8 +43,8 @@ describe('#launch', function() {
           return client
             .clickClosePrivacySettingsButton()
             .waitForConnectView()
-            .getConnectHeaderText()
-            .should.eventually.be.equal('Connect to Host');
+            .getLinkToFormViewText()
+            .should.eventually.be.equal('Fill in connection fields individually');
         });
 
         it('allows favorites to be saved');
