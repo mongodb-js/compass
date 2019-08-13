@@ -106,19 +106,35 @@ describe('Schema Store', () => {
   describe('#generateGeoWithin', () => {
     const store = configureStore();
 
-    beforeEach(() => {
-      store.geoQueries = {
-        1: { lat: 10, lng: 5, radius: 20 },
-        2: { lat: 11, lng: 6, radius: 21 }
-      };
+    context('when more than one circle', () => {
+      beforeEach(() => {
+        store.geoQueries = {
+          1: { field: 'field', lat: 10, lng: 5, radius: 20 },
+          2: { field: 'field', lat: 11, lng: 6, radius: 21 }
+        };
+      });
+
+      it('returns the $or with all $geoWithin queries', () => {
+        expect(store.generateGeoWithin()).to.deep.equal({
+          $or: [
+            { field: { $geoWithin: { $centerSphere: [[ 5, 10], 20 ]}}},
+            { field: { $geoWithin: { $centerSphere: [[ 6, 11], 21 ]}}}
+          ]
+        });
+      });
     });
 
-    it('returns the $or with all $geoWithin queries', () => {
-      expect(store.generateGeoWithin()).to.deep.equal({
-        $or: [
-          { $geoWithin: { $centerSphere: [[ 5, 10], 20 ]}},
-          { $geoWithin: { $centerSphere: [[ 6, 11], 21 ]}}
-        ]
+    context('when only 1 circle', () => {
+      beforeEach(() => {
+        store.geoQueries = {
+          1: { field: 'field', lat: 10, lng: 5, radius: 20 }
+        };
+      });
+
+      it('returns the $or with all $geoWithin queries', () => {
+        expect(store.generateGeoWithin()).to.deep.equal({
+          field: { $geoWithin: { $centerSphere: [[ 5, 10], 20 ]}},
+        });
       });
     });
   });

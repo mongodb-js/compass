@@ -39,7 +39,7 @@
   },
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@mongodb-js/compass-query-bar": "^4.0.2",
+    "@mongodb-js/compass-query-bar": "^4.0.8",
     "@mongodb-js/compass-status": "^3.5.1",
     "d3": "3.5.17",
     "debug": "^3.0.1",

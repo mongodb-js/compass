@@ -159,24 +159,31 @@ const configureStore = (options = {}) => {
     },
 
     generateGeoWithin() {
-      const or = Object.values(this.geoQueries).map((geo) => {
-        return { $geoWithin: { $centerSphere: [[ geo.lng, geo.lat ], geo.radius ]}};
-      });
-      return { $or: or };
+      const queries = Object.values(this.geoQueries);
+      if (queries.length > 1) {
+        const or = queries.map((geo) => {
+          return { [geo.field]: { $geoWithin: { $centerSphere: [[ geo.lng, geo.lat ], geo.radius ]}}};
+        });
+        return { $or: or };
+      }
+      const geo = queries[0];
+      return { [geo.field]: { $geoWithin: { $centerSphere: [[ geo.lng, geo.lat ], geo.radius ]}}};
     },
 
-    mapCircleAdded(layer) {
+    mapCircleAdded(field, layer) {
       this.geoQueries[layer._leaflet_id] = {
+        field: field,
         lat: layer._latlng.lat,
         lng: layer._latlng.lng,
         radius: layer._mRadius / METERS_IN_MILE
       };
+      console.log(this.generateGeoWithin());
       this.localAppRegistry.emit('compass:schema:geo-query', this.generateGeoWithin());
     },
 
-    mapCircleEdited(layers) {
+    mapCircleEdited(field, layers) {
       layers.eachLayer((layer) => {
-        this.mapCircleAdded(layer);
+        this.mapCircleAdded(field, layer);
       });
     },
 
