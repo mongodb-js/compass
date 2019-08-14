@@ -14,8 +14,8 @@ addons:
 node_js:
   - 10.2.1
 env:
-  - MONGODB_VERSION=stable MONGODB_TOPOLOGY=standalone
-  - MONGODB_VERSION=stable MONGODB_TOPOLOGY=cluster
+  - MONGODB_VERSION=4.0.0 MONGODB_TOPOLOGY=standalone
+  - MONGODB_VERSION=4.0.0 MONGODB_TOPOLOGY=cluster
 before_install:
   - npm i -g npm
 script:
