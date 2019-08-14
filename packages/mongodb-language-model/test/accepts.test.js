@@ -218,8 +218,17 @@ describe('accepts', function() {
     it('should accept $not with a complex operator object as its value', function() {
       accepts('{"names": {"$not": {"$exists": true, "$size": 0}}}');
     });
-    it('should reject $not in combination with a $regex operator', function() {
-      rejects('{"name": {"$not": {"$regex": "^Th"}}}');
+    it('should accept $not in combination with a $regex operator without options', function() {
+      accepts('{"name": {"$not": {"$regex": "^Th"}}}');
+    });
+    it('should accept $not in combination with a $regex operator with options', function() {
+      accepts('{"name": {"$not": {"$regex": "^Th", "$options": "g"}}}');
+    });
+    it('should reject $not in combination with an invalid $regex operator', function() {
+      rejects('{"name": {"$not": {"$regex": "^Th", "$legitimate": "false"}}}');
+    });
+    it('should reject $elemMatch in combination with a $regex operator', function() {
+      rejects('{"name": {"$elemMatch": {"$regex": "^Th"}}}');
     });
     it('should reject $not in a top-level operator position', function() {
       rejects('{"$not": {"name": {"$exists": true}}}');

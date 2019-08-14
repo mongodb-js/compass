@@ -117,6 +117,9 @@ operator
   // operator-expression-operator
   / quotation_mark operator:operator_expression_operator quotation_mark name_separator opobject:operator_expression
   { return { pos: "operator-expression-operator", operator: operator, operators: opobject.operators } }
+  // special case for $not accepting $regex
+  / quotation_mark "$not" quotation_mark name_separator regexobject:ejson_regex
+  { return { pos: "operator-expression-operator", operator: "$not", operators: regexobject } }
   // geo-within-operator
   / quotation_mark "$geoWithin" quotation_mark name_separator shape:shape
   { return { pos: "geo-within-operator", operator: "$geoWithin", shape: shape }; }
