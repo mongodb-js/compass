@@ -58,7 +58,7 @@
     "mocha": "^3.1.2",
     "mock-require": "^2.0.1",
     "mongodb-js-precommit": "^0.2.9",
-    "mongodb-runner": "^4.6.0",
+    "mongodb-runner": "^4.7.2",
     "pre-commit": "^1.1.2"
   }
 }
