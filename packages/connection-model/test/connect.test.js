@@ -15,9 +15,9 @@ describe('connection model connector', () => {
     this.slow(2000);
     this.timeout(10000);
 
-    before(require('mongodb-runner/mocha/before')({ port: 27018 }));
+    before(require('mongodb-runner/mocha/before')({ port: 27018, version: '4.0.0' }));
 
-    after(require('mongodb-runner/mocha/after')({ port: 27018 }));
+    after(require('mongodb-runner/mocha/after')({ port: 27018, version: '4.0.0' }));
 
     it('should connect to `localhost:27018 with model`', (done) => {
       Connection.from('mongodb://localhost:27018', (parseErr, model) => {

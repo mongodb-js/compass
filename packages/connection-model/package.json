@@ -56,7 +56,7 @@
     "mongodb-connection-fixture": "^0.0.14",
     "mongodb-js-fmt": "^1.0.0",
     "mongodb-js-precommit": "^2.0.0",
-    "mongodb-runner": "^4.6.0",
+    "mongodb-runner": "^4.7.2",
     "pre-commit": "^1.1.2",
     "proxyquire": "^2.1.0",
     "sinon": "^1.17.7",
