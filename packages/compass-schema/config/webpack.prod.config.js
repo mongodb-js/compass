@@ -41,7 +41,7 @@ const config = {
           query: {
             name: 'assets/images/[name]__[hash:base64:5].[ext]',
             publicPath: function(file) {
-              return `./${file}`;
+              return `../../node_modules/@mongodb-js/compass-schema/lib/${file}`;
             }
           }
         }]
