@@ -2,62 +2,48 @@ const METERS_IN_MILE = 1609.344;
 const RADIANS = 3963.2;
 
 /**
- * Add a layer to the layers in the map.
+ * Calculate radians from meters.
  *
- * @param {String} field - The field name.
- * @param {Layer} layer - The new layer.
- * @param {Object} layers - All the existing layers.
+ * @param {Number} meters - The meters.
  *
- * @returns {Object} The new layers.
+ * @returns {Number} radians.
  */
-export const addLayer = (field, layer, layers) => {
-  if (layer._latlngs) {
-    return addPolygonLayer(field, layer, layers);
-  } else if (layer._latlng) {
-    return addCircleLayer(field, layer, layers);
+const radians = (meters) => {
+  return (meters / METERS_IN_MILE) / RADIANS;
+};
+
+/**
+ * Generate a GeoJSON query for a polygon.
+ *
+ * @param {Object} layer - The layer.
+ *
+ * @returns {Object} The query.
+ */
+const polygon = (layer) => ({
+  [layer.field]: {
+    $geoWithin: {
+      $geometry: {
+        type: 'Polygon',
+        coordinates: layer.coordinates
+      }
+    }
   }
-  return layers;
-};
+});
 
 /**
- * Add a circle layer to the layers object.
+ * Get a single $centerSphere query.
  *
- * @param {String{} field - The field name.
- * @param {Layer} layer - The layer to add.
- * @param {Object} allLayers - All the layers in the map.
+ * @param {Layer} layer - The Leaflet layer.
  *
- * @returns {Object} All the layers with the new layer added.
+ * @returns {Object} The $centerSphere query.
  */
-const addCircleLayer = (field, layer, allLayers) => {
-  const layers = { ...allLayers };
-  layers[layer._leaflet_id] = {
-    field: field,
-    lat: layer._latlng.lat,
-    lng: layer._latlng.lng,
-    radius: layer._mRadius,
-    type: 'circle'
-  };
-  return layers;
-};
-
-/**
- * Add a polygon layer to the layers object.
- *
- * @param {String{} field - The field name.
- * @param {Layer} layer - The layer to add.
- * @param {Object} allLayers - All the layers in the map.
- *
- * @returns {Object} All the layers with the new layer added.
- */
-const addPolygonLayer = (field, layer, allLayers) => {
-  const layers = { ...allLayers };
-  layers[layer._leaflet_id] = {
-    field: field,
-    coordinates: coordinates(layer._latlngs),
-    type: 'polygon'
-  };
-  return layers;
-};
+const centerSphere = (layer) => ({
+  [layer.field]: {
+    $geoWithin: {
+      $centerSphere: [[ layer.lng, layer.lat ], radians(layer.radius) ]
+    }
+  }
+});
 
 /**
  * Get the coordinates for the ring.
@@ -73,21 +59,6 @@ const coordinates = (ring) => {
     coords.push(coords[0]);
     return coords;
   });
-};
-
-/**
- * Generate a geo query for the provided layers.
- *
- * @param {Object} allLayers - All the layers in the map.
- *
- * @returns {Object} The query.
- */
-export const generateGeoQuery = (allLayers) => {
-  const layers = Object.values(allLayers);
-  if (layers.length === 1) {
-    return generateSingle(layers[0]);
-  }
-  return generateMulti(layers);
 };
 
 /**
@@ -116,39 +87,75 @@ const generateMulti = (layers) => ({
   $or: layers.map(layer => generateSingle(layer))
 });
 
-const polygon = (layer) => ({
-  [layer.field]: {
-    $geoWithin: {
-      $geometry: {
-        type: 'Polygon',
-        coordinates: layer.coordinates
-      }
-    }
+/**
+ * Generate a geo query for the provided layers.
+ *
+ * @param {Object} allLayers - All the layers in the map.
+ *
+ * @returns {Object} The query.
+ */
+export const generateGeoQuery = (allLayers) => {
+  const layers = Object.values(allLayers);
+  if (layers.length === 1) {
+    return generateSingle(layers[0]);
   }
-});
+  return generateMulti(layers);
+};
 
 /**
- * Get a single $centerSphere query.
+ * Add a circle layer to the layers object.
  *
- * @param {Layer} layer - The Leaflet layer.
+ * @param {String} field - The field name.
+ * @param {Layer} layer - The layer to add.
+ * @param {Object} allLayers - All the layers in the map.
  *
- * @returns {Object} The $centerSphere query.
+ * @returns {Object} All the layers with the new layer added.
  */
-const centerSphere = (layer) => ({
-  [layer.field]: {
-    $geoWithin: {
-      $centerSphere: [[ layer.lng, layer.lat ], radians(layer.radius) ]
-    }
-  }
-});
+const addCircleLayer = (field, layer, allLayers) => {
+  const layers = { ...allLayers };
+  layers[layer._leaflet_id] = {
+    field: field,
+    lat: layer._latlng.lat,
+    lng: layer._latlng.lng,
+    radius: layer._mRadius,
+    type: 'circle'
+  };
+  return layers;
+};
 
 /**
- * Calculate radians from meters.
+ * Add a polygon layer to the layers object.
  *
- * @param {Number} meters.
+ * @param {String} field - The field name.
+ * @param {Layer} layer - The layer to add.
+ * @param {Object} allLayers - All the layers in the map.
  *
- * @returns {Number} radians.
+ * @returns {Object} All the layers with the new layer added.
  */
-const radians = (meters) => {
-  return (meters / METERS_IN_MILE) / RADIANS;
+const addPolygonLayer = (field, layer, allLayers) => {
+  const layers = { ...allLayers };
+  layers[layer._leaflet_id] = {
+    field: field,
+    coordinates: coordinates(layer._latlngs),
+    type: 'polygon'
+  };
+  return layers;
+};
+
+/**
+ * Add a layer to the layers in the map.
+ *
+ * @param {String} field - The field name.
+ * @param {Layer} layer - The new layer.
+ * @param {Object} layers - All the existing layers.
+ *
+ * @returns {Object} The new layers.
+ */
+export const addLayer = (field, layer, layers) => {
+  if (layer._latlngs) {
+    return addPolygonLayer(field, layer, layers);
+  } else if (layer._latlng) {
+    return addCircleLayer(field, layer, layers);
+  }
+  return layers;
 };
