@@ -4,12 +4,12 @@ const storageMixin = require('storage-mixin');
 const each = require('lodash.foreach');
 const raf = require('raf');
 
-let appname;
+let appName;
 
 try {
   const electron = require('electron');
 
-  appname = electron.remote ? electron.remote.app : undefined;
+  appName = electron.remote ? electron.remote.app.getName() : undefined;
 } catch (e) {
   /* eslint no-console: 0 */
   console.log('Could not load electron', e.message);
@@ -18,7 +18,7 @@ try {
 module.exports = Collection.extend(storageMixin, {
   model: Connection,
   namespace: 'Connections',
-  storage: { backend: 'splice', appname },
+  storage: { backend: 'splice', appName },
   comparator: (a, b) => {
     if (a.isFavorite === b.isFavorite) {
       return a.lastUsed - b.lastUsed;

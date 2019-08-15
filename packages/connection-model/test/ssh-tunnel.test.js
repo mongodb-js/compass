@@ -298,7 +298,7 @@ describe('sshTunnel', function() {
         assert(c.isValid());
       });
 
-      describe('ssh_tunnel_options', () => {
+      describe('sshTunnelOptions', () => {
         const options = c.sshTunnelOptions;
 
         it('maps sshTunnelUsername -> username', () => {

@@ -2,12 +2,12 @@ const Connection = require('./model');
 const storageMixin = require('storage-mixin');
 const uuid = require('uuid');
 
-let appname;
+let appName;
 
 try {
   const electron = require('electron');
 
-  appname = electron.remote ? electron.remote.app : undefined;
+  appName = electron.remote ? electron.remote.app.getName() : undefined;
 } catch (e) {
   /* eslint no-console: 0 */
   console.log('Could not load electron', e.message);
@@ -21,7 +21,7 @@ const ExtendedConnection = Connection.extend(storageMixin, {
   namespace: 'Connections',
   storage: {
     backend: 'splice',
-    appname,
+    appName,
     secureCondition: (val, key) => key.match(/(password|passphrase)/i)
   },
   props: {
@@ -71,6 +71,8 @@ const ExtendedConnection = Connection.extend(storageMixin, {
  *
  * @param {String} url - The mongodb url to create from.
  * @param {Function} callback - The callback function.
+ *
+ * @returns {Function} callback
  */
 ExtendedConnection.from = (url, callback) => Connection.from(url, (error, c) => {
   if (error) {
