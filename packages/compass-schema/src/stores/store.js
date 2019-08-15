@@ -6,6 +6,7 @@ import toNS from 'mongodb-ns';
 import get from 'lodash.get';
 import has from 'lodash.has';
 import debounce from 'lodash.debounce';
+import { addLayer, generateGeoQuery } from 'modules/geo';
 
 const debug = require('debug')('mongodb-compass:stores:schema');
 
@@ -14,8 +15,6 @@ const DEFAULT_MAX_TIME_MS = 10000;
 
 const MAX_NUM_DOCUMENTS = 1000;
 const DEFAULT_SAMPLE_SIZE = 1000;
-const METERS_IN_MILE = 1609.344;
-const RADIANS = 3963.2;
 
 const PROMOTE_VALUES = false;
 const DEFAULT_QUERY = {
@@ -97,7 +96,7 @@ const configureStore = (options = {}) => {
       this.analyzingStream = null;
       this.samplingTimer = null;
       this.trickleStop = null;
-      this.geoQueries = {};
+      this.geoLayers = {};
 
       this.samplingLock = false;
 
@@ -159,40 +158,22 @@ const configureStore = (options = {}) => {
       }
     },
 
-    generateGeoWithin() {
-      const queries = Object.values(this.geoQueries);
-      if (queries.length === 0) return {};
-      if (queries.length > 1) {
-        const or = queries.map((geo) => {
-          return { [geo.field]: { $geoWithin: { $centerSphere: [[ geo.lng, geo.lat ], geo.radius ]}}};
-        });
-        return { $or: or };
-      }
-      const geo = queries[0];
-      return { [geo.field]: { $geoWithin: { $centerSphere: [[ geo.lng, geo.lat ], geo.radius ]}}};
+    geoLayerAdded(field, layer) {
+      this.geoLayers = addLayer(field, layer, this.geoLayers);
+      this.localAppRegistry.emit('compass:schema:geo-query', generateGeoQuery(this.geoLayers));
     },
 
-    mapCircleAdded(field, layer) {
-      this.geoQueries[layer._leaflet_id] = {
-        field: field,
-        lat: layer._latlng.lat,
-        lng: layer._latlng.lng,
-        radius: (layer._mRadius / METERS_IN_MILE) / RADIANS
-      };
-      this.localAppRegistry.emit('compass:schema:geo-query', this.generateGeoWithin());
-    },
-
-    mapCircleEdited(field, layers) {
+    geoLayersEdited(field, layers) {
       layers.eachLayer((layer) => {
-        this.mapCircleAdded(field, layer);
+        this.geoLayerAdded(field, layer);
       });
     },
 
-    mapCircleDeleted(layers) {
+    geoLayersDeleted(layers) {
       layers.eachLayer((layer) => {
-        delete this.geoQueries[layer._leaflet_id];
+        delete this.geoLayers[layer._leaflet_id];
       });
-      this.localAppRegistry.emit('compass:schema:geo-query', this.generateGeoWithin());
+      this.localAppRegistry.emit('compass:schema:geo-query', generateGeoQuery(this.geoLayers));
     },
 
     setMaxTimeMS(maxTimeMS) {

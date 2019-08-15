@@ -219,15 +219,15 @@ class CoordinatesMinichart extends PureComponent {
   }
 
   onCreated = (evt) => {
-    this.props.actions.mapCircleAdded(this.props.fieldName, evt.layer);
+    this.props.actions.geoLayerAdded(this.props.fieldName, evt.layer);
   }
 
   onEdited = (evt) => {
-    this.props.actions.mapCircleEdited(this.props.fieldName, evt.layers);
+    this.props.actions.geoLayersEdited(this.props.fieldName, evt.layers);
   }
 
   onDeleted = (evt) => {
-    this.props.actions.mapCircleDeleted(evt.layers);
+    this.props.actions.geoLayersDeleted(evt.layers);
   }
 
   /**
@@ -258,7 +258,6 @@ class CoordinatesMinichart extends PureComponent {
             draw={{
               rectangle: false,
               polyline: false,
-              polygon: false,
               marker: false,
               circlemarker: false
             }}

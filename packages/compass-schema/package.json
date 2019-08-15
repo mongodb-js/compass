@@ -181,7 +181,7 @@
     "mapbox-gl": "^1.2.0",
     "mongodb-query-util": "^0.0.3",
     "mongodb-redux-common": "^0.0.1",
-    "mongodb-schema": "^8.2.4",
+    "mongodb-schema": "^8.2.5",
     "mongodb-schema-parser": "^0.1.5",
     "pluralize": "^8.0.0",
     "react-leaflet": "^2.4.0",
