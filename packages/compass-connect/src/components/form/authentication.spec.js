@@ -23,6 +23,16 @@ describe('Authentication [Component]', () => {
     selectOption: { 'MONGODB': 'Username / Password' }
   };
 
+  before(() => {
+    global.hadronApp = hadronApp;
+    global.hadronApp.appRegistry = appRegistry;
+    global.hadronApp.appRegistry.registerRole('Connect.AuthStrategy', ROLE);
+  });
+
+  after(() => {
+    global.hadronApp.appRegistry.deregisterRole('Connect.AuthStrategy', ROLE);
+  });
+
   beforeEach(() => {
     component = mount(
       <Authentication currentConnection={connection} isValid />
@@ -31,12 +41,6 @@ describe('Authentication [Component]', () => {
 
   afterEach(() => {
     component = null;
-  });
-
-  before(() => {
-    global.hadronApp = hadronApp;
-    global.hadronApp.appRegistry = appRegistry;
-    global.hadronApp.appRegistry.registerRole('Connect.AuthStrategy', ROLE);
   });
 
   it('renders the wrapper div', () => {

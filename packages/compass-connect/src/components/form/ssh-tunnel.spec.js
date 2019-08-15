@@ -23,6 +23,16 @@ describe('SSHTunnel [Component]', () => {
     selectOption: { 'NONE': 'None' }
   };
 
+  before(() => {
+    global.hadronApp = hadronApp;
+    global.hadronApp.appRegistry = appRegistry;
+    global.hadronApp.appRegistry.registerRole('Connect.SSHTunnel', ROLE);
+  });
+
+  after(() => {
+    global.hadronApp.appRegistry.deregisterRole('Connect.SSHTunnel', ROLE);
+  });
+
   beforeEach(() => {
     component = mount(
       <SSHTunnel currentConnection={connection} isValid />
@@ -31,12 +41,6 @@ describe('SSHTunnel [Component]', () => {
 
   afterEach(() => {
     component = null;
-  });
-
-  before(() => {
-    global.hadronApp = hadronApp;
-    global.hadronApp.appRegistry = appRegistry;
-    global.hadronApp.appRegistry.registerRole('Connect.SSHTunnel', ROLE);
   });
 
   it('renders the wrapper div', () => {

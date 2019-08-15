@@ -11,6 +11,7 @@ import ReadPreferenceSelect from './read-preference-select';
 import SSLMethod from './ssl-method';
 import SSHTunnel from './ssh-tunnel';
 import FormActions from './form-actions';
+import { TabNavBar } from 'hadron-react-components';
 import classnames from 'classnames';
 
 import styles from '../connect.less';
@@ -20,6 +21,13 @@ class ConnectionForm extends React.Component {
 
   static propTypes = { currentConnection: PropTypes.object.isRequired };
 
+  constructor(props) {
+    super(props);
+    this.state = { activeTab: 0 };
+    this.tabs = ['Hostname', 'More Options'];
+    this.views = [this.renderHostnameTab(), this.renderMoreOptionsTab()];
+  }
+
   /**
    * Resests URL validation if form was changed.
    */
@@ -28,7 +36,20 @@ class ConnectionForm extends React.Component {
   }
 
   /**
-   * Render a port connections.
+   * Handles the tab click.
+   *
+   * @param {Number} activeTab - The index of the clicked tab.
+   */
+  onTabClicked(activeTab) {
+    if (this.state.activeTab === activeTab) {
+      return;
+    }
+
+    this.setState({ activeTab });
+  }
+
+  /**
+   * Renders a port input.
    *
    * @returns {React.Component}
    */
@@ -42,11 +63,14 @@ class ConnectionForm extends React.Component {
     }
   }
 
-  render() {
+  /**
+   * Renders the Hostname tab.
+   *
+   * @returns {React.Component}
+   */
+  renderHostnameTab() {
     return (
-      <form
-        onChange={this.onConnectionFormChanged.bind(this)}
-        className={classnames(styles['connect-form'])} >
+      <div className={classnames(styles['tab-container'])}>
         <FormGroup separator>
           <HostInput
             lastUsed={this.props.currentConnection.lastUsed}
@@ -55,6 +79,18 @@ class ConnectionForm extends React.Component {
           <SRVInput isSrvRecord={this.props.currentConnection.isSrvRecord} />
         </FormGroup>
         <Authentication {...this.props} />
+      </div>
+    );
+  }
+
+  /**
+   * Renders the More Options tab.
+   *
+   * @returns {React.Component}
+   */
+  renderMoreOptionsTab() {
+    return (
+      <div className={classnames(styles['tab-container'])}>
         <FormGroup id="read-preference" separator>
           <ReplicaSetInput
             sshTunnel={this.props.currentConnection.sshTunnel}
@@ -64,6 +100,24 @@ class ConnectionForm extends React.Component {
         </FormGroup>
         <SSLMethod {...this.props} />
         <SSHTunnel {...this.props} />
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <form
+        onChange={this.onConnectionFormChanged.bind(this)}
+        className={classnames(styles['connect-form'])} >
+        <div className="rtss">
+          <TabNavBar
+            theme="light"
+            tabs={this.tabs}
+            views={this.views}
+            activeTabIndex={this.state.activeTab}
+            onTabClicked={this.onTabClicked.bind(this)}
+            mountAllViews={false} />
+        </div>
         <FormActions {...this.props } />
       </form>
     );

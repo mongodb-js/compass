@@ -23,6 +23,16 @@ describe('SSLMethod [Component]', () => {
     selectOption: { 'NONE': 'None' }
   };
 
+  before(() => {
+    global.hadronApp = hadronApp;
+    global.hadronApp.appRegistry = appRegistry;
+    global.hadronApp.appRegistry.registerRole('Connect.SSLMethod', ROLE);
+  });
+
+  after(() => {
+    global.hadronApp.appRegistry.deregisterRole('Connect.SSLMethod', ROLE);
+  });
+
   beforeEach(() => {
     component = mount(
       <SSLMethod currentConnection={connection} isValid />
@@ -31,12 +41,6 @@ describe('SSLMethod [Component]', () => {
 
   afterEach(() => {
     component = null;
-  });
-
-  before(() => {
-    global.hadronApp = hadronApp;
-    global.hadronApp.appRegistry = appRegistry;
-    global.hadronApp.appRegistry.registerRole('Connect.SSLMethod', ROLE);
   });
 
   it('renders the wrapper div', () => {
