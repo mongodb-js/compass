@@ -2,6 +2,10 @@ const Connection = require('./model');
 const storageMixin = require('storage-mixin');
 const uuid = require('uuid');
 
+/**
+ * The name of a remote electon application that
+ * uses `connection-model` as a dependency.
+ */
 let appName;
 
 try {
@@ -21,7 +25,7 @@ const ExtendedConnection = Connection.extend(storageMixin, {
   namespace: 'Connections',
   storage: {
     backend: 'splice',
-    appName,
+    appName, // Not to be confused with `props.appname` that is being sent to driver
     secureCondition: (val, key) => key.match(/(password|passphrase)/i)
   },
   props: {

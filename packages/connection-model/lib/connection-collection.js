@@ -4,6 +4,10 @@ const storageMixin = require('storage-mixin');
 const each = require('lodash.foreach');
 const raf = require('raf');
 
+/**
+ * The name of a remote electon application that
+ * uses `connection-model` as a dependency.
+ */
 let appName;
 
 try {
