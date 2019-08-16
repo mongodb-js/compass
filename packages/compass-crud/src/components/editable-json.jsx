@@ -106,6 +106,8 @@ class EditableJson extends React.Component {
       this.handleUpdateError();
     } else if (this.state.editing && this.props.updateSuccess) {
       this.handleUpdateSuccess();
+    } else if (this.state.deleting && this.props.updateSuccess) {
+      this.handleRemoveSuccess();
     }
   }
 
@@ -157,11 +159,13 @@ class EditableJson extends React.Component {
    * Handle the successful remove.
    */
   handleRemoveSuccess() {
-    if (this.state.deleting) {
+    setTimeout(() => {
+      this.setState({mode: SUCCESS, message: UPDATED});
       setTimeout(() => {
         this.setState({ deleting: false, deleteFinished: true });
+        this.props.clearUpdateStatus();
       }, 500);
-    }
+    }, 250);
   }
 
   /**

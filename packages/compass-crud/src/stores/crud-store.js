@@ -1,5 +1,6 @@
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
+import EJSON from 'mongodb-extjson';
 import toPairs from 'lodash.topairs';
 import jsonParse from 'fast-json-parse';
 import findIndex from 'lodash.findindex';
@@ -301,9 +302,15 @@ const configureStore = (options = {}) => {
       if (id !== undefined) {
         this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
           if (error) {
+            // emit on the document(list view) and success state(json view)
             doc.emit('remove-error', error.message);
+            this.state.updateError = error.message;
+            this.trigger(this.state);
           } else {
+            // emit on the document(list view) and success state(json view)
             doc.emit('remove-success');
+            this.state.updateSuccess = true;
+
             this.localAppRegistry.emit('document-deleted', this.state.view);
             this.globalAppRegistry.emit('document-deleted', this.state.view);
             const index = this.findDocumentIndex(doc);
@@ -316,6 +323,8 @@ const configureStore = (options = {}) => {
         });
       } else {
         doc.emit('remove-error', DELETE_ERROR);
+        this.state.updateError = DELETE_ERROR;
+        this.trigger(this.state);
       }
     },
 
@@ -489,7 +498,7 @@ const configureStore = (options = {}) => {
      * @param {Boolean} clone - Whether this is a clone operation.
      */
     openInsertDocumentDialog(doc, clone) {
-      const hadronDoc = new HadronDocument(doc, true);
+      const hadronDoc = new HadronDocument(doc, false);
       if (clone) {
         // We need to remove the _id or we will get an duplicate key error on
         // insert, and we currently do not allow editing of the _id field.
@@ -503,7 +512,7 @@ const configureStore = (options = {}) => {
       this.setState({
         insert: {
           doc: hadronDoc,
-          jsonDoc: '',
+          jsonDoc: EJSON.stringify(hadronDoc.generateObject()),
           jsonView: true,
           message: '',
           mode: MODIFYING,
