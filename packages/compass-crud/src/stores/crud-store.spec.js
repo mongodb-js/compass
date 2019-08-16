@@ -4,6 +4,7 @@ import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import configureStore from 'stores/crud-store';
 import configureActions from 'actions';
+import EJSON from 'mongodb-extjson';
 
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',
@@ -483,6 +484,74 @@ describe('store', () => {
         });
 
         store.updateDocument(hadronDoc);
+      });
+    });
+  });
+
+  describe('#updateExtJsonDocument', () => {
+    let store;
+    let actions;
+
+    beforeEach(() => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test',
+        noRefreshOnConfigure: true
+      });
+    });
+
+    context('when there is no error', () => {
+      const doc = { _id: '591801a468f9e7024b623939', cat: 'Nori' };
+      const hadronDoc = new HadronDocument(doc);
+      const stringifiedDoc = EJSON.stringify(doc);
+      const ejsonDoc = EJSON.parse(stringifiedDoc);
+
+      beforeEach(() => {
+        store.state.docs = [ hadronDoc ];
+      });
+
+      it('replaces the document in the list', (done) => {
+        const unsubscribe = store.listen((state) => {
+          expect(state.updateSuccess).to.equal(true);
+          expect(state.docs[0]).to.not.equal(hadronDoc);
+          unsubscribe();
+          done();
+        });
+
+        store.updateExtJsonDocument(ejsonDoc, hadronDoc);
+      });
+    });
+
+    context('when the update errors', () => {
+      const doc = { _id: '591801a468f9e7024b623939', cat: 'Nori' };
+      const hadronDoc = new HadronDocument(doc);
+      const stringifiedDoc = EJSON.stringify(doc);
+      const ejsonDoc = EJSON.parse(stringifiedDoc);
+      let stub;
+
+      beforeEach(() => {
+        stub = sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
+      });
+
+      afterEach(() => {
+        stub.restore();
+      });
+
+      it('sets the error for the document', (done) => {
+        const unsubscribe = store.listen((state) => {
+          expect(state.updateError).to.equal('error happened');
+          unsubscribe();
+          done();
+        });
+
+        store.updateExtJsonDocument(ejsonDoc, hadronDoc);
       });
     });
   });

@@ -139,6 +139,8 @@ const configureStore = (options = {}) => {
         isEditable: true,
         view: LIST,
         count: 0,
+        updateSuccess: null,
+        updateError: null,
         insert: this.getInitialInsertState(),
         table: this.getInitialTableState(),
         query: this.getInitialQueryState(),
@@ -341,6 +343,32 @@ const configureStore = (options = {}) => {
     },
 
     /**
+     * Update the provided document given a document object.
+     *
+     * @param {Object} doc - EJSON document object.
+     * @param {Document} originalDoc - origin Hadron document getting modified.
+     */
+    updateExtJsonDocument(doc, originalDoc) {
+      const opts = { returnOriginal: false, promoteValues: false };
+      const id = doc._id;
+      this.dataService.findOneAndReplace(this.state.ns, { _id: id }, doc, opts, (error, d) => {
+        if (error) {
+          this.state.updateError = error.message;
+          this.trigger(this.state);
+        } else {
+          this.state.updateSuccess = true;
+
+          this.localAppRegistry.emit('document-updated', this.state.view);
+          this.globalAppRegistry.emit('document-updated', this.state.view);
+
+          const index = this.findDocumentIndex(originalDoc);
+          this.state.docs[index] = new HadronDocument(d);
+          this.trigger(this.state);
+        }
+      });
+    },
+
+    /**
      * Find the index of the document in the list.
      *
      * @param {Document} doc - The hadron document.
@@ -351,6 +379,15 @@ const configureStore = (options = {}) => {
       return findIndex(this.state.docs, (d) => {
         return doc.getStringId() === d.getStringId();
       });
+    },
+
+    /**
+     * Clear update statuses, if updateSuccess or updateError were set by
+     * updateExtJsonDocument.
+     */
+    clearUpdateStatus() {
+      if (this.state.updateSuccess) this.setState({ updateSuccess: null });
+      if (this.state.updateError) this.setState({ updateError: null });
     },
 
     /**

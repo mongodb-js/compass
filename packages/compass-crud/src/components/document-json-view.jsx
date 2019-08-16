@@ -36,11 +36,14 @@ class DocumentJsonView extends React.Component {
             doc={doc}
             tz={this.props.tz}
             key={i}
+            updateSuccess={this.props.updateSuccess}
+            updateError={this.props.updateError}
             editable={this.props.isEditable}
             version={this.props.version}
             copyToClipboard={this.props.copyToClipboard}
             removeDocument={this.props.removeDocument}
-            updateDocument={this.props.updateDocument}
+            clearUpdateStatus={this.props.clearUpdateStatus}
+            updateExtJsonDocument={this.props.updateExtJsonDocument}
             openImportFileDialog={this.props.openImportFileDialog}
             openInsertDocumentDialog={this.props.openInsertDocumentDialog} />
         </li>
@@ -67,7 +70,10 @@ DocumentJsonView.propTypes = {
   isEditable: PropTypes.bool.isRequired,
   copyToClipboard: PropTypes.func,
   removeDocument: PropTypes.func,
-  updateDocument: PropTypes.func,
+  updateExtJsonDocument: PropTypes.func,
+  updateSuccess: PropTypes.bool,
+  updateError: PropTypes.string,
+  clearUpdateStatus: PropTypes.func.isRequired,
   version: PropTypes.string.isRequired,
   openInsertDocumentDialog: PropTypes.func,
   openImportFileDialog: PropTypes.func,

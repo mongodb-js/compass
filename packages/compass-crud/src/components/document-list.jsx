@@ -155,7 +155,8 @@ DocumentList.propTypes = {
   openInsertDocumentDialog: PropTypes.func,
   openImportFileDialog: PropTypes.func,
   view: PropTypes.string.isRequired,
-  updateJsonDoc: PropTypes.func.isRequired,
+  updateError: PropTypes.string,
+  updateJsonDoc: PropTypes.func,
   version: PropTypes.string.isRequired,
   viewChanged: PropTypes.func.isRequired,
   tz: PropTypes.string

@@ -1,8 +1,10 @@
 import React from 'react';
 import Ace from 'react-ace';
 import PropTypes from 'prop-types';
+import EJSON from 'mongodb-extjson';
 import jsBeautify from 'js-beautify';
-import DocumentFooter from 'components/document-footer';
+import jsonParse from 'fast-json-parse';
+import { TextButton } from 'hadron-react-buttons';
 import DocumentActions from 'components/document-actions';
 import RemoveDocumentFooter from 'components/remove-document-footer';
 
@@ -29,11 +31,44 @@ const CONTENTS = `${BASE}-contents`;
 const TEST_ID = 'editable-json';
 
 /**
+ * Different modes of editing: Progress, Success, Editing, Viewing, and Error.
+ */
+const PROGRESS = 'Progress';
+const SUCCESS = 'Success';
+const EDITING = 'Editing';
+const VIEWING = 'Viewing';
+const ERROR = 'Error';
+
+/**
+ * Map of modes to styles.
+ */
+const MODES = {
+  'Progress': 'is-in-progress',
+  'Success': 'is-success',
+  'Error': 'is-error',
+  'Editing': 'is-modified',
+  'Viewing': 'is-viewing'
+};
+
+/**
+ * Messages to be displayed when editing a document: empty, modified, updating,
+ * updated and invalid document.
+ */
+const EMPTY = '';
+const MODIFIED = 'Document Modified.';
+const UPDATING = 'Updating Document.';
+const UPDATED = 'Document Updated.';
+const INVALID_MESSAGE = 'Update not permitted while document contains errors.';
+
+/**
  * Component for a single editable document in a list of json documents.
  */
 class EditableJson extends React.Component {
   /**
    * The component constructor.
+   *
+   * @note: Local json object state is the current doc that's been serialised into an
+   * EJSON.
    *
    * @param {Object} props - The properties.
    */
@@ -43,11 +78,15 @@ class EditableJson extends React.Component {
       editing: false,
       deleting: false,
       deleteFinished: false,
-      expandAll: false
+      mode: VIEWING,
+      message: EMPTY,
+      expandAll: false,
+      json: jsBeautify(EJSON.stringify(this.props.doc.generateObject()))
     };
 
     this.boundForceUpdate = this.forceUpdate.bind(this);
     this.boundHandleCancel = this.handleCancel.bind(this);
+    this.boundHandleUpdateError = this.handleUpdateError.bind(this);
     this.boundHandleUpdateSuccess = this.handleUpdateSuccess.bind(this);
     this.boundHandleRemoveSuccess = this.handleRemoveSuccess.bind(this);
   }
@@ -60,14 +99,58 @@ class EditableJson extends React.Component {
   }
 
   /**
+   * Subscribe to the update store on mount.
+   */
+  componentDidUpdate() {
+    if (this.state.editing && this.props.updateError) {
+      this.handleUpdateError();
+    } else if (this.state.editing && this.props.updateSuccess) {
+      this.handleUpdateSuccess();
+    }
+  }
+
+  /**
+   * Handle the user clicking the cancel button.
+   */
+  handleCancel() {
+    this.setState({
+      editing: false,
+      mode: VIEWING,
+      message: EMPTY,
+      value: this.props.doc
+    });
+
+    this.props.clearUpdateStatus();
+  }
+
+  /**
+   * Handle user clicking update button.
+   */
+  handleUpdate() {
+    this.setState({ mode: PROGRESS, message: UPDATING });
+    this.props.updateExtJsonDocument(EJSON.parse(this.state.json), this.props.doc);
+  }
+
+  /**
    * Fires when the json document update was successful.
    */
   handleUpdateSuccess() {
-    if (this.state.editing) {
+    setTimeout(() => {
+      this.setState({mode: SUCCESS, message: UPDATED});
       setTimeout(() => {
-        this.setState({ editing: false });
+        this.setState({editing: false});
+        this.props.clearUpdateStatus();
       }, 500);
-    }
+    }, 250);
+  }
+
+  /**
+   * Handle an error with the document update.
+   *
+   * @param {String} message - The error message.
+   */
+  handleUpdateError() {
+    this.setState({ mode: ERROR, message: this.props.updateError });
   }
 
   /**
@@ -79,13 +162,6 @@ class EditableJson extends React.Component {
         this.setState({ deleting: false, deleteFinished: true });
       }, 500);
     }
-  }
-
-  /**
-   * Handles canceling edits to the json document.
-   */
-  handleCancel() {
-    this.setState({ editing: false });
   }
 
   /**
@@ -127,11 +203,34 @@ class EditableJson extends React.Component {
   }
 
   /**
+   * Handle editor changes when updating the document
+   *
+   * @param {String} value - changed value of json doc being edited.
+   */
+  handleOnChange(value) {
+    if (!!jsonParse(this.state.json).err) {
+      this.setState({ json: value, mode: ERROR, message: INVALID_MESSAGE });
+    } else {
+      this.setState({ json: value, mode: EDITING, message: MODIFIED });
+    }
+  }
+
+  /**
+   * Check if document has errors: based on JSON.parse() and updateError set by
+   * updateExtJsonDocument.
+   *
+   * @returns {Bool} if errors are present in the current json doc.
+   */
+  hasErrors() {
+    return !!jsonParse(this.state.json).err || this.props.updateError;
+  }
+
+  /**
    * Get the current style of the json document div.
    *
    * @returns {String} The json document class name.
    */
-  style() {
+  jsonStyle() {
     let style = BASE;
     if (this.state.editing) {
       style = style.concat(' json-document-is-editing');
@@ -140,6 +239,15 @@ class EditableJson extends React.Component {
       style = style.concat(' json-document-is-deleting');
     }
     return style;
+  }
+
+  /**
+   * Get the style of the footer based on the current mode.
+   *
+   * @returns {String} The style.
+   */
+  footerStyle() {
+    return `document-footer document-footer-${MODES[this.state.mode]}`;
   }
 
   /**
@@ -172,11 +280,11 @@ class EditableJson extends React.Component {
       maxLines: Infinity,
       showGutter: true,
       // TODO: set this to false when editing
-      readOnly: true,
+      readOnly: !this.state.editing,
       highlightActiveLine: false,
       highlightGutterLine: false,
       // TODO: set this to true when editing
-      showLineNumbers: false,
+      showLineNumbers: this.state.editing,
       vScrollBarAlwaysVisible: false,
       hScrollBarAlwaysVisible: false,
       fixedWidthGutter: false,
@@ -187,22 +295,21 @@ class EditableJson extends React.Component {
       useWorker: false
     };
 
-    const value = jsBeautify(JSON.stringify(this.props.doc.generateObject()));
 
     return (
       <div className="json-ace-editor">
         <Ace
           mode="javascript"
-          value={value}
+          value={this.state.json}
           theme="mongodb"
           width="100%"
           editorProps={{$blockScrolling: Infinity}}
+          onChange={this.handleOnChange.bind(this)}
           setOptions={OPTIONS}
           onLoad={(editor) => { this.editor = editor; }}/>
       </div>
     );
   }
-
 
   /**
    * Render the footer component.
@@ -212,9 +319,26 @@ class EditableJson extends React.Component {
   renderFooter() {
     if (this.state.editing) {
       return (
-        <DocumentFooter
-          doc={this.props.doc}
-          updateDocument={this.props.updateDocument} />
+        <div className={this.footerStyle()}>
+          <div data-test-id="document-message"
+            className="document-footer-message"
+            title={this.state.message}>
+            {this.state.message}
+          </div>
+          <div className="document-footer-actions">
+            <TextButton
+              className="btn btn-borderless btn-xs cancel"
+              text="Cancel"
+              dataTestId="cancel-document-button"
+              clickHandler={this.boundHandleCancel} />
+            <TextButton
+              className="btn btn-default btn-xs"
+              text="Update"
+              disabled={this.hasErrors()}
+              dataTestId="update-document-button"
+              clickHandler={this.handleUpdate.bind(this)} />
+          </div>
+        </div>
       );
     } else if (this.state.deleting) {
       return (
@@ -233,7 +357,7 @@ class EditableJson extends React.Component {
    */
   render() {
     return (
-      <div className={this.style()} data-test-id={TEST_ID}>
+      <div className={this.jsonStyle()} data-test-id={TEST_ID}>
         <div className={CONTENTS}>
           {this.renderJson()}
           {this.renderActions()}
@@ -248,8 +372,11 @@ EditableJson.displayName = 'EditableJson';
 
 EditableJson.propTypes = {
   doc: PropTypes.object.isRequired,
+  updateSuccess: PropTypes.bool,
+  updateExtJsonDocument: PropTypes.func.isRequired,
+  updateError: PropTypes.string,
   removeDocument: PropTypes.func.isRequired,
-  updateDocument: PropTypes.func.isRequired,
+  clearUpdateStatus: PropTypes.func.isRequired,
   version: PropTypes.string.isRequired,
   editable: PropTypes.bool,
   tz: PropTypes.string,

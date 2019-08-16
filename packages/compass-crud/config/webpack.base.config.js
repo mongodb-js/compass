@@ -106,10 +106,7 @@ module.exports = {
         use: [{
           loader: 'babel-loader',
           query: {
-            cacheDirectory: true,
-            plugins: [
-              'transform-decorators-legacy'
-            ]
+            cacheDirectory: true
           }
         }],
         exclude: /(node_modules)/
