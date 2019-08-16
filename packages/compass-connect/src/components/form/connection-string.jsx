@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import FormGroup from './form-group';
 import ConnectionStringInput from './connection-string-input';
 import FormActions from './form-actions';
-
 import classnames from 'classnames';
 
 import styles from '../connect.less';
