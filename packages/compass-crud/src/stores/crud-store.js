@@ -279,7 +279,7 @@ const configureStore = (options = {}) => {
      * @returns {Boolean} If the copy succeeded.
      */
     copyToClipboard(doc) {
-      const documentJSON = JSON.stringify(doc.generateObject());
+      const documentJSON = EJSON.stringify(doc.generateObject());
       let input = document.createElement(INPUT);
       input.type = TYPE;
       input.setAttribute(STYLES, DISPLAY);
