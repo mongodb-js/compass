@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash.isempty';
 import Actions from 'actions';
-import { FormInput } from 'hadron-react-components';
+import FormInput from './form-input';
 import { shell } from 'electron';
 import classnames from 'classnames';
 
@@ -79,32 +79,26 @@ class ScramSha256 extends React.Component {
   render() {
     return (
       <div id="scram-sha-256" className={classnames(styles['form-group'])}>
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormInput
-            label="Username"
-            name="username"
-            error={this.getUsernameError()}
-            changeHandler={this.onUsernameChanged.bind(this)}
-            value={this.props.currentConnection.mongodbUsername || ''} />
-        </div>
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormInput
-            label="Password"
-            name="password"
-            type="password"
-            error={this.getPasswordError()}
-            changeHandler={this.onPasswordChanged.bind(this)}
-            value={this.props.currentConnection.mongodbPassword || ''} />
-        </div>
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormInput
-            label="Authentication Database"
-            placeholder="admin"
-            name="authSource"
-            changeHandler={this.onAuthSourceChanged.bind(this)}
-            value={this.props.currentConnection.mongodbDatabaseName || ''}
-            linkHandler={this.onSourceHelp.bind(this)}/>
-        </div>
+        <FormInput
+          label="Username"
+          name="username"
+          error={this.getUsernameError()}
+          changeHandler={this.onUsernameChanged.bind(this)}
+          value={this.props.currentConnection.mongodbUsername || ''} />
+        <FormInput
+          label="Password"
+          name="password"
+          type="password"
+          error={this.getPasswordError()}
+          changeHandler={this.onPasswordChanged.bind(this)}
+          value={this.props.currentConnection.mongodbPassword || ''} />
+        <FormInput
+          label="Authentication Database"
+          placeholder="admin"
+          name="authSource"
+          changeHandler={this.onAuthSourceChanged.bind(this)}
+          value={this.props.currentConnection.mongodbDatabaseName || ''}
+          linkHandler={this.onSourceHelp.bind(this)}/>
       </div>
     );
   }

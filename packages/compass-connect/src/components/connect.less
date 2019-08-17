@@ -259,63 +259,188 @@ label {
   .connect-form {
     margin: 0 10px;
 
-    .tab-container {
-      margin-top: 10px;
+    .tabs {
+      display: block;
+
+      &-container {
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      &-header {
+        background-color: @pw;
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: 38px;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-end;
+        position: relative;
+        margin: 0 15px;
+        border-bottom: 4px solid @gray10;
+
+        &-items {
+          display: flex;
+          justify-content: flex-end;
+          align-self: flex-end;
+          margin-bottom: 0;
+          margin-top: 0;
+          position: absolute;
+          top: 9px;
+          margin-left: 0px;
+          padding-left: 0px;
+
+          .tabs-header-item {
+            height: 29px;
+            width: 130px;
+            margin-right: 5px;
+            font-size: 13px;
+            display: flex;
+            justify-content: center;
+            cursor: pointer;
+            margin-bottom: 0;
+            color: @gray9;
+            border-bottom: 4px solid @gray10;
+
+            &-name {
+              margin: auto;
+              font-size: 14px;
+              font-weight: bold;
+              padding-bottom: 5px;
+            }
+
+            .selected-header-item-name {
+              color: @gray1;
+            }
+          }
+
+          .selected-header-item {
+            cursor: default;
+            border-bottom-color: @green2;
+          }
+        }
+      }
+
+      &-view {
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: auto;
+        display: flex;
+        margin-top: 10px;
+
+        &-content {
+          display: flex;
+          width: 100%;
+
+          &-form {
+            margin-top: 10px;
+            margin-left: 30px;
+          }
+        }
+      }
     }
 
     .form-group {
       display: block;
 
-      .connect-form-item-container {
-        div {
-          margin: 15px 30px;
-          width: 500px;
-          overflow: auto;
-          display: flex;
-          justify-content: flex-end;
+      .form-item {
+        margin: 15px auto 15px;
+        width: 500px;
+        overflow: auto;
+        display: flex;
+        justify-content: flex-end;
 
-          label {
-            width: 70%;
-            text-align: right;
-            padding: 5px 15px 0 0;
+        &-has-error {
+          .form-control {
+            border: 1px solid red;
 
-            i {
-              display: inline-block;
-              font: normal normal normal 14px/1 FontAwesome;
-              font-size: inherit;
-              text-rendering: auto;
-              margin: 0 5px;
-              cursor: pointer;
-              color: #bfbfbe;
-
-              :hover {
-                color: #fbb129;
-              }
-            }
-
-            i:before {
-              content: "\f05a";
+            &:focus {
+              border: 1px solid red;
             }
           }
 
-          button {
-            width: 500px !important;
+          label {
+            color: red;
 
             i {
-              display: inline-block;
-              font: normal normal normal 14px/1 FontAwesome;
-              font-size: inherit;
-              text-rendering: auto;
-              margin: 0 5px;
-              cursor: pointer;
-              color: #bfbfbe;
+              margin-right: 5px;
+            }
+          }
 
-              :hover {
-                color: #fbb129;
-              }
+          .form-item-file-button {
+            border: 1px solid red;
+          }
+        }
+
+        label {
+          width: 70%;
+          text-align: right;
+          padding: 5px 10px 0 0;
+          margin-right: 10px;
+
+          i.help {
+            display: inline-block;
+            font: normal normal normal 14px/1 FontAwesome;
+            font-size: inherit;
+            text-rendering: auto;
+            margin: 0 5px;
+            cursor: pointer;
+            color: #bfbfbe;
+
+            :hover {
+              color: #fbb129;
+            }
+          }
+
+          i:before {
+            content: "\f05a";
+          }
+        }
+
+        &-switch-wrapper {
+          width: 100%;
+        }
+
+        &-file-button {
+          width: 500px !important;
+
+          i {
+            display: inline-block;
+            font: normal normal normal 14px/1 FontAwesome;
+            font-size: inherit;
+            text-rendering: auto;
+            margin: 0 5px;
+            cursor: pointer;
+            color: #bfbfbe;
+          }
+
+          i.help {
+            display: inline-block;
+            font: normal normal normal 14px/1 FontAwesome;
+            font-size: inherit;
+            text-rendering: auto;
+            margin: 0 5px;
+            cursor: pointer;
+            color: #bfbfbe;
+
+            :hover {
+              color: #fbb129;
             }
           }
         }
+      }
+
+      .favorite-container {
+        width: 500px;
+        overflow: auto;
+        display: flex;
+        justify-content: flex-end;
+        margin-left: 30px;
       }
     }
 
@@ -339,7 +464,7 @@ label {
   .form-control {
     display: block;
     height: 34px;
-    padding: 6px 12px;
+    padding: 6px 12px !important;
     font-size: 14px;
     line-height: 1.42857143;
     color: #555555;
@@ -349,6 +474,7 @@ label {
     border-radius: 4px;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     width: 100%;
+    -webkit-appearance: textfield;
 
     &:focus {
       border: 1px solid #3db1f8;
@@ -356,68 +482,6 @@ label {
 
     &-switch {
       cursor: pointer;
-    }
-  }
-
-  .connect-form-item {
-    margin: 15px 22px;
-    width: 508px;
-    overflow: auto;
-    display: flex;
-    justify-content: flex-end;
-
-    &-has-error {
-      .form-control {
-        border: 1px solid #843534;
-
-        &:focus {
-          border: 1px solid #843534;
-        }
-      }
-
-      label {
-        color: red;
-
-        i {
-          margin-right: 5px;
-        }
-      }
-
-      .connect-form-item-button {
-        border: 1px solid #843534;
-      }
-    }
-
-    &-label {
-      width: 70%;
-      text-align: right;
-      padding: 5px 15px 0 0;
-    }
-
-    &-switch-wrapper {
-      width: 100%;
-    }
-
-    &-file-button {
-      width: 500px !important;
-
-      i {
-        padding-right: 5px;
-      }
-
-      i.help {
-        display: inline-block;
-        font: normal normal normal 14px/1 FontAwesome;
-        font-size: inherit;
-        text-rendering: auto;
-        margin: 0 5px;
-        cursor: pointer;
-        color: #bfbfbe;
-
-        :hover {
-          color: #fbb129;
-        }
-      }
     }
   }
 

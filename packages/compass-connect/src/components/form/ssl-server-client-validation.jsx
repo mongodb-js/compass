@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash.isempty';
 import Actions from 'actions';
-import { FormInput } from 'hadron-react-components';
+import FormInput from './form-input';
 import { shell } from 'electron';
 import FormFileInput from './form-file-input';
 import classnames from 'classnames';
@@ -107,43 +107,35 @@ class SSLServerClientValidation extends React.Component {
   render() {
     return (
       <div id="ssl-server-client-validation" className={classnames(styles['form-group'])}>
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormFileInput
-            label="Certificate Authority"
-            id="sslCA"
-            error={this.getCertAuthError()}
-            changeHandler={this.onCertificateAuthorityChanged.bind(this)}
-            values={this.props.currentConnection.sslCA}
-            link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities"
-            multi />
-        </div>
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormFileInput
-            label="Client Certificate"
-            id="sslCert"
-            error={this.getClientCertError()}
-            changeHandler={this.onClientCertificateChanged.bind(this)}
-            values={this.props.currentConnection.sslCert}
-            link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file" />
-        </div>
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormFileInput
-            label="Client Private Key"
-            id="sslKey"
-            error={this.getClientKeyError()}
-            changeHandler={this.onClientPrivateKeyChanged.bind(this)}
-            values={this.props.currentConnection.sslKey}
-            link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file" />
-        </div>
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormInput
-            label="Client Key Password"
-            name="sslPass"
-            type="password"
-            changeHandler={this.onClientKeyPasswordChanged.bind(this)}
-            value={this.props.currentConnection.sslPass || ''}
-            linkHandler={this.onPasswordHelp.bind(this)} />
-        </div>
+        <FormFileInput
+          label="Certificate Authority"
+          id="sslCA"
+          error={this.getCertAuthError()}
+          changeHandler={this.onCertificateAuthorityChanged.bind(this)}
+          values={this.props.currentConnection.sslCA}
+          link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities"
+          multi />
+        <FormFileInput
+          label="Client Certificate"
+          id="sslCert"
+          error={this.getClientCertError()}
+          changeHandler={this.onClientCertificateChanged.bind(this)}
+          values={this.props.currentConnection.sslCert}
+          link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file" />
+        <FormFileInput
+          label="Client Private Key"
+          id="sslKey"
+          error={this.getClientKeyError()}
+          changeHandler={this.onClientPrivateKeyChanged.bind(this)}
+          values={this.props.currentConnection.sslKey}
+          link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file" />
+        <FormInput
+          label="Client Key Password"
+          name="sslPass"
+          type="password"
+          changeHandler={this.onClientKeyPasswordChanged.bind(this)}
+          value={this.props.currentConnection.sslPass || ''}
+          linkHandler={this.onPasswordHelp.bind(this)} />
       </div>
     );
   }

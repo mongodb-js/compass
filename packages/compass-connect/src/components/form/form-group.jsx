@@ -14,13 +14,12 @@ class FormGroup extends React.PureComponent {
   };
 
   getClassName() {
-    const classnamesProps = [styles['form-group']];
+    const classNames = {
+      [styles['form-group']]: true,
+      [styles['form-group-separator']]: this.props.separator
+    };
 
-    if (this.props.separator) {
-      classnamesProps.push(styles['form-group-separator']);
-    }
-
-    return classnames(...classnamesProps);
+    return classnames(classNames);
   }
 
   render() {

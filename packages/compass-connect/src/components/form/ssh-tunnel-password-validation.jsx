@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash.isempty';
 import Actions from 'actions';
-import { FormInput } from 'hadron-react-components';
+import FormInput from './form-input';
 import { shell } from 'electron';
 import FormGroup from './form-group';
 import classnames from 'classnames';
@@ -101,7 +101,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    */
   getHostnameError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelHostname)) {
-      return 'SSH hostname is required';
+      return 'SSH tunnel hostname is required';
     }
   }
 
@@ -123,7 +123,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    */
   getUsernameError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelUsername)) {
-      return 'SSH username is required';
+      return 'SSH tunnel username is required';
     }
   }
 
@@ -134,7 +134,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    */
   getPasswordError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelPassword)) {
-      return 'SSH password is required';
+      return 'SSH tunnel password is required';
     }
   }
 
@@ -152,40 +152,31 @@ class SSHTunnelPasswordValidation extends React.Component {
   render() {
     return (
       <FormGroup id="sshTunnelPassword">
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormInput
-            label="SSH Hostname"
-            name="sshTunnelHostname"
-            error={this.getHostnameError()}
-            changeHandler={this.onSSHTunnelHostnameChanged.bind(this)}
-            value={this.props.currentConnection.sshTunnelHostname || ''}
-            linkHandler={this.onHostnameHelp.bind(this)} />
-        </div>
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormInput
-            label="SSH Tunnel Port"
-            name="sshTunnelPort"
-            error={this.getPortError()}
-            changeHandler={this.onSSHTunnelPortChanged.bind(this)}
-            value={this.getPort()} />
-        </div>
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormInput
-            label="SSH Username"
-            name="sshTunnelUsername"
-            error={this.getUsernameError()}
-            changeHandler={this.onSSHTunnelUsernameChanged.bind(this)}
-            value={this.props.currentConnection.sshTunnelUsername || ''} />
-        </div>
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormInput
-            label="SSH Password"
-            name="sshTunnelPassword"
-            type="password"
-            error={this.getPasswordError()}
-            changeHandler={this.onSSHTunnelPasswordChanged.bind(this)}
-            value={this.props.currentConnection.sshTunnelPassword || ''} />
-        </div>
+        <FormInput
+          label="SSH Hostname"
+          name="sshTunnelHostname"
+          error={this.getHostnameError()}
+          changeHandler={this.onSSHTunnelHostnameChanged.bind(this)}
+          value={this.props.currentConnection.sshTunnelHostname || ''}
+          linkHandler={this.onHostnameHelp.bind(this)} />
+        <FormInput
+          label="SSH Tunnel Port"
+          name="sshTunnelPort"
+          error={this.getPortError()}
+          changeHandler={this.onSSHTunnelPortChanged.bind(this)}
+          value={this.getPort()} />
+        <FormInput
+          label="SSH Username"
+          name="sshTunnelUsername"
+          error={this.getUsernameError()}
+          changeHandler={this.onSSHTunnelUsernameChanged.bind(this)}
+          value={this.props.currentConnection.sshTunnelUsername || ''} />
+        <FormInput
+          label="SSH Password"
+          name="sshTunnelPassword"
+          type="password"
+          changeHandler={this.onSSHTunnelPasswordChanged.bind(this)}
+          value={this.props.currentConnection.sshTunnelPassword || ''} />
       </FormGroup>
     );
   }

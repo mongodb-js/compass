@@ -56,20 +56,17 @@ class FormFileInput extends React.Component {
   }
 
   /**
-   * Gets a proper class name for a state with error and without.
+   * Gets the class name for the input wrapper.
    *
-   * @param {Object} recent - A recent connection.
-   *
-   * @returns {String} - A class name
+   * @returns {String} The class name.
    */
   getClassName() {
-    const classnamesProps = [styles['connect-form-item']];
+    const className = {
+      [styles['form-item']]: true,
+      [styles['form-item-has-error']]: this.props.error
+    };
 
-    if (this.props.error) {
-      classnamesProps.push(styles['connect-form-item-has-error']);
-    }
-
-    return classnames(...classnamesProps);
+    return classnames(className);
   }
 
   /**
@@ -99,32 +96,6 @@ class FormFileInput extends React.Component {
     }
 
     return this.props.multi ? 'Select files...' : 'Select a file...';
-  }
-
-  /**
-   * Renders an error component.
-   *
-   * @returns {React.Component}
-   */
-  renderError() {
-    if (this.props.error) {
-      return (
-        <i className="fa fa-exclamation-circle" aria-hidden="true" />
-      );
-    }
-  }
-
-  /**
-   * Renders an error tooltip.
-   *
-   * @returns {React.Component}
-   */
-  renderErrorTooltip() {
-    if (this.props.error) {
-      return (
-        <ReactTooltip id={this.getErrorId()} />
-      );
-    }
   }
 
   /**
@@ -162,15 +133,12 @@ class FormFileInput extends React.Component {
         'data-type': 'error'
       }
       : {};
-    const buttonClassName = `${classnames(styles['connect-form-item-button'])} btn btn-sm btn-default`;
+    const buttonClassName = `${classnames(styles['form-item-file-button'])} btn btn-sm btn-default`;
 
     return (
       <div className={this.getClassName()}>
         <label>
-          <span className={classnames(styles['connect-form-item-label'])}>
-            {this.renderError()}
-            {this.props.label}
-          </span>
+          <span>{this.props.label}</span>
           {this.renderInfoSprinkle()}
         </label>
         <button
@@ -181,7 +149,6 @@ class FormFileInput extends React.Component {
           <i className="fa fa-upload" aria-hidden />
           {this.renderButtonText()}
         </button>
-        {this.renderErrorTooltip()}
       </div>
     );
   }

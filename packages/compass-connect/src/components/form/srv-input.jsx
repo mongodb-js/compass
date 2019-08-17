@@ -22,11 +22,9 @@ class SRVInput extends React.PureComponent {
 
   render() {
     return (
-      <div className={classnames(styles['connect-form-item'])}>
-        <label className={classnames(styles['connect-form-item-label'])}>
-          SRV Record
-        </label>
-        <div className={classnames(styles['connect-form-item-switch-wrapper'])}>
+      <div className={classnames(styles['form-item'])}>
+        <label><span>SRV Record</span> </label>
+        <div className={classnames(styles['form-item-switch-wrapper'])}>
           <Switch
             checked={this.props.isSrvRecord}
             onChange={this.onSRVRecordToggled.bind(this)}

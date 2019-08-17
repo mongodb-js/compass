@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Actions from 'actions';
-import { FormInput } from 'hadron-react-components';
+import FormInput from './form-input';
 import { shell } from 'electron';
 import FormGroup from './form-group';
 import classnames from 'classnames';
@@ -258,7 +258,7 @@ class FormActions extends React.Component {
   renderFavoriteInput() {
     if (this.props.viewType === 'connectionForm') {
       return (
-        <div className={classnames(styles['connect-form-item-container'])}>
+        <div className={classnames(styles['favorite-container'])}>
           <FormInput
             label="Favorite Name"
             name="favoriteName"

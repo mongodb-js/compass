@@ -1,10 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Actions from 'actions';
-import { FormInput } from 'hadron-react-components';
-import classnames from 'classnames';
-
-import styles from '../connect.less';
+import FormInput from './form-input';
 
 class ReplicaSetInput extends React.PureComponent {
   static displayName = 'ReplicaSetInput';
@@ -28,13 +25,11 @@ class ReplicaSetInput extends React.PureComponent {
 
     if (sshTunnel === 'NONE' || !sshTunnel) {
       return (
-        <div className={classnames(styles['connect-form-item-container'])}>
-          <FormInput
-            label="Replica Set Name"
-            name="replicaSet"
-            changeHandler={this.onReplicaSetChanged.bind(this)}
-            value={this.props.replicaSet || ''} />
-        </div>
+        <FormInput
+          label="Replica Set Name"
+          name="replicaSet"
+          changeHandler={this.onReplicaSetChanged.bind(this)}
+          value={this.props.replicaSet || ''} />
       );
     }
 
