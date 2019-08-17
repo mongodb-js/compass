@@ -59,7 +59,7 @@ class FormInput extends React.PureComponent {
   }
 
   /**
-   * Render the input field.
+   * Renders the input field.
    *
    * @returns {React.Component} The input field.
    */

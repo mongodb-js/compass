@@ -64,6 +64,11 @@ class ConnectionForm extends React.Component {
     }
   }
 
+  /**
+   * Renders tabs.
+   *
+   * @returns {React.Component}
+   */
   renderTabs() {
     return (
       <div className={classnames(styles['tabs-header'])}>
@@ -94,6 +99,11 @@ class ConnectionForm extends React.Component {
     );
   }
 
+  /**
+   * Renders views.
+   *
+   * @returns {React.Component}
+   */
   renderView() {
     if (this.state.activeTab === 0) {
       return (
