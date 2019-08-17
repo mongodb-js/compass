@@ -5,9 +5,6 @@ import Actions from 'actions';
 import FormInput from './form-input';
 import { shell } from 'electron';
 import FormGroup from './form-group';
-import classnames from 'classnames';
-
-import styles from '../connect.less';
 
 const DEFAULT_SSH_TUNNEL_PORT = 22;
 
@@ -101,7 +98,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    */
   getHostnameError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelHostname)) {
-      return 'SSH tunnel hostname is required';
+      return true;
     }
   }
 
@@ -112,7 +109,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    */
   getPortError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelPort)) {
-      return 'SSH tunnel port is required';
+      return true;
     }
   }
 
@@ -123,7 +120,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    */
   getUsernameError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelUsername)) {
-      return 'SSH tunnel username is required';
+      return true;
     }
   }
 
@@ -134,7 +131,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    */
   getPasswordError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelPassword)) {
-      return 'SSH tunnel password is required';
+      return true;
     }
   }
 
@@ -175,6 +172,7 @@ class SSHTunnelPasswordValidation extends React.Component {
           label="SSH Password"
           name="sshTunnelPassword"
           type="password"
+          error={this.getPasswordError()}
           changeHandler={this.onSSHTunnelPasswordChanged.bind(this)}
           value={this.props.currentConnection.sshTunnelPassword || ''} />
       </FormGroup>

@@ -59,18 +59,16 @@ describe('MongoDBAuthentication [Component]', () => {
         component = null;
       });
 
-      it('renders the error icon', () => {
-        expect(component.find('.fa-exclamation-circle')).to.be.present();
+      it('renders the error input class', () => {
+        const style = `.${styles['form-item-has-error']}`;
+
+        expect(component.find(style)).to.be.present();
       });
 
-      it('renders the error class', () => {
-        expect(component.find('.form-item-has-error')).to.be.present();
-      });
+      it('renders the error label class', () => {
+        const error = component.find('FormInput[name="username"]').prop('error');
 
-      it('renders the error tooltip', () => {
-        const error = component.find('input[name="username"]').prop('data-tip');
-
-        expect(error).to.equal('Username is required');
+        expect(error).to.equal(true);
       });
     });
 
@@ -88,18 +86,16 @@ describe('MongoDBAuthentication [Component]', () => {
         component = null;
       });
 
-      it('renders the error icon', () => {
-        expect(component.find('.fa-exclamation-circle')).to.be.present();
+      it('renders the error input class', () => {
+        const style = `.${styles['form-item-has-error']}`;
+
+        expect(component.find(style)).to.be.present();
       });
 
-      it('renders the error class', () => {
-        expect(component.find('.form-item-has-error')).to.be.present();
-      });
+      it('renders the error label class', () => {
+        const error = component.find('FormInput[name="username"]').prop('error');
 
-      it('renders the error tooltip', () => {
-        const error = component.find('input[name="username"]').prop('data-tip');
-
-        expect(error).to.equal('Username is required');
+        expect(error).to.equal(true);
       });
     });
 
@@ -117,18 +113,16 @@ describe('MongoDBAuthentication [Component]', () => {
         component = null;
       });
 
-      it('renders the error icon', () => {
-        expect(component.find('.fa-exclamation-circle')).to.be.present();
+      it('renders the error input class', () => {
+        const style = `.${styles['form-item-has-error']}`;
+
+        expect(component.find(style)).to.be.present();
       });
 
-      it('renders the error class', () => {
-        expect(component.find('.form-item-has-error')).to.be.present();
-      });
+      it('renders the error label class', () => {
+        const error = component.find('FormInput[name="username"]').prop('error');
 
-      it('renders the error tooltip', () => {
-        const error = component.find('input[name="username"]').prop('data-tip');
-
-        expect(error).to.equal('Username is required');
+        expect(error).to.equal(true);
       });
     });
 
@@ -146,18 +140,16 @@ describe('MongoDBAuthentication [Component]', () => {
         component = null;
       });
 
-      it('renders the error icon', () => {
-        expect(component.find('.fa-exclamation-circle')).to.be.present();
+      it('renders the error input class', () => {
+        const style = `.${styles['form-item-has-error']}`;
+
+        expect(component.find(style)).to.be.present();
       });
 
-      it('renders the error class', () => {
-        expect(component.find('.form-item-has-error')).to.be.present();
-      });
+      it('renders the error label class', () => {
+        const error = component.find('FormInput[name="password"]').prop('error');
 
-      it('renders the error tooltip', () => {
-        const error = component.find('input[name="password"]').prop('data-tip');
-
-        expect(error).to.equal('Password is required');
+        expect(error).to.equal(true);
       });
     });
 
@@ -175,18 +167,16 @@ describe('MongoDBAuthentication [Component]', () => {
         component = null;
       });
 
-      it('renders the error icon', () => {
-        expect(component.find('.fa-exclamation-circle')).to.be.present();
+      it('renders the error input class', () => {
+        const style = `.${styles['form-item-has-error']}`;
+
+        expect(component.find(style)).to.be.present();
       });
 
-      it('renders the error class', () => {
-        expect(component.find('.form-item-has-error')).to.be.present();
-      });
+      it('renders the error label class', () => {
+        const error = component.find('FormInput[name="password"]').prop('error');
 
-      it('renders the error tooltip', () => {
-        const error = component.find('input[name="password"]').prop('data-tip');
-
-        expect(error).to.equal('Password is required');
+        expect(error).to.equal(true);
       });
     });
 
@@ -204,18 +194,16 @@ describe('MongoDBAuthentication [Component]', () => {
         component = null;
       });
 
-      it('renders the error icon', () => {
-        expect(component.find('.fa-exclamation-circle')).to.be.present();
+      it('renders the error input class', () => {
+        const style = `.${styles['form-item-has-error']}`;
+
+        expect(component.find(style)).to.be.present();
       });
 
-      it('renders the error class', () => {
-        expect(component.find('.form-item-has-error')).to.be.present();
-      });
+      it('renders the error label class', () => {
+        const error = component.find('FormInput[name="password"]').prop('error');
 
-      it('renders the error tooltip', () => {
-        const error = component.find('input[name="password"]').prop('data-tip');
-
-        expect(error).to.equal('Password is required');
+        expect(error).to.equal(true);
       });
     });
   });

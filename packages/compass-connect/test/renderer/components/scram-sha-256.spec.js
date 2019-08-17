@@ -82,12 +82,10 @@ describe('ScramSha256 [Component]', () => {
           expect(component.find(`.${styles['form-item-has-error']}`)).to.exist;
         });
 
-        it('renders the error tooltip', () => {
-          const usernameDataTip = component
-            .find('input[name="username"]')
-            .prop('data-tip');
+        it('renders the error label class', () => {
+          const error = component.find('FormInput[name="username"]').prop('error');
 
-          expect(usernameDataTip).to.equal('Username is required');
+          expect(error).to.equal(true);
         });
       });
 
@@ -113,12 +111,10 @@ describe('ScramSha256 [Component]', () => {
           expect(component.find('.form-item-has-error')).to.exist;
         });
 
-        it('renders the error tooltip', () => {
-          const usernameDataTip = component
-            .find('input[name="username"]')
-            .prop('data-tip');
+        it('renders the error label class', () => {
+          const error = component.find('FormInput[name="username"]').prop('error');
 
-          expect(usernameDataTip).to.equal('Username is required');
+          expect(error).to.equal(true);
         });
       });
 
@@ -144,12 +140,10 @@ describe('ScramSha256 [Component]', () => {
           expect(component.find('.form-item-has-error')).to.exist;
         });
 
-        it('renders the error tooltip', () => {
-          const usernameDataTip = component
-            .find('input[name="username"]')
-            .prop('data-tip');
+        it('renders the error label class', () => {
+          const error = component.find('FormInput[name="username"]').prop('error');
 
-          expect(usernameDataTip).to.equal('Username is required');
+          expect(error).to.equal(true);
         });
       });
 
@@ -175,12 +169,10 @@ describe('ScramSha256 [Component]', () => {
           expect(component.find('.form-item-has-error')).to.exist;
         });
 
-        it('renders the error tooltip', () => {
-          const passwordDataTip = component
-            .find('input[name="password"]')
-            .prop('data-tip');
+        it('renders the error label class', () => {
+          const error = component.find('FormInput[name="password"]').prop('error');
 
-          expect(passwordDataTip).to.equal('Password is required');
+          expect(error).to.equal(true);
         });
       });
 
@@ -206,12 +198,10 @@ describe('ScramSha256 [Component]', () => {
           expect(component.find('.form-item-has-error')).to.exist;
         });
 
-        it('renders the error tooltip', () => {
-          const passwordDataTip = component
-            .find('input[name="password"]')
-            .prop('data-tip');
+        it('renders the error label class', () => {
+          const error = component.find('FormInput[name="password"]').prop('error');
 
-          expect(passwordDataTip).to.equal('Password is required');
+          expect(error).to.equal(true);
         });
       });
 
@@ -237,12 +227,10 @@ describe('ScramSha256 [Component]', () => {
           expect(component.find('.form-item-has-error')).to.exist;
         });
 
-        it('renders the error tooltip', () => {
-          const passwordDataTip = component
-            .find('input[name="password"]')
-            .prop('data-tip');
+        it('renders the error label class', () => {
+          const error = component.find('FormInput[name="password"]').prop('error');
 
-          expect(passwordDataTip).to.equal('Password is required');
+          expect(error).to.equal(true);
         });
       });
     });

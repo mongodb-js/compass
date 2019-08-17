@@ -19,7 +19,7 @@ class FormInput extends React.PureComponent {
     placeholder: PropTypes.string,
     value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
     type: PropTypes.string,
-    error: PropTypes.string
+    error: PropTypes.bool
   };
 
   /**
@@ -64,15 +64,6 @@ class FormInput extends React.PureComponent {
    * @returns {React.Component} The input field.
    */
   render() {
-    const tooltipOptions = this.props.error ? {
-      'data-for': this.getErrorId(),
-      'data-effect': 'solid',
-      'data-place': 'bottom',
-      'data-offset': "{'bottom': -2}",
-      'data-tip': this.props.error,
-      'data-type': 'error'
-    } : {};
-
     return (
       <div className={this.getClassName()}>
         <label>
@@ -88,8 +79,7 @@ class FormInput extends React.PureComponent {
           onBlur={this.props.blurHandler}
           value={this.props.value}
           className={classnames(styles['form-control'])}
-          type={this.props.type || 'text'}
-          {...tooltipOptions} />
+          type={this.props.type || 'text'} />
       </div>
     );
   }

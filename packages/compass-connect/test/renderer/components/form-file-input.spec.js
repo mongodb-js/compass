@@ -20,17 +20,17 @@ describe('FormFileInput [Component]', () => {
     });
 
     it('renders the wrapper div', () => {
-      expect(component.find(`.${styles['connect-form-item']}`)).to.exist;
+      expect(component.find(`.${styles['form-item']}`)).to.exist;
     });
 
     it('renders the label', () => {
-      const label = `.${styles['connect-form-item-label']}`;
+      const label = `.${styles['form-item']} label`;
 
       expect(component.find(label).text()).to.equal('Test');
     });
 
     it('renders the label button', () => {
-      const button = `.${styles['connect-form-item-button']}`;
+      const button = `.${styles['form-item']} button`;
 
       expect(component.find(button).text()).to.equal('Select a file...');
     });

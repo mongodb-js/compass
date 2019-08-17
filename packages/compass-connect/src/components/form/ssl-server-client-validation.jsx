@@ -67,7 +67,7 @@ class SSLServerClientValidation extends React.Component {
    */
   getCertAuthError() {
     if (this._isInvalid(this.props.currentConnection.sslCA)) {
-      return 'Certificate authority is required';
+      return true;
     }
   }
 
@@ -78,7 +78,7 @@ class SSLServerClientValidation extends React.Component {
    */
   getClientCertError() {
     if (this._isInvalid(this.props.currentConnection.sslCert)) {
-      return 'Client certificate is required';
+      return true;
     }
   }
 
@@ -89,7 +89,7 @@ class SSLServerClientValidation extends React.Component {
    */
   getClientKeyError() {
     if (this._isInvalid(this.props.currentConnection.sslKey)) {
-      return 'Client private key is required';
+      return true;
     }
   }
 

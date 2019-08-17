@@ -59,7 +59,7 @@ class ScramSha256 extends React.Component {
     const connection = this.props.currentConnection;
 
     if (!this.props.isValid && isEmpty(connection.mongodbUsername)) {
-      return 'Username is required';
+      return true;
     }
   }
 
@@ -72,7 +72,7 @@ class ScramSha256 extends React.Component {
     const connection = this.props.currentConnection;
 
     if (!this.props.isValid && isEmpty(connection.mongodbPassword)) {
-      return 'Password is required';
+      return true;
     }
   }
 

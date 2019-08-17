@@ -33,7 +33,7 @@ class SSLServerValidation extends React.Component {
     const connection = this.props.currentConnection;
 
     if (!this.props.isValid && isEmpty(connection.sslCA)) {
-      return 'Certificate authority is required';
+      return true;
     }
   }
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactTooltip from 'react-tooltip';
 import path from 'path';
 import { remote, shell } from 'electron';
 import classnames from 'classnames';
@@ -24,7 +23,7 @@ class FormFileInput extends React.Component {
     values: PropTypes.array,
     multi: PropTypes.bool,
     link: PropTypes.string,
-    error: PropTypes.string
+    error: PropTypes.bool
   };
 
   constructor(props) {
@@ -123,16 +122,6 @@ class FormFileInput extends React.Component {
   }
 
   render() {
-    const tooltipOptions = this.props.error
-      ? {
-        'data-for': this.getErrorId(),
-        'data-effect': 'solid',
-        'data-place': 'bottom',
-        'data-offset': "{'bottom': -2}",
-        'data-tip': this.props.error,
-        'data-type': 'error'
-      }
-      : {};
     const buttonClassName = `${classnames(styles['form-item-file-button'])} btn btn-sm btn-default`;
 
     return (
@@ -144,8 +133,7 @@ class FormFileInput extends React.Component {
         <button
           id={this.props.id}
           className={buttonClassName}
-          onClick={this.onClick.bind(this)}
-          {...tooltipOptions}>
+          onClick={this.onClick.bind(this)} >
           <i className="fa fa-upload" aria-hidden />
           {this.renderButtonText()}
         </button>

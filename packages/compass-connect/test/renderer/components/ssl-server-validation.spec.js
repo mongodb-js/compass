@@ -26,7 +26,7 @@ describe('SSLServerValidation [Component]', () => {
 
       it('renders the file button', () => {
         const fileButtonText = component
-          .find(`.${styles['connect-form-item-button']}`)
+          .find(`.${styles['form-item']} button`)
           .text();
 
         expect(fileButtonText).to.equal('file');
@@ -53,7 +53,7 @@ describe('SSLServerValidation [Component]', () => {
         });
 
         it('renders the error class', () => {
-          expect(component.find(`.${styles['connect-form-item-has-error']}`)).to.exist;
+          expect(component.find(`.${styles['form-item-has-error']}`)).to.exist;
         });
       });
 
@@ -76,7 +76,7 @@ describe('SSLServerValidation [Component]', () => {
         });
 
         it('renders the error class', () => {
-          expect(component.find(`.${styles['connect-form-item-has-error']}`)).to.exist;
+          expect(component.find(`.${styles['form-item-has-error']}`)).to.exist;
         });
       });
 

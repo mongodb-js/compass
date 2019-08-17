@@ -108,7 +108,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
    */
   getHostnameError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelHostname)) {
-      return 'SSH hostname is required';
+      return true;
     }
   }
 
@@ -119,7 +119,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
    */
   getPortError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelPort)) {
-      return 'SSH tunnel port is required';
+      return true;
     }
   }
 
@@ -130,7 +130,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
    */
   getUsernameError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelUsername)) {
-      return 'SSH username is required';
+      return true;
     }
   }
 
@@ -141,7 +141,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
    */
   getFileError() {
     if (this._isInvalid(this.props.currentConnection.sshTunnelIdentityFile)) {
-      return 'SSH identity file is required';
+      return true;
     }
   }
 

@@ -17,11 +17,11 @@ describe('SRVInput [Component]', () => {
     });
 
     it('renders the wrapper div', () => {
-      expect(component.find(`.${styles['connect-form-item']}`)).to.be.present();
+      expect(component.find(`.${styles['form-item']}`)).to.be.present();
     });
 
     it('renders the label', () => {
-      expect(component.find(`.${styles['connect-form-item-label']}`)).to.have.text('SRV Record');
+      expect(component.find(`.${styles['form-item']} label`)).to.have.text('SRV Record');
     });
 
     it('renders the switch', () => {
@@ -41,11 +41,11 @@ describe('SRVInput [Component]', () => {
     });
 
     it('renders the wrapper div', () => {
-      expect(component.find(`.${styles['connect-form-item']}`)).to.be.present();
+      expect(component.find(`.${styles['form-item']}`)).to.be.present();
     });
 
     it('renders the label', () => {
-      expect(component.find(`.${styles['connect-form-item-label']}`)).to.have.text('SRV Record');
+      expect(component.find(`.${styles['form-item']} label`)).to.have.text('SRV Record');
     });
 
     it('enables the switch', () => {
