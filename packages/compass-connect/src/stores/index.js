@@ -257,15 +257,9 @@ const Store = Reflux.createStore({
         }
       }
     } else {
-      console.log('----------------------');
-      console.log(222);
-      console.log('----------------------');
       const currentConnection = this.state.currentConnection;
 
       if (!currentConnection.isValid()) {
-        console.log('----------------------');
-        console.log(333);
-        console.log('----------------------');
         this.setState({
           isValid: false,
           errorMessage: 'The required fields can not be empty'

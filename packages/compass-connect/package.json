@@ -38,8 +38,7 @@
     "mongodb-connection-model": "^14.0.3",
     "mongodb-data-service": "^15.0.1",
     "prop-types": "^15.5.8",
-    "react": "^16.8.0",
-    "react-tooltip": "^3.3.0"
+    "react": "^16.8.0"
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.2",
@@ -112,7 +111,6 @@
     "react": "^16.8.0",
     "react-hot-loader": "^4.1.0",
     "react-ios-switch": "^0.1.19",
-    "react-tooltip": "^3.3.0",
     "reflux": "^6.4.1",
     "reflux-state-mixin": "^0.7.0",
     "rimraf": "^2.6.1",
