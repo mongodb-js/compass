@@ -38,8 +38,8 @@ popupComponent.propTypes = {
 };
 
 const Marker = ({ data }) =>
-  data.map(point => {
-    point.key = `${point.center} - ${point.color}`;
+  data.map((point, i) => {
+    point.key = i;
 
     return popupComponent(CircleMarker, point);
   });
