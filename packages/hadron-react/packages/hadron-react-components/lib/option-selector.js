@@ -96,7 +96,8 @@ OptionSelector.propTypes = {
   bsSize: PropTypes.string,
   options: PropTypes.object.isRequired,
   label: PropTypes.string,
-  title: PropTypes.string,
+  // for titles with glyphicons, this has to accept string or object
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   onSelect: PropTypes.func,
   disabled: PropTypes.bool
 };

@@ -20,16 +20,17 @@ describe('<BinaryValue />', () => {
     });
 
     it('sets the title', () => {
-      expect(component.props().title).to.equal(`Binary('${TESTING_BASE64}')`);
+      expect(component.props().title).to.equal(`Binary('${TESTING_BASE64}', 3)`);
     });
 
     it('sets the value', () => {
-      expect(component.text()).to.equal(`Binary('${TESTING_BASE64}')`);
+      expect(component.text()).to.equal(`Binary('${TESTING_BASE64}', 3)`);
     });
   });
 
   context('when the type is a new uuid', () => {
-    const binary = new Binary('testing', 4);
+    const buffer = Buffer.from('3b241101e2bb42558caf4136c566a962', 'hex');
+    const binary = new Binary(buffer, 4);
     const component = shallow(<BinaryValue type="Binary" value={binary} />);
 
     it('sets the base class', () => {
@@ -41,25 +42,25 @@ describe('<BinaryValue />', () => {
     });
 
     it('sets the title', () => {
-      expect(component.props().title).to.equal(`Binary('${TESTING_BASE64}')`);
+      expect(component.props().title).to.equal(`UUID('3b241101-e2bb-4255-8caf-4136c566a962')`);
     });
 
     it('sets the value', () => {
-      expect(component.text()).to.equal(`Binary('${TESTING_BASE64}')`);
+      expect(component.text()).to.equal(`UUID('3b241101-e2bb-4255-8caf-4136c566a962')`);
     });
   });
 
   context('when the type is a GUID', () => {
-    const buffer = Buffer.from('WBAc3FDBDU+Zh/cBQFPc3Q==', 'base64');
+    const buffer = Buffer.from('3b241101e2bb42558caf4136c566a962', 'hex');
     const binary = new Binary(buffer, 4);
     const component = shallow(<BinaryValue type="Binary" value={binary} />);
 
     it('title is base64 encoded', () => {
-      expect(component.props().title).to.equal('Binary(\'WBAc3FDBDU+Zh/cBQFPc3Q==\')');
+      expect(component.props().title).to.equal(`UUID('3b241101-e2bb-4255-8caf-4136c566a962')`);
     });
 
     it('value is base64 encoded', () => {
-      expect(component.text()).to.equal('Binary(\'WBAc3FDBDU+Zh/cBQFPc3Q==\')');
+      expect(component.text()).to.equal(`UUID('3b241101-e2bb-4255-8caf-4136c566a962')`);
     });
   });
 
@@ -76,11 +77,11 @@ describe('<BinaryValue />', () => {
     });
 
     it('sets the title', () => {
-      expect(component.props().title).to.equal('Binary(\'dGVzdGluZw==\')');
+      expect(component.props().title).to.equal('Binary(\'dGVzdGluZw==\', 2)');
     });
 
     it('sets the value', () => {
-      expect(component.text()).to.equal('Binary(\'dGVzdGluZw==\')');
+      expect(component.text()).to.equal('Binary(\'dGVzdGluZw==\', 2)');
     });
   });
 

@@ -1,11 +1,17 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const { truncate } = require('hadron-react-utils');
+const hexToUUID = require('hex-to-uuid');
 
 /**
  * Base 64 constant.
  */
 const BASE_64 = 'base64';
+
+/**
+ * Hex constant
+ */
+const HEX = 'hex';
 
 /**
  * The component class name.
@@ -27,8 +33,11 @@ class Binary extends React.Component {
     const buffer = this.props.value.buffer;
     if (type === 6) {
       return ['*********', 'This field is encrypted'];
+    } else if (type === 4) {
+      const uuid = `UUID('${hexToUUID(buffer.toString(HEX))}')`;
+      return [uuid, uuid];
     }
-    const val = `Binary('${truncate(buffer.toString(BASE_64), 100)}')`;
+    const val = `Binary('${truncate(buffer.toString(BASE_64), 100)}', ${type})`;
     return [val, val]
   }
 

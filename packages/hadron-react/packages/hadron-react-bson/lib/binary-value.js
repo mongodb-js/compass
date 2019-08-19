@@ -14,12 +14,17 @@ var PropTypes = require('prop-types');
 var _require = require('hadron-react-utils'),
     truncate = _require.truncate;
 
+var hexToUUID = require('hex-to-uuid');
+
 /**
  * Base 64 constant.
  */
-
-
 var BASE_64 = 'base64';
+
+/**
+ * Hex constant
+ */
+var HEX = 'hex';
 
 /**
  * The component class name.
@@ -53,8 +58,11 @@ var Binary = function (_React$Component) {
       var buffer = this.props.value.buffer;
       if (type === 6) {
         return ['*********', 'This field is encrypted'];
+      } else if (type === 4) {
+        var uuid = 'UUID(\'' + hexToUUID(buffer.toString(HEX)) + '\')';
+        return [uuid, uuid];
       }
-      var val = 'Binary(\'' + truncate(buffer.toString(BASE_64), 100) + '\')';
+      var val = 'Binary(\'' + truncate(buffer.toString(BASE_64), 100) + '\', ' + type + ')';
       return [val, val];
     }
 

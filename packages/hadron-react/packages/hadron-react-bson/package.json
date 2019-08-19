@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "hadron-react-utils": "^3.3.0",
+    "hex-to-uuid": "^1.0.1",
     "moment-timezone": "^0.5.14",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
