@@ -1,8 +1,8 @@
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
+import { ObjectID } from 'bson';
 import EJSON from 'mongodb-extjson';
 import toPairs from 'lodash.topairs';
-import jsonParse from 'fast-json-parse';
 import findIndex from 'lodash.findindex';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
@@ -537,11 +537,11 @@ const configureStore = (options = {}) => {
      */
     toggleInsertDocument(view) {
       if (view === 'JSON') {
-        const jsonDoc = JSON.stringify(this.state.insert.doc.generateObject());
-        const hadronDoc = this.state.insert.doc;
+        const jsonDoc = EJSON.stringify(this.state.insert.doc.generateObject());
+
         this.setState({
           insert: {
-            doc: hadronDoc,
+            doc: this.state.insert.doc,
             jsonView: true,
             jsonDoc: jsonDoc,
             message: '',
@@ -550,13 +550,20 @@ const configureStore = (options = {}) => {
           }
         });
       } else {
-        const hadronDoc = new HadronDocument(jsonParse(this.state.insert.jsonDoc).value, true);
-        const jsonDoc = this.state.insert.jsonDoc;
+        let hadronDoc;
+
+        if (this.state.insert.jsonDoc === '') {
+          const emptyDoc = { _id: new ObjectID(), '': '' };
+          hadronDoc = new HadronDocument(emptyDoc, false);
+        } else {
+          hadronDoc = new HadronDocument(EJSON.parse(this.state.insert.jsonDoc), false);
+        }
+
         this.setState({
           insert: {
             doc: hadronDoc,
             jsonView: false,
-            jsonDoc: jsonDoc,
+            jsonDoc: this.state.insert.jsonDoc,
             message: '',
             mode: MODIFYING,
             isOpen: true
@@ -607,7 +614,7 @@ const configureStore = (options = {}) => {
      * Insert a single document.
      */
     insertMany() {
-      const docs = jsonParse(this.state.insert.jsonDoc).value;
+      const docs = EJSON.parse(this.state.insert.jsonDoc);
       this.dataService.insertMany(this.state.ns, docs, {}, (error) => {
         if (error) {
           return this.setState({
@@ -637,7 +644,7 @@ const configureStore = (options = {}) => {
     insertDocument() {
       let doc;
       if (this.state.insert.jsonView) {
-        doc = jsonParse(this.state.insert.jsonDoc).value;
+        doc = EJSON.parse(this.state.insert.jsonDoc);
       } else {
         doc = this.state.insert.doc.generateObject();
       }
