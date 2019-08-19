@@ -269,7 +269,7 @@ ace.define(
       var keywordMapper = this.createKeywordMapper(
         {
           'variable.language':
-            'Code|ObjectId|Binary|DBRef|Timestamp|NumberInt|NumberLong|NumberDecimal|MaxKey|MinKey|ISODate|RegExp',
+            'Code|ObjectId|Binary|BinData|UUID|DBRef|Timestamp|NumberInt|NumberLong|NumberDecimal|MaxKey|MinKey|ISODate|RegExp',
           'constant.language': 'null|Infinity|NaN|undefined',
           'constant.language.boolean': 'true|false',
           'support.function': ALL_AGG.join('|')
