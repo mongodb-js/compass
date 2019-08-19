@@ -108,7 +108,6 @@ class MiniChart extends Component {
           actions={this.props.actions}
           fieldName={fieldName}
           type={this.props.type}
-          query={queryValue}
           width={width}
           height={height}
           localAppRegistry={this.props.localAppRegistry}
