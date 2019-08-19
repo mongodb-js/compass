@@ -20,15 +20,15 @@ store.onActivated = (appRegistry) => {
     if (databases) {
       store.dispatch(loadDatabases(databases));
     }
-    const isGenuine = state.instance.genuineMongoDB === undefined
-      ? { isGenuine: true }
-      : state.instance.genuineMongoDB;
+    const isGenuine = state.instance.genuineMongoDB === undefined ?
+      true :
+      state.instance.genuineMongoDB.isGenuine;
 
     if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
       store.dispatch(toggleIsDataLake(true));
     }
 
-    store.dispatch(toggleIsGenuineMongoDB(isGenuine.isGenuine));
+    store.dispatch(toggleIsGenuineMongoDB(!!isGenuine));
   });
 
   /**
