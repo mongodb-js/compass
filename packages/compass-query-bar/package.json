@@ -48,7 +48,7 @@
     "debug": "^3.0.1",
     "hadron-react-components": "^3.0.0",
     "mongodb-ace-autocompleter": "^0.1.0",
-    "mongodb-ace-mode": "^0.3.0",
+    "mongodb-ace-mode": "^0.4.0",
     "mongodb-ace-theme-query": "^0.0.2",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
