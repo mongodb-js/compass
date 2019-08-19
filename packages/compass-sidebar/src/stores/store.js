@@ -34,7 +34,7 @@ store.onActivated = (appRegistry) => {
       true :
       state.instance.genuineMongoDB.isGenuine;
 
-    store.dispatch(toggleIsGenuineMongoDB(isGenuine));
+    store.dispatch(toggleIsGenuineMongoDB(!!isGenuine));
     store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
   });
 
