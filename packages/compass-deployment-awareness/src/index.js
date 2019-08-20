@@ -3,6 +3,7 @@ import DeploymentAwarenessActions from 'actions';
 import DeploymentAwarenessStore from 'stores';
 import TextReadButton from 'components/text-read-button';
 import TextWriteButton from 'components/text-write-button';
+import OptionWriteSelector from 'components/option-write-selector';
 import WriteStateStore from 'stores/write-state-store';
 import ReadStateStore from 'stores/read-state-store';
 
@@ -20,6 +21,11 @@ const TEXT_WRITE_BUTTON = `${BASE}.TextWriteButton`;
  * Read button name.
  */
 const TEXT_READ_BUTTON = `${BASE}.TextReadButton`;
+
+/**
+ * Write selector name.
+ */
+const WRITE_SELECTOR = `${BASE}.OptionWriteSelector`;
 
 /**
  * The actions name.
@@ -64,6 +70,7 @@ function activate(appRegistry) {
   appRegistry.registerRole(DETAILS_ITEM, ROLE);
   appRegistry.registerComponent(TEXT_READ_BUTTON, TextReadButton);
   appRegistry.registerComponent(TEXT_WRITE_BUTTON, TextWriteButton);
+  appRegistry.registerComponent(WRITE_SELECTOR, OptionWriteSelector);
   appRegistry.registerAction(ACTIONS, DeploymentAwarenessActions);
   appRegistry.registerStore(STORE, DeploymentAwarenessStore);
   appRegistry.registerStore(WRITE_STATE_STORE, WriteStateStore);
@@ -79,6 +86,7 @@ function deactivate(appRegistry) {
   appRegistry.deregisterRole(DETAILS_ITEM, ROLE);
   appRegistry.deregisterComponent(TEXT_READ_BUTTON);
   appRegistry.deregisterComponent(TEXT_WRITE_BUTTON);
+  appRegistry.deregisterComponent(WRITE_SELECTOR);
   appRegistry.deregisterAction(ACTIONS);
   appRegistry.deregisterStore(STORE);
   appRegistry.deregisterStore(WRITE_STATE_STORE);
@@ -89,6 +97,7 @@ export default DeploymentAwarenessComponent;
 export {
   TextReadButton,
   TextWriteButton,
+  OptionWriteSelector,
   WriteStateStore,
   ReadStateStore,
   activate,
