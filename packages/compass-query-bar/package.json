@@ -50,6 +50,7 @@
     "mongodb-ace-autocompleter": "^0.1.0",
     "mongodb-ace-mode": "^0.4.0",
     "mongodb-ace-theme-query": "^0.0.2",
+    "mongodb-query-parser": "^1.4.1",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
@@ -117,6 +118,7 @@
     "mongodb-data-service": "^12.4.10",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^2.0.0",
+    "mongodb-query-parser": "^1.4.1",
     "mongodb-reflux-store": "0.0.1",
     "mongodb-schema": "^8.2.3",
     "ms": "^0.7.1",
@@ -153,7 +155,6 @@
   "dependencies": {
     "eslint-plugin-react": "^7.7.0",
     "lodash": "^4.17.11",
-    "mongodb-query-parser": "^1.4.0",
     "mongodb-query-util": "0.0.1"
   }
 }
