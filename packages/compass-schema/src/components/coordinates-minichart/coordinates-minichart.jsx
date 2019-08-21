@@ -154,6 +154,7 @@ class CoordinatesMinichart extends PureComponent {
         bounds.extend(L.latLng(+v[1], +v[0]));
       });
     }
+    console.log('fitBounds', bounds);
     leaflet.fitBounds(bounds);
   }
 
@@ -189,6 +190,7 @@ class CoordinatesMinichart extends PureComponent {
 
     map.container.style.height = `${this.props.height}px`;
     map.container.style.width = `${this.props.width}px`;
+    console.log('invalidateSize');
     map.leafletElement.invalidateSize();
   }
 
