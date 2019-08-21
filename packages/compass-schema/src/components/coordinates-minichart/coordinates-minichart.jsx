@@ -154,7 +154,12 @@ class CoordinatesMinichart extends PureComponent {
         bounds.extend(L.latLng(+v[1], +v[0]));
       });
     }
-    console.log('fitBounds', bounds);
+    // If the bounds are equal, we need to extend them otherwise leaflet will error.
+    if (bounds._northEast.lat === bounds._southWest.lat &&
+      bounds._northEast.lng === bounds._southWest.lng) {
+      bounds._northEast.lat = bounds._northEast.lat + 0.1;
+      bounds._southWest.lng = bounds._southWest.lng - 0.1;
+    }
     leaflet.fitBounds(bounds);
   }
 
@@ -190,7 +195,6 @@ class CoordinatesMinichart extends PureComponent {
 
     map.container.style.height = `${this.props.height}px`;
     map.container.style.width = `${this.props.width}px`;
-    console.log('invalidateSize');
     map.leafletElement.invalidateSize();
   }
 
@@ -204,7 +208,6 @@ class CoordinatesMinichart extends PureComponent {
    * @returns {react.Component}
    */
   renderMapItems() {
-    console.log('props', this.props);
     const {
       fieldName
     } = this.props;
