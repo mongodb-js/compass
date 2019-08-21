@@ -207,6 +207,7 @@ class CoordinatesMinichart extends PureComponent {
     } = this.props;
 
     const values = this.props.type.values.filter(isValidLatLng);
+    console.log('values', values);
 
     const geopoints = values
       .map(value => {
@@ -215,10 +216,6 @@ class CoordinatesMinichart extends PureComponent {
         return v;
       });
 
-    geopoints.map((v) => {
-      console.log('coordinates', v.coordinates);
-      console.log('center', v.center);
-    });
     return <GeoscatterMapItem data={geopoints} />;
   }
 
