@@ -310,15 +310,20 @@ const configureStore = (options = {}) => {
         this.samplingStream
           .pipe(this.analyzingStream)
           .once('progress', () => {
+            console.log('once progress');
             this.setState({
               samplingState: 'analyzing',
               samplingTimeMS: new Date() - samplingStart
             });
           })
           .on('progress', () => {
+            console.log('on progress');
             sampleCount ++;
             debounce(() => {
+              console.log('sampleCount', sampleCount);
+              console.log('numSamples', numSamples);
               const newProgress = Math.ceil(sampleCount / numSamples * 100);
+              console.log('newProgress', newProgress);
               this.updateStatus(newProgress);
               if (newProgress > this.state.samplingProgress) {
                 this.setState({
@@ -329,6 +334,7 @@ const configureStore = (options = {}) => {
             }, 250);
           })
           .on('data', (data) => {
+            console.log('on data');
             schema = data;
           })
           .on('error', (analysisErr) => {

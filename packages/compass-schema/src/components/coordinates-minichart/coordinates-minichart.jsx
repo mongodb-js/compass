@@ -59,6 +59,7 @@ const attachAttribution = async function(map) {
  * @returns {Boolean}
  */
 const isValidLatLng = value => {
+  console.log('isValidLatLng', value);
   if (isNaN(+value[0]) || isNaN(+value[1])) {
     // eslint-disable-next-line no-console
     console.warn('@mongodb-js/compass-schema:coordinates-minichart: Dropping invalid coordinate value', value);
@@ -210,6 +211,7 @@ class CoordinatesMinichart extends PureComponent {
 
     const geopoints = values
       .map(value => {
+        console.log('renderMapItems() value', value);
         const v = valueToGeoPoint(value);
         v.fields[0].key = fieldName;
         return v;
