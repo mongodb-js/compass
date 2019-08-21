@@ -202,12 +202,12 @@ class CoordinatesMinichart extends PureComponent {
    * @returns {react.Component}
    */
   renderMapItems() {
+    console.log('props', this.props);
     const {
       fieldName
     } = this.props;
 
     const values = this.props.type.values.filter(isValidLatLng);
-    console.log('values', values);
 
     const geopoints = values
       .map(value => {
