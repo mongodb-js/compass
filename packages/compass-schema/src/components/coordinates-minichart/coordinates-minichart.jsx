@@ -215,7 +215,10 @@ class CoordinatesMinichart extends PureComponent {
         return v;
       });
 
-    console.log('renderMapItems() geopoints', geopoints);
+    geopoints.map((v) => {
+      console.log('coordinates', v.coordinates);
+      console.log('center', v.center);
+    });
     return <GeoscatterMapItem data={geopoints} />;
   }
 
