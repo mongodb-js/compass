@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-schema",
   "productName": "Compass Schema plugin",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "apiVersion": "2.0.0",
   "description": "Compass Schema Tab Plugin",
   "main": "lib/index.js",
