@@ -120,7 +120,7 @@ class Recents extends React.Component {
       .filter((connection) => !connection.isFavorite);
     const clearClassName = classnames(styles['connect-sidebar-header-recent-clear']);
     const clearAllDiv = recents.length > 0
-      ? <div onClick={this.onClearConnectionsClicked} className={clearClassName}>Clear All</div>
+      ? <div onClick={this.onClearConnectionsClicked} className={clearClassName}>Clear all</div>
       : '';
 
     return (

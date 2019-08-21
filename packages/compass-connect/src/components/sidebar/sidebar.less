@@ -1,5 +1,10 @@
 @import (reference) "~less/compass/variables/_palette.less";
 
+@compass-sidebar-secondary-text-color: @gray6;
+@compass-sidebar-base-background-color: @gray2;
+@compass-sidebar-active-background-color: @gray4;
+@compass-sidebar-active-background-color: lighten(hsl(201, 11%, 41%), 10%);
+
 .connect-sidebar {
   display: flex;
   flex-direction: column;
@@ -9,32 +14,40 @@
   top: 0;
   bottom: 0;
   width: 250px;
-  background: #4c5259;
+  background: @compass-sidebar-base-background-color;
 
   &-connections {
     overflow-y: auto;
   }
 
   &-new-connection {
-    border-bottom: 1px solid #454a51;
+    border-bottom: 1px solid rgba(0,0,0,.1);
     cursor: pointer;
 
     &-is-active {
-      background-color: #6D7984;
+      background-color: @compass-sidebar-active-background-color;
 
       span {
-        color: #FFFFFF;
+        color: @pw;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 12px;
+        padding: 6px 0;
+        text-transform: none;
       }
     }
   }
 
   &-header {
     padding: 9px 0;
-    color: #bfbfbe;
+    color: @pw;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: none;
 
     i {
-      margin: 0 5px;
-      color: #fff;
+      margin: 0 9px;
+      color: @pw;
     }
 
     &-recent {
@@ -48,31 +61,34 @@
       }
 
       span {
-        font-size: 12px;
+        color: @pw;
         font-weight: bold;
-        text-transform: uppercase;
+        font-size: 14px;
+        text-transform: none;
+        padding-left: 0px;
       }
 
       &-clear {
-        text-transform: uppercase;
+        text-transform: none;
         visibility: hidden;
         text-decoration: underline;
-        color: #fff;
-        margin-right: 10px;
-        font-weight: 600;
-        font-size: 12px;
+        color: @pw;
+        margin-right: 12px;
+        font-weight: bold;
+        font-size: 13px;
         cursor: pointer;
       }
     }
   }
 
   &-list {
-    border-bottom: 1px solid #454a51;
+    border-bottom: 1px solid rgba(0,0,0,.1);
     list-style: none;
     padding-left: 0px;
+    margin: 0px;
 
     &-item {
-      padding: 5px 28px 6px 28px;
+      padding: 6px 12px 6px 36px;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
@@ -87,18 +103,21 @@
         visibility: hidden;
         padding-top: 10px;
         flex-grow: 0;
-        color: #fff;
+        color: @pw;
+        font-size: 16px;
+
       }
 
       &-is-active {
-        background-color: #6D7984;
+        background-color: @compass-sidebar-active-background-color;
       }
 
       &-last-used {
-        font-size: 10px;
+        font-size: 11px;
         text-transform: uppercase;
         font-weight: bold;
-        color: #a09f9e;
+        color: @compass-sidebar-secondary-text-color;
+        padding-bottom: 2px;
       }
 
       &-name {
@@ -106,8 +125,8 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: #fff;
-        height: 16px;
+        color: @pw;
+        font-size: 14px;
         line-height: 1;
       }
     }

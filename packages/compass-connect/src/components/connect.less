@@ -1,5 +1,9 @@
 @import './sidebar/sidebar.less';
 
+@compass-sidebar-secondary-text-color: @gray6;
+@compass-sidebar-atlas-background-color: @gray1;
+@compass-sidebar-atlas-background-color: lighten(hsl(204, 29%, 18%), 5%);
+
 .page {
   display: flex;
   flex-direction: row;
@@ -30,34 +34,35 @@ label {
 
 .connect {
   &-atlas {
-    background-color: #313030;
+    background: @compass-sidebar-atlas-background-color;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     padding: 9px 0px;
 
-    &-includes {
-      color: #CCCCCC;
-      font-size: 12px;
-      margin-left: 27px;
-    }
-
     &-link {
-      font-size: 12px;
-      color: #FFFFFF;
+      font-size: 14px;
+      color: @pw;
       font-weight: bold;
       cursor: pointer;
-      text-transform: uppercase;
+      text-transform: none;
+      padding-bottom: 2px;
 
       i {
-        margin: 0px 6px 0px 6px;
+        margin: 0px 8px 0px 9px;
       }
     }
 
-    &-learn-more {
+    &-includes {
+      color: @compass-sidebar-secondary-text-color;
       font-size: 12px;
-      color: #CCCCCC;
-      margin-left: 27px;
+      margin-left: 36px;
+    }
+
+    &-learn-more {
+      color: @compass-sidebar-secondary-text-color;
+      font-size: 12px;
+      margin-left: 36px;
       text-decoration: underline;
       cursor: pointer;
     }
@@ -108,7 +113,7 @@ label {
       width: 680px;
 
       .connect-string {
-        margin: 0 10px;
+        margin: 10px;
 
         &-item {
           overflow: auto;
@@ -496,16 +501,15 @@ label {
 }
 
 .connect-sidebar-connections::-webkit-scrollbar-track {
-  background-color: rgba(0,0,0,.12);
-  border-bottom-left-radius: 3px;
-  border-bottom-right-radius: 3px;
-
-  &:hover {
-    background-color: rgba(0,0,0,.24);
-  }
+    background-color: rgba(0,0,0,.12);
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    &:hover {
+      background-color: rgba(0,0,0,.24);
+    }
 }
 
 .connect-sidebar-connections::-webkit-scrollbar-thumb {
-  background-color: #565E65;
-  border: 1px solid rgba(0,0,0,.24);
+    background-color: @compass-sidebar-base-background-color;
+    border: 1px solid rgba(0,0,0,.24);
 }

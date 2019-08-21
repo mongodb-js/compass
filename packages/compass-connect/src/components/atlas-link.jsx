@@ -44,7 +44,7 @@ class AtlasLink extends React.Component {
           className={classnames(styles['connect-atlas-link'])}
           onClick={this.onCreateClusterClicked.bind(this)}>
           <i className="fa fa-fw fa-external-link" />
-          Create free Atlas cluster
+          Create Free Atlas Cluster
         </div>
         <div>
           <div className={classnames(styles['connect-atlas-includes'])}>
