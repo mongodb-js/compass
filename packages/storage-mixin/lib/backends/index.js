@@ -4,5 +4,6 @@ module.exports = {
   secure: require('./secure'),
   remote: require('./remote'),
   'null': require('./null'),
-  'splice': require('./splice')
+  'splice': require('./splice'),
+  'splice-disk': require('./splice-disk')
 };
