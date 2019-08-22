@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Glyphicon } from 'react-bootstrap';
 import { ViewSwitcher } from 'hadron-react-components';
 import { AnimatedIconTextButton } from 'hadron-react-buttons';
 
@@ -96,7 +95,7 @@ class Toolbar extends React.Component {
           className={INSERT_DATA}
           id="insert-data-dropdown"
           isCollectionLevel
-          title={<div className={INSERT_DATA_TITLE}><Glyphicon glyph="save"/><div>ADD DATA</div></div>}
+          title={<div className={INSERT_DATA_TITLE}><i className="fa fa-download"/><div>ADD DATA</div></div>}
           options={dropdownOptions}
           bsSize="xs"
           tooltipId="document-is-not-writable"

@@ -94,6 +94,7 @@ class DocumentList extends React.Component {
           jsonView
           version={this.props.version}
           tz={this.props.tz}
+          ns={this.props.ns}
           {...this.props.insert} />
       );
     }
@@ -159,6 +160,7 @@ DocumentList.propTypes = {
   updateJsonDoc: PropTypes.func,
   version: PropTypes.string.isRequired,
   viewChanged: PropTypes.func.isRequired,
+  ns: PropTypes.string,
   tz: PropTypes.string
 };
 

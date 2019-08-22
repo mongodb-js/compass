@@ -104,10 +104,10 @@ class EditableJson extends React.Component {
   componentDidUpdate() {
     if (this.state.editing && this.props.updateError) {
       this.handleUpdateError();
-    } else if (this.state.editing && this.props.updateSuccess) {
-      this.handleUpdateSuccess();
     } else if (this.state.deleting && this.props.updateSuccess) {
       this.handleRemoveSuccess();
+    } else if (this.state.editing && this.props.updateSuccess) {
+      this.handleUpdateSuccess();
     }
   }
 
@@ -160,12 +160,9 @@ class EditableJson extends React.Component {
    */
   handleRemoveSuccess() {
     setTimeout(() => {
-      this.setState({mode: SUCCESS, message: UPDATED});
-      setTimeout(() => {
-        this.setState({ deleting: false, deleteFinished: true });
-        this.props.clearUpdateStatus();
-      }, 500);
-    }, 250);
+      this.setState({ deleting: false, deleteFinished: true });
+      this.props.clearUpdateStatus();
+    }, 500);
   }
 
   /**
@@ -212,7 +209,7 @@ class EditableJson extends React.Component {
    * @param {String} value - changed value of json doc being edited.
    */
   handleOnChange(value) {
-    if (!!jsonParse(this.state.json).err) {
+    if (!!jsonParse(value).err) {
       this.setState({ json: value, mode: ERROR, message: INVALID_MESSAGE });
     } else {
       this.setState({ json: value, mode: EDITING, message: MODIFIED });

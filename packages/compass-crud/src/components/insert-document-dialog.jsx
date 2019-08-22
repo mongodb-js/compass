@@ -208,7 +208,7 @@ class InsertDocumentDialog extends React.PureComponent {
         backdrop="static"
         onHide={this.handleHide.bind(this)}>
         <Modal.Header>
-          <Modal.Title>Insert to Collection</Modal.Title>
+          <Modal.Title>Insert to Collection {this.props.ns}</Modal.Title>
         </Modal.Header>
 
         <Modal.Body onFocus={this.handleBlur.bind(this)}>
@@ -260,6 +260,7 @@ InsertDocumentDialog.propTypes = {
   jsonDoc: PropTypes.string,
   jsonView: PropTypes.bool,
   doc: PropTypes.object,
+  ns: PropTypes.string,
   tz: PropTypes.string
 };
 

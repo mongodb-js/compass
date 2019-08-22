@@ -1,6 +1,5 @@
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
-import { ObjectID } from 'bson';
 import EJSON from 'mongodb-extjson';
 import toPairs from 'lodash.topairs';
 import findIndex from 'lodash.findindex';
@@ -499,6 +498,7 @@ const configureStore = (options = {}) => {
      */
     openInsertDocumentDialog(doc, clone) {
       const hadronDoc = new HadronDocument(doc, false);
+
       if (clone) {
         // We need to remove the _id or we will get an duplicate key error on
         // insert, and we currently do not allow editing of the _id field.
@@ -509,10 +509,13 @@ const configureStore = (options = {}) => {
           }
         }
       }
+
+      const jsonDoc = clone ? EJSON.stringify(hadronDoc.generateObject()) : '';
+
       this.setState({
         insert: {
           doc: hadronDoc,
-          jsonDoc: EJSON.stringify(hadronDoc.generateObject()),
+          jsonDoc: jsonDoc,
           jsonView: true,
           message: '',
           mode: MODIFYING,
@@ -526,7 +529,7 @@ const configureStore = (options = {}) => {
      * Emits a global app registry event the plugin listens to.
      */
     openImportFileDialog() {
-      this.globalAppRegistry.emit('import-file');
+      this.globalAppRegistry.emit('open-import');
     },
 
     /**
@@ -553,8 +556,7 @@ const configureStore = (options = {}) => {
         let hadronDoc;
 
         if (this.state.insert.jsonDoc === '') {
-          const emptyDoc = { _id: new ObjectID(), '': '' };
-          hadronDoc = new HadronDocument(emptyDoc, false);
+          hadronDoc = this.state.insert.doc;
         } else {
           hadronDoc = new HadronDocument(EJSON.parse(this.state.insert.jsonDoc), false);
         }
@@ -615,6 +617,7 @@ const configureStore = (options = {}) => {
      */
     insertMany() {
       const docs = EJSON.parse(this.state.insert.jsonDoc);
+
       this.dataService.insertMany(this.state.ns, docs, {}, (error) => {
         if (error) {
           return this.setState({
