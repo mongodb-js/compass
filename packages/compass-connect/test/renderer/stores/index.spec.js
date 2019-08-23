@@ -945,12 +945,8 @@ describe('Store', () => {
     });
 
     after((done) => {
-      const unsubscribe = Store.listen(() => {
-        unsubscribe();
-        done();
-      });
-
       Store.onDeleteConnectionClicked(Store.state.currentConnection);
+      done();
     });
 
     it('creates a new favorite in the store', (done) => {
@@ -968,12 +964,8 @@ describe('Store', () => {
   describe('#onCreateRecentClicked', () => {
     context('when the list is under 10 recent connections', () => {
       after((done) => {
-        const unsubscribe = Store.listen(() => {
-          unsubscribe();
-          done();
-        });
-
         Store.onDeleteConnectionClicked(Store.state.currentConnection);
+        done();
       });
 
       it('creates a new recent in the store', (done) => {
@@ -1005,13 +997,8 @@ describe('Store', () => {
       });
 
       after((done) => {
-        const unsubscribe = Store.listen(() => {
-          unsubscribe();
-          Store.state.connections.reset();
-          done();
-        });
-
         Store.onDeleteConnectionClicked(Store.state.currentConnection);
+        done();
       });
 
       it('limits the recent connections to 10', (done) => {
