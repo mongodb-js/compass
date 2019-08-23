@@ -40,7 +40,7 @@ describe('Recents [Component]', () => {
   it('renders clear all connections text', () => {
     const style = `.${styles['connect-sidebar-header-recent-clear']}`;
 
-    expect(component.find(style)).to.have.text('Clear All');
+    expect(component.find(style)).to.have.text('Clear all');
   });
 
   it('renders clear individual connection icon', () => {
