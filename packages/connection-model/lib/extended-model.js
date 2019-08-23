@@ -7,11 +7,12 @@ const uuid = require('uuid');
  * uses `connection-model` as a dependency.
  */
 let appName;
+let appPath;
 
 try {
   const electron = require('electron');
-
   appName = electron.remote ? electron.remote.app.getName() : undefined;
+  appPath = electron.remote ? electron.remote.app.getPath('userData') : undefined;
 } catch (e) {
   /* eslint no-console: 0 */
   console.log('Could not load electron', e.message);
@@ -24,8 +25,10 @@ const ExtendedConnection = Connection.extend(storageMixin, {
   idAttribute: '_id',
   namespace: 'Connections',
   storage: {
-    backend: 'splice',
-    appName, // Not to be confused with `props.appname` that is being sent to driver
+    backend: 'splice-disk',
+    namespace: 'Connections',
+    basepath: appPath,
+    appName: appName, // Not to be confused with `props.appname` that is being sent to driver
     secureCondition: (val, key) => key.match(/(password|passphrase)/i)
   },
   props: {

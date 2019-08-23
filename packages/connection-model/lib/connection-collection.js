@@ -8,12 +8,17 @@ const raf = require('raf');
  * The name of a remote electon application that
  * uses `connection-model` as a dependency.
  */
+/**
+ * The name of a remote electon application that
+ * uses `connection-model` as a dependency.
+ */
 let appName;
+let appPath;
 
 try {
   const electron = require('electron');
-
   appName = electron.remote ? electron.remote.app.getName() : undefined;
+  appPath = electron.remote ? electron.remote.app.getPath('userData') : undefined;
 } catch (e) {
   /* eslint no-console: 0 */
   console.log('Could not load electron', e.message);
@@ -22,7 +27,11 @@ try {
 module.exports = Collection.extend(storageMixin, {
   model: Connection,
   namespace: 'Connections',
-  storage: { backend: 'splice', appName },
+  storage: {
+    backend: 'splice-disk',
+    appName: appName,
+    basepath: appPath
+  },
   comparator: (a, b) => {
     if (a.isFavorite === b.isFavorite) {
       return a.lastUsed - b.lastUsed;
