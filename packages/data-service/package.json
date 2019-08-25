@@ -42,7 +42,7 @@
     "lodash.uniqby": "^4.5.0",
     "mongodb": "^3.2.7",
     "mongodb-collection-sample": "^4.4.3",
-    "mongodb-connection-model": "^14.1.0",
+    "mongodb-connection-model": "^14.1.1",
     "mongodb-core": "^3.2.7",
     "mongodb-index-model": "^2.3.0",
     "mongodb-js-errors": "^0.3.3",
