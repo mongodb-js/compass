@@ -9,6 +9,11 @@ var rimraf = require('rimraf');
 
 var debug = require('debug')('storage-mixin:backends:disk');
 
+/**
+ * Match a UUID.
+ */
+var JSON_REGEX = /.json/gi;
+
 if (_.isEmpty(fs)) {
   /**
    * looks like we're in a browser context. check if we can use electron's
@@ -162,7 +167,10 @@ DiskBackend.prototype.find = function(collection, options, done) {
       return done(null, []);
     }
 
-    var tasks = files.map(function(file) {
+    var filtered = files.filter(function(file) {
+      return file.match(JSON_REGEX);
+    });
+    var tasks = filtered.map(function(file) {
       return self.findOne.bind(self,
         path.basename(file, path.extname(file)), options);
     });
