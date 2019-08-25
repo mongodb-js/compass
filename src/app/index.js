@@ -311,6 +311,7 @@ var Application = View.extend({
       }
     });
 
+    // TODO: IPC: Loading Preferences...
     app.preferences.fetch();
   }
 });
@@ -353,6 +354,7 @@ app.extend({
         state.postRender();
         marky.stop('Time to user can Click Connect');
       });
+      // TODO: IPC: Loading Plugins...
       require('./setup-plugin-manager');
     });
   }
