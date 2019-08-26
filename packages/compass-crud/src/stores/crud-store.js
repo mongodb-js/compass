@@ -529,7 +529,7 @@ const configureStore = (options = {}) => {
      * Emits a global app registry event the plugin listens to.
      */
     openImportFileDialog() {
-      this.globalAppRegistry.emit('open-import');
+      this.localAppRegistry.emit('open-import');
     },
 
     /**
