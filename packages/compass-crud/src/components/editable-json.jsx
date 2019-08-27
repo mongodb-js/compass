@@ -81,7 +81,7 @@ class EditableJson extends React.Component {
       mode: VIEWING,
       message: EMPTY,
       expandAll: false,
-      json: jsBeautify(EJSON.stringify(this.props.doc.generateObject()))
+      json: null
     };
 
     this.boundForceUpdate = this.forceUpdate.bind(this);
@@ -100,8 +100,12 @@ class EditableJson extends React.Component {
 
   /**
    * Subscribe to the update store on mount.
+   *
+   * Fold all documents on update as well, since we might get fresh documents
+   * from the query bar.
    */
   componentDidUpdate() {
+    this.editor.getSession().foldAll(2);
     if (this.state.editing && this.props.updateError) {
       this.handleUpdateError();
     } else if (this.state.deleting && this.props.updateSuccess) {
@@ -296,12 +300,15 @@ class EditableJson extends React.Component {
       useWorker: false
     };
 
+    const value = this.state.json
+      ? this.state.json
+      : jsBeautify(EJSON.stringify(this.props.doc.generateObject()));
 
     return (
       <div className="json-ace-editor">
         <Ace
           mode="javascript"
-          value={this.state.json}
+          value={value}
           theme="mongodb"
           width="100%"
           editorProps={{$blockScrolling: Infinity}}
