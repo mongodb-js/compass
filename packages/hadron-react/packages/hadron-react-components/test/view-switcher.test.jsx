@@ -59,4 +59,25 @@ describe('<ViewSwitcher />', () => {
       expect(iconComponent.find('i.table')).to.be.present();
     });
   });
+
+  context('when showLabels prop is set to false', () => {
+    const iconComponent = mount(
+      <ViewSwitcher
+        label="Edit Mode"
+        buttonLabels={[ 'Chart Builder', 'JSON Editor' ]}
+        iconClassNames={['list', 'table']}
+        showLabels={false}
+        activeButton='json-editor'
+        dataTestId="chart-view-switcher"
+        onClick={onClick}
+      />
+    );
+
+    it('component contains no text', () => {
+      expect(component.find('[data-test-id="chart-view-switcher-chart-builder"]').at(0)).
+        to.contain.text('');
+      expect(component.find('[data-test-id="chart-view-switcher-json-editor"]').at(0)).
+        to.contain.text('');
+    });
+  });
 });

@@ -17,7 +17,7 @@ describe('<OptionSelector />', () => {
       expect(component.hasClass('option-selector')).to.equal(true);
     });
 
-    it.only('sets the button class', () => {
+    it('sets the button class', () => {
       expect(component.find('#selector').hasClass('selector-class')).to.equal(true);
     });
   });
