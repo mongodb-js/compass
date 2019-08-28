@@ -35,7 +35,7 @@
     ]
   },
   "peerDependencies": {
-    "hadron-react-components": "^3.2.1",
+    "hadron-react-components": "^3.4.0",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
@@ -93,7 +93,7 @@
     "less-loader": "^4.0.5",
     "mocha": "^4.1.0",
     "mocha-webpack": "^1.0.0-rc.1",
-    "mongodb-data-service": "^15.0.0",
+    "mongodb-data-service": "^15.0.3",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.3.0",
     "mongodb-reflux-store": "0.0.1",
