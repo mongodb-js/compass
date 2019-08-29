@@ -105,7 +105,9 @@ class EditableJson extends React.Component {
    * from the query bar.
    */
   componentDidUpdate() {
-    this.editor.getSession().foldAll(2);
+    if (!this.state.editing) {
+      this.editor.getSession().foldAll(2);
+    }
     if (this.state.editing && this.props.updateError) {
       this.handleUpdateError();
     } else if (this.state.deleting && this.props.updateSuccess) {
@@ -144,8 +146,8 @@ class EditableJson extends React.Component {
     setTimeout(() => {
       this.setState({mode: SUCCESS, message: UPDATED});
       setTimeout(() => {
-        this.setState({editing: false});
         this.props.clearUpdateStatus();
+        this.setState({editing: false, message: EMPTY, mode: VIEWING});
       }, 500);
     }, 250);
   }
@@ -164,8 +166,8 @@ class EditableJson extends React.Component {
    */
   handleRemoveSuccess() {
     setTimeout(() => {
-      this.setState({ deleting: false, deleteFinished: true });
       this.props.clearUpdateStatus();
+      this.setState({ deleting: false, deleteFinished: true });
     }, 500);
   }
 
