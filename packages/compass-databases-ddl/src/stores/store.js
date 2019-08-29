@@ -20,7 +20,7 @@ store.onActivated = (appRegistry) => {
     if (databases) {
       store.dispatch(loadDatabases(databases));
     }
-    const isGenuine = state.instance.genuineMongoDB === undefined ?
+    const isGenuine = state.instance.genuineMongoDB === undefined || state.instance.genuineMongoDB.isGenuine === undefined ?
       true :
       state.instance.genuineMongoDB.isGenuine;
 
