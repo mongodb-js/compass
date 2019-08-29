@@ -216,7 +216,8 @@ class InsertDocumentDialog extends React.PureComponent {
             <ViewSwitcher
               label="View"
               buttonLabels={['JSON', 'List']}
-              iconClassNames={['fa fa-list-ul', 'fa fa-code']}
+              showLabels={false}
+              iconClassNames={['curly-bracket', 'fa fa-list-ul']}
               activeButton={currentView}
               disabled={this.hasErrors()}
               onClick={this.switchInsertDocumentView.bind(this)} />
