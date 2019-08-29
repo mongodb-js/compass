@@ -27,7 +27,7 @@ class ViewSwitcher extends React.Component {
           onClick={this.props.onClick.bind(this, label)}
           bsSize="xsmall">
           {this.renderIcon(i)}
-          {label}
+          {shownLabel}
         </Button>
       );
     });

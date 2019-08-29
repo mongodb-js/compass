@@ -45,6 +45,7 @@ var ViewSwitcher = function (_React$Component) {
       return this.props.buttonLabels.map(function (label, i) {
         var active = _this2.props.activeButton === label;
         var dataTestId = _this2.props.dataTestId + '-' + label.toLowerCase().replace(/ /g, '-');
+        var shownLabel = _this2.props.showLabels ? label : '';
         return React.createElement(
           Button,
           {
@@ -55,7 +56,7 @@ var ViewSwitcher = function (_React$Component) {
             onClick: _this2.props.onClick.bind(_this2, label),
             bsSize: 'xsmall' },
           _this2.renderIcon(i),
-          label
+          shownLabel
         );
       });
     }
@@ -102,13 +103,15 @@ ViewSwitcher.propTypes = {
   buttonLabels: PropTypes.arrayOf(PropTypes.string).isRequired,
   activeButton: PropTypes.string,
   disabled: PropTypes.bool,
+  showLabels: PropTypes.bool,
   dataTestId: PropTypes.string,
   onClick: PropTypes.func,
   iconClassNames: PropTypes.arrayOf(PropTypes.string)
 };
 
 ViewSwitcher.defaultProps = {
-  iconClassNames: []
+  iconClassNames: [],
+  showLabels: true
 };
 
 ViewSwitcher.displayName = 'ViewSwitcher';

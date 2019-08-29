@@ -1,4 +1,3 @@
-
 const React = require('react');
 const sinon = require('sinon');
 const chaiEnzyme = require('chai-enzyme');
@@ -61,10 +60,10 @@ describe('<ViewSwitcher />', () => {
   });
 
   context('when showLabels prop is set to false', () => {
-    const iconComponent = mount(
+    const noLabelComponent = mount(
       <ViewSwitcher
         label="Edit Mode"
-        buttonLabels={[ 'Chart Builder', 'JSON Editor' ]}
+        buttonLabels={[ 'List', 'Table' ]}
         iconClassNames={['list', 'table']}
         showLabels={false}
         activeButton='json-editor'
@@ -74,10 +73,10 @@ describe('<ViewSwitcher />', () => {
     );
 
     it('component contains no text', () => {
-      expect(component.find('[data-test-id="chart-view-switcher-chart-builder"]').at(0)).
-        to.contain.text('');
-      expect(component.find('[data-test-id="chart-view-switcher-json-editor"]').at(0)).
-        to.contain.text('');
+      expect(noLabelComponent.find('[data-test-id="chart-view-switcher-list"]').at(0)).
+        to.have.text('');
+      expect(noLabelComponent.find('[data-test-id="chart-view-switcher-table"]').at(0)).
+        to.have.text('');
     });
   });
 });
