@@ -28,7 +28,7 @@ const CONTENTS = `${BASE}-contents`;
 /**
  * The test id.
  */
-const TEST_ID = 'json-editor';
+const TEST_ID = 'editable-json';
 
 /**
  * Different modes of editing: Progress, Success, Editing, Viewing, and Error.
@@ -63,7 +63,7 @@ const INVALID_MESSAGE = 'Update not permitted while document contains errors.';
 /**
  * Component for a single editable document in a list of json documents.
  */
-class JsonEditor extends React.Component {
+class EditableJson extends React.Component {
   /**
    * The component constructor.
    *
@@ -380,9 +380,9 @@ class JsonEditor extends React.Component {
   }
 }
 
-JsonEditor.displayName = 'JsonEditor';
+EditableJson.displayName = 'EditableJson';
 
-JsonEditor.propTypes = {
+EditableJson.propTypes = {
   doc: PropTypes.object.isRequired,
   updateSuccess: PropTypes.bool,
   updateExtJsonDocument: PropTypes.func.isRequired,
@@ -398,4 +398,4 @@ JsonEditor.propTypes = {
   copyToClipboard: PropTypes.func.isRequired
 };
 
-export default JsonEditor;
+export default EditableJson;

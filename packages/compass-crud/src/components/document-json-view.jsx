@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import JsonDocument from 'components/json-document';
+import JsonEditor from 'components/json-editor';
 
 /**
  * The full document list container class.
@@ -32,7 +32,7 @@ class DocumentJsonView extends React.Component {
     return this.props.docs.map((doc, i) => {
       return (
         <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={i}>
-          <JsonDocument
+          <JsonEditor
             doc={doc}
             tz={this.props.tz}
             key={i}
