@@ -7,16 +7,10 @@ const { spawn } = require('child_process');
 const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
-const GLOBALS = {
-  'process.env': {
-    'NODE_ENV': JSON.stringify('development')
-  },
-  __DEV__: JSON.stringify(JSON.parse('true'))
-};
-
 const config = {
   target: 'electron-renderer',
   devtool: 'eval-source-map',
+  mode: 'development',
   entry: {
     index: [
       // activate HMR for React
@@ -74,10 +68,7 @@ const config = {
     new webpack.NoEmitOnErrorsPlugin(),
 
     // Creates HTML page for us at build time
-    new HtmlWebpackPlugin(),
-
-    // Defines global variables
-    new webpack.DefinePlugin(GLOBALS)
+    new HtmlWebpackPlugin()
   ],
   devServer: {
     host: '0.0.0.0',
