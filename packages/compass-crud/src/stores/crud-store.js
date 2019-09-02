@@ -631,6 +631,11 @@ const configureStore = (options = {}) => {
             }
           });
         }
+        // track mode for analytics events
+        const mode = this.state.insert.jsonView ? 'json' : 'default';
+        this.localAppRegistry.emit('document-inserted', this.state.view, mode, true);
+        this.globalAppRegistry.emit('document-inserted', this.state.view, mode, true);
+
         this.state.insert = this.getInitialInsertState();
         // Since we are inserting a bunch of documents and we need to rerun all
         // the queries and counts for them, let's just refresh the whole set of
@@ -675,8 +680,11 @@ const configureStore = (options = {}) => {
               insert: this.getInitialInsertState()
             });
           }
-          this.localAppRegistry.emit('document-inserted', this.state.view, doc);
-          this.globalAppRegistry.emit('document-inserted', this.state.view, doc);
+          // track mode for analytics events
+          const mode = this.state.insert.jsonView ? 'json' : 'default';
+          this.localAppRegistry.emit('document-inserted', this.state.view, mode, false, doc);
+          this.globalAppRegistry.emit('document-inserted', this.state.view, mode, false, doc);
+
           // count is greater than 0, if 1 then the new doc matches the filter
           if (count > 0) {
             return this.setState({
@@ -735,6 +743,8 @@ const configureStore = (options = {}) => {
      * @param {String} view - The new view.
      */
     viewChanged(view) {
+      this.globalAppRegistry.emit('document-view-changed', view);
+      this.localAppRegistry.emit('document-view-changed', view);
       this.setState({ view: view });
     },
 
