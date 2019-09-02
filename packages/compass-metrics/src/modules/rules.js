@@ -84,7 +84,8 @@ const RULES = [
     resource: 'Document',
     action: 'updated',
     condition: () => true,
-    metadata: (view) => ({
+    metadata: (view, screen) => ({
+      'screen': screen,
       'view': view
     })
   },
@@ -92,6 +93,17 @@ const RULES = [
     registryEvent: 'document-inserted',
     resource: 'Document',
     action: 'inserted',
+    condition: () => true,
+    metadata: (view, mode, multiple) => ({
+      'mode': mode,
+      'multiple': multiple,
+      'view': view
+    })
+  },
+  {
+    registryEvent: 'document-view-changed',
+    resource: 'Document',
+    action: 'viewed',
     condition: () => true,
     metadata: (view) => ({
       'view': view
