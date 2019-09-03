@@ -125,7 +125,7 @@ class EditableJson extends React.Component {
       editing: false,
       mode: VIEWING,
       message: EMPTY,
-      value: this.props.doc
+      json: jsBeautify(EJSON.stringify(this.props.doc.generateObject()))
     });
 
     this.props.clearUpdateStatus();
