@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.4",
-    "@mongodb-js/compass-query-bar": "^4.0.6",
+    "@mongodb-js/compass-query-bar": "^4.1.2",
     "@mongodb-js/compass-status": "^3.5.0",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.10.1",
@@ -118,6 +118,7 @@
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-ns": "^2.0.0",
+    "mongodb-query-parser": "^1.4.1",
     "mongodb-runner": "^3.6.1",
     "mongodb-tools": "^1.0.6",
     "nise": "1.4.10",
