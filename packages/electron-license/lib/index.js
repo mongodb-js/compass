@@ -1,3 +1,4 @@
+/* eslint-disable no-sync */
 'use strict';
 
 const pify = require('pify');
@@ -344,27 +345,16 @@ function list(opts) {
   let omitPermissive = opts.omitPermissive || false;
   let production = opts.production || false;
   let excludeOrg = (opts.excludeOrg || '').split(',');
+  let exclude = (opts.exclude || '').split(',');
 
   _.assign(overrides, {
     'ms@ms@0.7.1': {
-      license: 'MIT'
-    },
-    'marky-mark@1.2.1': {
-      license: 'MIT'
+      license: 'MIT',
+      url: 'https://github.com/zeit/ms'
     },
     'uuid@2.0.1': {
-      license: 'MIT'
-    },
-    'electron@0.36.12': {
-      repository: 'git+https://github.com/atom/electron',
       license: 'MIT',
-      source: 'package.json',
-      id: 'electron@0.36.12',
-      name: 'electron',
-      version: '0.36.12',
-      url: 'https://github.com/atom/electron',
-      github_owner: 'atom',
-      github_repo: 'electron'
+      url: 'https://github.com/kelektiv/node-uuid'
     }
   });
 
@@ -373,7 +363,8 @@ function list(opts) {
     overrides: overrides,
     omitPermissive: omitPermissive,
     production: production,
-    excludeOrg: excludeOrg
+    excludeOrg: excludeOrg,
+    exclude: exclude
   });
 
   let appPkg = _.cloneDeep(JSON.parse(fs.readFileSync(path.join(opts.dir, 'package.json'))));
@@ -421,6 +412,10 @@ function list(opts) {
           if (excludeOrg && _.includes(excludeOrg, pkg.github_owner)) {
             return false;
           }
+          if (exclude && _.includes(exclude, pkg.name)) {
+            return false;
+          }
+
           if (production && !_.has(appPkg.dependencies, pkg.name)) {
             return false;
           }

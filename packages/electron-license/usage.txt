@@ -15,6 +15,7 @@ Options:
   --markdown     Output as markdown [Default: `false`].
   --production   Only top-level production dependencies [Default: `false`].
   --exclude_org  Discard all deps comma separated list of GitHub organizations [Default: ``].
+  --exclude      Discard comma separated list of dependencies [Default: ``].
   --debug        Enable debug messages.
   -h --help      Show this screen.
   --version      Show version.
