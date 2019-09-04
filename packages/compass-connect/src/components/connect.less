@@ -385,8 +385,7 @@ label {
         label {
           width: 70%;
           text-align: right;
-          padding: 5px 10px 0 0;
-          margin-right: 10px;
+          padding: 5px 15px 0 0;
 
           i.help {
             display: inline-block;
@@ -412,7 +411,7 @@ label {
         }
 
         &-file-button {
-          width: 500px !important;
+          width: 500px;
 
           i {
             display: inline-block;
@@ -452,6 +451,10 @@ label {
     .form-group-separator {
       margin-bottom: 20px;
       border-bottom: 1px solid #eeeeee;
+
+      .select-label {
+        width: 68% !important;
+      }
     }
   }
 
@@ -479,7 +482,6 @@ label {
     border-radius: 4px;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     width: 100%;
-    -webkit-appearance: textfield;
 
     &:focus {
       border: 1px solid #3db1f8;
@@ -512,4 +514,79 @@ label {
 .connect-sidebar-connections::-webkit-scrollbar-thumb {
     background-color: @compass-sidebar-base-background-color;
     border: 1px solid rgba(0,0,0,.24);
+}
+
+// Global styles for compass-auth-kerberos, compass-auth-ldap,
+// and compass-auth-x509 plugins
+:global {
+  .form-item {
+    margin: 15px auto 15px;
+    width: 500px;
+    overflow: auto;
+    display: flex;
+    justify-content: flex-end;
+
+    &-has-error {
+      .form-control {
+        border: 1px solid #843534;
+
+        &:focus {
+          border: 1px solid #843534;
+        }
+      }
+
+      label {
+        color: red;
+
+        i {
+          margin-right: 5px;
+        }
+      }
+
+      .form-item-file-button {
+        border: 1px solid #843534;
+      }
+    }
+
+    label {
+      width: 70%;
+      text-align: right;
+      padding: 5px 15px 0 0;
+    }
+
+    &-switch-wrapper {
+      width: 100%;
+    }
+
+    &-file-button {
+      width: 500px !important;
+
+      i {
+        padding-right: 5px;
+      }
+
+      i.help {
+        display: inline-block;
+        font: normal normal normal 14px/1 FontAwesome;
+        font-size: inherit;
+        text-rendering: auto;
+        margin: 0 5px;
+        cursor: pointer;
+        color: #bfbfbe;
+
+        :hover {
+          color: #fbb129;
+        }
+      }
+    }
+  }
+
+  .file-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+  }
 }

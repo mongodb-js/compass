@@ -67,7 +67,7 @@ const HelpItems = {
         'If you don\'t have a running cluster, you can ',
         createLink(
           'https://www.mongodb.com/cloud/atlas/lp/general?jmp=compass',
-          'sign up a free cluster using MongoDB Atlas',
+          'spin up a free cluster using MongoDB Atlas',
           'create-atlas-cluster-learn-more-clicked'
         ),
         '.'
@@ -87,7 +87,7 @@ const HelpItems = {
         'If you don\'t have a running cluster, you can ',
         createLink(
           'https://www.mongodb.com/cloud/atlas/lp/general?jmp=compass',
-          'sign up a free cluster using MongoDB Atlas',
+          'spin up a free cluster using MongoDB Atlas',
           'create-atlas-cluster-learn-more-clicked'
         ),
         '.'

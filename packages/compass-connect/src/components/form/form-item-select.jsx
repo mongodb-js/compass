@@ -37,7 +37,7 @@ class FormItemSelect extends React.Component {
   render() {
     return (
       <div className={classnames(styles['form-item'])}>
-        <label><span>{this.props.label}</span></label>
+        <label className={classnames(styles['select-label'])}><span>{this.props.label}</span></label>
         <select
           name={this.props.name}
           onChange={this.props.changeHandler}
