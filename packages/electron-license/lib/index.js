@@ -82,7 +82,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 `.replace(/\s+/gm, ' ');
 
 let readIfExists = function(src) {
-  if (fs.existsSync(path)) {
+  if (fs.existsSync(src)) {
+    debug('reading', src);
     return fs.readFileSync(src, 'utf8');
   }
 };
@@ -228,6 +229,7 @@ let extractLicenseFromDirectory = (dir) => {
   }
 
   if (!licenseText) {
+    debug('No license text file found', dir);
     return null;
   }
 
@@ -247,7 +249,7 @@ let extractLicenseFromDirectory = (dir) => {
     }
   }
 
-  return license && {
+  return {
     license: license,
     source: licenseFileName,
     sourceText: licenseText
@@ -474,6 +476,47 @@ function render(deps, dir) {
     .catch(reject);
   });
 }
+
+/**
+ * Build the contents of `ThirdPartyNotices.txt` to include
+ *
+ * @param {Object} opts
+ * @return {Promise}
+ */
+
+module.exports.thirdPartyNotices = function(opts) {
+  _.defaults(opts, {
+    dir: process.cwd(),
+    overrides: {}
+  });
+
+  let appPkg = _.cloneDeep(JSON.parse(fs.readFileSync(path.join(opts.dir, 'package.json'))));
+  debug('app package %j', appPkg);
+
+  const tpl = fs.readFileSync(path.join(__dirname, '..', 'ThirdPartyNotices.tpl.txt'));
+
+  return list(opts).then((deps) => {
+    appPkg.dependencies = _.sortBy(deps, 'name');
+    appPkg.dependencies.map(function(dep, i) {
+      let lic = extractLicenseFromDirectory(path.join(opts.dir, 'node_modules', dep.name));
+      debug('get license source text', path.join(opts.dir, 'node_modules', dep.name));
+
+      if (!lic) {
+        lic = {
+          source: 'UNKNOWN',
+          licenseText: 'NOT FOUND'
+        };
+      }
+
+      appPkg.dependencies[i].licenseFilename = lic.source;
+      appPkg.dependencies[i].licenseText = lic.sourceText;
+    });
+    
+    return new Promise(function(resolve) {
+      resolve(_.template(tpl)(appPkg));
+    });
+  });
+};
 
 /**
  * Build the contents of `LICENSE.md` to include

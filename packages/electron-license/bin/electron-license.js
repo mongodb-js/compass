@@ -96,6 +96,16 @@ if (command === 'list') {
   return;
 }
 
+if (command === 'third-party-notices') {
+  license.thirdPartyNotices(args)
+    .then( (res) => console.log(res))
+    .catch( (err) => {
+      console.error(err.stack);
+      process.exit(1);
+    });
+  return;
+}
+
 license.build(args)
   .then( (res) => console.log(res))
   .catch( (err) => {
