@@ -511,7 +511,6 @@ module.exports.thirdPartyNotices = function(opts) {
       appPkg.dependencies[i].licenseFilename = lic.source;
       appPkg.dependencies[i].licenseText = lic.sourceText;
     });
-    
     return new Promise(function(resolve) {
       resolve(_.template(tpl)(appPkg));
     });
