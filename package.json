@@ -345,7 +345,6 @@
     "electron-squirrel-startup": "^1.0.0",
     "ensure-error": "^1.0.0",
     "font-awesome": "^4.7.0",
-    "get-object-path": "azer/get-object-path#74eb42de0cfd02c14ffdd18552f295aba723d394",
     "hadron-app": "^3.1.0",
     "hadron-app-registry": "^7.1.0",
     "hadron-auto-update-manager": "^2.0.0",
