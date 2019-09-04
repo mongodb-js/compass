@@ -21,6 +21,11 @@
     "check": "mongodb-js-precommit './codegeneration/**/*{.js,.jsx}' './test/**/*.js' index.js",
     "ci": "npm run check && npm run test"
   },
+  "homepage": "http://github.com/mongodb-js/bson-transpilers",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/bson-transpilers.git"
+  },
   "precommit": [
     "check"
   ],
