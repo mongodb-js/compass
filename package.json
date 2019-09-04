@@ -338,7 +338,6 @@
     "compass-preferences-model": "^0.1.2",
     "compass-user-model": "^0.1.1",
     "d3": "3.5.17",
-    "d3-flextree": "1.0.3",
     "d3-timer": "1.0.7",
     "debug": "mongodb-js/debug#v2.2.3",
     "debug-menu": "^0.3.0",
