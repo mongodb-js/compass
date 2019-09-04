@@ -392,7 +392,6 @@
     "ms": "^0.7.1",
     "node-pre-gyp": "^0.6.38",
     "numeral": "^1.5.3",
-    "object-diff": "0.0.4",
     "pluralize": "^1.2.1",
     "prop-types": "^15.5.8",
     "qs": "^5.2.0",
