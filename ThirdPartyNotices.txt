@@ -27,40 +27,39 @@ Do Not Translate or Localize
 15) electron (https://github.com/electron/electron)
 16) ensure-error (https://github.com/sindresorhus/ensure-error)
 17) font-awesome (https://github.com/FortAwesome/Font-Awesome)
-18) get-object-path (https://github.com/azer/get-object-path)
-19) highlight.js (https://github.com/highlightjs/highlight.js)
-20) jquery (https://github.com/jquery/jquery)
-21) keytar (https://github.com/atom/node-keytar)
-22) less (https://github.com/less/less.js)
-23) less-cache (https://github.com/atom/less-cache)
-24) local-links (https://github.com/lukekarrys/local-links)
-25) lodash (https://github.com/lodash/lodash)
-26) marky (https://github.com/nolanlawson/marky)
-27) moment (https://github.com/moment/moment)
-28) ms (https://github.com/zeit/ms)
-29) numeral (https://github.com/adamwdraper/Numeral-js)
-30) pluralize (https://github.com/blakeembrey/pluralize)
-31) prop-types (https://github.com/facebook/prop-types)
-32) qs (https://github.com/hapijs/qs)
-33) raf (https://github.com/chrisdickinson/raf)
-34) react (https://github.com/facebook/react)
-35) react-ace (https://github.com/securingsincity/react-ace)
-36) react-bootstrap (https://github.com/react-bootstrap/react-bootstrap)
-37) react-click-outside (https://github.com/kentor/react-click-outside)
-38) react-dom (https://github.com/facebook/react)
-39) react-fontawesome (https://github.com/danawoodman/react-fontawesome)
-40) react-redux (https://github.com/reduxjs/react-redux)
-41) react-select-plus (https://github.com/HubSpot/react-select-plus)
-42) react-tooltip (https://github.com/wwayne/react-tooltip)
-43) react-virtualized (https://github.com/bvaughn/react-virtualized)
-44) redux (https://github.com/reduxjs/redux)
-45) reflux (https://github.com/reflux/refluxjs)
-46) semver (https://github.com/npm/node-semver)
-47) triejs (https://github.com/pthurlow/triejs)
-48) turf-destination (https://github.com/Turfjs/turf-destination)
-49) turf-distance (https://github.com/Turfjs/turf-distance)
-50) turf-point (https://github.com/Turfjs/turf-point)
-51) uuid (https://github.com/kelektiv/node-uuid)
+18) highlight.js (https://github.com/highlightjs/highlight.js)
+19) jquery (https://github.com/jquery/jquery)
+20) keytar (https://github.com/atom/node-keytar)
+21) less (https://github.com/less/less.js)
+22) less-cache (https://github.com/atom/less-cache)
+23) local-links (https://github.com/lukekarrys/local-links)
+24) lodash (https://github.com/lodash/lodash)
+25) marky (https://github.com/nolanlawson/marky)
+26) moment (https://github.com/moment/moment)
+27) ms (https://github.com/zeit/ms)
+28) numeral (https://github.com/adamwdraper/Numeral-js)
+29) pluralize (https://github.com/blakeembrey/pluralize)
+30) prop-types (https://github.com/facebook/prop-types)
+31) qs (https://github.com/hapijs/qs)
+32) raf (https://github.com/chrisdickinson/raf)
+33) react (https://github.com/facebook/react)
+34) react-ace (https://github.com/securingsincity/react-ace)
+35) react-bootstrap (https://github.com/react-bootstrap/react-bootstrap)
+36) react-click-outside (https://github.com/kentor/react-click-outside)
+37) react-dom (https://github.com/facebook/react)
+38) react-fontawesome (https://github.com/danawoodman/react-fontawesome)
+39) react-redux (https://github.com/reduxjs/react-redux)
+40) react-select-plus (https://github.com/HubSpot/react-select-plus)
+41) react-tooltip (https://github.com/wwayne/react-tooltip)
+42) react-virtualized (https://github.com/bvaughn/react-virtualized)
+43) redux (https://github.com/reduxjs/redux)
+44) reflux (https://github.com/reflux/refluxjs)
+45) semver (https://github.com/npm/node-semver)
+46) triejs (https://github.com/pthurlow/triejs)
+47) turf-destination (https://github.com/Turfjs/turf-destination)
+48) turf-distance (https://github.com/Turfjs/turf-distance)
+49) turf-point (https://github.com/Turfjs/turf-point)
+50) uuid (https://github.com/kelektiv/node-uuid)
 
 
 1) License notice for ampersand-collection - https://github.com/ampersandjs/ampersand-collection
@@ -458,14 +457,42 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 17) License notice for font-awesome - https://github.com/FortAwesome/Font-Awesome
 -------------------------
 
-
-
-18) License notice for get-object-path - https://github.com/azer/get-object-path
+Font Awesome Free License
 -------------------------
 
+Font Awesome Free is free, open source, and GPL friendly. You can use it for
+commercial projects, open source projects, or really almost whatever you want.
+Full Font Awesome Free license: https://fontawesome.com/license/free.
 
+# Icons: CC BY 4.0 License (https://creativecommons.org/licenses/by/4.0/)
+In the Font Awesome Free download, the CC BY 4.0 license applies to all icons
+packaged as SVG and JS file types.
 
-19) License notice for highlight.js - https://github.com/highlightjs/highlight.js
+# Fonts: SIL OFL 1.1 License (https://scripts.sil.org/OFL)
+In the Font Awesome Free download, the SIL OFL license applies to all icons
+packaged as web and desktop font files.
+
+# Code: MIT License (https://opensource.org/licenses/MIT)
+In the Font Awesome Free download, the MIT license applies to all non-font and
+non-icon files.
+
+# Attribution
+Attribution is required by MIT, SIL OFL, and CC BY licenses. Downloaded Font
+Awesome Free files already contain embedded comments with sufficient
+attribution, so you shouldn't need to do anything additional when using these
+files normally.
+
+We've kept attribution comments terse, so we ask that you do not actively work
+to remove them from files, especially code. They're a great way for folks to
+learn about Font Awesome.
+
+# Brand Icons
+All brand icons are trademarks of their respective owners. The use of these
+trademarks does not indicate endorsement of the trademark holder by Font
+Awesome, nor vice versa. **Please do not use brand logos for any purpose except
+to represent the company, product, or service to which they refer.**
+
+18) License notice for highlight.js - https://github.com/highlightjs/highlight.js
 -------------------------
 Copyright (c) 2006, Ivan Sagalaev
 All rights reserved.
@@ -494,7 +521,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-20) License notice for jquery - https://github.com/jquery/jquery
+19) License notice for jquery - https://github.com/jquery/jquery
 -------------------------
 Copyright jQuery Foundation and other contributors, https://jquery.org/
 
@@ -535,7 +562,7 @@ the terms above.
 
 
 
-21) License notice for keytar - https://github.com/atom/node-keytar
+20) License notice for keytar - https://github.com/atom/node-keytar
 -------------------------
 Copyright (c) 2013 GitHub Inc.
 
@@ -560,7 +587,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-22) License notice for less - https://github.com/less/less.js
+21) License notice for less - https://github.com/less/less.js
 -------------------------
 
                               Apache License
@@ -742,7 +769,7 @@ END OF TERMS AND CONDITIONS
 
 
 
-23) License notice for less-cache - https://github.com/atom/less-cache
+22) License notice for less-cache - https://github.com/atom/less-cache
 -------------------------
 Copyright (c) 2013 GitHub Inc.
 
@@ -767,7 +794,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-24) License notice for local-links - https://github.com/lukekarrys/local-links
+23) License notice for local-links - https://github.com/lukekarrys/local-links
 -------------------------
 The MIT License (MIT)
 
@@ -793,7 +820,7 @@ SOFTWARE.
 
 
 
-25) License notice for lodash - https://github.com/lodash/lodash
+24) License notice for lodash - https://github.com/lodash/lodash
 -------------------------
 Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
 Based on Underscore.js, copyright 2009-2015 Jeremy Ashkenas,
@@ -820,7 +847,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-26) License notice for marky - https://github.com/nolanlawson/marky
+25) License notice for marky - https://github.com/nolanlawson/marky
 -------------------------
 Apache License
 Version 2.0, January 2004
@@ -1034,7 +1061,7 @@ APPENDIX: How to apply the Apache License to your work
 
 
 
-27) License notice for moment - https://github.com/moment/moment
+26) License notice for moment - https://github.com/moment/moment
 -------------------------
 Copyright (c) JS Foundation and other contributors
 
@@ -1061,7 +1088,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-28) License notice for ms - https://github.com/zeit/ms
+27) License notice for ms - https://github.com/zeit/ms
 -------------------------
 The MIT License (MIT)
 
@@ -1087,7 +1114,7 @@ SOFTWARE.
 
 
 
-29) License notice for numeral - https://github.com/adamwdraper/Numeral-js
+28) License notice for numeral - https://github.com/adamwdraper/Numeral-js
 -------------------------
 Copyright (c) 2014 Adam Draper
 
@@ -1113,7 +1140,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
 
-30) License notice for pluralize - https://github.com/blakeembrey/pluralize
+29) License notice for pluralize - https://github.com/blakeembrey/pluralize
 -------------------------
 The MIT License (MIT)
 
@@ -1139,7 +1166,7 @@ THE SOFTWARE.
 
 
 
-31) License notice for prop-types - https://github.com/facebook/prop-types
+30) License notice for prop-types - https://github.com/facebook/prop-types
 -------------------------
 MIT License
 
@@ -1165,7 +1192,7 @@ SOFTWARE.
 
 
 
-32) License notice for qs - https://github.com/hapijs/qs
+31) License notice for qs - https://github.com/hapijs/qs
 -------------------------
 Copyright (c) 2014 Nathan LaFreniere and other contributors.
 All rights reserved.
@@ -1198,7 +1225,7 @@ The complete list of contributors can be found at: https://github.com/hapijs/qs/
 
 
 
-33) License notice for raf - https://github.com/chrisdickinson/raf
+32) License notice for raf - https://github.com/chrisdickinson/raf
 -------------------------
 Copyright 2013 Chris Dickinson <chris@neversaw.us>
 
@@ -1210,7 +1237,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 
-34) License notice for react - https://github.com/facebook/react
+33) License notice for react - https://github.com/facebook/react
 -------------------------
 MIT License
 
@@ -1236,7 +1263,7 @@ SOFTWARE.
 
 
 
-35) License notice for react-ace - https://github.com/securingsincity/react-ace
+34) License notice for react-ace - https://github.com/securingsincity/react-ace
 -------------------------
 The MIT License (MIT)
 
@@ -1263,7 +1290,7 @@ SOFTWARE.
 
 
 
-36) License notice for react-bootstrap - https://github.com/react-bootstrap/react-bootstrap
+35) License notice for react-bootstrap - https://github.com/react-bootstrap/react-bootstrap
 -------------------------
 The MIT License (MIT)
 
@@ -1289,7 +1316,7 @@ THE SOFTWARE.
 
 
 
-37) License notice for react-click-outside - https://github.com/kentor/react-click-outside
+36) License notice for react-click-outside - https://github.com/kentor/react-click-outside
 -------------------------
 The MIT License (MIT)
 
@@ -1315,7 +1342,7 @@ SOFTWARE.
 
 
 
-38) License notice for react-dom - https://github.com/facebook/react
+37) License notice for react-dom - https://github.com/facebook/react
 -------------------------
 MIT License
 
@@ -1341,7 +1368,7 @@ SOFTWARE.
 
 
 
-39) License notice for react-fontawesome - https://github.com/danawoodman/react-fontawesome
+38) License notice for react-fontawesome - https://github.com/danawoodman/react-fontawesome
 -------------------------
 The MIT License (MIT)
 
@@ -1367,7 +1394,7 @@ THE SOFTWARE.
 
 
 
-40) License notice for react-redux - https://github.com/reduxjs/react-redux
+39) License notice for react-redux - https://github.com/reduxjs/react-redux
 -------------------------
 The MIT License (MIT)
 
@@ -1393,7 +1420,7 @@ SOFTWARE.
 
 
 
-41) License notice for react-select-plus - https://github.com/HubSpot/react-select-plus
+40) License notice for react-select-plus - https://github.com/HubSpot/react-select-plus
 -------------------------
 The MIT License (MIT)
 
@@ -1419,7 +1446,7 @@ SOFTWARE.
 
 
 
-42) License notice for react-tooltip - https://github.com/wwayne/react-tooltip
+41) License notice for react-tooltip - https://github.com/wwayne/react-tooltip
 -------------------------
 The MIT License (MIT)
 
@@ -1446,7 +1473,7 @@ SOFTWARE.
 
 
 
-43) License notice for react-virtualized - https://github.com/bvaughn/react-virtualized
+42) License notice for react-virtualized - https://github.com/bvaughn/react-virtualized
 -------------------------
 The MIT License (MIT)
 
@@ -1473,7 +1500,7 @@ SOFTWARE.
 
 
 
-44) License notice for redux - https://github.com/reduxjs/redux
+43) License notice for redux - https://github.com/reduxjs/redux
 -------------------------
 The MIT License (MIT)
 
@@ -1499,7 +1526,7 @@ SOFTWARE.
 
 
 
-45) License notice for reflux - https://github.com/reflux/refluxjs
+44) License notice for reflux - https://github.com/reflux/refluxjs
 -------------------------
 Copyright (c) 2014, Mikael Brassman
 All rights reserved.
@@ -1515,7 +1542,7 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-46) License notice for semver - https://github.com/npm/node-semver
+45) License notice for semver - https://github.com/npm/node-semver
 -------------------------
 The ISC License
 
@@ -1535,7 +1562,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 
-47) License notice for triejs - https://github.com/pthurlow/triejs
+46) License notice for triejs - https://github.com/pthurlow/triejs
 -------------------------
 Copyright (C) 2012 Paul Thurlow
  
@@ -1560,7 +1587,7 @@ Copyright (C) 2012 Paul Thurlow
 
 
 
-48) License notice for turf-destination - https://github.com/Turfjs/turf-destination
+47) License notice for turf-destination - https://github.com/Turfjs/turf-destination
 -------------------------
 The MIT License (MIT)
 
@@ -1585,7 +1612,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-49) License notice for turf-distance - https://github.com/Turfjs/turf-distance
+48) License notice for turf-distance - https://github.com/Turfjs/turf-distance
 -------------------------
 The MIT License (MIT)
 
@@ -1610,7 +1637,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-50) License notice for turf-point - https://github.com/Turfjs/turf-point
+49) License notice for turf-point - https://github.com/Turfjs/turf-point
 -------------------------
 The MIT License (MIT)
 
@@ -1635,7 +1662,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-51) License notice for uuid - https://github.com/kelektiv/node-uuid
+50) License notice for uuid - https://github.com/kelektiv/node-uuid
 -------------------------
 The MIT License (MIT)
 
