@@ -1,0 +1,326 @@
+mongodb-compass uses third-party libraries or other resources that may
+be distributed under licenses different than mongodb-compass.
+
+In the event that we accidentally failed to list a required notice,
+please bring it to our attention through any of the ways detailed here :
+
+           compass@mongodb.com
+
+THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
+Do Not Translate or Localize
+
+
+1) ampersand-collection (https://github.com/ampersandjs/ampersand-collection)
+2) ampersand-dom-bindings (https://github.com/ampersandjs/ampersand-dom-bindings)
+3) ampersand-model (https://github.com/ampersandjs/ampersand-model)
+4) ampersand-rest-collection (https://github.com/ampersandjs/ampersand-rest-collection)
+5) ampersand-router (https://github.com/ampersandjs/ampersand-router)
+6) ampersand-state (https://github.com/ampersandjs/ampersand-state)
+7) ampersand-view (https://github.com/ampersandjs/ampersand-view)
+8) async (https://github.com/caolan/async)
+9) bootstrap (https://github.com/twbs/bootstrap)
+10) clean-stack (https://github.com/sindresorhus/clean-stack)
+11) d3 (https://github.com/mbostock/d3)
+12) d3-timer (https://github.com/d3/d3-timer)
+13) debug (https://github.com/visionmedia/debug)
+14) debug-menu (https://github.com/parro-it/debug-menu)
+15) electron (https://github.com/electron/electron)
+16) ensure-error (https://github.com/sindresorhus/ensure-error)
+17) font-awesome (https://github.com/FortAwesome/Font-Awesome)
+18) get-object-path (https://github.com/azer/get-object-path)
+19) highlight.js (https://github.com/highlightjs/highlight.js)
+20) jquery (https://github.com/jquery/jquery)
+21) keytar (https://github.com/atom/node-keytar)
+22) less (https://github.com/less/less.js)
+23) less-cache (https://github.com/atom/less-cache)
+24) local-links (https://github.com/lukekarrys/local-links)
+25) lodash (https://github.com/lodash/lodash)
+26) marky (https://github.com/nolanlawson/marky)
+27) moment (https://github.com/moment/moment)
+28) ms (https://github.com/zeit/ms)
+29) numeral (https://github.com/adamwdraper/Numeral-js)
+30) object-diff (https://github.com/srcagency/object-diff)
+31) pluralize (https://github.com/blakeembrey/pluralize)
+32) prop-types (https://github.com/facebook/prop-types)
+33) qs (https://github.com/hapijs/qs)
+34) raf (https://github.com/chrisdickinson/raf)
+35) react (https://github.com/facebook/react)
+36) react-ace (https://github.com/securingsincity/react-ace)
+37) react-bootstrap (https://github.com/react-bootstrap/react-bootstrap)
+38) react-click-outside (https://github.com/kentor/react-click-outside)
+39) react-dom (https://github.com/facebook/react)
+40) react-fontawesome (https://github.com/danawoodman/react-fontawesome)
+41) react-redux (https://github.com/reduxjs/react-redux)
+42) react-select-plus (https://github.com/HubSpot/react-select-plus)
+43) react-tooltip (https://github.com/wwayne/react-tooltip)
+44) react-virtualized (https://github.com/bvaughn/react-virtualized)
+45) redux (https://github.com/reduxjs/redux)
+46) reflux (https://github.com/reflux/refluxjs)
+47) semver (https://github.com/npm/node-semver)
+48) triejs (https://github.com/pthurlow/triejs)
+49) turf-destination (https://github.com/Turfjs/turf-destination)
+50) turf-distance (https://github.com/Turfjs/turf-distance)
+51) turf-point (https://github.com/Turfjs/turf-point)
+52) uuid (https://github.com/kelektiv/node-uuid)
+
+
+1) License notice for ampersand-collection - https://github.com/ampersandjs/ampersand-collection
+-------------------------
+MIT
+
+
+2) License notice for ampersand-dom-bindings - https://github.com/ampersandjs/ampersand-dom-bindings
+-------------------------
+MIT
+
+
+3) License notice for ampersand-model - https://github.com/ampersandjs/ampersand-model
+-------------------------
+MIT
+
+
+4) License notice for ampersand-rest-collection - https://github.com/ampersandjs/ampersand-rest-collection
+-------------------------
+MIT
+
+
+5) License notice for ampersand-router - https://github.com/ampersandjs/ampersand-router
+-------------------------
+MIT
+
+
+6) License notice for ampersand-state - https://github.com/ampersandjs/ampersand-state
+-------------------------
+MIT
+
+
+7) License notice for ampersand-view - https://github.com/ampersandjs/ampersand-view
+-------------------------
+MIT
+
+
+8) License notice for async - https://github.com/caolan/async
+-------------------------
+MIT
+
+
+9) License notice for bootstrap - https://github.com/twbs/bootstrap
+-------------------------
+MIT
+
+
+10) License notice for clean-stack - https://github.com/sindresorhus/clean-stack
+-------------------------
+MIT
+
+
+11) License notice for d3 - https://github.com/mbostock/d3
+-------------------------
+BSD
+
+
+12) License notice for d3-timer - https://github.com/d3/d3-timer
+-------------------------
+BSD
+
+
+13) License notice for debug - https://github.com/visionmedia/debug
+-------------------------
+MIT
+
+
+14) License notice for debug-menu - https://github.com/parro-it/debug-menu
+-------------------------
+MIT
+
+
+15) License notice for electron - https://github.com/electron/electron
+-------------------------
+MIT
+
+
+16) License notice for ensure-error - https://github.com/sindresorhus/ensure-error
+-------------------------
+MIT
+
+
+17) License notice for font-awesome - https://github.com/FortAwesome/Font-Awesome
+-------------------------
+(OFL-1.1 AND MIT)
+
+
+18) License notice for get-object-path - https://github.com/azer/get-object-path
+-------------------------
+BSD
+
+
+19) License notice for highlight.js - https://github.com/highlightjs/highlight.js
+-------------------------
+BSD
+
+
+20) License notice for jquery - https://github.com/jquery/jquery
+-------------------------
+MIT
+
+
+21) License notice for keytar - https://github.com/atom/node-keytar
+-------------------------
+MIT
+
+
+22) License notice for less - https://github.com/less/less.js
+-------------------------
+Apache
+
+
+23) License notice for less-cache - https://github.com/atom/less-cache
+-------------------------
+MIT
+
+
+24) License notice for local-links - https://github.com/lukekarrys/local-links
+-------------------------
+MIT
+
+
+25) License notice for lodash - https://github.com/lodash/lodash
+-------------------------
+MIT
+
+
+26) License notice for marky - https://github.com/nolanlawson/marky
+-------------------------
+Apache
+
+
+27) License notice for moment - https://github.com/moment/moment
+-------------------------
+MIT
+
+
+28) License notice for ms - https://github.com/zeit/ms
+-------------------------
+MIT
+
+
+29) License notice for numeral - https://github.com/adamwdraper/Numeral-js
+-------------------------
+MIT
+
+
+30) License notice for object-diff - https://github.com/srcagency/object-diff
+-------------------------
+MIT
+
+
+31) License notice for pluralize - https://github.com/blakeembrey/pluralize
+-------------------------
+MIT
+
+
+32) License notice for prop-types - https://github.com/facebook/prop-types
+-------------------------
+MIT
+
+
+33) License notice for qs - https://github.com/hapijs/qs
+-------------------------
+BSD
+
+
+34) License notice for raf - https://github.com/chrisdickinson/raf
+-------------------------
+MIT
+
+
+35) License notice for react - https://github.com/facebook/react
+-------------------------
+MIT
+
+
+36) License notice for react-ace - https://github.com/securingsincity/react-ace
+-------------------------
+MIT
+
+
+37) License notice for react-bootstrap - https://github.com/react-bootstrap/react-bootstrap
+-------------------------
+MIT
+
+
+38) License notice for react-click-outside - https://github.com/kentor/react-click-outside
+-------------------------
+MIT
+
+
+39) License notice for react-dom - https://github.com/facebook/react
+-------------------------
+MIT
+
+
+40) License notice for react-fontawesome - https://github.com/danawoodman/react-fontawesome
+-------------------------
+MIT
+
+
+41) License notice for react-redux - https://github.com/reduxjs/react-redux
+-------------------------
+MIT
+
+
+42) License notice for react-select-plus - https://github.com/HubSpot/react-select-plus
+-------------------------
+MIT
+
+
+43) License notice for react-tooltip - https://github.com/wwayne/react-tooltip
+-------------------------
+MIT
+
+
+44) License notice for react-virtualized - https://github.com/bvaughn/react-virtualized
+-------------------------
+MIT
+
+
+45) License notice for redux - https://github.com/reduxjs/redux
+-------------------------
+MIT
+
+
+46) License notice for reflux - https://github.com/reflux/refluxjs
+-------------------------
+BSD
+
+
+47) License notice for semver - https://github.com/npm/node-semver
+-------------------------
+ISC
+
+
+48) License notice for triejs - https://github.com/pthurlow/triejs
+-------------------------
+MIT
+
+
+49) License notice for turf-destination - https://github.com/Turfjs/turf-destination
+-------------------------
+MIT
+
+
+50) License notice for turf-distance - https://github.com/Turfjs/turf-distance
+-------------------------
+MIT
+
+
+51) License notice for turf-point - https://github.com/Turfjs/turf-point
+-------------------------
+MIT
+
+
+52) License notice for uuid - https://github.com/kelektiv/node-uuid
+-------------------------
+MIT
+
+
