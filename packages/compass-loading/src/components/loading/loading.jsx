@@ -15,7 +15,9 @@ class Loading extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles.loading)} />
+      <div className={classnames(styles.loading)}>
+        <i className="fal fa-compass fa-spin"></i>
+      </div>
     );
   }
 }
