@@ -1,0 +1,21 @@
+{
+  "env": {
+    "mocha": true,
+    "node": true
+  },
+  "globals": {
+    "expect": true,
+    "sinon": true
+  },
+  "rules": {
+    "camelcase": 1,
+    "new-cap": 0,
+    "no-use-before-define": 0
+  },
+  "extends": [
+    "mongodb-js/node",
+    "mongodb-js/browser",
+    "mongodb-js/react"
+  ],
+  "plugins": ["react"]
+}
