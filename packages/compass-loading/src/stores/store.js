@@ -18,8 +18,8 @@ export const CHANGE_STATUS = 'compass:loading:change-status';
  */
 const configureStore = (options = {}) => {
   const store = createStore(reducer);
-  if (options.ipc) {
-    options.ipc.on(CHANGE_STATUS, (meta) => {
+  if (options.globalAppRegistry) {
+    options.globalAppRegistry.on(CHANGE_STATUS, (meta) => {
       store.dispatch(changeStatus(meta.status));
     });
   }

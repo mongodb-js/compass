@@ -1,10 +1,10 @@
 import configureStore, { CHANGE_STATUS } from 'stores';
-import EventEmitter from 'events';
+import AppRegistry from 'hadron-app-registry';
 
 describe('LoadingStore [Store]', () => {
-  context('when a change status ipc event is fired', () => {
-    const ipc = new EventEmitter();
-    const store = configureStore({ ipc: ipc });
+  context('when a change status globalAppRegistry event is fired', () => {
+    const globalAppRegistry = new AppRegistry();
+    const store = configureStore({ globalAppRegistry: globalAppRegistry });
 
     it('dispatches the change status action', (done) => {
       const unsubscribe = store.subscribe(() => {
@@ -13,7 +13,7 @@ describe('LoadingStore [Store]', () => {
         unsubscribe();
         done();
       });
-      ipc.emit(CHANGE_STATUS, { status: 'Migrating' });
+      globalAppRegistry.emit(CHANGE_STATUS, { status: 'Migrating' });
     });
   });
 });
