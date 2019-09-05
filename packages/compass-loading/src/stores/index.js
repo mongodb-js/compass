@@ -1,4 +1,4 @@
-import LoadingStore from './store';
+import configureStore, { CHANGE_STATUS } from './store';
 
-export default LoadingStore;
-export { LoadingStore };
+export default configureStore;
+export { CHANGE_STATUS };

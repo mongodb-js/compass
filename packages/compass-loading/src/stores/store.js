@@ -1,5 +1,6 @@
 import { createStore } from 'redux';
 import reducer from 'modules';
+import { changeStatus } from 'modules/status';
 
 /**
  * The change status ipc event name.
@@ -17,10 +18,9 @@ export const CHANGE_STATUS = 'compass:loading:change-status';
  */
 const configureStore = (options = {}) => {
   const store = createStore(reducer);
-
   if (options.ipc) {
-    options.ipc.on(CHANGE_STATUS, (status) => {
-      // Dispatch the change status action.
+    options.ipc.on(CHANGE_STATUS, (meta) => {
+      store.dispatch(changeStatus(meta.status));
     });
   }
 
