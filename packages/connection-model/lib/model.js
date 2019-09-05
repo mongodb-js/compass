@@ -625,9 +625,9 @@ assign(derived, {
       }
 
       const opts = {
-        readyTimeout: 5000,
-        forwardTimeout: 5000,
-        keepaliveInterval: 5000,
+        readyTimeout: 20000,
+        forwardTimeout: 20000,
+        keepaliveInterval: 20000,
         srcAddr: '127.0.0.1', // OS should figure out an ephemeral srcPort
         dstPort: this.port,
         dstAddr: this.hostname,
