@@ -11,6 +11,7 @@ describe('StagePreviewToolbar [Component]', () => {
     beforeEach(() => {
       component = shallow(
         <StagePreviewToolbar
+          openLink={sinon.spy()}
           stageOperator="$match"
           isValid
           count={10}
@@ -24,7 +25,19 @@ describe('StagePreviewToolbar [Component]', () => {
 
     it('renders the stage text', () => {
       expect(component.find(`.${styles['stage-preview-toolbar']}`)).
-        to.have.text('Output after $match stage (Sample of 10 documents)');
+        to.include.text('(Sample of 10 documents)');
+    });
+
+    it('renders the stage text with the right link', () => {
+      expect(component.find(`.${styles['stage-preview-toolbar-link']}`)).
+        to.have.text('$match');
+    });
+
+    it('renders the info sprinkle', () => {
+      expect(component.find(`InfoSprinkle`)).
+        to.be.present()
+      expect(component.find(`InfoSprinkle`).prop('helpLink')).
+        to.include('/aggregation/match')
     });
   });
 

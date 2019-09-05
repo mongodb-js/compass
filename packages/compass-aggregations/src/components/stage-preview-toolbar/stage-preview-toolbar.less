@@ -1,3 +1,5 @@
+@import (reference) "~less/compass/_theme.less";
+
 .stage-preview-toolbar {
   width: 100%;
   margin-left: 25px;
@@ -5,4 +7,33 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  &-link {
+    text-decoration: underline;
+    cursor: pointer;
+    color: @blue3;
+  }
+
+  :global {
+    i.info-sprinkle {
+      display: inline-block;
+      font: normal normal normal 14px/1 FontAwesome;
+      font-size: inherit;
+      text-rendering: auto;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      margin: 0 5px;
+      cursor: pointer;
+      color: #bfbfbe;
+
+      &:before {
+        content: "\f05a";
+      }
+    }
+
+    #stage-tooltip {
+      width: 300px;
+      white-space: pre-wrap;
+    }
+  }
 }
