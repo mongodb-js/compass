@@ -12,6 +12,10 @@ addons:
       - libsecret-1-dev
       - gnome-keyring
       - python-gnomekeyring
+before_install:
+  - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
+  - echo "@fortawesome:registry=https://npm.fontawesome.com/" >> .npmrc
+  - echo "//npm.fontawesome.com/:_authToken=${FONTAWESOME_NPM_AUTH_TOKEN}" >> .npmrc
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
