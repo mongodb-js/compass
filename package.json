@@ -354,7 +354,7 @@
     "hadron-document": "^5.0.4",
     "hadron-ipc": "^1.1.0",
     "hadron-module-cache": "^0.0.3",
-    "hadron-plugin-manager": "^5.3.0",
+    "hadron-plugin-manager": "^5.3.1",
     "hadron-react-bson": "^3.4.0",
     "hadron-react-buttons": "^3.4.0",
     "hadron-react-components": "^3.5.1",

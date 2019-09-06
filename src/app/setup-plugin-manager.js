@@ -4,6 +4,7 @@ const path = require('path');
 const os = require('os');
 const AppRegistry = require('hadron-app-registry');
 const PluginManager = require('hadron-plugin-manager');
+const ipc = require('hadron-ipc');
 
 const debug = require('debug')('mongodb-compass:setup-plugin-manager');
 
@@ -33,6 +34,8 @@ const PLUGINS_DIR = 'plugins-directory';
  * Location of the dev plugins.
  */
 const DEV_PLUGINS = path.join(os.homedir(), DISTRIBUTION[PLUGINS_DIR]);
+
+const PLUGIN_COUNT = DISTRIBUTION.plugins.length;
 
 /**
  * @note: The 2nd and 3rd arguments are the root directory and an array
@@ -75,6 +78,16 @@ Module._load = function(request, loc) {
   }
   return loader.apply(this, arguments);
 };
+
+let loadedCount = 0;
+
+PluginManager.Action.pluginActivated.listen(() => {
+  loadedCount++;
+  ipc.call(
+    'compass:loading:change-status',
+    { status: `loading plugins ${loadedCount}/${PLUGIN_COUNT}` }
+  );
+});
 
 if (process.env.NODE_ENV === 'production') {
   /* eslint no-eval:0 */
