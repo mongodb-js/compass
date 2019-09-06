@@ -12,6 +12,7 @@ const pluginActivated = Reflux.createAction({
    *
    * @param {Plugin} pkg - The activated plugin.
    */
+  sync: true,
   preEmit: function(pkg) {
     debug(`Plugin ${pkg.metadata.name} activated.`);
   }
