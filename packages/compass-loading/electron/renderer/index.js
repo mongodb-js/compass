@@ -3,8 +3,7 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import LoadingPlugin, { activate } from 'plugin';
-import configureStore, { CHANGE_STATUS } from 'stores';
+import LoadingPlugin, { configureStore, CHANGE_STATUS } from 'plugin';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -14,18 +13,7 @@ import 'less/index.less';
 
 const appRegistry = new AppRegistry();
 
-global.hadronApp = app;
-global.hadronApp.appRegistry = appRegistry;
-
-// Activate our plugin with the Hadron App Registry
-activate(appRegistry);
-appRegistry.onActivated();
-
-// Since we are using HtmlWebpackPlugin WITHOUT a template,
-// we should create our own root node in the body element before rendering into it.
-
 const root = document.createElement('div');
-
 root.id = 'root';
 document.body.appendChild(root);
 
