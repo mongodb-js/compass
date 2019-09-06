@@ -44,6 +44,28 @@ const createLink = (href, text, event) => React.createElement(
 );
 
 /**
+ * Creates a button-info component.
+ *
+ * @param {String} href - A href that should be opened externally
+ * when the button clicked.
+ * @param {String} text - A text for the button.
+ * @param {Object} event - appRegistry event if needed.
+ *
+ * @returns {React.Component}
+ */
+const createButton = (href, text, event) => React.createElement(
+  'button',
+  {
+    type: 'button',
+    name: 'atlasLink',
+    key: 'atlasLink',
+    className: 'btn btn-sm btn-info',
+    onClick: onExternalLinkClicked.bind(this, href, event)
+  },
+  text
+);
+
+/**
  * Creates a paragraph component.
  *
  * @param {Array} contect - A content for a paragraph.
@@ -59,20 +81,8 @@ const createParagraph = (contect) => React.createElement(
 /**
  * Components for help items depending on viewType.
  */
-const HelpItems = {
+export const HelpItems = {
   'connectionForm': [
-    {
-      title: 'What do I need in order to connect?',
-      body: createParagraph([
-        'If you don\'t have a running cluster, you can ',
-        createLink(
-          'https://www.mongodb.com/cloud/atlas/lp/general?jmp=compass',
-          'spin up a free cluster using MongoDB Atlas',
-          'create-atlas-cluster-learn-more-clicked'
-        ),
-        '.'
-      ])
-    },
     {
       title: 'How do I find my username and password?',
       body: createParagraph([
@@ -81,18 +91,6 @@ const HelpItems = {
     }
   ],
   'connectionString': [
-    {
-      title: 'What do I need in order to connect?',
-      body: createParagraph([
-        'If you don\'t have a running cluster, you can ',
-        createLink(
-          'https://www.mongodb.com/cloud/atlas/lp/general?jmp=compass',
-          'spin up a free cluster using MongoDB Atlas',
-          'create-atlas-cluster-learn-more-clicked'
-        ),
-        '.'
-      ])
-    },
     {
       title: 'How do I find my connection string in Atlas?',
       body: [
@@ -119,4 +117,27 @@ const HelpItems = {
   ]
 };
 
-export default HelpItems;
+/**
+ * Еhe "New to Compass and don't have a cluster?" green box on
+ * the righthand side of the connect screen
+ */
+export const AtlasLink = {
+  title: 'New to Compass and don\'t have a cluster?',
+  body: [
+    createParagraph([
+      'If you don\'t already have a cluster, you can create one for free using ',
+      createLink(
+        'https://www.mongodb.com/cloud/atlas',
+        'MongoDB Atlas'
+      ),
+      '.'
+    ]),
+    createParagraph([
+      createButton(
+        'https://www.mongodb.com/cloud/atlas/lp/general?jmp=compass',
+        'Create Free Cluster',
+        'create-atlas-cluster-learn-more-clicked'
+      )
+    ])
+  ]
+};

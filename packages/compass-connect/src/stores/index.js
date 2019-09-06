@@ -100,7 +100,7 @@ const Store = Reflux.createStore({
     return {
       currentConnection: new Connection(),
       connections: new ConnectionCollection(),
-      customUrl: '',
+      customUrl: 'mongodb://localhost:27017/?readPreference=primary&ssl=false',
       isValid: true,
       isConnected: false,
       errorMessage: null,
