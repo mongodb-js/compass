@@ -4,7 +4,7 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import LoadingPlugin, { activate } from 'plugin';
-import configureStore from 'stores';
+import configureStore, { CHANGE_STATUS } from 'stores';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -29,7 +29,7 @@ const root = document.createElement('div');
 root.id = 'root';
 document.body.appendChild(root);
 
-const store = configureStore();
+const store = configureStore({ globalAppRegistry: appRegistry });
 
 // Create a HMR enabled render function
 const render = Component => {
@@ -40,6 +40,16 @@ const render = Component => {
     document.getElementById('root')
   );
 };
+
+const delayStatusChange = (status, time) => {
+  setTimeout(() => {
+    appRegistry.emit(CHANGE_STATUS, { status: status });
+  }, time);
+};
+
+delayStatusChange('running migrations', 1000);
+delayStatusChange('loading preferences', 2000);
+delayStatusChange('loading plugins', 3000);
 
 // For initialization events to happen in isolation, uncomment the
 // following lines as needed in the same places they are commented out.

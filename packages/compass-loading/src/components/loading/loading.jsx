@@ -7,6 +7,9 @@ import styles from './loading.less';
 
 class Loading extends Component {
   static displayName = 'LoadingComponent';
+  static propTypes = {
+    status: PropTypes.string.isRequired
+  }
 
   /**
    * Render Loading component.
@@ -17,6 +20,9 @@ class Loading extends Component {
     return (
       <div className={classnames(styles.loading)}>
         <i className="fal fa-compass fa-spin"></i>
+        <div className={classnames(styles['loading-status'])}>
+          {this.props.status}
+        </div>
       </div>
     );
   }
@@ -30,6 +36,7 @@ class Loading extends Component {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
+  status: state.status
 });
 
 /**

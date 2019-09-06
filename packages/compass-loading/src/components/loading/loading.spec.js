@@ -8,7 +8,7 @@ describe('Loading [Component]', () => {
   let component;
 
   beforeEach(() => {
-    component = mount(<Loading />);
+    component = mount(<Loading status="init" />);
   });
 
   afterEach(() => {
@@ -17,5 +17,13 @@ describe('Loading [Component]', () => {
 
   it('renders the correct root classname', () => {
     expect(component.find(`.${styles.loading}`)).to.be.present();
+  });
+
+  it('renders the spinner', () => {
+    expect(component.find('.fa-compass')).to.be.present();
+  });
+
+  it('renders the status', () => {
+    expect(component.find(`.${styles['loading-status']}`)).to.have.text('init');
   });
 });

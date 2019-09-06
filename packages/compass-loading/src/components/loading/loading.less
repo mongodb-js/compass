@@ -1,14 +1,27 @@
 @import (reference) "~less/compass/_theme.less";
 
+@compass-sidebar-base-background-color: @gray2;
+
 .loading {
   align-items: center;
   display: flex;
   height: 100vh;
   justify-content: center;
+  flex-direction: column;
   width: 100vw;
+  background-color: @compass-sidebar-base-background-color;
 
   i {
     font-size: 25vh;
-    color: @blue3;
+    color: #FFFFFF;
+  }
+
+  &-status {
+    color: #FFFFFF;
+    font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px 0px 0px 0px;
+    text-transform: uppercase;
   }
 }
