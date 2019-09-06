@@ -332,7 +332,12 @@ const transformPackageJson = (CONFIG, done) => {
   _.assign(contents, {
     productName: CONFIG.productName
   });
-  distributions[contents.distribution].productName = CONFIG.productName
+  distributions[contents.distribution].productName = CONFIG.productName;
+
+  // Set via evergreen
+  distributions[contents.distribution].metrics_bugsnag_key = process.env.HARDRON_METRICS_BUGSNAG_KEY;
+  distributions[contents.distribution].metrics_intercom_app_id = process.env.HARDRON_METRICS_INTERCOM_APP_ID;
+  distributions[contents.distribution].metrics_stitch_app_id = process.env.HARDRON_METRICS_STITCH_APP_ID;
 
   const pluginPrefix = distributions['plugin-prefix'];
   const plugins = distributions[contents.distribution].plugins;
