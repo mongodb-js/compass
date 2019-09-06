@@ -136,6 +136,7 @@ var createWindow = (module.exports.create = function(opts) {
     height: opts.height,
     icon: opts.icon,
     devTools: false,
+    backgroundColor: '#3D4F58',
     'min-width': opts.minwidth,
     'web-preferences': {
       'subpixel-font-scaling': true,
@@ -154,6 +155,13 @@ var createWindow = (module.exports.create = function(opts) {
   _loading.on('resize', () => {
     const size = _loading.getSize();
     _window.setSize(size[0], size[1]);
+  });
+
+  /**
+   * Take all the loading status changes and broadcast to other windows.
+   */
+  ipc.respondTo('compass:loading:change-status', (evt, meta) => {
+    ipc.broadcast('compass:loading:change-status', meta);
   });
 
   /**
