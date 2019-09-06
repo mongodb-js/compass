@@ -355,7 +355,6 @@ app.extend({
         state.postRender();
         marky.stop('Time to user can Click Connect');
       });
-      ipc.call('compass:loading:change-status', { status: 'loading plugins' });
       require('./setup-plugin-manager');
     });
   }
