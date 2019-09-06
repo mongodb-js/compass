@@ -10,9 +10,11 @@ import ipc from 'hadron-ipc';
 const metrics = require('mongodb-js-metrics')();
 const debug = require('debug')('mongodb-compass:metrics:setup');
 
-const INTERCOM_KEY = 'p57suhg7';
-const BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
-const STITCH_APP = 'datawarehouseprod-compass-nqnxw';
+
+// Keys are injected when Compass is built on evergreen.
+const INTERCOM_KEY = process.env.HARDRON_METRICS_INTERCOM_APP_ID;
+const BUGSNAG_KEY = process.env.HARDRON_METRICS_BUGSNAG_KEY;
+const STITCH_APP = process.env.HARDRON_METRICS_STITCH_APP_ID;
 const COMMUNITY = 'mongodb-compass-community';
 
 /**
