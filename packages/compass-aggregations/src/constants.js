@@ -98,7 +98,7 @@ export const STAGE_SPRINKLE_MAPPINGS = {
   },
   $geoNear: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/geoNear/#pipe._S_geoNear',
-    tooltip: 'Return documents based on proximity to a geospatial point.'
+    tooltip: 'Returns documents based on proximity to a geospatial point.'
   },
   $graphLookup: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/graphLookup/#pipe._S_graphLookup',
@@ -114,7 +114,7 @@ export const STAGE_SPRINKLE_MAPPINGS = {
   },
   $limit: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/limit/#pipe._S_limit',
-    tooltip: 'Limits the number of documents that flow into subsequent stages'
+    tooltip: 'Limits the number of documents that flow into subsequent stages.'
   },
   $listLocalSessions: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/listLocalSessions/#pipe._S_listLocalSessions',
@@ -133,8 +133,8 @@ export const STAGE_SPRINKLE_MAPPINGS = {
     tooltip: 'Filters the document stream to allow only matching documents to pass through to subsequent stages.'
   },
   $merge: {
-    link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/match/#pipe._S_merge',
-    tooltip: ''
+    link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/merge/#pipe._S_merge',
+    tooltip: 'Merges the resulting documents into a collection, optionally overriding existing documents.'
   },
   $out: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/out/#pipe._S_out',
@@ -146,7 +146,7 @@ export const STAGE_SPRINKLE_MAPPINGS = {
   },
   $redact: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/redact/#pipe._S_redact',
-    tooltip: 'Restrict the content for each document based on information stored in the documents themselves'
+    tooltip: 'Restricts the content for each document based on information stored in the documents themselves.'
   },
   $replaceRoot: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/replaceRoot/#pipe._S_replaceRoot',
@@ -157,12 +157,12 @@ export const STAGE_SPRINKLE_MAPPINGS = {
     tooltip: 'Randomly selects the specified number of documents from its input.'
   },
   $searchBeta: {
-    link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/sample/#pipe._S_searchBeta',
-    tooltip: ''
+    link: 'https://docs.atlas.mongodb.com/reference/full-text-search/query-syntax/#pipe._S_searchBeta',
+    tooltip: 'Performs a full-text search on the specified field(s).'
   },
   $skip: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/skip/#pipe._S_skip',
-    tooltip: 'Skip a specified number of documents before advancing to the next stage'
+    tooltip: 'Skips a specified number of documents before advancing to the next stage.'
   },
   $sort: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/sort/#pipe._S_sort',

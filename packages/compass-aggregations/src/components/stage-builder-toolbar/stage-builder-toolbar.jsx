@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { InfoSprinkle } from 'hadron-react-components';
 import DeleteStage from './delete-stage';
 import AddAfterStage from './add-after-stage';
 import ToggleStage from './toggle-stage';

@@ -37,29 +37,6 @@ class StagePreviewToolbar extends PureComponent {
   }
 
   /**
-   * Render the info sprinkle.
-   *
-   * @returns {Component} The component.
-   */
-  renderInfoSprinkle(stageInfo) {
-    if (this.props.stageOperator) {
-      return (
-        <span
-          data-tip={stageInfo.tooltip}
-          data-for="stage-tooltip"
-          data-place="top"
-          data-html="true">
-          <InfoSprinkle
-            onClickHandler={this.props.openLink}
-            helpLink={stageInfo.link}
-          />
-          <Tooltip id="stage-tooltip" />
-        </span>
-      );
-    }
-  }
-
-  /**
    * Get the word.
    *
    * @returns {String} The word.
@@ -86,8 +63,8 @@ class StagePreviewToolbar extends PureComponent {
               Output after <span
                 onClick={this.props.openLink.bind(this, stageInfo.link)}
                 className={classnames(styles['stage-preview-toolbar-link'])}>
-                  {this.props.stageOperator}
-                </span> stage
+                {this.props.stageOperator}
+              </span> stage
             </span>
             {this.renderInfoSprinkle(stageInfo)}
             <span>(Sample of {this.props.count} {this.getWord()})</span>
@@ -97,6 +74,29 @@ class StagePreviewToolbar extends PureComponent {
       return ZERO_STATE;
     }
     return DISABLED;
+  }
+
+  /**
+   * Render the info sprinkle.
+   *
+   * @returns {Component} The component.
+   */
+  renderInfoSprinkle(stageInfo) {
+    if (this.props.stageOperator) {
+      return (
+        <span
+          data-tip={stageInfo.tooltip}
+          data-for="stage-tooltip"
+          data-place="top"
+          data-html="true">
+          <InfoSprinkle
+            onClickHandler={this.props.openLink}
+            helpLink={stageInfo.link}
+          />
+          <Tooltip id="stage-tooltip" />
+        </span>
+      );
+    }
   }
 
   /**

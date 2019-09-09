@@ -34,10 +34,10 @@ describe('StagePreviewToolbar [Component]', () => {
     });
 
     it('renders the info sprinkle', () => {
-      expect(component.find(`InfoSprinkle`)).
-        to.be.present()
-      expect(component.find(`InfoSprinkle`).prop('helpLink')).
-        to.include('/aggregation/match')
+      expect(component.find('InfoSprinkle')).
+        to.be.present();
+      expect(component.find('InfoSprinkle').prop('helpLink')).
+        to.include('/aggregation/match');
     });
   });
 
