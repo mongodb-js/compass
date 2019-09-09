@@ -3,10 +3,6 @@ var BaseBackend = require('./base');
 var _ = require('lodash');
 var debug = require('debug')('mongodb-storage-mixin:backends:secure');
 
-/**
- * TODO (@imlucas) COMPASS-3235: Eliminate multiple keychain password requests
- * should be patched in here or just rewrite and delete this entire module.
- */
 var keytar = require('keytar');
 
 function SecureBackend(options) {
