@@ -25,7 +25,7 @@ const ExtendedConnection = Connection.extend(storageMixin, {
   idAttribute: '_id',
   namespace: 'Connections',
   storage: {
-    backend: 'splice-disk',
+    backend: 'splice-disk-ipc',
     namespace: 'Connections',
     basepath: appPath,
     appName: appName, // Not to be confused with `props.appname` that is being sent to driver
