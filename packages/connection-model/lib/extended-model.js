@@ -6,12 +6,12 @@ const uuid = require('uuid');
  * The name of a remote electon application that
  * uses `connection-model` as a dependency.
  */
-let appName;
+let appNameElectron;
 let appPath;
 
 try {
   const electron = require('electron');
-  appName = electron.remote ? electron.remote.app.getName() : undefined;
+  appNameElectron = electron.remote ? electron.remote.app.getName() : undefined;
   appPath = electron.remote ? electron.remote.app.getPath('userData') : undefined;
 } catch (e) {
   /* eslint no-console: 0 */
@@ -28,7 +28,7 @@ const ExtendedConnection = Connection.extend(storageMixin, {
     backend: 'splice-disk-ipc',
     namespace: 'Connections',
     basepath: appPath,
-    appName: appName, // Not to be confused with `props.appname` that is being sent to driver
+    appName: appNameElectron, // Not to be confused with `props.appname` that is being sent to driver
     secureCondition: (val, key) => key.match(/(password|passphrase)/i)
   },
   props: {
@@ -41,7 +41,7 @@ const ExtendedConnection = Connection.extend(storageMixin, {
     name: { type: 'string', default: 'Local' },
     ns: { type: 'string', default: undefined },
     isSrvRecord: { type: 'boolean', default: false },
-    appname: { type: 'string', default: undefined }
+    appname: { type: 'string', default: appNameElectron } // Is being sent to driver
   },
   session: { selected: { type: 'boolean', default: false } },
   derived: {
