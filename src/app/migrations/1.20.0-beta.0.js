@@ -36,7 +36,7 @@ const MAPPINGS = {
   ldap_username: 'ldapUsername',
   ldap_password: 'ldapPassword',
   x509_username: 'x509Username',
-  ssl: 'ssl',
+  ssl: 'sslMethod',
   ssl_ca: 'sslCa',
   ssl_certificate: 'sslCert',
   ssl_private_key: 'sslKey',
@@ -62,7 +62,11 @@ const mapAttributes = (attributes) => {
   return Object.keys(attributes).reduce((newAttributes, key) => {
     const mapping = MAPPINGS[key];
     if (mapping) {
-      newAttributes[mapping] = attributes[key];
+      const value = attributes[key];
+      newAttributes[mapping] = value;
+      if (key === 'ssl' && value !== 'NONE') {
+        newAttributes['ssl'] = true;
+      }
     }
     return newAttributes;
   }, {});
