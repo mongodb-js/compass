@@ -26,7 +26,7 @@ class NewConnection extends React.Component {
     const connection = this.props.currentConnection;
     const classnamesProps = [styles['connect-sidebar-new-connection']];
 
-    if (!connection || (!connection.is_favorite && !connection.last_used)) {
+    if (!connection || (!connection.isFavorite && !connection.lastUsed)) {
       classnamesProps.push(styles['connect-sidebar-new-connection-is-active']);
     }
 
