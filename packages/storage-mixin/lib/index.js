@@ -8,6 +8,7 @@ var backends = require('./backends');
  * them to a number of different storage backends.
  */
 module.exports = {
+  secureMain: backends['secure-main'],
   storage: 'local',
   session: {
     fetched: {
