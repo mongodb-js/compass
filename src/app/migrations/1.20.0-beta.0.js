@@ -65,7 +65,7 @@ const mapAttributes = (attributes) => {
       const value = attributes[key];
       newAttributes[mapping] = value;
       if (key === 'ssl' && value !== 'NONE') {
-        newAttributes['ssl'] = true;
+        newAttributes.ssl = true;
       }
     }
     return newAttributes;

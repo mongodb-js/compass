@@ -65,6 +65,7 @@ module.exports = function(done) {
       '1.3.0-beta.3': require('./1.3.0-beta.3'),
       '1.5.0-beta.5': require('./1.5.0-beta.5'),
       '1.20.0-dev.0': require('./1.20.0-dev.0'),
+      '1.20.0-dev.1': require('./1.20.0-dev.1'),
       '1.20.0-beta.0': require('./1.20.0-beta.0')
     };
     const migrate = require('app-migrations')(migrations);
