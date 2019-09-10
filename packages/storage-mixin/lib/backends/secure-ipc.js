@@ -106,9 +106,8 @@ if (typeof window !== 'undefined') {
     const accountName = this._getId(model);
     const uuid = uuidv4();
 
-    const listener = (result) => {
+    const listener = (evt, result) => {
       if (result.uuid === uuid) {
-        ipc.removeListener(listener);
         if (!result.rawJsonString) {
           done(null, {});
         } else {
@@ -147,9 +146,8 @@ if (typeof window !== 'undefined') {
   SecureIpcBackend.prototype.find = function(collection, options, done) {
     debug('Fetching data...', collection.length);
 
-    const listener = (result) => {
+    const listener = (evt, result) => {
       if (result.namespace === this.namespace) {
-        ipc.removeListener(listener);
         const attributes = collection.reduce((attrs, model) => {
           const modelId = model.getId();
           const credential = result.credentials.find((credential) => {
