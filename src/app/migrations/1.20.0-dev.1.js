@@ -1,6 +1,6 @@
 const async = require('async');
 const debug = require('debug')('mongodb-compass:migrations');
-const Connection, { ConnectionCollection } = require('mongodb-connection-model');
+const Connection = require('mongodb-connection-model');
 
 /**
  * This migration fixes the SSL fields on the newly migrated models.
@@ -9,7 +9,7 @@ const Connection, { ConnectionCollection } = require('mongodb-connection-model')
  */
 const fixSslFields = (done) => {
   debug('migration: fixSslFields');
-  const connections = new ConnectionCollection();
+  const connections = new Connection.ConnectionCollection();
   connections.once('sync', function() {
     const toBeSaved = connections.map(function(connection) {
       if (Connection.SSL_METHOD_VALUES.includes(connection.ssl)) {
