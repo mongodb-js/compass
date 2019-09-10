@@ -62,7 +62,8 @@ const mapAttributes = (attributes) => {
   return Object.keys(attributes).reduce((newAttributes, key) => {
     const mapping = MAPPINGS[key];
     if (mapping) {
-      newAttributes[mapping] = attributes[key];
+      const value = attributes[key];
+      newAttributes[mapping] = value;
     }
     return newAttributes;
   }, {});
