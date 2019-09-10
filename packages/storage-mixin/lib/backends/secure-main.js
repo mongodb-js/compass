@@ -1,7 +1,7 @@
 const keytar = require('keytar');
 const debug = require('debug')('mongodb-storage-mixin:backends:secure-main');
 
-if (process && process.type === 'main') {
+if (process && process.type === 'browser') {
   const ipc = require('hadron-ipc');
 
   /**
