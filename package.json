@@ -261,7 +261,7 @@
     ]
   },
   "scripts": {
-    "postinstall": "electron-rebuild --only kerberos,keytar",
+    "_postinstall": "electron-rebuild --only kerberos,keytar",
     "prestart": "rm -rf .compiled-sources",
     "start": "hadron-build develop",
     "test": "hadron-build test",
