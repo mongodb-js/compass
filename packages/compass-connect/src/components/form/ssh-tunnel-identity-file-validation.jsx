@@ -37,7 +37,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
    * @param {Object} evt - evt.
    */
   onSSHTunnelUsernameChanged(evt) {
-    Actions.onSSHTunnelUsernameChanged(evt.target.value);
+    Actions.onSSHTunnelUsernameChanged(evt.target.value.trim());
   }
 
   /**

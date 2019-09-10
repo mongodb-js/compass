@@ -20,7 +20,7 @@ class MongoDBAuthentication extends React.Component {
    * @param {Object} evt - evt.
    */
   onUsernameChanged(evt) {
-    Actions.onUsernameChanged(evt.target.value);
+    Actions.onUsernameChanged(evt.target.value.trim());
   }
 
   /**
