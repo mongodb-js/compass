@@ -28,7 +28,7 @@ module.exports = Collection.extend(storageMixin, {
   model: Connection,
   namespace: 'Connections',
   storage: {
-    backend: 'splice-disk',
+    backend: 'splice-disk-ipc',
     appName: appName,
     basepath: appPath
   },
