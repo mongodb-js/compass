@@ -42,14 +42,15 @@
     "lodash.uniqby": "^4.5.0",
     "mongodb": "^3.2.7",
     "mongodb-collection-sample": "^4.4.3",
-    "mongodb-connection-model": "^14.2.3",
+    "mongodb-connection-model": "^14.2.4",
     "mongodb-core": "^3.2.7",
     "mongodb-index-model": "^2.3.0",
     "mongodb-js-errors": "^0.3.3",
     "mongodb-ns": "^2.0.0",
     "mongodb-security": "0.0.4",
     "mongodb-stitch": "^3.0.6",
-    "mongodb-url": "^3.0.1"
+    "mongodb-url": "^3.0.1",
+    "triejs": "github:rueckstiess/triejs"
   },
   "devDependencies": {
     "chai": "^3.4.1",
