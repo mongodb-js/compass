@@ -6,22 +6,30 @@
 // however we overwrite the @fa-font-path variable before fonts are loaded,
 // to point to our custom font path.
 
-@fa-nodemodules-less-path: "../../../node_modules/font-awesome/less";
+@fa-nodemodules-less-path: "../../../node_modules/@fortawesome/fontawesome-pro/less";
 
-@import "@{fa-nodemodules-less-path}/variables.less";
-@import "@{fa-nodemodules-less-path}/mixins.less";
+@import "@{fa-nodemodules-less-path}/_variables.less";
+@import "@{fa-nodemodules-less-path}/_mixins.less";
 
 // need to overwrite the default font path defined in variables.less
 @fa-font-path: '../app/fonts';
 
-@import "@{fa-nodemodules-less-path}/path.less";
-@import "@{fa-nodemodules-less-path}/core.less";
-@import "@{fa-nodemodules-less-path}/larger.less";
-@import "@{fa-nodemodules-less-path}/fixed-width.less";
-@import "@{fa-nodemodules-less-path}/list.less";
-@import "@{fa-nodemodules-less-path}/bordered-pulled.less";
-@import "@{fa-nodemodules-less-path}/animated.less";
-@import "@{fa-nodemodules-less-path}/rotated-flipped.less";
-@import "@{fa-nodemodules-less-path}/stacked.less";
-@import "@{fa-nodemodules-less-path}/icons.less";
-@import "@{fa-nodemodules-less-path}/screen-reader.less";
+@import "@{fa-nodemodules-less-path}/_animated.less";
+@import "@{fa-nodemodules-less-path}/_bordered-pulled.less";
+@import "@{fa-nodemodules-less-path}/_core.less";
+@import "@{fa-nodemodules-less-path}/_fixed-width.less";
+@import "@{fa-nodemodules-less-path}/_icons.less";
+@import "@{fa-nodemodules-less-path}/_larger.less";
+@import "@{fa-nodemodules-less-path}/_mixins.less";
+@import "@{fa-nodemodules-less-path}/_rotated-flipped.less";
+@import "@{fa-nodemodules-less-path}/_screen-reader.less";
+@import "@{fa-nodemodules-less-path}/_shims.less";
+@import "@{fa-nodemodules-less-path}/_stacked.less";
+@import "@{fa-nodemodules-less-path}/_variables.less";
+@import "@{fa-nodemodules-less-path}/brands.less";
+@import "@{fa-nodemodules-less-path}/duotone.less";
+@import "@{fa-nodemodules-less-path}/fontawesome.less";
+@import "@{fa-nodemodules-less-path}/light.less";
+@import "@{fa-nodemodules-less-path}/regular.less";
+@import "@{fa-nodemodules-less-path}/solid.less";
+@import "@{fa-nodemodules-less-path}/v4-shims.less";

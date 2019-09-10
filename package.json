@@ -283,6 +283,7 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-pro": "^5.10.2",
     "@mongodb-js/compass-aggregations": "^4.2.2",
     "@mongodb-js/compass-app-stores": "^3.0.0",
     "@mongodb-js/compass-auth-kerberos": "^3.0.0",
