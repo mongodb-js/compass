@@ -3,6 +3,9 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const url = require('url');
 
+/* eslint chai-friendly/no-unused-expressions: 0 */
+require('storage-mixin').secureMain;
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
