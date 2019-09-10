@@ -42,9 +42,9 @@
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.2",
-    "@mongodb-js/compass-auth-kerberos": "^3.0.0",
-    "@mongodb-js/compass-auth-ldap": "^3.0.1",
-    "@mongodb-js/compass-auth-x509": "^3.0.0",
+    "@mongodb-js/compass-auth-kerberos": "^3.0.1",
+    "@mongodb-js/compass-auth-ldap": "^3.0.2",
+    "@mongodb-js/compass-auth-x509": "^3.0.1",
     "@mongodb-js/compass-status": "^3.5.1",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.26.0",
