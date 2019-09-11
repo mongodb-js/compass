@@ -12,8 +12,7 @@
     "email": "compass@mongodb.com"
   },
   "shortcutFolderName": "MongoDB",
-  "license": "UNLICENSED",
-  "private": true,
+  "license": "SSPL",
   "config": {
     "hadron": {
       "endpoint": "https://compass.mongodb.com",
@@ -261,7 +260,7 @@
     ]
   },
   "scripts": {
-    "_postinstall": "electron-rebuild --only kerberos,keytar",
+    "postinstall": "electron-rebuild --only kerberos,keytar",
     "prestart": "rm -rf .compiled-sources",
     "start": "hadron-build develop",
     "test": "hadron-build test",
