@@ -7,10 +7,8 @@
 <!--- Describe your changes in detail -->
 <!--- If applicable, describe (or illustrate) architecture flow -->
 ### Checklist
-- [ ] Existing tests pass
 - [ ] New tests and/or benchmarks are included
 - [ ] Documentation is changed or added
-- [ ] Tested by a reviewer
 
 ## Motivation and Context
 <!--- Why is this change required? What problem does it solve? -->
