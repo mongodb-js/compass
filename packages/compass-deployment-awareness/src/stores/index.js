@@ -20,6 +20,7 @@ const DeploymentAwarenessStore = Reflux.createStore({
    * @param {AppRegistry} appRegistry - The app registry.
    */
   onActivated(appRegistry) {
+    this.appRegistry = appRegistry;
     appRegistry.on('data-service-initialized', this.onDataServiceInitialized.bind(this));
     appRegistry.on('instance-refreshed', (state) => {
       if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
@@ -52,6 +53,16 @@ const DeploymentAwarenessStore = Reflux.createStore({
         type: desc.type,
         tags: desc.tags
       });
+    }
+    if (this.state.topologyType !== newDescription.type) {
+      this.appRegistry.emit(
+        'compass:deployment-awareness:topology-changed',
+        {
+          topologyType: newDescription.type,
+          setName: newDescription.setName,
+          servers: servers
+        }
+      );
     }
     this.setState({
       topologyType: newDescription.type,
