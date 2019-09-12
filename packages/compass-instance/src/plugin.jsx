@@ -29,10 +29,11 @@ class InstanceComponent extends React.Component {
    *
    * @param {Number} idx - The index of the clicked tab.
    */
-  onTabClicked(idx) {
+  onTabClicked(idx, name) {
     if (this.state.activeTab === idx) {
       return;
     }
+    global.hadronApp.appRegistry.emit('compass:screen:viewed', { screen: name });
     this.setState({ activeTab: idx });
   }
 
