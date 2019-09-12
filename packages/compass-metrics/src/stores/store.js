@@ -12,8 +12,9 @@ const metrics = require('mongodb-js-metrics')();
  * @param {AppRegistry} appRegistry - The app registry.
  * @param {String} storeName - The store name.
  * @param {Object} rule - The rule.
+ * @param {String} version - The compass version.
  */
-const trackStoreUpdate = (appRegistry, storeName, rule) => {
+const trackStoreUpdate = (appRegistry, storeName, rule, version) => {
   const store = appRegistry.getStore(storeName);
   if (!store) {
     return;
@@ -25,10 +26,10 @@ const trackStoreUpdate = (appRegistry, storeName, rule) => {
       // Some stores trigger with arrays of data.
       if (rule.multi) {
         state.forEach((s) => {
-          metrics.track(rule.resource, rule.action, rule.metadata(s));
+          metrics.track(rule.resource, rule.action, rule.metadata(version, s));
         });
       } else {
-        metrics.track(rule.resource, rule.action, rule.metadata(state));
+        metrics.track(rule.resource, rule.action, rule.metadata(version, state));
       }
     }
   });
@@ -40,13 +41,14 @@ const trackStoreUpdate = (appRegistry, storeName, rule) => {
  * @param {AppRegistry} appRegistry - The app registry.
  * @param {String} eventName - The name of the event.
  * @param {Object} rule - The rule.
+ * @param {String} version - The compass version.
  */
-const trackRegistryEvent = (appRegistry, eventName, rule) => {
+const trackRegistryEvent = (appRegistry, eventName, rule, version) => {
   // attach an event listener
   appRegistry.on(eventName, (...args) => {
     // only track an event if the rule condition evaluates to true
     if (rule.condition(...args)) {
-      metrics.track(rule.resource, rule.action, rule.metadata(...args));
+      metrics.track(rule.resource, rule.action, rule.metadata(version, ...args));
     }
   });
 };
@@ -67,9 +69,9 @@ metricsStore.onActivated = (appRegistry) => {
       const eventName = rule.registryEvent;
 
       if (storeName) {
-        trackStoreUpdate(appRegistry, storeName, rule);
+        trackStoreUpdate(appRegistry, storeName, rule, version);
       } else if (eventName) {
-        trackRegistryEvent(appRegistry, eventName, rule);
+        trackRegistryEvent(appRegistry, eventName, rule, version);
       }
     });
   });

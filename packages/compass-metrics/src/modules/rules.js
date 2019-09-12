@@ -21,10 +21,11 @@ const RULES = [
     resource: 'Topology',
     action: 'detected',
     condition: () => true,
-    metadata: (state) => ({
+    metadata: (version, state) => ({
       'topology type': state.topologyType,
       'server count': state.servers.length,
-      'server types': state.servers.map(server => server.type)
+      'server types': state.servers.map(server => server.type),
+      compass_version: version
     })
   },
   {
@@ -32,7 +33,7 @@ const RULES = [
     resource: 'Deployment',
     action: 'detected',
     condition: (state) => (state.instance.databases !== null),
-    metadata: (state) => ({
+    metadata: (version, state) => ({
       'databases count': state.instance.databases.length,
       'namespaces count': state.instance.collections.length,
       'mongodb version': state.instance.build.version,
@@ -54,7 +55,8 @@ const RULES = [
       'is genuine mongodb': state.instance.genuineMongoDB === undefined ? true : state.instance.genuineMongoDB.isGenuine,
       'server name': state.instance.genuineMongoDB === undefined ? 'mongodb' : state.instance.genuineMongoDB.dbType,
       'is data lake': state.instance.dataLake === undefined ? false : state.instance.dataLake.isDataLake,
-      'data lake version': state.instance.dataLake === undefined ? null : state.instance.dataLake.version
+      'data lake version': state.instance.dataLake === undefined ? null : state.instance.dataLake.version,
+      compass_version: version
     })
   },
   {
@@ -62,12 +64,13 @@ const RULES = [
     resource: 'Schema',
     action: 'sampled',
     condition: (state) => state.samplingState === 'complete',
-    metadata: (state) => ({
+    metadata: (version, state) => ({
       'sampling time ms': state.samplingTimeMS,
       'number of fields': state.schema.fields.length,
       'schema width': schemaStats.width(state.schema),
       'schema depth': schemaStats.depth(state.schema),
-      'schema branching factors': schemaStats.branch(state.schema)
+      'schema branching factors': schemaStats.branch(state.schema),
+      compass_version: version
     })
   },
   {
@@ -75,8 +78,9 @@ const RULES = [
     resource: 'Document',
     action: 'deleted',
     condition: () => true,
-    metadata: (view) => ({
-      'view': view
+    metadata: (version, view) => ({
+      'view': view,
+      compass_version: version
     })
   },
   {
@@ -84,9 +88,10 @@ const RULES = [
     resource: 'Document',
     action: 'updated',
     condition: () => true,
-    metadata: (view, screen) => ({
+    metadata: (version, view, screen) => ({
       'screen': screen,
-      'view': view
+      'view': view,
+      compass_version: version
     })
   },
   {
@@ -94,10 +99,11 @@ const RULES = [
     resource: 'Document',
     action: 'inserted',
     condition: () => true,
-    metadata: (view, mode, multiple) => ({
+    metadata: (version, view, mode, multiple) => ({
       'mode': mode,
       'multiple': multiple,
-      'view': view
+      'view': view,
+      compass_version: version
     })
   },
   {
@@ -105,8 +111,9 @@ const RULES = [
     resource: 'Document',
     action: 'viewed',
     condition: () => true,
-    metadata: (view) => ({
-      'view': view
+    metadata: (version, view) => ({
+      'view': view,
+      compass_version: version
     })
   },
   {
@@ -114,8 +121,9 @@ const RULES = [
     resource: 'Documents',
     action: 'refreshed',
     condition: () => true,
-    metadata: (view) => ({
-      'view': view
+    metadata: (version, view) => ({
+      'view': view,
+      compass_version: version
     })
   },
   {
@@ -123,8 +131,9 @@ const RULES = [
     resource: 'Documents',
     action: 'paginated',
     condition: () => true,
-    metadata: (view) => ({
-      'view': view
+    metadata: (version, view) => ({
+      'view': view,
+      compass_version: version
     })
   },
   {
@@ -132,12 +141,13 @@ const RULES = [
     resource: 'SchemaValidation',
     action: 'activated',
     condition: () => true,
-    metadata: (data) => ({
+    metadata: (version, data) => ({
       ruleCount: data.ruleCount,
       validationLevel: data.validationLevel,
       validationAction: data.validationAction,
       jsonSchema: data.jsonSchema,
-      collectionSize: data.collectionSize
+      collectionSize: data.collectionSize,
+      compass_version: version
     })
   },
   {
@@ -145,12 +155,13 @@ const RULES = [
     resource: 'SchemaValidation',
     action: 'saved',
     condition: () => true,
-    metadata: (data) => ({
+    metadata: (version, data) => ({
       ruleCount: data.ruleCount,
       validationLevel: data.validationLevel,
       validationAction: data.validationAction,
       jsonSchema: data.jsonSchema,
-      collectionSize: data.collectionSize
+      collectionSize: data.collectionSize,
+      compass_version: version
     })
   },
   {
@@ -158,19 +169,23 @@ const RULES = [
     resource: 'SchemaValidation',
     action: 'rulesadded',
     condition: () => true,
-    metadata: (data) => ({ collectionSize: data.collectionSize })
+    metadata: (version, data) => ({
+      collectionSize: data.collectionSize,
+      compass_version: version
+    })
   },
   {
     registryEvent: 'schema-validation-fetched',
     resource: 'SchemaValidation',
     action: 'fetched',
     condition: () => true,
-    metadata: (data) => ({
+    metadata: (version, data) => ({
       ruleCount: data.ruleCount,
       validationLevel: data.validationLevel,
       validationAction: data.validationAction,
       jsonSchema: data.jsonSchema,
-      collectionSize: data.collectionSize
+      collectionSize: data.collectionSize,
+      compass_version: version
     })
   },
   {
@@ -178,7 +193,7 @@ const RULES = [
     resource: 'Explain',
     action: 'fetched',
     condition: () => true,
-    metadata: (data) => ({
+    metadata: (version, data) => ({
       viewMode: data.viewMode,
       executionTimeMS: data.executionTimeMS,
       inMemorySort: data.inMemorySort,
@@ -192,7 +207,8 @@ const RULES = [
       numberOfShards: data.numberOfShards,
       totalDocsExamined: data.totalDocsExamined,
       totalKeysExamined: data.totalKeysExamined,
-      indexUsed: data.indexUsed
+      indexUsed: data.indexUsed,
+      compass_version: version
     })
   },
   {
@@ -200,13 +216,14 @@ const RULES = [
     resource: 'Collection Stats',
     action: 'fetched',
     condition: (state) => (state !== undefined),
-    metadata: (state) => ({
+    metadata: (version, state) => ({
       'document count': state.documentCount,
       'total document size kb': state.totalDocumentSize,
       'avg document size kb': state.avgDocumentSize,
       'index count': state.indexCount,
       'total index size kb': state.totalIndexSize,
-      'avg index size kb': state.avgIndexSize
+      'avg index size kb': state.avgIndexSize,
+      compass_version: version
     })
   },
   {
@@ -214,12 +231,13 @@ const RULES = [
     resource: 'Query',
     action: 'applied',
     condition: (state) => state.queryState === 'apply',
-    metadata: (state) => ({
+    metadata: (version, state) => ({
       'filter': state.filter,
       'project': state.project,
       'sort': state.sort,
       'skip': state.skip,
-      'limit': state.limit
+      'limit': state.limit,
+      compass_version: version
     })
   },
   {
@@ -227,16 +245,19 @@ const RULES = [
     resource: 'Export',
     action: 'opened',
     condition: () => true,
-    metadata: () => ({})
+    metadata: (version) => ({
+      compass_version: version
+    })
   },
   {
     registryEvent: 'export-finished',
     resource: 'Export',
     action: 'completed',
     condition: () => true,
-    metadata: (size, fileType) => ({
+    metadata: (version, size, fileType) => ({
       'size': size,
-      'file type': fileType
+      'file type': fileType,
+      compass_version: version
     })
   },
   {
@@ -244,16 +265,19 @@ const RULES = [
     resource: 'Import',
     action: 'opened',
     condition: () => true,
-    metadata: () => ({})
+    metadata: (version) => ({
+      compass_version: version
+    })
   },
   {
     registryEvent: 'import-finished',
     resource: 'Import',
     action: 'completed',
     condition: () => true,
-    metadata: (size, fileType) => ({
+    metadata: (version, size, fileType) => ({
       'size': size,
-      'file type': fileType
+      'file type': fileType,
+      compass_version: version
     })
   },
   {
@@ -261,9 +285,10 @@ const RULES = [
     resource: 'Aggregation',
     action: 'executed',
     condition: () => true,
-    metadata: (data) => ({
+    metadata: (version, data) => ({
       numStages: data.numStages,
-      stageOperators: data.stageOperators
+      stageOperators: data.stageOperators,
+      compass_version: version
     })
   },
   {
@@ -271,8 +296,9 @@ const RULES = [
     resource: 'Aggregation',
     action: 'saved',
     condition: () => true,
-    metadata: (data) => ({
-      name: data.name
+    metadata: (version, data) => ({
+      name: data.name,
+      compass_version: version
     })
   },
   {
@@ -280,8 +306,9 @@ const RULES = [
     resource: 'Aggregation',
     action: 'deleted',
     condition: () => true,
-    metadata: (data) => ({
-      name: data.name
+    metadata: (version, data) => ({
+      name: data.name,
+      compass_version: version
     })
   },
   {
@@ -289,8 +316,9 @@ const RULES = [
     resource: 'Aggregation',
     action: 'viewUpdated',
     condition: () => true,
-    metadata: (data) => ({
-      numStages: data.numStages
+    metadata: (version, data) => ({
+      numStages: data.numStages,
+      compass_version: version
     })
   },
   {
@@ -298,8 +326,9 @@ const RULES = [
     resource: 'Aggregation',
     action: 'viewCreated',
     condition: () => true,
-    metadata: (data) => ({
-      numStages: data.numStages
+    metadata: (version, data) => ({
+      numStages: data.numStages,
+      compass_version: version
     })
   },
   {
@@ -307,8 +336,9 @@ const RULES = [
     resource: 'Tour',
     action: 'closed',
     condition: () => true,
-    metadata: (title) => ({
-      tab: title
+    metadata: (version, title) => ({
+      tab: title,
+      compass_version: version
     })
   },
   {
@@ -316,15 +346,18 @@ const RULES = [
     resource: 'AtlasLink',
     action: 'clicked',
     condition: () => true,
-    metadata: () => ({})
+    metadata: (version) => ({
+      compass_version: version
+    })
   },
   {
     store: 'License.Store',
     resource: 'License',
     action: 'viewed',
     condition: () => true,
-    metadata: (state) => ({
-      'license accepted': state.isAgreed
+    metadata: (version, state) => ({
+      'license accepted': state.isAgreed,
+      compass_version: version
     })
   }
 ];
