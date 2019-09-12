@@ -88,6 +88,9 @@ var NetworkOptInView = View.extend({
     var feature = evt.target.name;
     var value = evt.target.checked;
     this.set(feature, value);
+    if (feature === 'trackUsageStatistics' && value !== true) {
+      global.hadronApp.appRegistry.emit('compass:usage:disabled');
+    }
   },
   buttonClicked: function() {
     var features = [
