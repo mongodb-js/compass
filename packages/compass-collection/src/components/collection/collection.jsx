@@ -20,6 +20,7 @@ class Collection extends Component {
     selectOrCreateTab: PropTypes.func.isRequired,
     statsStore: PropTypes.object.isRequired,
     localAppRegistry: PropTypes.object.isRequired,
+    globalAppRegistry: PropTypes.object.isRequired,
     activeSubTab: PropTypes.number.isRequired,
     id: PropTypes.string.isRequired,
     sourceName: PropTypes.string,
@@ -38,6 +39,7 @@ class Collection extends Component {
       this.props.localAppRegistry.emit('collapse-query-history');
     }
     this.props.localAppRegistry.emit('subtab-changed', name);
+    this.props.globalAppRegistry.emit('compass:screen:viewed', { screen: name });
     this.props.changeActiveSubTab(idx, this.props.id);
   }
 

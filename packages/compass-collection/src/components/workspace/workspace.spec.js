@@ -20,6 +20,7 @@ describe.skip('Workspace [Component]', () => {
         closeTab={() => {}}
         moveTab={() => {}}
         selectTab={() => {}}
+        appRegistry={{}}
         prevTab={prevTabSpy}
         nextTab={nextTabSpy}
         createNewTab={() => {}} />

@@ -20,6 +20,7 @@ describe('Collection [Component]', () => {
         tabs={[]}
         views={[]}
         queryHistoryIndexes={[]}
+        globalAppRegistry={{}}
         statsPlugin={statsPlugin}
         statsStore={statsStore}
         scopedModals={[]}

@@ -52,6 +52,7 @@ class Workspace extends PureComponent {
     closeTab: PropTypes.func.isRequired,
     createNewTab: PropTypes.func.isRequired,
     selectOrCreateTab: PropTypes.func.isRequired,
+    appRegistry: PropTypes.object.isRequired,
     prevTab: PropTypes.func.isRequired,
     nextTab: PropTypes.func.isRequired,
     moveTab: PropTypes.func.isRequired,
@@ -188,6 +189,7 @@ class Workspace extends PureComponent {
           pipeline={activeTab.pipeline}
           changeActiveSubTab={this.props.changeActiveSubTab}
           selectOrCreateTab={this.props.selectOrCreateTab}
+          globalAppRegistry={this.props.appRegistry}
           localAppRegistry={activeTab.localAppRegistry} />
       );
     }
@@ -233,7 +235,8 @@ class Workspace extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = state => ({
-  tabs: state.tabs
+  tabs: state.tabs,
+  appRegistry: state.appRegistry
 });
 
 /**
