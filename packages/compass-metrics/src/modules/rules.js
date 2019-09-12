@@ -17,6 +17,16 @@ import schemaStats from 'mongodb-schema/lib/stats';
  */
 const RULES = [
   {
+    registryEvent: 'compass:screen:viewed',
+    resource: 'Screen',
+    action: 'viewed',
+    condition: () => true,
+    metadata: (version, state) => ({
+      ...state,
+      compass_version: version
+    })
+  },
+  {
     registryEvent: 'compass:deployment-awareness:topology-changed',
     resource: 'Topology',
     action: 'detected',
