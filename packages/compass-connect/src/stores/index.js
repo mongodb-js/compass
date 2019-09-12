@@ -9,6 +9,12 @@ const ConnectionCollection = Connection.ConnectionCollection;
 const StateMixin = require('reflux-state-mixin');
 const ipc = require('hadron-ipc');
 const userAgent = navigator.userAgent.toLowerCase();
+const electron = require('electron');
+
+/**
+ * A default driverUrl.
+ */
+const DEFAULT_DRIVER_URL = 'mongodb://localhost:27017/?readPreference=primary&ssl=false';
 
 /**
  * All the authentication strategy related fields on the connection model, with
@@ -100,7 +106,7 @@ const Store = Reflux.createStore({
     return {
       currentConnection: new Connection(),
       connections: new ConnectionCollection(),
-      customUrl: 'mongodb://localhost:27017/?readPreference=primary&ssl=false',
+      customUrl: '',
       isValid: true,
       isConnected: false,
       errorMessage: null,
@@ -169,11 +175,11 @@ const Store = Reflux.createStore({
 
     this.state.viewType = viewType;
 
-    if (customUrl === '') {
-      this._cleanConnection();
-      this.trigger(this.state);
-    } else if (viewType === 'connectionForm') { // Terget view
-      if (!Connection.isURI(customUrl)) {
+    if (viewType === 'connectionForm') { // Target view
+      if (customUrl === '') {
+        this._cleanConnection();
+        this.trigger(this.state);
+      } else if (!Connection.isURI(customUrl)) {
         this.state.currentConnection = new Connection();
         this.trigger(this.state);
       } else {
@@ -234,27 +240,22 @@ const Store = Reflux.createStore({
    */
   onConnectClicked() {
     if (this.state.viewType === 'connectionString') {
-      const customUrl = this.state.customUrl;
+      const customUrl = this.state.customUrl || DEFAULT_DRIVER_URL;
 
-      if (customUrl === '') {
-        this._cleanConnection();
-        this._setSyntaxErrorMessage('The connection string can not be empty');
+      this.StatusActions.showIndeterminateProgressBar();
+
+      if (!Connection.isURI(customUrl)) {
+        this._setSyntaxErrorMessage('Invalid schema, expected `mongodb` or `mongodb+srv`');
         this.trigger(this.state);
       } else {
-        this.StatusActions.showIndeterminateProgressBar();
-        if (!Connection.isURI(customUrl)) {
-          this._setSyntaxErrorMessage('Invalid schema, expected `mongodb` or `mongodb+srv`');
-          this.trigger(this.state);
-        } else {
-          Connection.from(customUrl, (error, connection) => {
-            if (error) {
-              this._setSyntaxErrorMessage(error.message);
-              this.trigger(this.state);
-            } else {
-              this._connect(connection);
-            }
-          });
-        }
+        Connection.from(customUrl, (error, connection) => {
+          if (error) {
+            this._setSyntaxErrorMessage(error.message);
+            this.trigger(this.state);
+          } else {
+            this._connect(connection);
+          }
+        });
       }
     } else {
       const currentConnection = this.state.currentConnection;
@@ -360,7 +361,7 @@ const Store = Reflux.createStore({
    */
   onExternalLinkClicked(href, event) {
     if (userAgent.indexOf('electron') > -1) {
-      const { shell } = require('electron');
+      const { shell } = electron;
 
       shell.openExternal(href);
     } else {
@@ -746,6 +747,10 @@ const Store = Reflux.createStore({
    * @param {Object} connection - The current connection.
    */
   _connect(connection) {
+    // We replace custom appname with proper appname
+    // to avoid sending malicious value to the server
+    connection.appname = electron.remote.app.getName();
+
     this._updateDefaults();
     this.dataService = new DataService(connection);
     this.appRegistry.emit('data-service-initialized', this.dataService);

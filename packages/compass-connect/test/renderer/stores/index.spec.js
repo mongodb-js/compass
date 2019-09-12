@@ -677,36 +677,6 @@ describe('Store', () => {
     });
   });
 
-  describe('#onConnectClicked', () => {
-    context('when the view is connectionString', () => {
-      context('when the connection string input is empty', () => {
-        before(() => {
-          Store.state.customUrl = '';
-          Store.state.isValid = true;
-          Store.state.viewType = 'connectionString';
-          Store.state.errorMessage = null;
-          Store.state.syntaxErrorMessage = null;
-          Store.StatusActions = {
-            showIndeterminateProgressBar: () => {},
-            done: () => {}
-          };
-        });
-
-        it('shows no empty string syntax error message', (done) => {
-          const unsubscribe = Store.listen((state) => {
-            unsubscribe();
-            expect(state.isValid).to.equal(false);
-            expect(state.errorMessage).to.equal(null);
-            expect(state.syntaxErrorMessage).to.equal('The connection string can not be empty');
-            done();
-          });
-
-          Actions.onConnectClicked();
-        });
-      });
-    });
-  });
-
   describe('#onChangeViewClicked', () => {
     context('when a form is valid', () => {
       context('when a current viewType is connectionString', () => {
