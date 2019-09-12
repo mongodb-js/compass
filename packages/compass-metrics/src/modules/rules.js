@@ -17,7 +17,7 @@ import schemaStats from 'mongodb-schema/lib/stats';
  */
 const RULES = [
   {
-    store: 'DeploymentAwareness.Store',
+    registryEvent: 'compass:deployment-awareness:topology-changed',
     resource: 'Topology',
     action: 'detected',
     condition: () => true,
