@@ -78,17 +78,16 @@ SpliceDiskIpcBackend.prototype.exec = function(method, model, options, done) {
           if (err) {
             return cb(err);
           }
-          if (
-            model.isCollection &&
-            !(self.secureBackend instanceof NullBackend)
-          ) {
-            // INT-961: better check here that we merge the right objects together
-            _.each(diskRes, function(m, i) {
-              assert.equal(m[model.mainIndex], res[i][model.mainIndex]);
+          // The order of the results on disk may not match the order of the results
+          // in secure storage.
+          const merged = diskRes.reduce((results, value) => {
+            const matchingSecure = res.find((result) => {
+              return result[model.mainIndex] === value[model.mainIndex];
             });
-          }
-          // once `secure` returned its result, we merge it with `disks`'s result
-          cb(null, _.merge(diskRes, res));
+            results.push(_.merge(value, matchingSecure));
+            return results;
+          }, []);
+          cb(null, merged);
         })
       );
     }
