@@ -5,6 +5,7 @@ import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
 import isEmpty from 'lodash.isempty';
 import { parseNamespace } from 'utils/stage';
+import { createId } from 'modules/id';
 
 import {
   DEFAULT_MAX_TIME_MS,
@@ -579,6 +580,7 @@ const executeStage = (dataService, ns, dispatch, state, index) => {
       cursor.close();
       dispatch(
         globalAppRegistryEmit('agg-pipeline-executed', {
+          id: state.id,
           numStages: state.pipeline.length,
           stageOperators: state.pipeline.map(s => s.stageOperator)
         })
@@ -655,7 +657,7 @@ export const runOutStage = index => {
     const state = getState();
     const dataService = state.dataService.dataService;
     executeStage(dataService, state.namespace, dispatch, state, index);
-    dispatch(globalAppRegistryEmit('agg-pipeline-out-executed'));
+    dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id: state.id }));
   };
 };
 
@@ -669,6 +671,9 @@ export const runOutStage = index => {
 export const runStage = index => {
   return (dispatch, getState) => {
     const state = getState();
+    if (state.id === '') {
+      dispatch(createId());
+    }
     const dataService = state.dataService.dataService;
     const ns = state.namespace;
     for (let i = index; i < state.pipeline.length; i++) {
