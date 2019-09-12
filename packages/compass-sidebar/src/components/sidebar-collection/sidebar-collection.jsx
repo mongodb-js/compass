@@ -118,6 +118,7 @@ class SidebarCollection extends PureComponent {
    * @param {String} editViewSource - The modify source name.
    */
   showCollection(eventName, collection, collections, editViewSource) {
+    console.log('SidebarCollection#props', this.props);
     const metadata = collectionMetadata(collection, collections, this.props.database, editViewSource);
     console.log('SidebarCollection#showCollection', eventName, metadata);
     this.props.globalAppRegistryEmit(eventName, metadata);
