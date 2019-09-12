@@ -118,9 +118,10 @@ class SidebarCollection extends PureComponent {
    * @param {String} editViewSource - The modify source name.
    */
   showCollection(eventName, collection, collections, editViewSource) {
-    console.log('SidebarCollection#props', this.props);
     const metadata = collectionMetadata(collection, collections, this.props.database, editViewSource);
-    console.log('SidebarCollection#showCollection', eventName, metadata);
+    if (editViewSource) {
+      metadata.sourcePipeline = this.props.pipeline;
+    }
     this.props.globalAppRegistryEmit(eventName, metadata);
     if (!this.props.isDataLake) {
       const ipc = require('hadron-ipc');
