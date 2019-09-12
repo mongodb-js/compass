@@ -12,25 +12,29 @@ const fixSslFields = (done) => {
   const connections = new Connection.ConnectionCollection();
   connections.once('sync', function() {
     const toBeSaved = connections.map(function(connection) {
-      if (Connection.SSL_METHOD_VALUES.includes(connection.ssl)) {
-        connection.sslMethod = connection.ssl;
-        connection.ssl = true;
-      }
       return (callback) => {
-        const valid = connection.save({}, {
-          success: () => {
-            callback(null);
-          },
-          error: () => {
+        console.log(Connection.SSL_METHOD_VALUES);
+        console.log(connection.ssl);
+        if (Connection.SSL_METHOD_VALUES.includes(connection.ssl)) {
+          connection.sslMethod = connection.ssl;
+          connection.ssl = true;
+          const valid = connection.save({}, {
+            success: () => {
+              callback(null);
+            },
+            error: () => {
+              callback(null);
+            }
+          });
+          if (!valid) {
             callback(null);
           }
-        });
-        if (!valid) {
+        } else {
           callback(null);
         }
       };
     });
-    async.parallel(toBeSaved, function(err) {
+    async.series(toBeSaved, function(err) {
       if (err) {
         debug('error saving connections', err.message);
       }
