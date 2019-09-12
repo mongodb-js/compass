@@ -499,7 +499,7 @@ export const generatePipeline = (state, index) => {
       // If stage is a $groupBy it will scan the entire list, so
       // prepend with $limit if the collection is large.
       if (
-        count === NA ||
+        (count === NA && state.sample) ||
         (count > largeLimit &&
           FULL_SCAN_OPS.includes(stage.stageOperator) &&
           state.sample)
