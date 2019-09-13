@@ -827,6 +827,7 @@ describe('Store', () => {
               Store.state.viewType = 'connectionForm';
               Store.state.customUrl = 'fake';
               Store.state.currentConnection.hostname = 'test';
+              Store.state.isHostChanged = true;
               Store.StatusActions = {
                 showIndeterminateProgressBar: () => {},
                 done: () => {}

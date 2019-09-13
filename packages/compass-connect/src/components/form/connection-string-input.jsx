@@ -8,11 +8,6 @@ import classnames from 'classnames';
 import styles from '../connect.less';
 
 /**
- * A default driverUrl.
- */
-const DEFAULT_DRIVER_URL = 'mongodb://localhost:27017/?readPreference=primary&ssl=false';
-
-/**
  * A connection string placeholder.
  */
 const PLACEHOLDER = 'e.g. mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin';
@@ -22,14 +17,13 @@ const PLACEHOLDER = 'e.g. mongodb+srv://username:password@cluster0-jtpxd.mongodb
  */
 const CONNECTION_STRING_LINK = 'https://docs.mongodb.com/manual/reference/connection-string/';
 
-class DriverUrlInput extends React.PureComponent {
+class ConnectionStringInput extends React.PureComponent {
   static displayName = 'DriverUrlInput';
 
-  static propTypes = { lastUsed: PropTypes.any, customUrl: PropTypes.string };
+  static propTypes = { customUrl: PropTypes.string };
 
   constructor(props) {
     super(props);
-    this.isChanged = false;
     this.validateConnectionString = debounce(Actions.validateConnectionString, 550);
   }
 
@@ -50,7 +44,6 @@ class DriverUrlInput extends React.PureComponent {
 
     Actions.onCustomUrlChanged(customUrl);
 
-    this.isChanged = true;
     this.validateConnectionString();
   }
 
@@ -60,14 +53,6 @@ class DriverUrlInput extends React.PureComponent {
    * @returns {String} customUrl.
    */
   getCustomUrl() {
-    if (
-      !this.lastUsed &&
-      !this.isChanged &&
-      this.props.customUrl === DEFAULT_DRIVER_URL
-    ) {
-      return '';
-    }
-
     return this.props.customUrl;
   }
 
@@ -90,4 +75,4 @@ class DriverUrlInput extends React.PureComponent {
   }
 }
 
-export default DriverUrlInput;
+export default ConnectionStringInput;

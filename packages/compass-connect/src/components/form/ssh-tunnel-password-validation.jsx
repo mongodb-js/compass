@@ -6,8 +6,6 @@ import FormInput from './form-input';
 import { shell } from 'electron';
 import FormGroup from './form-group';
 
-const DEFAULT_SSH_TUNNEL_PORT = 22;
-
 class SSHTunnelPasswordValidation extends React.Component {
   static displayName = 'SSHTunnelPasswordValidation';
 
@@ -15,11 +13,6 @@ class SSHTunnelPasswordValidation extends React.Component {
     currentConnection: PropTypes.object.isRequired,
     isValid: PropTypes.bool
   };
-
-  constructor(props) {
-    super(props);
-    this.isSSHTunnelPortChanged = false;
-  }
 
   /**
    * Handles sshTunnelHostname change.
@@ -54,15 +47,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    * @param {Object} evt - evt.
    */
   onSSHTunnelPortChanged(evt) {
-    const value = evt.target.value;
-
-    if (value === '') {
-      this.isSSHTunnelPortChanged = false;
-    } else {
-      this.isSSHTunnelPortChanged = true;
-    }
-
-    Actions.onSSHTunnelPortChanged(value);
+    Actions.onSSHTunnelPortChanged(evt.target.value);
   }
 
   /**
@@ -78,17 +63,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    * @returns {Number} sshTunnelPort.
    */
   getPort() {
-    const connection = this.props.currentConnection;
-
-    if (
-      !connection.lastUsed &&
-      !this.isSSHTunnelPortChanged &&
-      (connection.sshTunnelPort === DEFAULT_SSH_TUNNEL_PORT)
-    ) {
-      return '';
-    }
-
-    return connection.sshTunnelPort;
+    return this.props.currentConnection.sshTunnelPort;
   }
 
   /**

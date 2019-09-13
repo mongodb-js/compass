@@ -10,10 +10,7 @@ import styles from '../connect.less';
 class ConnectionString extends React.Component {
   static displayName = 'ConnectionString';
 
-  static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
-    customUrl: PropTypes.string
-  };
+  static propTypes = { customUrl: PropTypes.string };
 
   render() {
     return (
@@ -21,10 +18,7 @@ class ConnectionString extends React.Component {
         data-test-id="connect-string"
         className={classnames(styles['connect-string'])}>
         <FormGroup separator>
-          <ConnectionStringInput
-            lastUsed={this.props.currentConnection.lastUsed}
-            driverUrl={this.props.currentConnection.driverUrl}
-            customUrl={this.props.customUrl} />
+          <ConnectionStringInput customUrl={this.props.customUrl} />
         </FormGroup>
         <FormActions {...this.props } />
       </form>

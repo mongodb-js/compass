@@ -111,7 +111,9 @@ const Store = Reflux.createStore({
       isConnected: false,
       errorMessage: null,
       syntaxErrorMessage: null,
-      viewType: 'connectionString'
+      viewType: 'connectionString',
+      isHostChanged: false,
+      isPortChanged: false
     };
   },
 
@@ -177,8 +179,12 @@ const Store = Reflux.createStore({
 
     if (viewType === 'connectionForm') { // Target view
       if (customUrl === driverUrl) {
+        this.state.isHostChanged = true;
+        this.state.isPortChanged = true;
         this.trigger(this.state);
-      } else if (customUrl === '' || customUrl === DEFAULT_DRIVER_URL) {
+      } else if (customUrl === '') {
+        this.state.isHostChanged = false;
+        this.state.isPortChanged = false;
         this._cleanConnection();
         this.trigger(this.state);
       } else if (!Connection.isURI(customUrl)) {
@@ -198,12 +204,19 @@ const Store = Reflux.createStore({
             connection.name = '';
 
             this.state.currentConnection = connection;
+            this.state.isHostChanged = true;
+            this.state.isPortChanged = true;
             this.trigger(this.state);
           }
         });
       }
     } else {
-      this.state.customUrl = isValid ? driverUrl : customUrl;
+      this.state.customUrl = (
+        isValid &&
+        (this.state.isHostChanged === true || this.state.isPortChanged === true)
+      )
+        ? driverUrl
+        : customUrl;
       this.trigger(this.state);
     }
   },
@@ -304,7 +317,6 @@ const Store = Reflux.createStore({
    * @param {String} customUrl - A connection string.
    */
   onCustomUrlChanged(customUrl) {
-    this.state.isChanged = true;
     this.state.errorMessage = null;
     this.state.syntaxErrorMessage = null;
     this.state.customUrl = customUrl;
@@ -409,6 +421,7 @@ const Store = Reflux.createStore({
    */
   onHostnameChanged(hostname) {
     this.state.currentConnection.hostname = hostname.trim();
+    this.state.isHostChanged = true;
 
     if (hostname.match(/mongodb\.net/i)) {
       this.state.currentConnection.sslMethod = 'SYSTEMCA';
@@ -434,6 +447,7 @@ const Store = Reflux.createStore({
    */
   onPortChanged(port) {
     this.state.currentConnection.port = port.trim();
+    this.state.isPortChanged = true;
     this.trigger(this.state);
   },
 
