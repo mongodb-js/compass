@@ -136,7 +136,7 @@ export const AtlasLink = {
       createButton(
         'https://www.mongodb.com/cloud/atlas/lp/general?jmp=compass',
         'Create Free Cluster',
-        'create-atlas-cluster-learn-more-clicked'
+        'create-atlas-cluster-clicked'
       )
     ])
   ]
