@@ -702,7 +702,7 @@ describe('Store', () => {
           });
 
           it('sets the driverUrl', (done) => {
-            const driverUrl = 'mongodb://server.example.com:27017/?readPreference=primary&appname=Electron&ssl=false';
+            const driverUrl = 'mongodb://server.example.com:27017/?readPreference=primary&ssl=false';
             const unsubscribe = Store.listen((state) => {
               unsubscribe();
               expect(state.currentConnection.driverUrl).to.equal(driverUrl);
@@ -735,7 +735,7 @@ describe('Store', () => {
           });
 
           it('cleans the driverUrl', (done) => {
-            const driverUrl = 'mongodb://localhost:27017/?readPreference=primary&appname=Electron&ssl=false';
+            const driverUrl = 'mongodb://localhost:27017/?readPreference=primary&ssl=false';
             const unsubscribe = Store.listen((state) => {
               unsubscribe();
               expect(state.currentConnection.driverUrl).to.equal(driverUrl);
@@ -770,7 +770,7 @@ describe('Store', () => {
           });
 
           it('does not change validation properties', (done) => {
-            const driverUrl = 'mongodb://localhost:27017/?readPreference=primary&appname=Electron&ssl=false';
+            const driverUrl = 'mongodb://localhost:27017/?readPreference=primary&ssl=false';
             const unsubscribe = Store.listen((state) => {
               unsubscribe();
               expect(state.currentConnection.driverUrl).to.equal(driverUrl);
@@ -846,7 +846,7 @@ describe('Store', () => {
             it('updates customUrl and cleans a syntax error', (done) => {
               const unsubscribe = Store.listen((state) => {
                 unsubscribe();
-                expect(state.customUrl).to.equal('mongodb://test:27017/?readPreference=primary&appname=Electron&ssl=false');
+                expect(state.customUrl).to.equal('mongodb://test:27017/?readPreference=primary&ssl=false');
                 expect(state.errorMessage).to.equal(null);
                 expect(state.syntaxErrorMessage).to.equal(null);
                 done();
