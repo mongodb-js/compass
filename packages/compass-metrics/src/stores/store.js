@@ -48,6 +48,7 @@ const trackRegistryEvent = (appRegistry, eventName, rule, version) => {
   appRegistry.on(eventName, (...args) => {
     // only track an event if the rule condition evaluates to true
     if (rule.condition(...args)) {
+      console.log('TRACKING REGISTRY EVENT', eventName, rule, version);
       metrics.track(rule.resource, rule.action, rule.metadata(version, ...args));
     }
   });
@@ -61,6 +62,7 @@ const trackRegistryEvent = (appRegistry, eventName, rule, version) => {
 metricsStore.onActivated = (appRegistry) => {
   appRegistry.on('application-initialized', (version, productName) => {
     setup(appRegistry, productName, version);
+    console.log('VERSION', version);
 
     // configure rules
     rules.forEach((rule) => {
