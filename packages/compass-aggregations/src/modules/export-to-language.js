@@ -1,5 +1,8 @@
 import { generatePipelineAsString } from 'modules/pipeline';
-import { localAppRegistryEmit } from 'mongodb-redux-common/app-registry';
+import {
+  localAppRegistryEmit,
+  globalAppRegistryEmit
+} from 'mongodb-redux-common/app-registry';
 
 /**
  * Action creator for export to language events.
@@ -13,6 +16,12 @@ export const exportToLanguage = () => {
       localAppRegistryEmit(
         'open-aggregation-export-to-language',
         generatePipelineAsString(state, state.pipeline.length)
+      )
+    );
+    dispatch(
+      globalAppRegistryEmit(
+        'compass:export-to-language:opened',
+        { source: 'Aggregations' }
       )
     );
   };
