@@ -7,6 +7,10 @@ import {
 } from 'modules/export-query';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import {
+  localAppRegistryActivated,
+  globalAppRegistryActivated
+} from 'mongodb-redux-common/app-registry';
 import reducer from 'modules';
 
 /**
@@ -31,6 +35,7 @@ const configureStore = (options = {}) => {
 
   if (options.localAppRegistry) {
     const localAppRegistry = options.localAppRegistry;
+    store.dispatch(localAppRegistryActivated(localAppRegistry));
     localAppRegistry.on('open-aggregation-export-to-language', (aggregation) => {
       store.dispatch(toggleModal(true));
       store.dispatch(setNamespace('Pipeline'));
@@ -44,6 +49,11 @@ const configureStore = (options = {}) => {
       store.dispatch(runQuery('python', query));
       store.dispatch(addInputQuery(query));
     });
+  }
+
+  if (options.globalAppRegistry) {
+    const globalAppRegistry = options.globalAppRegistry;
+    store.dispatch(globalAppRegistryActivated(globalAppRegistry));
   }
 
   if (options.copyToClipboardFn) {

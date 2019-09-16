@@ -128,6 +128,7 @@
   "dependencies": {
     "brace": "^0.11.1",
     "js-beautify": "^1.7.5",
+    "mongodb-redux-common": "^0.0.2",
     "react-select-plus": "^1.2.0",
     "redux-thunk": "^2.2.0"
   }

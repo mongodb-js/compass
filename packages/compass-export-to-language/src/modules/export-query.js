@@ -1,4 +1,7 @@
-const compiler = require('bson-transpilers');
+import {
+  globalAppRegistryEmit
+} from 'mongodb-redux-common/app-registry';
+import compiler from 'bson-transpilers';
 
 const PREFIX = 'exportQuery';
 
@@ -62,6 +65,12 @@ export const runQuery = (outputLang, input) => {
       state.exportQuery.imports = compiler.shell[outputLang].getImports();
       state.exportQuery.returnQuery = output;
       state.exportQuery.queryError = null;
+      dispatch(
+        globalAppRegistryEmit(
+          'compass:export-to-language:run',
+          { language: state.outputLang, showImports: state.showImports, type: state.namespace }
+        )
+      );
       return state;
     } catch (e) {
       return dispatch(queryError(e.message));
