@@ -342,6 +342,34 @@ const RULES = [
     })
   },
   {
+    registryEvent: 'compass:aggregations:settings-applied',
+    resource: 'Aggregation',
+    action: 'settingsChanged',
+    condition: () => true,
+    metadata: (version, state) => ({
+      ...state,
+      compass_version: version
+    })
+  },
+  {
+    registryEvent: 'compass:aggregations:pipeline-imported',
+    resource: 'Aggregation',
+    action: 'pipelineImported',
+    condition: () => true,
+    metadata: (version) => ({
+      compass_version: version
+    })
+  },
+  {
+    registryEvent: 'compass:aggregations:pipeline-opened',
+    resource: 'Aggregation',
+    action: 'pipelineOpened',
+    condition: () => true,
+    metadata: (version) => ({
+      compass_version: version
+    })
+  },
+  {
     registryEvent: 'tour-closed',
     resource: 'Tour',
     action: 'closed',
