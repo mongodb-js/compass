@@ -243,7 +243,8 @@ const Store = Reflux.createStore({
       isValid: true,
       isConnected: false,
       errorMessage: null,
-      syntaxErrorMessage: null
+      syntaxErrorMessage: null,
+      viewType: 'connectionForm'
     });
   },
 
