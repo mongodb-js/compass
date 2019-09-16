@@ -85,6 +85,8 @@ const RULES = [
       'schema width': schemaStats.width(state.schema),
       'schema depth': schemaStats.depth(state.schema),
       'schema branching factors': schemaStats.branch(state.schema),
+      is_geo: Object.keys(state.geo).length > 0,
+      geo_layers: Object.values(state.geo).map(layer => layer.type),
       compass_version: version
     })
   },
