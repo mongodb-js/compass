@@ -3,7 +3,8 @@ const EJSON = require('mongodb-extended-json');
 
 import dataService from 'modules/data-service';
 import appRegistry, {
-  localAppRegistryEmit
+  localAppRegistryEmit,
+  globalAppRegistryEmit
 } from 'mongodb-redux-common/app-registry';
 import error, {
   clearError, handleError,
@@ -188,6 +189,22 @@ export const createIndex = () => {
       if (!createErr) {
         dispatch(reset());
         dispatch(localAppRegistryEmit('refresh-data'));
+        console.log('state', state);
+        dispatch(
+          globalAppRegistryEmit(
+            'compass:indexes:created',
+            {
+              isCollation: state.isCustomCollation,
+              isBackground: state.isBackground,
+              isPartialFilterExpression: state.isPartialFilterExpression,
+              isTTL: state.isTtl,
+              isUnique: state.isUnique,
+              isWildcard: state.isWildcard,
+              collation: state.collation,
+              ttl: state.ttl
+            }
+          )
+        );
         dispatch(clearError());
         dispatch(toggleInProgress(false));
         dispatch(toggleIsVisible(false));
