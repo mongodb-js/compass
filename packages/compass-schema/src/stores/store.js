@@ -283,9 +283,11 @@ const configureStore = (options = {}) => {
           errorMessage: ''
         });
         this.stopSampling();
-        // @note: This is added for telemetry data.
         process.nextTick(() => {
-          this.globalAppRegistry.emit('compass:schema:schema-sampled', this.state);
+          this.globalAppRegistry.emit(
+            'compass:schema:schema-sampled',
+            { ...this.state, geo: this.geoLayers }
+          );
         });
       };
 
