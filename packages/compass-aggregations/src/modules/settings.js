@@ -1,3 +1,4 @@
+import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 const PREFIX = 'aggregations/settings';
 
 export const TOGGLE_IS_EXPANDED = `${PREFIX}/TOGGLE_IS_EXPANDED`;
@@ -103,7 +104,18 @@ export const setSettingsLimit = value => ({
   value: value
 });
 
-export const applySettings = value => ({
+const doApplySettings = (value) => ({
   type: APPLY_SETTINGS,
   settings: value
 });
+
+export const applySettings = (value) => {
+  return (dispatch, getState) => {
+    dispatch(doApplySettings(value));
+    dispatch(
+      globalAppRegistryEmit('compass:aggregations:settings-applied', {
+        settings: getState().settings
+      })
+    );
+  };
+};

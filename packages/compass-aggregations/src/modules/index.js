@@ -595,16 +595,23 @@ export const clonePipeline = () => ({
   type: CLONE_PIPELINE
 });
 
+const pipelineActionFromPaste = (text) => ({
+  type: NEW_FROM_PASTE,
+  text: text
+});
+
 /**
  * Action creator <StageEditor /> calls if empty and you paste
  * what could be an aggregation pipeline.
  * @param {String} text
  * @returns {Object}
  */
-export const newPipelineFromPaste = (text) => ({
-  type: NEW_FROM_PASTE,
-  text: text
-});
+export const newPipelineFromPaste = (text) => {
+  return (dispatch) => {
+    dispatch(pipelineActionFromPaste(text));
+    dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-imported'));
+  };
+};
 
 /**
  * Get the delete action.
@@ -643,6 +650,7 @@ export const getPipelineFromIndexedDB = (pipelineId) => {
         const pipe = e.target.result;
         dispatch(clearPipeline());
         dispatch(restoreSavedPipeline(pipe));
+        dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-opened'));
         dispatch(runStage(0));
       };
     });
