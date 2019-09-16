@@ -83,6 +83,10 @@ const configureStore = (options = {}) => {
      */
     exportToLanguage() {
       this.localAppRegistry.emit('open-query-export-to-language', this.state.filterString);
+      this.globalAppRegistry.emit(
+        'compass:export-to-language:opened',
+        { source: 'Query' }
+      );
     },
 
     /**
@@ -711,6 +715,10 @@ const configureStore = (options = {}) => {
       options.store = store;
       localAppRegistry.registerStore(QUERY_CHANGED_STORE, configureQueryChangedStore(options));
     }
+  }
+
+  if (options.globalAppRegistry) {
+    store.globalAppRegistry = options.globalAppRegistry;
   }
 
   if (options.namespace) {
