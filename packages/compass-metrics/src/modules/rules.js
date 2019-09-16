@@ -244,6 +244,16 @@ const RULES = [
     })
   },
   {
+    registryEvent: 'compass:indexes:created',
+    resource: 'Indexes',
+    action: 'created',
+    condition: () => true,
+    metadata: (version, state) => ({
+      ...state,
+      compass_version: version
+    })
+  },
+  {
     registryEvent: 'compass:query-bar:query-changed',
     resource: 'Query',
     action: 'applied',
