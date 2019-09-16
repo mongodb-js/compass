@@ -2,7 +2,8 @@ const merge = require('webpack-merge');
 const baseWebpackConfig = require('./webpack.base.config');
 
 const config = {
-  target: 'electron-renderer', // webpack should compile node compatible code for tests
+  mode: 'none',
+  target: 'electron-renderer', // Webpack should compile node compatible code for tests
   devtool: 'eval-source-map',
   stats: 'errors-only',
   externals: {

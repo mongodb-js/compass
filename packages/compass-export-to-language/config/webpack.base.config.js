@@ -4,7 +4,7 @@ const project = require('./project');
 module.exports = {
   resolve: {
     modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
+    extensions: ['.js', '.jsx', '.json', '.less', '.wasm'],
     alias: {
       actions: path.join(project.path.src, 'actions'),
       components: path.join(project.path.src, 'components'),
@@ -17,7 +17,8 @@ module.exports = {
       plugin: path.join(project.path.src, 'index.js'),
       stores: path.join(project.path.src, 'stores'),
       storybook: project.path.storybook,
-      utils: path.join(project.path.src, 'utils')
+      utils: path.join(project.path.src, 'utils'),
+      'react-dom': '@hot-loader/react-dom'
     }
   },
   module: {
@@ -70,7 +71,7 @@ module.exports = {
             options: {
               modules: true,
               importLoaders: 1,
-              localIdentName: 'ExportToLanguagePlugin_[name]-[local]__[hash:base64:5]'
+              localIdentName: 'ExportToLangPlugin_[name]-[local]__[hash:base64:5]'
             }
           },
           {
