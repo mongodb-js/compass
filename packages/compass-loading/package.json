@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-loading",
   "productName": "Compass Loading Plugin",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "apiVersion": "3.0.0",
   "description": "Compass Loading Screen",
   "main": "lib/index.js",
