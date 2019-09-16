@@ -1,5 +1,8 @@
 import schemaStats from 'mongodb-schema/lib/stats';
 
+const ATLAS = /mongodb.net[:/]/i;
+const LOCALHOST = /(^localhost)|(^127\.0\.0\.1)/gi;
+
 /**
  * This file defines rules for tracking metrics based on Reflux store changes.
  *
@@ -66,6 +69,8 @@ const RULES = [
       'server name': state.instance.genuineMongoDB === undefined ? 'mongodb' : state.instance.genuineMongoDB.dbType,
       'is data lake': state.instance.dataLake === undefined ? false : state.instance.dataLake.isDataLake,
       'data lake version': state.instance.dataLake === undefined ? null : state.instance.dataLake.version,
+      is_atlas: !!state.instance._id.match(ATLAS),
+      is_localhost: !!state.instance._id.match(LOCALHOST),
       compass_version: version
     })
   },
@@ -366,6 +371,26 @@ const RULES = [
     action: 'pipelineOpened',
     condition: () => true,
     metadata: (version) => ({
+      compass_version: version
+    })
+  },
+  {
+    registryEvent: 'compass:export-to-language:opened',
+    resource: 'ExportToLanguage',
+    action: 'opened',
+    condition: () => true,
+    metadata: (version, state) => ({
+      source: state.source,
+      compass_version: version
+    })
+  },
+  {
+    registryEvent: 'compass:export-to-language:run',
+    resource: 'ExportToLanguage',
+    action: 'run',
+    condition: () => true,
+    metadata: (version, state) => ({
+      ...state,
       compass_version: version
     })
   },
