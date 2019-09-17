@@ -311,7 +311,7 @@ var Application = View.extend({
       }
     });
 
-    // TODO: IPC: Loading Preferences...
+    ipc.call('compass:loading:change-status', { status: 'loading preferences' });
     app.preferences.fetch();
   }
 });
@@ -338,6 +338,7 @@ app.extend({
         throw err;
       }
       Action.pluginActivationCompleted.listen(() => {
+        ipc.call('compass:loading:change-status', { status: 'activating plugins' });
         global.hadronApp.appRegistry.onActivated();
         global.hadronApp.appRegistry.emit('application-initialized', APP_VERSION, process.env.HADRON_PRODUCT_NAME);
         global.hadronApp.appRegistry.emit('preferences-loaded', state.preferences);
@@ -354,7 +355,6 @@ app.extend({
         state.postRender();
         marky.stop('Time to user can Click Connect');
       });
-      // TODO: IPC: Loading Plugins...
       require('./setup-plugin-manager');
     });
   }
@@ -408,6 +408,7 @@ Object.defineProperty(app, 'state', {
 marky.mark('Loading styles');
 const setupStyleManager = require('./setup-style-manager');
 setupStyleManager('index.less', () => {
+  ipc.call('compass:loading:change-status', { status: 'loading styles' });
   require('./reflux-listen-to-external-store');
   app.init();
   // expose app globally for debugging purposes
