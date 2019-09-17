@@ -1,0 +1,56 @@
+<%= name %> uses third-party libraries or other resources that may
+be distributed under licenses different than <%= name %>.
+
+In the event that we accidentally failed to list a required notice,
+please bring it to our attention through any of the ways detailed here :
+
+           <%= author.email %>
+
+# TABLE OF CONTENTS
+
+The following is a listing of the open source components detailed in
+this document. This list is provided for your convenience; please read
+further if you wish to review the copyright notice(s) and the full text
+of the license associated with each component.
+
+## Notices
+
+THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
+Do Not Translate or Localize
+
+<% _.each(licenses, function(license) {%>
+### SECTION <%= license.num %>: <%= license.name %> LICENSE
+
+<% _.each(license.dependencies, function(pkg, i) {%>
+- <%= pkg.name %> retrieved from <%= pkg.url %><% }); %>
+<% }); %>
+
+## Appendices
+<% _.each(licenses, function(license) {%>
+### Appendix <%= license.letter %>: The <%= license.name %> License
+<% }); %>
+
+
+-------------------------------------
+
+## Notices
+
+<% _.each(licenses, function(license) {%>
+### SECTION <%= license.num %>: <%= license.name %> LICENSE
+
+The <%= license.name %> License is applicable to the following <%= license.dependencies.length %> component(s).
+
+<% _.each(_.groupBy(license.dependencies, 'grouper'), function(d, grouper) {%>
+<% _.each(d, function(pkg, i) {%>
+    - <%= pkg.name %> retrieved from <%= pkg.url %><% }); %>
+
+<%= _.first(d, 'licenseText').licenseText %>
+<% }); %>
+<% }); %>
+
+## Appendices
+<% _.each(licenses, function(license) {%>
+### Appendix <%= license.letter %>: The <%= license.name %> License
+
+<%= license.text %>
+<% }); %>
