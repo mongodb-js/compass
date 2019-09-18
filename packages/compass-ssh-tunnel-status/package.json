@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-ssh-tunnel-status",
   "productName": "SSH Tunnel Status",
   "version": "4.0.0",
-  "apiVersion": "2.0.0",
+  "apiVersion": "3.0.0",
   "description": "Compass SSH Tunnel Status",
   "main": "lib/index.js",
   "scripts": {
