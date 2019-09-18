@@ -5,7 +5,7 @@
   "description": "Compass Plugin for CRUD Operations",
   "repository": "https://github.com/10gen/compass-crud",
   "main": "lib/index.js",
-  "apiVersion": "2.0.0",
+  "apiVersion": "3.0.0",
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",
