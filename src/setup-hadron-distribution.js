@@ -18,10 +18,18 @@ process.env.HADRON_PRODUCT = name || 'mongodb-compass';
 process.env.HADRON_PRODUCT_NAME = productName || 'MongoDB Compass';
 process.env.HADRON_READONLY = readonly || false;
 process.env.HADRON_ISOLATED = isolated || false;
-process.env.HARDRON_METRICS_BUGSNAG_KEY = config.metrics_bugsnag_key;
-process.env.HARDRON_METRICS_INTERCOM_APP_ID = config.metrics_intercom_app_id;
-process.env.HARDRON_METRICS_STITCH_APP_ID = config.metrics_stitch_app_id;
 
+if (!process.env.HARDRON_METRICS_BUGSNAG_KEY) {
+  process.env.HARDRON_METRICS_BUGSNAG_KEY = config.metrics_bugsnag_key;
+}
+
+if (!process.env.HARDRON_METRICS_INTERCOM_APP_ID) {
+  process.env.HARDRON_METRICS_INTERCOM_APP_ID = config.metrics_intercom_app_id;
+}
+
+if (!process.env.HARDRON_METRICS_STITCH_APP_ID) {
+  process.env.HARDRON_METRICS_STITCH_APP_ID = config.metrics_stitch_app_id;
+}
 
 if (pkg.distribution) {
   process.env.NODE_ENV = 'production';
