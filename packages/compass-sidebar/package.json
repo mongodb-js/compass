@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-sidebar",
   "productName": "Sidebar plugin",
   "version": "2.1.14",
-  "apiVersion": "2.0.0",
+  "apiVersion": "3.0.0",
   "description": "Sidebar external plugin",
   "main": "lib/index.js",
   "scripts": {
