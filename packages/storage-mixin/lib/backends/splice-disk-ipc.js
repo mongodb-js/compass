@@ -80,14 +80,18 @@ SpliceDiskIpcBackend.prototype.exec = function(method, model, options, done) {
           }
           // The order of the results on disk may not match the order of the results
           // in secure storage.
-          const merged = diskRes.reduce((results, value) => {
-            const matchingSecure = res.find((result) => {
-              return result[model.mainIndex] === value[model.mainIndex];
-            });
-            results.push(_.merge(value, matchingSecure));
-            return results;
-          }, []);
-          cb(null, merged);
+          if (diskRes) {
+            const merged = diskRes.reduce((results, value) => {
+              const matchingSecure = res.find((result) => {
+                return result[model.mainIndex] === value[model.mainIndex];
+              });
+              results.push(_.merge(value, matchingSecure));
+              return results;
+            }, []);
+            cb(null, merged);
+          } else {
+            cb(null, []);
+          }
         })
       );
     }
