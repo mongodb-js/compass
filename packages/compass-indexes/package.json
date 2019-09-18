@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-indexes",
   "productName": "Compass Indexes plugin",
   "version": "2.0.3",
-  "apiVersion": "2.0.0",
+  "apiVersion": "3.0.0",
   "description": "Indexes support for Compass",
   "main": "lib/index.js",
   "scripts": {
