@@ -105,29 +105,24 @@ GLOBAL FLEXBOX LAYOUT STYLES
   height: 100%;
 }
 
-
-
 ::-webkit-scrollbar {
-  width: 10px;
-  &:horizontal {
-    height: 10px;
-  }
+    width: 10px;
+    &:horizontal {
+      height: 10px;
+    }
 }
 
 ::-webkit-scrollbar-track {
-  background-color: rgba(0,0,0,.10);
-  -webkit-border-radius: 0px;
-  border-radius: 0px;
+  background-color: none;
   &:hover {
     background-color: rgba(0,0,0,.16);
   }
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: rgba(255,255,255,1);
-  -webkit-border-radius: 3px;
-  border-radius: 3px;
-  border: 1px solid rgba(0,0,0,.16);
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,.10);
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
 }
 
 .unsafe-component {

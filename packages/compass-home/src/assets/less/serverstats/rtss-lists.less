@@ -303,13 +303,16 @@
 
 .rt-lists__listdiv,
 .rt-details__raw {
-  &::-webkit-scrollbar-track {
-    background-color: rgba(0,0,0,.16);
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
+  *::-webkit-scrollbar-track {
+    background-color: none;
+    &:hover {
+      background-color: rgba(0,0,0,.16);
+    }
   }
-  &::-webkit-scrollbar-thumb {
-    background-color: #484D51;
-    border: 1px solid rgba(0,0,0,.4);
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,.25);
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
   }
 }
