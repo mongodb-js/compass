@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-explain-plan",
   "productName": "Explain Plan plugin",
   "version": "3.0.0",
-  "apiVersion": "2.0.0",
+  "apiVersion": "3.0.0",
   "description": "Evaluate the performance of your quer",
   "main": "lib/index.js",
   "scripts": {
