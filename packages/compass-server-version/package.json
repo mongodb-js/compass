@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-server-version",
   "productName": "Server Version",
-  "version": "3.0.3",
+  "version": "4.0.0",
   "apiVersion": "3.0.0",
   "description": "Compass Server Version",
   "main": "lib/index.js",
