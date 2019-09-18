@@ -94,16 +94,16 @@
   }
 
   *::-webkit-scrollbar-track {
-    background-color: rgba(0,0,0,.12);
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
+    background-color: none;
     &:hover {
-      background-color: rgba(0,0,0,.24);
+      background-color: rgba(0,0,0,.16);
     }
   }
+  
   *::-webkit-scrollbar-thumb {
-    background-color: @compass-sidebar-base-background-color;
-    border: 1px solid rgba(0,0,0,.24);
+    background-color: rgba(255,255,255,.25);
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
   }
 
   /* Styles for the big create database button at the bottom */
