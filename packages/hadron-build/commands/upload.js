@@ -17,7 +17,7 @@ const downloadCenter = require('../lib/download-center');
 let createGitHubRelease = (CONFIG) => {
   const p = Promise.defer();
   var opts = {
-    owner: '10gen',
+    owner: 'mongodb-js',
     repo: 'compass',
     draft: true,
     tag_name: `v${CONFIG.version}`,
@@ -40,7 +40,7 @@ let createGitHubRelease = (CONFIG) => {
 let getOrCreateGitHubRelease = (CONFIG) => {
   const p = Promise.defer();
   const opts = {
-    owner: '10gen',
+    owner: 'mongodb-js',
     repo: 'compass'
   };
   github.repos.getReleases(opts, (err, releases) => {
@@ -74,7 +74,7 @@ let removeGitHubReleaseAssetIfExists = (CONFIG, release, asset) => {
 
   cli.debug(`Removing existing asset ${asset.name}`);
   const opts = {
-    owner: '10gen',
+    owner: 'mongodb-js',
     repo: 'compass',
     id: existing.id
   };
@@ -92,7 +92,7 @@ let removeGitHubReleaseAssetIfExists = (CONFIG, release, asset) => {
 
 let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
   const opts = {
-    owner: '10gen',
+    owner: 'mongodb-js',
     repo: 'compass',
     id: release.id,
     name: asset.name,
