@@ -110,17 +110,25 @@ let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
     type: 'oauth'
   });
 
-  github.repos.uploadAsset(opts, function(err, res) {
-    if (err) {
-      err.stack = err.stack || '<no stacktrace>';
-      cli.error(`Failed to upload ${asset.name}`);
-      console.log(err);
-      return p.reject(err);
-    }
-    cli.debug('Asset upload returned', res);
-    cli.ok(`Uploaded ${asset.name}`);
+  console.error('xxxxxxxxxxxxxxxxxxxxxxxx');
+  console.error('xxxxxxxxxxxxxxxxxxxxxxxx');
+  console.error('xxxxxxxxxxxxxxxxxxxxxxxx');
+  console.error('lucas fix');
+  process.nextTick(function() {
     p.resolve(asset);
   });
+
+  // github.repos.uploadAsset(opts, function(err, res) {
+  //   if (err) {
+  //     err.stack = err.stack || '<no stacktrace>';
+  //     cli.error(`Failed to upload ${asset.name}`);
+  //     console.log(err);
+  //     return p.reject(err);
+  //   }
+  //   cli.debug('Asset upload returned', res);
+  //   cli.ok(`Uploaded ${asset.name}`);
+  //   p.resolve(asset);
+  // });
   return p.promise;
 };
 
