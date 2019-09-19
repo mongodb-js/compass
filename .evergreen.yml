@@ -60,9 +60,9 @@ functions:
           export EVERGREEN_VERSION_ID="${version_id}";
           export EVERGREEN_WORKDIR="${workdir}";
 
-          export HADRON_METRICS_BUGSNAG_KEY = "${metrics_bugsnag_key}";
-          export HADRON_METRICS_INTERCOM_APP_ID = "${metrics_intercom_app_id}";
-          export HADRON_METRICS_STITCH_APP_ID = "${metrics_stitch_app_id}";
+          export HADRON_METRICS_BUGSNAG_KEY="${metrics_bugsnag_key}";
+          export HADRON_METRICS_INTERCOM_APP_ID="${metrics_intercom_app_id}";
+          export HADRON_METRICS_STITCH_APP_ID="${metrics_stitch_app_id}";
 
           # node stuff
           export ARTIFACTS_PATH="$(pwd)/.deps"
