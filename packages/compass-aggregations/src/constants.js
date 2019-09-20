@@ -152,6 +152,10 @@ export const STAGE_SPRINKLE_MAPPINGS = {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/replaceRoot/#pipe._S_replaceRoot',
     tooltip: 'Replaces a document with the specified embedded document.'
   },
+  $replaceWith: {
+    link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/replaceWith/',
+    tooltip: 'Replaces a document with the specified embedded document.'
+  },
   $sample: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/sample/#pipe._S_sample',
     tooltip: 'Randomly selects the specified number of documents from its input.'
@@ -159,6 +163,10 @@ export const STAGE_SPRINKLE_MAPPINGS = {
   $searchBeta: {
     link: 'https://docs.atlas.mongodb.com/reference/full-text-search/query-syntax/#pipe._S_searchBeta',
     tooltip: 'Performs a full-text search on the specified field(s).'
+  },
+  $set: {
+    link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/set/#pipe._S_set',
+    tooltip: 'Adds new fields to documents.'
   },
   $skip: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/skip/#pipe._S_skip',
@@ -171,6 +179,10 @@ export const STAGE_SPRINKLE_MAPPINGS = {
   $sortByCount: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/sortByCount/#pipe._S_sortByCount',
     tooltip: 'Groups incoming documents based on the value of a specified expression, then computes the count of documents in each distinct group.'
+  },
+  $unset: {
+    link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/unset/',
+    tooltip: 'Removes or excludes fields from documents.'
   },
   $unwind: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/unwind/#pipe._S_unwind',
