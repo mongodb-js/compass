@@ -8,14 +8,14 @@ import sortByOrder from 'lodash.sortbyorder';
 import few from './few';
 import shared from './shared';
 
-const minicharts_d3fns_boolean = () => {
+const minicharts_d3fns_boolean = (localAppRegistry) => {
   // --- beginning chart setup ---
   let width = 400;
   let height = 100;
   const options = {
     view: null
   };
-  const fewChart = few();
+  const fewChart = few(localAppRegistry);
   const margin = shared.margin;
   // --- end chart setup ---
 
