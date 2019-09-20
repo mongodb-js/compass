@@ -244,7 +244,9 @@ const Store = Reflux.createStore({
       isConnected: false,
       errorMessage: null,
       syntaxErrorMessage: null,
-      viewType: 'connectionForm'
+      viewType: 'connectionForm',
+      isHostChanged: true,
+      isPortChanged: true
     });
   },
 
@@ -410,7 +412,9 @@ const Store = Reflux.createStore({
       isConnected: false,
       errorMessage: null,
       syntaxErrorMessage: null,
-      viewType: 'connectionForm'
+      viewType: 'connectionForm',
+      isHostChanged: true,
+      isPortChanged: true
     });
   },
 
@@ -787,7 +791,8 @@ const Store = Reflux.createStore({
           isValid: true,
           isConnected: true,
           errorMessage: null,
-          syntaxErrorMessage: null
+          syntaxErrorMessage: null,
+          currentConnection: connection
         });
         this.appRegistry.emit('data-service-connected', error, ds);
         this.onCreateRecentClicked();
