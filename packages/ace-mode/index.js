@@ -237,13 +237,30 @@ var AGG_STAGE_OPERATORS = [
   '$unwind'
 ];
 
-var ALL_AGG = [];
+var EXT_JSON = [
+  '$binary',
+  '$date',
+  '$maxKey',
+  '$minKey',
+  '$numberDecimal',
+  '$numberDouble',
+  '$numberInt',
+  '$numberLong',
+  '$oid',
+  '$regex',
+  '$regularExpression',
+  '$timestamp',
+  '$undefined'
+];
 
-ALL_AGG.push.apply(ALL_AGG, AGG_ACCUMULATORS);
-ALL_AGG.push.apply(ALL_AGG, AGG_CONVERTERS);
-ALL_AGG.push.apply(ALL_AGG, AGG_EXPRESSION_OPERATORS);
-ALL_AGG.push.apply(ALL_AGG, AGG_QUERY_OPERATORS);
-ALL_AGG.push.apply(ALL_AGG, AGG_STAGE_OPERATORS);
+var SUPPORT = [];
+
+SUPPORT.push.apply(SUPPORT, AGG_ACCUMULATORS);
+SUPPORT.push.apply(SUPPORT, AGG_CONVERTERS);
+SUPPORT.push.apply(SUPPORT, AGG_EXPRESSION_OPERATORS);
+SUPPORT.push.apply(SUPPORT, AGG_QUERY_OPERATORS);
+SUPPORT.push.apply(SUPPORT, AGG_STAGE_OPERATORS);
+SUPPORT.push.apply(SUPPORT, EXT_JSON);
 
 ace.define(
   'ace/mode/mongodb_highlight_rules',
@@ -272,7 +289,7 @@ ace.define(
             'Code|ObjectId|Binary|BinData|UUID|DBRef|Timestamp|NumberInt|NumberLong|NumberDecimal|MaxKey|MinKey|ISODate|RegExp',
           'constant.language': 'null|Infinity|NaN|undefined',
           'constant.language.boolean': 'true|false',
-          'support.function': ALL_AGG.join('|')
+          'support.function': SUPPORT.join('|')
         },
         'identifier'
       );
