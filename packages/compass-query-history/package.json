@@ -118,6 +118,7 @@
     "mocha": "^4.1.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-data-service": "^12.5.0",
+    "mongodb-extended-json": "^1.10.1",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-metrics": "^4.2.0",
     "mongodb-js-precommit": "^2.0.0",

@@ -1,6 +1,6 @@
 import Model from 'ampersand-model';
 import uuid from 'uuid';
-import { EJSON } from 'bson';
+import EJSON from 'mongodb-extended-json';
 
 /**
  * A model that represents a MongoDB query.
