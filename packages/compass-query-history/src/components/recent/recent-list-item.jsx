@@ -72,7 +72,7 @@ class RecentListItem extends PureComponent {
         </CardHeader>
 
         <CardBody>
-          <Query attributes={attributes} />
+          <Query attributes={attributes} actions={this.props.actions} />
         </CardBody>
       </Card>
     );

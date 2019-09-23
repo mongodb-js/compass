@@ -88,6 +88,10 @@ const configureStore = (options = {}) => {
       });
     },
 
+    runQuery(query) {
+      this.localAppRegistry.emit('compass:query-history:run-query', query);
+    },
+
     copyQuery(query) {
       const attributes = query.getAttributes({ props: true });
 
@@ -108,6 +112,7 @@ const configureStore = (options = {}) => {
   store.onConnected();
 
   if (options.localAppRegistry) {
+    store.localAppRegistry = options.localAppRegistry;
     options.localAppRegistry.on('query-applied', (query) => {
       store.onQueryApplied(query);
     });

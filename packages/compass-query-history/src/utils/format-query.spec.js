@@ -31,7 +31,7 @@ describe('formatQuery [Utils]', () => {
   describe('when the property has a binary', () => {
     const value = new bson.Binary('xxxx');
     const filter = { field: value };
-    const expected = `{\n field: Binary('${value.buffer.toString('base64')}', '0')\n}`;
+    const expected = `{\n field: BinData(0, '${value.buffer.toString('base64')}')\n}`;
 
     it('returns the shell syntax string', () => {
       expect(formatQuery(filter)).to.equal(expected);

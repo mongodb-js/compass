@@ -49,6 +49,10 @@ const configureStore = (options = {}) => {
       });
     },
 
+    runQuery(query) {
+      this.localAppRegistry.emit('compass:query-history:run-query', query);
+    },
+
     getInitialState() {
       return {
         items: new FavoriteQueryCollection(),
@@ -62,6 +66,10 @@ const configureStore = (options = {}) => {
       store.trigger(store.state);
     }
   });
+
+  if (options.localAppRegistry) {
+    store.localAppRegistry = options.localAppRegistry;
+  }
 
   return store;
 };

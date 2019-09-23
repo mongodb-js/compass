@@ -26,12 +26,14 @@ const root = document.createElement('div');
 root.id = 'root';
 document.body.appendChild( root );
 
+const localAppRegistry = new AppRegistry();
 const actions = configureActions();
 const store = configureStore({
-  localAppRegistry: new AppRegistry(),
+  localAppRegistry: localAppRegistry,
   namespace: 'echo.artists',
   actions: actions
 });
+localAppRegistry.emit('query-applied', { ns: 'echo.artists', filter: { name: 'test' }});
 
 // Create a HMR enabled render function
 const render = Component => {

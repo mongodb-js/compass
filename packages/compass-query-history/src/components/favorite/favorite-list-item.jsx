@@ -61,6 +61,7 @@ class FavoriteListItem extends PureComponent {
         <CardBody>
           <Query
             attributes={attributes}
+            actions={this.props.actions}
             title={model._name}/>
         </CardBody>
       </Card>

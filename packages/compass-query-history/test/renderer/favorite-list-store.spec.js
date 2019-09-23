@@ -1,11 +1,19 @@
 import bson from 'bson';
-import { FavoriteListStore } from 'stores';
+import configureStore from '../../src/stores/favorite-list-store';
+import configureActions from 'actions';
 import { RecentQuery } from 'models';
 
 describe('FavoritesListStore [Store]', () => {
+  const actions = configureActions();
+  let store;
+
+  beforeEach(() => {
+    store = configureStore({ actions: actions });
+  });
+
   describe('#init', () => {
     it('initializes with the favorite list', () => {
-      expect(FavoriteListStore.state.items.length).to.equal(0);
+      expect(store.state.items.length).to.equal(0);
     });
   });
 
@@ -16,17 +24,17 @@ describe('FavoritesListStore [Store]', () => {
       const recent = new RecentQuery({ ns: ns, filter: filter });
       let model;
 
-      before(() => {
-        FavoriteListStore.saveFavorite(recent, 'testing');
-        model = FavoriteListStore.state.items.models[0];
+      beforeEach(() => {
+        store.saveFavorite(recent, 'testing');
+        model = store.state.items.models[0];
       });
 
-      after(() => {
-        FavoriteListStore.deleteFavorite(model);
+      afterEach(() => {
+        store.deleteFavorite(model);
       });
 
       it('adds the favorite to the list', () => {
-        expect(FavoriteListStore.state.items.length).to.equal(1);
+        expect(store.state.items.length).to.equal(1);
       });
 
       it('adds the _dateSaved attributes', () => {
@@ -45,17 +53,17 @@ describe('FavoritesListStore [Store]', () => {
       const recent = new RecentQuery({ ns: ns, filter: filter });
       let model;
 
-      before(() => {
-        FavoriteListStore.saveFavorite(recent, 'testing');
-        model = FavoriteListStore.state.items.models[0];
+      beforeEach(() => {
+        store.saveFavorite(recent, 'testing');
+        model = store.state.items.models[0];
       });
 
-      after(() => {
-        FavoriteListStore.deleteFavorite(model);
+      afterEach(() => {
+        store.deleteFavorite(model);
       });
 
       it('adds the favorite to the list', () => {
-        expect(FavoriteListStore.state.items.length).to.equal(1);
+        expect(store.state.items.length).to.equal(1);
       });
     });
   });
@@ -66,13 +74,13 @@ describe('FavoritesListStore [Store]', () => {
     const recent = new RecentQuery({ ns: ns, filter: filter });
 
     before(() => {
-      FavoriteListStore.saveFavorite(recent, 'testing');
-      const model = FavoriteListStore.state.items.models[0];
-      FavoriteListStore.deleteFavorite(model);
+      store.saveFavorite(recent, 'testing');
+      const model = store.state.items.models[0];
+      store.deleteFavorite(model);
     });
 
     it('removes the favorite from the list', () => {
-      expect(FavoriteListStore.state.items.length).to.equal(0);
+      expect(store.state.items.length).to.equal(0);
     });
   });
 });

@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import Actions from 'actions';
 import { formatQuery } from 'utils';
 
 import Code from 'components/code';
@@ -11,7 +10,8 @@ class Query extends PureComponent {
   static displayName = 'Query';
 
   static propTypes = {
-    attributes: PropTypes.object
+    attributes: PropTypes.object,
+    actions: PropTypes.object.isRequired
   };
 
   static defaultProps = {};
@@ -27,7 +27,7 @@ class Query extends PureComponent {
    * as the default placeholder will not display.
    **/
   populateQuery = () => {
-    Actions.runQuery(this.props.attributes);
+    this.props.actions.runQuery(this.props.attributes);
   };
 
   renderAttr = (attrKey, index) => {
