@@ -707,6 +707,9 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('compass:schema:geo-query', (query) => {
       store.setQuery({ filter: query }, true);
     });
+    localAppRegistry.on('compass:query-history:run-query', (query) => {
+      store.setQuery(query, true);
+    });
 
     // Put the query changed store in the app registry
     // if it is not already there.
