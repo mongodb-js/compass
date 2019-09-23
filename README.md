@@ -31,6 +31,7 @@ package.json.
 - `Database.Tab` - Display as tabs in the database context of the app.
 - `Collection.Tab` - Display as sub tabs in the collection context of the app.
 - `Global.Modal` - Will open as modal dialogs in any context of the app.
+- `Collection.ScopedModal` - Will open as a modal scoped in the collection context.
 
 ### Creating a New Plugin
 
