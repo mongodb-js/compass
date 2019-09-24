@@ -121,7 +121,7 @@ module.exports = (previousVersion, currentVersion, callback) => {
   ], function(err) {
     if (err) {
       debug('encountered an error in the migration', err);
-      return callback(err);
+      return callback(null);
     }
     callback(null, 'successful migration to persist to disk');
   });
