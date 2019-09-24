@@ -44,5 +44,9 @@ khaos create mongodb-js/compass-plugin ./my-plugin
 
 - Please create a ticket at our [JIRA Project](jira.mongodb.org/browse/COMPASS).
 
+### Feedback
+
+Is there anything else you’d like to see in Compass? Let us know by submitting suggestions here: https://feedback.mongodb.com/forums/924283-compass.
+
 [travis_img]: https://travis-ci.org/mongodb-js/compass.svg
 [travis_url]: https://travis-ci.org/mongodb-js/compass
