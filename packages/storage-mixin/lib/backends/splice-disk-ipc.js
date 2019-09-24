@@ -6,6 +6,7 @@ var NullBackend = require('./null');
 var SecureIpcBackend = require('./secure-ipc');
 var wrapOptions = require('./errback').wrapOptions;
 var wrapErrback = require('./errback').wrapErrback;
+var mergeSpliceResults = require('./util').mergeSpliceResults;
 var inherits = require('util').inherits;
 var assert = require('assert');
 
@@ -71,29 +72,20 @@ SpliceDiskIpcBackend.prototype.exec = function(method, model, options, done) {
       // after receiving the result from `disk`, we set it on the the
       // model/collection here so that `secure` knows the ids.
       model.set(diskRes, { silent: true, sort: false });
-      self.secureBackend.exec(
-        method,
-        model,
-        wrapErrback(function(err, res) {
-          if (err) {
-            return cb(err);
-          }
-          // The order of the results on disk may not match the order of the results
-          // in secure storage.
-          if (diskRes) {
-            const merged = diskRes.reduce((results, value) => {
-              const matchingSecure = res.find((result) => {
-                return result[model.mainIndex] === value[model.mainIndex];
-              });
-              results.push(_.merge(value, matchingSecure));
-              return results;
-            }, []);
-            cb(null, merged);
-          } else {
-            cb(null, []);
-          }
-        })
-      );
+      if (!_.isEmpty(diskRes)) {
+        self.secureBackend.exec(
+          method,
+          model,
+          wrapErrback(function(err, res) {
+            if (err) {
+              return cb(err);
+            }
+            mergeSpliceResults(diskRes, res, model, cb);
+          })
+        );
+      } else {
+        cb(null, model.isCollection ? []: {});
+      }
     }
   ];
   async.waterfall(tasks, done);

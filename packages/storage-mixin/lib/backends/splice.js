@@ -6,6 +6,7 @@ var NullBackend = require('./null');
 var SecureBackend = require('./secure');
 var wrapOptions = require('./errback').wrapOptions;
 var wrapErrback = require('./errback').wrapErrback;
+var mergeSpliceResults = require('./util').mergeSpliceResults;
 var inherits = require('util').inherits;
 var assert = require('assert');
 
@@ -71,26 +72,20 @@ SpliceBackend.prototype.exec = function(method, model, options, done) {
       // after receiving the result from `local`, we set it on the the
       // model/collection here so that `secure` knows the ids.
       model.set(localRes, { silent: true, sort: false });
-      self.secureBackend.exec(
-        method,
-        model,
-        wrapErrback(function(err, res) {
-          if (err) {
-            return cb(err);
-          }
-          if (
-            model.isCollection &&
-            !(self.secureBackend instanceof NullBackend)
-          ) {
-            // INT-961: better check here that we merge the right objects together
-            _.each(localRes, function(m, i) {
-              assert.equal(m[model.mainIndex], res[i][model.mainIndex]);
-            });
-          }
-          // once `secure` returned its result, we merge it with `local`'s result
-          cb(null, _.merge(localRes, res));
-        })
-      );
+      if (!_.isEmpty(localRes)) {
+        self.secureBackend.exec(
+          method,
+          model,
+          wrapErrback(function(err, res) {
+            if (err) {
+              return cb(err);
+            }
+            mergeSpliceResults(localRes, res, model, cb);
+          })
+        );
+      } else {
+        cb(null, model.isCollection ? []: {});
+      }
     }
   ];
   async.waterfall(tasks, done);
