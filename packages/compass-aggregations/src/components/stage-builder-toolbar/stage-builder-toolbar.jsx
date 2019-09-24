@@ -68,6 +68,7 @@ class StageBuilderToolbar extends PureComponent {
         <div className={classnames(styles['stage-builder-toolbar-right'])}>
           <DeleteStage
             index={this.props.index}
+            runStage={this.props.runStage}
             setIsModified={this.props.setIsModified}
             stageDeleted={this.props.stageDeleted}
           />

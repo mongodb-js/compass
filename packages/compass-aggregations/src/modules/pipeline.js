@@ -671,13 +671,15 @@ export const runOutStage = index => {
 export const runStage = index => {
   return (dispatch, getState) => {
     const state = getState();
-    if (state.id === '') {
-      dispatch(createId());
-    }
-    const dataService = state.dataService.dataService;
-    const ns = state.namespace;
-    for (let i = index; i < state.pipeline.length; i++) {
-      executeAggregation(dataService, ns, dispatch, state, i);
+    if (index < state.pipeline.length) {
+      if (state.id === '') {
+        dispatch(createId());
+      }
+      const dataService = state.dataService.dataService;
+      const ns = state.namespace;
+      for (let i = index; i < state.pipeline.length; i++) {
+        executeAggregation(dataService, ns, dispatch, state, i);
+      }
     }
   };
 };

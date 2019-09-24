@@ -12,6 +12,7 @@ class DeleteStage extends PureComponent {
 
   static propTypes = {
     index: PropTypes.number.isRequired,
+    runStage: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired
   };
@@ -22,6 +23,7 @@ class DeleteStage extends PureComponent {
   onStageDeleted = () => {
     this.props.stageDeleted(this.props.index);
     this.props.setIsModified(true);
+    this.props.runStage(this.props.index);
   };
 
   /**
