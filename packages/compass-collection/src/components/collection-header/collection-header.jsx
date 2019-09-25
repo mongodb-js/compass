@@ -77,7 +77,9 @@ class CollectionHeader extends Component {
     if (this.props.isReadonly) {
       return (
         <div className={classnames(styles['collection-header-title-readonly'])}>
-          <span className={classnames(styles['collection-header-title-readonly-on'])}>
+          <span
+            className={classnames(styles['collection-header-title-readonly-on'])}
+            title={this.props.sourceName}>
             (view on: {this.props.sourceName})
           </span>
           {this.renderModifySource()}
@@ -145,14 +147,12 @@ class CollectionHeader extends Component {
     return (
       <div className={classnames(styles['collection-header'])}>
         {this.renderStats()}
-        <div className={titleClass}>
+        <div className={titleClass} title={`${database}.${collection}`}>
           <span className={classnames(styles['collection-header-title-db'])}>
             {database}
           </span>
           <span>.</span>
-          <span
-            className={collectionClass}
-            title={collection}>
+          <span className={collectionClass}>
             {collection}
           </span>
           {this.renderReadonly()}
