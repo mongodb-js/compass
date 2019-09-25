@@ -291,7 +291,7 @@
     "@mongodb-js/compass-auth-ldap": "^4.0.0",
     "@mongodb-js/compass-auth-x509": "^4.0.0",
     "@mongodb-js/compass-auto-updates": "^2.0.0",
-    "@mongodb-js/compass-collection": "^2.0.0",
+    "@mongodb-js/compass-collection": "^2.0.1",
     "@mongodb-js/compass-collection-stats": "^5.0.0",
     "@mongodb-js/compass-collections-ddl": "^3.0.0",
     "@mongodb-js/compass-connect": "^5.0.5",
