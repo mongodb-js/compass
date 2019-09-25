@@ -16,3 +16,4 @@ test/
 .storybook/
 coverage/
 .nyc_output/
+.github/
