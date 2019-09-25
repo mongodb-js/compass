@@ -828,6 +828,8 @@ const configureStore = (options = {}) => {
 
     globalAppRegistry.on('instance-refreshed', () => {
       store.onInstanceRefreshed();
+    });
+    globalAppRegistry.on('refresh-data', () => {
       store.refreshDocuments();
     });
 
