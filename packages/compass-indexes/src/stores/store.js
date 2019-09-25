@@ -53,6 +53,10 @@ const configureStore = (options = {}) => {
       store.dispatch(writeStateChanged(state.isWritable));
       store.dispatch(getDescription(state.description));
     });
+
+    globalAppRegistry.on('refresh-data', () => {
+      store.dispatch(loadIndexesFromDb());
+    });
   }
 
   if (options.namespace) {
