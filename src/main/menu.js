@@ -6,12 +6,14 @@ var ipc = require('hadron-ipc');
 var BrowserWindow = electron.BrowserWindow;
 var Menu = electron.Menu;
 var app = electron.app;
+var path = require('path');
 
 var State = require('ampersand-state');
 var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
+const LICENSE = path.join(__dirname, '..', '..', 'LICENSE');
 
 function isReadonlyDistro() {
   return process.env.HADRON_READONLY === 'true';
@@ -192,6 +194,15 @@ function securityItem() {
   };
 }
 
+function license() {
+  return {
+    label: '&License',
+    click: function() {
+      require('electron').shell.openItem(LICENSE);
+    }
+  };
+}
+
 function helpSubMenu() {
   var subMenu = [];
   subMenu.push(helpWindowItem());
@@ -203,6 +214,7 @@ function helpSubMenu() {
   }
 
   subMenu.push(securityItem());
+  subMenu.push(license());
 
   if (process.platform !== 'darwin') {
     subMenu.push(separator());
