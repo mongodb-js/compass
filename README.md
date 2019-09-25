@@ -42,7 +42,7 @@ khaos create mongodb-js/compass-plugin ./my-plugin
 
 ### Issues
 
-- Please create a ticket at our [JIRA Project](jira.mongodb.org/browse/COMPASS).
+- Please create a ticket at our [JIRA Project](https://jira.mongodb.org/browse/COMPASS).
 
 ### Feedback
 
