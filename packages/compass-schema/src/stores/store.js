@@ -1,4 +1,5 @@
 import Reflux from 'reflux';
+import ipc from 'hadron-ipc';
 import StateMixin from 'reflux-state-mixin';
 import { stream as schemaStream } from 'mongodb-schema';
 import StatusSubview from 'components/status-subview';
@@ -10,7 +11,6 @@ import { addLayer, generateGeoQuery } from 'modules/geo';
 
 const debug = require('debug')('mongodb-compass:stores:schema');
 
-const COMPASS_ICON_PATH = ''; // require('../../../../icon').path;
 const DEFAULT_MAX_TIME_MS = 10000;
 
 const MAX_NUM_DOCUMENTS = 1000;
@@ -100,7 +100,6 @@ const configureStore = (options = {}) => {
 
       this.samplingLock = false;
 
-      const ipc = require('hadron-ipc');
       ipc.on('window:menu-share-schema-json', this.handleSchemaShare.bind(this));
     },
 
@@ -113,19 +112,10 @@ const configureStore = (options = {}) => {
 
     handleSchemaShare() {
       const { remote } = require('electron');
-      const dialog = remote.dialog;
-      const BrowserWindow = remote.BrowserWindow;
       const clipboard = remote.clipboard;
 
       clipboard.writeText(JSON.stringify(this.state.schema, null, '  '));
-
-      dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
-        type: 'info',
-        icon: COMPASS_ICON_PATH,
-        message: 'Share Schema',
-        detail: this.getShareText(),
-        buttons: ['OK']
-      });
+      ipc.call('app:show-info-dialog', 'Share Schema', this.getShareText());
     },
 
     /**
