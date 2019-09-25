@@ -826,7 +826,10 @@ const configureStore = (options = {}) => {
   if (options.globalAppRegistry) {
     const globalAppRegistry = options.globalAppRegistry;
 
-    globalAppRegistry.on('instance-refreshed', store.onInstanceRefreshed.bind(store));
+    globalAppRegistry.on('instance-refreshed', () => {
+      store.onInstanceRefreshed();
+      store.refreshDocuments();
+    });
 
     setGlobalAppRegistry(store, globalAppRegistry);
   }
