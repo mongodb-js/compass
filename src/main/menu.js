@@ -6,6 +6,7 @@ var ipc = require('hadron-ipc');
 var BrowserWindow = electron.BrowserWindow;
 var Menu = electron.Menu;
 var app = electron.app;
+var fs = require('fs')
 var path = require('path');
 
 var State = require('ampersand-state');
@@ -198,7 +199,12 @@ function license() {
   return {
     label: '&License',
     click: function() {
-      require('electron').shell.openItem(LICENSE);
+      const licenseTemp = path.join(app.getPath('temp'), 'file');
+      const stream = fs.createWriteStream(licenseTemp);
+      fs.createReadStream(LICENSE).pipe(stream);
+      stream.on('finish', () => {
+        electron.shell.openItem(licenseTemp);
+      });
     }
   };
 }
