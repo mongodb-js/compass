@@ -114,6 +114,13 @@ store.onActivated = (appRegistry) => {
   });
 
   /**
+   * When we disconnect from the instance, clear all the tabs.
+   */
+  appRegistry.on('data-service-disconnected', () => {
+    store.dispatch(clearTabs());
+  });
+
+  /**
    * Set the app registry to use later.
    */
   store.dispatch(appRegistryActivated(appRegistry));
