@@ -6,7 +6,7 @@ var ipc = require('hadron-ipc');
 var BrowserWindow = electron.BrowserWindow;
 var Menu = electron.Menu;
 var app = electron.app;
-var fs = require('fs')
+var fs = require('fs');
 var path = require('path');
 
 var State = require('ampersand-state');
