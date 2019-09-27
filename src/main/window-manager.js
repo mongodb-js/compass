@@ -3,6 +3,7 @@
  * https://github.com/atom/electron/blob/master/docs/api/browser-window.md
  */
 var electron = require('electron');
+var electronLocalShortcut = require('electron-localshortcut');
 var AppMenu = require('./menu');
 var BrowserWindow = electron.BrowserWindow;
 
@@ -126,6 +127,10 @@ var createWindow = (module.exports.create = function(opts) {
       'subpixel-font-scaling': true,
       'direct-write': true
     }
+  });
+
+  electronLocalShortcut.register(_window, 'CmdOrCtrl+=', () => {
+    ipc.broadcast('window:zoom-in');
   });
 
   /**
