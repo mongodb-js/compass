@@ -158,7 +158,7 @@ function getDataLake(results, done) {
 function parseHostInfo(resp) {
   return {
     system_time: resp.system.currentTime,
-    hostname: resp.system.hostname,
+    hostname: resp.system.hostname || 'unknown',
     os: resp.os.name,
     os_family: resp.os.type.toLowerCase(),
     kernel_version: resp.os.version,
