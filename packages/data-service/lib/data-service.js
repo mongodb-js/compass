@@ -160,11 +160,21 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Count the number of documents in the collection.
+   *
+   * @param {string} ns - The namespace to search on.
+   * @param {object} options - The query options.
+   * @param {function} callback - The callback function.
+   */
+  estimatedCount(ns, options, callback) {
+    this.client.estimatedCount(ns, options, callback);
+  }
+
+  /**
    * Count the number of documents in the collection for the provided filter
    * and options.
    *
    * @param {string} ns - The namespace to search on.
-   * @param {object} filter - The filter.
    * @param {object} options - The query options.
    * @param {function} callback - The callback function.
    */

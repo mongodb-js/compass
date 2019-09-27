@@ -180,6 +180,17 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * Count the number of documents in the collection.
+   *
+   * @param {string} ns - The namespace to search on.
+   * @param {object} options - The query options.
+   * @param {function} callback - The callback function.
+   */
+  estimatedCount(ns, options, callback) {
+    this._collection(ns).estimatedDocumentCount(options, callback);
+  }
+
+  /**
    * Count the number of documents in the collection for the provided filter
    * and options.
    *

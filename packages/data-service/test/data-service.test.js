@@ -361,6 +361,16 @@ describe('DataService', function() {
     });
   });
 
+  describe('#estimatedCount', function() {
+    it('returns a count for the matching documents', function(done) {
+      service.estimatedCount('data-service.test', {}, function(error, count) {
+        assert.equal(null, error);
+        expect(count).to.equal(0);
+        done();
+      });
+    });
+  });
+
   describe('#count', function() {
     context('when a filter is provided', function() {
       it('returns a count for the matching documents', function(done) {
