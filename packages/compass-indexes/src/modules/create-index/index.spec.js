@@ -1,4 +1,4 @@
-import { createIndex } from 'modules/create-index';
+import { createIndex, createName } from 'modules/create-index';
 import { HANDLE_ERROR, CLEAR_ERROR } from 'modules/error';
 import { TOGGLE_IN_PROGRESS } from 'modules/in-progress';
 import { TOGGLE_IS_VISIBLE } from 'modules/is-visible';
@@ -239,6 +239,24 @@ describe('create index is background module', () => {
       createIndex()(dispatch, state);
       expect(progressSpy.calledTwice).to.equal(true, 'toggleInProgress not called');
       expect(errorSpy.calledOnce).to.equal(true, 'error should be called');
+    });
+  });
+
+  describe('#createName', () => {
+    context('when the index is not a wildcard index', () => {
+      const fields = [ { name: 'name' }, { name: 'age' }];
+      const spec = { name: 1, age: -1 };
+      it('generates a name with all fields and directions', () => {
+        expect(createName(fields, spec)).to.equal('name_1_age_-1');
+      });
+    });
+
+    context('when the index is a wildcard', () => {
+      const fields = [ { name: 'name' }, { name: 'age' }];
+      const spec = { name: '$**name.first', age: '$**age.years' };
+      it('generates a name with all fields and wilcard replacement', () => {
+        expect(createName(fields, spec)).to.equal('name_wildcardname.first_age_wildcardage.years');
+      });
     });
   });
 });
