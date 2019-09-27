@@ -19,11 +19,6 @@ export const UPDATE_INPUT_DOCUMENTS = `${PREFIX}/UPDATE_INPUT_DOCUMENTS`;
 export const LOADING_INPUT_DOCUMENTS = `${PREFIX}/LOADING_INPUT_DOCUMENTS`;
 
 /**
- * The filter constant.
- */
-const FILTER = Object.freeze({});
-
-/**
  * N/A contant.
  */
 const NA = 'N/A';
@@ -119,7 +114,7 @@ export const refreshInputDocuments = () => {
 
     if (dataService) {
       dispatch(loadingInputDocuments());
-      dataService.count(ns, FILTER, options, (error, count) => {
+      dataService.estimatedCount(ns, options, (error, count) => {
         dataService.aggregate(
           ns,
           exampleDocumentsPipeline,
