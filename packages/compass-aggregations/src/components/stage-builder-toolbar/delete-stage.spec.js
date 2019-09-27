@@ -10,11 +10,13 @@ describe('DeleteStage [Component]', () => {
     const stage = {};
     const spy = sinon.spy();
     const setIsModifiedSpy = sinon.spy();
+    const runStageSpy = sinon.spy();
 
     beforeEach(() => {
       component = mount(
         <DeleteStage
           stage={stage}
+          runStage={runStageSpy}
           index={1}
           setIsModified={setIsModifiedSpy}
           stageDeleted={spy}
@@ -43,12 +45,14 @@ describe('DeleteStage [Component]', () => {
     let component;
     const stage = {};
     const spy = sinon.spy();
+    const runStageSpy = sinon.spy();
     const setIsModifiedSpy = sinon.spy();
 
     beforeEach(() => {
       component = mount(
         <DeleteStage
           stage={stage}
+          runStage={runStageSpy}
           index={1}
           setIsModified={setIsModifiedSpy}
           stageDeleted={spy}
