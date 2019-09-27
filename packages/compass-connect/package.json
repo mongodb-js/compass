@@ -36,7 +36,7 @@
     "hadron-react-components": "^3.3.1",
     "moment": "^2.10.6",
     "mongodb-connection-model": "^14.2.8",
-    "mongodb-data-service": "^15.2.0",
+    "mongodb-data-service": "^15.2.1",
     "prop-types": "^15.5.8",
     "react": "^16.8.0"
   },
@@ -99,7 +99,7 @@
     "mocha-webpack": "^2.0.0-beta.0",
     "moment": "^2.10.6",
     "mongodb-connection-model": "^14.2.8",
-    "mongodb-data-service": "^15.2.0",
+    "mongodb-data-service": "^15.2.1",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-shell-to-url": "^0.1.0",
     "node-loader": "^0.6.0",
