@@ -20,7 +20,6 @@ addons:
       - python-gnomekeyring
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
-  - npm i -g npm@latest
 install:
   - npm ci
 before_script:
