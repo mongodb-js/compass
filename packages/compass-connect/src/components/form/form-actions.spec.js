@@ -31,10 +31,6 @@ describe('FormActions [Component]', () => {
           expect(component.find(`.${styles['form-group']}`)).to.be.present();
         });
 
-        it('renders the favoriteName input', () => {
-          expect(component.find('input[name="favoriteName"]')).to.not.be.present();
-        });
-
         it('does not render any message', () => {
           const classname = `.${styles['connection-message-container']}`;
 
@@ -43,10 +39,6 @@ describe('FormActions [Component]', () => {
 
         it('renders the connect button', () => {
           expect(component.find('button[name="connect"]')).to.be.present();
-        });
-
-        it('does not render the create favorite button', () => {
-          expect(component.find('button[name="createFavorite"]')).to.be.not.present();
         });
       });
 
@@ -74,12 +66,6 @@ describe('FormActions [Component]', () => {
           expect(component.find(`.${styles['form-group']}`)).to.be.present();
         });
 
-        it('renders the favoriteName input', () => {
-          const input = component.find('input[name="favoriteName"]');
-
-          expect(input).to.have.value('myconnection');
-        });
-
         it('does not render any message', () => {
           const classname = `.${styles['connection-message-container']}`;
 
@@ -88,10 +74,6 @@ describe('FormActions [Component]', () => {
 
         it('renders the connect button', () => {
           expect(component.find('button[name="connect"]')).to.be.present();
-        });
-
-        it('does not render the create favorite button', () => {
-          expect(component.find('button[name="createFavorite"]')).to.be.present();
         });
       });
     });

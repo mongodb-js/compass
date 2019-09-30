@@ -1,6 +1,10 @@
 const Reflux = require('reflux');
 
 const Actions = Reflux.createActions({
+  hideFavoriteMessage: { sync: true },
+  hideFavoriteModal: { sync: true },
+  showFavoriteMessage: { sync: true },
+  showFavoriteModal: { sync: true },
   validateConnectionString: { sync: true },
   onAuthSourceChanged: { sync: true },
   onAuthStrategyChanged: { sync: true },
@@ -23,7 +27,6 @@ const Actions = Reflux.createActions({
   onReadPreferenceChanged: { sync: true },
   onReplicaSetChanged: { sync: true },
   onResetConnectionClicked: { sync: true },
-  onSaveConnectionClicked: { sync: true },
   onSSLCAChanged: { sync: true },
   onSSLCertificateChanged: { sync: true },
   onSSLMethodChanged: { sync: true },

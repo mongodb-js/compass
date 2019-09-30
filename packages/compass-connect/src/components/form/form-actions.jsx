@@ -22,32 +22,6 @@ class FormActions extends React.Component {
     viewType: PropTypes.string
   };
 
-  constructor(props) {
-    super(props);
-    this.isNameChanged = false;
-  }
-
-  /**
-   * Creates a favorite.
-   */
-  onCreateFavoriteClicked() {
-    Actions.onCreateFavoriteClicked();
-  }
-
-  /**
-   * Deletes a favorite.
-   */
-  onDeleteFavoriteClicked() {
-    Actions.onDeleteConnectionClicked(this.props.currentConnection);
-  }
-
-  /**
-   * Saves a favorite.
-   */
-  onSaveFavoriteClicked() {
-    Actions.onSaveConnectionClicked(this.props.currentConnection);
-  }
-
   /**
    * Handles a connect click.
    *
@@ -71,42 +45,6 @@ class FormActions extends React.Component {
   }
 
   /**
-   * Handles a name change.
-   *
-   * @param {Object} evt - evt.
-   */
-  onNameChanged(evt) {
-    this.isNameChanged = true;
-    Actions.onFavoriteNameChanged(evt.target.value);
-  }
-
-  /**
-   * Opens a documentation about connecting to MongoDB.
-   */
-  onNameHelp() {
-    shell.openExternal('https://docs.mongodb.com/compass/current/connect/');
-  }
-
-  /**
-   * Gets a name of the current connection.
-   *
-   * @returns {String} A connection.name.
-   */
-  getName() {
-    const connection = this.props.currentConnection;
-
-    if (
-      !connection.lastUsed &&
-      !this.isNameChanged &&
-      (connection.name === DEFAULT_NAME)
-    ) {
-      return '';
-    }
-
-    return connection.name;
-  }
-
-  /**
    * Checks for a syntax error.
    *
    * @returns {Boolean} True in case of a syntax error.
@@ -125,83 +63,11 @@ class FormActions extends React.Component {
   }
 
   /**
-   * Renders "Create Favorite" button.
+   * Renders "Disconnect" button.
    *
    * @returns {React.Component}
    */
-  renderCreateFavorite() {
-    if (this.getName() !== '' && !this.props.currentConnection.isFavorite) {
-      return (
-        <button
-          type="button"
-          name="createFavorite"
-          key="createFavorite"
-          className="btn btn-sm btn-default"
-          onClick={this.onCreateFavoriteClicked.bind(this)}>
-          Create Favorite
-        </button>
-      );
-    }
-  }
-
-  /**
-   * Renders "Delete Favorite" button.
-   *
-   * @returns {React.Component}
-   */
-  renderDeleteFavorite() {
-    if (this.props.currentConnection.isFavorite) {
-      return (
-        <button
-          type="button"
-          name="deleteFavorite"
-          key="deleteFavorite"
-          className="btn btn-sm btn-default"
-          onClick={this.onDeleteFavoriteClicked.bind(this)}>
-          Delete Favorite
-        </button>
-      );
-    }
-  }
-
-  /**
-   * Renders "Save Favorite" button.
-   *
-   * @returns {React.Component}
-   */
-  renderSaveFavorite() {
-    if (this.props.currentConnection.isFavorite) {
-      return (
-        <button
-          type="button"
-          name="saveFavorite"
-          key="saveFavorite"
-          className="btn btn-sm btn-default"
-          onClick={this.onSaveFavoriteClicked.bind(this)}>
-          Save Favorite
-        </button>
-      );
-    }
-  }
-
-  /**
-   * Renders "Connect" button.
-   *
-   * @returns {React.Component}
-   */
-  renderConnect() {
-    if (!this.props.isConnected) {
-      return (
-        <button
-          type="submit"
-          name="connect"
-          className="btn btn-sm btn-primary"
-          onClick={this.onConnectClicked.bind(this)}>
-          Connect
-        </button>
-      );
-    }
-
+  renderDisconnect = () => {
     return (
       <button
         type="submit"
@@ -210,6 +76,36 @@ class FormActions extends React.Component {
         onClick={this.onDisconnectClicked.bind(this)}>
         Disconnect
       </button>
+    );
+  }
+
+  /**
+   * Renders "Connect" button.
+   *
+   * @returns {React.Component}
+   */
+  renderConnect = () => {
+    return (
+      <button
+        type="submit"
+        name="connect"
+        className="btn btn-sm btn-primary"
+        onClick={this.onConnectClicked.bind(this)}>
+        Connect
+      </button>
+    );
+  }
+
+  /**
+   * Renders connect or disconnect button depending on state.
+   *
+   * @returns {React.Component}
+   */
+  renderConnectButtons() {
+    return (
+      <div className={classnames(styles.buttons)}>
+        {this.props.isConnected ? this.renderDisconnect() : this.renderConnect()}
+      </div>
     );
   }
 
@@ -250,51 +146,11 @@ class FormActions extends React.Component {
     }
   }
 
-  /**
-   * Renders a favorite input.
-   *
-   * @returns {React.Component}
-   */
-  renderFavoriteInput() {
-    if (this.props.viewType === 'connectionForm') {
-      return (
-        <div className={classnames(styles['favorite-container'])}>
-          <FormInput
-            label="Favorite Name"
-            name="favoriteName"
-            placeholder="e.g. Shared Dev, QA Box, PRODUCTION"
-            linkHandler={this.onNameHelp.bind(this)}
-            changeHandler={this.onNameChanged.bind(this)}
-            value={this.getName()} />
-        </div>
-      );
-    }
-  }
-
-  /**
-   * Renders favorite buttons.
-   *
-   * @returns {React.Component}
-   */
-  renderFavoriteButtons() {
-    if (this.props.viewType === 'connectionForm') {
-      return [
-        this.renderCreateFavorite(),
-        this.renderDeleteFavorite(),
-        this.renderSaveFavorite()
-      ];
-    }
-  }
-
   render() {
     return (
       <FormGroup id="favorite">
-        {this.renderFavoriteInput()}
         {this.renderMessage()}
-        <div className={classnames(styles.buttons)}>
-          {this.renderFavoriteButtons()}
-          {this.renderConnect()}
-        </div>
+        {this.renderConnectButtons()}
       </FormGroup>
     );
   }

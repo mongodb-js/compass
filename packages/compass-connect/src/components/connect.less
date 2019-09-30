@@ -255,32 +255,33 @@ label {
 
     header {
       height: 72px;
-      margin-bottom: 15px;
       align-items: center;
       display: flex;
-      justify-content: space-between;
+      flex-wrap: nowrap;
 
       h2 {
         display: inline-block;
-        margin-top: 30px;
+        margin: 30px 0 0 10px;
         font-size: 24px;
         line-height: 30px;
       }
+    }
 
-      .change-view-link {
-        align-self: flex-end;
-        margin-right: 10px;
+    .change-view-link {
+      font-weight: bold;
+      text-align: right;
+      padding-right: 10px;
+      margin-top: -3px;
 
-        a {
-          cursor: pointer;
-          font-weight: bold;
-        }
+      a {
+        cursor: pointer;
+        font-weight: bold;
       }
     }
   }
 
   .connect-form {
-    margin: 0 10px;
+    margin: 10px;
 
     .tabs {
       display: block;
@@ -518,6 +519,73 @@ label {
     position: absolute;
     z-index: -1;
   }
+
+  .is-favorite-pill {
+    font-size: 11px;
+    padding: 0px 0px 12px 20px;
+    align-items: center;
+    justify-content: left;
+    margin-top: 45px;
+    position: relative;
+    flex-grow: 1;
+    white-space: nowrap;
+    pointer-events: none;
+
+    .favorite-saved {
+      border-radius: 3px;
+      font-size: 9px;
+      padding: 8px 21px;
+      position: absolute;
+      top: -7px;
+      left: 115px;
+      pointer-events: none;
+      transition: opacity 0.3s ease-out;
+      color: #fff;
+      background-color: #222;
+      margin-left: 10px;
+      opacity: 0.9;
+      visibility: hidden;
+      width: 135px;
+    }
+
+    .favorite-saved-visible {
+      visibility: visible;
+    }
+
+    .favorite-saved:before {
+      content: "";
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      margin-top: -5px;
+      border-top: 6px solid transparent;
+      border-right: 10px solid #222;
+      border-bottom: 6px solid transparent;
+    }
+
+    &-text {
+      background-color: #dee0e3;
+      text-transform: uppercase;
+      color: #88989A;
+      border-radius: 14px;
+      border: 1px solid #dee0e3;
+      padding: 3px 10px;
+      margin: 5px 5px 0 0;
+      font-weight: bold;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    &-text:hover {
+      background-color: #d7d9da;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .is-favorite-pill-filled-no-color {
+      color: #243642;
+    }
+  }
 }
 
 .connect-sidebar-connections::-webkit-scrollbar-track {
@@ -607,4 +675,129 @@ label {
     position: absolute;
     z-index: -1;
   }
+}
+
+.favorite-modal {
+  width: 500px;
+  padding-left: 40px;
+  padding-right: 40px;
+
+  .modal-content {
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .modal-header {
+    padding-bottom: 4px;
+  }
+
+  &-fields {
+    margin-bottom: 10px;
+
+    &-description {
+      margin-bottom: 4px;
+    }
+
+    .caret {
+      position: absolute;
+      margin-top: 8px;
+      right: 10px;
+    }
+  }
+
+  &-toggle-bar {
+    cursor: pointer;
+
+    &-header {
+      margin-top: 10px;
+
+      i {
+        margin-left: -5px;
+      }
+
+      &-text {
+        display: inline;
+        margin-left: 4px;
+        margin-right: -9px;
+      }
+    }
+  }
+
+  &-options {
+    &-checkbox {
+      margin-top: 0px;
+      cursor: pointer;
+      display: inline-block;
+      font-weight: normal;
+      margin-bottom: 4px;
+      margin-left: 10px;
+    }
+
+    &-param {
+      margin-top: 0px;
+      cursor: pointer;
+      display: inline-block;
+      font-weight: normal;
+      margin-bottom: 4px;
+      margin-left: 10px;
+
+      &-wrapper {
+        :global {
+          .form-group {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+          }
+        }
+
+        p {
+          width: 150px;
+          text-align: right;
+          display: inline-block;
+          margin: 0 10px 0 0;
+        }
+
+        input {
+          width: 250px;
+          display: inline-block;
+        }
+      }
+    }
+  }
+}
+
+.favorite-modal {
+  margin: 70px auto;
+
+  .modal-body {
+    p {
+      font-weight: bold;
+    }
+
+    form {
+      box-shadow: none;
+      padding-top: 0;
+    }
+  }
+
+  .modal-footer {
+    border: 0px;
+    display: flex;
+
+    .cancel-dave-favorite {
+      text-align: right;
+      width: 100%;
+    }
+
+    .delete-favorite {
+      text-align: left;
+      flex-grow: 1;
+    }
+  }
+}
+
+.favorite-modal > div:first-child{
+  box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.075);
+  border: 1px solid rgba(0, 0, 0, 0);
 }

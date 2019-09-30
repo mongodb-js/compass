@@ -633,7 +633,6 @@ describe('Store', () => {
         expect(state.isConnected).to.equal(false);
         expect(state.errorMessage).to.equal(null);
         expect(state.syntaxErrorMessage).to.equal(null);
-        expect(state.viewType).to.equal('connectionForm');
         done();
       });
 

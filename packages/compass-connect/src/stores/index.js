@@ -113,11 +113,46 @@ const Store = Reflux.createStore({
       syntaxErrorMessage: null,
       viewType: 'connectionString',
       isHostChanged: false,
-      isPortChanged: false
+      isPortChanged: false,
+      isModalVisible: false,
+      isMessageVisible: false,
+      savedMessage: 'Saved to favotites'
     };
   },
 
   /** --- Reflux actions ---  */
+
+  /**
+  * Hides the favorite message.
+  */
+  hideFavoriteMessage() {
+    this.state.isMessageVisible = false;
+    this.trigger(this.state);
+  },
+
+  /**
+   * Hides the favorite modal.
+   */
+  hideFavoriteModal() {
+    this.state.isModalVisible = false;
+    this.trigger(this.state);
+  },
+
+  /**
+   * Shows the favorite message.
+   */
+  showFavoriteMessage() {
+    this.state.isMessageVisible = true;
+    this.trigger(this.state);
+  },
+
+  /**
+   * Shows the favorite modal.
+   */
+  showFavoriteModal() {
+    this.state.isModalVisible = true;
+    this.trigger(this.state);
+  },
 
   /**
    * Validates a connection string.
@@ -178,7 +213,14 @@ const Store = Reflux.createStore({
     this.state.viewType = viewType;
 
     if (viewType === 'connectionForm') { // Target view
-      if (customUrl === driverUrl) {
+      if (this.state.currentConnection.isFavorite) {
+        const currentFavorite = this.state.connections
+          .filter((connection) => connection.isFavorite)
+          .find((favorite) => (favorite === this.state.currentConnection));
+
+        Actions.onFavoriteSelected(currentFavorite);
+        this.trigger(this.state);
+      } else if (customUrl === driverUrl) {
         this.state.isHostChanged = true;
         this.state.isPortChanged = true;
         this.trigger(this.state);
@@ -193,9 +235,10 @@ const Store = Reflux.createStore({
       } else {
         this.StatusActions.showIndeterminateProgressBar();
         Connection.from(customUrl, (error, connection) => {
+          this.StatusActions.done();
+
           if (!error) {
             this._resetSyntaxErrorMessage();
-            this.StatusActions.done();
 
             if (this.state.customUrl.match(/[?&]ssl=true/i)) {
               connection.sslMethod = 'SYSTEMCA';
@@ -206,6 +249,9 @@ const Store = Reflux.createStore({
             this.state.currentConnection = connection;
             this.state.isHostChanged = true;
             this.state.isPortChanged = true;
+            this.trigger(this.state);
+          } else {
+            this.state.currentConnection = new Connection();
             this.trigger(this.state);
           }
         });
@@ -292,13 +338,41 @@ const Store = Reflux.createStore({
 
   /**
    * Creates a favorite from the current connection.
+   *
+   * @param {String} name - The favorite name.
    */
-  onCreateFavoriteClicked() {
-    const connection = this.state.currentConnection;
+  onCreateFavoriteClicked(name) {
+    if (
+      this.state.viewType === 'connectionString' &&
+      !this.state.currentConnection.isFavorite
+    ) {
+      Connection.from(this.state.customUrl, (error, connection) => {
+        if (!error) {
+          connection = Object.assign(
+            connection,
+            { name, isFavorite: true }
+          );
 
-    connection.isFavorite = true;
+          if (this.state.customUrl.match(/[?&]ssl=true/i)) {
+            connection.sslMethod = 'SYSTEMCA';
+          }
 
-    this._addConnection(connection);
+          this.state.currentConnection = connection;
+          this._addConnection(connection);
+        }
+      });
+    } else {
+      const connection = this.state.currentConnection;
+
+      connection.isFavorite = true;
+      connection.name = name;
+
+      if (this.state.currentConnection.isFavorite) {
+        this.state.savedMessage = 'Favorite is updated';
+      }
+
+      this._addConnection(connection);
+    }
   },
 
   /**
@@ -412,9 +486,9 @@ const Store = Reflux.createStore({
       isConnected: false,
       errorMessage: null,
       syntaxErrorMessage: null,
-      viewType: 'connectionForm',
       isHostChanged: true,
-      isPortChanged: true
+      isPortChanged: true,
+      customUrl: connection.driverUrl
     });
   },
 
@@ -477,23 +551,11 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Saves a connection.
-   *
-   * @param {Connection} connection - The connection.
-   */
-  onSaveConnectionClicked(connection) {
-    connection.save({
-      success: () => {
-        this.trigger(this.state);
-      }
-    });
-  },
-
-  /**
    * Resets the connection after clicking on the new connection section.
    */
   onResetConnectionClicked() {
     this.state.viewType = 'connectionString';
+    this.state.savedMessage = 'Saved to favotites';
     this._cleanConnection();
     this.trigger(this.state);
   },

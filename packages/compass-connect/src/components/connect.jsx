@@ -7,6 +7,7 @@ import ConnectionString from './form/connection-string';
 import Help from './form/help';
 import Actions from 'actions';
 import classnames from 'classnames';
+import IsFavoritePill from './form//is-favorite-pill';
 
 import styles from './connect.less';
 
@@ -16,7 +17,10 @@ class Connect extends React.Component {
   static propTypes = {
     currentConnection: PropTypes.object,
     connections: PropTypes.object,
-    viewType: PropTypes.string
+    viewType: PropTypes.string,
+    isModalVisible: PropTypes.bool,
+    isMessageVisible: PropTypes.bool,
+    savedMessage: PropTypes.string
   };
 
   componentDidMount() {
@@ -75,6 +79,33 @@ class Connect extends React.Component {
     );
   }
 
+  /**
+   * Renders a header.
+   *
+   * @returns {React.Component}
+   */
+  renderHeader() {
+    const connection = this.props.currentConnection;
+    let name = 'New Connection';
+
+    if (connection.isFavorite) {
+      name = (connection.name.length > 40)
+        ? `${connection.name.substring(0, 40)}...`
+        : connection.name;
+    }
+
+    return (
+      <header>
+        <h2>{name}</h2>
+        <IsFavoritePill
+          currentConnection={connection}
+          isModalVisible={this.props.isModalVisible}
+          isMessageVisible={this.props.isMessageVisible}
+          savedMessage={this.props.savedMessage} />
+      </header>
+    );
+  }
+
   render() {
     const Status = global.hadronApp.appRegistry
       .getRole('Application.Status')[0].component;
@@ -86,10 +117,8 @@ class Connect extends React.Component {
           <Sidebar {...this.props} />
           <div className={classnames(styles['form-container'])}>
             <div className={classnames(styles['connect-container'])}>
-              <header>
-                <h2>New Connection</h2>
-                {this.renderChangeViewLink()}
-              </header>
+              {this.renderHeader()}
+              {this.renderChangeViewLink()}
               {this.renderConnectScreen()}
             </div>
             <Help {...this.props} />
