@@ -45,7 +45,6 @@ Connection.from(
       mongodbUsername: 'someUsername',
       mongodbPassword: 'testPassword',
       mongodbDatabaseName: 'admin',
-      name: 'Local',
       extraOptions: {},
       connectionType: 'NODE_DRIVER',
       readPreference: 'primary',
@@ -80,7 +79,6 @@ const c = new Connection({ isSrvRecord: true });
 
 | Property | Type | Description | Default |
 | ----- | ---- | ---------- |  ----  |
-| `name` | String | User specified name | `My MongoDB` |
 | `ns` | String | A valid [ns][ns] the user can read from | `undefined` |
 | `isSrvRecord` | Boolean | Indicates SRV record | `false` |
 | `auth` | Object | Authentication from driver (username, user, db, password) | `undefined` |
