@@ -20,6 +20,7 @@ addons:
       - python-gnomekeyring
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
+  - npm i -g npm@latest
 install:
   - npm ci
 before_script:
@@ -34,5 +35,4 @@ before_script:
 script:
   - npm run travis
 cache:
-  directories:
-    - '$HOME/.npm'
+  npm: false
