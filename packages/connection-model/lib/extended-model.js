@@ -40,7 +40,7 @@ const ExtendedConnection = Connection.extend(storageMixin, {
     lastUsed: { type: 'date', default: null },
     isFavorite: { type: 'boolean', default: false },
     name: { type: 'string', default: 'Local' },
-    color: { type: 'object', default: () => ({}) },
+    color: { type: 'string', default: undefined },
     ns: { type: 'string', default: undefined },
     isSrvRecord: { type: 'boolean', default: false },
     appname: { type: 'string', default: undefined } // Is being sent to driver

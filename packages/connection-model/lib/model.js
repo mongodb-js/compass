@@ -61,8 +61,6 @@ assign(props, {
    *   PRODUCTION
    *   Analyics Box
    */
-  name: { type: 'string', default: 'Local' },
-  color: { type: 'object', default: () => ({}) },
   ns: { type: 'string', default: undefined },
   isSrvRecord: { type: 'boolean', default: false },
   auth: { type: 'object', default: undefined },
