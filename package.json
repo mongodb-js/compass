@@ -388,7 +388,6 @@
     "mongodb-shell-to-url": "^0.1.0",
     "ms": "^0.7.1",
     "node-pre-gyp": "^0.6.38",
-    "npm": "^6.7.0",
     "numeral": "^1.5.3",
     "pluralize": "^1.2.1",
     "prop-types": "^15.5.8",
@@ -450,7 +449,7 @@
   ],
   "engines": {
     "node": "^10.2.1",
-    "npm": ">=6.0.0"
+    "npm": ">=6.7.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
