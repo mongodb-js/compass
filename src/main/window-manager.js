@@ -308,6 +308,21 @@ function showAboutDialog() {
   });
 }
 
+/**
+ * @param {Object} bw - Current BrowserWindow
+ * @param {String} message - Message to be set by MessageBox
+ * @param {String} detail - Details to be shown in MessageBox
+ */
+function showInfoDialog(_bw, message, detail) {
+  dialog.showMessageBox({
+    type: 'info',
+    icon: COMPASS_ICON,
+    message: message,
+    detail: detail,
+    buttons: ['OK']
+  });
+}
+
 function showCompassOverview() {
   AppMenu.showCompassOverview();
 }
@@ -343,6 +358,7 @@ function rendererReady(sender) {
  * those API's.
  */
 ipc.respondTo({
+  'app:show-info-dialog': showInfoDialog,
   'app:show-connect-window': showConnectWindow,
   'window:show-about-dialog': showAboutDialog,
   'window:show-collection-submenu': showCollectionSubmenu,
