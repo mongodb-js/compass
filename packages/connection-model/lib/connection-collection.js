@@ -8,17 +8,13 @@ const raf = require('raf');
  * The name of a remote electon application that
  * uses `connection-model` as a dependency.
  */
-/**
- * The name of a remote electon application that
- * uses `connection-model` as a dependency.
- */
 let appName;
-let appPath;
+let basepath;
 
 try {
   const electron = require('electron');
   appName = electron.remote ? electron.remote.app.getName() : undefined;
-  appPath = electron.remote ? electron.remote.app.getPath('userData') : undefined;
+  basepath = electron.remote ? electron.remote.app.getPath('userData') : undefined;
 } catch (e) {
   /* eslint no-console: 0 */
   console.log('Could not load electron', e.message);
@@ -29,8 +25,8 @@ module.exports = Collection.extend(storageMixin, {
   namespace: 'Connections',
   storage: {
     backend: 'splice-disk-ipc',
-    appName: appName,
-    basepath: appPath
+    appName,
+    basepath
   },
   comparator: (a, b) => {
     if (a.isFavorite === b.isFavorite) {
@@ -47,7 +43,9 @@ module.exports = Collection.extend(storageMixin, {
 
     if (recentConnections.length > this.maxLength) {
       // if there is no space anymore, remove the oldest recent connection first.
-      const toRemove = this.remove(recentConnections.slice(0, recentConnections.length - this.maxLength));
+      const toRemove = this.remove(
+        recentConnections.slice(0, recentConnections.length - this.maxLength)
+      );
 
       each(toRemove, (model) => model.destroy());
     }

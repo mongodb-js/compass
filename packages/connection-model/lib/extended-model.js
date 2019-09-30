@@ -7,12 +7,13 @@ const uuid = require('uuid');
  * uses `connection-model` as a dependency.
  */
 let appName;
-let appPath;
+let basepath;
 
 try {
   const electron = require('electron');
+
   appName = electron.remote ? electron.remote.app.getName() : undefined;
-  appPath = electron.remote ? electron.remote.app.getPath('userData') : undefined;
+  basepath = electron.remote ? electron.remote.app.getPath('userData') : undefined;
 } catch (e) {
   /* eslint no-console: 0 */
   console.log('Could not load electron', e.message);
@@ -27,7 +28,7 @@ const ExtendedConnection = Connection.extend(storageMixin, {
   storage: {
     backend: 'splice-disk-ipc',
     namespace: 'Connections',
-    basepath: appPath,
+    basepath,
     appName, // Not to be confused with `props.appname` that is being sent to driver
     secureCondition: (val, key) => key.match(/(password|passphrase)/i)
   },
@@ -39,6 +40,7 @@ const ExtendedConnection = Connection.extend(storageMixin, {
     lastUsed: { type: 'date', default: null },
     isFavorite: { type: 'boolean', default: false },
     name: { type: 'string', default: 'Local' },
+    color: { type: 'object', default: () => ({}) },
     ns: { type: 'string', default: undefined },
     isSrvRecord: { type: 'boolean', default: false },
     appname: { type: 'string', default: undefined } // Is being sent to driver
@@ -48,7 +50,7 @@ const ExtendedConnection = Connection.extend(storageMixin, {
     // Canonical username independent of authentication strategy
     username: {
       deps: ['authStrategy'],
-      fn: function() {
+      fn() {
         if (this.authStrategy === 'NONE') {
           return '';
         }

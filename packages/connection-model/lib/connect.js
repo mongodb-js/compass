@@ -164,7 +164,7 @@ const getTasks = (model, setupListeners) => {
   /**
    * TODO (imlucas) If localhost, check if MongoDB installed -> no: click/prompt to download
    * TODO (imlucas) If localhost, check if MongoDB running -> no: click/prompt to start
-   * TODO (imlucas) dns.lookup() model.hostname and model.ssh_tunnel_hostname to check for typos
+   * TODO (imlucas) dns.lookup() model.hostname and model.sshTunnelHostname to check for typos
    */
   assign(tasks, {
     'Load SSL files': (cb) => {
