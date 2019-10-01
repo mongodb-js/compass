@@ -1,14 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Actions from 'actions';
-import FormInput from './form-input';
-import { shell } from 'electron';
 import FormGroup from './form-group';
 import classnames from 'classnames';
 
 import styles from '../connect.less';
-
-const DEFAULT_NAME = 'Local';
 
 class FormActions extends React.Component {
   static displayName = 'FormActions';

@@ -32,7 +32,6 @@ describe('IsFavoritePill [Component]', () => {
 
     it('displays the the default pill', () => {
       expect(component.find(`.${styles['is-favorite-pill-text']}`)).to.be.present();
-      expect(component.find(`.${styles['is-favorite-pill-filled-no-color']}`)).to.be.not.present();
       expect(component.find(`.${styles['favorite-saved']}`)).to.be.present();
       expect(component.find(`.${styles['favorite-saved-visible']}`)).to.be.not.present();
     });
@@ -65,7 +64,6 @@ describe('IsFavoritePill [Component]', () => {
 
     it('displays the the default pill', () => {
       expect(component.find(`.${styles['is-favorite-pill-text']}`)).to.be.present();
-      expect(component.find(`.${styles['is-favorite-pill-filled-no-color']}`)).to.be.present();
       expect(component.find(`.${styles['favorite-saved']}`)).to.be.present();
       expect(component.find(`.${styles['favorite-saved-visible']}`)).to.be.not.present();
     });

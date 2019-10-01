@@ -21,7 +21,7 @@ class IsFavoritePill extends PureComponent {
   }
 
   /**
-   * Show modal when the favorite pill is clicked.
+   * Shows modal when the favorite pill is clicked.
    *
    * @param {Object} evt - The click event.
    */
@@ -32,28 +32,33 @@ class IsFavoritePill extends PureComponent {
   }
 
   /**
-   * Render the component.
+   * Renders the component.
    *
    * @returns {Component} The component.
    */
   render() {
     const isFavorite = this.props.currentConnection.isFavorite;
     const fontAwesomeName = isFavorite ? 'star' : 'star-o';
-    const pillClassName = classnames({
-      [styles['is-favorite-pill-text']]: true,
-      [styles['is-favorite-pill-filled-no-color']]: isFavorite
-    });
-    const pillMessClassName = classnames({
+    const className = classnames({
       [styles['favorite-saved']]: true,
       [styles['favorite-saved-visible']]: this.props.isMessageVisible
     });
+    const color = this.props.currentConnection.color;
+    const style = {
+      backgroundColor: color || '#dee0e3',
+      /* eslint no-nested-ternary: 0 */
+      color: color ? '#ffffff' : (isFavorite ? '#243642' : '#88989a')
+    };
 
     return (
       <div className={classnames(styles['is-favorite-pill'])}>
-        <a className={pillClassName} onClick={this.clickFavoritePill.bind(this)}>
+        <a
+          style={style}
+          className={classnames(styles['is-favorite-pill-text'])}
+          onClick={this.clickFavoritePill.bind(this)}>
           <FontAwesome name={fontAwesomeName}/>
           &nbsp;FAVORITE
-          <div className={pillMessClassName}>{this.props.savedMessage}</div>
+          <div className={className}>{this.props.savedMessage}</div>
         </a>
         <FavoriteModal
           currentConnection={this.props.currentConnection}

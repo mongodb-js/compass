@@ -76,10 +76,14 @@ class Favorites extends React.Component {
 
     return map(favorites, (favorite, i) => {
       const title = `${favorite.hostname}:${favorite.port}`;
+      const style = favorite.color
+        ? { borderRight: `5px solid ${favorite.color}` }
+        : {};
 
       return (
         <li
           className={this.getClassName(favorite)}
+          style={style}
           key={i}
           title={title}
           onClick={this.onFavoriteClicked.bind(this, favorite)}>
