@@ -274,6 +274,16 @@ const TourResource = BaseResource.extend({
   }
 });
 
+// Screen resource.
+const ScreenResource = BaseResource.extend({
+  id: 'Screen',
+  eventTrackers: ['stitch'],
+  viewed: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+featureResources.Screen = new ScreenResource();
 featureResources.Tour = new TourResource();
 featureResources['Geo Data'] = new GeoDataResource();
 featureResources['Auto Update'] = new AutoUpdateResource();
