@@ -200,27 +200,7 @@ var Application = View.extend({
       }
     };
 
-    /**
-     * If we're in Compass community and the license has not been agreed, we need
-     * to show it first and force the user to agree or disagree.
-     */
-    if (process.env.HADRON_PRODUCT === 'mongodb-compass-community' && !app.preferences.agreedToLicense) {
-      const licenseComponent = app.appRegistry.getRole('Application.License')[0].component;
-      const licenseStore = app.appRegistry.getStore('License.Store');
-      const licenseActions = app.appRegistry.getAction('License.Actions');
-
-      ReactDOM.render(React.createElement(licenseComponent), this.queryByHook('license'));
-
-      licenseStore.listen((state) => {
-        if (state.isAgreed) {
-          handleTour();
-        }
-      });
-
-      licenseActions.show();
-    } else {
-      handleTour();
-    }
+    handleTour();
 
     if (process.env.NODE_ENV !== 'production') {
       debug('Installing "Inspect Element" context menu');
