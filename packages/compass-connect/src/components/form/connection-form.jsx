@@ -20,6 +20,7 @@ class ConnectionForm extends React.Component {
 
   static propTypes = {
     currentConnection: PropTypes.object.isRequired,
+    isValid: PropTypes.bool.isRequired,
     isHostChanged: PropTypes.bool,
     isPortChanged: PropTypes.bool
   };
@@ -121,7 +122,9 @@ class ConnectionForm extends React.Component {
                 {this.renderPort()}
                 <SRVInput isSrvRecord={this.props.currentConnection.isSrvRecord} />
               </FormGroup>
-              <Authentication {...this.props} />
+              <Authentication
+                currentConnection={this.props.currentConnection}
+                isValid={this.props.isValid} />
             </div>
           </div>
         </div>

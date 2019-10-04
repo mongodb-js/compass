@@ -21,6 +21,35 @@ class IsFavoritePill extends PureComponent {
   }
 
   /**
+   * Deletes the current favorite.
+   *
+   * @param {Object} connection - The current connection.
+   */
+  deleteFavorite(connection) {
+    Actions.onDeleteConnectionClicked(connection);
+    Actions.hideFavoriteModal();
+  }
+
+  /**
+   * Closes the favorite modal.
+   */
+  closeFavoriteModal() {
+    Actions.hideFavoriteModal();
+  }
+
+  /**
+   * Saves the current connection to favorites.
+   *
+   * @param {String} name - The favorite name.
+   * @param {String} color - The favorite color.
+   */
+  saveFavorite(name, color) {
+    Actions.onCreateFavoriteClicked(name, color);
+    Actions.hideFavoriteModal();
+    Actions.showFavoriteMessage();
+  }
+
+  /**
    * Shows modal when the favorite pill is clicked.
    *
    * @param {Object} evt - The click event.
@@ -29,6 +58,23 @@ class IsFavoritePill extends PureComponent {
     evt.preventDefault();
     evt.stopPropagation();
     Actions.showFavoriteModal();
+  }
+
+  /**
+   * Renders the favorite modal.
+   *
+   * @returns {React.Component}
+   */
+  renderFavoriteModal() {
+    if (this.props.isModalVisible) {
+      return (
+        <FavoriteModal
+          currentConnection={this.props.currentConnection}
+          deleteFavorite={this.deleteFavorite}
+          closeFavoriteModal={this.closeFavoriteModal}
+          saveFavorite={this.saveFavorite} />
+      );
+    }
   }
 
   /**
@@ -60,9 +106,7 @@ class IsFavoritePill extends PureComponent {
           &nbsp;FAVORITE
           <div className={className}>{this.props.savedMessage}</div>
         </a>
-        <FavoriteModal
-          currentConnection={this.props.currentConnection}
-          isModalVisible={this.props.isModalVisible} />
+        {this.renderFavoriteModal()}
       </div>
     );
   }

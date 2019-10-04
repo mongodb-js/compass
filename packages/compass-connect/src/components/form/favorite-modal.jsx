@@ -4,7 +4,6 @@ import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import { ModalInput } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
-import Actions from 'actions';
 import FavoriteColorPicker from './favorite-color-picker';
 
 import styles from '../connect.less';
@@ -17,7 +16,9 @@ class FavoriteModal extends PureComponent {
 
   static propTypes = {
     currentConnection: PropTypes.object,
-    isModalVisible: PropTypes.bool.isRequired
+    deleteFavorite: PropTypes.func,
+    saveFavorite: PropTypes.func,
+    closeFavoriteModal: PropTypes.func
   }
 
   constructor(props) {
@@ -28,19 +29,11 @@ class FavoriteModal extends PureComponent {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      name: nextProps.currentConnection.name,
-      color: nextProps.currentConnection.color
-    });
-  }
-
   /**
    * Deletes a favorite.
    */
   onDeleteFavoriteClicked() {
-    Actions.onDeleteConnectionClicked(this.props.currentConnection);
-    Actions.hideFavoriteModal();
+    this.props.deleteFavorite(this.props.currentConnection);
   }
 
   /**
@@ -56,16 +49,14 @@ class FavoriteModal extends PureComponent {
    * Closes modal.
    */
   handleClose() {
-    Actions.hideFavoriteModal();
+    this.props.closeFavoriteModal();
   }
 
   /**
    * Saves the favorite.
    */
   handleSave() {
-    Actions.onCreateFavoriteClicked(this.state.name, this.state.color);
-    Actions.hideFavoriteModal();
-    Actions.showFavoriteMessage();
+    this.props.saveFavorite(this.state.name, this.state.color);
   }
 
   /**
@@ -126,7 +117,7 @@ class FavoriteModal extends PureComponent {
   render() {
     return (
       <Modal
-        show={this.props.isModalVisible}
+        show
         backdrop="static"
         dialogClassName={classnames(styles['favorite-modal'])}
       >

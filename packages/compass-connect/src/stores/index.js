@@ -2,6 +2,7 @@ const Reflux = require('reflux');
 const sortBy = require('lodash.sortby');
 const isEmpty = require('lodash.isempty');
 const forEach = require('lodash.foreach');
+const merge = require('lodash.merge');
 const DataService = require('mongodb-data-service');
 const Actions = require('actions');
 const Connection = require('mongodb-connection-model');
@@ -95,6 +96,12 @@ const Store = Reflux.createStore({
 
     this.StatusActions = appRegistry.getAction('Status.Actions');
     this.appRegistry = appRegistry;
+
+    appRegistry.on('clear-current-favorite', () => {
+      const ConnectStore = appRegistry.getStore('Connect.Store');
+
+      ConnectStore.state.currentConnection = new Connection();
+    });
   },
 
   /**
@@ -207,19 +214,23 @@ const Store = Reflux.createStore({
    * @param {String} viewType - A view type.
    */
   onChangeViewClicked(viewType) {
-    const driverUrl = this.state.currentConnection.driverUrl;
+    const currentConnection = this.state.currentConnection;
+    const connections = this.state.connections;
+    const isFavorite = currentConnection;
+    const driverUrl = currentConnection.driverUrl;
     const customUrl = this.state.customUrl;
     const isValid = this.state.isValid;
 
     this.state.viewType = viewType;
 
-    if (viewType === 'connectionForm') { // Target view
-      if (this.state.currentConnection.isFavorite) {
-        const currentFavorite = this.state.connections
-          .filter((connection) => connection.isFavorite)
-          .find((favorite) => (favorite === this.state.currentConnection));
+    const currentFavorite = connections.find((recent) => (
+      recent === currentConnection &&
+      recent.isFavorite === true
+    ));
 
-        Actions.onFavoriteSelected(currentFavorite);
+    if (viewType === 'connectionForm') { // Target view
+      if (currentFavorite) {
+        this.onFavoriteSelected(currentFavorite);
         this.trigger(this.state);
       } else if (customUrl === driverUrl) {
         this.state.isHostChanged = true;
@@ -241,7 +252,7 @@ const Store = Reflux.createStore({
           if (!error) {
             this._resetSyntaxErrorMessage();
 
-            if (this.state.customUrl.match(/[?&]ssl=true/i)) {
+            if (customUrl.match(/[?&]ssl=true/i)) {
               connection.sslMethod = 'SYSTEMCA';
             }
 
@@ -304,6 +315,8 @@ const Store = Reflux.createStore({
    * validate instead the existing connection object.
    */
   onConnectClicked() {
+    const currentConnection = this.state.currentConnection;
+
     if (this.state.viewType === 'connectionString') {
       const customUrl = this.state.customUrl || DEFAULT_DRIVER_URL;
 
@@ -313,27 +326,40 @@ const Store = Reflux.createStore({
         this._setSyntaxErrorMessage('Invalid schema, expected `mongodb` or `mongodb+srv`');
         this.trigger(this.state);
       } else {
-        Connection.from(customUrl, (error, connection) => {
+        Connection.from(customUrl, (error, parsedConnection) => {
           if (error) {
             this._setSyntaxErrorMessage(error.message);
             this.trigger(this.state);
           } else {
+            const lastUsed = currentConnection.lastUsed;
+            const name = currentConnection.name;
+            const color = currentConnection.color;
+            const isFavorite = currentConnection.isFavorite;
+            const driverUrl = currentConnection.driverUrl;
+            let connection;
+
+            if (isFavorite && driverUrl !== parsedConnection.driverUrl) {
+              connection = parsedConnection;
+            } else {
+              connection = merge(
+                currentConnection,
+                parsedConnection,
+                { name, color, isFavorite, lastUsed }
+              );
+            }
+
             this._connect(connection);
           }
         });
       }
+    } else if (!currentConnection.isValid()) {
+      this.setState({
+        isValid: false,
+        errorMessage: 'The required fields can not be empty'
+      });
     } else {
-      const currentConnection = this.state.currentConnection;
-
-      if (!currentConnection.isValid()) {
-        this.setState({
-          isValid: false,
-          errorMessage: 'The required fields can not be empty'
-        });
-      } else {
-        this.StatusActions.showIndeterminateProgressBar();
-        this._connect(currentConnection);
-      }
+      this.StatusActions.showIndeterminateProgressBar();
+      this._connect(currentConnection);
     }
   },
 
@@ -344,37 +370,56 @@ const Store = Reflux.createStore({
    * @param {Object} color - The favorite color.
    */
   onCreateFavoriteClicked(name, color) {
-    if (
-      this.state.viewType === 'connectionString' &&
-      !this.state.currentConnection.isFavorite
-    ) {
-      Connection.from(this.state.customUrl, (error, connection) => {
-        if (!error) {
-          connection = Object.assign(
-            connection,
-            { name, color, isFavorite: true }
-          );
+    const currentConnection = this.state.currentConnection;
+    const connections = this.state.connections;
+    const isFavorite = currentConnection.isFavorite;
+    const currentRecent = connections.find((recent) => (
+      recent === currentConnection &&
+      recent.isFavorite === false
+    ));
 
-          if (this.state.customUrl.match(/[?&]ssl=true/i)) {
-            connection.sslMethod = 'SYSTEMCA';
+    if (this.state.viewType === 'connectionString' && !isFavorite) {
+      Connection.from(this.state.customUrl, (error, parsedConnection) => {
+        if (!error) {
+          if (isFavorite) {
+            this.state.savedMessage = 'Favorite is updated';
           }
 
-          this.state.currentConnection = connection;
-          this._addConnection(connection);
+          if (currentRecent) {
+            currentConnection.isFavorite = true;
+            currentConnection.name = name;
+            currentConnection.color = color;
+            currentConnection.save();
+          } else {
+            const connection = merge(
+              currentConnection,
+              parsedConnection,
+              { name, color, isFavorite: true }
+            );
+
+            if (this.state.customUrl.match(/[?&]ssl=true/i)) {
+              connection.sslMethod = 'SYSTEMCA';
+            }
+
+            this.state.currentConnection = connection;
+            this._addConnection(connection);
+          }
         }
       });
     } else {
-      const connection = this.state.currentConnection;
+      currentConnection.isFavorite = true;
+      currentConnection.name = name;
+      currentConnection.color = color;
 
-      connection.isFavorite = true;
-      connection.name = name;
-      connection.color = color;
+      if (currentRecent) {
+        currentConnection.save();
+      } else {
+        if (isFavorite) {
+          this.state.savedMessage = 'Favorite is updated';
+        }
 
-      if (this.state.currentConnection.isFavorite) {
-        this.state.savedMessage = 'Favorite is updated';
+        this._addConnection(currentConnection);
       }
-
-      this._addConnection(connection);
     }
   },
 
@@ -382,13 +427,22 @@ const Store = Reflux.createStore({
    * Creates a recent connection from the current connection.
    */
   onCreateRecentClicked() {
-    const connection = this.state.currentConnection;
+    const currentConnection = this.state.currentConnection;
+    const connections = this.state.connections;
+    const currentFavorite = connections.find((recent) => (
+      recent === currentConnection &&
+      recent.isFavorite === true
+    ));
 
-    connection.lastUsed = new Date();
+    currentConnection.lastUsed = new Date();
 
-    this._pruneRecents(() => {
-      this._addConnection(connection);
-    });
+    if (currentFavorite) {
+      currentConnection.save();
+    } else {
+      this._pruneRecents(() => {
+        this._addConnection(currentConnection);
+      });
+    }
   },
 
   /**

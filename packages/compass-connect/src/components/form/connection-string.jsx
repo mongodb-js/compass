@@ -10,7 +10,15 @@ import styles from '../connect.less';
 class ConnectionString extends React.Component {
   static displayName = 'ConnectionString';
 
-  static propTypes = { customUrl: PropTypes.string };
+  static propTypes = {
+    currentConnection: PropTypes.object.isRequired,
+    customUrl: PropTypes.string,
+    isValid: PropTypes.bool,
+    isConnected: PropTypes.bool,
+    errorMessage: PropTypes.string,
+    syntaxErrorMessage: PropTypes.string,
+    viewType: PropTypes.string
+  };
 
   render() {
     return (
@@ -20,7 +28,13 @@ class ConnectionString extends React.Component {
         <FormGroup separator>
           <ConnectionStringInput customUrl={this.props.customUrl} />
         </FormGroup>
-        <FormActions {...this.props } />
+        <FormActions
+          currentConnection={this.props.currentConnection}
+          isValid={this.props.isValid}
+          isConnected={this.props.isConnected}
+          errorMessage={this.props.errorMessage}
+          syntaxErrorMessage={this.props.syntaxErrorMessage}
+          viewType={this.props.viewType} />
       </form>
     );
   }

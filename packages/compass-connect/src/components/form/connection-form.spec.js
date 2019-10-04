@@ -11,61 +11,139 @@ class TestComponent extends React.Component {
 }
 
 describe('ConnectionForm [Component]', () => {
-  context('tab is Hostname', () => {
-    const appRegistry = new AppRegistry();
-    const connection = {
-      authStrategy: 'MONGODB',
-      isSrvRecord: false,
-      readPreference: 'primaryPreferred',
-      attributes: { hostanme: 'localhost' }
-    };
-    const AUTH_ROLE = {
-      name: 'MONGODB',
-      component: TestComponent,
-      selectOption: { 'MONGODB': 'Username / Password' }
-    };
-    let component;
+  context('when active tab is Hostname', () => {
+    context('when connection string was not changed', () => {
+      const appRegistry = new AppRegistry();
+      const connection = {
+        authStrategy: 'MONGODB',
+        isSrvRecord: false,
+        readPreference: 'primaryPreferred',
+        attributes: { hostanme: 'localhost' }
+      };
+      const isHostChanged = false;
+      const isPortChanged = false;
+      const AUTH_ROLE = {
+        name: 'MONGODB',
+        component: TestComponent,
+        selectOption: { 'MONGODB': 'Username / Password' }
+      };
+      let component;
 
-    before(() => {
-      global.hadronApp = hadronApp;
-      global.hadronApp.appRegistry = appRegistry;
-      global.hadronApp.appRegistry.registerRole('Connect.AuthStrategy', AUTH_ROLE);
+      before(() => {
+        global.hadronApp = hadronApp;
+        global.hadronApp.appRegistry = appRegistry;
+        global.hadronApp.appRegistry.registerRole('Connect.AuthStrategy', AUTH_ROLE);
+      });
+
+      after(() => {
+        global.hadronApp.appRegistry.deregisterRole('Connect.AuthStrategy', AUTH_ROLE);
+      });
+
+      beforeEach(() => {
+        component = mount(
+          <ConnectionForm
+            currentConnection={connection}
+            isHostChanged={isHostChanged}
+            isPortChanged={isPortChanged}
+            isValid />
+        );
+      });
+
+      afterEach(() => {
+        component = null;
+      });
+
+      it('renders empry host input', () => {
+        const hostInput = component.find('HostInput');
+
+        expect(hostInput).to.be.present();
+        expect(hostInput.prop('hostname')).to.equal(undefined);
+        expect(hostInput.prop('isHostChanged')).to.equal(false);
+      });
+
+      it('renders empry port input', () => {
+        const portInput = component.find('PortInput');
+
+        expect(portInput).to.be.present();
+        expect(portInput.prop('port')).to.equal(undefined);
+        expect(portInput.prop('isPortChanged')).to.equal(false);
+      });
+
+      it('renders SRV input with false value', () => {
+        const srvInput = component.find('SRVInput');
+
+        expect(srvInput).to.be.present();
+        expect(srvInput.prop('isSrvRecord')).to.equal(false);
+      });
+
+      it('renders authentication section', () => {
+        const authentication = component.find('Authentication');
+
+        expect(authentication).to.be.present();
+        expect(authentication.prop('currentConnection')).to.deep.equal(connection);
+        expect(authentication.prop('isValid')).to.equal(true);
+      });
     });
 
-    after(() => {
-      global.hadronApp.appRegistry.deregisterRole('Connect.AuthStrategy', AUTH_ROLE);
-    });
+    context('when SRV input was toggled', () => {
+      const appRegistry = new AppRegistry();
+      const connection = {
+        authStrategy: 'MONGODB',
+        isSrvRecord: true,
+        readPreference: 'primaryPreferred',
+        attributes: { hostanme: 'localhost' }
+      };
+      const isHostChanged = true;
+      const isPortChanged = true;
+      const AUTH_ROLE = {
+        name: 'MONGODB',
+        component: TestComponent,
+        selectOption: { 'MONGODB': 'Username / Password' }
+      };
+      let component;
 
-    beforeEach(() => {
-      component = mount(
-        <ConnectionForm currentConnection={connection} isValid />
-      );
-    });
+      before(() => {
+        global.hadronApp = hadronApp;
+        global.hadronApp.appRegistry = appRegistry;
+        global.hadronApp.appRegistry.registerRole('Connect.AuthStrategy', AUTH_ROLE);
+      });
 
-    afterEach(() => {
-      component = null;
-    });
+      after(() => {
+        global.hadronApp.appRegistry.deregisterRole('Connect.AuthStrategy', AUTH_ROLE);
+      });
 
-    it('renders host input', () => {
-      const hostInput = component.find('HostInput');
+      beforeEach(() => {
+        component = mount(
+          <ConnectionForm
+            currentConnection={connection}
+            isHostChanged={isHostChanged}
+            isPortChanged={isPortChanged}
+            isValid />
+        );
+      });
 
-      expect(hostInput).to.be.present();
-    });
+      afterEach(() => {
+        component = null;
+      });
 
-    it('renders SRV input', () => {
-      const hostInput = component.find('SRVInput');
+      it('renders empry host input', () => {
+        expect(component.find('HostInput').prop('isHostChanged')).to.equal(true);
+      });
 
-      expect(hostInput).to.be.present();
-    });
+      it('renders empry port input', () => {
+        expect(component.find('PortInput')).to.be.not.present();
+      });
 
-    it('renders authentication section', () => {
-      const hostInput = component.find('Authentication');
+      it('renders SRV input with true value', () => {
+        const srvInput = component.find('SRVInput');
 
-      expect(hostInput).to.be.present();
+        expect(srvInput).to.be.present();
+        expect(srvInput.prop('isSrvRecord')).to.equal(true);
+      });
     });
   });
 
-  context('tab is More Options', () => {
+  context('when active tab is More Options', () => {
     const appRegistry = new AppRegistry();
     const connection = {
       authStrategy: 'MONGODB',
@@ -118,33 +196,23 @@ describe('ConnectionForm [Component]', () => {
     });
 
     it('renders replica set input', () => {
-      const hostInput = component.find('ReplicaSetInput');
-
-      expect(hostInput).to.be.present();
+      expect(component.find('ReplicaSetInput')).to.be.present();
     });
 
     it('renders read preference select', () => {
-      const hostInput = component.find('ReadPreferenceSelect');
-
-      expect(hostInput).to.be.present();
+      expect(component.find('ReadPreferenceSelect')).to.be.present();
     });
 
     it('renders SSLMethod input', () => {
-      const hostInput = component.find('SSLMethod');
-
-      expect(hostInput).to.be.present();
+      expect(component.find('SSLMethod')).to.be.present();
     });
 
     it('renders SSHTunnel input', () => {
-      const hostInput = component.find('SSHTunnel');
-
-      expect(hostInput).to.be.present();
+      expect(component.find('SSHTunnel')).to.be.present();
     });
 
     it('renders form actions', () => {
-      const hostInput = component.find('FormActions');
-
-      expect(hostInput).to.be.present();
+      expect(component.find('FormActions')).to.be.present();
     });
   });
 });
