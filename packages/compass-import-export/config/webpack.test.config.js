@@ -5,22 +5,22 @@ const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
 const config = {
+  mode: 'none',
   target: 'node', // webpack should compile node compatible code for tests
   devtool: 'source-map',
-  externals: [ nodeExternals() ],
+  externals: [nodeExternals()],
   stats: {
     warnings: false
+  },
+  node: {
+    __dirname: false
   },
   module: {
     rules: [
       {
         test: /\.(js|jsx)/,
         enforce: 'post', // Enforce as a post step so babel can do its compilation prior to instrumenting code
-        exclude: [
-          /node_modules/,
-          /constants/,
-          /.*?(?=\.spec).*?\.js/
-        ],
+        exclude: [/node_modules/, /constants/, /.*?(?=\.spec).*?\.js/],
         include: project.path.src,
         use: {
           loader: 'istanbul-instrumenter-loader',

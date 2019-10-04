@@ -4,15 +4,13 @@ module.exports = function(config) {
   config.set({
     basePath: '',
     singleRun: true,
-    files: [
-      'test/**/*.spec.js'
-    ],
+    files: ['test/**/*.spec.js'],
     reporters: ['mocha'],
     preprocessors: {
       'test/**/*.spec.js': ['webpack', 'sourcemap']
     },
     browsers: ['Electron'],
-    frameworks: ['mocha', 'chai', 'sinon', 'chai-sinon'],
+    frameworks: ['mocha', 'chai', 'sinon', 'chai-sinon', 'chai-as-promised'],
     webpack: webpackConfig,
     webpackMiddleware: {
       noInfo: true,

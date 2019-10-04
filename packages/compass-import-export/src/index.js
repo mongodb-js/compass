@@ -1,6 +1,3 @@
-import 'any-observable/register/rxjs';
-import './rx-operators';
-
 import Plugin from './plugin';
 import ImportPlugin from './import-plugin';
 import ExportPlugin from './export-plugin';

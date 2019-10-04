@@ -1,65 +1,37 @@
+/* eslint-disable valid-jsdoc */
 import fs from 'fs';
-import { Observable } from 'rxjs/Observable';
-import streamToObservable from 'stream-to-observable';
-import exportCollection from 'utils/export';
+import stream from 'stream';
+
 import PROCESS_STATUS from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
-import { appRegistryEmit } from 'modules/app-registry';
+import { appRegistryEmit } from 'modules/compass/app-registry';
 
-/**
- * Export action prefix.
- */
+import { createReadableCollectionStream } from 'utils/collection-stream';
+
+const createProgressStream = require('progress-stream');
+
+import { createLogger } from 'utils/logger';
+import { createCSVFormatter, createJSONFormatter } from 'utils/formatters';
+
+const debug = createLogger('export');
+
 const PREFIX = 'import-export/export';
 
-/**
- * Export action name.
- */
-export const EXPORT_ACTION = `${PREFIX}/EXPORT_ACTION`;
+const STARTED = `${PREFIX}/STARTED`;
+const CANCELED = `${PREFIX}/CANCELED`;
 
-/**
- * Export progress action name.
- */
-export const EXPORT_PROGRESS = `${PREFIX}/EXPORT_PROGRESS`;
+const PROGRESS = `${PREFIX}/PROGRESS`;
+const FINISHED = `${PREFIX}/FINISHED`;
+const ERROR = `${PREFIX}/ERROR`;
 
-/**
- * Export finished action name.
- */
-export const EXPORT_FINISHED = `${PREFIX}/EXPORT_FINISHED`;
+const SELECT_FILE_TYPE = `${PREFIX}/SELECT_FILE_TYPE`;
+const SELECT_FILE_NAME = `${PREFIX}/SELECT_FILE_NAME`;
 
-/**
- * Export failed action name.
- */
-export const EXPORT_FAILED = `${PREFIX}/EXPORT_FAILED`;
+const OPEN = `${PREFIX}/OPEN`;
+const CLOSE = `${PREFIX}/CLOSE`;
 
-/**
- * Select export file type action name.
- */
-export const SELECT_EXPORT_FILE_TYPE = `${PREFIX}/SELECT_EXPORT_FILE_TYPE`;
-
-/**
- * Select export file name action name.
- */
-export const SELECT_EXPORT_FILE_NAME = `${PREFIX}/SELECT_EXPORT_FILE_NAME`;
-
-/**
- * Open export action name.
- */
-export const OPEN_EXPORT = `${PREFIX}/OPEN_EXPORT`;
-
-/**
- * Close export action name.
- */
-export const CLOSE_EXPORT = `${PREFIX}/CLOSE_EXPORT`;
-
-/**
- * The query changed action name.
- */
-export const QUERY_CHANGED = `${PREFIX}/QUERY_CHANGED`;
-
-/**
- * Toggle full collection name.
- */
-export const TOGGLE_FULL_COLLECTION = `${PREFIX}/TOGGLE_FULL_COLLECTION`;
+const QUERY_CHANGED = `${PREFIX}/QUERY_CHANGED`;
+const TOGGLE_FULL_COLLECTION = `${PREFIX}/TOGGLE_FULL_COLLECTION`;
 
 /**
  * A full collection query.
@@ -70,8 +42,9 @@ const FULL_QUERY = {
 
 /**
  * The initial state.
+ * @api private
  */
-const INITIAL_STATE = {
+export const INITIAL_STATE = {
   isOpen: false,
   isFullCollection: false,
   progress: 0,
@@ -79,27 +52,156 @@ const INITIAL_STATE = {
   error: null,
   fileName: '',
   fileType: FILE_TYPES.JSON,
-  status: PROCESS_STATUS.UNSPECIFIED
+  status: PROCESS_STATUS.UNSPECIFIED,
+  exportedDocsCount: 0
 };
 
-let exportStatus = PROCESS_STATUS.UNSPECIFIED;
-
 /**
- * Export action creator.
- *
- * @param {String} status - The status.
- *
- * @returns {Object} The action.
+ * @param {stream.Readable} source
+ * @param {stream.Writable} dest
+ * @api private
  */
-export const exportAction = (status) => ({
-  type: EXPORT_ACTION,
-  status: status
+export const onStarted = (source, dest) => ({
+  type: STARTED,
+  source: source,
+  dest: dest
 });
 
 /**
+ * @param {Object} progress
+ * @api private
+ */
+export const onProgress = (progress, exportedDocsCount) => ({
+  type: PROGRESS,
+  progress: progress,
+  exportedDocsCount: exportedDocsCount
+});
+
+/**
+ * @api private
+ */
+export const onFinished = exportedDocsCount => ({
+  type: FINISHED,
+  exportedDocsCount: exportedDocsCount
+});
+
+/**
+ * The error callback.
+ * @param {Error} error
+ * @api private
+ */
+export const onError = error => ({
+  type: ERROR,
+  error: error
+});
+
+// TODO: Refactor this so import and export reuse as much
+// base logic as possible.
+// eslint-disable-next-line complexity
+const reducer = (state = INITIAL_STATE, action) => {
+  if (action.type === TOGGLE_FULL_COLLECTION) {
+    return {
+      ...state,
+      isFullCollection: !state.isFullCollection
+    };
+  }
+
+  if (action.type === QUERY_CHANGED) {
+    return {
+      ...state,
+      query: action.query
+    };
+  }
+
+  if (action.type === OPEN) {
+    return {
+      ...INITIAL_STATE,
+      query: state.query,
+      isOpen: true
+    };
+  }
+
+  if (action.type === CLOSE) {
+    return {
+      ...state,
+      isOpen: false
+    };
+  }
+
+  if (action.type === STARTED) {
+    return {
+      ...state,
+      error: null,
+      progress: 0,
+      status: PROCESS_STATUS.STARTED,
+      source: action.source,
+      dest: action.dest
+    };
+  }
+
+  if (action.type === PROGRESS) {
+    return {
+      ...state,
+      progress: action.progress,
+      exportedDocsCount: action.exportedDocsCount
+    };
+  }
+
+  if (action.type === FINISHED) {
+    const isComplete = !(
+      state.error || state.status === PROCESS_STATUS.CANCELED
+    );
+    return {
+      ...state,
+      // isOpen: !isComplete,
+      status: isComplete ? PROCESS_STATUS.COMPLETED : state.status,
+      exportedDocsCount: action.exportedDocsCount,
+      source: undefined,
+      dest: undefined
+    };
+  }
+
+  if (action.type === CANCELED) {
+    return {
+      ...state,
+      status: PROCESS_STATUS.CANCELED,
+      source: undefined,
+      dest: undefined
+    };
+  }
+
+  if (action.type === SELECT_FILE_NAME) {
+    return {
+      ...state,
+      fileName: action.fileName,
+      status: PROCESS_STATUS.UNSPECIFIED,
+      exportedDocsCount: 0,
+      source: undefined,
+      dest: undefined
+    };
+  }
+
+  if (action.type === SELECT_FILE_TYPE) {
+    return {
+      ...state,
+      fileType: action.fileType
+    };
+  }
+
+  if (action.type === ERROR) {
+    return {
+      ...state,
+      error: action.error,
+      status: PROCESS_STATUS.FAILED
+    };
+  }
+
+  return state;
+};
+
+/**
  * Toggle the full collection flag.
- *
- * @returns {Object} The action.
+ * @api public
  */
 export const toggleFullCollection = () => ({
   type: TOGGLE_FULL_COLLECTION
@@ -107,303 +209,140 @@ export const toggleFullCollection = () => ({
 
 /**
  * Select the file type of the export.
- *
- * @param {String} fileType - The file type.
- *
- * @returns {Object} The action.
+ * @api public
+ * @param {String} fileType
  */
-export const selectExportFileType = (fileType) => ({
-  type: SELECT_EXPORT_FILE_TYPE,
+export const selectExportFileType = fileType => ({
+  type: SELECT_FILE_TYPE,
   fileType: fileType
 });
 
 /**
- * Select the file name to export to.
- *
- * @param {String} fileName - The file name.
- *
- * @returns {Object} The action.
+ * Select the file name to export to
+ * @api public
+ * @param {String} fileName
  */
-export const selectExportFileName = (fileName) => ({
-  type: SELECT_EXPORT_FILE_NAME,
+export const selectExportFileName = fileName => ({
+  type: SELECT_FILE_NAME,
   fileName: fileName
 });
 
 /**
  * Change the query.
- *
- * @param {Object} query - The query.
- *
- * @returns {Object} The action.
+ * @api public
+ * @param {Object} query
  */
-export const queryChanged = (query) => ({
+export const queryChanged = query => ({
   type: QUERY_CHANGED,
   query: query
 });
 
 /**
  * Open the export modal.
- *
- * @returns {Object} The action.
+ * @api public
  */
 export const openExport = () => ({
-  type: OPEN_EXPORT
+  type: OPEN
 });
 
 /**
  * Close the export modal.
- *
- * @returns {Object} The action.
+ * @api public
  */
 export const closeExport = () => ({
-  type: CLOSE_EXPORT
+  type: CLOSE
 });
 
 /**
- * Export progress action creator.
- *
- * @param {Number} progress - The progress.
- *
- * @returns {Object} The action.
+ * Run the actual export to file.
+ * @api public
  */
-export const exportProgress = (progress) => ({
-  type: EXPORT_PROGRESS,
-  progress: progress
-});
-
-/**
- * Export finished action creator.
- *
- * @returns {Object} The action.
- */
-export const exportFinished = () => ({
-  type: EXPORT_FINISHED
-});
-
-/**
- * Export failed action creator.
- *
- * @param {Error} error - The error.
- *
- * @returns {Object} The action.
- */
-export const exportFailed = (error) => ({
-  type: EXPORT_FAILED,
-  error: error
-});
-
-/* eslint complexity: 0 */
-
-/**
- * The export epic.
- *
- * @param {Object} action$ - The action.
- * @param {Store} store - The store.
- *
- * @returns {Epic} The epic.
- */
-export const exportStartedEpic = (action$, store) =>
-  action$.ofType(EXPORT_ACTION).flatMap(act => {
-    exportStatus = act.status;
-    if (exportStatus === PROCESS_STATUS.CANCELED) {
-      return Observable.empty();
-    }
-
-    const { stats, ns, exportData, dataService } = store.getState();
-    const fws = fs.createWriteStream(exportData.fileName);
-    const { cursor, docTransform } = exportCollection(
-      dataService,
+export const startExport = () => {
+  return (dispatch, getState) => {
+    const {
       ns,
-      exportData.isFullCollection ? FULL_QUERY : exportData.query,
-      exportData.fileType
-    );
+      exportData,
+      dataService: { dataService }
+    } = getState();
 
-    docTransform.pipe(fws);
-    return streamToObservable(docTransform)
-      .map(() => exportProgress((fws.bytesWritten * 100) / stats.rawTotalDocumentSize))
-      .takeWhile(() => exportStatus !== PROCESS_STATUS.CANCELED)
-      .catch(exportFailed)
-      .concat(Observable.of('').map(() => {
-        return exportFinished();
-      }))
-      .concat(Observable.of('').map(() => {
-        return appRegistryEmit('export-finished', stats.rawTotalDocumentSize, exportData.fileType);
-      }))
-      .finally(() => {
-        cursor.close();
-        docTransform.end();
-        if (exportStatus === PROCESS_STATUS.CANCELED) {
-          fws.close();
-        } else {
-          fws.end();
-        }
+    const spec = exportData.isFullCollection
+      ? { filter: {} }
+      : exportData.query;
+
+    dataService.count(ns, spec.filter, {}, function(countErr, numDocsToExport) {
+      if (countErr) {
+        return onError(countErr);
+      }
+
+      debug('count says to expect %d docs in export', numDocsToExport);
+
+      const source = createReadableCollectionStream(dataService, ns, spec);
+
+      const progress = createProgressStream({
+        objectMode: true,
+        length: numDocsToExport,
+        time: 250 /* ms */
       });
-  });
 
-/**
- * Return the state after the export action.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
- */
-const doExportAction = (state, action) => ({
-  ...state,
-  progress: 0,
-  status: action.status
-});
+      progress.on('progress', function(info) {
+        debug('progress', info);
+        dispatch(onProgress(info.percentage, info.transferred));
+      });
 
-/**
- * Return the state after the progress action.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
- */
-const doExportProgress = (state, action) => ({
-  ...state,
-  progress: Number(action.progress.toFixed(2))
-});
+      let formatter;
+      if (exportData.fileType === 'csv') {
+        formatter = createCSVFormatter();
+      } else {
+        formatter = createJSONFormatter();
+      }
 
-/**
- * Return the state after the completed action.
- *
- * @param {Object} state - The state.
- *
- * @returns {Object} The new state.
- */
-const doExportFinished = (state) => {
-  const isNotComplete = state.error ||
-    state.status === PROCESS_STATUS.CANCELED ||
-    state.status === PROCESS_STATUS.FAILED;
-  return {
-    ...state,
-    progress: 100,
-    isOpen: isNotComplete ? true : false,
-    status: (state.status === PROCESS_STATUS.STARTED) ? PROCESS_STATUS.COMPLETED : state.status
+      const dest = fs.createWriteStream(exportData.fileName);
+
+      debug('executing pipeline');
+
+      dispatch(onStarted(source, dest));
+      stream.pipeline(source, progress, formatter, dest, function(err, res) {
+        if (err) {
+          debug('error running export pipeline', err);
+          return dispatch(onError(err));
+        }
+        debug(
+          'done. %d docs exported to %s',
+          numDocsToExport,
+          exportData.fileName
+        );
+        dispatch(onFinished(numDocsToExport));
+        dispatch(
+          appRegistryEmit(
+            'export-finished',
+            numDocsToExport,
+            exportData.fileType
+          )
+        );
+      });
+    });
   };
 };
 
 /**
- * Return the state after the failed action.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
+ * Cancel the currently running export operation, if any.
+ * @api public
  */
-const doExportFailed = (state, action) => ({
-  ...state,
-  error: action.error,
-  progress: 100,
-  status: PROCESS_STATUS.FAILED
-});
+export const cancelExport = () => {
+  return (dispatch, getState) => {
+    const { exportData } = getState();
+    const { source, dest } = exportData;
 
-/**
- * Return the state after the file type selected action.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
- */
-const doExportFileTypeSelected = (state, action) => ({
-  ...state,
-  fileType: action.fileType
-});
-
-/**
- * Return the state after the file name selected action.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
- */
-const doExportFileNameSelected = (state, action) => ({
-  ...state,
-  fileName: action.fileName
-});
-
-/**
- * Return the state after the open action.
- *
- * @param {Object} state - The state.
- *
- * @returns {Object} The new state.
- */
-const doOpenExport = (state) => ({
-  ...INITIAL_STATE,
-  query: state.query,
-  isOpen: true
-});
-
-/**
- * Return the state after the close action.
- *
- * @param {Object} state - The state.
- *
- * @returns {Object} The new state.
- */
-const doCloseExport = (state) => ({
-  ...state,
-  isOpen: false
-});
-
-/**
- * Return the state after the query changed action.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
- */
-const doQueryChanged = (state, action) => ({
-  ...state,
-  query: action.query
-});
-
-/**
- * Return the state after the toggle full collection action.
- *
- * @param {Object} state - The state.
- *
- * @returns {Object} The new state.
- */
-const doToggleFullCollection = (state) => ({
-  ...state,
-  isFullCollection: !state.isFullCollection
-});
-
-/**
- * The reducer function mappings.
- */
-const MAPPINGS = {
-  [EXPORT_ACTION]: doExportAction,
-  [EXPORT_PROGRESS]: doExportProgress,
-  [EXPORT_FINISHED]: doExportFinished,
-  [EXPORT_FAILED]: doExportFailed,
-  [SELECT_EXPORT_FILE_TYPE]: doExportFileTypeSelected,
-  [SELECT_EXPORT_FILE_NAME]: doExportFileNameSelected,
-  [OPEN_EXPORT]: doOpenExport,
-  [CLOSE_EXPORT]: doCloseExport,
-  [QUERY_CHANGED]: doQueryChanged,
-  [TOGGLE_FULL_COLLECTION]: doToggleFullCollection
-};
-
-/**
- * The export module reducer.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The state.
- */
-const reducer = (state = INITIAL_STATE, action) => {
-  const fn = MAPPINGS[action.type];
-  return fn ? fn(state, action) : state;
+    if (!source || !dest) {
+      debug('no active streams to cancel.');
+      return;
+    }
+    debug('cancelling');
+    source.unpipe();
+    dest.end();
+    debug('canceled by user');
+    dispatch({ type: CANCELED });
+  };
 };
 
 export default reducer;

@@ -1,4 +1,4 @@
-import reducer, * as actions from 'modules/stats';
+import reducer, * as actions from './stats';
 
 describe('stats [module]', () => {
   describe('#reducer', () => {

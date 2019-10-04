@@ -6,11 +6,6 @@ import PROCESS_STATUS from 'constants/process-status';
 import styles from './progress-bar.less';
 
 /**
- * Cancel text.
- */
-const CANCEL = 'Cancel';
-
-/**
  * The progress bar component.
  */
 class ProgressBar extends PureComponent {
@@ -20,8 +15,8 @@ class ProgressBar extends PureComponent {
     progress: PropTypes.number.isRequired,
     status: PropTypes.string.isRequired,
     message: PropTypes.string.isRequired,
-    action: PropTypes.func.isRequired
-  }
+    cancel: PropTypes.func.isRequired
+  };
 
   /**
    * Get the width of the progress bar.
@@ -40,11 +35,15 @@ class ProgressBar extends PureComponent {
    */
   getBarClassName() {
     return classnames({
-      [ styles['progress-bar-bar'] ]: true,
-      [ styles['progress-bar-bar-is-started'] ]: this.props.status === PROCESS_STATUS.STARTED,
-      [ styles['progress-bar-bar-is-canceled'] ]: this.props.status === PROCESS_STATUS.CANCELED,
-      [ styles['progress-bar-bar-is-completed'] ]: this.props.status === PROCESS_STATUS.COMPLETED,
-      [ styles['progress-bar-bar-is-failed'] ]: this.props.status === PROCESS_STATUS.FAILED
+      [styles['progress-bar-bar']]: true,
+      [styles['progress-bar-bar-is-started']]:
+        this.props.status === PROCESS_STATUS.STARTED,
+      [styles['progress-bar-bar-is-canceled']]:
+        this.props.status === PROCESS_STATUS.CANCELED,
+      [styles['progress-bar-bar-is-completed']]:
+        this.props.status === PROCESS_STATUS.COMPLETED,
+      [styles['progress-bar-bar-is-failed']]:
+        this.props.status === PROCESS_STATUS.FAILED
     });
   }
 
@@ -55,8 +54,9 @@ class ProgressBar extends PureComponent {
    */
   getWrapperClassName() {
     return classnames({
-      [ styles['progress-bar'] ]: true,
-      [ styles['progress-bar-is-started'] ]: this.props.status === PROCESS_STATUS.STARTED
+      [styles['progress-bar']]: true,
+      [styles['progress-bar-is-started']]:
+        this.props.status === PROCESS_STATUS.STARTED
     });
   }
 
@@ -64,19 +64,22 @@ class ProgressBar extends PureComponent {
    * Handle clicking the cancel button.
    */
   handleCancel = () => {
-    this.props.action(PROCESS_STATUS.CANCELED);
-  }
+    this.props.cancel();
+  };
 
   /**
    * Render the cancel button if still in progress.
    *
    * @return {React.Component} The component.
    */
-  renderCancel() {
+  renderCancelButton() {
     if (this.props.status === PROCESS_STATUS.STARTED) {
       return (
-        <div className={classnames(styles['progress-bar-cancel'])} onClick={this.handleCancel}>
-          {CANCEL}
+        <div
+          className={classnames(styles['progress-bar-cancel'])}
+          onClick={this.handleCancel}
+        >
+          Cancel
         </div>
       );
     }
@@ -90,10 +93,13 @@ class ProgressBar extends PureComponent {
   render() {
     return (
       <div className={this.getWrapperClassName()}>
-        <div className={this.getBarClassName()} style={{ width: this.getWidth() }}>
+        <div
+          className={this.getBarClassName()}
+          style={{ width: this.getWidth() }}
+        >
           {this.props.message}
         </div>
-        {this.renderCancel()}
+        {this.renderCancelButton()}
       </div>
     );
   }

@@ -1,17 +1,19 @@
 import { createStore, applyMiddleware } from 'redux';
-import { createEpicMiddleware } from 'redux-observable';
+import thunk from 'redux-thunk';
+import { ipcRenderer } from 'electron';
 
-import { rootReducer, rootEpic } from 'modules';
+import reducer from 'modules';
 
-import { nsChanged } from 'modules/ns';
+import {
+  dataServiceConnected,
+  appRegistryActivated,
+  globalAppRegistryActivated,
+  nsChanged
+} from 'modules/compass';
+
 import { openExport, queryChanged } from 'modules/export';
 import { openImport } from 'modules/import';
-import { dataServiceConnected } from 'modules/data-service';
-import { appRegistryActivated } from 'modules/app-registry';
-import { globalAppRegistryActivated } from 'modules/global-app-registry';
 import { statsReceived } from 'modules/stats';
-
-import { ipcRenderer } from 'electron';
 
 /**
  * Set the data provider.
@@ -25,17 +27,10 @@ export const setDataProvider = (store, error, provider) => {
 };
 
 const configureStore = (options = {}) => {
-  const epicMiddleware = createEpicMiddleware(rootEpic);
-
   /**
    * The store has a combined reducer.
    */
-  const store = createStore(
-    rootReducer,
-    applyMiddleware(
-      epicMiddleware
-    )
-  );
+  const store = createStore(reducer, applyMiddleware(thunk));
 
   /**
    * Called when the app registry is activated.
@@ -46,10 +41,12 @@ const configureStore = (options = {}) => {
     const appRegistry = options.localAppRegistry;
     store.dispatch(appRegistryActivated(appRegistry));
 
-    appRegistry.on('query-applied', (query) => store.dispatch(queryChanged(query)));
+    appRegistry.on('query-applied', query =>
+      store.dispatch(queryChanged(query))
+    );
     appRegistry.on('open-import', () => store.dispatch(openImport()));
     appRegistry.on('open-export', () => store.dispatch(openExport()));
-    appRegistry.getStore('CollectionStats.Store').listen((stats) => {
+    appRegistry.getStore('CollectionStats.Store').listen(stats => {
       store.dispatch(statsReceived(stats));
     });
   }
@@ -71,6 +68,9 @@ const configureStore = (options = {}) => {
     store.dispatch(nsChanged(options.namespace));
   }
 
+  /**
+   * TODO: Make this use `hadron-ipc`/"unified compass API".
+   */
   if (ipcRenderer) {
     /**
      * Listen for compass:open-export messages.
@@ -84,6 +84,15 @@ const configureStore = (options = {}) => {
      */
     ipcRenderer.on('compass:open-import', () => {
       store.dispatch(openImport());
+    });
+  }
+
+  if (module.hot) {
+    // Enable Webpack hot module replacement for reducers.
+    // https://github.com/reactjs/react-redux/releases/tag/v2.0.0
+    module.hot.accept('modules', () => {
+      const nextRootReducer = require('../modules');
+      store.replaceReducer(nextRootReducer);
     });
   }
 

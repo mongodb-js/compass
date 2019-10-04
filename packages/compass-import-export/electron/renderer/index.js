@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable no-var */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import app from 'hadron-app';
@@ -11,13 +13,54 @@ import { activate as activateStats } from '@mongodb-js/compass-collection-stats'
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
 // component as per the CSS Modules ICSS spec. @see src/components/toggle-button for an example.
-import 'bootstrap/less/bootstrap.less';
-import 'less/index.less';
+import 'less/global.less';
 
-const NS = 'echo.artists';
+/**
+ * Customize data service for your sandbox.
+ */
+const NS = 'test.people_imported';
+// test.people
+// test.people_missing_fields
+// const NS = 'crimedb.incidents';
+
+import Connection from 'mongodb-connection-model';
+const connection = new Connection({
+  hostname: '127.0.0.1',
+  port: 27017
+});
+
+/**
+ * Plugins based on query execution can customize
+ * the top-level state the sandbox will use.
+ *
+ * @example
+ * ```javascript
+ * var QUERY_BAR = {
+ *   filter: { name: 'testing' },
+ *   project: { name: 1 },
+ *   sort: [[ name, -1 ]],
+ *   skip: 0,
+ *   limit: 20,
+ *   ns: NS
+ * };
+ * ```
+ */
+var QUERY_BAR = {
+  filter: {}
+};
+
+console.group('Compass Plugin Sandbox');
+console.log('db.collection', NS);
+console.log('connect', connection.driver_url, {
+  options: connection.driver_options
+});
+console.groupEnd();
+
+function onDataServiceConnected(_registry) {
+  _registry.emit('query-applied', QUERY_BAR);
+}
 
 const appRegistry = new AppRegistry();
-
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
@@ -58,37 +101,17 @@ const render = Component => {
 render(ImportExportPlugin);
 
 // // Data service initialization and connection.
-import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
-
-const connection = new Connection({
-  hostname: '127.0.0.1',
-  port: 27017,
-  ns: 'import-export',
-  mongodb_database_name: 'import-export'
-});
-
 const dataService = new DataService(connection);
 
 dataService.connect((error, ds) => {
   setDataProvider(store, error, ds);
-  localAppRegistry.emit('query-applied', { filter: {}});
+  onDataServiceConnected(localAppRegistry);
 });
 
 // For automatic switching to specific namespaces, uncomment below as needed.
 
 // appRegistry.emit('database-changed', 'database');
-
-// For plugins based on query execution, comment out below:
-// const query = {
-  // filter: { name: 'testing' },
-  // project: { name: 1 },
-  // sort: [[ name, -1 ]],
-  // skip: 0,
-  // limit: 20,
-  // ns: NS
-// };
-// appRegistry.emit('query-applied', query);
 
 if (module.hot) {
   /**
@@ -98,8 +121,12 @@ if (module.hot) {
    * See https://github.com/gaearon/react-hot-loader/issues/298
    */
   const orgError = console.error; // eslint-disable-line no-console
-  console.error = (message) => { // eslint-disable-line no-console
-    if (message && message.indexOf('You cannot change <Router routes>;') === -1) {
+  console.error = message => {
+    // eslint-disable-line no-console
+    if (
+      message &&
+      message.indexOf('You cannot change <Router routes>;') === -1
+    ) {
       // Log the error as normally
       orgError.apply(console, [message]);
     }

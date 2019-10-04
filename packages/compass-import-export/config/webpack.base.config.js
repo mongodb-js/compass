@@ -2,12 +2,14 @@ const path = require('path');
 const project = require('./project');
 
 module.exports = {
+  mode: process.env.NODE_ENV !== 'production' ? 'development' : 'production',
   resolve: {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.json', 'less'],
     alias: {
       components: path.join(project.path.src, 'components'),
       constants: path.join(project.path.src, 'constants'),
+      containers: path.join(project.path.src, 'containers'),
       fonts: path.join(project.path.src, 'assets/fonts'),
       images: path.join(project.path.src, 'assets/images'),
       less: path.join(project.path.src, 'assets/less'),
@@ -16,22 +18,20 @@ module.exports = {
       plugin: path.join(project.path.src, 'index.js'),
       stores: path.join(project.path.src, 'stores'),
       storybook: project.path.storybook,
-      utils: path.join(project.path.src, 'utils')
+      utils: path.join(project.path.src, 'utils'),
+      'react-dom': '@hot-loader/react-dom'
     }
   },
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: [
-          { loader: 'style-loader' },
-          { loader: 'css-loader' }
-        ]
+        use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
       },
       // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
       {
         test: /\.less$/,
-        include: [/\.global/, /bootstrap/],
+        include: [/global/, /bootstrap/],
         use: [
           { loader: 'style-loader' },
           {
@@ -44,9 +44,7 @@ module.exports = {
             loader: 'postcss-loader',
             options: {
               plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
+                return [project.plugin.autoprefixer];
               }
             }
           },
@@ -61,7 +59,7 @@ module.exports = {
       // For CSS-Modules locally scoped styles
       {
         test: /\.less$/,
-        exclude: [/\.global/, /bootstrap/, /node_modules/],
+        exclude: [/\.global/, /bootstrap/, /node_modules/, /global\.less/],
         use: [
           { loader: 'style-loader' },
           {
@@ -69,16 +67,15 @@ module.exports = {
             options: {
               modules: true,
               importLoaders: 1,
-              localIdentName: 'ImportExportPlugin_[name]-[local]__[hash:base64:5]'
+              localIdentName:
+                'AggregationsPlugin_[name]-[local]__[hash:base64:5]'
             }
           },
           {
             loader: 'postcss-loader',
             options: {
               plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
+                return [project.plugin.autoprefixer];
               }
             }
           },
@@ -101,15 +98,15 @@ module.exports = {
       },
       {
         test: /\.(js|jsx)$/,
-        use: [{
-          loader: 'babel-loader',
-          query: {
-            cacheDirectory: true,
-            plugins: [
-              'transform-decorators-legacy'
-            ]
+        use: [
+          {
+            loader: 'babel-loader',
+            query: {
+              cacheDirectory: true,
+              plugins: ['transform-decorators-legacy']
+            }
           }
-        }],
+        ],
         exclude: /(node_modules)/
       }
     ]

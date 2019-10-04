@@ -1,0 +1,23 @@
+[
+  {
+    _id: { $oid: '5d94d618857bd7924fdcfd15' },
+    uuid: {
+      $binary: { base64: 'ACY24RDNTIuppwG3v9OJnA==', subType: 4 }
+    },
+    name: 'Arlo'
+  },
+  {
+    _id: { $oid: '5d94d61b857bd7924fdcfd16' },
+    uuid: {
+      $binary: { base64: 'ADH2ysDsTLCmbB/hTKKcGA==', subType: 4 }
+    },
+    name: 'Basil'
+  },
+  {
+    _id: { $oid: '5d94d61c857bd7924fdcfd17' },
+    uuid: {
+      $binary: { base64: 'ADVkMBdRSZauRXdnZILiEA==', subType: 4 }
+    },
+    name: 'Kochka'
+  }
+]

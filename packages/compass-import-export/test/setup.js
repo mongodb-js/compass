@@ -5,6 +5,7 @@ Enzyme.configure({ adapter: new Adapter() });
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const sinonChai = require('sinon-chai');
+const chaiAsPromised = require('chai-as-promised');
 
 require('jsdom-global')();
 
@@ -17,3 +18,4 @@ global.expect = chai.expect;
 chai.should();
 chai.use(sinonChai);
 chai.use(chaiEnzyme());
+chai.use(chaiAsPromised);

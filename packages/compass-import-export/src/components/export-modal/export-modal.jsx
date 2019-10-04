@@ -4,16 +4,23 @@ import PropTypes from 'prop-types';
 import Switch from 'react-ios-switch';
 import classnames from 'classnames';
 import {
-  Modal, Button, FormGroup, InputGroup, FormControl, ControlLabel
+  Modal,
+  Button,
+  FormGroup,
+  InputGroup,
+  FormControl,
+  ControlLabel
 } from 'react-bootstrap';
 import { TextButton, IconTextButton } from 'hadron-react-buttons';
 import QueryViewer from 'components/query-viewer';
 import ProgressBar from 'components/progress-bar';
 import fileSaveDialog from 'utils/file-save-dialog';
+import revealFile from 'utils/reveal-file';
 import PROCESS_STATUS from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
 import {
-  exportAction,
+  startExport,
+  cancelExport,
   toggleFullCollection,
   selectExportFileType,
   selectExportFileName,
@@ -26,16 +33,15 @@ import styles from './export-modal.less';
  * Progress messages.
  */
 const MESSAGES = {
-  [ PROCESS_STATUS.STARTED ]: 'Exporting...',
-  [ PROCESS_STATUS.CANCELED ]: 'Export canceled.',
-  [ PROCESS_STATUS.COMPLETED ]: 'Export completed!'
+  [PROCESS_STATUS.STARTED]: 'Exporting...',
+  [PROCESS_STATUS.CANCELED]: 'Export canceled.',
+  [PROCESS_STATUS.COMPLETED]: 'Export completed!'
 };
 
 /**
  * The export collection modal.
  */
 class ExportModal extends PureComponent {
-
   static propTypes = {
     open: PropTypes.bool,
     ns: PropTypes.string.isRequired,
@@ -44,14 +50,16 @@ class ExportModal extends PureComponent {
     progress: PropTypes.number.isRequired,
     status: PropTypes.string.isRequired,
     error: PropTypes.object,
-    exportAction: PropTypes.func.isRequired,
+    startExport: PropTypes.func.isRequired,
+    cancelExport: PropTypes.func.isRequired,
     closeExport: PropTypes.func.isRequired,
     isFullCollection: PropTypes.bool.isRequired,
     toggleFullCollection: PropTypes.func.isRequired,
     selectExportFileType: PropTypes.func.isRequired,
     selectExportFileName: PropTypes.func.isRequired,
     fileType: PropTypes.string,
-    fileName: PropTypes.string
+    fileName: PropTypes.string,
+    exportedDocsCount: PropTypes.number
   };
 
   /**
@@ -60,8 +68,11 @@ class ExportModal extends PureComponent {
    * @returns {String} The status message.
    */
   getStatusMessage = () => {
-    return MESSAGES[this.props.status] || (this.props.error ? this.props.error.message : '');
-  }
+    return (
+      MESSAGES[this.props.status] ||
+      (this.props.error ? this.props.error.message : '')
+    );
+  };
 
   /**
    * Handle choosing a file from the file dialog.
@@ -71,16 +82,14 @@ class ExportModal extends PureComponent {
     if (file) {
       this.props.selectExportFileName(file);
     }
-  }
+  };
 
   /**
    * Handle clicking the cancel button.
    */
   handleCancel = () => {
-    if (this.props.status === PROCESS_STATUS.STARTED) {
-      this.props.exportAction(PROCESS_STATUS.CANCELED);
-    }
-  }
+    this.props.cancelExport();
+  };
 
   /**
    * Handle clicking the close button.
@@ -88,16 +97,18 @@ class ExportModal extends PureComponent {
   handleClose = () => {
     this.handleCancel();
     this.props.closeExport();
-  }
+  };
 
   /**
    * Handle clicking the export button.
    */
   handleExport = () => {
-    if (this.props.fileName) {
-      this.props.exportAction(PROCESS_STATUS.STARTED);
-    }
-  }
+    this.props.startExport();
+  };
+
+  handleRevealClick = () => {
+    revealFile(this.props.fileName);
+  };
 
   /**
    * Render the progress bar.
@@ -107,13 +118,37 @@ class ExportModal extends PureComponent {
   renderProgressBar = () => {
     if (this.props.status !== PROCESS_STATUS.UNSPECIFIED) {
       return (
-        <ProgressBar
-          progress={this.props.progress}
-          status={this.props.status}
-          message={this.getStatusMessage()}
-          action={this.props.exportAction} />
+        <div>
+          <ProgressBar
+            progress={this.props.progress}
+            status={this.props.status}
+            message={this.getStatusMessage()}
+            cancel={this.props.cancelExport}
+          />
+          <p>{this.props.exportedDocsCount} documents exported</p>
+        </div>
       );
     }
+  };
+
+  renderImportButton() {
+    if (this.props.status === PROCESS_STATUS.COMPLETED) {
+      return (
+        <TextButton
+          className="btn btn-primary btn-sm"
+          text="Show File"
+          clickHandler={this.handleRevealClick}
+        />
+      );
+    }
+    return (
+      <TextButton
+        className="btn btn-primary btn-sm"
+        text="Export"
+        disabled={this.props.status === PROCESS_STATUS.STARTED}
+        clickHandler={this.handleExport}
+      />
+    );
   }
 
   /**
@@ -123,12 +158,13 @@ class ExportModal extends PureComponent {
    */
   render() {
     const queryClassName = classnames({
-      [ styles['export-modal-query'] ]: true,
-      [ styles['export-modal-query-is-disabled'] ]: this.props.isFullCollection
+      [styles['export-modal-query']]: true,
+      [styles['export-modal-query-is-disabled']]: this.props.isFullCollection
     });
     const queryViewerClassName = classnames({
-      [ styles['export-modal-query-viewer'] ]: true,
-      [ styles['export-modal-query-viewer-is-disabled'] ]: this.props.isFullCollection
+      [styles['export-modal-query-viewer']]: true,
+      [styles['export-modal-query-viewer-is-disabled']]: this.props
+        .isFullCollection
     });
 
     return (
@@ -138,16 +174,21 @@ class ExportModal extends PureComponent {
         </Modal.Header>
         <Modal.Body>
           <div className={queryClassName}>
-            There are {this.props.count} documents in the collection. Exporting with the query:
+            There are {this.props.count} documents in the collection. Exporting
+            with the query:
           </div>
           <div className={queryViewerClassName}>
-            <QueryViewer query={this.props.query} disabled={this.props.isFullCollection} />
+            <QueryViewer
+              query={this.props.query}
+              disabled={this.props.isFullCollection}
+            />
           </div>
           <div className={classnames(styles['export-modal-toggle-full'])}>
             <Switch
               checked={this.props.isFullCollection}
               onChange={this.props.toggleFullCollection}
-              className={classnames(styles['export-modal-toggle-button'])} />
+              className={classnames(styles['export-modal-toggle-button'])}
+            />
             <div className={classnames(styles['export-modal-toggle-text'])}>
               Export Full Collection
             </div>
@@ -158,24 +199,44 @@ class ExportModal extends PureComponent {
           <div
             className={classnames(styles['export-modal-type-selector'])}
             type="radio"
-            name="file-type-selector">
+            name="file-type-selector"
+          >
             <Button
-              className={classnames({[styles.selected]: this.props.fileType === FILE_TYPES.JSON})}
-              onClick={this.props.selectExportFileType.bind(this, FILE_TYPES.JSON)}>JSON</Button>
+              className={classnames({
+                [styles.selected]: this.props.fileType === FILE_TYPES.JSON
+              })}
+              onClick={this.props.selectExportFileType.bind(
+                this,
+                FILE_TYPES.JSON
+              )}
+            >
+              JSON
+            </Button>
             <Button
-              className={classnames({[styles.selected]: this.props.fileType === FILE_TYPES.CSV})}
-              onClick={this.props.selectExportFileType.bind(this, FILE_TYPES.CSV)}>CSV</Button>
+              className={classnames({
+                [styles.selected]: this.props.fileType === FILE_TYPES.CSV
+              })}
+              onClick={this.props.selectExportFileType.bind(
+                this,
+                FILE_TYPES.CSV
+              )}
+            >
+              CSV
+            </Button>
           </div>
           <form>
             <FormGroup controlId="export-file">
               <ControlLabel>Select File</ControlLabel>
-              <InputGroup bsClass={classnames(styles['export-modal-browse-group'])}>
+              <InputGroup
+                bsClass={classnames(styles['export-modal-browse-group'])}
+              >
                 <FormControl type="text" value={this.props.fileName} readOnly />
                 <IconTextButton
                   text="Browse"
                   clickHandler={this.handleChooseFile}
                   className={classnames(styles['export-modal-browse-button'])}
-                  iconClassName="fa fa-folder-open-o" />
+                  iconClassName="fa fa-folder-open-o"
+                />
               </InputGroup>
             </FormGroup>
           </form>
@@ -184,13 +245,14 @@ class ExportModal extends PureComponent {
         <Modal.Footer>
           <TextButton
             className="btn btn-default btn-sm"
-            text={this.props.status === PROCESS_STATUS.COMPLETED ? 'Close' : 'Cancel'}
-            clickHandler={this.handleClose} />
-          <TextButton
-            className="btn btn-primary btn-sm"
-            text="Export"
-            disabled={this.props.status === PROCESS_STATUS.STARTED}
-            clickHandler={this.handleExport} />
+            text={
+              this.props.status === PROCESS_STATUS.COMPLETED
+                ? 'Close'
+                : 'Cancel'
+            }
+            clickHandler={this.handleClose}
+          />
+          {this.renderImportButton()}
         </Modal.Footer>
       </Modal>
     );
@@ -204,7 +266,7 @@ class ExportModal extends PureComponent {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   ns: state.ns,
   progress: state.exportData.progress,
   count: state.stats.rawDocumentCount,
@@ -214,7 +276,8 @@ const mapStateToProps = (state) => ({
   error: state.exportData.error,
   fileType: state.exportData.fileType,
   fileName: state.exportData.fileName,
-  status: state.exportData.status
+  status: state.exportData.status,
+  exportedDocsCount: state.exportData.exportedDocsCount
 });
 
 /**
@@ -223,7 +286,8 @@ const mapStateToProps = (state) => ({
 export default connect(
   mapStateToProps,
   {
-    exportAction,
+    startExport,
+    cancelExport,
     toggleFullCollection,
     selectExportFileType,
     selectExportFileName,

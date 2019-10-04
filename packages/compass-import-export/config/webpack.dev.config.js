@@ -7,14 +7,8 @@ const { spawn } = require('child_process');
 const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
-const GLOBALS = {
-  'process.env': {
-    'NODE_ENV': JSON.stringify('development')
-  },
-  __DEV__: JSON.stringify(JSON.parse('true'))
-};
-
 const config = {
+  mode: 'development',
   target: 'electron-renderer',
   devtool: 'eval-source-map',
   entry: {
@@ -76,10 +70,7 @@ const config = {
     new webpack.NoEmitOnErrorsPlugin(),
 
     // Creates HTML page for us at build time
-    new HtmlWebpackPlugin(),
-
-    // Defines global variables
-    new webpack.DefinePlugin(GLOBALS)
+    new HtmlWebpackPlugin()
   ],
   devServer: {
     host: '0.0.0.0',
@@ -90,7 +81,7 @@ const config = {
       chunks: false,
       children: false
     },
-    setup() {
+    before() {
       spawn('electron', [project.path.electron], { shell: true, env: process.env, stdio: 'inherit' })
         .on('close', () => process.exit(0))
         .on('error', spawnError => console.error(spawnError)); // eslint-disable-line no-console

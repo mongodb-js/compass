@@ -1,11 +1,12 @@
-export default function fileOpenDialog(fileType) {
+export default function fileOpenDialog() {
   const { dialog } = require('electron').remote;
 
-  const filters = [{
-    name: `${fileType} file`,
-    extensions: [fileType.toLowerCase()]
-  }];
-  const title = 'Select file to import';
+  const filters = [
+    { name: 'All Files', extensions: ['*'] },
+    { name: 'JSON', extensions: ['json', 'ndjson', 'jsonl'] },
+    { name: 'CSV', extensions: ['csv', 'tsv'] }
+  ];
+  const title = 'Select a file to import';
 
   return dialog.showOpenDialog({
     title,

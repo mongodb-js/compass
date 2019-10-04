@@ -3,7 +3,12 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import {
-  Modal, Button, FormGroup, InputGroup, FormControl, ControlLabel
+  Modal,
+  Button,
+  FormGroup,
+  InputGroup,
+  FormControl,
+  ControlLabel
 } from 'react-bootstrap';
 import { TextButton, IconTextButton } from 'hadron-react-buttons';
 import fileOpenDialog from 'utils/file-open-dialog';
@@ -11,69 +16,80 @@ import PROCESS_STATUS, { FINISHED_STATUSES } from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
 import ProgressBar from 'components/progress-bar';
 import {
-  importAction,
+  startImport,
+  cancelImport,
   selectImportFileType,
   selectImportFileName,
   closeImport
 } from 'modules/import';
 
-import styles from './import-modal.less';
+import ANSIConverter from 'ansi-to-html';
 
-/**
- * Progress messages.
- */
-const MESSAGES = {
-  [ PROCESS_STATUS.STARTED ]: 'Importing...',
-  [ PROCESS_STATUS.CANCELED ]: 'Import canceled.',
-  [ PROCESS_STATUS.COMPLETED ]: 'Import completed!'
+// TODO: lucas: Sync hex values against .less
+const ANSI_TO_HTML_OPTIONS = {
+  fg: '#FFF',
+  bg: '#000',
+  newline: true,
+  escapeXML: true,
+  stream: false
 };
 
-/**
- * The import collection modal.
- */
-class ImportModal extends PureComponent {
+const getPrettyErrorMessage = function(err) {
+  return new ANSIConverter(ANSI_TO_HTML_OPTIONS).toHtml(err.message);
+};
 
+import styles from './import-modal.less';
+
+class ImportModal extends PureComponent {
   static propTypes = {
     open: PropTypes.bool,
     ns: PropTypes.string.isRequired,
     progress: PropTypes.number.isRequired,
     status: PropTypes.string.isRequired,
     error: PropTypes.object,
-    importAction: PropTypes.func.isRequired,
+    startImport: PropTypes.func.isRequired,
+    cancelImport: PropTypes.func.isRequired,
     closeImport: PropTypes.func.isRequired,
     selectImportFileType: PropTypes.func.isRequired,
     selectImportFileName: PropTypes.func.isRequired,
     fileType: PropTypes.string,
-    fileName: PropTypes.string
+    fileName: PropTypes.string,
+    docsWritten: PropTypes.number
   };
 
-  /**
-   * Get the status message.
-   *
-   * @returns {String} The status message.
-   */
   getStatusMessage = () => {
-    return MESSAGES[this.props.status] || (this.props.error ? this.props.error.message : '');
-  }
+    if (this.props.error) {
+      return 'Error';
+    }
+    if (this.props.status === PROCESS_STATUS.STARTED) {
+      return 'Importing...';
+    }
+    if (this.props.status === PROCESS_STATUS.CANCELED) {
+      return 'Canceled';
+    }
+    if (this.props.status === PROCESS_STATUS.COMPLETED) {
+      return 'Completed!';
+    }
+
+    return 'UNKNOWN';
+  };
 
   /**
    * Handle choosing a file from the file dialog.
    */
   handleChooseFile = () => {
-    const file = fileOpenDialog(this.props.fileType);
+    const file = fileOpenDialog();
     if (file) {
       this.props.selectImportFileName(file[0]);
     }
-  }
+  };
 
   /**
    * Handle clicking the cancel button.
    */
   handleCancel = () => {
-    if (this.props.status === PROCESS_STATUS.STARTED) {
-      this.props.importAction(PROCESS_STATUS.CANCELED);
-    }
-  }
+    this.props.cancelImport();
+  };
 
   /**
    * Handle clicking the close button.
@@ -81,16 +97,14 @@ class ImportModal extends PureComponent {
   handleClose = () => {
     this.handleCancel();
     this.props.closeImport();
-  }
+  };
 
   /**
    * Handle clicking the import button.
    */
-  handleImport = () => {
-    if (this.props.fileName) {
-      this.props.importAction(PROCESS_STATUS.STARTED);
-    }
-  }
+  handleImportBtnClicked = () => {
+    this.props.startImport();
+  };
 
   /**
    * Render the progress bar.
@@ -100,15 +114,36 @@ class ImportModal extends PureComponent {
   renderProgressBar = () => {
     if (this.props.status !== PROCESS_STATUS.UNSPECIFIED) {
       return (
-        <ProgressBar
-          progress={this.props.progress}
-          status={this.props.status}
-          message={this.getStatusMessage()}
-          action={this.props.importAction} />
+        <div>
+          <ProgressBar
+            progress={this.props.progress}
+            status={this.props.status}
+            message={this.getStatusMessage()}
+            cancel={this.props.cancelImport}
+          />
+          <p>{this.props.docsWritten} documents imported</p>
+        </div>
       );
     }
-  }
+  };
 
+  renderCSVOptions() {
+    // TODO: lucas: Impl the delimiter selector etc.
+    return null;
+  }
+  renderExtendedError() {
+    if (!this.props.error) {
+      return null;
+    }
+
+    const prettyError = getPrettyErrorMessage(this.props.error);
+    return (
+      <div
+        className={styles['error-box']}
+        dangerouslySetInnerHTML={{ __html: prettyError }}
+      />
+    );
+  }
   /**
    * Render the component.
    *
@@ -116,7 +151,7 @@ class ImportModal extends PureComponent {
    */
   render() {
     return (
-      <Modal show={this.props.open} onHide={this.handleClose} >
+      <Modal show={this.props.open} onHide={this.handleClose}>
         <Modal.Header closeButton>
           Import To Collection {this.props.ns}
         </Modal.Header>
@@ -127,39 +162,65 @@ class ImportModal extends PureComponent {
           <div
             className={classnames(styles['import-modal-type-selector'])}
             type="radio"
-            name="file-type-selector">
+            name="file-type-selector"
+          >
             <Button
-              className={classnames({[styles.selected]: this.props.fileType === FILE_TYPES.JSON})}
-              onClick={this.props.selectImportFileType.bind(this, FILE_TYPES.JSON)}>JSON</Button>
+              className={classnames({
+                [styles.selected]: this.props.fileType === FILE_TYPES.JSON
+              })}
+              onClick={this.props.selectImportFileType.bind(
+                this,
+                FILE_TYPES.JSON
+              )}
+            >
+              JSON
+            </Button>
             <Button
-              className={classnames({[styles.selected]: this.props.fileType === FILE_TYPES.CSV})}
-              onClick={this.props.selectImportFileType.bind(this, FILE_TYPES.CSV)}>CSV</Button>
+              className={classnames({
+                [styles.selected]: this.props.fileType === FILE_TYPES.CSV
+              })}
+              onClick={this.props.selectImportFileType.bind(
+                this,
+                FILE_TYPES.CSV
+              )}
+            >
+              CSV
+            </Button>
           </div>
           <form>
             <FormGroup controlId="import-file">
               <ControlLabel>Select File</ControlLabel>
-              <InputGroup bsClass={classnames(styles['import-modal-browse-group'])}>
+              <InputGroup
+                bsClass={classnames(styles['import-modal-browse-group'])}
+              >
                 <FormControl type="text" value={this.props.fileName} readOnly />
                 <IconTextButton
                   text="Browse"
                   clickHandler={this.handleChooseFile}
                   className={classnames(styles['import-modal-browse-button'])}
-                  iconClassName="fa fa-folder-open-o" />
+                  iconClassName="fa fa-folder-open-o"
+                />
               </InputGroup>
             </FormGroup>
+            {this.renderCSVOptions()}
           </form>
           {this.renderProgressBar()}
+          {this.renderExtendedError()}
         </Modal.Body>
         <Modal.Footer>
           <TextButton
             className="btn btn-default btn-sm"
-            text={FINISHED_STATUSES.includes(this.props.status) ? 'Close' : 'Cancel'}
-            clickHandler={this.handleClose} />
+            text={
+              FINISHED_STATUSES.includes(this.props.status) ? 'Close' : 'Cancel'
+            }
+            clickHandler={this.handleClose}
+          />
           <TextButton
             className="btn btn-primary btn-sm"
             text="Import"
             disabled={this.props.status === PROCESS_STATUS.STARTED}
-            clickHandler={this.handleImport} />
+            clickHandler={this.handleImportBtnClicked}
+          />
         </Modal.Footer>
       </Modal>
     );
@@ -173,14 +234,15 @@ class ImportModal extends PureComponent {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   ns: state.ns,
   progress: state.importData.progress,
   open: state.importData.isOpen,
   error: state.importData.error,
   fileType: state.importData.fileType,
   fileName: state.importData.fileName,
-  status: state.importData.status
+  status: state.importData.status,
+  docsWritten: state.importData.docsWritten
 });
 
 /**
@@ -189,7 +251,8 @@ const mapStateToProps = (state) => ({
 export default connect(
   mapStateToProps,
   {
-    importAction,
+    startImport,
+    cancelImport,
     selectImportFileType,
     selectImportFileName,
     closeImport
