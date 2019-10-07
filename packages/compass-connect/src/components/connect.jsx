@@ -39,6 +39,15 @@ class Connect extends React.Component {
   }
 
   /**
+   * Hides a message that a favorite was saved.
+   */
+  handleMouseMove() {
+    if (this.props.isMessageVisible) {
+      Actions.hideFavoriteMessage();
+    }
+  }
+
+  /**
    * Renders the form with connection attributes or the URI input.
    *
    * @returns {React.Component}
@@ -116,7 +125,10 @@ class Connect extends React.Component {
         <div className={classnames(styles.page, styles.connect)}>
           <Sidebar {...this.props} />
           <div className={classnames(styles['form-container'])}>
-            <div className={classnames(styles['connect-container'])}>
+            <div
+              className={classnames(styles['connect-container'])}
+              onMouseMove={this.handleMouseMove.bind(this)}
+            >
               {this.renderHeader()}
               {this.renderChangeViewLink()}
               {this.renderConnectScreen()}

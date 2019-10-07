@@ -46,7 +46,6 @@ class IsFavoritePill extends PureComponent {
   saveFavorite(name, color) {
     Actions.onCreateFavoriteClicked(name, color);
     Actions.hideFavoriteModal();
-    Actions.showFavoriteMessage();
   }
 
   /**

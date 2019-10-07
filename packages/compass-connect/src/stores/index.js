@@ -2,7 +2,7 @@ const Reflux = require('reflux');
 const sortBy = require('lodash.sortby');
 const isEmpty = require('lodash.isempty');
 const forEach = require('lodash.foreach');
-const merge = require('lodash.merge');
+const omit = require('lodash.omit');
 const DataService = require('mongodb-data-service');
 const Actions = require('actions');
 const Connection = require('mongodb-connection-model');
@@ -133,25 +133,21 @@ const Store = Reflux.createStore({
   * Hides the favorite message.
   */
   hideFavoriteMessage() {
-    this.state.isMessageVisible = false;
-    this.trigger(this.state);
+    this.setState({ isMessageVisible: false });
   },
 
   /**
    * Hides the favorite modal.
    */
   hideFavoriteModal() {
-    this.state.isModalVisible = false;
-    this.trigger(this.state);
+    this.setState({ isModalVisible: false });
   },
 
   /**
    * Shows the favorite message.
    */
   showFavoriteMessage() {
-    this.state.isMessageVisible = true;
-    this.trigger(this.state);
-    setTimeout(() => this.hideFavoriteMessage(), 500);
+    this.setState({ isModalVisible: true });
   },
 
   /**
@@ -331,24 +327,23 @@ const Store = Reflux.createStore({
             this._setSyntaxErrorMessage(error.message);
             this.trigger(this.state);
           } else {
-            const lastUsed = currentConnection.lastUsed;
-            const name = currentConnection.name;
-            const color = currentConnection.color;
             const isFavorite = currentConnection.isFavorite;
             const driverUrl = currentConnection.driverUrl;
-            let connection;
 
             if (isFavorite && driverUrl !== parsedConnection.driverUrl) {
-              connection = parsedConnection;
+              this._connect(parsedConnection);
             } else {
-              connection = merge(
-                currentConnection,
-                parsedConnection,
-                { name, color, isFavorite, lastUsed }
+              const props = omit(
+                parsedConnection.getAttributes({ props: true }),
+                ['_id', 'isFavorite', 'color', 'name']
               );
-            }
 
-            this._connect(connection);
+              Object.keys(props).forEach((key) => {
+                currentConnection[key] = parsedConnection[key];
+              });
+
+              this._connect(currentConnection);
+            }
           }
         });
       }
@@ -373,53 +368,47 @@ const Store = Reflux.createStore({
     const currentConnection = this.state.currentConnection;
     const connections = this.state.connections;
     const isFavorite = currentConnection.isFavorite;
-    const currentRecent = connections.find((recent) => (
-      recent === currentConnection &&
-      recent.isFavorite === false
+    const currentSaved = connections.find((recent) => (
+      recent === currentConnection
     ));
+
+    this.state.isMessageVisible = true;
+
+    currentConnection.isFavorite = true;
+    currentConnection.color = color;
+    currentConnection.name = name;
+
+    if (isFavorite) {
+      this.state.savedMessage = 'Favorite is updated';
+    }
 
     if (this.state.viewType === 'connectionString' && !isFavorite) {
       Connection.from(this.state.customUrl, (error, parsedConnection) => {
         if (!error) {
-          if (isFavorite) {
-            this.state.savedMessage = 'Favorite is updated';
-          }
-
-          if (currentRecent) {
-            currentConnection.isFavorite = true;
-            currentConnection.name = name;
-            currentConnection.color = color;
+          if (currentSaved) {
             currentConnection.save();
           } else {
-            const connection = merge(
-              currentConnection,
-              parsedConnection,
-              { name, color, isFavorite: true }
+            const props = omit(
+              parsedConnection.getAttributes({ props: true }),
+              ['_id', 'isFavorite', 'color', 'name']
             );
 
+            Object.keys(props).forEach((key) => {
+              currentConnection[key] = parsedConnection[key];
+            });
+
             if (this.state.customUrl.match(/[?&]ssl=true/i)) {
-              connection.sslMethod = 'SYSTEMCA';
+              currentConnection.sslMethod = 'SYSTEMCA';
             }
 
-            this.state.currentConnection = connection;
-            this._addConnection(connection);
+            this._addConnection(currentConnection);
           }
         }
       });
+    } else if (currentSaved) {
+      currentConnection.save();
     } else {
-      currentConnection.isFavorite = true;
-      currentConnection.name = name;
-      currentConnection.color = color;
-
-      if (currentRecent) {
-        currentConnection.save();
-      } else {
-        if (isFavorite) {
-          this.state.savedMessage = 'Favorite is updated';
-        }
-
-        this._addConnection(currentConnection);
-      }
+      this._addConnection(currentConnection);
     }
   },
 
@@ -429,14 +418,13 @@ const Store = Reflux.createStore({
   onCreateRecentClicked() {
     const currentConnection = this.state.currentConnection;
     const connections = this.state.connections;
-    const currentFavorite = connections.find((recent) => (
-      recent === currentConnection &&
-      recent.isFavorite === true
+    const currentSaved = connections.find((recent) => (
+      recent === currentConnection
     ));
 
     currentConnection.lastUsed = new Date();
 
-    if (currentFavorite) {
+    if (currentSaved) {
       currentConnection.save();
     } else {
       this._pruneRecents(() => {
@@ -782,9 +770,10 @@ const Store = Reflux.createStore({
    * @param {Object} connection - A connection.
    */
   _addConnection(connection) {
+    this.state.currentConnection = connection;
     this.state.connections.add(connection);
-    connection.save();
     this.trigger(this.state);
+    this.state.currentConnection.save();
   },
 
   /**
