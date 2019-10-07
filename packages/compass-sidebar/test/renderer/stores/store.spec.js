@@ -5,7 +5,6 @@
  * More complex plugins will require actual renderer/integration tests to be
  * executed here.
  */
-
 describe('SidebarStore [Store]', () => {
   it('passes', () => {
     expect(true).to.equal(true);

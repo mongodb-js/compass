@@ -66,24 +66,29 @@ import DataService from 'mongodb-data-service';
 const connection = new Connection({
   hostname: '127.0.0.1',
   port: 27017,
-  is_favorite: true,
-  name: 'This is a reallllllllllllllly long connection name'
+  isFavorite: true,
+  name: 'This is a reallllllllllllllly long connection name',
+  color: '#326fde',
+  authStrategy: 'MONGODB',
+  isSrvRecord: false,
+  readPreference: 'primaryPreferred',
+  attributes: { hostanme: 'localhost' }
 });
 const dataService = new DataService(connection);
 
 global.hadronApp.instance.genuineMongoDB = { isGenuine: false, dbType: 'cosmos' };
 
-const state = {
-  instance: global.hadronApp.instance
-};
+const state = { instance: global.hadronApp.instance };
 
 DeploymentStateStore.setToInitial();
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
-  ds.client.model.ssh_tunnel = 'USER_PASSWORD';
-  ds.client.model.ssh_tunnel_hostname = '123.45.67.89';
-  appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('instance-refreshed', state);
+  if (!error) {
+    ds.client.model.sshTunnel = 'USER_PASSWORD';
+    ds.client.model.sshTunnelHostname = '123.45.67.89';
+    appRegistry.emit('data-service-connected', error, ds);
+    appRegistry.emit('instance-refreshed', state);
+  }
 });
 
 if (module.hot) {

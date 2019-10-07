@@ -1,9 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
-
 import Sidebar from 'components/sidebar';
-import styles from './sidebar.less';
 import store from 'stores';
+import styles from '../../../src/components/sidebar/sidebar.less';
 
 describe('Sidebar [Component]', () => {
   let component;
@@ -20,6 +19,6 @@ describe('Sidebar [Component]', () => {
   });
 
   it('renders the correct root classname', () => {
-    expect(component.find(`.${styles['compass-sidebar']}`)).to.be.present();
+    expect(component.find(`.${styles['compass-sidebar']}`)).to.exist;
   });
 });

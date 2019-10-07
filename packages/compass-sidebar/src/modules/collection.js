@@ -4,7 +4,7 @@ import toNS from 'mongodb-ns';
  * Get the source object.
  *
  * @param {String} name - The source collection name.
- * @param {Array} collection - The collections to search.
+ * @param {Array} collections - The collections to search.
  *
  * @returns {Object} The source object.
  */

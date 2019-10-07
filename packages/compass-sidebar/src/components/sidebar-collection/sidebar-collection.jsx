@@ -115,6 +115,8 @@ class SidebarCollection extends PureComponent {
    * Show the collection.
    *
    * @param {String} eventName - The event name.
+   * @param {Object} collection - The collection.
+   * @param {Array} collections - Collections.
    * @param {String} editViewSource - The modify source name.
    */
   showCollection(eventName, collection, collections, editViewSource) {

@@ -3,7 +3,7 @@
  */
 const PREFIX = 'sidebar/details-plugins';
 
-const LOAD_DETAILS_PLUGINS = `${PREFIX}/LOAD_DETAILS_PLUGINS`;
+export const LOAD_DETAILS_PLUGINS = `${PREFIX}/LOAD_DETAILS_PLUGINS`;
 
 /**
  * The initial state.

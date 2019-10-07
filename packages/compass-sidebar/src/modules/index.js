@@ -33,16 +33,18 @@ import isGenuineMongoDB, {
 import isGenuineMongoDBVisible, {
   INITIAL_STATE as IS_VISIBLE_IS
 } from 'modules/is-genuine-mongodb-visible';
-import connectionName, {
-  INITIAL_STATE as CONNECTION_NAME_IS
-} from 'modules/connection-name';
+import connection, {
+  INITIAL_STATE as CONNECTION_IS
+} from 'modules/connection';
+import isModalVisible, {
+  INITIAL_STATE as MODAL_VISIBLE_IS
+} from 'modules/is-modal-visible';
 
 /**
  * The reducer.
  */
 const reducer = combineReducers({
   appRegistry,
-  connectionName,
   databases,
   description,
   detailsPlugins,
@@ -53,7 +55,9 @@ const reducer = combineReducers({
   isWritable,
   isGenuineMongoDB,
   isGenuineMongoDBVisible,
-  isDataLake
+  isDataLake,
+  connection,
+  isModalVisible
 });
 
 /**
@@ -68,7 +72,6 @@ const rootReducer = (state, action) => {
   if (action.type === RESET) {
     return {
       ...state,
-      connectionName: CONNECTION_NAME_IS,
       databases: DATABASES_INITIAL_STATE,
       description: DESCRIPTION_INITIAL_STATE,
       instance: INSTANCE_INITIAL_STATE,
@@ -78,7 +81,9 @@ const rootReducer = (state, action) => {
       isWritable: IS_WRITABLE_INITIAL_STATE,
       isGenuineMongoDB: GENUINE_IS,
       isGenuineMongoDBVisible: IS_VISIBLE_IS,
-      isDataLake: DL_INITIAL_STATE
+      isDataLake: DL_INITIAL_STATE,
+      connection: CONNECTION_IS,
+      isModalVisible: MODAL_VISIBLE_IS
     };
   }
   return reducer(state, action);

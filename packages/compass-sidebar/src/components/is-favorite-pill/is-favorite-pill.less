@@ -1,0 +1,27 @@
+@import (reference) "~less/compass/_theme.less";
+
+.is-favorite-pill {
+  font-size: 11px;
+  padding: 0px 0px 12px 36px;
+  align-items: center;
+  justify-content: left;
+  white-space: nowrap;
+
+  &-text {
+    text-transform: uppercase;
+    border-radius: 14px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: transparent;
+    padding: 3px 10px;
+    margin-right: 5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  &-text:hover {
+    filter: brightness(90%);
+    text-decoration: none;
+    cursor: pointer;
+  }
+}

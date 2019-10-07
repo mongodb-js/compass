@@ -20,6 +20,8 @@ import { toggleIsGenuineMongoDBVisible } from 'modules/is-genuine-mongodb-visibl
 import { filterDatabases, changeDatabases } from 'modules/databases';
 import { changeFilterRegex } from 'modules/filter-regex';
 import { openLink } from 'modules/link';
+import { toggleIsModalVisible } from 'modules/is-modal-visible';
+import { saveFavorite, deleteFavorite } from 'modules/connection';
 
 import { TOOLTIP_IDS } from 'constants/sidebar-constants';
 
@@ -32,7 +34,6 @@ class Sidebar extends PureComponent {
   static propTypes = {
     databases: PropTypes.object.isRequired,
     description: PropTypes.string.isRequired,
-    connectionName: PropTypes.string.isRequired,
     filterRegex: PropTypes.any.isRequired,
     instance: PropTypes.object.isRequired,
     isCollapsed: PropTypes.bool.isRequired,
@@ -50,7 +51,12 @@ class Sidebar extends PureComponent {
     isGenuineMongoDB: PropTypes.bool.isRequired,
     isGenuineMongoDBVisible: PropTypes.bool.isRequired,
     toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
-    globalAppRegistryEmit: PropTypes.func.isRequired
+    globalAppRegistryEmit: PropTypes.func.isRequired,
+    connection: PropTypes.object,
+    toggleIsModalVisible: PropTypes.func.isRequired,
+    isModalVisible: PropTypes.bool.isRequired,
+    deleteFavorite: PropTypes.func.isRequired,
+    saveFavorite: PropTypes.func.isRequired
   };
 
   componentWillReceiveProps() {
@@ -234,7 +240,7 @@ class Sidebar extends PureComponent {
           <i className={collapsedButton}/>
         </button>
         <SidebarTitle
-          name={this.props.connectionName}
+          connection={this.props.connection}
           isSidebarCollapsed={this.props.isCollapsed}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
         <SidebarInstance
@@ -244,7 +250,12 @@ class Sidebar extends PureComponent {
           detailsPlugins={this.props.detailsPlugins}
           isGenuineMongoDB={this.props.isGenuineMongoDB}
           toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
-          globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
+          globalAppRegistryEmit={this.props.globalAppRegistryEmit}
+          connection={this.props.connection}
+          toggleIsModalVisible={this.props.toggleIsModalVisible}
+          isModalVisible={this.props.isModalVisible}
+          saveFavorite={this.props.saveFavorite}
+          deleteFavorite={this.props.deleteFavorite} />
         <div
           className={classnames(styles['compass-sidebar-filter'])}
           onClick={this.handleSearchFocus.bind(this)}>
@@ -282,7 +293,6 @@ class Sidebar extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state, ownProps) => ({
-  connectionName: state.connectionName,
   databases: state.databases,
   description: state.description,
   detailsPlugins: state.detailsPlugins,
@@ -295,7 +305,9 @@ const mapStateToProps = (state, ownProps) => ({
   onCollapse: ownProps.onCollapse,
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,
-  isGenuineMongoDBVisible: state.isGenuineMongoDBVisible
+  isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
+  connection: state.connection,
+  isModalVisible: state.isModalVisible
 });
 
 /**
@@ -312,7 +324,10 @@ const MappedSidebar = connect(
     changeDatabases,
     changeFilterRegex,
     openLink,
-    globalAppRegistryEmit
+    globalAppRegistryEmit,
+    toggleIsModalVisible,
+    deleteFavorite,
+    saveFavorite
   },
 )(Sidebar);
 

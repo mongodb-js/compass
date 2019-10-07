@@ -12,7 +12,7 @@ class SidebarTitle extends PureComponent {
   static displayName = 'SidebarTitleComponent';
   static propTypes = {
     isSidebarCollapsed: PropTypes.bool.isRequired,
-    name: PropTypes.string.isRequired,
+    connection: PropTypes.object.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired
   };
 
@@ -32,7 +32,7 @@ class SidebarTitle extends PureComponent {
           className={classnames(styles['sidebar-title-name-icon'])} />
       );
     }
-    return this.props.name;
+    return this.props.connection.name;
   }
 
   /**
