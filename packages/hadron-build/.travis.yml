@@ -2,11 +2,10 @@ sudo: false
 dist: trusty
 language: node_js
 node_js:
-  - 10.2.1
+  - 12.4.0
 script: npm run-script ci
 cache:
   directories:
-    - node_modules
     - $HOME/.electron
 addons:
   apt:
