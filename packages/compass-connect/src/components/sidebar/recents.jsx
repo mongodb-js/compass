@@ -4,6 +4,7 @@ import map from 'lodash.map';
 import moment from 'moment';
 import Actions from 'actions';
 import classnames from 'classnames';
+import { DropdownButton, MenuItem } from 'react-bootstrap';
 
 import styles from './sidebar.less';
 
@@ -99,7 +100,7 @@ class Recents extends React.Component {
           key={i}
           title={title}
           onClick={this.onRecentClicked.bind(this, recent)}>
-          <div>
+          <div className={classnames(styles['connect-sidebar-list-item-details'])}>
             <div className={classnames(styles['connect-sidebar-list-item-last-used'])}>
               {this.formatLastUsed(recent)}
             </div>
@@ -107,9 +108,16 @@ class Recents extends React.Component {
               {title}
             </div>
           </div>
-          <i
-            onClick={this.onClearConnectionClicked.bind(this, recent)}
-            className="fa fa-trash-o fa-lg" />
+          <DropdownButton
+            bsSize="xsmall"
+            bsStyle="link"
+            title="&hellip;"
+            className={classnames(styles['connect-sidebar-list-item-actions'])}
+            noCaret
+            pullRight
+            id="recent-actions">
+            <MenuItem eventKey="1" onClick={this.onClearConnectionClicked.bind(this, recent)}>Remove</MenuItem>
+          </DropdownButton>
         </li>
       );
     });

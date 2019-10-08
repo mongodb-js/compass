@@ -4,6 +4,7 @@ import map from 'lodash.map';
 import moment from 'moment';
 import Actions from 'actions';
 import classnames from 'classnames';
+import { DropdownButton, MenuItem } from 'react-bootstrap';
 
 import styles from './sidebar.less';
 
@@ -27,6 +28,15 @@ class Favorites extends React.Component {
    */
   onFavoriteClicked(favorite) {
     Actions.onFavoriteSelected(favorite);
+  }
+
+  /**
+   * Deletes a favorite connection.
+   *
+   * @param {Object} favorite - A favorite connection.
+   */
+  onClearConnectionClicked(favorite) {
+    Actions.onDeleteConnectionClicked(favorite);
   }
 
   /**
@@ -87,14 +97,25 @@ class Favorites extends React.Component {
           key={i}
           title={title}
           onClick={this.onFavoriteClicked.bind(this, favorite)}>
-          <div>
+          <div className={classnames(styles['connect-sidebar-list-item-details'])}>
             <div className={classnames(styles['connect-sidebar-list-item-last-used'])}>
               {this.formatLastUsed(favorite)}
             </div>
-            <div className={classnames(styles['connect-sidebar-list-item-name'])}>
+            <div
+              className={classnames(styles['connect-sidebar-list-item-name'])} >
               {favorite.name}
             </div>
           </div>
+          <DropdownButton
+            bsSize="xsmall"
+            bsStyle="link"
+            title="&hellip;"
+            className={classnames(styles['connect-sidebar-list-item-actions'])}
+            noCaret
+            pullRight
+            id="favorite-actions">
+            <MenuItem eventKey="1" onClick={this.onClearConnectionClicked.bind(this, favorite)}>Remove</MenuItem>
+          </DropdownButton>
         </li>
       );
     });

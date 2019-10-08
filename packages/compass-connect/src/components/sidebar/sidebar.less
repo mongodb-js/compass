@@ -5,6 +5,9 @@
 @compass-sidebar-active-background-color: @gray4;
 @compass-sidebar-active-background-color: lighten(hsl(201, 11%, 41%), 10%);
 
+@compass-sidebar-hover-background-color: @gray1;
+@compass-sidebar-hover-background-color: lighten(hsl(204, 29%, 18%), 5%);
+
 .connect-sidebar {
   display: flex;
   flex-direction: column;
@@ -18,6 +21,7 @@
 
   &-connections {
     overflow-y: auto;
+    height: 100%;
   }
 
   &-new-connection {
@@ -94,6 +98,14 @@
       justify-content: space-between;
 
       &:hover {
+        background: @compass-sidebar-hover-background-color;
+        color: @pw;
+
+        .connect-sidebar-list-item-actions {
+          visibility: visible;
+          background: inherit;
+        }
+
         i {
           visibility: visible;
         }
@@ -110,6 +122,23 @@
 
       &-is-active {
         background-color: @compass-sidebar-active-background-color;
+
+        .connect-sidebar-list-item-actions {
+          visibility: visible;
+          background-color: inherit;
+        }
+      }
+
+      &-details {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: @pw;
+        font-size: 14px;
+        line-height: 1;
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
       }
 
       &-last-used {
@@ -123,11 +152,12 @@
       &-name {
         max-width: 150px;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        color: @pw;
-        font-size: 14px;
-        line-height: 1;
+      }
+
+      &-actions {
+        flex-grow: 0;
+        color: @pw !important;
+        visibility: hidden;
       }
     }
   }

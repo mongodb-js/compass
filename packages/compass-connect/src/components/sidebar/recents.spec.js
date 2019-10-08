@@ -43,10 +43,6 @@ describe('Recents [Component]', () => {
     expect(component.find(style)).to.have.text('Clear all');
   });
 
-  it('renders clear individual connection icon', () => {
-    expect(component.find('.fa.fa-trash-o.fa-lg')).to.be.present();
-  });
-
   it('renders the recent name', () => {
     const style = `.${styles['connect-sidebar-list-item-name']}`;
 
