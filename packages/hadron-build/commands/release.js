@@ -126,10 +126,7 @@ const createPackagedStyles = (CONFIG, done) => {
  */
 const createBrandedApplication = (CONFIG, done) => {
   cli.debug('running electron-packager');
-  packager(CONFIG.packagerOptions, function(err, res) {
-    if (err) {
-      return done(err);
-    }
+  packager(CONFIG.packagerOptions).then((res) => {
     cli.debug('Packager result is: ' + JSON.stringify(res, null, 2));
 
     if (CONFIG.platform !== 'darwin') {
@@ -152,6 +149,8 @@ const createBrandedApplication = (CONFIG, done) => {
         fs.move(atomIcns, electronIcns, done);
       });
     });
+  }).catch((err) => {
+    return done(err);
   });
 };
 
@@ -477,10 +476,12 @@ const createApplicationAsar = (CONFIG, done) => {
   var src = path.join(CONFIG.resources, 'app');
   var dest = path.join(CONFIG.resources, 'app.asar');
 
-  asar.createPackageWithOptions(src, dest, opts, function() {
-    del(src, {force: true}).then(function() {
+  asar.createPackageWithOptions(src, dest, opts).then(() => {
+    del(src, { force: true }).then(() => {
       done();
     }, done);
+  }).catch((err) => {
+    done();
   });
 };
 

@@ -86,15 +86,6 @@ function getPkg(directory) {
     pkg.github_repo = g[1];
   }
 
-  // TODO (imlucas) As of electron@1.4.11, `electron-prebuilt` deprecated.
-  // Need to switch everything over to `electron` package name.
-  //
-  // var electronVersion;
-  // try {
-  //   electronVersion = require('electron-prebuilt/package.json').version;
-  // } catch (e) {
-  //   electronVersion = require('electron/package.json').version;
-  // }
   _.defaults(pkg, {
     productName: pkg.name,
     author: pkg.authors,
@@ -190,8 +181,7 @@ class Target {
       sign: null,
       afterExtract: [
         ffmpegAfterExtract
-      ],
-      tmpdir: false
+      ]
     };
 
     if (this.platform === 'win32') {
@@ -501,12 +491,15 @@ class Target {
             codesign.printWarning();
           }
 
-          tasks.push(_.partial(createDMG, opts));
           async.series(tasks, _err => {
             if (_err) {
               return reject(_err);
             }
-            resolve();
+            createDMG(opts).then(() => {
+              resolve();
+            }).catch((_e) => {
+              reject(_e);
+            });
           });
         });
       });
