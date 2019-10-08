@@ -32,7 +32,6 @@ function tar(srcDirectory, dest) {
   });
 }
 
-const pify = require('pify');
 const which = require('which');
 
 function _canBuildInstaller(ext) {
@@ -593,7 +592,7 @@ class Target {
 
     const createRpmInstaller = () => {
       return ifEnvironmentCanBuild('rpm', () => {
-        const createRpm = pify(require('electron-installer-redhat'));
+        const createRpm = require('electron-installer-redhat');
         debug('creating rpm...', this.installerOptions.rpm);
         return createRpm(this.installerOptions.rpm).then(() => {
           return sign(this.dest(this.linux_rpm_filename));
@@ -603,7 +602,7 @@ class Target {
 
     const createDebInstaller = () => {
       return ifEnvironmentCanBuild('deb', () => {
-        const createDeb = pify(require('electron-installer-debian'));
+        const createDeb = require('electron-installer-debian');
         debug('creating deb...', this.installerOptions.deb);
         return createDeb(this.installerOptions.deb).then(() => {
           return sign(this.dest(this.linux_deb_filename));
