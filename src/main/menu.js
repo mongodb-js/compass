@@ -4,6 +4,8 @@
 var electron = require('electron');
 var ipc = require('hadron-ipc');
 var BrowserWindow = electron.BrowserWindow;
+var dialog = electron.dialog;
+
 var Menu = electron.Menu;
 var app = electron.app;
 var fs = require('fs');
@@ -12,6 +14,9 @@ var path = require('path');
 var State = require('ampersand-state');
 var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:menu');
+
+const compass = require('./application')._instance;
+
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
 const LICENSE = path.join(__dirname, '..', '..', 'LICENSE');
@@ -62,6 +67,21 @@ function darwinCompassSubMenu() {
       {
         label: `About ${app.getName()}`,
         selector: 'orderFrontStandardAboutPanel:'
+      },
+      {
+        label: 'Check for Updates...',
+        click: function() {
+          compass.autoUpdateManager.check();
+          compass.autoUpdateManager.once('update-not-available', () => {
+            dialog.showMessageBox({type: 'info', message: 'There are no updates available.'});
+          });
+          compass.autoUpdateManager.once('checking-for-update', function() {
+            console.log('checking for update...');
+          });
+          compass.autoUpdateManager.once('update-available', function() {
+            console.log('Update available! Message will be shown in renderer via IPC.');
+          });
+        }
       },
       separator(),
       {
