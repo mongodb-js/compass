@@ -3,7 +3,7 @@ dist: trusty
 language: node_js
 node_js:
   - 12.4.0
-script: DEBUG=* npm run-script ci
+script: npm run-script ci
 cache:
   directories:
     - $HOME/.electron
