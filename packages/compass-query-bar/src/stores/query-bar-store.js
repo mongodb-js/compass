@@ -82,7 +82,17 @@ const configureStore = (options = {}) => {
      * Open the export to language dialog.
      */
     exportToLanguage() {
-      this.localAppRegistry.emit('open-query-export-to-language', this.state.filterString);
+      this.localAppRegistry.emit('open-query-export-to-language',
+        {
+          filter: this.state.filterString,
+          project: this.state.projectString,
+          sort: this.state.sortString,
+          collation: this.state.collationString,
+          skip: this.state.skipString,
+          limit: this.state.limitString,
+          maxTimeMS: this.state.maxTimeMSString
+        }
+      );
       this.globalAppRegistry.emit(
         'compass:export-to-language:opened',
         { source: 'Query' }
