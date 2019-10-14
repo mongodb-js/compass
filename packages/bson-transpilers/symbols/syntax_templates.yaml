@@ -29,3 +29,4 @@ Syntax:
     # Flags that aren't defined can be left blank and will be ignored.
     regexFlags: *RegexFlags
     bsonRegexFlags: *BSONRegexFlags
+    driver: *DriverTemplate

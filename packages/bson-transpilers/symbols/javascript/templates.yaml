@@ -15,6 +15,56 @@ Templates:
         l: 'l'
         u: 'u'
     # Syntax
+    DriverTemplate: &DriverTemplate !!js/function >
+        (spec) => {
+            const translateKey = {
+                project: 'projection'
+            };
+
+            let cmd;
+            let defs;
+            if ('aggregation' in spec) {
+                const agg = spec.aggregation;
+                cmd = `coll.aggregate(agg, (cmdErr, result) => {`;
+                defs = `const agg = ${agg};`;
+            } else {
+                let opts = '';
+                const args = {};
+                Object.keys(spec).forEach((k) => {
+                    if (k !== 'options') {
+                        args[k in translateKey ? translateKey[k] : k] = spec[k];
+                    }
+                });
+
+                if (Object.keys(args).length > 0) {
+                    defs = Object.keys(args).reduce((s, k) => {
+                        if (k !== 'filter') {
+                            if (opts === '') {
+                                opts = `${k}: ${k}`;
+                            } else {
+                                opts = `${opts}, ${k}: ${k}`;
+                            }
+                        }
+                        return `${s}\nconst ${k} = ${args[k]}`;
+                    }, '');
+                    opts = opts === '' ? '' : `, { ${opts} }`;
+                }
+                cmd = `coll.find(filter${opts}, (cmdErr, result) => {`;
+            }
+            return `${defs}
+        MongoClient.connect(
+          '${spec.options.uri}',
+          { useNewUrlParser: true },
+          function(connectErr, client) {
+            assert.equal(null, connectErr);
+            const coll = client.db('${spec.options.database}').collection('${spec.options.collection}');
+            ${cmd}
+              assert.equal(null, cmdErr);
+              console.log(result);
+            });
+            client.close();
+          });`;
+        }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
             if (op.includes('!') || op.includes('not')) {
@@ -524,6 +574,11 @@ Templates:
                 other.push(`const {\n  ${bson.join(',\n  ')}\n} = require('bson');`);
             }
             return other.join('\n');
+        }
+    DriverImportTemplate: &DriverImportTemplate !!js/function >
+        () => {
+            return `const MongoClient = require('mongodb').MongoClient
+        const assert = require('assert');`;
         }
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null

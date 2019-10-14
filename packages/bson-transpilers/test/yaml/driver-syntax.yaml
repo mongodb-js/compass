@@ -1,0 +1,92 @@
+runner: !!js/function >
+    (it, expect, input, output, transpiler, test) => {
+        it(`${input} => ${output}`, () => {
+            expect(
+                transpiler[input][output].compileWithDriver(test.input[input], true, true)
+            ).to.equal(test.output[output]);
+        });
+        it(`${input}: imports in ${output}`, () => {
+            expect(
+                transpiler[input][output].getImports()
+            ).to.equal(test.imports[output]);
+        });
+    }
+tests:
+    aggregation:
+    - description: 'generate driver syntax'
+      input:
+          shell: { aggregation: '{x: NumberLong(0), y: ObjectId()}', options: { uri: 'localhost', database: 'db', collection: 'collection'} }
+          javascript: { aggregation: '{x: Long(0, 0), y: ObjectId()}', options: { uri: 'localhost', database: 'db', collection: 'collection'} }
+      output:
+          python: "client = MongoClient('localhost')\nresult = client['db']['collection'].aggregate({\n    'x': Int64(0), \n    'y': ObjectId()\n})"
+      imports:
+          python: |-
+            from pymongo import MongoClient
+            from bson import ObjectId, Int64
+    query:
+    - description: 'generate driver syntax with only filter'
+      input:
+          javascript: { filter: '{x: Long(0, 0)}', options: { uri: 'localhost', database: 'db', collection: 'collection' } }
+          shell: { filter: '{x: NumberLong(0)}', options: { uri: 'localhost', database: 'db', collection: 'collection' } }
+      output:
+          python: |-
+              client = MongoClient('localhost')
+              filter={
+                  'x': Int64(0)
+              }
+
+              result = client['db']['collection'].find(filter=filter)
+      imports:
+          python: |-
+              from pymongo import MongoClient
+              from bson import Int64
+    - description: 'query with filter and other options'
+      input:
+          javascript:
+              options:
+                  uri: localhost
+                  database: database
+                  collection: collection
+              filter: "{x: Long(0, 0)}"
+              project: "{y: ObjectId()}"
+              sort: "{name: 1}"
+              skip: '5'
+              limit: '10'
+              maxTimeMS: '100'
+              collation: "{z: []}"
+          shell:
+              options:
+                  uri: localhost
+                  database: database
+                  collection: collection
+              filter: "{x: NumberLong(0)}"
+              project: "{y: ObjectId()}"
+              sort: "{name: 1}"
+              skip: '5'
+              limit: '10'
+              maxTimeMS: '100'
+              collation: "{z: []}"
+      output:
+          python: |-
+              client = MongoClient('localhost')
+              filter={
+                  'x': Int64(0)
+              }
+              project={
+                  'y': ObjectId()
+              }
+              sort={
+                  'name': 1
+              }
+              skip=5
+              limit=10
+              maxTimeMS=100
+              collation={
+                  'z': []
+              }
+
+              result = client['database']['collection'].find(filter=filter, projection=project, sort=sort, skip=skip, limit=limit, max_time_ms=maxTimeMS, collation=collation)
+      imports:
+          python: |-
+              from pymongo import MongoClient
+              from bson import ObjectId, Int64

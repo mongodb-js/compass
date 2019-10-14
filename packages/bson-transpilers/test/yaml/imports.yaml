@@ -1,7 +1,7 @@
 runner: !!js/function >
     (it, expect, input, output, transpiler, test) => {
         it(`correct ${output} imports from ${input}`, () => {
-            transpiler[input][output].compile(test.input[input]);
+            transpiler[input][output].compile(test.input[input], true, false);
             expect(
                 transpiler[input][output].getImports()
             ).to.equal(test.output[output]);

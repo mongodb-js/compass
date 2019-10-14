@@ -15,6 +15,7 @@ Templates:
         l: ''
         u: ''
     # Syntax
+    DriverTemplate: &DriverTemplate null
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
             if (op.includes('!') || op.includes('not')) {
@@ -711,7 +712,7 @@ Templates:
         () => {
             return '';
         }
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function > 
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
         (lhs, arg) => {
             if (!arg || arg.length === 0) {
                 arg = '0';
@@ -842,7 +843,7 @@ Templates:
         (lhs) => {
             return `${lhs}.Parse`;
         }
-    Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate !!js/function > 
+    Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate !!js/function >
         (lhs, arg) => {
             return `(${arg})`;
         }
@@ -936,6 +937,7 @@ Templates:
             const all = universal.concat(Object.values(args));
             return all.join('\n');
         }
+    DriverImportTemplate: &DriverImportTemplate null
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
     2ImportTemplate: &2ImportTemplate null

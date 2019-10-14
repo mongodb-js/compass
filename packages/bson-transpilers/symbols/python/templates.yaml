@@ -15,6 +15,48 @@ Templates:
         l: 'l'
         u: 'u'
     # Syntax
+
+   # filter, project, sort, collation, skip, limit, maxTimeMS
+    DriverTemplate: &DriverTemplate !!js/function >
+        (spec) => {
+            const translateKey = {
+                filter: 'filter',
+                project: 'projection',
+                sort: 'sort',
+                collation: 'collation',
+                skip: 'skip',
+                limit: 'limit',
+                maxTimeMS: 'max_time_ms'
+            };
+            const options = spec.options;
+            delete spec.options;
+
+            const connect = `client = MongoClient('${options.uri}')`;
+            const coll = `client['${options.database}']['${options.collection}']`;
+
+            if ('aggregation' in spec) {
+                return `${connect}\nresult = ${coll}.aggregate(${spec.aggregation})`;
+            }
+
+            const vars = Object.keys(spec).reduce(
+                (result, k) => {
+                    return `${result}\n${k}=${spec[k]}`;
+                },
+                connect
+            );
+
+            const args = Object.keys(spec).reduce(
+                (result, k) => {
+                    return `${result === '' ? '' : `${result}, `}${
+                        k in translateKey ? translateKey[k] : k
+                    }=${k}`;
+                },
+                ''
+            );
+            const cmd = `result = ${coll}.find(${args})`;
+
+            return `${vars}\n\n${cmd}`;
+        }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
             if (op.includes('!')) {
@@ -902,6 +944,10 @@ Templates:
                 other.push(`from bson import ${bson.join(', ')}`);
             }
             return other.join('\n');
+        }
+    DriverImportTemplate: &DriverImportTemplate !!js/function >
+        () => {
+            return 'from pymongo import MongoClient';
         }
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null

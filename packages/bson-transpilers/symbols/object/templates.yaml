@@ -44,6 +44,7 @@ Templates:
     #                                           #
     #############################################
 
+    DriverTemplate: &DriverTemplate null
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
             if (op.includes('!') || op.includes('not')) {
@@ -572,6 +573,7 @@ Templates:
     #                                           #
     #############################################
     ImportTemplate: &ImportTemplate null
+    DriverImportTemplate: &DriverImportTemplate null
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
     2ImportTemplate: &2ImportTemplate null

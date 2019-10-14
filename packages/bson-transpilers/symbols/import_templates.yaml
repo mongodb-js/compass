@@ -1,6 +1,8 @@
 Imports:
     import:
         template: *ImportTemplate
+    driver:
+        template: *DriverImportTemplate
     0:
         template: *0ImportTemplate
     1:
