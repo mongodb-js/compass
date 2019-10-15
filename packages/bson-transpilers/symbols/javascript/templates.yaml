@@ -59,7 +59,6 @@ Templates:
             const coll = client.db('${spec.options.database}').collection('${spec.options.collection}');
             ${cmd}
               assert.equal(null, cmdErr);
-              console.log(result);
             });
             client.close();
           });`;

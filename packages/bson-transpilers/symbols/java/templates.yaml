@@ -29,8 +29,12 @@ Templates:
 
 
 
-            const connection = `MongoClient mongoClient = new MongoClient(new MongoClientURI(${uri}));
+            const connection = `MongoClient mongoClient = new MongoClient(new MongoClientURI(
+            ${uri}
+        ));
+
         MongoDatabase database = mongoClient.getDatabase("${spec.options.database}");
+
         MongoCollection<Document> collection = database.getCollection("${spec.options.collection}");`;
 
 

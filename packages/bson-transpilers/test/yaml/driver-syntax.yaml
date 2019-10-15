@@ -22,8 +22,11 @@ tests:
             output:
                 python: "client = MongoClient('mongodb://localhost:27017')\nresult = client['db']['collection'].aggregate({\n    'x': Int64(0), \n    'y': ObjectId()\n})"
                 java: |-
-                    MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
-                    MongoDatabase database = mongoClient.getDatabase("db"); MongoCollection<Document> collection = database.getCollection("collection");
+                    MongoClient mongoClient = new MongoClient(new MongoClientURI(
+                        "mongodb://localhost:27017"
+                    ));
+                    MongoDatabase database = mongoClient.getDatabase("db");
+                    MongoCollection<Document> collection = database.getCollection("collection");
 
                     FindIterable<Document> result = collection.aggregate(and(eq("x", 0L), eq("y", new ObjectId())));
                 javascript: |-
@@ -91,8 +94,11 @@ tests:
                 java: |-
                     Bson filter = eq("x", 0L);
 
-                    MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
-                    MongoDatabase database = mongoClient.getDatabase("db"); MongoCollection<Document> collection = database.getCollection("collection");
+                    MongoClient mongoClient = new MongoClient(new MongoClientURI(
+                        "mongodb://localhost:27017"
+                    ));
+                    MongoDatabase database = mongoClient.getDatabase("db");
+                    MongoCollection<Document> collection = database.getCollection("collection");
                     FindIterable<Document> result = collection.find(filter);
                 javascript: |-
                     const filter = {
@@ -201,8 +207,11 @@ tests:
                     Bson project = eq("y", new ObjectId());
                     Bson sort = eq("name", 1L);
 
-                    MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
-                    MongoDatabase database = mongoClient.getDatabase("db"); MongoCollection<Document> collection = database.getCollection("collection");
+                    MongoClient mongoClient = new MongoClient(new MongoClientURI(
+                        "mongodb://localhost:27017"
+                    ));
+                    MongoDatabase database = mongoClient.getDatabase("db");
+                    MongoCollection<Document> collection = database.getCollection("collection");
                     FindIterable<Document> result = collection.find(filter)
                         .projection(project)
                         .sort(sort)
