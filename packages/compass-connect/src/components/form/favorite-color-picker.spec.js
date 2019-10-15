@@ -20,7 +20,7 @@ describe('FavoriteColorPicker [Component]', () => {
       component = null;
     });
 
-    it('displays the favorite modal', () => {
+    it('selects no color', () => {
       const activeBox = component.find(`.${styles['color-box-active']}`);
 
       expect(component.find(`.${styles['favorite-picker']}`)).to.be.present();
@@ -28,6 +28,10 @@ describe('FavoriteColorPicker [Component]', () => {
       expect(activeBox).to.be.present();
       expect(activeBox.prop('title')).to.equal('No color');
       expect(activeBox).to.have.lengthOf(1);
+    });
+
+    it('does not draw a checkmark for non color option', () => {
+      expect(component.find('div[key="noColor"] g')).to.be.not.present();
     });
   });
 
@@ -47,7 +51,7 @@ describe('FavoriteColorPicker [Component]', () => {
       component = null;
     });
 
-    it('displays the favorite modal', () => {
+    it('selects a custom color', () => {
       const activeBox = component.find(`.${styles['color-box-active']}`);
 
       expect(component.find(`.${styles['favorite-picker']}`)).to.be.present();
@@ -55,6 +59,19 @@ describe('FavoriteColorPicker [Component]', () => {
       expect(activeBox).to.be.present();
       expect(activeBox.prop('title')).to.equal(hex);
       expect(activeBox).to.have.lengthOf(1);
+    });
+
+    it('draws a checkmark for a selected color', () => {
+      const checkmark = component.find(`.${styles['color-box-active']} g`);
+
+      expect(checkmark.prop('fillOpacity')).to.equal(1);
+      expect(checkmark.prop('strokeOpacity')).to.equal(1);
+    });
+
+    it('does not draw a checkmark for a non selected color', () => {
+      expect(component.find(`.${styles['color-box']} g`)).to.have.lengthOf(10);
+      expect(component.find('g[fillOpacity=1]')).to.have.lengthOf(1);
+      expect(component.find('g[fillOpacity=0]')).to.have.lengthOf(9);
     });
   });
 });
