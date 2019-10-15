@@ -26,7 +26,7 @@ Templates:
             if ('aggregation' in spec) {
                 const agg = spec.aggregation;
                 cmd = `coll.aggregate(agg, (cmdErr, result) => {`;
-                defs = `const agg = ${agg};`;
+                defs = `const agg = ${agg};\n`;
             } else {
                 let opts = '';
                 const args = {};
@@ -45,14 +45,13 @@ Templates:
                                 opts = `${opts}, ${k}: ${k}`;
                             }
                         }
-                        return `${s}\nconst ${k} = ${args[k]}`;
+                        return `${s}const ${k} = ${args[k]};\n`;
                     }, '');
                     opts = opts === '' ? '' : `, { ${opts} }`;
                 }
                 cmd = `coll.find(filter${opts}, (cmdErr, result) => {`;
             }
-            return `${defs}
-        MongoClient.connect(
+            return `${defs}MongoClient.connect(
           '${spec.options.uri}',
           { useNewUrlParser: true },
           function(connectErr, client) {
@@ -577,7 +576,7 @@ Templates:
         }
     DriverImportTemplate: &DriverImportTemplate !!js/function >
         () => {
-            return `const MongoClient = require('mongodb').MongoClient
+            return `const MongoClient = require('mongodb').MongoClient;
         const assert = require('assert');`;
         }
     0ImportTemplate: &0ImportTemplate null

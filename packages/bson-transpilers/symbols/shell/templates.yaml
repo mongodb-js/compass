@@ -15,7 +15,23 @@ Templates:
         l: 'l'
         u: 'u'
     # Syntax
-    DriverTemplate: &DriverTemplate null
+    DriverTemplate: &DriverTemplate !!js/function >
+        (spec) => {
+            let cmd;
+            if ('aggregation' in spec) {
+                cmd = `aggregate(${spec.aggregation})`;
+            } else {
+                const project = 'project' in spec ? `, ${spec.project}` : '';
+                cmd = Object.keys(spec).reduce((s, k) => {
+                    if (k !== 'options' && k !== 'project' && k !== 'filter') {
+                        s = `${s}.${k}(${spec[k]})`;
+                    }
+                return s;
+                }, `find(${spec.filter}${project})`);
+            }
+            return `mongo '${spec.options.uri}' --eval "db = db.getSiblingDB('${spec.options.database}');
+        db.${spec.options.collection}.${cmd};"`;
+        }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
             if (op.includes('!') || op.includes('not')) {

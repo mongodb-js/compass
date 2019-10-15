@@ -137,20 +137,25 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
   return {
     compileWithDriver: (input, idiomatic) => {
       transpiler.clearImports();
+
+      const result = {};
       Object.keys(input).map((k) => {
-        input[k] = k === 'options' ? input[k] : compile(input[k], idiomatic, true);
+        result[k] = k === 'options' ? input[k] : compile(input[k], idiomatic, true);
       });
-      if (!('options' in input)) {
+      if (!('options' in result) ||
+          !('uri' in result.options) ||
+          !('database' in result.options) ||
+          !('collection' in result.options)) {
         throw new BsonTranspilersInternalError(
           'Missing required metadata to generate drivers syntax'
         );
       }
-      if (!('aggregation' in input) && !('filter' in input)) {
+      if (!('aggregation' in result) && !('filter' in result)) {
         throw new BsonTranspilersInternalError(
-          'Malformed argument to compileWithDriver, needs to include either \'aggregation\' or \'filter\''
+          'Need to pass \'aggregation\' or \'filter\' when compiling with driver syntax'
         );
       }
-      return transpiler.Syntax.driver(input);
+      return transpiler.Syntax.driver(result);
     },
     compile: compile,
     getImports: () => {
