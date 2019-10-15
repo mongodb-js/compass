@@ -8,7 +8,10 @@ const JavascriptANTLRVisitor = require('./lib/antlr/ECMAScriptVisitor').ECMAScri
 const PythonANTLRVisitor = require('./lib/antlr/Python3Visitor').Python3Visitor;
 
 const ErrorListener = require('./codegeneration/ErrorListener.js');
-const { BsonTranspilersInternalError } = require('./helper/error');
+const {
+  BsonTranspilersInternalError,
+  BsonTranspilersUnimplementedError
+} = require('./helper/error');
 
 const yaml = require('js-yaml');
 
@@ -153,6 +156,11 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
       if (!('aggregation' in result) && !('filter' in result)) {
         throw new BsonTranspilersInternalError(
           'Need to pass \'aggregation\' or \'filter\' when compiling with driver syntax'
+        );
+      }
+      if (!transpiler.Syntax.driver) {
+        throw new BsonTranspilersUnimplementedError(
+          'Generating driver syntax not implemented for current language'
         );
       }
       return transpiler.Syntax.driver(result);
