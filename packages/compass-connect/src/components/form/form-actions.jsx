@@ -15,6 +15,7 @@ class FormActions extends React.Component {
     isConnected: PropTypes.bool,
     errorMessage: PropTypes.string,
     syntaxErrorMessage: PropTypes.string,
+    hasUnsavedChanges: PropTypes.bool,
     viewType: PropTypes.string
   };
 
@@ -41,6 +42,26 @@ class FormActions extends React.Component {
   }
 
   /**
+   * Discards favorite changes.
+   *
+   * @param {Object} evt - evt.
+   */
+  onFavoriteChangeDiscarded(evt) {
+    evt.preventDefault();
+    Actions.onFavoriteChangeDiscarded();
+  }
+
+  /**
+   * Updates favorite attributes if a favorite already exists.
+   *
+   * @param {Object} evt - evt.
+   */
+  onSaveFavoriteClicked(evt) {
+    evt.preventDefault();
+    Actions.onSaveFavoriteClicked();
+  }
+
+  /**
    * Checks for a syntax error.
    *
    * @returns {Boolean} True in case of a syntax error.
@@ -56,6 +77,22 @@ class FormActions extends React.Component {
    */
   hasError() {
     return (!this.props.isValid && this.props.errorMessage);
+  }
+
+  /**
+   * Renders a warning that a favorite was changed and changes can be saved
+   * or discarded.
+   *
+   * @returns {React.Component}
+   */
+  renderUnsavedMessage() {
+    return (
+      <div className={classnames(styles['unsaved-message-actions'])}>
+        You have unsaved changes.
+        <a onClick={this.onFavoriteChangeDiscarded}>[discard]</a>
+        <a onClick={this.onSaveFavoriteClicked}>[save changes]</a>
+      </div>
+    );
   }
 
   /**
@@ -127,6 +164,10 @@ class FormActions extends React.Component {
       colorStyle = styles['connection-message-container-syntax-error'];
     } else if (this.props.isConnected) {
       hasMessage = true;
+    } else if (this.props.hasUnsavedChanges) {
+      hasMessage = true;
+      message = this.renderUnsavedMessage();
+      colorStyle = styles['connection-message-container-unsaved-message'];
     }
 
     if (hasMessage === true) {

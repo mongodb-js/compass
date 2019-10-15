@@ -17,6 +17,7 @@ class ConnectionString extends React.Component {
     isConnected: PropTypes.bool,
     errorMessage: PropTypes.string,
     syntaxErrorMessage: PropTypes.string,
+    hasUnsavedChanges: PropTypes.bool,
     viewType: PropTypes.string
   };
 
@@ -34,6 +35,7 @@ class ConnectionString extends React.Component {
           isConnected={this.props.isConnected}
           errorMessage={this.props.errorMessage}
           syntaxErrorMessage={this.props.syntaxErrorMessage}
+          hasUnsavedChanges={this.props.hasUnsavedChanges}
           viewType={this.props.viewType} />
       </form>
     );

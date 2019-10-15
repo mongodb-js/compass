@@ -195,6 +195,12 @@ label {
         min-height: 30px;
         padding: 2px 10px;
         border-radius: 3px;
+        background: #FCEBE2;
+        border: 1px solid #F9D3C5;
+        word-break: break-all;
+        color: #8F221B;
+        font-size: small;
+        font-weight: bold;
       }
 
       &-syntax-error {
@@ -202,6 +208,35 @@ label {
         min-height: 30px;
         padding: 2px 10px;
         border-radius: 3px;
+        background: #FEF7E3;
+        border: 1px solid #FEF2C8;
+        word-break: break-all;
+        color: #86681D;
+        font-size: small;
+        font-weight: bold;
+      }
+
+      &-unsaved-message {
+        background: @warningText;
+        min-height: 30px;
+        padding: 2px 10px;
+        border-radius: 3px;
+        background: #E1F2F6;
+        border: 1px solid #C5E4F2;
+        word-break: break-all;
+        color: #1A567E;
+        font-size: small;
+        font-weight: normal;
+
+        .unsaved-message-actions {
+          display: inline-block;
+
+          a {
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 5px;
+          }
+        }
       }
 
       &-success {

@@ -31,12 +31,41 @@ class Favorites extends React.Component {
   }
 
   /**
+   * Copies a favorite connection.
+   *
+   * @param {Object} favorite - A favorite connection.
+   * @param {Object} evt - evt.
+   */
+  onCopyConnectionClicked(favorite, evt) {
+    evt.stopPropagation();
+    Actions.onCopyConnectionClicked(favorite);
+  }
+
+  /**
    * Deletes a favorite connection.
    *
    * @param {Object} favorite - A favorite connection.
+   * @param {Object} evt - evt.
    */
-  onClearConnectionClicked(favorite) {
+  onRemoveConnectionClicked(favorite, evt) {
+    evt.stopPropagation();
     Actions.onDeleteConnectionClicked(favorite);
+  }
+
+  /**
+   * Opens a modal for editing a favorite connection.
+   */
+  onEditConnectionClicked() {
+    Actions.showFavoriteModal();
+  }
+
+  /**
+   * Copies a favorite connection.
+   *
+   * @param {Object} evt - evt.
+   */
+  onContextualMenuClicked(evt) {
+    evt.stopPropagation();
   }
 
   /**
@@ -88,7 +117,7 @@ class Favorites extends React.Component {
       const title = `${favorite.hostname}:${favorite.port}`;
       const style = favorite.color
         ? { borderRight: `5px solid ${favorite.color}` }
-        : {};
+        : { borderRight: '5px solid transparent' };
 
       return (
         <li
@@ -113,8 +142,10 @@ class Favorites extends React.Component {
             className={classnames(styles['connect-sidebar-list-item-actions'])}
             noCaret
             pullRight
+            onClick={this.onContextualMenuClicked}
             id="favorite-actions">
-            <MenuItem eventKey="1" onClick={this.onClearConnectionClicked.bind(this, favorite)}>Remove</MenuItem>
+            <MenuItem eventKey="1" onClick={this.onCopyConnectionClicked.bind(this, favorite)}>Copy</MenuItem>
+            <MenuItem eventKey="2" onClick={this.onRemoveConnectionClicked.bind(this, favorite)}>Remove</MenuItem>
           </DropdownButton>
         </li>
       );

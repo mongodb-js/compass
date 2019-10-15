@@ -225,4 +225,206 @@ describe('FormActions [Component]', () => {
       expect(component.find(classname)).to.be.not.present();
     });
   });
+
+  context('when a favorite was changed and not saved', () => {
+    context('when there is no errors', () => {
+      context('when it is a connection string view', () => {
+        const connection = { name: 'myconnection' };
+        const isConnected = false;
+        const viewType = 'connectionString';
+        const errorMessage = null;
+        const syntaxErrorMessage = null;
+        const hasUnsavedChanges = true;
+        let component;
+
+        beforeEach(() => {
+          component = mount(
+            <FormActions
+              currentConnection={connection}
+              isConnected={isConnected}
+              viewType={viewType}
+              errorMessage={errorMessage}
+              syntaxErrorMessage={syntaxErrorMessage}
+              hasUnsavedChanges={hasUnsavedChanges}
+              isValid />
+          );
+        });
+
+        afterEach(() => {
+          component = null;
+        });
+
+        it('renders a favorite not saved warning', () => {
+          const classname = `.${styles['connection-message-container-unsaved-message']}`;
+
+          expect(component.find(classname)).to.be.present();
+        });
+      });
+
+      context('when it is a connection form view', () => {
+        const connection = { name: 'myconnection' };
+        const isConnected = false;
+        const viewType = 'connectionForm';
+        const errorMessage = null;
+        const syntaxErrorMessage = null;
+        const hasUnsavedChanges = true;
+        let component;
+
+        beforeEach(() => {
+          component = mount(
+            <FormActions
+              currentConnection={connection}
+              isConnected={isConnected}
+              viewType={viewType}
+              errorMessage={errorMessage}
+              syntaxErrorMessage={syntaxErrorMessage}
+              hasUnsavedChanges={hasUnsavedChanges}
+              isValid />
+          );
+        });
+
+        afterEach(() => {
+          component = null;
+        });
+
+        it('renders a favorite not saved warning', () => {
+          const classname = `.${styles['connection-message-container-unsaved-message']}`;
+
+          expect(component.find(classname)).to.be.present();
+        });
+      });
+    });
+
+    context('when a syntax error is present', () => {
+      context('when it is a connection string view', () => {
+        const connection = { name: 'myconnection' };
+        const isConnected = false;
+        const viewType = 'connectionString';
+        const errorMessage = null;
+        const syntaxErrorMessage = 'Syntax Error!';
+        const hasUnsavedChanges = true;
+        let component;
+
+        beforeEach(() => {
+          component = mount(
+            <FormActions
+              currentConnection={connection}
+              isConnected={isConnected}
+              viewType={viewType}
+              errorMessage={errorMessage}
+              syntaxErrorMessage={syntaxErrorMessage}
+              hasUnsavedChanges={hasUnsavedChanges} />
+          );
+        });
+
+        afterEach(() => {
+          component = null;
+        });
+
+        it('renders a syntax error warning', () => {
+          const classname = `.${styles['connection-message-container-syntax-error']}`;
+
+          expect(component.find(classname)).to.be.present();
+        });
+      });
+
+      context('when it is a connection form view', () => {
+        const connection = { name: 'myconnection' };
+        const isConnected = false;
+        const viewType = 'connectionForm';
+        const errorMessage = null;
+        const syntaxErrorMessage = 'Syntax Error!';
+        const hasUnsavedChanges = true;
+        let component;
+
+        beforeEach(() => {
+          component = mount(
+            <FormActions
+              currentConnection={connection}
+              isConnected={isConnected}
+              viewType={viewType}
+              errorMessage={errorMessage}
+              syntaxErrorMessage={syntaxErrorMessage}
+              hasUnsavedChanges={hasUnsavedChanges} />
+          );
+        });
+
+        afterEach(() => {
+          component = null;
+        });
+
+        it('renders a favorite not saved warning', () => {
+          const classname = `.${styles['connection-message-container-unsaved-message']}`;
+
+          expect(component.find(classname)).to.be.present();
+        });
+      });
+    });
+
+    context('when a server error is present', () => {
+      context('when it is a connection string view', () => {
+        const connection = { name: 'myconnection' };
+        const isConnected = false;
+        const viewType = 'connectionString';
+        const errorMessage = 'Connection problem';
+        const syntaxErrorMessage = null;
+        const hasUnsavedChanges = true;
+        let component;
+
+        beforeEach(() => {
+          component = mount(
+            <FormActions
+              currentConnection={connection}
+              isConnected={isConnected}
+              viewType={viewType}
+              errorMessage={errorMessage}
+              syntaxErrorMessage={syntaxErrorMessage}
+              hasUnsavedChanges={hasUnsavedChanges} />
+          );
+        });
+
+        afterEach(() => {
+          component = null;
+        });
+
+        it('renders a server error warning', () => {
+          const classname = `.${styles['connection-message-container-error']}`;
+
+          expect(component.find(classname)).to.be.present();
+        });
+      });
+
+      context('when it is a connection form view', () => {
+        const connection = { name: 'myconnection' };
+        const isConnected = false;
+        const viewType = 'connectionForm';
+        const errorMessage = 'Connection problem';
+        const syntaxErrorMessage = null;
+        const hasUnsavedChanges = true;
+        let component;
+
+        beforeEach(() => {
+          component = mount(
+            <FormActions
+              currentConnection={connection}
+              isConnected={isConnected}
+              viewType={viewType}
+              errorMessage={errorMessage}
+              syntaxErrorMessage={syntaxErrorMessage}
+              hasUnsavedChanges={hasUnsavedChanges} />
+          );
+        });
+
+        afterEach(() => {
+          component = null;
+        });
+
+        it('renders a server error warning', () => {
+          const classname = `.${styles['connection-message-container-error']}`;
+
+          expect(component.find(classname)).to.be.present();
+        });
+      });
+    });
+  });
 });

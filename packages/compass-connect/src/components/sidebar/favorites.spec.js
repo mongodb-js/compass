@@ -49,10 +49,10 @@ describe('Favorites [Component]', () => {
       expect(component.find(style)).to.be.present();
     });
 
-    it('sets a default color for the right border ', () => {
+    it('sets a default color for the right border', () => {
       const favorite = component.find(`.${styles['connect-sidebar-list-item']}`);
 
-      expect(favorite.prop('style')).to.deep.equal({});
+      expect(favorite.prop('style')).to.deep.equal({ borderRight: '5px solid transparent' });
     });
   });
 

@@ -77,7 +77,14 @@ const Store = Reflux.createStore({
    * Fetch all the connections on init.
    */
   init() {
-    this.state.connections.fetch({ success: () => this.trigger(this.state) });
+    this.state.connections.fetch({
+      success: () => {
+        this.state.connections.forEach((item) => this.state.savedConnections.add(
+          item.getAttributes({ props: true })
+        ));
+        this.trigger(this.state);
+      }
+    });
     ipc.on('app:disconnect', this.onDisconnectClicked.bind(this));
   },
 
@@ -90,9 +97,7 @@ const Store = Reflux.createStore({
   onActivated(appRegistry) {
     const role = appRegistry.getRole(EXTENSION) || [];
 
-    forEach(role, (extension) => {
-      extension(this);
-    });
+    forEach(role, (extension) => extension(this));
 
     this.StatusActions = appRegistry.getAction('Status.Actions');
     this.appRegistry = appRegistry;
@@ -112,18 +117,20 @@ const Store = Reflux.createStore({
   getInitialState() {
     return {
       currentConnection: new Connection(),
-      connections: new ConnectionCollection(),
-      customUrl: '',
+      connections: new ConnectionCollection(), // Connections fetched from disc
+      savedConnections: new ConnectionCollection(), // To handle discard changes action
+      customUrl: '', // URL from connection string input
       isValid: true,
       isConnected: false,
       errorMessage: null,
       syntaxErrorMessage: null,
+      hasUnsavedChanges: false,
       viewType: 'connectionString',
       isHostChanged: false,
       isPortChanged: false,
       isModalVisible: false,
       isMessageVisible: false,
-      savedMessage: 'Saved to favotites'
+      savedMessage: 'Saved to favorites'
     };
   },
 
@@ -163,21 +170,25 @@ const Store = Reflux.createStore({
    */
   validateConnectionString() {
     const customUrl = this.state.customUrl;
+    const currentConnection = this.state.currentConnection;
+    const connections = this.state.connections;
+    const currentSaved = connections.find((item) => (
+      item._id === currentConnection._id
+    ));
+
+    this.state.hasUnsavedChanges = !!currentSaved;
 
     if (customUrl === '') {
-      this._cleanConnection();
-      this.trigger(this.state);
+      this._clearForm();
+      this._clearConnection();
     } else if (!Connection.isURI(customUrl)) {
       this._setSyntaxErrorMessage('Invalid schema, expected `mongodb` or `mongodb+srv`');
-      this.trigger(this.state);
     } else {
       Connection.from(customUrl, (error) => {
         if (error) {
           this._setSyntaxErrorMessage(error.message);
-          this.trigger(this.state);
         } else {
           this._resetSyntaxErrorMessage();
-          this.trigger(this.state);
         }
       });
     }
@@ -212,52 +223,51 @@ const Store = Reflux.createStore({
   onChangeViewClicked(viewType) {
     const currentConnection = this.state.currentConnection;
     const connections = this.state.connections;
-    const isFavorite = currentConnection;
     const driverUrl = currentConnection.driverUrl;
     const customUrl = this.state.customUrl;
     const isValid = this.state.isValid;
+    const currentFavorite = !!connections.find((item) => (
+      item._id === currentConnection._id &&
+      item.isFavorite === true
+    ));
 
     this.state.viewType = viewType;
 
-    const currentFavorite = connections.find((recent) => (
-      recent === currentConnection &&
-      recent.isFavorite === true
-    ));
-
     if (viewType === 'connectionForm') { // Target view
-      if (currentFavorite) {
-        this.onFavoriteSelected(currentFavorite);
-        this.trigger(this.state);
-      } else if (customUrl === driverUrl) {
+      if (!currentFavorite && customUrl === driverUrl) {
         this.state.isHostChanged = true;
         this.state.isPortChanged = true;
         this.trigger(this.state);
       } else if (customUrl === '') {
         this.state.isHostChanged = false;
         this.state.isPortChanged = false;
-        this._cleanConnection();
-        this.trigger(this.state);
+        this._clearForm();
+        this._clearConnection();
       } else if (!Connection.isURI(customUrl)) {
         this.state.currentConnection = new Connection();
         this.trigger(this.state);
       } else {
         this.StatusActions.showIndeterminateProgressBar();
-        Connection.from(customUrl, (error, connection) => {
+
+        Connection.from(customUrl, (error, parsedConnection) => {
           this.StatusActions.done();
 
           if (!error) {
-            this._resetSyntaxErrorMessage();
+            currentConnection.set(this._getPoorAttributes(parsedConnection));
 
             if (customUrl.match(/[?&]ssl=true/i)) {
-              connection.sslMethod = 'SYSTEMCA';
+              currentConnection.sslMethod = 'SYSTEMCA';
             }
 
-            connection.name = '';
+            if (currentFavorite) {
+              currentConnection.name = currentFavorite.name;
+              currentConnection.color = currentFavorite.color;
+            }
 
-            this.state.currentConnection = connection;
             this.state.isHostChanged = true;
             this.state.isPortChanged = true;
-            this.trigger(this.state);
+            this.setState({ currentConnection });
+            this._resetSyntaxErrorMessage();
           } else {
             this.state.currentConnection = new Connection();
             this.trigger(this.state);
@@ -279,10 +289,17 @@ const Store = Reflux.createStore({
    * Resests URL validation.
    */
   onConnectionFormChanged() {
+    const currentConnection = this.state.currentConnection;
+    const connections = this.state.connections;
+    const currentSaved = connections.find((item) => (
+      item._id === currentConnection._id
+    ));
+
     this.setState({
       isValid: true,
       errorMessage: null,
-      syntaxErrorMessage: null
+      syntaxErrorMessage: null,
+      hasUnsavedChanges: !!currentSaved
     });
   },
 
@@ -298,9 +315,9 @@ const Store = Reflux.createStore({
       isConnected: false,
       errorMessage: null,
       syntaxErrorMessage: null,
-      viewType: 'connectionForm',
       isHostChanged: true,
-      isPortChanged: true
+      isPortChanged: true,
+      hasUnsavedChanges: false
     });
   },
 
@@ -313,6 +330,10 @@ const Store = Reflux.createStore({
   onConnectClicked() {
     const currentConnection = this.state.currentConnection;
 
+    // We replace custom appname with proper appname
+    // to avoid sending malicious value to the server
+    currentConnection.appname = electron.remote.app.getName();
+
     if (this.state.viewType === 'connectionString') {
       const customUrl = this.state.customUrl || DEFAULT_DRIVER_URL;
 
@@ -320,28 +341,20 @@ const Store = Reflux.createStore({
 
       if (!Connection.isURI(customUrl)) {
         this._setSyntaxErrorMessage('Invalid schema, expected `mongodb` or `mongodb+srv`');
-        this.trigger(this.state);
       } else {
         Connection.from(customUrl, (error, parsedConnection) => {
           if (error) {
             this._setSyntaxErrorMessage(error.message);
-            this.trigger(this.state);
           } else {
             const isFavorite = currentConnection.isFavorite;
             const driverUrl = currentConnection.driverUrl;
 
+            parsedConnection.appname = currentConnection.appname;
+
             if (isFavorite && driverUrl !== parsedConnection.driverUrl) {
               this._connect(parsedConnection);
             } else {
-              const props = omit(
-                parsedConnection.getAttributes({ props: true }),
-                ['_id', 'isFavorite', 'color', 'name']
-              );
-
-              Object.keys(props).forEach((key) => {
-                currentConnection[key] = parsedConnection[key];
-              });
-
+              currentConnection.set(this._getPoorAttributes(parsedConnection));
               this._connect(currentConnection);
             }
           }
@@ -359,57 +372,45 @@ const Store = Reflux.createStore({
   },
 
   /**
+   * Copies a favorite connection.
+   *
+   * @param {Connection} connection - The connection to select.
+   */
+  onCopyConnectionClicked(connection) {
+    const newConnection = new Connection();
+
+    newConnection.set(this._getPoorAttributes(connection));
+    newConnection.set({ name: `${connection.name} (copy)` });
+
+    this._addConnection(newConnection);
+  },
+
+
+  /**
+   * Discards favorite changes.
+   */
+  onFavoriteChangeDiscarded() {
+    const connection = this.state.savedConnections.find((item) => (
+      item._id === this.state.currentConnection._id
+    ));
+
+    this.state.currentConnection.set(this._getPoorAttributes(connection));
+    this.state.customUrl = connection.driverUrl;
+    this.state.hasUnsavedChanges = false;
+    this.trigger(this.state);
+  },
+
+  /**
    * Creates a favorite from the current connection.
    *
    * @param {String} name - The favorite name.
    * @param {Object} color - The favorite color.
    */
   onCreateFavoriteClicked(name, color) {
-    const currentConnection = this.state.currentConnection;
-    const connections = this.state.connections;
-    const isFavorite = currentConnection.isFavorite;
-    const currentSaved = connections.find((recent) => (
-      recent === currentConnection
-    ));
-
+    this.state.currentConnection.color = color;
+    this.state.currentConnection.name = name;
     this.state.isMessageVisible = true;
-
-    currentConnection.isFavorite = true;
-    currentConnection.color = color;
-    currentConnection.name = name;
-
-    if (isFavorite) {
-      this.state.savedMessage = 'Favorite is updated';
-    }
-
-    if (this.state.viewType === 'connectionString' && !isFavorite) {
-      Connection.from(this.state.customUrl, (error, parsedConnection) => {
-        if (!error) {
-          if (currentSaved) {
-            currentConnection.save();
-          } else {
-            const props = omit(
-              parsedConnection.getAttributes({ props: true }),
-              ['_id', 'isFavorite', 'color', 'name']
-            );
-
-            Object.keys(props).forEach((key) => {
-              currentConnection[key] = parsedConnection[key];
-            });
-
-            if (this.state.customUrl.match(/[?&]ssl=true/i)) {
-              currentConnection.sslMethod = 'SYSTEMCA';
-            }
-
-            this._addConnection(currentConnection);
-          }
-        }
-      });
-    } else if (currentSaved) {
-      currentConnection.save();
-    } else {
-      this._addConnection(currentConnection);
-    }
+    this._saveFavorite();
   },
 
   /**
@@ -418,17 +419,15 @@ const Store = Reflux.createStore({
   onCreateRecentClicked() {
     const currentConnection = this.state.currentConnection;
     const connections = this.state.connections;
-    const currentSaved = connections.find((recent) => (
-      recent === currentConnection
+    const currentSaved = connections.find((item) => (
+      item._id === currentConnection._id
     ));
 
-    currentConnection.lastUsed = new Date();
-
     if (currentSaved) {
-      currentConnection.save();
+      this._saveConnection(currentSaved);
     } else {
       this._pruneRecents(() => {
-        this._addConnection(currentConnection);
+        currentConnection.name = this._addConnection(currentConnection);
       });
     }
   },
@@ -454,7 +453,11 @@ const Store = Reflux.createStore({
     connection.destroy({
       success: () => {
         this.state.connections.remove(connection._id);
-        this.state.currentConnection = new Connection();
+
+        if (connection._id === this.state.currentConnection._id) {
+          this.state.currentConnection = new Connection();
+        }
+
         this.trigger(this.state);
       }
     });
@@ -466,9 +469,7 @@ const Store = Reflux.createStore({
    * @param {Connection} connection - Connections to delete.
    */
   onDeleteConnectionsClicked() {
-    this._pruneAll(() => {
-      this.trigger(this.state);
-    });
+    this._pruneAll(() => this.trigger(this.state));
   },
 
   /**
@@ -483,6 +484,7 @@ const Store = Reflux.createStore({
         this.state.errorMessage = null;
         this.state.syntaxErrorMessage = null;
         this.state.viewType = 'connectionString';
+        this.state.hasUnsavedChanges = false;
         this.trigger(this.state);
         this.dataService = undefined;
       });
@@ -522,18 +524,24 @@ const Store = Reflux.createStore({
   /**
     * Selects a favorite connection.
     *
-    * @param {Connection} connection - The connection to select.
+    * @param {Connection} favorite - The favorite to select.
     */
-  onFavoriteSelected(connection) {
+  onFavoriteSelected(favorite) {
+    const connection = this.state.savedConnections.find((item) => (
+      item._id === favorite._id
+    ));
+
+    favorite.set(this._getPoorAttributes(connection));
     this.setState({
-      currentConnection: connection,
+      currentConnection: favorite,
       isValid: true,
       isConnected: false,
       errorMessage: null,
       syntaxErrorMessage: null,
       isHostChanged: true,
       isPortChanged: true,
-      customUrl: connection.driverUrl
+      customUrl: favorite.driverUrl,
+      hasUnsavedChanges: false
     });
   },
 
@@ -600,9 +608,31 @@ const Store = Reflux.createStore({
    */
   onResetConnectionClicked() {
     this.state.viewType = 'connectionString';
-    this.state.savedMessage = 'Saved to favotites';
-    this._cleanConnection();
+    this.state.savedMessage = 'Saved to favorites';
+    this.state.currentConnection = new Connection();
+    this._clearForm();
     this.trigger(this.state);
+  },
+
+  /**
+   * Saves a recent connection to favorites.
+   *
+   * @param {Object} connection - A recent connection.
+   */
+  onSaveAsFavoriteClicked(connection) {
+    this.state.currentConnection = connection;
+    this.state.isMessageVisible = true;
+    this.state.currentConnection.isFavorite = true;
+    this.state.currentConnection.name = `${connection.hostname}:${connection.port}`;
+    this.state.savedMessage = 'Saved to favorites';
+    this._saveConnection(this.state.currentConnection);
+  },
+
+  /**
+   * Updates favorite attributes if a favorite already exists.
+   */
+  onSaveFavoriteClicked() {
+    this._saveFavorite();
   },
 
   /**
@@ -765,19 +795,29 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Adds a connection to connections list.
+   * Saves a connection in the connections list.
+   *
+   * @param {Object} connection - A connection.
+   */
+  _saveConnection(connection) {
+    connection.save();
+    this.state.savedConnections.add(connection.getAttributes({ props: true }));
+    this.trigger(this.state);
+  },
+
+  /**
+   * Adds a connection to the connections list.
    *
    * @param {Object} connection - A connection.
    */
   _addConnection(connection) {
     this.state.currentConnection = connection;
     this.state.connections.add(connection);
-    this.trigger(this.state);
-    this.state.currentConnection.save();
+    this._saveConnection(this.state.currentConnection);
   },
 
   /**
-   * Cleans authentication fields.
+   * Clears authentication fields.
    */
   _clearAuthFields() {
     AUTH_FIELDS.forEach((field) => {
@@ -786,7 +826,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Cleans ssl fields.
+   * Clears ssl fields.
    */
   _clearSSLFields() {
     SSL_FIELDS.forEach((field) => {
@@ -795,7 +835,7 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Cleans SSH tunnel fields.
+   * Clears SSH tunnel fields.
    */
   _clearSSHTunnelFields() {
     SSH_TUNNEL_FIELDS.forEach((field) => {
@@ -814,9 +854,7 @@ const Store = Reflux.createStore({
 
     for (let i = 0; i < recents.length; i++) {
       recents[i].destroy({
-        success: () => {
-          this.state.connections.remove(recents[i]._id);
-        }
+        success: () => this.state.connections.remove(recents[i]._id)
       });
     }
 
@@ -854,10 +892,10 @@ const Store = Reflux.createStore({
    * @param {Object} error - Error.
    */
   _setSyntaxErrorMessage(error) {
-    this.state.currentConnection = new Connection();
     this.state.isValid = false;
     this.state.errorMessage = null;
     this.state.syntaxErrorMessage = error;
+    this._clearConnection();
   },
 
   /**
@@ -867,6 +905,7 @@ const Store = Reflux.createStore({
     this.state.isValid = true;
     this.state.errorMessage = null;
     this.state.syntaxErrorMessage = null;
+    this.trigger(this.state);
   },
 
   /**
@@ -876,14 +915,9 @@ const Store = Reflux.createStore({
    * @param {Object} connection - The current connection.
    */
   _connect(connection) {
-    // We replace custom appname with proper appname
-    // to avoid sending malicious value to the server
-    connection.appname = electron.remote.app.getName();
-
     this._updateDefaults();
     this.dataService = new DataService(connection);
     this.appRegistry.emit('data-service-initialized', this.dataService);
-
     this.dataService.connect((error, ds) => {
       if (error) {
         this.StatusActions.done();
@@ -893,15 +927,14 @@ const Store = Reflux.createStore({
           syntaxErrorMessage: null
         });
       } else {
-        // @note: onCreateRecentClicked will handle the store triggering,
-        // no need to do it twice.
-        this.setState({
-          isValid: true,
-          isConnected: true,
-          errorMessage: null,
-          syntaxErrorMessage: null,
-          currentConnection: connection
-        });
+        this.state.isValid = true;
+        this.state.isConnected = true;
+        this.state.errorMessage = null;
+        this.state.syntaxErrorMessage = null;
+        this.state.hasUnsavedChanges = false;
+        this.state.currentConnection = connection;
+        this.state.currentConnection.lastUsed = new Date();
+        this.trigger(this.state);
         this.appRegistry.emit('data-service-connected', error, ds);
         this.onCreateRecentClicked();
       }
@@ -909,15 +942,82 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Cleans the current connection section.
+   * Clears the current connection.
    */
-  _cleanConnection() {
-    this.state.currentConnection = new Connection();
+  _clearConnection() {
+    const isFavorite = this.state.currentConnection.isFavorite;
+    const name = this.state.currentConnection.name;
+    const color = this.state.currentConnection.color;
+    const connection = new Connection;
+
+    this.state.currentConnection.set(connection.getAttributes({ props: true }));
+    this.state.currentConnection.set({ isFavorite, name, color });
+    this.trigger(this.state);
+  },
+
+  /**
+   * Clears the form.
+   */
+  _clearForm() {
     this.state.isValid = true;
     this.state.isConnected = false;
     this.state.errorMessage = null;
     this.state.syntaxErrorMessage = null;
     this.state.customUrl = '';
+    this.state.hasUnsavedChanges = false;
+  },
+
+  /**
+   * Persist a favorite on disc.
+   */
+  _saveFavorite() {
+    const currentConnection = this.state.currentConnection;
+    const connections = this.state.connections;
+    const currentSaved = connections.find((item) => (
+      item._id === currentConnection._id
+    ));
+    const isFavorite = currentConnection.isFavorite;
+
+    if (isFavorite) {
+      this.state.savedMessage = 'Favorite is updated';
+    }
+
+    this.state.currentConnection.isFavorite = true;
+    this.state.hasUnsavedChanges = false;
+
+    if (this.state.viewType === 'connectionString') {
+      Connection.from(this.state.customUrl, (error, parsedConnection) => {
+        if (!error) {
+          currentConnection.set(this._getPoorAttributes(parsedConnection));
+
+          if (this.state.customUrl.match(/[?&]ssl=true/i)) {
+            currentConnection.sslMethod = 'SYSTEMCA';
+          }
+
+          if (currentSaved) {
+            this._saveConnection(currentConnection);
+          } else {
+            this._addConnection(currentConnection);
+          }
+        }
+      });
+    } else {
+      this._addConnection(currentConnection);
+    }
+  },
+
+  /**
+   * Gets connection attributes without data related to favorites.
+   *
+   * @param {Connection} connection - The connection to select.
+   *
+   * @returns {Connection} - The poor connection.
+   */
+  _getPoorAttributes(connection) {
+    return omit(
+      connection.getAttributes({ props: true }),
+      ['_id', 'color', 'isFavorite', 'name']
+    );
   }
 });
 
