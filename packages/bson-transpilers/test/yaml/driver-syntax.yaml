@@ -42,7 +42,6 @@ tests:
                         const coll = client.db('db').collection('collection');
                         coll.aggregate(agg, (cmdErr, result) => {
                           assert.equal(null, cmdErr);
-                          console.log(result);
                         });
                         client.close();
                       });
@@ -112,7 +111,6 @@ tests:
                         const coll = client.db('db').collection('collection');
                         coll.find(filter, (cmdErr, result) => {
                           assert.equal(null, cmdErr);
-                          console.log(result);
                         });
                         client.close();
                       });
@@ -242,7 +240,6 @@ tests:
                         const coll = client.db('db').collection('collection');
                         coll.find(filter, { projection: projection, sort: sort, skip: skip, limit: limit, maxTimeMS: maxTimeMS, collation: collation }, (cmdErr, result) => {
                           assert.equal(null, cmdErr);
-                          console.log(result);
                         });
                         client.close();
                       });
