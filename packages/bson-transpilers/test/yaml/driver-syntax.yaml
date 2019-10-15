@@ -7,86 +7,267 @@ runner: !!js/function >
         });
         it(`${input}: imports in ${output}`, () => {
             expect(
-                transpiler[input][output].getImports()
+                transpiler[input][output].getImports(true)
             ).to.equal(test.imports[output]);
         });
     }
 tests:
     aggregation:
-    - description: 'generate driver syntax'
-      input:
-          shell: { aggregation: '{x: NumberLong(0), y: ObjectId()}', options: { uri: 'localhost', database: 'db', collection: 'collection'} }
-          javascript: { aggregation: '{x: Long(0, 0), y: ObjectId()}', options: { uri: 'localhost', database: 'db', collection: 'collection'} }
-      output:
-          python: "client = MongoClient('localhost')\nresult = client['db']['collection'].aggregate({\n    'x': Int64(0), \n    'y': ObjectId()\n})"
-      imports:
-          python: |-
-            from pymongo import MongoClient
-            from bson import ObjectId, Int64
+        -
+            description: 'generate driver syntax'
+            input:
+                shell: { aggregation: '{x: NumberLong(0), y: ObjectId()}', options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection'} }
+                javascript: { aggregation: '{x: Long(0, 0), y: ObjectId()}', options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection'} }
+                python: { aggregation: "{'x': Int64(0), 'y': ObjectId()}", options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection'} }
+            output:
+                python: "client = MongoClient('mongodb://localhost:27017')\nresult = client['db']['collection'].aggregate({\n    'x': Int64(0), \n    'y': ObjectId()\n})"
+                java: |-
+                    MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+                    MongoDatabase database = mongoClient.getDatabase("db"); MongoCollection<Document> collection = database.getCollection("collection");
+
+                    FindIterable<Document> result = collection.aggregate(and(eq("x", 0L), eq("y", new ObjectId())));
+                javascript: |-
+                    const agg = {
+                      'x': Long.fromNumber(0), 
+                      'y': new ObjectId()
+                    };
+                    MongoClient.connect(
+                      'mongodb://localhost:27017',
+                      { useNewUrlParser: true },
+                      function(connectErr, client) {
+                        assert.equal(null, connectErr);
+                        const coll = client.db('db').collection('collection');
+                        coll.aggregate(agg, (cmdErr, result) => {
+                          assert.equal(null, cmdErr);
+                          console.log(result);
+                        });
+                        client.close();
+                      });
+                shell: |-
+                    mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
+                    db.collection.aggregate({
+                      'x': new NumberLong(0), 
+                      'y': new ObjectId()
+                    });"
+            imports:
+                python: |-
+                    from pymongo import MongoClient
+                    from bson import ObjectId, Int64
+                java: |-
+                    import org.bson.types.ObjectId;
+                    import static com.mongodb.client.model.Filters.and;
+                    import static com.mongodb.client.model.Filters.eq;
+                    import com.mongodb.MongoClient;
+                    import com.mongodb.MongoClientURI;
+                    import com.mongodb.client.FindIterable;
+                    import com.mongodb.client.MongoCollection;
+                    import com.mongodb.client.MongoDatabase;
+                    import org.bson.conversions.Bson;
+                    import java.util.concurrent.TimeUnit;
+                    import org.bson.Document;
+                javascript: |-
+                    const MongoClient = require('mongodb').MongoClient;
+                    const assert = require('assert');
+                    const {
+                      ObjectId,
+                      Long
+                    } = require('bson');
+                shell: ''
     query:
-    - description: 'generate driver syntax with only filter'
-      input:
-          javascript: { filter: '{x: Long(0, 0)}', options: { uri: 'localhost', database: 'db', collection: 'collection' } }
-          shell: { filter: '{x: NumberLong(0)}', options: { uri: 'localhost', database: 'db', collection: 'collection' } }
-      output:
-          python: |-
-              client = MongoClient('localhost')
-              filter={
-                  'x': Int64(0)
-              }
+        -
+            description: 'generate driver syntax with only filter'
+            input:
+                javascript: { filter: '{x: Long(0, 0)}', options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection' } }
+                python: { filter: "{'x': Int64(0)}", options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection' } }
+                shell: { filter: '{x: NumberLong(0)}', options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection' } }
+            output:
+                python: |-
+                    client = MongoClient('mongodb://localhost:27017')
+                    filter={
+                        'x': Int64(0)
+                    }
 
-              result = client['db']['collection'].find(filter=filter)
-      imports:
-          python: |-
-              from pymongo import MongoClient
-              from bson import Int64
-    - description: 'query with filter and other options'
-      input:
-          javascript:
-              options:
-                  uri: localhost
-                  database: database
-                  collection: collection
-              filter: "{x: Long(0, 0)}"
-              project: "{y: ObjectId()}"
-              sort: "{name: 1}"
-              skip: '5'
-              limit: '10'
-              maxTimeMS: '100'
-              collation: "{z: []}"
-          shell:
-              options:
-                  uri: localhost
-                  database: database
-                  collection: collection
-              filter: "{x: NumberLong(0)}"
-              project: "{y: ObjectId()}"
-              sort: "{name: 1}"
-              skip: '5'
-              limit: '10'
-              maxTimeMS: '100'
-              collation: "{z: []}"
-      output:
-          python: |-
-              client = MongoClient('localhost')
-              filter={
-                  'x': Int64(0)
-              }
-              project={
-                  'y': ObjectId()
-              }
-              sort={
-                  'name': 1
-              }
-              skip=5
-              limit=10
-              maxTimeMS=100
-              collation={
-                  'z': []
-              }
+                    result = client['db']['collection'].find(filter=filter)
+                java: |-
+                    Bson filter = eq("x", 0L);
 
-              result = client['database']['collection'].find(filter=filter, projection=project, sort=sort, skip=skip, limit=limit, max_time_ms=maxTimeMS, collation=collation)
-      imports:
-          python: |-
-              from pymongo import MongoClient
-              from bson import ObjectId, Int64
+                    MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+                    MongoDatabase database = mongoClient.getDatabase("db"); MongoCollection<Document> collection = database.getCollection("collection");
+                    FindIterable<Document> result = collection.find(filter);
+                javascript: |-
+                    const filter = {
+                      'x': Long.fromNumber(0)
+                    };
+                    MongoClient.connect(
+                      'mongodb://localhost:27017',
+                      { useNewUrlParser: true },
+                      function(connectErr, client) {
+                        assert.equal(null, connectErr);
+                        const coll = client.db('db').collection('collection');
+                        coll.find(filter, (cmdErr, result) => {
+                          assert.equal(null, cmdErr);
+                          console.log(result);
+                        });
+                        client.close();
+                      });
+                shell: |-
+                    mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
+                    db.collection.find({
+                      'x': new NumberLong(0)
+                    });"
+            imports:
+                python: |-
+                    from pymongo import MongoClient
+                    from bson import Int64
+                java: |-
+                    import static com.mongodb.client.model.Filters.eq;
+                    import com.mongodb.MongoClient;
+                    import com.mongodb.MongoClientURI;
+                    import com.mongodb.client.FindIterable;
+                    import com.mongodb.client.MongoCollection;
+                    import com.mongodb.client.MongoDatabase;
+                    import org.bson.conversions.Bson;
+                    import java.util.concurrent.TimeUnit;
+                    import org.bson.Document;
+                javascript: |-
+                    const MongoClient = require('mongodb').MongoClient;
+                    const assert = require('assert');
+                    const {
+                      Long
+                    } = require('bson');
+                shell: ''
+        -
+            description: 'generate driver syntax with filter and other options'
+            input:
+                javascript:
+                    options:
+                        uri: mongodb://localhost:27017
+                        database: db
+                        collection: collection
+                    filter: "{x: Long(0, 0)}"
+                    project: "{y: ObjectId()}"
+                    sort: "{name: 1}"
+                    skip: '5'
+                    limit: '10'
+                    maxTimeMS: '100'
+                    collation: "{ locale: 'zh' }"
+                shell:
+                    options:
+                        uri: mongodb://localhost:27017
+                        database: db
+                        collection: collection
+                    filter: "{x: NumberLong(0)}"
+                    project: "{y: ObjectId()}"
+                    sort: "{name: 1}"
+                    skip: '5'
+                    limit: '10'
+                    maxTimeMS: '100'
+                    collation: "{ locale: 'zh' }"
+                python:
+                    options:
+                        uri: mongodb://localhost:27017
+                        database: db
+                        collection: collection
+                    filter: "{'x': Int64(0)}"
+                    project: "{'y': ObjectId()}"
+                    sort: "{'name': 1}"
+                    skip: '5'
+                    limit: '10'
+                    maxTimeMS: '100'
+                    collation: "{ 'locale': 'zh' }"
+            output:
+                python: |-
+                    client = MongoClient('mongodb://localhost:27017')
+                    filter={
+                        'x': Int64(0)
+                    }
+                    project={
+                        'y': ObjectId()
+                    }
+                    sort={
+                        'name': 1
+                    }
+                    skip=5
+                    limit=10
+                    maxTimeMS=100
+                    collation={
+                        'locale': 'zh'
+                    }
+
+                    result = client['db']['collection'].find(filter=filter, projection=project, sort=sort, skip=skip, limit=limit, max_time_ms=maxTimeMS, collation=collation)
+                java: |-
+                    // Warning: translating collation to Java not yet supported, so will be ignored
+                    Bson filter = eq("x", 0L);
+                    Bson project = eq("y", new ObjectId());
+                    Bson sort = eq("name", 1L);
+
+                    MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+                    MongoDatabase database = mongoClient.getDatabase("db"); MongoCollection<Document> collection = database.getCollection("collection");
+                    FindIterable<Document> result = collection.find(filter)
+                        .projection(project)
+                        .sort(sort)
+                        .skip((int)5L)
+                        .limit((int)10L)
+                        .maxTime(100L, TimeUnit.MICROSECONDS);
+                javascript: |-
+                    const filter = {
+                      'x': Long.fromNumber(0)
+                    };
+                    const projection = {
+                      'y': new ObjectId()
+                    };
+                    const sort = {
+                      'name': 1
+                    };
+                    const skip = 5;
+                    const limit = 10;
+                    const maxTimeMS = 100;
+                    const collation = {
+                      'locale': 'zh'
+                    };
+                    MongoClient.connect(
+                      'mongodb://localhost:27017',
+                      { useNewUrlParser: true },
+                      function(connectErr, client) {
+                        assert.equal(null, connectErr);
+                        const coll = client.db('db').collection('collection');
+                        coll.find(filter, { projection: projection, sort: sort, skip: skip, limit: limit, maxTimeMS: maxTimeMS, collation: collation }, (cmdErr, result) => {
+                          assert.equal(null, cmdErr);
+                          console.log(result);
+                        });
+                        client.close();
+                      });
+                shell: |-
+                    mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
+                    db.collection.find({
+                      'x': new NumberLong(0)
+                    }, {
+                      'y': new ObjectId()
+                    }).sort({
+                      'name': 1
+                    }).skip(5).limit(10).maxTimeMS(100).collation({
+                      'locale': 'zh'
+                    });"
+            imports:
+                python: |-
+                    from pymongo import MongoClient
+                    from bson import ObjectId, Int64
+                java: |-
+                    import org.bson.types.ObjectId;
+                    import static com.mongodb.client.model.Filters.eq;
+                    import com.mongodb.MongoClient;
+                    import com.mongodb.MongoClientURI;
+                    import com.mongodb.client.FindIterable;
+                    import com.mongodb.client.MongoCollection;
+                    import com.mongodb.client.MongoDatabase;
+                    import org.bson.conversions.Bson;
+                    import java.util.concurrent.TimeUnit;
+                    import org.bson.Document;
+                javascript: |-
+                    const MongoClient = require('mongodb').MongoClient;
+                    const assert = require('assert');
+                    const {
+                      ObjectId,
+                      Long
+                    } = require('bson');
+                shell: ''

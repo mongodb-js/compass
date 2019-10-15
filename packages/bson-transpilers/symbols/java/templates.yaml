@@ -43,6 +43,7 @@ Templates:
             let warning = '';
             const defs = Object.keys(spec).reduce((s, k) => {
                 if (k === 'options' || k === 'maxTimeMS' || k === 'skip' || k === 'limit' || k === 'collation') return s;
+                if (s === '') return `Bson ${k} = ${spec[k]};`;
                 return `${s}
         Bson ${k} = ${spec[k]};`;
             }, '');

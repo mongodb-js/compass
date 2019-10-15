@@ -120,9 +120,9 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
       transpiler.idiomatic = idiomatic === undefined ?
         transpiler.idiomatic :
         idiomatic;
-      transpiler.useDriverSyntax(
-        driverSyntax === undefined ? transpiler.driverSyntax : driverSyntax
-      );
+      if (!driverSyntax) {
+        transpiler.clearImports();
+      }
       return transpiler.start(tree);
     } catch (e) {
       if (e.code && e.code.includes('BSONTRANSPILERS')) {
@@ -158,8 +158,8 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
       return transpiler.Syntax.driver(result);
     },
     compile: compile,
-    getImports: () => {
-      return transpiler.getImports();
+    getImports: (driverSyntax) => {
+      return transpiler.getImports(driverSyntax);
     }
   };
 };

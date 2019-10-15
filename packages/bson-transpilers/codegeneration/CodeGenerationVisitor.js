@@ -23,12 +23,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
   constructor() {
     super();
     this.idiomatic = true; // PUBLIC
-    this.driverSyntax = this.useDriverSyntax(false);
-  }
-
-  useDriverSyntax(r) {
-    if (this.driverSyntax !== r) this.clearImports();
-    this.driverSyntax = r;
+    this.clearImports();
   }
 
   clearImports() {
@@ -55,12 +50,6 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
         'Unimplemented Visitor: the entry rule for the compiler must be set'
       );
     }
-    if (!this.driverSyntax) { // only reset imports if not using the driver syntax
-      this.requiredImports = {};
-      [300, 301, 302, 303, 304, 305, 306].forEach(
-        (i) => (this.requiredImports[i] = [])
-      );
-    }
     return this[rule](ctx);
   }
 
@@ -79,11 +68,11 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    * PUBLIC: As code is generated, any classes that require imports are tracked
    * in this.Imports. Each class has a "code" defined in the symbol table.
    * The imports are then generated based on the output language templates.
-   * When using with driver syntax, call getImports once at the end!
    *
+   * @param {Boolean} driverSyntax (optional)
    *  @return {String} - The list of imports in the target language.
    */
-  getImports() {
+  getImports(driverSyntax) {
     const importTemplate = this.Imports.import.template ?
       this.Imports.import.template :
       (s) => (
@@ -98,7 +87,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
           this.requiredImports[i] = false;
         }
       });
-    this.requiredImports.driver = this.driverSyntax;
+    this.requiredImports.driver = !!driverSyntax;
     const imports = Object.keys(this.requiredImports)
       .filter((code) => {
         return (
