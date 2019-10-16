@@ -26,7 +26,7 @@ Templates:
             if ('aggregation' in spec) {
                 const agg = spec.aggregation;
                 cmd = `coll.aggregate(agg, (cmdErr, result) => {`;
-                defs = `const agg = ${agg};\n\n`;
+                defs = `const agg = ${agg};\n`;
             } else {
                 let opts = '';
                 const args = {};
