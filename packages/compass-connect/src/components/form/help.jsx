@@ -18,13 +18,10 @@ class Help extends React.Component {
   renderHelpItems() {
     return HelpItems[this.props.viewType].map((item, key) => (
       <div key={key} className={classnames(styles['help-item'])}>
-        <div className={classnames(styles['help-bullet'])}>&#8226;</div>
-        <div className={classnames(styles['help-content'])}>
-          <p key="pTitle" className={classnames(styles['help-item-question'])}>
-            {item.title}
-          </p>
-          {item.body}
-        </div>
+        <p key="pTitle" className={classnames(styles['help-item-question'])}>
+          {item.title}
+        </p>
+        {item.body}
       </div>
     ));
   }
