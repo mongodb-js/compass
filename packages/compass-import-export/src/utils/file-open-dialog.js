@@ -1,5 +1,5 @@
 export default function fileOpenDialog() {
-  const { dialog } = require('electron').remote;
+  const { dialog, getCurrentWindow } = require('electron').remote;
 
   const filters = [
     { name: 'All Files', extensions: ['*'] },
@@ -8,7 +8,7 @@ export default function fileOpenDialog() {
   ];
   const title = 'Select a file to import';
 
-  return dialog.showOpenDialog({
+  return dialog.showOpenDialog(getCurrentWindow(), {
     title,
     filters,
     properties: ['openFile', 'createDirectory', 'promptToCreate']

@@ -68,7 +68,7 @@ module.exports = {
               modules: true,
               importLoaders: 1,
               localIdentName:
-                'AggregationsPlugin_[name]-[local]__[hash:base64:5]'
+                'ImportExportPlugin_[name]-[local]__[hash:base64:5]'
             }
           },
           {

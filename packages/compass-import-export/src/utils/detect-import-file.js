@@ -3,6 +3,7 @@ import peek from 'peek-stream';
 import stream from 'stream';
 
 import { createLogger } from './logger';
+import { mark, stop } from 'marky';
 
 const debug = createLogger('detect-import-file');
 
@@ -36,7 +37,9 @@ function detectImportFile(fileName, done) {
     swap('done');
   });
 
+  mark('detect-import-file');
   stream.pipeline(source, peeker, function(err) {
+    stop('detect-import-file');
     if (err && err !== 'done') {
       debug('pipeline error', err);
       return done(err);

@@ -70,19 +70,26 @@ const config = {
     new webpack.NoEmitOnErrorsPlugin(),
 
     // Creates HTML page for us at build time
-    new HtmlWebpackPlugin()
+    new HtmlWebpackPlugin({
+      title: 'compass/import-export'
+    })
   ],
   devServer: {
     host: '0.0.0.0',
     hot: true,
     contentBase: project.path.output,
+    clientLogLevel: 'error',
     stats: {
       colors: true,
       chunks: false,
       children: false
     },
     before() {
-      spawn('electron', [project.path.electron], { shell: true, env: process.env, stdio: 'inherit' })
+      spawn('electron', [project.path.electron], {
+        shell: true,
+        env: process.env,
+        stdio: 'inherit'
+      })
         .on('close', () => process.exit(0))
         .on('error', spawnError => console.error(spawnError)); // eslint-disable-line no-console
     }

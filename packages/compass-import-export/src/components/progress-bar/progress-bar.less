@@ -1,43 +1,47 @@
-@import (reference) "~less/compass/_theme.less";
-
 .progress-bar {
   position: relative;
-  border-radius: 4px;
-
-  &-cancel {
-    position: absolute;
-    right: 0;
-    color: #0d47a1;
-    text-transform: uppercase;
-    font-weight: bold;
-    font-size: 12px;
-    padding: 9px 12px 0px 0px;
-    cursor: pointer;
-  }
-
-  &-is-started {
-    display: flex;
-    background-color: #e1f5fe;
-  }
+  border-radius: 5px;
+  height: 10px;
+  background-color: #e7eeec;
 
   &-bar {
-    padding: 8px;
-    display: flex;
-    color: #FFFFFF;
+    height: 10px;
+    transition: width 0.2s ease;
+    display: block;
+    border-radius: 5px;
+    background: #007cad;
+    // background: linear-gradient(to right, #007cad, 50%, #00b3d6);
 
-    &-is-started {
-      border-radius: 4px 0px 0px 4px;
-      background-color: #03a9f4;
+    &-is-canceled {
+      background: #b8c4c2;
     }
-
-    &-is-canceled, &-is-failed {
-      border-radius: 4px;
-      background: #ef4c4c;
+    &-is-failed {
+      background: #d65d33;
     }
 
     &-is-completed {
-      border-radius: 4px;
-      background-color: #6BA442;
+      background-color: #6ba442;
+    }
+  }
+
+  &-status {
+    display: flex;
+    flex-direction: row;
+    padding-top: 5px;
+
+    &-message {
+      flex-grow: 1;
+      &-is-failed {
+        color: #d65d33;
+      }
+      &-cancel {
+        margin-left: 10px;
+        color: #0d47a1;
+        cursor: pointer;
+      }
+    }
+    &-stats {
+      flex-grow: 0;
     }
   }
 }

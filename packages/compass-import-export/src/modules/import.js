@@ -1,17 +1,22 @@
+import { promisify } from 'util';
 import fs from 'fs';
-import PROCESS_STATUS from 'constants/process-status';
-import { appRegistryEmit } from 'modules/compass';
-import stream from 'stream';
+const checkFileExists = promisify(fs.exists);
+const getFileStats = promisify(fs.stat);
 
+import stream from 'stream';
 import createProgressStream from 'progress-stream';
 import stripBomStream from 'strip-bom-stream';
-
-import detectImportFile from 'utils/detect-import-file';
+const sizeof = require('object-sizeof');
 import mime from 'mime-types';
 
-import { createLogger } from 'utils/logger';
+import PROCESS_STATUS from 'constants/process-status';
+import { appRegistryEmit } from 'modules/compass';
+
+import detectImportFile from 'utils/detect-import-file';
 import { createCollectionWriteStream } from 'utils/collection-stream';
 import { createCSVParser, createJSONParser } from 'utils/parsers';
+import removeEmptyFields from 'utils/remove-empty-fields';
+import { createLogger } from 'utils/logger';
 
 const debug = createLogger('import');
 
@@ -28,6 +33,9 @@ const FILE_TYPE_SELECTED = `${PREFIX}/FILE_TYPE_SELECTED`;
 const FILE_SELECTED = `${PREFIX}/FILE_SELECTED`;
 const OPEN = `${PREFIX}/OPEN`;
 const CLOSE = `${PREFIX}/CLOSE`;
+const SET_DELIMITER = `${PREFIX}/SET_DELIMITER`;
+const SET_STOP_ON_ERRORS = `${PREFIX}/SET_STOP_ON_ERRORS`;
+const SET_IGNORE_EMPTY_FIELDS = `${PREFIX}/SET_IGNORE_EMPTY_FIELDS`;
 
 /**
  * Initial state.
@@ -38,14 +46,15 @@ export const INITIAL_STATE = {
   progress: 0,
   error: null,
   fileName: '',
-  fileType: undefined,
   fileIsMultilineJSON: false,
   fileDelimiter: undefined,
-  ignoreEmpty: true,
   useHeaderLines: true,
   status: PROCESS_STATUS.UNSPECIFIED,
   fileStats: null,
-  docsWritten: 0
+  docsWritten: 0,
+  delimiter: undefined,
+  stopOnErrors: false,
+  ignoreEmptyFields: true
 };
 
 /**
@@ -99,6 +108,27 @@ export const onError = error => ({
  */
 // eslint-disable-next-line complexity
 const reducer = (state = INITIAL_STATE, action) => {
+  if (action.type === SET_DELIMITER) {
+    return {
+      ...state,
+      delimiter: action.delimiter
+    };
+  }
+
+  if (action.type === SET_STOP_ON_ERRORS) {
+    return {
+      ...state,
+      stopOnErrors: action.stopOnErrors
+    };
+  }
+
+  if (action.type === SET_IGNORE_EMPTY_FIELDS) {
+    return {
+      ...state,
+      ignoreEmptyFields: action.ignoreEmptyFields
+    };
+  }
+
   if (action.type === FILE_SELECTED) {
     return {
       ...state,
@@ -204,27 +234,86 @@ export const startImport = () => {
       fileName,
       fileType,
       fileIsMultilineJSON,
-      fileStats: { size }
+      fileStats: { size },
+      delimiter,
+      ignoreEmptyFields,
+      stopOnErrors
     } = importData;
 
     const source = fs.createReadStream(fileName, 'utf8');
-    const dest = createCollectionWriteStream(dataService, ns);
 
-    // TODO: lucas: Use bson.calculateObjectSize per doc for better progress?
+    // TODO: lucas: Support ignoreUndefined as an option to pass to driver?
+    const dest = createCollectionWriteStream(dataService, ns, stopOnErrors);
+
     const progress = createProgressStream({
       objectMode: true,
-      length: size,
-      time: 250 /* ms */
+      length: size / 800,
+      time: 500 /* ms */
     });
 
-    progress.on('progress', function(info) {
-      debug('progress', info);
-      dispatch(onProgress(info.percentage, dest.docsWritten));
+    // TODO: this kinda works now :) could be way better
+    // with a continuously updated reservoir sample...
+    // BUT good enough for now.
+    const sizer = new stream.Transform({
+      objectMode: true,
+      transform: function(chunk, encoding, cb) {
+        if (!this.sizes) {
+          this.sizes = [];
+          this._done = false;
+          this._keyCount = Object.keys(chunk);
+        }
+
+        if (this._done === true) {
+          return cb(null, chunk);
+        }
+        this.sizes.push(sizeof(chunk) + 1);
+
+        if (this.sizes.length === 100) {
+          this._done = true;
+          const sum = this.sizes.reduce(function(accumulator, currentValue) {
+            return accumulator + currentValue;
+          }, 0);
+
+          const avg = sum / this.sizes.length;
+          const estDocs = Math.floor((size / avg) * 4);
+          progress.setLength(estDocs);
+
+          console.group('Object Size estimator');
+          console.log('avg', avg);
+          console.log('file size', size);
+          console.log('est docs', estDocs);
+          console.log('keyCount', this._keyCount);
+          console.log('sizes', this.sizes);
+
+          console.groupEnd();
+        }
+        return cb(null, chunk);
+      }
     });
+
+    const removeEmptyFieldsStream = new stream.Transform({
+      objectMode: true,
+      transform: function(chunk, encoding, cb) {
+        if (!ignoreEmptyFields) {
+          return cb(null, chunk);
+        }
+        cb(null, removeEmptyFields(chunk));
+      }
+    });
+
+    const throttle = require('lodash.throttle');
+    function update_import_progress_throttled(info) {
+      // debug('progress', info);
+      dispatch(onProgress(info.percentage, dest.docsWritten));
+    }
+    const updateProgress = throttle(update_import_progress_throttled, 500);
+    progress.on('progress', updateProgress);
 
     let parser;
     if (fileType === 'csv') {
-      parser = createCSVParser();
+      parser = createCSVParser({
+        delimiter: delimiter
+      });
     } else {
       parser = createJSONParser({
         selector: fileIsMultilineJSON ? null : '*',
@@ -235,17 +324,23 @@ export const startImport = () => {
     debug('executing pipeline');
 
     dispatch(onStarted(source, dest));
-    stream.pipeline(source, stripBomStream(), progress, parser, dest, function(
-      err,
-      res
-    ) {
-      if (err) {
-        return dispatch(onError(err));
+    stream.pipeline(
+      source,
+      stripBomStream(),
+      parser,
+      sizer,
+      progress,
+      removeEmptyFieldsStream,
+      dest,
+      function(err, res) {
+        if (err) {
+          return dispatch(onError(err));
+        }
+        debug('done', err, res);
+        dispatch(onFinished(dest.docsWritten));
+        dispatch(appRegistryEmit('import-finished', size, fileType));
       }
-      debug('done', err, res);
-      dispatch(onFinished(dest.docsWritten));
-      dispatch(appRegistryEmit('import-finished', size, fileType));
-    });
+    );
   };
 };
 
@@ -270,36 +365,37 @@ export const cancelImport = () => {
 };
 
 /**
+ * Gather file metadata quickly when the user specifies `fileName`.
  * @param {String} fileName
  * @api public
  */
 export const selectImportFileName = fileName => {
   return dispatch => {
-    fs.exists(fileName, function(exists) {
-      if (!exists) {
-        return dispatch(onError(new Error(`File ${fileName} not found`)));
-      }
-      fs.stat(fileName, function(err, stats) {
-        if (err) {
-          return dispatch(onError(err));
+    let fileStats = {};
+    checkFileExists(fileName)
+      .then(exists => {
+        if (!exists) {
+          throw new Error(`File ${fileName} not found`);
         }
-
-        stats.type = mime.lookup(fileName);
-
-        detectImportFile(fileName, function(detectionError, res) {
-          if (detectionError) {
-            return dispatch(onError(detectionError));
-          }
-          dispatch({
-            type: FILE_SELECTED,
-            fileName: fileName,
-            fileStats: stats,
-            fileIsMultilineJSON: res.fileIsMultilineJSON,
-            fileType: res.fileType
-          });
+        return getFileStats(fileName);
+      })
+      .then(stats => {
+        fileStats = {
+          ...stats,
+          type: mime.lookup(fileName)
+        };
+        return promisify(detectImportFile)(fileName);
+      })
+      .then(detected => {
+        dispatch({
+          type: FILE_SELECTED,
+          fileName: fileName,
+          fileStats: fileStats,
+          fileIsMultilineJSON: detected.fileIsMultilineJSON,
+          fileType: detected.fileType
         });
-      });
-    });
+      })
+      .catch(err => dispatch(onError(err)));
   };
 };
 
@@ -328,6 +424,32 @@ export const openImport = () => ({
  */
 export const closeImport = () => ({
   type: CLOSE
+});
+
+/**
+ * Set the tabular delimiter.
+ *
+ * @api public
+ */
+export const setDelimiter = delimiter => ({
+  type: SET_DELIMITER,
+  delimiter: delimiter
+});
+
+/**
+ * @api public
+ */
+export const setStopOnErrors = stopOnErrors => ({
+  type: SET_STOP_ON_ERRORS,
+  stopOnErrors: stopOnErrors
+});
+
+/**
+ * @api public
+ */
+export const setIgnoreEmptyFields = setignoreEmptyFields => ({
+  type: SET_IGNORE_EMPTY_FIELDS,
+  setignoreEmptyFields: setignoreEmptyFields
 });
 
 export default reducer;

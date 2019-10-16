@@ -1,18 +1,15 @@
 @import (reference) '~less/compass/_theme.less';
 
-.error-box {
-  font-family: monospace;
-  /* TODO: lucas: Talk to @joy about making this nice.*/
-}
-
 .import-modal {
   &-error {
     display: none;
-    background: #ef4c4c;
-    color: #fff;
+    background-color: #fcebe2;
+    border-color: #f9d3c5;
+    color: #8f221b;
+    font-size: 13px;
     margin: 5px 0px 5px 0px;
     padding: 7px;
-    border-radius: 4px;
+    border-radius: 5px;
     overflow: auto;
     font-weight: bold;
 
@@ -105,6 +102,31 @@
 
     .selected.selected {
       border: 2px solid #6ba442;
+    }
+  }
+  &-legend {
+    font-size: 14px;
+    font-weight: bold;
+    border-bottom: 0;
+    margin-bottom: 5px;
+    color: #494747;
+  }
+  &-option {
+    display: flex;
+    align-items: center;
+
+    &-checkbox {
+      margin: 0px 8px 0px 0px !important;
+    }
+
+    &-select {
+      margin: 0px 0px 0px 8px;
+      text-transform: uppercase;
+    }
+    &-checkbox-label,
+    &-select-label {
+      margin: 0;
+      font-weight: normal;
     }
   }
 }

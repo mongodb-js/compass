@@ -8,12 +8,12 @@ const project = require('./project');
 
 const PLUGINS = [
   // Node externals
-  // new webpack.ExternalsPlugin('commonjs', ['fs']),
-  new webpack.ProvidePlugin({
-    BrowserFS: 'bfsGlobal',
-    process: 'processGlobal',
-    Buffer: 'bufferGlobal'
-  }),
+  new webpack.ExternalsPlugin('commonjs', ['fs']),
+  // new webpack.ProvidePlugin({
+  //   BrowserFS: 'bfsGlobal',
+  //   process: 'processGlobal',
+  //   Buffer: 'bufferGlobal'
+  // }),
   // Electron externals
   new webpack.ExternalsPlugin('commonjs', [
     'app',
@@ -60,16 +60,6 @@ PLUGINS.push.apply(PLUGINS, [
 const config = {
   target: 'web',
   // target: 'electron-renderer',
-  resolve: {
-    alias: {
-      fs: 'browserfs/dist/shims/fs.js',
-      buffer: 'browserfs/dist/shims/buffer.js',
-      path: 'browserfs/dist/shims/path.js',
-      processGlobal: 'browserfs/dist/shims/process.js',
-      bufferGlobal: 'browserfs/dist/shims/bufferGlobal.js',
-      bfsGlobal: require.resolve('browserfs')
-    }
-  },
   node: {
     process: false,
     Buffer: false
@@ -84,7 +74,6 @@ const config = {
   },
   externals: [nodeExternals()],
   module: {
-    noParse: /browserfs\.js/,
     rules: [
       {
         test: /\.(png|jpg|jpeg|gif|svg)$/,

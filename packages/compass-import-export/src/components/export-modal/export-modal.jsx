@@ -14,9 +14,18 @@ import {
 import { TextButton, IconTextButton } from 'hadron-react-buttons';
 import QueryViewer from 'components/query-viewer';
 import ProgressBar from 'components/progress-bar';
+import ErrorBox from 'components/error-box';
+
 import fileSaveDialog from 'utils/file-save-dialog';
 import revealFile from 'utils/reveal-file';
-import PROCESS_STATUS from 'constants/process-status';
+import formatNumber from 'utils/format-number';
+
+import {
+  STARTED,
+  CANCELED,
+  COMPLETED,
+  UNSPECIFIED
+} from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
 import {
   startExport,
@@ -28,14 +37,17 @@ import {
 } from 'modules/export';
 
 import styles from './export-modal.less';
+import createStyler from 'utils/styler.js';
+const style = createStyler(styles, 'export-modal');
 
 /**
  * Progress messages.
  */
 const MESSAGES = {
-  [PROCESS_STATUS.STARTED]: 'Exporting...',
-  [PROCESS_STATUS.CANCELED]: 'Export canceled.',
-  [PROCESS_STATUS.COMPLETED]: 'Export completed!'
+  [STARTED]: 'Exporting documents...',
+  [CANCELED]: 'Export canceled',
+  [COMPLETED]: 'Export completed',
+  [UNSPECIFIED]: ''
 };
 
 /**
@@ -110,29 +122,8 @@ class ExportModal extends PureComponent {
     revealFile(this.props.fileName);
   };
 
-  /**
-   * Render the progress bar.
-   *
-   * @returns {React.Component} The component.
-   */
-  renderProgressBar = () => {
-    if (this.props.status !== PROCESS_STATUS.UNSPECIFIED) {
-      return (
-        <div>
-          <ProgressBar
-            progress={this.props.progress}
-            status={this.props.status}
-            message={this.getStatusMessage()}
-            cancel={this.props.cancelExport}
-          />
-          <p>{this.props.exportedDocsCount} documents exported</p>
-        </div>
-      );
-    }
-  };
-
   renderImportButton() {
-    if (this.props.status === PROCESS_STATUS.COMPLETED) {
+    if (this.props.status === COMPLETED) {
       return (
         <TextButton
           className="btn btn-primary btn-sm"
@@ -145,7 +136,7 @@ class ExportModal extends PureComponent {
       <TextButton
         className="btn btn-primary btn-sm"
         text="Export"
-        disabled={this.props.status === PROCESS_STATUS.STARTED}
+        disabled={this.props.status === STARTED}
         clickHandler={this.handleExport}
       />
     );
@@ -157,18 +148,18 @@ class ExportModal extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const { isFullCollection } = this.props;
+
     const queryClassName = classnames({
-      [styles['export-modal-query']]: true,
-      [styles['export-modal-query-is-disabled']]: this.props.isFullCollection
+      [style('query')]: true,
+      [style('query-is-disabled')]: isFullCollection
     });
     const queryViewerClassName = classnames({
-      [styles['export-modal-query-viewer']]: true,
-      [styles['export-modal-query-viewer-is-disabled']]: this.props
-        .isFullCollection
+      [style('query-viewer-is-disabled')]: isFullCollection
     });
 
     return (
-      <Modal show={this.props.open} onHide={this.handleClose}>
+      <Modal show={this.props.open} onHide={this.handleClose} backdrop="static">
         <Modal.Header closeButton>
           Export Collection {this.props.ns}
         </Modal.Header>
@@ -178,26 +169,19 @@ class ExportModal extends PureComponent {
             with the query:
           </div>
           <div className={queryViewerClassName}>
-            <QueryViewer
-              query={this.props.query}
-              disabled={this.props.isFullCollection}
-            />
+            <QueryViewer query={this.props.query} disabled={isFullCollection} />
           </div>
-          <div className={classnames(styles['export-modal-toggle-full'])}>
+          <div className={style('toggle-full')}>
             <Switch
-              checked={this.props.isFullCollection}
+              checked={isFullCollection}
               onChange={this.props.toggleFullCollection}
-              className={classnames(styles['export-modal-toggle-button'])}
+              className={style('toggle-button')}
             />
-            <div className={classnames(styles['export-modal-toggle-text'])}>
-              Export Full Collection
-            </div>
+            <div className={style('toggle-text')}>Export Full Collection</div>
           </div>
-          <div className={classnames(styles['export-modal-output'])}>
-            Select Output File Type
-          </div>
+          <div className={style('output')}>Select Output File Type</div>
           <div
-            className={classnames(styles['export-modal-type-selector'])}
+            className={style('type-selector')}
             type="radio"
             name="file-type-selector"
           >
@@ -227,29 +211,31 @@ class ExportModal extends PureComponent {
           <form>
             <FormGroup controlId="export-file">
               <ControlLabel>Select File</ControlLabel>
-              <InputGroup
-                bsClass={classnames(styles['export-modal-browse-group'])}
-              >
+              <InputGroup bsClass={style('browse-group')}>
                 <FormControl type="text" value={this.props.fileName} readOnly />
                 <IconTextButton
                   text="Browse"
                   clickHandler={this.handleChooseFile}
-                  className={classnames(styles['export-modal-browse-button'])}
+                  className={style('browse-button')}
                   iconClassName="fa fa-folder-open-o"
                 />
               </InputGroup>
             </FormGroup>
           </form>
-          {this.renderProgressBar()}
+          <ProgressBar
+            progress={this.props.progress}
+            status={this.props.status}
+            message={MESSAGES[this.props.status]}
+            cancel={this.props.cancelExport}
+            docsWritten={this.props.exportedDocsCount}
+            docsTotal={this.props.count}
+          />
+          <ErrorBox error={this.props.error} />
         </Modal.Body>
         <Modal.Footer>
           <TextButton
             className="btn btn-default btn-sm"
-            text={
-              this.props.status === PROCESS_STATUS.COMPLETED
-                ? 'Close'
-                : 'Cancel'
-            }
+            text={this.props.status === COMPLETED ? 'Close' : 'Cancel'}
             clickHandler={this.handleClose}
           />
           {this.renderImportButton()}
@@ -269,7 +255,7 @@ class ExportModal extends PureComponent {
 const mapStateToProps = state => ({
   ns: state.ns,
   progress: state.exportData.progress,
-  count: state.stats.rawDocumentCount,
+  count: state.exportData.count || state.stats.rawDocumentCount,
   query: state.exportData.query,
   isFullCollection: state.exportData.isFullCollection,
   open: state.exportData.isOpen,
