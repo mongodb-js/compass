@@ -26,7 +26,7 @@ Templates:
             if ('aggregation' in spec) {
                 const agg = spec.aggregation;
                 cmd = `coll.aggregate(agg, (cmdErr, result) => {`;
-                defs = `const agg = ${agg};\n`;
+                defs = `const agg = ${agg};\n\n`;
             } else {
                 let opts = '';
                 const args = {};
@@ -51,7 +51,8 @@ Templates:
                 }
                 cmd = `coll.find(filter${opts}, (cmdErr, result) => {`;
             }
-            return `${defs}MongoClient.connect(
+            return `${defs}
+        MongoClient.connect(
           '${spec.options.uri}',
           { useNewUrlParser: true },
           function(connectErr, client) {
