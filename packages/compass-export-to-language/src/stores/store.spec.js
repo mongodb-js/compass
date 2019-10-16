@@ -4,7 +4,7 @@ import compiler from 'bson-transpilers';
 
 const subscribeCheck = (s, pipeline, check, done) => {
   const unsubscribe = s.subscribe(() => {
-    expect(s.getState().exportQuery.queryError).to.equal(null);
+    expect(s.getState().error).to.equal(null);
     if (check(s.getState())) {
       unsubscribe();
       done();
@@ -27,6 +27,29 @@ describe('ExportToLanguage Store', () => {
       if (unsubscribe !== undefined) unsubscribe();
     });
 
+    describe('update ns', () => {
+      it('updates for collection-changed', (done) => {
+        unsubscribe = subscribeCheck(store, '', (s) => (
+          s.namespace === 'db.coll'
+        ), done);
+        appRegistry.emit('collection-changed', 'db.coll');
+      });
+      it('updates for database-changed', (done) => {
+        unsubscribe = subscribeCheck(store, '', (s) => (
+          s.namespace === 'db.coll'
+        ), done);
+        appRegistry.emit('database-changed', 'db.coll');
+      });
+    });
+    describe('data-service URI', () => {
+      it('updates for data-service-initialized', (done) => {
+        unsubscribe = subscribeCheck(store, '', (s) => (
+          s.uri === 'localhost'
+        ), done);
+        appRegistry.emit('data-service-initialized', {client: {model: {driverUrl: 'localhost'}}});
+      });
+    });
+
     describe('when aggregation opens export to language', () => {
       const agg = `{
   0: true, 1: 1, 2: NumberLong(100), 3: 0.001, 4: 0x1243, 5: 0o123,
@@ -39,34 +62,34 @@ describe('ExportToLanguage Store', () => {
   '201b': ISODate(), '201c': new ISODate()
 }`;
       it('opens the aggregation modal', (done) => {
-        unsubscribe = subscribeCheck(store, agg, (s) => (s.exportQuery.modalOpen), done);
+        unsubscribe = subscribeCheck(store, agg, (s) => (s.modalOpen), done);
         appRegistry.emit('open-aggregation-export-to-language', agg);
       });
 
-      it('sets namespace to Pipeline', (done) => {
+      it('sets mode to Pipeline', (done) => {
         unsubscribe = subscribeCheck(store, agg, (s) => (
-          s.exportQuery.namespace === 'Pipeline'
+          s.mode === 'Pipeline'
         ), done);
         appRegistry.emit('open-aggregation-export-to-language', agg);
       });
 
-      it('adds input query to the state', (done) => {
+      it('adds input expression to the state', (done) => {
         unsubscribe = subscribeCheck(store, agg, (s) => (
-          s.exportQuery.inputQuery === agg
+          s.inputExpression.aggregation === agg
         ), done);
         appRegistry.emit('open-aggregation-export-to-language', agg);
       });
 
-      it('triggers run query command', (done) => {
+      it('triggers run transpiler command', (done) => {
         unsubscribe = subscribeCheck(store, agg, (s) => (
-          s.exportQuery.returnQuery === compiler.shell.python.compile(agg)
+          s.transpiledExpression === compiler.shell.python.compile(agg)
         ), done);
         appRegistry.emit('open-aggregation-export-to-language', agg);
       });
     });
 
     describe('when query opens export to language', () => {
-      const query = `{
+      const query = {filter: `{
   isQuery: true, 0: true, 1: 1, 2: NumberLong(100), 3: 0.001, 4: 0x1243, 5: 0o123,
   7: "str", 8: RegExp('10'), '8a': /abc/, '8b': RegExp('abc', 'i'),
   9: [1,2], 10: {x: 1}, 11: null, 12: undefined,
@@ -75,29 +98,29 @@ describe('ExportToLanguage Store', () => {
   107: MinKey(), 108: MaxKey(), 110: Timestamp(1, 100),
   111: Symbol('1'), 112: NumberDecimal(1), 200: Date(), '201a': new Date(),
   '201b': ISODate(), '201c': new ISODate()
-}`;
+}`};
       it('opens the query modal', (done) => {
-        unsubscribe = subscribeCheck(store, query, (s) => (s.exportQuery.modalOpen), done);
+        unsubscribe = subscribeCheck(store, query, (s) => (s.modalOpen), done);
         appRegistry.emit('open-query-export-to-language', query);
       });
 
-      it('sets namespace to Query', (done) => {
+      it('sets mode to Query', (done) => {
         unsubscribe = subscribeCheck(store, query, (s) => (
-          s.exportQuery.namespace === 'Query'
+          s.mode === 'Query'
         ), done);
         appRegistry.emit('open-query-export-to-language', query);
       });
 
-      it('adds input query to the state', (done) => {
+      it('adds input expression to the state', (done) => {
         unsubscribe = subscribeCheck(store, query, (s) => (
-          s.exportQuery.inputQuery === query
+          s.inputExpression === query
         ), done);
         appRegistry.emit('open-query-export-to-language', query);
       });
 
-      it('triggers run query command', (done) => {
+      xit('triggers run transpiler command', (done) => {
         unsubscribe = subscribeCheck(store, query, (s) => (
-          s.exportQuery.returnQuery === compiler.shell.python.compile(query)
+          s.transpiledExpression === compiler.shell.python.compile(query.filter)
         ), done);
         appRegistry.emit('open-query-export-to-language', query);
       });

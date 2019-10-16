@@ -20,40 +20,39 @@ class Editor extends PureComponent {
   // input query can be an object(empty query) or a string(an actual query) so
   // check for any
   static propTypes = {
-    outputQuery: PropTypes.string.isRequired,
-    inputQuery: PropTypes.string.isRequired,
     outputLang: PropTypes.string.isRequired,
-    queryError: PropTypes.string,
-    imports: PropTypes.string,
-    showImports: PropTypes.bool,
-    input: PropTypes.bool
+    transpiledExpression: PropTypes.string.isRequired,
+    error: PropTypes.string,
+    imports: PropTypes.string.isRequired,
+    showImports: PropTypes.bool.isRequired,
+    isInput: PropTypes.bool, // display input or output
+    from: PropTypes.string.isRequired // filter for query, agg for agg
   };
 
   // need to be able to stringify and add spaces to prettify the object
   componentDidMount() {
-    if (this.props.input && this.props.inputQuery !== '') {
-      this.editor.setValue(jsBeautify(this.props.inputQuery));
+    if (this.props.isInput && this.props.from !== '') {
+      this.editor.setValue(jsBeautify(this.props.from));
       this.editor.clearSelection();
     }
   }
 
   componentDidUpdate() {
-    if (!this.props.input) {
-      if (this.props.queryError) {
+    if (!this.props.isInput) {
+      if (this.props.error) {
         this.editor.setValue('');
         this.editor.session.setMode('ace/mode/' + this.props.outputLang || 'javascript');
         this.editor.clearSelection();
       } else {
-        const output = this.props.showImports && this.props.imports !== '' ? this.props.imports + '\n' + this.props.outputQuery : this.props.outputQuery;
+        const output = this.props.showImports && this.props.imports !== '' ?
+          this.props.imports + '\n' + this.props.transpiledExpression :
+          this.props.transpiledExpression;
         this.editor.setValue(output);
         this.editor.session.setMode('ace/mode/' + this.props.outputLang || 'javascript');
         this.editor.clearSelection();
       }
-    }
-
-    // set this again in case it's missing
-    if (this.props.input && this.props.inputQuery !== '') {
-      this.editor.setValue(jsBeautify(this.props.inputQuery, null, 2));
+    } else if (this.props.from !== '') {
+      this.editor.setValue(jsBeautify(this.props.from, null, 2));
       this.editor.clearSelection();
     }
   }
@@ -72,12 +71,10 @@ class Editor extends PureComponent {
     };
 
     const queryStyle = classnames(styles.editor);
-    const output = this.props.showImports && this.props.imports !== '' ? this.props.imports + '\n' + this.props.outputQuery : this.props.outputQuery;
-    const value = this.props.input
-      ? this.props.inputQuery
-      : this.props.queryError
-        ? ''
-        : output;
+    const output = this.props.showImports && this.props.imports !== '' ? this.props.imports + '\n' + this.props.transpiledExpression : this.props.transpiledExpression;
+
+    const to = this.props.error ? '' : output;
+    const value = this.props.isInput ? this.props.from : to;
 
     return (
       <div className={queryStyle}>

@@ -15,12 +15,13 @@ describe('Editor [Component]', () => {
     beforeEach(() => {
       component = mount(
         <Editor
-          outputQuery=""
-          inputQuery={query}
           outputLang="python"
-          queryError={null}
-          imports=""
-          input/>
+          transpiledExpression="transpiledExpression"
+          error={null}
+          imports="imports"
+          showImports={false}
+          from={query}
+          isInput/>
       );
     });
 
@@ -41,105 +42,141 @@ describe('Editor [Component]', () => {
     });
   });
 
-  context('when the component is rendered with query error and input', () => {
-    let component;
+  context('when the component is rendered as input', () => {
+    context('without error', () => {
+      let component;
 
-    const query = '{ category_code: "smooth jazz", release_year: 2009 }';
+      const query = '{ category_code: "smooth jazz", release_year: 2009 }';
 
-    beforeEach(() => {
-      component = mount(
-        <Editor
-          outputQuery="output"
-          inputQuery={query}
-          outputLang="python"
-          queryError="error"
-          imports=""
-          input/>
-      );
+      beforeEach(() => {
+        component = mount(
+          <Editor
+            transpiledExpression="transpiledExpression"
+            from={query}
+            outputLang="python"
+            error={null}
+            imports="imports"
+            showImports={false}
+            isInput
+          />
+        );
+      });
+
+      afterEach(() => {
+        component = null;
+      });
+
+      it('renders the editor with correct input', () => {
+        expect(component.find(AceEditor)).prop('value').to.be.equal(query);
+      });
     });
 
-    afterEach(() => {
-      component = null;
-    });
+    context('with error', () => {
+      let component;
 
-    it('renders the editor with correct input', () => {
-      expect(component.find(AceEditor)).prop('value').to.be.equal(query);
-    });
-  });
+      const query = '{ category_code: "smooth jazz", release_year: 2009 }';
 
-  context('when the component is rendered with query error and output', () => {
-    let component;
+      beforeEach(() => {
+        component = mount(
+          <Editor
+            transpiledExpression="transpiledExpression"
+            from={query}
+            outputLang="python"
+            error="error"
+            imports="imports"
+            showImports={false}
+            isInput
+          />
+        );
+      });
 
-    const query = '{ category_code: "smooth jazz", release_year: 2009 }';
+      afterEach(() => {
+        component = null;
+      });
 
-    beforeEach(() => {
-      component = mount(
-        <Editor
-          outputQuery="output"
-          inputQuery={query}
-          outputLang="python"
-          queryError="error"
-          imports=""/>
-      );
-    });
-
-    afterEach(() => {
-      component = null;
-    });
-
-    it('editor has no output', () => {
-      expect(component.find(AceEditor)).prop('value').to.be.equal('');
+      it('renders the editor with correct input', () => {
+        expect(component.find(AceEditor)).prop('value').to.be.equal(query);
+      });
     });
   });
 
   context('when the component is rendered as output', () => {
-    let component;
+    context('without error', () => {
+      let component;
 
-    const outputQuery = "{ 'category_code': 'smooth jazz', 'release_year': 2009 }";
+      const outputQuery = "{ 'category_code': 'smooth jazz', 'release_year': 2009 }";
 
-    beforeEach(() => {
-      component = mount(
-        <Editor
-          outputQuery={outputQuery}
-          inputQuery=""
-          outputLang="python"
-          queryError=""
-          imports=""/>
-      );
+      beforeEach(() => {
+        component = mount(
+          <Editor
+            transpiledExpression={outputQuery}
+            from="from"
+            outputLang="python"
+            error="error"
+            showImports={false}
+            imports="imports"/>
+        );
+      });
+
+      afterEach(() => {
+        component = null;
+      });
+
+      it('editor has the value of python output', () => {
+        expect(component.find(AceEditor)).prop('value').to.be.equal('');
+      });
+    });
+    context('without imports', () => {
+      let component;
+
+      const outputQuery = "{ 'category_code': 'smooth jazz', 'release_year': 2009 }";
+
+      beforeEach(() => {
+        component = mount(
+          <Editor
+            transpiledExpression={outputQuery}
+            from="from"
+            outputLang="python"
+            error=""
+            showImports={false}
+            imports="imports"/>
+        );
+      });
+
+      afterEach(() => {
+        component = null;
+      });
+
+      it('editor has the value of python output', () => {
+        expect(component.find(AceEditor)).prop('value').to.be.equal(outputQuery);
+      });
     });
 
-    afterEach(() => {
-      component = null;
-    });
+    context('with imports', () => {
+      let component;
 
-    it('editor has the value of python output', () => {
-      expect(component.find(AceEditor)).prop('value').to.be.equal(outputQuery);
-    });
-  });
+      const imports = 'import datetime';
+      const transpiledExpression = '{}';
 
-  context('when the component is rendered with imports', () => {
-    let component;
+      beforeEach(() => {
+        component = mount(
+          <Editor
+            from="from"
+            transpiledExpression={transpiledExpression}
+            outputLang="python"
+            error=""
+            imports={imports}
+            showImports/>
+        );
+      });
 
-    const imports = 'import datetime';
+      afterEach(() => {
+        component = null;
+      });
 
-    beforeEach(() => {
-      component = mount(
-        <Editor
-          outputQuery=""
-          inputQuery=""
-          outputLang="python"
-          queryError=""
-          imports={imports}
-          showImports/>
-      );
-    });
-
-    afterEach(() => {
-      component = null;
-    });
-
-    it('ace editor has the value of python imports', () => {
-      expect(component.find(AceEditor)).prop('value').to.be.equal(`${imports}\n`);
+      it('ace editor has the value of python imports', () => {
+        expect(component.find(AceEditor)).prop('value').to.be.equal(`${imports}\n${transpiledExpression}`);
+      });
     });
   });
 });

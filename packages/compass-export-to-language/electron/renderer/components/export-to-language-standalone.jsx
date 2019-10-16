@@ -10,7 +10,19 @@ class ExportToLanguageStandalone extends Component {
     store: PropTypes.object.isRequired
   };
 
-  handleChange = (event) => {
+  handleFilterChange = (event) => {
+    if (event.keyCode === 13) {
+      try {
+        this.props.appRegistry.emit(
+          'open-query-export-to-language',
+          {filter: event.target.value}
+        );
+      } catch(err) {
+        console.log('Invalid input:' + err.message);
+      }
+    }
+  };
+  handleAggChange = (event) => {
     if (event.keyCode === 13) {
       try {
         this.props.appRegistry.emit(
@@ -32,8 +44,10 @@ class ExportToLanguageStandalone extends Component {
     return (
       <div>
         <div data-test-id="export-to-language-standalone">
-          Input code (press enter to run)
-          <input type="text" name="input code" onKeyUp={this.handleChange}/>
+          Input filter (press enter to run)
+          <input type="text" name="input filter" onKeyUp={this.handleFilterChange}/>
+          Input aggregation (press enter to run)
+          <input type="text" name="input aggregation" onKeyUp={this.handleAggChange}/>
         </div>
         <div>
           <ExportToLanguagePlugin store={this.props.store} />

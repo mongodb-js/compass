@@ -11,16 +11,16 @@ class SelectLang extends PureComponent {
   // input query can be an object(empty query) or a string(an actual query) so
   // check for any
   static propTypes = {
-    setOutputLang: PropTypes.func.isRequired,
-    inputQuery: PropTypes.any.isRequired,
+    outputLangChanged: PropTypes.func.isRequired,
+    inputExpression: PropTypes.object.isRequired,
     outputLang: PropTypes.string.isRequired,
-    runQuery: PropTypes.func.isRequired
+    runTranspiler: PropTypes.func.isRequired
   }
 
   // save state, and pass in the currently selected lang
   handleOutputSelect = (outputLang) => {
-    this.props.setOutputLang(outputLang.value);
-    this.props.runQuery(outputLang.value, this.props.inputQuery);
+    this.props.outputLangChanged(outputLang.value);
+    this.props.runTranspiler(this.props.inputExpression);
   }
 
   render() {

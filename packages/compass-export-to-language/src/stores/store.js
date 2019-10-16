@@ -1,10 +1,10 @@
-import {
-  addInputQuery,
-  toggleModal,
-  setNamespace,
-  runQuery,
-  copyToClipboardFnChanged
-} from 'modules/export-query';
+import { inputExpressionChanged } from 'modules/input-expression';
+import { modalOpenChanged } from 'modules/modal-open';
+import { modeChanged } from 'modules/mode';
+import { uriChanged } from 'modules/uri';
+import { runTranspiler } from 'modules';
+import { copyToClipboardFnChanged } from 'modules/copy-to-clipboard';
+import { namespaceChanged } from 'modules/namespace';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import {
@@ -37,18 +37,31 @@ const configureStore = (options = {}) => {
     const localAppRegistry = options.localAppRegistry;
     store.dispatch(localAppRegistryActivated(localAppRegistry));
     localAppRegistry.on('open-aggregation-export-to-language', (aggregation) => {
-      store.dispatch(toggleModal(true));
-      store.dispatch(setNamespace('Pipeline'));
-      store.dispatch(runQuery('python', aggregation));
-      store.dispatch(addInputQuery(aggregation));
+      store.dispatch(modeChanged('Pipeline'));
+      store.dispatch(modalOpenChanged(true));
+      store.dispatch(runTranspiler({ aggregation: aggregation }));
+      store.dispatch(inputExpressionChanged({ aggregation: aggregation }));
     });
 
     localAppRegistry.on('open-query-export-to-language', (query) => {
-      store.dispatch(toggleModal(true));
-      store.dispatch(setNamespace('Query'));
-      store.dispatch(runQuery('python', query));
-      store.dispatch(addInputQuery(query));
+      store.dispatch(modeChanged('Query'));
+      store.dispatch(modalOpenChanged(true));
+      store.dispatch(runTranspiler(query));
+      store.dispatch(inputExpressionChanged(query));
     });
+
+    localAppRegistry.on('data-service-initialized', (dataService) => {
+      store.dispatch(uriChanged(dataService.client.model.driverUrl));
+    });
+
+    localAppRegistry.on('collection-changed', (ns) => {
+      store.dispatch(namespaceChanged(ns));
+    });
+
+    localAppRegistry.on('database-changed', (ns) => {
+      store.dispatch(namespaceChanged(ns));
+    });
+
   }
 
   if (options.globalAppRegistry) {
@@ -57,7 +70,7 @@ const configureStore = (options = {}) => {
   }
 
   if (options.copyToClipboardFn) {
-    setCopyToClipboardFn(store, options.copyToClipboardFn);
+    store.dispatch(copyToClipboardFnChanged(options.copyToClipboardFn));
   }
 
   return store;

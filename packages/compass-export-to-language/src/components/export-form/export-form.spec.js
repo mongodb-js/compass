@@ -11,30 +11,27 @@ import styles from './export-form.less';
 describe('ExportForm [Component]', () => {
   context('when the component is rendered', () => {
     let component;
-    const exportQuery = {
-      outputLang: 'python',
-      namespace: 'Query',
-      copySuccess: false,
-      queryError: null,
-      modalOpen: false,
-      returnQuery: '',
-      inputQuery: '',
-      imports: '',
-      showImports: false
-    };
-    const setOutputLangSpy = sinon.spy();
-    const clearCopySpy = sinon.spy();
-    const copyQuerySpy = sinon.spy();
-    const runQuerySpy = sinon.spy();
+    const outputLangChangedSpy = sinon.spy();
+    const copySuccessChangedSpy = sinon.spy();
+    const copyToClipboardSpy = sinon.spy();
+    const runTranspilerSpy = sinon.spy();
 
     beforeEach(() => {
       component = mount(
         <ExportForm
-          setOutputLang={setOutputLangSpy}
-          exportQuery={exportQuery}
-          clearCopy={clearCopySpy}
-          copyQuery={copyQuerySpy}
-          runQuery={runQuerySpy} />
+          copySuccess={false}
+          copyToClipboard={copyToClipboardSpy}
+          imports=""
+          showImports={false}
+          inputExpression={{filter: '{x: 1}'}}
+          transpiledExpression="{\n\'x\': 1\n}"
+          mode="Query"
+          outputLang="python"
+          error={null}
+          from="{x: 1}"
+          outputLangChanged={outputLangChangedSpy}
+          copySuccessChanged={copySuccessChangedSpy}
+          runTranspiler={runTranspilerSpy} />
       );
     });
 
@@ -113,30 +110,27 @@ describe('ExportForm [Component]', () => {
 
   context('when clicking on copy button', () => {
     let component;
-    const exportQuery = {
-      outputLang: 'python',
-      namespace: 'Query',
-      copySuccess: false,
-      queryError: null,
-      modalOpen: true,
-      returnQuery: '{\n\'x\': 1\n}',
-      inputQuery: '{x: 1}',
-      imports: '',
-      showImports: false
-    };
-    const setOutputLangSpy = sinon.spy();
-    const clearCopySpy = sinon.spy();
-    const copyQuerySpy = sinon.spy();
-    const runQuerySpy = sinon.spy();
+    const outputLangChangedSpy = sinon.spy();
+    const copySuccessChangedSpy = sinon.spy();
+    const copyToClipboardSpy = sinon.spy();
+    const runTranspilerSpy = sinon.spy();
 
     beforeEach(() => {
       component = mount(
         <ExportForm
-          setOutputLang={setOutputLangSpy}
-          exportQuery={exportQuery}
-          clearCopy={clearCopySpy}
-          copyQuery={copyQuerySpy}
-          runQuery={runQuerySpy} />
+          copySuccess={false}
+          copyToClipboard={copyToClipboardSpy}
+          imports=""
+          showImports={false}
+          inputExpression={{filter: '{x: 1}'}}
+          transpiledExpression="{\n'x': 1\n}"
+          mode="Query"
+          outputLang="python"
+          error={null}
+          from="{x: 1}"
+          outputLangChanged={outputLangChangedSpy}
+          copySuccessChanged={copySuccessChangedSpy}
+          runTranspiler={runTranspilerSpy} />
       );
     });
 
@@ -149,10 +143,11 @@ describe('ExportForm [Component]', () => {
         .find(`.${styles['export-to-lang-query-output-copy']}`)
         .find('.fa-copy')
         .simulate('click');
-      expect(copyQuerySpy.calledOnce).to.equal(true);
-      expect(copyQuerySpy.getCall(0).args[0]).to.deep.equal(
-        { query: '{\n\'x\': 1\n}', type: 'output' }
-        );
+      expect(copyToClipboardSpy.calledOnce).to.equal(true);
+      expect(copyToClipboardSpy.getCall(0).args[0]).to.deep.equal(
+        "{\\n'x': 1\\n}"
+      );
+      expect(copySuccessChangedSpy.calledOnce).to.equal(true);
     });
 
     it('calls the copy action with the input', () => {
@@ -160,40 +155,38 @@ describe('ExportForm [Component]', () => {
         .find(`.${styles['export-to-lang-query-input-copy']}`)
         .find('.fa-copy')
         .simulate('click');
-      expect(copyQuerySpy.calledTwice).to.equal(true);
-      expect(copyQuerySpy.getCall(1).args[0]).to.deep.equal(
-        { query: '{x: 1}', type: 'input' }
-        );
+      expect(copyToClipboardSpy.calledTwice).to.equal(true);
+      expect(copyToClipboardSpy.getCall(1).args[0]).to.deep.equal(
+        '{x: 1}'
+      );
+      expect(copySuccessChangedSpy.calledTwice).to.equal(true);
     });
   });
 
   context('when export query state contains an error', () => {
     let component;
     const error = 'error error error';
-    const exportQuery = {
-      outputLang: 'python',
-      namespace: 'Query',
-      copySuccess: false,
-      queryError: error,
-      modalOpen: true,
-      returnQuery: '',
-      inputQuery: '',
-      imports: '',
-      showImports: false
-    };
-    const setOutputLangSpy = sinon.spy();
-    const clearCopySpy = sinon.spy();
-    const copyQuerySpy = sinon.spy();
-    const runQuerySpy = sinon.spy();
+    const outputLangChangedSpy = sinon.spy();
+    const copySuccessChangedSpy = sinon.spy();
+    const copyToClipboardSpy = sinon.spy();
+    const runTranspilerSpy = sinon.spy();
 
     beforeEach(() => {
       component = mount(
         <ExportForm
-          setOutputLang={setOutputLangSpy}
-          exportQuery={exportQuery}
-          clearCopy={clearCopySpy}
-          copyQuery={copyQuerySpy}
-          runQuery={runQuerySpy} />
+          copySuccess={false}
+          copyToClipboard={copyToClipboardSpy}
+          imports=""
+          showImports={false}
+          inputExpression={{filter: '{x: 1}'}}
+          transpiledExpression="{\n\'x\': 1\n}"
+          mode="Query"
+          outputLang="python"
+          error={error}
+          from="{x: 1}"
+          outputLangChanged={outputLangChangedSpy}
+          copySuccessChanged={copySuccessChangedSpy}
+          runTranspiler={runTranspilerSpy} />
       );
     });
 

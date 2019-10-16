@@ -10,9 +10,9 @@ describe('SelectLang [Component]', () => {
   context('when the component is rendered', () => {
     let component;
 
-    const query = { category_code: 'smooth jazz', release_year: 2009 };
-    const setOutputLangSpy = sinon.spy();
-    const runQuerySpy = sinon.spy();
+    const query = {filter: { category_code: 'smooth jazz', release_year: 2009 }};
+    const outputLangChangedSpy = sinon.spy();
+    const runTranspilerSpy = sinon.spy();
     const outputLang = 'python';
 
     const langOutputOptions = [
@@ -25,10 +25,10 @@ describe('SelectLang [Component]', () => {
     beforeEach(() => {
       component = mount(
         <SelectLang
-          setOutputLang={setOutputLangSpy}
+          outputLangChanged={outputLangChangedSpy}
           outputLang={outputLang}
-          runQuery={runQuerySpy}
-          inputQuery={query}/>
+          runTranspiler={runTranspilerSpy}
+          inputExpression={query}/>
       );
     });
 
@@ -52,18 +52,18 @@ describe('SelectLang [Component]', () => {
   context('when clicking on copy button', () => {
     let component;
 
-    const query = { category_code: 'smooth jazz', release_year: 2009 };
-    const setOutputLangSpy = sinon.spy();
-    const runQuerySpy = sinon.spy();
+    const query = {filer: { category_code: 'smooth jazz', release_year: 2009 }};
+    const outputLangChangedSpy = sinon.spy();
+    const runTranspilerSpy = sinon.spy();
     const outputLang = 'python';
 
     beforeEach(() => {
       component = shallow(
         <SelectLang
-          setOutputLang={setOutputLangSpy}
+          outputLangChanged={outputLangChangedSpy}
           outputLang={outputLang}
-          runQuery={runQuerySpy}
-          inputQuery={query}/>
+          runTranspiler={runTranspilerSpy}
+          inputExpression={query}/>
       );
     });
 
@@ -73,12 +73,12 @@ describe('SelectLang [Component]', () => {
 
     it('calls the run query method', () => {
       component.find(Select).simulate('change', { target: { value: 'java' } });
-      expect(runQuerySpy.calledOnce).to.equal(true);
+      expect(runTranspilerSpy.calledOnce).to.equal(true);
     });
 
     it('calls the set output lang method', () => {
       component.simulate('click');
-      expect(setOutputLangSpy.calledOnce).to.equal(true);
+      expect(outputLangChangedSpy.calledOnce).to.equal(true);
     });
   });
 });
