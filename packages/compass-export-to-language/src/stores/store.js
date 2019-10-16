@@ -43,7 +43,30 @@ const configureStore = (options = {}) => {
       store.dispatch(inputExpressionChanged({ aggregation: aggregation }));
     });
 
-    localAppRegistry.on('open-query-export-to-language', (query) => {
+    localAppRegistry.on('open-query-export-to-language', (queryStrings) => {
+      let query = {};
+      if (typeof queryStrings === 'string') {
+        query.filter = queryStrings === '' ? '{}' : queryStrings;
+      } else {
+        [
+          'filter',
+          'project',
+          'sort',
+          'collation',
+          'skip',
+          'limit',
+          'maxTimeMS'
+        ].forEach((k) => {
+          if (!queryStrings[k] || queryStrings[k] === '') {
+            if (k === 'filter') {
+              query[k] = '{}';
+            }
+          } else {
+            query[k] = queryStrings[k];
+          }
+        });
+      }
+
       store.dispatch(modeChanged('Query'));
       store.dispatch(modalOpenChanged(true));
       store.dispatch(runTranspiler(query));
