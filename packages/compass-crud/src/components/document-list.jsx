@@ -155,6 +155,7 @@ DocumentList.propTypes = {
   store: PropTypes.object.isRequired,
   openInsertDocumentDialog: PropTypes.func,
   openImportFileDialog: PropTypes.func,
+  openExportFileDialog: PropTypes.func,
   view: PropTypes.string.isRequired,
   updateError: PropTypes.string,
   updateJsonDoc: PropTypes.func,

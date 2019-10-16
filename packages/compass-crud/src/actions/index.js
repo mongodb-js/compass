@@ -19,6 +19,7 @@ const configureActions = () => {
     'toggleInsertDocumentView',
     'toggleInsertDocument',
     'openInsertDocumentDialog',
+    'openExportFileDialog',
     'openImportFileDialog',
     'pathChanged',
     'refreshDocuments',

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ViewSwitcher } from 'hadron-react-components';
-import { AnimatedIconTextButton } from 'hadron-react-buttons';
+import { ViewSwitcher, Tooltip } from 'hadron-react-components';
+import { AnimatedIconTextButton, IconButton } from 'hadron-react-buttons';
 
 const BASE_CLASS = 'document-list';
 const ACTION_BAR_CLASS = `${BASE_CLASS}-action-bar`;
@@ -12,6 +12,7 @@ const PAGINATION_CLASS = `${ACTION_BAR_CLASS}-pagination`;
 const VIEW_SWITCHER_CLASS = `${ACTION_BAR_CLASS}-view-switcher`;
 const INSERT_DATA = `btn-primary ${ACTION_BAR_CLASS}-insert-data`;
 const INSERT_DATA_TITLE = `${ACTION_BAR_CLASS}-insert-data-title`;
+const EXPORT_COLLECTION_CLASS = `${ACTION_BAR_CLASS}-export-collection`;
 
 /**
  * Component for the CRUD toolbar.
@@ -104,6 +105,23 @@ class Toolbar extends React.Component {
     }
   }
 
+  renderExportButton() {
+    return (
+      <div
+        data-for="export-collection-tooltip"
+        data-tip="Export Collection"
+        data-place="top">
+        <IconButton
+          title="ExportCollection"
+          className={`${EXPORT_COLLECTION_CLASS} btn-default btn-xs`}
+          iconClassName={`${EXPORT_COLLECTION_CLASS}-button fa fa-upload`}
+          dataTestId="export-collection-button"
+          clickHandler={this.props.openExportFileDialog} />
+        <Tooltip id="export-collection-tooltip" />
+      </div>
+    );
+  }
+
   /**
    * If we are on the documents tab, just display the count and insert button.
    *
@@ -115,6 +133,7 @@ class Toolbar extends React.Component {
         <div className={ACTION_BAR_CLASS}>
           <div className={CONTAINER_CLASS}>
             {this.renderInsertButton()}
+            {this.renderExportButton()}
             <div className={VIEW_SWITCHER_CLASS}>
               <ViewSwitcher
                 label="View"
@@ -137,6 +156,7 @@ class Toolbar extends React.Component {
                 dataTestId="refresh-documents-button"
                 className="btn btn-default btn-xs sampling-message-refresh-documents"
                 iconClassName="fa fa-repeat"
+                text="REFRESH"
                 animatingIconClassName="fa fa-refresh fa-spin"/>
             </div>
           </div>
@@ -155,6 +175,7 @@ Toolbar.propTypes = {
   getNextPage: PropTypes.func.isRequired,
   getPrevPage: PropTypes.func.isRequired,
   insertHandler: PropTypes.func,
+  openExportFileDialog: PropTypes.func,
   isExportable: PropTypes.bool.isRequired,
   page: PropTypes.number.isRequired,
   readonly: PropTypes.bool.isRequired,

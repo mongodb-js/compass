@@ -533,6 +533,14 @@ const configureStore = (options = {}) => {
     },
 
     /**
+     * Open an import file dialog from compass-import-export-plugin.
+     * Emits a global app registry event the plugin listens to.
+     */
+    openExportFileDialog() {
+      this.localAppRegistry.emit('open-export');
+    },
+
+    /**
      * Switch between list and JSON views when inserting a document through Insert Document modal.
      *
      * Also modifies doc and jsonDoc states to keep accurate data for each view.
