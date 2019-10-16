@@ -5,7 +5,7 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import ExportToLanguagePlugin, { activate } from 'plugin';
 import ExportToLanguageStandalone from './components/export-to-language-standalone';
-import configureStore from 'stores';
+import configureStore, { setDataProvider, setNamespace } from 'stores';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -62,10 +62,10 @@ const connection = new Connection({
 });
 const dataService = new DataService(connection);
 
-localAppRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
-   localAppRegistry.emit('data-service-connected', error, ds);
-   localAppRegistry.emit('collection-changed', 'database.collection');
+  appRegistry.emit('data-service-connected', error, ds);
+  setDataProvider(store, error, ds);
+  setNamespace(store, 'citibike.trips');
 });
 
 if (module.hot) {

@@ -24,6 +24,27 @@ export const setCopyToClipboardFn = (store, fn) => {
 };
 
 /**
+ * Set the data provider.
+ *
+ * @param {Store} store - The store.
+ * @param {Error} error - The error (if any) while connecting.
+ * @param {Object} provider - The data provider.
+ */
+export const setDataProvider = (store, error, provider) => {
+  store.dispatch(uriChanged(provider.client.model.driverUrl));
+};
+
+/**
+ * Set the namespace in the store.
+ *
+ * @param {Store} store - The store.
+ * @param {String} ns - The namespace in "db.collection" format.
+ */
+export const setNamespace = (store, ns) => {
+  store.dispatch(namespaceChanged(ns));
+};
+
+/**
  * Configure the store for use.
  *
  * @param {Object} options - The options.
@@ -72,25 +93,25 @@ const configureStore = (options = {}) => {
       store.dispatch(runTranspiler(query));
       store.dispatch(inputExpressionChanged(query));
     });
-
-    localAppRegistry.on('data-service-initialized', (dataService) => {
-      store.dispatch(uriChanged(dataService.client.model.driverUrl));
-    });
-
-    localAppRegistry.on('collection-changed', (ns) => {
-      store.dispatch(namespaceChanged(ns));
-    });
-
-    localAppRegistry.on('database-changed', (ns) => {
-      store.dispatch(namespaceChanged(ns));
-    });
-
   }
 
   if (options.globalAppRegistry) {
     const globalAppRegistry = options.globalAppRegistry;
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
   }
+
+  if (options.dataProvider) {
+    setDataProvider(
+      store,
+      options.dataProvider.error,
+      options.dataProvider.dataProvider
+    );
+  }
+
+  if (options.namespace) {
+    setNamespace(store, options.namespace);
+  }
+
 
   if (options.copyToClipboardFn) {
     store.dispatch(copyToClipboardFnChanged(options.copyToClipboardFn));

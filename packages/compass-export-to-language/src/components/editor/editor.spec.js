@@ -175,7 +175,7 @@ describe('Editor [Component]', () => {
       });
 
       it('ace editor has the value of python imports', () => {
-        expect(component.find(AceEditor)).prop('value').to.be.equal(`${imports}\n${transpiledExpression}`);
+        expect(component.find(AceEditor)).prop('value').to.be.equal(`${imports}\n\n${transpiledExpression}`);
       });
     });
   });

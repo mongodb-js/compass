@@ -45,7 +45,7 @@ class Editor extends PureComponent {
         this.editor.clearSelection();
       } else {
         const output = this.props.showImports && this.props.imports !== '' ?
-          this.props.imports + '\n' + this.props.transpiledExpression :
+          this.props.imports + '\n\n' + this.props.transpiledExpression :
           this.props.transpiledExpression;
         this.editor.setValue(output);
         this.editor.session.setMode('ace/mode/' + this.props.outputLang || 'javascript');
@@ -71,7 +71,7 @@ class Editor extends PureComponent {
     };
 
     const queryStyle = classnames(styles.editor);
-    const output = this.props.showImports && this.props.imports !== '' ? this.props.imports + '\n' + this.props.transpiledExpression : this.props.transpiledExpression;
+    const output = this.props.showImports && this.props.imports !== '' ? this.props.imports + '\n\n' + this.props.transpiledExpression : this.props.transpiledExpression;
 
     const to = this.props.error ? '' : output;
     const value = this.props.isInput ? this.props.from : to;

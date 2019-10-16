@@ -19,33 +19,23 @@ describe('ExportToLanguage Store', () => {
   let store;
 
   beforeEach(() => {
-    store = configureStore({ localAppRegistry: appRegistry });
+    store = configureStore({
+      localAppRegistry: appRegistry,
+      namespace: 'db.coll',
+      dataProvider: { dataProvider: { client: { model: { driverUrl: 'localhost' } } } }
+    });
   });
   afterEach(() => {
     if (unsubscribe !== undefined) unsubscribe();
   });
 
   describe('#onActivated', () => {
-    describe('update ns', () => {
-      it('updates for collection-changed', (done) => {
-        unsubscribe = subscribeCheck(store, '', (s) => (
-          s.namespace === 'db.coll'
-        ), done);
-        appRegistry.emit('collection-changed', 'db.coll');
+    describe('state passed from configure store', () => {
+      it('namespace', () => {
+        expect(store.getState().namespace).to.equal('db.coll');
       });
-      it('updates for database-changed', (done) => {
-        unsubscribe = subscribeCheck(store, '', (s) => (
-          s.namespace === 'db.coll'
-        ), done);
-        appRegistry.emit('database-changed', 'db.coll');
-      });
-    });
-    describe('data-service URI', () => {
-      it('updates for data-service-initialized', (done) => {
-        unsubscribe = subscribeCheck(store, '', (s) => (
-          s.uri === 'localhost'
-        ), done);
-        appRegistry.emit('data-service-initialized', {client: {model: {driverUrl: 'localhost'}}});
+      it('URI', () => {
+        expect(store.getState().uri).to.equal('localhost');
       });
     });
 
