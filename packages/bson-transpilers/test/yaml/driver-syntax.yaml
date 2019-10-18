@@ -20,16 +20,36 @@ tests:
                 javascript: { aggregation: '{x: Long(0, 0), y: ObjectId()}', options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection'} }
                 python: { aggregation: "{'x': Int64(0), 'y': ObjectId()}", options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection'} }
             output:
-                python: "client = MongoClient('mongodb://localhost:27017')\nresult = client['db']['collection'].aggregate({\n    'x': Int64(0), \n    'y': ObjectId()\n})"
+                python: |-
+                    # Requires the PyMongo package.
+                    # https://api.mongodb.com/python/current
+
+                    client = MongoClient('mongodb://localhost:27017')
+                    result = client['db']['collection'].aggregate({
+                        'x': Int64(0), 
+                        'y': ObjectId()
+                    })
                 java: |-
-                    MongoClient mongoClient = new MongoClient(new MongoClientURI(
-                        "mongodb://localhost:27017"
-                    ));
+                    /*
+                     * Requires the MongoDB Java Driver.
+                     * https://mongodb.github.io/mongo-java-driver
+                     */
+
+                    MongoClient mongoClient = new MongoClient(
+                        new MongoClientURI(
+                            "mongodb://localhost:27017"
+                        )
+                    );
                     MongoDatabase database = mongoClient.getDatabase("db");
                     MongoCollection<Document> collection = database.getCollection("collection");
 
                     FindIterable<Document> result = collection.aggregate(and(eq("x", 0L), eq("y", new ObjectId())));
                 javascript: |-
+                    /*
+                     * Requires the MongoDB Node.js Driver
+                     * https://mongodb.github.io/node-mongodb-native
+                     */
+
                     const agg = {
                       'x': Long.fromNumber(0), 
                       'y': new ObjectId()
@@ -37,7 +57,7 @@ tests:
 
                     MongoClient.connect(
                       'mongodb://localhost:27017',
-                      { useNewUrlParser: true },
+                      { useNewUrlParser: true, useUnifiedTopology: true },
                       function(connectErr, client) {
                         assert.equal(null, connectErr);
                         const coll = client.db('db').collection('collection');
@@ -74,7 +94,7 @@ tests:
                     const {
                       ObjectId,
                       Long
-                    } = require('bson');
+                    } = require('mongodb');
                 shell: ''
     query:
         -
@@ -85,29 +105,46 @@ tests:
                 shell: { filter: '{x: NumberLong(0)}', options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection' } }
             output:
                 python: |-
+                    # Requires the PyMongo package.
+                    # https://api.mongodb.com/python/current
+
                     client = MongoClient('mongodb://localhost:27017')
                     filter={
                         'x': Int64(0)
                     }
 
-                    result = client['db']['collection'].find(filter=filter)
+                    result = client['db']['collection'].find(
+                      filter=filter
+                    )
                 java: |-
+                    /*
+                     * Requires the MongoDB Java Driver.
+                     * https://mongodb.github.io/mongo-java-driver
+                     */
+
                     Bson filter = eq("x", 0L);
 
-                    MongoClient mongoClient = new MongoClient(new MongoClientURI(
-                        "mongodb://localhost:27017"
-                    ));
+                    MongoClient mongoClient = new MongoClient(
+                        new MongoClientURI(
+                            "mongodb://localhost:27017"
+                        )
+                    );
                     MongoDatabase database = mongoClient.getDatabase("db");
                     MongoCollection<Document> collection = database.getCollection("collection");
                     FindIterable<Document> result = collection.find(filter);
                 javascript: |-
+                    /*
+                     * Requires the MongoDB Node.js Driver
+                     * https://mongodb.github.io/node-mongodb-native
+                     */
+
                     const filter = {
                       'x': Long.fromNumber(0)
                     };
 
                     MongoClient.connect(
                       'mongodb://localhost:27017',
-                      { useNewUrlParser: true },
+                      { useNewUrlParser: true, useUnifiedTopology: true },
                       function(connectErr, client) {
                         assert.equal(null, connectErr);
                         const coll = client.db('db').collection('collection');
@@ -140,7 +177,7 @@ tests:
                     const assert = require('assert');
                     const {
                       Long
-                    } = require('bson');
+                    } = require('mongodb');
                 shell: ''
         -
             description: 'generate driver syntax with filter and other options'
@@ -183,6 +220,9 @@ tests:
                     collation: "{ 'locale': 'zh' }"
             output:
                 python: |-
+                    # Requires the PyMongo package.
+                    # https://api.mongodb.com/python/current
+
                     client = MongoClient('mongodb://localhost:27017')
                     filter={
                         'x': Int64(0)
@@ -190,9 +230,9 @@ tests:
                     project={
                         'y': ObjectId()
                     }
-                    sort={
+                    sort=list({
                         'name': 1
-                    }
+                    }.items())
                     skip=5
                     limit=10
                     maxTimeMS=100
@@ -200,16 +240,32 @@ tests:
                         'locale': 'zh'
                     }
 
-                    result = client['db']['collection'].find(filter=filter, projection=project, sort=sort, skip=skip, limit=limit, max_time_ms=maxTimeMS, collation=collation)
+                    result = client['db']['collection'].find(
+                      filter=filter,
+                      projection=project,
+                      sort=sort,
+                      skip=skip,
+                      limit=limit,
+                      max_time_ms=maxTimeMS,
+                      collation=collation
+                    )
                 java: |-
-                    // Warning: translating collation to Java not yet supported, so will be ignored
+                    /*
+                     * Requires the MongoDB Java Driver.
+                     * https://mongodb.github.io/mongo-java-driver
+                     *
+                     * Warning: translating collation to Java not yet supported, so will be ignored
+                     */
+
                     Bson filter = eq("x", 0L);
                     Bson project = eq("y", new ObjectId());
                     Bson sort = eq("name", 1L);
 
-                    MongoClient mongoClient = new MongoClient(new MongoClientURI(
-                        "mongodb://localhost:27017"
-                    ));
+                    MongoClient mongoClient = new MongoClient(
+                        new MongoClientURI(
+                            "mongodb://localhost:27017"
+                        )
+                    );
                     MongoDatabase database = mongoClient.getDatabase("db");
                     MongoCollection<Document> collection = database.getCollection("collection");
                     FindIterable<Document> result = collection.find(filter)
@@ -219,6 +275,11 @@ tests:
                         .limit((int)10L)
                         .maxTime(100L, TimeUnit.MICROSECONDS);
                 javascript: |-
+                    /*
+                     * Requires the MongoDB Node.js Driver
+                     * https://mongodb.github.io/node-mongodb-native
+                     */
+
                     const filter = {
                       'x': Long.fromNumber(0)
                     };
@@ -237,7 +298,7 @@ tests:
 
                     MongoClient.connect(
                       'mongodb://localhost:27017',
-                      { useNewUrlParser: true },
+                      { useNewUrlParser: true, useUnifiedTopology: true },
                       function(connectErr, client) {
                         assert.equal(null, connectErr);
                         const coll = client.db('db').collection('collection');
@@ -278,5 +339,5 @@ tests:
                     const {
                       ObjectId,
                       Long
-                    } = require('bson');
+                    } = require('mongodb');
                 shell: ''

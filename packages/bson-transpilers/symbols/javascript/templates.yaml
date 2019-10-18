@@ -17,6 +17,10 @@ Templates:
     # Syntax
     DriverTemplate: &DriverTemplate !!js/function >
         (spec) => {
+            const comment = `/*
+         * Requires the MongoDB Node.js Driver
+         * https://mongodb.github.io/node-mongodb-native
+         */`;
             const translateKey = {
                 project: 'projection'
             };
@@ -51,10 +55,10 @@ Templates:
                 }
                 cmd = `coll.find(filter${opts}, (cmdErr, result) => {`;
             }
-            return `${defs}
+            return `${comment}\n\n${defs}
         MongoClient.connect(
           '${spec.options.uri}',
-          { useNewUrlParser: true },
+          { useNewUrlParser: true, useUnifiedTopology: true },
           function(connectErr, client) {
             assert.equal(null, connectErr);
             const coll = client.db('${spec.options.database}').collection('${spec.options.collection}');
@@ -570,7 +574,7 @@ Templates:
                 }
             );
             if (bson.length) {
-                other.push(`const {\n  ${bson.join(',\n  ')}\n} = require('bson');`);
+                other.push(`const {\n  ${bson.join(',\n  ')}\n} = require('mongodb');`);
             }
             return other.join('\n');
         }

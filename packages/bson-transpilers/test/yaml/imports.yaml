@@ -52,7 +52,7 @@ tests:
                 Decimal128,
                 Double,
                 BSONRegExp
-              } = require('bson');
+              } = require('mongodb');
     all:
     - description: Single import Code
       input:
@@ -70,7 +70,7 @@ tests:
           javascript: |-
               const {
                 Code
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import Code with scope
       input:
           shell: "{x: Code('code', {x: 1})}"
@@ -89,7 +89,7 @@ tests:
           javascript: |-
               const {
                 Code
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import ObjectId
       input:
           shell: "{x: ObjectId()}"
@@ -106,7 +106,7 @@ tests:
           javascript: |-
               const {
                 ObjectId
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -123,7 +123,7 @@ tests:
           javascript: |-
               const {
                 Timestamp
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import DBRef
       input:
           shell: "{x: DBRef('db', ObjectId())}"
@@ -142,7 +142,7 @@ tests:
               const {
                 ObjectId,
                 DBRef
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import Double
       input:
           shell: "{x: 1}"
@@ -169,7 +169,7 @@ tests:
           javascript: |-
               const {
                 Int32
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import NumberLong
       input:
           shell: "{x: NumberLong(1)}"
@@ -184,7 +184,7 @@ tests:
           javascript: |-
               const {
                 Long
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import MinKey
       input:
           shell: "{x: MinKey()}"
@@ -201,7 +201,7 @@ tests:
           javascript: |-
               const {
                 MinKey
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import MaxKey
       input:
           shell: "{x: MaxKey()}"
@@ -218,7 +218,7 @@ tests:
           javascript: |-
               const {
                 MaxKey
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import RegExp
       input:
           shell: "{x: RegExp('abc')}"
@@ -276,7 +276,7 @@ tests:
           javascript: |-
               const {
                 Timestamp
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import Symbol
       input:
           shell: "{x: Symbol('a')}"
@@ -292,7 +292,7 @@ tests:
           javascript: |-
               const {
                 BSONSymbol
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import NumberDecimal
       input:
           shell: "{x: NumberDecimal(1)}"
@@ -309,7 +309,7 @@ tests:
           javascript: |-
               const {
                 Decimal128
-              } = require('bson');
+              } = require('mongodb');
     - description: Single import Date as string
       input:
           shell: "{x: Date()}"
@@ -408,7 +408,7 @@ tests:
                 Timestamp,
                 BSONSymbol,
                 Decimal128
-              } = require('bson');
+              } = require('mongodb');
     - description: All filter builder imports
       input:
           shell: "[{ $and: [{x: 1}], $expr: 1, all: {$all: [1,2]}, bitsAllClear: {$bitsAllClear:

@@ -17,6 +17,9 @@ Templates:
     # Syntax
     DriverTemplate: &DriverTemplate !!js/function >
         (spec) => {
+            const comment = `/*
+         * Requires the MongoDB Java Driver.
+         * https://mongodb.github.io/mongo-java-driver`;
 
             const str = spec.options.uri;
             let newStr = str;
@@ -29,9 +32,11 @@ Templates:
 
 
 
-            const connection = `MongoClient mongoClient = new MongoClient(new MongoClientURI(
-            ${uri}
-        ));
+            const connection = `MongoClient mongoClient = new MongoClient(
+            new MongoClientURI(
+                ${uri}
+            )
+        );
 
         MongoDatabase database = mongoClient.getDatabase("${spec.options.database}");
 
@@ -39,7 +44,7 @@ Templates:
 
 
             if ('aggregation' in spec) {
-                return `${connection}
+                return `${comment}\n */\n\n${connection}
 
         FindIterable<Document> result = collection.aggregate(${spec.aggregation});`;
             }
@@ -68,7 +73,7 @@ Templates:
                         return `${s}
             .projection(project)`;
                     case 'collation':
-                        warning = '// Warning: translating collation to Java not yet supported, so will be ignored\n';
+                        warning = '\n *\n * Warning: translating collation to Java not yet supported, so will be ignored';
                         return s;
                     default:
                         return `${s}
@@ -76,7 +81,7 @@ Templates:
                 }
             }, 'FindIterable<Document> result = collection.find(filter)');
 
-            return `${warning}${defs}
+            return `${comment}${warning}\n */\n\n${defs}
 
         ${connection}
 

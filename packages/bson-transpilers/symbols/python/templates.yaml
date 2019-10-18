@@ -19,6 +19,8 @@ Templates:
    # filter, project, sort, collation, skip, limit, maxTimeMS
     DriverTemplate: &DriverTemplate !!js/function >
         (spec) => {
+            const comment = `# Requires the PyMongo package.
+        # https://api.mongodb.com/python/current`;
             const translateKey = {
                 filter: 'filter',
                 project: 'projection',
@@ -35,11 +37,14 @@ Templates:
             const coll = `client['${options.database}']['${options.collection}']`;
 
             if ('aggregation' in spec) {
-                return `${connect}\nresult = ${coll}.aggregate(${spec.aggregation})`;
+                return `${comment}\n\n${connect}\nresult = ${coll}.aggregate(${spec.aggregation})`;
             }
 
             const vars = Object.keys(spec).reduce(
                 (result, k) => {
+                    if (k === 'sort') {
+                        return `${result}\n${k}=list(${spec[k]}.items())`;
+                    }
                     return `${result}\n${k}=${spec[k]}`;
                 },
                 connect
@@ -47,15 +52,16 @@ Templates:
 
             const args = Object.keys(spec).reduce(
                 (result, k) => {
-                    return `${result === '' ? '' : `${result}, `}${
+                    const divider = result === '' ? '' : ',\n';
+                    return `${result}${divider}  ${
                         k in translateKey ? translateKey[k] : k
                     }=${k}`;
                 },
                 ''
             );
-            const cmd = `result = ${coll}.find(${args})`;
+            const cmd = `result = ${coll}.find(\n${args}\n)`;
 
-            return `${vars}\n\n${cmd}`;
+            return `${comment}\n\n${vars}\n\n${cmd}`;
         }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
