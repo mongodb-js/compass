@@ -31,6 +31,12 @@ class FormFileInput extends React.Component {
     this.state = { values: props.values };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.values !== this.state.values) {
+      this.setState({ values: nextProps.values });
+    }
+  }
+
   /**
    * Handles a form item file button click.
    *

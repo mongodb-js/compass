@@ -813,7 +813,7 @@ const Store = Reflux.createStore({
   _addConnection(connection) {
     this.state.currentConnection = connection;
     this.state.connections.add(connection);
-    this._saveConnection(this.state.currentConnection);
+    this._saveConnection(connection);
   },
 
   /**
@@ -982,8 +982,8 @@ const Store = Reflux.createStore({
       this.state.savedMessage = 'Favorite is updated';
     }
 
-    this.state.currentConnection.isFavorite = true;
-    this.state.hasUnsavedChanges = false;
+    currentConnection.isFavorite = true;
+    currentConnection.hasUnsavedChanges = false;
 
     if (this.state.viewType === 'connectionString') {
       Connection.from(this.state.customUrl, (error, parsedConnection) => {
@@ -1000,6 +1000,11 @@ const Store = Reflux.createStore({
             this._addConnection(currentConnection);
           }
         }
+      });
+    } else if (!currentConnection.isValid()) {
+      this.setState({
+        isValid: false,
+        errorMessage: 'The required fields can not be empty'
       });
     } else {
       this._addConnection(currentConnection);
