@@ -1,13 +1,12 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import SidebarTitle from './sidebar-title';
-import AppRegistry from 'hadron-app-registry';
 
 import styles from './sidebar-title.less';
 
 describe('SidebarTitle [Component]', () => {
   context('when sidebar is collapsed', () => {
-    const globalAppRegistryEmit = new AppRegistry();
+    const globalAppRegistryEmit = sinon.spy();
     const connection = {
       authStrategy: 'MONGODB',
       isSrvRecord: false,
@@ -39,7 +38,7 @@ describe('SidebarTitle [Component]', () => {
   });
 
   context('when sidebar is not collapsed', () => {
-    const globalAppRegistryEmit = new AppRegistry();
+    const globalAppRegistryEmit = sinon.spy();
     const connection = {
       authStrategy: 'MONGODB',
       isSrvRecord: false,

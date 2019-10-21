@@ -44,11 +44,15 @@ describe('IsFavoritePill [Component]', () => {
       attributes: { hostanme: 'localhost' },
       isFavorite: true
     };
+    const isSidebarCollapsed = false;
     let component;
 
     beforeEach(() => {
       component = shallow(
-        <IsFavoritePill toggleIsModalVisible={()=>{}} connection={connection} />
+        <IsFavoritePill
+          toggleIsModalVisible={()=>{}}
+          connection={connection}
+          isSidebarCollapsed={isSidebarCollapsed} />
       );
     });
 

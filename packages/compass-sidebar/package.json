@@ -46,11 +46,11 @@
   "devDependencies": {
     "@hot-loader/react-dom": "^16.9.0",
     "@mongodb-js/compass-app-stores": "^3.0.0",
-    "@mongodb-js/compass-connect": "^5.1.1",
+    "@mongodb-js/compass-connect": "^5.2.1",
     "@mongodb-js/compass-deployment-awareness": "^10.0.0",
     "@mongodb-js/compass-instance-header": "^0.2.2",
     "@mongodb-js/compass-server-version": "^3.0.3",
-    "@mongodb-js/compass-ssh-tunnel-status": "^3.0.2",
+    "@mongodb-js/compass-ssh-tunnel-status": "^5.0.0",
     "@storybook/react": "^3.2.0",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.10.1",

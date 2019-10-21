@@ -8,10 +8,7 @@ describe('Sidebar [Component]', () => {
   let component;
 
   beforeEach(() => {
-    component = mount(
-      <Sidebar
-        store={store}
-        onCollapse={()=>{}} />);
+    component = mount(<Sidebar store={store} onCollapse={()=>{}} />);
   });
 
   afterEach(() => {
