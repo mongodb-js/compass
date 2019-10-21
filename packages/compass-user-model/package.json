@@ -2,7 +2,7 @@
   "name": "compass-user-model",
   "description": "MongoDB user model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "bugs": "https://github.com/mongodb-js/compass-user-model/issues",
   "homepage": "https://github.com/mongodb-js/compass-user-model",
   "repository": "git://github.com/mongodb-js/compass-user-model.git",
