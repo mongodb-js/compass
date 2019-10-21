@@ -284,7 +284,8 @@ var Application = View.extend({
       }
       if (save) {
         prefs.save(null, {
-          success: done.bind(null, null)
+          success: done.bind(null, null),
+          error: done.bind(null, null)
         });
       } else {
         done(null);
