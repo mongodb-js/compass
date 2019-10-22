@@ -185,7 +185,7 @@ class ImportModal extends PureComponent {
           Import To Collection {this.props.ns}
         </Modal.Header>
         <Modal.Body>
-          <form onSubmit={this.handleOnSubmit}>
+          <form onSubmit={this.handleOnSubmit} className={style('form')}>
             <FormGroup controlId="import-file">
               <ControlLabel>Select File</ControlLabel>
               <InputGroup bsClass={style('browse-group')}>
