@@ -165,8 +165,8 @@ class ExportModal extends PureComponent {
         </Modal.Header>
         <Modal.Body>
           <div className={queryClassName}>
-            There are {this.props.count} documents in the collection. Exporting
-            with the query:
+            There are {formatNumber(this.props.count)} documents in the
+            collection. Exporting with the query:
           </div>
           <div className={queryViewerClassName}>
             <QueryViewer query={this.props.query} disabled={isFullCollection} />
@@ -208,7 +208,7 @@ class ExportModal extends PureComponent {
               CSV
             </Button>
           </div>
-          <form>
+          <form className={style('form')}>
             <FormGroup controlId="export-file">
               <ControlLabel>Select File</ControlLabel>
               <InputGroup bsClass={style('browse-group')}>
