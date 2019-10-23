@@ -1,10 +1,8 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import {
   Modal,
-  Button,
   FormGroup,
   InputGroup,
   FormControl,
@@ -21,6 +19,7 @@ import {
 import FILE_TYPES from 'constants/file-types';
 import ProgressBar from 'components/progress-bar';
 import ErrorBox from 'components/error-box';
+import SelectFileType from 'components/select-file-type';
 
 import {
   startImport,
@@ -198,33 +197,11 @@ class ImportModal extends PureComponent {
                 />
               </InputGroup>
             </FormGroup>
-            <FormGroup>
-              <ControlLabel>Select Input File Type</ControlLabel>
-              <div className={style('type-selector')}>
-                <Button
-                  className={classnames({
-                    [styles.selected]: this.props.fileType === FILE_TYPES.JSON
-                  })}
-                  onClick={this.props.selectImportFileType.bind(
-                    this,
-                    FILE_TYPES.JSON
-                  )}
-                >
-                  JSON
-                </Button>
-                <Button
-                  className={classnames({
-                    [styles.selected]: this.props.fileType === FILE_TYPES.CSV
-                  })}
-                  onClick={this.props.selectImportFileType.bind(
-                    this,
-                    FILE_TYPES.CSV
-                  )}
-                >
-                  CSV
-                </Button>
-              </div>
-            </FormGroup>
+            <SelectFileType
+              fileType={this.props.fileType}
+              onSelected={this.props.selectImportFileType}
+              label="Select Input File Type"
+            />
             {this.renderOptions()}
           </form>
           <ProgressBar

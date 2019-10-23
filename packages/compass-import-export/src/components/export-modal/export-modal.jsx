@@ -15,6 +15,7 @@ import { TextButton, IconTextButton } from 'hadron-react-buttons';
 import QueryViewer from 'components/query-viewer';
 import ProgressBar from 'components/progress-bar';
 import ErrorBox from 'components/error-box';
+import SelectFileType from 'components/select-file-type';
 
 import fileSaveDialog from 'utils/file-save-dialog';
 import revealFile from 'utils/reveal-file';
@@ -122,7 +123,20 @@ class ExportModal extends PureComponent {
     revealFile(this.props.fileName);
   };
 
-  renderImportButton() {
+  /**
+   * Stop form default submission to a whitescreen
+   * and start the export if ready.
+   * @param {Object} evt - DOM event
+   */
+  handleOnSubmit = evt => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    if (this.props.fileName) {
+      this.props.startExport();
+    }
+  };
+
+  renderExportButton() {
     if (this.props.status === COMPLETED) {
       return (
         <TextButton
@@ -164,51 +178,32 @@ class ExportModal extends PureComponent {
           Export Collection {this.props.ns}
         </Modal.Header>
         <Modal.Body>
-          <div className={queryClassName}>
-            There are {formatNumber(this.props.count)} documents in the
-            collection. Exporting with the query:
+          <div>
+            <div className={queryClassName}>
+              There are {formatNumber(this.props.count)} documents in the
+              collection. Exporting with the query:
+            </div>
+            <div className={queryViewerClassName}>
+              <QueryViewer
+                query={this.props.query}
+                disabled={isFullCollection}
+              />
+            </div>
+            <div className={style('toggle-full')}>
+              <Switch
+                checked={isFullCollection}
+                onChange={this.props.toggleFullCollection}
+                className={style('toggle-button')}
+              />
+              <div className={style('toggle-text')}>Export Full Collection</div>
+            </div>
           </div>
-          <div className={queryViewerClassName}>
-            <QueryViewer query={this.props.query} disabled={isFullCollection} />
-          </div>
-          <div className={style('toggle-full')}>
-            <Switch
-              checked={isFullCollection}
-              onChange={this.props.toggleFullCollection}
-              className={style('toggle-button')}
+          <form onSubmit={this.handleOnSubmit} className={style('form')}>
+            <SelectFileType
+              fileType={this.props.fileType}
+              onSelected={this.props.selectExportFileType}
+              label="Select Output File Type"
             />
-            <div className={style('toggle-text')}>Export Full Collection</div>
-          </div>
-          <div className={style('output')}>Select Output File Type</div>
-          <div
-            className={style('type-selector')}
-            type="radio"
-            name="file-type-selector"
-          >
-            <Button
-              className={classnames({
-                [styles.selected]: this.props.fileType === FILE_TYPES.JSON
-              })}
-              onClick={this.props.selectExportFileType.bind(
-                this,
-                FILE_TYPES.JSON
-              )}
-            >
-              JSON
-            </Button>
-            <Button
-              className={classnames({
-                [styles.selected]: this.props.fileType === FILE_TYPES.CSV
-              })}
-              onClick={this.props.selectExportFileType.bind(
-                this,
-                FILE_TYPES.CSV
-              )}
-            >
-              CSV
-            </Button>
-          </div>
-          <form className={style('form')}>
             <FormGroup controlId="export-file">
               <ControlLabel>Select File</ControlLabel>
               <InputGroup bsClass={style('browse-group')}>
@@ -238,7 +233,7 @@ class ExportModal extends PureComponent {
             text={this.props.status === COMPLETED ? 'Close' : 'Cancel'}
             clickHandler={this.handleClose}
           />
-          {this.renderImportButton()}
+          {this.renderExportButton()}
         </Modal.Footer>
       </Modal>
     );
