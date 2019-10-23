@@ -5,7 +5,6 @@ import Switch from 'react-ios-switch';
 import classnames from 'classnames';
 import {
   Modal,
-  Button,
   FormGroup,
   InputGroup,
   FormControl,
@@ -27,7 +26,6 @@ import {
   COMPLETED,
   UNSPECIFIED
 } from 'constants/process-status';
-import FILE_TYPES from 'constants/file-types';
 import {
   startExport,
   cancelExport,
