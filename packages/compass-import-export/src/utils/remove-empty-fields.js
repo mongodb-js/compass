@@ -4,9 +4,9 @@
  * @returns {Object}
  * @param {Object} data
  */
-function stripEmptyFields(data) {
+function removeEmptyFields(data) {
   if (Array.isArray(data)) {
-    return data.map(stripEmptyFields);
+    return data.map(removeEmptyFields);
   } else if (typeof data !== 'object' || data === null || data === undefined) {
     return data;
   }
@@ -19,9 +19,9 @@ function stripEmptyFields(data) {
     if (typeof data[key] === 'string' && data[key] === '') {
       return doc;
     }
-    doc[key] = stripEmptyFields(data[key]);
+    doc[key] = removeEmptyFields(data[key]);
     return doc;
   }, {});
 }
 
-export default stripEmptyFields;
+export default removeEmptyFields;
