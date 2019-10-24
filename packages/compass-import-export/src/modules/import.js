@@ -336,6 +336,10 @@ export const startImport = () => {
         if (err) {
           return dispatch(onError(err));
         }
+        /**
+         * TODO: lucas: once import is finished,
+         * trigger a refresh on the documents view.
+         */
         debug('done', err, res);
         dispatch(onFinished(dest.docsWritten));
         dispatch(appRegistryEmit('import-finished', size, fileType));
