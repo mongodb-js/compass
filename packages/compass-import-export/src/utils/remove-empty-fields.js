@@ -1,3 +1,5 @@
+import { Transform, PassThrough } from 'stream';
+
 /**
  * Based on mongoimport implementation.
  * https://github.com/mongodb/mongo-tools/blob/b1d68af3de3244484d8a7dddd939782d749b2b5c/mongoimport/common.go#L239
@@ -22,6 +24,18 @@ function removeEmptyFields(data) {
     doc[key] = removeEmptyFields(data[key]);
     return doc;
   }, {});
+}
+
+export function removeEmptyFieldsStream(ignoreEmptyFields) {
+  if (!ignoreEmptyFields) {
+    return new PassThrough();
+  }
+  return new Transform({
+    objectMode: true,
+    transform: function(doc, encoding, cb) {
+      cb(null, removeEmptyFields(doc));
+    }
+  });
 }
 
 export default removeEmptyFields;

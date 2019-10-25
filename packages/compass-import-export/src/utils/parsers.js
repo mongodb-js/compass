@@ -4,6 +4,8 @@ import { EJSON } from 'bson';
 import csv from 'csv-parser';
 import { createLogger } from './logger';
 import parseJSON from 'parse-json';
+import throttle from 'lodash.throttle';
+import progressStream from 'progress-stream';
 
 const debug = createLogger('parsers');
 
@@ -23,9 +25,7 @@ const debug = createLogger('parsers');
  *
  * @returns {Stream.Transform}
  */
-export const createCSVParser = function({
-  delimiter = ','
-} = {} ) {
+export const createCSVParser = function({ delimiter = ',' } = {}) {
   return csv({
     strict: true,
     separator: delimiter
@@ -82,4 +82,22 @@ export const createJSONParser = function({
   parser.on('end', stream.emit.bind(stream, 'end'));
 
   return stream;
+};
+
+export const createProgressStream = function(fileSize, onProgress) {
+  const progress = progressStream({
+    objectMode: true,
+    length: fileSize / 800,
+    time: 500
+  });
+
+  // eslint-disable-next-line camelcase
+  function update_import_progress_throttled(info) {
+    // debug('progress', info);
+    // dispatch(onProgress(info.percentage, dest.docsWritten));
+    onProgress(null, info);
+  }
+  const updateProgress = throttle(update_import_progress_throttled, 500);
+  progress.on('progress', updateProgress);
+  return progress;
 };

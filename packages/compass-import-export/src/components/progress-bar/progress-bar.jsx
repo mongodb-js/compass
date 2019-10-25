@@ -1,7 +1,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import {STARTED, CANCELED, COMPLETED, FAILED, UNSPECIFIED} from 'constants/process-status';
+import {
+  STARTED,
+  CANCELED,
+  COMPLETED,
+  FAILED,
+  UNSPECIFIED
+} from 'constants/process-status';
 
 import styles from './progress-bar.less';
 import createStyler from 'utils/styler.js';
@@ -20,8 +26,9 @@ class ProgressBar extends PureComponent {
     status: PropTypes.string.isRequired,
     message: PropTypes.string.isRequired,
     docsWritten: PropTypes.number,
-    docsTotal: PropTypes.number, // <==- handle undefined for import
-    cancel: PropTypes.func
+    docsTotal: PropTypes.number,
+    cancel: PropTypes.func,
+    guesstimatedDocsTotal: PropTypes.number // <- for import only
   };
 
   /**
@@ -52,11 +59,16 @@ class ProgressBar extends PureComponent {
 
     return (
       // eslint-disable-next-line no-script-url
-      <a className={style('status-message-cancel')} onClick={(evt)=> {
-        evt.stopPropagation();
-        evt.preventDefault();
-        this.props.cancel();
-      }}>Cancel</a>
+      <a
+        className={style('status-message-cancel')}
+        onClick={evt => {
+          evt.stopPropagation();
+          evt.preventDefault();
+          this.props.cancel();
+        }}
+      >
+        Cancel
+      </a>
     );
   }
 
@@ -67,7 +79,13 @@ class ProgressBar extends PureComponent {
     // Could use the estimate set in modules/import progress?
     if (docsTotal === undefined) {
       return (
-        <p className={style('status-stats')}>
+        <p
+          className={style('status-stats')}
+          title={
+            'Guesstimated total: ' +
+            formatNumber(this.props.guesstimatedDocsTotal)
+          }
+        >
           {formatNumber(docsWritten)}
           &nbsp;({formatNumber(progress)}%)
         </p>
@@ -87,13 +105,13 @@ class ProgressBar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const {message, progress, status} = this.props;
+    const { message, progress, status } = this.props;
     if (status === UNSPECIFIED) {
       return null;
     }
 
     return (
-      <div className="well" style={{padding: '20px', marginBottom: '0px'}}>
+      <div className="well" style={{ padding: '20px', marginBottom: '0px' }}>
         <div className={style()}>
           <div
             className={this.getBarClassName()}
@@ -102,7 +120,8 @@ class ProgressBar extends PureComponent {
         </div>
         <div className={styles['progress-bar-status']}>
           <p className={this.getMessageClassName()}>
-            {message}{this.maybeCancelButton()}
+            {message}
+            {this.maybeCancelButton()}
           </p>
           {this.renderStats()}
         </div>

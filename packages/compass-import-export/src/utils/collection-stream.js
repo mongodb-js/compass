@@ -9,7 +9,7 @@ class WritableCollectionStream extends Writable {
     this.dataService = dataService;
     this.ns = ns;
     this.BATCH_SIZE = 1000;
-    this.docsWritten = 0; 
+    this.docsWritten = 0;
     this.stopOnErrors = stopOnErrors;
 
     this._initBatch();
@@ -28,11 +28,11 @@ class WritableCollectionStream extends Writable {
   }
 
   _initBatch() {
-    this.batch = this._collection().initializeUnorderedBulkOp({
+    this.batch = this._collection().initializeOrderedBulkOp({
       explicitlyIgnoreSession: true,
       retryWrites: false,
       writeConcern: {
-        w: 0
+        w: 1
       },
       // TODO: lucas: option in mongoimport w slightly different name?
       checkKeys: false
@@ -54,7 +54,7 @@ class WritableCollectionStream extends Writable {
         }
         this.docsWritten += this.batch.length;
         if (err) {
-          debug(`batch ${this._batchCounter} result`, {err, res});
+          debug(`batch ${this._batchCounter} result`, { err, res });
         }
         this.captureStatsForBulkResult(err, res);
 
@@ -65,30 +65,35 @@ class WritableCollectionStream extends Writable {
 
       const execBatch = cb => {
         const batchSize = this.batch.length;
-        this.batch.execute(
-          (err, res) => {
-            // TODO: lucas: appears turning off retyableWrites
-            // gives a slightly different error but probably same problem?
-            if (err && Array.isArray(err.errorLabels) && err.errorLabels.indexOf('TransientTransactionError')) {
-              debug('NOTE: @lucas: this is a transient transaction error and is a bug in retryable writes.', err);
-              err = null;
-              res = {nInserted: batchSize};
-            }
-
-            if (err && !this.stopOnErrors) {
-              console.log('stopOnErrors false. skipping', err);
-              err = null;
-              // TODO: lucas: figure out how to extract finer-grained bulk op results
-              // from err in these cases.
-              res = {};
-            }
-            if (err) {
-              this._errors.push(err);
-              return cb(err);
-            }
-            cb(null, res);
+        this.batch.execute((err, res) => {
+          // TODO: lucas: appears turning off retyableWrites
+          // gives a slightly different error but probably same problem?
+          if (
+            err &&
+            Array.isArray(err.errorLabels) &&
+            err.errorLabels.indexOf('TransientTransactionError')
+          ) {
+            debug(
+              'NOTE: @lucas: this is a transient transaction error and is a bug in retryable writes.',
+              err
+            );
+            err = null;
+            res = { nInserted: batchSize };
           }
-        );
+
+          if (err && !this.stopOnErrors) {
+            console.log('stopOnErrors false. skipping', err);
+            err = null;
+            // TODO: lucas: figure out how to extract finer-grained bulk op results
+            // from err in these cases.
+            res = {};
+          }
+          if (err) {
+            this._errors.push(err);
+            return cb(err);
+          }
+          cb(null, res);
+        });
       };
       execBatch(nextBatch);
       return;
@@ -153,7 +158,11 @@ class WritableCollectionStream extends Writable {
   }
 }
 
-export const createCollectionWriteStream = function(dataService, ns, stopOnErrors) {
+export const createCollectionWriteStream = function(
+  dataService,
+  ns,
+  stopOnErrors
+) {
   return new WritableCollectionStream(dataService, ns, stopOnErrors);
 };
 
@@ -164,6 +173,11 @@ export const createReadableCollectionStream = function(
 ) {
   const { project, limit, skip } = spec;
   return dataService
-    .fetch(ns, spec.filter || {}, { explicitlyIgnoreSession: true, project, limit, skip })
+    .fetch(ns, spec.filter || {}, {
+      explicitlyIgnoreSession: true,
+      project,
+      limit,
+      skip
+    })
     .stream();
 };

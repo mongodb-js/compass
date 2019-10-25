@@ -56,7 +56,8 @@ class ImportModal extends PureComponent {
     stopOnErrors: PropTypes.bool,
     setStopOnErrors: PropTypes.func,
     ignoreEmptyFields: PropTypes.bool,
-    setIgnoreEmptyFields: PropTypes.func
+    setIgnoreEmptyFields: PropTypes.func,
+    guesstimatedDocsTotal: PropTypes.number
   };
 
   getStatusMessage() {
@@ -210,6 +211,7 @@ class ImportModal extends PureComponent {
             message={this.getStatusMessage()}
             cancel={this.props.cancelImport}
             docsWritten={this.props.docsWritten}
+            guesstimatedDocsTotal={this.props.guesstimatedDocsTotal}
           />
           <ErrorBox error={this.props.error} />
         </Modal.Body>
@@ -249,7 +251,7 @@ const mapStateToProps = state => ({
   fileName: state.importData.fileName,
   status: state.importData.status,
   docsWritten: state.importData.docsWritten,
-  docsTotal: state.importData.docsTotal,
+  guesstimatedDocsTotal: state.importData.guesstimatedDocsTotal,
   delimiter: state.importData.delimiter,
   stopOnErrors: state.importData.stopOnErrors,
   ignoreEmptyFields: state.importData.ignoreEmptyFields
