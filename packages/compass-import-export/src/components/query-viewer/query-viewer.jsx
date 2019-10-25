@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import classnames from 'classnames';
-import toJavascriptString from 'javascript-stringify';
+import getShellJS from 'utils/get-shell-js';
 
 import styles from './query-viewer.less';
 
@@ -32,8 +32,9 @@ class QueryViewer extends PureComponent {
 
   static propTypes = {
     query: PropTypes.object.isRequired,
-    disabled: PropTypes.bool.isRequired
-  }
+    disabled: PropTypes.bool.isRequired,
+    ns: PropTypes.string.isRequired
+  };
 
   /**
    * Render the query viewer component.
@@ -47,9 +48,10 @@ class QueryViewer extends PureComponent {
           mode="javascript"
           theme="mongodb"
           width="100%"
-          value={toJavascriptString(this.props.query.filter, null, '  ')}
+          value={getShellJS(this.props.ns, this.props.query)}
           editorProps={{ $blockScrolling: Infinity }}
-          setOptions={OPTIONS} />
+          setOptions={OPTIONS}
+        />
       </div>
     );
   }
