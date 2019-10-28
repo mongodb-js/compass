@@ -1,8 +1,10 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { ObjectID as ObjectId } from 'bson';
-import { StatusRow } from 'hadron-react-components';
+import { StatusRow, ZeroState } from 'hadron-react-components';
+import { TextButton } from 'hadron-react-buttons';
 import InsertDocumentDialog from 'components/insert-document-dialog';
+import ZeroGraphic from './zero-graphic';
 import DocumentListView from 'components/document-list-view';
 import DocumentJsonView from 'components/document-json-view';
 import DocumentTableView from 'components/document-table-view';
@@ -10,6 +12,10 @@ import Toolbar from 'components/toolbar';
 
 import './index.less';
 import './ag-grid-dist.css';
+
+const HEADER = "This collection has no data";
+
+const SUBTEXT = "It only takes a few seconds to import data from a JSON or CSV file";
 
 /**
  * Component for the entire document list.
@@ -117,6 +123,33 @@ class DocumentList extends React.Component {
   }
 
   /**
+   * Render ZeroState view when no documents are present.
+   *
+   * @returns {React.Component} The query bar.
+   */
+  renderZeroState() {
+    const editableClass = !this.props.isEditable ? 'disabled' : '';
+
+		if (this.props.docs.length === 0) {
+			return (
+				<div className="document-list-zero-state">
+					<ZeroGraphic />
+					<ZeroState header={HEADER} subtext={SUBTEXT}>
+						<div className="document-list-zero-state-action">
+							<div>
+								<TextButton
+									className={`btn btn-primary btn-lg ${editableClass}`}
+									text="ImportData"
+									clickHandler={this.props.openImportFileDialog} />
+							</div>
+						</div>
+					</ZeroState>
+				</div>
+			);
+		}
+  }
+
+  /**
    * Render the document list.
    *
    * @returns {React.Component} The document list.
@@ -133,6 +166,7 @@ class DocumentList extends React.Component {
             activeDocumentView={this.props.view}
             {...this.props} />
         </div>
+				{this.renderZeroState()}
         {this.renderContent()}
         {this.renderInsertModal()}
       </div>

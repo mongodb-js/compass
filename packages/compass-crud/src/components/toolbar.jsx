@@ -113,7 +113,7 @@ class Toolbar extends React.Component {
         data-place="top">
         <IconButton
           title="ExportCollection"
-          className={`${EXPORT_COLLECTION_CLASS} btn-default btn-xs`}
+          className={`${EXPORT_COLLECTION_CLASS} btn btn-default btn-xs`}
           iconClassName={`${EXPORT_COLLECTION_CLASS}-button fa fa-upload`}
           dataTestId="export-collection-button"
           clickHandler={this.props.openExportFileDialog} />
@@ -154,7 +154,7 @@ class Toolbar extends React.Component {
                 clickHandler={this.handleRefreshDocuments.bind(this)}
                 stopAnimationListenable={this.props.pageLoadedListenable}
                 dataTestId="refresh-documents-button"
-                className="btn btn-default btn-xs sampling-message-refresh-documents"
+                className="btn btn-default btn-xs"
                 iconClassName="fa fa-repeat"
                 text="REFRESH"
                 animatingIconClassName="fa fa-refresh fa-spin"/>
