@@ -16,4 +16,4 @@ const deactivate = () => {
 };
 
 export default LoadingPlugin;
-export { configureStore, CHANGE_STATUS };
+export { configureStore, CHANGE_STATUS, activate, deactivate };
