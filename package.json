@@ -307,7 +307,7 @@
     "@mongodb-js/compass-import-export": "^4.1.1",
     "@mongodb-js/compass-indexes": "^3.0.2",
     "@mongodb-js/compass-instance": "^2.0.0",
-    "@mongodb-js/compass-loading": "^1.0.6",
+    "@mongodb-js/compass-loading": "^1.0.7",
     "@mongodb-js/compass-metrics": "^2.0.1",
     "@mongodb-js/compass-plugin-info": "^2.0.0",
     "@mongodb-js/compass-query-bar": "^6.0.0",
