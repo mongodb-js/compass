@@ -380,7 +380,7 @@ const Store = Reflux.createStore({
     const newConnection = new Connection();
 
     newConnection.set(this._getPoorAttributes(connection));
-    newConnection.set({ name: `${connection.name} (copy)` });
+    newConnection.set({ name: `${connection.name} (copy)`, isFavorite: true });
 
     this._addConnection(newConnection);
   },
