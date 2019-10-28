@@ -149,7 +149,6 @@
   },
   "dependencies": {
     "lodash.clonedeep": "^4.5.0",
-    "lodash.merge": "^4.6.2",
     "mongodb-redux-common": "0.0.2"
   }
 }

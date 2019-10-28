@@ -12,7 +12,7 @@ class IsFavoritePill extends PureComponent {
   static displayName = 'IsFavoritePill';
   static propTypes = {
     isSidebarCollapsed: PropTypes.bool.isRequired,
-    connection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     toggleIsModalVisible: PropTypes.func.isRequired
   }
 
@@ -37,9 +37,9 @@ class IsFavoritePill extends PureComponent {
       return null;
     }
 
-    const isFavorite = this.props.connection.isFavorite;
+    const isFavorite = this.props.connectionModel.connection.isFavorite;
     const fontAwesomeName = isFavorite ? 'star' : 'star-o';
-    const hex = this.props.connection.color;
+    const hex = this.props.connectionModel.connection.color;
     const style = {
       backgroundColor: hex || '#243642',
       color: isFavorite ? '#ffffff' : '#88989a'

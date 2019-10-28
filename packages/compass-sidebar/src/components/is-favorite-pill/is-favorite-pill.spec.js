@@ -6,12 +6,14 @@ import styles from './is-favorite-pill.less';
 
 describe('IsFavoritePill [Component]', () => {
   context('when it is a new connection', () => {
-    const connection = {
-      authStrategy: 'MONGODB',
-      isSrvRecord: false,
-      readPreference: 'primaryPreferred',
-      attributes: { hostanme: 'localhost' },
-      isFavorite: false
+    const connectionModel = {
+      connection: {
+        authStrategy: 'MONGODB',
+        isSrvRecord: false,
+        readPreference: 'primaryPreferred',
+        attributes: { hostanme: 'localhost' },
+        isFavorite: false
+      }
     };
     const isSidebarCollapsed = false;
     let component;
@@ -20,7 +22,7 @@ describe('IsFavoritePill [Component]', () => {
       component = shallow(
         <IsFavoritePill
           toggleIsModalVisible={()=>{}}
-          connection={connection}
+          connectionModel={connectionModel}
           isSidebarCollapsed={isSidebarCollapsed} />
       );
     });
@@ -37,12 +39,14 @@ describe('IsFavoritePill [Component]', () => {
   });
 
   context('when it is a saved with no color', () => {
-    const connection = {
-      authStrategy: 'MONGODB',
-      isSrvRecord: false,
-      readPreference: 'primaryPreferred',
-      attributes: { hostanme: 'localhost' },
-      isFavorite: true
+    const connectionModel = {
+      connection: {
+        authStrategy: 'MONGODB',
+        isSrvRecord: false,
+        readPreference: 'primaryPreferred',
+        attributes: { hostanme: 'localhost' },
+        isFavorite: true
+      }
     };
     const isSidebarCollapsed = false;
     let component;
@@ -51,7 +55,7 @@ describe('IsFavoritePill [Component]', () => {
       component = shallow(
         <IsFavoritePill
           toggleIsModalVisible={()=>{}}
-          connection={connection}
+          connectionModel={connectionModel}
           isSidebarCollapsed={isSidebarCollapsed} />
       );
     });

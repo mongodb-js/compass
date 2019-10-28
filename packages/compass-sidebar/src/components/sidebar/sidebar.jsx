@@ -21,7 +21,7 @@ import { filterDatabases, changeDatabases } from 'modules/databases';
 import { changeFilterRegex } from 'modules/filter-regex';
 import { openLink } from 'modules/link';
 import { toggleIsModalVisible } from 'modules/is-modal-visible';
-import { saveFavorite, deleteFavorite } from 'modules/connection';
+import { saveFavorite, deleteFavorite } from 'modules/connection-model';
 
 import { TOOLTIP_IDS } from 'constants/sidebar-constants';
 
@@ -52,7 +52,7 @@ class Sidebar extends PureComponent {
     isGenuineMongoDBVisible: PropTypes.bool.isRequired,
     toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
-    connection: PropTypes.object,
+    connectionModel: PropTypes.object.isRequired,
     toggleIsModalVisible: PropTypes.func.isRequired,
     isModalVisible: PropTypes.bool.isRequired,
     deleteFavorite: PropTypes.func.isRequired,
@@ -240,7 +240,7 @@ class Sidebar extends PureComponent {
           <i className={collapsedButton}/>
         </button>
         <SidebarTitle
-          connection={this.props.connection}
+          connectionModel={this.props.connectionModel}
           isSidebarCollapsed={this.props.isCollapsed}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
         <SidebarInstance
@@ -251,7 +251,7 @@ class Sidebar extends PureComponent {
           isGenuineMongoDB={this.props.isGenuineMongoDB}
           toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit}
-          connection={this.props.connection}
+          connectionModel={this.props.connectionModel}
           toggleIsModalVisible={this.props.toggleIsModalVisible}
           isModalVisible={this.props.isModalVisible}
           saveFavorite={this.props.saveFavorite}
@@ -306,7 +306,7 @@ const mapStateToProps = (state, ownProps) => ({
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
-  connection: state.connection,
+  connectionModel: state.connectionModel,
   isModalVisible: state.isModalVisible
 });
 

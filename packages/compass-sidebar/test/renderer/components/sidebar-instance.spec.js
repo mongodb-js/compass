@@ -16,7 +16,7 @@ describe('SidebarInstance [Component]', () => {
         detailsPlugins={[]}
         globalAppRegistryEmit={() => {}}
         toggleIsDetailsExpanded={() => {}}
-        connection={{}}
+        connectionModel={{ connection: {} }}
         toggleIsModalVisible={() => {}}
         deleteFavorite={() => {}}
         saveFavorite={() => {}}

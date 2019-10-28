@@ -12,7 +12,7 @@ import { toggleIsDataLake } from 'modules/is-data-lake';
 import { loadDetailsPlugins } from 'modules/details-plugins';
 import { toggleIsGenuineMongoDB } from 'modules/is-genuine-mongodb';
 import { toggleIsGenuineMongoDBVisible } from 'modules/is-genuine-mongodb-visible';
-import { changeConnection } from 'modules/connection';
+import { changeConnection } from 'modules/connection-model';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 

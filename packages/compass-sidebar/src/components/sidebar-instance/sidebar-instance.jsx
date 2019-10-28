@@ -19,7 +19,7 @@ class SidebarInstance extends PureComponent {
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
     detailsPlugins: PropTypes.array.isRequired,
-    connection: PropTypes.object,
+    connectionModel: PropTypes.object,
     toggleIsModalVisible: PropTypes.func.isRequired,
     isModalVisible: PropTypes.bool.isRequired,
     deleteFavorite: PropTypes.func.isRequired,
@@ -51,7 +51,7 @@ class SidebarInstance extends PureComponent {
    * @param {String} color - The favorite color.
    */
   saveFavorite(name, color) {
-    this.props.saveFavorite(this.props.connection, name, color);
+    this.props.saveFavorite(this.props.connectionModel.connection, name, color);
     this.props.toggleIsModalVisible(false);
   }
 
@@ -64,7 +64,7 @@ class SidebarInstance extends PureComponent {
     if (this.props.isModalVisible) {
       return (
         <FavoriteModal
-          currentConnection={this.props.connection}
+          currentConnection={this.props.connectionModel.connection}
           deleteFavorite={this.deleteFavorite.bind(this)}
           closeFavoriteModal={this.closeFavoriteModal.bind(this)}
           saveFavorite={this.saveFavorite.bind(this)} />
@@ -87,7 +87,7 @@ class SidebarInstance extends PureComponent {
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
         <IsFavoritePill
           isSidebarCollapsed={this.props.isSidebarCollapsed}
-          connection={this.props.connection}
+          connectionModel={this.props.connectionModel}
           toggleIsModalVisible={this.props.toggleIsModalVisible} />
         {this.renderFavoriteModal()}
         <NonGenuineWarningPill

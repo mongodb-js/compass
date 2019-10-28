@@ -1,5 +1,3 @@
-const merge = require('lodash.merge');
-
 /**
  * Change connection action name.
  */
@@ -18,7 +16,7 @@ export const SAVE_FAVORITE = 'sidebar/connection/SAVE_FAVORITE';
 /**
  * The initial state of the connection.
  */
-export const INITIAL_STATE = {};
+export const INITIAL_STATE = { connection: {} };
 
 /**
  * Changes the connection.
@@ -29,7 +27,7 @@ export const INITIAL_STATE = {};
  * @returns {Object} The new state.
  */
 const doChangeConnection = (state, action) => {
-  return action.connection;
+  return { ...state, connection: action.connection };
 };
 
 /**
@@ -41,14 +39,10 @@ const doChangeConnection = (state, action) => {
  * @returns {Object} The new state.
  */
 const doSaveFavorite = (state, action) => {
-  const connection = merge(
-    action.connection,
-    { isFavorite: true, name: action.name, color: action.color }
-  );
+  action.connection.set({ isFavorite: true, name: action.name, color: action.color });
+  action.connection.save();
 
-  connection.save();
-
-  return { ...state, isFavorite: true, name: action.name, color: action.color };
+  return { ...state, connection: action.connection };
 };
 
 /**
@@ -60,9 +54,10 @@ const doSaveFavorite = (state, action) => {
  * @returns {Object} The new state.
  */
 const doDeleteFavorite = (state, action) => {
+  action.connection.set({ isFavorite: false, name: '', color: undefined });
   action.connection.destroy();
 
-  return { ...state, isFavorite: false, name: '', color: undefined };
+  return { ...state, connection: action.connection };
 };
 
 /**

@@ -7,12 +7,14 @@ import styles from './sidebar-title.less';
 describe('SidebarTitle [Component]', () => {
   context('when sidebar is collapsed', () => {
     const globalAppRegistryEmit = sinon.spy();
-    const connection = {
-      authStrategy: 'MONGODB',
-      isSrvRecord: false,
-      readPreference: 'primaryPreferred',
-      attributes: { hostanme: 'localhost' },
-      isFavorite: false
+    const connectionModel = {
+      connection: {
+        authStrategy: 'MONGODB',
+        isSrvRecord: false,
+        readPreference: 'primaryPreferred',
+        attributes: { hostanme: 'localhost' },
+        isFavorite: false
+      }
     };
     const isSidebarCollapsed = true;
     let component;
@@ -21,7 +23,7 @@ describe('SidebarTitle [Component]', () => {
       component = shallow(
         <SidebarTitle
           globalAppRegistryEmit={globalAppRegistryEmit}
-          connection={connection}
+          connectionModel={connectionModel}
           isSidebarCollapsed={isSidebarCollapsed} />
       );
     });
@@ -39,12 +41,14 @@ describe('SidebarTitle [Component]', () => {
 
   context('when sidebar is not collapsed', () => {
     const globalAppRegistryEmit = sinon.spy();
-    const connection = {
-      authStrategy: 'MONGODB',
-      isSrvRecord: false,
-      readPreference: 'primaryPreferred',
-      attributes: { hostanme: 'localhost' },
-      isFavorite: false
+    const connectionModel = {
+      connection: {
+        authStrategy: 'MONGODB',
+        isSrvRecord: false,
+        readPreference: 'primaryPreferred',
+        attributes: { hostanme: 'localhost' },
+        isFavorite: false
+      }
     };
     const isSidebarCollapsed = false;
     let component;
@@ -53,7 +57,7 @@ describe('SidebarTitle [Component]', () => {
       component = shallow(
         <SidebarTitle
           globalAppRegistryEmit={globalAppRegistryEmit}
-          connection={connection}
+          connectionModel={connectionModel}
           isSidebarCollapsed={isSidebarCollapsed} />
       );
     });

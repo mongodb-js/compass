@@ -6,7 +6,7 @@ import reducer, {
   changeConnection,
   saveFavorite,
   deleteFavorite
-} from 'modules/connection';
+} from 'modules/connection-model';
 
 describe('connection module', () => {
   const connection = {
@@ -15,13 +15,20 @@ describe('connection module', () => {
     isFavorite: false,
     name: 'Local',
     save: () => {},
-    destroy: () => {}
+    destroy: () => {},
+    set(favorite) {
+      this.name = favorite.name;
+      this.color = favorite.color;
+      this.isFavorite = favorite.isFavorite;
+    }
   };
 
   describe('reducer', () => {
     context('when the action is changeConnection', () => {
       it('returns the new state', () => {
-        expect(reducer(undefined, changeConnection(connection))).to.equal(connection);
+        expect(reducer(undefined, changeConnection(connection))).to.deep.equal({
+          connection
+        });
       });
     });
 
@@ -30,9 +37,9 @@ describe('connection module', () => {
         const newConnection = saveFavorite(connection, 'My Favorite', '#d4366e');
         const state = reducer(undefined, newConnection);
 
-        expect(state.name).to.equal('My Favorite');
-        expect(state.color).to.equal('#d4366e');
-        expect(state.isFavorite).to.equal(true);
+        expect(state.connection.name).to.equal('My Favorite');
+        expect(state.connection.color).to.equal('#d4366e');
+        expect(state.connection.isFavorite).to.equal(true);
       });
     });
 
@@ -41,9 +48,9 @@ describe('connection module', () => {
         const newConnection = deleteFavorite(connection);
         const state = reducer(undefined, newConnection);
 
-        expect(state.name).to.equal('');
-        expect(state.color).to.equal(undefined);
-        expect(state.isFavorite).to.equal(false);
+        expect(state.connection.name).to.equal('');
+        expect(state.connection.color).to.equal(undefined);
+        expect(state.connection.isFavorite).to.equal(false);
       });
     });
 

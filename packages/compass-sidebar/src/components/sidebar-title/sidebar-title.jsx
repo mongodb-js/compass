@@ -12,12 +12,12 @@ class SidebarTitle extends PureComponent {
   static displayName = 'SidebarTitleComponent';
   static propTypes = {
     isSidebarCollapsed: PropTypes.bool.isRequired,
-    connection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired
   };
 
   /**
-   * Click on the name in the title.
+   * Handles click on the name in the title.
    */
   clickName = () => {
     this.props.globalAppRegistryEmit('select-instance');
@@ -32,11 +32,11 @@ class SidebarTitle extends PureComponent {
           className={classnames(styles['sidebar-title-name-icon'])} />
       );
     }
-    return this.props.connection.name;
+    return this.props.connectionModel.connection.name;
   }
 
   /**
-   * Render the title component.
+   * Renders the title component.
    *
    * @returns {Component} The component.
    */
