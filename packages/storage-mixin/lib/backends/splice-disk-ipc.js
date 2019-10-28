@@ -72,20 +72,21 @@ SpliceDiskIpcBackend.prototype.exec = function(method, model, options, done) {
       // after receiving the result from `disk`, we set it on the the
       // model/collection here so that `secure` knows the ids.
       model.set(diskRes, { silent: true, sort: false });
-      if (!_.isEmpty(diskRes)) {
-        self.secureBackend.exec(
-          method,
-          model,
-          wrapErrback(function(err, res) {
-            if (err) {
-              return cb(err);
-            }
+      // There will be no disk result on update or create.
+      self.secureBackend.exec(
+        method,
+        model,
+        wrapErrback(function(err, res) {
+          if (err) {
+            return cb(err);
+          }
+          if (!_.isEmpty(diskRes)) {
             mergeSpliceResults(diskRes, res, model, cb);
-          })
-        );
-      } else {
-        cb(null, model.isCollection ? []: {});
-      }
+          } else {
+            cb(null, model.isCollection ? []: {});
+          }
+        })
+      );
     }
   ];
   async.waterfall(tasks, done);

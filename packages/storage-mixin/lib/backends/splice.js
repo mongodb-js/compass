@@ -72,20 +72,20 @@ SpliceBackend.prototype.exec = function(method, model, options, done) {
       // after receiving the result from `local`, we set it on the the
       // model/collection here so that `secure` knows the ids.
       model.set(localRes, { silent: true, sort: false });
-      if (!_.isEmpty(localRes)) {
-        self.secureBackend.exec(
-          method,
-          model,
-          wrapErrback(function(err, res) {
-            if (err) {
-              return cb(err);
-            }
+      self.secureBackend.exec(
+        method,
+        model,
+        wrapErrback(function(err, res) {
+          if (err) {
+            return cb(err);
+          }
+          if (!_.isEmpty(localRes)) {
             mergeSpliceResults(localRes, res, model, cb);
-          })
-        );
-      } else {
-        cb(null, model.isCollection ? []: {});
-      }
+          } else {
+            cb(null, model.isCollection ? []: {});
+          }
+        })
+      );
     }
   ];
   async.waterfall(tasks, done);
