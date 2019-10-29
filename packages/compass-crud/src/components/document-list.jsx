@@ -13,9 +13,9 @@ import Toolbar from 'components/toolbar';
 import './index.less';
 import './ag-grid-dist.css';
 
-const HEADER = "This collection has no data";
+const HEADER = 'This collection has no data';
 
-const SUBTEXT = "It only takes a few seconds to import data from a JSON or CSV file";
+const SUBTEXT = 'It only takes a few seconds to import data from a JSON or CSV file';
 
 /**
  * Component for the entire document list.
@@ -130,23 +130,23 @@ class DocumentList extends React.Component {
   renderZeroState() {
     const editableClass = !this.props.isEditable ? 'disabled' : '';
 
-		if (this.props.docs.length === 0) {
-			return (
-				<div className="document-list-zero-state">
-					<ZeroGraphic />
-					<ZeroState header={HEADER} subtext={SUBTEXT}>
-						<div className="document-list-zero-state-action">
-							<div>
-								<TextButton
-									className={`btn btn-primary btn-lg ${editableClass}`}
-									text="ImportData"
-									clickHandler={this.props.openImportFileDialog} />
-							</div>
-						</div>
-					</ZeroState>
-				</div>
-			);
-		}
+    if (this.props.docs.length === 0) {
+      return (
+        <div className="document-list-zero-state">
+          <ZeroGraphic />
+          <ZeroState header={HEADER} subtext={SUBTEXT}>
+            <div className="document-list-zero-state-action">
+              <div>
+                <TextButton
+                  className={`btn btn-primary btn-lg ${editableClass}`}
+                  text="ImportData"
+                  clickHandler={this.props.openImportFileDialog} />
+              </div>
+            </div>
+          </ZeroState>
+        </div>
+      );
+    }
   }
 
   /**
@@ -166,7 +166,7 @@ class DocumentList extends React.Component {
             activeDocumentView={this.props.view}
             {...this.props} />
         </div>
-				{this.renderZeroState()}
+        {this.renderZeroState()}
         {this.renderContent()}
         {this.renderInsertModal()}
       </div>
@@ -195,6 +195,7 @@ DocumentList.propTypes = {
   updateJsonDoc: PropTypes.func,
   version: PropTypes.string.isRequired,
   viewChanged: PropTypes.func.isRequired,
+  docs: PropTypes.array,
   ns: PropTypes.string,
   tz: PropTypes.string
 };
