@@ -139,7 +139,7 @@ class DocumentList extends React.Component {
               <div>
                 <TextButton
                   className={`btn btn-primary btn-lg ${editableClass}`}
-                  text="ImportData"
+                  text="Import Data"
                   clickHandler={this.props.openImportFileDialog} />
               </div>
             </div>
