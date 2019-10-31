@@ -16,11 +16,24 @@ addons:
       - libsecret-1-dev
       - gnome-keyring
       - python-gnomekeyring
+before_install:
+  - npm i -g npm@latest
+install:
+  - npm ci
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-script: npm run ci
-cache:
-  directories:
-    - $HOME/.electron
-    - node_modules
+script:
+  - npm run cover
+cache: npm
+after_success:
+  - npm run storybook:ghpages
+deploy:
+  # Push to GitHub Pages
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    keep-history: true
+    local_dir: .ghpages
+    on:
+      branch: master
