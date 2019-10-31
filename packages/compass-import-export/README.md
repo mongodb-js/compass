@@ -4,8 +4,16 @@
 
 ## Development
 
+After cloning this repository and running `npm install`, you can try this plugin with a real MongoDB Server in electron by running:
+
 ```bash
 DEBUG=mongo* npm start
+```
+
+You can also utilize [Storybook](https://storybook.js.org/) when developing components:
+
+```bash
+npm run storybook;
 ```
 
 ## Testing
@@ -14,41 +22,25 @@ DEBUG=mongo* npm start
 npm test
 ```
 
-### Test Cases
+### Import Test Cases
 
-#### `compass-data-sets:crimedb.incidents`
-
-We should be able to export this and import it back without losing anything. If I export it with the current Compass it only exports ~115k docs.
-
-#### `compass-data-sets:test.people`
-
-Small but contains arrays and \_id is a UUID
-
-#### `compass-data-sets:test.people_missing_fields`
-
-Small but not all documents contain all the fields
+See files in the `./test` directory.
 
 ## TODO/Ideas
 
-- [ ] COMPASS-3827: delimiter selection
-- [ ] Format numbers/counters everywhere with numeral.js
-- [ ] Set storybook back up
 - [ ] Refactor src/modules/ so import and export reuse a common base
+- [ ] Import and Export: Show system notification when operation completes. like dropbox screenshot message.
 - [ ] Import csv: dynamicTyping of values like papaparse
 - [ ] Import csv: mapHeaders option to support existing .<bson_type>() caster like [mongoimport does today](https://docs.mongodb.com/manual/reference/program/mongoimport)
 - [ ] Import: expose finer-grained bulk op results in progress
 - [ ] Import: define import mode: insert, upsert, merge
-- [ ] Import: continue on unique index and doc validation errors by default
-- [ ] Import: option to specify path for \_id
-- [ ] Import from URL
-- [ ] Import supports gzip/zip/bzip2 -> multi file import
-- [ ] Import: option for path to pass to jsonstream for nested docs
-- [ ] Show system notification when operation completes. like dropbox screenshot message.
+- [ ] Import: option to specify a different path for `_id` such as `business_id` in the yelp dataset
+- [ ] Import: Paste URL to fetch from
+- [ ] Import: multi file import via archive (supports gzip/zip/bzip2/etc.)
+- [ ] Import: option for path to pass to jsonstream for nested docs (e.g. `results` array when fetching JSON from a rest api)
 - [ ] Import: Option to drop target collection before import
-- [ ] Switch <ProgressBar /> to shared one from hadron-react
-- [ ] Import: Drop file target
-- [ ] Export: use electron add to recent documents API
-- [ ]
+- [ ] Import: Drop file target in modal
+- [ ] Export: use electron add to destination file to [recent documents](https://electronjs.org/docs/tutorial/recent-documents)
 
 ## License
 
