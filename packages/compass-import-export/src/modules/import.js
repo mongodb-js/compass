@@ -313,6 +313,11 @@ export const startImport = () => {
       dest,
       function(err, res) {
         /**
+        * refresh data (docs, aggregations) regardless of whether we have a
+        * partial import or full import
+        */
+        dispatch(appRegistryEmit('refresh-data'));
+        /**
          * TODO: lucas: Decorate with a codeframe if not already
          * json parsing errors already are.
          */

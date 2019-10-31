@@ -1,5 +1,7 @@
 /* eslint-disable no-var */
 /* eslint-disable callback-return */
+/* eslint-disable complexity */
+
 import csv from 'fast-csv';
 import { EJSON } from 'bson';
 import { Transform } from 'stream';

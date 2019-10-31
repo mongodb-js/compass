@@ -1,3 +1,4 @@
+/* eslint-disable space-infix-ops */
 
 /**
  * Create a helper function for accessing a component's class name.

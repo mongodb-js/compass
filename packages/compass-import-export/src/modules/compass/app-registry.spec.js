@@ -30,9 +30,9 @@ describe('app-registry [module]', () => {
 
   describe('#appRegistryEmit', () => {
     it('returns the action', () => {
-      expect(actions.appRegistryEmit('refresh-documents', spy)).to.deep.equal({
+      expect(actions.appRegistryEmit('refresh-data', spy)).to.deep.equal({
         type: actions.EMIT,
-        name: 'refresh-documents',
+        name: 'refresh-data',
         args: [ spy ]
       });
     });
