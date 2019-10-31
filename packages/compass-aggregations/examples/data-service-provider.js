@@ -57,7 +57,7 @@ class DataServiceStitchProvider {
   getOptionsWithIntent(intents, options) {
     options = options || {};
     const optionsWithIntent = {};
-    Object.keys(options).forEach((optionName) => {
+    Object.keys(options).forEach(optionName => {
       if (intents.indexOf(optionName) === -1) {
         debug('Dropping option representitive of intent', optionName);
       } else {
@@ -79,9 +79,9 @@ class DataServiceStitchProvider {
     const { database, collection } = parseNamespaceString(ns);
 
     this.db(database)
-      .then((_db) => _db.collection(collection).aggregate(pipeline))
-      .then((res) => callback(null, new StitchCursor(res)))
-      .catch((err) => callback(err));
+      .then(_db => _db.collection(collection).aggregate(pipeline))
+      .then(res => callback(null, new StitchCursor(res)))
+      .catch(err => callback(err));
   }
 
   /**
@@ -105,9 +105,20 @@ class DataServiceStitchProvider {
      * discuss and work out on plugin by plugin basis.
      */
     this.db(database)
-      .then((_db) => _db.collection(collection).count(predicate))
-      .then((res) => callback(null, res))
-      .catch((err) => callback(err));
+      .then(_db => _db.collection(collection).count(predicate))
+      .then(res => callback(null, res))
+      .catch(err => callback(err));
+  }
+  /**
+   * Passthrough to count for now.
+   *
+   * @param {string} ns `db.colectionName`
+   * @param {Object} predicate A query predicate
+   * @param {Object} options Any driver options a plugin might request (@see getOptionsWithIntent)
+   * @param {Function} callback
+   */
+  async estimatedCount(ns, predicate, options, callback) {
+    this.count(ns, predicate, options, callback);
   }
 }
 

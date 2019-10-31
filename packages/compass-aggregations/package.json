@@ -176,6 +176,7 @@
     "lodash.isempty": "^4.4.0",
     "lodash.isstring": "^4.0.1",
     "mongodb-extended-json": "^1.10.1",
+    "mongodb-js-metrics": "^4.2.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-redux-common": "^0.0.2",
     "mongodb-stage-validator": "^0.2.1",
@@ -187,6 +188,7 @@
     "react-select-plus": "^1.2.0",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
-    "semver": "^5.6.0"
+    "semver": "^5.6.0",
+    "storage-mixin": "^3.0.0"
   }
 }
