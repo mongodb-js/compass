@@ -7,11 +7,13 @@ import { serverVersionChanged } from 'modules/server-version';
 import { editModeChanged } from 'modules/edit-mode';
 import { indexesChanged } from 'modules/indexes';
 import { queryChanged } from 'modules/query';
-import { explainStateChanged, fetchExplainPlan } from 'modules/explain';
+import { explainStateChanged } from 'modules/explain';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
 } from 'mongodb-redux-common/app-registry';
+
+import EXPLAIN_STATES from 'constants/explain-states';
 
 export const setDataProvider = (store, error, dataProvider) => {
   store.dispatch(dataServiceConnected(error, dataProvider));
@@ -19,6 +21,9 @@ export const setDataProvider = (store, error, dataProvider) => {
 
 /**
  * The store has a combined pipeline reducer plus the thunk middleware.
+ *
+ * @param {Object} options - Options.
+ * @returns {Object} Store.
  */
 const configureStore = (options = {}) => {
   const store = createStore(reducer, applyMiddleware(thunk));
@@ -40,7 +45,16 @@ const configureStore = (options = {}) => {
      */
     localAppRegistry.on('query-changed', (state) => {
       store.dispatch(queryChanged(state));
-      store.dispatch(fetchExplainPlan());
+    });
+
+    localAppRegistry.on('subtab-changed', (name) => {
+      if (name === 'Explain Plan') {
+        const state = store.getState();
+
+        if (state.query.isChanged === true) {
+          store.dispatch(explainStateChanged(EXPLAIN_STATES.OUTDATED));
+        }
+      }
     });
   }
 
@@ -61,7 +75,7 @@ const configureStore = (options = {}) => {
   // Set the namespace - must happen third.
   if (options.namespace) {
     store.dispatch(namespaceChanged(options.namespace));
-    store.dispatch(explainStateChanged('initial'));
+    store.dispatch(explainStateChanged(EXPLAIN_STATES.INITIAL));
   }
 
   if (options.isReadonly) {

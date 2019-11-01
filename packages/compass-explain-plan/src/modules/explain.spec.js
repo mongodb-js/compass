@@ -14,7 +14,7 @@ const explainExample = {
   error: null,
   executionSuccess: true,
   executionTimeMillis: 6,
-  explainState: 'done',
+  explainState: 'executed',
   inMemorySort: false,
   index: null,
   indexType: 'COLLSCAN',
@@ -54,9 +54,9 @@ describe('explain module', () => {
 
   describe('#explainStateChanged', () => {
     it('returns the EXPLAIN_STATE_CHANGED action', () => {
-      expect(explainStateChanged('fetching')).to.deep.equal({
+      expect(explainStateChanged('executed')).to.deep.equal({
         type: EXPLAIN_STATE_CHANGED,
-        explainState: 'fetching'
+        explainState: 'executed'
       });
     });
   });

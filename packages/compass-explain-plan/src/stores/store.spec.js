@@ -75,7 +75,8 @@ describe('Explain Plan Store', () => {
         project: null,
         skip: 0,
         limit: 0,
-        collation: null
+        collation: null,
+        isChanged: true
       };
 
       beforeEach(() => {
@@ -83,7 +84,7 @@ describe('Explain Plan Store', () => {
       });
 
       it('sets the server version in the state', () => {
-        expect(store.getState().query).to.equal(query);
+        expect(store.getState().query).to.deep.equal(query);
       });
     });
   });
@@ -113,7 +114,7 @@ describe('Explain Plan Store', () => {
       });
 
       context('when the action is EXPLAIN_STATE_CHANGED', () => {
-        const explainState = 'fetching';
+        const explainState = 'executed';
 
         it('updates the view type in state to "json"', (done) => {
           const unsubscribe = store.subscribe(() => {
@@ -130,7 +131,7 @@ describe('Explain Plan Store', () => {
           error: null,
           executionSuccess: true,
           executionTimeMillis: 6,
-          explainState: 'done',
+          explainState: 'executed',
           inMemorySort: false,
           index: null,
           indexType: 'COLLSCAN',
@@ -166,7 +167,7 @@ describe('Explain Plan Store', () => {
           error: null,
           executionSuccess: true,
           executionTimeMillis: 6,
-          explainState: 'done',
+          explainState: 'executed',
           inMemorySort: false,
           index: null,
           indexType: 'COLLSCAN',

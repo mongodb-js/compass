@@ -29,16 +29,10 @@ class ExplainTree extends Component {
 
   static defaultProps = { nodes: [], links: [], width: 0, height: 0 };
 
-  /**
-   * After mounting component draw links
-   */
-  componentDidMount() {
-    this.drawLinks();
+  shouldComponentUpdate(nextProps) {
+    return (nextProps.nodes !== this.props.nodes);
   }
 
-  /**
-   * After updating component draw links
-   */
   componentDidUpdate() {
     this.drawLinks();
   }
@@ -58,13 +52,14 @@ class ExplainTree extends Component {
   drawLinks() {
     // Right angle links between nodes
     const elbow = (d) => `M${d.source.x + d.source.x_size / 2},${d.source.y}
-    V${d.target.y - STAGE_CARD_PROPERTIES.VERTICAL_PADDING / 2}
-    H${d.target.x + STAGE_CARD_PROPERTIES.DEFAULT_CARD_WIDTH / 2}
-    V${d.target.y}`;
-    const svg = d3.select(tree).selectAll('svg.links').data([null]);
+      V${d.target.y - STAGE_CARD_PROPERTIES.VERTICAL_PADDING / 2}
+      H${d.target.x + STAGE_CARD_PROPERTIES.DEFAULT_CARD_WIDTH / 2}
+      V${d.target.y}`;
+    const svg = d3.select(tree).selectAll('svg[id="links"]').data([null]);
 
-    svg.enter().append('svg')
-      .attr('class', 'links')
+    svg.enter()
+      .append('svg')
+      .attr('id', 'links')
       .attr('width', '100%')
       .attr('height', '100%')
       .append('g');
@@ -76,16 +71,15 @@ class ExplainTree extends Component {
       .on('MozMousePixelScroll.zoom', null);
 
     // Links are svg elements
-    const links = svg.select('g')
-      .selectAll('path.link')
-      .data(this.props.links, (d) => d.target.key);
+    const links = svg
+      .select('g')
+      .selectAll('path')
+      .data(this.props.links, (d) => d.target.key)
+      .attr('d', elbow);
 
     links.enter()
       .append('path')
-      .attr('class', 'link')
-      .attr('fill', 'none')
-      .attr('stroke', '#dee0e3')
-      .attr('stroke-width', '6px')
+      .style({ fill: 'none', stroke: '#dee0e3', 'stroke-width': '6px' })
       .attr('d', elbow);
 
     links.exit().remove();
@@ -98,14 +92,12 @@ class ExplainTree extends Component {
    */
   render() {
     return (
-      <div>
-        <div
-          className={classnames(styles['explain-tree'])}
-          style={{ height: this.props.height, width: this.props.width }}
-          ref={(inst) => { tree = inst; }}
-        >
-          {this.getStages()}
-        </div>
+      <div
+        className={classnames(styles['explain-tree'])}
+        style={{ height: this.props.height, width: this.props.width }}
+        ref={(inst) => { tree = inst; }}
+      >
+        {this.getStages()}
       </div>
     );
   }

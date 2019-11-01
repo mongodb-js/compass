@@ -4,7 +4,8 @@ import map from 'lodash.map';
 import isPlainObject from 'lodash.isplainobject';
 import keys from 'lodash.keys';
 import max from 'lodash.max';
-import min from 'lodash.min';
+import maxBy from 'lodash.maxby';
+import minBy from 'lodash.minby';
 import forEach from 'lodash.foreach';
 import d3 from 'd3';
 import STAGE_CARD_PROPERTIES from 'constants/stage-card-properties';
@@ -176,16 +177,16 @@ const changeTreeStages = (state, action) => {
 
       return [STAGE_CARD_PROPERTIES.DEFAULT_CARD_WIDTH, height];
     })
-    .spacing((a, b) => (a.parent === b.parent ? 20 : 50));
+    .spacing((a, b) => (a.parent === b.parent ? 40 : 70));
 
   // Compute nodes and links
   const nodes = tree.nodes(parsedExplain);
   const links = tree.links(nodes);
 
   // compute some boundaries
-  const leafNode = max(nodes, 'depth');
-  const rightMostNode = max(nodes, 'x');
-  const leftMostNode = min(nodes, 'x');
+  const leafNode = maxBy(nodes, (o) => { return Number(o.depth); });
+  const rightMostNode = maxBy(nodes, (o) => { return Number(o.x); });
+  const leftMostNode = minBy(nodes, (o) => { return Number(o.x); });
 
   debug('stats', { leafNode, rightMostNode, leftMostNode });
 

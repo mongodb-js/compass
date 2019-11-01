@@ -12,6 +12,7 @@ import {
   explainStateChanged
 } from 'modules/explain';
 import ExplainStates from 'components/explain-states';
+import { queryExecuted } from 'modules/query';
 
 import styles from './explain-plan.less';
 
@@ -66,7 +67,8 @@ const MappedExplainPlan = connect(
     switchToJSONView,
     fetchExplainPlan,
     changeExplainPlanState,
-    explainStateChanged
+    explainStateChanged,
+    queryExecuted
   },
 )(ExplainPlan);
 

@@ -16,8 +16,7 @@ module.exports = {
       modules: path.join(project.path.src, 'modules'),
       plugin: path.join(project.path.src, 'index.js'),
       stores: path.join(project.path.src, 'stores'),
-      utils: path.join(project.path.src, 'utils'),
-      'react-dom': '@hot-loader/react-dom'
+      utils: path.join(project.path.src, 'utils')
     }
   },
   module: {

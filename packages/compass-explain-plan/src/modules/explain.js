@@ -5,6 +5,8 @@ import find from 'lodash.find';
 import { treeStagesChanged } from 'modules/tree-stages';
 import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 
+import EXPLAIN_STATES from 'constants/explain-states';
+
 /**
  * The module action prefix.
  */
@@ -34,7 +36,7 @@ export const EXPLAIN_PLAN_FETCHED = `${PREFIX}/EXPLAIN_PLAN_FETCHED`;
  * The initial state.
  */
 export const INITIAL_STATE = {
-  explainState: 'initial',
+  explainState: EXPLAIN_STATES.INITIAL,
   viewType: 'tree',
   error: null,
   executionSuccess: false,
@@ -78,9 +80,9 @@ const switchViewType = (state, action) => ({
  * @returns {Object} The new state.
  */
 const doChangeExplainPlanState = (state, action) => {
-  let explainState = state.explainState;
+  let explainState = '';
 
-  if (action.explainState === 'initial') {
+  if (action.explainState === EXPLAIN_STATES.INITIAL) {
     return INITIAL_STATE;
   }
 
@@ -164,7 +166,7 @@ export const explainStateChanged = (explainState) => ({
 */
 export const explainPlanFetched = (explain) => ({
   type: EXPLAIN_PLAN_FETCHED,
-  explain: { ...explain, explainState: 'done' }
+  explain
 });
 
 /**
@@ -195,14 +197,15 @@ const getIndexType = (explainPlan) => {
 /**
  * Parses the explain plan.
  *
- * @param {Object} explain - The explain plan.
+ * @param {Object} explain - The current explain plan state.
+ * @param {Object} data - The new explain plan received from dataService.
  *
  * @returns {Object} The parsed explain plan.
  */
-const parseExplainPlan = (explain) => {
-  const explainPlanModel = new ExplainPlanModel(explain);
+const parseExplainPlan = (explain, data) => {
+  const explainPlanModel = new ExplainPlanModel(data);
 
-  return defaults(explainPlanModel.serialize(), INITIAL_STATE);
+  return defaults(explainPlanModel.serialize(), explain);
 };
 
 /**
@@ -225,24 +228,15 @@ const updateWithIndexesInfo = (explain, indexes) => ({
 /**
  * Fetches the explain plan.
  *
+ * @param {Object} query - The query.
+ *
  * @returns {Function} The function.
  */
-export const fetchExplainPlan = () => {
+export const fetchExplainPlan = (query) => {
   return (dispatch, getState) => {
     const state = getState();
-    let explain = state.explain;
-
-    if (explain.explainState === 'initial') {
-      return;
-    }
-
-    if (explain.explainState !== 'fetching') {
-      return dispatch(explainStateChanged('outdated'));
-    }
-
     const dataService = state.dataService.dataService;
     const namespace = state.namespace;
-    const query = state.query;
     const indexes = state.indexes;
     const filter = query.filter;
     const options = {
@@ -252,6 +246,7 @@ export const fetchExplainPlan = () => {
       limit: query.limit,
       maxTimeMS: query.maxTimeMS
     };
+    let explain = state.explain;
 
     if (query.collation) {
       options.collation = query.collation;
@@ -265,7 +260,7 @@ export const fetchExplainPlan = () => {
           return dispatch(explainPlanFetched(explain));
         }
 
-        explain = parseExplainPlan(data);
+        explain = parseExplainPlan(explain, data);
         explain = updateWithIndexesInfo(explain, indexes);
 
         dispatch(explainPlanFetched(explain));
@@ -307,9 +302,6 @@ export const fetchExplainPlan = () => {
  */
 export const changeExplainPlanState = (explainState) => {
   return (dispatch) => {
-    dispatch(explainStateChanged(explainState));
-    dispatch(fetchExplainPlan());
-
-    return;
+    return dispatch(explainStateChanged(explainState));
   };
 };

@@ -32,6 +32,7 @@ describe('ExplainStates [Component]', () => {
   const changeExplainPlanStateSpy = sinon.spy();
   const switchToTreeViewSpy = sinon.spy();
   const switchToJSONViewSpy = sinon.spy();
+  const queryExecuted = sinon.spy();
   const query = {};
   const treeStages = {};
 
@@ -52,7 +53,8 @@ describe('ExplainStates [Component]', () => {
         appRegistry={{ localAppRegistry: appRegistry }}
         isEditable={isEditable}
         openLink={openLinkSpy}
-        treeStages={treeStages} />
+        treeStages={treeStages}
+        queryExecuted={queryExecuted} />
     );
   });
 

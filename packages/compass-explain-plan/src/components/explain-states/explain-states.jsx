@@ -7,6 +7,7 @@ import { ZeroGraphic } from 'components/zero-graphic';
 import { ExplainBody } from 'components/explain-body';
 
 import INDEX_TYPES from 'constants/index-types';
+import EXPLAIN_STATES from 'constants/explain-states';
 
 import styles from './explain-states.less';
 
@@ -65,7 +66,8 @@ class ExplainStates extends Component {
     switchToJSONView: PropTypes.func.isRequired,
     query: PropTypes.any,
     treeStages: PropTypes.object.isRequired,
-    appRegistry: PropTypes.object.isRequired
+    appRegistry: PropTypes.object.isRequired,
+    queryExecuted: PropTypes.func.isRequired
   }
 
   constructor(props) {
@@ -75,6 +77,10 @@ class ExplainStates extends Component {
     this.queryBar = this.queryBarRole.component;
     this.queryBarStore = appRegistry.getStore(this.queryBarRole.storeName);
     this.queryBarActions = appRegistry.getAction(this.queryBarRole.actionName);
+  }
+
+  componentDidUpdate() {
+    this.props.queryExecuted();
   }
 
   /**
@@ -91,12 +97,23 @@ class ExplainStates extends Component {
   }
 
   /**
+   * Executes the explain plan.
+   */
+  onExecuteExplainClicked() {
+    this.props.changeExplainPlanState(EXPLAIN_STATES.EXECUTED);
+    this.props.fetchExplainPlan(this.queryBarStore.state);
+  }
+
+  /**
    * Checks if the zero state window should be displayed.
    *
    * @returns {Boolean}
    */
   checkIfZeroState() {
-    return (this.props.explain.explainState === 'initial' || !this.props.isEditable);
+    return (
+      this.props.explain.explainState === EXPLAIN_STATES.INITIAL ||
+      !this.props.isEditable
+    );
   }
 
   /**
@@ -116,7 +133,7 @@ class ExplainStates extends Component {
       return (<StatusRow style="warning">{READ_ONLY_WARNING}</StatusRow>);
     }
 
-    if (this.props.explain.explainState === 'outdated') {
+    if (this.props.explain.explainState === EXPLAIN_STATES.OUTDATED) {
       return (<StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>);
     }
 
@@ -143,7 +160,7 @@ class ExplainStates extends Component {
                     !this.props.isEditable ? 'disabled' : ''
                   }`}
                   text="Execute Explain"
-                  clickHandler={this.props.changeExplainPlanState.bind(this, 'fetching')} />
+                  clickHandler={this.onExecuteExplainClicked.bind(this)} />
               </div>
               <a
                 className={classnames(styles['zero-state-link'])}
@@ -166,11 +183,7 @@ class ExplainStates extends Component {
   renderContent() {
     if (!this.checkIfZeroState()) {
       return (
-        <div key="content" className={classnames(styles['column-container'])}>
-          <div className={classnames(styles['column-main'])}>
-            <ExplainBody {...this.props} />
-          </div>
-        </div>
+        <ExplainBody key="explain-body" {...this.props} />
       );
     }
   }
@@ -186,8 +199,8 @@ class ExplainStates extends Component {
         store={this.queryBarStore}
         actions={this.queryBarActions}
         buttonLabel="Explain"
-        onApply={this.props.changeExplainPlanState.bind(this, 'fetching')}
-        onReset={this.props.changeExplainPlanState.bind(this, 'initial')}
+        onApply={this.onExecuteExplainClicked.bind(this)}
+        onReset={this.props.changeExplainPlanState.bind(this, EXPLAIN_STATES.INITIAL)}
       />
     );
   }

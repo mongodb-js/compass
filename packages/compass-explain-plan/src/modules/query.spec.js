@@ -26,7 +26,8 @@ describe('query module', () => {
           skip: 0,
           limit: 0,
           collation: null,
-          maxTimeMS: 5000
+          maxTimeMS: 5000,
+          isChanged: false
         });
       });
     });
@@ -40,7 +41,8 @@ describe('query module', () => {
           skip: 100,
           limit: 0,
           collation: null,
-          maxTimeMS: 2000
+          maxTimeMS: 2000,
+          isChanged: true
         };
 
         expect(reducer(undefined, queryChanged(query))).to.deep.equal(query);

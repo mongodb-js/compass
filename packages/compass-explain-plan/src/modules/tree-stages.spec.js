@@ -7,7 +7,7 @@ const explainExample = {
   error: null,
   executionSuccess: true,
   executionTimeMillis: 6,
-  explainState: 'done',
+  explainState: 'executed',
   inMemorySort: false,
   index: null,
   indexType: 'COLLSCAN',
