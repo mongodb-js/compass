@@ -89,8 +89,8 @@ class FormActions extends React.Component {
     return (
       <div className={classnames(styles['unsaved-message-actions'])}>
         You have unsaved changes.
-        <a onClick={this.onFavoriteChangeDiscarded}>[discard]</a>
-        <a onClick={this.onSaveFavoriteClicked}>[save changes]</a>
+        <a onClick={this.onFavoriteChangeDiscarded}>[Discard]</a>
+        <a onClick={this.onSaveFavoriteClicked}>[Save changes]</a>
       </div>
     );
   }
