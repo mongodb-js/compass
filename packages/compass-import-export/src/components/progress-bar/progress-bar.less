@@ -6,6 +6,11 @@
   height: 10px;
   background-color: #e7eeec;
 
+  &-chart-wrapper {
+    padding-top: 20px;
+    margin-bottom: 0px;
+  }
+
   &-bar {
     height: 10px;
     transition: width 0.2s ease;
@@ -33,9 +38,12 @@
 
     &-message {
       flex-grow: 1;
+      margin-bottom: 0;
+
       &-is-failed {
         color: #d65d33;
       }
+
       &-cancel {
         margin-left: 10px;
         color: #0d47a1;
@@ -44,6 +52,7 @@
     }
     &-stats {
       flex-grow: 0;
+      margin-bottom: 0;
     }
   }
 }

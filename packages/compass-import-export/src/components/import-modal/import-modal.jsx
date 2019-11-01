@@ -119,6 +119,45 @@ class ImportModal extends PureComponent {
     }
   };
 
+  renderDoneButton() {
+    if (this.props.status === COMPLETED) {
+      return (
+        <TextButton
+          className="btn btn-primary btn-sm"
+          text="DONE"
+          clickHandler={this.handleClose}
+        />
+      );
+    }
+  }
+
+  renderCancelButton() {
+    if (this.props.status !== COMPLETED) {
+      return (
+        <TextButton
+          className="btn btn-default btn-sm"
+          text={
+            FINISHED_STATUSES.includes(this.props.status) ? 'Close' : 'Cancel'
+          }
+          clickHandler={this.handleClose}
+        />
+      );
+    }
+  }
+
+  renderImportButton() {
+    if (this.props.status !== COMPLETED) {
+      return (
+        <TextButton
+          className="btn btn-primary btn-sm"
+          text={this.props.status === STARTED ? 'Importing...' : 'Import'}
+          disabled={!this.props.fileName || this.props.status === STARTED}
+          clickHandler={this.handleImportBtnClicked}
+        />
+      );
+    }
+  }
+
   renderOptions() {
     const isCSV = this.props.fileType === FILE_TYPES.CSV;
     return (
@@ -216,19 +255,9 @@ class ImportModal extends PureComponent {
           <ErrorBox error={this.props.error} />
         </Modal.Body>
         <Modal.Footer>
-          <TextButton
-            className="btn btn-default btn-sm"
-            text={
-              FINISHED_STATUSES.includes(this.props.status) ? 'Close' : 'Cancel'
-            }
-            clickHandler={this.handleClose}
-          />
-          <TextButton
-            className="btn btn-primary btn-sm"
-            text={this.props.status === STARTED ? 'Importing...' : 'Import'}
-            disabled={!this.props.fileName || this.props.status === STARTED}
-            clickHandler={this.handleImportBtnClicked}
-          />
+          {this.renderCancelButton()}
+          {this.renderImportButton()}
+          {this.renderDoneButton()}
         </Modal.Footer>
       </Modal>
     );

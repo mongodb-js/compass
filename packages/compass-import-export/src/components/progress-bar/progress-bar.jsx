@@ -52,25 +52,24 @@ class ProgressBar extends PureComponent {
     });
   }
 
-  maybeCancelButton() {
+  getCancelButton() {
     if (this.props.status !== STARTED) {
       return null;
     }
 
     return (
       // eslint-disable-next-line no-script-url
-      <a
-        className={style('status-message-cancel')}
-        onClick={evt => {
-          evt.stopPropagation();
-          evt.preventDefault();
-          this.props.cancel();
-        }}
-      >
-        Cancel
+      <a className={style('status-message-cancel')} onClick={this.handleCancel}>
+        Stop 
       </a>
     );
   }
+
+  handleCancel = (evt) => {
+    evt.stopPropagation();
+    evt.preventDefault();
+    this.props.cancel();
+  };
 
   renderStats() {
     const { docsTotal, docsWritten, progress } = this.props;
@@ -82,7 +81,7 @@ class ProgressBar extends PureComponent {
         <p
           className={style('status-stats')}
           title={
-            'Guesstimated total: ' +
+            'Estimated total: ' +
             formatNumber(this.props.guesstimatedDocsTotal)
           }
         >
@@ -111,7 +110,7 @@ class ProgressBar extends PureComponent {
     }
 
     return (
-      <div className="well" style={{ padding: '20px', marginBottom: '0px' }}>
+      <div className={style('chart-wrapper')}>
         <div className={style()}>
           <div
             className={this.getBarClassName()}
@@ -121,7 +120,7 @@ class ProgressBar extends PureComponent {
         <div className={styles['progress-bar-status']}>
           <p className={this.getMessageClassName()}>
             {message}
-            {this.maybeCancelButton()}
+            {this.getCancelButton()}
           </p>
           {this.renderStats()}
         </div>
