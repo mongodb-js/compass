@@ -294,7 +294,7 @@
     "@mongodb-js/compass-collection": "^2.0.2",
     "@mongodb-js/compass-collection-stats": "^5.0.0",
     "@mongodb-js/compass-collections-ddl": "^3.0.0",
-    "@mongodb-js/compass-connect": "^5.2.3",
+    "@mongodb-js/compass-connect": "^5.2.5",
     "@mongodb-js/compass-crud": "^8.1.1",
     "@mongodb-js/compass-database": "^1.0.0",
     "@mongodb-js/compass-databases-ddl": "^3.0.0",
