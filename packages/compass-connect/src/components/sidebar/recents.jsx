@@ -27,7 +27,7 @@ class Recents extends React.Component {
    * @param {Object} recent - A recent connection.
    */
   onRecentClicked(recent) {
-    Actions.onConnectionSelected(recent);
+    Actions.onRecentSelected(recent);
   }
 
   /**

@@ -226,15 +226,14 @@ const Store = Reflux.createStore({
     const driverUrl = currentConnection.driverUrl;
     const customUrl = this.state.customUrl;
     const isValid = this.state.isValid;
-    const currentFavorite = !!connections.find((item) => (
-      item._id === currentConnection._id &&
-      item.isFavorite === true
+    const currentSaved = connections.find((item) => (
+      item._id === currentConnection._id
     ));
 
     this.state.viewType = viewType;
 
     if (viewType === 'connectionForm') { // Target view
-      if (!currentFavorite && customUrl === driverUrl) {
+      if (!currentSaved && customUrl === driverUrl) {
         this.state.isHostChanged = true;
         this.state.isPortChanged = true;
         this.trigger(this.state);
@@ -244,7 +243,7 @@ const Store = Reflux.createStore({
         this._clearForm();
         this._clearConnection();
       } else if (!Connection.isURI(customUrl)) {
-        this.state.currentConnection = new Connection();
+        this._clearConnection();
         this.trigger(this.state);
       } else {
         this.StatusActions.showIndeterminateProgressBar();
@@ -259,9 +258,10 @@ const Store = Reflux.createStore({
               currentConnection.sslMethod = 'SYSTEMCA';
             }
 
-            if (currentFavorite) {
-              currentConnection.name = currentFavorite.name;
-              currentConnection.color = currentFavorite.color;
+            if (currentSaved) {
+              currentConnection.name = currentSaved.name;
+              currentConnection.color = currentSaved.color;
+              currentConnection.lastUsed = currentSaved.lastUsed;
             }
 
             this.state.isHostChanged = true;
@@ -304,20 +304,21 @@ const Store = Reflux.createStore({
   },
 
   /**
-   * Selects a connection in the sidebar.
+   * Selects a recent connection in the sidebar.
    *
-   * @param {Connection} connection - The connection to select.
+   * @param {Connection} recent - The recent connection to select.
    */
-  onConnectionSelected(connection) {
+  onRecentSelected(recent) {
     this.setState({
-      currentConnection: connection,
+      currentConnection: recent,
       isValid: true,
       isConnected: false,
       errorMessage: null,
       syntaxErrorMessage: null,
       isHostChanged: true,
       isPortChanged: true,
-      hasUnsavedChanges: false
+      hasUnsavedChanges: false,
+      viewType: 'connectionForm'
     });
   },
 
@@ -411,25 +412,6 @@ const Store = Reflux.createStore({
     this.state.currentConnection.name = name;
     this.state.isMessageVisible = true;
     this._saveFavorite();
-  },
-
-  /**
-   * Creates a recent connection from the current connection.
-   */
-  onCreateRecentClicked() {
-    const currentConnection = this.state.currentConnection;
-    const connections = this.state.connections;
-    const currentSaved = connections.find((item) => (
-      item._id === currentConnection._id
-    ));
-
-    if (currentSaved) {
-      this._saveConnection(currentSaved);
-    } else {
-      this._pruneRecents(() => {
-        currentConnection.name = this._addConnection(currentConnection);
-      });
-    }
   },
 
   /**
@@ -541,7 +523,8 @@ const Store = Reflux.createStore({
       isHostChanged: true,
       isPortChanged: true,
       customUrl: favorite.driverUrl,
-      hasUnsavedChanges: false
+      hasUnsavedChanges: false,
+      viewType: 'connectionForm'
     });
   },
 
@@ -927,16 +910,29 @@ const Store = Reflux.createStore({
           syntaxErrorMessage: null
         });
       } else {
+        const currentConnection = this.state.currentConnection;
+        const connections = this.state.connections;
+        const currentSaved = connections.find((item) => (
+          item._id === currentConnection._id
+        ));
+
         this.state.isValid = true;
         this.state.isConnected = true;
         this.state.errorMessage = null;
         this.state.syntaxErrorMessage = null;
         this.state.hasUnsavedChanges = false;
-        this.state.currentConnection = connection;
-        this.state.currentConnection.lastUsed = new Date();
-        this.trigger(this.state);
+
+        currentConnection.lastUsed = new Date();
+
+        if (currentSaved) {
+          this._saveConnection(currentConnection);
+        } else {
+          this._pruneRecents(() => {
+            currentConnection.name = this._addConnection(currentConnection);
+          });
+        }
+
         this.appRegistry.emit('data-service-connected', error, ds);
-        this.onCreateRecentClicked();
       }
     });
   },
@@ -948,9 +944,9 @@ const Store = Reflux.createStore({
     const isFavorite = this.state.currentConnection.isFavorite;
     const name = this.state.currentConnection.name;
     const color = this.state.currentConnection.color;
-    const connection = new Connection;
+    const connection = new Connection();
 
-    this.state.currentConnection.set(connection.getAttributes({ props: true }));
+    this.state.currentConnection.set(this._getPoorAttributes(connection));
     this.state.currentConnection.set({ isFavorite, name, color });
     this.trigger(this.state);
   },

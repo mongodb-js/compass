@@ -8,7 +8,12 @@ import styles from './sidebar.less';
 class NewConnection extends React.Component {
   static displayName = 'NewConnection';
 
-  static propTypes = { currentConnection: PropTypes.object.isRequired };
+  static propTypes = {
+    currentConnection: PropTypes.object.isRequired,
+    connections: PropTypes.oneOfType([PropTypes.object,
+      PropTypes.array
+    ]).isRequired
+  };
 
   /**
    * Resets connection when new connection clicked.
@@ -23,10 +28,12 @@ class NewConnection extends React.Component {
    * @returns {String} - A class name
    */
   getClassName() {
-    const connection = this.props.currentConnection;
+    const currentSaved = this.props.connections.find((item) => (
+      item._id === this.props.currentConnection._id
+    ));
     const classnamesProps = [styles['connect-sidebar-new-connection']];
 
-    if (!connection || (!connection.isFavorite && !connection.lastUsed)) {
+    if (!currentSaved) {
       classnamesProps.push(styles['connect-sidebar-new-connection-is-active']);
     }
 
