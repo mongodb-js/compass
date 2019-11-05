@@ -61,8 +61,8 @@ class StagePreviewToolbar extends PureComponent {
           <div>
             <span>
               Output after <span
-                onClick={this.props.openLink.bind(this, stageInfo.link)}
-                className={classnames(styles['stage-preview-toolbar-link'])}>
+                onClick={stageInfo ? this.props.openLink.bind(this, stageInfo.link) : null}
+                className={classnames(stageInfo ? styles['stage-preview-toolbar-link'] : 'stage-preview-toolbar-link-invalid')}>
                 {this.props.stageOperator}
               </span> stage
             </span>
@@ -83,6 +83,11 @@ class StagePreviewToolbar extends PureComponent {
    */
   renderInfoSprinkle(stageInfo) {
     if (this.props.stageOperator) {
+      if (!stageInfo) {
+        return (
+          <span>{' '}</span>
+        );
+      }
       return (
         <span
           data-tip={stageInfo.tooltip}

@@ -41,6 +41,47 @@ describe('StagePreviewToolbar [Component]', () => {
     });
   });
 
+  context('does not break when the stage is invalid', () => {
+    // While we constrain users to the stages in the dropdown
+    // with 'Create pipeline from text' they are still able to import
+    // pipelines with stages that are invalid. From analytics, it looks like
+    // they actually do that sometimes. We want to make sure that when they do,
+    // Compass does not completely break.
+
+
+    let component;
+
+    beforeEach(() => {
+      component = shallow(
+        <StagePreviewToolbar
+          openLink={sinon.spy()}
+          stageOperator="$monkey"
+          isValid
+          count={10}
+          isEnabled />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the stage text', () => {
+      expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+        to.include.text('(Sample of 10 documents)');
+    });
+
+    it('renders the stage text', () => {
+      expect(component.find('.stage-preview-toolbar-link-invalid')).
+        to.have.text('$monkey');
+    });
+
+    it('renders the info sprinkle', () => {
+      expect(component.find('InfoSprinkle')).
+        to.not.be.present();
+    });
+  });
+
   context('when the stage is not enabled', () => {
     let component;
 
