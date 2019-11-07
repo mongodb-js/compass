@@ -5,15 +5,21 @@ import NewConnection from './new-connection';
 import styles from './sidebar.less';
 
 describe('NewConnection [Component]', () => {
-  context('when the connection is not a favourite and not a recent', () => {
+  context('when a connection is new', () => {
     const currentConnection = {
       _id: '47d5a91a-0920-43e7-a4ef-71430023f484',
       isFavorite: false
     };
-    const connections = [
-      { _id: '6fffae26-e10e-481d-97b5-5c75dc5d628a', isFavorite: false },
-      { _id: '3f2a5083-6e85-47d8-ab13-7c5939a81406', isFavorite: true }
-    ];
+    const connections = {
+      '6fffae26-e10e-481d-97b5-5c75dc5d628a': {
+        _id: '6fffae26-e10e-481d-97b5-5c75dc5d628a',
+        isFavorite: false
+      },
+      '3f2a5083-6e85-47d8-ab13-7c5939a81406': {
+        _id: '3f2a5083-6e85-47d8-ab13-7c5939a81406',
+        isFavorite: true
+      }
+    };
     let component;
 
     beforeEach(() => {
@@ -55,15 +61,15 @@ describe('NewConnection [Component]', () => {
     });
   });
 
-  context('when the connection is a favorite', () => {
+  context('when a connection is favorite', () => {
     const currentConnection = {
       _id: '47d5a91a-0920-43e7-a4ef-71430023f484',
       isFavorite: true
     };
-    const connections = [
-      { _id: '6fffae26-e10e-481d-97b5-5c75dc5d628a', isFavorite: false },
-      { _id: '47d5a91a-0920-43e7-a4ef-71430023f484', isFavorite: true }
-    ];
+    const connections = {
+      '6fffae26-e10e-481d-97b5-5c75dc5d628a': { isFavorite: false },
+      '47d5a91a-0920-43e7-a4ef-71430023f484': { isFavorite: true }
+    };
     let component;
 
     beforeEach(() => {
@@ -80,19 +86,20 @@ describe('NewConnection [Component]', () => {
 
     it('does not highlight the panel', () => {
       const style = `.${styles['connect-sidebar-new-connection-is-active']}`;
+
       expect(component.find(style)).to.not.be.present();
     });
   });
 
-  context('when the connection is a recent', () => {
+  context('when a connection is recent', () => {
     const currentConnection = {
       _id: '47d5a91a-0920-43e7-a4ef-71430023f484',
       isFavorite: false
     };
-    const connections = [
-      { _id: '47d5a91a-0920-43e7-a4ef-71430023f484', isFavorite: false },
-      { _id: '3f2a5083-6e85-47d8-ab13-7c5939a81406', isFavorite: true }
-    ];
+    const connections = {
+      '6fffae26-e10e-481d-97b5-5c75dc5d628a': { isFavorite: false },
+      '47d5a91a-0920-43e7-a4ef-71430023f484': { isFavorite: true }
+    };
     let component;
 
     beforeEach(() => {
@@ -109,6 +116,7 @@ describe('NewConnection [Component]', () => {
 
     it('does not highlight the panel', () => {
       const style = `.${styles['connect-sidebar-new-connection-is-active']}`;
+
       expect(component.find(style)).to.not.be.present();
     });
   });

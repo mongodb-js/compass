@@ -12,6 +12,9 @@ describe('Store', () => {
   describe('#getInitialState', () => {
     it('initializes with an empty current connection', () => {
       expect(Store.state.currentConnection.username).to.equal('');
+      expect(Store.state.currentConnection.hostname).to.equal('localhost');
+      expect(Store.state.currentConnection.port).to.equal(27017);
+      expect(Store.state.currentConnection.connectionType).to.equal('NODE_DRIVER');
     });
   });
 
@@ -49,14 +52,17 @@ describe('Store', () => {
 
   describe('#onResetConnectionClicked', () => {
     context('when the form is currently valid', () => {
-      before(() => {
-        Store.state.currentConnection.mongodbUsername = 'testing';
+      const connection = new Connection({ mongodbUsername: 'testing' });
+
+      beforeEach(() => {
+        Store.state.currentConnection = connection;
       });
 
-      it('updates the hostname in the current connection model', (done) => {
+      it('updates the hostname and id in the current connection model', (done) => {
         const unsubscribe = Store.listen((state) => {
           unsubscribe();
           expect(state.currentConnection.mongodbUsername).to.equal(undefined);
+          expect(state.currentConnection._id).to.not.equal(connection._id);
           done();
         });
 
@@ -604,46 +610,266 @@ describe('Store', () => {
     });
   });
 
-  describe('#onRecentSelected', () => {
-    const connection = new Connection();
+  describe('#onConnectionSelected', () => {
+    context('when the current connection ia a new connection', () => {
+      context('when a favorite is being selected', () => {
+        const currentConnection = new Connection();
+        const favoriteConnection = new Connection({
+          name: 'MyFav',
+          color: '#59c1e2',
+          port: '11111',
+          isFavorite: true
+        });
+        const favorite = favoriteConnection.getAttributes({ props: true, derived: true });
 
-    it('sets the current connection in the store', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.currentConnection).to.equal(connection);
-        expect(state.isValid).to.equal(true);
-        expect(state.isConnected).to.equal(false);
-        expect(state.errorMessage).to.equal(null);
-        expect(state.syntaxErrorMessage).to.equal(null);
-        done();
+        beforeEach(() => {
+          Store.state.currentConnection = currentConnection;
+          Store.state.fetchedConnections = new ConnectionCollection();
+          Store.state.fetchedConnections.add(favoriteConnection);
+          Store.state.connections = { [favorite._id]: favorite };
+        });
+
+        it('sets the current connection in the store', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection._id).to.equal(favoriteConnection._id);
+            expect(state.currentConnection.color).to.equal(favoriteConnection.color);
+            expect(state.currentConnection.name).to.equal(favoriteConnection.name);
+            expect(state.currentConnection.port).to.equal(favoriteConnection.port);
+            expect(state.currentConnection.isFavorite).to.equal(true);
+            expect(state.isValid).to.equal(true);
+            expect(state.isConnected).to.equal(false);
+            expect(state.errorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            done();
+          });
+
+          Actions.onConnectionSelected(favorite);
+        });
       });
 
-      Actions.onRecentSelected(connection);
+      context('when a recent is being selected', () => {
+        const currentConnection = new Connection();
+        const recentConnection = new Connection({
+          hostname: 'localhost',
+          port: '11111',
+          isFavorite: false
+        });
+        const favorite = recentConnection.getAttributes({ props: true, derived: true });
+
+        beforeEach(() => {
+          Store.state.currentConnection = currentConnection;
+          Store.state.fetchedConnections = new ConnectionCollection();
+          Store.state.fetchedConnections.add(recentConnection);
+          Store.state.connections = { [favorite._id]: favorite };
+        });
+
+        it('sets the current connection in the store', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection._id).to.equal(recentConnection._id);
+            expect(state.currentConnection.color).to.equal(undefined);
+            expect(state.currentConnection.name).to.equal('Local');
+            expect(state.currentConnection.port).to.equal(recentConnection.port);
+            expect(state.currentConnection.isFavorite).to.equal(false);
+            expect(state.isValid).to.equal(true);
+            expect(state.isConnected).to.equal(false);
+            expect(state.errorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            done();
+          });
+
+          Actions.onConnectionSelected(favorite);
+        });
+      });
     });
-  });
 
-  describe('#onFavoriteSelected', () => {
-    const connection = new Connection();
+    context('when the current connection ia a favorite connection', () => {
+      context('when a favorite is being selected', () => {
+        const currentFavConnection = new Connection({
+          name: 'CurrentFavConnection',
+          color: '#d66531',
+          port: '11111',
+          isFavorite: true
+        });
+        const newFavConnection = new Connection({
+          name: 'NewFavConnection',
+          color: '#59c1e2',
+          port: '22222',
+          isFavorite: true
+        });
+        const connections = {
+          [currentFavConnection._id]: currentFavConnection.getAttributes({ props: true, derived: true }),
+          [newFavConnection._id]: newFavConnection.getAttributes({ props: true, derived: true })
+        };
 
-    beforeEach(() => {
-      Store.state.connections = new ConnectionCollection();
-      Store.state.connections.add(connection);
-      Store.state.savedConnections = new ConnectionCollection();
-      Store.state.savedConnections.add(connection);
-    });
+        beforeEach(() => {
+          Store.state.currentConnection = currentFavConnection;
+          Store.state.fetchedConnections = new ConnectionCollection();
+          Store.state.fetchedConnections.add(currentFavConnection);
+          Store.state.fetchedConnections.add(newFavConnection);
+          Store.state.connections = connections;
+        });
 
-    it('sets the current connection in the store', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.currentConnection).to.equal(connection);
-        expect(state.isValid).to.equal(true);
-        expect(state.isConnected).to.equal(false);
-        expect(state.errorMessage).to.equal(null);
-        expect(state.syntaxErrorMessage).to.equal(null);
-        done();
+        it('sets the current connection in the store', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection._id).to.equal(newFavConnection._id);
+            expect(state.currentConnection.color).to.equal(newFavConnection.color);
+            expect(state.currentConnection.name).to.equal(newFavConnection.name);
+            expect(state.currentConnection.port).to.equal(newFavConnection.port);
+            expect(state.currentConnection.isFavorite).to.equal(true);
+            expect(state.isValid).to.equal(true);
+            expect(state.isConnected).to.equal(false);
+            expect(state.errorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            done();
+          });
+
+          Actions.onConnectionSelected(connections[newFavConnection._id]);
+        });
       });
 
-      Actions.onFavoriteSelected(connection);
+      context('when a recent is being selected', () => {
+        const currentFavConnection = new Connection({
+          name: 'CurrentFavConnection',
+          color: '#d66531',
+          port: '11111',
+          isFavorite: true
+        });
+        const recent = new Connection({
+          hostname: 'recenthostname',
+          port: '22222',
+          isFavorite: false
+        });
+        const connections = {
+          [currentFavConnection._id]: currentFavConnection.getAttributes({ props: true, derived: true }),
+          [recent._id]: recent.getAttributes({ props: true, derived: true })
+        };
+
+        beforeEach(() => {
+          Store.state.currentConnection = currentFavConnection;
+          Store.state.fetchedConnections = new ConnectionCollection();
+          Store.state.fetchedConnections.add(currentFavConnection);
+          Store.state.fetchedConnections.add(recent);
+          Store.state.connections = connections;
+        });
+
+        it('sets the current connection in the store', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection._id).to.equal(recent._id);
+            expect(state.currentConnection.color).to.equal(undefined);
+            expect(state.currentConnection.name).to.equal('Local');
+            expect(state.currentConnection.hostname).to.equal(recent.hostname);
+            expect(state.currentConnection.port).to.equal(recent.port);
+            expect(state.currentConnection.isFavorite).to.equal(false);
+            expect(state.isValid).to.equal(true);
+            expect(state.isConnected).to.equal(false);
+            expect(state.errorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            done();
+          });
+
+          Actions.onConnectionSelected(connections[recent._id]);
+        });
+      });
+    });
+
+    context('when the current connection ia a recent connection', () => {
+      context('when a favorite is being selected', () => {
+        const currentRecent = new Connection({
+          hostname: 'recentlocalhost',
+          port: '11111',
+          isFavorite: false
+        });
+        const newFavConnection = new Connection({
+          name: 'NewFavConnection',
+          color: '#59c1e2',
+          port: '22222',
+          isFavorite: true
+        });
+        const connections = {
+          [currentRecent._id]: currentRecent.getAttributes({ props: true, derived: true }),
+          [newFavConnection._id]: newFavConnection.getAttributes({ props: true, derived: true })
+        };
+
+        beforeEach(() => {
+          Store.state.currentConnection = currentRecent;
+          Store.state.fetchedConnections = new ConnectionCollection();
+          Store.state.fetchedConnections.add(currentRecent);
+          Store.state.fetchedConnections.add(newFavConnection);
+          Store.state.connections = connections;
+        });
+
+        it('sets the current connection in the store', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection._id).to.equal(newFavConnection._id);
+            expect(state.currentConnection.color).to.equal(newFavConnection.color);
+            expect(state.currentConnection.name).to.equal(newFavConnection.name);
+            expect(state.currentConnection.port).to.equal(newFavConnection.port);
+            expect(state.currentConnection.isFavorite).to.equal(true);
+            expect(state.isValid).to.equal(true);
+            expect(state.isConnected).to.equal(false);
+            expect(state.errorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            done();
+          });
+
+          Actions.onConnectionSelected(connections[newFavConnection._id]);
+        });
+      });
+
+      context('when a recent is being selected', () => {
+        const currentRecent = new Connection({
+          hostname: 'recentlocalhost',
+          port: '11111',
+          isFavorite: false
+        });
+        const newRecent = new Connection({
+          hostname: 'newrecentlocalhost',
+          port: '22222',
+          isFavorite: false
+        });
+        const connections = {
+          [currentRecent._id]: currentRecent.getAttributes({ props: true, derived: true }),
+          [newRecent._id]: newRecent.getAttributes({ props: true, derived: true })
+        };
+
+        beforeEach(() => {
+          Store.state.currentConnection = currentRecent;
+          Store.state.fetchedConnections = new ConnectionCollection();
+          Store.state.fetchedConnections.add(currentRecent);
+          Store.state.fetchedConnections.add(newRecent);
+          Store.state.connections = connections;
+        });
+
+        it('sets the current connection in the store', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection._id).to.equal(newRecent._id);
+            expect(state.currentConnection.color).to.equal(undefined);
+            expect(state.currentConnection.name).to.equal('Local');
+            expect(state.currentConnection.hostname).to.equal(newRecent.hostname);
+            expect(state.currentConnection.port).to.equal(newRecent.port);
+            expect(state.currentConnection.isFavorite).to.equal(false);
+            expect(state.isValid).to.equal(true);
+            expect(state.isConnected).to.equal(false);
+            expect(state.errorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            expect(state.syntaxErrorMessage).to.equal(null);
+            done();
+          });
+
+          Actions.onConnectionSelected(connections[newRecent._id]);
+        });
+      });
     });
   });
 
@@ -687,6 +913,8 @@ describe('Store', () => {
     context('when a form is valid', () => {
       context('when a current viewType is connectionString', () => {
         context('when a current connection string is valid', () => {
+          const connection = new Connection();
+
           beforeEach(() => {
             Store.state.isValid = true;
             Store.state.viewType = 'connectionString';
@@ -695,6 +923,7 @@ describe('Store', () => {
               showIndeterminateProgressBar: () => {},
               done: () => {}
             };
+            Store.state.currentConnection = connection;
           });
 
           it('sets the connectionForm viewType', (done) => {
@@ -712,6 +941,16 @@ describe('Store', () => {
             const unsubscribe = Store.listen((state) => {
               unsubscribe();
               expect(state.currentConnection.driverUrl).to.equal(driverUrl);
+              done();
+            });
+
+            Actions.onChangeViewClicked('connectionForm');
+          });
+
+          it('keeps the current connection id', (done) => {
+            const unsubscribe = Store.listen((state) => {
+              unsubscribe();
+              expect(state.currentConnection._id).to.equal(connection._id);
               done();
             });
 
@@ -792,6 +1031,8 @@ describe('Store', () => {
       });
 
       context('when a current viewType is connectionForm', () => {
+        const connection = new Connection();
+
         context('when a current connection string is valid', () => {
           beforeEach(() => {
             Store.state.isValid = true;
@@ -801,6 +1042,7 @@ describe('Store', () => {
               showIndeterminateProgressBar: () => {},
               done: () => {}
             };
+            Store.state.currentConnection = connection;
           });
 
           it('sets the connectionString viewType', (done) => {
@@ -822,7 +1064,17 @@ describe('Store', () => {
               done();
             });
 
-            Actions.onChangeViewClicked('connectionForm');
+            Actions.onChangeViewClicked('connectionString');
+          });
+
+          it('keeps the current connection id', (done) => {
+            const unsubscribe = Store.listen((state) => {
+              unsubscribe();
+              expect(state.currentConnection._id).to.equal(connection._id);
+              done();
+            });
+
+            Actions.onChangeViewClicked('connectionString');
           });
         });
 
@@ -917,24 +1169,33 @@ describe('Store', () => {
   });
 
   describe('#onCreateFavoriteClicked', () => {
-    before(() => {
-      Store.state.currentConnection.name = 'myconnection';
+    beforeEach(() => {
+      Store.state.currentConnection = new Connection({
+        isFavorite: false,
+        hostname: 'localhost',
+        port: 27011
+      });
+      Store.state.viewType = 'connectionForm';
+      Store.state.fetchedConnections = new ConnectionCollection();
+      Store.state.connections = {};
     });
 
-    after((done) => {
-      Store.onDeleteConnectionClicked(Store.state.currentConnection);
+    afterEach((done) => {
+      Store.onDeleteConnectionClicked(Store.state.connections[Store.state.currentConnection._id]);
       done();
     });
 
     it('creates a new favorite in the store', (done) => {
       const unsubscribe = Store.listen((state) => {
+        const currentId = state.currentConnection._id;
+
         unsubscribe();
         expect(state.currentConnection.isFavorite).to.equal(true);
-        expect(state.connections.length).to.equal(1);
+        expect(state.connections[currentId]._id).to.equal(currentId);
         done();
       });
 
-      Actions.onCreateFavoriteClicked();
+      Actions.onCreateFavoriteClicked('myconnection', '#deb342');
     });
   });
 
@@ -971,6 +1232,436 @@ describe('Store', () => {
         it('sets the service name to mongodb', () => {
           expect(Store.state.currentConnection.kerberosServiceName).to.equal('mongodb');
         });
+      });
+    });
+  });
+
+  describe('#hideFavoriteMessage', () => {
+    beforeEach(() => {
+      Store.state.isMessageVisible = true;
+    });
+
+    it('hides the message about creating or updating a favorite', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.isMessageVisible).to.equal(false);
+        done();
+      });
+
+      Actions.hideFavoriteMessage();
+    });
+  });
+
+  describe('#hideFavoriteModal', () => {
+    beforeEach(() => {
+      Store.state.isModalVisible = true;
+    });
+
+    it('hides the favorite modal', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.isModalVisible).to.equal(false);
+        done();
+      });
+
+      Actions.hideFavoriteModal();
+    });
+  });
+
+  describe('#showFavoriteModal', () => {
+    beforeEach(() => {
+      Store.state.isModalVisible = false;
+    });
+
+    it('shows the favorite modal', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.isModalVisible).to.equal(true);
+        done();
+      });
+
+      Actions.showFavoriteModal();
+    });
+  });
+
+  describe('#onCopyConnectionClicked', () => {
+    context('when the current connection is being copied', () => {
+      const connection = new Connection({
+        hostname: 'localhost',
+        port: 28017,
+        name: 'MyConnection',
+        color: '#d4366e'
+      });
+      const connections = {
+        [connection._id]: connection.getAttributes({ props: true, derived: true })
+      };
+
+      beforeEach(() => {
+        Store.state.fetchedConnections = new ConnectionCollection();
+        Store.state.fetchedConnections.add(connection);
+        Store.state.connections = { ...connections };
+        Store.state.currentConnection = connection;
+      });
+
+      afterEach((done) => {
+        Store.onDeleteConnectionClicked(Store.state.connections[Store.state.currentConnection._id]);
+        done();
+      });
+
+      it('selects a copy as current connection with new name and color', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          const copyId = Object
+            .keys(state.connections)
+            .find((key) => !Object.keys(connections).includes(key));
+
+          unsubscribe();
+
+          expect(Object.keys(state.connections).length).to.equal(2);
+          expect(state.connections[copyId].name).to.equal(`${connection.name} (copy)`);
+          expect(state.connections[copyId].color).to.equal(undefined);
+          expect(state.connections[copyId].isFavorite).to.equal(true);
+          expect(state.connections[copyId]._id).to.not.equal(connection._id);
+          expect(state.connections[copyId]._id).to.equal(state.currentConnection._id);
+          done();
+        });
+
+        Actions.onCopyConnectionClicked(connection);
+      });
+    });
+
+    context('when not a current connection is being copied', () => {
+      const connectionToCopy = new Connection({
+        hostname: 'localhost',
+        port: 28017,
+        name: 'ConnectionToCopy',
+        color: '#3b8196'
+      });
+      const currentConnection = new Connection({
+        hostname: 'localhost',
+        port: 18017,
+        name: 'CurrentConnection',
+        color: '#d4366e'
+      });
+      const connections = {
+        [connectionToCopy._id]: connectionToCopy.getAttributes({ props: true, derived: true }),
+        [currentConnection._id]: currentConnection.getAttributes({ props: true, derived: true })
+      };
+
+      beforeEach(() => {
+        Store.state.fetchedConnections = new ConnectionCollection();
+        Store.state.fetchedConnections.add(connectionToCopy);
+        Store.state.fetchedConnections.add(currentConnection);
+        Store.state.connections = { ...connections };
+        Store.state.currentConnection = currentConnection;
+      });
+
+      afterEach((done) => {
+        Store.onDeleteConnectionClicked(Store.state.connections[Store.state.currentConnection._id]);
+        done();
+      });
+
+      it('selects a copy as current connection with new name and color', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          const copyId = Object
+            .keys(state.connections)
+            .find((key) => !Object.keys(connections).includes(key));
+
+          unsubscribe();
+          expect(Object.keys(state.connections).length).to.equal(3);
+          expect(state.connections[copyId].name).to.equal(`${connectionToCopy.name} (copy)`);
+          expect(state.connections[copyId].name).to.not.equal(`${currentConnection.name} (copy)`);
+          expect(state.connections[copyId].color).to.equal(undefined);
+          expect(state.connections[copyId].isFavorite).to.equal(true);
+          expect(state.connections[copyId]._id).to.not.equal(connectionToCopy._id);
+          expect(state.connections[copyId]._id).to.not.equal(currentConnection._id);
+          expect(state.connections[copyId]._id).to.equal(state.currentConnection._id);
+          done();
+        });
+
+        Actions.onCopyConnectionClicked(connectionToCopy);
+      });
+    });
+  });
+
+  describe('#onChangesDiscarded', () => {
+    context('when it is a connection string view', () => {
+      context('when it is a favorite connection', () => {
+        const favorite = new Connection({
+          hostname: 'server.example.com',
+          name: 'ConnectionToCopy',
+          color: '#3b8196',
+          isFavorite: true
+        });
+        const connections = {
+          [favorite._id]: favorite.getAttributes({ props: true, derived: true })
+        };
+
+        beforeEach(() => {
+          Store.state.viewType = 'connectionString';
+          Store.state.fetchedConnections = new ConnectionCollection();
+          Store.state.fetchedConnections.add(favorite);
+          Store.state.connections = { ...connections };
+          Store.state.currentConnection = favorite.set({ hostname: 'server.newexample.com' });
+          Store.state.customUrl = 'mongodb://server.newexample.com/';
+        });
+
+        it('discards changes', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            const driverUrl = 'mongodb://server.example.com:27017/?readPreference=primary&ssl=false';
+
+            unsubscribe();
+            expect(state.currentConnection.hostname).to.equal(favorite.hostname);
+            expect(state.customUrl).to.equal(driverUrl);
+            done();
+          });
+
+          Actions.onChangesDiscarded();
+        });
+      });
+
+      context('when it is a recent connection', () => {
+        const recent = new Connection({
+          hostname: 'server.example.com',
+          port: 27001
+        });
+        const connections = {
+          [recent._id]: recent.getAttributes({ props: true, derived: true })
+        };
+
+        beforeEach(() => {
+          Store.state.fetchedConnections = new ConnectionCollection();
+          Store.state.fetchedConnections.add(recent);
+          Store.state.connections = { ...connections };
+          Store.state.currentConnection = recent.set({ hostname: 'server.newexample.com' });
+          Store.state.customUrl = 'mongodb://server.newexample.com/';
+        });
+
+        it('discards changes', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            const driverUrl = 'mongodb://server.example.com:27001/?readPreference=primary&ssl=false';
+
+            unsubscribe();
+            expect(state.currentConnection.hostname).to.equal(recent.hostname);
+            expect(state.customUrl).to.equal(driverUrl);
+            done();
+          });
+
+          Actions.onChangesDiscarded();
+        });
+      });
+    });
+
+    context('when it is a connection form view', () => {
+      context('when it is a favorite connection', () => {
+        const favorite = new Connection({
+          hostname: 'server.example.com',
+          port: '27001',
+          name: 'ConnectionToCopy',
+          color: '#3b8196',
+          isFavorite: true
+        });
+        const connections = {
+          [favorite._id]: favorite.getAttributes({ props: true, derived: true })
+        };
+
+        beforeEach(() => {
+          Store.state.viewType = 'connectionForm';
+          Store.state.fetchedConnections = new ConnectionCollection();
+          Store.state.fetchedConnections.add(favorite);
+          Store.state.connections = { ...connections };
+          Store.state.currentConnection = favorite.set({ port: 27002 });
+        });
+
+        it('discards changes', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection.port).to.equal(favorite.port);
+            done();
+          });
+
+          Actions.onChangesDiscarded();
+        });
+      });
+
+      context('when it is a recent connection', () => {
+        const recent = new Connection({
+          hostname: 'server.example.com',
+          port: '27001'
+        });
+        const connections = {
+          [recent._id]: recent.getAttributes({ props: true, derived: true })
+        };
+
+        beforeEach(() => {
+          Store.state.viewType = 'connectionForm';
+          Store.state.fetchedConnections = new ConnectionCollection();
+          Store.state.fetchedConnections.add(recent);
+          Store.state.connections = { ...connections };
+          Store.state.currentConnection = recent.set({ port: 27002 });
+        });
+
+        it('discards changes', (done) => {
+          const unsubscribe = Store.listen((state) => {
+            unsubscribe();
+            expect(state.currentConnection.port).to.equal(recent.port);
+            done();
+          });
+
+          Actions.onChangesDiscarded();
+        });
+      });
+    });
+  });
+
+  describe('#onSaveAsFavoriteClicked', () => {
+    context('when it is a current connection', () => {
+      const recent = new Connection({
+        hostname: 'localhost',
+        port: '27001'
+      });
+      const connections = {
+        [recent._id]: recent.getAttributes({ props: true, derived: true })
+      };
+
+      beforeEach(() => {
+        Store.state.fetchedConnections = new ConnectionCollection();
+        Store.state.fetchedConnections.add(recent);
+        Store.state.connections = { ...connections };
+        Store.state.currentConnection = recent;
+      });
+
+      it('adds recent to favorites', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(Object.keys(state.connections).length).to.equal(1);
+          expect(state.isMessageVisible).to.equal(true);
+          expect(state.currentConnection.isFavorite).to.equal(true);
+          expect(state.currentConnection.name).to.equal('localhost:27001');
+          expect(state.savedMessage).to.equal('Saved to favorites');
+          done();
+        });
+
+        Actions.onSaveAsFavoriteClicked(connections[recent._id]);
+      });
+    });
+
+    context('when it is not current connection', () => {
+      const currentConnection = new Connection({
+        hostname: 'localhost',
+        port: '27001'
+      });
+      const recent = new Connection({
+        hostname: 'localhost',
+        port: '27002'
+      });
+      const connections = {
+        [recent._id]: recent.getAttributes({ props: true, derived: true })
+      };
+
+      beforeEach(() => {
+        Store.state.fetchedConnections = new ConnectionCollection();
+        Store.state.fetchedConnections.add(recent);
+        Store.state.connections = { ...connections };
+        Store.state.currentConnection = currentConnection;
+      });
+
+      it('adds recent to favorites', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(Object.keys(state.connections).length).to.equal(1);
+          expect(state.isMessageVisible).to.equal(true);
+          expect(state.currentConnection.isFavorite).to.equal(true);
+          expect(state.currentConnection.name).to.equal('localhost:27002');
+          expect(state.savedMessage).to.equal('Saved to favorites');
+          done();
+        });
+
+        Actions.onSaveAsFavoriteClicked(connections[recent._id]);
+      });
+    });
+  });
+
+  describe('#onSaveFavoriteClicked', () => {
+    context('when it is a connection form view', () => {
+      const favorite = new Connection({
+        hostname: 'localhost',
+        port: 27001,
+        name: 'It is a favorite connection',
+        color: '#3b8196',
+        isFavorite: true
+      });
+      const connections = {
+        [favorite._id]: favorite.getAttributes({ props: true, derived: true })
+      };
+
+      beforeEach(() => {
+        Store.state.viewType = 'connectionForm';
+        Store.state.fetchedConnections = new ConnectionCollection();
+        Store.state.fetchedConnections.add(favorite);
+        Store.state.connections = { ...connections };
+        Store.state.currentConnection = favorite.set({
+          port: 27018,
+          name: 'New name',
+          color: '#5fc86e',
+        });
+      });
+
+      it('updates properties of the saved connection', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(Object.keys(state.connections).length).to.equal(1);
+          expect(state.currentConnection._id).to.equal(favorite._id);
+          expect(state.currentConnection.port).to.equal(27018);
+          expect(state.currentConnection.name).to.equal('New name');
+          expect(state.currentConnection.color).to.equal('#5fc86e');
+          expect(state.currentConnection.isFavorite).to.equal(true);
+          expect(state.connections[favorite._id].port).to.equal(27018);
+          expect(state.connections[favorite._id].name).to.equal('New name');
+          expect(state.connections[favorite._id].color).to.equal('#5fc86e');
+          expect(state.connections[favorite._id].isFavorite).to.equal(true);
+          done();
+        });
+
+        Actions.onSaveFavoriteClicked();
+      });
+    });
+
+    context('when it is a connection string view', () => {
+      const favorite = new Connection({
+        hostname: 'server.example.com',
+        port: 27001,
+        name: 'It is a favorite connection',
+        color: '#3b8196',
+        isFavorite: true
+      });
+      const connections = {
+        [favorite._id]: favorite.getAttributes({ props: true, derived: true })
+      };
+
+      beforeEach(() => {
+        Store.state.viewType = 'connectionString';
+        Store.state.customUrl = 'mongodb://server.example.com:27018/?readPreference=primary&ssl=false';
+        Store.state.fetchedConnections = new ConnectionCollection();
+        Store.state.fetchedConnections.add(favorite);
+        Store.state.connections = { ...connections };
+        Store.state.currentConnection = favorite;
+      });
+
+      it('updates properties of the saved connection', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(Object.keys(state.connections).length).to.equal(1);
+          expect(state.currentConnection._id).to.equal(favorite._id);
+          expect(state.currentConnection.port).to.equal(27018);
+          expect(state.currentConnection.name).to.equal('It is a favorite connection');
+          expect(state.currentConnection.color).to.equal('#3b8196');
+          expect(state.currentConnection.isFavorite).to.equal(true);
+          expect(state.connections[favorite._id].port).to.equal(27018);
+          expect(state.connections[favorite._id].isFavorite).to.equal(true);
+          done();
+        });
+
+        Actions.onSaveFavoriteClicked();
       });
     });
   });

@@ -42,13 +42,13 @@ class FormActions extends React.Component {
   }
 
   /**
-   * Discards favorite changes.
+   * Discards changes.
    *
    * @param {Object} evt - evt.
    */
-  onFavoriteChangeDiscarded(evt) {
+  onChangesDiscarded(evt) {
     evt.preventDefault();
-    Actions.onFavoriteChangeDiscarded();
+    Actions.onChangesDiscarded();
   }
 
   /**
@@ -80,8 +80,9 @@ class FormActions extends React.Component {
   }
 
   /**
-   * Renders a warning that a favorite was changed and changes can be saved
-   * or discarded.
+   * Renders a warning that a saved connection was changed and
+   * changes can be saved or discarded. For recents changes
+   * can not be saved, only discarded.
    *
    * @returns {React.Component}
    */
@@ -89,10 +90,10 @@ class FormActions extends React.Component {
     return (
       <div className={classnames(styles['unsaved-message-actions'])}>
         You have unsaved changes.
-        <a onClick={this.onFavoriteChangeDiscarded}>[discard]</a>
+        <a id="discardChanges" onClick={this.onChangesDiscarded}>[discard]</a>
         {(
           this.props.currentConnection.isFavorite
-            ? <a onClick={this.onSaveFavoriteClicked}>[save changes]</a>
+            ? <a id="saveChanges" onClick={this.onSaveFavoriteClicked}>[save changes]</a>
             : null
         )}
       </div>

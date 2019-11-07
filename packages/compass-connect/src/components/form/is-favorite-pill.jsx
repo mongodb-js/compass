@@ -17,7 +17,9 @@ class IsFavoritePill extends PureComponent {
     currentConnection: PropTypes.object,
     isModalVisible: PropTypes.bool,
     isMessageVisible: PropTypes.bool,
-    savedMessage: PropTypes.string
+    savedMessage: PropTypes.string,
+    color: PropTypes.string,
+    isFavorite: PropTypes.bool
   }
 
   /**
@@ -82,17 +84,15 @@ class IsFavoritePill extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const isFavorite = this.props.currentConnection.isFavorite;
-    const fontAwesomeName = isFavorite ? 'star' : 'star-o';
+    const fontAwesomeName = this.props.isFavorite ? 'star' : 'star-o';
     const className = classnames({
       [styles['favorite-saved']]: true,
       [styles['favorite-saved-visible']]: this.props.isMessageVisible
     });
-    const color = this.props.currentConnection.color;
     const style = {
-      backgroundColor: color || '#dee0e3',
+      backgroundColor: this.props.color || '#dee0e3',
       /* eslint no-nested-ternary: 0 */
-      color: color ? '#ffffff' : (isFavorite ? '#243642' : '#88989a')
+      color: this.props.color ? '#ffffff' : (this.props.isFavorite ? '#243642' : '#88989a')
     };
 
     return (

@@ -6,7 +6,12 @@ import styles from './sidebar.less';
 
 describe('Favorites [Component]', () => {
   context('when the connection has no color', () => {
-    const favorites = [{ name: 'myconn', isFavorite: true }];
+    const favorites = {
+      '674f5a6b-f4ba-4e5c-a5c8-f557fdc06f40': {
+        name: 'myconn',
+        isFavorite: true
+      }
+    };
     let component;
 
     beforeEach(() => {
@@ -57,7 +62,13 @@ describe('Favorites [Component]', () => {
   });
 
   context('when the connection has a custom color', () => {
-    const favorites = [{ name: 'myconn', isFavorite: true, color: '#2c5f4a' }];
+    const favorites = {
+      '674f5a6b-f4ba-4e5c-a5c8-f557fdc06f40': {
+        name: 'myconn',
+        isFavorite: true,
+        color: '#2c5f4a'
+      }
+    };
     let component;
 
     beforeEach(() => {

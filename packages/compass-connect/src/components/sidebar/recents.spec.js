@@ -5,12 +5,14 @@ import Recents from './recents';
 import styles from './sidebar.less';
 
 describe('Recents [Component]', () => {
-  const recents = [{
-    hostname: 'dev',
-    port: 27000,
-    isRecent: true,
-    isFavorite: false
-  }];
+  const recents = {
+    '674f5a6b-f4ba-4e5c-a5c8-f557fdc06f40': {
+      hostname: 'dev',
+      port: 27000,
+      isRecent: true,
+      isFavorite: false
+    }
+  };
   let component;
 
   beforeEach(() => {

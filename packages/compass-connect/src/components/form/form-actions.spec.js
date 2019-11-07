@@ -229,7 +229,7 @@ describe('FormActions [Component]', () => {
   context('when a favorite was changed and not saved', () => {
     context('when there is no errors', () => {
       context('when it is a connection string view', () => {
-        const connection = { name: 'myconnection' };
+        const connection = { name: 'myconnection', isFavorite: true };
         const isConnected = false;
         const viewType = 'connectionString';
         const errorMessage = null;
@@ -258,6 +258,14 @@ describe('FormActions [Component]', () => {
           const classname = `.${styles['connection-message-container-unsaved-message']}`;
 
           expect(component.find(classname)).to.be.present();
+        });
+
+        it('renders discard and save links', () => {
+          const classname = `.${styles['connection-message-container-unsaved-message']}`;
+          const message = component.find(classname);
+
+          expect(message.find('a[id="discardChanges"]')).to.be.present();
+          expect(message.find('a[id="saveChanges"]')).to.be.present();
         });
       });
 
@@ -425,6 +433,47 @@ describe('FormActions [Component]', () => {
           expect(component.find(classname)).to.be.present();
         });
       });
+    });
+  });
+
+  context('when a recent was changed and not saved', () => {
+    const connection = { name: 'myconnection' };
+    const isConnected = false;
+    const viewType = 'connectionString';
+    const errorMessage = null;
+    const syntaxErrorMessage = null;
+    const hasUnsavedChanges = true;
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <FormActions
+          currentConnection={connection}
+          isConnected={isConnected}
+          viewType={viewType}
+          errorMessage={errorMessage}
+          syntaxErrorMessage={syntaxErrorMessage}
+          hasUnsavedChanges={hasUnsavedChanges}
+          isValid />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders a recent not saved warning', () => {
+      const classname = `.${styles['connection-message-container-unsaved-message']}`;
+
+      expect(component.find(classname)).to.be.present();
+    });
+
+    it('renders only discard link', () => {
+      const classname = `.${styles['connection-message-container-unsaved-message']}`;
+      const message = component.find(classname);
+
+      expect(message.find('a[id="discardChanges"]')).to.be.present();
+      expect(message.find('a[id="saveChanges"]')).to.be.not.present();
     });
   });
 });

@@ -94,23 +94,24 @@ class Connect extends React.Component {
    * @returns {React.Component}
    */
   renderHeader() {
-    const connection = this.props.currentConnection;
     let name = 'New Connection';
 
-    if (connection.isFavorite) {
-      name = (connection.name.length > 40)
-        ? `${connection.name.substring(0, 40)}...`
-        : connection.name;
+    if (this.props.currentConnection.isFavorite) {
+      name = (this.props.currentConnection.name.length > 40)
+        ? `${this.props.currentConnection.name.substring(0, 40)}...`
+        : this.props.currentConnection.name;
     }
 
     return (
       <header>
         <h2>{name}</h2>
         <IsFavoritePill
-          currentConnection={connection}
+          currentConnection={this.props.currentConnection}
           isModalVisible={this.props.isModalVisible}
           isMessageVisible={this.props.isMessageVisible}
-          savedMessage={this.props.savedMessage} />
+          savedMessage={this.props.savedMessage}
+          color={this.props.currentConnection.color}
+          isFavorite={this.props.currentConnection.isFavorite} />
       </header>
     );
   }

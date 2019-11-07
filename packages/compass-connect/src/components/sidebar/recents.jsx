@@ -15,10 +15,7 @@ class Recents extends React.Component {
 
   static propTypes = {
     currentConnection: PropTypes.object.isRequired,
-    connections: PropTypes.oneOfType([
-      PropTypes.object,
-      PropTypes.array
-    ]).isRequired
+    connections: PropTypes.object.isRequired
   };
 
   /**
@@ -27,7 +24,7 @@ class Recents extends React.Component {
    * @param {Object} recent - A recent connection.
    */
   onRecentClicked(recent) {
-    Actions.onRecentSelected(recent);
+    Actions.onConnectionSelected(recent);
   }
 
   /**
@@ -69,7 +66,7 @@ class Recents extends React.Component {
   getClassName(recent) {
     const classnamesProps = [styles['connect-sidebar-list-item']];
 
-    if (this.props.currentConnection === recent) {
+    if (this.props.currentConnection._id === recent._id) {
       classnamesProps.push(styles['connect-sidebar-list-item-is-active']);
     }
 
@@ -98,12 +95,11 @@ class Recents extends React.Component {
   /**
    * Render recent connections.
    *
+   * @param {Object} recents - The recent connections.
+   *
    * @returns {React.Component}
    */
-  renderRecents() {
-    const recents = this.props.connections
-      .filter((connection) => !connection.isFavorite);
-
+  renderRecents(recents) {
     return map(recents, (recent, i) => {
       const title = `${recent.hostname}:${recent.port}`;
 
@@ -138,7 +134,9 @@ class Recents extends React.Component {
   }
 
   render() {
-    const recents = this.props.connections
+    const recents = Object
+      .keys(this.props.connections)
+      .map((key) => this.props.connections[key])
       .filter((connection) => !connection.isFavorite);
     const clearClassName = classnames(styles['connect-sidebar-header-recent-clear']);
     const clearAllDiv = recents.length > 0
@@ -157,7 +155,7 @@ class Recents extends React.Component {
           </div>
         </div>
         <ul className={classnames(styles['connect-sidebar-list'])}>
-          {this.renderRecents()}
+          {this.renderRecents(recents)}
         </ul>
       </div>
     );
