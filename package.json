@@ -365,7 +365,7 @@
     "lodash": "^3.10.1",
     "marky": "^1.2.0",
     "moment": "^2.10.6",
-    "mongodb": "^3.3.2",
+    "mongodb": "^3.3.4",
     "mongodb-ace-autocompleter": "^0.3.3",
     "mongodb-ace-mode": "^0.4.0",
     "mongodb-ace-theme": "^0.0.1",
