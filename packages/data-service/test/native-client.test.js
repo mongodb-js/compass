@@ -2,7 +2,6 @@ var helper = require('./helper');
 var assert = helper.assert;
 var expect = helper.expect;
 var eventStream = helper.eventStream;
-var Connection = require('mongodb-connection-model');
 var ObjectId = require('bson').ObjectId;
 var mock = require('mock-require');
 
@@ -99,21 +98,6 @@ describe('NativeClient', function() {
         mockedClient.connect(function() {
           /* eslint no-unused-expressions: 0 */
           expect(mockedClient.isWritable).to.be.true;
-        });
-      });
-    });
-
-    context('when an invalid connection was provided', function() {
-      var badConnection = new Connection({
-        hostname: '127.0.0.1',
-        port: 27050,
-        ns: 'data-service'
-      });
-      var badClient = new NativeClient(badConnection);
-      it('maps the error message', function(done) {
-        badClient.connect(function(error) {
-          expect(error.message).to.include('connect');
-          done();
         });
       });
     });
@@ -782,20 +766,6 @@ describe('NativeClient', function() {
             }
           );
         });
-      });
-    });
-  });
-
-  describe('#disconnect', function() {
-    after(function(done) {
-      client.connect(done);
-    });
-
-    it('disconnects the database', function(done) {
-      client.disconnect();
-      client.count('data-service.test', {}, {}, function(error) {
-        expect(error.message).to.include('destroyed');
-        done();
       });
     });
   });
