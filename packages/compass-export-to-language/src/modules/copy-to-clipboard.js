@@ -2,7 +2,6 @@
  * The prefix.
  */
 const PREFIX = 'export-to-language/copy-to-clipboard';
-const { clipboard } = require('electron');
 
 /**
  * CopyToClipboardFnChanged changed action.
@@ -13,7 +12,7 @@ export const COPY_TO_CLIPBOARD_FN_CHANGED = `${PREFIX}/COPY_TO_CLIPBOARD_FN_CHAN
  * The initial state.
  */
 export const INITIAL_STATE = (action) => {
-  clipboard.writeText(action);
+  require('electron').clipboard.writeText(action);
 };
 
 /**
