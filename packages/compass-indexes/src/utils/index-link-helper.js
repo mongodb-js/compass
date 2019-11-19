@@ -10,7 +10,7 @@ const HELP_URLS = {
   '2DSPHERE': 'https://docs.mongodb.org/manual/core/2dsphere/',
   GEOHAYSTACK: 'https://docs.mongodb.org/manual/core/geohaystack/',
   GEOSPATIAL: 'https://docs.mongodb.org/manual/applications/geospatial-indexes/#geospatial-indexes',
-  WILDCARD: 'https://docs.mongodb.org/manual/core/wildcard/',
+  WILDCARD: 'https://docs.mongodb.com/manual/core/index-wildcard/',
   TEXT: 'https://docs.mongodb.org/manual/core/index-text/',
   HASHED: 'https://docs.mongodb.org/manual/core/index-hashed/',
   REGULAR: 'https://docs.mongodb.com/manual/indexes/#single-field',
