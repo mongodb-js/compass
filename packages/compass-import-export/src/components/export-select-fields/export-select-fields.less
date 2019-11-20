@@ -1,0 +1,49 @@
+@import (reference) '~less/compass/_theme.less';
+
+.export-select-fields {
+  &-caption {
+    width: 100%;
+
+    p {
+      margin-right: 7px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    div {
+      display: inline-block;
+      width: 30%;
+    }
+
+    i {
+      color: @gray5;
+    }
+  }
+
+  &-field-wrapper {
+    max-height: 200px;
+    overflow-y: scroll;
+  }
+
+  &-field-name {
+    width: 100%;
+  }
+
+  &-table {
+    border-collapse: collapse;
+    border-spacing: 0px;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: 11px;
+    padding: 3px 5px !important;
+    border: 1px solid @gray6;
+
+    thead {
+      background: @gray8;
+    }
+
+    th, td {
+      padding: 3px 5px !important;
+      border: 1px solid @gray6;
+    }
+  }
+}

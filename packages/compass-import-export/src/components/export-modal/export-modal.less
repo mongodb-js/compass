@@ -1,8 +1,16 @@
 @import (reference) '~less/compass/_theme.less';
 
 .export-modal {
-  &-form {
-    box-shadow: initial;
+  &-radio input[type="radio"] {
+    margin-right: 10px;
+  }
+
+  &-back-button {
+    float: left;
+
+    i {
+      padding-right: 5px;
+    }
   }
 
   &-query {
@@ -13,72 +21,11 @@
     }
 
     &-viewer {
+      margin: 0 0 10px 22px;
+
       &-is-disabled {
         opacity: 0.5;
       }
     }
-  }
-
-  &-browse {
-    &-group {
-      display: flex;
-      height: 40px;
-
-      input {
-        border-radius: 2px 0px 0px 2px !important;
-        background-color: #ffffff !important;
-        box-shadow: 0px;
-        height: 40px;
-      }
-
-      button {
-        white-space: nowrap;
-        width: 110px;
-        background-color: #ffffff;
-        border-width: 1px;
-        border-style: solid;
-      }
-    }
-
-    &-button {
-      text-transform: uppercase;
-      font-weight: bold;
-      font-size: 12px;
-      color: #0d47a1;
-
-      i {
-        padding-right: 3px;
-      }
-    }
-  }
-
-  &-toggle {
-    &-full {
-      padding: 10px 0px 5px 0px;
-      display: flex;
-      align-items: center;
-    }
-
-    &-button {
-      height: 22px !important;
-      width: 42px !important;
-      cursor: pointer !important;
-
-      span {
-        height: 20px !important;
-        width: 20px !important;
-        cursor: pointer !important;
-      }
-    }
-
-    &-text {
-      padding-left: 10px;
-    }
-  }
-
-  &-output {
-    padding: 5px 0px 5px 0px;
-    font-weight: bold;
-    font-size: 14px;
   }
 }

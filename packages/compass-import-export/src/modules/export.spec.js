@@ -1,5 +1,7 @@
 import reducer, * as actions from './export';
 import PROCESS_STATUS from 'constants/process-status';
+import EXPORT_STEP from 'constants/export-step';
+import FILE_TYPES from 'constants/file-types';
 
 describe.skip('export [module]', () => {
   describe('#reducer', () => {
@@ -11,8 +13,16 @@ describe.skip('export [module]', () => {
           expect(reducer({ error: true, isOpen: false }, action)).to.deep.equal({
             isOpen: true,
             progress: 100,
+            exportStep: EXPORT_STEP.QUERY,
+            isFullCollection: false,
+            query: { filter: {} },
             error: true,
-            status: undefined
+            fields: {},
+            fileName: '',
+            fileType: FILE_TYPES.JSON,
+            status: PROCESS_STATUS.UNSPECIFIED,
+            exportedDocsCount: 0,
+            count: 0
           });
         });
       });
@@ -144,6 +154,48 @@ describe.skip('export [module]', () => {
           progress: 0,
           isFullCollection: false,
           query: { filter: {}},
+          error: null,
+          fileName: '',
+          fileType: 'json',
+          status: 'UNSPECIFIED'
+        });
+      });
+    });
+
+    context('when the action type is CHANGE_EXPORT_STEP', () => {
+      const action = actions.changeExportStep(EXPORT_STEP.QUERY);
+
+      it('returns the new state', () => {
+        expect(reducer(undefined, action)).to.deep.equal({
+          isOpen: false,
+          progress: 0,
+          count: 0,
+          exportedDocsCount: 0,
+          exportStep: EXPORT_STEP.QUERY,
+          isFullCollection: false,
+          fields: {},
+          query: { filter: {}},
+          error: null,
+          fileName: '',
+          fileType: 'json',
+          status: 'UNSPECIFIED'
+        });
+      });
+    });
+
+    context('when the action type is UPDATE_FIELDS', () => {
+      const fields = { 'field': 1, 'field2': 0 };
+      const action = actions.updateFields(fields);
+
+      it('returns the new state', () => {
+        expect(reducer(undefined, action)).to.deep.equal({
+          isOpen: false,
+          count: 0,
+          exportedDocsCount: 0,
+          exportStep: EXPORT_STEP.QUERY,
+          isFullCollection: false,
+          query: { filter: {}},
+          fields: fields,
           error: null,
           fileName: '',
           fileType: 'json',

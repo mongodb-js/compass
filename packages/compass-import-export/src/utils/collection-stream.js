@@ -169,13 +169,15 @@ export const createCollectionWriteStream = function(
 export const createReadableCollectionStream = function(
   dataService,
   ns,
-  spec = { filter: {} }
+  spec = { filter: {} },
+  projection = {}
 ) {
-  const { project, limit, skip } = spec;
+  const { limit, skip } = spec;
+
   return dataService
     .fetch(ns, spec.filter || {}, {
       explicitlyIgnoreSession: true,
-      project,
+      projection,
       limit,
       skip
     })

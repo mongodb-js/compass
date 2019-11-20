@@ -2,7 +2,7 @@
 
 /**
  * Create a helper function for accessing a component's class name.
- * 
+ *
  * @param {Object} styles Dictionary of style -> postcss generated class name.
  * @param {String} prefix Component name prefix dasherized
  * @returns {Function}

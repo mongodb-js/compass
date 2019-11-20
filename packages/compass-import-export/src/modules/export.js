@@ -3,6 +3,7 @@ import fs from 'fs';
 import stream from 'stream';
 
 import PROCESS_STATUS from 'constants/process-status';
+import EXPORT_STEP from 'constants/export-step';
 import FILE_TYPES from 'constants/file-types';
 import { appRegistryEmit } from 'modules/compass/app-registry';
 
@@ -30,6 +31,10 @@ const SELECT_FILE_NAME = `${PREFIX}/SELECT_FILE_NAME`;
 const OPEN = `${PREFIX}/OPEN`;
 const CLOSE = `${PREFIX}/CLOSE`;
 
+const CHANGE_EXPORT_STEP = `${PREFIX}/CHANGE_EXPORT_STEP`;
+
+const UPDATE_FIELDS = `${PREFIX}/UPDATE_FIELDS`;
+
 const QUERY_CHANGED = `${PREFIX}/QUERY_CHANGED`;
 const TOGGLE_FULL_COLLECTION = `${PREFIX}/TOGGLE_FULL_COLLECTION`;
 
@@ -46,10 +51,12 @@ const FULL_QUERY = {
  */
 export const INITIAL_STATE = {
   isOpen: false,
+  exportStep: EXPORT_STEP.QUERY,
   isFullCollection: false,
   progress: 0,
   query: FULL_QUERY,
   error: null,
+  fields: {},
   fileName: '',
   fileType: FILE_TYPES.JSON,
   status: PROCESS_STATUS.UNSPECIFIED,
@@ -173,6 +180,13 @@ const reducer = (state = INITIAL_STATE, action) => {
     };
   }
 
+  if (action.type === UPDATE_FIELDS) {
+    return {
+      ...state,
+      fields: action.fields
+    };
+  }
+
   if (action.type === SELECT_FILE_NAME) {
     return {
       ...state,
@@ -188,6 +202,13 @@ const reducer = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fileType: action.fileType
+    };
+  }
+
+  if (action.type === CHANGE_EXPORT_STEP) {
+    return {
+      ...state,
+      exportStep: action.status,
     };
   }
 
@@ -257,6 +278,54 @@ export const closeExport = () => ({
 });
 
 /**
+ * Update export fields
+ * @api public
+ * @param {Object} fields: currently selected/disselected fields to be exported
+ */
+export const updateFields = (fields) => ({
+  type: UPDATE_FIELDS,
+  fields: fields
+});
+
+/**
+ * Select fields to be exported
+ * @api public
+ * @param {String} status: next step in export
+ */
+export const changeExportStep = (status) => ({
+  type: CHANGE_EXPORT_STEP,
+  status: status
+});
+
+export const sampleFields = () => {
+  return (dispatch, getState) => {
+    const {
+      ns,
+      exportData,
+      dataService: { dataService }
+    } = getState();
+
+    const spec = exportData.isFullCollection
+      ? { filter: {} }
+      : exportData.query;
+
+    dataService.find(ns, spec.filter, {limit: 1}, function(findErr, docs) {
+      if (findErr) {
+        return onError(findErr);
+      }
+
+      const fields = Object.keys(docs[0]).sort().reduce((obj, field) => {
+        obj[field] = 1;
+
+        return obj;
+      }, {});
+
+      dispatch(updateFields(fields));
+    });
+  };
+};
+
+/**
  * Run the actual export to file.
  * @api public
  */
@@ -272,6 +341,15 @@ export const startExport = () => {
       ? { filter: {} }
       : exportData.query;
 
+    // filter out only the fields we want to include in our export data
+    const projection = Object.keys(exportData.fields)
+      .filter(field => exportData.fields[field] === 1)
+      .reduce((obj, field) => {
+        obj[field] = exportData.fields[field];
+
+        return obj;
+      }, {});
+
     dataService.estimatedCount(ns, {query: spec.filter}, function(countErr, numDocsToExport) {
       if (countErr) {
         return onError(countErr);
@@ -279,7 +357,7 @@ export const startExport = () => {
 
       debug('count says to expect %d docs in export', numDocsToExport);
 
-      const source = createReadableCollectionStream(dataService, ns, spec);
+      const source = createReadableCollectionStream(dataService, ns, spec, projection);
 
       const progress = createProgressStream({
         objectMode: true,
@@ -305,7 +383,7 @@ export const startExport = () => {
 
       // TODO: lucas: figure out how to make onStarted();
       dispatch(onStarted(source, dest, numDocsToExport));
-      stream.pipeline(source, progress, formatter, dest, function(err, res) {
+      stream.pipeline(source, progress, formatter, dest, function(err) {
         if (err) {
           debug('error running export pipeline', err);
           return dispatch(onError(err));
