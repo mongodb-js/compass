@@ -58,7 +58,7 @@ const configureStore = (options = {}) => {
      *
      * @param {String} tabName - The name of active tab.
      */
-    localAppRegistry.on('active-tab-changed', (tabName) => {
+    localAppRegistry.on('subtab-changed', (tabName) => {
       if (tabName === 'Validation') {
         store.dispatch(activateValidation());
       }
