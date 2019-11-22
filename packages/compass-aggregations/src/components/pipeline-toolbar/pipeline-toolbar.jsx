@@ -16,7 +16,7 @@ class PipelineToolbar extends PureComponent {
     isAtlasDeployed: PropTypes.bool.isRequired,
     savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
-    newPipeline: PropTypes.func.isRequired,
+    setIsNewPipelineConfirm: PropTypes.func.isRequired,
     newPipelineFromText: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
@@ -70,7 +70,6 @@ class PipelineToolbar extends PureComponent {
           getSavedPipelines={this.props.getSavedPipelines}
           savedPipeline={this.props.savedPipeline}
           clonePipeline={this.props.clonePipeline}
-          newPipeline={this.props.newPipeline}
           newPipelineFromText={this.props.newPipelineFromText}
           exportToLanguage={this.props.exportToLanguage}
           saveCurrentPipeline={this.props.saveCurrentPipeline}
@@ -87,6 +86,7 @@ class PipelineToolbar extends PureComponent {
           savingPipelineOpen={this.props.savingPipelineOpen}
           serverVersion={this.props.serverVersion}
           openCreateView={this.props.openCreateView}
+          setIsNewPipelineConfirm={this.props.setIsNewPipelineConfirm}
         />
         <PipelinePreviewToolbar
           isAtlasDeployed={this.props.isAtlasDeployed}

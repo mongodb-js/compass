@@ -11,7 +11,7 @@ describe('PipelineToolbar [Component]', () => {
   let component;
   let savedPipelinesListToggleSpy;
   let getSavedPipelinesSpy;
-  let newPipelineSpy;
+  let setIsNewPipelineConfirmSpy;
   let newPipelineFromTextSpy;
   let clonePipelineSpy;
   let nameChangedSpy;
@@ -28,13 +28,15 @@ describe('PipelineToolbar [Component]', () => {
   let toggleSettingsIsExpandedSpy;
   let savingPipelineOpenSpy;
   let openCreateViewSpy;
+  let isAtlasDeployedSpy;
+  let updateViewSpy;
 
   beforeEach(() => {
     savedPipelinesListToggleSpy = sinon.spy();
     getSavedPipelinesSpy = sinon.spy();
     stageAddedSpy = sinon.spy();
     exportToLanguageSpy = sinon.spy();
-    newPipelineSpy = sinon.spy();
+    setIsNewPipelineConfirmSpy = sinon.spy();
     newPipelineFromTextSpy = sinon.spy();
     clonePipelineSpy = sinon.spy();
     nameChangedSpy = sinon.spy();
@@ -49,6 +51,8 @@ describe('PipelineToolbar [Component]', () => {
     toggleSettingsIsExpandedSpy = sinon.spy();
     savingPipelineOpenSpy = sinon.spy();
     openCreateViewSpy = sinon.spy();
+    isAtlasDeployedSpy = false;
+    updateViewSpy = sinon.spy();
 
     component = shallow(
       <PipelineToolbar
@@ -57,7 +61,7 @@ describe('PipelineToolbar [Component]', () => {
         stageAdded={stageAddedSpy}
         saveCurrentPipeline={saveSpy}
         savedPipeline={{ isNameValid: true }}
-        newPipeline={newPipelineSpy}
+        setIsNewPipelineConfirm={setIsNewPipelineConfirmSpy}
         newPipelineFromText={newPipelineFromTextSpy}
         clonePipeline={clonePipelineSpy}
         toggleComments={toggleCommentsSpy}
@@ -81,6 +85,8 @@ describe('PipelineToolbar [Component]', () => {
         serverVersion="4.0.0"
         savingPipelineOpen={savingPipelineOpenSpy}
         openCreateView={openCreateViewSpy}
+        isAtlasDeployed={isAtlasDeployedSpy}
+        updateView={updateViewSpy}
       />
     );
   });

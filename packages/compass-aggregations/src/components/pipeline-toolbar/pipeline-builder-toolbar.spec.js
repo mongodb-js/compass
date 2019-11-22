@@ -9,7 +9,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
   let savedPipelinesListToggleSpy;
   let getSavedPipelinesSpy;
   let exportToLanguageSpy;
-  let newPipelineSpy;
+  let setIsNewPipelineConfirmSpy;
   let newPipelineFromTextSpy;
   let clonePipelineSpy;
   let nameChangedSpy;
@@ -19,12 +19,13 @@ describe('PipelineBuilderToolbar [Component]', () => {
   let toggleOverviewSpy;
   let savingPipelineOpenSpy;
   let openCreateViewSpy;
+  let updateViewSpy;
 
   beforeEach(() => {
     savedPipelinesListToggleSpy = sinon.spy();
     getSavedPipelinesSpy = sinon.spy();
     exportToLanguageSpy = sinon.spy();
-    newPipelineSpy = sinon.spy();
+    setIsNewPipelineConfirmSpy = sinon.spy();
     newPipelineFromTextSpy = sinon.spy();
     clonePipelineSpy = sinon.spy();
     nameChangedSpy = sinon.spy();
@@ -34,6 +35,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
     toggleOverviewSpy = sinon.spy();
     savingPipelineOpenSpy = sinon.spy();
     openCreateViewSpy = sinon.spy();
+    updateViewSpy = sinon.spy();
 
     component = mount(
       <PipelineBuilderToolbar
@@ -41,7 +43,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
         getSavedPipelines={getSavedPipelinesSpy}
         saveCurrentPipeline={saveSpy}
         savedPipeline={{ isListVisible: true }}
-        newPipeline={newPipelineSpy}
+        setIsNewPipelineConfirm={setIsNewPipelineConfirmSpy}
         newPipelineFromText={newPipelineFromTextSpy}
         clonePipeline={clonePipelineSpy}
         nameChanged={nameChangedSpy}
@@ -57,6 +59,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
         serverVersion="4.0.0"
         savingPipelineOpen={savingPipelineOpenSpy}
         openCreateView={openCreateViewSpy}
+        updateView={updateViewSpy}
       />
     );
   });
@@ -66,13 +69,14 @@ describe('PipelineBuilderToolbar [Component]', () => {
     savedPipelinesListToggleSpy = null;
     getSavedPipelinesSpy = null;
     exportToLanguageSpy = null;
-    newPipelineSpy = null;
+    setIsNewPipelineConfirmSpy = null;
     newPipelineFromTextSpy = null;
     clonePipelineSpy = null;
     nameChangedSpy = null;
     saveSpy = null;
     setIsModifiedSpy = null;
     toggleOverviewSpy = null;
+    updateViewSpy = null;
   });
 
   it('renders the wrapper div', () => {

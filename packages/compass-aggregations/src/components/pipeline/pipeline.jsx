@@ -17,6 +17,7 @@ import RestorePipelineModal from './modals/restore-pipeline-modal';
 import ImportPipeline from './modals/import-pipeline';
 import ConfirmImportPipeline from './modals/confirm-import-pipeline';
 import SavingPipelineModal from 'components/saving-pipeline-modal';
+import ConfirmNewPipeline from './modals/confirm-new-pipeline';
 import styles from './pipeline.less';
 
 import {
@@ -110,7 +111,9 @@ class Pipeline extends PureComponent {
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
     newPipelineFromPaste: PropTypes.func.isRequired,
-    openCreateView: PropTypes.func.isRequired
+    openCreateView: PropTypes.func.isRequired,
+    isNewPipelineConfirm: PropTypes.bool.isRequired,
+    setIsNewPipelineConfirm: PropTypes.func.isRequired
   };
 
   static defaultProps = {
@@ -207,6 +210,13 @@ class Pipeline extends PureComponent {
         confirmNew={this.props.confirmNew}
       />
     );
+    const confirmNewPipelineModal = (
+      <ConfirmNewPipeline
+        isNewPipelineConfirm={this.props.isNewPipelineConfirm}
+        setIsNewPipelineConfirm={this.props.setIsNewPipelineConfirm}
+        newPipeline={this.props.newPipeline}
+      />
+    );
 
     const savingPipelineModal = (
       <SavingPipelineModal
@@ -236,7 +246,6 @@ class Pipeline extends PureComponent {
           exportToLanguage={this.props.exportToLanguage}
           saveCurrentPipeline={this.props.saveCurrentPipeline}
           savedPipeline={this.props.savedPipeline}
-          newPipeline={this.props.newPipeline}
           newPipelineFromText={this.props.newPipelineFromText}
           clonePipeline={this.props.clonePipeline}
           toggleComments={this.props.toggleComments}
@@ -260,6 +269,7 @@ class Pipeline extends PureComponent {
           savingPipelineOpen={this.props.savingPipelineOpen}
           serverVersion={this.props.serverVersion}
           openCreateView={this.props.openCreateView}
+          setIsNewPipelineConfirm={this.props.setIsNewPipelineConfirm}
         />
         {this.renderCollationToolbar()}
         <Splitter isCollationExpanded={this.props.isCollationExpanded} />
@@ -287,6 +297,7 @@ class Pipeline extends PureComponent {
         {importPipelineModal}
         {confirmImportPipelineModal}
         {savingPipelineModal}
+        {confirmNewPipelineModal}
       </div>
     );
   }

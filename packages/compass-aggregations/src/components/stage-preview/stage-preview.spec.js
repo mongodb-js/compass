@@ -19,6 +19,7 @@ describe('StagePreview [Component]', () => {
           index={0}
           runOutStage={sinon.spy()}
           gotoOutResults={sinon.spy()}
+          gotoMergeResults={sinon.spy()}
           isLoading={false} />
       );
     });
@@ -50,6 +51,7 @@ describe('StagePreview [Component]', () => {
             index={0}
             runOutStage={sinon.spy()}
             gotoOutResults={sinon.spy()}
+            gotoMergeResults={sinon.spy()}
             isLoading={false}
             stage=""
             stageOperator="$out" />
@@ -92,6 +94,7 @@ describe('StagePreview [Component]', () => {
             index={0}
             runOutStage={sinon.spy()}
             gotoOutResults={gotoSpy}
+            gotoMergeResults={sinon.spy()}
             isLoading={false}
             stageOperator="$out" />
         );
@@ -141,6 +144,7 @@ describe('StagePreview [Component]', () => {
             isComplete={false}
             runOutStage={sinon.spy()}
             gotoOutResults={sinon.spy()}
+            gotoMergeResults={sinon.spy()}
             stage=""
             stageOperator="$out" />
         );
@@ -170,6 +174,7 @@ describe('StagePreview [Component]', () => {
             index={0}
             runOutStage={sinon.spy()}
             gotoOutResults={sinon.spy()}
+            gotoMergeResults={sinon.spy()}
             stageOperator="$match" />
         );
       });

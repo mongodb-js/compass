@@ -43,7 +43,6 @@ import allowWrites, {
 import maxTimeMS, {
   INITIAL_STATE as MAX_TIME_MS_INITIAL_STATE
 } from './max-time-ms';
-
 import collation, {
   INITIAL_STATE as COLLATION_INITIAL_STATE
 } from './collation';
@@ -96,11 +95,13 @@ import savingPipeline, {
 import outResultsFn, {
   INITIAL_STATE as OUT_RESULTS_FN_INITIAL_STATE
 } from 'modules/out-results-fn';
-
 import projections, {
   INITIAL_STATE as PROJECTIONS_INITIAL_STATE,
   PROJECTIONS_CHANGED
 } from 'modules/projections';
+import isNewPipelineConfirm, {
+  INITIAL_STATE as IS_NEW_PIPELINE_CONFIRM_STATE
+} from './is-new-pipeline-confirm';
 
 /**
  * The intial state of the root reducer.
@@ -138,7 +139,8 @@ export const INITIAL_STATE = {
   projections: PROJECTIONS_INITIAL_STATE,
   outResultsFn: OUT_RESULTS_FN_INITIAL_STATE,
   editViewName: EDIT_VIEW_NAME_INITIAL_STATE,
-  sourceName: SOURCE_NAME_INITIAL_STATE
+  sourceName: SOURCE_NAME_INITIAL_STATE,
+  isNewPipelineConfirm: IS_NEW_PIPELINE_CONFIRM_STATE
 };
 
 /**
@@ -210,7 +212,8 @@ const appReducer = combineReducers({
   projections,
   editViewName,
   sourceName,
-  outResultsFn
+  outResultsFn,
+  isNewPipelineConfirm
 });
 
 /**
@@ -685,6 +688,8 @@ export const openCreateView = () => {
  *
  * @param {String} viewName - The view name.
  * @param {Array} viewPipeline - The view pipeline.
+ * @param {Boolean} readonly - Is read only.
+ * @param {String} source - The source name.
  *
  * @returns {Object} The action.
  */
@@ -705,6 +710,8 @@ export const modifySource = (viewName, viewPipeline, readonly, source) => ({
 
 /**
  * Updates a view.
+ *
+ * @returns {Function} The function.
  */
 export const updateView = () => {
   return (dispatch, getState) => {

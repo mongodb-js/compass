@@ -88,6 +88,7 @@ describe('StagePreviewToolbar [Component]', () => {
     beforeEach(() => {
       component = shallow(
         <StagePreviewToolbar
+          openLink={sinon.spy()}
           stageOperator="$match"
           isValid
           count={10}
@@ -111,6 +112,7 @@ describe('StagePreviewToolbar [Component]', () => {
     beforeEach(() => {
       component = shallow(
         <StagePreviewToolbar
+          openLink={sinon.spy()}
           stageOperator="$out"
           stageValue="collection"
           count={0}
@@ -135,6 +137,7 @@ describe('StagePreviewToolbar [Component]', () => {
     beforeEach(() => {
       component = shallow(
         <StagePreviewToolbar
+          openLink={sinon.spy()}
           stageOperator={null}
           count={0}
           isValid

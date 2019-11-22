@@ -13,6 +13,7 @@ describe('StageWorkspace [Component]', () => {
   let gotoOutResultsSpy;
   let projectionsChangedSpy;
   let newPipelineFromPasteSpy;
+  let gotoMergeResultsSpy;
 
   beforeEach(() => {
     stageChangedSpy = sinon.spy();
@@ -22,6 +23,7 @@ describe('StageWorkspace [Component]', () => {
     gotoOutResultsSpy = sinon.spy();
     projectionsChangedSpy = sinon.spy();
     newPipelineFromPasteSpy = sinon.spy();
+    gotoMergeResultsSpy = sinon.spy();
 
     component = shallow(
       <StageWorkspace
@@ -39,6 +41,7 @@ describe('StageWorkspace [Component]', () => {
         isEnabled
         runStage={runStageSpy}
         gotoOutResults={gotoOutResultsSpy}
+        gotoMergeResults={gotoMergeResultsSpy}
         runOutStage={runOutStageSpy}
         setIsModified={setIsModifiedSpy}
         stageChanged={stageChangedSpy}

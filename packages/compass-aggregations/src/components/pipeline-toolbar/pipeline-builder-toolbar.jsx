@@ -26,7 +26,7 @@ class PipelineBuilderToolbar extends PureComponent {
     isAtlasDeployed: PropTypes.bool.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
-    newPipeline: PropTypes.func.isRequired,
+    setIsNewPipelineConfirm: PropTypes.func.isRequired,
     newPipelineFromText: PropTypes.func.isRequired,
 
     nameChanged: PropTypes.func.isRequired,
@@ -97,30 +97,43 @@ class PipelineBuilderToolbar extends PureComponent {
     this.props.savingPipelineOpen({ name: this.props.name, isSaveAs: true });
   };
 
+  /**
+   * Handle clicks on the `Toggle Saved Pipelines` button to open pipelines.
+   */
   handleSavedPipelinesOpen = () => {
     this.props.getSavedPipelines();
     this.props.savedPipelinesListToggle(1);
   };
 
+  /**
+   * Handle clicks on the `Toggle Saved Pipelines` button to close pipelines.
+   */
   handleSavedPipelinesClose = () => {
     this.props.savedPipelinesListToggle(0);
   };
 
   /**
    * Is the current pipeline already saved?
+   *
    * @returns {Boolean}
    */
   isSavedPipeline() {
     return this.props.name !== '';
   }
 
-  modifiedText() {
-    if (!this.props.isModified) {
-      return null;
-    }
-    return <span>Modified</span>;
+  /**
+   * Handle clicks on the new pipeline button and show
+   * confirmation modal first.
+   */
+  showNewPipelineConfirmModal() {
+    this.props.setIsNewPipelineConfirm(true);
   }
 
+  /**
+   * Renders the is modified indicator.
+   *
+   * @returns {React.Component} The component.
+   */
   renderIsModifiedIndicator() {
     const isModifiedClassName = classnames({
       [styles['is-modified']]: true,
@@ -136,6 +149,11 @@ class PipelineBuilderToolbar extends PureComponent {
     );
   }
 
+  /**
+   * Renders the save dropdown menu.
+   *
+   * @returns {React.Component} The component.
+   */
   renderSaveDropdownMenu() {
     const children = [
       <MenuItem
@@ -160,6 +178,11 @@ class PipelineBuilderToolbar extends PureComponent {
     return children;
   }
 
+  /**
+   * Renders the saved pipeline list toggler.
+   *
+   * @returns {React.Component} The component.
+   */
   renderSavedPipelineListToggler() {
     if (!this.props.isAtlasDeployed && !this.props.editViewName) {
       const clickHandler = this.props.savedPipeline.isListVisible
@@ -189,6 +212,11 @@ class PipelineBuilderToolbar extends PureComponent {
     }
   }
 
+  /**
+   * Renders the new pipeline actions item.
+   *
+   * @returns {React.Component} The component.
+   */
   renderNewPipelineActionsItem() {
     if (!this.props.editViewName) {
       return (
@@ -200,7 +228,7 @@ class PipelineBuilderToolbar extends PureComponent {
                 'btn-xs',
                 styles['pipeline-builder-toolbar-new-button']
               )}
-              onClick={this.props.newPipeline}>
+              onClick={this.showNewPipelineConfirmModal.bind(this)}>
               <i className="fa fa-plus-circle" />
             </Button>
             <Dropdown.Toggle className="btn-default btn-xs btn" />
@@ -216,6 +244,11 @@ class PipelineBuilderToolbar extends PureComponent {
     }
   }
 
+  /**
+   * Renders the saved pipeline name item.
+   *
+   * @returns {React.Component} The component.
+   */
   renderSavedPipelineNameItem() {
     if (!this.props.isAtlasDeployed && !this.props.editViewName) {
       return (
@@ -229,6 +262,11 @@ class PipelineBuilderToolbar extends PureComponent {
     }
   }
 
+  /**
+   * Renders the save pipeline actions item.
+   *
+   * @returns {React.Component} The component.
+   */
   renderSavePipelineActionsItem() {
     if (!this.props.isAtlasDeployed && !this.props.editViewName) {
       const savePipelineClassName = classnames({
@@ -256,6 +294,11 @@ class PipelineBuilderToolbar extends PureComponent {
     }
   }
 
+  /**
+   * Renders the export to language item.
+   *
+   * @returns {React.Component} The component.
+   */
   renderExportToLanguageItem() {
     return (
       <div
@@ -274,6 +317,11 @@ class PipelineBuilderToolbar extends PureComponent {
     );
   }
 
+  /**
+   * Renders the update view button.
+   *
+   * @returns {React.Component} The component.
+   */
   renderUpdateViewButton() {
     if (this.props.editViewName) {
       return (

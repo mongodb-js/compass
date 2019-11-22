@@ -7,7 +7,6 @@ import { nameChanged } from 'modules/name';
 import { limitChanged } from 'modules/limit';
 import { largeLimitChanged } from 'modules/large-limit';
 import { maxTimeMSChanged } from 'modules/max-time-ms';
-
 import { collationCollapseToggled } from 'modules/collation-collapser';
 import { collationChanged } from 'modules/collation';
 import { collationStringChanged } from 'modules/collation-string';
@@ -18,7 +17,6 @@ import {
   toggleInputDocumentsCollapsed,
   refreshInputDocuments
 } from 'modules/input-documents';
-
 import { exportToLanguage } from 'modules/export-to-language';
 import { openLink } from 'modules/link';
 import { toggleOverview } from 'modules/is-overview-on';
@@ -67,7 +65,7 @@ import {
   createNew,
   confirmNew
 } from 'modules/import-pipeline';
-
+import { setIsNewPipelineConfirm } from 'modules/is-new-pipeline-confirm';
 import {
   toggleSettingsIsExpanded,
   toggleSettingsIsCommentMode,
@@ -76,14 +74,12 @@ import {
   setSettingsLimit,
   applySettings
 } from 'modules/settings';
-
 import {
   savingPipelineNameChanged,
   savingPipelineApply,
   savingPipelineCancel,
   savingPipelineOpen
 } from 'modules/saving-pipeline';
-
 import { projectionsChanged } from 'modules/projections';
 
 import styles from './aggregations.less';
@@ -145,7 +141,9 @@ const mapStateToProps = (state) => ({
   isFullscreenOn: state.isFullscreenOn,
   savingPipeline: state.savingPipeline,
   projections: state.projections,
-  editViewName: state.editViewName
+  editViewName: state.editViewName,
+  isNewPipelineConfirm: state.isNewPipelineConfirm,
+  setIsNewPipelineConfirm: state.setIsNewPipelineConfirm
 });
 
 /**
@@ -214,7 +212,8 @@ const MappedAggregations = connect(
     projectionsChanged,
     newPipelineFromPaste,
     updateView,
-    openCreateView
+    openCreateView,
+    setIsNewPipelineConfirm
   }
 )(Aggregations);
 
