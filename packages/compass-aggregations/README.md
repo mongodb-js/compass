@@ -213,30 +213,110 @@ provider.count(namespace, filter, options, callback);
 provider.aggregate(namespace, pipeline, options, callback);
 ```
 
+### App Registry Events Emmitted
+Various actions within this plugin will emit events for other parts of the
+application can be listened to via [hadron-app-registry][hadron-app-registry].
+`Local` events are scoped to a `Tab`.
+`Global` events are scoped to the whole Compass application.
+
+#### Global
+- **'open-create-view'**: Indicated `Create View` is to be opened.
+- **'compass:export-to-language:opened', source**: Indicates
+  `export-to-language` was opened. `source` refers to the module it is opened
+from, in this case `Aggregations`.
+- **'compass:aggregations:pipeline-imported'**: Indicates a pipeline ws
+  imported, either from pasting the pipeline in, or from using the import
+functionality. Sends data to metrics.
+- **'compass:aggregations:create-view', numOfStages**: Indicates `Create View` was
+  successful. `numOfStages` refers to pipeline length. Sends data to metrics.
+- **'compass:aggregations:pipeline-opened'**: Indicates a saved pipeline was
+  opened. Sends pipeline data to metrics.
+- **'open-namespace-in-new-tab'**: Indicates current pipeline's namespace is to
+  be opened in a new tab. Called when `Create View` is successful, when
+`$merge` are to be shown, when `$out` results are to be shown.
+- **'compass:aggregations:update-view', numOfStages**: Indicates a pipeline view
+  was updated. `numOfStages` refers to the length of the pipeline. Sends data to
+metrics.
+- **'compass:aggregations:settings-applied', settings**: Indicates pipeline
+  settings are to be applied. `settings` include: `isExpanded`, `isCommentMode`,
+`isDirty`, `sampleSize`, `maxTimeMS`, `limit`.
+- **'refresh-data'**: Indicates a data refresh is required within Compass.
+- **'select-namespace', metadata**: Indicates a namespace is being selected.
+  Emitted when updating a collection. `metadata` refers to information about the
+pipeline.
+- **'agg-pipeline-deleted'**: Indicates a pipeline was deleted. Sends pipeline
+  data to metrics.
+- **'agg-pipeline-saved', pipelineName**: Indicates a pipeline was saved
+  locally. Sens pipeline data to analytics.
+- **'agg-pipeline-executed', metadata**: Indicates a pipeline was executed.
+  `metadata` refers to data about the pipeline. Sends pipeline data to metrics.
+- **'agg-pipeline-out-executed', pipelineId**: Indicates a pipeline was executed
+  with a `$out`. Sends pipeline data to metrics.
+
+#### Local
+- **'open-aggregation-export-to-language', pipeline**: Indicates
+  `export-to-language` plugin is to opened. `pipeline` refers to the pipeline to
+be exported.
+- **'open-create-view', { meta: { source, pipeline }}**: Indicates `Create
+  View` is being opened.
+
+### App Registry Events Received
+#### Local 
+- **'import-finished'**: When import data was successful, refresh plugin's input
+  data.
+- **'fields-changed', fields**: Received when schema fields change. Updates
+  plugin's fields.
+- **'refresh-data'**: Received when Compass data was refreshed. Refreshes input
+  data in the plugin.
+- **'open-create-view', { meta: { source, pipeline }}**: Received when `Create
+  View` is to be opened. Opens a Create View modal.
+
+#### Global
+- **'refresh-data'**: Received when Input data is to be refreshed on Compass 
+  level. Refreshes plugin's input.
+
+### Metrics Events
+- `refresh-data`
+- `open-create-view`
+- `agg-pipeline-saved`
+- `agg-pipeline-deleted`
+- `agg-pipeline-executed`
+- `agg-pipeline-out-executed`
+- `compass:aggregations:update-view`
+- `compass:aggregations:create-view`
+- `compass:aggregations:pipeline-opened`
+- `compass:aggregations:settings-applied`
+- `compass:aggregations:pipeline-imported`
+
 ## Development
 
 ### Tests
 
-```
+```shell
 npm run test
 ```
 
 ### Electron
 
-```
+```shell
 npm start
 ```
 
 ### Storybook
 
-```
+```shell
 npm run storybook
 ```
 
 ### Analyze Build
 
-```
+```shell
 npm run analyze
+```
+
+## Install
+```shell
+npm i -S @mongodb-js/compass-aggregations
 ```
 
 ## License
@@ -247,3 +327,4 @@ Apache 2.0
 [travis_url]: https://travis-ci.org/mongodb-js/compass-aggregations
 [storybook_img]: https://raw.githubusercontent.com/storybooks/brand/master/badge/badge-storybook.svg
 [storybook_url]: https://mongodb-js.github.io/compass-aggregations/
+[hadron-app-registry]: https://github.com/mongodb-js/hadron-app-registry
