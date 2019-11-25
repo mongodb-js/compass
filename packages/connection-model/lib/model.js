@@ -677,27 +677,21 @@ Connection = AmpersandModel.extend({
   initialize(attrs) {
     if (attrs) {
       if (typeof attrs === 'string') {
-        try {
-          attrs = Connection.from(attrs);
-        } catch (e) {
-          this.validationError = e;
-
-          return;
+        throw new TypeError('To create a connection object from URI please use `Connection.from` function.');
+      } else {
+        if (attrs.sslCA && !Array.isArray(attrs.sslCA)) {
+          this.sslCA = attrs.sslCA = [attrs.sslCA];
         }
+
+        if (attrs.sshTunnel && attrs.sshTunnel !== 'NONE') {
+          const port = localPortGenerator();
+
+          attrs.sshTunnelBindToLocalPort = port;
+          this.sshTunnelBindToLocalPort = port;
+        }
+
+        this.parse(attrs);
       }
-
-      if (attrs.sslCA && !Array.isArray(attrs.sslCA)) {
-        this.sslCA = attrs.sslCA = [attrs.sslCA];
-      }
-
-      if (attrs.sshTunnel && attrs.sshTunnel !== 'NONE') {
-        const port = localPortGenerator();
-
-        attrs.sshTunnelBindToLocalPort = port;
-        this.sshTunnelBindToLocalPort = port;
-      }
-
-      this.parse(attrs);
     }
   },
   parse(attrs) {
@@ -928,7 +922,7 @@ Connection = AmpersandModel.extend({
  *   const Connection = require('mongodb-connection-model');
  *   const createClient = require('scout-client');
  *   args.endpoint = args.endpoint || 'https://localhost:29017';
- *   const client = createClient(args.endpoint, Connection.from(args._[0]));
+ *   const client = createClient(args.endpoint, Connection.from(url, () => {}));
  *
  * @param {String} [url]
  * @param {Function} [callback]

@@ -976,4 +976,15 @@ describe('connection model builder', () => {
       expect(isURI).to.be.equal(false);
     });
   });
+
+  describe('should not build a connection object from URI', () => {
+    it('should throw the type error', () => {
+      expect(
+        () => new Connection('mongodb://mongodb1.example.com:27317,mongodb2.example.com:27017/?replicaSet=mySet&authSource=authDB')
+      ).to.throw(
+        TypeError,
+        'To create a connection object from URI please use `Connection.from` function.'
+      );
+    });
+  });
 });
