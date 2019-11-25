@@ -68,6 +68,16 @@ describe('Schema Store', () => {
     it('defaults the count to 0', () => {
       expect(store.state.count).to.equal(0);
     });
+
+    it('resets samplingTimeMS after stop', () => {
+      store.setState({
+        samplingTimeMS: 100
+      });
+
+      store.stopSampling();
+
+      expect(store.state.samplingTimeMS).to.equal(0);
+    });
   });
 
   context('when query change events are emitted', () => {

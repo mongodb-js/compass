@@ -183,6 +183,11 @@ const configureStore = (options = {}) => {
         clearInterval(this.samplingTimer);
         this.samplingTimer = null;
       }
+
+      this.setState({
+        samplingTimeMS: 0
+      });
+
       if (this.samplingStream) {
         this.samplingStream.destroy();
         this.samplingStream = null;
