@@ -1,9 +1,11 @@
 import { Tooltip } from 'hadron-react-components';
+import { TextButton } from 'hadron-react-buttons';
 import ExportField from 'components/export-field';
 import styles from './export-select-fields.less';
 import { FIELDS } from 'constants/export-step';
-import createStyler from 'utils/styler.js';
 import React, { PureComponent } from 'react';
+import createStyler from 'utils/styler.js';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
 
@@ -17,6 +19,16 @@ class ExportSelectFields extends PureComponent {
     exportStep: PropTypes.string.isRequired,
     updateFields: PropTypes.func.isRequired,
   };
+
+  constructor(props) {
+    super(props);
+    this.newFieldRef = React.createRef();
+  }
+
+  addNewFieldButton = () => {
+    this.newFieldRef.current.scrollIntoView();
+    this.newFieldRef.current.focus();
+  }
 
   handleFieldCheckboxChange = (evt) => {
     const fields = Object.assign({}, this.props.fields);
@@ -36,6 +48,17 @@ class ExportSelectFields extends PureComponent {
     this.props.updateFields(fields);
   }
 
+  handleAddFieldSubmit = (evt) => {
+    if (evt.key === 'Enter') {
+      const obj = {};
+      obj[evt.target.value] = 1;
+      const fields = Object.assign(obj, this.props.fields);
+
+      this.props.updateFields(fields);
+      this.newFieldRef.current.focus();
+    }
+  }
+
   isEveryFieldChecked() {
     const fields = this.props.fields;
 
@@ -53,8 +76,33 @@ class ExportSelectFields extends PureComponent {
     ));
   }
 
+  renderEmptyField() {
+    const fieldsLen = Object.keys(this.props.fields).length;
+
+    return (
+      <tr key={`new-field ${fieldsLen}`}>
+        <td/>
+        <td className={style('field-number')}>{fieldsLen + 1}</td>
+        <td>
+          <input type="text"
+            ref={this.newFieldRef}
+            placeholder="Add field"
+            className={style('add-field-input')}
+            onKeyDown={this.handleAddFieldSubmit}/>
+          <div className={style('return-symbol')}>
+            <i className="fa fa-level-down fa-rotate-90"/>
+            <p>to add</p>
+          </div>
+        </td>
+      </tr>
+    );
+    // });
+  }
+
   render() {
     if (this.props.exportStep !== FIELDS) return null;
+
+    const addFieldButtonClassname = classnames('btn', 'btn-default', 'btn-xs', style('new-field'));
 
     return (
       <div>
@@ -66,6 +114,10 @@ class ExportSelectFields extends PureComponent {
             <i className="fa fa-info-circle" />
             <Tooltip id="field-tooltip" />
           </div>
+          <TextButton
+            text="+ Add Field"
+            className={addFieldButtonClassname}
+            clickHandler={this.addNewFieldButton}/>
         </div>
         <div className={style('field-wrapper')}>
           <table className={style('table')}>
@@ -84,6 +136,7 @@ class ExportSelectFields extends PureComponent {
             </thead>
             <tbody>
               {this.renderFieldRows()}
+              {this.renderEmptyField()}
             </tbody>
           </table>
         </div>
