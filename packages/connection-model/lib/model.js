@@ -138,7 +138,7 @@ const CONNECTION_STRING_OPTIONS = {
   retryWrites: { type: 'boolean', default: undefined },
   uuidRepresentation: {
     type: 'string',
-    values: ['standard', 'csharpLegacy', 'javaLegacy', 'pythonLegacy'],
+    values: [undefined, 'standard', 'csharpLegacy', 'javaLegacy', 'pythonLegacy'],
     default: undefined
   }
 };
@@ -459,7 +459,7 @@ assign(derived, {
 
       Object.keys(CONNECTION_STRING_OPTIONS).forEach((item) => {
         if (typeof this[item] !== 'undefined' && !req.query[item]) {
-          if (item === 'compression') {
+          if (item === 'compression' && this.compression) {
             if (this.compression.compressors) {
               req.query.compressors = this.compression.compressors.join(',');
             }
