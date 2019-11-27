@@ -25,9 +25,19 @@ class ExportSelectFields extends PureComponent {
     this.newFieldRef = React.createRef();
   }
 
+  state = { addingFields: false }
+
+  componentDidUpdate() {
+    if (this.state.addingFields) {
+      this.newFieldRef.current.scrollIntoView();
+      this.newFieldRef.current.focus();
+    }
+  }
+
   addNewFieldButton = () => {
     this.newFieldRef.current.scrollIntoView();
     this.newFieldRef.current.focus();
+    this.setState({ addingFields: true });
   }
 
   handleFieldCheckboxChange = (evt) => {
@@ -46,6 +56,10 @@ class ExportSelectFields extends PureComponent {
     }
 
     this.props.updateFields(fields);
+  }
+
+  handleInputOnBlur = () => {
+    this.setState({ addingFields: false });
   }
 
   handleAddFieldSubmit = (evt) => {
@@ -87,6 +101,7 @@ class ExportSelectFields extends PureComponent {
           <input type="text"
             ref={this.newFieldRef}
             placeholder="Add field"
+            onBlur={this.handleInputOnBlur}
             className={style('add-field-input')}
             onKeyDown={this.handleAddFieldSubmit}/>
           <div className={style('return-symbol')}>
