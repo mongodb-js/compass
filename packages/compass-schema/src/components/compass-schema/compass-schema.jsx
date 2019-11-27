@@ -45,7 +45,8 @@ class Schema extends Component {
       'analyzing',
       'error',
       'complete',
-      'outdated'
+      'outdated',
+      'timeout'
     ]),
     samplingProgress: PropTypes.number,
     samplingTimeMS: PropTypes.number,
