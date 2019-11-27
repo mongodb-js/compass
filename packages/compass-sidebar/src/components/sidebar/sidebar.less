@@ -125,20 +125,24 @@
     display: block;
     font-weight: bold;
     font-size: 12px;
-    line-height: 12px;
+    line-height: 28px;
     height: 28px;
     width: 28px;
     margin: 0 auto;
     overflow: hidden;
     text-transform: uppercase;
     transition: all 180ms ease;
-    white-space: nowrap;
     text-align: center;
+    padding: 0;
 
     .plus-button {
       opacity: 0;
       transition: all 180ms ease;
       display: inline-block;
+    }
+
+    i {
+      line-height: inherit !important;
     }
   }
 
