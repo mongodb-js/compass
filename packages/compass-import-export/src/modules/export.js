@@ -28,7 +28,7 @@ const ERROR = `${PREFIX}/ERROR`;
 const SELECT_FILE_TYPE = `${PREFIX}/SELECT_FILE_TYPE`;
 const SELECT_FILE_NAME = `${PREFIX}/SELECT_FILE_NAME`;
 
-const OPEN = `${PREFIX}/OPEN`;
+const ON_MODAL_OPEN = `${PREFIX}/ON_MODAL_OPEN`;
 const CLOSE = `${PREFIX}/CLOSE`;
 
 const CHANGE_EXPORT_STEP = `${PREFIX}/CHANGE_EXPORT_STEP`;
@@ -122,10 +122,11 @@ const reducer = (state = INITIAL_STATE, action) => {
     };
   }
 
-  if (action.type === OPEN) {
+  if (action.type === ON_MODAL_OPEN) {
     return {
       ...INITIAL_STATE,
-      query: state.query,
+      count: action.count,
+      query: action.query,
       isOpen: true
     };
   }
@@ -261,12 +262,16 @@ export const queryChanged = query => ({
   query: query
 });
 
+
 /**
- * Open the export modal.
- * @api public
+ * Populate export modal data on open.
+ * @api private
+ * @param {Number} document count given current query.
+ * @param {Object} current query.
  */
-export const openExport = () => ({
-  type: OPEN
+export const onModalOpen = (count, query) => ({
+  type: ON_MODAL_OPEN,
+  count: count, query: query
 });
 
 /**
@@ -296,6 +301,33 @@ export const changeExportStep = (status) => ({
   type: CHANGE_EXPORT_STEP,
   status: status
 });
+
+/**
+ * Open the export modal.
+ *
+ * Counts the documents to be exported given the current query on modal open to
+ * provide user with accurate export data
+ *
+ * @api public
+ */
+export const openExport = () => {
+  return (dispatch, getState) => {
+    const {
+      ns,
+      exportData,
+      dataService: { dataService }
+    } = getState();
+
+    const spec = exportData.query;
+
+    dataService.estimatedCount(ns, {query: spec.filter}, function(countErr, count) {
+      if (countErr) {
+        return onError(countErr);
+      }
+      dispatch(onModalOpen(count, spec));
+    });
+  };
+};
 
 export const sampleFields = () => {
   return (dispatch, getState) => {
