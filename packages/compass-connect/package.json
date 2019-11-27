@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-connect",
   "productName": "Compass Connect Plugin",
-  "version": "5.2.7",
+  "version": "5.2.8",
   "apiVersion": "3.0.0",
   "description": "Connection Screen Plugin that supports Compass",
   "main": "lib/index.js",
