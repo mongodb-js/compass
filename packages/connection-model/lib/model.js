@@ -459,12 +459,12 @@ assign(derived, {
 
       Object.keys(CONNECTION_STRING_OPTIONS).forEach((item) => {
         if (typeof this[item] !== 'undefined' && !req.query[item]) {
-          if (item === 'compression' && this.compression) {
-            if (this.compression.compressors) {
+          if (item === 'compression') {
+            if (this.compression && this.compression.compressors) {
               req.query.compressors = this.compression.compressors.join(',');
             }
 
-            if (this.compression.zlibCompressionLevel) {
+            if (this.compression && this.compression.zlibCompressionLevel) {
               req.query.zlibCompressionLevel = this.compression.zlibCompressionLevel;
             }
           } else if (item === 'authMechanismProperties') {
