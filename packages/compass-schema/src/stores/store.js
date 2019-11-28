@@ -20,7 +20,8 @@ const PROMOTE_VALUES = false;
 const DEFAULT_QUERY = {
   filter: {},
   project: null,
-  limit: DEFAULT_SAMPLE_SIZE
+  limit: DEFAULT_SAMPLE_SIZE,
+  maxTimeMS: DEFAULT_MAX_TIME_MS
 };
 
 /**
@@ -131,7 +132,6 @@ const configureStore = (options = {}) => {
         samplingProgress: 0,
         samplingTimeMS: 0,
         errorMessage: '',
-        maxTimeMS: DEFAULT_MAX_TIME_MS,
         schema: null,
         count: 0
       };
@@ -141,6 +141,7 @@ const configureStore = (options = {}) => {
       this.query.filter = state.filter;
       this.query.limit = state.limit;
       this.query.project = state.project;
+      this.query.maxTimeMS = state.maxTimeMS;
       if (this.state.samplingState === 'complete') {
         this.setState({
           samplingState: 'outdated'
@@ -164,18 +165,6 @@ const configureStore = (options = {}) => {
         delete this.geoLayers[layer._leaflet_id];
       });
       this.localAppRegistry.emit('compass:schema:geo-query', generateGeoQuery(this.geoLayers));
-    },
-
-    setMaxTimeMS(maxTimeMS) {
-      this.setState({
-        maxTimeMS: maxTimeMS
-      });
-    },
-
-    resetMaxTimeMS() {
-      this.setState({
-        maxTimeMS: DEFAULT_MAX_TIME_MS
-      });
     },
 
     stopSampling() {
@@ -220,7 +209,7 @@ const configureStore = (options = {}) => {
       });
 
       const sampleOptions = {
-        maxTimeMS: this.state.maxTimeMS,
+        maxTimeMS: this.query.maxTimeMS,
         query: this.query.filter,
         size: this.query.limit === 0 ? DEFAULT_SAMPLE_SIZE : Math.min(MAX_NUM_DOCUMENTS, this.query.limit),
         fields: this.query.project,
@@ -287,7 +276,7 @@ const configureStore = (options = {}) => {
       };
 
       const countOptions = {
-        maxTimeMS: this.state.maxTimeMS
+        maxTimeMS: this.query.maxTimeMS
       };
 
       this.dataService.count(this.ns, this.query.filter, countOptions, (err, count) => {
