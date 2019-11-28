@@ -4,12 +4,11 @@ import jsBeautify from 'js-beautify';
 import PropTypes from 'prop-types';
 import Ace from 'react-ace';
 
-import 'brace/mode/javascript';
-import 'brace/mode/csharp';
-import 'brace/mode/python';
-import 'brace/mode/java';
-
+import 'brace/ext/language_tools';
+import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';
+
+import 'brace/mode/json';
 
 import styles from './insert-json-document.less';
 
@@ -61,7 +60,7 @@ class InsertJsonDocument extends Component {
     return (
       <div className={queryStyle}>
         <Ace
-          mode="javascript"
+          mode="json"
           defaultValue={EDITOR_COMMENT}
           value={value}
           onChange={this.onChange.bind(this)}

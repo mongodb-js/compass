@@ -8,12 +8,11 @@ import { TextButton } from 'hadron-react-buttons';
 import DocumentActions from 'components/document-actions';
 import RemoveDocumentFooter from 'components/remove-document-footer';
 
-import 'brace/mode/javascript';
-import 'brace/mode/csharp';
-import 'brace/mode/python';
-import 'brace/mode/java';
-
+import 'brace/ext/language_tools';
+import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';
+
+import 'brace/mode/json';
 
 /**
  * The base class.
@@ -311,7 +310,7 @@ class JsonEditor extends React.Component {
     return (
       <div className="json-ace-editor">
         <Ace
-          mode="javascript"
+          mode="json"
           value={value}
           theme="mongodb"
           width="100%"
