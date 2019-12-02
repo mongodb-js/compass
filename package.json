@@ -275,7 +275,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/10gen/compass.git"
+    "url": "git://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
     "@mongodb-js/compass-aggregations": "^4.0.14",
