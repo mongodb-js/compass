@@ -58,7 +58,7 @@ describe('Schema Store', () => {
     });
 
     it('defaults max time ms to the default', () => {
-      expect(store.state.maxTimeMS).to.equal(10000);
+      expect(store.query.maxTimeMS).to.equal(10000);
     });
 
     it('defaults the schema to null', () => {

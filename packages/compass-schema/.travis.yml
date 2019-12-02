@@ -8,9 +8,8 @@ env:
     - MONGODB_VERSION=4.0.x MONGODB_TOPOLOGY=standalone
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
+      - build-essential
       - libkrb5-dev
       - libsecret-1-dev
       - libstdc++6
