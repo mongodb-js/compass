@@ -17,8 +17,9 @@ const OPTIONS = {
   fontSize: 11,
   minLines: 5,
   maxLines: Infinity,
-  showGutter: true,
+  showGutter: false,
   readOnly: true,
+  fixedWidthGutter: false,
   highlightActiveLine: false,
   highlightGutterLine: false,
   useWorker: false
