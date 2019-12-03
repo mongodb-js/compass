@@ -1,4 +1,3 @@
-const async = require('async');
 const debug = require('debug')('mongodb-compass:migrations');
 const { ConnectionIndexedDBCollection } = require('./connection-indexeddb');
 const Connection = require('mongodb-connection-model');
