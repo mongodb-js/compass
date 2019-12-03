@@ -1,6 +1,6 @@
 const debug = require('debug')('mongodb-compass:migrations');
 const { ConnectionIndexedDBCollection } = require('./connection-indexeddb');
-const Connection = require('mongodb-connection-model');
+const Connection = require('./connection-disk');
 
 /**
  * Mappings from the old connection model properties to the new one.
