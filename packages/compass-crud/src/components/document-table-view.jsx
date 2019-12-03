@@ -124,6 +124,9 @@ class DocumentTableView extends React.Component {
   onGridReady(params) {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
+
+    this.hadronDocs = this.props.docs;
+    this.handleBreadcrumbChange();
   }
 
   /**
