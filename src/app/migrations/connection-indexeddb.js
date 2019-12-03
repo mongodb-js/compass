@@ -19,11 +19,8 @@ const ConnectionIndexedDB = Connection.extend(storageMixin, {
   idAttribute: '_id',
   namespace: 'Connections',
   storage: {
-    backend: 'splice',
-    appName: appName,
-    secureCondition: function(val, key) {
-      return key.match(/(password|passphrase)/i);
-    }
+    backend: 'local',
+    appName: appName
   },
   serialize: function() {
     return Connection.prototype.serialize.call(this, {
@@ -38,7 +35,7 @@ module.exports.ConnectionIndexedDBCollection = Collection.extend(storageMixin, {
   model: ConnectionIndexedDB,
   namespace: 'Connections',
   storage: {
-    backend: 'splice',
+    backend: 'local',
     appName: appName
   },
   mainIndex: '_id'

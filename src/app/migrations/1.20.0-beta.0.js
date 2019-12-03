@@ -84,41 +84,40 @@ const moveToDiskStorage = (done) => {
   debug('migration: moveToDiskStorage');
   const connections = new ConnectionIndexedDBCollection();
   connections.once('sync', function() {
-    const toBeSaved = connections.map(function(connection) {
-      const newAttributes = mapAttributes(connection.attributes);
-      const newConnection = new Connection(newAttributes);
-      return (callback) => {
-        if (newConnection.isFavorite) {
-          const valid = newConnection.save({}, {
-            success: () => {
-              callback(null);
-            },
-            error: () => {
-              callback(null);
+    console.log('connections length', connections.length);
+    if (connections.length > 0) {
+      connections.forEach(function(connection, i) {
+        const newAttributes = mapAttributes(connection.attributes);
+        const newConnection = new Connection(newAttributes);
+        console.log('newConnection', newConnection, i);
+        const valid = newConnection.save({}, {
+          success: () => {
+            console.log('success', i);
+            if (i === connections.length - 1) {
+              done(null);
             }
-          });
-          if (!valid) {
-            callback(null);
+          },
+          error: () => {
+            console.log('error', i);
+            if (i === connections.length - 1) {
+              done(null);
+            }
           }
-        } else {
-          callback(null);
+        });
+        console.log('not valid', i);
+        if (!valid && (i === connections.length - 1)) {
+          done(null);
         }
-      };
-    });
-    async.parallel(toBeSaved, function(err) {
-      if (err) {
-        debug('error saving connections to disk', err.message);
-      }
-      done();
-    });
+      });
+    } else {
+      done(null);
+    }
   });
   connections.fetch({ reset: true });
 };
 
 module.exports = (previousVersion, currentVersion, callback) => {
-  async.series([
-    moveToDiskStorage
-  ], function(err) {
+  moveToDiskStorage(function(err) {
     if (err) {
       debug('encountered an error in the migration', err);
       return callback(null);
