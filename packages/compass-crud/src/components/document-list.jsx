@@ -101,6 +101,7 @@ class DocumentList extends React.Component {
           version={this.props.version}
           tz={this.props.tz}
           ns={this.props.ns}
+          updateComment={this.props.updateComment}
           {...this.props.insert} />
       );
     }
@@ -197,7 +198,8 @@ DocumentList.propTypes = {
   viewChanged: PropTypes.func.isRequired,
   docs: PropTypes.array,
   ns: PropTypes.string,
-  tz: PropTypes.string
+  tz: PropTypes.string,
+  updateComment: PropTypes.func.isRequired
 };
 
 DocumentList.defaultProps = {

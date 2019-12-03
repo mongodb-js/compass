@@ -173,6 +173,11 @@ class InsertDocumentDialog extends React.PureComponent {
     }
   }
 
+  /**
+   * Render the document or json editor.
+   *
+   * @returns {React.Component} The component.
+   */
   renderDocumentOrJsonView() {
     if (!this.props.jsonView) {
       if (this.hasManyDocuments()) {
@@ -190,7 +195,12 @@ class InsertDocumentDialog extends React.PureComponent {
     }
 
     return (
-      <InsertJsonDocument updateJsonDoc={this.props.updateJsonDoc} jsonDoc={this.props.jsonDoc}/>
+      <InsertJsonDocument
+        updateJsonDoc={this.props.updateJsonDoc}
+        jsonDoc={this.props.jsonDoc}
+        isCommentNeeded={this.props.isCommentNeeded}
+        updateComment={this.props.updateComment}
+      />
     );
   }
 
@@ -262,7 +272,9 @@ InsertDocumentDialog.propTypes = {
   jsonView: PropTypes.bool,
   doc: PropTypes.object,
   ns: PropTypes.string,
-  tz: PropTypes.string
+  tz: PropTypes.string,
+  isCommentNeeded: PropTypes.bool,
+  updateComment: PropTypes.func.isRequired
 };
 
 export default InsertDocumentDialog;

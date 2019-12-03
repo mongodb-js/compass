@@ -32,7 +32,8 @@ const configureActions = () => {
     'updateExtJsonDocument',
     'clearUpdateStatus',
     'updateJsonDoc',
-    'viewChanged'
+    'viewChanged',
+    'updateComment'
   ]);
 
   return actions;

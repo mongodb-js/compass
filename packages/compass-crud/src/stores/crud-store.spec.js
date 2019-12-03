@@ -606,6 +606,7 @@ describe('store', () => {
         const doc = new HadronDocument({ name: 'testing' });
 
         beforeEach(() => {
+          store.state.insert.doc = doc;
           store.state.query.filter = { name: 'something' };
         });
 
@@ -623,38 +624,72 @@ describe('store', () => {
             done();
           });
 
-          store.state.insert.doc = doc;
           store.insertDocument();
         });
       });
     });
 
     context('when there is an error', () => {
-      const doc = new HadronDocument({ '$name': 'testing' });
+      context('when it is a json mode', () => {
+        const doc = {};
+        const jsonDoc = '{ "$name": "testing" }';
 
-      beforeEach(() => {
-        store.state.insert.doc = doc;
-      });
-
-      afterEach((done) => {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
-      });
-
-      it('does not insert the document', (done) => {
-        const unsubscribe = store.listen((state) => {
-          expect(state.docs.length).to.equal(0);
-          expect(state.count).to.equal(0);
-          expect(state.insert.doc).to.not.equal(null);
-          expect(state.insert.jsonDoc).to.not.equal(null);
-          expect(state.insert.isOpen).to.equal(true);
-          expect(state.insert.jsonView).to.equal(false);
-          expect(state.insert.message).to.not.equal('');
-          unsubscribe();
-          done();
+        beforeEach(() => {
+          store.state.insert.jsonView = true;
+          store.state.insert.doc = doc;
+          store.state.insert.jsonDoc = jsonDoc;
         });
 
-        store.state.insert.doc = doc;
-        store.insertDocument();
+        afterEach((done) => {
+          dataService.deleteMany('compass-crud.test', {}, {}, done);
+        });
+
+        it('does not insert the document', (done) => {
+          const unsubscribe = store.listen((state) => {
+            expect(state.docs.length).to.equal(0);
+            expect(state.count).to.equal(0);
+            expect(state.insert.doc).to.deep.equal(doc);
+            expect(state.insert.jsonDoc).to.equal(jsonDoc);
+            expect(state.insert.isOpen).to.equal(true);
+            expect(state.insert.jsonView).to.equal(true);
+            expect(state.insert.message).to.not.equal('');
+            unsubscribe();
+            done();
+          });
+
+          store.insertDocument();
+        });
+      });
+
+      context('when it is not a json mode', () => {
+        const doc = new HadronDocument({ '$name': 'testing' });
+        const jsonDoc = '';
+
+        beforeEach(() => {
+          store.state.insert.doc = doc;
+          store.state.insert.jsonDoc = jsonDoc;
+        });
+
+        afterEach((done) => {
+          dataService.deleteMany('compass-crud.test', {}, {}, done);
+        });
+
+        it('does not insert the document', (done) => {
+          const unsubscribe = store.listen((state) => {
+            expect(state.docs.length).to.equal(0);
+            expect(state.count).to.equal(0);
+            expect(state.insert.doc).to.equal(doc);
+            expect(state.insert.jsonDoc).to.equal(jsonDoc);
+            expect(state.insert.isOpen).to.equal(true);
+            expect(state.insert.jsonView).to.equal(false);
+            expect(state.insert.message).to.not.equal('');
+            unsubscribe();
+            done();
+          });
+
+          store.state.insert.doc = doc;
+          store.insertDocument();
+        });
       });
     });
   });
@@ -775,7 +810,7 @@ describe('store', () => {
         const unsubscribe = store.listen((state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
-          expect(state.insert.doc).to.not.equal(null);
+          expect(state.insert.doc).to.deep.equal({});
           expect(state.insert.jsonDoc).to.equal(docs);
           expect(state.insert.isOpen).to.equal(true);
           expect(state.insert.jsonView).to.equal(true);
