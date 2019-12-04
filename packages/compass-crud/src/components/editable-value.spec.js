@@ -34,7 +34,7 @@ describe('<EditableValue />', () => {
       before(() => {
         const parentElement = new Element('parent', {}, false);
         const element = new Element('name', 'test', false, parentElement);
-        wrapper = mount(<EditableValue element={element} isFocused={false} tz="UTC" />);
+        wrapper = mount(<EditableValue element={element} isFocused={false} tz="UTC" version="3.6.0" />);
       });
 
       it('does not auto focus the input', () => {

@@ -145,7 +145,8 @@ const configureStore = (options = {}) => {
         table: this.getInitialTableState(),
         query: this.getInitialQueryState(),
         isDataLake: false,
-        isReadonly: false
+        isReadonly: false,
+        status: 'initial'
       };
     },
 
@@ -316,6 +317,7 @@ const configureStore = (options = {}) => {
             const index = this.findDocumentIndex(doc);
             this.state.docs.splice(index, 1);
             this.setState({
+              status: 'active',
               count: this.state.count - 1,
               end: this.state.end - 1
             });
@@ -810,6 +812,7 @@ const configureStore = (options = {}) => {
           const docs = documents ? documents : [];
           this.globalAppRegistry.emit('compass:status:done');
           this.setState({
+            status: 'active',
             error: error,
             docs: docs.map(doc => new HadronDocument(doc)),
             count: (err ? null : count),
