@@ -6,9 +6,9 @@ import { Transform, PassThrough } from 'stream';
  * @returns {Object}
  * @param {Object} data
  */
-function removeEmptyFields(data) {
+function removeBlanks(data) {
   if (Array.isArray(data)) {
-    return data.map(removeEmptyFields);
+    return data.map(removeBlanks);
   } else if (typeof data !== 'object' || data === null || data === undefined) {
     return data;
   }
@@ -21,21 +21,21 @@ function removeEmptyFields(data) {
     if (typeof data[key] === 'string' && data[key] === '') {
       return doc;
     }
-    doc[key] = removeEmptyFields(data[key]);
+    doc[key] = removeBlanks(data[key]);
     return doc;
   }, {});
 }
 
-export function removeEmptyFieldsStream(ignoreEmptyFields) {
+export function removeBlanksStream(ignoreEmptyFields) {
   if (!ignoreEmptyFields) {
     return new PassThrough();
   }
   return new Transform({
     objectMode: true,
     transform: function(doc, encoding, cb) {
-      cb(null, removeEmptyFields(doc));
+      cb(null, removeBlanks(doc));
     }
   });
 }
 
-export default removeEmptyFields;
+export default removeBlanks;

@@ -7,7 +7,10 @@ import styles from './error-box.less';
 import createStyler from 'utils/styler.js';
 const style = createStyler(styles, 'error-box');
 
-// TODO: lucas: Sync hex values against .less
+/**
+ * TODO: lucas: Sync hex values against palatte
+ * once we start actually produce ansi.
+ */
 const ANSI_TO_HTML_OPTIONS = {
   fg: '#FFF',
   bg: '#000',

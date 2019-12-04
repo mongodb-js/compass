@@ -9,8 +9,21 @@ const debug = createLogger('detect-import-file');
 
 const DEFAULT_FILE_TYPE = 'json';
 
-// TODO: Include more heuristics. Ideally the user just picks the file
-// and we auto-detect the various formats/options.
+// const importOptions = {
+//   fileIsMultilineJSON: false,
+//   fileType: DEFAULT_FILE_TYPE
+// };
+
+/**
+ * Guess the `importOptions` to use for parsing the contents of
+ * `fileName` without looking at the entire file.
+ *
+ * @param {String} fileName
+ * @param {Function} done (err, importOptions)
+ *
+ * TODO: lucas: Include more heuristics. Ideally the user just picks the file
+ * and we auto-detect the various formats/options.
+ **/
 function detectImportFile(fileName, done) {
   debug('peeking at', fileName);
 
@@ -32,7 +45,10 @@ function detectImportFile(fileName, done) {
       fileType = DEFAULT_FILE_TYPE;
     }
 
-    // TODO: lucas: papaparse guessDelimiter
+    /**
+     * TODO: lucas: guess delimiter like papaparse in the future.
+     * https://github.com/mholt/PapaParse/blob/49170b76b382317356c2f707e2e4191430b8d495/docs/resources/js/papaparse.js#L1264
+     */
     debug('swapping');
     swap('done');
   });

@@ -7,17 +7,7 @@ import parseJSON from 'parse-json';
 import throttle from 'lodash.throttle';
 import progressStream from 'progress-stream';
 
-const debug = createLogger('parsers');
-
-/**
- * TODO: lucas: Add papaparse `dynamicTyping` of values
- * https://github.com/mholt/PapaParse/blob/5219809f1d83ffa611ebe7ed13e8224bcbcf3bd7/papaparse.js#L1216
- */
-
-/**
- * TODO: lucas: mapHeaders option to support existing `.<bson_type>()` caster
- * like `mongoimport` does today.
- */
+const debug = createLogger('import-parser');
 
 /**
  * A transform stream that turns file contents in objects
@@ -27,7 +17,6 @@ const debug = createLogger('parsers');
  */
 export const createCSVParser = function({ delimiter = ',' } = {}) {
   return csv({
-    strict: true,
     separator: delimiter
   });
 };
@@ -57,7 +46,7 @@ export const createJSONParser = function({
     }
   });
 
-  parser.on('data', d => {
+  parser.on('data', (d) => {
     const doc = EJSON.deserialize(d, {
       promoteValues: true,
       bsonRegExp: true
@@ -84,20 +73,75 @@ export const createJSONParser = function({
   return stream;
 };
 
+/**
+ * How often to update progress via a leading throttle
+ */
+const PROGRESS_UPDATE_INTERVAL = 250;
+
+/**
+ * Since we have no idea what the size of a document
+ * will be as part of an import before we've started,
+ * just pick a nice number of bytes :)
+ *
+ * @see utils/import-size-guesstimator
+ * will figure out a more realistic number once the documents start
+ * flowing through the pipechain.
+ */
+const NAIVE_AVERAGE_DOCUMENT_SIZE = 800;
+
+/**
+ * Creates a transform stream for measuring progress at any point in the pipechain
+ * backing an import operation. The `onProgress` callback will be throttled to only update once
+ * every `${PROGRESS_UPDATE_INTERVAL}ms`.
+ *
+ * @param {Number} fileSize The total file size
+ * @param {Function} onProgress Your callback for progress updates
+ * @returns {stream.Transform}
+ */
 export const createProgressStream = function(fileSize, onProgress) {
   const progress = progressStream({
     objectMode: true,
-    length: fileSize / 800,
-    time: 500
+    length: fileSize / NAIVE_AVERAGE_DOCUMENT_SIZE,
+    time: PROGRESS_UPDATE_INTERVAL // NOTE: ask lucas how time is different from an interval here.
   });
 
   // eslint-disable-next-line camelcase
   function update_import_progress_throttled(info) {
-    // debug('progress', info);
-    // dispatch(onProgress(info.percentage, dest.docsWritten));
     onProgress(null, info);
   }
-  const updateProgress = throttle(update_import_progress_throttled, 500);
+  const updateProgress = throttle(
+    update_import_progress_throttled,
+    PROGRESS_UPDATE_INTERVAL,
+    { leading: true }
+  );
   progress.on('progress', updateProgress);
   return progress;
 };
+
+/**
+ * Convenience for creating the right parser transform stream in a single call.
+ *
+ * @param {String} fileName
+ * @param {String} fileType `csv` or `json`
+ * @param {String} delimiter See `createCSVParser()`
+ * @param {Boolean} fileIsMultilineJSON
+ * @returns {stream.Transform}
+ */
+function createParser({
+  fileName = 'myfile',
+  fileType = 'json',
+  delimiter = ',',
+  fileIsMultilineJSON = false
+} = {}) {
+  if (fileType === 'csv') {
+    return createCSVParser({
+      delimiter: delimiter
+    });
+  }
+  return createJSONParser({
+    selector: fileIsMultilineJSON ? null : '*',
+    fileName: fileName
+  });
+}
+
+export default createParser;

@@ -21,12 +21,15 @@ import 'less/global.less';
 /**
  * Customize data service for your sandbox.
  */
-const NS = 'test.people_imported';
+const NS = 'lucas_apple_health_data.sleep';
 
 import Connection from 'mongodb-connection-model';
 const connection = new Connection({
   hostname: '127.0.0.1',
-  port: 27017
+  port: 27017,
+  options: {
+    explicitlyIgnoreSession: true
+  }
 });
 
 /**
@@ -51,8 +54,8 @@ var QUERY_BAR = {
 
 console.group('Compass Plugin Sandbox');
 console.log('db.collection', NS);
-console.log('connect', connection.driver_url, {
-  options: connection.driver_options
+console.log('connect', connection.driverUrl, {
+  options: connection.driverOptions
 });
 console.groupEnd();
 
@@ -82,7 +85,7 @@ const store = configureStore({
 });
 
 // Create a HMR enabled render function
-const render = Component => {
+const render = (Component) => {
   ReactDOM.render(
     <AppContainer>
       <Component store={store} appRegistry={localAppRegistry} />

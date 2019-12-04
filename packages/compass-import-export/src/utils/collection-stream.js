@@ -63,20 +63,18 @@ class WritableCollectionStream extends Writable {
         next();
       };
 
-      const execBatch = cb => {
+      const execBatch = (cb) => {
         const batchSize = this.batch.length;
         this.batch.execute((err, res) => {
-          // TODO: lucas: appears turning off retyableWrites
-          // gives a slightly different error but probably same problem?
+          /**
+           * TODO: lucas: appears turning off retyableWrites
+           * gives a slightly different error but probably same problem?
+           */
           if (
             err &&
             Array.isArray(err.errorLabels) &&
             err.errorLabels.indexOf('TransientTransactionError')
           ) {
-            debug(
-              'NOTE: @lucas: this is a transient transaction error and is a bug in retryable writes.',
-              err
-            );
             err = null;
             res = { nInserted: batchSize };
           }
@@ -84,8 +82,10 @@ class WritableCollectionStream extends Writable {
           if (err && !this.stopOnErrors) {
             console.log('stopOnErrors false. skipping', err);
             err = null;
-            // TODO: lucas: figure out how to extract finer-grained bulk op results
-            // from err in these cases.
+            /**
+             * TODO: lucas: figure out how to extract finer-grained bulk op results
+             * from err in these cases.
+             */
             res = {};
           }
           if (err) {
@@ -105,20 +105,20 @@ class WritableCollectionStream extends Writable {
     debug('running _final()');
 
     if (this.batch.length === 0) {
-      // debug('nothing left in buffer');
       debug('%d docs written', this.docsWritten);
       this.printJobStats();
       return callback();
     }
 
-    // TODO: lucas: Reuse error wrangling from _write above.
+    /**
+     * TODO: lucas: Reuse error wrangling from _write above.
+     */
     debug('draining buffered docs', this.batch.length);
     this.batch.execute((err, res) => {
       this.captureStatsForBulkResult(err, res);
       this.docsWritten += this.batch.length;
       this.printJobStats();
       this.batch = null;
-      // debug('buffer drained', err, res);
       debug('%d docs written', this.docsWritten);
       callback(err);
     });
@@ -134,7 +134,7 @@ class WritableCollectionStream extends Writable {
       'ok'
     ];
 
-    keys.forEach(k => {
+    keys.forEach((k) => {
       this._stats[k] += res[k] || 0;
     });
     if (!err) return;

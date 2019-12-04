@@ -10,12 +10,14 @@
 // import-size-guesstimator.js?6e25:46 bytesPerDoc 458.752
 // import-size-guesstimator.js?6e25:47 docs seen 1000
 // import-size-guesstimator.js?6e25:48 est docs 202250.81743512835
-import { createCSVParser } from './parsers';
+import { createCSVParser } from './import-parser';
 import createImportSizeGuesstimator from './import-size-guesstimator';
 import { pipeline } from 'stream';
 
-// TODO: lucas: This works functionally in electron but can't
-// figure out how/why in mocha-webpack.
+/**
+ * TODO: lucas: This works functionally in electron but can't
+ * figure out how/why mocha-webpack until we get electron@6
+ */
 describe.skip('guesstimator', () => {
   it('should guess', function(done) {
     this.timeout(5000);

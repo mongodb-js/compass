@@ -64,6 +64,9 @@ const config = {
     process: false,
     Buffer: false
   },
+  optimization: {
+    minimize: false
+  },
   devtool: 'eval-source-map',
   entry: {
     index: path.resolve(project.path.src, 'index.js')

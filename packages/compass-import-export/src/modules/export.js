@@ -398,7 +398,6 @@ export const startExport = () => {
       });
 
       progress.on('progress', function(info) {
-        // debug('progress', info);
         dispatch(onProgress(info.percentage, info.transferred));
       });
 
@@ -412,8 +411,6 @@ export const startExport = () => {
       const dest = fs.createWriteStream(exportData.fileName);
 
       debug('executing pipeline');
-
-      // TODO: lucas: figure out how to make onStarted();
       dispatch(onStarted(source, dest, numDocsToExport));
       stream.pipeline(source, progress, formatter, dest, function(err) {
         if (err) {
@@ -453,7 +450,7 @@ export const cancelExport = () => {
     }
     debug('cancelling');
     source.unpipe();
-    // dest.end();
+
     debug('canceled by user');
     dispatch({ type: CANCELED });
   };

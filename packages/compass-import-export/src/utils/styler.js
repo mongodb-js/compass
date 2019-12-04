@@ -26,7 +26,8 @@
  * ```
  */
 export default function styler(styles, prefix) {
-  return function get_style_for_component(what='') {
+  // eslint-disable-next-line camelcase
+  return function get_style_for_component(what = '') {
     const k = `${prefix}${what !== '' ? '-' + what : ''}`;
     const def = styles[k];
     if (!def) {

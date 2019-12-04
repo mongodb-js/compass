@@ -11,6 +11,9 @@ const config = {
   mode: 'development',
   target: 'electron-renderer',
   devtool: 'eval-source-map',
+  optimization: {
+    minimize: false
+  },
   entry: {
     index: [
       // activate HMR for React

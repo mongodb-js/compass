@@ -1,12 +1,12 @@
-import removeEmptyFields from './remove-empty-fields';
+import removeBlanks from './remove-blanks';
 
-describe('remove-empty-fields', () => {
+describe('remove-blanks', () => {
   it('should remove empty strings', () => {
     const source = {
       _id: 1,
       empty: ''
     };
-    const result = removeEmptyFields(source);
+    const result = removeBlanks(source);
     expect(result).to.deep.equal({ _id: 1 });
   });
 
@@ -18,7 +18,7 @@ describe('remove-empty-fields', () => {
       falsed: false,
       undef: undefined
     };
-    const result = removeEmptyFields(source);
+    const result = removeBlanks(source);
     expect(result).to.deep.equal({
       _id: 1,
       nulled: null,

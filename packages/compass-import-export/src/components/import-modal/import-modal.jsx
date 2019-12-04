@@ -1,25 +1,22 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import {
-  Modal,
-  FormGroup,
-  InputGroup,
-  FormControl,
-  ControlLabel
-} from 'react-bootstrap';
-import { TextButton, IconTextButton } from 'hadron-react-buttons';
+import { Modal } from 'react-bootstrap';
+import { TextButton } from 'hadron-react-buttons';
 import fileOpenDialog from 'utils/file-open-dialog';
 import {
   FINISHED_STATUSES,
   STARTED,
   COMPLETED,
-  CANCELED
+  CANCELED,
+  FAILED,
+  UNSPECIFIED
 } from 'constants/process-status';
-import FILE_TYPES from 'constants/file-types';
+
 import ProgressBar from 'components/progress-bar';
 import ErrorBox from 'components/error-box';
-import SelectFileType from 'components/select-file-type';
+import ImportPreview from 'components/import-preview';
+import ImportOptions from 'components/import-options';
 
 import {
   startImport,
@@ -28,65 +25,65 @@ import {
   selectImportFileName,
   setDelimiter,
   setStopOnErrors,
-  setIgnoreEmptyFields,
-  closeImport
+  setIgnoreBlanks,
+  closeImport,
+  toggleIncludeField,
+  setFieldType
 } from 'modules/import';
 
-import styles from './import-modal.less';
-import createStyler from 'utils/styler.js';
-const style = createStyler(styles, 'import-modal');
+/**
+ * Progress messages.
+ */
+const MESSAGES = {
+  [STARTED]: 'Importing documents...',
+  [CANCELED]: 'Import canceled',
+  [COMPLETED]: 'Import completed',
+  [FAILED]: 'Error importing',
+  [UNSPECIFIED]: ''
+};
 
 class ImportModal extends PureComponent {
   static propTypes = {
     open: PropTypes.bool,
     ns: PropTypes.string.isRequired,
-    progress: PropTypes.number.isRequired,
-    status: PropTypes.string.isRequired,
-    error: PropTypes.object,
     startImport: PropTypes.func.isRequired,
     cancelImport: PropTypes.func.isRequired,
     closeImport: PropTypes.func.isRequired,
+
+    /**
+     * Shared
+     */
+    error: PropTypes.object,
+    status: PropTypes.string.isRequired,
+
+    /**
+     * See `<ImportOptions />`
+     */
     selectImportFileType: PropTypes.func.isRequired,
     selectImportFileName: PropTypes.func.isRequired,
     setDelimiter: PropTypes.func.isRequired,
     delimiter: PropTypes.string,
     fileType: PropTypes.string,
     fileName: PropTypes.string,
-    docsWritten: PropTypes.number,
     stopOnErrors: PropTypes.bool,
     setStopOnErrors: PropTypes.func,
-    ignoreEmptyFields: PropTypes.bool,
-    setIgnoreEmptyFields: PropTypes.func,
-    guesstimatedDocsTotal: PropTypes.number
-  };
+    ignoreBlanks: PropTypes.bool,
+    setIgnoreBlanks: PropTypes.func,
 
-  getStatusMessage() {
-    const status = this.props.status;
-    if (this.props.error) {
-      return 'Error importing';
-    }
-    if (status === STARTED) {
-      return 'Importing documents...';
-    }
-    if (status === CANCELED) {
-      return 'Import canceled';
-    }
-    if (status === COMPLETED) {
-      return 'Import completed';
-    }
+    /**
+     * See `<ProgressBar />`
+     */
+    progress: PropTypes.number.isRequired,
+    docsWritten: PropTypes.number,
+    guesstimatedDocsTotal: PropTypes.number,
 
-    return 'UNKNOWN';
-  }
-
-  /**
-   * Handle choosing a file from the file dialog.
-   */
-  // eslint-disable-next-line react/sort-comp
-  handleChooseFile = () => {
-    const file = fileOpenDialog();
-    if (file) {
-      this.props.selectImportFileName(file[0]);
-    }
+    /**
+     * See `<ImportPreview />`
+     */
+    fields: PropTypes.array,
+    values: PropTypes.array,
+    toggleIncludeField: PropTypes.func.isRequired,
+    setFieldType: PropTypes.func.isRequired
   };
 
   /**
@@ -111,24 +108,31 @@ class ImportModal extends PureComponent {
     this.props.startImport();
   };
 
-  handleOnSubmit = evt => {
-    evt.preventDefault();
-    evt.stopPropagation();
-    if (this.props.fileName) {
-      this.props.startImport();
-    }
-  };
+  // TODO: lucas: Make COMPLETED, FINISHED_STATUSES
+  // have better names.
+  // COMPLETED = Done and Successful
+  // FINISHED_STATUSES = Done and maybe success|error|canceled
+  // @irina: "maybe call it IMPORT_STATUS ? since technically a cancelled status means it's not finished"
+
+  /**
+   * Has the import completed successfully?
+   * @returns {Boolean}
+   */
+  wasImportSuccessful() {
+    return this.props.status === COMPLETED;
+  }
 
   renderDoneButton() {
-    if (this.props.status === COMPLETED) {
-      return (
-        <TextButton
-          className="btn btn-primary btn-sm"
-          text="DONE"
-          clickHandler={this.handleClose}
-        />
-      );
+    if (!this.wasImportSuccessful()) {
+      return null;
     }
+    return (
+      <TextButton
+        className="btn btn-primary btn-sm"
+        text="DONE"
+        clickHandler={this.handleClose}
+      />
+    );
   }
 
   renderCancelButton() {
@@ -146,69 +150,16 @@ class ImportModal extends PureComponent {
   }
 
   renderImportButton() {
-    if (this.props.status !== COMPLETED) {
-      return (
-        <TextButton
-          className="btn btn-primary btn-sm"
-          text={this.props.status === STARTED ? 'Importing...' : 'Import'}
-          disabled={!this.props.fileName || this.props.status === STARTED}
-          clickHandler={this.handleImportBtnClicked}
-        />
-      );
+    if (this.wasImportSuccessful()) {
+      return null;
     }
-  }
-
-  renderOptions() {
-    const isCSV = this.props.fileType === FILE_TYPES.CSV;
     return (
-      <fieldset>
-        <legend className={style('legend')}>Options</legend>
-        {isCSV && (
-          <div className={style('option')} style={{ marginBottom: '5px' }}>
-            <label className={style('option-select-label')}>
-              Select delimiter
-            </label>
-            <select
-              onChange={() => {
-                this.props.setDelimiter(!this.props.delimiter);
-              }}
-              defaultValue={this.props.delimiter}
-              className={style('option-select')}
-            >
-              <option value=",">comma</option>
-              <option value="\t">tab</option>
-              <option value=";">semicolon</option>
-              <option value=" ">space</option>
-            </select>
-          </div>
-        )}
-        <div className={style('option')}>
-          <input
-            type="checkbox"
-            checked={this.props.ignoreEmptyFields}
-            onChange={() => {
-              this.props.setIgnoreEmptyFields(!this.props.ignoreEmptyFields);
-            }}
-            className={style('option-checkbox')}
-          />
-          <label className={style('option-checkbox-label')}>
-            Ignore empty strings
-          </label>
-        </div>
-        <div className={style('option')}>
-          <input
-            type="checkbox"
-            checked={this.props.stopOnErrors}
-            onChange={() => {
-              this.props.setStopOnErrors(!this.props.stopOnErrors);
-            }}
-            className={style('option-checkbox')}
-          />
-          <label className={style('option-checkbox-label')}>
-            Stop on errors
-          </label>
-        </div>
-      </fieldset>
+      <TextButton
+        className="btn btn-primary btn-sm"
+        text={this.props.status === STARTED ? 'Importing...' : 'Import'}
+        disabled={!this.props.fileName || this.props.status === STARTED}
+        clickHandler={this.handleImportBtnClicked}
+      />
     );
   }
 
@@ -224,30 +175,30 @@ class ImportModal extends PureComponent {
           Import To Collection {this.props.ns}
         </Modal.Header>
         <Modal.Body>
-          <form onSubmit={this.handleOnSubmit} className={style('form')}>
-            <FormGroup controlId="import-file">
-              <ControlLabel>Select File</ControlLabel>
-              <InputGroup bsClass={style('browse-group')}>
-                <FormControl type="text" value={this.props.fileName} readOnly />
-                <IconTextButton
-                  text="Browse"
-                  clickHandler={this.handleChooseFile}
-                  className={style('browse-button')}
-                  iconClassName="fa fa-folder-open-o"
-                />
-              </InputGroup>
-            </FormGroup>
-            <SelectFileType
-              fileType={this.props.fileType}
-              onSelected={this.props.selectImportFileType}
-              label="Select Input File Type"
-            />
-            {this.renderOptions()}
-          </form>
+          <ImportOptions
+            delimiter={this.props.delimiter}
+            setDelimiter={this.props.setDelimiter}
+            fileType={this.props.fileType}
+            selectImportFileType={this.props.selectImportFileType}
+            fileName={this.props.fileName}
+            selectImportFileName={this.props.selectImportFileName}
+            stopOnErrors={this.props.stopOnErrors}
+            setStopOnErrors={this.props.setStopOnErrors}
+            ignoreBlanks={this.props.ignoreBlanks}
+            setIgnoreBlanks={this.props.setIgnoreBlanks}
+            fileOpenDialog={fileOpenDialog}
+          />
+          <ImportPreview
+            onFieldCheckedChanged={this.props.toggleIncludeField}
+            setFieldType={this.props.setFieldType}
+            values={this.props.values}
+            fields={this.props.fields}
+          />
+
           <ProgressBar
             progress={this.props.progress}
             status={this.props.status}
-            message={this.getStatusMessage()}
+            message={MESSAGES[this.props.status]}
             cancel={this.props.cancelImport}
             docsWritten={this.props.docsWritten}
             guesstimatedDocsTotal={this.props.guesstimatedDocsTotal}
@@ -264,6 +215,7 @@ class ImportModal extends PureComponent {
   }
 }
 
+// TODO: lucas: move connect() and mapStateToProps() to ../../import-plugin.js.
 /**
  * Map the state of the store to component properties.
  *
@@ -271,7 +223,7 @@ class ImportModal extends PureComponent {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   ns: state.ns,
   progress: state.importData.progress,
   open: state.importData.isOpen,
@@ -283,7 +235,10 @@ const mapStateToProps = state => ({
   guesstimatedDocsTotal: state.importData.guesstimatedDocsTotal,
   delimiter: state.importData.delimiter,
   stopOnErrors: state.importData.stopOnErrors,
-  ignoreEmptyFields: state.importData.ignoreEmptyFields
+  ignoreBlanks: state.importData.ignoreBlanks,
+  fields: state.importData.fields,
+  values: state.importData.values,
+  previewLoaded: state.importData.previewLoaded
 });
 
 /**
@@ -298,7 +253,9 @@ export default connect(
     selectImportFileName,
     setDelimiter,
     setStopOnErrors,
-    setIgnoreEmptyFields,
-    closeImport
+    setIgnoreBlanks,
+    closeImport,
+    toggleIncludeField,
+    setFieldType
   }
 )(ImportModal);

@@ -2,6 +2,10 @@
 /* eslint-disable callback-return */
 /* eslint-disable complexity */
 
+/**
+ * TODO: lucas: rename `export-formatters`
+ */
+
 import csv from 'fast-csv';
 import { EJSON } from 'bson';
 import { Transform } from 'stream';
@@ -74,6 +78,6 @@ const formatTabularRow = function(doc, opts = { delimiter: '.' }) {
 export const createCSVFormatter = function() {
   return csv.format({
     headers: true,
-    transform: row => formatTabularRow(row)
+    transform: (row) => formatTabularRow(row)
   });
 };
