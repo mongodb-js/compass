@@ -56,15 +56,15 @@ describe('connection model connector', () => {
           sshTunnel: 'USER_PASSWORD',
           sshTunnelHostname: 'my.ssh-server.com',
           sshTunnelPassword: 'password',
-          sshTunnelUsername: 'my-user'
+          sshTunnelUsername: 'my-user',
+          serverSelectionTimeoutMS: 1000
         });
 
         assert(model.isValid());
         mockConnect(model, setupListeners, (err) => {
           // must throw error here, because the connection details are invalid
           assert.ok(err);
-          console.log(err.message);
-          assert.ok(/ECONNREFUSED/.test(err.message));
+          assert.ok(/ECONNREFUSED/.test(err.reason));
           // assert that tunnel.close() was called once
           assert.ok(spy.calledOnce);
           done();
