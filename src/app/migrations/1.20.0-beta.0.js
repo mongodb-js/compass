@@ -1,3 +1,4 @@
+const ipc = require('hadron-ipc');
 const debug = require('debug')('mongodb-compass:migrations');
 const { ConnectionIndexedDBCollection } = require('./connection-indexeddb');
 const Connection = require('./connection-disk');
@@ -115,6 +116,7 @@ const moveToDiskStorage = (done) => {
 };
 
 module.exports = (previousVersion, currentVersion, callback) => {
+  ipc.call('compass:loading:change-status', { status: `migrating to ${currentVersion}` });
   moveToDiskStorage(function(err) {
     if (err) {
       debug('encountered an error in the migration', err);

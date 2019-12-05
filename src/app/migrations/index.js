@@ -3,7 +3,6 @@ const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
 const semver = require('semver');
 const electronApp = require('electron').remote.app;
-const ipc = require('hadron-ipc');
 
 const debug = require('debug')('mongodb-compass:migrations');
 
@@ -48,7 +47,6 @@ function getPreviousVersion(done) {
 }
 
 module.exports = function(done) {
-  ipc.call('compass:loading:change-status', { status: 'running migrations' });
   getPreviousVersion(function(err, previousVersion) {
     if (err) {
       done(err);
