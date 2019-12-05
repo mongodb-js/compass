@@ -83,28 +83,27 @@ const moveToDiskStorage = (done) => {
   debug('migration: moveToDiskStorage');
   const connections = new ConnectionIndexedDBCollection();
   connections.once('sync', function() {
-    console.log('connections length', connections.length);
     if (connections.length > 0) {
-      connections.forEach(function(connection, i) {
+      let callCount = 0;
+      connections.each(function(connection) {
         const newAttributes = mapAttributes(connection.attributes);
         const newConnection = new Connection(newAttributes);
-        console.log('newConnection', newConnection, i);
         const valid = newConnection.save({}, {
           success: () => {
-            console.log('success', i);
-            if (i === connections.length - 1) {
+            callCount += 1;
+            if (callCount === connections.length) {
               done(null);
             }
           },
           error: () => {
-            console.log('error', i);
-            if (i === connections.length - 1) {
+            callCount += 1;
+            if (callCount === connections.length) {
               done(null);
             }
           }
         });
-        console.log('not valid', i);
-        if (!valid && (i === connections.length - 1)) {
+        if (!valid && (callCount === connections.length)) {
+          callCount += 1;
           done(null);
         }
       });
