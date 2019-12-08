@@ -33,3 +33,5 @@ export function deserialize(obj) {
    */
   return unflatten(obj);
 }
+
+export default { serialize, deserialize };
