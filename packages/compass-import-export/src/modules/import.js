@@ -286,6 +286,12 @@ const loadPreviewDocs = (
   fileIsMultilineJSON
 ) => {
   return (dispatch) => {
+    debug('loading preview', {
+      fileName,
+      fileType,
+      delimiter,
+      fileIsMultilineJSON
+    });
     /**
      * TODO: lucas: add dispatches for preview loading, error, etc.
      * as needed. For the time being, its fast enough and we want
