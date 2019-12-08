@@ -28,6 +28,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     if (globalAppRegistry) {
       globalAppRegistry.emit(action.name, ...action.args);
     }
+    debugger;
     return state;
   }
   return state;

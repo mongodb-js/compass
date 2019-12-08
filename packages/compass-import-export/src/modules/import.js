@@ -225,7 +225,7 @@ export const startImport = () => {
       importSizeGuesstimator,
       progress,
       dest,
-      function(err, res) {
+      function(err) {
         /**
          * Refresh data (docs, aggregations) regardless of whether we have a
          * partial import or full import
@@ -236,9 +236,18 @@ export const startImport = () => {
          * json parsing errors already are.
          */
         if (err) {
+          debug('import-error', {
+            docsWritten: dest.docsWritten,
+            err
+          });
           return dispatch(onError(err));
         }
-        debug('done', err, res);
+
+        debug('import-finished', {
+          docsWritten: dest.docsWritten,
+          size,
+          fileType
+        });
         dispatch(onFinished(dest.docsWritten));
         dispatch(appRegistryEmit('import-finished', size, fileType));
       }
