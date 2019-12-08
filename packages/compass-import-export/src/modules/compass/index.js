@@ -2,8 +2,7 @@ import ns, { nsChanged } from './ns';
 import dataService, { dataServiceConnected } from './data-service';
 import appRegistry, { appRegistryEmit, appRegistryActivated } from './app-registry';
 import globalAppRegistry, {
-  globalAppRegistryActivated,
-  globalAppRegistryEmit
+  globalAppRegistryActivated
 } from './global-app-registry';
 
 export {
@@ -15,6 +14,5 @@ export {
   appRegistryActivated,
   appRegistryEmit,
   globalAppRegistry,
-  globalAppRegistryActivated,
-  globalAppRegistryEmit
+  globalAppRegistryActivated
 };
