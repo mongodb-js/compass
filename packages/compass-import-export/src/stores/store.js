@@ -15,6 +15,10 @@ import { openExport, queryChanged } from 'modules/export';
 import { openImport } from 'modules/import';
 import { statsReceived } from 'modules/stats';
 
+import { createLogger } from 'utils/logger';
+
+const debug = createLogger('store');
+
 /**
  * Set the data provider.
  *
@@ -37,20 +41,24 @@ const configureStore = (options = {}) => {
    *
    * @param {AppRegistry} appRegistry - The app registry.
    */
+  debug('have a local app registry?', options.localAppRegistry ? 'yes' : 'no');
   if (options.localAppRegistry) {
     const appRegistry = options.localAppRegistry;
     store.dispatch(appRegistryActivated(appRegistry));
 
-    appRegistry.on('query-applied', query =>
-      store.dispatch(queryChanged(query))
-    );
+    appRegistry.on('query-applied', query => {
+      debug('dispatching query changed for query-applied app registry event');
+      store.dispatch(queryChanged(query));
+    });
     appRegistry.on('open-import', () => store.dispatch(openImport()));
     appRegistry.on('open-export', () => store.dispatch(openExport()));
     appRegistry.getStore('CollectionStats.Store').listen(stats => {
+      debug('dispatching statsReceived', stats);
       store.dispatch(statsReceived(stats));
     });
   }
 
+  debug('have a global app registry?', options.globalAppRegistry ? 'yes' : 'no');
   if (options.globalAppRegistry) {
     const appRegistry = options.globalAppRegistry;
     store.dispatch(globalAppRegistryActivated(appRegistry));

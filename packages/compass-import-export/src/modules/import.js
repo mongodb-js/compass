@@ -32,7 +32,7 @@ import stripBomStream from 'strip-bom-stream';
 import mime from 'mime-types';
 
 import PROCESS_STATUS from 'constants/process-status';
-import { appRegistryEmit } from 'modules/compass';
+import { appRegistryEmit, globalAppRegistryEmit } from 'modules/compass';
 
 import detectImportFile from 'utils/detect-import-file';
 import { createCollectionWriteStream } from 'utils/collection-stream';
@@ -231,6 +231,7 @@ export const startImport = () => {
          * partial import or full import
          */
         dispatch(appRegistryEmit('refresh-data'));
+        dispatch(globalAppRegistryEmit('refresh-data'));
         /**
          * TODO: lucas: Decorate with a codeframe if not already
          * json parsing errors already are.
@@ -250,6 +251,7 @@ export const startImport = () => {
         });
         dispatch(onFinished(dest.docsWritten));
         dispatch(appRegistryEmit('import-finished', size, fileType));
+        dispatch(globalAppRegistryEmit('import-finished', size, fileType));
       }
     );
   };

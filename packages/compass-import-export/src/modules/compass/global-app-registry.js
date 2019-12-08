@@ -8,6 +8,8 @@ const PREFIX = 'import-export/global-app-registry';
  */
 export const GLOBAL_APP_REGISTRY_ACTIVATED = `${PREFIX}/GLOBAL_APP_REGISTRY_ACTIVATED`;
 
+export const GLOBAL_APP_REGISTRY_EMIT = `${PREFIX}/GLOBAL_APP_REGISTRY_EMIT`;
+
 /**
  * The initial ns state.
  */
@@ -25,6 +27,12 @@ export const globalAppRegistryActivated = (appRegistry) => ({
   appRegistry: appRegistry
 });
 
+export const globalAppRegistryEmit = (name, ...args) => ({
+  type: GLOBAL_APP_REGISTRY_EMIT,
+  name: name,
+  args: args
+});
+
 /**
  * Handle changes to the state.
  *
@@ -36,6 +44,16 @@ export const globalAppRegistryActivated = (appRegistry) => ({
 const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === GLOBAL_APP_REGISTRY_ACTIVATED) {
     return action.appRegistry;
+  }
+  if (action.type === GLOBAL_APP_REGISTRY_EMIT) {
+    if (state) {
+      // TODO: lucas: Come back and clean up re:
+      // refresh-data not working as side effect
+      // of redux-rx -> regular ducks reducers
+      // and scoped state.
+      state.emit(action.name, ...action.args);
+    }
+    return state;
   }
   return state;
 };
