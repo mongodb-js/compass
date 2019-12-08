@@ -128,9 +128,14 @@ class ImportPreview extends PureComponent {
     fields: PropTypes.array,
     values: PropTypes.array,
     onFieldCheckedChanged: PropTypes.func.isRequired,
-    setFieldType: PropTypes.func.isRequired
+    setFieldType: PropTypes.func.isRequired,
+    loaded: PropTypes.bool
   };
+
   render() {
+    if (!this.props.loaded) {
+      return null;
+    }
     return (
       <div className={style()}>
         <table>

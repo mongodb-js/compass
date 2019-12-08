@@ -83,7 +83,8 @@ class ImportModal extends PureComponent {
     fields: PropTypes.array,
     values: PropTypes.array,
     toggleIncludeField: PropTypes.func.isRequired,
-    setFieldType: PropTypes.func.isRequired
+    setFieldType: PropTypes.func.isRequired,
+    previewLoaded: PropTypes.bool
   };
 
   /**
@@ -189,6 +190,7 @@ class ImportModal extends PureComponent {
             fileOpenDialog={fileOpenDialog}
           />
           <ImportPreview
+            loaded={this.props.previewLoaded}
             onFieldCheckedChanged={this.props.toggleIncludeField}
             setFieldType={this.props.setFieldType}
             values={this.props.values}
