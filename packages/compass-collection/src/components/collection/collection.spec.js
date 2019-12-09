@@ -11,6 +11,8 @@ describe('Collection [Component]', () => {
   const statsPlugin = () => { return (<div/>); };
   const statsStore = {};
   const localAppRegistry = new AppRegistry();
+  const selectOrCreateTabSpy = sinon.spy();
+  const sourceReadonly = false;
 
   beforeEach(() => {
     changeSubTabSpy = sinon.spy();
@@ -28,7 +30,9 @@ describe('Collection [Component]', () => {
         activeSubTab={0}
         changeActiveSubTab={changeSubTabSpy}
         id="collection"
-        namespace="db.coll" />
+        namespace="db.coll"
+        selectOrCreateTab={selectOrCreateTabSpy}
+        sourceReadonly={sourceReadonly} />
     );
   });
 

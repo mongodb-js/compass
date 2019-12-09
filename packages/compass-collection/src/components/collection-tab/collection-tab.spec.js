@@ -141,6 +141,7 @@ describe('CollectionTab [Component]', () => {
         <CollectionTab.DecoratedComponent
           namespace="db.coll"
           subTab="Documents"
+          activeSubTabName="Documents"
           isActive
           index={1}
           isReadonly

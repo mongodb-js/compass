@@ -21,6 +21,8 @@ const store = createStore(reducer, applyMiddleware(thunk));
  * @param {AppRegistry} appRegistry - The app registry.
  */
 store.onActivated = (appRegistry) => {
+  const ipc = require('hadron-ipc');
+
   /**
    * When a collection namespace is selected in the sidebar.
    *
@@ -118,6 +120,17 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('data-service-disconnected', () => {
     store.dispatch(clearTabs());
+  });
+
+  /**
+   * When `Share Schema as JSON` clicked in menu send event to the active tab.
+   */
+  ipc.on('window:menu-share-schema-json', () => {
+    const state = store.getState();
+    if (state.appRegistry) {
+      const activeTab = state.tabs.find((tab) => (tab.isActive === true));
+      activeTab.localAppRegistry.emit('menu-share-schema-json');
+    }
   });
 
   /**

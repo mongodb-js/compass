@@ -10,6 +10,8 @@ describe('CollectionHeader [Component]', () => {
   context('when the collection is not readonly', () => {
     let component;
     const statsStore = {};
+    const selectOrCreateTabSpy = sinon.spy();
+    const sourceReadonly = false;
 
     beforeEach(() => {
       component = mount(
@@ -17,7 +19,9 @@ describe('CollectionHeader [Component]', () => {
           isReadonly={false}
           statsPlugin={statsPlugin}
           statsStore={statsStore}
-          namespace="db.coll" />
+          namespace="db.coll"
+          selectOrCreateTab={selectOrCreateTabSpy}
+          sourceReadonly={sourceReadonly} />
       );
     });
 
@@ -41,6 +45,8 @@ describe('CollectionHeader [Component]', () => {
   context('when the collection is readonly', () => {
     let component;
     const statsStore = {};
+    const selectOrCreateTabSpy = sinon.spy();
+    const sourceReadonly = false;
 
     beforeEach(() => {
       component = mount(
@@ -49,7 +55,9 @@ describe('CollectionHeader [Component]', () => {
           sourceName="orig.coll"
           statsPlugin={statsPlugin}
           statsStore={statsStore}
-          namespace="db.coll" />
+          namespace="db.coll"
+          selectOrCreateTab={selectOrCreateTabSpy}
+          sourceReadonly={sourceReadonly} />
       );
     });
 
