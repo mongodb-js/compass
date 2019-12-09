@@ -274,37 +274,30 @@ export const startImport = () => {
           return dispatch(onError(err));
         }
 
-        debug('import-finished', {
-          docsWritten: dest.docsWritten,
-          size,
-          fileType
-        });
         dispatch(onFinished(dest.docsWritten));
+        
+        /**
+         * TODO: lucas: Deduping emits. @see https://github.com/mongodb-js/compass-import-export/pulls/23
+         **/
         dispatch(appRegistryEmit('import-finished',
           size,
           fileType,
           dest.docsWritten,
+          fileIsMultilineJSON,
+          delimiter,
+          ignoreBlanks,
+          stopOnErrors,
           exclude.length > 0,
           transform.length > 0
         ));
-        /**
-         * TODO: lucas: For metrics:
-         *
-         * "resource": "Import",
-         * "action": "completed",
-         * "user_id": "bce2e94b-7e2f-463d-9555-4a6586322cc4",
-         * "created_at": "2017-10-18T19:47:49.085Z",
-         * "metadata": {
-         * "compass_version": "1.21.0",
-         * "file_type": "<csv|json_array|json_lines>",
-         * "num_docs": "<how many docs imported>",
-         * "datatypes_selected": true|false -> fields_excluded
-         * "fields_transformed": true|false -> fields_excluded
-         */
         dispatch(globalAppRegistryEmit('import-finished',
           size,
           fileType,
           dest.docsWritten,
+          fileIsMultilineJSON,
+          delimiter,
+          ignoreBlanks,
+          stopOnErrors,
           exclude.length > 0,
           transform.length > 0
         ));
