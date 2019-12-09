@@ -24,13 +24,6 @@ import {
 const style = createStyler(styles, 'export-select-output');
 
 /**
- * TODO: lucas: When import complete, maybe:
- * 1. hide “cancel” and replace “import” with “done”?
- * 2. "canel" button -> "close" and import becomes "import another"
- * or "view documents"?
- */
-
-/**
  * Progress messages.
  */
 const MESSAGES = {

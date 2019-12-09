@@ -47,10 +47,7 @@ const reducer = (state = INITIAL_STATE, action) => {
   }
   if (action.type === GLOBAL_APP_REGISTRY_EMIT) {
     if (state) {
-      // TODO: lucas: Come back and clean up re:
-      // refresh-data not working as side effect
-      // of redux-rx -> regular ducks reducers
-      // and scoped state.
+      // HACK: lucas: https://github.com/mongodb-js/compass-import-export/pulls/23
       state.emit(action.name, ...action.args);
     }
     return state;

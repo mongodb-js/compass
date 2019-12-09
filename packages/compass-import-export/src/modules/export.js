@@ -5,7 +5,7 @@ import stream from 'stream';
 import PROCESS_STATUS from 'constants/process-status';
 import EXPORT_STEP from 'constants/export-step';
 import FILE_TYPES from 'constants/file-types';
-import { appRegistryEmit } from 'modules/compass/app-registry';
+import { appRegistryEmit, globalAppRegistryEmit } from 'modules/compass';
 
 import { createReadableCollectionStream } from 'utils/collection-stream';
 
@@ -425,6 +425,28 @@ export const startExport = () => {
         dispatch(onFinished(numDocsToExport));
         dispatch(
           appRegistryEmit(
+            'export-finished',
+            numDocsToExport,
+            exportData.fileType
+          )
+        );
+
+        /**
+         * TODO: lucas: For metrics:
+         *
+         * "resource": "Export",
+         * "action": "completed",
+         * "file_type": "<csv|json_array>",
+         * "num_docs": "<how many docs exported>",
+         * "full_collection": true|false
+         * "filter": true|false,
+         * "projection": true|false,
+         * "skip": true|false,
+         * "limit": true|false,
+         * "fields_selected": true|false
+         */
+        dispatch(
+          globalAppRegistryEmit(
             'export-finished',
             numDocsToExport,
             exportData.fileType

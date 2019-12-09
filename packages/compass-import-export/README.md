@@ -28,12 +28,13 @@ See files in the `./test` directory.
 
 ## TODO/Ideas
 
+- [ ] Import: Move away from `state.fields` being array of objects to using all array's of strings. For now, there is some duplication of fields+transforms+excludes we'll come back to and fixup.
+- [ ] import-apply-type-and-projection supports nested dotnotation and only uses `state.importData.transforms`
+- [ ] Import and Export: New Option: If you need to [specify extended-json legacy spec](https://github.com/mongodb/js-bson/pull/339)
+- [ ] Import: bson-csv: support dotnotation expanded from `.` .<bson_type>() caster like [mongoimport does today][mongoimport]
 - [ ] Import: Preview Table: Use highlight.js, mongodb-ace-mode, or something so the text style of the value within a cell matches its destination type
 - [ ] Export: Use electron add to destination file to [recent documents](https://electronjs.org/docs/tutorial/recent-documents)
 - [ ] Import and Export: Show system notification when operation completes. like dropbox screenshot message. toast "XX/XX documents successfully"
-- [ ] Import and Export: New Option: If you need to [specify extended-json legacy spec](https://github.com/mongodb/js-bson/pull/339)
-- [ ] Refactor src/modules/ so import and export reuse a common base
-- [ ] Import: bson-csv: support existing .<bson_type>() caster like [mongoimport does today][mongoimport]
 - [ ] Import: expose finer-grained bulk op results in progress
 - [ ] Import: New Option: drop target collection before import
 - [ ] Import: New Option: define import mode: insert, upsert, merge
@@ -47,6 +48,7 @@ See files in the `./test` directory.
 - [ ] Import: Improve import-size-guesstimator
 - [ ] Import: guess delimiter in `src/utils/detect-import-file.js`
 - [ ] Import and Export: Extract anything from `./src/utils` that could live as standalone modules so other things like say a cli or a different platform could reuse compass' import/export business logic and perf.
+- [ ] Refactor src/modules/ so import and export reuse a common base
 
 ## License
 

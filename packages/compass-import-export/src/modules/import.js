@@ -89,7 +89,9 @@ export const INITIAL_STATE = {
   ignoreBlanks: true,
   fields: [],
   values: [],
-  previewLoaded: false
+  previewLoaded: false,
+  exclude: [],
+  transform: []
 };
 
 /**
@@ -174,7 +176,9 @@ export const startImport = () => {
       delimiter,
       ignoreBlanks,
       stopOnErrors,
-      fields
+      fields,
+      exclude,
+      transform
     } = importData;
 
     const source = fs.createReadStream(fileName, 'utf8');
@@ -214,6 +218,30 @@ export const startImport = () => {
     });
 
     debug('executing pipeline');
+    console.time('import:start');
+    console.group('import:start');
+    
+    console.group('Import Options:');
+    console.table({fileName,
+      fileType,
+      fileIsMultilineJSON,
+      size,
+      delimiter,
+      ignoreBlanks,
+      stopOnErrors
+    });
+
+    console.log('Exclude');
+    console.table(exclude);
+    
+    console.log('Transform');
+    console.table(transform);
+
+    console.log('Fields');
+    console.table(fields);
+    console.groupEnd();
+    
+    console.log('Running import...');
 
     dispatch(onStarted(source, dest));
     stream.pipeline(
@@ -226,6 +254,8 @@ export const startImport = () => {
       progress,
       dest,
       function(err) {
+        console.timeEnd('import:start');
+        console.groupEnd('import:start');
         /**
          * Refresh data (docs, aggregations) regardless of whether we have a
          * partial import or full import
@@ -250,8 +280,34 @@ export const startImport = () => {
           fileType
         });
         dispatch(onFinished(dest.docsWritten));
-        dispatch(appRegistryEmit('import-finished', size, fileType));
-        dispatch(globalAppRegistryEmit('import-finished', size, fileType));
+        dispatch(appRegistryEmit('import-finished',
+          size,
+          fileType,
+          dest.docsWritten,
+          exclude.length > 0,
+          transform.length > 0
+        ));
+        /**
+         * TODO: lucas: For metrics:
+         *
+         * "resource": "Import",
+         * "action": "completed",
+         * "user_id": "bce2e94b-7e2f-463d-9555-4a6586322cc4",
+         * "created_at": "2017-10-18T19:47:49.085Z",
+         * "metadata": {
+         * "compass_version": "1.21.0",
+         * "file_type": "<csv|json_array|json_lines>",
+         * "num_docs": "<how many docs imported>",
+         * "datatypes_selected": true|false -> fields_excluded
+         * "fields_transformed": true|false -> fields_excluded
+         */
+        dispatch(globalAppRegistryEmit('import-finished',
+          size,
+          fileType,
+          dest.docsWritten,
+          exclude.length > 0,
+          transform.length > 0
+        ));
       }
     );
   };
@@ -539,56 +595,28 @@ export const closeImport = () => ({
  */
 // eslint-disable-next-line complexity
 const reducer = (state = INITIAL_STATE, action) => {
-  if (action.type === SET_GUESSTIMATED_TOTAL) {
+  if (action.type === FILE_SELECTED) {
     return {
       ...state,
-      guesstimatedDocsTotal: action.guesstimatedDocsTotal
+      fileName: action.fileName,
+      fileType: action.fileType,
+      fileStats: action.fileStats,
+      fileIsMultilineJSON: action.fileIsMultilineJSON,
+      status: PROCESS_STATUS.UNSPECIFIED,
+      progress: 0,
+      docsWritten: 0,
+      source: undefined,
+      dest: undefined
     };
   }
 
-  if (action.type === SET_DELIMITER) {
+  /**
+   * ## Options
+   */
+  if (action.type === FILE_TYPE_SELECTED) {
     return {
       ...state,
-      delimiter: action.delimiter
-    };
-  }
-
-  if (action.type === TOGGLE_INCLUDE_FIELD) {
-    const newState = {
-      ...state
-    };
-    newState.fields = newState.fields.map((field) => {
-      if (field.path === action.path) {
-        field.checked = !field.checked;
-      }
-      return field;
-    });
-    return newState;
-  }
-
-  if (action.type === SET_FIELD_TYPE) {
-    const newState = {
-      ...state
-    };
-    newState.fields = newState.fields.map((field) => {
-      if (field.path === action.path) {
-        // If a user changes a field type, automatically check it for them
-        // so they don't need an extra click or forget to click it an get frustrated
-        // like I did so many times :)
-        field.checked = true;
-        field.type = action.bsonType;
-      }
-      return field;
-    });
-    return newState;
-  }
-
-  if (action.type === SET_PREVIEW) {
-    return {
-      ...state,
-      values: action.values,
-      fields: action.fields,
-      previewLoaded: true
+      fileType: action.fileType
     };
   }
 
@@ -606,21 +634,76 @@ const reducer = (state = INITIAL_STATE, action) => {
     };
   }
 
-  if (action.type === FILE_SELECTED) {
+  if (action.type === SET_DELIMITER) {
     return {
       ...state,
-      fileName: action.fileName,
-      fileType: action.fileType,
-      fileStats: action.fileStats,
-      fileIsMultilineJSON: action.fileIsMultilineJSON,
-      status: PROCESS_STATUS.UNSPECIFIED,
-      progress: 0,
-      docsWritten: 0,
-      source: undefined,
-      dest: undefined
+      delimiter: action.delimiter
     };
   }
 
+  /**
+   * ## Preview and projection/data type options
+   */
+  if (action.type === SET_PREVIEW) {
+    return {
+      ...state,
+      values: action.values,
+      fields: action.fields,
+      previewLoaded: true,
+      exclude: [],
+      transforms: []
+    };
+  }
+  /**
+   * When checkbox next to a field is checked/unchecked
+   */
+  if (action.type === TOGGLE_INCLUDE_FIELD) {
+    /**
+     * TODO: lucas: Move away from `state.fields` being
+     * array of objects to using all array's of strings.
+     * For now, there is some duplication of fields+transforms+excludes
+     * we'll come back to and fixup.
+     */
+    const newState = {
+      ...state
+    };
+
+    newState.fields = newState.fields.map((field) => {
+      if (field.path === action.path) {
+        field.checked = !field.checked;
+      }
+      return field;
+    });
+
+    newState.exclude = newState.fields.filter(field => !field.checked).map(field => field.path);
+    newState.transform = newState.fields.filter(field => field.checked).map(field => [field.path, field.type]);
+    return newState;
+  }
+  /**
+   * Changing field type from a select dropdown.
+   */
+  if (action.type === SET_FIELD_TYPE) {
+    const newState = {
+      ...state
+    };
+    newState.fields = newState.fields.map((field) => {
+      if (field.path === action.path) {
+        // If a user changes a field type, automatically check it for them
+        // so they don't need an extra click or forget to click it an get frustrated
+        // like I did so many times :)
+        field.checked = true;
+        field.type = action.bsonType;
+      }
+      return field;
+    });
+    newState.exclude = newState.fields.filter(field => !field.checked).map(field => field.path);
+    newState.transform = newState.fields.filter(field => field.checked).map(field => [field.path, field.type]);
+    return newState;
+  }
+
+  /**
+   * ## Status/Progress
+   */
   if (action.type === FAILED) {
     return {
       ...state,
@@ -637,6 +720,13 @@ const reducer = (state = INITIAL_STATE, action) => {
       status: PROCESS_STATUS.STARTED,
       source: action.source,
       dest: action.dest
+    };
+  }
+
+  if (action.type === SET_GUESSTIMATED_TOTAL) {
+    return {
+      ...state,
+      guesstimatedDocsTotal: action.guesstimatedDocsTotal
     };
   }
 
@@ -684,13 +774,6 @@ const reducer = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isOpen: false
-    };
-  }
-
-  if (action.type === FILE_TYPE_SELECTED) {
-    return {
-      ...state,
-      fileType: action.fileType
     };
   }
   return state;

@@ -9,15 +9,11 @@ export const appRegistryActivated = (appRegistry) => ({
   appRegistry: appRegistry
 });
 
-export const appRegistryEmit = (name, ...args) => {
-  return (dispatch) => {
-    dispatch({
-      type: EMIT,
-      name: name,
-      args: args
-    });
-  };
-};
+export const appRegistryEmit = (name, ...args) => ({
+  type: EMIT,
+  name: name,
+  args: args
+});
 
 const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === ACTIVATED) {
