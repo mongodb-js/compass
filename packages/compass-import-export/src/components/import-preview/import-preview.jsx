@@ -138,7 +138,7 @@ class ImportPreview extends PureComponent {
     }
     return (
       <div className={style()}>
-        <div className={style('header')}>Specify fields and Types</div>
+        <div className={style('header')}>Specify Fields and Types</div>
         <table>
           <PreviewFields
             fields={this.props.fields}
