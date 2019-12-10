@@ -22,7 +22,7 @@ const OPTION_DEFINITION = {
   filter: {
     type: 'document',
     placeholder: "{ field: 'value' }",
-    link: 'https://docs.mongodb.com/getting-started/shell/query/'
+    link: 'https://docs.mongodb.com/compass/current/query/filter/'
   },
   project: {
     type: 'document',
