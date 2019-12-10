@@ -3,15 +3,16 @@ const fs = require('fs-plus');
 const debug = require('debug')('hadron-compile-cache:compile-cache');
 
 const BabelCompiler = require('./compiler/babel-compiler');
-const JadeCompiler = require('./compiler/jade-compiler');
 const MarkdownCompiler = require('./compiler/markdown-compiler');
 
 /**
  * Maps file extensions to compilers.
  */
 const COMPILERS = {
-  '.jade': new JadeCompiler(),
   '.jsx': new BabelCompiler(),
+  // TODO: lucas: I'm pretty sure md can go away as well? 
+  // Probably other optimizations like this (do we even need babel here? should it be updated?)
+  // that could result in quick wins or just straight up tech debt drain.
   '.md': new MarkdownCompiler()
 };
 
@@ -154,7 +155,7 @@ class CompileCache {
    */
   _watchHomeDirectory() {
     if (this.isWatching) {
-      const glob = `${this.homeDirectory}/src/**/*.{jsx,jade,md}`;
+      const glob = `${this.homeDirectory}/src/**/*.{jsx,md}`;
       const chokidar = require('chokidar');
       if (this.watcher) {
         this.watcher.close();
