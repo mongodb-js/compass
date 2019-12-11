@@ -127,9 +127,11 @@ store.onActivated = (appRegistry) => {
    */
   ipc.on('window:menu-share-schema-json', () => {
     const state = store.getState();
-    if (state.appRegistry) {
+    if (state.tabs) {
       const activeTab = state.tabs.find((tab) => (tab.isActive === true));
-      activeTab.localAppRegistry.emit('menu-share-schema-json');
+      if (activeTab.localAppRegistry) {
+        activeTab.localAppRegistry.emit('menu-share-schema-json');
+      }
     }
   });
 
