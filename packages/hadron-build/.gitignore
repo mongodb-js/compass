@@ -4,4 +4,3 @@ npm-debug.log
 test/fixtures/hadron-app/dist
 pr-cache/
 *.swp
-package-lock.json
