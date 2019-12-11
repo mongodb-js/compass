@@ -92,16 +92,12 @@ const configureStore = (options = {}) => {
     init: function() {
       this.query = DEFAULT_QUERY;
       this.ns = '';
-
       this.samplingStream = null;
       this.analyzingStream = null;
       this.samplingTimer = null;
       this.trickleStop = null;
       this.geoLayers = {};
-
       this.samplingLock = false;
-
-      ipc.on('window:menu-share-schema-json', this.handleSchemaShare.bind(this));
     },
 
     getShareText() {
@@ -375,6 +371,11 @@ const configureStore = (options = {}) => {
     options.localAppRegistry.on('query-changed', (state) => {
       store.onQueryChanged(state);
     });
+
+    /**
+     * When `Share Schema as JSON` clicked in menu show a dialog message.
+     */
+    options.localAppRegistry.on('menu-share-schema-json', store.handleSchemaShare);
 
     setLocalAppRegistry(store, options.localAppRegistry);
   }
