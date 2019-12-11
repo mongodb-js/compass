@@ -15,12 +15,16 @@ else
         export IS_UBUNTU=true
     fi
 fi
+# https://jira.mongodb.org/browse/COMPASS-4018
+# NPM_VERSION="latest"
+NPM_VERSION="6.13.2"
 
 echo "========================="
 echo "Important Environment Variables"
 echo "========================="
 echo "PLATFORM: $PLATFORM"
 echo "NODE_JS_VERSION: $NODE_JS_VERSION"
+echo "NPM_VERSION: $NPM_VERSION"
 echo "APPDATA: $APPDATA"
 echo "PATH: $PATH"
 
@@ -43,11 +47,12 @@ if [ -n "$IS_WINDOWS" ]; then
     mv node-v$NODE_JS_VERSION-win-x64/* .
     rm -rf node-v$NODE_JS_VERSION-win-x64
 
-    echo "Installing latest npm..."
+    echo "Installing npm@$NPM_VERSION..."
     rm -rf npm npx npm.cmd npx.cmd
     mv node_modules/npm node_modules/npm2
     chmod +x ./node.exe
-    ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@latest
+    
+    ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@$NPM_VERSION
     rm -rf node_modules/npm2/
     chmod +x npm.cmd npm
 else
@@ -66,10 +71,6 @@ else
 
     ./bin/node lib/node_modules/npm2/bin/npm-cli.js version 
 
-    ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@latest
+    ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@$NPM_VERSION
     rm -rf lib/node_modules/npm2/
-
-    # NOTE (@imlucas) RHEL and Ubuntu now have libsecret-dev by default
-    # which are required for `keytar`
-    # https://jira.mongodb.org/browse/BUILD-4243
 fi
