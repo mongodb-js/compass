@@ -310,7 +310,7 @@
     "@mongodb-js/compass-loading": "^1.0.7",
     "@mongodb-js/compass-metrics": "^2.0.1",
     "@mongodb-js/compass-plugin-info": "^2.0.0",
-    "@mongodb-js/compass-query-bar": "^6.0.1",
+    "@mongodb-js/compass-query-bar": "^6.0.2",
     "@mongodb-js/compass-query-history": "^6.0.3",
     "@mongodb-js/compass-schema": "^2.0.6",
     "@mongodb-js/compass-schema-validation": "^3.1.0",
