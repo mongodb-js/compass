@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-collection",
   "productName": "Collection plugin",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "apiVersion": "3.0.0",
   "description": "Compass Collection Plugin",
   "main": "lib/index.js",
