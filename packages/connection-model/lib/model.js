@@ -44,6 +44,18 @@ const SSL_DEFAULT = 'NONE';
 const SSH_TUNNEL_DEFAULT = 'NONE';
 const DRIVER_OPTIONS_DEFAULT = { connectWithNoPrimary: true };
 
+/**
+ * Mappings from the old connection model properties to the new one.
+ */
+const PASSWORD_MAPPINGS = {
+  mongodb_password: 'mongodbPassword',
+  kerberos_password: 'kerberosPassword',
+  ldap_password: 'ldapPassword',
+  ssl_private_key_password: 'sslPass',
+  ssh_tunnel_password: 'sshTunnelPassword',
+  ssh_tunnel_passphrase: 'sshTunnelPassphrase'
+};
+
 const props = {};
 const derived = {};
 
@@ -727,6 +739,14 @@ Connection = AmpersandModel.extend({
 
       this.kerberosServiceName = attrs.kerberosServiceName;
     }
+
+    // Map the old password fields to the new ones.
+    Object.keys(PASSWORD_MAPPINGS).forEach((oldField) => {
+      const newField = PASSWORD_MAPPINGS[oldField];
+      if (!attrs[newField] && attrs[oldField]) {
+        this[newField] = attrs[newField] = attrs[oldField];
+      }
+    });
 
     return attrs;
   },
