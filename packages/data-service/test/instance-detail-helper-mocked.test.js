@@ -137,7 +137,6 @@ describe('instance-detail-helper-mocked', function() {
       };
       getBuildInfo(results, function(err, res) {
         assert.equal(err, null);
-        console.log(res);
         assert.deepEqual(res.query_engine, { version: '1' });
         done();
       });

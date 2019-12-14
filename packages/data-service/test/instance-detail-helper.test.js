@@ -10,6 +10,9 @@ describe('mongodb-data-service#instance', function() {
   describe('local', function() {
     let client;
     let db;
+    after(function(done) {
+      client.close(true, done);
+    });
     it('should connect to `localhost:27018`', function(done) {
       Connection.from(
         'mongodb://localhost:27018/data-service',
@@ -59,7 +62,9 @@ describe('mongodb-data-service#instance', function() {
 
         after(function(done) {
           helper.deleteTestDocuments(service.client, function() {
-            done();
+            service.disconnect(function() {
+              done();
+            });
           });
         });
 

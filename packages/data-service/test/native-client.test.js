@@ -1,3 +1,4 @@
+/* eslint indent:0 */
 var helper = require('./helper');
 var assert = helper.assert;
 var expect = helper.expect;
@@ -19,6 +20,9 @@ describe('NativeClient', function() {
       done(err, result);
     };
     client.connect(callback);
+  });
+  after(function(done) {
+    client.disconnect(done);
   });
 
   describe('#connect', function() {

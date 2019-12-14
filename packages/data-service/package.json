@@ -40,25 +40,24 @@
     "lodash.partial": "^4.2.1",
     "lodash.union": "^4.6.0",
     "lodash.uniqby": "^4.5.0",
-    "mongodb": "^3.3.5",
+    "mongodb": "^3.4.0",
     "mongodb-collection-sample": "^4.4.3",
     "mongodb-connection-model": "^14.3.7",
     "mongodb-index-model": "^2.3.0",
     "mongodb-js-errors": "^0.3.3",
     "mongodb-ns": "^2.0.0",
     "mongodb-security": "0.0.4",
-    "mongodb-stitch": "^3.0.6",
     "mongodb-url": "^3.0.1",
     "triejs": "github:rueckstiess/triejs"
   },
   "devDependencies": {
     "chai": "^3.4.1",
-    "eslint-config-mongodb-js": "^2.2.0",
+    "eslint-config-mongodb-js": "^5.0.3",
     "lodash.find": "^4.6.0",
-    "mocha": "^3.1.2",
+    "mocha": "^6.2.2",
     "mock-require": "^2.0.1",
-    "mongodb-js-precommit": "^0.2.9",
+    "mongodb-js-precommit": "^2.0.0",
     "mongodb-runner": "^4.7.2",
-    "pre-commit": "^1.1.2"
+    "pre-commit": "^1.2.2"
   }
 }

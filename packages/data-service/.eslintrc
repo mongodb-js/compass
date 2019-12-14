@@ -1,7 +1,4 @@
 {
-  "ecmaFeatures": {
-    "blockBindings": true,
-  },
   "env": {
     "mocha": true,
     "node": true,

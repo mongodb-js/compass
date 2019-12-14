@@ -1,6 +1,4 @@
-const Router = require('./router');
 const EventEmitter = require('events');
-const { CONNECTION_TYPE_VALUES } = require('mongodb-connection-model');
 
 /**
  * Instantiate a new DataService object.
@@ -18,21 +16,15 @@ class DataService extends EventEmitter {
   constructor(model) {
     super();
     this.client = null;
-    if (model.connectionType !== CONNECTION_TYPE_VALUES.NODE_DRIVER) {
-      const WebClient = require('./web-client');
-      this.client = new WebClient(model);
-    } else {
-      const NativeClient = require('./native-client');
-      this.client = new NativeClient(model)
-        .on('status', (evt) => this.emit('status', evt))
-        .on('serverDescriptionChanged', (evt) => this.emit('serverDescriptionChanged', evt))
-        .on('serverOpening', (evt) => this.emit('serverOpening', evt))
-        .on('serverClosed', (evt) => this.emit('serverClosed', evt))
-        .on('topologyOpening', (evt) => this.emit('topologyOpening', evt))
-        .on('topologyClosed', (evt) => this.emit('topologyClosed', evt))
-        .on('topologyDescriptionChanged', (evt) => this.emit('topologyDescriptionChanged', evt));
-    }
-    this.router = new Router();
+    const NativeClient = require('./native-client');
+    this.client = new NativeClient(model)
+      .on('status', (evt) => this.emit('status', evt))
+      .on('serverDescriptionChanged', (evt) => this.emit('serverDescriptionChanged', evt))
+      .on('serverOpening', (evt) => this.emit('serverOpening', evt))
+      .on('serverClosed', (evt) => this.emit('serverClosed', evt))
+      .on('topologyOpening', (evt) => this.emit('topologyOpening', evt))
+      .on('topologyClosed', (evt) => this.emit('topologyClosed', evt))
+      .on('topologyDescriptionChanged', (evt) => this.emit('topologyDescriptionChanged', evt));
   }
 
   /**
@@ -342,21 +334,6 @@ class DataService extends EventEmitter {
    */
   explain(ns, filter, options, callback) {
     this.client.explain(ns, filter, options, callback);
-  }
-
-  /**
-   * Get some data from the service in a RESTful manner.
-   *
-   * @param {String} url - The RESTful url.
-   * @param {Object} options - The options.
-   * @param {function} callback - The callback.
-   *
-   * @return {Object} The result of the delegated call.
-   */
-  get(url, options, callback) {
-    var route = this.router.resolve(url);
-    var args = this._generateArguments(route.args, options, callback);
-    return this[route.method].apply(this, args);
   }
 
   /**

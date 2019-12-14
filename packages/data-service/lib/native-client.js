@@ -127,36 +127,48 @@ class NativeClient extends EventEmitter {
 
     if (client) {
       client.on('serverDescriptionChanged', evt => {
+        debug('serverDescriptionChanged', evt);
         this.emit('serverDescriptionChanged', evt);
       });
 
       client.on('serverOpening', evt => {
+        debug('serverOpening', arguments);
         this.emit('serverOpening', evt);
       });
 
       client.on('serverClosed', evt => {
+        debug('serverClosed', arguments);
         this.emit('serverClosed', evt);
       });
 
       client.on('topologyOpening', evt => {
+        debug('topologyOpening', arguments);
         this.emit('topologyOpening', evt);
       });
 
       client.on('topologyClosed', evt => {
+        debug('topologyClosed', arguments);
         this.emit('topologyClosed', evt);
       });
 
       client.on('topologyDescriptionChanged', evt => {
+        debug('topologyDescriptionChanged', arguments);
         client.isWritable = this._isWritable(evt);
         client.isMongos = this._isMongos(evt);
+        debug('updated to', {isWritable: client.isWritable,
+          isMongos: client.isMongos
+        });
+
         this.emit('topologyDescriptionChanged', evt);
       });
 
       client.on('serverHeartbeatSucceeded', evt => {
+        debug('serverHeartbeatSucceeded', arguments);
         this.emit('serverHeartbeatSucceeded', evt);
       });
 
       client.on('serverHeartbeatFailed', evt => {
+        debug('serverHeartbeatFailed', arguments);
         this.emit('serverHeartbeatFailed', evt);
       });
     }
@@ -170,6 +182,7 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   command(databaseName, comm, callback) {
+    debug('running command', { databaseName, comm });
     var db = this._database(databaseName);
     db.command(comm, (error, result) => {
       if (error) {
@@ -489,6 +502,7 @@ class NativeClient extends EventEmitter {
    * Disconnect the client.
    */
   disconnect(callback) {
+    debug('disconnect()');
     this.client.close(true, callback);
   }
 
@@ -727,6 +741,7 @@ class NativeClient extends EventEmitter {
    * @return {Stream} The sample stream.
    */
   sample(ns, options) {
+    debug('getting sample', { ns, options });
     var db = this._database(this._databaseName(ns));
     return createSampleStream(db, this._collectionName(ns), options);
   }
