@@ -13,12 +13,8 @@
   "scripts": {
     "check": "mongodb-js-precommit",
     "ci": "npm run check && npm test",
-    "fmt": "mongodb-js-fmt test/*.js bin/*.js index.js",
     "test": "mocha"
   },
-  "precommit": [
-    "check"
-  ],
   "dependencies": {
     "ampersand-model": "^8.0.0",
     "ampersand-rest-collection": "^6.0.0",
@@ -28,13 +24,14 @@
     "lodash.result": "^4.5.2",
     "lodash.clone": "^4.5.0"
   },
+  "peerDependencies": {
+    "mongodb-data-service": "^16.0.0"
+  },
   "devDependencies": {
-    "eslint-config-mongodb-js": "^2.0.0",
-    "mocha": "^3.0.2",
-    "mongodb-js-fmt": "0.0.3",
-    "mongodb-js-precommit": "^0.2.2",
-    "pre-commit": "^1.1.1",
-    "util": "^0.11.1",
-    "raf": "^3.4.1"
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mocha": "^6.2.2",
+    "mongodb-js-precommit": "^2.0.0",
+    "raf": "^3.4.1",
+    "util": "^0.11.1"
   }
 }

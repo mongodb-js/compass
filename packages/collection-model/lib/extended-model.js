@@ -1,7 +1,5 @@
 var MongoDBCollection = require('./collection-model');
 var toNS = require('mongodb-ns');
-var format = require('util').format;
-var result = require('lodash.result');
 var clone = require('lodash.clone');
 var raf = require('raf');
 
@@ -33,18 +31,20 @@ var CollectionModel = MongoDBCollection.extend({
     url: {
       deps: ['_id'],
       fn: function() {
-        return format('/collections/%s', this.getId());
+        return `/collections/${this.getId()}`;
       }
     }
   },
   serialize: function() {
-    return this.getAttributes({
-      props: true
-    }, true);
+    return this.getAttributes(
+      {
+        props: true
+      },
+      true
+    );
   },
   fetch: function(options) {
     var model = this;
-    var url = result(model, 'url');
 
     options = options ? clone(options) : {};
     if (!options.parse) {
@@ -78,7 +78,8 @@ var CollectionModel = MongoDBCollection.extend({
         options.success(res, 'success', res);
       });
     };
-    options.dataService.get(url, options, done);
+
+    options.dataService.collection(this.getId(), options, done);
   }
 });
 
