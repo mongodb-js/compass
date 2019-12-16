@@ -28,7 +28,7 @@ function removeBlanks(data) {
 
 export function removeBlanksStream(ignoreEmptyFields) {
   if (!ignoreEmptyFields) {
-    return new PassThrough();
+    return new PassThrough({ objectMode: true });
   }
   return new Transform({
     objectMode: true,
