@@ -134,7 +134,7 @@ export const AtlasLink = {
     ]),
     createParagraph([
       createButton(
-        'https://www.mongodb.com/cloud/atlas/lp/general?jmp=compass',
+        'https://www.mongodb.com/cloud/atlas/lp/general/try?utm_source=compass&utm_medium=product',
         'Create Free Cluster',
         'create-atlas-cluster-clicked'
       )
