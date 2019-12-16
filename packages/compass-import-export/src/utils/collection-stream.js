@@ -82,10 +82,6 @@ class WritableCollectionStream extends Writable {
           if (err && !this.stopOnErrors) {
             console.log('stopOnErrors false. skipping', err);
             err = null;
-            /**
-             * TODO: lucas: figure out how to extract finer-grained bulk op results
-             * from err in these cases.
-             */
             res = {};
           }
           if (err) {
@@ -119,7 +115,13 @@ class WritableCollectionStream extends Writable {
       this.docsWritten += this.batch.length;
       this.printJobStats();
       this.batch = null;
+
       debug('%d docs written', this.docsWritten);
+      if (err && !this.stopOnErrors) {
+        console.log('stopOnErrors false. skipping', err);
+        err = null;
+      }
+
       callback(err);
     });
   }
