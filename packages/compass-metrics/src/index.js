@@ -16,4 +16,5 @@ function deactivate(appRegistry) {
   appRegistry.deregisterStore('Metrics.Store');
 }
 
+export default null;
 export { activate, deactivate };

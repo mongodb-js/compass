@@ -1,26 +1,38 @@
 {
   "env": {
-    "production": {
-      "presets": ["minify"]
-    },
+    "production": { "presets": ["minify"] },
     "test": {
-      "presets": [
-        ["es2015"]
-      ],
+      "presets": [ ["env"] ],
       "plugins": [
+        "react-hot-loader/babel",
         "syntax-object-rest-spread",
         "transform-object-rest-spread",
-        "transform-class-properties"
+        "transform-class-properties",
+        "syntax-dynamic-import"
       ]
     }
   },
   "presets": [
-    "react",
-    ['es2015', {'modules': false}]
+    [
+      "env", {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ]
   ],
   "plugins": [
+    "react-hot-loader/babel",
     "syntax-object-rest-spread",
     "transform-object-rest-spread",
-    "transform-class-properties"
+    "transform-class-properties",
+    "syntax-dynamic-import",
+    [
+      "transform-runtime",
+      {
+        "polyfill": false,
+        "regenerator": true
+      }
+    ]
   ]
 }

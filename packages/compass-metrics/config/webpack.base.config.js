@@ -4,54 +4,44 @@ const project = require('./project');
 module.exports = {
   resolve: {
     modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
+    extensions: ['.js', '.jsx', '.json', '.less', '.wasm'],
     alias: {
+      actions: path.join(project.path.src, 'actions'),
+      components: path.join(project.path.src, 'components'),
+      constants: path.join(project.path.src, 'constants'),
       fonts: path.join(project.path.src, 'assets/fonts'),
       images: path.join(project.path.src, 'assets/images'),
       less: path.join(project.path.src, 'assets/less'),
       models: path.join(project.path.src, 'models'),
       modules: path.join(project.path.src, 'modules'),
+      helpers: path.join(project.path.src, 'helpers'),
       plugin: path.join(project.path.src, 'index.js'),
-      stores: path.join(project.path.src, 'stores')
+      stores: path.join(project.path.src, 'stores'),
+      storybook: project.path.storybook,
+      utils: path.join(project.path.src, 'utils')
     }
   },
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: [
-          { loader: 'style-loader' },
-          { loader: 'css-loader' }
-        ]
+        use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
       },
-      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
+      /**
+       * For styles that have to be global
+       * @see https://github.com/css-modules/css-modules/pull/65
+       */
       {
         test: /\.less$/,
         include: [/\.global/, /bootstrap/],
         use: [
           { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: false
-            }
-          },
+          { loader: 'css-loader', options: { modules: false } },
           {
             loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
+            options: { plugins: () => [project.plugin.autoprefixer] }
           },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
+          { loader: 'less-loader', options: { noIeCompat: true } }
         ]
       },
       // For CSS-Modules locally scoped styles
@@ -70,27 +60,13 @@ module.exports = {
           },
           {
             loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
+            options: { plugins: () => [project.plugin.autoprefixer] }
           },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
+          { loader: 'less-loader', options: { noIeCompat: true } }
         ]
       },
       // For native modules to be able to be loaded.
-      {
-        test: /\.node$/,
-        use: 'node-loader'
-      },
+      { test: /\.node$/, use: 'node-loader' },
       {
         test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
         use: [{ loader: 'shebang-loader' }]
@@ -101,12 +77,15 @@ module.exports = {
           loader: 'babel-loader',
           query: {
             cacheDirectory: true,
-            plugins: [
-              'transform-decorators-legacy'
-            ]
+            plugins: ['transform-decorators-legacy']
           }
         }],
         exclude: /(node_modules)/
+      },
+      {
+        type: 'javascript/auto',
+        test: /\.json$/,
+        loader: 'json-loader'
       }
     ]
   }
