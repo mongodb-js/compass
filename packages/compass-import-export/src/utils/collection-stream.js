@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { Writable } from "stream";
-import { createLogger } from "./logger";
-const debug = createLogger("collection-stream");
+import { Writable } from 'stream';
+import { createLogger } from './logger';
+const debug = createLogger('collection-stream');
 
 class WritableCollectionStream extends Writable {
   constructor(dataService, ns, stopOnErrors) {
@@ -73,14 +73,14 @@ class WritableCollectionStream extends Writable {
           if (
             err &&
             Array.isArray(err.errorLabels) &&
-            err.errorLabels.indexOf("TransientTransactionError")
+            err.errorLabels.indexOf('TransientTransactionError')
           ) {
             err = null;
             res = { nInserted: batchSize };
           }
 
           if (err && !this.stopOnErrors) {
-            console.log("stopOnErrors false. skipping", err);
+            console.log('stopOnErrors false. skipping', err);
             err = null;
             /**
              * TODO: lucas: figure out how to extract finer-grained bulk op results
@@ -102,10 +102,10 @@ class WritableCollectionStream extends Writable {
   }
 
   _final(callback) {
-    debug("running _final()");
+    debug('running _final()');
 
     if (this.batch.length === 0) {
-      debug("%d docs written", this.docsWritten);
+      debug('%d docs written', this.docsWritten);
       this.printJobStats();
       return callback();
     }
@@ -113,25 +113,25 @@ class WritableCollectionStream extends Writable {
     /**
      * TODO: lucas: Reuse error wrangling from _write above.
      */
-    debug("draining buffered docs", this.batch.length);
+    debug('draining buffered docs', this.batch.length);
     this.batch.execute((err, res) => {
       this.captureStatsForBulkResult(err, res);
       this.docsWritten += this.batch.length;
       this.printJobStats();
       this.batch = null;
-      debug("%d docs written", this.docsWritten);
+      debug('%d docs written', this.docsWritten);
       callback(err);
     });
   }
 
   captureStatsForBulkResult(err, res) {
     const keys = [
-      "nInserted",
-      "nMatched",
-      "nModified",
-      "nRemoved",
-      "nUpserted",
-      "ok"
+      'nInserted',
+      'nMatched',
+      'nModified',
+      'nRemoved',
+      'nUpserted',
+      'ok'
     ];
 
     keys.forEach(k => {
@@ -139,7 +139,7 @@ class WritableCollectionStream extends Writable {
     });
     if (!err) return;
 
-    if (err.name === "BulkWriteError") {
+    if (err.name === 'BulkWriteError') {
       this._errors.push.apply(this._errors, err.result.result.writeErrors);
       this._errors.push.apply(
         this._errors,
@@ -150,9 +150,9 @@ class WritableCollectionStream extends Writable {
   }
 
   printJobStats() {
-    console.group("Import Info");
+    console.group('Import Info');
     console.table(this._stats);
-    console.log("Errors Seen");
+    console.log('Errors Seen');
     console.log(this._errors);
     console.groupEnd();
   }
