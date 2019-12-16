@@ -67,7 +67,7 @@ export default transformProjectedTypes;
 export function transformProjectedTypesStream(spec) {
   if (Object.keys(spec.transform).length === 0 && spec.exclude.length === 0) {
     debug('spec is a noop. passthrough stream');
-    return new PassThrough();
+    return new PassThrough({ objectMode: true });
   }
   debug('creating transform stream for spec', spec);
   return new Transform({
