@@ -1,4 +1,4 @@
-import { Transform } from 'stream';
+import { Transform, PassThrough } from 'stream';
 
 import bsonCSV from './bson-csv';
 import isPlainObject from 'lodash.isplainobject';
@@ -9,17 +9,22 @@ import { createLogger } from './logger';
 const debug = createLogger('apply-import-type-and-projection');
 
 /**
- * TODO: lucas: dot notation. Handle extended JSON case.
+ * @typedef spec
+ * @property {Array} exclude - Array of dotnotation keys to remove from source document.
+ * @property {Object} transform - `{dotnotationpath: targetTypeName}`
  */
-function getProjection(fields, key) {
-  return fields.filter((f) => {
-    return f.path === key;
-  })[0];
-}
 
-function transformProjectedTypes(fields, data) {
+/**
+ * Transforms objects based on what user selected in preview table.
+ *
+ * @param {spec} spec
+ * @param {any} data
+ * @param {String} [keyPrefix] Used internally when recursing into nested objects.
+ * @returns {Object}
+ */
+function transformProjectedTypes(spec, data, keyPrefix = '') {
   if (Array.isArray(data)) {
-    return data.map(transformProjectedTypes.bind(null, fields));
+    return data.map(transformProjectedTypes.bind(null, spec));
   } else if (!isPlainObject(data) || data === null || data === undefined) {
     return data;
   }
@@ -29,19 +34,23 @@ function transformProjectedTypes(fields, data) {
     return data;
   }
   return keys.reduce(function(doc, key) {
-    const def = getProjection(fields, key);
+    const fullKey = `${keyPrefix}${key}`;
 
     /**
      * TODO: lucas: Relocate removeEmptyStrings() here?
      * Avoid yet another recursive traversal of every document.
      */
-    if (def && !def.checked) {
+    if (spec.exclude.includes(fullKey)) {
+      // Drop the key if unchecked
       return doc;
     }
-    if (def.type && bsonCSV[def.type] && !isObjectLike(data[key])) {
-      doc[key] = bsonCSV[def.type].fromString(data[key]);
+
+    const toBSON = bsonCSV[spec.transform[fullKey]];
+
+    if (toBSON && !isObjectLike(data[key])) {
+      doc[key] = toBSON.fromString(data[key]);
     } else {
-      doc[key] = transformProjectedTypes(fields, data[key]);
+      doc[key] = transformProjectedTypes(spec, data[key], `${fullKey}.`);
     }
     return doc;
   }, {});
@@ -50,15 +59,21 @@ function transformProjectedTypes(fields, data) {
 export default transformProjectedTypes;
 
 /**
- * TODO: lucas: Add detection for nothing unchecked and all fields
- * are default type and return a PassThrough.
+ * Use `transformProjectedTypes` in a stream.
+ *
+ * @param {spec} spec
+ * @returns {TransformStream}
  */
-
-export function transformProjectedTypesStream(fields) {
+export function transformProjectedTypesStream(spec) {
+  if (Object.keys(spec.transform).length === 0 && spec.exclude.length === 0) {
+    debug('spec is a noop. passthrough stream');
+    return new PassThrough();
+  }
+  debug('creating transform stream for spec', spec);
   return new Transform({
     objectMode: true,
     transform: function(doc, encoding, cb) {
-      cb(null, transformProjectedTypes(fields, doc));
+      cb(null, transformProjectedTypes(spec, doc));
     }
   });
 }

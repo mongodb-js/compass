@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable valid-jsdoc */
 /**
  * # Import
@@ -134,7 +135,7 @@ export const onStarted = (source, dest) => ({
  * @param {Number} docsWritten
  * @api private
  */
-export const onFinished = (docsWritten) => ({
+export const onFinished = docsWritten => ({
   type: FINISHED,
   docsWritten: docsWritten
 });
@@ -143,7 +144,7 @@ export const onFinished = (docsWritten) => ({
  * @param {Error} error
  * @api private
  */
-export const onError = (error) => ({
+export const onError = error => ({
   type: FAILED,
   error: error
 });
@@ -152,12 +153,16 @@ export const onError = (error) => ({
  * @param {Number} guesstimatedDocsTotal
  * @api private
  */
-export const onGuesstimatedDocsTotal = (guesstimatedDocsTotal) => ({
+export const onGuesstimatedDocsTotal = guesstimatedDocsTotal => ({
   type: SET_GUESSTIMATED_TOTAL,
   guesstimatedDocsTotal: guesstimatedDocsTotal
 });
 
 /**
+ * Sets up a streaming based pipeline to execute the import
+ * and update status/progress.
+ *
+ * All of the exciting bits happen in `../utils/` :)
  * @api public
  */
 export const startImport = () => {
@@ -176,16 +181,28 @@ export const startImport = () => {
       delimiter,
       ignoreBlanks,
       stopOnErrors,
-      fields,
       exclude,
       transform
     } = importData;
 
     const source = fs.createReadStream(fileName, 'utf8');
 
-    /**
-     * TODO: lucas: Support ignoreUndefined as an option to pass to driver?
-     */
+    const stripBOM = stripBomStream();
+
+    const parser = createParser({
+      fileName,
+      fileType,
+      delimiter,
+      fileIsMultilineJSON
+    });
+
+    const removeBlanks = removeBlanksStream(ignoreBlanks);
+
+    const applyTypes = transformProjectedTypesStream({
+      exclude: exclude,
+      transform: transform
+    });
+
     const dest = createCollectionWriteStream(dataService, ns, stopOnErrors);
 
     const progress = createProgressStream(size, function(err, info) {
@@ -204,25 +221,13 @@ export const startImport = () => {
       }
     );
 
-    const stripBOM = stripBomStream();
-
-    const removeBlanks = removeBlanksStream(ignoreBlanks);
-
-    const applyTypes = transformProjectedTypesStream(fields);
-
-    const parser = createParser({
-      fileName,
-      fileType,
-      delimiter,
-      fileIsMultilineJSON
-    });
-
     debug('executing pipeline');
     console.time('import:start');
     console.group('import:start');
-    
+
     console.group('Import Options:');
-    console.table({fileName,
+    console.table({
+      fileName,
       fileType,
       fileIsMultilineJSON,
       size,
@@ -233,14 +238,10 @@ export const startImport = () => {
 
     console.log('Exclude');
     console.table(exclude);
-    
+
     console.log('Transform');
     console.table(transform);
 
-    console.log('Fields');
-    console.table(fields);
-    console.groupEnd();
-    
     console.log('Running import...');
 
     dispatch(onStarted(source, dest));
@@ -261,6 +262,7 @@ export const startImport = () => {
          * partial import or full import
          */
         dispatch(appRegistryEmit('refresh-data'));
+        // TODO: lucas: should be done on both?
         dispatch(globalAppRegistryEmit('refresh-data'));
         /**
          * TODO: lucas: Decorate with a codeframe if not already
@@ -275,32 +277,38 @@ export const startImport = () => {
         }
 
         dispatch(onFinished(dest.docsWritten));
-        
+
         /**
          * TODO: lucas: Deduping emits. @see https://github.com/mongodb-js/compass-import-export/pulls/23
          **/
-        dispatch(appRegistryEmit('import-finished',
-          size,
-          fileType,
-          dest.docsWritten,
-          fileIsMultilineJSON,
-          delimiter,
-          ignoreBlanks,
-          stopOnErrors,
-          exclude.length > 0,
-          transform.length > 0
-        ));
-        dispatch(globalAppRegistryEmit('import-finished',
-          size,
-          fileType,
-          dest.docsWritten,
-          fileIsMultilineJSON,
-          delimiter,
-          ignoreBlanks,
-          stopOnErrors,
-          exclude.length > 0,
-          transform.length > 0
-        ));
+        dispatch(
+          appRegistryEmit(
+            'import-finished',
+            size,
+            fileType,
+            dest.docsWritten,
+            fileIsMultilineJSON,
+            delimiter,
+            ignoreBlanks,
+            stopOnErrors,
+            exclude.length > 0,
+            transform.length > 0
+          )
+        );
+        dispatch(
+          globalAppRegistryEmit(
+            'import-finished',
+            size,
+            fileType,
+            dest.docsWritten,
+            fileIsMultilineJSON,
+            delimiter,
+            ignoreBlanks,
+            stopOnErrors,
+            exclude.length > 0,
+            transform.length > 0
+          )
+        );
       }
     );
   };
@@ -345,7 +353,7 @@ const loadPreviewDocs = (
   delimiter,
   fileIsMultilineJSON
 ) => {
-  return (dispatch) => {
+  return dispatch => {
     debug('loading preview', {
       fileName,
       fileType,
@@ -388,7 +396,7 @@ const loadPreviewDocs = (
  * @param {String} path Dot notation path of the field.
  * @api public
  */
-export const toggleIncludeField = (path) => ({
+export const toggleIncludeField = path => ({
   type: TOGGLE_INCLUDE_FIELD,
   path: path
 });
@@ -420,24 +428,24 @@ export const setFieldType = (path, bsonType) => ({
  * @api public
  * @see utils/detect-import-file.js
  */
-export const selectImportFileName = (fileName) => {
+export const selectImportFileName = fileName => {
   return (dispatch, getState) => {
     let fileStats = {};
     checkFileExists(fileName)
-      .then((exists) => {
+      .then(exists => {
         if (!exists) {
           throw new Error(`File ${fileName} not found`);
         }
         return getFileStats(fileName);
       })
-      .then((stats) => {
+      .then(stats => {
         fileStats = {
           ...stats,
           type: mime.lookup(fileName)
         };
         return promisify(detectImportFile)(fileName);
       })
-      .then((detected) => {
+      .then(detected => {
         dispatch({
           type: FILE_SELECTED,
           fileName: fileName,
@@ -459,7 +467,7 @@ export const selectImportFileName = (fileName) => {
           )
         );
       })
-      .catch((err) => dispatch(onError(err)));
+      .catch(err => dispatch(onError(err)));
   };
 };
 
@@ -469,7 +477,7 @@ export const selectImportFileName = (fileName) => {
  * @param {String} fileType
  * @api public
  */
-export const selectImportFileType = (fileType) => {
+export const selectImportFileType = fileType => {
   return (dispatch, getState) => {
     const {
       previewLoaded,
@@ -498,7 +506,7 @@ export const selectImportFileType = (fileType) => {
  *
  * @api public
  */
-export const setDelimiter = (delimiter) => {
+export const setDelimiter = delimiter => {
   return (dispatch, getState) => {
     const {
       previewLoaded,
@@ -539,7 +547,7 @@ export const setDelimiter = (delimiter) => {
  * @see utils/collection-stream.js
  * @see https://docs.mongodb.com/manual/reference/program/mongoimport/#cmdoption-mongoimport-stoponerror
  */
-export const setStopOnErrors = (stopOnErrors) => ({
+export const setStopOnErrors = stopOnErrors => ({
   type: SET_STOP_ON_ERRORS,
   stopOnErrors: stopOnErrors
 });
@@ -553,7 +561,7 @@ export const setStopOnErrors = (stopOnErrors) => ({
  * @see https://docs.mongodb.com/manual/reference/program/mongoimport/#cmdoption-mongoimport-ignoreblanks
  * @todo lucas: Standardize as `setIgnoreBlanks`?
  */
-export const setIgnoreBlanks = (ignoreBlanks) => ({
+export const setIgnoreBlanks = ignoreBlanks => ({
   type: SET_IGNORE_BLANKS,
   ignoreBlanks: ignoreBlanks
 });
@@ -661,15 +669,19 @@ const reducer = (state = INITIAL_STATE, action) => {
       ...state
     };
 
-    newState.fields = newState.fields.map((field) => {
+    newState.fields = newState.fields.map(field => {
       if (field.path === action.path) {
         field.checked = !field.checked;
       }
       return field;
     });
 
-    newState.exclude = newState.fields.filter(field => !field.checked).map(field => field.path);
-    newState.transform = newState.fields.filter(field => field.checked).map(field => [field.path, field.type]);
+    newState.exclude = newState.fields
+      .filter(field => !field.checked)
+      .map(field => field.path);
+    newState.transform = newState.fields
+      .filter(field => field.checked)
+      .map(field => [field.path, field.type]);
     return newState;
   }
   /**
@@ -679,7 +691,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     const newState = {
       ...state
     };
-    newState.fields = newState.fields.map((field) => {
+    newState.fields = newState.fields.map(field => {
       if (field.path === action.path) {
         // If a user changes a field type, automatically check it for them
         // so they don't need an extra click or forget to click it an get frustrated
@@ -689,8 +701,12 @@ const reducer = (state = INITIAL_STATE, action) => {
       }
       return field;
     });
-    newState.exclude = newState.fields.filter(field => !field.checked).map(field => field.path);
-    newState.transform = newState.fields.filter(field => field.checked).map(field => [field.path, field.type]);
+    newState.exclude = newState.fields
+      .filter(field => !field.checked)
+      .map(field => field.path);
+    newState.transform = newState.fields
+      .filter(field => field.checked)
+      .map(field => [field.path, field.type]);
     return newState;
   }
 

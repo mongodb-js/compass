@@ -28,14 +28,14 @@ See files in the `./test` directory.
 
 ## TODO/Ideas
 
-- [ ] Import: Move away from `state.fields` being array of objects to using all array's of strings. For now, there is some duplication of fields+transforms+excludes we'll come back to and fixup.
-- [ ] import-apply-type-and-projection supports nested dotnotation and only uses `state.importData.transforms`
+- [x] Import: Move away from `state.fields` being array of objects to using all array's of strings. For now, there is some duplication of fields+transforms+excludes we'll come back to and fixup.
+- [x] import-apply-type-and-projection supports nested dotnotation and only uses `state.importData.transforms`
 - [ ] Import and Export: New Option: If you need to [specify extended-json legacy spec](https://github.com/mongodb/js-bson/pull/339)
 - [ ] Import: bson-csv: support dotnotation expanded from `.` .<bson_type>() caster like [mongoimport does today][mongoimport]
 - [ ] Import: Preview Table: Use highlight.js, mongodb-ace-mode, or something so the text style of the value within a cell matches its destination type
 - [ ] Export: Use electron add to destination file to [recent documents](https://electronjs.org/docs/tutorial/recent-documents)
 - [ ] Import and Export: Show system notification when operation completes. like dropbox screenshot message. toast "XX/XX documents successfully"
-- [ ] Import: expose finer-grained bulk op results in progress
+- [ ] Import: expose finer-grained bulk op results in progress -> "View Import Log File"
 - [ ] Import: New Option: drop target collection before import
 - [ ] Import: New Option: define import mode: insert, upsert, merge
 - [ ] Import: New Option: specify a different path for `_id` such as `business_id` in the yelp dataset
