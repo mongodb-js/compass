@@ -16,3 +16,5 @@ scripts/
 test/
 src/
 .zuul.yml
+lib/index.html
+examples/
