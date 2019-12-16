@@ -39,25 +39,41 @@ function _detectLegacyPairs(type) {
   if (!type.lengths) {
     return false;
   }
+
   if (!_.every(type.lengths, function(length) {
     return length === 2;
   })) {
     return false;
   }
+
   // make sure the array only contains numbers
   if (!type.types) {
     return false;
   }
-  if (!_.isArray(type.types)) {
+
+  // check if types' HashMap from new schema-parser has a length other than 1
+  if (_.isObject(type.types)) {
+    if (_.keys(type.types).length !== 1) {
+      return false;
+    }
+    // check if new schema-parser's hashmap type.types have Number type or
+    // promoted values. zipCoordinates with hashmap's values
+    if (!_.includes(['Number', 'Double', 'Int32', 'Decimal128'], type.types[Object.keys(type.types)[0]].name)) {
+      return false;
+    }
+
+    return _zipCoordinates(type.types[Object.keys(type.types)[0]].values);
+  } else if (type.types.length !== 1) {
     return false;
   }
-  if (type.types.length !== 1) {
-    return false;
-  }
+
   // support both promoted Number type and unpromoted Double, Decimal128 or Int32
   if (!_.includes(['Number', 'Double', 'Int32', 'Decimal128'], type.types[0].name)) {
     return false;
   }
+
+  // zipCoordinates as type.types[0].values for legacy array of
+  // types rather than hashmaps
   return _zipCoordinates(type.types[0].values);
 }
 
