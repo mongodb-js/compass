@@ -122,10 +122,11 @@ var createWindow = (module.exports.create = function(opts) {
     height: opts.height,
     icon: opts.icon,
     show: false,
-    'min-width': opts.minwidth,
-    'web-preferences': {
+    minWidth: opts.minwidth,
+    webPreferences: {
       'subpixel-font-scaling': true,
-      'direct-write': true
+      'direct-write': true,
+      nodeIntegration: true
     }
   });
 
@@ -142,11 +143,11 @@ var createWindow = (module.exports.create = function(opts) {
     icon: opts.icon,
     devTools: false,
     backgroundColor: '#3D4F58',
-    'min-width': opts.minwidth,
-    'web-preferences': {
+    minWidth: opts.minwidth,
+    webPreferences: {
       'subpixel-font-scaling': true,
       'direct-write': true,
-      nodeIntegration: false
+      nodeIntegration: true
     }
   });
 
