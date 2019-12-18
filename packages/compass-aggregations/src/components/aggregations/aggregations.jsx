@@ -26,7 +26,8 @@ import {
   newPipeline,
   clonePipeline,
   openCreateView,
-  updateView
+  updateView,
+  updatePipeline
 } from 'modules';
 import {
   runStage,
@@ -191,6 +192,7 @@ const MappedAggregations = connect(
     restorePipelineFrom,
     restoreSavedPipeline,
     newPipeline,
+    updatePipeline,
     newPipelineFromText,
     closeImport,
     clonePipeline,

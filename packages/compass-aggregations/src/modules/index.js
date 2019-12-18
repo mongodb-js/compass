@@ -164,6 +164,11 @@ export const RESTORE_PIPELINE = 'aggregations/RESTORE_PIPELINE';
 export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
 
 /**
+ * Update pipeline action name.
+ */
+export const UPDATE_PIPELINE = 'aggregations/UPDATE_PIPELINE';
+
+/**
  * Clone pipeline action name.
  */
 export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
@@ -347,6 +352,11 @@ const createNewPipeline = (state) => ({
   inputDocuments: state.inputDocuments
 });
 
+const doUpdatePipeline = (state, action) => ({
+  ...state,
+  pipeline: action.pipeline
+});
+
 /**
  * Create a cloned pipeline.
  *
@@ -525,6 +535,7 @@ const MAPPINGS = {
   [RESTORE_PIPELINE]: doRestorePipeline,
   [CLEAR_PIPELINE]: doClearPipeline,
   [NEW_PIPELINE]: createNewPipeline,
+  [UPDATE_PIPELINE]: doUpdatePipeline,
   [CLONE_PIPELINE]: createClonedPipeline,
   [CONFIRM_NEW]: doConfirmNewFromText,
   [TOGGLE_OVERVIEW]: doToggleOverview,
@@ -587,6 +598,11 @@ export const restoreSavedPipeline = (restoreState) => ({
  */
 export const newPipeline = () => ({
   type: NEW_PIPELINE
+});
+
+export const updatePipeline = (updatedPipeline) => ({
+  type: UPDATE_PIPELINE,
+  pipeline: updatedPipeline
 });
 
 /**

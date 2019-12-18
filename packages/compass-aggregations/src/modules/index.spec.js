@@ -4,11 +4,13 @@ import reducer, {
   restoreSavedPipeline,
   clonePipeline,
   newPipeline,
+  updatePipeline,
   modifySource,
   RESET,
   CLEAR_PIPELINE,
   RESTORE_PIPELINE,
   NEW_PIPELINE,
+  UPDATE_PIPELINE,
   CLONE_PIPELINE,
   MODIFY_VIEW
 } from 'modules';
@@ -50,6 +52,15 @@ describe('root [ module ]', () => {
     it('returns the NEW_PIPELINE action', () => {
       expect(newPipeline()).to.deep.equal({
         type: NEW_PIPELINE
+      });
+    });
+  });
+
+  describe('#updatePipeline', () => {
+    it('returns the UPDATE_PIPELINE action', () => {
+      expect(updatePipeline([{some: 'stage'}])).to.deep.equal({
+        type: UPDATE_PIPELINE,
+        pipeline: [{some: 'stage'}]
       });
     });
   });
@@ -168,6 +179,22 @@ describe('root [ module ]', () => {
 
       it('updates the name', () => {
         expect(state.name).to.equal('test (copy)');
+      });
+    });
+
+    context('when the action is UPDATE_PIPELINE', () => {
+      const prevState = {
+        pipeline: [{old: 'pipeline'}]
+      };
+
+      let state;
+
+      before(() => {
+        state = reducer(prevState, updatePipeline([{new: 'pipeline'}]));
+      });
+
+      it('updates the pipeline', () => {
+        expect(state.pipeline).to.deep.equal([{new: 'pipeline'}]);
       });
     });
 

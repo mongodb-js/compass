@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { WithDragDropContext } from 'hadron-react-components';
 import Stage from 'components/stage';
 import Input from 'components/input';
 import AddStage from 'components/add-stage';
+import SortableStageList from './sortable-stage-list';
 
 import styles from './pipeline-workspace.less';
 
@@ -41,8 +41,62 @@ class PipelineWorkspace extends PureComponent {
     isOverviewOn: PropTypes.bool.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired
+    newPipelineFromPaste: PropTypes.func.isRequired,
+    updatePipeline: PropTypes.func.isRequired
   };
+
+  onSort = (newPipeline) => {
+    this.props.updatePipeline(newPipeline);
+  }
+
+  renderStage = (stage, i) => {
+    return (<Stage
+      allowWrites={this.props.allowWrites}
+      stage={stage.stage}
+      stageOperator={stage.stageOperator}
+      snippet={stage.snippet}
+      error={stage.error}
+      syntaxError={stage.syntaxError}
+      isValid={stage.isValid}
+      isEnabled={stage.isEnabled}
+      isLoading={stage.isLoading}
+      isComplete={stage.isComplete}
+      isExpanded={stage.isExpanded}
+      isCommenting={this.props.isCommenting}
+      isAutoPreviewing={this.props.isAutoPreviewing}
+      fromStageOperators={stage.fromStageOperators || false}
+      previewDocuments={stage.previewDocuments}
+      runStage={this.props.runStage}
+      index={i}
+      openLink={this.props.openLink}
+      runOutStage={this.props.runOutStage}
+      gotoOutResults={this.props.gotoOutResults}
+      gotoMergeResults={this.props.gotoMergeResults}
+      serverVersion={this.props.serverVersion}
+      stageChanged={this.props.stageChanged}
+      stageCollapseToggled={this.props.stageCollapseToggled}
+      stageAddedAfter={this.props.stageAddedAfter}
+      stageDeleted={this.props.stageDeleted}
+      stageMoved={this.props.stageMoved}
+      stageOperatorSelected={this.props.stageOperatorSelected}
+      stageToggled={this.props.stageToggled}
+      fields={this.props.fields}
+      setIsModified={this.props.setIsModified}
+      key={stage.id}
+      isOverviewOn={this.props.isOverviewOn}
+      projections={this.props.projections}
+      projectionsChanged={this.props.projectionsChanged}
+      newPipelineFromPaste={this.props.newPipelineFromPaste}
+    />);
+  }
+
+  renderStageList = () => {
+    return (<SortableStageList
+      items={this.props.pipeline}
+      onSort={this.onSort}
+      renderItem={this.renderStage}
+    />);
+  }
 
   /**
    * Renders the pipeline workspace.
@@ -51,48 +105,6 @@ class PipelineWorkspace extends PureComponent {
    */
   render() {
     const inputDocuments = this.props.inputDocuments;
-    const stages = this.props.pipeline.map((stage, i) => {
-      return (
-        <Stage
-          allowWrites={this.props.allowWrites}
-          stage={stage.stage}
-          stageOperator={stage.stageOperator}
-          snippet={stage.snippet}
-          error={stage.error}
-          syntaxError={stage.syntaxError}
-          isValid={stage.isValid}
-          isEnabled={stage.isEnabled}
-          isLoading={stage.isLoading}
-          isComplete={stage.isComplete}
-          isExpanded={stage.isExpanded}
-          isCommenting={this.props.isCommenting}
-          isAutoPreviewing={this.props.isAutoPreviewing}
-          fromStageOperators={stage.fromStageOperators || false}
-          previewDocuments={stage.previewDocuments}
-          runStage={this.props.runStage}
-          index={i}
-          openLink={this.props.openLink}
-          runOutStage={this.props.runOutStage}
-          gotoOutResults={this.props.gotoOutResults}
-          gotoMergeResults={this.props.gotoMergeResults}
-          serverVersion={this.props.serverVersion}
-          stageChanged={this.props.stageChanged}
-          stageCollapseToggled={this.props.stageCollapseToggled}
-          stageAddedAfter={this.props.stageAddedAfter}
-          stageDeleted={this.props.stageDeleted}
-          stageMoved={this.props.stageMoved}
-          stageOperatorSelected={this.props.stageOperatorSelected}
-          stageToggled={this.props.stageToggled}
-          fields={this.props.fields}
-          setIsModified={this.props.setIsModified}
-          key={stage.id}
-          isOverviewOn={this.props.isOverviewOn}
-          projections={this.props.projections}
-          projectionsChanged={this.props.projectionsChanged}
-          newPipelineFromPaste={this.props.newPipelineFromPaste}
-        />
-      );
-    });
     return (
       <div className={classnames(styles['pipeline-workspace'])}>
         <Input
@@ -107,7 +119,7 @@ class PipelineWorkspace extends PureComponent {
           count={inputDocuments.count}
           isOverviewOn={this.props.isOverviewOn}
         />
-        {stages}
+        {this.renderStageList()}
         <AddStage
           stageAdded={this.props.stageAdded}
           setIsModified={this.props.setIsModified}
@@ -117,4 +129,4 @@ class PipelineWorkspace extends PureComponent {
   }
 }
 
-export default WithDragDropContext(PipelineWorkspace);
+export default PipelineWorkspace;
