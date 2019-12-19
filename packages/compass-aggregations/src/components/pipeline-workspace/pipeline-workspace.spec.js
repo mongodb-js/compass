@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import PipelineWorkspace from './pipeline-workspace';
 import Stage from 'components/stage';
 
@@ -73,9 +73,7 @@ function createPipelineWorkspace({
   isOverviewOn = false,
   projections = [],
   projectionsChanged = () => {},
-  newPipelineFromPaste = () => {},
-  updatePipeline = () => {},
-  dndBackend
+  newPipelineFromPaste = () => {}
 } = {}) {
   return (<PipelineWorkspace
     allowWrites={allowWrites}
@@ -105,8 +103,6 @@ function createPipelineWorkspace({
     projections={projections}
     projectionsChanged={projectionsChanged}
     newPipelineFromPaste={newPipelineFromPaste}
-    updatePipeline={updatePipeline}
-    dndBackend={dndBackend}
   />);
 }
 
@@ -120,20 +116,5 @@ describe('PipelineWorkspace [Component]', () => {
       pipeline: PIPELINE_1
     }));
     expect(wrapper.find(Stage)).to.have.lengthOf(2);
-  });
-
-  it('calls updatePipeline on sort', () => {
-    const updatePipelineSpy = sinon.spy();
-
-    const wrapper = shallow(createPipelineWorkspace({
-      pipeline: PIPELINE_1,
-      updatePipeline: updatePipelineSpy
-    }));
-
-    const sortedPipeline = PIPELINE_1.reverse();
-
-    wrapper.instance().onSort(sortedPipeline);
-
-    expect(updatePipelineSpy.calledWith(sortedPipeline)).to.equal(true);
   });
 });

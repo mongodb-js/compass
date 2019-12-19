@@ -41,8 +41,7 @@ class PipelineWorkspace extends PureComponent {
     isOverviewOn: PropTypes.bool.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired,
-    updatePipeline: PropTypes.func.isRequired
+    newPipelineFromPaste: PropTypes.func.isRequired
   };
 
   onStageMoved = (fromIndex, toIndex) => {
