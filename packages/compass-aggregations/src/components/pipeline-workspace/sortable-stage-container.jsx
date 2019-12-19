@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 import PropTypes from 'prop-types';
 
@@ -19,33 +20,41 @@ function makeDragSource(component) {
 
 function makeDropTarget(component) {
   const spec = {
-    drop: (props, monitor) => {
-      const onDrop = props.onDrop;
+    hover(props, monitor, hoverComponent) {
+      const fromIndex = monitor.getItem().index;
+      const toIndex = props.index;
 
-      if (!onDrop) {
-        return;
+      if (fromIndex !== toIndex) {
+        // Determine rectangle on screen
+        const hoverBoundingRect = findDOMNode(hoverComponent).getBoundingClientRect();
+        // Get vertical middle
+        const hoverMiddleY =
+          (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+        // Determine mouse position
+        const clientOffset = monitor.getClientOffset();
+        // Get pixels to the top
+        const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+        // Dragging downwards
+        if (fromIndex < toIndex && hoverClientY < hoverMiddleY) {
+          return;
+        }
+        // Dragging upwards
+        if (fromIndex > toIndex && hoverClientY > hoverMiddleY) {
+          return;
+        }
+
+        monitor.getItem().index = toIndex;
+        props.onMove(fromIndex, toIndex);
       }
-
-      const item = monitor.getItem();
-      if (!item) {
-        return;
-      }
-
-      const sourceIndex = item.index;
-      const targetIndex = props.index;
-
-      if (sourceIndex === targetIndex) {
-        return;
-      }
-
-      onDrop(sourceIndex, targetIndex);
     }
   };
 
-  const collect = (connect, monitor) => ({
-    connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver()
-  });
+  const collect = (connect, monitor) => {
+    return {
+      connectDropTarget: connect.dropTarget(),
+      isOver: monitor.isOver()
+    };
+  };
 
   return DropTarget('stage', spec, collect)(component);
 }
@@ -56,25 +65,17 @@ class SortableStageContainer extends Component {
     connectDropTarget: PropTypes.func.isRequired,
     isOver: PropTypes.bool.isRequired,
     isDragging: PropTypes.bool.isRequired,
-    children: PropTypes.node.isRequired
+    children: PropTypes.node.isRequired,
+    onMove: PropTypes.func.isRequired
   };
 
   render() {
     const connectDragSource = this.props.connectDragSource;
     const connectDropTarget = this.props.connectDropTarget;
 
-    const classNames = [];
-    if (this.props.isDragging) {
-      classNames.push('sortable-stage-list-is-dragging');
-    }
-
-    if (this.props.isOver) {
-      classNames.push('sortable-stage-list-is-over');
-    }
-
     return connectDragSource(
       connectDropTarget(
-        <div className={classNames.join(' ')}>{this.props.children}</div>
+        <div>{this.props.children}</div>
       ));
   }
 }

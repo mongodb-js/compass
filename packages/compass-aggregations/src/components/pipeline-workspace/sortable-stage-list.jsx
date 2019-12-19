@@ -7,18 +7,8 @@ import SortableStageContainer from './sortable-stage-container';
 class SortableStageList extends Component {
   static propTypes = {
     items: PropTypes.array.isRequired,
-    onSort: PropTypes.func.isRequired,
+    onMove: PropTypes.func.isRequired,
     renderItem: PropTypes.func.isRequired
-  };
-
-  onDrop = (sourceIndex, targetIndex) => {
-    const oldItems = this.props.items;
-    const newItems = [...oldItems];
-
-    newItems[targetIndex] = oldItems[sourceIndex];
-    newItems[sourceIndex] = oldItems[targetIndex];
-
-    this.props.onSort(newItems);
   };
 
   render() {
@@ -30,7 +20,7 @@ class SortableStageList extends Component {
           return (<SortableStageContainer
             key={i}
             index={i}
-            onDrop={this.onDrop}>
+            onMove={this.props.onMove}>
             {this.props.renderItem(item, i)}
           </SortableStageContainer>);
         })}

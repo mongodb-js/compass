@@ -16,53 +16,6 @@ import styles from './stage.less';
 const DEFAULT_OPACITY = 0.6;
 
 /**
- * Behaviour for the stage drag source.
- */
-const stageSource = {
-  beginDrag(props) {
-    return {
-      index: props.index
-    };
-  }
-};
-
-/**
- * Behaviour for the stage drop target.
- */
-const stageTarget = {
-  hover(props, monitor, component) {
-    const fromIndex = monitor.getItem().index;
-    const toIndex = props.index;
-
-    if (fromIndex !== toIndex) {
-      // Determine rectangle on screen
-      const hoverBoundingRect = findDOMNode(component).getBoundingClientRect();
-      // Get vertical middle
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-      // Determine mouse position
-      const clientOffset = monitor.getClientOffset();
-      // Get pixels to the top
-      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-      // Dragging downwards
-      if (fromIndex < toIndex && hoverClientY < hoverMiddleY) {
-        return;
-      }
-      // Dragging upwards
-      if (fromIndex > toIndex && hoverClientY > hoverMiddleY) {
-        return;
-      }
-
-      props.stageMoved(fromIndex, toIndex);
-      props.setIsModified(true);
-      // This prevents us from overloading the store with stageMoved actions.
-      monitor.getItem().index = toIndex;
-      props.runStage(0);
-    }
-  }
-};
-
-/**
  * Display a single stage in the aggregation pipeline.
  *
  * Decorators added for giving the component drag/drop behaviour.

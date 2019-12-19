@@ -45,8 +45,9 @@ class PipelineWorkspace extends PureComponent {
     updatePipeline: PropTypes.func.isRequired
   };
 
-  onSort = (newPipeline) => {
-    this.props.updatePipeline(newPipeline);
+  onStageMoved = (fromIndex, toIndex) => {
+    this.props.stageMoved(fromIndex, toIndex);
+    this.props.runStage(0);
   }
 
   renderStage = (stage, i) => {
@@ -93,7 +94,7 @@ class PipelineWorkspace extends PureComponent {
   renderStageList = () => {
     return (<SortableStageList
       items={this.props.pipeline}
-      onSort={this.onSort}
+      onMove={this.onStageMoved}
       renderItem={this.renderStage}
     />);
   }
