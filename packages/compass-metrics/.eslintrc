@@ -1,5 +1,6 @@
 {
   "env": {
+    "es6": true,
     "mocha": true,
     "node": true
   },
@@ -15,5 +16,12 @@
     "mongodb-js/browser",
     "mongodb-js/react"
   ],
-  "plugins": ["react"]
+  "plugins": ["react"],
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "modules": true
+    }
+  }
 }

@@ -7,35 +7,6 @@ const metricsStore = createStore(reducer);
 const metrics = require('mongodb-js-metrics')();
 
 /**
- * Legacy tracking for Reflux store updates.
- *
- * @param {AppRegistry} appRegistry - The app registry.
- * @param {String} storeName - The store name.
- * @param {Object} rule - The rule.
- * @param {String} version - The compass version.
- */
-const trackStoreUpdate = (appRegistry, storeName, rule, version) => {
-  const store = appRegistry.getStore(storeName);
-  if (!store) {
-    return;
-  }
-  // attach an event listener
-  store.listen((state) => {
-    // only track an event if the rule condition evaluates to true
-    if (rule.condition(state)) {
-      // Some stores trigger with arrays of data.
-      if (rule.multi) {
-        state.forEach((s) => {
-          metrics.track(rule.resource, rule.action, rule.metadata(version, s));
-        });
-      } else {
-        metrics.track(rule.resource, rule.action, rule.metadata(version, state));
-      }
-    }
-  });
-};
-
-/**
  * Tracking of events that are emitted on the app registry.
  *
  * @param {AppRegistry} appRegistry - The app registry.
@@ -45,10 +16,10 @@ const trackStoreUpdate = (appRegistry, storeName, rule, version) => {
  */
 const trackRegistryEvent = (appRegistry, eventName, rule, version) => {
   // attach an event listener
-  appRegistry.on(eventName, (...args) => {
+  appRegistry.on(eventName, async(...args) => {
     // only track an event if the rule condition evaluates to true
     if (rule.condition(...args)) {
-      metrics.track(rule.resource, rule.action, rule.metadata(version, ...args));
+      metrics.track(rule.resource, rule.action, await rule.metadata(version, ...args));
     }
   });
 };
@@ -64,18 +35,10 @@ metricsStore.onActivated = (appRegistry) => {
 
     // configure rules
     rules.forEach((rule) => {
-      // get the store for this rule
-      const storeName = rule.store;
       const eventName = rule.registryEvent;
-
-      if (storeName) {
-        trackStoreUpdate(appRegistry, storeName, rule, version);
-      } else if (eventName) {
-        trackRegistryEvent(appRegistry, eventName, rule, version);
-      }
+      trackRegistryEvent(appRegistry, eventName, rule, version);
     });
   });
 };
 
 export default metricsStore;
-export { trackStoreUpdate, trackRegistryEvent };

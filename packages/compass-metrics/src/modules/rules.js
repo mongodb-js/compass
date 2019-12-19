@@ -1,7 +1,18 @@
 import schemaStats from 'mongodb-schema/lib/stats';
+import lodashGet from 'lodash.get';
+import getCloudInfo from './get-cloud-info';
 
 const ATLAS = /mongodb.net[:/]/i;
 const LOCALHOST = /(^localhost)|(^127\.0\.0\.1)/gi;
+
+async function getCloudInfoFromDataService(dataService) {
+  try {
+    const firstServerHostname = lodashGet(dataService, 'client.model.hosts.0.host');
+    return await getCloudInfo(firstServerHostname);
+  } catch (e) {
+    return {};
+  }
+}
 
 /**
  * This file defines rules for tracking metrics based on Reflux store changes.
@@ -34,45 +45,53 @@ const RULES = [
     resource: 'Topology',
     action: 'detected',
     condition: () => true,
-    metadata: (version, state) => ({
-      'topology type': state.topologyType,
-      'server count': state.servers.length,
-      'server types': state.servers.map(server => server.type),
-      compass_version: version
-    })
+    metadata: (version, state) => {
+      return {
+        'topology type': state.topologyType,
+        'server count': state.servers.length,
+        'server types': state.servers.map(server => server.type),
+        compass_version: version
+      };
+    }
   },
   {
     registryEvent: 'instance-refreshed',
     resource: 'Deployment',
     action: 'detected',
     condition: (state) => (state.instance.databases !== null),
-    metadata: (version, state) => ({
-      'databases count': state.instance.databases.length,
-      'namespaces count': state.instance.collections.length,
-      'mongodb version': state.instance.build.version,
-      'enterprise module': state.instance.build.enterprise_module,
-      'longest database name length': Math.max(
-        ...state.instance.databases.map((db) => db._id.length)),
-      'longest collection name length': Math.max(
-        ...state.instance.collections.map((col) => col._id.split('.')[1].length)),
-      'server architecture': state.instance.host.arch,
-      'server cpu cores': state.instance.host.cpu_cores,
-      'server cpu frequency (mhz)': state.instance.host.cpu_frequency / 1000 / 1000,
-      'server memory (gb)': state.instance.host.memory_bits / 1024 / 1024 / 1024,
-      'server os': state.instance.host.os,
-      'server arch': state.instance.host.arch,
-      'server os family': state.instance.host.os_family,
-      'server machine model': state.instance.host.machine_model,
-      'server kernel version': state.instance.host.kernel_version,
-      'server kernel version string': state.instance.host.kernel_version_string,
-      'is genuine mongodb': state.instance.genuineMongoDB === undefined ? true : state.instance.genuineMongoDB.isGenuine,
-      'server name': state.instance.genuineMongoDB === undefined ? 'mongodb' : state.instance.genuineMongoDB.dbType,
-      'is data lake': state.instance.dataLake === undefined ? false : state.instance.dataLake.isDataLake,
-      'data lake version': state.instance.dataLake === undefined ? null : state.instance.dataLake.version,
-      is_atlas: !!state.instance._id.match(ATLAS),
-      is_localhost: !!state.instance._id.match(LOCALHOST),
-      compass_version: version
-    })
+    metadata: async(version, state) => {
+      const cloudInfo = await getCloudInfoFromDataService(state.dataService);
+
+      const deploymentDetectedEvent = {
+        'databases count': state.instance.databases.length,
+        'namespaces count': state.instance.collections.length,
+        'mongodb version': state.instance.build.version,
+        'enterprise module': state.instance.build.enterprise_module,
+        'longest database name length': Math.max(...state.instance.databases.map((db) => db._id.length)),
+        'longest collection name length': Math.max(...state.instance.collections.map((col) => col._id.split('.')[1].length)),
+        'server architecture': state.instance.host.arch,
+        'server cpu cores': state.instance.host.cpu_cores,
+        'server cpu frequency (mhz)': state.instance.host.cpu_frequency / 1000 / 1000,
+        'server memory (gb)': state.instance.host.memory_bits / 1024 / 1024 / 1024,
+        'server os': state.instance.host.os,
+        'server arch': state.instance.host.arch,
+        'server os family': state.instance.host.os_family,
+        'server machine model': state.instance.host.machine_model,
+        'server kernel version': state.instance.host.kernel_version,
+        'server kernel version string': state.instance.host.kernel_version_string,
+        'is genuine mongodb': state.instance.genuineMongoDB === undefined ? true : state.instance.genuineMongoDB.isGenuine,
+        'server name': state.instance.genuineMongoDB === undefined ? 'mongodb' : state.instance.genuineMongoDB.dbType,
+        'is data lake': state.instance.dataLake === undefined ? false : state.instance.dataLake.isDataLake,
+        'data lake version': state.instance.dataLake === undefined ? null : state.instance.dataLake.version,
+        is_atlas: !!state.instance._id.match(ATLAS),
+        is_localhost: !!state.instance._id.match(LOCALHOST),
+        compass_version: version,
+        ...cloudInfo
+      };
+
+      return deploymentDetectedEvent;
+    }
+
   },
   {
     registryEvent: 'compass:schema:schema-sampled',
@@ -422,16 +441,6 @@ const RULES = [
     action: 'clicked',
     condition: () => true,
     metadata: (version) => ({
-      compass_version: version
-    })
-  },
-  {
-    store: 'License.Store',
-    resource: 'License',
-    action: 'viewed',
-    condition: () => true,
-    metadata: (version, state) => ({
-      'license accepted': state.isAgreed,
       compass_version: version
     })
   }

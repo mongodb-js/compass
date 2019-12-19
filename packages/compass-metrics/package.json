@@ -131,7 +131,6 @@
     "lodash.values": "^4.3.0",
     "lodash.zipobject": "^4.1.3",
     "netmask": "^1.0.6",
-    "request": "^2.88.0",
-    "request-promise-native": "^1.0.8"
+    "node-fetch": "^2.6.0"
   }
 }
