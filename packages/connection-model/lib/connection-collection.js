@@ -1,7 +1,7 @@
 const Collection = require('ampersand-rest-collection');
 const Connection = require('./extended-model');
 const storageMixin = require('storage-mixin');
-const each = require('lodash.foreach');
+const { each } = require('lodash');
 const raf = require('raf');
 
 /**
@@ -14,7 +14,9 @@ let basepath;
 try {
   const electron = require('electron');
   appName = electron.remote ? electron.remote.app.getName() : undefined;
-  basepath = electron.remote ? electron.remote.app.getPath('userData') : undefined;
+  basepath = electron.remote
+    ? electron.remote.app.getPath('userData')
+    : undefined;
 } catch (e) {
   /* eslint no-console: 0 */
   console.log('Could not load electron', e.message);
@@ -39,7 +41,7 @@ module.exports = Collection.extend(storageMixin, {
   indexes: ['name'],
   maxLength: 10,
   _prune() {
-    const recentConnections = this.filter((model) => !model.isFavorite);
+    const recentConnections = this.filter(model => !model.isFavorite);
 
     if (recentConnections.length > this.maxLength) {
       // if there is no space anymore, remove the oldest recent connection first.
@@ -47,7 +49,7 @@ module.exports = Collection.extend(storageMixin, {
         recentConnections.slice(0, recentConnections.length - this.maxLength)
       );
 
-      each(toRemove, (model) => model.destroy());
+      each(toRemove, model => model.destroy());
     }
   },
   add(models, options) {

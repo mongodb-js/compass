@@ -15,25 +15,35 @@ describe('connection model connector', () => {
     this.slow(2000);
     this.timeout(10000);
 
-    before(require('mongodb-runner/mocha/before')({ port: 27018, version: '4.0.0' }));
+    before(
+      require('mongodb-runner/mocha/before')({ port: 27018, version: '4.0.0' })
+    );
 
-    after(require('mongodb-runner/mocha/after')({ port: 27018, version: '4.0.0' }));
+    after(
+      require('mongodb-runner/mocha/after')({ port: 27018, version: '4.0.0' })
+    );
 
-    it('should connect to `localhost:27018 with model`', (done) => {
+    it('should connect to `localhost:27018 with model`', done => {
       Connection.from('mongodb://localhost:27018', (parseErr, model) => {
         assert.equal(parseErr, null);
-        connect(model, setupListeners, (connectErr) => {
+        connect(model, setupListeners, (connectErr, client) => {
           assert.equal(connectErr, null);
+          client.close(true);
           done();
         });
       });
     });
 
-    it('should connect to `localhost:27018 with object`', (done) => {
-      connect({port: 27018, host: 'localhost'}, setupListeners, (err) => {
-        assert.equal(err, null);
-        done();
-      });
+    it('should connect to `localhost:27018 with object`', done => {
+      connect(
+        { port: 27018, host: 'localhost' },
+        setupListeners,
+        (err, client) => {
+          assert.equal(err, null);
+          client.close(true);
+          done();
+        }
+      );
     });
 
     describe('ssh tunnel failures', () => {
@@ -43,13 +53,13 @@ describe('connection model connector', () => {
         // simulate successful tunnel creation
         cb();
         // then return a mocked tunnel object with a spy close() function
-        return {close: spy};
+        return { close: spy };
       });
 
       const MockConnection = mock.reRequire('../lib/extended-model');
       const mockConnect = mock.reRequire('../lib/connect');
 
-      it('should close ssh tunnel if the connection fails', (done) => {
+      it('should close ssh tunnel if the connection fails', done => {
         const model = new MockConnection({
           hostname: 'localhost',
           port: '27017',
@@ -61,7 +71,7 @@ describe('connection model connector', () => {
         });
 
         assert(model.isValid());
-        mockConnect(model, setupListeners, (err) => {
+        mockConnect(model, setupListeners, err => {
           // must throw error here, because the connection details are invalid
           assert.ok(err);
           assert.ok(/ECONNREFUSED/.test(err.reason));
@@ -77,27 +87,27 @@ describe('connection model connector', () => {
     this.slow(5000);
     this.timeout(10000);
 
-    data.MATRIX.map((d) => {
-      it.skip('should connect to ' + d.name, (done) => {
-        connect(d, setupListeners, (err, _db) => {
+    data.MATRIX.map(d => {
+      it.skip('should connect to ' + d.name, done => {
+        connect(d, setupListeners, (err, client) => {
           if (err) {
             return done(err);
           }
 
-          _db.close();
+          client.close(true);
           done();
         });
       });
     });
 
-    data.SSH_TUNNEL_MATRIX.map((d) => {
-      it.skip(`connects via the sshTunnel to ${d.sshTunnelHostname}`, (done) => {
-        connect(d, setupListeners, (err, _db) => {
+    data.SSH_TUNNEL_MATRIX.map(d => {
+      it.skip(`connects via the sshTunnel to ${d.sshTunnelHostname}`, done => {
+        connect(d, setupListeners, (err, client) => {
           if (err) {
             return done(err);
           }
 
-          _db.close();
+          client.close(true);
           done();
         });
       });

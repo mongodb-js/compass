@@ -1,18 +1,18 @@
 const URL = require('url');
 const toURL = URL.format;
-const format = require('util').format;
+const { format } = require('util');
+const fs = require('fs');
+
+const { assign, defaults, clone, includes, unescape } = require('lodash');
+
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
-const ReadPreference = require('mongodb-core').ReadPreference;
-const parseConnectionString = require('mongodb-core').parseConnectionString;
-const assign = require('lodash.assign');
-const defaults = require('lodash.defaults');
-const clone = require('lodash.clone');
-const includes = require('lodash.includes');
-const unescape = require('lodash.unescape');
+
+const { ReadPreference } = require('mongodb');
+const { parseConnectionString } = require('mongodb/lib/core');
+
 const dataTypes = require('./data-types');
 const localPortGenerator = require('./local-port-generator');
-const fs = require('fs');
 
 /**
  * Defining constants
@@ -38,7 +38,6 @@ const READ_PREFERENCE_VALUES = [
 const AUTH_STRATEGY_DEFAULT = 'NONE';
 const READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY;
 const MONGODB_DATABASE_NAME_DEFAULT = 'admin';
-const MONGODB_NAMESPACE_DEFAULT = 'test';
 const KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
 const SSL_DEFAULT = 'NONE';
 const SSH_TUNNEL_DEFAULT = 'NONE';
@@ -83,7 +82,10 @@ assign(props, {
     default: () => [{ host: 'localhost', port: 27017 }]
   },
   extraOptions: { type: 'object', default: () => ({}) },
-  connectionType: { type: 'string', default: CONNECTION_TYPE_VALUES.NODE_DRIVER },
+  connectionType: {
+    type: 'string',
+    default: CONNECTION_TYPE_VALUES.NODE_DRIVER
+  },
   authStrategy: {
     type: 'string',
     values: AUTH_STRATEGY_VALUES,
@@ -150,7 +152,13 @@ const CONNECTION_STRING_OPTIONS = {
   retryWrites: { type: 'boolean', default: undefined },
   uuidRepresentation: {
     type: 'string',
-    values: [undefined, 'standard', 'csharpLegacy', 'javaLegacy', 'pythonLegacy'],
+    values: [
+      undefined,
+      'standard',
+      'csharpLegacy',
+      'javaLegacy',
+      'pythonLegacy'
+    ],
     default: undefined
   }
 };
@@ -310,7 +318,11 @@ assign(props, {
  */
 assign(props, {
   ssl: { type: 'any', default: undefined },
-  sslMethod: { type: 'string', values: SSL_METHOD_VALUES, default: SSL_DEFAULT },
+  sslMethod: {
+    type: 'string',
+    values: SSL_METHOD_VALUES,
+    default: SSL_DEFAULT
+  },
   /**
    * Array of valid certificates either as Buffers or Strings
    * (needs to have a mongod server with ssl support, 2.4 or higher).
@@ -440,7 +452,9 @@ assign(derived, {
         req.hostname = this.hostname;
         req.port = this.port;
       } else {
-        req.host = this.hosts.map((item) => `${item.host}:${item.port}`).join(',');
+        req.host = this.hosts
+          .map(item => `${item.host}:${item.port}`)
+          .join(',');
       }
 
       if (this.ns) {
@@ -450,10 +464,12 @@ assign(derived, {
       // Encode auth for url format
       if (this.authStrategy === 'MONGODB') {
         req.auth = AUTH_TOKEN;
-        req.query.authSource = this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
+        req.query.authSource =
+          this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
       } else if (this.authStrategy === 'SCRAM-SHA-256') {
         req.auth = AUTH_TOKEN;
-        req.query.authSource = this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
+        req.query.authSource =
+          this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
         req.query.authMechanism = this.driverAuthMechanism;
       } else if (this.authStrategy === 'KERBEROS') {
         req.auth = AUTH_TOKEN;
@@ -469,7 +485,7 @@ assign(derived, {
         defaults(req.query, { authMechanism: this.driverAuthMechanism });
       }
 
-      Object.keys(CONNECTION_STRING_OPTIONS).forEach((item) => {
+      Object.keys(CONNECTION_STRING_OPTIONS).forEach(item => {
         if (typeof this[item] !== 'undefined' && !req.query[item]) {
           if (item === 'compression') {
             if (this.compression && this.compression.compressors) {
@@ -481,16 +497,18 @@ assign(derived, {
             }
           } else if (item === 'authMechanismProperties') {
             if (this.authMechanismProperties) {
-              req.query.authMechanismProperties = Object
-                .keys(this.authMechanismProperties)
-                .map((tag) => `${tag}:${this.authMechanismProperties[tag]}`)
+              req.query.authMechanismProperties = Object.keys(
+                this.authMechanismProperties
+              )
+                .map(tag => `${tag}:${this.authMechanismProperties[tag]}`)
                 .join(',');
             }
           } else if (item === 'readPreferenceTags') {
             if (this.readPreferenceTags) {
-              req.query.readPreferenceTags = Object
-                .keys(this.readPreferenceTags)
-                .map((tag) => `${tag}:${this.readPreferenceTags[tag]}`)
+              req.query.readPreferenceTags = Object.keys(
+                this.readPreferenceTags
+              )
+                .map(tag => `${tag}:${this.readPreferenceTags[tag]}`)
                 .join(',');
             }
           } else {
@@ -501,7 +519,9 @@ assign(derived, {
 
       if (this.ssl) {
         req.query.ssl = this.ssl;
-      } else if (includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.sslMethod)) {
+      } else if (
+        includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.sslMethod)
+      ) {
         req.query.ssl = 'true';
       } else if (this.sslMethod === 'IFAVAILABLE') {
         req.query.ssl = 'prefer';
@@ -521,7 +541,10 @@ assign(derived, {
 
       // Post url.format() workaround for
       // https://github.com/nodejs/node/issues/1802
-      if (this.authStrategy === 'MONGODB' || this.authStrategy === 'SCRAM-SHA-256') {
+      if (
+        this.authStrategy === 'MONGODB' ||
+        this.authStrategy === 'SCRAM-SHA-256'
+      ) {
         const authField = format(
           '%s:%s',
           encodeURIComponent(this.mongodbUsername),
@@ -661,7 +684,9 @@ assign(derived, {
             opts.privateKey = fs.readFileSync(fileName);
           } catch (e) {
             /* eslint no-console: 0 */
-            console.error(`Could not locate ssh tunnel identity file: ${fileName}`);
+            console.error(
+              `Could not locate ssh tunnel identity file: ${fileName}`
+            );
           }
         }
 
@@ -689,7 +714,9 @@ Connection = AmpersandModel.extend({
   initialize(attrs) {
     if (attrs) {
       if (typeof attrs === 'string') {
-        throw new TypeError('To create a connection object from URI please use `Connection.from` function.');
+        throw new TypeError(
+          'To create a connection object from URI please use `Connection.from` function.'
+        );
       } else {
         if (attrs.sslCA && !Array.isArray(attrs.sslCA)) {
           this.sslCA = attrs.sslCA = [attrs.sslCA];
@@ -741,7 +768,7 @@ Connection = AmpersandModel.extend({
     }
 
     // Map the old password fields to the new ones.
-    Object.keys(PASSWORD_MAPPINGS).forEach((oldField) => {
+    Object.keys(PASSWORD_MAPPINGS).forEach(oldField => {
       const newField = PASSWORD_MAPPINGS[oldField];
       if (!attrs[newField] && attrs[oldField]) {
         this[newField] = attrs[newField] = attrs[oldField];
@@ -770,7 +797,10 @@ Connection = AmpersandModel.extend({
   validateSsl(attrs) {
     if (
       !attrs.sslMethod ||
-      includes(['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'], attrs.sslMethod)
+      includes(
+        ['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'],
+        attrs.sslMethod
+      )
     ) {
       return;
     }
@@ -799,14 +829,14 @@ Connection = AmpersandModel.extend({
       if (!attrs.mongodbUsername) {
         throw new TypeError(
           'The mongodbUsername field is required when ' +
-          'using MONGODB or SCRAM-SHA-256 for authStrategy.'
+            'using MONGODB or SCRAM-SHA-256 for authStrategy.'
         );
       }
 
       if (!attrs.mongodbPassword) {
         throw new TypeError(
           'The mongodbPassword field is required when ' +
-          'using MONGODB or SCRAM-SHA-256 for authStrategy.'
+            'using MONGODB or SCRAM-SHA-256 for authStrategy.'
         );
       }
     }
@@ -818,19 +848,31 @@ Connection = AmpersandModel.extend({
   validateKerberos(attrs) {
     if (attrs.authStrategy !== 'KERBEROS') {
       if (attrs.kerberosServiceName) {
-        throw new TypeError(format(
-          'The kerberosServiceName field does not apply when ' +
-          'using %s for authStrategy.', attrs.authStrategy));
+        throw new TypeError(
+          format(
+            'The kerberosServiceName field does not apply when ' +
+              'using %s for authStrategy.',
+            attrs.authStrategy
+          )
+        );
       }
       if (attrs.kerberosPrincipal) {
-        throw new TypeError(format(
-          'The kerberosPrincipal field does not apply when ' +
-          'using %s for authStrategy.', attrs.authStrategy));
+        throw new TypeError(
+          format(
+            'The kerberosPrincipal field does not apply when ' +
+              'using %s for authStrategy.',
+            attrs.authStrategy
+          )
+        );
       }
       if (attrs.kerberosPassword) {
-        throw new TypeError(format(
-          'The kerberosPassword field does not apply when ' +
-          'using %s for authStrategy.', attrs.authStrategy));
+        throw new TypeError(
+          format(
+            'The kerberosPassword field does not apply when ' +
+              'using %s for authStrategy.',
+            attrs.authStrategy
+          )
+        );
       }
     } else if (!attrs.kerberosPrincipal) {
       throw new TypeError(
@@ -850,14 +892,20 @@ Connection = AmpersandModel.extend({
   validateLdap(attrs) {
     if (attrs.authStrategy === 'LDAP') {
       if (!attrs.ldapUsername) {
-        throw new TypeError(format(
-          'The ldapUsername field is required when ' +
-          'using LDAP for authStrategy.'));
+        throw new TypeError(
+          format(
+            'The ldapUsername field is required when ' +
+              'using LDAP for authStrategy.'
+          )
+        );
       }
       if (!attrs.ldapPassword) {
-        throw new TypeError(format(
-          'The ldapPassword field is required when ' +
-          'using LDAP for authStrategy.'));
+        throw new TypeError(
+          format(
+            'The ldapPassword field is required when ' +
+              'using LDAP for authStrategy.'
+          )
+        );
       }
     }
   },
@@ -870,65 +918,93 @@ Connection = AmpersandModel.extend({
       this.validateStandardSshTunnelOptions(attrs);
 
       if (!attrs.sshTunnelPassword) {
-        throw new TypeError('sslTunnelPassword is required when sshTunnel is USER_PASSWORD.');
+        throw new TypeError(
+          'sslTunnelPassword is required when sshTunnel is USER_PASSWORD.'
+        );
       }
     } else if (attrs.sshTunnel === 'IDENTITY_FILE') {
       this.validateStandardSshTunnelOptions(attrs);
 
       if (!attrs.sshTunnelIdentityFile) {
-        throw new TypeError('sslTunnelIdentityFile is required when sshTunnel is IDENTITY_FILE.');
+        throw new TypeError(
+          'sslTunnelIdentityFile is required when sshTunnel is IDENTITY_FILE.'
+        );
       }
     }
   },
   validateStandardSshTunnelOptions(attrs) {
     if (!attrs.sshTunnelUsername) {
-      throw new TypeError('sslTunnelUsername is required when sshTunnel is not NONE.');
+      throw new TypeError(
+        'sslTunnelUsername is required when sshTunnel is not NONE.'
+      );
     }
 
     if (!attrs.sshTunnelHostname) {
-      throw new TypeError('sslTunnelHostname is required when sshTunnel is not NONE.');
+      throw new TypeError(
+        'sslTunnelHostname is required when sshTunnel is not NONE.'
+      );
     }
 
     if (!attrs.sshTunnelPort) {
-      throw new TypeError('sslTunnelPort is required when sshTunnel is not NONE.');
+      throw new TypeError(
+        'sslTunnelPort is required when sshTunnel is not NONE.'
+      );
     }
   },
   validateStitch(attrs) {
     if (attrs.connectionType === CONNECTION_TYPE_VALUES.STITCH_ATLAS) {
       if (!attrs.stitchClientAppId) {
-        throw new TypeError('stitchClientAppId is required when connectionType is STITCH_ATLAS.');
+        throw new TypeError(
+          'stitchClientAppId is required when connectionType is STITCH_ATLAS.'
+        );
       }
     } else if (attrs.connectionType === CONNECTION_TYPE_VALUES.STITCH_ON_PREM) {
       if (!attrs.stitchClientAppId) {
-        throw new TypeError('stitchClientAppId is required when connectionType is STITCH_ON_PREM.');
+        throw new TypeError(
+          'stitchClientAppId is required when connectionType is STITCH_ON_PREM.'
+        );
       }
 
       if (!attrs.stitchBaseUrl) {
-        throw new TypeError('stitchBaseUrl is required when connectionType is STITCH_ON_PREM.');
+        throw new TypeError(
+          'stitchBaseUrl is required when connectionType is STITCH_ON_PREM.'
+        );
       }
 
       if (!attrs.stitchGroupId) {
-        throw new TypeError('stitchGroupId is required when connectionType is STITCH_ON_PREM.');
+        throw new TypeError(
+          'stitchGroupId is required when connectionType is STITCH_ON_PREM.'
+        );
       }
 
       if (!attrs.stitchServiceName) {
-        throw new TypeError('stitchServiceName is required when connectionType is STITCH_ON_PREM.');
+        throw new TypeError(
+          'stitchServiceName is required when connectionType is STITCH_ON_PREM.'
+        );
       }
     } else if (attrs.connectionType === CONNECTION_TYPE_VALUES.NODE_DRIVER) {
       if (attrs.stitchClientAppId) {
-        throw new TypeError('stitchClientAppId should not be provided when connectionType is NODE_DRIVER.');
+        throw new TypeError(
+          'stitchClientAppId should not be provided when connectionType is NODE_DRIVER.'
+        );
       }
 
       if (attrs.stitchBaseUrl) {
-        throw new TypeError('stitchBaseUrl should not be provided when connectionType is NODE_DRIVER.');
+        throw new TypeError(
+          'stitchBaseUrl should not be provided when connectionType is NODE_DRIVER.'
+        );
       }
 
       if (attrs.stitchGroupId) {
-        throw new TypeError('stitchGroupId should not be provided when connectionType is NODE_DRIVER.');
+        throw new TypeError(
+          'stitchGroupId should not be provided when connectionType is NODE_DRIVER.'
+        );
       }
 
       if (attrs.stitchServiceName) {
-        throw new TypeError('stitchServiceName should not be provided when connectionType is NODE_DRIVER.');
+        throw new TypeError(
+          'stitchServiceName should not be provided when connectionType is NODE_DRIVER.'
+        );
       }
     }
   }
@@ -994,13 +1070,10 @@ Connection.from = (url, callback) => {
       // See also: https://github.com/mongodb/specifications/blob/master/source/initial-dns-seedlist-discovery/initial-dns-seedlist-discovery.rst#specification
       const extraParsed = URL.parse(unescapedUrl, true);
 
-      attrs = Object.assign(
-        attrs,
-        {
-          hostname: extraParsed.hostname,
-          port: parseInt(extraParsed.port, 10)
-        }
-      );
+      attrs = Object.assign(attrs, {
+        hostname: extraParsed.hostname,
+        port: parseInt(extraParsed.port, 10)
+      });
     }
 
     // We don't inherit the drivers default values
@@ -1048,7 +1121,10 @@ Connection.from = (url, callback) => {
           attrs.authSource || Connection.MONGODB_DATABASE_NAME_DEFAULT
         );
 
-        Object.assign(attrs, Connection._improveAtlasDefaults(url, attrs.auth.password, attrs.ns));
+        Object.assign(
+          attrs,
+          Connection._improveAtlasDefaults(url, attrs.auth.password, attrs.ns)
+        );
       }
     }
 
@@ -1092,11 +1168,13 @@ Connection._improveAtlasDefaults = (url, mongodbPassword, ns) => {
  * @param {String} authStrategy - The desired authentication strategy
  * @return {Array}
  */
-Connection.getFieldNames = (authStrategy) => AUTH_STRATEGY_TO_FIELD_NAMES[authStrategy];
+Connection.getFieldNames = authStrategy =>
+  AUTH_STRATEGY_TO_FIELD_NAMES[authStrategy];
 
-Connection.isAtlas = (str) => str.match(/mongodb.net[:/]/i);
+Connection.isAtlas = str => str.match(/mongodb.net[:/]/i);
 
-Connection.isURI = (str) => (str.startsWith('mongodb://')) || (str.startsWith('mongodb+srv://'));
+Connection.isURI = str =>
+  str.startsWith('mongodb://') || str.startsWith('mongodb+srv://');
 
 Connection.AUTH_STRATEGY_VALUES = AUTH_STRATEGY_VALUES;
 Connection.AUTH_STRATEGY_DEFAULT = AUTH_STRATEGY_DEFAULT;
@@ -1104,7 +1182,6 @@ Connection.SSL_METHOD_VALUES = SSL_METHOD_VALUES;
 Connection.SSL_DEFAULT = SSL_DEFAULT;
 Connection.SSH_TUNNEL_VALUES = SSH_TUNNEL_VALUES;
 Connection.SSH_TUNNEL_DEFAULT = SSH_TUNNEL_DEFAULT;
-Connection.MONGODB_NAMESPACE_DEFAULT = MONGODB_NAMESPACE_DEFAULT;
 Connection.MONGODB_DATABASE_NAME_DEFAULT = MONGODB_DATABASE_NAME_DEFAULT;
 Connection.KERBEROS_SERVICE_NAME_DEFAULT = KERBEROS_SERVICE_NAME_DEFAULT;
 Connection.DRIVER_OPTIONS_DEFAULT = DRIVER_OPTIONS_DEFAULT;
