@@ -1,3 +1,4 @@
 .eslintrc
 .travis.yml
 test/
+.github/
