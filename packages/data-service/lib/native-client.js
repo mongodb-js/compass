@@ -1,17 +1,15 @@
-'use strict';
-
-const map = require('lodash.map');
-const isFunction = require('lodash.isfunction');
-const assignIn = require('lodash.assignin');
-const assign = require('lodash.assign');
+const { map, isFunction, assignIn, assign } = require('lodash');
 const async = require('async');
 const EventEmitter = require('events');
+
 const connect = require('mongodb-connection-model').connect;
 const getIndexes = require('mongodb-index-model').fetch;
 const createSampleStream = require('mongodb-collection-sample');
 const parseNamespace = require('mongodb-ns');
-const debug = require('debug')('mongodb-data-service:native-client');
+
 const { getInstance } = require('./instance-detail-helper');
+
+const debug = require('debug')('mongodb-data-service:native-client');
 
 /**
  * The constant for a mongos.
@@ -93,27 +91,23 @@ class NativeClient extends EventEmitter {
     debug('connecting...');
     this.isWritable = false;
     this.isMongos = false;
-    connect(
-      this.model,
-      this.setupListeners.bind(this),
-      (err) => {
-        if (err) {
-          return done(this._translateMessage(err));
-        }
-
-        this.isWritable = this.client.isWritable;
-        this.isMongos = this.client.isMongos;
-
-        debug('connected!', {
-          isWritable: this.isWritable,
-          isMongos: this.isMongos
-        });
-
-        this.client.on('status', evt => this.emit('status', evt));
-        this.database = this.client.db(this.model.ns || ADMIN);
-        done(null, this);
+    connect(this.model, this.setupListeners.bind(this), err => {
+      if (err) {
+        return done(this._translateMessage(err));
       }
-    );
+
+      this.isWritable = this.client.isWritable;
+      this.isMongos = this.client.isMongos;
+
+      debug('connected!', {
+        isWritable: this.isWritable,
+        isMongos: this.isMongos
+      });
+
+      this.client.on('status', evt => this.emit('status', evt));
+      this.database = this.client.db(this.model.ns || ADMIN);
+      done(null, this);
+    });
     return this;
   }
 
@@ -155,7 +149,8 @@ class NativeClient extends EventEmitter {
         debug('topologyDescriptionChanged', arguments);
         client.isWritable = this._isWritable(evt);
         client.isMongos = this._isMongos(evt);
-        debug('updated to', {isWritable: client.isWritable,
+        debug('updated to', {
+          isWritable: client.isWritable,
           isMongos: client.isMongos
         });
 
@@ -855,13 +850,16 @@ class NativeClient extends EventEmitter {
     options.viewOn = this._collectionName(sourceNs);
     options.pipeline = pipeline;
 
-    this._database(this._databaseName(sourceNs))
-      .createCollection(name, options, (error, result) => {
+    this._database(this._databaseName(sourceNs)).createCollection(
+      name,
+      options,
+      (error, result) => {
         if (error) {
           return callback(this._translateMessage(error));
         }
         callback(null, result);
-      });
+      }
+    );
   }
   /**
    * Update a view.

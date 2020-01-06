@@ -4,16 +4,18 @@ const toNS = require('mongodb-ns');
 const security = require('mongodb-security');
 const ReadPreference = require('mongodb').ReadPreference;
 const URL = require('mongodb-url');
-const union = require('lodash.union');
-const map = require('lodash.map');
-const partial = require('lodash.partial');
-const has = require('lodash.has');
-const get = require('lodash.get');
-const uniqBy = require('lodash.uniqby');
-const flatten = require('lodash.flatten');
-const groupBy = require('lodash.groupby');
-const forEach = require('lodash.foreach');
-const omit = require('lodash.omit');
+const {
+  union,
+  map,
+  partial,
+  has,
+  get,
+  uniqBy,
+  flatten,
+  groupBy,
+  forEach,
+  omit
+} = require('lodash');
 
 const debug = require('debug')('mongodb-data-service:instance-detail-helper');
 
@@ -112,7 +114,11 @@ function getGenuineMongoDB(results, done) {
   const buildInfo = results.build.raw;
   const cmdLineOpts = results.cmdLineOpts;
 
-  debug('genuineMongoDB check: buildInfo and cmdLineOpts', buildInfo, cmdLineOpts);
+  debug(
+    'genuineMongoDB check: buildInfo and cmdLineOpts',
+    buildInfo,
+    cmdLineOpts
+  );
 
   const res = {
     isGenuine: true,
@@ -402,7 +408,10 @@ function getAllowedDatabases(results, done) {
       })
   );
 
-  done(null, databases.filter((f, i) => f && databases.indexOf(f) === i));
+  done(
+    null,
+    databases.filter((f, i) => f && databases.indexOf(f) === i)
+  );
 }
 
 function parseCollection(resp) {
@@ -443,9 +452,9 @@ function getAllowedCollections(results, done) {
           };
         })
     )
-    .filter((f) => f.name);
+    .filter(f => f.name);
 
-  collections = uniqBy(collections, (c) => `${c.db}.${c.name}`);
+  collections = uniqBy(collections, c => `${c.db}.${c.name}`);
   collections = map(collections, parseCollection);
   debug('allowed collections', collections);
   done(null, collections);
@@ -506,9 +515,9 @@ function getCollections(results, done) {
   // concat
   let collections = [].concat
     .apply(results.listCollections, results.allowedCollections)
-    .filter((f) => f.name !== '');
+    .filter(f => f.name !== '');
   // de-dupe based on _id
-  collections = uniqBy(collections, (c) => c._id);
+  collections = uniqBy(collections, c => c._id);
 
   // @todo filter the ones that we can "count on"
   // async.filter(collections, function(collection, callback) {

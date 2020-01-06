@@ -268,7 +268,7 @@ describe('instance-detail-helper-mocked', function() {
       };
       getHostInfo(results, function(err, res) {
         assert.equal(err, null);
-        assert.deepEqual(res, []);
+        assert.deepEqual(res, {});
         done();
       });
     });

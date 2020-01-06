@@ -16,11 +16,13 @@ npm install --save mongodb-data-service
 const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
 
-var service = new DataService(new Connection({
-  hostname: '127.0.0.1',
-  port: 27018,
-  ns: 'data-service'
-}));
+var service = new DataService(
+  new Connection({
+    hostname: '127.0.0.1',
+    port: 27018,
+    ns: 'data-service'
+  })
+);
 ```
 
 ### Connecting to the server.
@@ -135,8 +137,18 @@ service.sample('database.collection', {});
     view_on: undefined,
     pipeline: undefined
   }
-]
+];
 ```
+
+## Contributing
+
+### Running Tests
+
+```bash
+npm test
+```
+
+All tests in an electron renderer process thanks to [electron-mocha](https://npm.im/electron-mocha).
 
 ## License
 
