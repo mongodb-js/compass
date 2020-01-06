@@ -26,7 +26,7 @@ post:
         - ~/.mongodb/runner/*.log
 
 functions:
-  "prepare":
+  'prepare':
     - command: git.get_project
       params:
         directory: src
@@ -70,7 +70,12 @@ functions:
           export NPM_TMP_DIR="$(pwd)/.deps/tmp"
           export NPM_AUTH_TOKEN="${compass_npm_token}"
 
-          export NODE_JS_VERSION="10.2.1"
+          export NODE_JS_VERSION="12.4.0"
+          # TODO: lucas: Go back to npm@latest after 6.13.4 released
+          # or https://jira.mongodb.org/browse/COMPASS-4019 removes jade.
+          # https://jira.mongodb.org/browse/COMPASS-4018
+          # export NPM_VERSION="latest"
+          export NPM_VERSION="6.13.2"
 
           if [[ "$OSTYPE" == "cygwin" ]]; then
             export PATH="$(pwd)/.deps:/cygdrive/c/wixtools/bin/:$PATH"
@@ -213,7 +218,7 @@ functions:
     #   params:
     #     file: src/plugin/plugin-test-results.xml
 
-  "package":
+  'package':
     - command: shell.exec
       params:
         working_dir: src
@@ -284,7 +289,7 @@ functions:
             ls -la dist
           fi
 
-  "publish":
+  'publish':
     command: shell.exec
     params:
       working_dir: src
@@ -304,7 +309,7 @@ functions:
         echo "Uploading release assets to S3 and GitHub if needed..."
         npm run upload ${compass_distribution}
 
-  "save windows artifacts":
+  'save windows artifacts':
     # setup
     - <<: *save-artifact
       params:
@@ -332,33 +337,33 @@ functions:
         local_file: src/dist/${windows_nupkg_full_filename}
         remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
 
-  "save osx artifacts":
+  'save osx artifacts':
     # .dmg
     - <<: *save-artifact
       params:
         local_file: src/dist/${osx_dmg_filename}
         remote_file: ${project}/${revision}/${osx_dmg_filename}
-        content_type: "application/x-apple-diskimage"
+        content_type: 'application/x-apple-diskimage'
     # .zip
     - <<: *save-artifact
       params:
         local_file: src/dist/${osx_zip_filename}
         remote_file: ${project}/${revision}/${osx_zip_filename}
         content_type: application/zip
-  "save linux artifacts":
+  'save linux artifacts':
     # .deb
     - <<: *save-artifact
       params:
         local_file: src/dist/${linux_deb_filename}
         remote_file: ${project}/${revision}/${linux_deb_filename}
-        content_type: "application/vnd.debian.binary-package"
+        content_type: 'application/vnd.debian.binary-package'
     # .tar.gz
     - <<: *save-artifact
       params:
         local_file: src/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
         content_type: application/x-gzip
-  "save rhel artifacts":
+  'save rhel artifacts':
     # .rpm
     - <<: *save-artifact
       params:
@@ -386,28 +391,28 @@ tasks:
       - func: publish
         vars:
           compass_distribution: compass
-      - func: "save osx artifacts"
+      - func: 'save osx artifacts'
       - func: package
         vars:
           compass_distribution: compass-community
       - func: publish
         vars:
           compass_distribution: compass-community
-      - func: "save osx artifacts"
+      - func: 'save osx artifacts'
       - func: package
         vars:
           compass_distribution: compass-isolated
       - func: publish
         vars:
           compass_distribution: compass-isolated
-      - func: "save osx artifacts"
+      - func: 'save osx artifacts'
       - func: package
         vars:
           compass_distribution: compass-readonly
       - func: publish
         vars:
           compass_distribution: compass-readonly
-      - func: "save osx artifacts"
+      - func: 'save osx artifacts'
 
   - name: compile
     depends_on: []
@@ -419,7 +424,7 @@ tasks:
   - name: verify
     depends_on: [compile]
     tags:
-      - "verify"
+      - 'verify'
     commands:
       - func: restore
       - func: verify
@@ -436,7 +441,7 @@ tasks:
   - name: test-functional
     depends_on: [compile]
     tags:
-      - "test"
+      - 'test'
     commands:
       - func: restore
       - func: test
@@ -477,7 +482,7 @@ tasks:
       - func: publish
         vars:
           compass_distribution: compass
-      - func: "save windows artifacts"
+      - func: 'save windows artifacts'
         variants: [windows]
       # NOTE (@imlucas) Because macos can't utilize task parallelism
       # and instead runs `oneshot-compile-test-package-publish`
@@ -485,9 +490,9 @@ tasks:
       # 1 macos box setup to run functional tests.
       # - func: 'save osx artifacts'
       #   variants: [macos]
-      - func: "save linux artifacts"
+      - func: 'save linux artifacts'
         variants: [ubuntu]
-      - func: "save rhel artifacts"
+      - func: 'save rhel artifacts'
         variants: [rhel]
 
   - name: package-and-publish-compass-community
@@ -500,11 +505,11 @@ tasks:
       - func: publish
         vars:
           compass_distribution: compass-community
-      - func: "save windows artifacts"
+      - func: 'save windows artifacts'
         variants: [windows]
-      - func: "save linux artifacts"
+      - func: 'save linux artifacts'
         variants: [ubuntu]
-      - func: "save rhel artifacts"
+      - func: 'save rhel artifacts'
         variants: [rhel]
 
   - name: package-and-publish-compass-isolated
@@ -517,11 +522,11 @@ tasks:
       - func: publish
         vars:
           compass_distribution: compass-isolated
-      - func: "save windows artifacts"
+      - func: 'save windows artifacts'
         variants: [windows]
-      - func: "save linux artifacts"
+      - func: 'save linux artifacts'
         variants: [ubuntu]
-      - func: "save rhel artifacts"
+      - func: 'save rhel artifacts'
         variants: [rhel]
 
   - name: package-and-publish-compass-readonly
@@ -534,11 +539,11 @@ tasks:
       - func: publish
         vars:
           compass_distribution: compass-readonly
-      - func: "save windows artifacts"
+      - func: 'save windows artifacts'
         variants: [windows]
-      - func: "save linux artifacts"
+      - func: 'save linux artifacts'
         variants: [ubuntu]
-      - func: "save rhel artifacts"
+      - func: 'save rhel artifacts'
         variants: [rhel]
 
   # NOTE (@imlucas) Examples of how to extend which tests run

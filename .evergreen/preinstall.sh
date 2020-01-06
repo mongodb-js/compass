@@ -15,11 +15,6 @@ else
         export IS_UBUNTU=true
     fi
 fi
-# https://jira.mongodb.org/browse/COMPASS-4018
-# NPM_VERSION="latest"
-# TODO: lucas: Go back to npm@latest after 6.13.4 released
-# or https://jira.mongodb.org/browse/COMPASS-4019 removes jade.
-NPM_VERSION="6.13.2"
 
 echo "========================="
 echo "Important Environment Variables"

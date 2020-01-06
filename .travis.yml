@@ -2,7 +2,7 @@ sudo: false
 dist: trusty
 language: node_js
 node_js:
-  - 10.2.1
+  - 12.4.0
 env:
   matrix:
     - MONGODB_VERSION=stable MONGODB_TOPOLOGY=standalone
