@@ -1,7 +1,7 @@
 ---
 name: Feature Request
 about: Suggest an idea for this project
-title: Feature Request: 
+title: Feature Request
 ---
 
 <!--- Please note this repository's Issue Tracker is not being watched.
