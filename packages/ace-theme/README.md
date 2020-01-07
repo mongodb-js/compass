@@ -2,6 +2,12 @@
 
 > MongoDB [ACE Theme](https://cloud9-sdk.readme.io/docs/themes)
 
+Provides the CSS highlighting styles for multiline ACE Editor in Compass and Charts. 
+
+[`mongodb-js/ace-theme-query`](https://github.com/mongodb-js/ace-theme-query) is a variant of these sames styles as a single line input.
+
+[`mongodb-js/ace-mode`](https://github.com/mongodb-js/ace-mode) provides MongoDB query and aggregation language syntax highlighting rules.
+
 ## Installation
 
 ```
@@ -14,11 +20,6 @@ npm install --save mongodb-ace-theme
 import 'mongodb-ace-theme';
 editor.setTheme("ace/theme/mongodb");
 ```
-
-## Related
-
-- [`mongodb-js/ace-mode`](https://github.com/mongodb-js/ace-mode) MongoDB highlighting rules for ACE.
-- [`mongodb-js/ace-autocompleter`](https://github.com/mongodb-js/ace-autocompleter) Makes ACE autocompletion aware of MongoDB Aggregation Pipeline [operators, expressions, and fields](https://github.com/mongodb-js/ace-autocompleter/tree/master/lib/constants).
 
 ## License
 
