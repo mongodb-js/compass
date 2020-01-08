@@ -32,6 +32,7 @@
     "pretest:node": "node-gyp rebuild --directory node_modules/keytar/ --verbose",
     "test:node": "mocha",
     "check": "mongodb-js-precommit",
+    "ci": "npm run check && npm run test",
     "test": "npm run test:node && npm run test:electron"
   },
   "dependencies": {
@@ -53,6 +54,7 @@
     "electron-mocha": "^6.0.4",
     "electron-rebuild": "^1.8.2",
     "eslint-config-mongodb-js": "^3.0.1",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "mongodb-js-precommit": "^2.0.0"
   }
 }

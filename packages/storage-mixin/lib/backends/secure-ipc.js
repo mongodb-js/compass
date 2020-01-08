@@ -97,7 +97,6 @@ if (typeof window !== 'undefined') {
    * @param {ampersand-model} model
    * @param {Object} options
    * @param {Function} done
-   * @return {None}
    *
    * @see http://ampersandjs.com/docs#ampersand-model-fetch
    */
@@ -139,7 +138,6 @@ if (typeof window !== 'undefined') {
    * @param {ampersand-collection} collection
    * @param {Object} options
    * @param {Function} done
-   * @return {None}
    *
    * @see http://ampersandjs.com/docs#ampersand-collection-fetch
    */
@@ -150,8 +148,8 @@ if (typeof window !== 'undefined') {
       if (result.namespace === this.namespace) {
         const attributes = collection.reduce((attrs, model) => {
           const modelId = model.getId();
-          const credential = result.credentials.find((credential) => {
-            return credential.account === modelId;
+          const credential = result.credentials.find((iteratee) => {
+            return iteratee.account === modelId;
           });
           const attr = {};
           attr[model.idAttribute] = modelId;
@@ -170,7 +168,7 @@ if (typeof window !== 'undefined') {
     ipc.on('storage-mixin:find:result', listener);
 
     ipc.call('storage-mixin:find', {
-      namespace: this.namespace,
+      namespace: this.namespace
     });
   };
 }

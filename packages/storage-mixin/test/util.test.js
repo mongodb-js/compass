@@ -25,7 +25,7 @@ describe('util', function() {
             ]
           );
           done();
-        })
+        });
       });
     });
 
@@ -42,7 +42,7 @@ describe('util', function() {
             { name: 'Aphex Twin', password: 'pw' }
           );
           done();
-        })
+        });
       });
     });
   });

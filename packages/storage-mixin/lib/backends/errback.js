@@ -1,3 +1,5 @@
+const debug = require('debug')('mongodb-storage-mixin:backends:errback');
+
 /**
  * Helper so you can just use errbacks `function(err, res)`
  * when calling ampersand sync methods instead of forgetting
@@ -14,13 +16,13 @@ function wrapOptions(method, model, options) {
       if (options.error) {
         return options.error(res, err);
       }
-      console.error('An error ocurred with no handler specified!', err);
+      debug('An error ocurred with no handler specified!', err);
       throw err;
     }
 
     if (options.success) {
       return options.success(res);
-    } 
+    }
   };
 }
 

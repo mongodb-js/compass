@@ -7,6 +7,8 @@ var _ = require('lodash');
  * @param {Array} secureResults - The results from secure storage.
  * @param {Model} model - The model.
  * @param {Function} done - The done callback.
+ *
+ * @returns {Object} the return value of done callback.
  */
 var mergeSpliceResults = function(nonSecureResults, secureResults, model, done) {
   if (model.isCollection) {
@@ -20,6 +22,6 @@ var mergeSpliceResults = function(nonSecureResults, secureResults, model, done) 
     return done(null, merged);
   }
   done(null, _.merge(nonSecureResults, secureResults));
-}
+};
 
 module.exports.mergeSpliceResults = mergeSpliceResults;

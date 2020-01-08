@@ -12,40 +12,43 @@ if (process && process.type === 'browser') {
    */
   ipc.respondTo('storage-mixin:clear', (evt, meta) => {
     debug('Clearing all secure values for', meta.serviceName);
+
+    let promise;
     try {
-      const promise = keytar.findCredentials(meta.serviceName);
-    } catch(e) {
-      console.error('Error calling findCredentials', e);
+      promise = keytar.findCredentials(meta.serviceName);
+    } catch (e) {
+      debug('Error calling findCredentials', e);
       throw e;
     }
+
     promise.then(function(accounts) {
       return Promise.all(
         accounts.map(function(entry) {
           const accountName = entry.account;
           return keytar
-            .deletePassword(serviceName, accountName)
+            .deletePassword(meta.serviceName, accountName)
             .then(function() {
               debug('Deleted account %s successfully', accountName);
               return accountName;
             })
             .catch(function(err) {
-              console.error('Failed to delete', accountName, err);
+              debug('Failed to delete', accountName, err);
               throw err;
             });
         })
       );
     })
-    .then(function(accountNames) {
-      debug(
-        'Cleared %d accounts for serviceName %s',
-        accountNames.length,
-        meta.serviceName,
-        accountNames
-      );
-    })
-    .catch(function(err) {
-      console.error('Failed to clear credentials!', err);
-    });
+      .then(function(accountNames) {
+        debug(
+          'Cleared %d accounts for serviceName %s',
+          accountNames.length,
+          meta.serviceName,
+          accountNames
+        );
+      })
+      .catch(function(err) {
+        debug('Failed to clear credentials!', err);
+      });
   });
 
   /**
@@ -84,7 +87,7 @@ if (process && process.type === 'browser') {
         });
       })
       .catch(function(err) {
-        debug('Error updating password', error);
+        debug('Error updating password', err);
       });
   });
 
@@ -104,7 +107,7 @@ if (process && process.type === 'browser') {
         });
       })
       .catch(function(err) {
-        debug('Error creating password', error);
+        debug('Error creating password', err);
       });
   });
 
@@ -124,7 +127,7 @@ if (process && process.type === 'browser') {
         });
       })
       .catch(function(err) {
-        debug('Error finding one', error);
+        debug('Error finding one', err);
       });
   });
 
@@ -144,7 +147,7 @@ if (process && process.type === 'browser') {
         });
       })
       .catch(function(err) {
-        debug('Error finding', error);
+        debug('Error finding', err);
       });
   });
 }

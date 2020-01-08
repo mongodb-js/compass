@@ -8,7 +8,6 @@ var wrapOptions = require('./errback').wrapOptions;
 var wrapErrback = require('./errback').wrapErrback;
 var mergeSpliceResults = require('./util').mergeSpliceResults;
 var inherits = require('util').inherits;
-var assert = require('assert');
 
 var debug = require('debug')('mongodb-storage-mixin:backends:splice-disk');
 
@@ -83,7 +82,7 @@ SpliceDiskIpcBackend.prototype.exec = function(method, model, options, done) {
           if (!_.isEmpty(diskRes)) {
             mergeSpliceResults(diskRes, res, model, cb);
           } else {
-            cb(null, model.isCollection ? []: {});
+            return cb(null, model.isCollection ? [] : {});
           }
         })
       );

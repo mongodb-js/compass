@@ -1,5 +1,5 @@
 var backends = require('./backends');
-// var debug = require('debug')('storage-mixin');
+var debug = require('debug')('storage-mixin');
 
 /**
  * storage-mixin
@@ -38,7 +38,7 @@ module.exports = {
     };
 
     options.error = function(resp, err) {
-      console.error('WTF', {err: err, resp: resp});
+      debug('WTF', {err: err, resp: resp});
     };
     this.fetched = false;
     this._storageBackend.exec(method, model, options);

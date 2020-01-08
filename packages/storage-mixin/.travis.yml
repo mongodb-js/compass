@@ -7,8 +7,8 @@ node_js:
 env:
   global:
     - NO_AT_BRIDGE=1 # Needed for dbus to work.
-    - CC=clang 
-    - CXX=clang++ 
+    - CC=clang
+    - CXX=clang++
     - npm_config_clang=1
 
 # matrix:
@@ -31,7 +31,7 @@ before_script:
     eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start);
     /usr/bin/python -c "import gnomekeyring;gnomekeyring.create_sync('login', '');";
 script:
-  - npm run test:electron
+  - npm run ci
   # - if [ -n "$NODE" ]; then npm run test:node; fi
   # - if [ -n "$ELECTRON" ]; then npm run test:electron; fi
 
@@ -41,7 +41,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - libsecret-1-dev
-      # TODO (@imlucas) Are all of these gnome keyring 
+      # TODO (@imlucas) Are all of these gnome keyring
       # packages really needed?
       - gnome-keyring
       - python-gnomekeyring

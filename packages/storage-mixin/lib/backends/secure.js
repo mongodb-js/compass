@@ -27,36 +27,39 @@ inherits(SecureBackend, BaseBackend);
 SecureBackend.clear = function(namespace, done) {
   var serviceName = `storage-mixin/${namespace}`;
   debug('Clearing all secure values for', serviceName);
+
+  var promise;
+
   try {
-    var promise = keytar.findCredentials(serviceName);
-  } catch(e) {
-    console.error('Error calling findCredentials', e);
+    promise = keytar.findCredentials(serviceName);
+  } catch (e) {
+    debug('Error calling findCredentials', e);
     throw e;
   }
-  
-    promise.then(function(accounts) {
-      debug(
-        'Found credentials',
-        accounts.map(function(credential) {
-          return credential.account;
-        })
-      );
-      return Promise.all(
-        accounts.map(function(entry) {
-          var accountName = entry.account;
-          return keytar
-            .deletePassword(serviceName, accountName)
-            .then(function() {
-              debug('Deleted account %s successfully', accountName);
-              return accountName;
-            })
-            .catch(function(err) {
-              console.error('Failed to delete', accountName, err);
-              throw err;
-            });
-        })
-      );
-    })
+
+  promise.then(function(accounts) {
+    debug(
+      'Found credentials',
+      accounts.map(function(credential) {
+        return credential.account;
+      })
+    );
+    return Promise.all(
+      accounts.map(function(entry) {
+        var accountName = entry.account;
+        return keytar
+          .deletePassword(serviceName, accountName)
+          .then(function() {
+            debug('Deleted account %s successfully', accountName);
+            return accountName;
+          })
+          .catch(function(err) {
+            debug('Failed to delete', accountName, err);
+            throw err;
+          });
+      })
+    );
+  })
     .then(function(accountNames) {
       debug(
         'Cleared %d accounts for serviceName %s',
@@ -67,7 +70,7 @@ SecureBackend.clear = function(namespace, done) {
       done();
     })
     .catch(function(err) {
-      console.error('Failed to clear credentials!', err);
+      debug('Failed to clear credentials!', err);
       done(err);
     });
 };
@@ -160,7 +163,6 @@ SecureBackend.prototype.create = function(model, options, done) {
  * @param {ampersand-model} model
  * @param {Object} options
  * @param {Function} done
- * @return {None}
  *
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
@@ -203,7 +205,6 @@ SecureBackend.prototype.findOne = function(model, options, done) {
  * @param {ampersand-collection} collection
  * @param {Object} options
  * @param {Function} done
- * @return {None}
  *
  * @see http://ampersandjs.com/docs#ampersand-collection-fetch
  */
@@ -214,8 +215,8 @@ SecureBackend.prototype.find = function(collection, options, done) {
     .then(function(credentials) {
       var attributes = collection.reduce(function(attrs, model) {
         var modelId = model.getId();
-        var credential = credentials.find(function(credential) {
-          return credential.account === modelId;
+        var credential = credentials.find(function(iteratee) {
+          return iteratee.account === modelId;
         });
         var attr = {};
         attr[model.idAttribute] = modelId;
@@ -226,7 +227,7 @@ SecureBackend.prototype.find = function(collection, options, done) {
         attrs.push(attr);
         return attrs;
       }, []);
-      return(done(null, attributes));
+      return (done(null, attributes));
     })
     .catch(done);
 };

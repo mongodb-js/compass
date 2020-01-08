@@ -20,7 +20,7 @@ var clearNamespaces = function(backendName, namespaces, done) {
   });
   async.parallel(tasks, function(err, res) {
     if (err) {
-      console.error('Error clearing namespaces', err);
+      debug('Error clearing namespaces', err);
       return done(err);
     }
     debug('Namespaces cleared for backend %s', backendName);
