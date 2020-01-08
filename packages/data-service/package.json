@@ -31,7 +31,7 @@
     "mongodb-js-errors": "^0.4.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-security": "^0.0.4",
-    "mongodb-url": "^3.0.2",
+    "mongodb-url": "^3.0.3",
     "triejs": "github:rueckstiess/triejs"
   },
   "devDependencies": {
