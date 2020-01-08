@@ -1,65 +1,14 @@
 import React, { PureComponent } from 'react';
-import { DragSource, DropTarget } from 'react-dnd';
-import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import styles from './collection-tab.less';
 
 /**
- * Behaviour for the tab drag source.
- */
-const tabSource = {
-  beginDrag(props) {
-    return {
-      index: props.index
-    };
-  }
-};
-
-/**
- * Behaviour for the tab drop target.
- */
-const tabTarget = {
-  hover(props, monitor, component) {
-    const fromIndex = monitor.getItem().index;
-    const toIndex = props.index;
-
-    if (fromIndex !== toIndex) {
-      // Determine rectangle on screen
-      const hoverBoundingRect = findDOMNode(component).getBoundingClientRect();
-      const hoverMiddleX = 100; // This is static.
-      // Determine mouse position
-      const clientOffset = monitor.getClientOffset();
-      // Get pixels to the left
-      const hoverClientX = clientOffset.x - hoverBoundingRect.left;
-      // Dragging to the left
-      if (fromIndex < toIndex && hoverClientX > hoverMiddleX) {
-        return;
-      }
-      // Dragging to the right
-      if (fromIndex > toIndex && hoverClientX < hoverMiddleX) {
-        return;
-      }
-      props.moveTab(fromIndex, toIndex);
-      // This prevents us from overloading the store with stageMoved actions.
-      monitor.getItem().index = toIndex;
-    }
-  }
-};
-
-/**
  * Display a single stage in the aggregation pipeline.
  *
  * Decorators added for giving the component drag/drop behaviour.
  */
-@DropTarget('Stage', tabTarget, connect => ({
-  connectDropTarget: connect.dropTarget()
-}))
-@DragSource('Stage', tabSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.didDrop() ? false : monitor.isDragging()
-}))
 class CollectionTab extends PureComponent {
   static displayName = 'CollectionTabComponent';
 
@@ -68,8 +17,6 @@ class CollectionTab extends PureComponent {
     isActive: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     closeTab: PropTypes.func.isRequired,
-    connectDragSource: PropTypes.func.isRequired,
-    connectDropTarget: PropTypes.func.isRequired,
     selectTab: PropTypes.func.isRequired,
     moveTab: PropTypes.func.isRequired,
     activeSubTabName: PropTypes.string.isRequired,
@@ -152,26 +99,22 @@ class CollectionTab extends PureComponent {
       [styles['collection-tab-is-active']]: this.props.isActive
     });
 
-    return this.props.connectDragSource(
-      this.props.connectDropTarget(
-        <div ref={this.tabRef} className={tabClass}>
-          <div className={classnames(styles['collection-tab-info'])} onClick={this.selectTab}>
-            <div className={classnames(styles['collection-tab-info-label'])}>
-              <div className={classnames(styles['collection-tab-info-ns'])}>
-                {this.props.namespace}
-              </div>
-              {this.renderReadonly()}
-            </div>
-            <div className={classnames(styles['collection-tab-info-subtab'])}>
-              {this.props.activeSubTabName}
-            </div>
+    return (<div ref={this.tabRef} className={tabClass}>
+      <div className={classnames(styles['collection-tab-info'])} onClick={this.selectTab}>
+        <div className={classnames(styles['collection-tab-info-label'])}>
+          <div className={classnames(styles['collection-tab-info-ns'])}>
+            {this.props.namespace}
           </div>
-          <div className={classnames(styles['collection-tab-close'])} onClick={this.closeTab}>
-            <i className="fa fa-times" aria-hidden />
-          </div>
+          {this.renderReadonly()}
         </div>
-      )
-    );
+        <div className={classnames(styles['collection-tab-info-subtab'])}>
+          {this.props.activeSubTabName}
+        </div>
+      </div>
+      <div className={classnames(styles['collection-tab-close'])} onClick={this.closeTab}>
+        <i className="fa fa-times" aria-hidden />
+      </div>
+    </div>);
   }
 }
 

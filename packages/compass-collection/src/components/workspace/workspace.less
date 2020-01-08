@@ -7,20 +7,32 @@
   flex-direction: column;
 
   &-tabs {
-    height: 40px;
     width: 100%;
     display: flex;
     border-bottom: 1px @gray6 solid;
     background-color: @gray8;
-    z-index: 50;
     align-items: center;
+    min-height: 40px;
+    &-sortable-clone {
+      pointer-events: auto !important;
+      cursor: grabbing !important;
+      cursor: -moz-grabbing !important;
+      cursor: -webkit-grabbing !important;
 
-    &-container {
+      z-index: 50;
+    }
+
+    &-container, &-sortable-list {
+      user-select: none;
       flex-grow: 1;
       display: flex;
       align-items: center;
-      overflow-x: hidden;
-      height: 40px;
+      overflow: hidden;
+
+      * {
+        user-select: none;
+        -webkit-user-select: none;
+      }
     }
 
     &-prev, &-next {

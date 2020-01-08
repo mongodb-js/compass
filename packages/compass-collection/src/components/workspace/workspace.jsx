@@ -2,8 +2,9 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { DragDropContext } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
+
+import {SortableContainer, SortableElement} from 'react-sortable-hoc';
+
 import {
   createNewTab,
   selectOrCreateTab,
@@ -43,7 +44,6 @@ const KEY_OPEN_BRKT = 219;
 /**
  * The collection workspace contains tabs of multiple collections.
  */
-@DragDropContext(HTML5Backend)
 class Workspace extends PureComponent {
   static displayName = 'Workspace';
 
@@ -84,6 +84,10 @@ class Workspace extends PureComponent {
     window.removeEventListener('keydown', this.boundHandleKeypress);
   }
 
+  onSortEnd = ({oldIndex, newIndex}) => {
+    this.props.moveTab(oldIndex, newIndex);
+  }
+
   /**
    * Handle key press. This listens for CTRL/CMD+T and CTRL/CMD+W to control
    * natural opening and closing of collection tabs. CTRL/CMD+SHIFT+] and
@@ -99,15 +103,13 @@ class Workspace extends PureComponent {
         } else if (evt.keyCode === KEY_OPEN_BRKT) {
           this.props.prevTab();
         }
-      } else {
-        if (evt.keyCode === KEY_W) {
-          this.props.closeTab(this.props.tabs.findIndex(tab => tab.isActive));
-          if (this.props.tabs.length > 0) {
-            evt.preventDefault();
-          }
-        } else if (evt.keyCode === KEY_T) {
-          this.props.createNewTab(this.activeNamespace());
+      } else if (evt.keyCode === KEY_W) {
+        this.props.closeTab(this.props.tabs.findIndex(tab => tab.isActive));
+        if (this.props.tabs.length > 0) {
+          evt.preventDefault();
         }
+      } else if (evt.keyCode === KEY_T) {
+        this.props.createNewTab(this.activeNamespace());
       }
     }
   }
@@ -136,27 +138,51 @@ class Workspace extends PureComponent {
     return activeTab ? activeTab.sourceName : undefined;
   }
 
+  renderTab = (tab, i) => {
+    return (
+      <CollectionTab
+        key={i}
+        index={i}
+        namespace={tab.namespace}
+        localAppRegistry={tab.localAppRegistry}
+        isReadonly={tab.isReadonly}
+        isActive={tab.isActive}
+        closeTab={this.props.closeTab}
+        activeSubTabName={tab.activeSubTabName}
+        selectTab={this.props.selectTab}
+        moveTab={this.props.moveTab} />
+    );
+  }
+
   /**
    * Render the tabs.
    *
    * @returns {Component} The component.
    */
   renderTabs() {
-    return this.props.tabs.map((tab, i) => {
-      return (
-        <CollectionTab
-          key={i}
-          index={i}
-          namespace={tab.namespace}
-          localAppRegistry={tab.localAppRegistry}
-          isReadonly={tab.isReadonly}
-          isActive={tab.isActive}
-          closeTab={this.props.closeTab}
-          activeSubTabName={tab.activeSubTabName}
-          selectTab={this.props.selectTab}
-          moveTab={this.props.moveTab} />
-      );
+    const SortableItem = SortableElement(({value}) => this.renderTab(value.tab, value.index));
+
+
+    const SortableList = SortableContainer(({items}) => {
+      return (<div className={classnames(styles['workspace-tabs-sortable-list'])}>
+        {items.map(
+          (tab, index) => (<SortableItem
+            key={`tab-${index}`}
+            index={index}
+            value={{ tab: tab, index: index }}
+          />)
+        )}
+      </div>);
     });
+
+    return (<SortableList
+      items={this.props.tabs}
+      axis="x"
+      lockAxis="x"
+      distance={10}
+      onSortEnd={this.onSortEnd}
+      helperClass={classnames(styles['workspace-tabs-sortable-clone'])}
+    />);
   }
 
   /**
