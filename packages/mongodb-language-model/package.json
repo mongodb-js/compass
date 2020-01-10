@@ -12,9 +12,6 @@
   "dependency-check": {
     "entries": [
       "./index.js"
-    ],
-    "ignore": [
-      "debug"
     ]
   },
   "license": "Apache-2.0",
@@ -26,36 +23,20 @@
     "model"
   ],
   "scripts": {
-    "ci": "npm run check && npm test",
-    "test": "mocha --require babel-core/register",
-    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
-    "compile": "npm run babel && npm run pegjs",
-    "postcompile": "babel ./lib/parser.js --out-file ./lib/parser.js",
-    "babel": "babel ./src --out-dir ./lib",
-    "pegjs": "pegjs -o ./lib/parser.js < ./src/grammar.pegjs",
-    "check": "mongodb-js-precommit ./src ./test",
-    "prepublish": "npm run compile",
-    "pretest": "npm run compile"
+    "test": "mocha",
+    "compile": "npm run pegjs",
+    "pegjs": "pegjs -o ./parser.js < ./grammar.pegjs",
+    "check": "mongodb-js-precommit",
+    "prepublishOnly": "npm run compile",
+    "pretest": "npm run compile",
+    "precheck": "npm run compile"
   },
-  "precommit": [
-    "check"
-  ],
   "main": "index.js",
-  "dependencies": {
-    "bson": "^1.0.1",
-    "debug": "^2.2.0",
-    "lodash": "^3.0.1",
-    "pegjs": "^0.10.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "babel-cli": "^6.10.1",
-    "babel-plugin-syntax-object-rest-spread": "^6.13.0",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-es2015": "^6.14.0",
-    "eslint-config-mongodb-js": "^2.2.0",
-    "mocha": "^6.0.1",
-    "mongodb-js-fmt": "^0.0.3",
-    "mongodb-js-precommit": "^0.2.9",
-    "pre-commit": "^1.1.2"
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mocha": "^7.0.0",
+    "mongodb-js-precommit": "^2.0.0",
+    "pegjs": "^0.10.0"
   }
 }
