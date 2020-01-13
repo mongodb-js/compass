@@ -564,6 +564,7 @@ class Target {
         section: debianSection,
         depends: [
           'libsecret-1-0',
+          'gnome-keyring',
           'libgconf-2-4'
         ]
       },
@@ -582,6 +583,7 @@ class Target {
         requires: [
           'lsb-core-noarch',
           'libXScrnSaver',
+          'gnome-keyring',
           'libsecret',
           'GConf2'
         ],
