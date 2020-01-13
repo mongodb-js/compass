@@ -15,9 +15,7 @@
   ],
   "scripts": {
     "check": "mongodb-js-precommit examples/*.js ./*.js ./test/*.js",
-    "fmt": "mongodb-js-fmt examples/*.js ./*.js ./test/*.js",
-    "test": "mocha",
-    "ci": "npm run check && npm test"
+    "test": "mocha"
   },
   "dependencies": {
     "debug": "^4.1.1",
@@ -29,8 +27,5 @@
     "lodash.pluck": "^3.1.2",
     "mocha": "^7.0.0",
     "mongodb-js-precommit": "^2.0.0"
-  },
-  "precommit": [
-    "check"
-  ]
+  }
 }
