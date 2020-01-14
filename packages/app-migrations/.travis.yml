@@ -1,20 +1,8 @@
 sudo: false
+dist: bionic
 language: node_js
 node_js:
-  - 4
-  - 6
-  - 7
-before_install:
-  - npm install -g npm@3
-  - npm config set loglevel error
-  - npm config -g list -l
-  - npm --version
+  - 12
+  - 13
 script: npm run-script ci
-# Disable cache to force travis to use node_js version 4
-#cache:
-#  directories:
-#    - node_modules
-# Post build notifications to the Integrations Flowdock
-notifications:
-  flowdock: e3dc17bc8a2c1b3412abe3e5747f8291
-after_script: "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+cache: npm
