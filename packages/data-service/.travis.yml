@@ -1,20 +1,19 @@
 sudo: false
-dist: trusty
+dist: bionic
 language: node_js
 addons:
   apt:
     sources:
-      - ubuntu-toolchain-r-test
+      - sourceline: 'ppa:ubuntu-toolchain-r/test'
     packages:
       - libkrb5-dev
       - xvfb
       - libsecret-1-dev
-      - gnome-keyring
-      - python-gnomekeyring
 node_js:
   - 12.4.0
 env:
-  - MONGODB_VERSION=4.0.0 MONGODB_TOPOLOGY=standalone
+  - MONGODB_VERSION=stable MONGODB_TOPOLOGY=standalone
+  - MONGODB_VERSION=unstable MONGODB_TOPOLOGY=standalone
 before_install:
   - npm i -g npm
 script:
