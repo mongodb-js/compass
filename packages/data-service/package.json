@@ -40,7 +40,7 @@
     "electron-mocha": "^8.1.2",
     "electron-rebuild": "^1.8.8",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^6.2.2",
+    "mocha": "^7.0.0",
     "mock-require": "^2.0.1",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-runner": "^4.8.0",
