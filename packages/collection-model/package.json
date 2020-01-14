@@ -12,8 +12,15 @@
   ],
   "scripts": {
     "check": "mongodb-js-precommit",
-    "ci": "npm run check && npm test",
-    "test": "mocha"
+    "pretest": "electron-rebuild",
+    "test": "mocha && npm run test:electron",
+    "pretest:electron": "electron-rebuild",
+    "test:electron": "xvfb-maybe electron-mocha --renderer"
+  },
+  "dependency-check": {
+    "ignore": [
+      "mongodb-data-service"
+    ]
   },
   "dependencies": {
     "ampersand-model": "^8.0.0",
@@ -28,9 +35,14 @@
     "mongodb-data-service": "^16.0.0"
   },
   "devDependencies": {
+    "electron": "^6.1.7",
+    "electron-mocha": "^8.2.0",
+    "electron-rebuild": "^1.8.8",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^6.2.2",
+    "mongodb-data-service": "^16.0.0",
     "mongodb-js-precommit": "^2.0.0",
-    "raf": "^3.4.1"
+    "raf": "^3.4.1",
+    "xvfb-maybe": "^0.2.1"
   }
 }
