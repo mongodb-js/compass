@@ -39,7 +39,7 @@
     "electron-mocha": "^8.2.0",
     "electron-rebuild": "^1.8.8",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^6.2.2",
+    "mocha": "^7.0.0",
     "mongodb-data-service": "^16.0.0",
     "mongodb-js-precommit": "^2.0.0",
     "raf": "^3.4.1",
