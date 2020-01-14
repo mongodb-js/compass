@@ -13,17 +13,17 @@ $ brew cask install java
 
 Download `ANTLR4`:
 ```shell
-$ cd /usr/local/lib && curl -O http://www.antlr.org/download/antlr-4.7.1-complete.jar
+$ cd /usr/local/lib && curl -O http://www.antlr.org/download/antlr-4.7.2-complete.jar
 ```
 
 You will then need to add it to your `$CLASSPATH`:
 ```shell
-$ export CLASSPATH=".:/usr/local/lib/antlr-4.7.1-complete.jar:$CLASSPATH"
+$ export CLASSPATH=".:/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH"
 ```
 
 Alias `antlr4` and `grun`:
 ```shell
-$ alias antlr4='java -Xmx500M -cp "/usr/local/lib/antlr-4.7.1-complete.jar:$CLASSPATH" org.antlr.v4.Tool' && alias grun='java org.antlr.v4.gui.TestRig'
+$ alias antlr4='java -Xmx500M -cp "/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH" org.antlr.v4.Tool' && alias grun='java org.antlr.v4.gui.TestRig'
 ```
 
 _I strongly suggest using an IDE that will help you visualize ANTLR trees (JetBrains has a good plugin).

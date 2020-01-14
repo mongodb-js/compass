@@ -1,10 +1,11 @@
-// Generated from grammars/Python3.g4 by ANTLR 4.7.1
+// Generated from grammars/Python3.g4 by ANTLR 4.7.2
 // jshint ignore: start
 var antlr4 = require('antlr4/index');
 var Python3Listener = require('./Python3Listener').Python3Listener;
 var Python3Visitor = require('./Python3Visitor').Python3Visitor;
 
 var grammarFileName = "Python3.g4";
+
 
 var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0003b\u04a0\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
@@ -1085,6 +1086,7 @@ Python3Parser.RULE_identifier = 102;
 Python3Parser.RULE_eof = 103;
 Python3Parser.RULE_eos = 104;
 
+
 function Single_inputContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1221,6 +1223,7 @@ Python3Parser.prototype.single_input = function() {
     }
     return localctx;
 };
+
 
 function File_inputContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1377,6 +1380,7 @@ Python3Parser.prototype.file_input = function() {
     return localctx;
 };
 
+
 function Eval_inputContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1472,6 +1476,7 @@ Python3Parser.prototype.eval_input = function() {
     return localctx;
 };
 
+
 function DecoratorContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1488,12 +1493,24 @@ function DecoratorContext(parser, parent, invokingState) {
 DecoratorContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 DecoratorContext.prototype.constructor = DecoratorContext;
 
+DecoratorContext.prototype.AT = function() {
+    return this.getToken(Python3Parser.AT, 0);
+};
+
 DecoratorContext.prototype.dotted_name = function() {
     return this.getTypedRuleContext(Dotted_nameContext,0);
 };
 
 DecoratorContext.prototype.eos = function() {
     return this.getTypedRuleContext(EosContext,0);
+};
+
+DecoratorContext.prototype.OPEN_PAREN = function() {
+    return this.getToken(Python3Parser.OPEN_PAREN, 0);
+};
+
+DecoratorContext.prototype.CLOSE_PAREN = function() {
+    return this.getToken(Python3Parser.CLOSE_PAREN, 0);
 };
 
 DecoratorContext.prototype.arglist = function() {
@@ -1569,6 +1586,7 @@ Python3Parser.prototype.decorator = function() {
     }
     return localctx;
 };
+
 
 function DecoratorsContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1652,6 +1670,7 @@ Python3Parser.prototype.decorators = function() {
     }
     return localctx;
 };
+
 
 function DecoratedContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1750,6 +1769,7 @@ Python3Parser.prototype.decorated = function() {
     return localctx;
 };
 
+
 function Async_funcdefContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1823,6 +1843,7 @@ Python3Parser.prototype.async_funcdef = function() {
     return localctx;
 };
 
+
 function FuncdefContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1839,6 +1860,10 @@ function FuncdefContext(parser, parent, invokingState) {
 FuncdefContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 FuncdefContext.prototype.constructor = FuncdefContext;
 
+FuncdefContext.prototype.DEF = function() {
+    return this.getToken(Python3Parser.DEF, 0);
+};
+
 FuncdefContext.prototype.NAME = function() {
     return this.getToken(Python3Parser.NAME, 0);
 };
@@ -1847,8 +1872,16 @@ FuncdefContext.prototype.parameters = function() {
     return this.getTypedRuleContext(ParametersContext,0);
 };
 
+FuncdefContext.prototype.COLON = function() {
+    return this.getToken(Python3Parser.COLON, 0);
+};
+
 FuncdefContext.prototype.suite = function() {
     return this.getTypedRuleContext(SuiteContext,0);
+};
+
+FuncdefContext.prototype.ARROW = function() {
+    return this.getToken(Python3Parser.ARROW, 0);
 };
 
 FuncdefContext.prototype.test = function() {
@@ -1921,6 +1954,7 @@ Python3Parser.prototype.funcdef = function() {
     return localctx;
 };
 
+
 function ParametersContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1936,6 +1970,14 @@ function ParametersContext(parser, parent, invokingState) {
 
 ParametersContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 ParametersContext.prototype.constructor = ParametersContext;
+
+ParametersContext.prototype.OPEN_PAREN = function() {
+    return this.getToken(Python3Parser.OPEN_PAREN, 0);
+};
+
+ParametersContext.prototype.CLOSE_PAREN = function() {
+    return this.getToken(Python3Parser.CLOSE_PAREN, 0);
+};
 
 ParametersContext.prototype.typedargslist = function() {
     return this.getTypedRuleContext(TypedargslistContext,0);
@@ -1999,6 +2041,7 @@ Python3Parser.prototype.parameters = function() {
     return localctx;
 };
 
+
 function TypedargslistContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -2026,6 +2069,26 @@ TypedargslistContext.prototype.tfpdef = function(i) {
     }
 };
 
+TypedargslistContext.prototype.STAR = function() {
+    return this.getToken(Python3Parser.STAR, 0);
+};
+
+TypedargslistContext.prototype.POWER = function() {
+    return this.getToken(Python3Parser.POWER, 0);
+};
+
+TypedargslistContext.prototype.ASSIGN = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.ASSIGN);
+    } else {
+        return this.getToken(Python3Parser.ASSIGN, i);
+    }
+};
+
+
 TypedargslistContext.prototype.test = function(i) {
     if(i===undefined) {
         i = null;
@@ -2036,6 +2099,18 @@ TypedargslistContext.prototype.test = function(i) {
         return this.getTypedRuleContext(TestContext,i);
     }
 };
+
+TypedargslistContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 TypedargslistContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -2298,6 +2373,7 @@ Python3Parser.prototype.typedargslist = function() {
     return localctx;
 };
 
+
 function TfpdefContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -2316,6 +2392,10 @@ TfpdefContext.prototype.constructor = TfpdefContext;
 
 TfpdefContext.prototype.NAME = function() {
     return this.getToken(Python3Parser.NAME, 0);
+};
+
+TfpdefContext.prototype.COLON = function() {
+    return this.getToken(Python3Parser.COLON, 0);
 };
 
 TfpdefContext.prototype.test = function() {
@@ -2380,6 +2460,7 @@ Python3Parser.prototype.tfpdef = function() {
     return localctx;
 };
 
+
 function VarargslistContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -2407,6 +2488,26 @@ VarargslistContext.prototype.vfpdef = function(i) {
     }
 };
 
+VarargslistContext.prototype.STAR = function() {
+    return this.getToken(Python3Parser.STAR, 0);
+};
+
+VarargslistContext.prototype.POWER = function() {
+    return this.getToken(Python3Parser.POWER, 0);
+};
+
+VarargslistContext.prototype.ASSIGN = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.ASSIGN);
+    } else {
+        return this.getToken(Python3Parser.ASSIGN, i);
+    }
+};
+
+
 VarargslistContext.prototype.test = function(i) {
     if(i===undefined) {
         i = null;
@@ -2417,6 +2518,18 @@ VarargslistContext.prototype.test = function(i) {
         return this.getTypedRuleContext(TestContext,i);
     }
 };
+
+VarargslistContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 VarargslistContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -2679,6 +2792,7 @@ Python3Parser.prototype.varargslist = function() {
     return localctx;
 };
 
+
 function VfpdefContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -2745,6 +2859,7 @@ Python3Parser.prototype.vfpdef = function() {
     }
     return localctx;
 };
+
 
 function StmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -2871,6 +2986,7 @@ Python3Parser.prototype.stmt = function() {
     return localctx;
 };
 
+
 function Simple_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -2943,6 +3059,7 @@ Python3Parser.prototype.simple_stmt = function() {
     }
     return localctx;
 };
+
 
 function Small_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -3100,6 +3217,7 @@ Python3Parser.prototype.small_stmt = function() {
     }
     return localctx;
 };
+
 
 function Expr_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -3261,6 +3379,7 @@ Python3Parser.prototype.expr_stmt = function() {
     return localctx;
 };
 
+
 function Assign_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3276,6 +3395,18 @@ function Assign_stmtContext(parser, parent, invokingState) {
 
 Assign_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Assign_stmtContext.prototype.constructor = Assign_stmtContext;
+
+Assign_stmtContext.prototype.ASSIGN = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.ASSIGN);
+    } else {
+        return this.getToken(Python3Parser.ASSIGN, i);
+    }
+};
+
 
 Assign_stmtContext.prototype.yield_expr = function(i) {
     if(i===undefined) {
@@ -3390,6 +3521,7 @@ Python3Parser.prototype.assign_stmt = function() {
     return localctx;
 };
 
+
 function AnnassignContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3406,6 +3538,10 @@ function AnnassignContext(parser, parent, invokingState) {
 AnnassignContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 AnnassignContext.prototype.constructor = AnnassignContext;
 
+AnnassignContext.prototype.COLON = function() {
+    return this.getToken(Python3Parser.COLON, 0);
+};
+
 AnnassignContext.prototype.test = function(i) {
     if(i===undefined) {
         i = null;
@@ -3415,6 +3551,10 @@ AnnassignContext.prototype.test = function(i) {
     } else {
         return this.getTypedRuleContext(TestContext,i);
     }
+};
+
+AnnassignContext.prototype.ASSIGN = function() {
+    return this.getToken(Python3Parser.ASSIGN, 0);
 };
 
 AnnassignContext.prototype.enterRule = function(listener) {
@@ -3477,6 +3617,7 @@ Python3Parser.prototype.annassign = function() {
     return localctx;
 };
 
+
 function Testlist_star_exprContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3514,6 +3655,18 @@ Testlist_star_exprContext.prototype.star_expr = function(i) {
         return this.getTypedRuleContext(Star_exprContext,i);
     }
 };
+
+Testlist_star_exprContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 Testlist_star_exprContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -3650,6 +3803,7 @@ Python3Parser.prototype.testlist_star_expr = function() {
     return localctx;
 };
 
+
 function AugassignContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3666,6 +3820,57 @@ function AugassignContext(parser, parent, invokingState) {
 AugassignContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 AugassignContext.prototype.constructor = AugassignContext;
 
+AugassignContext.prototype.ADD_ASSIGN = function() {
+    return this.getToken(Python3Parser.ADD_ASSIGN, 0);
+};
+
+AugassignContext.prototype.SUB_ASSIGN = function() {
+    return this.getToken(Python3Parser.SUB_ASSIGN, 0);
+};
+
+AugassignContext.prototype.MULT_ASSIGN = function() {
+    return this.getToken(Python3Parser.MULT_ASSIGN, 0);
+};
+
+AugassignContext.prototype.AT_ASSIGN = function() {
+    return this.getToken(Python3Parser.AT_ASSIGN, 0);
+};
+
+AugassignContext.prototype.DIV_ASSIGN = function() {
+    return this.getToken(Python3Parser.DIV_ASSIGN, 0);
+};
+
+AugassignContext.prototype.MOD_ASSIGN = function() {
+    return this.getToken(Python3Parser.MOD_ASSIGN, 0);
+};
+
+AugassignContext.prototype.AND_ASSIGN = function() {
+    return this.getToken(Python3Parser.AND_ASSIGN, 0);
+};
+
+AugassignContext.prototype.OR_ASSIGN = function() {
+    return this.getToken(Python3Parser.OR_ASSIGN, 0);
+};
+
+AugassignContext.prototype.XOR_ASSIGN = function() {
+    return this.getToken(Python3Parser.XOR_ASSIGN, 0);
+};
+
+AugassignContext.prototype.LEFT_SHIFT_ASSIGN = function() {
+    return this.getToken(Python3Parser.LEFT_SHIFT_ASSIGN, 0);
+};
+
+AugassignContext.prototype.RIGHT_SHIFT_ASSIGN = function() {
+    return this.getToken(Python3Parser.RIGHT_SHIFT_ASSIGN, 0);
+};
+
+AugassignContext.prototype.POWER_ASSIGN = function() {
+    return this.getToken(Python3Parser.POWER_ASSIGN, 0);
+};
+
+AugassignContext.prototype.IDIV_ASSIGN = function() {
+    return this.getToken(Python3Parser.IDIV_ASSIGN, 0);
+};
 
 AugassignContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -3722,6 +3927,7 @@ Python3Parser.prototype.augassign = function() {
     return localctx;
 };
 
+
 function Del_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3737,6 +3943,10 @@ function Del_stmtContext(parser, parent, invokingState) {
 
 Del_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Del_stmtContext.prototype.constructor = Del_stmtContext;
+
+Del_stmtContext.prototype.DEL = function() {
+    return this.getToken(Python3Parser.DEL, 0);
+};
 
 Del_stmtContext.prototype.exprlist = function() {
     return this.getTypedRuleContext(ExprlistContext,0);
@@ -3791,6 +4001,7 @@ Python3Parser.prototype.del_stmt = function() {
     return localctx;
 };
 
+
 function Pass_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3807,6 +4018,9 @@ function Pass_stmtContext(parser, parent, invokingState) {
 Pass_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Pass_stmtContext.prototype.constructor = Pass_stmtContext;
 
+Pass_stmtContext.prototype.PASS = function() {
+    return this.getToken(Python3Parser.PASS, 0);
+};
 
 Pass_stmtContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -3854,6 +4068,7 @@ Python3Parser.prototype.pass_stmt = function() {
     }
     return localctx;
 };
+
 
 function Flow_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -3966,6 +4181,7 @@ Python3Parser.prototype.flow_stmt = function() {
     return localctx;
 };
 
+
 function Break_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3982,6 +4198,9 @@ function Break_stmtContext(parser, parent, invokingState) {
 Break_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Break_stmtContext.prototype.constructor = Break_stmtContext;
 
+Break_stmtContext.prototype.BREAK = function() {
+    return this.getToken(Python3Parser.BREAK, 0);
+};
 
 Break_stmtContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -4030,6 +4249,7 @@ Python3Parser.prototype.break_stmt = function() {
     return localctx;
 };
 
+
 function Continue_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4046,6 +4266,9 @@ function Continue_stmtContext(parser, parent, invokingState) {
 Continue_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Continue_stmtContext.prototype.constructor = Continue_stmtContext;
 
+Continue_stmtContext.prototype.CONTINUE = function() {
+    return this.getToken(Python3Parser.CONTINUE, 0);
+};
 
 Continue_stmtContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -4094,6 +4317,7 @@ Python3Parser.prototype.continue_stmt = function() {
     return localctx;
 };
 
+
 function Return_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4109,6 +4333,10 @@ function Return_stmtContext(parser, parent, invokingState) {
 
 Return_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Return_stmtContext.prototype.constructor = Return_stmtContext;
+
+Return_stmtContext.prototype.RETURN = function() {
+    return this.getToken(Python3Parser.RETURN, 0);
+};
 
 Return_stmtContext.prototype.testlist = function() {
     return this.getTypedRuleContext(TestlistContext,0);
@@ -4169,6 +4397,7 @@ Python3Parser.prototype.return_stmt = function() {
     }
     return localctx;
 };
+
 
 function Yield_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -4237,6 +4466,7 @@ Python3Parser.prototype.yield_stmt = function() {
     return localctx;
 };
 
+
 function Raise_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4253,6 +4483,10 @@ function Raise_stmtContext(parser, parent, invokingState) {
 Raise_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Raise_stmtContext.prototype.constructor = Raise_stmtContext;
 
+Raise_stmtContext.prototype.RAISE = function() {
+    return this.getToken(Python3Parser.RAISE, 0);
+};
+
 Raise_stmtContext.prototype.test = function(i) {
     if(i===undefined) {
         i = null;
@@ -4262,6 +4496,10 @@ Raise_stmtContext.prototype.test = function(i) {
     } else {
         return this.getTypedRuleContext(TestContext,i);
     }
+};
+
+Raise_stmtContext.prototype.FROM = function() {
+    return this.getToken(Python3Parser.FROM, 0);
 };
 
 Raise_stmtContext.prototype.enterRule = function(listener) {
@@ -4329,6 +4567,7 @@ Python3Parser.prototype.raise_stmt = function() {
     }
     return localctx;
 };
+
 
 function Import_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -4414,6 +4653,7 @@ Python3Parser.prototype.import_stmt = function() {
     return localctx;
 };
 
+
 function Import_nameContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4429,6 +4669,10 @@ function Import_nameContext(parser, parent, invokingState) {
 
 Import_nameContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Import_nameContext.prototype.constructor = Import_nameContext;
+
+Import_nameContext.prototype.IMPORT = function() {
+    return this.getToken(Python3Parser.IMPORT, 0);
+};
 
 Import_nameContext.prototype.dotted_as_names = function() {
     return this.getTypedRuleContext(Dotted_as_namesContext,0);
@@ -4483,6 +4727,7 @@ Python3Parser.prototype.import_name = function() {
     return localctx;
 };
 
+
 function Import_fromContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4499,13 +4744,57 @@ function Import_fromContext(parser, parent, invokingState) {
 Import_fromContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Import_fromContext.prototype.constructor = Import_fromContext;
 
+Import_fromContext.prototype.FROM = function() {
+    return this.getToken(Python3Parser.FROM, 0);
+};
+
+Import_fromContext.prototype.IMPORT = function() {
+    return this.getToken(Python3Parser.IMPORT, 0);
+};
+
 Import_fromContext.prototype.dotted_name = function() {
     return this.getTypedRuleContext(Dotted_nameContext,0);
+};
+
+Import_fromContext.prototype.STAR = function() {
+    return this.getToken(Python3Parser.STAR, 0);
+};
+
+Import_fromContext.prototype.OPEN_PAREN = function() {
+    return this.getToken(Python3Parser.OPEN_PAREN, 0);
 };
 
 Import_fromContext.prototype.import_as_names = function() {
     return this.getTypedRuleContext(Import_as_namesContext,0);
 };
+
+Import_fromContext.prototype.CLOSE_PAREN = function() {
+    return this.getToken(Python3Parser.CLOSE_PAREN, 0);
+};
+
+Import_fromContext.prototype.DOT = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.DOT);
+    } else {
+        return this.getToken(Python3Parser.DOT, i);
+    }
+};
+
+
+Import_fromContext.prototype.ELLIPSIS = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.ELLIPSIS);
+    } else {
+        return this.getToken(Python3Parser.ELLIPSIS, i);
+    }
+};
+
 
 Import_fromContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -4626,6 +4915,7 @@ Python3Parser.prototype.import_from = function() {
     return localctx;
 };
 
+
 function Import_as_nameContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4653,6 +4943,10 @@ Import_as_nameContext.prototype.NAME = function(i) {
     }
 };
 
+
+Import_as_nameContext.prototype.AS = function() {
+    return this.getToken(Python3Parser.AS, 0);
+};
 
 Import_as_nameContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -4712,6 +5006,7 @@ Python3Parser.prototype.import_as_name = function() {
     return localctx;
 };
 
+
 function Dotted_as_nameContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4730,6 +5025,10 @@ Dotted_as_nameContext.prototype.constructor = Dotted_as_nameContext;
 
 Dotted_as_nameContext.prototype.dotted_name = function() {
     return this.getTypedRuleContext(Dotted_nameContext,0);
+};
+
+Dotted_as_nameContext.prototype.AS = function() {
+    return this.getToken(Python3Parser.AS, 0);
 };
 
 Dotted_as_nameContext.prototype.NAME = function() {
@@ -4794,6 +5093,7 @@ Python3Parser.prototype.dotted_as_name = function() {
     return localctx;
 };
 
+
 function Import_as_namesContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4820,6 +5120,18 @@ Import_as_namesContext.prototype.import_as_name = function(i) {
         return this.getTypedRuleContext(Import_as_nameContext,i);
     }
 };
+
+Import_as_namesContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 Import_as_namesContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -4892,6 +5204,7 @@ Python3Parser.prototype.import_as_names = function() {
     return localctx;
 };
 
+
 function Dotted_as_namesContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4918,6 +5231,18 @@ Dotted_as_namesContext.prototype.dotted_as_name = function(i) {
         return this.getTypedRuleContext(Dotted_as_nameContext,i);
     }
 };
+
+Dotted_as_namesContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 Dotted_as_namesContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -4979,6 +5304,7 @@ Python3Parser.prototype.dotted_as_names = function() {
     return localctx;
 };
 
+
 function Dotted_nameContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5003,6 +5329,18 @@ Dotted_nameContext.prototype.NAME = function(i) {
         return this.getTokens(Python3Parser.NAME);
     } else {
         return this.getToken(Python3Parser.NAME, i);
+    }
+};
+
+
+Dotted_nameContext.prototype.DOT = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.DOT);
+    } else {
+        return this.getToken(Python3Parser.DOT, i);
     }
 };
 
@@ -5067,6 +5405,7 @@ Python3Parser.prototype.dotted_name = function() {
     return localctx;
 };
 
+
 function Global_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5083,6 +5422,10 @@ function Global_stmtContext(parser, parent, invokingState) {
 Global_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Global_stmtContext.prototype.constructor = Global_stmtContext;
 
+Global_stmtContext.prototype.GLOBAL = function() {
+    return this.getToken(Python3Parser.GLOBAL, 0);
+};
+
 Global_stmtContext.prototype.NAME = function(i) {
 	if(i===undefined) {
 		i = null;
@@ -5091,6 +5434,18 @@ Global_stmtContext.prototype.NAME = function(i) {
         return this.getTokens(Python3Parser.NAME);
     } else {
         return this.getToken(Python3Parser.NAME, i);
+    }
+};
+
+
+Global_stmtContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
     }
 };
 
@@ -5157,6 +5512,7 @@ Python3Parser.prototype.global_stmt = function() {
     return localctx;
 };
 
+
 function Nonlocal_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5173,6 +5529,10 @@ function Nonlocal_stmtContext(parser, parent, invokingState) {
 Nonlocal_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Nonlocal_stmtContext.prototype.constructor = Nonlocal_stmtContext;
 
+Nonlocal_stmtContext.prototype.NONLOCAL = function() {
+    return this.getToken(Python3Parser.NONLOCAL, 0);
+};
+
 Nonlocal_stmtContext.prototype.NAME = function(i) {
 	if(i===undefined) {
 		i = null;
@@ -5181,6 +5541,18 @@ Nonlocal_stmtContext.prototype.NAME = function(i) {
         return this.getTokens(Python3Parser.NAME);
     } else {
         return this.getToken(Python3Parser.NAME, i);
+    }
+};
+
+
+Nonlocal_stmtContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
     }
 };
 
@@ -5247,6 +5619,7 @@ Python3Parser.prototype.nonlocal_stmt = function() {
     return localctx;
 };
 
+
 function Assert_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5263,6 +5636,10 @@ function Assert_stmtContext(parser, parent, invokingState) {
 Assert_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Assert_stmtContext.prototype.constructor = Assert_stmtContext;
 
+Assert_stmtContext.prototype.ASSERT = function() {
+    return this.getToken(Python3Parser.ASSERT, 0);
+};
+
 Assert_stmtContext.prototype.test = function(i) {
     if(i===undefined) {
         i = null;
@@ -5272,6 +5649,10 @@ Assert_stmtContext.prototype.test = function(i) {
     } else {
         return this.getTypedRuleContext(TestContext,i);
     }
+};
+
+Assert_stmtContext.prototype.COMMA = function() {
+    return this.getToken(Python3Parser.COMMA, 0);
 };
 
 Assert_stmtContext.prototype.enterRule = function(listener) {
@@ -5333,6 +5714,7 @@ Python3Parser.prototype.assert_stmt = function() {
     }
     return localctx;
 };
+
 
 function Compound_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -5481,6 +5863,7 @@ Python3Parser.prototype.compound_stmt = function() {
     return localctx;
 };
 
+
 function Async_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5578,6 +5961,7 @@ Python3Parser.prototype.async_stmt = function() {
     return localctx;
 };
 
+
 function If_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5594,6 +5978,10 @@ function If_stmtContext(parser, parent, invokingState) {
 If_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 If_stmtContext.prototype.constructor = If_stmtContext;
 
+If_stmtContext.prototype.IF = function() {
+    return this.getToken(Python3Parser.IF, 0);
+};
+
 If_stmtContext.prototype.test = function(i) {
     if(i===undefined) {
         i = null;
@@ -5605,6 +5993,18 @@ If_stmtContext.prototype.test = function(i) {
     }
 };
 
+If_stmtContext.prototype.COLON = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COLON);
+    } else {
+        return this.getToken(Python3Parser.COLON, i);
+    }
+};
+
+
 If_stmtContext.prototype.suite = function(i) {
     if(i===undefined) {
         i = null;
@@ -5614,6 +6014,22 @@ If_stmtContext.prototype.suite = function(i) {
     } else {
         return this.getTypedRuleContext(SuiteContext,i);
     }
+};
+
+If_stmtContext.prototype.ELIF = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.ELIF);
+    } else {
+        return this.getToken(Python3Parser.ELIF, i);
+    }
+};
+
+
+If_stmtContext.prototype.ELSE = function() {
+    return this.getToken(Python3Parser.ELSE, 0);
 };
 
 If_stmtContext.prototype.enterRule = function(listener) {
@@ -5698,6 +6114,7 @@ Python3Parser.prototype.if_stmt = function() {
     return localctx;
 };
 
+
 function While_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5714,9 +6131,25 @@ function While_stmtContext(parser, parent, invokingState) {
 While_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 While_stmtContext.prototype.constructor = While_stmtContext;
 
+While_stmtContext.prototype.WHILE = function() {
+    return this.getToken(Python3Parser.WHILE, 0);
+};
+
 While_stmtContext.prototype.test = function() {
     return this.getTypedRuleContext(TestContext,0);
 };
+
+While_stmtContext.prototype.COLON = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COLON);
+    } else {
+        return this.getToken(Python3Parser.COLON, i);
+    }
+};
+
 
 While_stmtContext.prototype.suite = function(i) {
     if(i===undefined) {
@@ -5727,6 +6160,10 @@ While_stmtContext.prototype.suite = function(i) {
     } else {
         return this.getTypedRuleContext(SuiteContext,i);
     }
+};
+
+While_stmtContext.prototype.ELSE = function() {
+    return this.getToken(Python3Parser.ELSE, 0);
 };
 
 While_stmtContext.prototype.enterRule = function(listener) {
@@ -5795,6 +6232,7 @@ Python3Parser.prototype.while_stmt = function() {
     return localctx;
 };
 
+
 function For_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5811,13 +6249,33 @@ function For_stmtContext(parser, parent, invokingState) {
 For_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 For_stmtContext.prototype.constructor = For_stmtContext;
 
+For_stmtContext.prototype.FOR = function() {
+    return this.getToken(Python3Parser.FOR, 0);
+};
+
 For_stmtContext.prototype.exprlist = function() {
     return this.getTypedRuleContext(ExprlistContext,0);
+};
+
+For_stmtContext.prototype.IN = function() {
+    return this.getToken(Python3Parser.IN, 0);
 };
 
 For_stmtContext.prototype.testlist = function() {
     return this.getTypedRuleContext(TestlistContext,0);
 };
+
+For_stmtContext.prototype.COLON = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COLON);
+    } else {
+        return this.getToken(Python3Parser.COLON, i);
+    }
+};
+
 
 For_stmtContext.prototype.suite = function(i) {
     if(i===undefined) {
@@ -5828,6 +6286,10 @@ For_stmtContext.prototype.suite = function(i) {
     } else {
         return this.getTypedRuleContext(SuiteContext,i);
     }
+};
+
+For_stmtContext.prototype.ELSE = function() {
+    return this.getToken(Python3Parser.ELSE, 0);
 };
 
 For_stmtContext.prototype.enterRule = function(listener) {
@@ -5900,6 +6362,7 @@ Python3Parser.prototype.for_stmt = function() {
     return localctx;
 };
 
+
 function Try_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5916,6 +6379,22 @@ function Try_stmtContext(parser, parent, invokingState) {
 Try_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Try_stmtContext.prototype.constructor = Try_stmtContext;
 
+Try_stmtContext.prototype.TRY = function() {
+    return this.getToken(Python3Parser.TRY, 0);
+};
+
+Try_stmtContext.prototype.COLON = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COLON);
+    } else {
+        return this.getToken(Python3Parser.COLON, i);
+    }
+};
+
+
 Try_stmtContext.prototype.suite = function(i) {
     if(i===undefined) {
         i = null;
@@ -5927,6 +6406,10 @@ Try_stmtContext.prototype.suite = function(i) {
     }
 };
 
+Try_stmtContext.prototype.FINALLY = function() {
+    return this.getToken(Python3Parser.FINALLY, 0);
+};
+
 Try_stmtContext.prototype.except_clause = function(i) {
     if(i===undefined) {
         i = null;
@@ -5936,6 +6419,10 @@ Try_stmtContext.prototype.except_clause = function(i) {
     } else {
         return this.getTypedRuleContext(Except_clauseContext,i);
     }
+};
+
+Try_stmtContext.prototype.ELSE = function() {
+    return this.getToken(Python3Parser.ELSE, 0);
 };
 
 Try_stmtContext.prototype.enterRule = function(listener) {
@@ -6044,6 +6531,7 @@ Python3Parser.prototype.try_stmt = function() {
     return localctx;
 };
 
+
 function With_stmtContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -6060,6 +6548,10 @@ function With_stmtContext(parser, parent, invokingState) {
 With_stmtContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 With_stmtContext.prototype.constructor = With_stmtContext;
 
+With_stmtContext.prototype.WITH = function() {
+    return this.getToken(Python3Parser.WITH, 0);
+};
+
 With_stmtContext.prototype.with_item = function(i) {
     if(i===undefined) {
         i = null;
@@ -6071,9 +6563,25 @@ With_stmtContext.prototype.with_item = function(i) {
     }
 };
 
+With_stmtContext.prototype.COLON = function() {
+    return this.getToken(Python3Parser.COLON, 0);
+};
+
 With_stmtContext.prototype.suite = function() {
     return this.getTypedRuleContext(SuiteContext,0);
 };
+
+With_stmtContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 With_stmtContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -6141,6 +6649,7 @@ Python3Parser.prototype.with_stmt = function() {
     return localctx;
 };
 
+
 function With_itemContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -6159,6 +6668,10 @@ With_itemContext.prototype.constructor = With_itemContext;
 
 With_itemContext.prototype.test = function() {
     return this.getTypedRuleContext(TestContext,0);
+};
+
+With_itemContext.prototype.AS = function() {
+    return this.getToken(Python3Parser.AS, 0);
 };
 
 With_itemContext.prototype.expr = function() {
@@ -6223,6 +6736,7 @@ Python3Parser.prototype.with_item = function() {
     return localctx;
 };
 
+
 function Except_clauseContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -6239,8 +6753,16 @@ function Except_clauseContext(parser, parent, invokingState) {
 Except_clauseContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Except_clauseContext.prototype.constructor = Except_clauseContext;
 
+Except_clauseContext.prototype.EXCEPT = function() {
+    return this.getToken(Python3Parser.EXCEPT, 0);
+};
+
 Except_clauseContext.prototype.test = function() {
     return this.getTypedRuleContext(TestContext,0);
+};
+
+Except_clauseContext.prototype.AS = function() {
+    return this.getToken(Python3Parser.AS, 0);
 };
 
 Except_clauseContext.prototype.NAME = function() {
@@ -6312,6 +6834,7 @@ Python3Parser.prototype.except_clause = function() {
     }
     return localctx;
 };
+
 
 function SuiteContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -6465,6 +6988,7 @@ Python3Parser.prototype.suite = function() {
     return localctx;
 };
 
+
 function TestContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -6581,6 +7105,7 @@ Python3Parser.prototype.test = function() {
     return localctx;
 };
 
+
 function Inline_ifContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -6597,8 +7122,16 @@ function Inline_ifContext(parser, parent, invokingState) {
 Inline_ifContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Inline_ifContext.prototype.constructor = Inline_ifContext;
 
+Inline_ifContext.prototype.IF = function() {
+    return this.getToken(Python3Parser.IF, 0);
+};
+
 Inline_ifContext.prototype.or_test = function() {
     return this.getTypedRuleContext(Or_testContext,0);
+};
+
+Inline_ifContext.prototype.ELSE = function() {
+    return this.getToken(Python3Parser.ELSE, 0);
 };
 
 Inline_ifContext.prototype.test = function() {
@@ -6657,6 +7190,7 @@ Python3Parser.prototype.inline_if = function() {
     }
     return localctx;
 };
+
 
 function Test_nocondContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -6761,6 +7295,7 @@ Python3Parser.prototype.test_nocond = function() {
     return localctx;
 };
 
+
 function LambdefContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -6776,6 +7311,14 @@ function LambdefContext(parser, parent, invokingState) {
 
 LambdefContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 LambdefContext.prototype.constructor = LambdefContext;
+
+LambdefContext.prototype.LAMBDA = function() {
+    return this.getToken(Python3Parser.LAMBDA, 0);
+};
+
+LambdefContext.prototype.COLON = function() {
+    return this.getToken(Python3Parser.COLON, 0);
+};
 
 LambdefContext.prototype.test = function() {
     return this.getTypedRuleContext(TestContext,0);
@@ -6845,6 +7388,7 @@ Python3Parser.prototype.lambdef = function() {
     return localctx;
 };
 
+
 function Lambdef_nocondContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -6860,6 +7404,14 @@ function Lambdef_nocondContext(parser, parent, invokingState) {
 
 Lambdef_nocondContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Lambdef_nocondContext.prototype.constructor = Lambdef_nocondContext;
+
+Lambdef_nocondContext.prototype.LAMBDA = function() {
+    return this.getToken(Python3Parser.LAMBDA, 0);
+};
+
+Lambdef_nocondContext.prototype.COLON = function() {
+    return this.getToken(Python3Parser.COLON, 0);
+};
 
 Lambdef_nocondContext.prototype.test_nocond = function() {
     return this.getTypedRuleContext(Test_nocondContext,0);
@@ -6929,6 +7481,7 @@ Python3Parser.prototype.lambdef_nocond = function() {
     return localctx;
 };
 
+
 function Or_testContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -6955,6 +7508,18 @@ Or_testContext.prototype.and_test = function(i) {
         return this.getTypedRuleContext(And_testContext,i);
     }
 };
+
+Or_testContext.prototype.OR = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.OR);
+    } else {
+        return this.getToken(Python3Parser.OR, i);
+    }
+};
+
 
 Or_testContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -7016,6 +7581,7 @@ Python3Parser.prototype.or_test = function() {
     return localctx;
 };
 
+
 function And_testContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7042,6 +7608,18 @@ And_testContext.prototype.not_test = function(i) {
         return this.getTypedRuleContext(Not_testContext,i);
     }
 };
+
+And_testContext.prototype.AND = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.AND);
+    } else {
+        return this.getToken(Python3Parser.AND, i);
+    }
+};
+
 
 And_testContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -7103,6 +7681,7 @@ Python3Parser.prototype.and_test = function() {
     return localctx;
 };
 
+
 function Not_testContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7118,6 +7697,10 @@ function Not_testContext(parser, parent, invokingState) {
 
 Not_testContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Not_testContext.prototype.constructor = Not_testContext;
+
+Not_testContext.prototype.NOT = function() {
+    return this.getToken(Python3Parser.NOT, 0);
+};
 
 Not_testContext.prototype.not_test = function() {
     return this.getTypedRuleContext(Not_testContext,0);
@@ -7206,6 +7789,7 @@ Python3Parser.prototype.not_test = function() {
     }
     return localctx;
 };
+
 
 function ComparisonContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -7305,6 +7889,7 @@ Python3Parser.prototype.comparison = function() {
     return localctx;
 };
 
+
 function Comp_opContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7321,6 +7906,45 @@ function Comp_opContext(parser, parent, invokingState) {
 Comp_opContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Comp_opContext.prototype.constructor = Comp_opContext;
 
+Comp_opContext.prototype.LESS_THAN = function() {
+    return this.getToken(Python3Parser.LESS_THAN, 0);
+};
+
+Comp_opContext.prototype.GREATER_THAN = function() {
+    return this.getToken(Python3Parser.GREATER_THAN, 0);
+};
+
+Comp_opContext.prototype.EQUALS = function() {
+    return this.getToken(Python3Parser.EQUALS, 0);
+};
+
+Comp_opContext.prototype.GT_EQ = function() {
+    return this.getToken(Python3Parser.GT_EQ, 0);
+};
+
+Comp_opContext.prototype.LT_EQ = function() {
+    return this.getToken(Python3Parser.LT_EQ, 0);
+};
+
+Comp_opContext.prototype.NOT_EQ_1 = function() {
+    return this.getToken(Python3Parser.NOT_EQ_1, 0);
+};
+
+Comp_opContext.prototype.NOT_EQ_2 = function() {
+    return this.getToken(Python3Parser.NOT_EQ_2, 0);
+};
+
+Comp_opContext.prototype.IN = function() {
+    return this.getToken(Python3Parser.IN, 0);
+};
+
+Comp_opContext.prototype.NOT = function() {
+    return this.getToken(Python3Parser.NOT, 0);
+};
+
+Comp_opContext.prototype.IS = function() {
+    return this.getToken(Python3Parser.IS, 0);
+};
 
 Comp_opContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -7441,6 +8065,7 @@ Python3Parser.prototype.comp_op = function() {
     return localctx;
 };
 
+
 function Star_exprContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7456,6 +8081,10 @@ function Star_exprContext(parser, parent, invokingState) {
 
 Star_exprContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Star_exprContext.prototype.constructor = Star_exprContext;
+
+Star_exprContext.prototype.STAR = function() {
+    return this.getToken(Python3Parser.STAR, 0);
+};
 
 Star_exprContext.prototype.expr = function() {
     return this.getTypedRuleContext(ExprContext,0);
@@ -7510,6 +8139,7 @@ Python3Parser.prototype.star_expr = function() {
     return localctx;
 };
 
+
 function ExprContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7536,6 +8166,18 @@ ExprContext.prototype.xor_expr = function(i) {
         return this.getTypedRuleContext(Xor_exprContext,i);
     }
 };
+
+ExprContext.prototype.OR_OP = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.OR_OP);
+    } else {
+        return this.getToken(Python3Parser.OR_OP, i);
+    }
+};
+
 
 ExprContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -7597,6 +8239,7 @@ Python3Parser.prototype.expr = function() {
     return localctx;
 };
 
+
 function Xor_exprContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7623,6 +8266,18 @@ Xor_exprContext.prototype.and_expr = function(i) {
         return this.getTypedRuleContext(And_exprContext,i);
     }
 };
+
+Xor_exprContext.prototype.XOR = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.XOR);
+    } else {
+        return this.getToken(Python3Parser.XOR, i);
+    }
+};
+
 
 Xor_exprContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -7684,6 +8339,7 @@ Python3Parser.prototype.xor_expr = function() {
     return localctx;
 };
 
+
 function And_exprContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7710,6 +8366,18 @@ And_exprContext.prototype.shift_expr = function(i) {
         return this.getTypedRuleContext(Shift_exprContext,i);
     }
 };
+
+And_exprContext.prototype.AND_OP = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.AND_OP);
+    } else {
+        return this.getToken(Python3Parser.AND_OP, i);
+    }
+};
+
 
 And_exprContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -7771,6 +8439,7 @@ Python3Parser.prototype.and_expr = function() {
     return localctx;
 };
 
+
 function Shift_exprContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7797,6 +8466,30 @@ Shift_exprContext.prototype.arith_expr = function(i) {
         return this.getTypedRuleContext(Arith_exprContext,i);
     }
 };
+
+Shift_exprContext.prototype.LEFT_SHIFT = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.LEFT_SHIFT);
+    } else {
+        return this.getToken(Python3Parser.LEFT_SHIFT, i);
+    }
+};
+
+
+Shift_exprContext.prototype.RIGHT_SHIFT = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.RIGHT_SHIFT);
+    } else {
+        return this.getToken(Python3Parser.RIGHT_SHIFT, i);
+    }
+};
+
 
 Shift_exprContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -7865,6 +8558,7 @@ Python3Parser.prototype.shift_expr = function() {
     return localctx;
 };
 
+
 function Arith_exprContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7891,6 +8585,30 @@ Arith_exprContext.prototype.term = function(i) {
         return this.getTypedRuleContext(TermContext,i);
     }
 };
+
+Arith_exprContext.prototype.ADD = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.ADD);
+    } else {
+        return this.getToken(Python3Parser.ADD, i);
+    }
+};
+
+
+Arith_exprContext.prototype.MINUS = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.MINUS);
+    } else {
+        return this.getToken(Python3Parser.MINUS, i);
+    }
+};
+
 
 Arith_exprContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -7959,6 +8677,7 @@ Python3Parser.prototype.arith_expr = function() {
     return localctx;
 };
 
+
 function TermContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7985,6 +8704,66 @@ TermContext.prototype.factor = function(i) {
         return this.getTypedRuleContext(FactorContext,i);
     }
 };
+
+TermContext.prototype.STAR = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.STAR);
+    } else {
+        return this.getToken(Python3Parser.STAR, i);
+    }
+};
+
+
+TermContext.prototype.AT = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.AT);
+    } else {
+        return this.getToken(Python3Parser.AT, i);
+    }
+};
+
+
+TermContext.prototype.DIV = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.DIV);
+    } else {
+        return this.getToken(Python3Parser.DIV, i);
+    }
+};
+
+
+TermContext.prototype.MOD = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.MOD);
+    } else {
+        return this.getToken(Python3Parser.MOD, i);
+    }
+};
+
+
+TermContext.prototype.IDIV = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.IDIV);
+    } else {
+        return this.getToken(Python3Parser.IDIV, i);
+    }
+};
+
 
 TermContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -8053,6 +8832,7 @@ Python3Parser.prototype.term = function() {
     return localctx;
 };
 
+
 function FactorContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -8071,6 +8851,18 @@ FactorContext.prototype.constructor = FactorContext;
 
 FactorContext.prototype.factor = function() {
     return this.getTypedRuleContext(FactorContext,0);
+};
+
+FactorContext.prototype.ADD = function() {
+    return this.getToken(Python3Parser.ADD, 0);
+};
+
+FactorContext.prototype.MINUS = function() {
+    return this.getToken(Python3Parser.MINUS, 0);
+};
+
+FactorContext.prototype.NOT_OP = function() {
+    return this.getToken(Python3Parser.NOT_OP, 0);
 };
 
 FactorContext.prototype.power = function() {
@@ -8164,6 +8956,7 @@ Python3Parser.prototype.factor = function() {
     return localctx;
 };
 
+
 function PowerContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -8182,6 +8975,10 @@ PowerContext.prototype.constructor = PowerContext;
 
 PowerContext.prototype.atom = function() {
     return this.getTypedRuleContext(AtomContext,0);
+};
+
+PowerContext.prototype.POWER = function() {
+    return this.getToken(Python3Parser.POWER, 0);
 };
 
 PowerContext.prototype.factor = function() {
@@ -8245,6 +9042,7 @@ Python3Parser.prototype.power = function() {
     }
     return localctx;
 };
+
 
 function AtomContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -8349,6 +9147,9 @@ EllipsesAtomContext.prototype.constructor = EllipsesAtomContext;
 
 Python3Parser.EllipsesAtomContext = EllipsesAtomContext;
 
+EllipsesAtomContext.prototype.ELLIPSIS = function() {
+    return this.getToken(Python3Parser.ELLIPSIS, 0);
+};
 EllipsesAtomContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
         listener.enterEllipsesAtom(this);
@@ -8876,6 +9677,7 @@ Python3Parser.prototype.atom = function(_p) {
     return localctx;
 };
 
+
 function Testlist_compContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -8917,6 +9719,18 @@ Testlist_compContext.prototype.star_expr = function(i) {
 Testlist_compContext.prototype.comp_for = function() {
     return this.getTypedRuleContext(Comp_forContext,0);
 };
+
+Testlist_compContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 Testlist_compContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -9068,6 +9882,7 @@ Python3Parser.prototype.testlist_comp = function() {
     return localctx;
 };
 
+
 function Array_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -9083,6 +9898,14 @@ function Array_literalContext(parser, parent, invokingState) {
 
 Array_literalContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Array_literalContext.prototype.constructor = Array_literalContext;
+
+Array_literalContext.prototype.OPEN_BRACK = function() {
+    return this.getToken(Python3Parser.OPEN_BRACK, 0);
+};
+
+Array_literalContext.prototype.CLOSE_BRACK = function() {
+    return this.getToken(Python3Parser.CLOSE_BRACK, 0);
+};
 
 Array_literalContext.prototype.testlist_comp = function() {
     return this.getTypedRuleContext(Testlist_compContext,0);
@@ -9146,6 +9969,7 @@ Python3Parser.prototype.array_literal = function() {
     return localctx;
 };
 
+
 function Object_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -9161,6 +9985,14 @@ function Object_literalContext(parser, parent, invokingState) {
 
 Object_literalContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Object_literalContext.prototype.constructor = Object_literalContext;
+
+Object_literalContext.prototype.OPEN_BRACE = function() {
+    return this.getToken(Python3Parser.OPEN_BRACE, 0);
+};
+
+Object_literalContext.prototype.CLOSE_BRACE = function() {
+    return this.getToken(Python3Parser.CLOSE_BRACE, 0);
+};
 
 Object_literalContext.prototype.dictorsetmaker = function() {
     return this.getTypedRuleContext(DictorsetmakerContext,0);
@@ -9224,6 +10056,7 @@ Python3Parser.prototype.object_literal = function() {
     return localctx;
 };
 
+
 function Set_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -9239,6 +10072,14 @@ function Set_literalContext(parser, parent, invokingState) {
 
 Set_literalContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Set_literalContext.prototype.constructor = Set_literalContext;
+
+Set_literalContext.prototype.OPEN_PAREN = function() {
+    return this.getToken(Python3Parser.OPEN_PAREN, 0);
+};
+
+Set_literalContext.prototype.CLOSE_PAREN = function() {
+    return this.getToken(Python3Parser.CLOSE_PAREN, 0);
+};
 
 Set_literalContext.prototype.yield_expr = function() {
     return this.getTypedRuleContext(Yield_exprContext,0);
@@ -9334,6 +10175,7 @@ Python3Parser.prototype.set_literal = function() {
     return localctx;
 };
 
+
 function Paren_trailerContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -9349,6 +10191,14 @@ function Paren_trailerContext(parser, parent, invokingState) {
 
 Paren_trailerContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Paren_trailerContext.prototype.constructor = Paren_trailerContext;
+
+Paren_trailerContext.prototype.OPEN_PAREN = function() {
+    return this.getToken(Python3Parser.OPEN_PAREN, 0);
+};
+
+Paren_trailerContext.prototype.CLOSE_PAREN = function() {
+    return this.getToken(Python3Parser.CLOSE_PAREN, 0);
+};
 
 Paren_trailerContext.prototype.arglist = function() {
     return this.getTypedRuleContext(ArglistContext,0);
@@ -9412,6 +10262,7 @@ Python3Parser.prototype.paren_trailer = function() {
     return localctx;
 };
 
+
 function Bracket_trailerContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -9428,8 +10279,16 @@ function Bracket_trailerContext(parser, parent, invokingState) {
 Bracket_trailerContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Bracket_trailerContext.prototype.constructor = Bracket_trailerContext;
 
+Bracket_trailerContext.prototype.OPEN_BRACK = function() {
+    return this.getToken(Python3Parser.OPEN_BRACK, 0);
+};
+
 Bracket_trailerContext.prototype.subscriptlist = function() {
     return this.getTypedRuleContext(SubscriptlistContext,0);
+};
+
+Bracket_trailerContext.prototype.CLOSE_BRACK = function() {
+    return this.getToken(Python3Parser.CLOSE_BRACK, 0);
 };
 
 Bracket_trailerContext.prototype.enterRule = function(listener) {
@@ -9483,6 +10342,7 @@ Python3Parser.prototype.bracket_trailer = function() {
     return localctx;
 };
 
+
 function Dot_trailerContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -9498,6 +10358,10 @@ function Dot_trailerContext(parser, parent, invokingState) {
 
 Dot_trailerContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Dot_trailerContext.prototype.constructor = Dot_trailerContext;
+
+Dot_trailerContext.prototype.DOT = function() {
+    return this.getToken(Python3Parser.DOT, 0);
+};
 
 Dot_trailerContext.prototype.identifier = function() {
     return this.getTypedRuleContext(IdentifierContext,0);
@@ -9552,6 +10416,7 @@ Python3Parser.prototype.dot_trailer = function() {
     return localctx;
 };
 
+
 function SubscriptlistContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -9578,6 +10443,18 @@ SubscriptlistContext.prototype.subscript = function(i) {
         return this.getTypedRuleContext(SubscriptContext,i);
     }
 };
+
+SubscriptlistContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 SubscriptlistContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -9650,6 +10527,7 @@ Python3Parser.prototype.subscriptlist = function() {
     return localctx;
 };
 
+
 function SubscriptContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -9675,6 +10553,10 @@ SubscriptContext.prototype.test = function(i) {
     } else {
         return this.getTypedRuleContext(TestContext,i);
     }
+};
+
+SubscriptContext.prototype.COLON = function() {
+    return this.getToken(Python3Parser.COLON, 0);
 };
 
 SubscriptContext.prototype.sliceop = function() {
@@ -9767,6 +10649,7 @@ Python3Parser.prototype.subscript = function() {
     return localctx;
 };
 
+
 function SliceopContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -9782,6 +10665,10 @@ function SliceopContext(parser, parent, invokingState) {
 
 SliceopContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 SliceopContext.prototype.constructor = SliceopContext;
+
+SliceopContext.prototype.COLON = function() {
+    return this.getToken(Python3Parser.COLON, 0);
+};
 
 SliceopContext.prototype.test = function() {
     return this.getTypedRuleContext(TestContext,0);
@@ -9843,6 +10730,7 @@ Python3Parser.prototype.sliceop = function() {
     return localctx;
 };
 
+
 function ExprlistContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -9880,6 +10768,18 @@ ExprlistContext.prototype.star_expr = function(i) {
         return this.getTypedRuleContext(Star_exprContext,i);
     }
 };
+
+ExprlistContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 ExprlistContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -10012,6 +10912,7 @@ Python3Parser.prototype.exprlist = function() {
     return localctx;
 };
 
+
 function TestlistContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -10038,6 +10939,18 @@ TestlistContext.prototype.test = function(i) {
         return this.getTypedRuleContext(TestContext,i);
     }
 };
+
+TestlistContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 TestlistContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -10110,6 +11023,7 @@ Python3Parser.prototype.testlist = function() {
     return localctx;
 };
 
+
 function DictorsetmakerContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -10137,6 +11051,30 @@ DictorsetmakerContext.prototype.test = function(i) {
     }
 };
 
+DictorsetmakerContext.prototype.COLON = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COLON);
+    } else {
+        return this.getToken(Python3Parser.COLON, i);
+    }
+};
+
+
+DictorsetmakerContext.prototype.POWER = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.POWER);
+    } else {
+        return this.getToken(Python3Parser.POWER, i);
+    }
+};
+
+
 DictorsetmakerContext.prototype.expr = function(i) {
     if(i===undefined) {
         i = null;
@@ -10162,6 +11100,18 @@ DictorsetmakerContext.prototype.star_expr = function(i) {
         return this.getTypedRuleContext(Star_exprContext,i);
     }
 };
+
+DictorsetmakerContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 DictorsetmakerContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -10438,6 +11388,7 @@ Python3Parser.prototype.dictorsetmaker = function() {
     return localctx;
 };
 
+
 function ClassdefContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -10454,12 +11405,28 @@ function ClassdefContext(parser, parent, invokingState) {
 ClassdefContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 ClassdefContext.prototype.constructor = ClassdefContext;
 
+ClassdefContext.prototype.CLASS = function() {
+    return this.getToken(Python3Parser.CLASS, 0);
+};
+
 ClassdefContext.prototype.NAME = function() {
     return this.getToken(Python3Parser.NAME, 0);
 };
 
+ClassdefContext.prototype.COLON = function() {
+    return this.getToken(Python3Parser.COLON, 0);
+};
+
 ClassdefContext.prototype.suite = function() {
     return this.getTypedRuleContext(SuiteContext,0);
+};
+
+ClassdefContext.prototype.OPEN_PAREN = function() {
+    return this.getToken(Python3Parser.OPEN_PAREN, 0);
+};
+
+ClassdefContext.prototype.CLOSE_PAREN = function() {
+    return this.getToken(Python3Parser.CLOSE_PAREN, 0);
 };
 
 ClassdefContext.prototype.arglist = function() {
@@ -10538,6 +11505,7 @@ Python3Parser.prototype.classdef = function() {
     return localctx;
 };
 
+
 function ArglistContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -10564,6 +11532,18 @@ ArglistContext.prototype.argument = function(i) {
         return this.getTypedRuleContext(ArgumentContext,i);
     }
 };
+
+ArglistContext.prototype.COMMA = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(Python3Parser.COMMA);
+    } else {
+        return this.getToken(Python3Parser.COMMA, i);
+    }
+};
+
 
 ArglistContext.prototype.enterRule = function(listener) {
     if(listener instanceof Python3Listener ) {
@@ -10636,6 +11616,7 @@ Python3Parser.prototype.arglist = function() {
     return localctx;
 };
 
+
 function ArgumentContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -10661,6 +11642,18 @@ ArgumentContext.prototype.test = function(i) {
     } else {
         return this.getTypedRuleContext(TestContext,i);
     }
+};
+
+ArgumentContext.prototype.ASSIGN = function() {
+    return this.getToken(Python3Parser.ASSIGN, 0);
+};
+
+ArgumentContext.prototype.POWER = function() {
+    return this.getToken(Python3Parser.POWER, 0);
+};
+
+ArgumentContext.prototype.STAR = function() {
+    return this.getToken(Python3Parser.STAR, 0);
 };
 
 ArgumentContext.prototype.comp_for = function() {
@@ -10754,6 +11747,7 @@ Python3Parser.prototype.argument = function() {
     return localctx;
 };
 
+
 function Comp_iterContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -10839,6 +11833,7 @@ Python3Parser.prototype.comp_iter = function() {
     return localctx;
 };
 
+
 function Comp_forContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -10855,8 +11850,16 @@ function Comp_forContext(parser, parent, invokingState) {
 Comp_forContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Comp_forContext.prototype.constructor = Comp_forContext;
 
+Comp_forContext.prototype.FOR = function() {
+    return this.getToken(Python3Parser.FOR, 0);
+};
+
 Comp_forContext.prototype.exprlist = function() {
     return this.getTypedRuleContext(ExprlistContext,0);
+};
+
+Comp_forContext.prototype.IN = function() {
+    return this.getToken(Python3Parser.IN, 0);
 };
 
 Comp_forContext.prototype.or_test = function() {
@@ -10941,6 +11944,7 @@ Python3Parser.prototype.comp_for = function() {
     return localctx;
 };
 
+
 function Comp_ifContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -10956,6 +11960,10 @@ function Comp_ifContext(parser, parent, invokingState) {
 
 Comp_ifContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Comp_ifContext.prototype.constructor = Comp_ifContext;
+
+Comp_ifContext.prototype.IF = function() {
+    return this.getToken(Python3Parser.IF, 0);
+};
 
 Comp_ifContext.prototype.test_nocond = function() {
     return this.getTypedRuleContext(Test_nocondContext,0);
@@ -11022,6 +12030,7 @@ Python3Parser.prototype.comp_if = function() {
     }
     return localctx;
 };
+
 
 function Encoding_declContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -11090,6 +12099,7 @@ Python3Parser.prototype.encoding_decl = function() {
     return localctx;
 };
 
+
 function Yield_exprContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -11105,6 +12115,10 @@ function Yield_exprContext(parser, parent, invokingState) {
 
 Yield_exprContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Yield_exprContext.prototype.constructor = Yield_exprContext;
+
+Yield_exprContext.prototype.YIELD = function() {
+    return this.getToken(Python3Parser.YIELD, 0);
+};
 
 Yield_exprContext.prototype.yield_arg = function() {
     return this.getTypedRuleContext(Yield_argContext,0);
@@ -11166,6 +12180,7 @@ Python3Parser.prototype.yield_expr = function() {
     return localctx;
 };
 
+
 function Yield_argContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -11181,6 +12196,10 @@ function Yield_argContext(parser, parent, invokingState) {
 
 Yield_argContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 Yield_argContext.prototype.constructor = Yield_argContext;
+
+Yield_argContext.prototype.FROM = function() {
+    return this.getToken(Python3Parser.FROM, 0);
+};
 
 Yield_argContext.prototype.test = function() {
     return this.getTypedRuleContext(TestContext,0);
@@ -11272,6 +12291,7 @@ Python3Parser.prototype.yield_arg = function() {
     return localctx;
 };
 
+
 function String_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -11350,6 +12370,7 @@ Python3Parser.prototype.string_literal = function() {
     }
     return localctx;
 };
+
 
 function Number_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -11648,6 +12669,7 @@ Python3Parser.prototype.number_literal = function() {
     return localctx;
 };
 
+
 function Integer_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -11714,6 +12736,7 @@ Python3Parser.prototype.integer_literal = function() {
     }
     return localctx;
 };
+
 
 function Oct_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -11782,6 +12805,7 @@ Python3Parser.prototype.oct_literal = function() {
     return localctx;
 };
 
+
 function Hex_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -11848,6 +12872,7 @@ Python3Parser.prototype.hex_literal = function() {
     }
     return localctx;
 };
+
 
 function Bin_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -11916,6 +12941,7 @@ Python3Parser.prototype.bin_literal = function() {
     return localctx;
 };
 
+
 function Float_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -11983,6 +13009,7 @@ Python3Parser.prototype.float_literal = function() {
     return localctx;
 };
 
+
 function Imag_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -12049,6 +13076,7 @@ Python3Parser.prototype.imag_literal = function() {
     }
     return localctx;
 };
+
 
 function Boolean_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -12129,6 +13157,7 @@ Python3Parser.prototype.boolean_literal = function() {
     return localctx;
 };
 
+
 function None_literalContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -12195,6 +13224,7 @@ Python3Parser.prototype.none_literal = function() {
     }
     return localctx;
 };
+
 
 function IdentifierContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -12263,6 +13293,7 @@ Python3Parser.prototype.identifier = function() {
     return localctx;
 };
 
+
 function EofContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -12329,6 +13360,7 @@ Python3Parser.prototype.eof = function() {
     }
     return localctx;
 };
+
 
 function EosContext(parser, parent, invokingState) {
 	if(parent===undefined) {

@@ -1,6 +1,7 @@
-// Generated from grammars/Python3.g4 by ANTLR 4.7.1
+// Generated from grammars/Python3.g4 by ANTLR 4.7.2
 // jshint ignore: start
 var antlr4 = require('antlr4/index');
+
 
 
 var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
@@ -964,6 +965,7 @@ Python3Lexer.prototype.action = function(localctx, ruleIndex, actionIndex) {
 		throw "No registered action for:" + ruleIndex;
 	}
 };
+
 
 Python3Lexer.prototype.NEWLINE_action = function(localctx , actionIndex) {
 	switch (actionIndex) {

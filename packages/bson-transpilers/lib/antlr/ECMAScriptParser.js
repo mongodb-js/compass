@@ -1,10 +1,11 @@
-// Generated from grammars/ECMAScript.g4 by ANTLR 4.7.1
+// Generated from grammars/ECMAScript.g4 by ANTLR 4.7.2
 // jshint ignore: start
 var antlr4 = require('antlr4/index');
 var ECMAScriptListener = require('./ECMAScriptListener').ECMAScriptListener;
 var ECMAScriptVisitor = require('./ECMAScriptVisitor').ECMAScriptVisitor;
 
 var grammarFileName = "ECMAScript.g4";
+
 
 var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0003k\u0294\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
@@ -720,6 +721,7 @@ ECMAScriptParser.RULE_setter = 53;
 ECMAScriptParser.RULE_eos = 54;
 ECMAScriptParser.RULE_eof = 55;
 
+
 function ProgramContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -811,6 +813,7 @@ ECMAScriptParser.prototype.program = function() {
     }
     return localctx;
 };
+
 
 function SourceElementsContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -913,6 +916,7 @@ ECMAScriptParser.prototype.sourceElements = function() {
     return localctx;
 };
 
+
 function SourceElementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -997,6 +1001,7 @@ ECMAScriptParser.prototype.sourceElement = function() {
     }
     return localctx;
 };
+
 
 function StatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1203,6 +1208,7 @@ ECMAScriptParser.prototype.statement = function() {
     return localctx;
 };
 
+
 function StatementOrBlockContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1288,6 +1294,7 @@ ECMAScriptParser.prototype.statementOrBlock = function() {
     return localctx;
 };
 
+
 function BlockContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1303,6 +1310,14 @@ function BlockContext(parser, parent, invokingState) {
 
 BlockContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 BlockContext.prototype.constructor = BlockContext;
+
+BlockContext.prototype.OpenBrace = function() {
+    return this.getToken(ECMAScriptParser.OpenBrace, 0);
+};
+
+BlockContext.prototype.CloseBrace = function() {
+    return this.getToken(ECMAScriptParser.CloseBrace, 0);
+};
 
 BlockContext.prototype.statement = function(i) {
     if(i===undefined) {
@@ -1374,6 +1389,7 @@ ECMAScriptParser.prototype.block = function() {
     }
     return localctx;
 };
+
 
 function StatementListContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1458,6 +1474,7 @@ ECMAScriptParser.prototype.statementList = function() {
     return localctx;
 };
 
+
 function VariableStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1537,6 +1554,7 @@ ECMAScriptParser.prototype.variableStatement = function() {
     return localctx;
 };
 
+
 function VariableDeclarationListContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1563,6 +1581,18 @@ VariableDeclarationListContext.prototype.variableDeclaration = function(i) {
         return this.getTypedRuleContext(VariableDeclarationContext,i);
     }
 };
+
+VariableDeclarationListContext.prototype.Comma = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(ECMAScriptParser.Comma);
+    } else {
+        return this.getToken(ECMAScriptParser.Comma, i);
+    }
+};
+
 
 VariableDeclarationListContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -1625,6 +1655,7 @@ ECMAScriptParser.prototype.variableDeclarationList = function() {
     }
     return localctx;
 };
+
 
 function VariableDeclarationContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1705,6 +1736,7 @@ ECMAScriptParser.prototype.variableDeclaration = function() {
     return localctx;
 };
 
+
 function InitialiserContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1720,6 +1752,10 @@ function InitialiserContext(parser, parent, invokingState) {
 
 InitialiserContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 InitialiserContext.prototype.constructor = InitialiserContext;
+
+InitialiserContext.prototype.Assign = function() {
+    return this.getToken(ECMAScriptParser.Assign, 0);
+};
 
 InitialiserContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
@@ -1773,6 +1809,7 @@ ECMAScriptParser.prototype.initialiser = function() {
     }
     return localctx;
 };
+
 
 function EmptyStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1841,6 +1878,7 @@ ECMAScriptParser.prototype.emptyStatement = function() {
     return localctx;
 };
 
+
 function ExpressionStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1908,6 +1946,7 @@ ECMAScriptParser.prototype.expressionStatement = function() {
     return localctx;
 };
 
+
 function IfStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1928,8 +1967,16 @@ IfStatementContext.prototype.If = function() {
     return this.getToken(ECMAScriptParser.If, 0);
 };
 
+IfStatementContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
 IfStatementContext.prototype.expressionSequence = function() {
     return this.getTypedRuleContext(ExpressionSequenceContext,0);
+};
+
+IfStatementContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
 };
 
 IfStatementContext.prototype.statementOrBlock = function(i) {
@@ -2012,6 +2059,7 @@ ECMAScriptParser.prototype.ifStatement = function() {
     return localctx;
 };
 
+
 function IterationStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -2050,12 +2098,32 @@ ForVarStatementContext.prototype.For = function() {
     return this.getToken(ECMAScriptParser.For, 0);
 };
 
+ForVarStatementContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
 ForVarStatementContext.prototype.Var = function() {
     return this.getToken(ECMAScriptParser.Var, 0);
 };
 
 ForVarStatementContext.prototype.variableDeclarationList = function() {
     return this.getTypedRuleContext(VariableDeclarationListContext,0);
+};
+
+ForVarStatementContext.prototype.SemiColon = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(ECMAScriptParser.SemiColon);
+    } else {
+        return this.getToken(ECMAScriptParser.SemiColon, i);
+    }
+};
+
+
+ForVarStatementContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
 };
 
 ForVarStatementContext.prototype.statementOrBlock = function() {
@@ -2108,6 +2176,10 @@ ForVarInStatementContext.prototype.For = function() {
     return this.getToken(ECMAScriptParser.For, 0);
 };
 
+ForVarInStatementContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
 ForVarInStatementContext.prototype.Var = function() {
     return this.getToken(ECMAScriptParser.Var, 0);
 };
@@ -2122,6 +2194,10 @@ ForVarInStatementContext.prototype.In = function() {
 
 ForVarInStatementContext.prototype.expressionSequence = function() {
     return this.getTypedRuleContext(ExpressionSequenceContext,0);
+};
+
+ForVarInStatementContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
 };
 
 ForVarInStatementContext.prototype.statementOrBlock = function() {
@@ -2163,8 +2239,16 @@ WhileStatementContext.prototype.While = function() {
     return this.getToken(ECMAScriptParser.While, 0);
 };
 
+WhileStatementContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
 WhileStatementContext.prototype.expressionSequence = function() {
     return this.getTypedRuleContext(ExpressionSequenceContext,0);
+};
+
+WhileStatementContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
 };
 
 WhileStatementContext.prototype.statementOrBlock = function() {
@@ -2204,6 +2288,26 @@ ECMAScriptParser.ForStatementContext = ForStatementContext;
 
 ForStatementContext.prototype.For = function() {
     return this.getToken(ECMAScriptParser.For, 0);
+};
+
+ForStatementContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
+ForStatementContext.prototype.SemiColon = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(ECMAScriptParser.SemiColon);
+    } else {
+        return this.getToken(ECMAScriptParser.SemiColon, i);
+    }
+};
+
+
+ForStatementContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
 };
 
 ForStatementContext.prototype.statementOrBlock = function() {
@@ -2264,8 +2368,16 @@ DoWhileStatementContext.prototype.While = function() {
     return this.getToken(ECMAScriptParser.While, 0);
 };
 
+DoWhileStatementContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
 DoWhileStatementContext.prototype.expressionSequence = function() {
     return this.getTypedRuleContext(ExpressionSequenceContext,0);
+};
+
+DoWhileStatementContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
 };
 
 DoWhileStatementContext.prototype.eos = function() {
@@ -2307,6 +2419,10 @@ ForInStatementContext.prototype.For = function() {
     return this.getToken(ECMAScriptParser.For, 0);
 };
 
+ForInStatementContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
 ForInStatementContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
 };
@@ -2317,6 +2433,10 @@ ForInStatementContext.prototype.In = function() {
 
 ForInStatementContext.prototype.expressionSequence = function() {
     return this.getTypedRuleContext(ExpressionSequenceContext,0);
+};
+
+ForInStatementContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
 };
 
 ForInStatementContext.prototype.statementOrBlock = function() {
@@ -2523,6 +2643,7 @@ ECMAScriptParser.prototype.iterationStatement = function() {
     return localctx;
 };
 
+
 function ContinueStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -2611,6 +2732,7 @@ ECMAScriptParser.prototype.continueStatement = function() {
     }
     return localctx;
 };
+
 
 function BreakStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -2701,6 +2823,7 @@ ECMAScriptParser.prototype.breakStatement = function() {
     return localctx;
 };
 
+
 function ReturnStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -2790,6 +2913,7 @@ ECMAScriptParser.prototype.returnStatement = function() {
     return localctx;
 };
 
+
 function WithStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -2810,8 +2934,16 @@ WithStatementContext.prototype.With = function() {
     return this.getToken(ECMAScriptParser.With, 0);
 };
 
+WithStatementContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
 WithStatementContext.prototype.expressionSequence = function() {
     return this.getTypedRuleContext(ExpressionSequenceContext,0);
+};
+
+WithStatementContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
 };
 
 WithStatementContext.prototype.statementOrBlock = function() {
@@ -2873,6 +3005,7 @@ ECMAScriptParser.prototype.withStatement = function() {
     return localctx;
 };
 
+
 function SwitchStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -2893,8 +3026,16 @@ SwitchStatementContext.prototype.Switch = function() {
     return this.getToken(ECMAScriptParser.Switch, 0);
 };
 
+SwitchStatementContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
 SwitchStatementContext.prototype.expressionSequence = function() {
     return this.getTypedRuleContext(ExpressionSequenceContext,0);
+};
+
+SwitchStatementContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
 };
 
 SwitchStatementContext.prototype.caseBlock = function() {
@@ -2956,6 +3097,7 @@ ECMAScriptParser.prototype.switchStatement = function() {
     return localctx;
 };
 
+
 function CaseBlockContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -2971,6 +3113,14 @@ function CaseBlockContext(parser, parent, invokingState) {
 
 CaseBlockContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 CaseBlockContext.prototype.constructor = CaseBlockContext;
+
+CaseBlockContext.prototype.OpenBrace = function() {
+    return this.getToken(ECMAScriptParser.OpenBrace, 0);
+};
+
+CaseBlockContext.prototype.CloseBrace = function() {
+    return this.getToken(ECMAScriptParser.CloseBrace, 0);
+};
 
 CaseBlockContext.prototype.caseClauses = function(i) {
     if(i===undefined) {
@@ -3061,6 +3211,7 @@ ECMAScriptParser.prototype.caseBlock = function() {
     return localctx;
 };
 
+
 function CaseClausesContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3144,6 +3295,7 @@ ECMAScriptParser.prototype.caseClauses = function() {
     return localctx;
 };
 
+
 function CaseClauseContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3166,6 +3318,10 @@ CaseClauseContext.prototype.Case = function() {
 
 CaseClauseContext.prototype.expressionSequence = function() {
     return this.getTypedRuleContext(ExpressionSequenceContext,0);
+};
+
+CaseClauseContext.prototype.Colon = function() {
+    return this.getToken(ECMAScriptParser.Colon, 0);
 };
 
 CaseClauseContext.prototype.statementList = function() {
@@ -3232,6 +3388,7 @@ ECMAScriptParser.prototype.caseClause = function() {
     return localctx;
 };
 
+
 function DefaultClauseContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3250,6 +3407,10 @@ DefaultClauseContext.prototype.constructor = DefaultClauseContext;
 
 DefaultClauseContext.prototype.Default = function() {
     return this.getToken(ECMAScriptParser.Default, 0);
+};
+
+DefaultClauseContext.prototype.Colon = function() {
+    return this.getToken(ECMAScriptParser.Colon, 0);
 };
 
 DefaultClauseContext.prototype.statementList = function() {
@@ -3314,6 +3475,7 @@ ECMAScriptParser.prototype.defaultClause = function() {
     return localctx;
 };
 
+
 function LabelledStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3332,6 +3494,10 @@ LabelledStatementContext.prototype.constructor = LabelledStatementContext;
 
 LabelledStatementContext.prototype.Identifier = function() {
     return this.getToken(ECMAScriptParser.Identifier, 0);
+};
+
+LabelledStatementContext.prototype.Colon = function() {
+    return this.getToken(ECMAScriptParser.Colon, 0);
 };
 
 LabelledStatementContext.prototype.statement = function() {
@@ -3388,6 +3554,7 @@ ECMAScriptParser.prototype.labelledStatement = function() {
     }
     return localctx;
 };
+
 
 function ThrowStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -3471,6 +3638,7 @@ ECMAScriptParser.prototype.throwStatement = function() {
     }
     return localctx;
 };
+
 
 function TryStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -3585,6 +3753,7 @@ ECMAScriptParser.prototype.tryStatement = function() {
     return localctx;
 };
 
+
 function CatchProductionContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3605,8 +3774,16 @@ CatchProductionContext.prototype.Catch = function() {
     return this.getToken(ECMAScriptParser.Catch, 0);
 };
 
+CatchProductionContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
 CatchProductionContext.prototype.Identifier = function() {
     return this.getToken(ECMAScriptParser.Identifier, 0);
+};
+
+CatchProductionContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
 };
 
 CatchProductionContext.prototype.block = function() {
@@ -3667,6 +3844,7 @@ ECMAScriptParser.prototype.catchProduction = function() {
     }
     return localctx;
 };
+
 
 function FinallyProductionContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -3741,6 +3919,7 @@ ECMAScriptParser.prototype.finallyProduction = function() {
     return localctx;
 };
 
+
 function DebuggerStatementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3814,6 +3993,7 @@ ECMAScriptParser.prototype.debuggerStatement = function() {
     return localctx;
 };
 
+
 function FunctionDeclarationContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3838,8 +4018,24 @@ FunctionDeclarationContext.prototype.Identifier = function() {
     return this.getToken(ECMAScriptParser.Identifier, 0);
 };
 
+FunctionDeclarationContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
+FunctionDeclarationContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
+};
+
+FunctionDeclarationContext.prototype.OpenBrace = function() {
+    return this.getToken(ECMAScriptParser.OpenBrace, 0);
+};
+
 FunctionDeclarationContext.prototype.functionBody = function() {
     return this.getTypedRuleContext(FunctionBodyContext,0);
+};
+
+FunctionDeclarationContext.prototype.CloseBrace = function() {
+    return this.getToken(ECMAScriptParser.CloseBrace, 0);
 };
 
 FunctionDeclarationContext.prototype.formalParameterList = function() {
@@ -3914,6 +4110,7 @@ ECMAScriptParser.prototype.functionDeclaration = function() {
     return localctx;
 };
 
+
 function FormalParameterListContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -3938,6 +4135,18 @@ FormalParameterListContext.prototype.Identifier = function(i) {
         return this.getTokens(ECMAScriptParser.Identifier);
     } else {
         return this.getToken(ECMAScriptParser.Identifier, i);
+    }
+};
+
+
+FormalParameterListContext.prototype.Comma = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(ECMAScriptParser.Comma);
+    } else {
+        return this.getToken(ECMAScriptParser.Comma, i);
     }
 };
 
@@ -4001,6 +4210,7 @@ ECMAScriptParser.prototype.formalParameterList = function() {
     }
     return localctx;
 };
+
 
 function FunctionBodyContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -4076,6 +4286,7 @@ ECMAScriptParser.prototype.functionBody = function() {
     return localctx;
 };
 
+
 function ArrayLiteralContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4092,8 +4303,20 @@ function ArrayLiteralContext(parser, parent, invokingState) {
 ArrayLiteralContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 ArrayLiteralContext.prototype.constructor = ArrayLiteralContext;
 
+ArrayLiteralContext.prototype.OpenBracket = function() {
+    return this.getToken(ECMAScriptParser.OpenBracket, 0);
+};
+
+ArrayLiteralContext.prototype.CloseBracket = function() {
+    return this.getToken(ECMAScriptParser.CloseBracket, 0);
+};
+
 ArrayLiteralContext.prototype.elementList = function() {
     return this.getTypedRuleContext(ElementListContext,0);
+};
+
+ArrayLiteralContext.prototype.Comma = function() {
+    return this.getToken(ECMAScriptParser.Comma, 0);
 };
 
 ArrayLiteralContext.prototype.enterRule = function(listener) {
@@ -4172,6 +4395,7 @@ ECMAScriptParser.prototype.arrayLiteral = function() {
     return localctx;
 };
 
+
 function ElementListContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4209,6 +4433,18 @@ ElementListContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+ElementListContext.prototype.Comma = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(ECMAScriptParser.Comma);
+    } else {
+        return this.getToken(ECMAScriptParser.Comma, i);
+    }
+};
+
 
 ElementListContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -4327,6 +4563,7 @@ ECMAScriptParser.prototype.elementList = function() {
     return localctx;
 };
 
+
 function ElisionContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4343,6 +4580,9 @@ function ElisionContext(parser, parent, invokingState) {
 ElisionContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 ElisionContext.prototype.constructor = ElisionContext;
 
+ElisionContext.prototype.Comma = function() {
+    return this.getToken(ECMAScriptParser.Comma, 0);
+};
 
 ElisionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -4391,6 +4631,7 @@ ECMAScriptParser.prototype.elision = function() {
     return localctx;
 };
 
+
 function ObjectLiteralContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4407,8 +4648,20 @@ function ObjectLiteralContext(parser, parent, invokingState) {
 ObjectLiteralContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 ObjectLiteralContext.prototype.constructor = ObjectLiteralContext;
 
+ObjectLiteralContext.prototype.OpenBrace = function() {
+    return this.getToken(ECMAScriptParser.OpenBrace, 0);
+};
+
+ObjectLiteralContext.prototype.CloseBrace = function() {
+    return this.getToken(ECMAScriptParser.CloseBrace, 0);
+};
+
 ObjectLiteralContext.prototype.propertyNameAndValueList = function() {
     return this.getTypedRuleContext(PropertyNameAndValueListContext,0);
+};
+
+ObjectLiteralContext.prototype.Comma = function() {
+    return this.getToken(ECMAScriptParser.Comma, 0);
 };
 
 ObjectLiteralContext.prototype.enterRule = function(listener) {
@@ -4487,6 +4740,7 @@ ECMAScriptParser.prototype.objectLiteral = function() {
     return localctx;
 };
 
+
 function PropertyNameAndValueListContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4513,6 +4767,18 @@ PropertyNameAndValueListContext.prototype.propertyAssignment = function(i) {
         return this.getTypedRuleContext(PropertyAssignmentContext,i);
     }
 };
+
+PropertyNameAndValueListContext.prototype.Comma = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(ECMAScriptParser.Comma);
+    } else {
+        return this.getToken(ECMAScriptParser.Comma, i);
+    }
+};
+
 
 PropertyNameAndValueListContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -4576,6 +4842,7 @@ ECMAScriptParser.prototype.propertyNameAndValueList = function() {
     return localctx;
 };
 
+
 function PropertyAssignmentContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -4614,12 +4881,28 @@ PropertySetterContext.prototype.setter = function() {
     return this.getTypedRuleContext(SetterContext,0);
 };
 
+PropertySetterContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
 PropertySetterContext.prototype.propertySetParameterList = function() {
     return this.getTypedRuleContext(PropertySetParameterListContext,0);
 };
 
+PropertySetterContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
+};
+
+PropertySetterContext.prototype.OpenBrace = function() {
+    return this.getToken(ECMAScriptParser.OpenBrace, 0);
+};
+
 PropertySetterContext.prototype.functionBody = function() {
     return this.getTypedRuleContext(FunctionBodyContext,0);
+};
+
+PropertySetterContext.prototype.CloseBrace = function() {
+    return this.getToken(ECMAScriptParser.CloseBrace, 0);
 };
 PropertySetterContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -4655,6 +4938,10 @@ ECMAScriptParser.PropertyAssignmentExpressionContext = PropertyAssignmentExpress
 
 PropertyAssignmentExpressionContext.prototype.propertyName = function() {
     return this.getTypedRuleContext(PropertyNameContext,0);
+};
+
+PropertyAssignmentExpressionContext.prototype.Colon = function() {
+    return this.getToken(ECMAScriptParser.Colon, 0);
 };
 
 PropertyAssignmentExpressionContext.prototype.singleExpression = function() {
@@ -4696,8 +4983,24 @@ PropertyGetterContext.prototype.getter = function() {
     return this.getTypedRuleContext(GetterContext,0);
 };
 
+PropertyGetterContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
+PropertyGetterContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
+};
+
+PropertyGetterContext.prototype.OpenBrace = function() {
+    return this.getToken(ECMAScriptParser.OpenBrace, 0);
+};
+
 PropertyGetterContext.prototype.functionBody = function() {
     return this.getTypedRuleContext(FunctionBodyContext,0);
+};
+
+PropertyGetterContext.prototype.CloseBrace = function() {
+    return this.getToken(ECMAScriptParser.CloseBrace, 0);
 };
 PropertyGetterContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -4793,6 +5096,7 @@ ECMAScriptParser.prototype.propertyAssignment = function() {
     }
     return localctx;
 };
+
 
 function PropertyNameContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -4934,6 +5238,7 @@ ECMAScriptParser.prototype.propertyName = function() {
     return localctx;
 };
 
+
 function PropertySetParameterListContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5001,6 +5306,7 @@ ECMAScriptParser.prototype.propertySetParameterList = function() {
     return localctx;
 };
 
+
 function ArgumentsContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5017,8 +5323,20 @@ function ArgumentsContext(parser, parent, invokingState) {
 ArgumentsContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 ArgumentsContext.prototype.constructor = ArgumentsContext;
 
+ArgumentsContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
+ArgumentsContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
+};
+
 ArgumentsContext.prototype.argumentList = function() {
     return this.getTypedRuleContext(ArgumentListContext,0);
+};
+
+ArgumentsContext.prototype.Comma = function() {
+    return this.getToken(ECMAScriptParser.Comma, 0);
 };
 
 ArgumentsContext.prototype.enterRule = function(listener) {
@@ -5087,6 +5405,7 @@ ECMAScriptParser.prototype.arguments = function() {
     return localctx;
 };
 
+
 function ArgumentListContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5113,6 +5432,18 @@ ArgumentListContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+ArgumentListContext.prototype.Comma = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(ECMAScriptParser.Comma);
+    } else {
+        return this.getToken(ECMAScriptParser.Comma, i);
+    }
+};
+
 
 ArgumentListContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -5176,6 +5507,7 @@ ECMAScriptParser.prototype.argumentList = function() {
     return localctx;
 };
 
+
 function ExpressionSequenceContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5202,6 +5534,18 @@ ExpressionSequenceContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+ExpressionSequenceContext.prototype.Comma = function(i) {
+	if(i===undefined) {
+		i = null;
+	}
+    if(i===null) {
+        return this.getTokens(ECMAScriptParser.Comma);
+    } else {
+        return this.getToken(ECMAScriptParser.Comma, i);
+    }
+};
+
 
 ExpressionSequenceContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -5265,6 +5609,7 @@ ECMAScriptParser.prototype.expressionSequence = function() {
     return localctx;
 };
 
+
 function SingleExpressionContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -5308,6 +5653,14 @@ TernaryExpressionContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+TernaryExpressionContext.prototype.QuestionMark = function() {
+    return this.getToken(ECMAScriptParser.QuestionMark, 0);
+};
+
+TernaryExpressionContext.prototype.Colon = function() {
+    return this.getToken(ECMAScriptParser.Colon, 0);
+};
 TernaryExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
         listener.enterTernaryExpression(this);
@@ -5350,6 +5703,10 @@ LogicalAndExpressionContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+LogicalAndExpressionContext.prototype.And = function() {
+    return this.getToken(ECMAScriptParser.And, 0);
+};
 LogicalAndExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
         listener.enterLogicalAndExpression(this);
@@ -5386,8 +5743,24 @@ FuncDefExpressionContext.prototype.Function = function() {
     return this.getToken(ECMAScriptParser.Function, 0);
 };
 
+FuncDefExpressionContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
+FuncDefExpressionContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
+};
+
+FuncDefExpressionContext.prototype.OpenBrace = function() {
+    return this.getToken(ECMAScriptParser.OpenBrace, 0);
+};
+
 FuncDefExpressionContext.prototype.functionBody = function() {
     return this.getTypedRuleContext(FunctionBodyContext,0);
+};
+
+FuncDefExpressionContext.prototype.CloseBrace = function() {
+    return this.getToken(ECMAScriptParser.CloseBrace, 0);
 };
 
 FuncDefExpressionContext.prototype.Identifier = function() {
@@ -5428,6 +5801,10 @@ PreIncrementExpressionContext.prototype = Object.create(SingleExpressionContext.
 PreIncrementExpressionContext.prototype.constructor = PreIncrementExpressionContext;
 
 ECMAScriptParser.PreIncrementExpressionContext = PreIncrementExpressionContext;
+
+PreIncrementExpressionContext.prototype.PlusPlus = function() {
+    return this.getToken(ECMAScriptParser.PlusPlus, 0);
+};
 
 PreIncrementExpressionContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
@@ -5555,6 +5932,10 @@ LogicalOrExpressionContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+LogicalOrExpressionContext.prototype.Or = function() {
+    return this.getToken(ECMAScriptParser.Or, 0);
+};
 LogicalOrExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
         listener.enterLogicalOrExpression(this);
@@ -5586,6 +5967,10 @@ NotExpressionContext.prototype = Object.create(SingleExpressionContext.prototype
 NotExpressionContext.prototype.constructor = NotExpressionContext;
 
 ECMAScriptParser.NotExpressionContext = NotExpressionContext;
+
+NotExpressionContext.prototype.Not = function() {
+    return this.getToken(ECMAScriptParser.Not, 0);
+};
 
 NotExpressionContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
@@ -5621,6 +6006,10 @@ PreDecreaseExpressionContext.prototype = Object.create(SingleExpressionContext.p
 PreDecreaseExpressionContext.prototype.constructor = PreDecreaseExpressionContext;
 
 ECMAScriptParser.PreDecreaseExpressionContext = PreDecreaseExpressionContext;
+
+PreDecreaseExpressionContext.prototype.MinusMinus = function() {
+    return this.getToken(ECMAScriptParser.MinusMinus, 0);
+};
 
 PreDecreaseExpressionContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
@@ -5692,6 +6081,10 @@ UnaryMinusExpressionContext.prototype.constructor = UnaryMinusExpressionContext;
 
 ECMAScriptParser.UnaryMinusExpressionContext = UnaryMinusExpressionContext;
 
+UnaryMinusExpressionContext.prototype.Minus = function() {
+    return this.getToken(ECMAScriptParser.Minus, 0);
+};
+
 UnaryMinusExpressionContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
 };
@@ -5730,6 +6123,10 @@ ECMAScriptParser.PostDecreaseExpressionContext = PostDecreaseExpressionContext;
 PostDecreaseExpressionContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
 };
+
+PostDecreaseExpressionContext.prototype.MinusMinus = function() {
+    return this.getToken(ECMAScriptParser.MinusMinus, 0);
+};
 PostDecreaseExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
         listener.enterPostDecreaseExpression(this);
@@ -5764,6 +6161,10 @@ ECMAScriptParser.AssignmentExpressionContext = AssignmentExpressionContext;
 
 AssignmentExpressionContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
+};
+
+AssignmentExpressionContext.prototype.Assign = function() {
+    return this.getToken(ECMAScriptParser.Assign, 0);
 };
 
 AssignmentExpressionContext.prototype.expressionSequence = function() {
@@ -5886,6 +6287,10 @@ UnaryPlusExpressionContext.prototype.constructor = UnaryPlusExpressionContext;
 
 ECMAScriptParser.UnaryPlusExpressionContext = UnaryPlusExpressionContext;
 
+UnaryPlusExpressionContext.prototype.Plus = function() {
+    return this.getToken(ECMAScriptParser.Plus, 0);
+};
+
 UnaryPlusExpressionContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
 };
@@ -5970,6 +6375,22 @@ EqualityExpressionContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+EqualityExpressionContext.prototype.Equals = function() {
+    return this.getToken(ECMAScriptParser.Equals, 0);
+};
+
+EqualityExpressionContext.prototype.NotEquals = function() {
+    return this.getToken(ECMAScriptParser.NotEquals, 0);
+};
+
+EqualityExpressionContext.prototype.IdentityEquals = function() {
+    return this.getToken(ECMAScriptParser.IdentityEquals, 0);
+};
+
+EqualityExpressionContext.prototype.IdentityNotEquals = function() {
+    return this.getToken(ECMAScriptParser.IdentityNotEquals, 0);
+};
 EqualityExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
         listener.enterEqualityExpression(this);
@@ -6011,6 +6432,10 @@ BitXOrExpressionContext.prototype.singleExpression = function(i) {
     } else {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
+};
+
+BitXOrExpressionContext.prototype.BitXOr = function() {
+    return this.getToken(ECMAScriptParser.BitXOr, 0);
 };
 BitXOrExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -6054,6 +6479,18 @@ MultiplicativeExpressionContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+MultiplicativeExpressionContext.prototype.Multiply = function() {
+    return this.getToken(ECMAScriptParser.Multiply, 0);
+};
+
+MultiplicativeExpressionContext.prototype.Divide = function() {
+    return this.getToken(ECMAScriptParser.Divide, 0);
+};
+
+MultiplicativeExpressionContext.prototype.Modulus = function() {
+    return this.getToken(ECMAScriptParser.Modulus, 0);
+};
 MultiplicativeExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
         listener.enterMultiplicativeExpression(this);
@@ -6096,6 +6533,18 @@ BitShiftExpressionContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+BitShiftExpressionContext.prototype.LeftShiftArithmetic = function() {
+    return this.getToken(ECMAScriptParser.LeftShiftArithmetic, 0);
+};
+
+BitShiftExpressionContext.prototype.RightShiftArithmetic = function() {
+    return this.getToken(ECMAScriptParser.RightShiftArithmetic, 0);
+};
+
+BitShiftExpressionContext.prototype.RightShiftLogical = function() {
+    return this.getToken(ECMAScriptParser.RightShiftLogical, 0);
+};
 BitShiftExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
         listener.enterBitShiftExpression(this);
@@ -6128,8 +6577,16 @@ ParenthesizedExpressionContext.prototype.constructor = ParenthesizedExpressionCo
 
 ECMAScriptParser.ParenthesizedExpressionContext = ParenthesizedExpressionContext;
 
+ParenthesizedExpressionContext.prototype.OpenParen = function() {
+    return this.getToken(ECMAScriptParser.OpenParen, 0);
+};
+
 ParenthesizedExpressionContext.prototype.expressionSequence = function() {
     return this.getTypedRuleContext(ExpressionSequenceContext,0);
+};
+
+ParenthesizedExpressionContext.prototype.CloseParen = function() {
+    return this.getToken(ECMAScriptParser.CloseParen, 0);
 };
 ParenthesizedExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -6165,6 +6622,10 @@ ECMAScriptParser.GetAttributeExpressionContext = GetAttributeExpressionContext;
 
 GetAttributeExpressionContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
+};
+
+GetAttributeExpressionContext.prototype.Dot = function() {
+    return this.getToken(ECMAScriptParser.Dot, 0);
 };
 
 GetAttributeExpressionContext.prototype.identifierName = function() {
@@ -6212,6 +6673,14 @@ AdditiveExpressionContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+AdditiveExpressionContext.prototype.Plus = function() {
+    return this.getToken(ECMAScriptParser.Plus, 0);
+};
+
+AdditiveExpressionContext.prototype.Minus = function() {
+    return this.getToken(ECMAScriptParser.Minus, 0);
+};
 AdditiveExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
         listener.enterAdditiveExpression(this);
@@ -6254,6 +6723,22 @@ RelationalExpressionContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+RelationalExpressionContext.prototype.LessThan = function() {
+    return this.getToken(ECMAScriptParser.LessThan, 0);
+};
+
+RelationalExpressionContext.prototype.MoreThan = function() {
+    return this.getToken(ECMAScriptParser.MoreThan, 0);
+};
+
+RelationalExpressionContext.prototype.LessThanEquals = function() {
+    return this.getToken(ECMAScriptParser.LessThanEquals, 0);
+};
+
+RelationalExpressionContext.prototype.GreaterThanEquals = function() {
+    return this.getToken(ECMAScriptParser.GreaterThanEquals, 0);
+};
 RelationalExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
         listener.enterRelationalExpression(this);
@@ -6288,6 +6773,10 @@ ECMAScriptParser.PostIncrementExpressionContext = PostIncrementExpressionContext
 
 PostIncrementExpressionContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
+};
+
+PostIncrementExpressionContext.prototype.PlusPlus = function() {
+    return this.getToken(ECMAScriptParser.PlusPlus, 0);
 };
 PostIncrementExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -6359,6 +6848,10 @@ BitNotExpressionContext.prototype = Object.create(SingleExpressionContext.protot
 BitNotExpressionContext.prototype.constructor = BitNotExpressionContext;
 
 ECMAScriptParser.BitNotExpressionContext = BitNotExpressionContext;
+
+BitNotExpressionContext.prototype.BitNot = function() {
+    return this.getToken(ECMAScriptParser.BitNot, 0);
+};
 
 BitNotExpressionContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
@@ -6512,8 +7005,16 @@ MemberIndexExpressionContext.prototype.singleExpression = function() {
     return this.getTypedRuleContext(SingleExpressionContext,0);
 };
 
+MemberIndexExpressionContext.prototype.OpenBracket = function() {
+    return this.getToken(ECMAScriptParser.OpenBracket, 0);
+};
+
 MemberIndexExpressionContext.prototype.expressionSequence = function() {
     return this.getTypedRuleContext(ExpressionSequenceContext,0);
+};
+
+MemberIndexExpressionContext.prototype.CloseBracket = function() {
+    return this.getToken(ECMAScriptParser.CloseBracket, 0);
 };
 MemberIndexExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -6592,6 +7093,10 @@ BitAndExpressionContext.prototype.singleExpression = function(i) {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
 };
+
+BitAndExpressionContext.prototype.BitAnd = function() {
+    return this.getToken(ECMAScriptParser.BitAnd, 0);
+};
 BitAndExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
         listener.enterBitAndExpression(this);
@@ -6633,6 +7138,10 @@ BitOrExpressionContext.prototype.singleExpression = function(i) {
     } else {
         return this.getTypedRuleContext(SingleExpressionContext,i);
     }
+};
+
+BitOrExpressionContext.prototype.BitOr = function() {
+    return this.getToken(ECMAScriptParser.BitOr, 0);
 };
 BitOrExpressionContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -7281,6 +7790,7 @@ ECMAScriptParser.prototype.singleExpression = function(_p) {
     return localctx;
 };
 
+
 function AssignmentOperatorContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7297,6 +7807,49 @@ function AssignmentOperatorContext(parser, parent, invokingState) {
 AssignmentOperatorContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 AssignmentOperatorContext.prototype.constructor = AssignmentOperatorContext;
 
+AssignmentOperatorContext.prototype.MultiplyAssign = function() {
+    return this.getToken(ECMAScriptParser.MultiplyAssign, 0);
+};
+
+AssignmentOperatorContext.prototype.DivideAssign = function() {
+    return this.getToken(ECMAScriptParser.DivideAssign, 0);
+};
+
+AssignmentOperatorContext.prototype.ModulusAssign = function() {
+    return this.getToken(ECMAScriptParser.ModulusAssign, 0);
+};
+
+AssignmentOperatorContext.prototype.PlusAssign = function() {
+    return this.getToken(ECMAScriptParser.PlusAssign, 0);
+};
+
+AssignmentOperatorContext.prototype.MinusAssign = function() {
+    return this.getToken(ECMAScriptParser.MinusAssign, 0);
+};
+
+AssignmentOperatorContext.prototype.LeftShiftArithmeticAssign = function() {
+    return this.getToken(ECMAScriptParser.LeftShiftArithmeticAssign, 0);
+};
+
+AssignmentOperatorContext.prototype.RightShiftArithmeticAssign = function() {
+    return this.getToken(ECMAScriptParser.RightShiftArithmeticAssign, 0);
+};
+
+AssignmentOperatorContext.prototype.RightShiftLogicalAssign = function() {
+    return this.getToken(ECMAScriptParser.RightShiftLogicalAssign, 0);
+};
+
+AssignmentOperatorContext.prototype.BitAndAssign = function() {
+    return this.getToken(ECMAScriptParser.BitAndAssign, 0);
+};
+
+AssignmentOperatorContext.prototype.BitXorAssign = function() {
+    return this.getToken(ECMAScriptParser.BitXorAssign, 0);
+};
+
+AssignmentOperatorContext.prototype.BitOrAssign = function() {
+    return this.getToken(ECMAScriptParser.BitOrAssign, 0);
+};
 
 AssignmentOperatorContext.prototype.enterRule = function(listener) {
     if(listener instanceof ECMAScriptListener ) {
@@ -7352,6 +7905,7 @@ ECMAScriptParser.prototype.assignmentOperator = function() {
     }
     return localctx;
 };
+
 
 function LiteralContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -7653,6 +8207,7 @@ ECMAScriptParser.prototype.literal = function() {
     return localctx;
 };
 
+
 function NumericLiteralContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7868,6 +8423,7 @@ ECMAScriptParser.prototype.numericLiteral = function() {
     return localctx;
 };
 
+
 function IdentifierNameContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -7994,6 +8550,7 @@ ECMAScriptParser.prototype.identifierName = function() {
     }
     return localctx;
 };
+
 
 function ReservedWordContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -8140,6 +8697,7 @@ ECMAScriptParser.prototype.reservedWord = function() {
     }
     return localctx;
 };
+
 
 function KeywordContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -8316,6 +8874,7 @@ ECMAScriptParser.prototype.keyword = function() {
     return localctx;
 };
 
+
 function FutureReservedWordContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -8451,6 +9010,7 @@ ECMAScriptParser.prototype.futureReservedWord = function() {
     return localctx;
 };
 
+
 function GetterContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -8528,6 +9088,7 @@ ECMAScriptParser.prototype.getter = function() {
     return localctx;
 };
 
+
 function SetterContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -8604,6 +9165,7 @@ ECMAScriptParser.prototype.setter = function() {
     }
     return localctx;
 };
+
 
 function EosContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -8705,6 +9267,7 @@ ECMAScriptParser.prototype.eos = function() {
     }
     return localctx;
 };
+
 
 function EofContext(parser, parent, invokingState) {
 	if(parent===undefined) {

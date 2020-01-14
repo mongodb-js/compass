@@ -1,4 +1,4 @@
-// Generated from grammars/Python3.g4 by ANTLR 4.7.1
+// Generated from grammars/Python3.g4 by ANTLR 4.7.2
 // jshint ignore: start
 var antlr4 = require('antlr4/index');
 
