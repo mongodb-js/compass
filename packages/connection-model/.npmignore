@@ -1,9 +1,8 @@
-.jshintrc
-.jsfmtrc
 .travis.yml
-.zuul.yml
 examples/
 test/
 *.pem
 *_rsa
 secrets.tar
+.github/
+.eslintrc
