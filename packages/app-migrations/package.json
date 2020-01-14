@@ -20,7 +20,7 @@
   "dependencies": {
     "async": "^1.5.2",
     "debug": "^2.2.0",
-    "lodash": "4.16.5",
+    "lodash": "4.17.15",
     "semver": "^5.1.0"
   },
   "devDependencies": {
