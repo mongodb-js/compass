@@ -1,4 +1,4 @@
-# mongodb-data-service [![][travis_img]][travis_url] [![][npm_img]][npm_url]
+# mongodb-data-service [![][travis_img]][travis_url] [![][npm_img]][npm_url] [![][dependabot_img]][dependabot_url]
 
 > MongoDB Data Service: an API on top of (currently) the [MongoDB Node Driver][driver] and (some day) [mongodb-scope-client][scope-client].
 
@@ -160,3 +160,5 @@ Apache 2.0
 [npm_url]: https://www.npmjs.org/package/mongodb-data-service
 [scope-client]: https://github.com/mongodb-js/scope-client
 [driver]: https://github.com/mongodb/node-mongodb-native
+[dependabot_img]: https://api.dependabot.com/badges/status?host=github&repo=mongodb-js/data-service
+[dependabot_url]: https://app.dependabot.com/accounts/mongodb-js/repos/51536401
