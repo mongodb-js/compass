@@ -1,7 +1,5 @@
 var storageMixin = require('../lib');
 var assert = require('assert');
-var async = require('async');
-var fs = require('fs');
 var helpers = require('./helpers');
 
 // var debug = require('debug')('storage-mixin:test');
@@ -38,16 +36,6 @@ describe('storage backend disk', function() {
     helpers.clearNamespaces('disk', ['Spaceships', 'Planets'], done);
   });
 
-  after(function(done) {
-    async.some(['./Planets', './Spaceships'], fs.exists, function(result) {
-      // if result is true then at least one of the files exists
-      if (result) {
-        return done(new Error('orphaned files left after tests.'));
-      }
-      done();
-    });
-  });
-
   var spaceship;
   var fleet;
   beforeEach(function() {
@@ -61,19 +49,22 @@ describe('storage backend disk', function() {
   });
 
   it('should update and read correctly', function(done) {
-    spaceship.save({warpSpeed: 3.14}, {
-      success: function() {
-        var otherSpaceship = new StorableSpaceship({
-          name: 'Battlestar Galactica'
-        });
-        otherSpaceship.once('sync', function() {
-          assert.equal(otherSpaceship.warpSpeed, 3.14);
-          done();
-        });
-        otherSpaceship.fetch();
-      },
-      error: done
-    });
+    spaceship.save(
+      { warpSpeed: 3.14 },
+      {
+        success: function() {
+          var otherSpaceship = new StorableSpaceship({
+            name: 'Battlestar Galactica'
+          });
+          otherSpaceship.once('sync', function() {
+            assert.equal(otherSpaceship.warpSpeed, 3.14);
+            done();
+          });
+          otherSpaceship.fetch();
+        },
+        error: done
+      }
+    );
   });
 
   it('should store a second model in the same namespace', function(done) {

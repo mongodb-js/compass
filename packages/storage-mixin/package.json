@@ -29,32 +29,31 @@
   "scripts": {
     "pretest:electron": "electron-rebuild --force --only keytar",
     "test:electron": "electron-mocha --renderer",
-    "pretest:node": "node-gyp rebuild --directory node_modules/keytar/ --verbose",
+    "pretest:node": "node-gyp rebuild --directory node_modules/keytar/",
     "test:node": "mocha",
     "check": "mongodb-js-precommit",
-    "ci": "npm run check && npm run test",
     "test": "npm run test:node && npm run test:electron"
   },
   "dependencies": {
-    "ampersand-model": "^6.0.2",
-    "ampersand-rest-collection": "^5.0.0",
-    "ampersand-sync": "^4.0.3",
-    "async": "^1.5.0",
-    "debug": "^4.1.0",
+    "ampersand-model": "^8.0.1",
+    "ampersand-rest-collection": "^6.0.0",
+    "ampersand-sync": "^5.1.0",
+    "async": "^3.1.0",
+    "debug": "^4.1.1",
     "hadron-ipc": "^1.1.0",
-    "keytar": "^4.4.1",
-    "localforage": "^1.3.0",
-    "lodash": "^4.13.1",
-    "rimraf": "^2.4.4",
+    "keytar": "^5.0.0",
+    "localforage": "^1.7.3",
+    "lodash": "^4.17.15",
+    "rimraf": "^3.0.0",
     "uuid": "^3.3.3",
-    "write-file-atomic": "^1.1.4"
+    "write-file-atomic": "^3.0.1"
   },
   "devDependencies": {
-    "electron": "^4.0.0",
-    "electron-mocha": "^6.0.4",
-    "electron-rebuild": "^1.8.2",
-    "eslint-config-mongodb-js": "^3.0.1",
-    "mocha": "^5.2.0",
+    "electron": "^6.0.0",
+    "electron-mocha": "^8.1.2",
+    "electron-rebuild": "^1.8.8",
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mocha": "^7.0.0",
     "mongodb-js-precommit": "^2.0.0"
   }
 }

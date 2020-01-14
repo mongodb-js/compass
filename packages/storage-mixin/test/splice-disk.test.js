@@ -3,7 +3,6 @@ var SecureBackend = require('../lib/backends').secure;
 var SpliceDiskBackend = require('../lib/backends')['splice-disk'];
 var wrapErrback = require('../lib/backends/errback').wrapErrback;
 var helpers = require('./helpers');
-var fs = require('fs');
 var assert = require('assert');
 var async = require('async');
 var debug = require('debug')('storage-mixin:splice:test');
@@ -49,30 +48,19 @@ describe('storage backend splice-disk', function() {
 
   // clear namespaces of this backend before and after the tests
   before(function(done) {
-    helpers.clearNamespaces('splice-disk', ['Spaceships', 'Planets', 'Users'], done);
+    helpers.clearNamespaces(
+      'splice-disk',
+      ['Spaceships', 'Planets', 'Users'],
+      done
+    );
   });
 
   after(function(done) {
-    helpers.clearNamespaces('splice-disk', ['Spaceships', 'Planets', 'Users'], done);
-  });
-
-  after(function(done) {
-    async.some(['./Planets', './Spaceships', './Users'], fs.exists, function(result) {
-      // if result is true then at least one of the files exists
-      if (result) {
-        return done(new Error('orphaned files left after tests.'));
-      }
-      done();
-    });
-  });
-
-  after(function(done) {
-    fleet = new StorableFleet();
-    fleet.once('sync', function() {
-      assert.equal(fleet.length, 0);
-      done();
-    });
-    fleet.fetch();
+    helpers.clearNamespaces(
+      'splice-disk',
+      ['Spaceships', 'Planets', 'Users'],
+      done
+    );
   });
 
   beforeEach(function() {

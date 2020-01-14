@@ -2,7 +2,7 @@ sudo: required
 # dist: trusty
 language: node_js
 node_js:
-  - 10.2.1
+  - 12.4.0
 
 env:
   global:
@@ -10,12 +10,6 @@ env:
     - CC=clang
     - CXX=clang++
     - npm_config_clang=1
-
-# matrix:
-#   include:
-#     - env: NODE=1
-#     - env: ELECTRON=1
-#   fast_finish: true
 
 before_install:
   - npm i -g npm@latest
@@ -31,7 +25,8 @@ before_script:
     eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start);
     /usr/bin/python -c "import gnomekeyring;gnomekeyring.create_sync('login', '');";
 script:
-  - npm run ci
+  - npm run check
+  - npm run test:node
   # - if [ -n "$NODE" ]; then npm run test:node; fi
   # - if [ -n "$ELECTRON" ]; then npm run test:electron; fi
 
@@ -41,7 +36,5 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - libsecret-1-dev
-      # TODO (@imlucas) Are all of these gnome keyring
-      # packages really needed?
       - gnome-keyring
       - python-gnomekeyring

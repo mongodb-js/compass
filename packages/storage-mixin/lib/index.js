@@ -18,9 +18,12 @@ module.exports = {
     }
   },
   _initializeMixin: function() {
-    var storage = (typeof this.storage === 'object') ? this.storage : {
-      backend: this.storage
-    };
+    var storage = this.storage;
+    if (typeof this.storage !== 'object') {
+      storage = {
+        backend: this.storage
+      };
+    }
     storage.namespace = this.namespace;
     this._storageBackend = new backends[storage.backend](storage);
   },
@@ -38,7 +41,8 @@ module.exports = {
     };
 
     options.error = function(resp, err) {
-      debug('WTF', {err: err, resp: resp});
+      debug('Unexpected storage-mixin sync error', { err: err, resp: resp });
+      throw err;
     };
     this.fetched = false;
     this._storageBackend.exec(method, model, options);
