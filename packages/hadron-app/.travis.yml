@@ -1,9 +1,12 @@
+sudo: false
+dist: bionic
 language: node_js
-sudo: required
 node_js:
-  - 6
-  - 7
-script: npm run-script ci
-cache:
-  directories:
-  - node_modules
+  - 12
+  - 13
+install:
+  - npm ci
+script: 
+  - npm run check
+  - npm test
+cache: npm

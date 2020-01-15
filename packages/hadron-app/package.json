@@ -14,21 +14,14 @@
     "mongodb-js"
   ],
   "scripts": {
-    "ci": "npm run check && npm test",
     "test": "mocha",
-    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit"
   },
-  "precommit": [
-    "check"
-  ],
   "devDependencies": {
     "chai": "^3.5.0",
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^3.2.0",
-    "mongodb-js-fmt": "^0.0.3",
-    "mongodb-js-precommit": "^0.2.9",
-    "pre-commit": "^1.1.2"
+    "mongodb-js-precommit": "^0.2.9"
   },
   "peerDependencies": {
     "babel-register": "^6.7.2",
