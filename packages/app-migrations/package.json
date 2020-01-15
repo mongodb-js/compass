@@ -19,7 +19,7 @@
     "async": "^3.1.0",
     "debug": "^4.1.1",
     "lodash": "4.17.15",
-    "semver": "^5.1.0"
+    "semver": "^7.1.1"
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^5.0.3",
