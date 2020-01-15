@@ -18,7 +18,7 @@
     "check": "mongodb-js-precommit"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
+    "chai": "^4.2.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.0",
     "mongodb-js-precommit": "^2.1.0"
