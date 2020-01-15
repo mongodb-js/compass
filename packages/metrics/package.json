@@ -23,7 +23,7 @@
     "async": "^2.5.0",
     "bugsnag-js": "^3.2.0",
     "caller-id": "^0.1.0",
-    "debug": "mongodb-js/debug#v2.2.3",
+    "debug": "^4.1.1",
     "lodash": "^4.13.1",
     "mongodb-ns": "^2.0.0",
     "mongodb-redact": "0.2.0",
