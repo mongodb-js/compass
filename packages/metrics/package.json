@@ -4,7 +4,7 @@
   "version": "4.4.0",
   "scripts": {
     "check": "mongodb-js-precommit",
-    "test": "mocha",
+    "test": "mocha"
   },
   "homepage": "http://github.com/mongodb-js/metrics",
   "repository": {
