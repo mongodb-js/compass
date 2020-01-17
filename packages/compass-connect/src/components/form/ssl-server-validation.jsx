@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import isEmpty from 'lodash.isempty';
+import { isEmpty } from 'lodash';
 import Actions from 'actions';
 import FormFileInput from './form-file-input';
 import classnames from 'classnames';
@@ -39,14 +39,18 @@ class SSLServerValidation extends React.Component {
 
   render() {
     return (
-      <div id="ssl-server-validation" className={classnames(styles['form-group'])}>
+      <div
+        id="ssl-server-validation"
+        className={classnames(styles['form-group'])}
+      >
         <FormFileInput
           label="Certificate Authority"
           changeHandler={this.onSSLCAChanged.bind(this)}
           values={this.props.currentConnection.sslCA}
           error={this.getError()}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities"
-          multi />
+          multi
+        />
       </div>
     );
   }

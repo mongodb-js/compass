@@ -1,8 +1,6 @@
 const Reflux = require('reflux');
-const sortBy = require('lodash.sortby');
-const isEmpty = require('lodash.isempty');
-const forEach = require('lodash.foreach');
-const omit = require('lodash.omit');
+const { sortBy, isEmpty, forEach, omit } = require('lodash');
+
 const DataService = require('mongodb-data-service');
 const Actions = require('actions');
 const Connection = require('mongodb-connection-model');
@@ -15,7 +13,8 @@ const electron = require('electron');
 /**
  * A default driverUrl.
  */
-const DEFAULT_DRIVER_URL = 'mongodb://localhost:27017/?readPreference=primary&ssl=false';
+const DEFAULT_DRIVER_URL =
+  'mongodb://localhost:27017/?readPreference=primary&ssl=false';
 
 /**
  * All the authentication strategy related fields on the connection model, with
@@ -37,12 +36,7 @@ const AUTH_FIELDS = [
  * All the SSL related fields on the connection model, with the exception
  * of the method.
  */
-const SSL_FIELDS = [
-  'sslCA',
-  'sslCert',
-  'sslKey',
-  'sslPass'
-];
+const SSL_FIELDS = ['sslCA', 'sslCert', 'sslKey', 'sslPass'];
 
 /**
  * All the ssh tunnel related fields on the connection model, with the
@@ -79,7 +73,7 @@ const Store = Reflux.createStore({
   init() {
     this.state.fetchedConnections.fetch({
       success: () => {
-        this.state.fetchedConnections.forEach((item) => {
+        this.state.fetchedConnections.forEach(item => {
           this.state.connections[item._id] = { ...item._values };
         });
         this.trigger(this.state);
@@ -97,7 +91,7 @@ const Store = Reflux.createStore({
   onActivated(appRegistry) {
     const role = appRegistry.getRole(EXTENSION) || [];
 
-    forEach(role, (extension) => extension(this));
+    forEach(role, extension => extension(this));
 
     this.StatusActions = appRegistry.getAction('Status.Actions');
     this.appRegistry = appRegistry;
@@ -140,8 +134,8 @@ const Store = Reflux.createStore({
   /** --- Reflux actions ---  */
 
   /**
-  * Hides the favorite message.
-  */
+   * Hides the favorite message.
+   */
   hideFavoriteMessage() {
     this.setState({ isMessageVisible: false });
   },
@@ -186,7 +180,7 @@ const Store = Reflux.createStore({
         'Invalid schema, expected `mongodb` or `mongodb+srv`'
       );
     } else {
-      Connection.from(customUrl, (error) => {
+      Connection.from(customUrl, error => {
         if (error) {
           this._setSyntaxErrorMessage(error.message);
         } else {
@@ -231,7 +225,8 @@ const Store = Reflux.createStore({
 
     this.state.viewType = viewType;
 
-    if (viewType === 'connectionForm') { // Target view
+    if (viewType === 'connectionForm') {
+      // Target view
       if (!currentSaved && customUrl === driverUrl) {
         this.state.isHostChanged = true;
         this.state.isPortChanged = true;
@@ -274,12 +269,11 @@ const Store = Reflux.createStore({
         });
       }
     } else {
-      this.state.customUrl = (
+      this.state.customUrl =
         isValid &&
         (this.state.isHostChanged === true || this.state.isPortChanged === true)
-      )
-        ? driverUrl
-        : customUrl;
+          ? driverUrl
+          : customUrl;
       this.trigger(this.state);
     }
   },
@@ -365,7 +359,6 @@ const Store = Reflux.createStore({
     this._saveConnection(newConnection);
   },
 
-
   /**
    * Discards changes.
    */
@@ -410,9 +403,9 @@ const Store = Reflux.createStore({
    * @param {Connection} connection - The connection to delete.
    */
   onDeleteConnectionClicked(connection) {
-    const toDestrioy = this.state.fetchedConnections.find((item) => (
-      item._id === connection._id
-    ));
+    const toDestrioy = this.state.fetchedConnections.find(
+      item => item._id === connection._id
+    );
 
     toDestrioy.destroy({
       success: () => {
@@ -434,18 +427,18 @@ const Store = Reflux.createStore({
    * @param {Connection} connection - Connections to delete.
    */
   onDeleteConnectionsClicked() {
-    const recentsKeys = Object
-      .keys(this.state.connections)
-      .filter((key) => (!this.state.connections[key].isFavorite));
+    const recentsKeys = Object.keys(this.state.connections).filter(
+      key => !this.state.connections[key].isFavorite
+    );
     const recentsLength = recentsKeys.length;
     let index = 1;
 
-    recentsKeys.forEach((key) => {
+    recentsKeys.forEach(key => {
       this.state.connections = this._removeFromCollection(key);
 
-      const toDestrioy = this.state.fetchedConnections.find((item) => (
-        item._id === key
-      ));
+      const toDestrioy = this.state.fetchedConnections.find(
+        item => item._id === key
+      );
 
       toDestrioy.destroy({
         success: () => {
@@ -511,10 +504,10 @@ const Store = Reflux.createStore({
   },
 
   /**
-    * Selects a saved connection.
-    *
-    * @param {Connection} connection - The connection to select.
-    */
+   * Selects a saved connection.
+   *
+   * @param {Connection} connection - The connection to select.
+   */
   onConnectionSelected(connection) {
     this.state.currentConnection.set({ name: 'Local', color: undefined });
     this.state.currentConnection.set(connection);
@@ -748,7 +741,8 @@ const Store = Reflux.createStore({
    * Changes the srv record flag.
    */
   onSRVRecordToggled() {
-    this.state.currentConnection.isSrvRecord = !this.state.currentConnection.isSrvRecord;
+    this.state.currentConnection.isSrvRecord = !this.state.currentConnection
+      .isSrvRecord;
     this.trigger(this.state);
   },
 
@@ -772,10 +766,8 @@ const Store = Reflux.createStore({
     const connection = this.state.currentConnection;
 
     if (
-      (
-        connection.authStrategy === 'MONGODB' ||
-        connection.authStrategy === 'SCRAM-SHA-256'
-      ) &&
+      (connection.authStrategy === 'MONGODB' ||
+        connection.authStrategy === 'SCRAM-SHA-256') &&
       isEmpty(connection.mongodbDatabaseName)
     ) {
       connection.mongodbDatabaseName = 'admin';
@@ -804,7 +796,7 @@ const Store = Reflux.createStore({
    * Clears authentication fields.
    */
   _clearAuthFields() {
-    AUTH_FIELDS.forEach((field) => {
+    AUTH_FIELDS.forEach(field => {
       this.state.currentConnection[field] = undefined;
     });
   },
@@ -813,7 +805,7 @@ const Store = Reflux.createStore({
    * Clears ssl fields.
    */
   _clearSSLFields() {
-    SSL_FIELDS.forEach((field) => {
+    SSL_FIELDS.forEach(field => {
       this.state.currentConnection[field] = undefined;
     });
   },
@@ -822,7 +814,7 @@ const Store = Reflux.createStore({
    * Clears SSH tunnel fields.
    */
   _clearSSHTunnelFields() {
-    SSH_TUNNEL_FIELDS.forEach((field) => {
+    SSH_TUNNEL_FIELDS.forEach(field => {
       this.state.currentConnection[field] = undefined;
     });
   },
@@ -856,17 +848,17 @@ const Store = Reflux.createStore({
    */
   _saveRecent(currentConnection) {
     // Keeps 10 recent connections and deletes rest of them.
-    let recents = Object
-      .keys(this.state.connections)
-      .filter((key) => (!this.state.connections[key].isFavorite));
+    let recents = Object.keys(this.state.connections).filter(
+      key => !this.state.connections[key].isFavorite
+    );
 
     if (recents.length === 10) {
       recents = sortBy(recents, 'lastUsed');
       this.state.connections = this._removeFromCollection(recents[9]);
 
-      const toDestrioy = this.state.fetchedConnections.find((item) => (
-        item._id === recents[9]
-      ));
+      const toDestrioy = this.state.fetchedConnections.find(
+        item => item._id === recents[9]
+      );
 
       toDestrioy.destroy({
         success: () => {
@@ -990,10 +982,12 @@ const Store = Reflux.createStore({
    * @returns {Connection} - The poor connection.
    */
   _getPoorAttributes(connection) {
-    return omit(
-      connection.getAttributes({ props: true }),
-      ['_id', 'color', 'isFavorite', 'name']
-    );
+    return omit(connection.getAttributes({ props: true }), [
+      '_id',
+      'color',
+      'isFavorite',
+      'name'
+    ]);
   },
 
   /**

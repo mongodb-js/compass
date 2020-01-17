@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import find from 'lodash.find';
+import { find } from 'lodash';
 import Actions from 'actions';
 import FormGroup from './form-group';
 import FormItemSelect from './form-item-select';
@@ -39,7 +39,7 @@ class SSHTunnel extends React.Component {
    */
   setupSSHTunnelRoles() {
     this.roles = global.hadronApp.appRegistry.getRole('Connect.SSHTunnel');
-    this.selectOptions = this.roles.map((role) => role.selectOption);
+    this.selectOptions = this.roles.map(role => role.selectOption);
   }
 
   /**
@@ -50,11 +50,11 @@ class SSHTunnel extends React.Component {
   renderSSHTunnel() {
     const currentRole = find(
       this.roles,
-      (role) => (role.name === this.state.sshTunnel)
+      role => role.name === this.state.sshTunnel
     );
 
     if (currentRole.component) {
-      return (<currentRole.component {...this.props} />);
+      return <currentRole.component {...this.props} />;
     }
   }
 
@@ -66,7 +66,8 @@ class SSHTunnel extends React.Component {
           name="sshTunnel"
           options={this.selectOptions}
           changeHandler={this.onSSHTunnelChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnel} />
+          value={this.props.currentConnection.sshTunnel}
+        />
         {this.renderSSHTunnel()}
       </FormGroup>
     );

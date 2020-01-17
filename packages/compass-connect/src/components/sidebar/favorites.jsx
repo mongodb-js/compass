@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import map from 'lodash.map';
+import { map } from 'lodash';
 import moment from 'moment';
 import Actions from 'actions';
 import classnames from 'classnames';
@@ -94,7 +94,7 @@ class Favorites extends React.Component {
       return 'Never';
     }
 
-    if ((new Date() - model.lastUsed) < TWO_DAYS) {
+    if (new Date() - model.lastUsed < TWO_DAYS) {
       return moment(model.lastUsed).fromNow();
     }
 
@@ -107,10 +107,9 @@ class Favorites extends React.Component {
    * @returns {React.Component}
    */
   renderFavorites() {
-    const favorites = Object
-      .keys(this.props.connections)
-      .map((key) => this.props.connections[key])
-      .filter((connection) => connection.isFavorite);
+    const favorites = Object.keys(this.props.connections)
+      .map(key => this.props.connections[key])
+      .filter(connection => connection.isFavorite);
 
     return map(favorites, (favorite, i) => {
       const title = `${favorite.hostname}:${favorite.port}`;
@@ -124,13 +123,21 @@ class Favorites extends React.Component {
           style={style}
           key={i}
           title={title}
-          onClick={this.onFavoriteClicked.bind(this, favorite)}>
-          <div className={classnames(styles['connect-sidebar-list-item-details'])}>
-            <div className={classnames(styles['connect-sidebar-list-item-last-used'])}>
+          onClick={this.onFavoriteClicked.bind(this, favorite)}
+        >
+          <div
+            className={classnames(styles['connect-sidebar-list-item-details'])}
+          >
+            <div
+              className={classnames(
+                styles['connect-sidebar-list-item-last-used']
+              )}
+            >
               {this.formatLastUsed(favorite)}
             </div>
             <div
-              className={classnames(styles['connect-sidebar-list-item-name'])} >
+              className={classnames(styles['connect-sidebar-list-item-name'])}
+            >
               {favorite.name}
             </div>
           </div>
@@ -142,9 +149,20 @@ class Favorites extends React.Component {
             noCaret
             pullRight
             onClick={this.onContextualMenuClicked}
-            id="favorite-actions">
-            <MenuItem eventKey="1" onClick={this.onCopyConnectionClicked.bind(this, favorite)}>Copy</MenuItem>
-            <MenuItem eventKey="2" onClick={this.onRemoveConnectionClicked.bind(this, favorite)}>Remove</MenuItem>
+            id="favorite-actions"
+          >
+            <MenuItem
+              eventKey="1"
+              onClick={this.onCopyConnectionClicked.bind(this, favorite)}
+            >
+              Copy
+            </MenuItem>
+            <MenuItem
+              eventKey="2"
+              onClick={this.onRemoveConnectionClicked.bind(this, favorite)}
+            >
+              Remove
+            </MenuItem>
           </DropdownButton>
         </li>
       );

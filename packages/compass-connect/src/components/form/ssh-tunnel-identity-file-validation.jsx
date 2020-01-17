@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import isEmpty from 'lodash.isempty';
+import { isEmpty } from 'lodash';
 import Actions from 'actions';
 import FormInput from './form-input';
 import { shell } from 'electron';
@@ -128,7 +128,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
    * @returns {Boolean}
    */
   _isInvalid(field) {
-    return (!this.props.isValid && isEmpty(field));
+    return !this.props.isValid && isEmpty(field);
   }
 
   render() {
@@ -140,32 +140,37 @@ class SSHTunnelIdentityFileValidation extends React.Component {
           error={this.getHostnameError()}
           changeHandler={this.onSSHTunnelHostnameChanged.bind(this)}
           value={this.props.currentConnection.sshTunnelHostname || ''}
-          linkHandler={this.onSourceHelp.bind(this)} />
+          linkHandler={this.onSourceHelp.bind(this)}
+        />
         <FormInput
           label="SSH Tunnel Port"
           name="sshTunnelPort"
           placeholder="22"
           error={this.getPortError()}
           changeHandler={this.onSSHTunnelPortChanged.bind(this)}
-          value={this.getPort()} />
+          value={this.getPort()}
+        />
         <FormInput
           label="SSH Username"
           name="sshTunnelUsername"
           error={this.getUsernameError()}
           changeHandler={this.onSSHTunnelUsernameChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnelUsername || ''} />
+          value={this.props.currentConnection.sshTunnelUsername || ''}
+        />
         <FormFileInput
           label="SSH Identity File"
           id="sshTunnelIdentityFile"
           error={this.getFileError()}
           changeHandler={this.onSSHTunnelIdentityFileChanged.bind(this)}
-          values={this.props.currentConnection.sshTunnelIdentityFile} />
+          values={this.props.currentConnection.sshTunnelIdentityFile}
+        />
         <FormInput
           label="SSH Passphrase"
           name="sshTunnelPassphrase"
           type="password"
           changeHandler={this.onSSHTunnelPassphraseChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnelPassphrase || ''} />
+          value={this.props.currentConnection.sshTunnelPassphrase || ''}
+        />
       </FormGroup>
     );
   }

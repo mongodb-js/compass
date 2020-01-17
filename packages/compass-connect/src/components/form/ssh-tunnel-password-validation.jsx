@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import isEmpty from 'lodash.isempty';
+import { isEmpty } from 'lodash';
 import Actions from 'actions';
 import FormInput from './form-input';
 import { shell } from 'electron';
@@ -118,7 +118,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    * @returns {Boolean}
    */
   _isInvalid(field) {
-    return (!this.props.isValid && isEmpty(field));
+    return !this.props.isValid && isEmpty(field);
   }
 
   render() {
@@ -130,26 +130,30 @@ class SSHTunnelPasswordValidation extends React.Component {
           error={this.getHostnameError()}
           changeHandler={this.onSSHTunnelHostnameChanged.bind(this)}
           value={this.props.currentConnection.sshTunnelHostname || ''}
-          linkHandler={this.onHostnameHelp.bind(this)} />
+          linkHandler={this.onHostnameHelp.bind(this)}
+        />
         <FormInput
           label="SSH Tunnel Port"
           name="sshTunnelPort"
           error={this.getPortError()}
           changeHandler={this.onSSHTunnelPortChanged.bind(this)}
-          value={this.getPort()} />
+          value={this.getPort()}
+        />
         <FormInput
           label="SSH Username"
           name="sshTunnelUsername"
           error={this.getUsernameError()}
           changeHandler={this.onSSHTunnelUsernameChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnelUsername || ''} />
+          value={this.props.currentConnection.sshTunnelUsername || ''}
+        />
         <FormInput
           label="SSH Password"
           name="sshTunnelPassword"
           type="password"
           error={this.getPasswordError()}
           changeHandler={this.onSSHTunnelPasswordChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnelPassword || ''} />
+          value={this.props.currentConnection.sshTunnelPassword || ''}
+        />
       </FormGroup>
     );
   }

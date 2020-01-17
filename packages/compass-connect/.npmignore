@@ -12,8 +12,8 @@ mocha-webpack.opts
 scripts/
 src/
 test/
-.zuul.yml
 .storybook/
 .nyc_output/
 coverage/
 .github/
+.vscode/

@@ -2,7 +2,7 @@ sudo: false
 dist: trusty
 language: node_js
 node_js:
-  - 10.2.1
+  - 12.4.0
 addons:
   apt:
     sources:
@@ -27,10 +27,7 @@ before_script:
     eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start);
     /usr/bin/python -c "import gnomekeyring;gnomekeyring.create_sync('login', '');";
 script:
-  - npm run check
   - npm run cover
   - npm run test:karma
-cache:
-  directories:
-    - $HOME/.electron
-    - '$HOME/.npm'
+  - npm run check
+cache: npm

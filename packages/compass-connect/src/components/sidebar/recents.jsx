@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import map from 'lodash.map';
+import { map } from 'lodash';
 import moment from 'moment';
 import Actions from 'actions';
 import classnames from 'classnames';
@@ -85,7 +85,7 @@ class Recents extends React.Component {
       return 'Never';
     }
 
-    if ((new Date() - model.lastUsed) < TWO_DAYS) {
+    if (new Date() - model.lastUsed < TWO_DAYS) {
       return moment(model.lastUsed).fromNow();
     }
 
@@ -108,12 +108,21 @@ class Recents extends React.Component {
           className={this.getClassName(recent)}
           key={i}
           title={title}
-          onClick={this.onRecentClicked.bind(this, recent)}>
-          <div className={classnames(styles['connect-sidebar-list-item-details'])}>
-            <div className={classnames(styles['connect-sidebar-list-item-last-used'])}>
+          onClick={this.onRecentClicked.bind(this, recent)}
+        >
+          <div
+            className={classnames(styles['connect-sidebar-list-item-details'])}
+          >
+            <div
+              className={classnames(
+                styles['connect-sidebar-list-item-last-used']
+              )}
+            >
               {this.formatLastUsed(recent)}
             </div>
-            <div className={classnames(styles['connect-sidebar-list-item-name'])}>
+            <div
+              className={classnames(styles['connect-sidebar-list-item-name'])}
+            >
               {title}
             </div>
           </div>
@@ -124,9 +133,20 @@ class Recents extends React.Component {
             className={classnames(styles['connect-sidebar-list-item-actions'])}
             noCaret
             pullRight
-            id="recent-actions">
-            <MenuItem eventKey="1" onClick={this.onSaveAsFavoriteClicked.bind(this, recent)}>Add to favorites</MenuItem>
-            <MenuItem eventKey="2" onClick={this.onRemoveConnectionClicked.bind(this, recent)}>Remove</MenuItem>
+            id="recent-actions"
+          >
+            <MenuItem
+              eventKey="1"
+              onClick={this.onSaveAsFavoriteClicked.bind(this, recent)}
+            >
+              Add to favorites
+            </MenuItem>
+            <MenuItem
+              eventKey="2"
+              onClick={this.onRemoveConnectionClicked.bind(this, recent)}
+            >
+              Remove
+            </MenuItem>
           </DropdownButton>
         </li>
       );
@@ -134,14 +154,23 @@ class Recents extends React.Component {
   }
 
   render() {
-    const recents = Object
-      .keys(this.props.connections)
-      .map((key) => this.props.connections[key])
-      .filter((connection) => !connection.isFavorite);
-    const clearClassName = classnames(styles['connect-sidebar-header-recent-clear']);
-    const clearAllDiv = recents.length > 0
-      ? <div onClick={this.onClearConnectionsClicked} className={clearClassName}>Clear all</div>
-      : '';
+    const recents = Object.keys(this.props.connections)
+      .map(key => this.props.connections[key])
+      .filter(connection => !connection.isFavorite);
+    const clearClassName = classnames(
+      styles['connect-sidebar-header-recent-clear']
+    );
+    const clearAllDiv =
+      recents.length > 0 ? (
+        <div
+          onClick={this.onClearConnectionsClicked}
+          className={clearClassName}
+        >
+          Clear all
+        </div>
+      ) : (
+        ''
+      );
 
     return (
       <div className="connect-sidebar-connections-recents">

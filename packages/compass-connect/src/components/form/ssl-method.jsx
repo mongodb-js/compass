@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import find from 'lodash.find';
+import { find } from 'lodash';
 import Actions from 'actions';
 import FormGroup from './form-group';
 import FormItemSelect from './form-item-select';
@@ -39,7 +39,7 @@ class SSLMethod extends React.Component {
    */
   setupSSLRoles() {
     this.roles = global.hadronApp.appRegistry.getRole('Connect.SSLMethod');
-    this.selectOptions = this.roles.map((role) => role.selectOption);
+    this.selectOptions = this.roles.map(role => role.selectOption);
   }
 
   /**
@@ -50,11 +50,11 @@ class SSLMethod extends React.Component {
   renderSSLMethod() {
     const currentRole = find(
       this.roles,
-      (role) => (role.name === this.state.sslMethod)
+      role => role.name === this.state.sslMethod
     );
 
     if (currentRole.component) {
-      return (<currentRole.component {...this.props} />);
+      return <currentRole.component {...this.props} />;
     }
   }
 
@@ -66,7 +66,8 @@ class SSLMethod extends React.Component {
           name="sslMethod"
           options={this.selectOptions}
           changeHandler={this.onSSLMethodChanged.bind(this)}
-          value={this.props.currentConnection.sslMethod} />
+          value={this.props.currentConnection.sslMethod}
+        />
         {this.renderSSLMethod()}
       </FormGroup>
     );

@@ -22,7 +22,14 @@ if (
 
 const createWindow = () => {
   // Create the browser window.
-  mainWindow = new BrowserWindow({ width: 1290, height: 768, show: false });
+  mainWindow = new BrowserWindow({
+    width: 1290,
+    height: 768,
+    show: false,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
 
   // And load the index.html of the app.
   let indexPath;

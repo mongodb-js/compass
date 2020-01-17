@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Actions from 'actions';
 import { InfoSprinkle } from 'hadron-react-components';
-import debounce from 'lodash.debounce';
+import { debounce } from 'lodash';
 import classnames from 'classnames';
 
 import styles from '../connect.less';
@@ -10,12 +10,14 @@ import styles from '../connect.less';
 /**
  * A connection string placeholder.
  */
-const PLACEHOLDER = 'e.g. mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin';
+const PLACEHOLDER =
+  'e.g. mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin';
 
 /**
  * A link for the info sprinkle.
  */
-const CONNECTION_STRING_LINK = 'https://docs.mongodb.com/manual/reference/connection-string/';
+const CONNECTION_STRING_LINK =
+  'https://docs.mongodb.com/manual/reference/connection-string/';
 
 class ConnectionStringInput extends React.PureComponent {
   static displayName = 'DriverUrlInput';
@@ -24,7 +26,10 @@ class ConnectionStringInput extends React.PureComponent {
 
   constructor(props) {
     super(props);
-    this.validateConnectionString = debounce(Actions.validateConnectionString, 550);
+    this.validateConnectionString = debounce(
+      Actions.validateConnectionString,
+      550
+    );
   }
 
   /**
@@ -60,16 +65,22 @@ class ConnectionStringInput extends React.PureComponent {
     return (
       <div className={classnames(styles['connect-string-item'])}>
         <label>
-          <span>Paste your connection string (SRV or Standard <InfoSprinkle
-            helpLink={CONNECTION_STRING_LINK}
-            onClickHandler={this.onExternalLinkClicked.bind(this)} />)</span>
+          <span>
+            Paste your connection string (SRV or Standard{' '}
+            <InfoSprinkle
+              helpLink={CONNECTION_STRING_LINK}
+              onClickHandler={this.onExternalLinkClicked.bind(this)}
+            />
+            )
+          </span>
         </label>
         <input
           name="connectionString"
           placeholder={PLACEHOLDER}
           className={classnames(styles['form-control'])}
           value={this.getCustomUrl()}
-          onChange={this.onCustomUrlChanged.bind(this)} />
+          onChange={this.onCustomUrlChanged.bind(this)}
+        />
       </div>
     );
   }

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import isEmpty from 'lodash.isempty';
+import { isEmpty } from 'lodash';
 import Actions from 'actions';
 import FormInput from './form-input';
 import { shell } from 'electron';
@@ -47,7 +47,9 @@ class ScramSha256 extends React.Component {
    * Opens "Authentication Database" documentation.
    */
   onSourceHelp() {
-    shell.openExternal('https://docs.mongodb.com/manual/core/security-users/#user-authentication-database');
+    shell.openExternal(
+      'https://docs.mongodb.com/manual/core/security-users/#user-authentication-database'
+    );
   }
 
   /**
@@ -84,21 +86,24 @@ class ScramSha256 extends React.Component {
           name="username"
           error={this.getUsernameError()}
           changeHandler={this.onUsernameChanged.bind(this)}
-          value={this.props.currentConnection.mongodbUsername || ''} />
+          value={this.props.currentConnection.mongodbUsername || ''}
+        />
         <FormInput
           label="Password"
           name="password"
           type="password"
           error={this.getPasswordError()}
           changeHandler={this.onPasswordChanged.bind(this)}
-          value={this.props.currentConnection.mongodbPassword || ''} />
+          value={this.props.currentConnection.mongodbPassword || ''}
+        />
         <FormInput
           label="Authentication Database"
           placeholder="admin"
           name="authSource"
           changeHandler={this.onAuthSourceChanged.bind(this)}
           value={this.props.currentConnection.mongodbDatabaseName || ''}
-          linkHandler={this.onSourceHelp.bind(this)}/>
+          linkHandler={this.onSourceHelp.bind(this)}
+        />
       </div>
     );
   }

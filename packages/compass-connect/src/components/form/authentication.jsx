@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import find from 'lodash.find';
+import { find } from 'lodash';
 import Actions from 'actions';
 import FormGroup from './form-group';
 import FormItemSelect from './form-item-select';
@@ -42,7 +42,7 @@ class Authentication extends React.Component {
    */
   setupAuthenticationRoles() {
     this.roles = global.hadronApp.appRegistry.getRole('Connect.AuthStrategy');
-    this.selectOptions = this.roles.map((role) => role.selectOption);
+    this.selectOptions = this.roles.map(role => role.selectOption);
   }
 
   /**
@@ -53,11 +53,11 @@ class Authentication extends React.Component {
   renderAuthStrategy() {
     const currentRole = find(
       this.roles,
-      (role) => (role.name === this.state.authStrategy)
+      role => role.name === this.state.authStrategy
     );
 
     if (currentRole.component) {
-      return (<currentRole.component {...this.props} />);
+      return <currentRole.component {...this.props} />;
     }
   }
 
@@ -69,7 +69,8 @@ class Authentication extends React.Component {
           name="authStrategy"
           options={this.selectOptions}
           changeHandler={this.onAuthStrategyChanged.bind(this)}
-          value={this.props.currentConnection.authStrategy} />
+          value={this.props.currentConnection.authStrategy}
+        />
         {this.renderAuthStrategy()}
       </FormGroup>
     );
