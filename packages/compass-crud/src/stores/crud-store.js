@@ -6,6 +6,7 @@ import findIndex from 'lodash.findindex';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
 import configureGridStore from './grid-store';
+import isEmpty from 'lodash.isempty';
 
 /**
  * Number of docs per page.
@@ -146,7 +147,7 @@ const configureStore = (options = {}) => {
         query: this.getInitialQueryState(),
         isDataLake: false,
         isReadonly: false,
-        status: 'initial'
+        status: 'fetching'
       };
     },
 
@@ -317,7 +318,6 @@ const configureStore = (options = {}) => {
             const index = this.findDocumentIndex(doc);
             this.state.docs.splice(index, 1);
             this.setState({
-              status: 'active',
               count: this.state.count - 1,
               end: this.state.end - 1
             });
@@ -778,6 +778,17 @@ const configureStore = (options = {}) => {
     },
 
     /**
+     * Checks if the initial query was not modified.
+     *
+     * @param {Object} query - The query to check.
+     *
+     * @returns {Boolean}
+     */
+    isInitialQuery(query) {
+      return (isEmpty(query.filter) && isEmpty(query.project) && isEmpty(query.collation));
+    },
+
+    /**
      * This function is called when the collection filter changes.
      *
      * @param {Object} filter - The query filter.
@@ -812,7 +823,7 @@ const configureStore = (options = {}) => {
           const docs = documents ? documents : [];
           this.globalAppRegistry.emit('compass:status:done');
           this.setState({
-            status: 'active',
+            status: this.isInitialQuery(query) ? 'fetchedWithInitialQuery' : 'fetchedWithCustomQuery',
             error: error,
             docs: docs.map(doc => new HadronDocument(doc)),
             count: (err ? null : count),

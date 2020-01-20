@@ -13,10 +13,6 @@ import Toolbar from 'components/toolbar';
 import './index.less';
 import './ag-grid-dist.css';
 
-const HEADER = 'This collection has no data';
-
-const SUBTEXT = 'It only takes a few seconds to import data from a JSON or CSV file';
-
 /**
  * Component for the entire document list.
  */
@@ -129,8 +125,23 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The query bar.
    */
   renderZeroState() {
-    if (this.props.docs.length > 0 || this.props.status !== 'active') {
+    let header = 'This collection has no data';
+    let subtext = 'It only takes a few seconds to import data from a JSON or CSV file';
+
+    if (this.props.docs.length > 0 || this.props.status === 'fetching') {
       return null;
+    }
+
+    if (this.props.docs.length === 0 && this.props.status === 'fetchedWithCustomQuery') {
+      header = 'No results';
+      subtext = 'Try to modify your query to get results';
+
+      return (
+        <div className="document-list-zero-state">
+          <ZeroGraphic />
+          <ZeroState header={header} subtext={subtext} />
+        </div>
+      );
     }
 
     const editableClass = !this.props.isEditable ? 'disabled' : '';
@@ -138,7 +149,7 @@ class DocumentList extends React.Component {
     return (
       <div className="document-list-zero-state">
         <ZeroGraphic />
-        <ZeroState header={HEADER} subtext={SUBTEXT}>
+        <ZeroState header={header} subtext={subtext}>
           <div className="document-list-zero-state-action">
             <div>
               <TextButton
@@ -202,7 +213,7 @@ DocumentList.propTypes = {
   ns: PropTypes.string,
   tz: PropTypes.string,
   updateComment: PropTypes.func.isRequired,
-  status: PropTypes.string.isRequired
+  status: PropTypes.string
 };
 
 DocumentList.defaultProps = {
