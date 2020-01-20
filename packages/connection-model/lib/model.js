@@ -478,7 +478,7 @@ assign(derived, {
           authMechanism: this.driverAuthMechanism
         });
       } else if (this.authStrategy === 'X509') {
-        req.auth = this.x509Username;
+        req.auth = AUTH_TOKEN;
         defaults(req.query, { authMechanism: this.driverAuthMechanism });
       } else if (this.authStrategy === 'LDAP') {
         req.auth = AUTH_TOKEN;
@@ -564,6 +564,11 @@ assign(derived, {
         );
         result = result.replace(AUTH_TOKEN, authField, 1);
         result = `${result}&authSource=$external`;
+      }
+
+      if (this.authStrategy === 'X509') {
+        const authField = encodeURIComponent(this.x509Username);
+        result = result.replace(AUTH_TOKEN, authField, 1);
       }
 
       if (this.authStrategy === 'KERBEROS') {
