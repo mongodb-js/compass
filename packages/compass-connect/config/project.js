@@ -6,10 +6,8 @@ const packageJson = require(path.join(__dirname, '/../package.json'));
 // Gets a valid version range for the current electron dependency
 // declared in our package.json
 // Eg: "^1.6.1" would yield ">=1.6.1"
-const electronVersion = semver
-  .Range(packageJson.devDependencies.electron) // eslint-disable-line new-cap
-  .set[0][0]
-  .value;
+const electronVersion = new semver.Range(packageJson.devDependencies.electron) // eslint-disable-line new-cap
+  .set[0][0].value;
 
 module.exports = {
   path: {
