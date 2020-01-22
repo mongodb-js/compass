@@ -131,7 +131,7 @@
     "mongodb-reflux-store": "0.0.1",
     "mongodb-schema": "^8.2.5",
     "node-loader": "^0.6.0",
-    "nyc": "^13.1.0",
+    "nyc": "^15.0.0",
     "peer-deps-externals-webpack-plugin": "^1.0.2",
     "postcss-loader": "^3.0.0",
     "prop-types": "^15.7.2",
