@@ -14,7 +14,7 @@
     "start:watch": "npm run clean && webpack --config ./config/webpack.watch.config.js",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
-    "test:karma": "cross-env NODE_ENV=test karma start",
+    "test:karma": "xvfb-maybe cross-env NODE_ENV=test karma start",
     "cover": "nyc npm run test",
     "ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
@@ -22,9 +22,6 @@
     "unlink-plugin": "./scripts/unlink.sh",
     "prepublishOnly": "npm run compile"
   },
-  "precommit": [
-    "check"
-  ],
   "dependency-check": {
     "ignore": [
       "d3",
@@ -93,8 +90,7 @@
     "d3-flextree": "1.0.3",
     "d3-timer": "1.0.7",
     "debug": "^3.0.1",
-    "electron": "^3.0.7",
-    "electron-packager": "^8.7.0",
+    "electron": "^6.1.7",
     "electron-rebuild": "^1.8.4",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.10.0",
@@ -161,25 +157,11 @@
     "webpack-dev-server": "^3.1.14",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2",
-    "webpack-sources": "1.0.1"
+    "webpack-sources": "1.0.1",
+    "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "lodash.camelcase": "^4.3.0",
-    "lodash.defaults": "^4.2.0",
-    "lodash.find": "^4.6.0",
-    "lodash.foreach": "^4.5.0",
-    "lodash.has": "^4.5.2",
-    "lodash.isboolean": "^3.0.3",
-    "lodash.isplainobject": "^4.0.6",
-    "lodash.isstring": "^4.0.1",
-    "lodash.keys": "^4.2.0",
-    "lodash.map": "^4.6.0",
-    "lodash.max": "^4.0.1",
-    "lodash.maxby": "^4.6.0",
-    "lodash.min": "^4.0.1",
-    "lodash.minby": "^4.6.0",
-    "lodash.omit": "^4.5.0",
-    "lodash.pick": "^4.4.0",
+    "lodash": "^4.17.15",
     "mongodb-redux-common": "^0.0.1",
     "react-bootstrap": "^0.32.1",
     "react-fontawesome": "^1.6.1",

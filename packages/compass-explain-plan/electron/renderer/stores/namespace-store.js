@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 const app = require('hadron-app');
-const includes = require('lodash.includes');
+const { includes } = require('lodash');
 const debug = require('debug')('mongodb-compass:namespace-store');
 
 /**
