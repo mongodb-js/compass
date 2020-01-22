@@ -20,7 +20,7 @@
     "ampersand-collection": "^2.0.1",
     "ampersand-collection-lodash-mixin": "^4.0.0",
     "ampersand-state": "5.0.3",
-    "async": "^2.5.0",
+    "async": "^3.1.0",
     "bugsnag-js": "^3.2.0",
     "caller-id": "^0.1.0",
     "debug": "^4.1.1",
