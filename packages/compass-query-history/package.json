@@ -134,7 +134,7 @@
     "sinon-chai": "^2.11.0",
     "sshpk": "^1.13.0",
     "storage-mixin": "^0.8.1",
-    "style-loader": "^0.18.2",
+    "style-loader": "^1.1.3",
     "tough-cookie": "^2.3.2",
     "url-loader": "^1.1.2",
     "webpack": "^4.29.0",
