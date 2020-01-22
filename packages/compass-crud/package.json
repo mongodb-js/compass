@@ -121,7 +121,7 @@
     "mongodb-query-parser": "^1.4.1",
     "mongodb-runner": "^3.6.1",
     "mongodb-tools": "^1.0.6",
-    "nise": "1.4.10",
+    "nise": "3.0.1",
     "node-loader": "^0.6.0",
     "numeral": "^1.5.3",
     "nyc": "^13.1.0",
