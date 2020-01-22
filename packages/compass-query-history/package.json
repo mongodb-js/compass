@@ -80,7 +80,7 @@
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.1",
     "debug": "^3.0.1",
-    "electron": "^6.1.7",
+    "electron": "^7.1.9",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint-config-mongodb-js": "^2.1.0",
