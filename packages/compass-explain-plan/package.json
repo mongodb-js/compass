@@ -21,7 +21,7 @@
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
-    "prepublish": "npm run compile"
+    "prepublishOnly": "npm run compile"
   },
   "precommit": [
     "check"
