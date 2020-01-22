@@ -17,3 +17,4 @@ test/
 coverage/
 .github/
 .vscode/
+lib/index.html
