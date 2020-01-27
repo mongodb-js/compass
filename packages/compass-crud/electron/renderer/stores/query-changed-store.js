@@ -2,9 +2,7 @@ const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 
-const pick = require('lodash.pick');
-const isEqual = require('lodash.isequal');
-const cloneDeep = require('lodash.clonedeep');
+const { pick, isEqual, cloneDeep } = require('lodash');
 const debug = require('debug')('mongodb-compass:stores:query-changed');
 
 const QUERY_PROPERTIES = ['filter', 'project', 'sort', 'skip', 'limit', 'sample', 'maxTimeMS'];

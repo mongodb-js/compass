@@ -176,8 +176,8 @@ npm install -S @mongodb-js/compass-crud
 # License
 [Apache 2.0](./LICENSE)
 
-[travis_img]: https://travis-ci.com/10gen/compass-crud.svg?token=ezEB2TnpPiu7XLo6ByZp&branch=master
-[travis_url]: https://travis-ci.com/10gen/compass-crud
+[travis_img]: https://travis-ci.org/mongodb-js/compass-crud.svg
+[travis_url]: https://travis-ci.org/mongodb-js/compass-crud
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-crud.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-crud
 [hadron-app]: https://github.com/mongodb-js/hadron-app

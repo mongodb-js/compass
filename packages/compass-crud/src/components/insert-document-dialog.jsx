@@ -1,5 +1,4 @@
-import includes from 'lodash.includes';
-import pull from 'lodash.pull';
+import { includes, pull } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';

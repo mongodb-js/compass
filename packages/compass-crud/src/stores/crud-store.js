@@ -1,12 +1,10 @@
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
-import EJSON from 'mongodb-extjson';
-import toPairs from 'lodash.topairs';
-import findIndex from 'lodash.findindex';
+import EJSON from 'mongodb-extended-json';
+import { toPairs, findIndex, isEmpty } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
 import configureGridStore from './grid-store';
-import isEmpty from 'lodash.isempty';
 
 /**
  * Number of docs per page.

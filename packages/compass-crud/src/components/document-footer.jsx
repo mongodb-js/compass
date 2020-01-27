@@ -1,5 +1,4 @@
-import pull from 'lodash.pull';
-import includes from 'lodash.includes';
+import { pull, includes } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Element } from 'hadron-document';

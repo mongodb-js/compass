@@ -4,7 +4,7 @@ import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import configureStore from 'stores/crud-store';
 import configureActions from 'actions';
-import EJSON from 'mongodb-extjson';
+import EJSON from 'mongodb-extended-json';
 
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',

@@ -1,8 +1,6 @@
 /* eslint-disable complexity */
 import Reflux from 'reflux';
-import isEmpty from 'lodash.isempty';
-import cloneDeep from 'lodash.clonedeep';
-import forEach from 'lodash.foreach';
+import { isEmpty, cloneDeep, forEach } from 'lodash';
 import TypeChecker from 'hadron-type-checker';
 
 const MIXED = 'Mixed';

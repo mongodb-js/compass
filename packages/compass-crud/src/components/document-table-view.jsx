@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {AgGridReact} from 'ag-grid-react';
-import map from 'lodash.map';
+import { map } from 'lodash';
 import HadronDocument from 'hadron-document';
 import mongodbns from 'mongodb-ns';
 import BreadcrumbComponent from 'components/breadcrumb';
