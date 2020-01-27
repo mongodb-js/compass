@@ -144,7 +144,7 @@
     "redux": "^3.7.2",
     "reflux-state-mixin": "^0.7.0",
     "resolve": "^1.4.0",
-    "rimraf": "^2.6.1",
+    "rimraf": "^3.0.0",
     "semver": "^7.1.1",
     "shebang-loader": "0.0.1",
     "sinon": "^7.2.3",
