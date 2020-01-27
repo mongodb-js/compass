@@ -113,7 +113,7 @@
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-query-parser": "^1.4.1",
-    "mongodb-runner": "^3.6.1",
+    "mongodb-runner": "^4.8.0",
     "mongodb-tools": "^1.0.6",
     "nise": "3.0.1",
     "node-loader": "^0.6.0",
