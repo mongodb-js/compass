@@ -149,7 +149,7 @@
     "webpack-sources": "1.4.3"
   },
   "dependencies": {
-    "ag-grid-community": "19.0.0",
+    "ag-grid-community": "19.1.4",
     "ag-grid-react": "19.0.0",
     "brace": "^0.11.1",
     "bson": "^1.1.1",
