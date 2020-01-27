@@ -144,7 +144,7 @@
     "mongodb-stitch-browser-sdk": "^4.3.2",
     "nise": "1.4.10",
     "node-loader": "^0.6.0",
-    "nyc": "^13.3.0",
+    "nyc": "^15.0.0",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "postcss-loader": "^3.0.0",
     "pre-commit": "^1.2.2",
