@@ -71,7 +71,7 @@
     "classnames": "^2.2.6",
     "cross-env": "^7.0.0",
     "css-loader": "^2.1.1",
-    "electron": "^6.0.0",
+    "electron": "^7.1.10",
     "electron-rebuild": "^1.8.8",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
