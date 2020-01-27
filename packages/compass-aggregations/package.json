@@ -116,7 +116,7 @@
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.1",
     "jquery": "^3.3.1",
-    "jsdom": "^14.0.0",
+    "jsdom": "^16.0.1",
     "jsdom-global": "^3.0.2",
     "karma": "^4.0.1",
     "karma-chai": "^0.1.0",
