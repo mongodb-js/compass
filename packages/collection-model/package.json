@@ -35,7 +35,7 @@
     "mongodb-data-service": "^16.0.0"
   },
   "devDependencies": {
-    "electron": "^6.1.7",
+    "electron": "^7.1.10",
     "electron-mocha": "^8.2.0",
     "electron-rebuild": "^1.8.8",
     "eslint-config-mongodb-js": "^5.0.3",
