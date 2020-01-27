@@ -72,7 +72,6 @@
     "cross-env": "^6.0.3",
     "css-loader": "^2.1.1",
     "electron": "^6.0.0",
-    "electron-packager": "^8.7.0",
     "electron-rebuild": "^1.8.8",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
