@@ -56,7 +56,7 @@
     "chai": "^4.2.0",
     "chai-enzyme": "1.0.0-beta.0",
     "classnames": "^2.2.6",
-    "cross-env": "^6.0.3",
+    "cross-env": "^7.0.0",
     "css-loader": "^3.4.2",
     "debug": "mongodb-js/debug#v2.2.3",
     "electron": "^7.1.10",
