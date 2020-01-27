@@ -119,7 +119,7 @@
     "react-ios-switch": "^0.1.19",
     "reflux": "^6.4.1",
     "reflux-state-mixin": "^0.7.0",
-    "rimraf": "^2.6.1",
+    "rimraf": "^3.0.0",
     "semver": "^7.1.1",
     "shebang-loader": "0.0.1",
     "sinon": "^7.3.2",
