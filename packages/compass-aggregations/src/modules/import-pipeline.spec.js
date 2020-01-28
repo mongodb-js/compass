@@ -244,7 +244,7 @@ describe('import pipeline module', () => {
         });
 
         context('when the stage contains a DBRef object', () => {
-          const text = '[{ $match: { value: DBRef(\'db.coll\', ObjectId(\'5b6833700633d61f36d3f09d\')) }}]';
+          const text = '[{ $match: { value: DBRef(\'coll\', ObjectId(\'5b6833700633d61f36d3f09d\')) }}]';
           let stage;
 
           before(() => {
@@ -253,7 +253,7 @@ describe('import pipeline module', () => {
 
           it('sets the stage', () => {
             expect(stage.stage).to.equal(
-              '{\n  value: DBRef(\'db.coll\', \'5b6833700633d61f36d3f09d\')\n}'
+              '{\n  value: DBRef(\'coll\', \'5b6833700633d61f36d3f09d\')\n}'
             );
           });
         });

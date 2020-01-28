@@ -251,9 +251,11 @@ describe('Stage module', () => {
         '  maxkey: MaxKey(),\n' +
         '  isodate: ISODate(\'1999-01-01\'),\n' +
         '  regexp: RegExp(\'/^[a-z0-9_-]{3,16}$/\'),\n' +
-        '  ts: Timestamp(10, 100)\n' +
+        '  ts: Timestamp(-321469502, 367)\n' +
         '}'
       };
+      // bson.Timestamp.fromString('1580226495426', 10)
+      // bson.Timestamp.fromString(Date.now(), 10)
       let generated;
 
       before(() => {
@@ -273,7 +275,8 @@ describe('Stage module', () => {
       });
 
       it('generates dbrefs', () => {
-        expect(generated.dbref.namespace).to.equal('db.coll');
+        expect(generated.dbref.collection).to.equal('coll');
+        expect(generated.dbref.db).to.equal('db');
       });
 
       it('generates number long', () => {
@@ -305,7 +308,7 @@ describe('Stage module', () => {
       });
 
       it('generates timestamp', () => {
-        expect(generated.ts.low_).to.equal(10);
+        expect(generated.ts.low).to.equal(-321469502);
       });
       it('returns the stage string', () => {
         expect(generateStageAsString(stage)).to.deep.equal(`{$match: {
@@ -320,7 +323,7 @@ describe('Stage module', () => {
   maxkey: MaxKey(),
   isodate: ISODate('1999-01-01'),
   regexp: RegExp('/^[a-z0-9_-]{3,16}$/'),
-  ts: Timestamp(10, 100)
+  ts: Timestamp(-321469502, 367)
 }}`);
       });
     });

@@ -2,7 +2,7 @@ sudo: false
 dist: trusty
 language: node_js
 node_js:
-  - 10.2.1
+  - 12.4.0
 addons:
   apt:
     sources:
@@ -37,10 +37,3 @@ deploy:
     local_dir: .ghpages
     on:
       branch: master
-  # TODO (@imlucas) Do we even need to do this?
-  # All we're doing is making sure webpack can
-  # build (for the 4th time)
-  # - provider: script
-  #   script: npm run compile
-  #   on:
-  #     branch: master

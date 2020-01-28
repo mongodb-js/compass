@@ -187,8 +187,21 @@ export const confirmNew = () => ({
  */
 export const createPipeline = (text) => {
   try {
-    const jsText = transpiler[SHELL][JS].compile(text);
-    const js = parseFilter(jsText);
+    transpiler[SHELL][JS].compile(text);
+  } catch (transpilerError) {
+    // @example BsonTranspilersUnimplementedError: BinData type not supported
+    return [ createStage(null, '', transpilerError.message) ];
+  }
+
+  try {
+    /**
+     * NOTE (imlucas) See https://github.com/mongodb-js/query-parser/issues/26
+     */
+    const js = parseFilter(text);
+    if (!Array.isArray(js)) {
+      throw new TypeError('Could not parse pipeline array: ' + text);
+    }
+
     return js.map((stage) => {
       return createStage(
         Object.keys(stage)[0],
@@ -196,8 +209,8 @@ export const createPipeline = (text) => {
         null
       );
     });
-  } catch (e) {
-    return [ createStage(null, '', e.message) ];
+  } catch (jsError) {
+    return [ createStage(null, '', jsError.message) ];
   }
 };
 

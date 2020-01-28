@@ -26,9 +26,6 @@
     "preanalyze": "mkdir -p .ghpages && cross-env NODE_ENV=production webpack --profile --json --config ./config/webpack.prod.config.js > .ghpages/stats.json",
     "analyze": "webpack-bundle-analyzer .ghpages/stats.json --no-open  --report .ghpages/report.html --mode static --bundleDir lib"
   },
-  "precommit": [
-    "check"
-  ],
   "license": "Apache-2.0",
   "dependency-check": {
     "ignore": [
@@ -46,7 +43,7 @@
   },
   "peerDependencies": {
     "@hot-loader/react-dom": "^16.8.4",
-    "@mongodb-js/compass-crud": "^6.2.4",
+    "@mongodb-js/compass-crud": "^8.3.0",
     "@mongodb-js/compass-field-store": "^4.0.4",
     "@mongodb-js/compass-export-to-language": "^6.0.3",
     "bson-transpilers": "^0.13.3",
@@ -56,9 +53,9 @@
     "mongodb-ace-autocompleter": "^0.3.3",
     "mongodb-ace-mode": "^0.4.0",
     "mongodb-ace-theme": "^0.0.1",
-    "mongodb-data-service": "^15.2.0",
-    "mongodb-js-metrics": "^4.2.0",
-    "mongodb-query-parser": "^1.4.1",
+    "mongodb-data-service": "^16.0.0",
+    "mongodb-js-metrics": "^5.0.0",
+    "mongodb-query-parser": "^2.0.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
@@ -67,7 +64,7 @@
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.4",
-    "@mongodb-js/compass-crud": "^6.2.4",
+    "@mongodb-js/compass-crud": "^8.3.0",
     "@mongodb-js/compass-export-to-language": "^6.0.3",
     "@mongodb-js/compass-field-store": "^4.0.4",
     "@storybook/addon-actions": "^5.0.3",
@@ -98,8 +95,7 @@
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.1",
     "debug": "^4.1.1",
-    "electron": "^3.0.8",
-    "electron-packager": "^13.1.1",
+    "electron": "^6.1.7",
     "electron-rebuild": "^1.8.4",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.0",
@@ -135,10 +131,10 @@
     "mongodb-ace-mode": "^0.4.1",
     "mongodb-ace-theme": "^0.0.1",
     "mongodb-connection-model": "^14.2.5",
-    "mongodb-data-service": "^15.2.0",
+    "mongodb-data-service": "^16.0.0",
     "mongodb-js-metrics": "^4.2.0",
     "mongodb-js-precommit": "^2.0.0",
-    "mongodb-query-parser": "^1.4.1",
+    "mongodb-query-parser": "^2.0.0",
     "mongodb-reflux-store": "0.0.1",
     "mongodb-schema": "^8.2.3",
     "mongodb-stitch-browser-sdk": "^4.3.2",
@@ -176,10 +172,9 @@
     "lodash.isempty": "^4.4.0",
     "lodash.isstring": "^4.0.1",
     "mongodb-extended-json": "^1.10.1",
-    "mongodb-js-metrics": "^4.2.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-redux-common": "^0.0.2",
-    "mongodb-stage-validator": "^0.2.1",
+    "mongodb-stage-validator": "^0.3.1",
     "react-bootstrap": "^0.32.4",
     "react-dnd": "^10.0.2",
     "react-dnd-html5-backend": "^10.0.2",
@@ -188,7 +183,7 @@
     "react-select-plus": "^1.2.0",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
-    "semver": "^5.6.0",
+    "semver": "^7.1.1",
     "storage-mixin": "^3.0.0"
   }
 }
