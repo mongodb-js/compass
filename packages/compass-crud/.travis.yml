@@ -17,4 +17,5 @@ addons:
 script: 
   - npm run check
   - npm run test
+  - npm run test:karma
 cache: npm
