@@ -338,7 +338,6 @@
     "d3-timer": "1.0.7",
     "debug": "mongodb-js/debug#v2.2.3",
     "debug-menu": "^0.3.0",
-    "detect-coordinates": "^0.2.0",
     "electron-localshortcut": "^3.1.0",
     "electron-squirrel-startup": "^1.0.0",
     "ensure-error": "^1.0.0",
@@ -386,7 +385,6 @@
     "mongodb-schema": "^8.2.2",
     "mongodb-shell-to-url": "^0.1.0",
     "ms": "^0.7.1",
-    "node-pre-gyp": "^0.6.38",
     "numeral": "^1.5.3",
     "pluralize": "^1.2.1",
     "prop-types": "^15.5.8",
@@ -440,9 +438,6 @@
   "optionalDependencies": {
     "vscode-windows-registry": "1.0.1"
   },
-  "precommit": [
-    "check"
-  ],
   "engines": {
     "node": "^12.4.0",
     "npm": ">=6.13.0"
