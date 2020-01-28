@@ -106,7 +106,7 @@
     "react-ios-switch": "^0.1.19",
     "redux": "^3.7.2",
     "resolve": "^1.4.0",
-    "rimraf": "^2.6.1",
+    "rimraf": "^3.0.0",
     "semver": "^5.4.1",
     "shebang-loader": "0.0.1",
     "sinon": "^8.1.1",
