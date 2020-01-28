@@ -132,7 +132,7 @@
     "mocha": "^6.0.2",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-ace-autocompleter": "^0.3.3",
-    "mongodb-ace-mode": "^0.3.0",
+    "mongodb-ace-mode": "^0.4.1",
     "mongodb-ace-theme": "^0.0.1",
     "mongodb-connection-model": "^14.2.5",
     "mongodb-data-service": "^15.2.0",
