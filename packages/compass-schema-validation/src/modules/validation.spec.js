@@ -1,4 +1,4 @@
-import javascriptStringify from 'javascript-stringify';
+import {stringify as javascriptStringify } from 'javascript-stringify';
 import reducer, {
   checkValidator,
   validationActionChanged,

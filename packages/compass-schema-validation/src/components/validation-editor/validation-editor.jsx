@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import AceEditor from 'react-ace';
 import ace from 'brace';
-import debounce from 'lodash.debounce';
+import { debounce } from 'lodash';
 import { ValidationAutoCompleter } from 'mongodb-ace-autocompleter';
 import { TextButton } from 'hadron-react-buttons';
 import { InfoSprinkle } from 'hadron-react-components';

@@ -1,6 +1,6 @@
 import EJSON from 'mongodb-extended-json';
 import queryParser from 'mongodb-query-parser';
-import javascriptStringify from 'javascript-stringify';
+import { stringify as javascriptStringify } from 'javascript-stringify';
 import { fetchSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
 import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
