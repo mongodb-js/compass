@@ -378,7 +378,7 @@
     "mongodb-index-model": "^2.5.0",
     "mongodb-instance-model": "^10.0.0",
     "mongodb-js-metrics": "^4.2.0",
-    "mongodb-language-model": "^1.2.0",
+    "mongodb-language-model": "^1.6.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-query-parser": "^1.4.1",
     "mongodb-query-util": "^0.1.0",
