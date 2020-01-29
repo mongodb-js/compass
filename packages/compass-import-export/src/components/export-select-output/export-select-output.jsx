@@ -65,10 +65,11 @@ class ExportSelectOutput extends PureComponent {
    * Handle choosing a file from the file dialog.
    */
   handleChooseFile = () => {
-    const file = fileSaveDialog(this.props.fileType);
-    if (file) {
-      this.props.selectExportFileName(file);
-    }
+    fileSaveDialog(this.props.fileType).then(result => {
+      if (result && result.filePath && !result.canceled) {
+        this.props.selectExportFileName(result.filePath);
+      }
+    });
   };
 
   /**

@@ -34,10 +34,11 @@ class ImportOptions extends PureComponent {
    * Handle choosing a file from the file dialog.
    */
   handleChooseFile = () => {
-    const file = this.props.fileOpenDialog();
-    if (file) {
-      this.props.selectImportFileName(file[0]);
-    }
+    this.props.fileOpenDialog().then(result => {
+      if (result && result.filePaths && !result.canceled) {
+        this.props.selectImportFileName(result.filePaths[0]);
+      }
+    });
   };
 
   handleOnSubmit = (evt) => {
