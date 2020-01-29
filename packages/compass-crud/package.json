@@ -69,7 +69,7 @@
     "chai-enzyme": "1.0.0-beta.1",
     "classnames": "^2.2.5",
     "cross-env": "^7.0.0",
-    "css-loader": "^3.4.2",
+    "css-loader": "^2.1.1",
     "debug": "^4.1.1",
     "electron": "^6.1.7",
     "electron-mocha": "^8.2.0",
