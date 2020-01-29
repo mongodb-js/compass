@@ -1,28 +1,31 @@
-'use strict';
+const {
+  isPlainObject,
+  isArray,
+  isString,
+  isNumber,
+  hasIn,
+  keys,
+  without,
+  toNumber,
+  toString,
+  includes,
+} = require('lodash');
 
-const isPlainObject = require('lodash.isplainobject');
-const isArray = require('lodash.isarray');
-const isString = require('lodash.isstring');
-const isNumber = require('lodash.isnumber');
-const has = require('lodash.has');
-const keys = require('lodash.keys');
-const without = require('lodash.without');
-const toNumber = require('lodash.tonumber');
-const toString = require('lodash.tostring');
-const includes = require('lodash.includes');
-const bson = require('bson');
-const MinKey = bson.MinKey;
-const MaxKey = bson.MaxKey;
-const Long = bson.Long;
-const Double = bson.Double;
-const Int32 = bson.Int32;
-const Decimal128 = bson.Decimal128;
-const Binary = bson.Binary;
-const BSONRegExp = bson.BSONRegExp;
-const Code = bson.Code;
-const Symbol = bson.Symbol;
-const Timestamp = bson.Timestamp;
-
+const {
+  ObjectId,
+  MinKey,
+  MaxKey,
+  Long,
+  Double,
+  Int32,
+  Decimal128,
+  Binary,
+  BSONRegExp,
+  Code,
+  BSONSymbol,
+  Timestamp,
+  BSONMap
+} = require('bson');
 /**
  * The object string.
  */
@@ -69,7 +72,7 @@ const MATCH = /\[object (\w+)\]/;
 /**
  * The max int 32 value.
  */
-const BSON_INT32_MAX = 0x7FFFFFFF;
+const BSON_INT32_MAX = 0x7fffffff;
 
 /**
  * The min int 32 value.
@@ -77,7 +80,7 @@ const BSON_INT32_MAX = 0x7FFFFFFF;
 const BSON_INT32_MIN = -0x80000000;
 
 const BSON_INT64_MAX = Math.pow(2, 63) - 1;
-const BSON_INT64_MIN = -(BSON_INT64_MAX);
+const BSON_INT64_MIN = -BSON_INT64_MAX;
 
 /**
  * The number regex.
@@ -87,12 +90,7 @@ const NUMBER_REGEX = /^-?\d+$/;
 /**
  * All bson types that are numbers.
  */
-const NUMBER_TYPES = [
-  'Long',
-  'Int32',
-  'Double',
-  'Decimal128'
-];
+const NUMBER_TYPES = ['Long', 'Int32', 'Double', 'Decimal128'];
 
 const toDate = (object) => {
   return new Date(object);
@@ -143,7 +141,7 @@ const toArray = (object) => {
   if (isPlainObject(object)) {
     return [];
   }
-  return [ object ];
+  return [object];
 };
 
 const toInt32 = (object) => {
@@ -183,33 +181,33 @@ const toDecimal128 = (object) => {
   /*
    If converting a BSON Object, extract the value before converting to a string.
    */
-  if (has(object, BSON_TYPE) && includes(NUMBER_TYPES, object._bsontype)) {
+  if (hasIn(object, BSON_TYPE) && includes(NUMBER_TYPES, object._bsontype)) {
     object = object._bsontype === LONG ? object.toNumber() : object.valueOf();
   }
-  return Decimal128.fromString(String(object));
+  return Decimal128.fromString('' + object);
 };
 
 const toObjectID = (object) => {
   if (!isString(object) || object === '') {
-    return new bson.ObjectID();
+    return new ObjectId();
   }
-  return bson.ObjectID.createFromHexString(object);
+  return ObjectId.createFromHexString(object);
 };
 
 const toBinary = (object) => {
-  return new Binary(String(object), Binary.SUBTYPE_DEFAULT);
+  return new Binary('' + object, Binary.SUBTYPE_DEFAULT);
 };
 
 const toRegex = (object) => {
-  return new BSONRegExp(String(object));
+  return new BSONRegExp('' + object);
 };
 
 const toCode = (object) => {
-  return new Code(String(object), {});
+  return new Code('' + object, {});
 };
 
 const toSymbol = (object) => {
-  return new Symbol(String(object));
+  return new BSONSymbol('' + object);
 };
 
 const toTimestamp = (object) => {
@@ -217,29 +215,34 @@ const toTimestamp = (object) => {
   return Timestamp.fromNumber(number);
 };
 
+const toMap = (object) => {
+  return new BSONMap(object);
+};
+
 /**
  * The functions to cast to a type.
  */
 const CASTERS = {
-  'Array': toArray,
-  'Binary': toBinary,
-  'Boolean': toBoolean,
-  'Code': toCode,
-  'Date': toDate,
-  'Decimal128': toDecimal128,
-  'Double': toDouble,
-  'Int32': toInt32,
-  'Int64': toInt64,
-  'MaxKey': toMaxKey,
-  'MinKey': toMinKey,
-  'Null': toNull,
-  'Object': toObject,
-  'ObjectId': toObjectID,
-  'BSONRegexp': toRegex,
-  'String': toString,
-  'Symbol': toSymbol,
-  'Timestamp': toTimestamp,
-  'Undefined': toUndefined
+  Array: toArray,
+  Binary: toBinary,
+  Boolean: toBoolean,
+  Code: toCode,
+  Date: toDate,
+  Decimal128: toDecimal128,
+  Double: toDouble,
+  Int32: toInt32,
+  Int64: toInt64,
+  MaxKey: toMaxKey,
+  MinKey: toMinKey,
+  Null: toNull,
+  Object: toObject,
+  ObjectId: toObjectID,
+  BSONRegexp: toRegex,
+  String: toString,
+  BSONSymbol: toSymbol,
+  BSONMap: toMap,
+  Timestamp: toTimestamp,
+  Undefined: toUndefined
 };
 
 /**
@@ -296,7 +299,6 @@ const numberToBsonType = (number) => {
  * Checks the types of objects and returns them as readable strings.
  */
 class TypeChecker {
-
   /**
    * Cast the provided object to the desired type.
    *
@@ -322,6 +324,15 @@ class TypeChecker {
    * @returns {String} The object type.
    */
   type(object) {
+    if (hasIn(object, BSON_TYPE)) {
+      if (object._bsontype === LONG) {
+        return INT_64;
+      }
+      if (object._bsontype === OBJECT_ID) {
+        return 'ObjectId';
+      }
+      return object._bsontype;
+    }
     if (isNumber(object)) {
       return numberToBsonType(object);
     }
@@ -330,15 +341,6 @@ class TypeChecker {
     }
     if (isArray(object)) {
       return ARRAY;
-    }
-    if (has(object, BSON_TYPE)) {
-      if (object._bsontype === LONG) {
-        return INT_64;
-      }
-      if (object._bsontype === OBJECT_ID) {
-        return 'ObjectId';
-      }
-      return object._bsontype;
     }
     return Object.prototype.toString.call(object).replace(MATCH, '$1');
   }

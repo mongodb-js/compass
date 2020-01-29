@@ -15,30 +15,14 @@
   ],
   "scripts": {
     "ci": "npm test",
-    "test": "mocha --recursive",
-    "check": "mongodb-js-precommit",
-    "prepublishOnly": "babel ./src --out-dir ./lib",
-    "pretest": "babel ./src --out-dir ./lib"
+    "test": "mocha",
+    "check": "mongodb-js-precommit"
   },
   "dependencies": {
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-react": "^6.5.0",
-    "babel-register": "^6.5.2",
-    "bson": "^1.0.1",
-    "lodash.has": "^4.4.0",
-    "lodash.includes": "^4.3.0",
-    "lodash.isarray": "^4.0.0",
-    "lodash.isinteger": "^4.0.4",
-    "lodash.isnumber": "^3.0.3",
-    "lodash.isplainobject": "^4.0.4",
-    "lodash.isstring": "^4.0.1",
-    "lodash.keys": "^4.2.0",
-    "lodash.tonumber": "^4.0.2",
-    "lodash.tostring": "^4.1.3",
-    "lodash.without": "^4.4.0"
+    "bson": "^4.0.3",
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
-    "babel-cli": "^6.9.0",
     "chai": "^4.2.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.1",

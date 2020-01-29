@@ -13,7 +13,7 @@ const Long = bson.Long;
 const Double = bson.Double;
 const Int32 = bson.Int32;
 const Decimal128 = bson.Decimal128;
-const TypeChecker = require('../lib/type-checker');
+const TypeChecker = require('../');
 
 describe('TypeChecker', function() {
   describe('#cast', function() {
@@ -432,7 +432,7 @@ describe('TypeChecker', function() {
 
     context('when the object is a regex', function() {
       context('when casting to a string', function() {
-        var regex = new BSONRegExp('+w', ['i']);
+        var regex = new BSONRegExp('+w', 'i');
 
         it('returns the string regex', function() {
           expect(TypeChecker.cast(regex, 'String')).to.equal('');
@@ -576,7 +576,7 @@ describe('TypeChecker', function() {
     });
 
     context('when the object is a regex', function() {
-      var regex = new BSONRegExp('+w', ['i']);
+      var regex = new BSONRegExp('+w', 'i');
 
       it('returns BSONRegExp', function() {
         expect(TypeChecker.type(regex)).to.equal('BSONRegExp');
@@ -686,7 +686,8 @@ describe('TypeChecker', function() {
           'ObjectId',
           'BSONRegexp',
           'String',
-          'Symbol',
+          'BSONSymbol',
+          'BSONMap',
           'Timestamp',
           'Undefined'
         ]);
@@ -711,7 +712,8 @@ describe('TypeChecker', function() {
           'ObjectId',
           'BSONRegexp',
           'String',
-          'Symbol',
+          'BSONSymbol',
+          'BSONMap',
           'Timestamp',
           'Undefined'
         ]);
