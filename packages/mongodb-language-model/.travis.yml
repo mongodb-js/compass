@@ -2,6 +2,7 @@ sudo: false
 dist: trusty
 language: node_js
 node_js:
+  - 10.17.0 # 10gen/charts
   - 12.4.0
 before_install:
   - npm install -g npm@latest
