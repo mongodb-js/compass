@@ -183,14 +183,17 @@ geometry_point
       distance:(
         value_separator quotation_mark operator:distance_operator quotation_mark
         name_separator value:number_positive
-        { return { [operator]: value }; }
+        { 
+          var result = {};
+          result[operator] = value;
+          return result;
+        }
       )*
     end_object
     {
-      return {
-        "$geometry": geometry,
-        ...(distance ? distance : {})
-      };
+      var result = distance || {};
+      distance.$geometry = geometry;
+      return result;
     }
 
 geometry_type
