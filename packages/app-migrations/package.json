@@ -1,7 +1,7 @@
 {
   "name": "app-migrations",
   "description": "Helper for application schema migrations.",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "scripts": {
     "check": "mongodb-js-precommit",
     "test": "mocha"
