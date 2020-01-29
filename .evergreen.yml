@@ -266,7 +266,7 @@ functions:
           fi
 
           export NPM_CONFIG_LOGLEVEL=error
-          export DEBUG=hadron*
+          export DEBUG=*
           npm run release ${compass_distribution};
           EOF_BUILD_SH
 
