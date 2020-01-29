@@ -162,7 +162,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.15",
-    "mongodb-redux-common": "^0.0.1",
+    "mongodb-redux-common": "^0.0.2",
     "react-bootstrap": "^0.32.1",
     "react-fontawesome": "^1.6.1",
     "react-redux": "^5.0.6",
