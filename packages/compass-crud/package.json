@@ -150,7 +150,7 @@
   },
   "dependencies": {
     "ag-grid-community": "19.1.4",
-    "ag-grid-react": "19.0.0",
+    "ag-grid-react": "19.1.2",
     "brace": "^0.11.1",
     "bson": "^1.1.1",
     "fast-json-parse": "^1.0.3",
