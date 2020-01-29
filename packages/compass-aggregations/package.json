@@ -95,7 +95,7 @@
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.1",
     "debug": "^4.1.1",
-    "electron": "^6.1.7",
+    "electron": "^7.1.10",
     "electron-rebuild": "^1.8.4",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.0",
