@@ -183,7 +183,7 @@
     "react-select-plus": "^1.2.0",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
-    "semver": "^7.1.1",
+    "semver": "^5.7.1",
     "storage-mixin": "^3.0.0"
   }
 }
