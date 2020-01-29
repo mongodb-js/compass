@@ -30,7 +30,7 @@ describe('<Types />', () => {
 
       it('renders the type list', () => {
         const types = wrapper.find('.dropdown-menu li');
-        expect(types.children().length).to.equal(19);
+        expect(types.children().length).to.equal(20);
       });
 
       it('sets the dropdown to closed', () => {
@@ -134,7 +134,7 @@ describe('<Types />', () => {
 
       it('renders the type list without decimal 128', () => {
         const types = wrapper.find('.dropdown-menu li');
-        expect(types.children().length).to.equal(18);
+        expect(types.children().length).to.equal(19);
       });
     });
   });
