@@ -71,7 +71,7 @@
     "cross-env": "^7.0.0",
     "css-loader": "^2.1.1",
     "debug": "^4.1.1",
-    "electron": "^6.1.7",
+    "electron": "^7.1.10",
     "electron-mocha": "^8.2.0",
     "electron-rebuild": "^1.8.4",
     "enzyme": "^3.7.0",
