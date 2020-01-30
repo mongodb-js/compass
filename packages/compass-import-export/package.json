@@ -107,7 +107,7 @@
     "karma-webpack": "^2.0.4",
     "less": "^2.7.2",
     "less-loader": "^4.0.5",
-    "mocha": "^3.4.2",
+    "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-ace-theme": "^0.0.1",
     "mongodb-data-service": "^16.4.0",
