@@ -79,16 +79,17 @@ GLOBAL FLEXBOX LAYOUT STYLES
 }
 
 .column-container {
+  height: 100%;
   flex-grow: 1;
   flex-shrink: 1;
   flex-basis: auto;
-  flex-direction: column;
   display: flex;
-  overflow: auto;
+  overflow-y: scroll;
   background: @gray8;
 }
 
 .column.main {
+  height: 100%;
   flex: 1;
   margin-bottom: 100px;
   padding: 0 15px;

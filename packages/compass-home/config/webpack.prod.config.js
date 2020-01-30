@@ -4,7 +4,6 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const PeerDepsExternalsPlugin = require('peer-deps-externals-webpack-plugin');
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
@@ -65,7 +64,11 @@ const config = {
     ]
   },
   optimization: {
-    // Minimize and uglify the code
+    /**
+     * TODO (lucas) Don't minimize and uglify the code.
+     * .dmg/.asar/.zip/.tar.gz/.msi will do that
+     * when compass is packaged for release.
+     */
     minimize: true
   },
   plugins: [
@@ -88,9 +91,6 @@ const config = {
 
     // Creates HTML page for us at build time
     new HtmlWebpackPlugin()
-
-    // Uncomment to Analyze the output bundle size of the plugin. Useful for optimizing the build.
-    // new BundleAnalyzerPlugin()
   ],
   stats: {
     colors: true,
