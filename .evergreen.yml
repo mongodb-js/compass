@@ -78,7 +78,9 @@ functions:
           export NPM_VERSION="6.13.2"
 
           if [[ "$OSTYPE" == "cygwin" ]]; then
-            export PATH="$(pwd)/.deps:/cygdrive/c/wixtools/bin/:$PATH"
+            # NOTE lucas: for git-core addition, See
+            # https://jira.mongodb.org/browse/COMPASS-4122
+            export PATH="$(pwd)/.deps:/cygdrive/c/wixtools/bin/:/cygdrive/c/Program\ Files/Git/mingw32/libexec/git-core:$PATH"
             export APPDATA=Z:\\\;
           fi
 
@@ -193,7 +195,7 @@ functions:
 
           # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
           # have dropped support for macOS 10.10 because it is now outside
-          # of the supported version range. 
+          # of the supported version range.
           # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
           DEBUG=* MONGODB_VERSION=${mongodb_version|4.0.3} npm test -- --${test_suite}
     # - command: attach.results
@@ -265,7 +267,7 @@ functions:
             net start MSIServer
           fi
 
-          export NPM_CONFIG_LOGLEVEL=error
+          export NPM_CONFIG_LOGLEVEL=info
           export DEBUG=*
           npm run release ${compass_distribution};
           EOF_BUILD_SH
