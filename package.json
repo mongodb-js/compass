@@ -285,7 +285,7 @@
     "url": "git://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-aggregations": "^6.1.1",
+    "@mongodb-js/compass-aggregations": "^6.1.3",
     "@mongodb-js/compass-app-stores": "^4.0.0",
     "@mongodb-js/compass-auth-kerberos": "^4.0.0",
     "@mongodb-js/compass-auth-ldap": "^4.0.0",
@@ -405,7 +405,6 @@
     "reflux-state-mixin": "mongodb-js/reflux-state-mixin",
     "semver": "^5.1.0",
     "storage-mixin": "^3.2.7",
-    "triejs": "github:rueckstiess/triejs",
     "uuid": "^3.0.0"
   },
   "devDependencies": {
