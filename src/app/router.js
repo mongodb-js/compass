@@ -12,6 +12,6 @@ module.exports = AmpersandRouter.extend({
       ReactDOM.render(
         React.createElement(this.homeView, {ns: ns}),
         global.hadronApp.state.queryByHook('layout-container')
-    ));
+      ));
   }
 });

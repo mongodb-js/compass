@@ -429,7 +429,7 @@
     "jsdom": "^9.8.3",
     "mocha": "^4.1.0",
     "mock-require": "^2.0.1",
-    "mongodb-js-precommit": "^2.1.0",
+    "mongodb-js-precommit": "^2.2.0",
     "mongodb-runner": "^4.8.0",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
