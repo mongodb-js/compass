@@ -2,6 +2,7 @@
 .eslintrc
 .editorconfig
 .ghpages/
+.github/
 .nycrc
 .storybook/
 .travis.yml
@@ -10,6 +11,7 @@ config/
 electron/
 examples/
 karma.conf.js
+lib/index.html
 mocha-webpack.opts
 scripts/
 src/
