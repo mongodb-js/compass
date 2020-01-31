@@ -14,10 +14,10 @@ var BugsnagTracker = State.extend({
   id: 'bugsnag',
   // assign properties to bugsnag handler
   props: {
-    apiKey: ['string', true, ''],          // set through metrics.configure()
+    apiKey: ['string', true, ''], // set through metrics.configure()
     autoNotify: ['boolean', true, true],
     metaData: ['object', false],
-    appVersion: ['string', true, ''],      // set by App resource
+    appVersion: ['string', true, ''], // set by App resource
     notifyReleaseStages: {
       type: 'array',
       default: function() {
@@ -32,8 +32,8 @@ var BugsnagTracker = State.extend({
       required: true,
       default: false
     },
-    appStage: ['string', true, ''],    // set by App resource
-    userId: ['string', true, ''],      // set by User resource
+    appStage: ['string', true, ''], // set by App resource
+    userId: ['string', true, ''], // set by User resource
     bugsnagHandler: ['object', false, null]
   },
   derived: {
@@ -45,7 +45,7 @@ var BugsnagTracker = State.extend({
     },
     // this is just a rename of `appStage`, set by App resource, but bugsnag
     // requires the name to be releaseStage
-    'releaseStage': {
+    releaseStage: {
       deps: ['appStage'],
       fn: function() {
         return this.appStage;
@@ -76,8 +76,9 @@ var BugsnagTracker = State.extend({
   _configureBugsnag: function() {
     if (this.enabledAndConfigured) {
       if (typeof window !== 'undefined') {
-        this.bugsnagHandler = this.bugsnagHandler || require('bugsnag-js').noConflict();
-        var options = this.serialize({props: true, derived: true});
+        this.bugsnagHandler =
+          this.bugsnagHandler || require('bugsnag-js').noConflict();
+        var options = this.serialize({ props: true, derived: true });
         options.beforeNotify = this.beforeNotify;
         delete options.enabledAndConfigured;
         debug('configuring bugsnag with %j', options);

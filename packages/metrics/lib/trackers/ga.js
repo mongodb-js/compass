@@ -1,6 +1,6 @@
 var querystring = require('querystring');
 var State = require('ampersand-state');
-var xhr = (typeof window !== 'undefined') ? require('xhr') : require('request');
+var xhr = typeof window !== 'undefined' ? require('xhr') : require('request');
 var _ = require('lodash');
 var singleton = require('singleton-js');
 var redact = require('mongodb-redact');
@@ -10,26 +10,26 @@ var debug = require('debug')('mongodb-js-metrics:trackers:ga');
 
 // rename property names to google analytics keys
 var PROTOCOL_PARAMETER_MAP = {
-  'version': 'v',
-  'dataSource': 'ds',
-  'trackingId': 'tid',
-  'userId': 'cid',
-  'hitType': 't',
-  'appName': 'an',
-  'appVersion': 'av',
-  'appPlatform': 'aiid', // we use the app installer id field to track platform
-  'eventCategory': 'ec',
-  'eventAction': 'ea',
-  'eventLabel': 'el',
-  'eventValue': 'ev',
-  'timingCategory': 'utc',
-  'timingVar': 'utv',
-  'timingValue': 'utt',
-  'timingLabel': 'utl',
-  'screenName': 'cd',
-  'documentPath': 'dp',
-  'exDescription': 'exd',
-  'exFatal': 'exf'
+  version: 'v',
+  dataSource: 'ds',
+  trackingId: 'tid',
+  userId: 'cid',
+  hitType: 't',
+  appName: 'an',
+  appVersion: 'av',
+  appPlatform: 'aiid', // we use the app installer id field to track platform
+  eventCategory: 'ec',
+  eventAction: 'ea',
+  eventLabel: 'el',
+  eventValue: 'ev',
+  timingCategory: 'utc',
+  timingVar: 'utv',
+  timingValue: 'utt',
+  timingLabel: 'utl',
+  screenName: 'cd',
+  documentPath: 'dp',
+  exDescription: 'exd',
+  exFatal: 'exf'
 };
 
 var GATracker = State.extend({
@@ -37,11 +37,11 @@ var GATracker = State.extend({
   props: {
     version: ['number', true, 1],
     dataSource: ['string', true, 'app'],
-    trackingId: ['string', true, ''],   // set through metrics.configure()
-    userId: ['string', true, ''],       // set by User resource
-    appName: ['string', true, ''],      // set by App resource
-    appVersion: ['string', true, ''],   // set by App resource
-    appPlatform: ['string', true, '']   // set by App resource
+    trackingId: ['string', true, ''], // set through metrics.configure()
+    userId: ['string', true, ''], // set by User resource
+    appName: ['string', true, ''], // set by App resource
+    appVersion: ['string', true, ''], // set by App resource
+    appPlatform: ['string', true, ''] // set by App resource
   },
   session: {
     enabled: {
@@ -80,11 +80,13 @@ var GATracker = State.extend({
     if (!this.enabled) {
       return;
     }
-    callback = callback || function(err) {
-      if (err) {
-        debug('Google Analytics returned error:', err.message);
-      }
-    };
+    callback =
+      callback ||
+      function(err) {
+        if (err) {
+          debug('Google Analytics returned error:', err.message);
+        }
+      };
     // extend options with default options
     _.defaults(options || {}, this.serialize());
     options = this.shortify(options);

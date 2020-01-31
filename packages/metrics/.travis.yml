@@ -2,11 +2,7 @@ sudo: false
 dist: bionic
 language: node_js
 node_js:
-  - 12
-  - 13
-install:
-  - npm ci
-script: 
-  - npm run check
-  - npm test
+  - 10.17.0 # 10gen/charts
+  - 12.4.0 # mongodb-js/compass
+script: npm run ci
 cache: npm

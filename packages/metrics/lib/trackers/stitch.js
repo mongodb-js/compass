@@ -66,7 +66,13 @@ var StitchTracker = State.extend({
     _usersDatabaseName: 'any',
     _usersCollectionName: 'any',
     _client: 'any',
-    _callsQueue: ['array', true, function() { return []; }], // array of object with format: { fn: Function, args: Array }
+    _callsQueue: [
+      'array',
+      true,
+      function() {
+        return [];
+      }
+    ], // array of object with format: { fn: Function, args: Array }
     enabled: ['boolean', true, false],
     hasBooted: ['boolean', true, false]
   },
@@ -88,11 +94,12 @@ var StitchTracker = State.extend({
   _enabledConfiguredChanged: function() {
     if (this.enabledAndConfigured) {
       // tracks all events from queue and calls _identify only when stitch client has been initialized
-      this._setup()
-        .then(function() {
+      this._setup().then(
+        function() {
           this._trackFromQueue();
           this._identify();
-        }.bind(this));
+        }.bind(this)
+      );
     }
   },
   _trackFromQueue: function() {
@@ -117,23 +124,24 @@ var StitchTracker = State.extend({
     }
 
     var self = this;
-    return stitch.StitchClientFactory.create(this.appId)
-      .then(function(client) {
-        return client.login()
-          .then(function() {
-            self._client = client;
+    return stitch.StitchClientFactory.create(this.appId).then(function(client) {
+      return client
+        .login()
+        .then(function() {
+          self._client = client;
 
-            debug('setup client', {
-              _client: self._client,
-              _eventsDatabaseName: self._eventsDatabaseName,
-              _eventsCollectionName: self._eventsCollectionName,
-              _usersDatabaseName: self._usersDatabaseName,
-              _usersCollectionName: self._usersCollectionName
-            });
-          }).catch(function(e) {
-            debug('error logging in via stitch: %s', e.message);
+          debug('setup client', {
+            _client: self._client,
+            _eventsDatabaseName: self._eventsDatabaseName,
+            _eventsCollectionName: self._eventsCollectionName,
+            _usersDatabaseName: self._usersDatabaseName,
+            _usersCollectionName: self._usersCollectionName
           });
-      });
+        })
+        .catch(function(e) {
+          debug('error logging in via stitch: %s', e.message);
+        });
+    });
   },
   _identify: function() {
     // this is only used when a user is first created ($setOnInsert)
@@ -194,7 +202,13 @@ var StitchTracker = State.extend({
     if (!this._isTrackerReady()) {
       return fn(new Error('stitch tracker not configured yet.'));
     }
-    return fn(null, this._client.service('mongodb', 'mongodb-atlas').db(db).collection(name));
+    return fn(
+      null,
+      this._client
+        .service('mongodb', 'mongodb-atlas')
+        .db(db)
+        .collection(name)
+    );
   },
 
   /**
@@ -217,7 +231,7 @@ var StitchTracker = State.extend({
 
     // toplevel fields
     var payload = Object.assign({
-      _id: metadata['event id'],  // lift up from metadata
+      _id: metadata['event id'], // lift up from metadata
       resource: resource,
       action: action,
       user_id: this.userId,
@@ -240,7 +254,11 @@ var StitchTracker = State.extend({
     if (!this._isTrackerReady()) {
       this._callsQueue.push({
         fn: this._getCollection,
-        args: [this._eventsDatabaseName, this._eventsCollectionName, getCollectionCallback]
+        args: [
+          this._eventsDatabaseName,
+          this._eventsCollectionName,
+          getCollectionCallback
+        ]
       });
       return;
     }

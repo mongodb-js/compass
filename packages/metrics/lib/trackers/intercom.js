@@ -11,8 +11,10 @@ var sentenceCase = require('../shared').sentenceCase;
  */
 var MONGO_ERROR = 'MongoError';
 
-var os = (typeof window === 'undefined') ?
-  require('os') : require('electron').remote.require('os');
+var os =
+  typeof window === 'undefined'
+    ? require('os')
+    : require('electron').remote.require('os');
 
 var IntercomTracker = State.extend({
   id: 'intercom',
@@ -80,8 +82,11 @@ var IntercomTracker = State.extend({
     enabledAndConfigured: {
       deps: ['enabled', 'panelEnabled', 'appId', 'userId'],
       fn: function() {
-        return (this.enabled || this.panelEnabled)
-          && this.appId !== '' && this.userId !== '';
+        return (
+          (this.enabled || this.panelEnabled) &&
+          this.appId !== '' &&
+          this.userId !== ''
+        );
       }
     }
   },
@@ -253,7 +258,11 @@ var IntercomTracker = State.extend({
     // redact metadata
     metadata = sentenceCase(redact(metadata));
 
-    debug('sending event `%s` to intercom with metadata %j', eventName, metadata);
+    debug(
+      'sending event `%s` to intercom with metadata %j',
+      eventName,
+      metadata
+    );
     if (typeof window !== 'undefined' && window.Intercom) {
       window.Intercom('trackEvent', eventName, metadata);
     }
