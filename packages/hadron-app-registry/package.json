@@ -19,7 +19,7 @@
     "check": "mongodb-js-precommit"
   },
   "dependencies": {
-    "debug": "^2.2.0",
+    "debug": "^4.1.1",
     "eventemitter3": "^4.0.0",
     "reflux": "^0.4.0"
   },
