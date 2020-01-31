@@ -122,7 +122,7 @@
     "reflux": "^0.4.1",
     "reflux-state-mixin": "^0.8.0",
     "resolve": "^1.4.0",
-    "rimraf": "^2.6.1",
+    "rimraf": "^3.0.1",
     "semver": "^5.4.1",
     "shebang-loader": "0.0.1",
     "sinon": "^8.1.1",
