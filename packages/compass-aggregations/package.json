@@ -64,7 +64,7 @@
     "@hot-loader/react-dom": "^16.8.4",
     "@mongodb-js/compass-crud": "^8.3.0",
     "@mongodb-js/compass-export-to-language": "^6.0.3",
-    "@mongodb-js/compass-field-store": "^4.0.4",
+    "@mongodb-js/compass-field-store": "^6.0.0",
     "@storybook/addon-actions": "^5.0.3",
     "@storybook/addon-knobs": "^5.0.3",
     "@storybook/addon-links": "^5.0.3",
