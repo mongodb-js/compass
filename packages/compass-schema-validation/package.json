@@ -142,7 +142,7 @@
     "javascript-stringify": "^2.0.1",
     "lodash": "^4.17.15",
     "mongodb-extended-json": "^1.10.0",
-    "mongodb-redux-common": "^0.0.1",
+    "mongodb-redux-common": "^0.0.2",
     "react-bootstrap": "^0.32.1",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
