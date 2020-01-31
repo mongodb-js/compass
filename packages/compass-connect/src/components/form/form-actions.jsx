@@ -67,7 +67,7 @@ class FormActions extends React.Component {
    * @returns {Boolean} True in case of a syntax error.
    */
   hasSyntaxError() {
-    return (!this.props.isValid && this.props.syntaxErrorMessage);
+    return !this.props.isValid && this.props.syntaxErrorMessage;
   }
 
   /**
@@ -76,7 +76,7 @@ class FormActions extends React.Component {
    * @returns {Boolean} True in case of a server error.
    */
   hasError() {
-    return (!this.props.isValid && this.props.errorMessage);
+    return !this.props.isValid && this.props.errorMessage;
   }
 
   /**
@@ -90,12 +90,14 @@ class FormActions extends React.Component {
     return (
       <div className={classnames(styles['unsaved-message-actions'])}>
         You have unsaved changes.
-        <a id="discardChanges" onClick={this.onChangesDiscarded}>[discard]</a>
-        {(
-          this.props.currentConnection.isFavorite
-            ? <a id="saveChanges" onClick={this.onSaveFavoriteClicked}>[save changes]</a>
-            : null
-        )}
+        <a id="discardChanges" onClick={this.onChangesDiscarded}>
+          [discard]
+        </a>
+        {this.props.currentConnection.isFavorite ? (
+          <a id="saveChanges" onClick={this.onSaveFavoriteClicked}>
+            [save changes]
+          </a>
+        ) : null}
       </div>
     );
   }
@@ -111,11 +113,12 @@ class FormActions extends React.Component {
         type="submit"
         name="disconnect"
         className="btn btn-sm btn-primary"
-        onClick={this.onDisconnectClicked.bind(this)}>
+        onClick={this.onDisconnectClicked.bind(this)}
+      >
         Disconnect
       </button>
     );
-  }
+  };
 
   /**
    * Renders "Connect" button.
@@ -127,12 +130,15 @@ class FormActions extends React.Component {
       <button
         type="submit"
         name="connect"
-        className="btn btn-sm btn-primary"
-        onClick={this.onConnectClicked.bind(this)}>
+        className={`btn btn-sm btn-primary ${
+          this.hasSyntaxError() ? 'disabled' : ''
+        }`}
+        onClick={this.onConnectClicked.bind(this)}
+      >
         Connect
       </button>
     );
-  }
+  };
 
   /**
    * Renders connect or disconnect button depending on state.
@@ -142,7 +148,9 @@ class FormActions extends React.Component {
   renderConnectButtons() {
     return (
       <div className={classnames(styles.buttons)}>
-        {this.props.isConnected ? this.renderDisconnect() : this.renderConnect()}
+        {this.props.isConnected
+          ? this.renderDisconnect()
+          : this.renderConnect()}
       </div>
     );
   }
@@ -163,7 +171,10 @@ class FormActions extends React.Component {
       hasMessage = true;
       message = this.props.errorMessage;
       colorStyle = styles['connection-message-container-error'];
-    } else if (this.hasSyntaxError() && this.props.viewType === 'connectionString') {
+    } else if (
+      this.hasSyntaxError() &&
+      this.props.viewType === 'connectionString'
+    ) {
       hasMessage = true;
       message = this.props.syntaxErrorMessage;
       colorStyle = styles['connection-message-container-syntax-error'];
@@ -179,9 +190,7 @@ class FormActions extends React.Component {
       return (
         <div className={styles['connection-message-container']}>
           <div className={classnames(colorStyle)}>
-            <div className={styles['connection-message']}>
-              {message}
-            </div>
+            <div className={styles['connection-message']}>{message}</div>
           </div>
         </div>
       );

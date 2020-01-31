@@ -19,7 +19,8 @@ describe('FormActions [Component]', () => {
               currentConnection={connection}
               isConnected={isConnected}
               viewType={viewType}
-              isValid />
+              isValid
+            />
           );
         });
 
@@ -54,7 +55,8 @@ describe('FormActions [Component]', () => {
               currentConnection={connection}
               isConnected={isConnected}
               viewType={viewType}
-              isValid />
+              isValid
+            />
           );
         });
 
@@ -88,7 +90,8 @@ describe('FormActions [Component]', () => {
           <FormActions
             currentConnection={connection}
             isConnected={isConnected}
-            isValid />
+            isValid
+          />
         );
       });
 
@@ -119,7 +122,8 @@ describe('FormActions [Component]', () => {
         <FormActions
           currentConnection={connection}
           isValid={isValid}
-          errorMessage={errorMessage} />
+          errorMessage={errorMessage}
+        />
       );
     });
 
@@ -148,7 +152,8 @@ describe('FormActions [Component]', () => {
             currentConnection={connection}
             isValid={isValid}
             viewType={viewType}
-            syntaxErrorMessage={syntaxErrorMessage} />
+            syntaxErrorMessage={syntaxErrorMessage}
+          />
         );
       });
 
@@ -160,6 +165,14 @@ describe('FormActions [Component]', () => {
         const classname = `.${styles['connection-message-container-syntax-error']}`;
 
         expect(component.find(classname)).to.be.present();
+      });
+
+      it('disables the connect button', () => {
+        const connectButton = component
+          .find('button[name="connect"]')
+          .simulate('click');
+
+        expect(connectButton.hasClass('disabled')).to.equal(true);
       });
     });
 
@@ -176,7 +189,8 @@ describe('FormActions [Component]', () => {
             currentConnection={connection}
             isValid={isValid}
             viewType={viewType}
-            syntaxErrorMessage={syntaxErrorMessage} />
+            syntaxErrorMessage={syntaxErrorMessage}
+          />
         );
       });
 
@@ -205,7 +219,8 @@ describe('FormActions [Component]', () => {
           currentConnection={connection}
           isValid={isValid}
           errorMessage={errorMessage}
-          syntaxErrorMessage={syntaxErrorMessage} />
+          syntaxErrorMessage={syntaxErrorMessage}
+        />
       );
     });
 
@@ -246,7 +261,8 @@ describe('FormActions [Component]', () => {
               errorMessage={errorMessage}
               syntaxErrorMessage={syntaxErrorMessage}
               hasUnsavedChanges={hasUnsavedChanges}
-              isValid />
+              isValid
+            />
           );
         });
 
@@ -287,7 +303,8 @@ describe('FormActions [Component]', () => {
               errorMessage={errorMessage}
               syntaxErrorMessage={syntaxErrorMessage}
               hasUnsavedChanges={hasUnsavedChanges}
-              isValid />
+              isValid
+            />
           );
         });
 
@@ -321,7 +338,8 @@ describe('FormActions [Component]', () => {
               viewType={viewType}
               errorMessage={errorMessage}
               syntaxErrorMessage={syntaxErrorMessage}
-              hasUnsavedChanges={hasUnsavedChanges} />
+              hasUnsavedChanges={hasUnsavedChanges}
+            />
           );
         });
 
@@ -353,7 +371,8 @@ describe('FormActions [Component]', () => {
               viewType={viewType}
               errorMessage={errorMessage}
               syntaxErrorMessage={syntaxErrorMessage}
-              hasUnsavedChanges={hasUnsavedChanges} />
+              hasUnsavedChanges={hasUnsavedChanges}
+            />
           );
         });
 
@@ -387,7 +406,8 @@ describe('FormActions [Component]', () => {
               viewType={viewType}
               errorMessage={errorMessage}
               syntaxErrorMessage={syntaxErrorMessage}
-              hasUnsavedChanges={hasUnsavedChanges} />
+              hasUnsavedChanges={hasUnsavedChanges}
+            />
           );
         });
 
@@ -419,7 +439,8 @@ describe('FormActions [Component]', () => {
               viewType={viewType}
               errorMessage={errorMessage}
               syntaxErrorMessage={syntaxErrorMessage}
-              hasUnsavedChanges={hasUnsavedChanges} />
+              hasUnsavedChanges={hasUnsavedChanges}
+            />
           );
         });
 
@@ -454,7 +475,8 @@ describe('FormActions [Component]', () => {
           errorMessage={errorMessage}
           syntaxErrorMessage={syntaxErrorMessage}
           hasUnsavedChanges={hasUnsavedChanges}
-          isValid />
+          isValid
+        />
       );
     });
 

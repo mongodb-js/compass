@@ -10,5 +10,6 @@
     "coverage": true,
     ".nyc_output": true
   },
-  "prettier.arrowParens": "always"
+  "prettier.arrowParens": "always",
+  "prettier.singleQuote": true
 }
