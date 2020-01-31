@@ -80,7 +80,7 @@ functions:
           if [[ "$OSTYPE" == "cygwin" ]]; then
             # NOTE lucas: for git-core addition, See
             # https://jira.mongodb.org/browse/COMPASS-4122
-            export PATH="$(pwd)/.deps:/cygdrive/c/wixtools/bin/:/cygdrive/c/Program\ Files/Git/mingw32/libexec/git-core:$PATH"
+            export PATH="/cygdrive/c/Program Files/Git/mingw32/libexec/git-core/:$(pwd)/.deps:/cygdrive/c/wixtools/bin/:$PATH"
             export APPDATA=Z:\\\;
           fi
 
@@ -268,7 +268,7 @@ functions:
           fi
 
           export NPM_CONFIG_LOGLEVEL=info
-          export DEBUG=*
+          export DEBUG="*,-flora-colossus"
           npm run release ${compass_distribution};
           EOF_BUILD_SH
 
