@@ -127,7 +127,7 @@
     "react-hot-loader": "^4.1.0",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "^0.7.0",
-    "rimraf": "^2.6.1",
+    "rimraf": "^3.0.1",
     "semver": "^5.4.1",
     "shebang-loader": "0.0.1",
     "sinon": "^4.5.0",
