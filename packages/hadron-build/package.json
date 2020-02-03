@@ -68,13 +68,13 @@
     "sinon-chai": "^2.8.0"
   },
   "optionalDependencies": {
+    "@mongodb-js/electron-wix-msi": "^2.1.20",
     "electron-installer-codesign": "^0.3.0",
     "electron-installer-debian": "^2.0.1",
     "electron-installer-dmg": "^3.0.0",
     "electron-installer-redhat": "^2.0.0",
     "electron-osx-sign": "^0.4.1",
-    "electron-winstaller": "4.0.0",
-    "@mongodb-js/electron-wix-msi": "^2.1.20"
+    "electron-winstaller": "^2.5.1"
   },
   "license": "Apache-2.0"
 }
