@@ -3,6 +3,7 @@ var fs = require('fs-plus');
 var chai = require('chai');
 var expect = chai.expect;
 var CompileCache = require('../lib/compile-cache');
+var JadeCompiler = require('../lib/compiler/jade-compiler');
 
 describe('CompileCache', function() {
   describe('#new', function() {
@@ -28,11 +29,8 @@ describe('CompileCache', function() {
     });
   });
 
-  // TODO: Rewrite this now that jade is gone as part of 
-  // https://jira.mongodb.org/browse/COMPASS-4019
-  describe.skip('#compileFileAtPath', function() {
-    // var compiler = new JadeCompiler();
-    var compiler;
+  describe('#compileFileAtPath', function() {
+    var compiler = new JadeCompiler();
     var filePath = path.join(__dirname, 'compiler', 'test.jade');
     var home = path.join(__dirname);
     var filename = path.join('jade', 'fb840da9fcb09bc55a074a444f124067a973ce1a.js');
@@ -63,16 +61,17 @@ describe('CompileCache', function() {
   });
 
   describe('.COMPILERS', function() {
+    it('includes the jade compiler', function() {
+      expect(CompileCache.COMPILERS['.jade']).to.be.a('object');
+    });
+
     it('includes the babel compiler', function() {
       expect(CompileCache.COMPILERS['.jsx']).to.be.a('object');
     });
   });
 
-  // TODO: Rewrite this now that jade is gone as part of 
-  // https://jira.mongodb.org/browse/COMPASS-4019
-  describe.skip('_removeCachedJavascript', function() {
-    // var compiler = new JadeCompiler();
-    var compiler;
+  describe('_removeCachedJavascript', function() {
+    var compiler = new JadeCompiler();
     var filePath = path.join(__dirname, 'compiler', 'test.jade');
     var home = path.join(__dirname);
     var filename = path.join('jade', 'fb840da9fcb09bc55a074a444f124067a973ce1a.js');
