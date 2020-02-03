@@ -59,7 +59,7 @@
     "yargs": "^4.8.1"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
+    "chai": "^4.2.0",
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^7.0.1",
     "mongodb-js-precommit": "^0.2.9",
