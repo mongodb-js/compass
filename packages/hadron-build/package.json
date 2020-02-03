@@ -61,7 +61,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "eslint-config-mongodb-js": "^2.2.0",
-    "mocha": "^4.1.0",
+    "mocha": "^7.0.1",
     "mongodb-js-precommit": "^0.2.9",
     "plist": "^2.1.0",
     "sinon": "^1.17.7",
