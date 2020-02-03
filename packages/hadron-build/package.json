@@ -56,7 +56,7 @@
     "tar-pack": "^3.3.0",
     "which": "^1.2.0",
     "xvfb-maybe": "^0.2.1",
-    "yargs": "^4.8.1"
+    "yargs": "^15.1.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
