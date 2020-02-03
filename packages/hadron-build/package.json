@@ -64,7 +64,7 @@
     "mocha": "^7.0.1",
     "mongodb-js-precommit": "^2.2.0",
     "plist": "^2.1.0",
-    "sinon": "^1.17.7",
+    "sinon": "^4.5.0",
     "sinon-chai": "^2.8.0"
   },
   "optionalDependencies": {
