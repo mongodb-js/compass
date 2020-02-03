@@ -75,7 +75,7 @@
     "classnames": "^2.2.5",
     "cross-env": "^7.0.0",
     "css-loader": "^0.28.1",
-    "electron": "^6.1.7",
+    "electron": "^7.1.11",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint-config-mongodb-js": "^5.0.3",
