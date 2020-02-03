@@ -45,7 +45,7 @@
   "dependencies": {
     "chai": "^3.5.0",
     "chai-as-promised": ">= 6.x",
-    "debug": "^2.6.9",
+    "debug": "^4.1.1",
     "spectron": "^5.0.0"
   }
 }
