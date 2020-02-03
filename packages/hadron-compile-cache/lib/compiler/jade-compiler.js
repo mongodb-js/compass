@@ -46,7 +46,6 @@ const UTF8 = 'utf8';
  * Compiles jade sources.
  */
 class JadeCompiler {
-
   /**
    * Instantiate the Jade compiler.
    */

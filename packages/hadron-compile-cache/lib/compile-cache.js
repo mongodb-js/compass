@@ -36,7 +36,6 @@ const ROOT = 'root';
  * Wraps a cache of compiled code.
  */
 class CompileCache {
-
   /**
    * Create a new compile cache.
    */

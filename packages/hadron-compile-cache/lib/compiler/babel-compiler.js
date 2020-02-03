@@ -36,7 +36,6 @@ const UTF8 = 'utf8';
  * Compiles with babel.
  */
 class BabelCompiler {
-
   /**
    * Create the new babel compiler.
    */
@@ -73,7 +72,7 @@ class BabelCompiler {
   compile(sourceCode, filePath) {
     debug('Compiling ' + filePath);
     const options = { filename: filePath };
-    for (let key in DEFAULTS) {  // eslint-disable-line guard-for-in
+    for (let key in DEFAULTS) { // eslint-disable-line guard-for-in
       options[key] = DEFAULTS[key];
     }
     return this.babel.transform(sourceCode, options).code;

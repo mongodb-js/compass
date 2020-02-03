@@ -53,7 +53,6 @@ const UTF8 = 'utf8';
  * Compiles markdown.
  */
 class MarkdownCompiler {
-
   /**
    * Instantiate the markdown compiler.
    */
