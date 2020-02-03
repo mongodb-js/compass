@@ -344,7 +344,7 @@
     "font-awesome": "^4.7.0",
     "hadron-app": "^3.2.0",
     "hadron-app-registry": "^7.2.0",
-    "hadron-auto-update-manager": "^2.0.0",
+    "hadron-auto-update-manager": "^3.0.0",
     "hadron-compile-cache": "^2.0.0",
     "hadron-document": "^6.0.0",
     "hadron-ipc": "^1.1.0",
