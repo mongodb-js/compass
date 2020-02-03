@@ -23,7 +23,7 @@
     "check"
   ],
   "dependencies": {
-    "debug": "^2.2.0",
+    "debug": "^4.1.1",
     "fs-plus": "^2.8.2",
     "semver": "^5.1.0"
   },
