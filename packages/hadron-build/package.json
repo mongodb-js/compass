@@ -38,7 +38,7 @@
     "getos": "^2.8.4",
     "github": "^7.1.0",
     "glob": "^7.1.1",
-    "got": "^6.3.0",
+    "got": "^10.4.0",
     "hadron-compile-cache": "^1.0.1",
     "hadron-module-cache": "^0.0.4",
     "hadron-style-manager": "^0.1.0",
