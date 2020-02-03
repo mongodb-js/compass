@@ -1,4 +1,3 @@
-'use strict';
 /* eslint eqeqeq: 1, no-console:0 no-else-return: 1, no-cond-assign: 1, consistent-return: 1 */
 const electron = require('electron');
 const dialog = electron.dialog;

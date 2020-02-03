@@ -1,8 +1,6 @@
-'use strict';
-
 let AutoUpdateManager = require('../');
 const assert = require('assert');
-const electronVersion = require('electron-prebuilt/package.json').version;
+const electronVersion = require('electron/package.json').version;
 
 describe('hadron-auto-update-manager', () => {
   it('should have an export', () => {

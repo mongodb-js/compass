@@ -1,5 +1,3 @@
-'use strict';
-
 const EventEmitter = require('events').EventEmitter;
 const got = require('got');
 const debug = require('debug')('hadron-auto-update-manager:linux');
