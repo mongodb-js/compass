@@ -6,29 +6,30 @@ const semver = require('semver');
 const path = require('path');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
-const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg').default;
+const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg')
+  .default;
 const debug = require('debug')('hadron-build:target');
 
 const notary = require('mongodb-notary-service-client');
 
 function sign(src) {
-  notary(src).then((res) => res && debug(':dancers: successfully signed %s', src))
-  .catch((nerr) => debug('Notary failed!', nerr));
+  notary(src)
+    .then((res) => res && debug(':dancers: successfully signed %s', src))
+    .catch((nerr) => debug('Notary failed!', nerr));
 }
-
 
 const tarPack = require('tar-pack').pack;
 
 function tar(srcDirectory, dest) {
   return new Promise(function(resolve, reject) {
     tarPack(srcDirectory)
-     .pipe(fs.createWriteStream(dest))
-     .on('error', function(err) {
-       reject(err);
-     })
-     .on('close', function() {
-       resolve(dest);
-     });
+      .pipe(fs.createWriteStream(dest))
+      .on('error', function(err) {
+        reject(err);
+      })
+      .on('close', function() {
+        resolve(dest);
+      });
   });
 }
 
@@ -53,7 +54,9 @@ function _canBuildInstaller(ext) {
       if (err) {
         debug(`which ${bin} error`, err);
         /* eslint no-console: 0 */
-        console.warn(`Skipping ${ext} build. Please see ${help} for required setup.`);
+        console.warn(
+          `Skipping ${ext} build. Please see ${help} for required setup.`
+        );
         return resolve(false);
       }
       debug(`which ${bin}? ${res}`);
@@ -70,7 +73,6 @@ function ifEnvironmentCanBuild(ext, fn) {
     return fn();
   });
 }
-
 
 function getPkg(directory) {
   const _path = path.join(directory, 'package.json');
@@ -94,7 +96,6 @@ function getPkg(directory) {
   return pkg;
 }
 
-
 class Target {
   constructor(dir, opts = {}) {
     this.dir = dir || process.cwd();
@@ -110,7 +111,8 @@ class Target {
     });
 
     const distributions = pkg.config.hadron.distributions;
-    this.distribution = process.env.HADRON_DISTRIBUTION || distributions.default;
+    this.distribution =
+      process.env.HADRON_DISTRIBUTION || distributions.default;
     const distOpts = distributions[this.distribution];
 
     this.id = distOpts.name;
@@ -153,10 +155,7 @@ class Target {
       this.semver = new semver.SemVer(this.version);
       this.channel = 'alpha';
 
-      this.slug = [
-        this.name,
-        this.channel
-      ].join('-');
+      this.slug = [this.name, this.channel].join('-');
     }
 
     /**
@@ -178,9 +177,7 @@ class Target {
       arch: this.arch,
       electronVersion: this.electronVersion,
       sign: null,
-      afterExtract: [
-        ffmpegAfterExtract
-      ]
+      afterExtract: [ffmpegAfterExtract]
     };
 
     if (this.platform === 'win32') {
@@ -221,7 +218,7 @@ class Target {
         dest = path.join(this.appPath, filename);
       }
       debug(`Writing ${contents.length} bytes to ${dest}`);
-      fs.writeFile(dest, contents, err => {
+      fs.writeFile(dest, contents, (err) => {
         if (err) {
           return reject(err);
         }
@@ -256,17 +253,28 @@ class Target {
       }
     });
 
-    this.appPath = this.dest(`${this.packagerOptions.name}-${this.platform}-${this.arch}`);
-    this.resources = this.dest(`${this.packagerOptions.name}-${this.platform}-${this.arch}`, 'resources');
+    this.appPath = this.dest(
+      `${this.packagerOptions.name}-${this.platform}-${this.arch}`
+    );
+    this.resources = this.dest(
+      `${this.packagerOptions.name}-${this.platform}-${this.arch}`,
+      'resources'
+    );
     /**
      * Remove `.` from version tags for NUGET version
      */
-    const nuggetVersion = this.version.replace(new RegExp(`-${this.channel}\\.(\\d+)`), `-${this.channel}$1`);
+    const nuggetVersion = this.version.replace(
+      new RegExp(`-${this.channel}\\.(\\d+)`),
+      `-${this.channel}$1`
+    );
 
     /**
      * TODO (imlucas) Remove these after evergreen.yml updated to use inline templating.
      */
-    this.windows_msi_label = this.windows_msi_filename = `${this.productName.replace(/\s/g, '')}.msi`;
+    this.windows_msi_label = this.windows_msi_filename = `${this.productName.replace(
+      /\s/g,
+      ''
+    )}.msi`;
     this.windows_setup_label = this.windows_setup_filename = `${this.productName}Setup.exe`;
     this.windows_zip_label = this.windows_zip_filename = `${this.productName}-windows.zip`;
     this.windows_nupkg_full_label = this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
@@ -298,7 +306,9 @@ class Target {
       },
       {
         name: `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`,
-        path: this.dest(`${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`)
+        path: this.dest(
+          `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`
+        )
       }
     ];
 
@@ -321,7 +331,9 @@ class Target {
     /**
      * @see https://jira/mongodb.org/browse/BUILD-920
      */
-    const signWithParams = process.env.NOTARY_AUTH_TOKEN ? 'yes' : process.env.SIGNTOOL_PARAMS;
+    const signWithParams = process.env.NOTARY_AUTH_TOKEN
+      ? 'yes'
+      : process.env.SIGNTOOL_PARAMS;
     this.installerOptions.signWithParams = signWithParams;
 
     /**
@@ -347,7 +359,8 @@ class Target {
             version: this.installerVersion || this.version,
             signWithParams: signWithParams,
             shortcutFolderName: this.shortcutFolderName || this.author,
-            programFilesFolderName: this.programFilesFolderName || this.productName,
+            programFilesFolderName:
+              this.programFilesFolderName || this.productName,
             appUserModelId: this.bundleId,
             upgradeCode: this.upgradeCode,
             arch: 'x64',
@@ -378,11 +391,18 @@ class Target {
       icon: `${this.id}.icns`
     });
 
-
     // this.resources = OSX_RESOURCES;
-    const OSX_DOT_APP = this.dest(`${this.productName}-darwin-x64`, `${this.productName}.app`);
+    const OSX_DOT_APP = this.dest(
+      `${this.productName}-darwin-x64`,
+      `${this.productName}.app`
+    );
     this.appPath = OSX_DOT_APP;
-    this.resources = this.dest(`${this.productName}-darwin-x64`, `${this.productName}.app`, 'Contents', 'Resources');
+    this.resources = this.dest(
+      `${this.productName}-darwin-x64`,
+      `${this.productName}.app`,
+      'Contents',
+      'Resources'
+    );
 
     Object.assign(this.packagerOptions, {
       name: this.productName,
@@ -418,7 +438,10 @@ class Target {
       icon: this.packagerOptions.icon,
       identity_display: platformSettings.codesign_identity,
       identity: platformSettings.codesign_sha1,
-      appPath: this.dest(`${this.productName}-darwin-x64`, `${this.productName}.app`),
+      appPath: this.dest(
+        `${this.productName}-darwin-x64`,
+        `${this.productName}.app`
+      ),
       /**
        * Background image for `.dmg`.
        * @see http://npm.im/electron-installer-dmg
@@ -446,7 +469,10 @@ class Target {
           x: 93,
           y: 243,
           type: 'file',
-          path: this.dest(`${this.productName}-darwin-x64`, `${this.productName}.app`)
+          path: this.dest(
+            `${this.productName}-darwin-x64`,
+            `${this.productName}.app`
+          )
         }
       ]
     };
@@ -477,30 +503,40 @@ class Target {
         const async = require('async');
         const createDMG = require('electron-installer-dmg');
         const codesign = require('electron-installer-codesign');
-        codesign.isIdentityAvailable(opts.identity_display, (err, available) => {
-          if (err) {
-            return reject(err);
-          }
-          if (available) {
-            tasks.push(_.partial(codesign, {
-              identity: opts.identity,
-              appPath: this.dest(`${this.productName}-darwin-x64`, `${this.productName}.app`)
-            }));
-          } else {
-            codesign.printWarning();
-          }
-
-          async.series(tasks, _err => {
-            if (_err) {
-              return reject(_err);
+        codesign.isIdentityAvailable(
+          opts.identity_display,
+          (err, available) => {
+            if (err) {
+              return reject(err);
             }
-            createDMG(opts).then(() => {
-              resolve();
-            }).catch((_e) => {
-              reject(_e);
+            if (available) {
+              tasks.push(
+                _.partial(codesign, {
+                  identity: opts.identity,
+                  appPath: this.dest(
+                    `${this.productName}-darwin-x64`,
+                    `${this.productName}.app`
+                  )
+                })
+              );
+            } else {
+              codesign.printWarning();
+            }
+
+            async.series(tasks, (_err) => {
+              if (_err) {
+                return reject(_err);
+              }
+              createDMG(opts)
+                .then(() => {
+                  resolve();
+                })
+                .catch((_e) => {
+                  reject(_e);
+                });
             });
-          });
-        });
+          }
+        );
       });
     };
   }
@@ -511,7 +547,9 @@ class Target {
   configureForLinux() {
     const platformSettings = _.get(this.pkg, 'config.hadron.build.linux', {});
 
-    this.appPath = this.dest(`${this.productName}-${this.platform}-${this.arch}`);
+    this.appPath = this.dest(
+      `${this.productName}-${this.platform}-${this.arch}`
+    );
     this.resources = path.join(this.appPath, 'resources');
 
     Object.assign(this.packagerOptions, {
@@ -523,14 +561,20 @@ class Target {
     const debianSection = _.get(platformSettings, 'deb_section');
     this.linux_deb_filename = `${this.slug}_${debianVersion}_${debianArch}.deb`;
 
-    const rhelVersion = [this.semver.major, this.semver.minor, this.semver.patch].join('.');
+    const rhelVersion = [
+      this.semver.major,
+      this.semver.minor,
+      this.semver.patch
+    ].join('.');
     const rhelRevision = this.semver.prerelease.join('.') || '1';
     const rhelArch = this.arch === 'x64' ? 'x86_64' : 'i386';
     const rhelCategories = _.get(platformSettings, 'rpm_categories');
     this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
 
     var isRhel = process.env.EVERGREEN_BUILD_VARIANT === 'rhel';
-    this.linux_tar_filename = `${this.slug}-${this.version}-${isRhel ? 'rhel' : this.platform}-${this.arch}.tar.gz`;
+    this.linux_tar_filename = `${this.slug}-${this.version}-${
+      isRhel ? 'rhel' : this.platform
+    }-${this.arch}.tar.gz`;
 
     this.assets = [
       {
@@ -549,7 +593,9 @@ class Target {
 
     var license = this.pkg.license;
     if (license === 'UNLICENSED') {
-      license = `Copyright © ${new Date().getFullYear()} ${this.author}. All Rights Reserved.`;
+      license = `Copyright © ${new Date().getFullYear()} ${
+        this.author
+      }. All Rights Reserved.`;
     }
 
     this.installerOptions = {
@@ -562,11 +608,7 @@ class Target {
         version: debianVersion,
         bin: this.productName,
         section: debianSection,
-        depends: [
-          'libsecret-1-0',
-          'gnome-keyring',
-          'libgconf-2-4'
-        ]
+        depends: ['libsecret-1-0', 'gnome-keyring', 'libgconf-2-4']
       },
       rpm: {
         src: this.appPath,
@@ -613,7 +655,10 @@ class Target {
     };
 
     const createTarball = () => {
-      debug('creating tarball %s -> %s', tar(this.appPath, this.dest(this.linux_tar_filename)));
+      debug(
+        'creating tarball %s -> %s',
+        tar(this.appPath, this.dest(this.linux_tar_filename))
+      );
       return tar(this.appPath, this.dest(this.linux_tar_filename));
     };
 
