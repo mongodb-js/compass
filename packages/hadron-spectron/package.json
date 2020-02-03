@@ -33,7 +33,7 @@
   "homepage": "https://github.com/mongodb-js/hadron-spectron#readme",
   "devDependencies": {
     "electron": "^3.0.0",
-    "eslint-config-mongodb-js": "^3.0.1",
+    "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^5.2.0",
     "mongodb-js-precommit": "^1.0.1",
     "pify": "^4.0.1",
