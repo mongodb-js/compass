@@ -130,7 +130,7 @@
     "mongodb-connection-model": "^14.4.3",
     "mongodb-data-service": "^16.4.0",
     "mongodb-instance-model": "^9.0.2",
-    "mongodb-js-precommit": "^1.1.0",
+    "mongodb-js-precommit": "^2.2.0",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.3",
     "node-loader": "^0.6.0",
