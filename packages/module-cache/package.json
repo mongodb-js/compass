@@ -28,7 +28,7 @@
     "semver": "^5.1.0"
   },
   "devDependencies": {
-    "chai": "^3.4.1",
+    "chai": "^4.2.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^3.1.2",
     "mongodb-js-fmt": "^0.0.3",
