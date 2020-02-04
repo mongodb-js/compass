@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.9.0",
-    "@mongodb-js/compass-collection-stats": "^3.0.0",
+    "@mongodb-js/compass-collection-stats": "^4.0.1",
     "@storybook/addon-actions": "^5.2.1",
     "@storybook/addon-knobs": "^5.2.1",
     "@storybook/addon-links": "^5.2.1",
