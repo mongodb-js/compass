@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.2",
-    "@mongodb-js/compass-crud": "^8.0.0",
+    "@mongodb-js/compass-crud": "^9.0.2",
     "@mongodb-js/compass-query-bar": "^6.0.2",
     "@mongodb-js/compass-status": "^4.0.0",
     "autoprefixer": "^9.4.6",
