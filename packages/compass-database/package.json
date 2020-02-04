@@ -103,7 +103,7 @@
     "react-hot-loader": "^4.1.0",
     "react-storybook-addon-chapters": "^1.1.0",
     "resolve": "^1.4.0",
-    "rimraf": "^2.6.1",
+    "rimraf": "^3.0.1",
     "semver": "^5.4.1",
     "shebang-loader": "0.0.1",
     "sinon": "^3.2.0",
