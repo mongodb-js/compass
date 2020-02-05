@@ -93,7 +93,7 @@
     "lodash.clone": "^4.5.0",
     "lodash.foreach": "^4.5.0",
     "lodash.result": "^4.5.2",
-    "mocha": "^4.1.0",
+    "mocha": "^5.0.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-collection-model": "^2.0.3",
     "mongodb-connection-model": "^14.4.3",
