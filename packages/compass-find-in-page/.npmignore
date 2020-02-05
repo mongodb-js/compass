@@ -2,8 +2,10 @@
 .eslintrc
 .editorconfig
 .nycrc
+.prettierrc
 .travis.yml
 config/
+coverage/
 electron/
 karma.conf.js
 mocha-webpack.opts
