@@ -14,7 +14,6 @@ const STYLE = 'style';
  * Manas styles for a hadron application.
  */
 class StyleManager {
-
   /**
    * For use in a build system when one wants to generate the css
    * at build time and insert them into the document <head>.
