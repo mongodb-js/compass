@@ -45,7 +45,7 @@ class Ddl extends PureComponent {
         <div className="column-container">
           <div className="column main">
             <div className={classnames(styles['ddl-non-genuine-warning'])}>
-              <div className="zero-graphic zero-graphic-non-genuine-mongodb"></div>
+              <div className="zero-graphic zero-graphic-non-genuine-mongodb" />
               <ZeroState
                 header={HEADER}
                 subtext={SUBTEXT}>

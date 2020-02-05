@@ -88,7 +88,7 @@ class DropDatabaseModal extends PureComponent {
         <Modal.Body>
           <div>
             <p className={classnames(styles['drop-database-modal-confirm'])}>
-              <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
+              <i className="fa fa-exclamation-triangle" aria-hidden="true" />
               To drop
               <span className={classnames(styles['drop-database-modal-confirm-namespace'])}>
                 {this.props.name}

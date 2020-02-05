@@ -1,14 +1,10 @@
-# ddl [![][travis_img]][travis_url]
+# compass-databases-ddl [![][travis_img]][travis_url]
 
-> Compass DDL Plugin
-
-## License
-
-Apache 2
+> Compass Databases DDL Plugin
 
 ## License
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.org/mongodb-js/compass-ddl.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/compass-ddl
+[travis_img]: https://travis-ci.org/mongodb-js/compass-databases-ddl.svg?branch=master
+[travis_url]: https://travis-ci.org/mongodb-js/compass-databases-ddl

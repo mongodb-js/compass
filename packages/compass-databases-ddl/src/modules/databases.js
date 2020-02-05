@@ -33,23 +33,6 @@ const ASC = 'asc';
 export const INITIAL_STATE = [];
 
 /**
- * Reducer function for handle state changes to databases.
- *
- * @param {Array} state - The databases state.
- * @param {Object} action - The action.
- *
- * @returns {Array} The new state.
- */
-export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === SORT_DATABASES) {
-    return sort(action.databases, action.column, action.order);
-  } else if (action.type === LOAD_DATABASES) {
-    return load(action.databases);
-  }
-  return state;
-}
-
-/**
  * Sort the database list by column and order.
  *
  * @param {Array} databases - The unsorted database list.
@@ -104,3 +87,20 @@ export const sortDatabases = (databases, column, order) => ({
   column: column,
   order: order
 });
+
+/**
+ * Reducer function for handle state changes to databases.
+ *
+ * @param {Array} state - The databases state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Array} The new state.
+ */
+export default function reducer(state = INITIAL_STATE, action) {
+  if (action.type === SORT_DATABASES) {
+    return sort(action.databases, action.column, action.order);
+  } else if (action.type === LOAD_DATABASES) {
+    return load(action.databases);
+  }
+  return state;
+}
