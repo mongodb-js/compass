@@ -60,7 +60,7 @@
     "classnames": "^2.2.5",
     "cross-env": "^7.0.0",
     "css-loader": "^0.28.1",
-    "electron": "^3.0.7",
+    "electron": "^8.0.0",
     "electron-packager": "^8.7.0",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
