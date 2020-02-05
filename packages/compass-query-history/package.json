@@ -38,22 +38,24 @@
   },
   "dependency-check": {
     "ignore": [
-      "react-dom"
+      "react-dom",
+      "debug"
     ]
   },
   "dependencies": {
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "bson": "^4.0.2",
     "highlight.js": "^9.12.0",
-    "lodash": "^4.17.15",
-    "react-fontawesome": "^1.6.1"
+    "lodash": "^4.17.15"
   },
   "peerDependencies": {
-    "hadron-react-components": "^3.2.1",
-    "mongodb-query-parser": "^1.4.3",
+    "debug": "*",
+    "hadron-react-components": "^3.5.1",
+    "mongodb-query-parser": "*",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
+    "react-fontawesome": "^1.6.1",
     "react-tooltip": "^3.2.6",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "^0.7.0"
@@ -79,7 +81,7 @@
     "classnames": "^2.2.5",
     "cross-env": "^7.0.0",
     "css-loader": "^0.28.1",
-    "debug": "^3.0.1",
+    "debug": "^4.1.1",
     "electron": "^7.1.9",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
@@ -87,9 +89,9 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^3.0.1",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^3.1.0",
-    "hadron-app-registry": "^7.0.1",
-    "hadron-react-components": "^3.2.1",
+    "hadron-app": "^3.2.1",
+    "hadron-app-registry": "^7.2.0",
+    "hadron-react-components": "^3.5.1",
     "har-validator": "^4.2.1",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
@@ -112,12 +114,13 @@
     "mocha": "^5.0.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-connection-model": "^14.4.3",
-    "mongodb-data-service": "^16.1.3",
-    "mongodb-extended-json": "^1.10.2",
+    "mongodb-data-service": "^16.5.1",
+    "mongodb-extended-json": "^1.11.0",
     "mongodb-js-metrics": "^5.0.0",
-    "mongodb-js-precommit": "^2.0.0",
-    "mongodb-query-parser": "^1.4.3",
+    "mongodb-js-precommit": "^2.2.0",
+    "mongodb-query-parser": "^2.0.0",
     "mongodb-reflux-store": "^0.0.1",
+    "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
     "peer-deps-externals-webpack-plugin": "^1.0.2",
     "postcss-loader": "^2.0.6",
@@ -143,6 +146,6 @@
     "webpack-dev-server": "^3.1.14",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2",
-    "webpack-sources": "1.0.1"
+    "webpack-sources": "^1.0.1"
   }
 }
