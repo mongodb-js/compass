@@ -15,12 +15,5 @@
     "mongodb-js/browser",
     "mongodb-js/react"
   ],
-  "plugins": ["react"],
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "modules": true
-    }
-  }
+  "plugins": ["react"]
 }
