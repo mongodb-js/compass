@@ -27,7 +27,7 @@
   "devDependencies": {
     "electron": "^3.1.13",
     "electron-mocha": "^8.2.0",
-    "eslint-config-mongodb-js": "^2.2.0",
+    "eslint-config-mongodb-js": "^5.0.3",
     "mongodb-js-precommit": "^2.0.0",
     "xvfb-maybe": "^0.2.1"
   },
