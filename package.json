@@ -320,7 +320,6 @@
     "@mongodb-js/compass-ssh-tunnel-status": "^5.0.0",
     "@mongodb-js/compass-status": "^4.0.0",
     "ampersand-collection": "^1.5.0",
-    "ampersand-collection-filterable": "^0.2.1",
     "ampersand-dom-bindings": "^3.7.0",
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
