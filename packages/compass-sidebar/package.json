@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.9.0",
-    "@mongodb-js/compass-app-stores": "^3.0.0",
+    "@mongodb-js/compass-app-stores": "^4.0.2",
     "@mongodb-js/compass-connect": "^5.2.7",
     "@mongodb-js/compass-deployment-awareness": "^10.0.0",
     "@mongodb-js/compass-instance-header": "^0.2.2",
