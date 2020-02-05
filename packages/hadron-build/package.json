@@ -16,8 +16,8 @@
     "url": "git://github.com/mongodb-js/hadron-build.git"
   },
   "dependencies": {
-    "asar": "^1.0.0",
-    "async": "^2.1.4",
+    "asar": "^2.0.3",
+    "async": "^3.1.1",
     "aws-sdk": "^2.3.2",
     "bluebird": "^3.3.4",
     "cli-table": "^0.3.1",
@@ -63,7 +63,7 @@
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^7.0.1",
     "mongodb-js-precommit": "^2.2.0",
-    "plist": "^2.1.0",
+    "plist": "^3.0.1",
     "sinon": "^4.5.0",
     "sinon-chai": "^2.8.0"
   },
