@@ -33,7 +33,7 @@ class FindInPageInput extends PureComponent {
     window.removeEventListener('keydown', this.onKeyDown);
   }
 
-  onKeyDown = (e) => {
+  onKeyDown = e => {
     if (e.keyCode === KEYCODE_ESC) {
       this.handleClose();
     }
@@ -46,17 +46,17 @@ class FindInPageInput extends PureComponent {
       const back = e.shiftKey;
       this.props.dispatchFind(val, !back, this.props.searching);
     }
-  }
+  };
 
-  handleChange = (e) => {
+  handleChange = e => {
     this.props.setSearchTerm(e.target.value);
-  }
+  };
 
   handleClose = () => {
     this.props.dispatchStopFind();
     this.props.setSearchTerm('');
     this.props.toggleStatus();
-  }
+  };
 
   // TODO: allow to use buttons to navigate search results
   // findPrev = () => {
@@ -95,21 +95,28 @@ class FindInPageInput extends PureComponent {
     //     ? '' : this.renderResultDiv();
     return (
       <div className={classnames(styles.wrapper)}>
-        <span className={classnames(styles['wrapper-span'])}>Use (Shift+) Enter to navigate results.</span>
+        <span className={classnames(styles['wrapper-span'])}>
+          Use (Shift+) Enter to navigate results.
+        </span>
         <div className={classnames(styles.find)}>
           <form
             name="find-in-page"
             data-test-id="find-in-page"
-            className={classnames(styles['find-in-page'])}>
-            <InputGroup className={classnames(styles['find-in-page-input'])}bsSize="small">
+            className={classnames(styles['find-in-page'])}
+          >
+            <InputGroup
+              className={classnames(styles['find-in-page-input'])}
+              bsSize="small"
+            >
               <FormControl
                 key="findInPage"
                 type="text"
                 id="find-in-page-input"
                 onChange={this.handleChange}
-                value={this.props.searchTerm}/>
-                {/* resultDiv */}
-              { /* <InputGroup.Addon onClick={this.findPrev}>
+                value={this.props.searchTerm}
+              />
+              {/* resultDiv */}
+              {/* <InputGroup.Addon onClick={this.findPrev}>
                 <i className="fa fa-angle-up"></i>
               </InputGroup.Addon>
               <InputGroup.Addon onClick={this.findNext}>
@@ -117,7 +124,10 @@ class FindInPageInput extends PureComponent {
               </InputGroup.Addon> */}
             </InputGroup>
           </form>
-          <div className={classnames(styles['find-close'])} onClick={this.handleClose}>
+          <div
+            className={classnames(styles['find-close'])}
+            onClick={this.handleClose}
+          >
             <div className={classnames(styles['find-close-box'])}>
               <span>&times;</span>
             </div>

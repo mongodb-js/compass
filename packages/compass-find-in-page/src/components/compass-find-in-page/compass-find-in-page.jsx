@@ -6,7 +6,8 @@ import {
   dispatchStopFind,
   setSearchTerm,
   toggleStatus,
-  dispatchFind } from 'modules';
+  dispatchFind
+} from 'modules';
 
 class CompassFindInPage extends PureComponent {
   static displayName = 'CompassFindInPageComponent';
@@ -16,19 +17,15 @@ class CompassFindInPage extends PureComponent {
   };
 
   render() {
-    const input = this.props.enabled
-      ? <FindInPageInput { ...this.props } />
-      : null;
+    const input = this.props.enabled ? (
+      <FindInPageInput {...this.props} />
+    ) : null;
 
-    return (
-      <div data-test-id="find-in-page">
-        {input}
-      </div>
-    );
+    return <div data-test-id="find-in-page">{input}</div>;
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   // currentResult: state.currentResult,
   // totalResults: state.totalResults,
   searchTerm: state.searchTerm,
@@ -36,16 +33,13 @@ const mapStateToProps = (state) => ({
   enabled: state.enabled
 });
 
-const MappedCompassFindInPage = connect(
-  mapStateToProps,
-  {
-    // setCurrentResult,
-    dispatchStopFind,
-    // setTotalResults,
-    setSearchTerm,
-    dispatchFind,
-    toggleStatus
-  },
-)(CompassFindInPage);
+const MappedCompassFindInPage = connect(mapStateToProps, {
+  // setCurrentResult,
+  dispatchStopFind,
+  // setTotalResults,
+  setSearchTerm,
+  dispatchFind,
+  toggleStatus
+})(CompassFindInPage);
 
 export default MappedCompassFindInPage;

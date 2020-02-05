@@ -2,9 +2,10 @@ const path = require('path');
 const project = require('./project');
 
 module.exports = {
+  mode: (process.env.NODE_ENV !== 'production') ? 'development' : 'production',
   resolve: {
     modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
+    extensions: ['.js', '.jsx', '.json', 'less', '.wasm'],
     alias: {
       actions: path.join(project.path.src, 'actions'),
       components: path.join(project.path.src, 'components'),
@@ -70,7 +71,7 @@ module.exports = {
             options: {
               modules: true,
               importLoaders: 1,
-              localIdentName: 'CompassFindInPagePlugin_[name]-[local]__[hash:base64:5]'
+              localIdentName: 'AppStoresPlugin_[name]-[local]__[hash:base64:5]'
             }
           },
           {

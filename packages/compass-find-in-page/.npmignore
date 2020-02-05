@@ -1,8 +1,6 @@
 .babelrc
 .eslintrc
 .editorconfig
-.jshintrc
-.jsfmtrc
 .nycrc
 .travis.yml
 config/
@@ -12,7 +10,7 @@ mocha-webpack.opts
 scripts/
 test/
 src/
-.zuul.yml
 .storybook/
 .coverage/
 .nyc_output/
+lib/index.html
