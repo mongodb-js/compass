@@ -1,8 +1,11 @@
+.github/
+query.spec.js
 .babelrc
 .eslintrc
 .editorconfig
 .nycrc
 .travis.yml
+.vscode/
 config/
 electron/
 karma.conf.js
