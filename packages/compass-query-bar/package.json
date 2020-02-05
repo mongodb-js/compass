@@ -93,7 +93,7 @@
     "hadron-app-registry": "^7.0.1",
     "hadron-react-components": "^3.0.0",
     "html-webpack-plugin": "^2.28.0",
-    "htmlhint": "^0.9.13",
+    "htmlhint": "^0.11.0",
     "ignore-loader": "^0.1.2",
     "inject-loader": "^3.0.1",
     "istanbul-instrumenter-loader": "^3.0.0",
