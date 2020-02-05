@@ -24,7 +24,7 @@
   ],
   "dependencies": {
     "cheerio": "^0.22.0",
-    "less-cache": "^0.24.0"
+    "less-cache": "^1.1.0"
   },
   "devDependencies": {
     "chai": "^3.4.1",
