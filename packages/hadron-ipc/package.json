@@ -1,7 +1,7 @@
 {
   "name": "hadron-ipc",
   "description": "Simplified IPC for electron apps.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "scripts": {
     "check": "mongodb-js-precommit",
     "test": "xvfb-maybe electron-mocha",
