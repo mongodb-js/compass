@@ -119,7 +119,7 @@
     "webpack-dev-server": "^2.4.5",
     "webpack-merge": "^4.1.1",
     "webpack-node-externals": "^1.6.0",
-    "webpack-sources": "1.0.1"
+    "webpack-sources": "1.4.3"
   },
   "dependencies": {
     "hadron-ipc": "^1.0.0",
