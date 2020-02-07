@@ -1,8 +1,10 @@
 .babelrc
 .eslintrc
 .editorconfig
+.github/
 .nycrc
 .travis.yml
+.vscode/
 config/
 electron/
 karma.conf.js
