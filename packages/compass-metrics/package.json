@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-metrics",
   "productName": "Compass Metrics Plugin",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "apiVersion": "3.0.0",
   "description": "Compass Metrics Plugin",
   "main": "lib/index.js",
