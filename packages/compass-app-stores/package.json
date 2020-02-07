@@ -39,7 +39,7 @@
     "redux": "^3.7.2"
   },
   "devDependencies": {
-    "ampersand-collection-filterable": "^0.2.1",
+    "ampersand-collection-filterable": "^0.3.0",
     "ampersand-rest-collection": "^6.0.0",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.10.1",
