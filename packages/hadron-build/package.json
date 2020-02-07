@@ -65,7 +65,7 @@
     "mongodb-js-precommit": "^2.2.0",
     "plist": "^3.0.1",
     "sinon": "^4.5.0",
-    "sinon-chai": "^2.8.0"
+    "sinon-chai": "^3.4.0"
   },
   "optionalDependencies": {
     "@mongodb-js/electron-wix-msi": "^2.1.20",
