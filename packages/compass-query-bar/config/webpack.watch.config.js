@@ -1,18 +1,15 @@
 const webpack = require('webpack');
+const merge = require('webpack-merge');
 const path = require('path');
 const PeerDepsExternalsPlugin = require('peer-deps-externals-webpack-plugin');
 
+const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
-const GLOBALS = {
-  'process.env': {
-    'NODE_ENV': JSON.stringify('development')
-  },
-  __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'true'))
-};
-
-module.exports = {
+const config = {
+  mode: 'development',
   target: 'electron-renderer',
+  devtool: 'source-map',
   watch: true,
   entry: {
     // Export the entry to our plugin. Referenced in package.json main.
@@ -23,122 +20,32 @@ module.exports = {
     publicPath: '/',
     filename: '[name].js',
     // Export our plugin as a UMD library (compatible with all module definitions - CommonJS, AMD and global variable)
-    library: 'QueryBarPlugin',
+    library: 'AggregationsPlugin',
     libraryTarget: 'umd'
-  },
-  resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
-    alias: {
-      actions: path.join(project.path.src, 'actions'),
-      components: path.join(project.path.src, 'components'),
-      constants: path.join(project.path.src, 'constants'),
-      fonts: path.join(project.path.src, 'assets/fonts'),
-      images: path.join(project.path.src, 'assets/images'),
-      less: path.join(project.path.src, 'assets/less'),
-      models: path.join(project.path.src, 'models'),
-      plugin: path.join(project.path.src, 'index.js'),
-      stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook
-    }
   },
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: [
-          { loader: 'style-loader'},
-          { loader: 'css-loader' }
-        ]
-      },
-      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
-      {
-        test: /\.less$/,
-        include: [/\.global/, /bootstrap/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: false
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      // For CSS-Modules locally scoped styles
-      {
-        test: /\.less$/,
-        exclude: [/\.global/, /bootstrap/, /node_modules/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              importLoaders: 1,
-              localIdentName: 'QueryBar_[name]-[local]__[hash:base64:5]'
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      {
-        test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
-        use: [{ loader: 'shebang-loader' }]
-      },
-      {
-        test: /\.(js|jsx)$/,
-        use: [{ loader: 'babel-loader' }],
-        exclude: /(node_modules)/
-      },
-      {
         test: /\.(png|jpg|jpeg|gif|svg)$/,
         use: [{
-          loader: 'url-loader',
+          loader: 'file-loader',
           query: {
-            limit: 8192,
-            name: 'assets/images/[name]__[hash:base64:5].[ext]'
+            name: 'assets/images/[name]__[hash:base64:5].[ext]',
+            publicPath: function(file) {
+              return path.join(__dirname, '..', 'lib', file);
+            }
           }
         }]
       },
       {
         test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
         use: [{
-          loader: 'url-loader',
+          loader: 'file-loader',
           query: {
-            limit: 8192,
-            name: 'assets/fonts/[name]__[hash:base64:5].[ext]'
+            name: 'assets/fonts/[name]__[hash:base64:5].[ext]',
+            publicPath: function(file) {
+              return path.join(__dirname, '..', 'lib', file);
+            }
           }
         }]
       }
@@ -149,16 +56,9 @@ module.exports = {
     // so that the external vendor JavaScript is not part of our compiled bundle
     new PeerDepsExternalsPlugin(),
 
-    // Prints more readable module names in the browser console on HMR updates
-    new webpack.NamedModulesPlugin(),
-
     // Do not emit compiled assets that include errors
-    new webpack.NoEmitOnErrorsPlugin(),
-
-    // Defines global variables
-    new webpack.DefinePlugin(GLOBALS)
+    new webpack.NoEmitOnErrorsPlugin()
   ],
-  devtool: 'cheap-source-map',
   stats: {
     colors: true,
     children: false,
@@ -166,3 +66,5 @@ module.exports = {
     modules: false
   }
 };
+
+module.exports = merge.smart(baseWebpackConfig, config);

@@ -6,7 +6,6 @@
 
 /* eslint-disable no-unused-expressions */
 
-import assert from 'assert';
 import configureStore from 'stores';
 import configureActions from 'actions';
 
@@ -428,7 +427,7 @@ describe('QueryBarStore [Store]', function() {
     describe('when the current query is the default query', function() {
       it('does not trigger the store', function(done) {
         unsubscribe = store.listen(function() {
-          assert.fail(0, 1, 'Should not have triggered the store.');
+          expect.fail(0, 1, 'Should not have triggered the store.');
         });
 
         setTimeout(function() {

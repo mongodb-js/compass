@@ -1,19 +1,16 @@
 const webpack = require('webpack');
+const merge = require('webpack-merge');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { spawn } = require('child_process');
 
+const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
-const GLOBALS = {
-  'process.env': {
-    'NODE_ENV': JSON.stringify('development')
-  },
-  __DEV__: JSON.stringify(JSON.parse('true'))
-};
-
-module.exports = {
+const config = {
+  mode: 'development',
   target: 'electron-renderer',
+  devtool: 'eval-source-map',
   entry: {
     index: [
       // activate HMR for React
@@ -36,121 +33,29 @@ module.exports = {
     publicPath: '/',
     filename: '[name].js'
   },
-  resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
-    alias: {
-      actions: path.join(project.path.src, 'actions'),
-      components: path.join(project.path.src, 'components'),
-      constants: path.join(project.path.src, 'constants'),
-      fonts: path.join(project.path.src, 'assets/fonts'),
-      images: path.join(project.path.src, 'assets/images'),
-      less: path.join(project.path.src, 'assets/less'),
-      models: path.join(project.path.src, 'models'),
-      plugin: path.join(project.path.src, 'index.js'),
-      stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook
-    }
-  },
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: [
-          { loader: 'style-loader'},
-          { loader: 'css-loader' }
-        ]
-      },
-      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
-      {
-        test: /\.less$/,
-        include: [/\.global/, /bootstrap/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: false
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      // For CSS-Modules locally scoped styles
-      {
-        test: /\.less$/,
-        exclude: [/\.global/, /bootstrap/, /node_modules/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              importLoaders: 1,
-              localIdentName: 'QueryBar_[name]-[local]__[hash:base64:5]'
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      {
-        test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
-        use: [{ loader: 'shebang-loader' }]
-      },
-      {
-        test: /\.(js|jsx)$/,
-        use: [{ loader: 'babel-loader' }],
-        exclude: /(node_modules)/
-      },
-      {
         test: /\.(png|jpg|jpeg|gif|svg)$/,
-        use: [{
-          loader: 'url-loader',
-          query: {
-            limit: 8192,
-            name: 'assets/images/[name]__[hash:base64:5].[ext]'
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 500000
+            }
           }
-        }]
+        ]
       },
       {
         test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-        use: [{
-          loader: 'url-loader',
-          query: {
-            limit: 8192,
-            name: 'assets/fonts/[name]__[hash:base64:5].[ext]'
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 500000
+            }
           }
-        }]
+        ]
       }
     ]
   },
@@ -165,12 +70,8 @@ module.exports = {
     new webpack.NoEmitOnErrorsPlugin(),
 
     // Creates HTML page for us at build time
-    new HtmlWebpackPlugin(),
-
-    // Defines global variables
-    new webpack.DefinePlugin(GLOBALS)
+    new HtmlWebpackPlugin()
   ],
-  devtool: 'cheap-source-map',
   devServer: {
     host: '0.0.0.0',
     hot: true,
@@ -180,10 +81,12 @@ module.exports = {
       chunks: false,
       children: false
     },
-    setup() {
+    before() {
       spawn('electron', [project.path.electron], { shell: true, env: process.env, stdio: 'inherit' })
         .on('close', () => process.exit(0))
         .on('error', spawnError => console.error(spawnError)); // eslint-disable-line no-console
     }
   }
 };
+
+module.exports = merge.smart(baseWebpackConfig, config);
