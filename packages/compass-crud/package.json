@@ -35,8 +35,8 @@
   "license": "Apache-2.0",
   "peerDependencies": {
     "@hot-loader/react-dom": "^16.8.4",
-    "@mongodb-js/compass-status": "^3.5.0",
-    "@mongodb-js/compass-query-bar": "^4.0.6",
+    "@mongodb-js/compass-status": "^4.0.0",
+    "@mongodb-js/compass-query-bar": "^6.0.0",
     "hadron-react-bson": "^3.1.2",
     "hadron-react-components": "^3.5.1",
     "prop-types": "^15.5.8",
@@ -47,8 +47,8 @@
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.4",
-    "@mongodb-js/compass-query-bar": "^4.1.2",
-    "@mongodb-js/compass-status": "^3.5.0",
+    "@mongodb-js/compass-query-bar": "^6.0.0",
+    "@mongodb-js/compass-status": "^4.0.0",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
