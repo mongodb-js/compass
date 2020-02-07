@@ -305,7 +305,7 @@
     "@mongodb-js/compass-find-in-page": "^2.0.3",
     "@mongodb-js/compass-home": "^4.0.0",
     "@mongodb-js/compass-import-export": "^5.1.7",
-    "@mongodb-js/compass-indexes": "^3.0.3",
+    "@mongodb-js/compass-indexes": "^3.0.5",
     "@mongodb-js/compass-instance": "^2.0.0",
     "@mongodb-js/compass-loading": "^1.0.7",
     "@mongodb-js/compass-metrics": "^3.0.4",
