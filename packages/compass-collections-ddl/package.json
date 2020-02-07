@@ -109,7 +109,7 @@
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb": "3.5.2",
     "mongodb-collection-model": "^2.0.4",
-    "mongodb-data-service": "^14.0.0",
+    "mongodb-data-service": "^16.5.2",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^1.1.0",
     "mongodb-reflux-store": "0.0.1",
