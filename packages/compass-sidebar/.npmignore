@@ -8,6 +8,7 @@
 config/
 electron/
 karma.conf.js
+lib/index.html
 mocha-webpack.opts
 scripts/
 src/
