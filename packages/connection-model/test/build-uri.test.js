@@ -464,6 +464,22 @@ describe('Connection model builder', () => {
         });
       });
 
+      it('should set default admin authSource when using SCRAM-SHA-256 auth', (done) => {
+        const attrs = {
+          mongodbUsername: 'arlo',
+          mongodbPassword: 'woof',
+          authStrategy: 'SCRAM-SHA-256'
+        };
+        const c = new Connection(attrs);
+
+        expect(c.driverUrl).to.be.equal('mongodb://arlo:woof@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false');
+
+        Connection.from(c.driverUrl, (error) => {
+          expect(error).to.not.exist;
+          done();
+        });
+      });
+
       it('should throw the error if auth is SCRAM-SHA-256 and mongodbUsername is missing', () => {
         const attrs = {
           authStrategy: 'SCRAM-SHA-256',
@@ -508,6 +524,22 @@ describe('Connection model builder', () => {
         });
 
         expect(c.authStrategy).to.be.equal('MONGODB');
+
+        Connection.from(c.driverUrl, (error) => {
+          expect(error).to.not.exist;
+          done();
+        });
+      });
+
+      it('should set default admin authSource when using MONGODB auth', (done) => {
+        const attrs = {
+          authStrategy: 'MONGODB',
+          mongodbUsername: 'user',
+          mongodbPassword: 'somepass'
+        };
+        const c = new Connection(attrs);
+
+        expect(c.driverUrl).to.be.equal('mongodb://user:somepass@localhost:27017/?authSource=admin&readPreference=primary&ssl=false');
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -587,6 +619,19 @@ describe('Connection model builder', () => {
 
         expect(c.isValid()).to.be.equal(false);
         expect(error.message).to.include('x509Username field is required');
+      });
+
+      it('should set default mongodb gssapiServiceName when using KERBEROS auth', (done) => {
+        const c = new Connection({
+          kerberosPrincipal: 'lucas@kerb.mongodb.parts'
+        });
+
+        expect(c.driverUrl).to.be.equal('mongodb://lucas%40kerb.mongodb.parts:@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external');
+
+        Connection.from(c.driverUrl, (error) => {
+          expect(error).to.not.exist;
+          done();
+        });
       });
 
       it('should set authStrategy to KERBEROS', (done) => {

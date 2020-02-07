@@ -474,7 +474,7 @@ assign(derived, {
       } else if (this.authStrategy === 'KERBEROS') {
         req.auth = AUTH_TOKEN;
         defaults(req.query, {
-          gssapiServiceName: this.kerberosServiceName,
+          gssapiServiceName: this.kerberosServiceName || KERBEROS_SERVICE_NAME_DEFAULT,
           authMechanism: this.driverAuthMechanism
         });
       } else if (this.authStrategy === 'X509') {
