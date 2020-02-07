@@ -1,6 +1,6 @@
 {
   "env": {
-    "production": { "presets": ["minify"] },
+    "production": { "presets": [["minify", { "evaluate": false }]] },
     "test": {
       "presets": [ ["env"] ],
       "plugins": [
