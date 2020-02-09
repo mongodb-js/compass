@@ -1,21 +1,17 @@
-sudo: required
-dist: trusty
+sudo: false
+dist: bionic
 language: node_js
 node_js:
-  - 10.2.1
+  - 12.4.0
 env:
   matrix:
-    - MONGODB_VERSION=4.0.x MONGODB_TOPOLOGY=standalone
+    - MONGODB_VERSION=stable MONGODB_TOPOLOGY=standalone
 addons:
   apt:
     sources:
-      - ubuntu-toolchain-r-test
+      - sourceline: 'ppa:ubuntu-toolchain-r/test'
     packages:
       - libkrb5-dev
-before_script:
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
+      - libsecret-1-dev
 script: npm run ci
-cache:
-  directories:
-    - $HOME/.electron
+cache: npm
