@@ -3,6 +3,7 @@
 .editorconfig
 .github/
 .nycrc
+.prettierrc
 .travis.yml
 config/
 electron/
@@ -13,3 +14,4 @@ src/
 test/
 .nyc_output/
 coverage/
+lib/index.html
