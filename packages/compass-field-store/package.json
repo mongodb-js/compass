@@ -60,7 +60,7 @@
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint-config-mongodb-js": "^5.0.3",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
-    "file-loader": "^3.0.1",
+    "file-loader": "^5.0.2",
     "font-awesome": "^4.7.0",
     "hadron-app": "^3.2.1",
     "hadron-app-registry": "^7.2.0",
