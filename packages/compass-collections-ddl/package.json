@@ -74,7 +74,7 @@
     "classnames": "^2.2.5",
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.1",
-    "debug": "^3.0.1",
+    "debug": "^4.1.1",
     "electron": "^3.0.7",
     "electron-packager": "^8.7.0",
     "electron-rebuild": "^1.8.4",
