@@ -97,7 +97,7 @@
     "css-loader": "^0.28.1",
     "d3": "3.5.17",
     "d3-flextree": "1.0.3",
-    "d3-timer": "1.0.7",
+    "d3-timer": "1.0.10",
     "debug": "^4.1.1",
     "electron": "^6.1.7",
     "electron-rebuild": "^1.8.4",
@@ -176,7 +176,7 @@
   },
   "dependencies": {
     "d3-flextree": "1.0.3",
-    "d3-timer": "1.0.7",
+    "d3-timer": "1.0.10",
     "lodash": "^4.17.15",
     "mongodb-redux-common": "^0.0.2"
   }
