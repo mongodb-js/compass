@@ -4,6 +4,7 @@
 .nycrc
 .travis.yml
 config/
+coverage/
 electron/
 .github/
 karma.conf.js
