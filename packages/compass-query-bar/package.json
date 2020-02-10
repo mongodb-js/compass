@@ -125,7 +125,7 @@
     "nyc": "^15.0.0",
     "object-diff": "0.0.4",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
-    "pluralize": "^1.2.1",
+    "pluralize": "^8.0.0",
     "postcss-loader": "^3.0.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.0",
