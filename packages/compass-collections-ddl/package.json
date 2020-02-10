@@ -52,7 +52,7 @@
     "redux": "^3.7.2"
   },
   "devDependencies": {
-    "@mongodb-js/compass-deployment-awareness": "^6.4.1",
+    "@mongodb-js/compass-deployment-awareness": "^8.2.0",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
