@@ -97,7 +97,7 @@ class Indexes extends PureComponent {
    */
   render() {
     return (
-      <div className="index-container">
+      <div className="index-container index-container-scroll-fix">
         <div className="controls-container">
           {this.renderCreateIndexButton()}
         </div>
