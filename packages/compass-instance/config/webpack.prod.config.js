@@ -1,18 +1,19 @@
 const webpack = require('webpack');
+const merge = require('webpack-merge');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MinifyPlugin = require('babel-minify-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const PeerDepsExternalsPlugin = require('peer-deps-externals-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
+const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
 const GLOBALS = {
   __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
 };
 
-module.exports = {
+const config = {
   target: 'electron-renderer',
   devtool: false,
   entry: {
@@ -27,109 +28,8 @@ module.exports = {
     library: 'InstancePlugin',
     libraryTarget: 'umd'
   },
-  resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
-    alias: {
-      actions: path.join(project.path.src, 'actions'),
-      components: path.join(project.path.src, 'components'),
-      constants: path.join(project.path.src, 'constants'),
-      fonts: path.join(project.path.src, 'assets/fonts'),
-      images: path.join(project.path.src, 'assets/images'),
-      less: path.join(project.path.src, 'assets/less'),
-      models: path.join(project.path.src, 'models'),
-      'action-creators': path.join(project.path.src, 'action-creators'),
-      reducers: path.join(project.path.src, 'reducers'),
-      plugin: path.join(project.path.src, 'index.js'),
-      stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
-      utils: path.join(project.path.src, 'utils')
-    }
-  },
   module: {
     rules: [
-      {
-        test: /\.css$/,
-        use: [
-          { loader: 'style-loader'},
-          { loader: 'css-loader' }
-        ]
-      },
-      {
-        test: /\.node$/,
-        use: 'node-loader'
-      },
-      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
-      {
-        test: /\.less$/,
-        include: [/\.global/, /bootstrap/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: false
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      // For CSS-Modules locally scoped styles
-      {
-        test: /\.less$/,
-        exclude: [/\.global/, /bootstrap/, /node_modules/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              importLoaders: 1,
-              localIdentName: 'InstancePlugin_[name]-[local]__[hash:base64:5]'
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      {
-        test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
-        use: [{ loader: 'shebang-loader' }]
-      },
-      {
-        test: /\.(js|jsx)$/,
-        use: [{ loader: 'babel-loader' }],
-        exclude: /(node_modules)/
-      },
       {
         test: /\.(png|jpg|jpeg|gif|svg)$/,
         use: [{
@@ -164,6 +64,10 @@ module.exports = {
       }
     ]
   },
+  optimization: {
+    // Minimize and uglify the code
+    minimize: true
+  },
   plugins: [
     // Auto-create webpack externals for any dependency listed as a peerDependency in package.json
     // so that the external vendor JavaScript is not part of our compiled bundle
@@ -183,11 +87,7 @@ module.exports = {
     new webpack.DefinePlugin(GLOBALS),
 
     // Creates HTML page for us at build time
-    new HtmlWebpackPlugin(),
-
-    // An ES6+ aware minifier, results in smaller output compared to UglifyJS given that
-    // Chromium in electron supports the majority of ES6 features out of the box.
-    new MinifyPlugin()
+    new HtmlWebpackPlugin()
 
     // Uncomment to Analyze the output bundle size of the plugin. Useful for optimizing the build.
     // new BundleAnalyzerPlugin()
@@ -199,3 +99,5 @@ module.exports = {
     modules: false
   }
 };
+
+module.exports = merge.smart(baseWebpackConfig, config);

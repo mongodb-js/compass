@@ -7,7 +7,6 @@ const { TabNavBar, UnsafeComponent } = require('hadron-react-components');
  * Represents the instance view.
  */
 class InstanceComponent extends React.Component {
-
   static displayName = 'InstanceComponent';
   static propTypes = {
     isDataLake: PropTypes.bool.isRequired
