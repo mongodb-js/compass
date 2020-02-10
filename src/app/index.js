@@ -6,8 +6,8 @@ marky.mark('Time to user can Click Connect');
 
 EventEmitter.defaultMaxListeners = 100;
 
-document.addEventListener('dragover', evt => evt.preventDefault());
-document.addEventListener('drop', evt => evt.preventDefault());
+document.addEventListener('dragover', (evt) => evt.preventDefault());
+document.addEventListener('drop', (evt) => evt.preventDefault());
 
 require('../setup-hadron-distribution');
 
@@ -49,12 +49,10 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var { Action } = require('hadron-plugin-manager');
 
-
 ipc.once('app:launched', function() {
   console.log('in app:launched');
   if (process.env.NODE_ENV !== 'production') {
     require('debug').enable('mon*,had*');
-    require('debug/browser');
   }
 });
 
@@ -181,15 +179,28 @@ var Application = View.extend({
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
     debug('rendering statusbar...');
-    this.statusComponent = app.appRegistry.getRole('Application.Status')[0].component;
-    ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
+    this.statusComponent = app.appRegistry.getRole(
+      'Application.Status'
+    )[0].component;
+    ReactDOM.render(
+      React.createElement(this.statusComponent),
+      this.queryByHook('statusbar')
+    );
 
-    this.securityComponent = app.appRegistry.getRole('Application.Security')[0].component;
-    ReactDOM.render(React.createElement(this.securityComponent), this.queryByHook('security'));
+    this.securityComponent = app.appRegistry.getRole(
+      'Application.Security'
+    )[0].component;
+    ReactDOM.render(
+      React.createElement(this.securityComponent),
+      this.queryByHook('security')
+    );
 
     this.autoUpdatesRoles = app.appRegistry.getRole('App.AutoUpdate');
     if (this.autoUpdatesRoles) {
-      ReactDOM.render(React.createElement(this.autoUpdatesRoles[0].component), this.queryByHook('auto-update'));
+      ReactDOM.render(
+        React.createElement(this.autoUpdatesRoles[0].component),
+        this.queryByHook('auto-update')
+      );
     }
 
     const handleTour = () => {
@@ -210,7 +221,7 @@ var Application = View.extend({
   },
   showTour: function(force) {
     const TourView = require('./tour');
-    const tourView = new TourView({force: force});
+    const tourView = new TourView({ force: force });
     if (tourView.features.length > 0) {
       tourView.on('close', this.tourClosed.bind(this));
       this.renderSubview(tourView, this.queryByHook('tour-container'));
@@ -250,18 +261,21 @@ var Application = View.extend({
   },
   fetchUser: function(done) {
     debug('preferences fetched, now getting user');
-    User.getOrCreate(this.preferences.currentUserId, function(err, user) {
-      if (err) {
-        return done(err);
-      }
-      this.user.set(user.serialize());
-      this.user.trigger('sync');
-      this.preferences.save({
-        currentUserId: user.id
-      });
-      debug('user fetch successful', user.serialize());
-      done(null, user);
-    }.bind(this));
+    User.getOrCreate(
+      this.preferences.currentUserId,
+      function(err, user) {
+        if (err) {
+          return done(err);
+        }
+        this.user.set(user.serialize());
+        this.user.trigger('sync');
+        this.preferences.save({
+          currentUserId: user.id
+        });
+        debug('user fetch successful', user.serialize());
+        done(null, user);
+      }.bind(this)
+    );
   },
   fetchPreferences: function(done) {
     this.preferences.once('sync', function(prefs) {
@@ -292,7 +306,9 @@ var Application = View.extend({
       }
     });
 
-    ipc.call('compass:loading:change-status', { status: 'loading preferences' });
+    ipc.call('compass:loading:change-status', {
+      status: 'loading preferences'
+    });
     app.preferences.fetch();
   }
 });
@@ -307,37 +323,51 @@ app.extend({
     return this.preferences.isFeatureEnabled(feature);
   },
   init: function() {
-    async.series([
-      // check if migrations are required
-      migrateApp.bind(state),
-      // get preferences from IndexedDB
-      state.fetchPreferences.bind(state),
-      // get user from IndexedDB
-      state.fetchUser.bind(state)
-    ], function(err) {
-      if (err) {
-        throw err;
+    async.series(
+      [
+        // check if migrations are required
+        migrateApp.bind(state),
+        // get preferences from IndexedDB
+        state.fetchPreferences.bind(state),
+        // get user from IndexedDB
+        state.fetchUser.bind(state)
+      ],
+      function(err) {
+        if (err) {
+          throw err;
+        }
+        Action.pluginActivationCompleted.listen(() => {
+          ipc.call('compass:loading:change-status', {
+            status: 'activating plugins'
+          });
+          global.hadronApp.appRegistry.onActivated();
+          global.hadronApp.appRegistry.emit(
+            'application-initialized',
+            APP_VERSION,
+            process.env.HADRON_PRODUCT_NAME
+          );
+          global.hadronApp.appRegistry.emit(
+            'preferences-loaded',
+            state.preferences
+          );
+          // signal to main process that app is ready
+          ipc.call('window:renderer-ready');
+          // catch a data refresh coming from window-manager
+          ipc.on('app:refresh-data', () =>
+            global.hadronApp.appRegistry.emit('refresh-data')
+          );
+          // as soon as dom is ready, render and set up the rest
+          const MongoDBInstance = require('mongodb-instance-model');
+          state.instance = new MongoDBInstance();
+          state.render();
+          marky.stop('Time to Connect rendered');
+          state.startRouter();
+          state.postRender();
+          marky.stop('Time to user can Click Connect');
+        });
+        require('./setup-plugin-manager');
       }
-      Action.pluginActivationCompleted.listen(() => {
-        ipc.call('compass:loading:change-status', { status: 'activating plugins' });
-        global.hadronApp.appRegistry.onActivated();
-        global.hadronApp.appRegistry.emit('application-initialized', APP_VERSION, process.env.HADRON_PRODUCT_NAME);
-        global.hadronApp.appRegistry.emit('preferences-loaded', state.preferences);
-        // signal to main process that app is ready
-        ipc.call('window:renderer-ready');
-        // catch a data refresh coming from window-manager
-        ipc.on('app:refresh-data', () => global.hadronApp.appRegistry.emit('refresh-data'));
-        // as soon as dom is ready, render and set up the rest
-        const MongoDBInstance = require('mongodb-instance-model');
-        state.instance = new MongoDBInstance();
-        state.render();
-        marky.stop('Time to Connect rendered');
-        state.startRouter();
-        state.postRender();
-        marky.stop('Time to user can Click Connect');
-      });
-      require('./setup-plugin-manager');
-    });
+    );
   }
 });
 
