@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-instance",
   "productName": "Instance plugin",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "apiVersion": "3.0.0",
   "description": "compass instance plugin",
   "main": "lib/index.js",
