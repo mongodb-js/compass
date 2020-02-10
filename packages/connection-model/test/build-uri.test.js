@@ -378,6 +378,23 @@ describe('Connection model builder', () => {
       });
     });
 
+    it('should build safeUrl for LDAP auth', (done) => {
+      const attrs = {
+        ldapUsername: 'ldap-user',
+        ldapPassword: 'ldap-password',
+        authStrategy: 'LDAP'
+      };
+      const c = new Connection(attrs);
+
+      expect(c.driverUrl).to.be.equal('mongodb://ldap-user:ldap-password@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external');
+      expect(c.safeUrl).to.be.equal('mongodb://ldap-user:*****@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external');
+
+      Connection.from(c.driverUrl, (error) => {
+        expect(error).to.not.exist;
+        done();
+      });
+    });
+
     it('should include non-dependent attribute', (done) => {
       const c = new Connection({ authStrategy: 'LDAP' });
 
@@ -480,6 +497,23 @@ describe('Connection model builder', () => {
         });
       });
 
+      it('should build safeUrl for SCRAM-SHA-256 auth', (done) => {
+        const attrs = {
+          mongodbUsername: 'arlo',
+          mongodbPassword: 'woof',
+          authStrategy: 'SCRAM-SHA-256'
+        };
+        const c = new Connection(attrs);
+
+        expect(c.driverUrl).to.be.equal('mongodb://arlo:woof@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false');
+        expect(c.safeUrl).to.be.equal('mongodb://arlo:*****@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false');
+
+        Connection.from(c.driverUrl, (error) => {
+          expect(error).to.not.exist;
+          done();
+        });
+      });
+
       it('should throw the error if auth is SCRAM-SHA-256 and mongodbUsername is missing', () => {
         const attrs = {
           authStrategy: 'SCRAM-SHA-256',
@@ -540,6 +574,23 @@ describe('Connection model builder', () => {
         const c = new Connection(attrs);
 
         expect(c.driverUrl).to.be.equal('mongodb://user:somepass@localhost:27017/?authSource=admin&readPreference=primary&ssl=false');
+
+        Connection.from(c.driverUrl, (error) => {
+          expect(error).to.not.exist;
+          done();
+        });
+      });
+
+      it('should build safeUrl for MONGODB auth', (done) => {
+        const attrs = {
+          authStrategy: 'MONGODB',
+          mongodbUsername: 'user',
+          mongodbPassword: 'somepass'
+        };
+        const c = new Connection(attrs);
+
+        expect(c.driverUrl).to.be.equal('mongodb://user:somepass@localhost:27017/?authSource=admin&readPreference=primary&ssl=false');
+        expect(c.safeUrl).to.be.equal('mongodb://user:*****@localhost:27017/?authSource=admin&readPreference=primary&ssl=false');
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -664,6 +715,23 @@ describe('Connection model builder', () => {
         const c = new Connection(attrs);
 
         expect(c.isValid()).to.be.equal(true);
+      });
+
+      it('should build safeUrl for KERBEROS auth when password is specified', (done) => {
+        const attrs = {
+          kerberosPrincipal: 'alena@test.test',
+          ldapPassword: 'ldap-password',
+          kerberosPassword: 'kerberosP@ssword'
+        };
+        const c = new Connection(attrs);
+
+        expect(c.driverUrl).to.be.equal('mongodb://alena%40test.test:kerberosP%40ssword@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external');
+        expect(c.safeUrl).to.be.equal('mongodb://alena%40test.test:*****@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external');
+
+        Connection.from(c.driverUrl, (error) => {
+          expect(error).to.not.exist;
+          done();
+        });
       });
 
       it('should set driverAuthMechanism to GSSAPI when a password is provided', (done) => {

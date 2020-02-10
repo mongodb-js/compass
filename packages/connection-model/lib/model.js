@@ -1,3 +1,5 @@
+/* eslint complexity: 0 */
+
 const URL = require('url');
 const toURL = URL.format;
 const { format } = require('util');
@@ -412,6 +414,61 @@ assign(derived, {
 });
 
 /**
+ * Adds auth info to URL. The connection model builds two URLs.
+ * driverUrl - for the driver with the password included.
+ * safeUrl - for the UI with stars instead of password.
+ *
+ * @param {Object} options - Has only isPasswordProtected propery.
+ *
+ * @returns {String} - URL with auth.
+ */
+function addAuthToUrl({ isPasswordProtected }) {
+  let username = '';
+  let password = '';
+  let authField = '';
+  let result = this.baseUrl;
+
+  // Post url.format() workaround for
+  // https://github.com/nodejs/node/issues/1802
+  if (
+    this.authStrategy === 'MONGODB' ||
+    this.authStrategy === 'SCRAM-SHA-256'
+  ) {
+    username = encodeURIComponent(this.mongodbUsername);
+    password = isPasswordProtected ? '*****' : encodeURIComponent(this.mongodbPassword);
+    authField = format('%s:%s', username, password);
+  } else if (this.authStrategy === 'LDAP') {
+    username = encodeURIComponent(this.ldapUsername);
+    password = isPasswordProtected ? '*****' : encodeURIComponent(this.ldapPassword);
+    authField = format('%s:%s', username, password);
+  } else if (this.authStrategy === 'X509') {
+    username = encodeURIComponent(this.x509Username);
+    authField = username;
+  } else if (this.authStrategy === 'KERBEROS' && this.kerberosPassword) {
+    username = encodeURIComponent(this.kerberosPrincipal);
+    password = isPasswordProtected ? '*****' : encodeURIComponent(this.kerberosPassword);
+    authField = format('%s:%s', username, password);
+  } else if (this.authStrategy === 'KERBEROS') {
+    username = encodeURIComponent(this.kerberosPrincipal);
+    authField = format('%s:', username);
+  }
+
+  // The auth component comes straight after `the mongodb://`
+  // so a single string replace should always work
+  result = result.replace('AUTH_TOKEN', authField, 1);
+
+  if (includes(['LDAP', 'KERBEROS'], this.authStrategy)) {
+    result = `${result}&authSource=$external`;
+  }
+
+  if (this.authStrategy === 'KERBEROS' && this.kerberosCanonicalizeHostname) {
+    result = `${result}&authMechanismProperties=CANONICALIZE_HOST_NAME:true`;
+  }
+
+  return result;
+}
+
+/**
  * Driver Connection Options
  *
  * So really everything above is all about putting
@@ -425,11 +482,9 @@ assign(derived, {
    * @see http://bit.ly/mongoclient-connect
    * @return {String}
    */
-  driverUrl: {
+  baseUrl: {
     cache: false,
-    /* eslint complexity: 0 */
     fn() {
-      const AUTH_TOKEN = 'AUTH_TOKEN';
       const req = {
         protocol: 'mongodb',
         port: null,
@@ -463,25 +518,25 @@ assign(derived, {
 
       // Encode auth for url format
       if (this.authStrategy === 'MONGODB') {
-        req.auth = AUTH_TOKEN;
+        req.auth = 'AUTH_TOKEN';
         req.query.authSource =
           this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
       } else if (this.authStrategy === 'SCRAM-SHA-256') {
-        req.auth = AUTH_TOKEN;
+        req.auth = 'AUTH_TOKEN';
         req.query.authSource =
           this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
         req.query.authMechanism = this.driverAuthMechanism;
       } else if (this.authStrategy === 'KERBEROS') {
-        req.auth = AUTH_TOKEN;
+        req.auth = 'AUTH_TOKEN';
         defaults(req.query, {
           gssapiServiceName: this.kerberosServiceName || KERBEROS_SERVICE_NAME_DEFAULT,
           authMechanism: this.driverAuthMechanism
         });
       } else if (this.authStrategy === 'X509') {
-        req.auth = AUTH_TOKEN;
+        req.auth = 'AUTH_TOKEN';
         defaults(req.query, { authMechanism: this.driverAuthMechanism });
       } else if (this.authStrategy === 'LDAP') {
-        req.auth = AUTH_TOKEN;
+        req.auth = 'AUTH_TOKEN';
         defaults(req.query, { authMechanism: this.driverAuthMechanism });
       }
 
@@ -537,65 +592,19 @@ assign(derived, {
         reqClone.port = this.sshTunnelOptions.localPort;
       }
 
-      let result = toURL(reqClone);
-
-      // Post url.format() workaround for
-      // https://github.com/nodejs/node/issues/1802
-      if (
-        this.authStrategy === 'MONGODB' ||
-        this.authStrategy === 'SCRAM-SHA-256'
-      ) {
-        const authField = format(
-          '%s:%s',
-          encodeURIComponent(this.mongodbUsername),
-          encodeURIComponent(this.mongodbPassword)
-        );
-
-        // The auth component comes straight after the mongodb:// so
-        // a single string replace should always work
-        result = result.replace(AUTH_TOKEN, authField, 1);
-      }
-
-      if (this.authStrategy === 'LDAP') {
-        const authField = format(
-          '%s:%s',
-          encodeURIComponent(this.ldapUsername),
-          encodeURIComponent(this.ldapPassword)
-        );
-        result = result.replace(AUTH_TOKEN, authField, 1);
-        result = `${result}&authSource=$external`;
-      }
-
-      if (this.authStrategy === 'X509') {
-        const authField = encodeURIComponent(this.x509Username);
-        result = result.replace(AUTH_TOKEN, authField, 1);
-      }
-
-      if (this.authStrategy === 'KERBEROS') {
-        if (this.kerberosPassword) {
-          const authField = format(
-            '%s:%s',
-            encodeURIComponent(this.kerberosPrincipal),
-            encodeURIComponent(this.kerberosPassword)
-          );
-          result = result.replace(AUTH_TOKEN, authField, 1);
-        } else {
-          const authField = format(
-            '%s:',
-            encodeURIComponent(this.kerberosPrincipal)
-          );
-
-          result = result.replace(AUTH_TOKEN, authField, 1);
-        }
-
-        result = `${result}&authSource=$external`;
-
-        if (this.kerberosCanonicalizeHostname) {
-          result = `${result}&authMechanismProperties=CANONICALIZE_HOST_NAME:true`;
-        }
-      }
-
-      return result;
+      return toURL(reqClone);
+    }
+  },
+  safeUrl: {
+    cache: false,
+    fn() {
+      return addAuthToUrl.call(this, { isPasswordProtected: true });
+    }
+  },
+  driverUrl: {
+    cache: false,
+    fn() {
+      return addAuthToUrl.call(this, { isPasswordProtected: false });
     }
   },
   /**

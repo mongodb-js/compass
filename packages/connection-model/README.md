@@ -387,7 +387,8 @@ const derivedProps = c.getAttributes({ derived: true });
 | ----- | ---- | ---------- |  ----  |
 | `instanceId` | String | The mongoscope | `localhost:27017` |
 | `driverAuthMechanism` | String | Converts the value of `authStrategy` for humans into the `authMechanism` value for the driver | `undefined` |
-| `driverUrl` | String | The first argument `mongoscope-server` passes to `mongodb.connect` | `mongodb://localhost:27017/?slaveOk=true` |
+| `driverUrl` | String | The first argument `mongoscope-server` passes to `mongodb.connect` | `mongodb://localhost:27017/?readPreference=primary&ssl=false` |
+| `safeUrl` | String | The url where a password is replaced with stars | `mongodb://localhost:27017/?readPreference=primary&ssl=false` |
 | `driverOptions` | String | The second argument `mongoscope-server` passes to `mongodb.connect` | `{}` |
 
 ## Events
