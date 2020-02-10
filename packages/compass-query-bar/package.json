@@ -94,7 +94,7 @@
     "html-webpack-plugin": "^3.2.0",
     "htmlhint": "^0.11.0",
     "ignore-loader": "^0.1.2",
-    "inject-loader": "^3.0.1",
+    "inject-loader": "^4.0.1",
     "istanbul-instrumenter-loader": "^3.0.0",
     "jsdom": "^16.1.0",
     "jsdom-global": "^3.0.2",
