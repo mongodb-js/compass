@@ -18,16 +18,22 @@ class ConnectionString extends React.Component {
     errorMessage: PropTypes.string,
     syntaxErrorMessage: PropTypes.string,
     hasUnsavedChanges: PropTypes.bool,
-    viewType: PropTypes.string
+    viewType: PropTypes.string,
+    isURIEditable: PropTypes.bool,
+    isSavedConnection: PropTypes.bool
   };
 
   render() {
     return (
       <form
         data-test-id="connect-string"
-        className={classnames(styles['connect-string'])}>
+        className={classnames(styles['connect-string'])}
+      >
         <FormGroup separator>
-          <ConnectionStringInput customUrl={this.props.customUrl} />
+          <ConnectionStringInput
+            customUrl={this.props.customUrl}
+            isURIEditable={this.props.isURIEditable}
+          />
         </FormGroup>
         <FormActions
           currentConnection={this.props.currentConnection}
@@ -36,7 +42,10 @@ class ConnectionString extends React.Component {
           errorMessage={this.props.errorMessage}
           syntaxErrorMessage={this.props.syntaxErrorMessage}
           hasUnsavedChanges={this.props.hasUnsavedChanges}
-          viewType={this.props.viewType} />
+          viewType={this.props.viewType}
+          isURIEditable={this.props.isURIEditable}
+          isSavedConnection={this.props.isSavedConnection}
+        />
       </form>
     );
   }

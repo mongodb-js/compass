@@ -16,7 +16,9 @@ class FormActions extends React.Component {
     errorMessage: PropTypes.string,
     syntaxErrorMessage: PropTypes.string,
     hasUnsavedChanges: PropTypes.bool,
-    viewType: PropTypes.string
+    viewType: PropTypes.string,
+    isURIEditable: PropTypes.bool,
+    isSavedConnection: PropTypes.bool
   };
 
   /**
@@ -49,6 +51,28 @@ class FormActions extends React.Component {
   onChangesDiscarded(evt) {
     evt.preventDefault();
     Actions.onChangesDiscarded();
+  }
+
+  /**
+   * Shows an editable URI input.
+   *
+   * @param {Object} evt - evt.
+   */
+  onEditURIClicked(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    Actions.onEditURIClicked();
+  }
+
+  /**
+   * Shows a read-only URI.
+   *
+   * @param {Object} evt - evt.
+   */
+  onHideURIClicked(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    Actions.onHideURIClicked();
   }
 
   /**
@@ -141,6 +165,44 @@ class FormActions extends React.Component {
   };
 
   /**
+   * Renders the "Edit" button.
+   *
+   * @returns {React.Component}
+   */
+  renderEditURI = () => {
+    return (
+      <button
+        type="submit"
+        name="editUrl"
+        className="btn btn-sm btn-default"
+        onClick={this.onEditURIClicked.bind(this)}
+      >
+        Edit
+      </button>
+    );
+  };
+
+  /**
+   * Renders the "Hide" button.
+   *
+   * @returns {React.Component}
+   */
+  renderHideURI = () => {
+    if (this.props.isSavedConnection && !this.props.hasUnsavedChanges) {
+      return (
+        <button
+          type="submit"
+          name="hideUrl"
+          className="btn btn-sm btn-default"
+          onClick={this.onHideURIClicked.bind(this)}
+        >
+          Hide
+        </button>
+      );
+    }
+  };
+
+  /**
    * Renders connect or disconnect button depending on state.
    *
    * @returns {React.Component}
@@ -148,6 +210,7 @@ class FormActions extends React.Component {
   renderConnectButtons() {
     return (
       <div className={classnames(styles.buttons)}>
+        {this.props.isURIEditable ? this.renderHideURI() : this.renderEditURI()}
         {this.props.isConnected
           ? this.renderDisconnect()
           : this.renderConnect()}

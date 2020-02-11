@@ -8,6 +8,7 @@ import Help from './form/help';
 import Actions from 'actions';
 import classnames from 'classnames';
 import IsFavoritePill from './form//is-favorite-pill';
+import ConfirmEditConnectionString from './modal/confirm-edit-connection-string';
 
 import styles from './connect.less';
 
@@ -20,7 +21,8 @@ class Connect extends React.Component {
     viewType: PropTypes.string,
     isModalVisible: PropTypes.bool,
     isMessageVisible: PropTypes.bool,
-    savedMessage: PropTypes.string
+    savedMessage: PropTypes.string,
+    isEditURIConfirm: PropTypes.bool
   };
 
   componentDidMount() {
@@ -54,10 +56,10 @@ class Connect extends React.Component {
    */
   renderConnectScreen() {
     if (this.props.viewType === 'connectionString') {
-      return (<ConnectionString {...this.props} />);
+      return <ConnectionString {...this.props} />;
     }
 
-    return (<ConnectionForm {...this.props} />);
+    return <ConnectionForm {...this.props} />;
   }
 
   /**
@@ -71,7 +73,8 @@ class Connect extends React.Component {
         <div className={classnames(styles['change-view-link'])}>
           <a
             data-test-id="form-view-link"
-            onClick={this.onChangeViewClicked.bind(this, 'connectionForm')}>
+            onClick={this.onChangeViewClicked.bind(this, 'connectionForm')}
+          >
             Fill in connection fields individually
           </a>
         </div>
@@ -80,8 +83,7 @@ class Connect extends React.Component {
 
     return (
       <div className={classnames(styles['change-view-link'])}>
-        <a
-          onClick={this.onChangeViewClicked.bind(this, 'connectionString')}>
+        <a onClick={this.onChangeViewClicked.bind(this, 'connectionString')}>
           Paste connection string
         </a>
       </div>
@@ -97,9 +99,10 @@ class Connect extends React.Component {
     let name = 'New Connection';
 
     if (this.props.currentConnection.isFavorite) {
-      name = (this.props.currentConnection.name.length > 40)
-        ? `${this.props.currentConnection.name.substring(0, 40)}...`
-        : this.props.currentConnection.name;
+      name =
+        this.props.currentConnection.name.length > 40
+          ? `${this.props.currentConnection.name.substring(0, 40)}...`
+          : this.props.currentConnection.name;
     }
 
     return (
@@ -111,14 +114,15 @@ class Connect extends React.Component {
           isMessageVisible={this.props.isMessageVisible}
           savedMessage={this.props.savedMessage}
           color={this.props.currentConnection.color}
-          isFavorite={this.props.currentConnection.isFavorite} />
+          isFavorite={this.props.currentConnection.isFavorite}
+        />
       </header>
     );
   }
 
   render() {
-    const Status = global.hadronApp.appRegistry
-      .getRole('Application.Status')[0].component;
+    const Status = global.hadronApp.appRegistry.getRole('Application.Status')[0]
+      .component;
 
     return (
       <div>
@@ -136,6 +140,9 @@ class Connect extends React.Component {
             </div>
             <Help {...this.props} />
           </div>
+          <ConfirmEditConnectionString
+            isEditURIConfirm={this.props.isEditURIConfirm}
+          />
         </div>
       </div>
     );
