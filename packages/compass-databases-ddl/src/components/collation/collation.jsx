@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-import sortBy from 'lodash.sortby';
+import { sortBy } from 'lodash';
 import classnames from 'classnames';
 import COLLATION_OPTIONS from 'constants/collation';
 

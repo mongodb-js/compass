@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import numeral from 'numeral';
-import assign from 'lodash.assign';
+import { assign } from 'lodash';
 import classnames from 'classnames';
 import { SortableTable } from 'hadron-react-components';
 import dropDatabaseStore from 'stores/drop-database';

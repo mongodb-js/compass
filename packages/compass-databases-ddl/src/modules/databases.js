@@ -1,5 +1,4 @@
-import zipObject from 'lodash.zipobject';
-import sortByOrder from 'lodash.sortbyorder';
+import { zipObject, orderBy } from 'lodash';
 import { INITIAL_STATE as COLUMNS } from 'modules/columns';
 
 /**
@@ -42,7 +41,7 @@ export const INITIAL_STATE = [];
  * @returns {Array} The sorted list.
  */
 const sort = (databases, column, order) => {
-  return sortByOrder(databases, column || NAME, order || ASC);
+  return orderBy(databases, column || NAME, order || ASC);
 };
 
 /**
