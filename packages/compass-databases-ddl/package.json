@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@mongodb-js/compass-deployment-awareness": "^6.4.1",
-    "autoprefixer": "^7.1.2",
+    "autoprefixer": "^9.7.4",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
     "babel-loader": "^7.1.1",
