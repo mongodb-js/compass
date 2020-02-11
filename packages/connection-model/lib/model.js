@@ -586,12 +586,6 @@ assign(derived, {
 
       const reqClone = clone(req);
 
-      if (this.sshTunnel !== 'NONE') {
-        // Populate the SSH Tunnel options correctly
-        reqClone.hostname = this.sshTunnelOptions.localAddr;
-        reqClone.port = this.sshTunnelOptions.localPort;
-      }
-
       return toURL(reqClone);
     }
   },

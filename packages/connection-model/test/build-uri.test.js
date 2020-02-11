@@ -839,7 +839,7 @@ describe('Connection model builder', () => {
         c.sshTunnelPassword = 'pass';
 
         expect(c.driverUrl).to.not.be.equal('');
-        expect(c.sshTunnelBindToLocalPort).to.exist;
+        expect(c.sshTunnelBindToLocalPort).to.not.exist;
       });
 
       it('should load all of the files from the filesystem if sslMethod ia ALL', (done) => {

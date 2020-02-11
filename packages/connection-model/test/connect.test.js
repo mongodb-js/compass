@@ -62,7 +62,7 @@ describe('connection model connector', () => {
       it('should close ssh tunnel if the connection fails', done => {
         const model = new MockConnection({
           hostname: 'localhost',
-          port: '27017',
+          port: '27020',
           sshTunnel: 'USER_PASSWORD',
           sshTunnelHostname: 'my.ssh-server.com',
           sshTunnelPassword: 'password',
@@ -73,6 +73,7 @@ describe('connection model connector', () => {
         assert(model.isValid());
         mockConnect(model, setupListeners, err => {
           // must throw error here, because the connection details are invalid
+          console.log(err);
           assert.ok(err);
           assert.ok(/ECONNREFUSED/.test(err.message));
           // assert that tunnel.close() was called once
