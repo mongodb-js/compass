@@ -73,7 +73,6 @@ describe('connection model connector', () => {
         assert(model.isValid());
         mockConnect(model, setupListeners, err => {
           // must throw error here, because the connection details are invalid
-          console.log(err);
           assert.ok(err);
           assert.ok(/ECONNREFUSED/.test(err.message));
           // assert that tunnel.close() was called once
