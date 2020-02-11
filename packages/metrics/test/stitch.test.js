@@ -36,15 +36,18 @@ describe('Stitch Tracker', function() {
     stitchTracker = metrics.trackers.get('stitch');
   });
 
-  afterEach(function() {
+  afterEach(function(done) {
     stitchTracker.clear();
+    stitchTracker.close();
+    done();
   });
 
-  it('correctly sets enabledAndConfigured when props change', function() {
+  it('correctly sets enabledAndConfigured when props change', function(done) {
     stitchTracker.enabled = false;
     assert.ok(!stitchTracker.enabledAndConfigured);
     stitchTracker.enabled = true;
     assert.ok(stitchTracker.enabledAndConfigured);
+    done();
   });
 
   it('should only initialize after setting app and user resources', function(done) {
@@ -73,10 +76,12 @@ describe('Stitch Tracker', function() {
   describe('trackFromQueue', function() {
     it('should call fn with provided arguments from the queue', function() {
       var fnSpy = sinon.spy();
-      stitchTracker._callsQueue = [{
-        fn: fnSpy,
-        args: ['mongod', 'user']
-      }];
+      stitchTracker._callsQueue = [
+        {
+          fn: fnSpy,
+          args: ['mongod', 'user']
+        }
+      ];
       stitchTracker._trackFromQueue();
       assert.ok(fnSpy.calledWith('mongod', 'user'));
     });
@@ -92,7 +97,9 @@ describe('Stitch Tracker', function() {
       metrics.addResource(user);
       trackFromQueueStub = sinon.stub(stitchTracker, '_trackFromQueue');
       identifyStub = sinon.stub(stitchTracker, '_identify');
-      setupStub = sinon.stub(stitchTracker, '_setup').returns(Promise.resolve({}));
+      setupStub = sinon
+        .stub(stitchTracker, '_setup')
+        .returns(Promise.resolve({}));
     });
 
     afterEach(function() {
@@ -129,7 +136,9 @@ describe('Stitch Tracker', function() {
       metrics.addResource(app);
       metrics.addResource(user);
       _getCollectionStub = sinon.stub(stitchTracker, '_getCollection');
-      setupStub = sinon.stub(stitchTracker, '_setup').returns(Promise.resolve({}));
+      setupStub = sinon
+        .stub(stitchTracker, '_setup')
+        .returns(Promise.resolve({}));
     });
 
     afterEach(function() {

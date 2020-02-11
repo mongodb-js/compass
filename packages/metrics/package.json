@@ -5,7 +5,8 @@
   "scripts": {
     "check": "mongodb-js-precommit",
     "test": "mocha",
-    "ci": "npm run check && npm test"
+    "test:electron": "xvfb-maybe electron-mocha --renderer",
+    "ci": "npm run check && npm test && npm run test:electron"
   },
   "homepage": "http://github.com/mongodb-js/metrics",
   "repository": {
@@ -28,7 +29,8 @@
     "lodash": "^4.13.1",
     "mongodb-ns": "^2.0.0",
     "mongodb-redact": "0.2.0",
-    "mongodb-stitch": "^3.0.6",
+    "mongodb-stitch-browser-sdk": "^4.8.0",
+    "mongodb-stitch-server-sdk": "^4.8.0",
     "os-name": "^3.1.0",
     "request": "^2.67.0",
     "singleton-js": "^1.0.0",
@@ -37,10 +39,13 @@
     "xhr": "^2.2.0"
   },
   "devDependencies": {
+    "electron": "^6.1.7",
+    "electron-mocha": "^8.2.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.0",
     "mongodb-js-precommit": "^2.1.0",
-    "sinon": "^8.1.1"
+    "sinon": "^8.1.1",
+    "xvfb-maybe": "^0.2.1"
   },
   "license": "Apache-2.0"
 }

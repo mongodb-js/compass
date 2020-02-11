@@ -1,6 +1,10 @@
 /* eslint no-console: 0 */
 
-var stitch = require('mongodb-stitch');
+var stitch =
+  typeof window === 'undefined'
+    ? require('mongodb-stitch-server-sdk')
+    : require('mongodb-stitch-browser-sdk');
+
 var State = require('ampersand-state');
 var _ = require('lodash');
 var singleton = require('singleton-js');
@@ -13,6 +17,14 @@ var os =
   typeof window === 'undefined'
     ? require('os')
     : require('electron').remote.require('os');
+
+var _stitchClient;
+function getStitchClient(appId) {
+  if (!_stitchClient) {
+    _stitchClient = stitch.Stitch.initializeAppClient(appId);
+  }
+  return _stitchClient;
+}
 
 var StitchTracker = State.extend({
   id: 'stitch',
@@ -110,7 +122,13 @@ var StitchTracker = State.extend({
     }
   },
   _isTrackerReady: function() {
-    return this.enabledAndConfigured && this._client;
+    return (
+      this.enabledAndConfigured && this._client && this._client.auth.currentUser
+    );
+  },
+  close: function() {
+    if (!_stitchClient || !_stitchClient.close) return;
+    _stitchClient.close();
   },
   _setup: function() {
     var eventsNS = parseNamespaceString(this.events);
@@ -124,24 +142,23 @@ var StitchTracker = State.extend({
     }
 
     var self = this;
-    return stitch.StitchClientFactory.create(this.appId).then(function(client) {
-      return client
-        .login()
-        .then(function() {
-          self._client = client;
-
-          debug('setup client', {
-            _client: self._client,
-            _eventsDatabaseName: self._eventsDatabaseName,
-            _eventsCollectionName: self._eventsCollectionName,
-            _usersDatabaseName: self._usersDatabaseName,
-            _usersCollectionName: self._usersCollectionName
-          });
-        })
-        .catch(function(e) {
-          debug('error logging in via stitch: %s', e.message);
+    if (!self._client) {
+      self._client = getStitchClient(this.appId);
+    }
+    return self._client.auth
+      .loginWithCredential(new stitch.AnonymousCredential())
+      .then(function() {
+        debug('setup client', {
+          _client: self._client,
+          _eventsDatabaseName: self._eventsDatabaseName,
+          _eventsCollectionName: self._eventsCollectionName,
+          _usersDatabaseName: self._usersDatabaseName,
+          _usersCollectionName: self._usersCollectionName
         });
-    });
+      })
+      .catch(function(e) {
+        debug('error logging in via stitch: %s', e.message);
+      });
   },
   _identify: function() {
     // this is only used when a user is first created ($setOnInsert)
@@ -188,7 +205,7 @@ var StitchTracker = State.extend({
         if (err) {
           return debug('error sending identify to stitch: %s', err.message);
         }
-        updateObj.stitch_user_id = this._client.authedId();
+        updateObj.stitch_user_id = this._client.auth.currentUser.id;
         debug('sending identify', redact(updateObj));
         return collection.updateOne(
           { _id: this.userId },
@@ -202,13 +219,11 @@ var StitchTracker = State.extend({
     if (!this._isTrackerReady()) {
       return fn(new Error('stitch tracker not configured yet.'));
     }
-    return fn(
-      null,
-      this._client
-        .service('mongodb', 'mongodb-atlas')
-        .db(db)
-        .collection(name)
+    const mongoClient = this._client.getServiceClient(
+      stitch.RemoteMongoClient.factory,
+      'mongodb-atlas'
     );
+    return fn(null, mongoClient.db(db).collection(name));
   },
 
   /**
@@ -246,7 +261,7 @@ var StitchTracker = State.extend({
       if (err) {
         return debug('error sending event to stitch: %s', err.message);
       }
-      payload.stitch_user_id = this._client.authedId();
+      payload.stitch_user_id = this._client.auth.currentUser.id;
       debug('sending event `%s`', eventName, payload);
       return collection.insertOne(payload);
     }.bind(this);

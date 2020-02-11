@@ -91,6 +91,12 @@ var Metrics = State.extend({
   info: function() {
     var args = Array.prototype.slice.call(arguments);
     this.track.apply(this, ['Error', 'info'].concat(args));
+  },
+  close: function() {
+    if (!trackers.has('stitch')) {
+      return;
+    }
+    trackers.get('stitch').close();
   }
 });
 
