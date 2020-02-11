@@ -155,6 +155,6 @@
   },
   "dependencies": {
     "lodash": "^4.17.15",
-    "mongodb-query-util": "^0.0.1"
+    "mongodb-query-util": "^0.2.1"
   }
 }
