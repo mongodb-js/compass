@@ -90,7 +90,7 @@
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-connection-model": "^14.5.1",
     "mongodb-data-service": "^16.5.2",
-    "mongodb-js-metrics": "^5.0.0",
+    "mongodb-js-metrics": "^5.0.1",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-reflux-store": "0.0.1",
     "mongodb-schema": "^8.2.3",
