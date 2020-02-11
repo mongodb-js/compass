@@ -93,7 +93,7 @@
     "chai": "^4.2.0",
     "chai-enzyme": "1.0.0-beta.1",
     "classnames": "^2.2.5",
-    "cross-env": "^6.0.3",
+    "cross-env": "^7.0.0",
     "css-loader": "^0.28.1",
     "d3": "3.5.17",
     "d3-flextree": "1.0.3",
