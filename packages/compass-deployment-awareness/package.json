@@ -100,7 +100,7 @@
     "mongodb-connection-model": "^13.1.6",
     "mongodb-data-service": "^16.5.1",
     "mongodb-js-fmt": "^0.0.3",
-    "mongodb-js-metrics": "^4.2.0",
+    "mongodb-js-metrics": "^5.0.1",
     "mongodb-js-precommit": "^2.0.0",
     "node-loader": "^0.6.0",
     "nyc": "^13.1.0",
