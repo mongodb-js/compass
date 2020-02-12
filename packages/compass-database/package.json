@@ -90,7 +90,7 @@
     "mocha": "^5.0.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-js-fmt": "^0.0.3",
-    "mongodb-js-precommit": "^1.1.0",
+    "mongodb-js-precommit": "^2.2.1",
     "mongodb-reflux-store": "0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
