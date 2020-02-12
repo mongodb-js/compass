@@ -98,7 +98,7 @@
     "karma-webpack": "^4.0.2",
     "less": "^2.7.2",
     "less-loader": "^4.0.5",
-    "mini-css-extract-plugin": "^0.8.0",
+    "mini-css-extract-plugin": "^0.9.0",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
     "moment": "^2.24.0",
