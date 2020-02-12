@@ -310,16 +310,18 @@ const Store = Reflux.createStore({
     currentConnection.appname = electron.remote.app.getName();
 
     if (this.state.viewType === 'connectionString') {
-      const customUrl = this.state.customUrl || DEFAULT_DRIVER_URL;
+      const url = this.state.isURIEditable
+        ? this.state.customUrl || DEFAULT_DRIVER_URL
+        : this.state.currentConnection.driverUrl;
 
       this.StatusActions.showIndeterminateProgressBar();
 
-      if (!Connection.isURI(customUrl)) {
+      if (!Connection.isURI(url)) {
         this._setSyntaxErrorMessage(
           'Invalid schema, expected `mongodb` or `mongodb+srv`'
         );
       } else {
-        Connection.from(customUrl, (error, parsedConnection) => {
+        Connection.from(url, (error, parsedConnection) => {
           if (error) {
             this._setSyntaxErrorMessage(error.message);
           } else {

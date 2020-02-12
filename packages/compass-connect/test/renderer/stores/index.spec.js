@@ -1698,6 +1698,50 @@ describe('Store', () => {
     });
   });
 
+  describe('#onConnectClicked', () => {
+    const favorite = new Connection({
+      hostname: 'server.example.com',
+      port: 27001,
+      authStrategy: 'MONGODB',
+      mongodbUsername: 'user',
+      mongodbPassword: 'password',
+      name: 'Compass',
+      color: '#3b8196',
+      isFavorite: true
+    });
+    const connections = {
+      [favorite._id]: favorite.getAttributes({ props: true, derived: true })
+    };
+
+    beforeEach(() => {
+      Store.state.isURIEditable = false;
+      Store.state.viewType = 'connectionString';
+      Store.state.customUrl =
+        'mongodb://user:*****@localhost:27018/?authSource=admin&readPreference=primary&ssl=false';
+      Store.state.fetchedConnections = new ConnectionCollection();
+      Store.state.fetchedConnections.add(favorite);
+      Store.state.connections = { ...connections };
+      Store.state.currentConnection = favorite;
+      Store._connect = (parsedConnection) => {
+        Store.state.currentConnection = parsedConnection;
+        Store.trigger(Store.state);
+      };
+      Store.StatusActions = { showIndeterminateProgressBar: () => {} };
+    });
+
+    it('uses a real password when builds a driverUrl', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.currentConnection.driverUrl).to.equal(
+          'mongodb://user:password@server.example.com:27001/?authSource=admin&readPreference=primary&appname=Electron&ssl=false'
+        );
+        done();
+      });
+
+      Actions.onConnectClicked();
+    });
+  });
+
   describe('#onSaveFavoriteClicked', () => {
     context('when it is a connection form view', () => {
       const favorite = new Connection({
