@@ -220,13 +220,9 @@ const Store = Reflux.createStore({
    * @param {String} viewType - A view type.
    */
   onChangeViewClicked(viewType) {
-    console.log('onChangeViewClicked', viewType);
     const currentConnection = this.state.currentConnection;
     const driverUrl = currentConnection.driverUrl;
-    console.log('currentConnection', currentConnection);
-    console.log('driverUrl', driverUrl);
     const customUrl = this.state.customUrl;
-    console.log('customUrl', customUrl);
     const isValid = this.state.isValid;
     const currentSaved = this.state.connections[currentConnection._id];
 
@@ -255,6 +251,11 @@ const Store = Reflux.createStore({
           if (!error) {
             currentConnection.set(this._getPoorAttributes(parsedConnection));
 
+            // If we have SSH tunnel attributes, set them here.
+            if (currentSaved.sshTunnel !== 'NONE') {
+              this._setSshTunnelAttributes(currentSaved, currentConnection);
+            }
+
             if (customUrl.match(/[?&]ssl=true/i)) {
               currentConnection.sslMethod = 'SYSTEMCA';
             }
@@ -264,11 +265,6 @@ const Store = Reflux.createStore({
               currentConnection.color = currentSaved.color;
               currentConnection.lastUsed = currentSaved.lastUsed;
             }
-
-            // If we have SSH tunnel attributes, set them here.
-            // if (currentConnection.sshTunnel !== 'NONE') {
-            //   this._setSshTunnelAttributes(currentConnection, currentSaved);
-            // }
 
             this.state.isHostChanged = true;
             this.state.isPortChanged = true;
@@ -317,7 +313,6 @@ const Store = Reflux.createStore({
     // We replace custom appname with proper appname
     // to avoid sending malicious value to the server
     currentConnection.appname = electron.remote.app.getName();
-    console.log('onConnectClicked', this.state);
 
     if (this.state.viewType === 'connectionString') {
       const url = this.state.isURIEditable
@@ -342,15 +337,12 @@ const Store = Reflux.createStore({
 
             // If we have SSH tunnel attributes, set them here.
             if (currentConnection.sshTunnel !== 'NONE') {
-              console.log('setting ssh tunnel attrs');
               this._setSshTunnelAttributes(currentConnection, parsedConnection);
             }
 
             if (isFavorite && driverUrl !== parsedConnection.driverUrl) {
-              console.log('connecting to parsed connection');
               this._connect(parsedConnection);
             } else {
-              console.log('connecting to current connection');
               currentConnection.set(this._getPoorAttributes(parsedConnection));
               this._connect(currentConnection);
             }
@@ -363,7 +355,6 @@ const Store = Reflux.createStore({
         errorMessage: 'The required fields can not be empty'
       });
     } else {
-      console.log('connecting currentConnection');
       this.StatusActions.showIndeterminateProgressBar();
       this._connect(currentConnection);
     }
@@ -567,7 +558,6 @@ const Store = Reflux.createStore({
    * @param {Connection} connection - The connection to select.
    */
   onConnectionSelected(connection) {
-    console.log('onConnectionSelected', connection);
     this.state.currentConnection.set({ name: 'Local', color: undefined });
     this.state.currentConnection.set(connection);
     this.trigger(this.state);
@@ -922,7 +912,6 @@ const Store = Reflux.createStore({
   _connect(connection) {
     this.dataService = new DataService(connection);
     this.appRegistry.emit('data-service-initialized', this.dataService);
-    console.log('connecting to', connection);
     this.dataService.connect((error, ds) => {
       if (error) {
         this.StatusActions.done();
@@ -1052,11 +1041,10 @@ const Store = Reflux.createStore({
    * @param {Connection} parsedConnection - The parsed connection.
    */
   _setSshTunnelAttributes(currentConnection, parsedConnection) {
-    parsedConnection.sshTunnel = currentConnection.sshTunnel;
     SSH_TUNNEL_FIELDS.forEach((field) => {
-      console.log('setting field', field, currentConnection[field], parsedConnection[field]);
       parsedConnection[field] = currentConnection[field];
     });
+    parsedConnection.set({ sshTunnel: currentConnection.sshTunnel });
   }
 });
 
