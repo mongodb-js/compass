@@ -104,7 +104,7 @@
     "karma-mocha-reporter": "^2.2.4",
     "karma-sinon": "^1.0.5",
     "karma-sourcemap-loader": "^0.3.7",
-    "karma-webpack": "^2.0.4",
+    "karma-webpack": "^4.0.2",
     "less": "^2.7.2",
     "less-loader": "^4.0.5",
     "mocha": "^7.0.1",
