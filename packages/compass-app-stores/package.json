@@ -99,7 +99,7 @@
     "mongodb-connection-model": "^14.4.3",
     "mongodb-data-service": "^16.5.1",
     "mongodb-database-model": "^0.1.3",
-    "mongodb-instance-model": "^9.0.5",
+    "mongodb-instance-model": "^10.0.0",
     "mongodb-js-metrics": "^5.0.0",
     "mongodb-js-precommit": "^2.2.0",
     "mongodb-reflux-store": "^0.0.1",
