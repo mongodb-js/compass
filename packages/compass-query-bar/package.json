@@ -112,7 +112,7 @@
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-ace-autocompleter": "^0.4.1",
-    "mongodb-ace-mode": "^0.3.0",
+    "mongodb-ace-mode": "^0.4.1",
     "mongodb-ace-theme-query": "^0.0.2",
     "mongodb-connection-model": "^14.5.1",
     "mongodb-data-service": "^16.5.2",
