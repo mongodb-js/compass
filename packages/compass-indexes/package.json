@@ -52,7 +52,7 @@
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.2",
     "@mongodb-js/compass-deployment-awareness": "^10.0.0",
-    "@mongodb-js/compass-field-store": "5.0.0",
+    "@mongodb-js/compass-field-store": "6.0.2",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
