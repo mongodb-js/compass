@@ -133,7 +133,7 @@
     "semver": "^5.4.1",
     "shebang-loader": "0.0.1",
     "sinon": "^4.5.0",
-    "sinon-chai": "^2.11.0",
+    "sinon-chai": "^3.4.0",
     "style-loader": "^0.18.2",
     "url-loader": "^1.1.2",
     "webpack": "^4.29.0",
