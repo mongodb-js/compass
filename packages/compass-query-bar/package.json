@@ -121,7 +121,7 @@
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",
     "ms": "^2.1.2",
-    "numeral": "^1.5.3",
+    "numeral": "^2.0.6",
     "nyc": "^15.0.0",
     "object-diff": "0.0.4",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
