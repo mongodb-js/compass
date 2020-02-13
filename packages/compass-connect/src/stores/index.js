@@ -252,7 +252,7 @@ const Store = Reflux.createStore({
             currentConnection.set(this._getPoorAttributes(parsedConnection));
 
             // If we have SSH tunnel attributes, set them here.
-            if (currentSaved.sshTunnel !== 'NONE') {
+            if (currentSaved && currentSaved.sshTunnel !== 'NONE') {
               this._setSshTunnelAttributes(currentSaved, currentConnection);
             }
 
@@ -336,7 +336,7 @@ const Store = Reflux.createStore({
             parsedConnection.appname = currentConnection.appname;
 
             // If we have SSH tunnel attributes, set them here.
-            if (currentConnection.sshTunnel !== 'NONE') {
+            if (currentConnection && currentConnection.sshTunnel !== 'NONE') {
               this._setSshTunnelAttributes(currentConnection, parsedConnection);
             }
 
@@ -1041,10 +1041,12 @@ const Store = Reflux.createStore({
    * @param {Connection} parsedConnection - The parsed connection.
    */
   _setSshTunnelAttributes(currentConnection, parsedConnection) {
-    SSH_TUNNEL_FIELDS.forEach((field) => {
-      parsedConnection[field] = currentConnection[field];
-    });
-    parsedConnection.set({ sshTunnel: currentConnection.sshTunnel });
+    if (parsedConnection) {
+      SSH_TUNNEL_FIELDS.forEach((field) => {
+        parsedConnection[field] = currentConnection[field];
+      });
+      parsedConnection.sshTunnel = currentConnection.sshTunnel;
+    }
   }
 });
 
