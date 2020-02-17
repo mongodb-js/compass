@@ -30,7 +30,7 @@ const ExtendedConnection = Connection.extend(storageMixin, {
     namespace: 'Connections',
     basepath,
     appName, // Not to be confused with `props.appname` that is being sent to driver
-    secureCondition: (val, key) => key.match(/(password|passphrase)/i)
+    secureCondition: (val, key) => key.match(/(password|passphrase|^auth$)/i)
   },
   props: {
     _id: { type: 'string', default: () => uuid.v4() },
@@ -45,7 +45,9 @@ const ExtendedConnection = Connection.extend(storageMixin, {
     isSrvRecord: { type: 'boolean', default: false },
     appname: { type: 'string', default: undefined } // Is being sent to driver
   },
-  session: { selected: { type: 'boolean', default: false } },
+  session: {
+    selected: { type: 'boolean', default: false }
+  },
   derived: {
     // Canonical username independent of authentication strategy
     username: {
