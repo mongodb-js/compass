@@ -59,6 +59,7 @@ const PASSWORD_MAPPINGS = {
 
 const props = {};
 const derived = {};
+const session = {};
 
 let Connection = {};
 
@@ -76,7 +77,6 @@ assign(props, {
    */
   ns: { type: 'string', default: undefined },
   isSrvRecord: { type: 'boolean', default: false },
-  auth: { type: 'object', default: undefined },
   hostname: { type: 'string', default: 'localhost' },
   port: { type: 'port', default: 27017 },
   hosts: {
@@ -93,6 +93,10 @@ assign(props, {
     values: AUTH_STRATEGY_VALUES,
     default: AUTH_STRATEGY_DEFAULT
   }
+});
+
+assign(session, {
+  auth: { type: 'object', default: undefined }
 });
 
 /**
@@ -718,6 +722,7 @@ Connection = AmpersandModel.extend({
   idAttribute: 'instanceId',
   props,
   derived,
+  session,
   dataTypes,
   initialize(attrs) {
     if (attrs) {

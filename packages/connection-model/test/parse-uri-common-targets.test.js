@@ -115,10 +115,8 @@ describe('connection model parser should parse URI strings for common connection
     it('admin database', done => {
       Connection.from('mongodb://sysop:moon@localhost', (error, result) => {
         expect(error).to.not.exist;
-        expect(result).to.have.property('auth');
-        expect(result.auth.username).to.be.equal('sysop');
-        expect(result.auth.password).to.be.equal('moon');
-        expect(result.auth.db).to.be.equal('admin');
+        expect(result.mongodbUsername).to.be.equal('sysop');
+        expect(result.mongodbPassword).to.be.equal('moon');
         done();
       });
     });
@@ -128,10 +126,9 @@ describe('connection model parser should parse URI strings for common connection
         'mongodb://sysop:moon@localhost/records',
         (error, result) => {
           expect(error).to.not.exist;
-          expect(result).to.have.property('auth');
-          expect(result.auth.username).to.be.equal('sysop');
-          expect(result.auth.password).to.be.equal('moon');
-          expect(result.auth.db).to.be.equal('records');
+          expect(result.mongodbUsername).to.be.equal('sysop');
+          expect(result.mongodbPassword).to.be.equal('moon');
+          expect(result.ns).to.be.equal('records');
           done();
         }
       );
@@ -396,8 +393,7 @@ describe('connection model parser should parse URI strings for common connection
             host: 'mongos2.example.com',
             port: 27017
           });
-          expect(result).to.have.property('auth');
-          expect(result.auth.db).to.be.equal('admin');
+          expect(result.ns).to.be.equal('admin');
           done();
         }
       );
@@ -422,10 +418,8 @@ describe('connection model parser should parse URI strings for common connection
             host: 'mongos2.example.com',
             port: 27017
           });
-          expect(result).to.have.property('auth');
-          expect(result.auth.username).to.be.equal('myDBReader');
-          expect(result.auth.password).to.be.equal('D1fficultP@ssw0rd');
-          expect(result.auth.db).to.be.equal('admin');
+          expect(result.mongodbUsername).to.be.equal('myDBReader');
+          expect(result.mongodbPassword).to.be.equal('D1fficultP@ssw0rd');
           expect(result.ns).to.be.equal('admin');
           expect(result.authStrategy).to.be.equal('MONGODB');
           done();

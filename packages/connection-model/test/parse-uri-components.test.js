@@ -68,9 +68,9 @@ describe('connection model partser should parse URI components such as', () => {
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');
           expect(result).to.have.property('auth');
-          expect(result.auth.username).to.be.equal('someUsername');
-          expect(result.auth.password).to.be.equal('testPassword');
-          expect(result.auth.db).to.be.equal('admin');
+          expect(result.mongodbUsername).to.be.equal('someUsername');
+          expect(result.mongodbPassword).to.be.equal('testPassword');
+          expect(result.ns).to.be.equal('test');
           expect(result.authStrategy).to.be.equal('MONGODB');
           done();
         }
@@ -83,7 +83,6 @@ describe('connection model partser should parse URI components such as', () => {
         (error, result) => {
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');
-          expect(result.auth).to.be.equal(null);
           expect(result.authStrategy).to.be.equal('NONE');
           done();
         }
@@ -125,11 +124,8 @@ describe('connection model partser should parse URI components such as', () => {
         'mongodb://root:password123@localhost:27017/databasename',
         (error, result) => {
           expect(error).to.not.exist;
-          expect(result.auth).to.containSubset({
-            db: 'databasename',
-            username: 'root',
-            password: 'password123'
-          });
+          expect(result.mongodbUsername).to.equal('root');
+          expect(result.mongodbPassword).to.equal('password123');
           done();
         }
       );
