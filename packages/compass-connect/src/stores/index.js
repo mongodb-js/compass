@@ -256,6 +256,11 @@ const Store = Reflux.createStore({
               this._setSshTunnelAttributes(currentSaved, currentConnection);
             }
 
+            // If we have TLS attributes, set them here.
+            if (currentSaved && currentSaved.sslMethod !== 'NONE') {
+              this._setTlsAttributes(currentSaved, currentConnection);
+            }
+
             if (customUrl.match(/[?&]ssl=true/i)) {
               currentConnection.sslMethod = 'SYSTEMCA';
             }
@@ -338,6 +343,10 @@ const Store = Reflux.createStore({
             // If we have SSH tunnel attributes, set them here.
             if (currentConnection && currentConnection.sshTunnel !== 'NONE') {
               this._setSshTunnelAttributes(currentConnection, parsedConnection);
+            }
+
+            if (currentConnection && currentConnection.sslMethod !== 'NONE') {
+              this._setTlsAttributes(currentConnection, parsedConnection);
             }
 
             if (isFavorite && driverUrl !== parsedConnection.driverUrl) {
@@ -1046,6 +1055,21 @@ const Store = Reflux.createStore({
         parsedConnection[field] = currentConnection[field];
       });
       parsedConnection.sshTunnel = currentConnection.sshTunnel;
+    }
+  },
+
+  /**
+   * Set TLS attributes.
+   *
+   * @param {Connection} currentConnection - The current connection.
+   * @param {Connection} parsedConnection - The parsed connection.
+   */
+  _setTlsAttributes(currentConnection, parsedConnection) {
+    if (parsedConnection) {
+      SSL_FIELDS.forEach((field) => {
+        parsedConnection[field] = currentConnection[field];
+      });
+      parsedConnection.sslMethod = currentConnection.sslMethod;
     }
   }
 });
