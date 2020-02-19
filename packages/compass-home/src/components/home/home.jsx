@@ -75,6 +75,7 @@ class Home extends PureComponent {
     this.databaseRole = this.getRoleOrNull('Database.Workspace');
     this.instanceRole = this.getRoleOrNull('Instance.Workspace');
     this.globalModals = this.getRoleOrNull('Global.Modal');
+    this.globalWarnings = this.getRoleOrNull('Global.Warning');
     this.findInPageRole = this.getRoleOrNull('Find');
   }
 
@@ -171,6 +172,15 @@ class Home extends PureComponent {
     return null;
   }
 
+  renderGlobalWarnings() {
+    if (this.globalWarnings) {
+      return this.globalWarnings.map((globalWarning, index) => {
+        const GlobalWarning = globalWarning.component;
+        return (<GlobalWarning key={index} />);
+      });
+    }
+  }
+
   renderSidebar() {
     if (this.SidebarComponent) {
       return (
@@ -190,6 +200,7 @@ class Home extends PureComponent {
           {this.renderSidebar()}
           {this.renderFindInPage()}
           {this.renderGlobalModals()}
+          {this.renderGlobalWarnings()}
         </div>
       </div>
     );
@@ -202,6 +213,7 @@ class Home extends PureComponent {
         <div className={classnames(styles['home-view'])} data-test-id="home-view">
           <div className={classnames(styles['home-view-page'])}>
             <Connect />
+            {this.renderGlobalWarnings()}
           </div>
         </div>
       );
