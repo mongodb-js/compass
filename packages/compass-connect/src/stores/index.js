@@ -222,30 +222,30 @@ const Store = Reflux.createStore({
   onChangeViewClicked(viewType) {
     const currentConnection = this.state.currentConnection;
     const driverUrl = currentConnection.driverUrl;
-    const customUrl = this.state.customUrl;
+    const url = this.state.isURIEditable ? this.state.customUrl : driverUrl;
     const isValid = this.state.isValid;
     const currentSaved = this.state.connections[currentConnection._id];
 
     this.state.viewType = viewType;
 
+    // Target view
     if (viewType === 'connectionForm') {
-      // Target view
-      if (!currentSaved && customUrl === driverUrl) {
+      if (!currentSaved && url === driverUrl) {
         this.state.isHostChanged = true;
         this.state.isPortChanged = true;
         this.trigger(this.state);
-      } else if (customUrl === '') {
+      } else if (url === '') {
         this.state.isHostChanged = false;
         this.state.isPortChanged = false;
         this._clearForm();
         this._clearConnection();
-      } else if (!Connection.isURI(customUrl)) {
+      } else if (!Connection.isURI(url)) {
         this._clearConnection();
         this.trigger(this.state);
       } else {
         this.StatusActions.showIndeterminateProgressBar();
 
-        Connection.from(customUrl, (error, parsedConnection) => {
+        Connection.from(url, (error, parsedConnection) => {
           this.StatusActions.done();
 
           if (!error) {
@@ -261,7 +261,7 @@ const Store = Reflux.createStore({
               this._setTlsAttributes(currentSaved, currentConnection);
             }
 
-            if (customUrl.match(/[?&]ssl=true/i)) {
+            if (url.match(/[?&]ssl=true/i)) {
               currentConnection.sslMethod = 'SYSTEMCA';
             }
 
@@ -282,11 +282,15 @@ const Store = Reflux.createStore({
         });
       }
     } else {
-      this.state.customUrl =
+      if (!this.state.isURIEditable) {
+        this.state.customUrl = this.state.currentConnection.safeUrl;
+      } else if (
         isValid &&
         (this.state.isHostChanged === true || this.state.isPortChanged === true)
-          ? driverUrl
-          : customUrl;
+      ) {
+        this.state.customUrl = driverUrl;
+      }
+
       this.trigger(this.state);
     }
   },
@@ -390,7 +394,13 @@ const Store = Reflux.createStore({
     const connection = this.state.connections[this.state.currentConnection._id];
 
     this.state.currentConnection.set(connection);
-    this.state.customUrl = this.state.currentConnection.driverUrl;
+
+    if (this.state.isURIEditable) {
+      this.state.customUrl = this.state.currentConnection.driverUrl;
+    } else {
+      this.state.customUrl = this.state.currentConnection.safeUrl;
+    }
+
     this.state.hasUnsavedChanges = false;
     this.trigger(this.state);
   },
@@ -986,9 +996,14 @@ const Store = Reflux.createStore({
   _saveFavorite() {
     const currentConnection = this.state.currentConnection;
     const isFavorite = currentConnection.isFavorite;
+    let url = this.state.customUrl;
 
     if (isFavorite) {
       this.state.savedMessage = 'Favorite is updated';
+    }
+
+    if (!this.state.isURIEditable) {
+      url = currentConnection.driverUrl;
     }
 
     currentConnection.isFavorite = true;
@@ -996,11 +1011,11 @@ const Store = Reflux.createStore({
     this.state.isURIEditable = false;
 
     if (this.state.viewType === 'connectionString') {
-      Connection.from(this.state.customUrl, (error, parsedConnection) => {
+      Connection.from(url, (error, parsedConnection) => {
         if (!error) {
           currentConnection.set(this._getPoorAttributes(parsedConnection));
 
-          if (this.state.customUrl.match(/[?&]ssl=true/i)) {
+          if (url.match(/[?&]ssl=true/i)) {
             currentConnection.sslMethod = 'SYSTEMCA';
           }
 

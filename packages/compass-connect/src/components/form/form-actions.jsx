@@ -170,16 +170,18 @@ class FormActions extends React.Component {
    * @returns {React.Component}
    */
   renderEditURI = () => {
-    return (
-      <button
-        type="submit"
-        name="editUrl"
-        className="btn btn-sm btn-default"
-        onClick={this.onEditURIClicked.bind(this)}
-      >
-        Edit
-      </button>
-    );
+    if (this.props.viewType === 'connectionString') {
+      return (
+        <button
+          type="submit"
+          name="editUrl"
+          className="btn btn-sm btn-default"
+          onClick={this.onEditURIClicked.bind(this)}
+        >
+          Edit
+        </button>
+      );
+    }
   };
 
   /**
@@ -188,7 +190,11 @@ class FormActions extends React.Component {
    * @returns {React.Component}
    */
   renderHideURI = () => {
-    if (this.props.isSavedConnection && !this.props.hasUnsavedChanges) {
+    if (
+      this.props.isSavedConnection &&
+      !this.props.hasUnsavedChanges &&
+      this.props.viewType === 'connectionString'
+    ) {
       return (
         <button
           type="submit"

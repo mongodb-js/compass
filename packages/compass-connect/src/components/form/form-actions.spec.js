@@ -177,6 +177,7 @@ describe('FormActions [Component]', () => {
         const connection = { name: 'myconnection' };
         const isConnected = false;
         const viewType = 'connectionForm';
+        const isURIEditable = true;
         let component;
 
         beforeEach(() => {
@@ -185,6 +186,7 @@ describe('FormActions [Component]', () => {
               currentConnection={connection}
               isConnected={isConnected}
               viewType={viewType}
+              isURIEditable={isURIEditable}
               isValid
             />
           );
@@ -206,6 +208,18 @@ describe('FormActions [Component]', () => {
 
         it('renders the connect button', () => {
           expect(component.find('button[name="connect"]')).to.be.present();
+        });
+
+        it('does not render the edit button', () => {
+          const editButton = component.find('button[name="editUrl"]');
+
+          expect(editButton).to.be.not.present();
+        });
+
+        it('does not render the hide button', () => {
+          const hideButton = component.find('button[name="hideUrl"]');
+
+          expect(hideButton).to.be.not.present();
         });
       });
     });
