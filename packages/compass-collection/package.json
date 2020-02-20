@@ -155,7 +155,7 @@
     "rimraf": "^2.6.1",
     "semver": "^5.4.1",
     "shebang-loader": "^0.0.1",
-    "sinon": "^3.2.0",
+    "sinon": "^4.5.0",
     "sinon-chai": "^2.11.0",
     "storage-mixin": "^3.0.0",
     "style-loader": "^1.1.3",
