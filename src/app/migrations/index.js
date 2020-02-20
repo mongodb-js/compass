@@ -60,7 +60,9 @@ module.exports = function(done) {
       return done();
     }
     const migrations = {
-      '1.20.0-beta.0': require('./1.20.0-beta.0')
+      '1.20.0-beta.0': require('./1.20.0-beta.0'),
+      '1.21.0-beta.0': require('./1.21.0'),
+      '1.21.0-dev.0': require('./1.21.0')
     };
     const migrate = require('app-migrations')(migrations);
     migrate(previousVersion, currentVersion, function(err2, res) {
