@@ -116,7 +116,7 @@
     "mongodb-ns": "^2.0.0",
     "mongodb-query-parser": "^2.0.2",
     "mongodb-runner": "^4.8.0",
-    "nise": "3.0.1",
+    "nise": "4.0.1",
     "node-loader": "^0.6.0",
     "numeral": "^2.0.6",
     "nyc": "^15.0.0",
