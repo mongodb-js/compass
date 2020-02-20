@@ -60,7 +60,7 @@
     "@mongodb-js/compass-aggregations": "^4.0.10",
     "@mongodb-js/compass-collection-stats": "^5.0.0",
     "@mongodb-js/compass-crud": "^7.0.2",
-    "@mongodb-js/compass-deployment-awareness": "^8.0.0",
+    "@mongodb-js/compass-deployment-awareness": "^10.0.0",
     "@mongodb-js/compass-explain-plan": "^3.0.0",
     "@mongodb-js/compass-export-to-language": "^4.1.0",
     "@mongodb-js/compass-field-store": "^5.0.0",
