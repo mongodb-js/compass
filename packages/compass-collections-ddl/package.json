@@ -145,7 +145,7 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
-    "async": "^2.6.1",
+    "async": "^3.1.1",
     "lodash.assign": "^4.2.0",
     "lodash.find": "^4.6.0",
     "lodash.isempty": "^4.4.0",
