@@ -1,65 +1,75 @@
-trigger:
-  - master
-jobs:
-  - job: Ubuntu
-    pool:
-      vmImage: 'Ubuntu-16.04'
-    steps:
-      - script: |
-          set -e
-          export DISPLAY=:99.0
-          sudo apt-get update
-          sudo apt-get install -y libxkbfile-dev pkg-config libsecret-1-dev libxss1 dbus xvfb libgtk-3-0 libgconf-2-4 libasound2 libxtst6 libnss3
-          sudo cp xvfb.init /etc/init.d/xvfb
-          sudo chmod +x /etc/init.d/xvfb
-          sudo update-rc.d xvfb defaults
-          sudo service xvfb start
-        displayName: 'Install Services'
-      - task: NodeTool@0
-        inputs:
-          versionSpec: '10.2.1'
-        displayName: 'Install Node.js'
-      - script: |
-          echo "//registry.npmjs.org/:_authToken=$(org.NPMToken)" >> .npmrc
-        displayName: 'Set NPM Token'
-      - script: |
-          npm install
-        displayName: 'NPM Install'
-      - script: |
-          npm run cover
-        displayName: 'Run Node Tests'
-      - script: |
-          npm run test:karma
-        displayName: 'Run Renderer Tests'
-      - script: |
-          npm run compile
-        displayName: 'Compile'
-      - script: |
-          npm run check
-        displayName: 'Run Checks'
-  - job: OSX
-    pool:
-      vmImage: 'macOS-10.14'
-    steps:
-      - task: NodeTool@0
-        inputs:
-          versionSpec: '10.2.1'
-        displayName: 'Install Node.js'
-      - script: |
-          echo "//registry.npmjs.org/:_authToken=$(org.NPMToken)" >> .npmrc
-        displayName: 'Set NPM Token'
-      - script: |
-          npm install
-        displayName: 'NPM Install'
-      - script: |
-          npm run cover
-        displayName: 'Run Node Tests'
-      - script: |
-          npm run test:karma
-        displayName: 'Run Renderer Tests'
-      - script: |
-          npm run compile
-        displayName: 'Compile'
-      - script: |
-          npm run check
-        displayName: 'Run Checks'
+variables:
+  node_version: '12.4.0'
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-latest'
+      displayName: 'Build/Test (Ubuntu)'
+    mac:
+      imageName: 'macos-latest'
+      displayName: 'Build/Test (macOS)'
+    # TODO (lucas): Windows fails to build because of kerberos native add-on.
+    # https://jira.mongodb.org/browse/NODE-2465 Will get updated builds to work around
+    # at which point this might be worth trying again.
+    #   windows:
+    #   imageName: 'windows-latest'
+    #   displayName: 'Build/Test (Windows)'
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(node_version)
+    displayName: 'Install node.js'
+  - script: |
+      set -e
+      sudo apt-get update
+      sudo apt-get install -y libxkbfile-dev pkg-config libsecret-1-dev libxss1 dbus xvfb libgtk-3-0 libgconf-2-4 libasound2 libxtst6 libnss3
+    displayName: 'Install native Linux dependencies'
+    condition: in(variables['agent.os'], 'Linux')
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/release/caching?view=azure-devops#nodejsnpm
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | package-lock.json'
+      restoreKeys: |
+        npm | "$(Agent.OS)" 
+        npm
+      path: $(npm_config_cache)
+    displayName: Cache npm
+  - script: |
+      npm ci
+    displayName: 'Install dependencies from npm'
+  - script: |
+      npm run cover
+    displayName: 'Run unit tests'
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/publish-code-coverage-results?view=azure-devops
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: cobertura
+      summaryFileLocation: coverage/cobertura-coverage.xml
+      #pathToSources: # Optional
+      #reportDirectory: # Optional
+      #additionalCodeCoverageFiles: # Optional
+      #failIfCoverageEmpty: false # Optional
+  - script: |
+      npm run test:karma
+    displayName: 'Run functional tests'
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/publish-test-results?view=azure-devops&tabs=yaml
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'coverage/karma-results.xml' 
+      #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
+      #mergeTestResults: false # Optional
+      #failTaskOnFailedTests: false # Optional
+      #testRunTitle: # Optional
+      #buildPlatform: # Optional
+      #buildConfiguration: # Optional
+      #publishRunAttachments: true # Optional
+  - script: |
+      npm run check
+    displayName: 'Run static analysis checks'

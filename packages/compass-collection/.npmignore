@@ -1,8 +1,7 @@
 .babelrc
 .eslintrc
 .editorconfig
-.jshintrc
-.jsfmtrc
+.github/
 .nycrc
 .travis.yml
 config/
@@ -12,11 +11,8 @@ mocha-webpack.opts
 scripts/
 src/
 test/
-.zuul.yml
-.storybook/
 .nyc_output/
 coverage/
 lib/index.html
 lib/index.js.map
-xvfb.init
 azure-pipelines.yml
