@@ -78,7 +78,7 @@ class DropCollectionModal extends PureComponent {
         <Modal.Body>
           <div>
             <p className={classnames(styles['drop-collection-modal-confirm'])}>
-              <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
+              <i className="fa fa-exclamation-triangle" aria-hidden="true" />
               To drop
               <span className={classnames(styles['drop-collection-modal-confirm-namespace'])}>
                 {this.props.name}
