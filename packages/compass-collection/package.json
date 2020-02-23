@@ -125,7 +125,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^4.0.0-rc.5",
     "less": "^2.7.2",
-    "less-loader": "^4.0.5",
+    "less-loader": "^5.0.0",
     "mocha": "^5.0.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-ace-autocompleter": "^0.2.1",
