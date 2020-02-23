@@ -5,6 +5,10 @@
   "apiVersion": "3.0.0",
   "description": "Compass Collection Plugin",
   "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass-collection.git"
+  },
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",
@@ -40,7 +44,10 @@
       "@mongodb-js/compass-query-history",
       "@mongodb-js/compass-schema",
       "@mongodb-js/compass-schema-validation",
+      "@mongodb-js/compass-status",
       "jquery",
+      "mongodb-query-parser",
+      "mongodb-language-model",
       "react-dom",
       "debug",
       "hadron-ipc",
@@ -50,11 +57,18 @@
   },
   "license": "Apache-2.0",
   "peerDependencies": {
+    "bson": "*",
     "hadron-ipc": "^1.1.1",
     "hadron-react-buttons": "^3.4.0",
     "hadron-react-components": "^3.5.1",
+    "mongodb-query-parser": "*",
+    "mongodb-language-model": "*",
+    "mongodb-ns": "*",
     "react": "^16.8.0",
-    "react-dom": "^16.8.0"
+    "react-dom": "^16.8.0",
+    "react-redux": "*",
+    "redux": "*",
+    "redux-thunk": "*"
   },
   "devDependencies": {
     "@mongodb-js/compass-aggregations": "^6.1.5",
@@ -67,8 +81,9 @@
     "@mongodb-js/compass-indexes": "^3.0.8",
     "@mongodb-js/compass-query-bar": "^6.0.4",
     "@mongodb-js/compass-query-history": "^7.0.2",
-    "@mongodb-js/compass-schema": "^3.0.2",
+    "@mongodb-js/compass-schema": "^2.0.8",
     "@mongodb-js/compass-schema-validation": "^4.0.3",
+    "@mongodb-js/compass-status": "^4.0.0",
     "autoprefixer": "^9.7.4",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
@@ -84,6 +99,7 @@
     "babel-preset-react": "^6.24.1",
     "babel-register": "^6.26.0",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
+    "bson": "^4.0.3",
     "bson-transpilers": "^0.13.3",
     "chai": "^4.2.0",
     "chai-enzyme": "1.0.0-beta.1",
@@ -135,6 +151,9 @@
     "mongodb-data-service": "^16.5.5",
     "mongodb-js-metrics": "^5.0.1",
     "mongodb-js-precommit": "^2.2.1",
+    "mongodb-language-model": "^1.6.1",
+    "mongodb-ns": "^2.2.0",
+    "mongodb-query-parser": "^2.0.2",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
@@ -145,6 +164,9 @@
     "react-ace": "^6.4.0",
     "react-dom": "^16.8.0",
     "react-hot-loader": "^4.1.0",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2",
+    "redux-thunk": "^2.3.0",
     "reflux": "0.4.1",
     "reflux-state-mixin": "^0.8.0",
     "resolve": "^1.15.1",
@@ -166,13 +188,8 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "bson": "^4.0.3",
     "lodash.filter": "^4.6.0",
     "lodash.isempty": "^4.4.0",
-    "mongodb-ns": "^2.2.0",
-    "react-redux": "^5.0.6",
-    "react-sortable-hoc": "^1.10.1",
-    "redux": "^3.7.2",
-    "redux-thunk": "^2.3.0"
+    "react-sortable-hoc": "^1.10.1"
   }
 }
