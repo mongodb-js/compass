@@ -136,7 +136,7 @@
     "mongodb-reflux-store": "0.0.1",
     "mongodb-schema": "^8.2.3",
     "mongodb-stitch-browser-sdk": "^4.3.2",
-    "nise": "4.0.1",
+    "nise": "4.0.2",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
