@@ -99,7 +99,7 @@
     "d3-flextree": "1.0.3",
     "d3-timer": "1.0.10",
     "debug": "^4.1.1",
-    "electron": "^6.1.7",
+    "electron": "^8.0.1",
     "electron-rebuild": "^1.8.4",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.10.0",
