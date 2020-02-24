@@ -1,4 +1,4 @@
-import { ReadPreference } from 'mongodb';
+import ReadPreference from 'mongodb/lib/core/topologies/read_preference.js';
 
 const SINGLE = 'Single';
 const REPLICA_SET_NO_PRIMARY = 'ReplicaSetNoPrimary';

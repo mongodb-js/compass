@@ -1,21 +1,9 @@
-module.exports = {
-  resolve: {
-    extensions: ['', '.js', '.jsx']
-  },
-  module: {
-    loaders: [
-      {
-        test: /\.less$/,
-        loader: 'style!css!less'
-      },
-      {
-        test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'url-loader?limit=10000&mimetype=application/font-woff'
-      },
-      {
-        test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'file-loader'
-      }
-    ]
-  }
+module.exports = (storybookBaseConfig, env) => {
+  const webpackConfig = require('../config/webpack.storybook.config.js');
+  return {
+    ...storybookBaseConfig.config,
+    module: { rules: webpackConfig.module.rules },
+    resolve: webpackConfig.resolve,
+    plugins: storybookBaseConfig.config.plugins.concat(webpackConfig.plugins),
+  };
 };
