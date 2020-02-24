@@ -116,7 +116,7 @@
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-hot-loader": "^4.1.0",
-    "react-storybook-addon-chapters": "^1.1.0",
+    "react-storybook-addon-chapters": "^3.1.7",
     "reflux": "0.4.1",
     "reflux-state-mixin": "^0.8.0",
     "resolve": "^1.4.0",
