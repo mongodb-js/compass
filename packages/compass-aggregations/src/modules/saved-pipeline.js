@@ -5,6 +5,8 @@ import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 
 const PREFIX = 'aggregations/saved-pipeline';
 
+const DIRNAME = 'SavedPipelines';
+
 // constants for save state modal
 export const SAVED_PIPELINES_LIST_TOGGLED = `${PREFIX}/LIST_TOGGLED`;
 
@@ -69,16 +71,34 @@ export const getSavedPipelines = () => {
  */
 export const updatePipelineList = () => {
   return (dispatch, getState) => {
-    const state = getState();
+    const asyncr = require('async');
+    const fs = require('fs');
+    const path = require('path');
+    const { remote } = require('electron');
 
-    getObjectStore('readwrite', (store) => {
-      const index = store.index('namespace');
-      index.getAll(state.namespace).onsuccess = (e) => {
-        const pipelines = e.target.result;
+    const state = getState();
+    const userDataDir = remote.app.getPath('userData');
+    const dirname = path.join(userDataDir, DIRNAME);
+    const pipelines = [];
+
+    fs.readdir(dirname, (error, files) => {
+      const validFiles = files.filter(file => file.endsWith('.json'));
+      const tasks = validFiles.map((file) => {
+        return (callback) => {
+          fs.readFile(file, (err, data) => {
+            const pipeline = JSON.parse(data);
+            if (pipeline.namespace === state.namespace) {
+              pipelines.push(pipeline);
+            }
+            callback(null);
+          });
+        };
+      });
+      asyncr.parallel(tasks, () => {
         dispatch(setIsModified(false));
         dispatch(savedPipelineAdd(pipelines));
         dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
-      };
+      });
     });
   };
 };
@@ -90,6 +110,11 @@ export const updatePipelineList = () => {
  */
 export const saveCurrentPipeline = () => {
   return (dispatch, getState) => {
+    const asyncr = require('async');
+    const fs = require('fs');
+    const path = require('path');
+    const { remote } = require('electron');
+
     const state = getState();
 
     if (state.id === '') {
@@ -113,12 +138,23 @@ export const saveCurrentPipeline = () => {
       , { collationString: state.collationString }
     );
 
-    getObjectStore('readwrite', (store) => {
-      const putRequest = store.put(stateRecord, id);
-
-      putRequest.onsuccess = () => {
-        dispatch(updatePipelineList());
-      };
+    const userDataDir = remote.app.getPath('userData');
+    asyncr.series([
+      (callback) => {
+        const dirName = path.join(userDataDir, DIRNAME);
+        fs.mkdir(dirName, { recursive: true }, () => {
+          callback();
+        });
+      },
+      (callback) => {
+        const fileName = path.join(userDataDir, DIRNAME, `${pipeline.id}.json`);
+        const options = { encoding: 'utf8', flag: 'w' };
+        fs.writeFile(fileName, JSON.stringify(stateRecord), options, () => {
+          callback(null);
+        });
+      }
+    ], () => {
+      dispatch(updatePipelineList());
     });
   };
 };
