@@ -14,9 +14,11 @@
     "mongodb-js"
   ],
   "scripts": {
-    "prepublish": "babel ./src --out-dir ./lib --presets react",
-    "pretest": "babel ./src --out-dir ./lib --presets react",
-    "test": "mocha test/setup.js test/**/*.test.jsx",
+    "clean": "rimraf lib",
+    "precompile": "npm run clean",
+    "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js --progress",
+    "prepublishOnly": "npm run compile",
+    "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.jsx\"",
     "check": "mongodb-js-precommit"
   },
   "dependencies": {
@@ -25,11 +27,34 @@
     "react-dom": "^16.8.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.9.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-react": "^6.5.0",
-    "babel-register": "^6.5.2",
-    "mocha": "^3.1.2",
-    "mongodb-js-precommit": "^0.2.9"
+    "@babel/core": "^7.8.6",
+    "@babel/preset-env": "^7.8.6",
+    "@babel/preset-react": "^7.8.3",
+    "@babel/register": "^7.8.6",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-transform-decorators-legacy": "^1.3.5",
+    "chai": "^4.1.2",
+    "chai-enzyme": "1.0.0-beta.0",
+    "cross-env": "^7.0.0",
+    "enzyme": "^3.7.0",
+    "enzyme-adapter-react-16": "^1.6.0",
+    "eslint-config-mongodb-js": "^2.2.0",
+    "ignore-loader": "^0.1.2",
+    "jsdom": "^12.2.0",
+    "jsdom-global": "^3.0.2",
+    "lerna": "^3.20.2",
+    "mocha": "^7.1.0",
+    "mocha-webpack": "^2.0.0-beta.0",
+    "mongodb-js-precommit": "^0.2.9",
+    "peer-deps-externals-webpack-plugin": "^1.0.4",
+    "pre-commit": "^1.1.2",
+    "rimraf": "^3.0.2",
+    "sinon": "^2.4.1",
+    "sinon-chai": "^3.5.0",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11",
+    "webpack-merge": "^4.2.2",
+    "webpack-node-externals": "^1.7.2",
+    "webpack-sources": "^1.4.3"
   }
 }

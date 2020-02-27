@@ -1,6 +1,6 @@
 /* eslint no-undef: "off" */
 /* eslint-env node */
-require('babel-register')();
+require('@babel/register')();
 
 require('jsdom-global')();
 
