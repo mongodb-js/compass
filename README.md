@@ -2,6 +2,7 @@
 The MongoDB GUI.
 
 ![Aggregation Pipeline Builder Tab in Compass](compass-screenshot.png)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmongodb-js%2Fcompass.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmongodb-js%2Fcompass?ref=badge_shield)
 
 # Development
 Running Compass locally requires Node.js and npm:
@@ -100,3 +101,6 @@ forum](https://feedback.mongodb.com/forums/924283-compass).
 
 [travis_img]: https://travis-ci.org/mongodb-js/compass.svg
 [travis_url]: https://travis-ci.org/mongodb-js/compass
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmongodb-js%2Fcompass.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmongodb-js%2Fcompass?ref=badge_large)
