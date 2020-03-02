@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { truncate } = require('hadron-react-utils');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { truncate } from 'hadron-react-utils';
 
 /**
  * The base css class.
@@ -33,4 +33,4 @@ StringValue.propTypes = {
   value: PropTypes.string.isRequired
 };
 
-module.exports = StringValue;
+export default StringValue;

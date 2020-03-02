@@ -1,6 +1,6 @@
-const moment = require('moment-timezone');
-const React = require('react');
-const PropTypes = require('prop-types');
+import moment from 'moment-timezone';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * The component class.
@@ -44,4 +44,4 @@ DateValue.propTypes = {
   tz: PropTypes.string
 };
 
-module.exports = DateValue;
+export default DateValue;

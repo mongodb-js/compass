@@ -1,8 +1,8 @@
-const React = require('react');
-const { Double } = require('bson');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { DoubleValue } = require('../');
+import React from 'react';
+import { Double } from 'bson';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { DoubleValue } from '../';
 
 describe('<DoubleValue />', () => {
   describe('with a driver value', function() {

@@ -1,8 +1,8 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { MaxKey, MinKey } = require('bson');
-const { KeyValue } = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { MaxKey, MinKey } from 'bson';
+import { KeyValue } from '../';
 
 describe('<KeyValue />', () => {
   context('when the value is a MaxKey', () => {

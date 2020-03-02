@@ -1,6 +1,6 @@
-const React = require('react');
-const { expect } = require('chai');
-const {
+import React from 'react';
+import { expect } from 'chai';
+import {
   getComponent,
   BinaryValue,
   CodeValue,
@@ -12,7 +12,7 @@ const {
   RegexValue,
   DBRefValue,
   StringValue
-} = require('../');
+} from '../';
 
 describe('#getComponent', () => {
   context('when the type is Binary', () => {

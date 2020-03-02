@@ -1,8 +1,8 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { Binary } = require('bson');
-const { BinaryValue } = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { Binary } from 'bson';
+import { BinaryValue } from '../';
 
 const TESTING_BASE64 = Buffer.from('testing').toString('base64');
 

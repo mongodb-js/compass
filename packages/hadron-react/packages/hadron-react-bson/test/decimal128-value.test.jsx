@@ -1,8 +1,8 @@
-const React = require('react');
-const { Decimal128 } = require('bson');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { Value } = require('../');
+import React from 'react';
+import { Decimal128 } from 'bson';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { Value } from '../';
 
 describe('<Value /> (rendering Decimal128)', () => {
   context('when the decimal is a number', () => {

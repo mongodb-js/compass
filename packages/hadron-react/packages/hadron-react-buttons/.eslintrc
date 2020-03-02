@@ -1,14 +1,26 @@
 {
-  "ecmaFeatures": {
-    "blockBindings": true,
-  },
   "env": {
     "mocha": true,
-    "node": true,
-    "es6": true
+    "node": true
+  },
+  "globals": {
+    "expect": true,
+    "sinon": true
   },
   "rules": {
-    "strict": 0
+    "camelcase": 1,
+    "new-cap": 0,
+    "no-use-before-define": 0
   },
-  "extends": ["mongodb-js/node"]
+  "extends": [
+    "mongodb-js/node",
+    "mongodb-js/browser",
+    "mongodb-js/react"
+  ],
+  "plugins": ["react"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
 }

@@ -1,7 +1,7 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { Value } = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { Value } from '../';
 
 describe('<Value /> (rendering null)', () => {
   const component = shallow(<Value type="Null" value={null} />);

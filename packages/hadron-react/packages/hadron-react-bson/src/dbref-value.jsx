@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * The base css class.
@@ -34,4 +34,4 @@ DBRefValue.propTypes = {
   value: PropTypes.any
 };
 
-module.exports = DBRefValue;
+export default DBRefValue;

@@ -1,8 +1,8 @@
-const React = require('react');
-const { Long } = require('bson');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { Value } = require('../');
+import React from 'react';
+import { Long } from 'bson';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { Value } from '../';
 
 describe('<Int32Value />', () => {
   const value = Long.fromNumber(123456789);

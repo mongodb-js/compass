@@ -1,8 +1,8 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { ObjectId } = require('bson');
-const { Value } = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { ObjectId } from 'bson';
+import { Value } from '../';
 
 describe('<Value /> (rendering ObjectId)', () => {
   const value = ObjectId.createFromHexString('583711146b59b28fcfa66587');

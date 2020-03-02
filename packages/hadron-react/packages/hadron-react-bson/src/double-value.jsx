@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * The base css class.
@@ -33,4 +33,4 @@ Double.propTypes = {
   value: PropTypes.any.isRequired
 };
 
-module.exports = Double;
+export default Double;

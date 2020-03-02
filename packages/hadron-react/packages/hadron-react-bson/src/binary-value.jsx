@@ -1,7 +1,7 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { truncate } = require('hadron-react-utils');
-const hexToUUID = require('hex-to-uuid');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { truncate } from 'hadron-react-utils';
+import hexToUUID from 'hex-to-uuid';
 
 /**
  * Base 64 constant.
@@ -63,4 +63,4 @@ Binary.propTypes = {
   value: PropTypes.any.isRequired
 };
 
-module.exports = Binary;
+export default Binary;

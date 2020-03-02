@@ -1,8 +1,8 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { Code } = require('bson');
-const { CodeValue } = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { Code } from 'bson';
+import { CodeValue } from '../';
 
 describe('<CodeValue />', () => {
   const code = new Code('this.a > i', { i: 1 });

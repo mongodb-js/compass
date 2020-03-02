@@ -1,8 +1,8 @@
-const React = require('react');
-const { Int32 } = require('bson');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { Int32Value } = require('../');
+import React from 'react';
+import { Int32 } from 'bson';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { Int32Value } from '../';
 
 describe('<Int32Value />', () => {
   const value = new Int32(123);

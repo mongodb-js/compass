@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * The component class name.
@@ -33,4 +33,4 @@ Code.propTypes = {
   value: PropTypes.any.isRequired
 };
 
-module.exports = Code;
+export default Code;

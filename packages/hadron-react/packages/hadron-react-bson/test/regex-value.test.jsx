@@ -1,8 +1,8 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { BSONRegExp } = require('bson');
-const { RegexValue } = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { BSONRegExp } from 'bson';
+import { RegexValue } from '../';
 
 describe('<RegexValue />', () => {
   const value = new BSONRegExp('test', 'i');

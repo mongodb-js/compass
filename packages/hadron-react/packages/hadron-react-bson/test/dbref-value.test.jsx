@@ -1,8 +1,8 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { DBRef, ObjectId } = require('bson');
-const { DBRefValue} = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { DBRef, ObjectId } from 'bson';
+import { DBRefValue} from '../';
 
 describe('<DBRefValue />', () => {
   const oid = ObjectId.createFromHexString('583711146b59b28fcfa66587');
