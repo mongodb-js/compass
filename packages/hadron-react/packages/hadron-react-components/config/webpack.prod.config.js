@@ -12,7 +12,7 @@ const config = {
     index: path.join(__dirname, '..', 'src')
   },
   output: {
-    path: path.join(__dirname, '..', 'lib')
+    path: path.join(__dirname, '..', 'lib'),
     publicPath: './',
     filename: 'index.js',
     library: 'hadron-react-components',

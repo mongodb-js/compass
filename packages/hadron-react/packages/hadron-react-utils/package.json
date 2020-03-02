@@ -18,8 +18,7 @@
     "precompile": "npm run clean",
     "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js --progress",
     "prepublishOnly": "npm run compile",
-    "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.js\"",
-    "check": "mongodb-js-precommit"
+    "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.js\""
   },
   "devDependencies": {
     "@babel/core": "^7.8.6",

@@ -8,3 +8,7 @@ coverage
 *.iml
 *.swp
 lerna-debug.log
+packages/hadron-react-bson/lib
+packages/hadron-react-buttons/lib
+packages/hadron-react-components/lib
+packages/hadron-react-utils/lib

@@ -1,1 +1,3 @@
-module.exports.truncate = require('./lib/truncate');
+'use strict';
+
+module.exports = require('./lib');
