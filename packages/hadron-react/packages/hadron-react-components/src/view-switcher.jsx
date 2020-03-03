@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { Button, ButtonGroup } = require('react-bootstrap');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Button, ButtonGroup } from 'react-bootstrap';
 
 /**
  * Represents a component that provides buttons to switch between
@@ -77,4 +77,4 @@ ViewSwitcher.defaultProps = {
 
 ViewSwitcher.displayName = 'ViewSwitcher';
 
-module.exports = ViewSwitcher;
+export default ViewSwitcher;

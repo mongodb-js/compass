@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const map = require('lodash.map');
+import React from 'react';
+import PropTypes from 'prop-types';
+import map from 'lodash.map';
 
 /**
  * Represents tabbed navigation with a tabbed header and content.
@@ -135,4 +135,4 @@ TabNavBar.defaultProps = {
 
 TabNavBar.displayName = 'TabNavBar';
 
-module.exports = TabNavBar;
+export default TabNavBar;

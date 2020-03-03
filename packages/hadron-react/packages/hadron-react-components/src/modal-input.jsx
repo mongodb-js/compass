@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * An input field in a form in a modal.
@@ -41,4 +41,4 @@ ModalInput.defaultProps = {
   autoFocus: false
 };
 
-module.exports = ModalInput;
+export default ModalInput;

@@ -1,10 +1,9 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { InfoSprinkle } = require('../');
-const chai = require('chai');
-const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
+import React from 'react';
+import chai, { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { InfoSprinkle } from '../';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 
 // For `expect(mySpy).to.have.been.calledWith("foo");` syntax
 chai.use(sinonChai);

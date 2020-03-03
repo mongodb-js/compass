@@ -1,7 +1,7 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { ModalStatusMessage } = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { ModalStatusMessage } from '../';
 
 describe('<ModalStatusMessage />', () => {
   const component = shallow(

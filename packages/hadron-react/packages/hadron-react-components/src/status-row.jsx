@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 class StatusRow extends React.Component {
 
@@ -32,4 +32,4 @@ StatusRow.defaultProps = {
 
 StatusRow.displayName = 'StatusRow';
 
-module.exports = StatusRow;
+export default StatusRow;

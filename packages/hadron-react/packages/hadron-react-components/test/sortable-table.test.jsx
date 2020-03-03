@@ -1,10 +1,9 @@
-const React = require('react');
-const chaiEnzyme = require('chai-enzyme');
-const sinon = require('sinon');
-const chai = require('chai');
-const { expect } = require('chai');
-const { shallow, mount } = require('enzyme');
-const { SortableTable } = require('../');
+import React from 'react';
+import chaiEnzyme from 'chai-enzyme';
+import sinon from 'sinon';
+import chai, { expect } from 'chai';
+import { shallow, mount } from 'enzyme';
+import { SortableTable } from '../';
 
 chai.use(chaiEnzyme());
 

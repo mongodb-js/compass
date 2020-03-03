@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Base component CSS class.
@@ -36,4 +36,4 @@ ZeroState.propTypes = {
   children: PropTypes.node
 };
 
-module.exports = ZeroState;
+export default ZeroState;

@@ -1,10 +1,9 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const sinon = require('sinon');
-const { shallow } = require('enzyme');
-const { ModalCheckbox } = require('../');
+import React from 'react';
+import chai, { expect } from 'chai';
+import chaiEnzyme from 'chai-enzyme';
+import sinon from 'sinon';
+import { shallow } from 'enzyme';
+import { ModalCheckbox } from '../';
 
 chai.use(chaiEnzyme());
 

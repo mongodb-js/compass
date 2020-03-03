@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const ReactTooltip = require('react-tooltip');
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactTooltip from 'react-tooltip';
 
 class Tooltip extends React.Component {
 
@@ -33,4 +33,4 @@ Tooltip.defaultProps = {
 
 Tooltip.displayName = 'Tooltip';
 
-module.exports = Tooltip;
+export default Tooltip;

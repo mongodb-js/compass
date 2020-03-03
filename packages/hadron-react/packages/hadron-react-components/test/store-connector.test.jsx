@@ -1,9 +1,8 @@
-const React = require('react');
-const chaiEnzyme = require('chai-enzyme');
-const chai = require('chai');
-const expect = chai.expect;
-const { mount } = require('enzyme');
-const { StoreConnector } = require('../');
+import React from 'react';
+import chaiEnzyme from 'chai-enzyme';
+import chai, { expect } from 'chai';
+import { mount } from 'enzyme';
+import { StoreConnector } from '../';
 
 chai.use(chaiEnzyme());
 

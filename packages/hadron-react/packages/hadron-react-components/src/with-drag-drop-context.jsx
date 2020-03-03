@@ -1,5 +1,5 @@
-const { DragDropContext } = require('react-dnd');
-const HTML5Backend = require('react-dnd-html5-backend').default;
+import { DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 
 let context;
 
@@ -17,4 +17,4 @@ const WithDragDropContext = (component) => {
   return context(component);
 };
 
-module.exports = WithDragDropContext;
+export default WithDragDropContext;

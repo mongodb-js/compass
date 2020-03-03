@@ -1,7 +1,6 @@
-const React = require('react');
-const { expect } = require('chai');
-const chai = require('chai');
-const { WithDragDropContext } = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { WithDragDropContext } from '../';
 
 class Component extends React.Component {
   render() {

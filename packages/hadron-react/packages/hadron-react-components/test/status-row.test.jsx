@@ -1,7 +1,7 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { StatusRow } = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { StatusRow } from '../';
 
 describe('<StatusRow />', () => {
   const component = shallow(

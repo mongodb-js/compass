@@ -1,14 +1,14 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const FontAwesome = require('react-fontawesome');
-const Button = require('react-bootstrap').Button;
-const map = require('lodash.map');
-const fill = require('lodash.fill');
-const get = require('lodash.get');
-const isString = require('lodash.isstring');
-const isArray = require('lodash.isarray');
-const isPlainObject = require('lodash.isplainobject');
-const isNumber = require('lodash.isnumber');
+import React from 'react';
+import PropTypes from 'prop-types';
+import FontAwesome from 'react-fontawesome';
+import { Button } from 'react-bootstrap';
+import map from 'lodash.map';
+import fill from 'lodash.fill';
+import get from 'lodash.get';
+import isString from 'lodash.isstring';
+import isArray from 'lodash.isarray';
+import isPlainObject from 'lodash.isplainobject';
+import isNumber from 'lodash.isnumber';
 
 /**
  * The base for the classes.
@@ -312,4 +312,4 @@ SortableTable.defaultProps = {
 
 SortableTable.displayName = 'SortableTable';
 
-module.exports = SortableTable;
+export default SortableTable;

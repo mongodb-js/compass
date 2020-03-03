@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const InfoSprinkle = require('./info-sprinkle');
+import React from 'react';
+import PropTypes from 'prop-types';
+import InfoSprinkle from './info-sprinkle';
 
 /**
  * A checkbox in the create collection dialog.
@@ -43,4 +43,4 @@ ModalCheckbox.propTypes = {
   name: PropTypes.string.isRequired
 };
 
-module.exports = ModalCheckbox;
+export default ModalCheckbox;

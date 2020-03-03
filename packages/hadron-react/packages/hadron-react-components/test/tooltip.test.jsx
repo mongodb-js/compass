@@ -1,9 +1,8 @@
-const React = require('react');
-const chaiEnzyme = require('chai-enzyme');
-const chai = require('chai');
-const expect = chai.expect;
-const { shallow } = require('enzyme');
-const { Tooltip } = require('../');
+import React from 'react';
+import chaiEnzyme from 'chai-enzyme';
+import chai, { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { Tooltip } from '../';
 
 chai.use(chaiEnzyme());
 

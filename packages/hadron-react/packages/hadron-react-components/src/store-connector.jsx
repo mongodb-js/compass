@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const isFunction = require('lodash.isfunction');
+import React from 'react';
+import PropTypes from 'prop-types';
+import isFunction from 'lodash.isfunction';
 
 /**
  * Connects a store to a component where the store state matches
@@ -52,4 +52,4 @@ StoreConnector.propTypes = {
 
 StoreConnector.displayName = 'StoreConnector';
 
-module.exports = StoreConnector;
+export default StoreConnector;

@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * An info sprinkle which can be clicked to perform the work in the
@@ -28,4 +28,4 @@ InfoSprinkle.propTypes = {
   helpLink: PropTypes.string.isRequired
 };
 
-module.exports = InfoSprinkle;
+export default InfoSprinkle;

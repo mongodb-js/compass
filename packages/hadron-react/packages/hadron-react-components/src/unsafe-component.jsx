@@ -1,8 +1,8 @@
-const omit = require('lodash.omit');
-const keys = require('lodash.keys');
-const React = require('react');
-const ReactDOM = require('react-dom');
-const PropTypes = require('prop-types');
+import omit from 'lodash.omit';
+import keys from 'lodash.keys';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
 class UnsafeComponent extends React.Component {
 
@@ -75,4 +75,4 @@ UnsafeComponent.propTypes = {
 
 UnsafeComponent.displayName = 'UnsafeComponent';
 
-module.exports = UnsafeComponent;
+export default UnsafeComponent;

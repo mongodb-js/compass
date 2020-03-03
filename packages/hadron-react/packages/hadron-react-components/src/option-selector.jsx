@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { DropdownButton, MenuItem } = require('react-bootstrap');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { DropdownButton, MenuItem } from 'react-bootstrap';
 
 /**
  * An OptionSelector component is composed of a few components:
@@ -73,4 +73,4 @@ OptionSelector.defaultProps = {
 
 OptionSelector.displayName = 'OptionSelector';
 
-module.exports = OptionSelector;
+export default OptionSelector;

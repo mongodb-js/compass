@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const Panel = require('react-bootstrap').Panel;
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Panel } from 'react-bootstrap';
 
 /**
  * Component for the status message.
@@ -43,4 +43,4 @@ ModalStatusMessage.propTypes = {
   type: PropTypes.string.isRequired
 };
 
-module.exports = ModalStatusMessage;
+export default ModalStatusMessage;

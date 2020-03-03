@@ -1,10 +1,9 @@
-const React = require('react');
-const sinon = require('sinon');
-const chaiEnzyme = require('chai-enzyme');
-const chai = require('chai');
-const expect = chai.expect;
-const { mount } = require('enzyme');
-const { ViewSwitcher } = require('../');
+import React from 'react';
+import sinon from 'sinon';
+import chaiEnzyme from 'chai-enzyme';
+import chai, { expect } from 'chai';
+import { mount } from 'enzyme';
+import { ViewSwitcher } from '../';
 
 chai.use(chaiEnzyme());
 

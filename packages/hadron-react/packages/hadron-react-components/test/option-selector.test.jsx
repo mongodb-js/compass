@@ -1,7 +1,7 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { OptionSelector } = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { OptionSelector } from '../';
 
 describe('<OptionSelector />', () => {
   context('when the option selector has no label', () => {

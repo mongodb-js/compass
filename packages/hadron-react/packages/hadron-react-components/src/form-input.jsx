@@ -1,6 +1,6 @@
-const React = require('react');
-const ReactTooltip = require('react-tooltip');
-const PropTypes = require('prop-types');
+import React from 'react';
+import ReactTooltip from 'react-tooltip';
+import PropTypes from 'prop-types';
 
 /**
  * Represents an input field within a form.
@@ -120,4 +120,4 @@ FormInput.propTypes = {
 
 FormInput.displayName = 'FormInput';
 
-module.exports = FormInput;
+export default FormInput;
