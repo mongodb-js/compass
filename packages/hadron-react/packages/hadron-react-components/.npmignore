@@ -1,0 +1,6 @@
+.jshintrc
+.jsfmtrc
+.travis.yml
+.zuul.yml
+src/
+test/
