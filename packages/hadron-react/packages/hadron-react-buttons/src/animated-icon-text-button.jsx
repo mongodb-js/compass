@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * The button constant.
@@ -96,4 +96,4 @@ AnimatedIconTextButton.propTypes = {
   disabled: PropTypes.bool
 };
 
-module.exports = AnimatedIconTextButton;
+export default AnimatedIconTextButton;

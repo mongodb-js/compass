@@ -1,7 +1,7 @@
-const React = require('react');
-const { expect } = require('chai');
-const { shallow } = require('enzyme');
-const { TextButton } = require('../');
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { TextButton } from '../';
 
 describe('<TextButton />', () => {
   const click = () => {

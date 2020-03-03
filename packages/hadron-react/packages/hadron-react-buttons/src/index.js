@@ -1,4 +1,11 @@
-module.exports.AnimatedIconTextButton = require('./animated-icon-text-button');
-module.exports.IconButton = require('./icon-button');
-module.exports.IconTextButton = require('./icon-text-button');
-module.exports.TextButton = require('./text-button');
+import AnimatedIconTextButton from './animated-icon-text-button';
+import IconButton from './icon-button';
+import IconTextButton from './icon-text-button';
+import TextButton from './text-button';
+
+export {
+  AnimatedIconTextButton,
+  IconButton,
+  IconTextButton,
+  TextButton
+};

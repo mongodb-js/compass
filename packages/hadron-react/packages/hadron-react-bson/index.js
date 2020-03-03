@@ -13,6 +13,7 @@ import getComponent, {
 
 export default getComponent;
 export {
+  getComponent,
   Value,
   BinaryValue,
   CodeValue,

@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * The button constant.
@@ -49,4 +49,4 @@ IconButton.propTypes = {
   dataTestId: PropTypes.string
 };
 
-module.exports = IconButton;
+export default IconButton;

@@ -16,7 +16,8 @@
   "scripts": {
     "ci": "npm install && lerna bootstrap && lerna run check && lerna run test",
     "check": "lerna run check",
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "compile": "lerna run compile"
   },
   "precommit": [
     "check"

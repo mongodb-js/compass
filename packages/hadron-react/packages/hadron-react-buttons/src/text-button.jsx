@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * The button constant.
@@ -46,4 +46,4 @@ TextButton.propTypes = {
   style: PropTypes.object
 };
 
-module.exports = TextButton;
+export default TextButton;
