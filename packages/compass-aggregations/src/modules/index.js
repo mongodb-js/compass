@@ -60,6 +60,7 @@ import autoPreview, {
 import id, { INITIAL_STATE as ID_INITIAL_STATE } from './id';
 import savedPipeline, {
   updatePipelineList,
+  getDirectory,
   INITIAL_STATE as SP_INITIAL_STATE
 } from './saved-pipeline';
 import restorePipeline, {
@@ -71,7 +72,6 @@ import importPipeline, {
   createPipeline,
   createPipelineFromView
 } from './import-pipeline';
-import { getObjectStore } from 'utils/indexed-db';
 import appRegistry, {
   localAppRegistryEmit,
   globalAppRegistryEmit,
@@ -625,16 +625,17 @@ export const newPipelineFromPaste = (text) => {
  */
 export const deletePipeline = (pipelineId) => {
   return (dispatch, getState) => {
-    getObjectStore('readwrite', (store) => {
-      store.delete(pipelineId).onsuccess = () => {
-        dispatch(updatePipelineList());
-        dispatch(clearPipeline());
-        dispatch(
-          globalAppRegistryEmit('agg-pipeline-deleted', {
-            name: getState().name
-          })
-        );
-      };
+    const fs = require('fs');
+    const path = require('path');
+    const file = path.join(getDirectory(), `${pipelineId}.json`);
+    fs.unlink(file, () => {
+      dispatch(updatePipelineList());
+      dispatch(clearPipeline());
+      dispatch(
+        globalAppRegistryEmit('agg-pipeline-deleted', {
+          name: getState().name
+        })
+      );
     });
   };
 };
@@ -648,14 +649,17 @@ export const deletePipeline = (pipelineId) => {
  */
 export const getPipelineFromIndexedDB = (pipelineId) => {
   return (dispatch) => {
-    getObjectStore('readwrite', (store) => {
-      store.get(pipelineId).onsuccess = (e) => {
-        const pipe = e.target.result;
+    const fs = require('fs');
+    const path = require('path');
+    const file = path.join(getDirectory(), `${pipelineId}.json`);
+    fs.readFile(file, 'utf8', (error, data) => {
+      if (!error) {
+        const pipe = JSON.parse(data);
         dispatch(clearPipeline());
         dispatch(restoreSavedPipeline(pipe));
         dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-opened'));
         dispatch(runStage(0));
-      };
+      }
     });
   };
 };

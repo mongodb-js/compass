@@ -1,4 +1,3 @@
-import { getObjectStore } from 'utils/indexed-db';
 import { createId } from 'modules/id';
 import { setIsModified } from 'modules/is-modified';
 import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
@@ -65,6 +64,18 @@ export const getSavedPipelines = () => {
 };
 
 /**
+ * Get the directory pipelines are stored in.
+ *
+ * @returns {String} The directory.
+ */
+export const getDirectory = () => {
+  const { remote } = require('electron');
+  const path = require('path');
+  const userDataDir = remote.app.getPath('userData');
+  return path.join(userDataDir, DIRNAME);
+};
+
+/**
  * Update the pipeline list.
  *
  * @returns {Function} The thunk function.
@@ -74,31 +85,33 @@ export const updatePipelineList = () => {
     const asyncr = require('async');
     const fs = require('fs');
     const path = require('path');
-    const { remote } = require('electron');
 
     const state = getState();
-    const userDataDir = remote.app.getPath('userData');
-    const dirname = path.join(userDataDir, DIRNAME);
     const pipelines = [];
 
-    fs.readdir(dirname, (error, files) => {
-      const validFiles = files.filter(file => file.endsWith('.json'));
-      const tasks = validFiles.map((file) => {
-        return (callback) => {
-          fs.readFile(file, (err, data) => {
-            const pipeline = JSON.parse(data);
-            if (pipeline.namespace === state.namespace) {
-              pipelines.push(pipeline);
-            }
-            callback(null);
-          });
-        };
-      });
-      asyncr.parallel(tasks, () => {
-        dispatch(setIsModified(false));
-        dispatch(savedPipelineAdd(pipelines));
-        dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
-      });
+    const dir = getDirectory();
+    fs.readdir(dir, (error, files) => {
+      if (!error) {
+        const validFiles = files.filter(file => file.endsWith('.json'));
+        const tasks = validFiles.map((file) => {
+          return (callback) => {
+            fs.readFile(path.join(dir, file), 'utf8', (err, data) => {
+              if (!err) {
+                const pipeline = JSON.parse(data);
+                if (pipeline.namespace === state.namespace) {
+                  pipelines.push(pipeline);
+                }
+              }
+              callback(null);
+            });
+          };
+        });
+        asyncr.parallel(tasks, () => {
+          dispatch(setIsModified(false));
+          dispatch(savedPipelineAdd(pipelines));
+          dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
+        });
+      }
     });
   };
 };
@@ -113,7 +126,6 @@ export const saveCurrentPipeline = () => {
     const asyncr = require('async');
     const fs = require('fs');
     const path = require('path');
-    const { remote } = require('electron');
 
     const state = getState();
 
@@ -138,16 +150,15 @@ export const saveCurrentPipeline = () => {
       , { collationString: state.collationString }
     );
 
-    const userDataDir = remote.app.getPath('userData');
+    const dirname = getDirectory();
     asyncr.series([
       (callback) => {
-        const dirName = path.join(userDataDir, DIRNAME);
-        fs.mkdir(dirName, { recursive: true }, () => {
+        fs.mkdir(dirname, { recursive: true }, () => {
           callback();
         });
       },
       (callback) => {
-        const fileName = path.join(userDataDir, DIRNAME, `${pipeline.id}.json`);
+        const fileName = path.join(dirname, `${stateRecord.id}.json`);
         const options = { encoding: 'utf8', flag: 'w' };
         fs.writeFile(fileName, JSON.stringify(stateRecord), options, () => {
           callback(null);
