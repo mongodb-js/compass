@@ -681,7 +681,7 @@ describe('NativeClient', function() {
         assert.equal(null, error);
         client.listDatabases(function(err, dbs) {
           assert.equal(null, err);
-          expect(dbs).to.not.have.property({name: 'mangoDB'});
+          expect(dbs).to.not.have.property('name', 'mangoDB');
           done();
         });
       });
@@ -704,7 +704,7 @@ describe('NativeClient', function() {
         assert.equal(null, error);
         client.indexes(namespace, function(err, indexes) {
           assert.equal(null, err);
-          expect(indexes).to.not.have.property({name: 'a_1'});
+          expect(indexes).to.not.have.property('name', 'a_1');
           done();
         });
       });
