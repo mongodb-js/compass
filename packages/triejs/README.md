@@ -1,4 +1,8 @@
-#Triejs [![Build Status](https://secure.travis-ci.org/pthurlow/triejs.png)](http://travis-ci.org/pthurlow/triejs)
+:warning: This fork merely fixes `devDependencies` listed as `dependencies` and because the original project is no longer maintained, published as `@mongodb-js/triejs` on npm.
+
+---
+
+# Triejs [![Build Status](https://secure.travis-ci.org/pthurlow/triejs.png)](http://travis-ci.org/pthurlow/triejs)
 A Javascript implementation of a trie data structure with an extensible data 
 model to easily customize to any need.  Visit the [Triejs page](http://pthurlow.github.com/triejs) for more info and technical details.
 
