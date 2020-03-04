@@ -5,6 +5,8 @@
   "bugs": "https://github.com/mongodb-js/hadron-react/issues",
   "homepage": "https://github.com/mongodb-js/hadron-react/packages/hadron-react-buttons",
   "version": "4.0.2",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/hadron-react.git"

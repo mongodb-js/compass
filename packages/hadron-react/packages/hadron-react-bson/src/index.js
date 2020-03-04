@@ -45,6 +45,7 @@ const getComponent = (type) => {
 
 export default getComponent;
 export {
+  getComponent,
   Value,
   BinaryValue,
   CodeValue,
