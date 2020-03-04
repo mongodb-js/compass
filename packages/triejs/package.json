@@ -1,5 +1,5 @@
 {
-  "name": "triejs",
+  "name": "@mongodb-js/triejs",
   "version": "0.1.5",
   "author": "Paul Thurlow",
   "description": "Customizable trie data structure built in JavaScript.",
