@@ -1,11 +1,8 @@
 language: node_js
-sudo: false
+dist: bionic
 node_js:
-  - 8.9.3
-  - 10.2.1
+  - 12.4.0
 script: 
   - npm run check
   - npm test
-cache:
-  directories:
-    - node_modules
+cache: npm

@@ -21,7 +21,7 @@ describe('fetch()', function() {
     before(function(done) {
       MongoClient.connect(
         'mongodb://localhost:27017/test',
-        { useNewUrlParser: true },
+        { useUnifiedTopology: true },
         function(err, _client) {
           assert.ifError(err);
           client = _client;

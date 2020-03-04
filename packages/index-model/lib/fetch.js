@@ -22,10 +22,10 @@ function attach(anything, done) {
 
 /**
  * get basic index information via `db.collection.indexes()`
- * @param  {Function} done       callback
  * @param  {object}   results    results from async.auto
+ * @param  {Function} done       callback
  */
-function getIndexes(done, results) {
+function getIndexes(results, done) {
   var client = results.client;
   var ns = mongodbNS(results.namespace);
   client
@@ -45,10 +45,10 @@ function getIndexes(done, results) {
 
 /**
  * get index statistics via `db.collection.aggregate({$indexStats: {}})`
- * @param  {Function} done       callback
  * @param  {object}   results    results from async.auto
+ * @param  {Function} done       callback
  */
-function getIndexStats(done, results) {
+function getIndexStats(results, done) {
   var client = results.client;
   var ns = mongodbNS(results.namespace);
   var pipeline = [
@@ -62,10 +62,12 @@ function getIndexStats(done, results) {
       }
     }
   ];
+  debug('Getting $indexStats for %s', results.namespace);
   var collection = client.db(ns.database).collection(ns.collection);
   collection.aggregate(pipeline, { cursor: {} }).toArray(function(err, res) {
     if (err) {
       if (isNotAuthorizedError(err)) {
+        debug('Not authorized to get index stats', err);
         /**
          * In the 3.2 server, `readWriteAnyDatabase@admin` does not grant sufficient privileges for $indexStats.
          * The `clusterMonitor` role is required to run $indexStats.
@@ -75,7 +77,7 @@ function getIndexStats(done, results) {
       }
 
       if (err.message.match(/Unrecognized pipeline stage name/)) {
-        // $indexStats not yet supported, return empty document
+        debug('$indexStats not yet supported, return empty document', err);
         return done(null, {});
       }
       done(err);
@@ -89,13 +91,14 @@ function getIndexStats(done, results) {
 
 /**
  * get index sizes via `db.collection.stats()` (`indexSizes` field)
- * @param  {Function} done       callback
  * @param  {object}   results    results from async.auto
+ * @param  {Function} done       callback
  */
 
-function getIndexSizes(done, results) {
+function getIndexSizes(results, done) {
   var client = results.client;
   var ns = mongodbNS(results.namespace);
+  debug('Getting index sizes for %s', results.namespace);
   client
     .db(ns.database)
     .collection(ns.collection)
@@ -107,22 +110,24 @@ function getIndexSizes(done, results) {
           );
           return done(null, {});
         }
+        debug('Error getting index sizes for %s', results.namespace, err);
         return done(err);
       }
 
       res = _.mapValues(res.indexSizes, function(size) {
         return { size: size };
       });
+      debug('Got index sizes for %s', results.namespace, res);
       done(null, res);
     });
 }
 
 /**
  * merge all information together for each index
- * @param  {Function} done       callback
  * @param  {object}   results    results from async.auto
+ * @param  {Function} done       callback
  */
-function combineStatsAndIndexes(done, results) {
+function combineStatsAndIndexes(results, done) {
   var indexes = results.getIndexes;
   var stats = results.getIndexStats;
   var sizes = results.getIndexSizes;
@@ -153,12 +158,13 @@ function getIndexDetails(client, namespace, done) {
       combineStatsAndIndexes
     ]
   };
-
+  debug('Getting index details for namespace %s', namespace);
   async.auto(tasks, function(err, results) {
     if (err) {
-      // report error
+      debug('Failed to get index details for namespace %s', namespace, err);
       return done(err);
     }
+    debug('Index details for namespace %s', namespace, results.indexes);
     // all info was collected in indexes
     return done(null, results.indexes);
   });

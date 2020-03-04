@@ -1,4 +1,4 @@
-var Triejs = require('triejs');
+var Triejs = require('@mongodb-js/triejs');
 var Model = require('ampersand-model');
 var Collection = require('ampersand-collection');
 var _ = require('lodash');
