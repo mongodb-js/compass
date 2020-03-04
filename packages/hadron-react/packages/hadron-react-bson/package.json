@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-react/issues",
   "homepage": "https://github.com/mongodb-js/hadron-react/packages/hadron-react-bson",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "main": "lib/index.js",
   "module": "lib/index.js",
   "repository": {
@@ -24,7 +24,7 @@
     "check": "mongodb-js-precommit"
   },
   "dependencies": {
-    "hadron-react-utils": "^4.0.2",
+    "hadron-react-utils": "^4.0.3",
     "hex-to-uuid": "^1.0.1",
     "moment-timezone": "^0.5.14",
     "prop-types": "^15.5.8",

@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-react/issues",
   "homepage": "https://github.com/mongodb-js/hadron-react/packages/hadron-react-components",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "main": "lib/index.js",
   "module": "lib/index.js",
   "repository": {
