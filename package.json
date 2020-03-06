@@ -286,7 +286,7 @@
     "url": "git://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-aggregations": "^6.1.5",
+    "@mongodb-js/compass-aggregations": "^7.0.1",
     "@mongodb-js/compass-app-stores": "^4.0.2",
     "@mongodb-js/compass-auth-kerberos": "^4.0.0",
     "@mongodb-js/compass-auth-ldap": "^4.0.0",
@@ -351,9 +351,9 @@
     "hadron-ipc": "^1.1.1",
     "hadron-module-cache": "^1.0.0",
     "hadron-plugin-manager": "^5.3.1",
-    "hadron-react-bson": "^3.4.0",
-    "hadron-react-buttons": "^3.4.0",
-    "hadron-react-components": "^3.5.1",
+    "hadron-react-bson": "^4.0.4",
+    "hadron-react-buttons": "^4.0.4",
+    "hadron-react-components": "^4.0.4",
     "hadron-style-manager": "^0.3.0",
     "highlight.js": "^8.9.1",
     "jquery": "^2.1.4",
