@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-collection-stats",
   "productName": "Collection Stats",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "apiVersion": "3.0.0",
   "description": "Compass Collection Stats Plugin",
   "main": "lib/index.js",
@@ -29,6 +29,8 @@
   "dependency-check": {
     "ignore": [
       "hadron-react-bson",
+      "mongodb-ns",
+      "numeral",
       "react-dom",
       "mongodb-data-service"
     ]
