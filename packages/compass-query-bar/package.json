@@ -37,12 +37,13 @@
   },
   "dependency-check": {
     "ignore": [
+      "mongodb-query-parser",
       "react-dom"
     ]
   },
   "peerDependencies": {
     "debug": "*",
-    "hadron-react-components": "^3.0.0",
+    "hadron-react-components": "^4.0.4",
     "mongodb-ace-autocompleter": "*",
     "mongodb-ace-mode": "*",
     "mongodb-ace-theme-query": "*",
@@ -89,8 +90,8 @@
     "font-awesome": "^4.7.0",
     "hadron-app": "^3.2.1",
     "hadron-app-registry": "^7.2.0",
-    "hadron-react-bson": "^3.4.0",
-    "hadron-react-components": "^3.5.1",
+    "hadron-react-bson": "^4.0.4",
+    "hadron-react-components": "^4.0.4",
     "html-webpack-plugin": "^3.2.0",
     "htmlhint": "^0.11.0",
     "ignore-loader": "^0.1.2",
