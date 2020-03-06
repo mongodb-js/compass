@@ -23,6 +23,18 @@
     "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.jsx\"",
     "check": "mongodb-js-precommit"
   },
+  "dependency-check": {
+    "ignore": [
+      "prop-types",
+      "react",
+      "react-dom"
+    ]
+  },
+  "peerDependencies": {
+    "prop-types": "^15.5.8",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
+  },
   "dependencies": {
     "lodash.fill": "^3.4.0",
     "lodash.get": "^4.4.2",
@@ -34,12 +46,9 @@
     "lodash.keys": "^4.2.0",
     "lodash.map": "^4.6.0",
     "lodash.omit": "^4.5.0",
-    "prop-types": "^15.5.8",
-    "react": "^16.8.0",
     "react-bootstrap": "^0.32.0",
     "react-dnd": "^7.3.2",
     "react-dnd-html5-backend": "^7.2.0",
-    "react-dom": "^16.8.0",
     "react-fontawesome": "^1.6.1",
     "react-tooltip": "^3.2.6"
   },
@@ -65,6 +74,9 @@
     "mongodb-js-precommit": "^2.2.1",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "pre-commit": "^1.2.2",
+    "prop-types": "^15.5.8",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
     "rimraf": "^3.0.2",
     "sinon": "^2.4.1",
     "sinon-chai": "^3.5.0",

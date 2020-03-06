@@ -23,13 +23,22 @@
     "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.jsx\"",
     "check": "mongodb-js-precommit"
   },
-  "dependencies": {
-    "hadron-react-utils": "^4.0.3",
-    "hex-to-uuid": "^1.0.1",
-    "moment-timezone": "^0.5.14",
+  "dependency-check": {
+    "ignore": [
+      "prop-types",
+      "react",
+      "react-dom"
+    ]
+  },
+  "peerDependencies": {
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
     "react-dom": "^16.8.0"
+  },
+  "dependencies": {
+    "hadron-react-utils": "^4.0.3",
+    "hex-to-uuid": "^1.0.1",
+    "moment-timezone": "^0.5.14"
   },
   "devDependencies": {
     "@babel/core": "^7.8.6",
@@ -54,6 +63,9 @@
     "mongodb-js-precommit": "^2.2.1",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "pre-commit": "^1.2.2",
+    "prop-types": "^15.5.8",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
     "rimraf": "^3.0.2",
     "sinon": "^2.4.1",
     "sinon-chai": "^3.5.0",
