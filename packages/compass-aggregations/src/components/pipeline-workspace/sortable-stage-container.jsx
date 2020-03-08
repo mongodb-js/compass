@@ -1,17 +1,25 @@
 import React, {Component} from 'react';
 import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import PropTypes from 'prop-types';
+import cn from 'classnames';
+
+import styles from './sortable-stage-container.less';
 
 function makeDragSource(component) {
   const spec = {
     beginDrag: (props) => {
-      return {index: props.index};
+      return {
+        index: props.index,
+        stageOperator: props.stageOperator
+      };
     }
   };
 
   const collect = (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
+    connectDragPreview: connect.dragPreview(),
     isDragging: monitor.isDragging()
   });
 
@@ -69,13 +77,26 @@ class SortableStageContainer extends Component {
     onMove: PropTypes.func.isRequired
   };
 
+  componentDidMount() {
+    const { connectDragPreview } = this.props
+    if (connectDragPreview) {
+      // Use empty image as a drag preview so browsers don't draw it
+      // and we can draw whatever we want on the custom drag layer instead.
+      connectDragPreview(getEmptyImage(), {
+        // IE fallback: specify that we'd rather screenshot the node
+        // when it already knows it's being dragged so we can hide it with CSS.
+        captureDraggingState: true,
+      })
+    }
+  }
+
   render() {
     const connectDragSource = this.props.connectDragSource;
     const connectDropTarget = this.props.connectDropTarget;
 
     return connectDragSource(
       connectDropTarget(
-        <div>{this.props.children}</div>
+        <div className={cn(styles['sortable-stage-container'])}>{this.props.children}</div>
       ));
   }
 }

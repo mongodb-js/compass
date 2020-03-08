@@ -74,7 +74,7 @@ dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
   setDataProvider(store, error, ds);
   setDataProvider(createViewStore, error, ds);
-  setNamespace(store, 'citibike.trips');
+  setNamespace(store, 'echo.bands');
   // setViewSource(store, 'citibike.tripsOfShortDuration', [{ $match: { gender: 1 }}]);
 });
 

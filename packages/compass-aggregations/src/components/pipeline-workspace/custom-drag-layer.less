@@ -1,0 +1,26 @@
+@import (reference) "~less/compass/_theme.less";
+
+.custom-drag-layer {
+  position: fixed;
+  pointer-events: none;
+  z-index: 500;
+  left: 30px;
+  top: 0;
+  width: 100%;
+  height: 100%;
+
+  &-container {
+    border: 3px solid #5b81a9;
+    border-radius: 5px;
+    background-color: rgba(92, 129, 169, 0.4);
+    color: #5b81a9;
+    width: calc(90% - 30px);
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: italic;
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
