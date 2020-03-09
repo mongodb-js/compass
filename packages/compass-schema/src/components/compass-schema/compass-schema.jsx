@@ -29,6 +29,8 @@ const SUBTEXT = 'Quickly visualize your schema to understand the frequency, type
 
 const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/schema/';
 
+const MAXTIMEMS = 'Please try increasing the maxTimeMS for the query.';
+
 /**
  * Component for the entire schema view component.
  */
@@ -99,6 +101,8 @@ class Schema extends Component {
       banner = <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>;
     } else if (this.props.samplingState === 'error') {
       banner = <StatusRow style="error">{ERROR_WARNING}: {this.props.errorMessage}</StatusRow>;
+    } else if (this.props.samplingState === 'timeout') {
+      banner = <StatusRow style="warning">{this.props.errorMessage}. {MAXTIMEMS}</StatusRow>;
     } else {
       banner = (
         <SamplingMessage
