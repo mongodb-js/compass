@@ -366,7 +366,7 @@ const loadPreviewDocs = (
      * errors/faults hard so we can figure out edge cases that
      * actually need it.
      */
-    const source = fs.createReadStream(fileName, 'utf8');
+    const source = fs.createReadStream(fileName, {encoding: 'utf8', end: 20 * 1024});
     const dest = createPreviewWritable();
     stream.pipeline(
       source,

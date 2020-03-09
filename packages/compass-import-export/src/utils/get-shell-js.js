@@ -1,4 +1,4 @@
-import toJavascriptString from 'javascript-stringify';
+import { stringify as toJavascriptString } from 'javascript-stringify';
 import toNS from 'mongodb-ns';
 
 export default function(ns, spec) {

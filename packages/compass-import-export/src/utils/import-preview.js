@@ -1,9 +1,9 @@
 import { Writable } from 'stream';
 import peek from 'peek-stream';
 import createParser from './import-parser';
-import dotnotation from './dotnotation';
 
-import { detectType } from './bson-csv';
+import { detectType, valueToString } from './bson-csv';
+import dotnotation from './dotnotation';
 import { createLogger } from './logger';
 const debug = createLogger('import-preview');
 
@@ -21,6 +21,7 @@ export const createPeekStream = function(
   fileIsMultilineJSON
 ) {
   return peek({ maxBuffer: 20 * 1024 }, function(data, swap) {
+    debugger;
     return swap(
       null,
       createParser({
@@ -49,6 +50,7 @@ export default function({ MAX_SIZE = 10 } = {}) {
       }
 
       if (this.docs.length >= MAX_SIZE) {
+        debug('noop');
         return next();
       }
       this.docs.push(doc);
@@ -77,7 +79,9 @@ export default function({ MAX_SIZE = 10 } = {}) {
           got: keys
         });
       }
-      this.values.push(Object.values(docAsDotnotation));
+      const values = Object.values(docAsDotnotation).map(value => valueToString(value));
+      debug('set values', values);
+      this.values.push(values);
 
       return next(null);
     }

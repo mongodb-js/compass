@@ -152,7 +152,7 @@
     "csv-parser": "^2.3.1",
     "fast-csv": "^3.4.0",
     "flat": "cipacda/flat",
-    "javascript-stringify": "^1.6.0",
+    "javascript-stringify": "^2.0.1",
     "lodash.isobjectlike": "^4.0.0",
     "lodash.isplainobject": "^4.0.6",
     "lodash.throttle": "^4.1.1",

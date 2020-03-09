@@ -69,12 +69,6 @@ class PreviewValues extends PureComponent {
   }
 }
 
-// const FieldShape = PropTypes.shape({
-//   path: PropTypes.string,
-//   checked: PropTypes.bool,
-//   type: PropTypes.string
-// });
-
 class PreviewFields extends PureComponent {
   static propTypes = {
     fields: PropTypes.array,

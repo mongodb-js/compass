@@ -6,6 +6,8 @@
  * 1. All bson type defs had a consistent `.fromString()` * method
  * 2. Castings/detection used by fromString() today were exposed
  * (e.g. JS Number float -> bson.Double).
+ * 
+ * Related: https://github.com/mongodb-js/hadron-type-checker/blob/master/src/type-checker.js
  */
 
 /**
@@ -169,13 +171,26 @@ export const serialize = function(doc) {
 
       // BSON values
       if (isBSON) {
-        output[newKey] = value.toString('hex');
+        if (type === 'BSONRegExp') {
+          /**
+           * TODO (lucas) Upstream to `bson` as `BSONRegExp` toString()
+           * returns `'[object Object]'` today.
+           */
+          output[newKey] = `/${value.pattern}/${value.options}`;
+        } else {
+          output[newKey] = value.toString();
+        }
         return;
       }
 
       // Embedded arrays
       if (type === 'Array') {
-        output[newKey] = bson.EJSON.serialize(value);
+        output[newKey] = bson.EJSON.stringify(value, null, null);
+        return;
+      }
+
+      if (type === 'Date') {
+        output[newKey] = value.toISOString();
         return;
       }
 
@@ -189,9 +204,40 @@ export const serialize = function(doc) {
       }
 
       // All other values
-      output[newKey] = value;
+      output[newKey] = '' + value;
     });
   }
   step(doc);
   return output;
+};
+
+/**
+ * TODO (lucas) Consolidate valueToString with dupe logic in serialize() later.
+ */
+export const valueToString = function(value) {
+  const { type, isBSON } = getTypeDescriptorForValue(value);
+
+  // BSON values
+  if (isBSON) {
+    if (type === 'BSONRegExp') {
+      /**
+       * TODO (lucas) Upstream to `bson` as `BSONRegExp` toString()
+       * returns `'[object Object]'` today.
+       */
+      return `/${value.pattern}/${value.options}`;
+    }
+    return value.toString();
+  }
+
+  // Embedded arrays
+  if (type === 'Array') {
+    return bson.EJSON.stringify(value, null, null);
+  }
+
+  if (type === 'Date') {
+    return value.toISOString();
+  }
+
+  // All other values
+  return '' + value;
 };
