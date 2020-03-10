@@ -21,7 +21,6 @@ export const createPeekStream = function(
   fileIsMultilineJSON
 ) {
   return peek({ maxBuffer: 20 * 1024 }, function(data, swap) {
-    debugger;
     return swap(
       null,
       createParser({

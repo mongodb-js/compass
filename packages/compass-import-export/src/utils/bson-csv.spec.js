@@ -1,5 +1,5 @@
 import bsonCSV, { serialize } from './bson-csv';
-import { EJSON, ObjectId, Long, BSONRegExp } from 'bson';
+import { EJSON, ObjectId, Long, BSONRegExp, Double } from 'bson';
 
 // TODO: lucas: probably dumb but think about that later.
 
@@ -128,6 +128,11 @@ describe('bson-csv', () => {
         expect(serialize({ value: Long.fromNumber(245) })).to.deep.equal({
           value: '245'
         });
+      });
+    });
+    describe('Double', () => {
+      it('should not lose percision', () => {
+        expect(bsonCSV.Double.fromString('79.8911483764648')).to.deep.equal(new Double('79.8911483764648'));
       });
     });
     describe('BSONRegExp', () => {

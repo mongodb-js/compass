@@ -96,7 +96,7 @@ export default {
   },
   Double: {
     fromString: function(s) {
-      return new bson.Double(parseFloat(s));
+      return new bson.Double(s);
     }
   },
   Int32: {
