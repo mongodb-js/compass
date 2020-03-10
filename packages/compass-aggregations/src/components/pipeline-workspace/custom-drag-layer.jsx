@@ -31,7 +31,7 @@ const CustomDragLayer = (props) => {
       <div style={getItemStyles(props)}>
         <div className={cn(styles['custom-drag-layer-container'])}>
           <div>
-            Drag to rearrange the {item.stageOperator ? item.stageOperator : ''} stage.
+            {item.stageOperator ? item.stageOperator : `Stage ${item.index + 1}`}
           </div>
         </div>
       </div>

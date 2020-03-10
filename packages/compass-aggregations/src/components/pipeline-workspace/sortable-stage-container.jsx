@@ -3,9 +3,6 @@ import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import PropTypes from 'prop-types';
-import cn from 'classnames';
-
-import styles from './sortable-stage-container.less';
 
 function makeDragSource(component) {
   const spec = {
@@ -96,7 +93,7 @@ class SortableStageContainer extends Component {
 
     return connectDragSource(
       connectDropTarget(
-        <div className={cn(styles['sortable-stage-container'])}>{this.props.children}</div>
+        <div>{this.props.children}</div>
       ));
   }
 }
