@@ -1,6 +1,15 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 
+const ATLAS_REGEX = /mongodb.net[:/]/i;
+
+/**
+ * Constants for various environments MongoDB can run in.
+ */
+const ATLAS = 'atlas';
+const ADL = 'adl';
+const ON_PREM = 'on-prem';
+
 /**
  * Deployment Awareness store.
  */
@@ -23,8 +32,12 @@ const DeploymentAwarenessStore = Reflux.createStore({
     this.appRegistry = appRegistry;
     appRegistry.on('data-service-initialized', this.onDataServiceInitialized.bind(this));
     appRegistry.on('instance-refreshed', (state) => {
-      if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
-        this.setState({isDataLake: true});
+      const isAtlas = !!state.instance._id.match(ATLAS);
+      const isDataLake = state.instance.dataLake && state.instance.dataLake.isDataLake;
+      if (isAtlas && !isDataLake) {
+        this.setState({ isDataLake: false, env: ATLAS });
+      } else if (isDataLake) {
+        this.setState({ isDataLake: true, env: ADL });
       }
     });
   },
@@ -60,7 +73,8 @@ const DeploymentAwarenessStore = Reflux.createStore({
         {
           topologyType: newDescription.type,
           setName: newDescription.setName,
-          servers: servers
+          servers: servers,
+          env: this.state.env
         }
       );
     }
@@ -82,7 +96,8 @@ const DeploymentAwarenessStore = Reflux.createStore({
       topologyType: 'Unknown',
       setName: '',
       servers: [],
-      isDataLake: false
+      isDataLake: false,
+      env: ON_PREM
     };
   }
 });
