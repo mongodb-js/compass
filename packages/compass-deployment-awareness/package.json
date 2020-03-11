@@ -35,7 +35,8 @@
       "react-dom",
       "debug",
       "hadron-ipc",
-      "hadron-react-components"
+      "hadron-react-components",
+      "mongodb"
     ]
   },
   "peerDependencies": {
