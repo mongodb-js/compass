@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import decomment from 'decomment';
+import isString from 'lodash.isstring';
 import { InfoSprinkle } from 'hadron-react-components';
 import { Tooltip } from 'hadron-react-components';
 import { OUT } from 'modules/pipeline';
@@ -17,6 +18,13 @@ const ZERO_STATE = 'A sample of the aggregated results from this stage will be s
  * Disabled text.
  */
 const DISABLED = 'Stage is disabled. Results not passed in the pipeline.';
+
+const OUT_COLL = 'Documents will be saved to the collection:';
+const OUT_S3 = 'Documents will be saved to S3.';
+const OUT_ATLAS = 'Documents will be saved to Atlas cluster.';
+
+const S3_MATCH = /s3\:/;
+const ATLAS_MATCH = /atlas\:/;
 
 import {
   STAGE_SPRINKLE_MAPPINGS
@@ -45,6 +53,13 @@ class StagePreviewToolbar extends PureComponent {
     return this.props.count === 1 ? 'document' : 'documents';
   }
 
+  getOutText() {
+    const value = decomment(this.props.stageValue);
+    if (!!value.match(S3_MATCH)) return OUT_S3;
+    if (!!value.match(ATLAS_MATCH)) return OUT_ATLAS;
+    return `${OUT_COLL} ${value}`;
+  }
+
   /**
    * Get the stage preview text.
    *
@@ -54,7 +69,7 @@ class StagePreviewToolbar extends PureComponent {
     if (this.props.isEnabled) {
       if (this.props.stageOperator) {
         if (this.props.stageOperator === OUT && this.props.isValid) {
-          return `Documents will be saved to the collection: ${decomment(this.props.stageValue)}`;
+          return this.getOutText();
         }
         const stageInfo = STAGE_SPRINKLE_MAPPINGS[this.props.stageOperator];
         return (

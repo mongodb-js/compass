@@ -1,6 +1,7 @@
 import parser from 'mongodb-query-parser';
 import decomment from 'decomment';
-import { parse } from 'mongodb-stage-validator';
+
+const PARSE_ERROR = 'Stage must be a properly formatted document.'
 
 /**
  * Looks for projections the stage could produce that
@@ -29,7 +30,6 @@ export function gatherProjections(state, stage) {
     stage = {};
     try {
       const decommented = decomment(state.stage);
-      parse(`{${state.stageOperator}: ${decommented}}`);
       stage[state.stageOperator] = parser(decommented);
     } catch (e) {
       return projections;
@@ -69,10 +69,9 @@ export function generateStage(state) {
   const stage = {};
   try {
     const decommented = decomment(state.stage);
-    parse(`{${state.stageOperator}: ${decommented}}`);
     stage[state.stageOperator] = parser(decommented);
   } catch (e) {
-    state.syntaxError = e.message;
+    state.syntaxError = PARSE_ERROR;
     state.isValid = false;
     state.previewDocuments = [];
     return {};
@@ -92,9 +91,9 @@ export function generateStageAsString(state) {
   try {
     const decommented = decomment(state.stage);
     stage = `{${state.stageOperator}: ${decommented}}`;
-    parse(stage); // Run the parser so we can error check
+    parser(decommented); // Run the parser so we can error check
   } catch (e) {
-    state.syntaxError = e.message;
+    state.syntaxError = PARSE_ERROR;
     state.isValid = false;
     state.previewDocuments = [];
     return '{}';

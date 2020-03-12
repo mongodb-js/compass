@@ -182,6 +182,13 @@ const configureStore = (options = {}) => {
     globalAppRegistry.on('refresh-data', () => {
       refreshInput(store);
     });
+
+    /**
+     * Set the environment.
+     */
+    globalAppRegistry.on('compass:deployment-awareness:topology-changed', (data) => {
+      // data.env;
+    });
   }
 
   // Set the data provider - this must happen second.

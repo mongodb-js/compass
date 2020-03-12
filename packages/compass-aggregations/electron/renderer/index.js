@@ -82,7 +82,7 @@ dataService.connect((error, ds) => {
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <div>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <Component store={store} />
         <CreateViewPlugin store={createViewStore} />
         <DuplicateViewPlugin />

@@ -76,7 +76,7 @@ describe('Stage module', () => {
       });
 
       it('sets the syntax error', () => {
-        expect(stage.syntaxError).to.equal('Expected "[" or AggregationStage but "{" found.');
+        expect(stage.syntaxError).to.equal('Stage must be a properly formatted document.');
       });
     });
 
@@ -99,7 +99,7 @@ describe('Stage module', () => {
       });
 
       it('sets the syntax error', () => {
-        expect(stage.syntaxError).to.equal('Expected "[" or AggregationStage but "{" found.');
+        expect(stage.syntaxError).to.equal('Stage must be a properly formatted document.');
       });
     });
 

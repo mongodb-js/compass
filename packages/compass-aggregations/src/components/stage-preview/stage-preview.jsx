@@ -21,6 +21,7 @@ class StagePreview extends Component {
     gotoOutResults: PropTypes.func.isRequired,
     gotoMergeResults: PropTypes.func.isRequired,
     documents: PropTypes.array.isRequired,
+    error: PropTypes.string,
     isValid: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
@@ -59,18 +60,21 @@ class StagePreview extends Component {
    */
   renderMergeSection() {
     if (this.props.isComplete) {
-      return (
-        <div className={classnames(styles['stage-preview-out'])}>
-          <div className={classnames(styles['stage-preview-out-text'])}>
-            Documents persisted to collection specified by $merge.
+      if (!this.props.error) {
+        return (
+          <div className={classnames(styles['stage-preview-out'])}>
+            <div className={classnames(styles['stage-preview-out-text'])}>
+              Documents persisted to collection specified by $merge.
+            </div>
+            <div
+              className={classnames(styles['stage-preview-out-link'])}
+              onClick={this.onGotoMergeResults}>
+              Go to collection.
+            </div>
           </div>
-          <div
-            className={classnames(styles['stage-preview-out-link'])}
-            onClick={this.onGotoMergeResults}>
-            Go to collection.
-          </div>
-        </div>
-      );
+        );
+      }
+      return (<div className={classnames(styles['stage-preview-out'])} />);
     }
     return (
       <div className={classnames(styles['stage-preview-out'])}>
@@ -95,24 +99,27 @@ class StagePreview extends Component {
    */
   renderOutSection() {
     if (this.props.isComplete) {
-      return (
-        <div className={classnames(styles['stage-preview-out'])}>
-          <div className={classnames(styles['stage-preview-out-text'])}>
-            Documents persisted to collection: {decomment(this.props.stage)}.
+      if (!this.props.error) {
+        return (
+          <div className={classnames(styles['stage-preview-out'])}>
+            <div className={classnames(styles['stage-preview-out-text'])}>
+              Documents persisted to collection: {decomment(this.props.stage)}.
+            </div>
+            <div
+              className={classnames(styles['stage-preview-out-link'])}
+              onClick={this.onGotoOutResults}>
+              Go to collection.
+            </div>
           </div>
-          <div
-            className={classnames(styles['stage-preview-out-link'])}
-            onClick={this.onGotoOutResults}>
-            Go to collection.
-          </div>
-        </div>
-      );
+        );
+      }
+      return (<div className={classnames(styles['stage-preview-out'])} />);
     }
     return (
       <div className={classnames(styles['stage-preview-out'])}>
         <div className={classnames(styles['stage-preview-out-text'])}>
           The $out operator will cause the pipeline to persist the results
-          to the specified collection. If the collection exists it will be
+          to the specified location (collection, S3, or Atlas). If the collection exists it will be
           replaced. Please confirm to execute.
         </div>
         <div className={classnames(styles['stage-preview-out-button'])}>

@@ -107,27 +107,106 @@ describe('StagePreviewToolbar [Component]', () => {
   });
 
   context('when the stage operator is $out', () => {
-    let component;
+    context('when the value is a collection', () => {
+      let component;
 
-    beforeEach(() => {
-      component = shallow(
-        <StagePreviewToolbar
-          openLink={sinon.spy()}
-          stageOperator="$out"
-          stageValue="collection"
-          count={0}
-          isValid
-          isEnabled />
-      );
+      beforeEach(() => {
+        component = shallow(
+          <StagePreviewToolbar
+            openLink={sinon.spy()}
+            stageOperator="$out"
+            stageValue="collection"
+            count={0}
+            isValid
+            isEnabled />
+        );
+      });
+
+      afterEach(() => {
+        component = null;
+      });
+
+      it('renders the $out stage text', () => {
+        expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+          to.have.text('Documents will be saved to the collection: collection');
+      });
     });
 
-    afterEach(() => {
-      component = null;
+    context('when the value is s3', () => {
+      context('when the value is a string', () => {
+        let component;
+
+        beforeEach(() => {
+          component = shallow(
+            <StagePreviewToolbar
+              openLink={sinon.spy()}
+              stageOperator="$out"
+              stageValue="{ s3: 'bucket' }"
+              count={0}
+              isValid
+              isEnabled />
+          );
+        });
+
+        afterEach(() => {
+          component = null;
+        });
+
+        it('renders the $out stage text', () => {
+          expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+            to.have.text('Documents will be saved to S3.');
+        });
+      });
+
+      context('when the value is an object', () => {
+        let component;
+
+        beforeEach(() => {
+          component = shallow(
+            <StagePreviewToolbar
+              openLink={sinon.spy()}
+              stageOperator="$out"
+              stageValue="{ s3: { bucket: 'test' }}"
+              count={0}
+              isValid
+              isEnabled />
+          );
+        });
+
+        afterEach(() => {
+          component = null;
+        });
+
+        it('renders the $out stage text', () => {
+          expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+            to.have.text('Documents will be saved to S3.');
+        });
+      });
     });
 
-    it('renders the $out stage text', () => {
-      expect(component.find(`.${styles['stage-preview-toolbar']}`)).
-        to.have.text('Documents will be saved to the collection: collection');
+    context('when the value is atlas', () => {
+      let component;
+
+      beforeEach(() => {
+        component = shallow(
+          <StagePreviewToolbar
+            openLink={sinon.spy()}
+            stageOperator="$out"
+            stageValue="{ atlas: { projectId: 'test' }}"
+            count={0}
+            isValid
+            isEnabled />
+        );
+      });
+
+      afterEach(() => {
+        component = null;
+      });
+
+      it('renders the $out stage text', () => {
+        expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+          to.have.text('Documents will be saved to Atlas cluster.');
+      });
     });
   });
 
