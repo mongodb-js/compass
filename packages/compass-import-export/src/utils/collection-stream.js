@@ -178,7 +178,6 @@ export const createReadableCollectionStream = function(
 
   return dataService
     .fetch(ns, spec.filter || {}, {
-      explicitlyIgnoreSession: true,
       projection,
       limit,
       skip
