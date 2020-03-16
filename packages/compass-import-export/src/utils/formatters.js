@@ -16,11 +16,15 @@ import { EOL } from 'os';
  * @returns {Stream.Transform}
  */
 export const createJSONFormatter = function({ brackets = true } = {}) {
+  // if (brackets) {
+  //   return JSONStream.stringify(open, sep, close);
+  // }
+
   return new Transform({
     readableObjectMode: false,
     writableObjectMode: true,
     transform: function(doc, encoding, callback) {
-      if (this._counter === 1) {
+      if (this._counter >= 1) {
         if (brackets) {
           this.push(',');
         } else {
