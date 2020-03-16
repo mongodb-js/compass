@@ -47,6 +47,7 @@
     "@mongodb-js/compass-export-to-language": "*",
     "async": "^1.5.2",
     "bson-transpilers": "^0.13.3",
+    "electron": "*",
     "hadron-react-bson": "^4.0.4",
     "hadron-react-buttons": "^4.0.4",
     "hadron-react-components": "^4.0.4",
