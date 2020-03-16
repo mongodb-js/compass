@@ -20,7 +20,8 @@
     "prestart": "electron-rebuild --force --only keytar",
     "start": "webpack-dev-server --config ./config/webpack.dev.config.js",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
-    "cover": "nyc npm run test",
+    "test:dev": "cross-env NODE_ENV=test mocha-webpack",
+    "cover": "xvfb-maybe nyc npm run test",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js'",
     "prepublishOnly": "npm run compile",
     "storybook": "cross-env NODE_ENV=development start-storybook -p 9001 -c .storybook",
@@ -143,7 +144,8 @@
     "webpack-dev-server": "^3.8.2",
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^1.7.2",
-    "webpack-sources": "^1.4.3"
+    "webpack-sources": "^1.4.3",
+    "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
     "JSONStream": "^1.3.5",

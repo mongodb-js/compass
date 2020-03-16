@@ -14,10 +14,7 @@ import { createCSVParser } from './import-parser';
 import createImportSizeGuesstimator from './import-size-guesstimator';
 import { pipeline } from 'stream';
 
-/**
- * TODO: lucas: This works functionally in electron but can't
- * figure out how/why mocha-webpack until we get electron@6
- */
+// TODO (lucas) Find proper fixture for this to check in.
 describe.skip('guesstimator', () => {
   it('should guess', function(done) {
     this.timeout(5000);

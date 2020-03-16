@@ -17,7 +17,7 @@ const FIXTURES = {
   )
 };
 
-describe.skip('import-preview', () => {
+describe('import-preview', () => {
   describe('createPreviewWritable', () => {
     it('should work with docs < MAX_SIZE', (done) => {
       const dest = createPreviewWritable();
