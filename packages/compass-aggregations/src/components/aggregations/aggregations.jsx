@@ -116,6 +116,7 @@ const mapStateToProps = (state) => ({
   fields: state.fields,
   inputDocuments: state.inputDocuments,
   namespace: state.namespace,
+  env: state.env,
   serverVersion: state.serverVersion,
   pipeline: state.pipeline,
   savedPipeline: state.savedPipeline,

@@ -34,6 +34,7 @@ describe('StageBuilderToolbar [Component]', () => {
     component = shallow(
       <StageBuilderToolbar
         stage=""
+        env="atlas"
         isEnabled
         isExpanded
         allowWrites

@@ -49,6 +49,7 @@ const PIPELINE_1 = [
 function createPipelineWorkspace({
   allowWrites = false,
   pipeline = [],
+  env = 'atlas',
   toggleInputDocumentsCollapsed = () => {},
   refreshInputDocuments = () => {},
   stageAdded = () => {},
@@ -78,6 +79,7 @@ function createPipelineWorkspace({
   return (<PipelineWorkspace
     allowWrites={allowWrites}
     pipeline={pipeline}
+    env={env}
     toggleInputDocumentsCollapsed={toggleInputDocumentsCollapsed}
     refreshInputDocuments={refreshInputDocuments}
     stageAdded={stageAdded}

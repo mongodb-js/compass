@@ -146,6 +146,7 @@ const aggregationsStore = configureAggregationsStore({
   isAtlasDeployed: true,
   allowWrites: false,
   outResultsFn: handleOut,
+  env: 'atlas',
   localAppRegistry: appRegistry
 });
 
@@ -171,6 +172,7 @@ const store = configureStore({
     error: null,
     dataProvider: dataProvider
   },
+  env: 'on-prem',
   namespace: 'db.coll',
   serverVersion: '4.2.0',
   fields: []

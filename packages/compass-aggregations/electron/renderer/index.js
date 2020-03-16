@@ -39,7 +39,8 @@ const localAppRegistry = new AppRegistry();
 const store = configureStore({
   localAppRegistry: localAppRegistry,
   globalAppRegistry: appRegistry,
-  serverVersion: '4.2.0',
+  serverVersion: '4.4.0',
+  env: 'adl',
   fields: [
     { name: 'harry',
       value: 'harry',

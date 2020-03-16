@@ -246,6 +246,7 @@ const selectStageOperator = (state, action) => {
   const operatorName = action.stageOperator;
   if (operatorName !== state[action.index].stageOperator) {
     const newState = copyState(state);
+    // TODO: Durran: Need to account for ENV with operator name!!!!
     const operatorDetails = getStageOperator(operatorName);
     const snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
     const comment = (operatorDetails || {}).comment || '';

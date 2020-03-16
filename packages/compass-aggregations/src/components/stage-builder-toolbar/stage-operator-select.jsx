@@ -19,6 +19,7 @@ class StageOperatorSelect extends PureComponent {
 
   static propTypes = {
     allowWrites: PropTypes.bool.isRequired,
+    env: PropTypes.string.isRequired,
     stageOperator: PropTypes.string,
     index: PropTypes.number.isRequired,
     isEnabled: PropTypes.bool.isRequired,
@@ -38,6 +39,20 @@ class StageOperatorSelect extends PureComponent {
     this.props.setIsModified(true);
   }
 
+
+  /**
+   * Is the env supported?
+   *
+   * @param {Array} opEnvs - The operation supported environments.
+   * @param {String} env - The current env.
+   *
+   * @returns {boolean} If the env is supported.
+   */
+  isSupportedEnv = (opEnvs, env) => {
+    if (!opEnvs || !env) return true;
+    return opEnvs.includes(env);
+  };
+
   /**
    * Render the stage operator select component.
    *
@@ -45,9 +60,9 @@ class StageOperatorSelect extends PureComponent {
    */
   render() {
     const operators = STAGE_OPERATORS.filter((o) => {
-      if (o.name === '$searchBeta') return true;
       if ((o.name === OUT || o.name === MERGE) && !this.props.allowWrites) return false;
-      return semver.gte(this.props.serverVersion, o.version);
+      return semver.gte(this.props.serverVersion, o.version) &&
+        this.isSupportedEnv(o.env, this.props.env);
     });
     return (
       <div className={classnames(styles['stage-operator-select'])}>

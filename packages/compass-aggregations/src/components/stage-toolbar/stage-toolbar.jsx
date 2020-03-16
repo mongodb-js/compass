@@ -13,6 +13,7 @@ class StageToolbar extends PureComponent {
   static displayName = 'StageToolbar';
   static propTypes = {
     allowWrites: PropTypes.bool.isRequired,
+    env: PropTypes.string.isRequired,
     stage: PropTypes.string.isRequired,
     error: PropTypes.string,
     isExpanded: PropTypes.bool.isRequired,
@@ -43,7 +44,8 @@ class StageToolbar extends PureComponent {
     return (
       <div className={classnames(styles[errored])}>
         <StageBuilderToolbar
-          allowWrites={this.props.allowWrites}
+        allowWrites={this.props.allowWrites}
+          env={this.props.env}
           isExpanded={this.props.isExpanded}
           isEnabled={this.props.isEnabled}
           stageOperator={this.props.stageOperator}

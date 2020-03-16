@@ -25,6 +25,7 @@ class Stage extends Component {
 
   static propTypes = {
     allowWrites: PropTypes.bool.isRequired,
+    env: PropTypes.string.isRequired,
     stage: PropTypes.string.isRequired,
     stageOperator: PropTypes.string,
     snippet: PropTypes.string,
@@ -146,6 +147,7 @@ class Stage extends Component {
       <div className={classnames(styles[errored])} style={{ opacity }}>
         <StageToolbar
           allowWrites={this.props.allowWrites}
+          env={this.props.env}
           stage={this.props.stage}
           stageOperator={this.props.stageOperator}
           error={this.props.error}

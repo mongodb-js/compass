@@ -247,6 +247,7 @@ const configureStore = (options = {}) => {
   }
 
   if (options.env) {
+    console.log('SETTING ENV', options.env);
     setEnv(store, options.env);
   }
 
