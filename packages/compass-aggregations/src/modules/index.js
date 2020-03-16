@@ -16,6 +16,10 @@ import namespace, {
   INITIAL_STATE as NS_INITIAL_STATE,
   NAMESPACE_CHANGED
 } from './namespace';
+import env, {
+  INITIAL_STATE as ENV_INITIAL_STATE,
+  ENV_CHANGED
+} from './env';
 import serverVersion, {
   INITIAL_STATE as SV_INITIAL_STATE
 } from './server-version';
@@ -113,6 +117,7 @@ export const INITIAL_STATE = {
   fields: FIELDS_INITIAL_STATE,
   inputDocuments: INPUT_INITIAL_STATE,
   namespace: NS_INITIAL_STATE,
+  env: ENV_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
   pipeline: PIPELINE_INITIAL_STATE,
   savedPipeline: SP_INITIAL_STATE,
@@ -189,6 +194,7 @@ const appReducer = combineReducers({
   fields,
   inputDocuments,
   namespace,
+  env,
   serverVersion,
   savedPipeline,
   restorePipeline,
@@ -274,6 +280,7 @@ const doRestorePipeline = (state, action) => {
     ...INITIAL_STATE,
     appRegistry: state.appRegistry,
     namespace: savedState.namespace,
+    env: savedState.env,
     pipeline: savedState.pipeline,
     name: savedState.name,
     collation: savedState.collation,
@@ -338,6 +345,7 @@ const createNewPipeline = (state) => ({
   ...INITIAL_STATE,
   appRegistry: state.appRegistry,
   namespace: state.namespace,
+  env: state.env,
   fields: state.fields,
   serverVersion: state.serverVersion,
   dataService: state.dataService,

@@ -140,6 +140,7 @@ export const saveCurrentPipeline = () => {
 
     const stateRecord = Object.assign({}
       , { namespace: state.namespace }
+      , { env: state.env }
       , { pipeline: pipeline }
       , { name: state.name }
       , { id: id }

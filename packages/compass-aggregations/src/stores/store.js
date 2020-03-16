@@ -11,6 +11,7 @@ import { serverVersionChanged } from 'modules/server-version';
 import { setIsAtlasDeployed } from 'modules/is-atlas-deployed';
 import { allowWrites } from 'modules/allow-writes';
 import { outResultsFnChanged } from 'modules/out-results-fn';
+import { envChanged } from 'modules/env';
 import { modifyView } from 'modules';
 import {
   localAppRegistryActivated,
@@ -133,6 +134,16 @@ export const setViewSource = (store, name, pipeline, isReadonly, sourceName) => 
 };
 
 /**
+ * Set the environment.
+ *
+ * @param {Store} store - The store.
+ * @param {String} env - The env. (atlas, adl, on-prem).
+ */
+export const setEnv = (store, env) => {
+  store.dispatch(envChanged(env));
+};
+
+/**
  * One method configure store call.
  *
  * @param {Options} options - The options.
@@ -233,6 +244,10 @@ const configureStore = (options = {}) => {
       options.isReadonly,
       options.sourceName
     );
+  }
+
+  if (options.env) {
+    setEnv(store, options.env);
   }
 
   return store;

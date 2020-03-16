@@ -46,6 +46,20 @@ describe('Aggregation Store', () => {
       });
     });
 
+    context('when providing an env', () => {
+      let store;
+
+      beforeEach(() => {
+        store = configureStore({
+          env: 'atlas'
+        });
+      });
+
+      it('sets the env in the state', () => {
+        expect(store.getState().env).to.equal('atlas');
+      });
+    });
+
     context('when providing fields', () => {
       let store;
       const fields = [ 1, 2, 3 ];
@@ -208,6 +222,7 @@ describe('Aggregation Store', () => {
             allowWrites: INITIAL_STATE.allowWrites,
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',
+            env: INITIAL_STATE.env,
             editViewName: null,
             sourceName: null,
             appRegistry: INITIAL_STATE.appRegistry,
