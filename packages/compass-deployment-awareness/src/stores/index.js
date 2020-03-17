@@ -36,8 +36,26 @@ const DeploymentAwarenessStore = Reflux.createStore({
       const isDataLake = state.instance.dataLake && state.instance.dataLake.isDataLake;
       if (isAtlas && !isDataLake) {
         this.setState({ isDataLake: false, env: ATLAS });
+        this.appRegistry.emit(
+          'compass:deployment-awareness:topology-changed',
+          {
+            topologyType: this.state.topologyType,
+            setName: this.state.setName,
+            servers: this.state.servers,
+            env: ATLAS
+          }
+        );
       } else if (isDataLake) {
         this.setState({ isDataLake: true, env: ADL });
+        this.appRegistry.emit(
+          'compass:deployment-awareness:topology-changed',
+          {
+            topologyType: this.state.topologyType,
+            setName: this.state.setName,
+            servers: this.state.servers,
+            env: ADL
+          }
+        );
       }
     });
   },
