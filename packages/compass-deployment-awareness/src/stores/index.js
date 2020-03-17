@@ -32,8 +32,11 @@ const DeploymentAwarenessStore = Reflux.createStore({
     this.appRegistry = appRegistry;
     appRegistry.on('data-service-initialized', this.onDataServiceInitialized.bind(this));
     appRegistry.on('instance-refreshed', (state) => {
+      console.log('instance-refreshed', state);
       const isAtlas = !!state.instance._id.match(ATLAS);
+      console.log('isAtlas', isAtlas);
       const isDataLake = state.instance.dataLake && state.instance.dataLake.isDataLake;
+      console.log('isDataLake', isDataLake);
       if (isAtlas && !isDataLake) {
         this.setState({ isDataLake: false, env: ATLAS });
       } else if (isDataLake) {
@@ -58,6 +61,7 @@ const DeploymentAwarenessStore = Reflux.createStore({
    * @param {Event} evt - The topologyDescriptionChanged event.
    */
   topologyDescriptionChanged(evt) {
+    console.log('topology changed', evt);
     const newDescription = evt.newDescription;
     const servers = [];
     for (const desc of newDescription.servers.values()) {
@@ -68,6 +72,7 @@ const DeploymentAwarenessStore = Reflux.createStore({
       });
     }
     if (this.state.topologyType !== newDescription.type) {
+      console.log('emitting', this.state);
       this.appRegistry.emit(
         'compass:deployment-awareness:topology-changed',
         {
