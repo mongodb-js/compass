@@ -153,11 +153,14 @@ const copyState = state => state.map(s => Object.assign({}, s));
  * Get a stage operator details from the provided operator name.
  *
  * @param {String} name - The stage operator name.
+ * @param {String} env - The environment.
  *
  * @returns {Object} The stage operator details.
  */
-const getStageOperator = name => {
-  return STAGE_OPERATORS.find(op => op.name === name);
+const getStageOperator = (name, env) => {
+  return STAGE_OPERATORS.find((op) => {
+    return op.name === name && (op.env ? op.env.includes(env) : true);
+  });
 };
 
 /**
@@ -247,7 +250,7 @@ const selectStageOperator = (state, action) => {
   if (operatorName !== state[action.index].stageOperator) {
     const newState = copyState(state);
     // TODO: Durran: Need to account for ENV with operator name!!!!
-    const operatorDetails = getStageOperator(operatorName);
+    const operatorDetails = getStageOperator(operatorName, action.env);
     const snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
     const comment = (operatorDetails || {}).comment || '';
     const value = action.isCommenting ? `${comment}${snippet}` : snippet;
@@ -430,14 +433,16 @@ export const stageMoved = (fromIndex, toIndex) => ({
  * @param {Number} index - The index of the stage.
  * @param {String} operator - The stage operator.
  * @param {Boolean} isCommenting - If comment mode is enabled.
+ * @param {String} env - The environment.
  *
  * @returns {Object} The stage operator selected action.
  */
-export const stageOperatorSelected = (index, operator, isCommenting) => ({
+export const stageOperatorSelected = (index, operator, isCommenting, env) => ({
   type: STAGE_OPERATOR_SELECTED,
   index: index,
   stageOperator: operator,
-  isCommenting: isCommenting
+  isCommenting: isCommenting,
+  env: env
 });
 
 /**

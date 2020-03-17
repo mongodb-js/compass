@@ -35,7 +35,12 @@ class StageOperatorSelect extends PureComponent {
    * @returns {void}
    */
   onStageOperatorSelected = (name) => {
-    this.props.stageOperatorSelected(this.props.index, name, this.props.isCommenting);
+    this.props.stageOperatorSelected(
+      this.props.index,
+      name,
+      this.props.isCommenting,
+      this.props.env
+    );
     this.props.setIsModified(true);
   }
 

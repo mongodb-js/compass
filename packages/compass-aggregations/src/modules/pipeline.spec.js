@@ -297,11 +297,12 @@ describe('pipeline module', () => {
 
   describe('#stageOperatorSelected', () => {
     it('returns the STAGE_OPERATOR_SELECTED action', () => {
-      expect(stageOperatorSelected(0, '$collStats', true)).to.deep.equal({
+      expect(stageOperatorSelected(0, '$collStats', true, 'atlas')).to.deep.equal({
         type: STAGE_OPERATOR_SELECTED,
         index: 0,
         stageOperator: '$collStats',
-        isCommenting: true
+        isCommenting: true,
+        env: 'atlas'
       });
     });
   });
