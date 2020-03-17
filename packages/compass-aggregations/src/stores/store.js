@@ -198,7 +198,7 @@ const configureStore = (options = {}) => {
      * Set the environment.
      */
     globalAppRegistry.on('compass:deployment-awareness:topology-changed', (data) => {
-      // data.env;
+      setEnv(store, data.env);
     });
   }
 
@@ -247,7 +247,6 @@ const configureStore = (options = {}) => {
   }
 
   if (options.env) {
-    console.log('SETTING ENV', options.env);
     setEnv(store, options.env);
   }
 
