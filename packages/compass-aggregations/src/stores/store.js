@@ -248,6 +248,11 @@ const configureStore = (options = {}) => {
 
   if (options.env) {
     setEnv(store, options.env);
+  } else if (global && global.hadronApp && global.hadronApp.appRegistry) {
+    const deploymentAwarenessStore = global.hadronApp.appRegistry.getStore('DeploymentAwareness.Store');
+    if (deploymentAwarenessStore) {
+      setEnv(store, deploymentAwarenessStore.state.env);
+    }
   }
 
   return store;
