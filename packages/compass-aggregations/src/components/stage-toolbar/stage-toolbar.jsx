@@ -44,7 +44,7 @@ class StageToolbar extends PureComponent {
     return (
       <div className={classnames(styles[errored])}>
         <StageBuilderToolbar
-        allowWrites={this.props.allowWrites}
+          allowWrites={this.props.allowWrites}
           env={this.props.env}
           isExpanded={this.props.isExpanded}
           isEnabled={this.props.isEnabled}

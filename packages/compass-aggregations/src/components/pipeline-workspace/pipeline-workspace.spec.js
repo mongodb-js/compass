@@ -46,6 +46,7 @@ const PIPELINE_1 = [
   }
 ];
 
+/* eslint react/prop-types: 0 */
 function createPipelineWorkspace({
   allowWrites = false,
   pipeline = [],

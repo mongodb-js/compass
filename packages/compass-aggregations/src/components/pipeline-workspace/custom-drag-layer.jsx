@@ -1,22 +1,23 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { DragLayer } from 'react-dnd';
 import cn from 'classnames';
 
 import styles from './custom-drag-layer.less';
 
 const getItemStyles = (props) => {
-  const { initialOffset, currentOffset } = props
+  const { initialOffset, currentOffset } = props;
   if (!initialOffset || !currentOffset) {
     return {
       display: 'none',
-    }
+    };
   }
-  let { x, y } = currentOffset
-  const transform = `translate(${x}px, ${y}px)`
+  const { x, y } = currentOffset;
+  const transform = `translate(${x}px, ${y}px)`;
   return {
     transform,
     WebkitTransform: transform,
-  }
+  };
 };
 
 const CustomDragLayer = (props) => {
@@ -36,7 +37,12 @@ const CustomDragLayer = (props) => {
         </div>
       </div>
     </div>
-  )
+  );
+};
+
+CustomDragLayer.propTypes = {
+  isDragging: PropTypes.bool,
+  item: PropTypes.object
 };
 
 const collect = (monitor) => ({

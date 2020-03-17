@@ -1,7 +1,7 @@
 import parser from 'mongodb-query-parser';
 import decomment from 'decomment';
 
-const PARSE_ERROR = 'Stage must be a properly formatted document.'
+const PARSE_ERROR = 'Stage must be a properly formatted document.';
 
 /**
  * Looks for projections the stage could produce that
