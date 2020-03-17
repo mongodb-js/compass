@@ -127,9 +127,18 @@ class ImportPreview extends PureComponent {
   };
 
   render() {
-    if (!this.props.loaded) {
+    const { loaded, fields, values } = this.props;
+
+    if (!loaded) {
+      debug('Preview unavailable: not loaded yet');
       return null;
     }
+
+    if (!Array.isArray(fields) || !Array.isArray(values)) {
+      debug('Preview unavailable: Fields or values is not an array', { fields, values });
+      return null;
+    }
+
     return (
       <div className={style()}>
         <div className={style('header')}>Specify Fields and Types</div>

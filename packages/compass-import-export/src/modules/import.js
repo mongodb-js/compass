@@ -367,7 +367,7 @@ const loadPreviewDocs = (
      * actually need it.
      */
     const source = fs.createReadStream(fileName, {encoding: 'utf8', end: 20 * 1024});
-    const dest = createPreviewWritable();
+    const dest = createPreviewWritable(fileType, delimiter, fileIsMultilineJSON);
     stream.pipeline(
       source,
       createPeekStream(fileType, delimiter, fileIsMultilineJSON),
