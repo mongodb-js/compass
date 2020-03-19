@@ -123,7 +123,7 @@ describe('import [module]', () => {
           //   source: undefined,
           //   dest: undefined
           // };
-          console.log('subscribe touched', { args: arguments, actions: test.store.getActions()});
+          // console.log('subscribe touched', { args: arguments, actions: test.store.getActions()});
           const expected = {
             isOpen: false,
             progress: 0,

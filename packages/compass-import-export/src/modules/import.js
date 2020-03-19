@@ -256,9 +256,7 @@ export const startImport = () => {
       progress,
       dest,
       function(err) {
-        debugger;
         console.timeEnd('import:start');
-        console.groupEnd();
         /**
          * Refresh data (docs, aggregations) regardless of whether we have a
          * partial import or full import
@@ -311,6 +309,8 @@ export const startImport = () => {
             transform.length > 0
           )
         );
+        console.groupEnd();
+        console.groupEnd();
       }
     );
   };

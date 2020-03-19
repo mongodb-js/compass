@@ -13,6 +13,7 @@ const createProgressStream = require('progress-stream');
 
 import { createLogger } from 'utils/logger';
 import { createCSVFormatter, createJSONFormatter } from 'utils/formatters';
+import dotnotation from '../utils/dotnotation';
 
 const debug = createLogger('export');
 
@@ -346,7 +347,9 @@ export const sampleFields = () => {
         return onError(findErr);
       }
 
-      const fields = Object.keys(docs[0]).sort().reduce((obj, field) => {
+      // Use `dotnotation.serialize()` to recurse into documents and
+      // pick up all possible paths.
+      const fields = Object.keys(dotnotation.serialize(docs[0])).sort().reduce((obj, field) => {
         obj[field] = 1;
 
         return obj;

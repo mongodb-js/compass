@@ -18,11 +18,16 @@
  * 3. etc.
  */
 import bson from 'bson';
+import _ from 'lodash';
 
-const BOOLEAN_TRUE = ['1', 'true', 'TRUE'];
-const BOOLEAN_FALSE = ['0', 'false', 'FALSE', 'null', '', 'NULL'];
+import { createLogger } from './logger';
 
-export default {
+const debug = createLogger('apply-import-type-and-projection');
+
+const BOOLEAN_TRUE = ['1', 'true', 'TRUE', true];
+const BOOLEAN_FALSE = ['0', 'false', 'FALSE', 'null', '', 'NULL', false];
+
+const casters = {
   String: {
     fromString: function(s) {
       return '' + s;
@@ -52,25 +57,36 @@ export default {
   },
   Date: {
     fromString: function(s) {
+      if (s instanceof Date) {
+        return s;
+      }
       return new Date('' + s);
     }
   },
-  ObjectId: {
+  ObjectID: {
     fromString: function(s) {
-      if (s instanceof bson.ObjectId) {
+      if (s instanceof bson.ObjectID) {
         // EJSON being imported
         return s;
       }
-      return new bson.ObjectId(s);
+      return new bson.ObjectID(s);
     }
   },
   Long: {
     fromString: function(s) {
+      if (s instanceof bson.Long) {
+        // EJSON being imported
+        return s;
+      }
       return bson.Long.fromString(s);
     }
   },
   RegExpr: {
     fromString: function(s) {
+      if (s instanceof bson.BSONRegExp) {
+        // EJSON being imported
+        return s;
+      }
       // TODO: lucas: detect any specified regex options later.
       //
       // if (s.startsWith('/')) {
@@ -83,21 +99,33 @@ export default {
   },
   Binary: {
     fromString: function(s) {
+      if (s instanceof bson.Binary) {
+        return s;
+      }
       return new bson.Binary(s, bson.Binary.SUBTYPE_DEFAULT);
     }
   },
   UUID: {
     fromString: function(s) {
+      if (s instanceof bson.Binary) {
+        return s;
+      }
       return new bson.Binary(s, bson.Binary.SUBTYPE_UUID);
     }
   },
   MD5: {
     fromString: function(s) {
+      if (s instanceof bson.Binary) {
+        return s;
+      }
       return new bson.Binary(s, bson.Binary.SUBTYPE_MD5);
     }
   },
   Timestamp: {
     fromString: function(s) {
+      if (s instanceof bson.Timestamp) {
+        return s;
+      }
       return bson.Timestamp.fromString(s);
     }
   },
@@ -117,6 +145,9 @@ export default {
     }
   }
 };
+casters.ObjectId = casters.ObjectID;
+casters.BSONRegExp = casters.RegExpr;
+export default casters;
 
 /**
  * [`Object.prototype.toString.call(value)`, `string type name`]
@@ -136,14 +167,17 @@ const TYPE_FOR_TO_STRING = new Map([
 ]);
 
 export function detectType(value) {
-  const l = Object.prototype.toString.call(value);
-  const t = TYPE_FOR_TO_STRING.get(l);
-  return t;
+  if (value && value._bsontype) {
+    return value._bsontype;
+  }
+  const o = Object.prototype.toString.call(value);
+  return TYPE_FOR_TO_STRING.get(o);
 }
 
 export function getTypeDescriptorForValue(value) {
   const t = detectType(value);
-  const _bsontype = t === 'Object' && value._bsontype;
+  const _bsontype = (t === 'Object' && value._bsontype) || (t === 'BSONRegExp' ? 'BSONRegExp' : '') || (t === 'ObjectID' ? 'ObjectID' : '');
+  debug('detected type', {t, _bsontype});
   return {
     type: _bsontype ? _bsontype : t,
     isBSON: !!_bsontype
@@ -178,6 +212,7 @@ export const serialize = function(doc) {
        * does instead of hex string/EJSON: https://github.com/mongodb/mongo-tools-common/blob/master/json/csv_format.go
        */
 
+      debug('serialize', {isBSON, type, value});
       // BSON values
       if (isBSON) {
         if (type === 'BSONRegExp') {
@@ -200,6 +235,16 @@ export const serialize = function(doc) {
 
       if (type === 'Date') {
         output[newKey] = value.toISOString();
+        return;
+      }
+
+      if (BOOLEAN_TRUE.includes(value)) {
+        output[newKey] = 'true';
+        return;
+      }
+
+      if (BOOLEAN_FALSE.includes(value)) {
+        output[newKey] = 'false';
         return;
       }
 

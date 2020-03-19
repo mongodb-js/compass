@@ -1,6 +1,6 @@
 /* eslint-disable no-var */
 import dotnotation from './dotnotation';
-import { ObjectId } from 'bson';
+import { ObjectId, ObjectID } from 'bson';
 
 describe('dotnotation', () => {
   it('should handle simplest case', () => {
@@ -28,7 +28,7 @@ describe('dotnotation', () => {
   });
 
   it('should handle not recurse into bson types', () => {
-    var oid = new ObjectId('5df51e94e92c7b5b333d6c4f');
+    var oid = new ObjectID('5df51e94e92c7b5b333d6c4f');
 
     var doc = {
       _id: oid

@@ -1,13 +1,16 @@
-import bsonCSV, { serialize } from './bson-csv';
-import { EJSON, ObjectId, Long, BSONRegExp, Double } from 'bson';
+import bsonCSV, { serialize, detectType } from './bson-csv';
+import { EJSON, ObjectId, Long, BSONRegExp, Double, ObjectID } from 'bson';
 
 // TODO: lucas: probably dumb but think about that later.
 
 describe('bson-csv', () => {
   describe('Native', () => {
     describe('String', () => {
-      it('should work', () => {
+      it('should stringify value:<Number>', () => {
         expect(bsonCSV.String.fromString(1)).to.equal('1');
+      });
+      it('should stringify value:<String>', () => {
+        expect(bsonCSV.String.fromString('1')).to.equal('1');
       });
     });
     describe('Boolean', () => {
@@ -66,6 +69,29 @@ describe('bson-csv', () => {
         });
       });
     });
+    describe('Date', () => {
+      it('should detect value:<Date> as Date', () => {
+        expect(
+          detectType(new Date('2020-03-19T20:02:48.406Z'))
+        ).to.be.equal('Date');
+      });
+      it('should not lose percision', () => {
+        expect(bsonCSV.Date.fromString(new Date('2020-03-19T20:02:48.406Z'))).to.deep.equal(
+          new Date('2020-03-19T20:02:48.406Z')
+        );
+      });
+      it('should serialize as a string', () => {
+        expect(serialize({ value: new BSONRegExp('^mongodb') })).to.deep.equal({
+          value: '/^mongodb/'
+        });
+
+        expect(
+          serialize({ value: new BSONRegExp('^mongodb', 'm') })
+        ).to.deep.equal({
+          value: '/^mongodb/m'
+        });
+      });
+    });
     describe('Array', () => {
       it('should serialize as a string of extended JSON', () => {
         expect(
@@ -112,10 +138,23 @@ describe('bson-csv', () => {
           value: 'true'
         });
       });
+      it('should serialize as normalized string', () => {
+        expect(serialize({ value: 'FALSE' })).to.deep.equal({
+          value: 'false'
+        });
+        expect(serialize({ value: 'TRUE' })).to.deep.equal({
+          value: 'true'
+        });
+      });
     });
   });
   describe('bson', () => {
     describe('ObjectId', () => {
+      it('should detect value:<bson.ObjectID> as ObjectID', () => {
+        expect(
+          detectType(new ObjectID('5dd080acc15c0d5ee3ab6ad2'))
+        ).to.be.equal('ObjectID');
+      });
       it('should serialize ObjectId as the hex string value', () => {
         const oid = '5dd080acc15c0d5ee3ab6ad2';
         const deserialized = bsonCSV.ObjectId.fromString(oid);
@@ -130,17 +169,18 @@ describe('bson-csv', () => {
         });
       });
     });
-    describe('Double', () => {
-      it('should not lose percision', () => {
-        expect(bsonCSV.Double.fromString('79.8911483764648')).to.deep.equal(new Double('79.8911483764648'));
-      });
-    });
     describe('BSONRegExp', () => {
+      it('should detect value:<BSONRegExp>', () => {
+        expect(
+          detectType(new BSONRegExp('^mongodb'))
+        ).to.be.equal('BSONRegExp');
+      });
       it('should serialize as a string', () => {
         expect(serialize({ value: new BSONRegExp('^mongodb') })).to.deep.equal({
           value: '/^mongodb/'
         });
-
+      });
+      it('should serialize value:<BSONRegExp> as a String with flags', () => {
         expect(
           serialize({ value: new BSONRegExp('^mongodb', 'm') })
         ).to.deep.equal({

@@ -16,10 +16,6 @@ import { EOL } from 'os';
  * @returns {Stream.Transform}
  */
 export const createJSONFormatter = function({ brackets = true } = {}) {
-  // if (brackets) {
-  //   return JSONStream.stringify(open, sep, close);
-  // }
-
   return new Transform({
     readableObjectMode: false,
     writableObjectMode: true,
@@ -56,6 +52,8 @@ export const createJSONFormatter = function({ brackets = true } = {}) {
 export const createCSVFormatter = function() {
   return csv.format({
     headers: true,
-    transform: row => flatten(row)
+    transform: row => {
+      return flatten(row);
+    }
   });
 };

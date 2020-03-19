@@ -1,6 +1,7 @@
-import { createJSONFormatter } from './formatters';
+import { createJSONFormatter, createCSVFormatter } from './formatters';
 import stream from 'stream';
 import bson, { EJSON } from 'bson';
+import { createCSVParser } from './import-parser'; 
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
@@ -22,6 +23,7 @@ const FIXTURES = {
   JSON_SINGLE_DOC: path.join(BASE_FIXTURE_PATH, 'export-single-doc.json'),
   JSON_MULTI_SMALL_DOCS: path.join(BASE_FIXTURE_PATH, 'export-multi-small-docs.json'),
   JSONL: path.join(BASE_FIXTURE_PATH, 'export-two-docs.jsonl'),
+  CSV_FLAT_HEADERS: path.join(BASE_FIXTURE_PATH, 'export-flat-headers.csv'),
 };
 
 describe('formatters', () => {
@@ -78,6 +80,57 @@ describe('formatters', () => {
           expect(EJSON.parse(sources[2])).to.deep.equal(docs[2]);
         })
         .then(() => rm(FIXTURES.JSONL));
+    });
+  });
+  describe('csv', () => {
+     /**
+     * TODO: dedupe boilerplate between these tests.
+     */
+    it('should flatten nested documents as dotnotation headers', () => {
+      const docs = [
+        {_id: {foo: 'bar'}}
+      ];
+      const source = stream.Readable.from(docs);
+      const formatter = createCSVFormatter();
+      const dest = fs.createWriteStream(FIXTURES.CSV_FLAT_HEADERS);
+
+      return pipeline(source, formatter, dest)
+        .then(() => readFile(FIXTURES.CSV_FLAT_HEADERS))
+        .then((buf) => {
+          return pipeline(fs.createReadStream(FIXTURES.CSV_FLAT_HEADERS), createCSVParser(), new stream.Writable({
+            objectMode: true,
+            write: function(chunk, encoding, callback) {
+              expect(chunk).to.deep.equal({ '_id.foo': 'bar' });
+              callback();
+            }
+          }));
+        })
+        .then(() => rm(FIXTURES.CSV_FLAT_HEADERS));
+    });
+
+    /**
+     * TODO: figure out how make `flat` in dotnotation bson aware to fix this test.
+     */
+    it('should not flatten bson props as nested headers', () => {
+      const docs = [
+        {_id: new bson.ObjectId('5e5ea7558d35931a05eafec0')},
+      ];
+      const source = stream.Readable.from(docs);
+      const formatter = createCSVFormatter();
+      const dest = fs.createWriteStream(FIXTURES.CSV_FLAT_HEADERS);
+
+      return pipeline(source, formatter, dest)
+        .then(() => readFile(FIXTURES.CSV_FLAT_HEADERS))
+        .then((buf) => {
+          return pipeline(fs.createReadStream(FIXTURES.CSV_FLAT_HEADERS), createCSVParser(), new stream.Writable({
+            objectMode: true,
+            write: function(chunk, encoding, callback) {
+              expect(chunk).to.deep.equal({ '_id': '5e5ea7558d35931a05eafec0' });
+              callback();
+            }
+          }));
+        })
+        .then(() => rm(FIXTURES.CSV_FLAT_HEADERS));
     });
   });
 });
