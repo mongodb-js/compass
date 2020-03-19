@@ -30,7 +30,11 @@ export default {
   },
   Number: {
     fromString: function(s) {
-      return parseFloat(s);
+      s = '' + s;
+      if (s.includes('.')) {
+        return parseFloat(s);
+      }
+      return parseInt(s, 10);
     }
   },
   Boolean: {
@@ -48,12 +52,15 @@ export default {
   },
   Date: {
     fromString: function(s) {
-      return new Date(s);
+      return new Date('' + s);
     }
   },
   ObjectId: {
     fromString: function(s) {
-      // eslint-disable-next-line new-cap
+      if (s instanceof bson.ObjectId) {
+        // EJSON being imported
+        return s;
+      }
       return new bson.ObjectId(s);
     }
   },
@@ -129,14 +136,16 @@ const TYPE_FOR_TO_STRING = new Map([
 ]);
 
 export function detectType(value) {
-  return TYPE_FOR_TO_STRING.get(Object.prototype.toString.call(value));
+  const l = Object.prototype.toString.call(value);
+  const t = TYPE_FOR_TO_STRING.get(l);
+  return t;
 }
 
 export function getTypeDescriptorForValue(value) {
   const t = detectType(value);
   const _bsontype = t === 'Object' && value._bsontype;
   return {
-    type: _bsontype || t,
+    type: _bsontype ? _bsontype : t,
     isBSON: !!_bsontype
   };
 }

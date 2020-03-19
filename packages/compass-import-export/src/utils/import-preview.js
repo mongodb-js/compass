@@ -38,7 +38,7 @@ export const createPeekStream = function(
  * @option {Number} MAX_SIZE The number of documents/rows we want to preview [Default `10`]
  * @returns {stream.Writable}
  */
-export default function({ MAX_SIZE = 10 } = {}) {
+export default function({ MAX_SIZE = 10, fileType, delimiter, fileIsMultilineJSON} = {}) {
   return new Writable({
     objectMode: true,
     write: function(doc, encoding, next) {
@@ -59,7 +59,6 @@ export default function({ MAX_SIZE = 10 } = {}) {
       if (this.fields.length === 0) {
         // eslint-disable-next-line prefer-const
         for (let [key, value] of Object.entries(docAsDotnotation)) {
-          // TODO: lucas: Document this weird bug I found with my apple health data.
           // eslint-disable-next-line no-control-regex
           key = key.replace(/[^\x00-\x7F]/g, '');
           this.fields.push({

@@ -1,8 +1,6 @@
 import { Transform, PassThrough } from 'stream';
-
-import bsonCSV from './bson-csv';
-import isPlainObject from 'lodash.isplainobject';
-import isObjectLike from 'lodash.isobjectlike';
+import bsonCSV, { getTypeDescriptorForValue } from './bson-csv';
+import _ from 'lodash';
 
 import { createLogger } from './logger';
 
@@ -24,36 +22,55 @@ const debug = createLogger('apply-import-type-and-projection');
  */
 function transformProjectedTypes(spec, data, keyPrefix = '') {
   if (Array.isArray(data)) {
+    debug('data is an array');
     return data.map(transformProjectedTypes.bind(null, spec));
-  } else if (!isPlainObject(data) || data === null || data === undefined) {
+  } else if (data === null || data === undefined) {
+    debug('data is null or undefined');
     return data;
   }
 
   const keys = Object.keys(data);
   if (keys.length === 0) {
+    debug('empty doc');
     return data;
   }
-  return keys.reduce(function(doc, key) {
-    const fullKey = `${keyPrefix}${key}`;
+  const result = data;
 
-    /**
-     * TODO: lucas: Relocate removeEmptyStrings() here?
-     * Avoid yet another recursive traversal of every document.
-     */
-    if (spec.exclude.includes(fullKey)) {
-      // Drop the key if unchecked
-      return doc;
-    }
+  _.forEach(
+    spec.exclude,
+    function(d) {
+      if (spec.exclude.indexOf(d) > -1) {
+        _.unset(result, [d]);
+        debug('dropped', d);
+        return false;
+      }
+      return true;
+    },
+    {}
+  );
 
-    const toBSON = bsonCSV[spec.transform[fullKey]];
+  const lookup = _.fromPairs(spec.transform);
+  const lookupKeys = _.keys(lookup);
+  lookupKeys.forEach(function(keyPath) {
+    const targetType = _.get(lookup, keyPath);
+    const typeDescriptor = getTypeDescriptorForValue(_.get(data, keyPath));
+    const sourceType = typeDescriptor.t;
+    const isBSON = typeDescriptor.isBSON;
 
-    if (toBSON && !isObjectLike(data[key])) {
-      doc[key] = toBSON.fromString(data[key]);
-    } else {
-      doc[key] = transformProjectedTypes(spec, data[key], `${fullKey}.`);
-    }
-    return doc;
-  }, {});
+    const casted = bsonCSV[targetType].fromString(_.get(data, keyPath));
+    _.set(result, keyPath, casted);
+
+    debug(`${keyPath} casted`, {
+      result: casted,
+      to: targetType,
+      from: sourceType,
+      isBSON,
+      lookupKeys
+    });
+  });
+
+  debug('result', result);
+  return result;
 }
 
 export default transformProjectedTypes;
@@ -65,15 +82,23 @@ export default transformProjectedTypes;
  * @returns {TransformStream}
  */
 export function transformProjectedTypesStream(spec) {
-  if (Object.keys(spec.transform).length === 0 && spec.exclude.length === 0) {
+  if (!Array.isArray(spec.transform)) {
+    throw new TypeError('spec.transform must be an array');
+  }
+  if (!Array.isArray(spec.exclude)) {
+    throw new TypeError('spec.exclude must be an array');
+  }
+  if (spec.transform.length === 0 && spec.exclude.length === 0) {
     debug('spec is a noop. passthrough stream');
     return new PassThrough({ objectMode: true });
   }
+
   debug('creating transform stream for spec', spec);
   return new Transform({
     objectMode: true,
     transform: function(doc, encoding, cb) {
-      cb(null, transformProjectedTypes(spec, doc));
+      const result = transformProjectedTypes(spec, doc);
+      cb(null, result);
     }
   });
 }

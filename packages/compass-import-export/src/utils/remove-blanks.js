@@ -1,4 +1,6 @@
 import { Transform, PassThrough } from 'stream';
+import { createLogger } from './logger';
+const debug = createLogger('remove-blanks-preview');
 
 /**
  * Based on mongoimport implementation.
@@ -28,11 +30,13 @@ function removeBlanks(data) {
 
 export function removeBlanksStream(ignoreEmptyFields) {
   if (!ignoreEmptyFields) {
+    debug('Ignore empty fields is no op');
     return new PassThrough({ objectMode: true });
   }
   return new Transform({
     objectMode: true,
     transform: function(doc, encoding, cb) {
+      debug('removing balnks from doc');
       cb(null, removeBlanks(doc));
     }
   });

@@ -18,3 +18,4 @@ src/
 .zuul.yml
 lib/index.html
 examples/
+.electron/

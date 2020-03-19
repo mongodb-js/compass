@@ -33,7 +33,8 @@ export const createJSONParser = function({
   selector = '*',
   fileName = 'import.json'
 } = {}) {
-  debug('creating json parser with selector', selector);
+  debug('creating json parser with selector', { selector, fileName });
+  // return new JSONParser(selector);
   let lastChunk = '';
   const parser = new JSONParser(selector);
   const stream = new Transform({
@@ -47,6 +48,7 @@ export const createJSONParser = function({
   });
 
   parser.on('data', (d) => {
+    debug('JSON parser on data');
     const doc = EJSON.deserialize(d, {
       promoteValues: true,
       bsonRegExp: true
@@ -143,5 +145,15 @@ function createParser({
     fileName: fileName
   });
 }
+
+// export const createEJSONDeserializer = function() {
+//   return new Transform({
+//     objectMode: true,
+
+//   const doc = EJSON.deserialize(d, {
+//     promoteValues: true,
+//     bsonRegExp: true
+//   });
+// };
 
 export default createParser;
