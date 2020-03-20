@@ -1,6 +1,6 @@
 /* eslint-disable no-var */
 import dotnotation from './dotnotation';
-import { ObjectId, ObjectID } from 'bson';
+import { ObjectID } from 'bson';
 
 describe('dotnotation', () => {
   it('should handle simplest case', () => {

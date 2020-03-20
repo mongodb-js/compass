@@ -6,7 +6,7 @@
  * 1. All bson type defs had a consistent `.fromString()` * method
  * 2. Castings/detection used by fromString() today were exposed
  * (e.g. JS Number float -> bson.Double).
- * 
+ *
  * Related: https://github.com/mongodb-js/hadron-type-checker/blob/master/src/type-checker.js
  */
 
@@ -18,11 +18,10 @@
  * 3. etc.
  */
 import bson from 'bson';
-import _ from 'lodash';
 
 import { createLogger } from './logger';
 
-const debug = createLogger('apply-import-type-and-projection');
+const debug = createLogger('bson-csv');
 
 const BOOLEAN_TRUE = ['1', 'true', 'TRUE', true];
 const BOOLEAN_FALSE = ['0', 'false', 'FALSE', 'null', '', 'NULL', false];
@@ -65,7 +64,8 @@ const casters = {
   },
   ObjectID: {
     fromString: function(s) {
-      if (s instanceof bson.ObjectID) {
+      const { isBSON } = getTypeDescriptorForValue(s);
+      if (isBSON) {
         // EJSON being imported
         return s;
       }
@@ -145,7 +145,7 @@ const casters = {
     }
   }
 };
-casters.ObjectId = casters.ObjectID;
+
 casters.BSONRegExp = casters.RegExpr;
 export default casters;
 
@@ -166,18 +166,35 @@ const TYPE_FOR_TO_STRING = new Map([
   ['[object Undefined]', 'Undefined']
 ]);
 
-export function detectType(value) {
-  if (value && value._bsontype) {
-    return value._bsontype;
+export function getBSONTypeForValue(value) {
+  const type = value && value._bsontype;
+  if (type === 'ObjectId') {
+    return 'ObjectID';
   }
+
+  if (type) {
+    return type;
+  }
+  return undefined;
+}
+
+export function detectType(value) {
+  const bsonType = getBSONTypeForValue(value);
+  if (bsonType) {
+    return bsonType;
+  }
+
   const o = Object.prototype.toString.call(value);
-  return TYPE_FOR_TO_STRING.get(o);
+  const t = TYPE_FOR_TO_STRING.get(o);
+  if (!t) {
+    return getBSONTypeForValue(value);
+  }
+  return t;
 }
 
 export function getTypeDescriptorForValue(value) {
   const t = detectType(value);
-  const _bsontype = (t === 'Object' && value._bsontype) || (t === 'BSONRegExp' ? 'BSONRegExp' : '') || (t === 'ObjectID' ? 'ObjectID' : '');
-  debug('detected type', {t, _bsontype});
+  const _bsontype = getBSONTypeForValue(value);
   return {
     type: _bsontype ? _bsontype : t,
     isBSON: !!_bsontype
@@ -212,7 +229,7 @@ export const serialize = function(doc) {
        * does instead of hex string/EJSON: https://github.com/mongodb/mongo-tools-common/blob/master/json/csv_format.go
        */
 
-      debug('serialize', {isBSON, type, value});
+      debug('serialize', { isBSON, type, value });
       // BSON values
       if (isBSON) {
         if (type === 'BSONRegExp') {
@@ -268,6 +285,8 @@ export const serialize = function(doc) {
 /**
  * TODO (lucas) Consolidate valueToString with dupe logic in serialize() later.
  */
+
+
 export const valueToString = function(value) {
   const { type, isBSON } = getTypeDescriptorForValue(value);
 
@@ -279,6 +298,9 @@ export const valueToString = function(value) {
        * returns `'[object Object]'` today.
        */
       return `/${value.pattern}/${value.options}`;
+    }
+    if (type === 'ObjectID') {
+      return value.toString('hex');
     }
     return value.toString();
   }

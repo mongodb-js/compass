@@ -23,7 +23,7 @@ function runParser(src, parser) {
   const source = fs.createReadStream(src);
   const dest = new stream.Writable({
     objectMode: true,
-    write(chunk, encoding, callback) {
+    write(chunk, _encoding, callback) {
       docs.push(chunk);
       callback(null, chunk);
     }
@@ -48,14 +48,16 @@ describe('import-parser', () => {
     it('should parse a line-delimited file', () => {
       return runParser(
         FIXTURES.LINE_DELIMITED_JSON,
-        createParser({ fileType: 'json', isMultilineJSON: true })
+        createParser({ fileType: 'json', fileIsMultilineJSON: true })
       ).then((docs) => expect(docs).to.have.length(3));
     });
     it('should parse a line-delimited file with an extra empty line', () => {
       return runParser(
         FIXTURES.LINE_DELIMITED_JSON_EXTRA_LINE,
-        createParser({ isMultilineJSON: true })
-      ).then((docs) => expect(docs).to.have.length(3));
+        createParser({ fileIsMultilineJSON: true })
+      ).then((docs) => {
+        expect(docs).to.have.length(3);
+      });
     });
     describe('deserialize', () => {
       const BSON_DOCS = [];
@@ -65,7 +67,7 @@ describe('import-parser', () => {
           BSON_DOCS.push.apply(BSON_DOCS, docs);
         });
       });
-      it('should have bson ObjectId for _id', () => {
+      it('should have bson ObjectID for _id', () => {
         expect(BSON_DOCS[0]._id._bsontype).to.equal('ObjectID');
       });
     });
@@ -90,7 +92,7 @@ describe('import-parser', () => {
     it('should work', () => {
       return runParser(
         FIXTURES.GOOD_CSV,
-        createParser({ fileType: 'csv' })
+        createParser({ fileType: 'csv', fileName: FIXTURES.GOOD_CSV })
       ).then((docs) => {
         expect(docs).to.have.length(3);
       });

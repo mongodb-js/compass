@@ -2,15 +2,16 @@ import apply, {
   transformProjectedTypesStream
 } from './import-apply-types-and-projection';
 
-import bson from 'bson';
+import stream from 'stream';
+import bson, { ObjectID } from 'bson';
 
 describe('import-apply-types-and-projection', () => {
   it('should include all fields by default', () => {
     const res = apply(
-      { exclude: [], transform: [] },
       {
         _id: 'arlo'
-      }
+      },
+      { transform: [], excludeBlanks: true }
     );
     expect(res).to.deep.equal({
       _id: 'arlo'
@@ -19,12 +20,11 @@ describe('import-apply-types-and-projection', () => {
   it('should remove an unchecked path', () => {
     const res = apply(
       {
-        exclude: ['name'],
-        transform: []
-      },
-      {
         _id: 'arlo',
         name: 'Arlo'
+      },
+      {
+        exclude: ['name']
       }
     );
 
@@ -35,15 +35,13 @@ describe('import-apply-types-and-projection', () => {
   it('should deserialize strings to selected types', () => {
     const res = apply(
       {
-        exclude: [],
-        transform: [
-          ['birthday', 'Date']
-        ]
-      },
-      {
         _id: 'arlo',
         name: 'Arlo',
         birthday: '2014-09-21'
+      },
+      {
+        exclude: [],
+        transform: [['birthday', 'Date']]
       }
     );
 
@@ -67,15 +65,12 @@ describe('import-apply-types-and-projection', () => {
       }
     };
 
-    const spec = {
-      exclude: [],
+    const res = apply(doc, {
       transform: [
         ['age', 'Number'],
         ['location.activity.sleeping', 'Boolean']
       ]
-    };
-
-    const res = apply(spec, doc);
+    });
 
     expect(res).to.deep.equal({
       _id: 'arlo',
@@ -92,7 +87,11 @@ describe('import-apply-types-and-projection', () => {
   });
   describe('transformProjectedTypesStream', () => {
     it('should return a passthrough if nothing to actually transform', () => {
-      const res = transformProjectedTypesStream({ exclude: [], transform: [] });
+      const res = transformProjectedTypesStream({
+        exclude: [],
+        transform: [],
+        removeBlanks: false
+      });
       expect(res.constructor.name).to.equal('PassThrough');
     });
   });
@@ -128,24 +127,18 @@ describe('import-apply-types-and-projection', () => {
     });
   });
   describe('bson', () => {
-    it('should preserve an ObjectId to an ObjectId', () => {
-      const res = apply(
-        { exclude: [], transform: [] },
-        {
-          _id: new bson.ObjectId('5e739e27a4c96922d4435c59')
-        }
-      );
+    it('should preserve an ObjectID to an ObjectID', () => {
+      const res = apply({
+        _id: new bson.ObjectID('5e739e27a4c96922d4435c59')
+      });
       expect(res).to.deep.equal({
-        _id: new bson.ObjectId('5e739e27a4c96922d4435c59')
+        _id: new bson.ObjectID('5e739e27a4c96922d4435c59')
       });
     });
     it('should preserve a Date', () => {
-      const res = apply(
-        { exclude: [], transform: [] },
-        {
-          _id: new Date('2020-03-19T16:40:38.010Z')
-        }
-      );
+      const res = apply({
+        _id: new Date('2020-03-19T16:40:38.010Z')
+      });
       expect(res).to.deep.equal({
         _id: new Date('2020-03-19T16:40:38.010Z')
       });
@@ -156,15 +149,13 @@ describe('import-apply-types-and-projection', () => {
     it('should transform csv strings to Number', () => {
       const res = apply(
         {
-          exclude: [],
-          transform: [
-            ['age', 'Number']
-          ]
-        },
-        {
           _id: 'arlo',
           name: 'Arlo',
           age: '5'
+        },
+        {
+          exclude: [],
+          transform: [['age', 'Number']]
         }
       );
 
@@ -175,21 +166,6 @@ describe('import-apply-types-and-projection', () => {
       });
     });
     it('should transform floats if Number specified', () => {
-      const spec = {
-        exclude: [],
-        transform: [
-          [ 'Bin_#', 'Number'],
-          [ 'House_#', 'Number'],
-          [ 'Job_#', 'Number'],
-          [ 'Job_doc_#', 'String'],
-          [ 'Block', 'Number'],
-          [ 'Lot', 'String'],
-          [ 'Community_Board', 'Number'],
-          [ 'Zip_Code', 'Number'],
-          [ 'Permit_Sequence_#', 'String']
-        ]
-      };
-      
       const doc = {
         BOROUGH: 'QUEENS',
         'Bin_#': '4297149',
@@ -252,7 +228,19 @@ describe('import-apply-types-and-projection', () => {
         CENSUS_TRACT: '107201',
         NTA_NAME: 'Breezy Point-Belle Harbor-Rockaway Park-Broad Channel'
       };
-      const res = apply(spec, doc);
+      const res = apply(doc, {
+        exclude: [],
+        transform: [
+          ['Bin_#', 'Number'],
+          ['House_#', 'Number'],
+          ['Job_#', 'Number'],
+          ['Job_doc_#', 'String'],
+          ['Block', 'Number'],
+          ['Lot', 'String'],
+          ['Community_Board', 'Number'],
+          ['Zip_Code', 'Number'],
+          ['Permit_Sequence_#', 'String']
+        ]});
       expect(res).to.deep.equal({
         BOROUGH: 'QUEENS',
         'Bin_#': 4297149,
@@ -319,21 +307,119 @@ describe('import-apply-types-and-projection', () => {
     it('should transform strings to floats', () => {
       const res = apply(
         {
-          exclude: [],
+          LATITUDE: '40.601732',
+          LONGITUDE: '-73.821199'
+        },
+        {
           transform: [
             ['LATITUDE', 'Number'],
             ['LONGITUDE', 'Number']
           ]
-        },
-        {
-          LATITUDE: '40.601732',
-          LONGITUDE: '-73.821199'
         }
       );
 
       expect(res).to.deep.equal({
         LATITUDE: 40.601732,
         LONGITUDE: -73.821199
+      });
+    });
+  });
+  describe('removeBlanks', () => {
+    it('should not remove empty strings by default', () => {
+      const source = {
+        _id: 1,
+        empty: ''
+      };
+      const result = apply(source, { transform: [], exclude: []});
+      expect(result).to.deep.equal(source);
+    });
+
+    it('should remove empty strings', () => {
+      const source = {
+        _id: 1,
+        empty: ''
+      };
+      const result = apply(source, { transform: [], exclude: [], removeBlanks: true });
+      expect(result).to.deep.equal({ _id: 1 });
+    });
+    it('should not convert ObjectID to Object', () => {
+      const source = {
+        _id: new ObjectID('5e74f99c182d2e9e6572c388'),
+        empty: ''
+      };
+      const result = apply(source, {
+        transform: ['_id', 'ObjectID'],
+        removeBlanks: true
+      });
+      expect(result).to.deep.equal({
+        _id: new ObjectID('5e74f99c182d2e9e6572c388')
+      });
+    });
+
+    it('should remove empty strings but leave falsy values', () => {
+      const source = {
+        _id: 1,
+        empty: '',
+        nulled: null,
+        falsed: false,
+        undef: undefined
+      };
+      const result = apply(source, { removeBlanks: true });
+      expect(result).to.deep.equal({
+        _id: 1,
+        nulled: null,
+        falsed: false,
+        undef: undefined
+      });
+    });
+    it('should tolerate empty docs if a bad projection was specified', () => {
+      expect(apply({})).to.deep.equal({});
+    });
+    it('should tolerate arrays', () => {
+      expect(apply([{}])).to.deep.equal([{}]);
+    });
+    describe('stream', () => {
+      it('should return a passthrough if not ignoring blanks', () => {
+        const transform = transformProjectedTypesStream({
+          exclude: [],
+          transform: [],
+          removeBlanks: false
+        });
+        expect(transform).to.be.instanceOf(stream.PassThrough);
+      });
+      it('should remove blanks via a transform', done => {
+        const src = stream.Readable.from([
+          {
+            _id: 1,
+            empty: '',
+            nulled: null,
+            falsed: false,
+            undef: undefined
+          }
+        ]);
+
+        const transform = transformProjectedTypesStream({ removeBlanks: true });
+        let result;
+        const dest = new stream.Writable({
+          objectMode: true,
+          write: function(doc, encoding, next) {
+            result = doc;
+            return next(null);
+          }
+        });
+        stream.pipeline(src, transform, dest, function(err) {
+          if (err) {
+            return done(err);
+          }
+
+          expect(result).to.deep.equal({
+            _id: 1,
+            nulled: null,
+            falsed: false,
+            undef: undefined
+          });
+          done();
+        });
       });
     });
   });

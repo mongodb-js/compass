@@ -42,17 +42,25 @@ export const createJSONParser = function({
     readableObjectMode: true,
     transform: function(chunk, enc, cb) {
       lastChunk = chunk;
+      debug('parser write', chunk.toString('utf-8'));
       parser.write(chunk);
       cb();
     }
   });
 
   parser.on('data', (d) => {
-    debug('JSON parser on data');
-    const doc = EJSON.deserialize(d, {
+    const doc = EJSON.parse(EJSON.stringify(d, {
+      relaxed: false,
+      promoteValues: true,
+      bsonRegExp: true,
+      legacy: false
+    }), {
+      relaxed: false,
+      legacy: false,
       promoteValues: true,
       bsonRegExp: true
     });
+    debug('JSON parser on data', {d, doc });
     stream.push(doc);
   });
 
@@ -140,6 +148,12 @@ function createParser({
       delimiter: delimiter
     });
   }
+  debug('got kwargs', {
+    fileName: fileName,
+    fileType: fileType,
+    delimiter: delimiter,
+    fileIsMultilineJSON: fileIsMultilineJSON,
+  });
   return createJSONParser({
     selector: fileIsMultilineJSON ? null : '*',
     fileName: fileName

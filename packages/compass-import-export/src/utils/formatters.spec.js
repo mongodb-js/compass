@@ -1,7 +1,7 @@
 import { createJSONFormatter, createCSVFormatter } from './formatters';
 import stream from 'stream';
-import bson, { EJSON } from 'bson';
-import { createCSVParser } from './import-parser'; 
+import { EJSON, ObjectID } from 'bson';
+import { createCSVParser } from './import-parser';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
@@ -29,7 +29,7 @@ const FIXTURES = {
 describe('formatters', () => {
   describe('json', () => {
     it('should format a single docment in an array', () => {
-      const source = stream.Readable.from([{_id: new bson.ObjectId('5e5ea7558d35931a05eafec0')}]);
+      const source = stream.Readable.from([{_id: new ObjectID('5e5ea7558d35931a05eafec0')}]);
       const formatter = createJSONFormatter({brackets: true});
       const dest = fs.createWriteStream(FIXTURES.JSON_SINGLE_DOC);
 
@@ -37,15 +37,15 @@ describe('formatters', () => {
         .then(() => readFile(FIXTURES.JSON_SINGLE_DOC))
         .then((contents) => {
           const parsed = EJSON.parse(contents);
-          expect(parsed).to.deep.equal([{_id: new bson.ObjectId('5e5ea7558d35931a05eafec0')}]);
+          expect(parsed).to.deep.equal([{_id: new ObjectID('5e5ea7558d35931a05eafec0')}]);
         })
         .then(() => rm(FIXTURES.JSON_SINGLE_DOC));
     });
     it('should format more than 2 docments in an array', () => {
       const docs = [
-        {_id: new bson.ObjectId('5e5ea7558d35931a05eafec0')},
-        {_id: new bson.ObjectId('5e6bafc438e060f695591713')},
-        {_id: new bson.ObjectId('5e6facaa9777ff687c946d6c')}
+        {_id: new ObjectID('5e5ea7558d35931a05eafec0')},
+        {_id: new ObjectID('5e6bafc438e060f695591713')},
+        {_id: new ObjectID('5e6facaa9777ff687c946d6c')}
       ];
       const source = stream.Readable.from(docs);
       const formatter = createJSONFormatter({brackets: true});
@@ -63,9 +63,9 @@ describe('formatters', () => {
   describe('jsonl', () => {
     it('should support newline delimited ejson', () => {
       const docs = [
-        {_id: new bson.ObjectId('5e5ea7558d35931a05eafec0')},
-        {_id: new bson.ObjectId('5e6bafc438e060f695591713')},
-        {_id: new bson.ObjectId('5e6facaa9777ff687c946d6c')}
+        {_id: new ObjectID('5e5ea7558d35931a05eafec0')},
+        {_id: new ObjectID('5e6bafc438e060f695591713')},
+        {_id: new ObjectID('5e6facaa9777ff687c946d6c')}
       ];
       const source = stream.Readable.from(docs);
       const formatter = createJSONFormatter({brackets: false});
@@ -83,7 +83,7 @@ describe('formatters', () => {
     });
   });
   describe('csv', () => {
-     /**
+    /**
      * TODO: dedupe boilerplate between these tests.
      */
     it('should flatten nested documents as dotnotation headers', () => {
@@ -96,7 +96,7 @@ describe('formatters', () => {
 
       return pipeline(source, formatter, dest)
         .then(() => readFile(FIXTURES.CSV_FLAT_HEADERS))
-        .then((buf) => {
+        .then(() => {
           return pipeline(fs.createReadStream(FIXTURES.CSV_FLAT_HEADERS), createCSVParser(), new stream.Writable({
             objectMode: true,
             write: function(chunk, encoding, callback) {
@@ -113,7 +113,7 @@ describe('formatters', () => {
      */
     it('should not flatten bson props as nested headers', () => {
       const docs = [
-        {_id: new bson.ObjectId('5e5ea7558d35931a05eafec0')},
+        {_id: new ObjectID('5e5ea7558d35931a05eafec0')},
       ];
       const source = stream.Readable.from(docs);
       const formatter = createCSVFormatter();
@@ -121,10 +121,10 @@ describe('formatters', () => {
 
       return pipeline(source, formatter, dest)
         .then(() => readFile(FIXTURES.CSV_FLAT_HEADERS))
-        .then((buf) => {
+        .then(() => {
           return pipeline(fs.createReadStream(FIXTURES.CSV_FLAT_HEADERS), createCSVParser(), new stream.Writable({
             objectMode: true,
-            write: function(chunk, encoding, callback) {
+            write: function(chunk, _encoding, callback) {
               expect(chunk).to.deep.equal({ '_id': '5e5ea7558d35931a05eafec0' });
               callback();
             }

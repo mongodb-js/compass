@@ -1,5 +1,5 @@
-import bsonCSV, { serialize, detectType } from './bson-csv';
-import { EJSON, ObjectId, Long, BSONRegExp, Double, ObjectID } from 'bson';
+import bsonCSV, { serialize, detectType, getTypeDescriptorForValue } from './bson-csv';
+import { EJSON, ObjectID, Long, BSONRegExp, Double } from 'bson';
 
 // TODO: lucas: probably dumb but think about that later.
 
@@ -97,8 +97,8 @@ describe('bson-csv', () => {
         expect(
           serialize({
             value: [
-              new ObjectId('5e6652f22c09c775463d70f1'),
-              new ObjectId('5e6652f62c09c775463d70f2')
+              new ObjectID('5e6652f22c09c775463d70f1'),
+              new ObjectID('5e6652f62c09c775463d70f2')
             ]
           })
         ).to.deep.equal({
@@ -149,15 +149,19 @@ describe('bson-csv', () => {
     });
   });
   describe('bson', () => {
-    describe('ObjectId', () => {
+    describe('ObjectID', () => {
       it('should detect value:<bson.ObjectID> as ObjectID', () => {
         expect(
           detectType(new ObjectID('5dd080acc15c0d5ee3ab6ad2'))
         ).to.be.equal('ObjectID');
+
+        expect(
+          getTypeDescriptorForValue(new ObjectID('5dd080acc15c0d5ee3ab6ad2'))
+        ).to.be.deep.equal({type: 'ObjectID', isBSON: true});
       });
-      it('should serialize ObjectId as the hex string value', () => {
+      it('should serialize ObjectID as the hex string value', () => {
         const oid = '5dd080acc15c0d5ee3ab6ad2';
-        const deserialized = bsonCSV.ObjectId.fromString(oid);
+        const deserialized = bsonCSV.ObjectID.fromString(oid);
         expect(deserialized._bsontype).to.equal('ObjectID');
         expect(deserialized.toString()).to.equal('5dd080acc15c0d5ee3ab6ad2');
       });

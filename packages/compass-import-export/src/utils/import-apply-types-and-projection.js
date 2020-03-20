@@ -1,5 +1,7 @@
 import { Transform, PassThrough } from 'stream';
 import bsonCSV, { getTypeDescriptorForValue } from './bson-csv';
+import { serialize } from './dotnotation';
+
 import _ from 'lodash';
 
 import { createLogger } from './logger';
@@ -7,23 +9,21 @@ import { createLogger } from './logger';
 const debug = createLogger('apply-import-type-and-projection');
 
 /**
- * @typedef spec
- * @property {Array} exclude - Array of dotnotation keys to remove from source document.
- * @property {Object} transform - `{dotnotationpath: targetTypeName}`
- */
-
-/**
- * Transforms objects based on what user selected in preview table.
+ * Transforms values based on what user selected in preview table.
  *
- * @param {spec} spec
- * @param {any} data
- * @param {String} [keyPrefix] Used internally when recursing into nested objects.
+ * @param {any} data Some data you want to transform.
+ * @param {Array} transform `[${dotnotation}, ${targetType}]`.
+ * @param {Array} exclude `[${dotnotation}]`
+ * @param {Boolean} removeBlanks Empty strings removed from document before insertion.
+ * @param {String} keyPrefix Used internally when recursing into nested objects.
  * @returns {Object}
  */
-function transformProjectedTypes(spec, data, keyPrefix = '') {
+function transformProjectedTypes(data, { transform = [], exclude = [], removeBlanks = false, keyPrefix = '' } = {}) {
   if (Array.isArray(data)) {
     debug('data is an array');
-    return data.map(transformProjectedTypes.bind(null, spec));
+    return data.map(function(doc) {
+      return transformProjectedTypes(doc, { transform, exclude, removeBlanks, keyPrefix });
+    });
   } else if (data === null || data === undefined) {
     debug('data is null or undefined');
     return data;
@@ -31,42 +31,63 @@ function transformProjectedTypes(spec, data, keyPrefix = '') {
 
   const keys = Object.keys(data);
   if (keys.length === 0) {
-    debug('empty doc');
+    debug('empty document');
     return data;
   }
-  const result = data;
+
+  const dotted = serialize(data);
+  const result = {};
 
   _.forEach(
-    spec.exclude,
+    exclude,
     function(d) {
-      if (spec.exclude.indexOf(d) > -1) {
-        _.unset(result, [d]);
-        debug('dropped', d);
+      if (exclude.indexOf(d) > -1) {
+        _.unset(dotted, [d]);
+        // debug('dropped', d);
         return false;
       }
+
       return true;
     },
     {}
   );
 
-  const lookup = _.fromPairs(spec.transform);
-  const lookupKeys = _.keys(lookup);
-  lookupKeys.forEach(function(keyPath) {
-    const targetType = _.get(lookup, keyPath);
-    const typeDescriptor = getTypeDescriptorForValue(_.get(data, keyPath));
-    const sourceType = typeDescriptor.t;
-    const isBSON = typeDescriptor.isBSON;
+  const keyPathToTransform = _.fromPairs(transform);
 
-    const casted = bsonCSV[targetType].fromString(_.get(data, keyPath));
+  const allPaths = _.keys(dotted);
+  allPaths.forEach(function(keyPath) {
+    const value = _.get(dotted, keyPath);
+    if (removeBlanks === true && value === '') {
+      // debug('dropped blank field', value);
+      _.unset(result, [keyPath]);
+      return false;
+    }
+    debug('targetType', {keyPathToTransform, keyPath});
+
+    const targetType = _.get(keyPathToTransform, keyPath);
+    if (!targetType) {
+      // debug('no transform required');
+      _.set(result, keyPath, value);
+      return;
+    }
+    const sourceType = getTypeDescriptorForValue(value).type;
+
+    let casted = value;
+    if (targetType !== sourceType) {
+      if (!bsonCSV[targetType]) {
+        throw new TypeError('Cant find lookup for ' + targetType);
+      }
+      casted = bsonCSV[targetType].fromString(value);
+      // debug('Target type differs from source type. Casting.', {
+      //   targetType,
+      //   sourceType,
+      //   value,
+      //   keyPath,
+      //   casted
+      // });
+    }
+
     _.set(result, keyPath, casted);
-
-    debug(`${keyPath} casted`, {
-      result: casted,
-      to: targetType,
-      from: sourceType,
-      isBSON,
-      lookupKeys
-    });
   });
 
   debug('result', result);
@@ -81,23 +102,25 @@ export default transformProjectedTypes;
  * @param {spec} spec
  * @returns {TransformStream}
  */
-export function transformProjectedTypesStream(spec) {
-  if (!Array.isArray(spec.transform)) {
+export function transformProjectedTypesStream({ transform = [], exclude = [], removeBlanks = false } = {}) {
+  if (!Array.isArray(transform)) {
     throw new TypeError('spec.transform must be an array');
   }
-  if (!Array.isArray(spec.exclude)) {
+
+  if (!Array.isArray(exclude)) {
     throw new TypeError('spec.exclude must be an array');
   }
-  if (spec.transform.length === 0 && spec.exclude.length === 0) {
+
+  if (transform.length === 0 && exclude.length === 0 && removeBlanks === false) {
     debug('spec is a noop. passthrough stream');
     return new PassThrough({ objectMode: true });
   }
 
-  debug('creating transform stream for spec', spec);
+  debug('creating transform stream for spec', { transform, exclude, removeBlanks });
   return new Transform({
     objectMode: true,
-    transform: function(doc, encoding, cb) {
-      const result = transformProjectedTypes(spec, doc);
+    transform: function(doc, _encoding, cb) {
+      const result = transformProjectedTypes(doc, { transform, exclude, removeBlanks });
       cb(null, result);
     }
   });
