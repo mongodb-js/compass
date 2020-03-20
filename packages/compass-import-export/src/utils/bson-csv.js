@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable complexity */
 /**
  * Unlike extended JSON, there is no library/spec for
  * serializing and deserializing CSV values.
@@ -232,15 +234,7 @@ export const serialize = function(doc) {
       debug('serialize', { isBSON, type, value });
       // BSON values
       if (isBSON) {
-        if (type === 'BSONRegExp') {
-          /**
-           * TODO (lucas) Upstream to `bson` as `BSONRegExp` toString()
-           * returns `'[object Object]'` today.
-           */
-          output[newKey] = `/${value.pattern}/${value.options}`;
-        } else {
-          output[newKey] = value.toString();
-        }
+        output[newKey] = valueToString(value);
         return;
       }
 
@@ -301,6 +295,9 @@ export const valueToString = function(value) {
     }
     if (type === 'ObjectID') {
       return value.toString('hex');
+    }
+    if (type === 'Binary') {
+      return value.toString('base64');
     }
     return value.toString();
   }
