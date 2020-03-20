@@ -62,7 +62,7 @@ function transformProjectedTypes(data, { transform = [], exclude = [], removeBla
       _.unset(result, [keyPath]);
       return false;
     }
-    debug('targetType', {keyPathToTransform, keyPath});
+    // debug('targetType', {keyPathToTransform, keyPath});
 
     const targetType = _.get(keyPathToTransform, keyPath);
     if (!targetType) {
