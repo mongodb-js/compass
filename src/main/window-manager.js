@@ -32,6 +32,7 @@ let DEFAULT_WIDTH = 1280;
 let DEFAULT_HEIGHT = 840;
 
 let MIN_WIDTH = 1024;
+let MIN_HEIGHT = 640;
 
 /**
  * Adjust the heights to account for platforms
@@ -106,6 +107,7 @@ var createWindow = (module.exports.create = function(opts) {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
     minwidth: MIN_WIDTH,
+    minheight: MIN_HEIGHT,
     url: DEFAULT_URL,
     /**
      * On Windows and macOS, this will be set automatically to the optimal
@@ -123,6 +125,7 @@ var createWindow = (module.exports.create = function(opts) {
     icon: opts.icon,
     show: false,
     minWidth: opts.minwidth,
+    minHeight: opts.minheight,
     webPreferences: {
       'subpixel-font-scaling': true,
       'direct-write': true,
