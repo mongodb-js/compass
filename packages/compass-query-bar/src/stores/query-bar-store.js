@@ -379,7 +379,7 @@ const configureStore = (options = {}) => {
      *                            cleaned-up string input.
      */
     _validateInput(label, input) {
-      return queryParser.validate(label, input);
+      return queryParser.validate(label, input, { validate: false });
     },
 
     /**
@@ -391,7 +391,7 @@ const configureStore = (options = {}) => {
      */
     _validateQuery() {
       return (
-        queryParser.isFilterValid(this.state.filterString) !== false &&
+        queryParser.isFilterValid(this.state.filterString, { validate: false }) !== false &&
         queryParser.isProjectValid(this.state.projectString) !== false &&
         queryParser.isSortValid(this.state.sortString) !== false &&
         queryParser.isCollationValid(this.state.collationString) !== false &&

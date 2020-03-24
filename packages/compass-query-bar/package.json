@@ -118,7 +118,7 @@
     "mongodb-connection-model": "^14.5.1",
     "mongodb-data-service": "^16.5.2",
     "mongodb-js-precommit": "^2.2.0",
-    "mongodb-query-parser": "^2.0.0",
+    "mongodb-query-parser": "^2.1.1",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",
     "ms": "^2.1.2",
