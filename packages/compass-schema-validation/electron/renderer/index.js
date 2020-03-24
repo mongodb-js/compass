@@ -29,7 +29,7 @@ appRegistry.onActivated();
 // we should create our own root node in the body element before rendering into it.
 const root = document.createElement('div');
 
-root.style = 'height: 100vh';
+root.style = 'height: 100vh; display: flex; flex-direction: column;';
 root.id = 'root';
 document.body.appendChild(root);
 
