@@ -27,7 +27,7 @@
     "mongodb": "^3.5.4",
     "mongodb-collection-sample": "^4.5.1",
     "mongodb-connection-model": "^14.6.2",
-    "mongodb-index-model": "^2.6.0",
+    "mongodb-index-model": "^2.6.1",
     "mongodb-js-errors": "^0.5.0",
     "mongodb-ns": "^2.2.0",
     "mongodb-security": "^0.2.0",
