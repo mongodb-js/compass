@@ -33,7 +33,9 @@ function getIndexes(results, done) {
     .collection(ns.collection)
     .indexes(function(err, indexes) {
       if (err) {
+        debug('getIndexes failed!', err);
         done(err);
+        return;
       }
       // add ns field to each index
       _.each(indexes, function(idx) {
@@ -80,7 +82,8 @@ function getIndexStats(results, done) {
         debug('$indexStats not yet supported, return empty document', err);
         return done(null, {});
       }
-      done(err);
+      debug('Unknown error while getting index stats!', err);
+      return done(err);
     }
     res = _.mapKeys(res, function(stat) {
       return stat.name;
