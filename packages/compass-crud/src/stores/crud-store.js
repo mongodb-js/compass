@@ -203,6 +203,9 @@ const configureStore = (options = {}) => {
      * @param {Object} state - The instance store state.
      */
     onInstanceRefreshed(state) {
+      if (!state) {
+        return;
+      }
       const res = { version: state.instance.build.version };
       if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
         res.isDataLake = true;
