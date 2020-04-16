@@ -49,6 +49,17 @@ describe('Connection model builder', () => {
       });
     });
 
+    it('does not include empty replicaSet', (done) => {
+      const c = new Connection({ appname: 'My App', replicaSet: '' });
+
+      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&appname=My%20App&ssl=false');
+
+      Connection.from(c.driverUrl, (error) => {
+        expect(error).to.not.exist;
+        done();
+      });
+    });
+
     it('should include sslMethod equal NONE', (done) => {
       const c = new Connection({ sslMethod: 'NONE' });
 

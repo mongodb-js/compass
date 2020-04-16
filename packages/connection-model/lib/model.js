@@ -570,7 +570,7 @@ assign(derived, {
                 .map(tag => `${tag}:${this.readPreferenceTags[tag]}`)
                 .join(',');
             }
-          } else {
+          } else if (this[item] !== '') {
             req.query[item] = this[item];
           }
         }
