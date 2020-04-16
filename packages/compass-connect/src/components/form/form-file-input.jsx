@@ -54,7 +54,8 @@ class FormFileInput extends React.Component {
 
     const options = { properties };
 
-    dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), options, (values) => {
+    dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), options).then((result) => {
+      const values = result.filePaths;
       this.props.changeHandler(values);
       this.setState({ values });
     });

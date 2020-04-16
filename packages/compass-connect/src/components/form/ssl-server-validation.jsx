@@ -41,8 +41,7 @@ class SSLServerValidation extends React.Component {
     return (
       <div
         id="ssl-server-validation"
-        className={classnames(styles['form-group'])}
-      >
+        className={classnames(styles['form-group'])}>
         <FormFileInput
           label="Certificate Authority"
           changeHandler={this.onSSLCAChanged.bind(this)}

@@ -261,10 +261,6 @@ const Store = Reflux.createStore({
               this._setTlsAttributes(currentSaved, currentConnection);
             }
 
-            if (url.match(/[?&]ssl=true/i)) {
-              currentConnection.sslMethod = 'SYSTEMCA';
-            }
-
             if (currentSaved) {
               currentConnection.name = currentSaved.name;
               currentConnection.color = currentSaved.color;
