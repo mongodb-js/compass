@@ -29,7 +29,7 @@
     "mongodb": "^3.5.2",
     "raf": "^3.4.1",
     "ssh2": "^0.8.7",
-    "storage-mixin": "^3.2.7"
+    "storage-mixin": "^3.3.3"
   },
   "devDependencies": {
     "bson": "^4.0.1",
