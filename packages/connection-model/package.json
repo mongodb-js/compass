@@ -35,7 +35,7 @@
     "bson": "^4.0.1",
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
-    "electron": "^7.1.10",
+    "electron": "^8.2.3",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.0",
     "mock-require": "^3.0.3",
