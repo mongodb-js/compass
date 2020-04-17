@@ -50,7 +50,7 @@
   },
   "peerDependencies": {
     "debug": "*",
-    "hadron-react-components": "^4.0.4",
+    "hadron-react-components": "*",
     "mongodb-query-parser": "*",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
@@ -58,7 +58,8 @@
     "react-fontawesome": "^1.6.1",
     "react-tooltip": "^3.2.6",
     "reflux": "^0.4.1",
-    "reflux-state-mixin": "^0.7.0"
+    "reflux-state-mixin": "^0.7.0",
+    "storage-mixin": "*"
   },
   "devDependencies": {
     "autoprefixer": "^9.4.6",
