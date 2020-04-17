@@ -461,7 +461,7 @@ function addAuthToUrl({ isPasswordProtected }) {
   // so a single string replace should always work
   result = result.replace('AUTH_TOKEN', authField, 1);
 
-  if (includes(['LDAP', 'KERBEROS'], this.authStrategy)) {
+  if (includes(['LDAP', 'KERBEROS', 'X509'], this.authStrategy)) {
     result = `${result}&authSource=$external`;
   }
 

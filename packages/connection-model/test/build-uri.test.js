@@ -182,7 +182,7 @@ describe('Connection model builder', () => {
         }
       );
 
-      expect(c.driverUrl).to.be.equal('mongodb://testing@localhost:27017/?authMechanism=MONGODB-X509&readPreference=primary&ssl=true');
+      expect(c.driverUrl).to.be.equal('mongodb://testing@localhost:27017/?authMechanism=MONGODB-X509&readPreference=primary&ssl=true&authSource=$external');
       expect(c.driverOptions).to.deep.equal(options);
 
       Connection.from(c.driverUrl, (error) => {
@@ -465,7 +465,7 @@ describe('Connection model builder', () => {
       expect(c.driverUrl).to.be.equal(
         'mongodb://CN%3Dclient%2COU%3Dkerneluser%3Ainfo%2CO%3D10Gen%2CL%3DNew%20York%20City'
         + '%2CST%3DNew%20York%2CC%3DUS@localhost:27017/'
-        + '?authMechanism=MONGODB-X509&readPreference=primary&ssl=false'
+        + '?authMechanism=MONGODB-X509&readPreference=primary&ssl=false&authSource=$external'
       );
 
       Connection.from(c.driverUrl, (error) => {
