@@ -12,7 +12,7 @@ var debug = require('debug')('storage-mixin:backends:disk');
 /**
  * Match a UUID.
  */
-var JSON_REGEX = /.json/gi;
+var JSON_REGEX = /.json$/gi;
 
 if (_.isEmpty(fs)) {
   /**

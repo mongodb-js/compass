@@ -7,3 +7,4 @@ coverage
 .idea/
 *.iml
 package-lock.json
+*.swp
