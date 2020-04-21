@@ -134,7 +134,7 @@ const CONNECTION_STRING_OPTIONS = {
     default: READ_PREFERENCE_DEFAULT
   },
   maxStalenessSeconds: { type: 'number', default: undefined },
-  readPreferenceTags: { type: 'object', default: undefined },
+  readPreferenceTags: { type: 'array', default: undefined },
   /**
    * Authentication Options
    */

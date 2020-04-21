@@ -454,7 +454,7 @@ describe('connection model partser should parse URI components such as', () => {
             expect(error).to.not.exist;
             expect(result.readPreference).to.be.equal('secondary');
             expect(result).to.have.property('readPreferenceTags');
-            expect(result.readPreferenceTags).to.eql({ dc: 'ny', rack: 1 });
+            expect(result.readPreferenceTags).to.eql([{ dc: 'ny', rack: 1 }]);
             done();
           }
         );
