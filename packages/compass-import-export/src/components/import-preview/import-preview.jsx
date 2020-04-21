@@ -25,7 +25,7 @@ class PreviewRow extends PureComponent {
       if (v === '') {
         v = <i>empty string</i>;
       }
-      if (!header.checked) {
+      if (header && !header.checked) {
         return (
           <td key={i} className="unchecked">
             {v}
