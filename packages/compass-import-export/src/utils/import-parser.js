@@ -49,19 +49,23 @@ export const createJSONParser = function({
   });
 
   parser.on('data', (d) => {
-    const doc = EJSON.parse(EJSON.stringify(d, {
-      relaxed: false,
-      promoteValues: true,
-      bsonRegExp: true,
-      legacy: false
-    }), {
-      relaxed: false,
-      legacy: false,
-      promoteValues: true,
-      bsonRegExp: true
-    });
-    debug('JSON parser on data', {d, doc });
-    stream.push(doc);
+    try {
+      const doc = EJSON.parse(EJSON.stringify(d, {
+        relaxed: false,
+        promoteValues: true,
+        bsonRegExp: true,
+        legacy: false
+      }), {
+        relaxed: false,
+        legacy: false,
+        promoteValues: true,
+        bsonRegExp: true
+      });
+      debug('JSON parser on data', {d, doc });
+      stream.push(doc);
+    } catch (e) {
+      debug('error parsing JSON', e);
+    }
   });
 
   parser.on('error', function(err) {
