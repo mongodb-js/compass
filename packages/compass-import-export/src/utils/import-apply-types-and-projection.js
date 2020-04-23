@@ -43,11 +43,7 @@ function transformProjectedTypes(data, { transform = [], exclude = [], removeBla
     function(d) {
       if (exclude.indexOf(d) > -1) {
         _.unset(dotted, [d]);
-        // debug('dropped', d);
-        return false;
       }
-
-      return true;
     },
     {}
   );
