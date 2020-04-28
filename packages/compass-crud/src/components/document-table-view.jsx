@@ -46,7 +46,6 @@ class DocumentTableView extends React.Component {
         onCellDoubleClicked: this.onCellDoubleClicked.bind(this),
         rowHeight: 28, // .document-footer row needs 28px, ag-grid default is 25px
         getRowStyle: this.updateWidth,
-        onGridSizeChanged: this.updateActionsPlacement,
         suppressPreventDefaultOnMouseWheel: true,
         suppressRowTransform: true,
         tabToNextCell: (params) => {
@@ -127,29 +126,6 @@ class DocumentTableView extends React.Component {
 
     this.hadronDocs = this.props.docs;
     this.handleBreadcrumbChange();
-  }
-
-  /**
-   * Updates the placement of the document actions panel by moving the entire
-   * pinned right column based on how many body columns are visible on the page.
-   */
-  updateActionsPlacement() {
-    if (this.gridApi) {
-      const rootPanel = document.querySelector('.ag-root-wrapper');
-      // @note: Durran: in readonly mode the actions don't exist.
-      if (rootPanel) {
-        const allColumns = this.columnApi.getAllColumns();
-        const tableWidth = rootPanel.offsetWidth;
-        const rightViewport = document.querySelector('.ag-pinned-right-cols-viewport');
-        const bodyColumnWidth = ((allColumns.length - 2) * 200 + 50);
-        const emptyWidth = tableWidth - bodyColumnWidth;
-        if (bodyColumnWidth < tableWidth) {
-          rightViewport.style.right = `${emptyWidth}px`;
-        } else {
-          rightViewport.style.right = '0px';
-        }
-      }
-    }
   }
 
   /**
@@ -513,7 +489,6 @@ class DocumentTableView extends React.Component {
       this.gridApi.setColumnDefs(headers);
     }
     this.gridApi.refreshCells({force: true});
-    this.updateActionsPlacement();
 
     if (this.gridApi) {
       this.addFooters();

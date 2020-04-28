@@ -64,9 +64,6 @@
       .table-view-cell, .table-view-cell-row-number, .table-view-cell-is-empty, .table-view-cell-is-uneditable {
         background-color: #f5f6f7;
       }
-      .table-view-row-actions-panel {
-        visibility: visible;
-      }
       .ag-cell-first-right-pinned {
         z-index: 4;
       }
@@ -111,6 +108,8 @@
     }
     &-cols {
       &-container {
+        margin-top: 1px;
+        border-left: 1px solid #E0E0E0;
         .ag {
           &-row {
             border: 0;
@@ -122,10 +121,6 @@
           }
         }
       }
-      &-viewport {
-        position: absolute;
-        z-index: 100;
-      }
     }
   }
   &-pinned-left {
@@ -134,6 +129,6 @@
     }
   }
   &-body-viewport {
-    width: calc(~"100% + 100px");
+    width: 100%;
   }
 }
