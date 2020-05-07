@@ -341,11 +341,17 @@ app.extend({
             status: 'activating plugins'
           });
           global.hadronApp.appRegistry.onActivated();
+          ipc.call('compass:loading:change-status', {
+            status: 'initializing'
+          });
           global.hadronApp.appRegistry.emit(
             'application-initialized',
             APP_VERSION,
             process.env.HADRON_PRODUCT_NAME
           );
+          ipc.call('compass:loading:change-status', {
+            status: 'loading preferences'
+          });
           global.hadronApp.appRegistry.emit(
             'preferences-loaded',
             state.preferences
