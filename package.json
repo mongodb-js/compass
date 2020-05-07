@@ -376,7 +376,7 @@
     "mongodb-explain-plan-model": "^0.2.3",
     "mongodb-extended-json": "^1.11.0",
     "mongodb-index-model": "^2.6.1",
-    "mongodb-instance-model": "^10.0.0",
+    "mongodb-instance-model": "^10.0.1",
     "mongodb-js-metrics": "^5.0.1",
     "mongodb-language-model": "^1.6.1",
     "mongodb-ns": "^2.2.0",
