@@ -25,6 +25,10 @@ ipc.on(CHANGE_STATUS, (evt, meta) => {
   globalAppRegistry.emit(CHANGE_STATUS, meta);
 });
 
+ipc.on('compass:error:fatal', (evt, meta) => {
+  console.error(meta.stack);
+});
+
 const loadingStore = configureStore({
   globalAppRegistry: globalAppRegistry
 });
