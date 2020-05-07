@@ -58,6 +58,11 @@ ipc.once('app:launched', function() {
 
 var debug = require('debug')('mongodb-compass:app');
 
+window.addEventListener('error', (event) => {
+  event.preventDefault();
+  ipc.call('compass:error:fatal', { message: event.error.message, stack: event.error.stack });
+});
+
 /**
  * The top-level application singleton that brings everything together!
  */
@@ -130,6 +135,7 @@ var Application = View.extend({
     console.error('Fatal Error!: ', id, err);
     const metrics = require('mongodb-js-metrics')();
     metrics.error(err);
+    ipc.call('compass:error:fatal', { message: err.message, stack: err.stack });
     const StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.setMessage(err);
   },
