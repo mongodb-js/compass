@@ -170,6 +170,10 @@ var createWindow = (module.exports.create = function(opts) {
     ipc.broadcast('compass:loading:change-status', meta);
   });
 
+  ipc.respondTo('compass:error:fatal', (evt, meta) => {
+    ipc.broadcast('compass:error:fatal', meta);
+  });
+
   /**
    * `closed` is always fired if the `BrowserWindow`
    * is explicity `destroy()`ed when `_window` is ready
