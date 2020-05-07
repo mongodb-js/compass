@@ -99,9 +99,9 @@ module.exports = MongoDBInstance.extend({
     var fn = options.error;
     options.error = function(resp) {
       if (fn) {
-        fn(this, resp, options);
+        fn(model, resp, options);
       }
-      this.trigger('error', this, resp, options);
+      model.trigger('error', model, resp, options);
     };
 
     var done = function(err, res) {
