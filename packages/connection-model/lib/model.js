@@ -588,9 +588,7 @@ assign(derived, {
         req.query.ssl = 'false';
       }
 
-      const reqClone = clone(req);
-
-      return toURL(reqClone);
+      return toURL(req);
     }
   },
   safeUrl: {

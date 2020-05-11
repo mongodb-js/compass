@@ -4,6 +4,7 @@ const async = require('async');
 const {
   includes,
   clone,
+  cloneDeep,
   assign,
   isString,
   isFunction,
@@ -128,7 +129,7 @@ const getTasks = (model, setupListeners) => {
     }
 
     const ctx = (error, opts) => {
-      options = opts;
+      options = { ...model.driverOptions, ...opts };
 
       if (error) {
         state.emit('status', { message, error });
@@ -210,7 +211,17 @@ const getTasks = (model, setupListeners) => {
       validOptions.useNewUrlParser = true;
       validOptions.useUnifiedTopology = true;
 
-      const mongoClient = new MongoClient(model.driverUrl, validOptions);
+      const modelClone = cloneDeep(model, true);
+
+      if (model.sshTunnel !== 'NONE') {
+        // Populate the SSH Tunnel options correctly
+        modelClone.set({
+          hostname: model.sshTunnelOptions.localAddr,
+          port: model.sshTunnelOptions.localPort
+        });
+      }
+
+      const mongoClient = new MongoClient(modelClone.driverUrl, validOptions);
 
       if (setupListeners) {
         setupListeners(mongoClient);

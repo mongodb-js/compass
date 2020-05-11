@@ -1,7 +1,11 @@
 {
   "env": {
     "mocha": true,
-    es6: true
+    "es6": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
   },
   "extends": ["mongodb-js/node"]
 }
