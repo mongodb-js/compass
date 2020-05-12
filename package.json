@@ -337,6 +337,7 @@
     "compass-user-model": "^0.2.0",
     "d3": "3.5.17",
     "d3-timer": "1.0.7",
+    "darkreader": "^4.9.2",
     "debug": "^4.1.1",
     "debug-menu": "^0.3.0",
     "electron-localshortcut": "^3.1.0",
