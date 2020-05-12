@@ -172,6 +172,11 @@ var Application = View.extend({
     // or so if you move this to the top of the file.
     require('local-links');
     require('mongodb-instance-model');
+    require('darkreader').enable({
+      brightness: 100,
+      contrast: 90,
+      sepia: 10
+    });
     marky.stop('Pre-loading additional modules required to connect');
   },
   /**
