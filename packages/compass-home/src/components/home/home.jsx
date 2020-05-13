@@ -75,6 +75,7 @@ class Home extends PureComponent {
     this.databaseRole = this.getRoleOrNull('Database.Workspace');
     this.instanceRole = this.getRoleOrNull('Instance.Workspace');
     this.globalModals = this.getRoleOrNull('Global.Modal');
+    this.globalShellComponent = this.getComponentOrNull('Global.Shell');
     this.globalWarnings = this.getRoleOrNull('Global.Warning');
     this.findInPageRole = this.getRoleOrNull('Find');
   }
@@ -172,6 +173,14 @@ class Home extends PureComponent {
     return null;
   }
 
+  renderGlobalShell() {
+    if (this.globalShellComponent) {
+      const GlobalShellComponent = this.globalShellComponent;
+      return <GlobalShellComponent />;
+    }
+    return null;
+  }
+
   renderGlobalWarnings() {
     if (this.globalWarnings) {
       return this.globalWarnings.map((globalWarning, index) => {
@@ -199,9 +208,10 @@ class Home extends PureComponent {
           </div>
           {this.renderSidebar()}
           {this.renderFindInPage()}
-          {this.renderGlobalModals()}
-          {this.renderGlobalWarnings()}
         </div>
+        {this.renderGlobalModals()}
+        {this.renderGlobalWarnings()}
+        {this.renderGlobalShell()}
       </div>
     );
   }

@@ -29,6 +29,7 @@ The Compass plugin responsible for gluing together other plugins:
 - [compass-schema-validation][compass-schema-validation]
 - [compass-server-version][compass-server-version]
 - [compass-serverstats][compass-serverstats]
+- [compass-shell][compass-shell]
 - [compass-sidebar][compass-sidebar]
 - [compass-ssh-tunnel-status][compass-ssh-tunnel-status]
 - [compass-status][compass-status]
@@ -129,6 +130,7 @@ Apache 2.0
 [compass-schema-validation]: https://github.com/mongodb-js/compass-schema-validation
 [compass-server-version]: https://github.com/mongodb-js/compass-server-version
 [compass-serverstats]: https://github.com/mongodb-js/compass-serverstats
+[compass-shell]: https://github.com/mongodb-js/mongosh/tree/master/packages/compass-shell
 [compass-sidebar]: https://github.com/mongodb-js/compass-sidebar
 [compass-ssh-tunnel-status]: https://github.com/mongodb-js/compass-ssh-tunnel-status
 [compass-status]: https://github.com/mongodb-js/compass-status

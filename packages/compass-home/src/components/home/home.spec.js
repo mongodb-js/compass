@@ -2,6 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 import SidebarPlugin from '@mongodb-js/compass-sidebar';
+import ShellPlugin from '@mongodb-js/compass-shell';
 
 import classnames from 'classnames';
 import styles from './home.less';
@@ -31,6 +32,7 @@ describe('Home [Component]', () => {
 
 
     global.hadronApp.appRegistry.registerComponent('Sidebar.Component', SidebarPlugin);
+    global.hadronApp.appRegistry.registerComponent('Global.Shell', ShellPlugin);
     [
       'Collection.Workspace', 'Database.Workspace', 'Instance.Workspace', 'Find',
       'Global.Modal', 'Application.Connect'
@@ -99,6 +101,9 @@ describe('Home [Component]', () => {
       it('renders the find', () => {
         expect(component.find('.Find')).to.be.present();
       });
+      it('renders the shell plugin', () => {
+        expect(component.find(ShellPlugin)).to.be.present();
+      });
       it('renders the global', () => {
         expect(component.find('.Global')).to.be.present();
       });
@@ -141,6 +146,9 @@ describe('Home [Component]', () => {
       it('renders the global', () => {
         expect(component.find('.Global')).to.be.present();
       });
+      it('renders the shell plugin', () => {
+        expect(component.find(ShellPlugin)).to.be.present();
+      });
     });
     describe('UI status is complete', () => {
       describe('namespace is unset', () => {
@@ -171,6 +179,9 @@ describe('Home [Component]', () => {
         });
         it('renders the find', () => {
           expect(component.find('.Find')).to.be.present();
+        });
+        it('renders the shell plugin', () => {
+          expect(component.find(ShellPlugin)).to.be.present();
         });
         it('renders the global', () => {
           expect(component.find('.Global')).to.be.present();
@@ -204,6 +215,9 @@ describe('Home [Component]', () => {
         });
         it('renders the find', () => {
           expect(component.find('.Find')).to.be.present();
+        });
+        it('renders the shell plugin', () => {
+          expect(component.find(ShellPlugin)).to.be.present();
         });
         it('renders the global', () => {
           expect(component.find('.Global')).to.be.present();
@@ -241,6 +255,9 @@ describe('Home [Component]', () => {
         it('renders the global', () => {
           expect(component.find('.Global')).to.be.present();
         });
+        it('renders the shell plugin', () => {
+          expect(component.find(ShellPlugin)).to.be.present();
+        });
       });
       describe('isCollapsed is true', () => {
         beforeEach(() => {
@@ -270,6 +287,9 @@ describe('Home [Component]', () => {
         });
         it('renders the find', () => {
           expect(component.find('.Find')).to.be.present();
+        });
+        it('renders the shell plugin', () => {
+          expect(component.find(ShellPlugin)).to.be.present();
         });
         it('renders the global', () => {
           expect(component.find('.Global')).to.be.present();
