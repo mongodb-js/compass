@@ -14,19 +14,18 @@
     "mongodb-js"
   ],
   "scripts": {
-    "pretest": "mongodb-runner start --port=27018",
-    "test:node": "mocha",
-    "test": "electron-rebuild && xvfb-maybe electron-mocha --renderer",
-    "posttest": "mongodb-runner stop --port 27018",
+    "pretest": "node-gyp rebuild --directory node_modules/keytar/ && mongodb-runner start --port=27018",
+    "test": "mocha",
+    "posttest": "mongodb-runner stop --port=27018",
     "check": "mongodb-js-precommit"
   },
   "dependencies": {
     "async": "^3.2.0",
     "debug": "^4.1.1",
     "lodash": "^4.17.15",
-    "mongodb": "^3.5.6",
+    "mongodb": "^3.5.7",
     "mongodb-collection-sample": "^4.5.1",
-    "mongodb-connection-model": "^16.0.1",
+    "mongodb-connection-model": "^16.1.0",
     "mongodb-index-model": "^2.6.1",
     "mongodb-js-errors": "^0.5.0",
     "mongodb-ns": "^2.2.0",
@@ -35,9 +34,6 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "electron": "^7.1.10",
-    "electron-mocha": "^8.2.1",
-    "electron-rebuild": "^1.10.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.1.0",
     "mock-require": "^3.0.3",
