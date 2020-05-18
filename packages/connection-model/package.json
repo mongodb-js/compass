@@ -33,9 +33,9 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
-    "electron": "^8.2.5",
+    "electron": "^6.1.7",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^7.0.0",
+    "mocha": "^7.1.2",
     "mock-require": "^3.0.3",
     "mongodb-connection-fixture": "^0.0.14",
     "mongodb-js-precommit": "^2.0.0",
