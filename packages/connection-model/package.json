@@ -25,16 +25,15 @@
     "async": "^3.1.0",
     "debug": "^4.1.1",
     "lodash": "^4.17.15",
-    "mongodb": "^3.5.6",
+    "mongodb": "^3.5.7",
     "raf": "^3.4.1",
     "ssh2": "^0.8.7",
     "storage-mixin": "^3.3.3"
   },
   "devDependencies": {
-    "bson": "^4.0.1",
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
-    "electron": "^8.2.3",
+    "electron": "^8.2.5",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.0",
     "mock-require": "^3.0.3",
@@ -43,6 +42,6 @@
     "mongodb-runner": "^4.7.2",
     "proxyquire": "^2.1.0",
     "sinon": "^9.0.2",
-    "uuid": "^3.3.2"
+    "uuid": "^8.0.0"
   }
 }

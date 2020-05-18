@@ -1,6 +1,6 @@
 const Connection = require('./model');
 const storageMixin = require('storage-mixin');
-const uuid = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 /**
  * The name of a remote electon application that
@@ -33,10 +33,8 @@ const ExtendedConnection = Connection.extend(storageMixin, {
     secureCondition: (val, key) => key.match(/(password|passphrase)/i)
   },
   props: {
-    _id: { type: 'string', default: () => uuid.v4() },
-    /**
-     * Updated on each successful connection to the Deployment.
-     */
+    _id: { type: 'string', default: () => uuidv4() },
+    // Updated on each successful connection to the Deployment.
     lastUsed: { type: 'date', default: null },
     isFavorite: { type: 'boolean', default: false },
     name: { type: 'string', default: 'Local' },

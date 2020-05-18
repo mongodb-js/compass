@@ -4,7 +4,6 @@ const async = require('async');
 const {
   includes,
   clone,
-  cloneDeep,
   assign,
   isString,
   isFunction,
@@ -211,17 +210,7 @@ const getTasks = (model, setupListeners) => {
       validOptions.useNewUrlParser = true;
       validOptions.useUnifiedTopology = true;
 
-      const modelClone = cloneDeep(model, true);
-
-      if (model.sshTunnel !== 'NONE') {
-        // Populate the SSH Tunnel options correctly
-        modelClone.set({
-          hostname: model.sshTunnelOptions.localAddr,
-          port: model.sshTunnelOptions.localPort
-        });
-      }
-
-      const mongoClient = new MongoClient(modelClone.driverUrl, validOptions);
+      const mongoClient = new MongoClient(model.driverUrlWithSsh, validOptions);
 
       if (setupListeners) {
         setupListeners(mongoClient);

@@ -1,23 +1,18 @@
 /* eslint complexity: 0 */
-
 const URL = require('url');
 const toURL = URL.format;
 const { format } = require('util');
 const fs = require('fs');
-
 const { assign, defaults, clone, includes, unescape } = require('lodash');
-
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
-
 const { ReadPreference } = require('mongodb');
 const { parseConnectionString } = require('mongodb/lib/core');
-
 const dataTypes = require('./data-types');
 const localPortGenerator = require('./local-port-generator');
 
 /**
- * Defining constants
+ * Defining constants.
  */
 const CONNECTION_TYPE_VALUES = require('../constants/connection-type-values');
 const AUTH_MECHANISM_TO_AUTH_STRATEGY = require('../constants/auth-mechanism-to-auth-strategy');
@@ -35,7 +30,7 @@ const READ_PREFERENCE_VALUES = [
 ];
 
 /**
- * Defining default values
+ * Defining default values.
  */
 const AUTH_STRATEGY_DEFAULT = 'NONE';
 const READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY;
@@ -64,7 +59,7 @@ const session = {};
 let Connection = {};
 
 /**
- * Assigning observable top-level properties of a state class
+ * Assigning observable top-level properties of a state class.
  */
 assign(props, {
   /**
@@ -100,7 +95,7 @@ assign(session, {
 });
 
 /**
- * Connection string options
+ * Connection string options.
  */
 const CONNECTION_STRING_OPTIONS = {
   replicaSet: { type: 'string', default: undefined },
@@ -108,7 +103,7 @@ const CONNECTION_STRING_OPTIONS = {
   socketTimeoutMS: { type: 'number', default: undefined },
   compression: { type: 'object', default: undefined },
   /**
-   * Connection Pool Option
+   * Connection Pool Option.
    */
   maxPoolSize: { type: 'number', default: undefined },
   minPoolSize: { type: 'number', default: undefined },
@@ -116,17 +111,17 @@ const CONNECTION_STRING_OPTIONS = {
   waitQueueMultiple: { type: 'number', default: undefined },
   waitQueueTimeoutMS: { type: 'number', default: undefined },
   /**
-   * Write Concern Options
+   * Write Concern Options.
    */
   w: { type: 'any', default: undefined },
   wTimeoutMS: { type: 'number', default: undefined },
   journal: { type: 'boolean', default: undefined },
   /**
-   * Read Concern Options
+   * Read Concern Options.
    */
   readConcernLevel: { type: 'string', default: undefined },
   /**
-   * Read Preference Options
+   * Read Preference Options.
    */
   readPreference: {
     type: 'string',
@@ -136,7 +131,7 @@ const CONNECTION_STRING_OPTIONS = {
   maxStalenessSeconds: { type: 'number', default: undefined },
   readPreferenceTags: { type: 'array', default: undefined },
   /**
-   * Authentication Options
+   * Authentication Options.
    */
   authSource: { type: 'string', default: undefined },
   authMechanism: { type: 'string', default: undefined },
@@ -145,14 +140,14 @@ const CONNECTION_STRING_OPTIONS = {
   gssapiServiceRealm: { type: 'string', default: undefined },
   gssapiCanonicalizeHostName: { type: 'boolean', default: undefined },
   /**
-   * Server Selection and Discovery Options
+   * Server Selection and Discovery Options.
    */
   localThresholdMS: { type: 'number', default: undefined },
   serverSelectionTimeoutMS: { type: 'number', default: undefined },
   serverSelectionTryOnce: { type: 'boolean', default: undefined },
   heartbeatFrequencyMS: { type: 'number', default: undefined },
   /**
-   * Miscellaneous Configuration
+   * Miscellaneous Configuration.
    */
   appname: { type: 'string', default: undefined },
   retryWrites: { type: 'boolean', default: undefined },
@@ -172,7 +167,7 @@ const CONNECTION_STRING_OPTIONS = {
 assign(props, CONNECTION_STRING_OPTIONS);
 
 /**
- * Stitch attributes
+ * Stitch attributes.
  */
 assign(props, {
   stitchServiceName: { type: 'string', default: undefined },
@@ -391,7 +386,7 @@ assign(props, {
 });
 
 /**
- * Assigning derived (computed) properties of a state class
+ * Assigning derived (computed) properties of a state class.
  */
 assign(derived, {
   /**
@@ -426,11 +421,10 @@ assign(derived, {
  *
  * @returns {String} - URL with auth.
  */
-function addAuthToUrl({ isPasswordProtected }) {
+function addAuthToUrl({ url, isPasswordProtected }) {
   let username = '';
   let password = '';
   let authField = '';
-  let result = this.baseUrl;
 
   // Post url.format() workaround for
   // https://github.com/nodejs/node/issues/1802
@@ -458,149 +452,158 @@ function addAuthToUrl({ isPasswordProtected }) {
   }
 
   // The auth component comes straight after `the mongodb://`
-  // so a single string replace should always work
-  result = result.replace('AUTH_TOKEN', authField, 1);
+  // so a single string replace should always work.
+  url = url.replace('AUTH_TOKEN', authField, 1);
 
   if (includes(['LDAP', 'KERBEROS', 'X509'], this.authStrategy)) {
-    result = `${result}&authSource=$external`;
+    url = `${url}&authSource=$external`;
   }
 
   if (this.authStrategy === 'KERBEROS' && this.kerberosCanonicalizeHostname) {
-    result = `${result}&authMechanismProperties=CANONICALIZE_HOST_NAME:true`;
+    url = `${url}&authMechanismProperties=CANONICALIZE_HOST_NAME:true`;
   }
 
-  return result;
+  return url;
 }
 
 /**
- * Driver Connection Options
+ * Driver Connection Options.
  *
  * So really everything above is all about putting
  * a human API on top of the two arguments `scout-server`
  * will always blindly pass to the driver when connecting to mongodb:
  * `MongoClient.connect(model.driverUrl, model.driverOptions)`.
+ *
+ * @param {Object} model - The current instance of the Ampersand model.
+ *
+ * @returns {Object} - The request object.
  */
-assign(derived, {
-  /**
-   * Get the URL which can be passed to `MongoClient.connect(url)`.
-   * @see http://bit.ly/mongoclient-connect
-   * @return {String}
-   */
-  baseUrl: {
-    cache: false,
-    fn() {
-      const req = {
-        protocol: 'mongodb',
-        port: null,
-        slashes: true,
-        pathname: '/',
-        query: {}
-      };
+const prepareRequest = (model) => {
+  const req = {
+    protocol: 'mongodb',
+    port: null,
+    slashes: true,
+    pathname: '/',
+    query: {}
+  };
 
-      // In the `mongodb+srv` protocol the comma separated list of host names is
-      // replaced with a single hostname.
-      // The format is: `mongodb+srv://{hostname}.{domainname}/{options}`
-      if (this.isSrvRecord) {
-        req.protocol = 'mongodb+srv';
-        req.hostname = this.hostname;
-      } else if (this.hosts.length === 1) {
-        // Driver adds sharding info to the original hostname.
-        // And returnes a list of all coresponding hosts.
-        // If driver returns a list of hosts which size is equal one,
-        // we can use hostname attribute that stores unmodified value.
-        req.hostname = this.hostname;
-        req.port = this.port;
-      } else {
-        req.host = this.hosts
-          .map(item => `${item.host}:${item.port}`)
-          .join(',');
-      }
+  // In the `mongodb+srv` protocol the comma separated list of host names is
+  // replaced with a single hostname.
+  // The format is: `mongodb+srv://{hostname}.{domainname}/{options}`
+  if (model.isSrvRecord) {
+    req.protocol = 'mongodb+srv';
+    req.hostname = model.hostname;
+  } else if (model.hosts.length === 1) {
+    // Driver adds sharding info to the original hostname.
+    // And returnes a list of all coresponding hosts.
+    // If driver returns a list of hosts which size is equal one,
+    // we can use hostname attribute that stores unmodified value.
+    req.hostname = model.hostname;
+    req.port = model.port;
+  } else {
+    req.host = model.hosts
+      .map(item => `${item.host}:${item.port}`)
+      .join(',');
+  }
 
-      if (this.ns) {
-        req.pathname = format('/%s', this.ns);
-      }
+  if (model.ns) {
+    req.pathname = format('/%s', model.ns);
+  }
 
-      // Encode auth for url format
-      if (this.authStrategy === 'MONGODB') {
-        req.auth = 'AUTH_TOKEN';
-        req.query.authSource =
-          this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
-      } else if (this.authStrategy === 'SCRAM-SHA-256') {
-        req.auth = 'AUTH_TOKEN';
-        req.query.authSource =
-          this.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
-        req.query.authMechanism = this.driverAuthMechanism;
-      } else if (this.authStrategy === 'KERBEROS') {
-        req.auth = 'AUTH_TOKEN';
-        defaults(req.query, {
-          gssapiServiceName: this.kerberosServiceName || KERBEROS_SERVICE_NAME_DEFAULT,
-          authMechanism: this.driverAuthMechanism
-        });
-      } else if (this.authStrategy === 'X509') {
-        req.auth = 'AUTH_TOKEN';
-        defaults(req.query, { authMechanism: this.driverAuthMechanism });
-      } else if (this.authStrategy === 'LDAP') {
-        req.auth = 'AUTH_TOKEN';
-        defaults(req.query, { authMechanism: this.driverAuthMechanism });
-      }
+  // Encode auth for url format.
+  if (model.authStrategy === 'MONGODB') {
+    req.auth = 'AUTH_TOKEN';
+    req.query.authSource = model.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
+  } else if (model.authStrategy === 'SCRAM-SHA-256') {
+    req.auth = 'AUTH_TOKEN';
+    req.query.authSource = model.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
+    req.query.authMechanism = model.driverAuthMechanism;
+  } else if (model.authStrategy === 'KERBEROS') {
+    req.auth = 'AUTH_TOKEN';
+    defaults(req.query, {
+      gssapiServiceName: model.kerberosServiceName || KERBEROS_SERVICE_NAME_DEFAULT,
+      authMechanism: model.driverAuthMechanism
+    });
+  } else if (model.authStrategy === 'X509') {
+    req.auth = 'AUTH_TOKEN';
+    defaults(req.query, { authMechanism: model.driverAuthMechanism });
+  } else if (model.authStrategy === 'LDAP') {
+    req.auth = 'AUTH_TOKEN';
+    defaults(req.query, { authMechanism: model.driverAuthMechanism });
+  }
 
-      Object.keys(CONNECTION_STRING_OPTIONS).forEach(item => {
-        if (typeof this[item] !== 'undefined' && !req.query[item]) {
-          if (item === 'compression') {
-            if (this.compression && this.compression.compressors) {
-              req.query.compressors = this.compression.compressors.join(',');
-            }
-
-            if (this.compression && this.compression.zlibCompressionLevel) {
-              req.query.zlibCompressionLevel = this.compression.zlibCompressionLevel;
-            }
-          } else if (item === 'authMechanismProperties') {
-            if (this.authMechanismProperties) {
-              req.query.authMechanismProperties = Object.keys(
-                this.authMechanismProperties
-              )
-                .map(tag => `${tag}:${this.authMechanismProperties[tag]}`)
-                .join(',');
-            }
-          } else if (item === 'readPreferenceTags') {
-            if (this.readPreferenceTags) {
-              req.query.readPreferenceTags = Object.keys(
-                this.readPreferenceTags
-              )
-                .map(tag => `${tag}:${this.readPreferenceTags[tag]}`)
-                .join(',');
-            }
-          } else if (this[item] !== '') {
-            req.query[item] = this[item];
-          }
+  Object.keys(CONNECTION_STRING_OPTIONS).forEach(item => {
+    if (typeof model[item] !== 'undefined' && !req.query[item]) {
+      if (item === 'compression') {
+        if (model.compression && model.compression.compressors) {
+          req.query.compressors = model.compression.compressors.join(',');
         }
-      });
 
-      if (this.ssl) {
-        req.query.ssl = this.ssl;
-      } else if (
-        includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.sslMethod)
-      ) {
-        req.query.ssl = 'true';
-      } else if (this.sslMethod === 'IFAVAILABLE') {
-        req.query.ssl = 'prefer';
-      } else if (this.sslMethod === 'NONE') {
-        req.query.ssl = 'false';
+        if (model.compression && model.compression.zlibCompressionLevel) {
+          req.query.zlibCompressionLevel = model.compression.zlibCompressionLevel;
+        }
+      } else if (item === 'authMechanismProperties') {
+        if (model.authMechanismProperties) {
+          req.query.authMechanismProperties = Object.keys(
+            model.authMechanismProperties
+          )
+            .map(tag => `${tag}:${model.authMechanismProperties[tag]}`)
+            .join(',');
+        }
+      } else if (item === 'readPreferenceTags') {
+        if (model.readPreferenceTags) {
+          req.query.readPreferenceTags = Object.keys(
+            model.readPreferenceTags
+          )
+            .map(tag => `${tag}:${model.readPreferenceTags[tag]}`)
+            .join(',');
+        }
+      } else if (model[item] !== '') {
+        req.query[item] = model[item];
       }
-
-      return toURL(req);
     }
-  },
+  });
+
+  if (model.ssl) {
+    req.query.ssl = model.ssl;
+  } else if (
+    includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], model.sslMethod)
+  ) {
+    req.query.ssl = 'true';
+  } else if (model.sslMethod === 'IFAVAILABLE') {
+    req.query.ssl = 'prefer';
+  } else if (model.sslMethod === 'NONE') {
+    req.query.ssl = 'false';
+  }
+
+  return req;
+};
+
+assign(derived, {
   safeUrl: {
     cache: false,
     fn() {
-      return addAuthToUrl.call(this, { isPasswordProtected: true });
+      return addAuthToUrl.call(this, { url: toURL(prepareRequest(this)), isPasswordProtected: true });
     }
   },
   driverUrl: {
     cache: false,
     fn() {
-      return addAuthToUrl.call(this, { isPasswordProtected: false });
+      return addAuthToUrl.call(this, { url: toURL(prepareRequest(this)), isPasswordProtected: false });
+    }
+  },
+  driverUrlWithSsh: {
+    cache: false,
+    fn() {
+      const req = clone(prepareRequest(this));
+
+      if (this.sshTunnel !== 'NONE') {
+        // Populate the SSH Tunnel options correctly.
+        req.hostname = this.sshTunnelOptions.localAddr;
+        req.port = this.sshTunnelOptions.localPort;
+      }
+
+      return addAuthToUrl.call(this, { url: toURL(req), isPasswordProtected: true });
     }
   },
   /**
@@ -640,10 +643,10 @@ assign(derived, {
         assign(opts, { checkServerIdentity: false, sslValidate: true });
       }
 
-      // assign and overwrite all extra options provided by user
+      // Assign and overwrite all extra options provided by user.
       assign(opts, this.extraOptions);
 
-      // only set promoteValues if it is defined
+      // Only set promoteValues if it is defined.
       if (this.promoteValues !== undefined) {
         opts.promoteValues = this.promoteValues;
       }
@@ -672,7 +675,7 @@ assign(derived, {
         readyTimeout: 20000,
         forwardTimeout: 20000,
         keepaliveInterval: 20000,
-        srcAddr: '127.0.0.1', // OS should figure out an ephemeral srcPort
+        srcAddr: '127.0.0.1', // OS should figure out an ephemeral srcPort.
         dstPort: this.port,
         dstAddr: this.hostname,
         localPort: this.sshTunnelBindToLocalPort,
@@ -1037,7 +1040,6 @@ Connection = AmpersandModel.extend({
 Connection.from = (url, callback) => {
   const MONGO = 'mongodb://';
   const MONGO_SRV = 'mongodb+srv://';
-
   let isSrvRecord = false;
 
   /* eslint camelcase:0 */
@@ -1148,10 +1150,10 @@ Connection.from = (url, callback) => {
  * providing better default values.
  *
  * @param {String} url - The connection string URL.
- * @param {String} mongodbPassword - The mongodbPassword
+ * @param {String} mongodbPassword - The mongodbPassword.
  *   which the user may need to change.
  * @param {String} ns - The namespace to connect to.
- * @returns {Object} Connection attributes to override
+ * @returns {Object} Connection attributes to override.
  * @private
  */
 Connection._improveAtlasDefaults = (url, mongodbPassword, ns) => {
@@ -1176,7 +1178,7 @@ Connection._improveAtlasDefaults = (url, mongodbPassword, ns) => {
  * For a given `authStrategy` strategy, what are the applicable
  * field names for say a form?
  *
- * @param {String} authStrategy - The desired authentication strategy
+ * @param {String} authStrategy - The desired authentication strategy.
  * @return {Array}
  */
 Connection.getFieldNames = authStrategy =>
