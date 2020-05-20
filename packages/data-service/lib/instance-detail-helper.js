@@ -264,9 +264,34 @@ function listDatabases(results, done) {
   adminDb.command(spec, {}, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
-        // we caught this further up already and really should never get here!
-        debug('listDatabases failed. returning empty list []');
-        done(null, []);
+        // eslint-disable-next-line no-shadow
+        adminDb.command({connectionStatus: 1, showPrivileges: 1}, {}, function(err, res) {
+          if (err) {
+            done(err);
+            return;
+          }
+          const privileges = (res.authInfo || {}).authenticatedUserPrivileges;
+          if (privileges === undefined) {
+            done(null, []);
+            return;
+          }
+
+          done(null, privileges
+            .filter(function(priv) {
+              // Find all named databases in priv list.
+              return ((priv.resource || {}).db || '').length > 0;
+            })
+            .map(function(priv) {
+              // Return just the names.
+              return priv.resource.db;
+            })
+            // eslint-disable-next-line no-shadow
+            .filter(function(db, idx, arr) {
+              // Make sure the list is unique
+              return arr.indexOf(db) === idx;
+            })
+            .sort());
+        });
         return;
       }
       // the command failed for another reason, report the error

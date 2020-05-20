@@ -34,11 +34,12 @@ describe('instance-detail-helper-mocked', function() {
      */
     makeMockDB = function(err, res) {
       const db = {};
+      let times = 0;
       db.admin = function() {
         return {
           // all other commands return the global err/res results
           command: function(command, options, callback) {
-            return callback(err, res);
+            return typeof err === 'function' ? err(times++, command, options, callback) : callback(err, res);
           },
           databaseName: 'admin',
           // listCollections is a separate function on the admin object
@@ -295,13 +296,18 @@ describe('instance-detail-helper-mocked', function() {
 
     it('should ignore auth errors gracefully', function(done) {
       // instead of the real db handle, pass in the mocked one
-      results.db = makeMockDB(
-        new Error(
-          'not authorized on admin to execute command ' +
-            '{ listDatabases: 1.0 }'
-        ),
-        null
-      );
+      results.db = makeMockDB(function(times, command, options, callback) {
+        if (command.listDatabases) {
+          return callback(
+            new Error(
+              'not authorized on admin to execute command ' +
+              '{ listDatabases: 1.0 }'
+            ),
+            null
+          );
+        }
+        return callback(null, {});
+      });
 
       listDatabases(results, function(err, res) {
         assert.equal(err, null);
