@@ -632,6 +632,18 @@ describe('Connection model builder', () => {
         });
       });
 
+      it('should add a real password to driver url', () => {
+        const c = new Connection({
+          mongodbUsername: 'arlo',
+          mongodbPassword: 'woof'
+        });
+
+        expect(c.driverUrl).to.be.equal(
+          'mongodb://arlo:woof@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
+        );
+        expect(c.driverUrl).to.be.equal(c.driverUrlWithSsh);
+      });
+
       it('should set authStrategy to LDAP', (done) => {
         const c = new Connection({ ldapUsername: 'arlo', ldapPassword: 'w@of'});
 

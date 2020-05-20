@@ -3,7 +3,7 @@ const URL = require('url');
 const toURL = URL.format;
 const { format } = require('util');
 const fs = require('fs');
-const { assign, defaults, clone, includes, unescape } = require('lodash');
+const { assign, defaults, clone, cloneDeep, includes, unescape } = require('lodash');
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
 const { ReadPreference } = require('mongodb');
@@ -595,7 +595,7 @@ assign(derived, {
   driverUrlWithSsh: {
     cache: false,
     fn() {
-      const req = clone(prepareRequest(this));
+      const req = cloneDeep(prepareRequest(this));
 
       if (this.sshTunnel !== 'NONE') {
         // Populate the SSH Tunnel options correctly.
@@ -603,7 +603,7 @@ assign(derived, {
         req.port = this.sshTunnelOptions.localPort;
       }
 
-      return addAuthToUrl.call(this, { url: toURL(req), isPasswordProtected: true });
+      return addAuthToUrl.call(this, { url: toURL(req), isPasswordProtected: false });
     }
   },
   /**
