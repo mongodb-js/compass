@@ -503,6 +503,7 @@ class Target {
         const async = require('async');
         const createDMG = require('electron-installer-dmg');
         const codesign = require('electron-installer-codesign');
+        const { notarize } = require('electron-notarize');
         codesign.isIdentityAvailable(
           opts.identity_display,
           (err, available) => {
@@ -527,13 +528,28 @@ class Target {
               if (_err) {
                 return reject(_err);
               }
-              createDMG(opts)
-                .then(() => {
-                  resolve();
-                })
-                .catch((_e) => {
-                  reject(_e);
-                });
+              const appleUsername = process.env.APPLE_USERNAME;
+              const applePassword = process.env.APPLE_PASSWORD;
+              if (appleUsername && applePassword) {
+                notarize({
+                  appBundleId: this.bundleId,
+                  appPath: this.dest(`${this.productName}-darwin-x64`, `${this.productName}.app`),
+                  appleId: appleUsername,
+                  appleIdPassword: applePassword
+                }).then(() => {
+                  createDMG(opts).then(() => {
+                    resolve();
+                  }).catch((_e) => { reject(_e); });
+                }).catch((_e) => { reject(_e); });
+              } else {
+                createDMG(opts).
+                  then(() => {
+                    resolve();
+                  }).
+                  catch((_e) => {
+                    reject(_e);
+                  });
+              }
             });
           }
         );

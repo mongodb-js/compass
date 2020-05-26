@@ -29,6 +29,7 @@
     "electron-installer-zip": "^0.1.2",
     "electron-license": "^1.1.0",
     "electron-mocha": "^8.2.0",
+    "electron-notarize": "^0.3.0",
     "electron-packager": "^14.2.0",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
     "electron-rebuild": "^1.10.0",
