@@ -259,6 +259,8 @@ functions:
           export NOTARY_AUTH_TOKEN="${signing_auth_token}"
           export NOTARY_SIGNING_KEY="${signing_key_name}"
           export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
+          export APPLE_USERNAME="${apple_username}"
+          export APPLE_PASSWORD="${apple_password}"
 
           echo "Creating signed release build..."
 
