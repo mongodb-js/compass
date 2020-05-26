@@ -290,7 +290,7 @@
     "url": "git://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-aggregations": "^7.1.2",
+    "@mongodb-js/compass-aggregations": "^7.1.3",
     "@mongodb-js/compass-app-stores": "^4.0.2",
     "@mongodb-js/compass-auth-kerberos": "^4.0.1",
     "@mongodb-js/compass-auth-ldap": "^4.0.1",
