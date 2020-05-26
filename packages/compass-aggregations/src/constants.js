@@ -160,8 +160,8 @@ export const STAGE_SPRINKLE_MAPPINGS = {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/sample/#pipe._S_sample',
     tooltip: 'Randomly selects the specified number of documents from its input.'
   },
-  $searchBeta: {
-    link: 'https://docs.atlas.mongodb.com/reference/full-text-search/query-syntax/#pipe._S_searchBeta',
+  $search: {
+    link: 'https://docs.atlas.mongodb.com/reference/full-text-search/query-syntax/#pipe._S_search',
     tooltip: 'Performs a full-text search on the specified field(s).'
   },
   $set: {
