@@ -23,7 +23,7 @@
     "cli-table": "^0.3.1",
     "debug": "^4.1.1",
     "del": "^2.0.2",
-    "electron": "^8.2.3",
+    "electron": "^6.1.7",
     "electron-builder": "^22.3.2",
     "electron-installer-run": "^1.0.1",
     "electron-installer-zip": "^0.1.2",
