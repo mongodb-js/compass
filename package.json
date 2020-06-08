@@ -428,7 +428,7 @@
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint-config-mongodb-js": "^5.0.3",
-    "hadron-build": "^23.2.5",
+    "hadron-build": "^23.2.6",
     "hadron-spectron": "^5.0.0",
     "jsdom": "^9.8.3",
     "mocha": "^7.1.1",
