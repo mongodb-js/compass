@@ -552,11 +552,15 @@ const prepareRequest = (model) => {
         }
       } else if (item === 'readPreferenceTags') {
         if (model.readPreferenceTags) {
-          req.query.readPreferenceTags = Object.keys(
+          req.query.readPreferenceTags = Object.values(
             model.readPreferenceTags
-          )
-            .map(tag => `${tag}:${model.readPreferenceTags[tag]}`)
-            .join(',');
+          ).map(
+            tagGroup => Object.keys(
+              tagGroup
+            )
+              .map(tag => `${tag}:${tagGroup[tag]}`)
+              .join(',')
+          );
         }
       } else if (model[item] !== '') {
         req.query[item] = model[item];

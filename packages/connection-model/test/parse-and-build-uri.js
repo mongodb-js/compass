@@ -72,7 +72,14 @@ const tests = [
       'with readPreference, maxStalenessSeconds and readPreferenceTags',
     connectionString:
       'mongodb://mongos1.example.com:27017,mongos2.example.com:27017/?' +
-      'readPreference=secondary&maxStalenessSeconds=120&readPreferenceTags=0%3A%5Bobject%20Object%5D&ssl=false'
+      'readPreference=secondary&maxStalenessSeconds=120&readPreferenceTags=dc%3Any%2Crack%3A1&ssl=false'
+  },
+  {
+    description:
+      'with multiple readPreferenceTags',
+    connectionString:
+      'mongodb://mongos1.example.com:27017,mongos2.example.com:27017/?' +
+      'readPreference=primary&readPreferenceTags=dc%3Any%2Crack%3A1&readPreferenceTags=region%3Anorth%2Cdatacenter%3AA&ssl=false'
   },
   {
     description: 'with authSource and authMechanism',
