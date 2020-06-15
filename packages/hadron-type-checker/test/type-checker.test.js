@@ -102,6 +102,28 @@ describe('TypeChecker', function() {
             });
           });
 
+          context('when the int64 is very large', function() {
+            context('when the int is larger than max js number', function() {
+              // js max safe integer is 9007199254740991
+              var value = '9007199254740991238';
+
+              it('returns int64', function() {
+                expect(TypeChecker.cast(value, 'Int64')).to.deep.equal(Long.fromString('9007199254740991238'));
+              });
+            });
+
+            context('when the int is larger than max int64 number', function() {
+              // max int64 number is 9223372036854775807
+              var value = '10223372036854775810';
+
+              it('raises an error', function() {
+                expect(function() {
+                  TypeChecker.cast(value, 'Int64');
+                }).to.throw('Value 10223372036854775810 is outside the valid Int64 range');
+              });
+            });
+          });
+
           context('when the int64 is partially valid', function() {
             context('when the int is a -', function() {
               var value = '-';
@@ -330,8 +352,16 @@ describe('TypeChecker', function() {
       });
 
       context('when casting to an int64', function() {
-        it('returns the number as an int64', function() {
+        it('returns the number as an int64 from int32', function() {
           expect(TypeChecker.cast(new Int32(245), 'Int64')).to.deep.equal(new Long(245));
+        });
+
+        it('returns the number as an int64 from decimal', function() {
+          expect(TypeChecker.cast(Decimal128.fromString('245'), 'Int64')).to.deep.equal(new Long(245));
+        });
+
+        it('returns the number as an int64 from double', function() {
+          expect(TypeChecker.cast(new Double('245'), 'Int64')).to.deep.equal(new Long(245));
         });
       });
 
@@ -344,6 +374,14 @@ describe('TypeChecker', function() {
       context('when casting to decimal-128', function() {
         it('returns the number as decimal-128', function() {
           expect(TypeChecker.cast(new Int32(245), 'Decimal128').toString()).to.equal('245');
+        });
+      });
+    });
+
+    context('when the object is an int64', function() {
+      context('when casting to an int64', function() {
+        it('returns the number as an int64', function() {
+          expect(TypeChecker.cast(new Long(245), 'Int64')).to.deep.equal(new Long(245));
         });
       });
     });

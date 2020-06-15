@@ -159,11 +159,24 @@ const toInt64 = (object) => {
   if (object === '-' || object === '') {
     throw new Error(`Value '${object}' is not a valid Int64 value`);
   }
+
   const number = toNumber(object);
+
   if (number >= BSON_INT64_MIN && number <= BSON_INT64_MAX) {
-    return Long.fromNumber(number);
+    // when casting from int32 object(this will have object.value) or literal
+    // (it will a typeof number) we can safely create object fromNumber, as it
+    // will not be greater than JS's max value
+    if (object.value || typeof object === 'number') {
+      return Long.fromNumber(number);
+    } else if (typeof object === 'object') {
+      // to make sure we are still displaying Very Large numbers properly, convert
+      // the current 'object' to a string
+      return Long.fromString(object.toString());
+    }
+
+    return Long.fromString(object);
   }
-  throw new Error(`Value ${number} is outside the valid Int64 range`);
+  throw new Error(`Value ${object.toString()} is outside the valid Int64 range`);
 };
 
 const toDouble = (object) => {
@@ -182,7 +195,7 @@ const toDecimal128 = (object) => {
    If converting a BSON Object, extract the value before converting to a string.
    */
   if (hasIn(object, BSON_TYPE) && includes(NUMBER_TYPES, object._bsontype)) {
-    object = object._bsontype === LONG ? object.toNumber() : object.valueOf();
+    object = object._bsontype === LONG ? object.toString() : object.valueOf();
   }
   return Decimal128.fromString('' + object);
 };
