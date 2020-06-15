@@ -12,11 +12,11 @@ import {
   FAILED,
   UNSPECIFIED
 } from 'constants/process-status';
-
 import ProgressBar from 'components/progress-bar';
 import ErrorBox from 'components/error-box';
 import ImportPreview from 'components/import-preview';
 import ImportOptions from 'components/import-options';
+import FILE_TYPES from 'constants/file-types';
 
 import {
   startImport,
@@ -165,6 +165,27 @@ class ImportModal extends PureComponent {
   }
 
   /**
+   * Renders the import preview.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderImportPreview() {
+    const isCSV = this.props.fileType === FILE_TYPES.CSV;
+
+    if (isCSV) {
+      return (
+        <ImportPreview
+          loaded={this.props.previewLoaded}
+          onFieldCheckedChanged={this.props.toggleIncludeField}
+          setFieldType={this.props.setFieldType}
+          values={this.props.values}
+          fields={this.props.fields}
+        />
+      );
+    }
+  }
+
+  /**
    * Render the component.
    *
    * @returns {React.Component} The component.
@@ -189,14 +210,7 @@ class ImportModal extends PureComponent {
             setIgnoreBlanks={this.props.setIgnoreBlanks}
             fileOpenDialog={fileOpenDialog}
           />
-          <ImportPreview
-            loaded={this.props.previewLoaded}
-            onFieldCheckedChanged={this.props.toggleIncludeField}
-            setFieldType={this.props.setFieldType}
-            values={this.props.values}
-            fields={this.props.fields}
-          />
-
+          {this.renderImportPreview()}
           <ProgressBar
             progress={this.props.progress}
             status={this.props.status}

@@ -365,7 +365,7 @@ const loadPreviewDocs = (
      * actually need it.
      */
     const source = fs.createReadStream(fileName, {encoding: 'utf8', end: 20 * 1024});
-    const dest = createPreviewWritable(fileType, delimiter, fileIsMultilineJSON);
+    const dest = createPreviewWritable({fileType, delimiter, fileIsMultilineJSON});
     stream.pipeline(
       source,
       createPeekStream(fileType, delimiter, fileIsMultilineJSON),
@@ -612,7 +612,8 @@ const reducer = (state = INITIAL_STATE, action) => {
       progress: 0,
       docsWritten: 0,
       source: undefined,
-      dest: undefined
+      dest: undefined,
+      fields: []
     };
   }
 
@@ -692,9 +693,10 @@ const reducer = (state = INITIAL_STATE, action) => {
     newState.exclude = newState.fields
       .filter(field => !field.checked)
       .map(field => field.path);
-    
+
     return newState;
   }
+
   /**
    * Changing field type from a select dropdown.
    */
@@ -718,7 +720,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     newState.transform = newState.fields
       .filter(field => field.checked)
       .map(field => [field.path, field.type]);
-      
+
     return newState;
   }
 

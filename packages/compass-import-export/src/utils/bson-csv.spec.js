@@ -1,5 +1,5 @@
 import bsonCSV, { serialize, detectType, getTypeDescriptorForValue } from './bson-csv';
-import { EJSON, ObjectID, Long, BSONRegExp, Double } from 'bson';
+import { EJSON, ObjectID, Long, BSONRegExp } from 'bson';
 
 // TODO: lucas: probably dumb but think about that later.
 
@@ -127,7 +127,6 @@ describe('bson-csv', () => {
         });
       });
     });
-
     describe('Boolean', () => {
       it('should serialize as a string', () => {
         expect(serialize({ value: false })).to.deep.equal({

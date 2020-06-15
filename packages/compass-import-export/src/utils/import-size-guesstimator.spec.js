@@ -18,6 +18,7 @@ import { pipeline } from 'stream';
 describe.skip('guesstimator', () => {
   it('should guess', function(done) {
     this.timeout(5000);
+
     const FILE_SIZE = 92782967;
     const fs = require('fs');
     const source = fs.createReadStream(
@@ -27,14 +28,12 @@ describe.skip('guesstimator', () => {
     const guesstimator = createImportSizeGuesstimator(
       source,
       FILE_SIZE,
-      function(err, guess) {
+      (err) => {
         if (err) return done(err);
-
-        console.log('guess is', guess);
       }
     );
-    pipeline(source, parser, guesstimator, function(err) {
-      console.log('done');
+
+    pipeline(source, parser, guesstimator, (err) => {
       return done(err);
     });
   });

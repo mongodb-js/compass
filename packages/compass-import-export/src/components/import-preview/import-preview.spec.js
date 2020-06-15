@@ -38,6 +38,7 @@ describe('ImportPreview [Component]', () => {
       setFieldTypeSpy = null;
     });
   });
+
   describe('no fields', () => {
     let component;
 

@@ -1,25 +1,26 @@
 import reducer, {
-  STARTED,
-  CANCELED,
-  PROGRESS,
-  FINISHED,
-  FAILED,
+  // STARTED,
+  // CANCELED,
+  // PROGRESS,
+  // FINISHED,
+  // FAILED,
   FILE_TYPE_SELECTED,
   selectImportFileType,
-  FILE_SELECTED,
+  // FILE_SELECTED,
   selectImportFileName,
-  OPEN,
-  CLOSE,
-  SET_PREVIEW,
-  SET_DELIMITER,
-  SET_GUESSTIMATED_TOTAL,
-  SET_STOP_ON_ERRORS,
-  SET_IGNORE_BLANKS,
-  TOGGLE_INCLUDE_FIELD,
-  SET_FIELD_TYPE,
+  // OPEN,
+  // CLOSE,
+  // SET_PREVIEW,
+  // SET_DELIMITER,
+  // SET_GUESSTIMATED_TOTAL,
+  // SET_STOP_ON_ERRORS,
+  // SET_IGNORE_BLANKS,
+  // TOGGLE_INCLUDE_FIELD,
+  // SET_FIELD_TYPE,
   INITIAL_STATE
 } from './import';
-import PROCESS_STATUS from 'constants/process-status';
+
+// import PROCESS_STATUS from 'constants/process-status';
 
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -109,7 +110,7 @@ describe('import [module]', () => {
         'test',
         'docs.json'
       );
-      return new Promise(function(resolve, reject) {
+      return new Promise(function(resolve) {
         // See https://github.com/dmitry-zaets/redux-mock-store/issues/71#issuecomment-369546064
         // redux-mock-store does not update state automatically.
         test.store.subscribe(() => {

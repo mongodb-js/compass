@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { Transform } from 'stream';
+
 const sizeof = require('object-sizeof');
 
 export default function createImportSizeGuesstimator(
@@ -21,7 +22,9 @@ export default function createImportSizeGuesstimator(
       if (this._done === true) {
         return cb(null, chunk);
       }
+
       this.sizes.push(sizeof(chunk));
+
       /**
        * fs reads files in 64 kb blocks (default highwatermark for createReadStream()
        * So the first time our stream gets data on or after 64 kb,
@@ -34,8 +37,10 @@ export default function createImportSizeGuesstimator(
         this.sizes.length === 1000
       ) {
         this._done = true;
+
         const bytesPerDoc = source.bytesRead / this.sizes.length;
         const estimatedTotalDocs = fileTotalSize / bytesPerDoc;
+
         onGuesstimate(null, estimatedTotalDocs);
 
         console.group('Object Size estimator');
@@ -46,6 +51,7 @@ export default function createImportSizeGuesstimator(
         console.log('js object sizes for docs seen', this.sizes);
         console.groupEnd();
       }
+
       return cb(null, chunk);
     }
   });

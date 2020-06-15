@@ -1,12 +1,12 @@
 import { Writable } from 'stream';
 import peek from 'peek-stream';
 import createParser from './import-parser';
-
 import { detectType, valueToString } from './bson-csv';
 import dotnotation from './dotnotation';
 import assert from 'assert';
-
+import FILE_TYPES from 'constants/file-types';
 import { createLogger } from './logger';
+
 const debug = createLogger('import-preview');
 
 /**
@@ -40,7 +40,12 @@ export const createPeekStream = function(
  * @option {Number} MAX_SIZE The number of documents/rows we want to preview [Default `10`]
  * @returns {stream.Writable}
  */
-export default function({ MAX_SIZE = 10, fileType, delimiter, fileIsMultilineJSON} = {}) {
+export default function({
+  MAX_SIZE = 10,
+  fileType
+  // delimiter
+  // fileIsMultilineJSON
+} = {}) {
   return new Writable({
     objectMode: true,
     write: function(doc, encoding, next) {
@@ -54,6 +59,7 @@ export default function({ MAX_SIZE = 10, fileType, delimiter, fileIsMultilineJSO
         debug('noop');
         return next();
       }
+
       this.docs.push(doc);
 
       const docAsDotnotation = dotnotation.serialize(doc);
@@ -64,28 +70,38 @@ export default function({ MAX_SIZE = 10, fileType, delimiter, fileIsMultilineJSO
           if (typeof key === 'symbol') {
             key = key.description;
           }
+
           assert.equal(typeof key, 'string', `import-preview: expected key to be a String not ${typeof key}`);
-          
+
           // eslint-disable-next-line no-control-regex
           key = key.replace(/[^\x00-\x7F]/g, '');
-          this.fields.push({
-            path: key,
-            checked: true,
-            type: detectType(value)
-          });
+
+          const isCSV = fileType === FILE_TYPES.CSV;
+          const item = { path: key, checked: true };
+
+          if (isCSV) {
+            item.type = detectType(value);
+          }
+
+          this.fields.push(item);
         }
+
         debug('set fields', this.fields, { from: doc });
       }
 
       const keys = Object.keys(docAsDotnotation);
+
       if (keys.length !== this.fields.length) {
         debug('invariant detected!', {
           expected: this.fields.map((f) => f.path),
           got: keys
         });
       }
+
       const values = Object.values(docAsDotnotation).map(value => valueToString(value));
+
       debug('set values', values);
+
       this.values.push(values);
 
       return next(null);
