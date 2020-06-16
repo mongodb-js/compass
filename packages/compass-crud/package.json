@@ -158,7 +158,7 @@
     "bson": "^4.0.3",
     "fast-json-parse": "^1.0.3",
     "hadron-document": "^6.0.0",
-    "hadron-type-checker": "^5.0.0",
+    "hadron-type-checker": "^5.1.0",
     "js-beautify": "^1.10.0",
     "lodash": "^4.17.15",
     "moment": "^2.18.1",
