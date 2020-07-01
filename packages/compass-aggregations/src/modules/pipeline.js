@@ -488,20 +488,18 @@ export const loadingStageResults = index => ({
 });
 
 /**
- * Generate the aggregation pipeline for the index.
- *
- * Will add all previous stages up to the current index.
+ * Generates pipeline stages.
  *
  * @param {Object} state - The state.
  * @param {Number} index - The stage index.
  *
  * @returns {Array} The pipeline.
  */
-export const generatePipeline = (state, index) => {
+export const generatePipelineStages = (state, index) => {
   const count = state.inputDocuments.count;
   const largeLimit = state.largeLimit || DEFAULT_LARGE_LIMIT;
 
-  const stages = state.pipeline.reduce((results, stage, i) => {
+  return state.pipeline.reduce((results, stage, i) => {
     if (i <= index && stage.isEnabled) {
       // If stage is a $groupBy it will scan the entire list, so
       // prepend with $limit if the collection is large.
@@ -519,16 +517,31 @@ export const generatePipeline = (state, index) => {
     }
     return results;
   }, []);
+};
+
+/**
+ * Generates the aggregation pipeline for the index.
+ * Will add all previous stages up to the current index.
+ *
+ * @param {Object} state - The state.
+ * @param {Number} index - The stage index.
+ *
+ * @returns {Array} The pipeline.
+ */
+export const generatePipeline = (state, index) => {
+  const stages = generatePipelineStages(state, index);
   const lastStage = state.pipeline[state.pipeline.length - 1];
+
   if (
     stages.length > 0 &&
     !REQUIRED_AS_FIRST_STAGE.includes(lastStage.stageOperator) &&
-    (lastStage.stageOperator !== OUT && lastStage.stageOperator !== MERGE)
+    (lastStage.stageOperator !== MERGE)
   ) {
     stages.push({
       $limit: state.limit || DEFAULT_SAMPLE_SIZE
     });
   }
+
   return stages;
 };
 
@@ -564,21 +577,22 @@ const executeAggregation = (dataService, ns, dispatch, state, index) => {
 };
 
 /**
- * Execute a single stage.
+ * Uses dataService to get aggregation results.
  *
+ * @param {Array} pipeline - The aggregation pipeline to execute.
  * @param {DataService} dataService - The data service.
  * @param {String} ns - The namespace.
  * @param {Function} dispatch - The dispatch function.
  * @param {Object} state - The state.
  * @param {Number} index - The current index.
  */
-const executeStage = (dataService, ns, dispatch, state, index) => {
+const aggregate = (pipeline, dataService, ns, dispatch, state, index) => {
   const options = { maxTimeMS: state.maxTimeMS || DEFAULT_MAX_TIME_MS, allowDiskUse: true };
-  dispatch(loadingStageResults(index));
-  const pipeline = generatePipeline(state, index);
+
   if (isEmpty(state.collation) === false) {
     options.collation = state.collation;
   }
+  
   dataService.aggregate(ns, pipeline, options, (err, cursor) => {
     if (err) return dispatch(stagePreviewUpdated([], index, err));
     cursor.toArray((e, docs) => {
@@ -593,6 +607,40 @@ const executeStage = (dataService, ns, dispatch, state, index) => {
       );
     });
   });
+};
+
+/**
+ * Executes a single stage.
+ *
+ * @param {DataService} dataService - The data service.
+ * @param {String} ns - The namespace.
+ * @param {Function} dispatch - The dispatch function.
+ * @param {Object} state - The state.
+ * @param {Number} index - The current index.
+ */
+const executeStage = (dataService, ns, dispatch, state, index) => {
+  dispatch(loadingStageResults(index));
+
+  const pipeline = generatePipeline(state, index);
+
+  aggregate(pipeline, dataService, ns, dispatch, state, index);
+};
+
+/**
+ * Executes the out stage.
+ *
+ * @param {DataService} dataService - The data service.
+ * @param {String} ns - The namespace.
+ * @param {Function} dispatch - The dispatch function.
+ * @param {Object} state - The state.
+ * @param {Number} index - The current index.
+ */
+const executeOutStage = (dataService, ns, dispatch, state, index) => {
+  dispatch(loadingStageResults(index));
+
+  const pipeline = generatePipelineStages(state, index);
+
+  aggregate(pipeline, dataService, ns, dispatch, state, index);
 };
 
 /**
@@ -662,7 +710,9 @@ export const runOutStage = index => {
   return (dispatch, getState) => {
     const state = getState();
     const dataService = state.dataService.dataService;
-    executeStage(dataService, state.namespace, dispatch, state, index);
+
+    executeOutStage(dataService, state.namespace, dispatch, state, index);
+
     dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id: state.id }));
   };
 };

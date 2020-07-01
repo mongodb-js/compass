@@ -23,6 +23,7 @@ import reducer, {
   LOADING_STAGE_RESULTS,
   STAGE_TOGGLED
 } from 'modules/pipeline';
+import { generatePipelineStages } from './pipeline';
 
 const LIMIT_TO_PROCESS = 100000;
 const LIMIT_TO_DISPLAY = 20;
@@ -671,8 +672,15 @@ describe('pipeline module', () => {
         const stage0 = { isEnabled: true, executor: { $out: 'testing' }, stageOperator: '$out' };
         const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0 ]};
 
-        it('returns the pipeline with the current and all previous stages', () => {
+        it('returns the pipeline with the current, all previous stages and limit', () => {
           expect(generatePipeline(state, 0)).to.deep.equal([
+            stage0.executor,
+            limit
+          ]);
+        });
+
+        it('returns the pipeline stages with the current and all previous stages', () => {
+          expect(generatePipelineStages(state, 0)).to.deep.equal([
             stage0.executor
           ]);
         });
