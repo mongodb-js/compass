@@ -67,6 +67,8 @@ const setup = (stylesheet, done) => {
         try {
           const styles = document.createElement(STYLE);
           const loc = path.join(DEV_PLUGINS, file, 'lib', 'styles', 'index.css');
+
+          // eslint-disable-next-line no-sync
           styles.textContent = fs.readFileSync(loc, { encoding: 'utf8' });
           document.head.appendChild(styles);
         } catch (e) {

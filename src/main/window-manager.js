@@ -317,7 +317,7 @@ function showAboutDialog() {
 }
 
 /**
- * @param {Object} bw - Current BrowserWindow
+ * @param {Object} _bw - Current BrowserWindow
  * @param {String} message - Message to be set by MessageBox
  * @param {String} detail - Details to be shown in MessageBox
  */
