@@ -67,6 +67,11 @@ const ILLEGAL_MODULES = ['fs', 'net', 'tls', 'child_process'];
 
 /**
  * Prevent loading of fs, net, tls, and child process for 3rd party plugins.
+ *
+ * @param {String} request - The request.
+ * @param {Object} loc - The location.
+ *
+ * @returns {Function}
  */
 Module._load = function(request, loc) {
   if (ILLEGAL_MODULES.includes(request)) {

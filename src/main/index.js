@@ -25,6 +25,7 @@ const cleanStack = require('clean-stack');
 const ensureError = require('ensure-error');
 
 process.on('uncaughtException', err => {
+  // eslint-disable-next-line no-console
   console.error('handling uncaughtException', err);
   err = ensureError(err);
   const stack = cleanStack(err.stack);
@@ -32,6 +33,8 @@ process.on('uncaughtException', err => {
   var detail = '${app.getName()} version ${app.getVersion()}\n';
   detail += `Stacktrace:\n${stack}`;
   const message = `${app.getName()} has encountered an unexpected error`;
+
+  // eslint-disable-next-line no-console
   console.error(`${message}: ${detail}`);
 
   const btnIndex = dialog.showMessageBox({

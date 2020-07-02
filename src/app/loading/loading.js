@@ -26,6 +26,7 @@ ipc.on(CHANGE_STATUS, (evt, meta) => {
 });
 
 ipc.on('compass:error:fatal', (evt, meta) => {
+  // eslint-disable-next-line no-console
   console.error(meta.stack);
 });
 
