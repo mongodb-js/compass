@@ -692,7 +692,6 @@ const configureStore = (options = {}) => {
         newState.autoPopulated = true;
         this.setState(omit(newState, 'expanded'));
       }
-      options.actions.refreshEditor();
     },
 
     storeDidUpdate(prevState) {

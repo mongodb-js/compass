@@ -608,13 +608,13 @@ describe('QueryBarStore [Store]', function() {
           expect(store.state.filterString).to.be.equal('');
 
           unsubscribe = store.listen(state => {
-            expect(state.filterString).to.be.equal('{filter: invalid}');
+            expect(state.filterString).to.be.equal('not valid');
             expect(state.filterValid).to.be.false;
             expect(state.filter).to.deep.equal({});
             done();
           });
 
-          store.setQueryString('filter', '{filter: invalid}');
+          store.setQueryString('filter', 'not valid');
         });
       });
 
