@@ -49,6 +49,9 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var { Action } = require('hadron-plugin-manager');
 
+const darkreader = require('darkreader');
+darkreader.setFetchMethod(() => Promise.resolve({text: () => '', blob: () => new Blob(['{}'], {type: 'application/json'})}));
+
 ipc.once('app:launched', function() {
   console.log('in app:launched');
   if (process.env.NODE_ENV !== 'production') {
@@ -172,7 +175,7 @@ var Application = View.extend({
     // or so if you move this to the top of the file.
     require('local-links');
     require('mongodb-instance-model');
-    require('darkreader').enable({
+    darkreader.enable({
       brightness: 100,
       contrast: 90,
       sepia: 10
