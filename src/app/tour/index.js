@@ -118,9 +118,6 @@ var TourView = View.extend({
     var previous = model.previousVersion || '0.0.0';
 
     model.features = _.filter(FEATURES, function(feature) {
-      if (process.env.HADRON_PRODUCT === 'mongodb-compass-community' && !feature.community) {
-        return false;
-      }
       if (model.force && feature.initial) {
         return true;
       }

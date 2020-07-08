@@ -22,11 +22,6 @@ var NetworkOptInView = View.extend({
       type: 'string',
       required: true,
       default: 'Start using Compass'
-    },
-    isCommunity: {
-      type: 'boolean',
-      required: true,
-      default: process.env.HADRON_PRODUCT === 'mongodb-compass-community'
     }
   },
   events: {

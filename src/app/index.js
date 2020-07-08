@@ -297,11 +297,6 @@ var Application = View.extend({
         prefs.lastKnownVersion = currentVersion;
         save = true;
       }
-      if (process.env.HADRON_PRODUCT === 'mongodb-compass-community') {
-        prefs.enableMaps = false;
-        prefs.enableFeedbackPanel = false;
-        save = true;
-      }
       if (save) {
         prefs.save(null, {
           success: done.bind(null, null),
