@@ -3,7 +3,14 @@ const URL = require('url');
 const toURL = URL.format;
 const { format } = require('util');
 const fs = require('fs');
-const { assign, defaults, clone, cloneDeep, includes, unescape } = require('lodash');
+const {
+  assign,
+  defaults,
+  clone,
+  cloneDeep,
+  includes,
+  unescape
+} = require('lodash');
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
 const { ReadPreference } = require('mongodb');
@@ -433,18 +440,24 @@ function addAuthToUrl({ url, isPasswordProtected }) {
     this.authStrategy === 'SCRAM-SHA-256'
   ) {
     username = encodeURIComponent(this.mongodbUsername);
-    password = isPasswordProtected ? '*****' : encodeURIComponent(this.mongodbPassword);
+    password = isPasswordProtected
+      ? '*****'
+      : encodeURIComponent(this.mongodbPassword);
     authField = format('%s:%s', username, password);
   } else if (this.authStrategy === 'LDAP') {
     username = encodeURIComponent(this.ldapUsername);
-    password = isPasswordProtected ? '*****' : encodeURIComponent(this.ldapPassword);
+    password = isPasswordProtected
+      ? '*****'
+      : encodeURIComponent(this.ldapPassword);
     authField = format('%s:%s', username, password);
   } else if (this.authStrategy === 'X509') {
     username = encodeURIComponent(this.x509Username);
     authField = username;
   } else if (this.authStrategy === 'KERBEROS' && this.kerberosPassword) {
     username = encodeURIComponent(this.kerberosPrincipal);
-    password = isPasswordProtected ? '*****' : encodeURIComponent(this.kerberosPassword);
+    password = isPasswordProtected
+      ? '*****'
+      : encodeURIComponent(this.kerberosPassword);
     authField = format('%s:%s', username, password);
   } else if (this.authStrategy === 'KERBEROS') {
     username = encodeURIComponent(this.kerberosPrincipal);
@@ -501,9 +514,7 @@ const prepareRequest = (model) => {
     req.hostname = model.hostname;
     req.port = model.port;
   } else {
-    req.host = model.hosts
-      .map(item => `${item.host}:${item.port}`)
-      .join(',');
+    req.host = model.hosts.map((item) => `${item.host}:${item.port}`).join(',');
   }
 
   if (model.ns) {
@@ -513,15 +524,18 @@ const prepareRequest = (model) => {
   // Encode auth for url format.
   if (model.authStrategy === 'MONGODB') {
     req.auth = 'AUTH_TOKEN';
-    req.query.authSource = model.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
+    req.query.authSource =
+      model.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
   } else if (model.authStrategy === 'SCRAM-SHA-256') {
     req.auth = 'AUTH_TOKEN';
-    req.query.authSource = model.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
+    req.query.authSource =
+      model.mongodbDatabaseName || MONGODB_DATABASE_NAME_DEFAULT;
     req.query.authMechanism = model.driverAuthMechanism;
   } else if (model.authStrategy === 'KERBEROS') {
     req.auth = 'AUTH_TOKEN';
     defaults(req.query, {
-      gssapiServiceName: model.kerberosServiceName || KERBEROS_SERVICE_NAME_DEFAULT,
+      gssapiServiceName:
+        model.kerberosServiceName || KERBEROS_SERVICE_NAME_DEFAULT,
       authMechanism: model.driverAuthMechanism
     });
   } else if (model.authStrategy === 'X509') {
@@ -532,7 +546,7 @@ const prepareRequest = (model) => {
     defaults(req.query, { authMechanism: model.driverAuthMechanism });
   }
 
-  Object.keys(CONNECTION_STRING_OPTIONS).forEach(item => {
+  Object.keys(CONNECTION_STRING_OPTIONS).forEach((item) => {
     if (typeof model[item] !== 'undefined' && !req.query[item]) {
       if (item === 'compression') {
         if (model.compression && model.compression.compressors) {
@@ -540,25 +554,24 @@ const prepareRequest = (model) => {
         }
 
         if (model.compression && model.compression.zlibCompressionLevel) {
-          req.query.zlibCompressionLevel = model.compression.zlibCompressionLevel;
+          req.query.zlibCompressionLevel =
+            model.compression.zlibCompressionLevel;
         }
       } else if (item === 'authMechanismProperties') {
         if (model.authMechanismProperties) {
           req.query.authMechanismProperties = Object.keys(
             model.authMechanismProperties
           )
-            .map(tag => `${tag}:${model.authMechanismProperties[tag]}`)
+            .map((tag) => `${tag}:${model.authMechanismProperties[tag]}`)
             .join(',');
         }
       } else if (item === 'readPreferenceTags') {
         if (model.readPreferenceTags) {
           req.query.readPreferenceTags = Object.values(
             model.readPreferenceTags
-          ).map(
-            tagGroup => Object.keys(
-              tagGroup
-            )
-              .map(tag => `${tag}:${tagGroup[tag]}`)
+          ).map((tagGroup) =>
+            Object.keys(tagGroup)
+              .map((tag) => `${tag}:${tagGroup[tag]}`)
               .join(',')
           );
         }
@@ -587,13 +600,19 @@ assign(derived, {
   safeUrl: {
     cache: false,
     fn() {
-      return addAuthToUrl.call(this, { url: toURL(prepareRequest(this)), isPasswordProtected: true });
+      return addAuthToUrl.call(this, {
+        url: toURL(prepareRequest(this)),
+        isPasswordProtected: true
+      });
     }
   },
   driverUrl: {
     cache: false,
     fn() {
-      return addAuthToUrl.call(this, { url: toURL(prepareRequest(this)), isPasswordProtected: false });
+      return addAuthToUrl.call(this, {
+        url: toURL(prepareRequest(this)),
+        isPasswordProtected: false
+      });
     }
   },
   driverUrlWithSsh: {
@@ -607,7 +626,10 @@ assign(derived, {
         req.port = this.sshTunnelOptions.localPort;
       }
 
-      return addAuthToUrl.call(this, { url: toURL(req), isPasswordProtected: false });
+      return addAuthToUrl.call(this, {
+        url: toURL(req),
+        isPasswordProtected: false
+      });
     }
   },
   /**
@@ -786,7 +808,7 @@ Connection = AmpersandModel.extend({
     }
 
     // Map the old password fields to the new ones.
-    Object.keys(PASSWORD_MAPPINGS).forEach(oldField => {
+    Object.keys(PASSWORD_MAPPINGS).forEach((oldField) => {
       const newField = PASSWORD_MAPPINGS[oldField];
       if (!attrs[newField] && attrs[oldField]) {
         this[newField] = attrs[newField] = attrs[oldField];
@@ -1061,36 +1083,24 @@ Connection.from = (url, callback) => {
 
   const unescapedUrl = unescape(url);
 
-  parseConnectionString(unescapedUrl, (error, parsed) => {
-    if (error) {
-      return callback(error);
+  parseConnectionString(unescapedUrl, (parseError, parsed) => {
+    if (parseError) {
+      return callback(parseError);
     }
 
     let attrs = Object.assign(
       {},
       {
         hosts: parsed.hosts,
-        hostname: parsed.hosts[0].host,
-        port: parsed.hosts[0].port,
+        hostname: isSrvRecord ? parsed.srvHost : parsed.hosts[0].host,
         auth: parsed.auth,
         isSrvRecord
       },
       parsed.options
     );
 
-    if (isSrvRecord) {
-      // Driver does not return the original hostname.
-      // We do extra parsing to get this value.
-      // See JIRA ticket: NODE-2048
-      // Note: If driver will change the behavior,
-      // we should remove extra parsing and update tests.
-      // See also: https://github.com/mongodb/specifications/blob/master/source/initial-dns-seedlist-discovery/initial-dns-seedlist-discovery.rst#specification
-      const extraParsed = URL.parse(unescapedUrl, true);
-
-      attrs = Object.assign(attrs, {
-        hostname: extraParsed.hostname,
-        port: parseInt(extraParsed.port, 10)
-      });
+    if (!isSrvRecord) {
+      attrs.port = parsed.hosts[0].port;
     }
 
     // We don't inherit the drivers default values
@@ -1116,8 +1126,15 @@ Connection.from = (url, callback) => {
       : AUTH_STRATEGY_DEFAULT;
 
     if (parsed.auth) {
-      const user = decodeURIComponent(parsed.auth.username);
-      const password = decodeURIComponent(parsed.auth.password);
+      let user = parsed.auth.username;
+      let password = parsed.auth.password;
+
+      try {
+        user = decodeURIComponent(user);
+        password = decodeURIComponent(password);
+      } catch (decodeError) {
+        return callback(decodeError);
+      }
 
       if (attrs.authStrategy === 'LDAP') {
         attrs.ldapUsername = user;
@@ -1134,9 +1151,14 @@ Connection.from = (url, callback) => {
         // authSource takes precedence, but fall back to admin
         // @note Durran: This is not the documented behaviour of the connection string
         // but the shell also does not fall back to the dbName and will use admin.
-        attrs.mongodbDatabaseName = decodeURIComponent(
-          attrs.authSource || Connection.MONGODB_DATABASE_NAME_DEFAULT
-        );
+        try {
+          attrs.mongodbDatabaseName = decodeURIComponent(
+            attrs.authSource || Connection.MONGODB_DATABASE_NAME_DEFAULT,
+            callback
+          );
+        } catch (decodeError) {
+          return callback(decodeError);
+        }
 
         Object.assign(
           attrs,
@@ -1185,12 +1207,12 @@ Connection._improveAtlasDefaults = (url, mongodbPassword, ns) => {
  * @param {String} authStrategy - The desired authentication strategy.
  * @return {Array}
  */
-Connection.getFieldNames = authStrategy =>
+Connection.getFieldNames = (authStrategy) =>
   AUTH_STRATEGY_TO_FIELD_NAMES[authStrategy];
 
-Connection.isAtlas = str => str.match(/mongodb.net[:/]/i);
+Connection.isAtlas = (str) => str.match(/mongodb.net[:/]/i);
 
-Connection.isURI = str =>
+Connection.isURI = (str) =>
   str.startsWith('mongodb://') || str.startsWith('mongodb+srv://');
 
 Connection.AUTH_STRATEGY_VALUES = AUTH_STRATEGY_VALUES;

@@ -13,16 +13,16 @@ function SSHTunnel(model) {
 
   this.model = model;
   this.options = this.model.sshTunnelOptions;
-  this.options.debug = function(msg) {
+  this.options.debug = function (msg) {
     ssh2debug(msg);
   };
 }
 inherits(SSHTunnel, EventEmitter);
 
-SSHTunnel.prototype.createTunnel = function(done) {
+SSHTunnel.prototype.createTunnel = function (done) {
   var hadError = null;
 
-  const onStartupError = function(err) {
+  const onStartupError = function (err) {
     hadError = err;
     debug('ssh tunnel startup error', err);
     done(err);
@@ -30,7 +30,7 @@ SSHTunnel.prototype.createTunnel = function(done) {
 
   this.tunnel = new ssh2.Client();
   this.tunnel
-    .on('end', function() {
+    .on('end', function () {
       debug('ssh tunnel is disconnected.');
     })
     .on('close', (closeError) => {
@@ -56,17 +56,14 @@ SSHTunnel.prototype.createTunnel = function(done) {
   return this.tunnel;
 };
 
-SSHTunnel.prototype.forward = function(done) {
+SSHTunnel.prototype.forward = function (done) {
   let isTimedOut = false;
 
-  const timeout = setTimeout(
-    () => {
-      isTimedOut = true;
-      this.tunnel.end();
-      done(new Error('Timed out while waiting for forwardOut'));
-    },
-    this.options.forwardTimeout
-  );
+  const timeout = setTimeout(() => {
+    isTimedOut = true;
+    this.tunnel.end();
+    done(new Error('Timed out while waiting for forwardOut'));
+  }, this.options.forwardTimeout);
 
   const onForward = (err, stream) => {
     if (isTimedOut) {
@@ -104,7 +101,7 @@ SSHTunnel.prototype.forward = function(done) {
   );
 };
 
-SSHTunnel.prototype.createServer = function(done) {
+SSHTunnel.prototype.createServer = function (done) {
   if (this.server) {
     debug('already started server');
     done();
@@ -132,9 +129,10 @@ SSHTunnel.prototype.createServer = function(done) {
     })
     .on('error', (err) => {
       if (err.message.indexOf('listen EADDRINUSE') === 0) {
-        err.message = `Local port ${this.options.localPort} ` +
-        '(chosen randomly) is already in use. ' +
-        'You can click connect to try again with a different port.';
+        err.message =
+          `Local port ${this.options.localPort} ` +
+          '(chosen randomly) is already in use. ' +
+          'You can click connect to try again with a different port.';
       }
       debug('createServer error', err);
       done(err);
@@ -153,29 +151,32 @@ SSHTunnel.prototype.createServer = function(done) {
   return this.server;
 };
 
-SSHTunnel.prototype.listen = function(done) {
+SSHTunnel.prototype.listen = function (done) {
   this.emit('status', {
     message: 'Create SSH Tunnel',
     pending: true
   });
-  async.series([
-    this.createTunnel.bind(this),
-    this.forward.bind(this),
-    this.createServer.bind(this)
-  ], (err) => {
-    if (err) {
-      err.message = `Error creating SSH Tunnel: ${err.message}`;
+  async.series(
+    [
+      this.createTunnel.bind(this),
+      this.forward.bind(this),
+      this.createServer.bind(this)
+    ],
+    (err) => {
+      if (err) {
+        err.message = `Error creating SSH Tunnel: ${err.message}`;
 
-      return done(err);
+        return done(err);
+      }
+
+      done();
     }
-
-    done();
-  });
+  );
 
   return this;
 };
 
-SSHTunnel.prototype.close = function() {
+SSHTunnel.prototype.close = function () {
   this.emit('status', {
     message: 'Closing SSH Tunnel',
     pending: true

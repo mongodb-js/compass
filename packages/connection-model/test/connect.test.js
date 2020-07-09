@@ -20,7 +20,7 @@ describe('connection model connector', () => {
       require('mongodb-runner/mocha/after')({ port: 27018, version: '4.0.0' })
     );
 
-    it('should connect to `localhost:27018 with model`', done => {
+    it('should connect to `localhost:27018 with model`', (done) => {
       Connection.from('mongodb://localhost:27018', (parseErr, model) => {
         assert.equal(parseErr, null);
         connect(model, setupListeners, (connectErr, client) => {
@@ -31,7 +31,7 @@ describe('connection model connector', () => {
       });
     });
 
-    it('should connect to `localhost:27018 with object`', done => {
+    it('should connect to `localhost:27018 with object`', (done) => {
       connect(
         { port: 27018, host: 'localhost' },
         setupListeners,
@@ -56,7 +56,7 @@ describe('connection model connector', () => {
       const MockConnection = mock.reRequire('../lib/extended-model');
       const mockConnect = mock.reRequire('../lib/connect');
 
-      it('should close ssh tunnel if the connection fails', done => {
+      it('should close ssh tunnel if the connection fails', (done) => {
         const model = new MockConnection({
           hostname: 'localhost',
           port: '27020',
@@ -68,7 +68,7 @@ describe('connection model connector', () => {
         });
 
         assert(model.isValid());
-        mockConnect(model, setupListeners, err => {
+        mockConnect(model, setupListeners, (err) => {
           // must throw error here, because the connection details are invalid
           assert.ok(err);
           assert.ok(/ECONNREFUSED/.test(err.message));
@@ -81,8 +81,8 @@ describe('connection model connector', () => {
   });
 
   describe('cloud #slow', () => {
-    data.MATRIX.map(d => {
-      it.skip('should connect to ' + d.name, done => {
+    data.MATRIX.map((d) => {
+      it.skip('should connect to ' + d.name, (done) => {
         connect(d, setupListeners, (err, client) => {
           if (err) {
             return done(err);
@@ -94,8 +94,8 @@ describe('connection model connector', () => {
       });
     });
 
-    data.SSH_TUNNEL_MATRIX.map(d => {
-      it.skip(`connects via the sshTunnel to ${d.sshTunnelHostname}`, done => {
+    data.SSH_TUNNEL_MATRIX.map((d) => {
+      it.skip(`connects via the sshTunnel to ${d.sshTunnelHostname}`, (done) => {
         connect(d, setupListeners, (err, client) => {
           if (err) {
             return done(err);

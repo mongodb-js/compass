@@ -16,7 +16,7 @@ const createSSHTunnel = require('./ssh-tunnel');
 
 const debug = require('debug')('mongodb-connection-model:connect');
 
-const needToLoadSSLFiles = model =>
+const needToLoadSSLFiles = (model) =>
   !includes(['NONE', 'UNVALIDATED'], model.sslType);
 
 const loadOptions = (model, done) => {
@@ -29,17 +29,17 @@ const loadOptions = (model, done) => {
   const tasks = {};
   const opts = clone(model.driverOptions, true);
 
-  Object.keys(opts).map(key => {
+  Object.keys(opts).map((key) => {
     if (key.indexOf('ssl') === -1) {
       return;
     }
 
     if (Array.isArray(opts[key])) {
-      opts[key].forEach(value => {
+      opts[key].forEach((value) => {
         if (typeof value === 'string') {
-          tasks[key] = cb =>
+          tasks[key] = (cb) =>
             async.parallel(
-              opts[key].map(k => fs.readFile.bind(null, k)),
+              opts[key].map((k) => fs.readFile.bind(null, k)),
               cb
             );
         }
@@ -62,7 +62,7 @@ const loadOptions = (model, done) => {
       return done(err);
     }
 
-    Object.keys(res).map(key => {
+    Object.keys(res).map((key) => {
       opts[key] = res[key];
     });
 
@@ -92,7 +92,7 @@ const validateURL = (model, done) => {
   });
 };
 
-const getStatusStateString = evt => {
+const getStatusStateString = (evt) => {
   if (!evt) {
     return 'UNKNOWN';
   }
@@ -147,7 +147,7 @@ const getTasks = (model, setupListeners) => {
       }
     };
 
-    ctx.skip = reason => {
+    ctx.skip = (reason) => {
       state.emit('status', { message, skipped: true, reason });
 
       if (cb) {
@@ -169,7 +169,7 @@ const getTasks = (model, setupListeners) => {
    * TODO (imlucas) dns.lookup() model.hostname and model.sshTunnelHostname to check for typos
    */
   assign(tasks, {
-    'Load SSL files': cb => {
+    'Load SSL files': (cb) => {
       const ctx = status('Load SSL files', cb);
 
       if (!needToLoadSSLFiles(model)) {
@@ -183,7 +183,7 @@ const getTasks = (model, setupListeners) => {
   });
 
   assign(tasks, {
-    'Create SSH Tunnel': cb => {
+    'Create SSH Tunnel': (cb) => {
       const ctx = status('Create SSH Tunnel', cb);
 
       if (model.sshTunnel === 'NONE') {
@@ -195,7 +195,7 @@ const getTasks = (model, setupListeners) => {
   });
 
   assign(tasks, {
-    'Connect to MongoDB': cb => {
+    'Connect to MongoDB': (cb) => {
       const ctx = status('Connect to MongoDB');
 
       // @note: Durran:
@@ -285,7 +285,7 @@ const connect = (model, setupListeners, done) => {
   }
 
   if (!isFunction(done)) {
-    done = err => {
+    done = (err) => {
       if (err) {
         throw err;
       }
@@ -297,13 +297,13 @@ const connect = (model, setupListeners, done) => {
     'mongodb-connection-model:connect:status'
   );
 
-  tasks.state.on('status', evt => {
+  tasks.state.on('status', (evt) => {
     logTaskStatus('%s [%s]', evt.message, getStatusStateString(evt));
   });
 
   logTaskStatus('Connecting...');
 
-  async.series(tasks, err => {
+  async.series(tasks, (err) => {
     if (err) {
       logTaskStatus('Error connecting:', err);
 

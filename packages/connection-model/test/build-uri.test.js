@@ -13,7 +13,9 @@ describe('Connection model builder', () => {
     it('should include default host, port, readPreference and ssl', (done) => {
       const c = new Connection();
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&ssl=false');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?readPreference=primary&ssl=false'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -24,7 +26,9 @@ describe('Connection model builder', () => {
     it('should include appname', (done) => {
       const c = new Connection({ appname: 'My App' });
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&appname=My%20App&ssl=false');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?readPreference=primary&appname=My%20App&ssl=false'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -35,13 +39,17 @@ describe('Connection model builder', () => {
     it('should include srv prefix', () => {
       const c = new Connection({ isSrvRecord: true });
 
-      expect(c.driverUrl).to.be.equal('mongodb+srv://localhost/?readPreference=primary&ssl=false');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb+srv://localhost/?readPreference=primary&ssl=false'
+      );
     });
 
     it('should include replicaSet', (done) => {
       const c = new Connection({ appname: 'My App', replicaSet: 'testing' });
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?replicaSet=testing&readPreference=primary&appname=My%20App&ssl=false');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?replicaSet=testing&readPreference=primary&appname=My%20App&ssl=false'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -52,7 +60,9 @@ describe('Connection model builder', () => {
     it('does not include empty replicaSet', (done) => {
       const c = new Connection({ appname: 'My App', replicaSet: '' });
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&appname=My%20App&ssl=false');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?readPreference=primary&appname=My%20App&ssl=false'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -63,7 +73,9 @@ describe('Connection model builder', () => {
     it('should include sslMethod equal NONE', (done) => {
       const c = new Connection({ sslMethod: 'NONE' });
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&ssl=false');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?readPreference=primary&ssl=false'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -73,18 +85,16 @@ describe('Connection model builder', () => {
 
     it('should include sslMethod equal UNVALIDATED', (done) => {
       const c = new Connection({ sslMethod: 'UNVALIDATED' });
-      const options = Object.assign(
-        {},
-        Connection.DRIVER_OPTIONS_DEFAULT,
-        {
-          checkServerIdentity: false,
-          sslValidate: false,
-          readPreference: 'primary',
-          connectWithNoPrimary: true
-        }
-      );
+      const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
+        checkServerIdentity: false,
+        sslValidate: false,
+        readPreference: 'primary',
+        connectWithNoPrimary: true
+      });
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&ssl=true');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?readPreference=primary&ssl=true'
+      );
       expect(c.driverOptions).to.deep.equal(options);
 
       Connection.from(c.driverUrl, (error) => {
@@ -95,18 +105,16 @@ describe('Connection model builder', () => {
 
     it('should include sslMethod equal SYSTEMCA', (done) => {
       const c = new Connection({ sslMethod: 'SYSTEMCA' });
-      const options = Object.assign(
-        {},
-        Connection.DRIVER_OPTIONS_DEFAULT,
-        {
-          checkServerIdentity: true,
-          sslValidate: true,
-          readPreference: 'primary',
-          connectWithNoPrimary: true
-        }
-      );
+      const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
+        checkServerIdentity: true,
+        sslValidate: true,
+        readPreference: 'primary',
+        connectWithNoPrimary: true
+      });
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&ssl=true');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?readPreference=primary&ssl=true'
+      );
       expect(c.driverOptions).to.deep.equal(options);
 
       Connection.from(c.driverUrl, (error) => {
@@ -117,18 +125,16 @@ describe('Connection model builder', () => {
 
     it('should include sslMethod equal IFAVAILABLE', (done) => {
       const c = new Connection({ sslMethod: 'IFAVAILABLE' });
-      const options = Object.assign(
-        {},
-        Connection.DRIVER_OPTIONS_DEFAULT,
-        {
-          checkServerIdentity: false,
-          sslValidate: true,
-          readPreference: 'primary',
-          connectWithNoPrimary: true
-        }
-      );
+      const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
+        checkServerIdentity: false,
+        sslValidate: true,
+        readPreference: 'primary',
+        connectWithNoPrimary: true
+      });
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&ssl=prefer');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?readPreference=primary&ssl=prefer'
+      );
       expect(c.driverOptions).to.deep.equal(options);
 
       Connection.from(c.driverUrl, (error) => {
@@ -139,18 +145,16 @@ describe('Connection model builder', () => {
 
     it('should include sslMethod equal SERVER', (done) => {
       const c = new Connection({ sslMethod: 'SERVER', sslCA: fixture.ssl.ca });
-      const options = Object.assign(
-        {},
-        Connection.DRIVER_OPTIONS_DEFAULT,
-        {
-          sslCA: [fixture.ssl.ca],
-          sslValidate: true,
-          readPreference: 'primary',
-          connectWithNoPrimary: true
-        }
-      );
+      const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
+        sslCA: [fixture.ssl.ca],
+        sslValidate: true,
+        readPreference: 'primary',
+        connectWithNoPrimary: true
+      });
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&ssl=true');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?readPreference=primary&ssl=true'
+      );
       expect(c.driverOptions).to.deep.equal(options);
 
       Connection.from(c.driverUrl, (error) => {
@@ -168,21 +172,19 @@ describe('Connection model builder', () => {
         authStrategy: 'X509',
         x509Username: 'testing'
       });
-      const options = Object.assign(
-        {},
-        Connection.DRIVER_OPTIONS_DEFAULT,
-        {
-          sslCA: [fixture.ssl.ca],
-          sslCert: fixture.ssl.server,
-          sslKey: fixture.ssl.server,
-          checkServerIdentity: false,
-          sslValidate: false,
-          readPreference: 'primary',
-          connectWithNoPrimary: true
-        }
-      );
+      const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
+        sslCA: [fixture.ssl.ca],
+        sslCert: fixture.ssl.server,
+        sslKey: fixture.ssl.server,
+        checkServerIdentity: false,
+        sslValidate: false,
+        readPreference: 'primary',
+        connectWithNoPrimary: true
+      });
 
-      expect(c.driverUrl).to.be.equal('mongodb://testing@localhost:27017/?authMechanism=MONGODB-X509&readPreference=primary&ssl=true&authSource=$external');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://testing@localhost:27017/?authMechanism=MONGODB-X509&readPreference=primary&ssl=true&authSource=$external'
+      );
       expect(c.driverOptions).to.deep.equal(options);
 
       Connection.from(c.driverUrl, (error) => {
@@ -198,20 +200,18 @@ describe('Connection model builder', () => {
         sslCert: fixture.ssl.server,
         sslKey: fixture.ssl.server
       });
-      const options = Object.assign(
-        {},
-        Connection.DRIVER_OPTIONS_DEFAULT,
-        {
-          sslCA: [fixture.ssl.ca],
-          sslCert: fixture.ssl.server,
-          sslKey: fixture.ssl.server,
-          sslValidate: true,
-          readPreference: 'primary',
-          connectWithNoPrimary: true
-        }
-      );
+      const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
+        sslCA: [fixture.ssl.ca],
+        sslCert: fixture.ssl.server,
+        sslKey: fixture.ssl.server,
+        sslValidate: true,
+        readPreference: 'primary',
+        connectWithNoPrimary: true
+      });
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&ssl=true');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?readPreference=primary&ssl=true'
+      );
       expect(c.driverOptions).to.deep.equal(options);
 
       /* eslint-disable no-sync */
@@ -225,8 +225,9 @@ describe('Connection model builder', () => {
       };
       /* eslint-enable no-sync */
       const tasks = getTasks(c);
-      // Trigger relevant side-effect, loading the SSL files into memory
-      tasks['Load SSL files'](function() { // eslint-disable-line new-cap
+      // Trigger relevant side-effect, loading the SSL files into memory.
+      // eslint-disable-next-line new-cap
+      tasks['Load SSL files'](function () {
         // Read files into memory as the connect function does
         expect(tasks.driverOptions).to.deep.equal(expectAfterLoad);
         done();
@@ -241,21 +242,19 @@ describe('Connection model builder', () => {
         sslKey: fixture.ssl.server,
         sslPass: 'woof'
       });
-      const options = Object.assign(
-        {},
-        Connection.DRIVER_OPTIONS_DEFAULT,
-        {
-          sslCA: [fixture.ssl.ca],
-          sslCert: fixture.ssl.server,
-          sslKey: fixture.ssl.server,
-          sslPass: 'woof',
-          sslValidate: true,
-          connectWithNoPrimary: true,
-          readPreference: 'primary'
-        }
-      );
+      const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
+        sslCA: [fixture.ssl.ca],
+        sslCert: fixture.ssl.server,
+        sslKey: fixture.ssl.server,
+        sslPass: 'woof',
+        sslValidate: true,
+        connectWithNoPrimary: true,
+        readPreference: 'primary'
+      });
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&ssl=true');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?readPreference=primary&ssl=true'
+      );
       expect(c.driverOptions).to.deep.equal(options);
 
       Connection.from(c.driverUrl, (error) => {
@@ -282,7 +281,9 @@ describe('Connection model builder', () => {
         authStrategy: 'SCRAM-SHA-256'
       });
 
-      expect(c.driverUrl).to.be.equal('mongodb://%40rlo:w%40of@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://%40rlo:w%40of@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -296,7 +297,9 @@ describe('Connection model builder', () => {
         mongodbPassword: 'w@of'
       });
 
-      expect(c.driverUrl).to.be.equal('mongodb://%40rlo:w%40of@localhost:27017/?authSource=admin&readPreference=primary&ssl=false');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://%40rlo:w%40of@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -307,10 +310,14 @@ describe('Connection model builder', () => {
     it('should urlencode credentials when using MONGODB auth', (done) => {
       const mongodbUsername = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
       const mongodbPassword = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-      const authExpect = `${encodeURIComponent(mongodbUsername)}:${encodeURIComponent(mongodbPassword)}`;
+      const authExpect = `${encodeURIComponent(
+        mongodbUsername
+      )}:${encodeURIComponent(mongodbPassword)}`;
       const c = new Connection({ mongodbUsername, mongodbPassword });
 
-      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?authSource=admin&readPreference=primary&ssl=false`);
+      expect(c.driverUrl).to.be.equal(
+        `mongodb://${authExpect}@localhost:27017/?authSource=admin&readPreference=primary&ssl=false`
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -321,10 +328,14 @@ describe('Connection model builder', () => {
     it('should urlencode credentials when using MONGODB auth with emoji 💕', (done) => {
       const mongodbUsername = '👌emoji😂😍😘🔥💕🎁💯🌹';
       const mongodbPassword = '👌emoji😂😍😘🔥💕🎁💯🌹';
-      const authExpect = `${encodeURIComponent(mongodbUsername)}:${encodeURIComponent(mongodbPassword)}`;
+      const authExpect = `${encodeURIComponent(
+        mongodbUsername
+      )}:${encodeURIComponent(mongodbPassword)}`;
       const c = new Connection({ mongodbUsername, mongodbPassword });
 
-      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?authSource=admin&readPreference=primary&ssl=false`);
+      expect(c.driverUrl).to.be.equal(
+        `mongodb://${authExpect}@localhost:27017/?authSource=admin&readPreference=primary&ssl=false`
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -335,10 +346,14 @@ describe('Connection model builder', () => {
     it('should urlencode credentials when using LDAP auth', (done) => {
       const ldapUsername = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
       const ldapPassword = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-      const authExpect = `${encodeURIComponent(ldapUsername)}:${encodeURIComponent(ldapPassword)}`;
+      const authExpect = `${encodeURIComponent(
+        ldapUsername
+      )}:${encodeURIComponent(ldapPassword)}`;
       const c = new Connection({ ldapUsername, ldapPassword });
 
-      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external`);
+      expect(c.driverUrl).to.be.equal(
+        `mongodb://${authExpect}@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external`
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -349,10 +364,14 @@ describe('Connection model builder', () => {
     it('should urlencode credentials when using KERBEROS auth', (done) => {
       const kerberosPrincipal = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
       const kerberosPassword = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-      const authExpect = `${encodeURIComponent(kerberosPrincipal)}:${encodeURIComponent(kerberosPassword)}`;
+      const authExpect = `${encodeURIComponent(
+        kerberosPrincipal
+      )}:${encodeURIComponent(kerberosPassword)}`;
       const c = new Connection({ kerberosPrincipal, kerberosPassword });
 
-      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external`);
+      expect(c.driverUrl).to.be.equal(
+        `mongodb://${authExpect}@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external`
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -363,14 +382,18 @@ describe('Connection model builder', () => {
     it('should urlencode credentials when using KERBEROS auth with canonicalizing the host name', (done) => {
       const kerberosPrincipal = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
       const kerberosPassword = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-      const authExpect = `${encodeURIComponent(kerberosPrincipal)}:${encodeURIComponent(kerberosPassword)}`;
+      const authExpect = `${encodeURIComponent(
+        kerberosPrincipal
+      )}:${encodeURIComponent(kerberosPassword)}`;
       const c = new Connection({
         kerberosCanonicalizeHostname: true,
         kerberosPrincipal,
         kerberosPassword
       });
 
-      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true`);
+      expect(c.driverUrl).to.be.equal(
+        `mongodb://${authExpect}@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true`
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -381,7 +404,9 @@ describe('Connection model builder', () => {
     it('should replace default readPreference with a custom value', (done) => {
       const c = new Connection({ readPreference: 'secondary' });
 
-      expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=secondary&ssl=false');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?readPreference=secondary&ssl=false'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -397,8 +422,12 @@ describe('Connection model builder', () => {
       };
       const c = new Connection(attrs);
 
-      expect(c.driverUrl).to.be.equal('mongodb://ldap-user:ldap-password@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external');
-      expect(c.safeUrl).to.be.equal('mongodb://ldap-user:*****@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://ldap-user:ldap-password@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+      );
+      expect(c.safeUrl).to.be.equal(
+        'mongodb://ldap-user:*****@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -412,7 +441,9 @@ describe('Connection model builder', () => {
       c.ldapUsername = 'ldap-user';
       c.ldapPassword = 'ldap-password';
 
-      expect(c.driverUrl).to.be.equal('mongodb://ldap-user:ldap-password@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://ldap-user:ldap-password@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -429,7 +460,9 @@ describe('Connection model builder', () => {
       });
 
       expect(c.driverAuthMechanism).to.be.equal('PLAIN');
-      expect(c.driverUrl).to.be.equal('mongodb://arlo:w%40of@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://arlo:w%40of@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -447,7 +480,9 @@ describe('Connection model builder', () => {
       });
 
       expect(c.driverAuthMechanism).to.be.equal('PLAIN');
-      expect(c.driverUrl).to.be.equal('mongodb://arlo%40t.co:woof@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://arlo%40t.co:woof@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+      );
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -458,14 +493,15 @@ describe('Connection model builder', () => {
     it('should urlencode credentials when using X509 auth', (done) => {
       const c = new Connection({
         authStrategy: 'X509',
-        x509Username: 'CN=client,OU=kerneluser:info,O=10Gen,L=New York City,ST=New York,C=US'
+        x509Username:
+          'CN=client,OU=kerneluser:info,O=10Gen,L=New York City,ST=New York,C=US'
       });
 
       expect(c.driverAuthMechanism).to.be.equal('MONGODB-X509');
       expect(c.driverUrl).to.be.equal(
-        'mongodb://CN%3Dclient%2COU%3Dkerneluser%3Ainfo%2CO%3D10Gen%2CL%3DNew%20York%20City'
-        + '%2CST%3DNew%20York%2CC%3DUS@localhost:27017/'
-        + '?authMechanism=MONGODB-X509&readPreference=primary&ssl=false&authSource=$external'
+        'mongodb://CN%3Dclient%2COU%3Dkerneluser%3Ainfo%2CO%3D10Gen%2CL%3DNew%20York%20City' +
+          '%2CST%3DNew%20York%2CC%3DUS@localhost:27017/' +
+          '?authMechanism=MONGODB-X509&readPreference=primary&ssl=false&authSource=$external'
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -500,7 +536,9 @@ describe('Connection model builder', () => {
         };
         const c = new Connection(attrs);
 
-        expect(c.driverUrl).to.be.equal('mongodb://arlo:woof@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false');
+        expect(c.driverUrl).to.be.equal(
+          'mongodb://arlo:woof@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false'
+        );
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -516,8 +554,12 @@ describe('Connection model builder', () => {
         };
         const c = new Connection(attrs);
 
-        expect(c.driverUrl).to.be.equal('mongodb://arlo:woof@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false');
-        expect(c.safeUrl).to.be.equal('mongodb://arlo:*****@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false');
+        expect(c.driverUrl).to.be.equal(
+          'mongodb://arlo:woof@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false'
+        );
+        expect(c.safeUrl).to.be.equal(
+          'mongodb://arlo:*****@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false'
+        );
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -559,7 +601,9 @@ describe('Connection model builder', () => {
         const error = c.validate(attrs);
 
         expect(c.isValid()).to.be.equal(false);
-        expect(error.message).to.include('kerberosServiceName field does not apply');
+        expect(error.message).to.include(
+          'kerberosServiceName field does not apply'
+        );
       });
 
       it('should set authStrategy to MONGODB', (done) => {
@@ -584,7 +628,9 @@ describe('Connection model builder', () => {
         };
         const c = new Connection(attrs);
 
-        expect(c.driverUrl).to.be.equal('mongodb://user:somepass@localhost:27017/?authSource=admin&readPreference=primary&ssl=false');
+        expect(c.driverUrl).to.be.equal(
+          'mongodb://user:somepass@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
+        );
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -600,8 +646,12 @@ describe('Connection model builder', () => {
         };
         const c = new Connection(attrs);
 
-        expect(c.driverUrl).to.be.equal('mongodb://user:somepass@localhost:27017/?authSource=admin&readPreference=primary&ssl=false');
-        expect(c.safeUrl).to.be.equal('mongodb://user:*****@localhost:27017/?authSource=admin&readPreference=primary&ssl=false');
+        expect(c.driverUrl).to.be.equal(
+          'mongodb://user:somepass@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
+        );
+        expect(c.safeUrl).to.be.equal(
+          'mongodb://user:*****@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
+        );
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -624,7 +674,9 @@ describe('Connection model builder', () => {
           mongodbPassword: 'woof'
         });
 
-        expect(c.mongodbDatabaseName).to.be.equal(Connection.MONGODB_DATABASE_NAME_DEFAULT);
+        expect(c.mongodbDatabaseName).to.be.equal(
+          Connection.MONGODB_DATABASE_NAME_DEFAULT
+        );
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -645,7 +697,10 @@ describe('Connection model builder', () => {
       });
 
       it('should set authStrategy to LDAP', (done) => {
-        const c = new Connection({ ldapUsername: 'arlo', ldapPassword: 'w@of'});
+        const c = new Connection({
+          ldapUsername: 'arlo',
+          ldapPassword: 'w@of'
+        });
 
         expect(c.authStrategy).to.be.equal('LDAP');
 
@@ -675,7 +730,8 @@ describe('Connection model builder', () => {
 
       it('should set authStrategy to X509', (done) => {
         const c = new Connection({
-          x509Username: 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US'
+          x509Username:
+            'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US'
         });
 
         expect(c.authStrategy).to.be.equal('X509');
@@ -700,7 +756,9 @@ describe('Connection model builder', () => {
           kerberosPrincipal: 'lucas@kerb.mongodb.parts'
         });
 
-        expect(c.driverUrl).to.be.equal('mongodb://lucas%40kerb.mongodb.parts:@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external');
+        expect(c.driverUrl).to.be.equal(
+          'mongodb://lucas%40kerb.mongodb.parts:@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+        );
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -748,8 +806,12 @@ describe('Connection model builder', () => {
         };
         const c = new Connection(attrs);
 
-        expect(c.driverUrl).to.be.equal('mongodb://alena%40test.test:kerberosP%40ssword@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external');
-        expect(c.safeUrl).to.be.equal('mongodb://alena%40test.test:*****@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external');
+        expect(c.driverUrl).to.be.equal(
+          'mongodb://alena%40test.test:kerberosP%40ssword@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+        );
+        expect(c.safeUrl).to.be.equal(
+          'mongodb://alena%40test.test:*****@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+        );
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -824,7 +886,10 @@ describe('Connection model builder', () => {
       it('should set the default read preference to primary preferred', (done) => {
         const c = new Connection({ appname: 'My App' });
 
-        expect(c.driverOptions).to.be.deep.equal({ readPreference: 'primary', connectWithNoPrimary: true });
+        expect(c.driverOptions).to.be.deep.equal({
+          readPreference: 'primary',
+          connectWithNoPrimary: true
+        });
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;
@@ -907,11 +972,10 @@ describe('Connection model builder', () => {
 
       it('should include extra options in driverOptions when specified', (done) => {
         const c = new Connection({ extraOptions: { socketTimeoutMS: 1000 } });
-        const options = Object.assign(
-          {},
-          Connection.DRIVER_OPTIONS_DEFAULT,
-          { socketTimeoutMS: 1000, readPreference: 'primary' }
-        );
+        const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
+          socketTimeoutMS: 1000,
+          readPreference: 'primary'
+        });
 
         expect(c.driverOptions).to.deep.equal(options);
 
@@ -1121,7 +1185,10 @@ describe('Connection model builder', () => {
   context('when building a connection object from URI', () => {
     it('should throw the type error', () => {
       expect(
-        () => new Connection('mongodb://mongodb1.example.com:27317,mongodb2.example.com:27017/?replicaSet=mySet&authSource=authDB')
+        () =>
+          new Connection(
+            'mongodb://mongodb1.example.com:27317,mongodb2.example.com:27017/?replicaSet=mySet&authSource=authDB'
+          )
       ).to.throw(
         TypeError,
         'To create a connection object from URI please use `Connection.from` function.'

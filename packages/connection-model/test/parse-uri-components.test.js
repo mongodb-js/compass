@@ -10,7 +10,7 @@ const proxyquire = require('proxyquire');
 // To make tests work we need to mock dns methods.
 let stubHostname = '';
 const stubs = {
-  'dns': {
+  dns: {
     resolveSrv: (uri, callback) => callback(null, [{ name: stubHostname }]),
     resolveTxt: (addresses, callback) => callback(null),
     // To get access to the deeply nested dependencies we need to move them to the global level
@@ -78,43 +78,34 @@ describe('connection model partser should parse URI components such as', () => {
     });
 
     it('should not return authentication info', (done) => {
-      Connection.from(
-        'mongodb://localhost',
-        (error, result) => {
-          expect(error).to.not.exist;
-          expect(result.hostname).to.be.equal('localhost');
-          expect(result.authStrategy).to.be.equal('NONE');
-          done();
-        }
-      );
+      Connection.from('mongodb://localhost', (error, result) => {
+        expect(error).to.not.exist;
+        expect(result.hostname).to.be.equal('localhost');
+        expect(result.authStrategy).to.be.equal('NONE');
+        done();
+      });
     });
   });
 
   describe('the host and optional port number', () => {
     it('should parse host and port', (done) => {
-      Connection.from(
-        'mongodb://host:27018',
-        (error, result) => {
-          expect(error).to.not.exist;
-          expect(result.hostname).to.be.equal('host');
-          expect(result.hosts[0].host).to.equal('host');
-          expect(result.hosts[0].port).to.equal(27018);
-          done();
-        }
-      );
+      Connection.from('mongodb://host:27018', (error, result) => {
+        expect(error).to.not.exist;
+        expect(result.hostname).to.be.equal('host');
+        expect(result.hosts[0].host).to.equal('host');
+        expect(result.hosts[0].port).to.equal(27018);
+        done();
+      });
     });
 
     it('should provide a default port if one is not provided', (done) => {
-      Connection.from(
-        'mongodb://host',
-        (error, result) => {
-          expect(error).to.not.exist;
-          expect(result.hostname).to.be.equal('host');
-          expect(result.hosts[0].host).to.equal('host');
-          expect(result.hosts[0].port).to.equal(27017);
-          done();
-        }
-      );
+      Connection.from('mongodb://host', (error, result) => {
+        expect(error).to.not.exist;
+        expect(result.hostname).to.be.equal('host');
+        expect(result.hosts[0].host).to.equal('host');
+        expect(result.hosts[0].port).to.equal(27017);
+        done();
+      });
     });
   });
 
@@ -222,13 +213,10 @@ describe('connection model partser should parse URI components such as', () => {
       });
 
       it('should throw the error if compressors contain invalid value', (done) => {
-        Connection.from(
-          'mongodb://localhost/?compressors=bunnies',
-          (error) => {
-            expect(error).to.exist;
-            done();
-          }
-        );
+        Connection.from('mongodb://localhost/?compressors=bunnies', (error) => {
+          expect(error).to.exist;
+          done();
+        });
       });
 
       it('should parse compressors with snappy and zlib values', (done) => {
@@ -487,13 +475,10 @@ describe('connection model partser should parse URI components such as', () => {
       });
 
       it('should throw the error if authMechanism has invalid value', (done) => {
-        Connection.from(
-          'mongodb://localhost/?authMechanism=DOGS',
-          (error) => {
-            expect(error).to.exist;
-            done();
-          }
-        );
+        Connection.from('mongodb://localhost/?authMechanism=DOGS', (error) => {
+          expect(error).to.exist;
+          done();
+        });
       });
 
       it('should parse authMechanismProperties', (done) => {
@@ -553,36 +538,27 @@ describe('connection model partser should parse URI components such as', () => {
 
     describe('miscellaneous configuration', () => {
       it('should parse appname', (done) => {
-        Connection.from(
-          'mongodb://localhost/?appname=foo',
-          (error, result) => {
-            expect(error).to.not.exist;
-            expect(result.appname).to.be.equal('foo');
-            done();
-          }
-        );
+        Connection.from('mongodb://localhost/?appname=foo', (error, result) => {
+          expect(error).to.not.exist;
+          expect(result.appname).to.be.equal('foo');
+          done();
+        });
       });
 
       it('should parse retryWrites with invalid value eql 1', (done) => {
-        Connection.from(
-          'mongodb://hostname?retryWrites=1',
-          (error, result) => {
-            expect(error).to.not.exist;
-            expect(result.retryWrites).to.be.equal(false); // retryWrites expects a bool value. Other values are being treated as false
-            done();
-          }
-        );
+        Connection.from('mongodb://hostname?retryWrites=1', (error, result) => {
+          expect(error).to.not.exist;
+          expect(result.retryWrites).to.be.equal(false); // retryWrites expects a bool value. Other values are being treated as false
+          done();
+        });
       });
 
       it('should parse retryWrites with invalid value eql 3', (done) => {
-        Connection.from(
-          'mongodb://hostname?retryWrites=1',
-          (error, result) => {
-            expect(error).to.not.exist;
-            expect(result.retryWrites).to.be.equal(false);
-            done();
-          }
-        );
+        Connection.from('mongodb://hostname?retryWrites=1', (error, result) => {
+          expect(error).to.not.exist;
+          expect(result.retryWrites).to.be.equal(false);
+          done();
+        });
       });
 
       it('should parse retryWrites with false value', (done) => {

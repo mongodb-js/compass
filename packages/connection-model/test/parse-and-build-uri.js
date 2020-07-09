@@ -75,8 +75,7 @@ const tests = [
       'readPreference=secondary&maxStalenessSeconds=120&readPreferenceTags=dc%3Any%2Crack%3A1&ssl=false'
   },
   {
-    description:
-      'with multiple readPreferenceTags',
+    description: 'with multiple readPreferenceTags',
     connectionString:
       'mongodb://mongos1.example.com:27017,mongos2.example.com:27017/?' +
       'readPreference=primary&readPreferenceTags=dc%3Any%2Crack%3A1&readPreferenceTags=region%3Anorth%2Cdatacenter%3AA&ssl=false'
@@ -127,9 +126,9 @@ const tests = [
 ];
 
 describe('connection model', () => {
-  describe('should parse a connection string and build the same string back', function() {
-    tests.forEach(function(test) {
-      const runTest = done =>
+  describe('should parse a connection string and build the same string back', function () {
+    tests.forEach(function (test) {
+      const runTest = (done) =>
         Connection.from(test.connectionString, (error, result) => {
           expect(error).to.not.exist;
 

@@ -4,7 +4,7 @@ const createSSHTunnel = require('../lib/ssh-tunnel');
 const fs = require('fs');
 const path = require('path');
 
-describe('sshTunnel', function() {
+describe('sshTunnel', function () {
   it.skip('should error when ssh fails', (done) => {
     const c = new Connection({
       hostname: '127.0.0.1',
@@ -50,17 +50,25 @@ describe('sshTunnel', function() {
     });
 
     it('should not allow negative numbers', () => {
-      assert.throws(() => {
-        /* eslint no-new:0 */
-        new Connection({ sshTunnelPort: -22 });
-      }, TypeError, /must be positive/);
+      assert.throws(
+        () => {
+          /* eslint no-new:0 */
+          new Connection({ sshTunnelPort: -22 });
+        },
+        TypeError,
+        /must be positive/
+      );
     });
 
     it('should not allow values above the max port number value', () => {
-      assert.throws(() => {
-        /* eslint no-new:0 */
-        new Connection({ sshTunnelPort: 27017 * 10000 });
-      }, TypeError, /must be below/);
+      assert.throws(
+        () => {
+          /* eslint no-new:0 */
+          new Connection({ sshTunnelPort: 27017 * 10000 });
+        },
+        TypeError,
+        /must be below/
+      );
     });
   });
 
@@ -172,7 +180,10 @@ describe('sshTunnel', function() {
         sshTunnelUsername: 'username'
       };
 
-      assert.equal(new Connection(connnectOptions).sshTunnelOptions.privateKey, undefined);
+      assert.equal(
+        new Connection(connnectOptions).sshTunnelOptions.privateKey,
+        undefined
+      );
     });
 
     it('should require `sshTunnelHostname`', () => {
@@ -239,7 +250,10 @@ describe('sshTunnel', function() {
 
         it('maps sshTunnelIdentityFile -> privateKey', () => {
           /* eslint no-sync: 0 */
-          assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
+          assert.equal(
+            options.privateKey.toString(),
+            fs.readFileSync(fileName).toString()
+          );
         });
 
         it('maps hostname -> host', () => {
@@ -306,14 +320,8 @@ describe('sshTunnel', function() {
 
         Connection.from(c.driverUrlWithSsh, (error, sshModel) => {
           assert(!error);
-          assert.equal(
-            sshModel.hostname,
-            '127.0.0.1'
-          );
-          assert.notEqual(
-            c.port,
-            sshModel.port
-          );
+          assert.equal(sshModel.hostname, '127.0.0.1');
+          assert.notEqual(c.port, sshModel.port);
           done();
         });
       });
@@ -327,7 +335,10 @@ describe('sshTunnel', function() {
 
         it('maps sshTunnelIdentityFile -> privateKey', () => {
           /* eslint no-sync: 0 */
-          assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
+          assert.equal(
+            options.privateKey.toString(),
+            fs.readFileSync(fileName).toString()
+          );
         });
 
         it('maps sshTunnelHostname -> host (jumpbox visible from localhost)', () => {
@@ -365,7 +376,11 @@ describe('sshTunnel', function() {
           return done();
         }
 
-        fs.writeFile(identityFilePath, process.env.AWS_SSH_TUNNEL_IDENTITY_FILE, done);
+        fs.writeFile(
+          identityFilePath,
+          process.env.AWS_SSH_TUNNEL_IDENTITY_FILE,
+          done
+        );
       });
 
       after((done) => {
@@ -376,13 +391,17 @@ describe('sshTunnel', function() {
         fs.unlink(identityFilePath, done);
       });
 
-      it('should connect successfully', function(done) {
+      it('should connect successfully', function (done) {
         if (!process.env.AWS_SSH_TUNNEL_HOSTNAME) {
-          return this.skip('Set the `AWS_SSH_TUNNEL_HOSTNAME` environment variable');
+          return this.skip(
+            'Set the `AWS_SSH_TUNNEL_HOSTNAME` environment variable'
+          );
         }
 
         if (!process.env.AWS_SSH_TUNNEL_IDENTITY_FILE) {
-          return this.skip('Set the `AWS_SSH_TUNNEL_IDENTITY_FILE` environment variable');
+          return this.skip(
+            'Set the `AWS_SSH_TUNNEL_IDENTITY_FILE` environment variable'
+          );
         }
 
         const c = new Connection({

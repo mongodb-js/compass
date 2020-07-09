@@ -11,7 +11,10 @@
 module.exports = () => {
   const startPort = 29170;
   const endPort = 29899;
-  const randomPort = (Math.random() * (endPort - startPort + 1) + startPort).toString();
+  const randomPort = (
+    Math.random() * (endPort - startPort + 1) +
+    startPort
+  ).toString();
 
   return parseInt(randomPort, 10);
 };

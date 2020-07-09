@@ -7,5 +7,15 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "extends": ["mongodb-js/node"]
+  "extends": ["mongodb-js/node"],
+  "rules": {
+    "space-before-function-paren": [
+      "error",
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "never"
+      }
+    ]
+  }
 }
