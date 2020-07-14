@@ -37,7 +37,6 @@ Application.prototype.setupJavaScriptArguments = function() {
  */
 const API_PRODUCT = {
   'mongodb-compass': 'compass',
-  'mongodb-compass-community': 'compass-community',
   'mongodb-compass-readonly': 'compass-readonly'
 };
 
