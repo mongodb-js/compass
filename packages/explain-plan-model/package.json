@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "ampersand-model": "^6.0.3",
-    "lodash": "^4.14.1"
+    "lodash": "^4.17.19"
   },
   "devDependencies": {
     "debug": "^2.2.0",
