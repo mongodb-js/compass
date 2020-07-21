@@ -117,7 +117,6 @@
             "node_modules/@mongodb-js/compass-instance",
             "node_modules/@mongodb-js/compass-serverstats",
             "node_modules/@mongodb-js/compass-server-version",
-            "node_modules/@mongodb-js/compass-shell",
             "node_modules/@mongodb-js/compass-sidebar",
             "node_modules/@mongodb-js/compass-ssh-tunnel-status",
             "node_modules/@mongodb-js/compass-status",
