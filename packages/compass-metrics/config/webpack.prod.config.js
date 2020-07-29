@@ -30,7 +30,7 @@ const config = {
         use: [{
           loader: 'file-loader',
           // In prod we need to go to $COMPASS_HOME/node_modules/<plugin>/lib or
-          // $USER_HOME/.mongodb/compasss(-community)/plugins
+          // $USER_HOME/.mongodb/compass/plugins
           //
           // @note This currently does not work in published plugin.
           query: {
@@ -46,7 +46,7 @@ const config = {
         use: [{
           loader: 'file-loader',
           // In prod we need to go to $COMPASS_HOME/node_modules/<plugin>/lib or
-          // $USER_HOME/.mongodb/compasss(-community)/plugins
+          // $USER_HOME/.mongodb/compass/plugins
           //
           // @note This currently does not work in published plugin.
           query: {

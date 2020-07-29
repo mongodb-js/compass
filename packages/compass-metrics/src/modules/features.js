@@ -274,6 +274,26 @@ const TourResource = BaseResource.extend({
   }
 });
 
+const ShellResource = BaseResource.extend({
+  id: 'Shell',
+  eventTrackers: ['stitch'],
+  opened: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  show: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  use: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  ['api-call']: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  error: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
 // Screen resource.
 const ScreenResource = BaseResource.extend({
   id: 'Screen',
@@ -290,6 +310,7 @@ featureResources['Auto Update'] = new AutoUpdateResource();
 featureResources.Collection = new CollectionResource();
 featureResources.AtlasLink = new AtlasLinkResource();
 featureResources.Deployment = new DeploymentResource();
+featureResources.Shell = new ShellResource();
 featureResources.Schema = new SchemaResource();
 featureResources.Indexes = new IndexesResource();
 featureResources['Collection Stats'] = new CollectionStatsResource();

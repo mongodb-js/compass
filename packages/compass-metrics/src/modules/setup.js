@@ -15,7 +15,6 @@ const debug = require('debug')('mongodb-compass:metrics:setup');
 const INTERCOM_KEY = process.env.HARDRON_METRICS_INTERCOM_APP_ID;
 const BUGSNAG_KEY = process.env.HARDRON_METRICS_BUGSNAG_KEY;
 const STITCH_APP = process.env.HARDRON_METRICS_STITCH_APP_ID;
-const COMMUNITY = 'mongodb-compass-community';
 
 /**
  * Setup all the metrics resources to track.
@@ -53,7 +52,7 @@ const setupMetrics = (appRegistry, productName, version) => {
     // When using an App that can have Intercom support, we need to double check against
     // customers who have firewalls that block out intercom as it tries to make requests
     // when set up. Potential todo is to move Intercom into its own plugin as well.
-    if (process.env.HADRON_PRODUCT !== COMMUNITY && app.preferences.enableFeedbackPanel) {
+    if (app.preferences.enableFeedbackPanel) {
       const request = new XMLHttpRequest();
       request.onreadystatechange = () => {
         try {
@@ -176,8 +175,7 @@ const setupMetrics = (appRegistry, productName, version) => {
      * such that when a link is clicked, the event is properly
      * passed off to `app.router` and a web page actually opens.
      */
-    if (process.env.HADRON_PRODUCT !== COMMUNITY &&
-        !intercomBlocked &&
+    if (!intercomBlocked &&
         app.preferences.enableFeedbackPanel) {
       configureIntercom();
     }

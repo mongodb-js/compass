@@ -15,19 +15,20 @@ async function getCloudInfoFromDataService(dataService) {
 }
 
 /**
- * This file defines rules for tracking metrics based on Reflux store changes.
+ * This file defines rules for tracking metrics based
+ * on store changes and registry events.
  *
  * Each rule is an object with the following keys:
  *
- * @param {String} store        Which store to listen to (e.g. "App.InstanceStore")
- * @param {String} resource     The metrics resource to trigger (e.g. "App",
- *                              "Deployment", ...)
- * @param {String} action       Which action to trigger on the resource (e.g.
- *                              "launched", "detected", ...)
- * @param {Function} condition  Function that receives the store state, and
- *                              returns whether or not the event should be tracked.
- * @param {Function} metadata   Function that receives the store state, and
- *                              returns a metadata object to attach to the event.
+ * @param {String} registryEvent  Which event to listen to (e.g. "compass:screen:viewed")
+ * @param {String} resource       The metrics resource to trigger (e.g. "App",
+ *                                "Deployment", ...)
+ * @param {String} action         Which action to trigger on the resource (e.g.
+ *                                "launched", "detected", ...)
+ * @param {Function} condition    Function that receives the store state, and
+ *                                returns whether or not the event should be tracked.
+ * @param {Function} metadata     Function that receives the store state, and
+ *                                returns a metadata object to attach to the event.
  */
 const RULES = [
   {
@@ -442,6 +443,60 @@ const RULES = [
     condition: () => true,
     metadata: (version) => ({
       compass_version: version
+    })
+  },
+  {
+    registryEvent: 'compass:compass-shell:opened',
+    resource: 'Shell',
+    action: 'opened',
+    condition: () => true,
+    metadata: (version) => ({
+      compass_version: version
+    })
+  },
+  {
+    registryEvent: 'mongosh:show',
+    resource: 'Shell',
+    action: 'show',
+    condition: () => true,
+    metadata: (version, data) => ({
+      compass_version: version,
+      properties: { method: data.method }
+    })
+  },
+  {
+    registryEvent: 'mongosh:use',
+    resource: 'Shell',
+    action: 'use',
+    condition: () => true,
+    metadata: (version) => ({
+      compass_version: version
+    })
+  },
+  {
+    registryEvent: 'mongosh:api-call',
+    resource: 'Shell',
+    action: 'api-call',
+    condition: () => true,
+    metadata: (version, data) => ({
+      compass_version: version,
+      method: data.method,
+      class: data.class
+    })
+  },
+  {
+    registryEvent: 'mongosh:error',
+    resource: 'Shell',
+    action: 'error',
+    condition: (error) => {
+      // Only report Mongosh errors (not user / mongo errors).
+      return error && error.name && error.name.includes('Mongosh');
+    },
+    metadata: (version, error) => ({
+      compass_version: version,
+      properties: {
+        error
+      }
     })
   }
 ];
