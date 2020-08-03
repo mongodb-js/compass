@@ -317,6 +317,51 @@ describe('DataService', function() {
     });
   });
 
+  describe('#findOneAndUpdate', function() {
+    after(function(done) {
+      helper.deleteTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    var id = new ObjectId();
+
+    it('returns the updated document', function(done) {
+      service.insertOne(
+        'data-service.test',
+        {
+          _id: id,
+          a: 500
+        },
+        {},
+        function(err) {
+          assert.equal(null, err);
+          service.findOneAndUpdate(
+            'data-service.test',
+            {
+              _id: id
+            },
+            {
+              $set: {
+                b: 5
+              }
+            },
+            {
+              returnOriginal: false
+            },
+            function(error, result) {
+              expect(error).to.equal(null);
+              expect(result._id.toString()).to.deep.equal(id.toString());
+              expect(result.b).to.equal(5);
+              expect(result.hasOwnProperty('a')).to.equal(true);
+              done();
+            }
+          );
+        }
+      );
+    });
+  });
+
   describe('#collection', function() {
     it('returns the collection details', function(done) {
       service.collection('data-service.test', {}, function(err, coll) {

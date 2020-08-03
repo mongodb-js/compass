@@ -630,6 +630,29 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * Find one document and update it with the update operations.
+   *
+   * @param {String} ns - The namespace to search on.
+   * @param {Object} filter - The filter.
+   * @param {Object} update - The update operations doc.
+   * @param {Object} options - The query options.
+   * @param {Function} callback - The callback.
+   */
+  findOneAndUpdate(ns, filter, update, options, callback) {
+    this._collection(ns).findOneAndUpdate(
+      filter,
+      update,
+      options,
+      (error, result) => {
+        if (error) {
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result.value);
+      }
+    );
+  }
+
+  /**
    * Returns explain plan for the provided filter and options on the collection.
    *
    * @param {String} ns - The namespace to search on.

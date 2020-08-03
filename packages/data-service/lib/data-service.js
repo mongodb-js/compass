@@ -325,6 +325,19 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Find one document and update it with the update operations.
+   *
+   * @param {String} ns - The namespace to search on.
+   * @param {Object} filter - The filter.
+   * @param {Object} update - The update operations doc.
+   * @param {Object} options - The query options.
+   * @param {Function} callback - The callback.
+   */
+  findOneAndUpdate(ns, filter, update, options, callback) {
+    this.client.findOneAndUpdate(ns, filter, update, options, callback);
+  }
+
+  /**
    * Returns explain plan for the provided filter and options on the collection.
    *
    * @param {String} ns - The namespace to search on.
