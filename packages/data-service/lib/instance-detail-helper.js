@@ -4,6 +4,7 @@ const toNS = require('mongodb-ns');
 const security = require('mongodb-security');
 const ReadPreference = require('mongodb').ReadPreference;
 const URL = require('mongodb-url');
+const getMongoDBBuildInfo = require('mongodb-build-info');
 const {
   union,
   map,
@@ -142,17 +143,14 @@ function getGenuineMongoDB(results, done) {
 function getDataLake(results, done) {
   const buildInfo = results.build.raw;
 
-  debug('isDataLake check: buildInfo.queryEngine', buildInfo.queryEngine);
+  debug('isDataLake check: buildInfo.dataLake', buildInfo.dataLake);
+
+  const { isDataLake, dlVersion } = getMongoDBBuildInfo.getDataLake(buildInfo);
 
   const res = {
-    isDataLake: false,
-    version: null
+    isDataLake,
+    version: dlVersion
   };
-
-  if (buildInfo.queryEngine) {
-    res.isDataLake = true;
-    res.version = buildInfo.queryEngine.version;
-  }
 
   done(null, res);
 }

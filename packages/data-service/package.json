@@ -24,6 +24,7 @@
     "debug": "^4.1.1",
     "lodash": "^4.17.15",
     "mongodb": "^3.5.7",
+    "mongodb-build-info": "^1.1.0",
     "mongodb-collection-sample": "^4.5.1",
     "mongodb-connection-model": "^16.1.4",
     "mongodb-index-model": "^2.6.1",

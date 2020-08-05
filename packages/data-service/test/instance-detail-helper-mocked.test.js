@@ -233,12 +233,18 @@ describe('instance-detail-helper-mocked', function() {
   describe('getDataLake', function() {
     it('reports when connected to DataLake', function(done) {
       const results = {
-        build: { raw: { queryEngine: { version: '1.0.0' } } }
+        build: { raw: {
+          dataLake: {
+            version: 'v20200329',
+            gitVersion: '0f318ss78bfad79ede3721e91iasj6f61644f',
+            date: '2020-03-29T15:41:22Z'
+          }
+        } }
       };
       getDataLake(results, function(err, res) {
         assert.equal(err, null);
         assert.equal(res.isDataLake, true);
-        assert.equal(res.version, '1.0.0');
+        assert.equal(res.version, 'v20200329');
         done();
       });
     });
