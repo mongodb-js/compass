@@ -59,17 +59,11 @@ function parseBuildInfo(resp) {
     debug: resp.debug,
     for_bits: resp.bits,
     max_bson_object_size: resp.maxBsonObjectSize,
-    enterprise_module: false,
+    enterprise_module: getMongoDBBuildInfo.isEnterprise(resp), // Cover both cases of detecting enterprise module, see SERVER-18099.
     query_engine: resp.queryEngine ? resp.queryEngine : null,
     raw: resp // Save the raw output to later determine if genuine MongoDB
   };
-  // cover both cases of detecting enterprise module, see SERVER-18099
-  if (resp.gitVersion && resp.gitVersion.match(/enterprise/)) {
-    res.enterprise_module = true;
-  }
-  if (resp.modules && resp.modules.indexOf('enterprise') !== -1) {
-    res.enterprise_module = true;
-  }
+
   return res;
 }
 
@@ -121,22 +115,16 @@ function getGenuineMongoDB(results, done) {
     cmdLineOpts
   );
 
+  const {
+    isGenuine,
+    serverName
+  } = getMongoDBBuildInfo.getGenuineMongoDB(buildInfo, cmdLineOpts);
+
   const res = {
-    isGenuine: true,
-    dbType: 'mongodb'
+    isGenuine,
+    dbType: serverName
   };
 
-  if (buildInfo.hasOwnProperty('_t')) {
-    res.isGenuine = false;
-    res.dbType = 'cosmosdb';
-  }
-  if (
-    cmdLineOpts.hasOwnProperty('errmsg') &&
-    cmdLineOpts.errmsg.indexOf('not supported') !== -1
-  ) {
-    res.isGenuine = false;
-    res.dbType = 'documentdb';
-  }
   done(null, res);
 }
 
