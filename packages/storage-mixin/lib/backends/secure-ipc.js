@@ -144,7 +144,7 @@ if (typeof window !== 'undefined') {
   SecureIpcBackend.prototype.find = function(collection, options, done) {
     debug('Fetching data...', collection.length);
 
-    const listener = (evt, result) => {
+    const handleResponse = (result) => {
       if (result.namespace === this.namespace) {
         const attributes = collection.reduce((attrs, model) => {
           const modelId = model.getId();
@@ -165,9 +165,39 @@ if (typeof window !== 'undefined') {
       }
     };
 
+    const callId = uuidv4();
+
+    const listener = (evt, result) => {
+      try {
+        if (result.callId && result.callId !== callId) {
+          // do not handle responses from other `.find` calls
+          debug(
+            'Skip response from another storage-mixin:find call',
+            {
+              expectedCallId: callId,
+              receivedCallId: result.callId
+            }
+          );
+
+          return;
+        }
+
+        debug('Processing results of storage-mixin:find', { callId: result.callId });
+
+        // make sure we process the same response once and we
+        // avoid zombie listeners
+        ipc.removeListener('storage-mixin:find:result', listener);
+
+        handleResponse(result);
+      } catch (err) {
+        debug('Error processing the results of storage-mixin:find', err);
+      }
+    };
+
     ipc.on('storage-mixin:find:result', listener);
 
     ipc.call('storage-mixin:find', {
+      callId: callId,
       namespace: this.namespace
     });
   };

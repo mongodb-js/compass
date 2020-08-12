@@ -143,7 +143,8 @@ if (process && process.type === 'browser') {
       .then(function(credentials) {
         ipc.broadcast('storage-mixin:find:result', {
           namespace: meta.namespace,
-          credentials: credentials
+          credentials: credentials,
+          callId: meta.callId
         });
       })
       .catch(function(err) {
