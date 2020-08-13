@@ -247,7 +247,7 @@
     "url": "git://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-aggregations": "^7.1.4",
+    "@mongodb-js/compass-aggregations": "^7.1.5",
     "@mongodb-js/compass-app-stores": "^4.0.2",
     "@mongodb-js/compass-auth-kerberos": "^4.0.1",
     "@mongodb-js/compass-auth-ldap": "^4.0.1",
@@ -294,8 +294,8 @@
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "bson-transpilers": "^0.13.3",
     "clean-stack": "^2.0.0",
-    "compass-preferences-model": "^0.2.0",
-    "compass-user-model": "^0.2.0",
+    "compass-preferences-model": "^0.2.1",
+    "compass-user-model": "^0.2.1",
     "d3": "3.5.17",
     "d3-timer": "1.0.7",
     "debug": "^4.1.1",
