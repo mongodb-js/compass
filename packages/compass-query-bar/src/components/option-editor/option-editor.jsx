@@ -4,6 +4,8 @@ import AceEditor from 'react-ace';
 import ace from 'brace';
 import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
 
+import styles from './option-editor.less';
+
 import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';
 import 'mongodb-ace-theme-query';
@@ -19,7 +21,7 @@ const OPTIONS = {
   useSoftTabs: true,
   fontSize: 11,
   minLines: 1,
-  maxLines: 1,
+  maxLines: 10,
   highlightActiveLine: false,
   showPrintMargin: false,
   showGutter: false,
@@ -112,6 +114,7 @@ class OptionEditor extends Component {
   render() {
     return (
       <AceEditor
+        className={styles['option-editor']}
         mode="mongodb"
         theme="mongodb-query"
         width="80%"

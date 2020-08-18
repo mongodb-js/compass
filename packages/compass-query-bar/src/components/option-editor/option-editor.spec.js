@@ -3,6 +3,8 @@ import { mount } from 'enzyme';
 import OptionEditor from 'components/option-editor';
 import configureActions from 'actions';
 
+import styles from './option-editor.less';
+
 describe('OptionEditor [Component]', function() {
   let onChangeSpy;
   let onApplySpy;
@@ -39,6 +41,10 @@ describe('OptionEditor [Component]', function() {
 
     it('renders the editor', function() {
       expect(component.find('#query-bar-option-input-Apply')).to.be.present();
+    });
+
+    it('has the correct class', function() {
+      expect(component.find(`.${styles['option-editor']}`)).to.be.present();
     });
   });
 });
