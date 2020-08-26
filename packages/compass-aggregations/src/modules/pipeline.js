@@ -592,7 +592,7 @@ const aggregate = (pipeline, dataService, ns, dispatch, state, index) => {
   if (isEmpty(state.collation) === false) {
     options.collation = state.collation;
   }
-  
+
   dataService.aggregate(ns, pipeline, options, (err, cursor) => {
     if (err) return dispatch(stagePreviewUpdated([], index, err));
     cursor.toArray((e, docs) => {

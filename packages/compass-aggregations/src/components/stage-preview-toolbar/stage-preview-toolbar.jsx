@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import decomment from 'decomment';
-import isString from 'lodash.isstring';
 import { InfoSprinkle } from 'hadron-react-components';
 import { Tooltip } from 'hadron-react-components';
 import { OUT } from 'modules/pipeline';
@@ -54,10 +53,17 @@ class StagePreviewToolbar extends PureComponent {
   }
 
   getOutText() {
-    const value = decomment(this.props.stageValue);
-    if (!!value.match(S3_MATCH)) return OUT_S3;
-    if (!!value.match(ATLAS_MATCH)) return OUT_ATLAS;
-    return `${OUT_COLL} ${value}`;
+    try {
+      const value = decomment(this.props.stageValue);
+      if (!!value.match(S3_MATCH)) return OUT_S3;
+      if (!!value.match(ATLAS_MATCH)) return OUT_ATLAS;
+      return `${OUT_COLL} ${value}`;
+    } catch (err) {
+      // The validity check may not have been run yet, in which
+      // case certain inputs like """ may cause decommenting to error.
+      // https://jira.mongodb.org/browse/COMPASS-4368
+      return 'Unable to parse the destination for the out stage.';
+    }
   }
 
   /**

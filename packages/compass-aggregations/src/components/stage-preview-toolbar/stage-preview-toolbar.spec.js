@@ -132,6 +132,31 @@ describe('StagePreviewToolbar [Component]', () => {
       });
     });
 
+    context('when the value is an invalid string while isValid is true', () => {
+      let component;
+
+      beforeEach(() => {
+        component = shallow(
+          <StagePreviewToolbar
+            openLink={sinon.spy()}
+            stageOperator="$out"
+            stageValue="'''" // 3 single quotes.
+            count={0}
+            isValid
+            isEnabled />
+        );
+      });
+
+      afterEach(() => {
+        component = null;
+      });
+
+      it('renders the $out stage text', () => {
+        expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+          to.have.text('Unable to parse the destination for the out stage.');
+      });
+    });
+
     context('when the value is s3', () => {
       context('when the value is a string', () => {
         let component;
