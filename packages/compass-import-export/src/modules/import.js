@@ -201,7 +201,6 @@ export const startImport = () => {
       transform,
       ignoreBlanks
     });
-
     const dest = createCollectionWriteStream(dataService, ns, stopOnErrors);
 
     const progress = createProgressStream(size, function(err, info) {

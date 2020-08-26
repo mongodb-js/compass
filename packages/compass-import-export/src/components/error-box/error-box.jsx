@@ -23,9 +23,9 @@ const getPrettyErrorMessage = function(err) {
   return new ANSIConverter(ANSI_TO_HTML_OPTIONS).toHtml(err.message);
 };
 
-class ExportModal extends PureComponent {
+class ErrorBox extends PureComponent {
   static propTypes = {
-    error: PropTypes.bool
+    error: PropTypes.object
   };
   render() {
     if (!this.props.error) {
@@ -41,4 +41,4 @@ class ExportModal extends PureComponent {
   }
 }
 
-export default ExportModal;
+export default ErrorBox;

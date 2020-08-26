@@ -94,6 +94,26 @@ describe('import-apply-types-and-projection', () => {
       });
       expect(res.constructor.name).to.equal('PassThrough');
     });
+    it('should return an error if theres a type cast which fails', (done) => {
+      const src = stream.Readable.from([{
+        _id: 1,
+        stringToCastToDecimal128: 'ME ERROR'
+      }]);
+
+      const transform = transformProjectedTypesStream({
+        transform: [['stringToCastToDecimal128', 'Decimal128']]
+      });
+      const dest = new stream.Writable({
+        objectMode: true,
+        write: function(doc, encoding, next) {
+          return next(null);
+        }
+      });
+      stream.pipeline(src, transform, dest, function(err) {
+        expect(err.message.includes('TypeError: ME ERROR not a valid Decimal128 string'));
+        done();
+      });
+    });
   });
   describe('Weird Cases', () => {
     it('should handle non ascii in field paths', () => {
