@@ -247,7 +247,7 @@
     "url": "git://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-aggregations": "^7.1.5",
+    "@mongodb-js/compass-aggregations": "^7.1.6",
     "@mongodb-js/compass-app-stores": "^4.0.2",
     "@mongodb-js/compass-auth-kerberos": "^4.0.1",
     "@mongodb-js/compass-auth-ldap": "^4.0.1",
@@ -266,7 +266,7 @@
     "@mongodb-js/compass-field-store": "^6.0.3",
     "@mongodb-js/compass-find-in-page": "^2.0.4",
     "@mongodb-js/compass-home": "^4.2.0",
-    "@mongodb-js/compass-import-export": "^5.1.19",
+    "@mongodb-js/compass-import-export": "^5.1.20",
     "@mongodb-js/compass-indexes": "^3.0.9",
     "@mongodb-js/compass-instance": "^2.0.3",
     "@mongodb-js/compass-loading": "^1.0.7",
