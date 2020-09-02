@@ -398,13 +398,6 @@ tasks:
       - func: 'save osx artifacts'
       - func: package
         vars:
-          compass_distribution: compass-community
-      - func: publish
-        vars:
-          compass_distribution: compass-community
-      - func: 'save osx artifacts'
-      - func: package
-        vars:
           compass_distribution: compass-isolated
       - func: publish
         vars:
@@ -494,23 +487,6 @@ tasks:
       # 1 macos box setup to run functional tests.
       # - func: 'save osx artifacts'
       #   variants: [macos]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
-
-  - name: package-and-publish-compass-community
-    depends_on: [compile]
-    commands:
-      - func: restore
-      - func: package
-        vars:
-          compass_distribution: compass-community
-      - func: publish
-        vars:
-          compass_distribution: compass-community
-      - func: 'save windows artifacts'
-        variants: [windows]
       - func: 'save linux artifacts'
         variants: [ubuntu]
       - func: 'save rhel artifacts'
@@ -675,7 +651,6 @@ buildvariants:
       # - name: test-functional-34x-server
       # - name: test-functional-26x-server
       - name: package-and-publish-compass
-      - name: package-and-publish-compass-community
       - name: package-and-publish-compass-isolated
       - name: package-and-publish-compass-readonly
 
@@ -694,7 +669,6 @@ buildvariants:
       # - name: test-connect-plugin
       # - name: test-aggregation-builder-plugin
       - name: package-and-publish-compass
-      - name: package-and-publish-compass-community
       - name: package-and-publish-compass-isolated
       - name: package-and-publish-compass-readonly
   - name: rhel
@@ -705,6 +679,5 @@ buildvariants:
       - name: verify
       # - name: test-functional
       - name: package-and-publish-compass
-      - name: package-and-publish-compass-community
       - name: package-and-publish-compass-isolated
       - name: package-and-publish-compass-readonly
