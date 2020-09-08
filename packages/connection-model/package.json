@@ -28,7 +28,7 @@
     "mongodb": "^3.6.1",
     "raf": "^3.4.1",
     "ssh2": "^0.8.7",
-    "storage-mixin": "^3.3.3"
+    "storage-mixin": "^3.3.4"
   },
   "devDependencies": {
     "chai": "^4.2.0",
