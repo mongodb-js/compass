@@ -341,7 +341,7 @@
     "mongodb-js-metrics": "^5.0.2",
     "mongodb-language-model": "^1.6.1",
     "mongodb-ns": "^2.2.0",
-    "mongodb-query-parser": "^2.1.1",
+    "mongodb-query-parser": "^2.1.2",
     "mongodb-query-util": "^0.2.1",
     "mongodb-schema": "^8.2.5",
     "mongodb-shell-to-url": "^0.1.0",
