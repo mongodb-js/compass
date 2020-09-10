@@ -372,6 +372,95 @@ describe('Element', function() {
     });
   });
 
+  describe('#generateOriginalObject', function() {
+    var doc = new Document({});
+
+    context('when the element has child elements', function() {
+      context('when the type is array', function() {
+        var element = new Element('test', [ 1, 2 ], false, doc);
+
+        it('returns the array', function() {
+          expect(element.generateOriginalObject()).to.deep.equal([ 1, 2 ]);
+        });
+      });
+
+      context('when the type is object', function() {
+        var element = new Element('test', { 'test': 'value' }, false, doc);
+
+        it('returns the array', function() {
+          expect(element.generateOriginalObject()).to.deep.equal({ 'test': 'value' });
+        });
+      });
+    });
+
+    context('when the element has no child elements', function() {
+      context('when the current value is 0', function() {
+        var element = new Element('test', 0, false, doc);
+
+        it('returns 0', function() {
+          expect(element.generateOriginalObject()).to.equal(0);
+        });
+      });
+
+      context('when the current value is 1', function() {
+        var element = new Element('test', 1, false, doc);
+
+        it('returns 1', function() {
+          expect(element.generateOriginalObject()).to.equal(1);
+        });
+      });
+
+      context('when the value is ""', function() {
+        var element = new Element('test', '', false, doc);
+
+        it('returns ""', function() {
+          expect(element.generateOriginalObject()).to.equal('');
+        });
+      });
+
+      context('when the value is null', function() {
+        var element = new Element('test', null, false, doc);
+
+        it('returns null', function() {
+          expect(element.generateOriginalObject()).to.equal(null);
+        });
+      });
+
+      context('when the value is undefined', function() {
+        var element = new Element('test', undefined, false, doc);
+
+        it('returns undefined', function() {
+          expect(element.generateOriginalObject()).to.equal(undefined);
+        });
+      });
+
+      context('when the value is false', function() {
+        var element = new Element('test', false, false, doc);
+
+        it('returns false', function() {
+          expect(element.generateOriginalObject()).to.equal(false);
+        });
+      });
+
+      context('when the value is a string', function() {
+        var element = new Element('test', 'test', false, doc);
+
+        it('returns the value', function() {
+          expect(element.generateOriginalObject()).to.equal('test');
+        });
+      });
+
+      context('when the current value is truthy', function() {
+        var element = new Element('test', false, false, doc);
+        element.edit(true);
+
+        it('returns the original value', function() {
+          expect(element.generateOriginalObject()).to.equal(false);
+        });
+      });
+    });
+  });
+
   describe('#insertEnd', function() {
     context('when the new embedded element is a document', function() {
       var doc = new Document({});
@@ -411,6 +500,11 @@ describe('Element', function() {
       it('does not flag the new elements as edited', function() {
         expect(element.elements.at(0).isEdited()).to.equal(false);
         expect(element.elements.at(0).elements.at(0).isEdited()).to.equal(false);
+      });
+
+      it('does not flag the new elements as renamed', function() {
+        expect(element.elements.at(0).isRenamed()).to.equal(false);
+        expect(element.elements.at(0).elements.at(0).isRenamed()).to.equal(false);
       });
     });
     /* More testing embedded arrays is in 'modifying arrays' */
@@ -820,6 +914,113 @@ describe('Element', function() {
     });
   });
 
+  describe('#isRenamed', function() {
+    context('when the element has no children', function() {
+      context('when the element is not modified', function() {
+        var element = new Element('name', 'Pineapple', false);
+
+        it('returns false', function() {
+          expect(element.isRenamed()).to.equal(false);
+        });
+      });
+
+      context('when the element is added', function() {
+        var element = new Element('name', 'Pineapple', true);
+
+        it('returns false', function() {
+          expect(element.isRenamed()).to.equal(false);
+        });
+      });
+
+      context('when the element is edited', function() {
+        var element = new Element('name', 'Pineapple', false);
+
+        before(function() {
+          element.edit('not pineapple');
+        });
+
+        it('returns false', function() {
+          expect(element.isRenamed()).to.equal(false);
+        });
+      });
+
+      context('when the element is removed', function() {
+        var element = new Element('name', 'Pineapple', false);
+
+        before(function() {
+          element.remove();
+        });
+
+        it('returns false', function() {
+          expect(element.isRenamed()).to.equal(false);
+        });
+      });
+
+      context('when the element is renamed', function() {
+        var element = new Element('name', 'Pineapple', false);
+
+        before(function() {
+          element.edit('not pineapple');
+        });
+
+        it('returns true', function() {
+          expect(element.isRenamed()).to.equal(false);
+        });
+      });
+
+      context('when the element is reverted', function() {
+        var element = new Element('name', 'Pineapple', false);
+
+        before(function() {
+          element.rename('Not pineapple');
+          element.revert();
+        });
+
+        it('returns false', function() {
+          expect(element.isRenamed()).to.equal(false);
+        });
+      });
+    });
+
+    context('when the element has children', function() {
+      context('when a child element is edited', function() {
+        var element = new Element('names', [ 'testing' ], false);
+
+        before(function() {
+          element.elements.at(0).edit('test');
+        });
+
+        it('returns false', function() {
+          expect(element.isRenamed()).to.equal(false);
+        });
+      });
+
+      context('when a child element is renamed', function() {
+        var element = new Element('names', [ 'testing' ], false);
+
+        before(function() {
+          element.elements.at(0).remove();
+        });
+
+        it('returns false', function() {
+          expect(element.isRenamed()).to.equal(false);
+        });
+      });
+
+      context('when the element is renamed', function() {
+        var element = new Element('names', [ 'testing' ], false);
+
+        before(function() {
+          element.rename('test');
+        });
+
+        it('returns true', function() {
+          expect(element.isRenamed()).to.equal(true);
+        });
+      });
+    });
+  });
+
   describe('#new', function() {
     context('when the element is primitive', function() {
       var element = new Element('name', 'Aphex Twin', false);
@@ -1073,6 +1274,12 @@ describe('Element', function() {
           expect(element.isEdited()).to.equal(true);
         });
 
+        it('generateOriginalObject returns the original value', function() {
+          expect(element.generateOriginalObject()).to.deep.equal({
+            test: 'value'
+          });
+        });
+
         context('when the element is subsequently reverted', function() {
           before(function() {
             element.revert();
@@ -1085,6 +1292,10 @@ describe('Element', function() {
 
           it('returns the original value', function() {
             expect(element.generateObject()).to.deep.equal({ test: 'value' });
+          });
+
+          it('returns the original value', function() {
+            expect(element.generateOriginalObject()).to.deep.equal({ test: 'value' });
           });
 
           it('sets the current type', function() {
@@ -1353,6 +1564,10 @@ describe('Element', function() {
     it('flags the element as edited', function() {
       expect(element.isEdited()).to.equal(true);
     });
+
+    it('flags the element as renamed', function() {
+      expect(element.isRenamed()).to.equal(true);
+    });
   });
 
   describe('#remove', function() {
@@ -1382,6 +1597,10 @@ describe('Element', function() {
 
       it('resets the edits to the original', function() {
         expect(element.isEdited()).to.equal(false);
+      });
+
+      it('is not flagged as renamed', function() {
+        expect(element.isRenamed()).to.equal(false);
       });
     });
 
@@ -1420,6 +1639,7 @@ describe('Element', function() {
 
       it('resets the flags', function() {
         expect(element.isEdited()).to.equal(false);
+        expect(element.isRenamed()).to.equal(false);
       });
     });
 
@@ -1443,6 +1663,7 @@ describe('Element', function() {
 
       it('resets the flags', function() {
         expect(element.isRemoved()).to.equal(false);
+        expect(element.isRenamed()).to.equal(false);
       });
     });
 
@@ -1544,7 +1765,8 @@ describe('Element', function() {
   describe('modifying arrays', function() {
     describe('#insertEnd', function() {
       var doc = new Document({});
-      var element = new Element('emails', [ 'work@example.com' ], false, doc);
+      const items = ['work@example.com'];
+      var element = new Element('emails', items, false, doc);
       const finalArray = [
         'work@example.com',
         'home@example.com',
@@ -1581,6 +1803,9 @@ describe('Element', function() {
         expect(element.elements.at(2).isEdited()).to.equal(false);
         expect(element.elements.at(3).isEdited()).to.equal(false);
       });
+      it('maintains the original with generateOriginalObject', function() {
+        expect(element.generateOriginalObject()).to.deep.equal(items);
+      });
     });
 
     describe('#insertAfter', function() {
@@ -1605,6 +1830,9 @@ describe('Element', function() {
         });
         it('flags the original element as not modified', function() {
           expect(element.elements.at(0).isModified()).to.equal(false);
+        });
+        it('flags the original element as not renamed', function() {
+          expect(element.elements.at(0).isRenamed()).to.equal(false);
         });
       });
       context('inserting into the middle of the array', function() {
@@ -1824,6 +2052,7 @@ describe('Element', function() {
             expect(element.generateObject()).to.deep.equal(
               ['item0', 'item1', 'item2']
             );
+            expect(element.generateOriginalObject()).to.deep.equal(items);
             element.at(1).remove();
           });
           it('deletes the element', function() {
@@ -1851,6 +2080,11 @@ describe('Element', function() {
             expect(element.generateObject()).to.deep.equal(items);
             expect(element.isModified()).to.equal(true);
           });
+          it('maintains the original with generateOriginalObject', function() {
+            expect(element.generateOriginalObject()).to.deep.equal(
+              ['item0', 'item1', 'item2']
+            );
+          });
           it('updates keys correctly', function() {
             expect(element.at(0).currentKey).to.equal(0);
             expect(element.at(0).value).to.equal('item0');
@@ -1861,6 +2095,7 @@ describe('Element', function() {
             expect(element.at(2).key).to.equal(2);
             expect(element.at(2).value).to.equal('item2');
             expect(element.at(2).isEdited()).to.equal(false);
+            expect(element.at(2).isRenamed()).to.equal(false);
           });
           it('sets flags correctly', function() {
             expect(element.at(0).isModified()).to.equal(false);
@@ -1907,9 +2142,12 @@ describe('Element', function() {
           });
           it('removes the element from the document', function() {
             expect(element.generateObject()).to.deep.equal([
-                ['00', '01', '02'], ['10', '11', '12']
+              ['00', '01', '02'], ['10', '11', '12']
             ]);
             expect(element.isModified()).to.equal(true);
+          });
+          it('maintains the original with generateOriginalObject', function() {
+            expect(element.generateOriginalObject()).to.deep.equal(items);
           });
           it('leaves the top level be', function() {
             expect(element.at(0).currentKey).to.equal(0);
@@ -1954,6 +2192,7 @@ describe('Element', function() {
             expect(element.generateObject()).to.deep.equal(
               ['item0', 'item9', 'item1', 'item2']
             );
+            expect(element.generateOriginalObject()).to.deep.equal(items);
             element.revert();
           });
           it('reverts the document', function() {
@@ -1984,6 +2223,9 @@ describe('Element', function() {
             expect(element.generateObject()).to.deep.equal(items);
             expect(element.isModified()).to.equal(false);
           });
+          it('maintains the original with generateOriginalObject', function() {
+            expect(element.generateOriginalObject()).to.deep.equal(items);
+          });
           it('updates keys correctly', function() {
             for (let i = 0; i < items.length; i++) {
               expect(element.at(i).currentKey).to.equal(i);
@@ -2004,6 +2246,7 @@ describe('Element', function() {
               expect(element.generateObject()).to.deep.equal([
                 ['00', '01', '99', '02'], ['10', '11', '12']
               ]);
+              expect(element.generateOriginalObject()).to.deep.equal(items);
               element.revert();
             });
             it('reverts the document', function() {
@@ -2062,6 +2305,9 @@ describe('Element', function() {
               expect(element.generateObject()).to.deep.equal([
                 ['00', '01', '99', '02'], ['10', '11', '12']
               ]);
+              it('maintains the original with generateOriginalObject', function() {
+                expect(element.generateOriginalObject()).to.deep.equal(items);
+              });
               element.at(0).revert();
             });
             it('reverts the document', function() {
@@ -2090,6 +2336,9 @@ describe('Element', function() {
               expect(element.generateObject()).to.deep.equal([
                 ['00', '02'], ['10', '11', '12']
               ]);
+              it('maintains the original with generateOriginalObject', function() {
+                expect(element.generateOriginalObject()).to.deep.equal(items);
+              });
               element.at(0).revert();
             });
             it('reverts the document', function() {
@@ -2148,6 +2397,9 @@ describe('Element', function() {
               expect(element.generateObject()).to.deep.equal([
                 ['00', '02'], ['10', '11', '12']
               ]);
+              it('maintains the original with generateOriginalObject', function() {
+                expect(element.generateOriginalObject()).to.deep.equal(items);
+              });
               element.at(0).at(1).revert();
             });
             it('reverts the document', function() {
@@ -2181,6 +2433,9 @@ describe('Element', function() {
         expect(element.generateObject()).to.deep.equal([
           ['00', '99', '01', '02'], ['11', '12']
         ]);
+        it('maintains the original with generateOriginalObject', function() {
+          expect(element.generateOriginalObject()).to.deep.equal(items);
+        });
         element.cancel();
       });
       it('reverts the document', function() {

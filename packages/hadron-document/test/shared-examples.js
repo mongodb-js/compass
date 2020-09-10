@@ -7,7 +7,6 @@ const expect = chai.expect;
  * Shared examples including assertions for reusability in the tests.
  */
 class SharedExamples {
-
   /**
    * Example for testing an embedded document getting added to the root
    * document.

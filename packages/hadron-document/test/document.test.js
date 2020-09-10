@@ -157,6 +157,36 @@ describe('Document', function() {
     });
   });
 
+  describe('#generateOriginalObject', () => {
+    context('with an unchanged document', () => {
+      const doc = new Document({ _id: 1, name: 'test' });
+
+      it('generates the appropriate document', () => {
+        expect(doc.generateOriginalObject()).to.deep.equal({ _id: 1, name: 'test' });
+      });
+    });
+
+    context('when adding to the document before iterating', () => {
+      const doc = new Document({ _id: 1 });
+
+      before(() => {
+        doc.insertEnd('name', 'test');
+        doc.get('name').edit('test2');
+        doc.insertEnd('name2', 'test22');
+        doc.get('name').remove();
+        doc.insertEnd('nestedArray', [{
+          a: 3
+        }, {
+          c: 2
+        }]);
+      });
+
+      it('generates the appropriate original document', () => {
+        expect(doc.generateOriginalObject()).to.deep.equal({ _id: 1 });
+      });
+    });
+  });
+
   describe('.insertEnd', function() {
     context('when the new element is a primitive value', function() {
       var doc = new Document({});

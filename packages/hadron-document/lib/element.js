@@ -69,7 +69,6 @@ var Element = function (_EventEmitter) {
   _createClass(Element, [{
     key: 'bulkEdit',
 
-
     /**
      * Bulk edit the element. Can accept JSON strings.
      *
@@ -271,6 +270,28 @@ var Element = function (_EventEmitter) {
     }
 
     /**
+     * Generate the javascript object representing the original values
+     * for this element (pre-element removal, renaming, editing).
+     *
+     * @returns {Object} The javascript object.
+     */
+
+  }, {
+    key: 'generateOriginalObject',
+    value: function generateOriginalObject() {
+      if (this.type === 'Array') {
+        var originalElements = this._generateElements(this.originalExpandableValue);
+        return ObjectGenerator.generateOriginalArray(originalElements);
+      }
+      if (this.type === 'Object') {
+        var _originalElements = this._generateElements(this.originalExpandableValue);
+        return ObjectGenerator.generateOriginal(_originalElements);
+      }
+
+      return this.value;
+    }
+
+    /**
      * Insert an element after the provided element. If this element is an array,
      * then ignore the key specified by the caller and use the correct index.
      * Update the keys of the rest of the elements in the LinkedList.
@@ -461,11 +482,7 @@ var Element = function (_EventEmitter) {
   }, {
     key: 'isEdited',
     value: function isEdited() {
-      var keyChanged = false;
-      if (!this.parent || this.parent.isRoot() || this.parent.currentType === 'Object') {
-        keyChanged = this.key !== this.currentKey;
-      }
-      return (keyChanged || !this._valuesEqual() || this.type !== this.currentType) && !this.isAdded();
+      return (this.isRenamed() || !this._valuesEqual() || this.type !== this.currentType) && !this.isAdded();
     }
 
     /**
@@ -503,6 +520,23 @@ var Element = function (_EventEmitter) {
     key: 'isLast',
     value: function isLast() {
       return this.parent.elements.lastElement === this;
+    }
+
+    /**
+     * Determine if the element is renamed.
+     *
+     * @returns {Boolean} If the element was renamed.
+     */
+
+  }, {
+    key: 'isRenamed',
+    value: function isRenamed() {
+      var keyChanged = false;
+      if (!this.parent || this.parent.isRoot() || this.parent.currentType === 'Object') {
+        keyChanged = this.key !== this.currentKey;
+      }
+
+      return keyChanged;
     }
 
     /**
@@ -852,7 +886,6 @@ var LinkedList = function () {
   _createClass(LinkedList, [{
     key: 'at',
 
-
     /**
      * Get the element at the provided index.
      *
@@ -882,9 +915,7 @@ var LinkedList = function () {
       return this._map[key];
     }
 
-    /**
-     * Instantiate the new doubly linked list.
-     */
+    // Instantiate the new doubly linked list.
 
   }]);
 

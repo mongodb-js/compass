@@ -35,7 +35,6 @@ var Document = function (_EventEmitter) {
   _createClass(Document, [{
     key: 'cancel',
 
-
     /**
      * Send cancel event.
      */
@@ -100,6 +99,18 @@ var Document = function (_EventEmitter) {
     key: 'generateObject',
     value: function generateObject() {
       return ObjectGenerator.generate(this.elements);
+    }
+
+    /**
+     * Generate the javascript object with the original elements in this document.
+     *
+     * @returns {Object} The original javascript object.
+     */
+
+  }, {
+    key: 'generateOriginalObject',
+    value: function generateOriginalObject() {
+      return ObjectGenerator.generateOriginal(this.elements);
     }
 
     /**

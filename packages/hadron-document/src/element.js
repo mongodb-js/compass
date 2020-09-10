@@ -64,7 +64,6 @@ const ARRAY_OR_OBJECT = /^(\[|\{)(.+)(\]|\})$/;
  * Represents an element in a document.
  */
 class Element extends EventEmitter {
-
   /**
    * Bulk edit the element. Can accept JSON strings.
    *
@@ -216,6 +215,25 @@ class Element extends EventEmitter {
   }
 
   /**
+   * Generate the javascript object representing the original values
+   * for this element (pre-element removal, renaming, editing).
+   *
+   * @returns {Object} The javascript object.
+   */
+  generateOriginalObject() {
+    if (this.type === 'Array') {
+      const originalElements = this._generateElements(this.originalExpandableValue);
+      return ObjectGenerator.generateOriginalArray(originalElements);
+    }
+    if (this.type === 'Object') {
+      const originalElements = this._generateElements(this.originalExpandableValue);
+      return ObjectGenerator.generateOriginal(originalElements);
+    }
+
+    return this.value;
+  }
+
+  /**
    * Insert an element after the provided element. If this element is an array,
    * then ignore the key specified by the caller and use the correct index.
    * Update the keys of the rest of the elements in the LinkedList.
@@ -354,11 +372,7 @@ class Element extends EventEmitter {
    * @returns {Boolean} If the element is edited.
    */
   isEdited() {
-    let keyChanged = false;
-    if (!this.parent || this.parent.isRoot() || this.parent.currentType === 'Object') {
-      keyChanged = (this.key !== this.currentKey);
-    }
-    return (keyChanged ||
+    return (this.isRenamed() ||
       !this._valuesEqual() ||
       this.type !== this.currentType) &&
       !this.isAdded();
@@ -393,6 +407,20 @@ class Element extends EventEmitter {
    */
   isLast() {
     return this.parent.elements.lastElement === this;
+  }
+
+  /**
+   * Determine if the element is renamed.
+   *
+   * @returns {Boolean} If the element was renamed.
+   */
+  isRenamed() {
+    let keyChanged = false;
+    if (!this.parent || this.parent.isRoot() || this.parent.currentType === 'Object') {
+      keyChanged = (this.key !== this.currentKey);
+    }
+
+    return keyChanged;
   }
 
   /**
@@ -632,7 +660,6 @@ class Element extends EventEmitter {
  * Represents a doubly linked list.
  */
 class LinkedList {
-
   /**
    * Get the element at the provided index.
    *
@@ -661,9 +688,7 @@ class LinkedList {
     return this._map[key];
   }
 
-  /**
-   * Instantiate the new doubly linked list.
-   */
+  // Instantiate the new doubly linked list.
   constructor(doc, originalDoc) {
     this.firstElement = null;
     this.lastElement = null;

@@ -46,6 +46,46 @@ describe('ObjectGenerator', function() {
     });
   });
 
+  describe('#generateOriginal', function() {
+    context('when an element is removed', function() {
+      var object = { name: 'test' };
+      var doc = new Document(object);
+
+      before(function() {
+        doc.elements.at(0).remove();
+      });
+
+      it('includes the original element in the object', function() {
+        expect(ObjectGenerator.generateOriginal(doc.elements)).to.deep.equal(object);
+      });
+    });
+
+    context('when an element is blank', function() {
+      var object = { name: 'test' };
+      var doc = new Document(object);
+
+      before(function() {
+        doc.elements.at(0).rename('');
+      });
+
+      it('includes the original element in the object', function() {
+        expect(ObjectGenerator.generateOriginal(doc.elements)).to.deep.equal(object);
+      });
+    });
+
+    context('when the element is null', function() {
+      it('returns null', function() {
+        expect(ObjectGenerator.generateOriginal(null)).to.equal(null);
+      });
+    });
+
+    context('when the element is undefined', function() {
+      it('returns undefined', function() {
+        expect(ObjectGenerator.generateOriginal(undefined)).to.equal(undefined);
+      });
+    });
+  });
+
   describe('#generateArray', function() {
     var object = { names: [ 'a', 'b', 'c' ]};
     var doc = new Document(object);
@@ -69,6 +109,33 @@ describe('ObjectGenerator', function() {
     context('when the element is undefined', function() {
       it('returns undefined', function() {
         expect(ObjectGenerator.generateArray(undefined)).to.equal(undefined);
+      });
+    });
+  });
+
+  describe('#generateOriginalArray', function() {
+    var object = { names: [ 'a', 'b', 'c' ]};
+    var doc = new Document(object);
+
+    context('when an element is removed', function() {
+      before(function() {
+        doc.elements.at(0).elements.at(1).remove();
+      });
+
+      it('includes the original element in the object', function() {
+        expect(ObjectGenerator.generateOriginalArray(doc.elements.at(0).elements)).to.deep.equal([ 'a', 'b', 'c' ]);
+      });
+    });
+
+    context('when the element is null', function() {
+      it('returns null', function() {
+        expect(ObjectGenerator.generateOriginalArray(null)).to.equal(null);
+      });
+    });
+
+    context('when the element is undefined', function() {
+      it('returns undefined', function() {
+        expect(ObjectGenerator.generateOriginalArray(undefined)).to.equal(undefined);
       });
     });
   });

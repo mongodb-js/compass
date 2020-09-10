@@ -21,7 +21,6 @@ const ID = '_id';
  * Represents a document.
  */
 class Document extends EventEmitter {
-
   /**
    * Send cancel event.
    */
@@ -53,6 +52,15 @@ class Document extends EventEmitter {
    */
   generateObject() {
     return ObjectGenerator.generate(this.elements);
+  }
+
+  /**
+   * Generate the javascript object with the original elements in this document.
+   *
+   * @returns {Object} The original javascript object.
+   */
+  generateOriginalObject() {
+    return ObjectGenerator.generateOriginal(this.elements);
   }
 
   /**
