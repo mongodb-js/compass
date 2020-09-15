@@ -381,7 +381,7 @@ class NativeClient extends EventEmitter {
         this._buildCollectionStats(
           databaseName,
           collectionName,
-          data || { readonly: true }
+          data || {}
         )
       );
     });
@@ -1031,7 +1031,6 @@ class NativeClient extends EventEmitter {
       size: data.size,
       index_details: data.indexDetails || {},
       wired_tiger: data.wiredTiger || {},
-      readonly: data.readonly || false
     };
   }
 

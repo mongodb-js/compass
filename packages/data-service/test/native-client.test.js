@@ -406,6 +406,19 @@ describe('NativeClient', function() {
           done();
         });
       });
+
+      // collectionStats() used to provide a `readonly: <boolean>` key, but
+      // since the underlying database command does not provide one, the value
+      // was bogus. Make sure that we're not accidentally providing an incorrect
+      // value.
+      it('does not provide a readonly key', function(done) {
+        client.collectionStats('data-service', 'test', function(err, stats) {
+          assert.equal(null, err);
+          expect(stats.name).to.equal('test');
+          expect(Object.keys(stats)).to.not.include('readonly');
+          done();
+        });
+      });
     });
   });
 
