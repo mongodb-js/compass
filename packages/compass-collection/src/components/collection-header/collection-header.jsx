@@ -69,6 +69,27 @@ class CollectionHeader extends Component {
   }
 
   /**
+   * Renders view information if the collection is a view.
+   *
+   * @returns {Component} The component.
+   */
+  renderViewInformation() {
+    if (this.props.sourceName) {
+      return (
+        <div>
+          <span
+            className={classnames(styles['collection-header-title-readonly-on'])}
+            title={this.props.sourceName}>
+            (view on: {this.props.sourceName})
+          </span>
+          {this.renderModifySource()}
+          {this.renderReturnToView()}
+        </div>
+      );
+    }
+  }
+
+  /**
    * Render the readonly icon if collection is readonly.
    *
    * @returns {Component} The component.
@@ -77,13 +98,7 @@ class CollectionHeader extends Component {
     if (this.props.isReadonly) {
       return (
         <div className={classnames(styles['collection-header-title-readonly'])}>
-          <span
-            className={classnames(styles['collection-header-title-readonly-on'])}
-            title={this.props.sourceName}>
-            (view on: {this.props.sourceName})
-          </span>
-          {this.renderModifySource()}
-          {this.renderReturnToView()}
+          {this.renderViewInformation()}
           <span className={classnames(styles['collection-header-title-readonly-indicator'])}>
             <i className="fa fa-eye" aria-hidden="true" />
             Read Only
