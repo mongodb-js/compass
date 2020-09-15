@@ -51,6 +51,7 @@
       "react-dom",
       "debug",
       "hadron-ipc",
+      "hadron-react-bson",
       "hadron-react-buttons",
       "hadron-react-components"
     ]
