@@ -17,14 +17,14 @@ export const getSource = (name, collections) => {
 /**
  * Generate a source namespace.
  *
- * @param {Boolean} isReadonly - If the collection is a view.
+ * @param {Boolean} isReadonly - If the collection is readonly, i.e. could be a view.
  * @param {String} database - The database name.
  * @param {String} name - The source collection name.
  *
  * @returns {String} The full source namespace.
  */
 export const getSourceName = (isReadonly, database, name) => {
-  if (isReadonly) {
+  if (isReadonly && name) {
     return `${database}.${name}`;
   }
   return null;

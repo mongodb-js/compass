@@ -53,6 +53,12 @@ describe('collection module', () => {
         expect(getSourceName(COLL.readonly)).to.equal(null);
       });
     });
+
+    context('when the collection is readonly but not a view', () => {
+      it('returns null', () => {
+        expect(getSourceName(true, 'db', undefined)).to.equal(null);
+      });
+    });
   });
 
   describe('#getSourceViewOn', () => {
