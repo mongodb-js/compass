@@ -31,9 +31,11 @@ class SidebarCollection extends PureComponent {
    * Handle drop collection.
    */
   onDrop = () => {
-    const databaseName = this.props.database;
-    const collectionName = this.getCollectionName();
-    this.props.globalAppRegistryEmit('open-drop-collection', databaseName, collectionName);
+    if (!this.isNotWritable()) {
+      const databaseName = this.props.database;
+      const collectionName = this.getCollectionName();
+      this.props.globalAppRegistryEmit('open-drop-collection', databaseName, collectionName);
+    }
   }
 
   /**
