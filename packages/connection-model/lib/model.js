@@ -869,14 +869,14 @@ Connection = AmpersandModel.extend({
       if (!attrs.mongodbUsername) {
         throw new TypeError(
           'The mongodbUsername field is required when ' +
-            'using MONGODB or SCRAM-SHA-256 for authStrategy.'
+          'using MONGODB or SCRAM-SHA-256 for authStrategy.'
         );
       }
 
       if (!attrs.mongodbPassword) {
         throw new TypeError(
           'The mongodbPassword field is required when ' +
-            'using MONGODB or SCRAM-SHA-256 for authStrategy.'
+          'using MONGODB or SCRAM-SHA-256 for authStrategy.'
         );
       }
     }
@@ -891,7 +891,7 @@ Connection = AmpersandModel.extend({
         throw new TypeError(
           format(
             'The kerberosServiceName field does not apply when ' +
-              'using %s for authStrategy.',
+            'using %s for authStrategy.',
             attrs.authStrategy
           )
         );
@@ -900,7 +900,7 @@ Connection = AmpersandModel.extend({
         throw new TypeError(
           format(
             'The kerberosPrincipal field does not apply when ' +
-              'using %s for authStrategy.',
+            'using %s for authStrategy.',
             attrs.authStrategy
           )
         );
@@ -909,7 +909,7 @@ Connection = AmpersandModel.extend({
         throw new TypeError(
           format(
             'The kerberosPassword field does not apply when ' +
-              'using %s for authStrategy.',
+            'using %s for authStrategy.',
             attrs.authStrategy
           )
         );
@@ -935,7 +935,7 @@ Connection = AmpersandModel.extend({
         throw new TypeError(
           format(
             'The ldapUsername field is required when ' +
-              'using LDAP for authStrategy.'
+            'using LDAP for authStrategy.'
           )
         );
       }
@@ -943,7 +943,7 @@ Connection = AmpersandModel.extend({
         throw new TypeError(
           format(
             'The ldapPassword field is required when ' +
-              'using LDAP for authStrategy.'
+            'using LDAP for authStrategy.'
           )
         );
       }
@@ -1167,7 +1167,12 @@ Connection.from = (url, callback) => {
       }
     }
 
-    return callback(null, new Connection(attrs));
+    try {
+      const connection = new Connection(attrs);
+      return callback(null, connection);
+    } catch (error) {
+      return callback(error);
+    }
   });
 };
 

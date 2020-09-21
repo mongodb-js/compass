@@ -46,6 +46,20 @@ describe('connection model partser should parse URI components such as', () => {
       );
     });
 
+    it('should catch ampersand validation errors', (done) => {
+      stubHostname = 'server.example.com';
+      stubedConnection.from(
+        // note: socketTimeoutMS=1&socketTimeoutMS=2 will cause the validation to fail,
+        // as socketTimeoutMS is expected to be a number, instead will be parsed as an array:
+        `mongodb+srv://${stubHostname}/?connectTimeoutMS=300000&authSource=aDifferentAuthDB&socketTimeoutMS=1&socketTimeoutMS=2`,
+        (error) => {
+          expect(error).to.exist;
+          expect(error.message).to.contain('Property \'socketTimeoutMS\' must be of type number');
+          done();
+        }
+      );
+    });
+
     it('should set only one hostname without decorating it with the replica set info', (done) => {
       stubHostname = 'test.mongodb.net';
       stubedConnection.from(
