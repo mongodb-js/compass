@@ -6,13 +6,11 @@ import { TextButton } from 'hadron-react-buttons';
 
 import styles from './collection-header.less';
 
-/**
- * The collection header.
- */
 class CollectionHeader extends Component {
   static displayName = 'CollectionHeaderComponent';
 
   static propTypes = {
+    globalAppRegistry: PropTypes.func.isRequired,
     namespace: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     statsPlugin: PropTypes.func.isRequired,
@@ -47,6 +45,10 @@ class CollectionHeader extends Component {
       this.props.sourceName,
       this.props.pipeline
     );
+  }
+
+  handleDBClick = (db) => {
+    this.props.globalAppRegistry.emit('select-database', db);
   }
 
   /**
@@ -160,12 +162,15 @@ class CollectionHeader extends Component {
     });
 
     return (
-      <div className={classnames(styles['collection-header'])}>
+      <div className={styles['collection-header']}>
         {this.renderStats()}
         <div className={titleClass} title={`${database}.${collection}`}>
-          <span className={classnames(styles['collection-header-title-db'])}>
+          <a
+            className={styles['collection-header-title-db']}
+            onClick={() => this.handleDBClick(database)}
+          >
             {database}
-          </span>
+          </a>
           <span>.</span>
           <span className={collectionClass}>
             {collection}

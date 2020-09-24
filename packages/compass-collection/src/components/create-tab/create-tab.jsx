@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
 import styles from './create-tab.less';
 
@@ -32,7 +31,7 @@ class CreateTab extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['create-tab'])} onClick={this.createTab}>
+      <div className={styles['create-tab']} onClick={this.createTab}>
         +
       </div>
     );

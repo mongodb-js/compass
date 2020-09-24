@@ -66,6 +66,7 @@ class Collection extends Component {
       <div className={classnames(styles.collection, 'clearfix')}>
         <div className={classnames(styles['collection-container'])}>
           <CollectionHeader
+            globalAppRegistry={this.props.globalAppRegistry}
             namespace={this.props.namespace}
             isReadonly={this.props.isReadonly}
             statsPlugin={this.props.statsPlugin}

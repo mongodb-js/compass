@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 
@@ -162,9 +161,8 @@ class Workspace extends PureComponent {
   renderTabs() {
     const SortableItem = SortableElement(({value}) => this.renderTab(value.tab, value.index));
 
-
     const SortableList = SortableContainer(({items}) => {
-      return (<div className={classnames(styles['workspace-tabs-sortable-list'])}>
+      return (<div className={styles['workspace-tabs-sortable-list']}>
         {items.map(
           (tab, index) => (<SortableItem
             key={`tab-${index}`}
@@ -181,7 +179,7 @@ class Workspace extends PureComponent {
       lockAxis="x"
       distance={10}
       onSortEnd={this.onSortEnd}
-      helperClass={classnames(styles['workspace-tabs-sortable-clone'])}
+      helperClass={styles['workspace-tabs-sortable-clone']}
     />);
   }
 
@@ -228,12 +226,12 @@ class Workspace extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles.workspace)}>
-        <div className={classnames(styles['workspace-tabs'])}>
-          <div onClick={this.props.prevTab} className={classnames(styles['workspace-tabs-prev'])}>
+      <div className={styles.workspace}>
+        <div className={styles['workspace-tabs']}>
+          <div onClick={this.props.prevTab} className={styles['workspace-tabs-prev']}>
             <i className="fa fa-chevron-left" aria-hidden/>
           </div>
-          <div className={classnames(styles['workspace-tabs-container'])}>
+          <div className={styles['workspace-tabs-container']}>
             {this.renderTabs()}
             <CreateTab
               createNewTab={this.props.createNewTab}
@@ -241,11 +239,13 @@ class Workspace extends PureComponent {
               activeIsReadonly={this.activeIsReadonly()}
               activeSourceName={this.activeSourceName()} />
           </div>
-          <div onClick={this.props.nextTab} className={classnames(styles['workspace-tabs-next'])}>
-            <i className="fa fa-chevron-right" aria-hidden/>
+          <div className={styles['workspace-tabs-right']}>
+            <div onClick={this.props.nextTab} className={styles['workspace-tabs-next']}>
+              <i className="fa fa-chevron-right" aria-hidden/>
+            </div>
           </div>
         </div>
-        <div className={classnames(styles['workspace-views'])}>
+        <div className={styles['workspace-views']}>
           {this.renderViews()}
         </div>
       </div>

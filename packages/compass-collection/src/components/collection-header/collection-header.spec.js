@@ -17,6 +17,7 @@ describe('CollectionHeader [Component]', () => {
       component = mount(
         <CollectionHeader
           isReadonly={false}
+          globalAppRegistry={{}}
           statsPlugin={statsPlugin}
           statsStore={statsStore}
           namespace="db.coll"
@@ -52,6 +53,7 @@ describe('CollectionHeader [Component]', () => {
       component = mount(
         <CollectionHeader
           isReadonly
+          globalAppRegistry={{}}
           sourceName="orig.coll"
           statsPlugin={statsPlugin}
           statsStore={statsStore}
@@ -120,6 +122,39 @@ describe('CollectionHeader [Component]', () => {
 
     it('renders the readonly icon', () => {
       expect(component.find('.fa-eye')).to.be.present();
+    });
+  });
+
+  context('when the db name is clicked', () => {
+    it('emits the open event to the app registry', () => {
+      const statsStore = {};
+      const selectOrCreateTabSpy = sinon.spy();
+      const sourceReadonly = false;
+
+      let emmittedEventName;
+      let emmittedDbName;
+
+      const component = mount(
+        <CollectionHeader
+          isReadonly={false}
+          globalAppRegistry={{
+            emit: (eventName, dbName) => {
+              emmittedEventName = eventName;
+              emmittedDbName = dbName;
+            }
+          }}
+          sourceName="orig.coll"
+          statsPlugin={statsPlugin}
+          statsStore={statsStore}
+          namespace="db.coll"
+          selectOrCreateTab={selectOrCreateTabSpy}
+          sourceReadonly={sourceReadonly} />
+      );
+
+      expect(component.find(`.${styles['collection-header-title-db']}`)).to.be.present();
+      component.find(`.${styles['collection-header-title-db']}`).simulate('click');
+      expect(emmittedEventName).to.equal('select-database');
+      expect(emmittedDbName).to.equal('db');
     });
   });
 });
