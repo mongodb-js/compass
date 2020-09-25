@@ -1,8 +1,9 @@
 /* eslint complexity: 0 */
 const URL = require('url');
 const toURL = URL.format;
-const { format } = require('util');
+const { format, promisify, callbackify } = require('util');
 const fs = require('fs');
+
 const {
   assign,
   defaults,
@@ -1050,6 +1051,88 @@ Connection = AmpersandModel.extend({
   }
 });
 
+const parseConnectionStringAsPromise = promisify(parseConnectionString);
+
+async function createConnectionFromUrl(url) {
+  const unescapedUrl = unescape(url);
+
+  const parsed = await parseConnectionStringAsPromise(unescapedUrl);
+
+  const isSrvRecord = url.startsWith('mongodb+srv://');
+
+  const attrs = Object.assign(
+    {},
+    {
+      hosts: parsed.hosts,
+      hostname: isSrvRecord ? parsed.srvHost : parsed.hosts[0].host,
+      auth: parsed.auth,
+      isSrvRecord
+    },
+    parsed.options
+  );
+
+  if (!isSrvRecord) {
+    attrs.port = parsed.hosts[0].port;
+  }
+
+  // We don't inherit the drivers default values
+  // into our model's default values so only set `ns`
+  // if it was actually in the URL and not a default.
+  if (url.indexOf(parsed.defaultDatabase) > -1) {
+    attrs.ns = parsed.defaultDatabase;
+  }
+
+  // The `authStrategy` value for humans
+  let authStrategy = null;
+
+  if (attrs.authMechanism) {
+    authStrategy = attrs.authMechanism;
+  } else if (attrs.auth && attrs.auth.username && attrs.auth.password) {
+    authStrategy = 'DEFAULT';
+  } else if (attrs.auth && attrs.auth.username) {
+    authStrategy = 'MONGODB-X509';
+  }
+
+  attrs.authStrategy = authStrategy
+    ? AUTH_MECHANISM_TO_AUTH_STRATEGY[authStrategy]
+    : AUTH_STRATEGY_DEFAULT;
+
+  if (parsed.auth) {
+    let user = parsed.auth.username;
+    let password = parsed.auth.password;
+
+    user = decodeURIComponent(user);
+    password = decodeURIComponent(password);
+
+    if (attrs.authStrategy === 'LDAP') {
+      attrs.ldapUsername = user;
+      attrs.ldapPassword = password;
+    } else if (attrs.authStrategy === 'X509') {
+      attrs.x509Username = user;
+    } else if (attrs.authStrategy === 'KERBEROS') {
+      attrs.kerberosPrincipal = user;
+      attrs.kerberosPassword = password;
+    } else if (attrs.authStrategy === 'MONGODB') {
+      attrs.mongodbUsername = user;
+      attrs.mongodbPassword = password;
+
+      // authSource takes precedence, but fall back to admin
+      // @note Durran: This is not the documented behaviour of the connection string
+      // but the shell also does not fall back to the dbName and will use admin.
+      attrs.mongodbDatabaseName = decodeURIComponent(
+        attrs.authSource || Connection.MONGODB_DATABASE_NAME_DEFAULT
+      );
+
+      Object.assign(
+        attrs,
+        Connection._improveAtlasDefaults(url, attrs.auth.password, attrs.ns)
+      );
+    }
+  }
+
+  return new Connection(attrs);
+}
+
 /**
  * For easy command line integration.
  *
@@ -1063,118 +1146,7 @@ Connection = AmpersandModel.extend({
  * @param {String} [url]
  * @param {Function} [callback]
  */
-Connection.from = (url, callback) => {
-  const MONGO = 'mongodb://';
-  const MONGO_SRV = 'mongodb+srv://';
-  let isSrvRecord = false;
-
-  /* eslint camelcase:0 */
-  if (!url) {
-    url = 'mongodb://localhost:27017';
-  }
-
-  if (url.indexOf(MONGO) === -1 && url.indexOf(MONGO_SRV) === -1) {
-    url = `${MONGO}${url}`;
-  }
-
-  if (url.indexOf(MONGO_SRV) > -1) {
-    isSrvRecord = true;
-  }
-
-  const unescapedUrl = unescape(url);
-
-  parseConnectionString(unescapedUrl, (parseError, parsed) => {
-    if (parseError) {
-      return callback(parseError);
-    }
-
-    let attrs = Object.assign(
-      {},
-      {
-        hosts: parsed.hosts,
-        hostname: isSrvRecord ? parsed.srvHost : parsed.hosts[0].host,
-        auth: parsed.auth,
-        isSrvRecord
-      },
-      parsed.options
-    );
-
-    if (!isSrvRecord) {
-      attrs.port = parsed.hosts[0].port;
-    }
-
-    // We don't inherit the drivers default values
-    // into our model's default values so only set `ns`
-    // if it was actually in the URL and not a default.
-    if (url.indexOf(parsed.defaultDatabase) > -1) {
-      attrs.ns = parsed.defaultDatabase;
-    }
-
-    // The `authStrategy` value for humans
-    let authStrategy = null;
-
-    if (attrs.authMechanism) {
-      authStrategy = attrs.authMechanism;
-    } else if (attrs.auth && attrs.auth.username && attrs.auth.password) {
-      authStrategy = 'DEFAULT';
-    } else if (attrs.auth && attrs.auth.username) {
-      authStrategy = 'MONGODB-X509';
-    }
-
-    attrs.authStrategy = authStrategy
-      ? AUTH_MECHANISM_TO_AUTH_STRATEGY[authStrategy]
-      : AUTH_STRATEGY_DEFAULT;
-
-    if (parsed.auth) {
-      let user = parsed.auth.username;
-      let password = parsed.auth.password;
-
-      try {
-        user = decodeURIComponent(user);
-        password = decodeURIComponent(password);
-      } catch (decodeError) {
-        return callback(decodeError);
-      }
-
-      if (attrs.authStrategy === 'LDAP') {
-        attrs.ldapUsername = user;
-        attrs.ldapPassword = password;
-      } else if (attrs.authStrategy === 'X509') {
-        attrs.x509Username = user;
-      } else if (attrs.authStrategy === 'KERBEROS') {
-        attrs.kerberosPrincipal = user;
-        attrs.kerberosPassword = password;
-      } else if (attrs.authStrategy === 'MONGODB') {
-        attrs.mongodbUsername = user;
-        attrs.mongodbPassword = password;
-
-        // authSource takes precedence, but fall back to admin
-        // @note Durran: This is not the documented behaviour of the connection string
-        // but the shell also does not fall back to the dbName and will use admin.
-        try {
-          attrs.mongodbDatabaseName = decodeURIComponent(
-            attrs.authSource || Connection.MONGODB_DATABASE_NAME_DEFAULT,
-            callback
-          );
-        } catch (decodeError) {
-          return callback(decodeError);
-        }
-
-        Object.assign(
-          attrs,
-          Connection._improveAtlasDefaults(url, attrs.auth.password, attrs.ns)
-        );
-      }
-    }
-
-    try {
-      const connection = new Connection(attrs);
-      return callback(null, connection);
-    } catch (error) {
-      return callback(error);
-    }
-  });
-};
+Connection.from = callbackify(createConnectionFromUrl);
 
 /**
  * Helper function to improve the Atlas user experience by

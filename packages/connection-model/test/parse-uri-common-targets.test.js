@@ -159,15 +159,6 @@ describe('connection model parser should parse URI strings for common connection
       );
     });
 
-    it('when prefix is not specified', (done) => {
-      Connection.from('localhost:27017', (error, result) => {
-        expect(error).to.not.exist;
-        expect(result.hostname).to.be.equal('localhost');
-        expect(result.port).to.be.equal(27017);
-        done();
-      });
-    });
-
     it('with explicit authSource', (done) => {
       Connection.from(
         'mongodb://%40rlo:w%40of@localhost:27017/dogdb?authMechanism=SCRAM-SHA-1&authSource=catdb',
@@ -227,8 +218,8 @@ describe('connection model parser should parse URI strings for common connection
     it('when using X509 auth', (done) => {
       Connection.from(
         'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia' +
-          '%252CST%253DPennsylvania%252CC%253DUS@localhost:27017/' +
-          'x509?authMechanism=MONGODB-X509',
+        '%252CST%253DPennsylvania%252CC%253DUS@localhost:27017/' +
+        'x509?authMechanism=MONGODB-X509',
         (error, result) => {
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');
@@ -246,7 +237,7 @@ describe('connection model parser should parse URI strings for common connection
     it('when using KERBEROS auth', (done) => {
       Connection.from(
         'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/' +
-          'kerberos?gssapiServiceName=mongodb&authMechanism=GSSAPI',
+        'kerberos?gssapiServiceName=mongodb&authMechanism=GSSAPI',
         (error, result) => {
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');
