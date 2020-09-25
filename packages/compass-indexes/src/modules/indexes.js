@@ -196,12 +196,18 @@ export const loadIndexesFromDb = () => {
       dispatch(loadIndexes([]));
       dispatch(localAppRegistryEmit('indexes-changed', []));
     } else {
+      const ns = state.namespace;
       state.dataService.indexes(state.namespace, {}, (err, indexes) => {
         if (err) {
           dispatch(handleError(parseErrorMsg(err)));
           dispatch(loadIndexes([]));
           dispatch(localAppRegistryEmit('indexes-changed', []));
         } else {
+          // Set the `ns` field manually as it is not returned from the server
+          // since version 4.4.
+          for (const index of indexes) {
+            index.ns = ns;
+          }
           const ixs = modelAndSort(indexes, state.sortColumn, state.sortOrder);
           dispatch(loadIndexes(ixs));
           dispatch(localAppRegistryEmit('indexes-changed', ixs));

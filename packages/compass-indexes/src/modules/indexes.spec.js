@@ -110,7 +110,7 @@ describe('indexes module', () => {
           emit: emitSpy
         },
         isReadonly: true,
-        namespace: 'citibikes.trips'
+        namespace: 'citibike.trips'
       });
       loadIndexesFromDb()(dispatch, state);
       expect(actionSpy.calledOnce).to.equal(true);
@@ -138,7 +138,7 @@ describe('indexes module', () => {
         dataService: {
           indexes: (ns, opts, cb) => { cb({message: 'error message!'}); }
         },
-        namespace: 'citibikes.trips'
+        namespace: 'citibike.trips'
       });
       loadIndexesFromDb()(dispatch, state);
       expect(actionSpy.calledTwice).to.equal(true);
@@ -165,7 +165,7 @@ describe('indexes module', () => {
         },
         sortColumn: DEFAULT,
         sortOrder: ASC,
-        namespace: 'citibikes.trips'
+        namespace: 'citibike.trips'
       });
       loadIndexesFromDb()(dispatch, state);
       expect(actionSpy.calledOnce).to.equal(true);
@@ -177,25 +177,25 @@ describe('indexes module', () => {
 const fromDB = [
   {
     'name': '_id_',
-    'v': 2, 'key': {'_id': 1}, 'ns': 'citibike.trips',
+    'v': 2, 'key': {'_id': 1},
     'usageHost': 'computername.local:27017', 'usageCount': 6,
     'usageSince': '2019-02-08T10:21:49.176Z', 'size': 135168
   }, {
     'name': 'CCCC',
     'v': 2, 'key': {'cccc0': -1, 'cccc1': '2dsphere', 'cccc2': 1},
-    'ns': 'citibike.trips', 'background': false, '2dsphereIndexVersion': 3,
+    'background': false, '2dsphereIndexVersion': 3,
     'usageHost': 'computername.local:27017', 'usageCount': 5,
     'usageSince': '2019-02-08T14:38:56.147Z', 'size': 4096
   }, {
     'name': 'AAAA',
     'v': 2, 'key': {'aaaa': -1},
-    'ns': 'citibike.trips', 'background': false,
+    'background': false,
     'expireAfterSeconds': 300, 'partialFilterExpression': {'y': 1},
     'usageHost': 'computername.local:27017', 'usageCount': 4,
     'usageSince': '2019-02-08T14:39:56.285Z', 'size': 4096
   }, {
     'name': 'BBBB',
-    'v': 2, 'key': {'bbbb.abcd': 1}, 'ns': 'citibike.trips',
+    'v': 2, 'key': {'bbbb.abcd': 1},
     'background': false, 'collation': {'locale': 'ar', 'caseLevel': true,
       'caseFirst': 'lower', 'strength': 3, 'numericOrdering': false,
       'alternate': 'non-ignorable', 'maxVariable': 'space',
