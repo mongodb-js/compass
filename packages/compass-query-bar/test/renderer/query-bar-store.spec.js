@@ -179,6 +179,61 @@ describe('QueryBarStore [Store]', function() {
     });
   });
 
+  describe('mergeQuery', function() {
+    afterEach(function() {
+      unsubscribe();
+    });
+
+    describe('when setting two query properties separately', function() {
+      it('composes them when it is an object`', function(done) {
+        let calls = 0;
+        unsubscribe = store.listen(state => {
+          switch (++calls) {
+            case 1:
+              expect(state.filter).to.be.deep.equal({ foo: 1 });
+              break;
+            case 2:
+              expect(state.filter).to.be.deep.equal({ foo: 1, bar: 1 });
+              done();
+              break;
+            default:
+              throw new Error('unreachable');
+          }
+        });
+
+        store.mergeQuery({ filter: { foo: 1 } });
+        store.mergeQuery({ filter: { bar: 1 } });
+      });
+
+      it('overrides them when it is a primtive`', function(done) {
+        let calls = 0;
+        unsubscribe = store.listen(state => {
+          switch (++calls) {
+            case 1:
+              expect(state.filter).to.be.deep.equal({ foo: 1 });
+              expect(state.maxTimeMS).to.not.equal(20);
+              break;
+            case 2:
+              expect(state.filter).to.be.deep.equal({ foo: 1, bar: 1 });
+              expect(state.maxTimeMS).to.equal(20);
+              break;
+            case 3:
+              expect(state.filter).to.be.deep.equal({ foo: 1, bar: 4 });
+              expect(state.maxTimeMS).to.equal(40);
+              done();
+              break;
+            default:
+              throw new Error('unreachable');
+          }
+        });
+
+        store.mergeQuery({ filter: { foo: 1 } });
+        store.mergeQuery({ filter: { bar: 1 }, maxTimeMS: 20 });
+        store.mergeQuery({ filter: { bar: 4 }, maxTimeMS: 40 });
+      });
+    });
+  });
+
   describe('setQuery', function() {
     afterEach(function() {
       unsubscribe();

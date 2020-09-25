@@ -287,6 +287,25 @@ const configureStore = (options = {}) => {
     },
 
     /**
+     * Like `setQuery()`, but merge an existing query into the current one
+     * instead of overwriting it.
+     *
+     * @param {Object} query   a query object with some or all query properties set.
+     * @param {Boolean} autoPopulated - flag to indicate whether the query was auto-populated or not.
+     */
+    mergeQuery(query, autoPopulated) {
+      const cloned = this._cloneQuery();
+      for (const key of Object.keys(query)) {
+        if (typeof query[key] === 'object' && query[key] !== null) {
+          cloned[key] = { ...cloned[key], ...query[key] };
+        } else {
+          cloned[key] = query[key];
+        }
+      }
+      this.setQuery(cloned, autoPopulated);
+    },
+
+    /**
      * set many/all properties of a query at once. The values are converted to
      * strings, and xxxString is set. The values are validated, and xxxValid is
      * set. the properties themselves are only set for valid values.
@@ -713,8 +732,8 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('subtab-changed', () => {
       options.actions.refreshEditor();
     });
-    localAppRegistry.on('compass:schema:geo-query', (query) => {
-      store.setQuery({ filter: query }, true);
+    localAppRegistry.on('compass:schema:geo-query', (filter) => {
+      store.mergeQuery({ filter }, true);
     });
     localAppRegistry.on('compass:query-history:run-query', (query) => {
       store.setQuery(query, true);
