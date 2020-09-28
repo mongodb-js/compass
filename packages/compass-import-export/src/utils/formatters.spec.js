@@ -1,6 +1,6 @@
 import { createJSONFormatter, createCSVFormatter } from './formatters';
 import stream from 'stream';
-import { EJSON, ObjectID } from 'bson';
+import { EJSON, ObjectID, Binary } from 'bson';
 import { createCSVParser } from './import-parser';
 import fs from 'fs';
 import path from 'path';
@@ -58,6 +58,40 @@ describe('formatters', () => {
           expect(parsed).to.deep.equal(docs);
         })
         .then(() => rm(FIXTURES.JSON_MULTI_SMALL_DOCS));
+    });
+    describe('should format binary data correctly', () => {
+      for (const bsonVersion of ['v1', 'v4']) {
+        it(`works for input from bson version ${bsonVersion}`, () => {
+          // The driver returns bson v1.x objects to us. They don't have a
+          // .toExtendedJSON() method, we simulate that.
+          class FakeBSON1Binary extends Binary {
+            get toExtendedJSON() { return undefined; };
+          }
+
+          const binary = new Binary(Buffer.from('56391cc226bc4affbe520f67856c09ec'), 4);
+          if (bsonVersion === 'v1') {
+            Object.setPrototypeOf(binary, FakeBSON1Binary.prototype);
+          }
+
+          const docs = [
+            {
+              _id: new ObjectID('5e5ea7558d35931a05eafec0'),
+              test: binary
+            },
+          ];
+          const source = stream.Readable.from(docs);
+          const formatter = createJSONFormatter({brackets: true});
+          const dest = fs.createWriteStream(FIXTURES.JSON_MULTI_SMALL_DOCS);
+
+          return pipeline(source, formatter, dest)
+            .then(() => readFile(FIXTURES.JSON_MULTI_SMALL_DOCS))
+            .then((contents) => {
+              const parsed = EJSON.parse(contents);
+              expect(parsed).to.deep.equal(docs);
+            })
+            .then(() => rm(FIXTURES.JSON_MULTI_SMALL_DOCS));
+        });
+      }
     });
   });
   describe('jsonl', () => {
