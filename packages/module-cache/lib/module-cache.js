@@ -75,7 +75,7 @@ var Range = (function() {
   return Range;
 })();
 
-var nativeModules = process.binding('natives');
+var nativeModules = Module.builtinModules || Object.keys(process.binding('natives'));
 
 /**
  * The core module cache object.
@@ -363,7 +363,7 @@ function resolveModulePath(relativePath, parentModule) {
   if (!(parentModule != null ? parentModule.filename : void 0)) {
     return;
   }
-  if (nativeModules.hasOwnProperty(relativePath)) {
+  if (nativeModules.indexOf(relativePath) !== -1) {
     return;
   }
   if (relativePath[0] === '.') {
