@@ -4,7 +4,11 @@ import EJSON from 'mongodb-extended-json';
 import { toPairs, findIndex, isEmpty } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
+
 import configureGridStore from './grid-store';
+import {
+  buildUpdateUnlessChangedInBackgroundQuery
+} from '../utils/document';
 
 /**
  * Number of docs per page.
@@ -55,6 +59,11 @@ const COPY = 'copy';
  * The delete error message.
  */
 const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id field.');
+
+/**
+ * The empty update error message.
+ */
+const EMPTY_UPDATE_ERROR = new Error('Unable to update, no changes have been made.');
 
 /**
  * Set the data provider.
@@ -332,11 +341,57 @@ const configureStore = (options = {}) => {
     },
 
     /**
-     * Update the provided document.
+     * Update the provided document unless the elements being changed were
+     * changed in the background. If the elements being changed were changed
+     * in the background, block the update.
      *
      * @param {Document} doc - The hadron document.
      */
     updateDocument(doc) {
+      try {
+        const {
+          query,
+          updateDoc
+        } = buildUpdateUnlessChangedInBackgroundQuery(doc);
+
+        if (Object.keys(updateDoc).length === 0) {
+          doc.emit('update-error', EMPTY_UPDATE_ERROR.message);
+          return;
+        }
+
+        const opts = { returnOriginal: false, promoteValues: false };
+
+        this.dataService.findOneAndUpdate(
+          this.state.ns,
+          query,
+          updateDoc,
+          opts,
+          (error, d) => {
+            if (error) {
+              doc.emit('update-error', error.message);
+            } else if (d) {
+              doc.emit('update-success', d);
+              this.localAppRegistry.emit('document-updated', this.state.view);
+              this.globalAppRegistry.emit('document-updated', this.state.view);
+              const index = this.findDocumentIndex(doc);
+              this.state.docs[index] = new HadronDocument(d);
+              this.trigger(this.state);
+            } else {
+              doc.emit('update-blocked');
+            }
+          }
+        );
+      } catch (err) {
+        doc.emit('update-error', `An error occured when attempting to update the document: ${err.message}`);
+      }
+    },
+
+    /**
+     * Replace the document in the database with the provided document.
+     *
+     * @param {Document} doc - The hadron document.
+     */
+    replaceDocument(doc) {
       const object = doc.generateObject();
       const opts = { returnOriginal: false, promoteValues: false };
       const id = object._id;
@@ -370,7 +425,7 @@ const configureStore = (options = {}) => {
      * @param {Object} doc - EJSON document object.
      * @param {Document} originalDoc - origin Hadron document getting modified.
      */
-    updateExtJsonDocument(doc, originalDoc) {
+    replaceExtJsonDocument(doc, originalDoc) {
       const opts = { returnOriginal: false, promoteValues: false };
       const id = doc._id;
       this.dataService.findOneAndReplace(this.state.ns, { _id: id }, doc, opts, (error, d) => {
@@ -405,7 +460,7 @@ const configureStore = (options = {}) => {
 
     /**
      * Clear update statuses, if updateSuccess or updateError were set by
-     * updateExtJsonDocument.
+     * replaceExtJsonDocument.
      */
     clearUpdateStatus() {
       if (this.state.updateSuccess) this.setState({ updateSuccess: null });

@@ -37,6 +37,7 @@ describe('<FullWidthCellRenderer />', () => {
               cleanCols={actions.cleanCols}
               updateDocument={actions.updateDocument}
               removeDocument={actions.removeDocument}
+              replaceDocument={actions.replaceDocument}
               data={data}
               context={context} />);
           expect(component).to.be.present();
@@ -70,6 +71,7 @@ describe('<FullWidthCellRenderer />', () => {
               cleanCols={actions.cleanCols}
               updateDocument={actions.updateDocument}
               removeDocument={actions.removeDocument}
+              replaceDocument={actions.replaceDocument}
               data={data}
               context={context} />);
           expect(component).to.be.present();
@@ -103,6 +105,7 @@ describe('<FullWidthCellRenderer />', () => {
             cleanCols={actions.cleanCols}
             updateDocument={actions.updateDocument}
             removeDocument={actions.removeDocument}
+            replaceDocument={actions.replaceDocument}
             data={data}
             context={context}/>);
         expect(component).to.be.present();
@@ -151,6 +154,7 @@ describe('<FullWidthCellRenderer />', () => {
                 cleanCols={actions.cleanCols}
                 updateDocument={actions.updateDocument}
                 removeDocument={actions.removeDocument}
+                replaceDocument={actions.replaceDocument}
                 data={data}
                 context={context} />);
             const wrapper = component.find({'data-test-id': 'cancel-document-button'});
@@ -255,6 +259,7 @@ describe('<FullWidthCellRenderer />', () => {
               cleanCols={actions.cleanCols}
               updateDocument={actions.updateDocument}
               removeDocument={actions.removeDocument}
+              replaceDocument={actions.replaceDocument}
               data={data}
               context={context} />);
           const wrapper = component.find({
@@ -295,6 +300,7 @@ describe('<FullWidthCellRenderer />', () => {
               cleanCols={actions.cleanCols}
               updateDocument={actions.updateDocument}
               removeDocument={actions.removeDocument}
+              replaceDocument={actions.replaceDocument}
               data={data}
               context={context} />);
           expect(component.find('.document-footer-is-modified')).to.be.present();
@@ -329,6 +335,7 @@ describe('<FullWidthCellRenderer />', () => {
               cleanCols={actions.cleanCols}
               updateDocument={actions.updateDocument}
               removeDocument={actions.removeDocument}
+              replaceDocument={actions.replaceDocument}
               data={data}
               context={context} />);
           expect(component.find('.document-footer-is-error')).to.be.present();

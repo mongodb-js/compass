@@ -96,6 +96,7 @@ class FullWidthCellRenderer extends React.Component {
       return (
         <DocumentFooter
           doc={this.doc}
+          replaceDocument={this.props.replaceDocument}
           updateDocument={this.props.updateDocument}
           cancelHandler={this.handleCancelUpdate.bind(this)}
           api={this.props.api} />
@@ -118,8 +119,9 @@ FullWidthCellRenderer.propTypes = {
   data: PropTypes.any,
   context: PropTypes.any,
   node: PropTypes.any,
-  removeDocument: PropTypes.func.isRequired,
   updateDocument: PropTypes.func.isRequired,
+  removeDocument: PropTypes.func.isRequired,
+  replaceDocument: PropTypes.func.isRequired,
   replaceDoc: PropTypes.func.isRequired,
   cleanCols: PropTypes.func.isRequired
 };

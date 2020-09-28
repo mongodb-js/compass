@@ -451,6 +451,7 @@ describe('store', () => {
 
       beforeEach(() => {
         store.state.docs = [ hadronDoc ];
+        hadronDoc.elements.at(1).rename('new name');
       });
 
       it('replaces the document in the list', (done) => {
@@ -464,7 +465,166 @@ describe('store', () => {
       });
     });
 
+    context('when there is no update to make', () => {
+      const doc = { _id: 'testing', name: 'Depeche Mode' };
+      const hadronDoc = new HadronDocument(doc);
+      let stub;
+
+      beforeEach(() => {
+        stub = sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
+      });
+
+      afterEach(() => {
+        stub.restore();
+      });
+
+      it('sets the error for the document', (done) => {
+        hadronDoc.on('update-error', (message) => {
+          expect(message).to.equal('Unable to update, no changes have been made.');
+          done();
+        });
+
+        store.updateDocument(hadronDoc);
+      });
+    });
+
     context('when the update errors', () => {
+      const doc = { _id: 'testing', name: 'Depeche Mode' };
+      const hadronDoc = new HadronDocument(doc);
+      let stub;
+
+      beforeEach(() => {
+        hadronDoc.elements.at(1).rename('new name');
+        stub = sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
+      });
+
+      afterEach(() => {
+        stub.restore();
+      });
+
+      it('sets the error for the document', (done) => {
+        hadronDoc.on('update-error', (message) => {
+          expect(message).to.equal('error happened');
+          done();
+        });
+
+        store.updateDocument(hadronDoc);
+      });
+    });
+
+    context('when the update fails', () => {
+      const doc = { _id: 'testing', name: 'Beach Sand' };
+      const hadronDoc = new HadronDocument(doc);
+      let stub;
+
+      beforeEach(() => {
+        hadronDoc.elements.at(1).rename('new name');
+        stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, null);
+      });
+
+      afterEach(() => {
+        stub.restore();
+      });
+
+      it('sets the update blocked for the document', (done) => {
+        hadronDoc.on('update-blocked', () => {
+          done();
+        });
+
+        store.updateDocument(hadronDoc);
+      });
+    });
+
+    context('when update is called on an edited doc', () => {
+      const doc = { _id: 'testing', name: 'Beach Sand' };
+      const hadronDoc = new HadronDocument(doc);
+      let stub;
+
+      beforeEach(() => {
+        hadronDoc.get('name').edit('Desert Sand');
+        stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
+      });
+
+      afterEach(() => {
+        stub.restore();
+      });
+
+      it('has the original value for the edited value in the query', () => {
+        store.updateDocument(hadronDoc);
+
+        expect(stub.getCall(0).args[1]).to.deep.equal({
+          _id: 'testing',
+          name: 'Beach Sand'
+        });
+        expect(stub.getCall(0).args[2]).to.deep.equal({
+          $set: {
+            name: 'Desert Sand'
+          }
+        });
+      });
+    });
+
+    context('when passed an invalid document', () => {
+      it('should emit an error to the state', (done) => {
+        let didEmitError = false;
+        let emittedErrorMessage = '';
+        const unsubscribe = store.listen((state) => {
+          expect(state.updateSuccess).to.not.equal(true);
+          expect(didEmitError).to.equal(true);
+          expect(emittedErrorMessage).to.equal('An error occured when attempting to update the document: doc.getId is not a function');
+
+          unsubscribe();
+          done();
+        });
+
+        store.updateDocument({
+          emit: (errorType, errorMsg) => {
+            didEmitError = true;
+            emittedErrorMessage = errorMsg;
+          }
+        });
+      });
+    });
+  });
+
+  describe('#replaceDocument', () => {
+    let store;
+    let actions;
+
+    beforeEach(() => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
+      });
+    });
+
+    context('when there is no error', () => {
+      const doc = { _id: 'testing', name: 'Depeche Mode' };
+      const hadronDoc = new HadronDocument(doc);
+
+      beforeEach(() => {
+        store.state.docs = [ hadronDoc ];
+      });
+
+      it('replaces the document in the list', (done) => {
+        const unsubscribe = store.listen((state) => {
+          expect(state.docs[0]).to.not.equal(hadronDoc);
+          unsubscribe();
+          done();
+        });
+
+        store.replaceDocument(hadronDoc);
+      });
+    });
+
+    context('when the replace errors', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
       let stub;
@@ -483,12 +643,36 @@ describe('store', () => {
           done();
         });
 
-        store.updateDocument(hadronDoc);
+        store.replaceDocument(hadronDoc);
+      });
+    });
+
+    context('when replace is called on an edited doc', () => {
+      const doc = { _id: 'testing', name: 'Beach Sand' };
+      const hadronDoc = new HadronDocument(doc);
+      let stub;
+
+      beforeEach(() => {
+        hadronDoc.get('name').edit('Desert Sand');
+        stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
+      });
+
+      afterEach(() => {
+        stub.restore();
+      });
+
+      it('has the original value for the edited value in the query', () => {
+        store.replaceDocument(hadronDoc);
+
+        expect(stub.getCall(0).args[2]).to.deep.equal({
+          _id: 'testing',
+          name: 'Desert Sand'
+        });
       });
     });
   });
 
-  describe('#updateExtJsonDocument', () => {
+  describe('#replaceExtJsonDocument', () => {
     let store;
     let actions;
 
@@ -525,7 +709,7 @@ describe('store', () => {
           done();
         });
 
-        store.updateExtJsonDocument(ejsonDoc, hadronDoc);
+        store.replaceExtJsonDocument(ejsonDoc, hadronDoc);
       });
     });
 
@@ -551,7 +735,7 @@ describe('store', () => {
           done();
         });
 
-        store.updateExtJsonDocument(ejsonDoc, hadronDoc);
+        store.replaceExtJsonDocument(ejsonDoc, hadronDoc);
       });
     });
   });

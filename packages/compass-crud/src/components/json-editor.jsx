@@ -135,7 +135,7 @@ class EditableJson extends React.Component {
    */
   handleUpdate() {
     this.setState({ mode: PROGRESS, message: UPDATING });
-    this.props.updateExtJsonDocument(EJSON.parse(this.state.json), this.props.doc);
+    this.props.replaceExtJsonDocument(EJSON.parse(this.state.json), this.props.doc);
   }
 
   /**
@@ -223,7 +223,7 @@ class EditableJson extends React.Component {
 
   /**
    * Check if document has errors: based on JSON.parse() and updateError set by
-   * updateExtJsonDocument.
+   * replaceExtJsonDocument.
    *
    * @returns {Bool} if errors are present in the current json doc.
    */
@@ -384,7 +384,7 @@ EditableJson.displayName = 'EditableJson';
 EditableJson.propTypes = {
   doc: PropTypes.object.isRequired,
   updateSuccess: PropTypes.bool,
-  updateExtJsonDocument: PropTypes.func.isRequired,
+  replaceExtJsonDocument: PropTypes.func.isRequired,
   updateError: PropTypes.string,
   removeDocument: PropTypes.func.isRequired,
   clearUpdateStatus: PropTypes.func.isRequired,

@@ -65,6 +65,7 @@ class DocumentTableView extends React.Component {
         replaceDoc: this.props.replaceDoc,
         cleanCols: this.props.cleanCols,
         removeDocument: this.props.removeDocument,
+        replaceDocument: this.props.replaceDocument,
         updateDocument: this.props.updateDocument
       },
       getRowNodeId: function(data) {
@@ -860,6 +861,7 @@ DocumentTableView.propTypes = {
   replaceDoc: PropTypes.func,
   resetHeaders: PropTypes.func,
   removeDocument: PropTypes.func,
+  replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
   start: PropTypes.number,
   store: PropTypes.object.isRequired,

@@ -33,6 +33,7 @@ Document.propTypes = {
   editable: PropTypes.bool,
   expandAll: PropTypes.bool,
   removeDocument: PropTypes.func,
+  replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
   openImportFileDialog: PropTypes.func,
   openInsertDocumentDialog: PropTypes.func

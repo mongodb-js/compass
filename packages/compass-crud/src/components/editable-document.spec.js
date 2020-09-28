@@ -28,6 +28,7 @@ describe('<EditableDocument />', () => {
         <EditableDocument
           doc={new HadronDocument(doc)}
           removeDocument={sinon.spy(action)}
+          replaceDocument={sinon.spy(action)}
           updateDocument={sinon.spy(action)}
           copyToClipboard={sinon.spy(action)}
           version="3.4.0"
@@ -69,6 +70,7 @@ describe('<EditableDocument />', () => {
           <EditableDocument
             doc={new HadronDocument(arrayDoc)}
             removeDocument={sinon.spy(action)}
+            replaceDocument={sinon.spy(action)}
             updateDocument={sinon.spy(action)}
             copyToClipboard={sinon.spy(action)}
             version="3.4.0"

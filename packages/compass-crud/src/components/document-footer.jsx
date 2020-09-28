@@ -4,35 +4,13 @@ import PropTypes from 'prop-types';
 import { Element } from 'hadron-document';
 import { TextButton } from 'hadron-react-buttons';
 
-/**
- * The progress mode.
- */
-const PROGRESS = 'Progress';
-
-/**
- * The success mode.
- */
-const SUCCESS = 'Success';
-
-/**
- * The error mode.
- */
-const ERROR = 'Error';
-
-/**
- * The editing mode.
- */
-const EDITING = 'Editing';
-
-/**
- * The viewing mode.
- */
-const VIEWING = 'Viewing';
-
-/**
- * The invalid message.
- */
-const INVALID_MESSAGE = 'Update not permitted while document contains errors.';
+// Document editing modes.
+const PROGRESS_MODE = 'Progress';
+const SUCCESS_MODE = 'Success';
+const BLOCKED_MODE = 'Blocked';
+const ERROR_MODE = 'Error';
+const EDITING_MODE = 'Editing';
+const VIEWING_MODE = 'Viewing';
 
 /**
  * Map of modes to styles.
@@ -41,29 +19,18 @@ const MODES = {
   'Progress': 'is-in-progress',
   'Success': 'is-success',
   'Error': 'is-error',
+  'Blocked': 'is-error',
   'Editing': 'is-modified',
   'Viewing': 'is-viewing'
 };
 
-/**
- * The empty message.
- */
-const EMPTY = '';
-
-/**
- * The modified message.
- */
-const MODIFIED = 'Document Modified.';
-
-/**
- * The updating message.
- */
-const UPDATING = 'Updating Document.';
-
-/**
- * The updated message.
- */
-const UPDATED = 'Document Updated.';
+// Document editing messages.
+const EMPTY_MESSAGE = '';
+const MODIFIED_MESSAGE = 'Document Modified.';
+const UPDATING_MESSAGE = 'Updating Document.';
+const UPDATED_MESSAGE = 'Document Updated.';
+const INVALID_MESSAGE = 'Update not permitted while document contains errors.';
+const WAITING_OVERWRITE_CONFIRMATION_MESSAGE = 'Document was modified in the background or it longer exists. Do you wish to continue and possibly overwrite new changes?';
 
 /**
  * Component for a the edit document footer.
@@ -76,8 +43,9 @@ class DocumentFooter extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { mode: VIEWING, message: EMPTY };
+    this.state = { mode: VIEWING_MODE, message: EMPTY_MESSAGE };
     this.invalidElements = [];
+    this.boundHandleUpdateBlocked = this.handleUpdateBlocked.bind(this);
     this.boundHandleUpdateError = this.handleUpdateError.bind(this);
     this.boundHandleUpdateSuccess = this.handleUpdateSuccess.bind(this);
     this.boundHandleCancel = this.handleCancel.bind(this);
@@ -101,6 +69,7 @@ class DocumentFooter extends React.Component {
     this.props.doc.on(Element.Events.Invalid, this.unsubscribeInvalid);
     this.props.doc.on(Element.Events.Valid, this.unsubscribeValid);
     this.props.doc.on('update-error', this.boundHandleUpdateError);
+    this.props.doc.on('update-blocked', this.boundHandleUpdateBlocked);
     this.props.doc.on('update-success', this.boundHandleUpdateSuccess);
 
     this.handleModification();
@@ -128,7 +97,7 @@ class DocumentFooter extends React.Component {
       this.props.api.stopEditing();
     }
     this.props.doc.cancel();
-    this.setState({ mode: VIEWING, message: EMPTY });
+    this.setState({ mode: VIEWING_MODE, message: EMPTY_MESSAGE });
   }
 
   /**
@@ -137,14 +106,21 @@ class DocumentFooter extends React.Component {
    * @param {String} message - The error message.
    */
   handleUpdateError(message) {
-    this.setState({ mode: ERROR, message: message });
+    this.setState({ mode: ERROR_MODE, message: message });
   }
 
   /**
    * Handle a successful document update.
    */
   handleUpdateSuccess() {
-    this.setState({ mode: SUCCESS, message: UPDATED });
+    this.setState({ mode: SUCCESS_MODE, message: UPDATED_MESSAGE });
+  }
+
+  /**
+   * Handle when a document is blocked from updating (underlying data has changed).
+   */
+  handleUpdateBlocked() {
+    this.setState({ mode: BLOCKED_MODE, message: WAITING_OVERWRITE_CONFIRMATION_MESSAGE });
   }
 
   /**
@@ -174,11 +150,11 @@ class DocumentFooter extends React.Component {
   handleModification() {
     const isModified = this.props.doc.isModified();
     if (this.hasErrors()) {
-      this.setState({ mode: ERROR, message: INVALID_MESSAGE });
+      this.setState({ mode: ERROR_MODE, message: INVALID_MESSAGE });
     } else {
       this.setState({
-        mode: isModified ? EDITING : VIEWING,
-        message: isModified ? MODIFIED : EMPTY
+        mode: isModified ? EDITING_MODE : VIEWING_MODE,
+        message: isModified ? MODIFIED_MESSAGE : EMPTY_MESSAGE
       });
     }
   }
@@ -187,11 +163,21 @@ class DocumentFooter extends React.Component {
    * Handle the user clicking the update button.
    */
   handleUpdate() {
+    // When the mode shown is blocked and a user requests to update
+    // it means they intend to overwrite/force update values of the document
+    // that may have changed in the background.
+    const forceUpdate = this.state.mode === BLOCKED_MODE;
+
     if (this.props.api) {
       this.props.api.stopEditing();
     }
-    this.setState({ mode: PROGRESS, message: UPDATING });
-    this.props.updateDocument(this.props.doc);
+    this.setState({ mode: PROGRESS_MODE, message: UPDATING_MESSAGE });
+
+    if (forceUpdate) {
+      this.props.replaceDocument(this.props.doc);
+    } else {
+      this.props.updateDocument(this.props.doc);
+    }
   }
 
   /**
@@ -248,6 +234,7 @@ DocumentFooter.displayName = 'DocumentFooter';
 
 DocumentFooter.propTypes = {
   doc: PropTypes.object.isRequired,
+  replaceDocument: PropTypes.func.isRequired,
   updateDocument: PropTypes.func.isRequired,
   cancelHandler: PropTypes.func,
   api: PropTypes.any

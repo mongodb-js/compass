@@ -33,6 +33,7 @@ const getActions = function() {
     elementMarkRemoved: sinon.spy(),
     elementTypeChanged: sinon.spy(),
     removeDocument: sinon.spy(),
+    replaceDocument: sinon.spy(),
     updateDocument: sinon.spy(),
     getNextPage: sinon.spy(),
     getPrevPage: sinon.spy(),
@@ -86,12 +87,19 @@ const getContext = function(path) {
 
 const getDataService = function(done) {
   const foarSpy = sinon.spy();
+  const foauSpy = sinon.spy();
   const iSpy = sinon.spy();
   const dSpy = sinon.spy();
   return {
     foarSpy: foarSpy,
     findOneAndReplace: (ns, filter, obj, prefs, handleResult) => {
       foarSpy(filter, obj);
+      handleResult(null, obj);
+      done();
+    },
+    foauSpy: foauSpy,
+    findOneAndUpdate: (ns, filter, obj, prefs, handleResult) => {
+      foauSpy(filter, obj);
       handleResult(null, obj);
       done();
     },
