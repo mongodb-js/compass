@@ -521,6 +521,7 @@ class Target {
                 })
               );
             } else {
+              console.info(`Identity is not available: "${opts.identity_display}"`);
               codesign.printWarning();
             }
 
