@@ -529,8 +529,20 @@ class Target {
               if (_err) {
                 return reject(_err);
               }
-              const appleUsername = process.env.APPLE_USERNAME;
-              const applePassword = process.env.APPLE_PASSWORD;
+              let appleUsername = process.env.APPLE_USERNAME;
+              let applePassword = process.env.APPLE_PASSWORD;
+              const appleCredentialsFile = process.env.APPLE_CREDENTIALS_FILE;
+              if ((!appleUsername || !applePassword) && appleCredentialsFile) {
+                try {
+                  /* eslint no-sync: 0 */
+                  const credentials = JSON.parse(fs.readFileSync(appleCredentialsFile, 'utf8'));
+                  appleUsername = credentials.appleUsername;
+                  applePassword = credentials.applePassword;
+                } catch (credentialsErr) {
+                  return reject(credentialsErr);
+                }
+              }
+
               if (appleUsername && applePassword) {
                 notarize({
                   appBundleId: this.bundleId,
