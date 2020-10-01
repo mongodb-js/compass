@@ -543,6 +543,7 @@ class Target {
                   }).catch((_e) => { reject(_e); });
                 }).catch((_e) => { reject(_e); });
               } else {
+                debug('skipping notarization because APPLE_USERNAME or APPLE_PASSWORD is not set');
                 createDMG(opts).
                   then(() => {
                     resolve();
