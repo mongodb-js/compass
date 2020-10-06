@@ -259,8 +259,14 @@ functions:
           export NOTARY_AUTH_TOKEN="${signing_auth_token}"
           export NOTARY_SIGNING_KEY="${signing_key_name}"
           export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
-          export APPLE_USERNAME="${apple_username}"
-          export APPLE_PASSWORD="${apple_password}"
+
+          if [ `uname` == Darwin ]; then
+            # We do print the environment during the build process in a few places
+            # but we probably should stop doing that. After that, we can go back
+            # to using plain APPLE_USERNAME and APPLE_PASSWORD environment variables.
+            echo '{"appleUsername": "${apple_username}", "applePassword": "${apple_password}"}' > /tmp/compass-apple-cred.json
+            export APPLE_CREDENTIALS_FILE="/tmp/compass-apple-cred.json"
+          fi
 
           echo "Creating signed release build..."
 
@@ -272,6 +278,7 @@ functions:
           export NPM_CONFIG_LOGLEVEL=info
           export DEBUG="*,-flora-colossus"
           npm run release ${compass_distribution};
+          rm -f /tmp/compass-apple-cred.json
           EOF_BUILD_SH
 
           if [ `uname` == Darwin ]; then
