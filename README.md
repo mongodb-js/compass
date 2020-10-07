@@ -29,7 +29,7 @@ and by adding their installed location to the [distribution plugin list](https:/
 package.json. Plugin's `apiVersion` field has to match Compass'. Currently it's
 at `3.0.0`.
 
-Example of adding a dependancy:
+Example of adding a dependency:
 
 ```shell
 npm i -S @mongodb-js/compass-aggregations@latest
