@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps.",
-  "version": "23.3.1",
+  "version": "23.3.2",
   "scripts": {
     "check": "mongodb-js-precommit",
     "test": "mocha -R spec",
