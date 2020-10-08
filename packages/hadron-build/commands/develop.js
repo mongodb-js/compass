@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * TODO (imlucas) Use nodemon so main process has livereload.
  */
@@ -46,7 +44,7 @@ exports.tasks = function(argv) {
     verify.tasks(argv),
     ui.tasks(argv)
   ])
-  .then( () => exports.startElectronPrebuilt(argv));
+    .then( () => exports.startElectronPrebuilt(argv));
 };
 
 exports.handler = (argv) => {

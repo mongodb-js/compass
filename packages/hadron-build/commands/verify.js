@@ -8,8 +8,8 @@
 const semver = require('semver');
 const cli = require('mongodb-js-cli')('hadron-build:verify');
 const { promisify } = require('util');
-const { execFile } = require('child_process');
-const execFileAsync = promisify(execFile);
+const run = require('./../lib/run');
+const runAsync = promisify(run);
 
 exports.command = 'verify [options]';
 exports.describe = 'Verify the current environment meets the app\'s requirements.';
@@ -37,7 +37,7 @@ exports.checkNpmAndNodejsVersions = async(opts) => {
   const expectNodeVersion = opts.nodejs_version;
   const expectNpmVersion = opts.npm_version;
   const args = ['version', '--json', '--loglevel', 'error'];
-  const stdout = (await execFileAsync('npm', args, {env: process.env})).stdout;
+  const stdout = await runAsync('npm', args, {env: process.env});
   const versions = JSON.parse(stdout);
 
   if (!semver.satisfies(versions.node, expectNodeVersion)) {

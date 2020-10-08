@@ -35,7 +35,7 @@ const Platform = builder.Platform;
 
 const ui = require('./ui');
 const verify = require('./verify');
-const { execFile } = require('child_process');
+const run = require('../lib/run');
 
 exports.command = 'release';
 
@@ -373,11 +373,10 @@ const installDependencies = (CONFIG, done) => {
   cli.debug('Installing dependencies');
   var opts = {
     env: process.env,
-    cwd: path.join(CONFIG.resources, 'app'),
-    stdio: 'inherit'
+    cwd: path.join(CONFIG.resources, 'app')
   };
 
-  execFile('npm', args, opts, function(err) {
+  run('npm', args, opts, function(err) {
     if (err) {
       return done(err);
     }

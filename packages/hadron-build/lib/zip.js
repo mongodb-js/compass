@@ -64,8 +64,7 @@ function zip(_opts, done) {
 }
 
 /**
- * Packages the app as a plain zip using `electron-installer-zip`
- * for auto-updates.
+ * Packages the app as a plain zip for auto-updates.
  *
  * NOTE (imlucas) This should be run after the installers have been
  * created.  The modules that generate the installers also
