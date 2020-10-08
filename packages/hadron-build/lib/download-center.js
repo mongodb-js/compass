@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs-extra');
 const debug = require('debug')('mongodb-download-center');
 const AWS = require('aws-sdk');

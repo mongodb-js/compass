@@ -1,4 +1,5 @@
-'use strict';
+/* eslint-disable no-shadow */
+
 /* eslint no-sync: 0 */
 /**
  * @see [Atom's publish-build-task.coffee](https://git.io/vaYu3)
@@ -23,7 +24,6 @@ const _ = require('lodash');
 const async = require('async');
 const asar = require('asar');
 const packager = require('electron-packager');
-const run = require('electron-installer-run');
 const createApplicationZip = require('../lib/zip');
 const license = require('electron-license');
 const ModuleCache = require('hadron-module-cache');
@@ -35,6 +35,7 @@ const Platform = builder.Platform;
 
 const ui = require('./ui');
 const verify = require('./verify');
+const { execFile } = require('child_process');
 
 exports.command = 'release';
 
@@ -164,15 +165,15 @@ const createNsisApplication = (CONFIG, done) => {
   builder.build({
     targets: Platform.MAC.createTarget(),
     config: {
-     "//": "build options, see https://goo.gl/QQXmcV"
+      '//': 'build options, see https://goo.gl/QQXmcV'
     }
   })
-  .then(() => {
+    .then(() => {
     // handle result
-  })
-  .catch((error) => {
-    return done(error);
-  })
+    })
+    .catch((error) => {
+      return done(error);
+    });
 };
 
 /**
@@ -372,9 +373,11 @@ const installDependencies = (CONFIG, done) => {
   cli.debug('Installing dependencies');
   var opts = {
     env: process.env,
-    cwd: path.join(CONFIG.resources, 'app')
+    cwd: path.join(CONFIG.resources, 'app'),
+    stdio: 'inherit'
   };
-  run('npm', args, opts, function(err) {
+
+  execFile('npm', args, opts, function(err) {
     if (err) {
       return done(err);
     }
@@ -388,7 +391,7 @@ const installDependencies = (CONFIG, done) => {
       cli.debug('Native modules rebuilt against Electron.');
       return done();
     }).catch((e) => {
-      return done(e)
+      return done(e);
     });
   });
 };
@@ -481,6 +484,9 @@ const createApplicationAsar = (CONFIG, done) => {
       done();
     }, done);
   }).catch((err) => {
+    if (err) {
+      console.error(err);
+    }
     done();
   });
 };

@@ -4,7 +4,7 @@
   "version": "23.3.1",
   "scripts": {
     "check": "mongodb-js-precommit",
-    "test": "mocha",
+    "test": "mocha -R spec",
     "ci": "npm run check && npm test"
   },
   "bin": {
@@ -20,13 +20,12 @@
     "async": "^3.1.1",
     "aws-sdk": "^2.611.0",
     "bluebird": "^3.7.2",
+    "chalk": "^4.1.0",
     "cli-table": "^0.3.1",
     "debug": "^4.1.1",
     "del": "^2.0.2",
     "electron": "^6.1.7",
     "electron-builder": "^22.3.2",
-    "electron-installer-run": "^1.0.2",
-    "electron-installer-zip": "^0.1.2",
     "electron-license": "^1.1.0",
     "electron-mocha": "^8.2.0",
     "electron-notarize": "^0.3.0",
@@ -34,6 +33,7 @@
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
     "electron-rebuild": "^1.10.0",
     "execa": "^0.6.0",
+    "figures": "^3.2.0",
     "flatnest": "^1.0.0",
     "fs-extra": "^8.1.0",
     "getos": "^3.1.4",
@@ -45,6 +45,7 @@
     "hadron-style-manager": "^0.3.0",
     "in-publish": "^2.0.0",
     "js-yaml": "^3.13.1",
+    "jszip": "^3.5.0",
     "less-cache": "^1.1.0",
     "lodash": "^4.17.15",
     "moment": "^2.17.1",
@@ -57,11 +58,13 @@
     "tar-pack": "^3.3.0",
     "which": "^2.0.2",
     "xvfb-maybe": "^0.2.1",
-    "yargs": "^4.8.1"
+    "yargs": "^4.8.1",
+    "zip-folder": "^1.0.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "eslint-config-mongodb-js": "^5.0.3",
+    "eslint-plugin-mocha": "^8.0.0",
     "mocha": "^7.0.1",
     "mongodb-js-precommit": "^2.2.0",
     "plist": "^3.0.1",
@@ -70,7 +73,6 @@
   },
   "optionalDependencies": {
     "@mongodb-js/electron-wix-msi": "^2.1.20",
-    "electron-installer-codesign": "^0.6.0",
     "electron-installer-debian": "^3.0.0",
     "electron-installer-dmg": "^3.0.0",
     "electron-installer-redhat": "^2.0.0",

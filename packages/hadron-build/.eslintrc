@@ -1,9 +1,24 @@
 {
   "env": {
+    "mocha": true,
     "es6": true
   },
-  "rules": {
-    "strict": 0
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
   },
-  "extends": ["mongodb-js/node"]
+  "extends": [
+    "mongodb-js/node",
+    "plugin:mocha/recommended"
+  ],
+  "plugins": [
+    "mocha"
+  ],
+  "rules": {
+    "mocha/no-mocha-arrows": 0,
+    "mocha/no-setup-in-describe": 0,
+    "mocha/no-hooks-for-single-case": 0,
+    "mocha/no-sibling-hooks": 0,
+    "mocha/no-exclusive-tests": 2
+  }
 }

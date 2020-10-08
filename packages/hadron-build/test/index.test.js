@@ -1,5 +1,3 @@
-'use strict';
-
 const hadronBuild = require('../');
 const commands = hadronBuild;
 const chai = require('chai');

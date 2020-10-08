@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs');
 const _ = require('lodash');
 const semver = require('semver');
@@ -502,7 +500,7 @@ class Target {
         const opts = this.installerOptions;
         const async = require('async');
         const createDMG = require('electron-installer-dmg');
-        const codesign = require('electron-installer-codesign');
+        const codesign = require('./codesign');
         const { notarize } = require('electron-notarize');
         codesign.isIdentityAvailable(
           opts.identity_display,
