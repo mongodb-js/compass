@@ -3,6 +3,12 @@
   width: 100%;
   top: 15px;
   padding: 0px 20px 0px 20px;
+  pointer-events: none;
+
+  &-left,
+  &-right {
+    pointer-events: all;
+  }
 
   &-button {
     visibility: hidden;
@@ -32,8 +38,6 @@
   }
 
   &-expand-button {
-    adding: 0px 5px 0px 5px;
-
     .fa {
       height: 12px;
       width: 12px;
@@ -43,13 +47,8 @@
   &-right {
     float: right;
   }
+
   &-left {
     float: left;
-  }
-
-  &-left, &-right {
-    button {
-      z-index: 2;
-    }
   }
 }
