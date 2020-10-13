@@ -138,7 +138,7 @@
     "mongodb-data-service": "^16.0.0",
     "mongodb-js-metrics": "^5.0.0",
     "mongodb-js-precommit": "^2.0.0",
-    "mongodb-query-parser": "^2.0.0",
+    "mongodb-query-parser": "^2.1.2",
     "mongodb-reflux-store": "0.0.1",
     "mongodb-schema": "^8.2.3",
     "mongodb-stitch-browser-sdk": "^4.3.2",
