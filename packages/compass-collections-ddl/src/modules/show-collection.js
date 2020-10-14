@@ -6,12 +6,12 @@ import { appRegistryEmit } from 'modules/app-registry';
  * Get the source of a collection from a list of collections.
  *
  * @param {Object} collection - The collection.
- * @param {Array} collection - The database's collections.
+ * @param {Array} collections - The database's collections.
  *
  * @returns {Object} The source or null.
  */
 const getSource = (collection, collections) => {
-  if (!collection.readonly) return null;
+  if (!collection.view_on) return null;
   return collections.find((coll) => {
     return toNS(coll._id).collection === collection.view_on;
   });
@@ -39,7 +39,7 @@ export const showCollection = (name) => {
         {
           namespace: collection._id,
           isReadonly: collection.readonly,
-          sourceName: collection.readonly ? `${state.databaseName}.${collection.view_on}` : null,
+          sourceName: collection.view_on ? `${state.databaseName}.${collection.view_on}` : null,
           editViewName: null,
           isSourceReadonly: source ? source.readonly : false,
           sourceViewOn: source ? `${state.databaseName}.${source.view_on}` : null,

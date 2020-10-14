@@ -6,41 +6,46 @@ import CollectionsTable from 'components/collections-table';
 import styles from './collections-table.less';
 
 describe('CollectionsTable [Component]', () => {
-  const collections = [
-    {
-      _id: 'data-service.myView',
-      readonly: true,
-      type: 'view',
-      view_on: 'test',
-      pipeline: [{$project: {a: 1}}]
-    }
-  ];
-
+  let collections;
   let component;
   let openSpy;
   let sortCollectionsSpy;
   let showCollectionSpy;
   let openLinkSpy;
+  let remount;
 
   beforeEach(() => {
+    collections = [
+      {
+        _id: 'data-service.myView',
+        readonly: true,
+        type: 'view',
+        view_on: 'test',
+        pipeline: [{$project: {a: 1}}]
+      }
+    ];
+
     openSpy = sinon.spy();
     sortCollectionsSpy = sinon.spy();
     showCollectionSpy = sinon.spy();
     openLinkSpy = sinon.spy();
-    component = mount(
-      <CollectionsTable
-        columns={COLUMNS}
-        collections={collections}
-        isWritable
-        isReadonly={false}
-        sortOrder="asc"
-        sortColumn="Collection Name"
-        databaseName="testing"
-        open={openSpy}
-        sortCollections={sortCollectionsSpy}
-        showCollection={showCollectionSpy}
-        openLink={openLinkSpy} />
-    );
+    remount = () => {
+      component = mount(
+        <CollectionsTable
+          columns={COLUMNS}
+          collections={collections}
+          isWritable
+          isReadonly={false}
+          sortOrder="asc"
+          sortColumn="Collection Name"
+          databaseName="testing"
+          open={openSpy}
+          sortCollections={sortCollectionsSpy}
+          showCollection={showCollectionSpy}
+          openLink={openLinkSpy} />
+      );
+    };
+    remount();
   });
 
   afterEach(() => {
@@ -62,6 +67,14 @@ describe('CollectionsTable [Component]', () => {
   describe('Views', () => {
     it('renders the viewOn', () => {
       expect(component.find(`.${styles['collections-table-view-on']}`)).to.be.present();
+    });
+
+    it('does not render the viewOn when not a view', () => {
+      for (const coll of collections) {
+        coll.view_on = undefined;
+      }
+      remount();
+      expect(component.find(`.${styles['collections-table-view-on']}`)).to.not.be.present();
     });
   });
 });

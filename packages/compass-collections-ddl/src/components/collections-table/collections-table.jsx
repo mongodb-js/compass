@@ -155,7 +155,7 @@ class CollectionsTable extends PureComponent {
     const collName = coll[NAME];
     let viewInfo = null;
 
-    if (coll.readonly) {
+    if (coll.view_on) {
       viewInfo = <span className={styles['collections-table-view-on']}>(view on: {coll.view_on})</span>;
     }
 
