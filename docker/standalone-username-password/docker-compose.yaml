@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  mongodb:
+    image: "docker.io/bitnami/mongodb-sharded:4.4"
+    environment:
+      MONGODB_USERNAME: my_user
+      MONGODB_PASSWORD: password123
+      MONGODB_DATABASE: test
+    ports:
+      - "28006:27017"

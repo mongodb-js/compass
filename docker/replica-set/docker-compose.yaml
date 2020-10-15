@@ -1,0 +1,39 @@
+version: '2'
+
+services:
+  "mongodb-rs-1":
+    image: "docker.io/bitnami/mongodb:4.4"
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: "mongodb-rs-1"
+      MONGODB_REPLICA_SET_MODE: "primary"
+      MONGODB_ROOT_PASSWORD: "password123"
+      MONGODB_REPLICA_SET_KEY: "replicasetkey123"
+      MONGODB_PORT_NUMBER: "28001"
+    ports:
+      - "28001:28001"
+
+  "mongodb-rs-2":
+    image: "docker.io/bitnami/mongodb:4.4"
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: "mongodb-rs-2"
+      MONGODB_REPLICA_SET_MODE: "secondary"
+      MONGODB_REPLICA_SET_KEY: "replicasetkey123"
+      MONGODB_PORT_NUMBER: "28002"
+      MONGODB_INITIAL_PRIMARY_HOST: "mongodb-rs-1"
+      MONGODB_INITIAL_PRIMARY_PORT_NUMBER: "28002"
+      MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD: "password123"
+    ports:
+      - "28002:28002"
+
+  "mongodb-rs-3":
+    image: "docker.io/bitnami/mongodb:4.4"
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: "mongodb-rs-3"
+      MONGODB_REPLICA_SET_MODE: "secondary"
+      MONGODB_REPLICA_SET_KEY: "replicasetkey123"
+      MONGODB_PORT_NUMBER: "28003"
+      MONGODB_INITIAL_PRIMARY_HOST: "mongodb-rs-1"
+      MONGODB_INITIAL_PRIMARY_PORT_NUMBER: "28003"
+      MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD: "password123"
+    ports:
+      - "28003:28003"
