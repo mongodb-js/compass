@@ -1,7 +1,8 @@
 version: '3'
 
 services:
-  mongodb-tls:
+  localhost:
+    hostname: localhost
     build: "."
     ports:
-      - "27029:27017"
+      - "27017:27017"

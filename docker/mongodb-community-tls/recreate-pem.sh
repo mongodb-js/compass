@@ -18,7 +18,7 @@ openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 -out ca.pem -subj "
 # two random digits number
 echo "00" > file.srl
 openssl genrsa -out server.key 2048
-openssl req -key server.key -new -out server.req -subj  "/C=AU/ST=NSW/O=Organisation/CN=mongodb-community-tls/CN=localhost/emailAddress=user@domain.com"
+openssl req -key server.key -new -out server.req -subj  "/C=AU/ST=NSW/O=Organisation/CN=localhost/emailAddress=user@domain.com"
 openssl x509 -req -in server.req -CA ca.pem -CAkey ca.key -CAserial file.srl -out server.crt -days 3650
 cat server.key server.crt > server.pem
 openssl verify -CAfile ca.pem server.pem
@@ -29,3 +29,7 @@ openssl req -key client.key -new -out client.req -subj "/C=AU/ST=NSW/O=Organisat
 openssl x509 -req -in client.req -CA ca.pem -CAkey ca.key -CAserial file.srl -out client.crt -days 3650
 cat client.key client.crt > client.pem
 openssl verify -CAfile ca.pem client.pem
+
+sleep 1
+
+rm -f *.key *.crt *.srl *.req

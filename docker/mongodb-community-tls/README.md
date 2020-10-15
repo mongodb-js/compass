@@ -14,8 +14,7 @@ tlsCAFile=tls/ca.pem
 ```
 
 ```
-mongo --host localhost --port 27029 --ssl --sslCAFile tls/ca.pem --sslPEMKeyFile tls/client.pem
+mongo --host localhost --port 27029 --ssl --sslCAFile tls/ca.pem --sslPEMKeyFile tls/client.pem --sslAllowInvalidCertificates
 ```
-
 
 Run `./recreate-pem.sh` to re-generate the certificates if needed.
