@@ -1,5 +1,6 @@
 import SelectFileType from 'components/select-file-type';
 import { IconTextButton } from 'hadron-react-buttons';
+import toNS from 'mongodb-ns';
 import fileSaveDialog from 'utils/file-save-dialog';
 import ProgressBar from 'components/progress-bar';
 import { FILETYPE } from 'constants/export-step';
@@ -38,6 +39,7 @@ class ExportSelectOutput extends PureComponent {
     count: PropTypes.number,
     fileType: PropTypes.string,
     fileName: PropTypes.string,
+    ns: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
     exportedDocsCount: PropTypes.number,
     progress: PropTypes.number.isRequired,
@@ -65,7 +67,8 @@ class ExportSelectOutput extends PureComponent {
    * Handle choosing a file from the file dialog.
    */
   handleChooseFile = () => {
-    fileSaveDialog(this.props.fileType).then(result => {
+    const fileNamePrefill = toNS(this.props.ns).collection;
+    fileSaveDialog(this.props.fileType, fileNamePrefill).then(result => {
       if (result && result.filePath && !result.canceled) {
         this.props.selectExportFileName(result.filePath);
       }

@@ -21,7 +21,7 @@ import 'less/global.less';
 /**
  * Customize data service for your sandbox.
  */
-const NS = 'lucas_apple_health_data.sleep';
+const NS = 'test.sales';
 
 import Connection from 'mongodb-connection-model';
 const connection = new Connection({

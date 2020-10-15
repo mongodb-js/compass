@@ -65,7 +65,7 @@ describe('formatters', () => {
           // The driver returns bson v1.x objects to us. They don't have a
           // .toExtendedJSON() method, we simulate that.
           class FakeBSON1Binary extends Binary {
-            get toExtendedJSON() { return undefined; };
+            get toExtendedJSON() { return undefined; }
           }
 
           const binary = new Binary(Buffer.from('56391cc226bc4affbe520f67856c09ec'), 4);

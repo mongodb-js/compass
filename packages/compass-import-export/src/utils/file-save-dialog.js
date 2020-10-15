@@ -1,4 +1,4 @@
-export default function fileSaveDialog(fileType) {
+export default function fileSaveDialog(fileType, prefillFileName) {
   const { dialog, getCurrentWindow } = require('electron').remote;
 
   const filters = [
@@ -11,6 +11,7 @@ export default function fileSaveDialog(fileType) {
   const buttonLabel = 'Select';
   return dialog.showSaveDialog(getCurrentWindow(), {
     title,
+    defaultPath: prefillFileName,
     filters,
     buttonLabel
   });

@@ -231,6 +231,7 @@ class ExportModal extends PureComponent {
         status={this.props.status}
         fileType={this.props.fileType}
         fileName={this.props.fileName}
+        ns={this.props.ns}
         progress={this.props.progress}
         exportStep={this.props.exportStep}
         startExport={this.props.startExport}
