@@ -417,9 +417,11 @@ describe('document utils', () => {
         doc.insertEnd('pineapple', 'hat');
       });
 
-      it('includes the new element in the object', function() {
+      it('includes a check that the new element doesnt exist or exists with the same value', function() {
         expect(getOriginalKeysAndValuesForFieldsThatWereUpdated(doc)).to.deep.equal({
-          pineapple: 'hat'
+          pineapple: {
+            $exists: false
+          }
         });
       });
     });

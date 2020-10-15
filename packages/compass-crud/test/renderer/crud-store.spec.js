@@ -431,7 +431,7 @@ describe('store', () => {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach((done) => {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -443,6 +443,14 @@ describe('store', () => {
         actions: actions,
         namespace: 'compass-crud.test'
       });
+      dataService.insertOne('compass-crud.test', {
+        _id: 'testing',
+        name: 'Depeche Mode'
+      }, {}, done);
+    });
+
+    afterEach((done) => {
+      dataService.deleteMany('compass-crud.test', {}, {}, done);
     });
 
     context('when there is no error', () => {
@@ -457,8 +465,47 @@ describe('store', () => {
       it('replaces the document in the list', (done) => {
         const unsubscribe = store.listen((state) => {
           expect(state.docs[0]).to.not.equal(hadronDoc);
+          expect(state.docs[0].elements.at(1).key === 'new name');
           unsubscribe();
-          done();
+          setTimeout(() => done(), 100);
+        });
+
+        hadronDoc.on('update-blocked', () => {
+          done(new Error('Didn\'t expect update to be blocked.'));
+        });
+
+        hadronDoc.on('update-error', (errorMessage) => {
+          done(new Error(`Didn\'t expect update to error. Errored with message: ${errorMessage}`));
+        });
+
+        store.updateDocument(hadronDoc);
+      });
+    });
+
+    context('when a new field is added and there is no error', () => {
+      const doc = { _id: 'testing', name: 'Depeche Mode' };
+      const hadronDoc = new HadronDocument(doc);
+
+      beforeEach(() => {
+        store.state.docs = [ hadronDoc ];
+        hadronDoc.insertAfter(hadronDoc.elements.at(1), 'new field', 'new field value');
+      });
+
+      it('updates the document in the list', (done) => {
+        const unsubscribe = store.listen((state) => {
+          expect(state.docs[0]).to.not.equal(hadronDoc);
+          expect(state.docs[0].elements.at(2).key === 'new field');
+          unsubscribe();
+          // Ensure we have enough time for update-blocked or update-error to be called.
+          setTimeout(() => done(), 100);
+        });
+
+        hadronDoc.on('update-blocked', () => {
+          done(new Error('Didn\'t expect update to be blocked.'));
+        });
+
+        hadronDoc.on('update-error', (errorMessage) => {
+          done(new Error(`Didn\'t expect update to error. Errored with message: ${errorMessage}`));
         });
 
         store.updateDocument(hadronDoc);
@@ -566,23 +613,17 @@ describe('store', () => {
 
     context('when passed an invalid document', () => {
       it('should emit an error to the state', (done) => {
-        let didEmitError = false;
-        let emittedErrorMessage = '';
-        const unsubscribe = store.listen((state) => {
-          expect(state.updateSuccess).to.not.equal(true);
-          expect(didEmitError).to.equal(true);
-          expect(emittedErrorMessage).to.equal('An error occured when attempting to update the document: doc.getId is not a function');
+        const doc = { _id: 'testing', name: 'Beach Sand' };
+        const invalidHadronDoc = new HadronDocument(doc);
+        invalidHadronDoc.getId = null;
 
-          unsubscribe();
+        invalidHadronDoc.on('update-error', (message) => {
+          expect(message).to.equal('An error occured when attempting to update the document: doc.getId is not a function');
+
           done();
         });
 
-        store.updateDocument({
-          emit: (errorType, errorMsg) => {
-            didEmitError = true;
-            emittedErrorMessage = errorMsg;
-          }
-        });
+        store.updateDocument(invalidHadronDoc);
       });
     });
   });
