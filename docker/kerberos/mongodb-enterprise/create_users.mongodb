@@ -1,0 +1,19 @@
+conn = new Mongo();
+db = conn.getDB("$external");
+
+db.createUser(
+   {
+     user: "mongodb.user@EXAMPLE.COM",
+     roles: [ { role: "readWriteAnyDatabase", db: "admin" } ]
+   }
+)
+
+db.createUser(
+   {
+      user: "application/reporting@EXAMPLE.COM",
+      roles: [
+        { role: "readWriteAnyDatabase", db: "admin" },
+        { role: "read", db: "records" }
+      ]
+   }
+)

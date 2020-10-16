@@ -1,0 +1,39 @@
+version: "3"
+services:
+  kdc-kadmin:
+    build: ./kdc-kadmin
+    volumes:
+      # This is needed otherwise there won't
+      # be enough entropy to generate a new kerberos realm
+      - /dev/urandom:/dev/random
+      - krb5-keytabs:/etc/krb5-keytabs
+    networks:
+      - krb5-network
+    ports:
+      - "88:88" # kdc
+      - "88:88/udp"
+      - "750:750"
+      - "749:749" # kadmind
+
+  mongodb-enterprise:
+    hostname: mongodb-enterprise.example.com
+    depends_on:
+      - kdc-kadmin
+    build: ./mongodb-enterprise
+    volumes:
+      - krb5-keytabs:/etc/krb5-keytabs
+    ports:
+      - "29017:27017"
+    networks:
+      krb5-network:
+        aliases:
+          - mongodb-enterprise.example.com
+
+networks:
+  krb5-network:
+
+volumes:
+  krb5-keytabs:
+
+
+
