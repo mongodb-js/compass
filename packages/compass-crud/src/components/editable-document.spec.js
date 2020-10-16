@@ -20,7 +20,7 @@ describe('<EditableDocument />', () => {
 
   describe('#render', () => {
     let wrapper;
-    const doc = { a: 1, b: 2 };
+    const doc = { a: 1, b: 2, c: null };
     const action = Reflux.createAction();
 
     before(() => {
@@ -50,7 +50,7 @@ describe('<EditableDocument />', () => {
 
     it('renders an editable element for each document element', () => {
       const component = wrapper.find('.document-elements');
-      expect(component.children().length).to.equal(2);
+      expect(component.children().length).to.equal(3);
     });
 
     context('COMPASS-1732 when the value is an array', () => {

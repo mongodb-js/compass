@@ -259,7 +259,7 @@ class EditableElement extends React.Component {
    * @returns {React.Component} The component.
    */
   renderAction() {
-    if (this.props.editing && this.element.isValueEditable()) {
+    if (this.props.editing) {
       return (<ElementAction element={this.element} />);
     }
   }
