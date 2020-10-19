@@ -86,6 +86,12 @@ const minicharts_d3fns_string = (appRegistry) => {
     return chart;
   };
 
+  chart.cleanup = function() {
+    fewChart.cleanup();
+    manyChart.cleanup();
+    return chart;
+  };
+
   return chart;
 };
 

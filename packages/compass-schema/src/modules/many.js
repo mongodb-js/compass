@@ -36,7 +36,7 @@ const minicharts_d3fns_many = (appRegistry) => {
 
   // set up tooltips
   const tip = d3.tip()
-    .attr('class', 'd3-tip')
+    .attr('class', 'd3-tip d3-tip-many')
     .direction('n')
     .offset([-9, 0]);
   const brush = d3.svg.brush()
@@ -469,6 +469,11 @@ const minicharts_d3fns_many = (appRegistry) => {
       return options;
     }
     assign(options, value);
+    return chart;
+  };
+
+  chart.cleanup = function() {
+    tip.destroy();
     return chart;
   };
 

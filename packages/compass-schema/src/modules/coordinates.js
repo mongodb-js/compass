@@ -472,6 +472,10 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
     circleControl.setCircle(value[0], value[1]);
   };
 
+  chart.cleanup = function() {
+    return chart;
+  };
+
   return chart;
 };
 
