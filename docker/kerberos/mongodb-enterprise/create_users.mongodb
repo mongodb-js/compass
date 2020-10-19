@@ -12,8 +12,10 @@ db.createUser(
    {
       user: "application/reporting@EXAMPLE.COM",
       roles: [
-        { role: "readWriteAnyDatabase", db: "admin" },
-        { role: "read", db: "records" }
+        { role: "read", db: "db1" },
+        { role: "readWrite", db: "db2" },
+        { role: "dbAdmin", db: "db3" },
+        { role: "dbOwner", db: "db4" }
       ]
    }
 )
