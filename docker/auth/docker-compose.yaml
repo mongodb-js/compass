@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  mongodb:
+    image: "mongo:4.4"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: admin
+    ports:
+      - "28006:27017"
+    volumes:
+      - "./initdb:/docker-entrypoint-initdb.d/"
