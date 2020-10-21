@@ -1,0 +1,9 @@
+version: "3"
+services:
+  mongo:
+    image: mongo
+  jumphost:
+    build: "."
+    ports:
+      - "22222:22"
+    restart: unless-stopped
