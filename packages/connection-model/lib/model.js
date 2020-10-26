@@ -1112,7 +1112,7 @@ async function createConnectionFromUrl(url) {
     } else if (attrs.authStrategy === 'KERBEROS') {
       attrs.kerberosPrincipal = user;
       attrs.kerberosPassword = password;
-    } else if (attrs.authStrategy === 'MONGODB') {
+    } else if (attrs.authStrategy === 'MONGODB' || attrs.authStrategy === 'SCRAM-SHA-256') {
       attrs.mongodbUsername = user;
       attrs.mongodbPassword = password;
 

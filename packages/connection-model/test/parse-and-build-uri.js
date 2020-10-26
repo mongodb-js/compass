@@ -81,10 +81,16 @@ const tests = [
       'readPreference=primary&readPreferenceTags=dc%3Any%2Crack%3A1&readPreferenceTags=region%3Anorth%2Cdatacenter%3AA&ssl=false'
   },
   {
-    description: 'with authSource and authMechanism',
+    description: 'with authSource and authMechanism (SCRAM-SHA-1)',
     connectionString:
       'mongodb://%40rlo:w%40of@localhost:27017/dogdb?authSource=catdb&' +
       'readPreference=primary&authMechanism=SCRAM-SHA-1&ssl=false'
+  },
+  {
+    description: 'with authSource and authMechanism (SCRAM-SHA-256)',
+    connectionString:
+      'mongodb://%40rlo:w%40of@localhost:27017/dogdb?authSource=catdb&' +
+      'authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false'
   },
   {
     description: 'with authMechanismProperties and gssapiServiceName',
