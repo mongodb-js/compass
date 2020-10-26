@@ -26,7 +26,7 @@
     "mongodb": "^3.6.1",
     "mongodb-build-info": "^1.1.0",
     "mongodb-collection-sample": "^4.5.1",
-    "mongodb-connection-model": "^17.0.0",
+    "mongodb-connection-model": "^17.0.1",
     "mongodb-index-model": "^2.6.1",
     "mongodb-js-errors": "^0.5.0",
     "mongodb-ns": "^2.2.0",
