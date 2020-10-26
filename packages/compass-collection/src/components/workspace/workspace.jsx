@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 
@@ -189,34 +190,35 @@ class Workspace extends PureComponent {
    * @returns {Component} The views.
    */
   renderViews() {
-    const activeTab = this.props.tabs.find((tab) => {
-      return tab.isActive;
-    });
-    if (activeTab) {
-      return (
+    return this.props.tabs.map((tab) => {
+      const viewTabClass = classnames({
+        [styles['workspace-view-tab']]: true,
+        hidden: !tab.isActive
+      });
+      return (<div className={viewTabClass}>
         <Collection
-          key={activeTab.id}
-          id={activeTab.id}
-          namespace={activeTab.namespace}
-          isReadonly={activeTab.isReadonly}
-          sourceName={activeTab.sourceName}
-          editViewName={activeTab.editViewName}
-          sourceReadonly={activeTab.sourceReadonly}
-          sourceViewOn={activeTab.sourceViewOn}
-          tabs={activeTab.tabs}
-          views={activeTab.views}
-          scopedModals={activeTab.scopedModals}
-          queryHistoryIndexes={activeTab.queryHistoryIndexes}
-          statsPlugin={activeTab.statsPlugin}
-          statsStore={activeTab.statsStore}
-          activeSubTab={activeTab.activeSubTab}
-          pipeline={activeTab.pipeline}
+          key={tab.id}
+          id={tab.id}
+          namespace={tab.namespace}
+          isReadonly={tab.isReadonly}
+          sourceName={tab.sourceName}
+          editViewName={tab.editViewName}
+          sourceReadonly={tab.sourceReadonly}
+          sourceViewOn={tab.sourceViewOn}
+          tabs={tab.tabs}
+          views={tab.views}
+          scopedModals={tab.scopedModals}
+          queryHistoryIndexes={tab.queryHistoryIndexes}
+          statsPlugin={tab.statsPlugin}
+          statsStore={tab.statsStore}
+          activeSubTab={tab.activeSubTab}
+          pipeline={tab.pipeline}
           changeActiveSubTab={this.props.changeActiveSubTab}
           selectOrCreateTab={this.props.selectOrCreateTab}
           globalAppRegistry={this.props.appRegistry}
-          localAppRegistry={activeTab.localAppRegistry} />
-      );
-    }
+          localAppRegistry={tab.localAppRegistry} />
+      </div>);
+    });
   }
 
   /**

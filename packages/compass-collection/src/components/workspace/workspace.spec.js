@@ -8,7 +8,10 @@ describe.skip('Workspace [Component]', () => {
   let component;
   let prevTabSpy;
   let nextTabSpy;
-  const tabs = [];
+  const tabs = [
+    { isActive: true },
+    { isActive: false },
+  ];
 
   beforeEach(() => {
     prevTabSpy = sinon.spy();
@@ -39,6 +42,11 @@ describe.skip('Workspace [Component]', () => {
 
   it('renders the individual tabs', () => {
     expect(component.find(`.${styles['workspace-tabs-container']}`)).to.be.present();
+  });
+
+  it('renders one tab hidden, one not', () => {
+    expect(component.find(`.${styles['workspace-view-tab']}:not(.hidden)`)).to.be.present();
+    expect(component.find(`.${styles['workspace-view-tab']}.hidden`)).to.be.present();
   });
 
   context('when clicking the prev button', () => {
