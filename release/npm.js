@@ -1,7 +1,7 @@
-const { execFileSync } = require('child_process');
+const execa = require('execa');
 
-function version(v) {
-  execFileSync('npm', ['version', v, '--no-git-tag-version']);
+async function version(v) {
+  await execa('npm', ['version', v, '--no-git-tag-version']);
 }
 
 module.exports = {

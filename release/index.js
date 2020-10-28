@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const {
   releaseBeta,
   releaseGa,
@@ -5,7 +6,6 @@ const {
 } = require('./commands');
 
 function usage() {
-  // eslint-disable-next-line no-console
   console.info(`Compass release CLI scripts.
 
 USAGE:
@@ -69,11 +69,15 @@ async function main(args) {
       failWithUsage();
     }
 
-    return checkout(version);
+    return await checkout(version);
   }
 
   failWithUsage();
 }
 
 
-main(process.argv.slice(2));
+main(process.argv.slice(2))
+  .catch(error => {
+    console.error(error);
+    process.exit(1);
+  });

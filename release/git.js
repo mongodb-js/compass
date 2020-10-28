@@ -1,41 +1,41 @@
-const { execFileSync } = require('child_process');
+const execa = require('execa');
 
-function checkout(releaseBranchName) {
+async function checkout(releaseBranchName) {
   try {
-    execFileSync('git', ['checkout', '-b', releaseBranchName]);
+    await execa('git', ['checkout', '-b', releaseBranchName]);
   } catch {
-    execFileSync('git', ['checkout', releaseBranchName]);
+    await execa('git', ['checkout', releaseBranchName]);
   }
 }
 
-function isDirty() {
-  const stdout = execFileSync('git', ['status', '--porcelain']);
+async function isDirty() {
+  const { stdout } = await execa('git', ['status', '--porcelain']);
   return stdout.toString().trim().length > 0;
 }
 
-function add(file) {
-  execFileSync('git', ['add', file]);
+async function add(file) {
+  await execa('git', ['add', file]);
 }
 
-function getCurrentBranch() {
-  const stdout = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+async function getCurrentBranch() {
+  const { stdout } = await execa('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
   return stdout.toString().trim();
 }
 
-function commit(message) {
-  execFileSync('git', ['commit', '-m', message]);
+async function commit(message) {
+  await execa('git', ['commit', '-m', message]);
 }
 
-function tag(name) {
-  execFileSync('git', ['tag', '-a', name, '-m', name]);
+async function tag(name) {
+  await execa('git', ['tag', '-a', name, '-m', name]);
 }
 
-function push(branch) {
-  execFileSync('git', ['push', 'origin', branch]);
+async function push(branch) {
+  await execa('git', ['push', 'origin', branch]);
 }
 
-function pushTags() {
-  execFileSync('git', ['push', '--tags']);
+async function pushTags() {
+  await execa('git', ['push', '--tags']);
 }
 
 module.exports = {

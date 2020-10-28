@@ -1,21 +1,24 @@
+/* eslint-disable no-console */
+const pkgUp = require('pkg-up');
 const git = require('./git');
 const npm = require('./npm');
-const confirm = require('./confirm');
+const { confirm, task } = require('./ui');
 
-const { isReleaseBranch, buildReleaseBranchName } = require('./release-branch');
-const { isMainBranch } = require('./main-branch');
+const { isMainBranch, isReleaseBranch, buildReleaseBranchName } = require('./branches');
 const { newBetaVersion, newGaVersion } = require('./bump');
 
-const packageJsonVersion = require('../package.json').version;
+async function getPackageJsonVersion() {
+  return require(await pkgUp()).version;
+}
 
-function getValidReleaseBranch() {
-  const currentBranch = git.getCurrentBranch();
+async function getValidReleaseBranch() {
+  const currentBranch = await git.getCurrentBranch();
 
   if (!isReleaseBranch(currentBranch)) {
     throw new Error('The current branch is not a release branch.');
   }
 
-  if (git.isDirty()) {
+  if (await git.isDirty()) {
     throw new Error('You have untracked or staged changes.');
   }
 
@@ -23,20 +26,41 @@ function getValidReleaseBranch() {
 }
 
 async function commitAndPushNewVersion(newSemver, currentBranch) {
-  await confirm(`Are you sure you want to bump from ${packageJsonVersion} to ${newSemver} and release?`);
+  const packageJsonVersion = await getPackageJsonVersion();
+  const answer = await confirm(
+    `Are you sure you want to bump from ${packageJsonVersion} to ${newSemver} and release?`
+  );
+
+  if (!answer) {
+    console.info('cancelled.');
+    return;
+  }
 
   const newVersionName = `v${newSemver}`;
 
-  npm.version(newSemver);
-  git.add('package.json');
-  git.commit(newVersionName);
-  git.tag(newVersionName);
-  git.push(currentBranch);
-  git.pushTags();
+  await task(`bumping npm version to ${newVersionName}`, async() => {
+    await npm.version(newSemver);
+  });
+
+  await task('staging and tagging changes', async() => {
+    await git.add('package.json');
+    await git.commit(newVersionName);
+    await git.tag(newVersionName);
+  });
+
+  await task(`pushing changes in ${currentBranch}`, async() => {
+    await git.push(currentBranch);
+  });
+
+  await task('pushing tags', async() => {
+    await git.pushTags();
+  });
 }
 
 async function releaseBeta() {
-  const currentBranch = getValidReleaseBranch();
+  const packageJsonVersion = await getPackageJsonVersion();
+
+  const currentBranch = await getValidReleaseBranch();
   const newSemver = newBetaVersion(packageJsonVersion, currentBranch);
   await commitAndPushNewVersion(
     newSemver,
@@ -45,7 +69,9 @@ async function releaseBeta() {
 }
 
 async function releaseGa() {
-  const currentBranch = getValidReleaseBranch();
+  const packageJsonVersion = await getPackageJsonVersion();
+
+  const currentBranch = await getValidReleaseBranch();
   const newSemver = newGaVersion(packageJsonVersion, currentBranch);
   await commitAndPushNewVersion(
     newSemver,
@@ -53,8 +79,8 @@ async function releaseGa() {
   );
 }
 
-function checkout(version) {
-  if (!isMainBranch(git.getCurrentBranch())) {
+async function checkout(version) {
+  if (!isMainBranch(await git.getCurrentBranch())) {
     throw new Error('The current branch is not the main branch.');
   }
 
@@ -64,7 +90,7 @@ function checkout(version) {
     throw new Error('Invalid version');
   }
 
-  git.checkout(releaseBranchName);
+  await git.checkout(releaseBranchName);
 }
 
 module.exports = {

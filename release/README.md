@@ -4,6 +4,10 @@ This folder contains the release automation relevant to the local machine of dev
 
 It is meant to be integrated with the NPM scripts of the compass repo and automate the management of compass releases.
 
+## Tests
+
+Run `npm run test-release-tasks` to run the tests in this folder.
+
 ## Available commands
 
 ### `checkout`
