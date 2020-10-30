@@ -56,7 +56,10 @@ The new version is calculated according to the branch name and previous version 
 npm run release changelog
 ```
 
-Only runnable from a release branch. Prints the git log between a release and the previous one in the same channel (ie. the previos ga or the previous beta).
+Only runnable from a release branch. Prints the git log between a release and the previous one. Cleans duplicated commits and tag commits.
+
+- If the new release is a GA it will print the log from the previos GA skipping any beta in between.
+- If the new release is a beta it will print the log from a previous release of any kind (GA or beta).
 
 ### `publish`
 
@@ -82,4 +85,4 @@ It will perform the following tasks:
    new version. If the old release is >= than the current one skips this step.
 3. Waits for a draft github release to be available.
 4. Prompts to publish the github release if not published.
-5. Waits for the release to be published.
+5. Waits for the github release to be published.

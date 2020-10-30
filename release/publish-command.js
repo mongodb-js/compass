@@ -21,6 +21,8 @@ async function publishCommand(
   await waitForAssets(downloadCenter, wait, probePlatformDownloadLink, platforms);
   await uploadConfigIfNewer(downloadCenter, oldConfig, releaseVersion);
   await waitGithubRelease(github, wait, releaseVersion);
+
+  cli.info(chalk.green(`Release ${releaseVersion} complete.`));
 }
 
 async function waitForAssets(downloadCenter, wait, probePlatformDownloadLink, platforms) {
