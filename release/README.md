@@ -74,7 +74,6 @@ will not break newer releases.
 
 - `MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID`
 - `MONGODB_DOWNLOADS_AWS_SECRET_ACCESS_KEY`
-- `GITHUB_ACCESS_TOKEN`
 
 It will perform the following steps:
 
@@ -84,4 +83,3 @@ It will perform the following steps:
 3. Waits for a draft github release to be available.
 4. Prompts to publish the github release.
 5. Waits for the release to be published.
-6. Verifies that the new version is available in the auto-updates.

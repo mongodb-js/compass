@@ -1,8 +1,6 @@
 /* eslint-disable camelcase */
 
 const { Octokit } = require('@octokit/rest');
-const delay = require('delay');
-const env = require('./env');
 
 const REPO = {
   owner: 'mongodb-js',
@@ -10,9 +8,7 @@ const REPO = {
 };
 
 function createOctokit() {
-  return new Octokit({
-    auth: env.requireEnvVar('GITHUB_ACCESS_TOKEN')
-  });
+  return new Octokit();
 }
 
 async function getReleaseByTag(tag) {
