@@ -146,7 +146,9 @@ async function publish() {
   await getValidReleaseBranch();
 
   const releaseVersion = await getPackageJsonVersion();
-  if (!await cli.confirm(`Are you sure you want to publish the release ${chalk.bold(releaseVersion)}?`)) {
+
+  const answer = await cli.confirm(`Are you sure you want to publish the release ${chalk.bold(releaseVersion)}?`);
+  if (!answer) {
     return;
   }
 

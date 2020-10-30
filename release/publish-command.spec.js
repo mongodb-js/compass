@@ -60,7 +60,7 @@ describe('replaceVersion', () => {
   });
 });
 
-describe.only('publishCommand', () => {
+describe('publishCommand', () => {
   let deps;
   beforeEach(async() => {
     const downloadCenterConfig = await fs.readJSON(

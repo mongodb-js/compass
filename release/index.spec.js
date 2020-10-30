@@ -283,6 +283,36 @@ https://github.com/mongodb-js/compass/compare/v1.0.1-beta.0...v1.0.1-beta.1`);
   });
 
   describe('publish', () => {
+    it('fails from master', async() => {
+      await checkoutBranch('master');
+      const { stderr, failed } = await (runReleaseCommand(['publish'], {env: {}}).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The current branch (master) is not a release branch');
+    });
 
+    it('fails if branch is not a release branch', async() => {
+      await checkoutBranch('some-branch');
+      const { stderr, failed } = await (runReleaseCommand(['publish'], {env: {}}).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The current branch (some-branch) is not a release branch');
+    });
+
+    it('Asks for confirmation', async() => {
+      await checkoutBranch('1.12-releases');
+      const { stderr } = await runReleaseCommand(['publish'], {
+        env: {},
+        input: 'N\n'
+      });
+
+      expect(stderr).to.contain(
+        'Are you sure you want to publish the release 1.0.0?');
+    });
+
+    it('fails if missing required env vars', async() => {
+      await checkoutBranch('1.12-releases');
+      const { stderr, failed } = await (runReleaseCommand(['publish'], {env: {}, input: 'Y\n'}).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID envirnonment variable must be set.');
+    });
   });
 });
