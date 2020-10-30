@@ -1,4 +1,5 @@
 const execa = require('execa');
+const semver = require('semver');
 
 async function checkout(releaseBranchName) {
   try {
@@ -38,6 +39,23 @@ async function pushTags() {
   await execa('git', ['push', '--tags']);
 }
 
+async function getTags() {
+  await execa('git', ['fetch', '--all', '--tags']);
+  const { stdout } = await execa('git', ['tag']);
+  return stdout.split('\n');
+}
+
+async function log(ref1, ref2) {
+  const { stdout } = await execa('git', [
+    'git',
+    'log',
+    '--format="%C(auto) %h %s"',
+    `${ref1}...${ref2}`
+  ]);
+
+  return stdout.split('\n');
+}
+
 module.exports = {
   checkout,
   isDirty,
@@ -46,5 +64,7 @@ module.exports = {
   tag,
   push,
   pushTags,
-  getCurrentBranch
+  getCurrentBranch,
+  getTags,
+  log
 };

@@ -49,3 +49,38 @@ The new version is calculated according to the branch name and previous version 
 - If the release branch is `1.22` and `package.version < 1.22.0`, it will create 1.22.0.
 - When package.version is `1.22.0-beta.0`, do `1.22.0`.
 - When package.version is `1.22.1` do `1.22.2`.
+
+### `changelog`
+
+```
+npm run release changelog
+```
+
+Only runnable from a release branch. Prints the git log between a release and the previous one in the same channel (ie. the previos ga or the previous beta).
+
+### `publish`
+
+```
+npm run release publish
+```
+
+Only runnable from a release branch. It completes the release by publishing the associated github release and download center configuration.
+
+This command is retryable. Issuing `run release publish` on an older release
+will not break newer releases.
+
+**NOTE:** this command requires the following environment variables to be set:
+
+- `MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID`
+- `MONGODB_DOWNLOADS_AWS_SECRET_ACCESS_KEY`
+- `GITHUB_ACCESS_TOKEN`
+
+It will perform the following steps:
+
+1. Waits for all the assets to be reacheable.
+2. Downloads and patches the download center configuration with the
+   new version. If the old release is >= than the current one skips this step.
+3. Waits for a draft github release to be available.
+4. Prompts to publish the github release.
+5. Waits for the release to be published.
+6. Verifies that the new version is available in the auto-updates.

@@ -2,7 +2,9 @@
 const {
   releaseBeta,
   releaseGa,
-  checkout
+  checkout,
+  publish,
+  changelog
 } = require('./commands');
 
 function usage() {
@@ -21,6 +23,12 @@ npm run release ga
 npm run release checkout 1.22
 \tchecks out a release branch creating it if not existing.
 
+npm run release publish
+\tpublishes a release from a release branch.
+
+npm run release changelog
+\tprints the git log between a release and the previous one.
+
 npm run release help
 \tprints this screen of help.
 `);
@@ -35,41 +43,28 @@ async function main(args) {
   const command = args.shift();
 
   if (command === 'help') {
-    if (args.length) {
-      failWithUsage();
-    }
-
-    return usage();
+    return runHelpCommand(args);
   }
 
   if (command === 'beta') {
-    if (args.length) {
-      failWithUsage();
-    }
-
-    return await releaseBeta();
+    return await runBetaCommand(args);
   }
 
   if (command === 'ga') {
-    if (args.length) {
-      failWithUsage();
-    }
-
-    return await releaseGa();
+    return await runGaCommand(args);
   }
 
   if (command === 'checkout') {
-    const version = args.shift();
+    return await runCheckoutCommand(args);
+  }
 
-    if (!version) {
-      failWithUsage();
-    }
+  if (command === 'changelog') {
+    return await runChangelogCommand(args);
+  }
 
-    if (args.length) {
-      failWithUsage();
-    }
 
-    return await checkout(version);
+  if (command === 'publish') {
+    return await runPublishCommand(args);
   }
 
   failWithUsage();
@@ -81,3 +76,58 @@ main(process.argv.slice(2))
     console.error(error);
     process.exit(1);
   });
+
+async function runPublishCommand(args) {
+  if (args.length) {
+    failWithUsage();
+  }
+
+  return await publish();
+}
+
+async function runCheckoutCommand(args) {
+  const version = args.shift();
+
+  if (!version) {
+    failWithUsage();
+  }
+
+  if (args.length) {
+    failWithUsage();
+  }
+
+  return await checkout(version);
+}
+
+async function runChangelogCommand(args) {
+  if (args.length) {
+    failWithUsage();
+  }
+
+  return await changelog();
+}
+
+async function runGaCommand(args) {
+  if (args.length) {
+    failWithUsage();
+  }
+
+  return await releaseGa();
+}
+
+async function runBetaCommand(args) {
+  if (args.length) {
+    failWithUsage();
+  }
+
+  return await releaseBeta();
+}
+
+function runHelpCommand(args) {
+  if (args.length) {
+    failWithUsage();
+  }
+
+  return usage();
+}
+
