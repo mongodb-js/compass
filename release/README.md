@@ -16,7 +16,7 @@ Run `npm run test-release-tasks` to run the tests in this folder.
 npm run release checkout <MAJOR.MINOR>
 ```
 
-Only runnable from master. Creates (if not existing) and checks out a `MAJOR.MINOR-releases` branch.
+Only runnable from master. Checks out (creating it if not existing)  a `MAJOR.MINOR-releases` branch.
 
 ```
 npm run release checkout 1.22
@@ -64,8 +64,8 @@ Only runnable from a release branch. Prints the git log between a release and th
 npm run release publish
 ```
 
-Only runnable from a release branch. It completes the release by publishing the
-associated github release and download center configuration.
+Only runnable from a release branch. It completes the release by uploading a new
+download center configuration and making sure the associated github release is published.
 
 This command is retryable. Issuing `run release publish` on an older release
 will not break newer releases.
@@ -75,11 +75,11 @@ will not break newer releases.
 - `MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID`
 - `MONGODB_DOWNLOADS_AWS_SECRET_ACCESS_KEY`
 
-It will perform the following steps:
+It will perform the following tasks:
 
 1. Waits for all the assets to be reacheable.
 2. Downloads and patches the download center configuration with the
    new version. If the old release is >= than the current one skips this step.
 3. Waits for a draft github release to be available.
-4. Prompts to publish the github release.
+4. Prompts to publish the github release if not published.
 5. Waits for the release to be published.
