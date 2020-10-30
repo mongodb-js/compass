@@ -1,19 +1,18 @@
 /* eslint-disable no-console */
 const pkgUp = require('pkg-up');
 const _ = require('lodash');
+const { DownloadCenter, probePlatformDownloadLink } = require('@mongodb-js/dl-center');
 const git = require('./git');
 const npm = require('./npm');
-const path = require('path');
-const Listr = require('listr');
 const { cli } = require('cli-ux');
 const semver = require('semver');
 const chalk = require('chalk');
-const github = require('./github');
-const downloadCenter = require('./download-center');
-const wait = require('./wait');
-
 const { isMainBranch, isReleaseBranch, buildReleaseBranchName } = require('./branches');
 const { newBetaVersion, newGaVersion } = require('./bump');
+const env = require('./env');
+const publishCommand = require('./publish-command');
+const github = require('./github');
+const wait = require('./wait');
 
 async function getPackageJsonVersion() {
   return require(await pkgUp()).version;
@@ -151,84 +150,21 @@ async function publish() {
     return;
   }
 
-  const oldConfig = await downloadCenter.downloadConfig();
-  const platforms = await downloadCenter.getPlatformsForNewVersion(oldConfig, releaseVersion);
+  const downloadCenter = new DownloadCenter({
+    bucket: 'info-mongodb-com',
+    accessKeyId: env.requireEnvVar('MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID'),
+    secretAccessKey: env.requireEnvVar('MONGODB_DOWNLOADS_AWS_SECRET_ACCESS_KEY')
+  });
 
-  await waitForAssets(platforms);
-  await uploadConfigIfNewer(oldConfig, releaseVersion);
-  await waitGithubRelease(releaseVersion);
-}
-
-async function waitForAssets(platforms) {
-  cli.info('Waiting for assets to be available');
-  cli.action.start('');
-
-  await (new Listr(
-    platforms.map((platform) => ({
-      title: path.basename(platform.download_link),
-      task: () => downloadCenter.waitForDownloadLink(platform)
-    })), { concurrent: true }
-  )).run();
-
-  cli.action.stop();
-}
-
-async function waitGithubRelease(releaseVersion) {
-  const tag = `v${releaseVersion}`;
-
-  // NOTE: github has a rate limit for unauthenticated
-  // request of 60 per hour:
-  const waitOptions = { delay: 5 /* minutes */ * 60 * 1000 };
-
-  cli.action.start('Waiting for github release to be created');
-  const release = await wait(
-    () => github.getReleaseByTag(tag),
-    waitOptions
+  await publishCommand(
+    releaseVersion,
+    {
+      downloadCenter,
+      github,
+      wait,
+      probePlatformDownloadLink
+    }
   );
-  cli.action.stop();
-
-  if (!release.draft) {
-    cli.action.start('Waiting for github release to be published');
-    cli.stop(chalk.dim(`skipped: release ${releaseVersion} is already public.`));
-    return;
-  }
-
-  cli.info(chalk.bgYellow('MANUAL ACTION REQUIRED:'), 'The github release is still in draft.');
-  cli.info('Please review and publish the release at the followng link:');
-  await cli.url(release.html_url, release.html_url);
-  cli.info('');
-  cli.info('You can run', chalk.bold('npm run release changelog'), 'to get the release notes.');
-
-  cli.action.start('Waiting for github release to be published');
-  if (!release.draft) {
-    cli.stop(chalk.dim(`skipped: release ${releaseVersion} is already public.`));
-    return;
-  }
-
-  await wait(
-    () => github.getReleaseByTag(tag).then(({ draft }) => !draft),
-    waitOptions
-  );
-
-  cli.action.stop();
-}
-
-async function uploadConfigIfNewer(oldConfig, releaseVersion) {
-  cli.action.start('Uploading new download center config');
-  const oldConfigVersion = downloadCenter.getConfigVersionInSameChannel(
-    oldConfig,
-    releaseVersion
-  );
-
-  if (semver.gte(oldConfigVersion, releaseVersion)) {
-    cli.action.stop(chalk.dim(`skipped: ${oldConfigVersion} (old) >= ${releaseVersion} (new)`));
-    return;
-  }
-
-  const newConfig = downloadCenter.replaceVersion(oldConfig, releaseVersion);
-  await downloadCenter.uploadConfig(newConfig);
-
-  cli.action.stop();
 }
 
 module.exports = {
