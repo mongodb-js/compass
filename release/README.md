@@ -64,7 +64,8 @@ Only runnable from a release branch. Prints the git log between a release and th
 npm run release publish
 ```
 
-Only runnable from a release branch. It completes the release by publishing the associated github release and download center configuration.
+Only runnable from a release branch. It completes the release by publishing the
+associated github release and download center configuration.
 
 This command is retryable. Issuing `run release publish` on an older release
 will not break newer releases.

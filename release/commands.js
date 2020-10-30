@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 const pkgUp = require('pkg-up');
+const _ = require('lodash');
 const git = require('./git');
 const npm = require('./npm');
 const path = require('path');
@@ -109,10 +110,13 @@ function getReleaseChannel(v) {
 async function changelog() {
   await getValidReleaseBranch();
   const releaseVersion = await getPackageJsonVersion();
-
   const tags = await git.getTags();
   const releaseTag = `v${releaseVersion}`;
   const releaseChannel = getReleaseChannel(releaseTag);
+
+  if (!tags.includes(releaseTag)) {
+    throw new Error(`The release tag ${releaseTag} was not found. Is this release tagged?`);
+  }
 
   // finds the first tag that is lower than releaseTag
   const previousTag = tags
@@ -122,7 +126,18 @@ async function changelog() {
     .reverse()
     .find((t) => semver.lt(t, releaseTag));
 
-  cli.info((await git.log(previousTag, releaseVersion)).join('\n'));
+  cli.info('');
+  cli.info(`Changes from ${chalk.bold(previousTag)}:`);
+  const changes = _.uniq(await git.log(previousTag, releaseTag))
+    .filter((line) => !semver.valid(line)) // filter out tag commits
+    .map((line) => `- ${line}`);
+
+  cli.info(changes.join('\n'));
+
+  cli.info('');
+  cli.info('You can see the full list of commits here:');
+  const githubCompareUrl = `https://github.com/mongodb-js/compass/compare/${previousTag}...${releaseTag}`
+  cli.url(githubCompareUrl, githubCompareUrl);
 }
 
 async function publish() {
@@ -158,8 +173,15 @@ async function waitForAssets(platforms) {
 async function waitGithubRelease(releaseVersion) {
   const tag = `v${releaseVersion}`;
 
+  // NOTE: github has a rate limit for unauthenticated
+  // request of 60 per hour:
+  const waitOptions =  { delay: 5 /* minutes */ * 60 * 1000 }
+
   cli.action.start('Waiting for github release to be created');
-  const release = await wait(() => github.getReleaseByTag(tag));
+  const release = await wait(
+    () => github.getReleaseByTag(tag),
+    waitOptions
+  );
   cli.action.stop();
 
   if (!release.draft) {
@@ -168,8 +190,11 @@ async function waitGithubRelease(releaseVersion) {
     return;
   }
 
+  cli.info(chalk.bgYellow('MANUAL ACTION REQUIRED:'), 'The github release is still in draft.');
   cli.info('Please review and publish the release at the followng link:');
   await cli.url(release.html_url, release.html_url);
+  cli.info('');
+  cli.info('You can run', chalk.bold('npm run release changelog'), 'to get the release notes.');
 
   cli.action.start('Waiting for github release to be published');
   if (!release.draft) {
@@ -177,7 +202,11 @@ async function waitGithubRelease(releaseVersion) {
     return;
   }
 
-  await wait(() => github.getReleaseByTag(tag).then(({ draft }) => !draft));
+  await wait(
+    () => github.getReleaseByTag(tag).then(({ draft }) => !draft),
+    waitOptions
+  );
+
   cli.action.stop();
 }
 

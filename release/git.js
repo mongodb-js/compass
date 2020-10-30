@@ -1,5 +1,4 @@
 const execa = require('execa');
-const semver = require('semver');
 
 async function checkout(releaseBranchName) {
   try {
@@ -47,13 +46,12 @@ async function getTags() {
 
 async function log(ref1, ref2) {
   const { stdout } = await execa('git', [
-    'git',
     'log',
-    '--format="%C(auto) %h %s"',
+    '--format=%s',
     `${ref1}...${ref2}`
   ]);
 
-  return stdout.split('\n');
+  return stdout.split('\n').map(line => line.trim());
 }
 
 module.exports = {
