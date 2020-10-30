@@ -4,6 +4,8 @@ const path = require('path');
 const os = require('os');
 const execa = require('execa');
 const { expect } = require('chai');
+const npm = require('./npm');
+const git = require('./git');
 
 async function runReleaseCommand(args, options = {}) {
   return await execa('node', [path.resolve(__dirname, 'index.js'), ...args], {
@@ -15,11 +17,21 @@ function readPackageJsonVersion(packageJsonPath) {
   return JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8')).version;
 }
 
-async function checkoutBranch(branchName) {
+async function checkoutBranch(branchName, options) {
   try {
-    await execa('git', ['checkout', '-b', branchName]);
+    await execa('git', ['checkout', branchName], options);
   } catch {
-    await execa('git', ['checkout', branchName]);
+    await execa('git', ['checkout', '-b', branchName], options);
+  }
+}
+
+async function commit(commitMessage, tag) {
+  await fs.writeFile('README.md', Date.now().toString());
+  await git.add('README.md');
+  await git.commit(commitMessage);
+  if (tag) {
+    await git.tag(tag);
+    await git.pushTags();
   }
 }
 
@@ -99,16 +111,16 @@ describe('release', () => {
     describe(command, () => {
       it('fails from master', async() => {
         await checkoutBranch('master');
-        const { stderr, failed, stdout } = await (runReleaseCommand([command]).catch(e => e));
+        const { stderr, failed } = await (runReleaseCommand([command]).catch(e => e));
         expect(failed).to.be.true;
-        expect(stderr + stdout).to.contain('The current branch is not a release branch');
+        expect(stderr).to.contain('The current branch (master) is not a release branch');
       });
 
       it('fails if branch is not a release branch', async() => {
         await checkoutBranch('some-branch');
         const { stderr, failed } = await (runReleaseCommand([command]).catch(e => e));
         expect(failed).to.be.true;
-        expect(stderr).to.contain('The current branch is not a release branch');
+        expect(stderr).to.contain('The current branch (some-branch) is not a release branch');
       });
 
       it('fails with untracked files', async() => {
@@ -142,12 +154,12 @@ describe('release', () => {
         )).to.equal('1.0.0');
 
         await checkoutBranch('1.12-releases');
-        const { stdout } = await runReleaseCommand([command], {
+        const { stderr } = await runReleaseCommand([command], {
           input: 'N\n'
         });
 
-        expect(stdout).to.contain(
-          `Are you sure you want to bump from 1.0.0 to ${expectedVersion} and release? Y/[N]`);
+        expect(stderr).to.contain(
+          `Are you sure you want to bump from 1.0.0 to ${expectedVersion} and release?`);
 
         expect(readPackageJsonVersion(
           path.resolve(repoPath, './package.json')
@@ -173,13 +185,13 @@ describe('release', () => {
         });
 
         it('bumps the package version', async() => {
-          await execa('git', ['checkout', '1.12-releases'], {cwd: clonePath});
+          await checkoutBranch('1.12-releases', {cwd: clonePath});
           const version = readPackageJsonVersion(path.resolve(clonePath, 'package.json'));
           expect(version).to.equal(expectedVersion);
         });
 
         it('pushes tags', async() => {
-          await execa('git', ['checkout', '1.12-releases'], {cwd: clonePath});
+          await checkoutBranch('1.12-releases', {cwd: clonePath});
           await execa('git', ['fetch', '--all', '--tags']);
 
           const { stdout } = await execa('git', ['tag'], {cwd: clonePath});
@@ -187,5 +199,90 @@ describe('release', () => {
         });
       });
     });
+  });
+
+  describe('changelog', () => {
+    it('fails from master', async() => {
+      await checkoutBranch('master');
+      const { stderr, failed } = await (runReleaseCommand(['changelog']).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The current branch (master) is not a release branch');
+    });
+
+    it('fails if branch is not a release branch', async() => {
+      await checkoutBranch('some-branch');
+      const { stderr, failed } = await (runReleaseCommand(['changelog']).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The current branch (some-branch) is not a release branch');
+    });
+
+    it('fails if release tag is not found', async() => {
+      await checkoutBranch('1.12-releases');
+      const { stderr, failed } = await (runReleaseCommand(['changelog']).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The release tag v1.0.0 was not found. Is this release tagged?');
+    });
+
+    describe('when the release tag exist', () => {
+      beforeEach(async() => {
+        await commit('commit 1', 'v0.1.0');
+        await commit('commit 2', 'v0.2.0-beta.0');
+        await commit('commit 3');
+        await commit('commit 3'); // duplicate
+        await commit('v0.2.0-beta.0'); // version bump commit
+        await commit('v0.2.0'); // version bump commit
+        await checkoutBranch('1.0-releases');
+        await commit('commit 4', 'v1.0.0');
+      });
+
+      it('reports changes between 2 GAs', async() => {
+        const { stdout } = await runReleaseCommand(['changelog']);
+        expect(stdout).to.contain(`Changes from v0.1.0:
+- commit 4
+- commit 3
+- commit 2
+
+You can see the full list of commits here:
+https://github.com/mongodb-js/compass/compare/v0.1.0...v1.0.0`);
+      });
+
+      it('reports changes between beta and GA', async() => {
+        await npm.version('1.0.1-beta.0');
+        await execa('git', ['add', '.']);
+        await commit('commit 5');
+        await commit('commit 6', 'v1.0.1-beta.0');
+
+        const { stdout } = await runReleaseCommand(['changelog']);
+        expect(stdout).to.contain(`Changes from v1.0.0:
+- commit 6
+- commit 5
+
+You can see the full list of commits here:
+https://github.com/mongodb-js/compass/compare/v1.0.0...v1.0.1-beta.0`);
+      });
+
+      it('reports changes between beta and beta', async() => {
+        await npm.version('1.0.1-beta.0');
+        await execa('git', ['add', '.']);
+        await commit('commit 5');
+        await commit('commit 6', 'v1.0.1-beta.0');
+        await npm.version('1.0.1-beta.1');
+        await execa('git', ['add', '.']);
+        await commit('commit 7');
+        await commit('commit 8', 'v1.0.1-beta.1');
+
+        const { stdout } = await runReleaseCommand(['changelog']);
+        expect(stdout).to.contain(`Changes from v1.0.1-beta.0:
+- commit 8
+- commit 7
+
+You can see the full list of commits here:
+https://github.com/mongodb-js/compass/compare/v1.0.1-beta.0...v1.0.1-beta.1`);
+      });
+    });
+  });
+
+  describe('publish', () => {
+
   });
 });

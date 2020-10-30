@@ -23,7 +23,7 @@ async function getValidReleaseBranch() {
   const currentBranch = await git.getCurrentBranch();
 
   if (!isReleaseBranch(currentBranch)) {
-    throw new Error('The current branch is not a release branch.');
+    throw new Error(`The current branch (${currentBranch}) is not a release branch.`);
   }
 
   if (await git.isDirty()) {
@@ -102,8 +102,12 @@ async function checkout(version) {
   await git.checkout(releaseBranchName);
 }
 
-function getReleaseChannel(v) {
+function getPrerelease(v) {
   return (semver.prerelease(v) || [])[0];
+}
+
+function isGa(v) {
+  return !getPrerelease(v);
 }
 
 async function changelog() {
@@ -111,7 +115,7 @@ async function changelog() {
   const releaseVersion = await getPackageJsonVersion();
   const tags = await git.getTags();
   const releaseTag = `v${releaseVersion}`;
-  const releaseChannel = getReleaseChannel(releaseTag);
+  const isGaRelease = isGa(releaseTag);
 
   if (!tags.includes(releaseTag)) {
     throw new Error(`The release tag ${releaseTag} was not found. Is this release tagged?`);
@@ -120,7 +124,7 @@ async function changelog() {
   // finds the first tag that is lower than releaseTag
   const previousTag = tags
     .filter((t) => t.startsWith('v') && semver.valid(t))
-    .filter((t) => getReleaseChannel(t) === releaseChannel)
+    .filter((t) => isGaRelease ? isGa(t) : true) // if is GA only consider other GAs
     .sort(semver.compare)
     .reverse()
     .find((t) => semver.lt(t, releaseTag));
@@ -135,7 +139,7 @@ async function changelog() {
 
   cli.info('');
   cli.info('You can see the full list of commits here:');
-  const githubCompareUrl = `https://github.com/mongodb-js/compass/compare/${previousTag}...${releaseTag}`
+  const githubCompareUrl = `https://github.com/mongodb-js/compass/compare/${previousTag}...${releaseTag}`;
   cli.url(githubCompareUrl, githubCompareUrl);
 }
 
@@ -174,7 +178,7 @@ async function waitGithubRelease(releaseVersion) {
 
   // NOTE: github has a rate limit for unauthenticated
   // request of 60 per hour:
-  const waitOptions =  { delay: 5 /* minutes */ * 60 * 1000 }
+  const waitOptions = { delay: 5 /* minutes */ * 60 * 1000 };
 
   cli.action.start('Waiting for github release to be created');
   const release = await wait(

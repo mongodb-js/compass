@@ -2,9 +2,9 @@ const execa = require('execa');
 
 async function checkout(releaseBranchName) {
   try {
-    await execa('git', ['checkout', '-b', releaseBranchName]);
-  } catch {
     await execa('git', ['checkout', releaseBranchName]);
+  } catch {
+    await execa('git', ['checkout', '-b', releaseBranchName]);
   }
 }
 

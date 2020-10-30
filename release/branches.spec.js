@@ -21,6 +21,7 @@ describe('branches', () => {
       expect(isReleaseBranch('beta')).to.be.false;
       expect(isReleaseBranch('release/1.2.33')).to.be.false;
       expect(isReleaseBranch('1.22-releases')).to.be.true;
+      expect(isReleaseBranch('1.0-releases')).to.be.true;
     });
   });
 
