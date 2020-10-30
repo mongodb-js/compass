@@ -5,6 +5,7 @@ const { cli } = require('cli-ux');
 const semver = require('semver');
 const chalk = require('chalk');
 const _ = require('lodash');
+const notifier = require('node-notifier');
 
 async function publishCommand(
   releaseVersion,
@@ -18,7 +19,21 @@ async function publishCommand(
   const oldConfig = await downloadConfig(downloadCenter);
   const platforms = await getPlatformsForNewVersion(oldConfig, releaseVersion);
 
-  await waitForAssets(downloadCenter, wait, probePlatformDownloadLink, platforms);
+  try {
+    await waitForAssets(downloadCenter, wait, probePlatformDownloadLink, platforms);
+    notifier.notify({
+      title: `Compass release v${releaseVersion}`,
+      message: 'Release assets ready.'
+    });
+  } catch (error) {
+    notifier.notify({
+      title: `Compass release v${releaseVersion}`,
+      message: 'Failed. Assets unreacheable.'
+    });
+
+    throw error;
+  }
+
   await uploadConfigIfNewer(downloadCenter, oldConfig, releaseVersion);
   await waitGithubRelease(github, wait, releaseVersion);
 
