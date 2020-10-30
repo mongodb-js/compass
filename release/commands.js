@@ -53,7 +53,6 @@ async function commitAndPushNewVersion(newSemver, currentBranch) {
 
   cli.action.start('staging and tagging changes');
   await git.add('package.json');
-  await git.add('download-center.json');
   await git.commit(newVersionName);
   await git.tag(newVersionName);
   cli.action.stop();
