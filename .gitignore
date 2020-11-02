@@ -15,3 +15,4 @@ report.json
 src/app/compiled-less/
 expansions.yml
 .nvmrc
+.vscode

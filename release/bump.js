@@ -1,33 +1,31 @@
 const semver = require('semver');
+const branch = require('./branch');
 
-function sameMajorAndMinor(version1, version2) {
-  return semver.major(version1) === semver.major(version2) &&
-    semver.minor(version1) === semver.minor(version2);
-}
+function newBeta(packageVersion, releaseBranch) {
+  if (branch.lt(releaseBranch, packageVersion)) {
+    throw new Error(`the package version: ${packageVersion} is greater than versions in ${releaseBranch}`);
+  }
 
-function newBetaVersion(packageVersion, releaseBranch) {
-  const releaseBranchVersion = semver.coerce(releaseBranch);
-  if (
-    !sameMajorAndMinor(packageVersion, releaseBranchVersion)
-  ) {
-    return `${releaseBranchVersion}-beta.0`;
+  if (!branch.hasVersion(releaseBranch, packageVersion)) {
+    return branch.getFirstBeta(releaseBranch);
   }
 
   return semver.inc(packageVersion, 'prerelease', 'beta');
 }
 
-function newGaVersion(packageVersion, releaseBranch) {
-  const releaseBranchVersion = semver.coerce(releaseBranch);
-  if (
-    !sameMajorAndMinor(packageVersion, semver.coerce(releaseBranch))
-  ) {
-    return `${releaseBranchVersion}`;
+function newGa(packageVersion, releaseBranch) {
+  if (branch.lt(releaseBranch, packageVersion)) {
+    throw new Error(`the package version: ${packageVersion} is greater than versions in ${releaseBranch}`);
+  }
+
+  if (!branch.hasVersion(releaseBranch, packageVersion)) {
+    return branch.getFirstGa(releaseBranch);
   }
 
   return semver.inc(packageVersion, 'patch');
 }
 
 module.exports = {
-  newBetaVersion,
-  newGaVersion
+  newBeta,
+  newGa
 };

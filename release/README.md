@@ -12,19 +12,19 @@ Run `npm run test-release-tasks` to run the tests in this folder.
 
 ### `checkout`
 
-```
+``` sh
 npm run release checkout <MAJOR.MINOR>
 ```
 
 Only runnable from master. Checks out (creating it if not existing)  a `MAJOR.MINOR-releases` branch.
 
-```
+``` sh
 npm run release checkout 1.22
 ```
 
 ### `beta`
 
-```
+``` sh
 npm run release beta
 ```
 
@@ -38,7 +38,7 @@ The new prerelease version is calculated according to the branch name and previo
 
 ### `ga`
 
-```
+``` sh
 npm run release ga
 ```
 
@@ -50,9 +50,17 @@ The new version is calculated according to the branch name and previous version 
 - When package.version is `1.22.0-beta.0`, do `1.22.0`.
 - When package.version is `1.22.1` do `1.22.2`.
 
+### `wait`
+
+``` sh
+npm run release wait
+```
+
+Only runnable from a release branch. It waits for all the assets of a release to be uploaded.
+
 ### `changelog`
 
-```
+``` sh
 npm run release changelog
 ```
 
@@ -63,7 +71,7 @@ Only runnable from a release branch. Prints the git log between a release and th
 
 ### `publish`
 
-```
+``` sh
 npm run release publish
 ```
 
@@ -80,7 +88,7 @@ will not break newer releases.
 
 It will perform the following tasks:
 
-1. Waits for all the assets to be reacheable.
+1. Make sure that all the assets are reacheable.
 2. Downloads and patches the download center configuration with the
    new version. If the old release is >= than the current one skips this step.
 3. Waits for a draft github release to be available.

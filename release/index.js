@@ -2,15 +2,19 @@
 const {
   releaseBeta,
   releaseGa,
-  checkout,
-  publish,
-  changelog
+  releaseCheckout,
+  releasePublish,
+  releaseChangelog,
+  releaseWait
 } = require('./commands');
 
 function usage() {
   console.info(`Compass release CLI scripts.
 
 USAGE:
+
+npm run release checkout 1.22
+\tchecks out a release branch creating it if not existing.
 
 npm run release beta
 \tincrease the package version to the next beta prerelease and trigger a release
@@ -20,8 +24,8 @@ npm run release ga
 \tincrease the package version to the next ga patch and trigger a release from a
 \trelease branch.
 
-npm run release checkout 1.22
-\tchecks out a release branch creating it if not existing.
+npm run release wait
+\twait for release assets to be built and available.
 
 npm run release publish
 \tpublishes a release from a release branch.
@@ -54,6 +58,10 @@ async function main(args) {
     return await runGaCommand(args);
   }
 
+  if (command === 'wait') {
+    return await runWait(args);
+  }
+
   if (command === 'checkout') {
     return await runCheckoutCommand(args);
   }
@@ -62,7 +70,6 @@ async function main(args) {
     return await runChangelogCommand(args);
   }
 
-
   if (command === 'publish') {
     return await runPublishCommand(args);
   }
@@ -70,8 +77,10 @@ async function main(args) {
   failWithUsage();
 }
 
-
 main(process.argv.slice(2))
+  .then(() => {
+    process.exit(0);
+  })
   .catch(error => {
     console.error(error);
     process.exit(1);
@@ -82,7 +91,7 @@ async function runPublishCommand(args) {
     failWithUsage();
   }
 
-  return await publish();
+  return await releasePublish();
 }
 
 async function runCheckoutCommand(args) {
@@ -96,7 +105,7 @@ async function runCheckoutCommand(args) {
     failWithUsage();
   }
 
-  return await checkout(version);
+  return await releaseCheckout(version);
 }
 
 async function runChangelogCommand(args) {
@@ -104,7 +113,7 @@ async function runChangelogCommand(args) {
     failWithUsage();
   }
 
-  return await changelog();
+  return await releaseChangelog();
 }
 
 async function runGaCommand(args) {
@@ -113,6 +122,14 @@ async function runGaCommand(args) {
   }
 
   return await releaseGa();
+}
+
+async function runWait(args) {
+  if (args.length) {
+    failWithUsage();
+  }
+
+  return await releaseWait();
 }
 
 async function runBetaCommand(args) {
