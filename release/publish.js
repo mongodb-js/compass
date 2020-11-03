@@ -58,11 +58,6 @@ async function waitGithubRelease(releaseVersion, { github }) {
   cli.info('');
 
   cli.action.start('Waiting for Github release to be published');
-  if (!release.draft) {
-    cli.stop(chalk.dim(`skipped: release ${releaseVersion} is already public.`));
-    return;
-  }
-
   await github.waitForReleasePublished(releaseVersion);
   cli.action.stop();
 }
