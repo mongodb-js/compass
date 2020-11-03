@@ -277,7 +277,7 @@ functions:
 
           export NPM_CONFIG_LOGLEVEL=info
           export DEBUG="*,-flora-colossus"
-          npm run release ${compass_distribution};
+          npm run release-evergreen ${compass_distribution};
           rm -f /tmp/compass-apple-cred.json
           EOF_BUILD_SH
 

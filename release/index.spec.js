@@ -1,0 +1,378 @@
+/* eslint-disable no-sync */
+const fs = require('fs-extra');
+const path = require('path');
+const os = require('os');
+const execa = require('execa');
+const { expect } = require('chai');
+const npm = require('./npm');
+const git = require('./git');
+
+const running = [];
+
+async function runReleaseCommand(args, options = {}) {
+  const execOptions = {
+    ...options,
+    env: {
+      ...options.env,
+      MONGODB_COMPASS_RELEASE_MAX_WAIT_TIME: '0'
+    }
+  };
+
+  const proc = execa(
+    'node',
+    [path.resolve(__dirname, 'index.intercept.js'), ...args],
+    execOptions
+  );
+
+  running.push(proc);
+  return await proc;
+}
+
+async function runReleaseCommandWithKeys(args, options = {}) {
+  return await runReleaseCommand(args, {
+    ...options,
+    env: {
+      MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID: 'AWS_ACCESS_KEY_ID',
+      MONGODB_DOWNLOADS_AWS_SECRET_ACCESS_KEY: 'AWS_SECRET_ACCESS_KEY'
+    }
+  });
+}
+
+function readPackageJsonVersion(packageJsonPath) {
+  return JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8')).version;
+}
+
+async function checkoutBranch(branchName, options) {
+  try {
+    await execa('git', ['checkout', branchName], options);
+  } catch {
+    await execa('git', ['checkout', '-b', branchName], options);
+  }
+}
+
+async function commitAll(commitMessage, tag) {
+  await fs.writeFile('README.md', Date.now().toString());
+  await git.add('.');
+  await git.commit(commitMessage);
+  if (tag) {
+    await git.tag(tag);
+    await git.pushTags();
+  }
+}
+
+describe('release', () => {
+  afterEach(() => {
+    while (running.length) {
+      running.shift().kill('SIGTERM', { forceKillAfterTimeout: 100 });
+    }
+  });
+
+  let tempDir;
+  let remote;
+  let repoPath;
+
+  beforeEach(async() => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'compass-release-tests-'));
+
+    // create fake git remote:
+    const gitRemotePath = path.resolve(tempDir, 'remote');
+    fs.mkdirpSync(gitRemotePath);
+    process.chdir(gitRemotePath);
+    await execa('git', ['init', '--bare']);
+
+    remote = `file://${gitRemotePath}`;
+
+    // setup repo and package:
+    repoPath = path.resolve(tempDir, 'compass-release-test-repo');
+    fs.mkdirpSync(repoPath);
+    process.chdir(repoPath);
+
+    await execa('npm', ['init', '-y']);
+    await execa('npm', ['install']); // generates package-lock.json
+
+    await execa('git', ['init']);
+    await execa('git', ['remote', 'add', 'origin', remote]);
+    await execa('git', ['add', '.']);
+    await execa('git', ['commit', '-am', 'init']);
+    await execa('git', ['push', '--set-upstream', 'origin', 'master']);
+  });
+
+  afterEach(() => {
+    fs.removeSync(tempDir);
+  });
+
+  it('prints usage if no argument is passed', async() => {
+    const { stdout, failed } = await (runReleaseCommand(['']).catch(e => e));
+    expect(failed).to.be.true;
+    expect(stdout).to.contain('USAGE');
+  });
+
+  describe('checkout', () => {
+    it('creates a new branch if not exists', async() => {
+      await runReleaseCommand(['checkout', '1.12']);
+      const { stdout } = await execa('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+      expect(stdout).to.equal('1.12-releases');
+    });
+
+    it('checks out an existing branch', async() => {
+      await checkoutBranch('1.12-releases');
+      await checkoutBranch('master');
+      await runReleaseCommand(['checkout', '1.12']);
+      const { stdout } = await execa('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+      expect(stdout).to.equal('1.12-releases');
+    });
+
+    it('prints usage if no version is passed', async() => {
+      const { stdout, failed } = await (runReleaseCommand(['checkout']).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stdout).to.contain('USAGE');
+    });
+
+    it('fails if branch is not master', async() => {
+      await checkoutBranch('some-branch');
+      const { stderr, failed } = await (runReleaseCommand(['checkout', '1.12']).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The current branch is not the main branch');
+    });
+  });
+
+  [
+    ['beta', '1.12.0-beta.0'],
+    ['ga', '1.12.0']
+  ].forEach(([ command, expectedVersion ]) => {
+    describe(command, () => {
+      it('fails if missing required env vars', async() => {
+        await checkoutBranch('1.1-releases');
+        const { stderr, stdout, failed } = await (runReleaseCommand([command], {env: {}, input: 'Y\n'}).catch(e => e));
+        expect(failed).to.be.true;
+        expect(stderr + stdout).to.contain('The MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID envirnonment variable must be set.');
+      });
+
+      it('fails from master', async() => {
+        await checkoutBranch('master');
+        const { stderr, failed } = await (runReleaseCommandWithKeys([command]).catch(e => e));
+        expect(failed).to.be.true;
+        expect(stderr).to.contain('The current branch (master) is not a release branch');
+      });
+
+      it('fails if branch is not a release branch', async() => {
+        await checkoutBranch('some-branch');
+        const { stderr, failed } = await (runReleaseCommandWithKeys([command]).catch(e => e));
+        expect(failed).to.be.true;
+        expect(stderr).to.contain('The current branch (some-branch) is not a release branch');
+      });
+
+      it('fails with untracked files', async() => {
+        fs.writeFileSync('README.md', '');
+        await checkoutBranch('1.12-releases');
+        const { stderr, failed } = await (runReleaseCommandWithKeys([command]).catch(e => e));
+        expect(failed).to.be.true;
+        expect(stderr).to.contain('You have untracked or staged changes');
+      });
+
+      it('fails with staged files', async() => {
+        fs.writeFileSync('README.md', '');
+        await checkoutBranch('1.12-releases');
+        await execa('git', ['add', '.']);
+        const { stderr, failed } = await (runReleaseCommandWithKeys([command]).catch(e => e));
+        expect(failed).to.be.true;
+        expect(stderr).to.contain('You have untracked or staged changes');
+      });
+
+      it('works with committed files', async() => {
+        fs.writeFileSync('README.md', '');
+        await checkoutBranch('1.12-releases');
+        await execa('git', ['add', '.']);
+        await execa('git', ['commit', '-am', 'test']);
+        await runReleaseCommandWithKeys([command], {input: 'N\n'});
+      });
+
+      it('asks for confirmation and skips if not confirmed', async() => {
+        expect(readPackageJsonVersion(
+          path.resolve(repoPath, './package.json')
+        )).to.equal('1.0.0');
+
+        await checkoutBranch('1.12-releases');
+        const { stderr } = await runReleaseCommandWithKeys([command], {
+          input: 'N\n'
+        });
+
+        expect(stderr).to.contain(
+          `Are you sure you want to bump from 1.0.0 to ${expectedVersion} and release?`);
+
+        expect(readPackageJsonVersion(
+          path.resolve(repoPath, './package.json')
+        )).to.equal('1.0.0');
+      });
+
+      describe('from a release branch', () => {
+        let clonePath;
+
+        beforeEach(async() => {
+          await checkoutBranch('1.12-releases');
+          await runReleaseCommandWithKeys([command], {
+            input: 'Y\n'
+          });
+
+          clonePath = path.resolve(tempDir, command);
+          await execa('git', ['clone', remote, clonePath]);
+        });
+
+        it('does not affect master', () => {
+          const version = readPackageJsonVersion(path.resolve(clonePath, 'package.json'));
+          expect(version).to.equal('1.0.0');
+        });
+
+        it('bumps the package version', async() => {
+          await checkoutBranch('1.12-releases', {cwd: clonePath});
+          const version = readPackageJsonVersion(path.resolve(clonePath, 'package.json'));
+          expect(version).to.equal(expectedVersion);
+        });
+
+        it('pushes tags', async() => {
+          await checkoutBranch('1.12-releases', {cwd: clonePath});
+          await execa('git', ['fetch', '--all', '--tags']);
+
+          const { stdout } = await execa('git', ['tag'], {cwd: clonePath});
+          expect(stdout.split('\n')).to.deep.equal([`v${expectedVersion}`]);
+        });
+      });
+    });
+  });
+
+  describe('changelog', () => {
+    it('fails from master', async() => {
+      await checkoutBranch('master');
+      const { stderr, failed } = await (runReleaseCommand(['changelog']).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The current branch (master) is not a release branch');
+    });
+
+    it('fails if branch is not a release branch', async() => {
+      await checkoutBranch('some-branch');
+      const { stderr, failed } = await (runReleaseCommand(['changelog']).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The current branch (some-branch) is not a release branch');
+    });
+
+    it('fails if release tag is not found', async() => {
+      await checkoutBranch('1.12-releases');
+      const { stderr, failed } = await (runReleaseCommand(['changelog']).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The release tag v1.0.0 was not found. Is this release tagged?');
+    });
+
+    describe('when the release tag exist', () => {
+      beforeEach(async() => {
+        await commitAll('commit 1', 'v0.1.0');
+        await commitAll('commit 2', 'v0.2.0-beta.0');
+        await commitAll('commit 3');
+        await commitAll('commit 3'); // duplicate
+        await commitAll('v0.2.0-beta.0'); // version bump commit
+        await commitAll('v0.2.0'); // version bump commit
+        await checkoutBranch('1.0-releases');
+        await commitAll('commit 4', 'v1.0.0');
+      });
+
+      it('reports changes between 2 GAs', async() => {
+        const { stdout } = await runReleaseCommand(['changelog']);
+        expect(stdout).to.contain(`Changes from v0.1.0:
+- commit 4
+- commit 3
+- commit 2
+
+You can see the full list of commits here:
+https://github.com/mongodb-js/compass/compare/v0.1.0...v1.0.0`);
+      });
+
+      it('reports changes between beta and GA', async() => {
+        await npm.version('1.0.1-beta.0');
+        await execa('git', ['add', '.']);
+        await commitAll('commit 5');
+        await commitAll('commit 6', 'v1.0.1-beta.0');
+
+        const { stdout } = await runReleaseCommand(['changelog']);
+        expect(stdout).to.contain(`Changes from v1.0.0:
+- commit 6
+- commit 5
+
+You can see the full list of commits here:
+https://github.com/mongodb-js/compass/compare/v1.0.0...v1.0.1-beta.0`);
+      });
+
+      it('reports changes between beta and beta', async() => {
+        await npm.version('1.0.1-beta.0');
+        await commitAll('commit 5');
+        await commitAll('commit 6', 'v1.0.1-beta.0');
+        await npm.version('1.0.1-beta.1');
+        await commitAll('commit 7');
+        await commitAll('commit 8', 'v1.0.1-beta.1');
+
+        const { stdout } = await runReleaseCommand(['changelog']);
+        expect(stdout).to.contain(`Changes from v1.0.1-beta.0:
+- commit 8
+- commit 7
+
+You can see the full list of commits here:
+https://github.com/mongodb-js/compass/compare/v1.0.1-beta.0...v1.0.1-beta.1`);
+      });
+    });
+  });
+
+  describe('publish', () => {
+    beforeEach(async() => {
+      await checkoutBranch('1.1-releases');
+      await npm.version('1.1.0');
+      await commitAll('v1.1.0', 'v1.1.0');
+      await checkoutBranch('master');
+    });
+
+    it('fails from master', async() => {
+      await checkoutBranch('master');
+      const { stderr, failed } = await (runReleaseCommand(['publish'], {env: {}}).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The current branch (master) is not a release branch');
+    });
+
+    it('fails if branch is not a release branch', async() => {
+      await checkoutBranch('some-branch');
+      const { stderr, failed } = await (runReleaseCommand(['publish'], {env: {}}).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The current branch (some-branch) is not a release branch');
+    });
+
+    it('fails if the branch mismatch with release version', async() => {
+      await checkoutBranch('1.21-releases');
+      const { stderr, failed } = await (runReleaseCommand(['publish'], {env: {}}).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('Error: 1.0.0 can only be published from 1.0-releases');
+    });
+
+    it('fails if there is no tag for the release version', async() => {
+      await checkoutBranch('1.1-releases');
+      await npm.version('1.1.1');
+      await commitAll('v1.1.1');
+      const { stderr, failed } = await (runReleaseCommand(['publish'], {env: {}}).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('Error: No tag found for 1.1.1.');
+    });
+
+    it('Asks for confirmation', async() => {
+      await checkoutBranch('1.1-releases');
+      const { stderr } = await runReleaseCommand(['publish'], {
+        env: {},
+        input: 'N\n'
+      });
+
+      expect(stderr).to.contain(
+        'Are you sure you want to publish the release 1.1.0?');
+    });
+
+    it('fails if missing required env vars', async() => {
+      await checkoutBranch('1.1-releases');
+      const { stderr, failed } = await (runReleaseCommand(['publish'], {env: {}, input: 'Y\n'}).catch(e => e));
+      expect(failed).to.be.true;
+      expect(stderr).to.contain('The MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID envirnonment variable must be set.');
+    });
+  });
+});
