@@ -139,13 +139,6 @@ Application.prototype.setupLifecycleListeners = function() {
   });
 };
 
-Application.prototype.setupApplicationMenu = function() {
-  // this.applicationMenu = new ApplicationMenu({
-  //   autoUpdateManager: this.autoUpdateManager
-  // });
-  require('./menu').init();
-};
-
 Application.prototype.setupUserDirectory = function() {
   // For testing set a clean slate for the user data.
   if (process.env.NODE_ENV === 'testing') {
