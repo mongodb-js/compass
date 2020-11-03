@@ -28,7 +28,7 @@ describe('bump', () => {
       expect(newGa('1.22.0-beta.0', '1.22-releases')).to.equal('1.22.0');
     });
 
-    it('bumps ga a new ga', () => {
+    it('bumps ga to a new ga', () => {
       expect(newGa('1.22.0', '1.22-releases')).to.equal('1.22.1');
     });
   });
