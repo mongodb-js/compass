@@ -13,14 +13,14 @@ module.exports = async function waitForAssets(releaseVersion, { downloadCenter }
     task: () => downloadCenter.waitForAsset(asset)
   }));
 
-  cli.info('Waiting for assets to be available');
-  cli.action.start('');
-
-  await (new Listr(tasks, { concurrent: true })).run();
-
-  cli.action.stop();
-
   try {
+    cli.info('Waiting for assets to be available');
+    cli.action.start('');
+
+    await (new Listr(tasks, { concurrent: true })).run();
+
+    cli.action.stop();
+
     notifier.notify({
       title: `Compass release v${releaseVersion}`,
       message: 'Release assets ready.'
