@@ -195,7 +195,7 @@ class Workspace extends PureComponent {
         [styles['workspace-view-tab']]: true,
         hidden: !tab.isActive
       });
-      return (<div className={viewTabClass}>
+      return (<div className={viewTabClass} key={tab.id + '-wrap'}>
         <Collection
           key={tab.id}
           id={tab.id}
