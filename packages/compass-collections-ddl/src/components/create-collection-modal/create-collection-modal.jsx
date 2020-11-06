@@ -1,21 +1,22 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Modal } from 'react-bootstrap';
-import { TextButton } from 'hadron-react-buttons';
-import { ModalInput, ModalCheckbox, ModalStatusMessage } from 'hadron-react-components';
 import Collation from 'components/collation';
-import { changeCappedSize } from 'modules/create-collection/capped-size';
-import { changeCollectionName } from 'modules/create-collection/name';
+import { TextButton } from 'hadron-react-buttons';
+import { ModalCheckbox, ModalInput, ModalStatusMessage } from 'hadron-react-components';
 import { createCollection } from 'modules/create-collection';
+import { changeCappedSize } from 'modules/create-collection/capped-size';
 import { changeCollationOption } from 'modules/create-collection/collation';
 import { toggleIsCapped } from 'modules/create-collection/is-capped';
 import { toggleIsCustomCollation } from 'modules/create-collection/is-custom-collation';
+import { changeCollectionName } from 'modules/create-collection/name';
+import { clearError } from 'modules/error';
 import { toggleIsVisible } from 'modules/is-visible';
 import { openLink } from 'modules/link';
-
+import PropTypes from 'prop-types';
+import React, { PureComponent } from 'react';
+import { Modal } from 'react-bootstrap';
+import { connect } from 'react-redux';
 import styles from './create-collection-modal.less';
+
 
 /**
  * The help icon for capped collections url.
@@ -49,7 +50,8 @@ class CreateCollectionModal extends PureComponent {
     createCollection: PropTypes.func.isRequired,
     toggleIsCapped: PropTypes.func.isRequired,
     toggleIsCustomCollation: PropTypes.func.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired
+    toggleIsVisible: PropTypes.func.isRequired,
+    clearError: PropTypes.func
   }
 
   /**
@@ -100,6 +102,13 @@ class CreateCollectionModal extends PureComponent {
    */
   onHide = () => {
     this.props.toggleIsVisible(false);
+  }
+
+  /**
+   * Called when the error message close icon is clicked.
+  */
+  onDismissErrorMessage = () => {
+    this.props.clearError();
   }
 
   /**
@@ -184,7 +193,9 @@ class CreateCollectionModal extends PureComponent {
               {this.renderCollation()}
             </div>
             {this.props.error ?
-              <ModalStatusMessage icon="times" message={this.props.error.message} type="error" />
+              <ModalStatusMessage
+                icon="times" message={this.props.error.message} type="error"
+                onIconClickHandler={this.onDismissErrorMessage} />
               : null}
             {this.props.isRunning ?
               <ModalStatusMessage icon="spinner" message="Create in Progress" type="in-progress" />
@@ -241,7 +252,8 @@ const MappedCreateCollectionModal = connect(
     openLink,
     toggleIsCapped,
     toggleIsCustomCollation,
-    toggleIsVisible
+    toggleIsVisible,
+    clearError
   },
 )(CreateCollectionModal);
 

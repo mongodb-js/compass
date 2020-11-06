@@ -14,6 +14,7 @@ describe('CreateCollectionModal [Component]', () => {
     let createCollectionSpy;
     let toggleIsCappedSpy;
     let toggleIsCustomCollationSpy;
+    let clearErrorSpy;
 
     beforeEach(() => {
       openLinkSpy = sinon.spy();
@@ -24,6 +25,7 @@ describe('CreateCollectionModal [Component]', () => {
       createCollectionSpy = sinon.spy();
       toggleIsCappedSpy = sinon.spy();
       toggleIsCustomCollationSpy = sinon.spy();
+      clearErrorSpy = sinon.spy();
 
       component = mount(
         <CreateCollectionModal
@@ -31,6 +33,7 @@ describe('CreateCollectionModal [Component]', () => {
           isCapped={false}
           isCustomCollation={false}
           isRunning={false}
+          error={{message: 'A testing error occurred.'}}
           name="collName"
           cappedSize={''}
           collation={{}}
@@ -41,12 +44,14 @@ describe('CreateCollectionModal [Component]', () => {
           createCollection={createCollectionSpy}
           toggleIsCapped={toggleIsCappedSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
-          toggleIsVisible={toggleIsVisibleSpy} />
+          toggleIsVisible={toggleIsVisibleSpy}
+          clearError={clearErrorSpy} />
       );
     });
 
     afterEach(() => {
       openLinkSpy = null;
+      clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       changeCappedSizeSpy = null;
       changeCollationOptionSpy = null;
@@ -81,6 +86,10 @@ describe('CreateCollectionModal [Component]', () => {
       expect(component.find('[name="create-collection-modal-form"]')).to.be.present();
     });
 
+    it('renders the error message', () => {
+      expect(component.find('.modal-status-error-message')).to.be.present();
+    });
+
     context('when changing the collection name', () => {
       it('calls the change collection name function', () => {
         component.find('#create-collection-name').hostNodes().
@@ -107,6 +116,13 @@ describe('CreateCollectionModal [Component]', () => {
 
     context('when clicking create', () => {
     });
+
+    context('when clicking the close button of the error message', () => {
+      it('clears the error message', () => {
+        component.find('.modal-status-error-icon').simulate('click');
+        expect(clearErrorSpy.calledOnce).to.equal(true);
+      });
+    });
   });
 
   context('when the modal is not visible', () => {
@@ -119,6 +135,7 @@ describe('CreateCollectionModal [Component]', () => {
     let createCollectionSpy;
     let toggleIsCappedSpy;
     let toggleIsCustomCollationSpy;
+    let clearErrorSpy;
 
     beforeEach(() => {
       openLinkSpy = sinon.spy();
@@ -129,6 +146,7 @@ describe('CreateCollectionModal [Component]', () => {
       createCollectionSpy = sinon.spy();
       toggleIsCappedSpy = sinon.spy();
       toggleIsCustomCollationSpy = sinon.spy();
+      clearErrorSpy = sinon.spy();
 
       component = mount(
         <CreateCollectionModal
@@ -146,12 +164,14 @@ describe('CreateCollectionModal [Component]', () => {
           createCollection={createCollectionSpy}
           toggleIsCapped={toggleIsCappedSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
-          toggleIsVisible={toggleIsVisibleSpy} />
+          toggleIsVisible={toggleIsVisibleSpy}
+          clearError={clearErrorSpy} />
       );
     });
 
     afterEach(() => {
       openLinkSpy = null;
+      clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       changeCappedSizeSpy = null;
       changeCollationOptionSpy = null;
