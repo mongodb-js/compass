@@ -13,7 +13,8 @@ const CONNECTION = new Connection({
   mongodb_database_name: 'admin'
 });
 
-describe('store', () => {
+describe('store', function() {
+  this.timeout(5000);
   const dataService = new DataService(CONNECTION);
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
@@ -611,6 +612,38 @@ describe('store', () => {
       });
     });
 
+    context('when update is called on an edited doc in sharded collection', () => {
+      const doc = { _id: 'testing', name: 'Beach Sand', yes: 'no' };
+      const hadronDoc = new HadronDocument(doc);
+      let stub;
+
+      beforeEach(() => {
+        store.state.shardKeys = { yes: 1 };
+        hadronDoc.get('name').edit('Desert Sand');
+        stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
+      });
+
+      afterEach(() => {
+        store.state.shardKeys = null;
+        stub.restore();
+      });
+
+      it('has the shard key in the query', () => {
+        store.updateDocument(hadronDoc);
+
+        expect(stub.getCall(0).args[1]).to.deep.equal({
+          _id: 'testing',
+          name: 'Beach Sand',
+          yes: 'no'
+        });
+        expect(stub.getCall(0).args[2]).to.deep.equal({
+          $set: {
+            name: 'Desert Sand'
+          }
+        });
+      });
+    });
+
     context('when passed an invalid document', () => {
       it('should emit an error to the state', (done) => {
         const doc = { _id: 'testing', name: 'Beach Sand' };
@@ -711,6 +744,37 @@ describe('store', () => {
         });
       });
     });
+
+    context('when update is called on an edited doc in sharded collection', () => {
+      const doc = { _id: 'testing', name: 'Beach Sand', yes: 'no' };
+      const hadronDoc = new HadronDocument(doc);
+      let stub;
+
+      beforeEach(() => {
+        store.state.shardKeys = { yes: 1 };
+        hadronDoc.get('name').edit('Desert Sand');
+        stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
+      });
+
+      afterEach(() => {
+        store.state.shardKeys = null;
+        stub.restore();
+      });
+
+      it('has the shard key in the query', () => {
+        store.replaceDocument(hadronDoc);
+
+        expect(stub.getCall(0).args[1]).to.deep.equal({
+          _id: 'testing',
+          yes: 'no'
+        });
+        expect(stub.getCall(0).args[2]).to.deep.equal({
+          _id: 'testing',
+          name: 'Desert Sand',
+          yes: 'no'
+        });
+      });
+    });
   });
 
   describe('#replaceExtJsonDocument', () => {
@@ -777,6 +841,38 @@ describe('store', () => {
         });
 
         store.replaceExtJsonDocument(ejsonDoc, hadronDoc);
+      });
+    });
+
+    context('when update is called on an edited doc in sharded collection', () => {
+      const doc = { _id: 'testing', name: 'Beach Sand', yes: 'no' };
+      const hadronDoc = new HadronDocument(doc);
+      const stringifiedDoc = EJSON.stringify(doc);
+      const ejsonDoc = EJSON.parse(stringifiedDoc);
+      let stub;
+
+      beforeEach(() => {
+        store.state.shardKeys = { yes: 1 };
+        stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
+      });
+
+      afterEach(() => {
+        store.state.shardKeys = null;
+        stub.restore();
+      });
+
+      it('has the shard key in the query', () => {
+        store.replaceExtJsonDocument(ejsonDoc, hadronDoc);
+
+        expect(stub.getCall(0).args[1]).to.deep.equal({
+          _id: 'testing',
+          yes: 'no'
+        });
+        expect(stub.getCall(0).args[2]).to.deep.equal({
+          _id: 'testing',
+          name: 'Beach Sand',
+          yes: 'no'
+        });
       });
     });
   });
@@ -1194,55 +1290,93 @@ describe('store', () => {
   });
 
   describe('#refreshDocuments', () => {
-    let store;
-    let actions;
+    context('when there is no shard key', () => {
+      let store;
+      let actions;
 
-    beforeEach((done) => {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: null,
-          dataProvider: dataService
-        },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        noRefreshOnConfigure: true
+      beforeEach((done) => {
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions,
+          namespace: 'compass-crud.test',
+          noRefreshOnConfigure: true
+        });
+        dataService.insertOne('compass-crud.test', { name: 'testing' }, {}, done);
       });
-      dataService.insertOne('compass-crud.test', { name: 'testing' }, {}, done);
-    });
 
-    afterEach((done) => {
-      dataService.deleteMany('compass-crud.test', {}, {}, done);
-    });
+      afterEach((done) => {
+        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      });
 
-    context('when there is no error', () => {
-      it('resets the documents to the first page', (done) => {
-        const unsubscribe = store.listen((state) => {
-          expect(state.error).to.equal(null);
-          expect(state.docs).to.have.length(1);
-          expect(state.count).to.equal(1);
-          expect(state.start).to.equal(1);
-          unsubscribe();
-          done();
+      context('when there is no error', () => {
+        it('resets the documents to the first page', (done) => {
+          const unsubscribe = store.listen((state) => {
+            expect(state.error).to.equal(null);
+            expect(state.docs).to.have.length(1);
+            expect(state.count).to.equal(1);
+            expect(state.start).to.equal(1);
+            unsubscribe();
+            done();
+          });
+
+          store.refreshDocuments();
+        });
+      });
+
+      context('when there is an error', () => {
+        beforeEach(() => {
+          store.state.query.filter = { '$iamnotanoperator': 1 };
         });
 
-        store.refreshDocuments();
+        it('resets the documents to the first page', (done) => {
+          const unsubscribe = store.listen((state) => {
+            expect(state.error).to.not.equal(null);
+            expect(state.docs).to.have.length(0);
+            expect(state.count).to.equal(null);
+            expect(state.start).to.equal(0);
+            unsubscribe();
+            done();
+          });
+
+          store.refreshDocuments();
+        });
       });
     });
 
-    context('when there is an error', () => {
-      beforeEach(() => {
-        store.state.query.filter = { '$iamnotanoperator': 1 };
+    context('when there is a shard key', () => {
+      let store;
+      let actions;
+
+      beforeEach((done) => {
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions,
+          namespace: 'compass-crud.test',
+          noRefreshOnConfigure: true
+        });
+        dataService.insertOne('config.collections', { _id: 'compass-crud.test', key: { a: 1 } }, {}, done);
       });
 
-      it('resets the documents to the first page', (done) => {
+      afterEach((done) => {
+        dataService.deleteMany('config.collections', { _id: 'compass-crud.test' }, {}, done);
+      });
+
+      it('looks up the shard keys', (done) => {
         const unsubscribe = store.listen((state) => {
-          expect(state.error).to.not.equal(null);
-          expect(state.docs).to.have.length(0);
-          expect(state.count).to.equal(null);
-          expect(state.start).to.equal(0);
+          expect(state.error).to.equal(null);
+          expect(state.shardKeys).to.deep.equal({ a: 1 });
           unsubscribe();
           done();
         });

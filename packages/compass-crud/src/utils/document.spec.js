@@ -3,6 +3,7 @@ import HadronDocument from 'hadron-document';
 import {
   buildUpdateUnlessChangedInBackgroundQuery,
   getOriginalKeysAndValuesForFieldsThatWereUpdated,
+  getOriginalKeysAndValuesForSpecifiedKeys,
   getSetUpdateForDocumentChanges,
   getUnsetUpdateForDocumentChanges
 } from './document';
@@ -459,7 +460,7 @@ describe('document utils', () => {
 
   describe('#buildUpdateUnlessChangedInBackgroundQuery', function() {
     context('when called with an edited document', function() {
-      const doc = { _id: 'testing', name: 'Beach Sand' };
+      const doc = { _id: 'testing', name: 'Beach Sand', yes: 'no' };
       const hadronDoc = new HadronDocument(doc);
       hadronDoc.get('name').edit('Desert Sand');
 
@@ -471,6 +472,18 @@ describe('document utils', () => {
         expect(query).to.deep.equal({
           _id: 'testing',
           name: 'Beach Sand'
+        });
+      });
+
+      it('contains keys that were explicitly requested', () => {
+        const {
+          query
+        } = buildUpdateUnlessChangedInBackgroundQuery(hadronDoc, { yes: 1 });
+
+        expect(query).to.deep.equal({
+          _id: 'testing',
+          name: 'Beach Sand',
+          yes: 'no'
         });
       });
 
@@ -627,6 +640,69 @@ describe('document utils', () => {
         } = buildUpdateUnlessChangedInBackgroundQuery(hadronDoc);
 
         expect(updateDoc).to.deep.equal({ });
+      });
+    });
+  });
+
+  describe('#getOriginalKeysAndValuesForSpecifiedKeys', () => {
+    context('when an element is removed', function() {
+      const object = { name: 'test', ignored: 'ignored' };
+      const doc = new HadronDocument(object);
+
+      before(function() {
+        doc.elements.at(0).remove();
+      });
+
+      it('includes the element in the object', function() {
+        expect(getOriginalKeysAndValuesForSpecifiedKeys(doc, { name: 1 })).to.deep.equal({ name: 'test' });
+      });
+    });
+
+    context('when nothing is changed', function() {
+      const object = { name: 'test', ignored: 'ignored' };
+      const doc = new HadronDocument(object);
+
+      it('includes the element in the object', function() {
+        expect(getOriginalKeysAndValuesForSpecifiedKeys(doc, { name: 1 })).to.deep.equal({ name: 'test' });
+      });
+    });
+
+    context('when an element is blank', function() {
+      const object = { name: 'test', ignored: 'ignored' };
+      const doc = new HadronDocument(object);
+
+      before(function() {
+        doc.elements.at(0).rename('');
+      });
+
+      it('includes the element in the object', function() {
+        expect(getOriginalKeysAndValuesForSpecifiedKeys(doc, { name: 1 })).to.deep.equal({ name: 'test' });
+      });
+    });
+
+    context('when an element is renamed', function() {
+      const object = { name: 'test', ignored: 'ignored' };
+      const doc = new HadronDocument(object);
+
+      before(function() {
+        doc.elements.at(0).rename('aa');
+      });
+
+      it('includes the element in the object', function() {
+        expect(getOriginalKeysAndValuesForSpecifiedKeys(doc, { name: 1 })).to.deep.equal({ name: 'test' });
+      });
+    });
+
+    context('when an element is updated', function() {
+      const object = { name: 'test', ignored: 'ignored' };
+      const doc = new HadronDocument(object);
+
+      before(function() {
+        doc.elements.at(0).edit('aa');
+      });
+
+      it('includes the element in the object', function() {
+        expect(getOriginalKeysAndValuesForSpecifiedKeys(doc, { name: 1 })).to.deep.equal({ name: 'test' });
       });
     });
   });

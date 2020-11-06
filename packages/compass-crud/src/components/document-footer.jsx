@@ -86,6 +86,7 @@ class DocumentFooter extends React.Component {
     this.props.doc.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
     this.props.doc.removeListener(Element.Events.Valid, this.unsubscribeValid);
     this.props.doc.removeListener('update-error', this.boundHandleUpdateError);
+    this.props.doc.removeListener('update-blocked', this.boundHandleUpdateBlocked);
     this.props.doc.removeListener('update-success', this.boundHandleUpdateSuccess);
   }
 
