@@ -1,4 +1,5 @@
 # hadron-react [![][travis_img]][travis_url] [![][lerna_img]][lerna_url]
+
 > Hadron React Components
 
 ## Packages
@@ -15,30 +16,26 @@ organisation and publishing.
 
 ### Installation
 
-Lerna must be installed as a global module to run everything locally:
+``` sh
+npm install
+```
+
+This will bootstrap all the packages, install all their dependencies and link the local packages together so that local changes on one package will immediate reflect in the others.
+
+Is also useful to have Lerna installed as a global module to run scoped tasks locally:
 
 ```shell
 npm install --global lerna
 ```
 
-### Bootstrapping
-
-Bootstrap all the packages and install their dependencies. The first step is to
-install the root development dependencies, so that the Lerna root package can
-share the common dependencies with the child packages. Then bootstrap from the
-root project to install all the child external dependencies.
-
-```shell
-npm install
-lerna bootstrap
-```
+**NOTE**: do not run `npm install` directly inside the packages since that will break the links that lerna maintain.
 
 ### Testing
 
 Run all the tests in all the packages.
 
 ```shell
-lerna run test
+npm run test
 ```
 
 ### Eslint
@@ -46,14 +43,20 @@ lerna run test
 Run checks on all packages in the repo - this also runs as a precommit hook.
 
 ```shell
-lerna run check
+npm run check
 ```
 
 ### Releasing
 
+After merging a PR you can run this from master:
+
 ```shell
-lerna publish
+npm run release
 ```
+
+Lerna will take care of everything, bumping the version of the packages chaged from the last release.
+
+**NOTE:** lerna keeps track of changes from latest release by creating a tag for each package and each release: `hadron-react-utils@4.0.4`, `hadron-react-components@4.0.5`, ...
 
 ## License
 

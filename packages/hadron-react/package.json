@@ -4,6 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-react/issues",
   "homepage": "https://github.com/mongodb-js/hadron-react",
+  "private": true,
   "version": "0.0.0",
   "repository": {
     "type": "git",
@@ -17,10 +18,14 @@
     "install": "lerna bootstrap --concurrency=1",
     "postinstall": "npm run compile",
     "ci": "lerna bootstrap --ci --concurrency=1",
+    "postci": "npm run compile",
     "check": "lerna run check",
     "test": "lerna run test",
     "test-ci": "npm run check && npm test",
-    "compile": "lerna run compile"
+    "compile": "lerna run compile",
+    "prerelease": "lerna run check && lerna run compile && lerna run test",
+    "release": "lerna publish --allowBranch master",
+    "prepublishOnly": "echo 'Please use npm run release instead.\n' && exit 1"
   },
   "precommit": [
     "check"
