@@ -177,7 +177,6 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   command(databaseName, comm, callback) {
-    debug('running command', { databaseName, comm });
     var db = this._database(databaseName);
     db.command(comm, (error, result) => {
       if (error) {
@@ -497,7 +496,6 @@ class NativeClient extends EventEmitter {
    * Disconnect the client.
    */
   disconnect(callback) {
-    debug('disconnect()');
     this.client.close(true, callback);
   }
 
@@ -759,7 +757,6 @@ class NativeClient extends EventEmitter {
    * @return {Stream} The sample stream.
    */
   sample(ns, options) {
-    debug('getting sample', { ns, options });
     var db = this._database(this._databaseName(ns));
     return createSampleStream(db, this._collectionName(ns), options);
   }
@@ -1174,4 +1171,36 @@ class NativeClient extends EventEmitter {
   }
 }
 
-module.exports = NativeClient;
+function addDebugToClass(cls) {
+  if (!debug.enabled) {
+    return cls;
+  }
+
+  const proto = cls.prototype;
+  for (const prop of Object.getOwnPropertyNames(proto)) {
+    if (prop.startsWith('_')) {
+      continue;
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(proto, prop);
+    if (typeof descriptor.value !== 'function') {
+      continue;
+    }
+
+    const orig = descriptor.value;
+    descriptor.value = function(...args) {
+      debug(`${prop}()`, args);
+      if (args.length > 0 & typeof args[args.length - 1] === 'function') {
+        const origCallback = args[args.length - 1];
+        args[args.length - 1] = function(...callbackArgs) {
+          debug(`${prop}()`, args, 'finished ->', callbackArgs);
+          return origCallback.call(this, ...callbackArgs);
+        };
+      }
+      return orig.call(this, ...args);
+    };
+    Object.defineProperty(proto, prop, descriptor);
+  }
+  return cls;
+}
+
+module.exports = addDebugToClass(NativeClient);
