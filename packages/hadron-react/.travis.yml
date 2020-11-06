@@ -2,4 +2,4 @@ language: node_js
 sudo: false
 node_js:
   - 12
-script: npm run-script ci
+script: npm ci && npm run test-ci

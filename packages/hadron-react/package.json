@@ -14,9 +14,12 @@
     "mongodb-js"
   ],
   "scripts": {
-    "ci": "npm install && lerna bootstrap && npm run compile && npm run check && npm test",
+    "install": "lerna bootstrap --concurrency=1",
+    "postinstall": "npm run compile",
+    "ci": "lerna bootstrap --ci --concurrency=1",
     "check": "lerna run check",
     "test": "lerna run test",
+    "test-ci": "npm run check && npm test",
     "compile": "lerna run compile"
   },
   "precommit": [
@@ -55,6 +58,5 @@
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^1.7.2",
     "webpack-sources": "^1.4.3"
-  },
-  "dependencies": {}
+  }
 }
