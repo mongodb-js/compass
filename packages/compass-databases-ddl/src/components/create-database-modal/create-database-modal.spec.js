@@ -15,6 +15,7 @@ describe('CreateDatabaseModal [Component]', () => {
     let createDatabaseSpy;
     let toggleIsCappedSpy;
     let toggleIsCustomCollationSpy;
+    let clearErrorSpy;
 
     beforeEach(() => {
       openLinkSpy = sinon.spy();
@@ -26,6 +27,7 @@ describe('CreateDatabaseModal [Component]', () => {
       createDatabaseSpy = sinon.spy();
       toggleIsCappedSpy = sinon.spy();
       toggleIsCustomCollationSpy = sinon.spy();
+      clearErrorSpy = sinon.spy();
 
       component = mount(
         <CreateDatabaseModal
@@ -33,6 +35,7 @@ describe('CreateDatabaseModal [Component]', () => {
           isCapped={false}
           isCustomCollation={false}
           isRunning={false}
+          error={{message: 'A testing error occurred.'}}
           name="dbName"
           collectionName="collName"
           cappedSize={''}
@@ -45,12 +48,14 @@ describe('CreateDatabaseModal [Component]', () => {
           createDatabase={createDatabaseSpy}
           toggleIsCapped={toggleIsCappedSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
-          toggleIsVisible={toggleIsVisibleSpy} />
+          toggleIsVisible={toggleIsVisibleSpy}
+          clearError={clearErrorSpy} />
       );
     });
 
     afterEach(() => {
       openLinkSpy = null;
+      clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       changeCappedSizeSpy = null;
       changeCollectionNameSpy = null;
@@ -90,6 +95,10 @@ describe('CreateDatabaseModal [Component]', () => {
       expect(component.find(`.${styles['create-database-modal-notice']}`)).to.be.present();
     });
 
+    it('renders the error message', () => {
+      expect(component.find('.modal-status-error-message')).to.be.present();
+    });
+
     context('when changing the database name', () => {
       it('calls the change database name function', () => {
         component.find('#create-database-name').hostNodes().
@@ -124,6 +133,13 @@ describe('CreateDatabaseModal [Component]', () => {
 
     context('when clicking create', () => {
     });
+
+    context('when clicking the close button of the error message', () => {
+      it('clears the error message', () => {
+        component.find('.modal-status-error-icon').simulate('click');
+        expect(clearErrorSpy.calledOnce).to.equal(true);
+      });
+    });
   });
 
   context('when the modal is not visible', () => {
@@ -137,6 +153,7 @@ describe('CreateDatabaseModal [Component]', () => {
     let createDatabaseSpy;
     let toggleIsCappedSpy;
     let toggleIsCustomCollationSpy;
+    let clearErrorSpy;
 
     beforeEach(() => {
       openLinkSpy = sinon.spy();
@@ -148,6 +165,7 @@ describe('CreateDatabaseModal [Component]', () => {
       createDatabaseSpy = sinon.spy();
       toggleIsCappedSpy = sinon.spy();
       toggleIsCustomCollationSpy = sinon.spy();
+      clearErrorSpy = sinon.spy();
 
       component = mount(
         <CreateDatabaseModal
@@ -167,12 +185,14 @@ describe('CreateDatabaseModal [Component]', () => {
           createDatabase={createDatabaseSpy}
           toggleIsCapped={toggleIsCappedSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
-          toggleIsVisible={toggleIsVisibleSpy} />
+          toggleIsVisible={toggleIsVisibleSpy}
+          clearError={clearErrorSpy} />
       );
     });
 
     afterEach(() => {
       openLinkSpy = null;
+      clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       changeCappedSizeSpy = null;
       changeCollectionNameSpy = null;

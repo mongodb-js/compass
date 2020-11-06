@@ -1,21 +1,21 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Modal } from 'react-bootstrap';
-import { TextButton } from 'hadron-react-buttons';
-import { ModalInput, ModalCheckbox, ModalStatusMessage } from 'hadron-react-components';
 import Collation from 'components/collation';
-import { changeCappedSize } from 'modules/create-database/capped-size';
-import { changeCollectionName } from 'modules/create-database/collection-name';
-import { changeDatabaseName } from 'modules/create-database/name';
+import { TextButton } from 'hadron-react-buttons';
+import { ModalCheckbox, ModalInput, ModalStatusMessage } from 'hadron-react-components';
 import { createDatabase } from 'modules/create-database';
+import { changeCappedSize } from 'modules/create-database/capped-size';
 import { changeCollationOption } from 'modules/create-database/collation';
+import { changeCollectionName } from 'modules/create-database/collection-name';
 import { toggleIsCapped } from 'modules/create-database/is-capped';
 import { toggleIsCustomCollation } from 'modules/create-database/is-custom-collation';
+import { changeDatabaseName } from 'modules/create-database/name';
+import { clearError } from 'modules/error';
 import { toggleIsVisible } from 'modules/is-visible';
 import { openLink } from 'modules/link';
-
+import PropTypes from 'prop-types';
+import React, { PureComponent } from 'react';
+import { Modal } from 'react-bootstrap';
+import { connect } from 'react-redux';
 import styles from './create-database-modal.less';
 
 /**
@@ -58,7 +58,8 @@ class CreateDatabaseModal extends PureComponent {
     createDatabase: PropTypes.func.isRequired,
     toggleIsCapped: PropTypes.func.isRequired,
     toggleIsCustomCollation: PropTypes.func.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired
+    toggleIsVisible: PropTypes.func.isRequired,
+    clearError: PropTypes.func.isRequired
   }
 
   /**
@@ -129,6 +130,13 @@ class CreateDatabaseModal extends PureComponent {
     evt.preventDefault();
     evt.stopPropagation();
     this.props.openLink(INFO_URL_CREATE_DB);
+  }
+
+  /**
+   * Called when the error message close icon is clicked.
+   */
+  onDismissErrorMessage = () => {
+    this.props.clearError();
   }
 
   /**
@@ -223,7 +231,9 @@ class CreateDatabaseModal extends PureComponent {
               <a onClick={this.onInfoClicked}>More Information</a>
             </div>
             {this.props.error ?
-              <ModalStatusMessage icon="times" message={this.props.error.message} type="error" />
+              <ModalStatusMessage
+                icon="times" message={this.props.error.message} type="error"
+                onIconClickHandler={this.onDismissErrorMessage} />
               : null}
             {this.props.isRunning ?
               <ModalStatusMessage icon="spinner" message="Create in Progress" type="in-progress" />
@@ -282,7 +292,8 @@ const MappedCreateDatabaseModal = connect(
     openLink,
     toggleIsCapped,
     toggleIsCustomCollation,
-    toggleIsVisible
+    toggleIsVisible,
+    clearError
   },
 )(CreateDatabaseModal);
 
