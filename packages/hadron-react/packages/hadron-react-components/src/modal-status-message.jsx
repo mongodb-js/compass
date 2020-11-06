@@ -1,11 +1,20 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import { Panel } from 'react-bootstrap';
 
 /**
  * Component for the status message.
  */
 class ModalStatusMessage extends React.Component {
+  /**
+   * Called when the icon of the message is clicked.
+   * @param {Event} evt
+   */
+  onIconClickHandler(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    this.props.onIconClickHandler();
+  }
 
   /**
    * Render the status message.
@@ -19,9 +28,16 @@ class ModalStatusMessage extends React.Component {
       <Panel className={classPrefix}>
         <div className="row">
           <div className="col-md-1">
-            <i
-              className={`fa fa-${this.props.icon} ${classPrefix}-icon`}
-              aria-hidden="true"></i>
+            {this.props.onIconClickHandler
+              ? (
+                <i
+                  className={`fa fa-${this.props.icon} ${classPrefix}-icon ${classPrefix}-icon-interactible`}
+                  onClick={this.onIconClickHandler.bind(this)} />
+              ) : (
+                <i
+                  className={`fa fa-${this.props.icon} ${classPrefix}-icon`}
+                  aria-hidden="true" />
+              )}
           </div>
           <div className="col-md-11">
             <p
@@ -40,7 +56,8 @@ ModalStatusMessage.displayName = 'ModalStatusMessage';
 ModalStatusMessage.propTypes = {
   icon: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired
+  type: PropTypes.string.isRequired,
+  onIconClickHandler: PropTypes.func
 };
 
 export default ModalStatusMessage;
