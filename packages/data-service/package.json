@@ -23,7 +23,7 @@
     "async": "^3.2.0",
     "debug": "^4.1.1",
     "lodash": "^4.17.15",
-    "mongodb": "^3.6.1",
+    "mongodb": "^3.6.3",
     "mongodb-build-info": "^1.1.0",
     "mongodb-collection-sample": "^4.5.1",
     "mongodb-connection-model": "^17.0.1",
