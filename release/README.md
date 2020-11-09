@@ -94,3 +94,5 @@ It will perform the following tasks:
 3. Waits for a draft github release to be available.
 4. Prompts to publish the github release if not published.
 5. Waits for the github release to be published.
+
+
