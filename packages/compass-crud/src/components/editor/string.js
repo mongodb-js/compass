@@ -1,5 +1,6 @@
-import chars from 'utils';
 import StandardEditor from './standard';
+
+export const STRING_TYPE = 'String';
 
 /**
  * CRUD editor for string values.
@@ -12,17 +13,6 @@ class StringEditor extends StandardEditor {
    */
   constructor(element) {
     super(element);
-  }
-
-  /**
-   * Get the number of characters the value should display.
-   *
-   * @param {Boolean} editMode - If the element is being edited.
-   *
-   * @returns {Number} The number of characters.
-   */
-  size() {
-    return chars(this.element.currentValue);
   }
 }
 

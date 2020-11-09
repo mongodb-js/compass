@@ -1,6 +1,6 @@
 import TypeChecker from 'hadron-type-checker';
 import { Element } from 'hadron-document';
-import chars from 'utils';
+import { fieldStringLen } from '../../utils';
 
 /**
  * Regex to match an array or object string.
@@ -58,7 +58,7 @@ class StandardEditor {
    * @returns {Number} The number of characters.
    */
   size() {
-    return chars(this.element.currentValue);
+    return fieldStringLen(this.element.currentValue);
   }
 
   /**

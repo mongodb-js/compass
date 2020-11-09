@@ -1,18 +1,19 @@
 import TypeChecker from 'hadron-type-checker';
 import { Element } from 'hadron-document';
-import chars from 'utils';
+
+import StandardEditor from './standard';
 
 /**
  * CRUD editor for object id values.
  */
-class ObjectIdEditor {
+class ObjectIdEditor extends StandardEditor {
   /**
    * Create the editor with the element.
    *
    * @param {Element} element - The hadron document element.
    */
   constructor(element) {
-    this.element = element;
+    super(element);
   }
 
   /**
@@ -42,30 +43,12 @@ class ObjectIdEditor {
   }
 
   /**
-   * Get the number of characters the value should display.
-   *
-   * @returns {Number} The number of characters.
-   */
-  size() {
-    return chars(this.element.currentValue);
-  }
-
-  /**
    * Start the object id edit.
    */
   start() {
     if (this.element.isCurrentTypeValid()) {
       this.edit(String(this.element.currentValue));
     }
-  }
-
-  /**
-   * Get the value being edited.
-   *
-   * @returns {String} The value.
-   */
-  value() {
-    return this.element.currentValue;
   }
 }
 

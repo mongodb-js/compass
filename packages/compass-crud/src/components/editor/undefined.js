@@ -26,7 +26,7 @@ class UndefinedEditor extends StandardEditor {
    * @returns {Number} The number of characters.
    */
   size() {
-    return 9;
+    return VALUE.length;
   }
 
   /**

@@ -5,6 +5,20 @@ import EditableKey from 'components/editable-key';
 
 describe('<EditableKey />', () => {
   describe('#render', () => {
+    context('when the key exists', () => {
+      let wrapper;
+
+      before(() => {
+        const parentElement = new Element('parent', {}, false);
+        const element = new Element('key', 1, true, parentElement);
+        wrapper = mount(<EditableKey element={element} isFocused={false} />);
+      });
+
+      it('has a width corresponding to the key string length', () => {
+        expect(wrapper.find('input').prop('style').width).to.equal('3.5ch');
+      });
+    });
+
     context('when the key is for an added element', () => {
       context('when the key is an array element', () => {
         let wrapper;

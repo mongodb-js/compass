@@ -1,7 +1,7 @@
 import moment from 'moment-timezone';
 import TypeChecker from 'hadron-type-checker';
 import { Element } from 'hadron-document';
-import chars from 'utils';
+import { fieldStringLen } from '../../utils';
 import StandardEditor from './standard';
 
 /**
@@ -64,9 +64,9 @@ class DateEditor extends StandardEditor {
   size(editMode) {
     const value = this.element.currentValue;
     if (editMode) {
-      return chars(value);
+      return fieldStringLen(value);
     }
-    return this.element.isCurrentTypeValid() ? chars(this._formattedValue()) : chars(value);
+    return this.element.isCurrentTypeValid() ? fieldStringLen(this._formattedValue()) : fieldStringLen(value);
   }
 
   /**

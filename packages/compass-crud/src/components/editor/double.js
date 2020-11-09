@@ -1,7 +1,7 @@
 import TypeChecker from 'hadron-type-checker';
 import { Element } from 'hadron-document';
 import StandardEditor from './standard';
-import chars from 'utils';
+import { fieldStringLen } from '../../utils';
 
 /**
  * CRUD editor for double values.
@@ -55,7 +55,7 @@ class DoubleEditor extends StandardEditor {
    * @returns {Number} The number of characters.
    */
   size() {
-    return chars(this.element.currentValue.value);
+    return fieldStringLen(this.element.currentValue.value);
   }
 }
 

@@ -4,8 +4,7 @@
   padding-left: 1px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
-  max-width: ~"calc(85vw - 260px);";
+  max-width: ~"calc(100% - 6px)";
 
   &-tooltip {
     height: 20px !important;
@@ -15,9 +14,10 @@
   }
 
   &-is-string {
-    white-space: pre-line;
-    word-break: break-all;
-    padding-right: 0px;
+    padding: 0px;
+    height: 17px;
+    overflow: auto;
+    max-height: 50vh;
   }
 
   &-is-int32 {
@@ -68,7 +68,8 @@
   }
 
   &-wrapper {
-    flex-grow: 3;
+    flex-grow: 1;
+    overflow: hidden;
 
     &-is-string {
       color: steelblue;

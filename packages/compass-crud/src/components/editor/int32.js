@@ -1,4 +1,4 @@
-import chars from 'utils';
+import { fieldStringLen } from '../../utils';
 import StandardEditor from './standard';
 
 /**
@@ -22,7 +22,7 @@ class Int32Editor extends StandardEditor {
    * @returns {Number} The number of characters.
    */
   size() {
-    return chars(this.element.currentValue.valueOf());
+    return fieldStringLen(this.element.currentValue.valueOf());
   }
 }
 

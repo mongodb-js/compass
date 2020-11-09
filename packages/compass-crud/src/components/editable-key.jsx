@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import chars from 'utils';
+import { fieldStringLen } from '../utils';
 
 /* eslint no-return-assign:0 */
 
@@ -105,7 +105,7 @@ class EditableKey extends React.Component {
    */
   handleChange(evt) {
     const value = evt.target.value;
-    this._node.size = chars(value);
+    this._node.size = fieldStringLen(value);
     if (this.isEditable()) {
       if (this.element.isDuplicateKey(value)) {
         this.setState({ duplicate: true });
@@ -203,13 +203,13 @@ class EditableKey extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const length = (chars(this.renderValue()) * 6.625) + 6.625;
+    const length = fieldStringLen(this.renderValue()) + 0.5;
     return (
       <input
         className={this.style()}
         ref={(c) => this._node = c}
         type="text"
-        style={{ width: `${length}px` }}
+        style={{ width: `${length}ch` }}
         tabIndex={this.isEditable() ? 0 : -1}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
@@ -217,7 +217,8 @@ class EditableKey extends React.Component {
         onKeyDown={this.handleKeyDown.bind(this)}
         onKeyUp={this.handleKeyUp.bind(this)}
         value={this.renderValue()}
-        title={this.renderTitle()} />
+        title={this.renderTitle()}
+      />
     );
   }
 }

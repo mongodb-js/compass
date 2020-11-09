@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import { Tooltip } from 'hadron-react-components';
 import initEditors from 'components/editor';
 
-/* eslint no-return-assign:0 */
+import { STRING_TYPE } from './editor/string';
 
-/**
- * Escape key code.
- */
-const ESC = 27;
+const ESC_KEY_CODE = 27;
+const TAB_KEY_CODE = 9;
+const ENTER_KEY_CODE = 13;
 
 /**
  * The editing class constant.
@@ -100,21 +99,25 @@ class EditableValue extends React.Component {
    * @param {Event} evt - The event.
    */
   handleKeyDown(evt) {
-    if (evt.keyCode === 9 && !evt.shiftKey) {
+    if (evt.keyCode === TAB_KEY_CODE && !evt.shiftKey) {
       this.simulateTab(evt);
-    } else if (evt.keyCode === ESC) {
+    } else if (evt.keyCode === ESC_KEY_CODE) {
       const value = evt.target.value;
       if (value.length === 0 && this.element.currentKey.length === 0) {
         this.element.remove();
       } else {
         this._node.blur();
       }
-    } else if (evt.keyCode === 13) {
-      if (this.element.nextElement) {
-        // need to force the focus.
-        this._node.parentNode.parentNode.nextSibling.childNodes[2].focus();
+    } else if (evt.keyCode === ENTER_KEY_CODE) {
+      // When we're editing a string and shift is clicked with enter
+      // we don't want to choose the next value.
+      if (!(this.element.currentType === STRING_TYPE && evt.shiftKey)) {
+        if (this.element.nextElement) {
+          // Focus the next element.
+          this._node.parentNode.parentNode.nextSibling.childNodes[2].focus();
+        }
+        this.simulateTab(evt);
       }
-      this.simulateTab(evt);
     }
   }
 
@@ -238,27 +241,52 @@ class EditableValue extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const length = (this.editor().size(this.state.editing) * 6.625) + 6.625;
+    const length = this.editor().size(this.state.editing) + (this.state.editing ? 1 : 0.4);
     return (
       <span className={this.wrapperStyle()}>
         <Tooltip
           id={this.element.uuid}
           className="editable-element-value-tooltip"
           border
-          getContent={() => { return this.element.invalidTypeMessage; }}/>
-        <input
-          data-tip=""
-          data-for={this.element.uuid}
-          ref={(c) => this._node = c}
-          type="text"
-          style={{ width: `${length}px` }}
-          className={this.style()}
-          onBlur={this.handleBlur.bind(this)}
-          onFocus={this.handleFocus.bind(this)}
-          onChange={this.handleChange.bind(this)}
-          onKeyDown={this.handleKeyDown.bind(this)}
-          onPaste={this.handlePaste.bind(this)}
-          value={this.editor().value(this.state.editing)} />
+          getContent={() => { return this.element.invalidTypeMessage; }}
+        />
+        {this.element.currentType === STRING_TYPE ? (
+          <textarea
+            data-tip=""
+            data-for={this.element.uuid}
+            ref={(c) => { this._node = c; }}
+            type="text"
+            className={this.style()}
+            onBlur={this.handleBlur.bind(this)}
+            onFocus={this.handleFocus.bind(this)}
+            onChange={this.handleChange.bind(this)}
+            onKeyDown={this.handleKeyDown.bind(this)}
+            onPaste={this.handlePaste.bind(this)}
+            style={(this.element.currentValue || '').includes('\n') ? {
+              minHeight: '77px',
+              width: '100%' // Scale to max width when it's a multi-line string.
+            } : {
+              minHeight: '17px',
+              width: `${length}ch`
+            }}
+            value={this.editor().value(this.state.editing)}
+          />
+        ) : (
+          <input
+            data-tip=""
+            data-for={this.element.uuid}
+            ref={(c) => { this._node = c; }}
+            type="text"
+            className={this.style()}
+            onBlur={this.handleBlur.bind(this)}
+            onFocus={this.handleFocus.bind(this)}
+            onChange={this.handleChange.bind(this)}
+            onKeyDown={this.handleKeyDown.bind(this)}
+            onPaste={this.handlePaste.bind(this)}
+            style={{ width: `${length}ch` }}
+            value={this.editor().value(this.state.editing)}
+          />
+        )}
       </span>
     );
   }

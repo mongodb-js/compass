@@ -1,13 +1,12 @@
 /**
  * Get the size for the string value.
+ * Returns 1 with an empty string.
  *
  * @param {Object} value - The value.
  *
  * @return {Number} The size.
  */
-const size = (value) => {
+export const fieldStringLen = (value) => {
   const length = String(value).length;
   return length === 0 ? 1 : length;
 };
-
-export default size;

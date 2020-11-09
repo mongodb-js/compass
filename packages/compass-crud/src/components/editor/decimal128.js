@@ -1,7 +1,6 @@
 import TypeChecker from 'hadron-type-checker';
 import { Element } from 'hadron-document';
 import StandardEditor from './standard';
-import chars from 'utils';
 
 /**
  * CRUD editor for decimal128 values.
@@ -41,17 +40,6 @@ class Decimal128Editor extends StandardEditor {
     } catch (error) {
       this.element.setInvalid(value, this.element.currentType, error.message);
     }
-  }
-
-  /**
-   * Get the number of characters the value should display.
-   *
-   * @param {Boolean} editMode - If the element is being edited.
-   *
-   * @returns {Number} The number of characters.
-   */
-  size() {
-    return chars(this.element.currentValue);
   }
 }
 
