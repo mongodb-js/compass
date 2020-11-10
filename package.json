@@ -237,7 +237,7 @@
     "test-renderer": "npm test -- --renderer",
     "test-functional": "npm test -- --functional",
     "test-release": "npm test -- --release",
-    "test-release-tasks": "mocha --timeout 30000 release/*.spec.js",
+    "test-release-tasks": "cross-env MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID='' mocha --timeout 30000 release/*.spec.js",
     "pretravis": "npm run check",
     "travis": "npm test",
     "upload": "hadron-build upload",

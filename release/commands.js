@@ -16,6 +16,7 @@ const version = require('./version');
 
 const publishRelease = require('./publish');
 const waitForAssets = require('./wait-for-assets');
+const ux = require('./ux');
 
 async function getPackageJsonVersion() {
   return require(await pkgUp()).version;
@@ -74,31 +75,30 @@ async function startRelease(bumpFn, evergreenProject) {
     return;
   }
 
-  cli.info('');
   cli.info(
-    chalk.bgYellow(
-      chalk.gray(
-        chalk.bold(' MANUAL ACTION REQUIRED!: '))
+    '\n\n',
+    ux.manualAction(
+      `Make sure that ${chalk.bold(evergreenProject)} is building from ${chalk.bold(currentBranch)}:\n`,
+      ux.link(`https://evergreen.mongodb.com/projects##${evergreenProject}`)
     ),
-    `Make sure that ${evergreenProject} is building from ${currentBranch}:\n` +
-    `\thttps://evergreen.mongodb.com/projects##${evergreenProject}`
+    '\n'
   );
 
-  cli.anykey('Press any key to continue.');
+  cli.info('Press enter to continue or Ctrl+C to abort....');
+  ux.waitForEnter();
 
   await commitAndPushNewVersion(
     newSemver,
     currentBranch
   );
 
-  cli.info('');
   cli.info(
-    chalk.bgYellow(
-      chalk.gray(
-        chalk.bold(' MANUAL ACTION REQUIRED!: '))
+    '\n',
+    ux.manualAction(
+      'Make sure that the build is running in evergreen:\n',
+      ux.link(`https://evergreen.mongodb.com/waterfall/${evergreenProject}`)
     ),
-    'Make sure that the build is running in evergreen:\n' +
-    `\thttps://evergreen.mongodb.com/waterfall/${evergreenProject}`
+    '\n'
   );
 
   await waitForAssets(newSemver, { downloadCenter });
@@ -130,6 +130,21 @@ async function releaseCheckout(versionLike) {
   }
 
   await git.checkout(releaseBranchName);
+
+  const remoteBranches = await git.getRemoteBranches();
+  if (!remoteBranches.includes(releaseBranchName)) {
+    cli.info(
+      '\n',
+      ux.manualAction(
+        'You just checked out a new release branch that does not exist in the remote. Run:\n',
+        ux.command(`git push -u origin ${releaseBranchName}`), '\n',
+        'to create the remote branch before proceeding with the release.'
+      ),
+      '\n'
+    );
+  }
+
+  cli.info('Switched to branch:', chalk.bold(await git.getCurrentBranch()));
 }
 
 async function releaseChangelog() {
@@ -201,6 +216,15 @@ async function releaseWait() {
   await getValidReleaseBranch();
   const releaseVersion = await getPackageJsonVersion();
 
+  const evergreenProject = version.isGa(releaseVersion) ?
+    '10gen-compass-stable' : '10gen-compass-testing';
+
+  cli.info(
+    `Waiting ${chalk.bold(releaseVersion)} assets for being built in evergreen:`,
+    ux.link(`https://evergreen.mongodb.com/waterfall/${evergreenProject}`),
+    '\n'
+  );
+
   await waitForAssets(releaseVersion, {
     downloadCenter: createDownloadCenter()
   });
@@ -221,4 +245,3 @@ function createDownloadCenter() {
     secretAccessKey: env.requireEnvVar('MONGODB_DOWNLOADS_AWS_SECRET_ACCESS_KEY')
   });
 }
-

@@ -25,11 +25,9 @@ describe('publish', () => {
     downloadCenter.uploadConfig = sinon.mock().resolves();
 
     const github = {
-      waitForReleaseCreated: sinon.mock().resolves({
-        draft: true,
-        html_url: 'http://example.com'
-      }),
-      waitForReleasePublished: sinon.mock().resolves(),
+      waitForReleasePublished: sinon.mock().resolves({
+        draft: true
+      })
     };
 
     deps = {
@@ -55,18 +53,6 @@ describe('publish', () => {
 
     await (publish('1.23.0', deps));
     expect(deps.downloadCenter.uploadConfig).to.have.been.calledWith(expected);
-  });
-
-  it('waits for a draft github release to be created', async() => {
-    const error = await (publish('1.23.0', {
-      ...deps,
-      github: {
-        ...deps.github,
-        waitForReleaseCreated: () => { throw new Error('maxWaitTime reached.'); }
-      }
-    })).catch(e => e);
-
-    expect(error.message).to.equal('maxWaitTime reached.');
   });
 
   it('waits for a the github release to be published', async() => {

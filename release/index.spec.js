@@ -61,6 +61,16 @@ async function commitAll(commitMessage, tag) {
 }
 
 describe('release', () => {
+  before(function() {
+    if (process.env.MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID) {
+      // eslint-disable-next-line no-console
+      console.info(
+        'MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID is set. Please re-run with MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID=""'
+      );
+      this.skip();
+    }
+  });
+
   afterEach(() => {
     while (running.length) {
       running.shift().kill('SIGTERM', { forceKillAfterTimeout: 100 });
@@ -143,7 +153,9 @@ describe('release', () => {
     describe(command, () => {
       it('fails if missing required env vars', async() => {
         await checkoutBranch('1.1-releases');
-        const { stderr, stdout, failed } = await (runReleaseCommand([command], {env: {}, input: 'Y\n'}).catch(e => e));
+        const { stderr, stdout, failed } = await (runReleaseCommand([command], {env: {
+          MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID: ''
+        }, input: 'Y\n'}).catch(e => e));
         expect(failed).to.be.true;
         expect(stderr + stdout).to.contain('The MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID envirnonment variable must be set.');
       });
@@ -211,7 +223,9 @@ describe('release', () => {
         beforeEach(async() => {
           await checkoutBranch('1.12-releases');
           await runReleaseCommandWithKeys([command], {
-            input: 'Y\n'
+            input: 'Y\n',
+            stdout: 'inherit',
+            stderr: 'inherit'
           });
 
           clonePath = path.resolve(tempDir, command);
@@ -370,7 +384,10 @@ https://github.com/mongodb-js/compass/compare/v1.0.1-beta.0...v1.0.1-beta.1`);
 
     it('fails if missing required env vars', async() => {
       await checkoutBranch('1.1-releases');
-      const { stderr, failed } = await (runReleaseCommand(['publish'], {env: {}, input: 'Y\n'}).catch(e => e));
+      const { stderr, failed } = await (runReleaseCommand(['publish'], {
+        env: {
+          MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID: ''
+        }, input: 'Y\n'}).catch(e => e));
       expect(failed).to.be.true;
       expect(stderr).to.contain('The MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID envirnonment variable must be set.');
     });
