@@ -21,19 +21,12 @@ async function getRelease(tagOrVersion) {
   return releases.find(({ tag_name }) => tag_name === tag);
 }
 
-async function waitForReleaseCreated(tagOrVersion) {
-  return await wait(
-    () => getRelease(tagOrVersion),
-    WAIT_OPTIONS
-  );
-}
-
 async function waitForReleasePublished(tagOrVersion) {
   return await wait(
-    () => getRelease(tagOrVersion).then(({ draft }) => !draft),
+    () => getRelease(tagOrVersion).then((release) => release && !release.draft),
     WAIT_OPTIONS
   );
 }
 
-module.exports = { waitForReleaseCreated, waitForReleasePublished };
+module.exports = { waitForReleasePublished };
 
