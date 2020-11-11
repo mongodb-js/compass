@@ -215,7 +215,7 @@ describe('connection model parser should parse URI strings for common connection
       );
     });
 
-    it('when using X509 auth', (done) => {
+    it('when using X509 auth with a username', (done) => {
       Connection.from(
         'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia' +
         '%252CST%253DPennsylvania%252CC%253DUS@localhost:27017/' +
@@ -228,6 +228,21 @@ describe('connection model parser should parse URI strings for common connection
           expect(result.x509Username).to.be.equal(
             'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,ST=Pennsylvania,C=US'
           );
+          expect(result.ns).to.be.equal('x509');
+          done();
+        }
+      );
+    });
+
+    it('when using X509 auth without a username', (done) => {
+      Connection.from(
+        'mongodb://localhost:27017/x509?authMechanism=MONGODB-X509',
+        (error, result) => {
+          expect(error).to.not.exist;
+          expect(result.hostname).to.be.equal('localhost');
+          expect(result.port).to.be.equal(27017);
+          expect(result.authStrategy).to.be.equal('X509');
+          expect(result.x509Username).to.be.equal(undefined);
           expect(result.ns).to.be.equal('x509');
           done();
         }

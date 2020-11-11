@@ -451,7 +451,7 @@ function addAuthToUrl({ url, isPasswordProtected }) {
       ? '*****'
       : encodeURIComponent(this.ldapPassword);
     authField = format('%s:%s', username, password);
-  } else if (this.authStrategy === 'X509') {
+  } else if (this.authStrategy === 'X509' && this.x509Username) {
     username = encodeURIComponent(this.x509Username);
     authField = username;
   } else if (this.authStrategy === 'KERBEROS' && this.kerberosPassword) {
@@ -540,7 +540,11 @@ const prepareRequest = (model) => {
       authMechanism: model.driverAuthMechanism
     });
   } else if (model.authStrategy === 'X509') {
-    req.auth = 'AUTH_TOKEN';
+    if (model.x509Username) {
+      // Username is not required with x509.
+      // Since MongoDB 3.4 it's pulled from the client certificate.
+      req.auth = 'AUTH_TOKEN';
+    }
     defaults(req.query, { authMechanism: model.driverAuthMechanism });
   } else if (model.authStrategy === 'LDAP') {
     req.auth = 'AUTH_TOKEN';
@@ -1089,8 +1093,6 @@ async function createConnectionFromUrl(url) {
     authStrategy = attrs.authMechanism;
   } else if (attrs.auth && attrs.auth.username && attrs.auth.password) {
     authStrategy = 'DEFAULT';
-  } else if (attrs.auth && attrs.auth.username) {
-    authStrategy = 'MONGODB-X509';
   }
 
   attrs.authStrategy = authStrategy
@@ -1107,7 +1109,7 @@ async function createConnectionFromUrl(url) {
     if (attrs.authStrategy === 'LDAP') {
       attrs.ldapUsername = user;
       attrs.ldapPassword = password;
-    } else if (attrs.authStrategy === 'X509') {
+    } else if (attrs.authStrategy === 'X509' && parsed.auth.username) {
       attrs.x509Username = user;
     } else if (attrs.authStrategy === 'KERBEROS') {
       attrs.kerberosPrincipal = user;

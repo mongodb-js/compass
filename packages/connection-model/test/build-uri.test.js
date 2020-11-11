@@ -509,6 +509,23 @@ describe('Connection model builder', () => {
         done();
       });
     });
+
+    it('should not include credentials when using X509 auth and there is no username', (done) => {
+      const c = new Connection({
+        authStrategy: 'X509'
+      });
+
+      expect(c.driverAuthMechanism).to.be.equal('MONGODB-X509');
+      expect(c.driverUrl).to.be.equal(
+        'mongodb://localhost:27017/?authMechanism=MONGODB-X509' +
+          '&readPreference=primary&ssl=false&authSource=$external'
+      );
+
+      Connection.from(c.driverUrl, (error) => {
+        expect(error).to.not.exist;
+        done();
+      });
+    });
   });
 
   context('when building a connection object', () => {
