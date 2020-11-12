@@ -2,10 +2,6 @@
 /* eslint-disable callback-return */
 /* eslint-disable complexity */
 
-/**
- * TODO: lucas: rename `export-formatters`
- */
-
 import csv from 'fast-csv';
 import { EJSON } from 'bson';
 import { serialize as flatten } from './bson-csv';

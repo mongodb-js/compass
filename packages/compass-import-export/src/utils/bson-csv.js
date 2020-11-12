@@ -20,8 +20,8 @@
  * 3. etc.
  */
 import bson from 'bson';
-
 import { createLogger } from './logger';
+
 
 const debug = createLogger('bson-csv');
 
@@ -249,14 +249,16 @@ export const serialize = function(doc) {
         return;
       }
 
-      if (BOOLEAN_TRUE.includes(value)) {
-        output[newKey] = 'true';
-        return;
-      }
+      if (type === 'Boolean') {
+        if (BOOLEAN_TRUE.includes(value)) {
+          output[newKey] = 'true';
+          return;
+        }
 
-      if (BOOLEAN_FALSE.includes(value)) {
-        output[newKey] = 'false';
-        return;
+        if (BOOLEAN_FALSE.includes(value)) {
+          output[newKey] = 'false';
+          return;
+        }
       }
 
       // Embedded documents

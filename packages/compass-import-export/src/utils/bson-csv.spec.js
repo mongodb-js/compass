@@ -25,9 +25,49 @@ describe('bson-csv', () => {
         expect(bsonCSV.Boolean.fromString('true')).to.equal(true);
         expect(bsonCSV.Boolean.fromString('TRUE')).to.equal(true);
       });
+      it('should serialize as a string', () => {
+        expect(serialize({ value: false })).to.deep.equal({
+          value: 'false'
+        });
+
+        expect(serialize({ value: true })).to.deep.equal({
+          value: 'true'
+        });
+      });
+      it('should not auto-convert other values', () => {
+        expect(serialize({ value: 'false' })).to.deep.equal({
+          value: 'false'
+        });
+        expect(serialize({ value: 'FALSE' })).to.deep.equal({
+          value: 'FALSE'
+        });
+        expect(serialize({ value: 'true' })).to.deep.equal({
+          value: 'true'
+        });
+        expect(serialize({ value: 'TRUE' })).to.deep.equal({
+          value: 'TRUE'
+        });
+        expect(serialize({ value: '0' })).to.deep.equal({
+          value: '0'
+        });
+        expect(serialize({ value: '1' })).to.deep.equal({
+          value: '1'
+        });
+      });
     });
     describe('Number', () => {
-      it('should work', () => {
+      it('should serialize numbers as strings', () => {
+        expect(serialize({ value: 0 })).to.deep.equal({
+          value: '0'
+        });
+        expect(serialize({ value: 1 })).to.deep.equal({
+          value: '1'
+        });
+        expect(serialize({ value: -1.35 })).to.deep.equal({
+          value: '-1.35'
+        });
+      });
+      it('should deserialize numbers from strings', () => {
         expect(bsonCSV.Number.fromString('1')).to.equal(1);
       });
     });
@@ -45,6 +85,27 @@ describe('bson-csv', () => {
           _id: '{47844C7F-544C-8986-E050-A8C063056488}',
           Price: '925000',
           'Date of Transfer': '2017-01-13T00:00:00Z'
+        });
+      });
+      it('should detect value:<Date> as Date', () => {
+        expect(
+          detectType(new Date('2020-03-19T20:02:48.406Z'))
+        ).to.be.equal('Date');
+      });
+      it('should not lose percision', () => {
+        expect(bsonCSV.Date.fromString(new Date('2020-03-19T20:02:48.406Z'))).to.deep.equal(
+          new Date('2020-03-19T20:02:48.406Z')
+        );
+      });
+      it('should serialize as a string', () => {
+        expect(serialize({ value: new BSONRegExp('^mongodb') })).to.deep.equal({
+          value: '/^mongodb/'
+        });
+
+        expect(
+          serialize({ value: new BSONRegExp('^mongodb', 'm') })
+        ).to.deep.equal({
+          value: '/^mongodb/m'
         });
       });
     });
@@ -66,29 +127,6 @@ describe('bson-csv', () => {
       it('should serialize as a string', () => {
         expect(serialize({ value: /^mongodb/ })).to.deep.equal({
           value: '/^mongodb/'
-        });
-      });
-    });
-    describe('Date', () => {
-      it('should detect value:<Date> as Date', () => {
-        expect(
-          detectType(new Date('2020-03-19T20:02:48.406Z'))
-        ).to.be.equal('Date');
-      });
-      it('should not lose percision', () => {
-        expect(bsonCSV.Date.fromString(new Date('2020-03-19T20:02:48.406Z'))).to.deep.equal(
-          new Date('2020-03-19T20:02:48.406Z')
-        );
-      });
-      it('should serialize as a string', () => {
-        expect(serialize({ value: new BSONRegExp('^mongodb') })).to.deep.equal({
-          value: '/^mongodb/'
-        });
-
-        expect(
-          serialize({ value: new BSONRegExp('^mongodb', 'm') })
-        ).to.deep.equal({
-          value: '/^mongodb/m'
         });
       });
     });
@@ -124,25 +162,6 @@ describe('bson-csv', () => {
           name: 'Arlo',
           'location.activity.sleeping': 'true',
           'location.activity.is': 'on the couch'
-        });
-      });
-    });
-    describe('Boolean', () => {
-      it('should serialize as a string', () => {
-        expect(serialize({ value: false })).to.deep.equal({
-          value: 'false'
-        });
-
-        expect(serialize({ value: true })).to.deep.equal({
-          value: 'true'
-        });
-      });
-      it('should serialize as normalized string', () => {
-        expect(serialize({ value: 'FALSE' })).to.deep.equal({
-          value: 'false'
-        });
-        expect(serialize({ value: 'TRUE' })).to.deep.equal({
-          value: 'true'
         });
       });
     });
