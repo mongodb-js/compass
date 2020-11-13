@@ -23,7 +23,8 @@
     "ci": "npm run check && npm run cover",
     "precheck": "npm run compile",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
-    "prepublishOnly": "npm run compile"
+    "prepublishOnly": "npm run compile",
+    "install": "node scripts/download-akzidenz.js"
   },
   "dependency-check": {
     "ignore": [
