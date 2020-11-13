@@ -10,3 +10,4 @@ coverage
 .nvmrc
 .nyc_output
 *.swp
+src/assets/fonts/akzid*
