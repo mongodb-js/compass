@@ -221,6 +221,7 @@
     ]
   },
   "scripts": {
+    "install": "node scripts/download-akzidenz.js",
     "postinstall": "electron-rebuild --only kerberos,keytar",
     "prestart": "rm -rf .compiled-sources",
     "start": "hadron-build develop",
@@ -385,6 +386,7 @@
     "cli-ux": "^5.5.0",
     "cross-env": "^7.0.0",
     "devtron": "^1.4.0",
+    "download": "^8.0.0",
     "electron": "6.1.7",
     "electron-rebuild": "^1.10.0",
     "enzyme": "^3.11.0",
