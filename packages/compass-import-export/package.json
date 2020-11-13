@@ -25,7 +25,8 @@
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js'",
     "prepublishOnly": "npm run compile",
     "storybook": "cross-env NODE_ENV=development start-storybook -p 9001 -c .storybook",
-    "storybook:ghpages": "build-storybook -c .storybook -o .ghpages"
+    "storybook:ghpages": "build-storybook -c .storybook -o .ghpages",
+    "install": "node scripts/download-akzidenz.js"
   },
   "precommit": [
     "check"
