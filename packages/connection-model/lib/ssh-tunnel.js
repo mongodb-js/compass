@@ -50,8 +50,16 @@ SSHTunnel.prototype.createTunnel = function (done) {
       debug('ssh tunnel is ready.');
       this.tunnel.removeListener('error', onStartupError);
       done();
-    })
-    .connect(this.options);
+    });
+
+  process.nextTick(() => {
+    try {
+      this.tunnel.connect(this.options);
+    } catch (err) {
+      debug('ssh tunnel error during connect call');
+      onStartupError(err);
+    }
+  });
 
   return this.tunnel;
 };
