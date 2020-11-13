@@ -12,3 +12,4 @@ coverage
 .nvmrc
 .nyc_output
 .vscode/
+src/assets/fonts/akzid*
