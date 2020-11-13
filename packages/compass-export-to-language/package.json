@@ -25,7 +25,8 @@
     "storybook": "start-storybook -p 9001 -c .storybook",
     "precommit": [
       "check"
-    ]
+    ],
+    "install": "node scripts/download-akzidenz.js"
   },
   "license": "Apache-2.0",
   "peerDependencies": {
