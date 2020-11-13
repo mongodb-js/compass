@@ -85,7 +85,7 @@ class ImportOptions extends PureComponent {
                 defaultValue={this.props.delimiter}
                 className={style('option-select')}>
                 <option value=",">comma</option>
-                <option value="\t">tab</option>
+                <option value={'\t'}>tab</option>
                 <option value=";">semicolon</option>
                 <option value=" ">space</option>
               </select>

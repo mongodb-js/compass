@@ -5,7 +5,7 @@ import path from 'path';
 
 const TEST_DIR = path.join(__dirname, '..', '..', '..', 'test');
 const FIXTURES = {
-  GOOD_CSV: path.join(TEST_DIR, 'good.csv'),
+  GOOD_CSV: path.join(TEST_DIR, 'good-commas.csv'),
   BAD_CSV: path.join(TEST_DIR, 'mongoimport', 'test_bad.csv'),
   JS_I_THINK_IS_JSON: path.join(TEST_DIR, 'js-i-think-is.json'),
   GOOD_JSON: path.join(TEST_DIR, 'docs.json'),

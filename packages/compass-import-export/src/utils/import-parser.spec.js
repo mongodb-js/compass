@@ -6,7 +6,8 @@ import createParser from './import-parser';
 
 const TEST_DIR = path.join(__dirname, '..', '..', '..', 'test');
 const FIXTURES = {
-  GOOD_CSV: path.join(TEST_DIR, 'good.csv'),
+  GOOD_COMMAS_CSV: path.join(TEST_DIR, 'good-commas.csv'),
+  GOOD_TABS_CSV: path.join(TEST_DIR, 'good-tabs.csv'),
   BAD_CSV: path.join(TEST_DIR, 'mongoimport', 'test_bad.csv'),
   JS_I_THINK_IS_JSON: path.join(TEST_DIR, 'js-i-think-is.json'),
   GOOD_JSON: path.join(TEST_DIR, 'docs.json'),
@@ -89,12 +90,28 @@ describe('import-parser', () => {
     });
   });
   describe('csv', () => {
-    it('should work', () => {
+    it('should work with commas', () => {
       return runParser(
-        FIXTURES.GOOD_CSV,
-        createParser({ fileType: 'csv', fileName: FIXTURES.GOOD_CSV })
+        FIXTURES.GOOD_COMMAS_CSV,
+        createParser({ fileType: 'csv', fileName: FIXTURES.GOOD_COMMAS_CSV })
       ).then((docs) => {
-        expect(docs).to.have.length(3);
+        expect(docs).to.deep.equal([
+          { _id: '1', value: 'some string' },
+          { _id: '2', value: '1234' },
+          { _id: '3', value: '' },
+        ]);
+      });
+    });
+    it('should work with hard tabs', () => {
+      return runParser(
+        FIXTURES.GOOD_TABS_CSV,
+        createParser({ fileType: 'csv', fileName: FIXTURES.GOOD_TABS_CSV, delimiter: '\t' })
+      ).then((docs) => {
+        expect(docs).to.deep.equal([
+          { _id: '1', value: 'some string' },
+          { _id: '2', value: '1234' },
+          { _id: '3', value: '' },
+        ]);
       });
     });
     it('should parse number-transform', () => {
