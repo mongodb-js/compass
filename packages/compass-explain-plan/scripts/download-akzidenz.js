@@ -5,7 +5,7 @@ const fs = require('fs');
 const stream = require('stream');
 const util = require('util');
 const pipeline = util.promisify(stream.pipeline);
-
+const fsAccess = util.promisify(fs.access);
 
 const download = (url, destDir) => {
   const destFileName = path.join(destDir, path.basename(url));
@@ -21,35 +21,35 @@ const download = (url, destDir) => {
 
 const AKZIDENZ_CDN_BASE_URL = 'https://d2va9gm4j17fy9.cloudfront.net/fonts/';
 const AKZIDENZ_CDN_URLS = [
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdita.eot`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdita.svg`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdita.ttf`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdita.woff`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdlig.eot`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdlig.svg`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdlig.ttf`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdlig.woff`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdligcnd.eot`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdligcnd.svg`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdligcnd.ttf`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdligcnd.woff`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdligita.eot`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdligita.svg`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdligita.ttf`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdligita.woff`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdmed.eot`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdmed.svg`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdmed.ttf`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdmed.woff`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdmedita.eot`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdmedita.svg`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdmedita.ttf`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdmedita.woff`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdreg.eot`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdreg.svg`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdreg.ttf`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdreg.wof`
-];
+  'akzidgrostdita.eot',
+  'akzidgrostdita.svg',
+  'akzidgrostdita.ttf',
+  'akzidgrostdita.woff',
+  'akzidgrostdlig.eot',
+  'akzidgrostdlig.svg',
+  'akzidgrostdlig.ttf',
+  'akzidgrostdlig.woff',
+  'akzidgrostdligcnd.eot',
+  'akzidgrostdligcnd.svg',
+  'akzidgrostdligcnd.ttf',
+  'akzidgrostdligcnd.woff',
+  'akzidgrostdligita.eot',
+  'akzidgrostdligita.svg',
+  'akzidgrostdligita.ttf',
+  'akzidgrostdligita.woff',
+  'akzidgrostdmed.eot',
+  'akzidgrostdmed.svg',
+  'akzidgrostdmed.ttf',
+  'akzidgrostdmed.woff',
+  'akzidgrostdmedita.eot',
+  'akzidgrostdmedita.svg',
+  'akzidgrostdmedita.ttf',
+  'akzidgrostdmedita.woff',
+  'akzidgrostdreg.eot',
+  'akzidgrostdreg.svg',
+  'akzidgrostdreg.ttf',
+  'akzidgrostdreg.woff'
+].map((filename) => `${AKZIDENZ_CDN_BASE_URL}${filename}`);
 
 const FONTS_DIRECTORY = path.resolve(
   __dirname,
@@ -60,6 +60,13 @@ const FONTS_DIRECTORY = path.resolve(
 );
 
 (async() => {
+  try {
+    await fsAccess(FONTS_DIRECTORY);
+  } catch (err) {
+    // We only want to install the fonts when we are in a project which is.
+    return;
+  }
+
   await Promise.all(
     AKZIDENZ_CDN_URLS.map(url => download(url, FONTS_DIRECTORY))
   );
