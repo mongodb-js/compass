@@ -15,3 +15,6 @@ src/
 .storybook/
 .nyc_output/
 .zuul.yml
+
+scripts/**/*
+!scripts/download-akzidenz.js
