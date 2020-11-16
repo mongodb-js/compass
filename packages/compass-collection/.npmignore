@@ -16,3 +16,6 @@ coverage/
 lib/index.html
 lib/index.js.map
 azure-pipelines.yml
+
+scripts/**/*
+!scripts/download-akzidenz.js
