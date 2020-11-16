@@ -2,51 +2,54 @@
 const path = require('path');
 const https = require('https');
 const fs = require('fs');
+const stream = require('stream');
+const util = require('util');
+const pipeline = util.promisify(stream.pipeline);
+const fsAccess = util.promisify(fs.access);
 
 const download = (url, destDir) => {
   const destFileName = path.join(destDir, path.basename(url));
   const destFile = fs.createWriteStream(destFileName);
   console.log('Downloading', url, 'to', path.relative(process.cwd(), destFileName));
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     https.get(url, (response) => {
-      response.pipe(destFile)
-        .once('error', reject)
-        .on('finish', resolve);
+      resolve(pipeline(response, destFile));
     });
   });
 };
 
+const AKZIDENZ_CDN_BASE_URL = 'https://d2va9gm4j17fy9.cloudfront.net/fonts/';
 const AKZIDENZ_CDN_URLS = [
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdita.eot',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdita.svg',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdita.ttf',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdita.woff',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdlig.eot',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdlig.svg',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdlig.ttf',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdlig.woff',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdligcnd.eot',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdligcnd.svg',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdligcnd.ttf',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdligcnd.woff',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdligita.eot',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdligita.svg',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdligita.ttf',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdligita.woff',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdmed.eot',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdmed.svg',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdmed.ttf',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdmed.woff',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdmedita.eot',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdmedita.svg',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdmedita.ttf',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdmedita.woff',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdreg.eot',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdreg.svg',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdreg.ttf',
-  'https://d2va9gm4j17fy9.cloudfront.net/fonts/akzidgrostdreg.woff'
-];
+  'akzidgrostdita.eot',
+  'akzidgrostdita.svg',
+  'akzidgrostdita.ttf',
+  'akzidgrostdita.woff',
+  'akzidgrostdlig.eot',
+  'akzidgrostdlig.svg',
+  'akzidgrostdlig.ttf',
+  'akzidgrostdlig.woff',
+  'akzidgrostdligcnd.eot',
+  'akzidgrostdligcnd.svg',
+  'akzidgrostdligcnd.ttf',
+  'akzidgrostdligcnd.woff',
+  'akzidgrostdligita.eot',
+  'akzidgrostdligita.svg',
+  'akzidgrostdligita.ttf',
+  'akzidgrostdligita.woff',
+  'akzidgrostdmed.eot',
+  'akzidgrostdmed.svg',
+  'akzidgrostdmed.ttf',
+  'akzidgrostdmed.woff',
+  'akzidgrostdmedita.eot',
+  'akzidgrostdmedita.svg',
+  'akzidgrostdmedita.ttf',
+  'akzidgrostdmedita.woff',
+  'akzidgrostdreg.eot',
+  'akzidgrostdreg.svg',
+  'akzidgrostdreg.ttf',
+  'akzidgrostdreg.woff'
+].map((filename) => `${AKZIDENZ_CDN_BASE_URL}${filename}`);
 
 const FONTS_DIRECTORY = path.resolve(
   __dirname,
@@ -57,6 +60,13 @@ const FONTS_DIRECTORY = path.resolve(
 );
 
 (async() => {
+  try {
+    await fsAccess(FONTS_DIRECTORY);
+  } catch (err) {
+    // We only want to install the fonts when we are in a project which is.
+    return;
+  }
+
   await Promise.all(
     AKZIDENZ_CDN_URLS.map(url => download(url, FONTS_DIRECTORY))
   );

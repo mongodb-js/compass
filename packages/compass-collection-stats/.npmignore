@@ -13,3 +13,6 @@ test/
 .storybook/
 lib/index.html
 lib/index.js.map
+
+scripts/**/*
+!scripts/download-akzidenz.js
