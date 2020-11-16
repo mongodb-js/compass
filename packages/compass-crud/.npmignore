@@ -15,3 +15,6 @@ coverage/
 .github/
 lib/index.html
 karma.conf.js
+
+scripts/**/*
+!scripts/download-akzidenz.js
