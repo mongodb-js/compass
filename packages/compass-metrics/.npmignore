@@ -15,3 +15,6 @@ src/
 test/
 .storybook/
 .nyc_output/
+
+scripts/**/*
+!scripts/download-akzidenz.js
