@@ -17,3 +17,6 @@ scripts/
 src/
 stories/
 test/
+
+scripts/**/*
+!scripts/download-akzidenz.js
