@@ -48,7 +48,7 @@ const AKZIDENZ_CDN_URLS = [
   `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdreg.eot`,
   `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdreg.svg`,
   `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdreg.ttf`,
-  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdreg.wof`
+  `${AKZIDENZ_CDN_BASE_URL}/akzidgrostdreg.woff`
 ];
 
 const FONTS_DIRECTORY = path.resolve(
