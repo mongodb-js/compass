@@ -13,3 +13,6 @@ scripts/
 test/
 src/
 .zuul.yml
+
+scripts/**/*
+!scripts/download-akzidenz.js
