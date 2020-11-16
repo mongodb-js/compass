@@ -14,3 +14,6 @@ src/
 coverage/
 .github/
 .nyc_output/
+
+scripts/**/*
+!scripts/download-akzidenz.js
