@@ -1,9 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import semver from 'semver';
 import Select from 'react-select-plus';
 import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
+
+import SelectOptionWithTooltip from './select-option-with-tooltip/select-option-with-tooltip';
 
 import styles from './stage-operator-select.less';
 
@@ -70,18 +71,20 @@ class StageOperatorSelect extends PureComponent {
         this.isSupportedEnv(o.env, this.props.env);
     });
     return (
-      <div className={classnames(styles['stage-operator-select'])}>
+      <div className={styles['stage-operator-select']}>
         <Select
+          optionComponent={SelectOptionWithTooltip}
           simpleValue
           searchable
           openOnClick
           openOnFocus
           clearable={false}
           disabled={!this.props.isEnabled}
-          className={classnames(styles['stage-operator-select-control'])}
+          className={styles['stage-operator-select-control']}
           options={operators}
           value={this.props.stageOperator}
-          onChange={this.onStageOperatorSelected} />
+          onChange={this.onStageOperatorSelected}
+        />
       </div>
     );
   }
