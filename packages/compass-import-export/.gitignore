@@ -10,3 +10,4 @@ coverage
 .nvmrc
 .nyc_output
 .electron/src/assets/fonts/akzid*
+src/assets/fonts/akzid*
