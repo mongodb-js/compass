@@ -19,3 +19,6 @@ src/
 lib/index.html
 examples/
 .electron/
+
+scripts/**/*
+!scripts/download-akzidenz.js
