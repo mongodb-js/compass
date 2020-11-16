@@ -17,3 +17,6 @@ lib/index.html
 .storybook/
 .nyc_output/
 coverage/
+
+scripts/**/*
+!scripts/download-akzidenz.js
