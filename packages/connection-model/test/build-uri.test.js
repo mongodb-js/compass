@@ -5,6 +5,7 @@ const fs = require('fs');
 const expect = chai.expect;
 const loadOptions = Connection.connect.loadOptions;
 const getTasks = Connection.connect.getTasks;
+const encodeURIComponentRFC3986 = Connection.encodeURIComponentRFC3986;
 
 chai.use(require('chai-subset'));
 
@@ -308,15 +309,12 @@ describe('Connection model builder', () => {
     });
 
     it('should urlencode credentials when using MONGODB auth', (done) => {
-      const mongodbUsername = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-      const mongodbPassword = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-      const authExpect = `${encodeURIComponent(
-        mongodbUsername
-      )}:${encodeURIComponent(mongodbPassword)}`;
+      const mongodbUsername = 'user';
+      const mongodbPassword = 'C;Ib86n5b8{AnExew[TU%XZy,)E6G!dk';
       const c = new Connection({ mongodbUsername, mongodbPassword });
 
       expect(c.driverUrl).to.be.equal(
-        `mongodb://${authExpect}@localhost:27017/?authSource=admin&readPreference=primary&ssl=false`
+        'mongodb://user:C%3BIb86n5b8%7BAnExew%5BTU%25XZy%2C%29E6G%21dk@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -328,13 +326,16 @@ describe('Connection model builder', () => {
     it('should urlencode credentials when using MONGODB auth with emoji 💕', (done) => {
       const mongodbUsername = '👌emoji😂😍😘🔥💕🎁💯🌹';
       const mongodbPassword = '👌emoji😂😍😘🔥💕🎁💯🌹';
-      const authExpect = `${encodeURIComponent(
-        mongodbUsername
-      )}:${encodeURIComponent(mongodbPassword)}`;
       const c = new Connection({ mongodbUsername, mongodbPassword });
 
       expect(c.driverUrl).to.be.equal(
-        `mongodb://${authExpect}@localhost:27017/?authSource=admin&readPreference=primary&ssl=false`
+        [
+          'mongodb://',
+          '%F0%9F%91%8Cemoji%F0%9F%98%82%F0%9F%98%8D%F0%9F%98%98%F0%9F%94%A5%F0%9F%92%95%F0%9F%8E%81%F0%9F%92%AF%F0%9F%8C%B9',
+          ':',
+          '%F0%9F%91%8Cemoji%F0%9F%98%82%F0%9F%98%8D%F0%9F%98%98%F0%9F%94%A5%F0%9F%92%95%F0%9F%8E%81%F0%9F%92%AF%F0%9F%8C%B9',
+          '@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
+        ].join('')
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -346,13 +347,13 @@ describe('Connection model builder', () => {
     it('should urlencode credentials when using LDAP auth', (done) => {
       const ldapUsername = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
       const ldapPassword = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-      const authExpect = `${encodeURIComponent(
-        ldapUsername
-      )}:${encodeURIComponent(ldapPassword)}`;
       const c = new Connection({ ldapUsername, ldapPassword });
 
       expect(c.driverUrl).to.be.equal(
-        `mongodb://${authExpect}@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external`
+        [
+          'mongodb://user%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D:user%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D',
+          '@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+        ].join('')
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -363,14 +364,14 @@ describe('Connection model builder', () => {
 
     it('should urlencode credentials when using KERBEROS auth', (done) => {
       const kerberosPrincipal = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-      const kerberosPassword = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-      const authExpect = `${encodeURIComponent(
-        kerberosPrincipal
-      )}:${encodeURIComponent(kerberosPassword)}`;
+      const kerberosPassword = 'pass@-azMPk]&3Wt)iP_9C:PMQ=';
       const c = new Connection({ kerberosPrincipal, kerberosPassword });
 
       expect(c.driverUrl).to.be.equal(
-        `mongodb://${authExpect}@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external`
+        [
+          'mongodb://user%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D:pass%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D',
+          '@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+        ].join('')
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -381,10 +382,7 @@ describe('Connection model builder', () => {
 
     it('should urlencode credentials when using KERBEROS auth with canonicalizing the host name', (done) => {
       const kerberosPrincipal = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-      const kerberosPassword = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-      const authExpect = `${encodeURIComponent(
-        kerberosPrincipal
-      )}:${encodeURIComponent(kerberosPassword)}`;
+      const kerberosPassword = 'pass@-azMPk]&3Wt)iP_9C:PMQ=';
       const c = new Connection({
         kerberosCanonicalizeHostname: true,
         kerberosPrincipal,
@@ -392,7 +390,10 @@ describe('Connection model builder', () => {
       });
 
       expect(c.driverUrl).to.be.equal(
-        `mongodb://${authExpect}@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true`
+        [
+          'mongodb://user%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D:pass%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D',
+          '@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true'
+        ].join('')
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -857,8 +858,10 @@ describe('Connection model builder', () => {
           kerberosPassword: 'w@@f',
           kerberosServiceName: 'mongodb'
         });
-        const kerberosPrincipal = encodeURIComponent(c.kerberosPrincipal);
-        const kerberosPassword = encodeURIComponent(c.kerberosPassword);
+        const kerberosPrincipal = encodeURIComponentRFC3986(
+          c.kerberosPrincipal
+        );
+        const kerberosPassword = encodeURIComponentRFC3986(c.kerberosPassword);
         const expectedPrefix = `mongodb://${kerberosPrincipal}:${kerberosPassword}@localhost:27017`;
 
         expect(c.driverAuthMechanism).to.be.equal('GSSAPI');
@@ -887,7 +890,9 @@ describe('Connection model builder', () => {
         const c = new Connection({
           kerberosPrincipal: 'lucas@kerb.mongodb.parts'
         });
-        const kerberosPrincipal = encodeURIComponent(c.kerberosPrincipal);
+        const kerberosPrincipal = encodeURIComponentRFC3986(
+          c.kerberosPrincipal
+        );
         const expectedPrefix = `mongodb://${kerberosPrincipal}:@localhost:27017`;
 
         expect(c.driverUrl.indexOf(expectedPrefix)).to.be.equal(0);

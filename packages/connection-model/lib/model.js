@@ -251,7 +251,7 @@ assign(props, {
    *
    * @see http://bit.ly/kerberos-principal
    * @note (imlucas): When passed to the driver, this should be
-   * `mongodb://#{encodeURIComponent(this.kerberosPrincipal)}`
+   * `mongodb://#{encodeURIComponentRFC3986(this.kerberosPrincipal)}`
    */
   kerberosPrincipal: { type: 'string', default: undefined },
   /**
@@ -421,6 +421,20 @@ assign(derived, {
 });
 
 /**
+ * To be more stringent in adhering to RFC 3986,
+ * replace !, ', (, ), and * with a corresponding character code.
+ *
+ * @param {String} str - String that needs to be percent-encoded.
+ *
+ * @returns {String} - Encoded string that compliant with RFC 3986.
+ */
+function encodeURIComponentRFC3986(str) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
+    return '%' + c.charCodeAt(0).toString(16);
+  });
+}
+
+/**
  * Adds auth info to URL. The connection model builds two URLs.
  * driverUrl - for the driver with the password included.
  * safeUrl - for the UI with stars instead of password.
@@ -440,28 +454,28 @@ function addAuthToUrl({ url, isPasswordProtected }) {
     this.authStrategy === 'MONGODB' ||
     this.authStrategy === 'SCRAM-SHA-256'
   ) {
-    username = encodeURIComponent(this.mongodbUsername);
+    username = encodeURIComponentRFC3986(this.mongodbUsername);
     password = isPasswordProtected
       ? '*****'
-      : encodeURIComponent(this.mongodbPassword);
+      : encodeURIComponentRFC3986(this.mongodbPassword);
     authField = format('%s:%s', username, password);
   } else if (this.authStrategy === 'LDAP') {
-    username = encodeURIComponent(this.ldapUsername);
+    username = encodeURIComponentRFC3986(this.ldapUsername);
     password = isPasswordProtected
       ? '*****'
-      : encodeURIComponent(this.ldapPassword);
+      : encodeURIComponentRFC3986(this.ldapPassword);
     authField = format('%s:%s', username, password);
   } else if (this.authStrategy === 'X509' && this.x509Username) {
-    username = encodeURIComponent(this.x509Username);
+    username = encodeURIComponentRFC3986(this.x509Username);
     authField = username;
   } else if (this.authStrategy === 'KERBEROS' && this.kerberosPassword) {
-    username = encodeURIComponent(this.kerberosPrincipal);
+    username = encodeURIComponentRFC3986(this.kerberosPrincipal);
     password = isPasswordProtected
       ? '*****'
-      : encodeURIComponent(this.kerberosPassword);
+      : encodeURIComponentRFC3986(this.kerberosPassword);
     authField = format('%s:%s', username, password);
   } else if (this.authStrategy === 'KERBEROS') {
-    username = encodeURIComponent(this.kerberosPrincipal);
+    username = encodeURIComponentRFC3986(this.kerberosPrincipal);
     authField = format('%s:', username);
   }
 
@@ -874,14 +888,14 @@ Connection = AmpersandModel.extend({
       if (!attrs.mongodbUsername) {
         throw new TypeError(
           'The mongodbUsername field is required when ' +
-          'using MONGODB or SCRAM-SHA-256 for authStrategy.'
+            'using MONGODB or SCRAM-SHA-256 for authStrategy.'
         );
       }
 
       if (!attrs.mongodbPassword) {
         throw new TypeError(
           'The mongodbPassword field is required when ' +
-          'using MONGODB or SCRAM-SHA-256 for authStrategy.'
+            'using MONGODB or SCRAM-SHA-256 for authStrategy.'
         );
       }
     }
@@ -896,7 +910,7 @@ Connection = AmpersandModel.extend({
         throw new TypeError(
           format(
             'The kerberosServiceName field does not apply when ' +
-            'using %s for authStrategy.',
+              'using %s for authStrategy.',
             attrs.authStrategy
           )
         );
@@ -905,7 +919,7 @@ Connection = AmpersandModel.extend({
         throw new TypeError(
           format(
             'The kerberosPrincipal field does not apply when ' +
-            'using %s for authStrategy.',
+              'using %s for authStrategy.',
             attrs.authStrategy
           )
         );
@@ -914,7 +928,7 @@ Connection = AmpersandModel.extend({
         throw new TypeError(
           format(
             'The kerberosPassword field does not apply when ' +
-            'using %s for authStrategy.',
+              'using %s for authStrategy.',
             attrs.authStrategy
           )
         );
@@ -940,7 +954,7 @@ Connection = AmpersandModel.extend({
         throw new TypeError(
           format(
             'The ldapUsername field is required when ' +
-            'using LDAP for authStrategy.'
+              'using LDAP for authStrategy.'
           )
         );
       }
@@ -948,7 +962,7 @@ Connection = AmpersandModel.extend({
         throw new TypeError(
           format(
             'The ldapPassword field is required when ' +
-            'using LDAP for authStrategy.'
+              'using LDAP for authStrategy.'
           )
         );
       }
@@ -1059,11 +1073,8 @@ const parseConnectionStringAsPromise = promisify(parseConnectionString);
 
 async function createConnectionFromUrl(url) {
   const unescapedUrl = unescape(url);
-
   const parsed = await parseConnectionStringAsPromise(unescapedUrl);
-
   const isSrvRecord = url.startsWith('mongodb+srv://');
-
   const attrs = Object.assign(
     {},
     {
@@ -1103,9 +1114,6 @@ async function createConnectionFromUrl(url) {
     let user = parsed.auth.username;
     let password = parsed.auth.password;
 
-    user = decodeURIComponent(user);
-    password = decodeURIComponent(password);
-
     if (attrs.authStrategy === 'LDAP') {
       attrs.ldapUsername = user;
       attrs.ldapPassword = password;
@@ -1114,7 +1122,10 @@ async function createConnectionFromUrl(url) {
     } else if (attrs.authStrategy === 'KERBEROS') {
       attrs.kerberosPrincipal = user;
       attrs.kerberosPassword = password;
-    } else if (attrs.authStrategy === 'MONGODB' || attrs.authStrategy === 'SCRAM-SHA-256') {
+    } else if (
+      attrs.authStrategy === 'MONGODB' ||
+      attrs.authStrategy === 'SCRAM-SHA-256'
+    ) {
       attrs.mongodbUsername = user;
       attrs.mongodbPassword = password;
 
@@ -1193,6 +1204,8 @@ Connection.isAtlas = (str) => str.match(/mongodb.net[:/]/i);
 
 Connection.isURI = (str) =>
   str.startsWith('mongodb://') || str.startsWith('mongodb+srv://');
+
+Connection.encodeURIComponentRFC3986 = encodeURIComponentRFC3986;
 
 Connection.AUTH_STRATEGY_VALUES = AUTH_STRATEGY_VALUES;
 Connection.AUTH_STRATEGY_DEFAULT = AUTH_STRATEGY_DEFAULT;

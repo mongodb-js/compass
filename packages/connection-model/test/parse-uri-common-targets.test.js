@@ -217,9 +217,7 @@ describe('connection model parser should parse URI strings for common connection
 
     it('when using X509 auth with a username', (done) => {
       Connection.from(
-        'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia' +
-        '%252CST%253DPennsylvania%252CC%253DUS@localhost:27017/' +
-        'x509?authMechanism=MONGODB-X509',
+        'mongodb://CN%3Dclient%2COU%3Darlo%2CO%3DMongoDB%2CL%3DPhiladelphia%2CST%3DPennsylvania%2CC%3DUS@localhost:27017/x509?authMechanism=MONGODB-X509',
         (error, result) => {
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');
@@ -251,8 +249,7 @@ describe('connection model parser should parse URI strings for common connection
 
     it('when using KERBEROS auth', (done) => {
       Connection.from(
-        'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/' +
-        'kerberos?gssapiServiceName=mongodb&authMechanism=GSSAPI',
+        'mongodb://arlo%2Fdog%40krb5.mongodb.parts:w%40%40f@localhost:27017/kerberos?gssapiServiceName=mongodb&authMechanism=GSSAPI',
         (error, result) => {
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');
