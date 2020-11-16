@@ -1,6 +1,7 @@
 /* eslint-disable valid-jsdoc */
 import fs from 'fs';
 import stream from 'stream';
+import { stream as schemaStream } from 'mongodb-schema';
 
 import PROCESS_STATUS from 'constants/process-status';
 import EXPORT_STEP from 'constants/export-step';
@@ -13,31 +14,30 @@ const createProgressStream = require('progress-stream');
 
 import { createLogger } from 'utils/logger';
 import { createCSVFormatter, createJSONFormatter } from 'utils/formatters';
-import dotnotation from '../utils/dotnotation';
 
 const debug = createLogger('export');
 
 const PREFIX = 'import-export/export';
 
-const STARTED = `${PREFIX}/STARTED`;
-const CANCELED = `${PREFIX}/CANCELED`;
+export const STARTED = `${PREFIX}/STARTED`;
+export const CANCELED = `${PREFIX}/CANCELED`;
 
-const PROGRESS = `${PREFIX}/PROGRESS`;
-const FINISHED = `${PREFIX}/FINISHED`;
-const ERROR = `${PREFIX}/ERROR`;
+export const PROGRESS = `${PREFIX}/PROGRESS`;
+export const FINISHED = `${PREFIX}/FINISHED`;
+export const ERROR = `${PREFIX}/ERROR`;
 
-const SELECT_FILE_TYPE = `${PREFIX}/SELECT_FILE_TYPE`;
-const SELECT_FILE_NAME = `${PREFIX}/SELECT_FILE_NAME`;
+export const SELECT_FILE_TYPE = `${PREFIX}/SELECT_FILE_TYPE`;
+export const SELECT_FILE_NAME = `${PREFIX}/SELECT_FILE_NAME`;
 
-const ON_MODAL_OPEN = `${PREFIX}/ON_MODAL_OPEN`;
-const CLOSE = `${PREFIX}/CLOSE`;
+export const ON_MODAL_OPEN = `${PREFIX}/ON_MODAL_OPEN`;
+export const CLOSE = `${PREFIX}/CLOSE`;
 
-const CHANGE_EXPORT_STEP = `${PREFIX}/CHANGE_EXPORT_STEP`;
+export const CHANGE_EXPORT_STEP = `${PREFIX}/CHANGE_EXPORT_STEP`;
 
-const UPDATE_FIELDS = `${PREFIX}/UPDATE_FIELDS`;
+export const UPDATE_FIELDS = `${PREFIX}/UPDATE_FIELDS`;
 
-const QUERY_CHANGED = `${PREFIX}/QUERY_CHANGED`;
-const TOGGLE_FULL_COLLECTION = `${PREFIX}/TOGGLE_FULL_COLLECTION`;
+export const QUERY_CHANGED = `${PREFIX}/QUERY_CHANGED`;
+export const TOGGLE_FULL_COLLECTION = `${PREFIX}/TOGGLE_FULL_COLLECTION`;
 
 /**
  * A full collection query.
@@ -165,7 +165,6 @@ const reducer = (state = INITIAL_STATE, action) => {
     );
     return {
       ...state,
-      // isOpen: !isComplete,
       status: isComplete ? PROCESS_STATUS.COMPLETED : state.status,
       exportedDocsCount: action.exportedDocsCount,
       source: undefined,
@@ -272,7 +271,8 @@ export const queryChanged = query => ({
  */
 export const onModalOpen = (count, query) => ({
   type: ON_MODAL_OPEN,
-  count: count, query: query
+  count: count,
+  query: query
 });
 
 /**
@@ -342,20 +342,43 @@ export const sampleFields = () => {
       ? { filter: {} }
       : exportData.query;
 
-    dataService.find(ns, spec.filter, {limit: 1}, function(findErr, docs) {
-      if (findErr) {
-        return onError(findErr);
-      }
+    const sampleOptions = {
+      query: spec.filter,
+      size: 50,
+      promoteValues: true
+    };
 
-      // Use `dotnotation.serialize()` to recurse into documents and
-      // pick up all possible paths.
-      const fields = Object.keys(dotnotation.serialize(docs[0])).sort().reduce((obj, field) => {
-        obj[field] = 1;
+    // To make sure we have less errors in the fields we generate for export, we
+    // are sampling 100 documents from the current collection and then sending
+    // those documents through mongodb-schema.
+    const samplingStream = dataService.sample(ns, sampleOptions);
+    const analyzingStream = schemaStream();
 
-        return obj;
-      }, {});
+    // Grab all the field paths that mongodb-schema generates for us.
+    const parseSchema = new stream.Transform({
+      writableObjectMode: true,
+      transform(chunk, encoding, callback) {
+        const fields = chunk.fields.reduce((obj, field)=> {
+          if (field.type.includes('Document')) {
+            const doc = field.types.find(type => type.name === 'Document');
+            doc.fields.map((field_) => {
+              obj[field_.path] = 1;
+              return obj;
+            });
+          } else {
+            obj[field.path] = 1;
+          }
 
-      dispatch(updateFields(fields));
+          return obj;
+        }, {});
+
+        dispatch(updateFields(fields));
+        callback(null, fields);
+      },
+    });
+
+    stream.pipeline(samplingStream, analyzingStream, parseSchema, function(samplingErr) {
+      if (samplingErr) return onError(samplingErr);
     });
   };
 };

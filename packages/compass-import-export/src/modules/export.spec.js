@@ -1,18 +1,35 @@
-import reducer, * as actions from './export';
 import PROCESS_STATUS from 'constants/process-status';
 import EXPORT_STEP from 'constants/export-step';
+import AppRegistry from 'hadron-app-registry';
 import FILE_TYPES from 'constants/file-types';
+import reducer, * as actions from './export';
+import configureStore from 'stores';
 
-describe.skip('export [module]', () => {
+describe('export [module]', () => {
   describe('#reducer', () => {
     context('when the action type is FINISHED', () => {
-      context('when the state has an error', () => {
-        const action = actions.onFinished();
+      let store;
+      const localAppRegistry = new AppRegistry();
+      const globalAppRegistry = new AppRegistry();
 
+      beforeEach(() => {
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry
+        });
+      });
+
+      context('when the state has an error', () => {
         it('returns the new state and stays open', () => {
-          expect(reducer({ error: true, isOpen: false }, action)).to.deep.equal({
+          store.dispatch(actions.onModalOpen(200, { filter: {} }));
+          store.dispatch(actions.onError(true));
+          store.dispatch(actions.onFinished(10));
+          expect(store.getState().exportData).to.deep.equal({
             isOpen: true,
-            progress: 100,
+            dest: undefined,
+            source: undefined,
+            exportedDocsCount: 10,
+            progress: 0,
             exportStep: EXPORT_STEP.QUERY,
             isFullCollection: false,
             query: { filter: {} },
@@ -20,93 +37,113 @@ describe.skip('export [module]', () => {
             fields: {},
             fileName: '',
             fileType: FILE_TYPES.JSON,
-            status: PROCESS_STATUS.UNSPECIFIED,
-            exportedDocsCount: 0,
-            count: 0
+            status: PROCESS_STATUS.FAILED,
+            count: 200
           });
         });
       });
 
       context('when the state has no error', () => {
-        const action = actions.onFinished();
-
         it('returns the new state and closes', () => {
-          expect(reducer({ isOpen: true }, action)).to.deep.equal({
+          store.dispatch(actions.onModalOpen(200, { filter: {} }));
+          store.dispatch(actions.onFinished(10));
+          store.dispatch(actions.closeExport());
+          expect(store.getState().exportData).to.deep.equal({
             isOpen: false,
-            progress: 100,
-            status: undefined
-          });
-        });
-      });
-
-      context('when the status is started', () => {
-        const action = actions.onFinished();
-
-        it('sets the status to completed', () => {
-          expect(reducer({ status: PROCESS_STATUS.STARTED }, action)).to.deep.equal({
-            isOpen: false,
-            progress: 100,
-            status: PROCESS_STATUS.COMPLETED
+            dest: undefined,
+            source: undefined,
+            exportedDocsCount: 10,
+            progress: 0,
+            exportStep: EXPORT_STEP.QUERY,
+            isFullCollection: false,
+            query: { filter: {} },
+            error: null,
+            fields: {},
+            fileName: '',
+            fileType: FILE_TYPES.JSON,
+            status: PROCESS_STATUS.COMPLETED,
+            count: 200
           });
         });
       });
 
       context('when the status is canceled', () => {
-        const action = actions.onFinished();
-
         it('keeps the same status', () => {
-          expect(reducer({ status: PROCESS_STATUS.CANCELED }, action)).to.deep.equal({
+          store.dispatch(actions.onModalOpen(200, { filter: {} }));
+          store.getState().exportData.status = PROCESS_STATUS.CANCELED;
+          store.dispatch(actions.onFinished(10));
+          expect(store.getState().exportData).to.deep.equal({
             isOpen: true,
-            progress: 100,
-            status: PROCESS_STATUS.CANCELED
+            dest: undefined,
+            source: undefined,
+            exportedDocsCount: 10,
+            progress: 0,
+            exportStep: EXPORT_STEP.QUERY,
+            isFullCollection: false,
+            query: { filter: {} },
+            error: null,
+            fields: {},
+            fileName: '',
+            fileType: FILE_TYPES.JSON,
+            status: PROCESS_STATUS.CANCELED,
+            count: 200
           });
         });
       });
 
       context('when the status is failed', () => {
-        const action = actions.onFinished();
-
         it('keeps the same status', () => {
-          expect(reducer({ status: PROCESS_STATUS.FAILED }, action)).to.deep.equal({
+          store.dispatch(actions.onModalOpen(200, { filter: {} }));
+          store.dispatch(actions.onError(true));
+          store.dispatch(actions.onFinished(10));
+          expect(store.getState().exportData).to.deep.equal({
             isOpen: true,
-            progress: 100,
-            status: PROCESS_STATUS.FAILED
+            dest: undefined,
+            source: undefined,
+            exportedDocsCount: 10,
+            progress: 0,
+            exportStep: EXPORT_STEP.QUERY,
+            isFullCollection: false,
+            query: { filter: {} },
+            error: true,
+            fields: {},
+            fileName: '',
+            fileType: FILE_TYPES.JSON,
+            status: PROCESS_STATUS.FAILED,
+            count: 200
           });
         });
       });
     });
 
     context('when the action type is PROGRESS', () => {
-      const action = actions.onProgress(55);
+      let store;
+      const localAppRegistry = new AppRegistry();
+      const globalAppRegistry = new AppRegistry();
 
-      it('returns the new state', () => {
-        expect(reducer(undefined, action)).to.deep.equal({
-          isOpen: false,
-          progress: 55,
-          isFullCollection: false,
-          query: { filter: {}},
-          error: null,
-          fileName: '',
-          fileType: 'json',
-          status: 'UNSPECIFIED'
+      beforeEach(() => {
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry
         });
       });
-    });
-
-    context('when the action type is FAILED', () => {
-      const error = new Error('testing');
-      const action = actions.onError(error);
 
       it('returns the new state', () => {
-        expect(reducer(undefined, action)).to.deep.equal({
-          isOpen: false,
-          progress: 100,
+        store.dispatch(actions.onModalOpen(200, { filter: {} }));
+        store.dispatch(actions.onProgress(0.7, 100));
+        expect(store.getState().exportData).to.deep.equal({
+          isOpen: true,
+          exportedDocsCount: 100,
+          progress: 0.7,
+          exportStep: EXPORT_STEP.QUERY,
           isFullCollection: false,
-          query: { filter: {}},
-          error: error,
+          query: { filter: {} },
+          error: null,
+          fields: {},
           fileName: '',
-          fileType: 'json',
-          status: 'FAILED'
+          fileType: FILE_TYPES.JSON,
+          status: PROCESS_STATUS.UNSPECIFIED,
+          count: 200
         });
       });
     });
@@ -117,6 +154,10 @@ describe.skip('export [module]', () => {
       it('returns the new state', () => {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
+          count: 0,
+          exportStep: EXPORT_STEP.QUERY,
+          exportedDocsCount: 0,
+          fields: {},
           progress: 0,
           isFullCollection: false,
           query: { filter: {}},
@@ -135,27 +176,16 @@ describe.skip('export [module]', () => {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
           progress: 0,
+          count: 0,
+          source: undefined,
+          dest: undefined,
+          exportStep: EXPORT_STEP.QUERY,
+          exportedDocsCount: 0,
+          fields: {},
           isFullCollection: false,
           query: { filter: {}},
           error: null,
           fileName: 'testing.json',
-          fileType: 'json',
-          status: 'UNSPECIFIED'
-        });
-      });
-    });
-
-    context('when the action type is OPEN', () => {
-      const action = actions.openExport();
-
-      it('returns the new state', () => {
-        expect(reducer(undefined, action)).to.deep.equal({
-          isOpen: true,
-          progress: 0,
-          isFullCollection: false,
-          query: { filter: {}},
-          error: null,
-          fileName: '',
           fileType: 'json',
           status: 'UNSPECIFIED'
         });
@@ -196,6 +226,7 @@ describe.skip('export [module]', () => {
           isFullCollection: false,
           query: { filter: {}},
           fields: fields,
+          progress: 0,
           error: null,
           fileName: '',
           fileType: 'json',
@@ -205,18 +236,32 @@ describe.skip('export [module]', () => {
     });
 
     context('when the action type is CLOSE_EXPORT', () => {
-      const action = actions.closeExport();
+      let store;
+      const localAppRegistry = new AppRegistry();
+      const globalAppRegistry = new AppRegistry();
+
+      beforeEach(() => {
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry
+        });
+      });
 
       it('returns the new state', () => {
-        expect(reducer(undefined, action)).to.deep.equal({
+        store.dispatch(actions.closeExport());
+        expect(store.getState().exportData).to.deep.equal({
           isOpen: false,
+          exportedDocsCount: 0,
           progress: 0,
+          exportStep: EXPORT_STEP.QUERY,
           isFullCollection: false,
-          query: { filter: {}},
+          query: { filter: {} },
           error: null,
+          fields: {},
           fileName: '',
-          fileType: 'json',
-          status: 'UNSPECIFIED'
+          fileType: FILE_TYPES.JSON,
+          status: PROCESS_STATUS.UNSPECIFIED,
+          count: 0
         });
       });
     });
@@ -231,35 +276,38 @@ describe.skip('export [module]', () => {
   describe('#closeExport', () => {
     it('returns the action', () => {
       expect(actions.closeExport()).to.deep.equal({
-        type: actions.CLOSE_EXPORT
+        type: actions.CLOSE
       });
     });
   });
 
-  describe('#openExport', () => {
+  describe('#onModalOpen', () => {
     it('returns the action', () => {
-      expect(actions.openExport()).to.deep.equal({
-        type: actions.OPEN_EXPORT
+      expect(actions.onModalOpen(100, { filter: {} })).to.deep.equal({
+        type: actions.ON_MODAL_OPEN,
+        count: 100,
+        query: { filter: {} }
       });
     });
   });
 
-  describe('#exportFailed', () => {
+  describe('#onError', () => {
     const error = new Error('failed');
 
     it('returns the action', () => {
-      expect(actions.exportFailed(error)).to.deep.equal({
-        type: actions.EXPORT_FAILED,
+      expect(actions.onError(error)).to.deep.equal({
+        type: actions.ERROR,
         error: error
       });
     });
   });
 
-  describe('#exportProgress', () => {
+  describe('#onProgress', () => {
     it('returns the action', () => {
-      expect(actions.exportProgress(66)).to.deep.equal({
-        type: actions.EXPORT_PROGRESS,
-        progress: 66
+      expect(actions.onProgress(0.33, 66)).to.deep.equal({
+        type: actions.PROGRESS,
+        progress: 0.33,
+        exportedDocsCount: 66
       });
     });
   });
@@ -267,7 +315,7 @@ describe.skip('export [module]', () => {
   describe('#selectExportFileName', () => {
     it('returns the action', () => {
       expect(actions.selectExportFileName('testing.json')).to.deep.equal({
-        type: actions.SELECT_EXPORT_FILE_NAME,
+        type: actions.SELECT_FILE_NAME,
         fileName: 'testing.json'
       });
     });
@@ -276,16 +324,16 @@ describe.skip('export [module]', () => {
   describe('#selectExportFileType', () => {
     it('returns the action', () => {
       expect(actions.selectExportFileType('csv')).to.deep.equal({
-        type: actions.SELECT_EXPORT_FILE_TYPE,
+        type: actions.SELECT_FILE_TYPE,
         fileType: 'csv'
       });
     });
   });
 
-  describe('#exportAction', () => {
+  describe('#changeExportStep', () => {
     it('returns the action', () => {
-      expect(actions.exportAction('STARTED')).to.deep.equal({
-        type: actions.EXPORT_ACTION,
+      expect(actions.changeExportStep('STARTED')).to.deep.equal({
+        type: actions.CHANGE_EXPORT_STEP,
         status: 'STARTED'
       });
     });

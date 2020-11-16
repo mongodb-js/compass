@@ -66,10 +66,13 @@ class ExportSelectFields extends PureComponent {
     if (evt.key === 'Enter') {
       const obj = {};
       obj[evt.target.value] = 1;
-      const fields = Object.assign(obj, this.props.fields);
+      // assign current entry to the end of the fields list
+      const fields = Object.assign({}, this.props.fields, obj);
 
       this.props.updateFields(fields);
-      this.newFieldRef.current.focus();
+      // this will trigger 'componentDidMount()` which focuses on input field to
+      // keep adding missing fields
+      this.setState({ addingFields: true });
     }
   }
 
