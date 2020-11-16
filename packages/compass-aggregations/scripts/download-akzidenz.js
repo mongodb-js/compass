@@ -60,6 +60,14 @@ const FONTS_DIRECTORY = path.resolve(
 );
 
 (async() => {
+  try {
+    const fsAccess = util.promisify(fs.access);
+    await fsAccess(FONTS_DIRECTORY);
+  } catch (err) {
+    // We only want to install the fonts when we are in a project which is.
+    return;
+  }
+
   await Promise.all(
     AKZIDENZ_CDN_URLS.map(url => download(url, FONTS_DIRECTORY))
   );

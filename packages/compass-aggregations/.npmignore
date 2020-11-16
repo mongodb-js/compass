@@ -13,7 +13,8 @@ examples/
 karma.conf.js
 lib/index.html
 mocha-webpack.opts
-scripts/
+scripts/**/*
+!scripts/download-akzidenz.js
 src/
 coverage/
 .nyc_output/
