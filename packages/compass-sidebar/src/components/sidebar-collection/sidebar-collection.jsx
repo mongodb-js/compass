@@ -39,22 +39,6 @@ class SidebarCollection extends PureComponent {
   }
 
   /**
-   * Import data to a collection dialog.
-   */
-  onImportData = () => {
-    const collectionName = this.getCollectionName();
-    this.props.globalAppRegistryEmit('open-import', collectionName);
-  }
-
-  /**
-   * Export data to a collection dialog.
-   */
-  onExportCollection = () => {
-    const collectionName = this.getCollectionName();
-    this.props.globalAppRegistryEmit('open-export', collectionName);
-  }
-
-  /**
    * Handle duplicate view.
    */
   onDuplicateView = () => {
@@ -176,7 +160,7 @@ class SidebarCollection extends PureComponent {
       <DropdownButton
         bsSize="xsmall"
         bsStyle="link"
-        title="&hellip;"
+        title={<i className="fa fa-fw fa-ellipsis-h" />}
         className={classnames(styles['compass-sidebar-item-collection-actions'])}
         noCaret
         pullRight
@@ -199,14 +183,12 @@ class SidebarCollection extends PureComponent {
       <DropdownButton
         bsSize="xsmall"
         bsStyle="link"
-        title="&hellip;"
+        title={<i className="fa fa-fw fa-ellipsis-h" />}
         className={classnames(styles['compass-sidebar-item-collection-actions'])}
         noCaret
         pullRight
         id="collection-actions">
         <MenuItem eventKey="1" onClick={this.onOpenInNewTab}>Open in New Tab</MenuItem>
-        <MenuItem eventKey="2" onClick={this.onImportData} disabled={this.isNotWritable()}>Import Data</MenuItem>
-        <MenuItem eventKey="2" onClick={this.onExportCollection}>Export Collection</MenuItem>
         <MenuItem eventKey="2" onClick={this.onDrop} disabled={this.isNotWritable()}>Drop Collection</MenuItem>
       </DropdownButton>
     );
