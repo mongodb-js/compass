@@ -52,8 +52,8 @@ describe('<EditableValue />', () => {
         wrapper = mount(<EditableValue element={element} isFocused={false} tz="UTC" version="3.6.0" />);
       });
 
-      it('has a width equal to the amount of characters + 0.4', () => {
-        expect(wrapper.find('textarea').prop('style').width).to.equal('4.4ch');
+      it('has a width equal to the amount of characters + 2.5', () => {
+        expect(wrapper.find('textarea').prop('style').width).to.equal('6.5ch');
       });
     });
 
@@ -80,7 +80,7 @@ describe('<EditableValue />', () => {
       });
 
       it('has a width equal to the amount of characters + 1', () => {
-        expect(wrapper.find('textarea').prop('style').width).to.equal('5ch');
+        expect(wrapper.find('textarea').prop('style').width).to.equal('7ch');
       });
     });
 

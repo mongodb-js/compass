@@ -241,7 +241,7 @@ class EditableValue extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const length = this.editor().size(this.state.editing) + (this.state.editing ? 1 : 0.4);
+    const length = this.editor().size(this.state.editing) + (this.state.editing ? 1 : 0.5);
     return (
       <span className={this.wrapperStyle()}>
         <Tooltip
@@ -267,7 +267,7 @@ class EditableValue extends React.Component {
               width: '100%' // Scale to max width when it's a multi-line string.
             } : {
               minHeight: '17px',
-              width: `${length}ch`
+              width: `${Math.max(5, length + 2)}ch`
             }}
             value={this.editor().value(this.state.editing)}
           />
