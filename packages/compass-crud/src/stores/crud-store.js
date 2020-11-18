@@ -199,7 +199,7 @@ const configureStore = (options = {}) => {
     getInitialQueryState() {
       return {
         filter: {},
-        sort: [[ '_id', 1 ]],
+        sort: [],
         limit: 0,
         skip: 0,
         maxTimeMS: 5000,

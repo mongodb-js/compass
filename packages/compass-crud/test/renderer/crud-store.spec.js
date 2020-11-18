@@ -47,7 +47,7 @@ describe('store', function() {
     });
 
     it('sets the default sort', () => {
-      expect(store.state.query.sort).to.deep.equal([[ '_id', 1 ]]);
+      expect(store.state.query.sort).to.deep.equal([]);
     });
 
     it('sets the default limit', () => {
@@ -1383,6 +1383,58 @@ describe('store', function() {
 
         store.refreshDocuments();
       });
+    });
+  });
+
+  describe('default query for view with own sort orter', () => {
+    let store;
+    let actions;
+
+    beforeEach((done) => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.testview',
+        noRefreshOnConfigure: true
+      });
+      dataService.insertMany('compass-crud.test', [
+        { _id: '001', cat: 'nori' },
+        { _id: '002', cat: 'chashu' },
+        { _id: '003', cat: 'amy' },
+        { _id: '004', cat: 'pia' }
+      ], {}, (err) => {
+        if (err) return done(err);
+        dataService.createView('testview', 'compass-crud.test', [{$sort: {cat: 1}}], {}, done);
+      });
+    });
+
+    afterEach((done) => {
+      dataService.deleteMany('compass-crud.test', {}, {}, (err) => {
+        if (err) return done(err);
+        dataService.dropView('compass-crud.testview', done);
+      });
+    });
+
+    it('returns documents in view order', (done) => {
+      const unsubscribe = store.listen((state) => {
+        expect(state.docs).to.have.lengthOf(4);
+        expect(state.docs.map(doc => doc.generateObject())).to.deep.equal([
+          { _id: '003', cat: 'amy' },
+          { _id: '002', cat: 'chashu' },
+          { _id: '001', cat: 'nori' },
+          { _id: '004', cat: 'pia' }
+        ]);
+        unsubscribe();
+        done();
+      });
+
+      store.refreshDocuments();
     });
   });
 });
