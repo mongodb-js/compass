@@ -278,57 +278,41 @@ describe('release', () => {
 
     describe('when the release tag exist', () => {
       beforeEach(async() => {
-        await commitAll('commit 1', 'v0.1.0');
-        await commitAll('commit 2', 'v0.2.0-beta.0');
-        await commitAll('commit 3');
-        await commitAll('commit 3'); // duplicate
+        await commitAll('fix: commit 1', 'v0.1.0');
+        await commitAll('fix: commit 2', 'v0.2.0-beta.0');
+        await commitAll('feat: commit 3');
+        await commitAll('feat: commit 3'); // duplicate
         await commitAll('v0.2.0-beta.0'); // version bump commit
         await commitAll('v0.2.0'); // version bump commit
         await checkoutBranch('1.0-releases');
-        await commitAll('commit 4', 'v1.0.0');
+        await commitAll('perf: commit 4', 'v1.0.0');
       });
 
       it('reports changes between 2 GAs', async() => {
         const { stdout } = await runReleaseCommand(['changelog']);
-        expect(stdout).to.contain(`Changes from v0.1.0:
-- commit 4
-- commit 3
-- commit 2
-
-You can see the full list of commits here:
-https://github.com/mongodb-js/compass/compare/v0.1.0...v1.0.0`);
+        expect(stdout).to.contain('Changes from v0.1.0:\n## Features\n\n- commit 3\n\n\n## Bug Fixes\n\n- commit 2\n\n\n## Performance Improvements\n\n- commit 4\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v0.1.0...v1.0.0');
       });
 
       it('reports changes between beta and GA', async() => {
         await npm.version('1.0.1-beta.0');
         await execa('git', ['add', '.']);
-        await commitAll('commit 5');
-        await commitAll('commit 6', 'v1.0.1-beta.0');
+        await commitAll('fix: commit 5');
+        await commitAll('fix: commit 6', 'v1.0.1-beta.0');
 
         const { stdout } = await runReleaseCommand(['changelog']);
-        expect(stdout).to.contain(`Changes from v1.0.0:
-- commit 6
-- commit 5
-
-You can see the full list of commits here:
-https://github.com/mongodb-js/compass/compare/v1.0.0...v1.0.1-beta.0`);
+        expect(stdout).to.contain('\nChanges from v1.0.0:\n## Bug Fixes\n\n- commit 6\n- commit 5\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v1.0.0...v1.0.1-beta.0');
       });
 
       it('reports changes between beta and beta', async() => {
         await npm.version('1.0.1-beta.0');
-        await commitAll('commit 5');
-        await commitAll('commit 6', 'v1.0.1-beta.0');
+        await commitAll('feat: commit 5');
+        await commitAll('feat: commit 6', 'v1.0.1-beta.0');
         await npm.version('1.0.1-beta.1');
-        await commitAll('commit 7');
-        await commitAll('commit 8', 'v1.0.1-beta.1');
+        await commitAll('feat: commit 7');
+        await commitAll('feat: commit 8', 'v1.0.1-beta.1');
 
         const { stdout } = await runReleaseCommand(['changelog']);
-        expect(stdout).to.contain(`Changes from v1.0.1-beta.0:
-- commit 8
-- commit 7
-
-You can see the full list of commits here:
-https://github.com/mongodb-js/compass/compare/v1.0.1-beta.0...v1.0.1-beta.1`);
+        expect(stdout).to.contain('\nChanges from v1.0.1-beta.0:\n## Features\n\n- commit 8\n- commit 7\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v1.0.1-beta.0...v1.0.1-beta.1');
       });
     });
   });
