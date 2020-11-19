@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-const _ = require('lodash');
 const { cli } = require('cli-ux');
 const chalk = require('chalk');
 const pkgUp = require('pkg-up');
@@ -17,6 +16,7 @@ const version = require('./version');
 const publishRelease = require('./publish');
 const waitForAssets = require('./wait-for-assets');
 const ux = require('./ux');
+const changelog = require('./changelog');
 
 async function getPackageJsonVersion() {
   return require(await pkgUp()).version;
@@ -166,18 +166,7 @@ async function releaseChangelog() {
     .reverse()
     .find((t) => semver.lt(t, releaseTag));
 
-  cli.info('');
-  cli.info(`Changes from ${chalk.bold(previousTag)}:`);
-  const changes = _.uniq(await git.log(previousTag, releaseTag))
-    .filter((line) => !semver.valid(line)) // filter out tag commits
-    .map((line) => `- ${line}`);
-
-  cli.info(changes.join('\n'));
-
-  cli.info('');
-  cli.info('You can see the full list of commits here:');
-  const githubCompareUrl = `https://github.com/mongodb-js/compass/compare/${previousTag}...${releaseTag}`;
-  cli.url(githubCompareUrl, githubCompareUrl);
+  await changelog.render(previousTag, releaseTag);
 }
 
 async function releasePublish() {
