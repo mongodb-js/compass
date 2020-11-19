@@ -504,6 +504,16 @@ class CellEditor extends React.Component {
     );
   }
 
+  onAddField() {
+    // we have to setImmediate here otherwise there's an untraceable
+    // setState on unmounted component error
+    setImmediate(() => {
+      // we explicitly stop editing first to prevent breaking the UI
+      this.props.api.stopEditing();
+      this.props.addColumn(...arguments);
+    });
+  }
+
   /**
    * Render the add field/delete field buttons. If the element is an object or
    * an array, provide a "expand" button.
@@ -526,6 +536,7 @@ class CellEditor extends React.Component {
         <span onClick={()=>{this.nodeIndex = 5;}}>
           <AddFieldButton
             {...this.props}
+            addColumn={this.onAddField.bind(this)}
             displace={displace}
             buttonRef={(c) => { this.addFieldNode = c; }}
           />
