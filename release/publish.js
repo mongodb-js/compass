@@ -6,10 +6,10 @@ const version = require('./version');
 const ux = require('./ux');
 
 module.exports = async function publish(
-  releaseVersion, { downloadCenter, github }
+  releaseVersion, { downloadCenter, github, changelog }
 ) {
   await uploadConfigIfNewer(releaseVersion, { downloadCenter });
-  await waitGithubRelease(releaseVersion, { github });
+  await waitGithubRelease(releaseVersion, { github, changelog });
 
   cli.info(
     '\n',
@@ -40,19 +40,30 @@ async function uploadConfigIfNewer(
   cli.action.stop();
 }
 
-async function waitGithubRelease(releaseVersion, { github }) {
+async function waitGithubRelease(releaseVersion, { github, changelog }) {
+  cli.info('\n' + ux.separator(`👇 CHANGELOG FOR ${releaseVersion}`));
+  await changelog.render(releaseVersion);
+  cli.info('\n' + ux.separator('👆 CHANGELOG'), '\n');
+
   cli.info(
     '\n',
     ux.manualAction(
       'Make sure the release is published on Github: ',
       ux.link('https://github.com/mongodb-js/compass/releases'), '\n\n',
-      'You can run ', ux.command('npm run release changelog'), ' to get the release notes.', '\n\n',
+      'Copy the changelog from above and put it into the description of the release.', '\n\n',
       chalk.bold('NOTE:'), ' if a release is not published on Github the Compass auto-update will not pick that up.',
     ),
     '\n'
   );
 
-  cli.action.start(`Waiting for Github release ${chalk.bold(releaseVersion)} to be published.`);
-  await github.waitForReleasePublished(releaseVersion);
+  cli.info('Press enter when you have published the Github release...');
+  ux.waitForEnter();
+
+  cli.action.start(`Checking if Github release ${chalk.bold(releaseVersion)} really is published.`);
+  const alreadyPublished = await github.isReleasePublished(releaseVersion);
+  if (!alreadyPublished) {
+    cli.error('Release is not published yet - did you really publish?');
+    cli.info('Please publish the release on Github and run publish again to verify it worked.');
+  }
   cli.action.stop();
 }
