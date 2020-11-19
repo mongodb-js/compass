@@ -61,6 +61,16 @@ async function commitAll(commitMessage, tag) {
 }
 
 describe('release', () => {
+  before(function() {
+    if (process.env.MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID) {
+      // eslint-disable-next-line no-console
+      console.info(
+        'MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID is set. Please re-run with MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID=""'
+      );
+      this.skip();
+    }
+  });
+
   afterEach(() => {
     while (running.length) {
       running.shift().kill('SIGTERM', { forceKillAfterTimeout: 100 });
@@ -143,7 +153,9 @@ describe('release', () => {
     describe(command, () => {
       it('fails if missing required env vars', async() => {
         await checkoutBranch('1.1-releases');
-        const { stderr, stdout, failed } = await (runReleaseCommand([command], {env: {}, input: 'Y\n'}).catch(e => e));
+        const { stderr, stdout, failed } = await (runReleaseCommand([command], {env: {
+          MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID: ''
+        }, input: 'Y\n'}).catch(e => e));
         expect(failed).to.be.true;
         expect(stderr + stdout).to.contain('The MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID envirnonment variable must be set.');
       });
@@ -211,7 +223,9 @@ describe('release', () => {
         beforeEach(async() => {
           await checkoutBranch('1.12-releases');
           await runReleaseCommandWithKeys([command], {
-            input: 'Y\n'
+            input: 'Y\n',
+            stdout: 'inherit',
+            stderr: 'inherit'
           });
 
           clonePath = path.resolve(tempDir, command);
@@ -264,57 +278,41 @@ describe('release', () => {
 
     describe('when the release tag exist', () => {
       beforeEach(async() => {
-        await commitAll('commit 1', 'v0.1.0');
-        await commitAll('commit 2', 'v0.2.0-beta.0');
-        await commitAll('commit 3');
-        await commitAll('commit 3'); // duplicate
+        await commitAll('fix: commit 1', 'v0.1.0');
+        await commitAll('fix: commit 2', 'v0.2.0-beta.0');
+        await commitAll('feat: commit 3');
+        await commitAll('feat: commit 3'); // duplicate
         await commitAll('v0.2.0-beta.0'); // version bump commit
         await commitAll('v0.2.0'); // version bump commit
         await checkoutBranch('1.0-releases');
-        await commitAll('commit 4', 'v1.0.0');
+        await commitAll('perf: commit 4', 'v1.0.0');
       });
 
       it('reports changes between 2 GAs', async() => {
         const { stdout } = await runReleaseCommand(['changelog']);
-        expect(stdout).to.contain(`Changes from v0.1.0:
-- commit 4
-- commit 3
-- commit 2
-
-You can see the full list of commits here:
-https://github.com/mongodb-js/compass/compare/v0.1.0...v1.0.0`);
+        expect(stdout).to.contain('\nChanges from v0.1.0:\n## Features\n\n- Commit 3\n\n\n## Bug Fixes\n\n- Commit 2\n\n\n## Performance Improvements\n\n- Commit 4\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v0.1.0...v1.0.0');
       });
 
       it('reports changes between beta and GA', async() => {
         await npm.version('1.0.1-beta.0');
         await execa('git', ['add', '.']);
-        await commitAll('commit 5');
-        await commitAll('commit 6', 'v1.0.1-beta.0');
+        await commitAll('fix: commit 5');
+        await commitAll('fix: commit 6', 'v1.0.1-beta.0');
 
         const { stdout } = await runReleaseCommand(['changelog']);
-        expect(stdout).to.contain(`Changes from v1.0.0:
-- commit 6
-- commit 5
-
-You can see the full list of commits here:
-https://github.com/mongodb-js/compass/compare/v1.0.0...v1.0.1-beta.0`);
+        expect(stdout).to.contain('\nChanges from v1.0.0:\n## Bug Fixes\n\n- Commit 6\n- Commit 5\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v1.0.0...v1.0.1-beta.0');
       });
 
       it('reports changes between beta and beta', async() => {
         await npm.version('1.0.1-beta.0');
-        await commitAll('commit 5');
-        await commitAll('commit 6', 'v1.0.1-beta.0');
+        await commitAll('feat: commit 5');
+        await commitAll('feat: commit 6', 'v1.0.1-beta.0');
         await npm.version('1.0.1-beta.1');
-        await commitAll('commit 7');
-        await commitAll('commit 8', 'v1.0.1-beta.1');
+        await commitAll('feat: commit 7');
+        await commitAll('feat: commit 8', 'v1.0.1-beta.1');
 
         const { stdout } = await runReleaseCommand(['changelog']);
-        expect(stdout).to.contain(`Changes from v1.0.1-beta.0:
-- commit 8
-- commit 7
-
-You can see the full list of commits here:
-https://github.com/mongodb-js/compass/compare/v1.0.1-beta.0...v1.0.1-beta.1`);
+        expect(stdout).to.contain('\nChanges from v1.0.1-beta.0:\n## Features\n\n- Commit 8\n- Commit 7\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v1.0.1-beta.0...v1.0.1-beta.1');
       });
     });
   });
@@ -370,7 +368,10 @@ https://github.com/mongodb-js/compass/compare/v1.0.1-beta.0...v1.0.1-beta.1`);
 
     it('fails if missing required env vars', async() => {
       await checkoutBranch('1.1-releases');
-      const { stderr, failed } = await (runReleaseCommand(['publish'], {env: {}, input: 'Y\n'}).catch(e => e));
+      const { stderr, failed } = await (runReleaseCommand(['publish'], {
+        env: {
+          MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID: ''
+        }, input: 'Y\n'}).catch(e => e));
       expect(failed).to.be.true;
       expect(stderr).to.contain('The MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID envirnonment variable must be set.');
     });

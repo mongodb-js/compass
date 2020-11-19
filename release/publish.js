@@ -3,6 +3,7 @@ const { cli } = require('cli-ux');
 const semver = require('semver');
 const chalk = require('chalk');
 const version = require('./version');
+const ux = require('./ux');
 
 module.exports = async function publish(
   releaseVersion, { downloadCenter, github }
@@ -10,7 +11,13 @@ module.exports = async function publish(
   await uploadConfigIfNewer(releaseVersion, { downloadCenter });
   await waitGithubRelease(releaseVersion, { github });
 
-  cli.info(chalk.green(`Release ${releaseVersion} complete.`));
+  cli.info(
+    '\n',
+    chalk.green(`🚀 Release ${chalk.bold(releaseVersion)} complete.`), '\n\n',
+    'Please verify that everything is in order:', '\n\n',
+    '▶ Download Center: ', ux.link('https://www.mongodb.com/try/download/compass'), '\n',
+    '▶ Github Releases: ', ux.link('https://github.com/mongodb-js/compass/releases'), '\n',
+  );
 };
 
 async function uploadConfigIfNewer(
@@ -34,30 +41,18 @@ async function uploadConfigIfNewer(
 }
 
 async function waitGithubRelease(releaseVersion, { github }) {
-  cli.action.start('Waiting for Github release to be created');
-  const release = await github.waitForReleaseCreated(releaseVersion);
-  cli.action.stop();
-
-  if (!release.draft) {
-    cli.action.start('Waiting for Github release to be published');
-    cli.action.stop(chalk.dim(`skipped: release ${releaseVersion} is already public.`));
-    return;
-  }
-
-  cli.info('');
   cli.info(
-    chalk.bgYellow(
-      chalk.gray(
-        chalk.bold(' MANUAL ACTION REQUIRED!: '))
+    '\n',
+    ux.manualAction(
+      'Make sure the release is published on Github: ',
+      ux.link('https://github.com/mongodb-js/compass/releases'), '\n\n',
+      'You can run ', ux.command('npm run release changelog'), ' to get the release notes.', '\n\n',
+      chalk.bold('NOTE:'), ' if a release is not published on Github the Compass auto-update will not pick that up.',
     ),
-    'The Github release is still in draft.'
+    '\n'
   );
-  cli.info(`Please review and publish the release on Github:\n\t${release.html_url}`);
-  cli.info('');
-  cli.info('You can run', chalk.bold('npm run release changelog'), 'to get the release notes.');
-  cli.info('');
 
-  cli.action.start('Waiting for Github release to be published');
+  cli.action.start(`Waiting for Github release ${chalk.bold(releaseVersion)} to be published.`);
   await github.waitForReleasePublished(releaseVersion);
   cli.action.stop();
 }

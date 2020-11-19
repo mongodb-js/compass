@@ -44,6 +44,15 @@ async function getTags() {
   return stdout.split('\n');
 }
 
+async function getRemoteBranches() {
+  await execa('git', ['fetch', '--all']);
+  const { stdout } = await execa('git', ['branch', '-a']);
+  return stdout.split('\n')
+    .map(s => s.trim())
+    .filter(s => s.match(/^remotes\/origin/))
+    .map(s => s.replace(/^remotes\/origin\//, ''));
+}
+
 async function log(ref1, ref2) {
   const { stdout } = await execa('git', [
     'log',
@@ -64,5 +73,6 @@ module.exports = {
   pushTags,
   getCurrentBranch,
   getTags,
+  getRemoteBranches,
   log
 };
