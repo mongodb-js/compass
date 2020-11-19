@@ -2,7 +2,6 @@
 const { cli } = require('cli-ux');
 const chalk = require('chalk');
 const pkgUp = require('pkg-up');
-const semver = require('semver');
 
 const branch = require('./branch');
 const bump = require('./bump');
@@ -150,23 +149,7 @@ async function releaseCheckout(versionLike) {
 async function releaseChangelog() {
   await getValidReleaseBranch();
   const releaseVersion = await getPackageJsonVersion();
-  const tags = await git.getTags();
-  const releaseTag = `v${releaseVersion}`;
-  const isGaRelease = version.isGa(releaseTag);
-
-  if (!tags.includes(releaseTag)) {
-    throw new Error(`The release tag ${releaseTag} was not found. Is this release tagged?`);
-  }
-
-  // finds the first tag that is lower than releaseTag
-  const previousTag = tags
-    .filter((t) => t.startsWith('v') && semver.valid(t))
-    .filter((t) => isGaRelease ? version.isGa(t) : true) // if is GA only consider other GAs
-    .sort(semver.compare)
-    .reverse()
-    .find((t) => semver.lt(t, releaseTag));
-
-  await changelog.render(previousTag, releaseTag);
+  await changelog.render(releaseVersion);
 }
 
 async function releasePublish() {
@@ -197,7 +180,8 @@ async function releasePublish() {
 
   await publishRelease(releaseVersion, {
     downloadCenter: createDownloadCenter(),
-    github
+    github,
+    changelog
   });
 }
 
