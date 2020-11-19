@@ -1,12 +1,16 @@
 const execa = require('execa');
 const chalk = require('chalk');
 
+function separator(message) {
+  return chalk.yellow(
+    chalk.bold(message)
+  );
+}
+
 function manualAction(...message) {
   return [
     '👉\t',
-    chalk.yellow(
-      chalk.bold('MANUAL ACTION REQUIRED!: ')
-    ),
+    separator('MANUAL ACTION REQUIRED!: '),
     '\n',
     ...message.join('').split('\n').map((m) => `\t${m}`).join('\n')
   ].join('');
@@ -29,6 +33,7 @@ function waitForEnter() {
 }
 
 module.exports = {
+  separator,
   manualAction,
   link,
   command,
