@@ -1,7 +1,14 @@
-<!-- Ticket number and a general summary of your changes in the Title above -->
-<!-- e.g. COMPASS-1111: updates ace editor width in agg pipeline view -->
+<!--
+  ^^^^^
+  Please fill the title above according to https://www.conventionalcommits.org/en/v1.0.0/.
 
-<!--- The following fields are not obligatory. Use your best judgement on what you think is applicable to the work you've done -->
+  type(scope): message <TICKET-NUMBER>
+
+  eg. fix(crud): updates ace editor width in agg pipeline view COMPASS-1111
+
+  NOTE: use `feat`, `fix` and `perf` for user facing changes that will be part of
+  release notes.
+-->
 
 ## Description
 <!--- Describe your changes in detail -->
