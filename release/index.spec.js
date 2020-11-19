@@ -290,7 +290,7 @@ describe('release', () => {
 
       it('reports changes between 2 GAs', async() => {
         const { stdout } = await runReleaseCommand(['changelog']);
-        expect(stdout).to.contain('Changes from v0.1.0:\n## Features\n\n- commit 3\n\n\n## Bug Fixes\n\n- commit 2\n\n\n## Performance Improvements\n\n- commit 4\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v0.1.0...v1.0.0');
+        expect(stdout).to.contain('\nChanges from v0.1.0:\n## Features\n\n- Commit 3\n\n\n## Bug Fixes\n\n- Commit 2\n\n\n## Performance Improvements\n\n- Commit 4\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v0.1.0...v1.0.0');
       });
 
       it('reports changes between beta and GA', async() => {
@@ -300,7 +300,7 @@ describe('release', () => {
         await commitAll('fix: commit 6', 'v1.0.1-beta.0');
 
         const { stdout } = await runReleaseCommand(['changelog']);
-        expect(stdout).to.contain('\nChanges from v1.0.0:\n## Bug Fixes\n\n- commit 6\n- commit 5\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v1.0.0...v1.0.1-beta.0');
+        expect(stdout).to.contain('\nChanges from v1.0.0:\n## Bug Fixes\n\n- Commit 6\n- Commit 5\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v1.0.0...v1.0.1-beta.0');
       });
 
       it('reports changes between beta and beta', async() => {
@@ -312,7 +312,7 @@ describe('release', () => {
         await commitAll('feat: commit 8', 'v1.0.1-beta.1');
 
         const { stdout } = await runReleaseCommand(['changelog']);
-        expect(stdout).to.contain('\nChanges from v1.0.1-beta.0:\n## Features\n\n- commit 8\n- commit 7\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v1.0.1-beta.0...v1.0.1-beta.1');
+        expect(stdout).to.contain('\nChanges from v1.0.1-beta.0:\n## Features\n\n- Commit 8\n- Commit 7\n\nYou can see the full list of commits here: \nhttps://github.com/mongodb-js/compass/compare/v1.0.1-beta.0...v1.0.1-beta.1');
       });
     });
   });

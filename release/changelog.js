@@ -4,6 +4,11 @@ const _ = require('lodash');
 const git = require('./git');
 const ux = require('./ux');
 
+function capitalize(s) {
+  if (typeof s !== 'string') return '';
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 function renderCommit({ scope, message, pr, ticket }) {
   let links = [ticket, pr].filter(Boolean).join(', ');
 
@@ -11,7 +16,7 @@ function renderCommit({ scope, message, pr, ticket }) {
     links = ` (${links})`;
   }
 
-  return `${scope ? scope + ': ' : ''}${message}${links}`;
+  return `${scope ? `**${scope}**` + ': ' : ''}${capitalize(message)}${links}`;
 }
 
 async function render(previousTag, releaseTag) {
