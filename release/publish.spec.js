@@ -14,6 +14,8 @@ const publish = require('./publish');
 
 describe('publish', () => {
   let deps;
+  const isTty = process.stdin.isTTY;
+
   beforeEach(async() => {
     const downloadCenterConfig = await fs.readJSON(
       path.resolve(__dirname, 'fixtures', 'config.json')
@@ -25,15 +27,24 @@ describe('publish', () => {
     downloadCenter.uploadConfig = sinon.mock().resolves();
 
     const github = {
-      waitForReleasePublished: sinon.mock().resolves({
-        draft: true
-      })
+      isReleasePublished: sinon.mock().resolves(true)
+    };
+
+    const changelog = {
+      render: sinon.mock().resolves()
     };
 
     deps = {
       downloadCenter,
-      github
+      github,
+      changelog
     };
+
+    process.stdin.isTTY = false;
+  });
+
+  afterEach(() => {
+    process.stdin.isTTY = isTty;
   });
 
   it('skips upload if release version is same as download center', async() => {
@@ -53,17 +64,5 @@ describe('publish', () => {
 
     await (publish('1.23.0', deps));
     expect(deps.downloadCenter.uploadConfig).to.have.been.calledWith(expected);
-  });
-
-  it('waits for a the github release to be published', async() => {
-    const error = await (publish('1.23.0', {
-      ...deps,
-      github: {
-        ...deps.github,
-        waitForReleasePublished: () => { throw new Error('maxWaitTime reached.'); }
-      }
-    })).catch(e => e);
-
-    expect(error.message).to.equal('maxWaitTime reached.');
   });
 });

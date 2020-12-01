@@ -3,6 +3,8 @@ const chalk = require('chalk');
 const _ = require('lodash');
 const git = require('./git');
 const ux = require('./ux');
+const version = require('./version');
+const semver = require('semver');
 
 function capitalize(s) {
   if (typeof s !== 'string') return '';
@@ -19,7 +21,23 @@ function renderCommit({ scope, message, pr, ticket }) {
   return `${scope ? `**${scope}**` + ': ' : ''}${capitalize(message)}${links}`;
 }
 
-async function render(previousTag, releaseTag) {
+async function render(releaseVersion) {
+  const releaseTag = `v${releaseVersion}`;
+  const isGaRelease = version.isGa(releaseTag);
+
+  const tags = await git.getTags();
+  if (!tags.includes(releaseTag)) {
+    throw new Error(`The release tag ${releaseTag} was not found. Is this release tagged?`);
+  }
+
+  // finds the first tag that is lower than releaseTag
+  const previousTag = tags
+    .filter((t) => t.startsWith('v') && semver.valid(t))
+    .filter((t) => isGaRelease ? version.isGa(t) : true) // if is GA only consider other GAs
+    .sort(semver.compare)
+    .reverse()
+    .find((t) => semver.lt(t, releaseTag));
+
   cli.info('');
   cli.info(`Changes from ${chalk.bold(previousTag)}:`);
 
