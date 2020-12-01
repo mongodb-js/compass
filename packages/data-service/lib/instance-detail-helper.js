@@ -44,24 +44,26 @@ function getStats(results, done) {
 /**
  * @example
  *
- * @param {Object} resp - Result of `db.db('admin').command({buildInfo: 1})`.
+ * @param {Object} buildInfo - Result of `db.db('admin').command({buildInfo: 1})`.
  * @return {Object}
  */
-function parseBuildInfo(resp) {
+function parseBuildInfo(buildInfo) {
+  buildInfo = buildInfo || {};
+
   const res = {
-    version: resp.version,
-    commit: resp.gitVersion,
-    commit_url: 'https://github.com/mongodb/mongo/commit/' + resp.gitVersion,
-    flags_loader: resp.loaderFlags,
-    flags_compiler: resp.compilerFlags,
-    allocator: resp.allocator,
-    javascript_engine: resp.javascriptEngine,
-    debug: resp.debug,
-    for_bits: resp.bits,
-    max_bson_object_size: resp.maxBsonObjectSize,
-    enterprise_module: getMongoDBBuildInfo.isEnterprise(resp), // Cover both cases of detecting enterprise module, see SERVER-18099.
-    query_engine: resp.queryEngine ? resp.queryEngine : null,
-    raw: resp // Save the raw output to later determine if genuine MongoDB
+    version: buildInfo.version,
+    commit: buildInfo.gitVersion,
+    commit_url: buildInfo.gitVersion ? 'https://github.com/mongodb/mongo/commit/' + buildInfo.gitVersion : '',
+    flags_loader: buildInfo.loaderFlags,
+    flags_compiler: buildInfo.compilerFlags,
+    allocator: buildInfo.allocator,
+    javascript_engine: buildInfo.javascriptEngine,
+    debug: buildInfo.debug,
+    for_bits: buildInfo.bits,
+    max_bson_object_size: buildInfo.maxBsonObjectSize,
+    enterprise_module: getMongoDBBuildInfo.isEnterprise(buildInfo), // Cover both cases of detecting enterprise module, see SERVER-18099.
+    query_engine: buildInfo.queryEngine ? buildInfo.queryEngine : null,
+    raw: buildInfo // Save the raw output to later determine if genuine MongoDB
   };
 
   return res;
@@ -144,32 +146,37 @@ function getDataLake(results, done) {
 }
 
 /**
- * @param {Object} resp - Result of `db.db('admin').command({hostInfo: 1})`.
+ * @param {Object} hostInfo - Result of `db.db('admin').command({hostInfo: 1})`.
  * @return {Object}
  */
-function parseHostInfo(resp) {
+function parseHostInfo(hostInfo) {
+  hostInfo = hostInfo || {};
+  const hostInfoSystem = hostInfo.system || {};
+  const hostInfoOs = hostInfo.os || {};
+  const hostInfoExtra = hostInfo.extra || {};
+
   return {
-    system_time: resp.system.currentTime,
-    hostname: resp.system.hostname || 'unknown',
-    os: resp.os.name,
-    os_family: resp.os.type.toLowerCase(),
-    kernel_version: resp.os.version,
-    kernel_version_string: resp.extra.versionString,
-    memory_bits: resp.system.memSizeMB * 1024 * 1024,
-    memory_page_size: resp.extra.pageSize,
-    arch: resp.system.cpuArch,
-    cpu_cores: resp.system.numCores,
-    cpu_cores_physical: resp.extra.physicalCores,
-    cpu_scheduler: resp.extra.scheduler,
-    cpu_frequency: resp.extra.cpuFrequencyMHz * 1000000,
-    cpu_string: resp.extra.cpuString,
-    cpu_bits: resp.system.cpuAddrSize,
-    machine_model: resp.extra.model,
-    feature_numa: resp.system.numaEnabled,
+    system_time: hostInfoSystem.currentTime,
+    hostname: hostInfoSystem.hostname || 'unknown',
+    os: hostInfoOs.name,
+    os_family: (hostInfoOs.type || 'unknown').toLowerCase(),
+    kernel_version: hostInfoOs.version,
+    kernel_version_string: hostInfoExtra.versionString,
+    memory_bits: (hostInfoSystem.memSizeMB || 0) * 1024 * 1024,
+    memory_page_size: hostInfoExtra.pageSize,
+    arch: hostInfoSystem.cpuArch,
+    cpu_cores: hostInfoSystem.numCores,
+    cpu_cores_physical: hostInfoExtra.physicalCores,
+    cpu_scheduler: hostInfoExtra.scheduler,
+    cpu_frequency: (hostInfoExtra.cpuFrequencyMHz || 0) * 1000000,
+    cpu_string: hostInfoExtra.cpuString,
+    cpu_bits: hostInfoSystem.cpuAddrSize,
+    machine_model: hostInfoExtra.model,
+    feature_numa: hostInfoSystem.numaEnabled,
     /* `alwaysFullSync` seen as synchronous :p */
     /* eslint no-sync: 0 */
-    feature_always_full_sync: resp.extra.alwaysFullSync,
-    feature_nfs_async: resp.extra.nfsAsync
+    feature_always_full_sync: hostInfoExtra.alwaysFullSync,
+    feature_nfs_async: hostInfoExtra.nfsAsync
   };
 }
 

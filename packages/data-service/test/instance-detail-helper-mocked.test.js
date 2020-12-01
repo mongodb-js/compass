@@ -142,8 +142,36 @@ describe('instance-detail-helper-mocked', function() {
         done();
       });
     });
+    it('does not throw if buildInfo is missing properties', function(done) {
+      // instead of the real db handle, pass in the mocked one
+      const results = {
+        db: makeMockDB(null, {})
+      };
+      getBuildInfo(results, function(err, res) {
+        try {
+          assert.ok(!err);
+          assert.deepEqual(res, {
+            allocator: undefined,
+            commit: undefined,
+            commit_url: '',
+            debug: undefined,
+            enterprise_module: false,
+            flags_compiler: undefined,
+            flags_loader: undefined,
+            for_bits: undefined,
+            javascript_engine: undefined,
+            max_bson_object_size: undefined,
+            query_engine: null,
+            raw: {},
+            version: undefined
+          });
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
   });
-
   describe('getCmdLineOpts', function() {
     it('should not pass on any error that getCmdLineOpts returns', function(done) {
       // instead of the real db handle, pass in the mocked one
@@ -291,8 +319,42 @@ describe('instance-detail-helper-mocked', function() {
         done();
       });
     });
+    it('does not throw if hostInfo is missing properties', function(done) {
+      // instead of the real db handle, pass in the mocked one
+      const results = {
+        db: makeMockDB(null, {})
+      };
+      getHostInfo(results, function(err, res) {
+        try {
+          assert.ok(!err);
+          assert.deepEqual(res, {
+            arch: undefined,
+            cpu_bits: undefined,
+            cpu_cores: undefined,
+            cpu_cores_physical: undefined,
+            cpu_frequency: 0,
+            cpu_scheduler: undefined,
+            cpu_string: undefined,
+            feature_always_full_sync: undefined,
+            feature_nfs_async: undefined,
+            feature_numa: undefined,
+            hostname: 'unknown',
+            kernel_version: undefined,
+            kernel_version_string: undefined,
+            machine_model: undefined,
+            memory_bits: 0,
+            memory_page_size: undefined,
+            os: undefined,
+            os_family: 'unknown',
+            system_time: undefined,
+          });
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
   });
-
   describe('listDatabases', function() {
     const results = {};
 
