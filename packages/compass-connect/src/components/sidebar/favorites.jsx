@@ -33,9 +33,9 @@ class Favorites extends React.Component {
    * @param {Object} favorite - A favorite connection.
    * @param {Object} evt - evt.
    */
-  onCopyConnectionClicked(favorite, evt) {
+  onDuplicateConnectionClicked(favorite, evt) {
     evt.stopPropagation();
-    Actions.onCopyConnectionClicked(favorite);
+    Actions.onDuplicateConnectionClicked(favorite);
   }
 
   /**
@@ -153,9 +153,9 @@ class Favorites extends React.Component {
           >
             <MenuItem
               eventKey="1"
-              onClick={this.onCopyConnectionClicked.bind(this, favorite)}
+              onClick={this.onDuplicateConnectionClicked.bind(this, favorite)}
             >
-              Copy
+              Duplicate
             </MenuItem>
             <MenuItem
               eventKey="2"

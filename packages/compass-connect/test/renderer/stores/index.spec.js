@@ -1406,7 +1406,7 @@ describe('Store', () => {
     });
   });
 
-  describe('#onCopyConnectionClicked', () => {
+  describe('#onDuplicateConnectionClicked', () => {
     context('when the current connection is being copied', () => {
       const connection = new Connection({
         hostname: 'localhost',
@@ -1451,7 +1451,7 @@ describe('Store', () => {
           done();
         });
 
-        Actions.onCopyConnectionClicked(connection);
+        Actions.onDuplicateConnectionClicked(connection);
       });
     });
 
@@ -1518,7 +1518,7 @@ describe('Store', () => {
           done();
         });
 
-        Actions.onCopyConnectionClicked(connectionToCopy);
+        Actions.onDuplicateConnectionClicked(connectionToCopy);
       });
     });
   });

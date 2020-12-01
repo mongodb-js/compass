@@ -374,7 +374,7 @@ const Store = Reflux.createStore({
    *
    * @param {Connection} connection - The favorite connection to copy.
    */
-  onCopyConnectionClicked(connection) {
+  onDuplicateConnectionClicked(connection) {
     const newConnection = new Connection();
 
     newConnection.set(omit(connection, ['_id', 'color']));
