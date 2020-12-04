@@ -868,15 +868,15 @@ Connection = AmpersandModel.extend({
       throw new TypeError('sslCA is required when ssl is SERVER.');
     } else if (attrs.sslMethod === 'ALL') {
       if (!attrs.sslCA) {
-        throw new TypeError('sslCA is required when ssl is ALL.');
-      }
-
-      if (!attrs.sslKey) {
-        throw new TypeError('sslKey is required when ssl is ALL.');
+        throw new TypeError('SSL \'Certificate Authority\' is required when the SSL method is set to \'Server and Client Validation\'.');
       }
 
       if (!attrs.sslCert) {
-        throw new TypeError('sslCert is required when ssl is ALL.');
+        throw new TypeError('SSL \'Client Certificate\' is required when the SSL method is set to \'Server and Client Validation\'.');
+      }
+
+      if (!attrs.sslKey) {
+        throw new TypeError('SSL \'Client Private Key\' is required when the SSL method is set to \'Server and Client Validation\'.');
       }
     }
   },
@@ -887,15 +887,15 @@ Connection = AmpersandModel.extend({
     ) {
       if (!attrs.mongodbUsername) {
         throw new TypeError(
-          'The mongodbUsername field is required when ' +
-            'using MONGODB or SCRAM-SHA-256 for authStrategy.'
+          'The \'Username\' field is required when ' +
+            'using \'Username/Password\' or \'SCRAM-SHA-256\' for authentication.'
         );
       }
 
       if (!attrs.mongodbPassword) {
         throw new TypeError(
-          'The mongodbPassword field is required when ' +
-            'using MONGODB or SCRAM-SHA-256 for authStrategy.'
+          'The \'Password\' field is required when ' +
+            'using \'Username/Password\' or \'SCRAM-SHA-256\' for authentication.'
         );
       }
     }
@@ -909,8 +909,8 @@ Connection = AmpersandModel.extend({
       if (attrs.kerberosServiceName) {
         throw new TypeError(
           format(
-            'The kerberosServiceName field does not apply when ' +
-              'using %s for authStrategy.',
+            'The Kerberos \'Service Name\' field does not apply when ' +
+              'using %s for authentication.',
             attrs.authStrategy
           )
         );
@@ -918,8 +918,8 @@ Connection = AmpersandModel.extend({
       if (attrs.kerberosPrincipal) {
         throw new TypeError(
           format(
-            'The kerberosPrincipal field does not apply when ' +
-              'using %s for authStrategy.',
+            'The Kerberos \'Principal\' field does not apply when ' +
+              'using %s for authentication.',
             attrs.authStrategy
           )
         );
@@ -927,23 +927,23 @@ Connection = AmpersandModel.extend({
       if (attrs.kerberosPassword) {
         throw new TypeError(
           format(
-            'The kerberosPassword field does not apply when ' +
-              'using %s for authStrategy.',
+            'The Kerberos \'Password\' field does not apply when ' +
+              'using %s for authentication.',
             attrs.authStrategy
           )
         );
       }
     } else if (!attrs.kerberosPrincipal) {
       throw new TypeError(
-        'The kerberosPrincipal field is required when using KERBEROS for authStrategy.'
+        'The Kerberos \'Principal\' field is required when using \'Kerberos\' for authentication.'
       );
     }
   },
   validateX509(attrs) {
     if (attrs.authStrategy === 'X509') {
-      if (!attrs.x509Username) {
+      if (attrs.sslMethod !== 'ALL') {
         throw new TypeError(
-          'The x509Username field is required when using X509 for authStrategy.'
+          'SSL method is required to be set to \'Server and Client Validation\' when using X.509 authentication.'
         );
       }
     }
@@ -953,16 +953,16 @@ Connection = AmpersandModel.extend({
       if (!attrs.ldapUsername) {
         throw new TypeError(
           format(
-            'The ldapUsername field is required when ' +
-              'using LDAP for authStrategy.'
+            'The \'Username\' field is required when ' +
+              'using \'LDAP\' for authentication.'
           )
         );
       }
       if (!attrs.ldapPassword) {
         throw new TypeError(
           format(
-            'The ldapPassword field is required when ' +
-              'using LDAP for authStrategy.'
+            'The \'Password\' field is required when ' +
+              'using LDAP for authentication.'
           )
         );
       }
@@ -978,7 +978,7 @@ Connection = AmpersandModel.extend({
 
       if (!attrs.sshTunnelPassword) {
         throw new TypeError(
-          'sslTunnelPassword is required when sshTunnel is USER_PASSWORD.'
+          '\'SSH Password\' is required when SSH Tunnel is set to \'Use Password\'.'
         );
       }
     } else if (attrs.sshTunnel === 'IDENTITY_FILE') {
@@ -986,7 +986,7 @@ Connection = AmpersandModel.extend({
 
       if (!attrs.sshTunnelIdentityFile) {
         throw new TypeError(
-          'sslTunnelIdentityFile is required when sshTunnel is IDENTITY_FILE.'
+          '\'SSH Identity File\' is required when SSH Tunnel is set to \'Use Identity File\'.'
         );
       }
     }
@@ -994,19 +994,19 @@ Connection = AmpersandModel.extend({
   validateStandardSshTunnelOptions(attrs) {
     if (!attrs.sshTunnelUsername) {
       throw new TypeError(
-        'sslTunnelUsername is required when sshTunnel is not NONE.'
+        '\'SSH Username\' is required when SSH Tunnel is set.'
       );
     }
 
     if (!attrs.sshTunnelHostname) {
       throw new TypeError(
-        'sslTunnelHostname is required when sshTunnel is not NONE.'
+        '\'SSH Hostname\' is required when SSH Tunnel is set.'
       );
     }
 
     if (!attrs.sshTunnelPort) {
       throw new TypeError(
-        'sslTunnelPort is required when sshTunnel is not NONE.'
+        '\'SSH Tunnel Port\' is required when SSH Tunnel is set.'
       );
     }
   },
