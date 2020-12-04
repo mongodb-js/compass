@@ -1,0 +1,49 @@
+name: Run Tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  check-and-test:
+    name: Check and Test
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        mongoVersion: [stable, unstable]
+      
+    env:
+      MONGODB_VERSION: ${{ matrix.mongoVersion }}
+      MONGODB_TOPOLOGY: standalone
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.4.0
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      
+      - name: Install Required OS Packages
+        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev
+      
+      - name: Install NPM Packages
+        run: npm install
+      
+      - name: Check and Test
+        run: |
+          npm run check
+          npm run test
+          npm run test:karma

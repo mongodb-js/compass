@@ -346,7 +346,7 @@ class EditableJson extends React.Component {
               clickHandler={this.boundHandleCancel} />
             <TextButton
               className="btn btn-default btn-xs"
-              text="Update"
+              text="Replace"
               disabled={this.hasErrors()}
               dataTestId="update-document-button"
               clickHandler={this.handleUpdate.bind(this)} />
