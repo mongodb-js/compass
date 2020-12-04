@@ -359,9 +359,13 @@ const Store = Reflux.createStore({
         });
       }
     } else if (!currentConnection.isValid()) {
+      const validationError = currentConnection.validate(currentConnection);
+
       this.setState({
         isValid: false,
-        errorMessage: 'The required fields can not be empty'
+        errorMessage: validationError
+          ? validationError.message
+          : 'The required fields can not be empty'
       });
     } else {
       this.StatusActions.showIndeterminateProgressBar();
@@ -1019,9 +1023,13 @@ const Store = Reflux.createStore({
         }
       });
     } else if (!currentConnection.isValid()) {
+      const validationError = currentConnection.validate(currentConnection);
+
       this.setState({
         isValid: false,
-        errorMessage: 'The required fields can not be empty'
+        errorMessage: validationError
+          ? validationError.message
+          : 'The required fields can not be empty'
       });
     } else {
       this._saveConnection(currentConnection);

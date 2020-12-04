@@ -2,8 +2,6 @@ import React from 'react';
 import { mount } from 'enzyme';
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
 
-import styles from '../connect.less';
-
 describe('ConfirmEditConnectionString [Component]', () => {
   let component;
 
