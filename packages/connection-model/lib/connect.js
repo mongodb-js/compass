@@ -114,6 +114,12 @@ const getStatusStateString = (evt) => {
   }
 };
 
+const Tasks = {
+  LoadSSLFiles: 'Load SSL files',
+  CreateSSHTunnel: 'Create SSH Tunnel',
+  ConnectToMongoDB: 'Connect to MongoDB'
+};
+
 const getTasks = (model, setupListeners) => {
   const state = new EventEmitter();
   const tasks = {};
@@ -169,7 +175,7 @@ const getTasks = (model, setupListeners) => {
    * TODO (imlucas) dns.lookup() model.hostname and model.sshTunnelHostname to check for typos
    */
   assign(tasks, {
-    'Load SSL files': (cb) => {
+    [Tasks.LoadSSLFiles]: (cb) => {
       const ctx = status('Load SSL files', cb);
 
       if (!needToLoadSSLFiles(model)) {
@@ -183,7 +189,7 @@ const getTasks = (model, setupListeners) => {
   });
 
   assign(tasks, {
-    'Create SSH Tunnel': (cb) => {
+    [Tasks.CreateSSHTunnel]: (cb) => {
       const ctx = status('Create SSH Tunnel', cb);
 
       if (model.sshTunnel === 'NONE') {
@@ -195,7 +201,7 @@ const getTasks = (model, setupListeners) => {
   });
 
   assign(tasks, {
-    'Connect to MongoDB': (cb) => {
+    [Tasks.ConnectToMongoDB]: (cb) => {
       const ctx = status('Connect to MongoDB');
 
       // @note: Durran:
@@ -237,7 +243,7 @@ const getTasks = (model, setupListeners) => {
           });
         }
 
-        cb();
+        cb(null, { url: model.driverUrlWithSsh, options: validOptions });
       });
     }
   });
@@ -303,7 +309,9 @@ const connect = (model, setupListeners, done) => {
 
   logTaskStatus('Connecting...');
 
-  async.series(tasks, (err) => {
+  async.series(tasks, (err, tasksArgs) => {
+    const connectionOptions = tasksArgs[Tasks.ConnectToMongoDB];
+
     if (err) {
       logTaskStatus('Error connecting:', err);
 
@@ -312,7 +320,7 @@ const connect = (model, setupListeners, done) => {
 
     logTaskStatus('Successfully connected');
 
-    return done(null, tasks.client);
+    return done(null, tasks.client, connectionOptions);
   });
 
   return tasks.state;

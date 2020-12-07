@@ -20,6 +20,35 @@ describe('connection model connector', () => {
       require('mongodb-runner/mocha/after')({ port: 27018, version: '4.0.0' })
     );
 
+    it('should return connection config when connected successfully', (done) => {
+      Connection.from('mongodb://localhost:27018', (parseErr, model) => {
+        if (parseErr) throw parseErr;
+
+        connect(
+          model,
+          setupListeners,
+          (connectErr, client, { url, options }) => {
+            if (connectErr) throw connectErr;
+
+            assert.strictEqual(
+              url,
+              'mongodb://localhost:27018/?readPreference=primary&ssl=false'
+            );
+
+            assert.deepStrictEqual(options, {
+              connectWithNoPrimary: true,
+              readPreference: 'primary',
+              useNewUrlParser: true,
+              useUnifiedTopology: true
+            });
+
+            client.close(true);
+            done();
+          }
+        );
+      });
+    });
+
     it('should connect to `localhost:27018 with model`', (done) => {
       Connection.from('mongodb://localhost:27018', (parseErr, model) => {
         assert.equal(parseErr, null);
