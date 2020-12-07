@@ -1,4 +1,4 @@
-# mongodb-connection-model [![][travis_img]][travis_url] [![][npm_img]][npm_url] [![][inch_img]][inch_url]
+# mongodb-connection-model [![][workflow_img]][workflow_url] [![][npm_img]][npm_url] [![][inch_img]][inch_url]
 
 > MongoDB connection model
 
@@ -460,8 +460,8 @@ This will log the following events to the console:
 
 Apache 2.0
 
-[travis_img]: https://img.shields.io/travis/mongodb-js/connection-model.svg?style=flat-square
-[travis_url]: https://travis-ci.org/mongodb-js/connection-model
+[workflow_img]: https://github.com/mongodb-js/connection-model/workflows/Check%20and%20Test/badge.svg?event=push
+[workflow_url]: https://github.com/mongodb-js/connection-model/actions?query=workflow%3A%22Check+and+Test%22
 [npm_img]: https://img.shields.io/npm/v/mongodb-connection-model.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/mongodb-connection-model
 [inch_img]: http://inch-ci.org/github/mongodb-js/connection-model.svg?branch=master
