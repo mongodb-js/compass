@@ -1,4 +1,4 @@
-# mongodb-data-service [![][travis_img]][travis_url] [![][npm_img]][npm_url] [![][dependabot_img]][dependabot_url]
+# mongodb-data-service [![][workflow_img]][workflow_url] [![][npm_img]][npm_url] [![][dependabot_img]][dependabot_url]
 
 > MongoDB Data Service: an API on top of (currently) the [MongoDB Node Driver][driver] and (some day) [mongodb-scope-client][scope-client].
 
@@ -154,8 +154,8 @@ All tests in an electron renderer process thanks to [electron-mocha](https://npm
 
 Apache 2.0
 
-[travis_img]: https://img.shields.io/travis/mongodb-js/data-service.svg?style=flat-square
-[travis_url]: https://travis-ci.org/mongodb-js/data-service
+[workflow_img]: https://github.com/mongodb-js/data-service/workflows/Check%20and%20Test/badge.svg?event=push
+[workflow_url]: https://github.com/mongodb-js/data-service/actions?query=workflow%3A%22Check+and+Test%22
 [npm_img]: https://img.shields.io/npm/v/mongodb-data-service.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/mongodb-data-service
 [scope-client]: https://github.com/mongodb-js/scope-client
