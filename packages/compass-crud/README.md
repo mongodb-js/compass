@@ -1,4 +1,4 @@
-# Compass CRUD Plugin [![][travis_img]][travis_url] [![][npm_img]][npm_url]
+# Compass CRUD Plugin [![][workflow_img]][workflow_url] [![][npm_img]][npm_url]
 
 Provide functionality shown in the "Documents" tab in the Collection view in
 Compass. 
@@ -176,8 +176,8 @@ npm install -S @mongodb-js/compass-crud
 # License
 [Apache 2.0](./LICENSE)
 
-[travis_img]: https://travis-ci.org/mongodb-js/compass-crud.svg
-[travis_url]: https://travis-ci.org/mongodb-js/compass-crud
+[workflow_img]: https://github.com/mongodb-js/compass-crud/workflows/Run%20Tests/badge.svg
+[workflow_url]: https://github.com/mongodb-js/compass-crud/actions?query=workflow%3A%22Run+Tests%22+branch%3Amaster
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-crud.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-crud
 [hadron-app]: https://github.com/mongodb-js/hadron-app
