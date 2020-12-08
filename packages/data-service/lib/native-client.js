@@ -67,6 +67,15 @@ const SYSTEM = 'system';
 const ADMIN = 'admin';
 
 /**
+ *
+ * @param {Map<K, V>} _map
+ * @returns {V}
+ */
+function getFirstFromMap(_map) {
+  return _map.values().next().value;
+}
+
+/**
  * The native client class.
  */
 class NativeClient extends EventEmitter {
@@ -1134,10 +1143,10 @@ class NativeClient extends EventEmitter {
    * @returns {Boolean} If the server is writable.
    */
   _isWritable(evt) {
-    const topologyType = evt.newDescription.topologyType;
+    const topologyType = evt.newDescription.type;
     // If type is SINGLE we must be connected to primary, standalone or mongos.
     if (topologyType === SINGLE) {
-      const server = evt.newDescription.servers[0];
+      const server = getFirstFromMap(evt.newDescription.servers);
       return server && WRITABLE_SERVER_TYPES.includes(server.type);
     }
     return WRITABLE_TYPES.includes(topologyType);
@@ -1151,7 +1160,7 @@ class NativeClient extends EventEmitter {
    * @returns {Boolean} If the server is a mongos.
    */
   _isMongos(evt) {
-    return evt.newDescription.topologyType === SHARDED;
+    return evt.newDescription.type === SHARDED;
   }
 
   /**
