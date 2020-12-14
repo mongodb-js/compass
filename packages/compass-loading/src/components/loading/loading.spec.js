@@ -20,7 +20,7 @@ describe('Loading [Component]', () => {
   });
 
   it('renders the spinner', () => {
-    expect(component.find('.fa-compass')).to.be.present();
+    expect(component.find(`.${styles['loading-spinner']}`)).to.be.present();
   });
 
   it('renders the status', () => {

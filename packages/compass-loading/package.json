@@ -43,7 +43,6 @@
     "redux": "^4.0.4"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-pro": "^5.10.2",
     "@hot-loader/react-dom": "^16.8.2",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.26.0",

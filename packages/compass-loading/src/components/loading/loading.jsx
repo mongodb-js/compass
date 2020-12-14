@@ -20,25 +20,25 @@ class Loading extends Component {
     return (
       <div className={classnames(styles.loading)}>
         <svg
+          className={classnames(styles['loading-spinner'])}
           aria-hidden="true"
           focusable="false"
-          data-prefix="fal"
-          data-icon="compass"
-          className="svg-inline--fa fa-spinner-third fa-w-16"
           role="img"
           xmlns="http://www.w3.org/2000/svg"
-          height="15vh"
-          viewBox="0 0 512 512">
-          <path fill="#FFFFFF" d="M460.115 373.846l-6.941-4.008c-5.546-3.202-7.564-10.177-4.661-15.886 32.971-64.838 31.167-142.731-5.415-205.954-36.504-63.356-103.118-103.876-175.8-107.701C260.952 39.963 256 34.676 256 28.321v-8.012c0-6.904 5.808-12.337 12.703-11.982 83.552 4.306 160.157 50.861 202.106 123.67 42.069 72.703 44.083 162.322 6.034 236.838-3.14 6.149-10.75 8.462-16.728 5.011z">
-            <animateTransform
-              attributeName="transform"
-              attributeType="XML"
-              type="rotate"
-              from="0 256 256"
-              to="360 256 256"
-              dur="2s"
-              repeatCount="indefinite"/>
-          </path>
+          height="102"
+          viewBox="0 0 102 102"
+          fill="none">
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M-1.33757e-05 51C-4.5151e-06 22.8335 22.8335 -2.33115e-07 51 2.22928e-06C79.1665 4.69168e-06 102 22.8335 102 51C102 79.1665 79.1665 102 51 102C22.8335 102 -1.46069e-05 79.1665 -1.33757e-05 51ZM51 96.5599C25.838 96.5599 5.44005 76.1619 5.44005 50.9999C5.44005 25.8378 25.838 5.43986 51 5.43986C76.1621 5.43986 96.56 25.8378 96.56 50.9999C96.56 76.162 76.1621 96.5599 51 96.5599Z"
+            fill="url(#compass_loading_spinner_linear_grad)"/>
+          <defs>
+            <linearGradient id="compass_loading_spinner_linear_grad" x1="102" y1="51" x2="2.30067e-06" y2="51" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#5D6C74"/>
+              <stop offset="1" stopColor="white"/>
+            </linearGradient>
+          </defs>
         </svg>
         <div className={classnames(styles['loading-status'])}>
           {this.props.status}
