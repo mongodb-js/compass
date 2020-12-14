@@ -1,4 +1,4 @@
-# Compass Query Bar [![][travis_img]][travis_url]
+# Compass Query Bar [![][workflow_img]][workflow_url]
 
 > Renders a component for executing MongoDB queries through a GUI.
 
@@ -54,5 +54,5 @@ The fields array must be an array of objects that the ACE editor autocompleter u
 [This example](https://github.com/mongodb-js/ace-autocompleter/blob/master/lib/constants/accumulators.js)
 for what that array looks like.
 
-[travis_img]: https://travis-ci.org/mongodb-js/compass-query-bar.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/compass-query-bar
+[workflow_img]: https://github.com/mongodb-js/compass-query-bar/workflows/Check%20and%20Test/badge.svg?event=push
+[workflow_url]: https://github.com/mongodb-js/compass-query-bar/actions?query=workflow%3A%22Check+and+Test%22

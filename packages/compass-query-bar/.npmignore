@@ -3,7 +3,6 @@
 .editorconfig
 .nycrc
 .prettierrc
-.travis.yml
 config/
 electron/
 karma.conf.js
