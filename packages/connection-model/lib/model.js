@@ -169,7 +169,8 @@ const CONNECTION_STRING_OPTIONS = {
       'pythonLegacy'
     ],
     default: undefined
-  }
+  },
+  directConnection: { type: 'boolean', default: undefined }
 };
 
 assign(props, CONNECTION_STRING_OPTIONS);

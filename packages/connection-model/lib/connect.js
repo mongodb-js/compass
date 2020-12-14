@@ -215,6 +215,17 @@ const getTasks = (model, setupListeners) => {
 
       validOptions.useNewUrlParser = true;
       validOptions.useUnifiedTopology = true;
+      if (
+        model.directConnection === undefined &&
+        model.hosts.length === 1 &&
+        (model.replicaSet === undefined || model.replicaSet === '')
+      ) {
+        // Previous to the node driver 3.6.3, directConnection was
+        // set to true under these conditions. In 3.6.3 this defaulting
+        // behavior was removed and now we add it. COMPASS-4534
+        // https://github.com/mongodb/node-mongodb-native/commit/f8fd310a11a91db82f1c0ddc57482b8edabc231b
+        validOptions.directConnection = true;
+      }
 
       const mongoClient = new MongoClient(model.driverUrlWithSsh, validOptions);
 

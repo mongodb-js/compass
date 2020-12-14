@@ -548,6 +548,39 @@ describe('connection model partser should parse URI components such as', () => {
           }
         );
       });
+
+      it('defaults directConnection undefined', (done) => {
+        Connection.from(
+          'mongodb://localhost:27017',
+          (error, result) => {
+            expect(error).to.not.exist;
+            expect(result.directConnection).to.be.equal(undefined);
+            done();
+          }
+        );
+      });
+
+      it('saves directConnection true', (done) => {
+        Connection.from(
+          'mongodb://localhost:27017/?directConnection=true',
+          (error, result) => {
+            expect(error).to.not.exist;
+            expect(result.directConnection).to.be.equal(true);
+            done();
+          }
+        );
+      });
+
+      it('saves directConnection false', (done) => {
+        Connection.from(
+          'mongodb://localhost:27017/?directConnection=false',
+          (error, result) => {
+            expect(error).to.not.exist;
+            expect(result.directConnection).to.be.equal(false);
+            done();
+          }
+        );
+      });
     });
 
     describe('miscellaneous configuration', () => {

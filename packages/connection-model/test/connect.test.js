@@ -37,6 +37,7 @@ describe('connection model connector', () => {
 
             assert.deepStrictEqual(options, {
               connectWithNoPrimary: true,
+              directConnection: true,
               readPreference: 'primary',
               useNewUrlParser: true,
               useUnifiedTopology: true
