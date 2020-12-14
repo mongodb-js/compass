@@ -1,7 +1,7 @@
 /**
  * Default for maxTimeMS option.
  */
-export const DEFAULT_MAX_TIME_MS = 5000;
+export const DEFAULT_MAX_TIME_MS = 60000;
 
 /**
  * Number of documents to sample.

@@ -16,7 +16,7 @@ describe('max-time-ms module', () => {
   describe('#reducer', () => {
     context('when the action is not limit changed', () => {
       it('returns the default state', () => {
-        expect(reducer(undefined, { type: 'test' })).to.equal(5000);
+        expect(reducer(undefined, { type: 'test' })).to.equal(60000);
       });
     });
 
