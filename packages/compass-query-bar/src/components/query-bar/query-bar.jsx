@@ -18,6 +18,9 @@ import QUERY_PROPERTIES from 'constants/query-properties';
 
 import styles from './query-bar.less';
 
+/**
+ * @type {Record<string, { type: 'document' | 'numeric' | 'boolean', placeholder: string | null, link: string, label?: string }>}
+ */
 const OPTION_DEFINITION = {
   filter: {
     type: 'document',
@@ -51,8 +54,9 @@ const OPTION_DEFINITION = {
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.limit/'
   },
   maxTimeMS: {
+    label: 'Max Time MS',
     type: 'numeric',
-    placeholder: '5000',
+    placeholder: '60000',
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS/'
   },
   sample: {
@@ -210,9 +214,11 @@ class QueryBar extends Component {
     const value = OPTION_DEFINITION[option].type === 'boolean' ?
       this.props[option] : this.props[`${option}String`];
 
+    const label = OPTION_DEFINITION[option].label || option;
+
     return (
       <QueryOption
-        label={option}
+        label={label}
         autoPopulated={autoPopulated}
         serverVersion={this.props.serverVersion}
         hasToggle={hasToggle}

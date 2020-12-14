@@ -75,7 +75,7 @@ describe('QueryChangedStore [Store]', function() {
       expect(state.project).to.be.deep.equal(null);
       expect(state.collation).to.be.deep.equal(null);
       expect(state.sample).to.be.false;
-      expect(state.maxTimeMS).to.be.equal(5000);
+      expect(state.maxTimeMS).to.be.equal(60000);
       done();
     });
 
