@@ -20,8 +20,8 @@
     "check": "mongodb-js-precommit"
   },
   "peerDependencies": {
-    "mongodb": "^3.6.3",
-    "mongodb-connection-model": "^17.3.0"
+    "mongodb": "3.x",
+    "mongodb-connection-model": "*"
   },
   "dependencies": {
     "async": "^3.2.0",
@@ -41,7 +41,7 @@
     "mocha": "^8.2.1",
     "mock-require": "^3.0.3",
     "mongodb": "^3.6.3",
-    "mongodb-connection-model": "^17.3.0",
+    "mongodb-connection-model": "^18.0.0",
     "mongodb-js-precommit": "^2.2.1",
     "mongodb-runner": "^4.8.0",
     "xvfb-maybe": "^0.2.1"
