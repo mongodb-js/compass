@@ -19,13 +19,15 @@
     "test": "mocha",
     "check": "mongodb-js-precommit"
   },
+  "peerDependencies": {
+    "mongodb": "3.x"
+  },
   "dependencies": {
     "ampersand-model": "^8.0.0",
     "ampersand-rest-collection": "^6.0.0",
     "async": "^3.1.0",
     "debug": "^4.1.1",
     "lodash": "^4.17.15",
-    "mongodb": "^3.6.3",
     "raf": "^3.4.1",
     "ssh2": "^0.8.7",
     "storage-mixin": "^3.3.4"
@@ -37,6 +39,7 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^8.0.1",
     "mock-require": "^3.0.3",
+    "mongodb": "^3.6.3",
     "mongodb-connection-fixture": "^0.0.14",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-runner": "^4.7.2",
