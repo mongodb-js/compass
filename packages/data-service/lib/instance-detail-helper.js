@@ -20,13 +20,6 @@ const {
 
 const debug = require('debug')('mongodb-data-service:instance-detail-helper');
 
-function getReadPreferenceOptions(db) {
-  // `db.command` does not use the read preference set on the
-  // connection, so here we explicitly to specify it in the options.
-  const readPreference = db.s ? db.s.readPreference : ReadPreference.PRIMARY;
-  return { readPreference };
-}
-
 /**
  * aggregates stats across all found databases
  * @param  {Object}   results   async.auto results
@@ -85,7 +78,7 @@ function getBuildInfo(results, done) {
   };
 
   const adminDb = db.databaseName === 'admin' ? db : db.admin();
-  adminDb.command(spec, getReadPreferenceOptions(db), function(err, res) {
+  adminDb.command(spec, {}, function(err, res) {
     if (err) {
       // buildInfo doesn't require any privileges to run, so if it fails,
       // something really went wrong and we should return the error.
@@ -105,7 +98,7 @@ function getCmdLineOpts(results, done) {
   };
 
   const adminDb = db.databaseName === 'admin' ? db : db.admin();
-  adminDb.command(spec, getReadPreferenceOptions(db), function(err, res) {
+  adminDb.command(spec, {}, function(err, res) {
     if (err) {
       debug('getCmdLineOpts failed!', err);
       return done(null, { errmsg: err.message });
@@ -220,7 +213,7 @@ function getHostInfo(results, done) {
   };
 
   const adminDb = db.databaseName === 'admin' ? db : db.admin();
-  adminDb.command(spec, getReadPreferenceOptions(db), function(err, res) {
+  adminDb.command(spec, {}, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
         // if the error is that the user is not authorized, silently ignore it
@@ -260,14 +253,12 @@ function listDatabases(results, done) {
     listDatabases: 1
   };
 
-  const options = getReadPreferenceOptions(db);
-
   const adminDb = db.databaseName === 'admin' ? db : db.admin();
-  adminDb.command(spec, options, function(err, res) {
+  adminDb.command(spec, {}, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
         // eslint-disable-next-line no-shadow
-        adminDb.command({connectionStatus: 1, showPrivileges: 1}, options, function(err, res) {
+        adminDb.command({connectionStatus: 1, showPrivileges: 1}, {}, function(err, res) {
           if (err) {
             done(err);
             return;
@@ -352,7 +343,7 @@ function getDatabase(client, db, name, done) {
     dbStats: 1
   };
 
-  const options = getReadPreferenceOptions(db);
+  const options = {};
   debug('running dbStats for `%s`...', name);
   client.db(name).command(spec, options, function(err, res) {
     if (err) {
@@ -385,15 +376,8 @@ function getDatabases(results, done) {
 function getUserInfo(results, done) {
   const db = results.db;
 
-  const options = getReadPreferenceOptions(db);
-
   // get the user privileges
-  db.command({
-    connectionStatus: 1,
-    showPrivileges: true
-  },
-  options,
-  function(
+  db.command({ connectionStatus: 1, showPrivileges: true }, {}, function(
     err,
     res
   ) {
@@ -410,7 +394,7 @@ function getUserInfo(results, done) {
     }
     const user = res.authInfo.authenticatedUsers[0];
 
-    db.command({ usersInfo: user, showPrivileges: true }, options, function(
+    db.command({ usersInfo: user, showPrivileges: true }, {}, function(
       _err,
       _res
     ) {
@@ -507,7 +491,15 @@ function getDatabaseCollections(db, done) {
 
   const spec = {};
 
-  db.listCollections(spec, getReadPreferenceOptions(db)).toArray(function(err, res) {
+  /**
+   * @note: Durran: For some reason the listCollections call does not take into
+   *  account the read preference that was set on the db instance - it only looks
+   *  in the passed options: https://github.com/mongodb/node-mongodb-native/blob/2.2/lib/db.js#L671
+   */
+  const rp = db.s ? db.s.readPreference : ReadPreference.PRIMARY;
+  const options = { readPreference: rp };
+
+  db.listCollections(spec, options).toArray(function(err, res) {
     if (err) {
       if (isNotAuthorized(err) || isMongosLocalException(err)) {
         // if the error is that the user is not authorized, silently ignore it

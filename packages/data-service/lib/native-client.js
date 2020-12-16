@@ -267,11 +267,7 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   listDatabases(callback) {
-    this.database.admin().command({
-      listDatabases: 1
-    }, {
-      readPreference: this.model.readPreference
-    }, (error, result) => {
+    this.database.admin().command({ listDatabases: 1 }, {}, (error, result) => {
       if (error) {
         return callback(this._translateMessage(error));
       }

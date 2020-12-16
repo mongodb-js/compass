@@ -1,5 +1,4 @@
 const assert = require('assert');
-const { ReadPreference } = require('mongodb');
 const {
   getAllowedCollections,
   getAllowedDatabases,
@@ -381,43 +380,6 @@ describe('instance-detail-helper-mocked', function() {
       listDatabases(results, function(err, res) {
         assert.equal(err, null);
         assert.deepEqual(res, []);
-        done();
-      });
-    });
-    it('should pass the read preference explicity when it is set', function(done) {
-      let passedOptions;
-      results.db = makeMockDB(function(times, command, options, callback) {
-        if (command.listDatabases) {
-          passedOptions = options;
-          return callback(null, { databases: [] });
-        }
-        return callback(null, {});
-      });
-      results.db.s = {
-        readPreference: ReadPreference.SECONDARY
-      };
-
-      listDatabases(results, function() {
-        assert.deepEqual(passedOptions, {
-          readPreference: 'secondary'
-        });
-        done();
-      });
-    });
-    it('defaults to passing the read preference as PRIMARY', function(done) {
-      let passedOptions;
-      results.db = makeMockDB(function(times, command, options, callback) {
-        if (command.listDatabases) {
-          passedOptions = options;
-          return callback(null, { databases: [] });
-        }
-        return callback(null, {});
-      });
-
-      listDatabases(results, function() {
-        assert.deepEqual(passedOptions, {
-          readPreference: ReadPreference.PRIMARY
-        });
         done();
       });
     });
