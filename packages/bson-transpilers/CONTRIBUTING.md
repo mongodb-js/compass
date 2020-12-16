@@ -13,7 +13,7 @@ $ brew cask install java
 
 Download `ANTLR4`:
 ```shell
-$ cd /usr/local/lib && curl -O http://www.antlr.org/download/antlr-4.7.2-complete.jar
+$ cd /usr/local/lib && curl -O https://www.antlr.org/download/antlr-4.7.2-complete.jar
 ```
 
 You will then need to add it to your `$CLASSPATH`:
