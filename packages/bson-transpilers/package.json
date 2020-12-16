@@ -36,7 +36,7 @@
     "pre-commit": "^1.2.2"
   },
   "dependencies": {
-    "antlr4": "^4.7.2",
+    "antlr4": "4.7.2",
     "bson": "^4.0.2",
     "chai": "^4.1.2",
     "context-eval": "^0.1.0",
