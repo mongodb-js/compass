@@ -218,6 +218,7 @@ const getTasks = (model, setupListeners) => {
       if (
         model.directConnection === undefined &&
         model.hosts.length === 1 &&
+        !model.isSrvRecord &&
         (model.replicaSet === undefined || model.replicaSet === '')
       ) {
         // Previous to the node driver 3.6.3, directConnection was
