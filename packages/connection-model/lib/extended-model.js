@@ -69,6 +69,32 @@ const ExtendedConnection = Connection.extend(storageMixin, {
           return this.ldapUsername;
         }
       }
+    },
+    title: {
+      deps: [
+        'name',
+        'isFavorite',
+        'isSrvRecord',
+        'hostname',
+        'hosts'
+      ],
+      fn() {
+        if (this.isFavorite && this.name) {
+          return this.name;
+        }
+
+        if (this.isSrvRecord) {
+          return this.hostname;
+        }
+
+        if (this.hosts && this.hosts.length) {
+          return this.hosts.map(
+            ({ host, port }) => `${host}:${port}`
+          ).join(',');
+        }
+
+        return this.hostname;
+      }
     }
   },
   serialize() {
