@@ -1,7 +1,7 @@
 /**
  * Instance id action.
  */
-export const CHANGE_INSTANCE_ID = 'home/instance-id/CHANGE_INSTANCE_ID';
+export const CHANGE_CONNECTION_TITLE = 'home/connectionTitle/CHANGE_CONNECTION_TITLE';
 
 /**
  * The initial state of the instance id.
@@ -17,20 +17,20 @@ export const INITIAL_STATE = '';
  * @returns {String} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === CHANGE_INSTANCE_ID) {
-    return action.instanceId;
+  if (action.type === CHANGE_CONNECTION_TITLE) {
+    return action.connectionTitle;
   }
   return state;
 }
 
 /**
- * The change instanceId action creator.
+ * The change connectionTitle action creator.
  *
- * @param {String} instanceId - The instanceId.
+ * @param {String} connectionTitle - The connectionTitle.
  *
  * @returns {Object} The action.
  */
-export const changeInstanceId = (instanceId) => ({
-  type: CHANGE_INSTANCE_ID,
-  instanceId
+export const changeConnectionTitle = (connectionTitle) => ({
+  type: CHANGE_CONNECTION_TITLE,
+  connectionTitle
 });

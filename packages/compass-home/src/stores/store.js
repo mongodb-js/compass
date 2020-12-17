@@ -7,7 +7,7 @@ import { toggleIsDataLake } from 'modules/is-data-lake';
 import { toggleIsConnected } from 'modules/is-connected';
 import { changeUiStatus } from 'modules/ui-status';
 import { updateTitle } from 'modules/title';
-import { changeInstanceId } from 'modules/instance-id';
+import { changeConnectionTitle } from 'modules/connection-title';
 import { changeNamespace } from 'modules/namespace';
 import { dataServiceDisconnected } from 'modules';
 
@@ -39,7 +39,8 @@ store.onActivated = (appRegistry) => {
       return;
     }
     const connection = ds.client.model;
-    store.dispatch(changeInstanceId(connection.instanceId));
+
+    store.dispatch(changeConnectionTitle(connection.title || ''));
 
     const StatusAction = appRegistry.getAction('Status.Actions');
     if (StatusAction) {

@@ -1,7 +1,7 @@
 import store from 'stores';
 import { reset } from 'modules/reset';
 import AppRegistry from 'hadron-app-registry';
-import { changeInstanceId } from 'modules/instance-id';
+import { changeConnectionTitle } from 'modules/connection-title';
 import { activate } from '@mongodb-js/compass-app-stores';
 import UI_STATES from 'constants/ui-states';
 
@@ -18,7 +18,7 @@ describe('HomeStore [Store]', () => {
     let hold;
     const initialState = {
       errorMessage: '',
-      instanceId: '',
+      connectionTitle: '',
       isCollapsed: false,
       isConnected: false,
       namespace: '',
@@ -61,7 +61,7 @@ describe('HomeStore [Store]', () => {
     context('on instance refresh without error', () => {
       beforeEach(() => {
         expect(store.getState()).to.deep.equal(initialState);
-        store.dispatch(changeInstanceId('test'));
+        store.dispatch(changeConnectionTitle('test'));
         global.hadronApp.appRegistry.emit('instance-refreshed', {
           errorMessage: '',
           instance: { dataLake: {isDataLake: false} }
@@ -97,7 +97,7 @@ describe('HomeStore [Store]', () => {
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
           client: {
-            model: { instanceId: 'test_id', hostname: 'mongodb.net' }
+            model: { connectionTitle: 'test_id', hostname: 'mongodb.net' }
           }
         });
       });
@@ -113,12 +113,12 @@ describe('HomeStore [Store]', () => {
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
           client: {
-            model: { instanceId: 'test_id', hostname: 'mongodb.net' }
+            model: { title: 'test_id', hostname: 'mongodb.net' }
           }
         });
         expect(store.getState()).to.deep.equal({
           errorMessage: '',
-          instanceId: 'test_id',
+          connectionTitle: 'test_id',
           isCollapsed: false,
           namespace: '',
           title: ' - test_id',
@@ -139,7 +139,7 @@ describe('HomeStore [Store]', () => {
         }, null);
         expect(store.getState()).to.deep.equal({
           errorMessage: 'err',
-          instanceId: '',
+          connectionTitle: '',
           isCollapsed: false,
           namespace: '',
           title: '',
@@ -158,13 +158,22 @@ describe('HomeStore [Store]', () => {
     context('on database-changed', () => {
       beforeEach(() => {
         expect(store.getState()).to.deep.equal(initialState);
+        global.hadronApp.appRegistry.emit('data-service-connected', null, {
+          get: () => {},
+          client: {
+            model: { title: 'test_id', hostname: 'mongodb.net' }
+          }
+        });
+
+        expect(store.getState().title).to.equal(' - test_id');
+
         global.hadronApp.appRegistry.emit('select-database', 'test.coll');
       });
       it('dispatches the change namespace action', () => {
         expect(store.getState().namespace).to.equal('test.coll');
       });
       it('dispatches the changetitle action', () => {
-        expect(store.getState().title).to.equal(' - /test.coll');
+        expect(store.getState().title).to.equal(' - test_id/test.coll');
       });
     });
   });

@@ -18,9 +18,9 @@ import namespace, {
 import uiStatus, {
   INITIAL_STATE as UI_STATUS_INITIAL_STATE
 } from 'modules/ui-status';
-import instanceId, {
+import connectionTitle, {
   INITIAL_STATE as INSTANCE_ID_INITIAL_STATE
-} from 'modules/instance-id';
+} from 'modules/connection-title';
 import title, {
   INITIAL_STATE as TITLE_INITIAL_STATE
 } from 'modules/title';
@@ -37,7 +37,7 @@ const reducer = combineReducers({
   isConnected,
   namespace,
   uiStatus,
-  instanceId,
+  connectionTitle,
   title
 });
 
@@ -60,7 +60,7 @@ const rootReducer = (state, action) => {
       namespace: NAMESPACE_INITIAL_STATE,
       uiStatus: UI_STATUS_INITIAL_STATE,
       title: TITLE_INITIAL_STATE,
-      instanceId: INSTANCE_ID_INITIAL_STATE
+      connectionTitle: INSTANCE_ID_INITIAL_STATE
     };
   }
   return reducer(state, action);

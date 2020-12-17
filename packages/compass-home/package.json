@@ -129,7 +129,7 @@
     "mongodb-ace-autocompleter": "^0.4.9",
     "mongodb-ace-mode": "^0.0.2",
     "mongodb-ace-theme-query": "^0.0.2",
-    "mongodb-connection-model": "^14.4.3",
+    "mongodb-connection-model": "^18.1.0",
     "mongodb-data-service": "^16.4.0",
     "mongodb-instance-model": "^10.0.0",
     "mongodb-js-precommit": "^2.2.0",

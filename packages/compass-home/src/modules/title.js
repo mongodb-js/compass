@@ -47,13 +47,27 @@ export const changeTitle = (title) => ({
  */
 export const updateTitle = (namespace) => {
   return (dispatch, getState) => {
-    const state = getState();
-    let title = `${electronApp.getName()} - ${state.instanceId}`;
-    if (namespace) {
-      title += '/' + namespace;
-    }
+    const { connectionTitle } = getState();
+
+    const title = formatTitle(
+      electronApp.getName(),
+      connectionTitle,
+      namespace
+    );
+
     document.title = title;
     dispatch(changeTitle(title)); // TODO
   };
 };
 
+function formatTitle(appName, connectionName, namespace) {
+  if (!connectionName) {
+    return appName;
+  }
+
+  if (!namespace) {
+    return `${appName} - ${connectionName}`;
+  }
+
+  return `${appName} - ${connectionName}/${namespace}`;
+}
