@@ -15,14 +15,6 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
 
-    strategy:
-      matrix:
-        mongodb_version: [stable, unstable]
-
-    env:
-      MONGODB_VERSION: ${{ matrix.mongodb_version }}
-      MONGODB_TOPOLOGY: standalone
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -38,19 +30,10 @@ jobs:
         run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run Checks
         run: npm run check
 
       - name: Run Tests
         run: npm run test
-
-      - name: Maybe Clean-Up
-        # Apparently sometimes mongodb-runner that is used in tests can leave
-        # mongo processes still running after tests are done. This step should
-        # ensure that no mongo process is running anymore
-        run: |
-          echo "Terminating rogue mongo servers ..."
-          killall -v -KILL mongod || true
-          killall -v -KILL mongos || true
