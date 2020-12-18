@@ -1,3 +1,4 @@
+/* eslint-disable mocha/no-top-level-hooks */
 /* eslint-disable no-sync */
 const fsExtra = require('fs-extra');
 const path = require('path');
@@ -8,6 +9,14 @@ const zip = require('../lib/zip');
 const getTarget = require('./helpers').getConfig;
 const chai = require('chai');
 const expect = chai.expect;
+
+function skipUnlessRunningOn(platform) {
+  before(function() {
+    if (process.platform !== platform) {
+      this.skip();
+    }
+  });
+}
 
 function getTargetZipPath(target) {
   return (target.getAssetWithExtension('.zip') || {}).path;
@@ -41,6 +50,8 @@ async function getTargetZipEntries(target) {
 
 describe('zip', function() {
   context('on linux', () => {
+    skipUnlessRunningOn('linux');
+
     const target = getTarget({
       version: '1.2.0',
       platform: 'linux'
@@ -62,6 +73,8 @@ describe('zip', function() {
   });
 
   context('on darwin', () => {
+    skipUnlessRunningOn('darwin');
+
     const target = getTarget({
       version: '1.2.0',
       platform: 'darwin'
@@ -85,6 +98,8 @@ describe('zip', function() {
   });
 
   context('on win', () => {
+    skipUnlessRunningOn('win32');
+
     const target = getTarget({
       version: '1.2.0',
       platform: 'win32'

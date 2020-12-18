@@ -6,6 +6,7 @@ const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
 const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg')
   .default;
+const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
 
 const notary = require('mongodb-notary-service-client');
@@ -354,7 +355,7 @@ class Target {
             name: this.productName,
             description: this.description,
             manufacturer: this.author,
-            version: this.installerVersion || this.version,
+            version: windowsInstallerVersion(this.installerVersion || this.version),
             signWithParams: signWithParams,
             shortcutFolderName: this.shortcutFolderName || this.author,
             programFilesFolderName:

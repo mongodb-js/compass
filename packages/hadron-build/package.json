@@ -4,11 +4,10 @@
   "version": "23.3.4",
   "scripts": {
     "check": "mongodb-js-precommit",
-    "test": "mocha -R spec",
-    "ci": "npm run check && npm test"
+    "test": "mocha -R spec"
   },
   "bin": {
-    "hadron-build": "./cli.js"
+    "hadron-build": "cli.js"
   },
   "homepage": "http://github.com/mongodb-js/hadron-build",
   "repository": {
@@ -16,6 +15,7 @@
     "url": "git://github.com/mongodb-js/hadron-build.git"
   },
   "dependencies": {
+    "@mongodb-js/electron-wix-msi": "^2.1.20",
     "asar": "^3.0.3",
     "async": "^3.1.1",
     "aws-sdk": "^2.611.0",
@@ -26,12 +26,17 @@
     "del": "^2.0.2",
     "electron": "^6.1.7",
     "electron-builder": "^22.3.2",
+    "electron-installer-debian": "^3.0.0",
+    "electron-installer-dmg": "^3.0.0",
+    "electron-installer-redhat": "^2.0.0",
     "electron-license": "^1.1.0",
     "electron-mocha": "^8.2.0",
     "electron-notarize": "^0.3.0",
+    "electron-osx-sign": "^0.4.1",
     "electron-packager": "^14.2.0",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
     "electron-rebuild": "^1.10.0",
+    "electron-winstaller": "2.5.1",
     "execa": "^0.6.0",
     "figures": "^3.2.0",
     "flatnest": "^1.0.0",

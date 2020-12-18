@@ -1,4 +1,4 @@
-# hadron-build [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url] [![appveyor][appveyor_img]][appveyor_url]
+# hadron-build
 
 > Complete tooling for large-scale [Electron](http://electron.atom.io/) apps.
 
@@ -302,7 +302,7 @@ See Squirrel.Windows docs https://github.com/Squirrel/Squirrel.Windows/blob/mast
 ## Assets
 
 When `hadron-build release` is run, there are several assets which are created in the `./dist` directory.
-Which assets are generated depends on the target platform.  
+Which assets are generated depends on the target platform.
 
 ### macOS
 
