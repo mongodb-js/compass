@@ -238,8 +238,6 @@
     "test-functional": "npm test -- --functional",
     "test-release": "npm test -- --release",
     "test-release-tasks": "cross-env MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID='' mocha --timeout 30000 release/*.spec.js",
-    "pretravis": "npm run check",
-    "travis": "npm test",
     "upload": "hadron-build upload",
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
     "jsx": "babel ./src --out-dir ./lib --presets react"
@@ -393,7 +391,7 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "execa": "^4.1.0",
     "fs-extra": "^9.0.1",
-    "hadron-build": "^23.3.4",
+    "hadron-build": "^23.3.5",
     "hadron-spectron": "^5.0.0",
     "jsdom": "^9.8.3",
     "listr": "^0.14.3",
