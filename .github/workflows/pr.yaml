@@ -35,7 +35,7 @@ jobs:
           node-version: 12.4.0
 
       - name: Install Deps Ubuntu
-        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring python-gnomekeyring
+        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
 
       - name: Install Dependencies
         run: npm install
