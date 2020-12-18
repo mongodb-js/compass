@@ -103,7 +103,7 @@ class EditableJson extends React.Component {
    * Fold all documents on update as well, since we might get fresh documents
    * from the query bar.
    */
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     if (!this.state.editing) {
       this.editor.getSession().foldAll(2);
     }
@@ -113,6 +113,10 @@ class EditableJson extends React.Component {
       this.handleRemoveSuccess();
     } else if (this.state.editing && this.props.updateSuccess) {
       this.handleUpdateSuccess();
+    } else if (this.props.doc !== prevProps.doc) {
+      // If the underlying document changed, that means that the collection
+      // contents have been refreshed. Treat that like cancelling the edit.
+      this.handleCancel();
     }
   }
 
@@ -122,6 +126,7 @@ class EditableJson extends React.Component {
   handleCancel() {
     this.setState({
       editing: false,
+      deleting: false,
       mode: VIEWING,
       message: EMPTY,
       json: jsBeautify(EJSON.stringify(this.props.doc.generateObject()))

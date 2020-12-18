@@ -76,6 +76,17 @@ class DocumentFooter extends React.Component {
   }
 
   /**
+   * Handle a possible switch of the document that we're targeting.
+   */
+  componentDidUpdate(prevProps) {
+    if (this.props.doc !== prevProps.doc) {
+      // If the underlying document changed, that means that the collection
+      // contents have been refreshed. Treat that like cancelling the edit.
+      this.handleCancel();
+    }
+  }
+
+  /**
    * Unsubscribe from the udpate store on unmount.
    */
   componentWillUnmount() {

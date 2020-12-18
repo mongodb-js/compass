@@ -74,6 +74,13 @@ class EditableDocument extends React.Component {
     if (prevProps.doc !== this.props.doc) {
       this.unsubscribeFromDocumentEvents(prevProps.doc);
       this.subscribeToDocumentEvents(this.props.doc);
+      if (this.state.editing || this.state.deleting) {
+        // If the underlying document changed, that means that the collection
+        // contents have been refreshed. In that case, stop editing/deleting.
+        setImmediate(() => {
+          this.setState({ editing: false, deleting: false });
+        });
+      }
     }
   }
 
