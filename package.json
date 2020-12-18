@@ -384,7 +384,7 @@
     "cross-env": "^7.0.0",
     "devtron": "^1.4.0",
     "download": "^8.0.0",
-    "electron": "6.1.7",
+    "electron": "7.2.4",
     "electron-rebuild": "^1.10.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
