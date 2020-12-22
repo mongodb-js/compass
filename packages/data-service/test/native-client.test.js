@@ -40,11 +40,22 @@ describe('NativeClient', function() {
 
       /*
        * pretends to be a connection-model providing every function call
-       * required in NativeClient#connect, but returns topology of our choice
+       * required in NativeClient#connect, but returns topology and connection
+       * params of our choice
        */
-      function mockedConnectionModel(topologyDescription) {
+      function mockedConnectionModel(topologyDescription, connectionOptions) {
         const _topologyDescription =
           topologyDescription || mockedTopologyDescription();
+
+        const _connectionOptions = connectionOptions || {
+          url: 'mongodb://127.0.0.1:27018/data-service?readPreference=primary&ssl=false',
+          options: {
+            connectWithNoPrimary: true,
+            readPreference: 'primary',
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+          }
+        };
 
         return {
           connect(_model, setupListeners, cb) {
@@ -54,13 +65,38 @@ describe('NativeClient', function() {
             mockedClient.emit('topologyDescriptionChanged', {
               newDescription: _topologyDescription
             });
-            cb(null, mockedClient);
+            cb(null, mockedClient, _connectionOptions);
           }
         };
       }
 
       after(function() {
         mock.stop('mongodb-connection-model');
+      });
+
+      it('sets .connectionOptions after successful connection', function(done) {
+        mock(
+          'mongodb-connection-model',
+          mockedConnectionModel()
+        );
+
+        var MockedNativeClient = mock.reRequire('../lib/native-client');
+        var mockedClient = new MockedNativeClient(helper.connection);
+
+        expect(mockedClient.connectionOptions).to.be.null;
+
+        mockedClient.connect(function() {
+          expect(mockedClient.connectionOptions).to.deep.equal({
+            url: 'mongodb://127.0.0.1:27018/data-service?readPreference=primary&ssl=false',
+            options: {
+              connectWithNoPrimary: true,
+              readPreference: 'primary',
+              useNewUrlParser: true,
+              useUnifiedTopology: true
+            }
+          });
+          done();
+        });
       });
 
       it('sets .isMongos to true when topology is sharded', function(done) {

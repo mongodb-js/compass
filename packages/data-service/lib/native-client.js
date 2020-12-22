@@ -88,6 +88,7 @@ class NativeClient extends EventEmitter {
   constructor(model) {
     super();
     this.model = model;
+    this.connectionOptions = null;
   }
 
   /**
@@ -98,25 +99,34 @@ class NativeClient extends EventEmitter {
    */
   connect(done) {
     debug('connecting...');
+
+    this.connectionOptions = null;
     this.isWritable = false;
     this.isMongos = false;
-    connect(this.model, this.setupListeners.bind(this), err => {
-      if (err) {
-        return done(this._translateMessage(err));
+
+    connect(
+      this.model,
+      this.setupListeners.bind(this),
+      (err, _client, connectionOptions) => {
+        if (err) {
+          return done(this._translateMessage(err));
+        }
+
+        this.connectionOptions = connectionOptions;
+
+        this.isWritable = this.client.isWritable;
+        this.isMongos = this.client.isMongos;
+
+        debug('connected!', {
+          isWritable: this.isWritable,
+          isMongos: this.isMongos
+        });
+
+        this.client.on('status', (evt) => this.emit('status', evt));
+        this.database = this.client.db(this.model.ns || ADMIN);
+        done(null, this);
       }
-
-      this.isWritable = this.client.isWritable;
-      this.isMongos = this.client.isMongos;
-
-      debug('connected!', {
-        isWritable: this.isWritable,
-        isMongos: this.isMongos
-      });
-
-      this.client.on('status', evt => this.emit('status', evt));
-      this.database = this.client.db(this.model.ns || ADMIN);
-      done(null, this);
-    });
+    );
     return this;
   }
 

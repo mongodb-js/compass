@@ -27,6 +27,10 @@ class DataService extends EventEmitter {
       .on('topologyDescriptionChanged', (evt) => this.emit('topologyDescriptionChanged', evt));
   }
 
+  getConnectionOptions() {
+    return this.client.connectionOptions;
+  }
+
   /**
    * Get the kitchen sink information about a collection.
    *
