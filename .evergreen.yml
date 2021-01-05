@@ -441,22 +441,15 @@ tasks:
       - func: test
         vars:
           test_suite: unit
-
-  - name: test-functional
+  - name: test-connectivity
     depends_on: [compile]
     tags:
-      - 'test'
+      - test
     commands:
       - func: restore
       - func: test
         vars:
-          test_suite: functional
-
-  - name: test-hadron-spectron
-    depends_on: [compile]
-    commands:
-      - func: test-plugin
-        vars: { plugin: mongodb-js/hadron-spectron }
+          test_suite: connectivity
 
   - name: test-data-service
     depends_on: [compile]
@@ -468,7 +461,7 @@ tasks:
     depends_on: [compile]
     commands:
       - func: test-plugin
-        vars: { plugin: 10gen/compass-connect }
+        vars: { plugin: mongodb-js/compass-connect }
 
   - name: test-aggregation-builder-plugin
     depends_on: [compile]
@@ -554,15 +547,6 @@ tasks:
   #     - func: test
   #       vars:
   #         test_suite: main
-  # - name: test-enzyme
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: enzyme
   # - name: test-unit
   #   depends_on: [compile]
   #   tags:
@@ -642,16 +626,10 @@ buildvariants:
     tasks:
       - name: compile
       - name: verify
-      # - name: test-data-service
-      # - name: test-functional
-      # - name: test-hadron-spectron
-      # - name: test-connect-plugin
       # - name: test-aggregation-builder-plugin
       # NOTE (@imlucas) See above for activating more tests
       - name: test-unit
       # - name: test-main
-      # - name: test-renderer
-      # - name: test-enzyme
       # - name: test-functional-stable-server
       # - name: test-functional-unstable-server
       # - name: test-functional-36x-server
@@ -668,12 +646,10 @@ buildvariants:
       - name: compile
       - name: verify
       - name: test-data-service
+      - name: test-connectivity
       # - name: test-unit
       # - name: test-main
-      # - name: test-renderer
-      # - name: test-enzyme
-      # - name: test-functional
-      # - name: test-connect-plugin
+      - name: test-connect-plugin
       # - name: test-aggregation-builder-plugin
       - name: package-and-publish-compass
       - name: package-and-publish-compass-isolated
@@ -684,7 +660,6 @@ buildvariants:
     tasks:
       - name: compile
       - name: verify
-      # - name: test-functional
       - name: package-and-publish-compass
       - name: package-and-publish-compass-isolated
       - name: package-and-publish-compass-readonly
