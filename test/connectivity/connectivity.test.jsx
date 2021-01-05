@@ -1,17 +1,16 @@
+/* eslint-disable no-console */
 const { expect } = require('chai');
 const Enzyme = require('enzyme');
 const Adapter = require('enzyme-adapter-react-16');
+const jsdomGlobal = require('jsdom-global');
+const m = require('module');
 const React = require('react');
+const { promisify } = require('util');
 
 Enzyme.configure({ adapter: new Adapter() });
 const mount = Enzyme.mount;
 
-const { promisify } = require('util');
-
-const jsdomGlobal = require('jsdom-global');
-
 // Stub electron module for tests
-const m = require('module');
 const originalLoader = m._load;
 const stubs = {
   electron: {
@@ -28,7 +27,8 @@ const stubs = {
     },
     remote: {
       app: {
-        getName: () => 'Compass Connectivity Integration Test Suite'
+        getName: () => 'Compass Connectivity Integration Test Suite',
+        getPath: () => ''
       },
       dialog: {
         remote: {},
@@ -52,17 +52,34 @@ const Connection = require('mongodb-connection-model');
 const CompassConnectPlugin = require('@mongodb-js/compass-connect');
 const CompassConnectComponent = CompassConnectPlugin.default;
 const activateCompassConnect = CompassConnectPlugin.activate;
+
 const deactivateCompassConnect = CompassConnectPlugin.deactivate;
+
+const TEST_TIMEOUT_MS = require('./.mocharc.json').timeout;
+const {
+  dockerComposeDown,
+  dockerComposeUp
+} = require('./docker-instance-manager');
+
+// Hide react warnings.
+const originalWarn = console.warn.bind(console.warn);
+console.warn = (msg) => (
+  !msg.toString().includes('componentWillReceiveProps')
+  && !msg.toString().includes('componentWillUpdate')
+  && originalWarn(msg)
+);
 
 const delay = promisify(setTimeout);
 const ensureConnected = async(timeout, testIsConnected) => {
   let connected = await testIsConnected();
+  let timespentTesting = 0;
   while (!connected) {
-    console.log(`looping at timeout=${timeout}, connected=${connected}`);
-    if (timeout > 30000) {
+    if (timeout > TEST_TIMEOUT_MS || timespentTesting > TEST_TIMEOUT_MS) {
       throw new Error('Waited for connection, never happened');
     }
+    console.log(`Testing connectivity at timeout=${timeout}, connected=${connected}`);
     await delay(timeout);
+    timespentTesting += timeout;
     timeout *= 2; // Try again but wait double.
     connected = await testIsConnected();
   }
@@ -72,8 +89,23 @@ const ensureConnected = async(timeout, testIsConnected) => {
 const connectionsToTest = [{
   title: 'default local',
   model: {
-    hostname: 'localhost',
-    port: 27017
+    // hostname: 'localhost',
+    // port: 27017,
+
+    hosts: [{
+      host: 'mongodb-rs-1',
+      port: 28001
+    }, {
+      host: 'mongodb-rs-2',
+      port: 28002
+    }, {
+      host: 'mongodb-rs-3',
+      port: 28003
+    }],
+    replicaSet: 'replicaset',
+    authStrategy: 'MONGODB',
+    mongodbUsername: 'root',
+    mongodbPassword: 'password123',
   },
   expectedInstanceDetails: {
     // host: ['client', 'db', getHostInfo],
@@ -97,7 +129,10 @@ const connectionsToTest = [{
 
 describe('Connectivity', () => {
   let appRegistry;
+  let compassConnectStore;
   before(() => {
+    dockerComposeUp();
+
     appRegistry = new AppRegistry();
 
     activateCompassConnect(appRegistry);
@@ -112,10 +147,25 @@ describe('Connectivity', () => {
     };
     global.hadronApp.appRegistry = appRegistry;
     global.hadronApp.appRegistry.registerRole('Application.Status', ROLE);
+
+    compassConnectStore = appRegistry.getStore('Connect.Store');
+
+    // Remove all logic around saving and loading stored connections.
+    // NOTE: This is tightly coupled with the store in compass-connect.
+    compassConnectStore._saveRecent = () => {};
+    compassConnectStore._saveConnection = () => {};
+    compassConnectStore.state.fetchedConnections = [];
+    compassConnectStore.StatusActions = {
+      done: () => {},
+      showIndeterminateProgressBar: () => {}
+    };
+    compassConnectStore.appRegistry = appRegistry;
   });
 
   after(() => {
     deactivateCompassConnect(appRegistry);
+
+    dockerComposeDown();
   });
 
   context('Connection can connect', () => {
@@ -123,27 +173,26 @@ describe('Connectivity', () => {
       it('loads connection, connects, and loads instance information', async() => {
         // 1. Load the connection into our connection model.
         const model = new Connection(connection.model);
+        console.log('Created model with connection string:', model.driverUrl);
 
         // 2. Load the connection model through compass-connect and render it.
 
-        // TODO: Render it both in string view and connect form view.
-        // Connect with both?
+        // Do we want to render it both in string view and connect form view.
+        // Do we want to connect with both?
+        // Here's where it uses the compass-connect store to decide:
+        // https://github.com/mongodb-js/compass-connect/blob/master/src/stores/index.js#L325
 
         // This ensures the model doesn't cause any errors when rendering
         // and attempting to connect from there.
 
-        const compassConnectStore = appRegistry.getStore('Connect.Store');
-
-        // Remove all logic around saving and loading stored connections.
-        // NOTE: This is tightly coupled with the store in compass-connect.
-        compassConnectStore._saveRecent = () => {};
-        compassConnectStore._saveConnection = () => {};
-        compassConnectStore.state.fetchedConnections = [];
-        compassConnectStore.StatusActions = { showIndeterminateProgressBar: () => {} };
-        compassConnectStore.appRegistry = appRegistry;
-
         // Load the connection into compass-connect's connection model.
         compassConnectStore.state.currentConnection = model;
+        compassConnectStore.trigger(compassConnectStore.state);
+
+        // Here we use the parsed connection model and build a url.
+        // This is a bit hacky, but could be something that would occur if
+        // a user is switching between the views and editing.
+        compassConnectStore.state.customUrl = compassConnectStore.state.currentConnection.driverUrlWithSsh;
         compassConnectStore.trigger(compassConnectStore.state);
 
         let timesConnectedCalled = 0;
@@ -160,6 +209,10 @@ describe('Connectivity', () => {
         wrapper.find({
           name: 'connect'
         }).simulate('click');
+
+        expect(compassConnectStore.state.errorMessage).to.equal(null);
+        expect(compassConnectStore.state.syntaxErrorMessage).to.equal(null);
+        expect(compassConnectStore.state.isValid).to.equal(true);
 
         // 3. Wait for the connection event to occur.
         await ensureConnected(100, () => dataServiceConnected);
