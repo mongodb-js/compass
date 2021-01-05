@@ -6,7 +6,8 @@ const React = require('react');
 Enzyme.configure({ adapter: new Adapter() });
 const mount = Enzyme.mount;
 
-const util = require('util');
+const { promisify } = require('util');
+
 const jsdomGlobal = require('jsdom-global');
 
 // Stub electron module for tests
@@ -53,31 +54,7 @@ const CompassConnectComponent = CompassConnectPlugin.default;
 const activateCompassConnect = CompassConnectPlugin.activate;
 const deactivateCompassConnect = CompassConnectPlugin.deactivate;
 
-const promisifyInstanceDetailsFetching = (dataService) => {
-  return new Promise((resolve, reject) => {
-    dataService.instance({}, (err, instanceDetails) => {
-      if (err) {
-        return reject(err);
-      }
-
-      return resolve(instanceDetails);
-    });
-  });
-};
-
-const promisifyDisconnect = (dataService) => {
-  return new Promise((resolve, reject) => {
-    dataService.disconnect((err) => {
-      if (err) {
-        return reject(err);
-      }
-
-      return resolve();
-    });
-  });
-};
-
-const delay = util.promisify(setTimeout);
+const delay = promisify(setTimeout);
 const ensureConnected = async(timeout, testIsConnected) => {
   let connected = await testIsConnected();
   while (!connected) {
@@ -198,9 +175,11 @@ describe('Connectivity', () => {
         const dataService = compassConnectStore.dataService;
 
         // 4. Fetch the instance details using the new connection.
-        const instanceDetails = await promisifyInstanceDetailsFetching(dataService);
+        const runFetchInstanceDetails = promisify(dataService.instance.bind(dataService));
+        const instanceDetails = await runFetchInstanceDetails({});
 
-        await promisifyDisconnect(dataService);
+        const runDisconnect = promisify(dataService.disconnect.bind(dataService));
+        await runDisconnect();
 
         // 5. Ensure the connection details are what we expect.
         Object.keys(connection.expectedInstanceDetails).forEach(detailKey => {
