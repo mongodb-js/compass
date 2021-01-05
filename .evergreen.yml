@@ -463,6 +463,7 @@ tasks:
     tags:
       - test
     commands:
+      - func: restore
       - func: test-connectivity
 
   - name: test-data-service
