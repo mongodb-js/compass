@@ -441,15 +441,13 @@ tasks:
       - func: test
         vars:
           test_suite: unit
+
   - name: test-connectivity
     depends_on: [compile]
     tags:
       - test
     commands:
-      - func: restore
-      - func: test
-        vars:
-          test_suite: connectivity
+      - func: test-connectivity
 
   - name: test-data-service
     depends_on: [compile]
