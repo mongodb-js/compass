@@ -1,0 +1,26 @@
+name: Run Tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  check-and-test:
+    name: Check and Test
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.4.0
+
+      - name: Install NPM Packages
+        run: npm ci
+
+      - name: Check and Test
+        run: |
+          npm run check
+          npm test
+          npm run test:electron

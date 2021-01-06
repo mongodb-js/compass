@@ -4,14 +4,27 @@ var assert = require('assert');
 var sinon = require('sinon');
 var common = require('./common');
 
-// var debug = require('debug')('mongodb-js-metrics:test:stitch');
+var stitch = require('mongodb-stitch-server-sdk');
 
 describe('Stitch Tracker', function() {
+  var sandbox = sinon.createSandbox();
   var app;
   var user;
   var stitchTracker;
 
   beforeEach(function() {
+    const fakeAppClient = {
+      auth: {
+        loginWithCredential: () => Promise.resolve()
+      }
+    };
+
+    sandbox.replace(
+      stitch.Stitch,
+      'initializeAppClient',
+      () => fakeAppClient
+    );
+
     // create metrics object and initialize
     metrics.configure('stitch', {
       enabled: true,
@@ -36,10 +49,10 @@ describe('Stitch Tracker', function() {
     stitchTracker = metrics.trackers.get('stitch');
   });
 
-  afterEach(function(done) {
+  afterEach(function() {
     stitchTracker.clear();
     stitchTracker.close();
-    done();
+    sandbox.restore();
   });
 
   it('correctly sets enabledAndConfigured when props change', function(done) {
@@ -67,10 +80,10 @@ describe('Stitch Tracker', function() {
   it('should add getCollection function call to the queue when stitch client is not ready', function() {
     metrics.addResource(app);
     metrics.addResource(user);
-    assert.ok(!stitchTracker._isTrackerReady());
-    assert.equal(stitchTracker._callsQueue.length, 0);
+    stitchTracker._isTrackerReady = () => false;
+    assert.strictEqual(stitchTracker._callsQueue.length, 0);
     stitchTracker.send('User login', { 'event id': 1 });
-    assert.ok(stitchTracker._callsQueue.length, 1);
+    assert.strictEqual(stitchTracker._callsQueue.length, 1);
   });
 
   describe('trackFromQueue', function() {

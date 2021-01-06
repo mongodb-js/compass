@@ -1,9 +1,6 @@
 var BaseResource = require('./base');
 var async = require('async');
 var os = require('os');
-var osName = require('os-name');
-
-// var debug = require('debug')('mongodb-js-metrics:resources:app');
 
 module.exports = BaseResource.extend({
   id: 'App',
@@ -28,7 +25,7 @@ module.exports = BaseResource.extend({
       type: 'string',
       required: false,
       default: function() {
-        return osName(os.platform(), os.release());
+        return `${os.platform()} ${os.release()}`;
       }
     },
     startTime: {

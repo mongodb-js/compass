@@ -1,3 +1,4 @@
+const os = require('os');
 var metrics = require('../lib')();
 var resources = require('../lib/resources');
 var assert = require('assert');
@@ -39,6 +40,11 @@ describe('App Resource', function() {
     assert.equal(metrics.trackers.get('ga').appName, pkg.name);
     assert.equal(metrics.trackers.get('ga').appVersion, pkg.version);
     assert.equal(metrics.trackers.get('ga').appPlatform, process.platform);
+  });
+
+  it('should have os platform and os.release in osName', function() {
+    assert.ok(app.osName.trim());
+    assert.deepStrictEqual(app.osName, `${os.platform()} ${os.release()}`);
   });
 
   it('should update the parameters when they change on the app resource', function() {
