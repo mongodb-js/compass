@@ -56,7 +56,7 @@ module.exports = function(done) {
     const currentVersion = pkg.version;
     if (currentVersion.match(/^0\.0\.0/)) {
       debug(`running with placeholder version ${currentVersion} - skipping migrations`);
-      done();
+      return done();
     }
 
     debug('renderer process migrations from %s to %s', previousVersion, currentVersion);
