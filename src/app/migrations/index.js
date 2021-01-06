@@ -54,6 +54,11 @@ module.exports = function(done) {
       done(err);
     }
     const currentVersion = pkg.version;
+    if (currentVersion.match(/^0\.0\.0/)) {
+      debug(`running with placeholder version ${currentVersion} - skipping migrations`);
+      return done();
+    }
+
     debug('renderer process migrations from %s to %s', previousVersion, currentVersion);
     if (semver.eq(previousVersion, currentVersion)) {
       debug('renderer process - skipping migrations which have already been run');
@@ -67,7 +72,8 @@ module.exports = function(done) {
     const migrate = require('app-migrations')(migrations);
     migrate(previousVersion, currentVersion, function(err2, res) {
       if (err2) {
-        return debug('error', err2);
+        debug('error', err2);
+        return done(err2);
       }
       debug('result', res);
       done();
