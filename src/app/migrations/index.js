@@ -72,7 +72,8 @@ module.exports = function(done) {
     const migrate = require('app-migrations')(migrations);
     migrate(previousVersion, currentVersion, function(err2, res) {
       if (err2) {
-        return debug('error', err2);
+        debug('error', err2);
+        return done(err2);
       }
       debug('result', res);
       done();
