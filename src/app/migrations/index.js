@@ -53,9 +53,10 @@ module.exports = function(done) {
     if (err) {
       done(err);
     }
+
     const currentVersion = pkg.version;
     debug('renderer process migrations from %s to %s', previousVersion, currentVersion);
-    if (semver.eq(previousVersion, currentVersion)) {
+    if (semver.gte(previousVersion, currentVersion)) {
       debug('renderer process - skipping migrations which have already been run');
       return done();
     }
@@ -65,10 +66,13 @@ module.exports = function(done) {
       '1.21.0-dev.0': require('./1.21.0')
     };
     const migrate = require('app-migrations')(migrations);
+
     migrate(previousVersion, currentVersion, function(err2, res) {
       if (err2) {
-        return debug('error', err2);
+        debug('error', err2);
+        return done(err2);
       }
+
       debug('result', res);
       done();
     });
