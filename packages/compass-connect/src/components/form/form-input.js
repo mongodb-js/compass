@@ -19,7 +19,8 @@ class FormInput extends React.PureComponent {
     placeholder: PropTypes.string,
     value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
     type: PropTypes.string,
-    error: PropTypes.bool
+    error: PropTypes.bool,
+    otherInputAttributes: PropTypes.object
   };
 
   /**
@@ -79,7 +80,8 @@ class FormInput extends React.PureComponent {
           onBlur={this.props.blurHandler}
           value={this.props.value}
           className={classnames(styles['form-control'])}
-          type={this.props.type || 'text'} />
+          type={this.props.type || 'text'}
+          {...this.otherInputAttributes} />
       </div>
     );
   }

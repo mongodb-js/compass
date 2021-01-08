@@ -292,24 +292,11 @@ describe('Store', () => {
       const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.currentConnection).to.exist;
-        expect(state.currentConnection.port).to.equal('27018');
+        expect(state.currentConnection.port).to.equal(27018);
         done();
       });
 
-      Actions.onPortChanged('27018');
-    });
-
-    context('when it contains trailing spaces', () => {
-      it('trims the whitespace', (done) => {
-        const unsubscribe = Store.listen((state) => {
-          unsubscribe();
-          expect(state.currentConnection).to.exist;
-          expect(state.currentConnection.port).to.equal('27018');
-          done();
-        });
-
-        Actions.onPortChanged('27018  ');
-      });
+      Actions.onPortChanged(27018);
     });
   });
 

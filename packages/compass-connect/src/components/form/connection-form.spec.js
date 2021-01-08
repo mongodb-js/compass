@@ -54,7 +54,7 @@ describe('ConnectionForm [Component]', () => {
         component = null;
       });
 
-      it('renders empry host input', () => {
+      it('renders empty host input', () => {
         const hostInput = component.find('HostInput');
 
         expect(hostInput).to.be.present();
@@ -62,7 +62,7 @@ describe('ConnectionForm [Component]', () => {
         expect(hostInput.prop('isHostChanged')).to.equal(false);
       });
 
-      it('renders empry port input', () => {
+      it('renders empty port input', () => {
         const portInput = component.find('PortInput');
 
         expect(portInput).to.be.present();
@@ -127,11 +127,11 @@ describe('ConnectionForm [Component]', () => {
         component = null;
       });
 
-      it('renders empry host input', () => {
+      it('renders empty host input', () => {
         expect(component.find('HostInput').prop('isHostChanged')).to.equal(true);
       });
 
-      it('renders empry port input', () => {
+      it('renders empty port input', () => {
         expect(component.find('PortInput')).to.be.not.present();
       });
 

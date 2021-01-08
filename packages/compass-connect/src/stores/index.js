@@ -628,7 +628,7 @@ const Store = Reflux.createStore({
    * @param {String} port - The port.
    */
   onPortChanged(port) {
-    this.state.currentConnection.port = port.trim();
+    this.state.currentConnection.port = port;
     this.state.isPortChanged = true;
     this.trigger(this.state);
   },

@@ -150,6 +150,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
           error={this.getPortError()}
           changeHandler={this.onSSHTunnelPortChanged.bind(this)}
           value={this.getPort()}
+          type="number"
         />
         <FormInput
           label="SSH Username"

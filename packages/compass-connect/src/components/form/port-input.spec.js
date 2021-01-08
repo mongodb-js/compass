@@ -16,6 +16,7 @@ describe('PortInput [Component]', () => {
 
   it('renders the port', () => {
     expect(component.find('input[name="port"]')).to.have.value('27018');
+    expect(component.find('input[name="port"]').prop('type')).to.equal('number');
   });
 
   it('renders the port placeholder', () => {
