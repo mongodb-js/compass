@@ -81,7 +81,7 @@ class FormInput extends React.PureComponent {
           value={this.props.value}
           className={classnames(styles['form-control'])}
           type={this.props.type || 'text'}
-          {...this.otherInputAttributes} />
+          {...this.props.otherInputAttributes} />
       </div>
     );
   }
