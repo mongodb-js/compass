@@ -5,7 +5,7 @@ const { each } = require('lodash');
 const raf = require('raf');
 
 /**
- * The name of a remote electon application that
+ * The name of a remote electron application that
  * uses `connection-model` as a dependency.
  */
 let appName;

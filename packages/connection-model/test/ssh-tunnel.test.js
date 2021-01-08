@@ -35,41 +35,6 @@ describe('sshTunnel', function () {
 
       assert.equal(c.sshTunnelPort, 22);
     });
-
-    it('should cast an empty string to the default', () => {
-      const c = new Connection({ sshTunnelPort: '' });
-
-      assert.equal(c.sshTunnelPort, 22);
-    });
-
-    it('should cast an empty string to the default when updating', () => {
-      const c = new Connection({});
-
-      c.set({ sshTunnelPort: '' });
-      assert.equal(c.sshTunnelPort, 22);
-    });
-
-    it('should not allow negative numbers', () => {
-      assert.throws(
-        () => {
-          /* eslint no-new:0 */
-          new Connection({ sshTunnelPort: -22 });
-        },
-        TypeError,
-        /must be positive/
-      );
-    });
-
-    it('should not allow values above the max port number value', () => {
-      assert.throws(
-        () => {
-          /* eslint no-new:0 */
-          new Connection({ sshTunnelPort: 27017 * 10000 });
-        },
-        TypeError,
-        /must be below/
-      );
-    });
   });
 
   describe('NONE', () => {

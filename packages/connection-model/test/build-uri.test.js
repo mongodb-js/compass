@@ -954,12 +954,12 @@ describe('Connection model builder', () => {
         expect(error.message).to.equal('The \'Password\' field is required when using \'Username/Password\' or \'SCRAM-SHA-256\' for authentication.');
       });
 
-      it('should generate the local port when using a ssh tunne and bind to local port does not exist', () => {
+      it('should generate the local port when using a ssh tunnel and bind to local port does not exist', () => {
         const c = new Connection();
 
         c.sshTunnel = 'USER_PASSWORD';
         c.sshTunnelHostname = '123.45.67.89';
-        c.sshTunnelPort = '22';
+        c.sshTunnelPort = 22;
         c.sshTunnelUsername = 'user';
         c.sshTunnelPassword = 'pass';
 

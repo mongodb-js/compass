@@ -89,7 +89,7 @@ describe('connection model connector', () => {
       it('should close ssh tunnel if the connection fails', (done) => {
         const model = new MockConnection({
           hostname: 'localhost',
-          port: '27020',
+          port: 27020,
           sshTunnel: 'USER_PASSWORD',
           sshTunnelHostname: 'my.ssh-server.com',
           sshTunnelPassword: 'password',
