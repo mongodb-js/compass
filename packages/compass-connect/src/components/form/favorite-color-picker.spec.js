@@ -1,5 +1,6 @@
-import React from 'react';
 import { shallow } from 'enzyme';
+import React from 'react';
+
 import FavoriteColorPicker from './favorite-color-picker';
 
 import styles from '../connect.less';

@@ -1,5 +1,6 @@
-import React from 'react';
 import { mount } from 'enzyme';
+import React from 'react';
+
 import SSLServerClientValidation from '../../../src/components/form/ssl-server-client-validation';
 
 import styles from '../../../src/components/connect.less';

@@ -2,8 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import FontAwesome from 'react-fontawesome';
+
+import Actions from '../../actions';
 import FavoriteModal from './favorite-modal';
-import Actions from 'actions';
 
 import styles from '../connect.less';
 

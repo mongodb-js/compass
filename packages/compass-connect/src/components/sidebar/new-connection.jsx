@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Actions from 'actions';
 import classnames from 'classnames';
+
+import Actions from '../../actions';
 
 import styles from './sidebar.less';
 

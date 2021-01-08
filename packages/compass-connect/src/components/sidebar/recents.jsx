@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { map } from 'lodash';
 import moment from 'moment';
-import Actions from 'actions';
 import classnames from 'classnames';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
+
+import Actions from '../../actions';
 
 import styles from './sidebar.less';
 

@@ -1,8 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import SSLMethod from './ssl-method';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
+
+import SSLMethod from './ssl-method';
 
 import styles from '../connect.less';
 

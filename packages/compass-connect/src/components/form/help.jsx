@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { HelpItems, AtlasLink } from 'helpers/help-items';
+
+import { HelpItems, AtlasLink } from '../../helpers/help-items';
 
 import styles from '../connect.less';
 

@@ -1,25 +1,9 @@
-const path = require('path');
 const project = require('./project');
 
 module.exports = {
   resolve: {
     modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', '.less', '.wasm'],
-    alias: {
-      actions: path.join(project.path.src, 'actions'),
-      components: path.join(project.path.src, 'components'),
-      constants: path.join(project.path.src, 'constants'),
-      fonts: path.join(project.path.src, 'assets/fonts'),
-      images: path.join(project.path.src, 'assets/images'),
-      less: path.join(project.path.src, 'assets/less'),
-      models: path.join(project.path.src, 'models'),
-      modules: path.join(project.path.src, 'modules'),
-      helpers: path.join(project.path.src, 'helpers'),
-      plugin: path.join(project.path.src, 'index.js'),
-      stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
-      utils: path.join(project.path.src, 'utils')
-    }
+    extensions: ['.js', '.jsx', '.json', '.less', '.wasm']
   },
   module: {
     rules: [

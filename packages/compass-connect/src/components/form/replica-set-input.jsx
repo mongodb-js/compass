@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Actions from 'actions';
+
+import Actions from '../../actions';
 import FormInput from './form-input';
 
 class ReplicaSetInput extends React.PureComponent {

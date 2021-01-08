@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Actions from 'actions';
 import Switch from 'react-ios-switch';
 import classnames from 'classnames';
+
+import Actions from '../../actions';
 
 import styles from '../connect.less';
 

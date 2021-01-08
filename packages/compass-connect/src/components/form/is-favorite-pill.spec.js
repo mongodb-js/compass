@@ -1,5 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+
 import IsFavoritePill from './is-favorite-pill';
 
 import styles from '../connect.less';

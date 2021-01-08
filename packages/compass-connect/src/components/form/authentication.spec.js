@@ -1,8 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import Authentication from './authentication';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
+
+import Authentication from './authentication';
 
 import styles from '../connect.less';
 

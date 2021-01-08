@@ -1,9 +1,10 @@
+import classnames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
-import Actions from 'actions';
+
+import Actions from '../../actions';
 import FormFileInput from './form-file-input';
-import classnames from 'classnames';
 
 import styles from '../connect.less';
 

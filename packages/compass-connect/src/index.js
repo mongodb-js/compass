@@ -1,13 +1,13 @@
 import Connect from './plugin';
-import Actions from 'actions';
-import Store from 'stores';
-import MongoDBAuthentication from 'components/form/mongodb-authentication';
-import ScramSha256 from 'components/form/scram-sha-256';
-import SSLServerValidation from 'components/form/ssl-server-validation';
-import SSLServerClientValidation from 'components/form/ssl-server-client-validation';
-import SSHTunnelIdentityFileValidation from 'components/form/ssh-tunnel-identity-file-validation';
-import SSHTunnelPasswordValidation from 'components/form/ssh-tunnel-password-validation';
-import FavoriteModal from 'components/form/favorite-modal';
+import Actions from './actions';
+import Store from './stores';
+import MongoDBAuthentication from './components/form/mongodb-authentication';
+import ScramSha256 from './components/form/scram-sha-256';
+import SSLServerValidation from './components/form/ssl-server-validation';
+import SSLServerClientValidation from './components/form/ssl-server-client-validation';
+import SSHTunnelIdentityFileValidation from './components/form/ssh-tunnel-identity-file-validation';
+import SSHTunnelPasswordValidation from './components/form/ssh-tunnel-password-validation';
+import FavoriteModal from './components/form/favorite-modal';
 
 /**
  * A sample role for the component.

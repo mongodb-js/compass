@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
 
 describe('ConfirmEditConnectionString [Component]', () => {

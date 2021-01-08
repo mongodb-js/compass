@@ -1,5 +1,6 @@
-import React from 'react';
 import { mount } from 'enzyme';
+import React from 'react';
+
 import PortInput from './port-input';
 
 describe('PortInput [Component]', () => {

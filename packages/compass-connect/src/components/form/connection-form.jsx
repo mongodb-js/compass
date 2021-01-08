@@ -1,6 +1,8 @@
-import React from 'react';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import Actions from 'actions';
+import React from 'react';
+
+import Actions from '../../actions';
 import FormGroup from './form-group';
 import HostInput from './host-input';
 import PortInput from './port-input';
@@ -11,7 +13,6 @@ import ReadPreferenceSelect from './read-preference-select';
 import SSLMethod from './ssl-method';
 import SSHTunnel from './ssh-tunnel';
 import FormActions from './form-actions';
-import classnames from 'classnames';
 
 import styles from '../connect.less';
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import FormItemSelect from './form-item-select';
 
 import styles from '../connect.less';

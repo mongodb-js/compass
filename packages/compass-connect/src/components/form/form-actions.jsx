@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Actions from 'actions';
-import FormGroup from './form-group';
 import classnames from 'classnames';
+
+import Actions from '../../actions';
+import FormGroup from './form-group';
 
 import styles from '../connect.less';
 

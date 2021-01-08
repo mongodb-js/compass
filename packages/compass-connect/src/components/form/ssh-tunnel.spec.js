@@ -1,8 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import SSHTunnel from './ssh-tunnel';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
+
+import SSHTunnel from './ssh-tunnel';
 
 import styles from '../connect.less';
 

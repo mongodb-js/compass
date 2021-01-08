@@ -1,10 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import { shell } from 'electron';
 import { isEmpty } from 'lodash';
-import Actions from 'actions';
+import PropTypes from 'prop-types';
+import React from 'react';
+
+import Actions from '../../actions';
 import FormInput from './form-input';
 import FormGroup from './form-group';
-import { shell } from 'electron';
 
 class MongoDBAuthentication extends React.Component {
   static displayName = 'MongoDBAuthentication';

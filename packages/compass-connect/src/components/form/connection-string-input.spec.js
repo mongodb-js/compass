@@ -1,5 +1,6 @@
-import React from 'react';
 import { mount } from 'enzyme';
+import React from 'react';
+
 import ConnectionStringInput from './connection-string-input';
 
 describe('ConnectionStringInput [Component]', () => {

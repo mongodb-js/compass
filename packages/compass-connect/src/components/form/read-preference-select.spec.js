@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import ReadPreferenceSelect from './read-preference-select';
 
 describe('ReadPreferenceSelect [Component]', () => {

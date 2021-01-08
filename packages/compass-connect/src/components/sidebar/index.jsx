@@ -1,9 +1,10 @@
+import classnames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import NewConnection from './new-connection';
 import Favorites from './favorites';
 import Recents from './recents';
-import classnames from 'classnames';
 
 import styles from './sidebar.less';
 

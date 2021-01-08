@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Actions from 'actions';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
+
+import Actions from '../../actions';
 
 /**
  * Question text.

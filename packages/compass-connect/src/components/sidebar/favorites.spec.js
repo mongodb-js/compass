@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import Favorites from './favorites';
 
 import styles from './sidebar.less';

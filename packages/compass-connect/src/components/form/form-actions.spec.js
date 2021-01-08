@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import FormActions from './form-actions';
 
 import styles from '../connect.less';

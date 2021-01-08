@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import FormGroup from './form-group';
 
 import styles from '../connect.less';

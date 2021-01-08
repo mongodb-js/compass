@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Actions from 'actions';
 import { InfoSprinkle } from 'hadron-react-components';
 import { debounce } from 'lodash';
 import classnames from 'classnames';
+
+import Actions from '../../actions';
 
 import styles from '../connect.less';
 

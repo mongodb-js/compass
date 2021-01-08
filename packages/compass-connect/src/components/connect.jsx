@@ -1,13 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import { remote } from 'electron';
+import PropTypes from 'prop-types';
+import React from 'react';
+
+import Actions from '../actions';
 import Sidebar from './sidebar';
 import ConnectionForm from './form/connection-form';
 import ConnectionString from './form/connection-string';
 import Help from './form/help';
-import Actions from 'actions';
-import classnames from 'classnames';
-import IsFavoritePill from './form//is-favorite-pill';
+import IsFavoritePill from './form/is-favorite-pill';
 import ConfirmEditConnectionString from './modal/confirm-edit-connection-string';
 
 import styles from './connect.less';

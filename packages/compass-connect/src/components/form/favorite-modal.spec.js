@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import FavoriteModal from './favorite-modal';
 
 describe('FavoriteModal [Component]', () => {

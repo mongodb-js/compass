@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import NewConnection from './new-connection';
 
 import styles from './sidebar.less';

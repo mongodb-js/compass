@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import HostInput from './host-input';
 
 describe('HostInput [Component]', () => {

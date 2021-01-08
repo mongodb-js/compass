@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import ReplicaSetInput from './replica-set-input';
 
 describe('ReplicaSetInput [Component]', () => {

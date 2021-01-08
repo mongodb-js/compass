@@ -1,5 +1,6 @@
-import React from 'react';
 import { mount } from 'enzyme';
+import React from 'react';
+
 import SSHTunnelIdentityFile from '../../../src/components/form/ssh-tunnel-identity-file-validation';
 
 import styles from '../../../src/components/connect.less';

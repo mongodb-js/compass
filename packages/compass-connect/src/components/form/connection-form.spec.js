@@ -1,7 +1,8 @@
-import React from 'react';
 import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
+import React from 'react';
+
 import ConnectionForm from './connection-form';
 
 class TestComponent extends React.Component {

@@ -1,9 +1,10 @@
-import React from 'react';
 import { shallow } from 'enzyme';
-import Connection, { ConnectionCollection } from 'mongodb-connection-model';
-import Connect from 'components/connect';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
+import Connection, { ConnectionCollection } from 'mongodb-connection-model';
+import React from 'react';
+
+import Connect from '../../../src/components/connect';
 
 import styles from '../../../src/components/connect.less';
 

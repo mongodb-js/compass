@@ -1,6 +1,7 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import Actions from 'actions';
+import React from 'react';
+
+import Actions from '../../actions';
 import FormInput from './form-input';
 
 class PortInput extends React.PureComponent {

@@ -1,9 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
-import Actions from 'actions';
-import FormInput from './form-input';
 import { shell } from 'electron';
+import { isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+
+import Actions from '../../actions';
+import FormInput from './form-input';
 import FormFileInput from './form-file-input';
 import FormGroup from './form-group';
 

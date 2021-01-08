@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import { ModalInput } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
+
 import FavoriteColorPicker from './favorite-color-picker';
 
 import styles from '../connect.less';

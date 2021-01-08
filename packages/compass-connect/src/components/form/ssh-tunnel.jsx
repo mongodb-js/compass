@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { find } from 'lodash';
-import Actions from 'actions';
+
+import Actions from '../../actions';
 import FormGroup from './form-group';
 import FormItemSelect from './form-item-select';
 

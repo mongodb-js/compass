@@ -1,8 +1,9 @@
-import Reflux from 'reflux';
 import AppRegistry from 'hadron-app-registry';
 import Connection, { ConnectionCollection } from 'mongodb-connection-model';
-import Actions from 'actions';
-import Store from 'stores';
+import Reflux from 'reflux';
+
+import Actions from '../../../src/actions';
+import Store from '../../../src/stores';
 
 describe('Store', () => {
   beforeEach(() => {

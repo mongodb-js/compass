@@ -1,14 +1,15 @@
-const Reflux = require('reflux');
-const { sortBy, forEach, omit } = require('lodash');
-
-const DataService = require('mongodb-data-service');
-const Actions = require('actions');
-const Connection = require('mongodb-connection-model');
-const ConnectionCollection = Connection.ConnectionCollection;
-const StateMixin = require('reflux-state-mixin');
-const ipc = require('hadron-ipc');
-const userAgent = navigator.userAgent.toLowerCase();
 const electron = require('electron');
+const ipc = require('hadron-ipc');
+const { sortBy, forEach, omit } = require('lodash');
+const DataService = require('mongodb-data-service');
+const Connection = require('mongodb-connection-model');
+const Reflux = require('reflux');
+const StateMixin = require('reflux-state-mixin');
+
+const Actions = require('../actions');
+
+const ConnectionCollection = Connection.ConnectionCollection;
+const userAgent = navigator.userAgent.toLowerCase();
 
 /**
  * A default driverUrl.
