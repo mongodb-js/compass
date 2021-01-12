@@ -5,8 +5,13 @@ const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
+const { promisify } = require('util');
 
 const Actions = require('../actions');
+const {
+  CONNECTION_FORM_VIEW,
+  CONNECTION_STRING_VIEW
+} = require('../constants/connection-views');
 
 const ConnectionCollection = Connection.ConnectionCollection;
 const userAgent = navigator.userAgent.toLowerCase();
@@ -58,6 +63,7 @@ const SSH_TUNNEL_FIELDS = [
  * The role name for plugin extensions.
  */
 const EXTENSION = 'Connect.Extension';
+
 
 /**
  * The store that backs the connect plugin.
@@ -123,7 +129,7 @@ const Store = Reflux.createStore({
       errorMessage: null,
       syntaxErrorMessage: null,
       hasUnsavedChanges: false,
-      viewType: 'connectionString',
+      viewType: CONNECTION_STRING_VIEW,
       isHostChanged: false,
       isPortChanged: false,
       isModalVisible: false,
@@ -169,7 +175,7 @@ const Store = Reflux.createStore({
   /**
    * Validates a connection string.
    */
-  validateConnectionString() {
+  async validateConnectionString() {
     const customUrl = this.state.customUrl;
     const currentConnection = this.state.currentConnection;
     const currentSaved = this.state.connections[currentConnection._id];
@@ -179,18 +185,25 @@ const Store = Reflux.createStore({
     if (customUrl === '') {
       this._clearForm();
       this._clearConnection();
-    } else if (!Connection.isURI(customUrl)) {
+
+      return;
+    }
+
+    if (!Connection.isURI(customUrl)) {
       this._setSyntaxErrorMessage(
         'Invalid schema, expected `mongodb` or `mongodb+srv`'
       );
-    } else {
-      Connection.from(customUrl, (error) => {
-        if (error) {
-          this._setSyntaxErrorMessage(error.message);
-        } else {
-          this._resetSyntaxErrorMessage();
-        }
-      });
+
+      return;
+    }
+
+    try {
+      const buildConnectionModelFromUrl = promisify(Connection.from);
+      await buildConnectionModelFromUrl(customUrl);
+
+      this._resetSyntaxErrorMessage();
+    } catch (error) {
+      this._setSyntaxErrorMessage(error.message);
     }
   },
 
@@ -220,76 +233,17 @@ const Store = Reflux.createStore({
    *
    * @param {String} viewType - A view type.
    */
-  onChangeViewClicked(viewType) {
-    const currentConnection = this.state.currentConnection;
-    const driverUrl = currentConnection.driverUrl;
-    const url = this.state.isURIEditable ? this.state.customUrl : driverUrl;
-    const isValid = this.state.isValid;
-    const currentSaved = this.state.connections[currentConnection._id];
-
+  async onChangeViewClicked(viewType) {
     this.state.viewType = viewType;
 
     // Target view
-    if (viewType === 'connectionForm') {
-      if (!currentSaved && url === driverUrl) {
-        this.state.isHostChanged = true;
-        this.state.isPortChanged = true;
-        this.trigger(this.state);
-      } else if (url === '') {
-        this.state.isHostChanged = false;
-        this.state.isPortChanged = false;
-        this._clearForm();
-        this._clearConnection();
-      } else if (!Connection.isURI(url)) {
-        this._clearConnection();
-        this.trigger(this.state);
-      } else {
-        this.StatusActions.showIndeterminateProgressBar();
-
-        Connection.from(url, (error, parsedConnection) => {
-          this.StatusActions.done();
-
-          if (!error) {
-            currentConnection.set(this._getPoorAttributes(parsedConnection));
-
-            // If we have SSH tunnel attributes, set them here.
-            if (currentSaved && currentSaved.sshTunnel !== 'NONE') {
-              this._setSshTunnelAttributes(currentSaved, currentConnection);
-            }
-
-            // If we have TLS attributes, set them here.
-            if (currentSaved && currentSaved.sslMethod !== 'NONE') {
-              this._setTlsAttributes(currentSaved, currentConnection);
-            }
-
-            if (currentSaved) {
-              currentConnection.name = currentSaved.name;
-              currentConnection.color = currentSaved.color;
-              currentConnection.lastUsed = currentSaved.lastUsed;
-            }
-
-            this.state.isHostChanged = true;
-            this.state.isPortChanged = true;
-            this.setState({ currentConnection });
-            this._resetSyntaxErrorMessage();
-          } else {
-            this.state.currentConnection = new Connection();
-            this.trigger(this.state);
-          }
-        });
-      }
-    } else {
-      if (!this.state.isURIEditable) {
-        this.state.customUrl = this.state.currentConnection.safeUrl;
-      } else if (
-        isValid &&
-        (this.state.isHostChanged === true || this.state.isPortChanged === true)
-      ) {
-        this.state.customUrl = driverUrl;
-      }
-
-      this.trigger(this.state);
+    if (viewType === CONNECTION_FORM_VIEW) {
+      await this._onViewChangedToConnectionForm();
+    } else if (viewType === CONNECTION_STRING_VIEW) {
+      await this._onViewChangedToConnectionString();
     }
+
+    this.trigger(this.state);
   },
 
   /**
@@ -314,63 +268,10 @@ const Store = Reflux.createStore({
    * validate instead the existing connection object.
    */
   onConnectClicked() {
-    const currentConnection = this.state.currentConnection;
-
-    // We replace custom appname with proper appname
-    // to avoid sending malicious value to the server
-    currentConnection.appname = electron.remote.app.getName();
-
-    if (this.state.viewType === 'connectionString') {
-      const url = this.state.isURIEditable
-        ? this.state.customUrl || DEFAULT_DRIVER_URL
-        : this.state.currentConnection.driverUrl;
-
-      this.StatusActions.showIndeterminateProgressBar();
-
-      if (!Connection.isURI(url)) {
-        this._setSyntaxErrorMessage(
-          'Invalid schema, expected `mongodb` or `mongodb+srv`'
-        );
-      } else {
-        Connection.from(url, (error, parsedConnection) => {
-          if (error) {
-            this._setSyntaxErrorMessage(error.message);
-          } else {
-            const isFavorite = currentConnection.isFavorite;
-            const driverUrl = currentConnection.driverUrl;
-
-            parsedConnection.appname = currentConnection.appname;
-
-            // If we have SSH tunnel attributes, set them here.
-            if (currentConnection && currentConnection.sshTunnel !== 'NONE') {
-              this._setSshTunnelAttributes(currentConnection, parsedConnection);
-            }
-
-            if (currentConnection && currentConnection.sslMethod !== 'NONE') {
-              this._setTlsAttributes(currentConnection, parsedConnection);
-            }
-
-            if (isFavorite && driverUrl !== parsedConnection.driverUrl) {
-              this._connect(parsedConnection);
-            } else {
-              currentConnection.set(this._getPoorAttributes(parsedConnection));
-              this._connect(currentConnection);
-            }
-          }
-        });
-      }
-    } else if (!currentConnection.isValid()) {
-      const validationError = currentConnection.validate(currentConnection);
-
-      this.setState({
-        isValid: false,
-        errorMessage: validationError
-          ? validationError.message
-          : 'The required fields can not be empty'
-      });
-    } else {
-      this.StatusActions.showIndeterminateProgressBar();
-      this._connect(currentConnection);
+    if (this.state.viewType === CONNECTION_STRING_VIEW) {
+      this._connectWithConnectionString();
+    } else if (this.state.viewType === CONNECTION_FORM_VIEW) {
+      this._connectWithConnectionForm();
     }
   },
 
@@ -500,20 +401,26 @@ const Store = Reflux.createStore({
   /**
    * Disconnects the current connection.
    */
-  onDisconnectClicked() {
-    if (this.dataService) {
-      this.dataService.disconnect(() => {
-        this.appRegistry.emit('data-service-disconnected');
-        this.state.isValid = true;
-        this.state.isConnected = false;
-        this.state.errorMessage = null;
-        this.state.syntaxErrorMessage = null;
-        this.state.hasUnsavedChanges = false;
-        this._saveConnection(this.state.currentConnection);
-
-        this.dataService = undefined;
-      });
+  async onDisconnectClicked() {
+    if (!this.dataService) {
+      return;
     }
+
+    const runDisconnect = promisify(
+      this.dataService.disconnect.bind(this.dataService)
+    );
+
+    await runDisconnect();
+
+    this.appRegistry.emit('data-service-disconnected');
+    this.state.isValid = true;
+    this.state.isConnected = false;
+    this.state.errorMessage = null;
+    this.state.syntaxErrorMessage = null;
+    this.state.hasUnsavedChanges = false;
+    this._saveConnection(this.state.currentConnection);
+
+    this.dataService = undefined;
   },
 
   /**
@@ -657,7 +564,7 @@ const Store = Reflux.createStore({
    * Resets the connection after clicking on the new connection section.
    */
   onResetConnectionClicked() {
-    this.state.viewType = 'connectionString';
+    this.state.viewType = CONNECTION_STRING_VIEW;
     this.state.savedMessage = 'Saved to favorites';
     this.state.currentConnection = new Connection();
     this.state.isURIEditable = true;
@@ -929,40 +836,123 @@ const Store = Reflux.createStore({
    *
    * @param {Object} connection - The current connection.
    */
-  _connect(connection) {
+  async _connect(connection) {
+    // Set the connection's app name to the electron app name of Compass.
+    connection.appname = electron.remote.app.getName();
+
     this.dataService = new DataService(connection);
     this.appRegistry.emit('data-service-initialized', this.dataService);
-    this.dataService.connect((error, ds) => {
-      if (error) {
-        this.StatusActions.done();
-        this.setState({
-          isValid: false,
-          errorMessage: error.message,
-          syntaxErrorMessage: null
-        });
+
+    try {
+      const runConnect = promisify(this.dataService.connect.bind(this.dataService));
+      const connectedDataService = await runConnect();
+
+      const currentConnection = this.state.currentConnection;
+      const currentSaved = this.state.connections[currentConnection._id];
+
+      this.state.isValid = true;
+      this.state.isConnected = true;
+      this.state.errorMessage = null;
+      this.state.syntaxErrorMessage = null;
+      this.state.hasUnsavedChanges = false;
+      this.state.isURIEditable = false;
+      this.state.customUrl = this.state.currentConnection.driverUrl;
+
+      currentConnection.lastUsed = new Date();
+
+      if (currentSaved) {
+        this._saveConnection(currentConnection);
       } else {
-        const currentConnection = this.state.currentConnection;
-        const currentSaved = this.state.connections[currentConnection._id];
-
-        this.state.isValid = true;
-        this.state.isConnected = true;
-        this.state.errorMessage = null;
-        this.state.syntaxErrorMessage = null;
-        this.state.hasUnsavedChanges = false;
-        this.state.isURIEditable = false;
-        this.state.customUrl = this.state.currentConnection.driverUrl;
-
-        currentConnection.lastUsed = new Date();
-
-        if (currentSaved) {
-          this._saveConnection(currentConnection);
-        } else {
-          this._saveRecent(currentConnection);
-        }
-
-        this.appRegistry.emit('data-service-connected', error, ds);
+        this._saveRecent(currentConnection);
       }
-    });
+
+      this.appRegistry.emit(
+        'data-service-connected',
+        null, // No error connecting.
+        connectedDataService
+      );
+    } catch (error) {
+      this.StatusActions.done();
+      this.setState({
+        isValid: false,
+        errorMessage: error.message,
+        syntaxErrorMessage: null
+      });
+    }
+  },
+
+  /**
+   * Connects to the current connection form connection configuration.
+   */
+  async _connectWithConnectionForm() {
+    const currentConnection = this.state.currentConnection;
+
+    if (!currentConnection.isValid()) {
+      const validationError = currentConnection.validate(currentConnection);
+
+      this.setState({
+        isValid: false,
+        errorMessage: validationError
+          ? validationError.message
+          : 'The required fields can not be empty'
+      });
+    } else {
+      this.StatusActions.showIndeterminateProgressBar();
+      await this._connect(currentConnection);
+    }
+  },
+
+  /**
+   * Connects to the current connection string connection.
+   */
+  async _connectWithConnectionString() {
+    const currentConnection = this.state.currentConnection;
+
+    // Set the connection's app name to the electron app name
+    // of Compass before building the connection string.
+    currentConnection.appname = electron.remote.app.getName();
+
+    const url = this.state.isURIEditable
+      ? this.state.customUrl || DEFAULT_DRIVER_URL
+      : this.state.currentConnection.driverUrl;
+
+    this.StatusActions.showIndeterminateProgressBar();
+
+    if (!Connection.isURI(url)) {
+      this._setSyntaxErrorMessage(
+        'Invalid schema, expected `mongodb` or `mongodb+srv`'
+      );
+      return;
+    }
+
+    let parsedConnection;
+    try {
+      const buildConnectionModelFromUrl = promisify(Connection.from);
+      parsedConnection = await buildConnectionModelFromUrl(url);
+    } catch (error) {
+      this._setSyntaxErrorMessage(error.message);
+
+      return;
+    }
+
+    const isFavorite = currentConnection.isFavorite;
+    const driverUrl = currentConnection.driverUrl;
+
+    // If we have SSH tunnel attributes, set them here.
+    if (currentConnection && currentConnection.sshTunnel !== 'NONE') {
+      this._setSshTunnelAttributes(currentConnection, parsedConnection);
+    }
+
+    if (currentConnection && currentConnection.sslMethod !== 'NONE') {
+      this._setTlsAttributes(currentConnection, parsedConnection);
+    }
+
+    if (isFavorite && driverUrl !== parsedConnection.driverUrl) {
+      await this._connect(parsedConnection);
+    } else {
+      currentConnection.set(this._getPoorAttributes(parsedConnection));
+      await this._connect(currentConnection);
+    }
   },
 
   /**
@@ -991,10 +981,91 @@ const Store = Reflux.createStore({
     this.state.hasUnsavedChanges = false;
   },
 
+  async _onViewChangedToConnectionForm() {
+    const currentConnection = this.state.currentConnection;
+    const driverUrl = currentConnection.driverUrl;
+    const url = this.state.isURIEditable ? this.state.customUrl : driverUrl;
+    const currentSaved = this.state.connections[currentConnection._id];
+
+    if (!currentSaved && url === driverUrl) {
+      this.state.isHostChanged = true;
+      this.state.isPortChanged = true;
+      this.trigger(this.state);
+
+      return;
+    } else if (url === '') {
+      this.state.isHostChanged = false;
+      this.state.isPortChanged = false;
+      this._clearForm();
+      this._clearConnection();
+
+      return;
+    } else if (!Connection.isURI(url)) {
+      this._clearConnection();
+      this.trigger(this.state);
+
+      return;
+    }
+
+    this.StatusActions.showIndeterminateProgressBar();
+
+    try {
+      const buildConnectionModelFromUrl = promisify(Connection.from);
+      const parsedConnection = await buildConnectionModelFromUrl(url);
+
+      this.StatusActions.done();
+
+      currentConnection.set(this._getPoorAttributes(parsedConnection));
+
+      if (currentSaved) {
+        // If we have SSH tunnel attributes, set them here.
+        if (currentSaved.sshTunnel !== 'NONE') {
+          this._setSshTunnelAttributes(currentSaved, currentConnection);
+        }
+
+        // If we have TLS attributes, set them here.
+        if (currentSaved.sslMethod !== 'NONE') {
+          this._setTlsAttributes(currentSaved, currentConnection);
+        }
+
+        currentConnection.name = currentSaved.name;
+        currentConnection.color = currentSaved.color;
+        currentConnection.lastUsed = currentSaved.lastUsed;
+      }
+
+      this.state.isHostChanged = true;
+      this.state.isPortChanged = true;
+      this.setState({ currentConnection });
+      this._resetSyntaxErrorMessage();
+    } catch (error) {
+      this.StatusActions.done();
+
+      this.state.currentConnection = new Connection();
+      this.trigger(this.state);
+    }
+  },
+
+  _onViewChangedToConnectionString() {
+    const currentConnection = this.state.currentConnection;
+    const driverUrl = currentConnection.driverUrl;
+    const isValid = this.state.isValid;
+
+    if (!this.state.isURIEditable) {
+      this.state.customUrl = this.state.currentConnection.safeUrl;
+    } else if (
+      isValid &&
+      (this.state.isHostChanged === true || this.state.isPortChanged === true)
+    ) {
+      this.state.customUrl = driverUrl;
+    }
+
+    this.trigger(this.state);
+  },
+
   /**
    * Persist a favorite on disc.
    */
-  _saveFavorite() {
+  async _saveFavorite() {
     const currentConnection = this.state.currentConnection;
     const isFavorite = currentConnection.isFavorite;
     let url = this.state.customUrl;
@@ -1011,28 +1082,32 @@ const Store = Reflux.createStore({
     this.state.hasUnsavedChanges = false;
     this.state.isURIEditable = false;
 
-    if (this.state.viewType === 'connectionString') {
-      Connection.from(url, (error, parsedConnection) => {
-        if (!error) {
-          currentConnection.set(this._getPoorAttributes(parsedConnection));
+    if (this.state.viewType === CONNECTION_STRING_VIEW) {
+      try {
+        const buildConnectionModelFromUrl = promisify(Connection.from);
+        const parsedConnection = await buildConnectionModelFromUrl(url);
 
-          if (url.match(/[?&]ssl=true/i)) {
-            currentConnection.sslMethod = 'SYSTEMCA';
-          }
+        currentConnection.set(this._getPoorAttributes(parsedConnection));
 
-          this._saveConnection(currentConnection);
+        if (url.match(/[?&]ssl=true/i)) {
+          currentConnection.sslMethod = 'SYSTEMCA';
         }
-      });
-    } else if (!currentConnection.isValid()) {
-      const validationError = currentConnection.validate(currentConnection);
 
-      this.setState({
-        isValid: false,
-        errorMessage: validationError
-          ? validationError.message
-          : 'The required fields can not be empty'
-      });
-    } else {
+        this._saveConnection(currentConnection);
+      } catch (error) { /* Ignore saving invalid connection string */ }
+    } else if (this.state.viewType === CONNECTION_FORM_VIEW) {
+      if (!currentConnection.isValid()) {
+        const validationError = currentConnection.validate(currentConnection);
+
+        this.setState({
+          isValid: false,
+          errorMessage: validationError
+            ? validationError.message
+            : 'The required fields can not be empty'
+        });
+        return;
+      }
+
       this._saveConnection(currentConnection);
     }
   },

@@ -11,6 +11,11 @@ import Help from './form/help';
 import IsFavoritePill from './form/is-favorite-pill';
 import ConfirmEditConnectionString from './modal/confirm-edit-connection-string';
 
+import {
+  CONNECTION_FORM_VIEW,
+  CONNECTION_STRING_VIEW
+} from '../constants/connection-views';
+
 import styles from './connect.less';
 
 class Connect extends React.Component {
@@ -56,7 +61,7 @@ class Connect extends React.Component {
    * @returns {React.Component}
    */
   renderConnectScreen() {
-    if (this.props.viewType === 'connectionString') {
+    if (this.props.viewType === CONNECTION_STRING_VIEW) {
       return <ConnectionString {...this.props} />;
     }
 
@@ -69,12 +74,15 @@ class Connect extends React.Component {
    * @returns {React.Component}
    */
   renderChangeViewLink() {
-    if (this.props.viewType === 'connectionString') {
+    if (this.props.viewType === CONNECTION_STRING_VIEW) {
       return (
         <div className={classnames(styles['change-view-link'])}>
           <a
             data-test-id="form-view-link"
-            onClick={this.onChangeViewClicked.bind(this, 'connectionForm')}
+            onClick={this.onChangeViewClicked.bind(
+              this,
+              CONNECTION_FORM_VIEW
+            )}
           >
             Fill in connection fields individually
           </a>
@@ -84,7 +92,7 @@ class Connect extends React.Component {
 
     return (
       <div className={classnames(styles['change-view-link'])}>
-        <a onClick={this.onChangeViewClicked.bind(this, 'connectionString')}>
+        <a onClick={this.onChangeViewClicked.bind(this, CONNECTION_STRING_VIEW)}>
           Paste connection string
         </a>
       </div>

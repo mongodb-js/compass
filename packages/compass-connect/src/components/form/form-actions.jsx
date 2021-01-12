@@ -4,6 +4,7 @@ import classnames from 'classnames';
 
 import Actions from '../../actions';
 import FormGroup from './form-group';
+import { CONNECTION_STRING_VIEW } from '../../constants/connection-views';
 
 import styles from '../connect.less';
 
@@ -171,7 +172,7 @@ class FormActions extends React.Component {
    * @returns {React.Component}
    */
   renderEditURI = () => {
-    if (this.props.viewType === 'connectionString') {
+    if (this.props.viewType === CONNECTION_STRING_VIEW) {
       return (
         <button
           type="submit"
@@ -194,7 +195,7 @@ class FormActions extends React.Component {
     if (
       this.props.isSavedConnection &&
       !this.props.hasUnsavedChanges &&
-      this.props.viewType === 'connectionString'
+      this.props.viewType === CONNECTION_STRING_VIEW
     ) {
       return (
         <button
@@ -243,7 +244,7 @@ class FormActions extends React.Component {
       colorStyle = styles['connection-message-container-error'];
     } else if (
       this.hasSyntaxError() &&
-      this.props.viewType === 'connectionString'
+      this.props.viewType === CONNECTION_STRING_VIEW
     ) {
       hasMessage = true;
       message = this.props.syntaxErrorMessage;
