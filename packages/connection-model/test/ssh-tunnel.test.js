@@ -35,6 +35,14 @@ describe('sshTunnel', function () {
 
       assert.equal(c.sshTunnelPort, 22);
     });
+
+    it('should also accept a string', () => {
+      const c = new Connection({
+        sshTunnelPort: '2222'
+      });
+
+      assert.equal(c.sshTunnelPort, '2222');
+    });
   });
 
   describe('NONE', () => {

@@ -16,6 +16,7 @@ const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
 const { ReadPreference } = require('mongodb');
 const { parseConnectionString } = require('mongodb/lib/core');
+const dataTypes = require('./data-types');
 const localPortGenerator = require('./local-port-generator');
 
 /**
@@ -80,7 +81,7 @@ assign(props, {
   ns: { type: 'string', default: undefined },
   isSrvRecord: { type: 'boolean', default: false },
   hostname: { type: 'string', default: 'localhost' },
-  port: { type: 'number', default: 27017 },
+  port: { type: 'port', default: 27017 },
   hosts: {
     type: 'array',
     default: () => [{ host: 'localhost', port: 27017 }]
@@ -370,11 +371,11 @@ assign(props, {
   /**
    * The SSH port of the remote host.
    */
-  sshTunnelPort: { type: 'number', default: 22 },
+  sshTunnelPort: { type: 'port', default: 22 },
   /**
    * Bind the localhost endpoint of the SSH Tunnel to this port.
    */
-  sshTunnelBindToLocalPort: { type: 'number', default: undefined },
+  sshTunnelBindToLocalPort: { type: 'port', default: undefined },
   /**
    * The optional SSH username for the remote host.
    */
@@ -769,6 +770,7 @@ Connection = AmpersandModel.extend({
   props,
   derived,
   session,
+  dataTypes,
   initialize(attrs) {
     if (attrs) {
       if (typeof attrs === 'string') {
