@@ -36,7 +36,7 @@ jobs:
         run: npm run check
 
       - name: Run Tests
-        run: npm run tests
+        run: npm run test
 
       - name: Run Connectivity Tests
         run: npm run test-connectivity
