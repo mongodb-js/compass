@@ -4,6 +4,7 @@ const fs = require('fs');
 
 const dockerEnvsPath = '/tmp/compass-connectivity-docker-test-envs';
 const dockerEnvsRepo = 'git@github.com:mongodb-js/devtools-docker-test-envs.git';
+const dockerEnvsRepoCommit = '7297467d208a8bfc15d4f53faf983ba9cbe87360';
 
 const dockerComposeFile = 'replica-set/docker-compose.yaml';
 
@@ -28,7 +29,7 @@ module.exports.dockerComposeUp = () => {
 
   // 2. Checkout to the commit of the docker images repo we know.
   execSync(
-    'git -c advice.detachedHead=false checkout de257688e6b7ce265a70bf75c7127c6da0bf2cf0',
+    `git -c advice.detachedHead=false checkout ${dockerEnvsRepoCommit}`,
     {
       cwd: dockerEnvsPath,
       stdio: 'inherit'
