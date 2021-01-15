@@ -1,10 +1,13 @@
 {
-  "extends": "mongodb-js/compass-plugin", 
+  "extends": "mongodb-js/compass-plugin",
   "rules": {
-    "react/self-closing-comp": ["warning", {
+    "react/self-closing-comp": ["warn", {
       "component": true,
       "html": true
     }],
-    "react/no-multi-comp": [false]
+    "react/no-multi-comp": "off",
+    "no-unused-vars": "error",
+    "no-use-before-define": "off",
+    "camelcase": "off"
   }
 }

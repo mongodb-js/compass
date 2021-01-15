@@ -1,4 +1,3 @@
-/* eslint no-use-before-define: 0, camelcase:0 */
 import d3 from 'd3';
 import assign from 'lodash.assign';
 import isEqual from 'lodash.isequal';
@@ -428,6 +427,7 @@ const minicharts_d3fns_date = (appRegistry) => {
   };
 
   chart.cleanup = function() {
+    // eslint-disable-next-line no-unused-vars
     for (const subchart of subcharts) {
       subchart.cleanup();
     }

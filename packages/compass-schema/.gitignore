@@ -3,7 +3,7 @@ npm-debug.log
 node_modules/
 lib/
 lib-cov
-coverage
+coverage/
 .lock-wscript
 .idea/
 *.iml
