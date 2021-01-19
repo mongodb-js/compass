@@ -13,7 +13,6 @@ module.exports = {
   ],
   KERBEROS: [
     'kerberosPrincipal', // required
-    'kerberosPassword', // optional
     'kerberosServiceName', // optional
     'kerberosCanonicalizeHostname'
   ],

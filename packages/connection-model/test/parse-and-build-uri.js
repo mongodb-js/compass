@@ -93,9 +93,20 @@ const tests = [
       'authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false'
   },
   {
+    description: 'with password which is ignored for GSSAPI',
+    connectionString:
+      'mongodb://%40rlo:woof@localhost:27017/?' +
+      'gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&' +
+      'authSource=%24external&ssl=false&authSource=$external',
+    expectedConnectionString:
+      'mongodb://%40rlo@localhost:27017/?' +
+      'gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&' +
+      'authSource=%24external&ssl=false&authSource=$external'
+  },
+  {
     description: 'with authMechanismProperties and gssapiServiceName',
     connectionString:
-      'mongodb://%40rlo:w%40of@localhost:27017/?' +
+      'mongodb://%40rlo@localhost:27017/?' +
       'gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&' +
       'authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue&' +
       'gssapiCanonicalizeHostName=true&ssl=false&authSource=$external'
@@ -140,7 +151,7 @@ describe('connection model', () => {
 
           const c = new Connection(result.toJSON());
 
-          expect(c.driverUrl).to.be.equal(test.connectionString);
+          expect(c.driverUrl).to.be.equal(test.expectedConnectionString || test.connectionString);
           done();
         });
       const runMode = test.only ? it.only : it;

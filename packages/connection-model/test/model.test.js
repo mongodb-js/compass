@@ -113,13 +113,6 @@ describe('Connection', () => {
           );
         });
 
-        it('maps kerberos_password', () => {
-          assert.strictEqual(
-            new Connection({ kerberos_password: 'test' }).kerberosPassword,
-            'test'
-          );
-        });
-
         it('maps ldap_password', () => {
           assert.strictEqual(
             new Connection({ ldap_password: 'test' }).ldapPassword,
@@ -157,14 +150,6 @@ describe('Connection', () => {
             undefined
           );
         });
-
-        it('does not map kerberos_password', () => {
-          assert.strictEqual(
-            new Connection({ kerberos_password: '' }).kerberosPassword,
-            undefined
-          );
-        });
-
         it('does not map ldap_password', () => {
           assert.strictEqual(
             new Connection({ ldap_password: '' }).ldapPassword,
@@ -203,16 +188,6 @@ describe('Connection', () => {
           );
         });
 
-        it('does not map kerberos_password', () => {
-          assert.strictEqual(
-            new Connection({
-              kerberos_password: 'test',
-              kerberosPassword: 'pw'
-            }).kerberosPassword,
-            'pw'
-          );
-        });
-
         it('does not map ldap_password', () => {
           assert.strictEqual(
             new Connection({ ldap_password: 'test', ldapPassword: 'pw' })
@@ -246,6 +221,15 @@ describe('Connection', () => {
               sshTunnelPassphrase: 'pw'
             }).sshTunnelPassphrase,
             'pw'
+          );
+        });
+
+        it('does not map kerberosPassword', () => {
+          assert.strictEqual(
+            new Connection({
+              kerberosPassword: 'pw'
+            }).kerberosPassword,
+            undefined
           );
         });
       });

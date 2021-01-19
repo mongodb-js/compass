@@ -42,7 +42,7 @@
     "mongodb": "^3.6.3",
     "mongodb-connection-fixture": "^0.0.14",
     "mongodb-js-precommit": "^2.0.0",
-    "mongodb-runner": "^4.7.2",
+    "mongodb-runner": "^4.8.1",
     "proxyquire": "^2.1.0",
     "sinon": "^9.0.2",
     "uuid": "^8.2.0"

@@ -204,12 +204,11 @@ console.log(c.driverOptions)
 const c = new Connection({
   kerberosServiceName: 'mongodb',
   kerberosPrincipal: 'arlo/dog@krb5.mongodb.parts',
-  kerberosPassword: 'w@@f',
   ns: 'toys'
 });
 
 console.log(c.driverUrl)
->>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/toys?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
+>>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts@localhost:27017/toys?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
 
 console.log(c.driverOptions)
 >>> {
@@ -224,7 +223,6 @@ console.log(c.driverOptions)
 | ----- | ---- | ---------- |  ----  |
 | `kerberosServiceName` | String | Any program or computer you access over a network | `undefined` |
 | `kerberosPrincipal` | String | The format of a typical Kerberos V5 principal is `primary/instance@REALM` | `undefined` |
-| `kerberosPassword` | String | You can optionally include a password for a kerberos connection | `undefined` |
 | `kerberosCanonicalizeHostname` | Boolean | Whether canonicalized kerberos hostname | `undefined` |
 
 #### See Also

@@ -53,7 +53,6 @@ const DRIVER_OPTIONS_DEFAULT = { connectWithNoPrimary: true };
  */
 const PASSWORD_MAPPINGS = {
   mongodb_password: 'mongodbPassword',
-  kerberos_password: 'kerberosPassword',
   ldap_password: 'ldapPassword',
   ssl_private_key_password: 'sslPass',
   ssh_tunnel_password: 'sshTunnelPassword',
@@ -221,12 +220,11 @@ assign(props, {
  * @example
  *   const c = new Connection({
  *     kerberosServiceName: 'mongodb',
- *     kerberosPassword: 'w@@f',
  *     kerberosPrincipal: 'arlo/dog@krb5.mongodb.parts',
  *     ns: 'kerberos'
  *   });
  *   console.log(c.driverUrl)
- *   >>> mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI
+ *   >>> mongodb://arlo%252Fdog%2540krb5.mongodb.parts@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI
  *   console.log(c.driverOptions)
  *   >>> { db: { readPreference: 'nearest' }, replSet: { connectWithNoPrimary: true } }
  *
@@ -255,14 +253,6 @@ assign(props, {
    * `mongodb://#{encodeURIComponentRFC3986(this.kerberosPrincipal)}`
    */
   kerberosPrincipal: { type: 'string', default: undefined },
-  /**
-   * You can optionally include a password for a kerberos connection.
-   * Including a password is useful on windows if you don’t have a
-   * security domain set up.
-   * If no password is supplied, it is expected that a valid kerberos
-   * ticket has already been created for the principal.
-   */
-  kerberosPassword: { type: 'string', default: undefined },
   kerberosCanonicalizeHostname: { type: 'boolean', default: false }
 });
 
@@ -469,15 +459,9 @@ function addAuthToUrl({ url, isPasswordProtected }) {
   } else if (this.authStrategy === 'X509' && this.x509Username) {
     username = encodeURIComponentRFC3986(this.x509Username);
     authField = username;
-  } else if (this.authStrategy === 'KERBEROS' && this.kerberosPassword) {
-    username = encodeURIComponentRFC3986(this.kerberosPrincipal);
-    password = isPasswordProtected
-      ? '*****'
-      : encodeURIComponentRFC3986(this.kerberosPassword);
-    authField = format('%s:%s', username, password);
   } else if (this.authStrategy === 'KERBEROS') {
     username = encodeURIComponentRFC3986(this.kerberosPrincipal);
-    authField = format('%s:', username);
+    authField = format('%s', username);
   }
 
   // The auth component comes straight after `the mongodb://`
@@ -925,15 +909,6 @@ Connection = AmpersandModel.extend({
           )
         );
       }
-      if (attrs.kerberosPassword) {
-        throw new TypeError(
-          format(
-            'The Kerberos \'Password\' field does not apply when ' +
-              'using %s for authentication.',
-            attrs.authStrategy
-          )
-        );
-      }
     } else if (!attrs.kerberosPrincipal) {
       throw new TypeError(
         'The Kerberos \'Principal\' field is required when using \'Kerberos\' for authentication.'
@@ -1122,7 +1097,6 @@ async function createConnectionFromUrl(url) {
       attrs.x509Username = user;
     } else if (attrs.authStrategy === 'KERBEROS') {
       attrs.kerberosPrincipal = user;
-      attrs.kerberosPassword = password;
     } else if (
       attrs.authStrategy === 'MONGODB' ||
       attrs.authStrategy === 'SCRAM-SHA-256'

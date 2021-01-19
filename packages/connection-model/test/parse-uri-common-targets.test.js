@@ -258,7 +258,6 @@ describe('connection model parser should parse URI strings for common connection
           expect(result.kerberosPrincipal).to.be.equal(
             'arlo/dog@krb5.mongodb.parts'
           );
-          expect(result.kerberosPassword).to.be.equal('w@@f');
           expect(result.ns).to.be.equal('kerberos');
           done();
         }
