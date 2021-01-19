@@ -1,16 +1,16 @@
-var helper = require('./helper');
+const helper = require('./helper');
 
-var assert = helper.assert;
-var expect = helper.expect;
-var eventStream = helper.eventStream;
-var ObjectId = require('bson').ObjectId;
+const assert = helper.assert;
+const expect = helper.expect;
+const eventStream = helper.eventStream;
+const ObjectId = require('bson').ObjectId;
 
-var DataService = require('../lib/data-service');
+const DataService = require('../lib/data-service');
 
 describe('DataService', function() {
   this.slow(10000);
   this.timeout(20000);
-  var service = new DataService(helper.connection);
+  const service = new DataService(helper.connection);
 
   before(function(done) {
     service.connect(done);
@@ -753,6 +753,32 @@ describe('DataService', function() {
           );
         }
       );
+    });
+  });
+
+  describe('#getLastSeenTopology', function() {
+    it('returns the server\'s toplogy description', function() {
+      const topology = service.getLastSeenTopology();
+
+      expect(topology.servers.has('127.0.0.1:27018')).to.equal(true);
+
+      expect(topology).to.deep.include({
+        compatibilityError: null,
+        compatible: true,
+        heartbeatFrequencyMS: 10000,
+        localThresholdMS: 15,
+        logicalSessionTimeoutMinutes: 30,
+        maxElectionId: null,
+        maxSetVersion: null,
+        stale: false,
+        type: 'Single',
+        setName: null
+      });
+    });
+
+    it('it returns null when a topology description event hasn\'t yet occured', function() {
+      const testService = new DataService(helper.connection);
+      expect(testService.getLastSeenTopology()).to.equal(null);
     });
   });
 

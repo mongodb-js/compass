@@ -15,6 +15,12 @@ class DataService extends EventEmitter {
    */
   constructor(model) {
     super();
+
+    // Stores the most recent topology description from
+    // the server's SDAM events:
+    // https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
+    this.lastSeenTopology = null;
+
     this.client = null;
     const NativeClient = require('./native-client');
     this.client = new NativeClient(model)
@@ -24,7 +30,10 @@ class DataService extends EventEmitter {
       .on('serverClosed', (evt) => this.emit('serverClosed', evt))
       .on('topologyOpening', (evt) => this.emit('topologyOpening', evt))
       .on('topologyClosed', (evt) => this.emit('topologyClosed', evt))
-      .on('topologyDescriptionChanged', (evt) => this.emit('topologyDescriptionChanged', evt));
+      .on('topologyDescriptionChanged', (evt) => {
+        this.lastSeenTopology = evt.newDescription;
+        this.emit('topologyDescriptionChanged', evt);
+      });
   }
 
   getConnectionOptions() {
@@ -468,6 +477,16 @@ class DataService extends EventEmitter {
    */
   currentOp(includeAll, callback) {
     this.client.currentOp(includeAll, callback);
+  }
+
+  /**
+   * Returns the most recent topology description from the server's SDAM events.
+   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
+   *
+   * @returns {null | TopologyDescription} If the data service is connected to a mongos.
+   */
+  getLastSeenTopology() {
+    return this.lastSeenTopology;
   }
 
   /**
