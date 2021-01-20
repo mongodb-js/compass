@@ -6,7 +6,6 @@ import { AppContainer } from 'react-hot-loader';
 import SidebarPlugin, { activate } from 'plugin';
 import DeploymentStateStore from './stores/deployment-state-store';
 import { activate as appActivate } from '@mongodb-js/compass-app-stores';
-import { activate as headerActivate } from '@mongodb-js/compass-instance-header';
 import { activate as awarenessActivate } from '@mongodb-js/compass-deployment-awareness';
 import { activate as versionActivate } from '@mongodb-js/compass-server-version';
 import { activate as sshActivate } from '@mongodb-js/compass-ssh-tunnel-status';
@@ -26,7 +25,6 @@ global.hadronApp.instance = new InstanceModel();
 
 activate(appRegistry);
 appActivate(appRegistry);
-headerActivate(appRegistry);
 awarenessActivate(appRegistry);
 versionActivate(appRegistry);
 sshActivate(appRegistry);
@@ -80,7 +78,6 @@ global.hadronApp.instance.genuineMongoDB = { isGenuine: false, dbType: 'cosmos' 
 const state = { instance: global.hadronApp.instance };
 
 DeploymentStateStore.setToInitial();
-appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   ds.client.model.sshTunnel = 'USER_PASSWORD';
   ds.client.model.sshTunnelHostname = '123.45.67.89';
