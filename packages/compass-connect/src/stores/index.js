@@ -31,7 +31,6 @@ const AUTH_FIELDS = [
   'mongodbPassword',
   'mongodbDatabaseName',
   'kerberosPrincipal',
-  'kerberosPassword',
   'kerberosServiceName',
   'x509Username',
   'ldapUsername',

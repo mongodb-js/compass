@@ -49,7 +49,7 @@
     "react-ios-switch": "^0.1.19"
   },
   "devDependencies": {
-    "@mongodb-js/compass-auth-kerberos": "^4.0.0",
+    "@mongodb-js/compass-auth-kerberos": "^4.0.2",
     "@mongodb-js/compass-auth-ldap": "^4.0.0",
     "@mongodb-js/compass-auth-x509": "^4.1.0",
     "@mongodb-js/compass-status": "^4.0.0",
@@ -106,7 +106,7 @@
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
     "moment": "^2.10.6",
-    "mongodb-connection-model": "^19.0.1",
+    "mongodb-connection-model": "^19.0.2",
     "mongodb-data-service": "^16.8.1",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-shell-to-url": "^0.1.0",

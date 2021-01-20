@@ -444,7 +444,6 @@ describe('Store', () => {
         Store.state.currentConnection.mongodbPassword = 'password';
         Store.state.currentConnection.mongodbDatabaseName = 'foo';
         Store.state.currentConnection.kerberosPrincipal = 'kerb';
-        Store.state.currentConnection.kerberosPassword = 'pass';
         Store.state.currentConnection.kerberosServiceName = 'kerb-service';
         Store.state.currentConnection.x509Username = 'x5user';
         Store.state.currentConnection.ldapUsername = 'ldapuser';
@@ -462,7 +461,6 @@ describe('Store', () => {
             undefined
           );
           expect(state.currentConnection.kerberosPrincipal).to.equal(undefined);
-          expect(state.currentConnection.kerberosPassword).to.equal(undefined);
           expect(state.currentConnection.kerberosServiceName).to.equal(
             undefined
           );
