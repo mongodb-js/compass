@@ -851,16 +851,16 @@ const Store = Reflux.createStore({
     // Set the connection's app name to the electron app name of Compass.
     connection.appname = electron.remote.app.getName();
 
-    this.dataService = new DataService(connection);
-    this.appRegistry.emit('data-service-initialized', this.dataService);
+    const dataService = new DataService(connection);
 
     try {
-      const runConnect = promisify(this.dataService.connect.bind(this.dataService));
+      const runConnect = promisify(dataService.connect.bind(dataService));
       const connectedDataService = await runConnect();
 
       const currentConnection = this.state.currentConnection;
       const currentSaved = this.state.connections[currentConnection._id];
 
+      this.dataService = dataService;
       this.state.isValid = true;
       this.state.isConnected = true;
       this.state.errorMessage = null;
