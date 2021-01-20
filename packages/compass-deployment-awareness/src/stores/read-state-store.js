@@ -37,15 +37,16 @@ const ReadStateStore = Reflux.createStore({
    * @param {AppRegistry} appRegistry - The app registry.
    */
   onActivated(appRegistry) {
-    appRegistry.on('data-service-initialized', this.onDataServiceInit.bind(this));
+    appRegistry.on('data-service-connected', this.onDataServiceConnected.bind(this));
   },
 
   /**
    * When the data service initialises, update the connection in the state here.
    *
+   * @param {Error | null} _ - The error that might have occured when connecting.
    * @param {Object} dataService - The data service.
    */
-  onDataServiceInit(dataService) {
+  onDataServiceConnected(_, dataService) {
     this.setState({ connection: dataService.client.model });
   },
 
@@ -56,13 +57,15 @@ const ReadStateStore = Reflux.createStore({
    * @param {Object} description - The topology description.
    */
   topologyChanged(description) {
-    const topologyType = description.topologyType;
-    const readPreference = this.state.connection.read_preference;
-    const isReadable = isTopologyReadable(topologyType, readPreference);
-    this.setState({
-      isReadable: isReadable,
-      description: this._getDescription(isReadable, topologyType, readPreference)
-    });
+    if (this.state.connection) {
+      const topologyType = description.topologyType;
+      const readPreference = this.state.connection.read_preference;
+      const isReadable = isTopologyReadable(topologyType, readPreference);
+      this.setState({
+        isReadable: isReadable,
+        description: this._getDescription(isReadable, topologyType, readPreference)
+      });
+    }
   },
 
   /**

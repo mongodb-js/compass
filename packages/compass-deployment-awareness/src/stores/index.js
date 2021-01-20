@@ -30,7 +30,7 @@ const DeploymentAwarenessStore = Reflux.createStore({
    */
   onActivated(appRegistry) {
     this.appRegistry = appRegistry;
-    appRegistry.on('data-service-initialized', this.onDataServiceInitialized.bind(this));
+    appRegistry.on('data-service-connected', this.onDataServiceConnected.bind(this));
     appRegistry.on('instance-refreshed', (state) => {
       const isAtlas = !!state.instance._id.match(ATLAS_REGEX);
       const isDataLake = state.instance.dataLake && state.instance.dataLake.isDataLake;
@@ -61,44 +61,59 @@ const DeploymentAwarenessStore = Reflux.createStore({
   },
 
   /**
-   * When the data service is initialized this is called in order to set up
+   * When the data service is connected this is called in order to set up
    * listeners for SDAM events.
    *
+   * @param {Error | null} _ - The error that might have occured when connecting.
    * @param {DataService} dataService - The data service.
    */
-  onDataServiceInitialized(dataService) {
+  onDataServiceConnected(_, dataService) {
     dataService.on('topologyDescriptionChanged', this.topologyDescriptionChanged.bind(this));
+
+    const topologyDescription = dataService.getLastSeenTopology();
+    if (topologyDescription !== null) {
+      this._onNewTopologyDescription(topologyDescription);
+    }
   },
 
   /**
-   * When the topology description changes, we should trigger the store with the data.
+   * When the topology description changes, we should trigger the
+   * store with the data.
    *
    * @param {Event} evt - The topologyDescriptionChanged event.
    */
   topologyDescriptionChanged(evt) {
-    const newDescription = evt.newDescription;
+    this._onNewTopologyDescription(evt.newDescription);
+  },
+
+  /**
+   * @param {TopologyDescription} topologyDescription - The new topology description
+   * to load.
+   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#topology-description
+   */
+  _onNewTopologyDescription(topologyDescription) {
     const servers = [];
-    for (const desc of newDescription.servers.values()) {
+    for (const desc of topologyDescription.servers.values()) {
       servers.push({
         address: desc.address,
         type: desc.type,
         tags: desc.tags
       });
     }
-    if (this.state.topologyType !== newDescription.type) {
+    if (this.state.topologyType !== topologyDescription.type) {
       this.appRegistry.emit(
         'compass:deployment-awareness:topology-changed',
         {
-          topologyType: newDescription.type,
-          setName: newDescription.setName,
+          topologyType: topologyDescription.type,
+          setName: topologyDescription.setName,
           servers: servers,
           env: this.state.env
         }
       );
     }
     this.setState({
-      topologyType: newDescription.type,
-      setName: newDescription.setName,
+      topologyType: topologyDescription.type,
+      setName: topologyDescription.setName,
       servers: servers
     });
   },

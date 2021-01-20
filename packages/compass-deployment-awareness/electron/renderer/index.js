@@ -52,7 +52,6 @@ const render = Component => {
 render(DeploymentAwarenessPlugin);
 
 const dataService = new DataService(CONNECTION);
-appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
   global.hadronApp.dataService = ds;

@@ -10,4 +10,5 @@ coverage
 .nvmrc
 .nyc_output
 *.swp
-.ghpages/src/assets/fonts/akzid*
+.ghpages/
+src/assets/fonts/akzid*
