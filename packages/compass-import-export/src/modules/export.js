@@ -1,7 +1,6 @@
 /* eslint-disable valid-jsdoc */
 import fs from 'fs';
 import stream from 'stream';
-import { stream as schemaStream } from 'mongodb-schema';
 
 import PROCESS_STATUS from 'constants/process-status';
 import EXPORT_STEP from 'constants/export-step';
@@ -14,6 +13,7 @@ const createProgressStream = require('progress-stream');
 
 import { createLogger } from 'utils/logger';
 import { createCSVFormatter, createJSONFormatter } from 'utils/formatters';
+import loadFields from './load-fields';
 
 const debug = createLogger('export');
 
@@ -331,7 +331,7 @@ export const openExport = () => {
 };
 
 export const sampleFields = () => {
-  return (dispatch, getState) => {
+  return async(dispatch, getState) => {
     const {
       ns,
       exportData,
@@ -342,44 +342,23 @@ export const sampleFields = () => {
       ? { filter: {} }
       : exportData.query;
 
-    const sampleOptions = {
-      query: spec.filter,
-      size: 50,
-      promoteValues: true
-    };
+    try {
+      const fields = await loadFields(
+        dataService,
+        ns,
+        {
+          filter: spec.filter,
+          sampleSize: 50,
+          maxDepth: 2
+        }
+      );
 
-    // To make sure we have less errors in the fields we generate for export, we
-    // are sampling 100 documents from the current collection and then sending
-    // those documents through mongodb-schema.
-    const samplingStream = dataService.sample(ns, sampleOptions);
-    const analyzingStream = schemaStream();
-
-    // Grab all the field paths that mongodb-schema generates for us.
-    const parseSchema = new stream.Transform({
-      writableObjectMode: true,
-      transform(chunk, encoding, callback) {
-        const fields = chunk.fields.reduce((obj, field)=> {
-          if (field.type.includes('Document')) {
-            const doc = field.types.find(type => type.name === 'Document');
-            doc.fields.map((field_) => {
-              obj[field_.path] = 1;
-              return obj;
-            });
-          } else {
-            obj[field.path] = 1;
-          }
-
-          return obj;
-        }, {});
-
-        dispatch(updateFields(fields));
-        callback(null, fields);
-      },
-    });
-
-    stream.pipeline(samplingStream, analyzingStream, parseSchema, function(samplingErr) {
-      if (samplingErr) return onError(samplingErr);
-    });
+      dispatch(updateFields(fields));
+    } catch (err) {
+      // ignoring the error here so users can still insert
+      // fields manually
+      debug('failed to load fields', err);
+    }
   };
 };
 
@@ -414,7 +393,6 @@ export const startExport = () => {
       }
 
       debug('count says to expect %d docs in export', numDocsToExport);
-
       const source = createReadableCollectionStream(dataService, ns, spec, projection);
 
       const progress = createProgressStream({

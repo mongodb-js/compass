@@ -12,7 +12,8 @@
         "syntax-object-rest-spread",
         "transform-object-rest-spread",
         "transform-class-properties",
-        "syntax-dynamic-import"
+        "syntax-dynamic-import",
+        ["transform-runtime", { "regenerator": true }]
       ]
     }
   },
@@ -25,6 +26,7 @@
     "syntax-object-rest-spread",
     "transform-object-rest-spread",
     "transform-class-properties",
-    "syntax-dynamic-import"
+    "syntax-dynamic-import",
+    ["transform-runtime", { "regenerator": true }]
   ]
 }
