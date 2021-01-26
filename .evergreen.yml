@@ -215,10 +215,23 @@ functions:
           source ~/compass_env.sh
           export ELECTRON_NO_ATTACH_CONSOLE=1
           export ELECTRON_ENABLE_LOGGING=1
-          bash ./.evergreen/test-plugin.sh ${plugin|10gen/compass-connect}
+          bash ./.evergreen/test-plugin.sh ${plugin|mongodb-js/compass-connect}
     # - command: attach.xunit_results
     #   params:
     #     file: src/plugin/plugin-test-results.xml
+
+  test-connectivity:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          # Load environment variables
+          source ~/compass_env.sh
+          echo "Running connectivity tests..."
+          bash .evergreen/pretest.sh
+          DEBUG=* npm run test-connectivity
 
   'package':
     - command: shell.exec
@@ -442,15 +455,13 @@ tasks:
         vars:
           test_suite: unit
 
-  - name: test-functional
+  - name: test-connectivity
     depends_on: [compile]
     tags:
       - 'test'
     commands:
       - func: restore
-      - func: test
-        vars:
-          test_suite: functional
+      - func: test-connectivity
 
   - name: test-hadron-spectron
     depends_on: [compile]
@@ -468,7 +479,7 @@ tasks:
     depends_on: [compile]
     commands:
       - func: test-plugin
-        vars: { plugin: 10gen/compass-connect }
+        vars: { plugin: mongodb-js/compass-connect }
 
   - name: test-aggregation-builder-plugin
     depends_on: [compile]
@@ -536,15 +547,6 @@ tasks:
   # NOTE (@imlucas) Examples of how to extend which tests run
   # and against which MongoDB Server version.
   #
-  # - name: test-renderer
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: renderer
   # - name: test-main
   #   depends_on: [compile]
   #   tags:
@@ -554,15 +556,6 @@ tasks:
   #     - func: test
   #       vars:
   #         test_suite: main
-  # - name: test-enzyme
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: enzyme
   # - name: test-unit
   #   depends_on: [compile]
   #   tags:
@@ -603,26 +596,6 @@ tasks:
   #       vars:
   #         test_suite: functional
   #         mongodb_version: 3.6.x
-  # - name: test-functional-34x-server
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: functional
-  #         mongodb_version: 3.4.x
-  # - name: test-functional-26x-server
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: functional
-  #         mongodb_version: 2.6.x
 
 # TODO (@imlucas) determine OS/version deprecation policy, following server, so we don't fall behind
 # what maximal resources we're using.
@@ -643,20 +616,14 @@ buildvariants:
       - name: compile
       - name: verify
       # - name: test-data-service
-      # - name: test-functional
-      # - name: test-hadron-spectron
       # - name: test-connect-plugin
       # - name: test-aggregation-builder-plugin
       # NOTE (@imlucas) See above for activating more tests
       - name: test-unit
       # - name: test-main
-      # - name: test-renderer
-      # - name: test-enzyme
       # - name: test-functional-stable-server
       # - name: test-functional-unstable-server
       # - name: test-functional-36x-server
-      # - name: test-functional-34x-server
-      # - name: test-functional-26x-server
       - name: package-and-publish-compass
       - name: package-and-publish-compass-isolated
       - name: package-and-publish-compass-readonly
@@ -670,9 +637,6 @@ buildvariants:
       - name: test-data-service
       # - name: test-unit
       # - name: test-main
-      # - name: test-renderer
-      # - name: test-enzyme
-      # - name: test-functional
       # - name: test-connect-plugin
       # - name: test-aggregation-builder-plugin
       - name: package-and-publish-compass
@@ -684,7 +648,6 @@ buildvariants:
     tasks:
       - name: compile
       - name: verify
-      # - name: test-functional
       - name: package-and-publish-compass
       - name: package-and-publish-compass-isolated
       - name: package-and-publish-compass-readonly
