@@ -4,7 +4,6 @@ const EventEmitter = require('events');
 
 const connect = require('mongodb-connection-model').connect;
 const getIndexes = require('mongodb-index-model').fetch;
-const createSampleStream = require('mongodb-collection-sample');
 const parseNamespace = require('mongodb-ns');
 
 const { getInstance } = require('./instance-detail-helper');
@@ -65,6 +64,11 @@ const SYSTEM = 'system';
  * The admin database name.
  */
 const ADMIN = 'admin';
+
+/**
+ * The default sample size.
+ */
+const DEFAULT_SAMPLE_SIZE = 1000;
 
 /**
  *
@@ -774,14 +778,67 @@ class NativeClient extends EventEmitter {
   /**
    * Sample documents from the collection.
    *
-   * @param {String} ns - The namespace to sample.
-   * @param {Object} options - The sampling options.
-   *
-   * @return {Stream} The sample stream.
+   * @param {String} ns
+   *  - The namespace to sample.
+   * @param {Object} aggregationOptions
+   *  - The sampling options.
+   * @param {Object} aggregationOptions.query
+   *  - The aggregation match stage. Won't be used if empty.
+   * @param {Object} aggregationOptions.size
+   *  - The size option for the match stage. Default to 1000
+   * @param {Object} aggregationOptions.fields
+   *  - The fields for the project stage. Won't be used if empty.
+   * @param {Object} options
+   *  - Driver options (ie. maxTimeMs, session, batchSize ...)
+   * @return {Cursor} An AggregationCursor.
    */
-  sample(ns, options) {
-    var db = this._database(this._databaseName(ns));
-    return createSampleStream(db, this._collectionName(ns), options);
+  sample(ns, {
+    query, size, fields
+  } = {}, options = {}) {
+    const pipeline = [];
+    if (query && Object.keys(query).length > 0) {
+      pipeline.push({
+        $match: query
+      });
+    }
+
+    pipeline.push({
+      $sample: {
+        size: size === 0 ? 0 : (size || DEFAULT_SAMPLE_SIZE)
+      }
+    });
+
+    // add $project stage if projection (fields) was specified
+    if (fields && Object.keys(fields).length > 0) {
+      pipeline.push({
+        $project: fields
+      });
+    }
+
+    return this.aggregate(ns, pipeline, {
+      allowDiskUse: true,
+      ...options
+    });
+  }
+
+  /**
+   * Create a ClientSession that can be passed to commands.
+   */
+  startSession() {
+    return this.client.startSession();
+  }
+
+  /**
+   * Kill a session and terminate all in progress operations.
+   * @param {ClientSession} clientSession
+   *  - a ClientSession (can be created with startSession())
+   */
+  killSession(clientSession) {
+    return this.database.admin().command({
+      killSessions: [
+        clientSession.id
+      ]
+    });
   }
 
   /**

@@ -1,10 +1,8 @@
 const helper = require('./helper');
-
 const assert = helper.assert;
 const expect = helper.expect;
-const eventStream = helper.eventStream;
 const ObjectId = require('bson').ObjectId;
-
+const sinon = require('sinon');
 const DataService = require('../lib/data-service');
 
 describe('DataService', function() {
@@ -676,35 +674,41 @@ describe('DataService', function() {
   });
 
   describe('#sample', function() {
-    before(function(done) {
-      helper.insertTestDocuments(service.client, function() {
-        done();
-      });
+    it('passes arguments to native client', () => {
+      const sampleSpy = sinon.spy(() => 'expectedResult');
+      const dataService = new DataService(helper.connection);
+      dataService.client = { sample: sampleSpy };
+      const res = dataService.sample('a.b', {c: 1}, {d: 2});
+      expect(res).to.equal('expectedResult');
+      expect(sampleSpy).to.have.been.calledOnceWith(
+        'a.b', {c: 1}, {d: 2}
+      );
     });
+  });
 
-    after(function(done) {
-      helper.deleteTestDocuments(service.client, function() {
-        done();
-      });
+  describe('#startSession', function() {
+    it('passes arguments to native client', () => {
+      const startSessionSpy = sinon.spy(() => 'expectedResult');
+      const dataService = new DataService(helper.connection);
+      dataService.client = { startSession: startSessionSpy };
+      const res = dataService.startSession({id: 123});
+      expect(res).to.equal('expectedResult');
+      expect(startSessionSpy).to.have.been.calledOnceWith(
+        {id: 123}
+      );
     });
+  });
 
-    context('when no filter is provided', function() {
-      it('returns a stream of sampled documents', function(done) {
-        var seen = 0;
-        service.sample('data-service.test', {}).pipe(
-          eventStream.through(
-            function(doc) {
-              seen++;
-              this.emit('data', doc);
-            },
-            function() {
-              this.emit('end');
-              expect(seen).to.equal(2);
-              done();
-            }
-          )
-        );
-      });
+  describe('#killSession', function() {
+    it('passes arguments to native client', () => {
+      const killSessionSpy = sinon.spy(() => 'expectedResult');
+      const dataService = new DataService(helper.connection);
+      dataService.client = { killSession: killSessionSpy };
+      const res = dataService.killSession({id: 123});
+      expect(res).to.equal('expectedResult');
+      expect(killSessionSpy).to.have.been.calledOnceWith(
+        {id: 123}
+      );
     });
   });
 

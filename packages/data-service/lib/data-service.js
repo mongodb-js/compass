@@ -421,18 +421,6 @@ class DataService extends EventEmitter {
   }
 
   /**
-   * Sample documents from the collection.
-   *
-   * @param {String} ns - The namespace to sample.
-   * @param {Object} options - The sampling options.
-   *
-   * @return {Stream} The sample stream.
-   */
-  sample(ns, options) {
-    return this.client.sample(ns, options);
-  }
-
-  /**
    * Update a collection.
    *
    * @param {String} ns - The namespace.
@@ -555,6 +543,43 @@ class DataService extends EventEmitter {
    */
   dropView(ns, callback) {
     this.client.dropView(ns, callback);
+  }
+
+  /**
+   * Sample documents from the collection.
+   *
+   * @param {String} ns
+   *  - The namespace to sample.
+   * @param {Object} aggregationOptions
+   *  - The sampling options.
+   * @param {Object} aggregationOptions.query
+   *  - The aggregation match stage. Won't be used if empty.
+   * @param {Object} aggregationOptions.size
+   *  - The size option for the match stage. Default to 1000
+   * @param {Object} aggregationOptions.fields
+   *  - The fields for the project stage. Won't be used if empty.
+   * @param {Object} [options={}]
+   *  - Driver options (ie. maxTimeMs, session, batchSize ...)
+   * @return {Cursor} An AggregationCursor.
+   */
+  sample(...args) {
+    return this.client.sample(...args);
+  }
+
+  /**
+   * Create a ClientSession that can be passed to commands.
+   */
+  startSession(...args) {
+    return this.client.startSession(...args);
+  }
+
+  /**
+   * Kill a session and terminate all in progress operations.
+   * @param {ClientSession} clientSession
+   *  - a ClientSession (can be created with startSession())
+   */
+  killSession(...args) {
+    return this.client.killSession(...args);
   }
 
   /**

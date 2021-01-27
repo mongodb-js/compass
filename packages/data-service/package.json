@@ -9,6 +9,9 @@
     "type": "git",
     "url": "https://github.com/mongodb-js/data-service.git"
   },
+  "engines": {
+    "node": ">=12"
+  },
   "license": "Apache-2.0",
   "keywords": [
     "mongodb-js"
@@ -17,8 +20,13 @@
     "pretest": "node-gyp rebuild --directory node_modules/keytar/ && mongodb-runner start --port=27018",
     "test": "mocha",
     "posttest": "mongodb-runner stop --port=27018",
-    "check": "mongodb-js-precommit"
+    "check": "npm run lint && npm run depcheck",
+    "depcheck": "depcheck",
+    "lint": "eslint ."
   },
+  "pre-commit": [
+    "check"
+  ],
   "peerDependencies": {
     "mongodb": "3.x",
     "mongodb-connection-model": "*"
@@ -28,7 +36,6 @@
     "debug": "^4.2.0",
     "lodash": "^4.17.20",
     "mongodb-build-info": "^1.1.1",
-    "mongodb-collection-sample": "^4.5.1",
     "mongodb-index-model": "^2.6.1",
     "mongodb-js-errors": "^0.5.0",
     "mongodb-ns": "^2.2.0",
@@ -36,14 +43,19 @@
     "mongodb-url": "^3.0.3"
   },
   "devDependencies": {
+    "bson": "^4.1.0",
     "chai": "^4.2.0",
+    "depcheck": "^1.3.1",
+    "eslint": "^7.18.0",
     "eslint-config-mongodb-js": "^5.0.3",
+    "eslint-plugin-mocha": "^8.0.0",
     "mocha": "^8.2.1",
     "mock-require": "^3.0.3",
     "mongodb": "^3.6.3",
     "mongodb-connection-model": "^18.0.0",
-    "mongodb-js-precommit": "^2.2.1",
     "mongodb-runner": "^4.8.0",
-    "xvfb-maybe": "^0.2.1"
+    "pre-commit": "^1.2.2",
+    "sinon": "^9.2.3",
+    "sinon-chai": "^3.5.0"
   }
 }

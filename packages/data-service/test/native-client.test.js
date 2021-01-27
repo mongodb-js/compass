@@ -1,8 +1,7 @@
-/* eslint indent:0 */
+var sinon = require('sinon');
 var helper = require('./helper');
 var assert = helper.assert;
 var expect = helper.expect;
-var eventStream = helper.eventStream;
 var ObjectId = require('bson').ObjectId;
 var mock = require('mock-require');
 const EventEmitter = require('events');
@@ -22,8 +21,15 @@ describe('NativeClient', function() {
     };
     client.connect(callback);
   });
+
   after(function(done) {
     client.disconnect(done);
+  });
+
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
   });
 
   describe('#connect', function() {
@@ -196,8 +202,8 @@ describe('NativeClient', function() {
           comments: [
             { author: 'joe', text: 'this is cool' }, { author: 'sam', text: 'this is bad' }
           ]},
-          {x: 1, y: 2},
-          {x: 3, y: 4}], done);
+        {x: 1, y: 2},
+        {x: 3, y: 4}], done);
     });
 
     after(function(done) {
@@ -266,11 +272,11 @@ describe('NativeClient', function() {
             author: 1,
             tags: 1
           }},
-            { $unwind: '$tags' }, {$group: { _id: {tags: '$tags'}, authors: {$addToSet: '$author' }}}],
+          { $unwind: '$tags' }, {$group: { _id: {tags: '$tags'}, authors: {$addToSet: '$author' }}}],
           {cursor: {batchSize: 100}}).toArray(function(error) {
-            assert.equal(null, error);
-            done();
-          });
+          assert.equal(null, error);
+          done();
+        });
       });
       it('errors when given a bad option', function(done) {
         try {
@@ -753,10 +759,10 @@ describe('NativeClient', function() {
   describe('#dropDatabase', function() {
     before(function(done) {
       client.client.db('mangoDB').createCollection('testing',
-      {}, function(error) {
-        assert.equal(null, error);
-        done();
-      });
+        {}, function(error) {
+          assert.equal(null, error);
+          done();
+        });
     });
 
     it('drops a database', function(done) {
@@ -940,18 +946,114 @@ describe('NativeClient', function() {
       });
     });
 
-    context('when no filter is provided', function() {
-      it('returns a stream of sampled documents', function(done) {
-        var seen = 0;
-        client.sample('data-service.test')
-          .pipe(eventStream.through(function(doc) {
-            seen++;
-            this.emit('data', doc);
-          }, function() {
-            this.emit('end');
-            expect(seen).to.equal(2);
-            done();
-          }));
+    it('returns a cursor of sampled documents', async function() {
+      const docs = await client.sample('data-service.test').toArray();
+      expect(docs.length).to.equal(2);
+    });
+
+    it('allows to pass a query', async function() {
+      const docs = await client.sample(
+        'data-service.test', {
+          query: {a: 1}
+        }
+      ).toArray();
+      expect(docs.length).to.equal(1);
+      expect(docs[0]).to.haveOwnProperty('_id');
+      expect(docs[0].a).to.equal(1);
+    });
+
+    it('allows to pass a projection', async function() {
+      const docs = await client.sample(
+        'data-service.test', {
+          fields: {
+            a: 1,
+            _id: 0
+          }
+        }
+      ).toArray();
+
+      expect(docs).to.deep.include.members([{a: 1}, {a: 2}]);
+    });
+
+    it('allows to set a sample size', async function() {
+      const docs = await client.sample(
+        'data-service.test',
+        {
+          size: 1
+        }
+      ).toArray();
+
+      expect(docs.length).to.equal(1);
+    });
+
+    it('always sets default sample size and allowDiskUse: true', () => {
+      sandbox.spy(client, 'aggregate');
+      client.sample('db.coll');
+
+      expect(client.aggregate).to.have.been.calledWith(
+        'db.coll',
+        [ { '$sample': { size: 1000 } } ],
+        { allowDiskUse: true }
+      );
+    });
+
+    it('allows to pass down aggregation options to the driver', () => {
+      sandbox.spy(client, 'aggregate');
+      client.sample('db.coll', {}, {
+        maxTimeMS: 123,
+        session: null,
+        raw: true
+      });
+
+      expect(client.aggregate).to.have.been.calledWith(
+        'db.coll',
+        [ { '$sample': { size: 1000 } } ],
+        { allowDiskUse: true, maxTimeMS: 123, session: null, raw: true }
+      );
+    });
+
+    it('allows to override allowDiskUse', () => {
+      sandbox.spy(client, 'aggregate');
+      client.sample('db.coll', {}, {
+        allowDiskUse: false
+      });
+
+      expect(client.aggregate).to.have.been.calledWith(
+        'db.coll',
+        [ { '$sample': { size: 1000 } } ],
+        { allowDiskUse: false }
+      );
+    });
+  });
+
+  describe('startSession', () => {
+    it('returns a new client session', () => {
+      const session = client.startSession();
+      expect(session.constructor.name).to.equal('ClientSession');
+
+      // used by killSession, must be a bson UUID in order to work
+      expect(session.id.id._bsontype).to.equal('Binary');
+      expect(session.id.id.sub_type).to.equal(4);
+    });
+  });
+
+  describe('killSession', () => {
+    it('does not throw if kill a non existing session', async() => {
+      const session = client.startSession();
+      await client.killSession(session);
+    });
+
+    it('kills a command with a session', () => {
+      const commandSpy = sinon.spy();
+      sandbox.replace(client.database, 'admin', () => ({
+        command: commandSpy
+      }));
+
+      const session = client.startSession();
+      client.killSession(session);
+
+      expect(commandSpy.args[0][0]).to.deep.equal({
+        killSessions: [ session.id ]
       });
     });
   });

@@ -5,7 +5,21 @@
     "es6": true
   },
   "rules": {
-    "strict": 0
+    "strict": "off",
+    "no-undef": "error",
+    "valid-jsdoc": "off",
+    "no-prototype-builtins": "off",
+    "mocha/no-exclusive-tests": "error",
+    "no-unused-vars": "error"
   },
-  "extends": ["mongodb-js/node"]
+  "plugins": [
+    "mocha"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "mongodb-js/node"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 11
+  }
 }

@@ -684,7 +684,7 @@ function getInstance(client, db, done) {
        * getBuildInfo() may not (e.g. AWS' internal DNS for EC2).
        */
       hostname = URL.hostname(res.host.hostname);
-      if (/\:\d+/.test(res.host.hostname)) {
+      if (/:\d+/.test(res.host.hostname)) {
         port = URL.port(res.host.hostname);
       }
     }
