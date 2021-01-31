@@ -1,28 +1,38 @@
 import Reflux from 'reflux';
 import ipc from 'hadron-ipc';
 import StateMixin from 'reflux-state-mixin';
-import { stream as schemaStream } from 'mongodb-schema';
-import StatusSubview from 'components/status-subview';
 import toNS from 'mongodb-ns';
-import get from 'lodash.get';
-import has from 'lodash.has';
-import debounce from 'lodash.debounce';
 import { addLayer, generateGeoQuery } from 'modules/geo';
+import createSchemaAnalysis from '../modules/schema-analysis';
+import {
+  ANALYSIS_STATE_ANALYZING,
+  ANALYSIS_STATE_COMPLETE,
+  ANALYSIS_STATE_ERROR,
+  ANALYSIS_STATE_INITIAL,
+  ANALYSIS_STATE_TIMEOUT
+} from '../constants/analysis-states';
 
 const debug = require('debug')('mongodb-compass:stores:schema');
 
-const DEFAULT_MAX_TIME_MS = 10000;
-
-const MAX_NUM_DOCUMENTS = 1000;
+const DEFAULT_MAX_TIME_MS = 60000;
 const DEFAULT_SAMPLE_SIZE = 1000;
 
-const PROMOTE_VALUES = false;
-const DEFAULT_QUERY = {
-  filter: {},
-  project: null,
-  limit: DEFAULT_SAMPLE_SIZE,
-  maxTimeMS: DEFAULT_MAX_TIME_MS
-};
+const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
+
+function getErrorState(err) {
+  const errorMessage = (err && err.message) || 'Unknown error';
+  const errorCode = (err && err.code);
+
+  let analysisState;
+
+  if (errorCode === ERROR_CODE_MAX_TIME_MS_EXPIRED) {
+    analysisState = ANALYSIS_STATE_TIMEOUT;
+  } else {
+    analysisState = ANALYSIS_STATE_ERROR;
+  }
+
+  return { analysisState, errorMessage };
+}
 
 /**
  * Set the data provider.
@@ -90,14 +100,14 @@ const configureStore = (options = {}) => {
      * Initialize the document list store.
      */
     init: function() {
-      this.query = DEFAULT_QUERY;
+      this.query = {
+        filter: {},
+        project: null,
+        limit: DEFAULT_SAMPLE_SIZE,
+        maxTimeMS: DEFAULT_MAX_TIME_MS
+      };
       this.ns = '';
-      this.samplingStream = null;
-      this.analyzingStream = null;
-      this.samplingTimer = null;
-      this.trickleStop = null;
       this.geoLayers = {};
-      this.samplingLock = false;
     },
 
     getShareText() {
@@ -124,12 +134,10 @@ const configureStore = (options = {}) => {
       return {
         localAppRegistry: null,
         globalAppRegistry: null,
-        samplingState: 'initial',
-        samplingProgress: 0,
-        samplingTimeMS: 0,
+        analysisState: ANALYSIS_STATE_INITIAL,
         errorMessage: '',
         schema: null,
-        count: 0
+        outdated: false
       };
     },
 
@@ -138,11 +146,23 @@ const configureStore = (options = {}) => {
       this.query.limit = state.limit;
       this.query.project = state.project;
       this.query.maxTimeMS = state.maxTimeMS;
-      if (this.state.samplingState === 'complete') {
+
+      if (this.state.analysisState === ANALYSIS_STATE_COMPLETE) {
         this.setState({
-          samplingState: 'outdated'
+          outdated: true
         });
       }
+    },
+
+    onSchemaSampled() {
+      this.geoLayers = {};
+
+      process.nextTick(() => {
+        this.globalAppRegistry.emit(
+          'compass:schema:schema-sampled',
+          { ...this.state, geo: this.geoLayers }
+        );
+      });
     },
 
     geoLayerAdded(field, layer) {
@@ -160,201 +180,81 @@ const configureStore = (options = {}) => {
       layers.eachLayer((layer) => {
         delete this.geoLayers[layer._leaflet_id];
       });
-      this.localAppRegistry.emit('compass:schema:geo-query', generateGeoQuery(this.geoLayers));
+      this.localAppRegistry.emit(
+        'compass:schema:geo-query',
+        generateGeoQuery(this.geoLayers)
+      );
     },
 
-    stopSampling() {
-      if (this.samplingTimer) {
-        clearInterval(this.samplingTimer);
-        this.samplingTimer = null;
-      }
-
-      this.setState({
-        samplingTimeMS: 0
-      });
-
-      if (this.samplingStream) {
-        this.samplingStream.destroy();
-        this.samplingStream = null;
-      }
-      if (this.analyzingStream) {
-        this.analyzingStream.destroy();
-        this.analyzingStream = null;
-      }
-      if (this.samplingLock) {
-        this.samplingLock = false;
-      }
-    },
-
-    /**
-     * This function is called when the collection filter changes.
-     */
-    startSampling() {
-      this.geoLayers = {};
-      if (this.samplingLock) {
+    async stopAnalysis() {
+      if (!this.schemaAnalysis) {
         return;
       }
 
-      this.samplingLock = true;
-
-      this.setState({
-        samplingState: 'counting',
-        samplingProgress: -1,
-        samplingTimeMS: 0,
-        schema: null
-      });
-
-      const sampleOptions = {
-        maxTimeMS: this.query.maxTimeMS,
-        query: this.query.filter,
-        size: this.query.limit === 0 ? DEFAULT_SAMPLE_SIZE : Math.min(MAX_NUM_DOCUMENTS, this.query.limit),
-        fields: this.query.project,
-        promoteValues: PROMOTE_VALUES
-      };
-      debug('sampleOptions', sampleOptions);
-
-      const samplingStart = new Date();
-      this.samplingTimer = setInterval(() => {
-        this.setState({
-          samplingTimeMS: new Date() - samplingStart
-        });
-      }, 1000);
-
-      // reset the progress bar to 0
-      this.globalAppRegistry.emit('compass:status:configure', {
-        progress: 0,
-        globalAppRegistry: this.globalAppRegistry,
-        subview: StatusSubview,
-        subviewStore: this,
-        subviewActions: options.actions
-      });
-
-      this.samplingStream = this.dataService.sample(this.ns, sampleOptions);
-      this.analyzingStream = schemaStream();
-      let schema;
-
-      const onError = (err) => {
-        debug('onError', err);
-        const errorState = (has(err, 'message') &&
-          err.message.match(/operation exceeded time limit/)) ? 'timeout' : 'error';
-        this.setState({
-          samplingState: errorState,
-          errorMessage: get(err, 'message') || 'unknown error'
-        });
-        this.globalAppRegistry.emit('compass:status:hide');
-        this.stopSampling();
-      };
-
-      // @note: Durran the sampling strem itself is executing a count that gets
-      //   the same error as the direct count call when a timeout has occured.
-      //   However, we need to ensure we handle it in case we return from the
-      //   other count before setting up the listener, so we listen for error
-      //   here.
-      this.samplingStream.on('error', (sampleErr) => {
-        return onError(sampleErr);
-      });
-
-      const onSuccess = (_schema) => {
-        this.setState({
-          samplingState: 'complete',
-          samplingTimeMS: new Date() - samplingStart,
-          samplingProgress: 100,
-          schema: _schema,
-          errorMessage: ''
-        });
-        this.stopSampling();
-        process.nextTick(() => {
-          this.globalAppRegistry.emit(
-            'compass:schema:schema-sampled',
-            { ...this.state, geo: this.geoLayers }
-          );
-        });
-      };
-
-      const countOptions = {
-        maxTimeMS: this.query.maxTimeMS
-      };
-
-      this.dataService.count(this.ns, this.query.filter, countOptions, (err, count) => {
-        if (err) {
-          return onError(err);
-        }
-
-        this.setState({
-          count: count,
-          samplingState: 'sampling',
-          samplingProgress: 0,
-          samplingTimeMS: new Date() - samplingStart
-        });
-        const numSamples = Math.min(count, sampleOptions.size);
-        let sampleCount = 0;
-
-        this.samplingStream
-          .pipe(this.analyzingStream)
-          .once('progress', () => {
-            this.setState({
-              samplingState: 'analyzing',
-              samplingTimeMS: new Date() - samplingStart
-            });
-          })
-          .on('progress', () => {
-            sampleCount ++;
-            debounce(() => {
-              const newProgress = Math.ceil(sampleCount / numSamples * 100);
-              this.updateStatus(newProgress);
-              if (newProgress > this.state.samplingProgress) {
-                this.setState({
-                  samplingProgress: newProgress,
-                  samplingTimeMS: new Date() - samplingStart
-                });
-              }
-            }, 250);
-          })
-          .on('data', (data) => {
-            schema = data;
-          })
-          .on('error', (analysisErr) => {
-            onError(analysisErr);
-          })
-          .on('end', () => {
-            if ((numSamples === 0 || sampleCount > 0) && this.state.samplingState !== 'error') {
-              onSuccess(schema);
-            }
-            this.stopSampling();
-          });
-      });
+      try {
+        await this.schemaAnalysis.terminate();
+      } catch (err) {
+        debug('failed to terminate schema analysis. ignoring ...', err);
+      } finally {
+        this.schemaAnalysis = null;
+      }
     },
 
-    updateStatus(progress) {
-      if (progress === -1) {
-        this.trickleStop = null;
-        this.globalAppRegistry.emit('compass:status:configure', {
-          visible: true,
-          progressbar: true,
-          animation: true,
-          trickle: true,
-          subview: StatusSubview,
-          subviewStore: this,
-          subviewActions: options.actions
+    startAnalysis: async function() {
+      if (this.schemaAnalysis) {
+        return;
+      }
+
+      const query = this.query || {};
+
+      const sampleSize = query.limit ?
+        Math.min(DEFAULT_SAMPLE_SIZE, query.limit) :
+        DEFAULT_SAMPLE_SIZE;
+
+      const samplingOptions = {
+        query: query.filter,
+        size: sampleSize,
+        fields: query.project
+      };
+
+      const driverOptions = {
+        maxTimeMS: query.maxTimeMS,
+      };
+
+      const schemaAnalysis = createSchemaAnalysis(
+        this.dataService,
+        this.ns,
+        samplingOptions,
+        driverOptions
+      );
+
+      this.schemaAnalysis = schemaAnalysis;
+
+      try {
+        debug('analysis started');
+
+        this.setState({
+          analysisState: ANALYSIS_STATE_ANALYZING,
+          errorMessage: '',
+          outdated: false,
+          schema: null
         });
-      } else if (progress >= 0 && progress < 100 && progress % 5 === 1) {
-        if (this.trickleStop === null) {
-          // remember where trickling stopped to calculate remaining progress
-          this.trickleStop = progress;
-        }
-        const newProgress = Math.ceil(this.trickleStop + (100 - this.trickleStop) / 100 * progress);
-        this.globalAppRegistry.emit('compass:status:configure', {
-          visible: true,
-          trickle: false,
-          animation: true,
-          progressbar: true,
-          subview: StatusSubview,
-          progress: newProgress,
-          subviewStore: this,
-          subviewActions: options.actions
+
+        const schema = await schemaAnalysis.getResult();
+
+        this.setState({
+          analysisState: schema ?
+            ANALYSIS_STATE_COMPLETE :
+            ANALYSIS_STATE_INITIAL,
+          schema: schema
         });
-      } else if (progress === 100) {
-        this.globalAppRegistry.emit('compass:status:done');
+
+        this.onSchemaSampled();
+      } catch (err) {
+        debug('analysis error catched', err);
+        this.setState(getErrorState(err));
+      } finally {
+        this.schemaAnalysis = null;
       }
     },
 

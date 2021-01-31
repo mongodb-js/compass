@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import d3 from 'd3';
 import assign from 'lodash.assign';
 import isEqual from 'lodash.isequal';

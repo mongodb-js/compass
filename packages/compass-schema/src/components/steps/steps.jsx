@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import includes from 'lodash.includes';
-
-const SHOW_STEPS_TIME_MS = 3000;
+import { ANALYSIS_STATE_ANALYZING } from '../../constants/analysis-states';
 
 /**
  * Component for the entire document list.
@@ -11,77 +9,45 @@ class SchemaSteps extends Component {
   static displayName = 'SchemaStepsComponent';
 
   static propTypes = {
-    samplingTimeMS: PropTypes.number.isRequired,
-    samplingState: PropTypes.string.isRequired
+    analysisState: PropTypes.string.isRequired,
+    actions: PropTypes.object.isRequired
   }
 
-  constructor(props) {
-    super(props);
-    this.state = { errorState: null };
+  onStopClicked() {
+    this.props.actions.stopAnalysis();
   }
 
-  /**
-   * remember the last known non-error state internally.
-   *
-   * @param  {Object} nextProps   next props of this component
-   */
-  componentWillReceiveProps(nextProps) {
-    if (this.props.samplingState !== 'timeout' && nextProps.samplingState === 'timeout') {
-      this.setState({
-        errorState: this.props.samplingState
-      });
+  renderStopButton() {
+    if (this.props.analysisState !== ANALYSIS_STATE_ANALYZING) {
+      return;
     }
-  }
 
-  _getSamplingIndicator() {
-    if (includes(['counting', 'sampling'], this.props.samplingState)) {
-      return 'fa fa-fw fa-spin fa-circle-o-notch';
-    }
-    if (this.props.samplingState === 'analyzing' ||
-      (this.props.samplingState === 'timeout' && this.state.errorState === 'analyzing')) {
-      return 'mms-icon-check';
-    }
-    if (this.props.samplingState === 'timeout' && this.state.errorState === 'sampling') {
-      return 'fa fa-fw fa-warning';
-    }
-    return 'fa fa-fw';
-  }
-
-  _getAnalyzingIndicator() {
-    if (this.props.samplingState === 'analyzing') {
-      return 'fa fa-fw fa-spin fa-circle-o-notch';
-    }
-    if (this.props.samplingState === 'complete') {
-      return 'mms-icon-check';
-    }
-    if (this.props.samplingState === 'timeout' && this.state.errorState === 'analyzing') {
-      return 'fa fa-fw fa-warning';
-    }
-    return 'fa fa-fw';
+    return (
+      <div className="buttons">
+        <div id="buttons-waiting">
+          <button
+            className="btn btn-sm btn-info"
+            onClick={this.onStopClicked.bind(this)}>
+            Stop
+          </button>
+        </div>
+      </div>
+    );
   }
 
   render() {
-    // if below 3 second threshold, don't show this component
-    const style = {
-      visibility: (this.props.samplingTimeMS < SHOW_STEPS_TIME_MS) ?
-        'hidden' : 'visible'
-    };
-
-    const samplingIndicator = this._getSamplingIndicator();
-    const analyzingIndicator = this._getAnalyzingIndicator();
+    const iconClassName = 'fa fa-fw fa-spin fa-circle-o-notch';
+    const text = 'Analyzing Documents';
 
     return (
-      <div style={style}>
+      <div>
         <ul className="steps">
-          <li id="sampling-step">
-            <i className={samplingIndicator}></i>
-            Sampling Collection
-          </li>
-          <li id="analyzing-step">
-            <i className={analyzingIndicator}></i>
-            Analyzing Documents
+          <li id="analysis-step">
+            <i className={iconClassName} />
+            {text}
           </li>
         </ul>
+        {this.renderStopButton()}
       </div>
     );
   }

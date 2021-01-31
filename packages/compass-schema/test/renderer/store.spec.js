@@ -1,5 +1,6 @@
 import configureStore from 'stores';
 import AppRegistry from 'hadron-app-registry';
+import { ANALYSIS_STATE_INITIAL } from '../../src/constants/analysis-states';
 
 describe('Schema Store', () => {
   describe('#configureStore', () => {
@@ -41,16 +42,8 @@ describe('Schema Store', () => {
       expect(store.ns).to.equal(namespace);
     });
 
-    it('defaults sampling state to initial', () => {
-      expect(store.state.samplingState).to.equal('initial');
-    });
-
-    it('defaults sampling progress to 0', () => {
-      expect(store.state.samplingProgress).to.equal(0);
-    });
-
-    it('defaults samplingTimeMS to 0', () => {
-      expect(store.state.samplingTimeMS).to.equal(0);
+    it('defaults analysis state to initial', () => {
+      expect(store.state.analysisState).to.equal(ANALYSIS_STATE_INITIAL);
     });
 
     it('defaults the error to empty', () => {
@@ -58,25 +51,11 @@ describe('Schema Store', () => {
     });
 
     it('defaults max time ms to the default', () => {
-      expect(store.query.maxTimeMS).to.equal(10000);
+      expect(store.query.maxTimeMS).to.equal(60000);
     });
 
     it('defaults the schema to null', () => {
       expect(store.state.schema).to.equal(null);
-    });
-
-    it('defaults the count to 0', () => {
-      expect(store.state.count).to.equal(0);
-    });
-
-    it('resets samplingTimeMS after stop', () => {
-      store.setState({
-        samplingTimeMS: 100
-      });
-
-      store.stopSampling();
-
-      expect(store.state.samplingTimeMS).to.equal(0);
     });
   });
 

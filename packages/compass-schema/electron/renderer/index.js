@@ -61,7 +61,7 @@ const store = configureStore({
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <div style={{ height: '100vh' }}>
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
         <StatusPlugin />
         <Component store={store} actions={actions} />
       </div>
@@ -74,6 +74,7 @@ const url = process.env.COMPASS_SCHEMA_DEV_MONGODB_URL || 'mongodb://localhost:2
 const namespace = process.env.COMPASS_SCHEMA_DEV_NAMESPACE || 'test.test';
 Connection.from(url, (err, connection) => {
   if (err) {
+    // eslint-disable-next-line no-console
     console.error('Connection to', url, 'failed', err);
     process.exit(1);
   }

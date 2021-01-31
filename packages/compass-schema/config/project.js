@@ -5,7 +5,7 @@ const packageJson = require(path.join(__dirname, '/../package.json'));
 
 // Gets a valid version range for the current electron dependency declared in our package.json
 // Eg: "^1.6.1" would yield ">=1.6.1"
-const electronVersion = semver.Range(packageJson.devDependencies.electron).set[0][0].value; // eslint-disable-line new-cap
+const electronVersion = semver.minVersion(packageJson.devDependencies.electron).toString();
 
 module.exports = {
   path: {
@@ -17,11 +17,8 @@ module.exports = {
 
     // The path to the electron directory
     electron: path.join(__dirname, '/../electron'),
-
-    // The path to the storybook directory
-    storybook: path.join(__dirname, '/../.storybook')
   },
   plugin: {
-    autoprefixer: autoprefixer(`electron ${electronVersion}`)
+    autoprefixer: autoprefixer(`electron >=${electronVersion}`)
   }
 };

@@ -13,7 +13,6 @@ scripts/
 src/
 test/
 .zuul.yml
-.storybook/
 .nyc_output/
 coverage/
 lib/

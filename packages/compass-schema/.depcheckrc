@@ -3,7 +3,6 @@ ignores: [
   "actions",
   "components",
   "modules",
-  "storybook",
   "plugin",
   "babel-cli",
   "babel-minify",
@@ -15,10 +14,16 @@ ignores: [
   "karma-electron",
   "karma-sourcemap-loader",
   "karma-webpack",
+  "karma-chai",
+  "karma-chai-sinon",
+  "karma-mocha",
+  "karma-mocha-reporter",
+  "karma-sinon",
   "pre-commit",
   "resolve",
   "webpack-bundle-analyzer",
   "webpack-cli",
   "webpack-sources",
-  "file-loader"
+  "file-loader",
+  "mongodb-schema"
 ]

@@ -8,13 +8,13 @@ const Reflux = require('reflux');
 const configureActions = () => {
   return Reflux.createActions({
     /**
-     * starts schema sampling with the current query
+     * starts schema analysis with the current query
      */
-    startSampling: {sync: false},
+    startAnalysis: {sync: false},
     /**
-     * stops schema sampling
+     * stops schema analysis
      */
-    stopSampling: {sync: true},
+    stopAnalysis: {sync: true},
     /**
      * Reset store
      */

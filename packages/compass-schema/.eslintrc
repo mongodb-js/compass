@@ -7,7 +7,7 @@
     }],
     "react/no-multi-comp": "off",
     "no-unused-vars": "error",
-    "no-use-before-define": "off",
+    "no-use-before-define": "error",
     "camelcase": "off"
   }
 }
