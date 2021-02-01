@@ -103,7 +103,7 @@ const connectionsToTest = [{
     },
     build: {
       raw: {
-        version: '4.4.1'
+        version: /4.4.[1-9]+$/
       }
     },
     host: {
@@ -232,9 +232,9 @@ describe('Connectivity', () => {
             expectedInstanceDetails.host[hostDetailKey]
           );
         });
-        expect(instanceDetails.build.raw.version).to.equal(
+        expect(instanceDetails.build.raw.version.match(
           expectedInstanceDetails.build.raw.version
-        );
+        ).length).to.equal(1);
         expect(instanceDetails.client.isWritable).to.equal(
           expectedInstanceDetails.client.isWritable
         );
