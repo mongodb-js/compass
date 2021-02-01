@@ -8,7 +8,7 @@ const debug = require('debug')('connectivity-test');
 const { promisify } = require('util');
 
 Enzyme.configure({ adapter: new Adapter() });
-const mount = Enzyme.mount;
+const { mount } = Enzyme;
 
 // Stub electron module for tests
 const originalLoader = m._load;
@@ -93,25 +93,27 @@ const connectionsToTest = [{
     hostname: 'localhost',
     port: 27020,
   },
-  // Each key in here is tested to see if it deep equals the
-  // instance detail resulting from the connection
   expectedInstanceDetails: {
-    // host: ['client', 'db', getHostInfo],
-    // build: ['client', 'db', getBuildInfo],
+    _id: 'localhost:27020',
+    hostname: 'localhost',
+    port: 27020,
+    client: {
+      isWritable: true,
+      isMongos: false,
+    },
+    build: {
+      raw: {
+        version: '4.4.1'
+      }
+    },
+    host: {
+      os: 'Ubuntu',
+      os_family: 'linux',
+      kernel_version: '18.04',
+      arch: 'x86_64'
+    },
     genuineMongoDB: { isGenuine: true, dbType: 'mongodb' },
     dataLake: { isDataLake: false, version: null },
-
-    // databases: [], // Each database also collections array has which getHierarchy sets.
-
-    // collections: [],
-
-    // // Has totals for all dbs. keys with number values are 'document_count', 'storage_size', 'index_count', 'index_size'
-    // stats: {
-    //   document_count: 3,
-    //   storage_size: 123,
-    //   index_count: 1,
-    //   index_size: 123
-    // }
   }
 }];
 
@@ -165,18 +167,13 @@ describe('Connectivity', () => {
         debug('Created model with connection string:', model.driverUrl);
 
         // 2. Load the connection model through compass-connect and render it.
-
-        // Do we want to render and connect in both the string and connect
-        // form views? Here's where it uses the compass-connect store to decide:
-        // https://github.com/mongodb-js/compass-connect/blob/master/src/stores/index.js#L325
-
         // Load the connection into compass-connect's connection model.
         compassConnectStore.state.currentConnection = model;
         compassConnectStore.trigger(compassConnectStore.state);
 
         // Here we use the parsed connection model and build a url.
-        // This is a bit hacky, but could be something that would occur if
-        // a user is switching between the views and editing.
+        // This is something that would occur if
+        // a user is switching between the connection views and editing.
         compassConnectStore.state.customUrl = compassConnectStore.state.currentConnection.driverUrlWithSsh;
         compassConnectStore.trigger(compassConnectStore.state);
 
@@ -226,11 +223,36 @@ describe('Connectivity', () => {
         await runDisconnect();
 
         // 5. Ensure the connection details are what we expect.
-        Object.keys(connection.expectedInstanceDetails).forEach(detailKey => {
-          expect(instanceDetails[detailKey]).to.deep.equal(
-            connection.expectedInstanceDetails[detailKey]
+        const expectedInstanceDetails = connection.expectedInstanceDetails;
+        expect(instanceDetails._id).to.equal(
+          expectedInstanceDetails._id
+        );
+        Object.keys(expectedInstanceDetails.host).forEach(hostDetailKey => {
+          expect(instanceDetails.host[hostDetailKey]).to.equal(
+            expectedInstanceDetails.host[hostDetailKey]
           );
         });
+        expect(instanceDetails.build.raw.version).to.equal(
+          expectedInstanceDetails.build.raw.version
+        );
+        expect(instanceDetails.client.isWritable).to.equal(
+          expectedInstanceDetails.client.isWritable
+        );
+        expect(instanceDetails.client.isMongos).to.equal(
+          expectedInstanceDetails.client.isMongos
+        );
+        expect(instanceDetails.dataLake).to.deep.equal(
+          expectedInstanceDetails.dataLake
+        );
+        expect(instanceDetails.genuineMongoDB).to.deep.equal(
+          expectedInstanceDetails.genuineMongoDB
+        );
+        expect(instanceDetails.hostname).to.equal(
+          expectedInstanceDetails.hostname
+        );
+        expect(instanceDetails.port).to.equal(
+          expectedInstanceDetails.port
+        );
       });
     });
   });
