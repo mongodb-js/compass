@@ -13,10 +13,19 @@ const directoryExists = (directoryPath) => {
 
 const cloneDockerEnvsRepo = () => {
   if (directoryExists(dockerEnvsPath)) {
-    execSync(`rm -Rf ${dockerEnvsPath}`);
+    const branch = execSync(
+      'git rev-parse HEAD',
+      {
+        cwd: dockerEnvsPath
+      }
+    ).toString();
+    if (!branch.includes(dockerEnvsRepoCommit)) {
+      throw new Error(`Please remove the existing temp docker envs repo at "${dockerEnvsPath}"`);
+    }
+    return;
   }
 
-  execSync(`git clone ${dockerEnvsRepo} ${dockerEnvsPath}`);
+  execSync(`git clone "${dockerEnvsRepo}" "${dockerEnvsPath}"`);
 };
 
 module.exports.dockerComposeUp = (dockerComposeFile) => {
@@ -27,7 +36,7 @@ module.exports.dockerComposeUp = (dockerComposeFile) => {
 
   // 2. Checkout to the commit of the docker images repo we know.
   execSync(
-    `git -c advice.detachedHead=false checkout ${dockerEnvsRepoCommit}`,
+    `git -c advice.detachedHead=false checkout "${dockerEnvsRepoCommit}"`,
     {
       cwd: dockerEnvsPath,
       stdio: 'inherit'
@@ -35,7 +44,7 @@ module.exports.dockerComposeUp = (dockerComposeFile) => {
   );
 
   // 3. Start our docker image.
-  execSync(`docker-compose -f ${dockerComposeFile} up -d`, {
+  execSync(`docker-compose -f "${dockerComposeFile}" up -d`, {
     cwd: dockerEnvsPath,
     stdio: 'inherit'
   });
@@ -46,7 +55,7 @@ module.exports.dockerComposeUp = (dockerComposeFile) => {
 module.exports.dockerComposeDown = (dockerComposeFile) => {
   debug('Shutting down docker instance...');
 
-  execSync(`docker-compose -f ${dockerComposeFile} down`, {
+  execSync(`docker-compose -f "${dockerComposeFile}" down`, {
     cwd: dockerEnvsPath,
     stdio: 'inherit'
   });
