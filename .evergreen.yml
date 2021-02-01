@@ -230,7 +230,6 @@ functions:
           # Load environment variables
           source ~/compass_env.sh
           echo "Running connectivity tests..."
-          bash .evergreen/pretest.sh
           DEBUG=* npm run test-connectivity
 
   'package':
