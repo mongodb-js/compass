@@ -630,7 +630,7 @@ buildvariants:
 
   - name: ubuntu
     display_name: Ubuntu
-    run_on: ubuntu1404-test
+    run_on: ubuntu1804-test
     tasks:
       - name: compile
       - name: verify
