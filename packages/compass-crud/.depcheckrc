@@ -1,0 +1,12 @@
+ignores: [
+  "font-awesome",
+  "stores",
+  "actions",
+  "components",
+  "plugin",
+  "pre-commit",
+  "moment",
+  "babel-*",
+  "karma-*",
+  "webpack-*"
+]

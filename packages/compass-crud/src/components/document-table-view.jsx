@@ -463,6 +463,12 @@ class DocumentTableView extends React.Component {
    * When the component is updated, handle any changes to the paths.
    */
   handleBreadcrumbChange() {
+    // the state may get an intermediate
+    // update before data are ready.
+    if (!this.gridApi) {
+      return;
+    }
+
     const params = this.props.table;
     if (params.path.length === 0) {
       this.topLevel = true;

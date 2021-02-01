@@ -9,7 +9,6 @@ src/
 mocha-webpack.opts
 scripts/
 test/
-.storybook/
 coverage/
 .nyc_output/
 .github/

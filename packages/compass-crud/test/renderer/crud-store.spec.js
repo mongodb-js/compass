@@ -258,85 +258,41 @@ describe('store', function() {
   });
 
   describe('#onQueryChanged', () => {
-    context('when a project is present', () => {
-      let store;
-      let actions;
+    let store;
+    let actions;
 
-      beforeEach(() => {
-        actions = configureActions();
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          dataProvider: {
-            error: null,
-            dataProvider: dataService
-          },
-          actions: actions,
-          namespace: 'compass-crud.test'
-        });
-      });
-
-      const query = {
-        filter: { name: 'test' },
-        sort: { name: 1 },
-        collation: { locale: 'simple' },
-        limit: 10,
-        skip: 5,
-        project: { name: 1 }
-      };
-
-      it('tiggers with the reset documents and isEditable false', (done) => {
-        const unsubscribe = store.listen((state) => {
-          expect(state.error).to.equal(null);
-          expect(state.docs).to.deep.equal([]);
-          expect(state.count).to.equal(0);
-          expect(state.isEditable).to.equal(false);
-          unsubscribe();
-          done();
-        });
-
-        store.onQueryChanged(query);
+    beforeEach(() => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test'
       });
     });
 
-    context('when a project is not present', () => {
-      let store;
-      let actions;
+    const query = {
+      filter: { name: 'test' },
+      sort: { name: 1 },
+      collation: { locale: 'simple' },
+      limit: 10,
+      skip: 5
+    };
 
-      beforeEach(() => {
-        actions = configureActions();
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          dataProvider: {
-            error: null,
-            dataProvider: dataService
-          },
-          actions: actions,
-          namespace: 'compass-crud.test'
-        });
+    it('resets the state', (done) => {
+      const unsubscribe = store.listen((state) => {
+        expect(state.error).to.equal(null);
+        expect(state.docs).to.deep.equal([]);
+        expect(state.count).to.equal(0);
+        unsubscribe();
+        done();
       });
 
-      const query = {
-        filter: { name: 'test' },
-        sort: { name: 1 },
-        collation: { locale: 'simple' },
-        limit: 10,
-        skip: 5
-      };
-
-      it('tiggers with the reset documents with isEditable true', (done) => {
-        const unsubscribe = store.listen((state) => {
-          expect(state.error).to.equal(null);
-          expect(state.docs).to.deep.equal([]);
-          expect(state.count).to.equal(0);
-          expect(state.isEditable).to.equal(true);
-          unsubscribe();
-          done();
-        });
-
-        store.onQueryChanged(query);
-      });
+      store.onQueryChanged(query);
     });
   });
 
@@ -1317,12 +1273,17 @@ describe('store', function() {
       context('when there is no error', () => {
         it('resets the documents to the first page', (done) => {
           const unsubscribe = store.listen((state) => {
-            expect(state.error).to.equal(null);
-            expect(state.docs).to.have.length(1);
-            expect(state.count).to.equal(1);
-            expect(state.start).to.equal(1);
-            unsubscribe();
-            done();
+            try {
+              expect(state.error).to.equal(null);
+              expect(state.docs).to.have.length(1);
+              expect(state.count).to.equal(1);
+              expect(state.start).to.equal(1);
+              done();
+            } catch (err) {
+              done(err);
+            } finally {
+              unsubscribe();
+            }
           });
 
           store.refreshDocuments();
@@ -1336,12 +1297,17 @@ describe('store', function() {
 
         it('resets the documents to the first page', (done) => {
           const unsubscribe = store.listen((state) => {
-            expect(state.error).to.not.equal(null);
-            expect(state.docs).to.have.length(0);
-            expect(state.count).to.equal(null);
-            expect(state.start).to.equal(0);
-            unsubscribe();
-            done();
+            try {
+              expect(state.error).to.not.equal(null);
+              expect(state.docs).to.have.length(0);
+              expect(state.count).to.equal(0);
+              expect(state.start).to.equal(0);
+              done();
+            } catch (err) {
+              done(err);
+            } finally {
+              unsubscribe();
+            }
           });
 
           store.refreshDocuments();
@@ -1379,6 +1345,91 @@ describe('store', function() {
           expect(state.shardKeys).to.deep.equal({ a: 1 });
           unsubscribe();
           done();
+        });
+
+        store.refreshDocuments();
+      });
+    });
+
+    context('with a projection', () => {
+      let store;
+      let actions;
+
+      beforeEach((done) => {
+        actions = configureActions();
+        store = configureStore({
+          query: { project: {_id: 0} },
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions,
+          namespace: 'compass-crud.test',
+          noRefreshOnConfigure: true
+        });
+
+        store.setState({query: {project: {_id: 0}}});
+        dataService.insertOne('compass-crud.test', { name: 'testing' }, {}, done);
+      });
+
+      afterEach((done) => {
+        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      });
+
+      it('sets the state as not editable', (done) => {
+        const unsubscribe = store.listen((state) => {
+          try {
+            expect(state.isEditable).to.equal(false);
+            done();
+          } catch (err) {
+            done(err);
+          } finally {
+            unsubscribe();
+          }
+        });
+
+        store.refreshDocuments();
+      });
+    });
+
+    context('without a projection', () => {
+      let store;
+      let actions;
+
+      beforeEach((done) => {
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions,
+          namespace: 'compass-crud.test',
+          noRefreshOnConfigure: true
+        });
+
+        store.setState({isEditable: false});
+        dataService.insertOne('compass-crud.test', { name: 'testing' }, {}, done);
+      });
+
+      afterEach((done) => {
+        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      });
+
+      it('resets the state as editable', (done) => {
+        const unsubscribe = store.listen((state) => {
+          try {
+            expect(state.isEditable).to.equal(true);
+            done();
+          } catch (err) {
+            done(err);
+          } finally {
+            unsubscribe();
+          }
         });
 
         store.refreshDocuments();

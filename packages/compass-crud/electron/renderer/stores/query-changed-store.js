@@ -10,6 +10,9 @@ const EXTENDED_QUERY_PROPERTIES = QUERY_PROPERTIES.concat([
   'queryState',
   'ns'
 ]);
+
+const DEFAULT_INITIAL_MAX_TIME_MS = 60000;
+
 /**
  * This is a convenience store that only triggers when the actual query
  * object (stored as `QueryStore.lastExecutedQuery`) has changed, e.g.
@@ -79,7 +82,7 @@ const QueryChangedStore = Reflux.createStore({
       sample: false,
 
       // internal query properties
-      maxTimeMS: 5000,
+      maxTimeMS: DEFAULT_INITIAL_MAX_TIME_MS,
 
       // string values for the query bar input fields
       filterString: '',

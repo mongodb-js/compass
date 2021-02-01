@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         mongoVersion: [stable, unstable]
-      
+
     env:
       MONGODB_VERSION: ${{ matrix.mongoVersion }}
       MONGODB_TOPOLOGY: standalone
@@ -35,16 +35,17 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      
+
       - name: Install Required OS Packages
         run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools
-      
+
       - name: Install NPM Packages
         run: npm install
-      
+
       - name: Check and Test
         run: |
           npm run check
+          npm run compile
           npm run test
           while true; do \
             MATCH="$(sudo netstat -tlnp | grep 27018 || true)"; \

@@ -13,6 +13,10 @@ import Toolbar from 'components/toolbar';
 import './index.less';
 import './ag-grid-dist.css';
 
+const OUTDATED_WARNING = `The content is outdated and no longer in sync
+with the current query. Press "Find" again to see the results for
+the current query.`;
+
 /**
  * Component for the entire document list.
  */
@@ -26,6 +30,14 @@ class DocumentList extends React.Component {
       this.queryBarStore = appRegistry.getStore(this.queryBarRole.storeName);
       this.queryBarActions = appRegistry.getAction(this.queryBarRole.actionName);
     }
+  }
+
+  onApplyClicked() {
+    this.props.store.refreshDocuments();
+  }
+
+  onResetClicked() {
+    this.props.store.refreshDocuments();
   }
 
   /**
@@ -56,6 +68,18 @@ class DocumentList extends React.Component {
     return (<DocumentJsonView {...this.props} />);
   }
 
+  renderOutdatedWarning() {
+    if (!this.props.outdated) {
+      return;
+    }
+
+    return (
+      <StatusRow style="warning">
+        {OUTDATED_WARNING}
+      </StatusRow>
+    );
+  }
+
   /**
    * Render the list of documents.
    *
@@ -69,9 +93,11 @@ class DocumentList extends React.Component {
         </StatusRow>
       );
     }
+
     return (
       <div className="column-container">
         <div className="column main">
+          {this.renderOutdatedWarning()}
           {this.renderViews()}
         </div>
       </div>
@@ -114,7 +140,10 @@ class DocumentList extends React.Component {
         <this.queryBar
           store={this.queryBarStore}
           actions={this.queryBarActions}
-          buttonLabel="Find" />
+          buttonLabel="Find"
+          onApply={this.onApplyClicked.bind(this)}
+          onReset={this.onResetClicked.bind(this)}
+        />
       );
     }
   }
@@ -216,7 +245,8 @@ DocumentList.propTypes = {
   ns: PropTypes.string,
   tz: PropTypes.string,
   updateComment: PropTypes.func.isRequired,
-  status: PropTypes.string
+  status: PropTypes.string,
+  outdated: PropTypes.bool
 };
 
 DocumentList.defaultProps = {
