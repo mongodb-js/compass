@@ -166,12 +166,18 @@ describe('ExportModal [Component]', () => {
       component = null;
     });
 
-    it('renders the builders checkbox when true', () => {
+    it('renders the builders checkbox when output is Java and in Query mode', () => {
       expect(component.find('[data-test-id="export-to-lang-checkbox-builders"]')).to.be.present();
     });
     it('calls the click button action', () => {
       component.find('[data-test-id="export-to-lang-checkbox-builders"]').simulate('click');
       expect(buildersChangedSpy.calledOnce).to.equal(true);
+    });
+    it('hides the builders checkbox when output is Java and in Pipeline mode', () => {
+      component.setProps({
+        mode: 'Pipeline'
+      })
+      expect(component.find('[data-test-id="export-to-lang-checkbox-builders"]')).not.to.be.present();
     });
   });
 

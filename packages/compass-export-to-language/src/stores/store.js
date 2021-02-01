@@ -2,7 +2,7 @@ import { inputExpressionChanged } from 'modules/input-expression';
 import { modalOpenChanged } from 'modules/modal-open';
 import { modeChanged } from 'modules/mode';
 import { uriChanged } from 'modules/uri';
-import { runTranspiler } from 'modules';
+import { runTranspiler } from 'modules/run-transpiler';
 import { copyToClipboardFnChanged } from 'modules/copy-to-clipboard';
 import { namespaceChanged } from 'modules/namespace';
 import { createStore, applyMiddleware } from 'redux';

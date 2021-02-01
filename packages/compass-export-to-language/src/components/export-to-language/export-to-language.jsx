@@ -1,4 +1,4 @@
-import { runTranspiler } from 'modules';
+import { runTranspiler } from 'modules/run-transpiler';
 import { copySuccessChanged } from 'modules/copy-success';
 import { errorChanged } from 'modules/error';
 import { outputLangChanged } from 'modules/output-lang';
@@ -6,7 +6,6 @@ import { modalOpenChanged } from 'modules/modal-open';
 import { showImportsChanged } from 'modules/show-imports';
 import { buildersChanged } from 'modules/builders';
 import { driverChanged } from 'modules/driver';
-import { copyToClipboardFnChanged } from 'modules/copy-to-clipboard';
 import ExportModal from 'components/export-modal';
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';

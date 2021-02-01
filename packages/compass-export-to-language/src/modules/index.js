@@ -47,11 +47,6 @@ import uri, {
 import namespace, {
   INITIAL_STATE as NS_INITIAL_STATE
 } from 'modules/namespace';
-import {
-  globalAppRegistryEmit
-} from 'mongodb-redux-common/app-registry';
-import compiler from 'bson-transpilers';
-import toNS from 'mongodb-ns';
 
 export const INITIAL_STATE = {
   builders: BUILDERS_INITIAL_STATE,
@@ -102,43 +97,6 @@ const reducer = combineReducers({
  */
 const rootReducer = (state, action) => {
   return reducer(state, action);
-};
-
-
-export const runTranspiler = (input) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const outputLang = state.outputLang;
-    try {
-      let output;
-      if (state.driver) {
-        const ns = toNS(state.namespace);
-        const toCompile = Object.assign(
-          {
-            options: {
-              collection: ns.collection,
-              database: ns.database,
-              uri: state.uri
-            }
-        }, input);
-        output = compiler.shell[outputLang].compileWithDriver(toCompile, state.builders);
-      } else {
-        const toCompile = state.mode === 'Query' ? input.filter : input.aggregation;
-        output = compiler.shell[outputLang].compile(toCompile, state.builders, false);
-      }
-      dispatch(transpiledExpressionChanged(output));
-      dispatch(importsChanged(compiler.shell[outputLang].getImports(state.driver)));
-      dispatch(errorChanged(null));
-      dispatch(
-        globalAppRegistryEmit(
-          'compass:export-to-language:run',
-          { language: outputLang, showImports: state.showImports, type: state.mode, driver: state.driver }
-        )
-      );
-    } catch (e) {
-      return dispatch(errorChanged(e.message));
-    }
-  };
 };
 
 export default rootReducer;

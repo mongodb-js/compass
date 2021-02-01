@@ -52,7 +52,7 @@ class ExportModal extends PureComponent {
   };
 
   renderBuilderCheckbox = () => {
-    if (this.props.outputLang === 'java') {
+    if (this.props.outputLang === 'java' && this.props.mode === 'Query') {
       return (
         <div className={classnames(styles['export-to-lang-modal-checkbox-builders'])}>
           <Checkbox defaultChecked={this.props.builders}
