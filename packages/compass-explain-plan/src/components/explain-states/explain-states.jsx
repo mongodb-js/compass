@@ -156,9 +156,9 @@ class ExplainStates extends Component {
             <div className={classnames(styles['zero-state-action'])}>
               <div>
                 <TextButton
-                  className={`btn btn-primary btn-lg ${
-                    !this.props.isEditable ? 'disabled' : ''
-                  }`}
+                  className={
+                    `btn btn-primary btn-lg ${!this.props.isEditable ? 'disabled' : ''}`
+                  }
                   text="Execute Explain"
                   clickHandler={this.onExecuteExplainClicked.bind(this)} />
               </div>
@@ -200,7 +200,7 @@ class ExplainStates extends Component {
         actions={this.queryBarActions}
         buttonLabel="Explain"
         onApply={this.onExecuteExplainClicked.bind(this)}
-        onReset={this.props.changeExplainPlanState.bind(this, EXPLAIN_STATES.INITIAL)}
+        onReset={this.onExecuteExplainClicked.bind(this)}
       />
     );
   }
