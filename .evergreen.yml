@@ -635,6 +635,7 @@ buildvariants:
       - name: compile
       - name: verify
       - name: test-data-service
+      - name: test-connectivity
       # - name: test-unit
       # - name: test-main
       # - name: test-connect-plugin
