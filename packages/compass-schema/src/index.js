@@ -1,13 +1,14 @@
 import CompassSchemaPlugin from './plugin';
 import configureStore from 'stores';
 import configureActions from 'actions';
+import { TAB_NAME } from './constants/plugin';
 
 /**
  * A sample role for the component.
  */
 const ROLE = {
   component: CompassSchemaPlugin,
-  name: 'Schema',
+  name: TAB_NAME,
   hasQueryHistory: true,
   order: 3,
   configureStore: configureStore,

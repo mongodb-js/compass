@@ -11,6 +11,7 @@ import {
   ANALYSIS_STATE_INITIAL,
   ANALYSIS_STATE_TIMEOUT
 } from '../constants/analysis-states';
+import { TAB_NAME } from '../constants/plugin';
 
 const debug = require('debug')('mongodb-compass:stores:schema');
 
@@ -108,6 +109,7 @@ const configureStore = (options = {}) => {
       };
       this.ns = '';
       this.geoLayers = {};
+      this.isActiveTab = false;
     },
 
     getShareText() {
@@ -147,11 +149,18 @@ const configureStore = (options = {}) => {
       this.query.project = state.project;
       this.query.maxTimeMS = state.maxTimeMS;
 
-      if (this.state.analysisState === ANALYSIS_STATE_COMPLETE) {
+      if (
+        this.state.analysisState === ANALYSIS_STATE_COMPLETE &&
+        !this.isActiveTab
+      ) {
         this.setState({
           outdated: true
         });
       }
+    },
+
+    onSubTabChanged: function(name) {
+      this.isActiveTab = name === TAB_NAME;
     },
 
     onSchemaSampled() {
@@ -265,6 +274,10 @@ const configureStore = (options = {}) => {
 
   // Set the app registry if preset. This must happen first.
   if (options.localAppRegistry) {
+    options.localAppRegistry.on('subtab-changed', (name) => {
+      store.onSubTabChanged(name);
+    });
+
     /**
      * When the collection is changed, update the store.
      */

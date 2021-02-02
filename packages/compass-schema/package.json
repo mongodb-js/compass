@@ -20,7 +20,8 @@
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
     "prepublishOnly": "npm run compile",
-    "install": "node scripts/download-akzidenz.js"
+    "install": "node scripts/download-akzidenz.js",
+    "start-compass": "node scripts/run-in-compass.js"
   },
   "precommit": [
     "check"
