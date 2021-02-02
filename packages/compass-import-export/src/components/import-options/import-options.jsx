@@ -73,47 +73,47 @@ class ImportOptions extends PureComponent {
         />
         <fieldset>
           <legend className={style('legend')}>Options</legend>
-          {isCSV && (
+          {isCSV && (<React.Fragment>
             <div className={style('option')}>
               <label className={style('option-select-label')}>
                 Select delimiter
+                <select
+                  onChange={(evt) => {
+                    this.props.setDelimiter(evt.currentTarget.value);
+                  }}
+                  defaultValue={this.props.delimiter}
+                  className={style('option-select')}>
+                  <option value=",">comma</option>
+                  <option value={'\t'}>tab</option>
+                  <option value=";">semicolon</option>
+                  <option value=" ">space</option>
+                </select>
               </label>
-              <select
-                onChange={(evt) => {
-                  this.props.setDelimiter(evt.currentTarget.value);
-                }}
-                defaultValue={this.props.delimiter}
-                className={style('option-select')}>
-                <option value=",">comma</option>
-                <option value={'\t'}>tab</option>
-                <option value=";">semicolon</option>
-                <option value=" ">space</option>
-              </select>
             </div>
-          )}
+            <div className={style('option')}>
+              <label className={style('option-checkbox-label')}>
+                <input
+                  type="checkbox"
+                  checked={this.props.ignoreBlanks}
+                  onChange={() => {
+                    this.props.setIgnoreBlanks(!this.props.ignoreBlanks);
+                  }}
+                  className={style('option-checkbox')}
+                />
+                Ignore empty strings
+              </label>
+            </div>
+          </React.Fragment>)}
           <div className={style('option')}>
-            <input
-              type="checkbox"
-              checked={this.props.ignoreBlanks}
-              onChange={() => {
-                this.props.setIgnoreBlanks(!this.props.ignoreBlanks);
-              }}
-              className={style('option-checkbox')}
-            />
             <label className={style('option-checkbox-label')}>
-              Ignore empty strings
-            </label>
-          </div>
-          <div className={style('option')}>
-            <input
-              type="checkbox"
-              checked={this.props.stopOnErrors}
-              onChange={() => {
-                this.props.setStopOnErrors(!this.props.stopOnErrors);
-              }}
-              className={style('option-checkbox')}
-            />
-            <label className={style('option-checkbox-label')}>
+              <input
+                type="checkbox"
+                checked={this.props.stopOnErrors}
+                onChange={() => {
+                  this.props.setStopOnErrors(!this.props.stopOnErrors);
+                }}
+                className={style('option-checkbox')}
+              />
               Stop on errors
             </label>
           </div>

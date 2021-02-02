@@ -33,6 +33,7 @@ import stripBomStream from 'strip-bom-stream';
 import mime from 'mime-types';
 
 import PROCESS_STATUS from 'constants/process-status';
+import FILE_TYPES from 'constants/file-types';
 import { appRegistryEmit, globalAppRegistryEmit } from 'modules/compass';
 
 import detectImportFile from 'utils/detect-import-file';
@@ -179,11 +180,12 @@ export const startImport = () => {
       fileIsMultilineJSON,
       fileStats: { size },
       delimiter,
-      ignoreBlanks,
+      ignoreBlanks: ignoreBlanks_,
       stopOnErrors,
       exclude,
       transform
     } = importData;
+    const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
 
     const source = fs.createReadStream(fileName, 'utf8');
 
