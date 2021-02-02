@@ -90,7 +90,7 @@ describe('import-apply-types-and-projection', () => {
       const res = transformProjectedTypesStream({
         exclude: [],
         transform: [],
-        removeBlanks: false
+        ignoreBlanks: false
       });
       expect(res.constructor.name).to.equal('PassThrough');
     });
@@ -344,7 +344,7 @@ describe('import-apply-types-and-projection', () => {
       });
     });
   });
-  describe('removeBlanks', () => {
+  describe('ignoreBlanks', () => {
     it('should not remove empty strings by default', () => {
       const source = {
         _id: 1,
@@ -359,7 +359,7 @@ describe('import-apply-types-and-projection', () => {
         _id: 1,
         empty: ''
       };
-      const result = apply(source, { transform: [], exclude: [], removeBlanks: true });
+      const result = apply(source, { transform: [], exclude: [], ignoreBlanks: true });
       expect(result).to.deep.equal({ _id: 1 });
     });
     it('should not convert ObjectID to Object', () => {
@@ -369,7 +369,7 @@ describe('import-apply-types-and-projection', () => {
       };
       const result = apply(source, {
         transform: ['_id', 'ObjectID'],
-        removeBlanks: true
+        ignoreBlanks: true
       });
       expect(result).to.deep.equal({
         _id: new ObjectID('5e74f99c182d2e9e6572c388')
@@ -384,7 +384,7 @@ describe('import-apply-types-and-projection', () => {
         falsed: false,
         undef: undefined
       };
-      const result = apply(source, { removeBlanks: true });
+      const result = apply(source, { ignoreBlanks: true });
       expect(result).to.deep.equal({
         _id: 1,
         nulled: null,
@@ -403,7 +403,7 @@ describe('import-apply-types-and-projection', () => {
         const transform = transformProjectedTypesStream({
           exclude: [],
           transform: [],
-          removeBlanks: false
+          ignoreBlanks: false
         });
         expect(transform).to.be.instanceOf(stream.PassThrough);
       });
@@ -418,7 +418,7 @@ describe('import-apply-types-and-projection', () => {
           }
         ]);
 
-        const transform = transformProjectedTypesStream({ removeBlanks: true });
+        const transform = transformProjectedTypesStream({ ignoreBlanks: true });
         let result;
         const dest = new stream.Writable({
           objectMode: true,

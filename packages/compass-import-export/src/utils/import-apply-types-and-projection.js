@@ -14,15 +14,15 @@ const debug = createLogger('apply-import-type-and-projection');
  * @param {any} data Some data you want to transform.
  * @param {Array} transform `[${dotnotation}, ${targetType}]`.
  * @param {Array} exclude `[${dotnotation}]`
- * @param {Boolean} removeBlanks Empty strings removed from document before insertion.
+ * @param {Boolean} ignoreBlanks Empty strings removed from document before insertion.
  * @param {String} keyPrefix Used internally when recursing into nested objects.
  * @returns {Object}
  */
-function transformProjectedTypes(data, { transform = [], exclude = [], removeBlanks = false, keyPrefix = '' } = {}) {
+function transformProjectedTypes(data, { transform = [], exclude = [], ignoreBlanks = false, keyPrefix = '' } = {}) {
   if (Array.isArray(data)) {
     debug('data is an array');
     return data.map(function(doc) {
-      return transformProjectedTypes(doc, { transform, exclude, removeBlanks, keyPrefix });
+      return transformProjectedTypes(doc, { transform, exclude, ignoreBlanks, keyPrefix });
     });
   } else if (data === null || data === undefined) {
     debug('data is null or undefined');
@@ -53,7 +53,7 @@ function transformProjectedTypes(data, { transform = [], exclude = [], removeBla
   const allPaths = _.keys(dotted);
   allPaths.forEach(function(keyPath) {
     const value = _.get(dotted, keyPath);
-    if (removeBlanks === true && value === '') {
+    if (ignoreBlanks === true && value === '') {
       // debug('dropped blank field', value);
       _.unset(result, [keyPath]);
       return false;
@@ -98,7 +98,7 @@ export default transformProjectedTypes;
  * @param {spec} spec
  * @returns {TransformStream}
  */
-export function transformProjectedTypesStream({ transform = [], exclude = [], removeBlanks = false } = {}) {
+export function transformProjectedTypesStream({ transform = [], exclude = [], ignoreBlanks = false } = {}) {
   if (!Array.isArray(transform)) {
     throw new TypeError('spec.transform must be an array');
   }
@@ -107,17 +107,17 @@ export function transformProjectedTypesStream({ transform = [], exclude = [], re
     throw new TypeError('spec.exclude must be an array');
   }
 
-  if (transform.length === 0 && exclude.length === 0 && removeBlanks === false) {
+  if (transform.length === 0 && exclude.length === 0 && ignoreBlanks === false) {
     debug('spec is a noop. passthrough stream');
     return new PassThrough({ objectMode: true });
   }
 
-  debug('creating transform stream for spec', { transform, exclude, removeBlanks });
+  debug('creating transform stream for spec', { transform, exclude, ignoreBlanks });
   return new Transform({
     objectMode: true,
     transform: function(doc, _encoding, cb) {
       try {
-        const result = transformProjectedTypes(doc, { transform, exclude, removeBlanks });
+        const result = transformProjectedTypes(doc, { transform, exclude, ignoreBlanks });
         return cb(null, result);
       } catch (err) {
         return cb(err);
