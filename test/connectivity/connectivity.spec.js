@@ -6,6 +6,7 @@ const m = require('module');
 const React = require('react');
 const debug = require('debug')('connectivity-test');
 const { promisify } = require('util');
+const sinon = require('sinon');
 
 Enzyme.configure({ adapter: new Adapter() });
 const { mount } = Enzyme;
@@ -55,7 +56,6 @@ const activateCompassConnect = CompassConnectPlugin.activate;
 
 const deactivateCompassConnect = CompassConnectPlugin.deactivate;
 
-const TEST_TIMEOUT_MS = require('./.mocharc.json').timeout;
 const {
   dockerComposeDown,
   dockerComposeUp
@@ -70,21 +70,6 @@ console.warn = (msg) => (
 );
 
 const delay = promisify(setTimeout);
-const ensureConnected = async(timeout, testIsConnected) => {
-  let connected = await testIsConnected();
-  let timespentTesting = 0;
-  while (!connected) {
-    if (timeout > TEST_TIMEOUT_MS || timespentTesting > TEST_TIMEOUT_MS) {
-      throw new Error('Waited for connection, never happened');
-    }
-    debug(`Testing connectivity at timeout=${timeout}, connected=${connected}`);
-    await delay(timeout);
-    timespentTesting += timeout;
-    timeout *= 2; // Try again but wait double.
-    connected = await testIsConnected();
-  }
-  return connected;
-};
 
 const connectionsToTest = [{
   title: 'local community standalone',
@@ -95,34 +80,42 @@ const connectionsToTest = [{
   },
   expectedInstanceDetails: {
     _id: 'localhost:27020',
-    hostname: 'localhost',
-    port: 27020,
-    client: {
-      isWritable: true,
-      isMongos: false,
-    },
+    authenticatedUsers: [],
     build: {
       raw: {
         version: /4.4.[1-9]+$/
       }
     },
+    client: {
+      isWritable: true,
+      isMongos: false,
+    },
+    dataLake: { isDataLake: false, version: null },
+    genuineMongoDB: { isGenuine: true, dbType: 'mongodb' },
     host: {
       os: 'Ubuntu',
       os_family: 'linux',
       kernel_version: '18.04',
       arch: 'x86_64'
     },
-    genuineMongoDB: { isGenuine: true, dbType: 'mongodb' },
-    dataLake: { isDataLake: false, version: null },
+    hostname: 'localhost',
+    port: 27020
   }
 }];
 
 describe('Connectivity', () => {
-  let appRegistry;
-  let compassConnectStore;
-  connectionsToTest.forEach(connection => {
-    before(() => {
-      dockerComposeUp(connection.dockerComposeFilePath);
+  connectionsToTest.forEach(({
+    dockerComposeFilePath,
+    expectedInstanceDetails,
+    model: testConnectionModel,
+    title: testConnectionTitle
+  }) => {
+    let wrapper;
+    let appRegistry;
+    let compassConnectStore;
+
+    before(async() => {
+      dockerComposeUp(dockerComposeFilePath);
 
       appRegistry = new AppRegistry();
 
@@ -152,106 +145,157 @@ describe('Connectivity', () => {
         showIndeterminateProgressBar: () => {}
       };
       compassConnectStore.appRegistry = appRegistry;
+
+      // Load the connection into our connection model.
+      const model = new Connection(testConnectionModel);
+      debug('Created model with connection string:', model.driverUrl);
+
+      // Load the connection model through compass-connect and render it.
+      // Load the connection into compass-connect's connection model.
+      compassConnectStore.state.currentConnection = model;
+      compassConnectStore.trigger(compassConnectStore.state);
+
+      // Here we use the parsed connection model and build a url.
+      // This is something that would occur if
+      // a user is switching between the connection views and editing.
+      compassConnectStore.state.customUrl = compassConnectStore.state.currentConnection.driverUrlWithSsh;
+      compassConnectStore.trigger(compassConnectStore.state);
+
+      wrapper = mount(<CompassConnectComponent />);
+
+      // Ensures the model doesn't cause any errors when rendering.
+      await compassConnectStore.validateConnectionString();
     });
 
     after(() => {
       deactivateCompassConnect(appRegistry);
 
-      dockerComposeDown(connection.dockerComposeFilePath);
+      dockerComposeDown(dockerComposeFilePath);
     });
 
-    context(`Connection ${connection.title} can connect`, () => {
-      it('loads connection, connects, and loads instance information', async() => {
-        // 1. Load the connection into our connection model.
-        const model = new Connection(connection.model);
-        debug('Created model with connection string:', model.driverUrl);
+    it('doesn\'t have any compass connect store errors when rendering', () => {
+      expect(compassConnectStore.state.errorMessage).to.equal(null);
+      expect(compassConnectStore.state.syntaxErrorMessage).to.equal(null);
+      expect(compassConnectStore.state.isValid).to.equal(true);
+    });
 
-        // 2. Load the connection model through compass-connect and render it.
-        // Load the connection into compass-connect's connection model.
-        compassConnectStore.state.currentConnection = model;
-        compassConnectStore.trigger(compassConnectStore.state);
+    context(`Connection ${testConnectionTitle} successfully connects`, () => {
+      let dataService;
+      let instanceDetails;
+      let onDataServiceConnected;
 
-        // Here we use the parsed connection model and build a url.
-        // This is something that would occur if
-        // a user is switching between the connection views and editing.
-        compassConnectStore.state.customUrl = compassConnectStore.state.currentConnection.driverUrlWithSsh;
-        compassConnectStore.trigger(compassConnectStore.state);
+      before(async() => {
+        onDataServiceConnected = sinon.spy();
+        appRegistry.on('data-service-connected', onDataServiceConnected);
 
-        const wrapper = mount(<CompassConnectComponent />);
-
-        // Ensures the model doesn't cause any errors when rendering.
-        await compassConnectStore.validateConnectionString();
-
-        expect(compassConnectStore.state.errorMessage).to.equal(null);
-        expect(compassConnectStore.state.syntaxErrorMessage).to.equal(null);
-        expect(compassConnectStore.state.isValid).to.equal(true);
-
-        let timesConnectedCalled = 0;
-        let dataServiceConnected = false;
-        let dataServiceConnectedErr;
-        appRegistry.on('data-service-connected', (err) => {
-          timesConnectedCalled++;
-          dataServiceConnected = true;
-          dataServiceConnectedErr = err;
-        });
+        const waitDataserviceConnected = promisify(
+          appRegistry.once.bind(appRegistry, 'data-service-connected')
+        );
 
         // Simulate clicking connect.
         wrapper.find('button[name="connect"]').simulate('click');
 
+        await waitDataserviceConnected();
+
+        dataService = compassConnectStore.dataService;
+
+        // Fetch the instance details using the new connection.
+        const runFetchInstanceDetails = promisify(dataService.instance.bind(dataService));
+        instanceDetails = await runFetchInstanceDetails({});
+      });
+
+      after(async() => {
+        const runDisconnect = promisify(dataService.disconnect.bind(dataService));
+        await runDisconnect();
+      });
+
+      it('does not have any compass connect store errors after connecting', () => {
         expect(compassConnectStore.state.errorMessage).to.equal(null);
         expect(compassConnectStore.state.syntaxErrorMessage).to.equal(null);
         expect(compassConnectStore.state.isValid).to.equal(true);
+      });
 
-        // 3. Wait for the connection event to occur.
-        await ensureConnected(100, () => dataServiceConnected);
+      it('calls the data-service-connected event without an error', () => {
+        expect(onDataServiceConnected.firstCall.args[0]).to.equal(null);
+      });
 
-        if (dataServiceConnectedErr) {
-          throw dataServiceConnectedErr;
-        }
+      it('calls the data-service-connected event with the dataservice', () => {
+        expect(onDataServiceConnected.firstCall.args[1]).to.equal(dataService);
+      });
 
-        if (timesConnectedCalled > 1) {
-          throw new Error('data-service-connected called multiple times');
-        }
-
-        const dataService = compassConnectStore.dataService;
-
-        // 4. Fetch the instance details using the new connection.
-        const runFetchInstanceDetails = promisify(dataService.instance.bind(dataService));
-        const instanceDetails = await runFetchInstanceDetails({});
-
-        const runDisconnect = promisify(dataService.disconnect.bind(dataService));
-        await runDisconnect();
-
-        // 5. Ensure the connection details are what we expect.
-        const expectedInstanceDetails = connection.expectedInstanceDetails;
+      it('has the correct instance _id', () => {
         expect(instanceDetails._id).to.equal(
           expectedInstanceDetails._id
         );
+      });
+
+      it('has the correct host details', () => {
         Object.keys(expectedInstanceDetails.host).forEach(hostDetailKey => {
           expect(instanceDetails.host[hostDetailKey]).to.equal(
             expectedInstanceDetails.host[hostDetailKey]
           );
         });
+      });
+
+      it('has the correct mongodb version in the build info', () => {
         expect(instanceDetails.build.raw.version.match(
           expectedInstanceDetails.build.raw.version
         ).length).to.equal(1);
+      });
+
+      it('has the correct client isWritable set', () => {
         expect(instanceDetails.client.isWritable).to.equal(
           expectedInstanceDetails.client.isWritable
         );
+      });
+
+      it('has the correct client isMongos set', () => {
         expect(instanceDetails.client.isMongos).to.equal(
           expectedInstanceDetails.client.isMongos
         );
+      });
+
+      it('has the correct datalake attributes', () => {
         expect(instanceDetails.dataLake).to.deep.equal(
           expectedInstanceDetails.dataLake
         );
+      });
+
+      it('has the correct genuineMongoDB attributes', () => {
         expect(instanceDetails.genuineMongoDB).to.deep.equal(
           expectedInstanceDetails.genuineMongoDB
         );
+      });
+
+      it('has the correct hostname', () => {
         expect(instanceDetails.hostname).to.equal(
           expectedInstanceDetails.hostname
         );
+      });
+
+      it('has the correct port', () => {
         expect(instanceDetails.port).to.equal(
           expectedInstanceDetails.port
+        );
+      });
+
+      it('calls \'data-service-connected\' only once', async() => {
+        await delay(1000);
+        expect(onDataServiceConnected.callCount).to.equal(1);
+      });
+
+      it('is connected as the correct user', async() => {
+        const runCommand = promisify(
+          dataService.command.bind(dataService)
+        );
+        const connectionStatus = await runCommand(
+          'admin',
+          {
+            connectionStatus: 1
+          }
+        );
+        expect(connectionStatus.authInfo.authenticatedUsers).to.deep.equal(
+          expectedInstanceDetails.authenticatedUsers
         );
       });
     });
