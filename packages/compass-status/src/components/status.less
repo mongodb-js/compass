@@ -13,6 +13,7 @@
 
   &-is-visible {
     visibility: visible;
+    animation: show-loading-status-overlay-anim 50ms linear;
   }
 }
 
@@ -133,6 +134,15 @@
       .animated-rectangle;
       animation-delay: -0.8s;
     }
+  }
+}
+
+@keyframes show-loading-status-overlay-anim {
+  from {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  to {
+    background-color: rgba(255, 255, 255, 0.5);
   }
 }
 

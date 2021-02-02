@@ -113,41 +113,6 @@ describe('StatusStore [Store]', () => {
     });
   });
 
-  describe('#hideProgressBar', () => {
-    beforeEach(() => {
-      Store.state.progressbar = true;
-    });
-
-    it('sets the progress bar to false', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.progressbar).to.equal(false);
-        done();
-      });
-      Actions.hideProgressBar();
-    });
-
-    context('when the bar is trickling', () => {
-      beforeEach((done) => {
-        const unsubscribe = Store.listen(() => {
-          unsubscribe();
-          done();
-        });
-        Actions.enableProgressTrickle();
-      });
-
-      it('stops the trickle', (done) => {
-        const unsubscribe = Store.listen((state) => {
-          unsubscribe();
-          expect(state.trickle).to.equal(false);
-          expect(Store._trickleTimer).to.equal(null);
-          done();
-        });
-        Actions.hideProgressBar();
-      });
-    });
-  });
-
   describe('#configure', () => {
     context('when trickle is falsy', () => {
       beforeEach(() => {
@@ -195,34 +160,6 @@ describe('StatusStore [Store]', () => {
     });
   });
 
-  describe('#setProgressValue', () => {
-    it('sets a visible progress', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.visible).to.equal(true);
-        expect(state.progress).to.equal(45);
-        done();
-      });
-      Actions.setProgressValue(45);
-    });
-  });
-
-  describe('#incProgressValue', () => {
-    beforeEach(() => {
-      Store.state.progress = 40;
-    });
-
-    it('increments the visible progress', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.visible).to.equal(true);
-        expect(state.progress).to.equal(55);
-        done();
-      });
-      Actions.incProgressValue(15);
-    });
-  });
-
   describe('#setMessage', () => {
     it('sets a visible message', (done) => {
       const unsubscribe = Store.listen((state) => {
@@ -247,33 +184,6 @@ describe('StatusStore [Store]', () => {
         done();
       });
       Actions.clearMessage();
-    });
-  });
-
-  describe('#showAnimation', () => {
-    it('sets a visible animation', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.visible).to.equal(true);
-        expect(state.animation).to.equal(true);
-        done();
-      });
-      Actions.showAnimation();
-    });
-  });
-
-  describe('#hideAnimation', () => {
-    beforeEach(() => {
-      Store.state.animation = true;
-    });
-
-    it('hides the animation', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.animation).to.equal(false);
-        done();
-      });
-      Actions.hideAnimation();
     });
   });
 

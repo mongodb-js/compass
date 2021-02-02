@@ -10,22 +10,6 @@ const StatusActions = Reflux.createActions([
    */
   'showIndeterminateProgressBar',
   /**
-   * hides the progress bar.
-   */
-  'hideProgressBar',
-  /**
-   * sets the value of the progres bar.
-   *
-   * @param {Number} value   the value, must be between 0 and 100.
-   */
-  'setProgressValue',
-  /**
-   * increases the value of the progres bar.
-   *
-   * @param {Number} value   increase by value.
-   */
-  'incProgressValue',
-  /**
    * enable trickle: progress bar randomly advances a few percentage points
    * every second to indicate progress.
    */
@@ -44,14 +28,6 @@ const StatusActions = Reflux.createActions([
    * clears and removes the message.
    */
   'clearMessage',
-  /**
-   * shows loading animation in the center of the screen.
-   */
-  'showAnimation',
-  /**
-   * hides loading animation.
-   */
-  'hideAnimation',
   /**
    * shows a static gray sidebar in the background. This is useful when
    * no other content is on the screen yet (e.g. when connecting to a mongod)
