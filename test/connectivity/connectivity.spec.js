@@ -62,7 +62,9 @@ const {
 } = require('./docker-instance-manager');
 
 // Hide react warnings.
+// eslint-disable-next-line no-console
 const originalWarn = console.warn.bind(console.warn);
+// eslint-disable-next-line no-console
 console.warn = (msg) => (
   !msg.toString().includes('componentWillReceiveProps')
   && !msg.toString().includes('componentWillUpdate')
