@@ -69,7 +69,9 @@ class DocumentList extends React.Component {
   }
 
   renderOutdatedWarning() {
-    if (!this.props.outdated) {
+    if (
+      this.props.error ||
+      !this.props.outdated) {
       return;
     }
 
@@ -97,7 +99,6 @@ class DocumentList extends React.Component {
     return (
       <div className="column-container">
         <div className="column main">
-          {this.renderOutdatedWarning()}
           {this.renderViews()}
         </div>
       </div>
@@ -209,6 +210,7 @@ class DocumentList extends React.Component {
             activeDocumentView={this.props.view}
             {...this.props} />
         </div>
+        {this.renderOutdatedWarning()}
         {this.renderZeroState()}
         {this.renderContent()}
         {this.renderInsertModal()}
