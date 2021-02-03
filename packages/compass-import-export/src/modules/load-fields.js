@@ -19,10 +19,10 @@ function truncateFieldToDepth(field, depth) {
     .join('.');
 }
 
-export default async function loadFields(
+export async function loadFields(
   dataService,
   ns,
-  { filter, sampleSize, maxDepth } = {},
+  { filter, sampleSize } = {},
   driverOptions = {}
 ) {
   const find = util.promisify(dataService.find.bind(dataService));
@@ -32,17 +32,18 @@ export default async function loadFields(
     ...driverOptions
   });
 
-  const fieldsSet = docs.reduce((previousSet, doc) => {
-    const fields = extractFieldsFromDocument(doc)
-      .map(field => truncateFieldToDepth(field, maxDepth));
+  const allFieldsSet = new Set();
+  for (const doc of docs) {
+    for (const field of extractFieldsFromDocument(doc)) {
+      allFieldsSet.add(field);
+    }
+  }
+  const allFields = [...allFieldsSet].sort();
+  return Object.fromEntries(allFields.map(field => [field, ENABLED]));
+}
 
-    return new Set([ ...previousSet, ...fields]);
-  }, new Set());
-
-  return Array
-    .from(fieldsSet)
-    .sort()
-    .reduce((folded, field) => {
-      return { ...folded, [field]: ENABLED };
-    }, {});
+export function getSelectableFields(fields, { maxDepth } = {}) {
+  const selectableFields = Object.keys(fields)
+    .map(field => truncateFieldToDepth(field, maxDepth));
+  return Object.fromEntries(selectableFields.map(field => [field, ENABLED]));
 }

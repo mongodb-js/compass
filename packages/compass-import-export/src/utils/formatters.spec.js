@@ -125,7 +125,9 @@ describe('formatters', () => {
         {_id: {foo: 'bar'}}
       ];
       const source = stream.Readable.from(docs);
-      const formatter = createCSVFormatter();
+      const formatter = createCSVFormatter({
+        columns: ['_id.foo']
+      });
       const dest = fs.createWriteStream(FIXTURES.CSV_FLAT_HEADERS);
 
       return pipeline(source, formatter, dest)
@@ -150,7 +152,7 @@ describe('formatters', () => {
         {_id: new ObjectID('5e5ea7558d35931a05eafec0')},
       ];
       const source = stream.Readable.from(docs);
-      const formatter = createCSVFormatter();
+      const formatter = createCSVFormatter({ columns: ['_id'] });
       const dest = fs.createWriteStream(FIXTURES.CSV_FLAT_HEADERS);
 
       return pipeline(source, formatter, dest)

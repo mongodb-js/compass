@@ -35,6 +35,7 @@ describe('export [module]', () => {
             query: { filter: {} },
             error: true,
             fields: {},
+            allFields: {},
             fileName: '',
             fileType: FILE_TYPES.JSON,
             status: PROCESS_STATUS.FAILED,
@@ -59,6 +60,7 @@ describe('export [module]', () => {
             query: { filter: {} },
             error: null,
             fields: {},
+            allFields: {},
             fileName: '',
             fileType: FILE_TYPES.JSON,
             status: PROCESS_STATUS.COMPLETED,
@@ -83,6 +85,7 @@ describe('export [module]', () => {
             query: { filter: {} },
             error: null,
             fields: {},
+            allFields: {},
             fileName: '',
             fileType: FILE_TYPES.JSON,
             status: PROCESS_STATUS.CANCELED,
@@ -107,6 +110,7 @@ describe('export [module]', () => {
             query: { filter: {} },
             error: true,
             fields: {},
+            allFields: {},
             fileName: '',
             fileType: FILE_TYPES.JSON,
             status: PROCESS_STATUS.FAILED,
@@ -140,6 +144,7 @@ describe('export [module]', () => {
           query: { filter: {} },
           error: null,
           fields: {},
+          allFields: {},
           fileName: '',
           fileType: FILE_TYPES.JSON,
           status: PROCESS_STATUS.UNSPECIFIED,
@@ -158,6 +163,7 @@ describe('export [module]', () => {
           exportStep: EXPORT_STEP.QUERY,
           exportedDocsCount: 0,
           fields: {},
+          allFields: {},
           progress: 0,
           isFullCollection: false,
           query: { filter: {}},
@@ -182,6 +188,7 @@ describe('export [module]', () => {
           exportStep: EXPORT_STEP.QUERY,
           exportedDocsCount: 0,
           fields: {},
+          allFields: {},
           isFullCollection: false,
           query: { filter: {}},
           error: null,
@@ -204,6 +211,7 @@ describe('export [module]', () => {
           exportStep: EXPORT_STEP.QUERY,
           isFullCollection: false,
           fields: {},
+          allFields: {},
           query: { filter: {}},
           error: null,
           fileName: '',
@@ -213,9 +221,9 @@ describe('export [module]', () => {
       });
     });
 
-    context('when the action type is UPDATE_FIELDS', () => {
+    context('when the action type is UPDATE_SELECTED_FIELDS', () => {
       const fields = { 'field': 1, 'field2': 0 };
-      const action = actions.updateFields(fields);
+      const action = actions.updateSelectedFields(fields);
 
       it('returns the new state', () => {
         expect(reducer(undefined, action)).to.deep.equal({
@@ -226,6 +234,30 @@ describe('export [module]', () => {
           isFullCollection: false,
           query: { filter: {}},
           fields: fields,
+          allFields: {},
+          progress: 0,
+          error: null,
+          fileName: '',
+          fileType: 'json',
+          status: 'UNSPECIFIED'
+        });
+      });
+    });
+
+    context('when the action type is UPDATE_ALL_FIELDS', () => {
+      const fields = { 'field': 1, 'field2': 0 };
+      const action = actions.updateAllFields(fields);
+
+      it('returns the new state', () => {
+        expect(reducer(undefined, action)).to.deep.equal({
+          isOpen: false,
+          count: 0,
+          exportedDocsCount: 0,
+          exportStep: EXPORT_STEP.QUERY,
+          isFullCollection: false,
+          query: { filter: {}},
+          fields: {},
+          allFields: fields,
           progress: 0,
           error: null,
           fileName: '',
@@ -258,6 +290,7 @@ describe('export [module]', () => {
           query: { filter: {} },
           error: null,
           fields: {},
+          allFields: {},
           fileName: '',
           fileType: FILE_TYPES.JSON,
           status: PROCESS_STATUS.UNSPECIFIED,

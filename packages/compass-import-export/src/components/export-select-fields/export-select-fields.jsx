@@ -17,7 +17,7 @@ class ExportSelectFields extends PureComponent {
   static propTypes = {
     fields: PropTypes.object.isRequired,
     exportStep: PropTypes.string.isRequired,
-    updateFields: PropTypes.func.isRequired,
+    updateSelectedFields: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -43,7 +43,7 @@ class ExportSelectFields extends PureComponent {
   handleFieldCheckboxChange = (evt) => {
     const fields = Object.assign({}, this.props.fields);
     fields[`${evt.target.name}`] ^= 1; // flip 1/0 to its opposite
-    this.props.updateFields(fields);
+    this.props.updateSelectedFields(fields);
   }
 
   handleHeaderCheckboxChange = () => {
@@ -55,7 +55,7 @@ class ExportSelectFields extends PureComponent {
       Object.keys(fields).map(f => (fields[f] = 1));
     }
 
-    this.props.updateFields(fields);
+    this.props.updateSelectedFields(fields);
   }
 
   handleInputOnBlur = () => {
@@ -69,7 +69,7 @@ class ExportSelectFields extends PureComponent {
       // assign current entry to the end of the fields list
       const fields = Object.assign({}, this.props.fields, obj);
 
-      this.props.updateFields(fields);
+      this.props.updateSelectedFields(fields);
       // this will trigger 'componentDidMount()` which focuses on input field to
       // keep adding missing fields
       this.setState({ addingFields: true });

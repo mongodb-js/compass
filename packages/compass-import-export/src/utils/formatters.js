@@ -45,9 +45,10 @@ export const createJSONFormatter = function({ brackets = true } = {}) {
 /**
  * @returns {Stream.Transform}
  */
-export const createCSVFormatter = function() {
+export const createCSVFormatter = function({ columns }) {
   return csv.format({
-    headers: true,
+    headers: columns,
+    alwaysWriteHeaders: true,
     transform: row => {
       return flatten(row);
     }
