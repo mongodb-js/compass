@@ -15,7 +15,7 @@ class Favorites extends React.Component {
   static displayName = 'Favorites';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     connections: PropTypes.object.isRequired
   };
 
@@ -76,7 +76,7 @@ class Favorites extends React.Component {
   getClassName(favorite) {
     const classnamesProps = [styles['connect-sidebar-list-item']];
 
-    if (this.props.currentConnection._id === favorite._id) {
+    if (this.props.connectionModel._id === favorite._id) {
       classnamesProps.push(styles['connect-sidebar-list-item-is-active']);
     }
 

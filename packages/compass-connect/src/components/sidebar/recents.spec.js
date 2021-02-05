@@ -17,7 +17,7 @@ describe('Recents [Component]', () => {
   let component;
 
   beforeEach(() => {
-    component = mount(<Recents currentConnection={{}} connections={recents} />);
+    component = mount(<Recents connectionModel={{}} connections={recents} />);
   });
 
   afterEach(() => {

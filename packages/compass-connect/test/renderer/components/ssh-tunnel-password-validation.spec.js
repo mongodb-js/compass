@@ -18,7 +18,7 @@ describe('SSHTunnelPassword [Component]', () => {
 
       beforeEach(() => {
         component = mount(
-          <SSHTunnelPassword currentConnection={connection} isValid />
+          <SSHTunnelPassword connectionModel={connection} isValid />
         );
       });
 
@@ -66,7 +66,7 @@ describe('SSHTunnelPassword [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSHTunnelPassword currentConnection={connection} />
+            <SSHTunnelPassword connectionModel={connection} />
           );
         });
 
@@ -93,7 +93,7 @@ describe('SSHTunnelPassword [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSHTunnelPassword currentConnection={connection} />
+            <SSHTunnelPassword connectionModel={connection} />
           );
         });
 
@@ -120,7 +120,7 @@ describe('SSHTunnelPassword [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSHTunnelPassword currentConnection={connection} />
+            <SSHTunnelPassword connectionModel={connection} />
           );
         });
 
@@ -147,7 +147,7 @@ describe('SSHTunnelPassword [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSHTunnelPassword currentConnection={connection} />
+            <SSHTunnelPassword connectionModel={connection} />
           );
         });
 

@@ -14,7 +14,7 @@ class SSLServerClientValidation extends React.Component {
   static displayName = 'SSLServerClientValidation';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     isValid: PropTypes.bool
   };
 
@@ -69,7 +69,7 @@ class SSLServerClientValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getCertAuthError() {
-    if (this._isInvalid(this.props.currentConnection.sslCA)) {
+    if (this._isInvalid(this.props.connectionModel.sslCA)) {
       return true;
     }
   }
@@ -80,7 +80,7 @@ class SSLServerClientValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getClientCertError() {
-    if (this._isInvalid(this.props.currentConnection.sslCert)) {
+    if (this._isInvalid(this.props.connectionModel.sslCert)) {
       return true;
     }
   }
@@ -91,7 +91,7 @@ class SSLServerClientValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getClientKeyError() {
-    if (this._isInvalid(this.props.currentConnection.sslKey)) {
+    if (this._isInvalid(this.props.connectionModel.sslKey)) {
       return true;
     }
   }
@@ -118,7 +118,7 @@ class SSLServerClientValidation extends React.Component {
           id="sslCA"
           error={this.getCertAuthError()}
           changeHandler={this.onCertificateAuthorityChanged.bind(this)}
-          values={this.props.currentConnection.sslCA}
+          values={this.props.connectionModel.sslCA}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities"
           multi
         />
@@ -127,7 +127,7 @@ class SSLServerClientValidation extends React.Component {
           id="sslCert"
           error={this.getClientCertError()}
           changeHandler={this.onClientCertificateChanged.bind(this)}
-          values={this.props.currentConnection.sslCert}
+          values={this.props.connectionModel.sslCert}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file"
         />
         <FormFileInput
@@ -135,7 +135,7 @@ class SSLServerClientValidation extends React.Component {
           id="sslKey"
           error={this.getClientKeyError()}
           changeHandler={this.onClientPrivateKeyChanged.bind(this)}
-          values={this.props.currentConnection.sslKey}
+          values={this.props.connectionModel.sslKey}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file"
         />
         <FormInput
@@ -143,7 +143,7 @@ class SSLServerClientValidation extends React.Component {
           name="sslPass"
           type="password"
           changeHandler={this.onClientKeyPasswordChanged.bind(this)}
-          value={this.props.currentConnection.sslPass || ''}
+          value={this.props.connectionModel.sslPass || ''}
           linkHandler={this.onPasswordHelp.bind(this)}
         />
       </div>

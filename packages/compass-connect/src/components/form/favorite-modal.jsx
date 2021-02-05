@@ -16,7 +16,7 @@ class FavoriteModal extends PureComponent {
   static displayName = 'FavoriteModal';
 
   static propTypes = {
-    currentConnection: PropTypes.object,
+    connectionModel: PropTypes.object,
     deleteFavorite: PropTypes.func,
     saveFavorite: PropTypes.func,
     closeFavoriteModal: PropTypes.func
@@ -25,8 +25,8 @@ class FavoriteModal extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      name: props.currentConnection.name,
-      color: props.currentConnection.color
+      name: props.connectionModel.name,
+      color: props.connectionModel.color
     };
   }
 
@@ -34,7 +34,7 @@ class FavoriteModal extends PureComponent {
    * Deletes a favorite.
    */
   onDeleteFavoriteClicked() {
-    this.props.deleteFavorite(this.props.currentConnection);
+    this.props.deleteFavorite(this.props.connectionModel);
   }
 
   /**
@@ -86,7 +86,7 @@ class FavoriteModal extends PureComponent {
    * @returns {React.Component}
    */
   renderDeleteFavorite() {
-    if (this.props.currentConnection.isFavorite) {
+    if (this.props.connectionModel.isFavorite) {
       return (
         <div className={classnames(styles['delete-favorite'])}>
           <TextButton
@@ -105,7 +105,7 @@ class FavoriteModal extends PureComponent {
    * @returns {String}
    */
   renderModalTitle() {
-    return this.props.currentConnection.isFavorite
+    return this.props.connectionModel.isFavorite
       ? 'Edit favorite'
       : 'Save connection to favorites';
   }

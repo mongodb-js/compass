@@ -43,7 +43,7 @@ describe('ConnectionForm [Component]', () => {
       beforeEach(() => {
         component = mount(
           <ConnectionForm
-            currentConnection={connection}
+            connectionModel={connection}
             isHostChanged={isHostChanged}
             isPortChanged={isPortChanged}
             isValid />
@@ -81,7 +81,7 @@ describe('ConnectionForm [Component]', () => {
         const authentication = component.find('Authentication');
 
         expect(authentication).to.be.present();
-        expect(authentication.prop('currentConnection')).to.deep.equal(connection);
+        expect(authentication.prop('connectionModel')).to.deep.equal(connection);
         expect(authentication.prop('isValid')).to.equal(true);
       });
 
@@ -113,7 +113,7 @@ describe('ConnectionForm [Component]', () => {
         const component = mount(
           <ConnectionForm
             currentConnectionAttempt
-            currentConnection={{
+            connectionModel={{
               authStrategy: 'MONGODB',
               isSrvRecord: false,
               readPreference: 'primaryPreferred',
@@ -160,7 +160,7 @@ describe('ConnectionForm [Component]', () => {
       beforeEach(() => {
         component = mount(
           <ConnectionForm
-            currentConnection={connection}
+            connectionModel={connection}
             isHostChanged={isHostChanged}
             isPortChanged={isPortChanged}
             isValid />
@@ -231,7 +231,7 @@ describe('ConnectionForm [Component]', () => {
 
     beforeEach(() => {
       component = mount(
-        <ConnectionForm currentConnection={connection} isValid />
+        <ConnectionForm connectionModel={connection} isValid />
       );
       component.setState({ activeTab: 1 });
     });

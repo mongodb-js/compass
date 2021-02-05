@@ -18,7 +18,7 @@ describe('SSLServerClientValidation [Component]', () => {
 
       beforeEach(() => {
         component = mount(
-          <SSLServerClientValidation currentConnection={connection} isValid />
+          <SSLServerClientValidation connectionModel={connection} isValid />
         );
       });
 
@@ -77,7 +77,7 @@ describe('SSLServerClientValidation [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSLServerClientValidation currentConnection={connection} />
+            <SSLServerClientValidation connectionModel={connection} />
           );
         });
 
@@ -104,7 +104,7 @@ describe('SSLServerClientValidation [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSLServerClientValidation currentConnection={connection} />
+            <SSLServerClientValidation connectionModel={connection} />
           );
         });
 
@@ -130,7 +130,7 @@ describe('SSLServerClientValidation [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSLServerClientValidation currentConnection={connection} />
+            <SSLServerClientValidation connectionModel={connection} />
           );
         });
 
@@ -157,7 +157,7 @@ describe('SSLServerClientValidation [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSLServerClientValidation currentConnection={connection} />
+            <SSLServerClientValidation connectionModel={connection} />
           );
         });
 
@@ -184,7 +184,7 @@ describe('SSLServerClientValidation [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSLServerClientValidation currentConnection={connection} />
+            <SSLServerClientValidation connectionModel={connection} />
           );
         });
 
@@ -210,7 +210,7 @@ describe('SSLServerClientValidation [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSLServerClientValidation currentConnection={connection} />
+            <SSLServerClientValidation connectionModel={connection} />
           );
         });
 
@@ -237,7 +237,7 @@ describe('SSLServerClientValidation [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSLServerClientValidation currentConnection={connection} />
+            <SSLServerClientValidation connectionModel={connection} />
           );
         });
 
@@ -264,7 +264,7 @@ describe('SSLServerClientValidation [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSLServerClientValidation currentConnection={connection} />
+            <SSLServerClientValidation connectionModel={connection} />
           );
         });
 
@@ -290,7 +290,7 @@ describe('SSLServerClientValidation [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSLServerClientValidation currentConnection={connection} />
+            <SSLServerClientValidation connectionModel={connection} />
           );
         });
 

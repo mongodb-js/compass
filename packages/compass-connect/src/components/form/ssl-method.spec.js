@@ -36,7 +36,7 @@ describe('SSLMethod [Component]', () => {
 
   beforeEach(() => {
     component = mount(
-      <SSLMethod currentConnection={connection} isValid />
+      <SSLMethod connectionModel={connection} isValid />
     );
   });
 

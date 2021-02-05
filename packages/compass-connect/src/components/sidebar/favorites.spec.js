@@ -17,7 +17,7 @@ describe('Favorites [Component]', () => {
 
     beforeEach(() => {
       component = mount(
-        <Favorites currentConnection={{}} connections={favorites} />
+        <Favorites connectionModel={{}} connections={favorites} />
       );
     });
 
@@ -74,7 +74,7 @@ describe('Favorites [Component]', () => {
 
     beforeEach(() => {
       component = mount(
-        <Favorites currentConnection={{}} connections={favorites} />
+        <Favorites connectionModel={{}} connections={favorites} />
       );
     });
 

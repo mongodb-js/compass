@@ -109,7 +109,7 @@ const Store = Reflux.createStore({
     appRegistry.on('clear-current-favorite', () => {
       const ConnectStore = appRegistry.getStore('Connect.Store');
 
-      ConnectStore.state.currentConnection = new Connection();
+      ConnectStore.state.connectionModel = new Connection();
     });
   },
 
@@ -120,7 +120,7 @@ const Store = Reflux.createStore({
    */
   getInitialState() {
     return {
-      currentConnection: new Connection(),
+      connectionModel: new Connection(),
       // Collection that contains the current state of connections
       fetchedConnections: new ConnectionCollection(),
       // Hash for storing unchanged connections for the discard feature
@@ -183,8 +183,8 @@ const Store = Reflux.createStore({
    */
   async validateConnectionString() {
     const customUrl = this.state.customUrl;
-    const currentConnection = this.state.currentConnection;
-    const currentSaved = this.state.connections[currentConnection._id];
+    const connectionModel = this.state.connectionModel;
+    const currentSaved = this.state.connections[connectionModel._id];
 
     this.state.hasUnsavedChanges = !!currentSaved;
 
@@ -219,7 +219,7 @@ const Store = Reflux.createStore({
    * @param {String} authSource - The auth source.
    */
   onAuthSourceChanged(authSource) {
-    this.state.currentConnection.mongodbDatabaseName = authSource;
+    this.state.connectionModel.mongodbDatabaseName = authSource;
     this.trigger(this.state);
   },
 
@@ -230,7 +230,7 @@ const Store = Reflux.createStore({
    */
   onAuthStrategyChanged(method) {
     this._clearAuthFields();
-    this.state.currentConnection.authStrategy = method;
+    this.state.connectionModel.authStrategy = method;
     this.trigger(this.state);
   },
 
@@ -281,8 +281,8 @@ const Store = Reflux.createStore({
    * Resets URL validation.
    */
   onConnectionFormChanged() {
-    const currentConnection = this.state.currentConnection;
-    const currentSaved = this.state.connections[currentConnection._id];
+    const connectionModel = this.state.connectionModel;
+    const currentSaved = this.state.connections[connectionModel._id];
 
     this.setState({
       isValid: true,
@@ -345,14 +345,14 @@ const Store = Reflux.createStore({
    * Discards changes.
    */
   onChangesDiscarded() {
-    const connection = this.state.connections[this.state.currentConnection._id];
+    const connection = this.state.connections[this.state.connectionModel._id];
 
-    this.state.currentConnection.set(connection);
+    this.state.connectionModel.set(connection);
 
     if (this.state.isURIEditable) {
-      this.state.customUrl = this.state.currentConnection.driverUrl;
+      this.state.customUrl = this.state.connectionModel.driverUrl;
     } else {
-      this.state.customUrl = this.state.currentConnection.safeUrl;
+      this.state.customUrl = this.state.connectionModel.safeUrl;
     }
 
     this.state.hasUnsavedChanges = false;
@@ -364,7 +364,7 @@ const Store = Reflux.createStore({
    */
   onHideURIClicked() {
     this.state.isURIEditable = false;
-    this.state.customUrl = this.state.currentConnection.safeUrl;
+    this.state.customUrl = this.state.connectionModel.safeUrl;
     this.trigger(this.state);
   },
 
@@ -375,8 +375,8 @@ const Store = Reflux.createStore({
    * @param {Object} color - The favorite color.
    */
   onCreateFavoriteClicked(name, color) {
-    this.state.currentConnection.color = color;
-    this.state.currentConnection.name = name;
+    this.state.connectionModel.color = color;
+    this.state.connectionModel.name = name;
     this.state.isMessageVisible = true;
     this._saveFavorite();
   },
@@ -408,8 +408,8 @@ const Store = Reflux.createStore({
         this.state.fetchedConnections.remove(toDestroy._id);
         this.state.connections = this._removeFromCollection(connection._id);
 
-        if (connection._id === this.state.currentConnection._id) {
-          this.state.currentConnection = new Connection();
+        if (connection._id === this.state.connectionModel._id) {
+          this.state.connectionModel = new Connection();
         }
 
         this.trigger(this.state);
@@ -470,7 +470,7 @@ const Store = Reflux.createStore({
     this.state.errorMessage = null;
     this.state.syntaxErrorMessage = null;
     this.state.hasUnsavedChanges = false;
-    this._saveConnection(this.state.currentConnection);
+    this._saveConnection(this.state.connectionModel);
 
     this.dataService = undefined;
   },
@@ -496,7 +496,7 @@ const Store = Reflux.createStore({
    */
   onEditURIConfirmed() {
     this.state.isURIEditable = true;
-    this.state.customUrl = this.state.currentConnection.driverUrl;
+    this.state.customUrl = this.state.connectionModel.driverUrl;
     this.state.isEditURIConfirm = false;
     this.trigger(this.state);
   },
@@ -527,7 +527,7 @@ const Store = Reflux.createStore({
    * @param {String} name - The favorite name.
    */
   onFavoriteNameChanged(name) {
-    this.state.currentConnection.name = name;
+    this.state.connectionModel.name = name;
     this.trigger(this.state);
   },
 
@@ -537,8 +537,8 @@ const Store = Reflux.createStore({
    * @param {Connection} connection - The connection to select.
    */
   onConnectionSelected(connection) {
-    this.state.currentConnection.set({ name: 'Local', color: undefined });
-    this.state.currentConnection.set(connection);
+    this.state.connectionModel.set({ name: 'Local', color: undefined });
+    this.state.connectionModel.set(connection);
     this.trigger(this.state);
     this.setState({
       isURIEditable: false,
@@ -549,7 +549,7 @@ const Store = Reflux.createStore({
       syntaxErrorMessage: null,
       isHostChanged: true,
       isPortChanged: true,
-      customUrl: this.state.currentConnection.safeUrl,
+      customUrl: this.state.connectionModel.safeUrl,
       hasUnsavedChanges: false
     });
   },
@@ -561,11 +561,11 @@ const Store = Reflux.createStore({
    * @param {String} hostname - The hostname.
    */
   onHostnameChanged(hostname) {
-    this.state.currentConnection.hostname = hostname.trim();
+    this.state.connectionModel.hostname = hostname.trim();
     this.state.isHostChanged = true;
 
     if (hostname.match(/mongodb\.net/i)) {
-      this.state.currentConnection.sslMethod = 'SYSTEMCA';
+      this.state.connectionModel.sslMethod = 'SYSTEMCA';
     }
 
     this.trigger(this.state);
@@ -577,7 +577,7 @@ const Store = Reflux.createStore({
    * @param {String} password - The password.
    */
   onPasswordChanged(password) {
-    this.state.currentConnection.mongodbPassword = password;
+    this.state.connectionModel.mongodbPassword = password;
     this.trigger(this.state);
   },
 
@@ -587,7 +587,7 @@ const Store = Reflux.createStore({
    * @param {String} port - The port.
    */
   onPortChanged(port) {
-    this.state.currentConnection.port = port;
+    this.state.connectionModel.port = port;
     this.state.isPortChanged = true;
     this.trigger(this.state);
   },
@@ -598,7 +598,7 @@ const Store = Reflux.createStore({
    * @param {String} readPreference - The read preference.
    */
   onReadPreferenceChanged(readPreference) {
-    this.state.currentConnection.readPreference = readPreference;
+    this.state.connectionModel.readPreference = readPreference;
     this.trigger(this.state);
   },
 
@@ -608,7 +608,7 @@ const Store = Reflux.createStore({
    * @param {String} replicaSet - The replica set name.
    */
   onReplicaSetChanged(replicaSet) {
-    this.state.currentConnection.replicaSet = replicaSet.trim();
+    this.state.connectionModel.replicaSet = replicaSet.trim();
     this.trigger(this.state);
   },
 
@@ -618,7 +618,7 @@ const Store = Reflux.createStore({
   onResetConnectionClicked() {
     this.state.viewType = CONNECTION_STRING_VIEW;
     this.state.savedMessage = 'Saved to favorites';
-    this.state.currentConnection = new Connection();
+    this.state.connectionModel = new Connection();
     this.state.isURIEditable = true;
     this.state.isSavedConnection = false;
     this._clearForm();
@@ -631,12 +631,12 @@ const Store = Reflux.createStore({
    * @param {Object} connection - A recent connection.
    */
   onSaveAsFavoriteClicked(connection) {
-    this.state.currentConnection.set(connection);
+    this.state.connectionModel.set(connection);
     this.state.isMessageVisible = true;
-    this.state.currentConnection.isFavorite = true;
-    this.state.currentConnection.name = `${connection.hostname}:${connection.port}`;
+    this.state.connectionModel.isFavorite = true;
+    this.state.connectionModel.name = `${connection.hostname}:${connection.port}`;
     this.state.savedMessage = 'Saved to favorites';
-    this._saveConnection(this.state.currentConnection);
+    this._saveConnection(this.state.connectionModel);
   },
 
   /**
@@ -652,7 +652,7 @@ const Store = Reflux.createStore({
    * @param {Array} files - The files.
    */
   onSSLCAChanged(files) {
-    this.state.currentConnection.sslCA = files;
+    this.state.connectionModel.sslCA = files;
     this.trigger(this.state);
   },
 
@@ -662,7 +662,7 @@ const Store = Reflux.createStore({
    * @param {Array} files - The files.
    */
   onSSLCertificateChanged(files) {
-    this.state.currentConnection.sslCert = files;
+    this.state.connectionModel.sslCert = files;
     this.trigger(this.state);
   },
 
@@ -673,7 +673,7 @@ const Store = Reflux.createStore({
    */
   onSSLMethodChanged(method) {
     this._clearSSLFields();
-    this.state.currentConnection.sslMethod = method;
+    this.state.connectionModel.sslMethod = method;
     this.trigger(this.state);
   },
 
@@ -683,7 +683,7 @@ const Store = Reflux.createStore({
    * @param {Array} files - The files.
    */
   onSSLPrivateKeyChanged(files) {
-    this.state.currentConnection.sslKey = files;
+    this.state.connectionModel.sslKey = files;
     this.trigger(this.state);
   },
 
@@ -693,7 +693,7 @@ const Store = Reflux.createStore({
    * @param {String} password - The password.
    */
   onSSLPrivateKeyPasswordChanged(password) {
-    this.state.currentConnection.sslPass = password;
+    this.state.connectionModel.sslPass = password;
     this.trigger(this.state);
   },
 
@@ -703,7 +703,7 @@ const Store = Reflux.createStore({
    * @param {String} password - The password.
    */
   onSSHTunnelPasswordChanged(password) {
-    this.state.currentConnection.sshTunnelPassword = password;
+    this.state.connectionModel.sshTunnelPassword = password;
     this.trigger(this.state);
   },
 
@@ -713,7 +713,7 @@ const Store = Reflux.createStore({
    * @param {String} passphrase - The passphrase.
    */
   onSSHTunnelPassphraseChanged(passphrase) {
-    this.state.currentConnection.sshTunnelPassphrase = passphrase;
+    this.state.connectionModel.sshTunnelPassphrase = passphrase;
     this.trigger(this.state);
   },
 
@@ -723,7 +723,7 @@ const Store = Reflux.createStore({
    * @param {String} hostname - The hostname.
    */
   onSSHTunnelHostnameChanged(hostname) {
-    this.state.currentConnection.sshTunnelHostname = hostname;
+    this.state.connectionModel.sshTunnelHostname = hostname;
     this.trigger(this.state);
   },
 
@@ -733,7 +733,7 @@ const Store = Reflux.createStore({
    * @param {String} username - The username.
    */
   onSSHTunnelUsernameChanged(username) {
-    this.state.currentConnection.sshTunnelUsername = username;
+    this.state.connectionModel.sshTunnelUsername = username;
     this.trigger(this.state);
   },
 
@@ -743,7 +743,7 @@ const Store = Reflux.createStore({
    * @param {String} port - The port.
    */
   onSSHTunnelPortChanged(port) {
-    this.state.currentConnection.sshTunnelPort = port;
+    this.state.connectionModel.sshTunnelPort = port;
     this.trigger(this.state);
   },
 
@@ -753,7 +753,7 @@ const Store = Reflux.createStore({
    * @param {Array} files - The file.
    */
   onSSHTunnelIdentityFileChanged(files) {
-    this.state.currentConnection.sshTunnelIdentityFile = files;
+    this.state.connectionModel.sshTunnelIdentityFile = files;
     this.trigger(this.state);
   },
 
@@ -764,7 +764,7 @@ const Store = Reflux.createStore({
    */
   onSSHTunnelChanged(tunnel) {
     this._clearSSHTunnelFields();
-    this.state.currentConnection.sshTunnel = tunnel;
+    this.state.connectionModel.sshTunnel = tunnel;
     this.trigger(this.state);
   },
 
@@ -772,7 +772,7 @@ const Store = Reflux.createStore({
    * Changes the srv record flag.
    */
   onSRVRecordToggled() {
-    this.state.currentConnection.isSrvRecord = !this.state.currentConnection
+    this.state.connectionModel.isSrvRecord = !this.state.connectionModel
       .isSrvRecord;
     this.trigger(this.state);
   },
@@ -783,7 +783,7 @@ const Store = Reflux.createStore({
    * @param {String} username - The username.
    */
   onUsernameChanged(username) {
-    this.state.currentConnection.mongodbUsername = username;
+    this.state.connectionModel.mongodbUsername = username;
     this.trigger(this.state);
   },
 
@@ -795,7 +795,7 @@ const Store = Reflux.createStore({
    * @param {Object} connection - A connection.
    */
   _saveConnection(connection) {
-    this.state.currentConnection = connection;
+    this.state.connectionModel = connection;
     this.state.fetchedConnections.add(connection);
     this.state.connections[connection._id] = { ...connection._values };
     this.state.customUrl = connection.safeUrl;
@@ -808,7 +808,7 @@ const Store = Reflux.createStore({
    */
   _clearAuthFields() {
     AUTH_FIELDS.forEach((field) => {
-      this.state.currentConnection[field] = undefined;
+      this.state.connectionModel[field] = undefined;
     });
   },
 
@@ -817,7 +817,7 @@ const Store = Reflux.createStore({
    */
   _clearSSLFields() {
     SSL_FIELDS.forEach((field) => {
-      this.state.currentConnection[field] = undefined;
+      this.state.connectionModel[field] = undefined;
     });
   },
 
@@ -826,7 +826,7 @@ const Store = Reflux.createStore({
    */
   _clearSSHTunnelFields() {
     SSH_TUNNEL_FIELDS.forEach((field) => {
-      this.state.currentConnection[field] = undefined;
+      this.state.connectionModel[field] = undefined;
     });
   },
 
@@ -855,9 +855,9 @@ const Store = Reflux.createStore({
   /**
    * Saves the current connection to recents.
    *
-   * @param {Object} currentConnection - The current connection.
+   * @param {Object} connectionModel - The current connection.
    */
-  _saveRecent(currentConnection) {
+  _saveRecent(connectionModel) {
     // Keeps 10 recent connections and deletes rest of them.
     let recents = Object.keys(this.state.connections).filter(
       (key) => !this.state.connections[key].isFavorite
@@ -874,17 +874,17 @@ const Store = Reflux.createStore({
       toDestroy.destroy({
         success: () => {
           this.state.fetchedConnections.remove(toDestroy._id);
-          this._saveConnection(currentConnection);
+          this._saveConnection(connectionModel);
         }
       });
     } else {
-      this._saveConnection(currentConnection);
+      this._saveConnection(connectionModel);
     }
   },
 
   _onConnectSuccess(dataService) {
-    const currentConnection = this.state.currentConnection;
-    const currentSaved = this.state.connections[currentConnection._id];
+    const connectionModel = this.state.connectionModel;
+    const currentSaved = this.state.connections[connectionModel._id];
 
     this.dataService = dataService;
 
@@ -895,15 +895,15 @@ const Store = Reflux.createStore({
       syntaxErrorMessage: null,
       hasUnsavedChanges: false,
       isURIEditable: false,
-      customUrl: currentConnection.driverUrl
+      customUrl: connectionModel.driverUrl
     });
 
-    currentConnection.lastUsed = new Date();
+    connectionModel.lastUsed = new Date();
 
     if (currentSaved) {
-      this._saveConnection(currentConnection);
+      this._saveConnection(connectionModel);
     } else {
-      this._saveRecent(currentConnection);
+      this._saveRecent(connectionModel);
     }
 
     this.appRegistry.emit(
@@ -958,10 +958,10 @@ const Store = Reflux.createStore({
    * Connects to the current connection form connection configuration.
    */
   async _connectWithConnectionForm() {
-    const currentConnection = this.state.currentConnection;
+    const connectionModel = this.state.connectionModel;
 
-    if (!currentConnection.isValid()) {
-      const validationError = currentConnection.validate(currentConnection);
+    if (!connectionModel.isValid()) {
+      const validationError = connectionModel.validate(connectionModel);
 
       this.setState({
         isValid: false,
@@ -973,21 +973,21 @@ const Store = Reflux.createStore({
     }
 
     this.setState({
-      connectingStatusText: `Connecting to ${currentConnection.title}`
+      connectingStatusText: `Connecting to ${connectionModel.title}`
     });
 
-    await this._connect(currentConnection);
+    await this._connect(connectionModel);
   },
 
   /**
    * Connects to the current connection string connection.
    */
   async _connectWithConnectionString() {
-    const currentConnection = this.state.currentConnection;
+    const connectionModel = this.state.connectionModel;
 
     const url = this.state.isURIEditable
       ? (this.state.customUrl || DEFAULT_DRIVER_URL)
-      : this.state.currentConnection.driverUrl;
+      : this.state.connectionModel.driverUrl;
 
     if (!Connection.isURI(url)) {
       this._setSyntaxErrorMessage(
@@ -1006,16 +1006,16 @@ const Store = Reflux.createStore({
       return;
     }
 
-    const isFavorite = currentConnection.isFavorite;
-    const driverUrl = currentConnection.driverUrl;
+    const isFavorite = connectionModel.isFavorite;
+    const driverUrl = connectionModel.driverUrl;
 
     // If we have SSH tunnel attributes, set them here.
-    if (currentConnection && currentConnection.sshTunnel !== 'NONE') {
-      this._setSshTunnelAttributes(currentConnection, parsedConnection);
+    if (connectionModel && connectionModel.sshTunnel !== 'NONE') {
+      this._setSshTunnelAttributes(connectionModel, parsedConnection);
     }
 
-    if (currentConnection && currentConnection.sslMethod !== 'NONE') {
-      this._setTlsAttributes(currentConnection, parsedConnection);
+    if (connectionModel && connectionModel.sslMethod !== 'NONE') {
+      this._setTlsAttributes(connectionModel, parsedConnection);
     }
 
     this.setState({
@@ -1025,8 +1025,8 @@ const Store = Reflux.createStore({
     if (isFavorite && driverUrl !== parsedConnection.driverUrl) {
       await this._connect(parsedConnection);
     } else {
-      currentConnection.set(this._getPoorAttributes(parsedConnection));
-      await this._connect(currentConnection);
+      connectionModel.set(this._getPoorAttributes(parsedConnection));
+      await this._connect(connectionModel);
     }
   },
 
@@ -1034,13 +1034,13 @@ const Store = Reflux.createStore({
    * Clears the current connection.
    */
   _clearConnection() {
-    const isFavorite = this.state.currentConnection.isFavorite;
-    const name = this.state.currentConnection.name;
-    const color = this.state.currentConnection.color;
+    const isFavorite = this.state.connectionModel.isFavorite;
+    const name = this.state.connectionModel.name;
+    const color = this.state.connectionModel.color;
     const connection = new Connection();
 
-    this.state.currentConnection.set(this._getPoorAttributes(connection));
-    this.state.currentConnection.set({ isFavorite, name, color });
+    this.state.connectionModel.set(this._getPoorAttributes(connection));
+    this.state.connectionModel.set({ isFavorite, name, color });
     this.trigger(this.state);
   },
 
@@ -1057,10 +1057,10 @@ const Store = Reflux.createStore({
   },
 
   async _onViewChangedToConnectionForm() {
-    const currentConnection = this.state.currentConnection;
-    const driverUrl = currentConnection.driverUrl;
+    const connectionModel = this.state.connectionModel;
+    const driverUrl = connectionModel.driverUrl;
     const url = this.state.isURIEditable ? this.state.customUrl : driverUrl;
-    const currentSaved = this.state.connections[currentConnection._id];
+    const currentSaved = this.state.connections[connectionModel._id];
 
     if (!currentSaved && url === driverUrl) {
       this.state.isHostChanged = true;
@@ -1090,43 +1090,43 @@ const Store = Reflux.createStore({
 
       this.StatusActions.done();
 
-      currentConnection.set(this._getPoorAttributes(parsedConnection));
+      connectionModel.set(this._getPoorAttributes(parsedConnection));
 
       if (currentSaved) {
         // If we have SSH tunnel attributes, set them here.
         if (currentSaved.sshTunnel !== 'NONE') {
-          this._setSshTunnelAttributes(currentSaved, currentConnection);
+          this._setSshTunnelAttributes(currentSaved, connectionModel);
         }
 
         // If we have TLS attributes, set them here.
         if (currentSaved.sslMethod !== 'NONE') {
-          this._setTlsAttributes(currentSaved, currentConnection);
+          this._setTlsAttributes(currentSaved, connectionModel);
         }
 
-        currentConnection.name = currentSaved.name;
-        currentConnection.color = currentSaved.color;
-        currentConnection.lastUsed = currentSaved.lastUsed;
+        connectionModel.name = currentSaved.name;
+        connectionModel.color = currentSaved.color;
+        connectionModel.lastUsed = currentSaved.lastUsed;
       }
 
       this.state.isHostChanged = true;
       this.state.isPortChanged = true;
-      this.setState({ currentConnection });
+      this.setState({ connectionModel });
       this._resetSyntaxErrorMessage();
     } catch (error) {
       this.StatusActions.done();
 
-      this.state.currentConnection = new Connection();
+      this.state.connectionModel = new Connection();
       this.trigger(this.state);
     }
   },
 
   _onViewChangedToConnectionString() {
-    const currentConnection = this.state.currentConnection;
-    const driverUrl = currentConnection.driverUrl;
+    const connectionModel = this.state.connectionModel;
+    const driverUrl = connectionModel.driverUrl;
     const isValid = this.state.isValid;
 
     if (!this.state.isURIEditable) {
-      this.state.customUrl = this.state.currentConnection.safeUrl;
+      this.state.customUrl = this.state.connectionModel.safeUrl;
     } else if (
       isValid &&
       (this.state.isHostChanged === true || this.state.isPortChanged === true)
@@ -1141,8 +1141,8 @@ const Store = Reflux.createStore({
    * Persist a favorite on disc.
    */
   async _saveFavorite() {
-    const currentConnection = this.state.currentConnection;
-    const isFavorite = currentConnection.isFavorite;
+    const connectionModel = this.state.connectionModel;
+    const isFavorite = connectionModel.isFavorite;
     let url = this.state.customUrl;
 
     if (isFavorite) {
@@ -1150,10 +1150,10 @@ const Store = Reflux.createStore({
     }
 
     if (!this.state.isURIEditable) {
-      url = currentConnection.driverUrl;
+      url = connectionModel.driverUrl;
     }
 
-    currentConnection.isFavorite = true;
+    connectionModel.isFavorite = true;
     this.state.hasUnsavedChanges = false;
     this.state.isURIEditable = false;
 
@@ -1162,17 +1162,17 @@ const Store = Reflux.createStore({
         const buildConnectionModelFromUrl = promisify(Connection.from);
         const parsedConnection = await buildConnectionModelFromUrl(url);
 
-        currentConnection.set(this._getPoorAttributes(parsedConnection));
+        connectionModel.set(this._getPoorAttributes(parsedConnection));
 
         if (url.match(/[?&]ssl=true/i)) {
-          currentConnection.sslMethod = 'SYSTEMCA';
+          connectionModel.sslMethod = 'SYSTEMCA';
         }
 
-        this._saveConnection(currentConnection);
+        this._saveConnection(connectionModel);
       } catch (error) { /* Ignore saving invalid connection string */ }
     } else if (this.state.viewType === CONNECTION_FORM_VIEW) {
-      if (!currentConnection.isValid()) {
-        const validationError = currentConnection.validate(currentConnection);
+      if (!connectionModel.isValid()) {
+        const validationError = connectionModel.validate(connectionModel);
 
         this.setState({
           isValid: false,
@@ -1183,7 +1183,7 @@ const Store = Reflux.createStore({
         return;
       }
 
-      this._saveConnection(currentConnection);
+      this._saveConnection(connectionModel);
     }
   },
 
@@ -1216,30 +1216,30 @@ const Store = Reflux.createStore({
   /**
    * Set SSH tunnel attributes.
    *
-   * @param {Connection} currentConnection - The current connection.
+   * @param {Connection} connectionModel - The current connection.
    * @param {Connection} parsedConnection - The parsed connection.
    */
-  _setSshTunnelAttributes(currentConnection, parsedConnection) {
+  _setSshTunnelAttributes(connectionModel, parsedConnection) {
     if (parsedConnection) {
       SSH_TUNNEL_FIELDS.forEach((field) => {
-        parsedConnection[field] = currentConnection[field];
+        parsedConnection[field] = connectionModel[field];
       });
-      parsedConnection.sshTunnel = currentConnection.sshTunnel;
+      parsedConnection.sshTunnel = connectionModel.sshTunnel;
     }
   },
 
   /**
    * Set TLS attributes.
    *
-   * @param {Connection} currentConnection - The current connection.
+   * @param {Connection} connectionModel - The current connection.
    * @param {Connection} parsedConnection - The parsed connection.
    */
-  _setTlsAttributes(currentConnection, parsedConnection) {
+  _setTlsAttributes(connectionModel, parsedConnection) {
     if (parsedConnection) {
       SSL_FIELDS.forEach((field) => {
-        parsedConnection[field] = currentConnection[field];
+        parsedConnection[field] = connectionModel[field];
       });
-      parsedConnection.sslMethod = currentConnection.sslMethod;
+      parsedConnection.sslMethod = connectionModel.sslMethod;
     }
   }
 });

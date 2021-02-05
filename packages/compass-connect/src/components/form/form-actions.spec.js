@@ -20,7 +20,7 @@ describe('FormActions [Component]', () => {
           beforeEach(() => {
             component = mount(
               <FormActions
-                currentConnection={connection}
+                connectionModel={connection}
                 isConnected={isConnected}
                 viewType={viewType}
                 isURIEditable={isURIEditable}
@@ -77,7 +77,7 @@ describe('FormActions [Component]', () => {
             beforeEach(() => {
               component = mount(
                 <FormActions
-                  currentConnection={connection}
+                  connectionModel={connection}
                   isConnected={isConnected}
                   viewType={viewType}
                   isURIEditable={isURIEditable}
@@ -117,7 +117,7 @@ describe('FormActions [Component]', () => {
             beforeEach(() => {
               component = mount(
                 <FormActions
-                  currentConnection={connection}
+                  connectionModel={connection}
                   isConnected={isConnected}
                   viewType={viewType}
                   isURIEditable={isURIEditable}
@@ -156,7 +156,7 @@ describe('FormActions [Component]', () => {
           beforeEach(() => {
             component = mount(
               <FormActions
-                currentConnection={connection}
+                connectionModel={connection}
                 isConnected={isConnected}
                 viewType={viewType}
                 isURIEditable={isURIEditable}
@@ -182,7 +182,7 @@ describe('FormActions [Component]', () => {
           beforeEach(() => {
             component = mount(
               <FormActions
-                currentConnection={{ name: 'myconnection' }}
+                connectionModel={{ name: 'myconnection' }}
                 currentConnectionAttempt
                 isConnected={false}
                 viewType="connectionString"
@@ -219,7 +219,7 @@ describe('FormActions [Component]', () => {
         beforeEach(() => {
           component = mount(
             <FormActions
-              currentConnection={connection}
+              connectionModel={connection}
               isConnected={isConnected}
               viewType={viewType}
               isURIEditable={isURIEditable}
@@ -268,7 +268,7 @@ describe('FormActions [Component]', () => {
       beforeEach(() => {
         component = mount(
           <FormActions
-            currentConnection={connection}
+            connectionModel={connection}
             isConnected={isConnected}
             isValid
           />
@@ -300,7 +300,7 @@ describe('FormActions [Component]', () => {
     beforeEach(() => {
       component = mount(
         <FormActions
-          currentConnection={connection}
+          connectionModel={connection}
           isValid={isValid}
           errorMessage={errorMessage}
         />
@@ -329,7 +329,7 @@ describe('FormActions [Component]', () => {
       beforeEach(() => {
         component = mount(
           <FormActions
-            currentConnection={connection}
+            connectionModel={connection}
             isValid={isValid}
             viewType={viewType}
             syntaxErrorMessage={syntaxErrorMessage}
@@ -366,7 +366,7 @@ describe('FormActions [Component]', () => {
       beforeEach(() => {
         component = mount(
           <FormActions
-            currentConnection={connection}
+            connectionModel={connection}
             isValid={isValid}
             viewType={viewType}
             syntaxErrorMessage={syntaxErrorMessage}
@@ -396,7 +396,7 @@ describe('FormActions [Component]', () => {
     beforeEach(() => {
       component = mount(
         <FormActions
-          currentConnection={connection}
+          connectionModel={connection}
           isValid={isValid}
           errorMessage={errorMessage}
           syntaxErrorMessage={syntaxErrorMessage}
@@ -435,7 +435,7 @@ describe('FormActions [Component]', () => {
         beforeEach(() => {
           component = mount(
             <FormActions
-              currentConnection={connection}
+              connectionModel={connection}
               isConnected={isConnected}
               viewType={viewType}
               errorMessage={errorMessage}
@@ -477,7 +477,7 @@ describe('FormActions [Component]', () => {
         beforeEach(() => {
           component = mount(
             <FormActions
-              currentConnection={connection}
+              connectionModel={connection}
               isConnected={isConnected}
               viewType={viewType}
               errorMessage={errorMessage}
@@ -513,7 +513,7 @@ describe('FormActions [Component]', () => {
         beforeEach(() => {
           component = mount(
             <FormActions
-              currentConnection={connection}
+              connectionModel={connection}
               isConnected={isConnected}
               viewType={viewType}
               errorMessage={errorMessage}
@@ -546,7 +546,7 @@ describe('FormActions [Component]', () => {
         beforeEach(() => {
           component = mount(
             <FormActions
-              currentConnection={connection}
+              connectionModel={connection}
               isConnected={isConnected}
               viewType={viewType}
               errorMessage={errorMessage}
@@ -581,7 +581,7 @@ describe('FormActions [Component]', () => {
         beforeEach(() => {
           component = mount(
             <FormActions
-              currentConnection={connection}
+              connectionModel={connection}
               isConnected={isConnected}
               viewType={viewType}
               errorMessage={errorMessage}
@@ -614,7 +614,7 @@ describe('FormActions [Component]', () => {
         beforeEach(() => {
           component = mount(
             <FormActions
-              currentConnection={connection}
+              connectionModel={connection}
               isConnected={isConnected}
               viewType={viewType}
               errorMessage={errorMessage}
@@ -649,7 +649,7 @@ describe('FormActions [Component]', () => {
     beforeEach(() => {
       component = mount(
         <FormActions
-          currentConnection={connection}
+          connectionModel={connection}
           isConnected={isConnected}
           viewType={viewType}
           errorMessage={errorMessage}

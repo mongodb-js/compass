@@ -10,18 +10,18 @@ class Authentication extends React.Component {
   static displayName = 'Authentication';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     isValid: PropTypes.bool
   };
 
   constructor(props) {
     super(props);
     this.setupAuthenticationRoles();
-    this.state = { authStrategy: props.currentConnection.authStrategy };
+    this.state = { authStrategy: props.connectionModel.authStrategy };
   }
 
   componentWillReceiveProps(nextProps) {
-    const authStrategy = nextProps.currentConnection.authStrategy;
+    const authStrategy = nextProps.connectionModel.authStrategy;
 
     if (authStrategy !== this.state.authStrategy) {
       this.setState({ authStrategy });
@@ -70,7 +70,7 @@ class Authentication extends React.Component {
           name="authStrategy"
           options={this.selectOptions}
           changeHandler={this.onAuthStrategyChanged.bind(this)}
-          value={this.props.currentConnection.authStrategy}
+          value={this.props.connectionModel.authStrategy}
         />
         {this.renderAuthStrategy()}
       </FormGroup>

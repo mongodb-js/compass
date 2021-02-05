@@ -12,7 +12,7 @@ class Sidebar extends React.Component {
   static displayName = 'Sidebar';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     connections: PropTypes.object.isRequired
   };
 

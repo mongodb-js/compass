@@ -13,7 +13,7 @@ class FormActions extends React.Component {
   static displayName = 'FormActions';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     currentConnectionAttempt: PropTypes.object,
     isValid: PropTypes.bool,
     isConnected: PropTypes.bool,
@@ -126,7 +126,7 @@ class FormActions extends React.Component {
         <a id="discardChanges" onClick={this.onChangesDiscarded}>
           [discard]
         </a>
-        {this.props.currentConnection.isFavorite ? (
+        {this.props.connectionModel.isFavorite ? (
           <a id="saveChanges" onClick={this.onSaveFavoriteClicked}>
             [save changes]
           </a>
@@ -270,8 +270,8 @@ class FormActions extends React.Component {
    * @returns {React.Component}
    */
   renderMessage() {
-    const connection = this.props.currentConnection;
-    const server = `${connection.hostname}:${connection.port}`;
+    const connectionModel = this.props.connectionModel;
+    const server = `${connectionModel.hostname}:${connectionModel.port}`;
     let message = `Connected to ${server}`;
     let colorStyle = styles['connection-message-container-success'];
     let hasMessage = false;

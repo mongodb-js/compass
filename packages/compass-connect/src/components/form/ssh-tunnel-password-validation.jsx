@@ -11,7 +11,7 @@ class SSHTunnelPasswordValidation extends React.Component {
   static displayName = 'SSHTunnelPasswordValidation';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     isValid: PropTypes.bool
   };
 
@@ -64,7 +64,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    * @returns {Number} sshTunnelPort.
    */
   getPort() {
-    return this.props.currentConnection.sshTunnelPort;
+    return this.props.connectionModel.sshTunnelPort;
   }
 
   /**
@@ -73,7 +73,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getHostnameError() {
-    if (this._isInvalid(this.props.currentConnection.sshTunnelHostname)) {
+    if (this._isInvalid(this.props.connectionModel.sshTunnelHostname)) {
       return true;
     }
   }
@@ -84,7 +84,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getPortError() {
-    if (this._isInvalid(this.props.currentConnection.sshTunnelPort)) {
+    if (this._isInvalid(this.props.connectionModel.sshTunnelPort)) {
       return true;
     }
   }
@@ -95,7 +95,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getUsernameError() {
-    if (this._isInvalid(this.props.currentConnection.sshTunnelUsername)) {
+    if (this._isInvalid(this.props.connectionModel.sshTunnelUsername)) {
       return true;
     }
   }
@@ -106,7 +106,7 @@ class SSHTunnelPasswordValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getPasswordError() {
-    if (this._isInvalid(this.props.currentConnection.sshTunnelPassword)) {
+    if (this._isInvalid(this.props.connectionModel.sshTunnelPassword)) {
       return true;
     }
   }
@@ -130,7 +130,7 @@ class SSHTunnelPasswordValidation extends React.Component {
           name="sshTunnelHostname"
           error={this.getHostnameError()}
           changeHandler={this.onSSHTunnelHostnameChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnelHostname || ''}
+          value={this.props.connectionModel.sshTunnelHostname || ''}
           linkHandler={this.onHostnameHelp.bind(this)}
         />
         <FormInput
@@ -145,7 +145,7 @@ class SSHTunnelPasswordValidation extends React.Component {
           name="sshTunnelUsername"
           error={this.getUsernameError()}
           changeHandler={this.onSSHTunnelUsernameChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnelUsername || ''}
+          value={this.props.connectionModel.sshTunnelUsername || ''}
         />
         <FormInput
           label="SSH Password"
@@ -153,7 +153,7 @@ class SSHTunnelPasswordValidation extends React.Component {
           type="password"
           error={this.getPasswordError()}
           changeHandler={this.onSSHTunnelPasswordChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnelPassword || ''}
+          value={this.props.connectionModel.sshTunnelPassword || ''}
         />
       </FormGroup>
     );

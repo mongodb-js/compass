@@ -22,8 +22,8 @@ class Connect extends React.Component {
 
   static propTypes = {
     connectingStatusText: PropTypes.string,
+    connectionModel: PropTypes.object,
     connections: PropTypes.object,
-    currentConnection: PropTypes.object,
     currentConnectionAttempt: PropTypes.object,
     isConnected: PropTypes.bool,
     viewType: PropTypes.string,
@@ -109,23 +109,23 @@ class Connect extends React.Component {
   renderHeader() {
     let name = 'New Connection';
 
-    if (this.props.currentConnection.isFavorite) {
+    if (this.props.connectionModel.isFavorite) {
       name =
-        this.props.currentConnection.name.length > 40
-          ? `${this.props.currentConnection.name.substring(0, 40)}...`
-          : this.props.currentConnection.name;
+        this.props.connectionModel.name.length > 40
+          ? `${this.props.connectionModel.name.substring(0, 40)}...`
+          : this.props.connectionModel.name;
     }
 
     return (
       <header>
         <h2>{name}</h2>
         <IsFavoritePill
-          currentConnection={this.props.currentConnection}
+          connectionModel={this.props.connectionModel}
           isModalVisible={this.props.isModalVisible}
           isMessageVisible={this.props.isMessageVisible}
           savedMessage={this.props.savedMessage}
-          color={this.props.currentConnection.color}
-          isFavorite={this.props.currentConnection.isFavorite}
+          color={this.props.connectionModel.color}
+          isFavorite={this.props.connectionModel.isFavorite}
         />
       </header>
     );

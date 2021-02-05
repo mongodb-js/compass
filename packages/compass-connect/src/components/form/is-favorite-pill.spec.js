@@ -21,7 +21,7 @@ describe('IsFavoritePill [Component]', () => {
     beforeEach(() => {
       component = shallow(
         <IsFavoritePill
-          currentConnection={connection}
+          connectionModel={connection}
           isModalVisible={isModalVisible}
           isMessageVisible={isMessageVisible} />
       );
@@ -53,7 +53,7 @@ describe('IsFavoritePill [Component]', () => {
     beforeEach(() => {
       component = shallow(
         <IsFavoritePill
-          currentConnection={connection}
+          connectionModel={connection}
           isModalVisible={isModalVisible}
           isMessageVisible={isMessageVisible} />
       );

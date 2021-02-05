@@ -29,7 +29,7 @@ describe('Connect [Component]', () => {
 
     beforeEach(() => {
       component = shallow(
-        <Connect currentConnection={connection} connections={connections} isValid />
+        <Connect connectionModel={connection} connections={connections} isValid />
       );
     });
 
@@ -62,7 +62,7 @@ describe('Connect [Component]', () => {
     beforeEach(() => {
       component = shallow(
         <Connect
-          currentConnection={connection}
+          connectionModel={connection}
           connections={connections}
           isConnected
           isValid />

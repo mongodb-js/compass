@@ -20,7 +20,7 @@ describe('FavoriteModal [Component]', () => {
     beforeEach(() => {
       component = mount(
         <FavoriteModal
-          currentConnection={connection}
+          connectionModel={connection}
           deleteFavorite={deleteFavorite}
           saveFavorite={saveFavorite}
           closeFavoriteModal={closeFavoriteModal} />
@@ -56,7 +56,7 @@ describe('FavoriteModal [Component]', () => {
     beforeEach(() => {
       component = mount(
         <FavoriteModal
-          currentConnection={connection}
+          connectionModel={connection}
           deleteFavorite={deleteFavorite}
           saveFavorite={saveFavorite}
           closeFavoriteModal={closeFavoriteModal} />
@@ -92,7 +92,7 @@ describe('FavoriteModal [Component]', () => {
     beforeEach(() => {
       component = mount(
         <FavoriteModal
-          currentConnection={connection}
+          connectionModel={connection}
           deleteFavorite={deleteFavorite}
           saveFavorite={saveFavorite}
           closeFavoriteModal={closeFavoriteModal} />

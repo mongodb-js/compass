@@ -7,7 +7,7 @@ import styles from './sidebar.less';
 
 describe('NewConnection [Component]', () => {
   context('when a connection is new', () => {
-    const currentConnection = {
+    const connectionModel = {
       _id: '47d5a91a-0920-43e7-a4ef-71430023f484',
       isFavorite: false
     };
@@ -27,7 +27,7 @@ describe('NewConnection [Component]', () => {
       component = mount(
         <NewConnection
           connections={connections}
-          currentConnection={currentConnection} />
+          connectionModel={connectionModel} />
       );
     });
 
@@ -63,7 +63,7 @@ describe('NewConnection [Component]', () => {
   });
 
   context('when a connection is favorite', () => {
-    const currentConnection = {
+    const connectionModel = {
       _id: '47d5a91a-0920-43e7-a4ef-71430023f484',
       isFavorite: true
     };
@@ -77,7 +77,7 @@ describe('NewConnection [Component]', () => {
       component = mount(
         <NewConnection
           connections={connections}
-          currentConnection={currentConnection} />
+          connectionModel={connectionModel} />
       );
     });
 
@@ -93,7 +93,7 @@ describe('NewConnection [Component]', () => {
   });
 
   context('when a connection is recent', () => {
-    const currentConnection = {
+    const connectionModel = {
       _id: '47d5a91a-0920-43e7-a4ef-71430023f484',
       isFavorite: false
     };
@@ -107,7 +107,7 @@ describe('NewConnection [Component]', () => {
       component = mount(
         <NewConnection
           connections={connections}
-          currentConnection={currentConnection} />
+          connectionModel={connectionModel} />
       );
     });
 

@@ -16,7 +16,7 @@ describe('MongoDBAuthentication [Component]', () => {
 
     beforeEach(() => {
       component = mount(
-        <MongoDBAuthentication currentConnection={connection} isValid />
+        <MongoDBAuthentication connectionModel={connection} isValid />
       );
     });
 
@@ -52,7 +52,7 @@ describe('MongoDBAuthentication [Component]', () => {
 
       beforeEach(() => {
         component = mount(
-          <MongoDBAuthentication currentConnection={connection} />
+          <MongoDBAuthentication connectionModel={connection} />
         );
       });
 
@@ -79,7 +79,7 @@ describe('MongoDBAuthentication [Component]', () => {
 
       beforeEach(() => {
         component = mount(
-          <MongoDBAuthentication currentConnection={connection} />
+          <MongoDBAuthentication connectionModel={connection} />
         );
       });
 
@@ -106,7 +106,7 @@ describe('MongoDBAuthentication [Component]', () => {
 
       beforeEach(() => {
         component = mount(
-          <MongoDBAuthentication currentConnection={connection} />
+          <MongoDBAuthentication connectionModel={connection} />
         );
       });
 
@@ -133,7 +133,7 @@ describe('MongoDBAuthentication [Component]', () => {
 
       beforeEach(() => {
         component = mount(
-          <MongoDBAuthentication currentConnection={connection} />
+          <MongoDBAuthentication connectionModel={connection} />
         );
       });
 
@@ -160,7 +160,7 @@ describe('MongoDBAuthentication [Component]', () => {
 
       beforeEach(() => {
         component = mount(
-          <MongoDBAuthentication currentConnection={connection} />
+          <MongoDBAuthentication connectionModel={connection} />
         );
       });
 
@@ -187,7 +187,7 @@ describe('MongoDBAuthentication [Component]', () => {
 
       beforeEach(() => {
         component = mount(
-          <MongoDBAuthentication currentConnection={connection} />
+          <MongoDBAuthentication connectionModel={connection} />
         );
       });
 

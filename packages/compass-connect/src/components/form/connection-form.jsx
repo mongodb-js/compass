@@ -20,7 +20,7 @@ class ConnectionForm extends React.Component {
   static displayName = 'ConnectionForm';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     currentConnectionAttempt: PropTypes.object,
     isValid: PropTypes.bool.isRequired,
     isHostChanged: PropTypes.bool,
@@ -62,10 +62,10 @@ class ConnectionForm extends React.Component {
    * @returns {React.Component}
    */
   renderPort() {
-    if (!this.props.currentConnection.isSrvRecord) {
+    if (!this.props.connectionModel.isSrvRecord) {
       return (
         <PortInput
-          port={this.props.currentConnection.port}
+          port={this.props.connectionModel.port}
           isPortChanged={this.props.isPortChanged} />
       );
     }
@@ -119,16 +119,16 @@ class ConnectionForm extends React.Component {
             <div className={classnames(styles['tabs-view-content-form'])}>
               <FormGroup separator>
                 <HostInput
-                  hostname={this.props.currentConnection.hostname}
+                  hostname={this.props.connectionModel.hostname}
                   isHostChanged={this.props.isHostChanged} />
                 {this.renderPort()}
                 <SRVInput
                   currentConnectionAttempt={this.props.currentConnectionAttempt}
-                  isSrvRecord={this.props.currentConnection.isSrvRecord}
+                  isSrvRecord={this.props.connectionModel.isSrvRecord}
                 />
               </FormGroup>
               <Authentication
-                currentConnection={this.props.currentConnection}
+                connectionModel={this.props.connectionModel}
                 isValid={this.props.isValid} />
             </div>
           </div>
@@ -143,10 +143,10 @@ class ConnectionForm extends React.Component {
             <div className={classnames(styles['tabs-view-content-form'])}>
               <FormGroup id="read-preference" separator>
                 <ReplicaSetInput
-                  sshTunnel={this.props.currentConnection.sshTunnel}
-                  replicaSet={this.props.currentConnection.replicaSet} />
+                  sshTunnel={this.props.connectionModel.sshTunnel}
+                  replicaSet={this.props.connectionModel.replicaSet} />
                 <ReadPreferenceSelect
-                  readPreference={this.props.currentConnection.readPreference} />
+                  readPreference={this.props.connectionModel.readPreference} />
               </FormGroup>
               <SSLMethod {...this.props} />
               <SSHTunnel {...this.props} />

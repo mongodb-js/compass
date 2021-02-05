@@ -9,16 +9,16 @@ import FormItemSelect from './form-item-select';
 class SSLMethod extends React.Component {
   static displayName = 'SSLMethod';
 
-  static propTypes = { currentConnection: PropTypes.object.isRequired };
+  static propTypes = { connectionModel: PropTypes.object.isRequired };
 
   constructor(props) {
     super(props);
     this.setupSSLRoles();
-    this.state = { sslMethod: props.currentConnection.sslMethod };
+    this.state = { sslMethod: props.connectionModel.sslMethod };
   }
 
   componentWillReceiveProps(nextProps) {
-    const sslMethod = nextProps.currentConnection.sslMethod;
+    const sslMethod = nextProps.connectionModel.sslMethod;
 
     if (sslMethod !== this.state.sslMethod) {
       this.setState({ sslMethod: sslMethod });
@@ -67,7 +67,7 @@ class SSLMethod extends React.Component {
           name="sslMethod"
           options={this.selectOptions}
           changeHandler={this.onSSLMethodChanged.bind(this)}
-          value={this.props.currentConnection.sslMethod}
+          value={this.props.connectionModel.sslMethod}
         />
         {this.renderSSLMethod()}
       </FormGroup>

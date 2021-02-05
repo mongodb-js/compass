@@ -36,7 +36,7 @@ describe('SSHTunnel [Component]', () => {
 
   beforeEach(() => {
     component = mount(
-      <SSHTunnel currentConnection={connection} isValid />
+      <SSHTunnel connectionModel={connection} isValid />
     );
   });
 

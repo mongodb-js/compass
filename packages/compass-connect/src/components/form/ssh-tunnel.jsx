@@ -9,16 +9,16 @@ import FormItemSelect from './form-item-select';
 class SSHTunnel extends React.Component {
   static displayName = 'SSHTunnel';
 
-  static propTypes = { currentConnection: PropTypes.object.isRequired };
+  static propTypes = { connectionModel: PropTypes.object.isRequired };
 
   constructor(props) {
     super(props);
     this.setupSSHTunnelRoles();
-    this.state = { sshTunnel: props.currentConnection.sshTunnel };
+    this.state = { sshTunnel: props.connectionModel.sshTunnel };
   }
 
   componentWillReceiveProps(nextProps) {
-    const sshMethod = nextProps.currentConnection.sshTunnel;
+    const sshMethod = nextProps.connectionModel.sshTunnel;
 
     if (sshMethod !== this.state.sshTunnel) {
       this.setState({ sshTunnel: sshMethod });
@@ -67,7 +67,7 @@ class SSHTunnel extends React.Component {
           name="sshTunnel"
           options={this.selectOptions}
           changeHandler={this.onSSHTunnelChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnel}
+          value={this.props.connectionModel.sshTunnel}
         />
         {this.renderSSHTunnel()}
       </FormGroup>

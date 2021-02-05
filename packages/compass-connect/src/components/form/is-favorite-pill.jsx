@@ -15,7 +15,7 @@ class IsFavoritePill extends PureComponent {
   static displayName = 'IsFavoritePill';
 
   static propTypes = {
-    currentConnection: PropTypes.object,
+    connectionModel: PropTypes.object,
     isModalVisible: PropTypes.bool,
     isMessageVisible: PropTypes.bool,
     savedMessage: PropTypes.string,
@@ -71,7 +71,7 @@ class IsFavoritePill extends PureComponent {
     if (this.props.isModalVisible) {
       return (
         <FavoriteModal
-          currentConnection={this.props.currentConnection}
+          connectionModel={this.props.connectionModel}
           deleteFavorite={this.deleteFavorite}
           closeFavoriteModal={this.closeFavoriteModal}
           saveFavorite={this.saveFavorite} />

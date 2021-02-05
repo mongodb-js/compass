@@ -15,7 +15,7 @@ class Recents extends React.Component {
   static displayName = 'Recents';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     connections: PropTypes.object.isRequired
   };
 
@@ -67,7 +67,7 @@ class Recents extends React.Component {
   getClassName(recent) {
     const classnamesProps = [styles['connect-sidebar-list-item']];
 
-    if (this.props.currentConnection._id === recent._id) {
+    if (this.props.connectionModel._id === recent._id) {
       classnamesProps.push(styles['connect-sidebar-list-item-is-active']);
     }
 

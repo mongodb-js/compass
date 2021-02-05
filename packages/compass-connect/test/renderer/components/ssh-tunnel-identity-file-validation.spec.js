@@ -19,7 +19,7 @@ describe('SSHTunnelIdentityFile [Component]', () => {
 
       beforeEach(() => {
         component = mount(
-          <SSHTunnelIdentityFile currentConnection={connection} isValid />
+          <SSHTunnelIdentityFile connectionModel={connection} isValid />
         );
       });
 
@@ -85,7 +85,7 @@ describe('SSHTunnelIdentityFile [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSHTunnelIdentityFile currentConnection={connection} />
+            <SSHTunnelIdentityFile connectionModel={connection} />
           );
         });
 
@@ -113,7 +113,7 @@ describe('SSHTunnelIdentityFile [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSHTunnelIdentityFile currentConnection={connection} />
+            <SSHTunnelIdentityFile connectionModel={connection} />
           );
         });
 
@@ -141,7 +141,7 @@ describe('SSHTunnelIdentityFile [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSHTunnelIdentityFile currentConnection={connection} />
+            <SSHTunnelIdentityFile connectionModel={connection} />
           );
         });
 
@@ -169,7 +169,7 @@ describe('SSHTunnelIdentityFile [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <SSHTunnelIdentityFile currentConnection={connection} />
+            <SSHTunnelIdentityFile connectionModel={connection} />
           );
         });
 

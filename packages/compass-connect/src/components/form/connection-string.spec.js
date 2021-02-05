@@ -18,7 +18,7 @@ describe('ConnectionString [Component]', () => {
   beforeEach(() => {
     component = shallow(
       <ConnectionString
-        currentConnection={connection}
+        connectionModel={connection}
         customUrl={customUrl}
         isValid />
     );

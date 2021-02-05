@@ -8,7 +8,7 @@ import Authentication from './authentication';
 import styles from '../connect.less';
 
 describe('Authentication [Component]', () => {
-  const connection = { authStrategy: 'MONGODB' };
+  const connectionModel = { authStrategy: 'MONGODB' };
   const appRegistry = new AppRegistry();
   let component;
 
@@ -36,7 +36,7 @@ describe('Authentication [Component]', () => {
 
   beforeEach(() => {
     component = mount(
-      <Authentication currentConnection={connection} isValid />
+      <Authentication connectionModel={connectionModel} isValid />
     );
   });
 

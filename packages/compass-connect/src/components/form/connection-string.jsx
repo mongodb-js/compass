@@ -12,7 +12,7 @@ class ConnectionString extends React.Component {
   static displayName = 'ConnectionString';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     customUrl: PropTypes.string,
     isValid: PropTypes.bool,
     isConnected: PropTypes.bool,
@@ -39,7 +39,7 @@ class ConnectionString extends React.Component {
             />
           </FormGroup>
           <FormActions
-            currentConnection={this.props.currentConnection}
+            connectionModel={this.props.connectionModel}
             isValid={this.props.isValid}
             isConnected={this.props.isConnected}
             currentConnectionAttempt={this.props.currentConnectionAttempt}

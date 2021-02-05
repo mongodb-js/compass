@@ -16,7 +16,7 @@ describe('ScramSha256 [Component]', () => {
 
       beforeEach(() => {
         component = mount(
-          <ScramSha256 currentConnection={connection} isValid />
+          <ScramSha256 connectionModel={connection} isValid />
         );
       });
 
@@ -67,7 +67,7 @@ describe('ScramSha256 [Component]', () => {
         let component;
 
         beforeEach(() => {
-          component = mount(<ScramSha256 currentConnection={connection} />);
+          component = mount(<ScramSha256 connectionModel={connection} />);
         });
 
         afterEach(() => {
@@ -95,7 +95,7 @@ describe('ScramSha256 [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <ScramSha256 currentConnection={connection} />
+            <ScramSha256 connectionModel={connection} />
           );
         });
 
@@ -124,7 +124,7 @@ describe('ScramSha256 [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <ScramSha256 currentConnection={connection} />
+            <ScramSha256 connectionModel={connection} />
           );
         });
 
@@ -153,7 +153,7 @@ describe('ScramSha256 [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <ScramSha256 currentConnection={connection} />
+            <ScramSha256 connectionModel={connection} />
           );
         });
 
@@ -182,7 +182,7 @@ describe('ScramSha256 [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <ScramSha256 currentConnection={connection} />
+            <ScramSha256 connectionModel={connection} />
           );
         });
 
@@ -211,7 +211,7 @@ describe('ScramSha256 [Component]', () => {
 
         beforeEach(() => {
           component = mount(
-            <ScramSha256 currentConnection={connection} />
+            <ScramSha256 connectionModel={connection} />
           );
         });
 

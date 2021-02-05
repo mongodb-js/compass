@@ -12,7 +12,7 @@ class SSLServerValidation extends React.Component {
   static displayName = 'SSLServerValidation';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     isValid: PropTypes.bool
   };
 
@@ -31,7 +31,7 @@ class SSLServerValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getError() {
-    const connection = this.props.currentConnection;
+    const connection = this.props.connectionModel;
 
     if (!this.props.isValid && isEmpty(connection.sslCA)) {
       return true;
@@ -46,7 +46,7 @@ class SSLServerValidation extends React.Component {
         <FormFileInput
           label="Certificate Authority"
           changeHandler={this.onSSLCAChanged.bind(this)}
-          values={this.props.currentConnection.sslCA}
+          values={this.props.connectionModel.sslCA}
           error={this.getError()}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities"
           multi

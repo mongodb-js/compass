@@ -12,7 +12,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
   static displayName = 'SSHTunnelIdentityFileValidation';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     isValid: PropTypes.bool
   };
 
@@ -74,7 +74,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
    * @returns {Number} sshTunnelPort.
    */
   getPort() {
-    return this.props.currentConnection.sshTunnelPort;
+    return this.props.connectionModel.sshTunnelPort;
   }
 
   /**
@@ -83,7 +83,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getHostnameError() {
-    if (this._isInvalid(this.props.currentConnection.sshTunnelHostname)) {
+    if (this._isInvalid(this.props.connectionModel.sshTunnelHostname)) {
       return true;
     }
   }
@@ -94,7 +94,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getPortError() {
-    if (this._isInvalid(this.props.currentConnection.sshTunnelPort)) {
+    if (this._isInvalid(this.props.connectionModel.sshTunnelPort)) {
       return true;
     }
   }
@@ -105,7 +105,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getUsernameError() {
-    if (this._isInvalid(this.props.currentConnection.sshTunnelUsername)) {
+    if (this._isInvalid(this.props.connectionModel.sshTunnelUsername)) {
       return true;
     }
   }
@@ -116,7 +116,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getFileError() {
-    if (this._isInvalid(this.props.currentConnection.sshTunnelIdentityFile)) {
+    if (this._isInvalid(this.props.connectionModel.sshTunnelIdentityFile)) {
       return true;
     }
   }
@@ -140,7 +140,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
           name="sshTunnelHostname"
           error={this.getHostnameError()}
           changeHandler={this.onSSHTunnelHostnameChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnelHostname || ''}
+          value={this.props.connectionModel.sshTunnelHostname || ''}
           linkHandler={this.onSourceHelp.bind(this)}
         />
         <FormInput
@@ -157,21 +157,21 @@ class SSHTunnelIdentityFileValidation extends React.Component {
           name="sshTunnelUsername"
           error={this.getUsernameError()}
           changeHandler={this.onSSHTunnelUsernameChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnelUsername || ''}
+          value={this.props.connectionModel.sshTunnelUsername || ''}
         />
         <FormFileInput
           label="SSH Identity File"
           id="sshTunnelIdentityFile"
           error={this.getFileError()}
           changeHandler={this.onSSHTunnelIdentityFileChanged.bind(this)}
-          values={this.props.currentConnection.sshTunnelIdentityFile}
+          values={this.props.connectionModel.sshTunnelIdentityFile}
         />
         <FormInput
           label="SSH Passphrase"
           name="sshTunnelPassphrase"
           type="password"
           changeHandler={this.onSSHTunnelPassphraseChanged.bind(this)}
-          value={this.props.currentConnection.sshTunnelPassphrase || ''}
+          value={this.props.connectionModel.sshTunnelPassphrase || ''}
         />
       </FormGroup>
     );

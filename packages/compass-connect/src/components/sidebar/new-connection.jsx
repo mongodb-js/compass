@@ -10,7 +10,7 @@ class NewConnection extends React.Component {
   static displayName = 'NewConnection';
 
   static propTypes = {
-    currentConnection: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     connections: PropTypes.object.isRequired
   };
 
@@ -27,7 +27,7 @@ class NewConnection extends React.Component {
    * @returns {String} - A class name
    */
   getClassName() {
-    const currentSaved = this.props.connections[this.props.currentConnection._id];
+    const currentSaved = this.props.connections[this.props.connectionModel._id];
     const classnamesProps = [styles['connect-sidebar-new-connection']];
 
     if (!currentSaved) {
