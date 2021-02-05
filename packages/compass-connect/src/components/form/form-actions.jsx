@@ -1,3 +1,4 @@
+import Button from '@leafygreen-ui/button';
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
@@ -13,6 +14,7 @@ class FormActions extends React.Component {
 
   static propTypes = {
     currentConnection: PropTypes.object.isRequired,
+    currentConnectionAttempt: PropTypes.object,
     isValid: PropTypes.bool,
     isConnected: PropTypes.bool,
     errorMessage: PropTypes.string,
@@ -22,6 +24,11 @@ class FormActions extends React.Component {
     isURIEditable: PropTypes.bool,
     isSavedConnection: PropTypes.bool
   };
+
+  onCancelConnectionAttemptClicked(evt) {
+    evt.preventDefault();
+    Actions.onCancelConnectionAttemptClicked();
+  }
 
   /**
    * Handles a connect click.
@@ -135,14 +142,14 @@ class FormActions extends React.Component {
    */
   renderDisconnect = () => {
     return (
-      <button
+      <Button
+        className={styles.button}
         type="submit"
-        name="disconnect"
-        className="btn btn-sm btn-primary"
+        variant="primary"
         onClick={this.onDisconnectClicked.bind(this)}
       >
         Disconnect
-      </button>
+      </Button>
     );
   };
 
@@ -153,16 +160,43 @@ class FormActions extends React.Component {
    */
   renderConnect = () => {
     return (
-      <button
+      <Button
+        className={styles.button}
         type="submit"
         name="connect"
-        className={`btn btn-sm btn-primary ${
-          this.hasSyntaxError() ? 'disabled' : ''
-        }`}
+        variant="primary"
+        disabled={!!this.hasSyntaxError()}
         onClick={this.onConnectClicked.bind(this)}
       >
         Connect
-      </button>
+      </Button>
+    );
+  };
+
+  renderConnecting = () => {
+    return (
+      <React.Fragment>
+        <Button
+          className={styles.button}
+          type="submit"
+          name="cancelConnect"
+          onClick={this.onCancelConnectionAttemptClicked.bind(this)}
+        >
+          Cancel
+        </Button>
+        <Button
+          className={styles.button}
+          type="submit"
+          name="connecting"
+          disabled
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          <div className={styles['btn-loading']} />Connecting...
+        </Button>
+      </React.Fragment>
     );
   };
 
@@ -174,14 +208,14 @@ class FormActions extends React.Component {
   renderEditURI = () => {
     if (this.props.viewType === CONNECTION_STRING_VIEW) {
       return (
-        <button
+        <Button
+          className={styles.button}
           type="submit"
           name="editUrl"
-          className="btn btn-sm btn-default"
           onClick={this.onEditURIClicked.bind(this)}
         >
           Edit
-        </button>
+        </Button>
       );
     }
   };
@@ -198,14 +232,14 @@ class FormActions extends React.Component {
       this.props.viewType === CONNECTION_STRING_VIEW
     ) {
       return (
-        <button
+        <Button
+          className={styles.button}
           type="submit"
           name="hideUrl"
-          className="btn btn-sm btn-default"
           onClick={this.onHideURIClicked.bind(this)}
         >
           Hide
-        </button>
+        </Button>
       );
     }
   };
@@ -218,10 +252,14 @@ class FormActions extends React.Component {
   renderConnectButtons() {
     return (
       <div className={classnames(styles.buttons)}>
-        {this.props.isURIEditable ? this.renderHideURI() : this.renderEditURI()}
-        {this.props.isConnected
-          ? this.renderDisconnect()
-          : this.renderConnect()}
+        {!this.props.currentConnectionAttempt && (
+          this.props.isURIEditable
+            ? this.renderHideURI()
+            : this.renderEditURI()
+        )}
+        {this.props.isConnected && this.renderDisconnect()}
+        {!this.props.isConnected && !this.props.currentConnectionAttempt && this.renderConnect()}
+        {!this.props.isConnected && !!this.props.currentConnectionAttempt && this.renderConnecting()}
       </div>
     );
   }

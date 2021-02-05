@@ -1,7 +1,6 @@
 @import './sidebar/sidebar.less';
 
 @compass-sidebar-secondary-text-color: @gray6;
-@compass-sidebar-atlas-background-color: @gray1;
 @compass-sidebar-atlas-background-color: lighten(hsl(204, 29%, 18%), 5%);
 
 .page {
@@ -508,13 +507,28 @@ label {
 
   .buttons {
     margin: 0 25px 10px;
-    overflow: auto;
     display: flex;
     justify-content: flex-end;
 
-    button {
+    .button {
       margin-left: 5px;
     }
+  }
+
+  .btn-loading {
+    border: 2px solid transparent;
+    border-top: 2px solid @green2;
+    border-radius: 50%;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    width: 14px;
+    height: 14px;
+    background: none;
+    outline: none;
+    margin-right: 5px;
+
+    animation: connect-btn-loader-spin 500ms linear infinite;
   }
 
   .disabled-uri {
@@ -621,6 +635,90 @@ label {
   }
 }
 
+.connecting-modal-backdrop {
+  background-color: transparent !important;
+}
+
+.connecting-background {
+  position: fixed;
+  z-index: 500;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+
+  .connecting-background-gradient {
+    opacity: 0.9;
+    animation: opacityFadeIn 0.2s ease-out;
+  }
+}
+
+@keyframes opacityFadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0.9;
+  }
+}
+
+.connecting-modal-content {
+  text-align: center;
+  padding: 24px;
+
+  .connecting-modal-status {
+    margin-top: 24px;
+    font-weight: bold;
+  }
+
+  .connecting-modal-animation {
+    margin-top: 24px;
+    text-align: center;
+
+    .connecting-compass-animation-svg {
+      width: 70px;
+      height: auto;
+    }
+
+    .connecting-compass-shadow {
+      fill:#136149;
+      opacity:0.12;
+    }
+    .connecting-compass-shadow-stroke {
+      stroke:#136149;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      fill: none;
+      opacity:0.12;
+    }
+
+    .connecting-compass-circle-1 {
+      fill:none;
+      stroke:#136149;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+    .connecting-compass-circle-2 {
+      fill:#f7a76f;
+    }
+    .connecting-compass-circle-3 {
+      fill:#fef7e3;
+      opacity:0.85;
+    }
+    .connecting-compass-arrow-1 {
+      fill:#f9d3c5;
+    }
+    .connecting-compass-arrow-2 {
+      fill:#09804c;
+    }
+  }
+
+  .connecting-modal-cancel-btn {
+    margin-top: 24px;
+  }
+}
+
 .connect-sidebar-connections::-webkit-scrollbar-track {
   background-color: rgba(0, 0, 0, 0.12);
   border-bottom-left-radius: 3px;
@@ -708,6 +806,10 @@ label {
     position: absolute;
     z-index: -1;
   }
+}
+
+.confirm-edit-modal-button {
+  margin-left: 5px;
 }
 
 .favorite-modal {
@@ -886,4 +988,9 @@ label {
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075),
       0 0 4px rgba(88, 151, 251, 1);
   }
+}
+
+@keyframes connect-btn-loader-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

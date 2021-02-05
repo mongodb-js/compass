@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from '@leafygreen-ui/button';
 import PropTypes from 'prop-types';
 import path from 'path';
 import { remote, shell } from 'electron';
@@ -129,21 +130,21 @@ class FormFileInput extends React.Component {
   }
 
   render() {
-    const buttonClassName = `${classnames(styles['form-item-file-button'])} btn btn-sm btn-default`;
-
     return (
       <div className={this.getClassName()}>
         <label>
           <span>{this.props.label}</span>
           {this.renderInfoSprinkle()}
         </label>
-        <button
+        <Button
           id={this.props.id}
-          className={buttonClassName}
-          onClick={this.onClick.bind(this)} >
+          className={styles['form-item-file-button']}
+          onClick={this.onClick.bind(this)}
+          title="Select a file"
+        >
           <i className="fa fa-upload" aria-hidden />
           {this.renderButtonText()}
-        </button>
+        </Button>
       </div>
     );
   }

@@ -84,6 +84,50 @@ describe('ConnectionForm [Component]', () => {
         expect(authentication.prop('currentConnection')).to.deep.equal(connection);
         expect(authentication.prop('isValid')).to.equal(true);
       });
+
+      it('has the form fieldset enabled', () => {
+        expect(component.find('fieldset[disabled=true]')).to.be.not.present();
+        expect(component.find('fieldset[disabled=false]')).to.be.present();
+      });
+    });
+
+    context('when it is currently connecting', () => {
+      const appRegistry = new AppRegistry();
+      const AUTH_ROLE = {
+        name: 'MONGODB',
+        component: TestComponent,
+        selectOption: { 'MONGODB': 'Username / Password' }
+      };
+
+      before(() => {
+        global.hadronApp = hadronApp;
+        global.hadronApp.appRegistry = appRegistry;
+        global.hadronApp.appRegistry.registerRole('Connect.AuthStrategy', AUTH_ROLE);
+      });
+
+      after(() => {
+        global.hadronApp.appRegistry.deregisterRole('Connect.AuthStrategy', AUTH_ROLE);
+      });
+
+      it('disables the form', () => {
+        const component = mount(
+          <ConnectionForm
+            currentConnectionAttempt
+            currentConnection={{
+              authStrategy: 'MONGODB',
+              isSrvRecord: false,
+              readPreference: 'primaryPreferred',
+              attributes: { hostname: 'localhost' }
+            }}
+            isHostChanged={false}
+            isPortChanged={false}
+            isValid
+          />
+        );
+
+        expect(component.find('fieldset[disabled=true]')).to.be.present();
+        expect(component.find('fieldset[disabled=false]')).to.not.be.present();
+      });
     });
 
     context('when SRV input was toggled', () => {

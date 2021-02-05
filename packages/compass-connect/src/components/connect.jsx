@@ -10,20 +10,22 @@ import ConnectionString from './form/connection-string';
 import Help from './form/help';
 import IsFavoritePill from './form/is-favorite-pill';
 import ConfirmEditConnectionString from './modal/confirm-edit-connection-string';
-
+import Connecting from './modal/connecting';
 import {
   CONNECTION_FORM_VIEW,
   CONNECTION_STRING_VIEW
 } from '../constants/connection-views';
-
 import styles from './connect.less';
 
 class Connect extends React.Component {
   static displayName = 'Connect';
 
   static propTypes = {
-    currentConnection: PropTypes.object,
+    connectingStatusText: PropTypes.string,
     connections: PropTypes.object,
+    currentConnection: PropTypes.object,
+    currentConnectionAttempt: PropTypes.object,
+    isConnected: PropTypes.bool,
     viewType: PropTypes.string,
     isModalVisible: PropTypes.bool,
     isMessageVisible: PropTypes.bool,
@@ -149,6 +151,10 @@ class Connect extends React.Component {
             </div>
             <Help {...this.props} />
           </div>
+          <Connecting
+            connectingStatusText={this.props.connectingStatusText}
+            currentConnectionAttempt={this.props.currentConnectionAttempt}
+          />
           <ConfirmEditConnectionString
             isEditURIConfirm={this.props.isEditURIConfirm}
           />

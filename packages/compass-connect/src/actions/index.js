@@ -7,6 +7,7 @@ const Actions = Reflux.createActions({
   validateConnectionString: { sync: true },
   onAuthSourceChanged: { sync: true },
   onAuthStrategyChanged: { sync: true },
+  onCancelConnectionAttemptClicked: { sync: true },
   onChangeViewClicked: { sync: true },
   onConnectionFormChanged: { sync: true },
   onConnectClicked: { sync: true },

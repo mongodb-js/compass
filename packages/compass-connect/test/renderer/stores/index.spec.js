@@ -3,7 +3,24 @@ import Connection, { ConnectionCollection } from 'mongodb-connection-model';
 import Reflux from 'reflux';
 
 import Actions from '../../../src/actions';
+import {
+  createConnectionAttempt
+} from '../../../src/modules/connection-attempt';
 import Store from '../../../src/stores';
+
+const delay = (amt) => new Promise((resolve) => setTimeout(resolve, amt));
+export const ensureResult = async(timeout, getFn, testFn, failMsg) => {
+  let result = await getFn();
+  while (!testFn(result)) {
+    if (timeout > 2000) {
+      throw new Error(`Waited for ${failMsg}, never happened`);
+    }
+    await delay(timeout);
+    timeout *= 2; // Try again but wait double.
+    result = await getFn();
+  }
+  return result;
+};
 
 describe('Store', () => {
   beforeEach(() => {
@@ -1772,6 +1789,173 @@ describe('Store', () => {
     });
   });
 
+  describe('#_connect', () => {
+    const connection = new Connection({
+      hostname: 'localhost',
+      port: 27018,
+      authStrategy: 'NONE'
+    });
+    let appRegistryEmitStub;
+
+    beforeEach(() => {
+      const connections = {
+        [connection._id]: connection.getAttributes({ props: true, derived: true })
+      };
+      Store.state.fetchedConnections = new ConnectionCollection();
+      Store.state.fetchedConnections.add(connection);
+      Store.state.connections = { ...connections };
+      Store.state.currentConnection = connection;
+      Store.state.isURIEditable = false;
+      Store.state.viewType = 'connectionString';
+      Store.state.customUrl = connection.driverUrl;
+      Store.state.fetchedConnections = new ConnectionCollection();
+      Store.state.fetchedConnections.add(connection);
+      Store.state.connections = { ...connections };
+      Store.state.currentConnectionAttempt = null;
+      Store.state.isConnected = false;
+      Store.state.currentConnection = connection;
+
+      Store.state.currentConnectionAttempt = null;
+      Store.dataService = null;
+
+      appRegistryEmitStub = sinon.fake();
+      sinon.replace(
+        Store,
+        'appRegistry',
+        {
+          emit: appRegistryEmitStub
+        }
+      );
+    });
+
+    afterEach(async() => {
+      if (Store.dataService) {
+        try {
+          await Store.dataService.disconnect();
+        } catch (err) { /* */ }
+        Store.dataService = null;
+      }
+
+      if (Store.state.currentConnectionAttempt) {
+        try {
+          await Store.state.currentConnectionAttempt.cancelConnectionAttempt();
+        } catch (err) { /* */ }
+        Store.state.currentConnectionAttempt = null;
+      }
+
+      sinon.restore();
+    });
+
+    it('connects to the database and sets the dataService on the store', async() => {
+      Store.state.currentConnectionAttempt = createConnectionAttempt();
+      await Store._connect(connection);
+
+      expect(Store.dataService).to.not.equal(null);
+      expect(Store.state.isConnected).to.equal(true);
+      expect(appRegistryEmitStub.calledOnce).to.equal(true);
+    });
+
+    it('shows the progress bar when it successfully connects', async() => {
+      Store.state.currentConnectionAttempt = createConnectionAttempt();
+      const spyShow = sinon.spy(
+        Store.StatusActions,
+        'showIndeterminateProgressBar'
+      );
+
+      await Store._connect(connection);
+
+      expect(spyShow.calledOnce).to.equal(true);
+    });
+
+    it('does not show the progress bar when it errors when connecting', async() => {
+      Store.state.currentConnectionAttempt = createConnectionAttempt();
+      const spyShow = sinon.spy(
+        Store.StatusActions,
+        'showIndeterminateProgressBar'
+      );
+
+      let finishedConnecting = false;
+      const startConnecting = async() => {
+        await Store._connect({
+          port: 29799 // Hopefully not in use.
+        });
+
+        finishedConnecting = true;
+      };
+
+      startConnecting();
+
+      await ensureResult(
+        3,
+        () => Store.state.currentConnectionAttempt,
+        () => Store.state.currentConnectionAttempt !== null,
+        'Never started connecting to failing connection.'
+      );
+
+      Store.state.currentConnectionAttempt.cancelConnectionAttempt();
+
+      await ensureResult(
+        3,
+        () => finishedConnecting,
+        () => finishedConnecting,
+        'Never finished connecting to failing connection.'
+      );
+
+      expect(Store.state.isConnected).to.equal(false);
+      expect(Store.dataService).to.equal(null);
+      expect(spyShow.calledOnce).to.equal(false);
+    });
+
+    it('does not connect when currentConnectionAttempt is null', async() => {
+      Store.state.currentConnectionAttempt = null;
+      await Store._connect(connection);
+
+      expect(Store.dataService).to.equal(null);
+    });
+  });
+
+  describe('#_cancelCurrentConnectionAttempt', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('cancels the current connection attempt', async() => {
+      let finishedConnecting = false;
+      const startConnecting = async() => {
+        await Store._connect({
+          port: 29799 // Hopefully not in use.
+        });
+
+        finishedConnecting = true;
+      };
+      Store.state.currentConnectionAttempt = createConnectionAttempt();
+
+      startConnecting();
+
+      await ensureResult(
+        3,
+        () => Store.state.currentConnectionAttempt,
+        () => Store.state.currentConnectionAttempt !== null,
+        'Never started connecting to failing connection.'
+      );
+
+      await Store._cancelCurrentConnectionAttempt();
+
+      expect(Store.state.currentConnectionAttempt).to.equal(null);
+
+      await ensureResult(
+        3,
+        () => finishedConnecting,
+        () => finishedConnecting,
+        'Never finished connecting to failing connection.'
+      );
+
+      expect(Store.state.isConnected).to.equal(false);
+      expect(Store.state.currentConnectionAttempt).to.equal(null);
+      expect(Store.dataService).to.equal(null);
+    });
+  });
+
   describe('#onConnectClicked', () => {
     const favorite = new Connection({
       hostname: 'server.example.com',
@@ -1795,14 +1979,11 @@ describe('Store', () => {
       Store.state.fetchedConnections = new ConnectionCollection();
       Store.state.fetchedConnections.add(favorite);
       Store.state.connections = { ...connections };
+      Store.state.currentConnectionAttempt = null;
       Store.state.currentConnection = favorite;
       Store._connect = (parsedConnection) => {
         Store.state.currentConnection = parsedConnection;
         Store.trigger(Store.state);
-      };
-      Store.StatusActions = {
-        done: () => {},
-        showIndeterminateProgressBar: () => {}
       };
     });
 
@@ -1810,44 +1991,86 @@ describe('Store', () => {
       sinon.restore();
     });
 
-    it('uses a real password when builds a driverUrl', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.currentConnection.driverUrl).to.equal(
-          'mongodb://user:password@server.example.com:27001/?authSource=admin&readPreference=primary&appname=Electron&ssl=false'
-        );
-        done();
+    it('uses a real password when builds a driverUrl', async() => {
+      await Actions.onConnectClicked();
+
+      expect(Store.state.currentConnection.driverUrl).to.equal(
+        'mongodb://user:password@server.example.com:27001/?authSource=admin&readPreference=primary&ssl=false'
+      );
+    });
+
+    it('updates state to connecting when it is connecting', async() => {
+      expect(Store.state.currentConnectionAttempt).to.equal(null);
+
+      let didCallConnect;
+      const promiseWaitForConnect = () => new Promise((resolve) => {
+        didCallConnect = resolve;
       });
 
+      let checkFinished;
+      const promiseWaitForCheck = () => new Promise((resolve) => {
+        checkFinished = resolve;
+      });
+
+      const originalStoreConnectWithString = Store._connectWithConnectionString.bind(Store);
+
+      let didFinishConnect = false;
+      sinon.replace(
+        Store,
+        '_connectWithConnectionString',
+        async() => {
+          await promiseWaitForCheck();
+
+          await originalStoreConnectWithString();
+
+          if (didCallConnect) {
+            didCallConnect();
+          }
+          didFinishConnect = true;
+        }
+      );
+
       Actions.onConnectClicked();
+
+      expect(Store.state.currentConnectionAttempt).to.not.equal(null);
+
+      checkFinished();
+      if (!didFinishConnect) {
+        await promiseWaitForConnect();
+      }
+      await Actions.onConnectClicked();
+
+      expect(Store.state.currentConnectionAttempt).to.equal(null);
     });
 
-    it('shows and hides the progress bar', async() => {
-      const spyShow = sinon.spy(
-        Store.StatusActions,
-        'showIndeterminateProgressBar'
-      );
-      const spyDone = sinon.spy(
-        Store.StatusActions,
-        'done'
+    it('attempts to connect when currentConnectionAttempt is null', async() => {
+      expect(Store.state.currentConnectionAttempt).to.equal(null);
+
+      const spyConnect = sinon.spy(
+        Store,
+        '_connectWithConnectionString'
       );
 
-      await Store.onConnectClicked();
+      await Actions.onConnectClicked();
 
-      expect(spyShow.calledOnce).to.equal(true);
-      expect(spyDone.calledOnce).to.equal(true);
+      expect(spyConnect.calledOnce).to.equal(true);
     });
 
-    it('shows and hides the progress bar when theres an error connecting', async() => {
-      const spyShow = sinon.spy(
-        Store.StatusActions,
-        'showIndeterminateProgressBar'
-      );
-      const spyDone = sinon.spy(
-        Store.StatusActions,
-        'done'
+    it('does not attempt to connect when a currentConnectionAttempt exists', async() => {
+      Store.state.currentConnectionAttempt = createConnectionAttempt();
+
+      const spyConnect = sinon.spy(
+        Store,
+        '_connectWithConnectionString'
       );
 
+      await Actions.onConnectClicked();
+
+      expect(Store.state.currentConnectionAttempt).to.not.equal(null);
+      expect(spyConnect.calledOnce).to.equal(false);
+    });
+
+    it('sets currentConnectionAttempt to null when theres an error connecting', async() => {
       sinon.replace(
         Store,
         '_connectWithConnectionString',
@@ -1856,8 +2079,7 @@ describe('Store', () => {
 
       await Store.onConnectClicked();
 
-      expect(spyShow.calledOnce).to.equal(true);
-      expect(spyDone.calledOnce).to.equal(true);
+      expect(Store.state.currentConnectionAttempt).to.equal(null);
     });
   });
 

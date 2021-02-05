@@ -1,8 +1,8 @@
 const electron = require('electron');
 const ipc = require('hadron-ipc');
 const { sortBy, forEach, omit } = require('lodash');
-const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
+const DataService = require('mongodb-data-service');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const { promisify } = require('util');
@@ -12,6 +12,7 @@ const {
   CONNECTION_FORM_VIEW,
   CONNECTION_STRING_VIEW
 } = require('../constants/connection-views');
+const { createConnectionAttempt } = require('../modules/connection-attempt');
 
 const ConnectionCollection = Connection.ConnectionCollection;
 const userAgent = navigator.userAgent.toLowerCase();
@@ -63,6 +64,7 @@ const SSH_TUNNEL_FIELDS = [
  */
 const EXTENSION = 'Connect.Extension';
 
+const LOADING_CONNECTION_TEXT = 'Loading connecting';
 
 /**
  * The store that backs the connect plugin.
@@ -70,6 +72,8 @@ const EXTENSION = 'Connect.Extension';
 const Store = Reflux.createStore({
   mixins: [StateMixin.store],
   listenables: Actions,
+
+  dataService: null,
 
   /** --- Reflux lifecycle methods ---  */
 
@@ -121,6 +125,9 @@ const Store = Reflux.createStore({
       fetchedConnections: new ConnectionCollection(),
       // Hash for storing unchanged connections for the discard feature
       connections: {},
+      // Message shown when attempting connection.
+      connectingStatusText: LOADING_CONNECTION_TEXT,
+      currentConnectionAttempt: null,
       // URL from connection string input
       customUrl: '',
       isValid: true,
@@ -245,8 +252,33 @@ const Store = Reflux.createStore({
     this.trigger(this.state);
   },
 
+  onCancelConnectionAttemptClicked() {
+    this._cancelCurrentConnectionAttempt();
+  },
+
   /**
-   * Resests URL validation.
+   * Cancels the current connection attempt if there is one
+   * in progress, and ends the connection.
+   */
+  async _cancelCurrentConnectionAttempt() {
+    if (this.state.isConnected || !this.state.currentConnectionAttempt) {
+      return;
+    }
+
+    try {
+      this.state.currentConnectionAttempt.cancelConnectionAttempt();
+    } catch (err) {
+      // When the disconnect fails, we free up the ui and we can
+      // silently wait for the timeout if it's still attempting to connect.
+    }
+
+    this.setState({
+      currentConnectionAttempt: null
+    });
+  },
+
+  /**
+   * Resets URL validation.
    */
   onConnectionFormChanged() {
     const currentConnection = this.state.currentConnection;
@@ -267,7 +299,14 @@ const Store = Reflux.createStore({
    * validate instead the existing connection object.
    */
   async onConnectClicked() {
-    this.StatusActions.showIndeterminateProgressBar();
+    if (this.state.currentConnectionAttempt) {
+      return;
+    }
+
+    this.setState({
+      currentConnectionAttempt: createConnectionAttempt(),
+      connectingStatusText: LOADING_CONNECTION_TEXT
+    });
 
     try {
       if (this.state.viewType === CONNECTION_STRING_VIEW) {
@@ -282,7 +321,9 @@ const Store = Reflux.createStore({
         syntaxErrorMessage: null
       });
     } finally {
-      this.StatusActions.done();
+      this.setState({
+        currentConnectionAttempt: null
+      });
     }
   },
 
@@ -358,13 +399,13 @@ const Store = Reflux.createStore({
    * @param {Connection} connection - The connection to delete.
    */
   onDeleteConnectionClicked(connection) {
-    const toDestrioy = this.state.fetchedConnections.find(
+    const toDestroy = this.state.fetchedConnections.find(
       (item) => item._id === connection._id
     );
 
-    toDestrioy.destroy({
+    toDestroy.destroy({
       success: () => {
-        this.state.fetchedConnections.remove(toDestrioy._id);
+        this.state.fetchedConnections.remove(toDestroy._id);
         this.state.connections = this._removeFromCollection(connection._id);
 
         if (connection._id === this.state.currentConnection._id) {
@@ -391,13 +432,13 @@ const Store = Reflux.createStore({
     recentsKeys.forEach((key) => {
       this.state.connections = this._removeFromCollection(key);
 
-      const toDestrioy = this.state.fetchedConnections.find(
+      const toDestroy = this.state.fetchedConnections.find(
         (item) => item._id === key
       );
 
-      toDestrioy.destroy({
+      toDestroy.destroy({
         success: () => {
-          this.state.fetchedConnections.remove(toDestrioy._id);
+          this.state.fetchedConnections.remove(toDestroy._id);
 
           if (index === recentsLength) {
             this.trigger(this.state);
@@ -826,13 +867,13 @@ const Store = Reflux.createStore({
       recents = sortBy(recents, 'lastUsed');
       this.state.connections = this._removeFromCollection(recents[9]);
 
-      const toDestrioy = this.state.fetchedConnections.find(
+      const toDestroy = this.state.fetchedConnections.find(
         (item) => item._id === recents[9]
       );
 
-      toDestrioy.destroy({
+      toDestroy.destroy({
         success: () => {
-          this.state.fetchedConnections.remove(toDestrioy._id);
+          this.state.fetchedConnections.remove(toDestroy._id);
           this._saveConnection(currentConnection);
         }
       });
@@ -841,47 +882,69 @@ const Store = Reflux.createStore({
     }
   },
 
+  _onConnectSuccess(dataService) {
+    const currentConnection = this.state.currentConnection;
+    const currentSaved = this.state.connections[currentConnection._id];
+
+    this.dataService = dataService;
+
+    this.setState({
+      isValid: true,
+      isConnected: true,
+      errorMessage: null,
+      syntaxErrorMessage: null,
+      hasUnsavedChanges: false,
+      isURIEditable: false,
+      customUrl: currentConnection.driverUrl
+    });
+
+    currentConnection.lastUsed = new Date();
+
+    if (currentSaved) {
+      this._saveConnection(currentConnection);
+    } else {
+      this._saveRecent(currentConnection);
+    }
+
+    this.appRegistry.emit(
+      'data-service-connected',
+      null, // No error connecting.
+      dataService
+    );
+
+    // Compass relies on `compass-connect` showing a progress
+    // bar, which is hidden after the instance information is loaded
+    // in another plugin.
+    this.StatusActions.showIndeterminateProgressBar();
+  },
+
   /**
    * Connects to the current connection. If connection is successful then a new
    * recent connection is created.
    *
-   * @param {Object} connection - The current connection.
+   * @param {Object} connectionModel - The current connection.
    */
-  async _connect(connection) {
-    // Set the connection's app name to the electron app name of Compass.
-    connection.appname = electron.remote.app.getName();
+  async _connect(connectionModel) {
+    if (!this.state.currentConnectionAttempt) {
+      // The connection attempt might have been cancelled while
+      // we were parsing the connection information, so we return here.
+      return;
+    }
 
-    const dataService = new DataService(connection);
+    // Set the connection's app name to the electron app name of Compass.
+    connectionModel.appname = electron.remote.app.getName();
 
     try {
-      const runConnect = promisify(dataService.connect.bind(dataService));
-      const connectedDataService = await runConnect();
+      const dataService = new DataService(connectionModel);
+      const connectedDataService = await this.state.currentConnectionAttempt.connect(
+        dataService
+      );
 
-      const currentConnection = this.state.currentConnection;
-      const currentSaved = this.state.connections[currentConnection._id];
-
-      this.dataService = dataService;
-      this.state.isValid = true;
-      this.state.isConnected = true;
-      this.state.errorMessage = null;
-      this.state.syntaxErrorMessage = null;
-      this.state.hasUnsavedChanges = false;
-      this.state.isURIEditable = false;
-      this.state.customUrl = this.state.currentConnection.driverUrl;
-
-      currentConnection.lastUsed = new Date();
-
-      if (currentSaved) {
-        this._saveConnection(currentConnection);
-      } else {
-        this._saveRecent(currentConnection);
+      if (!connectedDataService || !this.state.currentConnectionAttempt) {
+        return;
       }
 
-      this.appRegistry.emit(
-        'data-service-connected',
-        null, // No error connecting.
-        connectedDataService
-      );
+      this._onConnectSuccess(connectedDataService);
     } catch (error) {
       this.setState({
         isValid: false,
@@ -906,9 +969,14 @@ const Store = Reflux.createStore({
           ? validationError.message
           : 'The required fields can not be empty'
       });
-    } else {
-      await this._connect(currentConnection);
+      return;
     }
+
+    this.setState({
+      connectingStatusText: `Connecting to ${currentConnection.title}`
+    });
+
+    await this._connect(currentConnection);
   },
 
   /**
@@ -917,12 +985,8 @@ const Store = Reflux.createStore({
   async _connectWithConnectionString() {
     const currentConnection = this.state.currentConnection;
 
-    // Set the connection's app name to the electron app name
-    // of Compass before building the connection string.
-    currentConnection.appname = electron.remote.app.getName();
-
     const url = this.state.isURIEditable
-      ? this.state.customUrl || DEFAULT_DRIVER_URL
+      ? (this.state.customUrl || DEFAULT_DRIVER_URL)
       : this.state.currentConnection.driverUrl;
 
     if (!Connection.isURI(url)) {
@@ -953,6 +1017,10 @@ const Store = Reflux.createStore({
     if (currentConnection && currentConnection.sslMethod !== 'NONE') {
       this._setTlsAttributes(currentConnection, parsedConnection);
     }
+
+    this.setState({
+      connectingStatusText: `Connecting to ${parsedConnection.title}`
+    });
 
     if (isFavorite && driverUrl !== parsedConnection.driverUrl) {
       await this._connect(parsedConnection);

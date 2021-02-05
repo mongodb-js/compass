@@ -21,6 +21,7 @@ class ConnectionForm extends React.Component {
 
   static propTypes = {
     currentConnection: PropTypes.object.isRequired,
+    currentConnectionAttempt: PropTypes.object,
     isValid: PropTypes.bool.isRequired,
     isHostChanged: PropTypes.bool,
     isPortChanged: PropTypes.bool
@@ -121,7 +122,10 @@ class ConnectionForm extends React.Component {
                   hostname={this.props.currentConnection.hostname}
                   isHostChanged={this.props.isHostChanged} />
                 {this.renderPort()}
-                <SRVInput isSrvRecord={this.props.currentConnection.isSrvRecord} />
+                <SRVInput
+                  currentConnectionAttempt={this.props.currentConnectionAttempt}
+                  isSrvRecord={this.props.currentConnection.isSrvRecord}
+                />
               </FormGroup>
               <Authentication
                 currentConnection={this.props.currentConnection}
@@ -157,13 +161,16 @@ class ConnectionForm extends React.Component {
     return (
       <form
         onChange={this.onConnectionFormChanged.bind(this)}
-        className={classnames(styles['connect-form'])} >
-        <div className={classnames(styles.tabs)}>
-          <div className={classnames(styles['tabs-container'])}>
-            {this.renderTabs()}
-            {this.renderView()}
+        className={classnames(styles['connect-form'])}
+      >
+        <fieldset disabled={!!this.props.currentConnectionAttempt}>
+          <div className={classnames(styles.tabs)}>
+            <div className={classnames(styles['tabs-container'])}>
+              {this.renderTabs()}
+              {this.renderView()}
+            </div>
           </div>
-        </div>
+        </fieldset>
         <FormActions {...this.props } />
       </form>
     );

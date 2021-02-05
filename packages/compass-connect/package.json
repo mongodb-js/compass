@@ -16,6 +16,8 @@
     "prestart": "electron-rebuild --force --only keytar",
     "start": "cross-env NODE_ENV=development webpack-dev-server --config ./config/webpack.dev.config.js",
     "start:watch": "npm run clean && webpack --config ./config/webpack.watch.config.js",
+    "pretest": "cross-env MONGODB_VERSION=4.2.3 mongodb-runner start --port=27018",
+    "posttest": "mongodb-runner stop --port=27018",
     "test": "npm run test:mocha && npm run test:karma",
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
     "test:karma": "npm run prestart && cross-env NODE_ENV=test karma start",
@@ -109,6 +111,7 @@
     "mongodb-connection-model": "^19.0.2",
     "mongodb-data-service": "^18.2.1",
     "mongodb-js-precommit": "^2.0.0",
+    "mongodb-runner": "^4.8.1",
     "mongodb-shell-to-url": "^0.1.0",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
@@ -140,6 +143,8 @@
     "webpack-sources": "1.4.3"
   },
   "dependencies": {
+    "@leafygreen-ui/button": "^10.0.1",
+    "@leafygreen-ui/typography": "^7.3.2",
     "lodash": "^4.17.15"
   }
 }

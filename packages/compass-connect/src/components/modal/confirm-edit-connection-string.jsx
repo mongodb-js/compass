@@ -1,9 +1,10 @@
+import Button from '@leafygreen-ui/button';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
-import { TextButton } from 'hadron-react-buttons';
 
 import Actions from '../../actions';
+import styles from '../connect.less';
 
 /**
  * Question text.
@@ -19,8 +20,6 @@ const NOTE = 'Editing this connection string will reveal your credentials.';
  * Confirm edit a connection string modal.
  */
 class ConfirmEditConnectionString extends PureComponent {
-  static displayName = 'ConfirmNewPipelineComponent';
-
   static propTypes = {
     isEditURIConfirm: PropTypes.bool.isRequired
   };
@@ -54,18 +53,14 @@ class ConfirmEditConnectionString extends PureComponent {
           <div id="edit-uri-note">{NOTE}</div>
         </Modal.Body>
         <Modal.Footer>
-          <TextButton
-            id="cancel-edit-uri"
-            className="btn btn-default btn-sm"
-            text="Cancel"
-            clickHandler={this.onClose}
-          />
-          <TextButton
-            id="confirm-edit-uri"
-            className="btn btn-primary btn-sm"
-            text="Confirm"
-            clickHandler={this.onConfirm}
-          />
+          <Button
+            onClick={this.onClose}
+          >Cancel</Button>
+          <Button
+            className={styles['confirm-edit-modal-button']}
+            variant="primary"
+            onClick={this.onConfirm}
+          >Confirm</Button>
         </Modal.Footer>
       </Modal>
     );

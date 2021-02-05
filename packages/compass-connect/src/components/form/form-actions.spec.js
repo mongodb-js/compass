@@ -46,6 +46,9 @@ describe('FormActions [Component]', () => {
 
           it('renders the connect button', () => {
             expect(component.find('button[name="connect"]')).to.be.present();
+            expect(
+              component.find('button[name="connect"]').prop('disabled')
+            ).to.equal(false);
           });
 
           it('does not render an edit button', () => {
@@ -170,6 +173,38 @@ describe('FormActions [Component]', () => {
             const editButton = component.find('button[name="editUrl"]');
 
             expect(editButton).to.be.present();
+          });
+        });
+
+        context('when it is connecting', () => {
+          let component;
+
+          beforeEach(() => {
+            component = mount(
+              <FormActions
+                currentConnection={{ name: 'myconnection' }}
+                currentConnectionAttempt
+                isConnected={false}
+                viewType="connectionString"
+                isURIEditable
+                isValid
+              />
+            );
+          });
+
+          afterEach(() => {
+            component = null;
+          });
+
+          it('renders a connecting button', () => {
+            const connectingButton = component.find('button[name="connecting"]');
+
+            expect(connectingButton).to.be.present();
+          });
+          it('renders a cancel button', () => {
+            const cancelConnectingButton = component.find('button[name="cancelConnect"]');
+
+            expect(cancelConnectingButton).to.be.present();
           });
         });
       });
@@ -317,7 +352,7 @@ describe('FormActions [Component]', () => {
           .find('button[name="connect"]')
           .simulate('click');
 
-        expect(connectButton.hasClass('disabled')).to.equal(true);
+        expect(connectButton.prop('disabled')).to.equal(true);
       });
     });
 

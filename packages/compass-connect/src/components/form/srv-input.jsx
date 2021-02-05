@@ -10,7 +10,10 @@ import styles from '../connect.less';
 class SRVInput extends React.PureComponent {
   static displayName = 'SRVInput';
 
-  static propTypes = { isSrvRecord: PropTypes.bool.isRequired };
+  static propTypes = {
+    currentConnectionAttempt: PropTypes.object,
+    isSrvRecord: PropTypes.bool.isRequired
+  };
 
   /**
    * Handles SRV record toggle.
@@ -27,11 +30,13 @@ class SRVInput extends React.PureComponent {
         <label><span>SRV Record</span></label>
         <div className={classnames(styles['form-item-switch-wrapper'])}>
           <Switch
+            disabled={!!this.props.currentConnectionAttempt}
             checked={this.props.isSrvRecord}
             onChange={this.onSRVRecordToggled.bind(this)}
             className={classnames(styles['form-control-switch'])}
             onColor="rgb(19, 170, 82)"
-            style={{ backgroundColor: 'rgb(255,255,255)'}} />
+            style={{ backgroundColor: 'rgb(255,255,255)'}}
+          />
         </div>
       </div>
     );

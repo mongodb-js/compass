@@ -30,7 +30,7 @@ describe('FormFileInput [Component]', () => {
     });
 
     it('renders the label button', () => {
-      const button = `.${styles['form-item']} button`;
+      const button = `.${styles['form-item-file-button']}`;
 
       expect(component.find(button).text()).to.equal('Select a file...');
     });
