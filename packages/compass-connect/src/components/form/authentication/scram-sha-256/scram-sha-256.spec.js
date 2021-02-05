@@ -1,8 +1,8 @@
 import { mount } from 'enzyme';
 import React from 'react';
 
-import ScramSha256 from '../../../src/components/form/scram-sha-256';
-import styles from '../../../src/components/connect.less';
+import ScramSha256 from './scram-sha-256';
+import styles from '../../../connect.less';
 
 describe('ScramSha256 [Component]', () => {
   describe('#render', () => {
@@ -25,7 +25,7 @@ describe('ScramSha256 [Component]', () => {
       });
 
       it('renders the wrapper div', () => {
-        expect(component.find(`.${styles['form-group']}`)).to.exist;
+        expect(component.find(`.${styles['form-group']}`)).to.be.present();
       });
 
       it('renders the username input', () => {
@@ -74,12 +74,8 @@ describe('ScramSha256 [Component]', () => {
           component = null;
         });
 
-        it('renders the error icon', () => {
-          expect(component.find('.fa-exclamation-circle')).to.exist;
-        });
-
         it('renders the error class', () => {
-          expect(component.find(`.${styles['form-item-has-error']}`)).to.exist;
+          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
         });
 
         it('renders the error label class', () => {
@@ -103,12 +99,8 @@ describe('ScramSha256 [Component]', () => {
           component = null;
         });
 
-        it('renders the error icon', () => {
-          expect(component.find('.fa-exclamation-circle')).to.exist;
-        });
-
         it('renders the error class', () => {
-          expect(component.find('.form-item-has-error')).to.exist;
+          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
         });
 
         it('renders the error label class', () => {
@@ -132,12 +124,8 @@ describe('ScramSha256 [Component]', () => {
           component = null;
         });
 
-        it('renders the error icon', () => {
-          expect(component.find('.fa-exclamation-circle')).to.exist;
-        });
-
         it('renders the error class', () => {
-          expect(component.find('.form-item-has-error')).to.exist;
+          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
         });
 
         it('renders the error label class', () => {
@@ -161,12 +149,8 @@ describe('ScramSha256 [Component]', () => {
           component = null;
         });
 
-        it('renders the error icon', () => {
-          expect(component.find('.fa-exclamation-circle')).to.exist;
-        });
-
         it('renders the error class', () => {
-          expect(component.find('.form-item-has-error')).to.exist;
+          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
         });
 
         it('renders the error label class', () => {
@@ -190,12 +174,8 @@ describe('ScramSha256 [Component]', () => {
           component = null;
         });
 
-        it('renders the error icon', () => {
-          expect(component.find('.fa-exclamation-circle')).to.exist;
-        });
-
         it('renders the error class', () => {
-          expect(component.find('.form-item-has-error')).to.exist;
+          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
         });
 
         it('renders the error label class', () => {
@@ -219,12 +199,8 @@ describe('ScramSha256 [Component]', () => {
           component = null;
         });
 
-        it('renders the error icon', () => {
-          expect(component.find('.fa-exclamation-circle')).to.exist;
-        });
-
         it('renders the error class', () => {
-          expect(component.find('.form-item-has-error')).to.exist;
+          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
         });
 
         it('renders the error label class', () => {

@@ -7,7 +7,7 @@ import FormGroup from './form-group';
 import HostInput from './host-input';
 import PortInput from './port-input';
 import SRVInput from './srv-input';
-import Authentication from './authentication';
+import Authentication from './authentication/authentication';
 import ReplicaSetInput from './replica-set-input';
 import ReadPreferenceSelect from './read-preference-select';
 import SSLMethod from './ssl-method';

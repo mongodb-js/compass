@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Switch from 'react-ios-switch';
-import classnames from 'classnames';
 
 import Actions from '../../actions';
 
@@ -26,14 +25,14 @@ class SRVInput extends React.PureComponent {
 
   render() {
     return (
-      <div className={classnames(styles['form-item'])}>
+      <div className={styles['form-item']}>
         <label><span>SRV Record</span></label>
-        <div className={classnames(styles['form-item-switch-wrapper'])}>
+        <div className={styles['form-item-switch-wrapper']}>
           <Switch
             disabled={!!this.props.currentConnectionAttempt}
             checked={this.props.isSrvRecord}
             onChange={this.onSRVRecordToggled.bind(this)}
-            className={classnames(styles['form-control-switch'])}
+            className={styles['form-control-switch']}
             onColor="rgb(19, 170, 82)"
             style={{ backgroundColor: 'rgb(255,255,255)'}}
           />

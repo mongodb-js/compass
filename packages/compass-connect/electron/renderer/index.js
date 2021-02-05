@@ -3,9 +3,6 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import { activate as activateKerberos } from '@mongodb-js/compass-auth-kerberos';
-import { activate as activateLdap } from '@mongodb-js/compass-auth-ldap';
-import { activate as activateX509 } from '@mongodb-js/compass-auth-x509';
 import { activate as activateCompassStatus } from '@mongodb-js/compass-status';
 
 import CompassConnectPlugin, { activate } from '../../src';
@@ -23,9 +20,6 @@ global.hadronApp.appRegistry = appRegistry;
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
-activateKerberos(appRegistry);
-activateLdap(appRegistry);
-activateX509(appRegistry);
 activateCompassStatus(appRegistry);
 appRegistry.onActivated();
 

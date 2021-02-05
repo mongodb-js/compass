@@ -1,14 +1,14 @@
-import { shell } from 'electron';
-import { isEmpty } from 'lodash';
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
+import { isEmpty } from 'lodash';
+import { shell } from 'electron';
 
-import Actions from '../../actions';
-import FormInput from './form-input';
-import FormGroup from './form-group';
+import Actions from '../../../../actions';
+import FormInput from '../../form-input';
+import FormGroup from '../../form-group';
 
-class MongoDBAuthentication extends React.Component {
-  static displayName = 'MongoDBAuthentication';
+class ScramSha256 extends React.Component {
+  static displayName = 'ScramSha256';
 
   static propTypes = {
     connectionModel: PropTypes.object.isRequired,
@@ -70,16 +70,16 @@ class MongoDBAuthentication extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getPasswordError() {
-    const connectionModel = this.props.connectionModel;
+    const connection = this.props.connectionModel;
 
-    if (!this.props.isValid && isEmpty(connectionModel.mongodbPassword)) {
+    if (!this.props.isValid && isEmpty(connection.mongodbPassword)) {
       return true;
     }
   }
 
   render() {
     return (
-      <FormGroup id="mongodb-authenticatio">
+      <FormGroup id="scram-sha-256">
         <FormInput
           label="Username"
           name="username"
@@ -98,7 +98,7 @@ class MongoDBAuthentication extends React.Component {
         <FormInput
           label="Authentication Database"
           placeholder="admin"
-          name="auth-source"
+          name="authSource"
           changeHandler={this.onAuthSourceChanged.bind(this)}
           value={this.props.connectionModel.mongodbDatabaseName || ''}
           linkHandler={this.onSourceHelp.bind(this)}
@@ -108,4 +108,4 @@ class MongoDBAuthentication extends React.Component {
   }
 }
 
-export default MongoDBAuthentication;
+export default ScramSha256;

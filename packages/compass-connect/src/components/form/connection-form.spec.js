@@ -23,21 +23,11 @@ describe('ConnectionForm [Component]', () => {
       };
       const isHostChanged = false;
       const isPortChanged = false;
-      const AUTH_ROLE = {
-        name: 'MONGODB',
-        component: TestComponent,
-        selectOption: { 'MONGODB': 'Username / Password' }
-      };
       let component;
 
       before(() => {
         global.hadronApp = hadronApp;
         global.hadronApp.appRegistry = appRegistry;
-        global.hadronApp.appRegistry.registerRole('Connect.AuthStrategy', AUTH_ROLE);
-      });
-
-      after(() => {
-        global.hadronApp.appRegistry.deregisterRole('Connect.AuthStrategy', AUTH_ROLE);
       });
 
       beforeEach(() => {
@@ -93,20 +83,10 @@ describe('ConnectionForm [Component]', () => {
 
     context('when it is currently connecting', () => {
       const appRegistry = new AppRegistry();
-      const AUTH_ROLE = {
-        name: 'MONGODB',
-        component: TestComponent,
-        selectOption: { 'MONGODB': 'Username / Password' }
-      };
 
       before(() => {
         global.hadronApp = hadronApp;
         global.hadronApp.appRegistry = appRegistry;
-        global.hadronApp.appRegistry.registerRole('Connect.AuthStrategy', AUTH_ROLE);
-      });
-
-      after(() => {
-        global.hadronApp.appRegistry.deregisterRole('Connect.AuthStrategy', AUTH_ROLE);
       });
 
       it('disables the form', () => {
@@ -140,21 +120,11 @@ describe('ConnectionForm [Component]', () => {
       };
       const isHostChanged = true;
       const isPortChanged = true;
-      const AUTH_ROLE = {
-        name: 'MONGODB',
-        component: TestComponent,
-        selectOption: { 'MONGODB': 'Username / Password' }
-      };
       let component;
 
       before(() => {
         global.hadronApp = hadronApp;
         global.hadronApp.appRegistry = appRegistry;
-        global.hadronApp.appRegistry.registerRole('Connect.AuthStrategy', AUTH_ROLE);
-      });
-
-      after(() => {
-        global.hadronApp.appRegistry.deregisterRole('Connect.AuthStrategy', AUTH_ROLE);
       });
 
       beforeEach(() => {
@@ -199,11 +169,6 @@ describe('ConnectionForm [Component]', () => {
       sshTunnel: 'SERVER',
       replicaSet: 'myrs'
     };
-    const AUTH_ROLE = {
-      name: 'MONGODB',
-      component: TestComponent,
-      selectOption: { 'MONGODB': 'Username / Password' }
-    };
     const SYSTEM_CA_SSL_ROLE = {
       name: 'SYSTEMCA',
       selectOption: { SYSTEMCA: 'System CA / Atlas Deployment' }
@@ -218,13 +183,11 @@ describe('ConnectionForm [Component]', () => {
     before(() => {
       global.hadronApp = hadronApp;
       global.hadronApp.appRegistry = appRegistry;
-      global.hadronApp.appRegistry.registerRole('Connect.AuthStrategy', AUTH_ROLE);
       global.hadronApp.appRegistry.registerRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
       global.hadronApp.appRegistry.registerRole('Connect.SSHTunnel', SERVER_VALIDATION_SSL_ROLE);
     });
 
     after(() => {
-      global.hadronApp.appRegistry.deregisterRole('Connect.AuthStrategy', AUTH_ROLE);
       global.hadronApp.appRegistry.deregisterRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
       global.hadronApp.appRegistry.deregisterRole('Connect.SSHTunnel', SERVER_VALIDATION_SSL_ROLE);
     });

@@ -47,13 +47,9 @@
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-bootstrap": "^0.32.1",
-    "react-fontawesome": "^1.6.1",
-    "react-ios-switch": "^0.1.19"
+    "react-fontawesome": "^1.6.1"
   },
   "devDependencies": {
-    "@mongodb-js/compass-auth-kerberos": "^4.0.2",
-    "@mongodb-js/compass-auth-ldap": "^4.0.0",
-    "@mongodb-js/compass-auth-x509": "^4.1.0",
     "@mongodb-js/compass-status": "^4.0.0",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.26.0",
@@ -123,7 +119,6 @@
     "react-dom": "^16.8.0",
     "react-fontawesome": "^1.6.1",
     "react-hot-loader": "^4.1.0",
-    "react-ios-switch": "^0.1.19",
     "reflux": "^6.4.1",
     "reflux-state-mixin": "^0.7.0",
     "rimraf": "^3.0.0",
@@ -145,6 +140,7 @@
   "dependencies": {
     "@leafygreen-ui/button": "^10.0.1",
     "@leafygreen-ui/typography": "^7.3.2",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.15",
+    "react-ios-switch": "^0.1.19"
   }
 }

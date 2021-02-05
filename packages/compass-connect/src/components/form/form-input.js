@@ -24,20 +24,6 @@ class FormInput extends React.PureComponent {
   };
 
   /**
-   * Gets the class name for the input wrapper.
-   *
-   * @returns {String} The class name.
-   */
-  getClassName() {
-    const className = {
-      [styles['form-item']]: true,
-      [styles['form-item-has-error']]: this.props.error
-    };
-
-    return classnames(className);
-  }
-
-  /**
    * Gets the error id for the tooltip.
    *
    * @returns {String} The error id.
@@ -54,7 +40,10 @@ class FormInput extends React.PureComponent {
   renderInfoSprinkle() {
     if (this.props.linkHandler) {
       return (
-        <i className={classnames(styles.help)} onClick={this.props.linkHandler} />
+        <i
+          className={styles.help}
+          onClick={this.props.linkHandler}
+        />
       );
     }
   }
@@ -66,9 +55,12 @@ class FormInput extends React.PureComponent {
    */
   render() {
     return (
-      <div className={this.getClassName()}>
+      <div className={classnames({
+        [styles['form-item']]: true,
+        [styles['form-item-has-error']]: this.props.error
+      })}>
         <label>
-          <span className={classnames(styles['form-item-label'])}>
+          <span className={styles['form-item-label']}>
             {this.props.label}
           </span>
           {this.renderInfoSprinkle()}
@@ -79,9 +71,10 @@ class FormInput extends React.PureComponent {
           onChange={this.props.changeHandler}
           onBlur={this.props.blurHandler}
           value={this.props.value}
-          className={classnames(styles['form-control'])}
+          className={styles['form-control']}
           type={this.props.type || 'text'}
-          {...this.props.otherInputAttributes} />
+          {...this.props.otherInputAttributes}
+        />
       </div>
     );
   }

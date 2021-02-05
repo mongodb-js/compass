@@ -572,6 +572,55 @@ const Store = Reflux.createStore({
   },
 
   /**
+   * Change the kerberos principal.
+   *
+   * @param {String} principal - The principal.
+   */
+  onKerberosPrincipalChanged(principal) {
+    this.state.connectionModel.kerberosPrincipal = principal;
+    this.trigger(this.state);
+  },
+
+  /**
+   * Change the kerberos service name.
+   *
+   * @param {String} name - The service name.
+   */
+  onKerberosServiceNameChanged(name) {
+    this.state.connectionModel.kerberosServiceName = name;
+    this.trigger(this.state);
+  },
+
+  /**
+   * Handle change of cname param.
+   */
+  onCnameToggle() {
+    const connection = this.state.connectionModel;
+    connection.kerberosCanonicalizeHostname = !connection.kerberosCanonicalizeHostname;
+    this.trigger(this.state);
+  },
+
+  /**
+   * Change the LDAP username.
+   *
+   * @param {String} username - The user name.
+   */
+  onLDAPUsernameChanged(username) {
+    this.state.connectionModel.ldapUsername = username;
+    this.trigger(this.state);
+  },
+
+  /**
+   * Change the LDAP password.
+   *
+   * @param {String} password - The password.
+   */
+  onLDAPPasswordChanged(password) {
+    this.state.connectionModel.ldapPassword = password;
+    this.trigger(this.state);
+  },
+
+  /**
    * Changes the password.
    *
    * @param {String} password - The password.

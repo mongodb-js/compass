@@ -1,16 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
 import { shell } from 'electron';
-import classnames from 'classnames';
+import { isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import Actions from '../../actions';
-import FormInput from './form-input';
+import Actions from '../../../../actions';
+import FormInput from '../../form-input';
+import FormGroup from '../../form-group';
 
-import styles from '../connect.less';
-
-class ScramSha256 extends React.Component {
-  static displayName = 'ScramSha256';
+class MongoDBAuthentication extends React.Component {
+  static displayName = 'MongoDBAuthentication';
 
   static propTypes = {
     connectionModel: PropTypes.object.isRequired,
@@ -72,16 +70,16 @@ class ScramSha256 extends React.Component {
    * @returns {String} In case of error returns an error message.
    */
   getPasswordError() {
-    const connection = this.props.connectionModel;
+    const connectionModel = this.props.connectionModel;
 
-    if (!this.props.isValid && isEmpty(connection.mongodbPassword)) {
+    if (!this.props.isValid && isEmpty(connectionModel.mongodbPassword)) {
       return true;
     }
   }
 
   render() {
     return (
-      <div id="scram-sha-256" className={classnames(styles['form-group'])}>
+      <FormGroup id="mongodb-authentication">
         <FormInput
           label="Username"
           name="username"
@@ -100,14 +98,14 @@ class ScramSha256 extends React.Component {
         <FormInput
           label="Authentication Database"
           placeholder="admin"
-          name="authSource"
+          name="auth-source"
           changeHandler={this.onAuthSourceChanged.bind(this)}
           value={this.props.connectionModel.mongodbDatabaseName || ''}
           linkHandler={this.onSourceHelp.bind(this)}
         />
-      </div>
+      </FormGroup>
     );
   }
 }
 
-export default ScramSha256;
+export default MongoDBAuthentication;

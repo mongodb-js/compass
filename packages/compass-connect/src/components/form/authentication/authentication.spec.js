@@ -5,33 +5,16 @@ import hadronApp from 'hadron-app';
 
 import Authentication from './authentication';
 
-import styles from '../connect.less';
+import styles from '../../connect.less';
 
 describe('Authentication [Component]', () => {
   const connectionModel = { authStrategy: 'MONGODB' };
   const appRegistry = new AppRegistry();
   let component;
 
-  class AuthStrategyComponent extends React.Component {
-    render() {
-      return (<div id="AuthStrategyComponent" />);
-    }
-  }
-
-  const ROLE = {
-    name: 'MONGODB',
-    component: AuthStrategyComponent,
-    selectOption: { 'MONGODB': 'Username / Password' }
-  };
-
   before(() => {
     global.hadronApp = hadronApp;
     global.hadronApp.appRegistry = appRegistry;
-    global.hadronApp.appRegistry.registerRole('Connect.AuthStrategy', ROLE);
-  });
-
-  after(() => {
-    global.hadronApp.appRegistry.deregisterRole('Connect.AuthStrategy', ROLE);
   });
 
   beforeEach(() => {

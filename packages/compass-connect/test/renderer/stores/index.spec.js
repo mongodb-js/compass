@@ -2264,4 +2264,59 @@ describe('Store', () => {
       Actions.onHideURIClicked();
     });
   });
+
+  describe('#onKerberosPrincipalChanged', () => {
+    it('changes the principal in the store', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.connectionModel.kerberosPrincipal).to.equal('test');
+        done();
+      });
+      Actions.onKerberosPrincipalChanged('test');
+    });
+  });
+
+  describe('#onKerberosServiceNameChanged', () => {
+    it('changes the service name in the store', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.connectionModel.kerberosServiceName).to.equal('sn');
+        done();
+      });
+      Actions.onKerberosServiceNameChanged('sn');
+    });
+  });
+
+  describe('#onCnameToggle', () => {
+    it('changes the canonicalize host name name in the store', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.connectionModel.kerberosCanonicalizeHostname).to.equal(true);
+        done();
+      });
+      Actions.onCnameToggle();
+    });
+  });
+
+  describe('#onLDAPUsernameChanged', () => {
+    it('changes the username in the store', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.connectionModel.ldapUsername).to.equal('test');
+        done();
+      });
+      Actions.onLDAPUsernameChanged('test');
+    });
+  });
+
+  describe('#onLDAPPasswordChanged', () => {
+    it('changes the password in the store', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.connectionModel.ldapPassword).to.equal('pw');
+        done();
+      });
+      Actions.onLDAPPasswordChanged('pw');
+    });
+  });
 });
