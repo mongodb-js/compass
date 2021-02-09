@@ -649,7 +649,6 @@ label {
 
   .connecting-background-gradient {
     opacity: 0.9;
-    animation: opacityFadeIn 0.2s ease-out;
   }
 }
 
@@ -659,13 +658,22 @@ label {
   }
 
   100% {
-    opacity: 0.9;
+    opacity: 1;
   }
+}
+
+.connecting-modal-container {
+  opacity: 1;
+  animation: opacityFadeIn 100ms ease-out;
 }
 
 .connecting-modal-content {
   text-align: center;
   padding: 24px;
+
+  .connecting-modal-illustration {
+    max-height: 40vh;
+  }
 
   .connecting-modal-status {
     margin-top: 24px;

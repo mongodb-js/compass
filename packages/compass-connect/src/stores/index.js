@@ -64,7 +64,7 @@ const SSH_TUNNEL_FIELDS = [
  */
 const EXTENSION = 'Connect.Extension';
 
-const LOADING_CONNECTION_TEXT = 'Loading connecting';
+const LOADING_CONNECTION_TEXT = 'Loading connection';
 
 /**
  * The store that backs the connect plugin.

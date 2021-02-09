@@ -1,5 +1,5 @@
-import { promisify } from 'util';
 import createDebug from 'debug';
+import { promisify } from 'util';
 
 const debug = createDebug('mongodb-compass:compass-connect:connection-attempt');
 

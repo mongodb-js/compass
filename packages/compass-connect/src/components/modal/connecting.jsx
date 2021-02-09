@@ -89,6 +89,8 @@ class Connecting extends React.Component {
       <React.Fragment>
         {!!this.props.currentConnectionAttempt && this.renderConnectingBackground()}
         <Modal
+          animation={false}
+          containerClassName={styles['connecting-modal-container']}
           show={!!this.props.currentConnectionAttempt}
           backdropClassName={styles['connecting-modal-backdrop']}
         >
@@ -97,7 +99,11 @@ class Connecting extends React.Component {
               className={styles['connecting-modal-content']}
               id="connectingStatusText"
             >
-              <img src={Illustration} alt="Compass connecting illustration" />
+              <img
+                className={styles['connecting-modal-illustration']}
+                src={Illustration}
+                alt="Compass connecting illustration"
+              />
               <h2
                 className={styles['connecting-modal-status']}
               >
