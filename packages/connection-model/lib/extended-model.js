@@ -87,13 +87,13 @@ const ExtendedConnection = Connection.extend(storageMixin, {
           return this.hostname;
         }
 
-        if (this.hosts && this.hosts.length) {
+        if (this.hosts && this.hosts.length > 1) {
           return this.hosts.map(
             ({ host, port }) => `${host}:${port}`
           ).join(',');
         }
 
-        return this.hostname;
+        return `${this.hostname}:${this.port}`;
       }
     }
   },

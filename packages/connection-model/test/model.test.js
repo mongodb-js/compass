@@ -22,8 +22,14 @@ describe('Connection', () => {
 
     it('returns hosts if the connection is not srv', () => {
       assert.strictEqual(
-        new Connection({ hosts: [{ host: 'example.com', port: 12345 }] }).title,
-        'example.com:12345'
+        new Connection({ hosts: [{
+          host: 'example.com',
+          port: 12345
+        }, {
+          host: 'example123.com',
+          port: 123452
+        }] }).title,
+        'example.com:12345,example123.com:123452'
       );
     });
 
@@ -37,15 +43,16 @@ describe('Connection', () => {
       );
     });
 
-    it('falls back to hostname if nothing else match', () => {
+    it('falls back to hostname:port if nothing else match', () => {
       assert.strictEqual(
         new Connection({
           isSrvRecord: false,
           isFavorite: false,
           hosts: [],
-          hostname: 'somehost'
+          hostname: 'somehost',
+          port: 12345
         }).title,
-        'somehost'
+        'somehost:12345'
       );
     });
   });
