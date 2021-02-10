@@ -39,6 +39,7 @@ class OptionEditor extends Component {
     value: PropTypes.any,
     onChange: PropTypes.func,
     onApply: PropTypes.func,
+    placeholder: PropTypes.string,
     schemaFields: PropTypes.array
   };
 
@@ -126,6 +127,7 @@ class OptionEditor extends Component {
         onFocus={() => {
           tools.setCompleters([ this.completer ]);
         }}
+        placeholder={this.props.placeholder}
         onLoad={(editor) => {
           this.editor = editor;
           this.editor.setBehavioursEnabled(true);

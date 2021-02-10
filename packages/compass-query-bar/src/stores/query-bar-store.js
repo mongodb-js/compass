@@ -445,7 +445,7 @@ const configureStore = (options = {}) => {
     },
 
     /**
-     * takes either a single value or an array of values, and sets the value on
+     * Takes either a single value or an array of values, and sets the value on
      * the filter correctly as equality or $in depending on the number of values.
      *
      * @param {Object} args   arguments must include `field` and `value`:
@@ -483,7 +483,7 @@ const configureStore = (options = {}) => {
     },
 
     /**
-     * adds a discrete value to a field on the filter, converting primitive
+     * Adds a discrete value to a field on the filter, converting primitive
      * values to $in lists as required.
      *
      * @param {Object} args    object with a `field` and `value` key.
