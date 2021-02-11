@@ -194,6 +194,9 @@ describe('Connectivity', () => {
           appRegistry.once.bind(appRegistry, 'data-service-connected')
         );
 
+        // Mock the animation requesting for the connect modal.
+        window.requestAnimationFrame = sinon.fake();
+
         // Simulate clicking connect.
         wrapper.find('button[name="connect"]').simulate('click');
 
@@ -207,8 +210,10 @@ describe('Connectivity', () => {
       });
 
       after(async() => {
-        const runDisconnect = promisify(dataService.disconnect.bind(dataService));
-        await runDisconnect();
+        if (dataService) {
+          const runDisconnect = promisify(dataService.disconnect.bind(dataService));
+          await runDisconnect();
+        }
       });
 
       it('does not have any compass connect store errors after connecting', () => {
