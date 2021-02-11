@@ -105,7 +105,7 @@ const connectionsToTest = [{
   }
 }];
 
-function getCompassConnectStore(appRegistry, testConnectionModel) {
+function setupCompassConnectStore(appRegistry, testConnectionModel) {
   const compassConnectStore = appRegistry.getStore('Connect.Store');
 
   // Remove all logic around saving and loading stored connections.
@@ -149,30 +149,28 @@ describe('Connectivity', () => {
     let appRegistry;
     let compassConnectStore;
 
-    before(async() => {
+    before(() => {
       dockerComposeUp(dockerComposeFilePath);
 
       appRegistry = new AppRegistry();
 
       activateCompassConnect(appRegistry);
 
-      global.hadronApp = {
-        appRegistry
-      };
+      global.hadronApp = { appRegistry };
+      global.hadronApp.appRegistry.registerRole(
+        'Application.Status',
+        {
+          name: 'Status',
+          component: () => (<div id="statusPlugin">Status</div>)
+        }
+      );
 
-      const ROLE = {
-        name: 'Status',
-        component: () => (<div id="statusPlugin">Status</div>)
-      };
-      global.hadronApp.appRegistry = appRegistry;
-      global.hadronApp.appRegistry.registerRole('Application.Status', ROLE);
-
-      compassConnectStore = getCompassConnectStore(appRegistry, testConnectionModel);
+      compassConnectStore = setupCompassConnectStore(
+        appRegistry,
+        testConnectionModel
+      );
 
       wrapper = mount(<CompassConnectComponent />);
-
-      // Ensures the model doesn't cause any errors when rendering.
-      await compassConnectStore.validateConnectionString();
     });
 
     after(() => {
@@ -181,7 +179,10 @@ describe('Connectivity', () => {
       dockerComposeDown(dockerComposeFilePath);
     });
 
-    it('doesn\'t have any compass connect store errors when rendering', () => {
+    it('doesn\'t have any compass connect store errors when rendering', async() => {
+      // Ensures the model doesn't cause any errors when rendering.
+      await compassConnectStore.validateConnectionString();
+
       expect(compassConnectStore.state.errorMessage).to.equal(null);
       expect(compassConnectStore.state.syntaxErrorMessage).to.equal(null);
       expect(compassConnectStore.state.isValid).to.equal(true);
