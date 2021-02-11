@@ -105,6 +105,39 @@ const connectionsToTest = [{
   }
 }];
 
+function getCompassConnectStore(appRegistry, testConnectionModel) {
+  const compassConnectStore = appRegistry.getStore('Connect.Store');
+
+  // Remove all logic around saving and loading stored connections.
+  // NOTE: This is tightly coupled with the store in compass-connect.
+  // https://github.com/mongodb-js/compass-connect/blob/master/src/stores/index.js
+  compassConnectStore._saveRecent = () => {};
+  compassConnectStore._saveConnection = () => {};
+  compassConnectStore.state.fetchedConnections = [];
+  compassConnectStore.StatusActions = {
+    done: () => {},
+    showIndeterminateProgressBar: () => {}
+  };
+  compassConnectStore.appRegistry = appRegistry;
+
+  // Load the connection into our connection model.
+  const connectionModel = new Connection(testConnectionModel);
+  debug('Created model with connection string:', connectionModel.safeUrl);
+
+  // Load the connection model through compass-connect and render it.
+  // Load the connection into compass-connect's connection model.
+  compassConnectStore.state.currentConnection = connectionModel;
+  compassConnectStore.trigger(compassConnectStore.state);
+
+  // Here we use the parsed connection model and build a url.
+  // This is something that would occur if
+  // a user is switching between the connection views and editing.
+  compassConnectStore.state.customUrl = compassConnectStore.state.currentConnection.driverUrlWithSsh;
+  compassConnectStore.trigger(compassConnectStore.state);
+
+  return compassConnectStore;
+}
+
 describe('Connectivity', () => {
   connectionsToTest.forEach(({
     dockerComposeFilePath,
@@ -134,34 +167,7 @@ describe('Connectivity', () => {
       global.hadronApp.appRegistry = appRegistry;
       global.hadronApp.appRegistry.registerRole('Application.Status', ROLE);
 
-      compassConnectStore = appRegistry.getStore('Connect.Store');
-
-      // Remove all logic around saving and loading stored connections.
-      // NOTE: This is tightly coupled with the store in compass-connect.
-      // https://github.com/mongodb-js/compass-connect/blob/master/src/stores/index.js
-      compassConnectStore._saveRecent = () => {};
-      compassConnectStore._saveConnection = () => {};
-      compassConnectStore.state.fetchedConnections = [];
-      compassConnectStore.StatusActions = {
-        done: () => {},
-        showIndeterminateProgressBar: () => {}
-      };
-      compassConnectStore.appRegistry = appRegistry;
-
-      // Load the connection into our connection model.
-      const model = new Connection(testConnectionModel);
-      debug('Created model with connection string:', model.driverUrl);
-
-      // Load the connection model through compass-connect and render it.
-      // Load the connection into compass-connect's connection model.
-      compassConnectStore.state.currentConnection = model;
-      compassConnectStore.trigger(compassConnectStore.state);
-
-      // Here we use the parsed connection model and build a url.
-      // This is something that would occur if
-      // a user is switching between the connection views and editing.
-      compassConnectStore.state.customUrl = compassConnectStore.state.currentConnection.driverUrlWithSsh;
-      compassConnectStore.trigger(compassConnectStore.state);
+      compassConnectStore = getCompassConnectStore(appRegistry, testConnectionModel);
 
       wrapper = mount(<CompassConnectComponent />);
 
