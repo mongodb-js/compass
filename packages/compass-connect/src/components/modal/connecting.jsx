@@ -8,6 +8,9 @@ import Actions from '../../actions';
 import Illustration from '../../assets/svg/connecting-illustration.svg';
 import styles from '../connect.less';
 
+// We delay showing the modal for this amount of time to avoid flashing.
+const showModalDelayMS = 250;
+
 /**
  * Modal shown when attempting to connect.
  */
@@ -17,9 +20,56 @@ class Connecting extends React.Component {
     currentConnectionAttempt: PropTypes.object
   };
 
+  state = {
+    showModal: false
+  };
+
+  componentDidUpdate = () => {
+    if (
+      this.props.currentConnectionAttempt
+      && !this.showModalDebounceTimeout
+      && !this.state.showModal
+    ) {
+      this.showModalDebounceTimeout = window.setTimeout(
+        () => {
+          if (this.props.currentConnectionAttempt) {
+            this.startShowingModal();
+          }
+          this.showModalDebounceTimeout = null;
+        },
+        showModalDelayMS
+      );
+    }
+
+    if (!this.props.currentConnectionAttempt && this.state.showModal) {
+      this.stopShowingModal();
+    }
+  }
+
+  componentWillUnmount = () => {
+    if (this.showModalDebounceTimeout) {
+      window.clearTimeout(this.showModalDebounceTimeout);
+      this.showModalDebounceTimeout = null;
+    }
+  }
+
   onCancelConnectionClicked = () => {
     Actions.onCancelConnectionAttemptClicked();
   };
+
+  startShowingModal = () => {
+    this.setState({
+      showModal: true
+    });
+  }
+
+  stopShowingModal = () => {
+    this.setState({
+      showModal: false
+    });
+  }
+
+  showModalDebounceTimeout = null;
 
   /**
    * @returns {React.Component} The background for the connecting modal.
@@ -90,8 +140,7 @@ class Connecting extends React.Component {
         {!!this.props.currentConnectionAttempt && this.renderConnectingBackground()}
         <Modal
           animation={false}
-          containerClassName={styles['connecting-modal-container']}
-          show={!!this.props.currentConnectionAttempt}
+          show={this.state.showModal && !!this.props.currentConnectionAttempt}
           backdropClassName={styles['connecting-modal-backdrop']}
         >
           <Modal.Body>

@@ -17,10 +17,9 @@ describe('connection-attempt', () => {
     });
 
     it('returns null if is cancelled', async() => {
-      let rejectOnConnect;
       const dataService = {
-        connect: () => new Promise((_, _reject) => {
-          rejectOnConnect = _reject;
+        connect: () => new Promise((resolve) => {
+          setTimeout(() => resolve(), 100);
         })
       };
 
@@ -30,7 +29,6 @@ describe('connection-attempt', () => {
         dataService
       );
 
-      rejectOnConnect(new Error('should have been cancelled'));
       connectionAttempt.cancelConnectionAttempt();
 
       expect(await connectPromise).to.equal(null);
