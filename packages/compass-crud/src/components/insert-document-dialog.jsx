@@ -143,7 +143,7 @@ class InsertDocumentDialog extends React.PureComponent {
    * @returns {Boolean} If the document has errors.
    */
   hasErrors() {
-    if (this.props.jsonView && this.props.jsonDoc !== '') {
+    if (this.props.jsonView) {
       return !!jsonParse(this.props.jsonDoc).err;
     }
     return this.invalidElements.length > 0;
