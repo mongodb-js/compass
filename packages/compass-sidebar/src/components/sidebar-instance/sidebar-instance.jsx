@@ -64,7 +64,7 @@ class SidebarInstance extends PureComponent {
     if (this.props.isModalVisible) {
       return (
         <FavoriteModal
-          currentConnection={this.props.connectionModel.connection}
+          connectionModel={this.props.connectionModel.connection}
           deleteFavorite={this.deleteFavorite.bind(this)}
           closeFavoriteModal={this.closeFavoriteModal.bind(this)}
           saveFavorite={this.saveFavorite.bind(this)} />
