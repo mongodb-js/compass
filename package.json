@@ -267,7 +267,7 @@
     "@mongodb-js/compass-server-version": "^4.0.1",
     "@mongodb-js/compass-serverstats": "^14.0.0",
     "@mongodb-js/compass-shell": "^0.6.1",
-    "@mongodb-js/compass-sidebar": "^3.3.0",
+    "@mongodb-js/compass-sidebar": "^3.4.0",
     "@mongodb-js/compass-ssh-tunnel-status": "^5.0.1",
     "@mongodb-js/compass-status": "^4.1.0",
     "ampersand-collection": "^1.5.0",
