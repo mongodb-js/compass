@@ -18,7 +18,7 @@ import 'less/index.less';
 
 const appRegistry = new AppRegistry();
 
-const NS = 'venues.restaurants';
+const NS = 'test.shipwrecks';
 
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
