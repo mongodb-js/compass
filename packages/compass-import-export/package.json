@@ -164,7 +164,7 @@
     "marky": "^1.2.1",
     "mime-types": "^2.1.24",
     "mongodb-extjson": "^4.0.0-rc1",
-    "mongodb-query-parser": "^2.1.2",
+    "mongodb-query-parser": "^2.3.0",
     "object-sizeof": "^1.5.1",
     "parse-json": "^5.0.0",
     "peek-stream": "^1.1.3",
