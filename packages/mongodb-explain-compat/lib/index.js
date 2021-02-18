@@ -53,7 +53,7 @@ function mapStages(queryPlan, sbeExecutionStages) {
   // Do the actual mapping here. Use the head SBE node, and only aggregate
   // 'docsExamined' and 'executionTimeMillisEstimate' based on all sub-nodes
   // here.
-  return mapPlanTree(queryPlan, stage => {
+  const initialResult = mapPlanTree(queryPlan, stage => {
     const sbeNodes = stage[kSBENodes];
     const headSBENode = sbeNodes[0] || {};
     return {
@@ -70,6 +70,16 @@ function mapStages(queryPlan, sbeExecutionStages) {
         .filter(sbe => sbe.stage === 'ixseek' || sbe.stage === 'ixscan')
         .map(sbe => sbe.numReads || 0)
         .reduce((a, b) => a + b, 0)
+    };
+  });
+
+  // Add the execution time stats to all parent stages.
+  return mapPlanTree(initialResult, stage => {
+    let time = 0;
+    mapPlanTree(stage, child => { time += child.executionTimeMillisEstimate; });
+    return {
+      ...omitChildStages(stage),
+      executionTimeMillisEstimate: time
     };
   });
 }

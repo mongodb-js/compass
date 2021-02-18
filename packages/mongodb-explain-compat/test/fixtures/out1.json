@@ -49,7 +49,7 @@
       "stage": "FETCH",
       "planNodeId": 2,
       "nReturned": 1432,
-      "executionTimeMillisEstimate": 3,
+      "executionTimeMillisEstimate": 9,
       "advances": 1432,
       "opens": 1,
       "closes": 1,
