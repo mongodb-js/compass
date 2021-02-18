@@ -8,7 +8,7 @@ import styles from './explain-json.less';
 
 describe('ExplainJSON [Component]', () => {
   let component;
-  const rawExplainObject = {};
+  const rawExplainObject = { originalData: {} };
   const appRegistry = new AppRegistry();
 
   beforeEach(() => {

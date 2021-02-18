@@ -22,7 +22,7 @@ class ExplainJSON extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const doc = new HadronDocument(this.props.rawExplainObject);
+    const doc = new HadronDocument(this.props.rawExplainObject.originalData);
 
     return (
       <div className={classnames(styles['explain-json'])}>

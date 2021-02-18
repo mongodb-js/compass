@@ -2,6 +2,7 @@ import ExplainPlanModel from 'mongodb-explain-plan-model';
 import { defaults, isString, find } from 'lodash';
 import { treeStagesChanged } from 'modules/tree-stages';
 import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
+import convertExplainCompat from 'mongodb-explain-compat';
 
 import EXPLAIN_STATES from 'constants/explain-states';
 
@@ -258,8 +259,9 @@ export const fetchExplainPlan = (query) => {
           return dispatch(explainPlanFetched(explain));
         }
 
-        explain = parseExplainPlan(explain, data);
+        explain = parseExplainPlan(explain, convertExplainCompat(data));
         explain = updateWithIndexesInfo(explain, indexes);
+        explain.rawExplainObject.originalData = data;
 
         dispatch(explainPlanFetched(explain));
         dispatch(treeStagesChanged(explain));
