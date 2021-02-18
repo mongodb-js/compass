@@ -1,6 +1,6 @@
 {
   "name": "mongodb-explain-compat",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Convert mongodb SBE explain output to 4.4 explain output",
   "keywords": [
     "mongodb",
