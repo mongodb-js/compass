@@ -25,6 +25,14 @@
     "build": "gen-esm-wrapper . ./.esm-wrapper.mjs",
     "prepack": "npm run build"
   },
+  "homepage": "https://github.com/mongodb-js/mongodb-explain-compat",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/mongodb-explain-compat.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mongodb-js/mongodb-explain-compat/issues"
+  },
   "license": "Apache-2.0",
   "devDependencies": {
     "eslint": "^7.9.0",
