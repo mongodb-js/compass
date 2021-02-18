@@ -1,0 +1,199 @@
+{
+  "explainVersion": "2",
+  "queryPlanner": {
+    "namespace": "sample_airbnb.listingsAndReviews",
+    "indexFilterSet": false,
+    "parsedQuery": {
+      "beds": {
+        "$gt": 2
+      }
+    },
+    "maxIndexedOrSolutionsReached": false,
+    "maxIndexedAndSolutionsReached": false,
+    "maxScansToExplodeReached": false,
+    "winningPlan": {
+      "queryPlan": {
+        "stage": "FETCH",
+        "planNodeId": 2,
+        "inputStage": {
+          "stage": "IXSCAN",
+          "planNodeId": 1,
+          "keyPattern": {
+            "beds": 1
+          },
+          "indexName": "beds",
+          "isMultiKey": false,
+          "multiKeyPaths": {
+            "beds": []
+          },
+          "isUnique": false,
+          "isSparse": false,
+          "isPartial": false,
+          "indexVersion": 2,
+          "direction": "forward",
+          "indexBounds": {
+            "beds": [
+              "(2, inf.0]"
+            ]
+          }
+        }
+      },
+      "slotBasedPlan": {
+        "slots": "$$RESULT=s5 $$RID=s6 env: { timeZoneDB = s1 (TimeZoneDatabase(MET...Asia/Brunei)) }",
+        "stages": "[2] nlj [] [s2] \n    left \n        [1] nlj [] [s3, s4] \n            left \n                [1] project [s3 = KS(2B04FE04), s4 = KS(33FFFFFFFFFFFFFFFFFE04)] \n                [1] limit 1 \n                [1] coscan \n            right \n                [1] ixseek s3 s4 s2 [] @\"afa448c1-7552-46e5-bd4f-f7b41cd94044\" @\"beds\" true \n            \n        \n    right \n        [2] limit 1 \n        [2] seek s2 s5 s6 [] @\"afa448c1-7552-46e5-bd4f-f7b41cd94044\" \n    \n"
+      }
+    },
+    "rejectedPlans": []
+  },
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": 1432,
+    "executionTimeMillis": 5,
+    "totalKeysExamined": 1432,
+    "totalDocsExamined": 1432,
+    "executionStages": {
+      "stage": "nlj",
+      "planNodeId": 2,
+      "nReturned": 1432,
+      "executionTimeMillisEstimate": 3,
+      "advances": 1432,
+      "opens": 1,
+      "closes": 1,
+      "saveState": 1,
+      "restoreState": 1,
+      "isEOF": 1,
+      "innerOpens": 1432,
+      "innerCloses": 1,
+      "outerProjects": [],
+      "outerCorrelated": [
+        2
+      ],
+      "outerStage": {
+        "stage": "nlj",
+        "planNodeId": 1,
+        "nReturned": 1432,
+        "executionTimeMillisEstimate": 3,
+        "advances": 1432,
+        "opens": 1,
+        "closes": 1,
+        "saveState": 1,
+        "restoreState": 1,
+        "isEOF": 1,
+        "innerOpens": 1,
+        "innerCloses": 1,
+        "outerProjects": [],
+        "outerCorrelated": [
+          3,
+          4
+        ],
+        "outerStage": {
+          "stage": "project",
+          "planNodeId": 1,
+          "nReturned": 1,
+          "executionTimeMillisEstimate": 3,
+          "advances": 1,
+          "opens": 1,
+          "closes": 1,
+          "saveState": 1,
+          "restoreState": 1,
+          "isEOF": 1,
+          "projections": {
+            "3": "KS(2B04FE04) ",
+            "4": "KS(33FFFFFFFFFFFFFFFFFE04) "
+          },
+          "inputStage": {
+            "stage": "limit",
+            "planNodeId": 1,
+            "nReturned": 1,
+            "executionTimeMillisEstimate": 0,
+            "advances": 1,
+            "opens": 1,
+            "closes": 1,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "limit": 1,
+            "inputStage": {
+              "stage": "coscan",
+              "planNodeId": 1,
+              "nReturned": 1,
+              "executionTimeMillisEstimate": 0,
+              "advances": 1,
+              "opens": 1,
+              "closes": 1,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 0
+            }
+          }
+        },
+        "innerStage": {
+          "stage": "ixseek",
+          "planNodeId": 1,
+          "nReturned": 1432,
+          "executionTimeMillisEstimate": 0,
+          "advances": 1432,
+          "opens": 1,
+          "closes": 1,
+          "saveState": 1,
+          "restoreState": 1,
+          "isEOF": 1,
+          "numReads": 1432,
+          "seeks": 1,
+          "recordIdSlot": 2,
+          "seekKeySlotLow": 3,
+          "seekKeySlotHigh": 4,
+          "outputSlots": [],
+          "indexKeysToInclude": "00000000000000000000000000000000"
+        }
+      },
+      "innerStage": {
+        "stage": "limit",
+        "planNodeId": 2,
+        "nReturned": 1432,
+        "executionTimeMillisEstimate": 0,
+        "advances": 1432,
+        "opens": 1432,
+        "closes": 1,
+        "saveState": 1,
+        "restoreState": 1,
+        "isEOF": 1,
+        "limit": 1,
+        "inputStage": {
+          "stage": "seek",
+          "planNodeId": 2,
+          "nReturned": 1432,
+          "executionTimeMillisEstimate": 0,
+          "advances": 1432,
+          "opens": 1432,
+          "closes": 1,
+          "saveState": 1,
+          "restoreState": 1,
+          "isEOF": 0,
+          "numReads": 1432,
+          "recordSlot": 5,
+          "recordIdSlot": 6,
+          "seekKeySlot": 2,
+          "fields": [],
+          "outputSlots": []
+        }
+      }
+    }
+  },
+  "command": {
+    "find": "listingsAndReviews",
+    "filter": {
+      "beds": {
+        "$gt": 2
+      }
+    },
+    "$db": "sample_airbnb"
+  },
+  "serverInfo": {
+    "host": "addaleax2",
+    "port": 27017,
+    "version": "4.9.0-alpha4-346-g16aff18",
+    "gitVersion": "16aff18cbb6b993ac325a50a59b1898d35cf08c3"
+  },
+  "ok": 1
+}
