@@ -136,7 +136,7 @@
     "mongodb-ace-mode": "^0.4.1",
     "mongodb-ace-theme-query": "0.0.2",
     "mongodb-data-service": "^16.5.2",
-    "mongodb-explain-compat": "^1.0.0",
+    "mongodb-explain-compat": "^1.0.1",
     "mongodb-explain-plan-model": "^0.2.3",
     "mongodb-js-precommit": "^2.2.0",
     "mongodb-query-parser": "^2.0.2",
