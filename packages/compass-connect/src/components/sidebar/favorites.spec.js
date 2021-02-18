@@ -21,10 +21,6 @@ describe('Favorites [Component]', () => {
       );
     });
 
-    afterEach(() => {
-      component = null;
-    });
-
     it('renders the wrapper div', () => {
       const style = '.connect-sidebar-connections-favorites';
 
@@ -78,14 +74,41 @@ describe('Favorites [Component]', () => {
       );
     });
 
-    afterEach(() => {
-      component = null;
-    });
-
     it('sets a default color for the right border ', () => {
       const favorite = component.find(`.${styles['connect-sidebar-list-item']}`);
 
       expect(favorite.prop('style')).to.deep.equal({ borderRight: '5px solid #2c5f4a' });
+    });
+  });
+
+  context('multiple favorites', () => {
+    const favorites = {
+      '674f5a6b-f4ba-4e5c-a5c8-f557fdc06f40': {
+        name: 'second',
+        isFavorite: true,
+        color: '#2c5f4a'
+      },
+      '674f5a6b-f4ba-4e5c-a5c8-f557fdc06f41': {
+        name: 'third',
+        isFavorite: true,
+        color: '#2c5f4a'
+      },
+      '674f5a6b-f4ba-4e5c-a5c8-f557fdc06f42': {
+        name: 'first',
+        isFavorite: true,
+        color: '#2c5f4a'
+      }
+    };
+
+    it('renders them in alphabetical order', () => {
+      const component = mount(
+        <Favorites connectionModel={{}} connections={favorites} />
+      );
+
+      const style = `.${styles['connect-sidebar-list-item-name']}`;
+
+      expect(component.find(style).at(0).text()).to.be.equal('first');
+      expect(component.find(style).at(2).text()).to.be.equal('third');
     });
   });
 });
