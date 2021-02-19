@@ -1,3 +1,4 @@
+import sinon from 'sinon';
 import createSchemaAnalysis from './schema-analysis';
 
 describe('schema-analyis', () => {
@@ -35,6 +36,24 @@ describe('schema-analyis', () => {
       };
 
       expect(schema).to.deep.equal(expectedSchema);
+    });
+
+    it('adds promoteValues: false so the analyzer can report more accurate types', async() => {
+      const dataService = {
+        sample: sinon.spy(() => ({
+          toArray: () => Promise.resolve([])
+        }))
+      };
+
+      const schemaAnalysis = createSchemaAnalysis(
+        dataService, 'db.coll', {}, {}
+      );
+
+      schemaAnalysis.getResult();
+
+      expect(dataService.sample).to.have.been.calledWith(
+        'db.coll', {}, { promoteValues: false }
+      );
     });
 
     it('returns null if is cancelled', async() => {

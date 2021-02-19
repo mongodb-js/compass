@@ -22,7 +22,7 @@ class SchemaAnalysis {
     this._cursor = dataService.sample(
       ns,
       query,
-      driverOptions
+      {...driverOptions, promoteValues: false}
     );
 
     this._cancelled = new Promise((resolve) => {
