@@ -10,3 +10,5 @@ coverage
 .nvmrc
 .vscode
 .swp
+*.jar
+*.tgz

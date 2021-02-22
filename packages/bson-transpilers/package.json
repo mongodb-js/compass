@@ -12,12 +12,13 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "precompile": "node download-antlr.js",
     "compile": "npm run antlr4-js && npm run antlr4-py && npm run symbol-table",
-    "antlr4-js": "java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib/antlr -visitor -Xexact-output-dir grammars/ECMAScript.g4",
-    "antlr4-py": "java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib/antlr -visitor -Xexact-output-dir grammars/Python3.g4",
+    "antlr4-js": "java -Xmx500M -cp './antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib/antlr -visitor -Xexact-output-dir grammars/ECMAScript.g4",
+    "antlr4-py": "java -Xmx500M -cp './antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib/antlr -visitor -Xexact-output-dir grammars/Python3.g4",
     "symbol-table": "node compile-symbol-table.js",
     "test": "npm run symbol-table && mocha",
-    "prepublish": "npm run compile",
+    "prepublishOnly": "npm run compile",
     "check": "mongodb-js-precommit './codegeneration/**/*{.js,.jsx}' './test/**/*.js' index.js",
     "ci": "npm run check && npm run test"
   },
