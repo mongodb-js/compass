@@ -32,6 +32,8 @@ OUTPUT=csharp INPUT=shell MODE=native,bson npm run test
 ```
 
 # How it works
+
+See also the original presentation: https://drive.google.com/file/d/1jvwtR3k9oBUzIjL4z_VtpHvdWahfcjTK/view
 ## Compilation Stages
 Similar to how many transpilers work, this package parses the input
 string into a tree and then generates code from the tree using the [Visitor

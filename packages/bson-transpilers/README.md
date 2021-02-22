@@ -6,6 +6,8 @@ Transpilers for building BSON documents in any language. Current support
 provided for `shell` `javascript` and `python` as inputs. `java`, `c#`, `node`, `shell` and `python` as
 outputs.
 
+See also the original presentation: https://drive.google.com/file/d/1jvwtR3k9oBUzIjL4z_VtpHvdWahfcjTK/view
+
 # Usage
 
 ```js
@@ -56,7 +58,7 @@ Any transpiler errors that occur will be thrown. To catch them, wrap the
 - __error.symbol:__ If it is a syntax error, will have the symbol associated with the error.
 
 ### Errors
-There are a few different error classes thrown by `bson-transpilers`, each with 
+There are a few different error classes thrown by `bson-transpilers`, each with
 their own error code:
 
 #### BsonTranspilersArgumentError
@@ -97,7 +99,7 @@ new DBRef('newCollection', new ObjectId()).toString(10)
 ```
 
 #### BsonTranspilersSyntaxError
-###### code: E_BSONTRANSPILERS_SYNTAX 
+###### code: E_BSONTRANSPILERS_SYNTAX
 This will throw if you have a syntax error. For example missing a colon in
 Object assignment, or forgetting a comma in array definition:
 
@@ -108,7 +110,7 @@ Object assignment, or forgetting a comma in array definition:
 // ✘: this is not a proper array definition, will throw E_SYNTAX_GENERIC
 [ 'beep'; 'boop' 'beepBoop' ]
 
-// ✔: neither of these will throw 
+// ✔: neither of these will throw
 { key: 'beep' }
 [ 'beep', 'boop', 'beepBoop' ]
 ```
@@ -127,13 +129,13 @@ Long.MAX_VALUE
 ```
 #### BsonTranspilersUnimplementedError
 ###### code: E_BSONTRANSPILERS_UNIMPLEMENTED
-If there is a feature in the input code that is not currently supported by the 
-transpiler. 
+If there is a feature in the input code that is not currently supported by the
+transpiler.
 
 #### BsonTranspilersRuntimeError
 ###### code: E_BSONTRANSPILERS_RUNTIME
 A generic runtime error will be thrown for all errors that are not covered by the
-above list of errors. These are usually constructor requirements, for example 
+above list of errors. These are usually constructor requirements, for example
 when using a `RegExp()` an unsupported flag is given:
 
 ```javascript
@@ -146,7 +148,7 @@ new RegExp('ab+c', 'im')
 
 #### BsonTranspilersInternalError
 ###### code: E_BSONTRANSPILERS_INTERNAL
-In the case where something has gone wrong within compilation, and an error has 
+In the case where something has gone wrong within compilation, and an error has
 occured. If you see this error, please create [an issue](https://github.com/mongodb-js/bson-transpilers/issues) on Github!
 
 # Install
