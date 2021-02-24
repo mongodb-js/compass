@@ -3,7 +3,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import getComponent from 'hadron-react-bson';
 import { Element } from 'hadron-document';
-import initEditors from 'components/editor';
 
 /**
  * The BEM base style name for the cell.
@@ -87,8 +86,6 @@ class CellRenderer extends React.Component {
         }
       }
     }
-
-    this._editors = initEditors(this.element, this.props.tz);
   }
 
   componentDidMount() {
@@ -104,23 +101,26 @@ class CellRenderer extends React.Component {
   }
 
   subscribeElementEvents() {
-    this.unsubscribeReverted = this.handleReverted.bind(this);
-    this.unsubscribeEdited = this.handleEdited.bind(this);
+    this.unsubscribeAdded = this.handleElementEvent.bind(this);
+    this.unsubscribeConverted = this.handleElementEvent.bind(this);
+    this.unsubscribeEdited = this.handleElementEvent.bind(this);
+    this.unsubscribeReverted = this.handleElementEvent.bind(this);
 
-    this.element.on(Element.Events.Reverted, this.unsubscribeReverted);
+    this.element.on(Element.Events.Added, this.unsubscribeAdded);
+    this.element.on(Element.Events.Converted, this.unsubscribeConverted);
     this.element.on(Element.Events.Edited, this.unsubscribeEdited);
+    this.element.on(Element.Events.Reverted, this.unsubscribeReverted);
   }
 
   unsubscribeElementEvents() {
-    this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
+    this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
+    this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
     this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
+    this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
   }
 
-  handleReverted() {
+  handleElementEvent() {
     this.forceUpdate();
-  }
-
-  handleEdited() {
   }
 
   handleUndo(event) {

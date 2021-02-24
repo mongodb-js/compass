@@ -228,9 +228,9 @@ class CellEditor extends React.Component {
       /* Update the grid store so we know what type this element is */
       this.props.elementAdded(this.element.currentKey, this.element.currentType, id);
       /* TODO: should we update column.* as well to be safe?
-       Not needed if everywhere we access columns through .getColDef() but
-       if somewhere internally they don't do that, will have outdated values.
-       Docs: https://www.ag-grid.com/javascript-grid-column-definitions
+        Not needed if everywhere we access columns through .getColDef() but
+        if somewhere internally they don't do that, will have outdated values.
+        Docs: https://www.ag-grid.com/javascript-grid-column-definitions
        */
     }
     this.props.api.refreshCells({rowNodes: [this.props.node], force: true});
@@ -258,6 +258,7 @@ class CellEditor extends React.Component {
         }
       }
     }
+    this.forceUpdate();
   }
 
   handleRemoveField() {
