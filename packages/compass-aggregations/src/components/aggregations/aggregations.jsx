@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import classnames from 'classnames';
 import Pipeline from 'components/pipeline';
 import { namespaceChanged } from 'modules/namespace';
 import { nameChanged } from 'modules/name';
@@ -25,8 +24,7 @@ import {
   deletePipeline,
   newPipeline,
   clonePipeline,
-  openCreateView,
-  updateView
+  openCreateView
 } from 'modules';
 import {
   runStage,
@@ -81,6 +79,10 @@ import {
   savingPipelineOpen
 } from 'modules/saving-pipeline';
 import { projectionsChanged } from 'modules/projections';
+import {
+  dismissViewError,
+  updateView
+} from 'modules/update-view';
 
 import styles from './aggregations.less';
 
@@ -97,7 +99,7 @@ class Aggregations extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles.aggregations)}>
+      <div className={styles.aggregations}>
         <Pipeline {...this.props} />
       </div>
     );
@@ -144,7 +146,8 @@ const mapStateToProps = (state) => ({
   projections: state.projections,
   editViewName: state.editViewName,
   isNewPipelineConfirm: state.isNewPipelineConfirm,
-  setIsNewPipelineConfirm: state.setIsNewPipelineConfirm
+  setIsNewPipelineConfirm: state.setIsNewPipelineConfirm,
+  updateViewError: state.updateViewError
 });
 
 /**
@@ -214,7 +217,8 @@ const MappedAggregations = connect(
     newPipelineFromPaste,
     updateView,
     openCreateView,
-    setIsNewPipelineConfirm
+    setIsNewPipelineConfirm,
+    dismissViewError
   }
 )(Aggregations);
 

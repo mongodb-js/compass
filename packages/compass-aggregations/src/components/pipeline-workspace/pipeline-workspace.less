@@ -1,12 +1,23 @@
 @import (reference) "~less/compass/_theme.less";
 
+.pipeline-workspace-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
 .pipeline-workspace {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 0;
   overflow-y: scroll;
-  flex-shrink: 1;
-  min-height: 0;
+  width: 100%;
+  height: 100%;
   flex-grow: 1;
+}
+
+.pipeline-workspace-container-container {
+  flex-grow: 1;
+  width: 100%;
+  position: relative;
+  overflow-y: scroll;
 }

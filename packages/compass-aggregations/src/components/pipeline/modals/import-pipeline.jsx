@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { TextButton } from 'hadron-react-buttons';
@@ -57,7 +56,7 @@ class ImportPipeline extends PureComponent {
   renderError() {
     if (this.props.error) {
       return (
-        <div className={classnames(styles['import-pipeline-error'])}>
+        <div className={styles['import-pipeline-error']}>
           {this.props.error}
         </div>
       );
@@ -76,10 +75,10 @@ class ImportPipeline extends PureComponent {
           <h4>{TITLE}</h4>
         </Modal.Header>
         <Modal.Body>
-          <div className={classnames(styles['import-pipeline-note'])}>
+          <div className={styles['import-pipeline-note']}>
             {NOTE}
           </div>
-          <div className={classnames(styles['import-pipeline-editor'])}>
+          <div className={styles['import-pipeline-editor']}>
             <AceEditor
               mode="mongodb"
               theme="mongodb"

@@ -2,7 +2,6 @@ const debug = require('debug')('mongodb-aggregations:modules:index');
 
 import { combineReducers } from 'redux';
 import { ObjectId } from 'bson';
-import toNS from 'mongodb-ns';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
@@ -17,8 +16,7 @@ import namespace, {
   NAMESPACE_CHANGED
 } from './namespace';
 import env, {
-  INITIAL_STATE as ENV_INITIAL_STATE,
-  ENV_CHANGED
+  INITIAL_STATE as ENV_INITIAL_STATE
 } from './env';
 import serverVersion, {
   INITIAL_STATE as SV_INITIAL_STATE
@@ -106,6 +104,10 @@ import projections, {
 import isNewPipelineConfirm, {
   INITIAL_STATE as IS_NEW_PIPELINE_CONFIRM_STATE
 } from './is-new-pipeline-confirm';
+import { gatherProjections, generateStage } from 'modules/stage';
+import updateViewError, {
+  INITIAL_STATE as UPDATE_VIEW_ERROR_INITIAL_STATE
+} from './update-view';
 
 /**
  * The intial state of the root reducer.
@@ -145,7 +147,8 @@ export const INITIAL_STATE = {
   outResultsFn: OUT_RESULTS_FN_INITIAL_STATE,
   editViewName: EDIT_VIEW_NAME_INITIAL_STATE,
   sourceName: SOURCE_NAME_INITIAL_STATE,
-  isNewPipelineConfirm: IS_NEW_PIPELINE_CONFIRM_STATE
+  isNewPipelineConfirm: IS_NEW_PIPELINE_CONFIRM_STATE,
+  updateViewError: UPDATE_VIEW_ERROR_INITIAL_STATE
 };
 
 /**
@@ -219,7 +222,8 @@ const appReducer = combineReducers({
   editViewName,
   sourceName,
   outResultsFn,
-  isNewPipelineConfirm
+  isNewPipelineConfirm,
+  updateViewError
 });
 
 /**
@@ -507,8 +511,6 @@ const doApplySavingPipeline = (state) => {
   return newState;
 };
 
-import { gatherProjections, generateStage } from 'modules/stage';
-
 const doProjectionsChanged = (state) => {
   const newState = {
     ...state,
@@ -720,49 +722,3 @@ export const modifySource = (viewName, viewPipeline, readonly, source) => ({
   isReadonly: readonly,
   sourceName: source
 });
-
-/**
- * Updates a view.
- *
- * @returns {Function} The function.
- */
-export const updateView = () => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const ds = state.dataService.dataService;
-    const viewNamespace = state.editViewName;
-    const viewPipeline = state.pipeline.map((p) => (p.executor || generateStage(p)));
-    const options = {
-      viewOn: toNS(state.namespace).collection,
-      pipeline: viewPipeline
-    };
-
-    try {
-      debug('calling data-service.updateCollection', viewNamespace);
-      ds.updateCollection(viewNamespace, options, (e) => {
-        if (e) {
-          debug('error updating view', e);
-        }
-        dispatch(globalAppRegistryEmit('refresh-data'));
-        dispatch(
-          globalAppRegistryEmit(
-            'compass:aggregations:update-view',
-            { numStages: viewPipeline.length }
-          )
-        );
-        const metadata = { namespace: viewNamespace,
-          isReadonly: true,
-          sourceName: state.namespace,
-          editViewName: null,
-          isSourceReadonly: state.isReadonly,
-          sourceViewOn: state.sourceName,
-          sourcePipeline: viewPipeline
-        };
-        debug('selecting namespace', metadata);
-        dispatch(globalAppRegistryEmit('select-namespace', metadata));
-      });
-    } catch (e) {
-      debug('Unexpected error updating view', e);
-    }
-  };
-};

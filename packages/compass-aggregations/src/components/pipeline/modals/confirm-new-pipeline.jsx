@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
 
@@ -55,7 +54,7 @@ class ConfirmNewPipeline extends PureComponent {
           <h4>{QUESTION}</h4>
         </Modal.Header>
         <Modal.Body>
-          <div className={classnames(styles['confirm-new-pipeline-note'])}>
+          <div className={styles['confirm-new-pipeline-note']}>
             {NOTE}
           </div>
         </Modal.Body>

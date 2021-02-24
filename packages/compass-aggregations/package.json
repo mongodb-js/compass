@@ -170,6 +170,8 @@
     "webpack-sources": "1.4.3"
   },
   "dependencies": {
+    "@leafygreen-ui/badge": "^4.0.2",
+    "@leafygreen-ui/banner": "^3.0.4",
     "bson": "^4.0.2",
     "decomment": "^0.9.2",
     "is-electron-renderer": "^2.0.1",

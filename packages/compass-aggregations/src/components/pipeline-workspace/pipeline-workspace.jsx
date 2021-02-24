@@ -1,10 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
+
 import Stage from 'components/stage';
 import Input from 'components/input';
 import AddStage from 'components/add-stage';
 import SortableStageList from './sortable-stage-list';
+import ModifySourceBanner from '../modify-source-banner';
+import Splitter from './splitter';
 
 import styles from './pipeline-workspace.less';
 
@@ -16,6 +18,7 @@ class PipelineWorkspace extends PureComponent {
 
   static propTypes = {
     allowWrites: PropTypes.bool.isRequired,
+    editViewName: PropTypes.string,
     env: PropTypes.string.isRequired,
     pipeline: PropTypes.array.isRequired,
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
@@ -48,6 +51,12 @@ class PipelineWorkspace extends PureComponent {
   onStageMoved = (fromIndex, toIndex) => {
     this.props.stageMoved(fromIndex, toIndex);
     this.props.runStage(0);
+  }
+
+  renderModifyingViewSourceBanner() {
+    if (this.props.editViewName) {
+      return (<ModifySourceBanner editViewName={this.props.editViewName} />);
+    }
   }
 
   renderStage = (stage, i) => {
@@ -108,24 +117,30 @@ class PipelineWorkspace extends PureComponent {
   render() {
     const inputDocuments = this.props.inputDocuments;
     return (
-      <div className={classnames(styles['pipeline-workspace'])}>
-        <Input
-          toggleInputDocumentsCollapsed={
-            this.props.toggleInputDocumentsCollapsed
-          }
-          refreshInputDocuments={this.props.refreshInputDocuments}
-          documents={inputDocuments.documents}
-          isLoading={inputDocuments.isLoading}
-          isExpanded={inputDocuments.isExpanded}
-          openLink={this.props.openLink}
-          count={inputDocuments.count}
-          isOverviewOn={this.props.isOverviewOn}
-        />
-        {this.renderStageList()}
-        <AddStage
-          stageAdded={this.props.stageAdded}
-          setIsModified={this.props.setIsModified}
-        />
+      <div className={styles['pipeline-workspace-container-container']}>
+        <div className={styles['pipeline-workspace-container']}>
+          <Splitter />
+          <div className={styles['pipeline-workspace']}>
+            {this.renderModifyingViewSourceBanner()}
+            <Input
+              toggleInputDocumentsCollapsed={
+                this.props.toggleInputDocumentsCollapsed
+              }
+              refreshInputDocuments={this.props.refreshInputDocuments}
+              documents={inputDocuments.documents}
+              isLoading={inputDocuments.isLoading}
+              isExpanded={inputDocuments.isExpanded}
+              openLink={this.props.openLink}
+              count={inputDocuments.count}
+              isOverviewOn={this.props.isOverviewOn}
+            />
+            {this.renderStageList()}
+            <AddStage
+              stageAdded={this.props.stageAdded}
+              setIsModified={this.props.setIsModified}
+            />
+          </div>
+        </div>
       </div>
     );
   }

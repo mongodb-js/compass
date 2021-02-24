@@ -4,15 +4,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import PipelineToolbar from 'components/pipeline-toolbar';
-import CollationToolbar from './collation-toolbar';
-import Splitter from './splitter';
-import ModifySourceBanner from 'components/modify-source-banner';
+import Banner from '@leafygreen-ui/banner';
 
 import PipelineWorkspace from 'components/pipeline-workspace';
 import SavePipeline from 'components/save-pipeline';
 import Settings from 'components/settings';
-
+import PipelineToolbar from 'components/pipeline-toolbar';
+import CollationToolbar from './collation-toolbar';
 import RestorePipelineModal from './modals/restore-pipeline-modal';
 import ImportPipeline from './modals/import-pipeline';
 import ConfirmImportPipeline from './modals/confirm-import-pipeline';
@@ -80,8 +78,10 @@ class Pipeline extends PureComponent {
     gotoOutResults: PropTypes.func.isRequired,
     gotoMergeResults: PropTypes.func.isRequired,
     name: PropTypes.string,
+    dismissViewError: PropTypes.func.isRequired,
     editViewName: PropTypes.string,
     updateView: PropTypes.func.isRequired,
+    updateViewError: PropTypes.string,
     importPipelineError: PropTypes.string,
     collation: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
     collationChanged: PropTypes.func.isRequired,
@@ -144,9 +144,13 @@ class Pipeline extends PureComponent {
     return null;
   }
 
-  renderModifySourceBanner() {
-    if (this.props.editViewName) {
-      return (<ModifySourceBanner editViewName={this.props.editViewName} />);
+  renderModifyingViewSourceError() {
+    if (this.props.updateViewError) {
+      return (<Banner
+        variant="danger"
+        dismissible
+        onClose={this.props.dismissViewError}
+      >{this.props.updateViewError}</Banner>);
     }
   }
 
@@ -273,8 +277,7 @@ class Pipeline extends PureComponent {
           setIsNewPipelineConfirm={this.props.setIsNewPipelineConfirm}
         />
         {this.renderCollationToolbar()}
-        <Splitter isCollationExpanded={this.props.isCollationExpanded} />
-        {this.renderModifySourceBanner()}
+        {this.renderModifyingViewSourceError()}
         <PipelineWorkspace {...this.props} />
         {this.renderSavePipeline()}
         <Settings

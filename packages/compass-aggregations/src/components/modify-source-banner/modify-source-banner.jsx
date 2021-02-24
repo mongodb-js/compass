@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
+import Badge from '@leafygreen-ui/badge';
+
 import styles from './modify-source-banner.less';
 
 /**
@@ -12,9 +13,12 @@ import styles from './modify-source-banner.less';
  */
 const ModifySourceBanner = (props) => {
   return (
-    <div className={classnames(styles['modify-source-banner'])}>
+    <Badge
+      className={styles['modify-source-banner']}
+      variant="blue"
+    >
       Modifying pipeline backing "{props.editViewName}"
-    </div>
+    </Badge>
   );
 };
 

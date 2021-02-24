@@ -15,8 +15,4 @@ describe('Splitter [Component]', () => {
     component = mount(<Splitter />);
     expect(component.find(`.${styles.splitter}`)).to.be.present();
   });
-  it('renders as expanded', () => {
-    component = mount(<Splitter isCollationExpanded />);
-    expect(component.find(`.${styles['splitter-expanded']}`)).to.be.present();
-  });
 });

@@ -253,7 +253,8 @@ describe('Aggregation Store', () => {
             isFullscreenOn: INITIAL_STATE.isFullscreenOn,
             savingPipeline: INITIAL_STATE.savingPipeline,
             projections: INITIAL_STATE.projections,
-            isNewPipelineConfirm: INITIAL_STATE.isNewPipelineConfirm
+            isNewPipelineConfirm: INITIAL_STATE.isNewPipelineConfirm,
+            updateViewError: INITIAL_STATE.updateViewError
           });
         });
       });
