@@ -8,8 +8,41 @@ const {
 describe('function expressions (shell)', () => {
   it('compiles functions to javascript', () => {
     assert.strictEqual(
-      bsonTranspilers.shell.javascript.compile('function(){}'),
-      'function(){}'
+      bsonTranspilers.shell.javascript.compile('function(){ return this.x === 1 }'),
+      'function(){ return this.x === 1 }'
+    );
+  });
+
+  it('compiles functions to javascript (takes the right source range)', () => {
+    assert.strictEqual(
+      bsonTranspilers.shell.javascript.compile('1 + function(){ return this.x === 1 }'),
+      '1 + function(){ return this.x === 1 }'
+    );
+  });
+
+  it('compiles functions to javascript (preserve new lines)', () => {
+    assert.strictEqual(
+      bsonTranspilers.shell.javascript.compile(`function(){
+  return this.x === 1
+}`),
+      `function(){
+  return this.x === 1
+}`
+    );
+  });
+
+  it('allows functions in pipeline stages', () => {
+    assert.strictEqual(
+      bsonTranspilers.shell.javascript.compile(`{
+  $match: {
+    x: function() { return true; }
+  }
+}`),
+      `{
+  '$match': {
+    'x': function() { return true; }
+  }
+}`
     );
   });
 

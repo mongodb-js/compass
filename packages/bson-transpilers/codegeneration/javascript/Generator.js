@@ -7,6 +7,9 @@ module.exports = (Visitor) => class Generator extends Visitor {
   }
 
   generateFuncDefExpression(ctx) {
-    return ctx.getText();
+    const source = ctx.start.source[1].strdata;
+    const startIndex = ctx.start.start;
+    const stopIndex = ctx.stop.stop;
+    return source.slice(startIndex, stopIndex + 1);
   }
 };
