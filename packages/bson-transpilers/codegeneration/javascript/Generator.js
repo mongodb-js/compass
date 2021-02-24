@@ -5,4 +5,8 @@ module.exports = (Visitor) => class Generator extends Visitor {
   constructor() {
     super();
   }
+
+  generateFuncDefExpression(ctx) {
+    return ctx.getText();
+  }
 };

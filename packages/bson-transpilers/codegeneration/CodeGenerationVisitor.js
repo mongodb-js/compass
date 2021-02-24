@@ -788,6 +788,12 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     );
   }
 
+  generateFuncDefExpression() {
+    throw new BsonTranspilersUnimplementedError(
+      'Support for exporting functions to languages other than javascript is not yet available.'
+    );
+  }
+
   /**
    * Overrides the ANTLR visitChildren method so that options can be set.
    *

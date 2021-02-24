@@ -28,7 +28,6 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
     this.visitTypeofExpression =
     this.visitInExpression =
     this.visitInstanceofExpression =
-    this.visitFuncDefExpression =
     this.visitAssignmentExpression =
     this.visitAssignmentOperatorExpression =
     this.visitMemberIndexExpression =
@@ -286,6 +285,10 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
       return this.Syntax.parens.template(kids);
     }
     return this.visitChildren(ctx);
+  }
+
+  visitFuncDefExpression(ctx) {
+    return this.generateFuncDefExpression(ctx);
   }
 
   /*
