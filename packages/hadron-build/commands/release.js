@@ -308,7 +308,6 @@ const writeVersionFile = (CONFIG, done) => {
 const transformPackageJson = (CONFIG, done) => {
   const PACKAGE_JSON_DEST = path.join(CONFIG.resources, 'app', 'package.json');
   const packageKeysToRemove = [
-    'scripts',
     'devDependencies',
     'dependency-check',
     'repository',
