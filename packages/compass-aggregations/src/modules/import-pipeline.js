@@ -1,16 +1,7 @@
-import { toJSString as toShellString, parseFilter } from 'mongodb-query-parser';
-import transpiler from 'bson-transpilers';
+import { toJSString as toShellString } from 'mongodb-query-parser';
 import { emptyStage } from 'modules/pipeline';
-
-/**
- * JS lang constant.
- */
-const JS = 'javascript';
-
-/**
- * Shell lang constant.
- */
-const SHELL = 'shell';
+import { extractStages } from './extract-stages';
+const debug = require('debug')('mongodb-aggregations:modules:import-pipeline');
 
 /**
  * Shell string indent.
@@ -187,29 +178,16 @@ export const confirmNew = () => ({
  */
 export const createPipeline = (text) => {
   try {
-    transpiler[SHELL][JS].compile(text);
-  } catch (transpilerError) {
-    // @example BsonTranspilersUnimplementedError: BinData type not supported
-    return [ createStage(null, '', transpilerError.message) ];
-  }
-
-  try {
-    /**
-     * NOTE (imlucas) See https://github.com/mongodb-js/query-parser/issues/26
-     */
-    const js = parseFilter(text);
-    if (!Array.isArray(js)) {
-      throw new TypeError('Could not parse pipeline array: ' + text);
-    }
-
-    return js.map((stage) => {
+    const stages = extractStages(text);
+    return stages.map((stage) => {
       return createStage(
-        Object.keys(stage)[0],
-        toShellString(Object.values(stage)[0], INDENT),
+        stage.operator,
+        stage.source,
         null
       );
     });
   } catch (jsError) {
+    debug(jsError);
     return [ createStage(null, '', jsError.message) ];
   }
 };

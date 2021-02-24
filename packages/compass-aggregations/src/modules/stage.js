@@ -1,7 +1,17 @@
-import parser from 'mongodb-query-parser';
+import mongodbQueryParser from 'mongodb-query-parser';
 import decomment from 'decomment';
 
 const PARSE_ERROR = 'Stage must be a properly formatted document.';
+
+function parse(...args) {
+  const parsed = mongodbQueryParser(...args);
+
+  if (!parsed) {
+    throw new Error(PARSE_ERROR);
+  }
+
+  return parsed;
+}
 
 /**
  * Looks for projections the stage could produce that
@@ -30,7 +40,7 @@ export function gatherProjections(state, stage) {
     stage = {};
     try {
       const decommented = decomment(state.stage);
-      stage[state.stageOperator] = parser(decommented);
+      stage[state.stageOperator] = parse(decommented);
     } catch (e) {
       return projections;
     }
@@ -69,7 +79,7 @@ export function generateStage(state) {
   const stage = {};
   try {
     const decommented = decomment(state.stage);
-    stage[state.stageOperator] = parser(decommented);
+    stage[state.stageOperator] = parse(decommented);
   } catch (e) {
     state.syntaxError = PARSE_ERROR;
     state.isValid = false;
@@ -91,7 +101,7 @@ export function generateStageAsString(state) {
   try {
     const decommented = decomment(state.stage);
     stage = `{${state.stageOperator}: ${decommented}}`;
-    parser(decommented); // Run the parser so we can error check
+    parse(decommented); // Run the parse so we can error check
   } catch (e) {
     state.syntaxError = PARSE_ERROR;
     state.isValid = false;

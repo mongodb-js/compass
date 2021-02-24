@@ -107,7 +107,7 @@ describe('import pipeline module', () => {
         });
 
         it('sets the stage', () => {
-          expect(pipeline.stage).to.equal('{\n  name: \'testing\'\n}');
+          expect(pipeline.stage).to.equal('{\n  name: "testing"\n}');
         });
 
         it('sets if the pipeline is valid', () => {
@@ -156,7 +156,7 @@ describe('import pipeline module', () => {
         });
 
         it('sets the stage', () => {
-          expect(pipeline.stage).to.equal('{\n  name: \'testing\',\n  value: {\n    $gt: 5\n  }\n}');
+          expect(pipeline.stage).to.equal('{\n  name: "testing",\n  value: {\n    $gt: 5\n  }\n}');
         });
       });
 
@@ -183,24 +183,7 @@ describe('import pipeline module', () => {
           });
 
           it('sets the stage', () => {
-            expect(stage.stage).to.equal('{\n  value: RegExp(\'[a]\', g)\n}');
-          });
-        });
-
-        context('when the stage contains a Binary', () => {
-          const text = '[{ $match: { value: BinData(\'test\', \'1\') }}]';
-          let stage;
-
-          before(() => {
-            stage = createPipeline(text)[0];
-          });
-
-          it('sets the stage', () => {
-            expect(stage.stage).to.equal('');
-          });
-
-          it('sets a syntax error', () => {
-            expect(stage.syntaxError).to.equal('BinData type not supported');
+            expect(stage.stage).to.equal('{\n  value: RegExp(\'[a]\', \'g\')\n}');
           });
         });
 
@@ -225,7 +208,7 @@ describe('import pipeline module', () => {
             stage = createPipeline(text)[0];
           });
 
-          it.skip('sets the stage', () => {
+          it('sets the stage', () => {
             expect(stage.stage).to.equal('{\n  value: NumberInt(5)\n}');
           });
         });
@@ -253,7 +236,7 @@ describe('import pipeline module', () => {
 
           it('sets the stage', () => {
             expect(stage.stage).to.equal(
-              '{\n  value: DBRef(\'coll\', \'5b6833700633d61f36d3f09d\')\n}'
+              '{\n  value: DBRef(\'coll\', ObjectId(\'5b6833700633d61f36d3f09d\'))\n}'
             );
           });
         });
@@ -309,7 +292,7 @@ describe('import pipeline module', () => {
 
           it('sets the stage', () => {
             expect(stage.stage).to.equal(
-              '{\n  value: ISODate(\'2004-01-01T00:00:00.000Z\')\n}'
+              '{\n  value: ISODate(\'2004-01-01\')\n}'
             );
           });
         });
@@ -324,7 +307,7 @@ describe('import pipeline module', () => {
 
           it('sets the stage', () => {
             expect(stage.stage).to.equal(
-              '{\n  value: ISODate(\'2004-01-01T00:00:00.000Z\')\n}'
+              '{\n  value: Date(\'2004-01-01\')\n}'
             );
           });
         });

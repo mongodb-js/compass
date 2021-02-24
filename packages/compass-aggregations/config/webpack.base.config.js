@@ -28,6 +28,11 @@ module.exports = {
         test: /\.css$/,
         use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
       },
+      {
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto'
+      },
       // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
       {
         test: /\.less$/,
