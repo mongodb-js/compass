@@ -16,6 +16,20 @@ function isOperationTerminatedError(err) {
   );
 }
 
+// hack for driver 3.6 not promoting error codes and
+// attributes from ejson when promoteValue is false.
+function promoteMongoErrorCode(err) {
+  if (!err) {
+    return new Error('Unknown error');
+  }
+
+  if (err.name === 'MongoError' && err.code !== undefined) {
+    err.code = JSON.parse(JSON.stringify(err.code));
+  }
+
+  return err;
+}
+
 class SchemaAnalysis {
   constructor(dataService, ns, query, driverOptions) {
     this._dataService = dataService;
@@ -48,7 +62,10 @@ class SchemaAnalysis {
 
   async _sampleAndAnalyze() {
     try {
-      const docs = await this._cursor.toArray();
+      const docs = await this._cursor.toArray()
+        .catch(
+          err => Promise.reject(promoteMongoErrorCode(err))
+        );
       return await analyzeDocuments(docs);
     } catch (err) {
       if (isOperationTerminatedError(err)) {
@@ -82,3 +99,4 @@ class SchemaAnalysis {
 export default function createSchemaAnalysis(dataService, ns, query, driverOptions) {
   return new SchemaAnalysis(dataService, ns, query, driverOptions);
 }
+

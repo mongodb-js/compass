@@ -1,4 +1,6 @@
 import sinon from 'sinon';
+import bson from 'bson';
+
 import createSchemaAnalysis from './schema-analysis';
 
 describe('schema-analyis', () => {
@@ -94,9 +96,14 @@ describe('schema-analyis', () => {
 
       const getResultPromise = schemaAnalysis.getResult().catch(err => err);
 
-      rejectOnSample(new Error('should have been thrown'));
+      const error = new Error('should have been thrown');
+      error.name = 'MongoError';
+      error.code = new bson.Int32(1000);
+
+      rejectOnSample(error);
 
       expect((await getResultPromise).message).to.equal('should have been thrown');
+      expect((await getResultPromise).code).to.equal(1000);
     });
   });
 });
