@@ -1,4 +1,4 @@
-const { EventEmitter } = require('events');
+const { EventEmitter, once } = require('events');
 const fs = require('fs');
 const async = require('async');
 const {
@@ -12,7 +12,7 @@ const {
 const { MongoClient } = require('mongodb');
 const { parseConnectionString } = require('mongodb/lib/core');
 const Connection = require('./extended-model');
-const createSSHTunnel = require('./ssh-tunnel');
+const { default: SSHTunnel } = require('@mongodb-js/ssh-tunnel');
 
 const debug = require('debug')('mongodb-connection-model:connect');
 
@@ -125,8 +125,9 @@ const getTasks = (model, setupListeners) => {
   const tasks = {};
   const _statuses = {};
   let options = {};
-  let tunnel;
-  let client;
+  /** @type {SSHTunnel} */
+  let tunnel = null;
+  let client = null;
 
   const status = (message, cb) => {
     if (_statuses[message]) {
@@ -189,19 +190,27 @@ const getTasks = (model, setupListeners) => {
   });
 
   assign(tasks, {
-    [Tasks.CreateSSHTunnel]: (cb) => {
-      const ctx = status('Create SSH Tunnel', cb);
+    [Tasks.CreateSSHTunnel]: async() => {
+      const ctx = status('Create SSH Tunnel');
 
       if (model.sshTunnel === 'NONE') {
         return ctx.skip('The selected SSH Tunnel mode is NONE.');
       }
 
-      tunnel = createSSHTunnel(model, ctx);
+      tunnel = new SSHTunnel(model.sshTunnelOptions);
+
+      try {
+        await tunnel.listen();
+        ctx(null);
+      } catch (err) {
+        ctx(err);
+        throw err;
+      }
     }
   });
 
   assign(tasks, {
-    [Tasks.ConnectToMongoDB]: (cb) => {
+    [Tasks.ConnectToMongoDB]: async() => {
       const ctx = status('Connect to MongoDB');
 
       // @note: Durran:
@@ -215,6 +224,7 @@ const getTasks = (model, setupListeners) => {
 
       validOptions.useNewUrlParser = true;
       validOptions.useUnifiedTopology = true;
+
       if (
         model.directConnection === undefined &&
         model.hosts.length === 1 &&
@@ -234,29 +244,37 @@ const getTasks = (model, setupListeners) => {
         setupListeners(mongoClient);
       }
 
-      mongoClient.connect((err, _client) => {
-        ctx(err);
+      /** @type {Promise<never>} */
+      const waitForTunnelError = (async() => {
+        const [error] = await once(tunnel || new EventEmitter(), 'error');
+        throw error;
+      })();
 
-        if (err) {
-          if (tunnel) {
-            debug('data-service connection error, shutting down ssh tunnel');
-            tunnel.close();
+      const closeTunnelOnError = async(tunnelToClose) => {
+        if (tunnelToClose) {
+          debug('data-service connection error, shutting down ssh tunnel');
+          try {
+            await tunnelToClose.close();
+            debug('ssh tunnel stopped');
+          } catch (err) {
+            debug('ssh tunnel stopped with error: %s', err.message);
           }
-
-          return cb(err);
         }
+      };
 
+      try {
+        const _client = await Promise.race([
+          mongoClient.connect(),
+          waitForTunnelError
+        ]);
         client = _client;
-
-        if (tunnel) {
-          client.on('close', () => {
-            debug('data-service disconnected. shutting down ssh tunnel');
-            tunnel.close();
-          });
-        }
-
-        cb(null, { url: model.driverUrlWithSsh, options: validOptions });
-      });
+        ctx(null);
+        return { url: model.driverUrlWithSsh, options: validOptions };
+      } catch (err) {
+        await closeTunnelOnError(tunnel);
+        ctx(err);
+        throw err;
+      }
     }
   });
 
@@ -332,7 +350,7 @@ const connect = (model, setupListeners, done) => {
 
     logTaskStatus('Successfully connected');
 
-    return done(null, tasks.client, connectionOptions);
+    return done(null, tasks.client, tasks.tunnel, connectionOptions);
   });
 
   return tasks.state;

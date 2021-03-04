@@ -4,6 +4,7 @@ const Connection = require('../');
 const connect = Connection.connect;
 const mock = require('mock-require');
 const sinon = require('sinon');
+const SSHTunnel = require('@mongodb-js/ssh-tunnel').default;
 
 const setupListeners = () => {};
 
@@ -27,7 +28,7 @@ describe('connection model connector', () => {
         connect(
           model,
           setupListeners,
-          (connectErr, client, { url, options }) => {
+          (connectErr, client, _tunnel, { url, options }) => {
             if (connectErr) throw connectErr;
 
             assert.strictEqual(
@@ -74,13 +75,17 @@ describe('connection model connector', () => {
     });
 
     describe('ssh tunnel failures', () => {
-      const spy = sinon.spy();
+      let closeSpy;
 
-      mock('../lib/ssh-tunnel', (model, cb) => {
-        // simulate successful tunnel creation
-        cb();
-        // then return a mocked tunnel object with a spy close() function
-        return { close: spy };
+      mock('@mongodb-js/ssh-tunnel', {
+        default: class MockTunnel extends SSHTunnel {
+          constructor(...args) {
+            super(...args);
+            this.serverClose = closeSpy = sinon.spy(
+              this.serverClose.bind(this)
+            );
+          }
+        }
       });
 
       const MockConnection = mock.reRequire('../lib/extended-model');
@@ -99,12 +104,49 @@ describe('connection model connector', () => {
 
         assert(model.isValid());
         mockConnect(model, setupListeners, (err) => {
-          // must throw error here, because the connection details are invalid
-          assert.ok(err);
-          assert.ok(/ECONNREFUSED/.test(err.message));
-          // assert that tunnel.close() was called once
-          assert.ok(spy.calledOnce);
-          done();
+          try {
+            // must throw error here, because the connection details are invalid
+            assert.ok(err);
+            // assert that tunnel.close() was called once
+            assert.ok(
+              closeSpy.calledOnce,
+              'Expected tunnel.close to be called exactly once'
+            );
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+      });
+
+      it('should propagate tunnel error if tunnel fails to connect', (done) => {
+        const model = new MockConnection({
+          hostname: 'localhost',
+          port: 27020,
+          sshTunnel: 'USER_PASSWORD',
+          sshTunnelHostname: 'my.ssh-server.com',
+          sshTunnelPassword: 'password',
+          sshTunnelUsername: 'my-user',
+          extraOptions: {
+            serverSelectionTimeoutMS: 1000,
+            socketTimeoutMS: 1000
+          }
+        });
+
+        assert(model.isValid());
+        mockConnect(model, setupListeners, (err) => {
+          try {
+            const regex = /ENOTFOUND my.ssh-server.com/;
+
+            assert.ok(err);
+            assert.ok(
+              regex.test(err.message),
+              `Expected "${err.message}" to match ${regex}`
+            );
+            done();
+          } catch (e) {
+            done(e);
+          }
         });
       });
     });

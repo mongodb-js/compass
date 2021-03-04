@@ -16,13 +16,14 @@
   "scripts": {
     "ci": "npm run check && npm test",
     "pretest": "mongodb-runner install",
-    "test": "mocha",
+    "test": "mocha --timeout 15000",
     "check": "mongodb-js-precommit"
   },
   "peerDependencies": {
     "mongodb": "3.x"
   },
   "dependencies": {
+    "@mongodb-js/ssh-tunnel": "^1.2.0",
     "ampersand-model": "^8.0.0",
     "ampersand-rest-collection": "^6.0.0",
     "async": "^3.1.0",
