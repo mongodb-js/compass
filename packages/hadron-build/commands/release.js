@@ -468,10 +468,10 @@ const createApplicationAsar = (CONFIG, done) => {
      *  ordering: path.join(process.cwd(),
      *   'resources', 'asar-ordering-hint.txt'),
      */
-    unpack: '{' + [
-      '*.node',
-      '**/vendor/**'
-    ].join(',') + '}'
+    ...CONFIG.asar,
+    unpack: `{${['*.node', '**/vendor/**']
+      .concat(CONFIG.asar.unpack)
+      .join(',')}}`
   };
 
   var src = path.join(CONFIG.resources, 'app');

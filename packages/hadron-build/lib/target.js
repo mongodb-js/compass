@@ -133,6 +133,8 @@ class Target {
     this.semver = new semver.SemVer(this.version);
     this.channel = 'stable';
 
+    this.asar = { unpack: [], ...pkg.config.hadron.asar };
+
     // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
     const mtch = this.version.match(/-([a-z]+)(\.\d+)?$/);
     if (mtch) {
