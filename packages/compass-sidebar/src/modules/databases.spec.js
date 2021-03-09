@@ -1,7 +1,8 @@
 import reducer, {
+  CHANGE_DATABASES,
   INITIAL_STATE,
   changeDatabases,
-  CHANGE_DATABASES,
+  changeActiveNamespace,
   filterDatabases
 } from 'modules/databases';
 
@@ -9,7 +10,7 @@ import { makeModel } from '../../electron/renderer/stores/instance-store';
 
 describe('sidebar databases', () => {
   describe('#reducer', () => {
-    context('when an action is provided', () => {
+    context('when change databases action is provided', () => {
       it('returns the new state', () => {
         expect(
           reducer(undefined, changeDatabases('dbs', 'expandedDblist', 'activeNamespace'))
@@ -17,6 +18,17 @@ describe('sidebar databases', () => {
           databases: 'dbs',
           expandedDblist: 'expandedDblist',
           activeNamespace: 'activeNamespace'
+        });
+      });
+    });
+
+    context('when the change namespace is provided', () => {
+      it('returns the new state', () => {
+        expect(
+          reducer(undefined, changeActiveNamespace('newActiveNamespace'))
+        ).to.deep.equal({
+          ...INITIAL_STATE,
+          activeNamespace: 'newActiveNamespace'
         });
       });
     });

@@ -2,6 +2,10 @@
 
 @compass-sidebar-title-background-color: @gray1;
 @compass-sidebar-title-background-color: lighten(hsl(204, 29%, 18%), 5%);
+@compass-sidebar-hover-background-color: @gray1;
+@compass-sidebar-hover-background-color: lighten(hsl(204, 29%, 18%), 5%);
+@compass-sidebar-active-background-color: @gray4;
+@compass-sidebar-active-background-color: lighten(hsl(201, 11%, 41%), 10%);
 
 .sidebar-title {
   background-color: @compass-sidebar-title-background-color;
@@ -9,6 +13,20 @@
   padding: 7px 10px 7px 10px;
   border-bottom: 1px solid @gray2;
   cursor: pointer;
+
+  &:hover {
+    background: @compass-sidebar-hover-background-color;
+    color: @pw;
+  }
+
+  &-is-active {
+    color: @pw;
+    background: @compass-sidebar-active-background-color;
+    &:hover {
+      color: @pw;
+      background: @compass-sidebar-active-background-color;
+    }
+  }
 
   &-name {
     color: @pw;

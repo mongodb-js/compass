@@ -2,10 +2,13 @@ import { LOADING_STATE } from 'constants/sidebar-constants';
 import toNS from 'mongodb-ns';
 
 /**
- * Databases action.
+ * Databases actions.
  */
 export const CHANGE_DATABASES = 'sidebar/databases/CHANGE_DATABASES';
+export const CHANGE_ACTIVE_NAMESPACE = 'sidebar/databases/CHANGE_ACTIVE_NAMESPACE';
 const BLANK = '(?:)';
+
+export const NO_ACTIVE_NAMESPACE = '';
 
 /**
  * The initial state of the sidebar databases.
@@ -13,7 +16,7 @@ const BLANK = '(?:)';
 export const INITIAL_STATE = {
   databases: [],
   expandedDblist: {},
-  activeNamespace: ''
+  activeNamespace: NO_ACTIVE_NAMESPACE
 };
 
 /**
@@ -29,6 +32,12 @@ export default function reducer(state = INITIAL_STATE, action) {
     return {
       databases: action.databases,
       expandedDblist: action.expandedDblist,
+      activeNamespace: action.activeNamespace
+    };
+  }
+  if (action.type === CHANGE_ACTIVE_NAMESPACE) {
+    return {
+      ...state,
       activeNamespace: action.activeNamespace
     };
   }
@@ -49,6 +58,18 @@ export const changeDatabases = (databases, expandedDblist, activeNamespace) => (
   databases: databases,
   expandedDblist: expandedDblist,
   activeNamespace: activeNamespace
+});
+
+/**
+ * The change active namespace action creator.
+ *
+ * @param {String} activeNamespace
+ *
+ * @returns {Object} The action.
+ */
+export const changeActiveNamespace = (activeNamespace) => ({
+  type: CHANGE_ACTIVE_NAMESPACE,
+  activeNamespace
 });
 
 export const filterDatabases = (filter, dbs, ns) => {

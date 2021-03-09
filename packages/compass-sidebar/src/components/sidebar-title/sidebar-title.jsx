@@ -2,7 +2,12 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import FontAwesome from 'react-fontawesome';
+import { connect } from 'react-redux';
 
+import {
+  NO_ACTIVE_NAMESPACE,
+  changeActiveNamespace
+} from '../../modules/databases';
 import styles from './sidebar-title.less';
 
 /**
@@ -11,9 +16,11 @@ import styles from './sidebar-title.less';
 class SidebarTitle extends PureComponent {
   static displayName = 'SidebarTitleComponent';
   static propTypes = {
-    isSidebarCollapsed: PropTypes.bool.isRequired,
+    activeNamespace: PropTypes.string.isRequired,
+    changeActiveNamespace: PropTypes.func.isRequired,
     connectionModel: PropTypes.object.isRequired,
-    globalAppRegistryEmit: PropTypes.func.isRequired
+    globalAppRegistryEmit: PropTypes.func.isRequired,
+    isSidebarCollapsed: PropTypes.bool.isRequired
   };
 
   /**
@@ -21,7 +28,10 @@ class SidebarTitle extends PureComponent {
    */
   clickName = () => {
     this.props.globalAppRegistryEmit('select-instance');
+
     require('hadron-ipc').call('window:hide-collection-submenu');
+
+    this.props.changeActiveNamespace(NO_ACTIVE_NAMESPACE);
   }
 
   renderTitle() {
@@ -29,7 +39,8 @@ class SidebarTitle extends PureComponent {
       return (
         <FontAwesome
           name="home"
-          className={classnames(styles['sidebar-title-name-icon'])} />
+          className={styles['sidebar-title-name-icon']}
+        />
       );
     }
     return this.props.connectionModel.connection.name;
@@ -42,8 +53,13 @@ class SidebarTitle extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['sidebar-title'])} onClick={this.clickName}>
-        <div className={classnames(styles['sidebar-title-name'])}>
+      <div
+        className={classnames(styles['sidebar-title'], {
+          [styles['sidebar-title-is-active']]: this.props.activeNamespace === NO_ACTIVE_NAMESPACE
+        })}
+        onClick={this.clickName}
+      >
+        <div className={styles['sidebar-title-name']}>
           {this.renderTitle()}
         </div>
       </div>
@@ -51,4 +67,14 @@ class SidebarTitle extends PureComponent {
   }
 }
 
-export default SidebarTitle;
+const mapStateToProps = (state) => ({
+  activeNamespace: state.databases.activeNamespace
+});
+
+export default connect(
+  mapStateToProps,
+  {
+    changeActiveNamespace
+  },
+)(SidebarTitle);
+export { SidebarTitle };

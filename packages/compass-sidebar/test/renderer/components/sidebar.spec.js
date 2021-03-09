@@ -1,14 +1,22 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import Sidebar from 'components/sidebar';
-import store from 'stores';
+import { Provider } from 'react-redux';
+
+import SidebarStore from '../../../src/stores';
+import Sidebar from '../../../src/components/sidebar';
 import styles from '../../../src/components/sidebar/sidebar.less';
 
 describe('Sidebar [Component]', () => {
   let component;
 
   beforeEach(() => {
-    component = mount(<Sidebar store={store} onCollapse={()=>{}} />);
+    component = mount(
+      <Provider store={SidebarStore}>
+        <Sidebar
+          onCollapse={()=>{}}
+        />
+      </Provider>
+    );
   });
 
   afterEach(() => {
