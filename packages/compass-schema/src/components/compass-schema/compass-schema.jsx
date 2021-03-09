@@ -52,6 +52,7 @@ class Schema extends Component {
       ANALYSIS_STATE_TIMEOUT
     ]),
     outdated: PropTypes.bool,
+    isActiveTab: PropTypes.bool,
     errorMessage: PropTypes.string,
     maxTimeMS: PropTypes.number,
     schema: PropTypes.any,
@@ -67,17 +68,19 @@ class Schema extends Component {
     this.queryBarActions = appRegistry.getAction(this.queryBarRole.actionName);
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     // when the namespace changes and the schema tab is not active, the
     // tab is "display:none" and its width 0. That also means the the minichart
     // auto-sizes to 0. Therefore, when the user switches back to the tab,
     // making it "display:block" again and giving it a proper non-zero size,
     // the minicharts have to be re-rendered.
     //
-    // if (this.CollectionStore.getActiveTab() === 1) {
-    //   this.props.actions.resizeMiniCharts();
-    //   ReactTooltip.rebuild();
-    // }
+    if (
+      prevProps.isActiveTab !== this.props.isActiveTab &&
+      this.props.isActiveTab
+    ) {
+      this.props.actions.resizeMiniCharts();
+    }
   }
 
   onApplyClicked() {

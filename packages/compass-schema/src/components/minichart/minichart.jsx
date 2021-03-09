@@ -70,12 +70,15 @@ class MiniChart extends Component {
    * triggered by index.jsx. Only redraw if the size is > 0.
    */
   handleResize() {
-    const rect = this._mc.getBoundingClientRect();
-    if (rect.width > 0) {
-      this.setState({
-        containerWidth: rect.width
-      });
-    }
+    this.setState(({ containerWidth: prevWidth }) => {
+      const { width } = this._mc.getBoundingClientRect();
+      // Only update if width changed, otherwise we will be rerendering too
+      // often when switching tabs
+      if (width > 0 && prevWidth !== width) {
+        return { containerWidth: width };
+      }
+      return null;
+    });
   }
 
   minichartFactory() {

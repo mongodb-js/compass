@@ -109,7 +109,6 @@ const configureStore = (options = {}) => {
       };
       this.ns = '';
       this.geoLayers = {};
-      this.isActiveTab = false;
     },
 
     getShareText() {
@@ -139,11 +138,12 @@ const configureStore = (options = {}) => {
         analysisState: ANALYSIS_STATE_INITIAL,
         errorMessage: '',
         schema: null,
-        outdated: false
+        outdated: false,
+        isActiveTab: false
       };
     },
 
-    onQueryChanged: function(state) {
+    onQueryChanged(state) {
       this.query.filter = state.filter;
       this.query.limit = state.limit;
       this.query.project = state.project;
@@ -151,7 +151,7 @@ const configureStore = (options = {}) => {
 
       if (
         this.state.analysisState === ANALYSIS_STATE_COMPLETE &&
-        !this.isActiveTab
+        !this.state.isActiveTab
       ) {
         this.setState({
           outdated: true
@@ -159,8 +159,10 @@ const configureStore = (options = {}) => {
       }
     },
 
-    onSubTabChanged: function(name) {
-      this.isActiveTab = name === TAB_NAME;
+    onSubTabChanged(name) {
+      this.setState({
+        isActiveTab: name === TAB_NAME
+      });
     },
 
     onSchemaSampled() {
