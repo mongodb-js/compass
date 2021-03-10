@@ -83,8 +83,9 @@ describe('CreateDatabaseModal [Component]', () => {
       expect(component.find('.btn-default').hostNodes()).to.have.text('Cancel');
     });
 
-    it('renders the create button', () => {
+    it('renders the create button enabled', () => {
       expect(component.find('.btn-primary').hostNodes()).to.have.text('Create Database');
+      expect(component.find('.btn-primary').hostNodes()).to.not.have.attr('disabled');
     });
 
     it('renders the modal form', () => {
@@ -105,6 +106,18 @@ describe('CreateDatabaseModal [Component]', () => {
           simulate('change', 'dbName');
         expect(changeDatabaseNameSpy.calledWith('dbName')).to.equal(true);
       });
+
+      context('setting it to an empty value', () => {
+        beforeEach(() => {
+          component.setProps({
+            name: ''
+          });
+        });
+
+        it('disables the create button', () => {
+          expect(component.find('.btn-primary').hostNodes()).to.have.attr('disabled');
+        });
+      });
     });
 
     context('when changing the collection name', () => {
@@ -112,6 +125,18 @@ describe('CreateDatabaseModal [Component]', () => {
         component.find('#create-database-collection-name').hostNodes().
           simulate('change', 'collName');
         expect(changeCollectionNameSpy.calledWith('collName')).to.equal(true);
+      });
+
+      context('setting it to an empty value', () => {
+        beforeEach(() => {
+          component.setProps({
+            collectionName: ''
+          });
+        });
+
+        it('disables the create button', () => {
+          expect(component.find('.btn-primary').hostNodes()).to.have.attr('disabled');
+        });
       });
     });
 

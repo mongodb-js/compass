@@ -248,6 +248,7 @@ class CreateDatabaseModal extends PureComponent {
             text="Cancel"
             clickHandler={this.onHide} />
           <TextButton
+            disabled={!this.props.name || !this.props.collectionName}
             className="btn btn-primary btn-sm"
             dataTestId="create-database-button"
             text="Create Database"
