@@ -210,6 +210,7 @@ class CreateCollectionModal extends PureComponent {
             text="Cancel"
             clickHandler={this.onHide} />
           <TextButton
+            disabled={!this.props.name}
             className="btn btn-primary btn-sm"
             dataTestId="create-collection-button"
             text="Create Collection"

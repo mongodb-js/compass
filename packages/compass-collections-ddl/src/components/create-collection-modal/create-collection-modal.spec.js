@@ -78,8 +78,9 @@ describe('CreateCollectionModal [Component]', () => {
       expect(component.find('.btn-default').hostNodes()).to.have.text('Cancel');
     });
 
-    it('renders the create button', () => {
+    it('renders the create button enabled', () => {
       expect(component.find('.btn-primary').hostNodes()).to.have.text('Create Collection');
+      expect(component.find('.btn-primary').hostNodes()).to.not.have.attr('disabled');
     });
 
     it('renders the modal form', () => {
@@ -95,6 +96,18 @@ describe('CreateCollectionModal [Component]', () => {
         component.find('#create-collection-name').hostNodes().
           simulate('change', 'collName');
         expect(changeCollectionNameSpy.calledWith('collName')).to.equal(true);
+      });
+
+      context('when setting the collection name to empty', () => {
+        beforeEach(() => {
+          component.setProps({
+            name: ''
+          });
+        });
+
+        it('disables the create button', () => {
+          expect(component.find('.btn-primary').hostNodes()).to.have.attr('disabled');
+        });
       });
     });
 
