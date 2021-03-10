@@ -92,7 +92,13 @@ class NativeClient extends EventEmitter {
   constructor(model) {
     super();
     this.model = model;
+
     this.connectionOptions = null;
+    this.tunnel = null;
+
+    this.isWritable = false;
+    this.isMongos = false;
+    this._isConnected = false;
   }
 
   /**
@@ -104,19 +110,33 @@ class NativeClient extends EventEmitter {
   connect(done) {
     debug('connecting...');
 
-    this.connectionOptions = null;
-    this.isWritable = false;
-    this.isMongos = false;
+    if (this._isConnected) {
+      setImmediate(() => {
+        done(
+          new Error(
+            'Connect method has been called more than once without disconnecting.'
+          )
+        );
+      });
+
+      return this;
+    }
+
+    // Not really true at that point, we are doing it just so we don't allow
+    // simultaneous syncronous calls to the connect method
+    this._isConnected = true;
 
     connect(
       this.model,
       this.setupListeners.bind(this),
-      (err, _client, connectionOptions) => {
+      (err, _client, tunnel, connectionOptions) => {
         if (err) {
+          this._isConnected = false;
           return done(this._translateMessage(err));
         }
 
         this.connectionOptions = connectionOptions;
+        this.tunnel = tunnel;
 
         this.isWritable = this.client.isWritable;
         this.isMongos = this.client.isMongos;
@@ -128,6 +148,7 @@ class NativeClient extends EventEmitter {
 
         this.client.on('status', (evt) => this.emit('status', evt));
         this.database = this.client.db(this.model.ns || ADMIN);
+
         done(null, this);
       }
     );
@@ -298,6 +319,8 @@ class NativeClient extends EventEmitter {
    *
    * @param {String} databaseName - The database name.
    * @param {Function} callback - The callback.
+   *
+   * @returns {void}
    */
   collections(databaseName, callback) {
     if (databaseName === SYSTEM) {
@@ -521,9 +544,22 @@ class NativeClient extends EventEmitter {
 
   /**
    * Disconnect the client.
+   * @param {Function} callback
    */
   disconnect(callback) {
-    this.client.close(true, callback);
+    this.client.close(true, err => {
+      if (this.tunnel) {
+        debug('mongo client closed. shutting down ssh tunnel');
+        this.tunnel.close().finally(() => {
+          this._cleanup();
+          debug('ssh tunnel stopped');
+          callback(err);
+        });
+      } else {
+        this._cleanup();
+        return callback(err);
+      }
+    });
   }
 
   /**
@@ -1248,6 +1284,15 @@ class NativeClient extends EventEmitter {
       error.message = error.message || error.err || error.errmsg;
     }
     return error;
+  }
+
+  _cleanup() {
+    this.client = null;
+    this.connectionOptions = null;
+    this.tunnel = null;
+    this.isWritable = false;
+    this.isMongos = false;
+    this._isConnected = false;
   }
 }
 
