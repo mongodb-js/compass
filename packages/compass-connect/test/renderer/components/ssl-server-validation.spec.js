@@ -22,7 +22,7 @@ describe('SSLServerValidation [Component]', () => {
       });
 
       it('renders the wrapper div', () => {
-        expect(component.find(`.${styles['form-group']}`)).to.exist;
+        expect(component.find(`.${styles['form-group']}`)).to.be.present();
       });
 
       it('renders the file button', () => {
@@ -49,12 +49,8 @@ describe('SSLServerValidation [Component]', () => {
           component = null;
         });
 
-        it('renders the error icon', () => {
-          expect(component.find('.fa-exclamation-circle')).to.exist;
-        });
-
         it('renders the error class', () => {
-          expect(component.find(`.${styles['form-item-has-error']}`)).to.exist;
+          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
         });
       });
 
@@ -72,12 +68,8 @@ describe('SSLServerValidation [Component]', () => {
           component = null;
         });
 
-        it('renders the error icon', () => {
-          expect(component.find('.fa-exclamation-circle')).to.exist;
-        });
-
         it('renders the error class', () => {
-          expect(component.find(`.${styles['form-item-has-error']}`)).to.exist;
+          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
         });
       });
 
@@ -95,12 +87,8 @@ describe('SSLServerValidation [Component]', () => {
           component = null;
         });
 
-        it('renders the error icon', () => {
-          expect(component.find('.fa-exclamation-circle')).to.exist;
-        });
-
         it('renders the error class', () => {
-          expect(component.find(`.${styles['form-item-has-error']}`)).to.exist;
+          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
         });
       });
     });

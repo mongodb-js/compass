@@ -1,7 +1,6 @@
 import Button from '@leafygreen-ui/button';
 import React from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
 import Actions from '../../actions';
 import FormGroup from './form-group';
@@ -121,7 +120,7 @@ class FormActions extends React.Component {
    */
   renderUnsavedMessage() {
     return (
-      <div className={classnames(styles['unsaved-message-actions'])}>
+      <div className={styles['unsaved-message-actions']}>
         You have unsaved changes.
         <a id="discardChanges" onClick={this.onChangesDiscarded}>
           [discard]
@@ -251,7 +250,7 @@ class FormActions extends React.Component {
    */
   renderConnectButtons() {
     return (
-      <div className={classnames(styles.buttons)}>
+      <div className={styles.buttons}>
         {!this.props.currentConnectionAttempt && (
           this.props.isURIEditable
             ? this.renderHideURI()
@@ -298,7 +297,7 @@ class FormActions extends React.Component {
     if (hasMessage === true) {
       return (
         <div className={styles['connection-message-container']}>
-          <div className={classnames(colorStyle)}>
+          <div className={colorStyle}>
             <div className={styles['connection-message']}>{message}</div>
           </div>
         </div>

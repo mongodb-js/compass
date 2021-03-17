@@ -44,7 +44,7 @@ describe('Connect [Component]', () => {
     });
 
     it('renders the container', () => {
-      expect(component.find(`.${styles.connect}`)).to.exist;
+      expect(component.find(`.${styles.connect}`)).to.be.present();
     });
 
     it('renders the header', () => {
@@ -52,35 +52,7 @@ describe('Connect [Component]', () => {
     });
 
     it('renders the form container', () => {
-      expect(component.find(`.${styles['form-container']}`)).to.exist;
-    });
-  });
-
-  context('when the app is connected', () => {
-    let component;
-
-    beforeEach(() => {
-      component = shallow(
-        <Connect
-          connectionModel={connection}
-          connections={connections}
-          isConnected
-          isValid />
-      );
-    });
-
-    afterEach(() => {
-      component = null;
-    });
-
-    before(() => {
-      global.hadronApp = hadronApp;
-      global.hadronApp.appRegistry = appRegistry;
-      global.hadronApp.appRegistry.registerRole('Application.Status', ROLE);
-    });
-
-    it('renders the success header', () => {
-      expect(component.find('.success')).to.exist;
+      expect(component.find(`.${styles['form-container']}`)).to.be.present();
     });
   });
 });

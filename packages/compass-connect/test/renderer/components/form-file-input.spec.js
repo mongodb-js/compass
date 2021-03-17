@@ -20,7 +20,7 @@ describe('FormFileInput [Component]', () => {
     });
 
     it('renders the wrapper div', () => {
-      expect(component.find(`.${styles['form-item']}`)).to.exist;
+      expect(component.find(`.${styles['form-item']}`)).to.be.present();
     });
 
     it('renders the label', () => {
@@ -36,7 +36,7 @@ describe('FormFileInput [Component]', () => {
     });
 
     it('renders the file icon', () => {
-      expect(component.find('.fa-upload')).to.exist;
+      expect(component.find('.fa-upload')).to.be.present();
     });
   });
 });
