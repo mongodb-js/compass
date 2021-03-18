@@ -17,3 +17,6 @@ expansions.yml
 .nvmrc
 .vscode
 src/app/fonts/akzid*
+
+monorepo-compass
+monorepo-clone
