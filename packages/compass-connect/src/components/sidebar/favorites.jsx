@@ -29,6 +29,15 @@ class Favorites extends React.Component {
   }
 
   /**
+   * Selects and connects to a favorite connection.
+   *
+   * @param {Object} favorite - A favorite connection.
+   */
+  onFavoriteDoubleClicked(favorite) {
+    Actions.onConnectionSelectAndConnect(favorite);
+  }
+
+  /**
    * Copies a favorite connection.
    *
    * @param {Object} favorite - A favorite connection.
@@ -131,19 +140,18 @@ class Favorites extends React.Component {
           key={i}
           title={title}
           onClick={this.onFavoriteClicked.bind(this, favorite)}
+          onDoubleClick={this.onFavoriteDoubleClicked.bind(this, favorite)}
         >
           <div
-            className={classnames(styles['connect-sidebar-list-item-details'])}
+            className={styles['connect-sidebar-list-item-details']}
           >
             <div
-              className={classnames(
-                styles['connect-sidebar-list-item-last-used']
-              )}
+              className={styles['connect-sidebar-list-item-last-used']}
             >
               {this.formatLastUsed(favorite)}
             </div>
             <div
-              className={classnames(styles['connect-sidebar-list-item-name'])}
+              className={styles['connect-sidebar-list-item-name']}
             >
               {favorite.name}
             </div>
@@ -152,7 +160,7 @@ class Favorites extends React.Component {
             bsSize="xsmall"
             bsStyle="link"
             title="&hellip;"
-            className={classnames(styles['connect-sidebar-list-item-actions'])}
+            className={styles['connect-sidebar-list-item-actions']}
             noCaret
             pullRight
             onClick={this.onContextualMenuClicked}
@@ -179,11 +187,11 @@ class Favorites extends React.Component {
   render() {
     return (
       <div className="connect-sidebar-connections-favorites">
-        <div className={classnames(styles['connect-sidebar-header'])}>
+        <div className={styles['connect-sidebar-header']}>
           <i className="fa fa-fw fa-star" />
           <span>Favorites</span>
         </div>
-        <ul className={classnames(styles['connect-sidebar-list'])}>
+        <ul className={styles['connect-sidebar-list']}>
           {this.renderFavorites()}
         </ul>
       </div>

@@ -29,6 +29,15 @@ class Recents extends React.Component {
   }
 
   /**
+   * Selects and connects to a recent connection.
+   *
+   * @param {Object} recent - A recent connection.
+   */
+  onRecentDoubleClicked(recent) {
+    Actions.onConnectionSelectAndConnect(recent);
+  }
+
+  /**
    * Deletes a recent connection.
    *
    * @param {Object} recent - A recent connection.
@@ -95,6 +104,7 @@ class Recents extends React.Component {
           key={i}
           title={title}
           onClick={this.onRecentClicked.bind(this, recent)}
+          onDoubleClick={this.onRecentDoubleClicked.bind(this, recent)}
         >
           <div
             className={styles['connect-sidebar-list-item-details']}

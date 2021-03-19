@@ -2287,6 +2287,46 @@ describe('Store', () => {
     });
   });
 
+  describe('#onConnectionSelectAndConnect', () => {
+    const testConnection = new Connection({
+      hostname: 'recentlocalhost',
+      port: '11111',
+      isFavorite: false
+    });
+
+    let fakeSinonSelect;
+    let fakeSinonConnect;
+
+    beforeEach(() => {
+      fakeSinonSelect = sinon.fake();
+      fakeSinonConnect = sinon.fake();
+
+      sinon.replace(
+        Store,
+        'onConnectionSelected',
+        fakeSinonSelect
+      );
+      sinon.replace(
+        Store,
+        'onConnectClicked',
+        fakeSinonConnect
+      );
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('calls to select and connect to the connection', () => {
+      Actions.onConnectionSelectAndConnect(testConnection);
+      expect(fakeSinonSelect.called).to.equal(true);
+      expect(fakeSinonSelect.firstCall.args[0]).to.deep.equal(
+        testConnection
+      );
+      expect(fakeSinonConnect.called).to.equal(true);
+    });
+  });
+
   describe('#onCnameToggle', () => {
     it('changes the canonicalize host name name in the store', (done) => {
       const unsubscribe = Store.listen((state) => {

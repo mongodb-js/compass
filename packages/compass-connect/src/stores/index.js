@@ -555,6 +555,17 @@ const Store = Reflux.createStore({
   },
 
   /**
+   * Selects and connects to a saved connection.
+   *
+   * @param {Connection} connection - The connection to select.
+   */
+  onConnectionSelectAndConnect(connection) {
+    this.onConnectionSelected(connection);
+    this.onConnectClicked();
+  },
+
+
+  /**
    * Changes the host name. If the hostname contains mongodb.net then
    * then its an Atlas instance and we change the SSL settings.
    *

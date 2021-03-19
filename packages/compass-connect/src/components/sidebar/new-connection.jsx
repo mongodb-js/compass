@@ -41,8 +41,9 @@ class NewConnection extends React.Component {
     return (
       <div className={this.getClassName()}>
         <div
-          className={classnames(styles['connect-sidebar-header'])}
-          onClick={this.onNewConnectionClicked.bind(this)}>
+          className={styles['connect-sidebar-header']}
+          onClick={this.onNewConnectionClicked.bind(this)}
+        >
           <i className="fa fa-fw fa-bolt" />
           <span>New Connection</span>
         </div>
