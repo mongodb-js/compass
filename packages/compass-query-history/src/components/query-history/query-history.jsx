@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import mongodbns from 'mongodb-ns';
 import { StoreConnector } from 'hadron-react-components';
 
@@ -35,7 +34,8 @@ class QueryHistory extends PureComponent {
         data-test-id="query-history-list-favorites"
         ns={this.props.ns}
         actions={this.props.actions}
-        zeroStateTitle="Favorite a query to see it saved here!" />
+        zeroStateTitle="Favorite a query to see it saved here!"
+      />
     </StoreConnector>
   );
 
@@ -45,7 +45,8 @@ class QueryHistory extends PureComponent {
         data-test-id="query-history-list-recent"
         ns={this.props.ns}
         actions={this.props.actions}
-        zeroStateTitle="Run a query to see it saved here!" />
+        zeroStateTitle="Run a query to see it saved here!"
+      />
     </StoreConnector>
   );
 
@@ -59,13 +60,15 @@ class QueryHistory extends PureComponent {
     return (
       <div
         data-test-id="query-history"
-        className={classnames(styles.component)}>
-        <div className={classnames(styles.inner)}>
+        className={styles.component}
+      >
+        <div className={styles.inner}>
           <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.HeaderStore')}>
             <Header
               data-test-id="query-history-header"
               actions={actions}
-              showing={showing}/>
+              showing={showing}
+            />
           </StoreConnector>
 
           {showing === 'favorites' ? this.renderFavorites() : null}
