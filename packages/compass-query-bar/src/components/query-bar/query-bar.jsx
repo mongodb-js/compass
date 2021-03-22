@@ -11,6 +11,7 @@ import {
   isArray,
   map
 } from 'lodash';
+import FontAwesome from 'react-fontawesome';
 
 import QueryOption from 'components/query-option';
 import OptionsToggle from 'components/options-toggle';
@@ -328,6 +329,13 @@ class QueryBar extends Component {
       { disabled: queryState !== 'apply'}
     );
 
+    const _queryHistoryClassName = classnames(
+      'btn',
+      'btn-default',
+      'btn-sm',
+      styles['query-history-button']
+    );
+
     return (
       <div className={_inputGroupClassName}>
         <div
@@ -337,7 +345,7 @@ class QueryBar extends Component {
           {this.renderOptionRows()}
           {this.renderToggle()}
         </div>
-        <div className={classnames(styles['button-group'])}>
+        <div className={styles['button-group']}>
           <button
             data-test-id="query-bar-apply-filter-button"
             key="apply-button"
@@ -355,6 +363,20 @@ class QueryBar extends Component {
             onClick={this.onResetButtonClicked}>
             Reset
           </button>
+          <button
+            id="query_history_button"
+            key="query-history-button"
+            className={_queryHistoryClassName}
+            data-test-id="query-history-button"
+            type="button"
+            onClick={this.props.actions.toggleQueryHistory}
+            title="Toggle Query History"
+          >
+            <FontAwesome
+              data-test-id="query-history-button-icon"
+              name="history"
+            />
+          </button>
         </div>
         <Dropdown pullRight id="query-bar-menu-actions">
           <Dropdown.Toggle noCaret>
@@ -362,7 +384,6 @@ class QueryBar extends Component {
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <MenuItem onClick={this.props.actions.exportToLanguage}>Export To Language</MenuItem>
-            <MenuItem onClick={this.props.actions.toggleQueryHistory}>Toggle Query History</MenuItem>
           </Dropdown.Menu>
         </Dropdown>
       </div>

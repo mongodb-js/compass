@@ -120,6 +120,19 @@ describe('QueryBar [Component]', function() {
           component.setState({ hasFocus: true });
           expect(component.find(`.${styles['option-container']}`)).to.have.className(styles['has-focus']);
         });
+
+        it('has a query history button', function() {
+          const component = shallow(
+            <QueryBar
+              store={store}
+              actions={actions}
+              layout={layout}
+              expanded={false}
+              serverVersion="3.4.0"
+            />
+          );
+          expect(component.find(`.${styles['query-history-button']}`)).to.be.present();
+        });
       });
 
       describe('when rendering in expanded state', function() {
