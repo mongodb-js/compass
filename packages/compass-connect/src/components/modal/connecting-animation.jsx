@@ -56,22 +56,25 @@ class ConnectingAnimation extends React.Component {
     const deltaTime = Date.now() - this.lastFrame;
 
     const arrow1 = document.getElementById('connectingArrow1');
+    const rotation = this.currentRotation * (180 / Math.PI);
     if (arrow1) {
       arrow1.setAttribute(
         'transform',
-        `rotate(${this.currentRotation * (180 / Math.PI)}, 24.39, 39.2)`
+        `rotate(${rotation}, 24.39, 39.2)`
       );
     }
     const arrow2 = document.getElementById('connectingArrow2');
     if (arrow2) {
       arrow2.setAttribute(
         'transform',
-        `rotate(${this.currentRotation * (180 / Math.PI)}, 24.39, 39.2)`
+        `rotate(${rotation}, 24.39, 39.2)`
       );
     }
 
     this.currentRotation += this.rotationVelocity * deltaTime;
-    this.rotationVelocity += rotationAcceleration * (this.currentRotation > 0 ? -1 : 1) * deltaTime;
+    this.rotationVelocity += rotationAcceleration * (
+      this.currentRotation > 0 ? -1 : 1
+    ) * deltaTime;
     this.rotationVelocity *= friction;
 
     if (
