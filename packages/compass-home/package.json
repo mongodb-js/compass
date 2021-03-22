@@ -45,9 +45,6 @@
   "devDependencies": {
     "@mongodb-js/compass-aggregations": "*",
     "@mongodb-js/compass-app-stores": "*",
-    "@mongodb-js/compass-auth-kerberos": "*",
-    "@mongodb-js/compass-auth-ldap": "*",
-    "@mongodb-js/compass-auth-x509": "*",
     "@mongodb-js/compass-auto-updates": "*",
     "@mongodb-js/compass-collection": "*",
     "@mongodb-js/compass-collection-stats": "*",

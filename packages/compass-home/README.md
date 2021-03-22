@@ -3,9 +3,6 @@
 The Compass plugin responsible for gluing together other plugins:
 
 - [compass-aggregations][compass-aggregations]
-- [compass-auth-kerberos][compass-auth-kerberos]
-- [compass-auth-ldap][compass-auth-ldap]
-- [compass-auth-x509][compass-auth-x509]
 - [compass-auto-updates][compass-auto-updates]
 - [compass-collection][compass-collection]
 - [compass-collection-stats][compass-collection-stats]
@@ -104,9 +101,6 @@ Apache 2.0
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme
 [jsdom]: https://github.com/tmpvar/jsdom
 [compass-aggregations]: https://github.com/mongodb-js/compass-aggregations
-[compass-auth-kerberos]: https://github.com/mongodb-js/compass-auth-kerberos
-[compass-auth-ldap]: https://github.com/mongodb-js/compass-auth-ldap
-[compass-auth-x509]: https://github.com/mongodb-js/compass-auth-x509
 [compass-auto-updates]: https://github.com/mongodb-js/compass-auto-updates
 [compass-collection]: https://github.com/mongodb-js/compass-collection
 [compass-collection-stats]: https://github.com/mongodb-js/compass-collection-stats
