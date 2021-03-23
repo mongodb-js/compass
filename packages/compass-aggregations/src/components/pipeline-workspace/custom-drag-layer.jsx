@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { DragLayer } from 'react-dnd';
-import cn from 'classnames';
 
 import styles from './custom-drag-layer.less';
 
@@ -28,9 +27,9 @@ const CustomDragLayer = (props) => {
   }
 
   return (
-    <div className={cn(styles['custom-drag-layer'])}>
+    <div className={styles['custom-drag-layer']}>
       <div style={getItemStyles(props)}>
-        <div className={cn(styles['custom-drag-layer-container'])}>
+        <div className={styles['custom-drag-layer-container']}>
           <div>
             {item.stageOperator ? item.stageOperator : `Stage ${item.index + 1}`}
           </div>

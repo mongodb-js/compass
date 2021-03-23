@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import InputToolbar from 'components/input-toolbar';
 import InputWorkspace from 'components/input-workspace';
 
@@ -33,7 +32,7 @@ class Input extends PureComponent {
       />
     ) : null;
     return (
-      <div className={classnames(styles.input)}>
+      <div className={styles.input}>
         <InputToolbar
           toggleInputDocumentsCollapsed={
             this.props.toggleInputDocumentsCollapsed

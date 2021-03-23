@@ -35,6 +35,7 @@ import {
 class StagePreviewToolbar extends PureComponent {
   static displayName = 'StagePreviewToolbar';
   static propTypes = {
+    error: PropTypes.string,
     isEnabled: PropTypes.bool.isRequired,
     isValid: PropTypes.bool.isRequired,
     stageOperator: PropTypes.string,
@@ -132,7 +133,9 @@ class StagePreviewToolbar extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['stage-preview-toolbar'])}>
+      <div className={classnames(styles['stage-preview-toolbar'], {
+        [styles['stage-preview-toolbar-errored']]: this.props.error
+      })}>
         {this.getText()}
       </div>
     );

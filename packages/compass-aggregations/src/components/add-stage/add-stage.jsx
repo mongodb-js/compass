@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { TextButton } from 'hadron-react-buttons';
 
 import styles from './add-stage.less';
@@ -22,11 +21,14 @@ class AddStage extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['add-stage'])}>
-        <TextButton
-          text="Add Stage"
-          className="btn btn-xs btn-default"
-          clickHandler={this.props.stageAdded} />
+      <div className={styles['add-stage-container']}>
+        <div className={styles['add-stage']}>
+          <TextButton
+            text="Add Stage"
+            className="btn btn-xs btn-default"
+            clickHandler={this.props.stageAdded}
+          />
+        </div>
       </div>
     );
   }

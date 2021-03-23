@@ -13,20 +13,25 @@ class SortableStageList extends Component {
   };
 
   render() {
-    const items = this.props.items;
+    const {
+      items,
+      onMove,
+      renderItem
+    } = this.props;
 
     return (
       <DndProvider backend={HTML5Backend}>
         <CustomDragLayer />
-        {items.map((item, i) => {
-          return (<SortableStageContainer
+        {items.map((item, i) => (
+          <SortableStageContainer
             key={i}
             index={i}
             stageOperator={item.stageOperator}
-            onMove={this.props.onMove}>
-            {this.props.renderItem(item, i)}
-          </SortableStageContainer>);
-        })}
+            onMove={onMove}
+            renderItem={renderItem}
+            item={item}
+          />
+        ))}
       </DndProvider>
     );
   }

@@ -46,8 +46,8 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-crud": "*",
-    "@mongodb-js/compass-field-store": "*",
     "@mongodb-js/compass-export-to-language": "*",
+    "@mongodb-js/compass-field-store": "*",
     "async": "^1.5.2",
     "electron": "*",
     "hadron-react-bson": "^4.0.4",
@@ -61,9 +61,9 @@
     "mongodb-query-parser": "*",
     "prop-types": "^15.7.2",
     "react": "^16.8.0",
-    "react-dom": "^16.8.0",
     "react-ace": "^6.4.0",
-    "react-bootstrap": "^0.32.4"
+    "react-bootstrap": "^0.32.4",
+    "react-dom": "^16.8.0"
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.4",
@@ -182,6 +182,7 @@
     "mongodb-extended-json": "^1.10.1",
     "mongodb-ns": "^2.0.0",
     "mongodb-redux-common": "^0.0.2",
+    "re-resizable": "^6.9.0",
     "react-bootstrap": "^0.32.4",
     "react-dnd": "^10.0.2",
     "react-dnd-html5-backend": "^10.0.2",

@@ -1,16 +1,16 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import StageBuilderToolbar from './stage-builder-toolbar';
+import StageEditorToolbar from './stage-editor-toolbar';
 import StageGrabber from './stage-grabber';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
 import ToggleStage from './toggle-stage';
 import AddAfterStage from './add-after-stage';
 import DeleteStage from './delete-stage';
-import styles from './stage-builder-toolbar.less';
+import styles from './stage-editor-toolbar.less';
 
-describe('StageBuilderToolbar [Component]', () => {
+describe('StageEditorToolbar [Component]', () => {
   let component;
   let stageCollapseToggledSpy;
   let stageOperatorSelectedSpy;
@@ -32,9 +32,10 @@ describe('StageBuilderToolbar [Component]', () => {
     openLinkSpy = sinon.spy();
 
     component = shallow(
-      <StageBuilderToolbar
+      <StageEditorToolbar
         stage=""
         env="atlas"
+        connectDragSource={(reactNode) => reactNode}
         isEnabled
         isExpanded
         allowWrites
@@ -48,7 +49,8 @@ describe('StageBuilderToolbar [Component]', () => {
         openLink={openLinkSpy}
         isCommenting
         stageAddedAfter={stageAddedAfterSpy}
-        stageDeleted={stageDeletedSpy} />
+        stageDeleted={stageDeletedSpy}
+      />
     );
   });
 
@@ -65,36 +67,36 @@ describe('StageBuilderToolbar [Component]', () => {
   });
 
   it('renders the wrapper div', () => {
-    expect(component.find(`.${styles['stage-builder-toolbar']}`)).to.be.present();
+    expect(component.find(`.${styles['stage-editor-toolbar']}`)).to.be.present();
   });
 
   it('renders the grabber', () => {
-    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+    expect(component.find(`.${styles['stage-editor-toolbar']}`)).
       to.have.descendants(StageGrabber);
   });
 
   it('renders the collapser', () => {
-    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+    expect(component.find(`.${styles['stage-editor-toolbar']}`)).
       to.have.descendants(StageCollapser);
   });
 
   it('renders the operator select', () => {
-    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+    expect(component.find(`.${styles['stage-editor-toolbar']}`)).
       to.have.descendants(StageOperatorSelect);
   });
 
   it('renders the toggle', () => {
-    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+    expect(component.find(`.${styles['stage-editor-toolbar']}`)).
       to.have.descendants(ToggleStage);
   });
 
   it('renders the delete button', () => {
-    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+    expect(component.find(`.${styles['stage-editor-toolbar']}`)).
       to.have.descendants(DeleteStage);
   });
 
   it('renders the add after button', () => {
-    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+    expect(component.find(`.${styles['stage-editor-toolbar']}`)).
       to.have.descendants(AddAfterStage);
   });
 });

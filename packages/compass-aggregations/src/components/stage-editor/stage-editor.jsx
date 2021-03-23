@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import ace from 'brace';
-import classnames from 'classnames';
 import debounce from 'lodash.debounce';
 import { StageAutoCompleter } from 'mongodb-ace-autocompleter';
 
@@ -177,7 +176,7 @@ class StageEditor extends Component {
     if (this.props.error) {
       return (
         <div
-          className={classnames(styles['stage-editor-errormsg'])}
+          className={styles['stage-editor-errormsg']}
           title={this.props.error}>
           {this.props.error}
         </div>
@@ -189,7 +188,7 @@ class StageEditor extends Component {
     if (!this.props.isValid) {
       return (
         <div
-          className={classnames(styles['stage-editor-syntax-error'])}
+          className={styles['stage-editor-syntax-error']}
           title={this.props.syntaxError}>
           {this.props.syntaxError}
         </div>
@@ -204,8 +203,8 @@ class StageEditor extends Component {
    */
   render() {
     return (
-      <div>
-        <div className={classnames(styles['stage-editor'])}>
+      <div className={styles['stage-editor-container']}>
+        <div className={styles['stage-editor']}>
           <AceEditor
             mode="mongodb"
             theme="mongodb"

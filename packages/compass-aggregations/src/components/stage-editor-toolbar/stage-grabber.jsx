@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import classnames from 'classnames';
 
 import styles from './stage-grabber.less';
 
@@ -16,7 +15,7 @@ class StageGrabber extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['stage-grabber'])}>
+      <div className={styles['stage-grabber']}>
         <i className="fa fa-bars fa-rotate-90" aria-hidden />
       </div>
     );

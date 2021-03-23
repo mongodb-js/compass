@@ -1,17 +1,87 @@
 @import (reference) "~less/compass/_theme.less";
 
-.stage {
+.stage-container {
+  margin: 0px 10px 0px;
+  padding-bottom: 15px;
+  border-left: 2px solid @gray6;
   position: relative;
-  margin: 0px 15px 15px;
-  border: 1px solid @gray6;
-  border-radius: 4px;
-  box-shadow: 1px 1px 1px @gray6;
-  background: @pw;
 
-  &-errored {
-    border: 1px solid @redBase;
-    border-radius: 4px;
-    margin: 0px 15px 15px;
-    background: @pw;
+  &:before {
+    position: absolute;
+    left: -3px;
+    top: 10px;
+    content: '';
+    width: 4px;
+    height: 16px;
+    background-color: @gray8;
   }
+  &:after {
+    position: absolute;
+    left: -7px;
+    top: 12px;
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid @gray6;
+  }
+
+  &-is-first {
+    &:before {
+      position: absolute;
+      left: -3px;
+      top: 0px;
+      content: '';
+      width: 4px;
+      height: 26px;
+      background-color: @gray8;
+    }
+  }
+
+  .stage {
+    position: relative;
+    margin: 0px 8px 0px;
+    border: 1px solid @gray6;
+    border-radius: 4px;
+    box-shadow: 1px 1px 1px @gray6;
+    background: @pw;
+
+    display: flex;
+    flex-direction: row;
+
+    &-errored {
+      border-color: @redBase;
+    }
+  }
+}
+
+.stage-editor-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: auto;
+}
+
+.stage-preview-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  overflow: auto;
+}
+
+.stage-resize-handle-wrapper {
+  &:hover, &:active {
+    div {
+      div {
+        background-color: @gray5;
+      }
+    }
+  }
+}
+
+.stage-workspace {
+  display: flex;
+  align-items: stretch;
+  border-radius: 0 0 4px 4px;
 }

@@ -1,12 +1,26 @@
-/* eslint no-unused-vars: 0 */
 import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
-import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import StageToolbar from 'components/stage-toolbar';
-import StageWorkspace from 'components/stage-workspace';
+import PropTypes from 'prop-types';
+import StageEditorToolbar from 'components/stage-editor-toolbar';
+import StageEditor from 'components/stage-editor';
+import StagePreview from 'components/stage-preview';
+import StagePreviewToolbar from 'components/stage-preview-toolbar';
+import { Resizable } from 're-resizable';
+
+import ResizeHandle from '../resize-handle/resize-handle';
 
 import styles from './stage.less';
+
+const resizeableDirections = {
+  top: false,
+  right: true,
+  bottom: false,
+  left: false,
+  topRight: false,
+  bottomRight: false,
+  bottomLeft: false,
+  topLeft: false
+};
 
 /**
  * The default CSS opacity for the HTMLElement
@@ -26,6 +40,7 @@ class Stage extends Component {
   static propTypes = {
     allowWrites: PropTypes.bool.isRequired,
     env: PropTypes.string.isRequired,
+    connectDragSource: PropTypes.func.isRequired,
     stage: PropTypes.string.isRequired,
     stageOperator: PropTypes.string,
     snippet: PropTypes.string,
@@ -97,42 +112,96 @@ class Stage extends Component {
     return DEFAULT_OPACITY;
   }
 
-  /**
-   * Render the workspace.
-   *
-   * @returns {React.Component} The workspace.
-   */
-  renderWorkspace() {
-    if (this.props.isExpanded) {
-      return (
-        <StageWorkspace
-          stage={this.props.stage}
-          stageOperator={this.props.stageOperator}
-          snippet={this.props.snippet}
-          error={this.props.error}
-          syntaxError={this.props.syntaxError}
-          isValid={this.props.isValid}
+  renderEditor() {
+    return (
+      <Resizable
+        className={styles['stage-editor']}
+        defaultSize={{
+          width: '388px',
+          height: 'auto'
+        }}
+        minWidth="260px"
+        maxWidth="92%"
+        enable={resizeableDirections}
+        ref={c => { this.resizableRef = c; }}
+        handleWrapperClass={styles['stage-resize-handle-wrapper']}
+        handleComponent={{
+          right: <ResizeHandle />,
+        }}
+      >
+        <StageEditorToolbar
+          allowWrites={this.props.allowWrites}
+          connectDragSource={this.props.connectDragSource}
+          env={this.props.env}
+          isExpanded={this.props.isExpanded}
           isEnabled={this.props.isEnabled}
-          isLoading={this.props.isLoading}
-          isComplete={this.props.isComplete}
-          fromStageOperators={this.props.fromStageOperators}
-          previewDocuments={this.props.previewDocuments}
-          runStage={this.props.runStage}
-          runOutStage={this.props.runOutStage}
-          gotoOutResults={this.props.gotoOutResults}
-          gotoMergeResults={this.props.gotoMergeResults}
+          stageOperator={this.props.stageOperator}
           index={this.props.index}
-          isAutoPreviewing={this.props.isAutoPreviewing}
-          serverVersion={this.props.serverVersion}
-          fields={this.props.fields}
+          stageOperatorSelected={this.props.stageOperatorSelected}
+          stageCollapseToggled={this.props.stageCollapseToggled}
+          stageToggled={this.props.stageToggled}
+          runStage={this.props.runStage}
+          openLink={this.props.openLink}
+          isCommenting={this.props.isCommenting}
+          stageAddedAfter={this.props.stageAddedAfter}
+          stageDeleted={this.props.stageDeleted}
           setIsModified={this.props.setIsModified}
-          stageChanged={this.props.stageChanged}
-          projections={this.props.projections}
-          projectionsChanged={this.props.projectionsChanged}
-          newPipelineFromPaste={this.props.newPipelineFromPaste}
+          serverVersion={this.props.serverVersion}
         />
-      );
-    }
+        {this.props.isExpanded && (
+          <StageEditor
+            stage={this.props.stage}
+            stageOperator={this.props.stageOperator}
+            snippet={this.props.snippet}
+            error={this.props.error}
+            syntaxError={this.props.syntaxError}
+            isValid={this.props.isValid}
+            fromStageOperators={this.props.fromStageOperators}
+            runStage={this.props.runStage}
+            index={this.props.index}
+            serverVersion={this.props.serverVersion}
+            setIsModified={this.props.setIsModified}
+            isAutoPreviewing={this.props.isAutoPreviewing}
+            fields={this.props.fields}
+            stageChanged={this.props.stageChanged}
+            projections={this.props.projections}
+            projectionsChanged={this.props.projectionsChanged}
+            newPipelineFromPaste={this.props.newPipelineFromPaste}
+          />
+        )}
+      </Resizable>
+    );
+  }
+
+  renderPreview() {
+    return (
+      <div className={styles['stage-preview-container']}>
+        <StagePreviewToolbar
+          isEnabled={this.props.isEnabled}
+          isValid={this.props.isValid}
+          stageOperator={this.props.stageOperator}
+          stageValue={this.props.stage}
+          count={this.props.previewDocuments.length}
+          openLink={this.props.openLink}
+        />
+        {this.props.isExpanded && (
+          <StagePreview
+            documents={this.props.previewDocuments}
+            isValid={this.props.isValid}
+            isEnabled={this.props.isEnabled}
+            isLoading={this.props.isLoading}
+            isComplete={this.props.isComplete}
+            error={this.props.error}
+            stageOperator={this.props.stageOperator}
+            stage={this.props.stage}
+            index={this.props.index}
+            runOutStage={this.props.runOutStage}
+            gotoOutResults={this.props.gotoOutResults}
+            gotoMergeResults={this.props.gotoMergeResults}
+          />
+        )}
+      </div>
+    );
   }
 
   /**
@@ -142,32 +211,18 @@ class Stage extends Component {
    */
   render() {
     const opacity = this.getOpacity();
-    const errored = this.props.error ? 'stage-errored' : 'stage';
     return (
-      <div className={classnames(styles[errored])} style={{ opacity }}>
-        <StageToolbar
-          allowWrites={this.props.allowWrites}
-          env={this.props.env}
-          stage={this.props.stage}
-          stageOperator={this.props.stageOperator}
-          error={this.props.error}
-          isExpanded={this.props.isExpanded}
-          isEnabled={this.props.isEnabled}
-          isValid={this.props.isValid}
-          previewCount={this.props.previewDocuments.length}
-          index={this.props.index}
-          serverVersion={this.props.serverVersion}
-          stageOperatorSelected={this.props.stageOperatorSelected}
-          stageToggled={this.props.stageToggled}
-          openLink={this.props.openLink}
-          stageAddedAfter={this.props.stageAddedAfter}
-          stageDeleted={this.props.stageDeleted}
-          runStage={this.props.runStage}
-          isCommenting={this.props.isCommenting}
-          setIsModified={this.props.setIsModified}
-          stageCollapseToggled={this.props.stageCollapseToggled}
-        />
-        {this.renderWorkspace()}
+      <div
+        className={classnames(styles['stage-container'], {
+          [styles['stage-container-is-first']]: this.props.index === 0
+        })}
+      >
+        <div className={classnames(styles.stage, {
+          [styles['stage-errored']]: this.props.error
+        })} style={{ opacity }}>
+          {this.renderEditor()}
+          {this.renderPreview()}
+        </div>
       </div>
     );
   }

@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
 import styles from './input-refresh.less';
 
@@ -21,12 +20,13 @@ class InputRefresh extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['input-refresh'])}>
+      <div className={styles['input-refresh']}>
         <button
           type="button"
           title="Refresh Documents"
           onClick={this.props.refreshInputDocuments}
-          className="btn btn-default btn-xs">
+          className="btn btn-default btn-xs"
+        >
           <i className="fa fa-repeat" aria-hidden />
         </button>
       </div>

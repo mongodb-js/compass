@@ -6,7 +6,6 @@ import Input from 'components/input';
 import AddStage from 'components/add-stage';
 import SortableStageList from './sortable-stage-list';
 import ModifySourceBanner from '../modify-source-banner';
-import Splitter from './splitter';
 
 import styles from './pipeline-workspace.less';
 
@@ -59,9 +58,10 @@ class PipelineWorkspace extends PureComponent {
     }
   }
 
-  renderStage = (stage, i) => {
+  renderStage = (stage, i, connectDragSource) => {
     return (<Stage
       allowWrites={this.props.allowWrites}
+      connectDragSource={connectDragSource}
       env={this.props.env}
       stage={stage.stage}
       stageOperator={stage.stageOperator}
@@ -119,7 +119,6 @@ class PipelineWorkspace extends PureComponent {
     return (
       <div className={styles['pipeline-workspace-container-container']}>
         <div className={styles['pipeline-workspace-container']}>
-          <Splitter />
           <div className={styles['pipeline-workspace']}>
             {this.renderModifyingViewSourceBanner()}
             <Input

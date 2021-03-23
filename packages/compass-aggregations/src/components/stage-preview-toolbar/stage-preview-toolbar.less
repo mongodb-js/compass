@@ -2,16 +2,27 @@
 
 .stage-preview-toolbar {
   width: 100%;
-  margin-left: 25px;
   font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
+  height: 30px;
+  padding: 10px 0;
+  padding-left: 25px;
+
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid @gray6;
+  border-radius: 4px 4px 0 0;
+
   &-link {
     text-decoration: underline;
     cursor: pointer;
     color: @blue3;
+  }
+  &-errored {
+    background: @redLight3;
   }
 
   :global {

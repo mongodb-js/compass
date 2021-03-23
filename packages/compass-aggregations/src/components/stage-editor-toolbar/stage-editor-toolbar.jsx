@@ -8,16 +8,18 @@ import StageGrabber from './stage-grabber';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
 
-import styles from './stage-builder-toolbar.less';
+import styles from './stage-editor-toolbar.less';
 
 /**
- * The stage builder toolbar component.
+ * The stage editor toolbar component.
  */
-class StageBuilderToolbar extends PureComponent {
-  static displayName = 'StageBuilderToolbar';
+class StageEditorToolbar extends PureComponent {
+  static displayName = 'StageEditorToolbar';
   static propTypes = {
     allowWrites: PropTypes.bool.isRequired,
+    connectDragSource: PropTypes.func.isRequired,
     env: PropTypes.string.isRequired,
+    error: PropTypes.string,
     isExpanded: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
     stageOperator: PropTypes.string,
@@ -35,13 +37,17 @@ class StageBuilderToolbar extends PureComponent {
   };
 
   /**
-   * Renders the stage builder toolbar.
+   * Renders the stage editor toolbar.
    *
    * @returns {React.Component} The component.
    */
   render() {
-    return (
-      <div className={classnames(styles['stage-builder-toolbar'])}>
+    const { connectDragSource } = this.props;
+
+    return connectDragSource(
+      <div className={classnames(styles['stage-editor-toolbar'], {
+        [styles['stage-editor-toolbar-errored']]: this.props.error
+      })}>
         <StageGrabber />
         <StageCollapser
           isExpanded={this.props.isExpanded}
@@ -67,7 +73,7 @@ class StageBuilderToolbar extends PureComponent {
           setIsModified={this.props.setIsModified}
           stageToggled={this.props.stageToggled}
         />
-        <div className={classnames(styles['stage-builder-toolbar-right'])}>
+        <div className={styles['stage-editor-toolbar-right']}>
           <DeleteStage
             index={this.props.index}
             runStage={this.props.runStage}
@@ -84,4 +90,4 @@ class StageBuilderToolbar extends PureComponent {
   }
 }
 
-export default StageBuilderToolbar;
+export default StageEditorToolbar;

@@ -1,18 +1,35 @@
 @import (reference) "~less/compass/_theme.less";
 
-.add-stage {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: center;
+.add-stage-container {
+  margin: 0px;
+  padding-bottom: 15px;
   position: relative;
-  margin: 0px 0px 15px 15px;
-  border: 1px solid @gray6;
-  border-radius: 4px;
-  box-shadow: 1px 1px 1px @gray6;
-  background: @pw;
-  width: 370px;
 
-  button {
-    margin: 10px 0px 10px 0px;
+  &:after {
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 5px solid @gray6;
+  }
+
+  .add-stage {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    margin: 0px 20px 0px;
+    border: 1px solid @gray6;
+    border-radius: 4px;
+    box-shadow: 1px 1px 1px @gray6;
+    background: @pw;
+    width: 370px;
+  
+    button {
+      margin: 10px 0px 10px 0px;
+    }
   }
 }
