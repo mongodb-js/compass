@@ -21,7 +21,7 @@ const ANSI_TO_HTML_OPTIONS = {
 
 function getPrettyErrorMessage(message) {
   return new ANSIConverter(ANSI_TO_HTML_OPTIONS).toHtml(message);
-};
+}
 
 class ErrorBox extends PureComponent {
   static propTypes = {
