@@ -14,6 +14,10 @@ async function getCloudInfoFromDataService(dataService) {
   }
 }
 
+function isNotEmptyObject(obj) {
+  return !!(obj && Object.keys(obj).length > 0);
+}
+
 /**
  * This file defines rules for tracking metrics based
  * on store changes and registry events.
@@ -239,12 +243,10 @@ const RULES = [
       isMultiKey: data.isMultiKey,
       isSharded: data.isSharded,
       indexType: data.indexType,
-      index: data.index,
       numberOfDocsReturned: data.numberOfDocsReturned,
       numberOfShards: data.numberOfShards,
       totalDocsExamined: data.totalDocsExamined,
       totalKeysExamined: data.totalKeysExamined,
-      indexUsed: data.indexUsed,
       compass_version: version
     })
   },
@@ -268,8 +270,7 @@ const RULES = [
     resource: 'Indexes',
     action: 'created',
     condition: () => true,
-    metadata: (version, state) => ({
-      ...state,
+    metadata: (version) => ({
       compass_version: version
     })
   },
@@ -279,9 +280,9 @@ const RULES = [
     action: 'applied',
     condition: (state) => state.queryState === 'apply',
     metadata: (version, state) => ({
-      'filter': state.filter,
-      'project': state.project,
-      'sort': state.sort,
+      'filter': isNotEmptyObject(state.filter),
+      'project': isNotEmptyObject(state.project),
+      'sort': isNotEmptyObject(state.sort),
       'skip': state.skip,
       'limit': state.limit,
       compass_version: version
@@ -343,8 +344,7 @@ const RULES = [
     resource: 'Aggregation',
     action: 'saved',
     condition: () => true,
-    metadata: (version, data) => ({
-      name: data.name,
+    metadata: (version) => ({
       compass_version: version
     })
   },
@@ -353,8 +353,7 @@ const RULES = [
     resource: 'Aggregation',
     action: 'deleted',
     condition: () => true,
-    metadata: (version, data) => ({
-      name: data.name,
+    metadata: (version) => ({
       compass_version: version
     })
   },
@@ -422,7 +421,10 @@ const RULES = [
     action: 'run',
     condition: () => true,
     metadata: (version, state) => ({
-      ...state,
+      language: state.language,
+      showImports: state.showImports,
+      type: state.type,
+      driver: state.driver,
       compass_version: version
     })
   },

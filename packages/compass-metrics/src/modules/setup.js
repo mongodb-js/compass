@@ -45,7 +45,7 @@ const setupMetrics = (appRegistry, productName, version) => {
               + '/%s/users/show?user_id=%s', INTERCOM_KEY, app.user.id)
           }
         },
-        enabled: app.preferences.trackErrors
+        enabled: false
       }
     });
 
@@ -164,11 +164,12 @@ const setupMetrics = (appRegistry, productName, version) => {
         }
       }
     });
-    app.preferences.on('change:trackErrors', function(prefs, enabled) {
-      // enable/disable error reports
-      /* eslint new-cap:0 */
-      metrics.trackers.get('bugsnag').enabled = enabled;
-    });
+
+    // app.preferences.on('change:trackErrors', function(prefs, enabled) {
+    //   // enable/disable error reports
+    //   /* eslint new-cap:0 */
+    //   metrics.trackers.get('bugsnag').enabled = enabled;
+    // });
 
     /**
      * Listen for links in the Intercom chat window
