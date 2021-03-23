@@ -19,19 +19,19 @@ const ANSI_TO_HTML_OPTIONS = {
   stream: false
 };
 
-const getPrettyErrorMessage = function(err) {
-  return new ANSIConverter(ANSI_TO_HTML_OPTIONS).toHtml(err.message);
+function getPrettyErrorMessage(message) {
+  return new ANSIConverter(ANSI_TO_HTML_OPTIONS).toHtml(message);
 };
 
 class ErrorBox extends PureComponent {
   static propTypes = {
-    error: PropTypes.object
+    message: PropTypes.string
   };
   render() {
-    if (!this.props.error) {
+    if (!this.props.message) {
       return null;
     }
-    const prettyError = getPrettyErrorMessage(this.props.error);
+    const prettyError = getPrettyErrorMessage(this.props.message);
     return (
       <div
         className={style()}

@@ -119,16 +119,18 @@ export const createProgressStream = function(fileSize, onProgress) {
     time: PROGRESS_UPDATE_INTERVAL // NOTE: ask lucas how time is different from an interval here.
   });
 
-  // eslint-disable-next-line camelcase
-  function update_import_progress_throttled(info) {
+  function updateProgress(info) {
     onProgress(null, info);
   }
-  const updateProgress = throttle(
-    update_import_progress_throttled,
+
+  const updateProgressThrottled = throttle(
+    updateProgress,
     PROGRESS_UPDATE_INTERVAL,
     { leading: true }
   );
-  progress.on('progress', updateProgress);
+
+  progress.on('progress', updateProgressThrottled);
+
   return progress;
 };
 

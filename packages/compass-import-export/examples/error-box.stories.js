@@ -36,9 +36,9 @@ storiesOf('Examples', module)
         <h2 style={stateName}>No Error</h2>
         <ErrorBox />
         <h2 style={stateName}>Simple Error</h2>
-        <ErrorBox error={getASimpleError()} />
+        <ErrorBox message={getASimpleError().message} />
         <h2 style={stateName}>JSON Parsing Error</h2>
-        <ErrorBox error={getAnImportError()} />
+        <ErrorBox message={getAnImportError().message} />
       </div>
     );
   });

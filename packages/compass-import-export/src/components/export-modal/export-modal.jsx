@@ -316,7 +316,9 @@ class ExportModal extends PureComponent {
           {this.renderExportOptions()}
           {this.renderSelectFields()}
           {this.renderSelectOutput()}
-          <ErrorBox error={this.props.error} />
+          {Boolean(this.props.error) && (
+            <ErrorBox message={this.props.error.message} />
+          )}
         </Modal.Body>
         <Modal.Footer>
           {this.renderBackButton()}

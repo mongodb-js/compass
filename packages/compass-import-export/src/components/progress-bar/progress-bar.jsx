@@ -2,9 +2,11 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import {
+  COMPLETED,
+  COMPLETED_WITH_ERRORS,
+  FINISHED_STATUSES,
   STARTED,
   CANCELED,
-  COMPLETED,
   FAILED,
   UNSPECIFIED
 } from 'constants/process-status';
@@ -15,6 +17,10 @@ import formatNumber from 'utils/format-number.js';
 
 const style = createStyler(styles, 'progress-bar');
 
+function toPercentage(num, total) {
+  return `${Math.min(Math.max(num / total * 100, 0), 100).toFixed(3)}%`;
+}
+
 /**
  * The progress bar component.
  */
@@ -22,29 +28,47 @@ class ProgressBar extends PureComponent {
   static displayName = 'ProgressBarComponent';
 
   static propTypes = {
-    progress: PropTypes.number.isRequired,
     status: PropTypes.string.isRequired,
     message: PropTypes.string.isRequired,
-    docsWritten: PropTypes.number,
     docsTotal: PropTypes.number,
+    docsProcessed: PropTypes.number,
+    docsWritten: PropTypes.number,
     cancel: PropTypes.func,
-    guesstimatedDocsTotal: PropTypes.number // <- for import only
+    progressLabel: PropTypes.func,
+    progressTitle: PropTypes.func,
+    withErrors: PropTypes.bool
   };
+
+  static defaultProps = {
+    progressLabel(formattedWritten, formattedTotal) {
+      return `${formattedWritten}\u00A0/\u00A0${formattedTotal}`;
+    },
+    progressTitle(formattedWritten, formattedTotal) {
+      return `${formattedWritten} documents out of ${formattedTotal}`;
+    }
+  }
 
   /**
    * Get the class name for the bar.
    *
+   * @param {boolean} secondary
    * @returns {String} The class name.
    */
-  getBarClassName() {
-    const { status } = this.props;
+  getBarClassName(secondary = false) {
+    const { status, withErrors } = this.props;
+
     return classnames({
       [style('bar')]: true,
       [style('bar-is-canceled')]: status === CANCELED,
       [style('bar-is-completed')]: status === COMPLETED,
-      [style('bar-is-failed')]: status === FAILED
+      [style('bar-is-failed')]: status === FAILED,
+      [style('bar-is-with-errors')]:
+        (!FINISHED_STATUSES.includes(status) && withErrors) ||
+        status === COMPLETED_WITH_ERRORS,
+      [style('bar-is-secondary')]: secondary,
     });
   }
+
   getMessageClassName() {
     return classnames({
       [style('status-message')]: true,
@@ -58,10 +82,12 @@ class ProgressBar extends PureComponent {
     }
 
     return (
-      // eslint-disable-next-line no-script-url
-      <a className={style('status-message-cancel')} onClick={this.handleCancel}>
+      <button
+        className={classnames(style('status-message-cancel'))}
+        onClick={this.handleCancel}
+      >
         Stop
-      </a>
+      </button>
     );
   }
 
@@ -76,28 +102,17 @@ class ProgressBar extends PureComponent {
   };
 
   renderStats() {
-    const { docsTotal, docsWritten, progress } = this.props;
-    // TODO: lucas: This is explicitly handling import case where
-    // we don't know the exact number of documents to expect.
-    // Could use the estimate set in modules/import progress?
-    if (docsTotal === undefined) {
-      return (
-        <p
-          className={style('status-stats')}
-          title={
-            'Estimated total: ' +
-            formatNumber(this.props.guesstimatedDocsTotal)
-          }
-        >
-          {formatNumber(docsWritten)}
-          &nbsp;({formatNumber(progress)}%)
-        </p>
-      );
-    }
+    const { docsTotal, docsWritten, progressLabel, progressTitle } = this.props;
+
+    const formattedWritten = formatNumber(docsWritten);
+    const formattedTotal = formatNumber(docsTotal);
+
     return (
-      <p className={style('status-stats')}>
-        {formatNumber(docsWritten)}/{formatNumber(docsTotal)}
-        &nbsp;({formatNumber(progress)}%)
+      <p
+        className={style('status-stats')}
+        title={progressTitle(formattedWritten, formattedTotal)}
+      >
+        {progressLabel(formattedWritten, formattedTotal)}
       </p>
     );
   }
@@ -108,7 +123,14 @@ class ProgressBar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const { message, progress, status } = this.props;
+    const {
+      message,
+      status,
+      docsProcessed,
+      docsTotal,
+      docsWritten,
+    } = this.props;
+
     if (status === UNSPECIFIED) {
       return null;
     }
@@ -118,8 +140,14 @@ class ProgressBar extends PureComponent {
         <div className={style()}>
           <div
             className={this.getBarClassName()}
-            style={{ width: `${progress}%` }}
+            style={{ width: toPercentage(docsWritten, docsTotal) }}
           />
+          {Boolean(docsProcessed) && (
+            <div
+              className={this.getBarClassName(true)}
+              style={{ width: toPercentage(docsProcessed, docsTotal) }}
+            />
+          )}
         </div>
         <div className={styles['progress-bar-status']}>
           <p className={this.getMessageClassName()}>

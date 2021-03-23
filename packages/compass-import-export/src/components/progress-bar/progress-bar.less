@@ -5,6 +5,7 @@
   border-radius: 5px;
   height: 10px;
   background-color: #e7eeec;
+  overflow: hidden;
 
   &-chart-wrapper {
     padding-top: 20px;
@@ -12,22 +13,31 @@
   }
 
   &-bar {
+    position: absolute;
     height: 10px;
-    transition: width 0.2s ease;
+    transition: width 0.2s linear, background-color 0.2s ease;
     display: block;
     border-radius: 5px;
-    background: #007cad;
-    // background: linear-gradient(to right, #007cad, 50%, #00b3d6);
+    background-color: #007cad;
 
     &-is-canceled {
-      background: #b8c4c2;
+      background-color: #b8c4c2;
     }
+
     &-is-failed {
-      background: #d65d33;
+      background-color: #d65d33;
     }
 
     &-is-completed {
       background-color: @green2;
+    }
+
+    &-is-with-errors {
+      background-color: @alertOrange;
+    }
+
+    &-is-secondary {
+      opacity: 0.4;
     }
   }
 
@@ -45,11 +55,21 @@
       }
 
       &-cancel {
+        margin: 0;
         margin-left: 10px;
         color: #0d47a1;
+        border: none;
+        padding: 0;
+        background: none;
         cursor: pointer;
       }
+
+      &-cancel:hover,
+      &-cancel:focus {
+        text-decoration: underline;
+      }
     }
+
     &-stats {
       flex-grow: 0;
       margin-bottom: 0;

@@ -54,6 +54,7 @@ const debug = createLogger('import');
 const PREFIX = 'import-export/import';
 export const STARTED = `${PREFIX}/STARTED`;
 export const CANCELED = `${PREFIX}/CANCELED`;
+export const GUESSTIMATED_PROGRESS = `${PREFIX}/GUESSTIMATED_PROGRESS`;
 export const PROGRESS = `${PREFIX}/PROGRESS`;
 export const FINISHED = `${PREFIX}/FINISHED`;
 export const FAILED = `${PREFIX}/FAILED`;
@@ -76,15 +77,17 @@ export const SET_FIELD_TYPE = `${PREFIX}/SET_FIELD_TYPE`;
  */
 export const INITIAL_STATE = {
   isOpen: false,
-  progress: 0,
-  error: null,
+  errors: [],
   fileName: '',
   fileIsMultilineJSON: false,
   useHeaderLines: true,
   status: PROCESS_STATUS.UNSPECIFIED,
   fileStats: null,
+  docsTotal: -1,
+  docsProcessed: 0,
   docsWritten: 0,
   guesstimatedDocsTotal: 0,
+  guesstimatedDocsProcessed: 0,
   delimiter: ',',
   stopOnErrors: false,
   ignoreBlanks: true,
@@ -114,11 +117,17 @@ export const INITIAL_STATE = {
  * @param {Number} docsWritten
  * @api private
  */
-export const onProgress = (progress, docsWritten) => ({
+export const onGuesstimatedProgress = (docsProcessed, docsTotal) => ({
+  type: GUESSTIMATED_PROGRESS,
+  guesstimatedDocsProcessed: docsProcessed,
+  guesstimatedDocsTotal: docsTotal
+});
+
+export const onProgress = ({ docsWritten, docsProcessed, errors }) => ({
   type: PROGRESS,
-  progress: Math.min(progress, 100),
-  error: null,
-  docsWritten: docsWritten
+  docsWritten,
+  docsProcessed,
+  errors
 });
 
 /**
@@ -136,19 +145,17 @@ export const onStarted = (source, dest) => ({
  * @param {Number} docsWritten
  * @api private
  */
-export const onFinished = docsWritten => ({
+export const onFinished = (docsWritten, docsTotal) => ({
   type: FINISHED,
-  docsWritten: docsWritten
+  docsWritten,
+  docsTotal
 });
 
 /**
  * @param {Error} error
  * @api private
  */
-export const onError = error => ({
-  type: FAILED,
-  error: error
-});
+export const onFailed = error => ({ type: FAILED, error });
 
 /**
  * @param {Number} guesstimatedDocsTotal
@@ -203,11 +210,16 @@ export const startImport = () => {
       transform,
       ignoreBlanks
     });
+
     const dest = createCollectionWriteStream(dataService, ns, stopOnErrors);
+
+    dest.on('progress', (stats, errors) => {
+      dispatch(onProgress(stats, errors));
+    });
 
     const progress = createProgressStream(size, function(err, info) {
       if (err) return;
-      dispatch(onProgress(info.percentage, dest.docsWritten));
+      dispatch(onGuesstimatedProgress(info.transferred, info.length));
     });
 
     const importSizeGuesstimator = createImportSizeGuesstimator(
@@ -215,7 +227,6 @@ export const startImport = () => {
       size,
       function(err, guesstimatedTotalDocs) {
         if (err) return;
-
         progress.setLength(guesstimatedTotalDocs);
         dispatch(onGuesstimatedDocsTotal(guesstimatedTotalDocs));
       }
@@ -244,6 +255,7 @@ export const startImport = () => {
     console.log('Running import...');
 
     dispatch(onStarted(source, dest));
+
     stream.pipeline(
       source,
       stripBOM,
@@ -252,8 +264,9 @@ export const startImport = () => {
       importSizeGuesstimator,
       progress,
       dest,
-      function(err) {
+      function onStreamEnd(err) {
         console.timeEnd('import');
+
         /**
          * Refresh data (docs, aggregations) regardless of whether we have a
          * partial import or full import
@@ -270,10 +283,14 @@ export const startImport = () => {
             docsWritten: dest.docsWritten,
             err
           });
-          return dispatch(onError(err));
+
+          console.groupEnd();
+          console.groupEnd();
+
+          return dispatch(onFailed(err));
         }
 
-        dispatch(onFinished(dest.docsWritten));
+        dispatch(onFinished(dest.docsWritten, dest.docsProcessed));
 
         /**
          * TODO: lucas: Deduping emits. @see https://github.com/mongodb-js/compass-import-export/pulls/23
@@ -365,8 +382,17 @@ const loadPreviewDocs = (
      * errors/faults hard so we can figure out edge cases that
      * actually need it.
      */
-    const source = fs.createReadStream(fileName, {encoding: 'utf8', end: 20 * 1024});
-    const dest = createPreviewWritable({fileType, delimiter, fileIsMultilineJSON});
+    const source = fs.createReadStream(fileName, {
+      encoding: 'utf8',
+      end: 20 * 1024
+    });
+
+    const dest = createPreviewWritable({
+      fileType,
+      delimiter,
+      fileIsMultilineJSON
+    });
+
     stream.pipeline(
       source,
       createPeekStream(fileType, delimiter, fileIsMultilineJSON),
@@ -471,7 +497,7 @@ export const selectImportFileName = fileName => {
       })
       .catch(err => {
         debug('dispatching error', err);
-        dispatch(onError(err));
+        dispatch(onFailed(err));
       });
   };
 };
@@ -610,8 +636,12 @@ const reducer = (state = INITIAL_STATE, action) => {
       fileStats: action.fileStats,
       fileIsMultilineJSON: action.fileIsMultilineJSON,
       status: PROCESS_STATUS.UNSPECIFIED,
-      progress: 0,
+      docsTotal: -1,
+      docsProcessed: 0,
       docsWritten: 0,
+      guesstimatedDocsTotal: 0,
+      guesstimatedDocsProcessed: 0,
+      errors: [],
       source: undefined,
       dest: undefined,
       fields: []
@@ -664,6 +694,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     newState.transform = newState.fields
       .filter(field => field.checked)
       .map(field => [field.path, field.type]);
+
     return newState;
   }
   /**
@@ -705,6 +736,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     const newState = {
       ...state
     };
+
     newState.fields = newState.fields.map(field => {
       if (field.path === action.path) {
         // If a user changes a field type, automatically check it for them
@@ -715,9 +747,11 @@ const reducer = (state = INITIAL_STATE, action) => {
       }
       return field;
     });
+
     newState.exclude = newState.fields
       .filter(field => !field.checked)
       .map(field => field.path);
+
     newState.transform = newState.fields
       .filter(field => field.checked)
       .map(field => [field.path, field.type]);
@@ -731,16 +765,25 @@ const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === FAILED) {
     return {
       ...state,
-      error: action.error,
-      status: PROCESS_STATUS.FAILED
+      // In cases where `FAILED` happened on import it might emit an event with
+      // an error that was already saved in the `errors` array. We want to avoid
+      // that by checking if the error is there before storing it in the state
+      errors: state.errors.includes(action.error)
+        ? state.errors
+        : state.errors.concat(action.error),
+      status: PROCESS_STATUS.FAILED,
     };
   }
 
   if (action.type === STARTED) {
     return {
       ...state,
-      error: null,
-      progress: 0,
+      errors: [],
+      docsTotal: -1,
+      docsProcessed: 0,
+      docsWritten: 0,
+      guesstimatedDocsTotal: 0,
+      guesstimatedDocsProcessed: 0,
       status: PROCESS_STATUS.STARTED,
       source: action.source,
       dest: action.dest
@@ -754,24 +797,42 @@ const reducer = (state = INITIAL_STATE, action) => {
     };
   }
 
+  if (action.type === GUESSTIMATED_PROGRESS) {
+    return {
+      ...state,
+      guesstimatedDocsProcessed: action.guesstimatedDocsProcessed,
+      guesstimatedDocsTotal: action.guesstimatedDocsTotal
+    };
+  }
+
   if (action.type === PROGRESS) {
     return {
       ...state,
-      progress: action.progress,
-      docsWritten: action.docsWritten
+      docsWritten: action.docsWritten,
+      docsProcessed: action.docsProcessed,
+      errors: action.errors,
     };
   }
 
   if (action.type === FINISHED) {
-    const isComplete = !(
-      state.error || state.status === PROCESS_STATUS.CANCELED
-    );
+    const isComplete = state.status !== PROCESS_STATUS.CANCELED;
+    const hasErrors = state.errors.length > 0;
+
+    let status = state.stats;
+
+    if (isComplete && hasErrors) {
+      status = PROCESS_STATUS.COMPLETED_WITH_ERRORS;
+    } else if (isComplete) {
+      status = PROCESS_STATUS.COMPLETED;
+    }
+
     return {
       ...state,
-      status: isComplete ? PROCESS_STATUS.COMPLETED : state.status,
+      status,
       docsWritten: action.docsWritten,
+      docsTotal: action.docsTotal,
       source: undefined,
-      dest: undefined
+      dest: undefined,
     };
   }
 

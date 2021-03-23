@@ -151,15 +151,17 @@ describe('import [module]', () => {
 
           expect(result).to.be.deep.equal({
             isOpen: false,
-            progress: 0,
-            error: null,
+            errors: [],
             fileName: '',
             fileIsMultilineJSON: false,
             useHeaderLines: true,
             status: 'UNSPECIFIED',
             fileStats: null,
+            docsTotal: -1,
+            docsProcessed: 0,
             docsWritten: 0,
             guesstimatedDocsTotal: 0,
+            guesstimatedDocsProcessed: 0,
             delimiter: ',',
             stopOnErrors: false,
             ignoreBlanks: true,
@@ -172,8 +174,8 @@ describe('import [module]', () => {
           });
 
           resolve(test);
-          // done();
         });
+
         test.store.dispatch(selectImportFileName(fileName));
 
         expect(test.store.getActions()).to.deep.equal([

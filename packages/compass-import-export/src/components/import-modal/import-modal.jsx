@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, useMemo, useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
@@ -6,8 +6,10 @@ import { TextButton } from 'hadron-react-buttons';
 import fileOpenDialog from 'utils/file-open-dialog';
 import {
   FINISHED_STATUSES,
+  COMPLETED_STATUSES,
   STARTED,
   COMPLETED,
+  COMPLETED_WITH_ERRORS,
   CANCELED,
   FAILED,
   UNSPECIFIED
@@ -17,7 +19,7 @@ import ErrorBox from 'components/error-box';
 import ImportPreview from 'components/import-preview';
 import ImportOptions from 'components/import-options';
 import FILE_TYPES from 'constants/file-types';
-
+import formatNumber from 'utils/format-number.js';
 import {
   startImport,
   cancelImport,
@@ -30,6 +32,11 @@ import {
   toggleIncludeField,
   setFieldType
 } from 'modules/import';
+import styles from './import-modal.less';
+import createStyler from 'utils/styler.js';
+import classnames from 'classnames';
+
+const style = createStyler(styles, 'import-modal');
 
 /**
  * Progress messages.
@@ -38,8 +45,77 @@ const MESSAGES = {
   [STARTED]: 'Importing documents...',
   [CANCELED]: 'Import canceled',
   [COMPLETED]: 'Import completed',
-  [FAILED]: 'Error importing',
+  [COMPLETED_WITH_ERRORS]: 'Import completed with following errors:',
+  [FAILED]: 'Failed to import with the following error:',
   [UNSPECIFIED]: ''
+};
+
+const SHOW_MORE_STEP = 10;
+
+const DEFAULT_VISIBLE_ERRORS_COUNT = 3;
+
+function ErrorsList({ errors }) {
+  const [visibleErrorsCount, setVisibleErrorsCount] = useState(
+    DEFAULT_VISIBLE_ERRORS_COUNT
+  );
+
+  const normalizedErrorMessages = useMemo(() => {
+    // BulkWrite and WriteErrors can have identical messages, we want to leave
+    // only unique errors for display. We also reversing to show recent errors
+    // higher in the list
+    return [...new Set(errors.map((err) => err.message))].reverse();
+  }, [errors]);
+
+  const showMoreCount = useMemo(() => {
+    return formatNumber(
+      Math.min(
+        SHOW_MORE_STEP,
+        normalizedErrorMessages.length - visibleErrorsCount
+      )
+    );
+  }, [normalizedErrorMessages.length, visibleErrorsCount]);
+
+  const increaseVisibleErrorsCount = useCallback(() => {
+    setVisibleErrorsCount((currCount) => currCount + SHOW_MORE_STEP);
+  });
+
+  if (normalizedErrorMessages.length === 0) {
+    return (
+      <div className={style('errors')}>
+        <ErrorBox message={normalizedErrorMessages[0]} />
+      </div>
+    );
+  }
+
+  return (
+    <div className={style('errors')}>
+      <ul className={style('errors-list')}>
+        {normalizedErrorMessages.slice(0, visibleErrorsCount).map((message) => (
+          <li key={message} className={style('errors-list-item')}>
+            <ErrorBox message={message} />
+          </li>
+        ))}
+      </ul>
+      {showMoreCount > 0 && (
+        <button
+          className={classnames(
+            'btn btn-default btn-xs',
+            style('show-more-errors-button')
+          )}
+          onClick={increaseVisibleErrorsCount}
+        >
+          <i className="fa fa-arrow-down" aria-hidden="true" />
+          <span className={style('show-more-errors-button-text')}>
+            Show {showMoreCount} more errors
+          </span>
+        </button>
+      )}
+    </div>
+  );
+}
+
+ErrorsList.propTypes = {
+  errors: PropTypes.array
 };
 
 class ImportModal extends PureComponent {
@@ -53,7 +129,7 @@ class ImportModal extends PureComponent {
     /**
      * Shared
      */
-    error: PropTypes.object,
+    errors: PropTypes.array,
     status: PropTypes.string.isRequired,
 
     /**
@@ -73,9 +149,11 @@ class ImportModal extends PureComponent {
     /**
      * See `<ProgressBar />`
      */
-    progress: PropTypes.number.isRequired,
+    docsTotal: PropTypes.number,
+    docsProcessed: PropTypes.number,
     docsWritten: PropTypes.number,
     guesstimatedDocsTotal: PropTypes.number,
+    guesstimatedDocsProcessed: PropTypes.number,
 
     /**
      * See `<ImportPreview />`
@@ -120,7 +198,7 @@ class ImportModal extends PureComponent {
    * @returns {Boolean}
    */
   wasImportSuccessful() {
-    return this.props.status === COMPLETED;
+    return COMPLETED_STATUSES.includes(this.props.status);
   }
 
   renderDoneButton() {
@@ -137,7 +215,7 @@ class ImportModal extends PureComponent {
   }
 
   renderCancelButton() {
-    if (this.props.status !== COMPLETED) {
+    if (!this.wasImportSuccessful()) {
       return (
         <TextButton
           className="btn btn-default btn-sm"
@@ -191,6 +269,20 @@ class ImportModal extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const {
+      status,
+      errors,
+      docsTotal,
+      docsProcessed,
+      docsWritten,
+      guesstimatedDocsTotal,
+      guesstimatedDocsProcessed,
+    } = this.props;
+
+    // docsTotal is set to actual value only at the very end of processing a
+    // stream of documents
+    const isGuesstimated = docsTotal === -1;
+
     return (
       <Modal show={this.props.open} onHide={this.handleClose} backdrop="static">
         <Modal.Header closeButton>
@@ -212,14 +304,30 @@ class ImportModal extends PureComponent {
           />
           {this.renderImportPreview()}
           <ProgressBar
-            progress={this.props.progress}
             status={this.props.status}
-            message={MESSAGES[this.props.status]}
+            withErrors={errors.length > 0}
             cancel={this.props.cancelImport}
-            docsWritten={this.props.docsWritten}
-            guesstimatedDocsTotal={this.props.guesstimatedDocsTotal}
+            docsWritten={docsWritten}
+            docsProcessed={Math.max(docsProcessed, guesstimatedDocsProcessed)}
+            docsTotal={
+              // When guesstimating, guessed total might be too low, in that
+              // case the most reasonable thing to do would be to fallback to
+              // currently processed number
+              isGuesstimated
+                ? Math.max(docsProcessed, guesstimatedDocsTotal)
+                : docsTotal
+            }
+            progressLabel={(written, total) =>
+              `${written}\u00a0/\u00a0${isGuesstimated ? '~' : ''}${total}`
+            }
+            progressTitle={(written, total) =>
+              `Imported ${written} out of ${
+                isGuesstimated ? 'approximately ' : ''
+              }${total} documents`
+            }
+            message={MESSAGES[status]}
           />
-          <ErrorBox error={this.props.error} />
+          <ErrorsList errors={errors} />
         </Modal.Body>
         <Modal.Footer>
           {this.renderCancelButton()}
@@ -241,14 +349,16 @@ class ImportModal extends PureComponent {
  */
 const mapStateToProps = (state) => ({
   ns: state.ns,
-  progress: state.importData.progress,
   open: state.importData.isOpen,
-  error: state.importData.error,
+  errors: state.importData.errors,
   fileType: state.importData.fileType,
   fileName: state.importData.fileName,
   status: state.importData.status,
+  docsTotal: state.importData.docsTotal,
+  docsProcessed: state.importData.docsProcessed,
   docsWritten: state.importData.docsWritten,
   guesstimatedDocsTotal: state.importData.guesstimatedDocsTotal,
+  guesstimatedDocsProcessed: state.importData.guesstimatedDocsProcessed,
   delimiter: state.importData.delimiter,
   stopOnErrors: state.importData.stopOnErrors,
   ignoreBlanks: state.importData.ignoreBlanks,

@@ -1,6 +1,7 @@
 export const STARTED = 'STARTED';
 export const CANCELED = 'CANCELED';
 export const COMPLETED = 'COMPLETED';
+export const COMPLETED_WITH_ERRORS = 'COMPLETED_WITH_ERRORS';
 export const FAILED = 'FAILED';
 export const UNSPECIFIED = 'UNSPECIFIED';
 
@@ -12,7 +13,8 @@ export const PROCESS_STATUS = {
   CANCELED,
   COMPLETED,
   FAILED,
-  UNSPECIFIED
+  UNSPECIFIED,
+  COMPLETED_WITH_ERRORS
 };
 
 /**
@@ -21,7 +23,13 @@ export const PROCESS_STATUS = {
 export const FINISHED_STATUSES = [
   CANCELED,
   COMPLETED,
+  COMPLETED_WITH_ERRORS,
   FAILED
+];
+
+export const COMPLETED_STATUSES = [
+  COMPLETED,
+  COMPLETED_WITH_ERRORS,
 ];
 
 export default PROCESS_STATUS;

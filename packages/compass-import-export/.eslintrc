@@ -10,7 +10,8 @@
   "rules": {
     "camelcase": 1,
     "no-var": 1,
-    "no-trailing-spaces": 1
+    "no-trailing-spaces": 1,
+    "react/no-multi-comp": 0
   },
   "extends": [
     "mongodb-js/node",

@@ -3,6 +3,17 @@ import { Writable } from 'stream';
 import { createLogger } from './logger';
 const debug = createLogger('collection-stream');
 
+function mongodbServerErrorToJSError({ index, code, errmsg, op, errInfo }) {
+  const e = new Error(errmsg);
+  e.index = index;
+  e.code = code;
+  e.op = op;
+  e.errInfo = errInfo;
+  // https://docs.mongodb.com/manual/reference/method/BulkWriteResult/#BulkWriteResult.writeErrors
+  e.name = index && op ? 'WriteError' : 'WriteConcernError';
+  return e;
+}
+
 class WritableCollectionStream extends Writable {
   constructor(dataService, ns, stopOnErrors) {
     super({ objectMode: true });
@@ -10,90 +21,37 @@ class WritableCollectionStream extends Writable {
     this.ns = ns;
     this.BATCH_SIZE = 1000;
     this.docsWritten = 0;
+    this.docsProcessed = 0;
     this.stopOnErrors = stopOnErrors;
 
-    this._initBatch();
+    this.batch = [];
     this._batchCounter = 0;
+
     this._stats = {
+      ok: 0,
       nInserted: 0,
       nMatched: 0,
       nModified: 0,
       nRemoved: 0,
       nUpserted: 0,
-      ok: 0,
-      writeErrorCount: 0
+      writeErrors: [],
+      writeConcernErrors: [],
     };
 
     this._errors = [];
-  }
-
-  _initBatch() {
-    this.batch = this._collection().initializeOrderedBulkOp({
-      explicitlyIgnoreSession: true,
-      retryWrites: false,
-      writeConcern: {
-        w: 1
-      },
-      // TODO: lucas: option in mongoimport w slightly different name?
-      checkKeys: false
-    });
   }
 
   _collection() {
     return this.dataService.client._collection(this.ns);
   }
 
-  _write(chunk, encoding, next) {
-    this.batch.insert(chunk);
+  _write(document, _encoding, next) {
+    this.batch.push(document);
+
     if (this.batch.length === this.BATCH_SIZE) {
-      // TODO: lucas: expose finer-grained bulk op results:
-      // https://mongodb.github.io/node-mongodb-native/3.3/api/BulkWriteResult.html
-      const nextBatch = (err, res = {}) => {
-        if (err && this.stopOnErrors) {
-          return next(err);
-        }
-        this.docsWritten += this.batch.length;
-        if (err) {
-          debug(`batch ${this._batchCounter} result`, { err, res });
-        }
-        this.captureStatsForBulkResult(err, res);
-
-        this._batchCounter++;
-        this._initBatch();
-        next();
-      };
-
-      const execBatch = cb => {
-        const batchSize = this.batch.length;
-        this.batch.execute((err, res) => {
-          /**
-           * TODO: lucas: appears turning off retyableWrites
-           * gives a slightly different error but probably same problem?
-           */
-          if (
-            err &&
-            Array.isArray(err.errorLabels) &&
-            err.errorLabels.indexOf('TransientTransactionError')
-          ) {
-            err = null;
-            res = { nInserted: batchSize };
-          }
-
-          if (err && !this.stopOnErrors) {
-            console.log('stopOnErrors false. skipping', err);
-            err = null;
-            res = {};
-          }
-          if (err) {
-            this._errors.push(err);
-            return cb(err);
-          }
-          cb(null, res);
-        });
-      };
-      execBatch(nextBatch);
-      return;
+      return this._executeBatch(next);
     }
+
     next();
   }
 
@@ -106,56 +64,95 @@ class WritableCollectionStream extends Writable {
       return callback();
     }
 
-    /**
-     * TODO: lucas: Reuse error wrangling from _write above.
-     */
     debug('draining buffered docs', this.batch.length);
-    this.batch.execute((err, res) => {
-      this.captureStatsForBulkResult(err, res);
-      this.docsWritten += this.batch.length;
-      this.printJobStats();
-      this.batch = null;
 
-      debug('%d docs written', this.docsWritten);
-      if (err && !this.stopOnErrors) {
-        console.log('stopOnErrors false. skipping', err);
-        err = null;
-      }
-
-      callback(err);
-    });
+    this._executeBatch(callback);
   }
 
-  captureStatsForBulkResult(err, res) {
-    const keys = [
+  _executeBatch(callback) {
+    const documents = this.batch;
+
+    this.batch = [];
+
+    this._collection().bulkWrite(
+      documents.map((doc) => ({ insertOne: doc })),
+      {
+        ordered: this.stopOnErrors,
+        retryWrites: false,
+        checkKeys: false,
+      },
+      (err, res) => {
+        // If we are writing with `ordered: false`, bulkWrite will throw and
+        // will not return any result, but server might write some docs and bulk
+        // result can still be accessed on the error instance
+        const result = (err && err.result && err.result.result) || res;
+
+        this._mergeBulkOpResult(result);
+
+        this.docsProcessed += documents.length;
+
+        this.docsWritten = this._stats.nInserted;
+
+        this._batchCounter++;
+
+        if (err) {
+          this._errors.push(err);
+        }
+
+        this.printJobStats();
+
+        this.emit('progress', {
+          docsWritten: this.docsWritten,
+          docsProcessed: this.docsProcessed,
+          errors: this._errors
+            .concat(this._stats.writeErrors)
+            .concat(this._stats.writeConcernErrors),
+        });
+
+        if (this.stopOnErrors) {
+          return callback(err);
+        }
+
+        return callback();
+      }
+    );
+  }
+
+  _mergeBulkOpResult(result = {}) {
+    const numKeys = [
       'nInserted',
       'nMatched',
       'nModified',
       'nRemoved',
       'nUpserted',
-      'ok'
+      // Even though it's a boolean, treating it as num might allow us to see
+      // how many batches finished "correctly" if `stopOnErrors` is `false` if
+      // we ever need that
+      'ok',
     ];
 
-    keys.forEach(k => {
-      this._stats[k] += (res && res[k]) || 0;
+    numKeys.forEach((key) => {
+      this._stats[key] += result[key] || 0;
     });
-    if (!err) return;
 
-    if (err.name === 'BulkWriteError') {
-      this._errors.push.apply(this._errors, err.result.result.writeErrors);
-      this._errors.push.apply(
-        this._errors,
-        err.result.result.writeConcernErrors
-      );
-      this._stats.writeErrorCount += err.result.result.writeErrors.length;
-    }
+    this._stats.writeErrors.push(
+      ...(result.writeErrors || []).map(mongodbServerErrorToJSError)
+    );
+
+    this._stats.writeConcernErrors.push(
+      ...(result.writeConcernErrors || []).map(mongodbServerErrorToJSError)
+    );
   }
 
   printJobStats() {
     console.group('Import Info');
     console.table(this._stats);
     console.log('Errors Seen');
-    console.log(this._errors);
+    console.log(
+      this._errors
+        .concat(this._stats.writeErrors)
+        .concat(this._stats.writeConcernErrors)
+    );
     console.groupEnd();
   }
 }
