@@ -251,7 +251,7 @@
     "url": "git://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-aggregations": "^7.4.0",
+    "@mongodb-js/compass-aggregations": "^7.5.0",
     "@mongodb-js/compass-app-stores": "^4.0.2",
     "@mongodb-js/compass-auto-updates": "^2.0.1",
     "@mongodb-js/compass-collection": "^2.1.2",
