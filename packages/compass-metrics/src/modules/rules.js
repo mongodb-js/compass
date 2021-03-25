@@ -280,9 +280,9 @@ const RULES = [
     action: 'applied',
     condition: (state) => state.queryState === 'apply',
     metadata: (version, state) => ({
-      'filter': isNotEmptyObject(state.filter),
-      'project': isNotEmptyObject(state.project),
-      'sort': isNotEmptyObject(state.sort),
+      'has_filter': isNotEmptyObject(state.filter),
+      'has_project': isNotEmptyObject(state.project),
+      'has_sort': isNotEmptyObject(state.sort),
       'skip': state.skip,
       'limit': state.limit,
       compass_version: version

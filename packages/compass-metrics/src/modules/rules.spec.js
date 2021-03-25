@@ -19,9 +19,9 @@ describe('rules', () => {
           limit: 1
         }
       )).to.deep.equal({
-        filter: true,
-        project: true,
-        sort: true,
+        has_filter: true,
+        has_project: true,
+        has_sort: true,
         skip: 1,
         limit: 1,
         compass_version: 'v1.0.0'
@@ -39,9 +39,9 @@ describe('rules', () => {
           limit: 1
         }
       )).to.deep.equal({
-        filter: false,
-        project: false,
-        sort: false,
+        has_filter: false,
+        has_project: false,
+        has_sort: false,
         skip: 1,
         limit: 1,
         compass_version: 'v1.0.0'
@@ -59,9 +59,9 @@ describe('rules', () => {
           limit: 1
         }
       )).to.deep.equal({
-        filter: false,
-        project: false,
-        sort: false,
+        has_filter: false,
+        has_project: false,
+        has_sort: false,
         skip: 1,
         limit: 1,
         compass_version: 'v1.0.0'
@@ -77,9 +77,9 @@ describe('rules', () => {
           limit: 1
         }
       )).to.deep.equal({
-        filter: false,
-        project: false,
-        sort: false,
+        has_filter: false,
+        has_project: false,
+        has_sort: false,
         skip: 1,
         limit: 1,
         compass_version: 'v1.0.0'
