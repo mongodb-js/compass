@@ -87,7 +87,11 @@ class WritableCollectionStream extends Writable {
         // result can still be accessed on the error instance
         const result = (err && err.result && err.result.result) || res;
 
-        this._mergeBulkOpResult(result);
+        // Driver seems to return null instead of undefined in some rare cases
+        // when the operation ends in error, instead of relying on
+        // `_mergeBulkOpResult` default argument substitution, we need to keep
+        // this OR expression here
+        this._mergeBulkOpResult(result || {});
 
         this.docsProcessed += documents.length;
 
