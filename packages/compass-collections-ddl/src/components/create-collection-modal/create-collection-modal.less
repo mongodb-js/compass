@@ -1,5 +1,23 @@
 .create-collection-modal {
   width: 500px;
+  max-height: ~"calc(100vh - 60px)";
+  display: flex;
+  flex-direction: row;
+
+  :global(.modal-content) {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :global(.modal-header, .modal-footer) {
+    flex: 0 0 auto;
+  }
+
+  :global(.modal-body) {
+    flex: 0 1 auto;
+    overflow: auto;
+  }
 
   p {
     font-weight: bold;
