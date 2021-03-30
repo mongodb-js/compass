@@ -17,6 +17,40 @@ describe('DataService', function() {
     service.disconnect(done);
   });
 
+  // Each test gets its own service so that we can connect/disconnect it freely
+  describe('#isConnected', () => {
+    let _service;
+
+    it('returns false when not connected initially', () => {
+      _service = new DataService(helper.connection);
+      expect(_service.isConnected()).to.equal(false);
+    });
+
+    it('returns true if client is connected', (done) => {
+      _service = new DataService(helper.connection);
+      _service.connect(() => {
+        expect(_service.isConnected()).to.equal(true);
+        done();
+      });
+    });
+
+    it('returns false if client is disconnected', (done) => {
+      _service = new DataService(helper.connection);
+      _service.connect(() => {
+        _service.disconnect(() => {
+          expect(_service.isConnected()).to.equal(false);
+          done();
+        });
+      });
+    });
+
+    afterEach((done) => {
+      if (_service) {
+        _service.disconnect(done);
+      }
+    });
+  });
+
   describe('#deleteOne', function() {
     it('deletes the document from the collection', function(done) {
       service.insertOne(

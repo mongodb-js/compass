@@ -101,6 +101,13 @@ class NativeClient extends EventEmitter {
     this._isConnected = false;
   }
 
+  isConnected() {
+    // This is better than just returning internal `_isConnected` as this
+    // actually shows when the client is available on the NativeClient instance
+    // and connected
+    return !!(this.client && this.client.isConnected());
+  }
+
   /**
    * Connect to the server.
    *
@@ -547,6 +554,15 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback
    */
   disconnect(callback) {
+    // This follows MongoClient behavior where calling `close` on client that is
+    // not connected
+    if (!this.client) {
+      setImmediate(() => {
+        callback();
+      });
+      return;
+    }
+
     this.client.close(true, err => {
       if (this.tunnel) {
         debug('mongo client closed. shutting down ssh tunnel');

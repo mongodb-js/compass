@@ -582,6 +582,10 @@ class DataService extends EventEmitter {
     return this.client.killSession(...args);
   }
 
+  isConnected() {
+    return this.client.isConnected();
+  }
+
   /**
    * When Node supports ES6 default values for arguments, this can go away.
    *
