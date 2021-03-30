@@ -223,6 +223,27 @@
 			"mongodb-url"
 		]
 	},
+  "scripts": {
+    "install": "node scripts/download-akzidenz.js",
+    "postinstall": "electron-rebuild --force --only kerberos,keytar,interruptor",
+    "prestart": "rm -rf .compiled-sources",
+    "start": "hadron-build develop",
+    "test": "hadron-build test",
+    "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js'",
+    "clean": "hadron-build clean",
+    "compile-ui": "hadron-build ui",
+    "release-evergreen": "hadron-build release",
+    "test-unit": "npm test -- --unit",
+    "test-enzyme": "npm test -- --enzyme",
+    "test-packages": "npm test -- --packages",
+    "test-main": "npm test -- --main",
+    "test-renderer": "npm test -- --renderer",
+    "test-functional": "npm test -- --functional",
+    "test-release": "npm test -- --release",
+    "upload": "hadron-build upload",
+    "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
+    "jsx": "babel ./src --out-dir ./lib --presets react"
+  },
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/mongodb-js/compass.git"
