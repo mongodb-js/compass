@@ -27,7 +27,8 @@ describe('IndexesStore [Store]', () => {
         dataProvider: {
           indexes: (ns, options, callback) => {
             callback('err', []);
-          }
+          },
+          isConnected: () => true
         }
       },
       isReadonly: true

@@ -136,7 +136,8 @@ describe('indexes module', () => {
         },
         isReadonly: false,
         dataService: {
-          indexes: (ns, opts, cb) => { cb({message: 'error message!'}); }
+          indexes: (ns, opts, cb) => { cb({message: 'error message!'}); },
+          isConnected: () => true
         },
         namespace: 'citibike.trips'
       });
@@ -161,7 +162,8 @@ describe('indexes module', () => {
         },
         isReadonly: false,
         dataService: {
-          indexes: (ns, opts, cb) => { cb(null, fromDB); }
+          indexes: (ns, opts, cb) => { cb(null, fromDB); },
+          isConnected: () => true
         },
         sortColumn: DEFAULT,
         sortOrder: ASC,
