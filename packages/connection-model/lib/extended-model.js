@@ -76,6 +76,7 @@ const ExtendedConnection = Connection.extend(storageMixin, {
         'isFavorite',
         'isSrvRecord',
         'hostname',
+        'port',
         'hosts'
       ],
       fn() {
@@ -94,7 +95,8 @@ const ExtendedConnection = Connection.extend(storageMixin, {
         }
 
         return `${this.hostname}:${this.port}`;
-      }
+      },
+      cache: false
     }
   },
   serialize() {
