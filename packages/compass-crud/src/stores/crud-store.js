@@ -878,6 +878,14 @@ const configureStore = (options = {}) => {
      * @param {Object} filter - The query filter.
      */
     async refreshDocuments() {
+      if (this.dataService && !this.dataService.isConnected()) {
+        debug(
+          'warning: trying to refresh documents but dataService is disconnected',
+          this.dataService
+        );
+        return;
+      }
+
       if (this.isRefreshingDocuments) {
         return;
       }

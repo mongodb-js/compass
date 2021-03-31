@@ -107,7 +107,7 @@
     "mongodb-ace-mode": "^0.4.0",
     "mongodb-ace-theme-query": "0.0.2",
     "mongodb-connection-model": "^16.1.6",
-    "mongodb-data-service": "^16.9.3",
+    "mongodb-data-service": "^19.2.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-query-parser": "^2.2.0",
     "mongodb-runner": "^4.8.0",
