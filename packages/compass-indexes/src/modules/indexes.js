@@ -1,3 +1,5 @@
+const debug = require('debug')('mongodb-compass:modules:indexes');
+
 import IndexModel from 'mongodb-index-model';
 import map from 'lodash.map';
 import max from 'lodash.max';
@@ -195,7 +197,7 @@ export const loadIndexesFromDb = () => {
     if (state.isReadonly) {
       dispatch(loadIndexes([]));
       dispatch(localAppRegistryEmit('indexes-changed', []));
-    } else {
+    } else if (state.dataService && state.dataService.isConnected()) {
       const ns = state.namespace;
       state.dataService.indexes(state.namespace, {}, (err, indexes) => {
         if (err) {
@@ -213,6 +215,11 @@ export const loadIndexesFromDb = () => {
           dispatch(localAppRegistryEmit('indexes-changed', ixs));
         }
       });
+    } else if (state.dataService && !state.dataService.isConnected()) {
+      debug(
+        'warning: trying to load indexes but dataService is disconnected',
+        state.dataService
+      );
     }
   };
 };
