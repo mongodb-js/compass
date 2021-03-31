@@ -1,3 +1,5 @@
+const debug = require('debug')('mongodb-aggregations:modules:input-document');
+
 /**
  * The action name prefix.
  */
@@ -112,7 +114,7 @@ export const refreshInputDocuments = () => {
 
     const exampleDocumentsPipeline = [{ $limit: state.settings.sampleSize }];
 
-    if (dataService) {
+    if (dataService && dataService.isConnected()) {
       dispatch(loadingInputDocuments());
       dataService.estimatedCount(ns, options, (error, count) => {
         dataService.aggregate(
@@ -132,6 +134,11 @@ export const refreshInputDocuments = () => {
           }
         );
       });
+    } else if (dataService && !dataService.isConnected()) {
+      debug(
+        'warning: trying to refresh aggregation but dataService is disconnected',
+        dataService
+      );
     }
   };
 };
