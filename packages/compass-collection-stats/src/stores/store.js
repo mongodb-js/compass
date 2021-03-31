@@ -107,7 +107,7 @@ const configureStore = (options = {}) => {
       if (toNS(this.ns || '').collection) {
         if (this.state.isReadonly) {
           this.setState(this.getInitialState());
-        } else if (this.dataService) {
+        } else if (this.dataService && this.dataService.isConnected()) {
           this.dataService.collection(this.ns, {}, (err, result) => {
             if (!err) {
               const details = this._parseCollectionDetails(result);
