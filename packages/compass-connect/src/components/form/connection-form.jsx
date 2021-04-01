@@ -66,7 +66,9 @@ class ConnectionForm extends React.Component {
       return (
         <PortInput
           port={this.props.connectionModel.port}
-          isPortChanged={this.props.isPortChanged} />
+          isPortChanged={this.props.isPortChanged}
+          key={this.props.connectionModel._id}
+        />
       );
     }
   }
@@ -171,7 +173,7 @@ class ConnectionForm extends React.Component {
             </div>
           </div>
         </fieldset>
-        <FormActions {...this.props } />
+        <FormActions {...this.props} />
       </form>
     );
   }
