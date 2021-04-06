@@ -36,7 +36,7 @@ const OPTION_DEFINITION = {
   },
   sort: {
     type: 'document',
-    placeholder: '{ field: -1 }',
+    placeholder: "{ field: -1 } or [['field', -1]]",
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.sort/'
   },
   collation: {
