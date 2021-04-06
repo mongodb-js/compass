@@ -14,6 +14,26 @@ describe('extractStages', () => {
     }]);
   });
 
+  it('extracts a stage from pipeline text (stage name has double-quotes)', () => {
+    const stages = extractStages('[{ "$match": {x: 1} }]');
+    expect(stages).to.deep.equal([{
+      operator: '$match',
+      source: `{
+  x: 1
+}`
+    }]);
+  });
+
+  it('extracts a stage from pipeline text (stage name has single-quotes)', () => {
+    const stages = extractStages('[{ \'$match\': {x: 1} }]');
+    expect(stages).to.deep.equal([{
+      operator: '$match',
+      source: `{
+  x: 1
+}`
+    }]);
+  });
+
   it('allows an empty array', () => {
     const stages = extractStages('[]');
     expect(stages).to.deep.equal([]);

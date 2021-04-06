@@ -61,7 +61,7 @@ function isValidObjectExpression(element) {
 function objectExpressionToStage(objectExpression) {
   const { key: keyNode, value: valueNode } = objectExpression.properties[0];
   return {
-    operator: keyNode.name,
+    operator: keyNode.name || keyNode.value,
     source: generate(valueNode, { comments: true, indent: '  ' })
   };
 }
