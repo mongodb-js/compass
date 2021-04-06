@@ -18,11 +18,19 @@ module.exports.connection = new Connection({
 
 module.exports.insertTestDocuments = function(client, callback) {
   var collection = client.database.collection('test');
-  collection.insertMany([{
-    a: 1
-  }, {
-    a: 2
-  }], callback);
+  collection.insertMany(
+    [
+      {
+        1: 'a',
+        a: 1
+      },
+      {
+        2: 'a',
+        a: 2
+      }
+    ],
+    callback
+  );
 };
 
 module.exports.deleteTestDocuments = function(client, callback) {

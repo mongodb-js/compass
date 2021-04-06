@@ -409,6 +409,27 @@ describe('NativeClient', function() {
         });
       });
     });
+
+    context('when array sort is provided', function() {
+      it('returns documents with correct sort order', function(done) {
+        const sort = [
+          ['2', -1],
+          ['1', -1]
+        ];
+
+        client.find(
+          'data-service.test',
+          {},
+          { sort },
+          function(error, docs) {
+            assert.strictEqual(null, error);
+            expect(docs[0]).to.have.nested.property('2', 'a');
+            expect(docs[1]).to.have.nested.property('1', 'a');
+            done();
+          }
+        );
+      });
+    });
   });
 
   describe('#fetch', function() {

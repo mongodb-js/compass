@@ -659,15 +659,20 @@ class NativeClient extends EventEmitter {
    * @param {Object} options - The query options.
    * @param {Function} callback - The callback.
    */
-  find(ns, filter, options, callback) {
-    this._collection(ns)
-      .find(filter, options)
-      .toArray((error, documents) => {
-        if (error) {
-          return callback(this._translateMessage(error));
-        }
-        callback(null, documents);
-      });
+  find(ns, filter = {}, options = {}, callback = () => {}) {
+    // Workaround for https://jira.mongodb.org/browse/NODE-3173
+    const sort = options.sort;
+    delete options.sort;
+    let cursor = this._collection(ns).find(filter, options);
+    if (sort) {
+      cursor = cursor.sort(sort);
+    }
+    cursor.toArray((error, documents) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, documents);
+    });
   }
 
   /**
