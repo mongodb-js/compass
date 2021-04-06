@@ -156,8 +156,12 @@ class StagePreview extends Component {
         );
       }
     }
+    if (this.props.isLoading) {
+      // Don't render the empty state when loading.
+      return;
+    }
     return (
-      <div className={styles['stage-preview-invalid']}>
+      <div className={styles['stage-preview-empty']}>
         <div>
           <svg width="44" height="60" viewBox="0 0 44 60" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M21.9297 38.2988C23.4783 35.1247 27.7679 30.0989 32.5375 35.3879"/>

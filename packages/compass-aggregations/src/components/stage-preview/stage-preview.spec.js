@@ -37,6 +37,36 @@ describe('StagePreview [Component]', () => {
     });
   });
 
+  context('when there are no documents', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <StagePreview
+          documents={[]}
+          isValid
+          isEnabled
+          isComplete
+          index={0}
+          runOutStage={sinon.spy()}
+          gotoOutResults={sinon.spy()}
+          gotoMergeResults={sinon.spy()}
+          isLoading={false} />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders an empty state', () => {
+      expect(
+        component.find(`.${styles['stage-preview-empty']}`)
+      ).to.be.present();
+    });
+  });
+
+
   context('when the stage operator is $out', () => {
     context('when the execution is not complete', () => {
       let component;
@@ -186,6 +216,12 @@ describe('StagePreview [Component]', () => {
       it('renders the loading overlay', () => {
         expect(component.find(`.${loadingStyles['loading-overlay-box-text']}`)).
           to.have.text('Loading Preview Documents...');
+      });
+
+      it('does not show the empty state', () => {
+        expect(
+          component.find(`.${styles['stage-preview-empty']}`)
+        ).to.not.be.present();
       });
     });
   });
