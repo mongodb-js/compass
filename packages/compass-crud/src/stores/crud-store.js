@@ -1,7 +1,7 @@
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import EJSON from 'mongodb-extended-json';
-import { toPairs, findIndex, isEmpty } from 'lodash';
+import { findIndex, isEmpty } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
 import util from 'util';
@@ -221,7 +221,7 @@ const configureStore = (options = {}) => {
     getInitialQueryState() {
       return {
         filter: {},
-        sort: [],
+        sort: null,
         limit: 0,
         skip: 0,
         maxTimeMS: DEFAULT_INITIAL_MAX_TIME_MS,
@@ -281,7 +281,7 @@ const configureStore = (options = {}) => {
      */
     onQueryChanged(state) {
       this.state.query.filter = state.filter || {};
-      this.state.query.sort = toPairs(state.sort);
+      this.state.query.sort = state.sort;
       this.state.query.limit = state.limit;
       this.state.query.skip = state.skip || 0;
       this.state.query.project = state.project;

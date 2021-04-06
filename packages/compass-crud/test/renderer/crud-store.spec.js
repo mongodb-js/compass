@@ -47,7 +47,7 @@ describe('store', function() {
     });
 
     it('sets the default sort', () => {
-      expect(store.state.query.sort).to.deep.equal([]);
+      expect(store.state.query.sort).to.deep.equal(null);
     });
 
     it('sets the default limit', () => {
