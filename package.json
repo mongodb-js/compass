@@ -1,5 +1,5 @@
 {
-  "name": "compass",
+  "name": "mongodb-compass",
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI",
   "homepage": "https://compass.mongodb.com",
