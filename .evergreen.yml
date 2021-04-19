@@ -124,7 +124,7 @@ functions:
   install:
     - command: shell.exec
       params:
-        working_dir: packages/compass/src
+        working_dir: src
         shell: bash
         script: |
           set -e
