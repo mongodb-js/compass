@@ -17,7 +17,7 @@ post:
     <<: *save-artifact
     params:
       local_files_include_filter:
-        - packages/compass/src/.deps/.npm/_logs/*.log
+        - src/.deps/.npm/_logs/*.log
       remote_file: ${project}/${revision}/${build_variant}/${task_name}
       content_type: text/plain
   - <<: *save-diagnostic-file
@@ -29,11 +29,11 @@ functions:
   'prepare':
     - command: git.get_project
       params:
-        directory: packages/compass/src
+        directory: src
     - &generate-compass-env
       command: shell.exec
       params:
-        working_dir: packages/compass/src
+        working_dir: src
         shell: bash
         script: |
           echo "Setting up ~/compass_env.sh"
@@ -99,7 +99,7 @@ functions:
 
     - command: shell.exec
       params:
-        working_dir: packages/compass/src
+        working_dir: src
         shell: bash
         script: |
           source ~/compass_env.sh
@@ -114,7 +114,7 @@ functions:
           EOT
     - command: shell.exec
       params:
-        working_dir: packages/compass/src
+        working_dir: src
         shell: bash
         script: |
           set -e
@@ -140,7 +140,7 @@ functions:
         shell: bash
         script: |
           set -e
-          tar -zcf compass-build.tgz ./packages/compass/src
+          tar -zcf compass-build.tgz ./src
     - <<: *save-artifact
       params:
         local_file: compass-build.tgz
@@ -170,7 +170,7 @@ functions:
   verify:
     command: shell.exec
     params:
-      working_dir: packages/compass/src
+      working_dir: src
       shell: bash
       script: |
         set -e
@@ -182,7 +182,7 @@ functions:
   test:
     - command: shell.exec
       params:
-        working_dir: packages/compass/src
+        working_dir: src
         shell: bash
         script: |
           set -e
@@ -200,7 +200,7 @@ functions:
           DEBUG=* MONGODB_VERSION=${mongodb_version|4.0.3} npm test -- --${test_suite}
     # - command: attach.results
     #   params:
-    #     file_location: packages/compass/src/test-results.xml
+    #     file_location: compass/test-results.xml
 
   test-plugin:
     - <<: *restore-fetch-s3
@@ -208,7 +208,7 @@ functions:
     - <<: *generate-compass-env
     - command: shell.exec
       params:
-        working_dir: packages/compass/src
+        working_dir: src
         shell: bash
         script: |
           set -e
@@ -218,12 +218,12 @@ functions:
           bash ./.evergreen/test-plugin.sh ${plugin|10gen/compass-connect}
     # - command: attach.xunit_results
     #   params:
-    #     file: packages/compass/src/plugin/plugin-test-results.xml
+    #     file: src/plugin/plugin-test-results.xml
 
   'package':
     - command: shell.exec
       params:
-        working_dir: packages/compass/src
+        working_dir: src/packages/compass
         shell: bash
         script: |
           set -e
@@ -234,10 +234,10 @@ functions:
           npm run evergreen-expansions ${compass_distribution}
     - command: expansions.update
       params:
-        file: packages/compass/src/expansions.yml
+        file: src/packages/compass/expansions.yml
     - command: shell.exec
       params:
-        working_dir: packages/compass/src
+        working_dir: src/packages/compass
         shell: bash
         script: |
           set -e
@@ -246,6 +246,8 @@ functions:
           cat <<EOF_BUILD_SH > ~/compass_package.sh
           #! /usr/bin/env bash
           cd $(pwd)
+          echo "pwd:"
+          echo $(pwd)
 
           # Load environment variables
           source ~/compass_env.sh
@@ -303,7 +305,7 @@ functions:
   'publish':
     command: shell.exec
     params:
-      working_dir: packages/compass/src
+      working_dir: src/packages/compass/
       shell: bash
       script: |
         set -e
@@ -324,67 +326,67 @@ functions:
     # setup
     - <<: *save-artifact
       params:
-        local_file: packages/compass/src/dist/${windows_setup_filename}
+        local_file: src/packages/compass/dist/${windows_setup_filename}
         remote_file: ${project}/${revision}/${windows_setup_filename}
     # MSI
     - <<: *save-artifact
       params:
-        local_file: packages/compass/src/dist/${windows_msi_filename}
+        local_file: src/packages/compass/dist/${windows_msi_filename}
         remote_file: ${project}/${revision}/${windows_msi_filename}
     # ZIP
     - <<: *save-artifact
       params:
-        local_file: packages/compass/src/dist/${windows_zip_filename}
+        local_file: src/packages/compass/dist/${windows_zip_filename}
         remote_file: ${project}/${revision}/${windows_zip_filename}
         content_type: application/zip
     # RELEASES file
     - <<: *save-artifact
       params:
-        local_file: packages/compass/src/dist/RELEASES
+        local_file: src/packages/compass/dist/RELEASES
         remote_file: ${project}/${revision}/${compass_distribution}-RELEASES
     # nupkg full
     - <<: *save-artifact
       params:
-        local_file: packages/compass/src/dist/${windows_nupkg_full_filename}
+        local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
         remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
 
   'save osx artifacts':
     # .dmg
     - <<: *save-artifact
       params:
-        local_file: packages/compass/src/dist/${osx_dmg_filename}
+        local_file: src/packages/compass/dist/${osx_dmg_filename}
         remote_file: ${project}/${revision}/${osx_dmg_filename}
         content_type: 'application/x-apple-diskimage'
     # .zip
     - <<: *save-artifact
       params:
-        local_file: packages/compass/src/dist/${osx_zip_filename}
+        local_file: src/packages/compass/dist/${osx_zip_filename}
         remote_file: ${project}/${revision}/${osx_zip_filename}
         content_type: application/zip
   'save linux artifacts':
     # .deb
     - <<: *save-artifact
       params:
-        local_file: packages/compass/src/dist/${linux_deb_filename}
+        local_file: src/packages/compass/dist/${linux_deb_filename}
         remote_file: ${project}/${revision}/${linux_deb_filename}
         content_type: 'application/vnd.debian.binary-package'
     # .tar.gz
     - <<: *save-artifact
       params:
-        local_file: packages/compass/src/dist/${linux_tar_filename}
+        local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
         content_type: application/x-gzip
   'save rhel artifacts':
     # .rpm
     - <<: *save-artifact
       params:
-        local_file: packages/compass/src/dist/${linux_rpm_filename}
+        local_file: src/packages/compass/dist/${linux_rpm_filename}
         remote_file: ${project}/${revision}/${linux_rpm_filename}
         content_type: application/x-redhat-package-manager
     # .tar.gz
     - <<: *save-artifact
       params:
-        local_file: packages/compass/src/dist/${linux_tar_filename}
+        local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
         content_type: application/x-gzip
 # Tasks
