@@ -138,8 +138,9 @@
     "webpack-sources": "1.4.3"
   },
   "dependencies": {
-    "@leafygreen-ui/button": "^10.0.1",
-    "@leafygreen-ui/typography": "^7.3.2",
+    "@leafygreen-ui/button": "^11.0.2",
+    "@leafygreen-ui/leafygreen-provider": "^2.0.3",
+    "@leafygreen-ui/typography": "^7.6.0",
     "lodash": "^4.17.15",
     "react-ios-switch": "^0.1.19"
   }
