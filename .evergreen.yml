@@ -200,7 +200,7 @@ functions:
           DEBUG=* MONGODB_VERSION=${mongodb_version|4.0.3} npm test -- --${test_suite}
     # - command: attach.results
     #   params:
-    #     file_location: compass/test-results.xml
+    #     file_location: src/test-results.xml
 
   test-plugin:
     - <<: *restore-fetch-s3
