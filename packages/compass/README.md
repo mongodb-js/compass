@@ -1,7 +1,7 @@
 # MongoDB Compass [![][travis_img]][travis_url]
 The MongoDB GUI.
 
-![Aggregation Pipeline Builder Tab in Compass](packages/compass/compass-screenshot.png)
+![Aggregation Pipeline Builder Tab in Compass](compass-screenshot.png)
 
 # Development
 Running Compass locally requires Node.js and npm:

@@ -223,7 +223,7 @@ functions:
   'package':
     - command: shell.exec
       params:
-        working_dir: src
+        working_dir: src/packages/compass
         shell: bash
         script: |
           set -e
@@ -234,10 +234,10 @@ functions:
           npm run evergreen-expansions ${compass_distribution}
     - command: expansions.update
       params:
-        file: src/expansions.yml
+        file: src/packages/compass/expansions.yml
     - command: shell.exec
       params:
-        working_dir: src
+        working_dir: src/packages/compass
         shell: bash
         script: |
           set -e
@@ -303,7 +303,7 @@ functions:
   'publish':
     command: shell.exec
     params:
-      working_dir: src
+      working_dir: src/packages/compass/
       shell: bash
       script: |
         set -e
@@ -324,67 +324,67 @@ functions:
     # setup
     - <<: *save-artifact
       params:
-        local_file: src/dist/${windows_setup_filename}
+        local_file: src/packages/compass/dist/${windows_setup_filename}
         remote_file: ${project}/${revision}/${windows_setup_filename}
     # MSI
     - <<: *save-artifact
       params:
-        local_file: src/dist/${windows_msi_filename}
+        local_file: src/packages/compass/dist/${windows_msi_filename}
         remote_file: ${project}/${revision}/${windows_msi_filename}
     # ZIP
     - <<: *save-artifact
       params:
-        local_file: src/dist/${windows_zip_filename}
+        local_file: src/packages/compass/dist/${windows_zip_filename}
         remote_file: ${project}/${revision}/${windows_zip_filename}
         content_type: application/zip
     # RELEASES file
     - <<: *save-artifact
       params:
-        local_file: src/dist/RELEASES
+        local_file: src/packages/compass/dist/RELEASES
         remote_file: ${project}/${revision}/${compass_distribution}-RELEASES
     # nupkg full
     - <<: *save-artifact
       params:
-        local_file: src/dist/${windows_nupkg_full_filename}
+        local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
         remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
 
   'save osx artifacts':
     # .dmg
     - <<: *save-artifact
       params:
-        local_file: src/dist/${osx_dmg_filename}
+        local_file: src/packages/compass/dist/${osx_dmg_filename}
         remote_file: ${project}/${revision}/${osx_dmg_filename}
         content_type: 'application/x-apple-diskimage'
     # .zip
     - <<: *save-artifact
       params:
-        local_file: src/dist/${osx_zip_filename}
+        local_file: src/packages/compass/dist/${osx_zip_filename}
         remote_file: ${project}/${revision}/${osx_zip_filename}
         content_type: application/zip
   'save linux artifacts':
     # .deb
     - <<: *save-artifact
       params:
-        local_file: src/dist/${linux_deb_filename}
+        local_file: src/packages/compass/dist/${linux_deb_filename}
         remote_file: ${project}/${revision}/${linux_deb_filename}
         content_type: 'application/vnd.debian.binary-package'
     # .tar.gz
     - <<: *save-artifact
       params:
-        local_file: src/dist/${linux_tar_filename}
+        local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
         content_type: application/x-gzip
   'save rhel artifacts':
     # .rpm
     - <<: *save-artifact
       params:
-        local_file: src/dist/${linux_rpm_filename}
+        local_file: src/packages/compass/dist/${linux_rpm_filename}
         remote_file: ${project}/${revision}/${linux_rpm_filename}
         content_type: application/x-redhat-package-manager
     # .tar.gz
     - <<: *save-artifact
       params:
-        local_file: src/dist/${linux_tar_filename}
+        local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
         content_type: application/x-gzip
 # Tasks
@@ -439,8 +439,6 @@ tasks:
     commands:
       - func: restore
       - func: test
-        vars:
-          test_suite: unit
 
   - name: test-functional
     depends_on: [compile]
