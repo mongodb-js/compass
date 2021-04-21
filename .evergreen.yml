@@ -439,8 +439,6 @@ tasks:
     commands:
       - func: restore
       - func: test
-        vars:
-          test_suite: unit
 
   - name: test-functional
     depends_on: [compile]

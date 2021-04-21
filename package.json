@@ -14,7 +14,7 @@
     "install": "lerna bootstrap --concurrency=1",
     "release": "node release/index.js",
     "start": "lerna run start --stream --scope mongodb-compass",
-    "test": "lerna run test",
+    "test": "lerna run test --stream",
     "test-release-tasks": "cross-env MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID='' mocha --timeout 30000 release/*.spec.js"
   },
   "repository": {
