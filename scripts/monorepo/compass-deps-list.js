@@ -168,11 +168,6 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/compass-status.git'
   },
   {
-    name: '@mongodb-js/dl-center',
-    description: 'mongodb download center internal tools',
-    repository: 'https://github.com/mongodb-js/dl-center.git'
-  },
-  {
     name: '@mongodb-js/electron-wix-msi',
     description: 'Creates an MSI installer for your Electron app',
     repository: 'https://github.com/mongodb-js/electron-wix-msi.git'
@@ -292,11 +287,6 @@ module.exports = [
     name: 'hadron-type-checker',
     description: 'Hadron Type Checker',
     repository: 'https://github.com/mongodb-js/hadron-type-checker.git'
-  },
-  {
-    name: 'mongodb-ace-autocompleter',
-    description: 'Ace Editor Autocompleter for MongoDB Queries & Agg Pipelines',
-    repository: 'https://github.com/mongodb-js/ace-autocompleter.git'
   },
   {
     name: 'mongodb-ace-mode',
