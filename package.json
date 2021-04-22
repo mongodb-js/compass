@@ -34,6 +34,7 @@
     "cross-env": "^7.0.0",
     "execa": "^4.1.0",
     "fs-extra": "^9.0.1",
+    "glob": "^7.1.6",
     "lerna": "^4.0.0",
     "listr": "^0.14.3",
     "lodash": "^4.17.19",
@@ -41,6 +42,7 @@
     "mongodb-js-precommit": "^2.2.1",
     "nock": "^13.0.4",
     "node-notifier": "^8.0.0",
+    "ora": "^5.4.0",
     "semver": "^5.1.0",
     "sinon": "^8.1.1",
     "sinon-chai": "^3.4.0"
