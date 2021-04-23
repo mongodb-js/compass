@@ -12,10 +12,9 @@
   "scripts": {
     "check": "lerna run check",
     "install": "lerna bootstrap --concurrency=1",
-    "release": "node release/index.js",
     "start": "lerna run start --stream --scope mongodb-compass",
-    "test": "lerna run test --stream",
-    "test-release-tasks": "cross-env MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID='' mocha --timeout 30000 release/*.spec.js"
+    "release": "cd packages/compass && npm run --silent release --",
+    "test": "lerna run test --stream"
   },
   "repository": {
     "type": "git",
@@ -26,27 +25,11 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "@mongodb-js/dl-center": "^1.0.0",
-    "@octokit/rest": "^18.0.6",
-    "chai": "^4.2.0",
-    "chalk": "^4.1.0",
-    "cli-ux": "^5.5.0",
-    "cross-env": "^7.0.0",
-    "execa": "^4.1.0",
-    "fs-extra": "^9.0.1",
     "lerna": "^4.0.0",
-    "listr": "^0.14.3",
-    "lodash": "^4.17.19",
-    "mocha": "^7.1.1",
-    "mongodb-js-precommit": "^2.2.1",
-    "nock": "^13.0.4",
-    "node-notifier": "^8.0.0",
-    "semver": "^5.1.0",
-    "sinon": "^8.1.1",
-    "sinon-chai": "^3.4.0"
+    "mongodb-js-precommit": "^2.2.1"
   },
   "engines": {
-    "node": "^12.4.0",
+    "node": "12.4.0",
     "npm": ">=6.13.0"
   },
   "bugs": {
