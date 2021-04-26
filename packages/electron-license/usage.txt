@@ -1,0 +1,22 @@
+Usage: electron-license [--path=<path/app>]
+
+Tools for electron apps to work with licenses.
+
+Usage:
+  electron-license build
+  electron-license third-party-notices
+  electron-license check
+  electron-license list --csv
+  electron-license list --markdown
+
+Options:
+  --dir=<path>   The directory your package.json lives in. [Default: `process.cwd()`].
+  --json         Output as JSON for your machine friends [Default: `false`].
+  --csv          Output as csv [Default: `false`].
+  --markdown     Output as markdown [Default: `false`].
+  --production   Only top-level production dependencies [Default: `false`].
+  --exclude_org  Discard all deps comma separated list of GitHub organizations [Default: ``].
+  --exclude      Discard comma separated list of dependencies [Default: ``].
+  --debug        Enable debug messages.
+  -h --help      Show this screen.
+  --version      Show version.

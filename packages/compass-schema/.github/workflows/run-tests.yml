@@ -1,0 +1,62 @@
+name: Run Tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  check-and-test:
+    name: Check and Test
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        mongoVersion: [ stable ]
+
+    env:
+      MONGODB_VERSION: ${{ matrix.mongoVersion }}
+      MONGODB_TOPOLOGY: standalone
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.4.0
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install Required OS Packages
+        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools xvfb
+
+      - name: Install NPM Packages
+        run: npm ci
+
+      - name: Check and Test
+        run: |
+          npm run check
+          npm run cover
+          while true; do \
+            MATCH="$(sudo netstat -tlnp | grep 27018 || true)"; \
+            if [[ "$MATCH" == "" ]]; then echo "mongod exited..."; break; fi; \
+            echo "$MATCH"; \
+            echo "mongod still up..."; \
+            PID="$(echo $MATCH | awk '{print $7}' | cut -f1 -d'/')"; \
+            if [[ "$PID" == "" ]]; then echo "failed to find PID"; break; fi; \
+            echo "sudo killing -9 $PID..."; \
+            sudo kill -9 $PID; \
+            echo "... killed?!"; \
+            sleep 3; \
+          done
+          xvfb-run --auto-servernum npm run test:karma
+          npm run compile

@@ -1,0 +1,31 @@
+{
+  "name": "mongodb-security",
+  "version": "0.1.0",
+  "description": "Portable business logic of MongoDB security model",
+  "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)",
+  "license": "Apache-2.0",
+  "homepage": "http://github.com/mongodb-js/security",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/security.git"
+  },
+  "keywords": [
+    "mongodb",
+    "mongodb.js"
+  ],
+  "scripts": {
+    "check": "mongodb-js-precommit examples/*.js ./*.js ./test/*.js",
+    "test": "mocha"
+  },
+  "dependencies": {
+    "debug": "^4.1.1",
+    "lodash.every": "^4.6.0",
+    "lodash.foreach": "^4.5.0"
+  },
+  "devDependencies": {
+    "eslint-config-mongodb-js": "^5.0.3",
+    "lodash.pluck": "^3.1.2",
+    "mocha": "^7.0.0",
+    "mongodb-js-precommit": "^2.0.0"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "queryPlanner": {
+    "plannerVersion": 1,
+    "namespace": "mongodb.fanclub",
+    "indexFilterSet": false,
+    "parsedQuery": {
+      "_id": {
+        "$eq": 1
+      }
+    },
+    "winningPlan": {
+      "stage": "IDHACK"
+    },
+    "rejectedPlans": []
+  },
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": 0,
+    "executionTimeMillis": 1,
+    "totalKeysExamined": 0,
+    "totalDocsExamined": 0,
+    "executionStages": {
+      "stage": "IDHACK",
+      "nReturned": 0,
+      "executionTimeMillisEstimate": 0,
+      "works": 1,
+      "advanced": 0,
+      "needTime": 0,
+      "needYield": 0,
+      "saveState": 0,
+      "restoreState": 0,
+      "isEOF": 1,
+      "invalidates": 0,
+      "keysExamined": 0,
+      "docsExamined": 0
+    },
+    "allPlansExecution": []
+  },
+  "serverInfo": {
+    "host": "Groot.local",
+    "port": 27018,
+    "version": "3.2.5",
+    "gitVersion": "34e65e5383f7ea1726332cb175b73077ec4a1b02"
+  },
+  "ok": 1
+}

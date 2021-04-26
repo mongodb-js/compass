@@ -1,0 +1,33 @@
+{
+  "name": "hadron-app-registry",
+  "description": "Hadron App Registry",
+  "author": "Durran Jordan <durran@gmail.com>",
+  "bugs": "https://github.com/mongodb-js/hadron-app-registry/issues",
+  "homepage": "https://github.com/mongodb-js/hadron-app-registry",
+  "version": "7.2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/hadron-app-registry.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "ci": "npm test",
+    "test": "mocha --recursive",
+    "check": "mongodb-js-precommit"
+  },
+  "dependencies": {
+    "debug": "^4.1.1",
+    "eventemitter3": "^4.0.0",
+    "reflux": "^0.4.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mocha": "^7.0.1",
+    "mongodb-js-precommit": "^2.0.0",
+    "sinon": "^9.0.0"
+  }
+}

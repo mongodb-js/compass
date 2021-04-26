@@ -1,0 +1,37 @@
+name: Run Tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  check-and-test:
+    name: Check and Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [
+          ubuntu-latest,
+          windows-latest,
+          macOS-latest
+        ]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.4.0
+
+      - if: matrix.os == 'ubuntu-latest'
+        name: Install Deps Ubuntu
+        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools lintian rpm
+
+      - name: Install NPM Packages
+        run: npm ci
+
+      - name: Check and Test
+        run: |
+          npm run check
+          npm run test

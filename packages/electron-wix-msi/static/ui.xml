@@ -1,0 +1,21 @@
+<UI Id="UserInterface">
+  <Property Id="WixUI_Mode" Value="Custom" />
+
+  <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+  <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="9" Bold="yes" />
+  <TextStyle Id="WixUI_Font_Title"  FaceName="Tahoma" Size="9" Bold="yes" />
+
+  <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+
+  <DialogRef Id="ProgressDlg" />
+  <DialogRef Id="ErrorDlg" />
+  <DialogRef Id="FilesInUse" />
+  <DialogRef Id="FatalError" />
+  <DialogRef Id="UserExit" />
+
+  <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+  <Publish Dialog="WelcomeDlg" Control="Next" Event="EndDialog" Value="Return" Order="2"></Publish>
+</UI>
+<UIRef Id="WixUI_Common" />
+
+<!-- {{Properties}} -->

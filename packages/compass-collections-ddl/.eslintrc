@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "camelcase": 1
+  },
+  "extends": [
+    "mongodb-js/compass-plugin"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "hadron-style-manager",
+  "description": "Hadron Style Manager",
+  "author": "Durran Jordan <durran@gmail.com>",
+  "bugs": "https://github.com/mongodb-js/hadron-style-manager/issues",
+  "homepage": "https://github.com/mongodb-js/hadron-style-manager",
+  "version": "0.3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/hadron-style-manager.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "ci": "npm run check && npm test",
+    "test": "mocha",
+    "check": "mongodb-js-precommit"
+  },
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "less-cache": "^1.1.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mocha": "^7.0.1",
+    "mongodb-js-precommit": "^2.2.0"
+  }
+}

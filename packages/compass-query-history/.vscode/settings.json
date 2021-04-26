@@ -1,0 +1,14 @@
+{
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.exclude": {
+    ".nyc_output": true,
+    "coverage": true
+  },
+  "search.exclude": {
+    "coverage": true,
+    ".nyc_output": true
+  },
+  "prettier.arrowParens": "always"
+}

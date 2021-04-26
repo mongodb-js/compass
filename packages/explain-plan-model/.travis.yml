@@ -1,0 +1,14 @@
+sudo: false
+language: node_js
+node_js:
+  - 6
+before_install:
+  - npm install -g npm@3
+  - npm config set loglevel error
+  - npm config -g list -l
+  - npm --version
+script: npm run-script ci
+cache:
+  directories:
+    - node_modules
+after_script: "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"

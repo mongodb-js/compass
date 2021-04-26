@@ -1,0 +1,1 @@
+<WixVariable Id="{{Key}}" Value="{{Value}}" />

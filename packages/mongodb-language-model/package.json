@@ -1,0 +1,42 @@
+{
+  "name": "mongodb-language-model",
+  "description": "Parses MongoDB query language and returns an abstract syntax tree",
+  "author": "Thomas Rueckstiess <thomas@mongodb.com>",
+  "version": "1.6.1",
+  "bugs": "https://github.com/mongodb-js/mongodb-language-model/issues",
+  "homepage": "https://github.com/mongodb-js/mongodb-language-model",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/mongodb-language-model"
+  },
+  "dependency-check": {
+    "entries": [
+      "./index.js"
+    ]
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js",
+    "mongodb",
+    "query",
+    "language",
+    "model"
+  ],
+  "scripts": {
+    "test": "mocha",
+    "compile": "npm run pegjs",
+    "pegjs": "pegjs -o ./parser.js < ./grammar.pegjs",
+    "check": "mongodb-js-precommit",
+    "prepublishOnly": "npm run compile",
+    "pretest": "npm run compile",
+    "precheck": "npm run compile"
+  },
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mocha": "^7.0.0",
+    "mongodb-js-precommit": "^2.0.0",
+    "pegjs": "^0.10.0"
+  }
+}

@@ -1,0 +1,88 @@
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <!-- http://wixtoolset.org/documentation/manual/v3/xsd/wix/product.html -->
+  <Product Id="*" UpgradeCode="{{UpgradeCode}}"
+          Name="{{ApplicationName}}"
+          Version="{{Version}}"
+          Manufacturer="{{Manufacturer}}"
+          Language="{{Language}}">
+    <!-- Only run this installer on Windows 7 or up (or if it's already installed, I guess) -->
+    <!-- <Condition Message="This application is only supported on Windows 7 or higher.">
+      <![CDATA[Installed OR (VersionNT >= 601)]]>
+    </Condition> -->
+    <!-- http://wixtoolset.org/documentation/manual/v3/xsd/wix/package.html -->
+    <Package InstallerVersion="405"
+             Compressed="yes"
+             InstallScope="perMachine"
+             Comments="Windows Installer Package"
+             Platform="{{Platform}}"/>
+    <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
+
+    <!-- Handle Updates -->
+    <Upgrade Id="{{UpgradeCode}}">
+      <UpgradeVersion OnlyDetect="no" Property="PREVIOUSFOUND"
+          Minimum="0.0.0" IncludeMinimum="yes"
+          Maximum="{{Version}}" IncludeMaximum="no" />
+    </Upgrade>
+
+    <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallInitialize" />
+    </InstallExecuteSequence>
+
+<!-- {{UI}} -->
+
+    <!-- Step 2: Add files and directories -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <!-- Installation files to %PROGRAMFILES% -->
+      <Directory Id="{{ProgramFilesFolder}}">
+<!-- {{Directories}} -->
+      </Directory>
+      <!-- Start Menu -->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="{{ShortcutFolderName}}"/>
+      </Directory>
+    </Directory>
+
+    <Property Id="USERDATAFOLDER">
+      <RegistrySearch Id="RemovalProperty"
+                      Root="HKLM"
+                      Key="Software\{{ShortcutFolderName}}\{{ApplicationShortName}}"
+                      Name="UserDataDirectory"
+                      Type="raw" />
+    </Property>
+
+    <!-- Step 3: Add app to Start Menu -->
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="{{ApplicationShortcutGuid}}" Win64='{{Win64YesNo}}'>
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="{{ShortcutName}}"
+                  Description="{{ApplicationDescription}}"
+                  Target="[APPLICATIONROOTDIRECTORY]{{ApplicationBinary}}.exe"
+                  WorkingDirectory="APPLICATIONROOTDIRECTORY">
+          <ShortcutProperty Key="System.AppUserModel.ID" Value="{{AppUserModelId}}" />
+        </Shortcut>
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU"
+                       Key="Software\{{ShortcutFolderName}}\{{ApplicationShortName}}"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+      </Component>
+      <Component Id="ApplicationInstallLocation" Guid="78B37883-AC76-44C6-8122-007BD077BA29" Win64="{{Win64YesNo}}">
+        <RegistryKey Root="HKLM"
+                     Key="Software\{{ShortcutFolderName}}\{{ApplicationShortName}}">
+          <RegistryValue Type="string" Name="Directory" Value="[APPLICATIONROOTDIRECTORY]" KeyPath="yes"/>
+          <RegistryValue Type="string" Name="UserDataDirectory" Value="[APPLICATIONROOTDIRECTORY]UserData"/>
+        </RegistryKey>
+        <util:RemoveFolderEx Id="RemoveAdditionalFiles" On="uninstall" Property="USERDATAFOLDER"/>
+      </Component>
+    </DirectoryRef>
+
+    <!-- Step 4: Tell WiX to install the files -->
+    <Feature Id="MainApplication" Title="Main Application" Level="1">
+<!-- {{ComponentRefs}} -->
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ApplicationInstallLocation" />
+    </Feature>
+  </Product>
+</Wix>

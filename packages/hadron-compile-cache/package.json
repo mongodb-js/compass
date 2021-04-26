@@ -1,0 +1,38 @@
+{
+  "name": "hadron-compile-cache",
+  "description": "Hadron Compile Cache",
+  "author": "Durran Jordan <durran@gmail.com>",
+  "bugs": "https://github.com/mongodb-js/hadron-compile-cache/issues",
+  "homepage": "https://github.com/mongodb-js/hadron-compile-cache",
+  "version": "3.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/hadron-compile-cache.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "ci": "npm run check && npm test",
+    "test": "mocha --recursive",
+    "check": "mongodb-js-precommit"
+  },
+  "dependencies": {
+    "@lukekarrys/jade-runtime": "^1.11.1",
+    "babel-core": "^6.7.6",
+    "babel-preset-react": "^6.5.0",
+    "chokidar": "^3.3.1",
+    "debug": "^4.1.1",
+    "fs-plus": "^3.0.0",
+    "highlight.js": "^9.8.0",
+    "jade": "^1.11.0",
+    "marky-mark": "^1.2.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mocha": "^7.0.1",
+    "mongodb-js-precommit": "^2.2.0"
+  }
+}

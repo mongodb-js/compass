@@ -1,0 +1,12 @@
+sudo: false
+dist: bionic
+language: node_js
+node_js:
+  - 12
+  - 13
+script:
+  - npm run check
+  - npm test
+cache: npm
+install:
+  - npm ci

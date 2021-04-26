@@ -1,0 +1,22 @@
+.option-selector {
+  display: inline-block;
+  padding: 0 5px;
+
+  &-label {
+    display: inline;
+    font-weight: normal;
+    margin: 0;
+    padding-right: 5px;
+  }
+}
+
+.has-error .option-selector {
+  button.dropdown-toggle {
+    border-color: #843534;
+  }
+}
+
+.open > .dropdown-menu {
+  overflow: auto;
+    max-height: 200px;
+}

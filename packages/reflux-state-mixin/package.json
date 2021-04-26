@@ -1,0 +1,49 @@
+{
+  "name": "reflux-state-mixin",
+  "version": "0.7.0",
+  "description": "Reflux stores mixin adding 'state' syntax similar to React components. es6 classes supported",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mongodb-js/reflux-state-mixin.git"
+  },
+  "keywords": [
+    "reflux",
+    "mixin",
+    "model",
+    "mvc",
+    "state",
+    "store",
+    "event",
+    "events",
+    "connect",
+    "es6 classes",
+    "decorator"
+  ],
+  "author": {
+    "name": "Yonatan Schreiber",
+    "email": "yonatnamn@gmail.com"
+  },
+  "license": "ISC",
+  "dependencies": {},
+  "peerDependencies": {
+    "reflux": ">=0.2.5 <=0.4.x"
+  },
+  "homepage": "https://github.com/mongodb-js/reflux-state-mixin",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/mongodb-js/reflux-state-mixin/issues"
+  },
+  "scripts": {
+    "compile": "babel --presets react,es2015,stage-0 -d lib/ src/",
+    "prepublish": "npm run compile",
+    "pretest": "npm run compile",
+    "prestart": "npm run compile"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.2.0",
+    "babel-preset-es2015": "^6.1.18",
+    "babel-preset-react": "^6.1.18",
+    "babel-preset-stage-0": "^6.1.18"
+  }
+}

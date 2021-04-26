@@ -1,0 +1,21 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+      "max-line-length": {
+          "options": [120]
+      },
+      "new-parens": true,
+      "no-arg": true,
+      "no-bitwise": true,
+      "no-conditional-assignment": true,
+      "no-consecutive-blank-lines": false,
+      "quotemark": [true, "single"],
+      "no-var-requires": false,
+      "interface-name": false,
+      "array-type": false,
+      "no-console": false,
+      "trailing-comma": false,
+      "no-unused-expression": false,
+      "object-literal-sort-keys": false
+  }
+}

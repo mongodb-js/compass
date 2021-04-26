@@ -1,0 +1,7 @@
+sudo: false
+dist: bionic
+language: node_js
+node_js:
+  - 12.4.0
+script: npm run-script ci
+cache: npm

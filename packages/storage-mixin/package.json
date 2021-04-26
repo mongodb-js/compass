@@ -1,0 +1,59 @@
+{
+  "name": "storage-mixin",
+  "description": "Ampersand model mixin to persist data via various storage backends",
+  "bugs": {
+    "url": "https://github.com/mongodb-js/storage-mixin/issues"
+  },
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "homepage": "https://github.com/mongodb-js/storage-mixin",
+  "version": "3.3.4",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mongodb-js/storage-mixin.git"
+  },
+  "author": "Thomas Rueckstiess <thomas@mongodb.com>",
+  "contributors": [
+    "Thomas Rueckstiess <thomas@mongodb.com>",
+    "Lucas Hrabovsky <lucas@mongodb.com>"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js",
+    "preferences",
+    "settings",
+    "ampersand.js"
+  ],
+  "scripts": {
+    "pretest:electron": "electron-rebuild --force --only keytar",
+    "test:electron": "electron-mocha --renderer",
+    "pretest:node": "node-gyp rebuild --directory node_modules/keytar/",
+    "test:node": "mocha",
+    "check": "mongodb-js-precommit",
+    "test": "npm run test:node && npm run test:electron"
+  },
+  "dependencies": {
+    "ampersand-model": "^8.0.1",
+    "ampersand-rest-collection": "^6.0.0",
+    "ampersand-sync": "^5.1.0",
+    "async": "^3.1.0",
+    "debug": "^4.1.1",
+    "hadron-ipc": "^1.1.0",
+    "keytar": "^5.0.0",
+    "localforage": "^1.7.3",
+    "lodash": "^4.17.15",
+    "rimraf": "^3.0.0",
+    "uuid": "^3.3.3",
+    "write-file-atomic": "^3.0.1"
+  },
+  "devDependencies": {
+    "electron": "^7.1.11",
+    "electron-mocha": "^8.1.2",
+    "electron-rebuild": "^1.8.8",
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mocha": "^7.0.0",
+    "mongodb-js-precommit": "^2.0.0"
+  }
+}

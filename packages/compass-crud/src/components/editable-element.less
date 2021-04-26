@@ -1,0 +1,299 @@
+.editable-element {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+
+  &-field {
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 22px;
+  }
+
+  &-expand-button {
+    position: absolute;
+    padding: 2px 6px 0px 5px;
+  }
+
+  &-separator {
+    padding-right: 2px;
+    vertical-align: top;
+  }
+
+  &-is-editing {
+
+    .line-number:focus {
+      outline: 0;
+      color: #494747;
+      font-weight: bold;
+      border: 1px solid #494747;
+      border-radius: 2px;
+
+      &:before {
+        content: '+';
+      }
+
+      &-is-selected {
+        &:before {
+          content: '-';
+        }
+      }
+    }
+
+    &:hover {
+      background-color: #f5f6f7;
+
+      &::before {
+        background-color: #f5f6f7;
+      }
+
+      input {
+        background-color: #f5f6f7;
+
+        &:focus {
+          background-color: #FFFFFF;
+        }
+      }
+
+      .line-number {
+        color: #494747;
+        font-weight: bold;
+        border: 1px solid #494747;
+        border-radius: 2px;
+
+        &:before {
+          content: '+';
+        }
+
+        &-is-selected {
+          &:before {
+            content: '-';
+          }
+        }
+      }
+
+      .editable-element-actions {
+        opacity: 1;
+      }
+
+      .editable-element-types {
+        .btn {
+          background-color: #dee0e3;
+          color: #313030;
+        }
+        .caret {
+          visibility: visible;
+        }
+
+        &-is-edited {
+          .btn {
+            font-weight: bold;
+            color: #000000;
+          }
+        }
+      }
+    }
+  }
+
+  &-is-edited {
+    background-color: @yellowLight3;
+
+    &:hover {
+      .line-number {
+        color: #FFFFFF;
+        border: 1px solid #FFFFFF;
+
+        &-is-selected {
+          border: 1px solid #FFFFFF;
+        }
+      }
+    }
+
+    .line-number {
+      background-color: @yellowBase;
+      color: @yellowDark2;
+      border: 1px solid #FFFFFF;
+
+      &-is-selected {
+        border: 1px solid #FFFFFF;
+      }
+    }
+
+    input {
+      background-color: @yellowLight3;
+    }
+
+    .editable-element-field {
+      background-color: @yellowLight3;
+
+      &:focus {
+        background-color: #FFFFFF;
+      }
+
+      &::before {
+        background-color: @yellowLight3;
+      }
+    }
+  }
+
+  &-is-added {
+    background-color: @greenLight3;
+
+    .editable-element-field {
+      background-color: @greenLight3;
+
+      &:focus {
+        background-color: #FFFFFF;
+      }
+    }
+
+    &:hover {
+      .line-number {
+        color: #FFFFFF;
+        border: 1px solid #FFFFFF;
+
+        &-is-selected {
+          border: 1px solid #FFFFFF;
+        }
+      }
+    }
+
+    .line-number {
+      background-color: @greenBase;
+      color: #FFFFFF;
+      border: 1px solid #FFFFFF;
+
+      &-is-selected {
+        border: 1px solid #FFFFFF;
+      }
+    }
+
+    input {
+      background-color: @greenLight3;
+    }
+  }
+
+  &-is-removed {
+    background-color: @redLight3;
+
+    .editable-element-field {
+      background-color: @redLight3;
+
+      &:focus {
+        background-color: #FFFFFF;
+      }
+    }
+
+    &:hover {
+      .line-number {
+        color: #FFFFFF;
+        border: 1px solid #FFFFFF;
+
+        &-is-selected {
+          border: 1px solid #FFFFFF;
+        }
+      }
+    }
+
+    .line-number {
+      background-color: @redBase;
+      color: #FFFFFF;
+      border: 1px solid #FFFFFF;
+
+      &-is-selected {
+        border: 1px solid #FFFFFF;
+      }
+    }
+
+    input {
+      background-color: @redLight3;
+    }
+  }
+
+  &-actions {
+    display: inline-block;
+    opacity: 0;
+    width: 18px;
+    font-size: 13px;
+    line-height: 11px;
+    margin-top: 1px;
+    text-align: center;
+    color: #807f7f;
+    position: absolute;
+    left: 3px;
+
+    i:hover {
+      cursor: pointer;
+    }
+  }
+
+  &-types {
+    display: inline-block;
+    width: 120px;
+    color: #807f7f;
+    height: 17px;
+    flex-shrink: 0;
+
+    .closed > .dropdown-menu {
+      display: none;
+    }
+
+    .type-label {
+      padding: 1px 12px;
+    }
+
+    .btn {
+      background-color: transparent;
+      color: #a09f9e;
+      border: none;
+      text-transform: none;
+      font-size: 11px;
+      border-radius: 8px;
+      padding: 1px 12px;
+    }
+
+    .caret {
+      visibility: hidden;
+    }
+
+    &-is-edited {
+      .btn {
+        color: #000000;
+        font-weight: bold;
+      }
+    }
+
+    .dropdown-menu {
+      min-width: 120px;
+
+      li {
+        span {
+          display: block;
+          padding: 3px 20px;
+          clear: both;
+          font-weight: normal;
+          font-size: 11px;
+          color: #333333;
+          white-space: nowrap;
+        }
+        span:hover {
+          color: #313030;
+          text-decoration: none;
+          background: #e6e6e6;
+        }
+      }
+    }
+  }
+
+  &-value {
+    position: relative;
+    vertical-align: top;
+    z-index: 1;
+  }
+
+  &-field {
+    position: relative;
+    z-index: 1;
+  }
+}

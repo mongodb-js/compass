@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      const { ipcRenderer } = require('electron');
+
+      window.setTimeout(() => {
+        ipcRenderer.send('loadingFinished');
+      }, 2000);
+    </script>
+  </head>
+  <body>
+    Main Content
+  </body>
+</html>

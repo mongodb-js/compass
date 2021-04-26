@@ -1,0 +1,39 @@
+{
+  "name": "mongodb-index-model",
+  "description": "MongoDB index model.",
+  "author": "Lucas Hrabovsky <lucas@mongodb.com>",
+  "version": "2.6.1",
+  "bugs": "https://github.com/mongodb-js/index-model/issues",
+  "homepage": "https://github.com/mongodb-js/index-model",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/index-model"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "check": "mongodb-js-precommit",
+    "pretest": "mongodb-runner install",
+    "test": "mocha"
+  },
+  "dependencies": {
+    "@mongodb-js/triejs": "^0.1.5",
+    "ampersand-collection": "^1.6.1",
+    "ampersand-model": "^6.0.2",
+    "ampersand-rest-collection": "^6.0.0",
+    "async": "^3.2.0",
+    "lodash": "^4.17.15",
+    "mongodb": "^3.5.4",
+    "mongodb-js-errors": "^0.5.0",
+    "mongodb-ns": "^2.2.0"
+  },
+  "devDependencies": {
+    "debug": "^4.1.1",
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mocha": "^7.1.0",
+    "mongodb-js-precommit": "^2.2.1",
+    "mongodb-runner": "^4.8.0"
+  }
+}

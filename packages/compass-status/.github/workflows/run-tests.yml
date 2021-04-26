@@ -1,0 +1,36 @@
+name: Run Tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  check-and-test:
+    name: Check and Test
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.4.0
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install NPM Packages
+        run: npm ci
+        
+      - name: Check and Test
+        run: |
+          npm run ci

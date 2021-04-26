@@ -1,0 +1,23 @@
+@import '~@leafygreen-ui/palette/dist/ui-colors.less';
+
+.compass-shell {
+  width: 100%;
+  background-color: @leafygreen__gray--dark-3;
+  display: flex;
+  flex-basis: auto;
+  overflow: hidden;
+  position: relative;
+  flex-direction: column;
+  z-index: 1;
+
+  &-shell-container {
+    flex-grow: 1;
+    display: none;
+    overflow: auto;
+    border-top: 1px solid @leafygreen__gray--dark-2;
+
+    &-visible {
+      display: flex;
+    }
+  }
+}

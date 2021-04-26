@@ -1,0 +1,31 @@
+{
+  "name": "hadron-auto-update-manager",
+  "description": "Atoms AutoUpdateManager class as a standalone module.",
+  "version": "3.0.0",
+  "scripts": {
+    "check": "mongodb-js-precommit",
+    "test": "electron-mocha",
+    "ci": "npm run check && xvfb-maybe npm test"
+  },
+  "dependency-check": {
+    "ignore": []
+  },
+  "homepage": "http://github.com/mongodb-js/hadron-auto-update-manager",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/hadron-auto-update-manager.git"
+  },
+  "dependencies": {
+    "debug": "^4.1.1",
+    "got": "^10.4.0",
+    "lodash": "^4.17.15"
+  },
+  "devDependencies": {
+    "electron": "^8.0.1",
+    "electron-mocha": "^8.2.0",
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mongodb-js-precommit": "^2.2.0",
+    "xvfb-maybe": "^0.2.1"
+  },
+  "license": "Apache-2.0"
+}

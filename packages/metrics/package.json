@@ -1,0 +1,49 @@
+{
+  "name": "mongodb-js-metrics",
+  "description": "Shareable metric recording.",
+  "version": "6.0.0",
+  "scripts": {
+    "check": "mongodb-js-precommit",
+    "test": "mocha",
+    "test:electron": "xvfb-maybe electron-mocha --renderer"
+  },
+  "homepage": "http://github.com/mongodb-js/metrics",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/metrics.git"
+  },
+  "dependency-check": {
+    "ignore": [
+      "electron"
+    ]
+  },
+  "dependencies": {
+    "ampersand-collection": "^2.0.1",
+    "ampersand-collection-lodash-mixin": "^4.0.0",
+    "ampersand-state": "5.0.3",
+    "async": "^3.1.0",
+    "bugsnag-js": "^3.2.0",
+    "caller-id": "^0.1.0",
+    "debug": "^4.1.1",
+    "lodash": "^4.13.1",
+    "mongodb-ns": "^2.0.0",
+    "mongodb-redact": "0.2.0",
+    "mongodb-stitch-browser-sdk": "^4.8.0",
+    "mongodb-stitch-server-sdk": "^4.8.0",
+    "request": "^2.67.0",
+    "singleton-js": "^1.0.0",
+    "universal-analytics": "^0.4.13",
+    "uuid": "^3.1.0",
+    "xhr": "^2.2.0"
+  },
+  "devDependencies": {
+    "electron": "^8.0.1",
+    "electron-mocha": "^8.2.0",
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mocha": "^7.0.0",
+    "mongodb-js-precommit": "^2.1.0",
+    "sinon": "^9.0.0",
+    "xvfb-maybe": "^0.2.1"
+  },
+  "license": "Apache-2.0"
+}

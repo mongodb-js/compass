@@ -1,0 +1,5 @@
+--webpack-config config/webpack.test.config.js
+--require jsdom-global/register
+--require test/setup.js
+--recursive
+--ui bdd

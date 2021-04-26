@@ -1,0 +1,54 @@
+{
+  "name": "hadron-app",
+  "description": "Hadron Application Singleton",
+  "author": "Durran Jordan <durran@gmail.com>",
+  "bugs": "https://github.com/mongodb-js/hadron-app/issues",
+  "homepage": "https://github.com/mongodb-js/hadron-app",
+  "version": "3.2.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/hadron-app.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "test": "mocha",
+    "check": "mongodb-js-precommit",
+    "ci": "npm run check && npm test"
+  },
+  "dependency-check": {
+    "ignore": [
+      "babel-register",
+      "hadron-app-registry",
+      "less",
+      "mongodb-data-service",
+      "prop-types",
+      "react",
+      "react-dom"
+    ]
+  },
+  "devDependencies": {
+    "babel-register": "^6.26.0",
+    "chai": "^4.2.0",
+    "eslint-config-mongodb-js": "^5.0.3",
+    "hadron-app-registry": "^7.2.0",
+    "less": "*",
+    "mocha": "^7.0.1",
+    "mongodb-data-service": "^16.5.0",
+    "mongodb-js-precommit": "^2.2.0",
+    "prop-types": "^15.7.2",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
+  },
+  "peerDependencies": {
+    "babel-register": "^6.26.0",
+    "hadron-app-registry": "^7.2.0",
+    "less": "*",
+    "mongodb-data-service": "^16.5.0",
+    "prop-types": "^15.7.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
+  }
+}

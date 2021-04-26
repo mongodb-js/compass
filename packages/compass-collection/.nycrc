@@ -1,0 +1,15 @@
+{
+  "exclude": [
+    "config",
+    "electron",
+    ".tmp",
+    "test"
+  ],
+  "reporter": [
+    "text",
+    "html",
+    "cobertura"
+  ],
+  "sourceMap": false,
+  "instrument": false
+}
