@@ -59,13 +59,32 @@ var stageIterationMixin = {
       return null;
     }
     stage = stage || _.get(this.rawExplainObject, 'executionStats.executionStages', {});
+    var stages = [];
     if (stage.inputStage) {
-      return [stage.inputStage];
+      stages.push(stage.inputStage);
     }
     if (stage.executionStages) {
-      return [stage.executionStages];
+      stages.push(stage.executionStages);
     }
-    return stage.shards || stage.inputStages || [];
+    if (stage.innerStage) {
+      stages.push(stage.innerStage);
+    }
+    if (stage.outerStage) {
+      stages.push(stage.outerStage);
+    }
+    if (stage.thenStage) {
+      stages.push(stage.thenStage);
+    }
+    if (stage.elseStage) {
+      stages.push(stage.elseStage);
+    }
+    if (stage.shards) {
+      stages = stages.concat(stage.shards);
+    }
+    if (stage.inputStages) {
+      stages = stages.concat(stage.inputStages);
+    }
+    return stages;
   },
   /**
    * iterates over all stages and returns a depth-first pre-ordered array
