@@ -1,2 +1,0 @@
-{ "_id": <ObjectID>, "a": 1 }
-[ { "_id": <ObjectID>, "a": 2 } ]

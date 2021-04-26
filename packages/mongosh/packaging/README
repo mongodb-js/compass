@@ -1,7 +1,0 @@
-This package contains mongosh, the mongo shell, and a helper binary, mongocryptd.
-Extract them to a suitable location.
-
-For licensing information:
-
-- mongosh: See LICENSE-mongosh
-- mongocryptd: See LICENSE-mongocryptd

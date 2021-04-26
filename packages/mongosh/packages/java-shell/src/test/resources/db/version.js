@@ -1,2 +1,0 @@
-// command dontCheckValue
-db.version()

@@ -1,1 +1,0 @@
-com.mongodb.MongoWriteException: Document failed validation

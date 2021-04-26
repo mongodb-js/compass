@@ -1,2 +1,0 @@
-AcknowledgedUpdateResult{matchedCount=0, modifiedCount=0, upsertedId=null}
-[ { "_id": <ObjectID>, "a": 1 }, { "_id": <ObjectID>, "a": 1 }, { "_id": <ObjectID>, "a": 1 }, { "_id": <ObjectID>, "a": 3, "b": 1 } ]

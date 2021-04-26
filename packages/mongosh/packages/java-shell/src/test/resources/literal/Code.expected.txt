@@ -1,2 +1,0 @@
-CodeWithScopeResult: {"$code": "code"}
-CodeResult: {"$code": "code"}

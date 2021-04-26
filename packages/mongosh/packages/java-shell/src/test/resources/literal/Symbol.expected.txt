@@ -1,2 +1,0 @@
-SymbolResult: a
-SymbolResult: b

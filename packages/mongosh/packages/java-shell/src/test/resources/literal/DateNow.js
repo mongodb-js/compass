@@ -1,2 +1,0 @@
-// command dontCheckValue
-Date.now()

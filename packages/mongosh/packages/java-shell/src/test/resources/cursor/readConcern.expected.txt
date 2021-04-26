@@ -1,2 +1,0 @@
-[ { "_id": <ObjectID>, "a": 1 } ]
-java.lang.IllegalArgumentException: 'unknown' is not a valid readConcernLevel

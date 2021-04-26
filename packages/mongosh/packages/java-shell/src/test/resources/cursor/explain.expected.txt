@@ -1,8 +1,0 @@
-"admin.coll"
-"admin.coll"
-"admin.coll"
-true
-false
-42
-{ "name": { "$eq": "Vasya" } }
-{ "_id": -1 }

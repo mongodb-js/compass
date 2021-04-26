@@ -1,2 +1,0 @@
-java.lang.IllegalArgumentException: state should be: w >= 0
-[ ]

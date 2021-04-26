@@ -1,1 +1,0 @@
-com.mongodb.MongoQueryException: Query failed with error code 2 and error message 'error processing query: ns=admin.collTree: $and

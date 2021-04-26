@@ -1,1 +1,0 @@
-BSONTimestampResult: {"$timestamp": {"t": 100, "i": 0}}

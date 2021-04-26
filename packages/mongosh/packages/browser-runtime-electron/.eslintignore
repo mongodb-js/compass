@@ -1,4 +1,0 @@
-/lib/**
-/build/**
-/coverage/**
-!.eslintrc.js

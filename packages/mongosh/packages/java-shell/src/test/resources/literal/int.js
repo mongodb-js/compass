@@ -1,2 +1,0 @@
-// command checkResultClass
-42

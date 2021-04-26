@@ -1,1 +1,0 @@
-[ "Vasya", "Petya", "Lyusya" ]

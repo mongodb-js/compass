@@ -1,2 +1,0 @@
-LongResult: 24
-LongResult: 24

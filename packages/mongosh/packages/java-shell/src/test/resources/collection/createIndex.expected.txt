@@ -1,8 +1,0 @@
-category_1
-"category_1"
-{ "nIndexesWas": 2, "ok": 1 }
-category_1
-"de"
-{ "nIndexesWas": 2, "ok": 1 }
-category_text_v_text
-{ "category": 10, "v": 5 }

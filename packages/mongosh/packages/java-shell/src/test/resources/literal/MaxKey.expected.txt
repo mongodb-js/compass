@@ -1,2 +1,0 @@
-MaxKeyResult: {"$maxKey": 1}
-MaxKeyResult: {"$maxKey": 1}
