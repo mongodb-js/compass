@@ -13,3 +13,4 @@ report.json
 expansions.yml
 .nvmrc
 .vscode
+.migration-cache
