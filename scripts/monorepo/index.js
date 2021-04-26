@@ -325,7 +325,7 @@ async function runMonorepo() {
         normalized.set(repository, {
           name: [name],
           repository,
-          importStrategy: strategy ?? defaultImportStrategy
+          importStrategy: strategy || defaultImportStrategy
         });
       }
     }

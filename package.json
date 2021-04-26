@@ -25,6 +25,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
+    "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
     "lerna": "^4.0.0",
     "mongodb-js-precommit": "^2.2.1",
