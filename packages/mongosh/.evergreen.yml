@@ -1,0 +1,1034 @@
+exec_timeout_secs: 3600
+
+# Functions are any command that can be run.
+#
+# Current functions:
+#   checkout - Checks out the project from git.
+#   install - Installs Node and all dependencies.
+#   check - Performs linter and dependency checks.
+#   test - Runs all tests.
+#   test_vscode - Clones the vscode extension repository and runs its tests.
+#   test_connectivity - Runs extra connectivity tests.
+#   compile_artifact - Compile the release binary.
+#   package_and_upload_artifact - Upload the release binary to S3.
+#   test_linux_artifact - Test that the built artifact works where we expect it to.
+#                         We use this to verify that e.g. the Ubuntu-built release
+#                         binary also works on RHEL and Debian.
+#   release_publish - Publishes the npm packages and uploads the tarballs.
+functions:
+  checkout:
+    - command: git.get_project
+      params:
+        directory: src
+  install:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.install_node
+          npm run evergreen-release bump
+  check:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          npm run check-ci
+          }
+  test:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          npm run test-ci
+          echo "Creating coverage tarball..."
+          tar cvzf coverage.tgz coverage
+          }
+        env:
+          AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
+          AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/coverage.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/coverage-${build_variant}.tgz
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
+  test_vscode:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          (cd scripts/docker && docker build -t ubuntu18.04-xvfb -f ubuntu18.04-xvfb.Dockerfile .)
+          docker run \
+            --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
+            -c 'cd /tmp/build && ./testing/test-vscode.sh'
+          }
+  test_connectivity:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          npm run test-connectivity
+          }
+
+  ###
+  # ARTIFACT COMPILATION
+  #
+  # compile_artifact generates the executable binary and uploads it as TGZ to S3 for later use.
+  # Use download_compiled_artifact to download the TGZ from S3.
+  #
+  # Both functions expect the following arguments:
+  # - executable_os_id
+  ###
+  compile_artifact:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/compile-artifact.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/dist.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
+  download_compiled_artifact:
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/dist.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
+        bucket: mciuploads
+
+  ###
+  # E2E TEST EXECUTION
+  #
+  # Runs the E2E tests against the compiled artifact, i.e. expects the compiled artifact to be already present.
+  ###
+  run_e2e_tests:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/run-e2e-tests.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
+          AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
+
+  ###
+  # PACKAGING AND UPLOADING
+  #
+  # package_and_upload_artifact generates a distributable package out of the compiled artifact,
+  # i.e. it expects it to have been downloaded already. The distributable package will be uploaded
+  # to a specifc Evergreen S3 bucket for later use.
+  #
+  # The URL to download the distributable package can be retrieved by get_artifact_url.
+  #
+  # package_and_upload_artifact expects the following arguments:
+  # - distro_id
+  # - distribution_build_variant
+  #
+  # get_artifact_url expects the following arguments:
+  # - distribution_build_variant
+  ###
+  package_and_upload_artifact:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+        # TODO: REPLACE WITH CALLING download_compiled_artifact BEFORE
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/dist.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
+        bucket: mciuploads
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/package-and-upload-artifact.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          DISTRO_ID_OVERRIDE: ${distro_id}
+          DISTRIBUTION_BUILD_VARIANT: ${distribution_build_variant}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/artifact-url.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${distribution_build_variant}.txt
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
+  get_artifact_url:
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: artifact-url.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_distribution_build_variant}.txt
+        bucket: mciuploads
+
+  write_preload_script:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set +x
+          cat <<PRELOAD_SCRIPT > preload.sh
+          echo "Preload script starting"
+          set -e
+          set -x
+          export ARTIFACT_URL=$(cat ../artifact-url.txt)
+          export IS_CI=1
+          set +x
+          export MONGOSH_SMOKE_TEST_SERVER="mongodb+srv://${connectivity_test_atlas_username}:${connectivity_test_atlas_password}@${connectivity_test_atlas_hostname}/"
+          echo "Preload script done"
+          set -x
+          PRELOAD_SCRIPT
+  spawn_host:
+    - command: host.create
+      params:
+        provider: ec2
+        distro: ${distro}
+        security_group_ids:
+          - sg-097bff6dd0d1d31d0 # Magic string that's needed for SSH'ing.
+    - command: host.list
+      params:
+        num_hosts: 1
+        path: buildhosts.yml # Write the host information to disk.
+        timeout_seconds: 1200
+        wait: true
+  run_pkg_tests_through_ssh:
+    - command: shell.exec
+      params:
+        shell: bash
+        script: |
+          set -e
+          {
+          set +x
+          echo '${__project_aws_ssh_key_value}' > ~/.ssh/mcipacker.pem
+          chmod 0600 ~/.ssh/mcipacker.pem
+          set -x
+          }
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/run-on-ssh-host.sh
+        env:
+          ADMIN_USER_NAME: ${admin_user_name}
+          ONHOST_SCRIPT_PATH: ${onhost_script_path}
+          PRELOAD_SCRIPT_PATH: ${preload_script_path}
+  test_artifact_docker:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          . preload.sh
+          ./scripts/docker/build.sh ${dockerfile}
+          ./scripts/docker/run.sh ${dockerfile} --smokeTests
+          }
+  test_artifact_macos:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          . preload.sh
+          curl -sSfL "$ARTIFACT_URL" > mongosh.zip
+          unzip mongosh.zip
+          ./bin/mongosh --smokeTests
+          }
+
+  release_draft:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          npm run evergreen-release draft
+          }
+
+  release_publish:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          echo "registry=https://registry.npmjs.org/" > .npmrc
+          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" >> .npmrc
+          npm run evergreen-release publish
+          }
+
+# Tasks will show up as the individual blocks in the Evergreen UI that can
+# pass or fail.
+#
+# Current tasks:
+#   check - Performs linter and dependency checks.
+#   test_{version} - Runs all tests, against a specified mongod version.
+#   test_vscode - Run the vscode extension integration tests.
+#   test_connectivity - Runs extra connectivity tests.
+#   compile_artifact - Compile the release binary.
+#   package_and_upload_artifact - Upload the release binary to S3.
+#   test_linux_artifact - Test that the built artifact works where we expect it to.
+#   release_publish - Publishes the npm packages and uploads the tarballs.
+#   pkg_test_* - Run tests on the release packages
+tasks:
+  - name: check
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: check
+        vars:
+          node_js_version: "14.15.1"
+
+  ###
+  # UNIT TESTS
+  # E.g. test_m40xc_n12 stands for mongod 4.0.x, community edition, Node.js 12
+  ###
+  - name: test_m40xc_n12
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.0.x-community"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m40xe_n12
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.0.x"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m42xc_n12
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x-community"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m42xe_n12
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m44xc_n12
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x-community"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m44xe_n12
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_mlatest_n12
+    tags: ["unit-test", "mlatest"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "latest-alpha"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m40xc_n14
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.0.x-community"
+          node_js_version: "14.15.1"
+  - name: test_m40xe_n14
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.0.x"
+          node_js_version: "14.15.1"
+  - name: test_m42xc_n14
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x-community"
+          node_js_version: "14.15.1"
+  - name: test_m42xe_n14
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x"
+          node_js_version: "14.15.1"
+  - name: test_m44xc_n14
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x-community"
+          node_js_version: "14.15.1"
+  - name: test_m44xe_n14
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x"
+          node_js_version: "14.15.1"
+  - name: test_mlatest_n14
+    tags: ["unit-test", "mlatest"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "latest-alpha"
+          node_js_version: "14.15.1"
+
+  ###
+  # INTEGRATION TESTS
+  ###
+  - name: test_vscode
+    tags: ["extra-integration-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test_vscode
+  - name: test_connectivity
+    tags: ["extra-integration-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test_connectivity
+  - name: compile_artifact
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: compile_artifact
+        vars:
+          node_js_version: "14.15.1"
+
+  ###
+  # E2E TESTS
+  ###
+  - name: e2e_tests_darwin
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: darwin
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.15.1"
+  - name: e2e_tests_linux
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.15.1"
+  - name: e2e_tests_win
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: win32_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.15.1"
+
+  ###
+  # PACKAGING
+  ###
+  - name: package_and_upload_artifact_macos
+    depends_on:
+      - name: check
+        variant: darwin
+      - name: ".unit-test"
+        variant: darwin
+      - name: compile_artifact
+        variant: darwin
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.15.1"
+          distribution_build_variant: darwin
+  - name: package_and_upload_artifact_linux
+    depends_on:
+      - name: check
+        variant: linux
+      - name: ".unit-test"
+        variant: linux
+      - name: compile_artifact
+        variant: linux_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.15.1"
+          distribution_build_variant: linux
+  - name: package_and_upload_artifact_debian
+    depends_on:
+      - name: check
+        variant: linux
+      - name: ".unit-test"
+        variant: linux
+      - name: compile_artifact
+        variant: linux_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.15.1"
+          distribution_build_variant: debian
+  - name: package_and_upload_artifact_rhel
+    depends_on:
+      - name: check
+        variant: linux
+      - name: ".unit-test"
+        variant: linux
+      - name: compile_artifact
+        variant: linux_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.15.1"
+          distribution_build_variant: rhel
+  - name: package_and_upload_artifact_win
+    depends_on:
+      - name: check
+        variant: win32
+      - name: ".unit-test"
+        variant: win32
+      - name: compile_artifact
+        variant: win32_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.15.1"
+          distribution_build_variant: win32
+  - name: package_and_upload_artifact_winmsi
+    depends_on:
+      - name: check
+        variant: win32
+      - name: ".unit-test"
+        variant: win32
+      - name: compile_artifact
+        variant: win32_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.15.1"
+          distribution_build_variant: win32msi
+
+  ###
+  # SMOKE TESTS
+  ###
+  - name: pkg_test_ssh_win32
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_win
+        variant: win32
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: win32
+      - func: write_preload_script
+      - func: spawn_host
+        vars:
+          distro: windows-64-vs2019-small
+      - func: run_pkg_tests_through_ssh
+        vars:
+          admin_user_name: Administrator
+          onhost_script_path: .evergreen/test-package-win32.sh
+          preload_script_path: preload.sh
+  - name: pkg_test_ssh_win32msi
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_winmsi
+        variant: win32
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: win32msi
+      - command: shell.exec
+        params:
+          working_dir: src
+          shell: bash
+          script: |
+            set -e
+            set -x
+            echo "export ARTIFACT_URL=$(cat ../artifact-url.txt)" >> preload.sh
+      - func: spawn_host
+        vars:
+          distro: windows-64-vs2019-small
+      - func: run_pkg_tests_through_ssh
+        vars:
+          admin_user_name: Administrator
+          onhost_script_path: .evergreen/test-package-win32.sh
+          preload_script_path: preload.sh
+  - name: pkg_test_docker_ubuntu1604
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_debian
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: debian
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: ubuntu16.04-deb
+  - name: pkg_test_docker_ubuntu1804
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_debian
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: debian
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: ubuntu18.04-deb
+  - name: pkg_test_docker_ubuntu2004
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_debian
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: debian
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: ubuntu20.04-deb
+  - name: pkg_test_docker_centos7
+    tags: [ "smoke-test" ]
+    depends_on:
+      - name: package_and_upload_artifact_rhel
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: centos7-rpm
+  - name: pkg_test_docker_centos8
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: centos8-rpm
+  - name: pkg_test_macos1014
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_macos
+        variant: darwin_codesign
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: darwin
+      - func: write_preload_script
+      - func: test_artifact_macos
+
+  ###
+  # RELEASE TASKS
+  ###
+  - name: release_draft
+    git_tag_only: true
+    depends_on:
+      - name: ".smoke-test"
+        variant: "*"
+      - name: ".extra-integration-test"
+        variant: "*"
+      - name: ".e2e-test"
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: release_draft
+        vars:
+          node_js_version: "14.15.1"
+  - name: release_publish
+    tags: ["publish"]
+    git_tag_only: true
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: release_publish
+        vars:
+          node_js_version: "14.15.1"
+
+# Need to run builds for every possible build variant.
+buildvariants:
+  - name: darwin_codesign
+    display_name: "MacOS Mojave (codesign)"
+    run_on: macos-1014-codesign
+    expansions:
+      executable_os_id: darwin
+    tasks:
+      - name: package_and_upload_artifact_macos
+  - name: darwin
+    display_name: "MacOS Mojave"
+    run_on: macos-1014
+    expansions:
+      executable_os_id: darwin
+    tasks:
+      - name: check
+      - name: test_m40xc_n12
+      - name: test_m40xe_n12
+      - name: test_m42xc_n12
+      - name: test_m42xe_n12
+      - name: test_m44xc_n12
+      - name: test_m44xe_n12
+      - name: test_mlatest_n12
+      - name: test_m40xc_n14
+      - name: test_m40xe_n14
+      - name: test_m42xc_n14
+      - name: test_m42xe_n14
+      - name: test_m44xc_n14
+      - name: test_m44xe_n14
+      - name: test_mlatest_n14
+      - name: compile_artifact
+      - name: e2e_tests_darwin
+
+  - name: linux
+    display_name: "Ubuntu 18.04"
+    run_on: ubuntu1804-small
+    expansions:
+      executable_os_id: linux
+    tasks:
+      - name: check
+      - name: test_m40xc_n12
+      - name: test_m40xe_n12
+      - name: test_m42xc_n12
+      - name: test_m42xe_n12
+      - name: test_m44xc_n12
+      - name: test_m44xe_n12
+      - name: test_mlatest_n12
+      - name: test_m40xc_n14
+      - name: test_m40xe_n14
+      - name: test_m42xc_n14
+      - name: test_m42xe_n14
+      - name: test_m44xc_n14
+      - name: test_m44xe_n14
+      - name: test_mlatest_n14
+      - name: test_vscode
+      - name: test_connectivity
+      - name: package_and_upload_artifact_linux
+      - name: package_and_upload_artifact_debian
+      - name: package_and_upload_artifact_rhel
+  - name: linux_build
+    display_name: "Ubuntu 18.04 (build)"
+    run_on: ubuntu1804-build
+    expansions:
+      executable_os_id: linux
+    tasks:
+      - name: compile_artifact
+
+  - name: rhel70
+    display_name: "RHEL 7.0 (E2E Tests)"
+    run_on: rhel70-small
+    tasks:
+      - name: e2e_tests_linux
+  - name: rhel76
+    display_name: "RHEL 7.6 (E2E Tests)"
+    run_on: rhel76-small
+    tasks:
+      - name: e2e_tests_linux
+  - name: ubuntu1604
+    display_name: "Ubuntu 16.04 (E2E Tests)"
+    run_on: ubuntu1604-small
+    tasks:
+      - name: e2e_tests_linux
+  - name: ubuntu1804
+    display_name: "Ubuntu 18.04 (E2E Tests)"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: e2e_tests_linux
+  - name: ubuntu2004
+    display_name: "Ubuntu 20.04 (E2E Tests)"
+    run_on: ubuntu2004-small
+    tasks:
+      - name: e2e_tests_linux
+  - name: debian10
+    display_name: "Debian 10 (E2E Tests)"
+    run_on: debian10-small
+    tasks:
+      - name: e2e_tests_linux
+
+  - name: win32
+    display_name: "Windows VS 2019"
+    run_on: windows-64-vs2019-small
+    expansions:
+      executable_os_id: win32
+    tasks:
+      - name: check
+      - name: test_m40xc_n12
+      - name: test_m40xe_n12
+      - name: test_m42xc_n12
+      - name: test_m42xe_n12
+      - name: test_m44xc_n12
+      - name: test_m44xe_n12
+      - name: test_mlatest_n12
+      - name: test_m40xc_n14
+      - name: test_m40xe_n14
+      - name: test_m42xc_n14
+      - name: test_m42xe_n14
+      - name: test_m44xc_n14
+      - name: test_m44xe_n14
+      - name: test_mlatest_n14
+      - name: e2e_tests_win
+      - name: package_and_upload_artifact_win
+      - name: package_and_upload_artifact_winmsi
+  - name: win32_build
+    display_name: "Windows VS 2019 (build)"
+    run_on: windows-64-vs2019-build
+    expansions:
+      executable_os_id: win32
+    tasks:
+      - name: compile_artifact
+
+  - name: pkg_smoke_tests_docker
+    display_name: "package smoke tests (Docker)"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: pkg_test_docker_centos7
+      - name: pkg_test_docker_centos8
+      - name: pkg_test_docker_ubuntu1604
+      - name: pkg_test_docker_ubuntu1804
+      - name: pkg_test_docker_ubuntu2004
+  - name: pkg_smoke_tests_win32
+    display_name: "package smoke tests (win32)"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: pkg_test_ssh_win32
+      - name: pkg_test_ssh_win32msi
+  - name: pkg_smoke_tests_macos
+    display_name: "package smoke tests (macos)"
+    run_on: macos-1014
+    tasks:
+      - name: pkg_test_macos1014
+
+  - name: draft_publish_release
+    display_name: "Draft/Publish Release"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: release_draft
+      - name: release_publish

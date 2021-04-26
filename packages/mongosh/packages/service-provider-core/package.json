@@ -1,0 +1,55 @@
+{
+  "name": "@mongosh/service-provider-core",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Shell Core Service Provider Package",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "config": {
+    "unsafe-perm": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "scripts": {
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile-ts",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "dependencies": {
+    "@mongosh/errors": "0.0.0-dev.0",
+    "@mongosh/i18n": "0.0.0-dev.0",
+    "bson": "^4.3.0",
+    "mongodb": "4.0.0-beta.3",
+    "mongodb-build-info": "^1.1.1",
+    "whatwg-url": "^8.4.0"
+  },
+  "devDependencies": {
+    "@types/bl": "^2.1.0",
+    "@types/whatwg-url": "^8.0.0"
+  },
+  "optionalDependencies": {
+    "mongodb-client-encryption": "^1.2.3"
+  },
+  "dependency-check": {
+    "entries": [
+      "src/**/*.js"
+    ],
+    "ignore": [
+      "sinon",
+      "chai",
+      "uuid",
+      "encoding"
+    ]
+  }
+}

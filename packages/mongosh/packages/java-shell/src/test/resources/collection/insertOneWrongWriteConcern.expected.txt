@@ -1,0 +1,2 @@
+com.mongodb.mongosh.result.CommandException: unrecognized write concern field: error
+[ ]

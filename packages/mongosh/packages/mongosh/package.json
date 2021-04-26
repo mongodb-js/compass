@@ -1,0 +1,39 @@
+{
+  "name": "mongosh",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Shell CLI REPL",
+  "keywords": [
+    "mongosh",
+    "mongodb",
+    "mongo",
+    "shell"
+  ],
+  "homepage": "https://github.com/mongodb-js/mongosh/",
+  "license": "Apache-2.0",
+  "bin": {
+    "mongosh": "bin/mongosh.js"
+  },
+  "files": [
+    "bin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mongodb-js/mongosh.git"
+  },
+  "scripts": {
+    "test": "exit 0",
+    "test-ci": "npm run test"
+  },
+  "bugs": {
+    "url": "https://github.com/mongodb-js/mongosh/issues"
+  },
+  "dependencies": {
+    "@mongosh/cli-repl": "0.0.0-dev.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=14.15.0"
+  }
+}

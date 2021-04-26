@@ -1,0 +1,30 @@
+@import '~@leafygreen-ui/palette/dist/ui-colors.less';
+
+@handle-width: 30px;
+@handle-half-width: 15px;
+@handle-width-with-padding: 34px;
+@handle-half-width-width-padding: 17px;
+
+.resize-handle {
+  position: absolute;
+  left: -@handle-half-width-width-padding;
+  margin-left: 50%;
+  width: @handle-width-with-padding;
+  height: 24px;
+}
+
+.resize-handle::after {
+  content: "";
+  position: absolute;
+  left: -@handle-half-width;
+  top: 8px;
+  margin-left: 50%;
+  margin-top: 4px;
+  width: @handle-width;
+  height: 1px;
+  background: @leafygreen__gray--dark-1;
+
+  box-shadow: 
+    0 4px 0 0 @leafygreen__gray--dark-1,
+    0 8px 0 0 @leafygreen__gray--dark-1;
+}

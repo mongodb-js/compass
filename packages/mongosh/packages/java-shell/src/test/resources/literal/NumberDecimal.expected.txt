@@ -1,0 +1,1 @@
+Decimal128Result: {"$numberDecimal": "24"}

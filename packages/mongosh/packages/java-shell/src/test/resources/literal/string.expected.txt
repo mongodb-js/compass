@@ -1,0 +1,1 @@
+StringResult: string literal

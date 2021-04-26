@@ -1,0 +1,2 @@
+{ "_id": <ObjectID>, "a": 1, "text": "to delete" }
+[ { "_id": <ObjectID>, "a": 1 } ]

@@ -1,0 +1,3 @@
+{ "acknowledged": true, "insertedId": "UNKNOWN" }
+true
+[ { "_id": <ObjectID>, "a": 1, "objectId": <ObjectID>, "maxKey": {"$maxKey": 1}, "minKey": {"$minKey": 1}, "binData": {"$binary": {"base64": "MTIzNA==", "subType": "10"}}, "date": {"$date": {"$numberLong": "1355875200000"}}, "isoDate": {"$date": {"$numberLong": "1355875200000"}}, "numberInt": 24, "timestamp": Timestamp{value=429496729600, seconds=100, inc=0}, "undefined": null, "null": null, "uuid": <UUID> } ]

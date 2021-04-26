@@ -1,0 +1,2 @@
+{ "acknowledged": true, "insertedId": "UNKNOWN" }
+[ { "_id": <ObjectID>, "a": 1 } ]

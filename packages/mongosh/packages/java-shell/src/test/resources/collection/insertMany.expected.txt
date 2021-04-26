@@ -1,0 +1,2 @@
+{ "acknowledged": true, "insertedIds": [ ] }
+[ { "_id": <ObjectID>, "a": 1 }, { "_id": <ObjectID>, "a": 2, "array": [ 42, 43 ] } ]

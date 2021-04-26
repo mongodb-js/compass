@@ -1,0 +1,2 @@
+IntResult: 24
+IntResult: 24

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include $(sys.SOURCEFILEDIR)Definitions.wxi?>
+
+  <Product Id="*" Name="$(var.FullProductName)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="dd25c0ee-96f6-41b6-822e-114383205ddf">
+    <Package InstallerVersion="200" Compressed="yes"/>
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." Schedule="afterInstallExecute"/>
+    <MediaTemplate EmbedCab="yes" />
+    <UIRef Id="MongoshUI"/>
+
+    <Property Id="MSIFASTINSTALL" Value="7"/>
+    <Property Id="PREV_INSTALLFOLDER_">
+      <RegistrySearch Type="directory" Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[WIX_UPGRADE_DETECTED]" Name="InstallLocation" Id="HKLM.upgrade.InstallLocation"/>
+      <RegistrySearch Type="directory" Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[WIX_UPGRADE_DETECTED]" Name="InstallLocation" Id="HKCU.upgrade.InstallLocation"/>
+      <RegistrySearch Type="directory" Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductCode]" Name="InstallLocation" Id="HKLM.curr.InstallLocation"/>
+      <RegistrySearch Type="directory" Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductCode]" Name="InstallLocation" Id="HKCU.curr.InstallLocation"/>
+    </Property>
+    <SetProperty Id="ARPINSTALLLOCATION" Value="[INSTALLFOLDER]" Sequence="execute" Before="InstallInitialize"/>
+    <SetDirectory Id="INSTALLFOLDER" Sequence="first" Value="[PREV_INSTALLFOLDER_]"><![CDATA[Not INSTALLFOLDER And PREV_INSTALLFOLDER_]]></SetDirectory>
+
+    <Feature Id="Mongosh" Title="Mongosh" Level="1">
+      <ComponentGroupRef Id="Files" />
+    </Feature>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.ProgramFilesFolder)">
+        <Directory Id="INSTALLFOLDER" Name="{{name}}" />
+      </Directory>
+    </Directory>
+
+    <ComponentGroup Id="Files" Directory="INSTALLFOLDER">
+      {{msiComponentList}}
+      <Component Id="PATH.sys" Guid="{343B1F63-D3DA-48D9-BA47-1C452A361FBE}">
+        <Condition><![CDATA[ALLUSERS]]></Condition>
+        <CreateFolder/>
+        <Environment Name="PATH" Action="set" Part="last" Permanent="no" Value="[INSTALLFOLDER]" Id="PATH.sys" System="yes"/>
+      </Component>
+      <Component Id="PATH.usr" Guid="{9501188A-F1C6-4AFC-B285-C3A728889841}">
+        <Condition><![CDATA[Not ALLUSERS]]></Condition>
+        <CreateFolder/>
+        <Environment Name="PATH" Action="set" Part="last" Permanent="no" Value="[INSTALLFOLDER]" Id="PATH.usr" System="no"/>
+      </Component>
+    </ComponentGroup>
+  </Product>
+</Wix>

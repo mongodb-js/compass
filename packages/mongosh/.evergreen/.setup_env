@@ -1,0 +1,27 @@
+set -e
+set -x
+export BASEDIR="$PWD/.evergreen"
+export PATH="$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/python/3.6/bin:/opt/chefdk/gitbin:/cygdrive/c/Program Files/Git/bin:/cygdrive/c/Program Files/Git/mingw32/libexec/git-core:/cygdrive/c/Python39/Scripts:/cygdrive/c/Python39:/cygdrive/c/cmake/bin:$PATH"
+export IS_MONGOSH_EVERGREEN_CI=1
+
+if [ "$OS" != "Windows_NT" ]; then
+  export NVM_DIR="$HOME/.nvm"
+  echo "Setting NVM environment home: $NVM_DIR"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  nvm use $NODE_JS_VERSION
+fi
+
+echo "Using node version:"
+node --version
+
+echo "Using npm version:"
+npm --version
+
+echo "Using git version:"
+git --version
+
+export EVERGREEN_EXPANSIONS_PATH="$BASEDIR/../../tmp/expansions.yaml"
+
+if [ "$OS" == "Windows_NT" ]; then
+  export EVERGREEN_EXPANSIONS_PATH="$(cygpath -w "$EVERGREEN_EXPANSIONS_PATH")"
+fi

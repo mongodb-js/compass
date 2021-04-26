@@ -1,0 +1,55 @@
+{
+  "name": "@mongosh/service-provider-server",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Shell Server Service Provider Package",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "config": {
+    "unsafe-perm": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "scripts": {
+    "compile-ts": "tsc -p tsconfig.json",
+    "test": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "prepublish": "npm run compile-ts",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "dependency-check": {
+    "entries": [
+      "src/**/*.js"
+    ],
+    "ignore": [
+      "sinon",
+      "chai",
+      "uuid",
+      "encoding"
+    ]
+  },
+  "dependencies": {
+    "@mongosh/errors": "0.0.0-dev.0",
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "@types/sinon": "^7.5.1",
+    "@types/sinon-chai": "^3.2.3",
+    "aws4": "^1.11.0",
+    "mongodb": "4.0.0-beta.3",
+    "saslprep": "mongodb-js/saslprep#v1.0.4"
+  },
+  "devDependencies": {
+    "@types/bl": "^2.1.0"
+  },
+  "optionalDependencies": {
+    "mongodb-client-encryption": "^1.2.3"
+  }
+}

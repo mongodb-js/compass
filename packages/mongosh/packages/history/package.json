@@ -1,0 +1,31 @@
+{
+  "name": "@mongosh/history",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Shell History Package",
+  "main": "./lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "config": {
+    "unsafe-perm": true
+  },
+  "scripts": {
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile-ts"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "dependencies": {
+    "mongodb-redact": "^0.2.2"
+  }
+}

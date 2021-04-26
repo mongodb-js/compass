@@ -1,0 +1,2 @@
+com.mongodb.MongoCommandException: Command failed with error 14 (TypeMismatch): 'BSON field 'update.updates.u' is the wrong type 'array', expected type 'object'' on server %mongohostport%. The full response is {"ok": 0.0, "errmsg": "BSON field 'update.updates.u' is the wrong type 'array', expected type 'object'", "code": 14, "codeName": "TypeMismatch"}
+[ { "_id": <ObjectID>, "a": 1 }, { "_id": <ObjectID>, "a": 1 }, { "_id": <ObjectID>, "a": 1 } ]

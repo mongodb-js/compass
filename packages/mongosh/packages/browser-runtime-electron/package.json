@@ -1,0 +1,43 @@
+{
+  "name": "@mongosh/browser-runtime-electron",
+  "version": "0.0.0-dev.0",
+  "description": "Mongosh browser runtime electron",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "config": {
+    "unsafe-perm": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "scripts": {
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "preprepublish": "rimraf ./lib",
+    "prepublish": "npm run compile-ts",
+    "compile-ts": "tsc -p tsconfig.json"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@mongosh/browser-runtime-core": "0.0.0-dev.0",
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "@mongosh/shell-evaluator": "0.0.0-dev.0",
+    "@mongosh/types": "0.0.0-dev.0"
+  },
+  "devDependencies": {
+    "@mongosh/service-provider-server": "0.0.0-dev.0",
+    "@types/sinon": "^7.5.1",
+    "@types/sinon-chai": "^3.2.3",
+    "rimraf": "^3.0.2"
+  }
+}

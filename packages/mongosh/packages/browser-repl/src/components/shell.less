@@ -1,0 +1,35 @@
+@import '~@leafygreen-ui/palette/dist/ui-colors.less';
+@import './common.less';
+
+.shell {
+  .font();
+
+  background-color: @leafygreen__gray--dark-3;
+  color: @leafygreen__gray--light-3;
+  padding: 4px 0;
+
+  a, a:link, a:visited, a:hover, a:active {
+    font-weight: bold;
+    color: inherit;
+    background-color: transparent;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  pre, code {
+    .font();
+
+    background: transparent;
+    border: 0px transparent;
+    padding: 0px;
+    margin: 0px;
+    font-size: inherit;
+    border-radius: 0px;
+    color: inherit;
+  }
+
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}

@@ -1,0 +1,1 @@
+com.mongodb.mongosh.result.CommandException: unrecognized count options field: unknown

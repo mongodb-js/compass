@@ -1,0 +1,15 @@
+{
+  "exclude": [
+    "test",
+    "testing",
+    "config",
+    "**/*.d.ts",
+    "**/*.spec.{ts,js,tsx,jsx,cjs,mjs}",
+    "**/test/**/*.{ts,js,tsx,jsx,cjs,mjs}",
+    "**/tmp/**/*.{ts,js,tsx,jsx,cjs,mjs}",
+    "**/*.config.{ts,js,tsx,jsx,cjs,mjs}",
+    "**/lib/*.js",
+    "**/dist/**/*.js",
+    "**/src/*.nocov.{ts,js}"
+  ]
+}

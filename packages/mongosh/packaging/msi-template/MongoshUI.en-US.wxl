@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-US" Codepage="1252" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+  <String Id="InstallDirDlgDescription">{\WixUI_Font_NormalWhite}Click Next to install to the default folder or click Change to choose another.</String>
+  <String Id="InstallDirDlgTitle">{\WixUI_Font_TitleWhite}Destination Folder</String>
+
+  <String Id="BrowseDlgDescription">{\WixUI_Font_NormalWhite}Browse to the destination folder</String>
+  <String Id="BrowseDlgTitle">{\WixUI_Font_TitleWhite}Change destination folder</String>
+
+  <String Id="DiskCostDlgDescription">{\WixUI_Font_NormalWhite}The disk space required for the installation of the selected features.</String>
+  <String Id="DiskCostDlgTitle">{\WixUI_Font_TitleWhite}Disk Space Requirements</String>
+
+  <String Id="FilesInUseDescription">{\WixUI_Font_NormalWhite}Some files that need to be updated are currently in use.</String>
+  <String Id="FilesInUseTitle">{\WixUI_Font_TitleWhite}Files in Use</String>
+
+  <String Id="MsiRMFilesInUseDescription">{\WixUI_Font_NormalWhite}Some files that need to be updated are currently in use.</String>
+  <String Id="MsiRMFilesInUseTitle">{\WixUI_Font_TitleWhite}Files in Use</String>
+
+  <String Id="ProgressDlgTitleInstalling">{\WixUI_Font_TitleWhite}Installing [ProductName]</String>
+  <String Id="ProgressDlgTitleChanging">{\WixUI_Font_TitleWhite}Changing [ProductName]</String>
+  <String Id="ProgressDlgTitleRepairing">{\WixUI_Font_TitleWhite}Repairing [ProductName]</String>
+  <String Id="ProgressDlgTitleRemoving">{\WixUI_Font_TitleWhite}Removing [ProductName]</String>
+  <String Id="ProgressDlgTitleUpdating">{\WixUI_Font_TitleWhite}Updating [ProductName]</String>
+
+  <String Id="MaintenanceTypeDlgDescription">{\WixUI_Font_NormalWhite}Select the operation you wish to perform.</String>
+  <String Id="MaintenanceTypeDlgTitle">{\WixUI_Font_TitleWhite}Change, repair, or remove installation</String>
+
+  <String Id="VerifyReadyDlgInstallTitle">{\WixUI_Font_TitleWhite}Ready to install [ProductName]</String>
+  <String Id="VerifyReadyDlgChangeTitle">{\WixUI_Font_TitleWhite}Ready to change [ProductName]</String>
+  <String Id="VerifyReadyDlgRepairTitle">{\WixUI_Font_TitleWhite}Ready to repair [ProductName]</String>
+  <String Id="VerifyReadyDlgRemoveTitle">{\WixUI_Font_TitleWhite}Ready to remove [ProductName]</String>
+  <String Id="VerifyReadyDlgUpdateTitle">{\WixUI_Font_TitleWhite}Ready to update [ProductName]</String>
+
+  <String Id="OutOfDiskDlgDescription">{\WixUI_Font_NormalWhite}Disk space required for the installation exceeds available disk space.</String>
+  <String Id="OutOfDiskDlgTitle">{\WixUI_Font_TitleWhite}Out of Disk Space</String>
+
+  <String Id="OutOfRbDiskDlgDescription">{\WixUI_Font_NormalWhite}Disk space required for the installation exceeds available disk space.</String>
+  <String Id="OutOfRbDiskDlgTitle">{\WixUI_Font_TitleWhite}Out of Disk Space</String>
+</WixLocalization>

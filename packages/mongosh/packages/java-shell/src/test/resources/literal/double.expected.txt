@@ -1,0 +1,1 @@
+DoubleResult: 0.1

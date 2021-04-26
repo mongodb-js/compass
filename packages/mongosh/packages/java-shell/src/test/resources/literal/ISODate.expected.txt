@@ -1,0 +1,14 @@
+DateResult
+DateResult
+DateResult: {"$date": {"$numberLong": "1"}}
+DateResult: {"$date": {"$numberLong": "2678400000"}}
+DateResult: {"$date": {"$numberLong": "2865900000"}}
+DateResult: {"$date": {"$numberLong": "1355875200000"}}
+LongResult: 1355875200000
+java.time.format.DateTimeParseException: Text '2012-12-19T14:00:00+14' could not be parsed, unparsed text found at index 19
+DateResult: {"$date": {"$numberLong": "1355875200000"}}
+DateResult: {"$date": {"$numberLong": "1355875200000"}}
+DateResult: {"$date": {"$numberLong": "1355875200000"}}
+DateResult: {"$date": {"$numberLong": "1355925905000"}}
+DateResult: {"$date": {"$numberLong": "1355925905000"}}
+DateResult: {"$date": {"$numberLong": "1355925905000"}}

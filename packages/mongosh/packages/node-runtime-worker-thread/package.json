@@ -1,0 +1,49 @@
+{
+  "name": "@mongosh/node-runtime-worker-thread",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB shell runtime that lives in a worker thread",
+  "homepage": "https://github.com/mongodb-js/mongosh",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/mongosh"
+  },
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "scripts": {
+    "pretest": "npm run webpack-build-dev -- --no-stats --no-devtool",
+    "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "pretest-ci": "npm run webpack-build -- --no-stats --no-devtool",
+    "test-ci": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "lint": "eslint --report-unused-disable-directives \"./src/**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "webpack-build": "webpack --mode production",
+    "webpack-build-dev": "webpack --mode development",
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run webpack-build"
+  },
+  "devDependencies": {
+    "loader-utils": "^2.0.0",
+    "mocha": "^7.1.2",
+    "terser-webpack-plugin": "^4.2.3",
+    "ts-loader": "^8.0.14",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^4.3.1"
+  },
+  "dependencies": {
+    "@mongosh/browser-runtime-core": "0.0.0-dev.0",
+    "@mongosh/browser-runtime-electron": "0.0.0-dev.0",
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "@mongosh/service-provider-server": "0.0.0-dev.0",
+    "@mongosh/types": "0.0.0-dev.0",
+    "bson": "^4.3.0",
+    "interruptor": "^1.0.1",
+    "postmsg-rpc": "^2.4.0"
+  }
+}

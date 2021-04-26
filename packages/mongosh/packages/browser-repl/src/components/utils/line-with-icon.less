@@ -1,0 +1,18 @@
+@import "../common.less";
+
+.line-with-icon {
+  display: flex;
+  flex-direction: row;
+
+  &-icon {
+    display: flex;
+    align-items: center;
+    margin-right: 3px;
+    max-height: @line-height;
+  }
+
+  &-content {
+    flex: 1;
+    overflow-x: auto;
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "@mongosh/i18n",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Shell i18n Project",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "config": {
+    "unsafe-perm": true
+  },
+  "scripts": {
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile-ts",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "dependency-check": {
+    "entries": [
+      "src/**/*.js"
+    ]
+  },
+  "dependencies": {
+    "@mongosh/errors": "0.0.0-dev.0",
+    "mustache": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/mustache": "^4.0.1"
+  }
+}

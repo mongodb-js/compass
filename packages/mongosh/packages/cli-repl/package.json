@@ -1,0 +1,86 @@
+{
+  "name": "@mongosh/cli-repl",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Shell CLI REPL Package",
+  "homepage": "https://github.com/mongodb-js/mongosh",
+  "author": "Compass Team <team-compass@10gen.com>",
+  "manufacturer": "MongoDB Inc.",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "bin": {
+    "mongosh": "bin/mongosh.js"
+  },
+  "config": {
+    "unsafe-perm": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "scripts": {
+    "compile-ts": "tsc -p tsconfig.json",
+    "start": "node bin/mongosh.js start",
+    "start-async": "node bin/mongosh.js start --async",
+    "pretest": "npm run compile-ts",
+    "test": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./{src,test}/**/*.spec.ts\"",
+    "test-ci": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,test}/**/*.spec.ts\"",
+    "pretest-e2e": "npm run compile-ts",
+    "test-e2e": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
+    "test-e2e-ci": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "prepublish": "npm run compile-ts"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=14.15.0"
+  },
+  "dependencies": {
+    "@mongosh/autocomplete": "0.0.0-dev.0",
+    "@mongosh/errors": "0.0.0-dev.0",
+    "@mongosh/history": "0.0.0-dev.0",
+    "@mongosh/i18n": "0.0.0-dev.0",
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "@mongosh/service-provider-server": "0.0.0-dev.0",
+    "@mongosh/shell-api": "0.0.0-dev.0",
+    "@mongosh/shell-evaluator": "0.0.0-dev.0",
+    "@mongosh/types": "0.0.0-dev.0",
+    "analytics-node": "^3.4.0-beta.1",
+    "ansi-escape-sequences": "^5.1.2",
+    "askpassword": "^1.2.3",
+    "is-recoverable-error": "^1.0.2",
+    "lodash.set": "^4.3.2",
+    "mongodb-ace-autocompleter": "^0.4.1",
+    "mongodb-build-info": "^1.1.0",
+    "mongodb-redact": "^0.2.2",
+    "nanobus": "^4.4.0",
+    "pino": "^5.16.0",
+    "pretty-bytes": "^5.3.0",
+    "pretty-repl": "^2.4.0",
+    "semver": "^7.1.2",
+    "strip-ansi": "^6.0.0",
+    "text-table": "^0.2.0",
+    "yargs-parser": "^20.2.4"
+  },
+  "devDependencies": {
+    "@types/analytics-node": "^3.1.3",
+    "@types/ansi-escape-sequences": "^4.0.0",
+    "@types/chai-as-promised": "^7.1.3",
+    "@types/lodash.set": "^4.3.6",
+    "@types/node": "^14.14.5",
+    "@types/pino": "^6.3.3",
+    "@types/read": "^0.0.28",
+    "@types/text-table": "^0.2.1",
+    "@types/yargs-parser": "^15.0.0",
+    "chai-as-promised": "^7.1.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1"
+  },
+  "optionalDependencies": {
+    "macos-export-certificate-and-key": "^1.0.0",
+    "win-export-certificate-and-key": "^1.0.2"
+  }
+}

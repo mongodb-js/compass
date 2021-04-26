@@ -1,0 +1,2 @@
+com.mongodb.MongoBulkWriteException: Bulk write operation error on server %mongohostport%. Write errors: [BulkWriteError{index=0, code=11000, message='E11000 duplicate key error collection: admin.coll index: _id_ dup key: { : "b" }', details={}}].
+[ { "_id": "b", "name": "b" }, { "_id": "d", "name": "d" } ]

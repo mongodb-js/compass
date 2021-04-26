@@ -1,0 +1,2 @@
+switched to db dbToDrop
+{ "ok": 1, "dropped": "dbToDrop" }

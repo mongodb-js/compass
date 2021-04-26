@@ -1,0 +1,1 @@
+[ { "_id": <ObjectID>, "a": "a" }, { "_id": <ObjectID>, "a": "A" }, { "_id": <ObjectID>, "a": "\u00E1" } ]

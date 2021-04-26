@@ -1,0 +1,2 @@
+{ "acknowledged": true, "insertedCount": 2, "matchedCount": 3, "modifiedCount": 3, "deletedCount": 2, "upsertedCount": 1, "upsertedIds": [ { } ] }
+[ { "_id": <ObjectID>, "v": "after update" }, { "_id": <ObjectID>, "v": "after update many" }, { "_id": <ObjectID>, "v": "after update many" }, { "_id": <ObjectID>, "a": 1 }, { "_id": <ObjectID>, "a": 1 }, { "_id": <ObjectID>, "v2": "after replace" } ]

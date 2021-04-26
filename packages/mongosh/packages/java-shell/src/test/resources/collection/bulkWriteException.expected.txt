@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: Unknown bulk write operation Document{{unknown=Document{{document=Document{{a=1}}}}}}

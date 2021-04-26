@@ -1,0 +1,15 @@
+.DS_Store
+.evergreen/
+.evergreen.yml
+.gitignore
+.jshintrc
+.jsfmtrc
+.travis.yml
+.zuul.yml
+azure-pipelines.yml
+karma.conf.js
+lerna.json
+tsconfig.json
+notices/
+src/
+test/

@@ -1,0 +1,57 @@
+@import '~@leafygreen-ui/palette/dist/ui-colors.less';
+
+.compass-shell-header {
+  width: 100%;
+  height: 24px;
+  display: flex;
+  color: @leafygreen__gray--light-1;
+
+  &-left {
+    flex-grow: 1;
+  }
+
+  &-right-actions {
+    display: flex;
+  }
+
+  &-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0px 8px;
+    height: 100%;
+    display: flex;
+    vertical-align: middle;
+    flex-direction: row;
+    align-items: center;
+    margin: auto 0;
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 24px;
+
+    transition: all 200ms;
+    user-select: none;
+
+    text-transform: uppercase;
+
+    &:hover {
+      color: @leafygreen__gray--light-3;
+    }  
+  }
+
+  &-operation-in-progress {
+    color: @leafygreen__green--light-2;
+  }
+
+  &-loader-icon {
+    margin: auto;
+    margin-left: 16px;
+    margin-right: 6px;
+  }
+
+  &-btn {
+    margin-right: 4px;
+    width: 24px;
+    height: 24px;
+  }
+}

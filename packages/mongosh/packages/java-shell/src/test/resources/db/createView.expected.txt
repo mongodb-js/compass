@@ -1,0 +1,1 @@
+[ { "_id": 1, "department": "A", "management": 3 }, { "_id": 2, "department": "B", "management": 2 }, { "_id": 3, "department": "A", "management": 3 } ]

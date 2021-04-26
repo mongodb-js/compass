@@ -1,0 +1,2 @@
+// command checkResultClass
+null

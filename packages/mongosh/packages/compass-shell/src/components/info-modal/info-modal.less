@@ -1,0 +1,39 @@
+@import '~@leafygreen-ui/palette/dist/ui-colors.less';
+
+.info-modal-banner {
+  color: @leafygreen__blue--dark-2;
+  border-color: @leafygreen__blue--light-2;
+  background-color: @leafygreen__blue--light-3;
+
+  padding: 9px 12px 9px 20px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 6px;
+  font-size: 14px;
+
+  &-link {
+    font-weight: bold;
+    text-decoration: underline;
+  }
+}
+
+.info-modal-shortcuts-title {
+  font-weight: bold;
+  padding: 14px 0;
+}
+
+.info-modal-shortcuts {
+  .info-modal-shortcuts-hotkey {
+    padding: 3px 0;
+  }
+
+  .info-modal-shortcuts-hotkey:nth-child(odd) {
+    background-color: @leafygreen__gray--light-2;
+  }
+
+  .info-modal-shortcuts-hotkey-key {
+    font-weight: bold;
+    padding-left: 14px;
+    padding-right: 10px;
+  }
+}

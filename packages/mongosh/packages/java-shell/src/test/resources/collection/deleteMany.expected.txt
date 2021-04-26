@@ -1,0 +1,1 @@
+{ "acknowledged": true, "deletedCount": 5 }

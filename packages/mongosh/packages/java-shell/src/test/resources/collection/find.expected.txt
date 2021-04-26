@@ -1,0 +1,1 @@
+FindCursorResult: [ { "_id": <ObjectID>, "key": "value", "array": [ 1, 2, 3, { "another_object": "  .$# " } ] } ]

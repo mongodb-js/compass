@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+
+  <?ifndef Version?>
+  <?define Version={{version}}?>
+  <?endif?>
+
+  <?ifndef FullProductName?>
+  <?define FullProductName={{fullName}}?>
+  <?endif?>
+
+  <?ifndef Manufacturer?>
+  <?define Manufacturer={{manufacturer}}?>
+  <?endif?>
+
+  <?ifndef BuildFolder?>
+  <?define BuildFolder=$(sys.SOURCEFILEDIR)BUILD?>
+  <?endif?>
+
+  <?ifndef ProgramFilesFolder?>
+  <?if $(sys.BUILDARCH)=x64 OR $(sys.BUILDARCH)=Intel64 OR $(sys.BUILDARCH)=Arm64?>
+  <?define ProgramFilesFolder=ProgramFiles64Folder?>
+  <?else?>
+  <?define ProgramFilesFolder=ProgramFilesFolder?>
+  <?endif?>
+  <?endif?>
+</Include>

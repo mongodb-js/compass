@@ -1,0 +1,3 @@
+[ { "0": { "_id": <ObjectID>, "a": 1 } }, { "0": { "_id": <ObjectID>, "a": 2 } }, { "0": { "_id": <ObjectID>, "a": 3 } } ]
+[ { "0": "my document", "1": { "_id": <ObjectID>, "a": 1 } }, { "0": "my document", "1": { "_id": <ObjectID>, "a": 2 } }, { "0": "my document", "1": { "_id": <ObjectID>, "a": 3 } } ]
+[ { "0": "Hello, world!" } ]

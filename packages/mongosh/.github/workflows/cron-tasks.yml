@@ -1,0 +1,36 @@
+on:
+  # Once a week or on pushes to master
+  schedule:
+    - cron: "0 3 * * 0"
+  push:
+    branches:
+      - master
+
+jobs:
+  update_third_party_notices_and_authors:
+    name: Update THIRD_PARTY_NOTICES and AUTHORS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v2
+      - name: Install Dependencies
+        run: npm run bootstrap-ci
+      - name: Set up Git
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      - name: Update THIRD_PARTY_NOTICES.md
+        run: npm run update-third-party-notices
+      - name: Commit THIRD_PARTY_NOTICES changes
+        run: |
+          git commit --no-allow-empty -m "chore: update THIRD_PARTY_NOTICES" THIRD_PARTY_NOTICES.md || true
+      - name: Update AUTHORS
+        run: npm run update-authors
+      - name: Commit AUTHORS changes
+        run: |
+          git add AUTHORS \*/AUTHORS
+          git commit --no-allow-empty -m "chore: update AUTHORS" || true
+      - name: Push updates
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}

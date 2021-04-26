@@ -1,0 +1,28 @@
+{
+  "name": "@mongosh/java-shell",
+  "version": "0.0.0-dev.0",
+  "private": true,
+  "description": "Java application that uses mongosh-shell-api node module and MongoDB java driver to run mongo shell on JVM",
+  "config": {
+    "unsafe-perm": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "scripts": {
+    "browserify-shell-api": "browserify src/main/js/all.js -o src/main/resources/js/all-standalone.js -dv",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./src/test/js/run-tests.ts\"",
+    "test-ci": "node ../../scripts/run-if-platform.js linux npm run test"
+  },
+  "devDependencies": {
+    "browserify": "latest"
+  },
+  "license": "SSPL",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=12.4.0"
+  }
+}

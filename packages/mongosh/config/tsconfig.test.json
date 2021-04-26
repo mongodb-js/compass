@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "strict": false,
+    "experimentalDecorators": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "target": "es2018",
+    "lib": ["es2019"],
+    "module": "commonjs",
+    "moduleResolution": "node"
+  }
+}

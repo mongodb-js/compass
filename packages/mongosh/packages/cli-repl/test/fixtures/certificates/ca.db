@@ -1,0 +1,8 @@
+R	22941006093755Z	201222094016Z	F349920F8B55BB0D	unknown	/O=MongoDB/OU=DevTools/CN=localhost
+V	22941006093852Z		F349920F8B55BB0E	unknown	/O=MongoDB/OU=DevTools Testers/CN=Wonderwoman/emailAddress=tester@example.com
+R	22941006120349Z	201222120551Z	F349920F8B55BB0F	unknown	/C=AU/ST=Some-State/O=MongoDB/OU=DevTools/CN=localhost
+V	22941006120722Z		F349920F8B55BB10	unknown	/C=AU/ST=Some-State/O=MongoDB/OU=DevTools/CN=Wonderwoman/emailAddress=tester@example.com
+V	22941006122725Z		F349920F8B55BB11	unknown	/O=MongoDB/OU=DevTools/CN=127.0.0.1
+R	22941006125419Z	201222130941Z	F349920F8B55BB12	unknown	/O=MongoDB/OU=DevTools/CN=localhost
+V	22941006125605Z		F349920F8B55BB13	unknown	/O=MongoDB/OU=DevTools/CN=Wonderwoman/emailAddress=tester@example.com
+V	22941006152405Z		F349920F8B55BB14	unknown	/O=MongoDB/OU=DevTools Testers/CN=Wonderwoman/emailAddress=tester@example.com

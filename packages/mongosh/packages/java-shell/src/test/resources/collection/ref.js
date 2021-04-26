@@ -1,0 +1,2 @@
+// command
+db.collection

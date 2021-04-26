@@ -1,0 +1,11 @@
+Package: {{name}}
+Version: {{version}}
+Section: utils
+Priority: optional
+Architecture: amd64
+Installed-Size: {{size}}
+Maintainer: {{maintainer}}
+Homepage: {{homepage}}
+Description: {{description}}
+Depends: libc6 (>= 2.17)
+Recommends: libsasl2-2, libcurl4, libssl1.1

@@ -1,0 +1,2 @@
+MinKeyResult: {"$minKey": 1}
+MinKeyResult: {"$minKey": 1}

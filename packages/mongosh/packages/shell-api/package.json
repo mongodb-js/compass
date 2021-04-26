@@ -1,0 +1,46 @@
+{
+  "name": "@mongosh/shell-api",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Shell API Classes Package",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "config": {
+    "unsafe-perm": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "scripts": {
+    "compile-ts": "tsc -p tsconfig.json",
+    "pretest": "npm run compile-ts",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "report-missing-help": "ts-node bin/report-missing-help.ts",
+    "report-supported-api": "ts-node bin/report-supported-api.ts",
+    "test": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "prepublish": "npm run compile-ts"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "precommit": [
+    "build"
+  ],
+  "dependencies": {
+    "@mongosh/async-rewriter": "0.0.0-dev.0",
+    "@mongosh/errors": "0.0.0-dev.0",
+    "@mongosh/history": "0.0.0-dev.0",
+    "@mongosh/i18n": "0.0.0-dev.0",
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "mongodb-redact": "^0.2.2"
+  },
+  "devDependencies": {
+    "@mongosh/types": "0.0.0-dev.0"
+  }
+}

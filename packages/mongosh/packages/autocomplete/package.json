@@ -1,0 +1,35 @@
+{
+  "name": "@mongosh/autocomplete",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Shell Autocomplete Package",
+  "homepage": "https://github.com/mongodb-js/mongosh",
+  "license": "Apache-2.0",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/mongosh"
+  },
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "scripts": {
+    "test": "mocha --timeout 15000 --colors -r ts-node/register \"./*.spec.ts\"",
+    "test-ci": "mocha --timeout 15000 -r ts-node/register \"./*.spec.ts\"",
+    "lint": "eslint --report-unused-disable-directives \"./*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile-ts"
+  },
+  "devDependencies": {
+    "mocha": "^7.1.2"
+  },
+  "dependencies": {
+    "@mongosh/shell-api": "0.0.0-dev.0",
+    "mongodb-ace-autocompleter": "^0.4.14",
+    "semver": "^7.3.2"
+  }
+}

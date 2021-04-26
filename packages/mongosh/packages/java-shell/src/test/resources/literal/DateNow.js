@@ -1,0 +1,2 @@
+// command dontCheckValue
+Date.now()

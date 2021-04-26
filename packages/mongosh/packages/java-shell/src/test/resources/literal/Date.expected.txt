@@ -1,0 +1,11 @@
+DateResult
+StringResult
+DateResult: {"$date": {"$numberLong": "1"}}
+StringResult
+DateResult: {"$date": {"$numberLong": "2678400000"}}
+DateResult: {"$date": {"$numberLong": "2865900000"}}
+DateResult: {"$date": {"$numberLong": "1355896877171"}}
+DateResult: {"$date": {"$numberLong": "1355875200000"}}
+StringResult
+java.lang.IllegalArgumentException: Expected number or string. Got: {} (Document{{}})
+LongResult: 1355875200000

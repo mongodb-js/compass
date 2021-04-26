@@ -1,0 +1,1 @@
+com.mongodb.MongoCommandException: Command failed with error 2 (BadValue): 'cursor.batchSize must not be negative' on server %mongohostport%. The full response is {"ok": 0.0, "errmsg": "cursor.batchSize must not be negative", "code": 2, "codeName": "BadValue"}

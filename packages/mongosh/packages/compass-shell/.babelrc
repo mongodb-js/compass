@@ -1,0 +1,41 @@
+{
+  "env": {
+    "__TODO_re_enable_minification__production": {
+      "presets": [
+        "minify"
+      ]
+    },
+    "test": {
+      "presets": [
+        [
+          "@babel/preset-env"
+        ]
+      ],
+      "plugins": [
+        "react-hot-loader/babel",
+        "@babel/plugin-syntax-object-rest-spread",
+        "@babel/plugin-proposal-object-rest-spread",
+        "@babel/plugin-proposal-class-properties",
+        "@babel/plugin-syntax-dynamic-import",
+        ["@babel/plugin-proposal-decorators", {"legacy": true}]
+      ]
+    }
+  },
+  "presets": [
+    "@babel/preset-react",
+    [
+      "@babel/preset-env",
+      {
+        "modules": false
+      }
+    ]
+  ],
+  "plugins": [
+    "react-hot-loader/babel",
+    "@babel/plugin-syntax-object-rest-spread",
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-syntax-dynamic-import",
+    ["@babel/plugin-transform-runtime", { "regenerator": true } ]
+  ]
+}

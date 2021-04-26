@@ -1,0 +1,38 @@
+{
+  "name": "@mongosh/shell-evaluator",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Top Level API Package",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile-ts"
+  },
+  "config": {
+    "unsafe-perm": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "dependencies": {
+    "@mongosh/async-rewriter2": "0.0.0-dev.0",
+    "@mongosh/history": "0.0.0-dev.0",
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "@mongosh/shell-api": "0.0.0-dev.0"
+  },
+  "devDependencies": {
+    "@types/sinon": "^7.5.1",
+    "@types/sinon-chai": "^3.2.3"
+  }
+}

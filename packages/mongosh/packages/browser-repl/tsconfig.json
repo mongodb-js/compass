@@ -1,0 +1,15 @@
+{
+  "extends": "../../config/tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "declaration": false,
+    "jsx": "react",
+    "lib": ["dom"]
+  },
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "./src/**/*.spec.*"
+  ]
+}

@@ -1,0 +1,1 @@
+com.mongodb.MongoCommandException: Command failed with error 51024 (Location51024): 'BSON field 'batchSize' value must be >= 0, actual value '-1'' on server %mongohostport%. The full response is {"ok": 0.0, "errmsg": "BSON field 'batchSize' value must be >= 0, actual value '-1'", "code": 51024, "codeName": "Location51024"}

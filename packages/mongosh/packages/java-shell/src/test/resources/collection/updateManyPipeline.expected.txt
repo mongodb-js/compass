@@ -1,0 +1,2 @@
+AcknowledgedUpdateResult{matchedCount=3, modifiedCount=3, upsertedId=null}
+[ { "_id": <ObjectID>, "b": 1 }, { "_id": <ObjectID>, "b": 1 }, { "_id": <ObjectID>, "b": 1 } ]

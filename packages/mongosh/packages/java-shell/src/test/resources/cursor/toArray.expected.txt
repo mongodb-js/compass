@@ -1,0 +1,1 @@
+ArrayResult: [ { "_id": 1, "name": "Vasya" }, { "_id": 2, "name": "Petya" }, { "_id": 3, "name": "Lyusya" } ]

@@ -1,0 +1,45 @@
+{
+  "name": "@mongosh/browser-runtime-core",
+  "version": "0.0.0-dev.0",
+  "description": "Mongosh browser runtime core",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "config": {
+    "unsafe-perm": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "scripts": {
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "preprepublish": "rimraf ./lib",
+    "prepublish": "npm run compile-ts",
+    "compile-ts": "tsc -p tsconfig.json"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@mongosh/types": "0.0.0-dev.0",
+    "@types/babel__generator": "^7.6.2",
+    "@types/babel__template": "^7.0.3",
+    "rimraf": "^3.0.2"
+  },
+  "dependencies": {
+    "@babel/generator": "^7.9.4",
+    "@babel/parser": "^7.9.4",
+    "@mongosh/autocomplete": "0.0.0-dev.0",
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "@mongosh/shell-api": "0.0.0-dev.0",
+    "@mongosh/shell-evaluator": "0.0.0-dev.0"
+  }
+}
