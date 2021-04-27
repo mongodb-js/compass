@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
 const { promisify } = require('util');
-const { exec } = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
-const ora = require('ora');
 const glob = require('glob');
 const readline = require('readline');
+
+const compassDepsList = require('./compass-deps-list');
+const { runInDir } = require('./run-in-dir');
+const { withProgress } = require("./with-progress");
 
 async function questionAsync(query) {
   return new Promise((resolve) => {
@@ -23,8 +25,6 @@ async function questionAsync(query) {
 }
 
 const globAsync = promisify(glob);
-
-const compassDepsList = require('./compass-deps-list');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 
@@ -60,37 +60,12 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const ONE_HOUR = 1000 * 60 * 60;
-
-async function runInDir(command, cwd = process.cwd(), timeout = ONE_HOUR) {
-  const execPromise = promisify(exec)(command, {
-    stdio: 'pipe',
-    cwd,
-    timeout
-  });
-  return await execPromise;
-}
-
 function lerna(command, dir) {
   return runInDir(`${LERNA_BIN} ${command}`, dir);
 }
 
 function git(command, dir) {
   return runInDir(`git ${command}`, dir);
-}
-
-async function withProgress(text, fn, ...args) {
-  spinner = ora(text).start();
-  try {
-    const result = await fn.call(spinner, ...args);
-    spinner.succeed();
-    return result;
-  } catch (e) {
-    if (spinner.isSpinning) {
-      spinner.fail();
-    }
-    throw e;
-  }
 }
 
 async function initializeMonorepo(cloneCacheDir, monorepoTargetDir) {
