@@ -22,7 +22,7 @@
     "prepublishOnly": "npm run compile",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.jsx\"",
     "check": "npm run lint && npm run depcheck",
-    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\"",
+    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck --ignores=\"prop-types,react,react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "peerDependencies": {

@@ -22,7 +22,7 @@
     "posttest": "mongodb-runner stop --port=27018",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
-    "lint": "eslint ."
+    "lint": "eslint \"./{lib,test}/**/*.js\" \"./*.js\""
   },
   "pre-commit": [
     "check"
