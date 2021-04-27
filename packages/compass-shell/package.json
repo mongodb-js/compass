@@ -56,9 +56,9 @@
   "dependencies": {
     "@leafygreen-ui/icon": "^5.1.0",
     "@leafygreen-ui/icon-button": "^5.0.2",
-    "@mongosh/browser-repl": "0.0.0-dev.0",
-    "@mongosh/node-runtime-worker-thread": "0.0.0-dev.0",
-    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "@mongosh/browser-repl": "^0.12.0",
+    "@mongosh/node-runtime-worker-thread": "^0.12.0",
+    "@mongosh/service-provider-core": "^0.12.0",
     "hadron-react-buttons": "^4.0.4",
     "mongodb-redux-common": "0.0.2"
   },
