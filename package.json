@@ -20,15 +20,11 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/compass.git"
   },
-  "precommit": [
-    "check"
-  ],
   "dependencies": {},
   "devDependencies": {
     "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
     "lerna": "^4.0.0",
-    "mongodb-js-precommit": "^2.2.1",
     "ora": "^5.4.0"
   },
   "engines": {
