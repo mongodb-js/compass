@@ -22,20 +22,13 @@
     "cover": "nyc npm run test",
     "ci": "npm run cover && npm run test:karma && npm run check",
     "precheck": "npm run compile",
-    "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "check": "npm run lint && npm run depcheck",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
     "prepublishOnly": "npm run compile",
-    "install": "node scripts/download-akzidenz.js"
-  },
-  "dependency-check": {
-    "ignore": [
-      "hadron-react-buttons",
-      "hadron-react-components",
-      "react-select-plus",
-      "react-dom",
-      "debug"
-    ]
+    "install": "node scripts/download-akzidenz.js",
+    "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "depcheck": "depcheck --ignores=\"hadron-react-buttons,hadron-react-components,react-select-plus,react-dom,debug\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "license": "Apache-2.0",
   "peerDependencies": {
@@ -78,10 +71,12 @@
     "cross-env": "^7.0.0",
     "css-loader": "^0.28.11",
     "debug": "^4.1.1",
+    "depcheck": "^1.4.0",
     "electron": "^6.1.8",
     "electron-rebuild": "^1.10.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
@@ -113,7 +108,6 @@
     "mongodb-collection-model": "^3.1.0",
     "mongodb-connection-model": "^14.6.2",
     "mongodb-data-service": "^16.5.5",
-    "mongodb-js-precommit": "^2.2.1",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "numeral": "^2.0.6",

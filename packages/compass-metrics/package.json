@@ -16,15 +16,11 @@
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
     "cover": "nyc npm run test",
     "ci": "npm run cover && npm run compile && npm run check",
-    "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "check": "npm run lint && npm run depcheck",
     "prepublishOnly": "npm run compile",
-    "install": "node scripts/download-akzidenz.js"
-  },
-  "dependency-check": {
-    "ignore": [
-      "react-dom",
-      "mongodb-schema"
-    ]
+    "install": "node scripts/download-akzidenz.js",
+    "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "depcheck": "depcheck --ignores=\"react-dom,mongodb-schema\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "license": "Apache-2.0",
   "peerDependencies": {
@@ -57,10 +53,12 @@
     "cross-env": "^7.0.0",
     "css-loader": "^3.4.2",
     "debug": "mongodb-js/debug#v2.2.3",
+    "depcheck": "^1.4.0",
     "electron": "^8.0.1",
     "electron-rebuild": "^1.10.0",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "file-loader": "^5.0.2",
     "font-awesome": "^4.7.0",
@@ -92,7 +90,6 @@
     "mongodb-connection-model": "^14.5.1",
     "mongodb-data-service": "^16.5.2",
     "mongodb-js-metrics": "^5.0.2",
-    "mongodb-js-precommit": "^2.0.0",
     "mongodb-reflux-store": "0.0.1",
     "mongodb-schema": "^8.2.3",
     "node-loader": "^0.6.0",

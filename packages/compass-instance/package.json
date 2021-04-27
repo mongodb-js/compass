@@ -21,11 +21,13 @@
     "cover": "nyc npm run test",
     "ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
     "precheck": "npm run compile",
-    "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "check": "npm run lint && npm run depcheck",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
     "prepublishOnly": "npm run compile",
-    "install": "node scripts/download-akzidenz.js"
+    "install": "node scripts/download-akzidenz.js",
+    "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "depcheck": "depcheck --ignores=\"react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "license": "Apache-2.0",
   "peerDependencies": {
@@ -33,11 +35,6 @@
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-tooltip": "^3.2.6"
-  },
-  "dependency-check": {
-    "ignore": [
-      "react-dom"
-    ]
   },
   "devDependencies": {
     "@mongodb-js/compass-database": "^1.0.0",
@@ -64,10 +61,12 @@
     "cross-env": "^7.0.0",
     "css-loader": "^0.28.1",
     "debug": "^4.1.1",
+    "depcheck": "^1.4.0",
     "electron": "^8.0.1",
     "electron-rebuild": "^1.10.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.0.2",
@@ -98,7 +97,6 @@
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-connection-model": "^14.5.1",
     "mongodb-data-service": "^16.5.2",
-    "mongodb-js-precommit": "^2.2.1",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",

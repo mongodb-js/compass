@@ -30,17 +30,13 @@
     "test:karma": "xvfb-maybe cross-env NODE_ENV=test karma start",
     "cover": "nyc npm run test",
     "ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
-    "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "check": "npm run lint && npm run depcheck",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
     "prepublishOnly": "npm run compile",
-    "install": "node scripts/download-akzidenz.js"
-  },
-  "dependency-check": {
-    "ignore": [
-      "mongodb-query-parser",
-      "react-dom"
-    ]
+    "install": "node scripts/download-akzidenz.js",
+    "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "depcheck": "depcheck --ignores=\"mongodb-query-parser,react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "peerDependencies": {
     "debug": "*",
@@ -81,10 +77,12 @@
     "cross-env": "^7.0.0",
     "css-loader": "^0.28.1",
     "debug": "^4.1.1",
+    "depcheck": "^1.4.0",
     "electron": "^8.0.1",
     "electron-rebuild": "^1.10.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.0.2",
@@ -118,7 +116,6 @@
     "mongodb-ace-theme-query": "^0.0.2",
     "mongodb-connection-model": "^14.5.1",
     "mongodb-data-service": "^16.5.2",
-    "mongodb-js-precommit": "^2.2.0",
     "mongodb-query-parser": "^2.2.0",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",

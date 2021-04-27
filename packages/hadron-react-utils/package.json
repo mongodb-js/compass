@@ -20,7 +20,10 @@
     "precompile": "npm run clean",
     "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js --progress",
     "prepublishOnly": "npm run compile",
-    "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.js\""
+    "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.js\"",
+    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\"",
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "check": "npm run lint && npm run depcheck"
   },
   "devDependencies": {
     "@babel/core": "^7.8.6",
@@ -30,8 +33,10 @@
     "chai": "^4.1.2",
     "chai-enzyme": "1.0.0-beta.0",
     "cross-env": "^7.0.0",
+    "depcheck": "^1.4.0",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "ignore-loader": "^0.1.2",
     "jsdom": "^12.2.0",
@@ -39,7 +44,6 @@
     "lerna": "^3.20.2",
     "mocha": "^7.1.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-js-precommit": "^2.2.1",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "pre-commit": "^1.2.2",
     "rimraf": "^3.0.2",

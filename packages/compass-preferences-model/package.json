@@ -14,7 +14,9 @@
   "scripts": {
     "ci": "npm run check && npm test",
     "test": "mocha",
-    "check": "mongodb-js-precommit"
+    "check": "npm run lint && npm run depcheck",
+    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\"",
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "precommit": [
     "check"
@@ -33,12 +35,13 @@
     "storage-mixin": "^3.3.4"
   },
   "devDependencies": {
+    "depcheck": "^1.4.0",
     "electron": "^4.0.6",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^3.0.1",
     "lodash.clone": "^4.5.0",
     "lodash.result": "^4.5.2",
     "mocha": "^6.0.2",
-    "mongodb-js-precommit": "^0.2.9",
     "pre-commit": "^1.1.2"
   }
 }
