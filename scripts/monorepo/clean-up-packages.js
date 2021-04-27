@@ -15,7 +15,11 @@ async function updatePackageJson(packageDir, updateFn) {
       `updatePackageJson updateFn should return a package.json object, got ${updatedStr}`
     );
   }
-  await fs.writeFile(pathToPkg, JSON.stringify(updated, null, 2), 'utf8');
+  await fs.writeFile(
+    pathToPkg,
+    JSON.stringify(updated, null, 2).trim() + '\n',
+    'utf8'
+  );
 }
 
 async function cleanUpPackage(packageDir = process.cwd()) {
@@ -73,6 +77,12 @@ async function cleanUpPackage(packageDir = process.cwd()) {
           delete pkgJson.scripts[fmtScriptName];
           return pkgJson;
         });
+      }
+
+      try {
+        await fs.unlink(path.join(packageDir, '.jsfmtrc'));
+      } catch (e) {
+        if (e.code !== 'ENOENT') throw e;
       }
 
       await runInDir('npm uninstall --save mongodb-js-fmt', packageDir);
@@ -146,10 +156,15 @@ async function cleanUpPackage(packageDir = process.cwd()) {
 
       const lintCommand = `eslint ${
         precommitCommand.replace('mongodb-js-precommit', '').trim() ||
-        '"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}" "./*.js"'
+        // Do not emit errors if we added a pattern that doesn't match, it's a
+        // good enough compromise between making the logic of figuring out what
+        // to lint and having a good enough default that can produce errors in
+        // some cases
+        '"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}" "./*.js" --no-error-on-unmatched-pattern'
       }`;
 
       await updatePackageJson(packageDir, (pkgJson) => {
+        delete pkgJson['precommit'];
         delete pkgJson['dependency-check'];
         pkgJson.scripts['lint'] = lintCommand;
         pkgJson.scripts['depcheck'] = depCheckCommand;
@@ -179,8 +194,6 @@ async function runCleanUp() {
 
   for (const pkgDir of packages) {
     await withProgress('Cleaning up package', cleanUpPackage, pkgDir);
-    // if (/compass-aggregations/.test(pkgDir)) {
-    // }
   }
 
   console.log();

@@ -30,9 +30,6 @@
     "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
     "depcheck": "depcheck --ignores=\"@mongodb-js/compass-aggregations,@mongodb-js/compass-collection-stats,@mongodb-js/compass-crud,@mongodb-js/compass-deployment-awareness,@mongodb-js/compass-explain-plan,@mongodb-js/compass-export-to-language,@mongodb-js/compass-field-store,@mongodb-js/compass-indexes,@mongodb-js/compass-query-bar,@mongodb-js/compass-query-history,@mongodb-js/compass-schema,@mongodb-js/compass-schema-validation,@mongodb-js/compass-status,jquery,mongodb-query-parser,mongodb-language-model,react-dom,debug,hadron-ipc,hadron-react-bson,hadron-react-buttons,hadron-react-components\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
-  "precommit": [
-    "check"
-  ],
   "license": "Apache-2.0",
   "peerDependencies": {
     "bson": "*",

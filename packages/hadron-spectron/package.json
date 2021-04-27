@@ -14,9 +14,6 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/hadron-spectron.git"
   },
-  "precommit": [
-    "check"
-  ],
   "keywords": [
     "Hadron",
     "Spectron",
