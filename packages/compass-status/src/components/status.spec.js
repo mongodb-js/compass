@@ -242,7 +242,7 @@ describe('Status [Component]', () => {
           class SubComponent extends React.Component {
             render() {
               return (
-                <div className="subview"></div>
+                <div className="subview" />
               );
             }
           }

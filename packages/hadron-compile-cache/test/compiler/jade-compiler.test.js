@@ -1,15 +1,15 @@
-var crypto = require('crypto');
-var fs = require('fs-plus');
-var path = require('path');
-var chai = require('chai');
-var expect = chai.expect;
-var JadeCompiler = require('../../lib/compiler/jade-compiler');
+const crypto = require('crypto');
+const fs = require('fs-plus');
+const path = require('path');
+const chai = require('chai');
+const expect = chai.expect;
+const JadeCompiler = require('../../lib/compiler/jade-compiler');
 
 describe('JadeCompiler', function() {
   describe('#getCachePath', function() {
-    var compiler = new JadeCompiler();
-    var file = path.join(__dirname, 'test.jade');
-    var expected = path.join(
+    const compiler = new JadeCompiler();
+    const file = path.join(__dirname, 'test.jade');
+    const expected = path.join(
       'jade',
       crypto.createHash('sha1').update(file, 'utf8').digest('hex') + '.js'
     );
@@ -20,10 +20,10 @@ describe('JadeCompiler', function() {
   });
 
   describe('#compile', function() {
-    var compiler = new JadeCompiler();
-    var filePath = path.join(__dirname, 'test.jade');
-    var source = fs.readFileSync(filePath, 'utf8');
-    var compiled = compiler.compile(source, filePath);
+    const compiler = new JadeCompiler();
+    const filePath = path.join(__dirname, 'test.jade');
+    const source = fs.readFileSync(filePath, 'utf8');
+    const compiled = compiler.compile(source, filePath);
 
     it('creates the template function', function() {
       expect(compiled).to.include('function template(locals) {');

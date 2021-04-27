@@ -5,7 +5,7 @@ import { Value } from '../';
 
 describe('<Value /> (rendering Boolean)', () => {
   context('when the value is true', () => {
-    const component = shallow(<Value type="Boolean" value={true} />);
+    const component = shallow(<Value type="Boolean" value />);
 
     it('sets the base class', () => {
       expect(component.hasClass('element-value')).to.equal(true);

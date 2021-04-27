@@ -39,7 +39,7 @@ class TimeAndPauseButton extends React.Component {
           data-test-id="performance-play"
           style={{display: this.state.paused ? null : 'none'}}>
           <span className="playbutton">
-            <i className="fa fa-play"></i>
+            <i className="fa fa-play" />
             PLAY
           </span>
         </button>
@@ -49,7 +49,7 @@ class TimeAndPauseButton extends React.Component {
           data-test-id="performance-pause"
           style={{display: this.state.paused ? 'none' : null}}>
           <span className="pausebutton">
-            <i className="fa fa-pause"></i>
+            <i className="fa fa-pause" />
             PAUSE
           </span>
         </button>

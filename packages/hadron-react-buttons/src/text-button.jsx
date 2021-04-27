@@ -10,7 +10,6 @@ const BUTTON = 'button';
  * Component for a button with text.
  */
 class TextButton extends React.Component {
-
   /**
    * Render the button.
    *

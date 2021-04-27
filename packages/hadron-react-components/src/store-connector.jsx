@@ -7,7 +7,6 @@ import isFunction from 'lodash.isfunction';
  * the component state.
  */
 class StoreConnector extends React.Component {
-
   constructor(props) {
     super(props);
     // warn if the store does not have a getInitialState() method

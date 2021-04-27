@@ -75,21 +75,19 @@ class Status extends Component {
     return (
       <div id={STATUS_ID} className={classnames(statusClasses)}>
         <div className={classnames(progressClasses)}>
-          <div className={classnames(progressBarClasses)} style={progressBarWidth}>
-          </div>
+          <div className={classnames(progressBarClasses)} style={progressBarWidth} />
         </div>
-        <div className={classnames(sidebarClasses)}>
-        </div>
+        <div className={classnames(sidebarClasses)} />
         <div className={classnames(messageClasses)}>
           <p className={classnames(messageTextClasses)}>
             {this.props.message}
           </p>
           <div className={classnames(spinnerClasses)}>
-            <div className={classnames(styles['spinner-rect'])}></div>
-            <div className={classnames(styles['spinner-rect-delay-1'])}></div>
-            <div className={classnames(styles['spinner-rect-delay-2'])}></div>
-            <div className={classnames(styles['spinner-rect-delay-3'])}></div>
-            <div className={classnames(styles['spinner-rect-delay-4'])}></div>
+            <div className={classnames(styles['spinner-rect'])} />
+            <div className={classnames(styles['spinner-rect-delay-1'])} />
+            <div className={classnames(styles['spinner-rect-delay-2'])} />
+            <div className={classnames(styles['spinner-rect-delay-3'])} />
+            <div className={classnames(styles['spinner-rect-delay-4'])} />
           </div>
           <div>
             {statusSubview}

@@ -81,8 +81,8 @@ describe('ExportToLanguage Store', () => {
       it('filters query correctly with only filter', (done) => {
         unsubscribe = subscribeCheck(store, {}, (s) => (
           JSON.stringify(s.inputExpression) === JSON.stringify({filter: "'filterString'"})
-      ), done);
-        appRegistry.emit('open-query-export-to-language',{
+        ), done);
+        appRegistry.emit('open-query-export-to-language', {
           project: '', maxTimeMS: '', sort: '', skip: '', limit: '', collation: '',
           filter: "'filterString'"
         });
@@ -94,7 +94,7 @@ describe('ExportToLanguage Store', () => {
             filter: "'filterString'", skip: '10', limit: '50'
           })
         ), done);
-        appRegistry.emit('open-query-export-to-language',{
+        appRegistry.emit('open-query-export-to-language', {
           filter: "'filterString'",
           project: '',
           sort: '',

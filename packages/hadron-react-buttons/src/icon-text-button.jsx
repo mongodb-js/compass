@@ -10,7 +10,6 @@ const BUTTON = 'button';
  * Component for a button with an icon and text.
  */
 class IconTextButton extends React.Component {
-
   /**
    * By default should not need to to re-render itself.
    *

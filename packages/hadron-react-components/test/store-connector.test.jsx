@@ -9,7 +9,7 @@ chai.use(chaiEnzyme());
 describe('<StoreConnector />', () => {
   class MyComponent extends React.Component {
     render() {
-      return (<div className="test"></div>);
+      return (<div className="test" />);
     }
   }
   const store = {

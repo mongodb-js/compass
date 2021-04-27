@@ -30,24 +30,24 @@ const NetworkStore = Reflux.createStore({
     this.data = {dataSets: [
       {line: 'bytesIn', count: [], active: true, current: 0},
       {line: 'bytesOut', count: [], active: true, current: 0}],
-      localTime: [],
-      skip: [],
-      yDomain: [0, 1],
-      xLength: this.xLength,
-      labels: {
-        title: 'network',
-        keys: ['net in', 'net out', 'connections'],
-        yAxis: 'KB'
-      },
-      keyLength: 6,
-      secondScale: {
-        line: 'connections',
-        count: [],
-        active: true,
-        currentMax: 1,
-        units: 'conn'
-      },
-      paused: false
+    localTime: [],
+    skip: [],
+    yDomain: [0, 1],
+    xLength: this.xLength,
+    labels: {
+      title: 'network',
+      keys: ['net in', 'net out', 'connections'],
+      yAxis: 'KB'
+    },
+    keyLength: 6,
+    secondScale: {
+      line: 'connections',
+      count: [],
+      active: true,
+      currentMax: 1,
+      units: 'conn'
+    },
+    paused: false
     };
   },
 

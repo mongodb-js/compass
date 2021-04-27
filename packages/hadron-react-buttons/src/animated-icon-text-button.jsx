@@ -10,7 +10,6 @@ const BUTTON = 'button';
  * Component for a button with an icon and text where the icon is animated.
  */
 class AnimatedIconTextButton extends React.Component {
-
   /**
    * Instantiate the component.
    *
@@ -19,7 +18,6 @@ class AnimatedIconTextButton extends React.Component {
   constructor(props) {
     super(props);
     this.state = { animating: false };
-
   }
   /**
    * Fetch the state when the component mounts.

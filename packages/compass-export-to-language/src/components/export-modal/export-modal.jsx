@@ -56,8 +56,8 @@ class ExportModal extends PureComponent {
       return (
         <div className={classnames(styles['export-to-lang-modal-checkbox-builders'])}>
           <Checkbox defaultChecked={this.props.builders}
-                    data-test-id="export-to-lang-checkbox-builders"
-                    onClick={this.buildersHandler}>
+            data-test-id="export-to-lang-checkbox-builders"
+            onClick={this.buildersHandler}>
             Use Builders
           </Checkbox>
         </div>
@@ -87,7 +87,7 @@ class ExportModal extends PureComponent {
           <div className={classnames(styles['export-to-lang-modal-checkbox-imports'])}>
             <Checkbox data-test-id="export-to-lang-checkbox-imports" onClick={this.importsHandler} defaultChecked={this.props.showImports}>
                Include Import Statements
-           </Checkbox>
+            </Checkbox>
           </div>
           <div className={classnames(styles['export-to-lang-modal-checkbox-driver'])}>
             <Checkbox data-test-id="export-to-lang-checkbox-driver" onClick={this.driverHandler} defaultChecked={this.props.driver}>

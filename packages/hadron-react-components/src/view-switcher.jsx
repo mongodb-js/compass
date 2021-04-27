@@ -7,7 +7,6 @@ import { Button, ButtonGroup } from 'react-bootstrap';
  * view modes.
  */
 class ViewSwitcher extends React.Component {
-
   /**
    * return array of button components based on buttonLabels and activeButton
    *
@@ -36,8 +35,8 @@ class ViewSwitcher extends React.Component {
   renderIcon(i) {
     if (this.props.iconClassNames[i]) {
       return (
-        <i className={this.props.iconClassNames[i]} aria-hidden></i>
-      )
+        <i className={this.props.iconClassNames[i]} aria-hidden />
+      );
     }
   }
 
@@ -73,7 +72,7 @@ ViewSwitcher.propTypes = {
 ViewSwitcher.defaultProps = {
   iconClassNames: [],
   showLabels: true
-}
+};
 
 ViewSwitcher.displayName = 'ViewSwitcher';
 

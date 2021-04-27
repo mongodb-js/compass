@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 
 class Tooltip extends React.Component {
-
   /**
    * Render the tooltip component.
    *

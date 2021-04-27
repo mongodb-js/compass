@@ -10,7 +10,6 @@ const CLASS = 'element-value';
  * General BSON value component.
  */
 class Value extends React.Component {
-
   /**
    * Render a single generic BSON value.
    *

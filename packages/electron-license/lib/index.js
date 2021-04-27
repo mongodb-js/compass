@@ -833,7 +833,7 @@ let extractLicenseFromReadmeFile = dir => {
   }
 };
 
-/* eslint max-complexity: 0 */
+/* eslint complexity: 0 */
 let extractLicenseFromDirectory = dir => {
   let licenseFileName = 'LICENSE';
   let licenseText = readIfExists(path.join(dir, licenseFileName));
@@ -1346,7 +1346,7 @@ module.exports.thirdPartyNotices = function(opts) {
         // throw new Error('filled license is undefined', dep.id);
         filled.license = dectectLicenseSPDXFromText(filled.licenseText);
       }
-      
+
       filled.license = normalizeLicenseSPDX(filled.license);
 
       if (filled.github_owner) {

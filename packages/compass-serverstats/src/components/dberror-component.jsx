@@ -7,7 +7,6 @@ const PropTypes = require('prop-types');
  * Represents the component that renders DB Errors.
  */
 class DBErrorComponent extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = { data: [] };
@@ -46,7 +45,6 @@ class DBErrorComponent extends React.Component {
   render() {
     return this.state.data.length ? this.renderErrors() : null;
   }
-
 }
 
 DBErrorComponent.propTypes = {

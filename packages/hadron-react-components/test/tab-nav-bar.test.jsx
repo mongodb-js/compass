@@ -8,11 +8,11 @@ import { TabNavBar } from '../';
 chai.use(chaiEnzyme());
 
 describe('<TabNavBar />', () => {
-  const tabs = [ 'one', 'two' ]
+  const tabs = [ 'one', 'two' ];
   const views = [
-    <div className="tab-one"></div>,
-    <div className="tab-two"></div>
-  ]
+    <div className="tab-one" />,
+    <div className="tab-two" />
+  ];
 
   context('when using the defaults', () => {
     const component = shallow(

@@ -7,7 +7,7 @@ describe('<OptionSelector />', () => {
   context('when the option selector has no label', () => {
     const options = {
       'LINE': 'line'
-    }
+    };
     const onSelect = () => {};
     const component = shallow(
       <OptionSelector id="selector" bsSize="xs" className="selector-class" options={options} title="test" onSelect={onSelect} />
@@ -25,7 +25,7 @@ describe('<OptionSelector />', () => {
   context('when the option selector has a label', () => {
     const options = {
       'LINE': 'line'
-    }
+    };
     const onSelect = () => {};
     const component = shallow(
       <OptionSelector

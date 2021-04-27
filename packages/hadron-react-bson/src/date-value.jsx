@@ -16,7 +16,6 @@ const FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
  * BSON Date component.
  */
 class DateValue extends React.Component {
-
   /**
    * Render a BSON date.
    *

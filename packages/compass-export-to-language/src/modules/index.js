@@ -15,8 +15,7 @@ import driver, {
   INITIAL_STATE as DRIVER_INITIAL_STATE
 } from 'modules/driver';
 import imports, {
-  INITIAL_STATE as IMPORTS_INITIAL_STATE,
-  importsChanged
+  INITIAL_STATE as IMPORTS_INITIAL_STATE
 } from 'modules/imports';
 import inputExpression, {
   INITIAL_STATE as INPUT_EXPRESSION_INITIAL_STATE
@@ -31,12 +30,10 @@ import outputLang, {
   INITIAL_STATE as OUTPUT_LANG_INITIAL_STATE
 } from 'modules/output-lang';
 import error, {
-  INITIAL_STATE as ERROR_INITIAL_STATE,
-  errorChanged
+  INITIAL_STATE as ERROR_INITIAL_STATE
 } from 'modules/error';
 import transpiledExpression, {
-  INITIAL_STATE as TRANSPILED_EXPRESSION_INITIAL_STATE,
-  transpiledExpressionChanged
+  INITIAL_STATE as TRANSPILED_EXPRESSION_INITIAL_STATE
 } from 'modules/transpiled-expression';
 import showImports, {
   INITIAL_STATE as SHOW_IMPORTS_INITIAL_STATE

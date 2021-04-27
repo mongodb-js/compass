@@ -29,17 +29,17 @@ const GlobalLockStore = Reflux.createStore({
       {line: 'aWrites', count: [], active: true},
       {line: 'qReads', count: [], active: true},
       {line: 'qWrites', count: [], active: true}],
-      localTime: [],
-      skip: [],
-      yDomain: [0, 1],
-      xLength: this.xLength,
-      labels: {
-        title: 'read & write',
-        keys: ['active reads', 'active writes', 'queued reads', 'queued writes'],
-        yAxis: ''
-      },
-      keyLength: 4,
-      paused: false
+    localTime: [],
+    skip: [],
+    yDomain: [0, 1],
+    xLength: this.xLength,
+    labels: {
+      title: 'read & write',
+      keys: ['active reads', 'active writes', 'queued reads', 'queued writes'],
+      yAxis: ''
+    },
+    keyLength: 4,
+    paused: false
     };
   },
 

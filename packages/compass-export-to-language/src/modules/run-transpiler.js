@@ -1,9 +1,9 @@
-import toNS from "mongodb-ns";
-import compiler from "bson-transpilers";
-import {globalAppRegistryEmit} from "mongodb-redux-common/app-registry";
-import {transpiledExpressionChanged} from "./transpiled-expression";
-import {importsChanged} from "./imports";
-import {errorChanged} from "./error";
+import toNS from 'mongodb-ns';
+import compiler from 'bson-transpilers';
+import {globalAppRegistryEmit} from 'mongodb-redux-common/app-registry';
+import {transpiledExpressionChanged} from './transpiled-expression';
+import {importsChanged} from './imports';
+import {errorChanged} from './error';
 
 export const runTranspiler = (input) => {
   return (dispatch, getState) => {

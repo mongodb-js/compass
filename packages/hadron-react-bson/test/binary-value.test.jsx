@@ -42,11 +42,11 @@ describe('<BinaryValue />', () => {
     });
 
     it('sets the title', () => {
-      expect(component.props().title).to.equal(`UUID('3b241101-e2bb-4255-8caf-4136c566a962')`);
+      expect(component.props().title).to.equal('UUID(\'3b241101-e2bb-4255-8caf-4136c566a962\')');
     });
 
     it('sets the value', () => {
-      expect(component.text()).to.equal(`UUID('3b241101-e2bb-4255-8caf-4136c566a962')`);
+      expect(component.text()).to.equal('UUID(\'3b241101-e2bb-4255-8caf-4136c566a962\')');
     });
   });
 
@@ -56,11 +56,11 @@ describe('<BinaryValue />', () => {
     const component = shallow(<BinaryValue type="Binary" value={binary} />);
 
     it('title is base64 encoded', () => {
-      expect(component.props().title).to.equal(`UUID('3b241101-e2bb-4255-8caf-4136c566a962')`);
+      expect(component.props().title).to.equal('UUID(\'3b241101-e2bb-4255-8caf-4136c566a962\')');
     });
 
     it('value is base64 encoded', () => {
-      expect(component.text()).to.equal(`UUID('3b241101-e2bb-4255-8caf-4136c566a962')`);
+      expect(component.text()).to.equal('UUID(\'3b241101-e2bb-4255-8caf-4136c566a962\')');
     });
   });
 

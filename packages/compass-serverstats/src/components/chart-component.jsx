@@ -14,7 +14,6 @@ const LINE_COLORS = ['#45BAAB', '#23B1FF', '#6F72FF', '#A33A35', '#FFA900', '#C7
  * Represents the component that renders serverStatus charts.
  */
 class ChartComponent extends React.Component {
-
   /**
    * The server stats component should be initialized with a 'store'
    * property, that triggers with the result of a { serverStatus: 1 }
@@ -123,11 +122,10 @@ class ChartComponent extends React.Component {
   render() {
     return (
       <div className="chart">
-        <div ref="container"></div>
+        <div ref="container" />
       </div>
     );
   }
-
 }
 
 ChartComponent.propTypes = {

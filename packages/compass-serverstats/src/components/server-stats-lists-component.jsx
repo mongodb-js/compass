@@ -9,7 +9,6 @@ const TopStore = require('../stores/top-store');
 // const debug = require('debug')('mongodb-compass:server-stats:lists-component');
 
 class ServerStatsListsComponent extends React.Component {
-
   render() {
     return (
       <div className="listview">

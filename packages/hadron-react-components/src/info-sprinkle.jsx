@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
  * onClickHandler. The onClickHandler receives the helpLink argument.
  */
 class InfoSprinkle extends React.Component {
-
   /**
    * Render the input.
    *
@@ -24,7 +23,7 @@ class InfoSprinkle extends React.Component {
 InfoSprinkle.displayName = 'InfoSprinkle';
 
 InfoSprinkle.propTypes = {
-  onClickHandler: PropTypes.func.isRequired,  // e.g. require('electron').shell.openExternal
+  onClickHandler: PropTypes.func.isRequired, // e.g. require('electron').shell.openExternal
   helpLink: PropTypes.string.isRequired
 };
 

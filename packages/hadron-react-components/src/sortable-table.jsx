@@ -29,7 +29,6 @@ const DESC = 'desc';
  * Represents a sortable table.
  */
 class SortableTable extends React.Component {
-
   /**
    * Fires when the user's mouse cursor hovers over a <tr>.
    *
@@ -83,6 +82,18 @@ class SortableTable extends React.Component {
     }
   }
 
+  getStringValueFromCell(cell) {
+    if (isString(cell)) {
+      return cell;
+    }
+
+    const fromChild = get(cell, 'props.children', '');
+    if (isArray(fromChild)) {
+      return fromChild[0].props.children;
+    }
+    return fromChild;
+  }
+
   /**
    * compares either a column index (number) or a column name (string) with
    * another column name and returns whether they are a match. This abstraction
@@ -120,21 +131,9 @@ class SortableTable extends React.Component {
       );
     });
     if (this.props.removable) {
-      cells.push(<th key="th-delete" className={`${BASE}-th ${BASE}-th-is-last-col`}></th>);
+      cells.push(<th key="th-delete" className={`${BASE}-th ${BASE}-th-is-last-col`} />);
     }
     return cells;
-  }
-
-  getStringValueFromCell(cell) {
-    if(isString(cell)) {
-      return cell;
-    }
-
-    const fromChild = get(cell, 'props.children', '');
-    if (isArray(fromChild)) {
-      return fromChild[0].props.children;
-    }
-    return fromChild;
   }
 
   /**

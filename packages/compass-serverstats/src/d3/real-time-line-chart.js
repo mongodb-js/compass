@@ -109,8 +109,8 @@ function realTimeLineChart() {
           lineContainer.selectAll('path.line')
             .filter((pathD) => pathD === d)
             .transition('opacity')
-              .duration(100)
-              .style('opacity', newOpacity);
+            .duration(100)
+            .style('opacity', newOpacity);
         });
 
       const legend2 = realTimeLegend()
@@ -126,8 +126,8 @@ function realTimeLineChart() {
           line2Container.selectAll('path.line')
             .filter((pathD) => d === pathD)
             .transition('opacity')
-              .duration(100)
-              .style('opacity', newOpacity);
+            .duration(100)
+            .style('opacity', newOpacity);
         });
 
       // Overlay Configuration
@@ -211,9 +211,9 @@ function realTimeLineChart() {
       // Create row for drawn elements and labels
       const chartRowEnter = container.selectAll(`div.${prefix}-chart-row`).data([0]).enter()
         .append('div')
-          .attr('class', `${prefix}-chart-row`)
-          .style('display', 'flex')
-          .style('align-items', 'flex-start');
+        .attr('class', `${prefix}-chart-row`)
+        .style('display', 'flex')
+        .style('align-items', 'flex-start');
 
       // Create first axis label
       const maxYValueClass = `${prefix}-max-y-value`;

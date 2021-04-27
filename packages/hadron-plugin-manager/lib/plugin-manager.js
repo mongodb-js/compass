@@ -10,7 +10,6 @@ const Action = require('./action');
  * Manages plugins in the application.
  */
 class PluginManager {
-
   /**
    * Instantiate the plugin manager.
    *

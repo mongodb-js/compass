@@ -24,23 +24,23 @@ function realTimeLegend() {
         .attr('height', bubbleWidth + 2)
         .attr('width', bubbleWidth + 2)
         .append('rect')
-          .attr('fill', (d, i) => color(i))
-          .attr('stroke', (d, i) => color(i))
-          .attr('class', `${prefix}-box`)
-          .attr('width', bubbleWidth)
-          .attr('height', bubbleWidth)
-          .attr('x', 1)
-          .attr('y', 1)
-          .attr('rx', bubbleWidth / 5)
-          .attr('ry', bubbleWidth / 5)
-          .on('click', function(d, i) {
-            const rect = d3.select(this);
-            const active = rect.style('fill-opacity') !== '1';
-            const newOpacity = active ? 1 : 0;
-            rect.transition().duration(100)
-              .style('fill-opacity', newOpacity);
-            onToggle(d, i, active);
-          });
+        .attr('fill', (d, i) => color(i))
+        .attr('stroke', (d, i) => color(i))
+        .attr('class', `${prefix}-box`)
+        .attr('width', bubbleWidth)
+        .attr('height', bubbleWidth)
+        .attr('x', 1)
+        .attr('y', 1)
+        .attr('rx', bubbleWidth / 5)
+        .attr('ry', bubbleWidth / 5)
+        .on('click', function(d, i) {
+          const rect = d3.select(this);
+          const active = rect.style('fill-opacity') !== '1';
+          const newOpacity = active ? 1 : 0;
+          rect.transition().duration(100)
+            .style('fill-opacity', newOpacity);
+          onToggle(d, i, active);
+        });
 
       // Add text for legend
       const textSection = legendDiv.append('div')
