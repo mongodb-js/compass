@@ -43,7 +43,7 @@ describe('<OptionWriteSelector />', () => {
 
         it('renders the button label', () => {
           const button = component.find('#test-id');
-          expect(button.dive().text()).to.be.equal('test-label<e />');
+          expect(button.dive().text()).to.match(/^test-label/);
         });
 
         it('sets the button as enabled', () => {

@@ -1052,12 +1052,16 @@ describe('Store', () => {
 
             it('sets the driverUrl', (done) => {
               const driverUrl =
-                'mongodb://server.example.com:27017/?readPreference=primary&ssl=false';
+                'mongodb://server.example.com:27017/?readPreference=primary&directConnection=true&ssl=false';
               const unsubscribe = Store.listen((state) => {
-                unsubscribe();
-                expect(state.connectionModel).to.exist;
-                expect(state.connectionModel.driverUrl).to.equal(driverUrl);
-                done();
+                try {
+                  unsubscribe();
+                  expect(state.connectionModel).to.exist;
+                  expect(state.connectionModel.driverUrl).to.equal(driverUrl);
+                  done();
+                } catch (e) {
+                  done(e);
+                }
               });
 
               Actions.onChangeViewClicked('connectionForm');
@@ -2181,11 +2185,15 @@ describe('Store', () => {
 
       it('updates customUrl with a safe value', (done) => {
         const unsubscribe = Store.listen((state) => {
-          unsubscribe();
-          expect(state.customUrl).to.equal(
-            'mongodb://user:*****@localhost:27018/?authSource=admin&readPreference=primary&ssl=false'
-          );
-          done();
+          try {
+            unsubscribe();
+            expect(state.customUrl).to.match(
+              /^mongodb:\/\/user:\*\*\*\*\*@localhost:27018/
+            );
+            done();
+          } catch (e) {
+            done(e);
+          }
         });
 
         Actions.onSaveFavoriteClicked();

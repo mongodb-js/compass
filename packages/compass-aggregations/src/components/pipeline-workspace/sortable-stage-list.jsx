@@ -1,9 +1,25 @@
 import React, { Component } from 'react';
 import { DndProvider } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
+import createHTML5Backend from 'react-dnd-html5-backend';
 import PropTypes from 'prop-types';
 import CustomDragLayer from './custom-drag-layer';
 import SortableStageContainer from './sortable-stage-container';
+
+// A replacement for default react-dnd global context selection strategy that
+// makes sure that we prioritize `window` as a global context instead of
+// `global` specifically to make sure that jsdom environments are working
+function getGlobalContext() {
+  if (typeof window !== 'undefined') {
+    return window;
+  } else if (typeof global !== 'undefined') {
+    return global;
+  }
+  return null;
+}
+
+function createBackend(manager) {
+  return createHTML5Backend(manager, getGlobalContext());
+}
 
 class SortableStageList extends Component {
   static propTypes = {
@@ -20,7 +36,7 @@ class SortableStageList extends Component {
     } = this.props;
 
     return (
-      <DndProvider backend={HTML5Backend}>
+      <DndProvider backend={createBackend}>
         <CustomDragLayer />
         {items.map((item, i) => (
           <SortableStageContainer

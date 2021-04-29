@@ -169,7 +169,9 @@ const CONNECTION_STRING_OPTIONS = {
     ],
     default: undefined
   },
-  directConnection: { type: 'boolean', default: undefined }
+  // Driver brought this behaviour back in v3.6.3+ (but will remove in v4), we don't need to handle directConnection ourselves
+  // See https://github.com/mongodb/node-mongodb-native/pull/2719
+  // directConnection: { type: 'boolean', default: undefined }
 };
 
 assign(props, CONNECTION_STRING_OPTIONS);

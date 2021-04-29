@@ -1,7 +1,7 @@
 const nodeExternals = require('webpack-node-externals');
 const merge = require('webpack-merge');
 
-const baseWebpackConfig = require('../../../config/webpack.base.config');
+const baseWebpackConfig = require('./webpack.base.config');
 
 const config = {
   mode: 'none',

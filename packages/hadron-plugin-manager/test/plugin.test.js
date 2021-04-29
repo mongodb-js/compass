@@ -118,7 +118,7 @@ describe('Plugin', () => {
 
       it('sets the error', () => {
         const fileName = path.join(plugin.pluginPath, 'package.json');
-        expect(plugin.error.message).to.equal(`Cannot find module '${fileName}'`);
+        expect(plugin.error.message).to.match(new RegExp(`Cannot find module '${fileName}'`));
       });
 
       it('defaults the applicationApiVersion to 1.0.0', () => {

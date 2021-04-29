@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-shell",
   "productName": "Compass Shell plugin",
-  "version": "0.0.0-dev.0",
+  "version": "0.12.0",
   "apiVersion": "3.0.0",
   "description": "Compass Shell Plugin",
   "main": "lib/index.js",
@@ -116,6 +116,7 @@
     "less": "^2.7.2",
     "less-loader": "^4.0.5",
     "mini-css-extract-plugin": "^0.8.0",
+    "mocha": "^5.2.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-reflux-store": "0.0.1",
     "node-loader": "^0.6.0",
