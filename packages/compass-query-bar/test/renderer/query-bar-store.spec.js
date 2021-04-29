@@ -678,13 +678,13 @@ describe('QueryBarStore [Store]', function() {
           expect(store.state.projectString).to.be.equal('');
 
           unsubscribe = store.listen(state => {
-            expect(state.projectString).to.be.equal('{project: "invalid"}');
+            expect(state.projectString).to.be.equal('"invalid project value"');
             expect(state.projectValid).to.be.false;
             expect(state.project).to.null;
             done();
           });
 
-          store.setQueryString('project', '{project: "invalid"}');
+          store.setQueryString('project', '"invalid project value"');
         });
       });
 
