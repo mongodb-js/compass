@@ -15,7 +15,7 @@
     "test:karma": "xvfb-maybe cross-env NODE_ENV=test karma start",
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
     "cover": "nyc npm run test",
-    "ci": "npm run cover && npm run compile && npm run check",
+    "test-check-ci": "npm run cover && npm run compile && npm run check",
     "check": "npm run lint && npm run depcheck",
     "prepublishOnly": "npm run compile",
     "install": "node scripts/download-akzidenz.js",

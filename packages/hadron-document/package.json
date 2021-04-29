@@ -14,7 +14,7 @@
     "mongodb-js"
   ],
   "scripts": {
-    "ci": "npm test",
+    "test-check-ci": "npm test",
     "test": "mocha",
     "check": "npm run lint && npm run depcheck",
     "prepublishOnly": "babel ./src --out-dir ./lib",

@@ -20,7 +20,7 @@
     "test:karma": "xvfb-maybe cross-env NODE_ENV=test karma start",
     "posttest:karma": "mongodb-runner stop --port 27018",
     "cover": "nyc npm run test",
-    "ci": "npm run check && npm run cover",
+    "test-check-ci": "npm run check && npm run cover",
     "depcheck": "depcheck",
     "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
     "check": "npm run depcheck && npm run lint",
