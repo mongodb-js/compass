@@ -20,6 +20,7 @@
     "precompile": "npm run clean",
     "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js --progress",
     "prepublishOnly": "npm run compile",
+    "pretest": "npm run compile",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.js\"",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
