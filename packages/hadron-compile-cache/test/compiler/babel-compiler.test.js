@@ -1,5 +1,5 @@
 const babel = require('babel-core');
-const fs = require('fs-plus');
+const { promises: fs } = require('fs');
 const path = require('path');
 const chai = require('chai');
 const expect = chai.expect;
@@ -17,24 +17,24 @@ describe('BabelCompiler', function() {
     });
   });
 
-  describe('#getCachePath', function() {
+  describe('#getCachePath', async function() {
     const compiler = new BabelCompiler();
-    const file = fs.readFileSync(path.join(__dirname, 'test.jsx'), 'utf8');
+    const file = await fs.readFile(path.join(__dirname, 'test.jsx'), 'utf8');
     const defaults = BabelCompiler.DEFAULTS;
     const source = babel.transform(file, defaults).code;
     const version = require('babel-core/package.json').version;
     const versionDir = path.join('js', 'babel', compiler._createDigest(version, defaults));
-    const expected = path.join(versionDir, '90fec0caffa65c1db6422fa4aa2d7c6ba2c954f6.js');
+    const expected = path.join(versionDir, '3d5a49cec27deccc9bc9cc84e3a847d65ec6282c.js');
 
     it('returns the digested cache path', function() {
       expect(compiler.getCachePath(source)).to.equal(expected);
     });
   });
 
-  describe('#compile', function() {
+  describe('#compile', async function() {
     const compiler = new BabelCompiler();
     const filePath = path.join(__dirname, 'test.jsx');
-    const source = fs.readFileSync(filePath, 'utf8');
+    const source = await fs.readFile(filePath, 'utf8');
     const compiled = compiler.compile(source, filePath);
 
     it('creates the template function', function() {
