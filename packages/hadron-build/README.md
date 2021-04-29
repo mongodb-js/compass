@@ -95,7 +95,7 @@ Options:
   },
   "scripts": {
     "check": "hadron-build check",
-    "ci": "npm run test",
+    "test-check-ci": "npm run test",
     "clean": "hadron-build clean",
     "compile-ui": "hadron-build ui",
     "fmt": "hadron-build fmt",

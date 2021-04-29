@@ -14,7 +14,7 @@
     "mongodb-js"
   ],
   "scripts": {
-    "ci": "npm test",
+    "test-check-ci": "npm test",
     "test": "mocha --recursive",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",

@@ -16,7 +16,7 @@
   "scripts": {
     "test": "mocha",
     "check": "npm run lint && npm run depcheck",
-    "ci": "npm run check && npm test",
+    "test-check-ci": "npm run check && npm test",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck --ignores=\"babel-register,hadron-app-registry,less,mongodb-data-service,prop-types,react,react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },

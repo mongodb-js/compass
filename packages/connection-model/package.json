@@ -14,7 +14,7 @@
     "mongodb-js"
   ],
   "scripts": {
-    "ci": "npm run check && npm test",
+    "test-check-ci": "npm run check && npm test",
     "pretest": "mongodb-runner install",
     "test": "mocha --timeout 15000",
     "check": "npm run lint && npm run depcheck",
