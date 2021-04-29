@@ -123,7 +123,7 @@ Object.keys(USERNAME_TO_ENV).map(function(username) {
   if (!process.env[key]) {
     debug(' The environment variable `%s` containing the '
     + 'password for `%s` MONGODB user is not set!',
-      key, username);
+    key, username);
   }
 });
 

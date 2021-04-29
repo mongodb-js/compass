@@ -1,9 +1,9 @@
-var path = require('path');
-var fs = require('fs-plus');
-var chai = require('chai');
-var expect = chai.expect;
-var CompileCache = require('../lib/compile-cache');
-var JadeCompiler = require('../lib/compiler/jade-compiler');
+const path = require('path');
+const fs = require('fs-plus');
+const chai = require('chai');
+const expect = chai.expect;
+const CompileCache = require('../lib/compile-cache');
+const JadeCompiler = require('../lib/compiler/jade-compiler');
 
 describe('CompileCache', function() {
   describe('#new', function() {
@@ -13,7 +13,7 @@ describe('CompileCache', function() {
   });
 
   describe('#setHomeDirectory', function() {
-    var home = path.join(__dirname);
+    const home = path.join(__dirname);
 
     beforeEach(function() {
       CompileCache.setHomeDirectory(home);
@@ -30,13 +30,13 @@ describe('CompileCache', function() {
   });
 
   describe('#compileFileAtPath', function() {
-    var compiler = new JadeCompiler();
-    var filePath = path.join(__dirname, 'compiler', 'test.jade');
-    var home = path.join(__dirname);
-    var filename = path.join('jade', 'fb840da9fcb09bc55a074a444f124067a973ce1a.js');
-    var cachePath = path.join(home, '.compiled-sources');
-    var cachedFilePath = path.join(cachePath, filename);
-    var shortPath = null;
+    const compiler = new JadeCompiler();
+    const filePath = path.join(__dirname, 'compiler', 'test.jade');
+    const home = path.join(__dirname);
+    const filename = path.join('jade', 'fb840da9fcb09bc55a074a444f124067a973ce1a.js');
+    const cachePath = path.join(home, '.compiled-sources');
+    const cachedFilePath = path.join(cachePath, filename);
+    let shortPath = null;
 
     beforeEach(function() {
       CompileCache.setHomeDirectory(home);
@@ -51,7 +51,7 @@ describe('CompileCache', function() {
     });
 
     it('compiles the source and saves in the cache directory', function() {
-      var file = fs.readFileSync(cachedFilePath, 'utf8');
+      const file = fs.readFileSync(cachedFilePath, 'utf8');
       expect(file).to.not.equal(null);
     });
 
@@ -71,12 +71,12 @@ describe('CompileCache', function() {
   });
 
   describe('_removeCachedJavascript', function() {
-    var compiler = new JadeCompiler();
-    var filePath = path.join(__dirname, 'compiler', 'test.jade');
-    var home = path.join(__dirname);
-    var filename = path.join('jade', 'fb840da9fcb09bc55a074a444f124067a973ce1a.js');
-    var cachePath = path.join(home, '.compiled-sources');
-    var cachedFilePath = path.join(cachePath, filename);
+    const compiler = new JadeCompiler();
+    const filePath = path.join(__dirname, 'compiler', 'test.jade');
+    const home = path.join(__dirname);
+    const filename = path.join('jade', 'fb840da9fcb09bc55a074a444f124067a973ce1a.js');
+    const cachePath = path.join(home, '.compiled-sources');
+    const cachedFilePath = path.join(cachePath, filename);
 
     beforeEach(function() {
       CompileCache.setHomeDirectory(home);
@@ -90,16 +90,16 @@ describe('CompileCache', function() {
     });
 
     it('removes the cached javascript from the digested path', function() {
-      var fn = function() { fs.readFileSync(cachedFilePath, 'utf8'); };
+      const fn = function() { fs.readFileSync(cachedFilePath, 'utf8'); };
       expect(fn).to.throw(/no such file or directory/);
     });
   });
 
   describe('._shorten', function() {
     context('when the path is absolute', function() {
-      var home = path.join(__dirname);
-      var relativePath = path.join('src', 'app', 'connect', 'test.js');
-      var filePath = path.join(home, relativePath);
+      const home = path.join(__dirname);
+      const relativePath = path.join('src', 'app', 'connect', 'test.js');
+      const filePath = path.join(home, relativePath);
 
       beforeEach(function() {
         CompileCache.setHomeDirectory(home);
@@ -117,8 +117,8 @@ describe('CompileCache', function() {
 
     context('when the path is relative', function() {
       context('when the path is the same', function() {
-        var home = path.join(__dirname);
-        var relativePath = path.join('src', 'app', 'connect', 'test.js');
+        const home = path.join(__dirname);
+        const relativePath = path.join('src', 'app', 'connect', 'test.js');
 
         beforeEach(function() {
           CompileCache.setHomeDirectory(home);

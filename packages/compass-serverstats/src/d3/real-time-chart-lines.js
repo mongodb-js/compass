@@ -28,16 +28,16 @@ function realTimeChartLines() {
       // establish a clip-path to prevent the lines being drawn out of bounds
       lineGroup.selectAll('defs').data([0]).enter()
         .append('defs')
-          .append('clipPath')
-            .attr('id', 'clip')
-            .append('rect');
+        .append('clipPath')
+        .attr('id', 'clip')
+        .append('rect');
 
       lineGroup.selectAll('clipPath#clip rect')
         .attr('width', Math.abs(xScale.range()[0] - xScale.range()[1]))
         .attr('height', Math.abs(yScale.range()[0] - yScale.range()[1]) + strokeWidth);
 
       lineGroup
-          .attr('clip-path', 'url(#clip)');
+        .attr('clip-path', 'url(#clip)');
 
       // add the paths to the provided selection
       const dataLines = lineGroup.selectAll('path.line').data(data, (d, i) => i);
@@ -57,9 +57,9 @@ function realTimeChartLines() {
         dataLines
           .attr('transform', isNaN(singlePointDistance) ? null : `translate(${singlePointDistance})`)
           .transition('translate')
-            .duration(expectedPointSpeed)
-            .ease(d3.ease('linear'))
-            .attr('transform', 'translate(0)');
+          .duration(expectedPointSpeed)
+          .ease(d3.ease('linear'))
+          .attr('transform', 'translate(0)');
       }
     });
   }

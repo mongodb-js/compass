@@ -16,16 +16,15 @@
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
     "test:karma": "xvfb-maybe cross-env NODE_ENV=test karma start",
     "cover": "nyc npm run test",
-    "check": "depcheck . && eslint .",
+    "depcheck": "depcheck",
+    "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "check": "npm run depcheck && npm run lint",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
     "prepublishOnly": "npm run compile",
     "install": "node scripts/download-akzidenz.js",
     "start-compass": "node scripts/run-in-compass.js"
   },
-  "precommit": [
-    "check"
-  ],
   "license": "Apache-2.0",
   "peerDependencies": {
     "@mongodb-js/compass-query-bar": "^4.0.8",

@@ -35,7 +35,7 @@ describe('ServerVersion [Component]', () => {
 
     it('renders the version number and distro', () => {
       expect(component.find(`.${styles['server-version-text']}`)).to.have.
-      text('Atlas Data Lake 1.0.1');
+        text('Atlas Data Lake 1.0.1');
     });
   });
   context('when connected to DataLake and no version available', () => {
@@ -43,7 +43,7 @@ describe('ServerVersion [Component]', () => {
 
     it('renders the version number and distro', () => {
       expect(component.find(`.${styles['server-version-text']}`)).to.have.
-      text('Atlas Data Lake ');
+        text('Atlas Data Lake ');
     });
   });
 });

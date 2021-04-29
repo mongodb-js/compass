@@ -10,7 +10,6 @@ const CLASS = 'element-value';
  * General BSON DBRef component.
  */
 class DBRefValue extends React.Component {
-
   /**
    * Render a single BSON DBRef value.
    *

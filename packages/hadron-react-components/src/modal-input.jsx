@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
  * An input field in a form in a modal.
  */
 class ModalInput extends React.PureComponent {
-
   /**
    * Render the input.
    *

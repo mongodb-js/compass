@@ -11,7 +11,6 @@ const CLASS = 'element-value';
  * General BSON string value component.
  */
 class StringValue extends React.Component {
-
   /**
    * Render a single generic BSON value.
    *

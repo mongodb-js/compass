@@ -3,19 +3,16 @@
   "description": "Shareable metric recording.",
   "version": "6.0.0",
   "scripts": {
-    "check": "mongodb-js-precommit",
+    "check": "npm run lint && npm run depcheck",
     "test": "mocha",
-    "test:electron": "xvfb-maybe electron-mocha --renderer"
+    "test:electron": "xvfb-maybe electron-mocha --renderer",
+    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
+    "depcheck": "depcheck --ignores=\"electron\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "homepage": "http://github.com/mongodb-js/metrics",
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/metrics.git"
-  },
-  "dependency-check": {
-    "ignore": [
-      "electron"
-    ]
   },
   "dependencies": {
     "ampersand-collection": "^2.0.1",
@@ -37,11 +34,12 @@
     "xhr": "^2.2.0"
   },
   "devDependencies": {
+    "depcheck": "^1.4.0",
     "electron": "^8.0.1",
     "electron-mocha": "^8.2.0",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.0",
-    "mongodb-js-precommit": "^2.1.0",
     "sinon": "^9.0.0",
     "xvfb-maybe": "^0.2.1"
   },

@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 class StatusRow extends React.Component {
-
   /**
    * Render status row component.
    *

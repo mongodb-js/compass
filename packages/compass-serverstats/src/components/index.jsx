@@ -18,7 +18,6 @@ const INTERVAL = 1000;
  * Renders the entire performance tab, including charts and lists.
  */
 class PerformanceComponent extends React.Component {
-
   constructor(props) {
     super(props);
     this.eventDispatcher = realTimeDispatcher();

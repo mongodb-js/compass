@@ -12,7 +12,6 @@ import { DropdownButton, MenuItem } from 'react-bootstrap';
  *     MenuItem list when the dropdown is activated.
  */
 class OptionSelector extends React.Component {
-
   static renderLabel(label, id) {
     return label ?
       <label className="option-selector-label" htmlFor={id}>{label}</label> :
@@ -28,9 +27,9 @@ class OptionSelector extends React.Component {
     const htmlLabel = this.constructor.renderLabel(this.props.label, this.props.id);
 
     const menuItems = [];
-    for (let key in this.props.options) {
+    for (const key in this.props.options) {
       if (this.props.options.hasOwnProperty(key)) {
-        let label = this.props.options[key];
+        const label = this.props.options[key];
         menuItems.push(<MenuItem key={key} eventKey={key} href="#">{label}</MenuItem>);
       }
     }

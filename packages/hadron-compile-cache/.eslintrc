@@ -1,6 +1,6 @@
 {
   "ecmaFeatures": {
-    "blockBindings": true,
+    "blockBindings": true
   },
   "env": {
     "mocha": true,
@@ -10,5 +10,11 @@
   "rules": {
     "strict": 0
   },
-  "extends": ["mongodb-js/node"]
+  "extends": ["mongodb-js/node", "mongodb-js/react"],
+  "plugins": ["react"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
 }

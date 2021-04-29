@@ -5,7 +5,6 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
 class UnsafeComponent extends React.Component {
-
   componentDidMount() {
     this.renderInjected();
   }
@@ -63,8 +62,7 @@ class UnsafeComponent extends React.Component {
 
   render() {
     return (
-      <div className="unsafe-component">
-      </div>
+      <div className="unsafe-component" />
     );
   }
 }

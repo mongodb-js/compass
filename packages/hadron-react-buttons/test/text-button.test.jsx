@@ -34,15 +34,15 @@ describe('<TextButton />', () => {
     });
 
     it('sets the title', () => {
-      expect(component.props()['title']).to.equal('title');
+      expect(component.props().title).to.equal('title');
     });
 
     it('sets the id', () => {
-      expect(component.props()['id']).to.equal('testing');
+      expect(component.props().id).to.equal('testing');
     });
 
     it('sets the style', () => {
-      expect(component.props()['style']).to.deep.equal({ color: 'green' });
+      expect(component.props().style).to.deep.equal({ color: 'green' });
     });
   });
 
@@ -52,13 +52,13 @@ describe('<TextButton />', () => {
         text="button text"
         clickHandler={click}
         className="class-name"
-        disabled={true}
+        disabled
         dataTestId="text-button-test"
       />
     );
 
     it('sets the disabled attribute', () => {
-      expect(component.props()['disabled']).to.equal(true);
+      expect(component.props().disabled).to.equal(true);
     });
   });
 });

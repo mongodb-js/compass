@@ -6,7 +6,6 @@ import InfoSprinkle from './info-sprinkle';
  * A checkbox in the create collection dialog.
  */
 class ModalCheckbox extends React.Component {
-
   /**
    * Render the input.
    *

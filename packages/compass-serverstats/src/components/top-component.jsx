@@ -10,7 +10,6 @@ const DBErrorStore = require('../stores/dberror-store');
  * Represents the component that renders the top information.
  */
 class TopComponent extends React.Component {
-
   /**
    * The top component should be initialized with a 'store'
    * property, that triggers with the result of a { top: 1 }

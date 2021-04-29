@@ -6,7 +6,7 @@ import AppRegistry from 'hadron-app-registry';
 describe('StatusStore [Store]', () => {
   const appRegistry = new AppRegistry();
   const SubView = () => {
-    return (<div></div>);
+    return (<div />);
   };
 
   before(() => {

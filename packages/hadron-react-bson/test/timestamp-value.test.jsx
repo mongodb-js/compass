@@ -5,7 +5,7 @@ const { Timestamp } = require('bson');
 const { Value } = require('../');
 
 describe('<Value /> (rendering timestamp)', () => {
-  const value = Timestamp.ZERO
+  const value = Timestamp.ZERO;
   const component = shallow(<Value type="Timestamp" value={value} />);
 
   it('sets the base class', () => {

@@ -17,24 +17,17 @@
     "test:karma": "cross-env NODE_ENV=test karma start",
     "cover": "nyc npm run test",
     "ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
-    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "precheck": "npm run compile",
-    "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "check": "npm run lint && npm run depcheck",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
     "prepublish": "npm run compile",
     "storybook": "start-storybook -p 9001 -c .storybook",
-    "install": "node scripts/download-akzidenz.js"
+    "install": "node scripts/download-akzidenz.js",
+    "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "depcheck": "depcheck --ignores=\"react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
-  "precommit": [
-    "check"
-  ],
   "license": "Apache-2.0",
-  "dependency-check": {
-    "ignore": [
-      "react-dom"
-    ]
-  },
   "peerDependencies": {
     "hadron-react-components": "^4.0.4",
     "prop-types": "^15.5.8",
@@ -65,10 +58,12 @@
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.1",
     "debug": "^3.0.1",
+    "depcheck": "^1.4.0",
     "electron": "^3.0.7",
     "electron-packager": "^8.7.0",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.1.0",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^0.11.1",
@@ -95,8 +90,6 @@
     "mocha": "^4.1.0",
     "mocha-webpack": "^1.0.0-rc.1",
     "mongodb-data-service": "^15.0.3",
-    "mongodb-js-fmt": "^0.0.3",
-    "mongodb-js-precommit": "^0.3.0",
     "mongodb-reflux-store": "0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^11.0.3",

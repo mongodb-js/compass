@@ -1,8 +1,0 @@
-language: node_js
-dist: bionic
-node_js:
-  - 12.4.0
-script: 
-  - npm run check
-  - npm test
-cache: npm

@@ -10,7 +10,6 @@ const CLASS = 'element-value';
  * General BSON double value component.
  */
 class Int32 extends React.Component {
-
   /**
    * Render a single generic BSON value.
    *

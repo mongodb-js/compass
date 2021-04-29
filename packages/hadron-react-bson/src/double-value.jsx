@@ -10,7 +10,6 @@ const CLASS = 'element-value';
  * General BSON double value component.
  */
 class Double extends React.Component {
-
   /**
    * Render a single generic BSON value.
    *

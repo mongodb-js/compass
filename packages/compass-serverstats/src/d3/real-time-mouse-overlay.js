@@ -26,20 +26,20 @@ function realTimeMouseOverlay() {
         .attr('transform', `translate(${basePosition})`);
       overlayGroup.selectAll('line').data([data]).enter()
         .append('line')
-          .attr('stroke', 'white')
-          .attr('class', `${prefix}-line`);
+        .attr('stroke', 'white')
+        .attr('class', `${prefix}-line`);
       overlayGroup.selectAll('line')
-          .attr('x1', 0).attr('y1', height)
-          .attr('x2', 0).attr('y2', 0);
+        .attr('x1', 0).attr('y1', height)
+        .attr('x2', 0).attr('y2', 0);
 
       overlayGroup.selectAll('path').data([data]).enter()
         .append('path')
-          .attr('stroke', 'white')
-          .attr('fill', 'white')
-          .attr('class', `${prefix}-triangle`)
-          .attr('d', d3.svg.symbol().type('triangle-down').size(bubbleWidth * 3))
-          .attr('stroke', 'white')
-          .attr('stroke-width', strokeWidth);
+        .attr('stroke', 'white')
+        .attr('fill', 'white')
+        .attr('class', `${prefix}-triangle`)
+        .attr('d', d3.svg.symbol().type('triangle-down').size(bubbleWidth * 3))
+        .attr('stroke', 'white')
+        .attr('stroke-width', strokeWidth);
 
       // Create mouse target for overlay events
       let updateMousePosition;

@@ -22,7 +22,7 @@ class DocumentMinichart extends Component {
       <div>
         <dl>
           <dt>{docFieldsMessage}</dt>
-          <dd></dd>
+          <dd />
         </dl>
       </div>
     );

@@ -15,7 +15,7 @@ describe('<AnimatedIconTextButton />', () => {
       iconClassName="icon-class-name"
       animatingIconClassName="animating-icon-class-name"
       dataTestId="icon-button-test" />
-  , { disableLifecycleMethods: true });
+    , { disableLifecycleMethods: true });
 
   it('sets the base class', () => {
     expect(component.hasClass('class-name')).to.equal(true);

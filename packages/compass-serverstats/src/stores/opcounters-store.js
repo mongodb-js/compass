@@ -33,18 +33,18 @@ const OpCounterStore = Reflux.createStore({
       {line: 'delete', count: [], active: true, current: 0},
       {line: 'command', count: [], active: true, current: 0},
       {line: 'getmore', count: [], active: true, current: 0}],
-      localTime: [],
-      skip: [],
-      yDomain: [0, 1],
-      xLength: this.xLength,
-      labels: {
-        title: 'operations',
-        keys: ['inserts', 'queries', 'updates', 'deletes', 'commands', 'getmores'],
-        yAxis: 'ops'
-      },
-      keyLength: 6,
-      paused: false,
-      trigger: true
+    localTime: [],
+    skip: [],
+    yDomain: [0, 1],
+    xLength: this.xLength,
+    labels: {
+      title: 'operations',
+      keys: ['inserts', 'queries', 'updates', 'deletes', 'commands', 'getmores'],
+      yAxis: 'ops'
+    },
+    keyLength: 6,
+    paused: false,
+    trigger: true
     };
   },
 

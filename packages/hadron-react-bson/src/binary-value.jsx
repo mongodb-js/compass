@@ -22,7 +22,6 @@ const CLASS = 'element-value element-value-is-binary';
  * BSON Binary value component.
  */
 class Binary extends React.Component {
-
   /**
    * Render the value as a string.
    *
@@ -38,7 +37,7 @@ class Binary extends React.Component {
       return [uuid, uuid];
     }
     const val = `Binary('${truncate(buffer.toString(BASE_64), 100)}', ${type})`;
-    return [val, val]
+    return [val, val];
   }
 
   /**

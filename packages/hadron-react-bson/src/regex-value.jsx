@@ -10,7 +10,6 @@ const CLASS = 'element-value';
  * General BSON regex value component.
  */
 class Regex extends React.Component {
-
   /**
    * Render a single BSON regex value.
    *

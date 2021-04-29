@@ -10,7 +10,6 @@ const CLASS = 'element-value';
  * General BSON key value component.
  */
 class Key extends React.Component {
-
   /**
    * Render a single generic BSON key value.
    *

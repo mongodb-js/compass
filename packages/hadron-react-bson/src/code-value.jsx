@@ -10,7 +10,6 @@ const CLASS = 'element-value element-value-is-code';
  * BSON code value component.
  */
 class Code extends React.Component {
-
   /**
    * Render a single BSON code value.
    *

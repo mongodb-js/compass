@@ -20,21 +20,15 @@
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
     "cover": "nyc npm run test",
     "ci": "npm run cover && npm run compile && npm run check",
-    "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "check": "npm run lint && npm run depcheck",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
     "prepublishOnly": "npm run compile",
-    "install": "node scripts/download-akzidenz.js"
+    "install": "node scripts/download-akzidenz.js",
+    "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "depcheck": "depcheck --ignores=\"@hot-loader/react-dom,mongodb-query-parser,react-dom,semver\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "license": "Apache-2.0",
-  "dependency-check": {
-    "ignore": [
-      "@hot-loader/react-dom",
-      "mongodb-query-parser",
-      "react-dom",
-      "semver"
-    ]
-  },
   "peerDependencies": {
     "@mongodb-js/compass-crud": "*",
     "bson": "*",
@@ -82,10 +76,12 @@
     "classnames": "^2.2.5",
     "cross-env": "^7.0.0",
     "css-loader": "^2.1.1",
+    "depcheck": "^1.4.0",
     "electron": "^8.0.1",
     "electron-rebuild": "^1.10.1",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.0.2",
@@ -110,7 +106,6 @@
     "mongodb-connection-model": "^14.4.3",
     "mongodb-data-service": "^16.5.1",
     "mongodb-extended-json": "^1.11.0",
-    "mongodb-js-precommit": "^2.2.0",
     "mongodb-query-parser": "^2.1.1",
     "mongodb-reflux-store": "0.0.1",
     "mongodb-schema": "^8.2.5",

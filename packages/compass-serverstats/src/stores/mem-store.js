@@ -31,17 +31,17 @@ const MemStore = Reflux.createStore({
       {line: 'virtual', count: [], 'active': true},
       {line: 'resident', count: [], 'active': true},
       {line: 'mapped', count: [], 'active': true}],
-      localTime: [],
-      skip: [],
-      yDomain: [0, 1],
-      xLength: this.xLength,
-      labels: {
-        title: 'memory',
-        keys: ['vsize', 'resident', 'mapped'],
-        yAxis: 'GB'
-      },
-      keyLength: 6,
-      paused: false
+    localTime: [],
+    skip: [],
+    yDomain: [0, 1],
+    xLength: this.xLength,
+    labels: {
+      title: 'memory',
+      keys: ['vsize', 'resident', 'mapped'],
+      yAxis: 'GB'
+    },
+    keyLength: 6,
+    paused: false
     };
   },
 

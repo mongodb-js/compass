@@ -16,9 +16,11 @@
   "scripts": {
     "ci": "npm test",
     "test": "mocha",
-    "check": "mongodb-js-precommit",
+    "check": "npm run lint && npm run depcheck",
     "prepublishOnly": "babel ./src --out-dir ./lib",
-    "pretest": "babel ./src --out-dir ./lib"
+    "pretest": "babel ./src --out-dir ./lib",
+    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "dependencies": {
     "debug": "^4.1.1",
@@ -40,9 +42,10 @@
     "babel-register": "^6.5.2",
     "bson": "^4.0.3",
     "chai": "^4.2.0",
+    "depcheck": "^1.4.0",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.1",
-    "moment": "^2.18.1",
-    "mongodb-js-precommit": "^2.1.0"
+    "moment": "^2.18.1"
   }
 }

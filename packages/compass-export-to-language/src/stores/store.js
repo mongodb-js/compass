@@ -65,7 +65,7 @@ const configureStore = (options = {}) => {
     });
 
     localAppRegistry.on('open-query-export-to-language', (queryStrings) => {
-      let query = {};
+      const query = {};
       if (typeof queryStrings === 'string') {
         query.filter = queryStrings === '' ? '{}' : queryStrings;
       } else {

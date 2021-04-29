@@ -30,7 +30,7 @@ describe('ExportModal [Component]', () => {
           driver={false}
           imports="imports"
           showImports={false}
-          inputExpression={{filter: "input expression"}}
+          inputExpression={{filter: 'input expression'}}
           transpiledExpression="transpiled expression"
           modalOpen={false}
           mode="Query"
@@ -97,7 +97,7 @@ describe('ExportModal [Component]', () => {
           driver={false}
           imports="imports"
           showImports={false}
-          inputExpression={{filter: "input expression"}}
+          inputExpression={{filter: 'input expression'}}
           transpiledExpression="transpiled expression"
           modalOpen={false}
           mode="Query"
@@ -144,7 +144,7 @@ describe('ExportModal [Component]', () => {
           driver={false}
           imports="imports"
           showImports={false}
-          inputExpression={{filter: "input expression"}}
+          inputExpression={{filter: 'input expression'}}
           transpiledExpression="transpiled expression"
           modalOpen={false}
           mode="Query"
@@ -176,7 +176,7 @@ describe('ExportModal [Component]', () => {
     it('hides the builders checkbox when output is Java and in Pipeline mode', () => {
       component.setProps({
         mode: 'Pipeline'
-      })
+      });
       expect(component.find('[data-test-id="export-to-lang-checkbox-builders"]')).not.to.be.present();
     });
   });
@@ -200,7 +200,7 @@ describe('ExportModal [Component]', () => {
           driver={false}
           imports="imports"
           showImports={false}
-          inputExpression={{filter: "input expression"}}
+          inputExpression={{filter: 'input expression'}}
           transpiledExpression="transpiled expression"
           modalOpen={false}
           mode="Query"

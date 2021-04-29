@@ -4,7 +4,7 @@ import { WithDragDropContext } from '../';
 
 class Component extends React.Component {
   render() {
-    return(<div>test</div>);
+    return (<div>test</div>);
   }
 }
 

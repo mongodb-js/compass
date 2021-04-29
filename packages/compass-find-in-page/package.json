@@ -20,17 +20,12 @@
     "test:karma": "xvfb-maybe cross-env NODE_ENV=test karma start",
     "cover": "nyc npm run test",
     "ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
-    "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "check": "npm run lint && npm run depcheck",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
-    "prepublishOnly": "npm run compile"
-  },
-  "dependency-check": {
-    "ignore": [
-      "react-dom",
-      "hadron-ipc",
-      "redux-thunk"
-    ]
+    "prepublishOnly": "npm run compile",
+    "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
+    "depcheck": "depcheck --ignores=\"react-dom,hadron-ipc,redux-thunk\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "license": "Apache-2.0",
   "peerDependencies": {
@@ -66,10 +61,12 @@
     "classnames": "^2.2.5",
     "cross-env": "^7.0.0",
     "css-loader": "^0.28.1",
+    "depcheck": "^1.4.0",
     "electron": "^6.1.7",
     "electron-rebuild": "^1.10.0",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
@@ -99,7 +96,6 @@
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-connection-model": "^14.4.3",
     "mongodb-data-service": "^16.5.1",
-    "mongodb-js-precommit": "^2.2.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",

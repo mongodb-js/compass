@@ -15,7 +15,6 @@ const DBErrorStore = require('../stores/dberror-store');
  * Represents the component that renders all the server stats.
  */
 class ServerStatsComponent extends React.Component {
-
   /**
    * The server stats component constructor.
    *

@@ -7,7 +7,7 @@ import { CodeValue } from '../';
 describe('<CodeValue />', () => {
   const code = new Code('this.a > i', { i: 1 });
   const component = shallow(<CodeValue type="Code" value={code} />);
-  const value = 'Code(\'this.a > i\', {"i":1})'
+  const value = 'Code(\'this.a > i\', {"i":1})';
 
   it('sets the base class', () => {
     expect(component.hasClass('element-value')).to.equal(true);

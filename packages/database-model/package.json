@@ -11,23 +11,21 @@
     "mongodb-js"
   ],
   "scripts": {
-    "check": "mongodb-js-precommit",
+    "check": "npm run lint && npm run depcheck",
     "ci": "npm run check && npm test",
-    "fmt": "mongodb-js-fmt",
-    "test": "mocha"
+    "test": "mocha",
+    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
-  "precommit": [
-    "check"
-  ],
   "dependencies": {
     "ampersand-model": "^8.0.0",
     "ampersand-rest-collection": "^6.0.0"
   },
   "devDependencies": {
+    "depcheck": "^1.4.0",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.0.0",
     "mocha": "^3.0.2",
-    "mongodb-js-fmt": "^0.0.3",
-    "mongodb-js-precommit": "^0.2.2",
     "pre-commit": "^1.1.2"
   }
 }

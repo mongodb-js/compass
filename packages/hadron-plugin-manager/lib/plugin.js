@@ -42,7 +42,6 @@ const MDBJS = '@mongodb-js';
  * Represents a plugin to the application.
  */
 class Plugin {
-
   /**
    * Instantiate the plugin.
    *
