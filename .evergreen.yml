@@ -181,7 +181,7 @@ functions:
         source ~/compass_env.sh
 
         echo "Run static analysis..."
-        npm run check-evergreen;
+        npm run check-evergreen
 
   test:
     - command: shell.exec
