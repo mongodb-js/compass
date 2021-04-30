@@ -26,7 +26,7 @@
     "prepublishOnly": "npm run compile",
     "storybook": "cross-env NODE_ENV=development start-storybook -p 9001 -c .storybook",
     "storybook:ghpages": "build-storybook -c .storybook -o .ghpages",
-    "install": "node scripts/download-akzidenz.js",
+    "install": "node ../../scripts/download-akzidenz.js",
     "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js'",
     "depcheck": "depcheck --ignores=\"react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },

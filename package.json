@@ -17,7 +17,9 @@
     "start": "lerna run start --stream --scope mongodb-compass",
     "release": "cd packages/compass && npm run --silent release --",
     "test": "lerna run test --concurrency 1 --stream",
-    "test-evergreen": "lerna run test --concurrency 1"
+    "test-evergreen": "lerna run test --concurrency 1",
+    "update-akzidenz-cache": "node scripts/download-akzidenz.js --update-cache",
+    "download-akzidenz": "lerna exec -- node ../../scripts/download-akzidenz.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +30,7 @@
     "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
     "lerna": "^4.0.0",
+    "make-fetch-happen": "^8.0.14",
     "ora": "^5.4.0"
   },
   "engines": {
