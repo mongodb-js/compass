@@ -138,6 +138,7 @@ functions:
           npm run update-akzidenz-cache
           # Run npm ci in all the packages
           npm run bootstrap-evergreen
+  
   save:
     - command: shell.exec
       params:
@@ -365,6 +366,7 @@ functions:
         local_file: src/packages/compass/dist/${osx_zip_filename}
         remote_file: ${project}/${revision}/${osx_zip_filename}
         content_type: application/zip
+  
   'save linux artifacts':
     # .deb
     - <<: *save-artifact
@@ -378,6 +380,7 @@ functions:
         local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
         content_type: application/x-gzip
+  
   'save rhel artifacts':
     # .rpm
     - <<: *save-artifact
@@ -391,35 +394,66 @@ functions:
         local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
         content_type: application/x-gzip
+
 # Tasks
 tasks:
   - name: oneshot-compile-test-package-publish
     commands:
       - func: prepare
+
       - func: install
-      # - func: test
-      #   vars:
-      #     test_suite: functional
+
+      - func: verify
+
+      - func: test
+        vars:
+          test_suite: unit
+
       - func: package
         vars:
           compass_distribution: compass
       - func: publish
         vars:
           compass_distribution: compass
+      - func: 'save windows artifacts'
+        variants: [windows]
       - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]
+      - func: 'save rhel artifacts'
+        variants: [rhel]
+
       - func: package
         vars:
           compass_distribution: compass-isolated
       - func: publish
         vars:
           compass_distribution: compass-isolated
+      - func: 'save windows artifacts'
+        variants: [windows]
       - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]
+      - func: 'save rhel artifacts'
+        variants: [rhel]
+      - func: 'save osx artifacts'
+
       - func: package
         vars:
           compass_distribution: compass-readonly
       - func: publish
         vars:
           compass_distribution: compass-readonly
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]
+      - func: 'save rhel artifacts'
+        variants: [rhel]
       - func: 'save osx artifacts'
 
   - name: compile
@@ -436,6 +470,7 @@ tasks:
     commands:
       - func: restore
       - func: verify
+
   - name: test-unit
     depends_on: [compile]
     tags:
@@ -642,51 +677,16 @@ buildvariants:
     expansions:
       compass_distribution: compass
     tasks:
-      - name: compile
-      - name: verify
-      # - name: test-data-service
-      # - name: test-functional
-      # - name: test-hadron-spectron
-      # - name: test-connect-plugin
-      # - name: test-aggregation-builder-plugin
-      # NOTE (@imlucas) See above for activating more tests
-      - name: test-unit
-      # - name: test-main
-      # - name: test-renderer
-      # - name: test-enzyme
-      # - name: test-functional-stable-server
-      # - name: test-functional-unstable-server
-      # - name: test-functional-36x-server
-      # - name: test-functional-34x-server
-      # - name: test-functional-26x-server
-      - name: package-and-publish-compass
-      - name: package-and-publish-compass-isolated
-      - name: package-and-publish-compass-readonly
+      - name: oneshot-compile-test-package-publish
 
   - name: ubuntu
     display_name: Ubuntu
     run_on: ubuntu1404-test
     tasks:
-      - name: compile
-      - name: verify
-      - name: test-data-service
-      # - name: test-unit
-      # - name: test-main
-      # - name: test-renderer
-      # - name: test-enzyme
-      # - name: test-functional
-      # - name: test-connect-plugin
-      # - name: test-aggregation-builder-plugin
-      - name: package-and-publish-compass
-      - name: package-and-publish-compass-isolated
-      - name: package-and-publish-compass-readonly
+      - name: oneshot-compile-test-package-publish
+
   - name: rhel
     display_name: RHEL
     run_on: rhel70
     tasks:
-      - name: compile
-      - name: verify
-      # - name: test-functional
-      - name: package-and-publish-compass
-      - name: package-and-publish-compass-isolated
-      - name: package-and-publish-compass-readonly
+      - name: oneshot-compile-test-package-publish
