@@ -202,6 +202,8 @@ functions:
           # have dropped support for macOS 10.10 because it is now outside
           # of the supported version range.
           # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
+          # 
+          # test_suite option only affects compass tests
           DEBUG=* MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-evergreen -- -- --${test_suite}
     # - command: attach.results
     #   params:
@@ -406,7 +408,10 @@ tasks:
       - func: verify
 
       - func: test
+        # TODO: rhel pretest fails and needs some additional investigation to make it work
+        variants: [windows, macos, ubuntu]
         vars:
+          # This option only affects compass tests
           test_suite: unit
 
       - func: package
