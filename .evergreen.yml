@@ -134,6 +134,9 @@ functions:
 
           echo "If npm ci fails, debug.log will be uploaded to S3."
           npm ci --unsafe-perm
+          # Make sure that cache is populated when other packages are pulling the font
+          npm run update-akzidenz-cache
+          # Run npm ci in all the packages
           npm run bootstrap-evergreen
   save:
     - command: shell.exec
