@@ -18,7 +18,7 @@
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",
-    "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js --progress",
+    "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js",
     "prepublishOnly": "npm run compile",
     "pretest": "npm run compile",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.js\"",
