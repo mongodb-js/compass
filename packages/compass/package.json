@@ -209,7 +209,7 @@
     }
   },
   "scripts": {
-    "install": "node ../../scripts/download-akzidenz.js",
+    "install": "node scripts/download-akzidenz.js",
     "postinstall": "electron-rebuild --force --only kerberos,keytar,interruptor",
     "prestart": "rm -rf .compiled-sources",
     "start": "hadron-build develop",
@@ -310,6 +310,7 @@
     "keytar": "^5.1.0",
     "less": "^2.6.1",
     "local-links": "^1.4.0",
+    "make-fetch-happen": "^8.0.14",
     "marky": "^1.2.0",
     "moment": "^2.10.6",
     "mongodb": "^3.6.3",
