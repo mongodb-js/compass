@@ -427,9 +427,7 @@ tasks:
     commands:
       - func: prepare
       - func: install
-      # We definitely don't want to save the whole monorepo with all deps
-      # installed
-      # - func: save
+      - func: save
 
   - name: verify
     depends_on: [compile]
