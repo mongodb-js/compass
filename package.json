@@ -10,12 +10,14 @@
   "shortcutFolderName": "MongoDB",
   "license": "SSPL",
   "scripts": {
-    "check": "lerna run check --concurrency 1 --stream",
-    "install": "npm run bootstrap-ci",
-    "bootstrap-ci": "lerna exec --concurrency 1 --stream -- npm ci",
+    "check": "lerna run check --stream",
+    "check-evergreen": "lerna run check --concurrency 1",
+    "bootstrap": "lerna exec --stream -- npm ci --quiet",
+    "bootstrap-evergreen": "lerna exec -- npm ci --quiet",
     "start": "lerna run start --stream --scope mongodb-compass",
     "release": "cd packages/compass && npm run --silent release --",
-    "test": "lerna run test --concurrency 1 --stream"
+    "test": "lerna run test --concurrency 1 --stream",
+    "test-evergreen": "lerna run test --concurrency 1"
   },
   "repository": {
     "type": "git",
