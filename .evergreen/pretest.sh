@@ -41,6 +41,7 @@ if [ -n "$IS_LINUX" ]; then
     if [ -n "$IS_UBUNTU" ]; then
         # TODO: There is no gnomekeyring available on ubuntu20, let's hope this
         # ancient hack is not needed anymore
+        echo "Skipping python-gnomekeyring call"
     else
         /usr/bin/python -c "import gnomekeyring;gnomekeyring.create_sync('login', '');";
     fi
