@@ -684,7 +684,7 @@ buildvariants:
 
   - name: ubuntu
     display_name: Ubuntu
-    run_on: ubuntu2004-large
+    run_on: ubuntu1404-large
     tasks:
       - name: oneshot-compile-test-package-publish
 

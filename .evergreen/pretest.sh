@@ -18,7 +18,7 @@ fi
 
 if [ -n "$IS_LINUX" ]; then
     if [ -n "$IS_UBUNTU" ]; then
-        sudo apt-get install -y gnome-keyring
+        sudo apt-get install -y gnome-keyring python-gnomekeyring
     else
         yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/gnome-keyring-3.28.2-1.el7.x86_64.rpm
         yum localinstall -y http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/p/python2-keyring-5.0-3.el7.noarch.rpm
@@ -32,17 +32,10 @@ if [ -n "$IS_LINUX" ]; then
     sudo sh -e /etc/init.d/xvfb start;
     sleep 3;
 
-    # Some arcane hack to fix keyring issue, no idea if that's even doing
-    # something
+    # Some arcane hack to fix keyring issue
     # https://github.com/atom/node-keytar/issues/132#issuecomment-444159414
     eval $(dbus-launch --sh-syntax);
     eval $(echo -n "" | /usr/bin/gnome-keyring-daemon --login);
     eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start);
-    if [ -n "$IS_UBUNTU" ]; then
-        # TODO: There is no gnomekeyring available on ubuntu20, let's hope this
-        # ancient hack is not needed anymore
-        echo "Skipping python-gnomekeyring call"
-    else
-        /usr/bin/python -c "import gnomekeyring;gnomekeyring.create_sync('login', '');";
-    fi
+    /usr/bin/python -c "import gnomekeyring;gnomekeyring.create_sync('login', '');";
 fi
