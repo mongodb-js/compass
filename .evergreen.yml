@@ -443,7 +443,6 @@ tasks:
         variants: [ubuntu]
       - func: 'save rhel artifacts'
         variants: [rhel]
-      - func: 'save osx artifacts'
 
       - func: package
         vars:
@@ -459,7 +458,6 @@ tasks:
         variants: [ubuntu]
       - func: 'save rhel artifacts'
         variants: [rhel]
-      - func: 'save osx artifacts'
 
   - name: compile
     depends_on: []
