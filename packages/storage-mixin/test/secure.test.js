@@ -3,6 +3,8 @@ var assert = require('assert');
 var helpers = require('./helpers');
 
 describe('storage backend secure', function() {
+  const keychain = helpers.createUnlockedKeychain();
+
   var backendOptions = 'secure';
 
   var StorableSpaceship;
@@ -31,11 +33,15 @@ describe('storage backend secure', function() {
    * Clear namespaces of this backend before and after the tests.
    */
   before(function(done) {
+    keychain.before();
     helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], done);
   });
 
   after(function(done) {
-    helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], done);
+    helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], (err) => {
+      keychain.after();
+      done(err);
+    });
   });
 
   after(function(done) {
