@@ -676,7 +676,7 @@ buildvariants:
 
   - name: windows
     display_name: Windows
-    run_on: windows-64-vs2015-test
+    run_on: windows-vsCurrent-large
     expansions:
       compass_distribution: compass
     tasks:
@@ -684,12 +684,12 @@ buildvariants:
 
   - name: ubuntu
     display_name: Ubuntu
-    run_on: ubuntu1404-test
+    run_on: ubuntu2004-large
     tasks:
       - name: oneshot-compile-test-package-publish
 
   - name: rhel
     display_name: RHEL
-    run_on: rhel70
+    run_on: rhel76-large
     tasks:
       - name: oneshot-compile-test-package-publish
