@@ -2,3 +2,4 @@
 --require jsdom-global/register
 --recursive
 --ui bdd
+--timeout 15000
