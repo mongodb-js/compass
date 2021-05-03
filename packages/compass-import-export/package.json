@@ -21,7 +21,7 @@
     "start": "webpack-dev-server --config ./config/webpack.dev.config.js",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
     "test:dev": "cross-env NODE_ENV=test mocha-webpack",
-    "cover": "xvfb-maybe nyc npm run test",
+    "cover": "nyc npm run test",
     "check": "npm run lint && npm run depcheck",
     "prepublishOnly": "npm run compile",
     "storybook": "cross-env NODE_ENV=development start-storybook -p 9001 -c .storybook",

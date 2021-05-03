@@ -10,8 +10,8 @@
     "url": "https://github.com/mongodb-js/electron-squirrel-startup.git"
   },
   "scripts": {
-    "test-check-ci": "xvfb-maybe npm test",
-    "test": "electron-mocha",
+    "test-check-ci": "npm test",
+    "test": "xvfb-maybe electron-mocha",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck --ignores=\"app,electron\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
