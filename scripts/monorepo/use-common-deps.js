@@ -86,6 +86,7 @@ async function alignCommonDeps() {
 
   const highestVersionsForDeps = getHighestVersionUsedForDeps(devDepsAndArrayOfVersionsUsed);
 
+  let depsUpdatedCount = 0;
   for (const pkgDir of packages) {
     const packageJsonPath = path.join(pkgDir, 'package.json');
     const packageJson = require(packageJsonPath);    
@@ -109,6 +110,7 @@ async function alignCommonDeps() {
           'to', highestVersionsForDeps[depName]
         );
         packageJson.devDependencies[depName] = highestVersionsForDeps[depName];
+        depsUpdatedCount++;
       }
     });
 
@@ -116,7 +118,7 @@ async function alignCommonDeps() {
   }
 
   console.log();
-  console.log('All done.');
+  console.log('All done. Updated', depsUpdatedCount, 'dependencies.');
 }
 
 alignCommonDeps();
