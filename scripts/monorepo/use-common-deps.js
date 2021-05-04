@@ -1,7 +1,5 @@
 const path = require('path');
 const { promises: fs } = require('fs');
-// const { runInDir } = require('./run-in-dir');
-// const { withProgress } = require('./with-progress');
 const semver = require('semver');
 
 const ROOT = path.resolve(__dirname, '..', '..');
@@ -20,7 +18,7 @@ function getDevDepsUsedByPackages(packages) {
     const packageJson = require(path.join(pkgDir, 'package.json'));
     
     if (!packageJson.devDependencies) {
-      console.log('no dev deps in', packageJson.name);
+      // console.log('No dev deps in', packageJson.name);
       continue;
     }
 
@@ -34,9 +32,6 @@ function getDevDepsUsedByPackages(packages) {
       if (devDepOverrides[devDepVersion]) {
         devDepVersion = devDepOverrides[devDepVersion];
       }
-
-      // const devDepVersion = semver.valid(packageJson.devDependencies[depName]);
-      // console.log(packageJson.devDependencies[depName], 'parsed', devDepVersion);
 
       devDepsAndArrayOfVersionsUsed[depName].add(devDepVersion);
     });
@@ -73,15 +68,13 @@ function getHighestVersionUsedForDeps(devDepsAndArrayOfVersionsUsed) {
     const highestVersionDep = sortedDeps[sortedDeps.length - 1];
 
     highestVersionsForDeps[depName] = highestVersionDep;
-    // console.log('dep', depName, '=', sortedDeps);
-    // console.log('highestVersionForDep', highestVersionDep);
   });
 
   return highestVersionsForDeps;
 }
 
 async function alignCommonDeps() {
-  console.log('Listing common deps...');
+  console.log('Aligning dev dependencies to highest version present...');
   console.log();
 
   const packagesDir = path.resolve(ROOT, 'packages');
@@ -97,7 +90,7 @@ async function alignCommonDeps() {
     const packageJsonPath = path.join(pkgDir, 'package.json');
     const packageJson = require(packageJsonPath);    
     if (!packageJson.devDependencies) {
-      console.log('no dev deps, continue');
+      // console.log('No dev deps in ', packageJson.name, ', continue');
       continue;
     }
 
@@ -110,7 +103,7 @@ async function alignCommonDeps() {
 
       if (currentDevDep !== highestVersionsForDeps[depName]) {
         console.log(
-          'bumping', depName,
+          'Bumping', depName,
           'in', packageJson.name,
           'from', currentDevDep,
           'to', highestVersionsForDeps[depName]
@@ -119,7 +112,7 @@ async function alignCommonDeps() {
       }
     });
 
-    // await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
   }
 
   console.log();
