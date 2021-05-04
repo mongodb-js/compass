@@ -6,13 +6,21 @@ const semver = require('semver');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 
+// TODO: Investigate downstreams of these changes
+const devDepOverrides = {
+  // https://github.com/mongodb-js/debug/commit/f389ed0b1109752ceea04ea39c7ca55d04f9eaa6
+  'mongodb-js/debug#v2.2.3': '^4.1.1',
+  // https://github.com/mongodb-js/hadron-build/tree/evergreen
+  'github:mongodb-js/hadron-build#evergreen': '^23.5.0'
+};
+
 function getDevDepsUsedByPackages(packages) {
   const devDepsAndArrayOfVersionsUsed = {};
   for (const pkgDir of packages) {
     const packageJson = require(path.join(pkgDir, 'package.json'));
     
     if (!packageJson.devDependencies) {
-      console.log('no dev deps in', packageJson.devDependencies);
+      console.log('no dev deps in', packageJson.name);
       continue;
     }
 
@@ -21,13 +29,32 @@ function getDevDepsUsedByPackages(packages) {
         devDepsAndArrayOfVersionsUsed[depName] = new Set();
       }
 
-      const devDepVersion = packageJson.devDependencies[depName];
+      let devDepVersion = packageJson.devDependencies[depName];
+
+      if (devDepOverrides[devDepVersion]) {
+        devDepVersion = devDepOverrides[devDepVersion];
+      }
+
+      // const devDepVersion = semver.valid(packageJson.devDependencies[depName]);
+      // console.log(packageJson.devDependencies[depName], 'parsed', devDepVersion);
 
       devDepsAndArrayOfVersionsUsed[depName].add(devDepVersion);
     });
   }
 
   return devDepsAndArrayOfVersionsUsed;
+}
+
+function getSemverCompatibleVersion(version) {
+  if (version === '*') {
+    return '0.0.0';
+  }
+
+  if (version.includes('^')) {
+    return version.substring(1);
+  }
+
+  return version;
 }
 
 function getHighestVersionUsedForDeps(devDepsAndArrayOfVersionsUsed) {
@@ -38,7 +65,10 @@ function getHighestVersionUsedForDeps(devDepsAndArrayOfVersionsUsed) {
     const sortedDeps = [
       ...devDepsAndArrayOfVersionsUsed[depName]
     ].sort(
-      semver.compare
+      (a, b) => semver.compare(
+        getSemverCompatibleVersion(a),
+        getSemverCompatibleVersion(b)
+      )
     );
     const highestVersionDep = sortedDeps[sortedDeps.length - 1];
 
@@ -79,12 +109,17 @@ async function alignCommonDeps() {
       }
 
       if (currentDevDep !== highestVersionsForDeps[depName]) {
-        console.log('bumping', depName, 'in', pkgDir, 'from', currentDevDep, 'to', highestVersionsForDeps[depName]);
+        console.log(
+          'bumping', depName,
+          'in', packageJson.name,
+          'from', currentDevDep,
+          'to', highestVersionsForDeps[depName]
+        );
         packageJson.devDependencies[depName] = highestVersionsForDeps[depName];
       }
     });
 
-    await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    // await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
   }
 
   console.log();
