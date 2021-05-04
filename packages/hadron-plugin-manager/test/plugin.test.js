@@ -9,6 +9,10 @@ const CACHE = Plugin.CACHE;
 const NAME_CACHE = Plugin.NAME_CACHE;
 const Example = require('./plugins/example');
 
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 describe('Plugin', () => {
   const testPluginPath = path.join(__dirname, 'plugins', 'example');
   const testIllegalNamePluginPath = path.join(__dirname, 'plugins', 'illegal-example');
@@ -118,7 +122,9 @@ describe('Plugin', () => {
 
       it('sets the error', () => {
         const fileName = path.join(plugin.pluginPath, 'package.json');
-        expect(plugin.error.message).to.match(new RegExp(`Cannot find module '${fileName}'`));
+        expect(plugin.error.message).to.match(
+          new RegExp(escapeRegExp(`Cannot find module '${fileName}'`))
+        );
       });
 
       it('defaults the applicationApiVersion to 1.0.0', () => {

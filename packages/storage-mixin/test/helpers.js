@@ -3,6 +3,7 @@ var Model = require('ampersand-model');
 var Collection = require('ampersand-rest-collection');
 var async = require('async');
 var debug = require('debug')('mongodb-storage-mixin:test:helpers');
+const { execSync } = require('child_process');
 
 /**
  * Helper to clear all given namespaces for a backend.
@@ -91,11 +92,46 @@ var Users = Collection.extend({
   model: User
 });
 
+function getDefaultKeychain() {
+  return execSync('security default-keychain', { encoding: 'utf8' }).trim();
+}
+
+// This should ensure that the tests that we are running against secure backend
+// will be executed against unlocked keychain on macos
+function createUnlockedKeychain() {
+  if (process.platform === 'darwin') {
+    const tempKeychainName = `temp${Date.now().toString(32)}.keychain`;
+    const origDefaultKeychain = JSON.parse(getDefaultKeychain());
+
+    return {
+      name: tempKeychainName,
+      before() {
+        execSync(`security create-keychain -p "" "${tempKeychainName}"`);
+        execSync(`security default-keychain -s "${tempKeychainName}"`);
+        execSync(`security unlock-keychain -p "" "${tempKeychainName}"`);
+
+        debug(`Using temporary keychain ${getDefaultKeychain()}`);
+      },
+      after() {
+        execSync(`security default-keychain -s "${origDefaultKeychain}"`);
+        execSync(`security delete-keychain "${tempKeychainName}"`);
+
+        debug(
+          `Switched back to original default keychain ${getDefaultKeychain()}`
+        );
+      }
+    };
+  }
+
+  return { name: null, before() {}, after() {} };
+}
+
 module.exports = {
-  clearNamespaces: clearNamespaces,
-  Spaceship: Spaceship,
-  Fleet: Fleet,
-  Planet: Planet,
-  User: User,
-  Users: Users
+  clearNamespaces,
+  createUnlockedKeychain,
+  Spaceship,
+  Fleet,
+  Planet,
+  User,
+  Users
 };

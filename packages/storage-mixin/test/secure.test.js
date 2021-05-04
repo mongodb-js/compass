@@ -35,7 +35,9 @@ describe('storage backend secure', function() {
   });
 
   after(function(done) {
-    helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], done);
+    helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], (err) => {
+      done(err);
+    });
   });
 
   after(function(done) {

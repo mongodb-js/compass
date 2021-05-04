@@ -3,3 +3,4 @@
 --require test/setup.js
 --recursive
 --ui bdd
+--timeout 15000

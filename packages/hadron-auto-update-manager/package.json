@@ -4,8 +4,8 @@
   "version": "3.0.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
-    "test": "electron-mocha",
-    "test-check-ci": "npm run check && xvfb-maybe npm test",
+    "test": "xvfb-maybe electron-mocha",
+    "test-check-ci": "npm run check && npm test",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },

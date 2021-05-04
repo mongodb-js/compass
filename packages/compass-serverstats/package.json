@@ -19,7 +19,7 @@
     "test-unit": "npm test -- --unit",
     "test-enzyme": "npm test -- --enzyme",
     "test-functional": "npm test -- --functional",
-    "lint": "eslint './src/**/*{.js,.jsx}' './test/**/*.js' index.js",
+    "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" index.js",
     "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "license": "Apache-2.0",
