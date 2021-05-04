@@ -92,14 +92,16 @@ var Users = Collection.extend({
   model: User
 });
 
+function getDefaultKeychain() {
+  return execSync('security default-keychain', { encoding: 'utf8' }).trim();
+}
+
 // This should ensure that the tests that we are running against secure backend
 // will be executed against unlocked keychain on macos
 function createUnlockedKeychain() {
   if (process.platform === 'darwin') {
     const tempKeychainName = `temp${Date.now().toString(32)}.keychain`;
-    const origDefaultKeychain = JSON.parse(
-      execSync('security default-keychain', { encoding: 'utf8' }).trim()
-    );
+    const origDefaultKeychain = JSON.parse(getDefaultKeychain());
 
     return {
       name: tempKeychainName,
@@ -108,23 +110,29 @@ function createUnlockedKeychain() {
         execSync(`security default-keychain -s "${tempKeychainName}"`);
         execSync(`security unlock-keychain -p "" "${tempKeychainName}"`);
         execSync(`security set-keychain-settings "${tempKeychainName}"`);
+
+        debug(`Using temporary keychain ${getDefaultKeychain()}`);
       },
       after() {
         execSync(`security default-keychain -s "${origDefaultKeychain}"`);
         execSync(`security delete-keychain "${tempKeychainName}"`);
+
+        debug(
+          `Switched back to original default keychain ${getDefaultKeychain()}`
+        );
       }
     };
   }
 
-  return { before() {}, after() {} };
+  return { name: null, before() {}, after() {} };
 }
 
 module.exports = {
-  clearNamespaces: clearNamespaces,
-  Spaceship: Spaceship,
-  Fleet: Fleet,
-  Planet: Planet,
-  User: User,
-  Users: Users,
-  createUnlockedKeychain
+  clearNamespaces,
+  createUnlockedKeychain,
+  Spaceship,
+  Fleet,
+  Planet,
+  User,
+  Users
 };

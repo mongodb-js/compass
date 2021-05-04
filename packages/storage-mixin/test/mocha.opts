@@ -1,1 +1,2 @@
 --timeout 15000
+--file ./test/setup-keychain.js
