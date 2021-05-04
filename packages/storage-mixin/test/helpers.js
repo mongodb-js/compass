@@ -109,7 +109,6 @@ function createUnlockedKeychain() {
         execSync(`security create-keychain -p "" "${tempKeychainName}"`);
         execSync(`security default-keychain -s "${tempKeychainName}"`);
         execSync(`security unlock-keychain -p "" "${tempKeychainName}"`);
-        execSync(`security set-keychain-settings "${tempKeychainName}"`);
 
         debug(`Using temporary keychain ${getDefaultKeychain()}`);
       },
