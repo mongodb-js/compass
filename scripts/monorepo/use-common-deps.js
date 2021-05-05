@@ -4,40 +4,54 @@ const semver = require('semver');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 
+// Flag that indicates if we should update the major
+// versions on dependencies to bring them together.
+const ALIGN_TO_MAJOR = false;
+
 // TODO: Investigate downstreams of these changes
-const devDepOverrides = {
+const depOverrides = {
   // https://github.com/mongodb-js/debug/commit/f389ed0b1109752ceea04ea39c7ca55d04f9eaa6
   'mongodb-js/debug#v2.2.3': '^4.1.1',
   // https://github.com/mongodb-js/hadron-build/tree/evergreen
   'github:mongodb-js/hadron-build#evergreen': '^23.5.0'
 };
 
-function getDevDepsUsedByPackages(packages) {
-  const devDepsAndArrayOfVersionsUsed = {};
+// Notes on manual changes:
+// - Added graceful-fs to packages/electron-wix-msi
+// - Updating semver requires a fix in a few of the packages' config/project.js
+//   files. (Just need to add `new ` before `semver`)
+// - Added webpack-cli to dev deps in `compass-auto-updates`
+
+const dependencyTypes = ['dependencies', 'devDependencies'];
+
+function getDepsUsedByPackages(packages) {
+  const depsAndArrayOfVersionsUsed = {};
   for (const pkgDir of packages) {
     const packageJson = require(path.join(pkgDir, 'package.json'));
     
-    if (!packageJson.devDependencies) {
-      // console.log('No dev deps in', packageJson.name);
-      continue;
+    for (const dependencyType of dependencyTypes) {
+      if (!packageJson[dependencyType]) {
+        // console.log('No', dependencyType, 'found in', packageJson.name);
+        continue;
+      }
+
+      Object.keys(packageJson[dependencyType]).forEach((depName) => {
+        if (!depsAndArrayOfVersionsUsed[depName]) {
+          depsAndArrayOfVersionsUsed[depName] = new Set();
+        }
+
+        let depVersion = packageJson[dependencyType][depName];
+
+        if (depOverrides[depVersion]) {
+          depVersion = depOverrides[depVersion];
+        }
+
+        depsAndArrayOfVersionsUsed[depName].add(depVersion);
+      });
     }
-
-    Object.keys(packageJson.devDependencies).forEach((depName) => {
-      if (!devDepsAndArrayOfVersionsUsed[depName]) {
-        devDepsAndArrayOfVersionsUsed[depName] = new Set();
-      }
-
-      let devDepVersion = packageJson.devDependencies[depName];
-
-      if (devDepOverrides[devDepVersion]) {
-        devDepVersion = devDepOverrides[devDepVersion];
-      }
-
-      devDepsAndArrayOfVersionsUsed[depName].add(devDepVersion);
-    });
   }
 
-  return devDepsAndArrayOfVersionsUsed;
+  return depsAndArrayOfVersionsUsed;
 }
 
 function getSemverCompatibleVersion(version) {
@@ -52,29 +66,48 @@ function getSemverCompatibleVersion(version) {
   return version;
 }
 
-function getHighestVersionUsedForDeps(devDepsAndArrayOfVersionsUsed) {
+function getHighestVersionUsedForDeps(depsAndArrayOfVersionsUsed) {
   const highestVersionsForDeps = {};
 
-  const keys = Object.keys(devDepsAndArrayOfVersionsUsed).sort();
+  const keys = Object.keys(depsAndArrayOfVersionsUsed).sort();
   keys.forEach((depName) => {
-    const sortedDeps = [
-      ...devDepsAndArrayOfVersionsUsed[depName]
-    ].sort(
-      (a, b) => semver.compare(
-        getSemverCompatibleVersion(a),
-        getSemverCompatibleVersion(b)
-      )
-    );
-    const highestVersionDep = sortedDeps[sortedDeps.length - 1];
+    if (ALIGN_TO_MAJOR) {
+      highestVersionsForDeps[depName] = {};
+      depsAndArrayOfVersionsUsed[depName].forEach(depVersion => {
+        if (semverOfVersion === '*') {
+          return;
+        }
+        const semverOfVersion = getSemverCompatibleVersion(depVersion);
+        const majorVersion = semver.major(semverOfVersion);
+        if (!highestVersionsForDeps[depName][majorVersion] || semver.compare(
+          getSemverCompatibleVersion(highestVersionsForDeps[depName][majorVersion]),
+          getSemverCompatibleVersion(depVersion)
+        )) {
+          highestVersionsForDeps[depName][majorVersion] = depVersion;
+        }
+      });
+    } else {
+      const sortedDeps = [
+        ...depsAndArrayOfVersionsUsed[depName]
+      ].sort(
+        (a, b) => semver.compare(
+          getSemverCompatibleVersion(a),
+          getSemverCompatibleVersion(b)
+        )
+      );
 
-    highestVersionsForDeps[depName] = highestVersionDep;
+      const highestVersionDep = sortedDeps[sortedDeps.length - 1];
+
+      highestVersionsForDeps[depName] = highestVersionDep;
+    }
+    
   });
 
   return highestVersionsForDeps;
 }
 
 async function alignCommonDeps() {
-  console.log('Aligning dev dependencies to highest version present...');
+  console.log('Aligning dependencies to highest version present...');
   console.log();
 
   const packagesDir = path.resolve(ROOT, 'packages');
@@ -82,37 +115,56 @@ async function alignCommonDeps() {
     path.join(packagesDir, dir)
   );
 
-  const devDepsAndArrayOfVersionsUsed = getDevDepsUsedByPackages(packages);
+  const depsAndArrayOfVersionsUsed = getDepsUsedByPackages(packages);
 
-  const highestVersionsForDeps = getHighestVersionUsedForDeps(devDepsAndArrayOfVersionsUsed);
+  const highestVersionsForDeps = {};
+
+  for (const dependencyType of dependencyTypes) {
+    highestVersionsForDeps[dependencyType] = getHighestVersionUsedForDeps(
+      depsAndArrayOfVersionsUsed[dependencyType]
+    );
+  }
+
 
   let depsUpdatedCount = 0;
   for (const pkgDir of packages) {
     const packageJsonPath = path.join(pkgDir, 'package.json');
-    const packageJson = require(packageJsonPath);    
-    if (!packageJson.devDependencies) {
-      // console.log('No dev deps in ', packageJson.name, ', continue');
-      continue;
+    const packageJson = require(packageJsonPath); 
+    
+    for (const dependencyType of dependencyTypes) {
+      if (!packageJson[dependencyType]) {
+        // console.log('No', dependencyType, 'found in', packageJson.name);
+        continue;
+      }
+
+      Object.keys(packageJson[dependencyType]).forEach((depName) => {
+        const currentDepVersion = packageJson[dependencyType][depName];
+        if (currentDepVersion === '*') {
+          // Dep can be * which we can ignore.
+          return;
+        }
+
+        let highestVersionForDep = highestVersionsForDeps[dependencyType][depName];
+
+        if (ALIGN_TO_MAJOR) {
+          const semverOfVersion = getSemverCompatibleVersion(currentDepVersion);
+          const majorVersion = semver.major(semverOfVersion);
+          highestVersionForDep = highestVersionsForDeps[dependencyType][majorVersion];
+        }
+
+        if (currentDepVersion !== highestVersionsForDeps[dependencyType][depName]) {
+          console.log(
+            'Bumping', depName,
+            'in', packageJson.name,
+            dependencyType,
+            'from', currentDepVersion,
+            'to', highestVersionsForDeps[dependencyType][depName]
+          );
+          packageJson[dependencyType][depName] = highestVersionsForDeps[dependencyType][depName];
+          depsUpdatedCount++;
+        }
+      });
     }
-
-    Object.keys(packageJson.devDependencies).forEach((depName) => {
-      const currentDevDep = packageJson.devDependencies[depName];
-      if (currentDevDep === '*') {
-        // Dep can be * which we can ignore.
-        return;
-      }
-
-      if (currentDevDep !== highestVersionsForDeps[depName]) {
-        console.log(
-          'Bumping', depName,
-          'in', packageJson.name,
-          'from', currentDevDep,
-          'to', highestVersionsForDeps[depName]
-        );
-        packageJson.devDependencies[depName] = highestVersionsForDeps[depName];
-        depsUpdatedCount++;
-      }
-    });
 
     await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
   }
