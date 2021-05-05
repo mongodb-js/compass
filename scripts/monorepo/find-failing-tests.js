@@ -11,7 +11,7 @@ async function runFind() {
     path.join(packagesDir, dir)
   );
 
-  const failing = [];
+  const failing = new Map();
 
   for (const pkgDir of packages) {
     try {
@@ -20,7 +20,6 @@ async function runFind() {
       await withProgress(
         `Running tests for package ${packageJson.name}`,
         async function () {
-          const spinner = this;
           try {
             await runInDir(
               'npm run test',
@@ -30,7 +29,7 @@ async function runFind() {
                 10 /* 10mns should be enough, some of our tests are not exiting correctly */
             );
           } catch (e) {
-            failing.push(packageJson.name);
+            failing.set(packageJson.name, e);
             throw e;
           }
         }
@@ -40,16 +39,25 @@ async function runFind() {
     }
   }
 
-  if (failing.length > 0) {
+  if (failing.size > 0) {
     console.log();
-    console.log(`Tests failed in ${failing.length} packages:`);
+    console.log(
+      `Tests failed in ${failing.size} package${failing.size > 1 ? 's' : ''}:`
+    );
     console.log();
-    console.log(failing.map((name) => `  ${name}`).join('\n'));
+    failing.forEach((err, name) => {
+      console.log(`  ${name}`);
+    });
+    failing.forEach((err, name) => {
+      console.log();
+      console.log(`${name}: ${err.cmd}`);
+      err.stdout.split('\n').forEach((line) => console.log(`${name}: ${line}`));
+      err.stderr.split('\n').forEach((line) => console.log(`${name}: ${line}`));
+    });
   } else {
-    console.log()
-    console.log('None of the tests failed 🎉')
+    console.log();
+    console.log('None of the tests failed 🎉');
   }
-
 
   console.log();
   console.log('All done');
