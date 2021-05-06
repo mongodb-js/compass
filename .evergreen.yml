@@ -204,7 +204,7 @@ functions:
           # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
           # 
           # test_suite option only affects compass tests
-          DEBUG=* MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-evergreen -- -- --${test_suite}
+          DEBUG=mongo*,mocha*,hadron* MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-evergreen
     # - command: attach.results
     #   params:
     #     file_location: src/test-results.xml
@@ -408,11 +408,15 @@ tasks:
       - func: verify
 
       - func: test
-        # TODO: rhel pretest fails and needs some additional investigation to make it work
-        variants: [windows, macos, ubuntu]
-        vars:
-          # This option only affects compass tests
-          test_suite: unit
+        # TODO: rhel, ubuntu, windows should be brought back as soon as following
+        # issues are resolved:
+        #  - https://jira.mongodb.org/browse/COMPASS-4789
+        #  - https://jira.mongodb.org/browse/COMPASS-4791
+        #  - https://jira.mongodb.org/browse/COMPASS-4792
+        #  - https://jira.mongodb.org/browse/COMPASS-4793
+        #  - https://jira.mongodb.org/browse/COMPASS-4794
+        #  - https://jira.mongodb.org/browse/COMPASS-4795
+        variants: [macos]
 
       - func: package
         vars:
