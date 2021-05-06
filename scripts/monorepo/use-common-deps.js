@@ -6,18 +6,32 @@ const ROOT = path.resolve(__dirname, '..', '..');
 
 // Flag that indicates if we should update the major
 // versions on dependencies to bring them together.
-const ALIGN_TO_MAJOR = false;
+const UPDATE_MAJOR_VERSION = false;
 
 // TODO: Investigate downstreams of these changes
 const depOverrides = {
   // https://github.com/mongodb-js/debug/commit/f389ed0b1109752ceea04ea39c7ca55d04f9eaa6
   'mongodb-js/debug#v2.2.3': '^4.1.1',
   // https://github.com/mongodb-js/hadron-build/tree/evergreen
-  'github:mongodb-js/hadron-build#evergreen': '^23.5.0'
+  'github:mongodb-js/hadron-build#evergreen': '^23.5.0',
+
+  // Used in the unused package `hadron-spectron`. `chai-as-promised`.
+  // We might just remove this package.
+  '>= 6.x': '^7.1.1'
 };
 
 const pinnedDeps = {
-  'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again': 'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again'
+  'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again': 'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again',
+
+  // TODO: Do we need this override? Can we just use v3.3.5?
+  'https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz': 'https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz',
+
+  // TODO: Look into.
+  'cipacda/flat': 'cipacda/flat',
+
+  'mongodb-js/reflux-state-mixin': 'mongodb-js/reflux-state-mixin',
+  
+  'github:rueckstiess/triejs': 'github:rueckstiess/triejs'
 };
 
 // Notes on manual changes:
@@ -64,6 +78,10 @@ function getDepsUsedByPackages(packages) {
 }
 
 function getSemverCompatibleVersion(version) {
+  if (depOverrides[version]) {
+    return depOverrides[version].substring(1);
+  }
+
   if (version === '*') {
     return '0.0.0';
   }
@@ -84,22 +102,7 @@ function getHighestVersionUsedForDeps(depsAndArrayOfVersionsUsed) {
 
   const keys = Object.keys(depsAndArrayOfVersionsUsed).sort();
   keys.forEach((depName) => {
-    if (ALIGN_TO_MAJOR) {
-      highestVersionsForDeps[depName] = {};
-      depsAndArrayOfVersionsUsed[depName].forEach(depVersion => {
-        if (semverOfVersion === '*') {
-          return;
-        }
-        const semverOfVersion = getSemverCompatibleVersion(depVersion);
-        const majorVersion = semver.major(semverOfVersion);
-        if (!highestVersionsForDeps[depName][majorVersion] || semver.compare(
-          getSemverCompatibleVersion(highestVersionsForDeps[depName][majorVersion]),
-          getSemverCompatibleVersion(depVersion)
-        )) {
-          highestVersionsForDeps[depName][majorVersion] = depVersion;
-        }
-      });
-    } else {
+    if (UPDATE_MAJOR_VERSION) {
       const sortedDeps = [
         ...depsAndArrayOfVersionsUsed[depName]
       ].sort(
@@ -112,6 +115,21 @@ function getHighestVersionUsedForDeps(depsAndArrayOfVersionsUsed) {
       const highestVersionDep = sortedDeps[sortedDeps.length - 1];
 
       highestVersionsForDeps[depName] = highestVersionDep;
+    } else {
+      highestVersionsForDeps[depName] = {};
+      depsAndArrayOfVersionsUsed[depName].forEach(depVersion => {
+        const semverOfVersion = getSemverCompatibleVersion(depVersion);
+        if (semverOfVersion === '*') {
+          return;
+        }
+        const majorVersion = semver.major(semverOfVersion);
+        if (!highestVersionsForDeps[depName][majorVersion] || semver.compare(
+          getSemverCompatibleVersion(highestVersionsForDeps[depName][majorVersion]),
+          getSemverCompatibleVersion(depVersion)
+        ) < 0) {
+          highestVersionsForDeps[depName][majorVersion] = depVersion;
+        }
+      });
     }
     
   });
@@ -164,13 +182,13 @@ async function alignCommonDeps() {
 
         let highestVersionForDep = highestVersionsForDeps[dependencyType][depName];
 
-        if (ALIGN_TO_MAJOR) {
+        if (!UPDATE_MAJOR_VERSION) {
           const semverOfVersion = getSemverCompatibleVersion(currentDepVersion);
           const majorVersion = semver.major(semverOfVersion);
-          highestVersionForDep = highestVersionsForDeps[dependencyType][majorVersion];
+          highestVersionForDep = highestVersionsForDeps[dependencyType][depName][majorVersion];
         }
 
-        if (currentDepVersion !== highestVersionsForDeps[dependencyType][depName]) {
+        if (currentDepVersion !== highestVersionForDep) {
           console.log(
             'Bumping', depName,
             'in', packageJson.name,
