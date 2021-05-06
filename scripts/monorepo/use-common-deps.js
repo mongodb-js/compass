@@ -16,6 +16,10 @@ const depOverrides = {
   'github:mongodb-js/hadron-build#evergreen': '^23.5.0'
 };
 
+const pinnedDeps = {
+  'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again': 'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again'
+};
+
 // Notes on manual changes:
 // - Added graceful-fs to packages/electron-wix-msi
 // - Updating semver requires a fix in a few of the packages' config/project.js
@@ -26,6 +30,7 @@ const dependencyTypes = ['dependencies', 'devDependencies'];
 
 function getDepsUsedByPackages(packages) {
   const depsAndArrayOfVersionsUsed = {};
+
   for (const pkgDir of packages) {
     const packageJson = require(path.join(pkgDir, 'package.json'));
     
@@ -35,9 +40,13 @@ function getDepsUsedByPackages(packages) {
         continue;
       }
 
+      if (!depsAndArrayOfVersionsUsed[dependencyType]) {
+        depsAndArrayOfVersionsUsed[dependencyType] = {}
+      }
+
       Object.keys(packageJson[dependencyType]).forEach((depName) => {
-        if (!depsAndArrayOfVersionsUsed[depName]) {
-          depsAndArrayOfVersionsUsed[depName] = new Set();
+        if (!depsAndArrayOfVersionsUsed[dependencyType][depName]) {
+          depsAndArrayOfVersionsUsed[dependencyType][depName] = new Set();
         }
 
         let depVersion = packageJson[dependencyType][depName];
@@ -46,7 +55,7 @@ function getDepsUsedByPackages(packages) {
           depVersion = depOverrides[depVersion];
         }
 
-        depsAndArrayOfVersionsUsed[depName].add(depVersion);
+        depsAndArrayOfVersionsUsed[dependencyType][depName].add(depVersion);
       });
     }
   }
@@ -56,6 +65,10 @@ function getDepsUsedByPackages(packages) {
 
 function getSemverCompatibleVersion(version) {
   if (version === '*') {
+    return '0.0.0';
+  }
+
+  if (pinnedDeps[version]) {
     return '0.0.0';
   }
 
@@ -144,6 +157,11 @@ async function alignCommonDeps() {
           return;
         }
 
+        if (pinnedDeps[currentDepVersion]) {
+          // Keep the same version.
+          return;
+        }
+
         let highestVersionForDep = highestVersionsForDeps[dependencyType][depName];
 
         if (ALIGN_TO_MAJOR) {
@@ -158,9 +176,9 @@ async function alignCommonDeps() {
             'in', packageJson.name,
             dependencyType,
             'from', currentDepVersion,
-            'to', highestVersionsForDeps[dependencyType][depName]
+            'to', highestVersionForDep
           );
-          packageJson[dependencyType][depName] = highestVersionsForDeps[dependencyType][depName];
+          packageJson[dependencyType][depName] = highestVersionForDep;
           depsUpdatedCount++;
         }
       });
