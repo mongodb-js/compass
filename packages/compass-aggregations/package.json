@@ -25,7 +25,7 @@
     "storybook:ghpages": "build-storybook -c .storybook -o .ghpages",
     "preanalyze": "mkdir -p .ghpages && cross-env NODE_ENV=production webpack --profile --json --config ./config/webpack.prod.config.js > .ghpages/stats.json",
     "analyze": "webpack-bundle-analyzer .ghpages/stats.json --no-open  --report .ghpages/report.html --mode static --bundleDir lib",
-    "install": "node ../../scripts/download-akzidenz.js",
+    "prepare": "node ../../scripts/download-akzidenz.js",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck --ignores=\"async,@hot-loader/react-dom,@mongodb-js/compass-crud,@mongodb-js/compass-field-store,@mongodb-js/compass-export-to-language,bson-transpilers,hadron-react-bson,mongodb-js-metrics,mongodb-query-parser,react-dom,storage-mixin,mongodb-data-service\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },

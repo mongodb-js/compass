@@ -25,7 +25,7 @@
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "check": "npm run depcheck && npm run lint",
     "prepublishOnly": "npm run compile",
-    "install": "node ../../scripts/download-akzidenz.js",
+    "prepare": "node ../../scripts/download-akzidenz.js",
     "start-compass": "node scripts/run-in-compass.js"
   },
   "license": "Apache-2.0",
