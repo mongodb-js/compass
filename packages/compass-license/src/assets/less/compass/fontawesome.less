@@ -1,0 +1,27 @@
+// To update font-awesome, bump the version in package.json, then copy the
+// new font files (located in node_modules/font-awesome/fonts) to src/app/fonts.
+// No other changes should be necessary.
+
+// This file is a copy of node_modules/font-awesome/less/font-awesome.less,
+// however we overwrite the @fa-font-path variable before fonts are loaded,
+// to point to our custom font path.
+
+@fa-nodemodules-less-path: "../../../../node_modules/font-awesome/less";
+
+@import "@{fa-nodemodules-less-path}/variables.less";
+@import "@{fa-nodemodules-less-path}/mixins.less";
+
+// need to overwrite the default font path defined in variables.less
+@fa-font-path: '../fonts';
+
+@import "@{fa-nodemodules-less-path}/path.less";
+@import "@{fa-nodemodules-less-path}/core.less";
+@import "@{fa-nodemodules-less-path}/larger.less";
+@import "@{fa-nodemodules-less-path}/fixed-width.less";
+@import "@{fa-nodemodules-less-path}/list.less";
+@import "@{fa-nodemodules-less-path}/bordered-pulled.less";
+@import "@{fa-nodemodules-less-path}/animated.less";
+@import "@{fa-nodemodules-less-path}/rotated-flipped.less";
+@import "@{fa-nodemodules-less-path}/stacked.less";
+@import "@{fa-nodemodules-less-path}/icons.less";
+@import "@{fa-nodemodules-less-path}/screen-reader.less";

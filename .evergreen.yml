@@ -134,6 +134,11 @@ functions:
 
           echo "If npm ci fails, debug.log will be uploaded to S3."
           npm ci --unsafe-perm
+          # Make sure that cache is populated when other packages are pulling the font
+          npm run update-akzidenz-cache
+          # Run npm ci in all the packages
+          npm run bootstrap-evergreen
+  
   save:
     - command: shell.exec
       params:
@@ -177,7 +182,7 @@ functions:
         source ~/compass_env.sh
 
         echo "Run static analysis..."
-        npm run check;
+        npm run check-evergreen
 
   test:
     - command: shell.exec
@@ -197,7 +202,9 @@ functions:
           # have dropped support for macOS 10.10 because it is now outside
           # of the supported version range.
           # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
-          DEBUG=* MONGODB_VERSION=${mongodb_version|4.0.3} npm test -- --${test_suite}
+          # 
+          # test_suite option only affects compass tests
+          DEBUG=mongo*,mocha*,hadron* MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-evergreen
     # - command: attach.results
     #   params:
     #     file_location: src/test-results.xml
@@ -361,6 +368,7 @@ functions:
         local_file: src/packages/compass/dist/${osx_zip_filename}
         remote_file: ${project}/${revision}/${osx_zip_filename}
         content_type: application/zip
+  
   'save linux artifacts':
     # .deb
     - <<: *save-artifact
@@ -374,6 +382,7 @@ functions:
         local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
         content_type: application/x-gzip
+  
   'save rhel artifacts':
     # .rpm
     - <<: *save-artifact
@@ -387,36 +396,72 @@ functions:
         local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
         content_type: application/x-gzip
+
 # Tasks
 tasks:
   - name: oneshot-compile-test-package-publish
     commands:
       - func: prepare
+
       - func: install
-      # - func: test
-      #   vars:
-      #     test_suite: functional
+
+      - func: verify
+
+      - func: test
+        # TODO: rhel, ubuntu, windows should be brought back as soon as following
+        # issues are resolved:
+        #  - https://jira.mongodb.org/browse/COMPASS-4789
+        #  - https://jira.mongodb.org/browse/COMPASS-4791
+        #  - https://jira.mongodb.org/browse/COMPASS-4792
+        #  - https://jira.mongodb.org/browse/COMPASS-4793
+        #  - https://jira.mongodb.org/browse/COMPASS-4794
+        #  - https://jira.mongodb.org/browse/COMPASS-4795
+        variants: [macos]
+
       - func: package
         vars:
           compass_distribution: compass
       - func: publish
         vars:
           compass_distribution: compass
+      - func: 'save windows artifacts'
+        variants: [windows]
       - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]
+      - func: 'save rhel artifacts'
+        variants: [rhel]
+
       - func: package
         vars:
           compass_distribution: compass-isolated
       - func: publish
         vars:
           compass_distribution: compass-isolated
+      - func: 'save windows artifacts'
+        variants: [windows]
       - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]
+      - func: 'save rhel artifacts'
+        variants: [rhel]
+
       - func: package
         vars:
           compass_distribution: compass-readonly
       - func: publish
         vars:
           compass_distribution: compass-readonly
+      - func: 'save windows artifacts'
+        variants: [windows]
       - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]
+      - func: 'save rhel artifacts'
+        variants: [rhel]
 
   - name: compile
     depends_on: []
@@ -432,6 +477,7 @@ tasks:
     commands:
       - func: restore
       - func: verify
+
   - name: test-unit
     depends_on: [compile]
     tags:
@@ -634,55 +680,20 @@ buildvariants:
 
   - name: windows
     display_name: Windows
-    run_on: windows-64-vs2015-test
+    run_on: windows-vsCurrent-large
     expansions:
       compass_distribution: compass
     tasks:
-      - name: compile
-      - name: verify
-      # - name: test-data-service
-      # - name: test-functional
-      # - name: test-hadron-spectron
-      # - name: test-connect-plugin
-      # - name: test-aggregation-builder-plugin
-      # NOTE (@imlucas) See above for activating more tests
-      - name: test-unit
-      # - name: test-main
-      # - name: test-renderer
-      # - name: test-enzyme
-      # - name: test-functional-stable-server
-      # - name: test-functional-unstable-server
-      # - name: test-functional-36x-server
-      # - name: test-functional-34x-server
-      # - name: test-functional-26x-server
-      - name: package-and-publish-compass
-      - name: package-and-publish-compass-isolated
-      - name: package-and-publish-compass-readonly
+      - name: oneshot-compile-test-package-publish
 
   - name: ubuntu
     display_name: Ubuntu
-    run_on: ubuntu1404-test
+    run_on: ubuntu1404-large
     tasks:
-      - name: compile
-      - name: verify
-      - name: test-data-service
-      # - name: test-unit
-      # - name: test-main
-      # - name: test-renderer
-      # - name: test-enzyme
-      # - name: test-functional
-      # - name: test-connect-plugin
-      # - name: test-aggregation-builder-plugin
-      - name: package-and-publish-compass
-      - name: package-and-publish-compass-isolated
-      - name: package-and-publish-compass-readonly
+      - name: oneshot-compile-test-package-publish
+
   - name: rhel
     display_name: RHEL
-    run_on: rhel70
+    run_on: rhel76-large
     tasks:
-      - name: compile
-      - name: verify
-      # - name: test-functional
-      - name: package-and-publish-compass
-      - name: package-and-publish-compass-isolated
-      - name: package-and-publish-compass-readonly
+      - name: oneshot-compile-test-package-publish

@@ -1,0 +1,29 @@
+@import (reference) "~less/compass/_theme.less";
+
+@compass-sidebar-base-background-color: @gray2;
+
+.loading {
+  align-items: center;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  flex-direction: column;
+  width: 100vw;
+  background-color: @compass-sidebar-base-background-color;
+
+  &-status {
+    color: #FFFFFF;
+    font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: calc(10px + 5vh);
+    font-weight: bold;
+    padding-top: 2vh;
+    text-transform: uppercase;
+  }
+
+  &-spinner {
+    animation:spin 2s linear infinite;
+  }
+
+  @keyframes spin { 100% { transform:rotate(360deg); } }
+}
+

@@ -1,0 +1,42 @@
+{
+  "name": "mongodb-notary-service-client",
+  "description": "A client for our notary-service: an API for codesigning.",
+  "version": "0.4.7",
+  "scripts": {
+    "check": "npm run lint && npm run depcheck",
+    "test": "mocha",
+    "test-check-ci": "npm run check && npm test",
+    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+  },
+  "bin": {
+    "notary": "cli.js"
+  },
+  "homepage": "http://github.com/mongodb-js/notary-service-client",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/notary-service-client.git"
+  },
+  "bugs": {
+    "url": "git://github.com/mongodb-js/notary-service-client.git/issues"
+  },
+  "dependencies": {
+    "cli-table": "^0.3.1",
+    "commander": "^2.9.0",
+    "debug": "^2.2.0",
+    "dotenv": "^4.0.0",
+    "execa": "^0.6.0",
+    "lodash": "^4.8.2",
+    "mongodb-js-cli": "0.0.3",
+    "pbkdf2": "^3.0.9",
+    "superagent": "^3.3.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "depcheck": "^1.4.0",
+    "eslint": "^7.25.0",
+    "eslint-config-mongodb-js": "^2.2.0",
+    "mocha": "^3.2.0"
+  },
+  "license": "Apache-2.0"
+}

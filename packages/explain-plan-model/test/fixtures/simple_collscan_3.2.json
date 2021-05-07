@@ -1,0 +1,51 @@
+{
+  "queryPlanner": {
+    "plannerVersion": 1,
+    "namespace": "mongodb.fanclub",
+    "indexFilterSet": false,
+    "parsedQuery": {
+      "$and": []
+    },
+    "winningPlan": {
+      "stage": "COLLSCAN",
+      "filter": {
+        "$and": []
+      },
+      "direction": "forward"
+    },
+    "rejectedPlans": []
+  },
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": 1000000,
+    "executionTimeMillis": 188,
+    "totalKeysExamined": 0,
+    "totalDocsExamined": 1000000,
+    "executionStages": {
+      "stage": "COLLSCAN",
+      "filter": {
+        "$and": []
+      },
+      "nReturned": 1000000,
+      "executionTimeMillisEstimate": 110,
+      "works": 1000002,
+      "advanced": 1000000,
+      "needTime": 1,
+      "needYield": 0,
+      "saveState": 7812,
+      "restoreState": 7812,
+      "isEOF": 1,
+      "invalidates": 0,
+      "direction": "forward",
+      "docsExamined": 1000000
+    },
+    "allPlansExecution": []
+  },
+  "serverInfo": {
+    "host": "my-server.local",
+    "port": 27018,
+    "version": "3.2.3",
+    "gitVersion": "b326ba837cf6f49d65c2f85e1b70f6f31ece7937"
+  },
+  "ok": 1
+}

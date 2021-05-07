@@ -24,16 +24,19 @@ jobs:
         uses: actions/setup-node@v2.1.2
         with:
           # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
-          node-version: 12.4.0
+          node-version: ^12.4.0
 
-      - name: Install Deps Ubuntu
-        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
+      # - name: Install Deps Ubuntu
+      #   run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
 
-      - name: Install Dependencies
-        run: npm ci
+      - name: Not Implemented
+        run: echo "GitHub Actions workflows are disabled for now. To be fixed in https://jira.mongodb.org/browse/COMPASS-4788"
 
-      - name: Run Checks
-        run: npm run check
+      # - name: Install Dependencies
+      #   run: npm ci
 
-      - name: Run Tests
-        run: npm run test
+      # - name: Run Checks
+      #   run: npm run check
+
+      # - name: Run Tests
+      #   run: npm run test

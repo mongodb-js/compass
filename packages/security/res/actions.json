@@ -1,0 +1,597 @@
+{
+  "addShard": {
+    "description": "Add a new shard",
+    "tags": [
+      "cluster",
+      "command",
+      "sharding"
+    ]
+  },
+  "appendOplogNote": {
+    "description": "User can append notes to the oplog.",
+    "tags": [
+      "cluster",
+      "replication"
+    ]
+  },
+  "applicationMessage": {
+    "description": "User can perform the `logApplicationMessage` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "server"
+    ],
+    "level": 0
+  },
+  "authSchemaUpgrade": {
+    "description": "User can perform the `authSchemaUpgrade` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "deployment"
+    ]
+  },
+  "changeCustomData": {
+    "description": "Change the custom information of any user in the givenabase.",
+    "tags": [
+      "auth"
+    ]
+  },
+  "changeOwnCustomData": {
+    "description": "Update their own custom information",
+    "tags": [
+      "auth"
+    ]
+  },
+  "changeOwnPassword": {
+    "description": "Update their own passwords",
+    "tags": [
+      "auth"
+    ]
+  },
+  "changePassword": {
+    "description": "Update the password of any user",
+    "tags": [
+      "auth"
+    ]
+  },
+  "cleanupOrphaned": {
+    "description": "User can perform the `cleanupOrphaned` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "deployment"
+    ]
+  },
+  "closeAllDatabases": {
+    "description": "User can perform the `closeAllDatabases` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "server"
+    ]
+  },
+  "collMod": {
+    "description": "User can perform the `collMod` command.",
+    "tags": [
+      "command",
+      "server"
+    ]
+  },
+  "collStats": {
+    "description": "View high-level collection statistics",
+    "tags": [
+      "command",
+      "diagnostic"
+    ]
+  },
+  "compact": {
+    "description": "User can perform the `compact` command.",
+    "tags": [
+      "command",
+      "server"
+    ]
+  },
+  "connPoolStats": {
+    "description": "User can perform the `connPoolStats` and `shardConnPoolStats`commands.",
+    "tags": [
+      "cluster",
+      "command",
+      "diagnostic"
+    ],
+    "level": 0
+  },
+  "connPoolSync": {
+    "description": "User can perform the `connPoolSync` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "server"
+    ]
+  },
+  "convertToCapped": {
+    "description": "User can perform the `convertToCapped` command.",
+    "tags": [
+      "command",
+      "server"
+    ]
+  },
+  "cpuProfiler": {
+    "description": "Enable and view profiling",
+    "tags": [
+      "cluster",
+      "deployment"
+    ]
+  },
+  "createCollection": {
+    "description": "User can perform the `db.createCollection` method.",
+    "tags": [
+      "crud"
+    ]
+  },
+  "createIndex": {
+    "description": "Provides access to the `db.collection.createIndex` and the `createIndexes` command.",
+    "tags": [
+      "command",
+      "crud"
+    ]
+  },
+  "createRole": {
+    "description": "User can create new roles in the given database.",
+    "tags": [
+      "auth"
+    ]
+  },
+  "createUser": {
+    "description": "User can create new users in the given database.",
+    "tags": [
+      "auth"
+    ]
+  },
+  "cursorInfo": {
+    "description": "User can perform the `cursorInfo` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "diagnostic"
+    ]
+  },
+  "dbHash": {
+    "description": "User can perform the `dbHash` command.",
+    "tags": [
+      "command",
+      "diagnostic"
+    ],
+    "level": 0
+  },
+  "dbStats": {
+    "description": "View high-level database statistics",
+    "tags": [
+      "command",
+      "diagnostic"
+    ]
+  },
+  "diagLogging": {
+    "description": "User can perform the `diagLogging` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "diagnostic"
+    ]
+  },
+  "dropCollection": {
+    "description": "User can perform the `db.collection.drop` method.",
+    "tags": [
+      "crud"
+    ],
+    "level": 2
+  },
+  "dropDatabase": {
+    "description": "User can perform the `dropDatabase` command.",
+    "tags": [
+      "command",
+      "server"
+    ],
+    "level": 2
+  },
+  "dropIndex": {
+    "description": "User can perform the `dropIndexes` command.",
+    "tags": [
+      "command",
+      "server"
+    ]
+  },
+  "dropRole": {
+    "description": "User can delete any role from the given database.",
+    "tags": [
+      "auth"
+    ]
+  },
+  "dropUser": {
+    "description": "User can remove any user from the given database.",
+    "tags": [
+      "auth"
+    ]
+  },
+  "emptycapped": {
+    "description": "User can perform the `emptycapped` command.",
+    "tags": [
+      "command",
+      "crud"
+    ]
+  },
+  "enableProfiler": {
+    "description": "Enable profiling",
+    "tags": [
+      "crud"
+    ]
+  },
+  "enableSharding": {
+    "description": "Enable sharding",
+    "tags": [
+      "cluster",
+      "command",
+      "sharding"
+    ]
+  },
+  "find": {
+    "description": "Read documents",
+    "tags": [
+      "read"
+    ]
+  },
+  "flushRouterConfig": {
+    "description": "User can perform the `flushRouterConfig` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "sharding"
+    ]
+  },
+  "fsync": {
+    "description": "User can perform the `fsync` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "server"
+    ]
+  },
+  "getCmdLineOpts": {
+    "description": "User can perform the `getCmdLineOpts` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "diagnostic"
+    ]
+  },
+  "getLog": {
+    "description": "User can perform the `getLog` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "diagnostic"
+    ]
+  },
+  "hostInfo": {
+    "description": "View high-level server statistics",
+    "tags": [
+      "cluster",
+      "command",
+      "diagnostic"
+    ]
+  },
+  "getParameter": {
+    "description": "Provides information about the server the MongoDB instance runs on.",
+    "tags": [
+
+      "cluster",
+      "command",
+      "server"
+    ]
+  },
+  "getShardMap": {
+    "description": "User can perform the `getShardMap` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "sharding"
+    ]
+  },
+  "getShardVersion": {
+    "description": "User can perform the `getShardVersion` command.",
+    "tags": [
+      "command",
+      "sharding"
+    ]
+  },
+  "grantRole": {
+    "description": "Grant any role to any user",
+    "tags": [
+      "auth"
+    ]
+  },
+  "indexStats": {
+    "description": "View high-level index statistics",
+    "tags": [
+      "command",
+      "diagnostic"
+    ]
+  },
+  "inprog": {
+    "description": "View pending and active operations",
+    "tags": [
+      "cluster",
+      "deployment"
+    ]
+  },
+  "insert": {
+    "description": "Create documents",
+    "tags": [
+      "command",
+      "write"
+    ]
+  },
+  "invalidateUserCache": {
+    "description": "Provides access to the `invalidateUserCache` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "deployment"
+    ]
+  },
+  "killCursors": {
+    "description": "Allow language drivers to disconnect themselves.",
+    "tags": [
+      "hidden",
+      "crud"
+    ],
+    "level": 0
+  },
+  "killop": {
+    "description": "User can perform the `db.killOp` method.",
+    "tags": [
+      "cluster",
+      "deployment"
+    ]
+  },
+  "listDatabases": {
+    "description": "View all database names",
+    "tags": [
+      "cluster",
+      "command",
+      "diagnostic"
+    ]
+  },
+  "listShards": {
+    "description": "User can perform the `listShards` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "sharding"
+    ]
+  },
+  "logRotate": {
+    "description": "User can perform the `logRotate` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "server"
+    ]
+  },
+  "moveChunk": {
+    "description": "User can perform the `moveChunk` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "sharding"
+    ]
+  },
+  "netstat": {
+    "description": "User can perform the `netstat` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "diagnostic"
+    ],
+    "level": 0
+  },
+  "planCacheRead": {
+    "description": "User can perform the `planCacheListPlans` and `planCacheListQueryShapes` commands and the `PlanCache.getPlansByQuery` and `PlanCache.listQueryShapes` methods.",
+    "tags": [
+      "command",
+      "deployment"
+    ],
+    "level": 0
+  },
+  "planCacheWrite": {
+    "description": "User can perform the `PlanCache.clear` and `PlanCache.clearPlansByQuery` commands",
+    "tags": [
+      "command",
+      "deployment"
+    ]
+  },
+  "reIndex": {
+    "description": "Rebuild an index",
+    "tags": [
+      "command",
+      "server"
+    ]
+  },
+  "remove": {
+    "description": "Delete a document",
+    "tags": [
+      "write"
+    ]
+  },
+  "removeShard": {
+    "description": "User can perform the `removeShard` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "sharding"
+    ]
+  },
+  "renameCollectionSameDB": {
+    "description": "Allows the user to rename collections on the current database using the `renameCollection` command. Apply this action to database resources. Additionally, the user must either *have* :authaction:`find` on the source collection or *not have* :authaction:`find` on the - destination collection. If a collection with the new name already exists, the user must also have the :authaction:`dropCollection` action on the destination collection.",
+    "tags": [
+      "command",
+      "server"
+    ]
+  },
+  "repairDatabase": {
+    "description": "User can perform the `repairDatabase` command.",
+    "tags": [
+      "command",
+      "server"
+    ]
+  },
+  "replSetConfigure": {
+    "description": "Update replication configuration",
+    "tags": [
+      "cluster",
+      "replication"
+    ]
+  },
+  "replSetGetStatus": {
+    "description": "View replication status",
+    "tags": [
+      "cluster",
+      "command",
+      "replication"
+    ]
+  },
+  "replSetHeartbeat": {
+    "description": "User can perform the `replSetHeartbeat` command.",
+    "tags": [
+      "cluster",
+      "command"
+    ],
+    "level": 0
+  },
+  "replSetStateChange": {
+    "description": "User can change the state of a replica set through the `replSetFreeze`, `replSetMaintenance`, `replSetStepDown`, and `replSetSyncFrom` commands.",
+    "tags": [
+      "cluster",
+      "command",
+      "replication"
+    ]
+  },
+  "resync": {
+    "description": "Manually sync a secondary",
+    "tags": [
+      "cluster",
+      "command",
+      "replication"
+    ]
+  },
+  "revokeRole": {
+    "description": "User can remove any role from any user from any database in the system.",
+    "tags": [
+      "auth"
+    ]
+  },
+  "serverStatus": {
+    "description": "User can perform the `serverStatus` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "diagnostic"
+    ]
+  },
+  "setParameter": {
+    "description": "User can perform the `setParameter` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "server"
+    ]
+  },
+  "shardingState": {
+    "description": "User can perform the `shardingState` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "sharding"
+    ]
+  },
+  "shutdown": {
+    "description": "User can perform the `shutdown` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "server"
+    ]
+  },
+  "splitChunk": {
+    "description": "User can perform the `splitChunk` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "sharding"
+    ]
+  },
+  "splitVector": {
+    "description": "User can perform the `splitVector` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "sharding"
+    ]
+  },
+  "storageDetails": {
+    "description": "User can perform the `storageDetails` command.",
+    "tags": [
+      "command",
+      "deployment"
+    ]
+  },
+  "top": {
+    "description": "User can perform the `top` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "diagnostic"
+    ]
+  },
+  "touch": {
+    "description": "User can perform the `touch` command.",
+    "tags": [
+      "cluster",
+      "command",
+      "server"
+    ]
+  },
+  "unlock": {
+    "description": "User can perform the `db.fsyncUnlock` method.",
+    "tags": [
+      "cluster",
+      "crud"
+    ]
+  },
+  "update": {
+    "description": "User can perform the `update` command.",
+    "tags": [
+      "command",
+      "write"
+    ]
+  },
+  "validate": {
+    "description": "User can perform the `validate` command.",
+    "tags": [
+      "command",
+      "diagnostic"
+    ]
+  },
+  "viewRole": {
+    "description": "User can view information about any role in the given database.",
+    "tags": [
+      "auth"
+    ]
+  },
+  "viewUser": {
+    "description": "User can view the information of any user in the given database.",
+    "tags": [
+      "auth"
+    ]
+  }
+}

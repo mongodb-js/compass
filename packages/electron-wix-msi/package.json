@@ -1,0 +1,76 @@
+{
+  "name": "@mongodb-js/electron-wix-msi",
+  "version": "2.1.20",
+  "description": "Creates an MSI installer for your Electron app",
+  "license": "MIT",
+  "repository": "",
+  "author": {
+    "name": "Felix Rieseberg",
+    "email": "felix@felixrieseberg.com",
+    "url": "https://www.felixrieseberg.com"
+  },
+  "keywords": [
+    "wix",
+    "msi"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "tsc --pretty",
+    "test": "npm run lint && jest",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "harness": "npm run build && node ./harness/harness.js"
+  },
+  "dependencies": {
+    "debug": "^3.1.0",
+    "fs-extra": "^7.0.0",
+    "klaw": "^3.0.0",
+    "lodash": "^4.17.10",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/debug": "0.0.30",
+    "@types/fs-extra": "^5.0.4",
+    "@types/graceful-fs": "^4.1.2",
+    "@types/jest": "^20.0.5",
+    "@types/klaw": "^2.1.1",
+    "@types/lodash": "^4.14.85",
+    "@types/mock-fs": "^3.6.30",
+    "@types/node": "^10.9.4",
+    "@types/uuid": "^3.4.4",
+    "coveralls": "^3.0.2",
+    "jest": "^20.0.4",
+    "jest-environment-node-debug": "^2.0.0",
+    "mock-fs": "^4.4.2",
+    "ts-jest": "^20.0.7",
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "jest": {
+    "transform": {
+      ".(ts)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|js)$",
+    "testPathIgnorePatterns": [
+      "\\\\node_modules\\\\",
+      "__tests__/fixture",
+      "__tests__/mocks"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "mapCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/interfaces.ts",
+      "!src/index.ts"
+    ]
+  }
+}

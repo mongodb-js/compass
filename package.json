@@ -10,23 +10,28 @@
   "shortcutFolderName": "MongoDB",
   "license": "SSPL",
   "scripts": {
-    "check": "lerna run check",
-    "install": "lerna bootstrap --concurrency=1",
+    "check": "lerna run check --stream",
+    "check-evergreen": "lerna run check",
+    "bootstrap": "lerna exec --stream -- npm ci --quiet",
+    "bootstrap-evergreen": "lerna exec -- npm ci --quiet",
     "start": "lerna run start --stream --scope mongodb-compass",
     "release": "cd packages/compass && npm run --silent release --",
-    "test": "lerna run test --stream"
+    "test": "lerna run test --concurrency 1 --stream",
+    "test-evergreen": "lerna run test --concurrency 1",
+    "update-akzidenz-cache": "node scripts/download-akzidenz.js --update-cache",
+    "download-akzidenz": "lerna exec -- node ../../scripts/download-akzidenz.js"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/compass.git"
   },
-  "precommit": [
-    "check"
-  ],
   "dependencies": {},
   "devDependencies": {
+    "fs-extra": "^9.1.0",
+    "glob": "^7.1.6",
     "lerna": "^4.0.0",
-    "mongodb-js-precommit": "^2.2.1"
+    "make-fetch-happen": "^8.0.14",
+    "ora": "^5.4.0"
   },
   "engines": {
     "node": "^12.4.0",

@@ -1,0 +1,25 @@
+{
+  "env": {
+    "production": { "presets": ["minify"] },
+    "test": {
+      "presets": [ ["env"] ],
+      "plugins": [
+        "react-hot-loader/babel",
+        "syntax-object-rest-spread",
+        "transform-object-rest-spread",
+        "transform-class-properties",
+        "syntax-dynamic-import",
+        "babel-plugin-transform-runtime"
+      ]
+    }
+  },
+  "presets": [ "react", ["env"] ],
+  "plugins": [
+    "react-hot-loader/babel",
+    "syntax-object-rest-spread",
+    "transform-object-rest-spread",
+    "transform-class-properties",
+    "syntax-dynamic-import",
+    "babel-plugin-transform-runtime"
+  ]
+}

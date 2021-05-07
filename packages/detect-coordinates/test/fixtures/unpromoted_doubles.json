@@ -1,0 +1,105 @@
+{
+  "name": "Document",
+  "path": "last_position",
+  "count": 10,
+  "fields": [
+    {
+      "name": "coordinates",
+      "path": "last_position.coordinates",
+      "count": 10,
+      "types": [
+        {
+          "name": "Array",
+          "path": "last_position.coordinates",
+          "count": 10,
+          "types": [
+            {
+              "name": "Double",
+              "path": "last_position.coordinates",
+              "count": 20,
+              "values": [
+                -18.568217480726474,
+                -66.28179777747229,
+                93.0741728552897,
+                37.075036583882124,
+                72.98575282781604,
+                -36.96564183295402,
+                68.72168802246452,
+                -82.69115433189103,
+                -30.19369420907711,
+                -64.55785608539739,
+                116.09431055291628,
+                51.04660536873385,
+                -101.32212680675761,
+                -23.15942854092701,
+                -157.79856128718333,
+                10.690628043010022,
+                100.97902320557779,
+                67.44510146882001,
+                -179.00476696826664,
+                37.37582934835244
+              ],
+              "total_count": 0,
+              "probability": 1,
+              "unique": 20,
+              "has_duplicates": false
+            }
+          ],
+          "lengths": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "total_count": 20,
+          "probability": 1,
+          "average_length": 2
+        }
+      ],
+      "total_count": 10,
+      "type": "Array",
+      "has_duplicates": false,
+      "probability": 1
+    },
+    {
+      "name": "type",
+      "path": "last_position.type",
+      "count": 10,
+      "types": [
+        {
+          "name": "String",
+          "path": "last_position.type",
+          "count": 10,
+          "values": [
+            "Point",
+            "Point",
+            "Point",
+            "Point",
+            "Point",
+            "Point",
+            "Point",
+            "Point",
+            "Point",
+            "Point"
+          ],
+          "total_count": 0,
+          "probability": 1,
+          "unique": 1,
+          "has_duplicates": true
+        }
+      ],
+      "total_count": 10,
+      "type": "String",
+      "has_duplicates": true,
+      "probability": 1
+    }
+  ],
+  "total_count": 0,
+  "probability": 1
+}

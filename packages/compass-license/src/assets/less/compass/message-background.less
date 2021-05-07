@@ -1,0 +1,40 @@
+@import "palette.less";
+@sidebar-width: 250px;
+
+ul.message-background {
+  color: rgba(0, 0, 0, 0.2);
+  font-size: (@font-size-base * 2);
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+
+  &.with-sidebar {
+    margin-left: @sidebar-width;
+  }
+}
+
+ul.message-background.centered {
+  display: -webkit-flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  -webkit-align-items: center;
+  text-align: center;
+}
+
+ul.message-background.centered li {
+  width: 100%;
+}
+ul.message-background li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: @gray5;
+}
+
+.message-background-tip {
+  font-size: @font-size-base;
+  margin-top: (@font-size-base * 3);
+}

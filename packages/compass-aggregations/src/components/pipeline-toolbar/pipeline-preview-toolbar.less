@@ -1,0 +1,75 @@
+@import (reference) "~less/compass/_theme.less";
+
+/**
+ * Mixins
+ */
+.toolbar-component() {
+  margin-left: 15px;
+  display: flex;
+}
+
+.toolbar-component-label() {
+  margin-left: 5px;
+  display: flex;
+  white-space: nowrap;
+}
+
+.container-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-shadow: 2px 0px @gray7;
+  height: 33px;
+  padding-right: 15px;
+}
+
+.toggle-sample, .toggle-auto-preview {
+  .toolbar-component();
+}
+
+.switch {
+  height: 16px !important;
+  width: 36px !important;
+  cursor: pointer !important;
+
+  span {
+    height: 14px !important;
+    width: 14px !important;
+    cursor: pointer !important;
+  }
+}
+
+.toggle-sample-label, .toggle-auto-preview-label {
+  .toolbar-component-label();
+  font-size: 12px;
+  text-transform: uppercase;
+  color: @gray3;
+  font-weight: bold;
+}
+
+.settings {
+  .toolbar-component();
+}
+
+.fullscreen {
+  .toolbar-component();
+  margin-left: 5px;
+}
+
+.is-modified {
+  .toolbar-component();
+
+  i {
+    color: @green2;
+  }
+  &-on {
+    i {
+      color: @alertOrange;
+    }
+    span {
+      padding-right: 5px;
+      color: @alertOrange;
+      font-size: 13px;
+    }
+  }
+}

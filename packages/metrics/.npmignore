@@ -1,0 +1,5 @@
+.eslintrc
+.travis.yml
+test/
+examples/
+docs/

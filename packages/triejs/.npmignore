@@ -1,0 +1,4 @@
+examples/
+tests/
+src/tree.min.js
+.travis.yml

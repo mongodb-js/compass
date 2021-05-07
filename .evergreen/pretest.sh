@@ -32,6 +32,8 @@ if [ -n "$IS_LINUX" ]; then
     sudo sh -e /etc/init.d/xvfb start;
     sleep 3;
 
+    # Some arcane hack to fix keyring issue
+    # https://github.com/atom/node-keytar/issues/132#issuecomment-444159414
     eval $(dbus-launch --sh-syntax);
     eval $(echo -n "" | /usr/bin/gnome-keyring-daemon --login);
     eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start);

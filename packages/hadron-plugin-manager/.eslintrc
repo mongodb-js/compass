@@ -1,0 +1,14 @@
+{
+  "ecmaFeatures": {
+    "blockBindings": true,
+  },
+  "env": {
+    "mocha": true,
+    "node": true,
+    "es6": true
+  },
+  "rules": {
+    "strict": 0
+  },
+  "extends": ["mongodb-js/node"]
+}

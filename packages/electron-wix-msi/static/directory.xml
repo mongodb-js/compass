@@ -1,0 +1,3 @@
+<!-- {{I}} --><Directory Id="{{DirectoryId}}" Name="{{DirectoryName}}">
+<!-- {{Children}} -->
+<!-- {{I}} --></Directory>

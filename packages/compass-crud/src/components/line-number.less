@@ -1,0 +1,65 @@
+.line-number {
+
+  display: inline-block;
+  color: #a09f9e;
+  width: 18px;
+  height: 17px;
+  text-align: center;
+  cursor: pointer;
+
+  &::before {
+    counter-increment: document-line-number;
+    content: counter(document-line-number);
+  }
+
+  &-is-selected {
+    color: #494747;
+    font-weight: bold;
+    border: 1px solid #494747;
+    border-radius: 2px;
+
+    &:before {
+      content: '-';
+    }
+  }
+
+  &-menu {
+    display: none;
+    color: #807f7f;
+
+    li {
+      span {
+        display: block;
+        padding: 3px 20px;
+        clear: both;
+        font-weight: normal;
+        font-size: 11px;
+        color: #333333;
+        white-space: nowrap;
+
+        .fa-level-down {
+          margin-right: 12px;
+        }
+
+        .fa-plus-square-o {
+          margin-right: 10px;
+        }
+      }
+      span:hover {
+        color: #313030;
+        text-decoration: none;
+        background: #e6e6e6;
+      }
+    }
+
+    &-field {
+      display: inline-block !important;
+      padding: 0px !important;
+      font-weight: bold !important;
+    }
+
+    &-is-visible {
+      display: block !important;
+    }
+  }
+}

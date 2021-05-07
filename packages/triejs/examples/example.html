@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Triejs Examples</title>
+    <script type="text/javascript" src="../src/trie.js"></script>
+    <script type="text/javascript" src="lib/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="lib/visualize.jQuery.js"></script>
+    <script type="text/javascript" src="lib/mustache.js"></script>
+    <script type="text/javascript" src="lib/underscore-1.2.3.js"></script>
+    <script type="text/javascript" src="lib/backbone-0.5.3.js"></script>
+    <script type="text/javascript" src="data.js"></script>
+    <script type="text/javascript" src="dict.js"></script>
+    <link href="lib/visualize.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="lib/style.css" media="screen" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <header><h1>Triejs <span>Customizable Trie Data Structure in Javascript</span></h1></header>
+    <div class="content">
+      <h1>Examples</h1>
+      <div style="margin:0 50px 50px 50px;position:relative;float:left;clear:both;">
+        <input type="text" id="simple-test" class="ac-text-box" placeholder="U.S states..." />
+        <ul id="simple-test-ac" class="ac-drop-down" style="display:none;"></ul>
+      </div>
+      <div class="desc" style="margin-top:0;">
+      <p>A simple example is an autocomplete for name detection, like U.S. State names.  This can be achieved very simply through the basic implementation of Triejs.  With no options passed the trie will default to a simple trie with string data.  You can simply add new words using the add function and passing in the name.  Likewise, calling find with a partial beginning will return an array of possible full words meeting the desired prefix criteria.  This list is limited to 10 words in alphabetic order.</p>
+      </div>
+      <div style="margin:50px;position:relative;float:left;clear:both;">
+        <input type="text" id="data-test" class="ac-text-box" placeholder="Cities by population..." />
+        <ul id="data-test-ac" class="ac-drop-down" style="display:none;"></ul>
+      </div>
+      <div class="desc">
+      <p>When you start dealing with more complicated data sets, Triejs can grow with you.  Passing custom functions into the initialization object for a trie will let you do things like sort a data set on custom parameters like population.</p>
+      </div>
+      <div style="margin:50px;position:relative;height:200px;float:left;clear:both;">
+        <input type="text" id="backbone-test" class="ac-text-box" placeholder="Database Users..." />
+        <ul id="backbone-test-ac" class="ac-drop-down" style="display:none;"></ul>
+      </div>
+      <div class="desc">
+      <ul id="backbone-alert"></ul>
+      <p>You can use Triejs to enhance an existing data model.  Easily plug in <a href="http://documentcloud.github.com/backbone">Backbone.js</a> models by binding to a collections add events.  Then store the ids or cids for referencing later during a find.  In this example, we fake new models being added to a collection from a backend service, represented by the green models.</p>
+      </div>
+      <h1 style="float:left;">Performance Tests</h1><span style="float:left;margin:35px 10px 0;line-height:1.3em;color:#777;">Web Workers</span><button class="btn worker-on selected">On</button><button class="btn worker-off">Off</button>
+      <div class="results">
+        <button class="perf-btn size20 first">Run Test <span>20k words</span></button>
+        <button class="perf-btn size40">Run Test <span>40k words</span></button>
+        <button class="perf-btn size80 last">Run Test <span>80k words</span></button>
+        <div class="prompt"><p>Choose a performance test to see the results run right in your browser.<p><span>Note: Tests will run faster in newer browsers with web workers enabled.  Larger dictionary sizes may stall older browsers due to memory consumption.</span></div>
+        <div class="loading" style="display:none;"><span>Loading</span></div>
+      </div>
+    </div>
+    <footer>
+      <p>Created by Paul Thurlow &copy 2011<br>
+      Licensed under the <a href="http://www.opensource.org/licenses/mit-license.php">MIT Licencse</a>
+      </p>
+      <div class="ft-right">
+        <a href="http://github.com/pthurlow">pthurlow</a> on GitHub | <a href="http://twitter.com/pthurlow">@pthurlow</a> on Twitter
+      </div>
+    </footer>
+  </body>
+<script>
+$(function() {
+
+  // Load simple data set into a trie
+  var simpleTest = new Triejs();
+  for (var i = 0, ii = states.length; i < ii; i++) {
+    simpleTest.add(states[i]);
+  }
+  // register keypress handler to search trie
+  $('#simple-test').on('keyup focus', function() {
+    var $input = $('#simple-test')
+      , val = $input.val()
+      , responses = simpleTest.find(val)
+      , $acList = $('#simple-test-ac');
+    if (responses) {
+      $acList.html(Mustache.to_html(
+          "{{#responses}}<li>{{.}}</li>{{/responses}}"
+        , {responses: responses}
+      ));
+      $input.addClass('ac-open');
+      $acList.show();
+    } else {
+      $acList.hide();
+      $input.removeClass('ac-open');
+    }
+  }).on('blur', function() {
+    $('#simple-test-ac').hide();
+    $('#simple-test').removeClass('ac-open');
+  });
+
+
+  // load complex data set into trie with custom sorting options
+  var dataTest = new Triejs({
+    // custom sorting function sorts the array of objects based on population
+    sort: function() {
+        this.sort(function(a, b) { return b.pop - a.pop; });
+    }
+    , copy: function(data) {
+      return jQuery.extend(true, [], data);
+    }
+  });
+  for (var i = 0, ii = cities.length; i < ii; i++) {
+    dataTest.add(cities[i].city, cities[i]);
+  }
+
+  // register keypress handler to search trie
+  $('#data-test').on('keyup focus', function() {
+    var val = $('#data-test').val()
+      , responses = dataTest.find(val)
+      , $acList = $('#data-test-ac');
+
+    if (responses) {
+      $acList.html(Mustache.to_html(
+        '{{#responses}}<li><span class="head">{{city}}</span>' + 
+        '<span class="right">{{popString}}</span>' + 
+        '<span class="sub">{{state}}</span></li>{{/responses}}'
+      , {responses: responses}
+      ));
+      $('#data-test').addClass('ac-open');
+      $acList.show();
+    } else {
+      $acList.hide();
+      $('#data-test').removeClass('ac-open');
+    }
+  }).on('blur', function() {
+    $('#data-test-ac').hide();
+    $('#data-test').removeClass('ac-open');
+  });
+
+
+  // Backbone.js example
+  var User = Backbone.Model.extend()
+    , Users = Backbone.Collection.extend({ model: User })
+    , bbTrie = new Triejs({ enableCache: false })
+    , users = new Users();
+
+  // bind to adding a model to the collection and add it to trie as well
+  users.bind('add', function(user) {
+    bbTrie.add(user.get('name'), user.cid);
+    var alert = $('<li>').html('Added ' + user.get('name') + ', age ' + user.get('age'));
+    $('#backbone-alert').append(alert);
+    alert.fadeOut(2000, function() {
+      $(this).remove();
+    });
+  });
+
+  for (var i = 0, ii = 5; i < ii; i++) {
+    users.add(new User({ name: names[i], age: Math.floor(Math.random()*60) }));
+  }
+  var addUserTimer = setInterval(function() {
+    if (ii + 5 >= names.length) {
+      clearInterval(addUserTimer);
+    } else {
+      for(var i = ii; i < ii + 5; i++) {
+        users.add(new User({ name: names[i], age: Math.floor(Math.random()*60) }));
+      }
+      ii += 5;
+    }
+  }, 5000);
+
+  $('#backbone-test').on('keyup focus', function() {
+    var val = $('#backbone-test').val()
+      , responses = bbTrie.find(val)
+      , $acList = $('#backbone-test-ac');
+
+    var resp = _.map(responses, function(response) {
+      
+      var u = users.getByCid(response);
+      return u.get('name') + ' ' + u.get('age');
+      }, this);
+
+    if (resp.length > 0) {
+      $acList.html(Mustache.to_html(
+        '{{#responses}}<li>{{.}}</li>{{/responses}}'
+      , {responses: resp}
+      ));
+      $('#backbone-test').addClass('ac-open');
+      $acList.show();
+    } else {
+      $acList.hide();
+      $('#backbone-test').removeClass('ac-open');
+    }
+  }).on('blur', function() {
+    $('#backbone-test-ac').hide();
+    $('#backbone-test').removeClass('ac-open');
+  });
+
+  /**
+  * @description calculate the approximate size of an object in memory
+  */
+  function approxSize(object) {
+    var size = 0
+      , pieces = [object]
+      , piece;
+
+    while (piece = pieces.pop()) {
+      switch(typeof piece) {
+        case 'boolean':
+          size += 4;
+          break;
+        case 'string':
+          size += piece.length * 2;
+          break;
+        case 'number':
+          size += 8;
+        case 'object':
+          size += 8; // assumed object overhead...hacky
+          for (var obj in piece) {
+            pieces.push(piece[obj]);
+          }
+          break;
+      }
+    }
+    return size;
+  }
+
+  /**
+  * @description creates graphs of the passed data
+  */
+  function appendGraphs(e) {
+    $('#speed-table, #size-table').remove();
+    $('.results').append(Mustache.to_html(
+      '<table id="speed-table" style="display:none;"><thead><tr><td></td>{{#groups}}<th>{{.}}</th>{{/groups}}</tr></thead>' +
+      '<tbody>{{#types}}<tr><th scope="row">{{name}}</th>{{#results}}<td>{{.}}</td>{{/results}}</tr>{{/types}}</tbody></table>'
+      , {
+        groups: ['String Inserts', 'Object Inserts', 'String Lookup', 'Object Lookup']
+        , types: [
+          { name: 'Trie', results: [e.data.trie1, e.data.trie2, e.data.trie3, e.data.trie4] }
+          , { name: 'Hash', results: [e.data.hash1, e.data.hash2, e.data.hash3, e.data.hash4] }
+        ]
+      }
+    ));
+
+    $('.results').append(Mustache.to_html(
+      '<table id="size-table" style="display:none;"><thead><tr><td></td>{{#groups}}<th>{{.}}</th>{{/groups}}</tr></thead>' +
+      '<tbody>{{#types}}<tr><th scope="row">{{name}}</th>{{#results}}<td>{{.}}</td>{{/results}}</tr>{{/types}}</tbody></table>'
+      , {
+        groups: ['String', 'Object']
+        , types: [
+          { name: 'Trie', results: [Math.round(e.data.size1/1000000), Math.round(e.data.size2/1000000)] }
+          , { name: 'Hash', results: [Math.round(e.data.size3/1000000), Math.round(e.data.size4/1000000)] }
+        ]
+      }
+    ));
+
+    $('#speed-table').visualize({
+      width: 320
+      , height:250
+      , title: 'Speed in microseconds (\u03BCs)'
+      , colors: ['#35abda', '#ff9098']
+    });
+
+    $('#size-table').visualize({
+      width: 320
+      , height:250
+      , title: 'Size in MB'
+      , colors: ['#35abda', '#ff9098']
+    });
+    $('.results .loading').hide();
+  };
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Performance tests
+  /////////////////////////////////////////////////////////////////////////////
+
+  // check if web workers exist
+  var workerTest;
+  try {
+    workerTest = new Worker('lib/perf-task.js');
+  } catch(e) {
+    $('.worker-on').removeClass('selected');
+    $('.worker-on').addClass('disabled');
+    $('.worker-off').addClass('selected');
+  }
+  if (!workerTest) {
+    $('.worker-on').removeClass('selected');
+    $('.worker-on').addClass('disabled');
+    $('.worker-off').addClass('selected');
+  }
+
+  $('.worker-on').on('click', function(e) {
+    if (!$(this).hasClass('disabled')) {
+      $(this).addClass('selected');
+      $('.worker-off').removeClass('selected');
+    }
+  });
+  $('.worker-off').on('click', function(e) {
+    if (!$(this).hasClass('disabled')) {
+      $(this).addClass('selected');
+      $('.worker-on').removeClass('selected');
+    }
+  });
+
+  $('.results').delegate('button', 'click', function(e) {
+
+    var step = 1
+      , $el = $(this)
+      , perfTest;
+
+    if ($el.hasClass('size20')) {
+      step = 4;
+    } else if ($el.hasClass('size40')) {
+      step = 2;
+    }
+    $('.results button').removeClass('selected')
+    $el.addClass('selected');
+    $('.results .visualize, .results .prompt').remove();
+    $('.results .loading').show();
+
+    try {
+      perfTest = new Worker('lib/perf-task.js');
+    } catch(e) {
+      if (console && console.warn) {
+        console.warn('Web worker failed to load');
+      }
+    }
+
+    // Try and run as a web worker
+    if (perfTest && $('.worker-on').hasClass('selected')) {
+      perfTest.addEventListener('message', appendGraphs, false);
+      perfTest.postMessage(step);
+    } else {
+      // otherwise do it your self
+      var trieSimple = new Triejs({ enableCache: false })
+        , trieComplex = new Triejs({ enableCache: false })
+        , Hash = function() { this.root = {}; }
+        , hashSimple = new Hash()
+        , hashComplex = new Hash()
+        , length = Math.round(dictionary.length / step)
+        , t1, t2, t3, t4, t5, t6, t7, t8
+        , trie1, trie2, trie3, trie4, hash1, hash2, hash3, hash4
+        , size1, size2, size3, size4;
+
+      // No cache basic trie insert
+      //////////////////////////////
+      t1 = new Date();
+      for (var i = 0, ii = dictionary.length; i < ii; i += step) {
+        trieSimple.add(dictionary[i]);
+      }
+      t2 = new Date();
+
+      // No cache complex trie insert
+      ////////////////////////////////
+      t3 = new Date();
+      for (var i = 0, ii = dictionary.length; i < ii; i += step) {
+        trieComplex.add(
+          dictionary[i]
+          , { test:'data', more:'data', yetmore: 'data', name: dictionary[i] }
+        );
+      }
+      t4 = new Date();
+
+      trie1 = 1000*((t2.getTime() - t1.getTime()) / length);
+      trie2 = 1000*((t4.getTime() - t3.getTime()) / length);
+      size1 = approxSize(trieSimple.root);
+      size2 = approxSize(trieComplex.root);
+
+      // Simple hash insert
+      //////////////////////
+      t5 = new Date();
+      for (var i = 0, ii = dictionary.length; i < ii; i += step) {
+        var tempword = dictionary[i];
+        for (var j = 0, jj = tempword.length+1; j < jj; j++) {
+          var prefix = tempword.substring(0, j);
+          if (hashSimple.root[prefix]) {
+            hashSimple.root[prefix].push(dictionary[i]);
+          } else if (!hashSimple.root[prefix]){
+            hashSimple.root[prefix] = [dictionary[i]];
+          }
+        }
+      }
+      t6 = new Date();
+
+      // Complex hash insert
+      ///////////////////////
+      t7 = new Date();
+      for (var i = 0, ii = dictionary.length; i < ii; i += step) {
+        var tempword = dictionary[i];
+        for (var j = 0, jj = tempword.length+1; j < jj; j++) {
+          var prefix = tempword.substring(0, j);
+          if (hashComplex.root[prefix]) {
+            hashComplex.root[prefix].push(
+              { test:'data', more:'data', yetmore: 'data', name: dictionary[i] }
+            );
+          } else if (!hashComplex.root[prefix]){
+            hashComplex.root[prefix] = [
+              { test:'data', more:'data', yetmore: 'data', name: dictionary[i] }
+            ];
+          }
+        }
+      }
+      t8 = new Date();
+
+      hash1 = 1000*((t6.getTime() - t5.getTime()) / length);
+      hash2 = 1000*((t8.getTime() - t7.getTime()) / length);
+      size3 = approxSize(hashSimple.root);
+      size4 = approxSize(hashComplex.root);
+
+      // No Cache simple trie lookup
+      ////////////////////////
+      t1 = new Date();
+      for (var i = 0, ii = dictionary.length; i < ii; i += step) {
+        trieSimple.find(dictionary[i]);
+      }
+      t2 = new Date();
+
+      // No Cache complex trie lookup
+      ////////////////////////
+      t3 = new Date();
+      for (var i = 0, ii = dictionary.length; i < ii; i += step) {
+        trieComplex.find(dictionary[i]);
+      }
+      t4 = new Date();
+
+      // Simple hash lookup
+      ////////////////////////////////
+      t5 = new Date();
+      for (var i = 0, ii = dictionary.length; i < ii; i += step) {
+        hashSimple.root[dictionary[i]].slice(0);
+      }
+      t6 = new Date();
+
+      // Complex hash lookup
+      ////////////////////////////////
+      t7 = new Date();
+      for (var i = 0, ii = dictionary.length; i < ii; i += step) {
+        hashComplex.root[dictionary[i]].slice(0);
+      }
+      t8 = new Date();
+
+      trie3 = 1000*((t2.getTime() - t1.getTime()) / length);
+      trie4 = 1000*((t4.getTime() - t3.getTime()) / length);
+      hash3 = 1000*((t6.getTime() - t5.getTime()) / length);
+      hash4 = 1000*((t8.getTime() - t7.getTime()) / length);
+      trie1 = Math.round(trie1*10)/10;
+      trie2 = Math.round(trie2*10)/10;
+      trie3 = Math.round(trie3*10)/10;
+      trie4 = Math.round(trie4*10)/10;
+      hash1 = Math.round(hash1*10)/10;
+      hash2 = Math.round(hash2*10)/10;
+      hash3 = Math.round(hash3*10)/10;
+      hash4 = Math.round(hash4*10)/10;
+      appendGraphs({data: {
+        trie1: trie1
+        , trie2: trie2
+        , trie3: trie3
+        , trie4: trie4
+        , hash1: hash1
+        , hash2: hash2
+        , hash3: hash3
+        , hash4: hash4
+        , size1: size1
+        , size2: size2
+        , size3: size3
+        , size4: size4
+      }})
+    }
+    
+  }); // end perf click
+});
+</script>
+</html>

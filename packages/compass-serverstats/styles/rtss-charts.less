@@ -1,0 +1,76 @@
+.serverstats {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: 620px;
+  justify-content: space-around;
+}
+
+
+.error-message {
+  text-transform: uppercase;
+  text-anchor: middle;
+  font-size: 14px;
+  fill: white;
+}
+.focus {
+  stroke: white;
+  fill: white;
+  font-size: 11px;
+  text-anchor: middle;
+}
+.serverstats {
+
+  &-chart-background {
+    fill: #484D51;
+  }
+
+  &-chart-title {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    margin: 15px 0 0 55px;
+  }
+
+  &-y-axis-label, &-y2-axis-label {
+    font-size: 9px;
+    color: #9ca4ab;
+    margin: 5px 0;
+  }
+
+  &-legend-item, &-legend-2-item {
+    margin-top: 5px;
+    display: flex;
+    flex-grow: 1;
+  }
+
+  &-legend-item {
+    margin-right: 18px;
+  }
+
+  &-legend-2-item {
+    margin-left: 18px;
+  }
+
+  &-legend-linename, &-legend-2-linename {
+    text-transform: uppercase;
+    font-size: 10px;
+    color: #9ca4ab;
+    margin: 0 0 0 5px;
+  }
+
+  &-legend-count, &-legend-2-count {
+    font-size: 12px;
+    color: white;
+    margin: 5px 0 0 5px;
+  }
+
+  &-overlay-line {
+    stroke-width: 1px;
+  }
+  &-overlay-triangle {
+    stroke: none;
+  }
+}

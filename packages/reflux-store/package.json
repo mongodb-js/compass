@@ -1,0 +1,38 @@
+{
+  "name": "hadron-reflux-store",
+  "description": "Hadron Reflux Stores",
+  "author": "Durran Jordan <durran@gmail.com>",
+  "bugs": "https://github.com/mongodb-js/reflux-store/issues",
+  "homepage": "https://github.com/mongodb-js/reflux-store",
+  "version": "0.0.3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/reflux-store.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "test-check-ci": "npm run check && npm test",
+    "test": "mocha --recursive",
+    "check": "npm run lint && npm run depcheck",
+    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+  },
+  "dependencies": {
+    "debug": "^2.2.0",
+    "reflux": "^0.4.0"
+  },
+  "devDependencies": {
+    "babel-preset-react": "^6.5.0",
+    "babel-register": "^6.5.2",
+    "chai": "^3.4.1",
+    "depcheck": "^1.4.0",
+    "eslint": "^7.25.0",
+    "eslint-config-mongodb-js": "^2.2.0",
+    "mocha": "^3.1.2",
+    "pre-commit": "^1.1.2",
+    "react": "^15.3.2"
+  }
+}

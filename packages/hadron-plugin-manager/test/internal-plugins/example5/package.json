@@ -1,0 +1,6 @@
+{
+  "name": "test-package-5",
+  "version": "0.0.1",
+  "main": "./index",
+  "description": "Test package 5 - has no index.js"
+}

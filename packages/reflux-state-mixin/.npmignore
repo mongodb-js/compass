@@ -1,0 +1,14 @@
+.lone/
+docs/
+dist/
+benchmark/
+examples/
+test/
+.coveralls.yml
+.travis.yml
+.jshintrc
+.jsfmtrc
+.zuul.yml
+*.log
+coverage/
+.eslintrc
