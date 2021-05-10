@@ -108,6 +108,7 @@
     "url-loader": "^0.6.2",
     "webpack": "^3.5.5",
     "webpack-bundle-analyzer": "^2.13.1",
+    "webpack-cli": "^4.7.0",
     "webpack-dev-server": "^3.10.3",
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^1.7.2",
