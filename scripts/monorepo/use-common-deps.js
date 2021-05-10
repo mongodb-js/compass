@@ -27,19 +27,13 @@ const depOverrides = {
   '>= 6.x': '^7.1.1'
 };
 
-// NOTES / TODO
-// In `compass-auto-updates` - set cross-env to 7.0.3  and webpack to ^4.41.6 and install webpack-cli
-// We use `extract-text-webpack-plugin` with webpack. This is deprecated
-// and replaced by `mini-css-extract-plugin`, we can look into replacing all those
-// or centralizing the webpack sometime.
-
 const pinnedDeps = {
   'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again': 'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again',
 
   // TODO: Do we need this override? Can we just use v3.3.5?
   'https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz': 'https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz',
 
-  // TODO: Look into.
+  // TODO: Look into how we can align these.
   'cipacda/flat': 'cipacda/flat',
   'mongodb-js/debug#v2.2.3': 'mongodb-js/debug#v2.2.3',
   'github:mongodb-js/hadron-build#evergreen': 'github:mongodb-js/hadron-build#evergreen',
@@ -48,12 +42,6 @@ const pinnedDeps = {
   
   'github:rueckstiess/triejs': 'github:rueckstiess/triejs'
 };
-
-// Notes on manual changes:
-// - Added graceful-fs to packages/electron-wix-msi
-// - Updating semver requires a fix in a few of the packages' config/project.js
-//   files. (Just need to add `new ` before `semver`)
-// - Added webpack-cli to dev deps in `compass-auto-updates`
 
 const dependencyTypes = ['dependencies', 'devDependencies'];
 
