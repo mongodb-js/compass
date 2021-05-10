@@ -8,12 +8,19 @@ const ROOT = path.resolve(__dirname, '..', '..');
 // versions on dependencies to bring them together.
 const UPDATE_MAJOR_VERSION = false;
 
-// TODO: Investigate downstreams of these changes
+// We skip aligning dependencies in a few packages for now
+// since they currently fail to install after aligning.
+const skippedPackages = [
+  'compass-shell',
+  'compass-status'
+];
+
 const depOverrides = {
+  // TODO: Investigate reasons for these packages to be pinned (can we unpin):
   // https://github.com/mongodb-js/debug/commit/f389ed0b1109752ceea04ea39c7ca55d04f9eaa6
-  'mongodb-js/debug#v2.2.3': '^4.1.1',
+  // 'mongodb-js/debug#v2.2.3': '^4.1.1',
   // https://github.com/mongodb-js/hadron-build/tree/evergreen
-  'github:mongodb-js/hadron-build#evergreen': '^23.5.0',
+  // 'github:mongodb-js/hadron-build#evergreen': '^23.5.0',
 
   // Used in the unused package `hadron-spectron`. `chai-as-promised`.
   // We might just remove this package.
@@ -34,6 +41,8 @@ const pinnedDeps = {
 
   // TODO: Look into.
   'cipacda/flat': 'cipacda/flat',
+  'mongodb-js/debug#v2.2.3': 'mongodb-js/debug#v2.2.3',
+  'github:mongodb-js/hadron-build#evergreen': 'github:mongodb-js/hadron-build#evergreen',
 
   'mongodb-js/reflux-state-mixin': 'mongodb-js/reflux-state-mixin',
   
@@ -167,6 +176,11 @@ async function alignCommonDeps() {
   for (const pkgDir of packages) {
     const packageJsonPath = path.join(pkgDir, 'package.json');
     const packageJson = require(packageJsonPath); 
+
+    if (skippedPackages.includes(packageJson.name)) {
+      console.log('Skipping aligning dependencies in', packageJson.name);
+      continue;
+    }
     
     for (const dependencyType of dependencyTypes) {
       if (!packageJson[dependencyType]) {
