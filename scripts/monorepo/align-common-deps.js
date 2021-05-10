@@ -11,6 +11,7 @@ const UPDATE_MAJOR_VERSION = false;
 // We skip aligning dependencies in a few packages for now
 // since they currently fail to install after aligning.
 const skippedPackages = [
+  '@mongodb-js/compass-auto-updates',
   '@mongodb-js/compass-shell',
   '@mongodb-js/compass-status'
 ];
