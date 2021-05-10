@@ -18,7 +18,6 @@ The Compass plugin responsible for gluing together other plugins:
 - [compass-import-export][compass-import-export]
 - [compass-indexes][compass-indexes]
 - [compass-instance][compass-instance]
-- [compass-license][compass-license]
 - [compass-metrics][compass-metrics]
 - [compass-plugin-info][compass-plugin-info]
 - [compass-query-bar][compass-query-bar]
@@ -116,7 +115,6 @@ Apache 2.0
 [compass-import-export]: https://github.com/mongodb-js/compass-import-export
 [compass-indexes]: https://github.com/mongodb-js/compass-indexes
 [compass-instance]: https://github.com/mongodb-js/compass-instance
-[compass-license]: https://github.com/mongodb-js/compass-license
 [compass-metrics]: https://github.com/mongodb-js/compass-metrics
 [compass-plugin-info]: https://github.com/mongodb-js/compass-plugin-info
 [compass-query-bar]: https://github.com/mongodb-js/compass-query-bar

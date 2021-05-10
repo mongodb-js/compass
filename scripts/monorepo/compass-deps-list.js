@@ -95,10 +95,6 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/compass-instance.git'
   },
   {
-    name: '@mongodb-js/compass-license',
-    repository: 'https://github.com/mongodb-js/compass-license.git'
-  },
-  {
     name: '@mongodb-js/compass-loading',
     description: 'Compass Loading Screen',
     repository: 'https://github.com/mongodb-js/compass-loading.git'
