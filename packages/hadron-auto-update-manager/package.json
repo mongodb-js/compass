@@ -15,9 +15,9 @@
     "url": "git://github.com/mongodb-js/hadron-auto-update-manager.git"
   },
   "dependencies": {
-    "debug": "^4.1.1",
+    "debug": "^4.2.0",
     "got": "^10.4.0",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.20"
   },
   "devDependencies": {
     "depcheck": "^1.4.0",

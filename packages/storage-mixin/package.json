@@ -40,12 +40,12 @@
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-sync": "^5.1.0",
-    "async": "^3.1.0",
-    "debug": "^4.1.1",
-    "hadron-ipc": "^1.1.0",
-    "keytar": "^5.0.0",
+    "async": "^3.2.0",
+    "debug": "^4.2.0",
+    "hadron-ipc": "^1.1.1",
+    "keytar": "^5.1.0",
     "localforage": "^1.7.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.20",
     "rimraf": "^3.0.0",
     "uuid": "^3.3.3",
     "write-file-atomic": "^3.0.1"
@@ -53,10 +53,10 @@
   "devDependencies": {
     "depcheck": "^1.4.0",
     "electron": "^7.1.11",
-    "electron-mocha": "^8.1.2",
-    "electron-rebuild": "^1.8.8",
+    "electron-mocha": "^8.2.0",
+    "electron-rebuild": "^1.10.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^7.0.0"
+    "mocha": "^7.1.1"
   }
 }

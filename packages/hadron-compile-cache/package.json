@@ -25,18 +25,18 @@
     "babel-core": "^6.7.6",
     "babel-preset-react": "^6.5.0",
     "chokidar": "^3.3.1",
-    "debug": "^4.1.1",
-    "fs-plus": "^3.0.0",
-    "highlight.js": "^9.8.0",
+    "debug": "^4.2.0",
+    "fs-plus": "^3.1.1",
+    "highlight.js": "^9.12.0",
     "jade": "^1.11.0",
     "marky-mark": "^1.2.1"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
+    "chai": "^4.3.4",
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "eslint-plugin-react": "^7.23.2",
-    "mocha": "^7.0.1"
+    "mocha": "^7.1.1"
   }
 }

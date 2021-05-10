@@ -23,20 +23,20 @@
   "dependencies": {
     "@mongodb-js/triejs": "^0.1.5",
     "ampersand-collection": "^1.6.1",
-    "ampersand-model": "^6.0.2",
+    "ampersand-model": "^6.0.3",
     "ampersand-rest-collection": "^6.0.0",
     "async": "^3.2.0",
-    "lodash": "^4.17.15",
-    "mongodb": "^3.5.4",
+    "lodash": "^4.17.20",
+    "mongodb": "^3.6.3",
     "mongodb-js-errors": "^0.5.0",
     "mongodb-ns": "^2.2.0"
   },
   "devDependencies": {
-    "debug": "^4.1.1",
+    "debug": "^4.3.1",
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^7.1.0",
-    "mongodb-runner": "^4.8.0"
+    "mocha": "^7.1.1",
+    "mongodb-runner": "^4.8.1"
   }
 }

@@ -22,17 +22,17 @@
   },
   "dependencies": {
     "async": "^2.3.0",
-    "debug": "^2.2.0",
-    "reflux": "^0.4.0",
-    "semver": "^5.4.1"
+    "debug": "^2.6.0",
+    "reflux": "0.4.1",
+    "semver": "^5.7.1"
   },
   "devDependencies": {
-    "chai": "^3.4.1",
+    "chai": "^3.5.0",
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.2.0",
-    "mocha": "^3.1.2",
-    "pre-commit": "^1.1.2",
+    "mocha": "^3.2.0",
+    "pre-commit": "^1.2.2",
     "react": "^15.3.2",
     "sinon": "^1.17.6"
   }

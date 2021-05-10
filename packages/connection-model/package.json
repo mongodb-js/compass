@@ -26,29 +26,29 @@
   },
   "dependencies": {
     "@mongodb-js/ssh-tunnel": "^1.2.0",
-    "ampersand-model": "^8.0.0",
+    "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
-    "async": "^3.1.0",
-    "debug": "^4.1.1",
-    "lodash": "^4.17.15",
+    "async": "^3.2.0",
+    "debug": "^4.2.0",
+    "lodash": "^4.17.20",
     "raf": "^3.4.1",
     "ssh2": "^0.8.7",
     "storage-mixin": "^3.3.4"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
+    "chai": "^4.3.4",
     "chai-subset": "^1.6.0",
     "depcheck": "^1.4.0",
-    "electron": "^6.1.7",
+    "electron": "^6.1.8",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^8.0.1",
+    "mocha": "^8.3.2",
     "mock-require": "^3.0.3",
     "mongodb": "^3.6.3",
     "mongodb-connection-fixture": "^0.0.14",
     "mongodb-runner": "^4.8.1",
     "proxyquire": "^2.1.0",
-    "sinon": "^9.0.2",
+    "sinon": "^9.2.3",
     "uuid": "^8.2.0"
   }
 }
