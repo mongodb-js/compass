@@ -20,6 +20,12 @@ const depOverrides = {
   '>= 6.x': '^7.1.1'
 };
 
+// NOTES / TODO
+// In `compass-auto-updates` - set cross-env to 7.0.3  and webpack to ^4.41.6 and install webpack-cli
+// We use `extract-text-webpack-plugin` with webpack. This is deprecated
+// and replaced by `mini-css-extract-plugin`, we can look into replacing all those
+// or centralizing the webpack sometime.
+
 const pinnedDeps = {
   'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again': 'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again',
 
