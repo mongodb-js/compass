@@ -66,6 +66,12 @@ describe('App', function() {
   });
 
   describe('#launch', () => {
+    // Tests that spawn app instance don't work on Windows, this package is not
+    // used and on it's way out, so we are just skipping them
+    if (process.platform === 'win32') {
+      return;
+    }
+
     context('when the app has no loading window', () => {
       const app = new App(root, path.join(__dirname, 'fixtures', 'standard'));
 
@@ -96,10 +102,17 @@ describe('App', function() {
   });
 
   describe('#quit', () => {
+    // Tests that spawn app instance don't work on Windows, this package is not
+    // used and on it's way out, so we are just skipping them
+    if (process.platform === 'win32') {
+      return;
+    }
+
     it('must resolve false if called without a running app', () => {
       const app = new App(root, path.join(__dirname, 'fixtures', 'standard'));
       return app.quit().then(reallyQuit => expect(reallyQuit).to.equal(false));
     });
+
     it('must resolve true if actually quitting a running app', () => {
       const app = new App(root, path.join(__dirname, 'fixtures', 'standard'));
       return app

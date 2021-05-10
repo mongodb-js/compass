@@ -414,7 +414,6 @@ tasks:
         #  - https://jira.mongodb.org/browse/COMPASS-4791
         #  - https://jira.mongodb.org/browse/COMPASS-4792
         #  - https://jira.mongodb.org/browse/COMPASS-4793
-        #  - https://jira.mongodb.org/browse/COMPASS-4794
         #  - https://jira.mongodb.org/browse/COMPASS-4795
         variants: [macos]
 
