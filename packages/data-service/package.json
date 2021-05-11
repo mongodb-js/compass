@@ -19,7 +19,7 @@
   "scripts": {
     "pretest": "node-gyp rebuild --directory node_modules/keytar/ && mongodb-runner start --port=27018",
     "test": "mocha",
-    "posttest": "mongodb-runner stop --port=27018",
+    "posttest": "mongodb-runner stop --port=27018 && node ../../scripts/killall-mongo.js",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
     "lint": "eslint \"./{lib,test}/**/*.js\" \"./*.js\""

@@ -1,6 +1,6 @@
 const path = require('path');
 const { promises: fs } = require('fs');
-const { runInDir } = require('./run-in-dir');
+const { runInDir } = require('../run-in-dir');
 const { withProgress } = require('./with-progress');
 
 const ROOT = path.resolve(__dirname, '..', '..');

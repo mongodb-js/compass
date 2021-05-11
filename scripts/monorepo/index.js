@@ -6,7 +6,7 @@ const glob = require('glob');
 const readline = require('readline');
 
 const compassDepsList = require('./compass-deps-list');
-const { runInDir } = require('./run-in-dir');
+const { runInDir } = require('../run-in-dir');
 const { withProgress } = require("./with-progress");
 
 async function questionAsync(query) {
