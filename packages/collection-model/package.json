@@ -20,11 +20,11 @@
     "depcheck": "depcheck --ignores=\"mongodb-data-service\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "dependencies": {
-    "ampersand-model": "^8.0.0",
+    "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
-    "lodash.foreach": "^4.2.0",
-    "mongodb-index-model": "^2.4.0",
-    "mongodb-ns": "^2.0.0",
+    "lodash.foreach": "^4.5.0",
+    "mongodb-index-model": "^2.6.1",
+    "mongodb-ns": "^2.2.0",
     "lodash.result": "^4.5.2",
     "lodash.clone": "^4.5.0"
   },
@@ -33,13 +33,13 @@
   },
   "devDependencies": {
     "depcheck": "^1.4.0",
-    "electron": "^7.1.10",
+    "electron": "^7.1.11",
     "electron-mocha": "^8.2.0",
-    "electron-rebuild": "^1.8.8",
+    "electron-rebuild": "^1.10.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^7.0.0",
-    "mongodb-data-service": "^16.0.0",
+    "mocha": "^7.1.1",
+    "mongodb-data-service": "^16.5.6",
     "raf": "^3.4.1",
     "xvfb-maybe": "^0.2.1"
   }

@@ -18,14 +18,14 @@
     "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },
   "dependencies": {
-    "ampersand-model": "^8.0.0",
+    "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0"
   },
   "devDependencies": {
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",
-    "eslint-config-mongodb-js": "^2.0.0",
-    "mocha": "^3.0.2",
-    "pre-commit": "^1.1.2"
+    "eslint-config-mongodb-js": "^2.2.0",
+    "mocha": "^3.2.0",
+    "pre-commit": "^1.2.2"
   }
 }

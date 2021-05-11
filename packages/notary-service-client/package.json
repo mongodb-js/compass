@@ -23,11 +23,11 @@
   "dependencies": {
     "cli-table": "^0.3.1",
     "commander": "^2.9.0",
-    "debug": "^2.2.0",
+    "debug": "^2.6.0",
     "dotenv": "^4.0.0",
     "execa": "^0.6.0",
-    "lodash": "^4.8.2",
-    "mongodb-js-cli": "0.0.3",
+    "lodash": "^4.17.20",
+    "mongodb-js-cli": "^0.0.3",
     "pbkdf2": "^3.0.9",
     "superagent": "^3.3.1"
   },

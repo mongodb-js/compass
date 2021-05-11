@@ -26,10 +26,10 @@
   "homepage": "https://github.com/mongodb-js/hadron-spectron#readme",
   "devDependencies": {
     "depcheck": "^1.4.0",
-    "electron": "^3.0.0",
+    "electron": "^3.1.13",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^7.0.1",
+    "mocha": "^7.1.1",
     "pify": "^4.0.1",
     "pre-commit": "^1.2.2",
     "xvfb-maybe": "^0.2.1"
@@ -39,8 +39,8 @@
   },
   "dependencies": {
     "chai": "^3.5.0",
-    "chai-as-promised": ">= 6.x",
-    "debug": "^4.1.1",
+    "chai-as-promised": "^7.1.1",
+    "debug": "^4.2.0",
     "spectron": "^5.0.0"
   }
 }

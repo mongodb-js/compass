@@ -15,15 +15,15 @@
     "url": "git://github.com/mongodb-js/hadron-ipc.git"
   },
   "dependencies": {
-    "debug": "^4.1.1",
-    "is-electron-renderer": "^2.0.0",
+    "debug": "^4.2.0",
+    "is-electron-renderer": "^2.0.1",
     "is-promise": "^2.1.0",
     "lodash.forin": "^4.4.0",
     "lodash.isplainobject": "^4.0.6"
   },
   "devDependencies": {
     "depcheck": "^1.4.0",
-    "electron": "^8.0.0",
+    "electron": "^8.0.1",
     "electron-mocha": "^8.2.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
