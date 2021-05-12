@@ -1,5 +1,5 @@
 stepback: false
-exec_timeout_secs: 3600
+exec_timeout_secs: 5400
 
 ## Variables
 variables:
@@ -415,7 +415,7 @@ tasks:
         #  - https://jira.mongodb.org/browse/COMPASS-4792
         #  - https://jira.mongodb.org/browse/COMPASS-4793
         #  - https://jira.mongodb.org/browse/COMPASS-4795
-        variants: [macos]
+        variants: [macos, windows]
 
       - func: package
         vars:
