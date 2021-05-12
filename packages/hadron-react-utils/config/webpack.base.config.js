@@ -1,3 +1,5 @@
+const path = require('path');
+
 const config = {
   mode: process.env.NODE_ENV !== 'production' ? 'development' : 'production',
   resolve: {
@@ -11,8 +13,8 @@ const config = {
         use: [
           {
             loader: 'babel-loader',
-            query: {
-              cacheDirectory: true
+            options: {
+              root: path.resolve(__dirname, '..')
             }
           }
         ],
