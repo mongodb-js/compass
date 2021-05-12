@@ -18,7 +18,7 @@
     "start:watch": "npm run clean && webpack --config ./config/webpack.watch.config.js",
     "start-compass": "node scripts/run-in-compass.js",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
-    "test-ci": "echo Not tested in CI",
+    "test-ci": "npm run test",
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
     "test:karma": "npm run prestart && cross-env NODE_ENV=test karma start",
     "cover": "echo",

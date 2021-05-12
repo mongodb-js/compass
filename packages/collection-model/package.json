@@ -17,7 +17,8 @@
     "pretest:electron": "electron-rebuild",
     "test:electron": "xvfb-maybe electron-mocha --renderer",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck --ignores=\"mongodb-data-service\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+    "depcheck": "depcheck --ignores=\"mongodb-data-service\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "test-ci": "npm run test"
   },
   "dependencies": {
     "ampersand-model": "^8.0.0",

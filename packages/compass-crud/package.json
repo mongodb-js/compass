@@ -26,7 +26,9 @@
     "check": "npm run depcheck && npm run lint",
     "prepublishOnly": "npm run compile",
     "prepare": "node ../../scripts/download-akzidenz.js",
-    "start-compass": "node scripts/run-in-compass.js"
+    "start-compass": "node scripts/run-in-compass.js",
+    "test-ci": "npm run test",
+    "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "license": "Apache-2.0",
   "peerDependencies": {
