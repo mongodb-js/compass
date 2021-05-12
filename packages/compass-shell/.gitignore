@@ -10,5 +10,5 @@ coverage
 .nyc_output
 *.swp
 lib/
-compass/
+./compass/
 src/assets/fonts/akzid*
