@@ -20,7 +20,8 @@
     "test-enzyme": "npm test -- --enzyme",
     "test-functional": "npm test -- --functional",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" index.js",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "test-ci": "npm run test"
   },
   "license": "Apache-2.0",
   "peerDependencies": {

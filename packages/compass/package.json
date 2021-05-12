@@ -232,7 +232,9 @@
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
     "jsx": "babel ./src --out-dir ./lib --presets react",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\"",
-    "depcheck": "depcheck --ignores=\"electron,marked,lodash.assign,lodash.defaults,lodash.clone,lodash.includes,mongodb-url\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+    "depcheck": "depcheck --ignores=\"electron,marked,lodash.assign,lodash.defaults,lodash.clone,lodash.includes,mongodb-url\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "test-ci": "npm run test",
+    "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "repository": {
     "type": "git",

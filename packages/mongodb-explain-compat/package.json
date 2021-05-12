@@ -23,7 +23,8 @@
     "lint": "eslint **/*.js",
     "test": "npm run lint && npm run build && nyc mocha --colors test/*.js",
     "build": "gen-esm-wrapper . ./.esm-wrapper.mjs",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "test-ci": "npm run test"
   },
   "homepage": "https://github.com/mongodb-js/mongodb-explain-compat",
   "repository": {

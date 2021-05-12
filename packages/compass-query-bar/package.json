@@ -36,7 +36,8 @@
     "prepublishOnly": "npm run compile",
     "prepare": "node ../../scripts/download-akzidenz.js",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
-    "depcheck": "depcheck --ignores=\"mongodb-query-parser,react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+    "depcheck": "depcheck --ignores=\"mongodb-query-parser,react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "test-ci": "npm run test"
   },
   "peerDependencies": {
     "debug": "*",

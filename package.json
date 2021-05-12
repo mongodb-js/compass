@@ -17,7 +17,7 @@
     "start": "lerna run start --stream --scope mongodb-compass",
     "release": "cd packages/compass && npm run --silent release --",
     "test": "lerna run test --concurrency 1 --stream",
-    "test-evergreen": "lerna run test --concurrency 1",
+    "test-evergreen": "lerna run test-ci --concurrency 1",
     "update-akzidenz-cache": "node scripts/download-akzidenz.js --update-cache",
     "download-akzidenz": "lerna exec -- node ../../scripts/download-akzidenz.js"
   },

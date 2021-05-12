@@ -30,7 +30,8 @@
     "storybook:ghpages": "build-storybook -c .storybook -o .ghpages",
     "prepare": "node ../../scripts/download-akzidenz.js",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
-    "depcheck": "depcheck --ignores=\"react-dom,debug,hadron-ipc,hadron-react-components,mongodb\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+    "depcheck": "depcheck --ignores=\"react-dom,debug,hadron-ipc,hadron-react-components,mongodb\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "test-ci": "npm run test"
   },
   "license": "Apache-2.0",
   "peerDependencies": {

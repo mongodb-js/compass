@@ -13,7 +13,8 @@
   "contibutors": [],
   "dependencies": {},
   "scripts": {
-    "test": "echo \"Not working, but the package will go away soon anyway\""
+    "test": "echo \"Not working, but the package will go away soon anyway\"",
+    "test-ci": "npm run test"
   },
   "main": "src/trie.js",
   "repository": {
