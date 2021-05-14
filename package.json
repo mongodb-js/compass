@@ -27,6 +27,8 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@octokit/rest": "^18.5.3",
+    "execa": "^5.0.0",
     "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
     "lerna": "^4.0.0",
