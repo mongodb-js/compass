@@ -69,9 +69,6 @@ const PROPERTY_OPTIONS = {
   version: 'Version'
 };
 
-/**
- * The collections table component.
- */
 class CollectionsTable extends PureComponent {
   static displayName = 'CollectionsTableComponent';
 
@@ -118,13 +115,6 @@ class CollectionsTable extends PureComponent {
     this.props.showCollection(name);
   }
 
-  /**
-   * Render the collation properties.
-   *
-   * @param {Object} properties - The properties.
-   *
-   * @returns {Object} The mapped properties.
-   */
   renderOptions(options) {
     const knownOptions = Object.keys(options)
       .filter((key) => PROPERTY_OPTIONS[key]);

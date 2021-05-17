@@ -1,7 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Badge from '@leafygreen-ui/badge';
-import Tooltip from '@leafygreen-ui/tooltip';export default class PropertyBadge extends PureComponent {
+import Tooltip from '@leafygreen-ui/tooltip';
+
+export default class PropertyBadge extends PureComponent {
   static displayName = 'PropertyBadge';
 
   static propTypes = {
