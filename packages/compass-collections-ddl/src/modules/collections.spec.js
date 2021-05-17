@@ -30,6 +30,15 @@ const DEEZER = {
   collation: { locale: 'us' }
 };
 
+const SYSTEM = {
+  name: 'system.coll1',
+  document_count: 5,
+  size: 20,
+  index_count: 3,
+  index_size: 1,
+  collation: { locale: 'us' }
+};
+
 const SPOTIFY_MAPPED = {
   'Collection Name': 'spotify',
   'Documents': 10,
@@ -37,7 +46,7 @@ const SPOTIFY_MAPPED = {
   'Total Document Size': 200,
   'Num. Indexes': 1,
   'Total Index Size': 15,
-  'Properties': { locale: 'se' },
+  'Properties': [{ name: 'collation', options: { locale: 'se' }}],
   '_id': undefined,
   'readonly': undefined,
   'capped': undefined,
@@ -52,7 +61,7 @@ const SOUNDCLOUD_MAPPED = {
   'Total Document Size': 20000,
   'Num. Indexes': 2,
   'Total Index Size': 20,
-  'Properties': { locale: 'de' },
+  'Properties': [{ name: 'collation', options: { locale: 'de' }}],
   '_id': undefined,
   'readonly': undefined,
   'capped': undefined,
@@ -67,7 +76,7 @@ const DEEZER_MAPPED = {
   'Total Document Size': 20,
   'Num. Indexes': 3,
   'Total Index Size': 1,
-  'Properties': { locale: 'us' },
+  'Properties': [{ name: 'collation', options: { locale: 'us' }}],
   '_id': undefined,
   'readonly': undefined,
   'capped': undefined,
@@ -78,6 +87,12 @@ const DEEZER_MAPPED = {
 
 describe('collections module', () => {
   describe('#reducer', () => {
+    it('filters system collections out', () => {
+      const collections = [ SPOTIFY, SYSTEM ];
+      expect(reducer(undefined, loadCollections(collections))).
+        to.deep.equal([ SPOTIFY_MAPPED ]);
+    });
+
     context('when an action is provided', () => {
       context('when the action is LOAD_COLLECTIONS', () => {
         const collections = [ SPOTIFY, SOUNDCLOUD, DEEZER ];

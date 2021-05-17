@@ -1,15 +1,15 @@
 import React, { PureComponent } from 'react';
-import ReactTooltip from 'react-tooltip';
 import PropTypes from 'prop-types';
 import numeral from 'numeral';
 import assign from 'lodash.assign';
-import isEmpty from 'lodash.isempty';
 import isNaN from 'lodash.isnan';
 import classnames from 'classnames';
-import { SortableTable, InfoSprinkle } from 'hadron-react-components';
+import { SortableTable } from 'hadron-react-components';
 import dropCollectionStore from 'stores/drop-collection';
 
 import styles from './collections-table.less';
+import { PROPERTIES_CAPPED, PROPERTIES_COLLATION, PROPERTIES_TIME_SERIES, PROPERTIES_VIEW } from '../../modules/collections';
+import PropertyBadge from './property-badge';
 
 /**
  * The name constant.
@@ -52,11 +52,6 @@ const PROPS = 'Properties';
 const DASH = '-';
 
 /**
- * Tooltip ID constant.
- */
-const TOOLTIP_ID = 'collation-property';
-
-/**
  * The help URL for collation.
  */
 const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
@@ -64,7 +59,7 @@ const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/
 /**
  * Collation option mappings.
  */
-const COLLATION_OPTIONS = {
+const PROPERTY_OPTIONS = {
   locale: 'Locale',
   caseLevel: 'Case Level',
   caseFirst: 'Case First',
@@ -133,15 +128,22 @@ class CollectionsTable extends PureComponent {
    *
    * @returns {Object} The mapped properties.
    */
-  renderCollationOptions(properties) {
-    let collation = '';
-    Object.keys(properties).forEach((key) => {
-      if (collation !== '') {
-        collation = `${collation}<br />`;
+  renderOptions(options) {
+    const knownOptions = Object.keys(options)
+      .filter((key) => PROPERTY_OPTIONS[key]);
+
+    if (!knownOptions.length) {
+      return;
+    }
+
+    let text = '';
+    knownOptions.forEach((key) => {
+      if (text !== '') {
+        text = `${text}<br />`;
       }
-      collation = `${collation}${COLLATION_OPTIONS[key]}: ${properties[key]}`;
+      text = `${text}${PROPERTY_OPTIONS[key]}: ${options[key]}`;
     });
-    return collation;
+    return text;
   }
 
   /**
@@ -155,45 +157,59 @@ class CollectionsTable extends PureComponent {
     const collName = coll[NAME];
     let viewInfo = null;
 
-    if (coll.view_on) {
+    if (coll.type === 'view' && coll.view_on) {
       viewInfo = <span className={styles['collections-table-view-on']}>(view on: {coll.view_on})</span>;
     }
 
     return (
-      <span>
+      <div>
         <a
           className={classnames(styles['collections-table-link'])}
           onClick={this.onNameClicked.bind(this, collName)}>
           {collName}
         </a>
         {viewInfo}
-      </span>
+      </div>
     );
   }
 
-  /**
-   * Render the collation properties.
-   *
-   * @param {Object} properties - The properties.
-   *
-   * @returns {Component} The component.
-   */
-  renderProperty(properties) {
-    if (!isEmpty(properties)) {
-      const tooltipOptions = {
-        'data-tip': this.renderCollationOptions(properties),
-        'data-for': TOOLTIP_ID,
-        'data-effect': 'solid',
-        'data-border': true
-      };
-      return (
-        <div {...tooltipOptions} className={styles['collections-table-property']}>
-          <span className={styles['collections-table-tooltip']}>Collation</span>
-          <ReactTooltip id={TOOLTIP_ID} html />
-          <InfoSprinkle helpLink={HELP_URL_COLLATION} onClickHandler={this.props.openLink} />
-        </div>
-      );
+  renderProperty = (key, property) => {
+    const { name, options } = property || {};
+
+    if (name === PROPERTIES_COLLATION) {
+      return (<PropertyBadge
+        key={key}
+        label="Collation"
+        tooltip={this.renderOptions(options)}
+      />);
     }
+
+    if (name === PROPERTIES_VIEW) {
+      return (<PropertyBadge
+        key={key}
+        label="View"
+        tooltip={this.renderOptions(options)} />);
+    }
+
+    if (name === PROPERTIES_CAPPED) {
+      return (<PropertyBadge
+        key={key}
+        label="Capped"
+        tooltip={this.renderOptions(options)} />);
+    }
+
+    if (name === PROPERTIES_TIME_SERIES) {
+      return (<PropertyBadge
+        key={key}
+        label="Time-Series"
+        tooltip={this.renderOptions(options)} />);
+    }
+  }
+
+  renderProperties = (coll) => {
+    return (coll.Properties || []).map((property, i) => {
+      return this.renderProperty(`${coll._id}-prop-${i}`, property);
+    });
   }
 
   /**
@@ -214,7 +230,7 @@ class CollectionsTable extends PureComponent {
         [NUM_INDEX]: isNaN(coll[NUM_INDEX]) ? DASH : coll[NUM_INDEX],
         [TOT_INDEX_SIZE]: isNaN(coll[TOT_INDEX_SIZE]) ?
           DASH : numeral(coll[TOT_INDEX_SIZE]).format('0.0 b'),
-        [PROPS]: this.renderProperty(coll.Properties)
+        [PROPS]: this.renderProperties(coll)
       });
     });
 
