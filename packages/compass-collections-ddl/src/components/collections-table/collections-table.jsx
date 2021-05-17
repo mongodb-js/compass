@@ -11,6 +11,8 @@ import styles from './collections-table.less';
 import { PROPERTIES_CAPPED, PROPERTIES_COLLATION, PROPERTIES_TIME_SERIES, PROPERTIES_VIEW } from '../../modules/collections';
 import PropertyBadge from './property-badge';
 
+import Icon from '@leafygreen-ui/icon';
+
 /**
  * The name constant.
  */
@@ -50,11 +52,6 @@ const PROPS = 'Properties';
  * Dash constant.
  */
 const DASH = '-';
-
-/**
- * The help URL for collation.
- */
-const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
 /**
  * Collation option mappings.
@@ -136,14 +133,11 @@ class CollectionsTable extends PureComponent {
       return;
     }
 
-    let text = '';
-    knownOptions.forEach((key) => {
-      if (text !== '') {
-        text = `${text}<br />`;
+    return (<div>{knownOptions.map(
+      (key) => {
+        return <div key={key}><b>{PROPERTY_OPTIONS[key]}</b>: {`${options[key]}`}</div>;
       }
-      text = `${text}${PROPERTY_OPTIONS[key]}: ${options[key]}`;
-    });
-    return text;
+    )}</div>);
   }
 
   /**
@@ -180,6 +174,7 @@ class CollectionsTable extends PureComponent {
       return (<PropertyBadge
         key={key}
         label="Collation"
+        variant="darkgray"
         tooltip={this.renderOptions(options)}
       />);
     }
@@ -188,6 +183,8 @@ class CollectionsTable extends PureComponent {
       return (<PropertyBadge
         key={key}
         label="View"
+        icon={<Icon glyph="Visibility" />}
+        variant="darkgray"
         tooltip={this.renderOptions(options)} />);
     }
 
@@ -195,6 +192,7 @@ class CollectionsTable extends PureComponent {
       return (<PropertyBadge
         key={key}
         label="Capped"
+        variant="darkgray"
         tooltip={this.renderOptions(options)} />);
     }
 
@@ -202,6 +200,7 @@ class CollectionsTable extends PureComponent {
       return (<PropertyBadge
         key={key}
         label="Time-Series"
+        variant="darkgray"
         tooltip={this.renderOptions(options)} />);
     }
   }

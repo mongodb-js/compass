@@ -1,42 +1,32 @@
 import React, { PureComponent } from 'react';
-import ReactTooltip from 'react-tooltip';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
-import styles from './property-badge.less';
-
-export default class PropertyBadge extends PureComponent {
+import Badge from '@leafygreen-ui/badge';
+import Tooltip from '@leafygreen-ui/tooltip';export default class PropertyBadge extends PureComponent {
   static displayName = 'PropertyBadge';
 
   static propTypes = {
     label: PropTypes.string.isRequired,
-    tooltip: PropTypes.string
+    variant: PropTypes.string.isRequired,
+    tooltip: PropTypes.element,
+    icon: PropTypes.element
   }
 
-  renderTooltip() {
-    if (!this.props.tooltip) {
-      return [{}, ''];
-    }
-
-    const tooltipId = `property-badge-tooltip-${_.kebabCase(this.props.label)}`;
-
-    return [
-      {
-        'data-tip': this.props.tooltip,
-        'data-for': tooltipId,
-        'data-effect': 'solid',
-        'data-border': true
-      },
-      <ReactTooltip id={tooltipId} html />
-    ];
+  renderBadge = () => {
+    const space = this.props.icon ? (<span>&nbsp;</span>) : '';
+    return (<Badge variant={this.props.variant}>{this.props.icon}{space}{this.props.label}</Badge>);
   }
 
   render() {
-    const [tooltipOptions, tooltipContents] = this.renderTooltip();
-    return (
-      <div {...tooltipOptions} className={styles['property-badge-shape']}>
-        <span className={styles['property-badge-label']}>{this.props.label}</span>
-        {tooltipContents}
-      </div>
-    );
+    if (!this.props.tooltip) {
+      return this.renderBadge();
+    }
+
+    return (<Tooltip
+      align="top"
+      justify="start"
+      trigger={this.renderBadge()}
+      triggerEvent="hover"
+      darkMode
+    >{this.props.tooltip}</Tooltip>);
   }
 }
