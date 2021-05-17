@@ -4,12 +4,103 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import DatabasePlugin, { activate } from 'plugin';
-import { activate as daActivate } from '@mongodb-js/compass-deployment-awareness';
 import { NamespaceStore } from 'mongodb-reflux-store';
 import CollectionStore from './stores/collection-store';
 import CollectionModel from 'mongodb-collection-model';
 import CreateCollectionPlugin from 'components/create-collection-plugin';
 import DropCollectionPlugin from 'components/drop-collection-plugin';
+import PropTypes from 'prop-types';
+import { TextButton } from 'hadron-react-buttons';
+import { Tooltip } from 'hadron-react-components';
+
+
+/**
+ * The wrapper class.
+ */
+const WRAPPER = 'tooltip-button-wrapper';
+
+/**
+ * Button component that is aware of the write state of the application.
+ * This button contains only text, no icons, no animations.
+ */
+class TextWriteButton extends React.Component {
+  static displayName = 'TextWriteButton';
+
+  static propTypes = {
+    className: PropTypes.string.isRequired,
+    clickHandler: PropTypes.func.isRequired,
+    dataTestId: PropTypes.string,
+    isCollectionLevel: PropTypes.bool,
+    text: PropTypes.string.isRequired,
+    tooltipId: PropTypes.string.isRequired
+  }
+
+  /**
+   * Subscribe to the state changing stores.
+   */
+  componentDidMount() {
+  }
+
+  /**
+   * Unsubscribe from the stores.
+   */
+  componentWillUnmount() {
+    this.unsubscribeWriteState();
+  }
+
+  /**
+   * Determine if the application is in a writable state.
+   *
+   * @returns {Boolean} If the application is writable.
+   */
+  isWritable() {
+    const isWritable = true;
+    return isWritable;
+  }
+
+  /**
+   * Handle write state changes.
+   *
+   * @param {Object} state - The write state.
+   */
+  writeStateChanged(state) {
+    this.setState(state);
+  }
+
+  /**
+   * Get the tooltip text.
+   *
+   * @returns {String} The tooltip text.
+   */
+  tooltipText() {
+    if (!this.isWritable()) {
+      return 'Not writable';
+    }
+  }
+
+  /**
+   * Render the component.
+   *
+   * @returns {React.Component} The rendered component.
+   */
+  render() {
+    const tooltip = (this.isWritable()) ? null : (<Tooltip id={this.props.tooltipId} />);
+    return (
+      <div className={WRAPPER} data-tip={this.tooltipText()} data-for={this.props.tooltipId}>
+        <TextButton
+          className={this.props.className}
+          dataTestId={this.props.dataTestId}
+          disabled={!this.isWritable()}
+          clickHandler={this.props.clickHandler}
+          text={this.props.text} />
+        {tooltip}
+      </div>
+    );
+  }
+}
+
+export default TextWriteButton;
+
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -24,10 +115,10 @@ global.hadronApp.appRegistry = appRegistry;
 
 appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
 appRegistry.registerStore('App.CollectionStore', CollectionStore);
+appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteButton);
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
-daActivate(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
@@ -64,16 +155,21 @@ import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
 
 const connection = new Connection({
-  hostname: '127.0.0.1',
+  hostname: 'localhost',
   port: 27017,
-  ns: 'admin'
+  ns: 'test'
 });
+
+console.log('***', 'here0', connection);
 const dataService = new DataService(connection);
 
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
+  console.log('***', 'here1');
   appRegistry.emit('data-service-connected', error, ds);
   dataService.instance({}, (err, data) => {
+    console.log('***', 'here2', data.databases);
+
     const dbs = data.databases;
     dbs.forEach((db) => {
       db.collections = db.collections.map((collection) => {
@@ -90,7 +186,7 @@ dataService.connect((error, ds) => {
         dataLake: { isDataLake: false }
       }
     });
-    appRegistry.emit('database-changed', 'echo');
+    appRegistry.emit('database-changed', 'test');
   });
 });
 
