@@ -67,7 +67,9 @@ async function runUpdateReadmesOfReposMovedIntoMonorepo() {
   await fs.mkdirp(workingDir);
   process.chdir(workingDir);
 
-  await updateReadmeOfRepoWithLinkToNewLocation('compass-app-stores');
+  // Update a repo's readme.
+  // await updateReadmeOfRepoWithLinkToNewLocation('compass-app-stores');
+
   process.chdir(workingDir);
 
   console.log();
