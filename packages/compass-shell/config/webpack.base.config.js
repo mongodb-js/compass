@@ -107,6 +107,7 @@ module.exports = {
         use: [{
           loader: 'babel-loader',
           options: {
+            root: path.resolve(__dirname, '..'),
             plugins: [
               'react-hot-loader/babel',
               '@babel/plugin-syntax-object-rest-spread',

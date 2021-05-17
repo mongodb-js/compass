@@ -13,7 +13,8 @@
     "check": "lerna run check --stream",
     "check-evergreen": "lerna run check",
     "bootstrap": "lerna exec --stream -- npm ci --quiet",
-    "bootstrap-evergreen": "lerna exec -- npm ci --quiet",
+    "bootstrap-evergreen": "cross-env ELECTRON_SKIP_BINARY_DOWNLOAD=1 lerna exec -- npm ci --quiet && npm run install-electron",
+    "install-electron": "cross-env ELECTRON_SKIP_BINARY_DOWNLOAD= lerna exec --concurrency 1 -- node ../../scripts/install-electron.js",
     "start": "lerna run start --stream --scope mongodb-compass",
     "release": "cd packages/compass && npm run --silent release --",
     "test": "lerna run test --concurrency 1 --stream",
@@ -27,6 +28,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
     "lerna": "^4.0.0",
