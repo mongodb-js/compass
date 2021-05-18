@@ -199,12 +199,6 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/electron-license.git'
   },
   {
-    name: 'electron-squirrel-startup',
-    description:
-      'Default Squirrel.Windows event handler for your Electron apps.',
-    repository: 'https://github.com/mongodb-js/electron-squirrel-startup.git'
-  },
-  {
     name: 'hadron-app',
     description: 'Hadron Application Singleton',
     repository: 'https://github.com/mongodb-js/hadron-app.git'
