@@ -35,6 +35,8 @@ const depOverrides = {
 
 /** Noted manual changes:
  * - Added `babel-preset-es2015` to `compass-server-version`
+ * - Skipped `ssh tunnel failures` tests in `connection-model`, let's investigate and re-enable.
+ * - Added `"react": "^16.8.0",` as a dev dep to `compass-app-stores`. Previously was just a peer dep.
  **/
 
 const pinnedDeps = {
