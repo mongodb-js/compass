@@ -26,7 +26,7 @@ export default class PropertyBadge extends PureComponent {
     return (<Tooltip
       align="top"
       justify="start"
-      trigger={this.renderBadge()}
+      trigger={<span>{this.renderBadge()}</span>}
       triggerEvent="hover"
       darkMode
     >{this.props.tooltip}</Tooltip>);

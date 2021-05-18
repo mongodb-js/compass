@@ -6,6 +6,7 @@ import { createCollection } from 'modules/create-collection';
 import { changeCappedSize } from 'modules/create-collection/capped-size';
 import { changeCollationOption } from 'modules/create-collection/collation';
 import { toggleIsCapped } from 'modules/create-collection/is-capped';
+import { toggleIsTimeSeries } from 'modules/create-collection/is-time-series';
 import { toggleIsCustomCollation } from 'modules/create-collection/is-custom-collation';
 import { changeCollectionName } from 'modules/create-collection/name';
 import { clearError } from 'modules/error';
@@ -29,6 +30,11 @@ const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections
 const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
 /**
+ * The help URL for time series.
+ */
+const HELP_URL_TIME_SERIES = 'https://docs.mongodb.com/manual/reference/method/db.createCollection/';
+
+/**
  * The modal to create a collection.
  */
 class CreateCollectionModal extends PureComponent {
@@ -37,6 +43,7 @@ class CreateCollectionModal extends PureComponent {
   static propTypes = {
     isCapped: PropTypes.bool.isRequired,
     isCustomCollation: PropTypes.bool.isRequired,
+    isTimeSeries: PropTypes.bool.isRequired,
     isRunning: PropTypes.bool.isRequired,
     isVisible: PropTypes.bool.isRequired,
     name: PropTypes.string.isRequired,
@@ -50,6 +57,7 @@ class CreateCollectionModal extends PureComponent {
     createCollection: PropTypes.func.isRequired,
     toggleIsCapped: PropTypes.func.isRequired,
     toggleIsCustomCollation: PropTypes.func.isRequired,
+    toggleIsTimeSeries: PropTypes.func.isRequired,
     toggleIsVisible: PropTypes.func.isRequired,
     clearError: PropTypes.func
   }
@@ -84,6 +92,10 @@ class CreateCollectionModal extends PureComponent {
    */
   onToggleIsCustomCollation = () => {
     this.props.toggleIsCustomCollation(!this.props.isCustomCollation);
+  }
+
+  onToggleIsTimeSeries = () => {
+    this.props.toggleIsTimeSeries(!this.props.isTimeSeries);
   }
 
   /**
@@ -130,6 +142,17 @@ class CreateCollectionModal extends PureComponent {
     }
   }
 
+
+  renderTimeSeries() {
+    if (this.props.isTimeSeries) {
+      return (
+        <div className={classnames(styles['create-collection-modal-is-time-series-wrapper'])}>
+          Time Series!
+        </div>
+      );
+    }
+  }
+
   /**
    * Render the collation component when collation is selected.
    *
@@ -143,6 +166,42 @@ class CreateCollectionModal extends PureComponent {
           collation={this.props.collation} />
       );
     }
+  }
+
+  renderCappedSizeCheckbox() {
+    return (<div><ModalCheckbox
+      name="Capped Collection"
+      titleClassName={classnames(styles['create-collection-modal-is-capped'])}
+      checked={this.props.isCapped}
+      helpUrl={HELP_URL_CAPPED}
+      onClickHandler={this.onToggleIsCapped}
+      onLinkClickHandler={this.props.openLink} />
+    {this.renderCappedSize()}
+    </div>);
+  }
+
+  renderTimeSeriesCheckbox() {
+    return (<div>
+      <ModalCheckbox
+        name="Time-Series"
+        titleClassName={classnames(styles['create-collection-time-series'])}
+        checked={this.props.isTimeSeries}
+        helpUrl={HELP_URL_TIME_SERIES}
+        onClickHandler={this.onToggleIsTimeSeries}
+        onLinkClickHandler={this.props.openLink} />
+      {this.renderTimeSeries()}</div>);
+  }
+
+  renderCustomCollationCheckbox() {
+    return (<div>
+      <ModalCheckbox
+        name="Use Custom Collation"
+        titleClassName={classnames(styles['create-collection-modal-is-custom-collation'])}
+        checked={this.props.isCustomCollation}
+        helpUrl={HELP_URL_COLLATION}
+        onClickHandler={this.onToggleIsCustomCollation}
+        onLinkClickHandler={this.props.openLink} />
+      {this.renderCollation()}</div>);
   }
 
   /**
@@ -175,22 +234,9 @@ class CreateCollectionModal extends PureComponent {
               value={this.props.name}
               onChangeHandler={this.onNameChange} />
             <div className="form-group">
-              <ModalCheckbox
-                name="Capped Collection"
-                titleClassName={classnames(styles['create-collection-modal-is-capped'])}
-                checked={this.props.isCapped}
-                helpUrl={HELP_URL_CAPPED}
-                onClickHandler={this.onToggleIsCapped}
-                onLinkClickHandler={this.props.openLink} />
-              {this.renderCappedSize()}
-              <ModalCheckbox
-                name="Use Custom Collation"
-                titleClassName={classnames(styles['create-collection-modal-is-custom-collation'])}
-                checked={this.props.isCustomCollation}
-                helpUrl={HELP_URL_COLLATION}
-                onClickHandler={this.onToggleIsCustomCollation}
-                onLinkClickHandler={this.props.openLink} />
-              {this.renderCollation()}
+              {this.renderCappedSizeCheckbox()}
+              {this.renderCustomCollationCheckbox()}
+              {this.renderTimeSeriesCheckbox()}
             </div>
             {this.props.error ?
               <ModalStatusMessage
@@ -231,6 +277,7 @@ class CreateCollectionModal extends PureComponent {
 const mapStateToProps = (state) => ({
   isCapped: state.isCapped,
   isCustomCollation: state.isCustomCollation,
+  isTimeSeries: state.isTimeSeries,
   isRunning: state.isRunning,
   isVisible: state.isVisible,
   name: state.name,
@@ -252,6 +299,7 @@ const MappedCreateCollectionModal = connect(
     createCollection,
     openLink,
     toggleIsCapped,
+    toggleIsTimeSeries,
     toggleIsCustomCollation,
     toggleIsVisible,
     clearError

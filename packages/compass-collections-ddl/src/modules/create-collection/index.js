@@ -9,6 +9,9 @@ import isCapped, {
 import isCustomCollation, {
   INITIAL_STATE as IS_CUSTOM_COLLATION_INITIAL_STATE
 } from 'modules/create-collection/is-custom-collation';
+import isTimeSeries, {
+  INITIAL_STATE as IS_TIME_SERIES_INITIAL_STATE
+} from 'modules/create-collection/is-time-series';
 import isRunning, {
   toggleIsRunning,
   INITIAL_STATE as IS_RUNNING_INITIAL_STATE
@@ -19,6 +22,9 @@ import isVisible, {
 import collation, {
   INITIAL_STATE as COLLATION_INITIAL_STATE
 } from 'modules/create-collection/collation';
+import timeSeries, {
+  INITIAL_STATE as TIME_SERIES_INITIAL_STATE
+} from 'modules/create-collection/time-series';
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
 } from 'modules/create-collection/name';
@@ -44,10 +50,12 @@ const reducer = combineReducers({
   isCustomCollation,
   isRunning,
   isVisible,
+  isTimeSeries,
   name,
   databaseName,
   error,
   collation,
+  timeSeries,
   dataService
 });
 
@@ -60,31 +68,27 @@ const reducer = combineReducers({
  * @returns {Object} The new state.
  */
 const rootReducer = (state, action) => {
+  const initialState = {
+    cappedSize: CAPPED_SIZE_INITIAL_STATE,
+    isCapped: IS_CAPPED_INITIAL_STATE,
+    isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
+    isTimeSeries: IS_TIME_SERIES_INITIAL_STATE,
+    isRunning: IS_RUNNING_INITIAL_STATE,
+    isVisible: IS_VISIBLE_INITIAL_STATE,
+    name: NAME_INITIAL_STATE,
+    databaseName: DATABASE_NAME_INITIAL_STATE,
+    error: ERROR_INITIAL_STATE,
+    collation: COLLATION_INITIAL_STATE,
+    timeSeries: TIME_SERIES_INITIAL_STATE
+  };
+
   if (action.type === RESET) {
-    return {
-      ...state,
-      cappedSize: CAPPED_SIZE_INITIAL_STATE,
-      isCapped: IS_CAPPED_INITIAL_STATE,
-      isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
-      isRunning: IS_RUNNING_INITIAL_STATE,
-      isVisible: IS_VISIBLE_INITIAL_STATE,
-      name: NAME_INITIAL_STATE,
-      databaseName: DATABASE_NAME_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE,
-      collation: COLLATION_INITIAL_STATE
-    };
+    return initialState;
   } else if (action.type === OPEN) {
     return {
-      ...state,
+      ...initialState,
       isVisible: true,
-      databaseName: action.databaseName,
-      cappedSize: CAPPED_SIZE_INITIAL_STATE,
-      isCapped: IS_CAPPED_INITIAL_STATE,
-      isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
-      isRunning: IS_RUNNING_INITIAL_STATE,
-      name: NAME_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE,
-      collation: COLLATION_INITIAL_STATE
+      databaseName: action.databaseName
     };
   }
   return reducer(state, action);
