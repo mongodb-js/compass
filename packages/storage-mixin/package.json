@@ -28,9 +28,9 @@
   ],
   "scripts": {
     "pretest:electron": "electron-rebuild --force --only keytar",
-    "test:electron": "electron-mocha --renderer",
+    "test:electron": "xvfb-maybe electron-mocha --no-sandbox --renderer",
     "pretest:node": "node-gyp rebuild --directory node_modules/keytar/",
-    "test:node": "mocha",
+    "test:node": "xvfb-maybe mocha",
     "check": "npm run lint && npm run depcheck",
     "test": "npm run test:node && npm run test:electron",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
@@ -58,6 +58,7 @@
     "electron-rebuild": "^1.8.8",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^7.0.0"
+    "mocha": "^7.0.0",
+    "xvfb-maybe": "^0.2.1"
   }
 }

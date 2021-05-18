@@ -23,6 +23,7 @@ module.exports = (config) => {
     customLaunchers: {
       Compass: {
         base: 'Electron',
+        flags: ['--no-sandbox'],
         browserWindowOptions: {
           webPreferences: {
             nodeIntegration: true
