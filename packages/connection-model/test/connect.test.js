@@ -76,7 +76,7 @@ describe('connection model connector', () => {
       );
     });
 
-    describe.skip('ssh tunnel failures', () => {
+    describe('ssh tunnel failures', () => {
       let closeSpy;
 
       mock('@mongodb-js/ssh-tunnel', {
