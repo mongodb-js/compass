@@ -49,7 +49,7 @@
     "glob": "^7.1.1",
     "got": "^10.4.0",
     "hadron-compile-cache": "^3.0.1",
-    "hadron-module-cache": "^1.0.0",
+    "hadron-module-cache": "^1.0.1",
     "hadron-style-manager": "^0.3.0",
     "in-publish": "^2.0.0",
     "js-yaml": "^3.13.1",
