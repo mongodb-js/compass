@@ -190,6 +190,8 @@ async function alignCommonDeps() {
       continue;
     }
 
+    let depsHaveChanged = false;
+
     for (const dependencyType of dependencyTypes) {
       if (!packageJson[dependencyType]) {
         // console.log('No', dependencyType, 'found in', packageJson.name);
@@ -229,6 +231,7 @@ async function alignCommonDeps() {
         }
 
         if (currentDepVersion !== highestVersionForDep) {
+          depsHaveChanged = true;
           console.log(
             'Bumping', depName,
             'in', packageJson.name,
@@ -247,7 +250,9 @@ async function alignCommonDeps() {
       });
     }
 
-    await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    if (depsHaveChanged) {
+      await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    }
   }
 
   console.log();
