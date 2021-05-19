@@ -133,11 +133,12 @@ functions:
           echo "Installing Compass dependencies..."
 
           echo "If npm ci fails, debug.log will be uploaded to S3."
+          # We are running everything with --unsafe-perm because RHEL evergreen user is root
           npm ci --unsafe-perm
           # Make sure that cache is populated when other packages are pulling the font
-          npm run update-akzidenz-cache
+          npm run update-akzidenz-cache --unsafe-perm
           # Run npm ci in all the packages
-          npm run bootstrap-evergreen
+          npm run bootstrap-evergreen --unsafe-perm
   
   save:
     - command: shell.exec
@@ -202,9 +203,10 @@ functions:
           # have dropped support for macOS 10.10 because it is now outside
           # of the supported version range.
           # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
-          # 
-          # test_suite option only affects compass tests
-          DEBUG=mongo*,mocha*,hadron* MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-evergreen
+          # debug option is not very useful in normal runs, but helpful when
+          # debugging any issues with tests. Set to "mocha*", "hadron*", or
+          # "mongo*" for some helpful output from the test tooling we are using
+          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-evergreen --unsafe-perm
     # - command: attach.results
     #   params:
     #     file_location: src/test-results.xml
@@ -408,14 +410,9 @@ tasks:
       - func: verify
 
       - func: test
-        # TODO: rhel, ubuntu, windows should be brought back as soon as following
-        # issues are resolved:
-        #  - https://jira.mongodb.org/browse/COMPASS-4789
-        #  - https://jira.mongodb.org/browse/COMPASS-4791
-        #  - https://jira.mongodb.org/browse/COMPASS-4792
-        #  - https://jira.mongodb.org/browse/COMPASS-4793
-        #  - https://jira.mongodb.org/browse/COMPASS-4795
-        variants: [macos, windows]
+        variants: [macos, windows, ubuntu, rhel]
+        vars:
+          debug: "mongo*"
 
       - func: package
         vars:
@@ -687,7 +684,7 @@ buildvariants:
 
   - name: ubuntu
     display_name: Ubuntu
-    run_on: ubuntu1404-large
+    run_on: ubuntu1604-large
     tasks:
       - name: oneshot-compile-test-package-publish
 
