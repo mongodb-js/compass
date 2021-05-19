@@ -157,7 +157,6 @@ export const createCollection = () => {
     try {
       const options = buildOptions(state);
       dispatch(toggleIsRunning(true));
-
       ds.createCollection(namespace, options, (e) => {
         if (e) {
           return stopWithError(dispatch, e);
