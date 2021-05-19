@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import app from 'hadron-app';
@@ -84,7 +85,6 @@ dataService.connect((error, ds) => {
     });
 
     if (err) {
-      // eslint-disable-next-line no-console
       console.log(err);
       process.exit(1);
     }
@@ -98,7 +98,16 @@ dataService.connect((error, ds) => {
       }
     });
 
-    appRegistry.emit('server-version-changed', '4.0.0');
+
+    dataService.client.client.db('admin').command({buildinfo: 1}, (buildInfoError, info) => {
+      if (buildInfoError) {
+        console.log(buildInfoError);
+        return;
+      }
+
+      appRegistry.emit('server-version-changed', info.version);
+    });
+
     appRegistry.emit('select-database', 'test');
   });
 });
