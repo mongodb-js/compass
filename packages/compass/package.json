@@ -383,7 +383,6 @@
     "execa": "^5.0.0",
     "fs-extra": "^9.1.0",
     "hadron-build": "^23.5.0",
-    "hadron-spectron": "^5.0.0",
     "jsdom": "^9.8.3",
     "listr": "^0.14.3",
     "lodash": "^4.17.21",
