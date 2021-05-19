@@ -8,5 +8,7 @@ coverage
 *.iml
 *.pem
 *_rsa
+!test/__fixtures__/ssl/*.pem
+!test/__fixtures__/ssl/*_rsa
 secrets.tar
 *.swp

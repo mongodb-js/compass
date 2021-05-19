@@ -8,9 +8,6 @@ const SSHTunnel = require('@mongodb-js/ssh-tunnel').default;
 
 const setupListeners = () => {};
 
-// TODO: These instances are now turned off
-const data = require('mongodb-connection-fixture');
-
 describe('connection model connector', () => {
   describe('local', () => {
     before(
@@ -154,7 +151,14 @@ describe('connection model connector', () => {
     });
   });
 
-  describe('cloud #slow', () => {
+  /**
+   * Originally `data` here was a `mongodb-connection-fixture` library export,
+   * but none of the cloud services in the fixture are available anymore and
+   * as such the library was removed and these tests are skipped
+   */
+  describe.skip('cloud #slow', () => {
+    const data = { MATRIX: [], SSH_TUNNEL_MATRIX: [] };
+
     data.MATRIX.map((d) => {
       it.skip('should connect to ' + d.name, (done) => {
         connect(d, setupListeners, (err, client) => {
