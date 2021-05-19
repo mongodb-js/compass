@@ -43,7 +43,7 @@
     "ampersand-sync": "^5.1.0",
     "async": "^3.1.0",
     "debug": "^4.1.1",
-    "hadron-ipc": "^1.1.0",
+    "hadron-ipc": "^1.1.1",
     "keytar": "^5.0.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",

@@ -86,6 +86,9 @@ const config = {
         .on('close', () => process.exit(0))
         .on('error', spawnError => console.error(spawnError)); // eslint-disable-line no-console
     }
+  },
+  externals: {
+    'mongodb-client-encryption': 'commonjs2 mongodb-client-encryption'
   }
 };
 

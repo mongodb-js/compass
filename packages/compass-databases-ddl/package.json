@@ -49,7 +49,7 @@
     "redux": "^4.0.5"
   },
   "devDependencies": {
-    "@mongodb-js/compass-deployment-awareness": "^10.0.0",
+    "@mongodb-js/compass-deployment-awareness": "^10.1.0",
     "autoprefixer": "^9.7.4",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
@@ -81,7 +81,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.0.2",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^3.2.1",
+    "hadron-app": "^3.2.2",
     "hadron-app-registry": "^7.2.0",
     "hadron-ipc": "^1.1.1",
     "hadron-react-buttons": "^4.0.5",
@@ -104,8 +104,8 @@
     "less-loader": "^5.0.0",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-connection-model": "^14.6.0",
-    "mongodb-data-service": "^16.5.3",
+    "mongodb-connection-model": "^19.1.1",
+    "mongodb-data-service": "^19.2.1",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "numeral": "^2.0.6",
