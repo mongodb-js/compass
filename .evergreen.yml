@@ -411,6 +411,8 @@ tasks:
 
       - func: test
         variants: [macos, windows, ubuntu, rhel]
+        vars:
+          debug: "mongo*"
 
       - func: package
         vars:
