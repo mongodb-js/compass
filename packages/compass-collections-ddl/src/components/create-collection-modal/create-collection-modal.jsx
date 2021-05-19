@@ -19,7 +19,7 @@ import { Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import styles from './create-collection-modal.less';
 import TextInput from '@leafygreen-ui/text-input';
-
+import hasTimeSeriesSupport from '../../modules/has-time-series-support';
 
 /**
  * The help icon for capped collections url.
@@ -62,7 +62,8 @@ class CreateCollectionModal extends PureComponent {
     toggleIsCustomCollation: PropTypes.func.isRequired,
     toggleIsTimeSeries: PropTypes.func.isRequired,
     toggleIsVisible: PropTypes.func.isRequired,
-    clearError: PropTypes.func
+    clearError: PropTypes.func,
+    serverVersion: PropTypes.string.isRequired
   }
 
   /**
@@ -187,6 +188,10 @@ class CreateCollectionModal extends PureComponent {
   }
 
   renderTimeSeriesCheckbox() {
+    if (!hasTimeSeriesSupport(this.props.serverVersion)) {
+      return;
+    }
+
     return (<div>
       <ModalCheckbox
         name="Time-Series"
@@ -292,7 +297,8 @@ const mapStateToProps = (state) => ({
   name: state.name,
   collation: state.collation,
   cappedSize: state.cappedSize,
-  error: state.error
+  error: state.error,
+  serverVersion: state.serverVersion
 });
 
 /**

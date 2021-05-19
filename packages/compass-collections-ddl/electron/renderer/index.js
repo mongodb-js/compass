@@ -98,6 +98,7 @@ dataService.connect((error, ds) => {
       }
     });
 
+    appRegistry.emit('server-version-changed', '4.0.0');
     appRegistry.emit('select-database', 'test');
   });
 });

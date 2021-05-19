@@ -1,40 +1,44 @@
 import { combineReducers } from 'redux';
-import dataService from 'modules/data-service';
+import dataService from '../data-service';
+import serverVersion from '../server-version';
 import cappedSize, {
   INITIAL_STATE as CAPPED_SIZE_INITIAL_STATE
-} from 'modules/create-collection/capped-size';
+} from '../create-collection/capped-size';
 import isCapped, {
   INITIAL_STATE as IS_CAPPED_INITIAL_STATE
-} from 'modules/create-collection/is-capped';
+} from '../create-collection/is-capped';
 import isCustomCollation, {
   INITIAL_STATE as IS_CUSTOM_COLLATION_INITIAL_STATE
-} from 'modules/create-collection/is-custom-collation';
+} from '../create-collection/is-custom-collation';
 import isTimeSeries, {
   INITIAL_STATE as IS_TIME_SERIES_INITIAL_STATE
-} from 'modules/create-collection/is-time-series';
+} from '../create-collection/is-time-series';
 import isRunning, {
   toggleIsRunning,
   INITIAL_STATE as IS_RUNNING_INITIAL_STATE
-} from 'modules/is-running';
+} from '../is-running';
 import isVisible, {
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
-} from 'modules/is-visible';
+} from '../is-visible';
 import collation, {
   INITIAL_STATE as COLLATION_INITIAL_STATE
-} from 'modules/create-collection/collation';
+} from '../create-collection/collation';
 import timeSeries, {
   INITIAL_STATE as TIME_SERIES_INITIAL_STATE
-} from 'modules/create-collection/time-series';
+} from '../create-collection/time-series';
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
-} from 'modules/create-collection/name';
+} from '../create-collection/name';
 import databaseName, {
   INITIAL_STATE as DATABASE_NAME_INITIAL_STATE
-} from 'modules/database-name';
+} from '../database-name';
 import error, {
   clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
-} from 'modules/error';
-import { reset, RESET } from 'modules/reset';
+} from '../error';
+import { reset, RESET } from '../reset';
+
+import createDebug from 'debug';
+const debug = createDebug('compass-collections-ddl:create-collection');
 
 /**
  * Open action name.
@@ -56,6 +60,7 @@ const reducer = combineReducers({
   error,
   collation,
   timeSeries,
+  serverVersion,
   dataService
 });
 
@@ -106,6 +111,7 @@ export default rootReducer;
  * @return {Object} The result.
  */
 const stopWithError = (dispatch, err) => {
+  debug('create collection failed', err);
   dispatch(toggleIsRunning(false));
   return dispatch(handleError(err));
 };
