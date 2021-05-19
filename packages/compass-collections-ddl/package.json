@@ -146,7 +146,6 @@
   "dependencies": {
     "@leafygreen-ui/badge": "^4.0.3",
     "@leafygreen-ui/icon": "^11.0.0",
-    "@leafygreen-ui/select": "^3.0.1",
     "@leafygreen-ui/text-input": "^6.0.2",
     "@leafygreen-ui/tooltip": "^6.2.1",
     "async": "^3.1.1",
