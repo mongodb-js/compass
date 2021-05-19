@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import TextInput from '@leafygreen-ui/text-input';
 
 import styles from './time-series.less';
@@ -29,7 +28,7 @@ class Collation extends PureComponent {
 
   render() {
     return (
-      <div className={classnames(styles.timeSeries)}>
+      <div className={styles['time-series']}>
         <div className="form-group">
           <TextInput
             label="timeField"

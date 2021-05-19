@@ -1,4 +1,3 @@
-import classnames from 'classnames';
 import Collation from 'components/collation';
 import TimeSeries from 'components/time-series';
 import { TextButton } from 'hadron-react-buttons';
@@ -152,7 +151,7 @@ class CreateCollectionModal extends PureComponent {
   renderTimeSeries() {
     if (this.props.isTimeSeries) {
       return (
-        <div className={classnames(styles['create-collection-modal-is-time-series-wrapper'])}>
+        <div className={styles['create-collection-modal-is-time-series-wrapper']}>
           <TimeSeries changeTimeSeriesOption={this.props.changeTimeSeriesOption}
             timeSeries={this.props.collation}/>
         </div>
@@ -178,7 +177,7 @@ class CreateCollectionModal extends PureComponent {
   renderCappedSizeCheckbox() {
     return (<div><ModalCheckbox
       name="Capped Collection"
-      titleClassName={classnames(styles['create-collection-modal-is-capped'])}
+      titleClassName={styles['create-collection-modal-is-capped']}
       checked={this.props.isCapped}
       helpUrl={HELP_URL_CAPPED}
       onClickHandler={this.onToggleIsCapped}
@@ -191,7 +190,7 @@ class CreateCollectionModal extends PureComponent {
     return (<div>
       <ModalCheckbox
         name="Time-Series"
-        titleClassName={classnames(styles['create-collection-time-series'])}
+        titleClassName={styles['create-collection-time-series']}
         checked={this.props.isTimeSeries}
         helpUrl={HELP_URL_TIME_SERIES}
         onClickHandler={this.onToggleIsTimeSeries}
@@ -203,7 +202,7 @@ class CreateCollectionModal extends PureComponent {
     return (<div>
       <ModalCheckbox
         name="Use Custom Collation"
-        titleClassName={classnames(styles['create-collection-modal-is-custom-collation'])}
+        titleClassName={styles['create-collection-modal-is-custom-collation']}
         checked={this.props.isCustomCollation}
         helpUrl={HELP_URL_COLLATION}
         onClickHandler={this.onToggleIsCustomCollation}
@@ -222,7 +221,7 @@ class CreateCollectionModal extends PureComponent {
         show={this.props.isVisible}
         backdrop="static"
         onHide={this.onHide}
-        dialogClassName={classnames(styles['create-collection-modal'])}>
+        dialogClassName={styles['create-collection-modal']}>
 
         <Modal.Header>
           <Modal.Title>Create Collection</Modal.Title>
