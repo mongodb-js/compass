@@ -1,10 +1,12 @@
 import classnames from 'classnames';
 import Collation from 'components/collation';
+import TimeSeries from 'components/time-series';
 import { TextButton } from 'hadron-react-buttons';
-import { ModalCheckbox, ModalInput, ModalStatusMessage } from 'hadron-react-components';
+import { ModalCheckbox, ModalStatusMessage } from 'hadron-react-components';
 import { createCollection } from 'modules/create-collection';
 import { changeCappedSize } from 'modules/create-collection/capped-size';
 import { changeCollationOption } from 'modules/create-collection/collation';
+import { changeTimeSeriesOption } from 'modules/create-collection/time-series';
 import { toggleIsCapped } from 'modules/create-collection/is-capped';
 import { toggleIsTimeSeries } from 'modules/create-collection/is-time-series';
 import { toggleIsCustomCollation } from 'modules/create-collection/is-custom-collation';
@@ -17,6 +19,7 @@ import React, { PureComponent } from 'react';
 import { Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import styles from './create-collection-modal.less';
+import TextInput from '@leafygreen-ui/text-input';
 
 
 /**
@@ -54,6 +57,7 @@ class CreateCollectionModal extends PureComponent {
     changeCappedSize: PropTypes.func.isRequired,
     changeCollectionName: PropTypes.func.isRequired,
     changeCollationOption: PropTypes.func.isRequired,
+    changeTimeSeriesOption: PropTypes.func.isRequired,
     createCollection: PropTypes.func.isRequired,
     toggleIsCapped: PropTypes.func.isRequired,
     toggleIsCustomCollation: PropTypes.func.isRequired,
@@ -131,12 +135,14 @@ class CreateCollectionModal extends PureComponent {
   renderCappedSize() {
     if (this.props.isCapped) {
       return (
-        <div className={classnames(styles['create-collection-modal-is-capped-wrapper'])}>
-          <ModalInput
-            id="capped-size-value"
-            name="Maximum Size (Bytes)"
+        <div className="form-group">
+          <TextInput
+            label="size"
+            type="number"
+            description="Maximum size in bytes for the capped collection."
+            onChange={this.onCappedSizeChange}
             value={this.props.cappedSize}
-            onChangeHandler={this.onCappedSizeChange} />
+          />
         </div>
       );
     }
@@ -147,7 +153,8 @@ class CreateCollectionModal extends PureComponent {
     if (this.props.isTimeSeries) {
       return (
         <div className={classnames(styles['create-collection-modal-is-time-series-wrapper'])}>
-          Time Series!
+          <TimeSeries changeTimeSeriesOption={this.props.changeTimeSeriesOption}
+            timeSeries={this.props.collation}/>
         </div>
       );
     }
@@ -227,12 +234,15 @@ class CreateCollectionModal extends PureComponent {
             onSubmit={this.onFormSubmit}
             data-test-id="create-collection-modal">
 
-            <ModalInput
-              autoFocus
-              id="create-collection-name"
-              name="Collection Name"
-              value={this.props.name}
-              onChangeHandler={this.onNameChange} />
+            <div className="form-group">
+              <TextInput
+                id="create-collection-name"
+                autoFocus
+                label="Collection Name"
+                onChange={this.onNameChange}
+                value={this.props.name}
+              />
+            </div>
             <div className="form-group">
               {this.renderCappedSizeCheckbox()}
               {this.renderCustomCollationCheckbox()}
@@ -296,6 +306,7 @@ const MappedCreateCollectionModal = connect(
     changeCappedSize,
     changeCollectionName,
     changeCollationOption,
+    changeTimeSeriesOption,
     createCollection,
     openLink,
     toggleIsCapped,

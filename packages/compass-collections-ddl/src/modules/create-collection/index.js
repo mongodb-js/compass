@@ -68,7 +68,8 @@ const reducer = combineReducers({
  * @returns {Object} The new state.
  */
 const rootReducer = (state, action) => {
-  const initialState = {
+  const resetState = {
+    ...state,
     cappedSize: CAPPED_SIZE_INITIAL_STATE,
     isCapped: IS_CAPPED_INITIAL_STATE,
     isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
@@ -83,10 +84,10 @@ const rootReducer = (state, action) => {
   };
 
   if (action.type === RESET) {
-    return initialState;
+    return resetState;
   } else if (action.type === OPEN) {
     return {
-      ...initialState,
+      ...resetState,
       isVisible: true,
       databaseName: action.databaseName
     };
@@ -121,26 +122,43 @@ export const open = (dbName) => ({
   databaseName: dbName
 });
 
-/**
- * The create collection action.
- *
- * @returns {Function} The thunk function.
- */
+
+function buildOptions(state) {
+  const cappedOptions = state.isCapped ? {
+    capped: true,
+    size: parseInt(state.cappedSize, 10)
+  } : {};
+
+  const collationOptions = state.isCustomCollation ? {
+    collation: state.collation
+  } : {};
+
+  const timeSeriesOptions = state.isTimeSeries ? {
+    timeseries: state.timeSeries
+  } : {};
+
+  return {
+    ...collationOptions,
+    ...cappedOptions,
+    ...timeSeriesOptions
+  };
+}
+
 export const createCollection = () => {
   return (dispatch, getState) => {
     const state = getState();
     const ds = state.dataService.dataService;
     const collectionName = state.name;
     const dbName = state.databaseName;
-    const coll = state.collation;
+    const namespace = `${dbName}.${collectionName}`;
 
     dispatch(clearError());
 
-    let options = state.isCapped ? { capped: true, size: parseInt(state.cappedSize, 10) } : {};
-    options = state.isCustomCollation ? { ...options, collation: coll } : options;
     try {
+      const options = buildOptions(state);
       dispatch(toggleIsRunning(true));
-      ds.createCollection(`${dbName}.${collectionName}`, options, (e) => {
+
+      ds.createCollection(namespace, options, (e) => {
         if (e) {
           return stopWithError(dispatch, e);
         }
@@ -152,3 +170,5 @@ export const createCollection = () => {
     }
   };
 };
+
+
