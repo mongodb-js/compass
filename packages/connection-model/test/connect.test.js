@@ -14,11 +14,11 @@ const data = require('mongodb-connection-fixture');
 describe('connection model connector', () => {
   describe('local', () => {
     before(
-      require('mongodb-runner/mocha/before')({ port: 27018, version: '4.0.0' })
+      require('mongodb-runner/mocha/before')({ port: 27018 })
     );
 
     after(
-      require('mongodb-runner/mocha/after')({ port: 27018, version: '4.0.0' })
+      require('mongodb-runner/mocha/after')({ port: 27018 })
     );
 
     it('should return connection config when connected successfully', (done) => {
