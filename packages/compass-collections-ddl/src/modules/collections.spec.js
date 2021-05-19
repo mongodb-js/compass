@@ -93,6 +93,51 @@ describe('collections module', () => {
         to.deep.equal([ SPOTIFY_MAPPED ]);
     });
 
+    it('parses properties', () => {
+      const parseProperties = (coll) => {
+        return reducer(undefined, loadCollections([
+          coll
+        ]))[0].Properties;
+      };
+
+      expect(parseProperties({
+        name: 'coll1', readonly: true
+      })).to.deep.equal([
+        { name: 'readonly', options: {} }
+      ]);
+
+      expect(parseProperties({
+        name: 'coll1', type: 'timeseries'
+      })).to.deep.equal([
+        { name: 'time-series', options: {} }
+      ]);
+
+      expect(parseProperties({
+        name: 'coll1', capped: true,
+      })).to.deep.equal([
+        { name: 'capped', options: {} }
+      ]);
+
+      expect(parseProperties({
+        name: 'coll1', collation: { locale: 'se' }
+      })).to.deep.equal([
+        { name: 'collation', options: { locale: 'se' }}
+      ]);
+
+      expect(parseProperties({
+        name: 'coll1', type: 'view'
+      })).to.deep.equal([
+        { name: 'view', options: {} }
+      ]);
+
+      expect(parseProperties({
+        name: 'coll1', type: 'view', readonly: true
+      })).to.deep.equal([
+        { name: 'view', options: {} },
+        { name: 'readonly', options: {} }
+      ]);
+    });
+
     context('when an action is provided', () => {
       context('when the action is LOAD_COLLECTIONS', () => {
         const collections = [ SPOTIFY, SOUNDCLOUD, DEEZER ];

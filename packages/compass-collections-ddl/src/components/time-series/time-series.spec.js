@@ -21,6 +21,6 @@ describe('TimeSeries [Component]', () => {
   });
 
   it('renders the correct root classname', () => {
-    expect(component.find(`.${styles.timeSeries}`)).to.be.present();
+    expect(component.find(`.${styles['time-series']}`)).to.be.present();
   });
 });

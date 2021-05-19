@@ -15,7 +15,7 @@ const EXPIRE_AFTER_SECONDS_DESCRIPTION = 'The expireAfterSeconds field enables '
   'automatic deletion of documents older than the specified number of seconds.';
 
 class Collation extends PureComponent {
-  static displayName = 'CollationComponent';
+  static displayName = 'TimeSeriesComponent';
 
   static propTypes = {
     timeSeries: PropTypes.object.isRequired,
