@@ -69,10 +69,6 @@ export default function reducer(state = INITIAL_STATE, action) {
   return state;
 }
 
-function filterOutSystemCollections(collections) {
-  return collections.filter(({ name }) => name && !name.startsWith('system.'));
-}
-
 /**
  * Sort the collection list by column and order.
  *
@@ -135,7 +131,7 @@ function getProperties(coll) {
  * @return {Array} The mapped collections for the UI.
  */
 export const load = (collections) => {
-  return filterOutSystemCollections(collections)
+  return collections
     .map((coll) => {
       return zipObject(EXTRA_COLUMNS, [
         coll.name, // Collection Name
@@ -164,7 +160,7 @@ export const load = (collections) => {
  */
 export const loadCollections = (collections) => ({
   type: LOAD_COLLECTIONS,
-  collections: filterOutSystemCollections(collections)
+  collections: collections
 });
 
 /**
