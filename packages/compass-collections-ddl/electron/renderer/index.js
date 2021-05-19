@@ -79,9 +79,11 @@ dataService.connect((error, ds) => {
   dataService.instance({}, (err, data) => {
     const dbs = data.databases;
     dbs.forEach((db) => {
-      db.collections = db.collections.map((collection) => {
-        return new CollectionModel(collection);
-      });
+      db.collections = db.collections
+        .filter(({ name }) => name && !name.startsWith('system.'))
+        .map((collection) => {
+          return new CollectionModel(collection);
+        });
     });
 
     if (err) {
