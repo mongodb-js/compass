@@ -20,6 +20,7 @@ export const PROPERTIES_COLLATION = 'collation';
 export const PROPERTIES_TIME_SERIES = 'time-series';
 export const PROPERTIES_CAPPED = 'capped';
 export const PROPERTIES_VIEW = 'view';
+export const PROPERTIES_READ_ONLY = 'readonly';
 
 /**
  * The module prefix.
@@ -112,6 +113,13 @@ function getProperties(coll) {
   if (coll.capped) {
     properties.push({
       name: PROPERTIES_CAPPED,
+      options: {}
+    });
+  }
+
+  if (coll.readonly) {
+    properties.push({
+      name: PROPERTIES_READ_ONLY,
       options: {}
     });
   }

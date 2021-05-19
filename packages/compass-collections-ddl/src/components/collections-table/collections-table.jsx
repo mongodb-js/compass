@@ -3,15 +3,11 @@ import PropTypes from 'prop-types';
 import numeral from 'numeral';
 import assign from 'lodash.assign';
 import isNaN from 'lodash.isnan';
-import classnames from 'classnames';
 import { SortableTable } from 'hadron-react-components';
 import dropCollectionStore from 'stores/drop-collection';
-
 import styles from './collections-table.less';
-import { PROPERTIES_CAPPED, PROPERTIES_COLLATION, PROPERTIES_TIME_SERIES, PROPERTIES_VIEW } from '../../modules/collections';
-import PropertyBadge from './property-badge';
+import CollectionProperties from './collection-properties';
 
-import Icon from '@leafygreen-ui/icon';
 
 /**
  * The name constant.
@@ -52,23 +48,6 @@ const PROPS = 'Properties';
  * Dash constant.
  */
 const DASH = '-';
-
-/**
- * Collation option mappings.
- */
-const PROPERTY_OPTIONS = {
-  locale: 'Locale',
-  caseLevel: 'Case Level',
-  caseFirst: 'Case First',
-  strength: 'Strength',
-  numericOrdering: 'Numeric Ordering',
-  alternate: 'Alternate',
-  maxVariable: 'MaxVariable',
-  normalization: 'Normalization',
-  backwards: 'Backwards',
-  version: 'Version'
-};
-
 class CollectionsTable extends PureComponent {
   static displayName = 'CollectionsTableComponent';
 
@@ -115,21 +94,6 @@ class CollectionsTable extends PureComponent {
     this.props.showCollection(name);
   }
 
-  renderOptions(options) {
-    const knownOptions = Object.keys(options)
-      .filter((key) => PROPERTY_OPTIONS[key]);
-
-    if (!knownOptions.length) {
-      return;
-    }
-
-    return (<div>{knownOptions.map(
-      (key) => {
-        return <div key={key}><b>{PROPERTY_OPTIONS[key]}</b>: {`${options[key]}`}</div>;
-      }
-    )}</div>);
-  }
-
   /**
    * Render the collection link.
    *
@@ -148,57 +112,13 @@ class CollectionsTable extends PureComponent {
     return (
       <div>
         <a
-          className={classnames(styles['collections-table-link'])}
+          className={styles['collections-table-link']}
           onClick={this.onNameClicked.bind(this, collName)}>
           {collName}
         </a>
         {viewInfo}
       </div>
     );
-  }
-
-  renderProperty = (key, property) => {
-    const { name, options } = property || {};
-
-    if (name === PROPERTIES_COLLATION) {
-      return (<PropertyBadge
-        key={key}
-        label="Collation"
-        variant="darkgray"
-        tooltip={this.renderOptions(options)}
-      />);
-    }
-
-    if (name === PROPERTIES_VIEW) {
-      return (<PropertyBadge
-        key={key}
-        label="View"
-        icon={<Icon glyph="Visibility" />}
-        variant="darkgray"
-        tooltip={this.renderOptions(options)} />);
-    }
-
-    if (name === PROPERTIES_CAPPED) {
-      return (<PropertyBadge
-        key={key}
-        label="Capped"
-        variant="darkgray"
-        tooltip={this.renderOptions(options)} />);
-    }
-
-    if (name === PROPERTIES_TIME_SERIES) {
-      return (<PropertyBadge
-        key={key}
-        label="Time-Series"
-        variant="darkgray"
-        tooltip={this.renderOptions(options)} />);
-    }
-  }
-
-  renderProperties = (coll) => {
-    return (coll.Properties || []).map((property, i) => {
-      return this.renderProperty(`${coll._id}-prop-${i}`, property);
-    });
   }
 
   /**
@@ -219,7 +139,7 @@ class CollectionsTable extends PureComponent {
         [NUM_INDEX]: isNaN(coll[NUM_INDEX]) ? DASH : coll[NUM_INDEX],
         [TOT_INDEX_SIZE]: isNaN(coll[TOT_INDEX_SIZE]) ?
           DASH : numeral(coll[TOT_INDEX_SIZE]).format('0.0 b'),
-        [PROPS]: this.renderProperties(coll)
+        [PROPS]: <CollectionProperties collection={coll} />
       });
     });
 

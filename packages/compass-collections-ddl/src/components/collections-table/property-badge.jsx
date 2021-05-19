@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Badge from '@leafygreen-ui/badge';
 import Tooltip from '@leafygreen-ui/tooltip';
+import styles from './property-badge.less';
 
 export default class PropertyBadge extends PureComponent {
   static displayName = 'PropertyBadge';
@@ -15,7 +16,11 @@ export default class PropertyBadge extends PureComponent {
 
   renderBadge = () => {
     const space = this.props.icon ? (<span>&nbsp;</span>) : '';
-    return (<Badge variant={this.props.variant}>{this.props.icon}{space}{this.props.label}</Badge>);
+    return (
+      <div className={styles['property-badge']}>
+        <Badge variant={this.props.variant}>{this.props.icon}{space}{this.props.label}</Badge>
+      </div>
+    );
   }
 
   render() {
@@ -26,7 +31,7 @@ export default class PropertyBadge extends PureComponent {
     return (<Tooltip
       align="top"
       justify="start"
-      trigger={<span>{this.renderBadge()}</span>}
+      trigger={this.renderBadge()}
       triggerEvent="hover"
       darkMode
     >{this.props.tooltip}</Tooltip>);
