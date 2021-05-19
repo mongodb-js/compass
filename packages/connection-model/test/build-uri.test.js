@@ -1,7 +1,7 @@
 const Connection = require('../');
 const chai = require('chai');
-const fixture = require('mongodb-connection-fixture');
 const fs = require('fs');
+const sslFixture = require('./__fixtures__/ssl');
 const expect = chai.expect;
 const loadOptions = Connection.connect.loadOptions;
 const getTasks = Connection.connect.getTasks;
@@ -145,9 +145,9 @@ describe('Connection model builder', () => {
     });
 
     it('should include sslMethod equal SERVER', (done) => {
-      const c = new Connection({ sslMethod: 'SERVER', sslCA: fixture.ssl.ca });
+      const c = new Connection({ sslMethod: 'SERVER', sslCA: sslFixture.ca });
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
-        sslCA: [fixture.ssl.ca],
+        sslCA: [sslFixture.ca],
         sslValidate: true,
         readPreference: 'primary',
         connectWithNoPrimary: true
@@ -167,16 +167,16 @@ describe('Connection model builder', () => {
     it('should include sslMethod equal ALL and authMechanism equal X509', (done) => {
       const c = new Connection({
         sslMethod: 'ALL',
-        sslCA: fixture.ssl.ca,
-        sslCert: fixture.ssl.server,
-        sslKey: fixture.ssl.server,
+        sslCA: sslFixture.ca,
+        sslCert: sslFixture.server,
+        sslKey: sslFixture.server,
         authStrategy: 'X509',
         x509Username: 'testing'
       });
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
-        sslCA: [fixture.ssl.ca],
-        sslCert: fixture.ssl.server,
-        sslKey: fixture.ssl.server,
+        sslCA: [sslFixture.ca],
+        sslCert: sslFixture.server,
+        sslKey: sslFixture.server,
         checkServerIdentity: false,
         sslValidate: false,
         readPreference: 'primary',
@@ -197,14 +197,14 @@ describe('Connection model builder', () => {
     it('should include sslMethod equal ALL and passwordless private keys', (done) => {
       const c = new Connection({
         sslMethod: 'ALL',
-        sslCA: fixture.ssl.ca,
-        sslCert: fixture.ssl.server,
-        sslKey: fixture.ssl.server
+        sslCA: sslFixture.ca,
+        sslCert: sslFixture.server,
+        sslKey: sslFixture.server
       });
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
-        sslCA: [fixture.ssl.ca],
-        sslCert: fixture.ssl.server,
-        sslKey: fixture.ssl.server,
+        sslCA: [sslFixture.ca],
+        sslCert: sslFixture.server,
+        sslKey: sslFixture.server,
         sslValidate: true,
         readPreference: 'primary',
         connectWithNoPrimary: true
@@ -217,9 +217,9 @@ describe('Connection model builder', () => {
 
       /* eslint-disable no-sync */
       const expectAfterLoad = {
-        sslCA: [fs.readFileSync(fixture.ssl.ca)],
-        sslCert: fs.readFileSync(fixture.ssl.server),
-        sslKey: fs.readFileSync(fixture.ssl.server),
+        sslCA: [fs.readFileSync(sslFixture.ca)],
+        sslCert: fs.readFileSync(sslFixture.server),
+        sslKey: fs.readFileSync(sslFixture.server),
         sslValidate: true,
         connectWithNoPrimary: true,
         readPreference: 'primary'
@@ -238,15 +238,15 @@ describe('Connection model builder', () => {
     it('should include sslMethod equal ALL and password protected private keys', (done) => {
       const c = new Connection({
         sslMethod: 'ALL',
-        sslCA: fixture.ssl.ca,
-        sslCert: fixture.ssl.server,
-        sslKey: fixture.ssl.server,
+        sslCA: sslFixture.ca,
+        sslCert: sslFixture.server,
+        sslKey: sslFixture.server,
         sslPass: 'woof'
       });
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
-        sslCA: [fixture.ssl.ca],
-        sslCert: fixture.ssl.server,
-        sslKey: fixture.ssl.server,
+        sslCA: [sslFixture.ca],
+        sslCert: sslFixture.server,
+        sslKey: sslFixture.server,
         sslPass: 'woof',
         sslValidate: true,
         connectWithNoPrimary: true,
@@ -265,7 +265,7 @@ describe('Connection model builder', () => {
     });
 
     it('should convert sslCA into an array', (done) => {
-      const c = new Connection({ sslCA: fixture.ssl.ca });
+      const c = new Connection({ sslCA: sslFixture.ca });
 
       expect(Array.isArray(c.sslCA)).to.be.equal(true);
 
@@ -761,9 +761,9 @@ describe('Connection model builder', () => {
         const attrs = {
           authStrategy: 'X509',
           sslMethod: 'ALL',
-          sslCA: [fixture.ssl.ca],
-          sslCert: fixture.ssl.server,
-          sslKey: fixture.ssl.server
+          sslCA: [sslFixture.ca],
+          sslCert: sslFixture.server,
+          sslKey: sslFixture.server
         };
         const c = new Connection(attrs);
 
@@ -963,9 +963,9 @@ describe('Connection model builder', () => {
       it('should load all of the files from the filesystem if sslMethod ia ALL', (done) => {
         const c = new Connection({
           sslMethod: 'ALL',
-          sslCA: [fixture.ssl.ca],
-          sslCert: fixture.ssl.server,
-          sslKey: fixture.ssl.server
+          sslCA: [sslFixture.ca],
+          sslCert: sslFixture.server,
+          sslKey: sslFixture.server
         });
 
         loadOptions(c, (error, driverOptions) => {

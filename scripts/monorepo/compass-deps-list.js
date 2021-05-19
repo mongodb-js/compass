@@ -299,10 +299,6 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/collection-model.git'
   },
   {
-    name: 'mongodb-connection-fixture',
-    repository: 'https://github.com/mongodb-js/connection-fixture.git'
-  },
-  {
     name: 'mongodb-connection-model',
     description: 'MongoDB connection model.',
     repository: 'https://github.com/mongodb-js/connection-model.git'
