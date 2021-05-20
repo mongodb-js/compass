@@ -69,6 +69,7 @@
     "less-loader": "^2.2.3",
     "mocha": "^2.5.3",
     "mock-require": "^2.0.1",
+    "mongodb-connection-model": "^19.1.1",
     "mongodb-data-service": "^19.2.1",
     "mongodb-ns": "^2.2.0",
     "prop-types": "^15.5.8",
