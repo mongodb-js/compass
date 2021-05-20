@@ -64,7 +64,6 @@
     "hadron-build": "github:mongodb-js/hadron-build#evergreen",
     "hadron-react-buttons": "^4.0.5",
     "hadron-react-components": "^4.0.5",
-    "hadron-spectron": "^5.0.0",
     "jsdom": "^9.4.2",
     "less": "^3.11.1",
     "less-loader": "^2.2.3",

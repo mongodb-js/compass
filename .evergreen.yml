@@ -492,12 +492,6 @@ tasks:
         vars:
           test_suite: functional
 
-  - name: test-hadron-spectron
-    depends_on: [compile]
-    commands:
-      - func: test-plugin
-        vars: { plugin: mongodb-js/hadron-spectron }
-
   - name: test-data-service
     depends_on: [compile]
     commands:

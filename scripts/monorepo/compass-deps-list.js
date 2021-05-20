@@ -264,11 +264,6 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/hadron-react.git'
   },
   {
-    name: 'hadron-spectron',
-    description: 'Hadron Spectron Test Support',
-    repository: 'https://github.com/mongodb-js/hadron-spectron.git'
-  },
-  {
     name: 'hadron-style-manager',
     description: 'Hadron Style Manager',
     repository: 'https://github.com/mongodb-js/hadron-style-manager.git'
