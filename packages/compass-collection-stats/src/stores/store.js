@@ -131,7 +131,7 @@ const configureStore = (options = {}) => {
 
       this.dataService.estimatedCount(this.ns, {}, (err, estimatedCount) => {
         if (err) {
-          return cb(null, result);
+          return cb(null, result); // ignore the error
         }
 
         cb(null, {
@@ -188,7 +188,7 @@ const configureStore = (options = {}) => {
     _parseCollectionDetails(result) {
       return {
         isReadonly: this.state.isReadonly || false,
-        documentCount: this._format(result.document_count),
+        documentCount: result.document_count !== undefined ? this._format(result.document_count) : INVALID,
         totalDocumentSize: this._format(result.document_size, 'b'),
         avgDocumentSize: this._format(this._avg(result.document_size, result.document_count), 'b'),
         indexCount: this._format(result.index_count),

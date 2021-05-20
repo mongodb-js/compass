@@ -1,5 +1,7 @@
 import AppRegistry from 'hadron-app-registry';
 import configureStore from 'stores';
+import sinon from 'sinon';
+
 
 describe('CollectionStatsstore [store]', () => {
   describe('#configureStore', () => {
@@ -79,18 +81,87 @@ describe('CollectionStatsstore [store]', () => {
 
       context('when providing a data provider', () => {
         let store;
-
+        let estimatedCountStub;
+        let collectionStub;
+        let dataService;
         beforeEach(() => {
+          estimatedCountStub = sinon.stub();
+          collectionStub = sinon.stub();
+
+          dataService = {
+            estimatedCount: estimatedCountStub,
+            collection: collectionStub,
+            isConnected: () => true
+          };
+
           store = configureStore({
             dataProvider: {
               error: null,
-              dataProvider: 'test'
-            }
+              dataProvider: dataService,
+            },
+            namespace: 'db.coll'
           });
         });
 
         it('sets the data provider on the store', () => {
-          expect(store.dataService).to.equal('test');
+          expect(store.dataService).to.equal(dataService);
+        });
+
+        it('fetches details', () => {
+          collectionStub.callsFake((ns, options, cb) => {
+            cb(null, {
+              document_count: 123
+            });
+          });
+
+          store.loadCollectionStats();
+
+          expect(store.state.documentCount).to.equal('123');
+        });
+
+        it('re-fetch the document count if was not in stats (support hack for time-series in v5.0)', () => {
+          collectionStub.callsFake((ns, options, cb) => {
+            cb(null, {});
+          });
+
+          estimatedCountStub.callsFake((ns, options, cb) => {
+            cb(null, 123);
+          });
+
+          store.loadCollectionStats();
+
+          expect(store.state.documentCount).to.equal('123');
+        });
+
+        it('resets the state in case of error (collection stats)', () => {
+          collectionStub.callsFake((ns, options, cb) => {
+            cb(new Error('failed'));
+          });
+
+          store.state.documentCount = '123';
+
+          store.loadCollectionStats();
+
+          expect(store.state.documentCount).to.equal('N/A');
+          expect(store.dataService).to.equal(dataService);
+        });
+
+        it('resets only the documentCount in case of error on estimated count', () => {
+          collectionStub.callsFake((ns, options, cb) => {
+            cb(null, {
+              index_count: 123
+            });
+          });
+
+          estimatedCountStub.callsFake((ns, options, cb) => {
+            cb(new Error('failed'));
+          });
+
+          store.loadCollectionStats();
+
+          expect(store.state.indexCount).to.equal('123');
+          expect(store.state.documentCount).to.equal('N/A');
+          expect(store.dataService).to.equal(dataService);
         });
       });
 
