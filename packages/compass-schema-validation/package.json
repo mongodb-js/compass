@@ -104,6 +104,7 @@
     "mongodb-ace-autocompleter": "^0.4.1",
     "mongodb-ace-mode": "^0.4.1",
     "mongodb-ace-theme": "^0.0.1",
+    "mongodb-client-encryption": "^1.2.3",
     "mongodb-connection-model": "^19.1.1",
     "mongodb-data-service": "^19.2.1",
     "mongodb-extended-json": "^1.11.0",

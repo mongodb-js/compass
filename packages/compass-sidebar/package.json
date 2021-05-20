@@ -101,6 +101,7 @@
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
     "moment": "^2.24.0",
+    "mongodb-client-encryption": "^1.2.3",
     "mongodb-connection-model": "^19.1.1",
     "mongodb-data-service": "^19.2.1",
     "mongodb-database-model": "^0.1.3",
