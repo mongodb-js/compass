@@ -14,11 +14,10 @@ const META_FIELD_INPUT_DESCRIPTION = 'The metaField is the designated field ' +
 const EXPIRE_AFTER_SECONDS_DESCRIPTION = 'The expireAfterSeconds field enables ' +
   'automatic deletion of documents older than the specified number of seconds.';
 
-class Collation extends PureComponent {
+class TimeSeries extends PureComponent {
   static displayName = 'TimeSeriesComponent';
 
   static propTypes = {
-    timeSeries: PropTypes.object.isRequired,
     changeTimeSeriesOption: PropTypes.func.isRequired
   }
 
@@ -36,7 +35,6 @@ class Collation extends PureComponent {
             onChange={event => {
               this.props.changeTimeSeriesOption('timeField', event.target.value);
             }}
-            value={this.props.timeSeries.timeField}
           />
         </div>
 
@@ -48,7 +46,6 @@ class Collation extends PureComponent {
             onChange={event => {
               this.props.changeTimeSeriesOption('metaField', event.target.value);
             }}
-            value={this.props.timeSeries.metaField}
           />
         </div>
 
@@ -65,7 +62,6 @@ class Collation extends PureComponent {
                   +event.target.value : null
               );
             }}
-            value={this.props.timeSeries.expireAfterSeconds}
           />
         </div>
       </div>
@@ -73,4 +69,4 @@ class Collation extends PureComponent {
   }
 }
 
-export default Collation;
+export default TimeSeries;

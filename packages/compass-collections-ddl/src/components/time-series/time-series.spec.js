@@ -11,7 +11,7 @@ describe('TimeSeries [Component]', () => {
   beforeEach(() => {
     changeTimeSeriesOptionSpy = sinon.spy();
     component = mount(
-      <TimeSeries timeSeries={{}} changeTimeSeriesOption={changeTimeSeriesOptionSpy} />
+      <TimeSeries changeTimeSeriesOption={changeTimeSeriesOptionSpy} />
     );
   });
 

@@ -153,8 +153,7 @@ class CreateCollectionModal extends PureComponent {
     if (this.props.isTimeSeries) {
       return (
         <div className={styles['create-collection-modal-is-time-series-wrapper']}>
-          <TimeSeries changeTimeSeriesOption={this.props.changeTimeSeriesOption}
-            timeSeries={this.props.collation}/>
+          <TimeSeries changeTimeSeriesOption={this.props.changeTimeSeriesOption} />
         </div>
       );
     }
