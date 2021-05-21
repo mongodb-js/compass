@@ -428,7 +428,7 @@ class NativeClient extends EventEmitter {
    */
   collectionStats(databaseName, collectionName, callback) {
     var db = this._database(databaseName);
-    db.command({ collStats: collectionName, verbose: 1 }, (error, data) => {
+    db.command({ collStats: collectionName, verbose: true }, (error, data) => {
       if (error && !error.message.includes(VIEW_ERROR)) {
         return callback(this._translateMessage(error));
       }
