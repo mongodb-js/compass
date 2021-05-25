@@ -51,11 +51,11 @@ class Collation extends PureComponent {
     const options = COLLATION_OPTIONS.map((element) => {
       return (
         <div key={element.field} className={classnames(styles['collation-field'])}>
-          <p className={classnames(styles['collation-label'])}>{element.label}</p>
+          <p className={classnames(styles['collation-label'])}>{element.field}</p>
           <Select
             value={this.props.collation[element.field]}
             name={element.field}
-            placeholder={`Select a ${element.field}`}
+            placeholder={'Select a value'}
             options={this.getDropdownFieldsSelect(element.values)}
             onChange={this.onChangeCollationOption.bind(this, element.field)}
             className={classnames(styles['collation-select'])}

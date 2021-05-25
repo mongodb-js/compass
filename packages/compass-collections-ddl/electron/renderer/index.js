@@ -1,15 +1,17 @@
+/* eslint-disable no-console */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import DatabasePlugin, { activate } from 'plugin';
-import { activate as daActivate } from '@mongodb-js/compass-deployment-awareness';
 import { NamespaceStore } from 'mongodb-reflux-store';
-import CollectionStore from './stores/collection-store';
 import CollectionModel from 'mongodb-collection-model';
 import CreateCollectionPlugin from 'components/create-collection-plugin';
 import DropCollectionPlugin from 'components/drop-collection-plugin';
+
+import CollectionStore from './mocks/collection-store';
+import TextWriteButton from './mocks/text-write-button';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -24,10 +26,10 @@ global.hadronApp.appRegistry = appRegistry;
 
 appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
 appRegistry.registerStore('App.CollectionStore', CollectionStore);
+appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteButton);
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
-daActivate(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
@@ -64,10 +66,11 @@ import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
 
 const connection = new Connection({
-  hostname: '127.0.0.1',
+  hostname: 'localhost',
   port: 27017,
   ns: 'admin'
 });
+
 const dataService = new DataService(connection);
 
 appRegistry.emit('data-service-initialized', dataService);
@@ -76,12 +79,18 @@ dataService.connect((error, ds) => {
   dataService.instance({}, (err, data) => {
     const dbs = data.databases;
     dbs.forEach((db) => {
-      db.collections = db.collections.map((collection) => {
-        return new CollectionModel(collection);
-      });
+      db.collections = db.collections
+        .filter(({ name }) => name && !name.startsWith('system.'))
+        .map((collection) => {
+          return new CollectionModel(collection);
+        });
     });
 
-    if (err) console.log(err);
+    if (err) {
+      console.log(err);
+      process.exit(1);
+    }
+
     appRegistry.emit('instance-refreshed', {
       instance: {
         databases: {
@@ -90,7 +99,18 @@ dataService.connect((error, ds) => {
         dataLake: { isDataLake: false }
       }
     });
-    appRegistry.emit('database-changed', 'echo');
+
+
+    dataService.client.client.db('admin').command({buildinfo: 1}, (buildInfoError, info) => {
+      if (buildInfoError) {
+        console.log(buildInfoError);
+        return;
+      }
+
+      appRegistry.emit('server-version-changed', info.version);
+    });
+
+    appRegistry.emit('select-database', 'test');
   });
 });
 

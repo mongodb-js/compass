@@ -34,6 +34,7 @@ describe('DdlStore [Store]', () => {
 
     context('when the instance store triggers', () => {
       const coll = {
+        _id: 'coll1',
         name: 'spotify',
         document_count: 10,
         size: 200,

@@ -23,7 +23,7 @@ class SidebarCollection extends PureComponent {
     sourcePipeline: PropTypes.array,
     pipeline: PropTypes.any, // undefined or array if view
     collections: PropTypes.array.isRequired,
-    type: PropTypes.oneOf(['collection', 'view']),
+    type: PropTypes.string,
     isDataLake: PropTypes.bool.isRequired
   };
 

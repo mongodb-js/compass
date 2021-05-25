@@ -15,6 +15,7 @@ describe('Toolbar [Component]', () => {
         <Toolbar
           isReadonly
           databaseName="test"
+          isDataLake={false}
           open={openSpy} />
       );
     });
@@ -43,6 +44,7 @@ describe('Toolbar [Component]', () => {
         <Toolbar
           isReadonly={false}
           databaseName="test"
+          isDataLake={false}
           open={openSpy} />
       );
     });

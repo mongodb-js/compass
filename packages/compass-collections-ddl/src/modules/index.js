@@ -1,34 +1,34 @@
 import { combineReducers } from 'redux';
-import appRegistry from 'modules/app-registry';
-import dataService from 'modules/data-service';
+import appRegistry from './app-registry';
+import dataService from './data-service';
 import columns, {
   INITIAL_STATE as COLUMNS_INITIAL_STATE
-} from 'modules/columns';
+} from './columns';
 import collections, {
   INITIAL_STATE as COLLECTIONS_INITIAL_STATE
-} from 'modules/collections';
+} from './collections';
 import databases, {
   INITIAL_STATE as DATABASES_INITIAL_STATE
-} from 'modules/databases';
+} from './databases';
 import databaseName, {
   INITIAL_STATE as DATABASE_NAME_INITIAL_STATE
-} from 'modules/database-name';
+} from './database-name';
 import isReadonly, {
   INITIAL_STATE as READONLY_INITIAL_STATE
-} from 'modules/is-readonly';
+} from './is-readonly';
 import isWritable, {
   INITIAL_STATE as WRITABLE_INITIAL_STATE
-} from 'modules/is-writable';
+} from './is-writable';
 import sortColumn, {
   INITIAL_STATE as SORT_COLUMN_INITIAL_STATE
-} from 'modules/sort-column';
+} from './sort-column';
 import sortOrder, {
   INITIAL_STATE as SORT_ORDER_INITIAL_STATE
-} from 'modules/sort-order';
+} from './sort-order';
 import isDataLake, {
   INITIAL_STATE as DATA_LAKE_INITIAL_STATE
-} from 'modules/is-data-lake';
-import { RESET } from 'modules/reset';
+} from './is-data-lake';
+import { RESET } from './reset';
 
 /**
  * The main reducer.
