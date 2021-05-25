@@ -10,12 +10,13 @@ import { clearError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
 
 import CollectionFields from '../collection-fields';
+import styles from './create-collection-modal.less';
 
 class CreateCollectionModal extends PureComponent {
   static propTypes = {
+    error: PropTypes.object,
     clearError: PropTypes.func,
     createCollection: PropTypes.func.isRequired,
-    error: PropTypes.object,
     isRunning: PropTypes.bool.isRequired,
     isVisible: PropTypes.bool.isRequired,
     serverVersion: PropTypes.string.isRequired,
@@ -51,6 +52,7 @@ class CreateCollectionModal extends PureComponent {
   }
 
   render() {
+    console.log('*** styles', styles);
     return (
       <ConfirmationModal
         open
@@ -60,6 +62,8 @@ class CreateCollectionModal extends PureComponent {
         onCancel={this.onCancel}
         buttonText="Create Collection"
         submitDisabled={this.state.submitDisabled}
+        className={styles['create-collection-modal']}
+        contentClassName={styles['create-collection-modal-content']}
       >
         <CollectionFields
           serverVersion={this.props.serverVersion}

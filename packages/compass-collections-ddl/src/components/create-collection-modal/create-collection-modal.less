@@ -1,52 +1,5 @@
 .create-collection-modal {
-  width: 500px;
-  max-height: ~"calc(100vh - 60px)";
-  display: flex;
-  flex-direction: row;
-
-  :global(.modal-content) {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-  }
-
-  :global(.modal-header, .modal-footer) {
-    flex: 0 0 auto;
-  }
-
-  :global(.modal-body) {
-    flex: 0 1 auto;
-    overflow: auto;
-  }
-
-  label > p {
-    margin-left: 5px;
-    font-weight: bold;
-    display: inline-block;
-  }
-
-  &-is-capped {
-    &-wrapper {
-
-      :global {
-        .form-group {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-      }
-
-      p {
-        width: 150px;
-        text-align: right;
-        display: inline-block;
-        margin: 0 10px 0 0;
-      }
-
-      input {
-        width: 250px;
-        display: inline-block;
-      }
-    }
+  &-content {
+    max-height: ~"calc(100vh - 60px)";
   }
 }
