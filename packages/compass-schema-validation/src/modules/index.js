@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 
-import appRegistry, { INITIAL_STATE as APP_REGISTRY_STATE } from 'mongodb-redux-common/app-registry';
+import appRegistry, { INITIAL_STATE as APP_REGISTRY_STATE } from '@mongodb-js/mongodb-redux-common/app-registry';
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
 import namespace, { INITIAL_STATE as NS_INITIAL_STATE } from './namespace';

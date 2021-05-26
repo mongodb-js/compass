@@ -1,7 +1,7 @@
 import ExplainPlanModel from 'mongodb-explain-plan-model';
 import { defaults, isString, find } from 'lodash';
 import { treeStagesChanged } from './tree-stages';
-import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import convertExplainCompat from 'mongodb-explain-compat';
 
 import EXPLAIN_STATES from '../constants/explain-states';

@@ -34,7 +34,7 @@ import error, {
 import { reset, RESET } from '../create-view/reset';
 import appRegistry, {
   globalAppRegistryEmit
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 
 const parseNs = require('mongodb-ns');
 

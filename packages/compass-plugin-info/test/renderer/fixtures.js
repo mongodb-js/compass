@@ -1,4 +1,4 @@
-import { Plugin } from 'hadron-plugin-manager';
+import { Plugin } from '@mongodb-js/hadron-plugin-manager';
 
 const LONG_DESC = 'A description that just keeps going and going and going' +
   ' and going and going and going and going and going and going and going.';

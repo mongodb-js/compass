@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import appRegistry, {
   INITIAL_STATE as APP_REGISTRY_STATE
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 import builders, {
   INITIAL_STATE as BUILDERS_INITIAL_STATE
 } from './builders';

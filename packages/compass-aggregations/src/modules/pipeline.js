@@ -1,6 +1,6 @@
 import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 import { generateStage, generateStageAsString } from './stage';
-import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
 import isEmpty from 'lodash.isempty';

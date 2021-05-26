@@ -1,6 +1,6 @@
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
-import PluginManager from 'hadron-plugin-manager';
+import PluginManager from '@mongodb-js/hadron-plugin-manager';
 import Store from 'stores';
 import { corePlugin, extPlugin } from '../../test/renderer/fixtures';
 

@@ -1,11 +1,10 @@
 {
-  "name": "mongodb-redux-common",
+  "name": "@mongodb-js/mongodb-redux-common",
   "description": "Common Redux Modules for mongodb-js",
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/redux-common/issues",
   "homepage": "https://github.com/mongodb-js/redux-common",
   "version": "0.1.0",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/redux-common.git"

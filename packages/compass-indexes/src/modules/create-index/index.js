@@ -5,7 +5,7 @@ import dataService from '../data-service';
 import appRegistry, {
   localAppRegistryEmit,
   globalAppRegistryEmit
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 import error, {
   clearError, handleError,
   INITIAL_STATE as ERROR_INITIAL_STATE

@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
-import PluginManager from 'hadron-plugin-manager';
+import PluginManager from '@mongodb-js/hadron-plugin-manager';
 import { AppContainer } from 'react-hot-loader';
 import SecurityPlugin, { activate } from 'plugin';
 import Store from 'stores';

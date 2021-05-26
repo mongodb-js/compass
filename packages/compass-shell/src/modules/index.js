@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import appRegistry from 'mongodb-redux-common/app-registry';
+import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import infoModal from './info-modal';
 import runtime from './runtime';

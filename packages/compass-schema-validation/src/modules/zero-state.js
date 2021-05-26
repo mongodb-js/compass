@@ -1,4 +1,4 @@
-import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 /**
  * Zero state changed action.

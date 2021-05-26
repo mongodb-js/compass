@@ -143,6 +143,6 @@
   },
   "dependencies": {
     "lodash.clonedeep": "^4.5.0",
-    "mongodb-redux-common": "^0.1.0"
+    "@mongodb-js/mongodb-redux-common": "^0.1.0"
   }
 }

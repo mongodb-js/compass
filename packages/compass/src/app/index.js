@@ -47,7 +47,7 @@ marky.stop('Migrations');
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var { Action } = require('hadron-plugin-manager');
+var { Action } = require('@mongodb-js/hadron-plugin-manager');
 
 ipc.once('app:launched', function() {
   console.log('in app:launched');

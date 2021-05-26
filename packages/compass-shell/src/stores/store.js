@@ -3,7 +3,7 @@ import reducer from '../modules';
 import { setupRuntime } from '../modules/runtime';
 import {
   globalAppRegistryActivated
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 
 const debug = require('debug')('mongodb-compass-shell:store');
 

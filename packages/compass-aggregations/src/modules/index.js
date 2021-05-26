@@ -78,7 +78,7 @@ import appRegistry, {
   localAppRegistryEmit,
   globalAppRegistryEmit,
   INITIAL_STATE as APP_REGISTRY_STATE
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 import isOverviewOn, {
   TOGGLE_OVERVIEW,
   INITIAL_STATE as OVERVIEW_INITIAL_STATE

@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import appRegistry from 'mongodb-redux-common/app-registry';
+import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
 import dataService from './data-service';
 import { RESET } from './reset';
 import isWritable, {

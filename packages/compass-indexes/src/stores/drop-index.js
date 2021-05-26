@@ -5,7 +5,7 @@ import { dataServiceConnected } from '../modules/data-service';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 import { parseErrorMsg } from '../modules/indexes';
 import { handleError } from '../modules/error';
 import { toggleIsVisible } from '../modules/is-visible';
