@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-field-store",
   "productName": "Compass Compass Field Store package",
-  "version": "6.0.3",
+  "version": "6.1.0",
   "apiVersion": "3.0.0",
   "description": "FieldStore keeps track of available fields in a collection.",
   "main": "lib/index.js",
@@ -61,10 +61,10 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.0.2",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^3.2.2",
-    "hadron-app-registry": "^7.2.0",
-    "hadron-react-bson": "^4.0.4",
-    "hadron-react-components": "^4.0.5",
+    "hadron-app": "^3.3.0",
+    "hadron-app-registry": "^7.3.0",
+    "hadron-react-bson": "^4.1.0",
+    "hadron-react-components": "^4.1.0",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.0",
@@ -93,8 +93,8 @@
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
     "mock-require": "^3.0.3",
-    "mongodb-connection-model": "^19.1.1",
-    "mongodb-data-service": "^19.2.1",
+    "mongodb-connection-model": "^19.2.0",
+    "mongodb-data-service": "^19.3.0",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",
     "node-loader": "^0.6.0",
@@ -124,6 +124,5 @@
     "webpack-node-externals": "^1.7.2",
     "webpack-sources": "1.4.3",
     "xvfb-maybe": "^0.2.1"
-  },
-  "dependencies": {}
+  }
 }

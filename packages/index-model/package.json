@@ -2,7 +2,7 @@
   "name": "mongodb-index-model",
   "description": "MongoDB index model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "2.6.1",
+  "version": "2.7.0",
   "bugs": "https://github.com/mongodb-js/index-model/issues",
   "homepage": "https://github.com/mongodb-js/index-model",
   "repository": {
@@ -23,7 +23,7 @@
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "dependencies": {
-    "@mongodb-js/triejs": "^0.1.5",
+    "@mongodb-js/triejs": "^0.2.0",
     "ampersand-collection": "^1.6.1",
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^6.0.0",

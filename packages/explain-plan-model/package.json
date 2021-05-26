@@ -1,7 +1,7 @@
 {
   "name": "mongodb-explain-plan-model",
   "description": "Ampersand model abstraction for MongoDB explain plans (3.0+)",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
