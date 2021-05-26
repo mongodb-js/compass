@@ -57,10 +57,8 @@ function getReplacement(packageLocation, folder, rest, fromPath) {
 
   let newPath = path.relative(path.dirname(fromPath), packageFolders[folder]);
 
-  // console.log({folder, rest});
   newPath = newPath.startsWith('.') ? newPath : `./${newPath}`;
   const replacement = `from '${newPath}${rest}'`;
-  // console.log({fromPath, folder: packageFolders[folder], newPath});
   return replacement;
 }
 
