@@ -1,5 +1,11 @@
 .create-collection-modal {
-  &-content {
-    max-height: ~"calc(100vh - 60px)";
+  :global(p) {
+    display: block;
+    margin: 0;
+  }
+
+  div[role=dialog] > :first-child {
+    max-height: 80vh;
+    overflow: scroll;
   }
 }

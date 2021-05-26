@@ -150,6 +150,8 @@
     "@leafygreen-ui/confirmation-modal": "^2.2.0",
     "@leafygreen-ui/icon": "^11.0.0",
     "@leafygreen-ui/modal": "^6.1.0",
+    "@leafygreen-ui/portal": "^3.1.2",
+    "@leafygreen-ui/select": "^3.0.1",
     "@leafygreen-ui/text-input": "^6.0.2",
     "@leafygreen-ui/tooltip": "^6.2.1",
     "@leafygreen-ui/typography": "^8.0.1",
