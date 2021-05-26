@@ -11,9 +11,12 @@ function main() {
 }
 
 function removeAliases({location: packageLocation}) {
-  console.log('\nRemoving aliases from', path.relative('.', packageLocation), '...');
+  if(!fs.existsSync(path.join(packageLocation, 'config/webpack.dev.config.js'))) {
+    return;
+  }
 
-  const regex = /from '(actions|components|constants|fonts|images|less|models|modules|plugin|stores|utils)([^']*)'/g
+  console.log('\nRemoving aliases from', path.relative('.', packageLocation), '...');
+  const regex = /from '(actions|components|constants|storybook|models|modules|plugin|stores|utils)([^']*)'/g
 
   const allJsFiles = glob.sync(
     path.join(packageLocation, '**/*.{js,jsx}'),
@@ -27,6 +30,7 @@ function removeAliases({location: packageLocation}) {
   let replacementCount = 0;
   for (const filePath of allJsFiles) {
     const fileContent = fs.readFileSync(filePath, 'utf-8');
+
     const newFileContent = fileContent.replace(regex, (match, folder, rest) => {
       replacementCount++;
       const replacement = getReplacement(packageLocation, folder, rest, filePath);
@@ -45,14 +49,12 @@ function getReplacement(packageLocation, folder, rest, fromPath) {
     actions: path.join(packageLocation, 'src', 'actions'),
     components: path.join(packageLocation, 'src', 'components'),
     constants: path.join(packageLocation, 'src', 'constants'),
-    fonts: path.join(packageLocation, 'src', 'assets/fonts'),
-    images: path.join(packageLocation, 'src', 'assets/images'),
-    less: path.join(packageLocation, 'src', 'assets/less'),
     models: path.join(packageLocation, 'src', 'models'),
     modules: path.join(packageLocation, 'src', 'modules'),
     plugin: path.join(packageLocation, 'src', 'index.js'),
     stores: path.join(packageLocation, 'src', 'stores'),
-    utils: path.join(packageLocation, 'src', 'utils')
+    utils: path.join(packageLocation, 'src', 'utils'),
+    storybook: path.join(packageLocation, '.storybook'),
   }
 
   let newPath = path.relative(path.dirname(fromPath), packageFolders[folder]);
