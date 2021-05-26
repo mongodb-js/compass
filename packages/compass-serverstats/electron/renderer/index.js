@@ -1,4 +1,7 @@
-require('@babel/register')({ extensions: ['.jsx'] });
+require('@babel/register')({
+  extensions: ['.jsx'],
+  root: require('path').resolve(__dirname, '..', '..')
+});
 
 const React = require('react');
 const ReactDOM = require('react-dom');
@@ -24,8 +27,14 @@ const PerformanceComponent = require('../../lib/components');
 
 global.hadronApp = app;
 global.hadronApp.appRegistry = new AppRegistry();
-global.hadronApp.appRegistry.registerStore('RTSS.ServerStatsStore', ServerStatsStore);
-global.hadronApp.appRegistry.registerStore('RTSS.CurrentOpStore', CurrentOpStore);
+global.hadronApp.appRegistry.registerStore(
+  'RTSS.ServerStatsStore',
+  ServerStatsStore
+);
+global.hadronApp.appRegistry.registerStore(
+  'RTSS.CurrentOpStore',
+  CurrentOpStore
+);
 global.hadronApp.appRegistry.registerStore('RTSS.TopStore', TopStore);
 global.hadronApp.instance = { host: { cpu_cores: 4 } };
 
