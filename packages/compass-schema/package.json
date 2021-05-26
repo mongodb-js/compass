@@ -150,7 +150,6 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "detect-coordinates": "^0.2.0",
     "leaflet": "^1.5.1",
     "leaflet-draw": "^1.0.4",
     "lodash.assign": "^4.2.0",

@@ -189,11 +189,6 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/compass-user-model.git'
   },
   {
-    name: 'detect-coordinates',
-    description: 'Geo coordinates detection based of a mongodb-schema type.',
-    repository: 'https://github.com/mongodb-js/detect-coordinates.git'
-  },
-  {
     name: 'electron-license',
     description: 'Tools for electron apps to work with licenses',
     repository: 'https://github.com/mongodb-js/electron-license.git'
