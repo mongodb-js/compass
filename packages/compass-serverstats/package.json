@@ -8,7 +8,7 @@
   "browser": "browser.js",
   "scripts": {
     "compile": "npm run jsx && npm run less",
-    "jsx": "babel ./src --out-dir ./lib --presets react",
+    "jsx": "babel ./src --out-dir ./lib",
     "less": "lessc ./styles/index.less ./styles/index.css",
     "prepublish": "npm run compile",
     "prestart": "npm run compile",
