@@ -5,7 +5,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { InfoSprinkle } from 'hadron-react-components';
 import ReactTooltip from 'react-tooltip';
-import getIndexHelpLink from 'utils/index-link-helper';
+import getIndexHelpLink from '../../utils/index-link-helper';
 
 const TOOLTIP_ID = 'index-type';
 

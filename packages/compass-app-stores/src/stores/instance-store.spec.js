@@ -1,9 +1,9 @@
 import AppRegistry from 'hadron-app-registry';
-import { InstanceStore as store } from 'stores';
-import { reset } from 'modules/instance/reset';
-import { INITIAL_STATE } from 'modules/instance/instance';
-import { changeDataService } from 'modules/instance/data-service';
-import { changeInstance } from 'modules/instance/instance';
+import { InstanceStore as store } from './';
+import { reset } from '../modules/instance/reset';
+import { INITIAL_STATE } from '../modules/instance/instance';
+import { changeDataService } from '../modules/instance/data-service';
+import { changeInstance } from '../modules/instance/instance';
 
 describe('InstanceStore [Store]', () => {
   beforeEach(() => {

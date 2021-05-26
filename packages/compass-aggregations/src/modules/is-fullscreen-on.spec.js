@@ -1,7 +1,7 @@
 import reducer, {
   toggleFullscreen,
   TOGGLE_FULLSCREEN
-} from 'modules/is-fullscreen-on';
+} from './is-fullscreen-on';
 
 describe('fullscreen module', () => {
   describe('#toggleFullscreen', () => {

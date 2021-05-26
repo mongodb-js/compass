@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import styles from './index-header-column.less';
 
-import { DEFAULT, DESC, ASC } from 'modules/indexes';
+import { DEFAULT, DESC, ASC } from '../../modules/indexes';
 
 /**
  * Component for an index header column.

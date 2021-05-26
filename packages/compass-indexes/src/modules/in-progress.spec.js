@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleInProgress,
   TOGGLE_IN_PROGRESS
-} from 'modules/in-progress';
+} from './in-progress';
 
 describe('drop index is running module', () => {
   describe('#reducer', () => {

@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsWildcard,
   TOGGLE_IS_WILDCARD
-} from 'modules/create-index/is-wildcard';
+} from '../create-index/is-wildcard';
 
 describe('create index is wildcard module', () => {
   describe('#reducer', () => {

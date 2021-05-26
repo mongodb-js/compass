@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import InputCollapser from 'components/input-collapser';
-import InputDocumentsCount from 'components/input-documents-count';
-import InputRefresh from 'components/input-refresh';
+import InputCollapser from '../input-collapser';
+import InputDocumentsCount from '../input-documents-count';
+import InputRefresh from '../input-refresh';
 
 import styles from './input-builder-toolbar.less';
 

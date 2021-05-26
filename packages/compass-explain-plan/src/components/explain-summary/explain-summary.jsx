@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { FlexBox } from 'components/flex-box';
-import { SummaryStat } from 'components/summary-stat';
-import { SummaryIndexStat } from 'components/summary-index-stat';
+import { FlexBox } from '../flex-box';
+import { SummaryStat } from '../summary-stat';
+import { SummaryIndexStat } from '../summary-index-stat';
 
-import INDEX_TYPES from 'constants/index-types';
+import INDEX_TYPES from '../../constants/index-types';
 
 import styles from './explain-summary.less';
 

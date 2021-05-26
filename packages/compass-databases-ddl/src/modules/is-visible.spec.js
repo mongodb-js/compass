@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsVisible,
   TOGGLE_IS_VISIBLE
-} from 'modules/is-visible';
+} from './is-visible';
 
 describe('drop database is visible module', () => {
   describe('#reducer', () => {

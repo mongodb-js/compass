@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import JsonEditor from 'components/json-editor';
+import JsonEditor from './json-editor';
 
 /**
  * The full document list container class.

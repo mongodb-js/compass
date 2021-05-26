@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import CreateIndexButton from 'components/create-index-button';
+import CreateIndexButton from '../create-index-button';
 
 describe('create-index-button [Component]', () => {
   let component;

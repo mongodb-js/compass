@@ -1,6 +1,6 @@
 import { Element } from 'hadron-document';
 import { ObjectID as ObjectId } from 'bson';
-import { ObjectIdEditor } from 'components/editor';
+import { ObjectIdEditor } from '../editor';
 
 describe('ObjectIdEditor', () => {
   describe('#start', () => {

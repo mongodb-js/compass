@@ -1,4 +1,4 @@
-import { generateStage, generateStageAsString} from 'modules/stage';
+import { generateStage, generateStageAsString} from './stage';
 import bson from 'bson';
 
 describe('Stage module', () => {

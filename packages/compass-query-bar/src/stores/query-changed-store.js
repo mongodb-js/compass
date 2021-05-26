@@ -2,7 +2,7 @@ import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import { pick, isEqual, cloneDeep } from 'lodash';
 
-import QUERY_PROPERTIES from 'constants/query-properties';
+import QUERY_PROPERTIES from '../constants/query-properties';
 
 const debug = require('debug')('mongodb-compass:stores:query-changed-store');
 

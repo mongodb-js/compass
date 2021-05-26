@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsBackground,
   TOGGLE_IS_BACKGROUND
-} from 'modules/create-index/is-background';
+} from '../create-index/is-background';
 
 describe('create index is background module', () => {
   describe('#reducer', () => {

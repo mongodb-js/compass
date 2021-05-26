@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   LOAD_DETAILS_PLUGINS,
   loadDetailsPlugins
-} from 'modules/details-plugins';
+} from './details-plugins';
 import AppRegistry from 'hadron-app-registry';
 
 describe('details-plugins module', () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import AutoUpdate from 'components/auto-update';
+import AutoUpdate from '../auto-update';
 import styles from './auto-update.less';
 
 describe('AutoUpdate [Component]', () => {

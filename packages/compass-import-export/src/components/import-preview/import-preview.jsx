@@ -2,13 +2,13 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import styles from './import-preview.less';
 
-import createStyler from 'utils/styler.js';
+import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'import-preview');
 
-import { createLogger } from 'utils/logger';
+import { createLogger } from '../../utils/logger';
 const debug = createLogger('import-preview');
 
-import SelectFieldType from 'components/select-field-type';
+import SelectFieldType from '../select-field-type';
 
 class PreviewRow extends PureComponent {
   static propTypes = {

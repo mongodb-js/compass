@@ -1,11 +1,11 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import CompassFindInPage from 'components/compass-find-in-page';
-import FindInPageInput from 'components/find-in-page-input';
+import CompassFindInPage from '../compass-find-in-page';
+import FindInPageInput from '../find-in-page-input';
 
-import { toggleStatus } from 'modules';
-import store from 'stores';
+import { toggleStatus } from '../../modules';
+import store from '../../stores';
 
 describe('CompassFindInPage [Component]', () => {
   context('when the component is rendered and status is enabled', () => {

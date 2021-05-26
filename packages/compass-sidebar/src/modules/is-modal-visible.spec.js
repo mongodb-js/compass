@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   TOGGLE_IS_MODAL_VISIBLE,
   toggleIsModalVisible
-} from 'modules/is-modal-visible';
+} from './is-modal-visible';
 
 describe('is-modal-visible module', () => {
   describe('reducer', () => {

@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 
-import CollectionTab from 'components/collection-tab';
+import CollectionTab from '../collection-tab';
 import styles from './collection-tab.less';
 
 describe('CollectionTab [Component]', () => {

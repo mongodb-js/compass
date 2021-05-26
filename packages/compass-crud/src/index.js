@@ -1,9 +1,9 @@
-import Document from 'components/document';
-import DocumentList from 'components/document-list';
-import InsertDocumentDialog from 'components/insert-document-dialog';
-import ConnectedDocumentList from 'components/connected-document-list';
-import configureActions from 'actions';
-import configureStore from 'stores/crud-store';
+import Document from './components/document';
+import DocumentList from './components/document-list';
+import InsertDocumentDialog from './components/insert-document-dialog';
+import ConnectedDocumentList from './components/connected-document-list';
+import configureActions from './actions';
+import configureStore from './stores/crud-store';
 
 import {
   StandardEditor,
@@ -14,7 +14,7 @@ import {
   NullEditor,
   UndefinedEditor,
   ObjectIdEditor
-} from 'components/editor';
+} from './components/editor';
 
 const COLLECTION_TAB_ROLE = {
   component: ConnectedDocumentList,

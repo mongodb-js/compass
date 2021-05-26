@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import IndexHeaderColumn from 'components/index-header-column';
+import IndexHeaderColumn from '../index-header-column';
 
 import classnames from 'classnames';
 import styles from './index-header.less';

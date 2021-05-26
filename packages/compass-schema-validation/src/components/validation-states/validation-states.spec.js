@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ValidationStates from 'components/validation-states';
+import ValidationStates from '../validation-states';
 import styles from './validation-states.less';
 
 describe('ValidationStates [Component]', () => {

@@ -1,5 +1,5 @@
 import { Element } from 'hadron-document';
-import { StringEditor } from 'components/editor';
+import { StringEditor } from '../editor';
 
 describe('StringEditor', () => {
   describe('#size', () => {

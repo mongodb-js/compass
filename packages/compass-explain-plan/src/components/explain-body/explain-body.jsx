@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { ExplainSummary } from 'components/explain-summary';
-import { ExplainJSON } from 'components/explain-json';
-import { ExplainTree } from 'components/explain-tree';
+import { ExplainSummary } from '../explain-summary';
+import { ExplainJSON } from '../explain-json';
+import { ExplainTree } from '../explain-tree';
 
-import INDEX_TYPES from 'constants/index-types';
+import INDEX_TYPES from '../../constants/index-types';
 
 import styles from './explain-body.less';
 

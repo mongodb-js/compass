@@ -6,7 +6,7 @@
  * executed here.
  */
 
-// import store from 'stores';
+// import store from '../../src/stores';
 
 describe('ExplainPlanStore [Store]', () => {
   it('placeholder test', () => {

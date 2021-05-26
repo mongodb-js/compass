@@ -1,8 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { RecentListItem } from 'components/recent';
-import Query from 'components/query';
-import { Card, CardHeader, CardBody } from 'components/card';
+import { RecentListItem } from '../recent';
+import Query from '../query';
+import { Card, CardHeader, CardBody } from '../card';
 
 describe('RecentListItem [Component]', () => {
   const date = new Date();

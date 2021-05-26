@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { ComponentPreview } from 'storybook/decorators';
-import PipelineToolbar from 'components/pipeline-toolbar';
+import { ComponentPreview } from '../.storybook/decorators';
+import PipelineToolbar from '../src/components/pipeline-toolbar';
 
 import { action } from '@storybook/addon-actions';
 

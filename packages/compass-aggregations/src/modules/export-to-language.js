@@ -1,4 +1,4 @@
-import { generatePipelineAsString } from 'modules/pipeline';
+import { generatePipelineAsString } from './pipeline';
 import {
   localAppRegistryEmit,
   globalAppRegistryEmit

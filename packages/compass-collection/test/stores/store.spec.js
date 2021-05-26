@@ -1,6 +1,6 @@
 import AppRegistry from 'hadron-app-registry';
-import store from 'stores';
-import { reset } from 'modules';
+import store from '../../src/stores';
+import { reset } from '../../src/modules';
 
 describe('Collection Store', () => {
   const appRegistry = new AppRegistry();

@@ -1,5 +1,5 @@
 import bson from 'bson';
-import { Query } from 'models';
+import { Query } from './src/models';
 
 describe('Query [Model]', () => {
   context('#serialize', () => {

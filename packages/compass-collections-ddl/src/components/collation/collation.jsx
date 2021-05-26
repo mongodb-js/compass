@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import sortBy from 'lodash.sortby';
 import classnames from 'classnames';
-import COLLATION_OPTIONS from 'constants/collation';
+import COLLATION_OPTIONS from '../../constants/collation';
 
 import styles from './collation.less';
 

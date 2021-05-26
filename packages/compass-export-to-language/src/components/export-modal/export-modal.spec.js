@@ -1,8 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import ExportModal from 'components/export-modal';
-import ExportForm from 'components/export-form';
+import ExportModal from '../export-modal';
+import ExportForm from '../export-form';
 
 describe('ExportModal [Component]', () => {
   context('when the component is rendered', () => {

@@ -1,10 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import ExportForm from 'components/export-form';
-import SelectLang from 'components/select-lang';
+import ExportForm from '../export-form';
+import SelectLang from '../select-lang';
 import { Alert } from 'react-bootstrap';
-import Editor from 'components/editor';
+import Editor from '../editor';
 
 import styles from './export-form.less';
 

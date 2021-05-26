@@ -1,32 +1,32 @@
 import { combineReducers } from 'redux';
 
-import dataService from 'modules/data-service';
+import dataService from '../data-service';
 import appRegistry, {
   localAppRegistryEmit
 } from 'mongodb-redux-common/app-registry';
 import error, {
   clearError, handleError,
   INITIAL_STATE as ERROR_INITIAL_STATE
-} from 'modules/error';
+} from '../error';
 import inProgress, {
   toggleInProgress,
   INITIAL_STATE as IN_PROGRESS_INITIAL_STATE
-} from 'modules/in-progress';
+} from '../in-progress';
 import isVisible, {
   toggleIsVisible,
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
-} from 'modules/is-visible';
+} from '../is-visible';
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
-} from 'modules/drop-index/name';
+} from '../drop-index/name';
 import confirmName, {
   INITIAL_STATE as CONFIRM_NAME_INITIAL_STATE
-} from 'modules/drop-index/confirm-name';
+} from '../drop-index/confirm-name';
 
-import { RESET_FORM } from 'modules/reset-form';
-import { RESET, reset } from 'modules/reset';
-import { parseErrorMsg } from 'modules/indexes';
-import namespace from 'modules/namespace';
+import { RESET_FORM } from '../reset-form';
+import { RESET, reset } from '../reset';
+import { parseErrorMsg } from '../indexes';
+import namespace from '../namespace';
 
 /**
  * The main reducer.

@@ -1,8 +1,8 @@
 import AppRegistry from 'hadron-app-registry';
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import store from 'stores';
-import { reset } from 'modules/reset';
+import store from './';
+import { reset } from '../modules/reset';
 
 const WriteStateStore = Reflux.createStore({
   mixins: [StateMixin.store],

@@ -8,11 +8,11 @@ import {
 } from 'react-bootstrap';
 import { IconTextButton } from 'hadron-react-buttons';
 
-import FILE_TYPES from 'constants/file-types';
-import SelectFileType from 'components/select-file-type';
+import FILE_TYPES from '../../constants/file-types';
+import SelectFileType from '../select-file-type';
 
 import styles from './import-options.less';
-import createStyler from 'utils/styler.js';
+import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'import-options');
 
 class ImportOptions extends PureComponent {

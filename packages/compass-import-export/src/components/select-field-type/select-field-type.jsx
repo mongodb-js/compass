@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import bsonCSV from 'utils/bson-csv';
+import bsonCSV from '../../utils/bson-csv';
 
-import { createLogger } from 'utils/logger';
+import { createLogger } from '../../utils/logger';
 const debug = createLogger('select-field-type');
 
 function getBSONTypeCastings() {

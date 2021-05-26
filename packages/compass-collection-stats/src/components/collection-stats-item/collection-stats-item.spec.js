@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import CollectionStatsItem from 'components/collection-stats-item';
+import CollectionStatsItem from '../collection-stats-item';
 import styles from './collection-stats-item.less';
 
 describe('CollectionStatsItem [Component]', () => {

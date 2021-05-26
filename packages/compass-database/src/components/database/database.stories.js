@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import ComponentPreview from 'storybook/decorators/componentPreview';
-import { withChaptersOptions } from 'constants/storybook';
+import ComponentPreview from '../../../.storybook/decorators/componentPreview';
+import { withChaptersOptions } from '../../constants/storybook';
 
-import Database from 'components/database';
+import Database from '../database';
 
 storiesOf('Database', module)
   .addWithChapters('Example Title', {

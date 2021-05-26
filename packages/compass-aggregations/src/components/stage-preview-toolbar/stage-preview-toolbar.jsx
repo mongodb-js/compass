@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import decomment from 'decomment';
 import { InfoSprinkle } from 'hadron-react-components';
 import { Tooltip } from 'hadron-react-components';
-import { OUT } from 'modules/pipeline';
+import { OUT } from '../../modules/pipeline';
 
 import styles from './stage-preview-toolbar.less';
 

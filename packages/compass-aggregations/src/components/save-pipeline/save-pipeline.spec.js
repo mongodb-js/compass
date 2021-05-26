@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import SavePipeline from 'components/save-pipeline';
+import SavePipeline from '../save-pipeline';
 import styles from './save-pipeline.less';
 
 describe('SavePipeline [Component]', () => {

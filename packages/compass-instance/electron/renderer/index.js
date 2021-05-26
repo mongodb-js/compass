@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import InstancePlugin, { activate } from 'plugin';
+import InstancePlugin, { activate } from '../../src/index.js';
 import { activate as rtssActivate } from '@mongodb-js/compass-serverstats';
 import { activate as databaseActivate } from '@mongodb-js/compass-database';
 

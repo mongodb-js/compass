@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Element } from 'hadron-document';
-import RemoveAction from 'components/remove-action';
+import RemoveAction from './remove-action';
 
 describe('<RemoveAction />', () => {
   describe('#render', () => {

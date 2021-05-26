@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { humanize } from 'models/server-type';
+import { humanize } from '../models/server-type';
 import classnames from 'classnames';
 
 import styles from './single.less';

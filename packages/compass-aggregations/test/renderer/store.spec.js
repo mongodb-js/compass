@@ -6,7 +6,7 @@
  * executed here.
  */
 
-// import Store from 'stores';
+// import Store from '../../src/stores';
 
 describe('AggregationsStore [Store]', () => {
   it('placeholder test', () => {

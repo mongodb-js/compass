@@ -1,11 +1,11 @@
 import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
-import { generateStage, generateStageAsString } from 'modules/stage';
+import { generateStage, generateStageAsString } from './stage';
 import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
 import isEmpty from 'lodash.isempty';
-import { parseNamespace } from 'utils/stage';
-import { createId } from 'modules/id';
+import { parseNamespace } from '../utils/stage';
+import { createId } from './id';
 
 import {
   DEFAULT_MAX_TIME_MS,

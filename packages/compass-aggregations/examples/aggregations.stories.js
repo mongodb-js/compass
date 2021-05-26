@@ -1,11 +1,11 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { ComponentPreview } from 'storybook/decorators';
+import { ComponentPreview } from '../.storybook/decorators';
 
 import { Provider } from 'react-redux';
-import { INITIAL_STATE } from 'modules';
-import Aggregations from 'components/aggregations';
-import { configureStore } from 'utils/configureStore';
+import { INITIAL_STATE } from '../src/modules';
+import Aggregations from '../src/components/aggregations';
+import { configureStore } from '../src/utils/configureStore';
 
 import BASIC_EXAMPLE from './example-basic.js';
 import SCHEMA_CHECKER_EXAMPLE from './example-schema-checker.js';
@@ -17,8 +17,8 @@ import DataService from './data-service-provider';
 
 import { DEFAULT_STITCH_APP_ID } from './example-constants';
 
-import { runStage } from 'modules/pipeline';
-import { refreshInputDocuments } from 'modules/input-documents';
+import { runStage } from '../src/modules/pipeline';
+import { refreshInputDocuments } from '../src/modules/input-documents';
 
 const BASE_STATE = {
   ...INITIAL_STATE,

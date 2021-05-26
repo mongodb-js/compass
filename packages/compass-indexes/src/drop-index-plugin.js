@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
-import DropIndexModal from 'components/drop-index-modal';
+import DropIndexModal from './components/drop-index-modal';
 
 class DropIndexPlugin extends Component {
   static displayName = 'DropIndexPlugin';

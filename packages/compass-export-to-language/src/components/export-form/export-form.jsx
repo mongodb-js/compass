@@ -1,8 +1,8 @@
 import { IconTextButton } from 'hadron-react-buttons';
-import SelectLang from 'components/select-lang';
+import SelectLang from '../select-lang';
 import React, { PureComponent } from 'react';
 import { Alert } from 'react-bootstrap';
-import Editor from 'components/editor';
+import Editor from '../editor';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 

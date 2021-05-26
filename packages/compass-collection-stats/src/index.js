@@ -1,7 +1,7 @@
 import CollectionStatsPlugin from './plugin';
-import DocumentStatsItem from 'components/document-stats-item';
-import IndexStatsItem from 'components/index-stats-item';
-import configureStore from 'stores';
+import DocumentStatsItem from './components/document-stats-item';
+import IndexStatsItem from './components/index-stats-item';
+import configureStore from './stores';
 
 const COLLECTION_HUD_ROLE = {
   component: CollectionStatsPlugin,

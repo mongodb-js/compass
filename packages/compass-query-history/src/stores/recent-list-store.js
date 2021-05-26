@@ -3,8 +3,8 @@ import StateMixin from 'reflux-state-mixin';
 import { remote } from 'electron';
 import _ from 'lodash';
 
-import { formatQuery } from 'utils';
-import { RecentQuery, RecentQueryCollection } from 'models';
+import { formatQuery } from '../utils';
+import { RecentQuery, RecentQueryCollection } from '../models';
 
 const TOTAL_RECENTS = 30;
 const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit', 'collation'];

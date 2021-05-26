@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import { activate } from 'plugin';
+import { activate } from '../../src/index.js';
 
 import ComponentPlugin from './plugin';
 

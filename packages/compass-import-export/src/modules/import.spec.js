@@ -20,7 +20,7 @@ import reducer, {
   INITIAL_STATE
 } from './import';
 
-// import PROCESS_STATUS from 'constants/process-status';
+// import PROCESS_STATUS from '../constants/process-status';
 
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';

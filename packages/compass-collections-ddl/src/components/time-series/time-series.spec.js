@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import TimeSeries from 'components/time-series';
+import TimeSeries from '../time-series';
 import styles from './time-series.less';
 
 describe('TimeSeries [Component]', () => {

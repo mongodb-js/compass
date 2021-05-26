@@ -1,8 +1,8 @@
 import React from 'react';
 import { StoreConnector } from 'hadron-react-components';
-import DeploymentAwarenessComponent from 'components/deployment-awareness';
-import Store from 'stores';
-import Actions from 'actions';
+import DeploymentAwarenessComponent from './components/deployment-awareness';
+import Store from './stores';
+import Actions from './actions';
 
 class ConnectedDeploymentAwarenessComponent extends React.Component {
   static displayName = 'ConnectedDeploymentAwarenessComponent';

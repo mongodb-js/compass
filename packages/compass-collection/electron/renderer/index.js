@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import CollectionPlugin, { activate } from 'plugin';
+import CollectionPlugin, { activate } from '../../src/index.js';
 import { activate as activateAgg } from '@mongodb-js/compass-aggregations';
 import { activate as activateCrud } from '@mongodb-js/compass-crud';
 import { activate as activateDA } from '@mongodb-js/compass-deployment-awareness';

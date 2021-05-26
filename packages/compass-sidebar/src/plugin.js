@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import Sidebar from 'components/sidebar';
-import store from 'stores';
+import Sidebar from './components/sidebar';
+import store from './stores';
 
 class Plugin extends Component {
   static displayName = 'SidebarPlugin';

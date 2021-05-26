@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { getNode, getApi, getActions, getContext, notCalledExcept } from '../../test/aggrid-helper';
-import FullWidthCellRenderer from 'components/table-view/full-width-cell-renderer';
+import FullWidthCellRenderer from './table-view/full-width-cell-renderer';
 import AppRegistry from 'hadron-app-registry';
 import app from 'hadron-app';
 import { ObjectID as ObjectId } from 'bson';

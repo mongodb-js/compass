@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import { dataServiceConnected } from 'modules/data-service';
-import reducer, { open } from 'modules/drop-collection';
+import { dataServiceConnected } from '../modules/data-service';
+import reducer, { open } from '../modules/drop-collection';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 

@@ -1,4 +1,4 @@
-import { resetForm, RESET_FORM } from 'modules/reset-form';
+import { resetForm, RESET_FORM } from './reset-form';
 
 describe('reset module', () => {
   describe('#resetForm', () => {

@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import { ZeroState } from 'hadron-react-components';
-import Toolbar from 'components/toolbar';
-import DatabasesTable from 'components/databases-table';
-import { showDatabase } from 'modules/show-database';
-import { sortDatabases } from 'modules/databases';
-import { open as openCreate } from 'modules/create-database';
-import { open as openDrop } from 'modules/drop-database';
+import Toolbar from '../toolbar';
+import DatabasesTable from '../databases-table';
+import { showDatabase } from '../../modules/show-database';
+import { sortDatabases } from '../../modules/databases';
+import { open as openCreate } from '../../modules/create-database';
+import { open as openDrop } from '../../modules/drop-database';
 
 import styles from './ddl.less';
 

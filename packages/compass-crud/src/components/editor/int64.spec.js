@@ -1,6 +1,6 @@
 import { Element } from 'hadron-document';
 import { Long } from 'bson';
-import { Int64Editor } from 'components/editor';
+import { Int64Editor } from '../editor';
 
 describe('Int64Editor', () => {
   describe('#start', () => {

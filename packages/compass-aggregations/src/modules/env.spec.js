@@ -1,4 +1,4 @@
-import reducer, { envChanged, ENV_CHANGED } from 'modules/env';
+import reducer, { envChanged, ENV_CHANGED } from './env';
 
 describe('env module', () => {
   describe('#envChanged', () => {

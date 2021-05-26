@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import InstancePlugin from './component/instance-component';
 import NamespacePlugin from './component/namespace-component';
 import CollectionPlugin from './component/collection-component';
-import { InstanceStore, NamespaceStore, CollectionStore } from 'stores';
+import { InstanceStore, NamespaceStore, CollectionStore } from '../../src/stores';
 
 class Plugin extends Component {
   static displayName = 'TestPlugin';

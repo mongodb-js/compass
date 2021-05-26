@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import CreateCollectionModal from 'components/create-collection-modal';
-import store from 'stores/create-collection';
+import CreateCollectionModal from '../create-collection-modal';
+import store from '../../stores/create-collection';
 
 class CreateCollectionPlugin extends Component {
   static displayName = 'CreateCollectionPlugin';

@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import ComponentPreview from 'storybook/decorators/componentPreview';
-import { withChaptersOptions } from 'constants/storybook';
+import ComponentPreview from '../../../.storybook/decorators/componentPreview';
+import { withChaptersOptions } from '../../constants/storybook';
 
-import Loading from 'components/loading';
+import Loading from '../loading';
 
 storiesOf('Loading', module)
   .addWithChapters('Example Title', {

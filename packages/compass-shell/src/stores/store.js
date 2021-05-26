@@ -1,6 +1,6 @@
 import { createStore } from 'redux';
-import reducer from 'modules';
-import { setupRuntime } from 'modules/runtime';
+import reducer from '../modules';
+import { setupRuntime } from '../modules/runtime';
 import {
   globalAppRegistryActivated
 } from 'mongodb-redux-common/app-registry';

@@ -10,43 +10,43 @@ import pluck from 'lodash.pluck';
 import classnames from 'classnames';
 import styles from './create-index-modal.less';
 
-import CreateIndexField from 'components/create-index-field';
+import CreateIndexField from '../create-index-field';
 
-import { toggleInProgress } from 'modules/in-progress';
-import { toggleShowOptions } from 'modules/create-index/show-options';
+import { toggleInProgress } from '../../modules/in-progress';
+import { toggleShowOptions } from '../../modules/create-index/show-options';
 import {
   addField,
   removeField,
   updateFieldType,
   updateFieldName
-} from 'modules/create-index/fields';
-import { changeName } from 'modules/create-index/name';
-import { changeSchemaFields } from 'modules/create-index/schema-fields';
-import { clearError, handleError } from 'modules/error';
-import { toggleIsVisible } from 'modules/is-visible';
-import { toggleIsBackground } from 'modules/create-index/is-background';
-import { toggleIsUnique } from 'modules/create-index/is-unique';
+} from '../../modules/create-index/fields';
+import { changeName } from '../../modules/create-index/name';
+import { changeSchemaFields } from '../../modules/create-index/schema-fields';
+import { clearError, handleError } from '../../modules/error';
+import { toggleIsVisible } from '../../modules/is-visible';
+import { toggleIsBackground } from '../../modules/create-index/is-background';
+import { toggleIsUnique } from '../../modules/create-index/is-unique';
 import {
   toggleIsPartialFilterExpression
-} from 'modules/create-index/is-partial-filter-expression';
-import { toggleIsTtl } from 'modules/create-index/is-ttl';
-import { changeTtl } from 'modules/create-index/ttl';
-import { toggleIsWildcard } from 'modules/create-index/is-wildcard';
+} from '../../modules/create-index/is-partial-filter-expression';
+import { toggleIsTtl } from '../../modules/create-index/is-ttl';
+import { changeTtl } from '../../modules/create-index/ttl';
+import { toggleIsWildcard } from '../../modules/create-index/is-wildcard';
 import {
   changeWildcardProjection
-} from 'modules/create-index/wildcard-projection';
+} from '../../modules/create-index/wildcard-projection';
 import {
   changePartialFilterExpression
-} from 'modules/create-index/partial-filter-expression';
+} from '../../modules/create-index/partial-filter-expression';
 import {
   toggleIsCustomCollation
-} from 'modules/create-index/is-custom-collation';
-import { changeCollationOption } from 'modules/create-index/collation';
-import { openLink } from 'modules/link';
-import { createIndex } from 'modules/create-index';
-import { resetForm } from 'modules/reset-form';
+} from '../../modules/create-index/is-custom-collation';
+import { changeCollationOption } from '../../modules/create-index/collation';
+import { openLink } from '../../modules/link';
+import { createIndex } from '../../modules/create-index';
+import { resetForm } from '../../modules/reset-form';
 
-import getIndexHelpLink from 'utils/index-link-helper';
+import getIndexHelpLink from '../../utils/index-link-helper';
 
 /**
  * Component for the create index modal.

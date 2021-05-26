@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { changeFields } from 'modules';
-import { reset } from 'modules/reset';
+import { changeFields } from '../../../src/modules';
+import { reset } from '../../../src/modules/reset';
 
 class TestPlugin extends Component {
   static displayName = 'TestPluginComponent';

@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import styles from './sidebar-database.less';
 
-import { TOOLTIP_IDS } from 'constants/sidebar-constants';
-import SidebarCollection from 'components/sidebar-collection';
+import { TOOLTIP_IDS } from '../../constants/sidebar-constants';
+import SidebarCollection from '../sidebar-collection';
 
 class SidebarDatabase extends PureComponent {
   static displayName = 'SidebarDatabase';

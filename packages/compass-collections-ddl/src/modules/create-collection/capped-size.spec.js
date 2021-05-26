@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeCappedSize,
   CHANGE_CAPPED_SIZE
-} from 'modules/create-collection/capped-size';
+} from '../create-collection/capped-size';
 
 describe('create collection capped size module', () => {
   describe('#reducer', () => {

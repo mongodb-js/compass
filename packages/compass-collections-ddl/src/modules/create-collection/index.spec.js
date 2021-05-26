@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 import reducer, { createCollection as makeCreateCollection } from './index';
-import { reset } from 'modules/reset';
+import { reset } from '../reset';
 
 import {
   CLEAR_ERROR,

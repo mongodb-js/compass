@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ANSIConverter from 'ansi-to-html';
 
 import styles from './error-box.less';
-import createStyler from 'utils/styler.js';
+import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'error-box');
 
 /**

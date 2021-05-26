@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
-import ImportModal from 'components/import-modal';
+import ImportModal from './components/import-modal';
 
 class ImportPlugin extends Component {
   static displayName = 'ImportPlugin';

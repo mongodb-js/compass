@@ -1,6 +1,6 @@
 import { Element } from 'hadron-document';
 import { Double } from 'bson';
-import { DoubleEditor } from 'components/editor';
+import { DoubleEditor } from '../editor';
 
 describe('DoubleEditor', () => {
   describe('#start', () => {

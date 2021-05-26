@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import FontAwesome from 'react-fontawesome';
-import ToggleQueryHistoryButton from 'components/toggle-query-history-button';
+import ToggleQueryHistoryButton from '../toggle-query-history-button';
 
 import styles from './toggle-query-history-button.less';
 

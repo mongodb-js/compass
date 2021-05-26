@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { CreateCollectionModal } from 'components/create-collection-modal';
+import { CreateCollectionModal } from '../create-collection-modal';
 import styles from './create-collection-modal.less';
 
 describe('CreateCollectionModal [Component]', () => {

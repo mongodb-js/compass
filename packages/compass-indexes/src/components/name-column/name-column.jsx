@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import IndexDefinitionType from 'components/index-definition-type';
+import IndexDefinitionType from '../index-definition-type';
 
 import classnames from 'classnames';
 import styles from './name-column.less';

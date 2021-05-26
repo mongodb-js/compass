@@ -1,4 +1,4 @@
-import reducer, { toggleStatus, setSearchTerm } from 'modules';
+import reducer, { toggleStatus, setSearchTerm } from '../modules';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 

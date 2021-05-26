@@ -7,7 +7,7 @@ import {
   SHARDED,
   SINGLE,
   UNKNOWN
-} from 'models/topology-type';
+} from '../../src/models/topology-type';
 
 describe('TopologyType', () => {
   describe('.isReadable', () => {

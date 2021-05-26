@@ -1,5 +1,5 @@
 import HomePlugin from './plugin';
-import HomeStore from 'stores';
+import HomeStore from './stores';
 
 /**
  * Activate all the components in the Home package.

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import CollectionStatsItem from 'components/collection-stats-item';
+import CollectionStatsItem from '../collection-stats-item';
 
 import styles from './index-stats-item.less';
 

@@ -1,6 +1,6 @@
 /* eslint guard-for-in: 0 no-loop-func: 0 */
-import configureStore from 'stores/grid-store';
-import configureActions from 'actions';
+import configureStore from '../../src/stores/grid-store';
+import configureActions from '../../src/actions';
 import { assert } from 'chai';
 
 describe('store', () => {

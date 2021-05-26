@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeCollectionName,
   CHANGE_COLLECTION_NAME
-} from 'modules/create-database/collection-name';
+} from '../create-database/collection-name';
 
 describe('create database collection name module', () => {
   describe('#reducer', () => {

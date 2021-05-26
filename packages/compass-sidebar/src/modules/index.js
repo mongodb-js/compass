@@ -1,44 +1,44 @@
 import { combineReducers } from 'redux';
 
 import appRegistry from 'mongodb-redux-common/app-registry';
-import detailsPlugins from 'modules/details-plugins';
+import detailsPlugins from './details-plugins';
 import databases, {
   INITIAL_STATE as DATABASES_INITIAL_STATE
-} from 'modules/databases';
+} from './databases';
 import description, {
   INITIAL_STATE as DESCRIPTION_INITIAL_STATE
-} from 'modules/description';
+} from './description';
 import instance, {
   INITIAL_STATE as INSTANCE_INITIAL_STATE
-} from 'modules/instance';
+} from './instance';
 import filterRegex, {
   INITIAL_STATE as FILTER_REGEX_INITIAL_STATE
-} from 'modules/filter-regex';
+} from './filter-regex';
 import isCollapsed, {
   INITIAL_STATE as IS_COLLAPSED_INITIAL_STATE
-} from 'modules/is-collapsed';
+} from './is-collapsed';
 import isDetailsExpanded, {
   INITIAL_STATE as IS_DETAILS_EXPANDED_INITIAL_STATE
-} from 'modules/is-details-expanded';
+} from './is-details-expanded';
 import isWritable, {
   INITIAL_STATE as IS_WRITABLE_INITIAL_STATE
-} from 'modules/is-writable';
+} from './is-writable';
 import isDataLake, {
   INITIAL_STATE as DL_INITIAL_STATE
 } from './is-data-lake';
-import { RESET } from 'modules/reset';
+import { RESET } from './reset';
 import isGenuineMongoDB, {
   INITIAL_STATE as GENUINE_IS
-} from 'modules/is-genuine-mongodb';
+} from './is-genuine-mongodb';
 import isGenuineMongoDBVisible, {
   INITIAL_STATE as IS_VISIBLE_IS
-} from 'modules/is-genuine-mongodb-visible';
+} from './is-genuine-mongodb-visible';
 import connectionModel, {
   INITIAL_STATE as CONNECTION_MODEL_IS
-} from 'modules/connection-model';
+} from './connection-model';
 import isModalVisible, {
   INITIAL_STATE as MODAL_VISIBLE_IS
-} from 'modules/is-modal-visible';
+} from './is-modal-visible';
 
 /**
  * The reducer.

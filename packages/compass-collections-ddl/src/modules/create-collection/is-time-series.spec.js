@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsTimeSeries,
   TOGGLE_IS_TIME_SERIES
-} from 'modules/create-collection/is-time-series';
+} from '../create-collection/is-time-series';
 
 describe('create collection is capped module', () => {
   describe('#reducer', () => {

@@ -3,7 +3,7 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { mount } from 'enzyme';
 import HadronDocument from 'hadron-document';
-import EditableElement from 'components/editable-element';
+import EditableElement from './editable-element';
 
 describe('<EditableElement />', () => {
   before(() => {

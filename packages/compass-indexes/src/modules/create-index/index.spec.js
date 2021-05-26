@@ -1,8 +1,8 @@
-import { createIndex, createName } from 'modules/create-index';
-import { HANDLE_ERROR, CLEAR_ERROR } from 'modules/error';
-import { TOGGLE_IN_PROGRESS } from 'modules/in-progress';
-import { TOGGLE_IS_VISIBLE } from 'modules/is-visible';
-import { RESET } from 'modules/reset';
+import { createIndex, createName } from '../create-index';
+import { HANDLE_ERROR, CLEAR_ERROR } from '../error';
+import { TOGGLE_IN_PROGRESS } from '../in-progress';
+import { TOGGLE_IS_VISIBLE } from '../is-visible';
+import { RESET } from '../reset';
 
 describe('create index is background module', () => {
   let errorSpy;

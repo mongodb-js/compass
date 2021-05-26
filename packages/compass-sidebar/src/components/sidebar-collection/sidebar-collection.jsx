@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 import toNS from 'mongodb-ns';
-import { collectionMetadata, getSource } from 'modules/collection';
+import { collectionMetadata, getSource } from '../../modules/collection';
 
 import classnames from 'classnames';
 import styles from './sidebar-collection.less';

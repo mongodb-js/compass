@@ -1,8 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Input from 'components/input';
-import InputToolbar from 'components/input-toolbar';
+import Input from '../input';
+import InputToolbar from '../input-toolbar';
 import styles from './input.less';
 
 import workspaceStyles from '../input-workspace/input-workspace.less';

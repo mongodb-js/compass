@@ -7,13 +7,13 @@ import { ModalStatusMessage } from 'hadron-react-components';
 import classnames from 'classnames';
 import styles from './drop-index-modal.less';
 
-import { toggleIsVisible } from 'modules/is-visible';
-import { toggleInProgress } from 'modules/in-progress';
-import { changeName } from 'modules/drop-index/name';
-import { changeConfirmName } from 'modules/drop-index/confirm-name';
-import { handleError, clearError } from 'modules/error';
-import { dropIndex } from 'modules/drop-index';
-import { resetForm } from 'modules/reset-form';
+import { toggleIsVisible } from '../../modules/is-visible';
+import { toggleInProgress } from '../../modules/in-progress';
+import { changeName } from '../../modules/drop-index/name';
+import { changeConfirmName } from '../../modules/drop-index/confirm-name';
+import { handleError, clearError } from '../../modules/error';
+import { dropIndex } from '../../modules/drop-index';
+import { resetForm } from '../../modules/reset-form';
 
 /**
  * Component for the drop confirmation modal.

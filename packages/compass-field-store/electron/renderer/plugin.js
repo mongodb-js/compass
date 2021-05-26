@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import TestPlugin from './component';
-import store from 'stores';
+import store from '../../src/stores';
 
 class Plugin extends Component {
   static displayName = 'TestPlugin';

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 import { InfoSprinkle } from 'hadron-react-components';
 import { shell } from 'electron';
-import getIndexHelpLink from 'utils/index-link-helper';
+import getIndexHelpLink from '../../utils/index-link-helper';
 
 import classnames from 'classnames';
 import styles from './property-column.less';

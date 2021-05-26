@@ -1,7 +1,7 @@
 import reducer, {
   serverVersionChanged,
   SERVER_VERSION_CHANGED
-} from 'modules/server-version';
+} from './server-version';
 
 describe('server version module', () => {
   describe('#serverVersionChanged', () => {
