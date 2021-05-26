@@ -1,4 +1,4 @@
-import reducer, { dataServiceConnected, DATA_SERVICE_CONNECTED } from './/data-service';
+import reducer, { dataServiceConnected, DATA_SERVICE_CONNECTED } from './data-service';
 
 describe('data service module', () => {
   describe('#dataServiceConnected', () => {

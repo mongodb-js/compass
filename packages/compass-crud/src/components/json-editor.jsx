@@ -5,8 +5,8 @@ import EJSON from 'mongodb-extended-json';
 import jsBeautify from 'js-beautify';
 import jsonParse from 'fast-json-parse';
 import { TextButton } from 'hadron-react-buttons';
-import DocumentActions from './/document-actions';
-import RemoveDocumentFooter from './/remove-document-footer';
+import DocumentActions from './document-actions';
+import RemoveDocumentFooter from './remove-document-footer';
 
 import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';

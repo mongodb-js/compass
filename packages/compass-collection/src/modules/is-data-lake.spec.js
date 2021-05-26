@@ -1,4 +1,4 @@
-import reducer, { isDataLakeChanged, IS_DATA_LAKE_CHANGED } from './/is-data-lake';
+import reducer, { isDataLakeChanged, IS_DATA_LAKE_CHANGED } from './is-data-lake';
 
 describe('is data lake module', () => {
   describe('#isDataLakeChanged', () => {

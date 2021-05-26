@@ -1,4 +1,4 @@
-import reducer, { queryChanged, QUERY_CHANGED } from './/query';
+import reducer, { queryChanged, QUERY_CHANGED } from './query';
 
 describe('query module', () => {
   describe('#queryChanged', () => {

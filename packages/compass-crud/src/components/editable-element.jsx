@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import getComponent from 'hadron-react-bson';
 import { Element } from 'hadron-document';
-import EditableKey from './/editable-key';
-import EditableValue from './/editable-value';
-import ElementAction from './/element-action';
-import LineNumber from './/line-number';
-import Types from './/types';
+import EditableKey from './editable-key';
+import EditableValue from './editable-value';
+import ElementAction from './element-action';
+import LineNumber from './line-number';
+import Types from './types';
 
 /**
  * The BEM base style name for the element.

@@ -1,5 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
-import store from './/create-collection';
+import store from './create-collection';
 import { reset } from '../modules/reset';
 
 describe('CreateCollectionStore [Store]', () => {

@@ -1,4 +1,4 @@
-import { SORT_INDEXES } from './/indexes';
+import { SORT_INDEXES } from './indexes';
 
 /**
  * The initial state of the sort column attribute.

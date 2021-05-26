@@ -1,5 +1,5 @@
-import { createId } from './/id';
-import { setIsModified } from './/is-modified';
+import { createId } from './id';
+import { setIsModified } from './is-modified';
 import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 
 const PREFIX = 'aggregations/saved-pipeline';

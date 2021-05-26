@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   getDescription,
   GET_DESCRIPTION
-} from './/description';
+} from './description';
 
 describe('drop/create index is visible module', () => {
   describe('#reducer', () => {

@@ -8,7 +8,7 @@ import {
   notCalledExcept,
   getContext
 } from '../../test/aggrid-helper';
-import CellRenderer from './/table-view/cell-renderer';
+import CellRenderer from './table-view/cell-renderer';
 
 describe('<CellRenderer />', () => {
   describe('#render', () => {

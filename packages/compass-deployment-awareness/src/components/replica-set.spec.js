@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import ReplicaSet from './/replica-set';
+import ReplicaSet from './replica-set';
 import ServerType from '../models/server-type';
 import TopologyType from '../models/topology-type';
 

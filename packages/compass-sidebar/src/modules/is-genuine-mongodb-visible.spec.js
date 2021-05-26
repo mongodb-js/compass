@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsGenuineMongoDBVisible,
   TOGGLE_IS_GENUINE_MONGODB_VISIBLE
-} from './/is-genuine-mongodb-visible';
+} from './is-genuine-mongodb-visible';
 
 describe('is genuine mongodb visible module', () => {
   describe('#reducer', () => {

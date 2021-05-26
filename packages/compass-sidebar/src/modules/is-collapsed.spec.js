@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsCollapsed,
   TOGGLE_IS_COLLAPSED
-} from './/is-collapsed';
+} from './is-collapsed';
 
 describe('sidebar isCollapsed', () => {
   describe('#reducer', () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import Unknown from './/unknown';
+import Unknown from './unknown';
 import {
   RS_PRIMARY,
   RS_SECONDARY

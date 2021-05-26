@@ -34,7 +34,7 @@ import mime from 'mime-types';
 
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
-import { appRegistryEmit, globalAppRegistryEmit } from './/compass';
+import { appRegistryEmit, globalAppRegistryEmit } from './compass';
 
 import detectImportFile from '../utils/detect-import-file';
 import { createCollectionWriteStream } from '../utils/collection-stream';

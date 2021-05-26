@@ -1,7 +1,7 @@
 import reducer, {
   loadDatabases,
   LOAD_DATABASES
-} from './/databases';
+} from './databases';
 
 const SPOTIFY = {
   _id: 'spotify',

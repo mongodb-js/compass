@@ -8,7 +8,7 @@ import reducer, {
   SAVING_PIPELINE_CANCEL,
   SAVING_PIPELINE_OPEN,
   INITIAL_STATE
-} from './/saving-pipeline';
+} from './saving-pipeline';
 
 describe('saving-pipeline module', () => {
   describe('#savingPipelineNameChanged', () => {

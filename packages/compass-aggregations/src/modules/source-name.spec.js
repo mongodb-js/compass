@@ -1,4 +1,4 @@
-import reducer, { sourceNameChanged, SOURCE_NAME_CHANGED } from './/source-name';
+import reducer, { sourceNameChanged, SOURCE_NAME_CHANGED } from './source-name';
 
 describe('sourceName module', () => {
   describe('#sourceNameChanged', () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import Sharded from './/sharded';
+import Sharded from './sharded';
 import ServerType from '../models/server-type';
 
 import styles from './sharded.less';

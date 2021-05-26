@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeNamespace,
   CHANGE_NAMESPACE
-} from './/namespace';
+} from './namespace';
 
 describe('namespace module', () => {
   describe('#reducer', () => {

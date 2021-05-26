@@ -1,4 +1,4 @@
-import reducer, { changeStatus, CHANGE_STATUS } from './/status';
+import reducer, { changeStatus, CHANGE_STATUS } from './status';
 
 describe('status module', () => {
   describe('#reducer', () => {

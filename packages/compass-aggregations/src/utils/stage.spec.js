@@ -1,4 +1,4 @@
-import { parseNamespace } from './/stage';
+import { parseNamespace } from './stage';
 
 describe('utils', () => {
   describe('#parseNamespace', () => {

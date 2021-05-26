@@ -1,7 +1,7 @@
 import React from 'react';
 import AppRegistry from 'hadron-app-registry';
 import { shallow } from 'enzyme';
-import OptionWriteSelector from './/option-write-selector';
+import OptionWriteSelector from './option-write-selector';
 import WriteStateStore from '../stores/write-state-store';
 
 describe('<OptionWriteSelector />', () => {

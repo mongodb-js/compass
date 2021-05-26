@@ -1,7 +1,7 @@
 import reducer, {
   largeLimitChanged,
   LARGE_LIMIT_CHANGED
-} from './/large-limit';
+} from './large-limit';
 
 describe('large-limit module', () => {
   describe('#limitChanged', () => {

@@ -1,6 +1,6 @@
-import { dataServiceDisconnected } from './/index';
+import { dataServiceDisconnected } from './index';
 import AppRegistry from 'hadron-app-registry';
-import { RESET } from './/reset';
+import { RESET } from './reset';
 import UI_STATES from '../constants/ui-states';
 
 describe('dataServiceDisconnected', () => {

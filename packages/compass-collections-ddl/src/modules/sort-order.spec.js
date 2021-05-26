@@ -1,5 +1,5 @@
-import reducer, { INITIAL_STATE } from './/sort-order';
-import { sortCollections } from './/collections';
+import reducer, { INITIAL_STATE } from './sort-order';
+import { sortCollections } from './collections';
 
 describe('sort order module', () => {
   describe('#reducer', () => {

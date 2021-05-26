@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsConnected,
   TOGGLE_IS_CONNECTED
-} from './/is-connected';
+} from './is-connected';
 
 describe('is-connected module', () => {
   describe('#reducer', () => {

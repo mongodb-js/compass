@@ -4,7 +4,7 @@ import reducer, {
   changeDatabases,
   changeActiveNamespace,
   filterDatabases
-} from './/databases';
+} from './databases';
 
 import { makeModel } from '../../electron/renderer/stores/instance-store';
 

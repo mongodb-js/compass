@@ -1,30 +1,30 @@
 import { combineReducers } from 'redux';
-import appRegistry from './/app-registry';
+import appRegistry from './app-registry';
 import columns, {
   INITIAL_STATE as COLUMNS_INITIAL_STATE
-} from './/columns';
+} from './columns';
 import databases, {
   INITIAL_STATE as DATABASES_INITIAL_STATE
-} from './/databases';
+} from './databases';
 import isReadonly, {
   INITIAL_STATE as READONLY_INITIAL_STATE
-} from './/is-readonly';
+} from './is-readonly';
 import isWritable, {
   INITIAL_STATE as WRITABLE_INITIAL_STATE
-} from './/is-writable';
+} from './is-writable';
 import sortColumn, {
   INITIAL_STATE as SORT_COLUMN_INITIAL_STATE
-} from './/sort-column';
+} from './sort-column';
 import sortOrder, {
   INITIAL_STATE as SORT_ORDER_INITIAL_STATE
-} from './/sort-order';
+} from './sort-order';
 import isGenuineMongoDB, {
   INITIAL_STATE as GENUINE_INITIAL_STATE
-} from './/is-genuine-mongodb';
+} from './is-genuine-mongodb';
 import isDataLake, {
   INITIAL_STATE as DATA_LAKE_INITIAL_STATE
-} from './/is-data-lake';
-import { RESET } from './/reset';
+} from './is-data-lake';
+import { RESET } from './reset';
 
 /**
  * The main reducer.

@@ -1,4 +1,4 @@
-import { appRegistryEmit } from './/app-registry';
+import { appRegistryEmit } from './app-registry';
 
 /**
  * Show the database.

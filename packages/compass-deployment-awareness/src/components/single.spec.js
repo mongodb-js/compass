@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import Single from './/single';
+import Single from './single';
 import {
   STANDALONE,
   RS_PRIMARY,

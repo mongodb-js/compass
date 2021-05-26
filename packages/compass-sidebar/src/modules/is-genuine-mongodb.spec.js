@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsGenuineMongoDB,
   TOGGLE_IS_GENUINE_MONGODB
-} from './/is-genuine-mongodb';
+} from './is-genuine-mongodb';
 
 describe('is genuine mongodb module', () => {
   describe('#reducer', () => {

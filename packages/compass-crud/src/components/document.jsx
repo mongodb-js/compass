@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import EditableDocument from './/editable-document';
-import ReadonlyDocument from './/readonly-document';
+import EditableDocument from './editable-document';
+import ReadonlyDocument from './readonly-document';
 
 /**
  * Component for a single document in a list of documents.

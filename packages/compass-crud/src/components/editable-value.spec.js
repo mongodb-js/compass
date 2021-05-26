@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import app from 'hadron-app';
 import { Element } from 'hadron-document';
-import EditableValue from './/editable-value';
+import EditableValue from './editable-value';
 
 describe('<EditableValue />', () => {
   before(() => {

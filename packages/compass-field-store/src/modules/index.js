@@ -1,4 +1,4 @@
-import { RESET } from './/reset';
+import { RESET } from './reset';
 
 /**
  * Create fields.

@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsRunning,
   TOGGLE_IS_RUNNING
-} from './/is-running';
+} from './is-running';
 
 describe('drop database is running module', () => {
   describe('#reducer', () => {

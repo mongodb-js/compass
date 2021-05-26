@@ -1,7 +1,7 @@
 import reducer, {
   editModeChanged,
   EDIT_MODE_CHANGED
-} from './/edit-mode';
+} from './edit-mode';
 
 describe('edit-mode module', () => {
   describe('#editModeChanged', () => {

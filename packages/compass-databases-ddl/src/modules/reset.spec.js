@@ -1,4 +1,4 @@
-import { reset, RESET } from './/reset';
+import { reset, RESET } from './reset';
 
 describe('reset module', () => {
   describe('#reset', () => {

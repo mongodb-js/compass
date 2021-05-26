@@ -1,4 +1,4 @@
-import reducer, { collationStringChanged, COLLATION_STRING_CHANGED } from './/collation-string';
+import reducer, { collationStringChanged, COLLATION_STRING_CHANGED } from './collation-string';
 
 describe('collation string module', () => {
   describe('#collationStringChanged', () => {

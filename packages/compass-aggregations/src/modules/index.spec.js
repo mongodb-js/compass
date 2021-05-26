@@ -12,13 +12,13 @@ import reducer, {
   CLONE_PIPELINE,
   MODIFY_VIEW
 } from './';
-import { toggleOverview, TOGGLE_OVERVIEW } from './/is-overview-on';
-import { largeLimitChanged, LARGE_LIMIT_CHANGED } from './/large-limit';
-import { limitChanged, LIMIT_CHANGED } from './/limit';
+import { toggleOverview, TOGGLE_OVERVIEW } from './is-overview-on';
+import { largeLimitChanged, LARGE_LIMIT_CHANGED } from './large-limit';
+import { limitChanged, LIMIT_CHANGED } from './limit';
 import {
   maxTimeMSChanged,
   MAX_TIME_MS_CHANGED
-} from './/max-time-ms';
+} from './max-time-ms';
 
 describe('root [ module ]', () => {
   describe('#reset', () => {

@@ -8,7 +8,7 @@ import reducer, {
   CLOSE_IMPORT,
   CHANGE_TEXT,
   CREATE_NEW
-} from './/import-pipeline';
+} from './import-pipeline';
 
 describe('import pipeline module', () => {
   describe('#newPipelineFromText', () => {

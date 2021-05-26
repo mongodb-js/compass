@@ -1,4 +1,4 @@
-import reducer, { setIsModified, SET_IS_MODIFIED } from './/is-modified';
+import reducer, { setIsModified, SET_IS_MODIFIED } from './is-modified';
 
 describe('isModified module', () => {
   describe('#setIsModified', () => {

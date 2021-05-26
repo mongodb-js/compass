@@ -2,7 +2,7 @@ import reducer, {
   appRegistryActivated,
   appRegistryEmit,
   APP_REGISTRY_ACTIVATED
-} from './/app-registry';
+} from './app-registry';
 
 describe('app registry module', () => {
   describe('#appRegistryActivated', () => {

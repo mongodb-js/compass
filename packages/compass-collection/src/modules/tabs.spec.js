@@ -13,7 +13,7 @@ import reducer, {
   PREV_TAB,
   CREATE_TAB,
   CLOSE_TAB
-} from './/tabs';
+} from './tabs';
 
 describe('tabs module', () => {
   describe('#selectNamespace', () => {

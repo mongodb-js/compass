@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Element } from 'hadron-document';
-import ElementAction from './/element-action';
+import ElementAction from './element-action';
 
 describe('<ElementAction />', () => {
   const parentElement = new Element('parent', 'testing', false);

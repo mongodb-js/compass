@@ -9,7 +9,7 @@ import {
   RS_OTHER,
   RS_GHOST,
   UNKNOWN
-} from './/server-type';
+} from './server-type';
 
 describe('ServerType', () => {
   describe('.isWritable', () => {

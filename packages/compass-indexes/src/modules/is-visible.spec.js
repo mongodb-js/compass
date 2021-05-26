@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsVisible,
   TOGGLE_IS_VISIBLE
-} from './/is-visible';
+} from './is-visible';
 
 describe('drop/create index is visible module', () => {
   describe('#reducer', () => {

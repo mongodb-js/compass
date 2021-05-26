@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeUiStatus,
   CHANGE_UI_STATUS
-} from './/ui-status';
+} from './ui-status';
 
 describe('ui-status module', () => {
   describe('#reducer', () => {

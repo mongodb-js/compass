@@ -3,7 +3,7 @@ import reducer, {
   sortCollections,
   LOAD_COLLECTIONS,
   SORT_COLLECTIONS
-} from './/collections';
+} from './collections';
 
 const SPOTIFY = {
   name: 'spotify',

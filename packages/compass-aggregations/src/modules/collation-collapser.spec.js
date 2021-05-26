@@ -1,4 +1,4 @@
-import reducer, { collationCollapseToggled, COLLATION_COLLAPSE_TOGGLED } from './/collation-collapser';
+import reducer, { collationCollapseToggled, COLLATION_COLLAPSE_TOGGLED } from './collation-collapser';
 
 describe('collation collapser module', () => {
   describe('#collationCollapseToggled', () => {

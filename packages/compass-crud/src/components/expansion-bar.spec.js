@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import sinon from 'sinon';
-import ExpansionBar from './/expansion-bar';
+import ExpansionBar from './expansion-bar';
 
 describe('<ExpansionBar />', () => {
   describe('#render', () => {

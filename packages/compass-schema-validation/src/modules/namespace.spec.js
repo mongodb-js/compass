@@ -1,4 +1,4 @@
-import reducer, { namespaceChanged, NAMESPACE_CHANGED } from './/namespace';
+import reducer, { namespaceChanged, NAMESPACE_CHANGED } from './namespace';
 
 describe('namespace module', () => {
   describe('#namespaceChanged', () => {

@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeInstance,
   CHANGE_INSTANCE
-} from './/instance';
+} from './instance';
 
 describe('sidebar instance', () => {
   describe('#reducer', () => {

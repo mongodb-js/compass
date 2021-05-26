@@ -1,7 +1,7 @@
 import reducer, {
   maxTimeMSChanged,
   MAX_TIME_MS_CHANGED
-} from './/max-time-ms';
+} from './max-time-ms';
 
 describe('max-time-ms module', () => {
   describe('#maxTimeMSChanged', () => {

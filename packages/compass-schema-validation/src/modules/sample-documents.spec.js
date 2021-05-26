@@ -1,7 +1,7 @@
 import reducer, {
   loadingSampleDocuments,
   LOADING_SAMPLE_DOCUMENTS
-} from './/sample-documents';
+} from './sample-documents';
 
 describe('sample-documents module', () => {
   describe('#loadingSampleDocuments', () => {

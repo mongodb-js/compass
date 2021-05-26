@@ -1,4 +1,4 @@
-import reducer, { INITIAL_STATE } from './/columns';
+import reducer, { INITIAL_STATE } from './columns';
 
 describe('columns module', () => {
   describe('#reducer', () => {

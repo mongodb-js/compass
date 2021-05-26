@@ -82,29 +82,29 @@ import appRegistry, {
 import isOverviewOn, {
   TOGGLE_OVERVIEW,
   INITIAL_STATE as OVERVIEW_INITIAL_STATE
-} from './/is-overview-on';
+} from './is-overview-on';
 import settings, {
   APPLY_SETTINGS,
   INITIAL_STATE as SETTINGS_INITIAL_STATE
 } from './settings';
 import isFullscreenOn, {
   INITIAL_STATE as FULLSCREEN_INITIAL_STATE
-} from './/is-fullscreen-on';
+} from './is-fullscreen-on';
 import savingPipeline, {
   INITIAL_STATE as SAVING_PIPELINE_INITIAL_STATE,
   SAVING_PIPELINE_APPLY
-} from './/saving-pipeline';
+} from './saving-pipeline';
 import outResultsFn, {
   INITIAL_STATE as OUT_RESULTS_FN_INITIAL_STATE
-} from './/out-results-fn';
+} from './out-results-fn';
 import projections, {
   INITIAL_STATE as PROJECTIONS_INITIAL_STATE,
   PROJECTIONS_CHANGED
-} from './/projections';
+} from './projections';
 import isNewPipelineConfirm, {
   INITIAL_STATE as IS_NEW_PIPELINE_CONFIRM_STATE
 } from './is-new-pipeline-confirm';
-import { gatherProjections, generateStage } from './/stage';
+import { gatherProjections, generateStage } from './stage';
 import updateViewError, {
   INITIAL_STATE as UPDATE_VIEW_ERROR_INITIAL_STATE
 } from './update-view';

@@ -3,12 +3,12 @@ import React from 'react';
 import { ObjectID as ObjectId } from 'bson';
 import { StatusRow, ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
-import InsertDocumentDialog from './/insert-document-dialog';
+import InsertDocumentDialog from './insert-document-dialog';
 import ZeroGraphic from './zero-graphic';
-import DocumentListView from './/document-list-view';
-import DocumentJsonView from './/document-json-view';
-import DocumentTableView from './/document-table-view';
-import Toolbar from './/toolbar';
+import DocumentListView from './document-list-view';
+import DocumentJsonView from './document-json-view';
+import DocumentTableView from './document-table-view';
+import Toolbar from './toolbar';
 
 import './index.less';
 import './ag-grid-dist.css';
