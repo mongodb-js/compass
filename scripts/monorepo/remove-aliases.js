@@ -11,7 +11,7 @@ function main() {
 }
 
 function removeAliases({location: packageLocation}) {
-  if(!fs.existsSync(path.join(packageLocation, 'config/webpack.dev.config.js'))) {
+  if(!fs.existsSync(path.join(packageLocation, 'config/webpack.base.config.js'))) {
     return;
   }
 
@@ -38,7 +38,7 @@ function removeAliases({location: packageLocation}) {
       return replacement;
     });
 
-    // fs.writeFileSync(filePath, newFileContent);
+    fs.writeFileSync(filePath, newFileContent);
   }
 
   console.log('Removed', replacementCount, 'aliases');
