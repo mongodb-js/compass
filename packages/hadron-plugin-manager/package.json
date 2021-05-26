@@ -1,6 +1,7 @@
 {
   "name": "hadron-plugin-manager",
   "description": "Hadron Plugin Manager",
+  "private": true,
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-plugin-manager/issues",
   "homepage": "https://github.com/mongodb-js/hadron-plugin-manager",
