@@ -1,10 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import ExportToLanguage from 'components/export-to-language';
-import ExportModal from 'components/export-modal';
+import ExportToLanguage from '../export-to-language';
+import ExportModal from '../export-modal';
 
-import configureStore from 'stores';
+import configureStore from '../../stores';
 
 describe('ExportToLanguage [Component]', () => {
   let component;

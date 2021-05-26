@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import {getActions, notCalledExcept} from '../../test/aggrid-helper';
-import BreadcrumbComponent from 'components/breadcrumb';
+import BreadcrumbComponent from './/breadcrumb';
 
 describe('<BreadcrumbComponent />', () => {
   describe('#render', () => {

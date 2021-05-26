@@ -1,19 +1,19 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from 'modules';
-import { namespaceChanged } from 'modules/namespace';
-import { dataServiceConnected } from 'modules/data-service';
-import { serverVersionChanged } from 'modules/server-version';
-import { editModeChanged } from 'modules/edit-mode';
-import { indexesChanged } from 'modules/indexes';
-import { queryChanged } from 'modules/query';
-import { explainStateChanged } from 'modules/explain';
+import reducer from '../modules';
+import { namespaceChanged } from '../modules/namespace';
+import { dataServiceConnected } from '../modules/data-service';
+import { serverVersionChanged } from '../modules/server-version';
+import { editModeChanged } from '../modules/edit-mode';
+import { indexesChanged } from '../modules/indexes';
+import { queryChanged } from '../modules/query';
+import { explainStateChanged } from '../modules/explain';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
 } from 'mongodb-redux-common/app-registry';
 
-import EXPLAIN_STATES from 'constants/explain-states';
+import EXPLAIN_STATES from '../constants/explain-states';
 
 export const setDataProvider = (store, error, dataProvider) => {
   store.dispatch(dataServiceConnected(error, dataProvider));

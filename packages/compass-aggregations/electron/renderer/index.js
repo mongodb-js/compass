@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import AggregationsPlugin, { activate, CreateViewPlugin, DuplicateViewPlugin } from 'plugin';
-import configureStore, { setDataProvider, setNamespace } from 'stores';
-import configureCreateViewStore from 'stores/create-view';
+import AggregationsPlugin, { activate, CreateViewPlugin, DuplicateViewPlugin } from '../../src/index.js';
+import configureStore, { setDataProvider, setNamespace } from '../../src/stores';
+import configureCreateViewStore from '../../src/stores/create-view';
 import ExportToLanguagePlugin, {
   configureStore as configureExportToLangStore
 } from '@mongodb-js/compass-export-to-language';

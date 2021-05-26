@@ -1,11 +1,11 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import { appRegistryActivated } from 'modules/app-registry';
-import { loadDatabases } from 'modules/databases';
-import { writeStateChanged } from 'modules/is-writable';
-import { toggleIsGenuineMongoDB } from 'modules/is-genuine-mongodb';
-import { toggleIsDataLake } from 'modules/is-data-lake';
-import reducer from 'modules';
+import { appRegistryActivated } from '../modules/app-registry';
+import { loadDatabases } from '../modules/databases';
+import { writeStateChanged } from '../modules/is-writable';
+import { toggleIsGenuineMongoDB } from '../modules/is-genuine-mongodb';
+import { toggleIsDataLake } from '../modules/is-data-lake';
+import reducer from '../modules';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 

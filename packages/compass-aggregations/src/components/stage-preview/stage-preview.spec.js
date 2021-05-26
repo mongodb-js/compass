@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import StagePreview from 'components/stage-preview';
+import StagePreview from '../stage-preview';
 import styles from './stage-preview.less';
 import loadingStyles from '../loading-overlay/loading-overlay.less';
 

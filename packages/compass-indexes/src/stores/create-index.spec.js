@@ -1,5 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
-import configureStore from 'stores/create-index';
+import configureStore from './/create-index';
 
 describe('CreateIndexStore [Store]', () => {
   const appRegistry = new AppRegistry();

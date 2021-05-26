@@ -6,9 +6,9 @@ import {
   validationActionChanged,
   validationLevelChanged,
   fetchSampleDocuments
-} from 'modules/validation';
+} from '../modules/validation';
 import { stringify as javascriptStringify } from 'javascript-stringify';
-import configureStore from 'stores';
+import configureStore from './';
 
 describe('Schema Validation Store', () => {
   let store;

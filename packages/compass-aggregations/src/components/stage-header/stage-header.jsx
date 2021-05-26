@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import AddAfterStage from 'components/add-after-stage';
-import DeleteStage from 'components/delete-stage';
-import ToggleStage from 'components/toggle-stage';
-import StageGrabber from 'components/stage-grabber';
-import StageCollapser from 'components/stage-collapser';
-import StageOperatorSelect from 'components/stage-operator-select';
+import AddAfterStage from '../add-after-stage';
+import DeleteStage from '../delete-stage';
+import ToggleStage from '../toggle-stage';
+import StageGrabber from '../stage-grabber';
+import StageCollapser from '../stage-collapser';
+import StageOperatorSelect from '../stage-operator-select';
 
 import styles from './stage-header.less';
 

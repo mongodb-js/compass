@@ -4,17 +4,17 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { StatusRow } from 'hadron-react-components';
 
-import { writeStateChanged } from 'modules/is-writable';
-import { getDescription } from 'modules/description';
-import { dataServiceConnected } from 'modules/data-service';
-import { sortIndexes } from 'modules/indexes';
-import { reset } from 'modules/reset';
-import { changeName } from 'modules/drop-index/name';
-import { openLink } from 'modules/link';
+import { writeStateChanged } from '../../modules/is-writable';
+import { getDescription } from '../../modules/description';
+import { dataServiceConnected } from '../../modules/data-service';
+import { sortIndexes } from '../../modules/indexes';
+import { reset } from '../../modules/reset';
+import { changeName } from '../../modules/drop-index/name';
+import { openLink } from '../../modules/link';
 
-import CreateIndexButton from 'components/create-index-button';
-import IndexHeader from 'components/index-header';
-import IndexList from 'components/index-list';
+import CreateIndexButton from '../create-index-button';
+import IndexHeader from '../index-header';
+import IndexList from '../index-list';
 
 import classnames from 'classnames';
 import styles from './indexes.less';

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StoreConnector } from 'hadron-react-components';
-import DocumentList from 'components/document-list';
+import DocumentList from './/document-list';
 
 class ConnectedDocumentList extends Component {
   static displayName = 'ConnectedDocumentList';

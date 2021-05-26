@@ -1,17 +1,17 @@
-import { inputExpressionChanged } from 'modules/input-expression';
-import { modalOpenChanged } from 'modules/modal-open';
-import { modeChanged } from 'modules/mode';
-import { uriChanged } from 'modules/uri';
-import { runTranspiler } from 'modules/run-transpiler';
-import { copyToClipboardFnChanged } from 'modules/copy-to-clipboard';
-import { namespaceChanged } from 'modules/namespace';
+import { inputExpressionChanged } from '../modules/input-expression';
+import { modalOpenChanged } from '../modules/modal-open';
+import { modeChanged } from '../modules/mode';
+import { uriChanged } from '../modules/uri';
+import { runTranspiler } from '../modules/run-transpiler';
+import { copyToClipboardFnChanged } from '../modules/copy-to-clipboard';
+import { namespaceChanged } from '../modules/namespace';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
 } from 'mongodb-redux-common/app-registry';
-import reducer from 'modules';
+import reducer from '../modules';
 
 /**
  * Set the custom copy to clipboard function.

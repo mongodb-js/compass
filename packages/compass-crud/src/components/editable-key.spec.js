@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Element } from 'hadron-document';
-import EditableKey from 'components/editable-key';
+import EditableKey from './/editable-key';
 
 describe('<EditableKey />', () => {
   describe('#render', () => {

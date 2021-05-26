@@ -1,6 +1,6 @@
 import AppRegistry from 'hadron-app-registry';
-import store from 'stores/drop-database';
-import { reset } from 'modules/reset';
+import store from './/drop-database';
+import { reset } from '../modules/reset';
 
 describe('DropDatabaseStore [Store]', () => {
   beforeEach(() => {

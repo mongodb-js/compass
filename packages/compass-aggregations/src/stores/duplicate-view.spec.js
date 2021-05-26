@@ -1,5 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
-import store from 'stores/duplicate-view';
+import store from './/duplicate-view';
 
 describe('DuplicateViewStore [Store]', () => {
   const appRegistry = new AppRegistry();

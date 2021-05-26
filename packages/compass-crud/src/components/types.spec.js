@@ -2,7 +2,7 @@ import React from 'react';
 import app from 'hadron-app';
 import { mount } from 'enzyme';
 import { Element } from 'hadron-document';
-import Types from 'components/types';
+import Types from './/types';
 
 describe('<Types />', () => {
   before(() => {

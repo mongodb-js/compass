@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeName,
   CHANGE_NAME
-} from 'modules/create-index/name';
+} from '../create-index/name';
 
 describe('create index name module', () => {
   describe('#reducer', () => {

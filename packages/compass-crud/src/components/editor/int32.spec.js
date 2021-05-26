@@ -1,6 +1,6 @@
 import { Element } from 'hadron-document';
 import { Int32 } from 'bson';
-import { Int32Editor } from 'components/editor';
+import { Int32Editor } from '../editor';
 
 describe('Int32Editor', () => {
   describe('#size', () => {

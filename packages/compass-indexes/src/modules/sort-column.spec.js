@@ -1,5 +1,5 @@
-import reducer, { INITIAL_STATE } from 'modules/sort-column';
-import { sortIndexes } from 'modules/indexes';
+import reducer, { INITIAL_STATE } from './/sort-column';
+import { sortIndexes } from './/indexes';
 
 describe('sort column module', () => {
   describe('#reducer', () => {

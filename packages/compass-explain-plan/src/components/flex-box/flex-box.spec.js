@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import FlexBox from 'components/flex-box';
+import FlexBox from '../flex-box';
 
 describe('FlexBox [Component]', () => {
   let component;

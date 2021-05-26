@@ -1,7 +1,7 @@
 import { ReadPreference } from 'mongodb';
-import ReadStateStore from 'stores/read-state-store';
-import { SINGLE } from 'models/topology-type';
-import { STANDALONE } from 'models/server-type';
+import ReadStateStore from '../../src/stores/read-state-store';
+import { SINGLE } from '../../src/models/topology-type';
+import { STANDALONE } from '../../src/models/server-type';
 
 describe('ReadStateStore', () => {
   beforeEach(() => {

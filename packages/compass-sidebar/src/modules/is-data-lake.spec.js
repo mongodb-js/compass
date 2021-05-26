@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   TOGGLE_IS_DATA_LAKE,
   toggleIsDataLake
-} from 'modules/is-data-lake';
+} from './/is-data-lake';
 
 describe('is-data-lake module', () => {
   describe('reducer', () => {

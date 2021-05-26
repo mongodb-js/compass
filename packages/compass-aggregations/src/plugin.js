@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Aggregations from 'components/aggregations';
+import Aggregations from './components/aggregations';
 import { Provider } from 'react-redux';
 import configureStore, {
   refreshInput,
@@ -10,7 +10,7 @@ import configureStore, {
   setFields,
   setGlobalAppRegistry,
   setLocalAppRegistry
-} from 'stores';
+} from './stores';
 
 class Plugin extends Component {
   static displayName = 'AggregationsPlugin';

@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import SidebarInstanceStats from 'components/sidebar-instance-stats';
-import SidebarInstanceDetails from 'components/sidebar-instance-details';
-import NonGenuineWarningPill from 'components/non-genuine-warning-pill';
-import IsFavoritePill from 'components/is-favorite-pill';
+import SidebarInstanceStats from '../sidebar-instance-stats';
+import SidebarInstanceDetails from '../sidebar-instance-details';
+import NonGenuineWarningPill from '../non-genuine-warning-pill';
+import IsFavoritePill from '../is-favorite-pill';
 import { FavoriteModal } from '@mongodb-js/compass-connect';
 
 import classnames from 'classnames';

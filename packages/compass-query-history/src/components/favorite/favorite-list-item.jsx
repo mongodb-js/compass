@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import FontAwesome from 'react-fontawesome';
 
-import { Card, CardHeader, CardBody } from 'components/card';
-import Query from 'components/query';
+import { Card, CardHeader, CardBody } from '../card';
+import Query from '../query';
 
 import styles from './favorite-list-item.less';
 

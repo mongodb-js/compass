@@ -1,4 +1,4 @@
-import reducer, { fieldsChanged, FIELDS_CHANGED } from 'modules/fields';
+import reducer, { fieldsChanged, FIELDS_CHANGED } from './/fields';
 
 describe('server version module', () => {
   const fields = [

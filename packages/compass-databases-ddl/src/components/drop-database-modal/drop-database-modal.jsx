@@ -5,10 +5,10 @@ import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
 import { ModalStatusMessage } from 'hadron-react-components';
-import { changeDatabaseName } from 'modules/drop-database/name';
-import { changeDatabaseNameConfirmation } from 'modules/drop-database/name-confirmation';
-import { dropDatabase } from 'modules/drop-database';
-import { toggleIsVisible } from 'modules/is-visible';
+import { changeDatabaseName } from '../../modules/drop-database/name';
+import { changeDatabaseNameConfirmation } from '../../modules/drop-database/name-confirmation';
+import { dropDatabase } from '../../modules/drop-database';
+import { toggleIsVisible } from '../../modules/is-visible';
 
 import styles from './drop-database-modal.less';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ExplainTree from 'components/explain-tree';
+import ExplainTree from '../explain-tree';
 
 import styles from './explain-tree.less';
 

@@ -1,4 +1,4 @@
-import reducer, { createId, CREATE_ID } from 'modules/id';
+import reducer, { createId, CREATE_ID } from './/id';
 
 describe('id module', () => {
   describe('#createId', () => {

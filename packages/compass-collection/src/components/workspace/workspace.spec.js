@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { Workspace } from 'components/workspace';
+import { Workspace } from '../workspace';
 import styles from './workspace.less';
 
 describe.skip('Workspace [Component]', () => {

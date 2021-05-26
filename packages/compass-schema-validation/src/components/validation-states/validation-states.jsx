@@ -3,9 +3,9 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { ZeroState, StatusRow } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
-import ValidationEditor from 'components/validation-editor';
-import SampleDocuments from 'components/sample-documents';
-import { ZeroGraphic } from 'components/zero-graphic';
+import ValidationEditor from '../validation-editor';
+import SampleDocuments from '../sample-documents';
+import { ZeroGraphic } from '../zero-graphic';
 
 import styles from './validation-states.less';
 

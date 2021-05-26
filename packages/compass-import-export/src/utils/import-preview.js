@@ -4,7 +4,7 @@ import createParser from './import-parser';
 import { detectType, valueToString } from './bson-csv';
 import dotnotation from './dotnotation';
 import assert from 'assert';
-import FILE_TYPES from 'constants/file-types';
+import FILE_TYPES from '../constants/file-types';
 import { createLogger } from './logger';
 
 const debug = createLogger('import-preview');

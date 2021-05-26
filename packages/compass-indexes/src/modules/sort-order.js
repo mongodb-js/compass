@@ -1,4 +1,4 @@
-import { SORT_INDEXES, ASC } from 'modules/indexes';
+import { SORT_INDEXES, ASC } from './/indexes';
 
 /**
  * The initial state of the sort order attribute.

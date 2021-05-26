@@ -1,4 +1,4 @@
-import reducer, { readonlyViewChanged, READONLY_VIEW_CHANGED } from 'modules/is-readonly-view';
+import reducer, { readonlyViewChanged, READONLY_VIEW_CHANGED } from './/is-readonly-view';
 
 describe('is readonly view module', () => {
   describe('#reducer', () => {

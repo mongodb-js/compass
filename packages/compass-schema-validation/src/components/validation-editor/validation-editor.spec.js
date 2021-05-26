@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ValidationEditor from 'components/validation-editor';
+import ValidationEditor from '../validation-editor';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
 import styles from './validation-editor.less';

@@ -1,13 +1,13 @@
 // import React from 'react';
 // import { storiesOf } from '@storybook/react';
-// import { ComponentPreview } from 'storybook/decorators';
+// import { ComponentPreview } from '../.storybook/decorators';
 
 // import { Provider } from 'react-redux';
-// import { INITIAL_STATE } from 'modules/import';
-// import configureStore from 'stores';
+// import { INITIAL_STATE } from '../src/modules/import';
+// import configureStore from '../src/stores';
 // import DataService from './data-service-provider';
 
-// import ImportModal from 'components/import-modal';
+// import ImportModal from '../src/components/import-modal';
 
 // const BASE_STATE = {
 //   ...INITIAL_STATE,

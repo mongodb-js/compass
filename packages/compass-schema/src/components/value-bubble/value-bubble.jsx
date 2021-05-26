@@ -4,7 +4,7 @@ import has from 'lodash.has';
 import includes from 'lodash.includes';
 import isString from 'lodash.isstring';
 import { hasDistinctValue } from 'mongodb-query-util';
-import { DECIMAL_128, DOUBLE, LONG, INT_32 } from 'constants';
+import { DECIMAL_128, DOUBLE, LONG, INT_32 } from '../../constants';
 
 class ValueBubble extends Component {
   static displayName = 'ValueBubbleComponent';

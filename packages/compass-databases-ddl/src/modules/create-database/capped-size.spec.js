@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeCappedSize,
   CHANGE_CAPPED_SIZE
-} from 'modules/create-database/capped-size';
+} from '../create-database/capped-size';
 
 describe('create database capped size module', () => {
   describe('#reducer', () => {

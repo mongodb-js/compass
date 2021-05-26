@@ -11,14 +11,14 @@ import reducer, {
   NEW_PIPELINE,
   CLONE_PIPELINE,
   MODIFY_VIEW
-} from 'modules';
-import { toggleOverview, TOGGLE_OVERVIEW } from 'modules/is-overview-on';
-import { largeLimitChanged, LARGE_LIMIT_CHANGED } from 'modules/large-limit';
-import { limitChanged, LIMIT_CHANGED } from 'modules/limit';
+} from './';
+import { toggleOverview, TOGGLE_OVERVIEW } from './/is-overview-on';
+import { largeLimitChanged, LARGE_LIMIT_CHANGED } from './/large-limit';
+import { limitChanged, LIMIT_CHANGED } from './/limit';
 import {
   maxTimeMSChanged,
   MAX_TIME_MS_CHANGED
-} from 'modules/max-time-ms';
+} from './/max-time-ms';
 
 describe('root [ module ]', () => {
   describe('#reset', () => {

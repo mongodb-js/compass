@@ -1,8 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Aggregations from 'components/aggregations';
-import configureStore from 'stores';
+import Aggregations from '../aggregations';
+import configureStore from '../../stores';
 import styles from './aggregations.less';
 
 describe('Aggregations [Component]', () => {

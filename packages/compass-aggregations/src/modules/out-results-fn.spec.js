@@ -1,4 +1,4 @@
-import reducer, { outResultsFnChanged, OUT_RESULTS_FN_CHANGED } from 'modules/out-results-fn';
+import reducer, { outResultsFnChanged, OUT_RESULTS_FN_CHANGED } from './/out-results-fn';
 
 describe('outResultsFn module', () => {
   describe('#outResultsFnChanged', () => {

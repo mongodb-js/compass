@@ -1,10 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import Unknown from 'components/unknown';
+import Unknown from './/unknown';
 import {
   RS_PRIMARY,
   RS_SECONDARY
-} from 'models/server-type';
+} from '../models/server-type';
 
 import styles from './unknown.less';
 

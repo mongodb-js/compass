@@ -1,5 +1,5 @@
-import reducer, { INITIAL_STATE } from 'modules/sort-column';
-import { sortDatabases } from 'modules/databases';
+import reducer, { INITIAL_STATE } from './/sort-column';
+import { sortDatabases } from './/databases';
 
 describe('sort column module', () => {
   describe('#reducer', () => {

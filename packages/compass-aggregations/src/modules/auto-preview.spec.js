@@ -1,4 +1,4 @@
-import reducer, { toggleAutoPreview, TOGGLE_AUTO_PREVIEW } from 'modules/auto-preview';
+import reducer, { toggleAutoPreview, TOGGLE_AUTO_PREVIEW } from './/auto-preview';
 
 describe('auto preview module', () => {
   describe('#toggleAutoPreview', () => {

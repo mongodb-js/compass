@@ -11,7 +11,7 @@
  * @example
  * ```jsx
  * import styles from './progress-bar.less;
- * import createStyler from 'utils/styler.js';
+ * import createStyler from './/styler.js';
  * const style = createStyler('progress-bar');
  *
  * const render = (props) => {

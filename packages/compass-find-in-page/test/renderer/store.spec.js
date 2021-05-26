@@ -6,7 +6,7 @@
  * executed here.
  */
 
-import Store from 'stores';
+import Store from '../../src/stores';
 
 describe('CompassFindInPageStore [Store]', () => {
   it('should have an initial state of initialized store', () => {

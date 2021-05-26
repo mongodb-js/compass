@@ -3,7 +3,7 @@ import reducer, {
   restorePipelineModalToggle,
   RESTORE_PIPELINE_OBJECT_ID,
   restorePipelineFrom
-} from 'modules/restore-pipeline';
+} from './/restore-pipeline';
 
 describe('restore previous pipeline', () => {
   describe('#restorePipelineModalToggle', () => {

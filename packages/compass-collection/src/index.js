@@ -1,5 +1,5 @@
 import CollectionPlugin from './plugin';
-import CollectionStore from 'stores';
+import CollectionStore from './stores';
 
 /**
  * A sample role for the component.

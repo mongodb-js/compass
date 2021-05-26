@@ -1,12 +1,12 @@
-import SelectFileType from 'components/select-file-type';
+import SelectFileType from '../select-file-type';
 import { IconTextButton } from 'hadron-react-buttons';
 import toNS from 'mongodb-ns';
-import fileSaveDialog from 'utils/file-save-dialog';
-import ProgressBar from 'components/progress-bar';
-import { FILETYPE } from 'constants/export-step';
+import fileSaveDialog from '../../utils/file-save-dialog';
+import ProgressBar from '../progress-bar';
+import { FILETYPE } from '../../constants/export-step';
 import styles from './export-select-output.less';
 import React, { PureComponent } from 'react';
-import createStyler from 'utils/styler.js';
+import createStyler from '../../utils/styler.js';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import {
@@ -20,7 +20,7 @@ import {
   CANCELED,
   COMPLETED,
   UNSPECIFIED
-} from 'constants/process-status';
+} from '../../constants/process-status';
 
 const style = createStyler(styles, 'export-select-output');
 

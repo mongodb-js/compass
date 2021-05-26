@@ -2,7 +2,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { getNode, getApi, getContext, notCalledExcept } from '../../test/aggrid-helper';
-import RowActionsRenderer from 'components/table-view/row-actions-renderer';
+import RowActionsRenderer from './/table-view/row-actions-renderer';
 
 describe('<RowActionsRenderer />', () => {
   const api = getApi();

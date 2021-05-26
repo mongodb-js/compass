@@ -4,31 +4,31 @@ import dataService from './data-service';
 import { RESET } from './reset';
 import isWritable, {
   INITIAL_STATE as WRITABLE_INITIAL_STATE
-} from 'modules/is-writable';
+} from './/is-writable';
 import isReadonly, {
   INITIAL_STATE as READ_INITIAL_STATE
-} from 'modules/is-readonly';
+} from './/is-readonly';
 import isReadonlyView, {
   INITIAL_STATE as READONLY_VIEW_INITIAL_STATE
-} from 'modules/is-readonly-view';
+} from './/is-readonly-view';
 import description, {
   INITIAL_STATE as DESCRIPTION_INITIAL_STATE
-} from 'modules/description';
+} from './/description';
 import indexes, {
   INITIAL_STATE as INDEXES_INITIAL_STATE
-} from 'modules/indexes';
+} from './/indexes';
 import sortOrder, {
   INITIAL_STATE as SORT_ORDER_INITIAL_STATE
-} from 'modules/sort-order';
+} from './/sort-order';
 import sortColumn, {
   INITIAL_STATE as SORT_COLUMN_INITIAL_STATE
-} from 'modules/sort-column';
+} from './/sort-column';
 import error, {
   INITIAL_STATE as ERROR_INITIAL_STATE
-} from 'modules/error';
+} from './/error';
 import namespace, {
   INITIAL_STATE as NAMESPACE_INITIAL_STATE
-} from 'modules/namespace';
+} from './/namespace';
 
 /**
  * The main reducer.

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import CheckCircle from 'components/check-circle';
-import CrossCircle from 'components/cross-circle';
-import DocumentPreview from 'components/document-preview';
-import LoadingOverlay from 'components/loading-overlay';
+import CheckCircle from '../check-circle';
+import CrossCircle from '../cross-circle';
+import DocumentPreview from '../document-preview';
+import LoadingOverlay from '../loading-overlay';
 
 import styles from './sample-documents.less';
 

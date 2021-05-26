@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeFilterRegex,
   CHANGE_FILTER_REGEX
-} from 'modules/filter-regex';
+} from './/filter-regex';
 
 describe('sidebar filter regex', () => {
   describe('#reducer', () => {

@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import classnames from 'classnames';
 import styles from './sidebar-collection.less';
-import SidebarCollection from 'components/sidebar-collection';
+import SidebarCollection from '../sidebar-collection';
 
 describe('SidebarCollection [Component]', () => {
   let component;

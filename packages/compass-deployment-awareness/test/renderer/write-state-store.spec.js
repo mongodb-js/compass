@@ -1,11 +1,11 @@
-import WriteStateStore from 'stores/write-state-store';
+import WriteStateStore from '../../src/stores/write-state-store';
 import {
   SINGLE,
   SHARDED,
   REPLICA_SET_NO_PRIMARY,
   REPLICA_SET_WITH_PRIMARY,
   UNKNOWN
-} from 'models/topology-type';
+} from '../../src/models/topology-type';
 import {
   STANDALONE,
   RS_PRIMARY,
@@ -15,7 +15,7 @@ import {
   RS_GHOST,
   MONGOS,
   UNKNOWN as S_UNKNOWN
-} from 'models/server-type';
+} from '../../src/models/server-type';
 
 describe('WriteStateStore', () => {
   beforeEach(() => {

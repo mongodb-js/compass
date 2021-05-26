@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import AutoUpdate from 'components/auto-update';
-import store from 'stores';
+import AutoUpdate from './components/auto-update';
+import store from './stores';
 import { connect } from 'react-redux';
-import { cancelUpdate, visitReleaseNotes } from 'modules';
+import { cancelUpdate, visitReleaseNotes } from './modules';
 
 class Plugin extends Component {
   static displayName = 'AutoUpdatesPlugin';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import StageEditor from 'components/stage-editor';
+import StageEditor from '../stage-editor';
 import styles from './stage-editor.less';
 
 describe('StageEditor [Component]', () => {

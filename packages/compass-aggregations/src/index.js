@@ -1,11 +1,11 @@
 import AggregationsPlugin from './plugin';
-import configureStore from 'stores';
-import { Aggregations } from 'components/aggregations';
-import CreateViewPlugin from 'components/create-view-plugin';
-import DuplicateViewPlugin from 'components/duplicate-view-plugin';
-import configureCreateViewStore from 'stores/create-view';
-import duplicateViewStore from 'stores/duplicate-view';
-import StageEditor from 'components/stage-editor';
+import configureStore from './stores';
+import { Aggregations } from './components/aggregations';
+import CreateViewPlugin from './components/create-view-plugin';
+import DuplicateViewPlugin from './components/duplicate-view-plugin';
+import configureCreateViewStore from './stores/create-view';
+import duplicateViewStore from './stores/duplicate-view';
+import StageEditor from './components/stage-editor';
 
 /**
  * A sample role for the component.

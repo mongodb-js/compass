@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleShowOptions,
   TOGGLE_SHOW_OPTIONS
-} from 'modules/create-index/show-options';
+} from '../create-index/show-options';
 
 describe('create index is options module', () => {
   describe('#reducer', () => {

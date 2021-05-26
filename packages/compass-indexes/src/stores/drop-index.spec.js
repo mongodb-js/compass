@@ -1,4 +1,4 @@
-import configureStore from 'stores/drop-index';
+import configureStore from './/drop-index';
 
 describe('DropIndexStore [Store]', () => {
   let store;

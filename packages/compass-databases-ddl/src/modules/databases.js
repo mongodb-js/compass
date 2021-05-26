@@ -1,5 +1,5 @@
 import { zipObject, orderBy } from 'lodash';
-import { INITIAL_STATE as COLUMNS } from 'modules/columns';
+import { INITIAL_STATE as COLUMNS } from './/columns';
 
 /**
  * The module prefix.

@@ -2,20 +2,20 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { ipcRenderer } from 'electron';
 
-import reducer from 'modules';
+import reducer from '../modules';
 
 import {
   dataServiceConnected,
   appRegistryActivated,
   globalAppRegistryActivated,
   nsChanged
-} from 'modules/compass';
+} from '../modules/compass';
 
-import { openExport, queryChanged } from 'modules/export';
-import { openImport } from 'modules/import';
-import { statsReceived } from 'modules/stats';
+import { openExport, queryChanged } from '../modules/export';
+import { openImport } from '../modules/import';
+import { statsReceived } from '../modules/stats';
 
-import { createLogger } from 'utils/logger';
+import { createLogger } from '../utils/logger';
 
 const debug = createLogger('store');
 

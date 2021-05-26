@@ -1,4 +1,4 @@
-import reducer, { INITIAL_STATE } from 'modules/is-readonly';
+import reducer, { INITIAL_STATE } from './/is-readonly';
 
 describe('is readonly module', () => {
   describe('#reducer', () => {

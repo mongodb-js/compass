@@ -1,15 +1,15 @@
 import { combineReducers } from 'redux';
 import errorMessage, {
   INITIAL_STATE as ERROR_MESSAGE_INITIAL_STATE
-} from 'modules/instance/error-message';
+} from '../instance/error-message';
 import instance, {
   INITIAL_STATE as INSTANCE_INITIAL_STATE
-} from 'modules/instance/instance';
+} from '../instance/instance';
 import dataService, {
   INITIAL_STATE as DATA_SERVICE_INITIAL_STATE
-} from 'modules/instance/data-service';
+} from '../instance/data-service';
 
-import { RESET } from 'modules/instance/reset';
+import { RESET } from '../instance/reset';
 /**
  * The main reducer.
  */

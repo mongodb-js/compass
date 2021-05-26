@@ -3,8 +3,8 @@ import { mount } from 'enzyme';
 
 import classnames from 'classnames';
 import styles from './sidebar-database.less';
-import SidebarDatabase from 'components/sidebar-database';
-import SidebarCollection from 'components/sidebar-collection';
+import SidebarDatabase from '../sidebar-database';
+import SidebarCollection from '../sidebar-collection';
 
 const COLLECTIONS = [
   {

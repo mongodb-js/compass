@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ValidationSelector from 'components/validation-selector';
+import ValidationSelector from '../validation-selector';
 
 import styles from './validation-selector.less';
 

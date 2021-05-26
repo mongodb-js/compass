@@ -1,5 +1,5 @@
 import ExportToLanguagePlugin from './plugin';
-import configureStore from 'stores';
+import configureStore from './stores';
 
 /**
  * Export To Language Role (specifically created)

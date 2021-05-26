@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import IndexDefinitionType from 'components/index-definition-type';
+import IndexDefinitionType from '../index-definition-type';
 
 import styles from './index-definition-type.less';
 

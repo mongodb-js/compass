@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsTtl,
   TOGGLE_IS_TTL
-} from 'modules/create-index/is-ttl';
+} from '../create-index/is-ttl';
 
 describe('create index is ttl module', () => {
   describe('#reducer', () => {

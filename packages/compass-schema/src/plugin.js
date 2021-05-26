@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StoreConnector } from 'hadron-react-components';
-import CompassSchema from 'components/compass-schema';
+import CompassSchema from './components/compass-schema';
 
 class Plugin extends Component {
   static displayName = 'CompassSchemaPlugin';

@@ -1,4 +1,4 @@
-import reducer, { toggleComments, TOGGLE_COMMENTS } from 'modules/comments';
+import reducer, { toggleComments, TOGGLE_COMMENTS } from './/comments';
 
 describe('comments module', () => {
   describe('#toggleComments', () => {

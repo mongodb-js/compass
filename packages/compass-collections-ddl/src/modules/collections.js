@@ -1,7 +1,7 @@
 import { parallel } from 'async';
 import zipObject from 'lodash.zipobject';
 import sortByOrder from 'lodash.sortbyorder';
-import { INITIAL_STATE as COLUMNS } from 'modules/columns';
+import { INITIAL_STATE as COLUMNS } from './/columns';
 import { isEmpty } from 'lodash';
 
 /**

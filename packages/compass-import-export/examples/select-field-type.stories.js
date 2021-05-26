@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import SelectFieldType from 'components/select-field-type';
+import SelectFieldType from '../src/components/select-field-type';
 
 storiesOf('Examples/SelectFieldType', module)
   .add('default', () => {

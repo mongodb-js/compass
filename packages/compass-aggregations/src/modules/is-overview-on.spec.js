@@ -1,4 +1,4 @@
-import reducer, { toggleOverview, TOGGLE_OVERVIEW } from 'modules/is-overview-on';
+import reducer, { toggleOverview, TOGGLE_OVERVIEW } from './/is-overview-on';
 
 describe('overview module', () => {
   describe('#toggleOverview', () => {

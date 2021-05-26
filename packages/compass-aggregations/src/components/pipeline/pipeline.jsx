@@ -6,15 +6,15 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import Banner from '@leafygreen-ui/banner';
 
-import PipelineWorkspace from 'components/pipeline-workspace';
-import SavePipeline from 'components/save-pipeline';
-import Settings from 'components/settings';
-import PipelineToolbar from 'components/pipeline-toolbar';
+import PipelineWorkspace from '../pipeline-workspace';
+import SavePipeline from '../save-pipeline';
+import Settings from '../settings';
+import PipelineToolbar from '../pipeline-toolbar';
 import CollationToolbar from './collation-toolbar';
 import RestorePipelineModal from './modals/restore-pipeline-modal';
 import ImportPipeline from './modals/import-pipeline';
 import ConfirmImportPipeline from './modals/confirm-import-pipeline';
-import SavingPipelineModal from 'components/saving-pipeline-modal';
+import SavingPipelineModal from '../saving-pipeline-modal';
 import ConfirmNewPipeline from './modals/confirm-new-pipeline';
 import styles from './pipeline.less';
 

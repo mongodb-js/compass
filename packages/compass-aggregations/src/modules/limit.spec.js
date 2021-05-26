@@ -1,4 +1,4 @@
-import reducer, { limitChanged, LIMIT_CHANGED } from 'modules/limit';
+import reducer, { limitChanged, LIMIT_CHANGED } from './/limit';
 
 describe('limit module', () => {
   describe('#limitChanged', () => {

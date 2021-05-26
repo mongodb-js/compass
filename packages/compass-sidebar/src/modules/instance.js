@@ -1,4 +1,4 @@
-import { LOADING_STATE } from 'constants/sidebar-constants';
+import { LOADING_STATE } from '../constants/sidebar-constants';
 
 /**
  * Instance action.

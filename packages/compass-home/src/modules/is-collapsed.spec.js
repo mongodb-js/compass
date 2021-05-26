@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsCollapsed,
   TOGGLE_IS_COLLAPSED
-} from 'modules/is-collapsed';
+} from './/is-collapsed';
 
 describe('is-collapsed module', () => {
   describe('#reducer', () => {

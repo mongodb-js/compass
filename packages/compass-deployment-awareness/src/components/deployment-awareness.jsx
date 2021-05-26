@@ -6,11 +6,11 @@ import {
   SHARDED,
   REPLICA_SET_NO_PRIMARY,
   REPLICA_SET_WITH_PRIMARY
-} from 'models/topology-type';
-import Single from 'components/single';
-import Sharded from 'components/sharded';
-import ReplicaSet from 'components/replica-set';
-import Unknown from 'components/unknown';
+} from '../models/topology-type';
+import Single from './/single';
+import Sharded from './/sharded';
+import ReplicaSet from './/replica-set';
+import Unknown from './/unknown';
 
 import styles from './deployment-awareness.less';
 

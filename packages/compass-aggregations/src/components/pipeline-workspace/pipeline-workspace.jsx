@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import Stage from 'components/stage';
-import Input from 'components/input';
-import AddStage from 'components/add-stage';
+import Stage from '../stage';
+import Input from '../input';
+import AddStage from '../add-stage';
 import SortableStageList from './sortable-stage-list';
 import ModifySourceBanner from '../modify-source-banner';
 

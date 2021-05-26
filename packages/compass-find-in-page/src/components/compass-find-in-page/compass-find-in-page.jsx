@@ -1,4 +1,4 @@
-import FindInPageInput from 'components/find-in-page-input';
+import FindInPageInput from '../find-in-page-input';
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -7,7 +7,7 @@ import {
   setSearchTerm,
   toggleStatus,
   dispatchFind
-} from 'modules';
+} from '../../modules';
 
 class CompassFindInPage extends PureComponent {
   static displayName = 'CompassFindInPageComponent';

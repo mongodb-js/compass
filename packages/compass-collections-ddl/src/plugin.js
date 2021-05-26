@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import Ddl from 'components/ddl';
-import store from 'stores';
+import Ddl from './components/ddl';
+import store from './stores';
 
 class Plugin extends Component {
   static displayName = 'DdlPlugin';

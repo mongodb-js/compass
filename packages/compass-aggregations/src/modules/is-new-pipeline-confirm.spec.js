@@ -1,7 +1,7 @@
 import reducer, {
   setIsNewPipelineConfirm,
   SET_IS_NEW_PIPELINE_CONFIRM
-} from 'modules/is-new-pipeline-confirm';
+} from './/is-new-pipeline-confirm';
 
 describe('is new pipeline confirm', () => {
   describe('#setIsNewPipelineConfirm', () => {

@@ -10,9 +10,9 @@ import reducer, {
   DESC,
   DEFAULT,
   USAGE
-} from 'modules/indexes';
+} from './/indexes';
 
-import { HANDLE_ERROR } from 'modules/error';
+import { HANDLE_ERROR } from './/error';
 
 describe('indexes module', () => {
   describe('#reducer', () => {

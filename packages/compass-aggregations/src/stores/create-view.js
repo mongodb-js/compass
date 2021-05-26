@@ -4,8 +4,8 @@ import {
   localAppRegistryActivated,
   globalAppRegistryActivated
 } from 'mongodb-redux-common/app-registry';
-import { dataServiceConnected } from 'modules/data-service';
-import reducer, { open } from 'modules/create-view';
+import { dataServiceConnected } from '../modules/data-service';
+import reducer, { open } from '../modules/create-view';
 
 const debug = require('debug')('mongodb-aggregations:stores:create-view');
 

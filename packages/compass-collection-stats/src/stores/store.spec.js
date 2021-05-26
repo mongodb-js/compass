@@ -1,5 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
-import configureStore from 'stores';
+import configureStore from './';
 import sinon from 'sinon';
 
 

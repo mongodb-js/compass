@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import SidebarPlugin, { activate } from 'plugin';
+import SidebarPlugin, { activate } from '../../src/index.js';
 import DeploymentStateStore from './stores/deployment-state-store';
 import { activate as appActivate } from '@mongodb-js/compass-app-stores';
 import { activate as awarenessActivate } from '@mongodb-js/compass-deployment-awareness';

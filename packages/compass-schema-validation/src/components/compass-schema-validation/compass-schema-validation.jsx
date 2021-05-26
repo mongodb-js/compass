@@ -2,18 +2,18 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import { pick } from 'lodash';
-import ValidationStates from 'components/validation-states';
+import ValidationStates from '../validation-states';
 import {
   validatorChanged,
   cancelValidation,
   saveValidation,
   validationActionChanged,
   validationLevelChanged
-} from 'modules/validation';
-import { namespaceChanged } from 'modules/namespace';
-import { openLink } from 'modules/link';
-import { fetchSampleDocuments } from 'modules/sample-documents';
-import { changeZeroState, zeroStateChanged } from 'modules/zero-state';
+} from '../../modules/validation';
+import { namespaceChanged } from '../../modules/namespace';
+import { openLink } from '../../modules/link';
+import { fetchSampleDocuments } from '../../modules/sample-documents';
+import { changeZeroState, zeroStateChanged } from '../../modules/zero-state';
 
 import styles from './compass-schema-validation.less';
 

@@ -2,8 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 
-import CompassSchemaValidation from 'components/compass-schema-validation';
-import configureStore from 'stores';
+import CompassSchemaValidation from '../compass-schema-validation';
+import configureStore from '../../stores';
 import styles from './compass-schema-validation.less';
 
 describe('CompassSchemaValidation [Component]', () => {

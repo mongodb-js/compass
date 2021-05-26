@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ExplainJSON from 'components/explain-json';
+import ExplainJSON from '../explain-json';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
 

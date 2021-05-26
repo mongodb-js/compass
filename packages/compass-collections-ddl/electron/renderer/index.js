@@ -4,11 +4,11 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import DatabasePlugin, { activate } from 'plugin';
+import DatabasePlugin, { activate } from '../../src/index.js';
 import { NamespaceStore } from 'mongodb-reflux-store';
 import CollectionModel from 'mongodb-collection-model';
-import CreateCollectionPlugin from 'components/create-collection-plugin';
-import DropCollectionPlugin from 'components/drop-collection-plugin';
+import CreateCollectionPlugin from '../../src/components/create-collection-plugin';
+import DropCollectionPlugin from '../../src/components/drop-collection-plugin';
 
 import CollectionStore from './mocks/collection-store';
 import TextWriteButton from './mocks/text-write-button';

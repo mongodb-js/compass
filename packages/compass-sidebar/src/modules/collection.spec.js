@@ -3,7 +3,7 @@ import {
   getSourceName,
   getSourceViewOn,
   collectionMetadata
-} from 'modules/collection';
+} from './/collection';
 
 const COLL = {
   _id: 'db.test',

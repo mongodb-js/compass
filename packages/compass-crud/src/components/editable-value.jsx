@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip } from 'hadron-react-components';
-import initEditors from 'components/editor';
+import initEditors from './/editor';
 
 import { STRING_TYPE } from './editor/string';
 

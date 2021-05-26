@@ -1,5 +1,5 @@
 import { Element } from 'hadron-document';
-import { DateEditor } from 'components/editor';
+import { DateEditor } from '../editor';
 import moment from 'moment-timezone';
 
 describe('DateEditor', () => {

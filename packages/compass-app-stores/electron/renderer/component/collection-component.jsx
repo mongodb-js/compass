@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { reset } from 'modules/collection/reset';
+import { reset } from '../../../src/modules/collection/reset';
 
 class TestPlugin extends Component {
   static displayName = 'CollectionComponent';

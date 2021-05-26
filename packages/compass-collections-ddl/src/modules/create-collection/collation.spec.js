@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeCollationOption,
   CHANGE_COLLATION_OPTION
-} from 'modules/create-collection/collation';
+} from '../create-collection/collation';
 
 describe('create collection collation module', () => {
   describe('#reducer', () => {

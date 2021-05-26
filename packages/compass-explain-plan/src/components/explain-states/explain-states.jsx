@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { ZeroState, StatusRow, ViewSwitcher } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
-import { ZeroGraphic } from 'components/zero-graphic';
-import { ExplainBody } from 'components/explain-body';
+import { ZeroGraphic } from '../zero-graphic';
+import { ExplainBody } from '../explain-body';
 
-import INDEX_TYPES from 'constants/index-types';
-import EXPLAIN_STATES from 'constants/explain-states';
+import INDEX_TYPES from '../../constants/index-types';
+import EXPLAIN_STATES from '../../constants/explain-states';
 
 import styles from './explain-states.less';
 

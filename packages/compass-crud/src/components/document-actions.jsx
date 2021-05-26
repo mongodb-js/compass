@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { IconButton } from 'hadron-react-buttons';
-import UpdatableIconButton from 'components/updatable-icon-button';
+import UpdatableIconButton from './/updatable-icon-button';
 
 /**
  * Component for actions on the document.

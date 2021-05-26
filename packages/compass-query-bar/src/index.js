@@ -1,6 +1,6 @@
 import QueryBarPlugin from './plugin';
-import configureActions from 'actions';
-import configureStore from 'stores';
+import configureActions from './actions';
+import configureStore from './stores';
 
 /**
  * A sample role for the component.

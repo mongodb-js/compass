@@ -1,4 +1,4 @@
-import reducer, { toggleSample, TOGGLE_SAMPLE } from 'modules/sample';
+import reducer, { toggleSample, TOGGLE_SAMPLE } from './/sample';
 
 describe('sample module', () => {
   describe('#toggleSample', () => {

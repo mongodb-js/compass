@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeTimeSeriesOption,
   CHANGE_TIME_SERIES_OPTION
-} from 'modules/create-collection/time-series';
+} from '../create-collection/time-series';
 
 describe('create collection time-series module', () => {
   describe('#reducer', () => {

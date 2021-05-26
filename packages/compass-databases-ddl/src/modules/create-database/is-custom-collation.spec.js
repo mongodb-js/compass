@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsCustomCollation,
   TOGGLE_IS_CUSTOM_COLLATION
-} from 'modules/create-database/is-custom-collation';
+} from '../create-database/is-custom-collation';
 
 describe('create database is custom collation module', () => {
   describe('#reducer', () => {

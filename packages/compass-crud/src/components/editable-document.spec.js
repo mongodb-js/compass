@@ -4,9 +4,9 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { mount } from 'enzyme';
 import HadronDocument from 'hadron-document';
-import EditableDocument from 'components/editable-document';
-import EditableElement from 'components/editable-element';
-import EditableValue from 'components/editable-value';
+import EditableDocument from './/editable-document';
+import EditableElement from './/editable-element';
+import EditableValue from './/editable-value';
 
 describe('<EditableDocument />', () => {
   before(() => {

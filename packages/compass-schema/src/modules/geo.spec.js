@@ -1,4 +1,4 @@
-import { addLayer, generateGeoQuery } from 'modules/geo';
+import { addLayer, generateGeoQuery } from './/geo';
 
 describe('geo module', () => {
   describe('#addLayer', () => {

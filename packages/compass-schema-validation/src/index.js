@@ -1,5 +1,5 @@
 import CompassSchemaValidationPlugin from './plugin';
-import configureStore from 'stores';
+import configureStore from './stores';
 
 /**
  * A sample role for the component.

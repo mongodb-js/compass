@@ -1,4 +1,4 @@
-import { exportToLanguage } from 'modules/export-to-language';
+import { exportToLanguage } from './/export-to-language';
 
 describe('export-to-language module', () => {
   describe('#exportToLanguage', () => {

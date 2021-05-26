@@ -1,5 +1,5 @@
 import { Element } from 'hadron-document';
-import { UndefinedEditor } from 'components/editor';
+import { UndefinedEditor } from '../editor';
 
 describe('UndefinedEditor', () => {
   describe('#size', () => {

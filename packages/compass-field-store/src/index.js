@@ -1,4 +1,4 @@
-import configureStore from 'stores';
+import configureStore from './stores';
 
 /**
  * Activate all the components in the Field Store package.

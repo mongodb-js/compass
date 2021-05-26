@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeWildcardProjection,
   CHANGE_WILDCARD_PROJECTION
-} from 'modules/create-index/wildcard-projection';
+} from '../create-index/wildcard-projection';
 
 describe('create index wildcard projection module', () => {
   describe('#reducer', () => {

@@ -1,4 +1,4 @@
-import reducer from 'modules/is-readonly';
+import reducer from './/is-readonly';
 
 describe('is readonly module', () => {
   describe('#reducer', () => {

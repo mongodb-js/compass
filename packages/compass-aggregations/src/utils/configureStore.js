@@ -6,7 +6,7 @@ import {
 
 import reduxThunk from 'redux-thunk';
 
-import rootReducer from 'modules';
+import rootReducer from '../modules';
 
 let composeEnhancers = compose;
 
@@ -37,7 +37,7 @@ export function configureStore(preloadedState = {}) {
   return store;
 }
 
-import rootCreateViewReducer from 'modules/create-view';
+import rootCreateViewReducer from '../modules/create-view';
 
 export function configureCreateViewStore(preloadedState = {}) {
   const store = reduxCreateStore(

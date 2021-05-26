@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-expressions */
 
-import configureStore from 'stores/query-changed-store';
-import configureQueryBarStore from 'stores';
-import configureActions from 'actions';
+import configureStore from '../../src/stores/query-changed-store';
+import configureQueryBarStore from '../../src/stores';
+import configureActions from '../../src/actions';
 
 describe('QueryChangedStore [Store]', function() {
   let unsubscribe;

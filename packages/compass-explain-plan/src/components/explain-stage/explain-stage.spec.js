@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ExplainStage from 'components/explain-stage';
+import ExplainStage from '../explain-stage';
 
 import styles from './explain-stage.less';
 

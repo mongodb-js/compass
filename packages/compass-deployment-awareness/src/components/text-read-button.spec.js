@@ -1,8 +1,8 @@
 import React from 'react';
 import AppRegistry from 'hadron-app-registry';
 import { shallow } from 'enzyme';
-import TextReadButton from 'components/text-read-button';
-import ReadStateStore from 'stores/read-state-store';
+import TextReadButton from './/text-read-button';
+import ReadStateStore from '../stores/read-state-store';
 
 describe('<TextReadButton />', () => {
   describe('#render', () => {

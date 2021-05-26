@@ -4,9 +4,9 @@ import mongodbns from 'mongodb-ns';
 import { StoreConnector } from 'hadron-react-components';
 
 // Components
-import Header from 'components/header';
-import { RecentList } from 'components/recent';
-import { FavoriteList } from 'components/favorite';
+import Header from '../header';
+import { RecentList } from '../recent';
+import { FavoriteList } from '../favorite';
 
 // Stores
 import styles from './query-history.less';

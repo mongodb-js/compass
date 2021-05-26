@@ -1,18 +1,18 @@
 /* eslint complexity: 0 */
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from 'modules';
+import reducer from '../modules';
 import toNS from 'mongodb-ns';
-import { namespaceChanged } from 'modules/namespace';
-import { dataServiceConnected } from 'modules/data-service';
-import { fieldsChanged } from 'modules/fields';
-import { refreshInputDocuments } from 'modules/input-documents';
-import { serverVersionChanged } from 'modules/server-version';
-import { setIsAtlasDeployed } from 'modules/is-atlas-deployed';
-import { allowWrites } from 'modules/allow-writes';
-import { outResultsFnChanged } from 'modules/out-results-fn';
-import { envChanged } from 'modules/env';
-import { modifyView } from 'modules';
+import { namespaceChanged } from '../modules/namespace';
+import { dataServiceConnected } from '../modules/data-service';
+import { fieldsChanged } from '../modules/fields';
+import { refreshInputDocuments } from '../modules/input-documents';
+import { serverVersionChanged } from '../modules/server-version';
+import { setIsAtlasDeployed } from '../modules/is-atlas-deployed';
+import { allowWrites } from '../modules/allow-writes';
+import { outResultsFnChanged } from '../modules/out-results-fn';
+import { envChanged } from '../modules/env';
+import { modifyView } from '../modules';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Element } from 'hadron-document';
-import EditableElement from 'components/editable-element';
+import EditableElement from './/editable-element';
 
 /**
  * The class for the document itself.

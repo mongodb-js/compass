@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeDatabaseNameConfirmation,
   CHANGE_DATABASE_NAME_CONFIRMATION
-} from 'modules/drop-database/name-confirmation';
+} from '../drop-database/name-confirmation';
 
 describe('drop database name confirmation module', () => {
   describe('#reducer', () => {

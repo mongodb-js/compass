@@ -1,6 +1,6 @@
 import { createStore } from 'redux';
-import reducer from 'modules';
-import { changeStatus } from 'modules/status';
+import reducer from '../modules';
+import { changeStatus } from '../modules/status';
 
 /**
  * The change status ipc event name.

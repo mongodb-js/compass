@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changePartialFilterExpression,
   CHANGE_PARTIAL_FILTER_EXPRESSION
-} from 'modules/create-index/partial-filter-expression';
+} from '../create-index/partial-filter-expression';
 
 describe('create index partial filter expression module', () => {
   describe('#reducer', () => {

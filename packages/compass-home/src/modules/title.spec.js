@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeTitle,
   CHANGE_TITLE
-} from 'modules/title';
+} from './/title';
 
 describe('title module', () => {
   describe('#reducer', () => {

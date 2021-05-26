@@ -8,7 +8,7 @@ import reducer, {
   EXPLAIN_STATE_CHANGED,
   EXPLAIN_PLAN_FETCHED
 
-} from 'modules/explain';
+} from './/explain';
 
 const explainExample = {
   error: null,

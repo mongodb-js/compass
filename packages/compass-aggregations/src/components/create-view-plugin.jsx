@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
-import CreateViewModal from 'components/create-view-modal';
+import CreateViewModal from './/create-view-modal';
 
 class CreateViewPlugin extends Component {
   static displayName = 'CreateViewPlugin';

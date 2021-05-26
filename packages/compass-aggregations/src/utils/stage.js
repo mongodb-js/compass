@@ -1,5 +1,5 @@
-import { generateStage } from 'modules/stage';
-import { emptyStage } from 'modules/pipeline';
+import { generateStage } from '../modules/stage';
+import { emptyStage } from '../modules/pipeline';
 import isString from 'lodash.isstring';
 
 export const generateStageWithDefaults = (props = {}) => {

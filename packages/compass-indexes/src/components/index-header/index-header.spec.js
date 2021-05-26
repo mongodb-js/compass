@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import IndexHeader from 'components/index-header';
+import IndexHeader from '../index-header';
 import styles from './index-header.less';
 
 describe('index-header [Component]', () => {

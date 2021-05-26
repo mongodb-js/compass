@@ -6,7 +6,7 @@ import reducer, {
   changeConnection,
   saveFavorite,
   deleteFavorite
-} from 'modules/connection-model';
+} from './/connection-model';
 
 describe('connection module', () => {
   const connection = {

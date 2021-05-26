@@ -1,4 +1,4 @@
-import { SORT_DATABASES } from 'modules/databases';
+import { SORT_DATABASES } from './/databases';
 
 /**
  * The initial state of the sort order attribute.

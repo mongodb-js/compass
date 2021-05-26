@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import CompassShell from 'components/compass-shell';
-import CompassShellStore from 'stores';
-import { getUserDataFilePath } from 'modules/get-user-data-file-path';
-import { HistoryStorage } from 'modules/history-storage';
+import CompassShell from './components/compass-shell';
+import CompassShellStore from './stores';
+import { getUserDataFilePath } from './modules/get-user-data-file-path';
+import { HistoryStorage } from './modules/history-storage';
 
 function createPlugin() {
   const store = new CompassShellStore();

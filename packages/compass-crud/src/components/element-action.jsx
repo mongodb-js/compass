@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import RevertAction from 'components/revert-action';
-import RemoveAction from 'components/remove-action';
-import NoAction from 'components/no-action';
+import RevertAction from './/revert-action';
+import RemoveAction from './/remove-action';
+import NoAction from './/no-action';
 
 /**
  * Component to render the available action for an element.

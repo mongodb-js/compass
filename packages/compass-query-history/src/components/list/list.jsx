@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import mongodbns from 'mongodb-ns';
 
-import { Card, CardBody } from 'components/card';
+import { Card, CardBody } from '../card';
 import styles from './list.less';
 
 const factory = (ListItem, Saving) => {

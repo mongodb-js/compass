@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import DuplicateViewModal from 'components/duplicate-view-modal';
-import store from 'stores/duplicate-view';
+import DuplicateViewModal from './/duplicate-view-modal';
+import store from '../stores/duplicate-view';
 
 class DuplicateViewPlugin extends Component {
   static displayName = 'DuplicateViewPlugin';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Collation from 'components/collation';
+import Collation from '../collation';
 import styles from './collation.less';
 
 describe('Collation [Component]', () => {

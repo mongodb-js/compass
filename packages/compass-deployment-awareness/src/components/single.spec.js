@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import Single from 'components/single';
+import Single from './/single';
 import {
   STANDALONE,
   RS_PRIMARY,
@@ -10,7 +10,7 @@ import {
   RS_GHOST,
   UNKNOWN,
   POSSIBLE_PRIMARY
-} from 'models/server-type';
+} from '../models/server-type';
 
 import styles from './single.less';
 

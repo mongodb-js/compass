@@ -1,6 +1,6 @@
 import { Element } from 'hadron-document';
 import { Decimal128 } from 'bson';
-import { Decimal128Editor } from 'components/editor';
+import { Decimal128Editor } from '../editor';
 
 describe('Decimal128Editor', () => {
   describe('#start', () => {

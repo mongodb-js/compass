@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import HadronDocument from 'hadron-document';
-import DocumentListView from 'components/document-list-view';
+import DocumentListView from './/document-list-view';
 
 describe('<DocumentListView />', () => {
   describe('#render', () => {
