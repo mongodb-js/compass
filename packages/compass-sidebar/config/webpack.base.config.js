@@ -75,9 +75,9 @@ module.exports = {
         test: /\.(js|jsx)$/,
         use: [{
           loader: 'babel-loader',
-          query: {
-            cacheDirectory: true,
-            plugins: ['transform-decorators-legacy']
+          options: {
+            root: path.resolve(__dirname, '..'),
+            cacheDirectory: !process.env.CI
           }
         }],
         exclude: /(node_modules)/

@@ -106,9 +106,9 @@ module.exports = {
         use: [
           {
             loader: 'babel-loader',
-            query: {
-              cacheDirectory: true,
-              plugins: ['transform-decorators-legacy']
+            options: {
+              root: path.resolve(__dirname, '..'),
+              cacheDirectory: !process.env.CI
             }
           }
         ],
