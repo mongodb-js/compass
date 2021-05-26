@@ -1,4 +1,4 @@
-require('babel-register')({ extensions: ['.jsx'] });
+require('@babel/register')({ extensions: ['.jsx'] });
 
 const React = require('react');
 const ReactDOM = require('react-dom');
