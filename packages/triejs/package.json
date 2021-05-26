@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/triejs",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "author": "Paul Thurlow",
   "description": "Customizable trie data structure built in JavaScript.",
   "keywords": [
@@ -11,7 +11,6 @@
   ],
   "homepage": "http://pthurlow.github.com/triejs",
   "contibutors": [],
-  "dependencies": {},
   "scripts": {
     "test": "echo \"Not working, but the package will go away soon anyway\"",
     "test-ci": "npm run test"

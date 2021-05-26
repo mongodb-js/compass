@@ -2,7 +2,7 @@
   "name": "detect-coordinates",
   "description": "Geo coordinates detection based of a mongodb-schema type.",
   "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
