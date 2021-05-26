@@ -13,10 +13,10 @@ function main() {
 function removeAliases({location: packageLocation}) {
   console.log('\nRemoving aliases from', path.relative('.', packageLocation), '...');
 
-  const regex = /from '(actions|components|constants|fonts|images|less|models|modules|plugin|stores|utils)\//g
+  const regex = /from '(actions|components|constants|fonts|images|less|models|modules|plugin|stores|utils)([^']*)'/g
 
   const allJsFiles = glob.sync(
-    path.join(packageLocation, '**/*.js'),
+    path.join(packageLocation, '**/*.{js,jsx}'),
     {
       ignore: [
         path.join(packageLocation, 'node_modules/**')
@@ -27,10 +27,10 @@ function removeAliases({location: packageLocation}) {
   let replacementCount = 0;
   for (const filePath of allJsFiles) {
     const fileContent = fs.readFileSync(filePath, 'utf-8');
-    const newFileContent = fileContent.replace(regex, (match, folder) => {
+    const newFileContent = fileContent.replace(regex, (match, folder, rest) => {
       replacementCount++;
-      const replacement = getReplacement(packageLocation, folder, filePath);
-      console.log('    - ', match, '->', replacement);
+      const replacement = getReplacement(packageLocation, folder, rest, filePath);
+      console.log('    - ', path.relative(packageLocation, filePath), ':', match, '->', replacement);
       return replacement;
     });
 
@@ -40,7 +40,7 @@ function removeAliases({location: packageLocation}) {
   console.log('Removed', replacementCount, 'aliases');
 }
 
-function getReplacement(packageLocation, folder, fromPath) {
+function getReplacement(packageLocation, folder, rest, fromPath) {
   const packageFolders = {
     actions: path.join(packageLocation, 'src', 'actions'),
     components: path.join(packageLocation, 'src', 'components'),
@@ -55,9 +55,13 @@ function getReplacement(packageLocation, folder, fromPath) {
     utils: path.join(packageLocation, 'src', 'utils')
   }
 
-  let newPath = path.relative(fromPath, packageFolders[folder]);
+  let newPath = path.relative(path.dirname(fromPath), packageFolders[folder]);
+
+  // console.log({folder, rest});
   newPath = newPath.startsWith('.') ? newPath : `./${newPath}`;
-  return `from '${newPath}/`
+  const replacement = `from '${newPath}${rest}'`;
+  // console.log({fromPath, folder: packageFolders[folder], newPath});
+  return replacement;
 }
 
 main();
