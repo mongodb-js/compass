@@ -28,5 +28,5 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "xvfb-maybe": "^0.2.1"
   },
-  "license": "Apache-2.0"
+  "license": "SSPL"
 }

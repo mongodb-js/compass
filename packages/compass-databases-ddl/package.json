@@ -30,7 +30,7 @@
     "depcheck": "depcheck --ignores=\"@mongodb-js/compass-deployment-awareness,react-dom,debug,hadron-react-buttons\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
     "test-ci": "npm run test"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "peerDependencies": {
     "@mongodb-js/compass-deployment-awareness": "^10.2.1",
     "debug": "*",

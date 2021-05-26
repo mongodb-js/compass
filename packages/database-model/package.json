@@ -6,7 +6,7 @@
   "bugs": "https://github.com/mongodb-js/database-model/issues",
   "homepage": "https://github.com/mongodb-js/database-model",
   "repository": "git://github.com/mongodb-js/database-model.git",
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "keywords": [
     "mongodb-js"
   ],

@@ -25,7 +25,7 @@
     "depcheck": "depcheck --ignores=\"react-dom,debug\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
     "test-ci": "npm run test"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "peerDependencies": {
     "hadron-react-components": "^4.1.1",
     "react": "^16.8.0",

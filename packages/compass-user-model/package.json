@@ -6,7 +6,7 @@
   "bugs": "https://github.com/mongodb-js/compass-user-model/issues",
   "homepage": "https://github.com/mongodb-js/compass-user-model",
   "repository": "git://github.com/mongodb-js/compass-user-model.git",
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "browser": "browser.js",
   "keywords": [
     "mongodb-js"

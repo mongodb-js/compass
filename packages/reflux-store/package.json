@@ -9,7 +9,7 @@
     "type": "git",
     "url": "https://github.com/mongodb-js/reflux-store.git"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "keywords": [
     "mongodb-js"
   ],

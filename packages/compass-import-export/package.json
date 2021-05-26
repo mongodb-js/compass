@@ -30,7 +30,7 @@
     "depcheck": "depcheck --ignores=\"react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
     "test-ci": "npm run test"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "peerDependencies": {
     "hadron-react-buttons": "^4.1.1",
     "mongodb-ace-theme": "^0.1.1",

@@ -23,7 +23,7 @@
     "test-ci": "npm run test",
     "prepare": "npm run compile"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "peerDependencies": {
     "hadron-react-buttons": "^4.1.1",
     "hadron-react-components": "^4.1.1",

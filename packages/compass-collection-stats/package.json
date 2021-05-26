@@ -29,7 +29,7 @@
     "depcheck": "depcheck --ignores=\"hadron-react-bson,mongodb-ns,numeral,react-dom,mongodb-data-service\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
     "test-ci": "npm run test"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "peerDependencies": {
     "hadron-react-bson": "^4.1.1",
     "hadron-react-components": "^4.1.1",
