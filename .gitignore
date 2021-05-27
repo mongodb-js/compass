@@ -14,3 +14,5 @@ expansions.yml
 .nvmrc
 .vscode
 .migration-cache
+lerna-debug.log
+packages/**/*.tgz

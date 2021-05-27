@@ -1,15 +1,13 @@
-var detect = require('../');
-var assert = require('assert');
-var legacyPairs = require('./fixtures/legacy_pairs.json');
-var geoJSONTemplate = require('./fixtures/geo_json.json');
-var legacyPairsAsHashMap = require('./fixtures/hash-map-types-pairs.json');
-var unpromotedDoublesTemplate = require('./fixtures/unpromoted_doubles.json');
-
-var _ = require('lodash');
+const detect = require('./detect-coordinates');
+const assert = require('assert');
+const legacyPairs = require('../../test/fixtures/legacy_pairs.json');
+const geoJSONTemplate = require('../../test/fixtures/geo_json.json');
+const unpromotedDoublesTemplate = require('../../test/fixtures/unpromoted_doubles.json');
+const _ = require('lodash');
 
 describe('detect-coordinates', function() {
   describe('GeoJSON Documents', function() {
-    var geoJSON;
+    let geoJSON;
     beforeEach(function() {
       geoJSON = _.cloneDeep(geoJSONTemplate);
     });
@@ -19,7 +17,7 @@ describe('detect-coordinates', function() {
     });
 
     it('should return a zipped array of coordinates', function() {
-      var result = detect(geoJSON);
+      const result = detect(geoJSON);
       assert.ok(_.isArray(result));
       assert.ok(_.isArray(result[0]));
       assert.equal(result[0].length, 2);
@@ -41,25 +39,25 @@ describe('detect-coordinates', function() {
     });
 
     it('should fail if not all the `type` values are "Point"', function() {
-      var typeField = _.find(geoJSON.fields, ['name', 'type']);
+      const typeField = _.find(geoJSON.fields, ['name', 'type']);
       typeField.types[0].values[16] = 'Polygon';
       assert.equal(detect(geoJSON), false);
     });
 
     it('should fail if coordinates field has more than one type', function() {
-      var coordinatesField = _.find(geoJSON.fields, ['name', 'coordinates']);
+      const coordinatesField = _.find(geoJSON.fields, ['name', 'coordinates']);
       coordinatesField.types.push({foo: 1});
       assert.equal(detect(geoJSON), false);
     });
 
     it('should fail if coordinates field type is not `Array`', function() {
-      var coordinatesField = _.find(geoJSON.fields, ['name', 'coordinates']);
+      const coordinatesField = _.find(geoJSON.fields, ['name', 'coordinates']);
       coordinatesField.types[0].name = 'Boolean';
       assert.equal(detect(geoJSON), false);
     });
 
     it('should run the legacy pair checks on the `coordinates` field', function() {
-      var coordinatesField = _.find(geoJSON.fields, ['name', 'coordinates']);
+      const coordinatesField = _.find(geoJSON.fields, ['name', 'coordinates']);
       coordinatesField.types[0].types[0].values[0] = -200; // outside longitude bounds
       assert.equal(detect(geoJSON), false);
     });
@@ -71,14 +69,14 @@ describe('detect-coordinates', function() {
     });
 
     it('should return a zipped array of coordinates', function() {
-      var result = detect(legacyPairs);
+      const result = detect(legacyPairs);
       assert.ok(_.isArray(result));
       assert.ok(_.isArray(result[0]));
       assert.equal(result[0].length, 2);
     });
 
     it('should work with mock legacy coordinate pairs', function() {
-      var input = {
+      const input = {
         name: 'Array',
         count: 4,
         path: 'some.path',
@@ -101,7 +99,7 @@ describe('detect-coordinates', function() {
     });
 
     it('should fail when abs(longitude) > 180', function() {
-      var input = {
+      const input = {
         name: 'Array',
         count: 4,
         path: 'some.path',
@@ -124,7 +122,7 @@ describe('detect-coordinates', function() {
     });
 
     it('should fail when abs(latitude) > 90', function() {
-      var input = {
+      const input = {
         name: 'Array',
         count: 4,
         path: 'some.path',
@@ -147,7 +145,7 @@ describe('detect-coordinates', function() {
     });
 
     it('should fail if not every array length is equal to 2', function() {
-      var input = {
+      const input = {
         name: 'Array',
         count: 4,
         path: 'some.path',
@@ -170,16 +168,15 @@ describe('detect-coordinates', function() {
     });
 
     it('should fail if the type does not have a `lengths` field', function() {
-      var input = {
+      const input = {
         name: 'Array',
         count: 4,
         path: 'some.path'
       };
       assert.equal(detect(input), false);
     });
-
     it('should fail if the type does not have a `types` field', function() {
-      var input = {
+      const input = {
         name: 'Array',
         count: 4,
         path: 'some.path',
@@ -187,9 +184,8 @@ describe('detect-coordinates', function() {
       };
       assert.equal(detect(input), false);
     });
-
     it('should fail if it has more than one array type', function() {
-      var input = {
+      const input = {
         name: 'Array',
         count: 4,
         path: 'some.path',
@@ -220,7 +216,7 @@ describe('detect-coordinates', function() {
       assert.equal(detect(input), false);
     });
     it('should fail if the inner type is not `Number`', function() {
-      var input = {
+      const input = {
         name: 'Array',
         count: 4,
         path: 'some.path',
@@ -243,166 +239,8 @@ describe('detect-coordinates', function() {
     });
   });
 
-  describe('Legacy Value Pairs store in Object-like type.types', function() {
-    it('should work with real legacy coordinate pairs', function() {
-      assert.ok(detect(legacyPairsAsHashMap));
-    });
-
-    it('should return a zipped array of coordinates', function() {
-      var result = detect(legacyPairsAsHashMap);
-      assert.ok(_.isArray(result));
-      assert.ok(_.isArray(result[0]));
-      assert.equal(result[0].length, 2);
-    });
-
-    it('should work with mock legacy coordinate pairs', function() {
-      var input = {
-        name: 'Array',
-        count: 4,
-        path: 'coordiantes',
-        bson_type: 'Array',
-        lengths: [2, 2, 2, 2],
-        has_duplicates: true,
-        types: {
-          Double: {
-            name: 'Double',
-            bson_type: 'Double',
-            count: 8,
-            path: 'coordinates',
-            probability: 1,
-            has_duplicates: false,
-            values: [
-              1, 2, 3, 4, 5, 6, 7, 8, 9, 20
-            ]
-          }
-        }
-      };
-      assert.ok(detect(input));
-    });
-
-    it('should fail if not every array length is equal to 2', function() {
-      var input = {
-        name: 'Array',
-        count: 4,
-        path: 'coordiantes',
-        bson_type: 'Array',
-        lengths: [2, 2, 0, 2],
-        has_duplicates: true,
-        types: {
-          Double: {
-            name: 'Double',
-            bson_type: 'Double',
-            count: 8,
-            path: 'coordinates',
-            probability: 1,
-            has_duplicates: false,
-            values: [
-              1, 2, 3, 4, 5, 6, 7, 8, 9, 20
-            ]
-          }
-        }
-      };
-      assert.equal(detect(input), false);
-    });
-
-    it('should fail if the type does not have a `lengths` field', function() {
-      var input = {
-        name: 'Array',
-        count: 4,
-        path: 'coordiantes',
-        bson_type: 'Array',
-        has_duplicates: true,
-        types: {
-          Double: {
-            name: 'Double',
-            bson_type: 'Double',
-            count: 8,
-            path: 'coordinates',
-            probability: 1,
-            has_duplicates: false,
-            values: [
-              1, 2, 3, 4, 5, 6, 7, 8, 9, 20
-            ]
-          }
-        }
-      };
-      assert.equal(detect(input), false);
-    });
-
-    it('should fail if the type does not have a `types` field', function() {
-      var input = {
-        name: 'Array',
-        count: 4,
-        path: 'coordiantes',
-        bson_type: 'Array',
-        has_duplicates: true
-      };
-      assert.equal(detect(input), false);
-    });
-
-    it('should fail if it has more than one array type', function() {
-      var input = {
-        name: 'Array',
-        count: 4,
-        path: 'coordiantes',
-        bson_type: 'Array',
-        has_duplicates: true,
-        types: {
-          Double: {
-            name: 'Double',
-            bson_type: 'Double',
-            count: 8,
-            path: 'coordinates',
-            probability: 1,
-            has_duplicates: false,
-            values: [
-              1, 2, 3, 4, 5, 6, 7, 8, 9, 20
-            ]
-          },
-          String: {
-            name: 'String',
-            bson_type: 'String',
-            count: 8,
-            path: 'coordinates',
-            probability: 1,
-            has_duplicates: false,
-            values: [
-              'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'
-            ]
-          }
-        }
-      };
-      assert.equal(detect(input), false);
-    });
-
-    it('should fail if the inner type is not `Number`', function() {
-      var input = {
-        name: 'Array',
-        count: 4,
-        bson_type: 'Array',
-        path: 'coordinates',
-        lengths: [2, 2, 2, 2],
-        has_duplicates: true,
-        types: {
-          String: {
-            name: 'String',
-            bson_type: 'String',
-            count: 8,
-            path: 'coordinates',
-            probability: 1,
-            has_duplicates: false,
-            values: [
-              'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'
-            ]
-          }
-        }
-      };
-      assert.equal(detect(input), false);
-    });
-  });
-
   describe('GeoJSON with unpromoted Double values', function() {
-    var geoJSON;
+    let geoJSON;
     beforeEach(function() {
       geoJSON = _.cloneDeep(unpromotedDoublesTemplate);
     });

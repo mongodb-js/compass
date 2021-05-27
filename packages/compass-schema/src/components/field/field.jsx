@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Type from '../type';
 import Minichart from '../minichart';
-import detectCoordinates from 'detect-coordinates';
+import detectCoordinates from '../../modules/detect-coordinates';
 import sortBy from 'lodash.sortby';
 import get from 'lodash.get';
 import find from 'lodash.find';
