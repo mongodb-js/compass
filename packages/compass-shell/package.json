@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-shell",
   "productName": "Compass Shell plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "apiVersion": "3.0.0",
   "description": "Compass Shell Plugin",
   "main": "lib/index.js",
@@ -48,11 +48,11 @@
   "dependencies": {
     "@leafygreen-ui/icon": "^5.1.0",
     "@leafygreen-ui/icon-button": "^5.0.2",
+    "@mongodb-js/mongodb-redux-common": "^0.1.1",
     "@mongosh/browser-repl": "^0.12.0",
     "@mongosh/node-runtime-worker-thread": "^0.12.0",
     "@mongosh/service-provider-core": "^0.12.0",
-    "hadron-react-buttons": "^4.1.0",
-    "@mongodb-js/mongodb-redux-common": "^0.1.0"
+    "hadron-react-buttons": "^4.1.1"
   },
   "peerDependencies": {
     "hadron-ipc": "^1.1.0",
@@ -98,8 +98,8 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "file-loader": "^3.0.1",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^3.3.0",
-    "hadron-app-registry": "^7.3.0",
+    "hadron-app": "^3.3.1",
+    "hadron-app-registry": "^7.3.1",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.0",
