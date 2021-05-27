@@ -144,7 +144,7 @@
     "decomment": "^0.9.1",
     "javascript-stringify": "^2.0.1",
     "lodash": "^4.17.15",
-    "mongodb-redux-common": "^0.1.0",
+    "@mongodb-js/mongodb-redux-common": "^0.1.0",
     "react-bootstrap": "^0.32.1"
   }
 }

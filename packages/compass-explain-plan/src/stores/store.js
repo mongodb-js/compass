@@ -11,7 +11,7 @@ import { explainStateChanged } from '../modules/explain';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import EXPLAIN_STATES from '../constants/explain-states';
 

@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import reducer from '../modules';
 import thunk from 'redux-thunk';
-import { globalAppRegistryActivated } from 'mongodb-redux-common/app-registry';
+import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import { changeInstance } from '../modules/instance';
 import { filterDatabases } from '../modules/databases';

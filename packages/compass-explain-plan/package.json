@@ -164,6 +164,6 @@
     "d3-flextree": "1.0.3",
     "d3-timer": "1.0.10",
     "lodash": "^4.17.15",
-    "mongodb-redux-common": "^0.1.0"
+    "@mongodb-js/mongodb-redux-common": "^0.1.0"
   }
 }

@@ -12,7 +12,7 @@ import { changeZeroState } from '../modules/zero-state';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 import semver from 'semver';
 
 /**

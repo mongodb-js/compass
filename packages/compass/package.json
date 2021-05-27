@@ -302,7 +302,7 @@
     "hadron-document": "^6.1.0",
     "hadron-ipc": "^1.1.1",
     "hadron-module-cache": "^1.0.1",
-    "hadron-plugin-manager": "^5.3.1",
+    "@mongodb-js/hadron-plugin-manager": "^5.3.1",
     "hadron-react-bson": "^4.0.5",
     "hadron-react-buttons": "^4.0.5",
     "hadron-react-components": "^4.0.5",

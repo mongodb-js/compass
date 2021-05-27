@@ -2,7 +2,7 @@ import toNS from 'mongodb-ns';
 const debug = require('debug')('mongodb-aggregations:modules:update-view');
 import {
   globalAppRegistryEmit
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import { generateStage } from './stage';
 

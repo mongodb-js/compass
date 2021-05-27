@@ -4,7 +4,7 @@ import IndexModel from 'mongodb-index-model';
 import map from 'lodash.map';
 import max from 'lodash.max';
 import { handleError } from './error';
-import { localAppRegistryEmit } from 'mongodb-redux-common/app-registry';
+import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 /**
  * The module action prefix.

@@ -16,7 +16,7 @@ import { modifyView } from '../modules';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 
 /**
  * Refresh the input documents.

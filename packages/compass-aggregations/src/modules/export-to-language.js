@@ -2,7 +2,7 @@ import { generatePipelineAsString } from './pipeline';
 import {
   localAppRegistryEmit,
   globalAppRegistryEmit
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 
 /**
  * Action creator for export to language events.

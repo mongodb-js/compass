@@ -3,7 +3,7 @@ import thunk from 'redux-thunk';
 import { dataServiceConnected } from '../modules/data-service';
 import {
   globalAppRegistryActivated
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 import reducer, { open } from '../modules/create-view';
 
 const store = createStore(reducer, applyMiddleware(thunk));

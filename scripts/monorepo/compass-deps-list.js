@@ -339,7 +339,7 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/notary-service-client.git'
   },
   {
-    name: 'mongodb-redux-common',
+    name: '@mongodb-js/mongodb-redux-common',
     repository: 'https://github.com/mongodb-js/redux-common.git'
   },
   {

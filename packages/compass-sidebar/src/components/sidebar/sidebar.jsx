@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import cloneDeep from 'lodash.clonedeep';
 import ReactTooltip from 'react-tooltip';
 import { AutoSizer, List } from 'react-virtualized';
-import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import classnames from 'classnames';
 import styles from './sidebar.less';

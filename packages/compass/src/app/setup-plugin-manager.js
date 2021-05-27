@@ -3,7 +3,7 @@ const pkg = require('../../package.json');
 const path = require('path');
 const os = require('os');
 const AppRegistry = require('hadron-app-registry');
-const PluginManager = require('hadron-plugin-manager');
+const PluginManager = require('@mongodb-js/hadron-plugin-manager');
 const ipc = require('hadron-ipc');
 
 const debug = require('debug')('mongodb-compass:setup-plugin-manager');
