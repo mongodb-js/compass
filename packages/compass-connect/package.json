@@ -121,7 +121,7 @@
     "react-fontawesome": "^1.6.1",
     "react-hot-loader": "^4.1.0",
     "reflux": "^6.4.1",
-    "reflux-state-mixin": "^0.8.1",
+    "reflux-state-mixin": "^0.7.0",
     "rimraf": "^3.0.0",
     "semver": "^7.1.1",
     "shebang-loader": "0.0.1",

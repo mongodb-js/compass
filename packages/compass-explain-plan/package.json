@@ -142,7 +142,7 @@
     "react-tooltip": "^3.11.1",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "reflux-state-mixin": "^0.8.1",
+    "reflux-state-mixin": "^0.7.0",
     "resolve": "^1.15.1",
     "rimraf": "^3.0.1",
     "semver": "^7.1.1",

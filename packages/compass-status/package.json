@@ -88,7 +88,7 @@
     "react-hot-loader": "^4.1.0",
     "react-storybook-addon-chapters": "^1.1.0",
     "reflux": "^0.4.1",
-    "reflux-state-mixin": "^0.8.1",
+    "reflux-state-mixin": "^0.7.0",
     "resolve": "^1.4.0",
     "rimraf": "^2.6.1",
     "semver": "^5.4.1",

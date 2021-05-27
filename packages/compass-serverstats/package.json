@@ -75,7 +75,7 @@
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
-    "reflux-state-mixin": "^0.8.1",
+    "reflux-state-mixin": "^0.7.0",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
     "watch": "^0.19.2",
