@@ -30,26 +30,29 @@ function main() {
     fail('The repo is not pristine');
   }
 
-  const packages = JSON.parse(childProcess.execSync('lerna list --json --toposort'));
+  const packages = JSON.parse(childProcess.execSync('lerna list --json --toposort'))
+    .filter(package => !package.private);
+  let i = 0;
   for (const package of packages) {
-    if (package.private) {
-      continue;
-    }
-
-    publishPackage(package);
+    publishPackage(package, [++i, packages.length].join(' of '));
   }
 }
 
-function publishPackage({ location: packageLocation, name: packageName, version: packageVersion }) {
+function publishPackage(
+  { location: packageLocation, name: packageName, version: packageVersion },
+  progress
+) {
   console.log('\n');
   const packageNameAndVersion = `${packageName}@${packageVersion}`;
 
+  console.log(packageNameAndVersion, `(${progress})`);
+
   if (alreadyPublished(packageLocation, packageNameAndVersion)) {
-    console.log('Already published', packageNameAndVersion, 'skipping ...');
+    console.log('Already published, skipping ...');
     return;
   }
 
-  console.log('Publishing package', packageNameAndVersion, '...');
+  console.log('Publishing package ...');
 
   installAndPublish(packageLocation);
 }
