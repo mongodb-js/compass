@@ -123,7 +123,7 @@
     "redux": "^3.7.2",
     "redux-thunk": "^2.3.0",
     "reflux": "^0.4.1",
-    "reflux-state-mixin": "^0.8.1",
+    "reflux-state-mixin": "^0.7.0",
     "resolve": "^1.15.1",
     "rimraf": "^3.0.1",
     "semver": "^5.4.1",

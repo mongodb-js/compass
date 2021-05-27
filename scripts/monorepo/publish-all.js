@@ -55,8 +55,21 @@ function publishPackage({ location: packageLocation, name: packageName, version:
 }
 
 function installAndPublish(packageLocation) {
-  childProcess.execSync('npm install', { cwd: packageLocation });
-  childProcess.execSync('npm publish', { cwd: packageLocation });
+  const proc = childProcess.spawnSync('npm', ['install'], {
+    cwd: packageLocation, stdio: 'inherit', stdin: 'inherit' });
+
+  const {status: installExitCode} = proc;
+
+  if (installExitCode !== 0) {
+    throw new Error(`npm install failed with exit code = ${installExitCode}`);
+  }
+
+  const {status: publishExitCode} = childProcess.spawnSync('npm', ['publish', '--access', 'public'], {
+    cwd: packageLocation, stdio: 'inherit', stdin: 'inherit' });
+
+  if (publishExitCode !== 0) {
+    throw new Error(`npm publish failed with exit code = ${publishExitCode}`);
+  }
 }
 
 function alreadyPublished(packageLocation, packageNameAndVersion) {
