@@ -16,7 +16,7 @@ for (const package of packages) {
   const {dependencies, devDependencies, peerDependencies} = mismatching;
   if (dependencies.length || devDependencies.length || peerDependencies.length) {
     const newPackageJson = fixDeps(packageJson, packagesByName, mismatching);
-    fsExtra.writeJSONSync(packageJsonPath, newPackageJson);
+    fsExtra.writeJSONSync(packageJsonPath, newPackageJson, {spaces: 2});
   }
 }
 

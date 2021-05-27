@@ -28,7 +28,7 @@
   "license": "Apache-2.0",
   "peerDependencies": {
     "debug": "*",
-    "mongodb-instance-model": "*",
+    "mongodb-instance-model": "^10.1.1",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
     "react-bootstrap": "^0.32.1",
@@ -100,7 +100,7 @@
     "mongodb-data-service": "^19.3.1",
     "mongodb-database-model": "^0.2.1",
     "mongodb-instance-model": "^10.1.1",
-    "mongodb-js-metrics": "^5.0.2",
+    "mongodb-js-metrics": "^6.1.1",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",

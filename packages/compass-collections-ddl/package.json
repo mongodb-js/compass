@@ -34,9 +34,9 @@
   "license": "Apache-2.0",
   "peerDependencies": {
     "debug": "*",
-    "hadron-ipc": "^1.1.1",
-    "hadron-react-buttons": "^4.0.5",
-    "hadron-react-components": "^4.0.5",
+    "hadron-ipc": "^1.2.1",
+    "hadron-react-buttons": "^4.1.1",
+    "hadron-react-components": "^4.1.1",
     "numeral": "*",
     "prop-types": "^15.7.2",
     "react": "^16.8.0",
