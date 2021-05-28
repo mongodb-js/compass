@@ -23,6 +23,12 @@ const args = process.argv.slice(2);
 
 const npmRegistrySpawnArgs = args.includes('--local') ? ['--registry', 'http://localhost:4873'] : [];
 
+if (args.includes('--local')) {
+  childProcess.spawnSync('npm', ['add-user', ...npmRegistrySpawnArgs], {
+    stdio: 'inherit', stdin: 'inherit'
+  });
+}
+
 function main() {
 
   const currentBranch = getCurrentBranch();
