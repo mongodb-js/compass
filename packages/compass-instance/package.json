@@ -32,14 +32,14 @@
   },
   "license": "Apache-2.0",
   "peerDependencies": {
-    "hadron-react-components": "^4.0.4",
+    "hadron-react-components": "^4.1.1",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-tooltip": "^3.2.6"
   },
   "devDependencies": {
     "@mongodb-js/compass-database": "^1.1.1",
-    "@mongodb-js/compass-serverstats": "^13.0.0",
+    "@mongodb-js/compass-serverstats": "^14.1.1",
     "autoprefixer": "^9.7.4",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",

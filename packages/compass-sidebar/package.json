@@ -28,7 +28,7 @@
   },
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@mongodb-js/compass-connect": "^5.3.3",
+    "@mongodb-js/compass-connect": "^6.3.1",
     "debug": "*",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",

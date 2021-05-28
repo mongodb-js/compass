@@ -25,8 +25,8 @@
   },
   "license": "Apache-2.0",
   "peerDependencies": {
-    "hadron-react-buttons": "^3.1.0",
-    "hadron-react-components": "^3.2.2",
+    "hadron-react-buttons": "^4.1.1",
+    "hadron-react-components": "^4.1.1",
     "react": "^16.8.0",
     "react-dom": "^16.8.0"
   },
@@ -61,7 +61,7 @@
     "eslint-config-mongodb-js": "^2.1.0",
     "hadron-app": "^3.3.1",
     "hadron-app-registry": "^7.3.1",
-    "hadron-build": "github:mongodb-js/hadron-build#evergreen",
+    "hadron-build": "^23.6.1",
     "hadron-react-buttons": "^4.1.1",
     "hadron-react-components": "^4.1.1",
     "jsdom": "^9.4.2",
