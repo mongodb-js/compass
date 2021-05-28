@@ -32,7 +32,7 @@
   },
   "license": "Apache-2.0",
   "peerDependencies": {
-    "hadron-react-components": "^4.0.4",
+    "hadron-react-components": "^4.1.1",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-tooltip": "^3.2.6"
@@ -46,7 +46,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@mongodb-js/compass-database": "^1.1.1",
-    "@mongodb-js/compass-serverstats": "^13.0.0",
+    "@mongodb-js/compass-serverstats": "^14.1.1",
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.2.2",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",

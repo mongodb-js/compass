@@ -41,10 +41,10 @@
   },
   "peerDependencies": {
     "debug": "*",
-    "hadron-react-components": "^4.0.4",
+    "hadron-react-components": "^4.1.1",
     "mongodb-ace-autocompleter": "*",
-    "mongodb-ace-mode": "*",
-    "mongodb-ace-theme-query": "*",
+    "mongodb-ace-mode": "^0.5.1",
+    "mongodb-ace-theme-query": "^0.1.1",
     "mongodb-query-parser": "*",
     "prop-types": "^15.7.2",
     "react": "^16.8.0",

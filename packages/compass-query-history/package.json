@@ -48,7 +48,7 @@
   },
   "peerDependencies": {
     "debug": "*",
-    "hadron-react-components": "*",
+    "hadron-react-components": "^4.1.1",
     "mongodb-query-parser": "*",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
@@ -57,7 +57,7 @@
     "react-tooltip": "^3.2.6",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "^0.7.0",
-    "storage-mixin": "*"
+    "storage-mixin": "^3.4.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -113,7 +113,7 @@
     "mongodb-connection-model": "^19.2.1",
     "mongodb-data-service": "^19.3.1",
     "mongodb-extended-json": "^1.11.0",
-    "mongodb-js-metrics": "^5.0.2",
+    "mongodb-js-metrics": "^6.1.1",
     "mongodb-query-parser": "^2.0.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",

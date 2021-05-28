@@ -27,7 +27,7 @@
   },
   "license": "Apache-2.0",
   "peerDependencies": {
-    "hadron-react-buttons": "^4.0.4",
+    "hadron-react-buttons": "^4.1.1",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-redux": "^5.0.6",

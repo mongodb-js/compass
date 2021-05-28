@@ -30,7 +30,7 @@
     "mongodb-ns": "^2.0.0"
   },
   "peerDependencies": {
-    "mongodb-data-service": "^16.0.0"
+    "mongodb-data-service": "^19.3.1"
   },
   "devDependencies": {
     "depcheck": "^1.4.0",

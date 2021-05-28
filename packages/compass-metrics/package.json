@@ -26,8 +26,8 @@
   "license": "Apache-2.0",
   "peerDependencies": {
     "debug": "*",
-    "hadron-ipc": "^1.1.0",
-    "mongodb-js-metrics": "*",
+    "hadron-ipc": "^1.2.1",
+    "mongodb-js-metrics": "^6.1.1",
     "mongodb-schema": "^8.2.3",
     "redux": "^3.7.2"
   },
@@ -85,7 +85,7 @@
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-connection-model": "^19.2.1",
     "mongodb-data-service": "^19.3.1",
-    "mongodb-js-metrics": "^5.0.2",
+    "mongodb-js-metrics": "^6.1.1",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.3",
     "node-loader": "^0.6.0",

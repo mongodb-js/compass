@@ -32,9 +32,9 @@
   },
   "license": "Apache-2.0",
   "peerDependencies": {
-    "hadron-react-bson": "^4.0.4",
-    "hadron-react-components": "^4.0.4",
-    "mongodb-data-service": "*",
+    "hadron-react-bson": "^4.1.1",
+    "hadron-react-components": "^4.1.1",
+    "mongodb-data-service": "^19.3.1",
     "mongodb-ns": "^2.0.0",
     "numeral": "*",
     "prop-types": "^15.5.8",

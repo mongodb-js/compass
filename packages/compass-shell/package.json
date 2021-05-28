@@ -55,8 +55,8 @@
     "hadron-react-buttons": "^4.1.1"
   },
   "peerDependencies": {
-    "hadron-ipc": "^1.1.0",
-    "hadron-react-components": "^3.2.1",
+    "hadron-ipc": "^1.2.1",
+    "hadron-react-components": "^4.1.1",
     "prop-types": "^15.7.2",
     "react": "^16.8.0",
     "react-ace": "^6.6.0",
