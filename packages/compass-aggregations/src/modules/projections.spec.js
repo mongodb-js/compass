@@ -1,7 +1,7 @@
 import reducer, {
   projectionsChanged,
   PROJECTIONS_CHANGED
-} from 'modules/projections';
+} from './projections';
 
 describe('projections module', () => {
   describe('#projectionsChanged', () => {

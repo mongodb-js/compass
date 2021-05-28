@@ -1,4 +1,4 @@
-import configureStore from 'stores';
+import configureStore from '../../src/stores';
 import AppRegistry from 'hadron-app-registry';
 import { ANALYSIS_STATE_INITIAL } from '../../src/constants/analysis-states';
 

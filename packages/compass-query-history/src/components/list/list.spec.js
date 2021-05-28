@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
-import { listFactory } from 'components/list';
+import { listFactory } from '../list';
 import styles from './list.less';
 
 const ListComponent = listFactory(

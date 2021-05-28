@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import createCollectionStore from 'stores/create-collection';
+import createCollectionStore from '../../stores/create-collection';
 import { TextButton } from 'hadron-react-buttons';
 import { Tooltip } from 'hadron-react-components';
 

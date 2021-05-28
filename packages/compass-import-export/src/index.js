@@ -1,7 +1,7 @@
 import Plugin from './plugin';
 import ImportPlugin from './import-plugin';
 import ExportPlugin from './export-plugin';
-import configureStore from 'stores';
+import configureStore from './stores';
 
 /**
  * The import plugin.

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
-import ExportModal from 'components/export-modal';
+import ExportModal from './components/export-modal';
 
 class ExportPlugin extends Component {
   static displayName = 'ExportPlugin';

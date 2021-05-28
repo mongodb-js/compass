@@ -9,7 +9,7 @@ const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-cod
 const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
 
-const notary = require('mongodb-notary-service-client');
+const notary = require('@mongodb-js/mongodb-notary-service-client');
 
 function sign(src) {
   notary(src)

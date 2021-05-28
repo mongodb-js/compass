@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import ImportPreview from 'components/import-preview';
+import ImportPreview from '../src/components/import-preview';
 
 // const docs = [
 //   {

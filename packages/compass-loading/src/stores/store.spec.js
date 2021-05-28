@@ -1,4 +1,4 @@
-import configureStore, { CHANGE_STATUS } from 'stores';
+import configureStore, { CHANGE_STATUS } from './';
 import AppRegistry from 'hadron-app-registry';
 
 describe('LoadingStore [Store]', () => {

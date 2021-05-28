@@ -3,7 +3,7 @@ import reducer, {
   sortDatabases,
   LOAD_DATABASES,
   SORT_DATABASES
-} from 'modules/databases';
+} from './databases';
 
 const SPOTIFY = {
   _id: 'spotify',

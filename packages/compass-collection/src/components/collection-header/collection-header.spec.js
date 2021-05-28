@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import CollectionHeader from 'components/collection-header';
+import CollectionHeader from '../collection-header';
 import styles from './collection-header.less';
 
 describe('CollectionHeader [Component]', () => {

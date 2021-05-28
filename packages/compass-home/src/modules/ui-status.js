@@ -1,4 +1,4 @@
-import UI_STATES from 'constants/ui-states';
+import UI_STATES from '../constants/ui-states';
 
 /**
  * UI status action.

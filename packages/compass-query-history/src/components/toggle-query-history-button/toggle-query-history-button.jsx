@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import FontAwesome from 'react-fontawesome';
-import Actions from 'actions';
+import Actions from '../../actions';
 import ReactTooltip from 'react-tooltip';
 
 import styles from './toggle-query-history-button.less';

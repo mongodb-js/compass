@@ -1,5 +1,5 @@
 import { toJSString as toShellString } from 'mongodb-query-parser';
-import { emptyStage } from 'modules/pipeline';
+import { emptyStage } from './pipeline';
 import { extractStages } from './extract-stages';
 const debug = require('debug')('mongodb-aggregations:modules:import-pipeline');
 

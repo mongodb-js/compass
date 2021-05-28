@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import LoadingPlugin from './plugin';
-import configureStore from 'stores';
+import configureStore from './stores';
 
 describe('Loading [Plugin]', () => {
   let component;

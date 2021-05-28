@@ -2,17 +2,17 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { pick } from 'lodash';
 import classnames from 'classnames';
-import { namespaceChanged } from 'modules/namespace';
-import { openLink } from 'modules/link';
+import { namespaceChanged } from '../../modules/namespace';
+import { openLink } from '../../modules/link';
 import {
   switchToTreeView,
   switchToJSONView,
   fetchExplainPlan,
   changeExplainPlanState,
   explainStateChanged
-} from 'modules/explain';
-import ExplainStates from 'components/explain-states';
-import { queryExecuted } from 'modules/query';
+} from '../../modules/explain';
+import ExplainStates from '../explain-states';
+import { queryExecuted } from '../../modules/query';
 
 import styles from './explain-plan.less';
 

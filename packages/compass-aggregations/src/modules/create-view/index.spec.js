@@ -1,6 +1,6 @@
-import reducer, { createView, INITIAL_STATE } from 'modules/create-view';
-import { reset } from 'modules/create-view/reset';
-import { CLEAR_ERROR, HANDLE_ERROR } from 'modules/create-view/error';
+import reducer, { createView, INITIAL_STATE } from '../create-view';
+import { reset } from '../create-view/reset';
+import { CLEAR_ERROR, HANDLE_ERROR } from '../create-view/error';
 
 describe('create view module', () => {
   describe('#reducer', () => {

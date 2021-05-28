@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip } from 'hadron-react-components';
-import WriteStateStore from 'stores/write-state-store';
+import WriteStateStore from '../stores/write-state-store';
 import { OptionSelector } from 'hadron-react-components';
 
 /**

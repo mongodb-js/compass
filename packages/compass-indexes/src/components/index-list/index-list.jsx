@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import map from 'lodash.map';
-import IndexComponent from 'components/index-component';
+import IndexComponent from '../index-component';
 
 /**
  * Component for the index list.

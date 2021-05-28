@@ -1,8 +1,8 @@
 import React from 'react';
 import AppRegistry from 'hadron-app-registry';
 import { shallow } from 'enzyme';
-import TextWriteButton from 'components/text-write-button';
-import WriteStateStore from 'stores/write-state-store';
+import TextWriteButton from './text-write-button';
+import WriteStateStore from '../stores/write-state-store';
 
 describe('<TextWriteButton />', () => {
   describe('#render', () => {

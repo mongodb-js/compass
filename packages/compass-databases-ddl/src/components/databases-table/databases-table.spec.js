@@ -1,8 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { INITIAL_STATE as COLUMNS } from 'modules/columns';
-import DatabasesTable from 'components/databases-table';
+import { INITIAL_STATE as COLUMNS } from '../../modules/columns';
+import DatabasesTable from '../databases-table';
 
 describe('DatabasesTable [Component]', () => {
   const databases = [];

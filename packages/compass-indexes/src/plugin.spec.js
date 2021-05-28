@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import IndexesPlugin from './plugin';
-import configureStore from 'stores';
+import configureStore from './stores';
 import AppRegistry from 'hadron-app-registry';
 
 describe('Indexes [Plugin]', () => {

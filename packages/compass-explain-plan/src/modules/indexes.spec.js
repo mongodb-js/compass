@@ -1,4 +1,4 @@
-import reducer, { indexesChanged, INDEXES_CHANGED } from 'modules/indexes';
+import reducer, { indexesChanged, INDEXES_CHANGED } from './indexes';
 
 describe('indexes module', () => {
   describe('#indexesChanged', () => {

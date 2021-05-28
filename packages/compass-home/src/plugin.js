@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import Home from 'components/home';
-import store from 'stores';
+import Home from './components/home';
+import store from './stores';
 
 class Plugin extends Component {
   static displayName = 'HomePlugin';

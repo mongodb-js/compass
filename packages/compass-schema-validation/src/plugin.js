@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
-import CompassSchemaValidation from 'components/compass-schema-validation';
+import CompassSchemaValidation from './components/compass-schema-validation';
 
 /**
  * CompassSchemaValidationPlugin plugin.

@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeTtl,
   CHANGE_TTL
-} from 'modules/create-index/ttl';
+} from '../create-index/ttl';
 
 describe('create index partial filter expression module', () => {
   describe('#reducer', () => {

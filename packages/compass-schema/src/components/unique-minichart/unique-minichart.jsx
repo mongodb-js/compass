@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ValueBubble from 'components/value-bubble';
+import ValueBubble from '../value-bubble';
 import sampleSize from 'lodash.samplesize';
 
 class UniqueMiniChart extends Component {

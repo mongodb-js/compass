@@ -1,4 +1,4 @@
-import MetricsStore from 'stores';
+import MetricsStore from './stores';
 
 /**
  * Activate all the components in the Metrics package.

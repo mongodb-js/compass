@@ -1,5 +1,5 @@
-import reducer, { INITIAL_STATE } from 'modules/sort-order';
-import { sortIndexes } from 'modules/indexes';
+import reducer, { INITIAL_STATE } from './sort-order';
+import { sortIndexes } from './indexes';
 
 describe('sort order module', () => {
   describe('#reducer', () => {

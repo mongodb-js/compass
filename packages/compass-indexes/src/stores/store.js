@@ -1,17 +1,17 @@
 import { createStore, applyMiddleware } from 'redux';
-import reducer from 'modules';
+import reducer from '../modules';
 import thunk from 'redux-thunk';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
-} from 'mongodb-redux-common/app-registry';
-import { writeStateChanged } from 'modules/is-writable';
-import { readonlyViewChanged } from 'modules/is-readonly-view';
-import { getDescription } from 'modules/description';
-import { dataServiceConnected } from 'modules/data-service';
-import { loadIndexesFromDb, parseErrorMsg } from 'modules/indexes';
-import { handleError } from 'modules/error';
-import { namespaceChanged } from 'modules/namespace';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
+import { writeStateChanged } from '../modules/is-writable';
+import { readonlyViewChanged } from '../modules/is-readonly-view';
+import { getDescription } from '../modules/description';
+import { dataServiceConnected } from '../modules/data-service';
+import { loadIndexesFromDb, parseErrorMsg } from '../modules/indexes';
+import { handleError } from '../modules/error';
+import { namespaceChanged } from '../modules/namespace';
 
 const debug = require('debug')('mongodb-compass:stores:IndexesStore');
 

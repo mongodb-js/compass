@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import InputBuilderToolbar from 'components/input-builder-toolbar';
-import InputPreviewToolbar from 'components/input-preview-toolbar';
+import InputBuilderToolbar from '../input-builder-toolbar';
+import InputPreviewToolbar from '../input-preview-toolbar';
 
 import styles from './input-toolbar.less';
 

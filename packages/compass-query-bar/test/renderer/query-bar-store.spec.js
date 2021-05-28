@@ -6,8 +6,8 @@
 
 /* eslint-disable no-unused-expressions */
 
-import configureStore from 'stores';
-import configureActions from 'actions';
+import configureStore from '../../src/stores';
+import configureActions from '../../src/actions';
 
 import {
   DEFAULT_FILTER,
@@ -19,7 +19,7 @@ import {
   DEFAULT_SAMPLE,
   DEFAULT_MAX_TIME_MS,
   DEFAULT_STATE
-} from 'constants/query-bar-store';
+} from '../../src/constants/query-bar-store';
 
 describe('QueryBarStore [Store]', function() {
   let actions;

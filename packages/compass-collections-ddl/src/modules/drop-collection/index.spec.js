@@ -1,5 +1,5 @@
-import reducer from 'modules/drop-collection';
-import { reset } from 'modules/reset';
+import reducer from '../drop-collection';
+import { reset } from '../reset';
 
 describe('drop collection module', () => {
   describe('#reducer', () => {

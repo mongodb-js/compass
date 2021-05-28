@@ -1,4 +1,4 @@
-import { FavoriteQuery } from 'models';
+import { FavoriteQuery } from '../../src/models';
 
 describe('FavoriteQuery [Model]', () => {
   describe('#new', () => {

@@ -1,10 +1,10 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import DeploymentAwarenessStore from 'stores';
+import DeploymentAwarenessStore from './';
 import {
   humanize,
   isReadable as isTopologyReadable
-} from 'models/topology-type';
+} from '../models/topology-type';
 
 /**
  * The default description.

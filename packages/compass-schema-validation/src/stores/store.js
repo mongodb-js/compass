@@ -1,18 +1,18 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from 'modules';
+import reducer from '../modules';
 import toNS from 'mongodb-ns';
-import { namespaceChanged } from 'modules/namespace';
-import { dataServiceConnected } from 'modules/data-service';
-import { fieldsChanged } from 'modules/fields';
-import { serverVersionChanged } from 'modules/server-version';
-import { fetchValidation, activateValidation } from 'modules/validation';
-import { editModeChanged } from 'modules/edit-mode';
-import { changeZeroState } from 'modules/zero-state';
+import { namespaceChanged } from '../modules/namespace';
+import { dataServiceConnected } from '../modules/data-service';
+import { fieldsChanged } from '../modules/fields';
+import { serverVersionChanged } from '../modules/server-version';
+import { fetchValidation, activateValidation } from '../modules/validation';
+import { editModeChanged } from '../modules/edit-mode';
+import { changeZeroState } from '../modules/zero-state';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 import semver from 'semver';
 
 /**

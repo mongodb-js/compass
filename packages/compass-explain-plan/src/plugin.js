@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
-import ExplainPlan from 'components/explain-plan';
+import ExplainPlan from './components/explain-plan';
 
 class Plugin extends Component {
   static displayName = 'ExplainPlanPlugin';

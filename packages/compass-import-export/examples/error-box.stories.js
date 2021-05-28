@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import ErrorBox from 'components/error-box';
+import ErrorBox from '../src/components/error-box';
 
 import parseJSON from 'parse-json';
 

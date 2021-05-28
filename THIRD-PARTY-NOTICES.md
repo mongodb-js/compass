@@ -30,7 +30,6 @@ Do Not Translate or Localize
 * caseless retrieved from https://github.com/mikeal/caseless
 * compass-preferences-model retrieved from https://github.com/mongodb-js/compass-preferences-model
 * compass-user-model retrieved from https://github.com/mongodb-js/compass-user-model
-* detect-coordinates retrieved from https://github.com/mongodb-js/detect-coordinates
 * detect-libc retrieved from https://github.com/lovell/detect-libc
 * diff-match-patch retrieved from https://github.com/JackuB/diff-match-patch
 * doctrine retrieved from https://github.com/eslint/doctrine
@@ -263,7 +262,7 @@ Do Not Translate or Localize
 * component-indexof retrieved from https://github.com/component/indexof
 * concat-map retrieved from https://github.com/substack/node-concat-map
 * concat-stream retrieved from https://github.com/maxogden/concat-stream
-* config-chain retrieved from 
+* config-chain retrieved from
 * config-extend retrieved from https://github.com/JamesHight/node-config-extend
 * constantinople retrieved from https://github.com/ForbesLindesay/constantinople
 * context-eval retrieved from https://github.com/amasad/context-eval
@@ -301,7 +300,7 @@ Do Not Translate or Localize
 * dom-serializer retrieved from https://github.com/cheeriojs/dom-renderer
 * dom-walk retrieved from https://github.com/Raynos/dom-walk
 * domify retrieved from https://github.com/component/domify
-* domutils retrieved from 
+* domutils retrieved from
 * duplexer retrieved from https://github.com/Raynos/duplexer
 * ecc-jsbn retrieved from https://github.com/quartzjer/ecc-jsbn
 * editorconfig retrieved from https://github.com/editorconfig/editorconfig-core-js
@@ -448,7 +447,7 @@ Do Not Translate or Localize
 * lazy-cache retrieved from https://github.com/jonschlinkert/lazy-cache
 * lcid retrieved from https://github.com/sindresorhus/lcid
 * leaflet-draw retrieved from https://github.com/Leaflet/Leaflet.draw
-* less-cache retrieved from 
+* less-cache retrieved from
 * lie retrieved from https://github.com/calvinmetcalf/lie
 * load-json-file retrieved from https://github.com/sindresorhus/load-json-file
 * local-links retrieved from https://github.com/lukekarrys/local-links
@@ -683,7 +682,7 @@ Do Not Translate or Localize
 * uglify-to-browserify retrieved from https://github.com/ForbesLindesay/uglify-to-browserify
 * uncontrollable retrieved from https://github.com/jquense/uncontrollable
 * underscore retrieved from https://github.com/jashkenas/underscore
-* underscore-plus retrieved from 
+* underscore-plus retrieved from
 * underscore.string retrieved from https://github.com/epeli/underscore.string
 * union-value retrieved from https://github.com/jonschlinkert/union-value
 * universal-analytics retrieved from https://github.com/peaksandpies/universal-analytics
@@ -794,8 +793,8 @@ Do Not Translate or Localize
 
 
 * bcrypt-pbkdf retrieved from https://github.com/joyent/node-bcrypt-pbkdf
-* boom retrieved from 
-* cryptiles retrieved from 
+* boom retrieved from
+* cryptiles retrieved from
 * css-select retrieved from https://github.com/fb55/css-select
 * css-what retrieved from https://github.com/fb55/css-what
 * d3 retrieved from https://github.com/mbostock/d3
@@ -805,9 +804,9 @@ Do Not Translate or Localize
 * domhandler retrieved from https://github.com/fb55/DomHandler
 * duplexer3 retrieved from https://github.com/floatdrop/duplexer3
 * entities retrieved from https://github.com/fb55/entities
-* hawk retrieved from 
+* hawk retrieved from
 * highlight.js retrieved from https://github.com/highlightjs/highlight.js
-* hoek retrieved from 
+* hoek retrieved from
 * hoist-non-react-statics retrieved from https://github.com/mridgway/hoist-non-react-statics
 * hyphenate-style-name retrieved from https://github.com/rexxars/hyphenate-style-name
 * ieee754 retrieved from https://github.com/feross/ieee754
@@ -822,7 +821,7 @@ Do Not Translate or Localize
 * reflux-core retrieved from https://github.com/reflux/reflux-core
 * rw retrieved from https://github.com/mbostock/rw
 * sharkdown retrieved from https://github.com/tmcw-up-for-adoption/sharkdown
-* sntp retrieved from 
+* sntp retrieved from
 * source-map retrieved from https://github.com/mozilla/source-map
 * sprintf-js retrieved from https://github.com/alexei/sprintf.js
 * tar-pack retrieved from https://github.com/ForbesLindesay/tar-pack
@@ -1096,7 +1095,6 @@ This software is dual-licensed under Apache 2.0 and WTFPL
 * bson-transpilers retrieved from https://github.com/mongodb-js/bson-transpilers
 * compass-preferences-model retrieved from https://github.com/mongodb-js/compass-preferences-model
 * compass-user-model retrieved from https://github.com/mongodb-js/compass-user-model
-* detect-coordinates retrieved from https://github.com/mongodb-js/detect-coordinates
 * electron-squirrel-startup retrieved from https://github.com/mongodb-js/electron-squirrel-startup
 * hadron-app retrieved from https://github.com/mongodb-js/hadron-app
 * hadron-app-registry retrieved from https://github.com/mongodb-js/hadron-app-registry
@@ -3505,7 +3503,7 @@ END OF TERMS AND CONDITIONS
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
- 
+
 
 ```
 
@@ -3724,7 +3722,7 @@ Apache License
 
 Version 2.0, January 2004
 
-http://www.apache.org/licenses/ 
+http://www.apache.org/licenses/
 
 TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
@@ -4218,7 +4216,7 @@ Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
 * redeyed retrieved from https://github.com/thlorenz/redeyed
 
 ```
-Copyright 2013 Thorsten Lorenz. 
+Copyright 2013 Thorsten Lorenz.
 All rights reserved.
 ```
 
@@ -4721,10 +4719,10 @@ This software is released under the MIT license:
 Copyright (c) 2013 Max Ogden
 ```
 
-* config-chain retrieved from 
-* domutils retrieved from 
-* less-cache retrieved from 
-* underscore-plus retrieved from 
+* config-chain retrieved from
+* domutils retrieved from
+* less-cache retrieved from
+* underscore-plus retrieved from
 
 ```
 
@@ -5235,9 +5233,9 @@ This software is covered under the following copyright:
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
- * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
- * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+ * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
+ * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
  *
  * IN NO EVENT SHALL TOM WU BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
  * INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, OR ANY DAMAGES WHATSOEVER
@@ -5779,17 +5777,17 @@ Copyright (c) Ben Lesh <ben@benlesh.com>
 
 ```
 Copyright (C) 2012 Paul Thurlow
- 
- Permission is hereby granted, free of charge, to any person obtaining a copy 
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -6570,11 +6568,11 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ```
 
-* boom retrieved from 
-* cryptiles retrieved from 
-* hawk retrieved from 
-* hoek retrieved from 
-* sntp retrieved from 
+* boom retrieved from
+* cryptiles retrieved from
+* hawk retrieved from
+* hoek retrieved from
+* sntp retrieved from
 
 ```
 
@@ -6711,18 +6709,18 @@ Copyright (c) 2013, Deoxxa Development
 ======================================
 All rights reserved.
 --------------------
-  
+
 Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:  
+modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.  
+   notice, this list of conditions and the following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright
    notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.  
+   documentation and/or other materials provided with the distribution.
 3. Neither the name of Deoxxa Development nor the names of its contributors
    may be used to endorse or promote products derived from this software
-   without specific prior written permission.  
-  
+   without specific prior written permission.
+
 THIS SOFTWARE IS PROVIDED BY DEOXXA DEVELOPMENT ''AS IS'' AND ANY
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -6749,8 +6747,8 @@ modification, are permitted provided that the following conditions are met:
     * Redistributions in binary form must reproduce the above copyright
       notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-    * Neither the name of highlight.js nor the names of its contributors 
-      may be used to endorse or promote products derived from this software 
+    * Neither the name of highlight.js nor the names of its contributors
+      may be used to endorse or promote products derived from this software
       without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
@@ -7268,7 +7266,7 @@ exhaustive, and do not form part of our licenses.
      such as asking that all changes be marked or described.
      Although not required by our licenses, you are encouraged to
      respect those requests where reasonable. More_considerations
-     for the public: 
+     for the public:
 	wiki.creativecommons.org/Considerations_for_licensees
 
 =======================================================================
@@ -7980,7 +7978,7 @@ exhaustive, and do not form part of our licenses.
      such as asking that all changes be marked or described.
      Although not required by our licenses, you are encouraged to
      respect those requests where reasonable. More_considerations
-     for the public: 
+     for the public:
 	wiki.creativecommons.org/Considerations_for_licensees
 
 =======================================================================

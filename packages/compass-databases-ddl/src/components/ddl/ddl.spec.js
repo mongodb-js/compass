@@ -1,12 +1,12 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Ddl, { Ddl as UnmappedDdl } from 'components/ddl';
-import Toolbar from 'components/toolbar';
-import store from 'stores';
+import Ddl, { Ddl as UnmappedDdl } from '../ddl';
+import Toolbar from '../toolbar';
+import store from '../../stores';
 import styles from './ddl.less';
 
-import { INITIAL_STATE as columns} from 'modules/columns';
+import { INITIAL_STATE as columns} from '../../modules/columns';
 
 describe('Ddl [Component]', () => {
   let component;

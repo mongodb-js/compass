@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import classnames from 'classnames';
-import getShellJS from 'utils/get-shell-js';
+import getShellJS from '../../utils/get-shell-js';
 
 import styles from './query-viewer.less';
 

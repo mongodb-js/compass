@@ -1,68 +1,68 @@
 import { combineReducers } from 'redux';
 const EJSON = require('mongodb-extended-json');
 
-import dataService from 'modules/data-service';
+import dataService from '../data-service';
 import appRegistry, {
   localAppRegistryEmit,
   globalAppRegistryEmit
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 import error, {
   clearError, handleError,
   INITIAL_STATE as ERROR_INITIAL_STATE
-} from 'modules/error';
+} from '../error';
 import inProgress, {
   toggleInProgress,
   INITIAL_STATE as IN_PROGRESS_INITIAL_STATE
-} from 'modules/in-progress';
+} from '../in-progress';
 import isCustomCollation, {
   INITIAL_STATE as IS_CUSTOM_COLLATION_INITIAL_STATE
-} from 'modules/create-index/is-custom-collation';
+} from '../create-index/is-custom-collation';
 import isVisible, {
   toggleIsVisible,
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
-} from 'modules/is-visible';
+} from '../is-visible';
 import collation, {
   INITIAL_STATE as COLLATION_INITIAL_STATE
-} from 'modules/create-index/collation';
+} from '../create-index/collation';
 import fields, {
   INITIAL_STATE as FIELDS_INITIAL_STATE
-} from 'modules/create-index/fields';
+} from '../create-index/fields';
 import showOptions, {
   INITIAL_STATE as SHOW_OPTIONS_INITIAL_STATE
-} from 'modules/create-index/show-options';
+} from '../create-index/show-options';
 import isBackground, {
   INITIAL_STATE as IS_BACKGROUND_INITIAL_STATE
-} from 'modules/create-index/is-background';
+} from '../create-index/is-background';
 import isUnique, {
   INITIAL_STATE as IS_UNIQUE_INITIAL_STATE
-} from 'modules/create-index/is-unique';
+} from '../create-index/is-unique';
 import isTtl, {
   INITIAL_STATE as IS_TTL_INITIAL_STATE
-} from 'modules/create-index/is-ttl';
+} from '../create-index/is-ttl';
 import isWildcard, {
   INITIAL_STATE as IS_WILDCARD_INITIAL_STATE
-} from 'modules/create-index/is-wildcard';
+} from '../create-index/is-wildcard';
 import isPartialFilterExpression, {
   INITIAL_STATE as IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE
-} from 'modules/create-index/is-partial-filter-expression';
+} from '../create-index/is-partial-filter-expression';
 import ttl, {
   INITIAL_STATE as TTL_INITIAL_STATE
-} from 'modules/create-index/ttl';
+} from '../create-index/ttl';
 import wildcardProjection, {
   INITIAL_STATE as WILDCARD_PROJECTION_INITIAL_STATE
-} from 'modules/create-index/wildcard-projection';
+} from '../create-index/wildcard-projection';
 import partialFilterExpression, {
   INITIAL_STATE as PARTIAL_FILTER_EXPRESSION_INITIAL_STATE
-} from 'modules/create-index/partial-filter-expression';
+} from '../create-index/partial-filter-expression';
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
-} from 'modules/create-index/name';
-import namespace from 'modules/namespace';
+} from '../create-index/name';
+import namespace from '../namespace';
 
-import schemaFields from 'modules/create-index/schema-fields';
-import { RESET_FORM } from 'modules/reset-form';
-import { RESET, reset } from 'modules/reset';
-import { parseErrorMsg } from 'modules/indexes';
+import schemaFields from '../create-index/schema-fields';
+import { RESET_FORM } from '../reset-form';
+import { RESET, reset } from '../reset';
+import { parseErrorMsg } from '../indexes';
 
 /**
  * The main reducer.

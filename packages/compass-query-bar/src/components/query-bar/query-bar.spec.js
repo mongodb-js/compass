@@ -1,13 +1,13 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import QueryBar from 'components/query-bar';
-import QueryOption from 'components/query-option';
-import OptionsToggle from 'components/options-toggle';
-import configureStore from 'stores';
-import configureActions from 'actions';
+import QueryBar from '../query-bar';
+import QueryOption from '../query-option';
+import OptionsToggle from '../options-toggle';
+import configureStore from '../../stores';
+import configureActions from '../../actions';
 
-import styles from 'components/query-bar/query-bar.less';
+import styles from '../query-bar/query-bar.less';
 
 describe('QueryBar [Component]', function() {
   let actions;

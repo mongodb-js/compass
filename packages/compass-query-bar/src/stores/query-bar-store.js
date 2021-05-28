@@ -27,7 +27,7 @@ import {
 } from 'lodash';
 
 import { bsonEqual, hasDistinctValue } from 'mongodb-query-util';
-import QUERY_PROPERTIES from 'constants/query-properties';
+import QUERY_PROPERTIES from '../constants/query-properties';
 import {
   USER_TYPING_DEBOUNCE_MS,
   APPLY_STATE,
@@ -41,7 +41,7 @@ import {
   DEFAULT_MAX_TIME_MS,
   DEFAULT_SAMPLE_SIZE,
   DEFAULT_STATE
-} from 'constants/query-bar-store';
+} from '../constants/query-bar-store';
 import configureQueryChangedStore from './query-changed-store';
 
 const debug = require('debug')('mongodb-compass:stores:query-bar');

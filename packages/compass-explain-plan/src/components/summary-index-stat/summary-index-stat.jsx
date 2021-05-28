@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
 import classnames from 'classnames';
-import { IndexDefinitionType } from 'components/index-definition-type';
+import { IndexDefinitionType } from '../index-definition-type';
 
-import INDEX_TYPES from 'constants/index-types';
+import INDEX_TYPES from '../../constants/index-types';
 
 import styles from './summary-index-stat.less';
 

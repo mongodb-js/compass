@@ -1,5 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
-import configureStore from 'stores/create-view';
+import configureStore from './create-view';
 
 describe('CreateViewStore [Store]', () => {
   let store;

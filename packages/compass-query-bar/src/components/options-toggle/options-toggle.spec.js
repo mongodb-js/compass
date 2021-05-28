@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import OptionsToggle from 'components/options-toggle';
+import OptionsToggle from '../options-toggle';
 import FontAwesome from 'react-fontawesome';
 
 describe('OptionsToggle [Component]', function() {

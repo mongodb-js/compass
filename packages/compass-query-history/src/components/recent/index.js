@@ -1,4 +1,4 @@
-import { listFactory } from 'components/list';
+import { listFactory } from '../list';
 import RecentListItem from './recent-list-item';
 
 const RecentList = listFactory(RecentListItem, null);

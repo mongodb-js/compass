@@ -4,7 +4,7 @@ import { EventEmitter } from 'events';
 
 import { CompassShell } from './components/compass-shell';
 import createPlugin from './plugin';
-import CompassShellStore from 'stores';
+import CompassShellStore from './stores';
 
 describe('CompassShellPlugin', () => {
   it('returns a render-able plugin', () => {

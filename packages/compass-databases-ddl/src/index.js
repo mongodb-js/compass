@@ -1,9 +1,9 @@
 import DdlPlugin from './plugin';
-import CreateDatabasePlugin from 'components/create-database-plugin';
-import DropDatabasePlugin from 'components/drop-database-plugin';
-import DdlStore from 'stores';
-import CreateDatabaseStore from 'stores/create-database';
-import DropDatabaseStore from 'stores/drop-database';
+import CreateDatabasePlugin from './components/create-database-plugin';
+import DropDatabasePlugin from './components/drop-database-plugin';
+import DdlStore from './stores';
+import CreateDatabaseStore from './stores/create-database';
+import DropDatabaseStore from './stores/drop-database';
 
 /**
  * A sample role for the component.

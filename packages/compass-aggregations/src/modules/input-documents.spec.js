@@ -5,7 +5,7 @@ import reducer, {
   TOGGLE_INPUT_COLLAPSED,
   UPDATE_INPUT_DOCUMENTS,
   LOADING_INPUT_DOCUMENTS
-} from 'modules/input-documents';
+} from './input-documents';
 
 describe('input documents module', () => {
   describe('#toggleInputDocumentsCollapsed', () => {

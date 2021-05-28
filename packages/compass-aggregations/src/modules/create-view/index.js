@@ -1,40 +1,40 @@
 const debug = require('debug')('mongodb-aggregations:modules:create-view:index');
 
 import { combineReducers } from 'redux';
-import dataService from 'modules/data-service';
+import dataService from '../data-service';
 
 import source, {
   INITIAL_STATE as SOURCE_INITIAL_STATE
-} from 'modules/create-view/source';
+} from '../create-view/source';
 
 import pipeline, {
   INITIAL_STATE as PIPELINE_INITIAL_STATE
-} from 'modules/create-view/pipeline';
+} from '../create-view/pipeline';
 
 import isRunning, {
   toggleIsRunning,
   INITIAL_STATE as IS_RUNNING_INITIAL_STATE
-} from 'modules/create-view/is-running';
+} from '../create-view/is-running';
 import isVisible, {
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
-} from 'modules/create-view/is-visible';
+} from '../create-view/is-visible';
 import isDuplicating, {
   INITIAL_STATE as IS_DUPLICATING_INITIAL_STATE
-} from 'modules/create-view/is-duplicating';
+} from '../create-view/is-duplicating';
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
-} from 'modules/create-view/name';
+} from '../create-view/name';
 
 import error, {
   clearError,
   handleError,
   INITIAL_STATE as ERROR_INITIAL_STATE
-} from 'modules/create-view/error';
+} from '../create-view/error';
 
-import { reset, RESET } from 'modules/create-view/reset';
+import { reset, RESET } from '../create-view/reset';
 import appRegistry, {
   globalAppRegistryEmit
-} from 'mongodb-redux-common/app-registry';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 
 const parseNs = require('mongodb-ns');
 

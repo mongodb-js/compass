@@ -15,7 +15,7 @@ const DEFAULT_PROPS = {
 /* eslint-disable no-alert */
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import ImportOptions from 'components/import-options';
+import ImportOptions from '../src/components/import-options';
 
 storiesOf('Examples/ImportOptions', module)
   .add('csv', () => {

@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeConnectionTitle,
   CHANGE_CONNECTION_TITLE
-} from 'modules/connection-title';
+} from './connection-title';
 
 describe('connection-title module', () => {
   describe('#reducer', () => {

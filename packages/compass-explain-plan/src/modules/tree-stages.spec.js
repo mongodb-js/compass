@@ -1,7 +1,7 @@
 import reducer, {
   treeStagesChanged,
   TREE_STAGES_CHANGED
-} from 'modules/tree-stages';
+} from './tree-stages';
 
 const explainExample = {
   error: null,

@@ -1,5 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
-import configureStore from 'stores';
+import configureStore from './';
 import compiler from 'bson-transpilers';
 
 const subscribeCheck = (s, pipeline, check, done) => {

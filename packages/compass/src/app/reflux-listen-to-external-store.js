@@ -5,7 +5,7 @@
 
 const app = require('hadron-app');
 const Reflux = require('reflux');
-const pluginActivationCompleted = require('hadron-plugin-manager/lib/action').pluginActivationCompleted;
+const pluginActivationCompleted = require('@mongodb-js/hadron-plugin-manager/lib/action').pluginActivationCompleted;
 
 /**
  * defers attaching a store listener to a store until all packages have

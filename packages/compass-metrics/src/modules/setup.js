@@ -3,8 +3,8 @@ import pluck from 'lodash.pluck';
 import compact from 'lodash.compact';
 import { resources } from 'mongodb-js-metrics';
 import { format } from 'util';
-import configureIntercom from 'modules/intercom';
-import features from 'modules/features';
+import configureIntercom from './intercom';
+import features from './features';
 import ipc from 'hadron-ipc';
 
 const metrics = require('mongodb-js-metrics')();

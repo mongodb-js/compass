@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import DropCollectionModal from 'components/drop-collection-modal';
-import store from 'stores/drop-collection';
+import DropCollectionModal from '../drop-collection-modal';
+import store from '../../stores/drop-collection';
 
 class DropCollectionPlugin extends Component {
   static displayName = 'DropCollectionPlugin';

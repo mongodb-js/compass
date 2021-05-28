@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import StagePreviewToolbar from 'components/stage-preview-toolbar';
+import StagePreviewToolbar from '../stage-preview-toolbar';
 import styles from './stage-preview-toolbar.less';
 
 describe('StagePreviewToolbar [Component]', () => {

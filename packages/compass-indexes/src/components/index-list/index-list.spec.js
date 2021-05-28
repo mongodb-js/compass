@@ -1,8 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import IndexList from 'components/index-list';
-import IndexComponent from 'components/index-component';
+import IndexList from '../index-list';
+import IndexComponent from '../index-component';
 
 const indexes = [
   {

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Element from 'components/element';
-import ExpansionBar from 'components/expansion-bar';
+import Element from './element';
+import ExpansionBar from './expansion-bar';
 
 /**
  * The base class.

@@ -1,4 +1,4 @@
-import reducer, { allowWrites, ALLOW_WRITES } from 'modules/allow-writes';
+import reducer, { allowWrites, ALLOW_WRITES } from './allow-writes';
 
 describe('allowWrites module', () => {
   describe('#allowWrites', () => {

@@ -2,7 +2,7 @@ import { InputGroup, FormControl } from 'react-bootstrap';
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import FindInPageInput from 'components/find-in-page-input';
+import FindInPageInput from '../find-in-page-input';
 import styles from './find-in-page-input.less';
 
 describe('FindInPageInput [Component]', () => {

@@ -1,5 +1,5 @@
 import { Element } from 'hadron-document';
-import { StandardEditor } from 'components/editor';
+import { StandardEditor } from '../editor';
 
 describe('StandardEditor', () => {
   describe('#start', () => {

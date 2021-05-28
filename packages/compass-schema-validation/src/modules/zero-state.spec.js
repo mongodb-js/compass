@@ -1,7 +1,7 @@
 import reducer, {
   zeroStateChanged,
   IS_ZERO_STATE_CHANGED
-} from 'modules/zero-state';
+} from './zero-state';
 
 describe('zero-state module', () => {
   describe('#zeroStateChanged', () => {

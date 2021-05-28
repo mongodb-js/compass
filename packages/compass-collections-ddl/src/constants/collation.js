@@ -2,7 +2,6 @@ const LOADING_STATE = null;
 const COLLATION_OPTIONS = [
   {
     field: 'locale',
-    label: 'Locale',
     values: [
       {value: 'af', label: 'af - Afrikaans'},
       {value: 'sq', label: 'sq - Albanian'},
@@ -163,25 +162,21 @@ const COLLATION_OPTIONS = [
   {field: 'strength', label: 'Strength', values: [1, 2, 3, 4, 5]},
   {
     field: 'caseLevel',
-    label: 'Use Case-Level',
     values: [{value: true, label: 'true'}, {value: false, label: 'false'}]
   },
   {field: 'caseFirst', label: 'Case First', values: ['upper', 'lower', 'off']},
   {
     field: 'numericOrdering',
-    label: 'Numeric Ordering',
     values: [{value: true, label: 'true'}, {value: false, label: 'false'}]
   },
   {field: 'alternate', label: 'Alternate', values: ['non-ignorable', 'shifted']},
   {field: 'maxVariable', label: 'Max-Variable', values: ['punct', 'space']},
   {
     field: 'backwards',
-    label: 'Backwards',
     values: [{value: true, label: 'true'}, {value: false, label: 'false'}]
   },
   {
     field: 'normalization',
-    label: 'Normalization',
     values: [{value: true, label: 'true'}, {value: false, label: 'false'}]
   }
 ];

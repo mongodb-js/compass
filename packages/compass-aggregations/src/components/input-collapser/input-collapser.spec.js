@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import InputCollapser from 'components/input-collapser';
+import InputCollapser from '../input-collapser';
 import styles from './input-collapser.less';
 
 describe('InputBuilderToolbar [Component]', () => {

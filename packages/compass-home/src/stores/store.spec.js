@@ -1,9 +1,9 @@
-import store from 'stores';
-import { reset } from 'modules/reset';
+import store from './';
+import { reset } from '../modules/reset';
 import AppRegistry from 'hadron-app-registry';
-import { changeConnectionTitle } from 'modules/connection-title';
+import { changeConnectionTitle } from '../modules/connection-title';
 import { activate } from '@mongodb-js/compass-app-stores';
-import UI_STATES from 'constants/ui-states';
+import UI_STATES from '../constants/ui-states';
 
 describe('HomeStore [Store]', () => {
   beforeEach(() => {

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
-import fileOpenDialog from 'utils/file-open-dialog';
+import fileOpenDialog from '../../utils/file-open-dialog';
 import {
   FINISHED_STATUSES,
   COMPLETED_STATUSES,
@@ -13,13 +13,13 @@ import {
   CANCELED,
   FAILED,
   UNSPECIFIED
-} from 'constants/process-status';
-import ProgressBar from 'components/progress-bar';
-import ErrorBox from 'components/error-box';
-import ImportPreview from 'components/import-preview';
-import ImportOptions from 'components/import-options';
-import FILE_TYPES from 'constants/file-types';
-import formatNumber from 'utils/format-number.js';
+} from '../../constants/process-status';
+import ProgressBar from '../progress-bar';
+import ErrorBox from '../error-box';
+import ImportPreview from '../import-preview';
+import ImportOptions from '../import-options';
+import FILE_TYPES from '../../constants/file-types';
+import formatNumber from '../../utils/format-number.js';
 import {
   startImport,
   cancelImport,
@@ -31,9 +31,9 @@ import {
   closeImport,
   toggleIncludeField,
   setFieldType
-} from 'modules/import';
+} from '../../modules/import';
 import styles from './import-modal.less';
-import createStyler from 'utils/styler.js';
+import createStyler from '../../utils/styler.js';
 import classnames from 'classnames';
 
 const style = createStyler(styles, 'import-modal');

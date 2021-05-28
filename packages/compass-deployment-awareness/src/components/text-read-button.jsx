@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { TextButton } from 'hadron-react-buttons';
 import { Tooltip } from 'hadron-react-components';
-import ReadStateStore from 'stores/read-state-store';
+import ReadStateStore from '../stores/read-state-store';
 
 /**
  * The wrapper class.

@@ -1,17 +1,17 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
-import reducer from 'modules';
-import { appRegistryActivated } from 'modules/app-registry';
-import { dataServiceConnected } from 'modules/data-service';
-import { serverVersionChanged } from 'modules/server-version';
+import reducer from '../modules';
+import { appRegistryActivated } from '../modules/app-registry';
+import { dataServiceConnected } from '../modules/data-service';
+import { serverVersionChanged } from '../modules/server-version';
 import {
   selectOrCreateTab,
   createNewTab,
   clearTabs,
   collectionDropped,
   databaseDropped
-} from 'modules/tabs';
+} from '../modules/tabs';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 

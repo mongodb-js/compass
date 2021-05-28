@@ -1,7 +1,7 @@
 import { createStore } from 'redux';
-import reducer from 'modules';
-import rules from 'modules/rules';
-import setup from 'modules/setup';
+import reducer from '../modules';
+import rules from '../modules/rules';
+import setup from '../modules/setup';
 
 const metricsStore = createStore(reducer);
 const metrics = require('mongodb-js-metrics')();

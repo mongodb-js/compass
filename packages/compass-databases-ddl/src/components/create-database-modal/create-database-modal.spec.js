@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { CreateDatabaseModal } from 'components/create-database-modal';
+import { CreateDatabaseModal } from '../create-database-modal';
 import styles from './create-database-modal.less';
 
 describe('CreateDatabaseModal [Component]', () => {

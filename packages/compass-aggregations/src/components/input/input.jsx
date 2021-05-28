@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import InputToolbar from 'components/input-toolbar';
-import InputWorkspace from 'components/input-workspace';
+import InputToolbar from '../input-toolbar';
+import InputWorkspace from '../input-workspace';
 
 import styles from './input.less';
 

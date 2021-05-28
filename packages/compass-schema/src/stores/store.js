@@ -2,7 +2,7 @@ import Reflux from 'reflux';
 import ipc from 'hadron-ipc';
 import StateMixin from 'reflux-state-mixin';
 import toNS from 'mongodb-ns';
-import { addLayer, generateGeoQuery } from 'modules/geo';
+import { addLayer, generateGeoQuery } from '../modules/geo';
 import createSchemaAnalysis from '../modules/schema-analysis';
 import {
   ANALYSIS_STATE_ANALYZING,

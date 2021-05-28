@@ -15,7 +15,7 @@ import reducer, {
   VALIDATION_ACTION_CHANGED,
   VALIDATION_LEVEL_CHANGED,
   SYNTAX_ERROR_OCCURRED
-} from 'modules/validation';
+} from './validation';
 
 describe('validation module', () => {
   describe('#checkValidator', () => {

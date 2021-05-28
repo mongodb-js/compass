@@ -1,13 +1,13 @@
 {
-  "name": "hadron-plugin-manager",
+  "name": "@mongodb-js/hadron-plugin-manager",
   "description": "Hadron Plugin Manager",
   "author": "Durran Jordan <durran@gmail.com>",
-  "bugs": "https://github.com/mongodb-js/hadron-plugin-manager/issues",
-  "homepage": "https://github.com/mongodb-js/hadron-plugin-manager",
-  "version": "5.3.1",
+  "bugs": "https://github.com/mongodb-js/@mongodb-js/hadron-plugin-manager/issues",
+  "homepage": "https://github.com/mongodb-js/@mongodb-js/hadron-plugin-manager",
+  "version": "5.4.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/hadron-plugin-manager.git"
+    "url": "https://github.com/mongodb-js/@mongodb-js/hadron-plugin-manager.git"
   },
   "license": "Apache-2.0",
   "keywords": [

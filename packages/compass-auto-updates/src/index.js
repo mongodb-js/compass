@@ -1,5 +1,5 @@
 import AutoUpdatesPlugin from './plugin';
-import AutoUpdatesStore from 'stores';
+import AutoUpdatesStore from './stores';
 
 /**
  * A sample role for the component.

@@ -1,6 +1,6 @@
 import contains from 'lodash.contains';
-import { changeSchemaFields } from 'modules/create-index/schema-fields';
-import { handleError } from 'modules/error';
+import { changeSchemaFields } from '../create-index/schema-fields';
+import { handleError } from '../error';
 
 /**
  * Create field names.

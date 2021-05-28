@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { TabNavBar } from 'hadron-react-components';
-import CollectionHeader from 'components/collection-header';
+import CollectionHeader from '../collection-header';
 
 import styles from './collection.less';
 

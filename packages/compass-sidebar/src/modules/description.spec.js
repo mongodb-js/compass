@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeDescription,
   CHANGE_DESCRIPTION
-} from 'modules/description';
+} from './description';
 
 describe('sidebar description', () => {
   describe('#reducer', () => {

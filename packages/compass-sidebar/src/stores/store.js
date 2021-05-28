@@ -1,18 +1,18 @@
 import { createStore, applyMiddleware } from 'redux';
-import reducer from 'modules';
+import reducer from '../modules';
 import thunk from 'redux-thunk';
-import { globalAppRegistryActivated } from 'mongodb-redux-common/app-registry';
+import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
 
-import { changeInstance } from 'modules/instance';
-import { filterDatabases } from 'modules/databases';
-import { reset } from 'modules/reset';
-import { toggleIsWritable } from 'modules/is-writable';
-import { changeDescription } from 'modules/description';
-import { toggleIsDataLake } from 'modules/is-data-lake';
-import { loadDetailsPlugins } from 'modules/details-plugins';
-import { toggleIsGenuineMongoDB } from 'modules/is-genuine-mongodb';
-import { toggleIsGenuineMongoDBVisible } from 'modules/is-genuine-mongodb-visible';
-import { changeConnection } from 'modules/connection-model';
+import { changeInstance } from '../modules/instance';
+import { filterDatabases } from '../modules/databases';
+import { reset } from '../modules/reset';
+import { toggleIsWritable } from '../modules/is-writable';
+import { changeDescription } from '../modules/description';
+import { toggleIsDataLake } from '../modules/is-data-lake';
+import { loadDetailsPlugins } from '../modules/details-plugins';
+import { toggleIsGenuineMongoDB } from '../modules/is-genuine-mongodb';
+import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
+import { changeConnection } from '../modules/connection-model';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 

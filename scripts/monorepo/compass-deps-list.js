@@ -189,11 +189,6 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/compass-user-model.git'
   },
   {
-    name: 'detect-coordinates',
-    description: 'Geo coordinates detection based of a mongodb-schema type.',
-    repository: 'https://github.com/mongodb-js/detect-coordinates.git'
-  },
-  {
     name: 'electron-license',
     description: 'Tools for electron apps to work with licenses',
     repository: 'https://github.com/mongodb-js/electron-license.git'
@@ -262,11 +257,6 @@ module.exports = [
     name: 'hadron-react-utils',
     description: 'Hadron React Utils',
     repository: 'https://github.com/mongodb-js/hadron-react.git'
-  },
-  {
-    name: 'hadron-spectron',
-    description: 'Hadron Spectron Test Support',
-    repository: 'https://github.com/mongodb-js/hadron-spectron.git'
   },
   {
     name: 'hadron-style-manager',
@@ -349,7 +339,7 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/notary-service-client.git'
   },
   {
-    name: 'mongodb-redux-common',
+    name: '@mongodb-js/mongodb-redux-common',
     repository: 'https://github.com/mongodb-js/redux-common.git'
   },
   {

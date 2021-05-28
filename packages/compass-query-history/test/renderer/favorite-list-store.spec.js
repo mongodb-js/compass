@@ -1,7 +1,7 @@
 import bson from 'bson';
 import configureStore from '../../src/stores/favorite-list-store';
-import configureActions from 'actions';
-import { RecentQuery } from 'models';
+import configureActions from '../../src/actions';
+import { RecentQuery } from '../../src/models';
 
 describe('FavoritesListStore [Store]', () => {
   const actions = configureActions();

@@ -4,7 +4,7 @@ import sortBy from 'lodash.sortby';
 import find from 'lodash.find';
 import numeral from 'numeral';
 import ReactTooltip from 'react-tooltip';
-import TOOLTIP_IDS from 'constants/schema';
+import TOOLTIP_IDS from '../../constants/schema';
 
 // const debug = require('debug')('mongodb-compass:schema:type');
 

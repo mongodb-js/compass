@@ -1,4 +1,4 @@
-import reducer, { setIsAtlasDeployed, SET_IS_ATLAS_DEPLOYED } from 'modules/is-atlas-deployed';
+import reducer, { setIsAtlasDeployed, SET_IS_ATLAS_DEPLOYED } from './is-atlas-deployed';
 
 describe('isAtlasDeployed module', () => {
   describe('#setIsAtlasDeployed', () => {

@@ -3,8 +3,8 @@ const debug = require('debug')('mongodb-compass:modules:indexes');
 import IndexModel from 'mongodb-index-model';
 import map from 'lodash.map';
 import max from 'lodash.max';
-import { handleError } from 'modules/error';
-import { localAppRegistryEmit } from 'mongodb-redux-common/app-registry';
+import { handleError } from './error';
+import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 /**
  * The module action prefix.

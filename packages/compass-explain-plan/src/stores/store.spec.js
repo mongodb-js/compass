@@ -1,13 +1,13 @@
 import AppRegistry from 'hadron-app-registry';
 import { activate } from '@mongodb-js/compass-field-store';
-import configureStore from 'stores';
+import configureStore from './';
 import {
   switchToTreeView,
   switchToJSONView,
   explainStateChanged,
   explainPlanFetched
-} from 'modules/explain';
-import { treeStagesChanged } from 'modules/tree-stages';
+} from '../modules/explain';
+import { treeStagesChanged } from '../modules/tree-stages';
 
 describe('Explain Plan Store', () => {
   let store;

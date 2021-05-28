@@ -3,9 +3,9 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { map } from 'lodash';
 import d3 from 'd3';
-import { ExplainStage } from 'components/explain-stage';
+import { ExplainStage } from '../explain-stage';
 
-import STAGE_CARD_PROPERTIES from 'constants/stage-card-properties';
+import STAGE_CARD_PROPERTIES from '../../constants/stage-card-properties';
 
 import styles from './explain-tree.less';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import SampleDocuments from 'components/sample-documents';
+import SampleDocuments from '../sample-documents';
 import styles from './sample-documents.less';
 
 describe('SampleDocuments [Component]', () => {

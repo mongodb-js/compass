@@ -32,19 +32,19 @@ import stream from 'stream';
 import stripBomStream from 'strip-bom-stream';
 import mime from 'mime-types';
 
-import PROCESS_STATUS from 'constants/process-status';
-import FILE_TYPES from 'constants/file-types';
-import { appRegistryEmit, globalAppRegistryEmit } from 'modules/compass';
+import PROCESS_STATUS from '../constants/process-status';
+import FILE_TYPES from '../constants/file-types';
+import { appRegistryEmit, globalAppRegistryEmit } from './compass';
 
-import detectImportFile from 'utils/detect-import-file';
-import { createCollectionWriteStream } from 'utils/collection-stream';
-import createParser, { createProgressStream } from 'utils/import-parser';
-import createPreviewWritable, { createPeekStream } from 'utils/import-preview';
+import detectImportFile from '../utils/detect-import-file';
+import { createCollectionWriteStream } from '../utils/collection-stream';
+import createParser, { createProgressStream } from '../utils/import-parser';
+import createPreviewWritable, { createPeekStream } from '../utils/import-preview';
 
-import createImportSizeGuesstimator from 'utils/import-size-guesstimator';
-import { transformProjectedTypesStream } from 'utils/import-apply-types-and-projection';
+import createImportSizeGuesstimator from '../utils/import-size-guesstimator';
+import { transformProjectedTypesStream } from '../utils/import-apply-types-and-projection';
 
-import { createLogger } from 'utils/logger';
+import { createLogger } from '../utils/logger';
 
 const debug = createLogger('import');
 

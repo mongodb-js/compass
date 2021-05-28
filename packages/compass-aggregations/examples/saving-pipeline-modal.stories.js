@@ -1,10 +1,10 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { ComponentPreview } from 'storybook/decorators';
+import { ComponentPreview } from '../.storybook/decorators';
 
 // import { Provider } from 'react-redux';
-// import { INITIAL_STATE } from 'modules';
-// import { configureStore } from 'utils/configureStore';
+// import { INITIAL_STATE } from '../src/modules';
+// import { configureStore } from '../src/utils/configureStore';
 
 import { action } from '@storybook/addon-actions';
 
@@ -18,7 +18,7 @@ const PROPS = {
   saveCurrentPipeline: action('saveCurrentPipeline')
 };
 
-import SavingPipelineModal from 'components/saving-pipeline-modal';
+import SavingPipelineModal from '../src/components/saving-pipeline-modal';
 
 storiesOf('Components/SavingPipelineModal', module)
   .addDecorator(story => <ComponentPreview>{story()}</ComponentPreview>)

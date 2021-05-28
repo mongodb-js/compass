@@ -1,5 +1,5 @@
 import CompassFindInPagePlugin from './plugin';
-import CompassFindInPageStore from 'stores';
+import CompassFindInPageStore from './stores';
 
 /**
  * A sample role for the component.

@@ -3,10 +3,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StatusRow, Tooltip, ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
-import Field from 'components/field';
-import AnalysisCompleteMessage from 'components/analysis-complete-message';
-import ZeroGraphic from 'components/zero-graphic';
-import CONSTANTS from 'constants/schema';
+import Field from '../field';
+import AnalysisCompleteMessage from '../analysis-complete-message';
+import ZeroGraphic from '../zero-graphic';
+import CONSTANTS from '../../constants/schema';
 import get from 'lodash.get';
 import classnames from 'classnames';
 

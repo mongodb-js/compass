@@ -1,16 +1,16 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from 'modules/create-index';
-import { dataServiceConnected } from 'modules/data-service';
+import reducer from '../modules/create-index';
+import { dataServiceConnected } from '../modules/data-service';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
-} from 'mongodb-redux-common/app-registry';
-import { changeSchemaFields } from 'modules/create-index/schema-fields';
-import { parseErrorMsg } from 'modules/indexes';
-import { handleError } from 'modules/error';
-import { toggleIsVisible } from 'modules/is-visible';
-import { namespaceChanged } from 'modules/namespace';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
+import { changeSchemaFields } from '../modules/create-index/schema-fields';
+import { parseErrorMsg } from '../modules/indexes';
+import { handleError } from '../modules/error';
+import { toggleIsVisible } from '../modules/is-visible';
+import { namespaceChanged } from '../modules/namespace';
 
 /**
  * Handle setting up the data provider.

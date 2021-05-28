@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsDetailsExpanded,
   TOGGLE_IS_DETAILS_EXPANDED
-} from 'modules/is-details-expanded';
+} from './is-details-expanded';
 
 describe('sidebar isDetailsExpanded', () => {
   describe('#reducer', () => {

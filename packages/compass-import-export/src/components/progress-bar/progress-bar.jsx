@@ -9,11 +9,11 @@ import {
   CANCELED,
   FAILED,
   UNSPECIFIED
-} from 'constants/process-status';
+} from '../../constants/process-status';
 
 import styles from './progress-bar.less';
-import createStyler from 'utils/styler.js';
-import formatNumber from 'utils/format-number.js';
+import createStyler from '../../utils/styler.js';
+import formatNumber from '../../utils/format-number.js';
 
 const style = createStyler(styles, 'progress-bar');
 

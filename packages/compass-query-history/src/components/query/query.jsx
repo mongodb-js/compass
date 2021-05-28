@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { formatQuery } from 'utils';
+import { formatQuery } from '../../utils';
 
-import Code from 'components/code';
+import Code from '../code';
 import styles from './query.less';
 
 class Query extends PureComponent {

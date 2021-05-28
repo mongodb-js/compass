@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import DdlPlugin, { activate } from 'plugin';
+import DdlPlugin, { activate } from '../../src/index.js';
 import { activate as daActivate } from '@mongodb-js/compass-deployment-awareness';
 import { NamespaceStore } from 'mongodb-reflux-store';
 import CollectionStore from './stores/collection-store';
-import CreateDatabasePlugin from 'components/create-database-plugin';
-import DropDatabasePlugin from 'components/drop-database-plugin';
+import CreateDatabasePlugin from '../../src/components/create-database-plugin';
+import DropDatabasePlugin from '../../src/components/drop-database-plugin';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per

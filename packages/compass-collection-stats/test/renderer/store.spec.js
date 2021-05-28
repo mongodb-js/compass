@@ -1,4 +1,4 @@
-import configureStore from 'stores';
+import configureStore from '../../src/stores';
 
 describe('CollectionStatsStore [Store]', () => {
   let store;

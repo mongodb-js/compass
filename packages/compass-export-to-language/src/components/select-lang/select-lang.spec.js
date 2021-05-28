@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
 
-import SelectLang from 'components/select-lang';
+import SelectLang from '../select-lang';
 import Select from 'react-select-plus';
 
 import styles from './select-lang.less';

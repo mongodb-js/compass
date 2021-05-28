@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import DropDatabaseModal from 'components/drop-database-modal';
-import store from 'stores/drop-database';
+import DropDatabaseModal from '../drop-database-modal';
+import store from '../../stores/drop-database';
 
 class DropDatabasePlugin extends Component {
   static displayName = 'DropDatabasePlugin';

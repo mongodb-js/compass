@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import HadronDocument, { Element } from 'hadron-document';
-import ExpansionBar from 'components/expansion-bar';
-import EditableElement from 'components/editable-element';
-import DocumentActions from 'components/document-actions';
-import DocumentFooter from 'components/document-footer';
-import RemoveDocumentFooter from 'components/remove-document-footer';
+import ExpansionBar from './expansion-bar';
+import EditableElement from './editable-element';
+import DocumentActions from './document-actions';
+import DocumentFooter from './document-footer';
+import RemoveDocumentFooter from './remove-document-footer';
 
 /**
  * The base class.

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Toolbar from 'components/toolbar';
+import Toolbar from '../toolbar';
 import styles from './toolbar.less';
 
 describe('Toolbar [Component]', () => {
@@ -15,6 +15,7 @@ describe('Toolbar [Component]', () => {
         <Toolbar
           isReadonly
           databaseName="test"
+          isDataLake={false}
           open={openSpy} />
       );
     });
@@ -43,6 +44,7 @@ describe('Toolbar [Component]', () => {
         <Toolbar
           isReadonly={false}
           databaseName="test"
+          isDataLake={false}
           open={openSpy} />
       );
     });

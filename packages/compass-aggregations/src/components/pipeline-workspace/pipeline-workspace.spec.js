@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import PipelineWorkspace from './pipeline-workspace';
-import Stage from 'components/stage';
+import Stage from '../stage';
 
 const PIPELINE_1 = [
   {

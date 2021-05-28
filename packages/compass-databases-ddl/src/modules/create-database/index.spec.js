@@ -1,6 +1,6 @@
-import reducer, { createDatabase, NO_DOT } from 'modules/create-database';
-import { reset } from 'modules/reset';
-import { CLEAR_ERROR, HANDLE_ERROR } from 'modules/error';
+import reducer, { createDatabase, NO_DOT } from '../create-database';
+import { reset } from '../reset';
+import { CLEAR_ERROR, HANDLE_ERROR } from '../error';
 
 describe('create database module', () => {
   describe('#reducer', () => {

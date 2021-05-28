@@ -26,11 +26,7 @@ const depOverrides = {
   // https://github.com/mongodb-js/debug/commit/f389ed0b1109752ceea04ea39c7ca55d04f9eaa6
   // 'mongodb-js/debug#v2.2.3': '^4.1.1',
   // https://github.com/mongodb-js/hadron-build/tree/evergreen
-  // 'github:mongodb-js/hadron-build#evergreen': '^23.5.0',
-
-  // Used in the unused package `hadron-spectron`. `chai-as-promised`.
-  // We might just remove this package.
-  '>= 6.x': '^7.1.1'
+  // 'github:mongodb-js/hadron-build#evergreen': '^23.5.0'
 };
 
 /** Noted manual changes:

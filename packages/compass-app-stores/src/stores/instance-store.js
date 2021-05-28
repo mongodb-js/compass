@@ -1,11 +1,11 @@
 import { createStore } from 'redux';
-import reducer from 'modules/instance';
+import reducer from '../modules/instance';
 
 import MongoDBInstance from 'mongodb-instance-model';
-import { reset } from 'modules/instance/reset';
-import { changeInstance } from 'modules/instance/instance';
-import { changeErrorMessage } from 'modules/instance/error-message';
-import { changeDataService } from 'modules/instance/data-service';
+import { reset } from '../modules/instance/reset';
+import { changeInstance } from '../modules/instance/instance';
+import { changeErrorMessage } from '../modules/instance/error-message';
+import { changeDataService } from '../modules/instance/data-service';
 
 const debug = require('debug')('mongodb-compass:stores:InstanceStore');
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Toolbar from 'components/toolbar';
+import Toolbar from '../toolbar';
 import styles from './toolbar.less';
 
 describe('Toolbar [Component]', () => {

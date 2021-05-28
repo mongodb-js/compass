@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { LOADING_STATE } from 'constants/sidebar-constants';
+import { LOADING_STATE } from '../../constants/sidebar-constants';
 
 import classnames from 'classnames';
 import styles from './sidebar-instance-stats.less';

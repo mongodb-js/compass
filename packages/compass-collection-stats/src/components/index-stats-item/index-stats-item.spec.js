@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import IndexStatsItem from 'components/index-stats-item';
+import IndexStatsItem from '../index-stats-item';
 import styles from './index-stats-item.less';
 import statsStyles from '../collection-stats-item/collection-stats-item.less';
 

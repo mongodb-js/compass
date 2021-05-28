@@ -1,6 +1,6 @@
 import CompassSchemaPlugin from './plugin';
-import configureStore from 'stores';
-import configureActions from 'actions';
+import configureStore from './stores';
+import configureActions from './actions';
 import { TAB_NAME } from './constants/plugin';
 
 /**

@@ -2,8 +2,8 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { StoreConnector } from 'hadron-react-components';
 import QueryBarPlugin from './plugin';
-import configureStore from 'stores';
-import configureActions from 'actions';
+import configureStore from './stores';
+import configureActions from './actions';
 
 describe('QueryBar [Plugin]', () => {
   let component;

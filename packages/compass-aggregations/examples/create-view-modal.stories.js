@@ -2,10 +2,10 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 
 import { Provider } from 'react-redux';
-import { INITIAL_STATE } from 'modules/create-view';
-import CreateViewModal from 'components/create-view-modal';
+import { INITIAL_STATE } from '../src/modules/create-view';
+import CreateViewModal from '../src/components/create-view-modal';
 
-import { configureCreateViewStore as configureStore } from 'utils/configureStore';
+import { configureCreateViewStore as configureStore } from '../src/utils/configureStore';
 
 const BASE_STATE = {
   ...INITIAL_STATE

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import AutoUpdatesPlugin, { activate } from 'plugin';
+import AutoUpdatesPlugin, { activate } from '../../src/index.js';
 import { remote } from 'electron';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set

@@ -1,14 +1,14 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import find from 'lodash.find';
-import { appRegistryActivated } from 'modules/app-registry';
-import { changeDatabaseName } from 'modules/database-name';
-import { dataServiceConnected } from 'modules/data-service';
-import { loadCollectionStats } from 'modules/collections';
-import { loadDatabases } from 'modules/databases';
-import { writeStateChanged } from 'modules/is-writable';
-import { toggleIsDataLake } from 'modules/is-data-lake';
-import reducer from 'modules';
+import { appRegistryActivated } from '../modules/app-registry';
+import { changeDatabaseName } from '../modules/database-name';
+import { dataServiceConnected } from '../modules/data-service';
+import { loadCollectionStats } from '../modules/collections';
+import { loadDatabases } from '../modules/databases';
+import { writeStateChanged } from '../modules/is-writable';
+import { toggleIsDataLake } from '../modules/is-data-lake';
+import reducer from '../modules';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Workspace from 'components/workspace';
+import Workspace from './components/workspace';
 import { Provider } from 'react-redux';
-import store from 'stores';
-import { isDataLakeChanged } from 'modules/is-data-lake';
+import store from './stores';
+import { isDataLakeChanged } from './modules/is-data-lake';
 
 class Plugin extends Component {
   static displayName = 'CollectionWorkspacePlugin';

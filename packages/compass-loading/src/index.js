@@ -1,5 +1,5 @@
 import LoadingPlugin from './plugin';
-import configureStore, { CHANGE_STATUS } from 'stores';
+import configureStore, { CHANGE_STATUS } from './stores';
 
 /**
  * Activate all the components in the Aggregations package.

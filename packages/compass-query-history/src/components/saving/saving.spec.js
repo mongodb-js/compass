@@ -1,9 +1,9 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
 
-import { Card, CardHeader } from 'components/card';
-import Saving from 'components/saving';
-import Query from 'components/query';
+import { Card, CardHeader } from '../card';
+import Saving from '../saving';
+import Query from '../query';
 
 describe('Saving [Component]', () => {
   const date = new Date();

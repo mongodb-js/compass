@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import CreateDatabaseModal from 'components/create-database-modal';
-import store from 'stores/create-database';
+import CreateDatabaseModal from '../create-database-modal';
+import store from '../../stores/create-database';
 
 class CreateDatabasePlugin extends Component {
   static displayName = 'CreateDatabasePlugin';

@@ -1,5 +1,5 @@
 import bson from 'bson';
-import { formatQuery } from 'utils';
+import { formatQuery } from './';
 
 describe('formatQuery [Utils]', () => {
   describe('when the value is a number', () => {

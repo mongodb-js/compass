@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import CrossCircle from 'components/cross-circle';
+import CrossCircle from '../cross-circle';
 
 import styles from './cross-circle.less';
 

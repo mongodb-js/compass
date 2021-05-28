@@ -14,10 +14,10 @@ import {
   moveTab,
   selectTab,
   changeActiveSubTab
-} from 'modules/tabs';
-import CollectionTab from 'components/collection-tab';
-import CreateTab from 'components/create-tab';
-import Collection from 'components/collection';
+} from '../../modules/tabs';
+import CollectionTab from '../collection-tab';
+import CreateTab from '../create-tab';
+import Collection from '../collection';
 
 import styles from './workspace.less';
 
