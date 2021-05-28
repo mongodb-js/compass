@@ -19,14 +19,19 @@ function fail(message) {
 
 const MAIN_BRANCH = 'master';
 
+const args = process.argv.slice(2);
+
+const npmRegistrySpawnArgs = args.includes('--local') ? ['--registry', 'http://localhost:4873'] : [];
+
 function main() {
+
   const currentBranch = getCurrentBranch();
 
-  if (currentBranch !== MAIN_BRANCH) {
+  if (!args.includes('--no-branch-check') && currentBranch !== MAIN_BRANCH) {
     fail('You can only publish from the main branch');
   }
 
-  if (isDirty()) {
+  if (!args.includes('--no-pristine-check') && isDirty()) {
     fail('The repo is not pristine');
   }
 
@@ -58,7 +63,7 @@ function publishPackage(
 }
 
 function installAndPublish(packageLocation) {
-  const proc = childProcess.spawnSync('npm', ['install'], {
+  const proc = childProcess.spawnSync('npm', ['install', ...npmRegistrySpawnArgs], {
     cwd: packageLocation, stdio: 'inherit', stdin: 'inherit' });
 
   const {status: installExitCode} = proc;
@@ -67,7 +72,7 @@ function installAndPublish(packageLocation) {
     throw new Error(`npm install failed with exit code = ${installExitCode}`);
   }
 
-  const {status: publishExitCode} = childProcess.spawnSync('npm', ['publish', '--access', 'public'], {
+  const {status: publishExitCode} = childProcess.spawnSync('npm', ['publish', '--access', 'public', ...npmRegistrySpawnArgs], {
     cwd: packageLocation, stdio: 'inherit', stdin: 'inherit' });
 
   if (publishExitCode !== 0) {

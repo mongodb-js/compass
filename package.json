@@ -18,6 +18,7 @@
     "start": "lerna run start --stream --scope mongodb-compass",
     "packages-version": "lerna version --no-private",
     "packages-publish": "node scripts/monorepo/publish-all.js",
+    "packages-test-publish": "node scripts/monorepo/publish-all.js --local --no-pristine-check --no-branch-check",
     "release": "cd packages/compass && npm run --silent release --",
     "test": "lerna run test --concurrency 1 --stream",
     "test-evergreen": "lerna run test-ci --concurrency 1",
