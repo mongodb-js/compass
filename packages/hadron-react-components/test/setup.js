@@ -1,6 +1,8 @@
 /* eslint no-undef: "off" */
 /* eslint-env node */
-require('@babel/register')();
+require('@babel/register')({
+  root: require('path').resolve(__dirname, '..')
+});
 
 require('jsdom-global')();
 
