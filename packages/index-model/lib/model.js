@@ -2,7 +2,6 @@ var Model = require('ampersand-model');
 var _ = require('lodash');
 
 var IndexFieldCollection = require('./index-field').Collection;
-var WarningCollection = require('./warnings').WarningCollection;
 
 // var debug = require('debug')('mongodb-index-model:index-model');
 
@@ -148,8 +147,7 @@ var IndexModel = Model.extend({
     }
   },
   collections: {
-    fields: IndexFieldCollection,
-    warnings: WarningCollection
+    fields: IndexFieldCollection
   },
   parse: function(attrs) {
     // rename v to version

@@ -359,7 +359,6 @@
     "reflux": "0.4.1",
     "reflux-state-mixin": "mongodb-js/reflux-state-mixin",
     "storage-mixin": "^3.4.1",
-    "triejs": "github:rueckstiess/triejs",
     "uuid": "^3.0.0"
   },
   "devDependencies": {
