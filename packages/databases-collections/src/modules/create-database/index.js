@@ -90,7 +90,7 @@ export const createDatabase = (data) => {
     const state = getState();
     const ds = state.dataService.dataService;
     const dbName = data.database;
-    const collName = data.collectionName;
+    const collName = data.collection;
     // const coll = data.collation;
 
     dispatch(clearError());

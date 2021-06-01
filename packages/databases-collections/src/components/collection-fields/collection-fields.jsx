@@ -5,9 +5,15 @@ import _ from 'lodash';
 import Checkbox from '@leafygreen-ui/checkbox';
 import TextInput from '@leafygreen-ui/text-input';
 import { Select, Option } from '@leafygreen-ui/select';
+import IconButton from '@leafygreen-ui/icon-button';
+import Icon from '@leafygreen-ui/icon';
 
 import COLLATION_OPTIONS from './collation-options';
 import hasTimeSeriesSupport from './has-time-series-support';
+import styles from './collection-fields.less';
+
+const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections/';
+const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
 const TIME_FIELD_INPUT_DESCRIPTION = 'Specify which field should be used ' +
   'as timeField for the time-series collection.';
@@ -36,13 +42,15 @@ class CollapsibleFieldset extends PureComponent {
       PropTypes.element,
       PropTypes.string
     ]),
+    helpUrl: PropTypes.string,
     onToggle: PropTypes.func.isRequired,
     toggled: PropTypes.bool
   }
 
   render() {
     return (<FieldSet>
-      <div className={this.props.toggled ? 'form-group' : ''}>
+      {/* <div className={this.props.toggled ? 'form-group' : ''}> */}
+      <div>
         <Checkbox
           onChange={event => {
             this.props.onToggle(event.target.checked);
@@ -52,6 +60,18 @@ class CollapsibleFieldset extends PureComponent {
           bold={false}
         />
         {!this.props.description ? '' : this.props.description}
+        {!!this.props.helpUrl && (
+          <IconButton
+            className={styles['info-btn']}
+            aria-label="Time-series collections documentation"
+            onClick={() => alert('aa')}
+          >
+            <Icon
+              glyph="InfoWithCircle"
+              size="small"
+            />
+          </IconButton>
+        )}
       </div>
       {!this.props.toggled ? '' : this.props.children}
     </FieldSet>);
@@ -145,13 +165,15 @@ export default class CollectionFields extends PureComponent {
       toggled={this.state.isCapped}
       onToggle={checked => { this.setState({isCapped: checked}); }}
       label="Capped Collection"
-      description="Capped Collection Fixed-size collections that support high-throughput operations that insert and retrieve documents based on insertion order."
+      helpUrl={HELP_URL_CAPPED}
+      description="Fixed-size collections that support high-throughput operations that insert and retrieve documents based on insertion order."
     >
       <TextInput
         label="size"
         type="number"
         description="Maximum size in bytes for the capped collection."
-        onChange={(e) => this.setField('cappedSize', this.asNumber(e.target.value))} />
+        onChange={(e) => this.setField('cappedSize', this.asNumber(e.target.value))}
+      />
     </CollapsibleFieldset>);
   }
 
@@ -194,7 +216,8 @@ export default class CollectionFields extends PureComponent {
         }}
         label="Use Custom Collation"
         toggled={this.state.isCustomCollation}
-        description="Use Custom Collation Collation allows users to specify language-specific rules for string comparison, such as rules for lettercase and accent marks."
+        description="Collation allows users to specify language-specific rules for string comparison, such as rules for lettercase and accent marks."
+        helpUrl={HELP_URL_COLLATION}
       >{options}</CollapsibleFieldset>
     );
   }

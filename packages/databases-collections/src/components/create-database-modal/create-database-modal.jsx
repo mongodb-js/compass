@@ -11,21 +11,9 @@ import { openLink } from '../../modules/link';
 import CollectionFields from '../collection-fields';
 import styles from './create-database-modal.less';
 
-/**
- * The more information url.
- */
+// The more information url.
 const INFO_URL_CREATE_DB =
   'https://docs.mongodb.com/manual/faq/fundamentals/#how-do-i-create-a-database-and-a-collection';
-
-/**
- * The help icon for capped collections url.
- */
-const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections/';
-
-/**
- * The help URL for collation.
- */
-const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
 /**
  * The modal to create a database.
@@ -40,7 +28,8 @@ class CreateDatabaseModal extends PureComponent {
     createDatabase: PropTypes.func.isRequired,
     toggleIsVisible: PropTypes.func.isRequired,
     clearError: PropTypes.func.isRequired,
-    serverVersion: PropTypes.string.isRequired
+    serverVersion: PropTypes.string.isRequired,
+    openLink: PropTypes.func.isRequired
   }
 
   state = {
@@ -53,11 +42,11 @@ class CreateDatabaseModal extends PureComponent {
    *
    * @param {Object} evt - The event.
    */
-  // onInfoClicked = (evt) => {
-  //   evt.preventDefault();
-  //   evt.stopPropagation();
-  //   this.props.openLink(INFO_URL_CREATE_DB);
-  // }
+  onInfoClicked = (evt) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    this.props.openLink(INFO_URL_CREATE_DB);
+  }
 
   /**
    * Called when the error message close icon is clicked.
@@ -136,93 +125,6 @@ class CreateDatabaseModal extends PureComponent {
         {this.renderError()}
       </ConfirmationModal>
     );
-
-    // return (
-    //   <Modal
-    //     show={this.props.isVisible}
-    //     backdrop="static"
-    //     onHide={this.onHide}
-    //     dialogClassName={styles['create-database-modal']}
-    //   >
-    //     <Modal.Header>
-    //       <Modal.Title>Create Database</Modal.Title>
-    //     </Modal.Header>
-
-    //     <Modal.Body>
-    //       <form
-    //         name="create-database-modal-form"
-    //         onSubmit={this.onFormSubmit}
-    //         data-test-id="create-database-modal">
-
-    //         {/* <ModalInput
-    //           autoFocus
-    //           id="create-database-name"
-    //           name="Database Name"
-    //           value={this.props.name}
-    //           onChangeHandler={this.onNameChange} />
-    //         <ModalInput
-    //           id="create-database-collection-name"
-    //           name="Collection Name"
-    //           value={this.props.collectionName}
-    //           onChangeHandler={this.onCollectionNameChange} />
-    //         <div className="form-group">
-    //           <ModalCheckbox
-    //             name="Capped Collection"
-    //             titleClassName={styles['create-database-modal-is-capped']}
-    //             checked={this.props.isCapped}
-    //             helpUrl={HELP_URL_CAPPED}
-    //             onClickHandler={this.onToggleIsCapped}
-    //             onLinkClickHandler={this.props.openLink} />
-    //           {this.renderCappedSize()}
-    //           <ModalCheckbox
-    //             name="Use Custom Collation"
-    //             titleClassName={styles['create-database-modal-is-custom-collation']}
-    //             checked={this.props.isCustomCollation}
-    //             helpUrl={HELP_URL_COLLATION}
-    //             onClickHandler={this.onToggleIsCustomCollation}
-    //             onLinkClickHandler={this.props.openLink} />
-    //           {this.renderCollation()}
-    //         </div> */}
-    //         <CollectionFields
-    //           serverVersion={this.props.serverVersion}
-    //           withDatabase
-    //           onChange={this.onChange}
-    //         />
-    //         <div className={styles['create-database-modal-notice']}>
-    //           Before MongoDB can save your new database, a collection name
-    //           must also be specified at the time of creation.
-    //           <a onClick={this.onInfoClicked}>More Information</a>
-    //         </div>
-    //         {this.props.error ?
-    //           <ModalStatusMessage
-    //             icon="times" message={this.props.error.message} type="error"
-    //             onIconClickHandler={this.onDismissErrorMessage} />
-    //           : null}
-    //         {this.props.isRunning ?
-    //           <ModalStatusMessage
-    //             icon="spinner"
-    //             message="Create in Progress"
-    //             type="in-progress"
-    //           />
-    //           : null}
-    //       </form>
-    //     </Modal.Body>
-
-    //     <Modal.Footer>
-    //       <TextButton
-    //         className="btn btn-default btn-sm"
-    //         dataTestId="cancel-create-database-button"
-    //         text="Cancel"
-    //         clickHandler={this.onHide} />
-    //       <TextButton
-    //         disabled={!this.props.name || !this.props.collectionName}
-    //         className="btn btn-primary btn-sm"
-    //         dataTestId="create-database-button"
-    //         text="Create Database"
-    //         clickHandler={this.props.createDatabase} />
-    //     </Modal.Footer>
-    //   </Modal>
-    // );
   }
 }
 
@@ -242,6 +144,7 @@ const mapStateToProps = (state) => ({
   collation: state.collation,
   collectionName: state.collectionName,
   cappedSize: state.cappedSize,
+  serverVersion: state.serverVersion,
   error: state.error
 });
 

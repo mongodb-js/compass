@@ -1,4 +1,4 @@
-import UPDATE_SORT from './sort';
+import { UPDATE_SORT } from './sort';
 
 /**
  * The initial state of the sort column attribute.
