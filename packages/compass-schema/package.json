@@ -21,8 +21,7 @@
     "check": "npm run depcheck && npm run lint",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
-    "prepublishOnly": "npm run compile",
-    "prepare": "node ../../scripts/download-akzidenz.js",
+    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
     "start-compass": "node scripts/run-in-compass.js",
     "test-ci": "npm run test"
   },

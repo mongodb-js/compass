@@ -25,10 +25,9 @@
     "check": "npm run lint && npm run depcheck",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
-    "prepublishOnly": "npm run compile",
     "storybook": "cross-env NODE_ENV=development start-storybook -p 9001 -c .storybook",
     "storybook:ghpages": "build-storybook -c .storybook -o .ghpages",
-    "prepare": "node ../../scripts/download-akzidenz.js",
+    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck --ignores=\"react-dom,debug,hadron-ipc,hadron-react-components,mongodb\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
     "test-ci": "npm run test"
