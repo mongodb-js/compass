@@ -24,7 +24,7 @@
     "test-ci": "npm run test",
     "prepare": "npm run compile"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "peerDependencies": {
     "debug": "*",
     "mongodb-schema": "^8.2.5"

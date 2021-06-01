@@ -33,7 +33,7 @@
     "test-ci": "npm run test",
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "peerDependencies": {
     "hadron-ipc": "^1.2.1",
     "hadron-react-buttons": "^4.1.1",

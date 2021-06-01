@@ -19,7 +19,7 @@
     "Thomas Rueckstiess <thomas@mongodb.com>",
     "Lucas Hrabovsky <lucas@mongodb.com>"
   ],
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "keywords": [
     "mongodb-js",
     "preferences",

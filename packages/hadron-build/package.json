@@ -88,5 +88,5 @@
     "electron-osx-sign": "^0.4.1",
     "electron-winstaller": "2.5.1"
   },
-  "license": "Apache-2.0"
+  "license": "SSPL"
 }

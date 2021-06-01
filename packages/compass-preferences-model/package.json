@@ -6,7 +6,7 @@
   "bugs": "https://github.com/mongodb-js/compass-preferences-model/issues",
   "homepage": "https://github.com/mongodb-js/compass-preferences-model",
   "repository": "git://github.com/mongodb-js/compass-preferences-model.git",
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "browser": "browser.js",
   "keywords": [
     "mongodb-js"

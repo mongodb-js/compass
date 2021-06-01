@@ -29,7 +29,7 @@
     "test-ci": "npm run test",
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "peerDependencies": {
     "@hot-loader/react-dom": "^16.8.4",
     "@mongodb-js/compass-query-bar": "^6.5.1",

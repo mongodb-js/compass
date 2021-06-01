@@ -25,7 +25,7 @@
     "start-compass": "node scripts/run-in-compass.js",
     "test-ci": "npm run test"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "peerDependencies": {
     "@mongodb-js/compass-query-bar": "^6.5.1",
     "@mongodb-js/compass-status": "^4.2.1",

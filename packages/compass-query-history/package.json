@@ -6,7 +6,7 @@
   "description": "The query history sidebar.",
   "main": "lib/index.js",
   "homepage": "https://compass.mongodb.com",
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"

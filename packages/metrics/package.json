@@ -44,5 +44,5 @@
     "sinon": "^9.0.0",
     "xvfb-maybe": "^0.2.1"
   },
-  "license": "Apache-2.0"
+  "license": "SSPL"
 }
