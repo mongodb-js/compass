@@ -1,8 +1,5 @@
 import { configure, addDecorator, setAddon } from '@storybook/react';
-import chaptersAddon from 'react-storybook-addon-chapters';
 import PageDecorator from 'storybook/decorators/page';
-
-setAddon(chaptersAddon);
 
 // Add decorators globally to wrap our stories with
 addDecorator(PageDecorator);

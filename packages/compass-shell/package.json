@@ -127,7 +127,6 @@
     "react-dom": "^16.8.0",
     "react-hot-loader": "^4.13.0",
     "react-redux": "^7.1.1",
-    "react-storybook-addon-chapters": "^1.1.0",
     "react-tooltip": "^3.3.0",
     "redux": "^4.0.4",
     "resolve": "^1.4.0",
