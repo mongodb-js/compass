@@ -1,10 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Toolbar from '../toolbar';
-import styles from './toolbar.less';
+import Toolbar from '../databases-toolbar';
+import styles from './databases-toolbar.less';
 
-describe('Toolbar [Component]', () => {
+describe('Databases Toolbar [Component]', () => {
   context('when the distribution is readonly', () => {
     let component;
     let openSpy;
@@ -14,8 +14,6 @@ describe('Toolbar [Component]', () => {
       component = mount(
         <Toolbar
           isReadonly
-          databaseName="test"
-          isDataLake={false}
           open={openSpy} />
       );
     });
@@ -29,8 +27,8 @@ describe('Toolbar [Component]', () => {
       expect(component.find(`.${styles.toolbar}`)).to.be.present();
     });
 
-    it('does not render the create collection button', () => {
-      expect(component.find('[text="Create Collection"]')).to.not.be.present();
+    it('does not render the create database button', () => {
+      expect(component.find('[text="Create Database"]')).to.not.be.present();
     });
   });
 
@@ -43,8 +41,6 @@ describe('Toolbar [Component]', () => {
       component = mount(
         <Toolbar
           isReadonly={false}
-          databaseName="test"
-          isDataLake={false}
           open={openSpy} />
       );
     });
@@ -58,8 +54,8 @@ describe('Toolbar [Component]', () => {
       expect(component.find(`.${styles.toolbar}`)).to.be.present();
     });
 
-    it('renders the create collection button', () => {
-      expect(component.find('[text="Create Collection"]')).to.be.present();
+    it('renders the create database button', () => {
+      expect(component.find('[text="Create Database"]')).to.be.present();
     });
   });
 });

@@ -4,7 +4,7 @@ import numeral from 'numeral';
 import { assign } from 'lodash';
 import classnames from 'classnames';
 import { SortableTable } from 'hadron-react-components';
-import dropDatabaseStore from '../../stores/drop-database';
+import dropDatabaseStore from '../../../stores/drop-database';
 
 import styles from './databases-table.less';
 

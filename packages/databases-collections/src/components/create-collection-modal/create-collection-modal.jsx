@@ -46,13 +46,18 @@ class CreateCollectionModal extends PureComponent {
       return;
     }
 
-    return (<Banner variant="danger" dismissible onClose={this.props.clearError}>
-      {this.props.error.message}
-    </Banner>);
+    return (
+      <Banner
+        variant="danger"
+        dismissible
+        onClose={this.props.clearError}
+      >
+        {this.props.error.message}
+      </Banner>
+    );
   }
 
   render() {
-    console.log('*** styles', styles);
     return (
       <ConfirmationModal
         open
@@ -67,7 +72,8 @@ class CreateCollectionModal extends PureComponent {
         <CollectionFields
           serverVersion={this.props.serverVersion}
           withDatabase={false}
-          onChange={this.onChange}/>
+          onChange={this.onChange}
+        />
         {this.renderError()}
       </ConfirmationModal>
     );

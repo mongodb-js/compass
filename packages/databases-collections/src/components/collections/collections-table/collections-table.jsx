@@ -4,7 +4,8 @@ import numeral from 'numeral';
 import assign from 'lodash.assign';
 import isNaN from 'lodash.isnan';
 import { SortableTable } from 'hadron-react-components';
-import dropCollectionStore from '../../stores/drop-collection';
+
+import dropCollectionStore from '../../../stores/drop-collection';
 import styles from './collections-table.less';
 import CollectionProperties from './collection-properties';
 

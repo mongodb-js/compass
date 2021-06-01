@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { INITIAL_STATE as COLUMNS } from '../../modules/columns';
+import { INITIAL_STATE as COLUMNS } from '../../../modules/columns';
 import CollectionsTable from '../collections-table';
 import styles from './collections-table.less';
 

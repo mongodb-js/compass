@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { ZeroState } from 'hadron-react-components';
 
-import Toolbar from '../toolbar';
-import DatabasesTable from '../databases-table';
+import DatabasesToolbar from './databases-toolbar';
+import DatabasesTable from './databases-table';
 import { showDatabase } from '../../modules/show-database';
 import { sortDatabases } from '../../modules/databases';
 import { open as openCreate } from '../../modules/create-database';
@@ -79,7 +79,7 @@ class Databases extends PureComponent {
   render() {
     return (
       <div className={styles.databases} data-test-id="databases-table">
-        <Toolbar
+        <DatabasesToolbar
           isReadonly={this.props.isReadonly}
           open={openCreate}
           isDataLake={this.props.isDataLake}

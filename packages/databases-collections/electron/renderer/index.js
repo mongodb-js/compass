@@ -10,7 +10,8 @@ import CollectionModel from 'mongodb-collection-model';
 import { activate } from '../../src';
 import CreateCollectionPlugin from '../../src/components/create-collection-plugin';
 import DropCollectionPlugin from '../../src/components/drop-collection-plugin';
-
+import CreateDatabasePlugin from '../../src/components/create-database-plugin';
+import DropDatabasePlugin from '../../src/components/drop-database-plugin';
 import DatabasesCollectionsPlugin from './components/databases-collections';
 import CollectionStore from './mocks/collection-store';
 import TextWriteButton from './mocks/text-write-button';
@@ -48,6 +49,8 @@ const render = Component => {
         <Component />
         <CreateCollectionPlugin />
         <DropCollectionPlugin />
+        <CreateDatabasePlugin />
+        <DropDatabasePlugin />
       </div>
     </AppContainer>,
     document.getElementById('root')
@@ -94,12 +97,24 @@ dataService.connect((error, ds) => {
     }
 
     appRegistry.emit('instance-refreshed', {
+      // TODO: Why does one want `models` and the other just an array?
+
+      // {
       instance: {
-        databases: {
-          models: dbs
-        },
-        dataLake: { isDataLake: false }
+        databases: data.databases,
+        genuineMongoDB: { isGenuine: true },
+        dataLake: {isDataLake: false}
       }
+      // }
+
+      // instance: {
+      //   // databases: {
+      //   //   models: dbs
+      //   // },
+      //   databases: dbs,
+      //   genuineMongoDB: { isGenuine: true },
+      //   dataLake: { isDataLake: false }
+      // }
     });
 
 

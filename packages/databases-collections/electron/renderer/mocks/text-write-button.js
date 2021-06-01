@@ -81,7 +81,8 @@ class TextWriteButton extends React.Component {
           dataTestId={this.props.dataTestId}
           disabled={!this.isWritable()}
           clickHandler={this.props.clickHandler}
-          text={this.props.text} />
+          text={this.props.text}
+        />
         {tooltip}
       </div>
     );

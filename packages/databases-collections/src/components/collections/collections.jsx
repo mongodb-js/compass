@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Toolbar from '../toolbar';
-import CollectionsTable from '../collections-table';
+import CollectionsToolbar from './collections-toolbar';
+import CollectionsTable from './collections-table';
 import { showCollection } from '../../modules/show-collection';
 import { sortCollections } from '../../modules/collections';
 import { openLink } from '../../modules/link';
@@ -36,7 +36,7 @@ class Collections extends PureComponent {
   render() {
     return (
       <div className={styles.collections} data-test-id="collections-table">
-        <Toolbar
+        <CollectionsToolbar
           isReadonly={this.props.isReadonly}
           databaseName={this.props.databaseName}
           open={openCreate}

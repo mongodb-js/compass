@@ -20,8 +20,12 @@ const store = createStore(reducer, applyMiddleware(thunk));
  */
 const loadAll = (databaseName, databases) => {
   const database = find(databases, (db) => {
+    console.log('looking for db db', databaseName);
     return db._id === databaseName;
   });
+  if (database) {
+    console.log('found db', database);
+  }
   store.dispatch(changeDatabaseName(database ? databaseName : null));
   store.dispatch(loadCollectionStats(database ? database.collections : []));
 };

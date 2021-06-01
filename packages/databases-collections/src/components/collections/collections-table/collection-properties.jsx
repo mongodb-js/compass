@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import styles from './collection-properties.less';
+import Icon from '@leafygreen-ui/icon';
 
 import {
   PROPERTIES_CAPPED,
@@ -8,10 +8,11 @@ import {
   PROPERTIES_READ_ONLY,
   PROPERTIES_TIME_SERIES,
   PROPERTIES_VIEW
-} from '../../modules/collections';
+} from '../../../modules/collections';
 
 import PropertyBadge from './property-badge';
-import Icon from '@leafygreen-ui/icon';
+
+import styles from './collection-properties.less';
 
 export default class CollectionProperties extends PureComponent {
   static propTypes = {

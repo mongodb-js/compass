@@ -17,6 +17,7 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('instance-refreshed', (state) => {
     const databases = state.instance.databases;
+    console.log('databases store databases', databases);
     if (databases) {
       store.dispatch(loadDatabases(databases));
     }

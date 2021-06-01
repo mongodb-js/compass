@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { TextButton } from 'hadron-react-buttons';
 import { Tooltip } from 'hadron-react-components';
 
-import createCollectionStore from '../../stores/create-collection';
+import createCollectionStore from '../../../stores/create-collection';
 
-import styles from './toolbar.less';
+import styles from './collections-toolbar.less';
 
 /**
  * The button component name.

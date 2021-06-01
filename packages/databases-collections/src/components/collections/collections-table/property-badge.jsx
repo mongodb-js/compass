@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Badge from '@leafygreen-ui/badge';
 import Tooltip from '@leafygreen-ui/tooltip';
+
 import styles from './property-badge.less';
 
 export default class PropertyBadge extends PureComponent {

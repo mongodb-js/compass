@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import Button from '@leafygreen-ui/button';
 import Icon from '@leafygreen-ui/icon';
 
@@ -15,13 +14,6 @@ const VIEWS = {
 };
 
 class DatabasesCollections extends Component {
-  static displayName = 'DatabasesCollectionsComponent';
-
-  static propTypes = {
-    appRegistry: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired
-  };
-
   state = {
     view: VIEWS.OPTIONS
   };
