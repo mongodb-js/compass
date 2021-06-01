@@ -200,10 +200,13 @@
           "**/interruptor/**",
           "**/kerberos/**",
           "**/snappy/**",
-          "**/mongodb-client-encryption/**",
+          "**/mongodb-client-encryption/index.js",
+          "**/mongodb-client-encryption/package.json",
+          "**/mongodb-client-encryption/lib/**",
+          "**/mongodb-client-encryption/build/**",
           "**/bl/**",
           "**/nan/**",
-          "**/bindings/**",
+          "**/node_modules/bindings/**",
           "**/file-uri-to-path/**"
         ]
       }
