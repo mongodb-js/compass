@@ -4,6 +4,7 @@ import sortByOrder from 'lodash.sortbyorder';
 import { isEmpty } from 'lodash';
 
 import { INITIAL_STATE as COLUMNS } from './columns';
+import { UPDATE_SORT } from '../sort';
 
 /**
  * Need extra columns to map.
@@ -27,11 +28,6 @@ export const PROPERTIES_READ_ONLY = 'readonly';
  * The module prefix.
  */
 const PREFIX = 'ddl/collections';
-
-/**
- * The sort collections action name.
- */
-export const SORT_COLLECTIONS = `${PREFIX}/SORT_COLLECTIONS`;
 
 /**
  * The load collections action name.
@@ -62,7 +58,7 @@ export const INITIAL_STATE = [];
  * @returns {Array} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === SORT_COLLECTIONS) {
+  if (action.type === UPDATE_SORT) {
     return sort(action.collections, action.column, action.order);
   } else if (action.type === LOAD_COLLECTIONS) {
     return load(action.collections);
@@ -174,7 +170,7 @@ export const loadCollections = (collections) => ({
  * @returns {Object} The sort collections action.
  */
 export const sortCollections = (collections, column, order) => ({
-  type: SORT_COLLECTIONS,
+  type: UPDATE_SORT,
   collections: collections,
   column: column,
   order: order

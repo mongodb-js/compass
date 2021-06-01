@@ -8,7 +8,7 @@ import {
   PROPERTIES_READ_ONLY,
   PROPERTIES_TIME_SERIES,
   PROPERTIES_VIEW
-} from '../../../modules/collections';
+} from '../../../modules/collections/collections';
 
 import PropertyBadge from './property-badge';
 

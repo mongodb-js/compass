@@ -1,13 +1,14 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+
 import { appRegistryActivated } from '../modules/app-registry';
-import { loadDatabases } from '../modules/databases';
+import { loadDatabases } from '../modules/databases/databases';
 import { writeStateChanged } from '../modules/is-writable';
 import { toggleIsGenuineMongoDB } from '../modules/is-genuine-mongodb';
 import { toggleIsDataLake } from '../modules/is-data-lake';
-import reducer from '../modules';
+import { databasesReducer } from '../modules';
 
-const store = createStore(reducer, applyMiddleware(thunk));
+const store = createStore(databasesReducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
   /**
@@ -17,7 +18,6 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('instance-refreshed', (state) => {
     const databases = state.instance.databases;
-    console.log('databases store databases', databases);
     if (databases) {
       store.dispatch(loadDatabases(databases));
     }

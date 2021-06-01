@@ -1,16 +1,17 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import find from 'lodash.find';
+
 import { appRegistryActivated } from '../modules/app-registry';
 import { changeDatabaseName } from '../modules/database-name';
 import { dataServiceConnected } from '../modules/data-service';
-import { loadCollectionStats } from '../modules/collections';
-import { loadDatabases } from '../modules/databases';
+import { loadCollectionStats } from '../modules/collections/collections';
+import { loadDatabases } from '../modules/collections/databases';
 import { writeStateChanged } from '../modules/is-writable';
 import { toggleIsDataLake } from '../modules/is-data-lake';
-import reducer from '../modules';
+import { collectionsReducer } from '../modules';
 
-const store = createStore(reducer, applyMiddleware(thunk));
+const store = createStore(collectionsReducer, applyMiddleware(thunk));
 
 /**
  * Load all the collections.
@@ -20,12 +21,8 @@ const store = createStore(reducer, applyMiddleware(thunk));
  */
 const loadAll = (databaseName, databases) => {
   const database = find(databases, (db) => {
-    console.log('looking for db db', databaseName);
     return db._id === databaseName;
   });
-  if (database) {
-    console.log('found db', database);
-  }
   store.dispatch(changeDatabaseName(database ? databaseName : null));
   store.dispatch(loadCollectionStats(database ? database.collections : []));
 };
@@ -40,7 +37,7 @@ store.onActivated = (appRegistry) => {
     const storeState = store.getState();
     const databaseName = storeState.databaseName;
     if (state.instance.databases) {
-      const databases = state.instance.databases.models;
+      const databases = state.instance.databases;
       store.dispatch(loadDatabases(databases));
       if (databaseName) {
         loadAll(databaseName, databases);

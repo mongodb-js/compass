@@ -9,7 +9,7 @@ import { createCollection } from '../../modules/create-collection';
 import { clearError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
 
-import CollectionFields from './collection-fields';
+import CollectionFields from '../collection-fields';
 import styles from './create-collection-modal.less';
 
 class CreateCollectionModal extends PureComponent {

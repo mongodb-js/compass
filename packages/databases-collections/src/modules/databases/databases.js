@@ -1,11 +1,10 @@
 import { zipObject, orderBy } from 'lodash';
+
 import { INITIAL_STATE as COLUMNS } from './columns';
+import { UPDATE_SORT } from '../sort';
 
 // The module prefix.
 const PREFIX = 'compass-databases-collections/databases';
-
-// The sort databases action name.
-export const SORT_DATABASES = `${PREFIX}/SORT_DATABASES`;
 
 // The load databases action name.
 export const LOAD_DATABASES = `${PREFIX}/LOAD_DATABASES`;
@@ -75,7 +74,7 @@ export const loadDatabases = (databases) => ({
  * @returns {Object} The sort databases action.
  */
 export const sortDatabases = (databases, column, order) => ({
-  type: SORT_DATABASES,
+  type: UPDATE_SORT,
   databases: databases,
   column: column,
   order: order
@@ -90,7 +89,7 @@ export const sortDatabases = (databases, column, order) => ({
  * @returns {Array} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === SORT_DATABASES) {
+  if (action.type === UPDATE_SORT) {
     return sort(action.databases, action.column, action.order);
   } else if (action.type === LOAD_DATABASES) {
     return load(action.databases);

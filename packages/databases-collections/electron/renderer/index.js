@@ -66,7 +66,7 @@ const render = Component => {
 // Render our plugin - don't remove the following line.
 render(DatabasesCollectionsPlugin);
 
-// // Data service initialization and connection.
+// Data service initialization and connection.
 import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
 
@@ -98,25 +98,12 @@ dataService.connect((error, ds) => {
 
     appRegistry.emit('instance-refreshed', {
       // TODO: Why does one want `models` and the other just an array?
-
-      // {
       instance: {
         databases: data.databases,
         genuineMongoDB: { isGenuine: true },
         dataLake: {isDataLake: false}
       }
-      // }
-
-      // instance: {
-      //   // databases: {
-      //   //   models: dbs
-      //   // },
-      //   databases: dbs,
-      //   genuineMongoDB: { isGenuine: true },
-      //   dataLake: { isDataLake: false }
-      // }
     });
-
 
     dataService.client.client.db('admin').command({buildinfo: 1}, (buildInfoError, info) => {
       if (buildInfoError) {

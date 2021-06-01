@@ -1,4 +1,4 @@
-import { SORT_COLLECTIONS } from './collections';
+import { UPDATE_SORT } from './sort';
 
 /**
  * The initial state of the sort order attribute.
@@ -14,7 +14,7 @@ export const INITIAL_STATE = 'asc';
  * @returns {Array} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === SORT_COLLECTIONS) {
+  if (action.type === UPDATE_SORT) {
     return action.order;
   }
   return state;

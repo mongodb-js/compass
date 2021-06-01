@@ -6,7 +6,7 @@ import { ZeroState } from 'hadron-react-components';
 import DatabasesToolbar from './databases-toolbar';
 import DatabasesTable from './databases-table';
 import { showDatabase } from '../../modules/show-database';
-import { sortDatabases } from '../../modules/databases';
+import { sortDatabases } from '../../modules/databases/databases';
 import { open as openCreate } from '../../modules/create-database';
 import { open as openDrop } from '../../modules/drop-database';
 

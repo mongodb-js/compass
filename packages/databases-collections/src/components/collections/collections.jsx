@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import CollectionsToolbar from './collections-toolbar';
 import CollectionsTable from './collections-table';
 import { showCollection } from '../../modules/show-collection';
-import { sortCollections } from '../../modules/collections';
+import { sortCollections } from '../../modules/collections/collections';
 import { openLink } from '../../modules/link';
 import { open as openCreate } from '../../modules/create-collection';
 import { open as openDrop } from '../../modules/drop-collection';

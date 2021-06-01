@@ -1,17 +1,6 @@
 import { combineReducers } from 'redux';
 import dataService from '../data-service';
-import cappedSize, {
-  INITIAL_STATE as CAPPED_SIZE_INITIAL_STATE
-} from '../create-database/capped-size';
-import collectionName, {
-  INITIAL_STATE as COLLECTION_NAME_INITIAL_STATE
-} from '../create-database/collection-name';
-import isCapped, {
-  INITIAL_STATE as IS_CAPPED_INITIAL_STATE
-} from '../create-database/is-capped';
-import isCustomCollation, {
-  INITIAL_STATE as IS_CUSTOM_COLLATION_INITIAL_STATE
-} from '../create-database/is-custom-collation';
+import serverVersion from '../server-version';
 import isRunning, {
   toggleIsRunning,
   INITIAL_STATE as IS_RUNNING_INITIAL_STATE
@@ -19,12 +8,6 @@ import isRunning, {
 import isVisible, {
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
 } from '../is-visible';
-import collation, {
-  INITIAL_STATE as COLLATION_INITIAL_STATE
-} from '../create-database/collation';
-import name, {
-  INITIAL_STATE as NAME_INITIAL_STATE
-} from '../create-database/name';
 import error, {
   clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
 } from '../error';
@@ -44,15 +27,10 @@ export const NO_DOT = 'Database names may not contain a "."';
  * The main reducer.
  */
 const reducer = combineReducers({
-  cappedSize,
-  collectionName,
-  isCapped,
-  isCustomCollation,
   isRunning,
   isVisible,
-  name,
   error,
-  collation,
+  serverVersion,
   dataService
 });
 
@@ -68,28 +46,16 @@ const rootReducer = (state, action) => {
   if (action.type === RESET) {
     return {
       ...state,
-      cappedSize: CAPPED_SIZE_INITIAL_STATE,
-      collectionName: COLLECTION_NAME_INITIAL_STATE,
-      isCapped: IS_CAPPED_INITIAL_STATE,
-      isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
       isRunning: IS_RUNNING_INITIAL_STATE,
       isVisible: IS_VISIBLE_INITIAL_STATE,
-      name: NAME_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE,
-      collation: COLLATION_INITIAL_STATE
+      error: ERROR_INITIAL_STATE
     };
   } else if (action.type === OPEN) {
     return {
       ...state,
       isVisible: true,
-      cappedSize: CAPPED_SIZE_INITIAL_STATE,
-      collectionName: COLLECTION_NAME_INITIAL_STATE,
-      isCapped: IS_CAPPED_INITIAL_STATE,
-      isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
       isRunning: IS_RUNNING_INITIAL_STATE,
-      name: NAME_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE,
-      collation: COLLATION_INITIAL_STATE
+      error: ERROR_INITIAL_STATE
     };
   }
   return reducer(state, action);
@@ -119,17 +85,13 @@ export const open = () => ({
   type: OPEN
 });
 
-/**
- * The create database action.
- *
- * @returns {Function} The thunk function.
- */
-export const createDatabase = () => {
+export const createDatabase = (data) => {
   return (dispatch, getState) => {
     const state = getState();
     const ds = state.dataService.dataService;
-    const dbName = state.name;
-    const coll = state.collation;
+    const dbName = data.database;
+    const collName = data.collectionName;
+    // const coll = data.collation;
 
     dispatch(clearError());
 
@@ -137,11 +99,13 @@ export const createDatabase = () => {
       return dispatch(handleError(new Error(NO_DOT)));
     }
 
-    let options = state.isCapped ? { capped: true, size: parseInt(state.cappedSize, 10) } : {};
-    options = state.isCustomCollation ? { ...options, collation: coll } : options;
+    // TODO: Verify these still make it through.
+    // let options = state.isCapped ? { capped: true, size: parseInt(state.cappedSize, 10) } : {};
+    // options = state.isCustomCollation ? { ...options, collation: coll } : options;
+
     try {
       dispatch(toggleIsRunning(true));
-      ds.createCollection(`${dbName}.${state.collectionName}`, options, (e) => {
+      ds.createCollection(`${dbName}.${collName}`, state.options, (e) => {
         if (e) {
           return stopWithError(dispatch, e);
         }

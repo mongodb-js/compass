@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
+
 import Databases from './components/databases';
 import store from './stores/databases-store';
 
