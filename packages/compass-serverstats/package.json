@@ -10,7 +10,6 @@
     "compile": "npm run jsx && npm run less",
     "jsx": "babel ./src --out-dir ./lib",
     "less": "lessc ./styles/index.less ./styles/index.css",
-    "prepublish": "npm run compile",
     "prestart": "npm run compile",
     "storybook": "start-storybook -p 9001",
     "start": "electron ./electron",
@@ -21,7 +20,8 @@
     "test-functional": "npm test -- --functional",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" index.js",
     "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "prepare": "npm run compile"
   },
   "license": "Apache-2.0",
   "peerDependencies": {
@@ -76,8 +76,8 @@
     "mongodb-data-service": "^19.3.1",
     "mongodb-ns": "^2.2.0",
     "prop-types": "^15.5.8",
-    "react": "^16.8.0",
-    "react-dom": "^16.8.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "reflux-state-mixin": "^0.7.0",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
