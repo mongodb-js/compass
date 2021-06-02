@@ -1,11 +1,13 @@
 import reducer, { INITIAL_STATE } from './sort-column';
-import { sortCollections } from './collections';
+import { sortCollections } from './collections/collections';
 
 describe('sort column module', () => {
   describe('#reducer', () => {
     context('when an action is provided', () => {
       it('returns the new column', () => {
-        expect(reducer(undefined, sortCollections(null, 'Collections', ''))).to.equal('Collections');
+        expect(
+          reducer(undefined, sortCollections(null, 'Collections', ''))
+        ).to.equal('Collections');
       });
     });
 

@@ -22,19 +22,15 @@ describe('create collection module', () => {
         const dataService = 'data-service';
 
         it('returns the reset state', () => {
-          expect(reducer({ dataService: dataService }, reset())).to.deep.equal({
-            cappedSize: '',
-            collation: {},
-            isTimeSeries: false,
-            timeSeries: {},
+          expect(reducer(
+            { dataService },
+            reset()
+          )).to.deep.equal({
+            databaseName: '',
             dataService: 'data-service',
             error: null,
-            isCapped: false,
-            isCustomCollation: false,
             isRunning: false,
-            isVisible: false,
-            name: '',
-            databaseName: ''
+            isVisible: false
           });
         });
       });
@@ -56,9 +52,9 @@ describe('create collection module', () => {
       global.hadronApp = hadronAppBkp;
     });
 
-    const testCreateCollection = (createCollectionSpy, state) => {
+    const testCreateCollection = (createCollectionSpy, state, data) => {
       const dispatched = [];
-      makeCreateCollection()(
+      makeCreateCollection(data)(
         (evt) => { dispatched.push(evt); },
         () => ({
           dataService: {
@@ -78,10 +74,11 @@ describe('create collection module', () => {
         (ns, options, cb) => cb(null, {})
       );
 
-      const dispatched = testCreateCollection(createCollectionSpy, {
-        databaseName: 'db1',
-        name: 'coll1'
-      });
+      const dispatched = testCreateCollection(
+        createCollectionSpy,
+        { databaseName: 'db1' },
+        { collection: 'coll1', options: {} }
+      );
 
       expect(createCollectionSpy).have.been.calledWith('db1.coll1', {});
       expect(dispatched).to.deep.equal(
@@ -98,12 +95,17 @@ describe('create collection module', () => {
         (ns, options, cb) => cb(null, {})
       );
 
-      const dispatched = testCreateCollection(createCollectionSpy, {
-        databaseName: 'db1',
-        name: 'coll1',
-        isCapped: true,
-        cappedSize: '123'
-      });
+      const dispatched = testCreateCollection(
+        createCollectionSpy,
+        { databaseName: 'db1' },
+        {
+          collection: 'coll1',
+          options: {
+            capped: true,
+            size: 123
+          }
+        }
+      );
 
       expect(createCollectionSpy).have.been.calledWith('db1.coll1', {
         capped: true,
@@ -124,12 +126,16 @@ describe('create collection module', () => {
         (ns, options, cb) => cb(null, {})
       );
 
-      const dispatched = testCreateCollection(createCollectionSpy, {
-        databaseName: 'db1',
-        name: 'coll1',
-        isTimeSeries: true,
-        timeSeries: { timeField: 't' }
-      });
+      const dispatched = testCreateCollection(
+        createCollectionSpy,
+        { databaseName: 'db1' },
+        {
+          collection: 'coll1',
+          options: {
+            timeseries: { timeField: 't' }
+          }
+        }
+      );
 
       expect(createCollectionSpy).have.been.calledWith('db1.coll1', {
         timeseries: { timeField: 't' }
@@ -149,12 +155,51 @@ describe('create collection module', () => {
         (ns, options, cb) => cb(null, {})
       );
 
-      const dispatched = testCreateCollection(createCollectionSpy, {
-        databaseName: 'db1',
-        name: 'coll1',
-        isCustomCollation: true,
+      const dispatched = testCreateCollection(
+        createCollectionSpy,
+        { databaseName: 'db1' },
+        {
+          collection: 'coll1',
+          options: {
+            timeseries: {
+              timeField: 'timeFieldName'
+            },
+            collation: { locale: 'es' }
+          }
+        }
+      );
+
+      expect(createCollectionSpy).have.been.calledWith('db1.coll1', {
+        timeseries: {
+          timeField: 'timeFieldName'
+        },
         collation: { locale: 'es' }
       });
+
+      expect(dispatched).to.deep.equal(
+        [
+          { type: CLEAR_ERROR },
+          { type: TOGGLE_IS_RUNNING, isRunning: true },
+          { type: RESET }
+        ]
+      );
+    });
+
+    it('creates a collection with collation', () => {
+      const createCollectionSpy = sinon.spy(
+        (ns, options, cb) => cb(null, {})
+      );
+
+      const dispatched = testCreateCollection(
+        createCollectionSpy,
+        { databaseName: 'db1' },
+        {
+          collection: 'coll1',
+          options: {
+            collation: { locale: 'es' }
+          }
+        }
+      );
 
       expect(createCollectionSpy).have.been.calledWith('db1.coll1', {
         collation: { locale: 'es' }
@@ -175,7 +220,7 @@ describe('create collection module', () => {
         (ns, options, cb) => cb(err)
       );
 
-      const dispatched = testCreateCollection(createCollectionSpy, {});
+      const dispatched = testCreateCollection(createCollectionSpy, {}, {});
 
 
       expect(dispatched).to.deep.equal(
@@ -194,7 +239,7 @@ describe('create collection module', () => {
         () => { throw err; }
       );
 
-      const dispatched = testCreateCollection(createCollectionSpy, {});
+      const dispatched = testCreateCollection(createCollectionSpy, {}, {});
 
 
       expect(dispatched).to.deep.equal(

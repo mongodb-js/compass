@@ -1,9 +1,9 @@
 import reducer, {
   loadCollections,
   sortCollections,
-  LOAD_COLLECTIONS,
-  SORT_COLLECTIONS
+  LOAD_COLLECTIONS
 } from './collections';
+import { UPDATE_SORT } from '../sort';
 
 const SPOTIFY = {
   name: 'spotify',
@@ -127,26 +127,26 @@ describe('collections module', () => {
       context('when the action is LOAD_COLLECTIONS', () => {
         const collections = [ SPOTIFY, SOUNDCLOUD, DEEZER ];
 
-        it('returns the mapped datbases list', () => {
+        it('returns the mapped databases list', () => {
           expect(reducer(undefined, loadCollections(collections))).
             to.deep.equal([ SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED, DEEZER_MAPPED ]);
         });
       });
 
-      context('when the action is SORT_COLLECTIONS', () => {
+      context('when the action is UPDATE_SORT', () => {
         const collections = [ SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED, DEEZER_MAPPED ];
 
         context('when providing a column', () => {
-          context('when the column is Datbase Name', () => {
+          context('when the column is Database Name', () => {
             context('when sorting asc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Collection Name', 'asc'))).
                   to.deep.equal([ DEEZER_MAPPED, SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED ]);
               });
             });
 
             context('when sorting desc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Collection Name', 'desc'))).
                   to.deep.equal([ SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED, DEEZER_MAPPED ]);
               });
@@ -155,14 +155,14 @@ describe('collections module', () => {
 
           context('when the column is Documents', () => {
             context('when sorting asc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Documents', 'asc'))).
                   to.deep.equal([ DEEZER_MAPPED, SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED ]);
               });
             });
 
             context('when sorting desc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Documents', 'desc'))).
                   to.deep.equal([ SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED, DEEZER_MAPPED ]);
               });
@@ -171,14 +171,14 @@ describe('collections module', () => {
 
           context('when the column is Avg. Document Size', () => {
             context('when sorting asc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Avg. Document Size', 'asc'))).
                   to.deep.equal([ DEEZER_MAPPED, SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED ]);
               });
             });
 
             context('when sorting desc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Avg. Document Size', 'desc'))).
                   to.deep.equal([ SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED, DEEZER_MAPPED ]);
               });
@@ -187,14 +187,14 @@ describe('collections module', () => {
 
           context('when the column is Total Document Size', () => {
             context('when sorting asc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Total Document Size', 'asc'))).
                   to.deep.equal([ DEEZER_MAPPED, SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED ]);
               });
             });
 
             context('when sorting desc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Total Document Size', 'desc'))).
                   to.deep.equal([ SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED, DEEZER_MAPPED ]);
               });
@@ -203,14 +203,14 @@ describe('collections module', () => {
 
           context('when the column is Num. Indexes', () => {
             context('when sorting asc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Num. Indexes', 'asc'))).
                   to.deep.equal([ SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED, DEEZER_MAPPED ]);
               });
             });
 
             context('when sorting desc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Num. Indexes', 'desc'))).
                   to.deep.equal([ DEEZER_MAPPED, SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED ]);
               });
@@ -219,14 +219,14 @@ describe('collections module', () => {
 
           context('when the column is Total Index Size', () => {
             context('when sorting asc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Total Index Size', 'asc'))).
                   to.deep.equal([ DEEZER_MAPPED, SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED ]);
               });
             });
 
             context('when sorting desc', () => {
-              it('returns the sorted datbases list', () => {
+              it('returns the sorted databases list', () => {
                 expect(reducer(undefined, sortCollections(collections, 'Total Index Size', 'desc'))).
                   to.deep.equal([ SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED, DEEZER_MAPPED ]);
               });
@@ -252,7 +252,7 @@ describe('collections module', () => {
   describe('#sortCollections', () => {
     it('returns the action', () => {
       expect(sortCollections([], 'Collection Name', 'desc')).to.deep.equal({
-        type: SORT_COLLECTIONS,
+        type: UPDATE_SORT,
         collections: [],
         column: 'Collection Name',
         order: 'desc'

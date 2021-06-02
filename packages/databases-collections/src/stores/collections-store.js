@@ -37,6 +37,7 @@ store.onActivated = (appRegistry) => {
     const storeState = store.getState();
     const databaseName = storeState.databaseName;
     if (state.instance.databases) {
+      // TODO: Why was it using .models here? Where is that populated?
       const databases = state.instance.databases;
       store.dispatch(loadDatabases(databases));
       if (databaseName) {

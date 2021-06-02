@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 
 import { CreateCollectionModal } from '../create-collection-modal';
 import styles from './create-collection-modal.less';
@@ -64,7 +65,7 @@ describe('CreateCollectionModal [Component]', () => {
     });
 
     it('displays the modal', () => {
-      expect(component.find('.modal')).to.be.present();
+      expect(component.find(ConfirmationModal)).to.be.present();
     });
 
     it('renders the correct root classname', () => {
@@ -72,7 +73,8 @@ describe('CreateCollectionModal [Component]', () => {
     });
 
     it('renders the header text', () => {
-      expect(component.find('.modal-title')).to.have.text('Create Collection');
+      expect(component.text()).to.include('Create Collection');
+      // expect(component.find('.modal-title')).to.have.text('Create Collection');
     });
 
     it('renders the cancel button', () => {

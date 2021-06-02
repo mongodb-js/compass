@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { INITIAL_STATE as COLUMNS } from '../../modules/columns';
+import { INITIAL_STATE as COLUMNS } from '../../../modules/databases/columns';
 import DatabasesTable from '../databases-table';
 
 describe('DatabasesTable [Component]', () => {

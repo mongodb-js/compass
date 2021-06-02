@@ -2,8 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Collections from '.';
-import Toolbar from '../toolbar';
-import store from '../../stores';
+import Toolbar from './collections-toolbar';
+import store from '../../stores/collections-store';
 import styles from './collections.less';
 
 describe('Collections [Component]', () => {

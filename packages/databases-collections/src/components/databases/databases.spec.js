@@ -2,11 +2,11 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Databases, { Databases as UnconnectedDatabases } from '../databases';
-import Toolbar from '../toolbar';
-import store from '../../stores';
+import Toolbar from './databases-toolbar';
+import store from '../../stores/databases-store';
 import styles from './databases.less';
 
-import { INITIAL_STATE as columns} from '../../modules/columns';
+import { INITIAL_STATE as columns } from '../../modules/databases/columns';
 
 describe('databases [Component]', () => {
   let component;

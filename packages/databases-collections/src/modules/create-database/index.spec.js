@@ -10,16 +10,10 @@ describe('create database module', () => {
 
         it('returns the reset state', () => {
           expect(reducer({ dataService: dataService }, reset())).to.deep.equal({
-            cappedSize: '',
-            collation: {},
-            collectionName: '',
             dataService: 'data-service',
             error: null,
-            isCapped: false,
-            isCustomCollation: false,
             isRunning: false,
-            isVisible: false,
-            name: ''
+            isVisible: false
           });
         });
       });
@@ -30,10 +24,12 @@ describe('create database module', () => {
     context('when no error exists in the state', () => {
       context('when the database name is invalid', () => {
         const dispatchSpy = sinon.spy();
-        const getState = () => ({ name: 'test.test', dataService: { dataService: 'ds' }});
+        const getState = () => ({ dataService: { dataService: 'ds' }});
 
         before(() => {
-          createDatabase()(dispatchSpy, getState);
+          createDatabase({
+            database: 'test.test'
+          })(dispatchSpy, getState);
         });
 
         it('dispatches the clear action and handle error actions', () => {
