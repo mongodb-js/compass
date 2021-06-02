@@ -1,7 +1,7 @@
 /**
  * Create database name.
  */
-export const CHANGE_DATABASE_NAME = 'ddl/name/CHANGE_NAME';
+export const CHANGE_DATABASE_NAME = 'databases-collections/name/CHANGE_DATABASE_NAME';
 
 /**
  * The initial state of the database name.

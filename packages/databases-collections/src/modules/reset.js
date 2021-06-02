@@ -1,7 +1,7 @@
 /**
  * The reset action name.
  */
-export const RESET = 'ddl/reset';
+export const RESET = 'databases-collections/reset';
 
 /**
  * Reset the state action.

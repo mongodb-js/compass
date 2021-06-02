@@ -27,7 +27,7 @@ export const PROPERTIES_READ_ONLY = 'readonly';
 /**
  * The module prefix.
  */
-const PREFIX = 'ddl/collections';
+const PREFIX = 'databases-collections/collections';
 
 /**
  * The load collections action name.

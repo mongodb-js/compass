@@ -25,19 +25,6 @@ class TextWriteButton extends React.Component {
   }
 
   /**
-  * Subscribe to the state changing stores.
-  */
-  componentDidMount() {
-  }
-
-  /**
-  * Unsubscribe from the stores.
-  */
-  componentWillUnmount() {
-    // this.unsubscribeWriteState();
-  }
-
-  /**
   * Determine if the application is in a writable state.
   *
   * @returns {Boolean} If the application is writable.

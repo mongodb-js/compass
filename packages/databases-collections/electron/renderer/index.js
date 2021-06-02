@@ -97,7 +97,6 @@ dataService.connect((error, ds) => {
     }
 
     appRegistry.emit('instance-refreshed', {
-      // TODO: Why does one want `models` and the other just an array?
       instance: {
         databases: {
           // Mock the ampersand model result that the instance is mapped into.

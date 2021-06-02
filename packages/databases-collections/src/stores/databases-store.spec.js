@@ -11,7 +11,7 @@ const WriteStateStore = Reflux.createStore({
   }
 });
 
-describe('DdlStore [Store]', () => {
+describe('Databases [Store]', () => {
   beforeEach(() => {
     store.dispatch(reset());
   });

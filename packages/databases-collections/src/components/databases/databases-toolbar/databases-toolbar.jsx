@@ -71,7 +71,8 @@ class DatabasesToolbar extends PureComponent {
           dataTestId="open-create-database-modal-button"
           text="Create Database"
           tooltipId="database-ddl-is-not-writable"
-          clickHandler={this.onShowCreateDatabase} />
+          clickHandler={this.onShowCreateDatabase}
+        />
       );
     }
   }

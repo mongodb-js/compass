@@ -1,7 +1,7 @@
 /**
  * The action name prefix.
  */
-const PREFIX = 'ddl/error';
+const PREFIX = 'databases-collections/error';
 
 /**
  * Handle error action name.

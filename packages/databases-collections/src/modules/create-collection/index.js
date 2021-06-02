@@ -17,12 +17,12 @@ import error, {
 import { reset, RESET } from '../reset';
 
 import createDebug from 'debug';
-const debug = createDebug('compass-collections-ddl:create-collection');
+const debug = createDebug('compass-databases-collections:create-collection');
 
 /**
  * Open action name.
  */
-const OPEN = 'ddl/create-collection/OPEN';
+const OPEN = 'databases-collections/create-collection/OPEN';
 
 /**
  * The main reducer.

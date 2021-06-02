@@ -16,7 +16,7 @@ import { reset, RESET } from '../reset';
 /**
  * Open action name.
  */
-const OPEN = 'ddl/create-database/OPEN';
+const OPEN = 'databases-collections/create-database/OPEN';
 
 /**
  * No dots in DB name error message.

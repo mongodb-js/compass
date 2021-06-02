@@ -1,7 +1,7 @@
 /**
  * The prefix.
  */
-const PREFIX = 'ddl/is-visible';
+const PREFIX = 'databases-collections/is-visible';
 
 /**
  * Toggle is visible.

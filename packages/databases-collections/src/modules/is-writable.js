@@ -1,7 +1,7 @@
 /**
  * Write state changed action name.
  */
-export const WRITE_STATE_CHANGED = 'ddl/is-writable/WRITE_STATE_CHANGED';
+export const WRITE_STATE_CHANGED = 'databases-collections/is-writable/WRITE_STATE_CHANGED';
 
 /**
  * The initial state of the is writable attribute.

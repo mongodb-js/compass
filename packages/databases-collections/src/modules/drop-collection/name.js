@@ -1,7 +1,7 @@
 /**
  * Drop collection name.
  */
-export const CHANGE_COLLECTION_NAME = 'ddl/drop-collection/name/CHANGE_NAME';
+export const CHANGE_COLLECTION_NAME = 'databases-collections/drop-collection/name/CHANGE_NAME';
 
 /**
  * The initial state of the collection name.

@@ -1,7 +1,7 @@
 /**
  * Drop database name.
  */
-export const CHANGE_DATABASE_NAME = 'ddl/drop-database/name/CHANGE_NAME';
+export const CHANGE_DATABASE_NAME = 'databases-collections/drop-database/name/CHANGE_NAME';
 
 /**
  * The initial state of the database name.

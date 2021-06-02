@@ -24,7 +24,7 @@ import dataService from '../data-service';
 /**
  * Open action name.
  */
-const OPEN = 'ddl/drop-collection/OPEN';
+const OPEN = 'databases-collections/drop-collection/OPEN';
 
 /**
  * The main reducer.

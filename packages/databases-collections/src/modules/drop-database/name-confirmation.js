@@ -1,7 +1,7 @@
 /**
  * Drop database name confirmation.
  */
-export const CHANGE_DATABASE_NAME_CONFIRMATION = 'ddl/drop-database/name/CHANGE_NAME_CONFIRMATION';
+export const CHANGE_DATABASE_NAME_CONFIRMATION = 'databases-collections/drop-database/name/CHANGE_NAME_CONFIRMATION';
 
 /**
  * The initial state of the database name confirmation.

@@ -1,7 +1,7 @@
 /**
  * The prefix.
  */
-const PREFIX = 'collections-ddl';
+const PREFIX = 'databases-collections';
 
 /**
   * Server version changed action.
