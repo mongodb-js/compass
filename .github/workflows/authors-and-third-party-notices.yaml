@@ -17,16 +17,19 @@ jobs:
           node-version: '12'
       - name: Install Dependencies
         run: npm i
-      - run: npx lerna exec -- npm i
       - name: Set up Git
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-      - name: Update THIRD-PARTY-NOTICES.md
-        run: npm run update-third-party-notices
-      - name: Commit THIRD-PARTY-NOTICES changes
-        run: |
-          git commit --no-allow-empty -m "chore: update THIRD-PARTY-NOTICES" THIRD-PARTY-NOTICES.md || true
+
+      # TODO: skipping the automated generation, will re-enable after aligning
+      # deps
+      # - name: Update THIRD-PARTY-NOTICES.md
+      #   run: npm run update-third-party-notices
+      # - name: Commit THIRD-PARTY-NOTICES changes
+      #   run: |
+      #     git commit --no-allow-empty -m "chore: update THIRD-PARTY-NOTICES" THIRD-PARTY-NOTICES.md || true
+
       - name: Update AUTHORS
         run: npm run update-authors
       - name: Commit AUTHORS changes
