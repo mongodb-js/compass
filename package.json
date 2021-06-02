@@ -46,8 +46,7 @@
     "pkg-up": "^3.1.0",
     "ps-list": "^7.2.0",
     "replace-in-file": "^6.2.0",
-    "semver": "^7.3.5",
-    "ts-node": "^10.0.0"
+    "semver": "^7.3.5"
   },
   "engines": {
     "node": "^12.4.0",
