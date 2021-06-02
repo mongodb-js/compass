@@ -1,4 +1,5 @@
-export default [
+const LOADING_STATE = null;
+const COLLATION_OPTIONS = [
   {
     field: 'locale',
     values: [
@@ -179,3 +180,6 @@ export default [
     values: [{value: true, label: 'true'}, {value: false, label: 'false'}]
   }
 ];
+
+export default COLLATION_OPTIONS;
+export { LOADING_STATE, COLLATION_OPTIONS };

@@ -8,7 +8,7 @@ import { Select, Option, Size } from '@leafygreen-ui/select';
 import IconButton from '@leafygreen-ui/icon-button';
 import Icon from '@leafygreen-ui/icon';
 
-import COLLATION_OPTIONS from './collation-options';
+import COLLATION_OPTIONS from '../../constants/collation';
 import hasTimeSeriesSupport from './has-time-series-support';
 import styles from './collection-fields.less';
 
@@ -297,12 +297,12 @@ export default class CollectionFields extends PureComponent {
 
 
   render() {
-    return (<div>
+    return (<>
       {this.props.withDatabase ? this.renderDatabaseNameField() : ''}
       {this.renderCollectionNameField()}
       {this.renderCappedCollectionFields()}
       {this.renderCollationFields()}
       {this.renderTimeSeriesFields()}
-    </div>);
+    </>);
   }
 }
