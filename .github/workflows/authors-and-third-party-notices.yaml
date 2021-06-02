@@ -17,6 +17,7 @@ jobs:
           node-version: '12'
       - name: Install Dependencies
         run: npm i
+      - run: npx lerna exec -- npm i
       - name: Set up Git
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
