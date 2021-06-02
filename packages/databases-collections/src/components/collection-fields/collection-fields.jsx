@@ -100,13 +100,7 @@ export default class CollectionFields extends PureComponent {
   setField(fieldName, value) {
     const fields = _.cloneDeep(this.state.fields);
     _.set(fields, fieldName, Object.is(value, NaN) ? undefined : value);
-    this.setState({ fields }, () => {
-      this.props.onChange({
-        database: this.state.fields.databaseName,
-        collection: this.state.fields.collectionName,
-        options: this.buildOptions()
-      });
-    });
+    this.setState({ fields }, this.updateOptions);
   }
 
   setCollationField(fieldName, value) {
@@ -126,6 +120,14 @@ export default class CollectionFields extends PureComponent {
     }
 
     this.setField(`collation.${fieldName}`, value);
+  }
+
+  updateOptions = () => {
+    this.props.onChange({
+      database: this.state.fields.databaseName,
+      collection: this.state.fields.collectionName,
+      options: this.buildOptions()
+    });
   }
 
   asNumber(value) {
@@ -179,7 +181,9 @@ export default class CollectionFields extends PureComponent {
   renderCappedCollectionFields() {
     return (<CollapsibleFieldset
       toggled={this.state.isCapped}
-      onToggle={checked => { this.setState({isCapped: checked}); }}
+      onToggle={checked => {
+        this.setState({ isCapped: checked }, this.updateOptions);
+      }}
       label="Capped Collection"
       helpUrl={HELP_URL_CAPPED}
       openLink={this.props.openLink}
@@ -236,7 +240,7 @@ export default class CollectionFields extends PureComponent {
     return (
       <CollapsibleFieldset
         onToggle={checked => {
-          this.setState({isCustomCollation: checked});
+          this.setState({ isCustomCollation: checked }, this.updateOptions);
         }}
         label="Use Custom Collation"
         toggled={this.state.isCustomCollation}
@@ -254,7 +258,7 @@ export default class CollectionFields extends PureComponent {
 
     return (<CollapsibleFieldset
       onToggle={checked => {
-        this.setState({isTimeSeries: checked});
+        this.setState({ isTimeSeries: checked }, this.updateOptions);
       }}
       toggled={this.state.isTimeSeries}
       label="Time-Series"
@@ -266,7 +270,7 @@ export default class CollectionFields extends PureComponent {
           description={TIME_FIELD_INPUT_DESCRIPTION}
           required
           onChange={
-            (e) => this.setField('timeseries.timeField', e.target.value)
+            (e) => this.setField('timeSeries.timeField', e.target.value)
           }
         />
       </FieldSet>
@@ -276,7 +280,7 @@ export default class CollectionFields extends PureComponent {
           label="metaField"
           description={META_FIELD_INPUT_DESCRIPTION}
           optional
-          onChange={(e) => this.setField('timeseries.metaField', e.target.value)}
+          onChange={(e) => this.setField('timeSeries.metaField', e.target.value)}
         />
       </FieldSet>
 
@@ -287,7 +291,7 @@ export default class CollectionFields extends PureComponent {
           optional
           type="number"
           onChange={
-            (e) => this.setField('timeseries.expireAfterSeconds', this.asNumber(e.target.value))
+            (e) => this.setField('timeSeries.expireAfterSeconds', this.asNumber(e.target.value))
           }
         />
       </FieldSet>
