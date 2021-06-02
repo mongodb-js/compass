@@ -120,6 +120,7 @@ class CreateDatabaseModal extends PureComponent {
           serverVersion={this.props.serverVersion}
           withDatabase
           onChange={this.onChange}
+          openLink={this.props.openLink}
         />
         {this.renderCollectionNameRequiredNotice()}
         {this.renderError()}

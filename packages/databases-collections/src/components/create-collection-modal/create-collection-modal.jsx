@@ -8,6 +8,7 @@ import Banner from '@leafygreen-ui/banner';
 import { createCollection } from '../../modules/create-collection';
 import { clearError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
+import { openLink } from '../../modules/link';
 
 import CollectionFields from '../collection-fields';
 import styles from './create-collection-modal.less';
@@ -20,7 +21,8 @@ class CreateCollectionModal extends PureComponent {
     isRunning: PropTypes.bool.isRequired,
     isVisible: PropTypes.bool.isRequired,
     serverVersion: PropTypes.string.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired
+    toggleIsVisible: PropTypes.func.isRequired,
+    openLink: PropTypes.func.isRequired
   }
 
   constructor() {
@@ -73,6 +75,7 @@ class CreateCollectionModal extends PureComponent {
           serverVersion={this.props.serverVersion}
           withDatabase={false}
           onChange={this.onChange}
+          openLink={this.props.openLink}
         />
         {this.renderError()}
       </ConfirmationModal>
@@ -91,6 +94,7 @@ const MappedCreateCollectionModal = connect(
   mapStateToProps,
   {
     createCollection,
+    openLink,
     toggleIsVisible,
     clearError
   },

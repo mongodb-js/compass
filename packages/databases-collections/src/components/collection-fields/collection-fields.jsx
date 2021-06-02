@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Checkbox from '@leafygreen-ui/checkbox';
 import TextInput from '@leafygreen-ui/text-input';
-import { Select, Option } from '@leafygreen-ui/select';
+import { Select, Option, Size } from '@leafygreen-ui/select';
 import IconButton from '@leafygreen-ui/icon-button';
 import Icon from '@leafygreen-ui/icon';
 
@@ -30,7 +30,11 @@ class FieldSet extends PureComponent {
   }
 
   render() {
-    return <fieldset className="form-group">{this.props.children}</fieldset>;
+    return (
+      <fieldset className={styles['form-group']}>
+        {this.props.children}
+      </fieldset>
+    );
   }
 }
 
@@ -44,13 +48,13 @@ class CollapsibleFieldset extends PureComponent {
     ]),
     helpUrl: PropTypes.string,
     onToggle: PropTypes.func.isRequired,
-    toggled: PropTypes.bool
+    toggled: PropTypes.bool,
+    openLink: PropTypes.func
   }
 
   render() {
-    return (<FieldSet>
-      {/* <div className={this.props.toggled ? 'form-group' : ''}> */}
-      <div>
+    return (
+      <FieldSet>
         <Checkbox
           onChange={event => {
             this.props.onToggle(event.target.checked);
@@ -64,7 +68,7 @@ class CollapsibleFieldset extends PureComponent {
           <IconButton
             className={styles['info-btn']}
             aria-label="Time-series collections documentation"
-            onClick={() => alert('aa')}
+            onClick={() => this.props.openLink(this.props.helpUrl)}
           >
             <Icon
               glyph="InfoWithCircle"
@@ -72,17 +76,18 @@ class CollapsibleFieldset extends PureComponent {
             />
           </IconButton>
         )}
-      </div>
-      {!this.props.toggled ? '' : this.props.children}
-    </FieldSet>);
+        {!this.props.toggled ? '' : this.props.children}
+      </FieldSet>
+    );
   }
 }
 
 export default class CollectionFields extends PureComponent {
   static propTypes = {
-    onChange: PropTypes.func,
+    onChange: PropTypes.func.isRequired,
     withDatabase: PropTypes.bool,
-    serverVersion: PropTypes.string
+    serverVersion: PropTypes.string,
+    openLink: PropTypes.func.isRequired
   }
 
   constructor() {
@@ -96,24 +101,35 @@ export default class CollectionFields extends PureComponent {
     const fields = _.cloneDeep(this.state.fields);
     _.set(fields, fieldName, Object.is(value, NaN) ? undefined : value);
     this.setState({ fields }, () => {
-      this.triggerOnChange();
+      this.props.onChange({
+        database: this.state.fields.databaseName,
+        collection: this.state.fields.collectionName,
+        options: this.buildOptions()
+      });
     });
+  }
+
+  setCollationField(fieldName, value) {
+    // We convert the value to a string for the option value.
+    // Here we reset it to its original type.
+    if (!Object.is(this.asNumber(value), NaN)) {
+      this.setField(`collation.${fieldName}`, this.asNumber(value));
+      return;
+    }
+    if (value === 'false') {
+      this.setField(`collation.${fieldName}`, false);
+      return;
+    }
+    if (value === 'true') {
+      this.setField(`collation.${fieldName}`, true);
+      return;
+    }
+
+    this.setField(`collation.${fieldName}`, value);
   }
 
   asNumber(value) {
     return `${value}` ? +value : undefined;
-  }
-
-  triggerOnChange() {
-    if (!this.props.onChange) {
-      return;
-    }
-
-    this.props.onChange({
-      database: this.state.fields.databaseName,
-      collection: this.state.fields.collectionName,
-      options: this.buildOptions()
-    });
   }
 
   buildOptions() {
@@ -130,6 +146,12 @@ export default class CollectionFields extends PureComponent {
     const timeSeriesOptions = state.isTimeSeries ? {
       timeseries: state.fields.timeSeries
     } : {};
+
+    console.log('built options:', {
+      ...collationOptions,
+      ...cappedOptions,
+      ...timeSeriesOptions
+    });
 
     return {
       ...collationOptions,
@@ -166,6 +188,7 @@ export default class CollectionFields extends PureComponent {
       onToggle={checked => { this.setState({isCapped: checked}); }}
       label="Capped Collection"
       helpUrl={HELP_URL_CAPPED}
+      openLink={this.props.openLink}
       description="Fixed-size collections that support high-throughput operations that insert and retrieve documents based on insertion order."
     >
       <TextInput
@@ -185,7 +208,12 @@ export default class CollectionFields extends PureComponent {
     const options = _.sortBy(unifiedValues, 'value');
 
     return options.map(({value, label}) => {
-      return <Option key={label} value={`${value}`}>{label}</Option>;
+      return (<Option
+        key={label}
+        value={`${value}`}
+      >
+        {label}
+      </Option>);
     });
   }
 
@@ -194,14 +222,16 @@ export default class CollectionFields extends PureComponent {
       return (
         <FieldSet key={element.field}>
           <Select
-            // value={this.props.collation[element.field]}
+            className={styles['options-select-dropdown']}
             label={element.field}
             name={element.field}
-            placeholder={'Select a value'}
-            // options={this.getDropdownFieldsSelect(element.values)}
-            // onChange={this.onChangeCollationOption.bind(this, element.field)}
-            // className={classnames(styles['collation-select'])}
-            // clearable={false}
+            placeholder={`Select a value${
+              element.required ? '' : ' [optional]'
+            }`}
+            onChange={(val) => this.setCollationField(element.field, val)}
+            usePortal={false}
+            size={Size.Small}
+            allowDeselect={false}
           >
             {this.renderCollationOptions(element.values)}
           </Select>
@@ -218,6 +248,7 @@ export default class CollectionFields extends PureComponent {
         toggled={this.state.isCustomCollation}
         description="Collation allows users to specify language-specific rules for string comparison, such as rules for lettercase and accent marks."
         helpUrl={HELP_URL_COLLATION}
+        openLink={this.props.openLink}
       >{options}</CollapsibleFieldset>
     );
   }

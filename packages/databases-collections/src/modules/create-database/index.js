@@ -105,7 +105,7 @@ export const createDatabase = (data) => {
 
     try {
       dispatch(toggleIsRunning(true));
-      ds.createCollection(`${dbName}.${collName}`, state.options, (e) => {
+      ds.createCollection(`${dbName}.${collName}`, data.options, (e) => {
         if (e) {
           return stopWithError(dispatch, e);
         }
