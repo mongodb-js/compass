@@ -16,6 +16,7 @@
     "bootstrap-evergreen": "cross-env ELECTRON_SKIP_BINARY_DOWNLOAD=1 lerna exec -- npm ci --quiet && npm run install-electron",
     "install-electron": "cross-env ELECTRON_SKIP_BINARY_DOWNLOAD= lerna exec --concurrency 1 -- node ../../scripts/install-electron.js",
     "start": "lerna run start --stream --scope mongodb-compass",
+    "prepackages-version": "bash scripts/update-authors-and-notices.sh",
     "packages-version": "lerna version",
     "postpackages-version": "node scripts/monorepo/force-compass-dev-version.js",
     "packages-publish": "node scripts/monorepo/publish-all.js",
