@@ -62,7 +62,6 @@ class CreateCollectionModal extends PureComponent {
   render() {
     return (
       <ConfirmationModal
-        open
         title="Create Collection"
         open={this.props.isVisible}
         onConfirm={this.onConfirm}

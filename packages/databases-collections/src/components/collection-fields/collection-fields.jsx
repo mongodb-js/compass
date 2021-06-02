@@ -147,12 +147,6 @@ export default class CollectionFields extends PureComponent {
       timeseries: state.fields.timeSeries
     } : {};
 
-    console.log('built options:', {
-      ...collationOptions,
-      ...cappedOptions,
-      ...timeSeriesOptions
-    });
-
     return {
       ...collationOptions,
       ...cappedOptions,

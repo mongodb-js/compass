@@ -1,8 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
+import Banner from '@leafygreen-ui/banner';
 
 import { CreateCollectionModal } from '../create-collection-modal';
+import CollectionFields from '../collection-fields';
 import styles from './create-collection-modal.less';
 
 describe('CreateCollectionModal [Component]', () => {
@@ -10,44 +12,22 @@ describe('CreateCollectionModal [Component]', () => {
     let component;
     let toggleIsVisibleSpy;
     let openLinkSpy;
-    let changeCappedSizeSpy;
-    let changeCollectionNameSpy;
-    let changeCollationOptionSpy;
-    let createCollectionSpy;
-    let toggleIsCappedSpy;
-    let toggleIsCustomCollationSpy;
     let clearErrorSpy;
 
     beforeEach(() => {
       openLinkSpy = sinon.spy();
       toggleIsVisibleSpy = sinon.spy();
-      changeCappedSizeSpy = sinon.spy();
-      changeCollectionNameSpy = sinon.spy();
-      changeCollationOptionSpy = sinon.spy();
-      createCollectionSpy = sinon.spy();
-      toggleIsCappedSpy = sinon.spy();
-      toggleIsCustomCollationSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
 
       component = mount(
         <CreateCollectionModal
           isVisible
-          isCapped={false}
-          isCustomCollation={false}
           isRunning={false}
           error={{message: 'A testing error occurred.'}}
-          name="collName"
-          cappedSize={''}
-          collation={{}}
           openLink={openLinkSpy}
-          changeCappedSize={changeCappedSizeSpy}
-          changeCollationOption={changeCollationOptionSpy}
-          changeCollectionName={changeCollectionNameSpy}
-          createCollection={createCollectionSpy}
-          toggleIsCapped={toggleIsCappedSpy}
-          toggleIsCustomCollation={toggleIsCustomCollationSpy}
           toggleIsVisible={toggleIsVisibleSpy}
-          clearError={clearErrorSpy} />
+          clearError={clearErrorSpy}
+        />
       );
     });
 
@@ -55,12 +35,6 @@ describe('CreateCollectionModal [Component]', () => {
       openLinkSpy = null;
       clearErrorSpy = null;
       toggleIsVisibleSpy = null;
-      changeCappedSizeSpy = null;
-      changeCollationOptionSpy = null;
-      changeCollectionNameSpy = null;
-      createCollectionSpy = null;
-      toggleIsCappedSpy = null;
-      toggleIsCustomCollationSpy = null;
       component = null;
     });
 
@@ -74,70 +48,15 @@ describe('CreateCollectionModal [Component]', () => {
 
     it('renders the header text', () => {
       expect(component.text()).to.include('Create Collection');
-      // expect(component.find('.modal-title')).to.have.text('Create Collection');
-    });
-
-    it('renders the cancel button', () => {
-      expect(component.find('.btn-default').hostNodes()).to.have.text('Cancel');
-    });
-
-    it('renders the create button enabled', () => {
-      expect(component.find('.btn-primary').hostNodes()).to.have.text('Create Collection');
-      expect(component.find('.btn-primary').hostNodes()).to.not.have.attr('disabled');
     });
 
     it('renders the modal form', () => {
-      expect(component.find('[name="create-collection-modal-form"]')).to.be.present();
+      expect(component.find(CollectionFields)).to.be.present();
     });
 
     it('renders the error message', () => {
-      expect(component.find('.modal-status-error-message')).to.be.present();
-    });
-
-    context('when changing the collection name', () => {
-      it('calls the change collection name function', () => {
-        component.find('#create-collection-name').hostNodes().
-          simulate('change', 'collName');
-        expect(changeCollectionNameSpy.calledWith('collName')).to.equal(true);
-      });
-
-      context('when setting the collection name to empty', () => {
-        beforeEach(() => {
-          component.setProps({
-            name: ''
-          });
-        });
-
-        it('disables the create button', () => {
-          expect(component.find('.btn-primary').hostNodes()).to.have.attr('disabled');
-        });
-      });
-    });
-
-    context('when changing is capped', () => {
-      context('when changing capped size', () => {
-      });
-    });
-
-    context('when changing is custom collation', () => {
-
-    });
-
-    context('when clicking cancel', () => {
-      it('closes the modal', () => {
-        component.find('[data-test-id="cancel-create-collection-button"]').hostNodes().simulate('click');
-        expect(toggleIsVisibleSpy.calledOnce).to.equal(true);
-      });
-    });
-
-    context('when clicking create', () => {
-    });
-
-    context('when clicking the close button of the error message', () => {
-      it('clears the error message', () => {
-        component.find('.modal-status-error-icon').simulate('click');
-        expect(clearErrorSpy.calledOnce).to.equal(true);
-      });
+      expect(component.find(Banner)).to.be.present();
+      expect(component.find(Banner)).to.have.length(1);
     });
   });
 
@@ -145,43 +64,21 @@ describe('CreateCollectionModal [Component]', () => {
     let component;
     let toggleIsVisibleSpy;
     let openLinkSpy;
-    let changeCappedSizeSpy;
-    let changeCollationOptionSpy;
-    let changeCollectionNameSpy;
-    let createCollectionSpy;
-    let toggleIsCappedSpy;
-    let toggleIsCustomCollationSpy;
     let clearErrorSpy;
 
     beforeEach(() => {
       openLinkSpy = sinon.spy();
       toggleIsVisibleSpy = sinon.spy();
-      changeCappedSizeSpy = sinon.spy();
-      changeCollationOptionSpy = sinon.spy();
-      changeCollectionNameSpy = sinon.spy();
-      createCollectionSpy = sinon.spy();
-      toggleIsCappedSpy = sinon.spy();
-      toggleIsCustomCollationSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
 
       component = mount(
         <CreateCollectionModal
           isVisible={false}
-          isCapped={false}
-          isCustomCollation={false}
           isRunning={false}
-          name="collName"
-          cappedSize={''}
-          collation={{}}
           openLink={openLinkSpy}
-          changeCappedSize={changeCappedSizeSpy}
-          changeCollationOption={changeCollationOptionSpy}
-          changeCollectionName={changeCollectionNameSpy}
-          createCollection={createCollectionSpy}
-          toggleIsCapped={toggleIsCappedSpy}
-          toggleIsCustomCollation={toggleIsCustomCollationSpy}
           toggleIsVisible={toggleIsVisibleSpy}
-          clearError={clearErrorSpy} />
+          clearError={clearErrorSpy}
+        />
       );
     });
 
@@ -189,17 +86,11 @@ describe('CreateCollectionModal [Component]', () => {
       openLinkSpy = null;
       clearErrorSpy = null;
       toggleIsVisibleSpy = null;
-      changeCappedSizeSpy = null;
-      changeCollationOptionSpy = null;
-      changeCollectionNameSpy = null;
-      createCollectionSpy = null;
-      toggleIsCappedSpy = null;
-      toggleIsCustomCollationSpy = null;
       component = null;
     });
 
-    it('does not display the modal', () => {
-      expect(component.find('.modal')).to.not.be.present();
+    it('does not display the form', () => {
+      expect(component.find(CollectionFields)).to.not.be.present();
     });
   });
 });

@@ -107,7 +107,6 @@ class CreateDatabaseModal extends PureComponent {
   render() {
     return (
       <ConfirmationModal
-        open
         title="Create Database"
         open={this.props.isVisible}
         onConfirm={this.onConfirm}
