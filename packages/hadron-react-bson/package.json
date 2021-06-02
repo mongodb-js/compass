@@ -33,8 +33,10 @@
     "react-dom": "^16.8.0"
   },
   "dependencies": {
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "hadron-react-utils": "^4.1.1",
     "hex-to-uuid": "^1.0.1",
+    "html-webpack-plugin": "^3.2.0",
     "moment-timezone": "^0.5.14"
   },
   "devDependencies": {
@@ -69,8 +71,8 @@
     "rimraf": "^3.0.2",
     "sinon": "^2.4.1",
     "sinon-chai": "^3.5.0",
-    "webpack": "^4.41.6",
-    "webpack-cli": "^3.3.11",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^4.7.0",
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^1.7.2",
     "webpack-sources": "^1.4.3"
