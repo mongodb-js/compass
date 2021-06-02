@@ -1,6 +1,4 @@
-# database [![][travis_img]][travis_url]
-
-> Compass Databases and Collections Plugin
+# Compass Databases and Collections Plugin
 
 Provides: 
 

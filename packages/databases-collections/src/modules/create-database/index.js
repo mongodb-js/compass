@@ -91,17 +91,12 @@ export const createDatabase = (data) => {
     const ds = state.dataService.dataService;
     const dbName = data.database;
     const collName = data.collection;
-    // const coll = data.collation;
 
     dispatch(clearError());
 
     if (dbName.includes('.')) {
       return dispatch(handleError(new Error(NO_DOT)));
     }
-
-    // TODO: Verify these still make it through.
-    // let options = state.isCapped ? { capped: true, size: parseInt(state.cappedSize, 10) } : {};
-    // options = state.isCustomCollation ? { ...options, collation: coll } : options;
 
     try {
       dispatch(toggleIsRunning(true));
