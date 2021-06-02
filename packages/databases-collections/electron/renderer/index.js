@@ -99,7 +99,11 @@ dataService.connect((error, ds) => {
     appRegistry.emit('instance-refreshed', {
       // TODO: Why does one want `models` and the other just an array?
       instance: {
-        databases: data.databases,
+        databases: {
+          // Mock the ampersand model result that the instance is mapped into.
+          models: data.databases,
+          map: (mappDbsFunc) => data.databases.map(mappDbsFunc)
+        },
         genuineMongoDB: { isGenuine: true },
         dataLake: {isDataLake: false}
       }
