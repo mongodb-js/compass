@@ -1,5 +1,8 @@
 stepback: false
 exec_timeout_secs: 5400
+ignore:
+  - AUTHORS
+  - THIRD-PARTY-NOTICES.md
 
 ## Variables
 variables:
@@ -139,7 +142,7 @@ functions:
           npm run update-akzidenz-cache --unsafe-perm
           # Run npm ci in all the packages
           npm run bootstrap-evergreen --unsafe-perm
-  
+
   save:
     - command: shell.exec
       params:
@@ -370,7 +373,7 @@ functions:
         local_file: src/packages/compass/dist/${osx_zip_filename}
         remote_file: ${project}/${revision}/${osx_zip_filename}
         content_type: application/zip
-  
+
   'save linux artifacts':
     # .deb
     - <<: *save-artifact
@@ -384,7 +387,7 @@ functions:
         local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
         content_type: application/x-gzip
-  
+
   'save rhel artifacts':
     # .rpm
     - <<: *save-artifact

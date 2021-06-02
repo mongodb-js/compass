@@ -26,7 +26,9 @@
     "test": "lerna run test --concurrency 1 --stream",
     "test-evergreen": "lerna run test-ci --concurrency 1",
     "update-akzidenz-cache": "node scripts/download-akzidenz.js --update-cache",
-    "download-akzidenz": "lerna exec -- node ../../scripts/download-akzidenz.js"
+    "download-akzidenz": "lerna exec -- node ../../scripts/download-akzidenz.js",
+    "update-authors": "node scripts/generate-authors.js",
+    "update-third-party-notices": "node scripts/gather-licenses.js packages/compass/ > THIRD-PARTY-NOTICES.md"
   },
   "repository": {
     "type": "git",
@@ -35,11 +37,13 @@
   "dependencies": {},
   "devDependencies": {
     "cross-env": "^7.0.3",
+    "find-up": "^5.0.0",
     "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
     "lerna": "^4.0.0",
     "make-fetch-happen": "^8.0.14",
     "ora": "^5.4.0",
+    "pkg-up": "^3.1.0",
     "ps-list": "^7.2.0",
     "replace-in-file": "^6.2.0",
     "semver": "^7.3.5"
