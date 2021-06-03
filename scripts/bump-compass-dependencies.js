@@ -29,12 +29,10 @@ for (const dependencies of [
     continue;
   }
 
-  for (const key of packageJson[dependencies]) {
+  for (const key of Object.keys(packageJson[dependencies])) {
     if (internalPackageVersions[key]) {
-      packageJson[dependencies][key] = internalPackageVersions[key];
+      packageJson[dependencies][key] = `^${internalPackageVersions[key]}`;
     }
-
-    packageJson[dependencies][key] = `^${internalPackageVersions[key]}`;
   }
 }
 
