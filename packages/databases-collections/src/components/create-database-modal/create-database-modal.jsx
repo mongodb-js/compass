@@ -136,14 +136,8 @@ class CreateDatabaseModal extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  isCapped: state.isCapped,
-  isCustomCollation: state.isCustomCollation,
   isRunning: state.isRunning,
   isVisible: state.isVisible,
-  name: state.name,
-  collation: state.collation,
-  collectionName: state.collectionName,
-  cappedSize: state.cappedSize,
   serverVersion: state.serverVersion,
   error: state.error
 });
