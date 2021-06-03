@@ -9,7 +9,7 @@
     "test": "test"
   },
   "homepage": "https://github.com/mongodb-js/storage-mixin",
-  "version": "3.4.1",
+  "version": "4.0.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mongodb-js/storage-mixin.git"
@@ -43,7 +43,7 @@
     "ampersand-sync": "^5.1.0",
     "async": "^3.1.0",
     "debug": "^4.1.1",
-    "hadron-ipc": "^1.2.1",
+    "hadron-ipc": "^2.0.0",
     "keytar": "^5.0.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",
