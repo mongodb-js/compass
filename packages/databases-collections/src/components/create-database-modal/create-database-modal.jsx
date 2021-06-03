@@ -94,7 +94,10 @@ class CreateDatabaseModal extends PureComponent {
       >
         Before MongoDB can save your new database, a collection name
         must also be specified at the time of creation.&nbsp;
-        <a onClick={this.onInfoClicked}>More Information</a>
+        <a
+          href="#"
+          onClick={this.onInfoClicked}
+        >More Information</a>
       </Banner>
     );
   }
