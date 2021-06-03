@@ -1,6 +1,6 @@
 {
   "name": "mongodb-ace-theme",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "MongoDB Theme for the ACE Editor",
   "main": "index.js",
   "repository": {
