@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsCapped,
   TOGGLE_IS_CAPPED
-} from 'modules/create-database/is-capped';
+} from '../create-database/is-capped';
 
 describe('create database is capped module', () => {
   describe('#reducer', () => {

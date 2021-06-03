@@ -1,19 +1,19 @@
 import { createStore, applyMiddleware } from 'redux';
-import reducer from 'modules';
+import reducer from '../modules';
 import thunk from 'redux-thunk';
 
-import { changeErrorMessage } from 'modules/error-message';
-import { toggleIsDataLake } from 'modules/is-data-lake';
-import { toggleIsConnected } from 'modules/is-connected';
-import { changeUiStatus } from 'modules/ui-status';
-import { updateTitle } from 'modules/title';
-import { changeConnectionTitle } from 'modules/connection-title';
-import { changeNamespace } from 'modules/namespace';
-import { dataServiceDisconnected } from 'modules';
+import { changeErrorMessage } from '../modules/error-message';
+import { toggleIsDataLake } from '../modules/is-data-lake';
+import { toggleIsConnected } from '../modules/is-connected';
+import { changeUiStatus } from '../modules/ui-status';
+import { updateTitle } from '../modules/title';
+import { changeConnectionTitle } from '../modules/connection-title';
+import { changeNamespace } from '../modules/namespace';
+import { dataServiceDisconnected } from '../modules';
 
 const debug = require('debug')('mongodb-compass:stores:HomeStore');
 
-import UI_STATES from 'constants/ui-states';
+import UI_STATES from '../constants/ui-states';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 

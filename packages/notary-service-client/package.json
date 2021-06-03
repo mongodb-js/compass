@@ -1,13 +1,14 @@
 {
-  "name": "mongodb-notary-service-client",
+  "name": "@mongodb-js/mongodb-notary-service-client",
   "description": "A client for our notary-service: an API for codesigning.",
-  "version": "0.4.7",
+  "version": "1.0.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
     "test-check-ci": "npm run check && npm test",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "test-ci": "npm run test"
   },
   "bin": {
     "notary": "cli.js"
@@ -38,5 +39,5 @@
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^3.2.0"
   },
-  "license": "Apache-2.0"
+  "license": "SSPL"
 }

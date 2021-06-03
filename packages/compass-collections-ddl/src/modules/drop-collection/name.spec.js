@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeCollectionName,
   CHANGE_COLLECTION_NAME
-} from 'modules/drop-collection/name';
+} from '../drop-collection/name';
 
 describe('drop collection name module', () => {
   describe('#reducer', () => {

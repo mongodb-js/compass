@@ -1,6 +1,6 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import { FavoriteQuery, FavoriteQueryCollection } from 'models';
+import { FavoriteQuery, FavoriteQueryCollection } from '../models';
 
 /**
  * Query History Favorites List store.

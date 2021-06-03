@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import DocumentFooter from 'components/document-footer';
-import RemoveDocumentFooter from 'components/remove-document-footer';
+import DocumentFooter from '../document-footer';
+import RemoveDocumentFooter from '../remove-document-footer';
 
 /**
  * The custom full-width cell renderer that renders the update/cancel bar

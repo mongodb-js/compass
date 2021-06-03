@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 import toNS from 'mongodb-ns';
-import { collectionMetadata, getSource } from 'modules/collection';
+import { collectionMetadata, getSource } from '../../modules/collection';
 
 import classnames from 'classnames';
 import styles from './sidebar-collection.less';
@@ -23,7 +23,7 @@ class SidebarCollection extends PureComponent {
     sourcePipeline: PropTypes.array,
     pipeline: PropTypes.any, // undefined or array if view
     collections: PropTypes.array.isRequired,
-    type: PropTypes.oneOf(['collection', 'view']),
+    type: PropTypes.string,
     isDataLake: PropTypes.bool.isRequired
   };
 

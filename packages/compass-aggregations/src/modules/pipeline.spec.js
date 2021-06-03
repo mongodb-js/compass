@@ -22,7 +22,7 @@ import reducer, {
   STAGE_PREVIEW_UPDATED,
   LOADING_STAGE_RESULTS,
   STAGE_TOGGLED
-} from 'modules/pipeline';
+} from './pipeline';
 import { generatePipelineStages } from './pipeline';
 
 const LIMIT_TO_PROCESS = 100000;

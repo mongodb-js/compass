@@ -1,4 +1,4 @@
-import reducer, { nameChanged, NAME_CHANGED } from 'modules/name';
+import reducer, { nameChanged, NAME_CHANGED } from './name';
 
 describe('name module', () => {
   describe('#nameChanged', () => {

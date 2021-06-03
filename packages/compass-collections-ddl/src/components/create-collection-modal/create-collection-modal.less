@@ -19,14 +19,13 @@
     overflow: auto;
   }
 
-  p {
+  label > p {
+    margin-left: 5px;
     font-weight: bold;
     display: inline-block;
   }
 
   &-is-capped {
-    margin-left: 5px;
-
     &-wrapper {
 
       :global {
@@ -49,9 +48,5 @@
         display: inline-block;
       }
     }
-  }
-
-  &-is-custom-collation {
-    margin-left: 5px;
   }
 }

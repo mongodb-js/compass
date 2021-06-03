@@ -1,34 +1,34 @@
 import { combineReducers } from 'redux';
-import dataService from 'modules/data-service';
+import dataService from '../data-service';
 import cappedSize, {
   INITIAL_STATE as CAPPED_SIZE_INITIAL_STATE
-} from 'modules/create-database/capped-size';
+} from '../create-database/capped-size';
 import collectionName, {
   INITIAL_STATE as COLLECTION_NAME_INITIAL_STATE
-} from 'modules/create-database/collection-name';
+} from '../create-database/collection-name';
 import isCapped, {
   INITIAL_STATE as IS_CAPPED_INITIAL_STATE
-} from 'modules/create-database/is-capped';
+} from '../create-database/is-capped';
 import isCustomCollation, {
   INITIAL_STATE as IS_CUSTOM_COLLATION_INITIAL_STATE
-} from 'modules/create-database/is-custom-collation';
+} from '../create-database/is-custom-collation';
 import isRunning, {
   toggleIsRunning,
   INITIAL_STATE as IS_RUNNING_INITIAL_STATE
-} from 'modules/is-running';
+} from '../is-running';
 import isVisible, {
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
-} from 'modules/is-visible';
+} from '../is-visible';
 import collation, {
   INITIAL_STATE as COLLATION_INITIAL_STATE
-} from 'modules/create-database/collation';
+} from '../create-database/collation';
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
-} from 'modules/create-database/name';
+} from '../create-database/name';
 import error, {
   clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
-} from 'modules/error';
-import { reset, RESET } from 'modules/reset';
+} from '../error';
+import { reset, RESET } from '../reset';
 
 /**
  * Open action name.

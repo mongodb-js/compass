@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import { activate } from 'plugin';
-import ConnectedDocumentList from 'components/connected-document-list';
+import { activate } from '../../src/index.js';
+import ConnectedDocumentList from '../../src/components/connected-document-list';
 import { activate as statusActivate } from '@mongodb-js/compass-status';
 import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
-import configureStore, { setDataProvider } from 'stores';
-import configureActions from 'actions';
+import configureStore, { setDataProvider } from '../../src/stores';
+import configureActions from '../../src/actions';
 
 window.jQuery = require('jquery');
 

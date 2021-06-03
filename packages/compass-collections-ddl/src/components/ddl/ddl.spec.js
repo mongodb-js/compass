@@ -1,9 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Ddl from 'components/ddl';
-import Toolbar from 'components/toolbar';
-import store from 'stores';
+import Ddl from '../ddl';
+import Toolbar from '../toolbar';
+import store from '../../stores';
 import styles from './ddl.less';
 
 describe('Ddl [Component]', () => {

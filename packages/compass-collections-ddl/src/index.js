@@ -1,10 +1,10 @@
 import DdlPlugin from './plugin';
-import DdlStore from 'stores';
-import CreateCollectionPlugin from 'components/create-collection-plugin';
-import CreateCollectionStore from 'stores/create-collection';
-import DropCollectionPlugin from 'components/drop-collection-plugin';
-import DropCollectionStore from 'stores/drop-collection';
-import Collation from 'components/collation';
+import DdlStore from './stores';
+import CreateCollectionPlugin from './components/create-collection-plugin';
+import CreateCollectionStore from './stores/create-collection';
+import DropCollectionPlugin from './components/drop-collection-plugin';
+import DropCollectionStore from './stores/drop-collection';
+import Collation from './components/collation';
 
 /**
  * A sample role for the component.

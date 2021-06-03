@@ -2,21 +2,21 @@ import { combineReducers } from 'redux';
 import isRunning, {
   toggleIsRunning,
   INITIAL_STATE as IS_RUNNING_INITIAL_STATE
-} from 'modules/is-running';
+} from '../is-running';
 import isVisible, {
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
-} from 'modules/is-visible';
+} from '../is-visible';
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
-} from 'modules/drop-database/name';
+} from '../drop-database/name';
 import nameConfirmation, {
   INITIAL_STATE as NAME_CONFIRMATION_INITIAL_STATE
-} from 'modules/drop-database/name-confirmation';
+} from '../drop-database/name-confirmation';
 import error, {
   clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
-} from 'modules/error';
-import { reset, RESET } from 'modules/reset';
-import dataService from 'modules/data-service';
+} from '../error';
+import { reset, RESET } from '../reset';
+import dataService from '../data-service';
 
 /**
  * Open action name.

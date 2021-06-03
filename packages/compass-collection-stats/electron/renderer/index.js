@@ -4,8 +4,8 @@ import app from 'hadron-app';
 import Reflux from 'reflux';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import CollectionStatsPlugin, { activate } from 'plugin';
-import configureStore, { setNamespace, setDataProvider } from 'stores';
+import CollectionStatsPlugin, { activate } from '../../src/index.js';
+import configureStore, { setNamespace, setDataProvider } from '../../src/stores';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per

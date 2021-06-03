@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeSchemaFields,
   CHANGE_SCHEMA_FIELDS
-} from 'modules/create-index/schema-fields';
+} from '../create-index/schema-fields';
 
 describe('create index partial filter expression module', () => {
   describe('#reducer', () => {

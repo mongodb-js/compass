@@ -1,4 +1,4 @@
-import { SORT_COLLECTIONS } from 'modules/collections';
+import { SORT_COLLECTIONS } from './collections';
 
 /**
  * The initial state of the sort order attribute.

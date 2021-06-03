@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/data-service/issues",
   "homepage": "https://github.com/mongodb-js/data-service",
-  "version": "19.2.1",
+  "version": "20.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/data-service.git"
@@ -12,7 +12,7 @@
   "engines": {
     "node": ">=12"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "keywords": [
     "mongodb-js"
   ],
@@ -22,24 +22,26 @@
     "posttest": "mongodb-runner stop --port=27018",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
-    "lint": "eslint \"./{lib,test}/**/*.js\" \"./*.js\""
+    "lint": "eslint \"./{lib,test}/**/*.js\" \"./*.js\"",
+    "test-ci": "npm run test",
+    "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "pre-commit": [
     "check"
   ],
   "peerDependencies": {
     "mongodb": "3.x",
-    "mongodb-connection-model": ">=19.1.0"
+    "mongodb-connection-model": "^19.2.1"
   },
   "dependencies": {
     "async": "^3.2.0",
     "debug": "^4.2.0",
     "lodash": "^4.17.20",
     "mongodb-build-info": "^1.1.1",
-    "mongodb-index-model": "^2.6.1",
+    "mongodb-index-model": "^3.0.0",
     "mongodb-js-errors": "^0.5.0",
     "mongodb-ns": "^2.2.0",
-    "mongodb-security": "^0.2.0",
+    "mongodb-security": "^1.0.0",
     "mongodb-url": "^3.0.3"
   },
   "devDependencies": {
@@ -52,7 +54,7 @@
     "mocha": "^8.2.1",
     "mock-require": "^3.0.3",
     "mongodb": "^3.6.3",
-    "mongodb-connection-model": "^19.1.0",
+    "mongodb-connection-model": "^20.0.0",
     "mongodb-runner": "^4.8.0",
     "pre-commit": "^1.2.2",
     "sinon": "^9.2.3",

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import AddStage from 'components/add-stage';
+import AddStage from '../add-stage';
 import styles from './add-stage.less';
 
 describe('AddStage [Component]', () => {

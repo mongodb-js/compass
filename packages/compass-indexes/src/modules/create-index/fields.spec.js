@@ -9,9 +9,9 @@ import reducer, {
   updateFieldName,
   changeFields,
   CHANGE_FIELDS
-} from 'modules/create-index/fields';
-import { HANDLE_ERROR } from 'modules/error';
-import { CHANGE_SCHEMA_FIELDS } from 'modules/create-index/schema-fields';
+} from '../create-index/fields';
+import { HANDLE_ERROR } from '../error';
+import { CHANGE_SCHEMA_FIELDS } from '../create-index/schema-fields';
 
 describe('create index fields module', () => {
   describe('#reducer', () => {

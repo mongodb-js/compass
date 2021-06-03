@@ -1,4 +1,4 @@
-import reducer, { INITIAL_STATE, writeStateChanged } from 'modules/is-writable';
+import reducer, { INITIAL_STATE, writeStateChanged } from './is-writable';
 
 describe('is writable module', () => {
   describe('#reducer', () => {

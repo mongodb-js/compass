@@ -1,7 +1,7 @@
 import reducer, {
   dataServiceConnected,
   DATA_SERVICE_CONNECTED
-} from 'modules/data-service';
+} from './data-service';
 
 describe('data service module', () => {
   describe('#dataServiceConnected', () => {

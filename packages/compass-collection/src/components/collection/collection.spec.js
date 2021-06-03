@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 
-import Collection from 'components/collection';
+import Collection from '../collection';
 import styles from './collection.less';
 
 describe('Collection [Component]', () => {

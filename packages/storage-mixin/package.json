@@ -9,7 +9,7 @@
     "test": "test"
   },
   "homepage": "https://github.com/mongodb-js/storage-mixin",
-  "version": "3.3.4",
+  "version": "4.0.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mongodb-js/storage-mixin.git"
@@ -19,7 +19,7 @@
     "Thomas Rueckstiess <thomas@mongodb.com>",
     "Lucas Hrabovsky <lucas@mongodb.com>"
   ],
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "keywords": [
     "mongodb-js",
     "preferences",
@@ -28,13 +28,14 @@
   ],
   "scripts": {
     "pretest:electron": "electron-rebuild --force --only keytar",
-    "test:electron": "electron-mocha --renderer",
+    "test:electron": "xvfb-maybe electron-mocha --no-sandbox --renderer",
     "pretest:node": "node-gyp rebuild --directory node_modules/keytar/",
-    "test:node": "mocha",
+    "test:node": "xvfb-maybe mocha",
     "check": "npm run lint && npm run depcheck",
     "test": "npm run test:node && npm run test:electron",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "test-ci": "npm run test"
   },
   "dependencies": {
     "ampersand-model": "^8.0.1",
@@ -42,7 +43,7 @@
     "ampersand-sync": "^5.1.0",
     "async": "^3.1.0",
     "debug": "^4.1.1",
-    "hadron-ipc": "^1.1.0",
+    "hadron-ipc": "^2.0.0",
     "keytar": "^5.0.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",
@@ -57,6 +58,7 @@
     "electron-rebuild": "^1.8.8",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^7.0.0"
+    "mocha": "^7.0.0",
+    "xvfb-maybe": "^0.2.1"
   }
 }

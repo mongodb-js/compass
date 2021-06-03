@@ -9,7 +9,7 @@ import pick from 'lodash.pick';
 import cloneDeep from 'lodash.clonedeep';
 import union from 'lodash.union';
 
-import reducer, { changeFields } from 'modules';
+import reducer, { changeFields } from '../modules';
 
 import parseSchema from 'mongodb-schema';
 

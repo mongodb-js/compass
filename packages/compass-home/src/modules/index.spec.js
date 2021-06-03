@@ -1,7 +1,7 @@
-import { dataServiceDisconnected } from 'modules/index';
+import { dataServiceDisconnected } from './index';
 import AppRegistry from 'hadron-app-registry';
-import { RESET } from 'modules/reset';
-import UI_STATES from 'constants/ui-states';
+import { RESET } from './reset';
+import UI_STATES from '../constants/ui-states';
 
 describe('dataServiceDisconnected', () => {
   let resetSpy;

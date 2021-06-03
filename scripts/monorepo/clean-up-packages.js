@@ -1,26 +1,10 @@
 const path = require('path');
 const { promises: fs } = require('fs');
-const { runInDir } = require('./run-in-dir');
+const { runInDir } = require('../run-in-dir');
 const { withProgress } = require('./with-progress');
+const { updatePackageJson } = require('./update-package-json');
 
 const ROOT = path.resolve(__dirname, '..', '..');
-
-async function updatePackageJson(packageDir, updateFn) {
-  const pathToPkg = path.resolve(packageDir, 'package.json');
-  const pkgJson = require(pathToPkg);
-  const updated = updateFn(pkgJson);
-  if (!updated || typeof updated !== 'object') {
-    const updatedStr = JSON.stringify(updated);
-    throw new Error(
-      `updatePackageJson updateFn should return a package.json object, got ${updatedStr}`
-    );
-  }
-  await fs.writeFile(
-    pathToPkg,
-    JSON.stringify(updated, null, 2).trim() + '\n',
-    'utf8'
-  );
-}
 
 async function cleanUpPackage(packageDir = process.cwd()) {
   const spinner = this;

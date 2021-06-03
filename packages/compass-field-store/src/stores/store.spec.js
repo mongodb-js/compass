@@ -2,9 +2,9 @@ import AppRegistry from 'hadron-app-registry';
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 const schemaFixture = require('../../test/fixtures/array_of_docs.fixture.json');
-import configureStore from 'stores';
-import { reset } from 'modules/reset';
-import { INITIAL_STATE } from 'modules';
+import configureStore from './';
+import { reset } from '../modules/reset';
+import { INITIAL_STATE } from '../modules';
 
 const SchemaStore = Reflux.createStore({
   mixins: [StateMixin.store],

@@ -1,7 +1,7 @@
 // import React from 'react';
 // import { mount } from 'enzyme';
 
-// import SavingPipelineModal from 'components/saving-pipeline-modal';
+// import SavingPipelineModal from '../saving-pipeline-modal';
 
 // import styles from './saving-pipeline-modal.less';
 

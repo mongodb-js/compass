@@ -5,13 +5,13 @@ import {AgGridReact} from 'ag-grid-react';
 import { map } from 'lodash';
 import HadronDocument from 'hadron-document';
 import mongodbns from 'mongodb-ns';
-import BreadcrumbComponent from 'components/breadcrumb';
-import CellRenderer from 'components/table-view/cell-renderer';
-import RowNumberRenderer from 'components/table-view/row-number-renderer';
-import FullWidthCellRenderer from 'components/table-view/full-width-cell-renderer';
-import RowActionsRenderer from 'components/table-view/row-actions-renderer';
-import HeaderComponent from 'components/table-view/header-cell-renderer';
-import CellEditor from 'components/table-view/cell-editor';
+import BreadcrumbComponent from './breadcrumb';
+import CellRenderer from './table-view/cell-renderer';
+import RowNumberRenderer from './table-view/row-number-renderer';
+import FullWidthCellRenderer from './table-view/full-width-cell-renderer';
+import RowActionsRenderer from './table-view/row-actions-renderer';
+import HeaderComponent from './table-view/header-cell-renderer';
+import CellEditor from './table-view/cell-editor';
 
 /* eslint react/sort-comp:0 */
 

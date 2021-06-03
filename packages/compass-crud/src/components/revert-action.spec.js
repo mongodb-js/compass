@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Element } from 'hadron-document';
-import RevertAction from 'components/revert-action';
+import RevertAction from './revert-action';
 
 describe('<RevertAction />', () => {
   describe('#render', () => {

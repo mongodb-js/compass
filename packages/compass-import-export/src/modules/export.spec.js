@@ -1,9 +1,9 @@
-import PROCESS_STATUS from 'constants/process-status';
-import EXPORT_STEP from 'constants/export-step';
+import PROCESS_STATUS from '../constants/process-status';
+import EXPORT_STEP from '../constants/export-step';
 import AppRegistry from 'hadron-app-registry';
-import FILE_TYPES from 'constants/file-types';
+import FILE_TYPES from '../constants/file-types';
 import reducer, * as actions from './export';
-import configureStore from 'stores';
+import configureStore from '../stores';
 
 describe('export [module]', () => {
   describe('#reducer', () => {

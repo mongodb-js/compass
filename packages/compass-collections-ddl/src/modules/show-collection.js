@@ -1,6 +1,6 @@
 import find from 'lodash.find';
 import toNS from 'mongodb-ns';
-import { appRegistryEmit } from 'modules/app-registry';
+import { appRegistryEmit } from './app-registry';
 
 /**
  * Get the source of a collection from a list of collections.

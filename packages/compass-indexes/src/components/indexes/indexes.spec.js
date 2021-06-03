@@ -1,13 +1,13 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { Indexes } from 'components/indexes';
+import { Indexes } from '../indexes';
 import styles from './indexes.less';
 
-import CreateIndexButton from 'components/create-index-button';
+import CreateIndexButton from '../create-index-button';
 import { StatusRow } from 'hadron-react-components';
-import IndexHeader from 'components/index-header';
-import IndexList from 'components/index-list';
+import IndexHeader from '../index-header';
+import IndexList from '../index-list';
 
 /* eslint react/jsx-boolean-value: 0 */
 describe('indexes [Component]', () => {

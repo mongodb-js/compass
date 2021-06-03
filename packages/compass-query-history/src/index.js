@@ -1,6 +1,6 @@
 import QueryHistoryPlugin from './plugin';
-import configureStore from 'stores';
-import configureActions from 'actions';
+import configureStore from './stores';
+import configureActions from './actions';
 
 /**
  * A sample role for the component.

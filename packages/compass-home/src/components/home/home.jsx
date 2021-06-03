@@ -5,11 +5,11 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import toNS from 'mongodb-ns';
 import { StatusRow } from 'hadron-react-components';
-import UI_STATES from 'constants/ui-states';
+import UI_STATES from '../../constants/ui-states';
 
 const debug = require('debug')('mongodb-compass:stores:HomeComponent');
 
-import { toggleIsCollapsed } from 'modules/is-collapsed';
+import { toggleIsCollapsed } from '../../modules/is-collapsed';
 
 import classnames from 'classnames';
 import styles from './home.less';

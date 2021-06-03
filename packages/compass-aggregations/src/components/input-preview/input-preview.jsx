@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Document } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
-import LoadingOverlay from 'components/loading-overlay';
+import LoadingOverlay from '../loading-overlay';
 
 import styles from './input-preview.less';
 

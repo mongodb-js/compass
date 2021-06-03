@@ -13,9 +13,9 @@ import {
 } from 'lodash';
 import FontAwesome from 'react-fontawesome';
 
-import QueryOption from 'components/query-option';
-import OptionsToggle from 'components/options-toggle';
-import QUERY_PROPERTIES from 'constants/query-properties';
+import QueryOption from '../query-option';
+import OptionsToggle from '../options-toggle';
+import QUERY_PROPERTIES from '../../constants/query-properties';
 
 import styles from './query-bar.less';
 

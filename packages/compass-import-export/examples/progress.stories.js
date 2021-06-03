@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import ProgressBar from 'components/progress-bar';
+import ProgressBar from '../src/components/progress-bar';
 
 storiesOf('Examples', module)
   .add('ProgressBar', () => {

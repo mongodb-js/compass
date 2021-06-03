@@ -2,6 +2,9 @@ import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import toNS from 'mongodb-ns';
 import numeral from 'numeral';
+import createDebug from 'debug';
+const debug = createDebug('compass-collection-stats:store');
+
 
 /**
  * Invalid stats.
@@ -104,21 +107,58 @@ const configureStore = (options = {}) => {
      * @param {String} ns - The namespace.
      */
     loadCollectionStats() {
-      if (toNS(this.ns || '').collection) {
-        if (this.state.isReadonly) {
-          this.setState(this.getInitialState());
-        } else if (this.dataService && this.dataService.isConnected()) {
-          this.dataService.collection(this.ns, {}, (err, result) => {
-            if (!err) {
-              const details = this._parseCollectionDetails(result);
-              this.setState(details);
-              if (this.globalAppRegistry) {
-                this.globalAppRegistry.emit('compass:collection-stats:loaded', details);
-              }
-            }
-          });
-        }
+      const collectionName = toNS(this.ns || '').collection;
+      if (!collectionName) {
+        return;
       }
+
+      if (this.state.isReadonly) {
+        this.setState(this.getInitialState());
+      } else if (this.dataService && this.dataService.isConnected()) {
+        this.fetchCollectionDetails();
+      }
+    },
+
+    handleFetchError(err) {
+      debug('failed to fetch collection details', err);
+      this.setState(this.getInitialState());
+    },
+
+    ensureDocumentCount(result, cb) {
+      if (result.document_count !== undefined) {
+        return cb(null, result);
+      }
+
+      this.dataService.estimatedCount(this.ns, {}, (err, estimatedCount) => {
+        if (err) {
+          return cb(null, result); // ignore the error
+        }
+
+        cb(null, {
+          ...result,
+          document_count: estimatedCount
+        });
+      });
+    },
+
+    fetchCollectionDetails() {
+      this.dataService.collection(this.ns, {}, (collectionError, result) => {
+        if (collectionError) {
+          return this.handleFetchError(collectionError);
+        }
+
+        this.ensureDocumentCount(result, (ensureDocumentCountError, resultWithDocumentCount) => {
+          if (ensureDocumentCountError) {
+            return this.handleFetchError(ensureDocumentCountError);
+          }
+
+          const details = this._parseCollectionDetails(resultWithDocumentCount);
+          this.setState(details);
+          if (this.globalAppRegistry) {
+            this.globalAppRegistry.emit('compass:collection-stats:loaded', details);
+          }
+        });
+      });
     },
 
     /**
@@ -148,7 +188,7 @@ const configureStore = (options = {}) => {
     _parseCollectionDetails(result) {
       return {
         isReadonly: this.state.isReadonly || false,
-        documentCount: this._format(result.document_count),
+        documentCount: result.document_count !== undefined ? this._format(result.document_count) : INVALID,
         totalDocumentSize: this._format(result.document_size, 'b'),
         avgDocumentSize: this._format(this._avg(result.document_size, result.document_count), 'b'),
         indexCount: this._format(result.index_count),

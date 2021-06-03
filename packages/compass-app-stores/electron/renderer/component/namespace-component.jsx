@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { reset } from 'modules/namespace/reset';
+import { reset } from '../../../src/modules/namespace/reset';
 
 class TestPlugin extends Component {
   static displayName = 'NamespaceComponent';

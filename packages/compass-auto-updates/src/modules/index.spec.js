@@ -4,7 +4,7 @@ import reducer, {
   UPDATE_AVAILABLE,
   CANCEL_UPDATE,
   INITIAL_STATE
-} from 'modules';
+} from './';
 
 describe('index module', () => {
   describe('#updateAvailable', () => {

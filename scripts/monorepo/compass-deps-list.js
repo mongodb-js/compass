@@ -95,10 +95,6 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/compass-instance.git'
   },
   {
-    name: '@mongodb-js/compass-license',
-    repository: 'https://github.com/mongodb-js/compass-license.git'
-  },
-  {
     name: '@mongodb-js/compass-loading',
     description: 'Compass Loading Screen',
     repository: 'https://github.com/mongodb-js/compass-loading.git'
@@ -193,20 +189,9 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/compass-user-model.git'
   },
   {
-    name: 'detect-coordinates',
-    description: 'Geo coordinates detection based of a mongodb-schema type.',
-    repository: 'https://github.com/mongodb-js/detect-coordinates.git'
-  },
-  {
     name: 'electron-license',
     description: 'Tools for electron apps to work with licenses',
     repository: 'https://github.com/mongodb-js/electron-license.git'
-  },
-  {
-    name: 'electron-squirrel-startup',
-    description:
-      'Default Squirrel.Windows event handler for your Electron apps.',
-    repository: 'https://github.com/mongodb-js/electron-squirrel-startup.git'
   },
   {
     name: 'hadron-app',
@@ -274,11 +259,6 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/hadron-react.git'
   },
   {
-    name: 'hadron-spectron',
-    description: 'Hadron Spectron Test Support',
-    repository: 'https://github.com/mongodb-js/hadron-spectron.git'
-  },
-  {
     name: 'hadron-style-manager',
     description: 'Hadron Style Manager',
     repository: 'https://github.com/mongodb-js/hadron-style-manager.git'
@@ -307,10 +287,6 @@ module.exports = [
     name: 'mongodb-collection-model',
     description: 'MongoDB collection model.',
     repository: 'https://github.com/mongodb-js/collection-model.git'
-  },
-  {
-    name: 'mongodb-connection-fixture',
-    repository: 'https://github.com/mongodb-js/connection-fixture.git'
   },
   {
     name: 'mongodb-connection-model',
@@ -363,7 +339,7 @@ module.exports = [
     repository: 'https://github.com/mongodb-js/notary-service-client.git'
   },
   {
-    name: 'mongodb-redux-common',
+    name: '@mongodb-js/mongodb-redux-common',
     repository: 'https://github.com/mongodb-js/redux-common.git'
   },
   {

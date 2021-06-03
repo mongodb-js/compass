@@ -1,8 +1,6 @@
 import { configure, addDecorator, setAddon } from '@storybook/react';
 import { setOptions } from '@storybook/addon-options';
 // import { withKnobs } from '@storybook/addon-knobs';
-
-// import chaptersAddon from 'react-storybook-addon-chapters';
 // import { Page } from '@mongodb-js/migrator-storybook-decorators';
 
 // Configure the Storybook UI
@@ -12,8 +10,6 @@ setOptions({
   url: "https://github.com/mongodb-js/compass-import-export",
   showAddonPanel: false
 });
-
-// setAddon(chaptersAddon);
 
 // Add decorators globally to wrap our stories with
 // addDecorator(Page);

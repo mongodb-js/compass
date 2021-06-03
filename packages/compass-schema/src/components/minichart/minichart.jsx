@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import UniqueMiniChart from 'components/unique-minichart';
-import DocumentMinichart from 'components/document-minichart';
-import ArrayMinichart from 'components/array-minichart';
-import CoordinatesMinichart from 'components/coordinates-minichart';
-import D3Component from 'components/d3-component';
+import UniqueMiniChart from '../unique-minichart';
+import DocumentMinichart from '../document-minichart';
+import ArrayMinichart from '../array-minichart';
+import CoordinatesMinichart from '../coordinates-minichart';
+import D3Component from '../d3-component';
 
 import includes from 'lodash.includes';
-import vizFns from 'modules';
-import CONSTANTS from 'constants/schema';
+import vizFns from '../../modules';
+import CONSTANTS from '../../constants/schema';
 
 class MiniChart extends Component {
   static displayName = 'MiniChartComponent';

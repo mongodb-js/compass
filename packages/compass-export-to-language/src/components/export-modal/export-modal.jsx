@@ -1,6 +1,6 @@
 import { TextButton } from 'hadron-react-buttons';
 import { Modal, Checkbox } from 'react-bootstrap';
-import ExportForm from 'components/export-form';
+import ExportForm from '../export-form';
 import React, { PureComponent } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';

@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeCollectionNameConfirmation,
   CHANGE_COLLECTION_NAME_CONFIRMATION
-} from 'modules/drop-collection/name-confirmation';
+} from '../drop-collection/name-confirmation';
 
 describe('drop collection name confirmation module', () => {
   describe('#reducer', () => {

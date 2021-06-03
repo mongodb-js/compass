@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import CheckCircle from 'components/check-circle';
+import CheckCircle from '../check-circle';
 
 import styles from './check-circle.less';
 

@@ -1,8 +1,8 @@
 import AppRegistry from 'hadron-app-registry';
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import store from 'stores';
-import { reset } from 'modules/reset';
+import store from './';
+import { reset } from '../modules/reset';
 
 const WriteStateStore = Reflux.createStore({
   mixins: [StateMixin.store],
@@ -34,6 +34,7 @@ describe('DdlStore [Store]', () => {
 
     context('when the instance store triggers', () => {
       const coll = {
+        _id: 'coll1',
         name: 'spotify',
         document_count: 10,
         size: 200,

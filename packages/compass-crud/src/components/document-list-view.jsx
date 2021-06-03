@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Document from 'components/document';
+import Document from './document';
 
 /**
  * The full document list container class.

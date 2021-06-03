@@ -1,8 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import Query from 'components/query';
-import Code from 'components/code';
+import Query from '../query';
+import Code from '../code';
 
 describe('Query [Component]', () => {
   const title = 'Testing';

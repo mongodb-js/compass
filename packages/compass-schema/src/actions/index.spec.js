@@ -1,4 +1,4 @@
-import configureActions from 'actions';
+import configureActions from './';
 
 describe('#configureActions', () => {
   it('returns a new instance of the reflux actions', () => {

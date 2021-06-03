@@ -1,3 +1,5 @@
+const path = require('path');
+
 const config = {
   mode: process.env.NODE_ENV !== 'production' ? 'development' : 'production',
   resolve: {
@@ -8,14 +10,13 @@ const config = {
     rules: [
       {
         test: /\.(js|jsx)$/,
-        use: [
-          {
-            loader: 'babel-loader',
-            query: {
-              cacheDirectory: true
-            }
+        use: [{
+          loader: 'babel-loader',
+          options: {
+            root: path.resolve(__dirname, '..'),
+            cacheDirectory: !process.env.CI
           }
-        ],
+        }],
         exclude: /(node_modules)/
       }
     ]

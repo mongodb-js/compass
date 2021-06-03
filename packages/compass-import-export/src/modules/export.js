@@ -2,17 +2,17 @@
 import fs from 'fs';
 import stream from 'stream';
 
-import PROCESS_STATUS from 'constants/process-status';
-import EXPORT_STEP from 'constants/export-step';
-import FILE_TYPES from 'constants/file-types';
-import { appRegistryEmit, globalAppRegistryEmit } from 'modules/compass';
+import PROCESS_STATUS from '../constants/process-status';
+import EXPORT_STEP from '../constants/export-step';
+import FILE_TYPES from '../constants/file-types';
+import { appRegistryEmit, globalAppRegistryEmit } from './compass';
 
-import { createReadableCollectionStream } from 'utils/collection-stream';
+import { createReadableCollectionStream } from '../utils/collection-stream';
 
 const createProgressStream = require('progress-stream');
 
-import { createLogger } from 'utils/logger';
-import { createCSVFormatter, createJSONFormatter } from 'utils/formatters';
+import { createLogger } from '../utils/logger';
+import { createCSVFormatter, createJSONFormatter } from '../utils/formatters';
 import { loadFields, getSelectableFields } from './load-fields';
 
 const debug = createLogger('export');

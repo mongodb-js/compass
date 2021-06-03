@@ -1,15 +1,15 @@
 {
-  "name": "hadron-plugin-manager",
+  "name": "@mongodb-js/hadron-plugin-manager",
   "description": "Hadron Plugin Manager",
   "author": "Durran Jordan <durran@gmail.com>",
-  "bugs": "https://github.com/mongodb-js/hadron-plugin-manager/issues",
-  "homepage": "https://github.com/mongodb-js/hadron-plugin-manager",
-  "version": "5.3.1",
+  "bugs": "https://github.com/mongodb-js/@mongodb-js/hadron-plugin-manager/issues",
+  "homepage": "https://github.com/mongodb-js/@mongodb-js/hadron-plugin-manager",
+  "version": "6.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/hadron-plugin-manager.git"
+    "url": "https://github.com/mongodb-js/@mongodb-js/hadron-plugin-manager.git"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "keywords": [
     "mongodb-js"
   ],
@@ -18,11 +18,13 @@
     "test": "mocha",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "test-ci": "npm run test"
   },
   "dependencies": {
     "async": "^2.3.0",
     "debug": "^2.2.0",
+    "react-dom": "^16.14.0",
     "reflux": "^0.4.0",
     "semver": "^5.4.1"
   },
@@ -33,7 +35,7 @@
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^3.1.2",
     "pre-commit": "^1.1.2",
-    "react": "^15.3.2",
+    "react": "^16.14.0",
     "sinon": "^1.17.6"
   }
 }

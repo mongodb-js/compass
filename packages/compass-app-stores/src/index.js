@@ -1,6 +1,6 @@
 import {
   InstanceStore
-} from 'stores';
+} from './stores';
 /**
  * Activate all the components in the App Stores package.
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.

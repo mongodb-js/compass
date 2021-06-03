@@ -1,11 +1,11 @@
-# hadron-plugin-manager [![][travis_img]][travis_url] [![][npm_img]][npm_url]
+# @mongodb-js/hadron-plugin-manager [![][travis_img]][travis_url] [![][npm_img]][npm_url]
 
 > Hadron Plugin Manager
 
 ## Installation
 
 ```
-npm install --save hadron-plugin-manager
+npm install --save @mongodb-js/hadron-plugin-manager
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ npm install --save hadron-plugin-manager
 ```js
 const pluginsPath = path.join(__dirname, 'plugins');
 const intPluginsPath = path.join(__dirname, 'internal-plugins');
-const PluginManager = require('hadron-plugin-manager');
+const PluginManager = require('@mongodb-js/hadron-plugin-manager');
 const AppRegistry = require('hadron-app-registry');
 
 const manager = new PluginManager(
@@ -30,7 +30,7 @@ manager.activate(appRegistry);
 
 Apache 2.0
 
-[travis_img]: https://img.shields.io/travis/mongodb-js/hadron-plugin-manager.svg?style=flat-square
-[travis_url]: https://travis-ci.org/mongodb-js/hadron-plugin-manager
-[npm_img]: https://img.shields.io/npm/v/hadron-plugin-manager.svg?style=flat-square
-[npm_url]: https://www.npmjs.org/plugin/hadron-plugin-manager
+[travis_img]: https://img.shields.io/travis/mongodb-js/@mongodb-js/hadron-plugin-manager.svg?style=flat-square
+[travis_url]: https://travis-ci.org/mongodb-js/@mongodb-js/hadron-plugin-manager
+[npm_img]: https://img.shields.io/npm/v/@mongodb-js/hadron-plugin-manager.svg?style=flat-square
+[npm_url]: https://www.npmjs.org/plugin/@mongodb-js/hadron-plugin-manager

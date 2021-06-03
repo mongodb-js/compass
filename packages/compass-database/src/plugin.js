@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Database from 'components/database';
+import Database from './components/database';
 
 class Plugin extends Component {
   static displayName = 'DatabasePlugin';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import SidebarInstanceStats from 'components/sidebar-instance-stats';
+import SidebarInstanceStats from '../sidebar-instance-stats';
 import styles from './sidebar-instance-stats.less';
 
 describe('SidebarInstanceStats [Component]', () => {

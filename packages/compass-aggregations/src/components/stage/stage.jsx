@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import StageEditorToolbar from 'components/stage-editor-toolbar';
-import StageEditor from 'components/stage-editor';
-import StagePreview from 'components/stage-preview';
-import StagePreviewToolbar from 'components/stage-preview-toolbar';
+import StageEditorToolbar from '../stage-editor-toolbar';
+import StageEditor from '../stage-editor';
+import StagePreview from '../stage-preview';
+import StagePreviewToolbar from '../stage-preview-toolbar';
 import { Resizable } from 're-resizable';
 
 import ResizeHandle from '../resize-handle/resize-handle';

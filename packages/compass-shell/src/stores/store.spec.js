@@ -1,4 +1,4 @@
-import CompassShellStore from 'stores';
+import CompassShellStore from './';
 import { EventEmitter } from 'events';
 import { WorkerRuntime } from '../modules/worker-runtime';
 

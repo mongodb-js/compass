@@ -7,26 +7,26 @@ import {
   FormGroup,
 } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
-import ExportSelectOutput from 'components/export-select-output';
-import ExportSelectFields from 'components/export-select-fields';
-import QueryViewer from 'components/query-viewer';
-import ErrorBox from 'components/error-box';
+import ExportSelectOutput from '../export-select-output';
+import ExportSelectFields from '../export-select-fields';
+import QueryViewer from '../query-viewer';
+import ErrorBox from '../error-box';
 
-import revealFile from 'utils/reveal-file';
-import formatNumber from 'utils/format-number';
+import revealFile from '../../utils/reveal-file';
+import formatNumber from '../../utils/format-number';
 
 import {
   STARTED,
   CANCELED,
   COMPLETED,
   UNSPECIFIED
-} from 'constants/process-status';
+} from '../../constants/process-status';
 
 import {
   QUERY,
   FIELDS,
   FILETYPE
-} from 'constants/export-step';
+} from '../../constants/export-step';
 
 import {
   closeExport,
@@ -38,10 +38,10 @@ import {
   selectExportFileType,
   selectExportFileName,
   toggleFullCollection,
-} from 'modules/export';
+} from '../../modules/export';
 
 import styles from './export-modal.less';
-import createStyler from 'utils/styler.js';
+import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'export-modal');
 
 /**

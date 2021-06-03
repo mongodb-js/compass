@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Editor from 'components/editor';
+import Editor from '../editor';
 import AceEditor from 'react-ace';
 
 import styles from './editor.less';

@@ -1,10 +1,10 @@
 import IndexesPlugin from './plugin';
 import CreateIndexPlugin from './create-index-plugin';
 import DropIndexPlugin from './drop-index-plugin';
-import configureStore from 'stores';
-import configureCreateIndexStore from 'stores/create-index';
-import configureDropIndexStore from 'stores/drop-index';
-import IndexDefinitionType from 'components/index-definition-type';
+import configureStore from './stores';
+import configureCreateIndexStore from './stores/create-index';
+import configureDropIndexStore from './stores/drop-index';
+import IndexDefinitionType from './components/index-definition-type';
 
 /**
  * A sample role for the component.

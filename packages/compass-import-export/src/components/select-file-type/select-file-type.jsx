@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { Button, FormGroup, ControlLabel } from 'react-bootstrap';
 
 import classnames from 'classnames';
-import FILE_TYPES from 'constants/file-types';
+import FILE_TYPES from '../../constants/file-types';
 
 import styles from './select-file-type.less';
-import createStyler from 'utils/styler.js';
+import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'select-file-type');
 
 class SelectFileType extends PureComponent {

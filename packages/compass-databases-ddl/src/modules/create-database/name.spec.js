@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeDatabaseName,
   CHANGE_DATABASE_NAME
-} from 'modules/create-database/name';
+} from '../create-database/name';
 
 describe('create database name module', () => {
   describe('#reducer', () => {

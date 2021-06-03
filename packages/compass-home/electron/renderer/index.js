@@ -5,7 +5,7 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 
 
-import HomePlugin, { activate } from 'plugin';
+import HomePlugin, { activate } from '../../src/index.js';
 import { activate as aggregationsActivate } from '@mongodb-js/compass-aggregations';
 import { activate as appActivate } from '@mongodb-js/compass-app-stores';
 import { activate as collectionActivate } from '@mongodb-js/compass-collection';

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ExportToLanguagePlugin, { activate } from 'plugin';
+import ExportToLanguagePlugin, { activate } from '../../../src/index.js';
 import PropTypes from 'prop-types';
 
 

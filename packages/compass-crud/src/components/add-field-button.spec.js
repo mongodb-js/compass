@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { getNode, getApi, getColumn, getActions,
   getColumnApi, getContext, notCalledExcept} from '../../test/aggrid-helper';
-import AddFieldButton from 'components/table-view/add-field-button';
+import AddFieldButton from './table-view/add-field-button';
 import AppRegistry from 'hadron-app-registry';
 import app from 'hadron-app';
 

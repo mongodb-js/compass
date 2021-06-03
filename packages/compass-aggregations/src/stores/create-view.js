@@ -3,9 +3,9 @@ import thunk from 'redux-thunk';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
-} from 'mongodb-redux-common/app-registry';
-import { dataServiceConnected } from 'modules/data-service';
-import reducer, { open } from 'modules/create-view';
+} from '@mongodb-js/mongodb-redux-common/app-registry';
+import { dataServiceConnected } from '../modules/data-service';
+import reducer, { open } from '../modules/create-view';
 
 const debug = require('debug')('mongodb-aggregations:stores:create-view');
 

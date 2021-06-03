@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import InputWorkspace from 'components/input-workspace';
+import InputWorkspace from '../input-workspace';
 import styles from './input-workspace.less';
 
 describe('InputWorkspace [Component]', () => {

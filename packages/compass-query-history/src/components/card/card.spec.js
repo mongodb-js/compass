@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { Card } from 'components/card';
+import { Card } from '../card';
 import styles from './card.less';
 
 describe('Card [Component]', () => {

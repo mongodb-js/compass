@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import OptionEditor from 'components/option-editor';
-import configureActions from 'actions';
+import OptionEditor from '../option-editor';
+import configureActions from '../../actions';
 
 import styles from './option-editor.less';
 

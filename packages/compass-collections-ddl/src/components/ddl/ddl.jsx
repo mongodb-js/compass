@@ -2,13 +2,13 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
-import Toolbar from 'components/toolbar';
-import CollectionsTable from 'components/collections-table';
-import { showCollection } from 'modules/show-collection';
-import { sortCollections } from 'modules/collections';
-import { openLink } from 'modules/link';
-import { open as openCreate } from 'modules/create-collection';
-import { open as openDrop } from 'modules/drop-collection';
+import Toolbar from '../toolbar';
+import CollectionsTable from '../collections-table';
+import { showCollection } from '../../modules/show-collection';
+import { sortCollections } from '../../modules/collections';
+import { openLink } from '../../modules/link';
+import { open as openCreate } from '../../modules/create-collection';
+import { open as openDrop } from '../../modules/drop-collection';
 
 import styles from './ddl.less';
 

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
-import CreateIndexModal from 'components/create-index-modal';
+import CreateIndexModal from './components/create-index-modal';
 
 class CreateIndexPlugin extends Component {
   static displayName = 'CreateIndexPlugin';

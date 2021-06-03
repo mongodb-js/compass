@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import Code from 'components/code';
+import Code from '../code';
 
 describe('Code [Component]', () => {
   const code = '{ name: \'test\'\n}';

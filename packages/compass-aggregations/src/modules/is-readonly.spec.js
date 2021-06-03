@@ -1,4 +1,4 @@
-import reducer, { setIsReadonly, SET_IS_READONLY } from 'modules/is-readonly';
+import reducer, { setIsReadonly, SET_IS_READONLY } from './is-readonly';
 
 describe('isReadonly module', () => {
   describe('#setIsReadonly', () => {

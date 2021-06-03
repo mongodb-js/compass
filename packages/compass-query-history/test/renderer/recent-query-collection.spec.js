@@ -1,4 +1,4 @@
-import { RecentQuery, RecentQueryCollection } from 'models';
+import { RecentQuery, RecentQueryCollection } from '../../src/models';
 
 describe('RecentQueryCollection [Model]', () => {
   describe('#add', () => {

@@ -1,4 +1,4 @@
-import store from 'stores';
+import store from './';
 
 describe('CompassFindInPageStore [Store]', () => {
   it('should have an initial state of {status: \'enabled\'}', () => {

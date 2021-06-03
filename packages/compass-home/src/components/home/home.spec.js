@@ -11,8 +11,8 @@ import AppRegistry from 'hadron-app-registry';
 import classnames from 'classnames';
 import styles from './home.less';
 
-import { Home } from 'components/home';
-import UI_STATES from 'constants/ui-states';
+import { Home } from '../home';
+import UI_STATES from '../../constants/ui-states';
 
 const getPluginComponent = (name = 'PluginComponent') => {
   return class extends React.Component {

@@ -1,15 +1,15 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import IndexComponent from 'components/index-component';
+import IndexComponent from '../index-component';
 import styles from './index-component.less';
 
-import NameColumn from 'components/name-column';
-import TypeColumn from 'components/type-column';
-import SizeColumn from 'components/size-column';
-import UsageColumn from 'components/usage-column';
-import PropertyColumn from 'components/property-column';
-import DropColumn from 'components/drop-column';
+import NameColumn from '../name-column';
+import TypeColumn from '../type-column';
+import SizeColumn from '../size-column';
+import UsageColumn from '../usage-column';
+import PropertyColumn from '../property-column';
+import DropColumn from '../drop-column';
 
 const index = {
   name: 'a', type: 'regular', fields: {serialize: () => {}},

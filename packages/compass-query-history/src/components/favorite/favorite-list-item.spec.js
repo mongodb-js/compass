@@ -1,8 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { FavoriteListItem } from 'components/favorite';
-import Query from 'components/query';
-import { Card, CardHeader, CardBody } from 'components/card';
+import { FavoriteListItem } from '../favorite';
+import Query from '../query';
+import { Card, CardHeader, CardBody } from '../card';
 
 describe('FavoriteListItem [Component]', () => {
   const date = new Date();

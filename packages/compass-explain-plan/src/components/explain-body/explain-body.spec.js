@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ExplainBody from 'components/explain-body';
+import ExplainBody from '../explain-body';
 
 describe('ExplainBody [Component]', () => {
   let component;

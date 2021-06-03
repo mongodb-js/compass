@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { reset } from 'modules/instance/reset';
-import { changeErrorMessage } from 'modules/instance/error-message';
-import { changeInstance, INITIAL_STATE } from 'modules/instance/instance';
+import { reset } from '../../../src/modules/instance/reset';
+import { changeErrorMessage } from '../../../src/modules/instance/error-message';
+import { changeInstance, INITIAL_STATE } from '../../../src/modules/instance/instance';
 
 class TestPlugin extends Component {
   static displayName = 'InstanceComponent';

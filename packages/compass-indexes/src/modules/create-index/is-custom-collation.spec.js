@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsCustomCollation,
   TOGGLE_IS_CUSTOM_COLLATION
-} from 'modules/create-index/is-custom-collation';
+} from '../create-index/is-custom-collation';
 
 describe('create index is custom collation module', () => {
   describe('#reducer', () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import NoAction from 'components/no-action';
+import NoAction from './no-action';
 
 describe('<NoAction />', () => {
   describe('#render', () => {

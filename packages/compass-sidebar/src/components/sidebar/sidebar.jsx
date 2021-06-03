@@ -4,26 +4,26 @@ import PropTypes from 'prop-types';
 import cloneDeep from 'lodash.clonedeep';
 import ReactTooltip from 'react-tooltip';
 import { AutoSizer, List } from 'react-virtualized';
-import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import classnames from 'classnames';
 import styles from './sidebar.less';
 
-import SidebarTitle from 'components/sidebar-title';
-import SidebarInstance from 'components/sidebar-instance';
-import SidebarDatabase from 'components/sidebar-database';
-import NonGenuineWarningModal from 'components/non-genuine-warning-modal';
+import SidebarTitle from '../sidebar-title';
+import SidebarInstance from '../sidebar-instance';
+import SidebarDatabase from '../sidebar-database';
+import NonGenuineWarningModal from '../non-genuine-warning-modal';
 
-import { toggleIsCollapsed } from 'modules/is-collapsed';
-import { toggleIsDetailsExpanded } from 'modules/is-details-expanded';
-import { toggleIsGenuineMongoDBVisible } from 'modules/is-genuine-mongodb-visible';
-import { filterDatabases, changeDatabases } from 'modules/databases';
-import { changeFilterRegex } from 'modules/filter-regex';
-import { openLink } from 'modules/link';
-import { toggleIsModalVisible } from 'modules/is-modal-visible';
-import { saveFavorite, deleteFavorite } from 'modules/connection-model';
+import { toggleIsCollapsed } from '../../modules/is-collapsed';
+import { toggleIsDetailsExpanded } from '../../modules/is-details-expanded';
+import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
+import { filterDatabases, changeDatabases } from '../../modules/databases';
+import { changeFilterRegex } from '../../modules/filter-regex';
+import { openLink } from '../../modules/link';
+import { toggleIsModalVisible } from '../../modules/is-modal-visible';
+import { saveFavorite, deleteFavorite } from '../../modules/connection-model';
 
-import { TOOLTIP_IDS } from 'constants/sidebar-constants';
+import { TOOLTIP_IDS } from '../../constants/sidebar-constants';
 
 const OVER_SCAN_COUNT = 100;
 const ROW_HEIGHT = 28;

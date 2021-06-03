@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { StoreConnector } from 'hadron-react-components';
-import configureStore from 'stores';
+import configureStore from './stores';
 import CollectionStatsPlugin from './plugin';
 
 describe('CollectionStats [Plugin]', () => {

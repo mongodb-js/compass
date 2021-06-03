@@ -1,4 +1,4 @@
-import { FavoriteQuery, FavoriteQueryCollection } from 'models';
+import { FavoriteQuery, FavoriteQueryCollection } from '../../src/models';
 
 describe('FavoriteQueryCollection [Model]', () => {
   describe('#add', () => {

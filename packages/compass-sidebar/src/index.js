@@ -1,5 +1,5 @@
 import SidebarPlugin from './plugin';
-import SidebarStore from 'stores';
+import SidebarStore from './stores';
 
 /**
  * Activate all the components in the Sidebar package.

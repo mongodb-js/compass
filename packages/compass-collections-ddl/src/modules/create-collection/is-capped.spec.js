@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsCapped,
   TOGGLE_IS_CAPPED
-} from 'modules/create-collection/is-capped';
+} from '../create-collection/is-capped';
 
 describe('create collection is capped module', () => {
   describe('#reducer', () => {

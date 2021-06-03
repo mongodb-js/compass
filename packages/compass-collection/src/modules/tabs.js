@@ -1,5 +1,5 @@
 import { ObjectId } from 'bson';
-import createContext from 'modules/context';
+import createContext from './context';
 import toNS from 'mongodb-ns';
 
 /**

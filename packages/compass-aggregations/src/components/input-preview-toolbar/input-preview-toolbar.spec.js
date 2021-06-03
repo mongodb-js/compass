@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import InputPreviewToolbar from 'components/input-preview-toolbar';
+import InputPreviewToolbar from '../input-preview-toolbar';
 import styles from './input-preview-toolbar.less';
 
 describe('InputPreviewToolbar [Component]', () => {

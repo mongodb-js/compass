@@ -1,6 +1,6 @@
 import { Element } from 'hadron-document';
 import { Double } from 'bson';
-import { DoubleEditor } from 'components/editor';
+import { DoubleEditor } from '../editor';
 
 describe('DoubleEditor', () => {
   describe('#start', () => {
@@ -99,7 +99,7 @@ describe('DoubleEditor', () => {
       });
 
       it('sets the invalid message', () => {
-        expect(element.invalidTypeMessage).to.equal('ceci n\'est pas un double is not a valid double format');
+        expect(element.invalidTypeMessage).to.match(/is not a valid double format/);
       });
     });
   });
@@ -154,7 +154,7 @@ describe('DoubleEditor', () => {
       });
 
       it('sets the invalid message', () => {
-        expect(element.invalidTypeMessage).to.equal('ceci n\'est pas un double is not a valid double format');
+        expect(element.invalidTypeMessage).to.match(/is not a valid double format/);
       });
     });
   });

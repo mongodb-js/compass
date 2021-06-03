@@ -95,7 +95,13 @@ module.exports = {
       },
       {
         test: /\.(js|jsx)$/,
-        use: [{ loader: 'babel-loader' }],
+        use: [{
+          loader: 'babel-loader',
+          options: {
+            root: path.resolve(__dirname, '..'),
+            cacheDirectory: !process.env.CI
+          }
+        }],
         exclude: /(node_modules)/
       },
       {

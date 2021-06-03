@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeCollationOption,
   CHANGE_COLLATION_OPTION
-} from 'modules/create-database/collation';
+} from '../create-database/collation';
 
 describe('create database collation module', () => {
   describe('#reducer', () => {

@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeErrorMessage,
   CHANGE_ERROR_MESSAGE
-} from 'modules/error-message';
+} from './error-message';
 
 describe('error-message module', () => {
   describe('#reducer', () => {

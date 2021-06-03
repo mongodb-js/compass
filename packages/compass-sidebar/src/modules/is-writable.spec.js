@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsWritable,
   TOGGLE_IS_WRITABLE
-} from 'modules/is-writable';
+} from './is-writable';
 
 describe('sidebar isWritable', () => {
   describe('#reducer', () => {

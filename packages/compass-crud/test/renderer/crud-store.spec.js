@@ -2,8 +2,8 @@ import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
-import configureStore from 'stores/crud-store';
-import configureActions from 'actions';
+import configureStore from '../../src/stores/crud-store';
+import configureActions from '../../src/actions';
 import EJSON from 'mongodb-extended-json';
 
 const CONNECTION = new Connection({

@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   changeCollationOption,
   CHANGE_COLLATION_OPTION
-} from 'modules/create-index/collation';
+} from '../create-index/collation';
 
 describe('create index collation module', () => {
   describe('#reducer', () => {

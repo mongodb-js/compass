@@ -7,7 +7,7 @@ import reducer, {
   setSearchTerm,
   dispatchFind,
   toggleStatus
-} from 'modules';
+} from '../../src/modules';
 
 describe('index module', () => {
   describe('#dispatchStopFind', () => {

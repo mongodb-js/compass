@@ -1,4 +1,4 @@
-import reducer, { collationChanged, COLLATION_CHANGED } from 'modules/collation';
+import reducer, { collationChanged, COLLATION_CHANGED } from './collation';
 
 describe('collation module', () => {
   describe('#collationChanged', () => {

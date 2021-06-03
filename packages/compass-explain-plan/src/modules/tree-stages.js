@@ -1,6 +1,6 @@
 import { has, omit, map, isPlainObject, keys, max, maxBy, minBy, forEach } from 'lodash';
 import d3 from 'd3';
-import STAGE_CARD_PROPERTIES from 'constants/stage-card-properties';
+import STAGE_CARD_PROPERTIES from '../constants/stage-card-properties';
 import { format } from 'util';
 
 const debug = require('debug')('mongodb-compass:stores:explain-tree-stages');

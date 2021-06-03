@@ -1,6 +1,6 @@
-import { listFactory } from 'components/list';
+import { listFactory } from '../list';
 import FavoriteListItem from './favorite-list-item';
-import Saving from 'components/saving';
+import Saving from '../saving';
 
 const FavoriteList = listFactory(FavoriteListItem, Saving);
 

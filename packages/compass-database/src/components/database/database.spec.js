@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Database from 'components/database';
+import Database from '../database';
 import styles from './database.less';
 
 class Collections extends React.Component {

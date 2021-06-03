@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/electron-wix-msi",
-  "version": "2.1.20",
+  "version": "3.0.0",
   "description": "Creates an MSI installer for your Electron app",
   "license": "MIT",
   "repository": "",
@@ -16,11 +16,12 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "prepublish": "npm run build",
     "build": "tsc --pretty",
     "test": "npm run lint && jest",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "harness": "npm run build && node ./harness/harness.js"
+    "harness": "npm run build && node ./harness/harness.js",
+    "test-ci": "npm run test",
+    "prepare": "npm run build"
   },
   "dependencies": {
     "debug": "^3.1.0",

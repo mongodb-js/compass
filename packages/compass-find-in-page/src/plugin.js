@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import CompassFindInPage from 'components/compass-find-in-page';
-import store from 'stores';
+import CompassFindInPage from './components/compass-find-in-page';
+import store from './stores';
 
 class Plugin extends Component {
   static displayName = 'CompassFindInPagePlugin';

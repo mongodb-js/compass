@@ -8,17 +8,23 @@ const SSHTunnel = require('@mongodb-js/ssh-tunnel').default;
 
 const setupListeners = () => {};
 
-// TODO: These instances are now turned off
-const data = require('mongodb-connection-fixture');
-
 describe('connection model connector', () => {
   describe('local', () => {
+    if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel') {
+      // TODO: COMPASS-4866
+      // eslint-disable-next-line no-console
+      console.warn(
+        'test suites using mongodb-runner are flaky on RHEL, skipping'
+      );
+      return;
+    }
+
     before(
-      require('mongodb-runner/mocha/before')({ port: 27018, version: '4.0.0' })
+      require('mongodb-runner/mocha/before')({ port: 27018 })
     );
 
     after(
-      require('mongodb-runner/mocha/after')({ port: 27018, version: '4.0.0' })
+      require('mongodb-runner/mocha/after')({ port: 27018 })
     );
 
     it('should return connection config when connected successfully', (done) => {
@@ -154,7 +160,14 @@ describe('connection model connector', () => {
     });
   });
 
-  describe('cloud #slow', () => {
+  /**
+   * Originally `data` here was a `mongodb-connection-fixture` library export,
+   * but none of the cloud services in the fixture are available anymore and
+   * as such the library was removed and these tests are skipped
+   */
+  describe.skip('cloud #slow', () => {
+    const data = { MATRIX: [], SSH_TUNNEL_MATRIX: [] };
+
     data.MATRIX.map((d) => {
       it.skip('should connect to ' + d.name, (done) => {
         connect(d, setupListeners, (err, client) => {

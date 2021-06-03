@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import SummaryIndexStat from 'components/summary-index-stat';
+import SummaryIndexStat from '../summary-index-stat';
 
 import styles from './summary-index-stat.less';
 

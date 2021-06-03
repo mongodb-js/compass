@@ -7,7 +7,7 @@ import { debounce } from 'lodash';
 import { ValidationAutoCompleter } from 'mongodb-ace-autocompleter';
 import { TextButton } from 'hadron-react-buttons';
 import { InfoSprinkle } from 'hadron-react-components';
-import ValidationSelector from 'components/validation-selector';
+import ValidationSelector from '../validation-selector';
 
 import styles from './validation-editor.less';
 

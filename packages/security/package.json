@@ -1,9 +1,9 @@
 {
   "name": "mongodb-security",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Portable business logic of MongoDB security model",
   "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)",
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "homepage": "http://github.com/mongodb-js/security",
   "repository": {
     "type": "git",
@@ -17,7 +17,8 @@
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
     "lint": "eslint examples/*.js ./*.js ./test/*.js",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "test-ci": "npm run test"
   },
   "dependencies": {
     "debug": "^4.1.1",

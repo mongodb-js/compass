@@ -1,5 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
-import configureStore from 'stores';
+import configureStore from './';
 import {
   stageChanged,
   stageCollapseToggled,
@@ -7,7 +7,7 @@ import {
   stageAdded,
   stageAddedAfter,
   stageToggled
-} from 'modules/pipeline';
+} from '../modules/pipeline';
 import { INITIAL_STATE } from '../modules/index';
 
 describe('Aggregation Store', () => {

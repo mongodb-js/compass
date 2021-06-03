@@ -1,11 +1,11 @@
 import DeploymentAwarenessComponent from './plugin';
-import DeploymentAwarenessActions from 'actions';
-import DeploymentAwarenessStore from 'stores';
-import TextReadButton from 'components/text-read-button';
-import TextWriteButton from 'components/text-write-button';
-import OptionWriteSelector from 'components/option-write-selector';
-import WriteStateStore from 'stores/write-state-store';
-import ReadStateStore from 'stores/read-state-store';
+import DeploymentAwarenessActions from './actions';
+import DeploymentAwarenessStore from './stores';
+import TextReadButton from './components/text-read-button';
+import TextWriteButton from './components/text-write-button';
+import OptionWriteSelector from './components/option-write-selector';
+import WriteStateStore from './stores/write-state-store';
+import ReadStateStore from './stores/read-state-store';
 
 /**
  * The base plugin key.

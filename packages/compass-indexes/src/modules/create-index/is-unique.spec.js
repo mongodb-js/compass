@@ -2,7 +2,7 @@ import reducer, {
   INITIAL_STATE,
   toggleIsUnique,
   TOGGLE_IS_UNIQUE
-} from 'modules/create-index/is-unique';
+} from '../create-index/is-unique';
 
 describe('create index is unique module', () => {
   describe('#reducer', () => {

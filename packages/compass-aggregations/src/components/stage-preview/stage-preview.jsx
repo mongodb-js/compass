@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
 import { TextButton } from 'hadron-react-buttons';
 import HadronDocument from 'hadron-document';
-import LoadingOverlay from 'components/loading-overlay';
-import { OUT, MERGE } from 'modules/pipeline';
+import LoadingOverlay from '../loading-overlay';
+import { OUT, MERGE } from '../../modules/pipeline';
 import decomment from 'decomment';
 
 import styles from './stage-preview.less';

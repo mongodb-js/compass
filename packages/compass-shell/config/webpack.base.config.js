@@ -107,22 +107,8 @@ module.exports = {
         use: [{
           loader: 'babel-loader',
           options: {
-            plugins: [
-              'react-hot-loader/babel',
-              '@babel/plugin-syntax-object-rest-spread',
-              '@babel/plugin-proposal-object-rest-spread',
-              '@babel/plugin-proposal-class-properties',
-              '@babel/plugin-syntax-dynamic-import'
-            ],
-            presets: [
-              '@babel/preset-react',
-              [
-                '@babel/preset-env',
-                {
-                  'modules': false
-                }
-              ]
-            ]
+            root: path.resolve(__dirname, '..'),
+            cacheDirectory: !process.env.CI
           }
         }],
         exclude: /(node_modules)/

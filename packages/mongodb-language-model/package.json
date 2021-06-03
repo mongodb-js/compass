@@ -2,14 +2,14 @@
   "name": "mongodb-language-model",
   "description": "Parses MongoDB query language and returns an abstract syntax tree",
   "author": "Thomas Rueckstiess <thomas@mongodb.com>",
-  "version": "1.6.1",
+  "version": "2.0.0",
   "bugs": "https://github.com/mongodb-js/mongodb-language-model/issues",
   "homepage": "https://github.com/mongodb-js/mongodb-language-model",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/mongodb-language-model"
   },
-  "license": "Apache-2.0",
+  "license": "SSPL",
   "keywords": [
     "mongodb-js",
     "mongodb",
@@ -22,14 +22,14 @@
     "compile": "npm run pegjs",
     "pegjs": "pegjs -o ./parser.js < ./grammar.pegjs",
     "check": "npm run lint && npm run depcheck",
-    "prepublishOnly": "npm run compile",
     "pretest": "npm run compile",
     "precheck": "npm run compile",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "test-ci": "npm run test",
+    "prepare": "npm run compile"
   },
   "main": "index.js",
-  "dependencies": {},
   "devDependencies": {
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",
