@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-instance",
   "productName": "Instance plugin",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "apiVersion": "3.0.0",
   "description": "compass instance plugin",
   "main": "lib/index.js",
@@ -45,7 +45,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@mongodb-js/compass-database": "^2.0.0",
-    "@mongodb-js/compass-serverstats": "^15.0.0",
+    "@mongodb-js/compass-serverstats": "^15.0.1",
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.2.2",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
