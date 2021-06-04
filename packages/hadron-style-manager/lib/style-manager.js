@@ -69,7 +69,7 @@ class StyleManager {
           pkgUp.sync({ cwd: require.resolve(pluginNameOrPath) })
         );
       } catch (e) {
-        pluginPath = path.join(root, dir);
+        pluginPath = path.join(root, pluginNameOrPath);
       }
       const fullDir = path.join(pluginPath, 'styles', 'index.less');
       this.use(doc, fullDir);
