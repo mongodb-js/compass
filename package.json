@@ -29,7 +29,8 @@
     "update-akzidenz-cache": "node scripts/download-akzidenz.js --update-cache",
     "download-akzidenz": "lerna exec -- node ../../scripts/download-akzidenz.js",
     "update-authors": "node scripts/generate-authors.js",
-    "update-third-party-notices": "node scripts/gather-licenses.js packages/compass/ > THIRD-PARTY-NOTICES.md"
+    "update-third-party-notices": "node scripts/gather-licenses.js packages/compass/ > THIRD-PARTY-NOTICES.md",
+    "where": "node ./scripts/monorepo/where.js"
   },
   "repository": {
     "type": "git",
