@@ -39,7 +39,7 @@
     "lodash.remove": "^4.7.0",
     "lodash.round": "^4.0.4",
     "mongodb-js-errors": "^0.3.2",
-    "reflux": "0.4.1"
+    "reflux": "^0.4.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -56,7 +56,7 @@
     "cheerio": "^1.0.0-rc.2",
     "debug": "^4.1.1",
     "depcheck": "^1.4.0",
-    "electron": "^6.1.7",
+    "electron": "^6.1.12",
     "electron-mocha": "^6.0.1",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
@@ -78,7 +78,7 @@
     "prop-types": "^15.5.8",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "reflux-state-mixin": "^0.7.0",
+    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
     "watch": "^0.19.2",

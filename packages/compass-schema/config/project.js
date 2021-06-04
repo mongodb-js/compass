@@ -5,7 +5,7 @@ const packageJson = require(path.join(__dirname, '/../package.json'));
 
 // Gets a valid version range for the current electron dependency declared in our package.json
 // Eg: "^1.6.1" would yield ">=1.6.1"
-const electronVersion = semver.minVersion(packageJson.devDependencies.electron).toString();
+const electronVersion = new semver.minVersion(packageJson.devDependencies.electron).toString();
 
 module.exports = {
   path: {
