@@ -13,12 +13,15 @@ jobs:
   check-and-test:
     name: Check and Test
     # The type of runner that the job will run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+
+      - name: Install Deps Ubuntu
+        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.1.2
@@ -26,17 +29,14 @@ jobs:
           # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
           node-version: ^12.4.0
 
-      # - name: Install Deps Ubuntu
-      #   run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
+      - name: Install npm@7
+        run: npm i -g npm@7
 
-      - name: Not Implemented
-        run: echo "GitHub Actions workflows are disabled for now. To be fixed in https://jira.mongodb.org/browse/COMPASS-4788"
+      - name: Install Dependencies
+        run: npm run bootstrap-evergreen --stream
 
-      # - name: Install Dependencies
-      #   run: npm ci
+      - name: Run Checks
+        run: npm run check -- --stream
 
-      # - name: Run Checks
-      #   run: npm run check
-
-      # - name: Run Tests
-      #   run: npm run test
+      - name: Run Tests
+        run: npm run test -- --stream
