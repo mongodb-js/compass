@@ -356,8 +356,8 @@
     "react-tooltip": "^3.6.1",
     "react-virtualized": "^9.18.5",
     "redux": "^3.7.2",
-    "reflux": "0.4.1",
-    "reflux-state-mixin": "mongodb-js/reflux-state-mixin",
+    "reflux": "^0.4.1",
+    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "storage-mixin": "^4.0.0",
     "uuid": "^3.0.0"
   },

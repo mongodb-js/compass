@@ -119,7 +119,7 @@
     "redux": "^3.7.2",
     "redux-thunk": "^2.3.0",
     "reflux": "^0.4.1",
-    "reflux-state-mixin": "^0.7.0",
+    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "resolve": "^1.15.1",
     "rimraf": "^3.0.2",
     "semver": "^5.7.1",

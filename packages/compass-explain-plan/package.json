@@ -47,7 +47,7 @@
     "react-fontawesome": "^1.6.1",
     "react-redux": "^5.0.6",
     "redux-thunk": "^2.2.0",
-    "reflux-state-mixin": "^0.7.0"
+    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -138,7 +138,7 @@
     "react-tooltip": "^3.11.1",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "reflux-state-mixin": "^0.7.0",
+    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "resolve": "^1.15.1",
     "rimraf": "^3.0.1",
     "semver": "^7.1.1",
@@ -160,6 +160,7 @@
     "@mongodb-js/mongodb-redux-common": "^1.0.0",
     "d3-flextree": "1.0.3",
     "d3-timer": "1.0.10",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.15",
+    "reflux": "^0.4.1"
   }
 }

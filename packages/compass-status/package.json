@@ -32,7 +32,7 @@
     "react-dom": "^16.8.0",
     "react-tooltip": "^3.2.6",
     "reflux": "^0.4.1",
-    "reflux-state-mixin": "^0.7.0"
+    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -84,7 +84,7 @@
     "react-dom": "^16.14.0",
     "react-hot-loader": "^4.13.0",
     "reflux": "^0.4.1",
-    "reflux-state-mixin": "^0.7.0",
+    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "resolve": "^1.4.0",
     "rimraf": "^2.6.1",
     "semver": "^5.4.1",
