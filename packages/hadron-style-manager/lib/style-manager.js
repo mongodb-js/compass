@@ -4,6 +4,7 @@
 const LessCache = require('less-cache');
 const fs = require('fs');
 const path = require('path');
+const pkgUp = require('pkg-up');
 
 /**
  * The style tag constant.
@@ -61,8 +62,16 @@ class StyleManager {
    * @param {Array} packages - The list of packages.
    */
   load(doc, root, packages) {
-    for (let dir of packages) {
-      const fullDir = path.join(root, dir, 'styles', 'index.less');
+    for (let pluginNameOrPath of packages) {
+      let pluginPath;
+      try {
+        pluginPath = path.dirname(
+          pkgUp.sync({ cwd: require.resolve(pluginNameOrPath) })
+        );
+      } catch (e) {
+        pluginPath = path.join(root, dir);
+      }
+      const fullDir = path.join(pluginPath, 'styles', 'index.less');
       this.use(doc, fullDir);
     }
   }
