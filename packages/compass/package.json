@@ -375,7 +375,7 @@
     "depcheck": "^1.4.0",
     "devtron": "^1.4.0",
     "download": "^8.0.0",
-    "electron": "6.1.7",
+    "electron": "^6.1.12",
     "electron-mocha": "^8.2.2",
     "electron-rebuild": "^2.3.5",
     "enzyme": "^3.11.0",
