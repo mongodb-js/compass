@@ -51,11 +51,14 @@
     "semver": "^7.3.5"
   },
   "engines": {
-    "node": "^12.4.0",
-    "npm": ">=6.13.0"
+    "node": ">=12.4.0",
+    "npm": ">=7.16.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
     "email": "compass@mongodb.com"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
