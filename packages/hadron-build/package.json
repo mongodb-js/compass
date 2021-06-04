@@ -81,7 +81,6 @@
     "sinon-chai": "^3.4.0"
   },
   "optionalDependencies": {
-    "@mongodb-js/electron-wix-msi": "^2.1.20",
     "electron-installer-debian": "^3.0.0",
     "electron-installer-dmg": "^3.0.0",
     "electron-installer-redhat": "^2.0.0",
