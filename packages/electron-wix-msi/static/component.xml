@@ -1,3 +1,0 @@
-<!-- {{I}} --><Component Id="{{ComponentId}}" Guid="{{Guid}}" Win64="{{Win64YesNo}}">
-<!-- {{I}} -->  <File Name="{{Name}}" Id="{{FileId}}" Source="{{SourcePath}}" KeyPath="yes" Checksum="yes" ProcessorArchitecture="{{ProcessorArchitecture}}"/>
-<!-- {{I}} --></Component>
