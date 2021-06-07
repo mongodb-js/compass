@@ -83,7 +83,7 @@
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.0",
     "jquery": "^3.0.0",
-    "jsdom": "^11.1.0",
+    "jsdom": "^16.6.0",
     "jsdom-global": "^3.0.2",
     "karma": "^4.4.1",
     "karma-chai": "^0.1.0",
@@ -134,7 +134,7 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.1",
-    "webpack-node-externals": "^1.7.2",
+    "webpack-node-externals": "^3.0.0",
     "webpack-sources": "1.4.3",
     "xvfb-maybe": "^0.2.1"
   },

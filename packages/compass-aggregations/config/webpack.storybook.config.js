@@ -54,6 +54,15 @@ PLUGINS.push.apply(PLUGINS, [
   new webpack.NoEmitOnErrorsPlugin()
 ]);
 
+const externals = nodeExternals({
+  // package node_modules
+  modulesDir: path.resolve(__dirname, '..', 'node_modules'),
+  // monorepo root node_modules
+  additionalModuleDirs: [
+    path.resolve(__dirname, '..', '..', '..', 'node_modules')
+  ]
+});
+
 const config = {
   target: 'web',
   devtool: 'eval-source-map',
@@ -64,7 +73,7 @@ const config = {
     path: project.path.output,
     filename: '[name].js'
   },
-  externals: [nodeExternals()],
+  externals: [externals],
   module: {
     rules: [
       {
