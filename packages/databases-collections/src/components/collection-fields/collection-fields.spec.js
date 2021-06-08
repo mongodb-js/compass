@@ -1,0 +1,238 @@
+import React from 'react';
+import { mount } from 'enzyme';
+import TextInput from '@leafygreen-ui/text-input';
+import { Select } from '@leafygreen-ui/select';
+
+import CollectionFields from '.';
+
+describe('CollectionFields [Component]', () => {
+  context('when withDatabase prop is true', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <CollectionFields
+          onChange={() => {}}
+          withDatabase
+          serverVersion="5.0"
+          openLink={() => {}}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders a database name input field', () => {
+      expect(component.find(TextInput).length).to.equal(2);
+      expect(component.text().includes('Database Name')).to.equal(true);
+    });
+  });
+
+  context('when withDatabase prop is false', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <CollectionFields
+          onChange={() => {}}
+          serverVersion="5.0"
+          openLink={() => {}}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('does not render a database name input field', () => {
+      expect(component.find(TextInput).length).to.equal(1);
+      expect(component.text().includes('Database Name')).to.equal(false);
+    });
+  });
+
+  context('with server version >= 5.0', () => {
+    let component;
+    let onChangeSpy;
+
+    beforeEach(() => {
+      onChangeSpy = sinon.spy();
+      component = mount(
+        <CollectionFields
+          onChange={onChangeSpy}
+          withDatabase
+          serverVersion="5.0"
+          openLink={() => {}}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+      onChangeSpy = null;
+    });
+
+    it('shows time series options', () => {
+      expect(component.text().includes('Time-Series')).to.equal(true);
+    });
+
+    describe('when the time series checkbox is clicked', () => {
+      beforeEach(() => {
+        component.find('input[type="checkbox"]').at(2).simulate(
+          'change', { target: { checked: true } }
+        );
+        component.update();
+      });
+
+      it('calls the onchange with time series collection on', () => {
+        expect(onChangeSpy.callCount).to.equal(1);
+        expect(onChangeSpy.firstCall.args[0]).to.deep.equal({
+          database: undefined,
+          collection: undefined,
+          options: {
+            timeseries: undefined
+          }
+        });
+      });
+    });
+  });
+
+  context('with server version < 5.0', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <CollectionFields
+          onChange={() => {}}
+          withDatabase
+          serverVersion="4.3.0"
+          openLink={() => {}}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('shows time series options', () => {
+      expect(component.text().includes('Time-Series')).to.equal(false);
+    });
+  });
+
+  context('when rendered', () => {
+    let component;
+    let openLinkSpy;
+    let onChangeSpy;
+
+    beforeEach(() => {
+      openLinkSpy = sinon.spy();
+      onChangeSpy = sinon.spy();
+
+      component = mount(
+        <CollectionFields
+          onChange={onChangeSpy}
+          serverVersion="4.3.0"
+          openLink={openLinkSpy}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+      openLinkSpy = null;
+      onChangeSpy = null;
+    });
+
+    describe('when the collation checkbox is clicked', () => {
+      beforeEach(() => {
+        component.find('input[type="checkbox"]').at(1).simulate(
+          'change', { target: { checked: true } }
+        );
+        component.update();
+      });
+
+      it('calls the onchange with collation', () => {
+        expect(onChangeSpy.callCount).to.equal(1);
+        expect(onChangeSpy.firstCall.args[0]).to.deep.equal({
+          database: undefined,
+          collection: undefined,
+          options: {
+            collation: undefined
+          }
+        });
+      });
+    });
+
+    describe('when the collation checkbox is clicked and a locale chosen', () => {
+      beforeEach(() => {
+        component.find('input[type="checkbox"]').at(1).simulate(
+          'change', { target: { checked: true } }
+        );
+        component.update();
+        component.find(Select).at(0).props().onChange(
+          'af'
+        );
+        component.update();
+      });
+
+      it('calls the onchange with collation locale set', () => {
+        expect(onChangeSpy.callCount).to.equal(2);
+        expect(onChangeSpy.secondCall.args[0]).to.deep.equal({
+          database: undefined,
+          collection: undefined,
+          options: {
+            collation: {
+              locale: 'af'
+            }
+          }
+        });
+      });
+    });
+
+    describe('when the capped collection checkbox is clicked', () => {
+      beforeEach(() => {
+        component.find('input[type="checkbox"]').at(0).simulate(
+          'change', { target: { checked: true } }
+        );
+        component.update();
+      });
+
+      it('calls the onchange with capped collection on', () => {
+        expect(onChangeSpy.callCount).to.equal(1);
+        expect(onChangeSpy.firstCall.args[0]).to.deep.equal({
+          database: undefined,
+          collection: undefined,
+          options: {
+            capped: true,
+            size: undefined
+          }
+        });
+      });
+    });
+
+    describe('when the capped collection checkbox is clicked twice', () => {
+      beforeEach(() => {
+        component.find('input[type="checkbox"]').at(0).simulate(
+          'change', { target: { checked: true } }
+        );
+        component.update();
+        component.find('input[type="checkbox"]').at(0).simulate(
+          'change', { target: { checked: false } }
+        );
+        component.update();
+      });
+
+      it('calls the onchange with capped collection off', () => {
+        expect(onChangeSpy.callCount).to.equal(2);
+        expect(onChangeSpy.secondCall.args[0]).to.deep.equal({
+          database: undefined,
+          collection: undefined,
+          options: {}
+        });
+      });
+    });
+  });
+});

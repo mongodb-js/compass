@@ -16,12 +16,13 @@ const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections
 const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
 const TIME_FIELD_INPUT_DESCRIPTION = 'Specify which field should be used ' +
-  'as timeField for the time-series collection.';
+  'as timeField for the time-series collection. ' +
+  'This field must have a BSON type date.';
 
-const META_FIELD_INPUT_DESCRIPTION = 'The designated field ' +
+const META_FIELD_INPUT_DESCRIPTION = 'The metaField is the designated field ' +
   'for metadata.';
 
-const EXPIRE_AFTER_SECONDS_DESCRIPTION = 'Enables ' +
+const EXPIRE_AFTER_SECONDS_DESCRIPTION = 'The expireAfterSeconds field enables ' +
   'automatic deletion of documents older than the specified number of seconds.';
 
 class FieldSet extends PureComponent {
