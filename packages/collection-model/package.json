@@ -13,9 +13,9 @@
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha && npm run test:electron",
-    "pretest:electron": "electron-rebuild",
+    "pretest:electron": "electron-rebuild keytar",
     "test:electron": "xvfb-maybe electron-mocha --no-sandbox --renderer",
-    "posttest:electron": "node ../../scripts/rebuild.js",
+    "posttest:electron": "node ../../scripts/rebuild.js keytar",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck --ignores=\"mongodb-data-service\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
     "test-ci": "npm run test"
