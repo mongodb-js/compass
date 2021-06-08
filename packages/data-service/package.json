@@ -17,7 +17,7 @@
     "mongodb-js"
   ],
   "scripts": {
-    "pretest": "node-gyp rebuild --directory node_modules/keytar/ && mongodb-runner start --port=27018",
+    "pretest": "mongodb-runner start --port=27018",
     "test": "mocha",
     "posttest": "mongodb-runner stop --port=27018",
     "check": "npm run lint && npm run depcheck",
