@@ -55,7 +55,15 @@ class DoubleEditor extends StandardEditor {
    * @returns {Number} The number of characters.
    */
   size() {
-    return fieldStringLen(this.element.currentValue.value);
+    const currentValue = this.element.currentValue;
+    return fieldStringLen(
+      // Not all values that will be checked here are bson types with a `value`
+      // property, using valueOf is a more resilient way of getting the "native"
+      // value from `currentValue`
+      typeof currentValue.valueOf === 'function'
+        ? currentValue.valueOf()
+        : currentValue
+    );
   }
 }
 

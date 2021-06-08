@@ -41,7 +41,15 @@ describe('<EditableKey />', () => {
         before(() => {
           const parentElement = new Element('parent', {}, true);
           const element = new Element('name', 'test', false, parentElement);
-          wrapper = mount(<EditableKey element={element} isFocused={false} />);
+          wrapper = mount(<EditableKey element={element} isFocused={false} />, {
+            attachTo: document.body,
+          });
+        });
+
+        after(() => {
+          if (wrapper && wrapper.unmount) {
+            wrapper.unmount();
+          }
         });
 
         it('auto focuses the input', () => {
