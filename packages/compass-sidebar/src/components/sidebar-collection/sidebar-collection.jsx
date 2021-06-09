@@ -230,9 +230,9 @@ class SidebarCollection extends PureComponent {
           data-test-id="sidebar-collection"
           title={this.props._id}
         >
-          {collectionName}&nbsp;
           {this.props.readonly && this.renderViewIcon()}
           {this.props.type === TIME_SERIES_COLLECTION_TYPE && this.renderTimeSeriesIcon()}
+          {collectionName}
         </div>
         <div
           className={classnames(
