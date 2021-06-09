@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps.",
-  "version": "24.0.1",
+  "version": "24.1.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha -R spec",
@@ -30,7 +30,7 @@
     "del": "^2.0.2",
     "electron": "^6.1.12",
     "electron-builder": "^22.3.2",
-    "electron-license": "^2.0.0",
+    "electron-license": "^2.1.0",
     "electron-mocha": "^8.2.0",
     "electron-notarize": "^0.3.0",
     "electron-packager": "^14.2.0",
