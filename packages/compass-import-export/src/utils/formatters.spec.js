@@ -59,9 +59,7 @@ describe('formatters', () => {
         })
         .then(() => rm(FIXTURES.JSON_MULTI_SMALL_DOCS));
     });
-    // TODO: Not sure what exactly is failing here, compared values look the
-    // same at a glance
-    describe.skip('should format binary data correctly', () => {
+    describe('should format binary data correctly', () => {
       afterEach(async() => {
         try {
           await rm(FIXTURES.JSON_MULTI_SMALL_DOCS);

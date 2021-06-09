@@ -61,7 +61,7 @@ describe('formatQuery [Utils]', () => {
   describe('when the property has a Decimal128', () => {
     const value = new bson.Decimal128('0.00');
     const filter = { field: value };
-    const expected = '{\n field: NumberDecimal(\'0.00\')\n}';
+    const expected = '{\n field: NumberDecimal(\'0E-6176\')\n}';
 
     it('returns the shell syntax string', () => {
       expect(formatQuery(filter)).to.equal(expected);

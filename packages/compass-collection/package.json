@@ -70,7 +70,7 @@
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.2.2",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "bson": "^4.4.0",
+    "bson": "4.1.0",
     "bson-transpilers": "^0.13.3",
     "chai": "^4.2.0",
     "chai-enzyme": "1.0.0-beta.1",

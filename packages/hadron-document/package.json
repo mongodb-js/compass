@@ -47,7 +47,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "babel-loader": "^8.2.2",
-    "bson": "^4.4.0",
+    "bson": "4.1.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",
