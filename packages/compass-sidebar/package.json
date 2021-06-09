@@ -138,6 +138,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@leafygreen-ui/icon": "^11.1.1",
     "@mongodb-js/mongodb-redux-common": "^1.0.0",
     "lodash.clonedeep": "^4.5.0"
   }
