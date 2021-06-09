@@ -20,6 +20,7 @@
     "packages-version": "lerna version --no-private --no-push -m \"chore(release): bump package versions\"",
     "postpackages-version": "npm run amend-compass-version && git push && git push --tags",
     "packages-publish": "node scripts/monorepo/publish-all.js",
+    "postpackages-publish": "git add packages/*/package-lock.json && git commit -m \"chore(release): Update package-lock files after a release\" && git push",
     "packages-test-version": "lerna version --no-private --allow-branch=* --no-git-tag-version --no-push",
     "postpackages-test-version": "node scripts/bump-compass-dependencies.js",
     "packages-test-publish": "node scripts/monorepo/publish-all.js --local --no-pristine-check --no-branch-check",
