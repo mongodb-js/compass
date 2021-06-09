@@ -41,7 +41,7 @@ describe('SidebarCollection [Component]', () => {
     });
 
     it('sets collection name', () => {
-      expect(component.find('[data-test-id="sidebar-collection"]').text()).to.equal('coll ');
+      expect(component.find('[data-test-id="sidebar-collection"]').text()).to.match(/coll/);
     });
 
     it('does not have a collection type icon', () => {
@@ -77,7 +77,7 @@ describe('SidebarCollection [Component]', () => {
     });
 
     it('sets collection name', () => {
-      expect(component.find('[data-test-id="sidebar-collection"]').text()).to.equal('coll ');
+      expect(component.find('[data-test-id="sidebar-collection"]').text()).to.match(/coll/);
     });
   });
 
@@ -108,7 +108,7 @@ describe('SidebarCollection [Component]', () => {
     });
 
     it('sets collection name', () => {
-      expect(component.find('[data-test-id="sidebar-collection"]').text()).to.equal('albums ');
+      expect(component.find('[data-test-id="sidebar-collection"]').text()).to.match(/albums/);
     });
 
     it('has a view icon', () => {
