@@ -1,0 +1,47 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+
+import CollationFields from '../collation-fields/collation-fields';
+import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
+
+const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
+
+/**
+ * The collation component. This is used in creating collections,
+ * creating databases, and creating indexes.
+ *
+ * @returns {React.ReactNode} The rendered component.
+ */
+function Collation({
+  isCustomCollation,
+  onChangeCollationOption,
+  onChangeIsCustomCollation,
+  openLink
+}) {
+  return (
+    <CollapsibleFieldSet
+      onToggle={checked => {
+        onChangeIsCustomCollation(checked);
+      }}
+      label="Use Custom Collation"
+      toggled={isCustomCollation}
+      description="Collation allows users to specify language-specific rules for string comparison, such as rules for lettercase and accent marks."
+      helpUrl={HELP_URL_COLLATION}
+      openLink={openLink}
+    >
+      <CollationFields
+        changeCollationOption={onChangeCollationOption}
+      />
+    </CollapsibleFieldSet>
+  );
+}
+
+
+Collation.propTypes = {
+  onChangeCollationOption: PropTypes.func.isRequired,
+  isCustomCollation: PropTypes.bool.isRequired,
+  onChangeIsCustomCollation: PropTypes.func.isRequired,
+  openLink: PropTypes.func.isRequired
+};
+
+export default Collation;

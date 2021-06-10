@@ -10,7 +10,7 @@ import CreateDatabasePlugin from './components/create-database-plugin';
 import DropDatabasePlugin from './components/drop-database-plugin';
 import CreateDatabaseStore from './stores/create-database';
 import DropDatabaseStore from './stores/drop-database';
-import Collation from './components/collation';
+import Collation from './components/collation-fields';
 
 // View collections list plugin.
 const COLLECTIONS_PLUGIN_ROLE = {

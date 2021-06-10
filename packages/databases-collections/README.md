@@ -8,3 +8,4 @@ Provides:
 * Database List Table
 * Create Database Modal
 * Drop Database Modal
+* Collation Fields
