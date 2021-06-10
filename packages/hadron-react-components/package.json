@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-react/issues",
   "homepage": "https://github.com/mongodb-js/hadron-react/packages/hadron-react-components",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "main": "lib/index.js",
   "module": "lib/index.js",
   "repository": {
@@ -80,8 +80,8 @@
     "rimraf": "^3.0.2",
     "sinon": "^2.4.1",
     "sinon-chai": "^3.5.0",
-    "webpack": "^4.41.6",
-    "webpack-cli": "^3.3.11",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^3.3.12",
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^1.7.2",
     "webpack-sources": "^1.4.3"

@@ -1,11 +1,15 @@
 import React, { PureComponent } from 'react';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 import toNS from 'mongodb-ns';
+import Icon from '@leafygreen-ui/icon';
+
 import { collectionMetadata, getSource } from '../../modules/collection';
 
-import classnames from 'classnames';
 import styles from './sidebar-collection.less';
+
+const TIME_SERIES_COLLECTION_TYPE = 'timeseries';
 
 class SidebarCollection extends PureComponent {
   static displayName = 'SidebarCollection';
@@ -138,16 +142,24 @@ class SidebarCollection extends PureComponent {
    *
    * @returns {Component} The component.
    */
-  renderIsReadonly() {
-    if (this.props.readonly) {
-      return (
-        <i
-          className={classnames('fa', styles['compass-sidebar-view-icon'])}
-          title="Read-only View"
-          aria-hidden="true"
-          data-test-id="sidebar-collection-is-readonly" />
-      );
-    }
+  renderViewIcon() {
+    return (
+      <Icon
+        className={styles['compass-sidebar-collection-type-icon']}
+        glyph="Visibility"
+        title="Read-only View"
+      />
+    );
+  }
+
+  renderTimeSeriesIcon() {
+    return (
+      <Icon
+        className={styles['compass-sidebar-collection-type-icon']}
+        glyph="TimeSeries"
+        title="Time-Series Collection"
+      />
+    );
   }
 
   /**
@@ -161,7 +173,7 @@ class SidebarCollection extends PureComponent {
         bsSize="xsmall"
         bsStyle="link"
         title={<i className="fa fa-fw fa-ellipsis-h" />}
-        className={classnames(styles['compass-sidebar-item-collection-actions'])}
+        className={styles['compass-sidebar-item-collection-actions']}
         noCaret
         pullRight
         id="collection-actions">
@@ -184,7 +196,7 @@ class SidebarCollection extends PureComponent {
         bsSize="xsmall"
         bsStyle="link"
         title={<i className="fa fa-fw fa-ellipsis-h" />}
-        className={classnames(styles['compass-sidebar-item-collection-actions'])}
+        className={styles['compass-sidebar-item-collection-actions']}
         noCaret
         pullRight
         id="collection-actions">
@@ -214,11 +226,13 @@ class SidebarCollection extends PureComponent {
       <div className={itemClassName}>
         <div
           onClick={this.onClick.bind(this)}
-          className={classnames(styles['compass-sidebar-item-title'])}
+          className={styles['compass-sidebar-item-title']}
           data-test-id="sidebar-collection"
-          title={this.props._id}>
-          {collectionName}&nbsp;
-          {this.renderIsReadonly()}
+          title={this.props._id}
+        >
+          {this.props.readonly && this.renderViewIcon()}
+          {this.props.type === TIME_SERIES_COLLECTION_TYPE && this.renderTimeSeriesIcon()}
+          {collectionName}
         </div>
         <div
           className={classnames(
