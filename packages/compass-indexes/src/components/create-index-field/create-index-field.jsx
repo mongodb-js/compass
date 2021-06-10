@@ -15,7 +15,7 @@ const INDEX_TYPES = ['1 (asc)', '-1 (desc)', '2dsphere', 'text'];
  * Default values for field name and type as presented in the UI
  */
 const DEFAULT_FIELD = {
-  name: 'Select a field name',
+  name: 'Select or type a field name',
   type: 'Select a type'
 };
 
