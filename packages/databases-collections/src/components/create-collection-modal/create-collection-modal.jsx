@@ -27,7 +27,7 @@ class CreateCollectionModal extends PureComponent {
 
   constructor() {
     super();
-    this.state = { data: {}, submitDisabled: true };
+    this.state = { data: {} };
   }
 
   onCancel = () => {
@@ -39,8 +39,7 @@ class CreateCollectionModal extends PureComponent {
   }
 
   onChange = (data) => {
-    const submitDisabled = !(data.collection || '').trim();
-    this.setState({data, submitDisabled});
+    this.setState({ data });
   }
 
   renderError() {
@@ -67,7 +66,7 @@ class CreateCollectionModal extends PureComponent {
         onConfirm={this.onConfirm}
         onCancel={this.onCancel}
         buttonText="Create Collection"
-        submitDisabled={this.state.submitDisabled}
+        submitDisabled={!((this.state.data.collection || '').trim())}
         className={styles['create-collection-modal']}
       >
         <CollectionFields

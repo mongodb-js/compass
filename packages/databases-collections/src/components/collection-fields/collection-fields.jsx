@@ -160,7 +160,6 @@ export default class CollectionFields extends PureComponent {
   renderDatabaseNameField() {
     return (<FieldSet>
       <TextInput
-        autoFocus
         required
         label="Database Name"
         onChange={(e) => this.setField('databaseName', e.target.value)}
@@ -171,7 +170,6 @@ export default class CollectionFields extends PureComponent {
   renderCollectionNameField() {
     return (<FieldSet>
       <TextInput
-        autoFocus={!this.props.withDatabase}
         required
         label="Collection Name"
         onChange={(e) => this.setField('collectionName', e.target.value)}

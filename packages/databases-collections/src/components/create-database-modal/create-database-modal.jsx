@@ -33,8 +33,7 @@ class CreateDatabaseModal extends PureComponent {
   }
 
   state = {
-    data: {},
-    submitDisabled: true
+    data: {}
   };
 
   /**
@@ -64,11 +63,7 @@ class CreateDatabaseModal extends PureComponent {
   }
 
   onChange = (data) => {
-    const submitDisabled = !(data.collection || '').trim() || !(data.database || '').trim();
-    this.setState({
-      data,
-      submitDisabled
-    });
+    this.setState({ data });
   }
 
   renderError() {
@@ -90,6 +85,7 @@ class CreateDatabaseModal extends PureComponent {
   renderCollectionNameRequiredNotice() {
     return (
       <Banner
+        className={styles['collection-name-info-banner']}
         variant="info"
       >
         Before MongoDB can save your new database, a collection name
@@ -115,7 +111,10 @@ class CreateDatabaseModal extends PureComponent {
         onConfirm={this.onConfirm}
         onCancel={this.onCancel}
         buttonText="Create Database"
-        submitDisabled={this.state.submitDisabled}
+        submitDisabled={(
+          !(this.state.data.collection || '').trim() ||
+          !(this.state.data.database || '').trim()
+        )}
         className={styles['create-database-modal']}
       >
         <CollectionFields

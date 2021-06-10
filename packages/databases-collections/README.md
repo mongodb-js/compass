@@ -8,7 +8,3 @@ Provides:
 * Database List Table
 * Create Database Modal
 * Drop Database Modal
-
-## License
-
-Apache 2.0
