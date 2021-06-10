@@ -42,6 +42,14 @@ export default class CompassShellStore {
   }
 
   onDataServiceDisconnected = () => {
+    const {
+      runtime: { runtime },
+    } = this.reduxStore.getState();
+
+    if (runtime) {
+      runtime.terminate();
+    }
+
     this.reduxStore.dispatch(setupRuntime(
       null,
       null,
