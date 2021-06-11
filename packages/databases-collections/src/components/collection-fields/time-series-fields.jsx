@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import TextInput from '@leafygreen-ui/text-input';
 
@@ -15,21 +15,25 @@ const META_FIELD_INPUT_DESCRIPTION = 'The metaField is the designated field ' +
 const EXPIRE_AFTER_SECONDS_DESCRIPTION = 'The expireAfterSeconds field enables ' +
   'automatic deletion of documents older than the specified number of seconds.';
 
-function asNumber(value) {
-  return `${value}` ? +value : undefined;
-}
-
 function TimeSeriesFields({
   isTimeSeries,
   onChangeIsTimeSeries,
   onChangeTimeSeriesField,
-  timeSeries
+  timeSeries,
+  expireAfterSeconds
 }) {
   const {
-    expireAfterSeconds,
     metaField,
     timeField
   } = timeSeries;
+
+  const onInputChange = useCallback(
+    (e) => {
+      const { name, value } = e.currentTarget;
+      onChangeTimeSeriesField(name, value);
+    },
+    [onChangeTimeSeriesField]
+  );
 
   return (
     <CollapsibleFieldSet
@@ -42,21 +46,21 @@ function TimeSeriesFields({
         <TextInput
           value={timeField}
           label="timeField"
+          name="timeSeries.timeField"
           description={TIME_FIELD_INPUT_DESCRIPTION}
           required
-          onChange={
-            (e) => onChangeTimeSeriesField('timeField', e.target.value)
-          }
+          onChange={onInputChange}
         />
       </FieldSet>
 
       <FieldSet>
         <TextInput
           label="metaField"
+          name="timeSeries.metaField"
           description={META_FIELD_INPUT_DESCRIPTION}
           optional
           value={metaField}
-          onChange={(e) => onChangeTimeSeriesField('metaField', e.target.value)}
+          onChange={onInputChange}
         />
       </FieldSet>
 
@@ -64,13 +68,11 @@ function TimeSeriesFields({
         <TextInput
           value={expireAfterSeconds}
           label="expireAfterSeconds"
+          name="expireAfterSeconds"
           description={EXPIRE_AFTER_SECONDS_DESCRIPTION}
           optional
           type="number"
-          onChange={(e) => onChangeTimeSeriesField(
-            'expireAfterSeconds',
-            asNumber(e.target.value)
-          )}
+          onChange={onInputChange}
         />
       </FieldSet>
     </CollapsibleFieldSet>
@@ -81,7 +83,8 @@ TimeSeriesFields.propTypes = {
   isTimeSeries: PropTypes.bool.isRequired,
   onChangeIsTimeSeries: PropTypes.func.isRequired,
   onChangeTimeSeriesField: PropTypes.func.isRequired,
-  timeSeries: PropTypes.object.isRequired
+  timeSeries: PropTypes.object.isRequired,
+  expireAfterSeconds: PropTypes.string.isRequired
 };
 
 export default TimeSeriesFields;

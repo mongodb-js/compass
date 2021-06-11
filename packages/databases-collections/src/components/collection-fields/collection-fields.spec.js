@@ -206,8 +206,7 @@ describe('CollectionFields [Component]', () => {
           database: '',
           collection: '',
           options: {
-            capped: true,
-            size: undefined
+            capped: true
           }
         });
       });
