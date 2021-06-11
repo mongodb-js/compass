@@ -22,8 +22,15 @@ function asNumber(value) {
 function TimeSeriesFields({
   isTimeSeries,
   onChangeIsTimeSeries,
-  onChangeTimeSeriesField
+  onChangeTimeSeriesField,
+  timeSeries
 }) {
+  const {
+    expireAfterSeconds,
+    metaField,
+    timeField
+  } = timeSeries;
+
   return (
     <CollapsibleFieldSet
       onToggle={checked => onChangeIsTimeSeries(checked)}
@@ -33,6 +40,7 @@ function TimeSeriesFields({
     >
       <FieldSet>
         <TextInput
+          value={timeField}
           label="timeField"
           description={TIME_FIELD_INPUT_DESCRIPTION}
           required
@@ -47,12 +55,14 @@ function TimeSeriesFields({
           label="metaField"
           description={META_FIELD_INPUT_DESCRIPTION}
           optional
+          value={metaField}
           onChange={(e) => onChangeTimeSeriesField('metaField', e.target.value)}
         />
       </FieldSet>
 
       <FieldSet>
         <TextInput
+          value={expireAfterSeconds}
           label="expireAfterSeconds"
           description={EXPIRE_AFTER_SECONDS_DESCRIPTION}
           optional
@@ -71,6 +81,7 @@ TimeSeriesFields.propTypes = {
   isTimeSeries: PropTypes.bool.isRequired,
   onChangeIsTimeSeries: PropTypes.func.isRequired,
   onChangeTimeSeriesField: PropTypes.func.isRequired,
+  timeSeries: PropTypes.object.isRequired
 };
 
 export default TimeSeriesFields;

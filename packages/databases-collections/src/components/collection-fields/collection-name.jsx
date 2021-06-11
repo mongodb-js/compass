@@ -5,6 +5,7 @@ import TextInput from '@leafygreen-ui/text-input';
 import FieldSet from '../field-set/field-set';
 
 function CollectionName({
+  collectionName,
   onChangeCollectionName
 }) {
   return (
@@ -13,12 +14,14 @@ function CollectionName({
         required
         label="Collection Name"
         onChange={(e) => onChangeCollectionName(e.target.value)}
+        value={collectionName}
       />
     </FieldSet>
   );
 }
 
 CollectionName.propTypes = {
+  collectionName: PropTypes.string.isRequired,
   onChangeCollectionName: PropTypes.func.isRequired
 };
 

@@ -5,6 +5,7 @@ import TextInput from '@leafygreen-ui/text-input';
 import FieldSet from '../field-set/field-set';
 
 function DatabaseName({
+  databaseName,
   onChangeDatabaseName
 }) {
   return (
@@ -13,12 +14,14 @@ function DatabaseName({
         required
         label="Database Name"
         onChange={(e) => onChangeDatabaseName(e.target.value)}
+        value={databaseName}
       />
     </FieldSet>
   );
 }
 
 DatabaseName.propTypes = {
+  databaseName: PropTypes.string.isRequired,
   onChangeDatabaseName: PropTypes.func.isRequired
 };
 

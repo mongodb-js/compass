@@ -7,6 +7,7 @@ import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set'
 const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections/';
 
 function CappedCollectionFields({
+  cappedSize,
   isCapped,
   onChangeCappedSize,
   onChangeIsCapped,
@@ -22,6 +23,7 @@ function CappedCollectionFields({
       description="Fixed-size collections that support high-throughput operations that insert and retrieve documents based on insertion order."
     >
       <TextInput
+        value={cappedSize}
         label="size"
         type="number"
         description="Maximum size in bytes for the capped collection."
@@ -32,6 +34,7 @@ function CappedCollectionFields({
 }
 
 CappedCollectionFields.propTypes = {
+  cappedSize: PropTypes.string.isRequired,
   isCapped: PropTypes.bool.isRequired,
   onChangeCappedSize: PropTypes.func.isRequired,
   onChangeIsCapped: PropTypes.func.isRequired,

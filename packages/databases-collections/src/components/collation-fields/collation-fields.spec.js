@@ -12,6 +12,7 @@ describe('CollationFields [Component]', () => {
     changeCollationOptionSpy = sinon.spy();
     component = mount(
       <Collation
+        collation={{}}
         changeCollationOption={changeCollationOptionSpy}
       />
     );

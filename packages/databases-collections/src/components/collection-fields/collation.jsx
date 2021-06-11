@@ -13,6 +13,7 @@ const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/
  * @returns {React.ReactNode} The rendered component.
  */
 function Collation({
+  collation,
   isCustomCollation,
   onChangeCollationOption,
   onChangeIsCustomCollation,
@@ -30,6 +31,7 @@ function Collation({
       openLink={openLink}
     >
       <CollationFields
+        collation={collation}
         changeCollationOption={onChangeCollationOption}
       />
     </CollapsibleFieldSet>
@@ -38,8 +40,9 @@ function Collation({
 
 
 Collation.propTypes = {
-  onChangeCollationOption: PropTypes.func.isRequired,
+  collation: PropTypes.object.isRequired,
   isCustomCollation: PropTypes.bool.isRequired,
+  onChangeCollationOption: PropTypes.func.isRequired,
   onChangeIsCustomCollation: PropTypes.func.isRequired,
   openLink: PropTypes.func.isRequired
 };

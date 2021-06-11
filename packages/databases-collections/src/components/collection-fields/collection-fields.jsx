@@ -17,16 +17,22 @@ function asNumber(value) {
 export default class CollectionFields extends PureComponent {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
-    withDatabase: PropTypes.bool,
+    openLink: PropTypes.func.isRequired,
     serverVersion: PropTypes.string,
-    openLink: PropTypes.func.isRequired
+    withDatabase: PropTypes.bool
   }
 
   state = {
     isCapped: false,
     isCustomCollation: false,
     isTimeSeries: false,
-    fields: {}
+    fields: {
+      cappedSize: '',
+      collation: {},
+      collectionName: '',
+      databaseName: '',
+      timeSeries: {}
+    }
   };
 
   setField(fieldName, value) {
@@ -73,26 +79,38 @@ export default class CollectionFields extends PureComponent {
     } = this.props;
 
     const {
+      fields,
       isCapped,
       isCustomCollation,
       isTimeSeries
     } = this.state;
 
+    const {
+      collectionName,
+      databaseName,
+      cappedSize,
+      collation,
+      timeSeries
+    } = fields;
+
     return (<>
       {withDatabase && (
         <DatabaseName
+          databaseName={databaseName}
           onChangeDatabaseName={
             (newDatabaseName) => this.setField('databaseName', newDatabaseName)
           }
         />
       )}
       <CollectionName
+        collectionName={collectionName}
         onChangeCollectionName={(newCollectionName) => this.setField(
           'collectionName',
           newCollectionName
         )}
       />
       <CappedCollectionFields
+        cappedSize={`${cappedSize}`}
         isCapped={isCapped}
         onChangeCappedSize={(newCappedSizeString) => this.setField(
           'cappedSize',
@@ -104,6 +122,7 @@ export default class CollectionFields extends PureComponent {
         openLink={openLink}
       />
       <Collation
+        collation={collation}
         onChangeCollationOption={(fieldName, value) => {
           this.setField(`collation.${fieldName}`, value);
         }}
@@ -117,13 +136,14 @@ export default class CollectionFields extends PureComponent {
       {hasTimeSeriesSupport(serverVersion) && (
         <TimeSeriesFields
           isTimeSeries={isTimeSeries}
-          onChangeIsTimeSeries={(timeSeries) => this.setState(
-            { isTimeSeries: timeSeries },
+          onChangeIsTimeSeries={(newIsTimeSeries) => this.setState(
+            { isTimeSeries: newIsTimeSeries },
             this.updateOptions
           )}
           onChangeTimeSeriesField={(fieldName, value) => this.setField(
             `timeSeries.${fieldName}`, value
           )}
+          timeSeries={timeSeries}
         />
       )}
     </>);

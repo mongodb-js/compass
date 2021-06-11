@@ -49,6 +49,7 @@ function getCollationValue(value) {
  * @returns {React.ReactNode} The rendered component.
  */
 function CollationFields({
+  collation,
   changeCollationOption
 }) {
   return COLLATION_OPTIONS.map((element) => {
@@ -68,6 +69,7 @@ function CollationFields({
           usePortal={false}
           size={Size.Small}
           allowDeselect={false}
+          value={`${collation[element.field] || ''}`}
         >
           {CollationOptions(element.values)}
         </Select>
@@ -77,6 +79,7 @@ function CollationFields({
 }
 
 CollationFields.propTypes = {
+  collation: PropTypes.object.isRequired,
   changeCollationOption: PropTypes.func.isRequired
 };
 

@@ -89,10 +89,10 @@ describe('CollectionFields [Component]', () => {
       it('calls the onchange with time series collection on', () => {
         expect(onChangeSpy.callCount).to.equal(1);
         expect(onChangeSpy.firstCall.args[0]).to.deep.equal({
-          database: undefined,
-          collection: undefined,
+          database: '',
+          collection: '',
           options: {
-            timeseries: undefined
+            timeseries: {}
           }
         });
       });
@@ -157,10 +157,10 @@ describe('CollectionFields [Component]', () => {
       it('calls the onchange with collation', () => {
         expect(onChangeSpy.callCount).to.equal(1);
         expect(onChangeSpy.firstCall.args[0]).to.deep.equal({
-          database: undefined,
-          collection: undefined,
+          database: '',
+          collection: '',
           options: {
-            collation: undefined
+            collation: {}
           }
         });
       });
@@ -181,8 +181,8 @@ describe('CollectionFields [Component]', () => {
       it('calls the onchange with collation locale set', () => {
         expect(onChangeSpy.callCount).to.equal(2);
         expect(onChangeSpy.secondCall.args[0]).to.deep.equal({
-          database: undefined,
-          collection: undefined,
+          database: '',
+          collection: '',
           options: {
             collation: {
               locale: 'af'
@@ -203,8 +203,8 @@ describe('CollectionFields [Component]', () => {
       it('calls the onchange with capped collection on', () => {
         expect(onChangeSpy.callCount).to.equal(1);
         expect(onChangeSpy.firstCall.args[0]).to.deep.equal({
-          database: undefined,
-          collection: undefined,
+          database: '',
+          collection: '',
           options: {
             capped: true,
             size: undefined
@@ -228,8 +228,8 @@ describe('CollectionFields [Component]', () => {
       it('calls the onchange with capped collection off', () => {
         expect(onChangeSpy.callCount).to.equal(2);
         expect(onChangeSpy.secondCall.args[0]).to.deep.equal({
-          database: undefined,
-          collection: undefined,
+          database: '',
+          collection: '',
           options: {}
         });
       });
