@@ -1,4 +1,4 @@
-# MongoDB Compass [![][travis_img]][travis_url]
+# MongoDB Compass
 The MongoDB GUI.
 
 ![Aggregation Pipeline Builder Tab in Compass](compass-screenshot.png)
@@ -97,6 +97,3 @@ forum](https://feedback.mongodb.com/forums/924283-compass).
 
 # License
 [SSPL](https://github.com/mongodb-js/compass/blob/master/LICENSE)
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass.svg
-[travis_url]: https://travis-ci.org/mongodb-js/compass

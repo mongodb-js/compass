@@ -21,12 +21,6 @@ COMPASS_HOME=/path/to/my/compass npm run unlink-plugin
 
 `start-compass`: Runs the plugin in compass master.
 
-## License
-
-Apache 2
-
-===
-
 ## Features
 
 #### Storybook
@@ -91,12 +85,6 @@ For completeness, below is a list of directories present in this module:
   they are automatically added to storybook.
 - `test` implement your tests here, and name the files `*.test.js`.
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass-shell.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/compass-shell
 [react-storybook]: https://github.com/kadirahq/react-storybook
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme

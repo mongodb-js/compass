@@ -1,4 +1,4 @@
-# Compass Deployment Awareness Plugin [![Build Status](https://travis-ci.org/mongodb-js/compass-deployment-awareness.svg)](https://travis-ci.org/mongodb-js/compass-deployment-awareness)
+# Compass Deployment Awareness Plugin
 
 Provide functionality surrounding deployment awareness and if the topology
 is in a state to read or write.
@@ -23,7 +23,3 @@ is in a state to read or write.
 |---------------------------------------|---------------------------------------------------------|
 | `DeploymentAwareness.ReadStateStore`  | Triggers when the readable state changes.               |
 | `DeploymentAwareness.WriteStateStore` | Triggers when the writable state changes.               |
-
-## License
-
-Apache 2

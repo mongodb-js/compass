@@ -357,12 +357,6 @@ Which assets are generated depends on the target platform.
 - Make `test` use `xvfb-maybe` by default
 - `snap` and `appimage` installers for Linux
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://img.shields.io/travis/mongodb-js/hadron-build.svg
-[travis_url]: https://travis-ci.org/mongodb-js/hadron-build
 [npm_img]: https://img.shields.io/npm/v/hadron-build.svg
 [npm_url]: https://npmjs.org/package/hadron-build
 [npm-scripts]: https://docs.npmjs.com/misc/scripts

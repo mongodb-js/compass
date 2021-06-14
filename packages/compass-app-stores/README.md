@@ -1,4 +1,4 @@
-# app-stores [![][travis_img]][travis_url]
+# app-stores
 
 > The external stores repo for compass
 
@@ -18,12 +18,6 @@ COMPASS_HOME=/path/to/my/compass npm run link-plugin
 ```shell
 COMPASS_HOME=/path/to/my/compass npm run unlink-plugin
 ```
-
-## License
-
-Apache 2
-
-===
 
 ## Features
 
@@ -89,12 +83,6 @@ For completeness, below is a list of directories present in this module:
   they are automatically added to storybook.
 - `test` implement your tests here, and name the files `*.test.js`.
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass-app-stores.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/compass-app-stores
 [react-storybook]: https://github.com/kadirahq/react-storybook
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme

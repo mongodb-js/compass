@@ -1,4 +1,4 @@
-# @mongodb-js/compass-collection [![][travis_img]][travis_url] [![][azure_img]][azure_url]
+# @mongodb-js/compass-collection [![][azure_img]][azure_url]
 
 > Compass Collection Plugin
 
@@ -92,12 +92,6 @@ COMPASS_HOME=/path/to/my/compass npm run unlink-plugin
 - [ ] docs: dependabot
 - [x] ci: publish coverage and karma xunit on azure
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass-collection.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/compass-collection
 [azure_img]: https://dev.azure.com/team-compass/team-compass/_apis/build/status/mongodb-js.compass-collection?branchName=master
 [azure_url]: https://dev.azure.com/team-compass/team-compass/_build/latest?definitionId=1&branchName=master
 [react-storybook]: https://github.com/kadirahq/react-storybook

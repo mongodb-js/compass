@@ -354,9 +354,5 @@ color: #0086B3;
 </div>
 ```
 
-## License
-
-Apache 2.0
-
 [npm_img]: https://img.shields.io/npm/v/mongodb-ace-mode.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/mongodb-ace-mode
