@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { ZeroState, StatusRow, ViewSwitcher } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
 import { ZeroGraphic } from '../zero-graphic';
@@ -8,6 +7,7 @@ import { ExplainBody } from '../explain-body';
 
 import INDEX_TYPES from '../../constants/index-types';
 import EXPLAIN_STATES from '../../constants/explain-states';
+import EXPLAIN_VIEWS from '../../constants/explain-views';
 
 import styles from './explain-states.less';
 
@@ -150,10 +150,10 @@ class ExplainStates extends Component {
   renderZeroState() {
     if (this.checkIfZeroState()) {
       return (
-        <div key="zero-state" className={classnames(styles['zero-state-container'])}>
+        <div key="zero-state" className={styles['zero-state-container']}>
           <ZeroGraphic />
           <ZeroState header={HEADER} subtext={SUBTEXT}>
-            <div className={classnames(styles['zero-state-action'])}>
+            <div className={styles['zero-state-action']}>
               <div>
                 <TextButton
                   className={
@@ -163,7 +163,7 @@ class ExplainStates extends Component {
                   clickHandler={this.onExecuteExplainClicked.bind(this)} />
               </div>
               <a
-                className={classnames(styles['zero-state-link'])}
+                className={styles['zero-state-link']}
                 onClick={this.openDocumentation.bind(this)}
               >
                 Learn more about explain plans
@@ -211,12 +211,12 @@ class ExplainStates extends Component {
    * @returns {React.Component} The component.
    */
   renderViewSwitcher() {
-    const activeViewTypeButton = this.props.explain.viewType === 'tree'
+    const activeViewTypeButton = this.props.explain.viewType === EXPLAIN_VIEWS.tree
       ? 'Visual Tree'
       : 'Raw JSON';
 
     return (
-      <div className={classnames(styles['action-bar'])}>
+      <div className={styles['action-bar']}>
         <ViewSwitcher
           label="View Details As"
           buttonLabels={['Visual Tree', 'Raw JSON']}
@@ -236,7 +236,7 @@ class ExplainStates extends Component {
   render() {
     return (
       [
-        <div key="controls-container" className={classnames(styles['controls-container'])}>
+        <div key="controls-container" className={styles['controls-container']}>
           {this.renderBanner()}
           {this.renderQueryBar()}
           {this.renderViewSwitcher()}
