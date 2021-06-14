@@ -680,7 +680,12 @@ class Target {
         const createDeb = require('electron-installer-debian');
         debug('creating deb...', this.installerOptions.deb);
         return createDeb(this.installerOptions.deb).then(() => {
-          return sign(this.dest(this.linux_deb_filename));
+          // We do not sign debs because it doesn't work, see
+          // this thread for context:
+          //   https://mongodb.slack.com/archives/G2L10JAV7/p1623169331107600
+          //
+          // return sign(this.dest(this.linux_deb_filename));
+          return this.dest(this.linux_deb_filename);
         });
       });
     };

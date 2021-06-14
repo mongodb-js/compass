@@ -62,7 +62,7 @@ There are a few mains ones that we use:
   example,
 [server-status-plugin](https://github.com/mongodb-js/server-status-plugin/blob/df3fb3b76b52871da5fc4dc1d98b56e7cc9628cf/src/index.js#L37).
 - `Database.Tab` - Display as tabs in the database context of the app.
-  [compass-collections-ddl](https://github.com/mongodb-js/compass-collections-ddl/blob/master/src/index.js#L39) is registered as a `Database.Tab`, for example.
+  [compass-collections-databases](https://github.com/mongodb-js/compass/blob/master/packages/src/compass-collections-databases) is registered as a `Database.Tab`, for example.
 - `Collection.Tab` - Display as sub tabs in the collection context of the
   app. A good example of this is the [compass-crud](https://github.com/mongodb-js/compass-crud/blob/master/src/index.js#L74).
 - `Global.Modal` - Will open as modal dialogs in any context of the app. These

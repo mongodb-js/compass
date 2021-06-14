@@ -52,6 +52,11 @@ export class CompassShell extends Component {
 
   componentDidMount() {
     this.loadHistory();
+    window.addEventListener('beforeunload', this.terminateRuntime);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('beforeunload', this.terminateRuntime);
   }
 
   onShellOutputChanged = (output) => {
@@ -68,6 +73,12 @@ export class CompassShell extends Component {
     this.setState({
       isOperationInProgress: false
     });
+  }
+
+  terminateRuntime = () => {
+    if (this.props.runtime) {
+      this.props.runtime.terminate();
+    }
   }
 
   lastOpenHeight = defaultShellHeightOpened;
