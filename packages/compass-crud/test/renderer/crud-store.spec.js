@@ -607,7 +607,7 @@ describe('store', function() {
         invalidHadronDoc.getId = null;
 
         invalidHadronDoc.on('update-error', (message) => {
-          expect(message).to.equal('An error occured when attempting to update the document: doc.getId is not a function');
+          expect(message).to.equal('An error occured when attempting to update the document: this.getId is not a function');
 
           done();
         });

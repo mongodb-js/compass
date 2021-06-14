@@ -9,10 +9,6 @@ import createDebug from 'debug';
 const debug = createDebug('mongodb-compass:crud:crud-store');
 
 import configureGridStore from './grid-store';
-import {
-  buildUpdateUnlessChangedInBackgroundQuery,
-  getOriginalKeysAndValuesForSpecifiedKeys
-} from '../utils/document';
 
 /**
  * Number of docs per page.
@@ -378,7 +374,7 @@ const configureStore = (options = {}) => {
         const {
           query,
           updateDoc
-        } = buildUpdateUnlessChangedInBackgroundQuery(doc, this.state.shardKeys);
+        } = doc.generateUpdateUnlessChangedInBackgroundQuery(this.state.shardKeys);
 
         if (Object.keys(updateDoc).length === 0) {
           doc.emit('update-error', EMPTY_UPDATE_ERROR.message);
@@ -420,8 +416,10 @@ const configureStore = (options = {}) => {
     replaceDocument(doc) {
       const object = doc.generateObject();
       const opts = { returnOriginal: false, promoteValues: false };
-      const query = getOriginalKeysAndValuesForSpecifiedKeys(
-        doc, { _id: 1, ...(this.state.shardKeys || {}) });
+      const query = doc.getOriginalKeysAndValuesForSpecifiedKeys({
+        _id: 1,
+        ...(this.state.shardKeys || {})
+      });
       this.dataService.findOneAndReplace(this.state.ns, query, object, opts, (error, d) => {
         if (error) {
           doc.emit('update-error', error.message);
@@ -454,8 +452,10 @@ const configureStore = (options = {}) => {
      */
     replaceExtJsonDocument(doc, originalDoc) {
       const opts = { returnOriginal: false, promoteValues: false };
-      const query = getOriginalKeysAndValuesForSpecifiedKeys(
-        originalDoc, { _id: 1, ...(this.state.shardKeys || {}) });
+      const query = originalDoc.getOriginalKeysAndValuesForSpecifiedKeys({
+        _id: 1,
+        ...(this.state.shardKeys || {})
+      });
       this.dataService.findOneAndReplace(this.state.ns, query, doc, opts, (error, d) => {
         if (error) {
           this.state.updateError = error.message;
