@@ -68,9 +68,10 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
-              importLoaders: 1,
-              localIdentName: 'CompassSchemaPlugin_[name]-[local]__[hash:base64:5]'
+              modules: {
+                localIdentName: 'CompassSchemaPlugin_[name]-[local]__[hash:base64:5]'
+              },
+              importLoaders: 1
             }
           },
           {

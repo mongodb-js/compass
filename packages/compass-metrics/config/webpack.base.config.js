@@ -53,9 +53,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName: 'MetricsPlugin_[name]-[local]__[hash:base64:5]'
+
+              modules: {
+                localIdentName: 'MetricsPlugin_[name]-[local]__[hash:base64:5]'
+              }
             }
           },
           {
