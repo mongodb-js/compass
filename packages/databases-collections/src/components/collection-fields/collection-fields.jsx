@@ -11,7 +11,18 @@ import TimeSeriesFields from './time-series-fields';
 import Collation from './collation';
 
 function asNumber(value) {
-  return `${value}` ? +value : undefined;
+  return !_.isNil(value) && `${value}` ? +value : undefined;
+}
+
+function omitEmptyFormFields(obj) {
+  const omitted = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (_.isNil(value) || (_.isString(value) && value.trim() === '')) {
+      continue;
+    }
+    omitted[key] = _.isObjectLike(value) ? omitEmptyFormFields(value) : value;
+  }
+  return omitted;
 }
 
 export default class CollectionFields extends PureComponent {
@@ -31,13 +42,14 @@ export default class CollectionFields extends PureComponent {
       collation: {},
       collectionName: '',
       databaseName: '',
-      timeSeries: {}
+      timeSeries: {},
+      expireAfterSeconds: ''
     }
   };
 
   setField(fieldName, value) {
     const fields = _.cloneDeep(this.state.fields);
-    _.set(fields, fieldName, Object.is(value, NaN) ? undefined : value);
+    _.set(fields, fieldName, value);
     this.setState({ fields }, this.updateOptions);
   }
 
@@ -50,25 +62,28 @@ export default class CollectionFields extends PureComponent {
   }
 
   buildOptions() {
-    const state = this.state;
-    const cappedOptions = state.isCapped ? {
-      capped: true,
-      size: state.fields.cappedSize ? state.fields.cappedSize : undefined
-    } : {};
+    const { isCapped, isCustomCollation, isTimeSeries, fields } = this.state;
 
-    const collationOptions = state.isCustomCollation ? {
-      collation: state.fields.collation
-    } : {};
+    const cappedOptions = isCapped
+      ? { capped: true, size: asNumber(fields.cappedSize) }
+      : {};
 
-    const timeSeriesOptions = state.isTimeSeries ? {
-      timeseries: state.fields.timeSeries
-    } : {};
+    const collationOptions = isCustomCollation
+      ? { collation: fields.collation }
+      : {};
 
-    return {
+    const timeSeriesOptions = isTimeSeries
+      ? {
+        timeseries: fields.timeSeries,
+        expireAfterSeconds: asNumber(fields.expireAfterSeconds),
+      }
+      : {};
+
+    return omitEmptyFormFields({
       ...collationOptions,
       ...cappedOptions,
       ...timeSeriesOptions
-    };
+    });
   }
 
   render() {
@@ -90,7 +105,8 @@ export default class CollectionFields extends PureComponent {
       databaseName,
       cappedSize,
       collation,
-      timeSeries
+      timeSeries,
+      expireAfterSeconds
     } = fields;
 
     return (<>
@@ -112,10 +128,9 @@ export default class CollectionFields extends PureComponent {
       <CappedCollectionFields
         cappedSize={`${cappedSize}`}
         isCapped={isCapped}
-        onChangeCappedSize={(newCappedSizeString) => this.setField(
-          'cappedSize',
-          asNumber(newCappedSizeString)
-        )}
+        onChangeCappedSize={(newCappedSizeString) =>
+          this.setField('cappedSize', newCappedSizeString)
+        }
         onChangeIsCapped={
           (capped) => this.setState({ isCapped: capped }, this.updateOptions)
         }
@@ -140,10 +155,11 @@ export default class CollectionFields extends PureComponent {
             { isTimeSeries: newIsTimeSeries },
             this.updateOptions
           )}
-          onChangeTimeSeriesField={(fieldName, value) => this.setField(
-            `timeSeries.${fieldName}`, value
-          )}
+          onChangeTimeSeriesField={(fieldName, value) =>
+            this.setField(fieldName, value)
+          }
           timeSeries={timeSeries}
+          expireAfterSeconds={expireAfterSeconds}
         />
       )}
     </>);

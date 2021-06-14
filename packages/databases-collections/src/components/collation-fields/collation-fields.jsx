@@ -69,7 +69,11 @@ function CollationFields({
           usePortal={false}
           size={Size.Small}
           allowDeselect={false}
-          value={`${collation[element.field] || ''}`}
+          value={
+            _.isNil(collation[element.field])
+              ? ''
+              : String(collation[element.field])
+          }
         >
           {CollationOptions(element.values)}
         </Select>
