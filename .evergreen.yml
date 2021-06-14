@@ -209,7 +209,7 @@ functions:
           # debug option is not very useful in normal runs, but helpful when
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-evergreen --unsafe-perm
+          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-evergreen --unsafe-perm -- --stream
     # - command: attach.results
     #   params:
     #     file_location: src/test-results.xml
