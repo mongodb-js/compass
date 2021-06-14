@@ -1,4 +1,5 @@
 import reducer, {
+  isTimeSeriesExplainOutput,
   switchToTreeView,
   switchToJSONView,
   explainStateChanged,
@@ -7,7 +8,6 @@ import reducer, {
   SWITCHED_TO_JSON_VIEW,
   EXPLAIN_STATE_CHANGED,
   EXPLAIN_PLAN_FETCHED
-
 } from './explain';
 
 const explainExample = {
@@ -66,6 +66,47 @@ describe('explain module', () => {
       expect(explainPlanFetched(explainExample)).to.deep.equal({
         type: EXPLAIN_PLAN_FETCHED,
         explain: explainExample
+      });
+    });
+  });
+
+  describe('#isTimeSeriesExplainOutput', () => {
+    context('with regular find explain output', () => {
+      const basicFindExplainOutput = {
+        explainVersion: '1',
+        queryPlanner: {
+          namespace: 'fruits.pineapple'
+        },
+        executionStats: {
+          executionSuccess: true,
+          executionStages: {
+            stage: 'scan'
+          }
+        }
+      };
+
+      it('returns false', () => {
+        expect(isTimeSeriesExplainOutput(basicFindExplainOutput)).to.equal(false);
+      });
+    });
+
+    context('with time series collection find explain output', () => {
+      const basicFindExplainOutput = {
+        explainVersion: '1',
+        stages: [{
+          $cursor: {
+            executionStats: {
+              executionSuccess: true,
+              executionStages: {
+                stage: 'scan'
+              }
+            }
+          }
+        }]
+      };
+
+      it('returns true', () => {
+        expect(isTimeSeriesExplainOutput(basicFindExplainOutput)).to.equal(true);
       });
     });
   });

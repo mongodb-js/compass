@@ -231,8 +231,8 @@ const updateWithIndexesInfo = (explain, indexes) => ({
  * @returns {boolean} true if the output resembles output from an
  * explain on an aggregation query.
  */
-function isTimeSeriesExplainOutput(explainOutput) {
-  return !explainOutput.executionStats && explainOutput.stages;
+export function isTimeSeriesExplainOutput(explainOutput) {
+  return !explainOutput.executionStats && !!explainOutput.stages;
 }
 
 /**
