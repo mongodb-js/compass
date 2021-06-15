@@ -173,6 +173,11 @@ class Target {
       appCopyright: `${new Date().getFullYear()} ${this.author}`,
       buildVersion: this.version,
       appVersion: this.version,
+      // We are not packaging node_modules with electron-package, so there is no
+      // need to `prune`. This options also breaks when used in combination with
+      // lerna hoisting / npm workpaces as some application dependencies can't
+      // be resolved in app node_modules
+      prune: false,
       ignore: 'node_modules/|.cache/|dist/|test/|.user-data|.deps/',
       platform: this.platform,
       arch: this.arch,
