@@ -5,7 +5,6 @@
 .github/
 .nyc_output/
 .nycrc
-.storybook/
 .travis.yml
 config/
 coverage/

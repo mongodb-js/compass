@@ -12,7 +12,6 @@ mocha-webpack.opts
 scripts/
 test/
 src/
-.storybook/
 .coverage/
 .nyc_output/
 lib/index.html

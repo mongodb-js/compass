@@ -13,7 +13,6 @@ mocha-webpack.opts
 scripts/
 src/
 test/
-.storybook/
 .nyc_output/
 
 scripts/**/*

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Security from 'components/security';
+import Security from '../security';
 import styles from './security.less';
 import pluginStyles from '../plugin/plugin.less';
 import { corePlugin } from '../../../test/renderer/fixtures';

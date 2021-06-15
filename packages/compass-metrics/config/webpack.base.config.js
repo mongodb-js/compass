@@ -17,7 +17,7 @@ module.exports = {
       helpers: path.join(project.path.src, 'helpers'),
       plugin: path.join(project.path.src, 'index.js'),
       stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
+
       utils: path.join(project.path.src, 'utils')
     }
   },

@@ -58,6 +58,7 @@
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
+    "eslint-plugin-react": "^7.24.0",
     "file-loader": "^5.1.0",
     "hadron-app": "^4.1.0",
     "hadron-app-registry": "^8.1.0",
@@ -107,6 +108,8 @@
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2",
-    "webpack-sources": "1.0.1"
+    "webpack-sources": "1.0.1",
+    "reflux": "^0.4.1",
+    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin"
   }
 }

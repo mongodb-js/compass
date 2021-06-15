@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Plugin from 'components/plugin';
+import Plugin from '../plugin';
 import styles from './plugin.less';
 import errorStyles from '../plugin-error/plugin-error.less';
 import { corePlugin, errPlugin } from '../../../test/renderer/fixtures';

@@ -17,3 +17,4 @@ expansions.yml
 lerna-debug.log
 packages/**/*.tgz
 packages/**/package-lock.json
+tmp

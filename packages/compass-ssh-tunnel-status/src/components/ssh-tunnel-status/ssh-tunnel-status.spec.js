@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import SshTunnelStatus from 'components/ssh-tunnel-status';
+import SshTunnelStatus from '../ssh-tunnel-status';
 import styles from './ssh-tunnel-status.less';
 
 describe('SshTunnelStatus [Component]', () => {

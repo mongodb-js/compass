@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StoreConnector } from 'hadron-react-components';
-import ServerVersion from 'components/server-version';
-import store from 'stores';
+import ServerVersion from './components/server-version';
+import store from './stores';
 
 class Plugin extends Component {
   static displayName = 'ServerVersionPlugin';

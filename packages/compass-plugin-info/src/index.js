@@ -1,6 +1,6 @@
 import SecurityPlugin from './plugin';
-import SecurityActions from 'actions';
-import SecurityStore from 'stores';
+import SecurityActions from './actions';
+import SecurityStore from './stores';
 
 /**
  * A sample role for the component.

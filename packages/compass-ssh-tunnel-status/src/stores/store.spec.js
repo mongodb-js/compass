@@ -1,4 +1,4 @@
-import Store from 'stores';
+import Store from './';
 
 describe('SshTunnelStatusStore [Store]', () => {
   beforeEach(() => {

@@ -27,6 +27,7 @@
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^3.0.1",
+    "eslint-plugin-react": "^7.24.0",
     "hadron-app-registry": "^8.1.0",
     "mocha": "^6.1.2",
     "pre-commit": "^1.1.3",

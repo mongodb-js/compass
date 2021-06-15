@@ -55,6 +55,7 @@
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
+    "eslint-plugin-react": "^7.24.0",
     "ignore-loader": "^0.1.2",
     "jsdom": "^12.2.0",
     "jsdom-global": "^3.0.2",
