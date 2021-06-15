@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import ComponentPreview from 'storybook/decorators/componentPreview';
+import ComponentPreview from '../../../.storybook/decorators/componentPreview';
 
-import Loading from 'components/loading';
+import Loading from '../loading';
 
 storiesOf('Loading', module)
   .add('Status Enabled', () => (
