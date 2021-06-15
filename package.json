@@ -24,6 +24,7 @@
     "postpackages-test-version": "node scripts/bump-compass-dependencies.js",
     "packages-test-publish": "node scripts/monorepo/publish-all.js --local --no-pristine-check --no-branch-check",
     "release": "npm run release --workspace mongodb-compass --",
+    "release-evergreen": "npm run release-evergreen --workspace=mongodb-compass --",
     "test": "lerna run test --concurrency 1 --stream",
     "test-evergreen": "lerna run test-ci --concurrency 1",
     "update-akzidenz-cache": "node scripts/download-akzidenz.js --update-cache",

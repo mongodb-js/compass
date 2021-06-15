@@ -1,5 +1,5 @@
 # This action runs lint checks and tests against the code.
-name: Check and Test
+name: Check, Test, and Build
 
 # Controls when the action will run.
 on:
@@ -11,17 +11,18 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   check-and-test:
-    name: Check and Test
+    name: Check, Test, and Build
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, windows-latest, macos-latest]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Install Deps Ubuntu
+        if: ${{ runner.os === 'Linux' }}
+        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      - name: Install Deps Ubuntu
-        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.1.2
@@ -40,3 +41,17 @@ jobs:
 
       - name: Run Tests
         run: npm run test -- --stream
+
+      - name: Build Compass
+        env:
+          HADRON_PRODUCT: mongodb-compass
+          HADRON_PRODUCT_NAME: MongoDB Compass
+          HADRON_DISTRIBUTION: compass
+          DEBUG: hadron*
+        run: npm run release-evergreen
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Compass Build ${{ runner.os }}
+          path: ${{ github.workspace }}/packages/compass/dist
+
