@@ -144,6 +144,9 @@
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2",
-    "webpack-sources": "1.0.1"
+    "webpack-sources": "1.0.1",
+    "mongodb": "^3.6.3",
+    "reflux": "^0.4.1",
+    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin"
   }
 }

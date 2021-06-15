@@ -139,7 +139,8 @@
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^1.7.2",
     "webpack-sources": "^1.4.3",
-    "xvfb-maybe": "^0.2.1"
+    "xvfb-maybe": "^0.2.1",
+    "mongodb-connection-model": "^20.1.0"
   },
   "dependencies": {
     "JSONStream": "^1.3.5",

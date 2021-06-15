@@ -113,6 +113,7 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.2",
     "webpack-node-externals": "^1.6.0",
-    "webpack-sources": "1.0.1"
+    "webpack-sources": "1.0.1",
+    "mongodb-connection-model": "^20.1.0"
   }
 }
