@@ -88,7 +88,7 @@ class Document extends EventEmitter {
       _id: this.getId(),
       ...originalFieldsThatWillBeUpdated
     };
-  
+
     // Build the update document to be used in an update operation with `$set`
     // and `$unset` reflecting the changes that have occured in the document.
     const setUpdateObject = this.getSetUpdateForDocumentChanges();
@@ -100,7 +100,7 @@ class Document extends EventEmitter {
     if (unsetUpdateObject && Object.keys(unsetUpdateObject).length > 0) {
       updateDoc.$unset = unsetUpdateObject;
     }
-  
+
     return {
       query,
       updateDoc
@@ -221,7 +221,7 @@ class Document extends EventEmitter {
   **/
   getSetUpdateForDocumentChanges() {
     const object = {};
-  
+
     if (this.elements) {
       for (const element of this.elements) {
         if (
