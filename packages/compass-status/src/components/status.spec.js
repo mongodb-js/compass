@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Status from 'components/status';
+import Status from './status';
 import styles from './status.less';
 
 describe('Status [Component]', () => {

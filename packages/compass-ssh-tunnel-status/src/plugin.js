@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StoreConnector } from 'hadron-react-components';
-import SshTunnelStatus from 'components/ssh-tunnel-status';
-import store from 'stores';
+import SshTunnelStatus from './components/ssh-tunnel-status';
+import store from './stores';
 
 class Plugin extends Component {
   static displayName = 'SshTunnelStatusPlugin';

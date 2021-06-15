@@ -1,4 +1,4 @@
-import Store from 'stores';
+import Store from '../../src/stores';
 
 describe('ServerVersionStore [Store]', () => {
   beforeEach(() => {

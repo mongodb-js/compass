@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import PluginDetail from 'components/plugin-detail';
-import PluginError from 'components/plugin-error';
+import PluginDetail from '../plugin-detail';
+import PluginError from '../plugin-error';
 
 import styles from './plugin.less';
 

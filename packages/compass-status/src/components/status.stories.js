@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import ComponentPreview from 'storybook/decorators/componentPreview';
+import ComponentPreview from '../../.storybook/decorators/componentPreview';
 
-import Status from 'components/status';
+import Status from './status';
 
 storiesOf('Status', module)
   .add('Hidden', () => (

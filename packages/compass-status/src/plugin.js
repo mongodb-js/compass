@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { StoreConnector } from 'hadron-react-components';
-import Status from 'components/status';
-import store from 'stores';
-import actions from 'actions';
+import Status from './components/status';
+import store from './stores';
+import actions from './actions';
 
 class Plugin extends Component {
   static displayName = 'StatusPlugin';

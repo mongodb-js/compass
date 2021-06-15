@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import Plugin from 'components/plugin';
-import Actions from 'actions';
+import Plugin from '../plugin';
+import Actions from '../../actions';
 
 import styles from './security.less';
 

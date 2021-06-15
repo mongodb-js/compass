@@ -1,6 +1,6 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import { ENTERPRISE, COMMUNITY } from 'constants/server-version';
+import { ENTERPRISE, COMMUNITY } from '../constants/server-version';
 
 /**
  * Server Version store.
