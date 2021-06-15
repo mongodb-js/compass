@@ -316,7 +316,7 @@
     "marky": "^1.2.0",
     "moment": "^2.10.6",
     "mongodb": "^3.6.3",
-    "mongodb-ace-autocompleter": "^0.4.13",
+    "mongodb-ace-autocompleter": "^0.6.0",
     "mongodb-ace-mode": "^1.0.0",
     "mongodb-ace-theme": "^1.0.0",
     "mongodb-ace-theme-query": "^1.0.0",
