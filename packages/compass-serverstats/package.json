@@ -56,7 +56,7 @@
     "cheerio": "^1.0.0-rc.2",
     "debug": "^4.1.1",
     "depcheck": "^1.4.0",
-    "electron": "^6.1.12",
+    "electron": "^9.4.0",
     "electron-mocha": "^6.0.1",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",

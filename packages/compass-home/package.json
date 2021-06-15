@@ -86,7 +86,7 @@
     "css-loader": "^4.3.0",
     "debug": "^3.0.1",
     "depcheck": "^1.4.0",
-    "electron": "^6.1.12",
+    "electron": "^9.4.0",
     "electron-rebuild": "^1.10.0",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",

@@ -41,7 +41,7 @@
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
     "depcheck": "^1.4.0",
-    "electron": "^6.1.12",
+    "electron": "^9.4.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^8.0.1",
