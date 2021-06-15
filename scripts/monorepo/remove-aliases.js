@@ -11,7 +11,7 @@ function main() {
 }
 
 function removeAliases({location: packageLocation}) {
-  if(!fs.existsSync(path.join(packageLocation, 'config/webpack.base.config.js'))) {
+  if(!fs.existsSync(path.join(packageLocation, 'config/project.js'))) {
     return;
   }
 
@@ -35,7 +35,7 @@ function removeAliases({location: packageLocation}) {
       replacementCount++;
       const replacement = getReplacement(packageLocation, folder, rest, filePath);
       console.log('    - ', path.relative(packageLocation, filePath), ':', match, '->', replacement);
-      return replacement;
+      return replacement.replace('//', '/');
     });
 
     fs.writeFileSync(filePath, newFileContent);
