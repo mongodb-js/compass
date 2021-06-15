@@ -9,8 +9,8 @@ export function ExplainTimeSeries() {
       className={styles['explain-time-series-banner']}
       variant={Variant.Warning}
     >
-      Visual analysis of the explain plan of a query on a time series
-      collection is not supported in this Compass release. Please refer to
+      Visual explain plan is not supported on a time series
+      collection in this Compass release. Please refer to
       the raw json output of the explain for insight into the operation.
     </Banner>
   );
