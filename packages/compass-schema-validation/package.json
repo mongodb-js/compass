@@ -141,6 +141,7 @@
     "decomment": "^0.9.1",
     "javascript-stringify": "^2.0.1",
     "lodash": "^4.17.15",
-    "react-bootstrap": "^0.32.1"
+    "react-bootstrap": "^0.32.1",
+    "semver": "^5.7.1"
   }
 }
