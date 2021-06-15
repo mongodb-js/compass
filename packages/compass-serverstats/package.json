@@ -11,7 +11,6 @@
     "jsx": "babel ./src --out-dir ./lib",
     "less": "lessc ./styles/index.less ./styles/index.css",
     "prestart": "npm run compile",
-    "storybook": "start-storybook -p 9001",
     "start": "electron ./electron",
     "test": "xvfb-maybe hadron-build test",
     "check": "npm run lint && npm run depcheck",

@@ -4,7 +4,6 @@
 .ghpages/
 .github/
 .nycrc
-.storybook/
 .travis.yml
 .vscode/
 config/
