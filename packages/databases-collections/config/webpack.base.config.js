@@ -59,9 +59,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName: 'DatabasesAndCollectionsPlugin_[name]-[local]__[hash:base64:5]'
+
+              modules: {
+                localIdentName: 'DatabasesAndCollectionsPlugin_[name]-[local]__[hash:base64:5]'
+              }
             }
           },
           {

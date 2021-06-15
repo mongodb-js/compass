@@ -106,9 +106,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName: 'ServerVersionPlugin_[name]-[local]__[hash:base64:5]'
+
+              modules: {
+                localIdentName: 'ServerVersionPlugin_[name]-[local]__[hash:base64:5]'
+              }
             }
           },
           {

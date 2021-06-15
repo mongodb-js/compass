@@ -60,9 +60,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName: 'Status_[name]-[local]__[hash:base64:5]'
+
+              modules: {
+                localIdentName: 'Status_[name]-[local]__[hash:base64:5]'
+              }
             }
           },
           {

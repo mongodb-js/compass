@@ -70,9 +70,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName: 'CompassShellPlugin_[name]-[local]__[hash:base64:5]'
+
+              modules: {
+                localIdentName: 'CompassShellPlugin_[name]-[local]__[hash:base64:5]'
+              }
             }
           },
           {

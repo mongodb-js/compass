@@ -69,9 +69,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName: 'FieldStorePlugin_[name]-[local]__[hash:base64:5]'
+
+              modules: {
+                localIdentName: 'FieldStorePlugin_[name]-[local]__[hash:base64:5]'
+              }
             }
           },
           {

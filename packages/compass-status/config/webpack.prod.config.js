@@ -53,9 +53,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName: 'VendorDllTestAfter__[hash:base64:5]'
+
+              modules: {
+                localIdentName: 'VendorDllTestAfter__[hash:base64:5]'
+              }
             }
           },
           {
