@@ -31,7 +31,6 @@
         }
       ],
       "distributions": {
-        "plugin-prefix": "@mongodb-js/compass",
         "default": "compass",
         "compass": {
           "name": "mongodb-compass",
