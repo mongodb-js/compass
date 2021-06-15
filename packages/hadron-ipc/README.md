@@ -1,4 +1,4 @@
-# hadron-ipc [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
+# hadron-ipc [![npm][npm_img]][npm_url]
 
 Simplified wrapper around Electron's IPC events. 
 
@@ -144,12 +144,6 @@ npm install hadron-ipc
 - [Hadron App][hadron-app]
 - [Hadron App Registry][hadron-app-registry]
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://img.shields.io/travis/mongodb-js/hadron-ipc.svg
-[travis_url]: https://travis-ci.org/mongodb-js/hadron-ipc
 [npm_img]: https://img.shields.io/npm/v/hadron-ipc.svg
 [npm_url]: https://npmjs.org/package/hadron-ipc
 [ipc-renderer]: https://electronjs.org/docs/api/ipc-renderer

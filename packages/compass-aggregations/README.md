@@ -1,4 +1,4 @@
-# compass-aggregations [![][travis_img]][travis_url] [![][storybook_img]][storybook_url]
+# compass-aggregations [![][storybook_img]][storybook_url]
 
 > Compass Plugin for the MongoDB Aggregation Pipeline Builder.
 
@@ -321,12 +321,6 @@ npm run analyze
 npm i -S @mongodb-js/compass-aggregations
 ```
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass-aggregations.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/compass-aggregations
 [storybook_img]: https://raw.githubusercontent.com/storybooks/brand/master/badge/badge-storybook.svg
 [storybook_url]: https://mongodb-js.github.io/compass-aggregations/
 [hadron-app-registry]: https://github.com/mongodb-js/hadron-app-registry

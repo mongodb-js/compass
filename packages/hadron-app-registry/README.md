@@ -1,4 +1,4 @@
-# hadron-app-registry [![][travis_img]][travis_url] [![][npm_img]][npm_url]
+# hadron-app-registry [![][npm_img]][npm_url]
 
 > Hadron App Registry
 
@@ -32,11 +32,5 @@ registry.deregisterComponent('Component::MyComponent');
 registry.deregisterStore('Store::MyStore');
 ```
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://img.shields.io/travis/mongodb-js/hadron-app-registry.svg?style=flat-square
-[travis_url]: https://travis-ci.org/mongodb-js/hadron-app-registry
 [npm_img]: https://img.shields.io/npm/v/hadron-app-registry.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/hadron-app-registry

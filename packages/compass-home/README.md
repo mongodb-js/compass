@@ -1,4 +1,4 @@
-# home [![][travis_img]][travis_url]
+# home
 
 The Compass plugin responsible for gluing together other plugins:
 
@@ -87,10 +87,6 @@ For completeness, below is a list of directories present in this module:
   place to implement your own components. `npm run compile` will use `./src` as input
   and create `./lib`.
 - `test` implement your tests here, and name the files `*.test.js`.
-
-## License
-
-Apache 2.0
 
 [react-storybook]: https://github.com/kadirahq/react-storybook
 [enzyme]: http://airbnb.io/enzyme/

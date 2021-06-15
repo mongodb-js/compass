@@ -1,4 +1,4 @@
-# Compass Connect [![][travis_img]][travis_url]
+# Compass Connect
 
 This plugin is the initial connection screen dialog that appears when you open MongoDB Compass.
 
@@ -42,11 +42,5 @@ Users can switch to the form view by clicking `"Fill in connection fields indivi
 
 ![form-view](./form-view.png)
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass-connect.svg?token=ezEB2TnpPiu7XLo6ByZp&branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/compass-connect
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-connect.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-connect

@@ -150,10 +150,6 @@ npm test
 
 All tests in an electron renderer process thanks to [electron-mocha](https://npm.im/electron-mocha).
 
-## License
-
-Apache 2.0
-
 [workflow_img]: https://github.com/mongodb-js/data-service/workflows/Check%20and%20Test/badge.svg?event=push
 [workflow_url]: https://github.com/mongodb-js/data-service/actions?query=workflow%3A%22Check+and+Test%22
 [npm_img]: https://img.shields.io/npm/v/mongodb-data-service.svg?style=flat-square

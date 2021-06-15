@@ -454,10 +454,6 @@ This will log the following events to the console:
 >>> status: { message: 'Connect to MongoDB', complete: true }
 ```
 
-## License
-
-Apache 2.0
-
 [workflow_img]: https://github.com/mongodb-js/connection-model/workflows/Check%20and%20Test/badge.svg?event=push
 [workflow_url]: https://github.com/mongodb-js/connection-model/actions?query=workflow%3A%22Check+and+Test%22
 [npm_img]: https://img.shields.io/npm/v/mongodb-connection-model.svg?style=flat-square
