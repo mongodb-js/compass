@@ -41,7 +41,7 @@ function main() {
     fail('The repo is not pristine');
   }
 
-  const packages = JSON.parse(childProcess.execSync('lerna list --json --toposort'));
+  const packages = JSON.parse(childProcess.execSync('lerna list --no-private --json --toposort'));
   let i = 0;
   for (const package of packages) {
     publishPackage(package, [++i, packages.length].join(' of '));
@@ -52,8 +52,7 @@ function publishPackage(
   {
     location: packageLocation,
     name: packageName,
-    version: packageVersion,
-    private: isPackagePrivate
+    version: packageVersion
   },
   progress
 ) {
@@ -61,12 +60,6 @@ function publishPackage(
   const packageNameAndVersion = `${packageName}@${packageVersion}`;
 
   console.log(packageNameAndVersion, `(${progress})`);
-  
-  if (isPackagePrivate) {
-    console.log('Updating package-lock only ...');
-    updatePackageLockOnly(packageLocation);
-    return;
-  }
 
   if (alreadyPublished(packageLocation, packageNameAndVersion)) {
     console.log('Already published, skipping ...');
@@ -93,24 +86,6 @@ function installAndPublish(packageLocation) {
 
   if (publishExitCode !== 0) {
     throw new Error(`npm publish failed with exit code = ${publishExitCode}`);
-  }
-}
-
-function updatePackageLockOnly(packageLocation) {
-  const proc = childProcess.spawnSync(
-    'npm',
-    ['install', '--package-lock-only', ...npmRegistrySpawnArgs],
-    {
-      cwd: packageLocation,
-      stdio: 'inherit',
-      stdin: 'inherit'
-    }
-  );
-
-  const { status: installExitCode } = proc;
-
-  if (installExitCode !== 0) {
-    throw new Error(`npm install failed with exit code = ${installExitCode}`);
   }
 }
 

@@ -52,9 +52,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName: 'IndexesPlugin_[name]-[local]__[hash:base64:5]'
+
+              modules: {
+                localIdentName: 'IndexesPlugin_[name]-[local]__[hash:base64:5]'
+              }
             }
           },
           {

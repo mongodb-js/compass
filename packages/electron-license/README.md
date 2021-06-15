@@ -1,4 +1,4 @@
-# electron-license [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
+# electron-license [![npm][npm_img]][npm_url]
 
 > Tools for electron apps to work with licenses
 
@@ -26,11 +26,5 @@ Options:
   --version      Show version.
 ```
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://img.shields.io/travis/mongodb-js/electron-license.svg
-[travis_url]: https://travis-ci.org/mongodb-js/electron-license
 [npm_img]: https://img.shields.io/npm/v/electron-license.svg
 [npm_url]: https://npmjs.org/package/electron-license

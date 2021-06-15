@@ -1,4 +1,4 @@
-# Compass Status [![][travis_img]][travis_url]
+# Compass Status
 
 > Compass Status Plugin
 
@@ -54,10 +54,3 @@ For example, the schema subview:
 | Key            | Description                       |
 |----------------|-----------------------------------|
 | `Status.Store` | Triggers with status information. |
-
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass-status.svg
-[travis_url]: https://travis-ci.org/mongodb-js/compass-status

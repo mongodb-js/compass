@@ -1,4 +1,4 @@
-# storage-mixin [![][travis_img]][travis_url] [![][npm_img]][npm_url] [![][inch_img]][inch_url]
+# storage-mixin [![][npm_img]][npm_url] [![][inch_img]][inch_url]
 
 Persist [Ampersand.js](https://ampersandjs.com/) models and collections to various storage backends.
 
@@ -233,12 +233,6 @@ var User = Model.extend(storageMixin, {
 
 ```
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://img.shields.io/travis/mongodb-js/storage-mixin.svg?style=flat-square
-[travis_url]: https://travis-ci.org/mongodb-js/storage-mixin
 [npm_img]: https://img.shields.io/npm/v/storage-mixin.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/storage-mixin
 [inch_img]: http://inch-ci.org/github/mongodb-js/storage-mixin.svg?branch=master

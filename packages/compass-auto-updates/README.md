@@ -1,10 +1,6 @@
-# compass-auto-updates [![][travis_img]][travis_url]
+# compass-auto-updates
 
 > Compass Auto Updates Plugin
-
-## License
-
-Apache 2
 
 ===
 
@@ -62,12 +58,6 @@ For completeness, below is a list of directories present in this module:
   they are automatically added to storybook.
 - `test` implement your tests here, and name the files `*.test.js`.
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass-auto-updates.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/compass-auto-updates
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme
 [jsdom]: https://github.com/tmpvar/jsdom

@@ -173,9 +173,6 @@ npm install -S @mongodb-js/compass-crud
 - [hadron-app-registry][hadron-app-registry]
 - [hadron-app][hadron-app]
 
-# License
-[Apache 2.0](./LICENSE)
-
 [workflow_img]: https://github.com/mongodb-js/compass-crud/workflows/Run%20Tests/badge.svg
 [workflow_url]: https://github.com/mongodb-js/compass-crud/actions?query=workflow%3A%22Run+Tests%22+branch%3Amaster
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-crud.svg?style=flat-square

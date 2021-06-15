@@ -1,4 +1,4 @@
-# mongodb-js-metrics [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
+# mongodb-js-metrics [![npm][npm_img]][npm_url]
 mongodb-js-metrics is a reusable metrics wrapper for a number of external tracking services. Currently, it supports [Google Analytics][ga], [Intercom][intercom], [Bugsnag][bugsnag], and MongoDB Stitch/Atlas.
 
 ## Quick Start
@@ -209,11 +209,6 @@ metrics.track('Plasma Cannon', 'used', {
 ### Custom Resources
 You can also build custom Resources that are specific to your app and use them as you would use the built-in ones. Make them extend the `BaseResource` and follow its interface. For an example, look at the built-in resources under `./lib/resources/` to see how they are implemented.
 
-## License
-Apache 2.0
-
-[travis_img]: https://img.shields.io/travis/mongodb-js/metrics.svg
-[travis_url]: https://travis-ci.org/mongodb-js/metrics
 [npm_img]: https://img.shields.io/npm/v/mongodb-js-metrics.svg
 [npm_url]: https://npmjs.org/package/mongodb-js-metrics
 [ga]: https://analytics.google.com

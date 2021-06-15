@@ -51,9 +51,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName: 'ExplainPlanPlugin_[name]-[local]__[hash:base64:5]'
+
+              modules: {
+                localIdentName: 'ExplainPlanPlugin_[name]-[local]__[hash:base64:5]'
+              }
             }
           },
           {

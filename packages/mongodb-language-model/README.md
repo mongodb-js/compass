@@ -1,7 +1,5 @@
 # mongodb-language-model
 
-[![build status](https://secure.travis-ci.org/mongodb-js/mongodb-language-model.png)](http://travis-ci.org/mongodb-js/mongodb-language-model)
-
 Parses a MongoDB query and creates an abstract syntax tree (AST) with part of speech
 tagging. Currently, only [strict extended json][docs-extended-json] syntax is
 supported (which means keys have to be surrounded by double quotes and values
@@ -78,9 +76,5 @@ npm install --save mongodb-language-model
 ```
 npm test
 ```
-
-## License
-
-Apache 2.0
 
 [docs-extended-json]: https://docs.mongodb.com/manual/reference/mongodb-extended-json/

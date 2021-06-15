@@ -1,4 +1,4 @@
-# query-history [![][travis_img]][travis_url] [![][npm_img]][npm_url]
+# Compass Query History Plugin [![][npm_img]][npm_url]
 
 > The query history sidebar.
 
@@ -13,12 +13,6 @@ The RecentListStore contains the RecentQueryCollection, which saves the queries
  again. When a user clicks 'favorite' on a recent query, the RecentQuery is
  converted to a FavoriteQuery and is saved in the FavoriteQueryCollection.
  The FavoriteQueryCollection is kept in the FavoriteListStore.
-
-## License
-
-Apache 2
-
-===
 
 ## Features
 
@@ -80,12 +74,6 @@ For completeness, below is a list of directories present in this module:
 - `test`
 
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass-query-history.svg
-[travis_url]: https://travis-ci.org/mongodb-js/compass-query-history
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-query-history.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-query-history
 [react-storybook]: https://github.com/kadirahq/react-storybook
