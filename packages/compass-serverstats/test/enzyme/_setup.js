@@ -3,6 +3,11 @@
  */
 const Enzyme = require('enzyme');
 const Adapter = require('enzyme-adapter-react-16');
+const jsdom = require('jsdom');
+
+const virtualConsole = new jsdom.VirtualConsole();
+virtualConsole.sendTo(console, { omitJSDOMErrors: true });
+
 Enzyme.configure({ adapter: new Adapter() });
 
 const root = require('path').resolve(__dirname, '..', '..');
@@ -20,16 +25,14 @@ require('@babel/register')({
   ignore: [/node_modules/]
 });
 
-const jsdom = require('jsdom').jsdom;
-const exposedProperties = ['window', 'navigator', 'document'];
-
-global.document = jsdom('');
-global.window = document.defaultView;
-Object.keys(document.defaultView).forEach((property) => {
-  if (typeof global[property] === 'undefined') {
-    exposedProperties.push(property);
-    global[property] = document.defaultView[property];
-  }
+require('jsdom-global')('', {
+  virtualConsole: virtualConsole,
+  beforeParse(win) {
+    win.URL = {
+      createObjectURL: () => {}
+    };
+  },
+  runScripts: 'dangerously'
 });
 
 global.navigator = {

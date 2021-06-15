@@ -3,9 +3,18 @@ const path = require('path');
 
 const project = require('./project');
 
+const externals = nodeExternals({
+  // package node_modules
+  modulesDir: path.resolve(__dirname, '..', 'node_modules'),
+  // monorepo root node_modules
+  additionalModuleDirs: [
+    path.resolve(__dirname, '..', '..', '..', 'node_modules')
+  ]
+});
+
 module.exports = {
   target: 'node', // webpack should compile node compatible code for tests
-  externals: [ nodeExternals() ],
+  externals: [externals],
   stats: {
     warnings: false
   },

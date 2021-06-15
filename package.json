@@ -12,10 +12,10 @@
   "scripts": {
     "check": "lerna run check --stream",
     "check-evergreen": "lerna run check",
-    "bootstrap": "lerna exec --stream -- npm install --quiet",
-    "bootstrap-evergreen": "cross-env ELECTRON_SKIP_BINARY_DOWNLOAD=1 lerna exec -- npm install --quiet && npm run install-electron",
+    "bootstrap": "npm install && lerna run prepare --stream",
+    "bootstrap-evergreen": "npm ci && lerna run prepare",
+    "start": "npm run start --workspace=mongodb-compass",
     "install-electron": "cross-env ELECTRON_SKIP_BINARY_DOWNLOAD= lerna exec --concurrency 1 -- node ../../scripts/install-electron.js",
-    "start": "lerna run start --stream --scope mongodb-compass",
     "amend-compass-version": "node scripts/bump-compass-dependencies.js && git commit --no-allow-empty -m \"chore(release): sync compass dependencies\" packages/compass/package.json",
     "packages-version": "lerna version --no-private --no-push -m \"chore(release): bump package versions\"",
     "postpackages-version": "npm run amend-compass-version && git push && git push --tags",
@@ -23,7 +23,8 @@
     "packages-test-version": "lerna version --no-private --allow-branch=* --no-git-tag-version --no-push",
     "postpackages-test-version": "node scripts/bump-compass-dependencies.js",
     "packages-test-publish": "node scripts/monorepo/publish-all.js --local --no-pristine-check --no-branch-check",
-    "release": "cd packages/compass && npm run --silent release --",
+    "release": "npm run release --workspace mongodb-compass --",
+    "release-evergreen": "npm run release-evergreen --workspace=mongodb-compass --",
     "test": "lerna run test --concurrency 1 --stream",
     "test-evergreen": "lerna run test-ci --concurrency 1",
     "update-akzidenz-cache": "node scripts/download-akzidenz.js --update-cache",
@@ -51,11 +52,14 @@
     "semver": "^7.3.5"
   },
   "engines": {
-    "node": "^12.4.0",
-    "npm": ">=6.13.0"
+    "node": ">=12.4.0",
+    "npm": ">=7.16.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
     "email": "compass@mongodb.com"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }

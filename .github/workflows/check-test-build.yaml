@@ -1,0 +1,68 @@
+# This action runs lint checks and tests against the code.
+name: Check, Test, and Build
+
+# Controls when the action will run.
+on:
+  pull_request:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  check-and-test:
+    name: Check, Test, and Build
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    # The type of runner that the job will run on
+    runs-on: ${{ matrix.os }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Install Deps Ubuntu
+        if: ${{ runner.os == 'Linux' }}
+        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v2.1.2
+        with:
+          # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
+          node-version: ^12.4.0
+
+      - name: Install npm@7
+        run: npm install -g npm@7
+
+      - name: Install Dependencies
+        run: npm install --force && npx lerna run prepare --stream
+
+      - name: Run Checks
+        run: npm run check -- --stream
+
+      - name: Run Tests
+        run: npm run test -- --stream
+
+      # TODO: Fix windows and macos and re-enable
+      # 
+      #   - Windows can't find wix toolkit and fails to bundle (see https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708)
+      #   - MacOS bundles correctly but tries to upload the whole .app which we probably don't want
+      # 
+      # - name: Build Compass
+      #   env:
+      #     HADRON_PRODUCT: mongodb-compass
+      #     HADRON_PRODUCT_NAME: MongoDB Compass
+      #     HADRON_DISTRIBUTION: compass
+      #     DEBUG: hadron*
+      #   run: npm run release-evergreen
+
+      # - name: Upload Compass Artifacts
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: Compass Build ${{ runner.os }}
+      #     path: ${{ github.workspace }}/packages/compass/dist

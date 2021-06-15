@@ -21,10 +21,10 @@ const { execFileSync } = require('child_process');
 const { forEachPackage } = require('./for-each-package');
 
 let [expr, ...execCommandArgs] = process.argv.slice(2);
-let useLernaExec = -1;
+let useLernaExec = false;
 
-if ((useLernaExec = execCommandArgs.indexOf('--lerna-exec')) >= 0) {
-  execCommandArgs.splice(useLernaExec, 1);
+if (execCommandArgs.includes('--lerna-exec')) {
+  execCommandArgs.splice(execCommandArgs.indexOf('--lerna-exec'), 1);
   useLernaExec = true;
 }
 
@@ -74,7 +74,10 @@ async function npmWorkspaces(packages) {
   }
 
   console.log();
-  console.log('Running "npm %s" for the following packages:', command);
+  console.log(
+    'Running "npm %s" for the following packages:',
+    execCommandArgs.join(' ')
+  );
   console.log();
   console.log(util.inspect(packages));
   console.log();

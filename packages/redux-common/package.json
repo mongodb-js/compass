@@ -30,7 +30,6 @@
     "eslint-plugin-react": "^7.24.0",
     "hadron-app-registry": "^8.1.0",
     "mocha": "^6.1.2",
-    "pre-commit": "^1.1.3",
     "sinon": "^7.2.7"
   }
 }

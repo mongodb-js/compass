@@ -1,12 +1,22 @@
 const nodeExternals = require('webpack-node-externals');
 const merge = require('webpack-merge');
+const path = require('path');
 
 const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
+const externals = nodeExternals({
+  // package node_modules
+  modulesDir: path.resolve(__dirname, '..', 'node_modules'),
+  // monorepo root node_modules
+  additionalModuleDirs: [
+    path.resolve(__dirname, '..', '..', '..', 'node_modules')
+  ]
+});
+
 const config = {
   target: 'node', // webpack should compile node compatible code for tests
-  externals: [ nodeExternals() ],
+  externals: [externals],
   stats: {
     warnings: false
   },

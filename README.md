@@ -38,7 +38,6 @@ npm i -S @mongodb-js/compass-aggregations@latest
 And in package.json:
 ```js
 "distributions": {
-  "plugin-prefix": "@mongodb-js/compass",
   "default": "compass",
   "compass": {
     "name": "mongodb-compass",

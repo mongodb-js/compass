@@ -60,8 +60,16 @@ describe('formatters', () => {
         .then(() => rm(FIXTURES.JSON_MULTI_SMALL_DOCS));
     });
     describe('should format binary data correctly', () => {
+      afterEach(async() => {
+        try {
+          await rm(FIXTURES.JSON_MULTI_SMALL_DOCS);
+        } catch (e) {
+          // noop
+        }
+      });
+
       for (const bsonVersion of ['v1', 'v4']) {
-        it(`works for input from bson version ${bsonVersion}`, () => {
+        it(`works for input from bson version ${bsonVersion}`, async() => {
           // The driver returns bson v1.x objects to us. They don't have a
           // .toExtendedJSON() method, we simulate that.
           class FakeBSON1Binary extends Binary {
@@ -83,13 +91,12 @@ describe('formatters', () => {
           const formatter = createJSONFormatter({brackets: true});
           const dest = fs.createWriteStream(FIXTURES.JSON_MULTI_SMALL_DOCS);
 
-          return pipeline(source, formatter, dest)
-            .then(() => readFile(FIXTURES.JSON_MULTI_SMALL_DOCS))
-            .then((contents) => {
-              const parsed = EJSON.parse(contents);
-              expect(parsed).to.deep.equal(docs);
-            })
-            .then(() => rm(FIXTURES.JSON_MULTI_SMALL_DOCS));
+          await pipeline(source, formatter, dest);
+
+          const contents = await readFile(FIXTURES.JSON_MULTI_SMALL_DOCS);
+          const parsed = EJSON.parse(contents);
+
+          expect(parsed).to.deep.equal(docs);
         });
       }
     });

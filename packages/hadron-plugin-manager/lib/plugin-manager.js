@@ -3,6 +3,7 @@
 const async = require('async');
 const fs = require('fs');
 const path = require('path');
+const pkgUp = require('pkg-up');
 const Plugin = require('./plugin');
 const Action = require('./action');
 
@@ -69,19 +70,26 @@ class PluginManager {
     });
   }
 
-  _loadPlugin(appRegistry, apiVersion, pkgPath, file, done) {
-    const pluginPath = path.join(pkgPath, file);
-    fs.stat(pluginPath, (error, f) => {
+  _loadPlugin(appRegistry, apiVersion, pkgPath, pluginNameOrPath, done) {
+    let pluginPath;
+    try {
+      pluginPath = path.dirname(
+        pkgUp.sync({ cwd: require.resolve(pluginNameOrPath) })
+      );
+    } catch (e) {
+      pluginPath = path.join(pkgPath, pluginNameOrPath);
+    }
+    fs.stat(pluginPath, (error, stats) => {
       if (error) {
         return done();
       }
-      this._readPlugin(appRegistry, apiVersion, f, pluginPath, done);
+      this._readPlugin(appRegistry, apiVersion, stats, pluginPath, done);
     });
   }
 
-  _readPlugin(appRegistry, apiVersion, file, pkgPath, done) {
-    if (file.isDirectory()) {
-      const plugin = new Plugin(pkgPath, apiVersion);
+  _readPlugin(appRegistry, apiVersion, stats, resolvedPath, done) {
+    if (stats.isDirectory() || stats.isFile()) {
+      const plugin = new Plugin(resolvedPath, apiVersion, stats);
       plugin.activate(appRegistry);
       const frozen = Object.freeze(plugin);
       this.plugins.push(frozen);

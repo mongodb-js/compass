@@ -29,7 +29,8 @@
   "scripts": {
     "pretest:electron": "electron-rebuild --force --only keytar",
     "test:electron": "xvfb-maybe electron-mocha --no-sandbox --renderer",
-    "pretest:node": "node-gyp rebuild --directory node_modules/keytar/",
+    "posttest:electron": "node ../../scripts/rebuild.js keytar",
+    "pretest:node": "node ../../scripts/rebuild.js keytar",
     "test:node": "xvfb-maybe mocha",
     "check": "npm run lint && npm run depcheck",
     "test": "npm run test:node && npm run test:electron",
