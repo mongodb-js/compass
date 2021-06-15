@@ -1,6 +1,6 @@
 import StatusPlugin from './plugin';
-import StatusActions from 'actions';
-import StatusStore from 'stores';
+import StatusActions from './actions';
+import StatusStore from './stores';
 
 /**
  * A sample role for the component.

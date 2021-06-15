@@ -1,6 +1,6 @@
 import React from 'react';
-import Store from 'stores';
-import Actions from 'actions';
+import Store from './';
+import Actions from '../actions';
 import AppRegistry from 'hadron-app-registry';
 
 describe('StatusStore [Store]', () => {

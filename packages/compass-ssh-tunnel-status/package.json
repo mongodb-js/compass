@@ -21,7 +21,6 @@
     "check": "npm run lint && npm run depcheck",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
-    "storybook": "start-storybook -p 9001 -c .storybook",
     "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck --ignores=\"react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
@@ -44,7 +43,6 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
-    "@storybook/react": "^3.2.0",
     "autoprefixer": "^7.1.2",
     "babel-loader": "^8.2.2",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
@@ -63,6 +61,7 @@
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.1.0",
+    "eslint-plugin-react": "^7.24.0",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
@@ -111,6 +110,7 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.2",
     "webpack-node-externals": "^3.0.0",
-    "webpack-sources": "1.0.1"
+    "webpack-sources": "1.0.1",
+    "mongodb-connection-model": "^20.1.0"
   }
 }

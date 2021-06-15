@@ -4,8 +4,8 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import PluginManager from '@mongodb-js/hadron-plugin-manager';
 import { AppContainer } from 'react-hot-loader';
-import SecurityPlugin, { activate } from 'plugin';
-import Store from 'stores';
+import SecurityPlugin, { activate } from '../../src/index.js';
+import Store from '../../src/stores';
 
 import { corePlugin, extPlugin, errPlugin } from '../../test/renderer/fixtures';
 

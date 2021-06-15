@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 import { InfoSprinkle } from 'hadron-react-components';
 
 // Mockout some of QueryOptions's dependencies via the webpack inject-loader
-import QueryOptionInjector from 'inject-loader!components/query-option/query-option';
+import QueryOptionInjector from 'inject-loader!./query-option';
 
 // We have to mock out these dependencies because because the electron shell is undefined when run outside
 // the context of the electron renderer - which would result in an error being thrown in these component

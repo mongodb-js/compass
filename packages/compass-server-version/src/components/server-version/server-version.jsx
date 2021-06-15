@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { ENTERPRISE, COMMUNITY } from 'constants/server-version';
+import { ENTERPRISE, COMMUNITY } from '../../constants/server-version';
 
 import styles from './server-version.less';
 

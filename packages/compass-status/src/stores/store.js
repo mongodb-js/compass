@@ -1,6 +1,6 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import StatusActions from 'actions';
+import StatusActions from '../actions';
 
 /**
  * Status store. The store object consists of the following options:

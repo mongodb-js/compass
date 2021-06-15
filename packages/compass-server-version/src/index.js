@@ -1,5 +1,5 @@
 import ServerVersionPlugin from './plugin';
-import ServerVersionStore from 'stores';
+import ServerVersionStore from './stores';
 
 /**
  * A sample role for the component.
