@@ -1,4 +1,4 @@
-import { ConnectionString } from '@mongosh/service-provider-core';
+import ConnectionString from 'mongodb-connection-string-url';
 
 /**
  * Takes the connection options for the driver v3.6 and converts
