@@ -14,18 +14,26 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: ^12.4.0
+
+      - name: Install npm@7
+        run: npm install -g npm@7
+
       - name: Install Dependencies
-        run: npm i
+        run: npm install --force && npx lerna run prepare --stream
+
       - name: Set up Git
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+
       - name: Update THIRD-PARTY-NOTICES.md
         run: npm run update-third-party-notices
+
       - name: Commit THIRD-PARTY-NOTICES changes
         run: |
           git commit --no-allow-empty -m "chore: update THIRD-PARTY-NOTICES" THIRD-PARTY-NOTICES.md || true
+
       - name: Update AUTHORS
         run: npm run update-authors
       - name: Commit AUTHORS changes
