@@ -35,12 +35,14 @@ jobs:
 
       - name: Commit THIRD-PARTY-NOTICES changes
         run: |
+          git add THIRD-PARTY-NOTICES.md
           git commit --no-allow-empty -m "chore: update THIRD-PARTY-NOTICES" THIRD-PARTY-NOTICES.md || true
 
       - name: Update AUTHORS
         run: npm run update-authors
       - name: Commit AUTHORS changes
         run: |
+          git add AUTHORS
           git commit --no-allow-empty -m "chore: update AUTHORS" AUTHORS || true
       - name: Push updates
         uses: ad-m/github-push-action@v0.6.0
