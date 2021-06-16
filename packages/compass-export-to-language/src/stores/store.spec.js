@@ -4,10 +4,14 @@ import compiler from 'bson-transpilers';
 
 const subscribeCheck = (s, pipeline, check, done) => {
   const unsubscribe = s.subscribe(() => {
-    expect(s.getState().error).to.equal(null);
-    if (check(s.getState())) {
-      unsubscribe();
-      done();
+    try {
+      expect(s.getState().error).to.equal(null);
+      if (check(s.getState())) {
+        unsubscribe();
+        done();
+      }
+    } catch (e) {
+      done(e);
     }
   });
   return unsubscribe;
@@ -53,28 +57,28 @@ describe('ExportToLanguage Store', () => {
       it('opens the aggregation modal', (done) => {
         unsubscribe = subscribeCheck(store, agg, (s) => (s.modalOpen), done);
         appRegistry.emit('open-aggregation-export-to-language', agg);
-      }).timeout(5000);
+      });
 
       it('sets mode to Pipeline', (done) => {
         unsubscribe = subscribeCheck(store, agg, (s) => (
           s.mode === 'Pipeline'
         ), done);
         appRegistry.emit('open-aggregation-export-to-language', agg);
-      }).timeout(5000);
+      });
 
       it('adds input expression to the state', (done) => {
         unsubscribe = subscribeCheck(store, agg, (s) => (
           s.inputExpression.aggregation === agg
         ), done);
         appRegistry.emit('open-aggregation-export-to-language', agg);
-      }).timeout(5000);
+      });
 
       it('triggers run transpiler command', (done) => {
         unsubscribe = subscribeCheck(store, agg, (s) => (
           s.transpiledExpression === compiler.shell.python.compile(agg)
         ), done);
         appRegistry.emit('open-aggregation-export-to-language', agg);
-      }).timeout(5000);
+      });
     });
 
     describe('when query opens export to language with imperfect fields', () => {
@@ -86,7 +90,7 @@ describe('ExportToLanguage Store', () => {
           project: '', maxTimeMS: '', sort: '', skip: '', limit: '', collation: '',
           filter: "'filterString'"
         });
-      }).timeout(5000);
+      });
 
       it('filters query correctly with other args', (done) => {
         unsubscribe = subscribeCheck(store, {}, (s) => (
@@ -103,7 +107,7 @@ describe('ExportToLanguage Store', () => {
           limit: '50',
           maxTimeMS: ''
         });
-      }).timeout(5000);
+      });
 
       it('handles default filter', (done) => {
         unsubscribe = subscribeCheck(store, {}, (s) => (
@@ -112,7 +116,7 @@ describe('ExportToLanguage Store', () => {
         appRegistry.emit('open-query-export-to-language', {
           project: '', maxTimeMS: '', sort: '', skip: '', limit: '', collation: '', filter: ''
         });
-      }).timeout(5000);
+      });
 
       it('handles null or missing args', (done) => {
         unsubscribe = subscribeCheck(store, {}, (s) => (
@@ -121,21 +125,21 @@ describe('ExportToLanguage Store', () => {
         appRegistry.emit('open-query-export-to-language', {
           maxTimeMS: null, sort: null
         });
-      }).timeout(5000);
+      });
 
       it('treats a string as a filter', (done) => {
         unsubscribe = subscribeCheck(store, {}, (s) => (
           JSON.stringify(s.inputExpression) === JSON.stringify({ filter: '{x: 1, y: 2}'})
         ), done);
         appRegistry.emit('open-query-export-to-language', '{x: 1, y: 2}');
-      }).timeout(5000);
+      });
 
       it('treats a empty string as a default filter', (done) => {
         unsubscribe = subscribeCheck(store, {}, (s) => (
           JSON.stringify(s.inputExpression) === JSON.stringify({ filter: '{}' })
         ), done);
         appRegistry.emit('open-query-export-to-language', '');
-      }).timeout(5000);
+      });
 
       it('handles default filter with other args', (done) => {
         unsubscribe = subscribeCheck(store, {}, (s) => (
@@ -153,7 +157,7 @@ describe('ExportToLanguage Store', () => {
           limit: '',
           maxTimeMS: ''
         });
-      }).timeout(5000);
+      });
     });
 
     describe('when query opens export to language', () => {
@@ -170,28 +174,28 @@ describe('ExportToLanguage Store', () => {
       it('opens the query modal', (done) => {
         unsubscribe = subscribeCheck(store, query, (s) => (s.modalOpen), done);
         appRegistry.emit('open-query-export-to-language', query);
-      }).timeout(5000);
+      });
 
       it('sets mode to Query', (done) => {
         unsubscribe = subscribeCheck(store, query, (s) => (
           s.mode === 'Query'
         ), done);
         appRegistry.emit('open-query-export-to-language', query);
-      }).timeout(5000);
+      });
 
       it('adds input expression to the state', (done) => {
         unsubscribe = subscribeCheck(store, query, (s) => (
           JSON.stringify(s.inputExpression) === JSON.stringify(query)
         ), done);
         appRegistry.emit('open-query-export-to-language', query);
-      }).timeout(5000);
+      });
 
       it('triggers run transpiler command', (done) => {
         unsubscribe = subscribeCheck(store, query, (s) => (
           s.transpiledExpression === compiler.shell.python.compile(query.filter)
         ), done);
         appRegistry.emit('open-query-export-to-language', query);
-      }).timeout(5000);
+      });
     });
   });
 });
