@@ -23,7 +23,7 @@ jobs:
         run: npm install -g npm@7
 
       - name: Install Dependencies
-        run: npm install --force && npx lerna run prepare --stream
+        run: npm ci
 
       - name: Set up Git
         run: |
