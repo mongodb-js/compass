@@ -16,7 +16,7 @@
     "start": "npm run start --workspace=mongodb-compass",
     "packages-version": "lerna version --no-push --no-private -m \"chore(release): Bump package versions\"",
     "test-packages-version": "npm run packages-version --",
-    "version": "node ./scripts/bump-private-dependencies.js",
+    "version": "node ./scripts/bump-private-dependencies.js --no-commit",
     "packages-publish": "lerna publish from-package",
     "pretest-packages-publish": "./scripts/monorepo/start-proxy-registry.sh && wait-on -t 3000 http://localhost:4873 && npm-cli-adduser -u test -p test -e test@test.test --registry http://localhost:4873 && echo $'\n\n!!! LOCAL REGISTRY DOCKER IMAGE IS RUNNING, DO NOT FORGET TO CLEAN IN UP WHEN YOU ARE DONE\n\n'",
     "test-packages-publish": "npm run packages-publish -- --registry http://localhost:4873",

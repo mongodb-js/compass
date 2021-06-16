@@ -14,6 +14,8 @@ const LERNA_BIN = path.resolve(
   'lerna'
 );
 
+const NO_STAGE = process.argv.includes('--no-stage');
+
 const NO_COMMIT = process.argv.includes('--no-commit');
 
 async function main() {
@@ -57,14 +59,18 @@ async function main() {
     await runInDir('npm install --package-lock-only');
   });
 
-  if (!NO_COMMIT) {
-    await withProgress('Committing changes', async () => {
+  if (!NO_STAGE) {
+    await withProgress('Staging changes for commit', async () => {
       const updatedPackageLockFiles = privatePackages
         .map((pkg) => `${pkg.location}/package.json`)
         .join(' ');
 
       await runInDir(`git add package-lock.json ${updatedPackageLockFiles}`);
+    });
+  }
 
+  if (!NO_COMMIT) {
+    await withProgress('Committing changes', async () => {
       await runInDir(
         `git commit -m "chore(release): Update private packages dependencies versions"`
       );
