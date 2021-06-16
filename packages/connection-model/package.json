@@ -23,9 +23,6 @@
     "test-ci": "npm run test",
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
-  "peerDependencies": {
-    "mongodb": "3.x"
-  },
   "dependencies": {
     "@mongodb-js/ssh-tunnel": "^1.2.0",
     "ampersand-model": "^8.0.0",
