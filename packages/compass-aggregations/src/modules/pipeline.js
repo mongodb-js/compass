@@ -534,8 +534,7 @@ export const generatePipeline = (state, index) => {
 
   if (
     stages.length > 0 &&
-    !REQUIRED_AS_FIRST_STAGE.includes(lastStage.stageOperator) &&
-    (lastStage.stageOperator !== MERGE)
+    !REQUIRED_AS_FIRST_STAGE.includes(lastStage.stageOperator)
   ) {
     stages.push({
       $limit: state.limit || DEFAULT_SAMPLE_SIZE
@@ -593,6 +592,12 @@ const aggregate = (pipeline, dataService, ns, dispatch, state, index) => {
     options.collation = state.collation;
   }
 
+  /// // aaaaa
+  // console.log('refreshInputDocuments w/ limit:', state.settings.sampleSize);
+  // debugger;
+  console.log('aggregate w/ pipeline', JSON.parse(JSON.stringify(pipeline)));
+  console.log('options:', options);
+
   dataService.aggregate(ns, pipeline, options, (err, cursor) => {
     if (err) return dispatch(stagePreviewUpdated([], index, err));
     cursor.toArray((e, docs) => {
@@ -627,7 +632,7 @@ const executeStage = (dataService, ns, dispatch, state, index) => {
 };
 
 /**
- * Executes the out stage.
+ * Executes a pipeline that outputs documents as the last stage.
  *
  * @param {DataService} dataService - The data service.
  * @param {String} ns - The namespace.
