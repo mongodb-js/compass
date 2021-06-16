@@ -9,6 +9,7 @@ import { collectionMetadata, getSource } from '../../modules/collection';
 
 import styles from './sidebar-collection.less';
 
+const DEFAULT_COLLECTION_TYPE = 'collection';
 const TIME_SERIES_COLLECTION_TYPE = 'timeseries';
 
 class SidebarCollection extends PureComponent {
@@ -137,6 +138,16 @@ class SidebarCollection extends PureComponent {
     }
   }
 
+  renderCollectionIcon() {
+    return (
+      <Icon
+        className={styles['compass-sidebar-collection-type-icon']}
+        glyph="Folder"
+        title="Collection"
+      />
+    );
+  }
+
   /**
    * Render the readonly icon.
    *
@@ -230,6 +241,7 @@ class SidebarCollection extends PureComponent {
           data-test-id="sidebar-collection"
           title={this.props._id}
         >
+          {this.props.type === DEFAULT_COLLECTION_TYPE && this.renderCollectionIcon()}
           {this.props.readonly && this.renderViewIcon()}
           {this.props.type === TIME_SERIES_COLLECTION_TYPE && this.renderTimeSeriesIcon()}
           {collectionName}

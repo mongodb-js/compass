@@ -24,6 +24,7 @@ describe('SidebarCollection [Component]', () => {
         description="description"
         activeNamespace=""
         globalAppRegistryEmit={emitSpy}
+        type="collection"
       />);
     });
 
@@ -44,8 +45,8 @@ describe('SidebarCollection [Component]', () => {
       expect(component.find('[data-test-id="sidebar-collection"]').text()).to.match(/coll/);
     });
 
-    it('does not have a collection type icon', () => {
-      expect(component.find(Icon)).to.be.not.present();
+    it('has a collection type icon', () => {
+      expect(component.find(Icon).props().glyph).to.equal('Folder');
     });
   });
 
