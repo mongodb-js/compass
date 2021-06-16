@@ -48,21 +48,29 @@ jobs:
       - name: Run Tests
         run: npm run test -- --stream
 
-      # TODO: Fix windows and macos and re-enable
-      # 
-      #   - Windows can't find wix toolkit and fails to bundle (see https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708)
-      #   - MacOS bundles correctly but tries to upload the whole .app which we probably don't want
-      # 
-      # - name: Build Compass
-      #   env:
-      #     HADRON_PRODUCT: mongodb-compass
-      #     HADRON_PRODUCT_NAME: MongoDB Compass
-      #     HADRON_DISTRIBUTION: compass
-      #     DEBUG: hadron*
-      #   run: npm run release-evergreen
+      # https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708/3
+      - name: Set path for candle.exe and light.exe
+        if: ${{ runner.os == 'Windows' }}
+        run: echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" >> $GITHUB_PATH
+        shell: bash
 
-      # - name: Upload Compass Artifacts
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: Compass Build ${{ runner.os }}
-      #     path: ${{ github.workspace }}/packages/compass/dist
+      - name: Build Compass
+        env:
+          HADRON_PRODUCT: mongodb-compass
+          HADRON_PRODUCT_NAME: MongoDB Compass
+          HADRON_DISTRIBUTION: compass
+          DEBUG: hadron*
+        run: npm run release-evergreen
+
+      - name: Upload Compass Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Compass Build ${{ runner.os }}
+          path: |
+            packages/compass/dist/*.dmg
+            packages/compass/dist/*.zip
+            packages/compass/dist/*.exe
+            packages/compass/dist/*.msi
+            packages/compass/dist/*.deb
+            packages/compass/dist/*.rpm
+            packages/compass/dist/*.tar.gz
