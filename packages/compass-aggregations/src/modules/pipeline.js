@@ -592,12 +592,6 @@ const aggregate = (pipeline, dataService, ns, dispatch, state, index) => {
     options.collation = state.collation;
   }
 
-  /// // aaaaa
-  // console.log('refreshInputDocuments w/ limit:', state.settings.sampleSize);
-  // debugger;
-  console.log('aggregate w/ pipeline', JSON.parse(JSON.stringify(pipeline)));
-  console.log('options:', options);
-
   dataService.aggregate(ns, pipeline, options, (err, cursor) => {
     if (err) return dispatch(stagePreviewUpdated([], index, err));
     cursor.toArray((e, docs) => {
