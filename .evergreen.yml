@@ -74,11 +74,7 @@ functions:
           export NPM_AUTH_TOKEN="${compass_npm_token}"
 
           export NODE_JS_VERSION="12.4.0"
-          # TODO: lucas: Go back to npm@latest after 6.13.4 released
-          # or https://jira.mongodb.org/browse/COMPASS-4019 removes jade.
-          # https://jira.mongodb.org/browse/COMPASS-4018
-          # export NPM_VERSION="latest"
-          export NPM_VERSION="6.13.2"
+          export NPM_VERSION="7"
 
           if [[ "$OSTYPE" == "cygwin" ]]; then
             # NOTE lucas: for git-core addition, See
@@ -136,12 +132,10 @@ functions:
           echo "Installing Compass dependencies..."
 
           echo "If npm ci fails, debug.log will be uploaded to S3."
-          # We are running everything with --unsafe-perm because RHEL evergreen user is root
-          npm ci --unsafe-perm
+          # Run npm ci in all the packages
+          npm run bootstrap-evergreen --unsafe-perm -- --stream
           # Make sure that cache is populated when other packages are pulling the font
           npm run update-akzidenz-cache --unsafe-perm
-          # Run npm ci in all the packages
-          npm run bootstrap-evergreen --unsafe-perm
 
   save:
     - command: shell.exec
