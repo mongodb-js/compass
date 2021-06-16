@@ -53,7 +53,7 @@ async function main() {
     );
   }
 
-  await withProgress('Updating package-lock at root', () => {
+  await withProgress('Updating package-lock at root', async () => {
     await runInDir('npm install --package-lock-only');
   });
 
