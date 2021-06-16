@@ -10,12 +10,6 @@ After cloning this repository and running `npm install`, you can try this plugin
 DEBUG=mongo* npm start
 ```
 
-You can also utilize [Storybook](https://storybook.js.org/) when developing components:
-
-```bash
-npm run storybook;
-```
-
 ## Testing
 
 ```bash

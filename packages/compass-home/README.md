@@ -88,7 +88,6 @@ For completeness, below is a list of directories present in this module:
   and create `./lib`.
 - `test` implement your tests here, and name the files `*.test.js`.
 
-[react-storybook]: https://github.com/kadirahq/react-storybook
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme
 [jsdom]: https://github.com/tmpvar/jsdom
