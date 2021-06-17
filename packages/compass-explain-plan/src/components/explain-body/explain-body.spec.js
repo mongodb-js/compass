@@ -4,7 +4,7 @@ import { expect } from 'chai';
 
 import ExplainBody from '../explain-body';
 import { ExplainSummary } from '../explain-summary';
-import { ExplainTimeSeriesBanner } from '../explain-time-series-banner';
+import { ExplainCannotVisualizeBanner } from '../explain-cannot-visualize-banner';
 import { ExplainTree } from '../explain-tree';
 import { ExplainJSON } from '../explain-json';
 import EXPLAIN_VIEWS from '../../constants/explain-views';
@@ -41,7 +41,7 @@ describe('ExplainBody [Component]', () => {
     });
 
     it('render the time series banner', () => {
-      expect(component.find(ExplainTimeSeriesBanner)).to.be.present();
+      expect(component.find(ExplainCannotVisualizeBanner)).to.be.present();
     });
   });
 
@@ -125,7 +125,7 @@ describe('ExplainBody [Component]', () => {
     });
 
     it('does not render the time series banner', () => {
-      expect(component.find(ExplainTimeSeriesBanner)).to.not.be.present();
+      expect(component.find(ExplainCannotVisualizeBanner)).to.not.be.present();
     });
   });
 });

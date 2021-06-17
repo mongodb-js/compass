@@ -39,6 +39,7 @@ export const INITIAL_STATE = {
   explainState: EXPLAIN_STATES.INITIAL,
   viewType: EXPLAIN_VIEWS.tree,
   error: null,
+  errorParsing: false,
   executionSuccess: false,
   executionTimeMillis: 0,
   inMemorySort: false,
@@ -277,7 +278,7 @@ export const fetchExplainPlan = (query) => {
           // We do not currently support visualizing aggregations,
           // so we return here before parsing more, and ensure we can show
           // the json view of the explain plan.
-          explain.parsingError = true;
+          explain.errorParsing = true;
           explain.rawExplainObject = { originalData: data };
 
           return dispatch(explainPlanFetched(explain));
@@ -286,7 +287,7 @@ export const fetchExplainPlan = (query) => {
         try {
           explain = parseExplainPlan(explain, convertExplainCompat(data));
         } catch (e) {
-          explain.parsingError = true;
+          explain.errorParsing = true;
           explain.rawExplainObject = { originalData: data };
 
           return dispatch(explainPlanFetched(explain));

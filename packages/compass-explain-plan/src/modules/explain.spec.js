@@ -12,6 +12,7 @@ import reducer, {
 
 const explainExample = {
   error: null,
+  errorParsing: false,
   executionSuccess: true,
   executionTimeMillis: 6,
   explainState: 'executed',
@@ -118,6 +119,7 @@ describe('explain module', () => {
           explainState: 'initial',
           viewType: 'tree',
           error: null,
+          errorParsing: false,
           executionSuccess: false,
           executionTimeMillis: 0,
           inMemorySort: false,
