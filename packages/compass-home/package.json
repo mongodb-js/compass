@@ -18,8 +18,6 @@
     "cover": "nyc npm run test",
     "precheck": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js",
     "check": "npm run lint && npm run depcheck",
-    "link-plugin": "./scripts/link.sh",
-    "unlink-plugin": "./scripts/unlink.sh",
     "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck --ignores=\"react-dom,debug\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",

@@ -19,10 +19,7 @@
     "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "check": "npm run depcheck && npm run lint",
-    "link-plugin": "./scripts/link.sh",
-    "unlink-plugin": "./scripts/unlink.sh",
     "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
-    "start-compass": "node scripts/run-in-compass.js",
     "test-ci": "npm run test"
   },
   "license": "SSPL",
