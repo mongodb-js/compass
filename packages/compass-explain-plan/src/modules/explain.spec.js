@@ -1,5 +1,5 @@
 import reducer, {
-  isTimeSeriesExplainOutput,
+  isAggregationExplainOutput,
   switchToTreeView,
   switchToJSONView,
   explainStateChanged,
@@ -70,7 +70,7 @@ describe('explain module', () => {
     });
   });
 
-  describe('#isTimeSeriesExplainOutput', () => {
+  describe('#isAggregationExplainOutput', () => {
     context('with regular find explain output', () => {
       const basicFindExplainOutput = {
         explainVersion: '1',
@@ -86,7 +86,7 @@ describe('explain module', () => {
       };
 
       it('returns false', () => {
-        expect(isTimeSeriesExplainOutput(basicFindExplainOutput)).to.equal(false);
+        expect(isAggregationExplainOutput(basicFindExplainOutput)).to.equal(false);
       });
     });
 
@@ -106,7 +106,7 @@ describe('explain module', () => {
       };
 
       it('returns true', () => {
-        expect(isTimeSeriesExplainOutput(basicFindExplainOutput)).to.equal(true);
+        expect(isAggregationExplainOutput(basicFindExplainOutput)).to.equal(true);
       });
     });
   });

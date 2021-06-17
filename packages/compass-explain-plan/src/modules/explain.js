@@ -231,7 +231,7 @@ const updateWithIndexesInfo = (explain, indexes) => ({
  * @returns {boolean} true if the output resembles output from an
  * explain on an aggregation query.
  */
-export function isTimeSeriesExplainOutput(explainOutput) {
+export function isAggregationExplainOutput(explainOutput) {
   return !explainOutput.executionStats && !!explainOutput.stages;
 }
 
@@ -270,15 +270,15 @@ export const fetchExplainPlan = (query) => {
           return dispatch(explainPlanFetched(explain));
         }
 
-        if (isTimeSeriesExplainOutput(data)) {
+        if (isAggregationExplainOutput(data)) {
           // Queries against time series collections are run against
           // non-materialized views, so the explain plan resembles
           // that of an explain on an aggregation.
           // We do not currently support visualizing aggregations,
           // so we return here before parsing more, and ensure we can show
           // the json view of the explain plan.
+          explain.parsingError = true;
           explain.rawExplainObject = { originalData: data };
-          explain.isTimeSeriesExplain = true;
 
           return dispatch(explainPlanFetched(explain));
         }
@@ -286,7 +286,7 @@ export const fetchExplainPlan = (query) => {
         try {
           explain = parseExplainPlan(explain, convertExplainCompat(data));
         } catch (e) {
-          explain.error = new Error(`Unable to parse explain plan: ${e}`);
+          explain.parsingError = true;
           explain.rawExplainObject = { originalData: data };
 
           return dispatch(explainPlanFetched(explain));

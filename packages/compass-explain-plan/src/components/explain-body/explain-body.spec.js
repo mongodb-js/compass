@@ -10,7 +10,7 @@ import { ExplainJSON } from '../explain-json';
 import EXPLAIN_VIEWS from '../../constants/explain-views';
 
 describe('ExplainBody [Component]', () => {
-  context('when its a time series collection', () => {
+  context('when there is an error parsing the explain', () => {
     let component;
     const explain = {
       viewType: EXPLAIN_VIEWS.tree,
@@ -22,7 +22,7 @@ describe('ExplainBody [Component]', () => {
       inMemorySort: false,
       indexType: 'UNAVAILABLE',
       index: null,
-      isTimeSeriesExplain: true
+      errorParsing: true
     };
     const treeStages = {};
     const openLinkSpy = sinon.spy();
