@@ -1,5 +1,5 @@
 # This action runs lint checks and tests against the code.
-name: Check, Test, and Build
+name: Check and Test
 
 # Controls when the action will run.
 on:
@@ -8,10 +8,13 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  MAIN_BRANCH_NAME: remotes/origin/master
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   check-and-test:
-    name: Check, Test, and Build
+    name: Check and Test
 
     strategy:
       matrix:
@@ -29,6 +32,8 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v2.1.2
@@ -40,37 +45,13 @@ jobs:
         run: npm install -g npm@7
 
       - name: Install Dependencies
-        run: npm install --force && npx lerna run prepare --stream
+        run: |
+          npm install --force
+          npx lerna run prepare --stream --since $MAIN_BRANCH_NAME --include-dependencies
 
       - name: Run Checks
-        run: npm run check -- --stream
+        run: npm run check -- --stream --since $MAIN_BRANCH_NAME
 
       - name: Run Tests
-        run: npm run test -- --stream
-
-      # https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708/3
-      - name: Set path for candle.exe and light.exe
-        if: ${{ runner.os == 'Windows' }}
-        run: echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" >> $GITHUB_PATH
-        shell: bash
-
-      - name: Build Compass
-        env:
-          HADRON_PRODUCT: mongodb-compass
-          HADRON_PRODUCT_NAME: MongoDB Compass
-          HADRON_DISTRIBUTION: compass
-          DEBUG: hadron*
-        run: npm run release-evergreen
-
-      - name: Upload Compass Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: Compass Build ${{ runner.os }}
-          path: |
-            packages/compass/dist/*.dmg
-            packages/compass/dist/*.zip
-            packages/compass/dist/*.exe
-            packages/compass/dist/*.msi
-            packages/compass/dist/*.deb
-            packages/compass/dist/*.rpm
-            packages/compass/dist/*.tar.gz
+        run: npm run test -- --stream --since $MAIN_BRANCH_NAME
+ 
