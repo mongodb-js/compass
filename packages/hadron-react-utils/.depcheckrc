@@ -8,7 +8,6 @@ ignores: [
   "enzyme-adapter-react-16",
   "jsdom",
   "jsdom-global",
-  "lerna",
   "sinon",
   "webpack-cli",
   "webpack-sources"

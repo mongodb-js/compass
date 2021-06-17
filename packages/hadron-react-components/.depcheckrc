@@ -1,6 +1,5 @@
 ignores: [
   "core-js",
-  "lerna",
   "webpack-cli",
   "webpack-sources"
 ]
