@@ -47,11 +47,18 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install --force
+          # Dependencies are included when installing as npm workspaces will
+          # hoist every package in the repo and it's important that the
+          # dependencies of packages we are planning to test are also prepared
           npx lerna run prepare --stream --since $MAIN_BRANCH_NAME --include-dependencies
+        shell: bash
 
       - name: Run Checks
-        run: npm run check -- --stream --since $MAIN_BRANCH_NAME
+        # We exclude dependents when running eslint and depchecks because
+        # linting and dependency checking is relevant only for 
+        run: npm run check -- --stream --since $MAIN_BRANCH_NAME --exclude-dependents
+        shell: bash
 
       - name: Run Tests
         run: npm run test -- --stream --since $MAIN_BRANCH_NAME
- 
+        shell: bash
