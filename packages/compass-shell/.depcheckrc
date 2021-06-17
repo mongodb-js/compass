@@ -4,7 +4,6 @@ ignores: [
   "@babel/cli",
   "@babel/register",
   "core-js",
-  "electron-packager",
   "font-awesome",
   "karma-chai",
   "karma-chai-sinon",

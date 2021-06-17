@@ -3,7 +3,6 @@ ignores: [
   "@babel/register",
   "bootstrap",
   "core-js",
-  "electron-packager",
   "file-loader",
   "font-awesome",
   "resolve",

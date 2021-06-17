@@ -3,7 +3,6 @@ ignores: [
   "@babel/register",
   "core-js",
   "mongodb-client-encryption",
-  "electron-packager",
   "font-awesome",
   "inject-loader",
   "karma-chai",

@@ -2,7 +2,6 @@ ignores: [
   "@babel/cli",
   "@babel/register",
   "core-js",
-  "electron-packager",
   "karma-chai",
   "karma-chai-sinon",
   "karma-electron",

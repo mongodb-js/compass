@@ -2,7 +2,6 @@ ignores: [
   "@babel/cli",
   "@babel/register",
   "core-js",
-  "electron-packager",
   "font-awesome",
   "karma-electron",
   "karma-sourcemap-loader",

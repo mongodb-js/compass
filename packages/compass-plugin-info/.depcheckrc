@@ -4,7 +4,6 @@ ignores: [
   "bootstrap",
   "core-js",
   "debug",
-  "electron-packager",
   "font-awesome",
   "karma-electron",
   "karma-sourcemap-loader",
