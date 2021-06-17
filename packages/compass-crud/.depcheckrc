@@ -1,12 +1,19 @@
 ignores: [
-  "font-awesome",
-  "stores",
-  "actions",
-  "components",
-  "plugin",
-  "pre-commit",
+  "@babel/cli",
+  "@babel/register",
+  "core-js",
+  "mongodb-client-encryption",
   "moment",
-  "babel-*",
-  "karma-*",
-  "webpack-*"
+  "font-awesome",
+  "karma-chai",
+  "karma-chai-sinon",
+  "karma-electron",
+  "karma-mocha",
+  "karma-mocha-reporter",
+  "karma-sinon",
+  "karma-sourcemap-loader",
+  "karma-webpack",
+  "webpack-bundle-analyzer",
+  "webpack-cli",
+  "webpack-sources"
 ]
