@@ -131,7 +131,8 @@
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^3.0.0",
     "webpack-sources": "^1.4.3",
-    "xvfb-maybe": "^0.2.1"
+    "xvfb-maybe": "^0.2.1",
+    "mongodb-ns": "^2.2.0"
   },
   "dependencies": {
     "@leafygreen-ui/badge": "^4.0.4",

@@ -35,7 +35,7 @@
     "@mongodb-js/compass-status": "^4.2.1",
     "d3": "3.5.17",
     "debug": "*",
-    "hadron-document": "^6.2.1",
+    "hadron-document": "*",
     "hadron-react-bson": "^4.1.1",
     "hadron-react-buttons": "^4.1.1",
     "hadron-react-components": "^4.1.1",

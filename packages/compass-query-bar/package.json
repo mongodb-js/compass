@@ -146,7 +146,8 @@
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^3.0.0",
     "webpack-sources": "^1.4.3",
-    "xvfb-maybe": "^0.2.1"
+    "xvfb-maybe": "^0.2.1",
+    "brace": "^0.11.1"
   },
   "dependencies": {
     "lodash": "^4.17.15",
