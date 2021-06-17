@@ -51,6 +51,7 @@ export default class CollectionProperties extends PureComponent {
     if (name === PROPERTIES_TIME_SERIES) {
       return (<PropertyBadge
         label="Time-series"
+        icon={<Icon glyph="TimeSeries" />}
         variant="darkgray"
         tooltip={this.renderOptions(options)} />);
     }
