@@ -679,8 +679,8 @@ Package|Version|License
 **[lodash._basefor](#9452e64da946cc633bba85112f9d585983d4d34ddb922312c23509f31b9cf54a)**|3.0.3|MIT
 **[lodash._baseforright](#30deefb20ac351f54b0b0adac9fdff29e949d6d245995789fe1ff03075510621)**|3.0.2|MIT
 **[lodash._baseget](#c3cf4bbadde17410a34e84962cf52620d922e4c477c0c67407e3905a668d5b3f)**|3.7.2|MIT
-**[lodash._baseindexof](#2a142cb43d8de4f31a66b1c9c277e652712dfde8a1da5ed1d5a4ec74015feffa)**|2.4.1|MIT
 **[lodash._baseindexof](#984f3f17e0475ba7b138ad2bcd02121d1069d6b685100583bb4bc9d6127a29a1)**|3.1.0|MIT
+**[lodash._baseindexof](#2a142cb43d8de4f31a66b1c9c277e652712dfde8a1da5ed1d5a4ec74015feffa)**|2.4.1|MIT
 **[lodash._baseisequal](#5722da50c112fc1c4eb299375a140f952d867bf75c7433a0fb78b121b90a6fa0)**|3.0.7|MIT
 **[lodash._baserandom](#1043e7d5ff1be493974ac295cb9e9388c9fffca9071f2f3fc36cb92913762f2a)**|3.0.1|MIT
 **[lodash._basereduce](#705eec4fe15a0b669ebca858a83a9c10543091fc8a06ff672ff211c4d79f384d)**|3.0.2|MIT
@@ -712,8 +712,8 @@ Package|Version|License
 **[lodash._slice](#b0e2ea88a1e4b996cc1697cacae418bc4d33f3653c69f6930d213562e3e75683)**|2.4.1|MIT
 **[lodash._toiterable](#b3f14e6d61f99df44121f62fbef103ee8f2908c2e848b69035bbac388eac39b5)**|3.0.4|MIT
 **[lodash._topath](#41ef14e011630cd3bea80b43c1d824c5bdada826f2bddaddda350eca30a93f4a)**|3.8.1|MIT
-**[lodash.assign](#a124709e2f86b9f0c2d31c6a954b2957cd5a7019f47c16e012633ccba1ddbea0)**|4.2.0|MIT
 **[lodash.assign](#279f6350b38f924a812ff5d74a5f9c9023f5923a7c70dcb75bdb1670ad35ab50)**|3.2.0|MIT
+**[lodash.assign](#a124709e2f86b9f0c2d31c6a954b2957cd5a7019f47c16e012633ccba1ddbea0)**|4.2.0|MIT
 **[lodash.assignin](#702c2918c0f4e42db47fa34f55022b3da24a37cccf4a64b97d27d07eb47d629e)**|4.2.0|MIT
 **[lodash.before](#2fef595ae4ab5ca92be6f59e86e4d7f2b4ad0c224c22d828dfd0bae48af64645)**|3.0.3|MIT
 **[lodash.bind](#3acab10f30bde74cc48a35928697ce1670df78f45fdca78b8bcb8c047a698b0e)**|3.1.0|MIT
@@ -729,8 +729,8 @@ Package|Version|License
 **[lodash.curryright](#112211d7b51cd6961e492e1d48460ed489bd2f1591115ea5c706afc9f6501961)**|4.1.1|MIT
 **[lodash.debounce](#61ee21cd2b80948185a24e741a21e9ae749fdb744c84449c0bfa4fe264e24b9c)**|4.0.8|MIT
 **[lodash.debounce](#40856dc342a5e77e1d104f8ce172e6dd36cd28333663fee9c817de6323cab707)**|3.1.1|MIT
-**[lodash.defaults](#4863ac6cc907bb27640d1e0570c960932db3d66d6adbcfa90158ec72ef18f032)**|4.2.0|MIT
 **[lodash.defaults](#8bcb93cbd479d82a1b2c93aa94e9c5d417838c8856f0ce2a3da8bcb7f5655859)**|3.1.2|MIT
+**[lodash.defaults](#4863ac6cc907bb27640d1e0570c960932db3d66d6adbcfa90158ec72ef18f032)**|4.2.0|MIT
 **[lodash.defer](#ac2f8cb92e29974ad8fb0fd5389b55b0159c8777c57b0ee21d3a75837951488b)**|4.1.0|MIT
 **[lodash.difference](#43791df64f8fe405fc866c836325719f4060084c461c21882bef3b606d98ebcd)**|3.2.2|MIT
 **[lodash.drop](#8269f6c4593eedf755d630729ea101fc59263cc7da23611409a11731827758a7)**|3.0.0|MIT
@@ -759,8 +759,8 @@ Package|Version|License
 **[lodash.has](#8eb28eb5657fcbd0376823d83cb0ab0366f8225af6df62477ecab78dad14e280)**|4.5.2|MIT
 **[lodash.has](#d0e17f0b2e78b1a2618102c4f3b743c662a0f7cb0d3ef613b22a5595f46c3667)**|3.2.1|MIT
 **[lodash.identity](#6b29b4f640072b3f9dcbbbb7072e4ef0d05bdee0e811bd33518850fd741e571d)**|2.4.1|MIT
-**[lodash.includes](#0c6ab2b6944ac2fc6926e04aff6de924a99e581818596e932af6c67dd073533f)**|4.3.0|MIT
 **[lodash.includes](#3adf597b6163c3ba3343235b44071cb955635e582da311d5b57ac35f2692f9b4)**|3.1.3|MIT
+**[lodash.includes](#0c6ab2b6944ac2fc6926e04aff6de924a99e581818596e932af6c67dd073533f)**|4.3.0|MIT
 **[lodash.indexby](#4c47baab98154dd1fe179ccfc99a94ec2750e53a8da527d3e4259cd6ef1b531d)**|3.1.1|MIT
 **[lodash.indexof](#80aed39cbdc874431bc7277acc539401229df33db58e3cbac5a60ff670217ef7)**|3.0.3|MIT
 **[lodash.initial](#0aa7998a85ae19808e2101566fd7000e317e2b1b6ebc36630487e366188c24d9)**|3.0.0|MIT
@@ -27056,6 +27056,48 @@ Authors:
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
+<a id="984f3f17e0475ba7b138ad2bcd02121d1069d6b685100583bb4bc9d6127a29a1"></a>
+### [lodash._baseindexof](https://www.npmjs.com/package/lodash._baseindexof) (version 3.1.0)
+<!-- initially found at packages/compass/node_modules/lodash._baseindexof -->
+> The modern build of lodash’s internal `baseIndexOf` as a module.
+
+License tags: MIT
+
+License files:
+* LICENSE.txt:
+
+      Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+      Based on Underscore.js 1.7.0, copyright 2009-2015 Jeremy Ashkenas,
+      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
+* Benjamin Tan <demoneaux@gmail.com> (https://d10.github.io/)
+* Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
+* Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
+* Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
+
+
 <a id="2a142cb43d8de4f31a66b1c9c277e652712dfde8a1da5ed1d5a4ec74015feffa"></a>
 ### [lodash._baseindexof](https://www.npmjs.com/package/lodash._baseindexof) (version 2.4.1)
 <!-- initially found at node_modules/lodash._baseindexof -->
@@ -27094,48 +27136,6 @@ Authors:
 * Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
 * Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
 * Mathias Bynens <mathias@qiwi.be> (http://mathiasbynens.be/)
-
-
-<a id="984f3f17e0475ba7b138ad2bcd02121d1069d6b685100583bb4bc9d6127a29a1"></a>
-### [lodash._baseindexof](https://www.npmjs.com/package/lodash._baseindexof) (version 3.1.0)
-<!-- initially found at node_modules/ampersand-state/node_modules/lodash._baseindexof -->
-> The modern build of lodash’s internal `baseIndexOf` as a module.
-
-License tags: MIT
-
-License files:
-* LICENSE.txt:
-
-      Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
-      Based on Underscore.js 1.7.0, copyright 2009-2015 Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
-* Benjamin Tan <demoneaux@gmail.com> (https://d10.github.io/)
-* Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
-* Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
-* Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
 <a id="5722da50c112fc1c4eb299375a140f952d867bf75c7433a0fb78b121b90a6fa0"></a>
@@ -28423,6 +28423,48 @@ Authors:
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
+<a id="279f6350b38f924a812ff5d74a5f9c9023f5923a7c70dcb75bdb1670ad35ab50"></a>
+### [lodash.assign](https://www.npmjs.com/package/lodash.assign) (version 3.2.0)
+<!-- initially found at packages/compass/node_modules/lodash.assign -->
+> The modern build of lodash’s `_.assign` as a module.
+
+License tags: MIT
+
+License files:
+* LICENSE.txt:
+
+      Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+      Based on Underscore.js, copyright 2009-2015 Jeremy Ashkenas,
+      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
+* Benjamin Tan <demoneaux@gmail.com> (https://d10.github.io/)
+* Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
+* Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
+* Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
+
+
 <a id="a124709e2f86b9f0c2d31c6a954b2957cd5a7019f47c16e012633ccba1ddbea0"></a>
 ### [lodash.assign](https://www.npmjs.com/package/lodash.assign) (version 4.2.0)
 <!-- initially found at node_modules/lodash.assign -->
@@ -28485,48 +28527,6 @@ License files:
 Authors:
 * John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
 * Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)
-* Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
-
-
-<a id="279f6350b38f924a812ff5d74a5f9c9023f5923a7c70dcb75bdb1670ad35ab50"></a>
-### [lodash.assign](https://www.npmjs.com/package/lodash.assign) (version 3.2.0)
-<!-- initially found at node_modules/ampersand-collection/node_modules/lodash.assign -->
-> The modern build of lodash’s `_.assign` as a module.
-
-License tags: MIT
-
-License files:
-* LICENSE.txt:
-
-      Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
-      Based on Underscore.js, copyright 2009-2015 Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
-* Benjamin Tan <demoneaux@gmail.com> (https://d10.github.io/)
-* Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
-* Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
@@ -29318,6 +29318,48 @@ Authors:
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
+<a id="8bcb93cbd479d82a1b2c93aa94e9c5d417838c8856f0ce2a3da8bcb7f5655859"></a>
+### [lodash.defaults](https://www.npmjs.com/package/lodash.defaults) (version 3.1.2)
+<!-- initially found at packages/compass/node_modules/lodash.defaults -->
+> The modern build of lodash’s `_.defaults` as a module.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+      Based on Underscore.js, copyright 2009-2015 Jeremy Ashkenas,
+      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
+* Benjamin Tan <demoneaux@gmail.com> (https://d10.github.io/)
+* Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
+* Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
+* Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
+
+
 <a id="4863ac6cc907bb27640d1e0570c960932db3d66d6adbcfa90158ec72ef18f032"></a>
 ### [lodash.defaults](https://www.npmjs.com/package/lodash.defaults) (version 4.2.0)
 <!-- initially found at node_modules/lodash.defaults -->
@@ -29380,48 +29422,6 @@ License files:
 Authors:
 * John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
 * Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)
-* Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
-
-
-<a id="8bcb93cbd479d82a1b2c93aa94e9c5d417838c8856f0ce2a3da8bcb7f5655859"></a>
-### [lodash.defaults](https://www.npmjs.com/package/lodash.defaults) (version 3.1.2)
-<!-- initially found at packages/compass/node_modules/lodash.defaults -->
-> The modern build of lodash’s `_.defaults` as a module.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
-      Based on Underscore.js, copyright 2009-2015 Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
-* Benjamin Tan <demoneaux@gmail.com> (https://d10.github.io/)
-* Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
-* Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
@@ -30917,6 +30917,48 @@ Authors:
 * Mathias Bynens <mathias@qiwi.be> (http://mathiasbynens.be/)
 
 
+<a id="3adf597b6163c3ba3343235b44071cb955635e582da311d5b57ac35f2692f9b4"></a>
+### [lodash.includes](https://www.npmjs.com/package/lodash.includes) (version 3.1.3)
+<!-- initially found at packages/compass/node_modules/lodash.includes -->
+> The modern build of lodash’s `_.includes` as a module.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+      Based on Underscore.js, copyright 2009-2015 Jeremy Ashkenas,
+      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
+* Benjamin Tan <demoneaux@gmail.com> (https://d10.github.io/)
+* Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
+* Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
+* Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
+
+
 <a id="0c6ab2b6944ac2fc6926e04aff6de924a99e581818596e932af6c67dd073533f"></a>
 ### [lodash.includes](https://www.npmjs.com/package/lodash.includes) (version 4.3.0)
 <!-- initially found at node_modules/lodash.includes -->
@@ -30979,48 +31021,6 @@ License files:
 Authors:
 * John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
 * Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)
-* Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
-
-
-<a id="3adf597b6163c3ba3343235b44071cb955635e582da311d5b57ac35f2692f9b4"></a>
-### [lodash.includes](https://www.npmjs.com/package/lodash.includes) (version 3.1.3)
-<!-- initially found at node_modules/ampersand-state/node_modules/lodash.includes -->
-> The modern build of lodash’s `_.includes` as a module.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
-      Based on Underscore.js, copyright 2009-2015 Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
-* Benjamin Tan <demoneaux@gmail.com> (https://d10.github.io/)
-* Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
-* Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
@@ -32484,7 +32484,7 @@ Authors:
 
 <a id="c588afca24b161c04c66b7fe976458f32d1871dbdc38343d2249c15af51e6df0"></a>
 ### [lodash.keys](https://www.npmjs.com/package/lodash.keys) (version 3.1.2)
-<!-- initially found at node_modules/ampersand-events/node_modules/lodash.keys -->
+<!-- initially found at packages/compass/node_modules/lodash.keys -->
 > The modern build of lodash’s `_.keys` as a module.
 
 License tags: MIT
