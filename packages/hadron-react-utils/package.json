@@ -22,7 +22,7 @@
     "pretest": "npm run compile",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.js\"",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
     "test-ci": "npm run test",
     "prepare": "npm run compile"

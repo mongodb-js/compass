@@ -20,7 +20,7 @@
     "check": "npm run lint && npm run depcheck",
     "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
-    "depcheck": "depcheck --ignores=\"react-dom,debug\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
   "license": "SSPL",

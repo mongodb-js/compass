@@ -18,7 +18,7 @@
     "test-enzyme": "npm test -- --enzyme",
     "test-functional": "npm test -- --functional",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" index.js",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test",
     "prepare": "npm run compile"
   },
