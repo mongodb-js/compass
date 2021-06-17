@@ -29,7 +29,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "hadron-react-components": "^4.1.1",
+    "hadron-react-components": "*",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-tooltip": "^3.2.6"

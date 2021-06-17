@@ -29,7 +29,7 @@
   "license": "SSPL",
   "peerDependencies": {
     "debug": "*",
-    "hadron-ipc": "^1.2.1",
+    "hadron-ipc": "*",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
     "react-bootstrap": "*",

@@ -26,9 +26,9 @@
   "license": "SSPL",
   "peerDependencies": {
     "debug": "*",
-    "hadron-ipc": "^1.2.1",
-    "hadron-react-buttons": "^4.1.1",
-    "hadron-react-components": "^4.1.1",
+    "hadron-ipc": "*",
+    "hadron-react-buttons": "*",
+    "hadron-react-components": "*",
     "numeral": "*",
     "prop-types": "^15.7.2",
     "react": "^16.8.0",

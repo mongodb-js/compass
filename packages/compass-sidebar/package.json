@@ -24,7 +24,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-connect": "^6.3.1",
+    "@mongodb-js/compass-connect": "*",
     "debug": "*",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
