@@ -5,18 +5,16 @@ const missing = report.filter((p) => Object.keys(p.depcheck.missing).length)
 
 
 const versions = {
-  "reflux": "^0.4.1",
-  "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
-  "mongodb-reflux-store": "^0.0.1",
-  "mongodb": "^3.6.3",
-  "mongodb-connection-model": "^20.1.0"
+  "brace": "^0.11.1",
+  "mongodb-ns": "^2.2.0",
+  "debug": "^4.1.0"
 }
 
 for (const m of missing) {
   for (const dep of Object.keys(m.missing)) {
-    // if (!versions[dep]) {
-    //   continue;
-    // }
+    if (!versions[dep]) {
+      continue;
+    }
 
     console.log('\n');
     for (const file of m.missing[dep]) {
