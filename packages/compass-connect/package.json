@@ -19,7 +19,7 @@
     "posttest": "mongodb-runner stop --port=27018",
     "test": "npm run test:mocha && npm run test:karma",
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
-    "test:karma": "npm run prestart && cross-env NODE_ENV=test xvfb-maybe karma start",
+    "test:karma": "cross-env NODE_ENV=test xvfb-maybe karma start",
     "test:mocha": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
     "cover": "nyc npm run test:mocha",
     "precheck": "npm run compile",
