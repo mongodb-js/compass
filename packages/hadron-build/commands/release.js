@@ -366,6 +366,7 @@ const transformPackageJson = (CONFIG, done) => {
 const installDependencies = (CONFIG, done) => {
   var args = [
     'install',
+    '--registry https://registry.npmjs.org/',
     '--production'
   ];
   cli.debug('Installing dependencies');

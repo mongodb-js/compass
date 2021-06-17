@@ -12,7 +12,7 @@
     "check": "lerna run check --stream",
     "check-evergreen": "lerna run check",
     "bootstrap": "npm install && lerna run prepare --stream",
-    "bootstrap-evergreen": "npm ci && lerna run prepare",
+    "bootstrap-evergreen": "npm ci --registry https://registry.npmjs.org/ && lerna run prepare",
     "start": "npm run start --workspace=mongodb-compass",
     "packages-version": "lerna version --no-push --no-private -m \"chore(release): Bump package versions\"",
     "test-packages-version": "npm run packages-version --",

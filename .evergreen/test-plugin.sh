@@ -3,7 +3,7 @@
 if [ $# -lt 1 ]; then
     echo "usage: test-plugin.sh <github-repo>"
     exit 1
-fi 
+fi
 
 source ~/compass_env.sh
 
@@ -26,13 +26,13 @@ _authToken=$NPM_AUTH_TOKEN
 EOT
 
 cat .npmrc
-npm install
+npm install --registry https://registry.npmjs.org/
 npm i -g xvfb-maybe
 
 # Maybe fixes windows?
 export ELECTRON_NO_ATTACH_CONSOLE=1
-xvfb-maybe npm test 
+xvfb-maybe npm test
 # -- --reporter xunit --reporter-options output=plugin-test-results.xml
-ls -alh 
+ls -alh
 
 # echo "Test results written to output=plugin-test-results.xml"
