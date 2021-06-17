@@ -1,3 +1,5 @@
+name: Update Authors and Third Party Notices
+
 on:
   # Once a week or on pushes to main
   schedule:
