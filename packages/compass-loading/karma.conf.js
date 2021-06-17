@@ -13,7 +13,12 @@ module.exports = (config) => {
     webpackMiddleware: { noInfo: true, stats: 'errors-only' },
     // DEV: `useIframe: false` is for launching a new window instead of using an iframe
     // In Electron, iframes don't get `nodeIntegration` priveleges yet windows do.
-    client: { useIframe: false },
+    client: {
+      useIframe: false,
+      mocha: {
+        timeout: 15000
+      }
+    },
     logLevel: config.LOG_ERROR
   });
 };
