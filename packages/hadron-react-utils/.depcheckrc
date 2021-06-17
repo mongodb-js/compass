@@ -9,6 +9,5 @@ ignores: [
   "jsdom",
   "jsdom-global",
   "sinon",
-  "webpack-cli",
-  "webpack-sources"
+  "webpack-cli"
 ]

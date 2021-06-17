@@ -16,6 +16,5 @@ ignores: [
   "karma-webpack",
   "resolve",
   "webpack-bundle-analyzer",
-  "webpack-cli",
-  "webpack-sources"
+  "webpack-cli"
 ]

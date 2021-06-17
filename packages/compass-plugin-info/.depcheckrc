@@ -12,6 +12,5 @@ ignores: [
   "react-test-renderer",
   "resolve",
   "webpack-bundle-analyzer",
-  "webpack-cli",
-  "webpack-sources"
+  "webpack-cli"
 ]

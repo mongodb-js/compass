@@ -3,6 +3,5 @@ ignores: [
   "core-js",
   "sinon",
   "sinon-chai",
-  "webpack-cli",
-  "webpack-sources"
+  "webpack-cli"
 ]

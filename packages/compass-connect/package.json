@@ -129,7 +129,6 @@
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^3.0.0",
-    "webpack-sources": "1.4.3",
     "xvfb-maybe": "^0.2.1",
     "debug": "^4.1.0",
     "lodash.isempty": "^4.4.0"

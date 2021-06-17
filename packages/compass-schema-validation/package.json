@@ -136,8 +136,7 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.1",
-    "webpack-node-externals": "^3.0.0",
-    "webpack-sources": "1.4.3"
+    "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
     "@mongodb-js/mongodb-redux-common": "^1.2.0",

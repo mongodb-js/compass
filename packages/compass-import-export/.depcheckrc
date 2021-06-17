@@ -17,6 +17,5 @@ ignores: [
   "resolve",
   "webpack-bundle-analyzer",
   "webpack-cli",
-  "webpack-sources",
   "xvfb-maybe"
 ]
