@@ -1,0 +1,9 @@
+ignores: [
+  "electron-mocha",
+  "execa",
+  "getos",
+  "got",
+  "in-publish",
+  "node-abi",
+  "xvfb-maybe"
+]

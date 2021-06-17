@@ -17,7 +17,7 @@
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
     "lint": "eslint ./*.js ./test/*.js",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
   "dependencies": {

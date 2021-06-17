@@ -1,0 +1,22 @@
+ignores: [
+  "@babel/cli",
+  "@babel/register",
+  "@hot-loader/react-dom",
+  "core-js",
+  "font-awesome",
+  "hadron-react-bson",
+  "karma-chai",
+  "karma-chai-sinon",
+  "karma-electron",
+  "karma-mocha",
+  "karma-mocha-reporter",
+  "karma-sinon",
+  "karma-sourcemap-loader",
+  "karma-webpack",
+  "mongodb-client-encryption",
+  "mongodb-database-model",
+  "react-ios-switch",
+  "resolve",
+  "webpack-bundle-analyzer",
+  "webpack-cli"
+]

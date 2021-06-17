@@ -1,0 +1,4 @@
+ignores: [
+  "lodash.result",
+  "electron"
+]

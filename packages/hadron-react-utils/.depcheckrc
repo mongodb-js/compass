@@ -1,0 +1,13 @@
+ignores: [
+  "react",
+  "react-dom",
+  "@babel/register",
+  "chai-enzyme",
+  "core-js",
+  "enzyme",
+  "enzyme-adapter-react-16",
+  "jsdom",
+  "jsdom-global",
+  "sinon",
+  "webpack-cli"
+]

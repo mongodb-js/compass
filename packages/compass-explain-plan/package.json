@@ -20,7 +20,7 @@
     "check": "npm run lint && npm run depcheck",
     "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
-    "depcheck": "depcheck --ignores=\"d3,d3-timer,d3-flextree,debug,hadron-react-bson,react-dom,reflux-state-mixin,redux,mongodb-query-parser,react-fontawesome,react-redux,redux-thunk,@mongodb-js/compass-crud,@mongodb-js/compass-field-store,@mongodb-js/compass-indexes,@mongodb-js/compass-query-bar,@mongodb-js/compass-query-history,@mongodb-js/compass-status\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
   "license": "SSPL",
@@ -152,7 +152,6 @@
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^3.0.0",
-    "webpack-sources": "1.4.3",
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {

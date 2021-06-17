@@ -25,7 +25,7 @@
     "check": "npm run lint && npm run depcheck",
     "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\"",
-    "depcheck": "depcheck --ignores=\"react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
   "license": "SSPL",
@@ -131,7 +131,6 @@
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^3.0.0",
-    "webpack-sources": "^1.4.3",
     "xvfb-maybe": "^0.2.1",
     "mongodb-ns": "^2.2.0",
     "brace": "^0.11.1",

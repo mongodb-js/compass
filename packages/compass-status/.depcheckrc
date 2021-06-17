@@ -1,0 +1,11 @@
+ignores: [
+  "@babel/cli",
+  "@babel/register",
+  "bootstrap",
+  "core-js",
+  "file-loader",
+  "font-awesome",
+  "resolve",
+  "webpack-bundle-analyzer",
+  "webpack-cli"
+]
