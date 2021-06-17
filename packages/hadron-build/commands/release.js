@@ -367,6 +367,7 @@ const installDependencies = (CONFIG, done) => {
   var args = [
     'install',
     '--registry https://registry.npmjs.org/',
+    '--legacy-peer-deps',
     '--production'
   ];
   cli.debug('Installing dependencies');
