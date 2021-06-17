@@ -1,0 +1,9 @@
+ignores: [
+  "chai-enzyme",
+  "core-js",
+  "lerna",
+  "sinon",
+  "sinon-chai",
+  "webpack-cli",
+  "webpack-sources"
+]

@@ -1,0 +1,13 @@
+ignores: [
+  "ampersand-collection-filterable",
+  "ampersand-rest-collection",
+  "ampersand-state",
+  "debug",
+  "lodash.get",
+  "mongodb-collection-model",
+  "mongodb-database-model",
+  "mongodb-ns",
+  "raf",
+  "lodash.clone",
+  "lodash.result"
+]

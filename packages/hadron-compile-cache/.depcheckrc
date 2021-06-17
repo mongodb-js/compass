@@ -1,0 +1,7 @@
+ignores: [
+  "@lukekarrys/jade-runtime",
+  "babel-preset-react",
+  "jade",
+  "react",
+  "react-dom"
+]
