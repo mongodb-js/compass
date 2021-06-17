@@ -9,7 +9,9 @@
   "shortcutFolderName": "MongoDB",
   "license": "SSPL",
   "scripts": {
+    "precheck": "depcheck",
     "check": "lerna run check --stream",
+    "check-changed": "npm run check -- --since HEAD --exclude-dependents",
     "check-evergreen": "lerna run check",
     "bootstrap": "npm install && lerna run prepare --stream",
     "bootstrap-evergreen": "npm ci && lerna run prepare",
@@ -35,7 +37,6 @@
     "url": "git://github.com/mongodb-js/compass.git"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
     "find-up": "^5.0.0",
     "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
