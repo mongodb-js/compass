@@ -64,7 +64,6 @@
     "css-loader": "^4.3.0",
     "depcheck": "^1.4.0",
     "electron": "^6.1.12",
-    "electron-rebuild": "^1.8.8",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint": "^7.25.0",
