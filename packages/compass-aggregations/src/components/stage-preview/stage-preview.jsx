@@ -46,7 +46,7 @@ class StagePreview extends Component {
   }
 
   /**
-   * On the save click, execute the $out.
+   * On the save click, execute the $out or $merge.
    */
   onSaveDocuments = () => {
     this.props.runOutStage(this.props.index);
