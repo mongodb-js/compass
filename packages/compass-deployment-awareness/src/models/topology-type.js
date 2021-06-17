@@ -1,5 +1,3 @@
-import ReadPreference from 'mongodb/lib/core/topologies/read_preference.js';
-
 const SINGLE = 'Single';
 const REPLICA_SET_NO_PRIMARY = 'ReplicaSetNoPrimary';
 const REPLICA_SET_WITH_PRIMARY = 'ReplicaSetWithPrimary';
@@ -22,10 +20,10 @@ const TOPOLOGY_TYPES = [
  * replica set no primary.
  */
 const REPLICA_SET_NO_PRIMARY_READABLE = [
-  ReadPreference.PRIMARY_PREFERRED,
-  ReadPreference.SECONDARY,
-  ReadPreference.SECONDARY_PREFERRED,
-  ReadPreference.NEAREST
+  'primaryPreferred',
+  'secondary',
+  'secondaryPreferred',
+  'nearest'
 ];
 
 /**
@@ -33,7 +31,7 @@ const REPLICA_SET_NO_PRIMARY_READABLE = [
  * replica set with primary.
  */
 const REPLICA_SET_WITH_PRIMARY_READABLE =
-  REPLICA_SET_NO_PRIMARY_READABLE.concat([ ReadPreference.PRIMARY ]);
+  REPLICA_SET_NO_PRIMARY_READABLE.concat([ 'primary' ]);
 
 /**
  * List of writable topology types.

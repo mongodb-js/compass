@@ -187,7 +187,7 @@ console.log(c.driverUrl)
 console.log(c.driverOptions)
 >>> {
   db: { readPreference: 'nearest' },
-  replSet: { connectWithNoPrimary: true }
+  replSet: { }
 }
 ```
 
@@ -213,7 +213,7 @@ console.log(c.driverUrl)
 console.log(c.driverOptions)
 >>> {
   db: { readPreference: 'nearest' },
-  replSet: { connectWithNoPrimary: true }
+  replSet: { }
 }
 ```
 
@@ -247,7 +247,7 @@ console.log(c.driverUrl)
 console.log(c.driverOptions)
 >>> {
   db: { readPreference: 'nearest' },
-  replSet: { connectWithNoPrimary: true }
+  replSet: { }
 }
 ```
 
@@ -276,7 +276,7 @@ console.log(c.driverUrl)
 console.log(c.driverOptions)
 >>> {
   db: { readPreference: 'nearest' },
-  replSet: { connectWithNoPrimary: true }
+  replSet: { }
 }
 ```
 

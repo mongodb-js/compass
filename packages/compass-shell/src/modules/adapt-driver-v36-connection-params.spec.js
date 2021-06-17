@@ -34,15 +34,15 @@ describe('adaptDriverV36ConnectionParams', () => {
     ).to.not.contain.key('useNewUrlParser');
   });
 
-  it('removes checkServerIdentity only if is explicitly set to true', () => {
+  it('converts checkServerIdentity to tlsAllowInvalidHostnames', () => {
     expect(
       adaptDriverV36ConnectionParams(LOCALHOST, { checkServerIdentity: true })[1]
-    ).to.not.contain.key('useNewUrlParser');
+    ).to.not.contain.key('checkServerIdentity');
 
     expect(
       adaptDriverV36ConnectionParams(LOCALHOST, { checkServerIdentity: false })[1]
-        .checkServerIdentity
-    ).to.equal(false);
+        .tlsAllowInvalidHostnames
+    ).to.equal(true);
   });
 
   it('keeps other options', () => {
