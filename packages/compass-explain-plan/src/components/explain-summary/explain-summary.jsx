@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { FlexBox } from '../flex-box';
 import { SummaryStat } from '../summary-stat';
@@ -52,10 +51,10 @@ class ExplainSummary extends Component {
     const inMemorySort = this.props.inMemorySort ? 'yes' : 'no';
 
     return (
-      <div className={classnames(styles['explain-summary'])}>
+      <div className={styles['explain-summary']}>
         <h3>Query Performance Summary</h3>
         <FlexBox alignItems="flex-start">
-          <div className={classnames(styles['summary-stats'])}>
+          <div className={styles['summary-stats']}>
             <SummaryStat
               dataLink={HELP_URLS.NRETURNED}
               label="Documents Returned:"
@@ -72,7 +71,7 @@ class ExplainSummary extends Component {
               value={this.props.totalDocsExamined}
               openLink={this.props.openLink} />
           </div>
-          <div className={classnames(styles['summary-stats'])}>
+          <div className={styles['summary-stats']}>
             <SummaryStat
               dataLink={HELP_URLS.EXECUTION_TIME}
               label="Actual Query Execution Time (ms):"

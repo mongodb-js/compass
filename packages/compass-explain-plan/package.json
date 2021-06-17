@@ -156,6 +156,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@leafygreen-ui/banner": "^3.0.8",
     "@mongodb-js/mongodb-redux-common": "^1.2.0",
     "d3-flextree": "1.0.3",
     "d3-timer": "1.0.10",
