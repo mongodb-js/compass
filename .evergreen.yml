@@ -105,6 +105,7 @@ functions:
 
           echo "Configuring npm..."
           cat <<EOT >> .npmrc
+          registry=https://registry.npmjs.org/
           devdir=$NPM_CACHE_DIR/.node-gyp
           init-module=$NPM_CACHE_DIR/.npm-init.js
           cache=$NPM_CACHE_DIR
