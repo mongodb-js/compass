@@ -16,7 +16,6 @@
     "test-check-ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
     "prestart:watch": "electron-rebuild -o interruptor",
     "start:watch": "npm run clean && webpack --config ./config/webpack.watch.config.js",
-    "start-compass": "node scripts/run-in-compass.js",
     "pretest": "node ../../scripts/rebuild.js interruptor",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
     "test-ci": "npm run test",
@@ -24,8 +23,6 @@
     "test:karma": "npm run prestart && cross-env NODE_ENV=test karma start",
     "cover": "echo",
     "check": "npm run lint && npm run depcheck",
-    "link-plugin": "./scripts/link.sh",
-    "unlink-plugin": "./scripts/unlink.sh",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck --ignores=\"@hot-loader/react-dom,debug,acorn\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
   },

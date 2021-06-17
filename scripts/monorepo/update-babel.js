@@ -27,10 +27,10 @@ const babelPackagesToInstall = [
 const browserslistrc = `Electron >= 6`;
 
 async function main() {
-  await forEachPackage(async ({ packageDir, packageJson }) => {
-    const babelRcPath = path.join(packageDir, '.babelrc');
-    const babelRcJsPath = path.join(packageDir, '.babelrc.js');
-    const browserslistRcPath = path.join(packageDir, '.browserslistrc');
+  await forEachPackage(async ({ location, packageJson }) => {
+    const babelRcPath = path.join(location, '.babelrc');
+    const babelRcJsPath = path.join(location, '.babelrc.js');
+    const browserslistRcPath = path.join(location, '.browserslistrc');
 
     const babelPackages = getAllBabelPackages(packageJson);
     const allDeps = new Map(
@@ -85,14 +85,14 @@ async function main() {
 
           await runInDir(
             `npm uninstall --save ${packagesToUninstall.join(' ')}`,
-            packageDir
+            location
           );
 
           spinner.text = `${spinnerText}: installing babel@7 and all required plugins`;
 
           await runInDir(
             `npm install --save-dev ${packagesToInstall.join(' ')}`,
-            packageDir
+            location
           );
 
           spinner.text = `${spinnerText}: replacing babel configuration`;
@@ -147,7 +147,7 @@ async function main() {
             spinner.text = `${spinnerText}: updating babel-register imports`;
 
             await replaceInFile({
-              files: `${path.relative(process.cwd(), packageDir)}/**/*.{js,ts}`,
+              files: `${path.relative(process.cwd(), location)}/**/*.{js,ts}`,
               ignore: '**/node_modules/**',
               from: /\'babel-register\'/g,
               to: "'@babel/register'"

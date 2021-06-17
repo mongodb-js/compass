@@ -3,7 +3,7 @@ const { updatePackageJson } = require('./update-package-json');
 const { withProgress } = require('./with-progress');
 
 async function main() {
-  await forEachPackage(async ({ packageDir, packageJson }) => {
+  await forEachPackage(async ({ location, packageJson }) => {
     if (
       packageJson.scripts &&
       (packageJson.scripts.prepublishOnly || packageJson.scripts.prepublish)
@@ -11,7 +11,7 @@ async function main() {
       await withProgress(
         `Updating scripts for package ${packageJson.name}`,
         async () => {
-          await updatePackageJson(packageDir, (packageJson) => {
+          await updatePackageJson(location, (packageJson) => {
             const prepublish =
               packageJson.scripts.prepublishOnly ||
               packageJson.scripts.prepublish;

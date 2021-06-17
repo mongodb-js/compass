@@ -1,7 +1,16 @@
 const path = require('path');
-const { promises: fs } = require('fs');
+const { runInDir } = require('../run-in-dir');
 
 const ROOT = path.resolve(__dirname, '..', '..');
+
+const LERNA_BIN = path.resolve(
+  __dirname,
+  '..',
+  '..',
+  'node_modules',
+  '.bin',
+  'lerna'
+);
 
 async function forEachPackage(fn) {
   let interrupted = false;
@@ -9,14 +18,17 @@ async function forEachPackage(fn) {
     interrupted = true;
   };
   const packagesDir = path.resolve(ROOT, 'packages');
-  const packages = (await fs.readdir(packagesDir)).map((dir) =>
-    path.join(packagesDir, dir)
+  const packages = JSON.parse(
+    (await runInDir(`${LERNA_BIN} list --all --json --toposort`)).stdout
   );
   const result = [];
-  for (const packageDir of packages) {
-    const packageJson = require(path.join(packageDir, 'package.json'));
+  for (const packageInfo of packages) {
+    const packageJson = require(path.join(
+      packageInfo.location,
+      'package.json'
+    ));
     result.push(
-      await fn({ rootDir: ROOT, packageDir, packageJson }, interrupt)
+      await fn({ rootDir: ROOT, packageJson, ...packageInfo }, interrupt)
     );
     if (interrupted) {
       break;
