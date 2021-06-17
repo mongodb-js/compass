@@ -30,7 +30,7 @@
     "check"
   ],
   "peerDependencies": {
-    "mongodb": "3.x",
+    "mongodb": "^3.6.3",
     "mongodb-connection-model": "^20.2.0"
   },
   "dependencies": {
