@@ -1,7 +1,7 @@
 {
   "name": "hadron-ipc",
   "description": "Simplified IPC for electron apps.",
-  "version": "2.2.0",
+  "version": "2.2.1-pr.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "xvfb-maybe electron-mocha --no-sandbox",
