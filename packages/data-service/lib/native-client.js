@@ -699,9 +699,6 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   findOneAndReplace(ns, filter, replacement, options, callback) {
-    if ('returnOriginal' in options) {
-      options.returnDocument = options.returnOriginal ? 'before' : 'after';
-    }
     this._collection(ns).findOneAndReplace(
       filter,
       replacement,
@@ -725,9 +722,6 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   findOneAndUpdate(ns, filter, update, options, callback) {
-    if ('returnOriginal' in options) {
-      options.returnDocument = options.returnOriginal ? 'before' : 'after';
-    }
     this._collection(ns).findOneAndUpdate(
       filter,
       update,
