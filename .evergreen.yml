@@ -251,6 +251,7 @@ functions:
                 rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
                 chmod +x signtool.exe
                 cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
+                cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
               )
             fi
             bash ~/compass_package.sh
