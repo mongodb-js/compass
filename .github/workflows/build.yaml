@@ -76,7 +76,7 @@ jobs:
               --force-publish "*" \
               --yes
           # Setting debug before this line breaks plugins build process
-          DEBUG=hadron*
+          export DEBUG=hadron*,mongo*,electron*
           npm run release-evergreen
           kill $VERDACCIO_PID
         shell: bash
