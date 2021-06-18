@@ -8,6 +8,7 @@
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",
+    "prestart": "electron-rebuild --force --only keytar",
     "compile": "webpack --config ./config/webpack.prod.config.js",
     "start": "webpack-dev-server --config ./config/webpack.dev.config.js",
     "start:watch": "npm run clean && webpack --config ./config/webpack.watch.config.js",
@@ -56,6 +57,7 @@
     "debug": "^3.2.6",
     "depcheck": "^1.4.0",
     "electron": "^6.1.12",
+    "electron-rebuild": "^1.8.6",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "eslint": "^7.25.0",

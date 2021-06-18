@@ -380,14 +380,11 @@ const installDependencies = (CONFIG, done) => {
     }
     cli.debug('Dependencies installed');
 
-    const rebuildOptions = {
+    rebuild({
       electronVersion: CONFIG.packagerOptions.electronVersion,
       buildPath: path.join(CONFIG.resources, 'app'),
-      onlyModules: ['interruptor', 'kerberos'],
       force: true
-    };
-
-    rebuild(rebuildOptions).then(() => {
+    }).then(() => {
       cli.debug('Native modules rebuilt against Electron.');
       return done();
     }).catch((e) => {
