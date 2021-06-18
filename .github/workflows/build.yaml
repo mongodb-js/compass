@@ -39,8 +39,13 @@ jobs:
       - name: Install npm@7
         run: npm install -g npm@7
 
+      - name: Install verdaccio
+        run: npm install -g verdaccio
+
       - name: Install Dependencies
-        run: npm install --force
+        run: |
+          npm install --force
+          npx lerna run prepare --stream
 
       # https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708/3
       - name: Set path for candle.exe and light.exe
@@ -48,13 +53,33 @@ jobs:
         run: echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" >> $GITHUB_PATH
         shell: bash
 
-      - name: Build Compass
+      - name: Publish Packages Locally and Build Compass
         env:
+          npm_config_registry: http://localhost:4873/
           HADRON_PRODUCT: mongodb-compass
           HADRON_PRODUCT_NAME: MongoDB Compass
           HADRON_DISTRIBUTION: compass
-          DEBUG: hadron*
-        run: npm run release-evergreen
+        run: |
+          # Whatever changes occured at that point, they are irrelevant
+          git reset HEAD --hard
+          # Remove verdaccio storage. Should not be there, but just in case
+          rm -rf ./storage
+          verdaccio --config ./scripts/monorepo/verdaccio.yaml --listen 4873 &
+          VERDACCIO_PID=$!
+          npx wait-on -t 3000 http://localhost:4873
+          npx lerna publish prerelease \
+              --preid pr \
+              --canary \
+              --no-private \
+              --no-push \
+              --no-git-tag-version \
+              --force-publish "*" \
+              --yes
+          # Setting debug before this line breaks plugins build process
+          DEBUG=hadron*
+          npm run release-evergreen
+          kill $VERDACCIO_PID
+        shell: bash
 
       - name: Upload Compass Artifacts
         uses: actions/upload-artifact@v2

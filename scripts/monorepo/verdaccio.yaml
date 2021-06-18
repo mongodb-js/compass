@@ -6,7 +6,7 @@ uplinks:
   npmjs:
     url: https://registry.npmjs.org/
 packages:
-'@*/*':
+  '@*/*':
     access: $all
     publish: $all
     proxy: npmjs
@@ -15,6 +15,4 @@ packages:
     access: $all
     publish: $all
     proxy: npmjs
-logs:
-  - { type: stdout, format: pretty, level: http }
-
+logs: { type: stdout, level: error }
