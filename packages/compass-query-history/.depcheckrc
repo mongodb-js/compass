@@ -1,0 +1,19 @@
+ignores: [
+  "bootstrap",
+  "@babel/cli",
+  "@babel/register",
+  "core-js",
+  "font-awesome",
+  "har-validator",
+  "inject-loader",
+  "karma-electron",
+  "karma-sourcemap-loader",
+  "karma-webpack",
+  "mime-db",
+  "mongodb-connection-model",
+  "mongodb-js-metrics",
+  "sshpk",
+  "tough-cookie",
+  "webpack-bundle-analyzer",
+  "webpack-cli"
+]

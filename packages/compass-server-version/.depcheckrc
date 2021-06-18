@@ -1,0 +1,13 @@
+ignores: [
+  "@babel/cli",
+  "@babel/register",
+  "core-js",
+  "debug",
+  "font-awesome",
+  "karma-electron",
+  "karma-sourcemap-loader",
+  "karma-webpack",
+  "resolve",
+  "webpack-bundle-analyzer",
+  "webpack-cli"
+]

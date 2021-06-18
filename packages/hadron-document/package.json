@@ -19,7 +19,7 @@
     "check": "npm run lint && npm run depcheck",
     "pretest": "babel ./src --out-dir ./lib",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test",
     "prepare": "babel ./src --out-dir ./lib"
   },

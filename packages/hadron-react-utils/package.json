@@ -22,7 +22,7 @@
     "pretest": "npm run compile",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.js\"",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
     "test-ci": "npm run test",
     "prepare": "npm run compile"
@@ -47,7 +47,6 @@
     "ignore-loader": "^0.1.2",
     "jsdom": "^16.6.0",
     "jsdom-global": "^3.0.2",
-    "lerna": "^3.20.2",
     "mocha": "^7.1.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
@@ -56,8 +55,7 @@
     "webpack": "^4.46.0",
     "webpack-cli": "^3.3.12",
     "webpack-merge": "^4.2.2",
-    "webpack-node-externals": "^3.0.0",
-    "webpack-sources": "^1.4.3"
+    "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
     "react": "^16.14.0",

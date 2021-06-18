@@ -24,7 +24,7 @@
     "cover": "echo",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
-    "depcheck": "depcheck --ignores=\"@hot-loader/react-dom,debug,acorn\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\""
+    "depcheck": "depcheck"
   },
   "repository": {
     "type": "git",
@@ -79,7 +79,6 @@
     "depcheck": "^1.4.0",
     "electron": "^6.1.12",
     "electron-devtools-installer": "^3.1.1",
-    "electron-packager": "^8.7.0",
     "electron-rebuild": "^1.10.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.6.0",
@@ -141,7 +140,6 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.1",
-    "webpack-node-externals": "^3.0.0",
-    "webpack-sources": "1.0.1"
+    "webpack-node-externals": "^3.0.0"
   }
 }

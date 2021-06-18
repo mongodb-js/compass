@@ -1,0 +1,9 @@
+ignores: [
+  "bluebird",
+  "chalk",
+  "csv-write-stream",
+  "event-stream",
+  "figures",
+  "markdown-table",
+  "minimist"
+]

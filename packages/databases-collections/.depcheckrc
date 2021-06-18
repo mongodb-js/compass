@@ -1,0 +1,16 @@
+ignores: [
+  "@leafygreen-ui/modal",
+  "@leafygreen-ui/portal",
+  "@leafygreen-ui/typography",
+  "lodash.isempty",
+  "@babel/cli",
+  "@babel/register",
+  "core-js",
+  "font-awesome",
+  "karma-electron",
+  "karma-sourcemap-loader",
+  "karma-webpack",
+  "resolve",
+  "webpack-bundle-analyzer",
+  "webpack-cli"
+]

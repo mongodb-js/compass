@@ -1,0 +1,17 @@
+ignores: [
+  "@babel/cli",
+  "@babel/register",
+  "core-js",
+  "karma-chai",
+  "karma-chai-sinon",
+  "karma-electron",
+  "karma-mocha",
+  "karma-mocha-reporter",
+  "karma-sinon",
+  "karma-sourcemap-loader",
+  "karma-webpack",
+  "mongodb-reflux-store",
+  "resolve",
+  "webpack-bundle-analyzer",
+  "webpack-cli"
+]
