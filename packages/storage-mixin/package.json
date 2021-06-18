@@ -53,7 +53,6 @@
     "depcheck": "^1.4.0",
     "electron": "^6.1.12",
     "electron-mocha": "^8.1.2",
-    "electron-rebuild": "^1.8.8",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.0",
