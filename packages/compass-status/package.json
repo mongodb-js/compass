@@ -23,7 +23,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "hadron-react-components": "^4.1.1",
+    "hadron-react-components": "*",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",

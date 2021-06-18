@@ -24,7 +24,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "hadron-react-buttons": "^4.1.1",
+    "hadron-react-buttons": "*",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-redux": "^5.0.6",

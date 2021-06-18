@@ -28,27 +28,38 @@ function checkDependencyVersions(packageJson, packagesByName) {
   return {dependencies, devDependencies, peerDependencies};
 }
 
-function checkDependencyVersionsInSection(packageJson, packagesByName, section) {
+function checkDependencyVersionsInSection(packageJson, internalPackages, section) {
   const found = [];
   Object.entries(packageJson[section] || {}).forEach(([depName, depVer]) => {
-    if (packagesByName[depName] && packagesByName[depName] !== depVer.replace('^', '')) {
+    if (section === 'peerDependencies' && internalPackages[depName]) {
       found.push(depName);
     }
+
+    if (
+      internalPackages[depName] &&
+        (
+          section === 'peerDependencies' ||
+          internalPackages[depName] !== depVer.replace('^', '')
+        )
+      ) {
+        found.push(depName);
+      }
   });
 
   return found;
 }
 
-function fixDeps(packageJson, packagesByName, changes) {
+function fixDeps(packageJson, internalPackages, changes) {
   const newPackageJson = _.cloneDeep(packageJson);
 
-  for (const key of ['dependencies', 'devDependencies', 'peerDependencies']) {
-    if (!changes[key].length) {
+  for (const section of ['dependencies', 'devDependencies', 'peerDependencies']) {
+    if (!changes[section].length) {
       continue;
     }
 
-    for (const dep of changes[key]) {
-      newPackageJson[key][dep] = `^${packagesByName[dep]}`;
+    for (const dep of changes[section]) {
+      const version = section === 'peerDependencies' ? '*' : `^${internalPackages[dep]}`;
+      newPackageJson[section][dep] = version;
     }
   }
 
