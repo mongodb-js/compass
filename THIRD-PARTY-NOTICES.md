@@ -632,7 +632,7 @@ Package|Version|License
 **[keyboardevent-from-electron-accelerator](#31dc1ee9e5ae7f7523fa9175b5630881abdfacbd0ff451799b75107d3e282b0c)**|2.0.0|MIT
 **[keyboardevents-areequal](#d832f810c63f729482a944bcdceb386ffa5ff2035a3f420aa65f9300542aba93)**|0.2.2|MIT
 **[keycode](#545672bd33d6a9b7674650aa1a99687ae5f32fb12195def6eb8016f64ef29295)**|2.2.0|MIT
-**[keytar](#2777399d4579e44d68390c73dd209918f2092a61a8bc0d13d950da49ab4863a6)**|7.7.0|MIT
+**[keytar](#a7cf2c3292e645d20849180f5cc7aeb0154b7e453d01b748e732f212a0ee6935)**|5.6.0|MIT
 **[keyv](#222a222111d22acde3596ba6e0453fec57fa8aa8fc974f77b6d97b3831af9116)**|4.0.3|MIT
 **[kind-of](#760518d11a25b6650451c5faeb4520592b00aecf5fbd89939da9297946c37c7d)**|3.2.2|MIT
 **[kindly](#527b0a701be406539f7ac49e920818d3f581c8c9b33f4bcc6c9ba338d08cadb9)**|0.0.7|MIT
@@ -942,6 +942,7 @@ Package|Version|License
 **[murmurhash-js](#8eb52a0370338a96d941cc2b2fa92cf6f0260f41993c3c69720283aa14281174)**|1.0.0|MIT
 **[mustache](#9e574ae3fa6282e512b5f57e7b1b1e9463c95d0301c65e2684cb120df415c5ee)**|4.2.0|MIT
 **[nan](#354f3feba0979fd26b49eb6e9527ba176bbf15fb9cc0374479fc593a09ddda8c)**|2.14.2|MIT
+**[nan](#91c7fdf0a68aa262fd6b944c033a394f3a6bf198103fc1a3f0ffc4b7e7f92528)**|2.14.1|MIT
 **[nanoid](#ed7a467c7f5168091d52f5a61d1b652cc10fc9386716868f91f020c4da93e84b)**|2.1.11|MIT
 **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
 **[native-request](#2dec82f3bea81587c676457b42d354f98d7bcf4ba65c5de6801fe38869d692d0)**|1.0.8|MIT
@@ -1015,7 +1016,7 @@ Package|Version|License
 **[postmsg-rpc](#1afdb3002a5e69f6be21a2f5d1dda4cbdfc043e87c9528667d0b057a32aee3cd)**|2.4.0|MIT
 **[potpack](#0be0402c42b7ebc0817acedad56c3463187dd68313712d78596c7b55b7f6488f)**|1.0.1|ISC
 **[prebuild-install](#a5149c349a53cbc4fc91f141f06c2439fe7ffaeaf27ca4c268fde06a7812bf4f)**|5.3.0|MIT
-**[prebuild-install](#9452a74db4d0e17eb113bc921ecf96cafc72fb28a7e675b5f461c4425b2e4c67)**|6.1.3|MIT
+**[prebuild-install](#bb0c15b59a60bfb588b95eac158895de82ab409819db6156c24a723ee63b8595)**|5.3.3|MIT
 **[prebuild-install](#a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda)**|6.1.2|MIT
 **[pretty-bytes](#9e33688b6e1c9e20b4c01df3ef7f62225265b012eb4f58f56897d7a7aed4ca4e)**|5.6.0|MIT
 **[pretty-format](#4648aaa3717a289ef7e20fca3a511a9410c43130c91e5757f89150656c8ed11a)**|24.9.0|MIT
@@ -24875,8 +24876,8 @@ Authors:
 * Tim Oxley <secoif@gmail.com>
 
 
-<a id="2777399d4579e44d68390c73dd209918f2092a61a8bc0d13d950da49ab4863a6"></a>
-### [keytar](https://www.npmjs.com/package/keytar) (version 7.7.0)
+<a id="a7cf2c3292e645d20849180f5cc7aeb0154b7e453d01b748e732f212a0ee6935"></a>
+### [keytar](https://www.npmjs.com/package/keytar) (version 5.6.0)
 <!-- initially found at node_modules/keytar -->
 > Bindings to native Mac/Linux/Windows password APIs
 
@@ -43805,6 +43806,42 @@ Authors:
 * Michael Ira Krufky <mkrufky@gmail.com> (https://github.com/mkrufky)
 
 
+<a id="91c7fdf0a68aa262fd6b944c033a394f3a6bf198103fc1a3f0ffc4b7e7f92528"></a>
+### [nan](https://www.npmjs.com/package/nan) (version 2.14.1)
+<!-- initially found at node_modules/keytar/node_modules/nan -->
+> Native Abstractions for Node.js: C++ header for Node 0.8 -> 14 compatibility
+
+License tags: MIT
+
+License files:
+* LICENSE.md:
+
+      The MIT License (MIT)
+      =====================
+      
+      Copyright (c) 2018 NAN contributors
+      -----------------------------------
+      
+      *NAN contributors listed at <https://github.com/nodejs/nan#contributors>*
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* Rod Vagg <r@va.gg> (https://github.com/rvagg)
+* Benjamin Byholm <bbyholm@abo.fi> (https://github.com/kkoopa/)
+* Trevor Norris <trev.norris@gmail.com> (https://github.com/trevnorris)
+* Nathan Rajlich <nathan@tootallnate.net> (https://github.com/TooTallNate)
+* Brett Lawson <brett19@gmail.com> (https://github.com/brett19)
+* Ben Noordhuis <info@bnoordhuis.nl> (https://github.com/bnoordhuis)
+* David Siegel <david@artcom.de> (https://github.com/agnat)
+* Michael Ira Krufky <mkrufky@gmail.com> (https://github.com/mkrufky)
+
+
 <a id="ed7a467c7f5168091d52f5a61d1b652cc10fc9386716868f91f020c4da93e84b"></a>
 ### [nanoid](https://www.npmjs.com/package/nanoid) (version 2.1.11)
 <!-- initially found at node_modules/nanoid -->
@@ -43939,7 +43976,7 @@ Authors:
 
 <a id="29f3bd2e2ca7a2f4abf4ebfbffe6fa9fc1a33b2fb001d918f92a15ffd7dd7507"></a>
 ### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 3.2.1)
-<!-- initially found at node_modules/keytar/node_modules/node-addon-api -->
+<!-- initially found at node_modules/os-dns-native/node_modules/node-addon-api -->
 > Node.js API (Node-API)
 
 License tags: MIT
@@ -46415,8 +46452,8 @@ Authors:
 * Lukas Geiger <lukas.geiger94@gmail.com> (https://github.com/lgeiger)
 
 
-<a id="9452a74db4d0e17eb113bc921ecf96cafc72fb28a7e675b5f461c4425b2e4c67"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 6.1.3)
+<a id="bb0c15b59a60bfb588b95eac158895de82ab409819db6156c24a723ee63b8595"></a>
+### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 5.3.3)
 <!-- initially found at node_modules/keytar/node_modules/prebuild-install -->
 > A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
 
