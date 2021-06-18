@@ -291,8 +291,8 @@ Package|Version|License
 **[browser-stdout](#12568091b89e4f6c69a97869b9d3072199a2332d491a8b27fd7f4026afcdf223)**|1.3.1|ISC
 **[browserslist](#a5bfb1ae7d71806536a968a858a0b624c13fb380c551914b97479fee2b3ec524)**|4.16.6|MIT
 **[bson](#ee52fad50f125b1ac53959bf638e62cafa1a273e20164cc18313012e39035bb5)**|4.1.0|Apache-2.0
-**[bson](#0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87)**|1.1.6|Apache-2.0
 **[bson](#3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282)**|4.4.0|Apache-2.0
+**[bson](#0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87)**|1.1.6|Apache-2.0
 **[bson](#9568646decb901218e67075eb984d7bbd5c4fae711cd931bb42bb85757af4a4b)**|4.0.2|Apache-2.0
 **[bson-transpilers](#f49e40643258c3a625074b7becb67307ba6f03aa534058c7b4bd4ba24abf1fca)**|0.14.0|Apache-2.0
 **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**|1.2.0|MIT
@@ -893,8 +893,8 @@ Package|Version|License
 **[mocha](#b3d9872ce3afa2e18eb0e36dda0151dd6df7bb03ab33230c87f3374b5a847e14)**|5.2.0|MIT
 **[moment](#d8f96cf3e8fde11ddd63693bbb806b273f74faf4ba8426497c8b28c62950f148)**|2.29.1|MIT
 **[moment-timezone](#c0b94a3f1712536d5766e63717b3e5ea3007bc87993295193d7ca95aacbcba7a)**|0.5.33|MIT
-**[mongodb](#79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f)**|3.6.9|Apache-2.0
 **[mongodb](#9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f)**|4.0.0-beta.5|Apache-2.0
+**[mongodb](#79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f)**|3.6.9|Apache-2.0
 **[mongodb-ace-autocompleter](#88e3cacc0ba023dca2a6a0445053a925e9d44883bc4e7b2a48c7a9f36749a7d0)**|0.6.0|Apache-2.0
 **[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
 **[mongodb-ace-mode](#46e2b35d450e6cfcabdad795d5ba7474a224768fd4f0230a8dd8863df9414797)**|1.1.0|SSPL
@@ -1076,8 +1076,8 @@ Package|Version|License
 **[react-virtualized](#01989abab6b14f56a187e6245a7cfbb3c3d9cc5e71411f395b1fda65cfa31019)**|9.22.3|MIT
 **[read-pkg](#7d6060139e436a780e8ed066fb16666f955969ca7758f588c9f60c6d5e00d981)**|1.1.0|MIT
 **[read-pkg-up](#609436005e735faf0c6437729ce614d43e2698fb0c8dbc5784519c7a59725665)**|1.0.1|MIT
-**[readable-stream](#8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1)**|2.3.7|MIT
 **[readable-stream](#75bd2243ec5ecc92b8d7e9a2e9a1aa142f20f6a5aad6dc0d923cdab997766174)**|3.6.0|MIT
+**[readable-stream](#8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1)**|2.3.7|MIT
 **[readable-stream](#1a43c6d0d989d70bee45d514814640912b6da533d875c1c1cbfdf98138a9fbd7)**|1.0.34|MIT
 **[readdirp](#9be518c044dd2390ed802762ec50e90d9c85d68b9b093936217c4212ebd99b2d)**|3.6.0|MIT
 **[redux](#3535f3714722b5f2523c411ac7ebc287131fbbf736f9220419be9fa1477ce496)**|3.7.2|MIT
@@ -11963,9 +11963,9 @@ Authors:
 * Christian Amor Kvalheim <christkv@gmail.com>
 
 
-<a id="0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 1.1.6)
-<!-- initially found at node_modules/mongodb/node_modules/bson -->
+<a id="3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 4.4.0)
+<!-- initially found at packages/compass/node_modules/bson -->
 > A bson parser for node.js and the browser
 
 License tags: Apache-2.0
@@ -12180,9 +12180,9 @@ Authors:
 * Christian Amor Kvalheim <christkv@gmail.com>
 
 
-<a id="3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 4.4.0)
-<!-- initially found at node_modules/@mongosh/node-runtime-worker-thread/node_modules/bson -->
+<a id="0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 1.1.6)
+<!-- initially found at node_modules/mongodb-extended-json/node_modules/bson -->
 > A bson parser for node.js and the browser
 
 License tags: Apache-2.0
@@ -37906,9 +37906,9 @@ Authors:
 * Tim Wood <washwithcare@gmail.com> (http://timwoodcreates.com/)
 
 
-<a id="79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 3.6.9)
-<!-- initially found at node_modules/mongodb -->
+<a id="9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.5)
+<!-- initially found at packages/compass/node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
 License tags: Apache-2.0
@@ -38119,9 +38119,9 @@ License files:
          limitations under the License.
 
 
-<a id="9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.5)
-<!-- initially found at node_modules/@mongosh/service-provider-core/node_modules/mongodb -->
+<a id="79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 3.6.9)
+<!-- initially found at node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
 License tags: Apache-2.0
@@ -48619,9 +48619,9 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1"></a>
-### [readable-stream](https://www.npmjs.com/package/readable-stream) (version 2.3.7)
-<!-- initially found at node_modules/mongodb/node_modules/readable-stream -->
+<a id="75bd2243ec5ecc92b8d7e9a2e9a1aa142f20f6a5aad6dc0d923cdab997766174"></a>
+### [readable-stream](https://www.npmjs.com/package/readable-stream) (version 3.6.0)
+<!-- initially found at node_modules/readable-stream -->
 > Streams3, a user-land copy of the stream library from Node.js
 
 License tags: MIT
@@ -48679,9 +48679,9 @@ License files:
       
 
 
-<a id="75bd2243ec5ecc92b8d7e9a2e9a1aa142f20f6a5aad6dc0d923cdab997766174"></a>
-### [readable-stream](https://www.npmjs.com/package/readable-stream) (version 3.6.0)
-<!-- initially found at node_modules/readable-stream -->
+<a id="8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1"></a>
+### [readable-stream](https://www.npmjs.com/package/readable-stream) (version 2.3.7)
+<!-- initially found at node_modules/duplexify/node_modules/readable-stream -->
 > Streams3, a user-land copy of the stream library from Node.js
 
 License tags: MIT
