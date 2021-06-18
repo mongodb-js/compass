@@ -17,6 +17,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
+      fail-fast: false
+
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
 
@@ -76,7 +78,7 @@ jobs:
               --force-publish "*" \
               --yes
           # Setting debug before this line breaks plugins build process
-          DEBUG=hadron*
+          export DEBUG=hadron*,mongo*,electron*
           npm run release-evergreen
           kill $VERDACCIO_PID
         shell: bash
