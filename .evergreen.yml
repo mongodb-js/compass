@@ -75,6 +75,7 @@ functions:
 
           export NODE_JS_VERSION="12.4.0"
           export NPM_VERSION="7"
+          export NPM_CONFIG_CACHE="${NPM_CACHE_DIR}"
 
           if [[ "$OSTYPE" == "cygwin" ]]; then
             # NOTE lucas: for git-core addition, See
@@ -102,17 +103,6 @@ functions:
         shell: bash
         script: |
           source ~/compass_env.sh
-
-          echo "Configuring npm..."
-          cat <<EOT >> .npmrc
-          registry=https://registry.npmjs.org/
-          devdir=$NPM_CACHE_DIR/.node-gyp
-          init-module=$NPM_CACHE_DIR/.npm-init.js
-          cache=$NPM_CACHE_DIR
-          tmp=$NPM_TMP_DIR
-          _authToken=$NPM_AUTH_TOKEN
-          EOT
-
     - command: shell.exec
       params:
         working_dir: src
@@ -231,6 +221,7 @@ functions:
 
           export NPM_CONFIG_LOGLEVEL=info
           export DEBUG="*,-flora-colossus"
+          export NPM_CONFIG_CACHE="$(pwd)/.deps/.npm"
           npm run release-evergreen ${compass_distribution};
           rm -f /tmp/compass-apple-cred.json
           EOF_BUILD_SH
