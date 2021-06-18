@@ -75,6 +75,7 @@ functions:
 
           export NODE_JS_VERSION="12.4.0"
           export NPM_VERSION="7"
+          export NPM_CONFIG_CACHE="${NPM_CACHE_DIR}"
 
           if [[ "$OSTYPE" == "cygwin" ]]; then
             # NOTE lucas: for git-core addition, See
