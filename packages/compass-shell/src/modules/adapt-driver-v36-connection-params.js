@@ -26,13 +26,9 @@ export function adaptDriverV36ConnectionParams(
   delete newDriverOptions.connectWithNoPrimary;
   delete newDriverOptions.useNewUrlParser;
 
-  // `true` is not a valid tls checkServerIdentity option that seems to break
-  // driver 4
-  //
-  // TODO(NODE-3061): Remove when fixed on driver side
-  if (newDriverOptions.checkServerIdentity === true) {
-    delete newDriverOptions.checkServerIdentity;
-  }
+  // `checkServerIdentity` is properly handled as `tlsAllowInvalidHostnames` if passed as a boolean
+  newDriverOptions.tlsAllowInvalidHostnames = !newDriverOptions.checkServerIdentity;
+  delete newDriverOptions.checkServerIdentity;
 
   // driver 4 doesn't support certificates as buffers, so let's copy paths
   // back from model `driverOptions`

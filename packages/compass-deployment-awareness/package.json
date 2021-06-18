@@ -31,7 +31,6 @@
   "peerDependencies": {
     "hadron-react-buttons": "*",
     "hadron-react-components": "*",
-    "mongodb": "^3.5.3",
     "react": "^16.8.0",
     "react-dom": "^16.8.0"
   },
@@ -84,7 +83,6 @@
     "less-loader": "^5.0.0",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb": "^3.2.2",
     "mongodb-connection-model": "^20.2.0",
     "mongodb-data-service": "^20.2.1",
     "mongodb-js-metrics": "^7.2.0",

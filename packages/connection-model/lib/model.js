@@ -15,7 +15,7 @@ const {
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
 const { ReadPreference } = require('mongodb');
-const { parseConnectionString } = require('mongodb/lib/core');
+const { parseConnectionString } = require('mongodb3/lib/core');
 const dataTypes = require('./data-types');
 const localPortGenerator = require('./local-port-generator');
 
@@ -46,7 +46,7 @@ const MONGODB_DATABASE_NAME_DEFAULT = 'admin';
 const KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
 const SSL_DEFAULT = 'NONE';
 const SSH_TUNNEL_DEFAULT = 'NONE';
-const DRIVER_OPTIONS_DEFAULT = { connectWithNoPrimary: true };
+const DRIVER_OPTIONS_DEFAULT = { };
 
 /**
  * Mappings from the old connection model properties to the new one.
@@ -197,7 +197,7 @@ assign(props, {
  *   console.log(c.driverUrl)
  *   >>> mongodb://arlo:w%40of@localhost:27017?slaveOk=true&authSource=admin
  *   console.log(c.driverOptions)
- *   >>> { db: { readPreference: 'nearest' }, replSet: { connectWithNoPrimary: true } }
+ *   >>> { db: { readPreference: 'nearest' }, replSet: { } }
  */
 assign(props, {
   mongodbUsername: { type: 'string', default: undefined },
@@ -228,7 +228,7 @@ assign(props, {
  *   console.log(c.driverUrl)
  *   >>> mongodb://arlo%252Fdog%2540krb5.mongodb.parts@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI
  *   console.log(c.driverOptions)
- *   >>> { db: { readPreference: 'nearest' }, replSet: { connectWithNoPrimary: true } }
+ *   >>> { db: { readPreference: 'nearest' }, replSet: { } }
  *
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-kerberos
@@ -270,7 +270,7 @@ assign(props, {
  *   console.log(c.driverUrl)
  *   >>> mongodb://arlo:w%40of@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN
  *   console.log(c.driverOptions)
- *   >>> { db: { readPreference: 'nearest' }, replSet: { connectWithNoPrimary: true } }
+ *   >>> { db: { readPreference: 'nearest' }, replSet: { } }
  *
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-ldap
@@ -303,7 +303,7 @@ assign(props, {
  *   console.log(c.driverUrl)
  *   >>> mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia%252CST%253DPennsylvania%252CC%253DUS@localhost:27017?slaveOk=true&authMechanism=MONGODB-X509
  *   console.log(c.driverOptions)
- *   >>> { db: { readPreference: 'nearest' }, replSet: { connectWithNoPrimary: true } }
+ *   >>> { db: { readPreference: 'nearest' }, replSet: { } }
  *
  * @see http://bit.ly/mongodb-node-driver-x509
  * @see http://bit.ly/mongodb-x509
@@ -664,15 +664,15 @@ assign(derived, {
         }
 
         if (this.authStrategy === 'X509') {
-          opts.checkServerIdentity = false;
+          opts.tlsAllowInvalidHostnames = true;
           opts.sslValidate = false;
         }
       } else if (this.sslMethod === 'UNVALIDATED') {
-        assign(opts, { checkServerIdentity: false, sslValidate: false });
+        assign(opts, { tlsAllowInvalidHostnames: true, sslValidate: false });
       } else if (this.sslMethod === 'SYSTEMCA') {
-        assign(opts, { checkServerIdentity: true, sslValidate: true });
+        assign(opts, { tlsAllowInvalidHostnames: false, sslValidate: true });
       } else if (this.sslMethod === 'IFAVAILABLE') {
-        assign(opts, { checkServerIdentity: false, sslValidate: true });
+        assign(opts, { tlsAllowInvalidHostnames: true, sslValidate: true });
       }
 
       // Assign and overwrite all extra options provided by user.

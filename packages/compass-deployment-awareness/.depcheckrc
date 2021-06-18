@@ -12,5 +12,6 @@ ignores: [
   "storage-mixin",
   "uuid",
   "webpack-bundle-analyzer",
-  "webpack-cli"
+  "webpack-cli",
+  "mongodb"
 ]

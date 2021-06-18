@@ -87,10 +87,9 @@ describe('Connection model builder', () => {
     it('should include sslMethod equal UNVALIDATED', (done) => {
       const c = new Connection({ sslMethod: 'UNVALIDATED' });
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
-        checkServerIdentity: false,
+        tlsAllowInvalidHostnames: true,
         sslValidate: false,
-        readPreference: 'primary',
-        connectWithNoPrimary: true
+        readPreference: 'primary'
       });
 
       expect(c.driverUrl).to.be.equal(
@@ -107,10 +106,9 @@ describe('Connection model builder', () => {
     it('should include sslMethod equal SYSTEMCA', (done) => {
       const c = new Connection({ sslMethod: 'SYSTEMCA' });
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
-        checkServerIdentity: true,
+        tlsAllowInvalidHostnames: false,
         sslValidate: true,
-        readPreference: 'primary',
-        connectWithNoPrimary: true
+        readPreference: 'primary'
       });
 
       expect(c.driverUrl).to.be.equal(
@@ -127,10 +125,9 @@ describe('Connection model builder', () => {
     it('should include sslMethod equal IFAVAILABLE', (done) => {
       const c = new Connection({ sslMethod: 'IFAVAILABLE' });
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
-        checkServerIdentity: false,
+        tlsAllowInvalidHostnames: true,
         sslValidate: true,
-        readPreference: 'primary',
-        connectWithNoPrimary: true
+        readPreference: 'primary'
       });
 
       expect(c.driverUrl).to.be.equal(
@@ -149,8 +146,7 @@ describe('Connection model builder', () => {
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
         sslCA: [sslFixture.ca],
         sslValidate: true,
-        readPreference: 'primary',
-        connectWithNoPrimary: true
+        readPreference: 'primary'
       });
 
       expect(c.driverUrl).to.be.equal(
@@ -177,10 +173,9 @@ describe('Connection model builder', () => {
         sslCA: [sslFixture.ca],
         sslCert: sslFixture.server,
         sslKey: sslFixture.server,
-        checkServerIdentity: false,
+        tlsAllowInvalidHostnames: true,
         sslValidate: false,
-        readPreference: 'primary',
-        connectWithNoPrimary: true
+        readPreference: 'primary'
       });
 
       expect(c.driverUrl).to.be.equal(
@@ -206,8 +201,7 @@ describe('Connection model builder', () => {
         sslCert: sslFixture.server,
         sslKey: sslFixture.server,
         sslValidate: true,
-        readPreference: 'primary',
-        connectWithNoPrimary: true
+        readPreference: 'primary'
       });
 
       expect(c.driverUrl).to.be.equal(
@@ -221,7 +215,6 @@ describe('Connection model builder', () => {
         sslCert: fs.readFileSync(sslFixture.server),
         sslKey: fs.readFileSync(sslFixture.server),
         sslValidate: true,
-        connectWithNoPrimary: true,
         readPreference: 'primary'
       };
       /* eslint-enable no-sync */
@@ -249,7 +242,6 @@ describe('Connection model builder', () => {
         sslKey: sslFixture.server,
         sslPass: 'woof',
         sslValidate: true,
-        connectWithNoPrimary: true,
         readPreference: 'primary'
       });
 
@@ -917,8 +909,7 @@ describe('Connection model builder', () => {
         const c = new Connection({ appname: 'My App' });
 
         expect(c.driverOptions).to.be.deep.equal({
-          readPreference: 'primary',
-          connectWithNoPrimary: true
+          readPreference: 'primary'
         });
 
         Connection.from(c.driverUrl, (error) => {
@@ -990,7 +981,6 @@ describe('Connection model builder', () => {
       it('should use default driverOptions when there is no extra options', (done) => {
         const c = new Connection();
 
-        expect(c.driverOptions).to.have.property('connectWithNoPrimary');
         expect(c.driverOptions).to.have.property('readPreference');
         expect(c.driverOptions).to.not.have.property('socketTimeoutMS');
 

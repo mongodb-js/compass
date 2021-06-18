@@ -98,7 +98,7 @@
     "less-loader": "^4.0.5",
     "mocha": "^5.2.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb": "^3.6.3",
+    "mongodb": "4.0.0-beta.5",
     "mongodb-ace-autocompleter": "^0.6.0",
     "mongodb-ace-mode": "^1.1.0",
     "mongodb-ace-theme-query": "^1.1.0",
