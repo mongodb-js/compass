@@ -84,7 +84,7 @@ jobs:
               --no-git-reset \
               --force-publish "*" \
               --yes
-          npm run version
+          npm run version -- --no-stage --no-package-lock
 
           # Setting debug before this line breaks plugins build process
           export DEBUG=hadron*,mongo*,electron*
