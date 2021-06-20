@@ -64,22 +64,31 @@ jobs:
         run: |
           # Whatever changes occured at that point, they are irrelevant
           git reset HEAD --hard
+
           # Remove verdaccio storage. Should not be there, but just in case
           rm -rf ./storage
           verdaccio --config ./scripts/monorepo/verdaccio.yaml --listen 4873 &
           VERDACCIO_PID=$!
           npx wait-on -t 3000 http://localhost:4873
+
+          # Compared to the real publish we do that skips private packages, 
+          # during test publish here we want private packages to be included
+          # (they are not really published) so that they get a version update in
+          # their package.json files because the `version` lifecycle hook that
+          # we use during a normal release process is not activated here
           npx lerna publish prerelease \
               --preid pr \
               --canary \
-              --no-private \
               --no-push \
               --no-git-tag-version \
               --force-publish "*" \
               --yes
+
           # Setting debug before this line breaks plugins build process
           export DEBUG=hadron*,mongo*,electron*
           npm run release-evergreen
+
+          # Clean-up background verdaccio process
           kill $VERDACCIO_PID
         shell: bash
 
