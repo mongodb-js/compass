@@ -41,8 +41,8 @@ function collectDependencies() {
   const packages = JSON.parse(childProcess.execSync(`${LERNA_BIN} list --all --json --toposort`));
   const dependencies = {};
 
-  for (const package of [...packages, {location: ROOT_PACKAGE_JSON_PATH}]) {
-    const packageJsonPath = path.join(package.location, 'package.json');
+  for (const packageInfo of [...packages, {location: ROOT_PACKAGE_JSON_PATH}]) {
+    const packageJsonPath = path.join(packageInfo.location, 'package.json');
     const packageJson = fsExtra.readJSONSync(packageJsonPath);
     for (const [dependency, versionRange] of [
       ...Object.entries(packageJson.dependencies || {}),

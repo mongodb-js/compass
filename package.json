@@ -44,6 +44,7 @@
     "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
     "lerna": "^4.0.0",
+    "lodash": "^4.17.21",
     "make-fetch-happen": "^8.0.14",
     "npm-cli-adduser": "^1.1.4",
     "ora": "^5.4.0",

@@ -3,12 +3,11 @@ const path = require('path');
 const fsExtra = require('fs-extra');
 const _ = require('lodash');
 
-
 const packages = JSON.parse(childProcess.execSync('lerna list --all --json --toposort'));
 const packagesByName = packages.reduce((acc, curr) => { return {...acc, [curr.name]: curr.version}; }, {})
 
-for (const package of packages) {
-  const packageJsonPath = path.join(package.location, 'package.json');
+for (const packageInfo of packages) {
+  const packageJsonPath = path.join(packageInfo.location, 'package.json');
   const packageJson = fsExtra.readJSONSync(packageJsonPath);
 
   const mismatching = checkDependencyVersions(packageJson, packagesByName);
