@@ -88,20 +88,22 @@ class ExpansionBar extends React.PureComponent {
    * @returns {React.Component} The expander bar.
    */
   render() {
-    const components = [];
     const total = this.props.totalSize;
-    if (total > this.props.initialSize) {
-      const showMoreFields = Math.min(
-        total - this.props.renderSize,
-        this.props.perClickSize
-      );
-      const hideFields = this.props.renderSize - this.props.initialSize;
-      if (this.props.renderSize < total) {
-        components.push(this.renderShowMoreFieldsButton(showMoreFields));
-      }
-      if (this.props.renderSize > this.props.initialSize && !this.props.disableHideButton) {
-        components.push(this.renderHideFieldsButton(hideFields));
-      }
+    if (total <= this.props.initialSize) {
+      return null;
+    }
+
+    const showMoreFields = Math.min(
+      total - this.props.renderSize,
+      this.props.perClickSize
+    );
+    const hideFields = this.props.renderSize - this.props.initialSize;
+    const components = [];
+    if (this.props.renderSize < total) {
+      components.push(this.renderShowMoreFieldsButton(showMoreFields));
+    }
+    if (this.props.renderSize > this.props.initialSize && !this.props.disableHideButton) {
+      components.push(this.renderHideFieldsButton(hideFields));
     }
     return (
       <div className="expansion-bar">

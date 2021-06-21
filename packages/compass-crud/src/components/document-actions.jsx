@@ -1,6 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { IconButton } from 'hadron-react-buttons';
+// import { IconButton } from 'hadron-react-buttons';
+import IconButton, { Size as IconButtonSizes } from '@leafygreen-ui/icon-button';
+import Icon from '@leafygreen-ui/icon';
+
 import UpdatableIconButton from './updatable-icon-button';
 
 /**
@@ -14,18 +17,6 @@ class DocumentActions extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { allExpanded: props.allExpanded };
-  }
-
-  /**
-   * Set the state when new props are received.
-   *
-   * @param {Object} nextProps - The new props.
-   */
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.allExpanded !== this.state.allExpanded) {
-      this.setState({ allExpanded: nextProps.allExpanded });
-    }
   }
 
   /**
@@ -34,20 +25,32 @@ class DocumentActions extends React.Component {
    * @returns {React.Component} The expand all button.
    */
   renderExpandAll() {
-    if (this.props.expandAll) {
-      const title = this.state.allExpanded ? 'Collapse All' : 'Expand All';
-      const iconClass = this.state.allExpanded ? 'fa-angle-down' : 'fa-angle-right';
-      return (
-        <div className="document-actions-left">
-          <UpdatableIconButton
+    const title = this.props.allExpanded ? 'Collapse All' : 'Expand All';
+    // const iconClass = this.props.allExpanded ? 'fa-angle-down' : 'fa-angle-right';
+    return (
+      <div className="document-actions-left">
+        <IconButton
+          aria-label={title}
+          // className="document-actions-button btn btn-default btn-xs"
+          // iconClassName="document-actions-button-icon fa fa-pencil"
+          dataTestId="expand-all-button"
+          onClick={this.props.expandAll}
+          // IconButtonSizes={IconButtonSizes.}
+        >
+          <Icon
+            glyph={this.props.allExpanded ? 'ChevronDown' : 'ChevronRight'}
+            // size={IconButtonSizes.Default}
             title={title}
-            clickHandler={this.props.expandAll}
-            className="document-actions-button document-actions-expand-button btn btn-default btn-xs"
-            iconClassName={`document-actions-button-icon fa ${iconClass}`}
-            dataTestId="expand-all-button" />
-        </div>
-      );
-    }
+          />
+        </IconButton>
+        {/* <UpdatableIconButton
+          title={title}
+          clickHandler={this.props.expandAll}
+          className="document-actions-button document-actions-expand-button btn btn-default btn-xs"
+          iconClassName={`document-actions-button-icon fa ${iconClass}`}
+          dataTestId="expand-all-button" /> */}
+      </div>
+    );
   }
 
   /**
@@ -58,32 +61,93 @@ class DocumentActions extends React.Component {
   render() {
     return (
       <div className="document-actions">
-        {this.renderExpandAll()}
+        {this.props.expandAll && this.renderExpandAll()}
         <div className="document-actions-right">
-          <IconButton
+          {/* {this.props.edit && <IconButton
             title="Edit Document"
             className="document-actions-button btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-pencil"
             dataTestId="edit-document-button"
-            clickHandler={this.props.edit} />
-          <IconButton
+            clickHandler={this.props.edit}
+          />}
+          {this.props.copy && <IconButton
             title="Copy Document"
             className="document-actions-button document-actions-button-copy btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-copy"
             dataTestId="copy-document-button"
-            clickHandler={this.props.copy} />
-          <IconButton
+            clickHandler={this.props.copy}
+          />}
+          {this.props.clone && <IconButton
             title="Clone Document"
             className="document-actions-button btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-clone"
             dataTestId="clone-document-button"
-            clickHandler={this.props.clone} />
-          <IconButton
+            clickHandler={this.props.clone}
+          />}
+          {this.props.remove && <IconButton
             title="Delete Document"
             className="document-actions-button btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-trash-o"
             dataTestId="delete-document-button"
-            clickHandler={this.props.remove} />
+            clickHandler={this.props.remove}
+          />} */}
+          {this.props.edit && <IconButton
+            aria-label="Edit Document"
+            // className="document-actions-button btn btn-default btn-xs"
+            // iconClassName="document-actions-button-icon fa fa-pencil"
+            dataTestId="edit-document-button"
+            onClick={this.props.edit}
+            // IconButtonSizes={IconButtonSizes.}
+          >
+            <Icon
+              glyph="Edit"
+              title="Edit Document"
+              // size={IconButtonSizes.Default}
+            />
+          </IconButton>}
+          {this.props.copy && <IconButton
+            aria-label="Copy Document"
+            // className="document-actions-button document-actions-button-copy btn btn-default btn-xs"
+            // iconClassName="document-actions-button-icon fa fa-copy"
+            dataTestId="copy-document-button"
+            onClick={this.props.copy}
+          >
+            <Icon
+              glyph="Copy"
+              title="Copy Document"
+              // size={IconButtonSizes.Default}
+            />
+          </IconButton>}
+          {this.props.clone && <IconButton
+            aria-label="Clone Document"
+            // className="document-actions-button btn btn-default btn-xs"
+            // iconClassName="document-actions-button-icon fa fa-clone"
+            dataTestId="clone-document-button"
+            onClick={this.props.clone}
+          >
+            {/* <Icon
+              glyph=""
+              size={Sizes}
+            /> */}
+            <i
+              // className="document-actions-button-icon fa fa-clone"
+              className="fa fa-clone"
+              aria-hidden
+            />
+          </IconButton>}
+          {this.props.remove && <IconButton
+            aria-label="Delete Document"
+            // className="document-actions-button btn btn-default btn-xs"
+            // iconClassName="document-actions-button-icon fa fa-trash-o"
+            dataTestId="delete-document-button"
+            onClick={this.props.remove}
+          >
+            <Icon
+              glyph="Trash"
+              title="Delete Document"
+              // size={Sizes}
+            />
+          </IconButton>}
         </div>
       </div>
     );
@@ -94,7 +158,6 @@ DocumentActions.displayName = 'DocumentActions';
 
 DocumentActions.propTypes = {
   edit: PropTypes.func.isRequired,
-  copy: PropTypes.func.isRequired,
   remove: PropTypes.func.isRequired,
   clone: PropTypes.func.isRequired,
   allExpanded: PropTypes.bool,

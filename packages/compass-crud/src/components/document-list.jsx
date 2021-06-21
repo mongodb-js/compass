@@ -231,6 +231,7 @@ DocumentList.propTypes = {
   insertMany: PropTypes.func,
   isEditable: PropTypes.bool.isRequired,
   isExportable: PropTypes.bool.isRequired,
+  isTimeSeries: PropTypes.bool,
   store: PropTypes.object.isRequired,
   openInsertDocumentDialog: PropTypes.func,
   openImportFileDialog: PropTypes.func,

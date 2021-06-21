@@ -13,14 +13,26 @@ class Document extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
+    if (this.props.editable && this.props.isTimeSeries) {
+      return (
+        <ReadonlyDocument
+          doc={this.props.doc}
+          tz={this.props.tz}
+          expandAll={this.props.expandAll}
+          openInsertDocumentDialog={this.props.openInsertDocumentDialog}
+        />
+      );
+    }
     if (this.props.editable) {
       return (<EditableDocument {...this.props} />);
     }
     return (
       <ReadonlyDocument
+        copyToClipboard={this.props.copyToClipboard}
         doc={this.props.doc}
         tz={this.props.tz}
-        expandAll={this.props.expandAll} />
+        expandAll={this.props.expandAll}
+      />
     );
   }
 }
@@ -30,8 +42,10 @@ Document.displayName = 'Document';
 Document.propTypes = {
   doc: PropTypes.object.isRequired,
   tz: PropTypes.string,
+  copyToClipboard: PropTypes.func,
   editable: PropTypes.bool,
   expandAll: PropTypes.bool,
+  isTimeSeries: PropTypes.bool,
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,

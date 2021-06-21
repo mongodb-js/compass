@@ -97,6 +97,10 @@ class ReadonlyDocument extends React.Component {
     );
   }
 
+  renderActions() {
+      // this.props.openInsertDocumentDialog && 
+  }
+
   /**
    * Render a single document list item.
    *
@@ -110,6 +114,7 @@ class ReadonlyDocument extends React.Component {
             {this.renderElements()}
           </ol>
           {this.renderExpansion()}
+          {this.renderActions()}
         </div>
       </div>
     );
@@ -119,8 +124,10 @@ class ReadonlyDocument extends React.Component {
 ReadonlyDocument.displayName = 'ReadonlyDocument';
 
 ReadonlyDocument.propTypes = {
+  copyToClipboard: PropTypes.func,
   doc: PropTypes.object.isRequired,
   expandAll: PropTypes.bool,
+  openInsertDocumentDialog: PropTypes.func,
   tz: PropTypes.string
 };
 
