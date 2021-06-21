@@ -12,5 +12,13 @@
     "ACE"
   ],
   "author": "Durran Jordan <durran@gmail.com>",
-  "license": "SSPL"
+  "license": "SSPL",
+
+  "scripts": {
+    "check": "npm run depcheck",
+    "depcheck": "depcheck"
+  },
+  "devDependencies": {
+    "depcheck": "^1.4.0"
+  }
 }
