@@ -381,7 +381,7 @@ const configureStore = (options = {}) => {
           return;
         }
 
-        const opts = { returnOriginal: false, promoteValues: false };
+        const opts = { returnDocument: 'after', promoteValues: false };
 
         this.dataService.findOneAndUpdate(
           this.state.ns,
@@ -415,7 +415,7 @@ const configureStore = (options = {}) => {
      */
     replaceDocument(doc) {
       const object = doc.generateObject();
-      const opts = { returnOriginal: false, promoteValues: false };
+      const opts = { returnDocument: 'after', promoteValues: false };
       const query = doc.getOriginalKeysAndValuesForSpecifiedKeys({
         _id: 1,
         ...(this.state.shardKeys || {})
@@ -451,7 +451,7 @@ const configureStore = (options = {}) => {
      * @param {Document} originalDoc - origin Hadron document getting modified.
      */
     replaceExtJsonDocument(doc, originalDoc) {
-      const opts = { returnOriginal: false, promoteValues: false };
+      const opts = { returnDocument: 'after', promoteValues: false };
       const query = originalDoc.getOriginalKeysAndValuesForSpecifiedKeys({
         _id: 1,
         ...(this.state.shardKeys || {})

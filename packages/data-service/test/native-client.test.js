@@ -918,7 +918,7 @@ describe('NativeClient', function() {
               b: 5
             },
             {
-              returnOriginal: false
+              returnDocument: 'after'
             }, function(error, result) {
               expect(error).to.equal(null);
               expect(result._id.toString()).to.deep.equal(id.toString());

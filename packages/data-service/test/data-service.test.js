@@ -334,7 +334,7 @@ describe('DataService', function() {
               b: 5
             },
             {
-              returnOriginal: false
+              returnDocument: 'after'
             },
             function(error, result) {
               expect(error).to.equal(null);
@@ -379,7 +379,7 @@ describe('DataService', function() {
               }
             },
             {
-              returnOriginal: false
+              returnDocument: 'after'
             },
             function(error, result) {
               expect(error).to.equal(null);
