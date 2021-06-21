@@ -69,7 +69,7 @@ jobs:
           rm -rf ./storage
           verdaccio --config ./scripts/monorepo/verdaccio.yaml --listen 4873 &
           VERDACCIO_PID=$!
-          npx wait-on -t 3000 http://localhost:4873
+          npx wait-on -t 15000 http://localhost:4873
 
           # Publish packages and update private packages post publish. We have
           # to manually run our update script as we can't use git-tag-version in
