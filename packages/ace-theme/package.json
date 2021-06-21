@@ -13,7 +13,6 @@
   ],
   "author": "Durran Jordan <durran@gmail.com>",
   "license": "SSPL",
-
   "scripts": {
     "check": "npm run depcheck",
     "depcheck": "depcheck"
