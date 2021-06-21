@@ -18,6 +18,8 @@ const NO_STAGE = process.argv.includes('--no-stage');
 
 const NO_COMMIT = process.argv.includes('--no-commit');
 
+const NO_PACKAGE_LOCK = process.argv.includes('--no-package-lock');
+
 async function main() {
   const packages = JSON.parse(
     (await runInDir(`${LERNA_BIN} list --all --json --toposort`)).stdout
@@ -55,9 +57,11 @@ async function main() {
     );
   }
 
-  await withProgress('Updating package-lock at root', async () => {
-    await runInDir('npm install --package-lock-only');
-  });
+  if (!NO_PACKAGE_LOCK) {
+    await withProgress('Updating package-lock at root', async () => {
+      await runInDir('npm install --package-lock-only');
+    });
+  }
 
   if (!NO_STAGE) {
     await withProgress('Staging changes for commit', async () => {
