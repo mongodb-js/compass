@@ -381,6 +381,7 @@ const installDependencies = (CONFIG, done) => {
     cli.debug('Dependencies installed');
 
     rebuild({
+      ...CONFIG.rebuild,
       electronVersion: CONFIG.packagerOptions.electronVersion,
       buildPath: path.join(CONFIG.resources, 'app'),
       force: true

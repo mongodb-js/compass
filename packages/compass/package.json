@@ -205,6 +205,9 @@
           "**/node_modules/bindings/**",
           "**/file-uri-to-path/**"
         ]
+      },
+      "rebuild": {
+        "onlyModules": ["interruptor", "keytar", "kerberos"]
       }
     }
   },
