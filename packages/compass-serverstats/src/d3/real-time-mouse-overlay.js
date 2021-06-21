@@ -54,7 +54,7 @@ function realTimeMouseOverlay() {
         .attr('height', height - (bubbleWidth / 2))
         .attr('width', width - bubbleWidth);
 
-      mouseTarget.enter()
+      const mouseTargetEnter = mouseTarget.enter()
         .append('rect')
         .attr('class', `${prefix}-mouse-target`)
         .attr('fill', 'none')
@@ -63,7 +63,7 @@ function realTimeMouseOverlay() {
         .style('pointer-events', 'visible');
 
       if (enableMouse) {
-        mouseTarget
+        mouseTargetEnter
           .on('mouseover', function() {
             const xPosition = d3.mouse(this)[0];
             eventDispatcher.mouseover(xPosition);
@@ -74,7 +74,7 @@ function realTimeMouseOverlay() {
             eventDispatcher.mouseout(basePosition);
           });
       } else {
-        mouseTarget
+        mouseTargetEnter
           .on('mouseover', null)
           .on('mousemove', null)
           .on('mouseout', null);
