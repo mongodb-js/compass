@@ -1,6 +1,6 @@
 {
   "name": "mongodb-security",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Portable business logic of MongoDB security model",
   "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)",
   "license": "SSPL",
@@ -16,8 +16,8 @@
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
-    "lint": "eslint examples/*.js ./*.js ./test/*.js",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "lint": "eslint ./*.js ./test/*.js",
+    "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
   "dependencies": {

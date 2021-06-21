@@ -1,0 +1,21 @@
+ignores: [
+  "javascript-stringify",
+  "lodash.isobjectlike",
+  "lodash.isplainobject",
+  "@babel/cli",
+  "@babel/register",
+  "@hot-loader/react-dom",
+  "bootstrap",
+  "browserfs",
+  "core-js",
+  "font-awesome",
+  "karma-chai-as-promised",
+  "karma-electron",
+  "karma-sourcemap-loader",
+  "karma-webpack",
+  "mongodb-stitch-browser-sdk",
+  "resolve",
+  "webpack-bundle-analyzer",
+  "webpack-cli",
+  "xvfb-maybe"
+]

@@ -2,10 +2,6 @@
 
 > Renders a component for executing MongoDB queries through a GUI.
 
-## License
-
-Apache 2.0
-
 ## Usage
 
 ### Browser

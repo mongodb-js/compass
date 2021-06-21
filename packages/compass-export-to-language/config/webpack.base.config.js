@@ -16,7 +16,7 @@ module.exports = {
       modules: path.join(project.path.src, 'modules'),
       plugin: path.join(project.path.src, 'index.js'),
       stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
+
       utils: path.join(project.path.src, 'utils')
     }
   },
@@ -68,9 +68,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName: 'ExportToLangPlugin_[name]-[local]__[hash:base64:5]'
+
+              modules: {
+                localIdentName: 'ExportToLangPlugin_[name]-[local]__[hash:base64:5]'
+              }
             }
           },
           {

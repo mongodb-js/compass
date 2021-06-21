@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-app/issues",
   "homepage": "https://github.com/mongodb-js/hadron-app",
-  "version": "4.1.0",
+  "version": "4.3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/hadron-app.git"
@@ -18,7 +18,7 @@
     "check": "npm run lint && npm run depcheck",
     "test-check-ci": "npm run check && npm test",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck --ignores=\"babel-register,hadron-app-registry,less,mongodb-data-service,prop-types,react,react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
   "devDependencies": {
@@ -27,19 +27,19 @@
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
-    "hadron-app-registry": "^8.1.0",
+    "hadron-app-registry": "^8.3.0",
     "less": "*",
     "mocha": "^7.0.1",
-    "mongodb-data-service": "^20.1.0",
+    "mongodb-data-service": "^21.1.0",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },
   "peerDependencies": {
     "babel-register": "^6.26.0",
-    "hadron-app-registry": "^7.3.1",
+    "hadron-app-registry": "*",
     "less": "*",
-    "mongodb-data-service": "^19.3.1",
+    "mongodb-data-service": "*",
     "prop-types": "^15.7.0",
     "react": "^16.8.0",
     "react-dom": "^16.8.0"

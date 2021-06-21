@@ -1,4 +1,5 @@
 import reducer, {
+  isAggregationExplainOutput,
   switchToTreeView,
   switchToJSONView,
   explainStateChanged,
@@ -7,11 +8,11 @@ import reducer, {
   SWITCHED_TO_JSON_VIEW,
   EXPLAIN_STATE_CHANGED,
   EXPLAIN_PLAN_FETCHED
-
 } from './explain';
 
 const explainExample = {
   error: null,
+  errorParsing: false,
   executionSuccess: true,
   executionTimeMillis: 6,
   explainState: 'executed',
@@ -70,6 +71,47 @@ describe('explain module', () => {
     });
   });
 
+  describe('#isAggregationExplainOutput', () => {
+    context('with regular find explain output', () => {
+      const basicFindExplainOutput = {
+        explainVersion: '1',
+        queryPlanner: {
+          namespace: 'fruits.pineapple'
+        },
+        executionStats: {
+          executionSuccess: true,
+          executionStages: {
+            stage: 'scan'
+          }
+        }
+      };
+
+      it('returns false', () => {
+        expect(isAggregationExplainOutput(basicFindExplainOutput)).to.equal(false);
+      });
+    });
+
+    context('with time series collection find explain output', () => {
+      const basicFindExplainOutput = {
+        explainVersion: '1',
+        stages: [{
+          $cursor: {
+            executionStats: {
+              executionSuccess: true,
+              executionStages: {
+                stage: 'scan'
+              }
+            }
+          }
+        }]
+      };
+
+      it('returns true', () => {
+        expect(isAggregationExplainOutput(basicFindExplainOutput)).to.equal(true);
+      });
+    });
+  });
+
   describe('#reducer', () => {
     context('when the action is not presented in the explain module', () => {
       it('returns the default state', () => {
@@ -77,6 +119,7 @@ describe('explain module', () => {
           explainState: 'initial',
           viewType: 'tree',
           error: null,
+          errorParsing: false,
           executionSuccess: false,
           executionTimeMillis: 0,
           inMemorySort: false,

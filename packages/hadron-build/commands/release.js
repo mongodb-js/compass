@@ -31,6 +31,7 @@ const CompileCache = require('hadron-compile-cache');
 const StyleManager = require('hadron-style-manager');
 const rebuild = require('electron-rebuild').rebuild;
 const builder = require('electron-builder');
+const pkgUp = require('pkg-up');
 const Platform = builder.Platform;
 
 const ui = require('./ui');
@@ -108,7 +109,15 @@ const createPackagedStyles = (CONFIG, done) => {
 
   const plugins = dist.plugins;
   for (let dir of plugins) {
-    const fullDir = path.join(rootDir, dir, 'styles', 'index.less');
+    let pluginPath;
+    try {
+      pluginPath = path.dirname(
+        pkgUp.sync({ cwd: require.resolve(dir, { paths: [rootDir] }) })
+      );
+    } catch (e) {
+      pluginPath = path.join(rootDir, dir);
+    }
+    const fullDir = path.join(pluginPath, 'styles', 'index.less');
     tasks.push((done) => {
       manager.build(path.join(appDir, `${styles[0]}.html`), fullDir, done);
     });
@@ -338,16 +347,6 @@ const transformPackageJson = (CONFIG, done) => {
   distributions[contents.distribution].metrics_intercom_app_id = process.env.HADRON_METRICS_INTERCOM_APP_ID;
   distributions[contents.distribution].metrics_stitch_app_id = process.env.HADRON_METRICS_STITCH_APP_ID;
 
-  const pluginPrefix = distributions['plugin-prefix'];
-  const plugins = distributions[contents.distribution].plugins;
-  const deps = contents.dependencies;
-  _.each(deps, (_, name) => {
-    if (name.startsWith(pluginPrefix) && !plugins.includes(`node_modules/${name}`)) {
-      cli.debug(`Removing unused plugin: ${name} from distribution: ${contents.distribution}`);
-      delete contents.dependencies[name];
-    }
-  });
-
   fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(contents, null, 2), done);
 };
 
@@ -382,6 +381,7 @@ const installDependencies = (CONFIG, done) => {
     cli.debug('Dependencies installed');
 
     rebuild({
+      ...CONFIG.rebuild,
       electronVersion: CONFIG.packagerOptions.electronVersion,
       buildPath: path.join(CONFIG.resources, 'app'),
       force: true

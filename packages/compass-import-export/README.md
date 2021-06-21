@@ -1,4 +1,4 @@
-# Compass Import/Export Plugin [![][travis_img]][travis_url]
+# Compass Import/Export Plugin
 
 > [mongoimport][mongoimport] and [mongoexport][mongoexport] functionality in [Compass][compass].
 
@@ -8,12 +8,6 @@ After cloning this repository and running `npm install`, you can try this plugin
 
 ```bash
 DEBUG=mongo* npm start
-```
-
-You can also utilize [Storybook](https://storybook.js.org/) when developing components:
-
-```bash
-npm run storybook;
 ```
 
 ## Testing
@@ -50,12 +44,6 @@ See files in the `./test` directory.
 - [ ] Import and Export: Extract anything from `./src/utils` that could live as standalone modules so other things like say a cli or a different platform could reuse compass' import/export business logic and perf.
 - [ ] Refactor src/modules/ so import and export reuse a common base
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass-import-export.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/compass-import-export
 [compass]: https://github.com/mongodb-js/compass
 [mongoimport]: https://docs.mongodb.com/manual/reference/program/mongoimport
 [mongoexport]: https://docs.mongodb.com/manual/reference/program/mongoexport

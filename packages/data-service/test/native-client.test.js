@@ -31,7 +31,6 @@ function mockedConnectionModel(topologyDescription, connectionOptions) {
     url:
       'mongodb://127.0.0.1:27018/data-service?readPreference=primary&ssl=false',
     options: {
-      connectWithNoPrimary: true,
       readPreference: 'primary',
       useNewUrlParser: true,
       useUnifiedTopology: true
@@ -127,7 +126,6 @@ describe('NativeClient', function() {
           expect(mockedClient.connectionOptions).to.deep.equal({
             url: 'mongodb://127.0.0.1:27018/data-service?readPreference=primary&ssl=false',
             options: {
-              connectWithNoPrimary: true,
               readPreference: 'primary',
               useNewUrlParser: true,
               useUnifiedTopology: true
@@ -343,22 +341,6 @@ describe('NativeClient', function() {
           assert.equal(null, error);
           done();
         });
-      });
-      it('errors when given a bad option', function(done) {
-        try {
-          client.aggregate('data-service.test',
-            [{$project: {
-              author: 1,
-              tags: 1
-            }},
-            { $unwind: '$tags'},
-            { $group: {_id: {tags: '$tags'}, authors: {$addToSet: '$author'}}}
-            ],
-            { cursor: 1});
-        } catch (err) {
-          expect(err.message).to.equal('cursor options must be an object');
-          done();
-        }
       });
     });
   });
@@ -936,7 +918,7 @@ describe('NativeClient', function() {
               b: 5
             },
             {
-              returnOriginal: false
+              returnDocument: 'after'
             }, function(error, result) {
               expect(error).to.equal(null);
               expect(result._id.toString()).to.deep.equal(id.toString());

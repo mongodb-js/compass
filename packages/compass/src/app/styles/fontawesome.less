@@ -6,22 +6,23 @@
 // however we overwrite the @fa-font-path variable before fonts are loaded,
 // to point to our custom font path.
 
-@fa-nodemodules-less-path: "../../../node_modules/font-awesome/less";
+// NOTE: less automatically resolves font-awesome using Node.js resolution
+// mechanism
 
-@import "@{fa-nodemodules-less-path}/variables.less";
-@import "@{fa-nodemodules-less-path}/mixins.less";
+@import "font-awesome/less/variables.less";
+@import "font-awesome/less/mixins.less";
 
 // need to overwrite the default font path defined in variables.less
 @fa-font-path: '../app/fonts';
 
-@import "@{fa-nodemodules-less-path}/path.less";
-@import "@{fa-nodemodules-less-path}/core.less";
-@import "@{fa-nodemodules-less-path}/larger.less";
-@import "@{fa-nodemodules-less-path}/fixed-width.less";
-@import "@{fa-nodemodules-less-path}/list.less";
-@import "@{fa-nodemodules-less-path}/bordered-pulled.less";
-@import "@{fa-nodemodules-less-path}/animated.less";
-@import "@{fa-nodemodules-less-path}/rotated-flipped.less";
-@import "@{fa-nodemodules-less-path}/stacked.less";
-@import "@{fa-nodemodules-less-path}/icons.less";
-@import "@{fa-nodemodules-less-path}/screen-reader.less";
+@import "font-awesome/less/path.less";
+@import "font-awesome/less/core.less";
+@import "font-awesome/less/larger.less";
+@import "font-awesome/less/fixed-width.less";
+@import "font-awesome/less/list.less";
+@import "font-awesome/less/bordered-pulled.less";
+@import "font-awesome/less/animated.less";
+@import "font-awesome/less/rotated-flipped.less";
+@import "font-awesome/less/stacked.less";
+@import "font-awesome/less/icons.less";
+@import "font-awesome/less/screen-reader.less";

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import HadronDocument from 'hadron-document';
 import { Document } from '@mongodb-js/compass-crud';
@@ -25,10 +24,10 @@ class ExplainJSON extends Component {
     const doc = new HadronDocument(this.props.rawExplainObject.originalData);
 
     return (
-      <div className={classnames(styles['explain-json'])}>
+      <div className={styles['explain-json']}>
         <div className="panel panel-default">
-          <div className={classnames(styles['panel-body'])}>
-            <ol className={classnames(styles['document-list'])}>
+          <div className={styles['panel-body']}>
+            <ol className={styles['document-list']}>
               <Document doc={doc} expandAll />
             </ol>
           </div>

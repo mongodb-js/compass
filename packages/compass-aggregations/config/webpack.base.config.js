@@ -17,7 +17,6 @@ module.exports = {
       modules: path.join(project.path.src, 'modules'),
       plugin: path.join(project.path.src, 'index.js'),
       stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
       utils: path.join(project.path.src, 'utils'),
       'react-dom': '@hot-loader/react-dom'
     }
@@ -70,10 +69,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName:
-                'AggregationsPlugin_[name]-[local]__[hash:base64:5]'
+              modules: {
+                localIdentName:
+                  'AggregationsPlugin_[name]-[local]__[hash:base64:5]'
+              }
             }
           },
           {

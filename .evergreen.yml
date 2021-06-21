@@ -33,8 +33,8 @@ functions:
     - command: git.get_project
       params:
         directory: src
-    - &generate-compass-env
-      command: shell.exec
+
+    - command: shell.exec
       params:
         working_dir: src
         shell: bash
@@ -74,11 +74,8 @@ functions:
           export NPM_AUTH_TOKEN="${compass_npm_token}"
 
           export NODE_JS_VERSION="12.4.0"
-          # TODO: lucas: Go back to npm@latest after 6.13.4 released
-          # or https://jira.mongodb.org/browse/COMPASS-4019 removes jade.
-          # https://jira.mongodb.org/browse/COMPASS-4018
-          # export NPM_VERSION="latest"
-          export NPM_VERSION="6.13.2"
+          export NPM_VERSION="7"
+          export NPM_CONFIG_CACHE="${NPM_CACHE_DIR}"
 
           if [[ "$OSTYPE" == "cygwin" ]]; then
             # NOTE lucas: for git-core addition, See
@@ -106,15 +103,6 @@ functions:
         shell: bash
         script: |
           source ~/compass_env.sh
-
-          echo "Configuring npm..."
-          cat <<EOT >> .npmrc
-          devdir=$NPM_CACHE_DIR/.node-gyp
-          init-module=$NPM_CACHE_DIR/.npm-init.js
-          cache=$NPM_CACHE_DIR
-          tmp=$NPM_TMP_DIR
-          _authToken=$NPM_AUTH_TOKEN
-          EOT
     - command: shell.exec
       params:
         working_dir: src
@@ -136,45 +124,10 @@ functions:
           echo "Installing Compass dependencies..."
 
           echo "If npm ci fails, debug.log will be uploaded to S3."
-          # We are running everything with --unsafe-perm because RHEL evergreen user is root
-          npm ci --unsafe-perm
+          # Run npm ci in all the packages
+          npm run bootstrap-evergreen --unsafe-perm -- --stream
           # Make sure that cache is populated when other packages are pulling the font
           npm run update-akzidenz-cache --unsafe-perm
-          # Run npm ci in all the packages
-          npm run bootstrap-evergreen --unsafe-perm
-
-  save:
-    - command: shell.exec
-      params:
-        shell: bash
-        script: |
-          set -e
-          tar -zcf compass-build.tgz ./src
-    - <<: *save-artifact
-      params:
-        local_file: compass-build.tgz
-        remote_file: ${project}/${revision}/${build_variant}/build.tgz
-
-  restore:
-    - &restore-fetch-s3
-      command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: compass-build.tgz
-        remote_file: ${project}/${revision}/${build_variant}/build.tgz
-        bucket: mciuploads
-        content_type: application/octet-stream
-    - &restore-unpack-s3
-      command: shell.exec
-      shell: bash
-      params:
-        script: |
-          set -e
-          tar xzf compass-build.tgz --strip-components=1
-          # TODO: lucas: may want to remove ./node_modules here before running npm ci like travis does?
-          ls -alh
-    - <<: *generate-compass-env
 
   verify:
     command: shell.exec
@@ -186,7 +139,7 @@ functions:
         source ~/compass_env.sh
 
         echo "Run static analysis..."
-        npm run check-evergreen
+        npm run check-ci
 
   test:
     - command: shell.exec
@@ -209,28 +162,7 @@ functions:
           # debug option is not very useful in normal runs, but helpful when
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-evergreen --unsafe-perm -- --stream
-    # - command: attach.results
-    #   params:
-    #     file_location: src/test-results.xml
-
-  test-plugin:
-    - <<: *restore-fetch-s3
-    - <<: *restore-unpack-s3
-    - <<: *generate-compass-env
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          source ~/compass_env.sh
-          export ELECTRON_NO_ATTACH_CONSOLE=1
-          export ELECTRON_ENABLE_LOGGING=1
-          bash ./.evergreen/test-plugin.sh ${plugin|10gen/compass-connect}
-    # - command: attach.xunit_results
-    #   params:
-    #     file: src/plugin/plugin-test-results.xml
+          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-ci --unsafe-perm -- --stream
 
   'package':
     - command: shell.exec
@@ -289,6 +221,7 @@ functions:
 
           export NPM_CONFIG_LOGLEVEL=info
           export DEBUG="*,-flora-colossus"
+          export NPM_CONFIG_CACHE="$(pwd)/.deps/.npm"
           npm run release-evergreen ${compass_distribution};
           rm -f /tmp/compass-apple-cred.json
           EOF_BUILD_SH
@@ -298,15 +231,28 @@ functions:
             ssh -v -p 2222 localhost "bash ~/compass_package.sh"
           else
             if [[ "$OSTYPE" == "cygwin" ]]; then
+              # If not possible to remove this hack, we should find a better way
+              # to do this instead of directly referencing node_module paths,
+              # but first figure out what exactly was changed in our fork of
+              # electron-wix-msi
+              # 
+              # TODO: https://jira.mongodb.org/browse/COMPASS-4888
+
               echo "Fetching signtool -> notary-service hack..."
 
-              curl -fs \
-                -o "signtool.exe" \
-                --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
-              rm -f node_modules/electron-winstaller/vendor/signtool.exe
-              rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
-              chmod +x signtool.exe
-              cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
+              (
+                # We are in packages/compass, but the dependencies we are trying
+                # to replace are in the root of the monorepo
+                cd ../../
+                curl -fs \
+                  -o "signtool.exe" \
+                  --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
+                rm -f node_modules/electron-winstaller/vendor/signtool.exe
+                rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
+                chmod +x signtool.exe
+                cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
+                cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
+              )
             fi
             bash ~/compass_package.sh
             ls -la dist
@@ -415,7 +361,7 @@ tasks:
       - func: test
         variants: [macos, windows, ubuntu, rhel]
         vars:
-          debug: "mongo*"
+          debug: 'mongo*'
 
       - func: package
         vars:
@@ -461,205 +407,6 @@ tasks:
         variants: [ubuntu]
       - func: 'save rhel artifacts'
         variants: [rhel]
-
-  - name: compile
-    depends_on: []
-    commands:
-      - func: prepare
-      - func: install
-      - func: save
-
-  - name: verify
-    depends_on: [compile]
-    tags:
-      - 'verify'
-    commands:
-      - func: restore
-      - func: verify
-
-  - name: test-unit
-    depends_on: [compile]
-    tags:
-      - test
-    commands:
-      - func: restore
-      - func: test
-
-  - name: test-functional
-    depends_on: [compile]
-    tags:
-      - 'test'
-    commands:
-      - func: restore
-      - func: test
-        vars:
-          test_suite: functional
-
-  - name: test-data-service
-    depends_on: [compile]
-    commands:
-      - func: test-plugin
-        vars: { plugin: mongodb-js/data-service }
-
-  - name: test-connect-plugin
-    depends_on: [compile]
-    commands:
-      - func: test-plugin
-        vars: { plugin: 10gen/compass-connect }
-
-  - name: test-aggregation-builder-plugin
-    depends_on: [compile]
-    commands:
-      - func: test-plugin
-        vars: { plugin: mongodb-js/compass-aggregations }
-
-  - name: package-and-publish-compass
-    depends_on: [compile]
-    commands:
-      - func: restore
-      - func: package
-        vars:
-          compass_distribution: compass
-      - func: publish
-        vars:
-          compass_distribution: compass
-      - func: 'save windows artifacts'
-        variants: [windows]
-      # NOTE (@imlucas) Because macos can't utilize task parallelism
-      # and instead runs `oneshot-compile-test-package-publish`
-      # save osx artifacts doesn't apply here until we have more than
-      # 1 macos box setup to run functional tests.
-      # - func: 'save osx artifacts'
-      #   variants: [macos]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
-
-  - name: package-and-publish-compass-isolated
-    depends_on: [compile]
-    commands:
-      - func: restore
-      - func: package
-        vars:
-          compass_distribution: compass-isolated
-      - func: publish
-        vars:
-          compass_distribution: compass-isolated
-      - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
-
-  - name: package-and-publish-compass-readonly
-    depends_on: [compile]
-    commands:
-      - func: restore
-      - func: package
-        vars:
-          compass_distribution: compass-readonly
-      - func: publish
-        vars:
-          compass_distribution: compass-readonly
-      - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
-
-  # NOTE (@imlucas) Examples of how to extend which tests run
-  # and against which MongoDB Server version.
-  #
-  # - name: test-renderer
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: renderer
-  # - name: test-main
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: main
-  # - name: test-enzyme
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: enzyme
-  # - name: test-unit
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: unit
-  #         mongodb_version: stable
-  # - name: test-functional-unstable-server
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: functional
-  #         mongodb_version: stable
-  # - name: test-functional-unstable-server
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: functional
-  #         mongodb_version: unstable
-  # - name: test-functional-36x-server
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: functional
-  #         mongodb_version: 3.6.x
-  # - name: test-functional-34x-server
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: functional
-  #         mongodb_version: 3.4.x
-  # - name: test-functional-26x-server
-  #   depends_on: [compile]
-  #   tags:
-  #     - 'test'
-  #   commands:
-  #     - func: restore
-  #     - func: test
-  #       vars:
-  #         test_suite: functional
-  #         mongodb_version: 2.6.x
 
 # TODO (@imlucas) determine OS/version deprecation policy, following server, so we don't fall behind
 # what maximal resources we're using.

@@ -1,4 +1,4 @@
-# app-migrations [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
+# app-migrations [![npm][npm_img]][npm_url]
 
 > A helper module to define and execute app schema migrations.
 
@@ -92,11 +92,5 @@ migrate('1.0.8', '1.0.3', function(err, res) {
 // Error: Downgrade from version 1.0.8 to 1.0.3 not possible.
 ```
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://img.shields.io/travis/mongodb-js/app-migrations.svg
-[travis_url]: https://travis-ci.org/mongodb-js/app-migrations
 [npm_img]: https://img.shields.io/npm/v/app-migrations.svg
 [npm_url]: https://npmjs.org/package/app-migrations

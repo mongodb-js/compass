@@ -129,6 +129,7 @@ describe('Explain Plan Store', () => {
       context('when the action is EXPLAIN_PLAN_FETCHED', () => {
         const explain = {
           error: null,
+          errorParsing: false,
           executionSuccess: true,
           executionTimeMillis: 6,
           explainState: 'executed',

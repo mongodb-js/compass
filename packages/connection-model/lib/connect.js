@@ -10,7 +10,7 @@ const {
   omit
 } = require('lodash');
 const { MongoClient } = require('mongodb');
-const { parseConnectionString } = require('mongodb/lib/core');
+const { parseConnectionString } = require('mongodb3/lib/core');
 const Connection = require('./extended-model');
 const { default: SSHTunnel } = require('@mongodb-js/ssh-tunnel');
 

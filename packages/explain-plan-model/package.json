@@ -1,13 +1,13 @@
 {
   "name": "mongodb-explain-plan-model",
   "description": "Ampersand model abstraction for MongoDB explain plans (3.0+)",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
     "test-check-ci": "npm run check && npm test",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
   "homepage": "http://github.com/mongodb-js/explain-plan-model",
@@ -24,8 +24,7 @@
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.2.0",
-    "mocha": "^3.1.2",
-    "pre-commit": "^1.1.2"
+    "mocha": "^3.1.2"
   },
   "license": "SSPL"
 }

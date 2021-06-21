@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-style-manager/issues",
   "homepage": "https://github.com/mongodb-js/hadron-style-manager",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/hadron-style-manager.git"
@@ -18,12 +18,13 @@
     "test": "mocha",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
   "dependencies": {
     "cheerio": "^0.22.0",
-    "less-cache": "^1.1.0"
+    "less-cache": "^1.1.0",
+    "pkg-up": "^3.1.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",

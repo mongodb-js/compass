@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-document/issues",
   "homepage": "https://github.com/mongodb-js/hadron-document",
-  "version": "7.1.0",
+  "version": "7.3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/hadron-document.git"
@@ -19,14 +19,14 @@
     "check": "npm run lint && npm run depcheck",
     "pretest": "babel ./src --out-dir ./lib",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test",
     "prepare": "babel ./src --out-dir ./lib"
   },
   "dependencies": {
     "debug": "^4.1.1",
     "eventemitter3": "^4.0.0",
-    "hadron-type-checker": "^6.0.0",
+    "hadron-type-checker": "^6.2.0",
     "lodash.foreach": "^4.3.0",
     "lodash.includes": "^4.1.3",
     "lodash.isarray": "^4.0.0",
@@ -47,7 +47,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "babel-loader": "^8.2.2",
-    "bson": "^4.0.3",
+    "bson": "4.1.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",

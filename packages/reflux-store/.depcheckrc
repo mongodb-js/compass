@@ -1,0 +1,6 @@
+ignores: [
+  "debug",
+  "react-dom",
+  "babel-preset-react",
+  "babel-register"
+]

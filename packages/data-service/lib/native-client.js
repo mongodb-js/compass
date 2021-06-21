@@ -98,14 +98,14 @@ class NativeClient extends EventEmitter {
 
     this.isWritable = false;
     this.isMongos = false;
-    this._isConnected = false;
+    this._isConnecting = false;
   }
 
   isConnected() {
-    // This is better than just returning internal `_isConnected` as this
+    // This is better than just returning internal `_isConnecting` as this
     // actually shows when the client is available on the NativeClient instance
     // and connected
-    return !!(this.client && this.client.isConnected());
+    return !!this.client;
   }
 
   /**
@@ -117,7 +117,7 @@ class NativeClient extends EventEmitter {
   connect(done) {
     debug('connecting...');
 
-    if (this._isConnected) {
+    if (this._isConnecting) {
       setImmediate(() => {
         done(
           new Error(
@@ -131,14 +131,14 @@ class NativeClient extends EventEmitter {
 
     // Not really true at that point, we are doing it just so we don't allow
     // simultaneous syncronous calls to the connect method
-    this._isConnected = true;
+    this._isConnecting = true;
 
     connect(
       this.model,
       this.setupListeners.bind(this),
       (err, _client, tunnel, connectionOptions) => {
         if (err) {
-          this._isConnected = false;
+          this._isConnecting = false;
           return done(this._translateMessage(err));
         }
 
@@ -638,17 +638,18 @@ class NativeClient extends EventEmitter {
    * @return {(null|AggregationCursor)}
    */
   aggregate(ns, pipeline, options, callback) {
+    if (typeof options === 'function') {
+      callback = options;
+      options = undefined;
+    }
+    const cursor = this._collection(ns).aggregate(pipeline, options);
     // async when a callback is provided
     if (isFunction(callback)) {
-      this._collection(ns).aggregate(pipeline, options, (error, result) => {
-        if (error) {
-          return callback(this._translateMessage(error));
-        }
-        return callback(null, result);
-      });
+      process.nextTick(callback, null, cursor);
+      return;
     }
     // otherwise return cursor
-    return this._collection(ns).aggregate(pipeline, options);
+    return cursor;
   }
 
   /**
@@ -1313,7 +1314,7 @@ class NativeClient extends EventEmitter {
     this.tunnel = null;
     this.isWritable = false;
     this.isMongos = false;
-    this._isConnected = false;
+    this._isConnecting = false;
   }
 }
 

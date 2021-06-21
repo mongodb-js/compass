@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-type-checker/issues",
   "homepage": "https://github.com/mongodb-js/hadron-type-checker",
-  "version": "6.0.0",
+  "version": "6.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/hadron-type-checker.git"
@@ -18,11 +18,11 @@
     "test": "mocha",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "bson": "^4.0.3",
+    "bson": "4.1.0",
     "lodash": "^4.17.15"
   },
   "devDependencies": {

@@ -187,7 +187,7 @@ console.log(c.driverUrl)
 console.log(c.driverOptions)
 >>> {
   db: { readPreference: 'nearest' },
-  replSet: { connectWithNoPrimary: true }
+  replSet: { }
 }
 ```
 
@@ -213,7 +213,7 @@ console.log(c.driverUrl)
 console.log(c.driverOptions)
 >>> {
   db: { readPreference: 'nearest' },
-  replSet: { connectWithNoPrimary: true }
+  replSet: { }
 }
 ```
 
@@ -247,7 +247,7 @@ console.log(c.driverUrl)
 console.log(c.driverOptions)
 >>> {
   db: { readPreference: 'nearest' },
-  replSet: { connectWithNoPrimary: true }
+  replSet: { }
 }
 ```
 
@@ -276,7 +276,7 @@ console.log(c.driverUrl)
 console.log(c.driverOptions)
 >>> {
   db: { readPreference: 'nearest' },
-  replSet: { connectWithNoPrimary: true }
+  replSet: { }
 }
 ```
 
@@ -453,10 +453,6 @@ This will log the following events to the console:
 >>> status: { message: 'Connect to MongoDB', pending: true }
 >>> status: { message: 'Connect to MongoDB', complete: true }
 ```
-
-## License
-
-Apache 2.0
 
 [workflow_img]: https://github.com/mongodb-js/connection-model/workflows/Check%20and%20Test/badge.svg?event=push
 [workflow_url]: https://github.com/mongodb-js/connection-model/actions?query=workflow%3A%22Check+and+Test%22

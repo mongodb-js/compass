@@ -1,0 +1,18 @@
+ignores: [
+  "@babel/cli",
+  "@babel/register",
+  "chai-as-promised",
+  "classnames",
+  "core-js",
+  "debug",
+  "electron-rebuild",
+  "font-awesome",
+  "hadron-react-bson",
+  "karma-electron",
+  "karma-sourcemap-loader",
+  "karma-webpack",
+  "mongodb-connection-model",
+  "resolve",
+  "webpack-bundle-analyzer",
+  "webpack-cli"
+]

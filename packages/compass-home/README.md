@@ -1,4 +1,4 @@
-# home [![][travis_img]][travis_url]
+# home
 
 The Compass plugin responsible for gluing together other plugins:
 
@@ -88,11 +88,6 @@ For completeness, below is a list of directories present in this module:
   and create `./lib`.
 - `test` implement your tests here, and name the files `*.test.js`.
 
-## License
-
-Apache 2.0
-
-[react-storybook]: https://github.com/kadirahq/react-storybook
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme
 [jsdom]: https://github.com/tmpvar/jsdom

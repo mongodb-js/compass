@@ -1,4 +1,4 @@
-# mongodb-index-model [![][npm_img]][npm_url] [![][travis_img]][travis_url]
+# mongodb-index-model [![][npm_img]][npm_url]
 
 > MongoDB Index toolkit for humans.
 
@@ -87,11 +87,5 @@ Index properties are specified as a separate second parameter to the `createInde
 
 ![Index Mental Model Diagram](./img/index_mental_model.png)
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://secure.travis-ci.org/mongodb-js/index-model.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/index-model
 [npm_img]: https://img.shields.io/npm/v/mongodb-index-model.svg
 [npm_url]: https://www.npmjs.org/package/mongodb-index-model

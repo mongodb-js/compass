@@ -1,4 +1,4 @@
-# @mongodb-js/mongodb-notary-service-client [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
+# @mongodb-js/mongodb-notary-service-client [![npm][npm_img]][npm_url]
 
 > A client for our notary-service (an API for codesigning).
 
@@ -64,11 +64,5 @@ sign('my-app.rpm').then((signed) => {
 });
 ```
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://img.shields.io/travis/mongodb-js/notary-service-client.svg
-[travis_url]: https://travis-ci.org/mongodb-js/notary-service-client
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/mongodb-notary-service-client.svg
 [npm_url]: https://npmjs.org/package/@mongodb-js/mongodb-notary-service-client

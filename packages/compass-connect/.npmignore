@@ -4,7 +4,6 @@
 .jshintrc
 .jsfmtrc
 .nycrc
-.travis.yml
 config/
 electron/
 karma.conf.js
@@ -12,7 +11,6 @@ mocha-webpack.opts
 scripts/
 src/
 test/
-.storybook/
 .nyc_output/
 coverage/
 .github/

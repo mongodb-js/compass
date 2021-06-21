@@ -1,4 +1,4 @@
-# query-history [![][travis_img]][travis_url] [![][npm_img]][npm_url]
+# Compass Query History Plugin [![][npm_img]][npm_url]
 
 > The query history sidebar.
 
@@ -13,12 +13,6 @@ The RecentListStore contains the RecentQueryCollection, which saves the queries
  again. When a user clicks 'favorite' on a recent query, the RecentQuery is
  converted to a FavoriteQuery and is saved in the FavoriteQueryCollection.
  The FavoriteQueryCollection is kept in the FavoriteListStore.
-
-## License
-
-Apache 2
-
-===
 
 ## Features
 
@@ -36,7 +30,6 @@ The test environment is configured to test components with [Enzyme][enzyme] (inc
 
 For completeness, below is a list of directories present in this module:
 
-- `.storybook` react-storybook and webpack configuration.
 - `electron` code to start electron, open a browser window and load the source.
 - `lib` compiled version of your components (plain javascript instead of `jsx`) and styles (`css` instead of `less`).
 - `src` components, actions and stores source code, as well as style files.
@@ -76,19 +69,11 @@ For completeness, below is a list of directories present in this module:
     - `cancelSave` - the user has pressed 'cancel' on the currently being saved query.
     - `runQuery` - the user has clicked on the query card and wants to populate the query bar with the contents of this saved query. This action is listened to by Compass.
     - `namespaceChanged` - the namespace has changed so new queries will be saved with the new namespace and the queries being shown should be limited to the current namespace.
-- `stories` stories for react-storybook. You can add as many story files as you like, they are automatically added to storybook. Because of a dependency of the StorageMixin, react-storybook won't work unless it's uses in the query models are commented out.
 - `test`
 
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass-query-history.svg
-[travis_url]: https://travis-ci.org/mongodb-js/compass-query-history
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-query-history.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-query-history
-[react-storybook]: https://github.com/kadirahq/react-storybook
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme
 [jsdom]: https://github.com/tmpvar/jsdom

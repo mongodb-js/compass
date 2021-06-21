@@ -5,6 +5,7 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import convertExplainCompat from 'mongodb-explain-compat';
 
 import EXPLAIN_STATES from '../constants/explain-states';
+import EXPLAIN_VIEWS from '../constants/explain-views';
 
 /**
  * The module action prefix.
@@ -36,8 +37,9 @@ export const EXPLAIN_PLAN_FETCHED = `${PREFIX}/EXPLAIN_PLAN_FETCHED`;
  */
 export const INITIAL_STATE = {
   explainState: EXPLAIN_STATES.INITIAL,
-  viewType: 'tree',
+  viewType: EXPLAIN_VIEWS.tree,
   error: null,
+  errorParsing: false,
   executionSuccess: false,
   executionTimeMillis: 0,
   inMemorySort: false,
@@ -131,7 +133,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const switchToTreeView = () => ({
   type: SWITCHED_TO_TREE_VIEW,
-  viewType: 'tree'
+  viewType: EXPLAIN_VIEWS.tree
 });
 
 /**
@@ -141,7 +143,7 @@ export const switchToTreeView = () => ({
  */
 export const switchToJSONView = () => ({
   type: SWITCHED_TO_JSON_VIEW,
-  viewType: 'json'
+  viewType: EXPLAIN_VIEWS.json
 });
 
 /**
@@ -225,6 +227,16 @@ const updateWithIndexesInfo = (explain, indexes) => ({
 });
 
 /**
+ * @param {Object} explainOutput - The explain plan ouput.
+ *
+ * @returns {boolean} true if the output resembles output from an
+ * explain on an aggregation query.
+ */
+export function isAggregationExplainOutput(explainOutput) {
+  return !explainOutput.executionStats && !!explainOutput.stages;
+}
+
+/**
  * Fetches the explain plan.
  *
  * @param {Object} query - The query.
@@ -259,7 +271,27 @@ export const fetchExplainPlan = (query) => {
           return dispatch(explainPlanFetched(explain));
         }
 
-        explain = parseExplainPlan(explain, convertExplainCompat(data));
+        if (isAggregationExplainOutput(data)) {
+          // Queries against time series collections are run against
+          // non-materialized views, so the explain plan resembles
+          // that of an explain on an aggregation.
+          // We do not currently support visualizing aggregations,
+          // so we return here before parsing more, and ensure we can show
+          // the json view of the explain plan.
+          explain.errorParsing = true;
+          explain.rawExplainObject = { originalData: data };
+
+          return dispatch(explainPlanFetched(explain));
+        }
+
+        try {
+          explain = parseExplainPlan(explain, convertExplainCompat(data));
+        } catch (e) {
+          explain.errorParsing = true;
+          explain.rawExplainObject = { originalData: data };
+
+          return dispatch(explainPlanFetched(explain));
+        }
         explain = updateWithIndexesInfo(explain, indexes);
         explain.rawExplainObject.originalData = data;
 

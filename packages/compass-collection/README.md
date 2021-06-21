@@ -1,4 +1,4 @@
-# @mongodb-js/compass-collection [![][travis_img]][travis_url] [![][azure_img]][azure_url]
+# @mongodb-js/compass-collection [![][azure_img]][azure_url]
 
 > Compass Collection Plugin
 
@@ -32,8 +32,8 @@ For completeness, below is a list of directories present in this module:
 - `src` components, actions and stores source code, as well as style files. This is the
   place to implement your own components. `npm run compile` will use `./src` as input
   and create `./lib`.
-- `test` implement your functional and store tests here, and name the files `{store,renderer}/*.test.js`. 
-  These tests will be run in an electron renderer process by [`npm run test:karma`][#test-karma] detailed below. 
+- `test` implement your functional and store tests here, and name the files `{store,renderer}/*.test.js`.
+  These tests will be run in an electron renderer process by [`npm run test:karma`][#test-karma] detailed below.
   Unit tests should live next to their implementation under `src/**/*.spec.js`
 
 ### Scripts
@@ -63,12 +63,12 @@ Runs a test environment hosted in an electron renderer process using [karma-elec
 ##### check
 
 Runs [mongodb-js-precommit][mongodb-js-precommit] on your code to check for common JS typos using
-[eslint][eslint] with [our shared eslint configuration][eslint-config-mongodb-js] and other useful 
+[eslint][eslint] with [our shared eslint configuration][eslint-config-mongodb-js] and other useful
 things like did you forget to install a dependency.
 
 #### Compass Integration Testing
 
-##### link-plugin 
+##### link-plugin
 
 Links the Compass plugin and Compass for development along with React to ensure the plugin and Compass are using the same React instance.
 
@@ -78,7 +78,7 @@ COMPASS_HOME=/path/to/my/compass npm run link-plugin
 
 ##### unlink-plugin
 
-Restores Compass and the plugin to their original unlinked state. 
+Restores Compass and the plugin to their original unlinked state.
 
 ```shell
 COMPASS_HOME=/path/to/my/compass npm run unlink-plugin
@@ -92,15 +92,8 @@ COMPASS_HOME=/path/to/my/compass npm run unlink-plugin
 - [ ] docs: dependabot
 - [x] ci: publish coverage and karma xunit on azure
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass-collection.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/compass-collection
 [azure_img]: https://dev.azure.com/team-compass/team-compass/_apis/build/status/mongodb-js.compass-collection?branchName=master
 [azure_url]: https://dev.azure.com/team-compass/team-compass/_build/latest?definitionId=1&branchName=master
-[react-storybook]: https://github.com/kadirahq/react-storybook
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme
 [eslint]:https://eslint.org/

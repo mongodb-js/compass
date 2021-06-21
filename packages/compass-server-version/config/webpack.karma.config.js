@@ -25,7 +25,7 @@ module.exports = {
       models: path.join(project.path.src, 'models'),
       plugin: path.join(project.path.src, 'index.js'),
       stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
+
       utils: path.join(project.path.src, 'utils')
     }
   },
@@ -81,9 +81,11 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               importLoaders: 1,
-              localIdentName: 'ServerVersionPlugin_[name]-[local]__[hash:base64:5]'
+
+              modules: {
+                localIdentName: 'ServerVersionPlugin_[name]-[local]__[hash:base64:5]'
+              }
             }
           },
           {

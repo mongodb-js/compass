@@ -19,12 +19,6 @@ COMPASS_HOME=/path/to/my/compass npm run link-plugin
 COMPASS_HOME=/path/to/my/compass npm run unlink-plugin
 ```
 
-## License
-
-Apache 2
-
-===
-
 #### Electron
 
 Validate and test your component in an Electron window, styles included. The source automatically
@@ -68,10 +62,6 @@ For completeness, below is a list of directories present in this module:
   place to implement your own components. `npm run compile` will use `./src` as input
   and create `./lib`.
 - `test` implement your tests here, and name the files `*.test.js`.
-
-## License
-
-Apache 2.0
 
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme

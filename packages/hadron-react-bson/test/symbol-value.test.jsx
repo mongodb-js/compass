@@ -1,11 +1,11 @@
 const React = require('react');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
-const { Symbol } = require('bson');
+const { BSONSymbol } = require('bson');
 const { Value } = require('../');
 
 describe('<Value /> (rendering symbol)', () => {
-  const value = new Symbol('testing');
+  const value = new BSONSymbol('testing');
   const component = shallow(<Value type="Symbol" value={value} />);
 
   it('sets the base class', () => {

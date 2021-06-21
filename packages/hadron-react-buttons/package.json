@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-react/issues",
   "homepage": "https://github.com/mongodb-js/hadron-react/packages/hadron-react-buttons",
-  "version": "5.1.0",
+  "version": "5.3.0",
   "main": "lib/index.js",
   "module": "lib/index.js",
   "repository": {
@@ -23,7 +23,7 @@
     "test": "cross-env NODE_ENV=test mocha-webpack \"./test/**/*.test.jsx\"",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck --ignores=\"prop-types,react,react-dom\" || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test",
     "prepare": "npm run compile"
   },
@@ -49,14 +49,13 @@
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
+    "eslint-plugin-react": "^7.24.0",
     "ignore-loader": "^0.1.2",
-    "jsdom": "^12.2.0",
+    "jsdom": "^16.6.0",
     "jsdom-global": "^3.0.2",
-    "lerna": "^3.20.2",
     "mocha": "^7.1.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
-    "pre-commit": "^1.2.2",
     "prop-types": "^15.5.8",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
@@ -66,7 +65,6 @@
     "webpack": "^4.46.0",
     "webpack-cli": "^3.3.12",
     "webpack-merge": "^4.2.2",
-    "webpack-node-externals": "^1.7.2",
-    "webpack-sources": "^1.4.3"
+    "webpack-node-externals": "^3.0.0"
   }
 }

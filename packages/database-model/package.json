@@ -2,7 +2,7 @@
   "name": "mongodb-database-model",
   "description": "MongoDB database model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "bugs": "https://github.com/mongodb-js/database-model/issues",
   "homepage": "https://github.com/mongodb-js/database-model",
   "repository": "git://github.com/mongodb-js/database-model.git",
@@ -15,7 +15,7 @@
     "test-check-ci": "npm run check && npm test",
     "test": "mocha",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
   "dependencies": {
@@ -26,7 +26,6 @@
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.0.0",
-    "mocha": "^3.0.2",
-    "pre-commit": "^1.1.2"
+    "mocha": "^3.0.2"
   }
 }

@@ -1,6 +1,6 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import SecurityActions from 'actions';
+import SecurityActions from '../actions';
 
 /**
  * Security store.

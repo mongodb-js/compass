@@ -1,4 +1,4 @@
-# compass-schema-validation [![][travis_img]][travis_url]
+# compass-schema-validation
 
 > Compass plugin for Schema Validation
 
@@ -14,10 +14,3 @@ Compass Schema Validation supports complex validation rules based on JSON Schema
 - Showing and modifying validationLevel (strict, moderate, off).
 - Showing and modifying validationAction (error, warn).
 - Showing preview of sample documents in the collection that match and do not match the validation rules.
-
-## License
-
-Apache 2.0
-
-[travis_img]: https://travis-ci.com/10gen/compass-schema-validation.svg?token=YR7x4T8Eq47MJVPbWMye&branch=master
-[travis_url]: https://travis-ci.org/10gen/compass-schema-validation

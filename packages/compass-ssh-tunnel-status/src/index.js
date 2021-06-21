@@ -1,5 +1,5 @@
 import SshTunnelStatusPlugin from './plugin';
-import SshTunnelStatusStore from 'stores';
+import SshTunnelStatusStore from './stores';
 
 /**
  * A sample role for the component.

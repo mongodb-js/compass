@@ -304,7 +304,7 @@ const toggleStageCollapse = (state, action) => {
 const updateStagePreview = (state, action) => {
   const newState = copyState(state);
   newState[action.index].previewDocuments =
-    action.error === null ? action.documents : [];
+    action.error === null || action.error === undefined ? action.documents : [];
   newState[action.index].error = action.error ? action.error.message : null;
   newState[action.index].isLoading = false;
   newState[action.index].isComplete = action.isComplete;
@@ -534,8 +534,7 @@ export const generatePipeline = (state, index) => {
 
   if (
     stages.length > 0 &&
-    !REQUIRED_AS_FIRST_STAGE.includes(lastStage.stageOperator) &&
-    (lastStage.stageOperator !== MERGE)
+    !REQUIRED_AS_FIRST_STAGE.includes(lastStage.stageOperator)
   ) {
     stages.push({
       $limit: state.limit || DEFAULT_SAMPLE_SIZE
@@ -627,7 +626,7 @@ const executeStage = (dataService, ns, dispatch, state, index) => {
 };
 
 /**
- * Executes the out stage.
+ * Executes a pipeline that outputs documents as the last stage.
  *
  * @param {DataService} dataService - The data service.
  * @param {String} ns - The namespace.

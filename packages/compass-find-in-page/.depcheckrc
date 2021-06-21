@@ -1,0 +1,16 @@
+ignores: [
+  "@babel/cli",
+  "@babel/register",
+  "core-js",
+  "electron-rebuild",
+  "font-awesome",
+  "hadron-react-bson",
+  "hadron-react-components",
+  "karma-electron",
+  "karma-sourcemap-loader",
+  "karma-webpack",
+  "mongodb-connection-model",
+  "resolve",
+  "webpack-bundle-analyzer",
+  "webpack-cli"
+]

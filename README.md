@@ -1,4 +1,4 @@
-# MongoDB Compass [![][travis_img]][travis_url]
+# MongoDB Compass
 The MongoDB GUI.
 
 ![Aggregation Pipeline Builder Tab in Compass](packages/compass/compass-screenshot.png)
@@ -38,7 +38,6 @@ npm i -S @mongodb-js/compass-aggregations@latest
 And in package.json:
 ```js
 "distributions": {
-  "plugin-prefix": "@mongodb-js/compass",
   "default": "compass",
   "compass": {
     "name": "mongodb-compass",
@@ -97,6 +96,3 @@ forum](https://feedback.mongodb.com/forums/924283-compass).
 
 # License
 [SSPL](https://github.com/mongodb-js/compass/blob/master/LICENSE)
-
-[travis_img]: https://travis-ci.org/mongodb-js/compass.svg
-[travis_url]: https://travis-ci.org/mongodb-js/compass

@@ -1,7 +1,6 @@
 {
-  "name": "mongodb-compass",
-  "productName": "MongoDB Compass",
-  "description": "The MongoDB GUI",
+  "name": "mongodb-compass-monorepo",
+  "description": "Monorepo that includes Compass and all its dependencies",
   "homepage": "https://compass.mongodb.com",
   "author": {
     "name": "MongoDB Inc",
@@ -10,23 +9,23 @@
   "shortcutFolderName": "MongoDB",
   "license": "SSPL",
   "scripts": {
+    "precheck": "depcheck",
     "check": "lerna run check --stream",
-    "check-evergreen": "lerna run check",
-    "bootstrap": "lerna exec --stream -- npm ci --quiet",
-    "bootstrap-evergreen": "cross-env ELECTRON_SKIP_BINARY_DOWNLOAD=1 lerna exec -- npm ci --quiet && npm run install-electron",
-    "install-electron": "cross-env ELECTRON_SKIP_BINARY_DOWNLOAD= lerna exec --concurrency 1 -- node ../../scripts/install-electron.js",
-    "start": "lerna run start --stream --scope mongodb-compass",
-    "amend-compass-version": "node scripts/bump-compass-dependencies.js && git commit --no-allow-empty -m \"chore(release): sync compass dependencies\" packages/compass/package.json",
-    "packages-version": "lerna version --no-private --no-push -m \"chore(release): bump package versions\"",
-    "postpackages-version": "npm run amend-compass-version && git push && git push --tags",
-    "packages-publish": "node scripts/monorepo/publish-all.js",
-    "postpackages-publish": "git add packages/*/package-lock.json && git commit -m \"chore(release): Update package-lock files after a release\" && git push",
-    "packages-test-version": "lerna version --no-private --allow-branch=* --no-git-tag-version --no-push",
-    "postpackages-test-version": "node scripts/bump-compass-dependencies.js",
-    "packages-test-publish": "node scripts/monorepo/publish-all.js --local --no-pristine-check --no-branch-check",
-    "release": "cd packages/compass && npm run --silent release --",
+    "check-changed": "npm run check -- --since HEAD --exclude-dependents",
+    "check-ci": "lerna run check",
+    "bootstrap": "npm install && lerna run prepare --stream",
+    "bootstrap-evergreen": "npm ci && lerna run prepare",
+    "start": "npm run start --workspace=mongodb-compass",
+    "packages-version": "lerna version --no-push --no-private -m \"chore(release): Bump package versions\"",
+    "test-packages-version": "npm run packages-version --",
+    "version": "node ./scripts/bump-private-dependencies.js --no-commit",
+    "packages-publish": "lerna publish from-package",
+    "pretest-packages-publish": "./scripts/monorepo/start-proxy-registry.sh && wait-on -t 3000 http://localhost:4873 && npm-cli-adduser -u test -p test -e test@test.test --registry http://localhost:4873 && echo $'\n\n!!! LOCAL REGISTRY DOCKER IMAGE IS RUNNING, DO NOT FORGET TO CLEAN IN UP WHEN YOU ARE DONE\n\n'",
+    "test-packages-publish": "npm run packages-publish -- --registry http://localhost:4873",
+    "release": "npm run release --workspace mongodb-compass --",
+    "release-evergreen": "npm run release-evergreen --workspace=mongodb-compass --",
     "test": "lerna run test --concurrency 1 --stream",
-    "test-evergreen": "lerna run test-ci --concurrency 1",
+    "test-ci": "lerna run test-ci --concurrency 1",
     "update-akzidenz-cache": "node scripts/download-akzidenz.js --update-cache",
     "download-akzidenz": "lerna exec -- node ../../scripts/download-akzidenz.js",
     "update-authors": "node scripts/generate-authors.js",
@@ -37,26 +36,29 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/compass.git"
   },
-  "dependencies": {},
   "devDependencies": {
-    "cross-env": "^7.0.3",
     "find-up": "^5.0.0",
     "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
     "lerna": "^4.0.0",
     "make-fetch-happen": "^8.0.14",
+    "npm-cli-adduser": "^1.1.4",
     "ora": "^5.4.0",
     "pkg-up": "^3.1.0",
     "ps-list": "^7.2.0",
     "replace-in-file": "^6.2.0",
-    "semver": "^7.3.5"
+    "semver": "^7.3.5",
+    "wait-on": "^5.3.0"
   },
   "engines": {
-    "node": "^12.4.0",
-    "npm": ">=6.13.0"
+    "node": ">=12.4.0",
+    "npm": ">=7.16.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
     "email": "compass@mongodb.com"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }

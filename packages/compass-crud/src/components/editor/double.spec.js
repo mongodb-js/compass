@@ -38,7 +38,7 @@ describe('DoubleEditor', () => {
       });
 
       it('returns the number of characters', () => {
-        expect(doubleEditor.size()).to.equal(9);
+        expect(doubleEditor.size()).to.equal(24);
       });
 
       it('edits the element with the formatted value', () => {
@@ -79,7 +79,7 @@ describe('DoubleEditor', () => {
 
     context('when the current value is edited to an invalid double', () => {
       const doubleEditor = new DoubleEditor(element);
-      const invalidDouble = new Double('ceci n\'est pas un double');
+      const invalidDouble = 'ceci n\'est pas un double';
 
       before(() => {
         doubleEditor.start();
@@ -133,7 +133,7 @@ describe('DoubleEditor', () => {
 
     context('when the current value is edited to an invalid double', () => {
       const doubleEditor = new DoubleEditor(element);
-      const invalidDouble = new Double('ceci n\'est pas un double');
+      const invalidDouble = 'ceci n\'est pas un double';
 
       before(() => {
         doubleEditor.start();

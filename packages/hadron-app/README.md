@@ -1,4 +1,4 @@
-# hadron-app [![][travis_img]][travis_url] [![][npm_img]][npm_url]
+# hadron-app [![][npm_img]][npm_url]
 
 ## Usage
 
@@ -17,11 +17,5 @@ app.myObject = "testing";
 - hadron-package-manager
 - hadron-style-manager
 
-## License
-
-Apache 2.0
-
-[travis_img]: https://img.shields.io/travis/mongodb-js/hadron-app.svg?style=flat-square
-[travis_url]: https://travis-ci.org/mongodb-js/hadron-app
 [npm_img]: https://img.shields.io/npm/v/hadron-app.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/hadron-app

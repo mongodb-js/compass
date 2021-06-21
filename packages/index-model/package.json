@@ -2,7 +2,7 @@
   "name": "mongodb-index-model",
   "description": "MongoDB index model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "3.0.0",
+  "version": "3.2.0",
   "bugs": "https://github.com/mongodb-js/index-model/issues",
   "homepage": "https://github.com/mongodb-js/index-model",
   "repository": {
@@ -18,7 +18,7 @@
     "pretest": "mongodb-runner install",
     "test": "mocha",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck || echo \"!!! Dependency check failed, but the failure is ignored by now. This should be addressed in COMPASS-4772 !!!\"",
+    "depcheck": "depcheck",
     "test-ci": "npm run test",
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
@@ -28,7 +28,7 @@
     "ampersand-rest-collection": "^6.0.0",
     "async": "^3.2.0",
     "lodash": "^4.17.15",
-    "mongodb": "^3.5.4",
+    "mongodb": "4.0.0-beta.5",
     "mongodb-js-errors": "^0.5.0",
     "mongodb-ns": "^2.2.0"
   },
