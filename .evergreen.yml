@@ -139,7 +139,7 @@ functions:
         source ~/compass_env.sh
 
         echo "Run static analysis..."
-        npm run check-evergreen
+        npm run check-ci
 
   test:
     - command: shell.exec
@@ -162,7 +162,7 @@ functions:
           # debug option is not very useful in normal runs, but helpful when
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-evergreen --unsafe-perm -- --stream
+          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.0.3} npm run test-ci --unsafe-perm -- --stream
 
   'package':
     - command: shell.exec

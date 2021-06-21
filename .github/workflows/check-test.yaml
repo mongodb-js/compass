@@ -57,10 +57,11 @@ jobs:
 
       - name: Run Checks
         # We exclude dependents when running eslint and depchecks because
-        # linting and dependency checking is relevant only for 
-        run: npm run check -- --stream --since $MAIN_BRANCH_NAME --exclude-dependents
+        # linting and dependency checking is relevant only for packages where
+        # the source code was changed
+        run: npm run check-ci -- --stream --since $MAIN_BRANCH_NAME --exclude-dependents
         shell: bash
 
       - name: Run Tests
-        run: npm run test -- --stream --since $MAIN_BRANCH_NAME
+        run: npm run test-ci -- --stream --since $MAIN_BRANCH_NAME
         shell: bash
