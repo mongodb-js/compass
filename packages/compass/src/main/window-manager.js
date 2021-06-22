@@ -399,14 +399,21 @@ app.on('ready', function() {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
     debug('Activating Compass specific devtools...');
-    require('devtron').install();
-  }
+    const {
+      default: installDevtools,
+      REACT_DEVELOPER_TOOLS,
+    } = require('electron-devtools-installer');
 
-  /**
-   * When electron's main renderer has completed setup,
-   * we'll always show the [connect][./src/connect] dialog
-   * on start which is responsible for retaining it's own
-   * state between application launches.
-   */
-  showConnectWindow();
+    installDevtools(REACT_DEVELOPER_TOOLS).finally(() => {
+      showConnectWindow();
+    });
+  } else {
+    /**
+     * When electron's main renderer has completed setup,
+     * we'll always show the [connect][./src/connect] dialog
+     * on start which is responsible for retaining it's own
+     * state between application launches.
+     */
+    showConnectWindow();
+  }
 });
