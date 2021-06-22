@@ -57,6 +57,13 @@ class ReadonlyDocument extends React.Component {
     this.props.openInsertDocumentDialog(this.props.doc.generateObject(), true);
   }
 
+  /**
+   * Handle copying JSON to clipboard of the document.
+   */
+  handleCopy = () => {
+    this.props.copyToClipboard(this.props.doc);
+  }
+
   setRenderSize(newLimit) {
     this.setState({ renderSize: newLimit });
   }
@@ -106,7 +113,7 @@ class ReadonlyDocument extends React.Component {
   renderActions() {
     return (
       <DocumentActions
-        copy={this.props.copyToClipboard}
+        copy={this.props.copyToClipboard ? this.handleCopy : undefined}
         clone={this.props.openInsertDocumentDialog ? this.handleClone : undefined}
       />
     )

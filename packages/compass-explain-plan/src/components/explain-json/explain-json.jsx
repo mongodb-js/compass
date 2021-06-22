@@ -17,7 +17,7 @@ class ExplainJSON extends Component {
   }
 
   copyToClipboard = () => {
-    clipboard.writeText(this.props.doc);
+    clipboard.writeText(JSON.stringify(this.props.rawExplainObject.originalData));
   }
 
   /**
