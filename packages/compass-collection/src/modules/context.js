@@ -21,17 +21,17 @@ const setupActions = (role, localAppRegistry) => {
  * Setup a scoped store to the collection.
  *
  * @param {Object} options - The plugin store options.
- * @param {Object} options.role - The role.
- * @param {Object} options.globalAppRegistry - The global app registry.
- * @param {Object} options.localAppRegistry - The scoped app registry to the collection.
- * @param {Object} options.dataService - The data service.
- * @param {String} options.namespace - The namespace.
- * @param {String} options.serverVersion - The server version.
- * @param {Boolean} options.isReadonly - If the collection is a readonly view.
- * @param {Object} options.actions - The actions for the store.
- * @param {Boolean} options.allowWrites - If writes are allowed.
- * @param {String} options.sourceName - The source namespace for the view.
- * @param {String} options.editViewName - The name of the view we are editing.
+ * @property {Object} options.role - The role.
+ * @property {Object} options.globalAppRegistry - The global app registry.
+ * @property {Object} options.localAppRegistry - The scoped app registry to the collection.
+ * @property {Object} options.dataService - The data service.
+ * @property {String} options.namespace - The namespace.
+ * @property {String} options.serverVersion - The server version.
+ * @property {Boolean} options.isReadonly - If the collection is a readonly view.
+ * @property {Object} options.actions - The actions for the store.
+ * @property {Boolean} options.allowWrites - If writes are allowed.
+ * @property {String} options.sourceName - The source namespace for the view.
+ * @property {String} options.editViewName - The name of the view we are editing.
  *
  * @returns {Object} The configured store.
  */
@@ -76,7 +76,7 @@ const setupStore = ({
  * Setup a scoped plugin to the tab.
  *
  * @param options - The plugin options.
- * @param {Object} options.role - The role.
+ * @property {Object} options.role - The role.
  * @property {Object} options.globalAppRegistry - The global app registry.
  * @property {Object} options.localAppRegistry - The scoped app registry to the collection.
  * @property {Object} options.dataService - The data service.

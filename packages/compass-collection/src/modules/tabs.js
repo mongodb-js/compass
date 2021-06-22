@@ -330,8 +330,8 @@ export default function reducer(state = INITIAL_STATE, action) {
  * @property {String} options.sourceName - The source namespace.
  * @property {String} options.editViewName - The name of the view we are editing.
  * @property {Object} options.context - The tab context.
- * @property {Boolean} sourceReadonly
- * @property {String} sourceViewOn
+ * @property {Boolean} options.sourceReadonly
+ * @property {String} options.sourceViewOn
  * 
  * @returns {Object} The create tab action.
  */
