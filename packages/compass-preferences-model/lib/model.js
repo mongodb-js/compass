@@ -266,7 +266,7 @@ var Preferences = Model.extend(storageMixin, {
   /**
    * returns whether or not a given feature is enabled. In most cases, it just
    * passes through whatever property is asked for, but some checks are more
-   * complex, like the `disableNetworkTraffic` master switch, which overwrites
+   * complex, like the `disableNetworkTraffic` main switch, which overwrites
    * other feature flags.
    *
    * @param  {String} feature    check for this feature
@@ -279,7 +279,7 @@ var Preferences = Model.extend(storageMixin, {
    * returns either true or false
    */
   isFeatureEnabled: function(feature) {
-    // master network switch overwrites all network related features
+    // main network switch overwrites all network related features
     if (['enableMaps', 'trackErrors', 'enableFeedbackPanel',
       'trackUsageStatistics', 'autoUpdates'].indexOf(feature) !== -1) {
       return this.networkTraffic && get(this, feature);

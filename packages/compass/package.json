@@ -236,6 +236,7 @@
     "test-renderer": "npm test -- --renderer",
     "test-functional": "npm test -- --functional",
     "test-release": "npm test -- --release",
+    "test-release-scripts": "mocha ./release/**/*.spec.js",
     "upload": "hadron-build upload",
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
     "jsx": "babel ./src --out-dir ./lib",

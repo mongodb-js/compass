@@ -16,7 +16,7 @@ Run `npm run test-release-tasks` to run the tests in this folder.
 npm run release checkout <MAJOR.MINOR>
 ```
 
-Only runnable from master. Checks out (creating it if not existing)  a `MAJOR.MINOR-releases` branch.
+Only runnable from main. Checks out (creating it if not existing)  a `MAJOR.MINOR-releases` branch.
 
 ``` sh
 npm run release checkout 1.22
