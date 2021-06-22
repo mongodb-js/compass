@@ -26,22 +26,23 @@ store.onActivated = (appRegistry) => {
   /**
    * When a collection namespace is selected in the sidebar.
    *
-   * @param {Object} metatada - The metadata.
+   * @param {Object} metadata - The metadata.
    */
   appRegistry.on('open-namespace-in-new-tab', (metadata) => {
     if (metadata.namespace) {
       const namespace = toNS(metadata.namespace);
       if (namespace.collection !== '') {
         store.dispatch(
-          createNewTab(
-            metadata.namespace,
-            metadata.isReadonly,
-            metadata.sourceName,
-            metadata.editViewName,
-            metadata.isSourceReadonly,
-            metadata.sourceViewOn,
-            metadata.sourcePipeline
-          )
+          createNewTab({
+            namespace: metadata.namespace,
+            isReadonly: metadata.isReadonly,
+            sourceName: metadata.sourceName,
+            editViewName: metadata.editViewName,
+            isSourceReadonly: metadata.isSourceReadonly,
+            isTimeSeries: !!metadata.isTimeSeries,
+            sourceViewOn: metadata.sourceViewOn,
+            sourcePipeline: metadata.sourcePipeline
+          })
         );
       }
     }
@@ -57,15 +58,16 @@ store.onActivated = (appRegistry) => {
       const namespace = toNS(metadata.namespace);
       if (namespace.collection !== '') {
         store.dispatch(
-          selectOrCreateTab(
-            metadata.namespace,
-            metadata.isReadonly,
-            metadata.sourceName,
-            metadata.editViewName,
-            metadata.isSourceReadonly,
-            metadata.sourceViewOn,
-            metadata.sourcePipeline
-          )
+          selectOrCreateTab({
+            namespace: metadata.namespace,
+            isReadonly: metadata.isReadonly,
+            isTimeSeries: metadata.isTimeSeries,
+            sourceName: metadata.sourceName,
+            editViewName: metadata.editViewName,
+            isSourceReadonly: metadata.isSourceReadonly,
+            sourceViewOn: metadata.sourceViewOn,
+            sourcePipeline: metadata.sourcePipeline
+          })
         );
       }
     }

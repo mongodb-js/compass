@@ -1,5 +1,7 @@
 import find from 'lodash.find';
 import toNS from 'mongodb-ns';
+
+import { TIME_SERIES_COLLECTION_TYPE } from '../../../compass-sidebar/src/modules/collection';
 import { appRegistryEmit } from './app-registry';
 
 /**
@@ -39,6 +41,7 @@ export const showCollection = (name) => {
         {
           namespace: collection._id,
           isReadonly: collection.readonly,
+          isTimeSeries: collection.type === TIME_SERIES_COLLECTION_TYPE,
           sourceName: collection.view_on ? `${state.databaseName}.${collection.view_on}` : null,
           editViewName: null,
           isSourceReadonly: source ? source.readonly : false,

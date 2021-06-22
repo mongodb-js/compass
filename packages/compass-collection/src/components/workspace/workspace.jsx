@@ -201,6 +201,7 @@ class Workspace extends PureComponent {
           id={tab.id}
           namespace={tab.namespace}
           isReadonly={tab.isReadonly}
+          isTimeSeries={tab.isTimeSeries}
           sourceName={tab.sourceName}
           editViewName={tab.editViewName}
           sourceReadonly={tab.sourceReadonly}

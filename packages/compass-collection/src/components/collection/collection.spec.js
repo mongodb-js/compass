@@ -19,6 +19,7 @@ describe('Collection [Component]', () => {
     component = mount(
       <Collection
         isReadonly={false}
+        isTimeSeries={false}
         tabs={[]}
         views={[]}
         queryHistoryIndexes={[]}

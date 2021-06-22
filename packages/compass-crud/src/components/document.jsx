@@ -16,6 +16,7 @@ class Document extends React.Component {
     if (this.props.editable && this.props.isTimeSeries) {
       return (
         <ReadonlyDocument
+          copyToClipboard={this.props.copyToClipboard}
           doc={this.props.doc}
           tz={this.props.tz}
           expandAll={this.props.expandAll}

@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
+import DocumentActions from './document-actions';
 import Element from './element';
 import ExpansionBar from './expansion-bar';
 
@@ -51,6 +53,10 @@ class ReadonlyDocument extends React.Component {
     }
   }
 
+  handleClone = () => {
+    this.props.openInsertDocumentDialog(this.props.doc.generateObject(), true);
+  }
+
   setRenderSize(newLimit) {
     this.setState({ renderSize: newLimit });
   }
@@ -98,7 +104,12 @@ class ReadonlyDocument extends React.Component {
   }
 
   renderActions() {
-      // this.props.openInsertDocumentDialog && 
+    return (
+      <DocumentActions
+        copy={this.props.copyToClipboard}
+        clone={this.props.openInsertDocumentDialog ? this.handleClone : undefined}
+      />
+    )
   }
 
   /**

@@ -6,6 +6,7 @@ import styles from './sidebar-database.less';
 
 import { TOOLTIP_IDS } from '../../constants/sidebar-constants';
 import SidebarCollection from '../sidebar-collection';
+import { TIME_SERIES_COLLECTION_TYPE } from '../../modules/collection';
 
 class SidebarDatabase extends PureComponent {
   static displayName = 'SidebarDatabase';
@@ -40,6 +41,7 @@ class SidebarDatabase extends PureComponent {
           isWritable: this.props.isWritable,
           description: this.props.description,
           isDataLake: this.props.isDataLake,
+          isTimeSeries: c.type === TIME_SERIES_COLLECTION_TYPE,
           collections: this.props.collections
         };
         return (

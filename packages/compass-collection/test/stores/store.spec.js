@@ -144,6 +144,22 @@ describe('Collection Store', () => {
           expect(store.getState().tabs).to.have.length(0);
         });
       });
+
+      context.skip('when the colletion is a time-series collection', () => {
+        beforeEach(() => {
+          appRegistry.emit(
+            'open-namespace-in-new-tab',
+            {
+              namespace: 'db.coll',
+              isTimeSeries: true
+            }
+          );
+        });
+
+        it('creates a tab in the store that has isTimeSeries set', () => {
+          expect(store.getState().tabs[0].isTimeSeries).to.equal(true);
+        });
+      });
     });
   });
 });
