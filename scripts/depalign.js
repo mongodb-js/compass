@@ -8,13 +8,14 @@ const depalignrc = require('../.depalignrc.json');
 
 const USAGE = `Check for dependency alignment issues.
 
-USAGE: depalign.js [--skip-deduped|--json]
+USAGE: depalign.js [--skip-deduped|--json|--fix]
 
 Options:
 
 --skip-deduped  don't output warnings for ranges that can be resolve to a single version.
 --json          output a json report
-
+--suggest-fixes output a list of replacements to normalize ranges and align everything
+                to the highest possible range
 
 .depalignrc.json
 
@@ -89,13 +90,15 @@ function dedupedWarning(name, ranges) {
 function main(args) {
   if (args.includes('--help')) {
     console.log(USAGE);
+    process.exit(0);
   }
 
-  const deduped = !args.includes('--skip-deduped');
-  const json = args.includes('--json');
-  const jsonReport = {mismatching: [], deduped: []};
+  const outputDeduped = !args.includes('--skip-deduped');
+  const outputJson = args.includes('--json');
+  const suggestFixes = args.includes('--suggest-fixes');
 
-  let exitCode = 0;
+  const report = {mismatching: [], deduped: []};
+
   const dependencies = collectDependencies();
 
   for (const [dependency, versionRanges] of Object.entries(dependencies)) {
@@ -107,26 +110,82 @@ function main(args) {
     }
 
     if (!intersects(notIgnoredRanges)) {
-      exitCode = 1;
-      if (!json) {
-        mismatchingError(dependency, notIgnoredRanges);
-      }
-
-      jsonReport.mismatching.push({name: dependency, versions: notIgnoredRanges});
+      report.mismatching.push({name: dependency, ranges: notIgnoredRanges});
     } else {
-      if (deduped && !json) {
-        dedupedWarning(dependency, notIgnoredRanges);
-      }
-
-      jsonReport.deduped.push({name: dependency, versions: notIgnoredRanges});
+      report.deduped.push({name: dependency, ranges: notIgnoredRanges});
     }
   }
 
-  if (json) {
-    console.log(JSON.stringify(jsonReport, null, 2));
+  if (suggestFixes) {
+    return outputFixes(report);
   }
 
+  if (outputJson) {
+    console.log(JSON.stringify(report, null, 2));
+
+  } else {
+    for (const { name, ranges } of report.mismatching) {
+      mismatchingError(name, ranges);
+    }
+
+    if (outputDeduped) {
+      for (const { name, ranges } of report.deduped) {
+        dedupedWarning(name, ranges);
+      }
+    }
+  }
+
+  const exitCode = report.mismatching.length === 0 ? 0 : 1;
   process.exit(exitCode);
+}
+
+function outputFixes({mismatching, deduped}) {
+  const deps = [...mismatching, ...deduped];
+  const replacements = {};
+  for (const dep of deps) {
+    replacements[dep.name] = calculateReplacements(dep.ranges);
+  }
+
+  console.log(JSON.stringify(replacements, null, 2));
+}
+
+function calculateReplacements(ranges) {
+  const replacements = {};
+  const validRanges = ranges.filter(range => semver.validRange(range) && range !== '*');
+  const sortedRanges = validRanges.sort(
+    (v1, v2) => {
+      const res = semver.compare(semver.minVersion(v2), semver.minVersion(v1))
+
+      if (res === 1 || res === -1) {
+        return res;
+      }
+
+      if (semver.valid(v1) && !semver.valid(v2)) {
+        return 1;
+      }
+
+      if (!semver.valid(v1) && semver.valid(v2)) {
+        return -1;
+      }
+
+      return 0;
+    }
+  );
+
+  if (ranges.includes('*') && sortedRanges.length) {
+    replacements['*'] = sortedRanges[0];
+  }
+
+  let refRange;
+  for (const range of sortedRanges) {
+    if (refRange && semver.subset(refRange, range)) {
+      replacements[range] = refRange;
+    } else {
+      refRange = range;
+    }
+  }
+
+  return replacements;
 }
 
 main(process.argv.slice(2));
