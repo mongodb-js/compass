@@ -3,7 +3,7 @@
 /* eslint no-sync: 0 */
 /**
  * @see [Atom's publish-build-task.coffee](https://git.io/vaYu3)
- * - https://github.com/atom/electron/blob/master/script/create-dist.py
+ * - https://github.com/atom/electron/blob/main/script/create-dist.py
  */
 
 /**

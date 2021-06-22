@@ -1,6 +1,6 @@
 /**
  * A high-level wrapper around electron's builtin [BrowserWindow][0] class.
- * https://github.com/atom/electron/blob/master/docs/api/browser-window.md
+ * https://github.com/atom/electron/blob/main/docs/api/browser-window.md
  */
 var electron = require('electron');
 var electronLocalShortcut = require('electron-localshortcut');
@@ -57,7 +57,7 @@ var appLaunched = false;
 /**
  * TODO (@imlucas) Revisit this.
  *
- * @see https://github.com/atom/electron/blob/master/docs/api/app.md
+ * @see https://github.com/atom/electron/blob/main/docs/api/app.md
  *
  * @returns {Boolean}
  */
@@ -218,7 +218,7 @@ var createWindow = (module.exports.create = function(opts) {
 
   /**
    * TODO (@imlucas) Replace with `ready-to-show` event?
-   * https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
+   * https://github.com/electron/electron/blob/main/docs/api/browser-window.md#using-ready-to-show-event
    */
   ipc.respondTo('window:renderer-ready', onRendererReady);
 
