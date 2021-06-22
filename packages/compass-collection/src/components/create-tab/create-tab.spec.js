@@ -32,7 +32,11 @@ describe('CreateTab [Component]', () => {
   context('when clicking the create button', () => {
     it('calls the action', () => {
       component.find(`.${styles['create-tab']}`).simulate('click');
-      expect(createNewTabSpy.calledWith('db.coll')).to.equal(true);
+      expect(createNewTabSpy.firstCall.args[0]).to.deep.equal({
+        namespace: 'db.coll',
+        isReadonly: false,
+        sourceName: ''
+      });
     });
   });
 });

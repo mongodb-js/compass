@@ -17,11 +17,11 @@ class CreateTab extends PureComponent {
    * Create a new tab with the same namespace as the last one.
    */
   createTab = () => {
-    this.props.createNewTab(
-      this.props.activeNamespace,
-      this.props.activeIsReadonly,
-      this.props.activeSourceName
-    );
+    this.props.createNewTab({
+      namespace: this.props.activeNamespace,
+      isReadonly: this.props.activeIsReadonly,
+      sourceName: this.props.activeSourceName
+    });
   }
 
   /**
