@@ -332,7 +332,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  * @property {Object} options.context - The tab context.
  * @property {Boolean} options.sourceReadonly
  * @property {String} options.sourceViewOn
- * 
+ *
  * @returns {Object} The create tab action.
  */
 export const createTab = ({

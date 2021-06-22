@@ -75,6 +75,7 @@ class DocumentActions extends React.Component {
 DocumentActions.displayName = 'DocumentActions';
 
 DocumentActions.propTypes = {
+  copy: PropTypes.func,
   edit: PropTypes.func,
   remove: PropTypes.func,
   clone: PropTypes.func,

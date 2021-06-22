@@ -13,6 +13,7 @@ class CollectionHeader extends Component {
     globalAppRegistry: PropTypes.func.isRequired,
     namespace: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
+    isTimeSeries: PropTypes.bool.isRequired,
     statsPlugin: PropTypes.func.isRequired,
     selectOrCreateTab: PropTypes.func.isRequired,
     statsStore: PropTypes.object.isRequired,
