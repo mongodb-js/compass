@@ -13,7 +13,11 @@
   ],
   "author": "Anna Herlihy <anna@mongodb.com>",
   "license": "SSPL",
+  "scripts": {
+    "check": "npm run depcheck",
+    "depcheck": "depcheck"
+  },
   "devDependencies": {
-    "babel-plugin-transform-decorators-legacy": "^1.3.5"
+    "depcheck": "^1.4.0"
   }
 }

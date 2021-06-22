@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps.",
-  "version": "24.3.0",
+  "version": "24.4.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha -R spec",
@@ -35,7 +35,7 @@
     "electron-notarize": "^0.3.0",
     "electron-packager": "^14.2.0",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
-    "electron-rebuild": "^1.10.0",
+    "electron-rebuild": "^2.3.5",
     "execa": "^0.6.0",
     "figures": "^3.2.0",
     "flatnest": "^1.0.0",

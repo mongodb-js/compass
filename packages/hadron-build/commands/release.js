@@ -364,14 +364,18 @@ const transformPackageJson = (CONFIG, done) => {
  * @api public
  */
 const installDependencies = (CONFIG, done) => {
+  const appPackagePath = path.join(CONFIG.resources, 'app');
+
   var args = [
     'install',
     '--production'
   ];
+
   cli.debug('Installing dependencies');
+
   var opts = {
     env: process.env,
-    cwd: path.join(CONFIG.resources, 'app')
+    cwd: appPackagePath
   };
 
   run('npm', args, opts, function(err) {
@@ -383,7 +387,12 @@ const installDependencies = (CONFIG, done) => {
     rebuild({
       ...CONFIG.rebuild,
       electronVersion: CONFIG.packagerOptions.electronVersion,
-      buildPath: path.join(CONFIG.resources, 'app'),
+      buildPath: appPackagePath,
+      // `projectRootPath` is undocumented, but changes modules resolution quite
+      // a bit and required for the electron-rebuild to be able to pick up
+      // dependencies inside project root, but outside of their dependants (e.g.
+      // a transitive dependency that was hoisted by npm installation process)
+      projectRootPath: appPackagePath,
       force: true
     }).then(() => {
       cli.debug('Native modules rebuilt against Electron.');
