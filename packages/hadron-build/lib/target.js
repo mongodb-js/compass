@@ -134,6 +134,7 @@ class Target {
     this.channel = 'stable';
 
     this.asar = { unpack: [], ...pkg.config.hadron.asar };
+    this.rebuild = { ...pkg.config.hadron.rebuild };
 
     // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
     const mtch = this.version.match(/-([a-z]+)(\.\d+)?$/);

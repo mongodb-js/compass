@@ -50,7 +50,7 @@
     "debug": "mongodb-js/debug#v2.2.3",
     "depcheck": "^1.4.0",
     "electron": "^6.1.12",
-    "electron-rebuild": "^1.10.0",
+    "electron-rebuild": "^2.3.5",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint": "^7.25.0",
