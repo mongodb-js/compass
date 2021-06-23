@@ -1,4 +1,4 @@
-# storage-mixin [![][npm_img]][npm_url] [![][inch_img]][inch_url]
+# storage-mixin [![][npm_img]][npm_url]
 
 Persist [Ampersand.js](https://ampersandjs.com/) models and collections to various storage backends.
 
@@ -235,8 +235,6 @@ var User = Model.extend(storageMixin, {
 
 [npm_img]: https://img.shields.io/npm/v/storage-mixin.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/storage-mixin
-[inch_img]: http://inch-ci.org/github/mongodb-js/storage-mixin.svg?branch=master
-[inch_url]: http://inch-ci.org/github/mongodb-js/storage-mixin
 [ampersand-sync]: https://github.com/AmpersandJS/ampersand-sync
 [ampersand-save]: https://ampersandjs.com/docs/#ampersand-model-save
 [ampersand-model-url]: https://github.com/AmpersandJS/ampersand-model#url-modelurl-or-modelurl

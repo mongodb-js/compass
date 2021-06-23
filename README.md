@@ -25,7 +25,7 @@ topic in the mongodb-js organisation. There are also various [compass-tools](htt
 and [compass-ui-tools](https://github.com/search?q=topic%3Acompass-ui-tools+org%3Amongodb-js&type=Repositories) packages that help put together the application.
 
 Plugins can be added to Compass by requiring them as a dependency in package.json,
-and by adding their installed location to the [distribution plugin list](https://github.com/mongodb-js/compass/blob/master/package.json#L42-L77) also in the
+and by adding their installed location to the [distribution plugin list](https://github.com/mongodb-js/compass/blob/main/package.json#L42-L77) also in the
 package.json. Plugin's `apiVersion` field has to match Compass'. Currently it's
 at `3.0.0`.
 
@@ -61,16 +61,16 @@ There are a few mains ones that we use:
   example,
 [server-status-plugin](https://github.com/mongodb-js/server-status-plugin/blob/df3fb3b76b52871da5fc4dc1d98b56e7cc9628cf/src/index.js#L37).
 - `Database.Tab` - Display as tabs in the database context of the app.
-  [compass-collections-databases](https://github.com/mongodb-js/compass/blob/master/packages/src/compass-collections-databases) is registered as a `Database.Tab`, for example.
+  [compass-collections-databases](https://github.com/mongodb-js/compass/blob/main/packages/src/compass-collections-databases) is registered as a `Database.Tab`, for example.
 - `Collection.Tab` - Display as sub tabs in the collection context of the
-  app. A good example of this is the [compass-crud](https://github.com/mongodb-js/compass-crud/blob/master/src/index.js#L74).
+  app. A good example of this is the [compass-crud](https://github.com/mongodb-js/compass-crud/blob/main/src/index.js#L74).
 - `Global.Modal` - Will open as modal dialogs in any context of the app. These
   can be separate plugins entirely, or part of an existing plguin that does
 something else. For example,
 [compass-aggregations](https://github.com/mongodb-js/compass-aggregations) is an `Collection.Tab`,
 but also
 [registers](https://github.com/mongodb-js/compass-aggregations/blob/f35446466da254cf51ab35437dd91bb2695e9317/src/index.js#L51) a `Global.Modal`.
-- `Collection.ScopedModal` - Will open as a modal scoped in the collection context. [compass-import-export](https://github.com/mongodb-js/compass-import-export/blob/master/src/index.js#L36-L37), for example, registers 2 `ScopedModal`s - one for import and the other for export.
+- `Collection.ScopedModal` - Will open as a modal scoped in the collection context. [compass-import-export](https://github.com/mongodb-js/compass-import-export/blob/main/src/index.js#L36-L37), for example, registers 2 `ScopedModal`s - one for import and the other for export.
 
 ### Creating a New Plugin
 We use a [template](https://github.com/mongodb-js/compass-plugin)
@@ -88,11 +88,11 @@ For issues, please create a ticket in our [JIRA
 Project](https://jira.mongodb.org/browse/COMPASS).
 
 For contributing, please refer to
-[CONTRIBUTING.md](https://github.com/mongodb-js/compass/blob/master/CONTRIBUTING.md)
+[CONTRIBUTING.md](https://github.com/mongodb-js/compass/blob/main/CONTRIBUTING.md)
 
 Is there anything else you’d like to see in Compass? Let us know by submitting
 suggestions in out [feedback
 forum](https://feedback.mongodb.com/forums/924283-compass).
 
 # License
-[SSPL](https://github.com/mongodb-js/compass/blob/master/LICENSE)
+[SSPL](https://github.com/mongodb-js/compass/blob/main/LICENSE)

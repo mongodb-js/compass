@@ -11,8 +11,8 @@ const {
 
 describe('branches', () => {
   describe('isMainBranch', () => {
-    it('returns true only if branch is master', () => {
-      expect(isMainBranch('master')).to.be.true;
+    it('returns true only if branch is main', () => {
+      expect(isMainBranch('main')).to.be.true;
       expect(isMainBranch('beta')).to.be.false;
       expect(isMainBranch('release/1.2.33')).to.be.false;
       expect(isMainBranch('1.22-releases')).to.be.false;
@@ -21,7 +21,7 @@ describe('branches', () => {
 
   describe('isReleaseBranch', () => {
     it('returns true only for a release branch', () => {
-      expect(isReleaseBranch('master')).to.be.false;
+      expect(isReleaseBranch('main')).to.be.false;
       expect(isReleaseBranch('beta')).to.be.false;
       expect(isReleaseBranch('release/1.2.33')).to.be.false;
       expect(isReleaseBranch('1.22-releases')).to.be.true;
