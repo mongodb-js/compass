@@ -34,7 +34,7 @@ describe('connection model connector', () => {
         connect(
           model,
           setupListeners,
-          (connectErr, {client, connectionOptions: { url, options }}) => {
+          (connectErr, client, _tunnel, { url, options }) => {
             if (connectErr) throw connectErr;
 
             assert.strictEqual(
@@ -46,7 +46,9 @@ describe('connection model connector', () => {
               // Driver brought this behaviour back in v3.6.3+ (but will remove in v4), we don't need to handle directConnection ourselves
               // See https://github.com/mongodb/node-mongodb-native/pull/2719
               // directConnection: true,
-              readPreference: 'primary'
+              readPreference: 'primary',
+              useNewUrlParser: true,
+              useUnifiedTopology: true
             });
 
             client.close(true);
@@ -59,12 +61,24 @@ describe('connection model connector', () => {
     it('should connect to `localhost:27018 with model`', (done) => {
       Connection.from('mongodb://localhost:27018', (parseErr, model) => {
         assert.equal(parseErr, null);
-        connect(model, setupListeners, (connectErr, {client}) => {
+        connect(model, setupListeners, (connectErr, client) => {
           assert.equal(connectErr, null);
           client.close(true);
           done();
         });
       });
+    });
+
+    it('should connect to `localhost:27018 with object`', (done) => {
+      connect(
+        { port: 27018, host: 'localhost' },
+        setupListeners,
+        (err, client) => {
+          assert.equal(err, null);
+          client.close(true);
+          done();
+        }
+      );
     });
 
     describe('ssh tunnel failures', () => {
@@ -155,7 +169,7 @@ describe('connection model connector', () => {
 
     data.MATRIX.map((d) => {
       it.skip('should connect to ' + d.name, (done) => {
-        connect(d, setupListeners, (err, {client}) => {
+        connect(d, setupListeners, (err, client) => {
           if (err) {
             return done(err);
           }
@@ -168,7 +182,7 @@ describe('connection model connector', () => {
 
     data.SSH_TUNNEL_MATRIX.map((d) => {
       it.skip(`connects via the sshTunnel to ${d.sshTunnelHostname}`, (done) => {
-        connect(d, setupListeners, (err, {client}) => {
+        connect(d, setupListeners, (err, client) => {
           if (err) {
             return done(err);
           }
