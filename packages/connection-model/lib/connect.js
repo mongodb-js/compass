@@ -8,18 +8,10 @@ const debug = require('debug')('mongodb-connection-model:connect');
 
 const Connection = require('./extended-model');
 
-function redactCredentials(uri) {
-  const regexes = [
-    // Username and password
-    /(?<=\/\/)(.*)(?=\@)/g,
-    // AWS IAM Session Token as part of query parameter
-    /(?<=AWS_SESSION_TOKEN(:|%3A))([^,&]+)/
-  ];
-  regexes.forEach(r => {
-    uri = uri.replace(r, '<credentials>');
-  });
-  return uri;
-}
+const {
+  redactSshTunnelOptions,
+  redactConnectionString
+} = require('./redact');
 
 async function createAndConnectTunnel(model) {
   if (!model.sshTunnel ||
@@ -28,7 +20,11 @@ async function createAndConnectTunnel(model) {
     return null;
   }
 
-  debug('creating ssh tunnel with options', model.sshTunnelOptions);
+  debug('creating ssh tunnel with options',
+    model.sshTunnel,
+    redactSshTunnelOptions(model.sshTunnelOptions)
+  );
+
   const tunnel = new SSHTunnel(model.sshTunnelOptions);
 
   debug('connecting ssh tunnel');
@@ -86,7 +82,7 @@ async function connect(model, setupListeners) {
   debug(
     'creating MongoClient',
     {
-      url: redactCredentials(url),
+      url: redactConnectionString(url),
       options
     }
   );
