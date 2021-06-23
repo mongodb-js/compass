@@ -12,7 +12,7 @@ const {
 
 const debug = require('debug')('mongodb-connection-model:connect');
 
-async function createAndConnectTunnel(model) {
+async function openSshTunnel(model) {
   if (!model.sshTunnel ||
     model.sshTunnel === 'NONE' ||
     !model.sshTunnelOptions) {
@@ -26,9 +26,9 @@ async function createAndConnectTunnel(model) {
 
   const tunnel = new SSHTunnel(model.sshTunnelOptions);
 
-  debug('connecting ssh tunnel');
+  debug('ssh tunnel listen ...');
   await tunnel.listen();
-  debug('ssh tunnel connected');
+  debug('ssh tunnel opened');
 
   return tunnel;
 }
@@ -76,7 +76,7 @@ async function connect(model, setupListeners) {
   delete options.auth;
 
   /** @type {SSHTunnel} */
-  const tunnel = await createAndConnectTunnel(model);
+  const tunnel = await openSshTunnel(model);
 
   debug(
     'creating MongoClient',
