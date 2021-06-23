@@ -9,10 +9,12 @@
   "shortcutFolderName": "MongoDB",
   "license": "SSPL",
   "scripts": {
-    "precheck": "depcheck",
+    "precheck": "npm run depcheck",
     "check": "lerna run check --stream",
     "check-changed": "npm run check -- --since HEAD --exclude-dependents",
     "check-ci": "lerna run check",
+    "predepcheck": "node scripts/depalign.js",
+    "depcheck": "depcheck",
     "bootstrap": "npm install && lerna run prepare --stream",
     "bootstrap-evergreen": "npm ci && lerna run prepare",
     "start": "npm run start --workspace=mongodb-compass",
@@ -37,10 +39,12 @@
     "url": "git://github.com/mongodb-js/compass.git"
   },
   "devDependencies": {
+    "chalk": "^4.1.1",
     "find-up": "^5.0.0",
     "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
     "lerna": "^4.0.0",
+    "lodash": "^4.17.21",
     "make-fetch-happen": "^8.0.14",
     "npm-cli-adduser": "^1.1.4",
     "ora": "^5.4.0",
