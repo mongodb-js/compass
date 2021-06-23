@@ -13,6 +13,7 @@ class CollectionHeader extends Component {
     globalAppRegistry: PropTypes.func.isRequired,
     namespace: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
+    isTimeSeries: PropTypes.bool.isRequired,
     statsPlugin: PropTypes.func.isRequired,
     selectOrCreateTab: PropTypes.func.isRequired,
     statsStore: PropTypes.object.isRequired,
@@ -24,27 +25,29 @@ class CollectionHeader extends Component {
   };
 
   modifySource = () => {
-    this.props.selectOrCreateTab(
-      this.props.sourceName,
-      this.props.sourceReadonly,
-      this.props.sourceViewOn,
-      this.props.namespace,
-      false,
-      null,
-      this.props.pipeline
-    );
+    this.props.selectOrCreateTab({
+      namespace: this.props.sourceName,
+      isReadonly: this.props.sourceReadonly,
+      isTimeSeries: this.props.isTimeSeries,
+      sourceName: this.props.sourceViewOn,
+      editViewName: this.props.namespace,
+      sourceReadonly: false,
+      sourceViewOn: null,
+      sourcePipeline: this.props.pipeline
+    });
   }
 
   returnToView = () => {
-    this.props.selectOrCreateTab(
-      this.props.editViewName,
-      true,
-      this.props.namespace,
-      null,
-      this.props.isReadonly,
-      this.props.sourceName,
-      this.props.pipeline
-    );
+    this.props.selectOrCreateTab({
+      namespace: this.props.editViewName,
+      isReadonly: true,
+      isTimeSeries: this.props.isTimeSeries,
+      sourceName: this.props.namespace,
+      editViewName: null,
+      sourceReadonly: this.props.isReadonly,
+      sourceViewOn: this.props.sourceName,
+      sourcePipeline: this.props.pipeline
+    });
   }
 
   handleDBClick = (db) => {

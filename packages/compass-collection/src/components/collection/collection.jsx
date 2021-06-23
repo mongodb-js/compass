@@ -11,6 +11,7 @@ class Collection extends Component {
 
   static propTypes = {
     namespace: PropTypes.string.isRequired,
+    isTimeSeries: PropTypes.bool,
     isReadonly: PropTypes.bool.isRequired,
     tabs: PropTypes.array.isRequired,
     views: PropTypes.array.isRequired,
@@ -69,6 +70,7 @@ class Collection extends Component {
             globalAppRegistry={this.props.globalAppRegistry}
             namespace={this.props.namespace}
             isReadonly={this.props.isReadonly}
+            isTimeSeries={this.props.isTimeSeries}
             statsPlugin={this.props.statsPlugin}
             statsStore={this.props.statsStore}
             editViewName={this.props.editViewName}

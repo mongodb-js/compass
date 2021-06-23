@@ -13,10 +13,8 @@ describe('CreateTab [Component]', () => {
 
     component = mount(
       <CreateTab
-        activeNamespace="db.coll"
-        activeIsReadonly={false}
-        activeSourceName=""
-        createNewTab={createNewTabSpy} />
+        createNewTab={createNewTabSpy}
+      />
     );
   });
 
@@ -32,7 +30,7 @@ describe('CreateTab [Component]', () => {
   context('when clicking the create button', () => {
     it('calls the action', () => {
       component.find(`.${styles['create-tab']}`).simulate('click');
-      expect(createNewTabSpy.calledWith('db.coll')).to.equal(true);
+      expect(createNewTabSpy.called).to.equal(true);
     });
   });
 });

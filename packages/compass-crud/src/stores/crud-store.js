@@ -104,6 +104,17 @@ export const setIsReadonly = (store, isReadonly) => {
   store.onReadonlyChanged(isReadonly);
 };
 
+
+/**
+ * Set the isTimeSeries flag in the store.
+ *
+ * @param {Store} store - The store.
+ * @param {Boolean} isTimeSeries - If the collection is a time-series collection.
+ */
+export const setIsTimeSeries = (store, isTimeSeries) => {
+  store.onTimeSeriesChanged(isTimeSeries);
+};
+
 /**
  * Set the namespace in the store.
  *
@@ -172,6 +183,7 @@ const configureStore = (options = {}) => {
         query: this.getInitialQueryState(),
         isDataLake: false,
         isReadonly: false,
+        isTimeSeries: false,
         status: 'fetching',
         outdated: false,
         shardKeys: null
@@ -250,6 +262,15 @@ const configureStore = (options = {}) => {
      */
     onReadonlyChanged(isReadonly) {
       this.setState({ isReadonly: isReadonly });
+    },
+
+    /**
+     * Set if the collection is a time-series collection.
+     *
+     * @param {Boolean} isTimeSeries - If the collection is time-series.
+     */
+    onTimeSeriesChanged(isTimeSeries) {
+      this.setState({ isTimeSeries: isTimeSeries });
     },
 
     /**
@@ -1021,6 +1042,10 @@ const configureStore = (options = {}) => {
 
   if (options.namespace) {
     setNamespace(store, options.namespace);
+  }
+
+  if (options.isTimeSeries) {
+    setIsTimeSeries(store, options.isTimeSeries);
   }
 
   if (options.dataProvider) {

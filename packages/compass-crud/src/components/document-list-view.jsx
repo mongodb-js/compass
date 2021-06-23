@@ -37,13 +37,15 @@ class DocumentListView extends React.Component {
             tz={this.props.tz}
             key={i}
             editable={this.props.isEditable}
+            isTimeSeries={this.props.isTimeSeries}
             version={this.props.version}
             copyToClipboard={this.props.copyToClipboard}
             removeDocument={this.props.removeDocument}
             replaceDocument={this.props.replaceDocument}
             updateDocument={this.props.updateDocument}
             openImportFileDialog={this.props.openImportFileDialog}
-            openInsertDocumentDialog={this.props.openInsertDocumentDialog} />
+            openInsertDocumentDialog={this.props.openInsertDocumentDialog}
+          />
         </li>
       );
     });
@@ -66,6 +68,7 @@ class DocumentListView extends React.Component {
 DocumentListView.propTypes = {
   docs: PropTypes.array.isRequired,
   isEditable: PropTypes.bool.isRequired,
+  isTimeSeries: PropTypes.bool,
   copyToClipboard: PropTypes.func,
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import HadronDocument from 'hadron-document';
 import { Document } from '@mongodb-js/compass-crud';
+import { clipboard } from 'electron';
 
 import styles from './explain-json.less';
 
@@ -13,6 +14,10 @@ class ExplainJSON extends Component {
 
   static propTypes = {
     rawExplainObject: PropTypes.object.isRequired
+  }
+
+  copyToClipboard = () => {
+    clipboard.writeText(JSON.stringify(this.props.rawExplainObject.originalData));
   }
 
   /**
@@ -28,7 +33,11 @@ class ExplainJSON extends Component {
         <div className="panel panel-default">
           <div className={styles['panel-body']}>
             <ol className={styles['document-list']}>
-              <Document doc={doc} expandAll />
+              <Document
+                copyToClipboard={this.copyToClipboard}
+                doc={doc}
+                expandAll
+              />
             </ol>
           </div>
         </div>

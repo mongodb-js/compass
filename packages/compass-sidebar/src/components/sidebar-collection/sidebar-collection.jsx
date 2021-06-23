@@ -5,12 +5,11 @@ import { DropdownButton, MenuItem } from 'react-bootstrap';
 import toNS from 'mongodb-ns';
 import Icon from '@leafygreen-ui/icon';
 
-import { collectionMetadata, getSource } from '../../modules/collection';
+import { collectionMetadata, getSource, TIME_SERIES_COLLECTION_TYPE } from '../../modules/collection';
 
 import styles from './sidebar-collection.less';
 
 const DEFAULT_COLLECTION_TYPE = 'collection';
-const TIME_SERIES_COLLECTION_TYPE = 'timeseries';
 
 class SidebarCollection extends PureComponent {
   static displayName = 'SidebarCollection';
@@ -29,7 +28,8 @@ class SidebarCollection extends PureComponent {
     pipeline: PropTypes.any, // undefined or array if view
     collections: PropTypes.array.isRequired,
     type: PropTypes.string,
-    isDataLake: PropTypes.bool.isRequired
+    isDataLake: PropTypes.bool.isRequired,
+    isTimeSeries: PropTypes.bool
   };
 
   /**
