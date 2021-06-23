@@ -536,8 +536,6 @@ const prepareRequest = (model) => {
   } else if (model.authStrategy === 'KERBEROS') {
     req.auth = 'AUTH_TOKEN';
     defaults(req.query, {
-      gssapiServiceName:
-        model.kerberosServiceName || KERBEROS_SERVICE_NAME_DEFAULT,
       authMechanism: model.driverAuthMechanism
     });
   } else if (model.authStrategy === 'X509') {

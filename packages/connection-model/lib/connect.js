@@ -30,21 +30,13 @@ const loadOptions = (model, done) => {
   const opts = clone(model.driverOptions, true);
 
   Object.keys(opts).map((key) => {
-    if (key.indexOf('ssl') === -1) {
+    if (!key.startsWith('ssl')) {
       return;
     }
 
-    if (Array.isArray(opts[key])) {
-      opts[key].forEach((value) => {
-        if (typeof value === 'string') {
-          tasks[key] = (cb) =>
-            async.parallel(
-              opts[key].map((k) => fs.readFile.bind(null, k)),
-              cb
-            );
-        }
-      });
-    }
+    // Option value can be array or a string in connection-model, we'll
+    // unwrap it if it's an array (it's always an array with one value)
+    opts[key] = Array.isArray(opts[key]) ? opts[key][0] : opts[key];
 
     if (typeof opts[key] !== 'string') {
       return;
@@ -221,9 +213,6 @@ const getTasks = (model, setupListeners) => {
       }
 
       const validOptions = omit(options, 'auth');
-
-      validOptions.useNewUrlParser = true;
-      validOptions.useUnifiedTopology = true;
 
       // Driver brought this behaviour back in v3.6.3+ (but will remove in v4), we don't need to handle directConnection ourselves
       // See https://github.com/mongodb/node-mongodb-native/pull/2719
