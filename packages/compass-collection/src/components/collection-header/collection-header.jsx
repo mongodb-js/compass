@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import toNS from 'mongodb-ns';
-import Button, { Size as ButtonSize } from '@leafygreen-ui/button';
 
+import CollectionHeaderActions from '../collection-header-actions';
 import ReadOnlyBadge from './read-only-badge';
 import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';
-import ViewInformation from './view-information';
 
 import styles from './collection-header.less';
 
@@ -28,7 +27,7 @@ class CollectionHeader extends Component {
     pipeline: PropTypes.array
   };
 
-  modifySource = () => {
+  onEditViewClicked = () => {
     this.props.selectOrCreateTab({
       namespace: this.props.sourceName,
       isReadonly: this.props.sourceReadonly,
@@ -41,7 +40,7 @@ class CollectionHeader extends Component {
     });
   }
 
-  returnToView = () => {
+  onReturnToViewClicked = () => {
     this.props.selectOrCreateTab({
       namespace: this.props.editViewName,
       isReadonly: true,
@@ -56,36 +55,6 @@ class CollectionHeader extends Component {
 
   handleDBClick = (db) => {
     this.props.globalAppRegistry.emit('select-database', db);
-  }
-
-  /**
-   * Render the modify source button.
-   *
-   * @returns {Component} The component.
-   */
-  renderModifySource() {
-    return (
-      <Button
-        size={ButtonSize.XSmall}
-        onClick={this.modifySource}
-        id="modify-source"
-      >EDIT VIEW</Button>
-    );
-  }
-
-  /**
-   * Return to view button.
-   *
-   * @returns {Component} The component.
-   */
-  renderReturnToView() {
-    return (
-      <Button
-        className={styles['collection-header-title-return-to-view']}
-        size={ButtonSize.XSmall}
-        onClick={this.returnToView}
-      >&lt; Return to View</Button>
-    );
   }
 
   /**
@@ -125,13 +94,13 @@ class CollectionHeader extends Component {
           {this.props.isReadonly && <ReadOnlyBadge />}
           {this.props.isTimeSeries && <TimeSeriesBadge />}
           {this.props.isReadonly && this.props.sourceName && <ViewBadge />}
-          <div className={styles['collection-header-right']}>
-            {this.props.isReadonly && this.props.sourceName && (
-              <ViewInformation sourceName={this.props.sourceName} />
-            )}
-            {this.props.isReadonly && this.props.sourceName && !this.props.editViewName && this.renderModifySource()}
-            {this.props.editViewName && this.renderReturnToView()}
-          </div>
+          <CollectionHeaderActions
+            editViewName={this.props.editViewName}
+            isReadonly={this.props.isReadonly}
+            onEditViewClicked={this.onEditViewClicked}
+            onReturnToViewClicked={this.onReturnToViewClicked}
+            sourceName={this.props.sourceName}
+          />
         </div>
       </div>
     );

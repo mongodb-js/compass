@@ -6,7 +6,8 @@ import styles from './collection-header.less';
 import ReadOnlyBadge from './read-only-badge';
 import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';
-import ViewInformation from './view-information';
+import CollectionHeaderActions from '../collection-header-actions';
+import ViewInformation from '../collection-header-actions/view-information';
 
 describe('CollectionHeader [Component]', () => {
   const statsPlugin = () => { return (<div/>); };
@@ -56,6 +57,10 @@ describe('CollectionHeader [Component]', () => {
 
     it('does not render the view badge', () => {
       expect(component.find(ViewBadge)).to.not.be.present();
+    });
+
+    it('renders the collection header actions', () => {
+      expect(component.find(CollectionHeaderActions)).to.be.present();
     });
   });
 
