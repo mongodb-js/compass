@@ -52,7 +52,7 @@ tests:
                 Decimal128,
                 Double,
                 BSONRegExp
-              } = require('mongodb');
+              } = require('bson');
     all:
     - description: Single import Code
       input:
