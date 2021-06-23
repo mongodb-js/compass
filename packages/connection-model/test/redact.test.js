@@ -7,7 +7,7 @@ const {
 
 describe('redactConnectionString', () => {
   describe('redact credentials', () => {
-    context('when url contains credentials', () => {
+    describe('when url contains credentials', () => {
       it('returns the <credentials> in output instead of password', () => {
         assert.strictEqual(
           redactConnectionString('mongodb+srv://admin:catsc@tscat3ca1s@cats-data-sets-e08dy.mongodb.net/admin'),
