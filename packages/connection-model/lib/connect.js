@@ -4,14 +4,14 @@ const { EventEmitter, once } = require('events');
 const { MongoClient } = require('mongodb');
 const { default: SSHTunnel } = require('@mongodb-js/ssh-tunnel');
 
-const debug = require('debug')('mongodb-connection-model:connect');
-
 const Connection = require('./extended-model');
 
 const {
   redactSshTunnelOptions,
   redactConnectionString
 } = require('./redact');
+
+const debug = require('debug')('mongodb-connection-model:connect');
 
 async function createAndConnectTunnel(model) {
   if (!model.sshTunnel ||
