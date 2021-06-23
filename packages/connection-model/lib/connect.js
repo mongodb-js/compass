@@ -1,4 +1,3 @@
-const util = require('util');
 const { EventEmitter, once } = require('events');
 
 const { MongoClient } = require('mongodb');
@@ -113,4 +112,8 @@ async function connect(model, setupListeners) {
   }
 }
 
-module.exports = util.callbackify(connect);
+module.exports = (model, setupListeners, done) => connect(model, setupListeners)
+  .then(
+    (res) => process.nextTick(() => done(null, ...res)),
+    (err) => process.nextTick(() => done(err))
+  );
