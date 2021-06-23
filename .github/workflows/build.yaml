@@ -76,7 +76,11 @@ jobs:
           # CI environment (so version lifecycle is not triggered) and lerna
           # doesn't bump private packages on canary publish because reasons
           # (see https://github.com/lerna/lerna/issues/2206#issuecomment-521421420)
+          # 
+          # Running this with a concurrency = 1 with the hopes that zlib on
+          # windows will not fail that often during release
           npx lerna publish prerelease \
+              --concurrency 1 \
               --preid pr \
               --canary \
               --no-push \
