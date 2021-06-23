@@ -64,8 +64,8 @@ function collectDependencies() {
 }
 
 function intersects(range) {
-  for (const v1 of range) {
-    for (const v2 of range) {
+  for (const [idx, v1] of Object.entries(range)) {
+    for (const v2 of range.slice(Number(idx) + 1)) {
       try {
         if (!semver.intersects(v1, v2)) {
           return false;
@@ -75,7 +75,6 @@ function intersects(range) {
       }
     }
   }
-
   return true;
 }
 
