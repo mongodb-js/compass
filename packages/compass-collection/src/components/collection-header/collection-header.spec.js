@@ -3,6 +3,10 @@ import { mount } from 'enzyme';
 
 import CollectionHeader from '../collection-header';
 import styles from './collection-header.less';
+import ReadOnlyBadge from './read-only-badge';
+import TimeSeriesBadge from './time-series-badge';
+import ViewBadge from './view-badge';
+import ViewInformation from './view-information';
 
 describe('CollectionHeader [Component]', () => {
   const statsPlugin = () => { return (<div/>); };
@@ -40,6 +44,18 @@ describe('CollectionHeader [Component]', () => {
 
     it('renders the collection name', () => {
       expect(component.find(`.${styles['collection-header-title-collection']}`)).to.have.text('coll');
+    });
+
+    it('does not render the readonly badge', () => {
+      expect(component.find(ReadOnlyBadge)).to.not.be.present();
+    });
+
+    it('does not render the time series badge', () => {
+      expect(component.find(TimeSeriesBadge)).to.not.be.present();
+    });
+
+    it('does not render the view badge', () => {
+      expect(component.find(ViewBadge)).to.not.be.present();
     });
   });
 
@@ -82,12 +98,17 @@ describe('CollectionHeader [Component]', () => {
     });
 
     it('renders the source collection', () => {
-      expect(component.find(`.${styles['collection-header-title-readonly-on']}`)).
-        to.have.text('(view on: orig.coll)');
+      expect(
+        component.find(ViewInformation)
+      ).to.have.text('view on: orig.coll');
     });
 
-    it('renders the readonly icon', () => {
-      expect(component.find('.fa-eye')).to.be.present();
+    it('renders the readonly badge', () => {
+      expect(component.find(ReadOnlyBadge)).to.be.present();
+    });
+
+    it('renders the view badge', () => {
+      expect(component.find(ViewBadge)).to.be.present();
     });
   });
 
@@ -116,12 +137,55 @@ describe('CollectionHeader [Component]', () => {
     });
 
     it('does not the source collection', () => {
-      expect(component.find(`.${styles['collection-header-title-readonly-on']}`)).
-        to.be.empty;
+      expect(
+        component.find(`.${styles['collection-header-title-readonly-on']}`)
+      ).to.be.empty;
+      expect(component.find(ViewInformation)).to.not.be.present();
     });
 
-    it('renders the readonly icon', () => {
-      expect(component.find('.fa-eye')).to.be.present();
+    it('renders the readonly badge', () => {
+      expect(component.find(ReadOnlyBadge)).to.be.present();
+    });
+
+    it('does not render the view badge', () => {
+      expect(component.find(ViewBadge)).to.not.be.present();
+    });
+  });
+
+  context('when the collection is a time-series collection', () => {
+    let component;
+    const statsStore = {};
+    const selectOrCreateTabSpy = sinon.spy();
+
+    beforeEach(() => {
+      component = mount(
+        <CollectionHeader
+          isTimeSeries
+          statsPlugin={statsPlugin}
+          statsStore={statsStore}
+          namespace="db.coll"
+          selectOrCreateTab={selectOrCreateTabSpy}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('does not the source collection', () => {
+      expect(
+        component.find(`.${styles['collection-header-title-readonly-on']}`)
+      ).to.be.empty;
+      expect(component.find(ViewInformation)).to.not.be.present();
+    });
+
+    it('does not render the readonly badge', () => {
+      expect(component.find(ReadOnlyBadge)).to.not.be.present();
+    });
+
+    it('renders the time-series badge', () => {
+      expect(component.find(TimeSeriesBadge)).to.be.present();
     });
   });
 

@@ -158,6 +158,9 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@leafygreen-ui/badge": "^4.0.4",
+    "@leafygreen-ui/button": "^12.0.3",
+    "@leafygreen-ui/icon": "^11.2.0",
     "lodash.filter": "^4.6.0",
     "lodash.isempty": "^4.4.0",
     "react-sortable-hoc": "^1.10.1"

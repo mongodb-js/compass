@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Badge from '@leafygreen-ui/badge';
+import Badge, { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 
 import styles from './modify-source-banner.less';
 
@@ -15,7 +15,7 @@ const ModifySourceBanner = (props) => {
   return (
     <Badge
       className={styles['modify-source-banner']}
-      variant="blue"
+      variant={BadgeVariant.Blue}
     >
       Modifying pipeline backing "{props.editViewName}"
     </Badge>
