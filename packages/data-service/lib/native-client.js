@@ -136,7 +136,7 @@ class NativeClient extends EventEmitter {
     connect(
       this.model,
       this.setupListeners.bind(this),
-      (err, _client, tunnel, connectionOptions) => {
+      (err, { tunnel, connectionOptions }) => {
         if (err) {
           this._isConnecting = false;
           return done(this._translateMessage(err));
@@ -168,56 +168,58 @@ class NativeClient extends EventEmitter {
    * @param {MongoClient} client - The driver client.
    */
   setupListeners(client) {
+    if (!client) {
+      return;
+    }
+
     this.client = client;
 
-    if (client) {
-      client.on('serverDescriptionChanged', evt => {
-        debug('serverDescriptionChanged', evt);
-        this.emit('serverDescriptionChanged', evt);
+    client.on('serverDescriptionChanged', evt => {
+      debug('serverDescriptionChanged', evt);
+      this.emit('serverDescriptionChanged', evt);
+    });
+
+    client.on('serverOpening', evt => {
+      debug('serverOpening', arguments);
+      this.emit('serverOpening', evt);
+    });
+
+    client.on('serverClosed', evt => {
+      debug('serverClosed', arguments);
+      this.emit('serverClosed', evt);
+    });
+
+    client.on('topologyOpening', evt => {
+      debug('topologyOpening', arguments);
+      this.emit('topologyOpening', evt);
+    });
+
+    client.on('topologyClosed', evt => {
+      debug('topologyClosed', arguments);
+      this.emit('topologyClosed', evt);
+    });
+
+    client.on('topologyDescriptionChanged', evt => {
+      debug('topologyDescriptionChanged', arguments);
+      client.isWritable = this._isWritable(evt);
+      client.isMongos = this._isMongos(evt);
+      debug('updated to', {
+        isWritable: client.isWritable,
+        isMongos: client.isMongos
       });
 
-      client.on('serverOpening', evt => {
-        debug('serverOpening', arguments);
-        this.emit('serverOpening', evt);
-      });
+      this.emit('topologyDescriptionChanged', evt);
+    });
 
-      client.on('serverClosed', evt => {
-        debug('serverClosed', arguments);
-        this.emit('serverClosed', evt);
-      });
+    client.on('serverHeartbeatSucceeded', evt => {
+      debug('serverHeartbeatSucceeded', arguments);
+      this.emit('serverHeartbeatSucceeded', evt);
+    });
 
-      client.on('topologyOpening', evt => {
-        debug('topologyOpening', arguments);
-        this.emit('topologyOpening', evt);
-      });
-
-      client.on('topologyClosed', evt => {
-        debug('topologyClosed', arguments);
-        this.emit('topologyClosed', evt);
-      });
-
-      client.on('topologyDescriptionChanged', evt => {
-        debug('topologyDescriptionChanged', arguments);
-        client.isWritable = this._isWritable(evt);
-        client.isMongos = this._isMongos(evt);
-        debug('updated to', {
-          isWritable: client.isWritable,
-          isMongos: client.isMongos
-        });
-
-        this.emit('topologyDescriptionChanged', evt);
-      });
-
-      client.on('serverHeartbeatSucceeded', evt => {
-        debug('serverHeartbeatSucceeded', arguments);
-        this.emit('serverHeartbeatSucceeded', evt);
-      });
-
-      client.on('serverHeartbeatFailed', evt => {
-        debug('serverHeartbeatFailed', arguments);
-        this.emit('serverHeartbeatFailed', evt);
-      });
-    }
+    client.on('serverHeartbeatFailed', evt => {
+      debug('serverHeartbeatFailed', arguments);
+      this.emit('serverHeartbeatFailed', evt);
+    });
   }
 
   /**
