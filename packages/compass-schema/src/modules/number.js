@@ -1,7 +1,6 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
 import assign from 'lodash.assign';
-import has from 'lodash.has';
 import includes from 'lodash.includes';
 import groupBy from 'lodash.groupby';
 import sortBy from 'lodash.sortby';
@@ -16,7 +15,7 @@ import shared from './shared';
 * @return {Number}       converted value
 */
 function extractNumericValueFromBSON(value) {
-  if (has(value, '_bsontype')) {
+  if (value && value._bsontype) {
     if (includes([ 'Decimal128', 'Long' ], value._bsontype)) {
       return parseFloat(value.toString(), 10);
     }

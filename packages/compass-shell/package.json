@@ -78,7 +78,7 @@
     "debug": "^3.0.1",
     "depcheck": "^1.4.0",
     "electron": "^6.1.12",
-    "electron-devtools-installer": "^3.1.1",
+    "electron-devtools-installer": "^3.2.0",
     "electron-rebuild": "^2.3.5",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.6.0",

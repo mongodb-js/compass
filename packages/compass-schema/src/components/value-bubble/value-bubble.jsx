@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import has from 'lodash.has';
 import includes from 'lodash.includes';
 import isString from 'lodash.isstring';
 import { hasDistinctValue } from 'mongodb-query-util';
@@ -36,7 +35,7 @@ class ValueBubble extends Component {
    * @return {String}       converted value
    */
   _extractStringValue(value) {
-    if (has(value, '_bsontype')) {
+    if (value && value._bsontype) {
       if (includes([ DECIMAL_128, LONG ], value._bsontype)) {
         return value.toString();
       }
