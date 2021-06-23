@@ -91,6 +91,8 @@ describe('release', () => {
     fs.mkdirpSync(gitRemotePath);
     process.chdir(gitRemotePath);
     await execa('git', ['init', '--bare']);
+    await execa('git', ['config', '--local', 'user.name', 'user']);
+    await execa('git', ['config', '--local', 'user.email', 'user@example.com']);
 
     remote = `file://${gitRemotePath}`;
 
@@ -103,6 +105,8 @@ describe('release', () => {
     await execa('npm', ['install']); // generates package-lock.json
 
     await execa('git', ['init']);
+    await execa('git', ['config', '--local', 'user.name', 'user']);
+    await execa('git', ['config', '--local', 'user.email', 'user@example.com']);
     await execa('git', ['checkout', '-b', MAIN_BRANCH]);
     await execa('git', ['remote', 'add', 'origin', remote]);
     await execa('git', ['add', '.']);
