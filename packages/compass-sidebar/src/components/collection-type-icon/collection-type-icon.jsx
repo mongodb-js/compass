@@ -43,6 +43,6 @@ function CollectionTypeIcon({
 
 CollectionTypeIcon.propTypes = {
   collectionType: PropTypes.string.isRequired
-}
+};
 
 export default CollectionTypeIcon;
