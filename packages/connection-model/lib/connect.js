@@ -99,11 +99,11 @@ async function connect(model, setupListeners) {
       waitForTunnelError(tunnel)
     ]);
 
-    return {
+    return [
       client,
       tunnel,
-      connectionOptions: { url, options }
-    };
+      { url, options }
+    ];
   } catch (err) {
     debug('connection error', err);
     debug('force shutting down ssh tunnel ...');
