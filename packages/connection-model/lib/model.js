@@ -226,7 +226,7 @@ assign(props, {
  *     ns: 'kerberos'
  *   });
  *   console.log(c.driverUrl)
- *   >>> mongodb://arlo%252Fdog%2540krb5.mongodb.parts@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI
+ *   >>> mongodb://arlo%252Fdog%2540krb5.mongodb.parts@localhost:27017/kerberos?slaveOk=true&authMechanism=GSSAPI
  *   console.log(c.driverOptions)
  *   >>> { db: { readPreference: 'nearest' }, replSet: { } }
  *

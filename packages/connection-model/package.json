@@ -15,7 +15,8 @@
   ],
   "scripts": {
     "test-check-ci": "npm run check && npm test",
-    "pretest": "mongodb-runner install",
+    "prepretest": "mongodb-runner install",
+    "pretest": "node ../../scripts/rebuild.js keytar",
     "test": "mocha",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
@@ -30,7 +31,6 @@
     "@mongodb-js/ssh-tunnel": "^1.2.0",
     "ampersand-model": "^8.0.0",
     "ampersand-rest-collection": "^6.0.0",
-    "async": "^3.1.0",
     "debug": "^4.1.1",
     "lodash": "^4.17.15",
     "mongodb3": "npm:mongodb@^3.6.3",

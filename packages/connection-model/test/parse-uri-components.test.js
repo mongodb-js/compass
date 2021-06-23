@@ -514,7 +514,7 @@ describe('connection model partser should parse URI components such as', () => {
 
       it('should parse authMechanismProperties', (done) => {
         Connection.from(
-          'mongodb://user:password@example.com/?authMechanism=GSSAPI&authSource=$external&gssapiServiceName=mongodb',
+          'mongodb://user:password@example.com/?gssapiServiceName=mongodb&authMechanism=GSSAPI&authSource=$external',
           (error, result) => {
             expect(error).to.not.exist;
             expect(result.gssapiServiceName).to.be.equal('mongodb');

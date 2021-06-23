@@ -6,6 +6,8 @@ const { default: SSHTunnel } = require('@mongodb-js/ssh-tunnel');
 
 const debug = require('debug')('mongodb-connection-model:connect');
 
+const Connection = require('./extended-model');
+
 function redactCredentials(uri) {
   const regexes = [
     // Username and password
@@ -20,11 +22,13 @@ function redactCredentials(uri) {
 }
 
 async function createAndConnectTunnel(model) {
-  if (model.sshTunnel === 'NONE') {
+  if (!model.sshTunnel ||
+    model.sshTunnel === 'NONE' ||
+    !model.sshTunnelOptions) {
     return null;
   }
 
-  debug('creating ssh tunnel');
+  debug('creating ssh tunnel with options', model.sshTunnelOptions);
   const tunnel = new SSHTunnel(model.sshTunnelOptions);
 
   debug('connecting ssh tunnel');
@@ -51,6 +55,13 @@ async function waitForTunnelError(tunnel) {
 }
 
 async function connect(model, setupListeners) {
+  if (model.serialize === undefined) {
+    // note this is only here for testing reasons and would not be
+    // necessary otherwise: in many tests the model is a plain object
+    // and that would lack some of the getters used by this function.
+    model = new Connection(model);
+  }
+
   debug('connecting ...');
 
   const url = model.driverUrlWithSsh;

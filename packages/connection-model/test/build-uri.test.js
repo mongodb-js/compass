@@ -4,7 +4,6 @@ const fs = require('fs');
 const sslFixture = require('./__fixtures__/ssl');
 const expect = chai.expect;
 const loadOptions = Connection.connect.loadOptions;
-const getTasks = Connection.connect.getTasks;
 const encodeURIComponentRFC3986 = Connection.encodeURIComponentRFC3986;
 
 chai.use(require('chai-subset'));
@@ -189,45 +188,6 @@ describe('Connection model builder', () => {
       });
     });
 
-    it('should include sslMethod equal ALL and passwordless private keys', (done) => {
-      const c = new Connection({
-        sslMethod: 'ALL',
-        sslCA: sslFixture.ca,
-        sslCert: sslFixture.server,
-        sslKey: sslFixture.server
-      });
-      const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
-        sslCA: [sslFixture.ca],
-        sslCert: sslFixture.server,
-        sslKey: sslFixture.server,
-        sslValidate: true,
-        readPreference: 'primary'
-      });
-
-      expect(c.driverUrl).to.be.equal(
-        'mongodb://localhost:27017/?readPreference=primary&ssl=true'
-      );
-      expect(c.driverOptions).to.deep.equal(options);
-
-      /* eslint-disable no-sync */
-      const expectAfterLoad = {
-        sslCA: [fs.readFileSync(sslFixture.ca)],
-        sslCert: fs.readFileSync(sslFixture.server),
-        sslKey: fs.readFileSync(sslFixture.server),
-        sslValidate: true,
-        readPreference: 'primary'
-      };
-      /* eslint-enable no-sync */
-      const tasks = getTasks(c);
-      // Trigger relevant side-effect, loading the SSL files into memory.
-      // eslint-disable-next-line new-cap
-      tasks['Load SSL files'](function () {
-        // Read files into memory as the connect function does
-        expect(tasks.driverOptions).to.deep.equal(expectAfterLoad);
-        done();
-      });
-    });
-
     it('should include sslMethod equal ALL and password protected private keys', (done) => {
       const c = new Connection({
         sslMethod: 'ALL',
@@ -361,7 +321,7 @@ describe('Connection model builder', () => {
       expect(c.driverUrl).to.be.equal(
         [
           'mongodb://user%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D',
-          '@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+          '@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
         ].join('')
       );
 
@@ -381,7 +341,7 @@ describe('Connection model builder', () => {
       expect(c.driverUrl).to.be.equal(
         [
           'mongodb://user%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D',
-          '@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true'
+          '@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true'
         ].join('')
       );
 
@@ -779,7 +739,7 @@ describe('Connection model builder', () => {
         });
 
         expect(c.driverUrl).to.be.equal(
-          'mongodb://lucas%40kerb.mongodb.parts@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+          'mongodb://lucas%40kerb.mongodb.parts@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
         );
 
         Connection.from(c.driverUrl, (error) => {
@@ -828,10 +788,10 @@ describe('Connection model builder', () => {
         const c = new Connection(attrs);
 
         expect(c.driverUrl).to.be.equal(
-          'mongodb://alena%40test.test@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+          'mongodb://alena%40test.test@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
         );
         expect(c.safeUrl).to.be.equal(
-          'mongodb://alena%40test.test@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+          'mongodb://alena%40test.test@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
         );
 
         Connection.from(c.driverUrl, (error) => {
@@ -949,31 +909,6 @@ describe('Connection model builder', () => {
 
         expect(c.driverUrl).to.not.be.equal('');
         expect(c.sshTunnelBindToLocalPort).to.not.exist;
-      });
-
-      it('should load all of the files from the filesystem if sslMethod ia ALL', (done) => {
-        const c = new Connection({
-          sslMethod: 'ALL',
-          sslCA: [sslFixture.ca],
-          sslCert: sslFixture.server,
-          sslKey: sslFixture.server
-        });
-
-        loadOptions(c, (error, driverOptions) => {
-          if (error) {
-            return done(error);
-          }
-
-          const opts = driverOptions;
-
-          expect(opts.sslValidate).to.be.equal(true);
-          expect(Array.isArray(opts.sslCA)).to.be.equal(true);
-          expect(Buffer.isBuffer(opts.sslCA[0])).to.be.equal(true);
-          expect(opts.sslPass).to.not.exist;
-          expect(Buffer.isBuffer(opts.sslCert)).to.be.equal(true);
-          expect(Buffer.isBuffer(opts.sslKey)).to.be.equal(true);
-          done();
-        });
       });
     });
 

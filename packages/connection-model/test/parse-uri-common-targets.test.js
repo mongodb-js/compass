@@ -249,7 +249,7 @@ describe('connection model parser should parse URI strings for common connection
 
     it('when using KERBEROS auth', (done) => {
       Connection.from(
-        'mongodb://arlo%2Fdog%40krb5.mongodb.parts:w%40%40f@localhost:27017/kerberos?gssapiServiceName=mongodb&authMechanism=GSSAPI',
+        'mongodb://arlo%2Fdog%40krb5.mongodb.parts:w%40%40f@localhost:27017/kerberos?authMechanism=GSSAPI',
         (error, result) => {
           expect(error).to.not.exist;
           expect(result.hostname).to.be.equal('localhost');

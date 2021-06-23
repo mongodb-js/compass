@@ -208,7 +208,7 @@ const c = new Connection({
 });
 
 console.log(c.driverUrl)
->>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts@localhost:27017/toys?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
+>>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts@localhost:27017/toys?authMechanism=GSSAPI'
 
 console.log(c.driverOptions)
 >>> {

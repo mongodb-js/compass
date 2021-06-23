@@ -136,11 +136,13 @@ class NativeClient extends EventEmitter {
     connect(
       this.model,
       this.setupListeners.bind(this),
-      (err, { tunnel, connectionOptions }) => {
+      (err, result) => {
         if (err) {
           this._isConnecting = false;
           return done(this._translateMessage(err));
         }
+
+        const { tunnel, connectionOptions } = result;
 
         this.connectionOptions = connectionOptions;
         this.tunnel = tunnel;
