@@ -94,6 +94,10 @@ class Workspace extends PureComponent {
     this.props.moveTab(oldIndex, newIndex);
   }
 
+  onCreateNewTab = () => {
+    this.props.createNewTab(this.activeTab() || DEFAULT_NEW_TAB);
+  }
+
   /**
    * Handle key press. This listens for CTRL/CMD+T and CTRL/CMD+W to control
    * natural opening and closing of collection tabs. CTRL/CMD+SHIFT+] and
@@ -122,10 +126,6 @@ class Workspace extends PureComponent {
 
   activeTab() {
     return this.props.tabs.find(tab => tab.isActive);
-  }
-
-  onCreateNewTab = () => {
-    this.props.createNewTab(this.activeTab() || DEFAULT_NEW_TAB);
   }
 
   renderTab = (tab, i) => {
