@@ -88,7 +88,7 @@ describe('collection module', () => {
         isReadonly: true,
         isTimeSeries: false,
         sourceName: 'db.testView',
-        isSourceReadonly: true,
+        sourceReadonly: true,
         sourceViewOn: 'db.test',
         sourcePipeline: [],
         editViewName: 'db.testView'

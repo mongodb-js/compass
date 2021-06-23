@@ -87,7 +87,7 @@ export const updateView = () => {
           isReadonly: true,
           sourceName: state.namespace,
           editViewName: null,
-          isSourceReadonly: state.isReadonly,
+          sourceReadonly: state.isReadonly,
           sourceViewOn: state.sourceName,
           sourcePipeline: viewPipeline
         };

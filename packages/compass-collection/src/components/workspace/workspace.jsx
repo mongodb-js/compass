@@ -95,7 +95,20 @@ class Workspace extends PureComponent {
   }
 
   onCreateNewTab = () => {
-    this.props.createNewTab(this.activeTab() || DEFAULT_NEW_TAB);
+    const activeTab = this.activeTab();
+    const newTabProps = activeTab
+      ? {
+        namespace: activeTab.namespace,
+        isReadonly: activeTab.isReadonly,
+        isTimeSeries: activeTab.isTimeSeries,
+        sourceName: activeTab.sourceName,
+        editViewName: activeTab.editViewName,
+        sourceReadonly: activeTab.sourceReadonly,
+        sourceViewOn: activeTab.sourceViewOn,
+        sourcePipeline: activeTab.pipeline
+      }
+      : DEFAULT_NEW_TAB;
+    this.props.createNewTab(newTabProps);
   }
 
   /**

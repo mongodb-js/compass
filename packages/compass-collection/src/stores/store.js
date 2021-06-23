@@ -38,7 +38,7 @@ store.onActivated = (appRegistry) => {
             isReadonly: metadata.isReadonly,
             sourceName: metadata.sourceName,
             editViewName: metadata.editViewName,
-            isSourceReadonly: metadata.isSourceReadonly,
+            sourceReadonly: metadata.sourceReadonly,
             isTimeSeries: !!metadata.isTimeSeries,
             sourceViewOn: metadata.sourceViewOn,
             sourcePipeline: metadata.sourcePipeline
@@ -64,7 +64,7 @@ store.onActivated = (appRegistry) => {
             isTimeSeries: metadata.isTimeSeries,
             sourceName: metadata.sourceName,
             editViewName: metadata.editViewName,
-            isSourceReadonly: metadata.isSourceReadonly,
+            sourceReadonly: metadata.sourceReadonly,
             sourceViewOn: metadata.sourceViewOn,
             sourcePipeline: metadata.sourcePipeline
           })

@@ -44,7 +44,7 @@ export const showCollection = (name) => {
           isTimeSeries: collection.type === TIME_SERIES_COLLECTION_TYPE,
           sourceName: collection.view_on ? `${state.databaseName}.${collection.view_on}` : null,
           editViewName: null,
-          isSourceReadonly: source ? source.readonly : false,
+          sourceReadonly: source ? source.readonly : false,
           sourceViewOn: source ? `${state.databaseName}.${source.view_on}` : null,
           sourcePipeline: collection.pipeline || null
         }

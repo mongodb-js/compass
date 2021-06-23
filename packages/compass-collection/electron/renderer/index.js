@@ -102,7 +102,7 @@ dataService.connect((error, ds) => {
       isReadonly: false,
       sourceName: null,
       editViewName: null,
-      isSourceReadonly: false,
+      sourceReadonly: false,
       sourceViewOn: null
     }
   );
@@ -113,7 +113,7 @@ dataService.connect((error, ds) => {
       isReadonly: true,
       sourceName: 'citibike.trips',
       editViewName: null,
-      isSourceReadonly: false,
+      sourceReadonly: false,
       sourceViewOn: null,
       sourcePipeline: [{ '$match': { name: 'testing' }}]
     }
@@ -125,7 +125,7 @@ dataService.connect((error, ds) => {
       isReadonly: true,
       sourceName: 'citibike.tripsOfShortDuration',
       editViewName: null,
-      isSourceReadonly: true,
+      sourceReadonly: true,
       sourceViewOn: 'citibike.trips',
       sourcePipeline: [{ '$match': { gender: 0 }}]
     }
