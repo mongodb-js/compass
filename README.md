@@ -1,98 +1,121 @@
-# MongoDB Compass
-The MongoDB GUI.
+# MongoDB Compass Monorepo
 
-![Aggregation Pipeline Builder Tab in Compass](packages/compass/compass-screenshot.png)
+This repository contains MongoDB Compass application source, all Compass plugins and most of application dependencies and build tooling for the app.
 
-# Development
-Running Compass locally requires Node.js and npm:
+## Packages Overview
 
-- `Node.js`: ^12.4.0
-- `npm`: >=6.13.0
+- [**mongodb-compass**](packages/compass): MongoDB Compass Application
 
-```shell
-npm install
-npm start [compass|compass-readonly|compass-isolated]
-```
+### Compass Plugins
 
-## Plugins
-**Current Plugin API Version: 3.0.0**
+- [**@mongodb-js/compass-aggregations**](packages/compass-aggregations): Compass Aggregation Pipeline Builder
+- [**@mongodb-js/compass-app-stores**](packages/compass-app-stores): The external stores repo for compass
+- [**@mongodb-js/compass-auto-updates**](packages/compass-auto-updates): Compass Auto Updates Plugin
+- [**@mongodb-js/compass-collection**](packages/compass-collection): Compass Collection Plugin
+- [**@mongodb-js/compass-collection-stats**](packages/compass-collection-stats): Compass Collection Stats Plugin
+- [**@mongodb-js/compass-connect**](packages/compass-connect): Connection Screen Plugin that supports Compass
+- [**@mongodb-js/compass-crud**](packages/compass-crud): Compass Plugin for CRUD Operations
+- [**@mongodb-js/compass-database**](packages/compass-database): Compass Database Plugin
+- [**@mongodb-js/compass-databases-collections**](packages/databases-collections): Plugin for viewing the list of, creating, and dropping databases and collections
+- [**@mongodb-js/compass-deployment-awareness**](packages/compass-deployment-awareness): Compass Deployment Awareness Plugin
+- [**@mongodb-js/compass-explain-plan**](packages/compass-explain-plan): Evaluate the performance of your quer
+- [**@mongodb-js/compass-export-to-language**](packages/compass-export-to-language): export to language modal
+- [**@mongodb-js/compass-field-store**](packages/compass-field-store): FieldStore keeps track of available fields in a collection.
+- [**@mongodb-js/compass-find-in-page**](packages/compass-find-in-page): cmd-f UI for compass
+- [**@mongodb-js/compass-home**](packages/compass-home): Home
+- [**@mongodb-js/compass-import-export**](packages/compass-import-export): Compass Import/Export Plugin
+- [**@mongodb-js/compass-indexes**](packages/compass-indexes): Indexes support for Compass
+- [**@mongodb-js/compass-instance**](packages/compass-instance): compass instance plugin
+- [**@mongodb-js/compass-loading**](packages/compass-loading): Compass Loading Screen
+- [**@mongodb-js/compass-metrics**](packages/compass-metrics): Compass Metrics Plugin
+- [**@mongodb-js/compass-plugin-info**](packages/compass-plugin-info): Compass Plugin Information Plugin
+- [**@mongodb-js/compass-query-bar**](packages/compass-query-bar): Renders a component for executing MongoDB queries through a GUI.
+- [**@mongodb-js/compass-query-history**](packages/compass-query-history): The query history sidebar.
+- [**@mongodb-js/compass-schema**](packages/compass-schema): Compass Schema Tab Plugin
+- [**@mongodb-js/compass-schema-validation**](packages/compass-schema-validation): Compass plugin for document JSON schema validation
+- [**@mongodb-js/compass-server-version**](packages/compass-server-version): Compass Server Version
+- [**@mongodb-js/compass-serverstats**](packages/compass-serverstats): Compass Real Time Server Stats Component.
+- [**@mongodb-js/compass-shell**](packages/compass-shell): Compass Shell Plugin
+- [**@mongodb-js/compass-sidebar**](packages/compass-sidebar): Sidebar external plugin
+- [**@mongodb-js/compass-ssh-tunnel-status**](packages/compass-ssh-tunnel-status): Compass SSH Tunnel Status
+- [**@mongodb-js/compass-status**](packages/compass-status): Compass Status Plugin
 
-Majority of Compass' functionality lives in various plugins outside the main
-repo. This repo just brings them all together. All external plugins are tagged
-via the
-[compass-plugin](https://github.com/search?q=topic%3Acompass-plugin+org%3Amongodb-js&type=Repositories)
-topic in the mongodb-js organisation. There are also various [compass-tools](https://github.com/search?q=topic%3Acompass-tools+org%3Amongodb-js&type=Repositories)
-and [compass-ui-tools](https://github.com/search?q=topic%3Acompass-ui-tools+org%3Amongodb-js&type=Repositories) packages that help put together the application.
+### Shared Libraries and Build Tools
 
-Plugins can be added to Compass by requiring them as a dependency in package.json,
-and by adding their installed location to the [distribution plugin list](https://github.com/mongodb-js/compass/blob/main/package.json#L42-L77) also in the
-package.json. Plugin's `apiVersion` field has to match Compass'. Currently it's
-at `3.0.0`.
+- [**@mongodb-js/hadron-plugin-manager**](packages/hadron-plugin-manager): Hadron Plugin Manager
+- [**@mongodb-js/mongodb-notary-service-client**](packages/notary-service-client): A client for our notary-service: an API for codesigning.
+- [**@mongodb-js/mongodb-redux-common**](packages/redux-common): Common Redux Modules for mongodb-js
+- [**app-migrations**](packages/app-migrations): Helper for application schema migrations.
+- [**compass-preferences-model**](packages/compass-preferences-model): Compass preferences model.
+- [**compass-user-model**](packages/compass-user-model): MongoDB user model.
+- [**electron-license**](packages/electron-license): Tools for electron apps to work with licenses
+- [**hadron-app**](packages/hadron-app): Hadron Application Singleton
+- [**hadron-app-registry**](packages/hadron-app-registry): Hadron App Registry
+- [**hadron-auto-update-manager**](packages/hadron-auto-update-manager): Atoms AutoUpdateManager class as a standalone module.
+- [**hadron-build**](packages/hadron-build): Tooling for Hadron apps.
+- [**hadron-compile-cache**](packages/hadron-compile-cache): Hadron Compile Cache
+- [**hadron-document**](packages/hadron-document): Hadron Document
+- [**hadron-ipc**](packages/hadron-ipc): Simplified IPC for electron apps.
+- [**hadron-module-cache**](packages/module-cache): Hadron Module Cache
+- [**hadron-react-bson**](packages/hadron-react-bson): Hadron React BSON Components
+- [**hadron-react-buttons**](packages/hadron-react-buttons): Hadron React Button Components
+- [**hadron-react-components**](packages/hadron-react-components): Hadron React Components
+- [**hadron-react-utils**](packages/hadron-react-utils): Hadron React Utils
+- [**hadron-reflux-store**](packages/reflux-store): Hadron Reflux Stores
+- [**hadron-style-manager**](packages/hadron-style-manager): Hadron Style Manager
+- [**hadron-type-checker**](packages/hadron-type-checker): Hadron Type Checker
+- [**mongodb-ace-mode**](packages/ace-mode): MongoDB Mode for the ACE Editor
+- [**mongodb-ace-theme**](packages/ace-theme): MongoDB Theme for the ACE Editor
+- [**mongodb-ace-theme-query**](packages/ace-theme-query): MongoDB Theme for the ACE Editor in the Query Bar
+- [**mongodb-collection-model**](packages/collection-model): MongoDB collection model.
+- [**mongodb-connection-model**](packages/connection-model): MongoDB connection model.
+- [**mongodb-data-service**](packages/data-service): MongoDB Data Service
+- [**mongodb-database-model**](packages/database-model): MongoDB database model.
+- [**mongodb-explain-compat**](packages/mongodb-explain-compat): Convert mongodb SBE explain output to 4.4 explain output
+- [**mongodb-explain-plan-model**](packages/explain-plan-model): Ampersand model abstraction for MongoDB explain plans (3.0+)
+- [**mongodb-index-model**](packages/index-model): MongoDB index model.
+- [**mongodb-instance-model**](packages/instance-model): MongoDB instance model.
+- [**mongodb-js-metrics**](packages/metrics): Shareable metric recording.
+- [**mongodb-language-model**](packages/mongodb-language-model): Parses MongoDB query language and returns an abstract syntax tree
+- [**mongodb-security**](packages/security): Portable business logic of MongoDB security model
+- [**storage-mixin**](packages/storage-mixin): Ampersand model mixin to persist data via various storage backends
 
-Example of adding a dependency:
+## Working With the Monorepo
 
-```shell
-npm i -S @mongodb-js/compass-aggregations@latest
-```
+You'll need node ^12.4.0 and npm 7 installed on your machine to work with the repository locally. After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
 
-And in package.json:
-```js
-"distributions": {
-  "default": "compass",
-  "compass": {
-    "name": "mongodb-compass",
-    "plugins": [
-      "node_modules/@mongodb-js/compass-aggregations", // add compass-aggregations
-      // rest of the plugins required for this distribution
-    ],
-    "styles": [
-      "index"
-    ]
-  },
-  // other distribution config
-}
-```
+After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
 
-### Plugin Roles
-Compass determines functionality of a plugin based on its registered Role.
-There are a few mains ones that we use:
+This monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/using-npm/workspaces) an [`lerna`](https://github.com/lerna/lerna#readme), although not necessary, it might be helpful to have a high level understanding of those tools.
 
-- `Instance.Tab` - Display as tabs in the instance context of the app. For
-  example,
-[server-status-plugin](https://github.com/mongodb-js/server-status-plugin/blob/df3fb3b76b52871da5fc4dc1d98b56e7cc9628cf/src/index.js#L37).
-- `Database.Tab` - Display as tabs in the database context of the app.
-  [compass-collections-databases](https://github.com/mongodb-js/compass/blob/main/packages/src/compass-collections-databases) is registered as a `Database.Tab`, for example.
-- `Collection.Tab` - Display as sub tabs in the collection context of the
-  app. A good example of this is the [compass-crud](https://github.com/mongodb-js/compass-crud/blob/main/src/index.js#L74).
-- `Global.Modal` - Will open as modal dialogs in any context of the app. These
-  can be separate plugins entirely, or part of an existing plguin that does
-something else. For example,
-[compass-aggregations](https://github.com/mongodb-js/compass-aggregations) is an `Collection.Tab`,
-but also
-[registers](https://github.com/mongodb-js/compass-aggregations/blob/f35446466da254cf51ab35437dd91bb2695e9317/src/index.js#L51) a `Global.Modal`.
-- `Collection.ScopedModal` - Will open as a modal scoped in the collection context. [compass-import-export](https://github.com/mongodb-js/compass-import-export/blob/main/src/index.js#L36-L37), for example, registers 2 `ScopedModal`s - one for import and the other for export.
+### Working on Plugins
 
-### Creating a New Plugin
-We use a [template](https://github.com/mongodb-js/compass-plugin)
-to create new plugins. It comes set up with packages we might need to be using,
-and an electron environment to debug and test the plugin. The template is
-managed by [khaos](https://github.com/segmentio/khaos)
+Most of the plugins have their own development environment so you can work on them in isolation. If you want to work on plugin without running the whole Compass application, you can run `npm run start` in the plugin directory, either with the help of `lerna` or `npm workspaces`. For example to start compass-connect plugin locally you can run `npm run start --workspace @mongodb-js/compass-connect` or `npx lerna run start --scope @mongodb-js/compass-connect --stream`.
 
-```shell
-npm i -g khaos
-khaos create mongodb-js/compass-plugin ./my-plugin
-```
+If you want to see your changes applied in Compass, you might need to rebuild plugins that you changed with the `compile` command. Instead of manually writing out the `scope` you might want to use `lerna --since` filter to rebuild everything since your local or origin `HEAD` of the git history: `npx lerna run compile --stream --since origin/HEAD`. Restarting or hard-reloading (Shift+CMD+R) Compass after compilation is finished should apply your changes.
 
-# Contributing
-For issues, please create a ticket in our [JIRA
-Project](https://jira.mongodb.org/browse/COMPASS).
+### Publishing Packages
 
-For contributing, please refer to
-[CONTRIBUTING.md](https://github.com/mongodb-js/compass/blob/main/CONTRIBUTING.md)
+For package changes to be applied in Compass beta or GA releases they need to be published first. The whole publish process happens from the main branch with the following command in order:
 
-Is there anything else you’d like to see in Compass? Let us know by submitting
-suggestions in out [feedback
-forum](https://feedback.mongodb.com/forums/924283-compass).
+1. `npm run packages-version [semver bump]`: updates package versions for everything that was changed since the last release, updates package-lock file at the root of the repository, commits and tags the changes. See lerna docs to learn more about optional [`semver bump`](https://github.com/lerna/lerna/tree/main/commands/version#semver-bump) argument.
+1. `npm run packages-publish`: publishes packages to the registry, if your npm account uses OTP publishing protection get ready to enter the code a few times, as an alternative you might want to use [npm automation authorization tokens](https://docs.npmjs.com/creating-and-viewing-access-tokens) locally if OTP gets in the way too much (in that case add a [`--no-verify-access`](https://github.com/lerna/lerna/tree/main/commands/publish#--no-verify-access) flag to the publish command). Publish command can be re-run safely multiple times, so if something bad happens mid-release (e.g., your internet goes out), you should be able to safely fiinish the process.
+1. `git push && git push --tags`: push commits and tags from step 1. We do it as the last step so that when evergreen picks up a commit in the main branch, all the tasks can run with the packages already published.
 
-# License
-[SSPL](https://github.com/mongodb-js/compass/blob/main/LICENSE)
+### Add / Update / Remove Dependencies in Packages
+
+To add, remove, or update a dependency in any subpackage you can use the usual `npm install` with a `--workspace` argument added, e.g. to add `react-aria` dependency to compass-connect and compass-query-bar plugins you can run `npm install --save react-aria --workspace @mongodb-js/compass-connect --workspace @mongodb-js/compass-query-bar`.
+
+Additionally if you want to update a version of an existing dependency, but don't want to figure out the scope manually, you can use `npm run where` helper script. To update `webpack` in every package that has it as a dev dependency you can run `npm run where "devDependencies['webpack']" -- install --save-dev webpack@latest`
+
+## Contributing
+
+For issues, please create a ticket in our [JIRA Project](https://jira.mongodb.org/browse/COMPASS).
+
+For contributing, please refer to [CONTRIBUTING.md](CONTRIBUTING.md)
+
+Is there anything else you’d like to see in Compass? Let us know by submitting suggestions in out [feedback forum](https://feedback.mongodb.com/forums/924283-compass).
+
+## License
+
+[SSPL](LICENSE)
