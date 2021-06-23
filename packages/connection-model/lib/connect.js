@@ -55,28 +55,29 @@ async function connect(model, setupListeners) {
 
   const url = model.driverUrlWithSsh;
   const options = {
-    ...model.driverOptions,
-
-    // if `auth` is passed then username and password must be present
-    // we remove this here as a safe-guard to make sure we don't get
-    // an empty object that would break the connection.
-    //
-    // We could remove this line if we refactor connection model and we
-    // have better control on what we get here.
-    //
-    // NOTE: please redact the options in the debug output of this file
-    // if we start to use this object.
-    auth: undefined
+    ...model.driverOptions
   };
+
+  // if `auth` is passed then username and password must be present,
+  // we remove this here as a safe-guard to make sure we don't get
+  // an empty object that would break the connection.
+  //
+  // We could remove this line if we refactor connection model and we
+  // have better control on what we get from it.
+  //
+  // NOTE: please redact the options in the debug output of this file
+  // if we start to use `options.auth`.
+  delete options.auth;
 
   /** @type {SSHTunnel} */
   const tunnel = await createAndConnectTunnel(model);
 
   debug(
-    'creating MongoClient with uri =',
-    redactCredentials(url),
-    'and options =',
-    options
+    'creating MongoClient',
+    {
+      url: redactCredentials(url),
+      options
+    }
   );
 
   const mongoClient = new MongoClient(url, options);
