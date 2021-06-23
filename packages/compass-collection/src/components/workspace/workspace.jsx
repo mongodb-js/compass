@@ -41,6 +41,12 @@ const KEY_CLOSE_BRKT = 221;
  */
 const KEY_OPEN_BRKT = 219;
 
+const DEFAULT_NEW_TAB = {
+  namespace: '',
+  isReadonly: false,
+  sourceName: ''
+};
+
 /**
  * The collection workspace contains tabs of multiple collections.
  */
@@ -95,7 +101,7 @@ class Workspace extends PureComponent {
    *
    * @param {Event} evt - The event.
    */
-  handleKeypress(evt) {
+  handleKeypress = (evt) => {
     if (evt.ctrlKey || evt.metaKey) {
       if (evt.shiftKey) {
         if (evt.keyCode === KEY_CLOSE_BRKT) {
@@ -109,7 +115,7 @@ class Workspace extends PureComponent {
           evt.preventDefault();
         }
       } else if (evt.keyCode === KEY_T) {
-        this.props.createNewTab(this.activeNamespace());
+        this.onCreateNewTab();
       }
     }
   }
@@ -118,24 +124,8 @@ class Workspace extends PureComponent {
     return this.props.tabs.find(tab => tab.isActive);
   }
 
-  /**
-   * Get the active namespace in the list.
-   *
-   * @returns {String} The active namespace in the list.
-   */
-  activeNamespace() {
-    const activeTab = this.activeTab();
-    return activeTab ? activeTab.namespace : '';
-  }
-
-  activeIsReadonly() {
-    const activeTab = this.activeTab();
-    return activeTab ? activeTab.isReadonly : false;
-  }
-
-  activeSourceName() {
-    const activeTab = this.activeTab();
-    return activeTab ? activeTab.sourceName : undefined;
+  onCreateNewTab = () => {
+    this.props.createNewTab(this.activeTab() || DEFAULT_NEW_TAB);
   }
 
   renderTab = (tab, i) => {
@@ -237,10 +227,8 @@ class Workspace extends PureComponent {
           <div className={styles['workspace-tabs-container']}>
             {this.renderTabs()}
             <CreateTab
-              createNewTab={this.props.createNewTab}
-              activeNamespace={this.activeNamespace()}
-              activeIsReadonly={this.activeIsReadonly()}
-              activeSourceName={this.activeSourceName()} />
+              createNewTab={this.onCreateNewTab}
+            />
           </div>
           <div className={styles['workspace-tabs-right']}>
             <div onClick={this.props.nextTab} className={styles['workspace-tabs-next']}>
