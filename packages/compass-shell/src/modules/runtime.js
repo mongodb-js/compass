@@ -1,5 +1,4 @@
 import { WorkerRuntime } from './worker-runtime';
-import { adaptDriverV36ConnectionParams } from './adapt-driver-v36-connection-params';
 
 /**
  * The prefix.
@@ -72,20 +71,11 @@ export const setupRuntime = (error, dataService, appRegistry) => ({
 
 function createWorkerRuntime(dataService, appRegistry) {
   const {
-    url: driverV36Url,
-    options: driverV36Options,
+    url: driverUrl,
+    options: driverOptions,
     // Not really provided by dataService, used only for testing purposes
     cliOptions,
   } = dataService.getConnectionOptions();
-
-  const connectionModelDriverOptions =
-    dataService?.client?.model?.driverOptions ?? {};
-
-  const [ driverUrl, driverOptions ] = adaptDriverV36ConnectionParams(
-    driverV36Url,
-    driverV36Options,
-    connectionModelDriverOptions
-  );
 
   return new WorkerRuntime(
     driverUrl,
