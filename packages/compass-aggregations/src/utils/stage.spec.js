@@ -1,4 +1,4 @@
-import { parseNamespace } from './stage';
+import { parseNamespace, filterStageOperators } from './stage';
 
 describe('utils', () => {
   describe('#parseNamespace', () => {
@@ -51,6 +51,53 @@ describe('utils', () => {
             expect(parseNamespace('db', stage)).to.equal('test.coll');
           });
         });
+      });
+    });
+  });
+
+  describe('#filterStageOperators', () => {
+    context('when server version < 5.0', () => {
+      const stage = {
+        isEnabled: true,
+        stageOperator: '$merge',
+        stage: '"coll"'
+      };
+
+      it('does not return setWindowFields stage', () => {
+        const setWindowFields = filterStageOperators('4.9.9')
+          .filter((o) => (o.name === '$setWindowFields'));
+
+        expect(setWindowFields.length).to.be.equal(0);
+      });
+    });
+
+    context('when server version >= 5.0', () => {
+      const stage = {
+        isEnabled: true,
+        stageOperator: '$merge',
+        stage: '"coll"'
+      };
+
+      it('does not return setWindowFields stage', () => {
+        const setWindowFields = filterStageOperators('5.0.0')
+          .filter((o) => (o.name === '$setWindowFields'));
+
+        expect(setWindowFields.length).to.be.equal(1);
+      });
+    });
+
+    context('when server version is prerelease 5.0', () => {
+      const stage = {
+        isEnabled: true,
+        stageOperator: '$merge',
+        stage: '"coll"'
+      };
+
+      it('does not return setWindowFields stage', () => {
+        const setWindowFields = filterStageOperators('5.0.0-rc0')
+          .filter((o) => (o.name === '$setWindowFields'));
+
+        expect(setWindowFields.length).to.be.equal(1);
       });
     });
   });
