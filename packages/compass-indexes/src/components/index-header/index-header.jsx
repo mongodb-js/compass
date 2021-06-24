@@ -64,13 +64,7 @@ class IndexHeader extends PureComponent {
             sortIndexes={this.props.sortIndexes}
             indexes={this.props.indexes} />
           {(!this.props.isReadonly && this.props.isWritable) ?
-            <IndexHeaderColumn
-              dataTestId="index-header-drop"
-              name="Drop"
-              sortOrder={this.props.sortOrder}
-              sortColumn={this.props.sortColumn}
-              sortIndexes={this.props.sortIndexes}
-              indexes={this.props.indexes} />
+            <th/>
             : null}
         </tr>
       </thead>
