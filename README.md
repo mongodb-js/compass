@@ -2,6 +2,8 @@
 
 This repository contains MongoDB Compass application source, all Compass plugins and most of application dependencies and build tooling for the app.
 
+![Aggregation Pipeline Builder Tab in Compass](packages/compass/compass-screenshot.png)
+
 ## Packages Overview
 
 - [**mongodb-compass**](packages/compass): MongoDB Compass Application
