@@ -102,6 +102,31 @@ In addition to running lerna commands directly, there are a few convenient npm s
 - `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`
 - `npm run check-changed` will run `eslint` and `depcheck` validation in all packages (ignoring dependants) changed since `origin/HEAD`
 
+### Caveats
+
+#### `Module did not self-register` or `Module '<path>' was compiled against a different Node.js version` Errors
+
+<!-- TODO: should go away after https://jira.mongodb.org/browse/COMPASS-4896 -->
+
+When running Compass application or tests suites locally, you might run into errors like the following:
+
+```
+Error: Module did not self-register: '/path/to/native/module.node'.
+```
+
+```
+Error: The module '/path/to/native/module.node' was compiled against a different Node.js version using NODE_MODULE_VERSION $XYZ. This version of Node.js requires NODE_MODULE_VERSION $ABC.
+```
+
+The root cause is native modules compiled for a different version of the runtime (either Node.js or Electron) that tries to import the module. In our case this is usually caused by combination of two things: 
+
+1. Modules have to be recompiled for the runtime they will be used in
+1. Due to npm workspaces hoisting all shared dependencies to the very root of the monorepo, all packages use the same modules imported from the same location
+
+This means that if you e.g., start Compass application locally it will recompile all native modules to work in Electron runtime, if you would try to run tests for `mongodb-connection-model` library right after that, tests would fail due to `keytar` library not being compatible with Node.js environment that the tests are running in.
+
+If you run into this issue, make sure that native modules are rebuilt for whatever runtime you are planning to use at the moment. To help with that we provide two npm scripts: `npm run electron-rebuild` will recompile native modules to work with Electron and `npm run node-rebuild` will recompile them to work with Node.js.
+
 ### Publishing Packages
 
 For package changes to be applied in Compass beta or GA releases they need to be published first. The whole publish process happens from the main branch with the following command in order:
