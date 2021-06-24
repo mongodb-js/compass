@@ -66,4 +66,4 @@ async function getCloudInfo(host) {
   };
 }
 
-module.exports = getCloudInfo;
+export { getCloudInfo };
