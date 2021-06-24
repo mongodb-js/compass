@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Wed Jun 23 2021.
+This document was automatically generated on Thu Jun 24 2021.
 
 ## List of dependencies
 
@@ -280,13 +280,12 @@ Package|Version|License
 **[brace](#1f8418a7f1cfbc3236fc395c9fff7072bd5734f99355a5f6eb56b10a1ed42780)**|0.11.1|MIT
 **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**|1.1.11|MIT
 **[braces](#57342b612d0ebf408cf342d7c5abb7940cf7c7330b2782d9d77a90253f8ae02f)**|3.0.2|MIT
-**[browser-stdout](#12568091b89e4f6c69a97869b9d3072199a2332d491a8b27fd7f4026afcdf223)**|1.3.1|ISC
 **[browserslist](#a5bfb1ae7d71806536a968a858a0b624c13fb380c551914b97479fee2b3ec524)**|4.16.6|MIT
 **[bson](#ee52fad50f125b1ac53959bf638e62cafa1a273e20164cc18313012e39035bb5)**|4.1.0|Apache-2.0
 **[bson](#3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282)**|4.4.0|Apache-2.0
 **[bson](#0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87)**|1.1.6|Apache-2.0
 **[bson](#9568646decb901218e67075eb984d7bbd5c4fae711cd931bb42bb85757af4a4b)**|4.0.2|Apache-2.0
-**[bson-transpilers](#f49e40643258c3a625074b7becb67307ba6f03aa534058c7b4bd4ba24abf1fca)**|0.14.0|Apache-2.0
+**[bson-transpilers](#613ab58117108f5d02d653f833684405b03a7bed424e17af5f06923bdc9195d4)**|0.15.0|Apache-2.0
 **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**|1.2.0|MIT
 **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**|1.1.0|MIT
 **[buffer-equal-constant-time](#77cd18a59a06e032914b3c4148b3467dd3f720b6c6b419c079891ca15b2f488e)**|1.0.1|BSD-3-Clause
@@ -307,12 +306,10 @@ Package|Version|License
 **[caniuse-lite](#4b13811cf7e5488cf512cb519d777d32ebae4b95e202a968441c48089cbd8b8a)**|1.0.30001237|CC-BY-4.0
 **[caseless](#2e1813b9ca4cdb1d7af83e25e5cea5b1a8ccfeda701eb7edf8bcc35d9a0788b2)**|0.12.0|Apache-2.0
 **[center-align](#a9413bbe8a6f31025f08f0603c15493aef950da00472c6dc8a0ebdf8a9121417)**|0.1.3|MIT
-**[chai](#9f59cc0fffc8323a03325ff7e63b09937baf9d53fa079378aebdf949977f5c63)**|4.3.4|MIT
 **[chai](#2acc7dbd6f5891c6e9381b61d0a0efe6a71dbef99a3488e5da16e491563adbd3)**|3.5.0|MIT
 **[chalk](#4caf7069647ed2989ae5edd7c451fc656113cc172a4f1072bc95eea0a0212722)**|1.1.3|MIT
 **[chalk](#8b8d3d6ff6233601575f891628d83bd6b34978a103d513931ae45b00f0e07585)**|2.4.2|MIT
 **[character-parser](#32b8c8d06e5709edc1dac359d251630009cb864e57ea413c8fd3c5807e795899)**|1.2.1|MIT
-**[check-error](#2a5ebb418fca2813c18eb5641056ecbea444369b99b98f016e0c0cda30a9d0d3)**|1.0.2|MIT
 **[cheerio](#2b88d8b81f95872066ee59aec0b53d238e6c19f48edaaa964b0efd333fc68909)**|0.22.0|MIT
 **[chokidar](#59e8e5da7636f5fc1663be06b971e47630a6cc4c6df15ea9d03bd010156862e8)**|3.5.2|MIT
 **[chownr](#3dbff1a17bbf2c33026995132ecdd14757cb3bee815f4636fe43df0f5ebdcf07)**|2.0.0|ISC
@@ -336,7 +333,6 @@ Package|Version|License
 **[colorette](#87377eb519aa0afa5d17f8e7d64f0358f6eac80c165ecd78b85e723c2985a0c8)**|1.2.2|MIT
 **[colors](#2d352591ce20a2f9d1e7fccec793f62e69aba3af1b77e9deda6dffc6261d2bd9)**|1.0.3|MIT
 **[combined-stream](#bdadd8ca27a3d78fbe2c2aff27aa35bf6f351e51b8dae917df0b61d8325dfbed)**|1.0.8|MIT
-**[commander](#eace120b76294ae0a131c6b4f31efcb85d90480a8b2de6fffda8d3fe7092250f)**|2.15.1|MIT
 **[commander](#15691f652096ef6b4e4141f693c6d59371663e7259c2376fc857d9fe2e84332f)**|2.6.0|MIT
 **[commander](#24ab11e1b73368dedbb70b1985003bf0636191bc7885dee47c5861cfa74a24eb)**|2.20.3|MIT
 **[commander](#e4c9fecb646585d045b341693411a783d82a5ad33372aaa9b41d86491bec10a0)**|2.8.1|MIT
@@ -376,14 +372,12 @@ Package|Version|License
 **[dashdash](#177ca873c6434a624f9f35efefb60015419be6a08718e8d9a749b0ba9cd9a5f3)**|1.14.1|MIT
 **[debug](#d17e389ce22af9246d1b07714885a99a0c7ffce55db7f2ecf52bfef063e8c8ac)**|4.3.1|MIT
 **[debug](#233219ced46fb5b84e28859835e97775eb9d0181f4cb85d6aa5cecb61e595947)**|2.6.9|MIT
-**[debug](#baeaf416cd616b9bdae8f775225bdc54b31fb4b0d31c309d7026a43f5fcb3134)**|3.1.0|MIT
 **[debug-menu](#2bbb68154a88c775baf7b011a901a66d5fcea6fa3ce4e2bee910101a7d059efa)**|0.3.0|MIT
 **[decamelize](#269723723584e4b59e128f4575b77e8f0519d9aba78cecc7c4c1e9800cccca96)**|1.2.0|MIT
 **[decomment](#b5f98a799fdec0004ca8a3fcbed046602984d40a18ad7a72a32d7ce3a5a91838)**|0.9.4|MIT
 **[decompress-response](#71cad5eab34cc643a6a7853a43d3090ac7e8b6014c9ec55fabb8112cdbfd9fbd)**|5.0.0|MIT
 **[decompress-response](#46099480250f7aa8cf2b8137a8611392266770618d74e0d131b89eea24e741b2)**|3.3.0|MIT
 **[decompress-response](#a6cd6a055b9fb5f987ff8afad14fe0f248586487482a709c00f121ef5decdbbb)**|4.2.1|MIT
-**[deep-eql](#2c5660d5af63290afd61c167ec8584ebcf5d2013627843c39effea0b40839aae)**|3.0.1|MIT
 **[deep-eql](#e81f46c725babeae9ce7c176fb1c412a3973bc34fb4ad15ddf4f4c5dfd29fa9d)**|0.1.3|MIT
 **[deep-extend](#654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf)**|0.6.0|MIT
 **[defer-to-connect](#46795c145c8fc954ef35737d0393e7e5048dfe4484ecca53772f80242d43b82e)**|2.0.1|MIT
@@ -395,7 +389,6 @@ Package|Version|License
 **[detect-browser](#e72650c63513ef4be7326101e30c851fa4714bead5bb579b665076dc0eea281e)**|3.0.1|MIT
 **[detect-indent](#58d5c753b8f937d7bf090c54a814789062130273350710802c6bfd088ba62e3e)**|4.0.0|MIT
 **[detect-libc](#b333f3855f39aa2e155d1719cc7e259e162221a57ab82807ab01a138b6213594)**|1.0.3|Apache-2.0
-**[diff](#1541d883ff16c1a76542d75122504dac86cf0719175605c3e90d77104e1c70be)**|3.5.0|BSD-3-Clause
 **[diff-match-patch](#850176c67954354dc12126896278644187ef9d1eeeaa1d67f1b6ef48b0c23321)**|1.0.5|Apache-2.0
 **[dnd-core](#6f37e40ef7336d730a94e38a51149ea7af9b376d73a1b33243f6c5be9a8d70a2)**|10.0.2|MIT
 **[dnd-core](#83bf489d99112a9aa6e9ce723d122b47f590b1f59df7efbeca50c1953e0dd75a)**|7.7.0|MIT
@@ -482,7 +475,6 @@ Package|Version|License
 **[geojson-vt](#e74402fed01929bde7f9e38c295ae198980cb9bfa715c3587bf727d58017740b)**|3.2.1|ISC
 **[get-caller-file](#c0e127b0828556d37200e472ac98bfacc214d1ebb755e14a209dc19e7fd30c58)**|1.0.3|ISC
 **[get-caller-file](#127d623aeb8ebd58971ab08694a8dadcfba2bffde5187c7123eecf25e0b12e2f)**|2.0.5|ISC
-**[get-func-name](#e150319e623499a7e8a15debe00494b5e9b5616a015c07ca0a559b7f3343301f)**|2.0.0|MIT
 **[get-intrinsic](#18167d6d405a8d339aecaa3382b81c88c7466be40c3eaa04f73720fa5d02f68c)**|1.1.1|MIT
 **[get-stream](#6e46f89ed96a227fab070e370e2ec71efe910e581683cb249f8c32a776d6d1df)**|5.2.0|MIT
 **[get-stream](#8d24427d88f4f3193411b16e6dbdfc05d0edc3ce08460a1c73ec55718470e28c)**|6.0.1|MIT
@@ -490,7 +482,6 @@ Package|Version|License
 **[github-from-package](#8cba969ea116f44491f4fbb8b391c0ab40408fc2e5380f81bc8e8e42b55fff8b)**|0.0.0|MIT
 **[gl-matrix](#199df7104d660f6b0bbd8ca9b73ad883fe16cd3f85da310e789e397245dfb5f3)**|3.3.0|MIT
 **[glob](#4f3b5c378a3e2b3ea8191b1f3ec570690637bc1e693bd19fc0c2753b34f71c3a)**|7.1.7|ISC
-**[glob](#1c80428451418e1000e2fa581a921acd210bc08faec41115d10b184d35018ea4)**|7.1.2|ISC
 **[glob-parent](#0a11153a0f1311d8422ec17a41bdad864c1c72a55766a3520931b0aee78c7ebc)**|5.1.2|ISC
 **[global](#bbe198732cc9fcedcffad503f828516d688ccc1f30b6ca8227f9f115e260945d)**|4.4.0|MIT
 **[globals](#fbf4893f07f0930b14dd208732417c2f4a16761d2b0932e2b3493f9590f35b0e)**|9.18.0|MIT
@@ -499,7 +490,6 @@ Package|Version|License
 **[graceful-fs](#4b15f222709cc7e15b088507f95bc6ed989b26f0276f520aca19c2e5dbed1aed)**|4.2.6|ISC
 **[graceful-readlink](#f6daae66ac8e70d03b75c40b8935e499c084c9ff05948cb890fa4cd8e790ee64)**|1.0.1|MIT
 **[grid-index](#85d8348e33ee3c3b3d7e161b796c4a02ba2f349873195c2ed788f4c66daf2eef)**|1.1.0|ISC
-**[growl](#f333849f9f27a72a28f6888869e173dc80d4ab4d4c3b9dc4d0fa0d188cda06d2)**|1.10.5|MIT
 **[hadron-app](#c8b3952653c7a6d7b9b7d9477875ccdd7c52ec513faa1f3a67ae66c0dcc32906)**|4.4.0|SSPL
 **[hadron-app-registry](#b334bd08bcf60502d3d564f6827fb8dd37e431322fd9616c8ec881c06398ed97)**|8.3.0|SSPL
 **[hadron-auto-update-manager](#264c09102dfd7fff63410d35336b6f201dda71810831e8bb81b09ea05c699de2)**|4.3.0|SSPL
@@ -523,7 +513,6 @@ Package|Version|License
 **[has-symbols](#03cd20e2ddca83e6767437641e8b7abeba67bd0b8e1d15dd8516dadc649e2f2c)**|1.0.2|MIT
 **[has-unicode](#b9a84001b1c63f02a1fde085274d2ccb855f9fb683c04ebaa28a14b34f967def)**|2.0.1|ISC
 **[hawk](#5fa91bbcdf246d76c2c3c89bf092f06dfe30b4f25e2916447ce633243110e768)**|3.1.3|BSD-3-Clause
-**[he](#ed60145b99427b511acf1dfd3c5669d00fd30542a990b041621c7c6443fbf486)**|1.1.1|MIT
 **[hex-to-uuid](#23ec458ad6554b2a4a60c7076cd47ceb7202629d681f7cc3263654fdc0b47ea7)**|1.1.1|MIT
 **[highlight.js](#1a7eaab3749c4a4f0fc4cddd818a8c99ca7dabe697429079967b1f3ff7edf013)**|8.9.1|BSD-3-Clause
 **[highlight.js](#f4bcaa65aafdb1d6065820851647b9d244e6cc37aa109356596de26320a89806)**|9.18.5|BSD-3-Clause
@@ -870,7 +859,6 @@ Package|Version|License
 **[minimatch](#f5bfc5ec0280f8d2d3ad46373a61a7a20230b8b5c1a3e822764944b20694c3de)**|3.0.4|ISC
 **[minimatch](#c58130982710db330c1983457befbdcdd4c2f4f3b0288c2a5f4c1786f0477070)**|1.0.0|MIT
 **[minimist](#1d497ee3a918b9779d45ef4833686d5d33d0591a41bba29f22efbd4691b12eb0)**|1.2.5|MIT
-**[minimist](#de1accb4d2060cd89fc834b5e4023e3b7d1e48297088b14b5eb67660afa5e7df)**|0.0.8|MIT
 **[minipass](#a19724904402165a33d43f703c208747ed87cad979909f63d58e8799745c257c)**|3.1.3|ISC
 **[minipass-collect](#00968517f1c611ac58d0e22abb62771d1ef99cfdf2788ed41ebb9382b94e8437)**|1.0.2|ISC
 **[minipass-fetch](#1cbdff9b54cf45604e0f7fee83fe1d9468f8d9ff2f6a95854fccdf69a3c7687a)**|1.3.3|MIT
@@ -879,10 +867,8 @@ Package|Version|License
 **[minipass-sized](#10c277abf873bc96dd55c16bb3633366707ccadd337c8e2e440808f6b8ded6eb)**|1.0.3|ISC
 **[minizlib](#cce17959eefb79a78461796cc716519d9f9ba1b56fa35ae9bb2f589c61514cd2)**|2.1.2|MIT
 **[mkdirp](#c9b61718830a71a4143ddf8aea40ecf5cd105a06f26074c1210c42bc0fcb3c2a)**|0.5.5|MIT
-**[mkdirp](#dcac35b5389930c72c562c3b1c21dbd9d5334de31b09d5839be361d8c17ab455)**|0.5.1|MIT
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mocha](#b3d9872ce3afa2e18eb0e36dda0151dd6df7bb03ab33230c87f3374b5a847e14)**|5.2.0|MIT
 **[moment](#d8f96cf3e8fde11ddd63693bbb806b273f74faf4ba8426497c8b28c62950f148)**|2.29.1|MIT
 **[moment-timezone](#c0b94a3f1712536d5766e63717b3e5ea3007bc87993295193d7ca95aacbcba7a)**|0.5.33|MIT
 **[mongodb](#9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f)**|4.0.0-beta.5|Apache-2.0
@@ -987,7 +973,6 @@ Package|Version|License
 **[path-parse](#bb7410d6076ae1fa569358e03bcf4baedd135f339480e5adcbe34805d5a0245c)**|1.0.7|MIT
 **[path-type](#bb72ccb9db17bf5c842f910e206b1f5c0544f6c1fca0c118ae8bb439aecf4ae8)**|1.1.0|MIT
 **[path-type](#ab411465d0e653a776660d583b19565cc0d496256cc6b1946396bef9b21cf0f3)**|4.0.0|MIT
-**[pathval](#d8fabcebc25b5fc7f8def7aa2922048b6944c6f0cf675bb25f13ba4a83c57fa5)**|1.1.1|MIT
 **[pause-stream](#c89863f3466aa8017b73586c718982a0a839ba296909af2d714325896a23e772)**|0.0.11|See [details](#c89863f3466aa8017b73586c718982a0a839ba296909af2d714325896a23e772)
 **[pbf](#c87821dc01d98d00398fd02c92f4903e7c042169a8fe828970e523600dc30b2e)**|3.2.1|BSD-3-Clause
 **[pedestrian](#9269a4866c8db52fa35b3d6e0a21210f2904eb23e860cdbdf8b092d228191029)**|0.0.9|See [details](#9269a4866c8db52fa35b3d6e0a21210f2904eb23e860cdbdf8b092d228191029)
@@ -1100,8 +1085,8 @@ Package|Version|License
 **[rimraf](#8580b0fc7123ae7741c7e46033e17d4c38efb814557a0e45a271fc5b1e1ae7d8)**|3.0.2|ISC
 **[rimraf](#72c3b2b654b9b93292b582ba4fddb87428df3a92d26867c531991c826dcf7e30)**|2.7.1|ISC
 **[rw](#41d10b844a280ea729380af93bb79779d1ae1eeaf26ff5c81b19525225a96fba)**|1.3.3|BSD-3-Clause
-**[safe-buffer](#115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12)**|5.1.2|MIT
 **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**|5.2.1|MIT
+**[safe-buffer](#115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12)**|5.1.2|MIT
 **[safe-obj](#306465b45444670b705bd960cf2dd80e0c9c35c9f31e31526012377a1fc081e3)**|1.0.2|MIT
 **[safer-buffer](#2fb14d3728e4ebf313be4634b146bd90cd3ad3559157baec03b64eec0878a0ba)**|2.1.2|MIT
 **[saslprep](#650475af3b2a0c96fc8e5d09155f96dccd1a6b720da0197b0ea1121968883b25)**|1.0.4|MIT
@@ -1159,7 +1144,6 @@ Package|Version|License
 **[strip-bom-stream](#f7e90a4335dbb561f2b002d1b73cdb9d891c023959465fee58c1636e0216af2e)**|4.0.0|MIT
 **[strip-json-comments](#30c033ea06e2fc5831069ae3348fedc44cf44d65ec1ca8e7a0afd01789f5bb05)**|2.0.1|MIT
 **[supercluster](#ccb0aec9d278e891df6268636b9748becc6c5c5f5b736c9e77f50d589057cc7c)**|7.1.3|ISC
-**[supports-color](#17518907b7b911ec165f3fdb1aeb1ed89ee8e3a818a51f49b8a18cb2ae0a3fa4)**|5.4.0|MIT
 **[supports-color](#4a9d49d946cc9c1d41e14168288f32a1d956fb1ae4f9548c9481cff8694e5b4a)**|2.0.0|MIT
 **[supports-color](#113926f6cb42a3d41d1c11fb1209faf789d78f51fb458da90c61e5c1a2307a8e)**|5.5.0|MIT
 **[symbol-observable](#8c5865ce88610e4a57b7c7dd45e638925fc008af5a0a6b04cba69e076ba11a27)**|1.2.0|MIT
@@ -1194,7 +1178,6 @@ Package|Version|License
 **[turf-invariant](#123eb93fe95a25c4d9f7e97da7f019fae642eb611acb5c6e1d10eaabd74bfd54)**|3.0.12|ISC
 **[turf-point](#32a421e999f52d7723f9d42e5b7e3b3d6054dff37e2c1efeea5faec3a8f6df7c)**|2.0.1|MIT
 **[tweetnacl](#496caef692284d7a5d6acd31283b785ebca47d82b2d85c9af7ea1913bb4b49a8)**|0.14.5|Unlicense
-**[type-detect](#8e730716b3685f8208504f481f53fb45d1d3be517ebcfe935580698a1638d372)**|4.0.8|MIT
 **[type-detect](#a81c8c06a8286435f4fc21a5d52a45dde6f6d841bffcb19e679a0a485cce041c)**|1.0.0|MIT
 **[type-detect](#2a404703bb27c6093ba568a713be566095764ea3b2217d0293f473290f40e3b7)**|0.1.1|MIT
 **[type-fest](#25a12d5b02ef8904eea84213370e8ae011fb8a889530bc0aaff6059cc8677067)**|0.10.0|(MIT OR CC0-1.0)
@@ -11203,7 +11186,7 @@ Authors:
 
 <a id="914f886368f63b0b33239e048b8533119b0a42116c4ff7498b9373c4c305e2a4"></a>
 ### [bl](https://www.npmjs.com/package/bl) (version 2.2.1)
-<!-- initially found at node_modules/mongodb/node_modules/bl -->
+<!-- initially found at node_modules/mongodb3/node_modules/bl -->
 > Buffer List: collect buffers and access with a standard readable Buffer interface, streamable too!
 
 License tags: MIT
@@ -11618,25 +11601,6 @@ Authors:
 * Eugene Sharygin (https://github.com/eush77)
 * hemanth.hm (http://h3manth.com)
 * Jon Schlinkert (http://twitter.com/jonschlinkert)
-
-
-<a id="12568091b89e4f6c69a97869b9d3072199a2332d491a8b27fd7f4026afcdf223"></a>
-### [browser-stdout](https://www.npmjs.com/package/browser-stdout) (version 1.3.1)
-<!-- initially found at node_modules/browser-stdout -->
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      Copyright 2018 kumavis
-      
-      Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-Authors:
-* kumavis
 
 
 <a id="a5bfb1ae7d71806536a968a858a0b624c13fb380c551914b97479fee2b3ec524"></a>
@@ -12543,8 +12507,8 @@ Authors:
 * Christian Amor Kvalheim <christkv@gmail.com>
 
 
-<a id="f49e40643258c3a625074b7becb67307ba6f03aa534058c7b4bd4ba24abf1fca"></a>
-### [bson-transpilers](https://www.npmjs.com/package/bson-transpilers) (version 0.14.0)
+<a id="613ab58117108f5d02d653f833684405b03a7bed424e17af5f06923bdc9195d4"></a>
+### [bson-transpilers](https://www.npmjs.com/package/bson-transpilers) (version 0.15.0)
 <!-- initially found at node_modules/bson-transpilers -->
 > Source to source compilers using ANTLR
 
@@ -13705,46 +13669,6 @@ Authors:
 * Jon Schlinkert (https://github.com/jonschlinkert)
 
 
-<a id="9f59cc0fffc8323a03325ff7e63b09937baf9d53fa079378aebdf949977f5c63"></a>
-### [chai](https://www.npmjs.com/package/chai) (version 4.3.4)
-<!-- initially found at node_modules/chai -->
-> BDD/TDD assertion library for node.js and the browser. Test framework agnostic.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2017 Chai.js Assertion Library
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Jake Luer <jake@alogicalparadox.com>
-* Domenic Denicola <domenic@domenicdenicola.com> (http://domenicdenicola.com)
-* Veselin Todorov <hi@vesln.com>
-* John Firebaugh <john.firebaugh@gmail.com>
-
-
 <a id="2acc7dbd6f5891c6e9381b61d0a0efe6a71dbef99a3488e5da16e491563adbd3"></a>
 ### [chai](https://www.npmjs.com/package/chai) (version 3.5.0)
 <!-- initially found at node_modules/mongodb-shell-to-url/node_modules/chai -->
@@ -13848,45 +13772,6 @@ License files:
 
 Authors:
 * ForbesLindesay
-
-
-<a id="2a5ebb418fca2813c18eb5641056ecbea444369b99b98f016e0c0cda30a9d0d3"></a>
-### [check-error](https://www.npmjs.com/package/check-error) (version 1.0.2)
-<!-- initially found at node_modules/check-error -->
-> Error comparison and information related utility for node and the browser
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2013 Jake Luer <jake@alogicalparadox.com> (http://alogicalparadox.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Jake Luer <jake@alogicalparadox.com> (http://alogicalparadox.com)
-* David Losert (https://github.com/davelosert)
-* Keith Cirkel (https://github.com/keithamus)
-* Miroslav Bajtoš (https://github.com/bajtos)
-* Lucas Fernandes da Costa (https://github.com/lucasfcosta)
 
 
 <a id="2b88d8b81f95872066ee59aec0b53d238e6c19f48edaaa964b0efd333fc68909"></a>
@@ -14531,44 +14416,6 @@ License files:
 
 Authors:
 * Felix Geisendörfer <felix@debuggable.com> (http://debuggable.com/)
-
-
-<a id="eace120b76294ae0a131c6b4f31efcb85d90480a8b2de6fffda8d3fe7092250f"></a>
-### [commander](https://www.npmjs.com/package/commander) (version 2.15.1)
-<!-- initially found at node_modules/bson-transpilers/node_modules/commander -->
-> the complete solution for node.js command-line programs
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      (The MIT License)
-      
-      Copyright (c) 2011 TJ Holowaychuk <tj@vision-media.ca>
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      'Software'), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-      CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-      TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* TJ Holowaychuk <tj@vision-media.ca>
 
 
 <a id="15691f652096ef6b4e4141f693c6d59371663e7259c2376fc857d9fe2e84332f"></a>
@@ -15670,43 +15517,6 @@ Authors:
 * Andrew Rhyne <rhyneandrew@gmail.com>
 
 
-<a id="baeaf416cd616b9bdae8f775225bdc54b31fb4b0d31c309d7026a43f5fcb3134"></a>
-### [debug](https://www.npmjs.com/package/debug) (version 3.1.0)
-<!-- initially found at node_modules/bson-transpilers/node_modules/debug -->
-> small debugging utility
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      (The MIT License)
-      
-      Copyright (c) 2014 TJ Holowaychuk <tj@vision-media.ca>
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-      and associated documentation files (the 'Software'), to deal in the Software without restriction, 
-      including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-      and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-      subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial 
-      portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-      LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-      
-
-Authors:
-* TJ Holowaychuk <tj@vision-media.ca>
-* Nathan Rajlich <nathan@tootallnate.net> (http://n8.io)
-* Andrew Rhyne <rhyneandrew@gmail.com>
-
-
 <a id="2bbb68154a88c775baf7b011a901a66d5fcea6fa3ce4e2bee910101a7d059efa"></a>
 ### [debug-menu](https://www.npmjs.com/package/debug-menu) (version 0.3.0)
 <!-- initially found at node_modules/debug-menu -->
@@ -15875,44 +15685,6 @@ License files:
 
 Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
-
-
-<a id="2c5660d5af63290afd61c167ec8584ebcf5d2013627843c39effea0b40839aae"></a>
-### [deep-eql](https://www.npmjs.com/package/deep-eql) (version 3.0.1)
-<!-- initially found at node_modules/deep-eql -->
-> Improved deep equality testing for Node.js and the browser.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2013 Jake Luer <jake@alogicalparadox.com> (http://alogicalparadox.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Jake Luer <jake@alogicalparadox.com>
-* Keith Cirkel (https://github.com/keithamus)
-* dougluce (https://github.com/dougluce)
-* Lorenz Leutgeb (https://github.com/flowlo)
 
 
 <a id="e81f46c725babeae9ce7c176fb1c412a3973bc34fb4ad15ddf4f4c5dfd29fa9d"></a>
@@ -16438,49 +16210,6 @@ License files:
 Authors:
 * Lovell Fuller <npm@lovell.info>
 * Niklas Salmoukas <niklas@salmoukas.com>
-
-
-<a id="1541d883ff16c1a76542d75122504dac86cf0719175605c3e90d77104e1c70be"></a>
-### [diff](https://www.npmjs.com/package/diff) (version 3.5.0)
-<!-- initially found at node_modules/diff -->
-> A javascript text diff implementation.
-
-License tags: BSD-3-Clause
-
-License files:
-* LICENSE:
-
-      Software License Agreement (BSD License)
-      
-      Copyright (c) 2009-2015, Kevin Decker <kpdecker@gmail.com>
-      
-      All rights reserved.
-      
-      Redistribution and use of this software in source and binary forms, with or without modification,
-      are permitted provided that the following conditions are met:
-      
-      * Redistributions of source code must retain the above
-        copyright notice, this list of conditions and the
-        following disclaimer.
-      
-      * Redistributions in binary form must reproduce the above
-        copyright notice, this list of conditions and the
-        following disclaimer in the documentation and/or other
-        materials provided with the distribution.
-      
-      * Neither the name of Kevin Decker nor the names of its
-        contributors may be used to endorse or promote products
-        derived from this software without specific prior
-        written permission.
-      
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
-      IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-      FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-      CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-      DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-      DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-      IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-      OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 <a id="850176c67954354dc12126896278644187ef9d1eeeaa1d67f1b6ef48b0c23321"></a>
@@ -19710,46 +19439,6 @@ Authors:
 * Stefan Penner
 
 
-<a id="e150319e623499a7e8a15debe00494b5e9b5616a015c07ca0a559b7f3343301f"></a>
-### [get-func-name](https://www.npmjs.com/package/get-func-name) (version 2.0.0)
-<!-- initially found at node_modules/get-func-name -->
-> Utility for getting a function's name for node and the browser
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2013 Jake Luer <jake@alogicalparadox.com> (http://alogicalparadox.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Jake Luer <jake@alogicalparadox.com> (http://alogicalparadox.com)
-* Keith Cirkel (https://github.com/keithamus)
-* Lucas Fernandes da Costa (https://github.com/lucasfcosta)
-* Grant Snodgrass (https://github.com/meeber)
-* Lucas Vieira (https://github.com/vieiralucas)
-* Aleksey Shvayka (https://github.com/shvaikalesh)
-
-
 <a id="18167d6d405a8d339aecaa3382b81c88c7466be40c3eaa04f73720fa5d02f68c"></a>
 ### [get-intrinsic](https://www.npmjs.com/package/get-intrinsic) (version 1.1.1)
 <!-- initially found at node_modules/get-intrinsic -->
@@ -19971,37 +19660,6 @@ License files:
       Glob's logo created by Tanya Brassie <http://tanyabrassie.com/>, licensed
       under a Creative Commons Attribution-ShareAlike 4.0 International License
       https://creativecommons.org/licenses/by-sa/4.0/
-      
-
-Authors:
-* Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
-
-
-<a id="1c80428451418e1000e2fa581a921acd210bc08faec41115d10b184d35018ea4"></a>
-### [glob](https://www.npmjs.com/package/glob) (version 7.1.2)
-<!-- initially found at node_modules/bson-transpilers/node_modules/glob -->
-> a little globber
-
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) Isaac Z. Schlueter and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
       
 
 Authors:
@@ -20251,17 +19909,6 @@ License files:
       TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
       THIS SOFTWARE.
       
-
-
-<a id="f333849f9f27a72a28f6888869e173dc80d4ab4d4c3b9dc4d0fa0d188cda06d2"></a>
-### [growl](https://www.npmjs.com/package/growl) (version 1.10.5)
-<!-- initially found at node_modules/growl -->
-> Growl unobtrusive notifications
-
-License tags: MIT
-
-Authors:
-* TJ Holowaychuk <tj@vision-media.ca>
 
 
 <a id="c8b3952653c7a6d7b9b7d9477875ccdd7c52ec513faa1f3a67ae66c0dcc32906"></a>
@@ -20593,7 +20240,7 @@ Authors:
 
 <a id="e2f50bddacaae4f231bda078470fd90f19fd780e9c2bc721710a09bcdd536d1a"></a>
 ### [has-flag](https://www.npmjs.com/package/has-flag) (version 3.0.0)
-<!-- initially found at node_modules/bson-transpilers/node_modules/has-flag -->
+<!-- initially found at node_modules/@babel/highlight/node_modules/has-flag -->
 > Check if argv has a specific flag
 
 License tags: MIT
@@ -20726,42 +20373,6 @@ License files:
 
 Authors:
 * Eran Hammer <eran@hammer.io> (http://hueniverse.com)
-
-
-<a id="ed60145b99427b511acf1dfd3c5669d00fd30542a990b041621c7c6443fbf486"></a>
-### [he](https://www.npmjs.com/package/he) (version 1.1.1)
-<!-- initially found at node_modules/bson-transpilers/node_modules/he -->
-> A robust HTML entities encoder/decoder with full Unicode support.
-
-License tags: MIT
-
-License files:
-* LICENSE-MIT.txt:
-
-      Copyright Mathias Bynens <https://mathiasbynens.be/>
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Mathias Bynens (https://mathiasbynens.be/)
 
 
 <a id="23ec458ad6554b2a4a60c7076cd47ceb7202629d681f7cc3263654fdc0b47ea7"></a>
@@ -36875,40 +36486,6 @@ Authors:
 * James Halliday <[mail@substack.net](nomail)> (http://substack.net)
 
 
-<a id="de1accb4d2060cd89fc834b5e4023e3b7d1e48297088b14b5eb67660afa5e7df"></a>
-### [minimist](https://www.npmjs.com/package/minimist) (version 0.0.8)
-<!-- initially found at node_modules/bson-transpilers/node_modules/minimist -->
-> parse argument options
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      This software is released under the MIT license:
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of
-      this software and associated documentation files (the "Software"), to deal in
-      the Software without restriction, including without limitation the rights to
-      use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-      the Software, and to permit persons to whom the Software is furnished to do so,
-      subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-      FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-      COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-      IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* James Halliday <[mail@substack.net](nomail)> (http://substack.net)
-
-
 <a id="a19724904402165a33d43f703c208747ed87cad979909f63d58e8799745c257c"></a>
 ### [minipass](https://www.npmjs.com/package/minipass) (version 3.1.3)
 <!-- initially found at node_modules/minipass -->
@@ -37184,43 +36761,6 @@ Authors:
 * James Halliday <mail@substack.net> (http://substack.net)
 
 
-<a id="dcac35b5389930c72c562c3b1c21dbd9d5334de31b09d5839be361d8c17ab455"></a>
-### [mkdirp](https://www.npmjs.com/package/mkdirp) (version 0.5.1)
-<!-- initially found at node_modules/bson-transpilers/node_modules/mkdirp -->
-> Recursively mkdir, like `mkdir -p`
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright 2010 James Halliday (mail@substack.net)
-      
-      This project is free software released under the MIT/X11 license:
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* James Halliday <mail@substack.net> (http://substack.net)
-
-
 <a id="f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce"></a>
 ### [mkdirp](https://www.npmjs.com/package/mkdirp) (version 1.0.4)
 <!-- initially found at node_modules/mkdirp -->
@@ -37290,471 +36830,6 @@ License files:
 
 Authors:
 * Mathias Buus (@mafintosh)
-
-
-<a id="b3d9872ce3afa2e18eb0e36dda0151dd6df7bb03ab33230c87f3374b5a847e14"></a>
-### [mocha](https://www.npmjs.com/package/mocha) (version 5.2.0)
-<!-- initially found at node_modules/bson-transpilers/node_modules/mocha -->
-> simple, flexible, fun test framework
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      (The MIT License)
-      
-      Copyright (c) 2011-2018 JS Foundation and contributors, https://js.foundation
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      'Software'), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-      CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-      TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* TJ Holowaychuk <tj@vision-media.ca>
-* 38elements <mh19820223@gmail.com>
-* Aaron Brady <aaron@mori.com>
-* Aaron Hamid <aaron.hamid@gmail.com>
-* Aaron Heckmann <aaron.heckmann+github@gmail.com>
-* Aaron Krause <aaronjkrause@gmail.com>
-* Aaron Petcoff <hello@aaronpetcoff.me>
-* abrkn <a@abrkn.com>
-* Adam Crabtree <adam.crabtree@redrobotlabs.com>
-* Adam Gruber <talknmime@gmail.com>
-* Adrian Ludwig <me@adrianludwig.pl>
-* Ahmad Bamieh <ahmadbamieh@gmail.com>
-* airportyh <airportyh@gmail.com>
-* Ajay Kodali <ajay.kodali@citrix.com>
-* Al Scott <al.scott@atomicobject.com>
-* Alex Bainter <metalex9@users.noreply.github.com>
-* Alexander Early <alexander.early@gmail.com>
-* Alexander Shepelin <Brightcor@gmail.com>
-* Alhadis <gardnerjohng@gmail.com>
-* amsul <reach@amsul.ca>
-* Anders Olsen Sandvik <Andersos@users.noreply.github.com>
-* Andreas Brekken <andreas@opuno.com>
-* Andreas Lind Petersen <andreas@one.com>
-* Andrew Krawchyk <903716+akrawchyk@users.noreply.github.com>
-* Andrew Nesbitt <andrewnez@gmail.com>
-* Andrey Popp <8mayday@gmail.com>
-* Andrii Shumada <eagleeyes91@gmail.com>
-* andy matthews <andy@commadelimited.com>
-* Angelica Valenta <angelicavalenta@gmail.com>
-* Anis Safine <anis.safine.ext@francetv.fr>
-* Anish Karandikar <anishkny@gmail.com>
-* Anthony <keppi@o2.pl>
-* Anton <anton.redfox@gmail.com>
-* anton <anton.valickij@gmail.com>
-* APerson <danielhglus@gmail.com>
-* Arian Stolwijk <arian@aryweb.nl>
-* Ariel Mashraki <ariel@mashraki.co.il>
-* Arnaud Brousseau <arnaud.brousseau@gmail.com>
-* Artem Govorov <artem.govorov@gmail.com>
-* Atsuya Takagi <asoftonight@gmail.com>
-* Attila Domokos <adomokos@gmail.com>
-* Austin Birch <mraustinbirch@gmail.com>
-* Avi Vahl <avi.vahl@wix.com>
-* badunk <baduncaduncan@gmail.com>
-* Bamieh <ahmadbamieh@gmail.com>
-* Ben Bradley <ben@bradleyit.com>
-* Ben Harris <benhdev@gmail.com>
-* Ben Hutchison <ben@aldaviva.com>
-* Ben Lindsey <ben.lindsey@vungle.com>
-* Ben Noordhuis <info@bnoordhuis.nl>
-* Ben Vinegar <ben@benv.ca>
-* Benjamin Eidelman <beneidel@gmail.com>
-* Benjie Gillam <benjie@jemjie.com>
-* Benoit Larroque <zeta.ben@gmail.com>
-* Benoît Zugmeyer <bzugmeyer@gmail.com>
-* Benson Trent <bensontrent@gmail.com>
-* Berker Peksag <berker.peksag@gmail.com>
-* berni <berni@extensa.pl>
-* Bjørge Næss <bjoerge@origo.no>
-* Brendan Nee <brendan.nee@gmail.com>
-* Brian Beck <exogen@gmail.com>
-* Brian Lalor <blalor@bravo5.org>
-* Brian M. Carlson <brian.m.carlson@gmail.com>
-* Brian Moore <guardbionic-github@yahoo.com>
-* Bryan Donovan <bdondo@gmail.com>
-* Buck Doyle <b@chromatin.ca>
-* C. Scott Ananian <cscott@cscott.net>
-* Callum Macrae <callum@macr.ae>
-* Can Oztokmak <can@zeplin.io>
-* Capacitor Set <CapacitorSet@users.noreply.github.com>
-* Casey Foster <casey@caseywebdev.com>
-* Charles Lowell <cowboyd@frontside.io>
-* Charles Merriam <charles.merriam@gmail.com>
-* Charlie Rudolph <charles.w.rudolph@gmail.com>
-* Chris <chrisleck@users.noreply.github.com>
-* Chris Buckley <chris@cmbuckley.co.uk>
-* Chris Lamb <chris@chris-lamb.co.uk>
-* Christian <me@rndm.de>
-* Christoffer Hallas <christoffer.hallas@gmail.com>
-* Christoph Neuroth <christoph.neuroth@gmail.com>
-* Christopher Hiller <boneskull@boneskull.com>
-* ChrisWren <cthewren@gmail.com>
-* claudyus <claudyus@HEX.(none)>
-* Connor Dunn <connorhd@gmail.com>
-* Corey Butler <corey@coreybutler.com>
-* Cory Thomas <cory.thomas@bazaarvoice.com>
-* Craig Taub <craigtaub@gmail.com>
-* Cube <maty21@gmail.com>
-* Daniel Ruf <daniel@daniel-ruf.de>
-* Daniel St. Jules <danielst.jules@gmail.com>
-* Daniel Stockman <daniel.stockman@gmail.com>
-* Darryl Pogue <dvpdiner2@gmail.com>
-* Dave McKenna <davemckenna01@gmail.com>
-* David da Silva Contín <dasilvacontin@gmail.com>
-* David Henderson <david.henderson@triggeredmessaging.com>
-* David M. Lee <leedm777@yahoo.com>
-* David Neubauer <davidneub@gmail.com>
-* DavNej <davnej.dev@gmail.com>
-* Denis Bardadym <bardadymchik@gmail.com>
-* Devin Weaver <suki@tritarget.org>
-* dfberry <dinaberry@outlook.com>
-* Di Wu <dwu@palantir.com>
-* Dina Berry <dfberry@users.noreply.github.com>
-* Diogo Monteiro <diogo.gmt@gmail.com>
-* Dmitriy Simushev <simushevds@gmail.com>
-* Dmitry Shirokov <deadrunk@gmail.com>
-* Dmitry Sorin <info@staypositive.ru>
-* Domenic Denicola <domenic@domenicdenicola.com>
-* Dominic Barnes <dominic@dbarnes.info>
-* Dominique Quatravaux <dominique@quatravaux.org>
-* Douglas Christopher Wilson <doug@somethingdoug.com>
-* Duncan Beevers <duncan@dweebd.com>
-* eiji.ienaga <eiji.ienaga@gmail.com>
-* elergy <elergy@yandex-team.ru>
-* Eli Skeggs <skeggse@users.noreply.github.com>
-* ELLIOTTCABLE <me@ell.io>
-* Emanuele <my.burning@gmail.com>
-* Enric Pallerols <enric@pallerols.cat>
-* Erik Eng <mail@ptz0n.se>
-* Eugene Tiutiunnyk <eugene.tiutiunnyk@lookout.com>
-* Fabio M. Costa <fabiomcosta@gmail.com>
-* Fagner Brack <github3@fagnermartins.com>
-* FARKAS Máté <mate.farkas@virtual-call-center.eu>
-* fcrisci <fabio.crisci@amadeus.com>
-* Fede Ramirez <i@2fd.me>
-* Fedor Indutny <fedor.indutny@gmail.com>
-* fengmk2 <fengmk2@gmail.com>
-* Florian Margaine <florian@margaine.com>
-* FND <FND@users.noreply.github.com>
-* fool2fish <fool2fish@gmail.com>
-* Forbes Lindesay <forbes@lindesay.co.uk>
-* Frank Leon Rose <frankleonrose@gmail.com>
-* Frederico Silva <frederico.silva@gmail.com>
-* Fredrik Enestad <fredrik@devloop.se>
-* Fredrik Lindin <fredriklindin@gmail.com>
-* Fumiaki MATSUSHIMA <mtsmfm@gmail.com>
-* Gabriel Silk <gabesilk@gmail.com>
-* Gareth Aye <gaye@mozilla.com>
-* Gareth Murphy <gareth.cpm@gmail.com>
-* Gavin Mogan <GavinM@airg.com>
-* gaye <gaye@mozilla.com>
-* gigadude <gigadude@users.noreply.github.com>
-* Giovanni Bassi <giggio@giggio.net>
-* Glen Huang <curvedmark@gmail.com>
-* Glen Mailer <glenjamin@gmail.com>
-* grasGendarme <me@grasgendar.me>
-* Greg Perkins <gregperkins@alum.mit.edu>
-* Guangcong Luo <guangcongluo@gmail.com>
-* Guillermo Rauch <rauchg@gmail.com>
-* Guy Arye <arye.guy@gmail.com>
-* Gyandeep Singh <gyandeeps@gmail.com>
-* Harish <hyeluri@gmail.com>
-* Harry Brundage <harry.brundage@gmail.com>
-* Harry Sarson <harry.sarson@hotmail.co.uk>
-* Harry Wolff <hswolff@users.noreply.github.com>
-* Herman Junge <herman@geekli.st>
-* hokaccha <k.hokamura@gmail.com>
-* Honza Javorek <mail@honzajavorek.cz>
-* Hugo Giraudel <hugo.giraudel@gmail.com>
-* Ian Storm Taylor <ian@ianstormtaylor.com>
-* Ian W. Remmel <design@ianwremmel.com>
-* Ian Young <ian.greenleaf@gmail.com>
-* Ian Zamojc <ian@thesecretlocation.net>
-* Igwe Kalu <igwe.kalu@live.com>
-* ImgBot <31427850+ImgBotApp@users.noreply.github.com>
-* inxorable <inxorable@codewren.ch>
-* Ivan <ivan@kinvey.com>
-* Jaakko Salonen <jaakko.salonen@iki.fi>
-* Jacob Wejendorp <jacob@wejendorp.dk>
-* Jake Craige <james.craige@gmail.com>
-* Jake Marsh <jakemmarsh@gmail.com>
-* Jakob Krigovsky <jakob@krigovsky.com>
-* Jakub Nešetřil <jakub@apiary.io>
-* James Bowes <jbowes@repl.ca>
-* James Carr <james.r.carr@gmail.com>
-* James G. Kim <jgkim@jayg.org>
-* James Lal <james@lightsofapollo.com>
-* James Nylen <jnylen@gmail.com>
-* Jan Kopriva <jan.kopriva@gooddata.com>
-* Jan Krems <jan.krems@groupon.com>
-* Jan Lehnardt <jan@apache.org>
-* Jason Barry <jay@jcbarry.com>
-* Jason Lai <jason@getpebble.com>
-* Jason Leyba <jmleyba@gmail.com>
-* Javier Aranda <javierav@javierav.com>
-* Jean Ponchon <gelule@gmail.com>
-* Jeff Kunkle <jeff.kunkle@nearinfinity.com>
-* Jeff Schilling <jeff.schilling@q2ebanking.com>
-* JeongHoon Byun (aka Outsider) <outsideris@gmail.com>
-* Jérémie Astori <jeremie@astori.fr>
-* Jeremy Martin <jmar777@gmail.com>
-* Jerry Muzsik <jerrymuzsik@icloud.com>
-* Jesse Dailey <jesse.dailey@gmail.com>
-* jimenglish81 <jimenglish81@gmail.com>
-* Jimmy Cuadra <jimmy@jimmycuadra.com>
-* Jo Liss <joliss42@gmail.com>
-* Joao Moreno <mail@joaomoreno.com>
-* Joel Kemp <mrjoelkemp@gmail.com>
-* Joey Cozza <joey@grow.com>
-* John Doty <jrhdoty@gmail.com>
-* John Firebaugh <john.firebaugh@gmail.com>
-* John Reeves <github@jonnyreeves.co.uk>
-* Johnathon Sanders <outdooricon@gmail.com>
-* Jon Surrell <jon.surrell@automattic.com>
-* Jonas Dohse <jonas@mbr-targeting.com>
-* Jonas Westerlund <jonas.westerlund@me.com>
-* Jonathan Creamer <matrixhasyou2k4@gmail.com>
-* Jonathan Delgado <jdelgado@rewip.com>
-* Jonathan Kim <jkimbo@gmail.com>
-* Jonathan Ong <jonathanrichardong@gmail.com>
-* Jonathan Park <jpark@daptiv.com>
-* Jonathan Rajavuori <jrajav@gmail.com>
-* Jordan Sexton <jordan@jordansexton.com>
-* Joseph Lin <josephlin55555@gmail.com>
-* Josh Eversmann <josh.eversmann@gmail.com>
-* Josh Lory <josh.lory@code.org>
-* Josh Soref <jsoref@users.noreply.github.com>
-* Joshua Appelman <jappelman@xebia.com>
-* Joshua Krall <joshuakrall@pobox.com>
-* JP Bochi <jpbochi@gmail.com>
-* jsdevel <js.developer.undefined@gmail.com>
-* Julien Wajsberg <felash@gmail.com>
-* Jupp Müller <jupp0r@gmail.com>
-* Jussi Virtanen <jussi.k.virtanen@gmail.com>
-* Justin DuJardin <justin.dujardin@sococo.com>
-* Juzer Ali <er.juzerali@gmail.com>
-* Katie Gengler <katiegengler@gmail.com>
-* kavun <kevin.a.reed@gmail.com>
-* Kazuhito Hokamura <k.hokamura@gmail.com>
-* Keith Cirkel <github@keithcirkel.co.uk>
-* Kelong Wang <buaawkl@gmail.com>
-* Kent C. Dodds <kent+github@doddsfamily.us>
-* Kevin Burke <kev@inburke.com>
-* Kevin Conway <kevinjacobconway@gmail.com>
-* Kevin Kirsche <Kev.Kirsche+GitHub@gmail.com>
-* Kevin Partington <platinum.azure@kernelpanicstudios.com>
-* Kevin Wang <kevin@fossa.io>
-* Kirill Korolyov <kirill.korolyov@gmail.com>
-* klaemo <klaemo@fastmail.fm>
-* Koen Punt <koen@koenpunt.nl>
-* Konstantin Käfer <github@kkaefer.com>
-* Kris Rasmussen <kristopher.rasmussen@gmail.com>
-* Kunal Nagpal <kunagpal@users.noreply.github.com>
-* Kyle Mitchell <kyle@kemitchell.com>
-* lakmeer <lakmeerkravid@gmail.com>
-* Lane Kelly <lanekelly16@gmail.com>
-* László Bácsi <lackac@lackac.hu>
-* Laurence Rowe <lrowe@netflix.com>
-* Liam Newman <bitwiseman@gmail.com>
-* Linus Unnebäck <linus@folkdatorn.se>
-* lodr <salva@unoyunodiez.com>
-* Long Ho <longlho@users.noreply.github.com>
-* Maciej Małecki <maciej.malecki@notimplemented.org>
-* Mal Graty <mal.graty@googlemail.com>
-* Marais Rossouw <me@maraisr.com>
-* Marc Kuo <kuomarc2@gmail.com>
-* Marcello Bastea-Forte <marcello@cellosoft.com>
-* Mark Banner <standard8@mozilla.com>
-* Markus Tacker <m@coderbyheart.com>
-* Martin Marko <marcus@gratex.com>
-* Mathieu Desvé <mathieudesve@MacBook-Pro-de-Mathieu.local>
-* Matija Marohnić <matija.marohnic@gmail.com>
-* Matt Bierner <mattbierner@gmail.com>
-* Matt Giles <matt.giles@cerner.com>
-* Matt Robenolt <matt@ydekproductions.com>
-* Matt Smith <matthewgarysmith@gmail.com>
-* Matthew Shanley <matthewshanley@littlesecretsrecords.com>
-* Mattias Tidlund <mattias.tidlund@learningwell.se>
-* Max Goodman <c@chromakode.com>
-* Maximilian Antoni <mail@maxantoni.de>
-* Merrick Christensen <merrick.christensen@gmail.com>
-* Michael Demmer <demmer@jut.io>
-* Michael Jackson <mjijackson@gmail.com>
-* Michael Olson <mwolson@member.fsf.org>
-* Michael Riley <michael.riley@autodesk.com>
-* Michael Schoonmaker <michael.r.schoonmaker@gmail.com>
-* Michal Charemza <michalcharemza@gmail.com>
-* Michiel de Jong <michiel@unhosted.org>
-* Mick Brooks <mick.brooks@sinking.in>
-* Mike Pennisi <mike@mikepennisi.com>
-* Mislav Marohnić <mislav.marohnic@gmail.com>
-* monowerker <monowerker@gmail.com>
-* Moshe Kolodny <mkolodny@integralads.com>
-* mrShturman <mrshturman@gmail.com>
-* Nathan Alderson <nathan.alderson@adtran.com>
-* Nathan Black <nathan@nathanblack.org>
-* Nathan Bowser <nathan.bowser@spiderstrategies.com>
-* Nathan Houle <nathan@nathanhoule.com>
-* Nathan Rajlich <nathan@tootallnate.net>
-* nexdrew <andrew.goode@nextraq.com>
-* Nick Fitzgerald <fitzgen@gmail.com>
-* Nicolas Girault <nic.girault@gmail.com>
-* Nicolo Taddei <taddei.uk@gmail.com>
-* Nik Nyby <nnyby@columbia.edu>
-* Nikolaos Georgiou <Nikolaos.Georgiou@gmail.com>
-* nishigori <Takuya_Nishigori@voyagegroup.com>
-* Noshir Patel <nosh@blackpiano.com>
-* not-an-aardvark <not-an-aardvark@users.noreply.github.com>
-* OlegTsyba <oleg.tsyba.ua@gmail.com>
-* olsonpm <olsonpm@users.noreply.github.com>
-* omardelarosa <thedelarosa@gmail.com>
-* Oscar Godson <oscargodson@outlook.com>
-* Outsider <outsideris@gmail.com>
-* oveddan <stangogh@gmail.com>
-* Panu Horsmalahti <panu.horsmalahti@iki.fi>
-* Parker Moore <parkrmoore@gmail.com>
-* Pat Finnigan <patrick.k.finnigan@gmail.com>
-* Paul Armstrong <paul@paularmstrongdesigns.com>
-* Paul Miller <paul@paulmillr.com>
-* Pavel Zubkou <pavel.zubkou@gmail.com>
-* Pete Hawkins <pete@petes-imac.frontinternal.net>
-* Peter Müller <munter@fumle.dk>
-* Peter Rust <peter@cornerstonenw.com>
-* Phil Sung <psung@dnanexus.com>
-* Philip M. White <philip@mailworks.org>
-* PoppinL <poppinlp@gmail.com>
-* Poprádi Árpád <popradi.arpad11@gmail.com>
-* Prayag Verma <prayag.verma@gmail.com>
-* qiuzuhui <qiuzuhui@users.noreply.github.com>
-* Quang Van <quangvvv@gmail.com>
-* Quanlong He <kyan.ql.he@gmail.com>
-* R56 <rviskus@gmail.com>
-* Raynos <raynos2@gmail.com>
-* Refael Ackermann <refael@empeeric.com>
-* Rich Trott <rtrott@gmail.com>
-* Richard Dingwall <rdingwall@gmail.com>
-* Richard Knop <RichardKnop@users.noreply.github.com>
-* Rico Sta. Cruz <rstacruz@users.noreply.github.com>
-* rmacklin <richard.github@nrm.com>
-* Rob Loach <robloach@gmail.com>
-* Rob Raux <rraux@peachworks.com>
-* Rob Wu <rob@robwu.nl>
-* Robert Rossmann <rr.rossmann@me.com>
-* Romain Prieto <romain.prieto@gmail.com>
-* Roman Neuhauser <rneuhauser@suse.cz>
-* Roman Shtylman <shtylman@gmail.com>
-* Ross Warren <rosswarren4@gmail.com>
-* rotemdan <rotemdan@gmail.com>
-* Russ Bradberry <devdazed@me.com>
-* Russell Munson <rmunson@github.com>
-* Rustem Mustafin <mustafin.rustem@gmail.com>
-* Ryan Hubbard <ryanmhubbard@gmail.com>
-* Ryan Shaw <ryan.shaw@min.vc>
-* Ryan Tablada <ryan.tablada@gmail.com>
-* Ryunosuke SATO <tricknotes.rs@gmail.com>
-* ryym <ryym.64@gmail.com>
-* Salehen Shovon Rahman <salehen.rahman@gmail.com>
-* Sam Mussell <smussell@gmail.com>
-* samuel goldszmidt <samuel.goldszmidt@gmail.com>
-* sarehag <joakim.sarehag@gmail.com>
-* Sasha Koss <koss@nocorp.me>
-* Scott Kao <Scottkao85@users.noreply.github.com>
-* Scott Santucci <ScottFreeCode@users.noreply.github.com>
-* ScottFreeCode <ScottFreeCode@users.noreply.github.com>
-* Sean Lang <slang800@gmail.com>
-* Sebastian Van Sande <sebastian@vansande.org>
-* sebv <seb.vincent@gmail.com>
-* Seiya Konno <nulltask@gmail.com>
-* Sergey Simonchik <sergey.simonchik@jetbrains.com>
-* Sergio Santoro <santoro.srg@gmail.com>
-* Shaine Hatch <shaine@squidtree.com>
-* Shawn Krisman <telaviv@github>
-* Shinnosuke Watanabe <snnskwtnb@gmail.com>
-* silentcloud <rjmuqiang@gmail.com>
-* Silvio Massari <silvio.massari@auth0.com>
-* Simon Gaeremynck <gaeremyncks@gmail.com>
-* Simon Goumaz <simon@attentif.ch>
-* simov <simeonvelichkov@gmail.com>
-* Sindre Sorhus <sindresorhus@gmail.com>
-* Slobodan Mišković <slobodan@miskovic.ca>
-* slyg <syl.faucherand@gmail.com>
-* Soel <shachar.soel@sap.com>
-* solodynamo <bittuf3@gmail.com>
-* Sorin Iclanzan <sorin@iclanzan.com>
-* Standa Opichal <opichals@gmail.com>
-* startswithaj <jake.mc@icloud.com>
-* Stephen Mathieson <smath23@gmail.com>
-* Steve Mason <stevem@brandwatch.com>
-* Stewart Taylor <stewart.taylor1@gmail.com>
-* Stone <baoshi.li@adleida.com>
-* Sulabh Bista <sul4bh@gmail.com>
-* Sune Simonsen <sune@we-knowhow.dk>
-* Tapiwa Kelvin <tapiwa@munzwa.tk>
-* Ted Yavuzkurt <hello@TedY.io>
-* Teddy Zeenny <teddyzeenny@gmail.com>
-* tgautier@yahoo.com <tgautier@gmail.com>
-* Thedark1337 <thedark1337@thedark1337.com>
-* Thomas Broadley <buriedunderbooks@hotmail.com>
-* Thomas Grainger <tagrain@gmail.com>
-* Thomas Vantuycom <thomasvantuycom@protonmail.com>
-* Tim Ehat <timehat@gmail.com>
-* Timo Tijhof <krinklemail@gmail.com>
-* Timothy Gu <timothygu99@gmail.com>
-* Tingan Ho <tingan87@gmail.com>
-* tmont <tommy.mont@gmail.com>
-* Tobias Bieniek <tobias.bieniek@gmail.com>
-* Todd Agulnick <tagulnick@onjack.com>
-* Tom Coquereau <tom@thau.me>
-* Tom Hughes <tom@compton.nu>
-* Tomer Eskenazi <tomer.eskenazi@ironsrc.com>
-* traleig1 <darkphoenix739@gmail.com>
-* Travis Jeffery <tj@travisjeffery.com>
-* tripu <t@tripu.info>
-* Tyson Tate <tyson@tysontate.com>
-* Vadim Nikitin <vnikiti@ncsu.edu>
-* Valentin Agachi <github-com@agachi.name>
-* Valeri Karpov <val@karpov.io>
-* Victor <victor@turo.com>
-* Victor Costan <costan@gmail.com>
-* Ville Saukkonen <villesau@users.noreply.github.com>
-* Vivek Ganesan <caliberoviv@gmail.com>
-* vlad <iamvlad@gmail.com>
-* Vlad Magdalin <vlad@webflow.com>
-* Volker Buzek <volker.buzek@sap.com>
-* Wil Moore III <wil.moore@wilmoore.com>
-* Will Langstroth <will@langstroth.com>
-* wsw <wsw0108@gmail.com>
-* Xavier Antoviaque <xavier@antoviaque.org>
-* Xavier Damman <xdamman@gmail.com>
-* XhmikosR <xhmikosr@users.sourceforge.net>
-* Yanis Wang <yanis.wang@gmail.com>
-* yehiyam <yehiyam@users.noreply.github.com>
-* Yoshiya Hinosawa <hinosawa@waku-2.com>
-* Yuest Wang <yuestwang@gmail.com>
-* yuitest <yuitest@cjhat.net>
-* zhiyelee <zhiyelee@gmail.com>
-* Zsolt Takács <zsolt@takacs.cc>
-* 现充 <qixiang.cqx@alibaba-inc.com>
 
 
 <a id="d8f96cf3e8fde11ddd63693bbb806b273f74faf4ba8426497c8b28c62950f148"></a>
@@ -38050,7 +37125,7 @@ License files:
 
 <a id="79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f"></a>
 ### [mongodb](https://www.npmjs.com/package/mongodb) (version 3.6.9)
-<!-- initially found at node_modules/mongodb -->
+<!-- initially found at node_modules/mongodb3 -->
 > The official MongoDB driver for Node.js
 
 License tags: Apache-2.0
@@ -45486,38 +44561,6 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="d8fabcebc25b5fc7f8def7aa2922048b6944c6f0cf675bb25f13ba4a83c57fa5"></a>
-### [pathval](https://www.npmjs.com/package/pathval) (version 1.1.1)
-<!-- initially found at node_modules/pathval -->
-> Object value retrieval given a string path
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2011-2013 Jake Luer jake@alogicalparadox.com
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-      documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
-      persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial
-      portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-      THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-      TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Veselin Todorov <hi@vesln.com>
-
-
 <a id="c89863f3466aa8017b73586c718982a0a839ba296909af2d714325896a23e772"></a>
 ### [pause-stream](https://www.npmjs.com/package/pause-stream) (version 0.0.11)
 <!-- initially found at node_modules/pause-stream -->
@@ -50084,43 +49127,6 @@ Authors:
 * Mike Bostock (http://bost.ocks.org/mike)
 
 
-<a id="115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12"></a>
-### [safe-buffer](https://www.npmjs.com/package/safe-buffer) (version 5.1.2)
-<!-- initially found at node_modules/mongodb/node_modules/safe-buffer -->
-> Safer Node.js Buffer API
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Feross Aboukhadijeh
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Feross Aboukhadijeh <[feross@feross.org](nomail)> (http://feross.org)
-
-
 <a id="952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674"></a>
 ### [safe-buffer](https://www.npmjs.com/package/safe-buffer) (version 5.2.1)
 <!-- initially found at node_modules/safe-buffer -->
@@ -50156,6 +49162,43 @@ License files:
 
 Authors:
 * Feross Aboukhadijeh <[feross@feross.org](nomail)> (https://feross.org)
+
+
+<a id="115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12"></a>
+### [safe-buffer](https://www.npmjs.com/package/safe-buffer) (version 5.1.2)
+<!-- initially found at node_modules/mongodb3/node_modules/safe-buffer -->
+> Safer Node.js Buffer API
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      The MIT License (MIT)
+      
+      Copyright (c) Feross Aboukhadijeh
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+      
+
+Authors:
+* Feross Aboukhadijeh <[feross@feross.org](nomail)> (http://feross.org)
 
 
 <a id="306465b45444670b705bd960cf2dd80e0c9c35c9f31e31526012377a1fc081e3"></a>
@@ -52258,31 +51301,6 @@ Authors:
 * Vladimir Agafonkin
 
 
-<a id="17518907b7b911ec165f3fdb1aeb1ed89ee8e3a818a51f49b8a18cb2ae0a3fa4"></a>
-### [supports-color](https://www.npmjs.com/package/supports-color) (version 5.4.0)
-<!-- initially found at node_modules/bson-transpilers/node_modules/supports-color -->
-> Detect whether a terminal supports color
-
-License tags: MIT
-
-License files:
-* license:
-
-      MIT License
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
-
-
 <a id="4a9d49d946cc9c1d41e14168288f32a1d956fb1ae4f9548c9481cff8694e5b4a"></a>
 ### [supports-color](https://www.npmjs.com/package/supports-color) (version 2.0.0)
 <!-- initially found at node_modules/babel-code-frame/node_modules/supports-color -->
@@ -53518,52 +52536,6 @@ License files:
 
 Authors:
 * TweetNaCl-js contributors
-
-
-<a id="8e730716b3685f8208504f481f53fb45d1d3be517ebcfe935580698a1638d372"></a>
-### [type-detect](https://www.npmjs.com/package/type-detect) (version 4.0.8)
-<!-- initially found at node_modules/type-detect -->
-> Improved typeof detection for node.js and the browser.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2013 Jake Luer <jake@alogicalparadox.com> (http://alogicalparadox.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Jake Luer <jake@alogicalparadox.com> (http://alogicalparadox.com)
-* Keith Cirkel (https://github.com/keithamus)
-* David Losert (https://github.com/davelosert)
-* Aleksey Shvayka (https://github.com/shvaikalesh)
-* Lucas Fernandes da Costa (https://github.com/lucasfcosta)
-* Grant Snodgrass (https://github.com/meeber)
-* Jeremy Tice (https://github.com/jetpacmonkey)
-* Edward Betts (https://github.com/EdwardBetts)
-* dvlsg (https://github.com/dvlsg)
-* Amila Welihinda (https://github.com/amilajack)
-* Jake Champion (https://github.com/JakeChampion)
-* Miroslav Bajtoš (https://github.com/bajtos)
 
 
 <a id="a81c8c06a8286435f4fc21a5d52a45dde6f6d841bffcb19e679a0a485cce041c"></a>
