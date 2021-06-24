@@ -171,7 +171,7 @@ export const createView = () => {
               isReadonly: true,
               sourceName: viewSource,
               editViewName: null,
-              isSourceReadonly: state.isReadonly,
+              sourceReadonly: state.isReadonly,
               sourceViewOn: state.sourceName,
               sourcePipeline: viewPipeline
             }

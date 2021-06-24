@@ -5,8 +5,8 @@ const fs = require('fs');
 
 function main() {
   const packages = JSON.parse(childProcess.execSync('lerna list --json'));
-  for (const package of packages) {
-    removeAliases(package);
+  for (const packageInfo of packages) {
+    removeAliases(packageInfo);
   }
 }
 

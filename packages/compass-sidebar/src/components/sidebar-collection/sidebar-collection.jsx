@@ -3,14 +3,11 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 import toNS from 'mongodb-ns';
-import Icon from '@leafygreen-ui/icon';
 
 import { collectionMetadata, getSource } from '../../modules/collection';
+import CollectionTypeIcon from '../collection-type-icon';
 
 import styles from './sidebar-collection.less';
-
-const DEFAULT_COLLECTION_TYPE = 'collection';
-const TIME_SERIES_COLLECTION_TYPE = 'timeseries';
 
 class SidebarCollection extends PureComponent {
   static displayName = 'SidebarCollection';
@@ -29,7 +26,8 @@ class SidebarCollection extends PureComponent {
     pipeline: PropTypes.any, // undefined or array if view
     collections: PropTypes.array.isRequired,
     type: PropTypes.string,
-    isDataLake: PropTypes.bool.isRequired
+    isDataLake: PropTypes.bool.isRequired,
+    isTimeSeries: PropTypes.bool
   };
 
   /**
@@ -138,41 +136,6 @@ class SidebarCollection extends PureComponent {
     }
   }
 
-  renderCollectionIcon() {
-    return (
-      <Icon
-        className={styles['compass-sidebar-collection-type-icon']}
-        glyph="Folder"
-        title="Collection"
-      />
-    );
-  }
-
-  /**
-   * Render the readonly icon.
-   *
-   * @returns {Component} The component.
-   */
-  renderViewIcon() {
-    return (
-      <Icon
-        className={styles['compass-sidebar-collection-type-icon']}
-        glyph="Visibility"
-        title="Read-only View"
-      />
-    );
-  }
-
-  renderTimeSeriesIcon() {
-    return (
-      <Icon
-        className={styles['compass-sidebar-collection-type-icon']}
-        glyph="TimeSeries"
-        title="Time-Series Collection"
-      />
-    );
-  }
-
   /**
    * Render the view contextual menu.
    *
@@ -241,9 +204,9 @@ class SidebarCollection extends PureComponent {
           data-test-id="sidebar-collection"
           title={this.props._id}
         >
-          {this.props.type === DEFAULT_COLLECTION_TYPE && this.renderCollectionIcon()}
-          {this.props.readonly && this.renderViewIcon()}
-          {this.props.type === TIME_SERIES_COLLECTION_TYPE && this.renderTimeSeriesIcon()}
+          <CollectionTypeIcon
+            collectionType={this.props.type}
+          />
           {collectionName}
         </div>
         <div

@@ -8,46 +8,24 @@ import UpdatableIconButton from './updatable-icon-button';
  */
 class DocumentActions extends React.Component {
   /**
-   * Instantiate the actions.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.state = { allExpanded: props.allExpanded };
-  }
-
-  /**
-   * Set the state when new props are received.
-   *
-   * @param {Object} nextProps - The new props.
-   */
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.allExpanded !== this.state.allExpanded) {
-      this.setState({ allExpanded: nextProps.allExpanded });
-    }
-  }
-
-  /**
    * Render the expand all button.
    *
    * @returns {React.Component} The expand all button.
    */
   renderExpandAll() {
-    if (this.props.expandAll) {
-      const title = this.state.allExpanded ? 'Collapse All' : 'Expand All';
-      const iconClass = this.state.allExpanded ? 'fa-angle-down' : 'fa-angle-right';
-      return (
-        <div className="document-actions-left">
-          <UpdatableIconButton
-            title={title}
-            clickHandler={this.props.expandAll}
-            className="document-actions-button document-actions-expand-button btn btn-default btn-xs"
-            iconClassName={`document-actions-button-icon fa ${iconClass}`}
-            dataTestId="expand-all-button" />
-        </div>
-      );
-    }
+    const title = this.props.allExpanded ? 'Collapse All' : 'Expand All';
+    const iconClass = this.props.allExpanded ? 'fa-angle-down' : 'fa-angle-right';
+    return (
+      <div className="document-actions-left">
+        <UpdatableIconButton
+          title={title}
+          clickHandler={this.props.expandAll}
+          className="document-actions-button document-actions-expand-button btn btn-default btn-xs"
+          iconClassName={`document-actions-button-icon fa ${iconClass}`}
+          dataTestId="expand-all-button"
+        />
+      </div>
+    );
   }
 
   /**
@@ -58,32 +36,36 @@ class DocumentActions extends React.Component {
   render() {
     return (
       <div className="document-actions">
-        {this.renderExpandAll()}
+        {this.props.expandAll && this.renderExpandAll()}
         <div className="document-actions-right">
-          <IconButton
+          {this.props.edit && <IconButton
             title="Edit Document"
             className="document-actions-button btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-pencil"
             dataTestId="edit-document-button"
-            clickHandler={this.props.edit} />
-          <IconButton
+            clickHandler={this.props.edit}
+          />}
+          {this.props.copy && <IconButton
             title="Copy Document"
             className="document-actions-button document-actions-button-copy btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-copy"
             dataTestId="copy-document-button"
-            clickHandler={this.props.copy} />
-          <IconButton
+            clickHandler={this.props.copy}
+          />}
+          {this.props.clone && <IconButton
             title="Clone Document"
             className="document-actions-button btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-clone"
             dataTestId="clone-document-button"
-            clickHandler={this.props.clone} />
-          <IconButton
+            clickHandler={this.props.clone}
+          />}
+          {this.props.remove && <IconButton
             title="Delete Document"
             className="document-actions-button btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-trash-o"
             dataTestId="delete-document-button"
-            clickHandler={this.props.remove} />
+            clickHandler={this.props.remove}
+          />}
         </div>
       </div>
     );
@@ -93,10 +75,10 @@ class DocumentActions extends React.Component {
 DocumentActions.displayName = 'DocumentActions';
 
 DocumentActions.propTypes = {
-  edit: PropTypes.func.isRequired,
-  copy: PropTypes.func.isRequired,
-  remove: PropTypes.func.isRequired,
-  clone: PropTypes.func.isRequired,
+  copy: PropTypes.func,
+  edit: PropTypes.func,
+  remove: PropTypes.func,
+  clone: PropTypes.func,
   allExpanded: PropTypes.bool,
   expandAll: PropTypes.func
 };

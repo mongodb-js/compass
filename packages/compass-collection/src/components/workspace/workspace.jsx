@@ -41,6 +41,12 @@ const KEY_CLOSE_BRKT = 221;
  */
 const KEY_OPEN_BRKT = 219;
 
+const DEFAULT_NEW_TAB = {
+  namespace: '',
+  isReadonly: false,
+  sourceName: ''
+};
+
 /**
  * The collection workspace contains tabs of multiple collections.
  */
@@ -88,6 +94,23 @@ class Workspace extends PureComponent {
     this.props.moveTab(oldIndex, newIndex);
   }
 
+  onCreateNewTab = () => {
+    const activeTab = this.activeTab();
+    const newTabProps = activeTab
+      ? {
+        namespace: activeTab.namespace,
+        isReadonly: activeTab.isReadonly,
+        isTimeSeries: activeTab.isTimeSeries,
+        sourceName: activeTab.sourceName,
+        editViewName: activeTab.editViewName,
+        sourceReadonly: activeTab.sourceReadonly,
+        sourceViewOn: activeTab.sourceViewOn,
+        sourcePipeline: activeTab.pipeline
+      }
+      : DEFAULT_NEW_TAB;
+    this.props.createNewTab(newTabProps);
+  }
+
   /**
    * Handle key press. This listens for CTRL/CMD+T and CTRL/CMD+W to control
    * natural opening and closing of collection tabs. CTRL/CMD+SHIFT+] and
@@ -95,7 +118,7 @@ class Workspace extends PureComponent {
    *
    * @param {Event} evt - The event.
    */
-  handleKeypress(evt) {
+  handleKeypress = (evt) => {
     if (evt.ctrlKey || evt.metaKey) {
       if (evt.shiftKey) {
         if (evt.keyCode === KEY_CLOSE_BRKT) {
@@ -109,33 +132,13 @@ class Workspace extends PureComponent {
           evt.preventDefault();
         }
       } else if (evt.keyCode === KEY_T) {
-        this.props.createNewTab(this.activeNamespace());
+        this.onCreateNewTab();
       }
     }
   }
 
   activeTab() {
     return this.props.tabs.find(tab => tab.isActive);
-  }
-
-  /**
-   * Get the active namespace in the list.
-   *
-   * @returns {String} The active namespace in the list.
-   */
-  activeNamespace() {
-    const activeTab = this.activeTab();
-    return activeTab ? activeTab.namespace : '';
-  }
-
-  activeIsReadonly() {
-    const activeTab = this.activeTab();
-    return activeTab ? activeTab.isReadonly : false;
-  }
-
-  activeSourceName() {
-    const activeTab = this.activeTab();
-    return activeTab ? activeTab.sourceName : undefined;
   }
 
   renderTab = (tab, i) => {
@@ -201,6 +204,7 @@ class Workspace extends PureComponent {
           id={tab.id}
           namespace={tab.namespace}
           isReadonly={tab.isReadonly}
+          isTimeSeries={tab.isTimeSeries}
           sourceName={tab.sourceName}
           editViewName={tab.editViewName}
           sourceReadonly={tab.sourceReadonly}
@@ -236,10 +240,8 @@ class Workspace extends PureComponent {
           <div className={styles['workspace-tabs-container']}>
             {this.renderTabs()}
             <CreateTab
-              createNewTab={this.props.createNewTab}
-              activeNamespace={this.activeNamespace()}
-              activeIsReadonly={this.activeIsReadonly()}
-              activeSourceName={this.activeSourceName()} />
+              createNewTab={this.onCreateNewTab}
+            />
           </div>
           <div className={styles['workspace-tabs-right']}>
             <div onClick={this.props.nextTab} className={styles['workspace-tabs-next']}>

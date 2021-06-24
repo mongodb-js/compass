@@ -49,28 +49,21 @@ Package|Version|License
 **[@leafygreen-ui/badge](#ec1459e19c02ea54cae2c1fe597b154e1e67517e754d25269762140b06f04d95)**|4.0.4|Apache-2.0
 **[@leafygreen-ui/banner](#694adad07e3bf98f882e9de74ab9e592b92c1c130b7cb2ed6a4a0652a78a5acb)**|3.0.8|Apache-2.0
 **[@leafygreen-ui/box](#eb099d7f2230afb70c51b95aebef7555b07d4a529754276f0a81918467b39b7c)**|3.0.5|Apache-2.0
-**[@leafygreen-ui/button](#f43ed8d010f911cd281d0864115425a169058bc8036ced47c7f3f165b127f526)**|11.0.4|Apache-2.0
 **[@leafygreen-ui/button](#8c19e9d3cc416b3c28837db196433e89af903f4272bd06f20a036a9fbb73219a)**|12.0.3|Apache-2.0
 **[@leafygreen-ui/checkbox](#62a8c53bd8a99e5aed0b88dd13961d14cb300ced151744852c6d766cf154afeb)**|6.0.5|Apache-2.0
 **[@leafygreen-ui/confirmation-modal](#90b2e2f759b658dfc5f450239c0f720dfbcb257e51562159751f45930a204104)**|2.2.1|Apache-2.0
 **[@leafygreen-ui/emotion](#005656bd4139276fde949cd423ff6c3333044dc142e11f404f1bc6cdd3169214)**|3.0.1|Apache-2.0
-**[@leafygreen-ui/emotion](#81c979276e6db057334f4e24211cc4f6012f83644ef869a2d9046dd876062228)**|2.0.1|Apache-2.0
 **[@leafygreen-ui/emotion](#c1b2da756a23cfe554cfbf09d80031c937502a122f4f8806160c7d7c87a12d3d)**|2.0.2|Apache-2.0
 **[@leafygreen-ui/hooks](#0d56584eed1c048904ab969fd834ba63dfa744dcdcae4a7c9e6429b4fd5e707a)**|7.0.0|Apache-2.0
 **[@leafygreen-ui/icon](#06b73ef6276d9b28cd92e16e42edf480cf33633de506cf9c28ec0127862bf65d)**|11.2.0|Apache-2.0
-**[@leafygreen-ui/icon](#e03673fbdebf9267b55b17c4d5df5ba34ea07e2d71c90f253d500b1a98b50acb)**|5.2.0|Apache-2.0
-**[@leafygreen-ui/icon](#c52515a75760e8af66bd76c36eef008f77b80aa3bb7fbc8f5b4defbbd6e6a697)**|10.2.1|Apache-2.0
 **[@leafygreen-ui/icon](#b5ac17567d129a7e3ce56ba923d001576c78886bb2ea834aec73ec9b65e924b2)**|4.3.0|Apache-2.0
-**[@leafygreen-ui/icon-button](#3a094b682d35ed41a624cad2b96515312d05550311db927c77fb7fc22c912b9f)**|5.0.5|Apache-2.0
 **[@leafygreen-ui/icon-button](#4a4e3ff7ce62ca9fe6a65018743d1d9f41ad97587038d1c7603db33167584d33)**|9.1.5|Apache-2.0
 **[@leafygreen-ui/interaction-ring](#6c87b2c241268cfc4dd6e0f43cb17e4bf4c5da62f69ad6414d52309c6220c58a)**|1.0.4|Apache-2.0
 **[@leafygreen-ui/leafygreen-provider](#1d527e79b5882495e5fbeb2bc2647b8bd8814ab634509ea93eea451cf333ae8c)**|2.1.2|Apache-2.0
 **[@leafygreen-ui/lib](#35c4bed27ba37ac1f2211977d15b81d1ac62ee14e5f3dd4684fef2b8e3fb9737)**|8.0.0|Apache-2.0
-**[@leafygreen-ui/lib](#b9fab7248f54e7ca33cd4a2915827608bbb8160a952ae1c411b210e8f73dfed6)**|7.0.0|Apache-2.0
 **[@leafygreen-ui/lib](#086127748510d761d6e7843dbc86695047b23f99b87a6097414d28a9b8e7648a)**|4.5.1|Apache-2.0
 **[@leafygreen-ui/modal](#56f100d1c57d3b9c34679fdabcc402d3e4353712335c2034a546ad25502f38e3)**|6.1.1|Apache-2.0
 **[@leafygreen-ui/palette](#01c72c8b76dc6edc117b6c47cab1c4150d7a442db4e83c396fd7df89c02f38b7)**|3.2.1|Apache-2.0
-**[@leafygreen-ui/palette](#6b511a7c243da0c161175266a6dd9bc6db38958e7f452e2c12da8e6d2f75a8a1)**|2.0.1|Apache-2.0
 **[@leafygreen-ui/palette](#5667b1cc6d87fc8ce2a94b4d9886c2122872bdd97db1249c92d9adba3ef9cf2f)**|2.0.2|Apache-2.0
 **[@leafygreen-ui/popover](#eafe724eac35920906938d0b930a9c4cb4d1157f6240c7c3634a88877f9c8f9e)**|7.2.1|Apache-2.0
 **[@leafygreen-ui/portal](#f034d37a474782ff139d05e98f6e299b10ec4fd40f4e86c8ff2388e548ef0dda)**|3.1.3|Apache-2.0
@@ -80,7 +73,6 @@ Package|Version|License
 **[@leafygreen-ui/text-input](#7d4813ea1bdfe3adb68adcefab312bec90dcf201093c2307db92c5b975e7bd57)**|6.0.3|Apache-2.0
 **[@leafygreen-ui/tokens](#abb3f3bd8f538461e96421ea4c92aa7595c29081e13652645737bea328a90349)**|0.5.2|Apache-2.0
 **[@leafygreen-ui/tooltip](#d543851d8597245c6181562d62c8b38bb7807a61230f9d992a3c259d99946ed6)**|6.2.2|Apache-2.0
-**[@leafygreen-ui/typography](#d37a09b4a1d8a04ce690df1379492c11e78a6fc4d78f93a688a5e4ec96648034)**|7.6.0|Apache-2.0
 **[@leafygreen-ui/typography](#43605f4bb784fb19869f1788c6b04f60632166fe6cf57a358b916aedc11b9b4b)**|8.0.2|Apache-2.0
 **[@lukekarrys/jade-runtime](#ad06e5865c56a069104e5e55f13ffbd59706cca844b6f42bba5a54a0625211db)**|1.11.1|MIT
 **[@mapbox/geojson-rewind](#847d3ebe3a498da4ec9f1b76ffdd70f87510ac04fab87c00209cb4f3ef88b8de)**|0.5.1|ISC
@@ -2774,17 +2766,9 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="f43ed8d010f911cd281d0864115425a169058bc8036ced47c7f3f165b127f526"></a>
-### [@leafygreen-ui/button](https://www.npmjs.com/package/@leafygreen-ui/button) (version 11.0.4)
-<!-- initially found at node_modules/@leafygreen-ui/button -->
-> leafyGreen UI Kit Button
-
-License tags: Apache-2.0
-
-
 <a id="8c19e9d3cc416b3c28837db196433e89af903f4272bd06f20a036a9fbb73219a"></a>
 ### [@leafygreen-ui/button](https://www.npmjs.com/package/@leafygreen-ui/button) (version 12.0.3)
-<!-- initially found at packages/databases-collections/node_modules/@leafygreen-ui/button -->
+<!-- initially found at node_modules/@leafygreen-ui/button -->
 > leafyGreen UI Kit Button
 
 License tags: Apache-2.0
@@ -2814,17 +2798,9 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="81c979276e6db057334f4e24211cc4f6012f83644ef869a2d9046dd876062228"></a>
-### [@leafygreen-ui/emotion](https://www.npmjs.com/package/@leafygreen-ui/emotion) (version 2.0.1)
-<!-- initially found at node_modules/@leafygreen-ui/icon-button/node_modules/@leafygreen-ui/emotion -->
-> leafyGreen UI Kit's Custom Instance of Emotion
-
-License tags: Apache-2.0
-
-
 <a id="c1b2da756a23cfe554cfbf09d80031c937502a122f4f8806160c7d7c87a12d3d"></a>
 ### [@leafygreen-ui/emotion](https://www.npmjs.com/package/@leafygreen-ui/emotion) (version 2.0.2)
-<!-- initially found at node_modules/@leafygreen-ui/icon/node_modules/@leafygreen-ui/emotion -->
+<!-- initially found at node_modules/@leafygreen-ui/syntax/node_modules/@leafygreen-ui/emotion -->
 > leafyGreen UI Kit's Custom Instance of Emotion
 
 License tags: Apache-2.0
@@ -2840,23 +2816,7 @@ License tags: Apache-2.0
 
 <a id="06b73ef6276d9b28cd92e16e42edf480cf33633de506cf9c28ec0127862bf65d"></a>
 ### [@leafygreen-ui/icon](https://www.npmjs.com/package/@leafygreen-ui/icon) (version 11.2.0)
-<!-- initially found at packages/databases-collections/node_modules/@leafygreen-ui/icon -->
-> LeafyGreen UI Kit Icons
-
-License tags: Apache-2.0
-
-
-<a id="e03673fbdebf9267b55b17c4d5df5ba34ea07e2d71c90f253d500b1a98b50acb"></a>
-### [@leafygreen-ui/icon](https://www.npmjs.com/package/@leafygreen-ui/icon) (version 5.2.0)
 <!-- initially found at node_modules/@leafygreen-ui/icon -->
-> LeafyGreen UI Kit Icons
-
-License tags: Apache-2.0
-
-
-<a id="c52515a75760e8af66bd76c36eef008f77b80aa3bb7fbc8f5b4defbbd6e6a697"></a>
-### [@leafygreen-ui/icon](https://www.npmjs.com/package/@leafygreen-ui/icon) (version 10.2.1)
-<!-- initially found at node_modules/@leafygreen-ui/typography/node_modules/@leafygreen-ui/icon -->
 > LeafyGreen UI Kit Icons
 
 License tags: Apache-2.0
@@ -2870,17 +2830,9 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="3a094b682d35ed41a624cad2b96515312d05550311db927c77fb7fc22c912b9f"></a>
-### [@leafygreen-ui/icon-button](https://www.npmjs.com/package/@leafygreen-ui/icon-button) (version 5.0.5)
-<!-- initially found at node_modules/@leafygreen-ui/icon-button -->
-> LeafyGreen UI Kit Icon Buttons
-
-License tags: Apache-2.0
-
-
 <a id="4a4e3ff7ce62ca9fe6a65018743d1d9f41ad97587038d1c7603db33167584d33"></a>
 ### [@leafygreen-ui/icon-button](https://www.npmjs.com/package/@leafygreen-ui/icon-button) (version 9.1.5)
-<!-- initially found at node_modules/@leafygreen-ui/modal/node_modules/@leafygreen-ui/icon-button -->
+<!-- initially found at node_modules/@leafygreen-ui/icon-button -->
 > LeafyGreen UI Kit Icon Buttons
 
 License tags: Apache-2.0
@@ -2910,17 +2862,9 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="b9fab7248f54e7ca33cd4a2915827608bbb8160a952ae1c411b210e8f73dfed6"></a>
-### [@leafygreen-ui/lib](https://www.npmjs.com/package/@leafygreen-ui/lib) (version 7.0.0)
-<!-- initially found at node_modules/@leafygreen-ui/button/node_modules/@leafygreen-ui/lib -->
-> leafyGreen UI Kit Internal Library
-
-License tags: Apache-2.0
-
-
 <a id="086127748510d761d6e7843dbc86695047b23f99b87a6097414d28a9b8e7648a"></a>
 ### [@leafygreen-ui/lib](https://www.npmjs.com/package/@leafygreen-ui/lib) (version 4.5.1)
-<!-- initially found at node_modules/@leafygreen-ui/icon/node_modules/@leafygreen-ui/lib -->
+<!-- initially found at node_modules/@leafygreen-ui/syntax/node_modules/@leafygreen-ui/lib -->
 > leafyGreen UI Kit Internal Library
 
 License tags: Apache-2.0
@@ -2937,14 +2881,6 @@ License tags: Apache-2.0
 <a id="01c72c8b76dc6edc117b6c47cab1c4150d7a442db4e83c396fd7df89c02f38b7"></a>
 ### [@leafygreen-ui/palette](https://www.npmjs.com/package/@leafygreen-ui/palette) (version 3.2.1)
 <!-- initially found at node_modules/@leafygreen-ui/palette -->
-> LeafyGreen UI Palettes
-
-License tags: Apache-2.0
-
-
-<a id="6b511a7c243da0c161175266a6dd9bc6db38958e7f452e2c12da8e6d2f75a8a1"></a>
-### [@leafygreen-ui/palette](https://www.npmjs.com/package/@leafygreen-ui/palette) (version 2.0.1)
-<!-- initially found at node_modules/@leafygreen-ui/icon-button/node_modules/@leafygreen-ui/palette -->
 > LeafyGreen UI Palettes
 
 License tags: Apache-2.0
@@ -3022,17 +2958,9 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="d37a09b4a1d8a04ce690df1379492c11e78a6fc4d78f93a688a5e4ec96648034"></a>
-### [@leafygreen-ui/typography](https://www.npmjs.com/package/@leafygreen-ui/typography) (version 7.6.0)
-<!-- initially found at node_modules/@leafygreen-ui/typography -->
-> leafyGreen UI Kit Typography
-
-License tags: Apache-2.0
-
-
 <a id="43605f4bb784fb19869f1788c6b04f60632166fe6cf57a358b916aedc11b9b4b"></a>
 ### [@leafygreen-ui/typography](https://www.npmjs.com/package/@leafygreen-ui/typography) (version 8.0.2)
-<!-- initially found at packages/databases-collections/node_modules/@leafygreen-ui/typography -->
+<!-- initially found at node_modules/@leafygreen-ui/typography -->
 > leafyGreen UI Kit Typography
 
 License tags: Apache-2.0

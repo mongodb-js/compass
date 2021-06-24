@@ -24,7 +24,13 @@ const VIEW_ON_VIEW = {
   pipeline: []
 };
 
-const COLLECTIONS = [ COLL, VIEW, VIEW_ON_VIEW ];
+const TIME_SERIES = {
+  _id: 'db.testTimeSeries',
+  type: 'timeSeries',
+  readonly: false
+};
+
+const COLLECTIONS = [ COLL, VIEW, VIEW_ON_VIEW, TIME_SERIES ];
 
 describe('collection module', () => {
   describe('#getSource', () => {
@@ -80,8 +86,9 @@ describe('collection module', () => {
       expect(collectionMetadata(VIEW_ON_VIEW, COLLECTIONS, 'db', 'db.testView')).to.deep.equal({
         namespace: 'db.testViewOnView',
         isReadonly: true,
+        isTimeSeries: false,
         sourceName: 'db.testView',
-        isSourceReadonly: true,
+        sourceReadonly: true,
         sourceViewOn: 'db.test',
         sourcePipeline: [],
         editViewName: 'db.testView'

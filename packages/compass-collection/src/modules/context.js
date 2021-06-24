@@ -20,21 +20,22 @@ const setupActions = (role, localAppRegistry) => {
 /**
  * Setup a scoped store to the collection.
  *
- * @param {Object} role - The role.
- * @param {Object} globalAppRegistry - The global app registry.
- * @param {Object} localAppRegistry - The scoped app registry to the collection.
- * @param {Object} dataService - The data service.
- * @param {String} namespace - The namespace.
- * @param {String} serverVersion - The server version.
- * @param {Boolean} isReadonly - If the collection is a readonly view.
- * @param {Object} actions - The actions for the store.
- * @param {Boolean} allowWrites - If writes are allowed.
- * @param {String} sourceName - The source namespace for the view.
- * @param {String} editViewName - The name of the view we are editing.
+ * @param {Object} options - The plugin store options.
+ * @property {Object} options.role - The role.
+ * @property {Object} options.globalAppRegistry - The global app registry.
+ * @property {Object} options.localAppRegistry - The scoped app registry to the collection.
+ * @property {Object} options.dataService - The data service.
+ * @property {String} options.namespace - The namespace.
+ * @property {String} options.serverVersion - The server version.
+ * @property {Boolean} options.isReadonly - If the collection is a readonly view.
+ * @property {Object} options.actions - The actions for the store.
+ * @property {Boolean} options.allowWrites - If writes are allowed.
+ * @property {String} options.sourceName - The source namespace for the view.
+ * @property {String} options.editViewName - The name of the view we are editing.
  *
  * @returns {Object} The configured store.
  */
-const setupStore = (
+const setupStore = ({
   role,
   globalAppRegistry,
   localAppRegistry,
@@ -42,11 +43,13 @@ const setupStore = (
   namespace,
   serverVersion,
   isReadonly,
+  isTimeSeries,
   actions,
   allowWrites,
   sourceName,
   editViewName,
-  sourcePipeline) => {
+  sourcePipeline
+}) => {
   const store = role.configureStore({
     localAppRegistry: localAppRegistry,
     globalAppRegistry: globalAppRegistry,
@@ -57,6 +60,7 @@ const setupStore = (
     namespace: namespace,
     serverVersion: serverVersion,
     isReadonly: isReadonly,
+    isTimeSeries,
     actions: actions,
     allowWrites: allowWrites,
     sourceName: sourceName,
@@ -71,19 +75,21 @@ const setupStore = (
 /**
  * Setup a scoped plugin to the tab.
  *
- * @param {Object} role - The role.
- * @param {Object} globalAppRegistry - The global app registry.
- * @param {Object} localAppRegistry - The scoped app registry to the collection.
- * @param {Object} dataService - The data service.
- * @param {String} namespace - The namespace.
- * @param {String} serverVersion - The server version.
- * @param {Boolean} isReadonly - If the collection is a readonly view.
- * @param {Boolean} allowWrites - If writes are allowed.
- * @param {String} key - The plugin key.
+ * @param options - The plugin options.
+ * @property {Object} options.role - The role.
+ * @property {Object} options.globalAppRegistry - The global app registry.
+ * @property {Object} options.localAppRegistry - The scoped app registry to the collection.
+ * @property {Object} options.dataService - The data service.
+ * @property {String} options.namespace - The namespace.
+ * @property {String} options.serverVersion - The server version.
+ * @property {Boolean} options.isReadonly - If the collection is a readonly view.
+ * @property {Boolean} options.isTimeSeries - If the collection is a time-series collection.
+ * @property {Boolean} options.allowWrites - If writes are allowed.
+ * @property {String} options.key - The plugin key.
  *
  * @returns {Component} The plugin.
  */
-const setupPlugin = (
+const setupPlugin = ({
   role,
   globalAppRegistry,
   localAppRegistry,
@@ -91,10 +97,12 @@ const setupPlugin = (
   namespace,
   serverVersion,
   isReadonly,
+  isTimeSeries,
   allowWrites,
-  key) => {
+  key
+}) => {
   const actions = role.configureActions();
-  const store = setupStore(
+  const store = setupStore({
     role,
     globalAppRegistry,
     localAppRegistry,
@@ -102,9 +110,10 @@ const setupPlugin = (
     namespace,
     serverVersion,
     isReadonly,
+    isTimeSeries,
     actions,
     allowWrites
-  );
+  });
   const plugin = role.component;
   return {
     component: plugin,
@@ -117,28 +126,32 @@ const setupPlugin = (
 /**
  * Setup every scoped modal role.
  *
- * @param {Object} globalAppRegistry - The global app registry.
- * @param {Object} localAppRegistry - The scoped app registry to the collection.
- * @param {Object} dataService - The data service.
- * @param {String} namespace - The namespace.
- * @param {String} serverVersion - The server version.
- * @param {Boolean} isReadonly - If the collection is a readonly view.
- * @param {Boolean} allowWrites - If we allow writes.
+ * @param options - The scope modal plugin options.
+ * @property {Object} options.globalAppRegistry - The global app registry.
+ * @property {Object} options.localAppRegistry - The scoped app registry to the collection.
+ * @property {Object} options.dataService - The data service.
+ * @property {String} options.namespace - The namespace.
+ * @property {String} options.serverVersion - The server version.
+ * @property {Boolean} options.isReadonly - If the collection is a readonly view.
+ * @property {Boolean} options.isTimeSeries - If the collection is a time-series.
+ * @property {Boolean} options.allowWrites - If we allow writes.
  *
  * @returns {Array} The components.
  */
-const setupScopedModals = (
+const setupScopedModals = ({
   globalAppRegistry,
   localAppRegistry,
   dataService,
   namespace,
   serverVersion,
   isReadonly,
-  allowWrites) => {
+  isTimeSeries,
+  allowWrites
+}) => {
   const roles = globalAppRegistry.getRole('Collection.ScopedModal');
   if (roles) {
     return roles.map((role, i) => {
-      return setupPlugin(
+      return setupPlugin({
         role,
         globalAppRegistry,
         localAppRegistry,
@@ -146,9 +159,10 @@ const setupScopedModals = (
         namespace,
         serverVersion,
         isReadonly,
+        isTimeSeries,
         allowWrites,
-        i
-      );
+        key: i
+      });
     });
   }
   return [];
@@ -157,16 +171,27 @@ const setupScopedModals = (
 /**
  * Create the context in which a tab is created.
  *
- * @param {Object} state - The store state.
- * @param {String} namespace - The namespace.
- * @param {Boolean} isReadonly - Is the namespace readonly.
- * @param {Boolean} isDataLake - If we are hitting the data lake.
- * @param {String} sourceName - The name of the view source.
- * @param {String} editViewName - The name of the view we are editing.
+ * @param {Object} options - The options for creating the context.
+ * @property {Object} options.state - The store state.
+ * @property {String} options.namespace - The namespace.
+ * @property {Boolean} options.isReadonly - Is the namespace readonly.
+ * @property {Boolean} options.isDataLake - If we are hitting the data lake.
+ * @property {String} options.sourceName - The name of the view source.
+ * @property {String} options.editViewName - The name of the view we are editing.
+ * @property {String} options.sourcePipeline
  *
  * @returns {Object} The tab context.
  */
-const createContext = (state, namespace, isReadonly, isDataLake, sourceName, editViewName, sourcePipeline) => {
+const createContext = ({
+  state,
+  namespace,
+  isReadonly,
+  isTimeSeries,
+  isDataLake,
+  sourceName,
+  editViewName,
+  sourcePipeline
+}) => {
   const serverVersion = state.serverVersion;
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = state.appRegistry;
@@ -192,37 +217,39 @@ const createContext = (state, namespace, isReadonly, isDataLake, sourceName, edi
   const queryBarRole = globalAppRegistry.getRole('Query.QueryBar')[0];
   localAppRegistry.registerRole('Query.QueryBar', queryBarRole);
   const queryBarActions = setupActions(queryBarRole, localAppRegistry);
-  setupStore(
-    queryBarRole,
+  setupStore({
+    role: queryBarRole,
     globalAppRegistry,
     localAppRegistry,
-    state.dataService,
+    dataService: state.dataService,
     namespace,
     serverVersion,
     isReadonly,
-    queryBarActions,
-    !isDataLake
-  );
+    isTimeSeries,
+    actions: queryBarActions,
+    allowWrites: !isDataLake
+  });
 
   // Setup each of the tabs inside the collection tab. They will all get
   // passed the same information and can determine whether they want to
   // use it or not.
   filteredRoles.forEach((role, i) => {
     const actions = setupActions(role, localAppRegistry);
-    const store = setupStore(
+    const store = setupStore({
       role,
       globalAppRegistry,
       localAppRegistry,
-      state.dataService,
+      dataService: state.dataService,
       namespace,
       serverVersion,
       isReadonly,
+      isTimeSeries,
       actions,
-      !isDataLake,
+      allowWrite: !isDataLake,
       sourceName,
       editViewName,
       sourcePipeline
-    );
+    });
 
     // Add the tab.
     tabs.push(role.name);
@@ -239,28 +266,30 @@ const createContext = (state, namespace, isReadonly, isDataLake, sourceName, edi
   // Setup the stats in the collection HUD
   const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
   const statsPlugin = statsRole.component;
-  const statsStore = setupStore(
-    statsRole,
+  const statsStore = setupStore({
+    role: statsRole,
     globalAppRegistry,
     localAppRegistry,
-    state.dataService,
+    dataService: state.dataService,
     namespace,
     serverVersion,
     isReadonly,
-    {},
-    !isDataLake
-  );
+    isTimeSeries,
+    actions: {},
+    allowWrites: !isDataLake
+  });
 
   // Setup the scoped modals
-  const scopedModals = setupScopedModals(
+  const scopedModals = setupScopedModals({
     globalAppRegistry,
     localAppRegistry,
-    state.dataService,
+    dataService: state.dataService,
     namespace,
     serverVersion,
     isReadonly,
-    !isDataLake
-  );
+    isTimeSeries,
+    allowWrites: !isDataLake
+  });
 
   const configureFieldStore = globalAppRegistry.getStore('Field.Store');
   configureFieldStore({

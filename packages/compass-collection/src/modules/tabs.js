@@ -67,6 +67,19 @@ const doClearTabs = () => {
 };
 
 /**
+ * Tab options.
+ * @typedef {Object} CollectionTabOptions
+ * @property {String} namespace - The namespace to select.
+ * @property {Boolean} isReadonly - If the ns is readonly.
+ * @property {Boolean} isTimeSeries - If the ns is a time-series collection.
+ * @property {String} sourceName - The ns of the resonly view source.
+ * @property {String} editViewName - The name of the view we are editing.
+ * @property {String} sourceReadonly
+ * @property {String} sourceViewOn
+ * @property {String} sourcePipeline
+ */
+
+/**
  * Handles namespace selected actions.
  *
  * @param {Object} state - The state.
@@ -85,6 +98,7 @@ const doSelectNamespace = (state, action) => {
         activeSubTab: subTabIndex,
         activeSubTabName: action.context.tabs[subTabIndex],
         isReadonly: action.isReadonly,
+        isTimeSeries: action.isTimeSeries,
         tabs: action.context.tabs,
         views: action.context.views,
         subtab: action.context.subtab,
@@ -126,6 +140,7 @@ const doCreateTab = (state, action) => {
     activeSubTab: subTabIndex,
     activeSubTabName: action.context.tabs[subTabIndex],
     isReadonly: action.isReadonly,
+    isTimeSeries: action.isTimeSeries,
     tabs: action.context.tabs,
     views: action.context.views,
     subtab: action.context.subtab,
@@ -308,20 +323,34 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * Action creator for create tab.
  *
- * @param {String} id - The tab id.
- * @param {String} namespace - The namespace.
- * @param {Boolean} isReadonly - Is the collection readonly?
- * @param {String} sourceName - The source namespace.
- * @param {String} editViewName - The name of the view we are editing.
- * @param {Object} context - The tab context.
+ * @parma {Object} options
+ * @property {String} options.id - The tab id.
+ * @property {String} options.namespace - The namespace.
+ * @property {Boolean} options.isReadonly - Is the collection readonly?
+ * @property {String} options.sourceName - The source namespace.
+ * @property {String} options.editViewName - The name of the view we are editing.
+ * @property {Object} options.context - The tab context.
+ * @property {Boolean} options.sourceReadonly
+ * @property {String} options.sourceViewOn
  *
  * @returns {Object} The create tab action.
  */
-export const createTab = (id, namespace, isReadonly, sourceName, editViewName, context, sourceReadonly, sourceViewOn) => ({
+export const createTab = ({
+  id,
+  namespace,
+  isReadonly,
+  isTimeSeries,
+  sourceName,
+  editViewName,
+  context,
+  sourceReadonly,
+  sourceViewOn
+}) => ({
   type: CREATE_TAB,
   id: id,
   namespace: namespace,
   isReadonly: isReadonly || false,
+  isTimeSeries: isTimeSeries || false,
   sourceName: sourceName,
   editViewName: editViewName,
   context: context,
@@ -335,17 +364,31 @@ export const createTab = (id, namespace, isReadonly, sourceName, editViewName, c
  * @param {String} id - The tab id.
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the collection readonly?
+ * @param {Boolean} isTimeSeries - Is the collection time-series?
  * @param {String} sourceName - The source namespace.
  * @param {String} editViewName - The name of the view we are editing.
  * @param {Object} context - The tab context.
+ * @param {Object} sourceReadonly
+ * @param {Object} sourceViewOn
  *
  * @returns {Object} The namespace selected action.
  */
-export const selectNamespace = (id, namespace, isReadonly, sourceName, editViewName, context, sourceReadonly, sourceViewOn) => ({
+export const selectNamespace = ({
+  id,
+  namespace,
+  isReadonly,
+  isTimeSeries,
+  sourceName,
+  editViewName,
+  context,
+  sourceReadonly,
+  sourceViewOn
+}) => ({
   type: SELECT_NAMESPACE,
   id: id,
   namespace: namespace,
-  isReadonly: ((isReadonly === undefined) ? false : isReadonly),
+  isReadonly: isReadonly || false,
+  isTimeSeries,
   sourceName: sourceName,
   editViewName: editViewName,
   context: context,
@@ -446,16 +489,31 @@ export const changeActiveSubTab = (activeSubTab, id) => ({
  * Checks if we need to select a namespace or actually create a new
  * tab, then dispatches the correct events.
  *
- * @param {String} namespace - The namespace to select.
- * @param {Boolean} isReadonly - If the ns is readonly.
- * @param {String} sourceName - The ns of the resonly view source.
- * @param {String} editViewName - The name of the view we are editing.
- */
-export const selectOrCreateTab = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline) => {
+ * @param {CollectionTabOptions} options
+*/
+export const selectOrCreateTab = ({
+  namespace,
+  isReadonly,
+  isTimeSeries,
+  sourceName,
+  editViewName,
+  sourceReadonly,
+  sourceViewOn,
+  sourcePipeline
+}) => {
   return (dispatch, getState) => {
     const state = getState();
     if (state.tabs.length === 0) {
-      dispatch(createNewTab(namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline));
+      dispatch(createNewTab({
+        namespace,
+        isReadonly,
+        isTimeSeries,
+        sourceName,
+        editViewName,
+        sourceReadonly,
+        sourceViewOn,
+        sourcePipeline
+      }));
     } else {
       // If the namespace is equal to the active tab's namespace, then
       // there is no need to do anything.
@@ -463,7 +521,16 @@ export const selectOrCreateTab = (namespace, isReadonly, sourceName, editViewNam
       const activeNamespace = state.tabs[activeIndex].namespace;
       if (namespace !== activeNamespace) {
         dispatch(
-          replaceTabContent(namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline)
+          replaceTabContent({
+            namespace,
+            isReadonly,
+            isTimeSeries,
+            sourceName,
+            editViewName,
+            sourceReadonly,
+            sourceViewOn,
+            sourcePipeline
+          })
         );
       }
     }
@@ -474,34 +541,42 @@ export const selectOrCreateTab = (namespace, isReadonly, sourceName, editViewNam
  * Handles all the setup of tab creation by creating the stores for each
  * of the roles in the global app registry.
  *
- * @param {String} namespace - The namespace.
- * @param {Boolean} isReadonly - If the namespace is readonly.
- * @param {String} sourceName - The view source namespace.
- * @param {String} editViewName - The name of the view we are editing.
+ * @param {CollectionTabOptions} options
  */
-export const createNewTab = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline) => {
+export const createNewTab = ({
+  namespace,
+  isReadonly,
+  isTimeSeries,
+  sourceName,
+  editViewName,
+  sourceReadonly,
+  sourceViewOn,
+  sourcePipeline
+}) => {
   return (dispatch, getState) => {
     const state = getState();
-    const context = createContext(
+    const context = createContext({
       state,
       namespace,
       isReadonly,
-      state.isDataLake,
+      isDataLake: state.isDataLake,
+      isTimeSeries,
       sourceName,
       editViewName,
       sourcePipeline
-    );
+    });
     dispatch(
-      createTab(
-        new ObjectId().toHexString(),
+      createTab({
+        id: new ObjectId().toHexString(),
         namespace,
         isReadonly,
+        isTimeSeries,
         sourceName,
         editViewName,
         context,
-        !!sourceReadonly,
+        sourceReadonly: !!sourceReadonly,
         sourceViewOn
-      )
+      })
     );
   };
 };
@@ -510,34 +585,43 @@ export const createNewTab = (namespace, isReadonly, sourceName, editViewName, so
  * Handles all the setup of replacing tab content by creating the stores for each
  * of the roles in the global app registry.
  *
- * @param {String} namespace - The namespace.
- * @param {Boolean} isReadonly - If the namespace is readonly.
- * @param {String} sourceName - The view source namespace.
- * @param {String} editViewName - The name of the view we are editing.
+ * @param {CollectionTabOptions} options
  */
-export const replaceTabContent = (namespace, isReadonly, sourceName, editViewName, sourceReadonly, sourceViewOn, sourcePipeline) => {
-  return (dispatch, getState) => {
+export const replaceTabContent = ({
+  namespace,
+  isReadonly,
+  isTimeSeries,
+  sourceName,
+  editViewName,
+  sourceReadonly,
+  sourceViewOn,
+  sourcePipeline
+}) => {
+  return (dispatch,
+    getState) => {
     const state = getState();
-    const context = createContext(
+    const context = createContext({
       state,
       namespace,
       isReadonly,
-      state.isDataLake,
+      isDataLake: state.isDataLake,
+      isTimeSeries,
       sourceName,
       editViewName,
       sourcePipeline
-    );
+    });
     dispatch(
-      selectNamespace(
-        new ObjectId().toHexString(),
+      selectNamespace({
+        id: new ObjectId().toHexString(),
         namespace,
         isReadonly,
+        isTimeSeries,
         sourceName,
         editViewName,
         context,
-        !!sourceReadonly,
+        sourceReadonly: !!sourceReadonly,
         sourceViewOn
-      )
+      })
     );
   };
 };

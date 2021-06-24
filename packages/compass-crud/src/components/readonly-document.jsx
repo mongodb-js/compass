@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
+import DocumentActions from './document-actions';
 import Element from './element';
 import ExpansionBar from './expansion-bar';
 
@@ -55,6 +57,17 @@ class ReadonlyDocument extends React.Component {
     this.setState({ renderSize: newLimit });
   }
 
+  handleClone = () => {
+    this.props.openInsertDocumentDialog(this.props.doc.generateObject(), true);
+  }
+
+  /**
+   * Handle copying JSON to clipboard of the document.
+   */
+  handleCopy = () => {
+    this.props.copyToClipboard(this.props.doc);
+  }
+
   /**
    * Get the elements for the document.
    *
@@ -97,6 +110,15 @@ class ReadonlyDocument extends React.Component {
     );
   }
 
+  renderActions() {
+    return (
+      <DocumentActions
+        copy={this.props.copyToClipboard ? this.handleCopy : undefined}
+        clone={this.props.openInsertDocumentDialog ? this.handleClone : undefined}
+      />
+    );
+  }
+
   /**
    * Render a single document list item.
    *
@@ -110,6 +132,7 @@ class ReadonlyDocument extends React.Component {
             {this.renderElements()}
           </ol>
           {this.renderExpansion()}
+          {this.renderActions()}
         </div>
       </div>
     );
@@ -119,8 +142,10 @@ class ReadonlyDocument extends React.Component {
 ReadonlyDocument.displayName = 'ReadonlyDocument';
 
 ReadonlyDocument.propTypes = {
+  copyToClipboard: PropTypes.func,
   doc: PropTypes.object.isRequired,
   expandAll: PropTypes.bool,
+  openInsertDocumentDialog: PropTypes.func,
   tz: PropTypes.string
 };
 
