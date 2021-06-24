@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import toNS from 'mongodb-ns';
-import { TextButton } from 'hadron-react-buttons';
+
+import CollectionHeaderActions from '../collection-header-actions';
+import ReadOnlyBadge from './read-only-badge';
+import TimeSeriesBadge from './time-series-badge';
+import ViewBadge from './view-badge';
 
 import styles from './collection-header.less';
 
@@ -24,7 +27,7 @@ class CollectionHeader extends Component {
     pipeline: PropTypes.array
   };
 
-  modifySource = () => {
+  onEditViewClicked = () => {
     this.props.selectOrCreateTab({
       namespace: this.props.sourceName,
       isReadonly: this.props.sourceReadonly,
@@ -37,7 +40,7 @@ class CollectionHeader extends Component {
     });
   }
 
-  returnToView = () => {
+  onReturnToViewClicked = () => {
     this.props.selectOrCreateTab({
       namespace: this.props.editViewName,
       isReadonly: true,
@@ -55,93 +58,12 @@ class CollectionHeader extends Component {
   }
 
   /**
-   * Render the modify source button.
-   *
-   * @returns {Component} The component.
-   */
-  renderModifySource() {
-    if (!this.props.editViewName) {
-      return (
-        <span className={classnames(styles['collection-header-title-readonly-modify'])}>
-          <TextButton
-            id="modify-source"
-            className="btn btn-default btn-xs"
-            text="Modify Source"
-            clickHandler={this.modifySource} />
-        </span>
-      );
-    }
-  }
-
-  /**
-   * Renders view information if the collection is a view.
-   *
-   * @returns {Component} The component.
-   */
-  renderViewInformation() {
-    if (this.props.sourceName) {
-      return (
-        <div>
-          <span
-            className={classnames(styles['collection-header-title-readonly-on'])}
-            title={this.props.sourceName}>
-            (view on: {this.props.sourceName})
-          </span>
-          {this.renderModifySource()}
-          {this.renderReturnToView()}
-        </div>
-      );
-    }
-  }
-
-  /**
-   * Render the readonly icon if collection is readonly.
-   *
-   * @returns {Component} The component.
-   */
-  renderReadonly() {
-    if (this.props.isReadonly) {
-      return (
-        <div className={classnames(styles['collection-header-title-readonly'])}>
-          {this.renderViewInformation()}
-          <span className={classnames(styles['collection-header-title-readonly-indicator'])}>
-            <i className="fa fa-eye" aria-hidden="true" />
-            Read Only
-          </span>
-        </div>
-      );
-    }
-    return this.renderReturnToView();
-  }
-
-  /**
-   * If we are modifying a source pipeline, then render the return to view button.
-   *
-   * @returns {Component} The component.
-   */
-  renderReturnToView() {
-    if (this.props.editViewName) {
-      return (
-        <span className={classnames(styles['collection-header-title-return'])}>
-          <TextButton
-            id="return-to-view"
-            className="btn btn-default btn-xs"
-            text="< Return To View"
-            clickHandler={this.returnToView} />
-        </span>
-      );
-    }
-  }
-
-  /**
    * Render the stats.
    *
    * @returns {Component} The component.
    */
   renderStats() {
-    if (!this.props.isReadonly) {
-      return (<this.props.statsPlugin store={this.props.statsStore} />);
-    }
+    return (<this.props.statsPlugin store={this.props.statsStore} />);
   }
 
   /**
@@ -154,31 +76,31 @@ class CollectionHeader extends Component {
     const database = ns.database;
     const collection = ns.collection;
 
-    const titleClass = classnames({
-      [styles['collection-header-title']]: true,
-      [styles['collection-header-title-is-writable']]: !this.props.isReadonly
-    });
-
-    const collectionClass = classnames({
-      [styles['collection-header-title-collection']]: true,
-      [styles['collection-header-title-collection-is-writable']]: !this.props.isReadonly
-    });
-
     return (
       <div className={styles['collection-header']}>
-        {this.renderStats()}
-        <div className={titleClass} title={`${database}.${collection}`}>
+        {!this.props.isReadonly && this.renderStats()}
+        <div className={styles['collection-header-title']} title={`${database}.${collection}`}>
           <a
             className={styles['collection-header-title-db']}
             onClick={() => this.handleDBClick(database)}
+            href="#"
           >
             {database}
           </a>
           <span>.</span>
-          <span className={collectionClass}>
+          <span className={styles['collection-header-title-collection']}>
             {collection}
           </span>
-          {this.renderReadonly()}
+          {this.props.isReadonly && <ReadOnlyBadge />}
+          {this.props.isTimeSeries && <TimeSeriesBadge />}
+          {this.props.isReadonly && this.props.sourceName && <ViewBadge />}
+          <CollectionHeaderActions
+            editViewName={this.props.editViewName}
+            isReadonly={this.props.isReadonly}
+            onEditViewClicked={this.onEditViewClicked}
+            onReturnToViewClicked={this.onReturnToViewClicked}
+            sourceName={this.props.sourceName}
+          />
         </div>
       </div>
     );
