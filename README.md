@@ -96,6 +96,12 @@ Most of the plugins have their own development environment so you can work on th
 
 If you want to see your changes applied in Compass, you might need to rebuild plugins that you changed with the `compile` command. Instead of manually writing out the `scope` you might want to use `lerna --since` filter to rebuild everything since your local or origin `HEAD` of the git history: `npx lerna run compile --stream --since origin/HEAD`. Restarting or hard-reloading (Shift+CMD+R) Compass after compilation is finished should apply your changes.
 
+In addition to running lerna commands directly, there are a few convenient npm scripts for working with packages:
+
+- `npm run compile-changed` will compile all plugins and their dependants changed since `origin/HEAD`
+- `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`
+- `npm run check-changed` will run `eslint` and `depcheck` validation in all packages (ignoring dependants) changed since `origin/HEAD`
+
 ### Publishing Packages
 
 For package changes to be applied in Compass beta or GA releases they need to be published first. The whole publish process happens from the main branch with the following command in order:
