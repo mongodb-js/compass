@@ -65,7 +65,7 @@ describe('utils', () => {
 
       it('does not return setWindowFields stage', () => {
         const setWindowFields = filterStageOperators('4.9.9')
-          .filter((o) => (o.name === '$setWindowFields'))
+          .filter((o) => (o.name === '$setWindowFields'));
 
         expect(setWindowFields.length).to.be.equal(0);
       });
@@ -80,7 +80,7 @@ describe('utils', () => {
 
       it('does not return setWindowFields stage', () => {
         const setWindowFields = filterStageOperators('5.0.0')
-          .filter((o) => (o.name === '$setWindowFields'))
+          .filter((o) => (o.name === '$setWindowFields'));
 
         expect(setWindowFields.length).to.be.equal(1);
       });
@@ -95,7 +95,7 @@ describe('utils', () => {
 
       it('does not return setWindowFields stage', () => {
         const setWindowFields = filterStageOperators('5.0.0-rc0')
-          .filter((o) => (o.name === '$setWindowFields'))
+          .filter((o) => (o.name === '$setWindowFields'));
 
         expect(setWindowFields.length).to.be.equal(1);
       });
