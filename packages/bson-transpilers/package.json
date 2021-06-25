@@ -17,7 +17,7 @@
     "antlr4-js": "java -Xmx500M -cp './antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib/antlr -visitor -Xexact-output-dir grammars/ECMAScript.g4",
     "antlr4-py": "java -Xmx500M -cp './antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib/antlr -visitor -Xexact-output-dir grammars/Python3.g4",
     "symbol-table": "node compile-symbol-table.js",
-    "pre-test": "npm run compile",
+    "pretest": "npm run compile",
     "test": "mocha",
     "test-ci": "mocha",
     "depcheck": "depcheck",
