@@ -30,6 +30,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
+    "bson": "*",
     "hadron-react-buttons": "*",
     "mongodb-ace-theme": "*",
     "prop-types": "^15.5.8",
@@ -139,7 +140,7 @@
   "dependencies": {
     "JSONStream": "^1.3.5",
     "ansi-to-html": "^0.6.11",
-    "bson": "github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again",
+    "bson": "^4.4.0",
     "csv-parser": "^2.3.1",
     "fast-csv": "^3.4.0",
     "flat": "cipacda/flat",
