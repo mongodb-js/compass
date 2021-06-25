@@ -19,10 +19,11 @@
     "antlr4-py": "java -Xmx500M -cp './antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib/antlr -visitor -Xexact-output-dir grammars/Python3.g4",
     "symbol-table": "node compile-symbol-table.js",
     "test": "mocha",
-    "prepublishOnly": "npm run compile",
+    "test-ci": "npm run test",
     "depcheck": "depcheck",
     "precheck": "npm run depcheck",
-    "check": "mongodb-js-precommit './codegeneration/**/*{.js,.jsx}' './test/**/*.js' index.js"
+    "check": "mongodb-js-precommit './codegeneration/**/*{.js,.jsx}' './test/**/*.js' index.js",
+    "check-ci": "npm run check"
   },
   "homepage": "http://github.com/mongodb-js/compass/packages/bson-transpilers",
   "repository": {
