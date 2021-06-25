@@ -6,14 +6,14 @@ This document was automatically generated on Fri Jun 25 2021.
 Package|Version|License
 -------|-------|-------
 **[@babel/code-frame](#964c49eaca6945b6519172222dd8f79aef744d6e4974d1652ba534467e0cd8db)**|7.14.5|MIT
-**[@babel/compat-data](#fec31cfc35eb51cb78edf29143b2b68d41775713ada37b1ba6bd2648fbc1022c)**|7.14.5|MIT
+**[@babel/compat-data](#0463953e1453b9d5cfc035b9ded4fdb858c710b2042f5839fb85c420ce672c6a)**|7.14.7|MIT
 **[@babel/core](#85d8403e9499f9a2d2de47918a38ec0544d483eadafb73c7f3fce2f51bf910f7)**|7.14.6|MIT
 **[@babel/generator](#1c1967801f28ed06e4a615aaa13d34a1b90a27b35ac8d585ac8d5dce59f27a79)**|7.14.5|MIT
 **[@babel/helper-compilation-targets](#5dc4b464a18da9d162f1ecb8bd669f449170b02fcb01d324b342b3e313c07f8a)**|7.14.5|MIT
 **[@babel/helper-function-name](#5db627ab4f5306311951f129e4ae74601d07aa3cb7471c5c6e3236650b9353f3)**|7.14.5|MIT
 **[@babel/helper-get-function-arity](#18bd1404a473dda9d11ff75e2f612fe6cfe9721466dcc159a2df73ee5c088ed8)**|7.14.5|MIT
 **[@babel/helper-hoist-variables](#c72b1ffc560c42770e2cc9ab1abb8eab25e372d69aed957540e0861ad439b214)**|7.14.5|MIT
-**[@babel/helper-member-expression-to-functions](#a49ceceb47d7665f7097c9925e8d3c5a477fe46d41a01e17634da7f8a50227ed)**|7.14.5|MIT
+**[@babel/helper-member-expression-to-functions](#9340387aee145f08eb19f853dc5e83212883884732ea644ba6de8e968b3b51f2)**|7.14.7|MIT
 **[@babel/helper-module-imports](#6a97aff20cc72231576e8ba8ef344352f4dca4935e1b77e4be475576142fcb69)**|7.14.5|MIT
 **[@babel/helper-module-transforms](#4debc06d9309de85ffc84cea48845a92a48fba0e818965c89239adedd2d272ed)**|7.14.5|MIT
 **[@babel/helper-optimise-call-expression](#acc0e0adc28d6b8a82f938be87a437ede3fdd5c8c25e12603328f709b59b2ec8)**|7.14.5|MIT
@@ -25,15 +25,15 @@ Package|Version|License
 **[@babel/helper-validator-option](#346eb4840390092c2e31c7b7468ba74ea04b24fe92080ccbf6e0965b49fd49ab)**|7.14.5|MIT
 **[@babel/helpers](#5ad63d22c8c60fdcc8209f71f5074694251d4094ecd9bca6826e2caeadc4c705)**|7.14.6|MIT
 **[@babel/highlight](#dbc6155fe656d9d71de721f31aa5508d54057d5cf4d61387559432eee493f246)**|7.14.5|MIT
-**[@babel/parser](#2d58dbab1298cd20519992ce5b2f75fc7aada14bc9e86fbc18abf43e438ba157)**|7.14.6|MIT
-**[@babel/plugin-transform-destructuring](#0d24b7750f38c0baef4dae2040841661641fa628e2b8815d5f5fc9a437493d1f)**|7.14.5|MIT
+**[@babel/parser](#9d42f3aa99c91481df3651fe4fd6a5e1398e5fb84cbe62810362c1d14ff22126)**|7.14.7|MIT
+**[@babel/plugin-transform-destructuring](#1baa274ae86e308681bbce6715ee5c43e730d7c791d566a343ace9f5a2570e5c)**|7.14.7|MIT
 **[@babel/plugin-transform-parameters](#9b27d2f6c67e744003b6169d39f2f63f5b54c6c97a5a6df6d45a34c9a229ac40)**|7.14.5|MIT
 **[@babel/plugin-transform-shorthand-properties](#2f8c0e0f32b0760dd542bb9892fba0940fff597b550e344d34674dbc895c6804)**|7.14.5|MIT
 **[@babel/polyfill](#bad892a062554535e1da49198f663616d137cea8ff3382a2f3d6a4d0b8717c30)**|7.12.1|MIT
 **[@babel/runtime](#25c5f9cf92017e353001135c110e992014f2fd0503adc45804dc68e538bc5277)**|7.14.6|MIT
 **[@babel/runtime-corejs2](#a815aa0cd309144c957a4179ae72d168d571175b970267e8b960e53435ae34ec)**|7.14.6|MIT
 **[@babel/template](#b199a24ecdaaf3c5ce7900abcebfcea447f98d52b21bbf2701d0bb16efd158b1)**|7.14.5|MIT
-**[@babel/traverse](#d8bdae55d04a25cf8753a63977728c9a939ecbf1e8f957b6d73770b9f417a954)**|7.14.5|MIT
+**[@babel/traverse](#15d3f2bc498406bb48ae64622cb45b98e43b6c860762a842d976ae34ba74c90d)**|7.14.7|MIT
 **[@babel/types](#4d6aeb808b612565fb295cfa5fe05d5efa96707b46bc41beddda12156f269f4f)**|7.14.5|MIT
 **[@emotion/cache](#83e9fbfd8abcd4e9034b208ea613039b259c587c764894dcb9346c98dcb6009c)**|10.0.29|MIT
 **[@emotion/hash](#28d888fd2b55ad544152d8e1106f9fb67ebaf8e8ab3bf63836ce4f513f8a4fd6)**|0.8.0|MIT
@@ -118,20 +118,20 @@ Package|Version|License
 **[@mongodb-js/hadron-plugin-manager](#7c4d0a7e278233d606f2457e3d50cbec1c6011ce87643969b6c42ad0e99dcae9)**|6.3.0|SSPL
 **[@mongodb-js/mongodb-redux-common](#bae922227dbeb5b5db749880d9f828d95b7eae969066df5951e834a151740b15)**|1.3.0|SSPL
 **[@mongodb-js/ssh-tunnel](#61a8a28f7e768cb9357131fced91bb727add9058d8ccaa9a53f3dffeebda249c)**|1.2.0|Apache-2.0
-**[@mongosh/async-rewriter2](#6266cef7c1b44f3f739099e42b73bda2be48151d8a06fd6189228eec99d73b47)**|0.15.0|Apache-2.0
-**[@mongosh/autocomplete](#f19b6f0bf3ddf6ace31a7c36a8a709d9390f498b60d9e164d35b9d00af509ebb)**|0.15.0|Apache-2.0
-**[@mongosh/browser-repl](#b61e8a5333a427b756004a6033ec3809969bc42ba21f2ef156ffb78c24195f01)**|0.15.0|Apache-2.0
-**[@mongosh/browser-runtime-core](#0e39e9d5b242e1cfa81527cf57c733c38b2078e7946bd2bd715ef098897aaefb)**|0.15.0|Apache-2.0
-**[@mongosh/browser-runtime-electron](#9fa8ccf9aea548d20e3e7ca3e3e0f968032b98dbdb9816cf6a86979aca90ce85)**|0.15.0|Apache-2.0
-**[@mongosh/errors](#377082528450b2ff1817f0677de6eecc84bac3f82b4230e501f44568b4f7640e)**|0.15.0|Apache-2.0
-**[@mongosh/history](#4928c8b4c1d2d59cea1bf74f94a5772b5b7a82bdf0578cdf18150d393d3c21a5)**|0.15.0|Apache-2.0
-**[@mongosh/i18n](#b0b70d494fa824256b556435ef432dd2379b1206e20e3427d5c0df67a043c097)**|0.15.0|Apache-2.0
-**[@mongosh/node-runtime-worker-thread](#bc659521640adfc1abaa0a6532ea6ea1f21e9b757cc289a5e277c3483f92a0ec)**|0.15.0|Apache-2.0
-**[@mongosh/service-provider-core](#54cfffbee3e2b2086b21f65c66de4d33a8aad6dcaa87cd71ace2f1ec3ef88d6e)**|0.15.0|Apache-2.0
-**[@mongosh/service-provider-server](#1d50f268f58d4c22034c5ba06db7d566263c2a5a3ce1de8f1430a7814e57a782)**|0.15.0|Apache-2.0
-**[@mongosh/shell-api](#26a37c3f1aff82bb677a6b4da55422ea97bdc70ba2e858af25716fd42e2cc092)**|0.15.0|Apache-2.0
-**[@mongosh/shell-evaluator](#12f71ec1fdef77b9ee5dbf3ccf682ced3c1eef536fff95d55c9c3c2b8ee3f5f1)**|0.15.0|Apache-2.0
-**[@mongosh/types](#0c738b37ebc9f66854e08861fd0ca3c5db7ba391dbdb913ae1fe192d82d310fd)**|0.15.0|Apache-2.0
+**[@mongosh/async-rewriter2](#f8d6f7e2135647e5c0123bee3dbfdf9cbd6a4d9b2bd19a0efcee7874711007b0)**|0.15.1|Apache-2.0
+**[@mongosh/autocomplete](#65045898d4446c2142301a2660602e05782564009ef586a292be72cc9fabd5f8)**|0.15.1|Apache-2.0
+**[@mongosh/browser-repl](#769bb6d348807c6be11c546d284a4b4b18374d0a7ce768fa597e0e046c149625)**|0.15.1|Apache-2.0
+**[@mongosh/browser-runtime-core](#5e4c54e61cdfe247ab25defa885d3928ad294e3ac42bc050438238728e724e34)**|0.15.1|Apache-2.0
+**[@mongosh/browser-runtime-electron](#085009d9a8e1c4a1aabc69d2d92b70765f834b6772390d87238b0aebfe9fffb4)**|0.15.1|Apache-2.0
+**[@mongosh/errors](#6d871b9021fb90dec7b43b11ff9ad56804f550287c8689c2cae5a3d6303973c4)**|0.15.1|Apache-2.0
+**[@mongosh/history](#8a57e938c95940ef77e77c37cf513c111459bf9b1adb30cfd23e12d22b30d00e)**|0.15.1|Apache-2.0
+**[@mongosh/i18n](#e49da5ee9588d588939a03fd7c0e1248d96ee0496f865d00d10ba3e83d4a547d)**|0.15.1|Apache-2.0
+**[@mongosh/node-runtime-worker-thread](#fbe3b4b41302647ed7e04e2c9c765fc62887b1254217b6ba270edfe28b5d67d4)**|0.15.1|Apache-2.0
+**[@mongosh/service-provider-core](#60207d6f4a4b075f63d0271b72ba297cac0f71d34bd3051c160ec79eb087735f)**|0.15.1|Apache-2.0
+**[@mongosh/service-provider-server](#85f7d42f37bb61843a5c86059fd458ed9f9c0e798734d488d56db6c28863e321)**|0.15.1|Apache-2.0
+**[@mongosh/shell-api](#7bd722ffb3480a2c1407a8dbdcc81f45949764a59c90a46258c5a979ec3c6743)**|0.15.1|Apache-2.0
+**[@mongosh/shell-evaluator](#a215dd39dc6f7d7fa84edfac71119f7d73451ee6cddd73ca40591c7587982286)**|0.15.1|Apache-2.0
+**[@mongosh/types](#300e265ba3b940dae47dea27923258172670c57807050e395ac0116c008a7324)**|0.15.1|Apache-2.0
 **[@npmcli/move-file](#b7b87ae4f596a12a8a88a505d573b3d9b9dc86a1d9ff3b75b77c881eb2143cdc)**|1.1.2|MIT
 **[@react-dnd/asap](#48010989aaec720af5a018ed2fd3e6541514b8d4244595e0df3985bdee63eade)**|4.0.0|MIT
 **[@react-dnd/invariant](#eaa7966ca6a331042272288192ae9bdbdcd2c6e7fbcb60af673ed0f128b3e3f2)**|2.0.0|MIT
@@ -147,7 +147,7 @@ Package|Version|License
 **[@types/babel__template](#ccdadd06002ca5f07f4db3472b699d0fd1e04f174cf56963be17921c935a7702)**|7.4.0|MIT
 **[@types/babel__traverse](#66713bd122cb8b3cfab9fa4456f3fccdde198279ee68ca4482f835f5f97d41a7)**|7.11.1|MIT
 **[@types/cacheable-request](#3bd9bf88a52a49fcbac01978705f7d2640f63498bf4d910f11fde7c8f45dac42)**|6.0.1|MIT
-**[@types/chai](#c7f016787e1731562be2cf4bf6a3497eba7bbb5dab40ff6ed017ee32916b4a28)**|4.2.18|MIT
+**[@types/chai](#f38916043b51daf68b3fd63df1e76b60e3f9a28481922c88c0d5b26708d8b4a1)**|4.2.19|MIT
 **[@types/hoist-non-react-statics](#5dffba4574f0e34391feaeca261f5e5b8be2ff9308a7e2804dc38c258d4e671a)**|3.3.1|MIT
 **[@types/http-cache-semantics](#2a203d85fc55bf68c519f0b76464d66525f75848792196622d0a8c79ab751844)**|4.0.0|MIT
 **[@types/istanbul-lib-coverage](#832e44626969d6a9dd118c8607e307d5e053e544513f33c38a5621ef043698f7)**|2.0.3|MIT
@@ -155,7 +155,7 @@ Package|Version|License
 **[@types/istanbul-reports](#cc8204ac08e4e65a310e691e9bb2fb61dd124ee3fc3765b61ba943fa9181ceda)**|1.1.2|MIT
 **[@types/keyv](#089f5ddf105335eafe5759e728d8d912a35f0cf0349bde0f5da41d34a1c9c737)**|3.1.1|MIT
 **[@types/node](#2e074f5e33ae37266e3ce953a67b84424c9356251c8ae59ade85167343558ce2)**|12.20.15|MIT
-**[@types/node](#c7ae1035feed6aefbaa70aa956bcd546849d610b07b487e2eec140b179ff8d5f)**|15.12.2|MIT
+**[@types/node](#00ff6ec600de905e5258a0edd8e97de9eb47ef302d487ebc698ba1cc451ca8e6)**|15.12.4|MIT
 **[@types/parse-json](#f1178a1d84f935a2960903a1c568447caa960bdb1b11cd3fe4154209b1a6f3f8)**|4.0.0|MIT
 **[@types/prop-types](#bf7f52bc106107c67effd59d0a9eff41c4b69e0fbba0cc719336cc3758e41715)**|15.7.3|MIT
 **[@types/react](#15e94b678632c24f8e46100af3effcba10a55e3b15bb9981fa6e7a286917a917)**|17.0.11|MIT
@@ -167,7 +167,7 @@ Package|Version|License
 **[@types/yargs](#9adfdaff80d55265d4dc12d05636b05c2138ee6b34ca9f742269762cf376038f)**|13.0.11|MIT
 **[@types/yargs-parser](#07cf5a31b0063548686ce40064b2ab7774abd14460f5ab56206110a3fbf38e24)**|20.2.0|MIT
 **[abbrev](#833e7f77a7281caac706be0c8f668047915855542cbbf1bd470fe0e885db13b5)**|1.1.1|ISC
-**[acorn](#0af2d76fc1009d1089139f887f28c62325f2b628c487775a81006195468e6719)**|8.4.0|MIT
+**[acorn](#67f7a86d5927041de9ba9c536b8ecb95e47cec0488cbf9cb52ab2cb125fd6a84)**|8.4.1|MIT
 **[acorn](#fc95bfb698293b3127755b9d97e2974c7df920d0c63b56dd59fb99de9867d4d0)**|7.4.1|MIT
 **[acorn](#59dbbc3875daa811b3713e7584b0511a4afb24eaf1461b575c2e555e19527160)**|2.7.0|MIT
 **[acorn](#b6def52d65830c25c0f8fc48eef95c135a95f1b9fef1be055a9268736be97d8a)**|1.2.2|MIT
@@ -281,8 +281,8 @@ Package|Version|License
 **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**|1.1.11|MIT
 **[braces](#57342b612d0ebf408cf342d7c5abb7940cf7c7330b2782d9d77a90253f8ae02f)**|3.0.2|MIT
 **[browserslist](#a5bfb1ae7d71806536a968a858a0b624c13fb380c551914b97479fee2b3ec524)**|4.16.6|MIT
-**[bson](#ee52fad50f125b1ac53959bf638e62cafa1a273e20164cc18313012e39035bb5)**|4.1.0|Apache-2.0
 **[bson](#3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282)**|4.4.0|Apache-2.0
+**[bson](#ee52fad50f125b1ac53959bf638e62cafa1a273e20164cc18313012e39035bb5)**|4.1.0|Apache-2.0
 **[bson](#0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87)**|1.1.6|Apache-2.0
 **[bson](#9568646decb901218e67075eb984d7bbd5c4fae711cd931bb42bb85757af4a4b)**|4.0.2|Apache-2.0
 **[bson-transpilers](#613ab58117108f5d02d653f833684405b03a7bed424e17af5f06923bdc9195d4)**|0.15.0|Apache-2.0
@@ -303,7 +303,7 @@ Package|Version|License
 **[camelcase](#7c531851f4f6e28c5be71a5209c4248a75df726232b0cc74b4de92017a8d6e3a)**|3.0.0|MIT
 **[camelcase](#e3b5663e688fd29f7e7dca97e3c2ac642278e5f8964b6f4444f730718f42f6e2)**|1.2.1|MIT
 **[camelcase](#9cd8c9b9aea21f860554b1f05aa76483e6612e5075f756f89604b7a321515fd9)**|5.3.1|MIT
-**[caniuse-lite](#4b13811cf7e5488cf512cb519d777d32ebae4b95e202a968441c48089cbd8b8a)**|1.0.30001237|CC-BY-4.0
+**[caniuse-lite](#de5838163da7238f033004583621a31f428af33ce93e118ea38d94feaf7b522c)**|1.0.30001239|CC-BY-4.0
 **[caseless](#2e1813b9ca4cdb1d7af83e25e5cea5b1a8ccfeda701eb7edf8bcc35d9a0788b2)**|0.12.0|Apache-2.0
 **[center-align](#a9413bbe8a6f31025f08f0603c15493aef950da00472c6dc8a0ebdf8a9121417)**|0.1.3|MIT
 **[chai](#2acc7dbd6f5891c6e9381b61d0a0efe6a71dbef99a3488e5da16e491563adbd3)**|3.5.0|MIT
@@ -347,7 +347,7 @@ Package|Version|License
 **[console-control-strings](#b5c95e92498080b75fd8a8ef4e497edcc8be28524f86d2a0f28ad489572f381e)**|1.1.0|ISC
 **[constantinople](#261aefefbb7c693507a7b697695a39b92eae65c861b915b43f3c3fdb0c3be56c)**|3.0.2|MIT
 **[context-eval](#d964771cbcc1bcd155d4e3bfaa7dc176cd7c63074167c460b6eb4433c6c8c4f1)**|0.1.0|MIT
-**[convert-source-map](#9fa90e91e8e853f49c461c7aaf6a04c6f1779cf13bb6143bd9efc036af36d7c1)**|1.7.0|MIT
+**[convert-source-map](#0acf0ab7734deb5e364e5150eb235062022893835b113aa11e0c7e9065fa5073)**|1.8.0|MIT
 **[copy-anything](#3b9a44b73f9043c09994ceb559c5773a5f657818026950dbed8dd08cba6d26a1)**|2.0.3|MIT
 **[core-js](#dcaba0c85c1bf1c6ab3a71aea08e211ac14cb75050e7fd85ff9e12be9b43197a)**|2.6.12|MIT
 **[core-util-is](#ab5cbd313ac7ce6a02ce0c800c05b4e77771c80c411d95438946ce15408bbd4f)**|1.0.2|MIT
@@ -414,7 +414,7 @@ Package|Version|License
 **[electron-localshortcut](#ee8b563932c38f84357da4306c4c915a62be80079d99cce51ab1a6085889adc2)**|3.2.1|MIT
 **[electron-localshortcut](#428563cb0fe8c7a41f6597c5a50ece317106f12872b633c4582624c83453a721)**|0.6.1|MIT
 **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**|1.0.0|Apache-2.0
-**[electron-to-chromium](#9bbae6076fde0285de7b8eec9eca1b262699ab77fe65a9dca7dbd173ea8bad8d)**|1.3.752|ISC
+**[electron-to-chromium](#9769fd53eab94d4f9f328aa1dadb37b2cefcd6d4b28cdaa10632018f467d73d5)**|1.3.757|ISC
 **[emoji-regex](#6b77e9d1a0f8537b3cf15d399dc71744061711bd101c61ca7f74324e5a66ebdc)**|8.0.0|MIT
 **[emotion](#70803f37575de31a75cc6d56ad6c64d1368178992a4d8b328d6ac7cd3cd789c1)**|10.0.27|MIT
 **[encoding](#a59b80f339b699db7f8badf82e872dcb5e31ce2b6997fdb6add4f6511b9c9f63)**|0.1.13|MIT
@@ -455,7 +455,7 @@ Package|Version|License
 **[find-up](#ce1b52d9c89d65d33d93a8599af81c04494ba5e0a9244815159d5730fa4a5a61)**|1.1.2|MIT
 **[first-chunk-stream](#c940079dd0a2457019ab184334f928cab84e316cd4016ba3581b312aa55c70f9)**|3.0.0|MIT
 **[flat](#66ceff5c8386c058900c26f8e45b9c2207fdf664b98a49e57fa4b9cd55741314)**|5.0.0|BSD-3-Clause
-**[focus-trap](#bc7dd67ca57752a61297c4d372abfc6d206017d60bf85cd9fcca1a01d81c136a)**|6.5.0|MIT
+**[focus-trap](#f5facfee6e890b01955ce1312b81a75ece0c320f07c46adb48aaaefd6066bc3a)**|6.5.1|MIT
 **[focus-trap-react](#55860d5334a82184e3a8ea8f18548c847d8e5e222f6f514a9ee435ce9da10dec)**|8.4.2|MIT
 **[font-awesome](#b95959a8770f3dc754d1bbfaa2a6ca762ecaacc70ef194ba5ee6a0693cbc772a)**|4.7.0|(OFL-1.1 AND MIT)
 **[forever-agent](#f7f73658745611aec4bc531a0ef5bb91f143397bad6f472e7c420827971f11dc)**|0.6.1|Apache-2.0
@@ -884,6 +884,7 @@ Package|Version|License
 **[mongodb-collection-sample](#79daa5770151f329c1c9dcf0e80eb13343b14b576c0d21f790e9209c1f0afa5b)**|4.5.1|Apache-2.0
 **[mongodb-compass](#2fd756a7b8b16bab9fcff1b6a60f3fe302c38dc1a73b48902ee106dcd5c6799f)**|0.0.0-dev.0|SSPL
 **[mongodb-connection-model](#295d2ed1ad913f4fc1f334cb0ff700dfca004e0241aa11512db9f04704e3806a)**|21.2.0|SSPL
+**[mongodb-connection-string-url](#d842513739d9a848af83ab12b884b179e6e84eb165072b73472b59d20f103c0d)**|1.0.0|Apache-2.0
 **[mongodb-data-service](#8a3f09aaed010bd75ecb1487b3e5a1a0367d8474d53cdab77e12eeab4051018a)**|21.2.0|SSPL
 **[mongodb-database-model](#220b1784e70dbc2fa930c425e0d87612a88716881fce62017ff99921604bdc8e)**|1.2.0|SSPL
 **[mongodb-explain-plan-model](#053e132563eab2346007f2508ee3cf996ce6f90fe4a8070dc565753eb96c8db2)**|1.2.0|SSPL
@@ -933,7 +934,7 @@ Package|Version|License
 **[nopt](#fbf206ce137e18ded38133b05fa8623c287129749e1a5575956a2c0c4388e471)**|5.0.0|ISC
 **[normalize-package-data](#94cc55792991675d965f2045c42b63be5b8d3199fa86ff32a4aa8d121313ea4d)**|2.5.0|BSD-2-Clause
 **[normalize-path](#171055f24996c926b42990ecad59d6c9b35c963930f311bd75a1d7bc5e150c5c)**|3.0.0|MIT
-**[normalize-url](#34e7228185588a0a416dd5fe0a504bac00eae4bb19c2ed8a97f0d2a2661414f3)**|6.0.1|MIT
+**[normalize-url](#019552e3b0898748772477fa3b2924b4c4a8fb8bec640dacb4cce2dfdc955410)**|6.1.0|MIT
 **[npmlog](#ee61305241ab0f8e87a6dc2160efc46973e046400e72fe10858cc36309d51f9b)**|4.1.2|ISC
 **[nth-check](#cf33af860dd7c065d55a66df58be00e0179760e971b55d5b834c547fd47963d9)**|1.0.2|BSD-2-Clause
 **[number-is-nan](#044063cb59ac16c3146a6aa01521f5bd00ae1e6c7a197f31df253f357faf9f75)**|1.0.1|MIT
@@ -1108,7 +1109,7 @@ Package|Version|License
 **[smart-buffer](#5b2ae4208910b88377c85908532887a5dab5e7ee2995782eeb0e89275197dc02)**|4.1.0|MIT
 **[sntp](#130fea491bff1188cb9ed9e5413f49d4a4fdab2c19a4125e64dc9081b186d910)**|1.0.9|BSD
 **[socks](#ed1ca10b3683857e8bf4faab7d21671fb21de63999a3de2cf063343d3f67b950)**|2.6.1|MIT
-**[socks-proxy-agent](#c78594441684e1ac59eca43309d64d1a9047e11f0ca2185394d0ced92b24c786)**|5.0.0|MIT
+**[socks-proxy-agent](#387c5f1267715f68bf7197124f8b9647f257e5717856b4c4bc5d95aed5a46e56)**|5.0.1|MIT
 **[source-map](#40ab158a4f9c7e0cb2e7fc113cfd0df14cabf73f76ff90e255227d216f5ce28c)**|0.5.7|BSD-3-Clause
 **[source-map](#0169cc47e7dce3afb7f16761bda1b13f97a9f532d701ddcf5fbde674338fdd6b)**|0.4.4|BSD-3-Clause
 **[source-map](#55fb2b4a8e114a26cce0c971365f26175ae0d834849c5edebbdb5adafaa08787)**|0.6.1|BSD-3-Clause
@@ -1284,8 +1285,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="fec31cfc35eb51cb78edf29143b2b68d41775713ada37b1ba6bd2648fbc1022c"></a>
-### [@babel/compat-data](https://www.npmjs.com/package/@babel/compat-data) (version 7.14.5)
+<a id="0463953e1453b9d5cfc035b9ded4fdb858c710b2042f5839fb85c420ce672c6a"></a>
+### [@babel/compat-data](https://www.npmjs.com/package/@babel/compat-data) (version 7.14.7)
 <!-- initially found at node_modules/@babel/compat-data -->
 License tags: MIT
 
@@ -1548,8 +1549,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="a49ceceb47d7665f7097c9925e8d3c5a477fe46d41a01e17634da7f8a50227ed"></a>
-### [@babel/helper-member-expression-to-functions](https://www.npmjs.com/package/@babel/helper-member-expression-to-functions) (version 7.14.5)
+<a id="9340387aee145f08eb19f853dc5e83212883884732ea644ba6de8e968b3b51f2"></a>
+### [@babel/helper-member-expression-to-functions](https://www.npmjs.com/package/@babel/helper-member-expression-to-functions) (version 7.14.7)
 <!-- initially found at node_modules/@babel/helper-member-expression-to-functions -->
 > Helper function to replace certain member expressions with function calls
 
@@ -2002,8 +2003,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="2d58dbab1298cd20519992ce5b2f75fc7aada14bc9e86fbc18abf43e438ba157"></a>
-### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.14.6)
+<a id="9d42f3aa99c91481df3651fe4fd6a5e1398e5fb84cbe62810362c1d14ff22126"></a>
+### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.14.7)
 <!-- initially found at node_modules/@babel/parser -->
 > A JavaScript parser
 
@@ -2037,8 +2038,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="0d24b7750f38c0baef4dae2040841661641fa628e2b8815d5f5fc9a437493d1f"></a>
-### [@babel/plugin-transform-destructuring](https://www.npmjs.com/package/@babel/plugin-transform-destructuring) (version 7.14.5)
+<a id="1baa274ae86e308681bbce6715ee5c43e730d7c791d566a343ace9f5a2570e5c"></a>
+### [@babel/plugin-transform-destructuring](https://www.npmjs.com/package/@babel/plugin-transform-destructuring) (version 7.14.7)
 <!-- initially found at node_modules/@babel/plugin-transform-destructuring -->
 > Compile ES2015 destructuring to ES5
 
@@ -2303,8 +2304,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="d8bdae55d04a25cf8753a63977728c9a939ecbf1e8f957b6d73770b9f417a954"></a>
-### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.14.5)
+<a id="15d3f2bc498406bb48ae64622cb45b98e43b6c860762a842d976ae34ba74c90d"></a>
+### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.14.7)
 <!-- initially found at node_modules/@babel/traverse -->
 > The Babel Traverse module maintains the overall tree state, and is responsible for replacing, removing, and adding nodes
 
@@ -3688,8 +3689,8 @@ License files:
       
 
 
-<a id="6266cef7c1b44f3f739099e42b73bda2be48151d8a06fd6189228eec99d73b47"></a>
-### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 0.15.0)
+<a id="f8d6f7e2135647e5c0123bee3dbfdf9cbd6a4d9b2bd19a0efcee7874711007b0"></a>
+### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/async-rewriter2 -->
 > MongoDB Shell Async Rewriter Package
 
@@ -3902,8 +3903,8 @@ License files:
          limitations under the License.
 
 
-<a id="f19b6f0bf3ddf6ace31a7c36a8a709d9390f498b60d9e164d35b9d00af509ebb"></a>
-### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 0.15.0)
+<a id="65045898d4446c2142301a2660602e05782564009ef586a292be72cc9fabd5f8"></a>
+### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/autocomplete -->
 > MongoDB Shell Autocomplete Package
 
@@ -4107,8 +4108,8 @@ License files:
       
 
 
-<a id="b61e8a5333a427b756004a6033ec3809969bc42ba21f2ef156ffb78c24195f01"></a>
-### [@mongosh/browser-repl](https://www.npmjs.com/package/@mongosh/browser-repl) (version 0.15.0)
+<a id="769bb6d348807c6be11c546d284a4b4b18374d0a7ce768fa597e0e046c149625"></a>
+### [@mongosh/browser-repl](https://www.npmjs.com/package/@mongosh/browser-repl) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/browser-repl -->
 > Browser presentation component for Mongo Shell
 
@@ -4320,8 +4321,8 @@ License files:
          limitations under the License.
 
 
-<a id="0e39e9d5b242e1cfa81527cf57c733c38b2078e7946bd2bd715ef098897aaefb"></a>
-### [@mongosh/browser-runtime-core](https://www.npmjs.com/package/@mongosh/browser-runtime-core) (version 0.15.0)
+<a id="5e4c54e61cdfe247ab25defa885d3928ad294e3ac42bc050438238728e724e34"></a>
+### [@mongosh/browser-runtime-core](https://www.npmjs.com/package/@mongosh/browser-runtime-core) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/browser-runtime-core -->
 > Mongosh browser runtime core
 
@@ -4533,8 +4534,8 @@ License files:
          limitations under the License.
 
 
-<a id="9fa8ccf9aea548d20e3e7ca3e3e0f968032b98dbdb9816cf6a86979aca90ce85"></a>
-### [@mongosh/browser-runtime-electron](https://www.npmjs.com/package/@mongosh/browser-runtime-electron) (version 0.15.0)
+<a id="085009d9a8e1c4a1aabc69d2d92b70765f834b6772390d87238b0aebfe9fffb4"></a>
+### [@mongosh/browser-runtime-electron](https://www.npmjs.com/package/@mongosh/browser-runtime-electron) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/browser-runtime-electron -->
 > Mongosh browser runtime electron
 
@@ -4746,8 +4747,8 @@ License files:
          limitations under the License.
 
 
-<a id="377082528450b2ff1817f0677de6eecc84bac3f82b4230e501f44568b4f7640e"></a>
-### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 0.15.0)
+<a id="6d871b9021fb90dec7b43b11ff9ad56804f550287c8689c2cae5a3d6303973c4"></a>
+### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/errors -->
 > MongoDB Shell Errors Package
 
@@ -4961,8 +4962,8 @@ License files:
       
 
 
-<a id="4928c8b4c1d2d59cea1bf74f94a5772b5b7a82bdf0578cdf18150d393d3c21a5"></a>
-### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 0.15.0)
+<a id="8a57e938c95940ef77e77c37cf513c111459bf9b1adb30cfd23e12d22b30d00e"></a>
+### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/history -->
 > MongoDB Shell History Package
 
@@ -5174,8 +5175,8 @@ License files:
          limitations under the License.
 
 
-<a id="b0b70d494fa824256b556435ef432dd2379b1206e20e3427d5c0df67a043c097"></a>
-### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 0.15.0)
+<a id="e49da5ee9588d588939a03fd7c0e1248d96ee0496f865d00d10ba3e83d4a547d"></a>
+### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/i18n -->
 > MongoDB Shell i18n Project
 
@@ -5387,8 +5388,8 @@ License files:
          limitations under the License.
 
 
-<a id="bc659521640adfc1abaa0a6532ea6ea1f21e9b757cc289a5e277c3483f92a0ec"></a>
-### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 0.15.0)
+<a id="fbe3b4b41302647ed7e04e2c9c765fc62887b1254217b6ba270edfe28b5d67d4"></a>
+### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/node-runtime-worker-thread -->
 > MongoDB shell runtime that lives in a worker thread
 
@@ -5592,8 +5593,8 @@ License files:
       
 
 
-<a id="54cfffbee3e2b2086b21f65c66de4d33a8aad6dcaa87cd71ace2f1ec3ef88d6e"></a>
-### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 0.15.0)
+<a id="60207d6f4a4b075f63d0271b72ba297cac0f71d34bd3051c160ec79eb087735f"></a>
+### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/service-provider-core -->
 > MongoDB Shell Core Service Provider Package
 
@@ -5805,8 +5806,8 @@ License files:
          limitations under the License.
 
 
-<a id="1d50f268f58d4c22034c5ba06db7d566263c2a5a3ce1de8f1430a7814e57a782"></a>
-### [@mongosh/service-provider-server](https://www.npmjs.com/package/@mongosh/service-provider-server) (version 0.15.0)
+<a id="85f7d42f37bb61843a5c86059fd458ed9f9c0e798734d488d56db6c28863e321"></a>
+### [@mongosh/service-provider-server](https://www.npmjs.com/package/@mongosh/service-provider-server) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/service-provider-server -->
 > MongoDB Shell Server Service Provider Package
 
@@ -6018,8 +6019,8 @@ License files:
          limitations under the License.
 
 
-<a id="26a37c3f1aff82bb677a6b4da55422ea97bdc70ba2e858af25716fd42e2cc092"></a>
-### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 0.15.0)
+<a id="7bd722ffb3480a2c1407a8dbdcc81f45949764a59c90a46258c5a979ec3c6743"></a>
+### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/shell-api -->
 > MongoDB Shell API Classes Package
 
@@ -6231,8 +6232,8 @@ License files:
          limitations under the License.
 
 
-<a id="12f71ec1fdef77b9ee5dbf3ccf682ced3c1eef536fff95d55c9c3c2b8ee3f5f1"></a>
-### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 0.15.0)
+<a id="a215dd39dc6f7d7fa84edfac71119f7d73451ee6cddd73ca40591c7587982286"></a>
+### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/shell-evaluator -->
 > MongoDB Top Level API Package
 
@@ -6445,8 +6446,8 @@ License files:
          limitations under the License.
 
 
-<a id="0c738b37ebc9f66854e08861fd0ca3c5db7ba391dbdb913ae1fe192d82d310fd"></a>
-### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 0.15.0)
+<a id="300e265ba3b940dae47dea27923258172670c57807050e395ac0116c008a7324"></a>
+### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 0.15.1)
 <!-- initially found at node_modules/@mongosh/types -->
 > Types for mongosh internals
 
@@ -7176,8 +7177,8 @@ Authors:
 * Paul Melnikow (https://github.com/paulmelnikow)
 
 
-<a id="c7f016787e1731562be2cf4bf6a3497eba7bbb5dab40ff6ed017ee32916b4a28"></a>
-### [@types/chai](https://www.npmjs.com/package/@types/chai) (version 4.2.18)
+<a id="f38916043b51daf68b3fd63df1e76b60e3f9a28481922c88c0d5b26708d8b4a1"></a>
+### [@types/chai](https://www.npmjs.com/package/@types/chai) (version 4.2.19)
 <!-- initially found at node_modules/@types/chai -->
 > TypeScript definitions for chai
 
@@ -7524,8 +7525,8 @@ Authors:
 * Jason Kwok (https://github.com/JasonHK)
 
 
-<a id="c7ae1035feed6aefbaa70aa956bcd546849d610b07b487e2eec140b179ff8d5f"></a>
-### [@types/node](https://www.npmjs.com/package/@types/node) (version 15.12.2)
+<a id="00ff6ec600de905e5258a0edd8e97de9eb47ef302d487ebc698ba1cc451ca8e6"></a>
+### [@types/node](https://www.npmjs.com/package/@types/node) (version 15.12.4)
 <!-- initially found at node_modules/@types/node -->
 > TypeScript definitions for Node.js
 
@@ -8082,8 +8083,8 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me>
 
 
-<a id="0af2d76fc1009d1089139f887f28c62325f2b628c487775a81006195468e6719"></a>
-### [acorn](https://www.npmjs.com/package/acorn) (version 8.4.0)
+<a id="67f7a86d5927041de9ba9c536b8ecb95e47cec0488cbf9cb52ab2cb125fd6a84"></a>
+### [acorn](https://www.npmjs.com/package/acorn) (version 8.4.1)
 <!-- initially found at node_modules/acorn -->
 > ECMAScript parser
 
@@ -11639,8 +11640,8 @@ Authors:
 * Andrey Sitnik <andrey@sitnik.ru>
 
 
-<a id="ee52fad50f125b1ac53959bf638e62cafa1a273e20164cc18313012e39035bb5"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 4.1.0)
+<a id="3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 4.4.0)
 <!-- initially found at node_modules/bson -->
 > A bson parser for node.js and the browser
 
@@ -11856,9 +11857,9 @@ Authors:
 * Christian Amor Kvalheim <christkv@gmail.com>
 
 
-<a id="3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 4.4.0)
-<!-- initially found at packages/compass/node_modules/bson -->
+<a id="ee52fad50f125b1ac53959bf638e62cafa1a273e20164cc18313012e39035bb5"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 4.1.0)
+<!-- initially found at node_modules/bson-transpilers/node_modules/bson -->
 > A bson parser for node.js and the browser
 
 License tags: Apache-2.0
@@ -13178,8 +13179,8 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="4b13811cf7e5488cf512cb519d777d32ebae4b95e202a968441c48089cbd8b8a"></a>
-### [caniuse-lite](https://www.npmjs.com/package/caniuse-lite) (version 1.0.30001237)
+<a id="de5838163da7238f033004583621a31f428af33ce93e118ea38d94feaf7b522c"></a>
+### [caniuse-lite](https://www.npmjs.com/package/caniuse-lite) (version 1.0.30001239)
 <!-- initially found at node_modules/caniuse-lite -->
 > A smaller version of caniuse-db, with only the essentials!
 
@@ -14707,8 +14708,8 @@ Authors:
 * amasad
 
 
-<a id="9fa90e91e8e853f49c461c7aaf6a04c6f1779cf13bb6143bd9efc036af36d7c1"></a>
-### [convert-source-map](https://www.npmjs.com/package/convert-source-map) (version 1.7.0)
+<a id="0acf0ab7734deb5e364e5150eb235062022893835b113aa11e0c7e9065fa5073"></a>
+### [convert-source-map](https://www.npmjs.com/package/convert-source-map) (version 1.8.0)
 <!-- initially found at node_modules/convert-source-map -->
 > Converts a source-map from/to  different formats and allows adding/changing properties.
 
@@ -17529,8 +17530,8 @@ Authors:
 * Lucas Hrabovsky <lucas@mongodb.com> (http://imlucas.com)
 
 
-<a id="9bbae6076fde0285de7b8eec9eca1b262699ab77fe65a9dca7dbd173ea8bad8d"></a>
-### [electron-to-chromium](https://www.npmjs.com/package/electron-to-chromium) (version 1.3.752)
+<a id="9769fd53eab94d4f9f328aa1dadb37b2cefcd6d4b28cdaa10632018f467d73d5"></a>
+### [electron-to-chromium](https://www.npmjs.com/package/electron-to-chromium) (version 1.3.757)
 <!-- initially found at node_modules/electron-to-chromium -->
 > Provides a list of electron-to-chromium version mappings
 
@@ -18731,8 +18732,8 @@ Authors:
 * Hugh Kennedy <hughskennedy@gmail.com> (http://hughskennedy.com)
 
 
-<a id="bc7dd67ca57752a61297c4d372abfc6d206017d60bf85cd9fcca1a01d81c136a"></a>
-### [focus-trap](https://www.npmjs.com/package/focus-trap) (version 6.5.0)
+<a id="f5facfee6e890b01955ce1312b81a75ece0c320f07c46adb48aaaefd6066bc3a"></a>
+### [focus-trap](https://www.npmjs.com/package/focus-trap) (version 6.5.1)
 <!-- initially found at node_modules/focus-trap -->
 > Trap focus within a DOM node.
 
@@ -26597,7 +26598,7 @@ Authors:
 
 <a id="984f3f17e0475ba7b138ad2bcd02121d1069d6b685100583bb4bc9d6127a29a1"></a>
 ### [lodash._baseindexof](https://www.npmjs.com/package/lodash._baseindexof) (version 3.1.0)
-<!-- initially found at packages/compass/node_modules/lodash._baseindexof -->
+<!-- initially found at node_modules/lodash.includes/node_modules/lodash._baseindexof -->
 > The modern build of lodash’s internal `baseIndexOf` as a module.
 
 License tags: MIT
@@ -27964,7 +27965,7 @@ Authors:
 
 <a id="279f6350b38f924a812ff5d74a5f9c9023f5923a7c70dcb75bdb1670ad35ab50"></a>
 ### [lodash.assign](https://www.npmjs.com/package/lodash.assign) (version 3.2.0)
-<!-- initially found at packages/compass/node_modules/lodash.assign -->
+<!-- initially found at node_modules/lodash.assign -->
 > The modern build of lodash’s `_.assign` as a module.
 
 License tags: MIT
@@ -28006,7 +28007,7 @@ Authors:
 
 <a id="a124709e2f86b9f0c2d31c6a954b2957cd5a7019f47c16e012633ccba1ddbea0"></a>
 ### [lodash.assign](https://www.npmjs.com/package/lodash.assign) (version 4.2.0)
-<!-- initially found at node_modules/lodash.assign -->
+<!-- initially found at packages/databases-collections/node_modules/lodash.assign -->
 > The lodash method `_.assign` exported as a module.
 
 License tags: MIT
@@ -28859,7 +28860,7 @@ Authors:
 
 <a id="8bcb93cbd479d82a1b2c93aa94e9c5d417838c8856f0ce2a3da8bcb7f5655859"></a>
 ### [lodash.defaults](https://www.npmjs.com/package/lodash.defaults) (version 3.1.2)
-<!-- initially found at packages/compass/node_modules/lodash.defaults -->
+<!-- initially found at node_modules/lodash.defaults -->
 > The modern build of lodash’s `_.defaults` as a module.
 
 License tags: MIT
@@ -28901,7 +28902,7 @@ Authors:
 
 <a id="4863ac6cc907bb27640d1e0570c960932db3d66d6adbcfa90158ec72ef18f032"></a>
 ### [lodash.defaults](https://www.npmjs.com/package/lodash.defaults) (version 4.2.0)
-<!-- initially found at node_modules/lodash.defaults -->
+<!-- initially found at packages/compass-schema/node_modules/lodash.defaults -->
 > The lodash method `_.defaults` exported as a module.
 
 License tags: MIT
@@ -30458,7 +30459,7 @@ Authors:
 
 <a id="3adf597b6163c3ba3343235b44071cb955635e582da311d5b57ac35f2692f9b4"></a>
 ### [lodash.includes](https://www.npmjs.com/package/lodash.includes) (version 3.1.3)
-<!-- initially found at packages/compass/node_modules/lodash.includes -->
+<!-- initially found at node_modules/lodash.includes -->
 > The modern build of lodash’s `_.includes` as a module.
 
 License tags: MIT
@@ -30500,7 +30501,7 @@ Authors:
 
 <a id="0c6ab2b6944ac2fc6926e04aff6de924a99e581818596e932af6c67dd073533f"></a>
 ### [lodash.includes](https://www.npmjs.com/package/lodash.includes) (version 4.3.0)
-<!-- initially found at node_modules/lodash.includes -->
+<!-- initially found at packages/compass-schema/node_modules/lodash.includes -->
 > The lodash method `_.includes` exported as a module.
 
 License tags: MIT
@@ -32023,7 +32024,7 @@ Authors:
 
 <a id="c588afca24b161c04c66b7fe976458f32d1871dbdc38343d2249c15af51e6df0"></a>
 ### [lodash.keys](https://www.npmjs.com/package/lodash.keys) (version 3.1.2)
-<!-- initially found at packages/compass/node_modules/lodash.keys -->
+<!-- initially found at node_modules/lodash.assign/node_modules/lodash.keys -->
 > The modern build of lodash’s `_.keys` as a module.
 
 License tags: MIT
@@ -36912,7 +36913,7 @@ Authors:
 
 <a id="9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f"></a>
 ### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.5)
-<!-- initially found at packages/compass/node_modules/mongodb -->
+<!-- initially found at node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
 License tags: Apache-2.0
@@ -38631,6 +38632,211 @@ License tags: SSPL
 
 Authors:
 * Lucas Hrabovsky <lucas@mongodb.com>
+
+
+<a id="d842513739d9a848af83ab12b884b179e6e84eb165072b73472b59d20f103c0d"></a>
+### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 1.0.0)
+<!-- initially found at node_modules/mongodb-connection-string-url -->
+> MongoDB connection strings, based on the WhatWG URL API
+
+License tags: Apache-2.0
+
+License files:
+* LICENSE:
+
+      
+                                       Apache License
+                                 Version 2.0, January 2004
+                              http://www.apache.org/licenses/
+      
+         TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+      
+         1. Definitions.
+      
+            "License" shall mean the terms and conditions for use, reproduction,
+            and distribution as defined by Sections 1 through 9 of this document.
+      
+            "Licensor" shall mean the copyright owner or entity authorized by
+            the copyright owner that is granting the License.
+      
+            "Legal Entity" shall mean the union of the acting entity and all
+            other entities that control, are controlled by, or are under common
+            control with that entity. For the purposes of this definition,
+            "control" means (i) the power, direct or indirect, to cause the
+            direction or management of such entity, whether by contract or
+            otherwise, or (ii) ownership of fifty percent (50%) or more of the
+            outstanding shares, or (iii) beneficial ownership of such entity.
+      
+            "You" (or "Your") shall mean an individual or Legal Entity
+            exercising permissions granted by this License.
+      
+            "Source" form shall mean the preferred form for making modifications,
+            including but not limited to software source code, documentation
+            source, and configuration files.
+      
+            "Object" form shall mean any form resulting from mechanical
+            transformation or translation of a Source form, including but
+            not limited to compiled object code, generated documentation,
+            and conversions to other media types.
+      
+            "Work" shall mean the work of authorship, whether in Source or
+            Object form, made available under the License, as indicated by a
+            copyright notice that is included in or attached to the work
+            (an example is provided in the Appendix below).
+      
+            "Derivative Works" shall mean any work, whether in Source or Object
+            form, that is based on (or derived from) the Work and for which the
+            editorial revisions, annotations, elaborations, or other modifications
+            represent, as a whole, an original work of authorship. For the purposes
+            of this License, Derivative Works shall not include works that remain
+            separable from, or merely link (or bind by name) to the interfaces of,
+            the Work and Derivative Works thereof.
+      
+            "Contribution" shall mean any work of authorship, including
+            the original version of the Work and any modifications or additions
+            to that Work or Derivative Works thereof, that is intentionally
+            submitted to Licensor for inclusion in the Work by the copyright owner
+            or by an individual or Legal Entity authorized to submit on behalf of
+            the copyright owner. For the purposes of this definition, "submitted"
+            means any form of electronic, verbal, or written communication sent
+            to the Licensor or its representatives, including but not limited to
+            communication on electronic mailing lists, source code control systems,
+            and issue tracking systems that are managed by, or on behalf of, the
+            Licensor for the purpose of discussing and improving the Work, but
+            excluding communication that is conspicuously marked or otherwise
+            designated in writing by the copyright owner as "Not a Contribution."
+      
+            "Contributor" shall mean Licensor and any individual or Legal Entity
+            on behalf of whom a Contribution has been received by Licensor and
+            subsequently incorporated within the Work.
+      
+         2. Grant of Copyright License. Subject to the terms and conditions of
+            this License, each Contributor hereby grants to You a perpetual,
+            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+            copyright license to reproduce, prepare Derivative Works of,
+            publicly display, publicly perform, sublicense, and distribute the
+            Work and such Derivative Works in Source or Object form.
+      
+         3. Grant of Patent License. Subject to the terms and conditions of
+            this License, each Contributor hereby grants to You a perpetual,
+            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+            (except as stated in this section) patent license to make, have made,
+            use, offer to sell, sell, import, and otherwise transfer the Work,
+            where such license applies only to those patent claims licensable
+            by such Contributor that are necessarily infringed by their
+            Contribution(s) alone or by combination of their Contribution(s)
+            with the Work to which such Contribution(s) was submitted. If You
+            institute patent litigation against any entity (including a
+            cross-claim or counterclaim in a lawsuit) alleging that the Work
+            or a Contribution incorporated within the Work constitutes direct
+            or contributory patent infringement, then any patent licenses
+            granted to You under this License for that Work shall terminate
+            as of the date such litigation is filed.
+      
+         4. Redistribution. You may reproduce and distribute copies of the
+            Work or Derivative Works thereof in any medium, with or without
+            modifications, and in Source or Object form, provided that You
+            meet the following conditions:
+      
+            (a) You must give any other recipients of the Work or
+                Derivative Works a copy of this License; and
+      
+            (b) You must cause any modified files to carry prominent notices
+                stating that You changed the files; and
+      
+            (c) You must retain, in the Source form of any Derivative Works
+                that You distribute, all copyright, patent, trademark, and
+                attribution notices from the Source form of the Work,
+                excluding those notices that do not pertain to any part of
+                the Derivative Works; and
+      
+            (d) If the Work includes a "NOTICE" text file as part of its
+                distribution, then any Derivative Works that You distribute must
+                include a readable copy of the attribution notices contained
+                within such NOTICE file, excluding those notices that do not
+                pertain to any part of the Derivative Works, in at least one
+                of the following places: within a NOTICE text file distributed
+                as part of the Derivative Works; within the Source form or
+                documentation, if provided along with the Derivative Works; or,
+                within a display generated by the Derivative Works, if and
+                wherever such third-party notices normally appear. The contents
+                of the NOTICE file are for informational purposes only and
+                do not modify the License. You may add Your own attribution
+                notices within Derivative Works that You distribute, alongside
+                or as an addendum to the NOTICE text from the Work, provided
+                that such additional attribution notices cannot be construed
+                as modifying the License.
+      
+            You may add Your own copyright statement to Your modifications and
+            may provide additional or different license terms and conditions
+            for use, reproduction, or distribution of Your modifications, or
+            for any such Derivative Works as a whole, provided Your use,
+            reproduction, and distribution of the Work otherwise complies with
+            the conditions stated in this License.
+      
+         5. Submission of Contributions. Unless You explicitly state otherwise,
+            any Contribution intentionally submitted for inclusion in the Work
+            by You to the Licensor shall be under the terms and conditions of
+            this License, without any additional terms or conditions.
+            Notwithstanding the above, nothing herein shall supersede or modify
+            the terms of any separate license agreement you may have executed
+            with Licensor regarding such Contributions.
+      
+         6. Trademarks. This License does not grant permission to use the trade
+            names, trademarks, service marks, or product names of the Licensor,
+            except as required for reasonable and customary use in describing the
+            origin of the Work and reproducing the content of the NOTICE file.
+      
+         7. Disclaimer of Warranty. Unless required by applicable law or
+            agreed to in writing, Licensor provides the Work (and each
+            Contributor provides its Contributions) on an "AS IS" BASIS,
+            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+            implied, including, without limitation, any warranties or conditions
+            of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+            PARTICULAR PURPOSE. You are solely responsible for determining the
+            appropriateness of using or redistributing the Work and assume any
+            risks associated with Your exercise of permissions under this License.
+      
+         8. Limitation of Liability. In no event and under no legal theory,
+            whether in tort (including negligence), contract, or otherwise,
+            unless required by applicable law (such as deliberate and grossly
+            negligent acts) or agreed to in writing, shall any Contributor be
+            liable to You for damages, including any direct, indirect, special,
+            incidental, or consequential damages of any character arising as a
+            result of this License or out of the use or inability to use the
+            Work (including but not limited to damages for loss of goodwill,
+            work stoppage, computer failure or malfunction, or any and all
+            other commercial damages or losses), even if such Contributor
+            has been advised of the possibility of such damages.
+      
+         9. Accepting Warranty or Additional Liability. While redistributing
+            the Work or Derivative Works thereof, You may choose to offer,
+            and charge a fee for, acceptance of support, warranty, indemnity,
+            or other liability obligations and/or rights consistent with this
+            License. However, in accepting such obligations, You may act only
+            on Your own behalf and on Your sole responsibility, not on behalf
+            of any other Contributor, and only if You agree to indemnify,
+            defend, and hold each Contributor harmless for any liability
+            incurred by, or claims asserted against, such Contributor by reason
+            of your accepting any such warranty or additional liability.
+      
+         END OF TERMS AND CONDITIONS
+      
+         Copyright 2020 MongoDB Inc.
+      
+         Licensed under the Apache License, Version 2.0 (the "License");
+         you may not use this file except in compliance with the License.
+         You may obtain a copy of the License at
+      
+             http://www.apache.org/licenses/LICENSE-2.0
+      
+         Unless required by applicable law or agreed to in writing, software
+         distributed under the License is distributed on an "AS IS" BASIS,
+         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         See the License for the specific language governing permissions and
+         limitations under the License.
+      
+      
 
 
 <a id="8a3f09aaed010bd75ecb1487b3e5a1a0367d8474d53cdab77e12eeab4051018a"></a>
@@ -43280,9 +43486,9 @@ Authors:
 * Jon Schlinkert (http://twitter.com/jonschlinkert)
 
 
-<a id="34e7228185588a0a416dd5fe0a504bac00eae4bb19c2ed8a97f0d2a2661414f3"></a>
-### [normalize-url](https://www.npmjs.com/package/normalize-url) (version 6.0.1)
-<!-- initially found at node_modules/normalize-url -->
+<a id="019552e3b0898748772477fa3b2924b4c4a8fb8bec640dacb4cce2dfdc955410"></a>
+### [normalize-url](https://www.npmjs.com/package/normalize-url) (version 6.1.0)
+<!-- initially found at node_modules/cacheable-request/node_modules/normalize-url -->
 > Normalize a URL
 
 License tags: MIT
@@ -49894,8 +50100,8 @@ Authors:
 * castorw
 
 
-<a id="c78594441684e1ac59eca43309d64d1a9047e11f0ca2185394d0ced92b24c786"></a>
-### [socks-proxy-agent](https://www.npmjs.com/package/socks-proxy-agent) (version 5.0.0)
+<a id="387c5f1267715f68bf7197124f8b9647f257e5717856b4c4bc5d95aed5a46e56"></a>
+### [socks-proxy-agent](https://www.npmjs.com/package/socks-proxy-agent) (version 5.0.1)
 <!-- initially found at node_modules/socks-proxy-agent -->
 > A SOCKS proxy `http.Agent` implementation for HTTP and HTTPS
 
