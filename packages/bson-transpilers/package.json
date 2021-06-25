@@ -21,8 +21,8 @@
     "test": "mocha",
     "test-ci": "npm run test",
     "depcheck": "depcheck",
-    "precheck": "npm run depcheck",
-    "check": "mongodb-js-precommit './codegeneration/**/*{.js,.jsx}' './test/**/*.js' index.js",
+    "check": "npm run lint && npm run depcheck",
+    "lint": "eslint './codegeneration/**/*{.js,.jsx}' './test/**/*.js' index.js",
     "check-ci": "npm run check"
   },
   "homepage": "http://github.com/mongodb-js/compass/packages/bson-transpilers",
@@ -34,11 +34,11 @@
   "devDependencies": {
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.1.0",
     "eslint-plugin-react": "^7.24.0",
     "js-yaml": "^3.11.0",
-    "mocha": "^8.4.0",
-    "mongodb-js-precommit": "^0.2.8"
+    "mocha": "^8.4.0"
   },
   "dependencies": {
     "antlr4": "4.7.2",
