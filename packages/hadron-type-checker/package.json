@@ -22,7 +22,7 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "bson": "4.1.0",
+    "bson": "^4.4.0",
     "lodash": "^4.17.15"
   },
   "devDependencies": {
