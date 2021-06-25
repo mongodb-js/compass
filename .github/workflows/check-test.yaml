@@ -55,12 +55,6 @@ jobs:
           npx lerna run prepare --stream --since $MAIN_BRANCH_NAME --include-dependencies
         shell: bash
 
-      - name: Run Checks on root folder
-        # Checks for dependencies issues in the root folder and for dependency
-        # alignment
-        run: npm run depcheck
-        shell: bash
-
       - name: Run Checks
         # We exclude dependents when running eslint and depchecks because
         # linting and dependency checking is relevant only for packages where
