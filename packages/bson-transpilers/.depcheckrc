@@ -1,3 +1,1 @@
-ignores: [
-  "pre-commit"
-]
+ignores: []
