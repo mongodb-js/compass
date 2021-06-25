@@ -33,6 +33,7 @@
     "react-dom": "^16.8.0"
   },
   "dependencies": {
+    "@leafygreen-ui/tabs": "^5.1.2",
     "lodash.fill": "^3.4.0",
     "lodash.get": "^4.4.2",
     "lodash.isarray": "^4.0.0",

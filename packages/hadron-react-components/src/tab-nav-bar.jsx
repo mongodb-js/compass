@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import map from 'lodash.map';
+import { Tabs, Tab } from '@leafygreen-ui/tabs';
 
 /**
  * Represents tabbed navigation with a tabbed header and content.
@@ -14,6 +15,7 @@ class TabNavBar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      selected: 0,
       paused: false,
       activeTabIndex: props.activeTabIndex || 0
     };
@@ -38,6 +40,14 @@ class TabNavBar extends React.Component {
    * @param {Number} idx - The tab index.
    * @param {Event} evt - The event.
    */
+  // onTabClicked(idx, evt) {
+  //   evt.preventDefault();
+  //   this.setState({ activeTabIndex: idx });
+  //   if (this.props.onTabClicked) {
+  //     this.props.onTabClicked(idx, this.props.tabs[idx]);
+  //   }
+  // }
+
   onTabClicked(idx, evt) {
     evt.preventDefault();
     this.setState({ activeTabIndex: idx });
@@ -52,17 +62,41 @@ class TabNavBar extends React.Component {
    * @returns {React.Component} The tabs.
    */
   renderTabs() {
-    const listItems = map(this.props.tabs, (tab, idx) => (
-      <li onClick={this.onTabClicked.bind(this, idx)}
-        id={tab.replace(/ /g, '_')}
-        key={`tab-${idx}`}
-        data-test-id={`${tab.toLowerCase().replace(/ /g, '-')}-tab`}
-        className={`tab-nav-bar tab-nav-bar-tab ${idx === this.state.activeTabIndex ?
-          'tab-nav-bar-is-selected' : ''}`}>
-        <span className="tab-nav-bar tab-nav-bar-link" href="#">{tab}</span>
-      </li>
-    ));
-    return <ul className="tab-nav-bar tab-nav-bar-tabs">{listItems}</ul>;
+    // const [selected, setSelected] = useState(0);
+    const {
+      selected
+    } = this.state;
+
+    return (
+      <Tabs
+        setSelected={(tab) => {
+          this.setState({ selected: tab });
+          this.props.onTabClicked(tab, this.props.tabs[tab]);
+        }}
+        selected={selected}
+      >
+        {this.props.tabs.map((tab, idx) => (
+          <Tab
+            key={`tab-${idx}`}
+            name={tab}
+          />
+        ))}
+        {/* {tab}</Tab> */}
+        {/* <Tab name="Tab One">Tab Content One</Tab> */}
+      </Tabs>
+    )
+
+    // const listItems = map(this.props.tabs, (tab, idx) => (
+    //   <li onClick={this.onTabClicked.bind(this, idx)}
+    //     id={tab.replace(/ /g, '_')}
+    //     key={`tab-${idx}`}
+    //     data-test-id={`${tab.toLowerCase().replace(/ /g, '-')}-tab`}
+    //     className={`tab-nav-bar tab-nav-bar-tab ${idx === this.state.activeTabIndex ?
+    //       'tab-nav-bar-is-selected' : ''}`}>
+    //     <span className="tab-nav-bar tab-nav-bar-link" href="#">{tab}</span>
+    //   </li>
+    // ));
+    // return <ul className="tab-nav-bar tab-nav-bar-tabs">{listItems}</ul>;
   }
 
   /**
@@ -108,7 +142,15 @@ class TabNavBar extends React.Component {
   render() {
     return (
       <div className={`tab-nav-bar tab-nav-bar-is-${this.props.theme}-theme`}>
-        <div className="tab-nav-bar tab-nav-bar-header">
+        {/* <div className="tab-nav-bar tab-nav-bar-header">
+          {this.renderTabs()}
+        </div> */}
+        <div
+          style={{
+            padding: '10px',
+            paddingBottom: '0px'
+          }}
+        >
           {this.renderTabs()}
         </div>
         {this.props.mountAllViews ? this.renderViews() : this.renderActiveView()}
