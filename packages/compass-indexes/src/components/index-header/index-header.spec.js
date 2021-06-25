@@ -39,9 +39,6 @@ describe('index-header [Component]', () => {
     it('renders properties column header', () => {
       expect(component.find('[data-test-id="index-header-properties"]')).to.be.present();
     });
-    it('renders drop column header', () => {
-      expect(component.find('[data-test-id="index-header-drop"]')).to.be.present();
-    });
   });
   describe('isReadonly', () => {
     beforeEach(() => {
@@ -75,9 +72,6 @@ describe('index-header [Component]', () => {
     });
     it('renders properties column header', () => {
       expect(component.find('[data-test-id="index-header-properties"]')).to.be.present();
-    });
-    it('renders drop column header', () => {
-      expect(component.find('[data-test-id="index-header-drop"]')).to.not.be.present();
     });
   });
 });
