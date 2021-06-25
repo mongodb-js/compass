@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-      
+
       fail-fast: false
 
     # The type of runner that the job will run on
@@ -53,6 +53,12 @@ jobs:
           # hoist every package in the repo and it's important that the
           # dependencies of packages we are planning to test are also prepared
           npx lerna run prepare --stream --since $MAIN_BRANCH_NAME --include-dependencies
+        shell: bash
+
+      - name: Run Checks on root folder
+        # Checks for dependencies issues in the root folder and for dependency
+        # alignment
+        run: npm run depcheck
         shell: bash
 
       - name: Run Checks
