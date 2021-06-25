@@ -129,7 +129,7 @@ const configureStore = (options = {}) => {
         return cb(null, result);
       }
 
-      this.dataService.estimatedCount(this.ns, {}, (err, estimatedCount) => {
+      this.dataService.countDocuments(this.ns, {}, {}, (err, estimatedCount) => {
         if (err) {
           return cb(null, result); // ignore the error
         }

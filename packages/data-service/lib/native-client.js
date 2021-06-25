@@ -249,6 +249,7 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * *Depricated*: use 'countDocuments' or 'estimatedCount'.
    * Count the number of documents in the collection for the provided filter
    * and options.
    *
@@ -257,7 +258,20 @@ class NativeClient extends EventEmitter {
    * @param {object} options - The query options.
    * @param {function} callback - The callback function.
    */
-  count(ns, filter, options, callback) {
+   count(ns, filter, options, callback) {
+    this._collection(ns).count(filter, options, callback);
+  }
+
+  /**
+   * Count the number of documents in the collection for the provided filter
+   * and options. Use `estimatedCount` for a faster approximate count.
+   *
+   * @param {string} ns - The namespace to search on.
+   * @param {object} filter - The filter.
+   * @param {object} options - The query options.
+   * @param {function} callback - The callback function.
+   */
+  countDocuments(ns, filter, options, callback) {
     this._collection(ns).countDocuments(filter, options, callback);
   }
 

@@ -675,6 +675,41 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#countDocuments', function() {
+    context('when a filter is provided', function() {
+      it('returns a count for the matching documents', function(done) {
+        client.countDocuments('data-service.test', {
+          a: 1
+        }, {}, function(error, count) {
+          assert.equal(null, error);
+          expect(count).to.equal(0);
+          done();
+        });
+      });
+    });
+
+    context('when max timeout is provided', function() {
+      context('when the count times out', function() {
+        before(function(done) {
+          client.insertOne('data-service.test', { a: 500 }, {}, done);
+        });
+
+        after(function(done) {
+          client.deleteMany('data-service.test', {}, {}, done);
+        });
+
+        it('does not throw the error', function(done) {
+          client.countDocuments('data-service.test', {
+            '$where': 'function() { sleep(5500); return true; }'
+          }, { maxTimeMS: 5000 }, function(error) {
+            expect(error).to.not.equal(null);
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('#createCollection', function() {
     after(function(done) {
       client.database.dropCollection('foo', {}, function(error) {

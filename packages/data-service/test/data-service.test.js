@@ -470,6 +470,25 @@ describe('DataService', function() {
     });
   });
 
+  describe('#countDocuments', function() {
+    context('when a filter is provided', function() {
+      it('returns a count for the matching documents', function(done) {
+        service.countDocuments(
+          'data-service.test',
+          {
+            a: 1
+          },
+          {},
+          function(error, count) {
+            assert.equal(null, error);
+            expect(count).to.equal(0);
+            done();
+          }
+        );
+      });
+    });
+  });
+
   describe('#shardedCollectionDetail', function() {
     it('returns the collection details', function(done) {
       service.shardedCollectionDetail('data-service.test', function(

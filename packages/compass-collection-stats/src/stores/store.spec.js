@@ -81,15 +81,15 @@ describe('CollectionStatsstore [store]', () => {
 
       context('when providing a data provider', () => {
         let store;
-        let estimatedCountStub;
+        let countStub;
         let collectionStub;
         let dataService;
         beforeEach(() => {
-          estimatedCountStub = sinon.stub();
+          countStub = sinon.stub();
           collectionStub = sinon.stub();
 
           dataService = {
-            estimatedCount: estimatedCountStub,
+            countDocuments: countStub,
             collection: collectionStub,
             isConnected: () => true
           };
@@ -124,7 +124,7 @@ describe('CollectionStatsstore [store]', () => {
             cb(null, {});
           });
 
-          estimatedCountStub.callsFake((ns, options, cb) => {
+          countStub.callsFake((ns, filter, options, cb) => {
             cb(null, 123);
           });
 
@@ -146,14 +146,14 @@ describe('CollectionStatsstore [store]', () => {
           expect(store.dataService).to.equal(dataService);
         });
 
-        it('resets only the documentCount in case of error on estimated count', () => {
+        it('resets only the documentCount in case of error on document count', () => {
           collectionStub.callsFake((ns, options, cb) => {
             cb(null, {
               index_count: 123
             });
           });
 
-          estimatedCountStub.callsFake((ns, options, cb) => {
+          countStub.callsFake((ns, filter, options, cb) => {
             cb(new Error('failed'));
           });
 

@@ -338,7 +338,7 @@ connect(options, (connectionError, client) => {
     return console.log(connectionError);
   }
 
-  client.db('mongodb').collection('fanclub').count((countingError, count) => {
+  client.db('mongodb').collection('fanclub').countDocuments((countingError, count) => {
     console.log('counted:', countingError, count);
     client.close();
   });

@@ -43,7 +43,7 @@ service.collection('database.collection', {}, (error, result) => {
 });
 
 // Get a document count.
-service.count('database.collection', { a: 1 }, {}, (error, count) => {
+service.countDocuments('database.collection', { a: 1 }, {}, (error, count) => {
   assert.equal(null, error);
 });
 
