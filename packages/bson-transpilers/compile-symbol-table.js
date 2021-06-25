@@ -1,3 +1,4 @@
+/* eslint-disable no-sync */
 const path = require('path');
 
 const fs = require('fs');

@@ -459,8 +459,8 @@ module.exports = (Visitor) => class Generator extends Visitor {
         fields.push(`descending(${doubleQuoteStringify(field)})`);
         this.requiredImports[304].push('descending');
       } else if (original.match(
-          new RegExp(/{(?:'|")?\$meta(?:'|")?:(?:'|")textScore*(?:'|")}/)
-        )) {
+        new RegExp(/{(?:'|")?\$meta(?:'|")?:(?:'|")textScore*(?:'|")}/)
+      )) {
         fields.push(`metaTextScore(${doubleQuoteStringify(field)})`);
         this.requiredImports[304].push('metaTextScore');
       } else {

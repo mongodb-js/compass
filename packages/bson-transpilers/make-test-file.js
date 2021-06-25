@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-disable no-sync */
+/* eslint-disable no-console */
 
 const fs = require('fs');
 const yaml = require('js-yaml');
@@ -165,26 +167,5 @@ const makeFile = (side) => {
       }
       return str0;
     }, ''));
-};
-
-const makeList = (side) => {
-  return fs.readdirSync(testpath).reduce(
-    (str0, file) => {
-      if (!file.startsWith('error') && !file.startsWith('edge')) {
-        const tests = readYAML(path.join(testpath, file)).tests;
-        return str0 + Object.keys(tests).reduce(
-          (str, key) => {
-            return str + tests[key].reduce(
-              (str2, test) => {
-                if (output in test[side]) {
-                  const line = test[side][output];
-                  return str2 + line + '\n';
-                }
-                return str2;
-              }, '');
-          }, '');
-      }
-      return str0;
-    }, '');
 };
 console.log(makeFile('output'));

@@ -102,12 +102,12 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
    * then an error should be thrown. Can be empty, but must exist. */
   ['BasicTypes', 'BsonTypes', 'NativeTypes', 'SymbolTypes', 'BsonTypes',
     'BsonSymbols', 'NativeSymbols', 'SymbolTypes'].map((k) => {
-      if (!(k in doc)) {
-        throw new BsonTranspilersInternalError(
-          `Invalid Symbol Table: missing ${k}`
-        );
-      }
-    });
+    if (!(k in doc)) {
+      throw new BsonTranspilersInternalError(
+        `Invalid Symbol Table: missing ${k}`
+      );
+    }
+  });
   Object.assign(transpiler, {
     SYMBOL_TYPE: doc.SymbolTypes,
     BsonTypes: doc.BsonTypes,

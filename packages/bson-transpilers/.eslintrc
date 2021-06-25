@@ -8,9 +8,6 @@
     "camelcase": 1
   },
   "extends": [
-    "mongodb-js/node",
-    "mongodb-js/browser",
-    "mongodb-js/react"
-  ],
-  "plugins": ["react"]
+    "mongodb-js/node"
+  ]
 }

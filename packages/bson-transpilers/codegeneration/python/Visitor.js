@@ -553,7 +553,7 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
       return;
     }
     if (
-        ('comp_for' in ctx && ctx.comp_for() !== null) ||
+      ('comp_for' in ctx && ctx.comp_for() !== null) ||
         ('comp_if' in ctx && ctx.comp_if() !== null)
     ) {
       throw new BsonTranspilersUnimplementedError(
