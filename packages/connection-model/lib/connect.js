@@ -2,6 +2,7 @@ const { EventEmitter, once } = require('events');
 
 const { MongoClient } = require('mongodb');
 const { default: SSHTunnel } = require('@mongodb-js/ssh-tunnel');
+const { default: ConnectionString } = require('mongodb-connection-string-url');
 
 const Connection = require('./extended-model');
 
@@ -11,6 +12,12 @@ const {
 } = require('./redact');
 
 const debug = require('debug')('mongodb-connection-model:connect');
+
+function removeGssapiServiceName(url) {
+  const uri = new ConnectionString(url);
+  uri.searchParams.delete('gssapiServiceName');
+  return uri.toString();
+}
 
 async function openSshTunnel(model) {
   if (!model.sshTunnel ||
@@ -59,7 +66,7 @@ async function connect(model, setupListeners) {
 
   debug('connecting ...');
 
-  const url = model.driverUrlWithSsh;
+  const url = removeGssapiServiceName(model.driverUrlWithSsh);
   const options = {
     ...model.driverOptions
   };
