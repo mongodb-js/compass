@@ -1,6 +1,4 @@
 import CollectionStatsPlugin from './plugin';
-import DocumentStatsItem from './components/document-stats-item';
-import IndexStatsItem from './components/index-stats-item';
 import configureStore from './stores';
 
 const COLLECTION_HUD_ROLE = {
@@ -10,18 +8,6 @@ const COLLECTION_HUD_ROLE = {
   configureStore: configureStore,
   configureActions: () => {},
   storeName: 'CollectionStats.Store'
-};
-
-const DOCUMENTS_STATS_ITEM_ROLE = {
-  component: DocumentStatsItem,
-  name: 'document-stats',
-  order: 1
-};
-
-const INDEXES_STATS_ITEM_ROLE = {
-  component: IndexStatsItem,
-  name: 'index-stats',
-  order: 2
 };
 
 /**
