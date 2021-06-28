@@ -6,7 +6,8 @@ import { isEmpty } from 'lodash';
 import { INITIAL_STATE as COLUMNS } from './columns';
 import { UPDATE_SORT } from '../sort';
 
-export const TIME_SERIES_COLLECTION_TYPE = 'time-series';
+export const TIME_SERIES_COLLECTION_TYPE = 'timeseries';
+export const VIEW_COLLECTION_TYPE = 'view';
 
 /**
  * Need extra columns to map.
