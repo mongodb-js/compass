@@ -1,0 +1,348 @@
+runner: !!js/function >
+    (it, expect, input, output, transpiler, test) => {
+        it(`${input}: ${test.input[input]} => ${output}`, () => {
+            let thrown = false;
+            try {
+              transpiler[input][output].compile(test.input[input]);
+            } catch (error) {
+              thrown = true;
+              expect(error.code).to.equal(test.errorCode);
+              if (test.message) {
+                expect(error.message).to.be.a('string');
+                expect(
+                  error.message.includes(test.message),
+                  `Expected error message to contain ${test.message} but got ${error.message}`
+                ).to.be.true;
+              }
+            } finally {
+              if (!thrown) {
+                expect.fail(0, 0, `Expected error with code ${test.errorCode} to throw`);
+              }
+            }
+        });
+    }
+tests:
+    wrong type:
+    -   input:
+            javascript: "{'$project': 'invalid'}"
+            shell: "{'$project': 'invalid'}"
+            python: "{'$project': 'invalid'}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$project': {}}"
+            shell: "{'$project': {}}"
+            python: "{'$project': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'x': {'$not': '1'}}"
+            shell: "{'x': {'$not': '1'}}"
+            python: "{'x': {'$not': '1'}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'x': {'$mod': 1}}"
+            shell: "{'x': {'$mod': 1}}"
+            python: "{'x': {'$mod': 1}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'x': {'$mod': [1]}}"
+            shell: "{'x': {'$mod': [1]}}"
+            python: "{'x': {'$mod': [1]}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'x': {'$mod': {}}}"
+            shell: "{'x': {'$mod': {}}}"
+            python: "{'x': {'$mod': {}}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$sort': {}}"
+            shell: "{'$sort': {}}"
+            python: "{'$sort': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$sort': 1}"
+            shell: "{'$sort': 1}"
+            python: "{'$sort': 1}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$sort': {'x': 1, 'y': 'not 1/-1'}}"
+            shell: "{'$sort': {'x': 1, 'y': 'not 1/-1'}}"
+            python: "{'$sort': {'x': 1, 'y': 'not 1/-1'}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$sort': {'x': 1, 'y': {}}}"
+            shell: "{'$sort': {'x': 1, 'y': {}}}"
+            python: "{'$sort': {'x': 1, 'y': {}}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$sort': {'x': 1, 'y': {'$meta': 1}}}"
+            shell: "{'$sort': {'x': 1, 'y': {'$meta': 1}}}"
+            python: "{'$sort': {'x': 1, 'y': {'$meta': 1}}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$project': {}}"
+            shell: "{'$project': {}}"
+            python: "{'$project': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$project': 1}"
+            shell: "{'$project': 1}"
+            python: "{'$project': 1}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'x': {'$sample': {}}}"
+            shell: "{'x': {'$sample': {}}}"
+            python: "{'x': {'$sample': {}}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'x': {'$sample': {'notSize': 1}}}"
+            shell: "{'x': {'$sample': {'notSize': 1}}}"
+            python: "{'x': {'$sample': {'notSize': 1}}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'x': {'$sample': {'size': 10, 'other': 1}}}"
+            shell: "{'x': {'$sample': {'size': 10, 'other': 1}}}"
+            python: "{'x': {'$sample': {'size': 10, 'other': 1}}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'x': {'$replaceRoot': {}}}"
+            shell: "{'x': {'$replaceRoot': {}}}"
+            python: "{'x': {'$replaceRoot': {}}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'x': {'$replaceRoot': {'notNewRoot': 1}}}"
+            shell: "{'x': {'$replaceRoot': {'notNewRoot': 1}}}"
+            python: "{'x': {'$replaceRoot': {'notNewRoot': 1}}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'x': {'$replaceRoot': {'newRoot': 10, 'other': 1}}}"
+            shell: "{'x': {'$replaceRoot': {'newRoot': 10, 'other': 1}}}"
+            python: "{'x': {'$replaceRoot': {'newRoot': 10, 'other': 1}}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$graphLookup': {}}"
+            shell: "{'$graphLookup': {}}"
+            python: "{'$graphLookup': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$graphLookup': 1}"
+            shell: "{'$graphLookup': 1}"
+            python: "{'$graphLookup': 1}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$graphLookup': {'from': 'x'}}"
+            shell: "{'$graphLookup': {'from': 'x'}}"
+            python: "{'$graphLookup': {'from': 'x'}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{ '$graphLookup': {'from': 'collection', 'startWith': '$expr', 'connectFromField':
+          'fromF', 'connectToField': 'toF', 'as': 'asF', 'extra': 1} }"
+            shell: "{ '$graphLookup': {'from': 'collection', 'startWith': '$expr', 'connectFromField':
+          'fromF', 'connectToField': 'toF', 'as': 'asF', 'extra': 1} }"
+            python: "{ '$graphLookup': {'from': 'collection', 'startWith': '$expr', 'connectFromField':
+          'fromF', 'connectToField': 'toF', 'as': 'asF', 'extra': 1} }"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$lookup': {}}"
+            shell: "{'$lookup': {}}"
+            python: "{'$lookup': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$lookup': {'from': 'x'}}"
+            shell: "{'$lookup': {'from': 'x'}}"
+            python: "{'$lookup': {'from': 'x'}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{ '$lookup': { 'from': 'fromColl', 'localField': 'localF', 'foreignField':
+          'foreignF', 'as': 'outputF', 'extra': 1} }"
+            shell: "{ '$lookup': { 'from': 'fromColl', 'localField': 'localF', 'foreignField':
+          'foreignF', 'as': 'outputF', 'extra': 1} }"
+            python: "{ '$lookup': { 'from': 'fromColl', 'localField': 'localF', 'foreignField':
+          'foreignF', 'as': 'outputF', 'extra': 1} }"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$bucket': {}}"
+            shell: "{'$bucket': {}}"
+            python: "{'$bucket': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$bucket': {'groupBy': 'x'}}"
+            shell: "{'$bucket': {'groupBy': 'x'}}"
+            python: "{'$bucket': {'groupBy': 'x'}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$bucket': {'groupBy': 'x', 'boundaries': 1, 'extra': 1}}"
+            shell: "{'$bucket': {'groupBy': 'x', 'boundaries': 1, 'extra': 1}}"
+            python: "{'$bucket': {'groupBy': 'x', 'boundaries': 1, 'extra': 1}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$bucketAuto': {}}"
+            shell: "{'$bucketAuto': {}}"
+            python: "{'$bucketAuto': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$bucketAuto': {'groupBy': 'x'}}"
+            shell: "{'$bucketAuto': {'groupBy': 'x'}}"
+            python: "{'$bucketAuto': {'groupBy': 'x'}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$bucketAuto': {'groupBy': 'x', 'buckets': 1, 'extra': 1}}"
+            shell: "{'$bucketAuto': {'groupBy': 'x', 'buckets': 1, 'extra': 1}}"
+            python: "{'$bucketAuto': {'groupBy': 'x', 'buckets': 1, 'extra': 1}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$text': {}}"
+            shell: "{'$text': {}}"
+            python: "{'$text': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$text': {'$search': 'x', 'extra': 1}}"
+            shell: "{'$text': {'$search': 'x', 'extra': 1}}"
+            python: "{'$text': {'$search': 'x', 'extra': 1}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$unwind': {}}"
+            shell: "{'$unwind': {}}"
+            python: "{'$unwind': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$unwind': 1}"
+            shell: "{'$unwind': 1}"
+            python: "{'$unwind': 1}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$unwind': {'path': 'x', 'extra': 1}}"
+            shell: "{'$unwind': {'path': 'x', 'extra': 1}}"
+            python: "{'$unwind': {'path': 'x', 'extra': 1}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$group': {'x': 1}}"
+            shell: "{'$group': {'x': 1}}"
+            python: "{'$group': {'x': 1}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$group': {}}"
+            shell: "{'$group': {}}"
+            python: "{'$group': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$group': 1}"
+            shell: "{'$group': 1}"
+            python: "{'$group': 1}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$facet': {}}"
+            shell: "{'$facet': {}}"
+            python: "{'$facet': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$facet': 1}"
+            shell: "{'$facet': 1}"
+            python: "{'$facet': 1}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$addFields': {}}"
+            shell: "{'$addFields': {}}"
+            python: "{'$addFields': {}}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    -   input:
+            javascript: "{'$addFields': 1}"
+            shell: "{'$addFields': 1}"
+            python: "{'$addFields': 1}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+    wrong shape:
+    -   input:
+            javascript: "{'$sum': 1}"
+            shell: "{'$sum': 1}"
+            python: "{'$sum': 1}"
+        output:
+            java: true
+        errorCode: E_BSONTRANSPILERS_RUNTIME
+

@@ -14,6 +14,7 @@
     "precheck": "npm run depcheck",
     "check": "lerna run check --stream",
     "check-changed": "npm run check -- --since origin/HEAD --exclude-dependents",
+    "precheck-ci": "npm run depcheck",
     "check-ci": "lerna run check",
     "compile-changed": "lerna run compile --stream --since origin/HEAD",
     "predepcheck": "node scripts/depalign.js",

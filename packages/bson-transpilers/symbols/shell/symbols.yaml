@@ -1,0 +1,189 @@
+BsonSymbols:
+    Code: &CodeSymbol
+        id: "Code"
+        code: 100
+        callable: *constructor
+        args:
+            - [ *StringType, null ]
+            - [ *ObjectType, null ]
+        type: *CodeType
+        attr: {}
+        template: *CodeSymbolTemplate
+        argsTemplate: *CodeSymbolArgsTemplate
+    ObjectId: &ObjectIdSymbol
+        id: "ObjectId"
+        code: 101
+        callable: *constructor
+        args:
+            - [ *StringType, null ]
+        type: *ObjectIdType
+        attr:
+            fromDate:
+                <<: *__func
+                id: "ObjectIdCreateFromTime"
+                args:
+                    - [ *DateType ]
+                type: *ObjectIdType
+                template: *ObjectIdCreateFromTimeTemplate
+                argsTemplate: *ObjectIdCreateFromTimeArgsTemplate
+        template: *ObjectIdSymbolTemplate
+        argsTemplate: *ObjectIdSymbolArgsTemplate
+    BinData: &BinarySymbol
+        id: "BinData"
+        code: 102
+        callable: *constructor
+        args:
+            - [ *IntegerType ]
+            - [ *StringType ]
+        type: *BinaryType
+        attr: {}
+        template: *BinarySymbolTemplate
+        argsTemplate: *BinarySymbolArgsTemplate
+    DBRef:
+        id: "DBRef"
+        code: 103
+        callable: *constructor
+        args:
+            - [ *StringType ]
+            - [ *ObjectIdType ]
+            - [ *StringType, null ]
+        type: *DBRefType
+        attr: {}
+        template: *DBRefSymbolTemplate
+        argsTemplate: *DBRefSymbolArgsTemplate
+    NumberInt:
+        id: "Int32"
+        code: 105
+        callable: *constructor
+        args:
+            - [ *NumericType, *StringType, null ]
+        type: *Int32Type
+        attr: {}
+        template: *Int32SymbolTemplate
+        argsTemplate: *Int32SymbolArgsTemplate
+    NumberLong:
+        id: "NumberLong"
+        code: 106
+        callable: *constructor
+        args:
+            - [ *IntegerType, *StringType, null ]
+        type: *LongType
+        attr: {}
+        template: *LongSymbolTemplate
+        argsTemplate: *LongSymbolArgsTemplate
+    MinKey:
+        id: "MinKey"
+        code: 107
+        callable: *constructor
+        args: []
+        type: *MinKeyType
+        attr: {}
+        template: *MinKeySymbolTemplate
+        argsTemplate: *MinKeySymbolArgsTemplate
+    MaxKey:
+        id: "MaxKey"
+        code: 108
+        callable: *constructor
+        args: []
+        type: *MaxKeyType
+        attr: {}
+        template: *MaxKeySymbolTemplate
+        argsTemplate: *MaxKeySymbolArgsTemplate
+    Timestamp:
+        id: "Timestamp"
+        code: 110
+        callable: *constructor
+        args:
+            - [ *IntegerType, null ]
+            - [ *IntegerType, null ]
+        type: *TimestampType
+        attr: {}
+        template: *TimestampSymbolTemplate
+        argsTemplate: *TimestampSymbolArgsTemplate
+    Symbol:
+        id: "Symbol"
+        code: 111
+        callable: *constructor
+        args:
+            - [ *StringType ]
+        type: *SymbolType
+        attr: {}
+        template: *SymbolSymbolTemplate
+        argsTemplate: *SymbolSymbolArgsTemplate
+    NumberDecimal:
+        id: "NumberDecimal"
+        code: 112
+        callable: *constructor
+        args:
+            - [ *StringType, *NumericType, null ]
+        type: *Decimal128Type
+        attr: {}
+        template: *Decimal128SymbolTemplate
+        argsTemplate: *Decimal128SymbolArgsTemplate
+
+NativeSymbols:
+    Number:
+        id: "Number"
+        code: 2
+        callable: *constructor
+        args:
+            - [ *IntegerType, *StringType, null ]
+        type: *NumericType
+        attr: {} # TODO: no built-in number funcs added yet
+        template: *NumberSymbolTemplate
+        argsTemplate: *NumberSymbolArgsTemplate
+    Date: # Needs emit method
+        id: "Date"
+        code: 200
+        callable: *constructor
+        args:
+            - [ *StringType, *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+        type: *DateType
+        attr: # TODO: add more date funcs?
+            now:
+                id: "now"
+                code: 200.1
+                callable: *func
+                args: []
+                type: *DateType
+                attr: {}
+                template: *DateSymbolNowTemplate
+                argsTemplate: *DateSymbolNowArgsTemplate
+        template: *DateSymbolTemplate
+        argsTemplate: *DateSymbolArgsTemplate
+    ISODate: # Needs emit method
+        id: "ISODate"
+        code: 200
+        callable: *constructor
+        args:
+            - [ *StringType, null ]
+        type: *DateType
+        attr:
+            now:
+                id: "now"
+                callable: *constructor
+                args: []
+                type: *DateType
+                attr: {}
+                template: *DateSymbolNowTemplate
+                argsTemplate: *DateSymbolNowArgsTemplate
+        template: *DateSymbolTemplate
+        argsTemplate: *DateSymbolArgsTemplate
+    RegExp: # Needs process method
+        id: "RegExp"
+        code: 8
+        callable: *constructor
+        args:
+            - [ *StringType, *RegexType ]
+            - [ *StringType, null ]
+        type: *RegExpType
+        attr: {} # TODO: no built-in regex funcs added yet
+        template: *RegExpSymbolTemplate
+        argsTemplate: *RegExpSymbolArgsTemplate
+

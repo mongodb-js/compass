@@ -1,0 +1,12 @@
+.jshintrc
+.jsfmtrc
+.travis.yml
+.zuul.yml
+test/
+grammars/
+img-docs/
+printers/
+symbols/
+*.jar
+*.pdf
+*.tgz

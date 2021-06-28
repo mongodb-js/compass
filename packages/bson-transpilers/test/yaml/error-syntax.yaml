@@ -1,0 +1,185 @@
+runner: !!js/function >
+    (it, expect, input, output, transpiler, test) => {
+        it(`${input}: ${test.input[input]} => ${output}`, () => {
+            let thrown = false;
+            try {
+              transpiler[input][output].compile(test.input[input]);
+            } catch (error) {
+              thrown = true;
+              expect(error.code).to.equal(test.errorCode);
+              if (test.message) {
+                expect(error.message).to.be.a('string');
+                expect(
+                  error.message.includes(test.message),
+                  `Expected error message to contain ${test.message} but got ${error.message}`
+                ).to.be.true;
+              }
+            } finally {
+              if (!thrown) {
+                expect.fail(0, 0, `Expected error with code ${test.errorCode} to throw`);
+              }
+            }
+        });
+    }
+tests:
+    Document:
+    - description: missing colon
+      input:
+          javascript: "{x 1}"
+          python: "{'x' 1}"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: missing value
+      input:
+          javascript: "{x: }"
+          python: "{'x': }"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: wrong value assignment
+      input:
+          javascript: "{x: 1, 2}"
+          python: "{'x': 1, 2}"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: nonid key
+      input:
+          javascript: "{{}: 2}"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: unclosed bracket
+      input:
+          javascript: "{x: 2"
+          python: "{'x': 2"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: sub unclosed bracket
+      input:
+          javascript: "{x: {y: }"
+          python: "{'x': {'y': }"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: sub missing value
+      input:
+          javascript: "{x: {y: }}"
+          python: "{'x': {'y': }}"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: getter syntax
+      input:
+          javascript: "{ getX() { } }"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: setter syntax
+      input:
+          javascript: "{ setX(x) {} }"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    Array:
+    - description: wrong delimiter
+      input:
+          javascript: "[1;2;3]"
+          python: "[1;2;3]"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: no closing bracket
+      input:
+          javascript: "[1, 2"
+          python: "[1, 2"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: sub no closing bracket
+      input:
+          javascript: "[1, [1, ]"
+          python: "[1, [1, ]"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: unmatching brackets
+      input:
+          javascript: "[[[[[]]]"
+          python: "[[[[[]]]"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    Attribute:
+    - description: rhs not literal
+      input:
+          javascript: Long.{}
+          python: Int64.{}
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    FuncCall:
+    - description: missing closing paren
+      input:
+          javascript: Long(1, 2
+          python: Int64(1, 2
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: missing comma
+      input:
+          javascript: Long(1 2)
+          python: Int64(1 2)
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: sub missing closing paren
+      input:
+          javascript: Long(1, Int32(1)
+          python: Int64(1, int(1)
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    new:
+    - description: empty new
+      input:
+          javascript: new
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: empty new
+      input:
+          javascript: new
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    post increment:
+    - description: increment with newline
+      input:
+          javascript: "Long\n++"
+          python: "Int64\n++"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: decrement with newline
+      input:
+          javascript: "Long\n--"
+          python:  "Int64\n--"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    math:
+    - description: one sided math
+      input:
+          javascript: 1 +
+          python: 1 +
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    ternary:
+    - description: unfinished ternary
+      input:
+          javascript: 1 == 3 ?
+          python: 1 == 3 ?
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: unfinished ternary else
+      input:
+          javascript: 1 == 3 ? 5
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    parenthesis:
+    - description: no closing paren
+      input:
+          javascript: "(1 == 2"
+          python: "(1 == 2"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    string literals:
+    - description: no closing single quote
+      input:
+          javascript: "'a string"
+          python: "'a string"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: no closing double quote
+      input:
+          javascript: "\"a string"
+          python: "\"a string"
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: unescaped quote
+      input:
+          javascript: '"a str"ing"'
+          python: '"a str"ing"'
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: unknown string type
+      input:
+          python: q'a string'
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    Source elements without separator:
+    - description: 1str
+      input:
+          javascript: 1str
+          python: 1str
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+    - description: 1.x
+      input:
+          javascript: 1.Long
+          python: 1.Int64
+      errorCode: E_BSONTRANSPILERS_SYNTAX
+
+

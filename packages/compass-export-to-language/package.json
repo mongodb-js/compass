@@ -25,7 +25,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "bson-transpilers": "^0.15.0",
+    "bson-transpilers": "*",
     "hadron-react-buttons": "*",
     "mongodb-ace-theme": "*",
     "prop-types": "^15.5.8",

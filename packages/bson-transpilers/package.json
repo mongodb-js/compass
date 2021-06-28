@@ -1,0 +1,47 @@
+{
+  "name": "bson-transpilers",
+  "version": "0.15.0",
+  "apiVersion": "0.0.1",
+  "productName": "BSON Transpilers",
+  "description": "Source to source compilers using ANTLR",
+  "contributors": [
+    "Anna Herlihy <herlihyap@gmail.com>",
+    "Alena Khineika <alena.khineika@mongodb.com>",
+    "Irina Shestak <irina.shestak@mongodb.com>"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "precompile": "node download-antlr.js",
+    "compile": "npm run antlr4-js && npm run antlr4-py && npm run symbol-table",
+    "antlr4-js": "java -Xmx500M -cp './antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib/antlr -visitor -Xexact-output-dir grammars/ECMAScript.g4",
+    "antlr4-py": "java -Xmx500M -cp './antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib/antlr -visitor -Xexact-output-dir grammars/Python3.g4",
+    "symbol-table": "node compile-symbol-table.js",
+    "pretest": "npm run compile",
+    "test": "mocha",
+    "test-ci": "mocha",
+    "depcheck": "depcheck",
+    "check": "npm run lint && npm run depcheck",
+    "lint": "eslint .",
+    "check-ci": "npm run check"
+  },
+  "homepage": "http://github.com/mongodb-js/compass/packages/bson-transpilers",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/compass.git"
+  },
+  "license": "SSPL",
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "depcheck": "^1.4.1",
+    "eslint": "^7.25.0",
+    "eslint-config-mongodb-js": "^2.1.0",
+    "js-yaml": "^3.11.0",
+    "mocha": "^8.4.0"
+  },
+  "dependencies": {
+    "antlr4": "4.7.2",
+    "bson": "4.1.0",
+    "context-eval": "^0.1.0"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "Syntax": {
+    "message": "Invalid syntax"
+  },
+  "Type": {
+    "message": "Unexpected type"
+  },
+  "Argument": {
+    "message": "Invalid argument"
+  },
+  "Runtime": {
+    "message": "Generic error"
+  },
+  "Unimplemented": {
+    "message": "Functionality not implemented"
+  },
+  "Reference": {
+    "message": "Reference error"
+  },
+  "Attribute": {
+    "message": "Attribute error"
+  },
+  "Internal": {
+    "message": "An internal error occurred"
+  },
+  "Range": {
+    "message": "Value is out of range"
+  }
+}

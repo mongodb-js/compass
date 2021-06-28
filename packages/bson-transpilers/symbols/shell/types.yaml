@@ -1,0 +1,300 @@
+BsonTypes:
+    Code: &CodeType
+        <<: *__type
+        id: "Code"
+        code: 100
+        type: *ObjectType
+        attr:
+            code:
+                callable: *var
+                args: null
+                attr: null
+                id: "code"
+                type: *StringType
+                template: *CodeCodeTemplate
+                argsTemplate: *CodeCodeArgsTemplate
+            scope:
+                callable: *var
+                args: null
+                attr: null
+                id: "scope"
+                type: *StringType
+                template: *CodeScopeTemplate
+                argsTemplate: *CodeScopeArgsTemplate
+    ObjectId: &ObjectIdType
+        <<: *__type
+        id: "ObjectId"
+        code: 101
+        type: *ObjectType
+        attr:
+            toString:
+                <<: *__func
+                id: "toString"
+                type: *StringType
+                template: *ObjectIdToStringTemplate
+                argsTemplate: *ObjectIdToStringArgsTemplate
+            equals:
+                <<: *__func
+                id: "equals"
+                args:
+                    - [ "ObjectId" ]
+                type: *BoolType
+                template: *ObjectIdEqualsTemplate
+                argsTemplate: *ObjectIdEqualsArgsTemplate
+            getTimestamp:
+                <<: *__func
+                id: "getTimestamp"
+                type: *IntegerType
+                template: *ObjectIdGetTimestampTemplate
+                argsTemplate: *ObjectIdGetTimestampArgsTemplate
+    BinData: &BinaryType
+        <<: *__type
+        id: "BinData"
+        code: 102
+        type: *ObjectType
+        attr:
+            toString:
+                <<: *__func
+                id: "toString"
+                type: *StringType
+                template: *BinaryToStringTemplate
+                argsTemplate: *BinaryToStringArgsTemplate
+            base64:
+                <<: *__func
+                id: "base64"
+                type: *StringType
+                template: *BinaryValueTemplate
+                argsTemplate: *BinaryValueArgsTemplate
+            length:
+                <<: *__func
+                id: "length"
+                type: *IntegerType
+                template: *BinaryLengthTemplate
+                argsTemplate: *BinaryLengthArgsTemplate
+            subtype:
+                <<: *__func
+                id: "subtype"
+                type: *IntegerType
+                template: *BinarySubtypeTemplate
+                argsTemplate: *BinarySubtypeArgsTemplate
+    DBRef: &DBRefType
+        <<: *__type
+        id: "DBRef"
+        code: 103
+        type: *ObjectType
+        attr:
+            getDb:
+                <<: *__func
+                id: "getDb"
+                type: *StringType
+                template: *DBRefGetDBTemplate
+                argsTemplate: *DBRefGetDBArgsTemplate
+            $db:
+                callable: *var
+                args: null
+                attr: null
+                id: "$db"
+                type: *StringType
+                template: *DBRefGetDBTemplate
+                argsTemplate: *DBRefGetDBArgsTemplate
+            getCollection:
+                <<: *__func
+                id: "getCollection"
+                type: *StringType
+                template: *DBRefGetCollectionTemplate
+                argsTemplate: *DBRefGetCollectionArgsTemplate
+            getRef:
+                <<: *__func
+                id: "getRef"
+                type: *StringType
+                template: *DBRefGetCollectionTemplate
+                argsTemplate: *DBRefGetCollectionArgsTemplate
+            $ref:
+                callable: *var
+                args: null
+                attr: null
+                id: "$ref"
+                type: *StringType
+                template: *DBRefGetCollectionTemplate
+                argsTemplate: *DBRefGetCollectionArgsTemplate
+            getId:
+                <<: *__func
+                id: "getId"
+                type: *StringType
+                template: *DBRefGetIdTemplate
+                argsTemplate: *DBRefGetIdArgsTemplate
+            $id:
+                callable: *var
+                args: null
+                attr: null
+                id: "$id"
+                type: *StringType
+                template: *DBRefGetIdTemplate
+                argsTemplate: *DBRefGetIdArgsTemplate
+    NumberInt: &Int32Type
+        <<: *__type
+        id: "NumberInt"
+        code: 105
+        type: *ObjectType
+        attr: {}
+    NumberLong: &LongType
+        <<: *__type
+        id: "NumberLong"
+        code: 106
+        type: *ObjectType
+        attr:
+            toString:
+                <<: *__func
+                id: "LongtoString" # Needs process method
+                type: *StringType
+            top:
+                callable: *var
+                args: null
+                attr: null
+                id: "top"
+                type: *IntegerType
+                template: *LongTopTemplate
+                argsTemplate: null
+            bottom:
+                callable: *var
+                args: null
+                attr: null
+                id: "bottom"
+                type: *IntegerType
+                template: *LongBottomTemplate
+                argsTemplate: null
+            floatApprox:
+                callable: *var
+                args: null
+                attr: null
+                id: "floatApprox"
+                type: *IntegerType
+                template: *LongFloatApproxTemplate
+                argsTemplate: null
+    MinKeyType: &MinKeyType
+        <<: *__type
+        id: "MinKey"
+        code: 107
+        type: *ObjectType
+    MaxKeyType: &MaxKeyType
+        <<: *__type
+        id: "MaxKey"
+        code: 108
+        type: *ObjectType
+    Timestamp: &TimestampType
+        <<: *__type
+        id: "TimestampFromShell"
+        code: 110
+        type: *ObjectType
+        attr:
+            toString:
+                <<: *__func
+                id: "toString"
+                type: *StringType
+                template: *TimestampToStringTemplate
+                argsTemplate: *TimestampToStringArgsTemplate
+            getTime:
+                <<: *__func
+                id: "getTime"
+                type: *IntegerType
+                template: *TimestampGetLowBitsTemplate
+                argsTemplate: *TimestampGetLowBitsArgsTemplate
+            getInc:
+                <<: *__func
+                id: "getInc"
+                type: *IntegerType
+                template: *TimestampGetHighBitsTemplate
+                argsTemplate: *TimestampGetHighBitsArgsTemplate
+            t:
+                callable: *var
+                args: null
+                attr: null
+                id: "getTime"
+                type: *IntegerType
+                template: *TimestampTTemplate
+                argsTemplate: null
+            i:
+                callable: *var
+                args: null
+                attr: null
+                id: "getInc"
+                type: *IntegerType
+                template: *TimestampITemplate
+                argsTemplate: null
+    Symbol: &SymbolType
+        <<: *__type
+        id: "Symbol"
+        code: 111
+        type: *ObjectType
+    NumberDecimal: &Decimal128Type
+        <<: *__type
+        id: "NumberDecimal"
+        code: 112
+        type: *ObjectType
+        attr: {}
+    SUBTYPE_DEFAULT:
+        id: "SUBTYPE_DEFAULT"
+        callable: *var
+        args: null
+        code: 113
+        type: *IntegerType
+        template: *BinarySymbolSubtypeDefaultTemplate
+    SUBTYPE_FUNCTION:
+        id: "SUBTYPE_FUNCTION"
+        callable: *var
+        args: null
+        code: 113
+        type: *IntegerType
+        template: *BinarySymbolSubtypeFunctionTemplate
+    SUBTYPE_BYTE_ARRAY:
+        id: "SUBTYPE_BYTE_ARRAY"
+        callable: *var
+        args: null
+        code: 113
+        type: *IntegerType
+        template: *BinarySymbolSubtypeByteArrayTemplate
+    SUBTYPE_UUID_OLD:
+        id: "SUBTYPE_UUID_OLD"
+        callable: *var
+        args: null
+        code: 113
+        type: *IntegerType
+        template: *BinarySymbolSubtypeUuidOldTemplate
+    SUBTYPE_UUID:
+        id: "SUBTYPE_UUID"
+        callable: *var
+        args: null
+        code: 113
+        type: *IntegerType
+        template: *BinarySymbolSubtypeUuidTemplate
+    SUBTYPE_MD5:
+        id: "SUBTYPE_MD5"
+        callable: *var
+        args: null
+        code: 113
+        type: *IntegerType
+        template: *BinarySymbolSubtypeMd5Template
+    SUBTYPE_USER_DEFINED:
+        id: "SUBTYPE_USER_DEFINED"
+        callable: *var
+        args: null
+        code: 113
+        type: *IntegerType
+        template: *BinarySymbolSubtypeUserDefinedTemplate
+NativeTypes:
+    Date: &DateType
+        <<: *__type
+        id: "Date"
+        code: 200
+        type: *ObjectType
+        attr: {} # TODO: no built-in date methods added yet
+    RegExp: &RegExpType
+        <<: *__type
+        id: "RegExp"
+        code: 8
+        type: *ObjectType
+        attr: {}
+
+
+
+
