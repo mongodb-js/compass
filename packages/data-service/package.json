@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/data-service/issues",
   "homepage": "https://github.com/mongodb-js/data-service",
-  "version": "21.2.0",
+  "version": "21.3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/data-service.git"
@@ -54,7 +54,7 @@
     "mocha": "^8.2.1",
     "mock-require": "^3.0.3",
     "mongodb": "4.0.0-beta.5",
-    "mongodb-connection-model": "^21.2.0",
+    "mongodb-connection-model": "^21.3.0",
     "mongodb-runner": "^4.8.0",
     "sinon": "^9.2.3",
     "sinon-chai": "^3.5.0"
