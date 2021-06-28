@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import CollectionStatsItem from '../collection-stats-item';
 
 import styles from './document-stats-item.less';
@@ -33,6 +32,7 @@ class DocumentStatsItem extends Component {
 
   static propTypes = {
     documentCount: PropTypes.string.isRequired,
+    isTimeSeries: PropTypes.bool.isRequired,
     totalDocumentSize: PropTypes.string.isRequired,
     avgDocumentSize: PropTypes.string.isRequired
   };
@@ -44,11 +44,20 @@ class DocumentStatsItem extends Component {
    *
    */
   render() {
+    const { isTimeSeries } = this.props;
+
     return (
-      <div className={classnames(styles[LIST_CLASS])}>
-        <CollectionStatsItem label={DOCUMENTS} value={this.props.documentCount} primary />
+      <div className={styles[LIST_CLASS]}>
+        {!isTimeSeries && <CollectionStatsItem
+          label={DOCUMENTS}
+          value={this.props.documentCount}
+          primary
+        />}
         <CollectionStatsItem label={TOTAL_SIZE} value={this.props.totalDocumentSize} />
-        <CollectionStatsItem label={AVG_SIZE} value={this.props.avgDocumentSize} />
+        {!isTimeSeries && <CollectionStatsItem
+          label={AVG_SIZE}
+          value={this.props.avgDocumentSize}
+        />}
       </div>
     );
   }

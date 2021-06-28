@@ -16,6 +16,10 @@ describe('CollectionStatsstore [store]', () => {
         expect(store.state.isReadonly).to.be.false;
       });
 
+      it('defaults isTimeSeries to false', () => {
+        expect(store.state.isTimeSeries).to.be.false;
+      });
+
       it('defaults document count to invalid', () => {
         expect(store.state.documentCount).to.be.equal('N/A');
       });
@@ -81,15 +85,12 @@ describe('CollectionStatsstore [store]', () => {
 
       context('when providing a data provider', () => {
         let store;
-        let estimatedCountStub;
         let collectionStub;
         let dataService;
         beforeEach(() => {
-          estimatedCountStub = sinon.stub();
           collectionStub = sinon.stub();
 
           dataService = {
-            estimatedCount: estimatedCountStub,
             collection: collectionStub,
             isConnected: () => true
           };
@@ -119,20 +120,6 @@ describe('CollectionStatsstore [store]', () => {
           expect(store.state.documentCount).to.equal('123');
         });
 
-        it('re-fetch the document count if was not in stats (support hack for time-series in v5.0)', () => {
-          collectionStub.callsFake((ns, options, cb) => {
-            cb(null, {});
-          });
-
-          estimatedCountStub.callsFake((ns, options, cb) => {
-            cb(null, 123);
-          });
-
-          store.loadCollectionStats();
-
-          expect(store.state.documentCount).to.equal('123');
-        });
-
         it('resets the state in case of error (collection stats)', () => {
           collectionStub.callsFake((ns, options, cb) => {
             cb(new Error('failed'));
@@ -142,24 +129,6 @@ describe('CollectionStatsstore [store]', () => {
 
           store.loadCollectionStats();
 
-          expect(store.state.documentCount).to.equal('N/A');
-          expect(store.dataService).to.equal(dataService);
-        });
-
-        it('resets only the documentCount in case of error on estimated count', () => {
-          collectionStub.callsFake((ns, options, cb) => {
-            cb(null, {
-              index_count: 123
-            });
-          });
-
-          estimatedCountStub.callsFake((ns, options, cb) => {
-            cb(new Error('failed'));
-          });
-
-          store.loadCollectionStats();
-
-          expect(store.state.indexCount).to.equal('123');
           expect(store.state.documentCount).to.equal('N/A');
           expect(store.dataService).to.equal(dataService);
         });
@@ -174,6 +143,18 @@ describe('CollectionStatsstore [store]', () => {
 
         it('sets the is readonly value on the store', () => {
           expect(store.state.isReadonly).to.equal(true);
+        });
+      });
+
+      context('when providing is time-series', () => {
+        let store;
+
+        beforeEach(() => {
+          store = configureStore({ isTimeSeries: true });
+        });
+
+        it('sets the is time-series value on the store', () => {
+          expect(store.state.isTimeSeries).to.equal(true);
         });
       });
 
