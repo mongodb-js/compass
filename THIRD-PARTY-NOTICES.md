@@ -84,37 +84,37 @@ Package|Version|License
 **[@mapbox/unitbezier](#49dc81ac646217b70a4d87061825aef2e89d2731ca0531a6f642043ea2595309)**|0.0.0|BSD-2-Clause
 **[@mapbox/vector-tile](#246dbbb1645df001d1030325c9ee68e28e40389926bcf1f832ca8863f73f9703)**|1.3.1|BSD-3-Clause
 **[@mapbox/whoots-js](#2df966a0a5e211ff96378adb982919ca3915c8a48c60a07db4527e6b9bad0921)**|3.1.0|ISC
-**[@mongodb-js/compass-aggregations](#8dee429c2096d29e16bd1895d4329756b269a49d8bdef1665d60585b8316ee14)**|8.4.0|SSPL
-**[@mongodb-js/compass-app-stores](#310fb79f310611899b9ccb5804f72b0a5da37b50798faecefc27889a28693290)**|5.4.0|SSPL
-**[@mongodb-js/compass-auto-updates](#3ca0e7a82299008f36769a2a6db1d67519ac1ce311cae18ec09a4a1254ab72b9)**|3.4.0|SSPL
-**[@mongodb-js/compass-collection](#004d3eb69b1d44e09bf009623f49b2585f04bd45c07e9c984f91bffaf187c25f)**|3.6.0|SSPL
-**[@mongodb-js/compass-collection-stats](#09aacdfbabacb436f661147c77dd68b5c7b7d9d165244e713e08ac91fa68eaa3)**|6.4.0|SSPL
-**[@mongodb-js/compass-connect](#8607cdb14f7b0a873a41f7e56607d20ff08fa2c9d0d3368f6d855ea0bb0eae15)**|7.4.0|SSPL
-**[@mongodb-js/compass-crud](#bd7cf99c1ed975bd22d58f7f897d17c8a57399de2c047a467e97456657180cc3)**|12.4.0|SSPL
-**[@mongodb-js/compass-database](#f23a0e48179b6db4aaf6558570368a4c2199c4ecb9f0d5c0e5d5f7a0b70bce82)**|2.4.0|SSPL
-**[@mongodb-js/compass-databases-collections](#ba0ef08001921c1b69259cb638a66c79f2ba82f7427e1958488ae61a5bfe5ae3)**|0.5.0|SSPL
-**[@mongodb-js/compass-deployment-awareness](#72b139b336efbcf3208ba0f8d652cd226d10cc51dec555b9a55e67efab21e089)**|11.4.0|SSPL
-**[@mongodb-js/compass-explain-plan](#4e0aa9718d2332522d2e0b2976f8887ea1833613a7e7d02c4e03ec2158ba7692)**|5.6.0|SSPL
-**[@mongodb-js/compass-export-to-language](#d8d00c235d18bae9a21daf1594d47578d074b34b3aa73882a8db5e30ac8c2bb6)**|7.4.0|SSPL
-**[@mongodb-js/compass-field-store](#3dbcd72c1c1fe57fe2b865bb8537015c1978a501b1d28f887bfc58da203a9521)**|7.4.0|SSPL
-**[@mongodb-js/compass-find-in-page](#78a9603370e031a694ef75474f680f7d2b8e6bb71ac0880bea5f2d91513dded1)**|3.4.0|SSPL
-**[@mongodb-js/compass-home](#6c5c9c8517f27c439e74c4ff5a363a672110f1bcb5344b32bca2916e4b28f3c3)**|5.6.0|SSPL
-**[@mongodb-js/compass-import-export](#30286e913f3ce6fc9df0e3e72654d03690a68531a18f37d97c90bd2108886b89)**|6.4.0|SSPL
-**[@mongodb-js/compass-indexes](#629e83e68e841fe6f786df8042f77e3b4a098ec5c2e28819fdc38b60ab354096)**|4.6.0|SSPL
-**[@mongodb-js/compass-instance](#752e6f5b84fe862662c9d360c372885665704b5d9a1600998fc4b4ec2632ccc5)**|3.4.0|SSPL
-**[@mongodb-js/compass-loading](#81cc8ef4eb52cc50cef50459d6b7f3d59e856fb125c019d8ba4b04787cdc3b4f)**|2.4.0|SSPL
-**[@mongodb-js/compass-metrics](#21fbf0194e831f0fcd0dca5e6240f34e9a65aa0b6d38aaeb952a17c8768c2abc)**|4.4.0|SSPL
-**[@mongodb-js/compass-plugin-info](#27280c17c9e40d11ebb4c94e48ad9316f928eef5848241ad45d759ca1dc37c75)**|3.4.0|SSPL
-**[@mongodb-js/compass-query-bar](#d780394c9b0f6d11f0a8af1e660bac5a6c1d3513c724b2c4a3f65842f67b36ba)**|7.4.0|SSPL
-**[@mongodb-js/compass-query-history](#d3acfad548ab5d964121ea040f8fdbf4f0450fcf46aa1aeb4e209b8721b30b6a)**|8.4.0|SSPL
-**[@mongodb-js/compass-schema](#7ab995e1c31bf5475ea2307521b81a1e2f91c69f33660e9751291f88bb91f08f)**|5.4.0|SSPL
-**[@mongodb-js/compass-schema-validation](#ffe38393881bd1470105cd87b92283bbc9c566933dd3cfb46e366aef451a612f)**|5.4.0|SSPL
-**[@mongodb-js/compass-server-version](#f48f7ee77f3ad83cc503f0be574e92b7eb2dab63b788f9bb26e264153613ccb6)**|5.4.0|SSPL
-**[@mongodb-js/compass-serverstats](#79fb4ec34fcd0e5f77ead8863abac60e99c981b9ccde87141b2a7bd3af4544d2)**|15.4.0|SSPL
-**[@mongodb-js/compass-shell](#39b095da8aa3827d188e9b498aea741f09bc8897f06afadceae8dabaf81d09a0)**|2.5.0|SSPL
-**[@mongodb-js/compass-sidebar](#f7b2df9356110c1da4a3181dfed11c281b73c1c33fa241ef54bc4a27640e4f7e)**|4.5.0|SSPL
-**[@mongodb-js/compass-ssh-tunnel-status](#208b622dafc536ac5ba3a7e2758ceaab57edd42a00543ff27e1b8123f6d1494b)**|6.4.0|SSPL
-**[@mongodb-js/compass-status](#96f2f70f8c55455764ab6bf898eba2cde0ec1574cff3d5a57af2e2a4c7fcdfea)**|5.4.0|SSPL
+**[@mongodb-js/compass-aggregations](#39c55e1a04e966ed34bdb5f565e7ea9946fd840bc6f66c9d8b0081f8369ad992)**|8.5.0|SSPL
+**[@mongodb-js/compass-app-stores](#891653c02de974bf844a480d28146709ba00bc88b36bad663673acc76a2b81c5)**|5.5.0|SSPL
+**[@mongodb-js/compass-auto-updates](#afc7e428d1b8fe1be3c35e147290891bceefbaeed400105baea050b7587aa8ac)**|3.5.0|SSPL
+**[@mongodb-js/compass-collection](#f895afcf61d6f923c48c532ff2ee2ee785164ac0cf5d203069272a8cf42a734e)**|3.7.0|SSPL
+**[@mongodb-js/compass-collection-stats](#db657e441fa1b8867a4f8a53501539c4a761410448b4f36d4a3687e51f68a826)**|6.5.0|SSPL
+**[@mongodb-js/compass-connect](#2e6c15450a3dabd6bb3ab80dc4da39d63b760388390945733acbae6ee9b76212)**|7.5.0|SSPL
+**[@mongodb-js/compass-crud](#f7033ab3da11fe0dbd3ef643301dff7586ecd93f768212f4a55125532e152056)**|12.5.0|SSPL
+**[@mongodb-js/compass-database](#e5d63b28ca8ef2d7af826cb46a0e3b3f78c31b8a9b40e8dfad3ad79936f98cd7)**|2.5.0|SSPL
+**[@mongodb-js/compass-databases-collections](#b1a7300bdd7f066b18f683b3a79cd4bc8896a086d6ba23d4946c28a9d57640fb)**|0.6.0|SSPL
+**[@mongodb-js/compass-deployment-awareness](#95ab5e95f7d075a0ac9a3d770f73de742ba64412cd65e9d1eeb06f46107d907c)**|11.5.0|SSPL
+**[@mongodb-js/compass-explain-plan](#b2e5a1404cc76a8eaf95f91c42b9e31c0160c2a3fc9ca47a97aad75dbea2e11f)**|5.7.0|SSPL
+**[@mongodb-js/compass-export-to-language](#1987b0d6a576b2e3639b190eb373419132fcc470574c065a7ce568dc35934651)**|7.5.0|SSPL
+**[@mongodb-js/compass-field-store](#c3259599392bcfd545841c7ec7e9d5c95df1545786c61eee6060056c3ca6ad49)**|7.5.0|SSPL
+**[@mongodb-js/compass-find-in-page](#50534cf2e1ad6b84b3bd20078744bdbea56508981ee98f47bc1bc8e25991e6be)**|3.5.0|SSPL
+**[@mongodb-js/compass-home](#53a14e986e8f53448dd1eb8fec58284c0d14156e6a4a16f07b4727bf8979804a)**|5.7.0|SSPL
+**[@mongodb-js/compass-import-export](#8f4a810769bfab6f31a9422ecbc26f398768be997c20b931ca0025361c381cea)**|6.5.0|SSPL
+**[@mongodb-js/compass-indexes](#0a66f599fe2d0e8cf9cf23e339522bbd3643847fa496c354e929da1d39c09221)**|4.7.0|SSPL
+**[@mongodb-js/compass-instance](#e72e6373594bed76cca7ac96bfc0bcb0932bc06ea6a27efbe43b88c82b90e4bf)**|3.5.0|SSPL
+**[@mongodb-js/compass-loading](#3731a2170a715e6e727dc9eb6ec0f6cd12bd87d74a0ff195677ed4d4f62baecf)**|2.5.0|SSPL
+**[@mongodb-js/compass-metrics](#8886a0b3c9e9ac5207f18d5e8aeb3f796d301a0ff559c8d1b8d257f990f2d68a)**|4.5.0|SSPL
+**[@mongodb-js/compass-plugin-info](#4db3b8e2b075e2ad8577ecd6acd14749263974b2a253d7f514b86969ab242248)**|3.5.0|SSPL
+**[@mongodb-js/compass-query-bar](#08a8aeced4a54cdccd12c866e4ba28d8d61ab38cb73c77485ba1caab9c3f0187)**|7.5.0|SSPL
+**[@mongodb-js/compass-query-history](#e2583f5615f9dee69e404df11f81b25b133be296dd228401038e18f4dd9f471d)**|8.5.0|SSPL
+**[@mongodb-js/compass-schema](#6780226613c41788e5a1a8bbe8c46596937675fbd5469e05beceb57539533a10)**|5.5.0|SSPL
+**[@mongodb-js/compass-schema-validation](#5ae111928c1c64668836ac8e73660128c6d645eca8b53129e4b69ac1c649ae52)**|5.5.0|SSPL
+**[@mongodb-js/compass-server-version](#f75331111d7cc90eebeb552c08b82c9b8048767d1eb1ddc577438122ed2daa75)**|5.5.0|SSPL
+**[@mongodb-js/compass-serverstats](#104bef3a237e944ef7831c22a8ec6d50cc3de1f60e3c4308fe02407abfe588a0)**|15.5.0|SSPL
+**[@mongodb-js/compass-shell](#f80a97f0b100f40806fbab29fd2b676afc6e8e18d123dfdd38611a0f732fd7f0)**|2.6.0|SSPL
+**[@mongodb-js/compass-sidebar](#80d280e17986661910c2402ee503519614300cdb160753c07ec1a61d79d1b7c7)**|4.6.0|SSPL
+**[@mongodb-js/compass-ssh-tunnel-status](#698cce03efbf3bfdc5b9b95753257206470fa4beae82cf8093fb2f9dcd4845f5)**|6.5.0|SSPL
+**[@mongodb-js/compass-status](#8c3e8ca7cd8e7dbae1041fe060a5e81feb0199e62b44a09bd905f79c06392723)**|5.5.0|SSPL
 **[@mongodb-js/hadron-plugin-manager](#7c4d0a7e278233d606f2457e3d50cbec1c6011ce87643969b6c42ad0e99dcae9)**|6.3.0|SSPL
 **[@mongodb-js/mongodb-redux-common](#bae922227dbeb5b5db749880d9f828d95b7eae969066df5951e834a151740b15)**|1.3.0|SSPL
 **[@mongodb-js/ssh-tunnel](#61a8a28f7e768cb9357131fced91bb727add9058d8ccaa9a53f3dffeebda249c)**|1.2.0|Apache-2.0
@@ -285,7 +285,7 @@ Package|Version|License
 **[bson](#ee52fad50f125b1ac53959bf638e62cafa1a273e20164cc18313012e39035bb5)**|4.1.0|Apache-2.0
 **[bson](#0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87)**|1.1.6|Apache-2.0
 **[bson](#9568646decb901218e67075eb984d7bbd5c4fae711cd931bb42bb85757af4a4b)**|4.0.2|Apache-2.0
-**[bson-transpilers](#613ab58117108f5d02d653f833684405b03a7bed424e17af5f06923bdc9195d4)**|0.15.0|SSPL
+**[bson-transpilers](#ccb1e20326b348de0824f0abb02a8ede1c417b6fb91fda0cbbb42c06c4501e8e)**|1.0.0|SSPL
 **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**|1.2.0|MIT
 **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**|1.1.0|MIT
 **[buffer-equal-constant-time](#77cd18a59a06e032914b3c4148b3467dd3f720b6c6b419c079891ca15b2f488e)**|1.0.1|BSD-3-Clause
@@ -336,8 +336,8 @@ Package|Version|License
 **[commander](#15691f652096ef6b4e4141f693c6d59371663e7259c2376fc857d9fe2e84332f)**|2.6.0|MIT
 **[commander](#24ab11e1b73368dedbb70b1985003bf0636191bc7885dee47c5861cfa74a24eb)**|2.20.3|MIT
 **[commander](#e4c9fecb646585d045b341693411a783d82a5ad33372aaa9b41d86491bec10a0)**|2.8.1|MIT
-**[compass-preferences-model](#b0b91417ca7bdae919d39206c4cb6f9bdcee7a7115955cfd09b6f9aa18eafbea)**|1.4.0|SSPL
-**[compass-user-model](#453f907df02b45aef795e7983c914739f6b689b3ba402998d75469694089a293)**|1.4.0|SSPL
+**[compass-preferences-model](#5474cd7eac5bda2feb346457139797a0a2fdc309a2625347ebf982c0a2f88e91)**|1.5.0|SSPL
+**[compass-user-model](#848ca5a6eb7c6645cc623d947ac95e15d5898a1e22fa099ccdbb71bc20143295)**|1.5.0|SSPL
 **[component-classes](#4bb7ced1e7e20e737e0e6b6052e3be5ed68f9e68c3a6a816e6ca486aec62e77d)**|1.2.6|MIT
 **[component-event](#32d720e7a217746311d55af1f088a9ab8ae8a3966be80250634fbff4c2c45935)**|0.1.4|See [details](#32d720e7a217746311d55af1f088a9ab8ae8a3966be80250634fbff4c2c45935)
 **[component-indexof](#d48df125666f2751d0e651a1b151fe2adf6acc909761f9f1e86fc8193f426656)**|0.0.3|See [details](#d48df125666f2751d0e651a1b151fe2adf6acc909761f9f1e86fc8193f426656)
@@ -490,19 +490,19 @@ Package|Version|License
 **[graceful-fs](#4b15f222709cc7e15b088507f95bc6ed989b26f0276f520aca19c2e5dbed1aed)**|4.2.6|ISC
 **[graceful-readlink](#f6daae66ac8e70d03b75c40b8935e499c084c9ff05948cb890fa4cd8e790ee64)**|1.0.1|MIT
 **[grid-index](#85d8348e33ee3c3b3d7e161b796c4a02ba2f349873195c2ed788f4c66daf2eef)**|1.1.0|ISC
-**[hadron-app](#c8b3952653c7a6d7b9b7d9477875ccdd7c52ec513faa1f3a67ae66c0dcc32906)**|4.4.0|SSPL
+**[hadron-app](#b03822f1db9e639ecdb506448a7bf58fc1595e6337097c476f249b984a1859c6)**|4.5.0|SSPL
 **[hadron-app-registry](#b334bd08bcf60502d3d564f6827fb8dd37e431322fd9616c8ec881c06398ed97)**|8.3.0|SSPL
 **[hadron-auto-update-manager](#264c09102dfd7fff63410d35336b6f201dda71810831e8bb81b09ea05c699de2)**|4.3.0|SSPL
-**[hadron-compile-cache](#9a00a34ed54239b0e9fdc6f1fef53ef0a78f7c6278f8022f67eedc2ea995a753)**|4.2.0|SSPL
-**[hadron-document](#f34ceaa8f20cca9a9a96b9be59a460cfcb03820a1fd8815a457c5ef5c320a9db)**|7.3.0|SSPL
+**[hadron-compile-cache](#1c0ee82ef990f8eb220c42e58fef9445db98cfb39c9bbc40c410cf2b56d3c7b1)**|4.3.0|SSPL
+**[hadron-document](#d5058511f0320c76032538aed4a2e14f86bbb3d525788557847eb1648b2ad9b9)**|7.4.0|SSPL
 **[hadron-ipc](#16993f6548e73dd2dc9a031f9525aebfe5879875747b7e3aa645ef301a07c569)**|2.3.0|SSPL
 **[hadron-module-cache](#17f411ba4f37d86a1537931678060eed8227fcafa6d2ff7d53df4e1cdac702e0)**|2.2.0|SSPL
-**[hadron-react-bson](#030f7ebbcebf206150635c09c6d64f92e32f12a5127fbc48742817b74ae81847)**|5.3.0|SSPL
+**[hadron-react-bson](#4dabe68d049b4291c3a4420b903b25abc9170689afb8b2ea56a3cdab714781c7)**|5.4.0|SSPL
 **[hadron-react-buttons](#dd123c127c945d0a313c614db194e5315d5d3cc40bcce35aedac28bea892ea52)**|5.3.0|SSPL
 **[hadron-react-components](#0e9e64cc9595f7c96c1393aec998f498da7ad2e14f38f33bb4351b7c815fc03d)**|5.3.0|SSPL
 **[hadron-react-utils](#58ded5088da6a2990c740c39d96a38ef331d46e45ad471aba4f59fdf8ee8c5c5)**|5.3.0|SSPL
 **[hadron-style-manager](#c19726961e36cb51c6b1f2a809d3e30e82c1a2de30986b16cf018b859eb9182c)**|1.2.0|SSPL
-**[hadron-type-checker](#8f549076405a4083a857d1de83c8de38a331aca1a2686ed84ccee8bec86406f5)**|6.2.0|SSPL
+**[hadron-type-checker](#639749c61ee876d79cc89e18fd589ca48e75d35dc6ed3e0080c723e9f2202c67)**|6.3.0|SSPL
 **[har-schema](#021bd6e9270455073ace1c28a804219c71b32c9fd6751810055dff10ef3a8d4a)**|1.0.5|ISC
 **[har-schema](#cb654835cf60c983f33aa958bcdc70ce714bdf87bc8e9bc4b08a02e2297106e3)**|2.0.0|ISC
 **[har-validator](#d1d810ef3aa258caada14c82f7fc363b18c49c5b1346992b83e0a989822e5373)**|4.2.1|ISC
@@ -875,22 +875,22 @@ Package|Version|License
 **[mongodb](#79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f)**|3.6.9|Apache-2.0
 **[mongodb-ace-autocompleter](#88e3cacc0ba023dca2a6a0445053a925e9d44883bc4e7b2a48c7a9f36749a7d0)**|0.6.0|Apache-2.0
 **[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
-**[mongodb-ace-mode](#46e2b35d450e6cfcabdad795d5ba7474a224768fd4f0230a8dd8863df9414797)**|1.1.0|SSPL
-**[mongodb-ace-theme](#0f1ec3e6e4457d327f162ca7285e91884272697090c533024e39cfd318d3c428)**|1.1.0|SSPL
-**[mongodb-ace-theme-query](#5a731356c2ffafc630e81af062a0186de4932becc4dceaeb473931b9a3012cad)**|1.1.0|SSPL
+**[mongodb-ace-mode](#da937d0152ba6e8e6d88ec58c3270c6389fdc7e4c7b4281bdf4a209bb74b2af7)**|1.2.0|SSPL
+**[mongodb-ace-theme](#4d011ab7fc48c55a6210bdf011cc0d7e5bb2a52a2fe9af0d26ea7a4ea9aeeec3)**|1.2.0|SSPL
+**[mongodb-ace-theme-query](#99fe1485224159b75cca8a963114fe8c1422ce08e1013ab2c7ebf5fa293b1f62)**|1.2.0|SSPL
 **[mongodb-build-info](#7b92944dac466e442bbd1f2ef3f6b9f2cc37cc53375714306f73b29ca409ff37)**|1.1.1|Apache-2.0
 **[mongodb-client-encryption](#4bdb45219f73908025ebd24ca2809e81a5c4866c5bcec60be103d1dbda24fee3)**|1.2.5|Apache-2.0
-**[mongodb-collection-model](#07be82605821fa6298cb9c24d59bf16d12cfcc52ba795bc308e5027b122af4e4)**|4.4.0|SSPL
+**[mongodb-collection-model](#6d6df561ffa953a025fef7d159aae1acf880cbd7bf5be527b57a1d21dcd0ae1d)**|4.5.0|SSPL
 **[mongodb-collection-sample](#79daa5770151f329c1c9dcf0e80eb13343b14b576c0d21f790e9209c1f0afa5b)**|4.5.1|Apache-2.0
 **[mongodb-compass](#2fd756a7b8b16bab9fcff1b6a60f3fe302c38dc1a73b48902ee106dcd5c6799f)**|0.0.0-dev.0|SSPL
-**[mongodb-connection-model](#295d2ed1ad913f4fc1f334cb0ff700dfca004e0241aa11512db9f04704e3806a)**|21.2.0|SSPL
+**[mongodb-connection-model](#e48cf7e1cb2a1bf59239dc9bae501733b89d05770955bee1d6f038d610bf20fb)**|21.3.0|SSPL
 **[mongodb-connection-string-url](#d842513739d9a848af83ab12b884b179e6e84eb165072b73472b59d20f103c0d)**|1.0.0|Apache-2.0
-**[mongodb-data-service](#8a3f09aaed010bd75ecb1487b3e5a1a0367d8474d53cdab77e12eeab4051018a)**|21.2.0|SSPL
+**[mongodb-data-service](#ada7b902b2946fbc5df2c2fa01eff1e930b31ab254c872d702bce8556bb79f98)**|21.3.0|SSPL
 **[mongodb-database-model](#220b1784e70dbc2fa930c425e0d87612a88716881fce62017ff99921604bdc8e)**|1.2.0|SSPL
 **[mongodb-explain-plan-model](#053e132563eab2346007f2508ee3cf996ce6f90fe4a8070dc565753eb96c8db2)**|1.2.0|SSPL
 **[mongodb-extended-json](#d2ab62d581a5da4f8cd19d3ebd317b7464ef1b2e7536524716f2ebfaee04afd5)**|1.11.0|Apache-2.0
 **[mongodb-index-model](#6ec34cfbae4a5a7fd0fa5f25f5381a71e9786f0c34f80d265768730845d79514)**|3.2.0|SSPL
-**[mongodb-instance-model](#3e5ed517e8e4c3dd8044cf7e31873863a364b6518e916a8bc2db367f540981d3)**|11.4.0|SSPL
+**[mongodb-instance-model](#0526c91226b138c183058de353c7959ab355e0a3bef9e8e35a73b313e4d6fdbe)**|11.5.0|SSPL
 **[mongodb-js-errors](#2a0fc1dd130170b4d54400e654724c9d7b7fde1341f313f1d77944c115c30a11)**|0.3.3|Apache-2.0
 **[mongodb-js-errors](#3c078d1fae4939f8c1b56d7fd21588277752fd1911bfb6e1d3114a4d2bc57cac)**|0.5.0|Apache-2.0
 **[mongodb-js-metrics](#c9998fc64b36f174d593952fd6f516d6593e26e1ba3b0b27e0f0299667756212)**|7.3.0|SSPL
@@ -1129,7 +1129,7 @@ Package|Version|License
 **[ssri](#8bc82a6848154ea044a46844d2e7aa24d57caf468e1ad5f7eebe8a6e6d2aeaaf)**|8.0.1|ISC
 **[stack-trace](#a3ba9b27f8fd661ce4699414d57d1bc1553264139940d33b7083248d81ceef76)**|0.0.10|MIT
 **[stats-lite](#0321007c8cacd594d60fb07761b76230fcd2b1f40214281e5f41cc9e589665f2)**|2.2.0|MIT
-**[storage-mixin](#133b4065cfe300d5fc97663fc86113e4f6a31278b3752c21260a918044b8a51e)**|4.4.0|SSPL
+**[storage-mixin](#942474eb011caf92988b54c6c23eea133012a5aeaecdeefb3669cc79c081b24f)**|4.5.0|SSPL
 **[stream-combiner](#412ecdd289108c0c22af60f052f9c288ea1289b8f7d91bc132435fb6172084f2)**|0.2.2|MIT
 **[stream-shift](#513ebf3700acd6dbdf16f2afa6287b18330c12e7023f6576c75b102884b4ff4d)**|1.0.1|MIT
 **[streamsearch](#a524a1fb055f1cecabebc8234489220ded63fbc1fd32ce1ff9fe21693dbe97da)**|0.1.2|MIT
@@ -3208,176 +3208,176 @@ Authors:
 * Bryan Housel <bryan@mapbox.com>
 
 
-<a id="8dee429c2096d29e16bd1895d4329756b269a49d8bdef1665d60585b8316ee14"></a>
-### [@mongodb-js/compass-aggregations](https://www.npmjs.com/package/@mongodb-js/compass-aggregations) (version 8.4.0)
+<a id="39c55e1a04e966ed34bdb5f565e7ea9946fd840bc6f66c9d8b0081f8369ad992"></a>
+### [@mongodb-js/compass-aggregations](https://www.npmjs.com/package/@mongodb-js/compass-aggregations) (version 8.5.0)
 <!-- initially found at packages/compass-aggregations -->
 > Compass Aggregation Pipeline Builder
 
 License tags: SSPL
 
 
-<a id="310fb79f310611899b9ccb5804f72b0a5da37b50798faecefc27889a28693290"></a>
-### [@mongodb-js/compass-app-stores](https://www.npmjs.com/package/@mongodb-js/compass-app-stores) (version 5.4.0)
+<a id="891653c02de974bf844a480d28146709ba00bc88b36bad663673acc76a2b81c5"></a>
+### [@mongodb-js/compass-app-stores](https://www.npmjs.com/package/@mongodb-js/compass-app-stores) (version 5.5.0)
 <!-- initially found at packages/compass-app-stores -->
 > The external stores repo for compass
 
 License tags: SSPL
 
 
-<a id="3ca0e7a82299008f36769a2a6db1d67519ac1ce311cae18ec09a4a1254ab72b9"></a>
-### [@mongodb-js/compass-auto-updates](https://www.npmjs.com/package/@mongodb-js/compass-auto-updates) (version 3.4.0)
+<a id="afc7e428d1b8fe1be3c35e147290891bceefbaeed400105baea050b7587aa8ac"></a>
+### [@mongodb-js/compass-auto-updates](https://www.npmjs.com/package/@mongodb-js/compass-auto-updates) (version 3.5.0)
 <!-- initially found at packages/compass-auto-updates -->
 > Compass Auto Updates Plugin
 
 License tags: SSPL
 
 
-<a id="004d3eb69b1d44e09bf009623f49b2585f04bd45c07e9c984f91bffaf187c25f"></a>
-### [@mongodb-js/compass-collection](https://www.npmjs.com/package/@mongodb-js/compass-collection) (version 3.6.0)
+<a id="f895afcf61d6f923c48c532ff2ee2ee785164ac0cf5d203069272a8cf42a734e"></a>
+### [@mongodb-js/compass-collection](https://www.npmjs.com/package/@mongodb-js/compass-collection) (version 3.7.0)
 <!-- initially found at packages/compass-collection -->
 > Compass Collection Plugin
 
 License tags: SSPL
 
 
-<a id="09aacdfbabacb436f661147c77dd68b5c7b7d9d165244e713e08ac91fa68eaa3"></a>
-### [@mongodb-js/compass-collection-stats](https://www.npmjs.com/package/@mongodb-js/compass-collection-stats) (version 6.4.0)
+<a id="db657e441fa1b8867a4f8a53501539c4a761410448b4f36d4a3687e51f68a826"></a>
+### [@mongodb-js/compass-collection-stats](https://www.npmjs.com/package/@mongodb-js/compass-collection-stats) (version 6.5.0)
 <!-- initially found at packages/compass-collection-stats -->
 > Compass Collection Stats Plugin
 
 License tags: SSPL
 
 
-<a id="8607cdb14f7b0a873a41f7e56607d20ff08fa2c9d0d3368f6d855ea0bb0eae15"></a>
-### [@mongodb-js/compass-connect](https://www.npmjs.com/package/@mongodb-js/compass-connect) (version 7.4.0)
+<a id="2e6c15450a3dabd6bb3ab80dc4da39d63b760388390945733acbae6ee9b76212"></a>
+### [@mongodb-js/compass-connect](https://www.npmjs.com/package/@mongodb-js/compass-connect) (version 7.5.0)
 <!-- initially found at packages/compass-connect -->
 > Connection Screen Plugin that supports Compass
 
 License tags: SSPL
 
 
-<a id="bd7cf99c1ed975bd22d58f7f897d17c8a57399de2c047a467e97456657180cc3"></a>
-### [@mongodb-js/compass-crud](https://www.npmjs.com/package/@mongodb-js/compass-crud) (version 12.4.0)
+<a id="f7033ab3da11fe0dbd3ef643301dff7586ecd93f768212f4a55125532e152056"></a>
+### [@mongodb-js/compass-crud](https://www.npmjs.com/package/@mongodb-js/compass-crud) (version 12.5.0)
 <!-- initially found at packages/compass-crud -->
 > Compass Plugin for CRUD Operations
 
 License tags: SSPL
 
 
-<a id="f23a0e48179b6db4aaf6558570368a4c2199c4ecb9f0d5c0e5d5f7a0b70bce82"></a>
-### [@mongodb-js/compass-database](https://www.npmjs.com/package/@mongodb-js/compass-database) (version 2.4.0)
+<a id="e5d63b28ca8ef2d7af826cb46a0e3b3f78c31b8a9b40e8dfad3ad79936f98cd7"></a>
+### [@mongodb-js/compass-database](https://www.npmjs.com/package/@mongodb-js/compass-database) (version 2.5.0)
 <!-- initially found at packages/compass-database -->
 > Compass Database Plugin
 
 License tags: SSPL
 
 
-<a id="ba0ef08001921c1b69259cb638a66c79f2ba82f7427e1958488ae61a5bfe5ae3"></a>
-### [@mongodb-js/compass-databases-collections](https://www.npmjs.com/package/@mongodb-js/compass-databases-collections) (version 0.5.0)
+<a id="b1a7300bdd7f066b18f683b3a79cd4bc8896a086d6ba23d4946c28a9d57640fb"></a>
+### [@mongodb-js/compass-databases-collections](https://www.npmjs.com/package/@mongodb-js/compass-databases-collections) (version 0.6.0)
 <!-- initially found at packages/databases-collections -->
 > Plugin for viewing the list of, creating, and dropping databases and collections
 
 License tags: SSPL
 
 
-<a id="72b139b336efbcf3208ba0f8d652cd226d10cc51dec555b9a55e67efab21e089"></a>
-### [@mongodb-js/compass-deployment-awareness](https://www.npmjs.com/package/@mongodb-js/compass-deployment-awareness) (version 11.4.0)
+<a id="95ab5e95f7d075a0ac9a3d770f73de742ba64412cd65e9d1eeb06f46107d907c"></a>
+### [@mongodb-js/compass-deployment-awareness](https://www.npmjs.com/package/@mongodb-js/compass-deployment-awareness) (version 11.5.0)
 <!-- initially found at packages/compass-deployment-awareness -->
 > Compass Deployment Awareness Plugin
 
 License tags: SSPL
 
 
-<a id="4e0aa9718d2332522d2e0b2976f8887ea1833613a7e7d02c4e03ec2158ba7692"></a>
-### [@mongodb-js/compass-explain-plan](https://www.npmjs.com/package/@mongodb-js/compass-explain-plan) (version 5.6.0)
+<a id="b2e5a1404cc76a8eaf95f91c42b9e31c0160c2a3fc9ca47a97aad75dbea2e11f"></a>
+### [@mongodb-js/compass-explain-plan](https://www.npmjs.com/package/@mongodb-js/compass-explain-plan) (version 5.7.0)
 <!-- initially found at packages/compass-explain-plan -->
 > Evaluate the performance of your quer
 
 License tags: SSPL
 
 
-<a id="d8d00c235d18bae9a21daf1594d47578d074b34b3aa73882a8db5e30ac8c2bb6"></a>
-### [@mongodb-js/compass-export-to-language](https://www.npmjs.com/package/@mongodb-js/compass-export-to-language) (version 7.4.0)
+<a id="1987b0d6a576b2e3639b190eb373419132fcc470574c065a7ce568dc35934651"></a>
+### [@mongodb-js/compass-export-to-language](https://www.npmjs.com/package/@mongodb-js/compass-export-to-language) (version 7.5.0)
 <!-- initially found at packages/compass-export-to-language -->
 > export to language modal
 
 License tags: SSPL
 
 
-<a id="3dbcd72c1c1fe57fe2b865bb8537015c1978a501b1d28f887bfc58da203a9521"></a>
-### [@mongodb-js/compass-field-store](https://www.npmjs.com/package/@mongodb-js/compass-field-store) (version 7.4.0)
+<a id="c3259599392bcfd545841c7ec7e9d5c95df1545786c61eee6060056c3ca6ad49"></a>
+### [@mongodb-js/compass-field-store](https://www.npmjs.com/package/@mongodb-js/compass-field-store) (version 7.5.0)
 <!-- initially found at packages/compass-field-store -->
 > FieldStore keeps track of available fields in a collection.
 
 License tags: SSPL
 
 
-<a id="78a9603370e031a694ef75474f680f7d2b8e6bb71ac0880bea5f2d91513dded1"></a>
-### [@mongodb-js/compass-find-in-page](https://www.npmjs.com/package/@mongodb-js/compass-find-in-page) (version 3.4.0)
+<a id="50534cf2e1ad6b84b3bd20078744bdbea56508981ee98f47bc1bc8e25991e6be"></a>
+### [@mongodb-js/compass-find-in-page](https://www.npmjs.com/package/@mongodb-js/compass-find-in-page) (version 3.5.0)
 <!-- initially found at packages/compass-find-in-page -->
 > cmd-f UI for compass
 
 License tags: SSPL
 
 
-<a id="6c5c9c8517f27c439e74c4ff5a363a672110f1bcb5344b32bca2916e4b28f3c3"></a>
-### [@mongodb-js/compass-home](https://www.npmjs.com/package/@mongodb-js/compass-home) (version 5.6.0)
+<a id="53a14e986e8f53448dd1eb8fec58284c0d14156e6a4a16f07b4727bf8979804a"></a>
+### [@mongodb-js/compass-home](https://www.npmjs.com/package/@mongodb-js/compass-home) (version 5.7.0)
 <!-- initially found at packages/compass-home -->
 > Home
 
 License tags: SSPL
 
 
-<a id="30286e913f3ce6fc9df0e3e72654d03690a68531a18f37d97c90bd2108886b89"></a>
-### [@mongodb-js/compass-import-export](https://www.npmjs.com/package/@mongodb-js/compass-import-export) (version 6.4.0)
+<a id="8f4a810769bfab6f31a9422ecbc26f398768be997c20b931ca0025361c381cea"></a>
+### [@mongodb-js/compass-import-export](https://www.npmjs.com/package/@mongodb-js/compass-import-export) (version 6.5.0)
 <!-- initially found at packages/compass-import-export -->
 > Compass Import/Export Plugin
 
 License tags: SSPL
 
 
-<a id="629e83e68e841fe6f786df8042f77e3b4a098ec5c2e28819fdc38b60ab354096"></a>
-### [@mongodb-js/compass-indexes](https://www.npmjs.com/package/@mongodb-js/compass-indexes) (version 4.6.0)
+<a id="0a66f599fe2d0e8cf9cf23e339522bbd3643847fa496c354e929da1d39c09221"></a>
+### [@mongodb-js/compass-indexes](https://www.npmjs.com/package/@mongodb-js/compass-indexes) (version 4.7.0)
 <!-- initially found at packages/compass-indexes -->
 > Indexes support for Compass
 
 License tags: SSPL
 
 
-<a id="752e6f5b84fe862662c9d360c372885665704b5d9a1600998fc4b4ec2632ccc5"></a>
-### [@mongodb-js/compass-instance](https://www.npmjs.com/package/@mongodb-js/compass-instance) (version 3.4.0)
+<a id="e72e6373594bed76cca7ac96bfc0bcb0932bc06ea6a27efbe43b88c82b90e4bf"></a>
+### [@mongodb-js/compass-instance](https://www.npmjs.com/package/@mongodb-js/compass-instance) (version 3.5.0)
 <!-- initially found at packages/compass-instance -->
 > compass instance plugin
 
 License tags: SSPL
 
 
-<a id="81cc8ef4eb52cc50cef50459d6b7f3d59e856fb125c019d8ba4b04787cdc3b4f"></a>
-### [@mongodb-js/compass-loading](https://www.npmjs.com/package/@mongodb-js/compass-loading) (version 2.4.0)
+<a id="3731a2170a715e6e727dc9eb6ec0f6cd12bd87d74a0ff195677ed4d4f62baecf"></a>
+### [@mongodb-js/compass-loading](https://www.npmjs.com/package/@mongodb-js/compass-loading) (version 2.5.0)
 <!-- initially found at packages/compass-loading -->
 > Compass Loading Screen
 
 License tags: SSPL
 
 
-<a id="21fbf0194e831f0fcd0dca5e6240f34e9a65aa0b6d38aaeb952a17c8768c2abc"></a>
-### [@mongodb-js/compass-metrics](https://www.npmjs.com/package/@mongodb-js/compass-metrics) (version 4.4.0)
+<a id="8886a0b3c9e9ac5207f18d5e8aeb3f796d301a0ff559c8d1b8d257f990f2d68a"></a>
+### [@mongodb-js/compass-metrics](https://www.npmjs.com/package/@mongodb-js/compass-metrics) (version 4.5.0)
 <!-- initially found at packages/compass-metrics -->
 > Compass Metrics Plugin
 
 License tags: SSPL
 
 
-<a id="27280c17c9e40d11ebb4c94e48ad9316f928eef5848241ad45d759ca1dc37c75"></a>
-### [@mongodb-js/compass-plugin-info](https://www.npmjs.com/package/@mongodb-js/compass-plugin-info) (version 3.4.0)
+<a id="4db3b8e2b075e2ad8577ecd6acd14749263974b2a253d7f514b86969ab242248"></a>
+### [@mongodb-js/compass-plugin-info](https://www.npmjs.com/package/@mongodb-js/compass-plugin-info) (version 3.5.0)
 <!-- initially found at packages/compass-plugin-info -->
 > Compass Plugin Information Plugin
 
 License tags: SSPL
 
 
-<a id="d780394c9b0f6d11f0a8af1e660bac5a6c1d3513c724b2c4a3f65842f67b36ba"></a>
-### [@mongodb-js/compass-query-bar](https://www.npmjs.com/package/@mongodb-js/compass-query-bar) (version 7.4.0)
+<a id="08a8aeced4a54cdccd12c866e4ba28d8d61ab38cb73c77485ba1caab9c3f0187"></a>
+### [@mongodb-js/compass-query-bar](https://www.npmjs.com/package/@mongodb-js/compass-query-bar) (version 7.5.0)
 <!-- initially found at packages/compass-query-bar -->
 > Renders a component for executing MongoDB queries through a GUI.
 
@@ -3387,8 +3387,8 @@ Authors:
 * MongoDB Inc <[compass@mongodb.com](nomail)>
 
 
-<a id="d3acfad548ab5d964121ea040f8fdbf4f0450fcf46aa1aeb4e209b8721b30b6a"></a>
-### [@mongodb-js/compass-query-history](https://www.npmjs.com/package/@mongodb-js/compass-query-history) (version 8.4.0)
+<a id="e2583f5615f9dee69e404df11f81b25b133be296dd228401038e18f4dd9f471d"></a>
+### [@mongodb-js/compass-query-history](https://www.npmjs.com/package/@mongodb-js/compass-query-history) (version 8.5.0)
 <!-- initially found at packages/compass-query-history -->
 > The query history sidebar.
 
@@ -3398,64 +3398,64 @@ Authors:
 * MongoDB Inc <[compass@mongodb.com](nomail)>
 
 
-<a id="7ab995e1c31bf5475ea2307521b81a1e2f91c69f33660e9751291f88bb91f08f"></a>
-### [@mongodb-js/compass-schema](https://www.npmjs.com/package/@mongodb-js/compass-schema) (version 5.4.0)
+<a id="6780226613c41788e5a1a8bbe8c46596937675fbd5469e05beceb57539533a10"></a>
+### [@mongodb-js/compass-schema](https://www.npmjs.com/package/@mongodb-js/compass-schema) (version 5.5.0)
 <!-- initially found at packages/compass-schema -->
 > Compass Schema Tab Plugin
 
 License tags: SSPL
 
 
-<a id="ffe38393881bd1470105cd87b92283bbc9c566933dd3cfb46e366aef451a612f"></a>
-### [@mongodb-js/compass-schema-validation](https://www.npmjs.com/package/@mongodb-js/compass-schema-validation) (version 5.4.0)
+<a id="5ae111928c1c64668836ac8e73660128c6d645eca8b53129e4b69ac1c649ae52"></a>
+### [@mongodb-js/compass-schema-validation](https://www.npmjs.com/package/@mongodb-js/compass-schema-validation) (version 5.5.0)
 <!-- initially found at packages/compass-schema-validation -->
 > Compass plugin for document JSON schema validation
 
 License tags: SSPL
 
 
-<a id="f48f7ee77f3ad83cc503f0be574e92b7eb2dab63b788f9bb26e264153613ccb6"></a>
-### [@mongodb-js/compass-server-version](https://www.npmjs.com/package/@mongodb-js/compass-server-version) (version 5.4.0)
+<a id="f75331111d7cc90eebeb552c08b82c9b8048767d1eb1ddc577438122ed2daa75"></a>
+### [@mongodb-js/compass-server-version](https://www.npmjs.com/package/@mongodb-js/compass-server-version) (version 5.5.0)
 <!-- initially found at packages/compass-server-version -->
 > Compass Server Version
 
 License tags: SSPL
 
 
-<a id="79fb4ec34fcd0e5f77ead8863abac60e99c981b9ccde87141b2a7bd3af4544d2"></a>
-### [@mongodb-js/compass-serverstats](https://www.npmjs.com/package/@mongodb-js/compass-serverstats) (version 15.4.0)
+<a id="104bef3a237e944ef7831c22a8ec6d50cc3de1f60e3c4308fe02407abfe588a0"></a>
+### [@mongodb-js/compass-serverstats](https://www.npmjs.com/package/@mongodb-js/compass-serverstats) (version 15.5.0)
 <!-- initially found at packages/compass-serverstats -->
 > Compass Real Time Server Stats Component.
 
 License tags: SSPL
 
 
-<a id="39b095da8aa3827d188e9b498aea741f09bc8897f06afadceae8dabaf81d09a0"></a>
-### [@mongodb-js/compass-shell](https://www.npmjs.com/package/@mongodb-js/compass-shell) (version 2.5.0)
+<a id="f80a97f0b100f40806fbab29fd2b676afc6e8e18d123dfdd38611a0f732fd7f0"></a>
+### [@mongodb-js/compass-shell](https://www.npmjs.com/package/@mongodb-js/compass-shell) (version 2.6.0)
 <!-- initially found at packages/compass-shell -->
 > Compass Shell Plugin
 
 License tags: SSPL
 
 
-<a id="f7b2df9356110c1da4a3181dfed11c281b73c1c33fa241ef54bc4a27640e4f7e"></a>
-### [@mongodb-js/compass-sidebar](https://www.npmjs.com/package/@mongodb-js/compass-sidebar) (version 4.5.0)
+<a id="80d280e17986661910c2402ee503519614300cdb160753c07ec1a61d79d1b7c7"></a>
+### [@mongodb-js/compass-sidebar](https://www.npmjs.com/package/@mongodb-js/compass-sidebar) (version 4.6.0)
 <!-- initially found at packages/compass-sidebar -->
 > Sidebar external plugin
 
 License tags: SSPL
 
 
-<a id="208b622dafc536ac5ba3a7e2758ceaab57edd42a00543ff27e1b8123f6d1494b"></a>
-### [@mongodb-js/compass-ssh-tunnel-status](https://www.npmjs.com/package/@mongodb-js/compass-ssh-tunnel-status) (version 6.4.0)
+<a id="698cce03efbf3bfdc5b9b95753257206470fa4beae82cf8093fb2f9dcd4845f5"></a>
+### [@mongodb-js/compass-ssh-tunnel-status](https://www.npmjs.com/package/@mongodb-js/compass-ssh-tunnel-status) (version 6.5.0)
 <!-- initially found at packages/compass-ssh-tunnel-status -->
 > Compass SSH Tunnel Status
 
 License tags: SSPL
 
 
-<a id="96f2f70f8c55455764ab6bf898eba2cde0ec1574cff3d5a57af2e2a4c7fcdfea"></a>
-### [@mongodb-js/compass-status](https://www.npmjs.com/package/@mongodb-js/compass-status) (version 5.4.0)
+<a id="8c3e8ca7cd8e7dbae1041fe060a5e81feb0199e62b44a09bd905f79c06392723"></a>
+### [@mongodb-js/compass-status](https://www.npmjs.com/package/@mongodb-js/compass-status) (version 5.5.0)
 <!-- initially found at packages/compass-status -->
 > Compass Status Plugin
 
@@ -12508,8 +12508,8 @@ Authors:
 * Christian Amor Kvalheim <christkv@gmail.com>
 
 
-<a id="613ab58117108f5d02d653f833684405b03a7bed424e17af5f06923bdc9195d4"></a>
-### [bson-transpilers](https://www.npmjs.com/package/bson-transpilers) (version 0.15.0)
+<a id="ccb1e20326b348de0824f0abb02a8ede1c417b6fb91fda0cbbb42c06c4501e8e"></a>
+### [bson-transpilers](https://www.npmjs.com/package/bson-transpilers) (version 1.0.0)
 <!-- initially found at packages/bson-transpilers -->
 > Source to source compilers using ANTLR
 
@@ -14300,8 +14300,8 @@ Authors:
 * TJ Holowaychuk <tj@vision-media.ca>
 
 
-<a id="b0b91417ca7bdae919d39206c4cb6f9bdcee7a7115955cfd09b6f9aa18eafbea"></a>
-### [compass-preferences-model](https://www.npmjs.com/package/compass-preferences-model) (version 1.4.0)
+<a id="5474cd7eac5bda2feb346457139797a0a2fdc309a2625347ebf982c0a2f88e91"></a>
+### [compass-preferences-model](https://www.npmjs.com/package/compass-preferences-model) (version 1.5.0)
 <!-- initially found at packages/compass-preferences-model -->
 > Compass preferences model.
 
@@ -14311,8 +14311,8 @@ Authors:
 * Lucas Hrabovsky <lucas@mongodb.com>
 
 
-<a id="453f907df02b45aef795e7983c914739f6b689b3ba402998d75469694089a293"></a>
-### [compass-user-model](https://www.npmjs.com/package/compass-user-model) (version 1.4.0)
+<a id="848ca5a6eb7c6645cc623d947ac95e15d5898a1e22fa099ccdbb71bc20143295"></a>
+### [compass-user-model](https://www.npmjs.com/package/compass-user-model) (version 1.5.0)
 <!-- initially found at packages/compass-user-model -->
 > MongoDB user model.
 
@@ -19706,8 +19706,8 @@ License files:
       
 
 
-<a id="c8b3952653c7a6d7b9b7d9477875ccdd7c52ec513faa1f3a67ae66c0dcc32906"></a>
-### [hadron-app](https://www.npmjs.com/package/hadron-app) (version 4.4.0)
+<a id="b03822f1db9e639ecdb506448a7bf58fc1595e6337097c476f249b984a1859c6"></a>
+### [hadron-app](https://www.npmjs.com/package/hadron-app) (version 4.5.0)
 <!-- initially found at packages/hadron-app -->
 > Hadron Application Singleton
 
@@ -19736,8 +19736,8 @@ Authors:
 License tags: SSPL
 
 
-<a id="9a00a34ed54239b0e9fdc6f1fef53ef0a78f7c6278f8022f67eedc2ea995a753"></a>
-### [hadron-compile-cache](https://www.npmjs.com/package/hadron-compile-cache) (version 4.2.0)
+<a id="1c0ee82ef990f8eb220c42e58fef9445db98cfb39c9bbc40c410cf2b56d3c7b1"></a>
+### [hadron-compile-cache](https://www.npmjs.com/package/hadron-compile-cache) (version 4.3.0)
 <!-- initially found at packages/hadron-compile-cache -->
 > Hadron Compile Cache
 
@@ -19747,8 +19747,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="f34ceaa8f20cca9a9a96b9be59a460cfcb03820a1fd8815a457c5ef5c320a9db"></a>
-### [hadron-document](https://www.npmjs.com/package/hadron-document) (version 7.3.0)
+<a id="d5058511f0320c76032538aed4a2e14f86bbb3d525788557847eb1648b2ad9b9"></a>
+### [hadron-document](https://www.npmjs.com/package/hadron-document) (version 7.4.0)
 <!-- initially found at packages/hadron-document -->
 > Hadron Document
 
@@ -19777,8 +19777,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="030f7ebbcebf206150635c09c6d64f92e32f12a5127fbc48742817b74ae81847"></a>
-### [hadron-react-bson](https://www.npmjs.com/package/hadron-react-bson) (version 5.3.0)
+<a id="4dabe68d049b4291c3a4420b903b25abc9170689afb8b2ea56a3cdab714781c7"></a>
+### [hadron-react-bson](https://www.npmjs.com/package/hadron-react-bson) (version 5.4.0)
 <!-- initially found at packages/hadron-react-bson -->
 > Hadron React BSON Components
 
@@ -19832,8 +19832,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="8f549076405a4083a857d1de83c8de38a331aca1a2686ed84ccee8bec86406f5"></a>
-### [hadron-type-checker](https://www.npmjs.com/package/hadron-type-checker) (version 6.2.0)
+<a id="639749c61ee876d79cc89e18fd589ca48e75d35dc6ed3e0080c723e9f2202c67"></a>
+### [hadron-type-checker](https://www.npmjs.com/package/hadron-type-checker) (version 6.3.0)
 <!-- initially found at packages/hadron-type-checker -->
 > Hadron Type Checker
 
@@ -37153,8 +37153,8 @@ Authors:
 * durran@gmail.com
 
 
-<a id="46e2b35d450e6cfcabdad795d5ba7474a224768fd4f0230a8dd8863df9414797"></a>
-### [mongodb-ace-mode](https://www.npmjs.com/package/mongodb-ace-mode) (version 1.1.0)
+<a id="da937d0152ba6e8e6d88ec58c3270c6389fdc7e4c7b4281bdf4a209bb74b2af7"></a>
+### [mongodb-ace-mode](https://www.npmjs.com/package/mongodb-ace-mode) (version 1.2.0)
 <!-- initially found at packages/ace-mode -->
 > MongoDB Mode for the ACE Editor
 
@@ -37164,8 +37164,8 @@ Authors:
 * Anna Herlihy <anna@mongodb.com>
 
 
-<a id="0f1ec3e6e4457d327f162ca7285e91884272697090c533024e39cfd318d3c428"></a>
-### [mongodb-ace-theme](https://www.npmjs.com/package/mongodb-ace-theme) (version 1.1.0)
+<a id="4d011ab7fc48c55a6210bdf011cc0d7e5bb2a52a2fe9af0d26ea7a4ea9aeeec3"></a>
+### [mongodb-ace-theme](https://www.npmjs.com/package/mongodb-ace-theme) (version 1.2.0)
 <!-- initially found at packages/ace-theme -->
 > MongoDB Theme for the ACE Editor
 
@@ -37175,8 +37175,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="5a731356c2ffafc630e81af062a0186de4932becc4dceaeb473931b9a3012cad"></a>
-### [mongodb-ace-theme-query](https://www.npmjs.com/package/mongodb-ace-theme-query) (version 1.1.0)
+<a id="99fe1485224159b75cca8a963114fe8c1422ce08e1013ab2c7ebf5fa293b1f62"></a>
+### [mongodb-ace-theme-query](https://www.npmjs.com/package/mongodb-ace-theme-query) (version 1.2.0)
 <!-- initially found at packages/ace-theme-query -->
 > MongoDB Theme for the ACE Editor in the Query Bar
 
@@ -37620,8 +37620,8 @@ Authors:
 * Matt Broadstone <mbroadst@mongodb.com>
 
 
-<a id="07be82605821fa6298cb9c24d59bf16d12cfcc52ba795bc308e5027b122af4e4"></a>
-### [mongodb-collection-model](https://www.npmjs.com/package/mongodb-collection-model) (version 4.4.0)
+<a id="6d6df561ffa953a025fef7d159aae1acf880cbd7bf5be527b57a1d21dcd0ae1d"></a>
+### [mongodb-collection-model](https://www.npmjs.com/package/mongodb-collection-model) (version 4.5.0)
 <!-- initially found at packages/collection-model -->
 > MongoDB collection model.
 
@@ -38417,8 +38417,8 @@ Authors:
 * MongoDB Inc <[compass@mongodb.com](nomail)>
 
 
-<a id="295d2ed1ad913f4fc1f334cb0ff700dfca004e0241aa11512db9f04704e3806a"></a>
-### [mongodb-connection-model](https://www.npmjs.com/package/mongodb-connection-model) (version 21.2.0)
+<a id="e48cf7e1cb2a1bf59239dc9bae501733b89d05770955bee1d6f038d610bf20fb"></a>
+### [mongodb-connection-model](https://www.npmjs.com/package/mongodb-connection-model) (version 21.3.0)
 <!-- initially found at packages/connection-model -->
 > MongoDB connection model.
 
@@ -38633,8 +38633,8 @@ License files:
       
 
 
-<a id="8a3f09aaed010bd75ecb1487b3e5a1a0367d8474d53cdab77e12eeab4051018a"></a>
-### [mongodb-data-service](https://www.npmjs.com/package/mongodb-data-service) (version 21.2.0)
+<a id="ada7b902b2946fbc5df2c2fa01eff1e930b31ab254c872d702bce8556bb79f98"></a>
+### [mongodb-data-service](https://www.npmjs.com/package/mongodb-data-service) (version 21.3.0)
 <!-- initially found at packages/data-service -->
 > MongoDB Data Service
 
@@ -38891,8 +38891,8 @@ Authors:
 * Lucas Hrabovsky <lucas@mongodb.com>
 
 
-<a id="3e5ed517e8e4c3dd8044cf7e31873863a364b6518e916a8bc2db367f540981d3"></a>
-### [mongodb-instance-model](https://www.npmjs.com/package/mongodb-instance-model) (version 11.4.0)
+<a id="0526c91226b138c183058de353c7959ab355e0a3bef9e8e35a73b313e4d6fdbe"></a>
+### [mongodb-instance-model](https://www.npmjs.com/package/mongodb-instance-model) (version 11.5.0)
 <!-- initially found at packages/instance-model -->
 > MongoDB instance model.
 
@@ -50815,8 +50815,8 @@ Authors:
 * Bryce B. Baril
 
 
-<a id="133b4065cfe300d5fc97663fc86113e4f6a31278b3752c21260a918044b8a51e"></a>
-### [storage-mixin](https://www.npmjs.com/package/storage-mixin) (version 4.4.0)
+<a id="942474eb011caf92988b54c6c23eea133012a5aeaecdeefb3669cc79c081b24f"></a>
+### [storage-mixin](https://www.npmjs.com/package/storage-mixin) (version 4.5.0)
 <!-- initially found at packages/storage-mixin -->
 > Ampersand model mixin to persist data via various storage backends
 
