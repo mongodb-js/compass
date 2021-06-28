@@ -9,6 +9,8 @@ const git = require('./git');
 
 const running = [];
 
+const MAIN_BRANCH = 'main';
+
 async function runReleaseCommand(args, options = {}) {
   const execOptions = {
     ...options,
@@ -89,6 +91,8 @@ describe('release', () => {
     fs.mkdirpSync(gitRemotePath);
     process.chdir(gitRemotePath);
     await execa('git', ['init', '--bare']);
+    await execa('git', ['config', '--local', 'user.name', 'user']);
+    await execa('git', ['config', '--local', 'user.email', 'user@example.com']);
 
     remote = `file://${gitRemotePath}`;
 
@@ -101,10 +105,13 @@ describe('release', () => {
     await execa('npm', ['install']); // generates package-lock.json
 
     await execa('git', ['init']);
+    await execa('git', ['config', '--local', 'user.name', 'user']);
+    await execa('git', ['config', '--local', 'user.email', 'user@example.com']);
+    await execa('git', ['checkout', '-b', MAIN_BRANCH]);
     await execa('git', ['remote', 'add', 'origin', remote]);
     await execa('git', ['add', '.']);
     await execa('git', ['commit', '-am', 'init']);
-    await execa('git', ['push', '--set-upstream', 'origin', 'master']);
+    await execa('git', ['push', '--set-upstream', 'origin', MAIN_BRANCH]);
   });
 
   afterEach(() => {
@@ -126,7 +133,7 @@ describe('release', () => {
 
     it('checks out an existing branch', async() => {
       await checkoutBranch('1.12-releases');
-      await checkoutBranch('master');
+      await checkoutBranch(MAIN_BRANCH);
       await runReleaseCommand(['checkout', '1.12']);
       const { stdout } = await execa('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
       expect(stdout).to.equal('1.12-releases');
@@ -138,11 +145,11 @@ describe('release', () => {
       expect(stdout).to.contain('USAGE');
     });
 
-    it('fails if branch is not master', async() => {
+    it(`fails if branch is not ${MAIN_BRANCH}`, async() => {
       await checkoutBranch('some-branch');
       const { stderr, failed } = await (runReleaseCommand(['checkout', '1.12']).catch(e => e));
       expect(failed).to.be.true;
-      expect(stderr).to.contain('The current branch is not the main branch');
+      expect(stderr).to.contain(`The current branch is not the ${MAIN_BRANCH} branch`);
     });
   });
 
@@ -160,11 +167,11 @@ describe('release', () => {
         expect(stderr + stdout).to.contain('The MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID envirnonment variable must be set.');
       });
 
-      it('fails from master', async() => {
-        await checkoutBranch('master');
+      it(`fails from ${MAIN_BRANCH}`, async() => {
+        await checkoutBranch(MAIN_BRANCH);
         const { stderr, failed } = await (runReleaseCommandWithKeys([command]).catch(e => e));
         expect(failed).to.be.true;
-        expect(stderr).to.contain('The current branch (master) is not a release branch');
+        expect(stderr).to.contain(`The current branch (${MAIN_BRANCH}) is not a release branch`);
       });
 
       it('fails if branch is not a release branch', async() => {
@@ -229,10 +236,10 @@ describe('release', () => {
           });
 
           clonePath = path.resolve(tempDir, command);
-          await execa('git', ['clone', remote, clonePath]);
+          await execa('git', ['clone', '--branch', MAIN_BRANCH, remote, clonePath]);
         });
 
-        it('does not affect master', () => {
+        it(`does not affect ${MAIN_BRANCH}`, () => {
           const version = readPackageJsonVersion(path.resolve(clonePath, 'package.json'));
           expect(version).to.equal('1.0.0');
         });
@@ -255,11 +262,11 @@ describe('release', () => {
   });
 
   describe('changelog', () => {
-    it('fails from master', async() => {
-      await checkoutBranch('master');
+    it(`fails from ${MAIN_BRANCH}`, async() => {
+      await checkoutBranch(MAIN_BRANCH);
       const { stderr, failed } = await (runReleaseCommand(['changelog']).catch(e => e));
       expect(failed).to.be.true;
-      expect(stderr).to.contain('The current branch (master) is not a release branch');
+      expect(stderr).to.contain(`The current branch (${MAIN_BRANCH}) is not a release branch`);
     });
 
     it('fails if branch is not a release branch', async() => {
@@ -322,14 +329,14 @@ describe('release', () => {
       await checkoutBranch('1.1-releases');
       await npm.version('1.1.0');
       await commitAll('v1.1.0', 'v1.1.0');
-      await checkoutBranch('master');
+      await checkoutBranch(MAIN_BRANCH);
     });
 
-    it('fails from master', async() => {
-      await checkoutBranch('master');
+    it(`fails from ${MAIN_BRANCH}`, async() => {
+      await checkoutBranch(MAIN_BRANCH);
       const { stderr, failed } = await (runReleaseCommand(['publish'], {env: {}}).catch(e => e));
       expect(failed).to.be.true;
-      expect(stderr).to.contain('The current branch (master) is not a release branch');
+      expect(stderr).to.contain(`The current branch (${MAIN_BRANCH}) is not a release branch`);
     });
 
     it('fails if branch is not a release branch', async() => {

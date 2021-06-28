@@ -18,11 +18,20 @@ import reducer, {
 describe('tabs module', () => {
   describe('#selectNamespace', () => {
     it('returns the SELECT_NAMESPACE action', () => {
-      expect(selectNamespace('t', 'db.coll', true, 'db.test', 'db.view', {})).to.deep.equal({
+      expect(selectNamespace({
+        id: 't',
+        namespace: 'db.coll',
+        isReadonly: true,
+        isTimeSeries: false,
+        sourceName: 'db.test',
+        editViewName: 'db.view',
+        context: {}
+      })).to.deep.equal({
         type: SELECT_NAMESPACE,
         id: 't',
         namespace: 'db.coll',
         isReadonly: true,
+        isTimeSeries: false,
         sourceName: 'db.test',
         editViewName: 'db.view',
         sourceReadonly: undefined,
@@ -35,12 +44,20 @@ describe('tabs module', () => {
   describe('#createTab', () => {
     it('returns the CREATE_TAB action', () => {
       expect(
-        createTab('id', 'db.coll', true, 'db.test', 'db.view', {})
+        createTab({
+          id: 'id',
+          namespace: 'db.coll',
+          isReadonly: true,
+          sourceName: 'db.test',
+          editViewName: 'db.view',
+          context: {}
+        })
       ).to.deep.equal({
         id: 'id',
         type: CREATE_TAB,
         namespace: 'db.coll',
         isReadonly: true,
+        isTimeSeries: false,
         sourceName: 'db.test',
         editViewName: 'db.view',
         sourceReadonly: undefined,

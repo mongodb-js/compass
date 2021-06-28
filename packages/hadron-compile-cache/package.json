@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-compile-cache/issues",
   "homepage": "https://github.com/mongodb-js/hadron-compile-cache",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/hadron-compile-cache.git"
@@ -39,7 +39,7 @@
     "depcheck": "^1.4.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
-    "eslint-plugin-react": "^7.23.2",
+    "eslint-plugin-react": "^7.24.0",
     "mocha": "^7.0.1"
   }
 }

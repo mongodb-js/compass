@@ -1,365 +1,119 @@
 const { EventEmitter, once } = require('events');
-const fs = require('fs');
-const async = require('async');
-const {
-  includes,
-  clone,
-  assign,
-  isString,
-  isFunction,
-  omit
-} = require('lodash');
+
 const { MongoClient } = require('mongodb');
-const { parseConnectionString } = require('mongodb3/lib/core');
-const Connection = require('./extended-model');
 const { default: SSHTunnel } = require('@mongodb-js/ssh-tunnel');
+
+const Connection = require('./extended-model');
+
+const {
+  redactSshTunnelOptions,
+  redactConnectionString
+} = require('./redact');
 
 const debug = require('debug')('mongodb-connection-model:connect');
 
-const needToLoadSSLFiles = (model) =>
-  !includes(['NONE', 'UNVALIDATED'], model.sslType);
-
-const loadOptions = (model, done) => {
-  if (!needToLoadSSLFiles(model)) {
-    process.nextTick(() => done(null, model.driverOptions));
-
-    return;
+async function openSshTunnel(model) {
+  if (!model.sshTunnel ||
+    model.sshTunnel === 'NONE' ||
+    !model.sshTunnelOptions) {
+    return null;
   }
 
-  const tasks = {};
-  const opts = clone(model.driverOptions, true);
+  debug('creating ssh tunnel with options',
+    model.sshTunnel,
+    redactSshTunnelOptions(model.sshTunnelOptions)
+  );
 
-  Object.keys(opts).map((key) => {
-    if (key.indexOf('ssl') === -1) {
-      return;
+  const tunnel = new SSHTunnel(model.sshTunnelOptions);
+
+  debug('ssh tunnel listen ...');
+  await tunnel.listen();
+  debug('ssh tunnel opened');
+
+  return tunnel;
+}
+
+async function forceCloseTunnel(tunnelToClose) {
+  if (tunnelToClose) {
+    try {
+      await tunnelToClose.close();
+      debug('ssh tunnel stopped');
+    } catch (err) {
+      debug('ssh tunnel stopped with error: %s', err.message);
     }
-
-    if (Array.isArray(opts[key])) {
-      opts[key].forEach((value) => {
-        if (typeof value === 'string') {
-          tasks[key] = (cb) =>
-            async.parallel(
-              opts[key].map((k) => fs.readFile.bind(null, k)),
-              cb
-            );
-        }
-      });
-    }
-
-    if (typeof opts[key] !== 'string') {
-      return;
-    }
-
-    if (key === 'sslPass') {
-      return;
-    }
-
-    tasks[key] = fs.readFile.bind(null, opts[key]);
-  });
-
-  async.parallel(tasks, (err, res) => {
-    if (err) {
-      return done(err);
-    }
-
-    Object.keys(res).map((key) => {
-      opts[key] = res[key];
-    });
-
-    done(null, opts);
-  });
-};
-
-/**
- * Make sure the driver doesn't puke on the URL and cause
- * an uncaughtException.
- *
- * @param {Connection} model
- * @param {Function} done
- */
-const validateURL = (model, done) => {
-  const url = model.driverUrl;
-
-  parseConnectionString(url, {}, (err, result) => {
-    // URL parsing errors are just generic `Error` instances
-    // so overwrite name so mongodb-js-server will know
-    // the message is safe to display.
-    if (err) {
-      err.name = 'MongoError';
-    }
-
-    done(err, result);
-  });
-};
-
-const getStatusStateString = (evt) => {
-  if (!evt) {
-    return 'UNKNOWN';
   }
+}
 
-  if (evt.pending) {
-    return 'PENDING';
-  }
+async function waitForTunnelError(tunnel) {
+  const [error] = await once(tunnel || new EventEmitter(), 'error');
+  throw error;
+}
 
-  if (evt.skipped) {
-    return 'SKIPPED';
-  }
-
-  if (evt.error) {
-    return 'ERROR';
-  }
-
-  if (evt.complete) {
-    return 'COMPLETE';
-  }
-};
-
-const Tasks = {
-  LoadSSLFiles: 'Load SSL files',
-  CreateSSHTunnel: 'Create SSH Tunnel',
-  ConnectToMongoDB: 'Connect to MongoDB'
-};
-
-const getTasks = (model, setupListeners) => {
-  const state = new EventEmitter();
-  const tasks = {};
-  const _statuses = {};
-  let options = {};
-  /** @type {SSHTunnel} */
-  let tunnel = null;
-  let client = null;
-
-  const status = (message, cb) => {
-    if (_statuses[message]) {
-      return _statuses[message];
-    }
-
-    const ctx = (error, opts) => {
-      options = { ...model.driverOptions, ...opts };
-
-      if (error) {
-        state.emit('status', { message, error });
-
-        if (cb) {
-          return cb(error);
-        }
-
-        return error;
-      }
-
-      state.emit('status', { message, complete: true });
-
-      if (cb) {
-        return cb();
-      }
-    };
-
-    ctx.skip = (reason) => {
-      state.emit('status', { message, skipped: true, reason });
-
-      if (cb) {
-        return cb();
-      }
-    };
-
-    if (!ctx._initialized) {
-      state.emit('status', { message, pending: true });
-      ctx._initialized = true;
-    }
-
-    return ctx;
-  };
-
-  /**
-   * TODO (imlucas) If localhost, check if MongoDB installed -> no: click/prompt to download
-   * TODO (imlucas) If localhost, check if MongoDB running -> no: click/prompt to start
-   * TODO (imlucas) dns.lookup() model.hostname and model.sshTunnelHostname to check for typos
-   */
-  assign(tasks, {
-    [Tasks.LoadSSLFiles]: (cb) => {
-      const ctx = status('Load SSL files', cb);
-
-      if (!needToLoadSSLFiles(model)) {
-        return ctx.skip(
-          'The selected SSL mode does not need to load any files.'
-        );
-      }
-
-      loadOptions(model, ctx);
-    }
-  });
-
-  assign(tasks, {
-    [Tasks.CreateSSHTunnel]: async() => {
-      const ctx = status('Create SSH Tunnel');
-
-      if (model.sshTunnel === 'NONE') {
-        return ctx.skip('The selected SSH Tunnel mode is NONE.');
-      }
-
-      tunnel = new SSHTunnel(model.sshTunnelOptions);
-
-      try {
-        await tunnel.listen();
-        ctx(null);
-      } catch (err) {
-        ctx(err);
-        throw err;
-      }
-    }
-  });
-
-  assign(tasks, {
-    [Tasks.ConnectToMongoDB]: async() => {
-      const ctx = status('Connect to MongoDB');
-
-      // @note: Durran:
-      // This check here is to prevent the options getting set to a string when a URI
-      // is passed through. This is a temporary solution until we refactor all of this.
-      if (isString(options) || !options) {
-        options = {};
-      }
-
-      const validOptions = omit(options, 'auth');
-
-      validOptions.useNewUrlParser = true;
-      validOptions.useUnifiedTopology = true;
-
-      // Driver brought this behaviour back in v3.6.3+ (but will remove in v4), we don't need to handle directConnection ourselves
-      // See https://github.com/mongodb/node-mongodb-native/pull/2719
-      // if (
-      //   model.directConnection === undefined &&
-      //   model.hosts.length === 1 &&
-      //   !model.isSrvRecord &&
-      //   (model.replicaSet === undefined || model.replicaSet === '')
-      // ) {
-      //   // Previous to the node driver 3.6.3, directConnection was
-      //   // set to true under these conditions. In 3.6.3 this defaulting
-      //   // behavior was removed and now we add it. COMPASS-4534
-      //   // https://github.com/mongodb/node-mongodb-native/commit/f8fd310a11a91db82f1c0ddc57482b8edabc231b
-      //   validOptions.directConnection = true;
-      // }
-
-      const mongoClient = new MongoClient(model.driverUrlWithSsh, validOptions);
-
-      if (setupListeners) {
-        setupListeners(mongoClient);
-      }
-
-      /** @type {Promise<never>} */
-      const waitForTunnelError = (async() => {
-        const [error] = await once(tunnel || new EventEmitter(), 'error');
-        throw error;
-      })();
-
-      const closeTunnelOnError = async(tunnelToClose) => {
-        if (tunnelToClose) {
-          debug('data-service connection error, shutting down ssh tunnel');
-          try {
-            await tunnelToClose.close();
-            debug('ssh tunnel stopped');
-          } catch (err) {
-            debug('ssh tunnel stopped with error: %s', err.message);
-          }
-        }
-      };
-
-      try {
-        const _client = await Promise.race([
-          mongoClient.connect(),
-          waitForTunnelError
-        ]);
-        client = _client;
-        ctx(null);
-        return { url: model.driverUrlWithSsh, options: validOptions };
-      } catch (err) {
-        await closeTunnelOnError(tunnel);
-        ctx(err);
-        throw err;
-      }
-    }
-  });
-
-  /**
-   * TODO (imlucas) Could have unintended consequences.
-   */
-  // _.assign(tasks, {
-  //   'List Databases': function(cb) {
-  //     var ctx = status('List Databases', cb);
-  //     db.db('admin').command({listDatabases: 1},
-  //       {readPreference: ReadPreference.secondaryPreferred}, ctx);
-  //   }
-  // });
-
-  Object.defineProperties(tasks, {
-    model: {
-      get: () => model,
-      enumerable: false
-    },
-    driverOptions: {
-      get: () => options,
-      enumerable: false
-    },
-    client: {
-      get: () => client,
-      enumerable: false
-    },
-    tunnel: {
-      get: () => tunnel,
-      enumerable: false
-    },
-    state: {
-      get: () => state,
-      enumerable: false
-    }
-  });
-
-  return tasks;
-};
-
-const connect = (model, setupListeners, done) => {
+async function connect(model, setupListeners) {
   if (model.serialize === undefined) {
+    // note this is only here for testing reasons and would not be
+    // necessary otherwise: in many tests the model is a plain object
+    // and that would lack some of the getters used by this function.
     model = new Connection(model);
   }
 
-  if (!isFunction(done)) {
-    done = (err) => {
-      if (err) {
-        throw err;
-      }
-    };
-  }
+  debug('connecting ...');
 
-  const tasks = getTasks(model, setupListeners);
-  const logTaskStatus = require('debug')(
-    'mongodb-connection-model:connect:status'
+  const url = model.driverUrlWithSsh;
+  const options = {
+    ...model.driverOptions
+  };
+
+  // if `auth` is passed then username and password must be present,
+  // we remove this here as a safe-guard to make sure we don't get
+  // an empty object that would break the connection.
+  //
+  // We could remove this line if we refactor connection model and we
+  // have better control on what we get from it.
+  //
+  // NOTE: please redact the options in the debug output of this file
+  // if we start to use `options.auth`.
+  delete options.auth;
+
+  /** @type {SSHTunnel} */
+  const tunnel = await openSshTunnel(model);
+
+  debug(
+    'creating MongoClient',
+    {
+      url: redactConnectionString(url),
+      options
+    }
   );
 
-  tasks.state.on('status', (evt) => {
-    logTaskStatus('%s [%s]', evt.message, getStatusStateString(evt));
-  });
+  const mongoClient = new MongoClient(url, options);
 
-  logTaskStatus('Connecting...');
+  if (setupListeners) {
+    setupListeners(mongoClient);
+  }
 
-  async.series(tasks, (err, tasksArgs) => {
-    const connectionOptions = tasksArgs[Tasks.ConnectToMongoDB];
+  try {
+    debug('waiting for MongoClient to connect ...');
+    const client = await Promise.race([
+      mongoClient.connect(),
+      waitForTunnelError(tunnel)
+    ]);
 
-    if (err) {
-      logTaskStatus('Error connecting:', err);
+    return [
+      client,
+      tunnel,
+      { url, options }
+    ];
+  } catch (err) {
+    debug('connection error', err);
+    debug('force shutting down ssh tunnel ...');
+    await forceCloseTunnel(tunnel);
+    throw err;
+  }
+}
 
-      return done(err);
-    }
-
-    logTaskStatus('Successfully connected');
-
-    return done(null, tasks.client, tasks.tunnel, connectionOptions);
-  });
-
-  return tasks.state;
-};
-
-module.exports = connect;
-module.exports.loadOptions = loadOptions;
-module.exports.validateURL = validateURL;
-module.exports.getTasks = getTasks;
-module.exports.getStatusStateString = getStatusStateString;
+module.exports = (model, setupListeners, done) => connect(model, setupListeners)
+  .then(
+    (res) => process.nextTick(() => done(null, ...res)),
+    (err) => process.nextTick(() => done(err))
+  );

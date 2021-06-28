@@ -76,5 +76,6 @@ ignores: [
   "enzyme-adapter-react-16",
   "jsdom",
   "mock-require",
-  "mongodb-runner"
+  "mongodb-runner",
+  "bson"
 ]

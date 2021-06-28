@@ -1,7 +1,7 @@
-# Compass CRUD Plugin [![][workflow_img]][workflow_url] [![][npm_img]][npm_url]
+# Compass CRUD Plugin [![][npm_img]][npm_url]
 
 Provide functionality shown in the "Documents" tab in the Collection view in
-Compass. 
+Compass.
 ![compass-crud](./compass-crud.png)
 
 ## Usage
@@ -117,7 +117,7 @@ complete.
 - **'document-deleted'**: indicates a document was deleted.
 
 ### App Registry Events Received
-#### Local 
+#### Local
 - **'import-finished'**: received when import in the import-export plugin is
   finished. Refreshes documents.
 - **'query-changed'**: received when query was changed in the query bar. Handles updates to crud plugin's query
@@ -150,7 +150,7 @@ we manage: `crud-store`(`./src/stores/crud-store.js`) and
 - `./scripts`: scripts to `link` and `unlink` React version to compass when
   developing this locally in Compass.
 - `./src/actions`: reflux actions that are available throughout this plugin.
-- `./src/assets`: css assets, such as variables and styles from compass. 
+- `./src/assets`: css assets, such as variables and styles from compass.
 - `./src/components`: react components that make up this plugin. Almost all
   components have a `.jsx`, `.spec.js`, `.less` and `.js` files.
 - `./src/stores`: home to reflux stores.
@@ -173,12 +173,10 @@ npm install -S @mongodb-js/compass-crud
 - [hadron-app-registry][hadron-app-registry]
 - [hadron-app][hadron-app]
 
-[workflow_img]: https://github.com/mongodb-js/compass-crud/workflows/Run%20Tests/badge.svg
-[workflow_url]: https://github.com/mongodb-js/compass-crud/actions?query=workflow%3A%22Run+Tests%22+branch%3Amaster
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-crud.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-crud
 [hadron-app]: https://github.com/mongodb-js/hadron-app
 [hadron-app-registry]: https://github.com/mongodb-js/hadron-app-registry
 [compass]: https://github.com/mongodb-js/compass
 [db-variable]: https://github.com/mongodb-js/compass-crud/blob/master/electron/renderer/index.js#L21
-[coll-variable]: https://github.com/mongodb-js/compass-crud/blob/master/electron/renderer/index.js#L22  
+[coll-variable]: https://github.com/mongodb-js/compass-crud/blob/master/electron/renderer/index.js#L22

@@ -68,37 +68,26 @@ describe('formatters', () => {
         }
       });
 
-      for (const bsonVersion of ['v1', 'v4']) {
-        it(`works for input from bson version ${bsonVersion}`, async() => {
-          // The driver returns bson v1.x objects to us. They don't have a
-          // .toExtendedJSON() method, we simulate that.
-          class FakeBSON1Binary extends Binary {
-            get toExtendedJSON() { return undefined; }
-          }
+      it('works for input with Binary data', async() => {
+        const binary = new Binary(Buffer.from('56391cc226bc4affbe520f67856c09ec'), 4);
 
-          const binary = new Binary(Buffer.from('56391cc226bc4affbe520f67856c09ec'), 4);
-          if (bsonVersion === 'v1') {
-            Object.setPrototypeOf(binary, FakeBSON1Binary.prototype);
-          }
+        const docs = [
+          {
+            _id: new ObjectID('5e5ea7558d35931a05eafec0'),
+            test: binary
+          },
+        ];
+        const source = stream.Readable.from(docs);
+        const formatter = createJSONFormatter({brackets: true});
+        const dest = fs.createWriteStream(FIXTURES.JSON_MULTI_SMALL_DOCS);
 
-          const docs = [
-            {
-              _id: new ObjectID('5e5ea7558d35931a05eafec0'),
-              test: binary
-            },
-          ];
-          const source = stream.Readable.from(docs);
-          const formatter = createJSONFormatter({brackets: true});
-          const dest = fs.createWriteStream(FIXTURES.JSON_MULTI_SMALL_DOCS);
+        await pipeline(source, formatter, dest);
 
-          await pipeline(source, formatter, dest);
+        const contents = await readFile(FIXTURES.JSON_MULTI_SMALL_DOCS);
+        const parsed = EJSON.parse(contents);
 
-          const contents = await readFile(FIXTURES.JSON_MULTI_SMALL_DOCS);
-          const parsed = EJSON.parse(contents);
-
-          expect(parsed).to.deep.equal(docs);
-        });
-      }
+        expect(parsed).to.deep.equal(docs);
+      });
     });
   });
   describe('jsonl', () => {

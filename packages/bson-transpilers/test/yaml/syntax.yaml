@@ -1,0 +1,232 @@
+runner: !!js/function >
+    (it, expect, input, output, transpiler, test) => {
+        it(`${input}: ${test.input[input]} => ${output}`, () => {
+            expect(
+                transpiler[input][output].compile(test.input[input], true)
+            ).to.equal(test.output[output]);
+        });
+    }
+tests:
+    whitespace:
+    - input:
+          javascript: "1 \t\t +2"
+          shell: "1 \t\t +2"
+          python: "1 \t\t +2"
+      output:
+          javascript: "1 + 2"
+          shell: "1 + 2"
+          python: "1 + 2"
+          java: "1L + 2L"
+          csharp: "1 + 2"
+          object: "3"
+    - input:
+          javascript: "1 \n +2"
+          shell: "1 \t\t +2"
+          python: "1 \t\t +2"
+      output:
+          javascript: "1 + 2"
+          shell: "1 + 2"
+          python: "1 + 2"
+          java: "1L + 2L"
+          csharp: "1 + 2"
+          object: "3"
+    compare:
+    - input:
+          javascript: "1 === 2"
+          shell: "1 === 2"
+          python: "1 == 2"
+      output:
+          javascript: "1 === 2"
+          shell: "1 === 2"
+          python: "1 == 2"
+          java: "1L == 2L"
+          csharp: "1 == 2"
+          object: "false"
+    - input:
+          javascript: "1 !== 2"
+          shell: "1 !== 2"
+          python: "1 != 2"
+      output:
+          javascript: "1 !== 2"
+          shell: "1 !== 2"
+          python: "1 != 2"
+          java: "1L != 2L"
+          csharp: "1 != 2"
+          object: "true"
+    - input:
+          javascript: "true || false"
+          shell: "true || false"
+          python: "True or False"
+      output:
+          javascript: "true || false"
+          shell: "true || false"
+          python: "True or False"
+          java: "true || false"
+          csharp: "true || false"
+          object: "true"
+    - input:
+          javascript: "true || false || true"
+          shell: "true || false || true"
+          python: "True or False or True"
+      output:
+          javascript: "true || false || true"
+          shell: "true || false || true"
+          python: "True or False or True"
+          java: "true || false || true"
+          csharp: "true || false || true"
+          object: "true"
+    - input:
+          javascript: "true && false"
+          shell: "true && false"
+          python: "True and False"
+      output:
+          javascript: "true && false"
+          shell: "true && false"
+          python: "True and False"
+          java: "true && false"
+          csharp: "true && false"
+          object: "false"
+    - input:
+          javascript: "true && false && true"
+          shell: "true && false && true"
+          python: "True and False and True"
+      output:
+          javascript: "true && false && true"
+          shell: "true && false && true"
+          python: "True and False and True"
+          java: "true && false && true"
+          csharp: "true && false && true"
+          object: "false"
+    - input:
+          javascript: "!true"
+          shell: "!true"
+          python: "not True"
+      output:
+          javascript: "!true"
+          shell: "!true"
+          python: "not True"
+          java: "!true"
+          csharp: "!true"
+          object: "false"
+    - input:
+          javascript: "1 > 2 < 3 >= 4 <= 6"
+          shell: "1 > 2 < 3 >= 4 <= 6"
+          python: "1 > 2 < 3 >= 4 <= 6"
+      output:
+          javascript: "1 > 2 < 3 >= 4 <= 6"
+          shell: "1 > 2 < 3 >= 4 <= 6"
+          python: "1 > 2 < 3 >= 4 <= 6"
+          java: "1L > 2L < 3L >= 4L <= 6L" # TODO: this is wrong
+          csharp: "1 > 2 < 3 >= 4 <= 6"
+          object: "true"
+    - input:
+          python: "4 is 5"
+      output:
+          javascript: "4 === 5"
+          shell: "4 === 5"
+          python: "4 == 5"
+          java: "4L == 5L"
+          csharp: "4 == 5"
+          object: "false"
+    - input:
+          python: "4 is not 5"
+      output:
+          javascript: "4 !== 5"
+          shell: "4 !== 5"
+          python: "4 != 5"
+          java: "4L != 5L"
+          csharp: "4 != 5"
+          object: "true"
+    - input:
+          python: "4 in [1, 2]"
+      output:
+          javascript: "[\n  1, 2\n].indexOf(4) !== -1"
+          shell: "[\n  1, 2\n].indexOf(4) !== -1"
+          python: "4 in [1, 2]"
+          java: "Arrays.asList(1L, 2L).contains(4L)"
+          csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) != -1"
+          object: "false"
+    - input:
+          python: "4 not in [1, 2]"
+      output:
+          javascript: "[\n  1, 2\n].indexOf(4) === -1"
+          shell: "[\n  1, 2\n].indexOf(4) === -1"
+          python: "4 not in [1, 2]"
+          java: "!Arrays.asList(1L, 2L).contains(4L)"
+          csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) == -1"
+          object: "true"
+    comments:
+    - input:
+          javascript: "1 // a comment"
+          shell: "1 // a comment"
+          python: "1 # a comment"
+      output:
+          javascript: "1"
+          shell: "1"
+          python: "1"
+          java: "1L"
+          csharp: "1"
+          object: "1"
+    - input:
+          javascript: "1 /* a comment*/"
+          shell: "1 /* a comment*/"
+      output:
+          javascript: "1"
+          shell: "1"
+          python: "1"
+          java: "1L"
+          csharp: "1"
+          object: "1"
+    - input:
+          javascript: "1 /* a \ncom\nmen\nt*/+2"
+          shell: "1 /* a \ncom\nmen\nt*/+2"
+      output:
+          javascript: "1 + 2"
+          shell: "1 + 2"
+          python: "1 + 2"
+          java: "1L + 2L"
+          csharp: "1 + 2"
+          object: "3"
+    - input:
+          javascript: "1 /* a \ncom\nmen\nt*/"
+          shell: "1 /* a \ncom\nmen\nt*/"
+      output:
+          javascript: "1"
+          shell: "1"
+          python: "1"
+          java: "1L"
+          csharp: "1"
+          object: "1"
+    - input:
+          javascript: "1 /* a comment*/+2"
+          shell: "1 /* a comment*/+2"
+      output:
+          javascript: "1 + 2"
+          shell: "1 + 2"
+          python: "1 + 2"
+          java: "1L + 2L"
+          csharp: "1 + 2"
+          object: "3"
+    parens:
+    - input:
+          javascript: "(1 === 1)"
+          shell: "(1 === 1)"
+          python: "(1 == 1)"
+      output:
+          javascript: "(1 === 1)"
+          shell: "(1 === 1)"
+          python: "(1 == 1)"
+          java: "(1L == 1L)"
+          csharp: "(1 == 1)"
+          object: "true"
+    - input:
+          javascript: "((1 === (1)))"
+          shell: "((1 === (1)))"
+          python: "((1 == (1)))"
+      output:
+          javascript: "((1 === (1)))"
+          shell: "((1 === (1)))"
+          python: "((1 == (1)))"
+          java: "((1L == (1L)))"
+          csharp: "((1 == (1)))"
+          object: "true"

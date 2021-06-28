@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  MAIN_BRANCH_NAME: remotes/origin/master
+  MAIN_BRANCH_NAME: remotes/origin/main
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-      
+
       fail-fast: false
 
     # The type of runner that the job will run on

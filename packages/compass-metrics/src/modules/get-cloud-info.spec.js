@@ -1,5 +1,4 @@
-const getCloudInfo = require('./get-cloud-info');
-
+import { getCloudInfo } from './get-cloud-info';
 
 describe('getCloudInfo', () => {
   it('returns all false for undefined', async() => {

@@ -226,7 +226,7 @@ assign(props, {
  *     ns: 'kerberos'
  *   });
  *   console.log(c.driverUrl)
- *   >>> mongodb://arlo%252Fdog%2540krb5.mongodb.parts@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI
+ *   >>> mongodb://arlo%252Fdog%2540krb5.mongodb.parts@localhost:27017/kerberos?slaveOk=true&authMechanism=GSSAPI
  *   console.log(c.driverOptions)
  *   >>> { db: { readPreference: 'nearest' }, replSet: { } }
  *
@@ -536,8 +536,6 @@ const prepareRequest = (model) => {
   } else if (model.authStrategy === 'KERBEROS') {
     req.auth = 'AUTH_TOKEN';
     defaults(req.query, {
-      gssapiServiceName:
-        model.kerberosServiceName || KERBEROS_SERVICE_NAME_DEFAULT,
       authMechanism: model.driverAuthMechanism
     });
   } else if (model.authStrategy === 'X509') {

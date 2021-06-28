@@ -67,25 +67,30 @@ functions:
           export HADRON_METRICS_INTERCOM_APP_ID="${metrics_intercom_app_id}";
           export HADRON_METRICS_STITCH_APP_ID="${metrics_stitch_app_id}";
 
-          # node stuff
+          # Directories used to install node, npm, and store artifacts
           export ARTIFACTS_PATH="$(pwd)/.deps"
           export NPM_CACHE_DIR="$(pwd)/.deps/.npm"
           export NPM_TMP_DIR="$(pwd)/.deps/tmp"
-          export NPM_AUTH_TOKEN="${compass_npm_token}"
 
           export NODE_JS_VERSION="12.4.0"
           export NPM_VERSION="7"
-          export NPM_CONFIG_CACHE="${NPM_CACHE_DIR}"
 
-          if [[ "$OSTYPE" == "cygwin" ]]; then
+          # npm configuration
+          # all var names need to be lowercase
+          # see: https://docs.npmjs.com/cli/v7/using-npm/config#environment-variables
+          export npm_config_cache="\$NPM_CACHE_DIR"
+          # npm tmp is deprecated, but let's keep it around just in case
+          export npm_config_tmp="\$NPM_TMP_DIR"
+
+          if [[ "\$OSTYPE" == "cygwin" ]]; then
             # NOTE lucas: for git-core addition, See
             # https://jira.mongodb.org/browse/COMPASS-4122
-            export PATH="/cygdrive/c/Program Files/Git/mingw32/libexec/git-core/:$(pwd)/.deps:/cygdrive/c/wixtools/bin/:$PATH"
+            export PATH="/cygdrive/c/Program Files/Git/mingw32/libexec/git-core/:$(pwd)/.deps:/cygdrive/c/wixtools/bin/:\$PATH"
             export APPDATA=Z:\\\;
           fi
 
-          if [[ "$OSTYPE" != "cygwin" ]]; then
-            export PATH="$(pwd)/.deps/bin:$PATH"
+          if [[ "\$OSTYPE" != "cygwin" ]]; then
+            export PATH="$(pwd)/.deps/bin:\$PATH"
           fi
 
           EOF_BUILD_SH
@@ -121,11 +126,13 @@ functions:
           set -e
           source ~/compass_env.sh
 
-          echo "Installing Compass dependencies..."
+          echo "Installing Compass dependencies with the following npm configuration"
+          npm config ls -l
+          echo "(if npm fails, debug.log will be uploaded to S3)"
 
-          echo "If npm ci fails, debug.log will be uploaded to S3."
           # Run npm ci in all the packages
           npm run bootstrap-evergreen --unsafe-perm -- --stream
+
           # Make sure that cache is populated when other packages are pulling the font
           npm run update-akzidenz-cache --unsafe-perm
 
@@ -219,10 +226,12 @@ functions:
             net start MSIServer
           fi
 
-          export NPM_CONFIG_LOGLEVEL=info
+          # Provide a verbose logging for the release process
+          export npm_config_loglevel=info
           export DEBUG="*,-flora-colossus"
-          export NPM_CONFIG_CACHE="$(pwd)/.deps/.npm"
+
           npm run release-evergreen ${compass_distribution};
+
           rm -f /tmp/compass-apple-cred.json
           EOF_BUILD_SH
 

@@ -1,6 +1,6 @@
 const { getMajorMinor, sameMajorAndMinor } = require('./version');
 
-const MAIN_BRANCH_NAME = 'master';
+const MAIN_BRANCH_NAME = 'main';
 const RELEASE_BRANCH_RE = /^(\d+)\.(\d+)-releases$/;
 
 function isMainBranch(branch) {

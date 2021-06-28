@@ -1,4 +1,4 @@
-# mongodb-connection-model [![][workflow_img]][workflow_url] [![][npm_img]][npm_url] [![][inch_img]][inch_url]
+# mongodb-connection-model [![][workflow_img]][workflow_url] [![][npm_img]][npm_url]
 
 > MongoDB connection model
 
@@ -208,7 +208,7 @@ const c = new Connection({
 });
 
 console.log(c.driverUrl)
->>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts@localhost:27017/toys?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
+>>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts@localhost:27017/toys?authMechanism=GSSAPI'
 
 console.log(c.driverOptions)
 >>> {
@@ -458,8 +458,6 @@ This will log the following events to the console:
 [workflow_url]: https://github.com/mongodb-js/connection-model/actions?query=workflow%3A%22Check+and+Test%22
 [npm_img]: https://img.shields.io/npm/v/mongodb-connection-model.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/mongodb-connection-model
-[inch_img]: http://inch-ci.org/github/mongodb-js/connection-model.svg?branch=master
-[inch_url]: http://inch-ci.org/github/mongodb-js/connection-model
 [gitter_img]: https://badges.gitter.im/Join%20Chat.svg
 [gitter_url]: http://gitter.im/mongodb-js/mongodb-js
 [enterprise_img]: https://img.shields.io/badge/MongoDB-Enterprise-blue.svg?style=flat-square

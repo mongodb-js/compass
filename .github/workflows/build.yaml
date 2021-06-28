@@ -32,6 +32,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      # So we are not in a detached HEAD state and have a user ready, so that
+      # lerna can commit later on
+      - name: Prepare Git
+        run: |
+          git switch -c "compass-build-workflow"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
       - name: Setup Node.js Environment
         uses: actions/setup-node@v2.1.2
         with:
@@ -45,9 +53,7 @@ jobs:
         run: npm install -g verdaccio
 
       - name: Install Dependencies
-        run: |
-          npm install --force
-          npx lerna run prepare --stream
+        run: npm install --force
 
       # https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708/3
       - name: Set path for candle.exe and light.exe
@@ -69,25 +75,57 @@ jobs:
           rm -rf ./storage
           verdaccio --config ./scripts/monorepo/verdaccio.yaml --listen 4873 &
           VERDACCIO_PID=$!
-          npx wait-on -t 15000 http://localhost:4873
+          npx wait-on -t 15000 "$npm_config_registry"
 
-          # Publish packages and update private packages post publish. We have
-          # to manually run our update script as we can't use git-tag-version in
-          # CI environment (so version lifecycle is not triggered) and lerna
-          # doesn't bump private packages on canary publish because reasons
-          # (see https://github.com/lerna/lerna/issues/2206#issuecomment-521421420)
-          npx lerna publish prerelease \
-              --preid pr \
-              --canary \
+          nice_hash=$(git rev-parse --short "$GITHUB_SHA")
+
+          npx lerna version prerelease \
+              --preid "pr$nice_hash" \
               --no-push \
-              --no-git-tag-version \
-              --no-git-reset \
+              --no-private \
               --force-publish "*" \
               --yes
-          npm run version -- --no-stage --no-package-lock
+
+          # We will run prepare manually to isolate the flakiest part of the
+          # process which is publishing
+          npx lerna run prepare --stream
+
+          # Publish process seems to be pretty flaky on Windows so we are
+          # retrying it up to 5 times before bailing
+          n=0
+          exitcode=0
+          until [ "$n" -ge 5 ]
+          do  
+              echo ""
+              echo "Attempting to publish packages ($((n+1))/5) ..."
+              echo ""
+              exitcode=0
+              npx lerna publish from-package \
+                  --ignore-scripts \
+                  --registry "$npm_config_registry" \
+                  --yes && break
+              exitcode=$?
+              # If we failed, lerna might've left some changes in the history,
+              # this needs to be cleaned up before we can retry
+              git reset HEAD --hard
+              n=$((n+1))
+              sleep 1
+          done
+
+          if [ "$exitcode" -gt 0 ]
+          then
+              echo ""
+              echo "Failed to publish packages"
+              echo ""
+              # Clean-up background verdaccio process
+              kill $VERDACCIO_PID
+              # If we couldn't publish, exit with last publish command exit code
+              exit $exitcode
+          fi
 
           # Setting debug before this line breaks plugins build process
           export DEBUG=hadron*,mongo*,electron*
+
           npm run release-evergreen
 
           # Clean-up background verdaccio process

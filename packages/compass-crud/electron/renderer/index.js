@@ -64,7 +64,8 @@ const store = configureStore({
   localAppRegistry: localAppRegistry,
   globalAppRegistry: appRegistry,
   namespace: `${DB}.${COLL}`,
-  isReadonly: false
+  isReadonly: false,
+  isTimeSeries: false
 });
 
 // Create a HMR enabled render function
