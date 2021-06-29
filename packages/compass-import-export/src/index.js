@@ -1,7 +1,8 @@
 import Plugin from './plugin';
 import ImportPlugin from './import-plugin';
 import ExportPlugin from './export-plugin';
-import configureStore from './stores';
+import configureExportStore from './stores/export-store';
+import configureImportStore from './stores/import-store';
 
 /**
  * The import plugin.
@@ -9,7 +10,7 @@ import configureStore from './stores';
 const IMPORT_ROLE = {
   name: 'Import',
   component: ImportPlugin,
-  configureStore: configureStore,
+  configureStore: configureImportStore,
   configureActions: () => {},
   storeName: 'Import.Store'
 };
@@ -20,7 +21,7 @@ const IMPORT_ROLE = {
 const EXPORT_ROLE = {
   name: 'Export',
   component: ExportPlugin,
-  configureStore: configureStore,
+  configureStore: configureExportStore,
   configureActions: () => {},
   storeName: 'Export.Store'
 };
@@ -44,4 +45,11 @@ function deactivate(appRegistry) {
 }
 
 export default Plugin;
-export { activate, deactivate, ImportPlugin, ExportPlugin, configureStore };
+export {
+  activate,
+  deactivate,
+  ImportPlugin,
+  ExportPlugin,
+  configureExportStore,
+  configureImportStore
+};

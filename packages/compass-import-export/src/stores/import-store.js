@@ -11,13 +11,12 @@ import {
   nsChanged
 } from '../modules/compass';
 
-import { openExport, queryChanged } from '../modules/export';
 import { openImport } from '../modules/import';
 import { statsReceived } from '../modules/stats';
 
 import { createLogger } from '../utils/logger';
 
-const debug = createLogger('store');
+const debug = createLogger('import-store');
 
 /**
  * Set the data provider.
@@ -35,30 +34,22 @@ const configureStore = (options = {}) => {
    * The store has a combined reducer.
    */
   const store = createStore(reducer, applyMiddleware(thunk));
-
   /**
    * Called when the app registry is activated.
    *
    * @param {AppRegistry} appRegistry - The app registry.
    */
-  debug('have a local app registry?', options.localAppRegistry ? 'yes' : 'no');
   if (options.localAppRegistry) {
     const appRegistry = options.localAppRegistry;
     store.dispatch(appRegistryActivated(appRegistry));
 
-    appRegistry.on('query-applied', query => {
-      debug('dispatching query changed for query-applied app registry event');
-      store.dispatch(queryChanged(query));
-    });
     appRegistry.on('open-import', () => store.dispatch(openImport()));
-    appRegistry.on('open-export', (count) => store.dispatch(openExport(count)));
     appRegistry.getStore('CollectionStats.Store').listen(stats => {
       debug('dispatching statsReceived', stats);
       store.dispatch(statsReceived(stats));
     });
   }
 
-  debug('have a global app registry?', options.globalAppRegistry ? 'yes' : 'no');
   if (options.globalAppRegistry) {
     const appRegistry = options.globalAppRegistry;
     store.dispatch(globalAppRegistryActivated(appRegistry));
@@ -81,17 +72,10 @@ const configureStore = (options = {}) => {
    */
   if (ipcRenderer) {
     /**
-     * Listen for compass:open-export messages.
-     */
-    ipcRenderer.on('compass:open-export', () => {
-      store.dispatch(openExport());
-    });
-
-    /**
      * Listen for compass:open-import messages.
      */
     ipcRenderer.on('compass:open-import', () => {
-      store.dispatch(openImport());
+      return store.dispatch(openImport());
     });
   }
 

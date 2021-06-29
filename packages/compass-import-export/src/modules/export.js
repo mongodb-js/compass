@@ -1,6 +1,7 @@
 /* eslint-disable valid-jsdoc */
 import fs from 'fs';
 import stream from 'stream';
+import { promisify } from 'util';
 
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
@@ -322,6 +323,37 @@ export const changeExportStep = (status) => ({
   status: status
 });
 
+const fetchDocumentCount = async(dataService, ns, query) => {
+  // When there is no filter/limit/skip we can try to use the estimated count.
+  if (
+    (!query.filter || Object.keys(query.filter).length < 1)
+    && !query.limit
+    && !query.skip
+  ) {
+    try {
+      const runEstimatedDocumentCount = promisify(dataService.estimatedCount.bind(dataService));
+      const count = await runEstimatedDocumentCount(ns, {});
+
+      return count;
+    } catch (estimatedCountErr) {
+      // This currently will fail for views and time-series collections.
+      // So we can ignore this error.
+    }
+  }
+
+  const runCount = promisify(dataService.count.bind(dataService));
+
+  const count = await runCount(
+    ns,
+    query.filter || {},
+    {
+      ...(query.limit ? { limit: query.limit } : {} ),
+      ...(query.skip ? { skip: query.skip } : {} )
+    }
+  );
+  return count;
+};
+
 /**
  * Open the export modal.
  *
@@ -334,7 +366,7 @@ export const changeExportStep = (status) => ({
  * @api public
  */
 export const openExport = (count) => {
-  return (dispatch, getState) => {
+  return async(dispatch, getState) => {
     const {
       ns,
       exportData,
@@ -343,14 +375,16 @@ export const openExport = (count) => {
 
     const spec = exportData.query;
 
-    console.log('got count', count);
+    if (count) {
+      return dispatch(onModalOpen(count, spec));
+    }
 
-    dataService.estimatedCount(ns, spec.filter, {}, function(countErr, docCount) {
-      if (countErr) {
-        dispatch(onError(countErr));
-      }
+    try {
+      const docCount = await fetchDocumentCount(dataService, ns, spec);
       dispatch(onModalOpen(docCount, spec));
-    });
+    } catch (e) {
+      dispatch(onError(e));
+    }
   };
 };
 
@@ -394,7 +428,7 @@ export const sampleFields = () => {
  * @api public
  */
 export const startExport = () => {
-  return (dispatch, getState) => {
+  return async(dispatch, getState) => {
     const {
       ns,
       exportData,
@@ -405,87 +439,85 @@ export const startExport = () => {
       ? { filter: {} }
       : exportData.query;
 
+    const numDocsToExport = exportData.isFullCollection
+      ? await fetchDocumentCount(dataService, ns, spec)
+      : exportData.count;
+
     // filter out only the fields we want to include in our export data
     const projection = Object.fromEntries(
       Object.entries(exportData.fields)
         .filter((keyAndValue) => keyAndValue[1] === 1));
 
-    dataService.countDocuments(ns, spec.filter, {}, function(countErr, numDocsToExport) {
-      if (countErr) {
-        return onError(countErr);
+    debug('count says to expect %d docs in export', numDocsToExport);
+    const source = createReadableCollectionStream(dataService, ns, spec, projection);
+
+    const progress = createProgressStream({
+      objectMode: true,
+      length: numDocsToExport,
+      time: 250 /* ms */
+    });
+
+    progress.on('progress', function(info) {
+      dispatch(onProgress(info.percentage, info.transferred));
+    });
+
+    // Pick the columns that are going to be matched by the projection,
+    // where some prefix the field (e.g. ['a', 'a.b', 'a.b.c'] for 'a.b.c')
+    // has an entry in the projection object.
+    const columns = Object.keys(exportData.allFields)
+      .filter(field => field.split('.').some(
+        (_part, index, parts) => projection[parts.slice(0, index + 1).join('.')]));
+    let formatter;
+    if (exportData.fileType === 'csv') {
+      formatter = createCSVFormatter({ columns });
+    } else {
+      formatter = createJSONFormatter();
+    }
+
+    const dest = fs.createWriteStream(exportData.fileName);
+
+    debug('executing pipeline');
+    dispatch(onStarted(source, dest, numDocsToExport));
+    stream.pipeline(source, progress, formatter, dest, function(err) {
+      if (err) {
+        debug('error running export pipeline', err);
+        return dispatch(onError(err));
       }
-
-      debug('count says to expect %d docs in export', numDocsToExport);
-      const source = createReadableCollectionStream(dataService, ns, spec, projection);
-
-      const progress = createProgressStream({
-        objectMode: true,
-        length: numDocsToExport,
-        time: 250 /* ms */
-      });
-
-      progress.on('progress', function(info) {
-        dispatch(onProgress(info.percentage, info.transferred));
-      });
-
-      // Pick the columns that are going to be matched by the projection,
-      // where some prefix the field (e.g. ['a', 'a.b', 'a.b.c'] for 'a.b.c')
-      // has an entry in the projection object.
-      const columns = Object.keys(exportData.allFields)
-        .filter(field => field.split('.').some(
-          (_part, index, parts) => projection[parts.slice(0, index + 1).join('.')]));
-      let formatter;
-      if (exportData.fileType === 'csv') {
-        formatter = createCSVFormatter({ columns });
-      } else {
-        formatter = createJSONFormatter();
-      }
-
-      const dest = fs.createWriteStream(exportData.fileName);
-
-      debug('executing pipeline');
-      dispatch(onStarted(source, dest, numDocsToExport));
-      stream.pipeline(source, progress, formatter, dest, function(err) {
-        if (err) {
-          debug('error running export pipeline', err);
-          return dispatch(onError(err));
-        }
-        debug(
-          'done. %d docs exported to %s',
+      debug(
+        'done. %d docs exported to %s',
+        numDocsToExport,
+        exportData.fileName
+      );
+      dispatch(onFinished(numDocsToExport));
+      dispatch(
+        appRegistryEmit(
+          'export-finished',
           numDocsToExport,
-          exportData.fileName
-        );
-        dispatch(onFinished(numDocsToExport));
-        dispatch(
-          appRegistryEmit(
-            'export-finished',
-            numDocsToExport,
-            exportData.fileType
-          )
-        );
+          exportData.fileType
+        )
+      );
 
-        /**
-         * TODO: lucas: For metrics:
-         *
-         * "resource": "Export",
-         * "action": "completed",
-         * "file_type": "<csv|json_array>",
-         * "num_docs": "<how many docs exported>",
-         * "full_collection": true|false
-         * "filter": true|false,
-         * "projection": true|false,
-         * "skip": true|false,
-         * "limit": true|false,
-         * "fields_selected": true|false
-         */
-        dispatch(
-          globalAppRegistryEmit(
-            'export-finished',
-            numDocsToExport,
-            exportData.fileType
-          )
-        );
-      });
+      /**
+       * TODO: lucas: For metrics:
+       *
+       * "resource": "Export",
+       * "action": "completed",
+       * "file_type": "<csv|json_array>",
+       * "num_docs": "<how many docs exported>",
+       * "full_collection": true|false
+       * "filter": true|false,
+       * "projection": true|false,
+       * "skip": true|false,
+       * "limit": true|false,
+       * "fields_selected": true|false
+       */
+      dispatch(
+        globalAppRegistryEmit(
+          'export-finished',
+          numDocsToExport,
+          exportData.fileType
+        )
+      );
     });
   };
 };
