@@ -80,7 +80,7 @@ class Collection extends Component {
             pipeline={this.props.pipeline}
             sourceName={this.props.sourceName} />
           <TabNavBar
-            theme="light"
+            aria-label="Collection Tabs"
             tabs={this.props.tabs}
             views={this.props.views}
             mountAllViews

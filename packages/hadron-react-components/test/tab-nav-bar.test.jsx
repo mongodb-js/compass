@@ -3,6 +3,7 @@ import chaiEnzyme from 'chai-enzyme';
 import sinon from 'sinon';
 import chai, { expect } from 'chai';
 import { shallow, mount } from 'enzyme';
+
 import { TabNavBar } from '../';
 
 chai.use(chaiEnzyme());
@@ -20,15 +21,11 @@ describe('<TabNavBar />', () => {
     );
 
     it('renders the light theme', () => {
-      expect(component.find('.tab-nav-bar-is-light-theme')).to.exist;
-    });
-
-    it('renders the header', () => {
-      expect(component.find('.tab-nav-bar-header')).to.exist;
+      expect(component.find('.test-tab-nav-bar-tabs').props().darkMode).to.equal(false);
     });
 
     it('renders the tabs', () => {
-      expect(component.find('.tab-nav-bar-link')).to.have.length(2);
+      expect(component.find('.test-tab-nav-bar-tab')).to.have.length(2);
     });
 
     it('mounts all the tabs', () => {
@@ -37,17 +34,17 @@ describe('<TabNavBar />', () => {
     });
 
     it('defaults the active tab to the first', () => {
-      expect(component.find('div.hidden > div.tab-two')).to.exist;
+      expect(component.find('.test-tab-nav-bar-tabs').props().selected).to.equal(0);
     });
   });
 
-  context('when setting the theme', () => {
+  context('when setting darkMode true', () => {
     const component = shallow(
-      <TabNavBar tabs={tabs} views={views} theme="dark" />
+      <TabNavBar tabs={tabs} views={views} darkMode />
     );
 
     it('renders the supplied theme', () => {
-      expect(component.find('.tab-nav-bar-is-dark-theme')).to.exist;
+      expect(component.find('.test-tab-nav-bar-tabs').props().darkMode).to.equal(true);
     });
   });
 
@@ -57,19 +54,24 @@ describe('<TabNavBar />', () => {
     );
 
     it('defaults the active tab to the supplied index', () => {
-      expect(component.find('div.hidden > div.tab-one')).to.exist;
+      expect(component.find('.test-tab-nav-bar-tabs').props().selected).to.equal(1);
     });
   });
 
   context('when providing a tab clicked handler', () => {
     const clickSpy = sinon.spy();
     const component = mount(
-      <TabNavBar tabs={tabs} views={views} onTabClicked={clickSpy} activeTabIndex={1} />
+      <TabNavBar
+        tabs={tabs}
+        views={views}
+        onTabClicked={clickSpy}
+        activeTabIndex={1}
+      />
     );
 
     context('when clicking a tab', () => {
       before(() => {
-        component.find('.tab-nav-bar-tab').first().simulate('click');
+        component.find('.test-tab-nav-bar-tab').first().find('button').simulate('click');
       });
 
       it('calls the click handler', () => {
