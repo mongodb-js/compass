@@ -325,12 +325,15 @@ export const changeExportStep = (status) => ({
 /**
  * Open the export modal.
  *
+ * @param {number} [count] - optional pre supplied count to shortcut and
+ * avoid a possibly expensive re-count.
+ *
  * Counts the documents to be exported given the current query on modal open to
  * provide user with accurate export data
  *
  * @api public
  */
-export const openExport = () => {
+export const openExport = (count) => {
   return (dispatch, getState) => {
     const {
       ns,
@@ -340,11 +343,13 @@ export const openExport = () => {
 
     const spec = exportData.query;
 
-    dataService.estimatedCount(ns, {query: spec.filter}, function(countErr, count) {
+    console.log('got count', count);
+
+    dataService.estimatedCount(ns, spec.filter, {}, function(countErr, docCount) {
       if (countErr) {
-        return onError(countErr);
+        dispatch(onError(countErr));
       }
-      dispatch(onModalOpen(count, spec));
+      dispatch(onModalOpen(docCount, spec));
     });
   };
 };
@@ -405,7 +410,7 @@ export const startExport = () => {
       Object.entries(exportData.fields)
         .filter((keyAndValue) => keyAndValue[1] === 1));
 
-    dataService.estimatedCount(ns, {query: spec.filter}, function(countErr, numDocsToExport) {
+    dataService.countDocuments(ns, spec.filter, {}, function(countErr, numDocsToExport) {
       if (countErr) {
         return onError(countErr);
       }

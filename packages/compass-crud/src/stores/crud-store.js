@@ -652,11 +652,12 @@ const configureStore = (options = {}) => {
     },
 
     /**
-     * Open an import file dialog from compass-import-export-plugin.
+     * Open an export file dialog from compass-import-export-plugin.
      * Emits a global app registry event the plugin listens to.
      */
     openExportFileDialog() {
-      this.localAppRegistry.emit('open-export');
+      // Pass the count to the export modal to avoid redoing the count.
+      this.localAppRegistry.emit('open-export', this.state.count);
     },
 
     /**

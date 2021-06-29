@@ -51,7 +51,7 @@ const configureStore = (options = {}) => {
       store.dispatch(queryChanged(query));
     });
     appRegistry.on('open-import', () => store.dispatch(openImport()));
-    appRegistry.on('open-export', () => store.dispatch(openExport()));
+    appRegistry.on('open-export', (count) => store.dispatch(openExport(count)));
     appRegistry.getStore('CollectionStats.Store').listen(stats => {
       debug('dispatching statsReceived', stats);
       store.dispatch(statsReceived(stats));
