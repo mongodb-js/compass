@@ -1,24 +1,24 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import DocumentStatsItem from '../document-stats-item';
+import IndexStatsItem from '../index-stats-item';
+
 import styles from './collection-stats.less';
 
 class CollectionStats extends Component {
   static displayName = 'CollectionStatsComponent';
 
   static propTypes = {
-    isReadonly: PropTypes.bool
+    documentCount: PropTypes.string.isRequired,
+    totalDocumentSize: PropTypes.string.isRequired,
+    avgDocumentSize: PropTypes.string.isRequired,
+    indexCount: PropTypes.string.isRequired,
+    totalIndexSize: PropTypes.string.isRequired,
+    avgIndexSize: PropTypes.string.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
+    isTimeSeries: PropTypes.bool.isRequired
   };
-
-  /**
-   * Instantiate the component.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.roles = global.hadronApp.appRegistry.getRole('CollectionHUD.Item');
-  }
 
   /**
    * Render CollectionStats component.
@@ -30,10 +30,23 @@ class CollectionStats extends Component {
       return <div className={styles['collection-stats-empty']} />;
     }
 
-    const children = (this.roles || []).map((role, i) => {
-      return <role.component key={i} {...this.props} />;
-    });
-    return <div className={styles['collection-stats']}>{children}</div>;
+    return (
+      <div className={styles['collection-stats']}>
+        <DocumentStatsItem
+          isTimeSeries={this.props.isTimeSeries}
+          documentCount={this.props.documentCount}
+          totalDocumentSize={this.props.totalDocumentSize}
+          avgDocumentSize={this.props.avgDocumentSize}
+        />
+        {!this.props.isTimeSeries && (
+          <IndexStatsItem
+            indexCount={this.props.indexCount}
+            totalIndexSize={this.props.totalIndexSize}
+            avgIndexSize={this.props.avgIndexSize}
+          />
+        )}
+      </div>
+    );
   }
 }
 

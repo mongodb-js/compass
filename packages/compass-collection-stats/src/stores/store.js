@@ -42,6 +42,16 @@ export const setIsReadonly = (store, isReadonly) => {
 };
 
 /**
+ * Set the isTimeSeries flag in the store.
+ *
+ * @param {Store} store - The store.
+ * @param {Boolean} isTimeSeries - If the collection is a time-series collection.
+ */
+export const setIsTimeSeries = (store, isTimeSeries) => {
+  store.setState({ isTimeSeries });
+};
+
+/**
  * Set the namespace in the store.
  *
  * @param {Store} store - The store.
@@ -124,40 +134,17 @@ const configureStore = (options = {}) => {
       this.setState(this.getInitialState());
     },
 
-    ensureDocumentCount(result, cb) {
-      if (result.document_count !== undefined) {
-        return cb(null, result);
-      }
-
-      this.dataService.estimatedCount(this.ns, {}, (err, estimatedCount) => {
-        if (err) {
-          return cb(null, result); // ignore the error
-        }
-
-        cb(null, {
-          ...result,
-          document_count: estimatedCount
-        });
-      });
-    },
-
     fetchCollectionDetails() {
       this.dataService.collection(this.ns, {}, (collectionError, result) => {
         if (collectionError) {
           return this.handleFetchError(collectionError);
         }
 
-        this.ensureDocumentCount(result, (ensureDocumentCountError, resultWithDocumentCount) => {
-          if (ensureDocumentCountError) {
-            return this.handleFetchError(ensureDocumentCountError);
-          }
-
-          const details = this._parseCollectionDetails(resultWithDocumentCount);
-          this.setState(details);
-          if (this.globalAppRegistry) {
-            this.globalAppRegistry.emit('compass:collection-stats:loaded', details);
-          }
-        });
+        const details = this._parseCollectionDetails(result);
+        this.setState(details);
+        if (this.globalAppRegistry) {
+          this.globalAppRegistry.emit('compass:collection-stats:loaded', details);
+        }
       });
     },
 
@@ -170,6 +157,7 @@ const configureStore = (options = {}) => {
     getInitialState() {
       return {
         isReadonly: false,
+        isTimeSeries: false,
         documentCount: INVALID,
         totalDocumentSize: INVALID,
         avgDocumentSize: INVALID,
@@ -188,6 +176,7 @@ const configureStore = (options = {}) => {
     _parseCollectionDetails(result) {
       return {
         isReadonly: this.state.isReadonly || false,
+        isTimeSeries: this.state.isTimeSeries || false,
         documentCount: result.document_count !== undefined ? this._format(result.document_count) : INVALID,
         totalDocumentSize: this._format(result.document_size, 'b'),
         avgDocumentSize: this._format(this._avg(result.document_size, result.document_count), 'b'),
@@ -266,6 +255,10 @@ const configureStore = (options = {}) => {
 
   if (options.isReadonly) {
     setIsReadonly(store, options.isReadonly);
+  }
+
+  if (options.isTimeSeries) {
+    setIsTimeSeries(store, options.isTimeSeries);
   }
 
   // Set the namespace - must happen third.

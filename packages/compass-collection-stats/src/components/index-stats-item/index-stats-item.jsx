@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import CollectionStatsItem from '../collection-stats-item';
 
 import styles from './index-stats-item.less';
@@ -45,7 +44,7 @@ class IndexStatsItem extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles[LIST_CLASS])}>
+      <div className={styles[LIST_CLASS]}>
         <CollectionStatsItem label={INDEXES} value={this.props.indexCount} primary />
         <CollectionStatsItem label={TOTAL_SIZE} value={this.props.totalIndexSize} />
         <CollectionStatsItem label={AVG_SIZE} value={this.props.avgIndexSize} />
