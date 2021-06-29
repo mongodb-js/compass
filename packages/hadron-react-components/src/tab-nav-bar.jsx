@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import map from 'lodash.map';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
+import LeafyGreenProvider from '@leafygreen-ui/leafygreen-provider';
 
 /**
  * Represents tabbed navigation with a tabbed header and content.
@@ -116,12 +117,14 @@ class TabNavBar extends React.Component {
    */
   render() {
     return (
-      <div className="tab-nav-bar">
-        <div className="tab-nav-bar-tabs">
-          {this.renderTabs()}
+      <LeafyGreenProvider>
+        <div className="tab-nav-bar">
+          <div className="tab-nav-bar-tabs">
+            {this.renderTabs()}
+          </div>
+          {this.props.mountAllViews ? this.renderViews() : this.renderActiveView()}
         </div>
-        {this.props.mountAllViews ? this.renderViews() : this.renderActiveView()}
-      </div>
+      </LeafyGreenProvider>
     );
   }
 }
