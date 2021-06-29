@@ -656,7 +656,7 @@ const configureStore = (options = {}) => {
      * Emits a global app registry event the plugin listens to.
      */
     openExportFileDialog() {
-      // Pass the count to the export modal to avoid redoing the count.
+      // Pass the doc count to the export modal so we can avoid re-counting.
       this.localAppRegistry.emit('open-export', this.state.count);
     },
 

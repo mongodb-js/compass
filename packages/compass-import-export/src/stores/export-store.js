@@ -3,16 +3,13 @@ import thunk from 'redux-thunk';
 import { ipcRenderer } from 'electron';
 
 import reducer from '../modules';
-
 import {
   dataServiceConnected,
   appRegistryActivated,
   globalAppRegistryActivated,
   nsChanged
 } from '../modules/compass';
-
 import { openExport, queryChanged } from '../modules/export';
-
 import { createLogger } from '../utils/logger';
 
 const debug = createLogger('export-store');
@@ -74,7 +71,9 @@ const configureStore = (options = {}) => {
     /**
      * Listen for compass:open-export messages.
      */
-    ipcRenderer.on('compass:open-export', () => store.dispatch(openExport()));
+    ipcRenderer.on('compass:open-export', () => {
+      store.dispatch(openExport());
+    });
   }
 
   if (module.hot) {

@@ -324,7 +324,7 @@ export const changeExportStep = (status) => ({
 });
 
 const fetchDocumentCount = async(dataService, ns, query) => {
-  // When there is no filter/limit/skip we can try to use the estimated count.
+  // When there is no filter/limit/skip try to use the estimated count.
   if (
     (!query.filter || Object.keys(query.filter).length < 1)
     && !query.limit
@@ -336,8 +336,9 @@ const fetchDocumentCount = async(dataService, ns, query) => {
 
       return count;
     } catch (estimatedCountErr) {
-      // This currently will fail for views and time-series collections.
-      // So we can ignore this error.
+      // `estimatedDocumentCount` is currently unsupported for
+      // views and time-series collections, so we can fallback to a full
+      // count in these cases and ignore this error.
     }
   }
 

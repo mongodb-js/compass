@@ -3,17 +3,14 @@ import thunk from 'redux-thunk';
 import { ipcRenderer } from 'electron';
 
 import reducer from '../modules';
-
 import {
   dataServiceConnected,
   appRegistryActivated,
   globalAppRegistryActivated,
   nsChanged
 } from '../modules/compass';
-
 import { openImport } from '../modules/import';
 import { statsReceived } from '../modules/stats';
-
 import { createLogger } from '../utils/logger';
 
 const debug = createLogger('import-store');
@@ -75,7 +72,7 @@ const configureStore = (options = {}) => {
      * Listen for compass:open-import messages.
      */
     ipcRenderer.on('compass:open-import', () => {
-      return store.dispatch(openImport());
+      store.dispatch(openImport());
     });
   }
 
