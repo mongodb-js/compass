@@ -6,7 +6,8 @@ import ExportPlugin from './export-plugin';
 class Plugin extends Component {
   static displayName = 'ImportExportPlugin';
   static propTypes = {
-    store: PropTypes.object.isRequired
+    exportStore: PropTypes.object.isRequired,
+    importStore: PropTypes.object.isRequired
   }
 
   /**
@@ -17,8 +18,8 @@ class Plugin extends Component {
   render() {
     return (
       <div>
-        <ImportPlugin store={this.props.store} />
-        <ExportPlugin store={this.props.store} />
+        <ImportPlugin store={this.props.importStore} />
+        <ExportPlugin store={this.props.exportStore} />
       </div>
     );
   }
