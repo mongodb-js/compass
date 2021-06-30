@@ -66,7 +66,7 @@ class InstanceComponent extends React.Component {
     return (
       <div className="rtss">
         <TabNavBar
-          theme="light"
+          aria-label="Instance Tabs"
           tabs={this.tabs}
           views={this.views}
           activeTabIndex={this.state.activeTab}
