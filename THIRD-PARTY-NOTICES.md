@@ -70,6 +70,7 @@ Package|Version|License
 **[@leafygreen-ui/ripple](#7767b150d9e89f8ac4cd94c4ebd4cd5df3fb05ee34a3b9203c694b8716d69e6c)**|1.1.1|Apache-2.0
 **[@leafygreen-ui/select](#d5a312d02475bd1ab020c0aa21a0e22ff30d93c2d1cd4a92d49070e5342cc23b)**|3.0.4|Apache-2.0
 **[@leafygreen-ui/syntax](#5cdb6561a356218c1b8dfaf30b84a030581ad33bed8ebbbaf1940ed7c94d6f11)**|2.8.0|Apache-2.0
+**[@leafygreen-ui/tabs](#37e06c745f1e8d00aefcb223bfbf648146ea8ee5a4bd90796e70d139517c6ee1)**|5.1.2|Apache-2.0
 **[@leafygreen-ui/text-input](#7d4813ea1bdfe3adb68adcefab312bec90dcf201093c2307db92c5b975e7bd57)**|6.0.3|Apache-2.0
 **[@leafygreen-ui/tokens](#abb3f3bd8f538461e96421ea4c92aa7595c29081e13652645737bea328a90349)**|0.5.2|Apache-2.0
 **[@leafygreen-ui/tooltip](#d543851d8597245c6181562d62c8b38bb7807a61230f9d992a3c259d99946ed6)**|6.2.2|Apache-2.0
@@ -2914,6 +2915,14 @@ License tags: Apache-2.0
 ### [@leafygreen-ui/syntax](https://www.npmjs.com/package/@leafygreen-ui/syntax) (version 2.8.0)
 <!-- initially found at node_modules/@leafygreen-ui/syntax -->
 > leafyGreen UI Kit Syntax-highlighting Component
+
+License tags: Apache-2.0
+
+
+<a id="37e06c745f1e8d00aefcb223bfbf648146ea8ee5a4bd90796e70d139517c6ee1"></a>
+### [@leafygreen-ui/tabs](https://www.npmjs.com/package/@leafygreen-ui/tabs) (version 5.1.2)
+<!-- initially found at packages/hadron-react-components/node_modules/@leafygreen-ui/tabs -->
+> leafyGreen UI Kit Tabs
 
 License tags: Apache-2.0
 
