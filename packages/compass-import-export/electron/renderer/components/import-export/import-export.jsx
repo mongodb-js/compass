@@ -11,7 +11,8 @@ class ImportExport extends Component {
 
   static propTypes = {
     appRegistry: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired
+    exportStore: PropTypes.object.isRequired,
+    importStore: PropTypes.object.isRequired
   };
 
   handleExportModalOpen = () => {
@@ -33,12 +34,17 @@ class ImportExport extends Component {
         <TextButton
           className="btn btn-default btn-sm"
           clickHandler={this.handleImportModalOpen}
-          text="Import" />
+          text="Import"
+        />
         <TextButton
           className="btn btn-default btn-sm"
           clickHandler={this.handleExportModalOpen}
-          text="Export" />
-        <Plugin store={this.props.store} />
+          text="Export"
+        />
+        <Plugin
+          exportStore={this.props.exportStore}
+          importStore={this.props.importStore}
+        />
       </div>
     );
   }

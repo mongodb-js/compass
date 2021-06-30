@@ -10,7 +10,12 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import { activate } from '../../src/index.js';
 import ImportExportPlugin from './components/import-export';
-import configureStore, { setDataProvider } from '../../src/stores';
+import configureExportStore, {
+  setDataProvider as setExportDataProvider
+} from '../../src/stores/export-store';
+import configureImportStore, {
+  setDataProvider as setImportDataProvider
+} from '../../src/stores/import-store';
 import { activate as activateStats } from '@mongodb-js/compass-collection-stats';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
@@ -79,7 +84,11 @@ root.id = 'root';
 document.body.appendChild(root);
 
 const localAppRegistry = new AppRegistry();
-const store = configureStore({
+const exportStore = configureExportStore({
+  namespace: NS,
+  localAppRegistry: localAppRegistry
+});
+const importStore = configureImportStore({
   namespace: NS,
   localAppRegistry: localAppRegistry
 });
@@ -88,7 +97,11 @@ const store = configureStore({
 const render = (Component) => {
   ReactDOM.render(
     <AppContainer>
-      <Component store={store} appRegistry={localAppRegistry} />
+      <Component
+        exportStore={exportStore}
+        importStore={importStore}
+        appRegistry={localAppRegistry}
+      />
     </AppContainer>,
     document.getElementById('root')
   );
@@ -108,7 +121,8 @@ import DataService from 'mongodb-data-service';
 const dataService = new DataService(connection);
 
 dataService.connect((error, ds) => {
-  setDataProvider(store, error, ds);
+  setImportDataProvider(importStore, error, ds);
+  setExportDataProvider(exportStore, error, ds);
   onDataServiceConnected(localAppRegistry);
 });
 

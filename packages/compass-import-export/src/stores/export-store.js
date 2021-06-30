@@ -3,21 +3,16 @@ import thunk from 'redux-thunk';
 import { ipcRenderer } from 'electron';
 
 import reducer from '../modules';
-
 import {
   dataServiceConnected,
   appRegistryActivated,
   globalAppRegistryActivated,
   nsChanged
 } from '../modules/compass';
-
 import { openExport, queryChanged } from '../modules/export';
-import { openImport } from '../modules/import';
-import { statsReceived } from '../modules/stats';
-
 import { createLogger } from '../utils/logger';
 
-const debug = createLogger('store');
+const debug = createLogger('export-store');
 
 /**
  * Set the data provider.
@@ -41,7 +36,6 @@ const configureStore = (options = {}) => {
    *
    * @param {AppRegistry} appRegistry - The app registry.
    */
-  debug('have a local app registry?', options.localAppRegistry ? 'yes' : 'no');
   if (options.localAppRegistry) {
     const appRegistry = options.localAppRegistry;
     store.dispatch(appRegistryActivated(appRegistry));
@@ -50,15 +44,9 @@ const configureStore = (options = {}) => {
       debug('dispatching query changed for query-applied app registry event');
       store.dispatch(queryChanged(query));
     });
-    appRegistry.on('open-import', () => store.dispatch(openImport()));
-    appRegistry.on('open-export', () => store.dispatch(openExport()));
-    appRegistry.getStore('CollectionStats.Store').listen(stats => {
-      debug('dispatching statsReceived', stats);
-      store.dispatch(statsReceived(stats));
-    });
+    appRegistry.on('open-export', (count) => store.dispatch(openExport(count)));
   }
 
-  debug('have a global app registry?', options.globalAppRegistry ? 'yes' : 'no');
   if (options.globalAppRegistry) {
     const appRegistry = options.globalAppRegistry;
     store.dispatch(globalAppRegistryActivated(appRegistry));
@@ -85,13 +73,6 @@ const configureStore = (options = {}) => {
      */
     ipcRenderer.on('compass:open-export', () => {
       store.dispatch(openExport());
-    });
-
-    /**
-     * Listen for compass:open-import messages.
-     */
-    ipcRenderer.on('compass:open-import', () => {
-      store.dispatch(openImport());
     });
   }
 
