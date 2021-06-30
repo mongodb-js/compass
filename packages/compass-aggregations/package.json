@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-aggregations",
   "productName": "Aggregations plugin",
-  "version": "8.6.0",
+  "version": "8.7.0",
   "apiVersion": "3.0.0",
   "description": "Compass Aggregation Pipeline Builder",
   "main": "lib/index.js",
@@ -57,7 +57,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.8.4",
-    "@mongodb-js/compass-crud": "^12.6.0",
+    "@mongodb-js/compass-crud": "^12.7.0",
     "@mongodb-js/compass-export-to-language": "^7.6.0",
     "@mongodb-js/compass-field-store": "^7.6.0",
     "async": "^1.5.2",
