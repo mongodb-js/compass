@@ -101,14 +101,15 @@ export const createDatabase = (data) => {
 
     try {
       dispatch(toggleIsRunning(true));
-      ds.createCollection(`${dbName}.${collName}`, data.options, async(err, collection) => {
+      ds.createCollection(`${dbName}.${collName}`, data.options, (err, collection) => {
         if (err) {
           return stopWithError(dispatch, err);
         }
 
-        const metrics = await prepareMetrics(collection);
+        prepareMetrics(collection).then((metrics) => {
+          global.hadronApp.appRegistry.emit('compass:collection:created', metrics);
+        });
 
-        global.hadronApp.appRegistry.emit('compass:collection:created', metrics);
         global.hadronApp.appRegistry.emit('refresh-data');
         dispatch(reset());
       });
