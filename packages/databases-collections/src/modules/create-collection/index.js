@@ -109,7 +109,10 @@ export const createCollection = (data) => {
         if (err) {
           return stopWithError(dispatch, err);
         }
-        global.hadronApp.appRegistry.emit('compass:collection:created', await prepareMetrics(collection));
+
+        const metrics = await prepareMetrics(collection);
+
+        global.hadronApp.appRegistry.emit('compass:collection:created', metrics);
         global.hadronApp.appRegistry.emit('refresh-data');
         dispatch(reset());
       });
