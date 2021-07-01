@@ -74,6 +74,67 @@ describe('ValidationStates [Component]', () => {
     });
   });
 
+  context('when the collection is time-series', () => {
+    let component;
+    const changeZeroStateSpy = sinon.spy();
+    const setZeroStateChangedSpy = sinon.spy();
+    const openLinkSpy = sinon.spy();
+    const setValidatorChangedSpy = sinon.spy();
+    const setValidationActionChangedSpy = sinon.spy();
+    const setValidationLevelChangedSpy = sinon.spy();
+    const setCancelValidationSpy = sinon.spy();
+    const saveValidationSpy = sinon.spy();
+    const fetchSampleDocumentsSpy = sinon.spy();
+    const fields = [];
+    const validation = {
+      validator: '',
+      validationAction: 'warn',
+      validationLevel: 'moderate',
+      isChanged: false,
+      syntaxError: null,
+      error: null
+    };
+    const sampleDocuments = {};
+    const editMode = {
+      collectionTimeSeries: true,
+      collectionReadOnly: false,
+      hadronReadOnly: false,
+      writeStateStoreReadOnly: false,
+      oldServerReadOnly: false
+    };
+    const isZeroState = true;
+    const serverVersion = '3.2.0';
+
+    beforeEach(() => {
+      component = mount(
+        <ValidationStates
+          validatorChanged={setValidatorChangedSpy}
+          validationActionChanged={setValidationActionChangedSpy}
+          validationLevelChanged={setValidationLevelChangedSpy}
+          cancelValidation={setCancelValidationSpy}
+          saveValidation={saveValidationSpy}
+          fetchSampleDocuments={fetchSampleDocumentsSpy}
+          fields={fields}
+          validation={validation}
+          changeZeroState={changeZeroStateSpy}
+          zeroStateChanged={setZeroStateChangedSpy}
+          isZeroState={isZeroState}
+          editMode={editMode}
+          sampleDocuments={sampleDocuments}
+          serverVersion={serverVersion}
+          openLink={openLinkSpy} />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the collection time-series banner', () => {
+      expect(component.find({ id: 'collectionTimeSeries' })).to.be.present();
+    });
+  });
+
   context('when the collection is read-only', () => {
     let component;
     const changeZeroStateSpy = sinon.spy();
