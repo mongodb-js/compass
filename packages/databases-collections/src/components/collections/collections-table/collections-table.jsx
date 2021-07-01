@@ -8,7 +8,10 @@ import { SortableTable } from 'hadron-react-components';
 import dropCollectionStore from '../../../stores/drop-collection';
 import styles from './collections-table.less';
 import CollectionProperties from './collection-properties';
-
+import {
+  TIME_SERIES_COLLECTION_TYPE,
+  VIEW_COLLECTION_TYPE
+} from '../../../modules/collections/collections';
 
 /**
  * The name constant.
@@ -56,7 +59,6 @@ class CollectionsTable extends PureComponent {
     columns: PropTypes.array.isRequired,
     collections: PropTypes.array.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    isReadonly: PropTypes.bool.isRequired,
     openLink: PropTypes.func.isRequired,
     open: PropTypes.func.isRequired,
     databaseName: PropTypes.string,
@@ -132,7 +134,11 @@ class CollectionsTable extends PureComponent {
       const linkName = this.renderLink(coll);
       return assign({}, coll, {
         [NAME]: linkName,
-        [DOCUMENTS]: isNaN(coll.Documents) ? DASH : numeral(coll.Documents).format('0,0'),
+        [DOCUMENTS]: (
+          coll.type === TIME_SERIES_COLLECTION_TYPE ||
+          coll.type === VIEW_COLLECTION_TYPE ||
+          isNaN(coll.Documents)
+        ) ? DASH : numeral(coll.Documents).format('0,0'),
         [AVG_DOC_SIZE]: isNaN(coll[AVG_DOC_SIZE]) ?
           DASH : numeral(coll[AVG_DOC_SIZE]).format('0.0 b'),
         [TOT_DOC_SIZE]: isNaN(coll[TOT_DOC_SIZE]) ?

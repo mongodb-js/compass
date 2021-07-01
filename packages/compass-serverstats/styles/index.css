@@ -519,9 +519,6 @@
   font-weight: 500;
   min-width: 100%;
 }
-.rtss .tab-nav-bar-header {
-  top: 0;
-}
 .rtss .rt-perf .column.main {
   display: flex;
   flex-wrap: wrap;

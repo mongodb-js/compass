@@ -1,7 +1,7 @@
 import find from 'lodash.find';
 import toNS from 'mongodb-ns';
 
-import { TIME_SERIES_COLLECTION_TYPE } from '../../../compass-sidebar/src/modules/collection';
+import { TIME_SERIES_COLLECTION_TYPE } from './collections/collections';
 import { appRegistryEmit } from './app-registry';
 
 /**

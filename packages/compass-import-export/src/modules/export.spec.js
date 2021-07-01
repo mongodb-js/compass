@@ -3,7 +3,7 @@ import EXPORT_STEP from '../constants/export-step';
 import AppRegistry from 'hadron-app-registry';
 import FILE_TYPES from '../constants/file-types';
 import reducer, * as actions from './export';
-import configureStore from '../stores';
+import configureExportStore from '../stores/export-store';
 
 describe('export [module]', () => {
   describe('#reducer', () => {
@@ -13,7 +13,7 @@ describe('export [module]', () => {
       const globalAppRegistry = new AppRegistry();
 
       beforeEach(() => {
-        store = configureStore({
+        store = configureExportStore({
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry
         });
@@ -126,7 +126,7 @@ describe('export [module]', () => {
       const globalAppRegistry = new AppRegistry();
 
       beforeEach(() => {
-        store = configureStore({
+        store = configureExportStore({
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry
         });
@@ -273,7 +273,7 @@ describe('export [module]', () => {
       const globalAppRegistry = new AppRegistry();
 
       beforeEach(() => {
-        store = configureStore({
+        store = configureExportStore({
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry
         });

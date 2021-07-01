@@ -3,40 +3,86 @@ import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 
 import CollectionStats from '../collection-stats';
+import DocumentStatsItem from '../document-stats-item';
+import IndexStatsItem from '../index-stats-item';
 import styles from './collection-stats.less';
 
 describe('CollectionStats [Component]', () => {
-  let component;
+  describe('when rendered', () => {
+    let component;
 
-  beforeEach(() => {
-    global.hadronApp = {
-      appRegistry: new AppRegistry()
-    };
-    component = mount(<CollectionStats />);
-  });
+    beforeEach(() => {
+      global.hadronApp = {
+        appRegistry: new AppRegistry()
+      };
+      component = mount(<CollectionStats
+        isReadonly={false}
+        isTimeSeries={false}
+      />);
+    });
 
-  afterEach(() => {
-    component = null;
-  });
+    afterEach(() => {
+      component = null;
+    });
 
-  it('renders the correct root classname', () => {
-    expect(component.find(`.${styles['collection-stats']}`)).to.be.present();
+    it('renders the correct root classname', () => {
+      expect(component.find(`.${styles['collection-stats']}`)).to.be.present();
+    });
+
+    it('renders the document and index stats', () => {
+      expect(component.find(DocumentStatsItem)).to.be.present();
+      expect(component.find(IndexStatsItem)).to.be.present();
+    });
   });
 
   describe('When the collection is a view', () => {
-    let _component;
+    let component;
     before(() => {
-      _component = mount(<CollectionStats isReadonly />);
+      component = mount(<CollectionStats
+        isReadonly
+        isTimeSeries={false}
+      />);
     });
 
-    it('should hide the stats', () => {
+    it('renders an empty state', () => {
       expect(
-        _component.find(`.${styles['collection-stats-empty']}`)
+        component.find(`.${styles['collection-stats-empty']}`)
       ).to.be.present();
     });
 
+    it('does not render the document and index stats', () => {
+      expect(component.find(DocumentStatsItem)).to.not.be.present();
+      expect(component.find(IndexStatsItem)).to.not.be.present();
+    });
+
     after(() => {
-      _component = null;
+      component = null;
+    });
+  });
+
+  describe('when the collection is a time-series collection', () => {
+    let component;
+
+    beforeEach(() => {
+      global.hadronApp = {
+        appRegistry: new AppRegistry()
+      };
+      component = mount(<CollectionStats
+        isReadonly={false}
+        isTimeSeries
+      />);
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the document stats', () => {
+      expect(component.find(DocumentStatsItem)).to.be.present();
+    });
+
+    it('does not render the index stats', () => {
+      expect(component.find(IndexStatsItem)).to.not.be.present();
     });
   });
 });

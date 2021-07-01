@@ -19,14 +19,6 @@ describe('connection model connector', () => {
       return;
     }
 
-    before(
-      require('mongodb-runner/mocha/before')({ port: 27018 })
-    );
-
-    after(
-      require('mongodb-runner/mocha/after')({ port: 27018 })
-    );
-
     it('should return connection config when connected successfully', (done) => {
       Connection.from('mongodb://localhost:27018', (parseErr, model) => {
         if (parseErr) throw parseErr;

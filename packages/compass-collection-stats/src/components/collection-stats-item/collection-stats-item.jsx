@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
 import styles from './collection-stats-item.less';
 
@@ -48,11 +47,11 @@ class CollectionStatsItem extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles[BASE_CLASS])}>
-        <div className={classnames(styles[this.props.primary ? PRIMARY_LABEL : LABEL])}>
+      <div className={styles[BASE_CLASS]}>
+        <div className={styles[this.props.primary ? PRIMARY_LABEL : LABEL]}>
           {this.props.label}
         </div>
-        <div className={classnames(styles[this.props.primary ? PRIMARY_VALUE : VALUE])}>
+        <div className={styles[this.props.primary ? PRIMARY_VALUE : VALUE]}>
           {this.props.value}
         </div>
       </div>

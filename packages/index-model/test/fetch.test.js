@@ -16,9 +16,6 @@ describe('fetch()', function() {
     return;
   }
 
-  before(require('mongodb-runner/mocha/before')());
-  after(require('mongodb-runner/mocha/after')());
-
   context('local', function() {
     this.slow(2000);
     this.timeout(10000);
