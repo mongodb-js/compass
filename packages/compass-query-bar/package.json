@@ -112,6 +112,7 @@
     "mongodb-connection-model": "^21.5.0",
     "mongodb-data-service": "^21.5.0",
     "mongodb-query-parser": "^2.4.2",
+    "mongodb-ns": "^2.2.0",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",
     "ms": "^2.1.2",

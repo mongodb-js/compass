@@ -49,6 +49,17 @@ const debug = require('debug')('mongodb-compass:stores:query-bar');
 const QUERY_CHANGED_STORE = 'Query.ChangedStore';
 
 /**
+ * Set the data provider.
+ *
+ * @param {Store} store - The store.
+ * @param {Error} error - The error (if any) while connecting.
+ * @param {Object} provider - The data provider.
+ */
+export const setDataProvider = (store, error, provider) => {
+  store.onConnected(error, provider);
+};
+
+/**
  * Configure the query bar store.
  *
  * @param {Object} options - The options.
@@ -59,6 +70,18 @@ const configureStore = (options = {}) => {
   const store = Reflux.createStore({
     mixins: [StateMixin.store],
     listenables: options.actions,
+
+    /**
+     * Handle the data-service-connected event.
+     *
+     * @param {Error} err - The error.
+     * @param {DataService} dataService - The data service.
+     */
+    onConnected(err, dataService) {
+      if (!err) {
+        this.dataService = dataService;
+      }
+    },
 
     /*
      * listen to Namespace store and reset if ns changes.
@@ -750,6 +773,15 @@ const configureStore = (options = {}) => {
 
   if (options.globalAppRegistry) {
     store.globalAppRegistry = options.globalAppRegistry;
+  }
+
+  // Set the data provider - this must happen second.
+  if (options.dataProvider) {
+    setDataProvider(
+      store,
+      options.dataProvider.error,
+      options.dataProvider.dataProvider
+    );
   }
 
   if (options.namespace) {
