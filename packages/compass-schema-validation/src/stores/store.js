@@ -88,7 +88,7 @@ const configureStore = (options = {}) => {
     const WriteStateStore = options.globalAppRegistry.getStore('DeploymentAwareness.WriteStateStore');
     const editMode = {
       collectionReadOnly: options.isReadonly ? true : false,
-      hardonReadOnly: (process.env.HADRON_READONLY === 'true'),
+      hadronReadOnly: (process.env.HADRON_READONLY === 'true'),
       writeStateStoreReadOnly: !WriteStateStore.state.isWritable
     };
 

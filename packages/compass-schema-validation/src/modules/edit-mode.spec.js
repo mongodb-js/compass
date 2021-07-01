@@ -8,7 +8,7 @@ describe('edit-mode module', () => {
     it('returns the EDIT_MODE_CHANGED action', () => {
       const editMode = {
         collectionReadOnly: true,
-        hardonReadOnly: false,
+        hadronReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false
       };
@@ -25,7 +25,7 @@ describe('edit-mode module', () => {
       it('returns the default state', () => {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           collectionReadOnly: false,
-          hardonReadOnly: false,
+          hadronReadOnly: false,
           writeStateStoreReadOnly: false,
           oldServerReadOnly: false
         });
@@ -36,7 +36,7 @@ describe('edit-mode module', () => {
       it('returns the new state', () => {
         const editMode = {
           collectionReadOnly: false,
-          hardonReadOnly: false,
+          hadronReadOnly: false,
           writeStateStoreReadOnly: false,
           oldServerReadOnly: true
         };

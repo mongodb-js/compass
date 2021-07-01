@@ -27,7 +27,7 @@ describe('ValidationStates [Component]', () => {
     const sampleDocuments = {};
     const editMode = {
       collectionReadOnly: false,
-      hardonReadOnly: false,
+      hadronReadOnly: false,
       writeStateStoreReadOnly: false,
       oldServerReadOnly: true
     };
@@ -69,7 +69,7 @@ describe('ValidationStates [Component]', () => {
 
     it('does not render other banners', () => {
       expect(component.find({ id: 'collectionReadOnly' })).to.be.not.present();
-      expect(component.find({ id: 'hardonReadOnly' })).to.be.not.present();
+      expect(component.find({ id: 'hadronReadOnly' })).to.be.not.present();
       expect(component.find({ id: 'writeStateStoreReadOnly' })).to.be.not.present();
     });
   });
@@ -97,7 +97,7 @@ describe('ValidationStates [Component]', () => {
     const sampleDocuments = {};
     const editMode = {
       collectionReadOnly: true,
-      hardonReadOnly: false,
+      hadronReadOnly: false,
       writeStateStoreReadOnly: false,
       oldServerReadOnly: false
     };
@@ -135,7 +135,7 @@ describe('ValidationStates [Component]', () => {
 
     it('does not render other banners', () => {
       expect(component.find({ id: 'oldServerReadOnly' })).to.be.not.present();
-      expect(component.find({ id: 'hardonReadOnly' })).to.be.not.present();
+      expect(component.find({ id: 'hadronReadOnly' })).to.be.not.present();
       expect(component.find({ id: 'writeStateStoreReadOnly' })).to.be.not.present();
     });
   });
@@ -163,7 +163,7 @@ describe('ValidationStates [Component]', () => {
     const sampleDocuments = {};
     const editMode = {
       collectionReadOnly: false,
-      hardonReadOnly: false,
+      hadronReadOnly: false,
       writeStateStoreReadOnly: false,
       oldServerReadOnly: false
     };
@@ -223,7 +223,7 @@ describe('ValidationStates [Component]', () => {
     const sampleDocuments = {};
     const editMode = {
       collectionReadOnly: false,
-      hardonReadOnly: true,
+      hadronReadOnly: true,
       writeStateStoreReadOnly: false,
       oldServerReadOnly: false
     };
@@ -283,7 +283,7 @@ describe('ValidationStates [Component]', () => {
     const sampleDocuments = {};
     const editMode = {
       collectionReadOnly: false,
-      hardonReadOnly: false,
+      hadronReadOnly: false,
       writeStateStoreReadOnly: true,
       oldServerReadOnly: false
     };
@@ -321,7 +321,7 @@ describe('ValidationStates [Component]', () => {
 
     it('does not render other banners', () => {
       expect(component.find({ id: 'collectionReadOnly' })).to.be.not.present();
-      expect(component.find({ id: 'hardonReadOnly' })).to.be.not.present();
+      expect(component.find({ id: 'hadronReadOnly' })).to.be.not.present();
       expect(component.find({ id: 'oldServerReadOnly' })).to.be.not.present();
     });
   });
