@@ -15,37 +15,37 @@ const BASE = 'DeploymentAwareness';
 /**
  * Write button name.
  */
-const TEXT_WRITE_BUTTON = `${BASE}.TextWriteButton`;
+const TEXT_WRITE_BUTTON = 'DeploymentAwareness.TextWriteButton';
 
 /**
  * Read button name.
  */
-const TEXT_READ_BUTTON = `${BASE}.TextReadButton`;
+const TEXT_READ_BUTTON = 'DeploymentAwareness.TextReadButton';
 
 /**
  * Write selector name.
  */
-const WRITE_SELECTOR = `${BASE}.OptionWriteSelector`;
+const WRITE_SELECTOR = 'DeploymentAwareness.OptionWriteSelector';
 
 /**
  * The actions name.
  */
-const ACTIONS = `${BASE}.Actions`;
+const ACTIONS = 'DeploymentAwareness.Actions';
 
 /**
  * The store name.
  */
-const STORE = `${BASE}.Store`;
+const STORE = 'DeploymentAwareness.Store';
 
 /**
  * The write state store name.
  */
-const WRITE_STATE_STORE = `${BASE}.WriteStateStore`;
+const WRITE_STATE_STORE = 'DeploymentAwareness.WriteStateStore';
 
 /**
  * The read state store name.
  */
-const READ_STATE_STORE = `${BASE}.ReadStateStore`;
+const READ_STATE_STORE = 'DeploymentAwareness.ReadStateStore';
 
 /**
  * A sample role for the component.
