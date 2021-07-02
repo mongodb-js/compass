@@ -25,21 +25,11 @@ describe('QueryBarStore [Store]', function() {
   let actions;
   let store;
   let unsubscribe;
-  let dataService;
 
   beforeEach(function() {
     actions = configureActions();
-    dataService = {
-      listCollections: function(db, call, callback) {
-        callback([{}]);
-      }
-    };
     store = configureStore({
-      actions: actions,
-      dataProvider: {
-        error: null,
-        dataProvider: dataService,
-      }
+      actions: actions
     });
   });
 
@@ -78,6 +68,9 @@ describe('QueryBarStore [Store]', function() {
       ns: '',
       schemaFields: []
     });
+  });
+
+  describe('AppRegistry events', function() {
   });
 
   describe('toggleQueryOptions', function() {
@@ -755,10 +748,6 @@ describe('QueryBarStore [Store]', function() {
         });
       });
     });
-  });
-
-  it('sets the data provider on the store', () => {
-    expect(store.dataService).to.equal(dataService);
   });
 });
 

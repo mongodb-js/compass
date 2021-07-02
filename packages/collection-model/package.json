@@ -27,7 +27,7 @@
     "lodash.foreach": "^4.2.0",
     "lodash.result": "^4.5.2",
     "mongodb-index-model": "^3.3.0",
-    "mongodb-ns": "^2.2.0"
+    "mongodb-ns": "^2.0.0"
   },
   "peerDependencies": {
     "mongodb-data-service": "*"
