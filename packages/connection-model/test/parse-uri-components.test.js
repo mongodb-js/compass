@@ -550,13 +550,32 @@ describe('connection model partser should parse URI components such as', () => {
       });
 
       describe('directConnection', () => {
-        it('defaults directConnection undefined', (done) => {
+        it('defaults directConnection undefined for srv records', (done) => {
           Connection.from(
-            'mongodb://localhost:27017',
+            'mongodb+srv://user:password@compass-data-sets.e06dc.mongodb.net',
             (error, result) => {
-              expect(error).to.not.exist;
-              expect(result.directConnection).to.be.equal(undefined);
-              done();
+              try {
+                expect(error).to.not.exist;
+                expect(result.directConnection).to.be.equal(undefined);
+                done();
+              } catch (e) {
+                done(e);
+              }
+            }
+          );
+        });
+
+        it('defaults directConnection undefined for multiple hosts', (done) => {
+          Connection.from(
+            'mongodb://host1,host2,host3',
+            (error, result) => {
+              try {
+                expect(error).to.not.exist;
+                expect(result.directConnection).to.be.equal(undefined);
+                done();
+              } catch (e) {
+                done(e);
+              }
             }
           );
         });
