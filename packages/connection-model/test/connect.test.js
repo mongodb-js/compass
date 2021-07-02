@@ -27,22 +27,31 @@ describe('connection model connector', () => {
           model,
           setupListeners,
           (connectErr, client, _tunnel, { url, options }) => {
-            if (connectErr) throw connectErr;
+            if (connectErr) {
+              return done(connectErr);
+            }
 
-            assert.strictEqual(
-              url,
-              'mongodb://localhost:27018/?readPreference=primary&ssl=false'
-            );
+            try {
+              assert.strictEqual(
+                url,
+                'mongodb://localhost:27018/?readPreference=primary&directConnection=true&ssl=false'
+              );
 
-            assert.deepStrictEqual(options, {
-              // Driver brought this behaviour back in v3.6.3+ (but will remove in v4), we don't need to handle directConnection ourselves
-              // See https://github.com/mongodb/node-mongodb-native/pull/2719
-              // directConnection: true,
-              readPreference: 'primary'
-            });
+              assert.deepStrictEqual(options, {
+                // this is never truly added at the moment since Connection.from
+                // already adds this to the model and query string when necessary:
+                // directConnection: true,
+                readPreference: 'primary'
+              });
 
-            client.close(true);
-            done();
+              done();
+            } catch (e) {
+              done(e);
+            } finally {
+              if (client) {
+                client.close(true);
+              }
+            }
           }
         );
       });
@@ -51,11 +60,16 @@ describe('connection model connector', () => {
     it('should connect to `localhost:27018 with model`', (done) => {
       Connection.from('mongodb://localhost:27018', (parseErr, model) => {
         assert.equal(parseErr, null);
-        connect(model, setupListeners, (connectErr, client) => {
-          assert.equal(connectErr, null);
-          client.close(true);
-          done();
-        });
+        connect(model, setupListeners,
+          (connectErr, client) => {
+            if (connectErr) {
+              return done(connectErr);
+            }
+
+            client.close(true);
+            done();
+          }
+        );
       });
     });
 
@@ -63,8 +77,11 @@ describe('connection model connector', () => {
       connect(
         { port: 27018, host: 'localhost' },
         setupListeners,
-        (err, client) => {
-          assert.equal(err, null);
+        (connectErr, client) => {
+          if (connectErr) {
+            return done(connectErr);
+          }
+
           client.close(true);
           done();
         }

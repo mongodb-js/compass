@@ -56,6 +56,22 @@ async function waitForTunnelError(tunnel) {
   throw error;
 }
 
+function addDirectConnectionWhenNeeded(options, model) {
+  if (
+    model.directConnection === undefined &&
+    model.hosts.length === 1 &&
+    !model.isSrvRecord &&
+    (model.replicaSet === undefined || model.replicaSet === '')
+  ) {
+    return {
+      ...options,
+      directConnection: true
+    };
+  }
+
+  return options;
+}
+
 async function connect(model, setupListeners) {
   if (model.serialize === undefined) {
     // note this is only here for testing reasons and would not be
@@ -68,7 +84,7 @@ async function connect(model, setupListeners) {
 
   const url = removeGssapiServiceName(model.driverUrlWithSsh);
   const options = {
-    ...model.driverOptions
+    ...addDirectConnectionWhenNeeded(model.driverOptions, model)
   };
 
   // if `auth` is passed then username and password must be present,
@@ -124,3 +140,4 @@ module.exports = (model, setupListeners, done) => connect(model, setupListeners)
     (res) => process.nextTick(() => done(null, ...res)),
     (err) => process.nextTick(() => done(err))
   );
+
