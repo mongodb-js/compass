@@ -549,16 +549,33 @@ describe('connection model partser should parse URI components such as', () => {
         );
       });
 
-      // Driver brought this behaviour back in v3.6.3+ (but will remove in v4), we don't need to handle directConnection ourselves
-      // See https://github.com/mongodb/node-mongodb-native/pull/2719
-      describe.skip('directConnection', () => {
-        it('defaults directConnection undefined', (done) => {
+      describe('directConnection', () => {
+        it('defaults directConnection undefined for srv records', (done) => {
           Connection.from(
-            'mongodb://localhost:27017',
+            'mongodb+srv://user:password@compass-data-sets.e06dc.mongodb.net',
             (error, result) => {
-              expect(error).to.not.exist;
-              expect(result.directConnection).to.be.equal(undefined);
-              done();
+              try {
+                expect(error).to.not.exist;
+                expect(result.directConnection).to.be.equal(undefined);
+                done();
+              } catch (e) {
+                done(e);
+              }
+            }
+          );
+        });
+
+        it('defaults directConnection undefined for multiple hosts', (done) => {
+          Connection.from(
+            'mongodb://host1,host2,host3',
+            (error, result) => {
+              try {
+                expect(error).to.not.exist;
+                expect(result.directConnection).to.be.equal(undefined);
+                done();
+              } catch (e) {
+                done(e);
+              }
             }
           );
         });
