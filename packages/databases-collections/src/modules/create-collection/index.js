@@ -15,7 +15,6 @@ import error, {
   clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
 } from '../error';
 import { reset, RESET } from '../reset';
-import { prepareMetrics } from '../metrics';
 
 import createDebug from 'debug';
 const debug = createDebug('compass-databases-collections:create-collection');
@@ -105,15 +104,10 @@ export const createCollection = (data) => {
 
     try {
       dispatch(toggleIsRunning(true));
-      ds.createCollection(namespace, data.options, (err, collection) => {
-        if (err) {
-          return stopWithError(dispatch, err);
+      ds.createCollection(namespace, data.options, (e) => {
+        if (e) {
+          return stopWithError(dispatch, e);
         }
-
-        prepareMetrics(collection).then((metrics) => {
-          global.hadronApp.appRegistry.emit('compass:collection:created', metrics);
-        });
-
         global.hadronApp.appRegistry.emit('refresh-data');
         dispatch(reset());
       });
