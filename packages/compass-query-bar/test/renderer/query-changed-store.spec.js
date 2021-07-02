@@ -119,14 +119,14 @@ describe('QueryChangedStore [Store]', function() {
     let queryBarStore;
     let dataService;
     let nsdb;
-    let nscoll;
+    let nscall;
 
     beforeEach(function() {
       unsubscribe = () => {};
       dataService = {
-        listCollections: function(db, coll, callback) {
+        listCollections: function(db, call, callback) {
           nsdb = db;
-          nscoll = coll;
+          nscall = call;
           callback([{}]);
         }
       };
@@ -152,7 +152,7 @@ describe('QueryChangedStore [Store]', function() {
     it('fetches collection info for telemetry', (done) => {
       unsubscribe = store.listen(() => {
         expect(nsdb).to.be.equal('db');
-        expect(nscoll).to.be.deep.equal({ name: 'coll' });
+        expect(nscall).to.be.deep.equal({ name: 'coll' });
         done();
       });
 
