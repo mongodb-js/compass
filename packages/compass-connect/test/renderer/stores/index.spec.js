@@ -1052,7 +1052,7 @@ describe('Store', () => {
 
             it('sets the driverUrl', (done) => {
               const driverUrl =
-                'mongodb://server.example.com:27017/?readPreference=primary&ssl=false';
+                'mongodb://server.example.com:27017/?readPreference=primary&directConnection=true&ssl=false';
               const unsubscribe = Store.listen((state) => {
                 try {
                   unsubscribe();
