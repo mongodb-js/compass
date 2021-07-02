@@ -44,6 +44,9 @@ const CollectionResource = FeatureResource.extend({
   eventTrackers: ['stitch'],
   fetched: function(metadata, callback) {
     this._send_event(metadata, callback);
+  },
+  created: function(metadata, callback) {
+    this._send_event(metadata, callback);
   }
 });
 

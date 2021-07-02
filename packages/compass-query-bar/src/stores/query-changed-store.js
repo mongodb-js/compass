@@ -1,6 +1,8 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import { pick, isEqual, cloneDeep } from 'lodash';
+import toNS from 'mongodb-ns';
+import * as util from 'util';
 
 import QUERY_PROPERTIES from '../constants/query-properties';
 
@@ -56,7 +58,7 @@ const configureStore = (options = {}) => {
      *
      * @param {Object} state    the new state of QueryBarStore
      */
-    onQueryBarStoreChanged(state) {
+    async onQueryBarStoreChanged(state) {
       if (this._detectChange(state)) {
         // @note: Durran: Cloning does not have the ability to retain the prototype methods
         //   of the original object - it only copies properties. This results in BSON types
@@ -81,8 +83,25 @@ const configureStore = (options = {}) => {
         } else {
           debug('Error: AppRegistry not available for query-changed-store');
         }
+
         if (globalRegistry) {
-          globalRegistry.emit('compass:query-bar:query-changed', newState);
+          const dataService = this.queryBarStore.dataService;
+          const nsobj = toNS(newState.ns);
+          let collectionType = '';
+
+          if (dataService) {
+            const listCollections = util.promisify(dataService.listCollections.bind(dataService));
+
+            try {
+              const collection = await listCollections(nsobj.database, { name: nsobj.collection });
+
+              collectionType = collection[0].options.timeseries ? 'time-series' : 'collection';
+            } catch (error) {
+              debug(error);
+            }
+          }
+
+          globalRegistry.emit('compass:query-bar:query-changed', { collectionType, ...newState });
         }
         this.setState(newState);
       }
