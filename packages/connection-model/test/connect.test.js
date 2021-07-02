@@ -35,9 +35,7 @@ describe('connection model connector', () => {
             );
 
             assert.deepStrictEqual(options, {
-              // Driver brought this behaviour back in v3.6.3+ (but will remove in v4), we don't need to handle directConnection ourselves
-              // See https://github.com/mongodb/node-mongodb-native/pull/2719
-              // directConnection: true,
+              directConnection: true,
               readPreference: 'primary'
             });
 
