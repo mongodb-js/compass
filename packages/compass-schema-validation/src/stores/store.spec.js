@@ -237,13 +237,8 @@ describe('Schema Validation Store', () => {
         process.env.HADRON_READONLY = 'false';
       });
 
-      it('sets hardonReadOnly property as true', () => {
-        expect(store.getState().editMode).to.deep.equal({
-          collectionReadOnly: false,
-          hardonReadOnly: true,
-          writeStateStoreReadOnly: false,
-          oldServerReadOnly: false
-        });
+      it('sets hadronReadOnly property as true', () => {
+        expect(store.getState().editMode).to.have.property('hadronReadOnly', true);
       });
     });
   });

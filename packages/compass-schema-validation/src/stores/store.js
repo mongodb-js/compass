@@ -87,14 +87,15 @@ const configureStore = (options = {}) => {
     const namespace = toNS(options.namespace);
     const WriteStateStore = options.globalAppRegistry.getStore('DeploymentAwareness.WriteStateStore');
     const editMode = {
+      collectionTimeSeries: !!options.isTimeSeries,
       collectionReadOnly: options.isReadonly ? true : false,
-      hardonReadOnly: (process.env.HADRON_READONLY === 'true'),
+      hadronReadOnly: (process.env.HADRON_READONLY === 'true'),
       writeStateStoreReadOnly: !WriteStateStore.state.isWritable
     };
 
     store.dispatch(namespaceChanged(namespace));
 
-    if (editMode.collectionReadOnly) {
+    if (editMode.collectionReadOnly || editMode.collectionTimeSeries) {
       store.dispatch(changeZeroState(true));
     } else {
       store.dispatch(fetchValidation(namespace));
