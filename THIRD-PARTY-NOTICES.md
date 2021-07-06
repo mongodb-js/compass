@@ -887,7 +887,7 @@ Package|Version|License
 **[mongodb-collection-sample](#79daa5770151f329c1c9dcf0e80eb13343b14b576c0d21f790e9209c1f0afa5b)**|4.5.1|Apache-2.0
 **[mongodb-compass](#2fd756a7b8b16bab9fcff1b6a60f3fe302c38dc1a73b48902ee106dcd5c6799f)**|0.0.0-dev.0|SSPL
 **[mongodb-connection-model](#dea785f52565debb2de3236bd132ef07f7ed42893b0d565c351d18ba7e99cc16)**|21.5.1|SSPL
-**[mongodb-connection-string-url](#d842513739d9a848af83ab12b884b179e6e84eb165072b73472b59d20f103c0d)**|1.0.0|Apache-2.0
+**[mongodb-connection-string-url](#b63d47d79486839e30669c011e5a35b0b780fccb15add1ec9c16b9508acf3884)**|1.0.1|Apache-2.0
 **[mongodb-data-service](#aedf50b2fd28dbcbd642b61d7eecbf8ef3800a3c9b9e01963541da7b9ebdd5f8)**|21.5.1|SSPL
 **[mongodb-database-model](#220b1784e70dbc2fa930c425e0d87612a88716881fce62017ff99921604bdc8e)**|1.2.0|SSPL
 **[mongodb-explain-plan-model](#053e132563eab2346007f2508ee3cf996ce6f90fe4a8070dc565753eb96c8db2)**|1.2.0|SSPL
@@ -38507,8 +38507,8 @@ Authors:
 * Lucas Hrabovsky <lucas@mongodb.com>
 
 
-<a id="d842513739d9a848af83ab12b884b179e6e84eb165072b73472b59d20f103c0d"></a>
-### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 1.0.0)
+<a id="b63d47d79486839e30669c011e5a35b0b780fccb15add1ec9c16b9508acf3884"></a>
+### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 1.0.1)
 <!-- initially found at node_modules/mongodb-connection-string-url -->
 > MongoDB connection strings, based on the WhatWG URL API
 
