@@ -16,6 +16,8 @@ const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
 const { ReadPreference } = require('mongodb');
 const { parseConnectionString } = require('mongodb3/lib/core');
+const resolveMongodbSrv = require('resolve-mongodb-srv');
+const ConnectionString = require('mongodb-connection-string-url').default;
 const dataTypes = require('./data-types');
 const localPortGenerator = require('./local-port-generator');
 
@@ -1046,14 +1048,23 @@ Connection = AmpersandModel.extend({
 const parseConnectionStringAsPromise = promisify(parseConnectionString);
 
 async function createConnectionFromUrl(url) {
+  // We use resolveMongodbSrv because it understands the load balancer
+  // option, whereas parseConnectionString from the 3.6 driver does not.
+  // This could potentially go away once we're using the 3.7 driver,
+  // which will have load balancer support, *but* the whole reason that
+  // resolveMongodbSrv exists is as a possible solution for
+  // https://jira.mongodb.org/browse/COMPASS-4768
+  // so we may want to keep it around anyway.
   const unescapedUrl = unescape(url);
-  const parsed = await parseConnectionStringAsPromise(unescapedUrl);
-  const isSrvRecord = url.startsWith('mongodb+srv://');
+  const resolvedUrl = await resolveMongodbSrv(unescapedUrl);
+  const parsed = await parseConnectionStringAsPromise(resolvedUrl);
+  const isSrvRecord = unescapedUrl.startsWith('mongodb+srv://');
   const attrs = Object.assign(
-    {},
     {
       hosts: parsed.hosts,
-      hostname: isSrvRecord ? parsed.srvHost : parsed.hosts[0].host,
+      // If this is using an srv record, we can just take the original
+      // URL before SRV resolution to get the "hostname".
+      hostname: isSrvRecord ? new ConnectionString(unescapedUrl).hosts[0] : parsed.hosts[0].host,
       auth: parsed.auth,
       isSrvRecord
     },
@@ -1062,6 +1073,11 @@ async function createConnectionFromUrl(url) {
 
   if (!isSrvRecord) {
     attrs.port = parsed.hosts[0].port;
+  } else {
+    // The 3.x driver's options parser adds this for resolved SRV records
+    // that only point to a single node, it seems. We should not add it,
+    // since it interferes with load balancer support.
+    delete attrs.directConnection;
   }
 
   // We don't inherit the drivers default values
