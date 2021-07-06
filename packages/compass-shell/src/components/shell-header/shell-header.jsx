@@ -38,7 +38,7 @@ export class ShellHeader extends Component {
             className={styles['compass-shell-header-toggle']}
             onClick={onShellToggleClicked}
           >
-            &gt;_MongoSH Beta
+            &gt;_MongoSH
             {!isExpanded && isOperationInProgress && (
               <>
                 <ShellLoader
