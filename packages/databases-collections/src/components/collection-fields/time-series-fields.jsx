@@ -82,10 +82,10 @@ function TimeSeriesFields({
         <Select
           className={styles['options-select-dropdown']}
           label="granularity"
-          name="granularity"
+          name="timeSeries.granularity"
           placeholder="Select a value [optional]"
           description={GRANULARITY_DESCRIPTION}
-          onChange={onInputChange}
+          onChange={(val) => onChangeTimeSeriesField('timeSeries.granularity', val)}
           usePortal={false}
           allowDeselect={false}
           value={granularity}
