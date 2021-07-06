@@ -891,7 +891,7 @@ Package|Version|License
 **[mongodb-data-service](#aedf50b2fd28dbcbd642b61d7eecbf8ef3800a3c9b9e01963541da7b9ebdd5f8)**|21.5.1|SSPL
 **[mongodb-database-model](#220b1784e70dbc2fa930c425e0d87612a88716881fce62017ff99921604bdc8e)**|1.2.0|SSPL
 **[mongodb-explain-plan-model](#053e132563eab2346007f2508ee3cf996ce6f90fe4a8070dc565753eb96c8db2)**|1.2.0|SSPL
-**[mongodb-extended-json](#d2ab62d581a5da4f8cd19d3ebd317b7464ef1b2e7536524716f2ebfaee04afd5)**|1.11.0|Apache-2.0
+**[mongodb-extended-json](#768a71b2ae4c1a6821baeb4b46fe55f85fa496ba97e06e70b63efc97eb2e27d8)**|1.11.1|Apache-2.0
 **[mongodb-index-model](#bfac50ba289dc74987315c94fad68987bd9baf97f7f617a28839300c51ff88a5)**|3.3.0|SSPL
 **[mongodb-instance-model](#38cfaa10a6d1592ee8bd783a2d94818aadd8f0e747033257ec31e6a32b1001a6)**|11.7.1|SSPL
 **[mongodb-js-errors](#2a0fc1dd130170b4d54400e654724c9d7b7fde1341f313f1d77944c115c30a11)**|0.3.3|Apache-2.0
@@ -38742,8 +38742,8 @@ Authors:
 License tags: SSPL
 
 
-<a id="d2ab62d581a5da4f8cd19d3ebd317b7464ef1b2e7536524716f2ebfaee04afd5"></a>
-### [mongodb-extended-json](https://www.npmjs.com/package/mongodb-extended-json) (version 1.11.0)
+<a id="768a71b2ae4c1a6821baeb4b46fe55f85fa496ba97e06e70b63efc97eb2e27d8"></a>
+### [mongodb-extended-json](https://www.npmjs.com/package/mongodb-extended-json) (version 1.11.1)
 <!-- initially found at node_modules/mongodb-extended-json -->
 > MongoDB Extended JSON.
 
