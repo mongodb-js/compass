@@ -151,7 +151,7 @@
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.21",
     "mongodb-ace-theme": "^1.2.0",
-    "mongodb-extended-json": "^1.11.0",
+    "mongodb-extended-json": "^1.11.1",
     "react-click-outside": "^3.0.1",
     "react-tooltip": "^3.2.6"
   }

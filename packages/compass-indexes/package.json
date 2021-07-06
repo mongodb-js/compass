@@ -97,7 +97,7 @@
     "mongodb": "4.0.0-beta.6",
     "mongodb-connection-model": "^21.5.1",
     "mongodb-data-service": "^21.5.1",
-    "mongodb-extended-json": "^1.11.0",
+    "mongodb-extended-json": "^1.11.1",
     "mongodb-index-model": "^3.3.0",
     "mongodb-language-model": "^2.2.0",
     "mongodb-ns": "^2.0.0",

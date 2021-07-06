@@ -340,7 +340,7 @@
     "mongodb-data-service": "^21.5.1",
     "mongodb-database-model": "^1.2.0",
     "mongodb-explain-plan-model": "^1.2.0",
-    "mongodb-extended-json": "^1.11.0",
+    "mongodb-extended-json": "^1.11.1",
     "mongodb-index-model": "^3.3.0",
     "mongodb-instance-model": "^11.7.1",
     "mongodb-js-metrics": "^7.3.0",
