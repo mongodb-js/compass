@@ -2,6 +2,7 @@ const SINGLE = 'Single';
 const REPLICA_SET_NO_PRIMARY = 'ReplicaSetNoPrimary';
 const REPLICA_SET_WITH_PRIMARY = 'ReplicaSetWithPrimary';
 const SHARDED = 'Sharded';
+const LOAD_BALANCED = 'LoadBalanced';
 const UNKNOWN = 'Unknown';
 
 /**
@@ -12,6 +13,7 @@ const TOPOLOGY_TYPES = [
   REPLICA_SET_NO_PRIMARY,
   REPLICA_SET_WITH_PRIMARY,
   SHARDED,
+  LOAD_BALANCED,
   UNKNOWN
 ];
 
@@ -39,6 +41,7 @@ const REPLICA_SET_WITH_PRIMARY_READABLE =
 const WRITABLE_TOPOLOGY_TYPES = [
   SINGLE,
   REPLICA_SET_WITH_PRIMARY,
+  LOAD_BALANCED,
   SHARDED
 ];
 
@@ -50,6 +53,7 @@ const HUMANIZED_TYPES = {
   'ReplicaSetNoPrimary': 'Replica Set (No Primary)',
   'ReplicaSetWithPrimary': 'Replica Set (With Primary)',
   'Sharded': 'Sharded Cluster',
+  'LoadBalanced': 'Using Load Balancer',
   'Unknown': 'Unknown'
 };
 
@@ -106,6 +110,7 @@ export {
   REPLICA_SET_NO_PRIMARY,
   REPLICA_SET_WITH_PRIMARY,
   SHARDED,
+  LOAD_BALANCED,
   UNKNOWN,
   TOPOLOGY_TYPES,
   WRITABLE_TOPOLOGY_TYPES
