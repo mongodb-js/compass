@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "bson": "^4.4.0",
+    "bson": "^4.4.1",
     "highlight.js": "^9.12.0",
     "lodash": "^4.17.15"
   },
