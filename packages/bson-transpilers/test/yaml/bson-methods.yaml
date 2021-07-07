@@ -534,22 +534,23 @@ tests:
           python: ObjectId('5ab901c29ee65f5c8550c5b9')
           object: new ObjectId('5ab901c29ee65f5c8550c5b9')
     - input:
-          python: ObjectId.from_datetime(datetime(1, 2, 3))
-          shell: ObjectId.fromDate(new Date('Sun, 03 Feb 1901 00:00:00 GMT')) # TODO: just takes in number?
+          python: ObjectId.from_datetime(datetime(1972, 2, 3))
+          shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT')) # TODO: just takes in number?
       output:
-          javascript: ObjectId.createFromTime(new Date('Sun, 03 Feb 1901 00:00:00 GMT').getTime() / 1000)
-          java: new ObjectId(new java.util.Date(-2174601600000L))
-          csharp: new ObjectId.GenerateNewId(new DateTime(1901, 2, 3, 0, 0, 0))
-          shell: ObjectId.fromDate(new Date('Sun, 03 Feb 1901 00:00:00 GMT'))
-          object: new ObjectId('7e6236800000000000000000')
+          javascript: ObjectId.createFromTime(new Date('Thu, 03 Feb 1972 00:00:00 GMT').getTime() / 1000)
+          java: new ObjectId(new java.util.Date(65923200000L))
+          csharp: new ObjectId.GenerateNewId(new DateTime(1972, 2, 3, 0, 0, 0))
+          shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT'))
+          # TODO: fix? this previously called ObjectId.createFromTime with a Date, but that function does not actually take a Date argument
+          # object: new ObjectId('03ede8800000000000000000')
     - input:
-          javascript: ObjectId.createFromTime(1522075031642)
+          javascript: ObjectId.createFromTime(1522075031)
       output:
-          shell: ObjectId.fromDate(new Date(1522075031642))
-          javascript: ObjectId.createFromTime(1522075031642)
-          java: new ObjectId(new java.util.Date(1522075031642L))
-          csharp: new ObjectId.GenerateNewId(Convert.ToInt32(1522075031642))
-          python: ObjectId.from_datetime(datetime.fromtimestamp(1522075031642))
+          shell: ObjectId.fromDate(new Date(1522075031000))
+          javascript: ObjectId.createFromTime(152207503)
+          java: new ObjectId(new java.util.Date(1522075031000L))
+          csharp: new ObjectId.GenerateNewId(Convert.ToInt32(1522075031))
+          python: ObjectId.from_datetime(datetime.fromtimestamp(1522075031))
           object: new ObjectId('62bdd85a0000000000000000')
     - input:
           javascript: ObjectId.isValid('5ab901c29ee65f5c8550c5b9')
