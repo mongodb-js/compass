@@ -1,0 +1,87 @@
+import React from 'react';
+import { mount } from 'enzyme';
+import Checkbox from '@leafygreen-ui/checkbox';
+import TextInput from '@leafygreen-ui/text-input';
+
+import CappedCollectionFields from './capped-collection-fields';
+
+describe('CappedCollectionFields [Component]', () => {
+  context('when isTimeSeries prop is true', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <CappedCollectionFields
+          isTimeSeries
+          isCapped={false}
+          onChangeCappedSize={() => {}}
+          onChangeIsCapped={() => {}}
+          openLink={() => {}}
+          cappedSize={0}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the checkbox disabled', () => {
+      expect(component.find(Checkbox).props().disabled).to.equal(true);
+    });
+  });
+
+  context('when isCapped prop is true', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <CappedCollectionFields
+          isTimeSeries={false}
+          isCapped
+          onChangeCappedSize={() => {}}
+          onChangeIsCapped={() => {}}
+          openLink={() => {}}
+          cappedSize={0}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the inputs ', () => {
+      expect(component.find(TextInput).length).to.equal(1);
+    });
+  });
+
+  context('when isTimeSeries prop is false', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <CappedCollectionFields
+          isTimeSeries={false}
+          isCapped={false}
+          onChangeCappedSize={() => {}}
+          onChangeIsCapped={() => {}}
+          openLink={() => {}}
+          cappedSize={0}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('does not render the fields', () => {
+      expect(component.find(TextInput).length).to.equal(0);
+    });
+
+    it('has the capped collection checkbox enabled', () => {
+      expect(component.find(Checkbox).props().disabled).to.equal(false);
+    });
+  });
+});

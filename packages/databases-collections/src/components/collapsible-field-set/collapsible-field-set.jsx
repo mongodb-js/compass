@@ -10,6 +10,7 @@ import styles from './collapsible-field-set.less';
 function CollapsibleFieldSet({
   children,
   description,
+  disabled,
   helpUrl,
   label,
   onToggle,
@@ -22,6 +23,7 @@ function CollapsibleFieldSet({
         onChange={event => {
           onToggle(event.target.checked);
         }}
+        disabled={disabled}
         label={label}
         checked={toggled}
         bold={false}
@@ -53,6 +55,7 @@ CollapsibleFieldSet.propTypes = {
     PropTypes.element,
     PropTypes.string
   ]),
+  disabled: PropTypes.bool,
   helpUrl: PropTypes.string,
   onToggle: PropTypes.func.isRequired,
   toggled: PropTypes.bool,
