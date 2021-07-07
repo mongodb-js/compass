@@ -171,7 +171,8 @@ const CONNECTION_STRING_OPTIONS = {
     ],
     default: undefined
   },
-  directConnection: { type: 'boolean', default: undefined }
+  directConnection: { type: 'boolean', default: undefined },
+  loadBalanced: { type: 'boolean', default: undefined }
 };
 
 assign(props, CONNECTION_STRING_OPTIONS);
@@ -1130,6 +1131,19 @@ async function createConnectionFromUrl(url) {
         Connection._improveAtlasDefaults(url, attrs.auth.password, attrs.ns)
       );
     }
+  }
+
+  // Since the 3.x parser does not recognize loadBalanced as an option, we have to
+  // parse it ourselves.
+  const loadBalanced = new ConnectionString(unescapedUrl).searchParams.get('loadBalanced');
+  switch (loadBalanced) {
+    case 'true':
+      attrs.loadBalanced = true;
+      delete attrs.directConnection;
+      break;
+    case 'false':
+      attrs.loadBalanced = false;
+      break;
   }
 
   return new Connection(attrs);

@@ -139,6 +139,11 @@ const tests = [
     description: 'with uuidRepresentation',
     connectionString:
       'mongodb://foo:27017/?readPreference=primary&uuidRepresentation=csharpLegacy&directConnection=true&ssl=false'
+  },
+  {
+    description: 'with loadBalanced',
+    connectionString:
+      'mongodb://hostname:27017/?readPreference=primary&loadBalanced=true&ssl=false'
   }
 ];
 
