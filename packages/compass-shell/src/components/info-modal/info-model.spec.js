@@ -21,9 +21,11 @@ describe('InfoModal [Component]', () => {
   });
 
   it('renders the title text', () => {
-    expect(component.find('h4')).to.have.text(
-      'MongoSH Beta'
-    );
+    const title = component.find('h4').text();
+    const hasVersionZero = title.includes('MongoSH v0.');
+    const hasVersionOne = title.includes('MongoSH v1.');
+    const titleIsAccurate = hasVersionZero || hasVersionOne;
+    expect(titleIsAccurate).to.equal(true);
   });
 
   it('renders the hotkeys key', () => {
@@ -34,7 +36,7 @@ describe('InfoModal [Component]', () => {
 
   it('renders the hotkeys description', () => {
     expect(component.find(`.${styles['info-modal-shortcuts-hotkey']}`).at(5)).to.have.text(
-      'Ctrl+FMoves the cursor forwards one character.'
+      'Ctrl+FMoves the cursor Forward one character.'
     );
   });
 });
