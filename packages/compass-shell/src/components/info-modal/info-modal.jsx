@@ -88,7 +88,7 @@ export class InfoModal extends PureComponent {
               rel="noreopener"
               href="https://docs.mongodb.com/compass/beta/embedded-shell/"
               target="_blank"
-            >MongoSH Beta</a>
+            >MongoSH</a>
           </div>
           <div className={styles['info-modal-shortcuts-title']}>
             Keyboard Shortcuts
