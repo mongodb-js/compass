@@ -1,10 +1,7 @@
 const Connection = require('../');
 const chai = require('chai');
-const fs = require('fs');
 const sslFixture = require('./__fixtures__/ssl');
 const expect = chai.expect;
-const loadOptions = Connection.connect.loadOptions;
-const getTasks = Connection.connect.getTasks;
 const encodeURIComponentRFC3986 = Connection.encodeURIComponentRFC3986;
 
 chai.use(require('chai-subset'));

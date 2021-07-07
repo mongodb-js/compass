@@ -5,11 +5,13 @@ import {
   SINGLE,
   SHARDED,
   REPLICA_SET_NO_PRIMARY,
-  REPLICA_SET_WITH_PRIMARY
+  REPLICA_SET_WITH_PRIMARY,
+  LOAD_BALANCED
 } from '../models/topology-type';
 import Single from './single';
 import Sharded from './sharded';
 import ReplicaSet from './replica-set';
+import LoadBalanced from './load-balanced';
 import Unknown from './unknown';
 
 import styles from './deployment-awareness.less';
@@ -42,6 +44,8 @@ class DeploymentAwarenessComponent extends React.Component {
         return (<ReplicaSet {...this.props} />);
       case REPLICA_SET_WITH_PRIMARY:
         return (<ReplicaSet {...this.props} />);
+      case LOAD_BALANCED:
+        return (<LoadBalanced server={this.props.servers[0]} />);
       default:
         return (<Unknown servers={this.props.servers} isDataLake={this.props.isDataLake}/>);
     }

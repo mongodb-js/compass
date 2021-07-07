@@ -61,6 +61,7 @@ function addDirectConnectionWhenNeeded(options, model) {
     model.directConnection === undefined &&
     model.hosts.length === 1 &&
     !model.isSrvRecord &&
+    !model.loadBalanced &&
     (model.replicaSet === undefined || model.replicaSet === '')
   ) {
     return {

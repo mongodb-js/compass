@@ -661,6 +661,28 @@ describe('connection model partser should parse URI components such as', () => {
           }
         );
       });
+
+      it('should parse loadBalanced with false value', (done) => {
+        Connection.from(
+          'mongodb://hostname?loadBalanced=false',
+          (error, result) => {
+            expect(error).to.not.exist;
+            expect(result.loadBalanced).to.be.equal(false);
+            done();
+          }
+        );
+      });
+
+      it('should parse loadBalanced with true value', (done) => {
+        Connection.from(
+          'mongodb://hostname?loadBalanced=true',
+          (error, result) => {
+            expect(error).to.not.exist;
+            expect(result.loadBalanced).to.be.equal(true);
+            done();
+          }
+        );
+      });
     });
   });
 });
