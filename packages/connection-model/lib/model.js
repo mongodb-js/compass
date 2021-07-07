@@ -1144,6 +1144,8 @@ async function createConnectionFromUrl(url) {
     case 'false':
       attrs.loadBalanced = false;
       break;
+    default:
+      break;
   }
 
   return new Connection(attrs);
