@@ -97,6 +97,10 @@ class CollectionsTable extends PureComponent {
     this.props.showCollection(name);
   }
 
+  shouldDisplayRemoveButton() {
+    return this.props.isWritable && process.env.HADRON_READONLY !== 'true';
+  }
+
   /**
    * Render the collection link.
    *
@@ -161,7 +165,7 @@ class CollectionsTable extends PureComponent {
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}
             valueIndex={0}
-            removable={this.props.isWritable}
+            removable={this.shouldDisplayRemoveButton()}
             onColumnHeaderClicked={this.onHeaderClicked}
             onRowDeleteButtonClicked={this.onDeleteClicked} />
         </div>
