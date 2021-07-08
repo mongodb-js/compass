@@ -77,18 +77,18 @@ export class InfoModal extends PureComponent {
     return (
       <Modal show={isInfoModalVisible}>
         <Modal.Header closeButton onHide={hideInfoModal}>
-          <h4>MongoSH {mongoshVersion}</h4>
+          <h4>mongosh {mongoshVersion}</h4>
         </Modal.Header>
         <Modal.Body>
           <div className={styles['info-modal-banner']}>
-            More information on this release of&nbsp;
+            More information on this release of the&nbsp;
             <a
               className={styles['info-modal-banner-link']}
               id="mongosh-info-link"
               rel="noreopener"
               href="https://docs.mongodb.com/compass/beta/embedded-shell/"
               target="_blank"
-            >MongoSH</a>
+            >MongoDB Shell</a>
           </div>
           <div className={styles['info-modal-shortcuts-title']}>
             Keyboard Shortcuts
