@@ -931,6 +931,11 @@ const Store = Reflux.createStore({
         (item) => item._id === recents[9]
       );
 
+      // somehow this can happen
+      if (!toDestroy) {
+        return;
+      }
+
       toDestroy.destroy({
         success: () => {
           this.state.fetchedConnections.remove(toDestroy._id);
