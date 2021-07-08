@@ -50,14 +50,12 @@ const RULES = [
     resource: 'Topology',
     action: 'detected',
     condition: () => true,
-    metadata: (version, state) => {
-      return {
-        'topology type': state.topologyType,
-        'server count': state.servers.length,
-        'server types': state.servers.map(server => server.type),
-        compass_version: version
-      };
-    }
+    metadata: (version, state) => ({
+      'topology type': state.topologyType,
+      'server count': state.servers.length,
+      'server types': state.servers.map(server => server.type),
+      compass_version: version
+    })
   },
   {
     registryEvent: 'instance-refreshed',
@@ -120,7 +118,7 @@ const RULES = [
     action: 'deleted',
     condition: () => true,
     metadata: (version, view) => ({
-      'view': view,
+      view,
       compass_version: version
     })
   },
@@ -130,8 +128,8 @@ const RULES = [
     action: 'updated',
     condition: () => true,
     metadata: (version, view, screen) => ({
-      'screen': screen,
-      'view': view,
+      screen,
+      view,
       compass_version: version
     })
   },
@@ -141,9 +139,9 @@ const RULES = [
     action: 'inserted',
     condition: () => true,
     metadata: (version, view, mode, multiple) => ({
-      'mode': mode,
-      'multiple': multiple,
-      'view': view,
+      mode,
+      multiple,
+      view,
       compass_version: version
     })
   },
@@ -153,7 +151,7 @@ const RULES = [
     action: 'viewed',
     condition: () => true,
     metadata: (version, view) => ({
-      'view': view,
+      view,
       compass_version: version
     })
   },
@@ -163,7 +161,7 @@ const RULES = [
     action: 'refreshed',
     condition: () => true,
     metadata: (version, view) => ({
-      'view': view,
+      view,
       compass_version: version
     })
   },
@@ -173,7 +171,7 @@ const RULES = [
     action: 'paginated',
     condition: () => true,
     metadata: (version, view) => ({
-      'view': view,
+      view,
       compass_version: version
     })
   },
@@ -251,6 +249,18 @@ const RULES = [
     })
   },
   {
+    registryEvent: 'compass:collection:created',
+    resource: 'Collection',
+    action: 'created',
+    condition: () => true,
+    metadata: (version, state) => ({
+      is_capped: state.isCapped,
+      has_custom_collation: state.hasCustomCollation,
+      collection_type: state.collectionType,
+      compass_version: version
+    })
+  },
+  {
     registryEvent: 'compass:collection-stats:loaded',
     resource: 'Collection Stats',
     action: 'fetched',
@@ -280,11 +290,12 @@ const RULES = [
     action: 'applied',
     condition: (state) => state.queryState === 'apply',
     metadata: (version, state) => ({
-      'has_filter': isNotEmptyObject(state.filter),
-      'has_project': isNotEmptyObject(state.project),
-      'has_sort': isNotEmptyObject(state.sort),
-      'skip': state.skip,
-      'limit': state.limit,
+      has_filter: isNotEmptyObject(state.filter),
+      has_project: isNotEmptyObject(state.project),
+      has_sort: isNotEmptyObject(state.sort),
+      skip: state.skip,
+      limit: state.limit,
+      collection_type: state.collectionType,
       compass_version: version
     })
   },
@@ -303,7 +314,7 @@ const RULES = [
     action: 'completed',
     condition: () => true,
     metadata: (version, size, fileType) => ({
-      'size': size,
+      size,
       'file type': fileType,
       compass_version: version
     })
@@ -323,7 +334,7 @@ const RULES = [
     action: 'completed',
     condition: () => true,
     metadata: (version, size, fileType) => ({
-      'size': size,
+      size,
       'file type': fileType,
       compass_version: version
     })

@@ -82,7 +82,9 @@ const configureStore = (options = {}) => {
           debug('Error: AppRegistry not available for query-changed-store');
         }
         if (globalRegistry) {
-          globalRegistry.emit('compass:query-bar:query-changed', newState);
+          const collectionType = this.queryBarStore.state.isTimeSeries ? 'time-series' : 'collection';
+
+          globalRegistry.emit('compass:query-bar:query-changed', { ...newState, collectionType });
         }
         this.setState(newState);
       }
