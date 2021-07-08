@@ -38,7 +38,7 @@ export const setDataProvider = (store, error, provider) => {
  * @param {Boolean} isReadonly - If the collection is readonly.
  */
 export const setIsReadonly = (store, isReadonly) => {
-  store.onReadonlyChanged(isReadonly);
+  store.onReadonlyChanged({ isReadonly });
 };
 
 /**
