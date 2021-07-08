@@ -14,6 +14,7 @@ class CnameInput extends React.PureComponent {
 
   onCnameToggle() {
     Actions.onCnameToggle();
+    Actions.onConnectionFormChanged();
   }
 
   render() {
