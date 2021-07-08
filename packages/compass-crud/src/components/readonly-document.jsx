@@ -39,19 +39,20 @@ class ReadonlyDocument extends React.Component {
    *
    * @param {Object} props - The properties.
    */
-  constructor(props) {
-    super(props);
-    this.doc = props.doc;
-    this.state = {
-      renderSize: INITIAL_FIELD_LIMIT
-    };
-  }
+  // constructor(props) {
+  //   super(props);
+  //   // this.props.doc = props.doc;
+  //   this.
+  // }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.doc !== nextProps.doc) {
-      this.doc = nextProps.doc;
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   if (this.props.doc !== nextProps.doc) {
+  //     this.props.doc = nextProps.doc;
+  //   }
+  // }
+  state = {
+    renderSize: INITIAL_FIELD_LIMIT
+  };
 
   setRenderSize(newLimit) {
     this.setState({ renderSize: newLimit });
@@ -76,7 +77,7 @@ class ReadonlyDocument extends React.Component {
   renderElements() {
     const components = [];
     let index = 0;
-    for (const element of this.doc.elements) {
+    for (const element of this.props.doc.elements) {
       components.push((
         <Element
           key={element.uuid}
@@ -99,7 +100,7 @@ class ReadonlyDocument extends React.Component {
    * @returns {React.Component} The expander bar.
    */
   renderExpansion() {
-    const totalSize = this.doc.elements.size;
+    const totalSize = this.props.doc.elements.size;
     return (
       <ExpansionBar
         initialSize={INITIAL_FIELD_LIMIT}
