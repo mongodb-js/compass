@@ -22,8 +22,8 @@ describe('InfoModal [Component]', () => {
 
   it('renders the title text', () => {
     const title = component.find('h4').text();
-    const hasVersionZero = title.includes('MongoSH v0.');
-    const hasVersionOne = title.includes('MongoSH v1.');
+    const hasVersionZero = title.includes('mongosh v0.');
+    const hasVersionOne = title.includes('mongosh v1.');
     const titleIsAccurate = hasVersionZero || hasVersionOne;
     expect(titleIsAccurate).to.equal(true);
   });
