@@ -128,6 +128,7 @@ export default class CollectionFields extends PureComponent {
       <CappedCollectionFields
         cappedSize={`${cappedSize}`}
         isCapped={isCapped}
+        isTimeSeries={isTimeSeries}
         onChangeCappedSize={(newCappedSizeString) =>
           this.setField('cappedSize', newCappedSizeString)
         }
@@ -150,6 +151,7 @@ export default class CollectionFields extends PureComponent {
       />
       {hasTimeSeriesSupport(serverVersion) && (
         <TimeSeriesFields
+          isCapped={isCapped}
           isTimeSeries={isTimeSeries}
           onChangeIsTimeSeries={(newIsTimeSeries) => this.setState(
             { isTimeSeries: newIsTimeSeries },

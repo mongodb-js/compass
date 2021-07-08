@@ -9,6 +9,7 @@ const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections
 function CappedCollectionFields({
   cappedSize,
   isCapped,
+  isTimeSeries,
   onChangeCappedSize,
   onChangeIsCapped,
   openLink
@@ -16,6 +17,7 @@ function CappedCollectionFields({
   return (
     <CollapsibleFieldSet
       toggled={isCapped}
+      disabled={isTimeSeries}
       onToggle={checked => onChangeIsCapped(checked)}
       label="Capped Collection"
       helpUrl={HELP_URL_CAPPED}
@@ -36,6 +38,7 @@ function CappedCollectionFields({
 CappedCollectionFields.propTypes = {
   cappedSize: PropTypes.string.isRequired,
   isCapped: PropTypes.bool.isRequired,
+  isTimeSeries: PropTypes.bool.isRequired,
   onChangeCappedSize: PropTypes.func.isRequired,
   onChangeIsCapped: PropTypes.func.isRequired,
   openLink: PropTypes.func.isRequired

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import TextInput from '@leafygreen-ui/text-input';
-import { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
+import { Select, Option } from '@leafygreen-ui/select';
 
 import FieldSet from '../field-set/field-set';
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
@@ -29,6 +29,7 @@ const GRANULARITY_OPTIONS = [
 ];
 
 function TimeSeriesFields({
+  isCapped,
   isTimeSeries,
   onChangeIsTimeSeries,
   onChangeTimeSeriesField,
@@ -51,6 +52,7 @@ function TimeSeriesFields({
 
   return (
     <CollapsibleFieldSet
+      disabled={isCapped}
       onToggle={checked => onChangeIsTimeSeries(checked)}
       toggled={isTimeSeries}
       label="Time-Series"
@@ -117,6 +119,7 @@ function TimeSeriesFields({
 }
 
 TimeSeriesFields.propTypes = {
+  isCapped: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool.isRequired,
   onChangeIsTimeSeries: PropTypes.func.isRequired,
   onChangeTimeSeriesField: PropTypes.func.isRequired,

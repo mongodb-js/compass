@@ -1,6 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Select } from '@leafygreen-ui/select';
+import Checkbox from '@leafygreen-ui/checkbox';
 
 import TimeSeriesFields from './time-series-fields';
 import FieldSet from '../field-set/field-set';
@@ -13,6 +14,7 @@ describe('TimeSeriesFields [Component]', () => {
       component = mount(
         <TimeSeriesFields
           isTimeSeries
+          isCapped={false}
           onChangeIsTimeSeries={() => {}}
           onChangeTimeSeriesField={() => {}}
           timeSeries={{}}
@@ -37,6 +39,7 @@ describe('TimeSeriesFields [Component]', () => {
       component = mount(
         <TimeSeriesFields
           isTimeSeries={false}
+          isCapped={false}
           onChangeIsTimeSeries={() => {}}
           onChangeTimeSeriesField={() => {}}
           timeSeries={{}}
@@ -52,6 +55,10 @@ describe('TimeSeriesFields [Component]', () => {
     it('does not render the fields', () => {
       expect(component.find(FieldSet).length).to.equal(1);
     });
+
+    it('has the time-series checkbox enabled', () => {
+      expect(component.find(Checkbox).props().disabled).to.equal(false);
+    });
   });
 
   describe('when the time series checkbox is clicked', () => {
@@ -63,6 +70,7 @@ describe('TimeSeriesFields [Component]', () => {
       component = mount(
         <TimeSeriesFields
           isTimeSeries={false}
+          isCapped={false}
           onChangeIsTimeSeries={onChangeSpy}
           onChangeTimeSeriesField={() => {}}
           timeSeries={{}}
@@ -86,6 +94,31 @@ describe('TimeSeriesFields [Component]', () => {
     });
   });
 
+  describe('when the isCapped prop is true', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <TimeSeriesFields
+          isTimeSeries={false}
+          isCapped
+          onChangeIsTimeSeries={() => {}}
+          onChangeTimeSeriesField={() => {}}
+          timeSeries={{}}
+          expireAfterSeconds=""
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('has the time-series checkbox disabled', () => {
+      expect(component.find(Checkbox).props().disabled).to.equal(true);
+    });
+  });
+
   context('when rendered', () => {
     let component;
     let onChangeSpy;
@@ -98,6 +131,7 @@ describe('TimeSeriesFields [Component]', () => {
       component = mount(
         <TimeSeriesFields
           isTimeSeries
+          isCapped={false}
           onChangeIsTimeSeries={onChangeSpy}
           onChangeTimeSeriesField={onChangeFieldSpy}
           timeSeries={{}}
