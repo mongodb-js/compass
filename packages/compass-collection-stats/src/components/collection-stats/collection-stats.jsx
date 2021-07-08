@@ -10,14 +10,14 @@ class CollectionStats extends Component {
   static displayName = 'CollectionStatsComponent';
 
   static propTypes = {
-    documentCount: PropTypes.string.isRequired,
-    totalDocumentSize: PropTypes.string.isRequired,
-    avgDocumentSize: PropTypes.string.isRequired,
-    indexCount: PropTypes.string.isRequired,
-    totalIndexSize: PropTypes.string.isRequired,
-    avgIndexSize: PropTypes.string.isRequired,
-    isReadonly: PropTypes.bool.isRequired,
-    isTimeSeries: PropTypes.bool.isRequired
+    documentCount: PropTypes.string,
+    totalDocumentSize: PropTypes.string,
+    avgDocumentSize: PropTypes.string,
+    indexCount: PropTypes.string,
+    totalIndexSize: PropTypes.string,
+    avgIndexSize: PropTypes.string,
+    isReadonly: PropTypes.bool,
+    isTimeSeries: PropTypes.bool
   };
 
   /**
