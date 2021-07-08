@@ -159,7 +159,7 @@
     "lodash.isempty": "^4.4.0",
     "lodash.isstring": "^4.0.1",
     "mongodb-extended-json": "^1.11.1",
-    "mongodb-ns": "^2.0.0",
+    "mongodb-ns": "^2.2.0",
     "re-resizable": "^6.9.0",
     "react-bootstrap": "^0.32.4",
     "react-dnd": "^10.0.2",

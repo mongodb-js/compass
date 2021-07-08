@@ -67,11 +67,28 @@ describe('QueryBarStore [Store]', function() {
       autoPopulated: false,
       expanded: false,
       ns: '',
+      isTimeSeries: false,
       schemaFields: []
     });
   });
 
-  describe('AppRegistry events', function() {
+  describe('onCollectionChanged', function() {
+    afterEach(function() {
+      unsubscribe();
+    });
+
+    it('sets ns and isTimeSeries', function(done) {
+      expect(store.state.ns).to.equal('');
+      expect(store.state.isTimeSeries).to.equal(false);
+
+      unsubscribe = store.listen(state => {
+        expect(state.ns).to.equal('db1.coll1');
+        expect(state.isTimeSeries).to.equal(true);
+        done();
+      });
+
+      store.onCollectionChanged('db1.coll1', true);
+    });
   });
 
   describe('mergeGeoFilter', () => {

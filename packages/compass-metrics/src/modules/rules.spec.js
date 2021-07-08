@@ -16,7 +16,8 @@ describe('rules', () => {
           project: { x: 1 },
           sort: { x: 1 },
           skip: 1,
-          limit: 1
+          limit: 1,
+          collectionType: 'collection'
         }
       )).to.deep.equal({
         has_filter: true,
@@ -24,6 +25,7 @@ describe('rules', () => {
         has_sort: true,
         skip: 1,
         limit: 1,
+        collection_type: 'collection',
         compass_version: 'v1.0.0'
       });
     });
@@ -36,7 +38,8 @@ describe('rules', () => {
           project: {},
           sort: {},
           skip: 1,
-          limit: 1
+          limit: 1,
+          collectionType: 'time-series'
         }
       )).to.deep.equal({
         has_filter: false,
@@ -44,6 +47,7 @@ describe('rules', () => {
         has_sort: false,
         skip: 1,
         limit: 1,
+        collection_type: 'time-series',
         compass_version: 'v1.0.0'
       });
     });
@@ -56,7 +60,8 @@ describe('rules', () => {
           project: undefined,
           sort: undefined,
           skip: 1,
-          limit: 1
+          limit: 1,
+          collectionType: 'collection'
         }
       )).to.deep.equal({
         has_filter: false,
@@ -64,6 +69,7 @@ describe('rules', () => {
         has_sort: false,
         skip: 1,
         limit: 1,
+        collection_type: 'collection',
         compass_version: 'v1.0.0'
       });
 
@@ -74,7 +80,8 @@ describe('rules', () => {
           project: null,
           sort: null,
           skip: 1,
-          limit: 1
+          limit: 1,
+          collectionType: 'collection'
         }
       )).to.deep.equal({
         has_filter: false,
@@ -82,6 +89,7 @@ describe('rules', () => {
         has_sort: false,
         skip: 1,
         limit: 1,
+        collection_type: 'collection',
         compass_version: 'v1.0.0'
       });
     });

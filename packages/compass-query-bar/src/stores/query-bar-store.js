@@ -108,9 +108,10 @@ const configureStore = (options = {}) => {
     /*
      * listen to Namespace store and reset if ns changes.
      */
-    onCollectionChanged(ns) {
+    onCollectionChanged(ns, isTimeSeries) {
       const newState = this.getInitialState();
       newState.ns = ns;
+      newState.isTimeSeries = isTimeSeries;
       this.setState(newState);
     },
 
@@ -208,6 +209,7 @@ const configureStore = (options = {}) => {
 
         // set the namespace
         ns: '',
+        isTimeSeries: false,
 
         serverVersion: '3.6.0',
 
@@ -790,8 +792,9 @@ const configureStore = (options = {}) => {
   }
 
   if (options.namespace) {
-    store.onCollectionChanged(options.namespace);
+    store.onCollectionChanged(options.namespace, options.isTimeSeries);
   }
+
   if (options.serverVersion) {
     store.onServerVersionChanged(options.serverVersion);
   }
