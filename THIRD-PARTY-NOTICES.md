@@ -119,20 +119,20 @@ Package|Version|License
 **[@mongodb-js/hadron-plugin-manager](#7c4d0a7e278233d606f2457e3d50cbec1c6011ce87643969b6c42ad0e99dcae9)**|6.3.0|SSPL
 **[@mongodb-js/mongodb-redux-common](#bae922227dbeb5b5db749880d9f828d95b7eae969066df5951e834a151740b15)**|1.3.0|SSPL
 **[@mongodb-js/ssh-tunnel](#61a8a28f7e768cb9357131fced91bb727add9058d8ccaa9a53f3dffeebda249c)**|1.2.0|Apache-2.0
-**[@mongosh/async-rewriter2](#438f4059f6dbe52fe907ab9974a3e63a2b6d6874c0f6e82c6d689a980baf2f45)**|0.15.5|Apache-2.0
-**[@mongosh/autocomplete](#b570cd08cbfe9ca071063a6a827f4c96ce1a275eab6081750da6cd66ccfa52d6)**|0.15.5|Apache-2.0
-**[@mongosh/browser-repl](#a99c2aa8253ea091f8a0c38d4c377018e62d2f38d71d91220fbd9d0f4b41d63d)**|0.15.5|Apache-2.0
-**[@mongosh/browser-runtime-core](#deaba00e92858e18925d4ea850973ba2422d99b96ac1657f20b10cb07dacc5d0)**|0.15.5|Apache-2.0
-**[@mongosh/browser-runtime-electron](#ae918a18a209d967d87f5472e06cc2b1dc5116049f8e89716c5e8234ae2c1338)**|0.15.5|Apache-2.0
-**[@mongosh/errors](#9843d83bffc9dc90ca6efd4be51b9cdf989c90c68e763fd1672be3509cd0bbd2)**|0.15.5|Apache-2.0
-**[@mongosh/history](#5c96865b45c94c6f5dcad992f35a819e44e25087c32b2fbf60fbee12ddcfc95b)**|0.15.5|Apache-2.0
-**[@mongosh/i18n](#7088ea16826ad93b5c4e911dcb3f1273027a9095e44e27d46d52deae065e88ec)**|0.15.5|Apache-2.0
-**[@mongosh/node-runtime-worker-thread](#97916f8505de4bdc45e63ed495d7ffd90f4557a194034fdcac4f1bd310c0d60c)**|0.15.5|Apache-2.0
-**[@mongosh/service-provider-core](#3be2b06c8b4797775d733b886b11f8365c22a814c7e59bd4d5a47a95254bc0d0)**|0.15.5|Apache-2.0
-**[@mongosh/service-provider-server](#4cc940a3dd180414b8a89065c43feffea36f6ac8f90f74fd201d0d9aa79859ed)**|0.15.5|Apache-2.0
-**[@mongosh/shell-api](#578a429ed5dfdab378c40706d0621581e55bc5e5af852746e5238521439eda22)**|0.15.5|Apache-2.0
-**[@mongosh/shell-evaluator](#ba336e041c2407809e558d5a0f4d01477f16c9875aa98d7b25e43d312d77c2c4)**|0.15.5|Apache-2.0
-**[@mongosh/types](#9bd25494014e04653c2edab29b9ed02454b2c036d34a2f2b26945165bdac2f97)**|0.15.5|Apache-2.0
+**[@mongosh/async-rewriter2](#e4c74909d3ee36920777f26776f5ca0a28b002ba1a6c19bfff4ade62b3d28850)**|1.0.0|Apache-2.0
+**[@mongosh/autocomplete](#638f166f98434095c16aa6f9eaa5777e6e435855aae6a2af67e517145bc02fef)**|1.0.0|Apache-2.0
+**[@mongosh/browser-repl](#62b96f909bb2135bd766a48fe2c6c9df9edbd94bcd748057ddfe428ffe7092ca)**|1.0.0|Apache-2.0
+**[@mongosh/browser-runtime-core](#29592fe48d7f6e7efc0f2ebb647d5b04806b86b9d1992cfda82db730aeaf709c)**|1.0.0|Apache-2.0
+**[@mongosh/browser-runtime-electron](#af891b17a5d6197b96723acf96efdf36838959f40eadf408356e7b013dd5bbb0)**|1.0.0|Apache-2.0
+**[@mongosh/errors](#5dc9096b3ff3a55501e4107f5054d225396a346f0f49b8126d6dd5e204cc31a8)**|1.0.0|Apache-2.0
+**[@mongosh/history](#d1456ee07180022ffe60e91803e2d2c98a988b96b41818101ceed413413e22c1)**|1.0.0|Apache-2.0
+**[@mongosh/i18n](#f3ccda6a9a53f50d9d1efccc34cbc72ac85a2835f8d20447dfac2f5e604770ef)**|1.0.0|Apache-2.0
+**[@mongosh/node-runtime-worker-thread](#5f52eca399951bf31738fd469a689e0ff67ca3959490d5f714af96f4418dadce)**|1.0.0|Apache-2.0
+**[@mongosh/service-provider-core](#a56fc04759bc84fc26a48bf1726ad0091c0ba2764e8e7e03a4f14657c9c9ff03)**|1.0.0|Apache-2.0
+**[@mongosh/service-provider-server](#e774e65babd8ac445d8261d73fac02a68c7dc1f1b36fb098379a23e285e91480)**|1.0.0|Apache-2.0
+**[@mongosh/shell-api](#b97cc29f2f9f2527602e978c78dca8b395673fa877e9963f83aad84d6c73e114)**|1.0.0|Apache-2.0
+**[@mongosh/shell-evaluator](#ea92d5ac98b5b34fc47196b8cbea9a128d18ee86ea61385d609f7c4dd8265caf)**|1.0.0|Apache-2.0
+**[@mongosh/types](#88b514cb7a0582bde535fdfed064a36c447501649ab739e41bec3527afc1367f)**|1.0.0|Apache-2.0
 **[@npmcli/move-file](#b7b87ae4f596a12a8a88a505d573b3d9b9dc86a1d9ff3b75b77c881eb2143cdc)**|1.1.2|MIT
 **[@react-dnd/asap](#48010989aaec720af5a018ed2fd3e6541514b8d4244595e0df3985bdee63eade)**|4.0.0|MIT
 **[@react-dnd/invariant](#eaa7966ca6a331042272288192ae9bdbdcd2c6e7fbcb60af673ed0f128b3e3f2)**|2.0.0|MIT
@@ -145,12 +145,12 @@ Package|Version|License
 **[@testing-library/dom](#32fb5c19671079908e65b45312a4d99ee18b90dad33be6b79e1da44881961f9b)**|5.6.1|MIT
 **[@testing-library/react](#ac3558fdff031aba1b507c10871650f3438095882a224a6db599f69d40e841cd)**|8.0.9|MIT
 **[@tootallnate/once](#ac62c4fc4980648602d2574993b11311bfdad106c153eb8da81f24da590235b1)**|1.1.2|MIT
-**[@types/babel__core](#7e73b09ce68aec3e3d2bb2c6d7f62789d01f912cbb47ebd440ca2d29326aa332)**|7.1.14|MIT
-**[@types/babel__generator](#7e899b13cbfedb3bf233a44be4ab5fea3b888975410c84ebfd8f805bc0b2e8d8)**|7.6.2|MIT
-**[@types/babel__template](#ccdadd06002ca5f07f4db3472b699d0fd1e04f174cf56963be17921c935a7702)**|7.4.0|MIT
-**[@types/babel__traverse](#59b69d2a7d24370cbf54f22b89546e0e76d2177cd70a990e3ba92a5f9f5ab349)**|7.14.0|MIT
+**[@types/babel__core](#892695f60539de69aafeb8e2525a0db2e671914d5928ff23fc459ae5c0d21646)**|7.1.15|MIT
+**[@types/babel__generator](#4d3ea622c355812e2e5559153f16b5a388c6d9eb303de21744ce9e6c0bd0c27a)**|7.6.3|MIT
+**[@types/babel__template](#10a3b95570c9b42a3ac3a0bcb3695ffb5252513019e944d4f137e2f05d64f66d)**|7.4.1|MIT
+**[@types/babel__traverse](#49354c25e4c67737cbe7e9a64e5afd2eb9dd5a2d86fa15625409b0959c2e0381)**|7.14.2|MIT
 **[@types/cacheable-request](#3bd9bf88a52a49fcbac01978705f7d2640f63498bf4d910f11fde7c8f45dac42)**|6.0.1|MIT
-**[@types/chai](#f38916043b51daf68b3fd63df1e76b60e3f9a28481922c88c0d5b26708d8b4a1)**|4.2.19|MIT
+**[@types/chai](#415ac28d3fccdf3c44413fc5a1a5885106138a655acfaee93dfc423343952ebe)**|4.2.21|MIT
 **[@types/hoist-non-react-statics](#5dffba4574f0e34391feaeca261f5e5b8be2ff9308a7e2804dc38c258d4e671a)**|3.3.1|MIT
 **[@types/http-cache-semantics](#2a203d85fc55bf68c519f0b76464d66525f75848792196622d0a8c79ab751844)**|4.0.0|MIT
 **[@types/istanbul-lib-coverage](#832e44626969d6a9dd118c8607e307d5e053e544513f33c38a5621ef043698f7)**|2.0.3|MIT
@@ -284,7 +284,7 @@ Package|Version|License
 **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**|1.1.11|MIT
 **[braces](#57342b612d0ebf408cf342d7c5abb7940cf7c7330b2782d9d77a90253f8ae02f)**|3.0.2|MIT
 **[browserslist](#a5bfb1ae7d71806536a968a858a0b624c13fb380c551914b97479fee2b3ec524)**|4.16.6|MIT
-**[bson](#3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282)**|4.4.0|Apache-2.0
+**[bson](#394c5421206f2ec526852cb6fa0ee38d42b14e205104586179d37d18573f8f95)**|4.4.1|Apache-2.0
 **[bson](#ee52fad50f125b1ac53959bf638e62cafa1a273e20164cc18313012e39035bb5)**|4.1.0|Apache-2.0
 **[bson](#0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87)**|1.1.6|Apache-2.0
 **[bson](#9568646decb901218e67075eb984d7bbd5c4fae711cd931bb42bb85757af4a4b)**|4.0.2|Apache-2.0
@@ -3701,8 +3701,8 @@ License files:
       
 
 
-<a id="438f4059f6dbe52fe907ab9974a3e63a2b6d6874c0f6e82c6d689a980baf2f45"></a>
-### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 0.15.5)
+<a id="e4c74909d3ee36920777f26776f5ca0a28b002ba1a6c19bfff4ade62b3d28850"></a>
+### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/async-rewriter2 -->
 > MongoDB Shell Async Rewriter Package
 
@@ -3915,8 +3915,8 @@ License files:
          limitations under the License.
 
 
-<a id="b570cd08cbfe9ca071063a6a827f4c96ce1a275eab6081750da6cd66ccfa52d6"></a>
-### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 0.15.5)
+<a id="638f166f98434095c16aa6f9eaa5777e6e435855aae6a2af67e517145bc02fef"></a>
+### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/autocomplete -->
 > MongoDB Shell Autocomplete Package
 
@@ -4120,8 +4120,8 @@ License files:
       
 
 
-<a id="a99c2aa8253ea091f8a0c38d4c377018e62d2f38d71d91220fbd9d0f4b41d63d"></a>
-### [@mongosh/browser-repl](https://www.npmjs.com/package/@mongosh/browser-repl) (version 0.15.5)
+<a id="62b96f909bb2135bd766a48fe2c6c9df9edbd94bcd748057ddfe428ffe7092ca"></a>
+### [@mongosh/browser-repl](https://www.npmjs.com/package/@mongosh/browser-repl) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/browser-repl -->
 > Browser presentation component for Mongo Shell
 
@@ -4333,8 +4333,8 @@ License files:
          limitations under the License.
 
 
-<a id="deaba00e92858e18925d4ea850973ba2422d99b96ac1657f20b10cb07dacc5d0"></a>
-### [@mongosh/browser-runtime-core](https://www.npmjs.com/package/@mongosh/browser-runtime-core) (version 0.15.5)
+<a id="29592fe48d7f6e7efc0f2ebb647d5b04806b86b9d1992cfda82db730aeaf709c"></a>
+### [@mongosh/browser-runtime-core](https://www.npmjs.com/package/@mongosh/browser-runtime-core) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/browser-runtime-core -->
 > Mongosh browser runtime core
 
@@ -4546,8 +4546,8 @@ License files:
          limitations under the License.
 
 
-<a id="ae918a18a209d967d87f5472e06cc2b1dc5116049f8e89716c5e8234ae2c1338"></a>
-### [@mongosh/browser-runtime-electron](https://www.npmjs.com/package/@mongosh/browser-runtime-electron) (version 0.15.5)
+<a id="af891b17a5d6197b96723acf96efdf36838959f40eadf408356e7b013dd5bbb0"></a>
+### [@mongosh/browser-runtime-electron](https://www.npmjs.com/package/@mongosh/browser-runtime-electron) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/browser-runtime-electron -->
 > Mongosh browser runtime electron
 
@@ -4759,8 +4759,8 @@ License files:
          limitations under the License.
 
 
-<a id="9843d83bffc9dc90ca6efd4be51b9cdf989c90c68e763fd1672be3509cd0bbd2"></a>
-### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 0.15.5)
+<a id="5dc9096b3ff3a55501e4107f5054d225396a346f0f49b8126d6dd5e204cc31a8"></a>
+### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/errors -->
 > MongoDB Shell Errors Package
 
@@ -4974,8 +4974,8 @@ License files:
       
 
 
-<a id="5c96865b45c94c6f5dcad992f35a819e44e25087c32b2fbf60fbee12ddcfc95b"></a>
-### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 0.15.5)
+<a id="d1456ee07180022ffe60e91803e2d2c98a988b96b41818101ceed413413e22c1"></a>
+### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/history -->
 > MongoDB Shell History Package
 
@@ -5187,8 +5187,8 @@ License files:
          limitations under the License.
 
 
-<a id="7088ea16826ad93b5c4e911dcb3f1273027a9095e44e27d46d52deae065e88ec"></a>
-### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 0.15.5)
+<a id="f3ccda6a9a53f50d9d1efccc34cbc72ac85a2835f8d20447dfac2f5e604770ef"></a>
+### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/i18n -->
 > MongoDB Shell i18n Project
 
@@ -5400,213 +5400,16 @@ License files:
          limitations under the License.
 
 
-<a id="97916f8505de4bdc45e63ed495d7ffd90f4557a194034fdcac4f1bd310c0d60c"></a>
-### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 0.15.5)
+<a id="5f52eca399951bf31738fd469a689e0ff67ca3959490d5f714af96f4418dadce"></a>
+### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/node-runtime-worker-thread -->
 > MongoDB shell runtime that lives in a worker thread
 
 License tags: Apache-2.0
 
-License files:
-* LICENSE:
 
-      
-                                       Apache License
-                                 Version 2.0, January 2004
-                              http://www.apache.org/licenses/
-      
-         TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-      
-         1. Definitions.
-      
-            "License" shall mean the terms and conditions for use, reproduction,
-            and distribution as defined by Sections 1 through 9 of this document.
-      
-            "Licensor" shall mean the copyright owner or entity authorized by
-            the copyright owner that is granting the License.
-      
-            "Legal Entity" shall mean the union of the acting entity and all
-            other entities that control, are controlled by, or are under common
-            control with that entity. For the purposes of this definition,
-            "control" means (i) the power, direct or indirect, to cause the
-            direction or management of such entity, whether by contract or
-            otherwise, or (ii) ownership of fifty percent (50%) or more of the
-            outstanding shares, or (iii) beneficial ownership of such entity.
-      
-            "You" (or "Your") shall mean an individual or Legal Entity
-            exercising permissions granted by this License.
-      
-            "Source" form shall mean the preferred form for making modifications,
-            including but not limited to software source code, documentation
-            source, and configuration files.
-      
-            "Object" form shall mean any form resulting from mechanical
-            transformation or translation of a Source form, including but
-            not limited to compiled object code, generated documentation,
-            and conversions to other media types.
-      
-            "Work" shall mean the work of authorship, whether in Source or
-            Object form, made available under the License, as indicated by a
-            copyright notice that is included in or attached to the work
-            (an example is provided in the Appendix below).
-      
-            "Derivative Works" shall mean any work, whether in Source or Object
-            form, that is based on (or derived from) the Work and for which the
-            editorial revisions, annotations, elaborations, or other modifications
-            represent, as a whole, an original work of authorship. For the purposes
-            of this License, Derivative Works shall not include works that remain
-            separable from, or merely link (or bind by name) to the interfaces of,
-            the Work and Derivative Works thereof.
-      
-            "Contribution" shall mean any work of authorship, including
-            the original version of the Work and any modifications or additions
-            to that Work or Derivative Works thereof, that is intentionally
-            submitted to Licensor for inclusion in the Work by the copyright owner
-            or by an individual or Legal Entity authorized to submit on behalf of
-            the copyright owner. For the purposes of this definition, "submitted"
-            means any form of electronic, verbal, or written communication sent
-            to the Licensor or its representatives, including but not limited to
-            communication on electronic mailing lists, source code control systems,
-            and issue tracking systems that are managed by, or on behalf of, the
-            Licensor for the purpose of discussing and improving the Work, but
-            excluding communication that is conspicuously marked or otherwise
-            designated in writing by the copyright owner as "Not a Contribution."
-      
-            "Contributor" shall mean Licensor and any individual or Legal Entity
-            on behalf of whom a Contribution has been received by Licensor and
-            subsequently incorporated within the Work.
-      
-         2. Grant of Copyright License. Subject to the terms and conditions of
-            this License, each Contributor hereby grants to You a perpetual,
-            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-            copyright license to reproduce, prepare Derivative Works of,
-            publicly display, publicly perform, sublicense, and distribute the
-            Work and such Derivative Works in Source or Object form.
-      
-         3. Grant of Patent License. Subject to the terms and conditions of
-            this License, each Contributor hereby grants to You a perpetual,
-            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-            (except as stated in this section) patent license to make, have made,
-            use, offer to sell, sell, import, and otherwise transfer the Work,
-            where such license applies only to those patent claims licensable
-            by such Contributor that are necessarily infringed by their
-            Contribution(s) alone or by combination of their Contribution(s)
-            with the Work to which such Contribution(s) was submitted. If You
-            institute patent litigation against any entity (including a
-            cross-claim or counterclaim in a lawsuit) alleging that the Work
-            or a Contribution incorporated within the Work constitutes direct
-            or contributory patent infringement, then any patent licenses
-            granted to You under this License for that Work shall terminate
-            as of the date such litigation is filed.
-      
-         4. Redistribution. You may reproduce and distribute copies of the
-            Work or Derivative Works thereof in any medium, with or without
-            modifications, and in Source or Object form, provided that You
-            meet the following conditions:
-      
-            (a) You must give any other recipients of the Work or
-                Derivative Works a copy of this License; and
-      
-            (b) You must cause any modified files to carry prominent notices
-                stating that You changed the files; and
-      
-            (c) You must retain, in the Source form of any Derivative Works
-                that You distribute, all copyright, patent, trademark, and
-                attribution notices from the Source form of the Work,
-                excluding those notices that do not pertain to any part of
-                the Derivative Works; and
-      
-            (d) If the Work includes a "NOTICE" text file as part of its
-                distribution, then any Derivative Works that You distribute must
-                include a readable copy of the attribution notices contained
-                within such NOTICE file, excluding those notices that do not
-                pertain to any part of the Derivative Works, in at least one
-                of the following places: within a NOTICE text file distributed
-                as part of the Derivative Works; within the Source form or
-                documentation, if provided along with the Derivative Works; or,
-                within a display generated by the Derivative Works, if and
-                wherever such third-party notices normally appear. The contents
-                of the NOTICE file are for informational purposes only and
-                do not modify the License. You may add Your own attribution
-                notices within Derivative Works that You distribute, alongside
-                or as an addendum to the NOTICE text from the Work, provided
-                that such additional attribution notices cannot be construed
-                as modifying the License.
-      
-            You may add Your own copyright statement to Your modifications and
-            may provide additional or different license terms and conditions
-            for use, reproduction, or distribution of Your modifications, or
-            for any such Derivative Works as a whole, provided Your use,
-            reproduction, and distribution of the Work otherwise complies with
-            the conditions stated in this License.
-      
-         5. Submission of Contributions. Unless You explicitly state otherwise,
-            any Contribution intentionally submitted for inclusion in the Work
-            by You to the Licensor shall be under the terms and conditions of
-            this License, without any additional terms or conditions.
-            Notwithstanding the above, nothing herein shall supersede or modify
-            the terms of any separate license agreement you may have executed
-            with Licensor regarding such Contributions.
-      
-         6. Trademarks. This License does not grant permission to use the trade
-            names, trademarks, service marks, or product names of the Licensor,
-            except as required for reasonable and customary use in describing the
-            origin of the Work and reproducing the content of the NOTICE file.
-      
-         7. Disclaimer of Warranty. Unless required by applicable law or
-            agreed to in writing, Licensor provides the Work (and each
-            Contributor provides its Contributions) on an "AS IS" BASIS,
-            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-            implied, including, without limitation, any warranties or conditions
-            of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-            PARTICULAR PURPOSE. You are solely responsible for determining the
-            appropriateness of using or redistributing the Work and assume any
-            risks associated with Your exercise of permissions under this License.
-      
-         8. Limitation of Liability. In no event and under no legal theory,
-            whether in tort (including negligence), contract, or otherwise,
-            unless required by applicable law (such as deliberate and grossly
-            negligent acts) or agreed to in writing, shall any Contributor be
-            liable to You for damages, including any direct, indirect, special,
-            incidental, or consequential damages of any character arising as a
-            result of this License or out of the use or inability to use the
-            Work (including but not limited to damages for loss of goodwill,
-            work stoppage, computer failure or malfunction, or any and all
-            other commercial damages or losses), even if such Contributor
-            has been advised of the possibility of such damages.
-      
-         9. Accepting Warranty or Additional Liability. While redistributing
-            the Work or Derivative Works thereof, You may choose to offer,
-            and charge a fee for, acceptance of support, warranty, indemnity,
-            or other liability obligations and/or rights consistent with this
-            License. However, in accepting such obligations, You may act only
-            on Your own behalf and on Your sole responsibility, not on behalf
-            of any other Contributor, and only if You agree to indemnify,
-            defend, and hold each Contributor harmless for any liability
-            incurred by, or claims asserted against, such Contributor by reason
-            of your accepting any such warranty or additional liability.
-      
-         END OF TERMS AND CONDITIONS
-      
-         Copyright 2020 MongoDB Inc.
-      
-         Licensed under the Apache License, Version 2.0 (the "License");
-         you may not use this file except in compliance with the License.
-         You may obtain a copy of the License at
-      
-             http://www.apache.org/licenses/LICENSE-2.0
-      
-         Unless required by applicable law or agreed to in writing, software
-         distributed under the License is distributed on an "AS IS" BASIS,
-         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-         See the License for the specific language governing permissions and
-         limitations under the License.
-      
-      
-
-
-<a id="3be2b06c8b4797775d733b886b11f8365c22a814c7e59bd4d5a47a95254bc0d0"></a>
-### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 0.15.5)
+<a id="a56fc04759bc84fc26a48bf1726ad0091c0ba2764e8e7e03a4f14657c9c9ff03"></a>
+### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/service-provider-core -->
 > MongoDB Shell Core Service Provider Package
 
@@ -5818,8 +5621,8 @@ License files:
          limitations under the License.
 
 
-<a id="4cc940a3dd180414b8a89065c43feffea36f6ac8f90f74fd201d0d9aa79859ed"></a>
-### [@mongosh/service-provider-server](https://www.npmjs.com/package/@mongosh/service-provider-server) (version 0.15.5)
+<a id="e774e65babd8ac445d8261d73fac02a68c7dc1f1b36fb098379a23e285e91480"></a>
+### [@mongosh/service-provider-server](https://www.npmjs.com/package/@mongosh/service-provider-server) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/service-provider-server -->
 > MongoDB Shell Server Service Provider Package
 
@@ -6031,8 +5834,8 @@ License files:
          limitations under the License.
 
 
-<a id="578a429ed5dfdab378c40706d0621581e55bc5e5af852746e5238521439eda22"></a>
-### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 0.15.5)
+<a id="b97cc29f2f9f2527602e978c78dca8b395673fa877e9963f83aad84d6c73e114"></a>
+### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/shell-api -->
 > MongoDB Shell API Classes Package
 
@@ -6244,8 +6047,8 @@ License files:
          limitations under the License.
 
 
-<a id="ba336e041c2407809e558d5a0f4d01477f16c9875aa98d7b25e43d312d77c2c4"></a>
-### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 0.15.5)
+<a id="ea92d5ac98b5b34fc47196b8cbea9a128d18ee86ea61385d609f7c4dd8265caf"></a>
+### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/shell-evaluator -->
 > MongoDB Top Level API Package
 
@@ -6458,8 +6261,8 @@ License files:
          limitations under the License.
 
 
-<a id="9bd25494014e04653c2edab29b9ed02454b2c036d34a2f2b26945165bdac2f97"></a>
-### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 0.15.5)
+<a id="88b514cb7a0582bde535fdfed064a36c447501649ab739e41bec3527afc1367f"></a>
+### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/types -->
 > Types for mongosh internals
 
@@ -7054,8 +6857,8 @@ Authors:
 * Nathan Rajlich <nathan@tootallnate.net> (http://n8.io/)
 
 
-<a id="7e73b09ce68aec3e3d2bb2c6d7f62789d01f912cbb47ebd440ca2d29326aa332"></a>
-### [@types/babel__core](https://www.npmjs.com/package/@types/babel__core) (version 7.1.14)
+<a id="892695f60539de69aafeb8e2525a0db2e671914d5928ff23fc459ae5c0d21646"></a>
+### [@types/babel__core](https://www.npmjs.com/package/@types/babel__core) (version 7.1.15)
 <!-- initially found at node_modules/@types/babel__core -->
 > TypeScript definitions for @babel/core
 
@@ -7095,8 +6898,8 @@ Authors:
 * Ifiok Jr. (https://github.com/ifiokjr)
 
 
-<a id="7e899b13cbfedb3bf233a44be4ab5fea3b888975410c84ebfd8f805bc0b2e8d8"></a>
-### [@types/babel__generator](https://www.npmjs.com/package/@types/babel__generator) (version 7.6.2)
+<a id="4d3ea622c355812e2e5559153f16b5a388c6d9eb303de21744ce9e6c0bd0c27a"></a>
+### [@types/babel__generator](https://www.npmjs.com/package/@types/babel__generator) (version 7.6.3)
 <!-- initially found at node_modules/@types/babel__generator -->
 > TypeScript definitions for @babel/generator
 
@@ -7136,8 +6939,8 @@ Authors:
 * Lyanbin (https://github.com/Lyanbin)
 
 
-<a id="ccdadd06002ca5f07f4db3472b699d0fd1e04f174cf56963be17921c935a7702"></a>
-### [@types/babel__template](https://www.npmjs.com/package/@types/babel__template) (version 7.4.0)
+<a id="10a3b95570c9b42a3ac3a0bcb3695ffb5252513019e944d4f137e2f05d64f66d"></a>
+### [@types/babel__template](https://www.npmjs.com/package/@types/babel__template) (version 7.4.1)
 <!-- initially found at node_modules/@types/babel__template -->
 > TypeScript definitions for @babel/template
 
@@ -7176,8 +6979,8 @@ Authors:
 * ExE Boss (https://github.com/ExE-Boss)
 
 
-<a id="59b69d2a7d24370cbf54f22b89546e0e76d2177cd70a990e3ba92a5f9f5ab349"></a>
-### [@types/babel__traverse](https://www.npmjs.com/package/@types/babel__traverse) (version 7.14.0)
+<a id="49354c25e4c67737cbe7e9a64e5afd2eb9dd5a2d86fa15625409b0959c2e0381"></a>
+### [@types/babel__traverse](https://www.npmjs.com/package/@types/babel__traverse) (version 7.14.2)
 <!-- initially found at node_modules/@types/babel__traverse -->
 > TypeScript definitions for @babel/traverse
 
@@ -7258,8 +7061,8 @@ Authors:
 * Paul Melnikow (https://github.com/paulmelnikow)
 
 
-<a id="f38916043b51daf68b3fd63df1e76b60e3f9a28481922c88c0d5b26708d8b4a1"></a>
-### [@types/chai](https://www.npmjs.com/package/@types/chai) (version 4.2.19)
+<a id="415ac28d3fccdf3c44413fc5a1a5885106138a655acfaee93dfc423343952ebe"></a>
+### [@types/chai](https://www.npmjs.com/package/@types/chai) (version 4.2.21)
 <!-- initially found at node_modules/@types/chai -->
 > TypeScript definitions for chai
 
@@ -11719,8 +11522,8 @@ Authors:
 * Andrey Sitnik <andrey@sitnik.ru>
 
 
-<a id="3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 4.4.0)
+<a id="394c5421206f2ec526852cb6fa0ee38d42b14e205104586179d37d18573f8f95"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 4.4.1)
 <!-- initially found at node_modules/bson -->
 > A bson parser for node.js and the browser
 
@@ -36786,7 +36589,7 @@ Authors:
 
 <a id="238ca94190dc6ecfefb8038eba61fdc9b317f49234c6775cac809521e13446af"></a>
 ### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.6)
-<!-- initially found at packages/compass/node_modules/mongodb -->
+<!-- initially found at node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
 License tags: Apache-2.0
@@ -36995,6 +36798,9 @@ License files:
          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
          See the License for the specific language governing permissions and
          limitations under the License.
+
+Authors:
+* The MongoDB NodeJS Team <[dbx-node@mongodb.com](nomail)>
 
 
 <a id="79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f"></a>
