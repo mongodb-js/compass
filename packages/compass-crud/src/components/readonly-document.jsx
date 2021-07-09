@@ -34,22 +34,6 @@ const TEST_ID = 'readonly-document';
  * Component for a single readonly document in a list of documents.
  */
 class ReadonlyDocument extends React.Component {
-  /**
-   * Initialize the readonly document.
-   *
-   * @param {Object} props - The properties.
-   */
-  // constructor(props) {
-  //   super(props);
-  //   // this.props.doc = props.doc;
-  //   this.
-  // }
-
-  // componentWillReceiveProps(nextProps) {
-  //   if (this.props.doc !== nextProps.doc) {
-  //     this.props.doc = nextProps.doc;
-  //   }
-  // }
   state = {
     renderSize: INITIAL_FIELD_LIMIT
   };
