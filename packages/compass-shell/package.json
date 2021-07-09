@@ -108,7 +108,7 @@
     "mini-css-extract-plugin": "^0.8.0",
     "mocha": "^5.2.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb": "4.0.0-beta.6",
+    "mongodb": "addaleax/node-mongodb-native#71d4c39e5c858f49d10e840df626eca4da653e28",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^13.1.0",
