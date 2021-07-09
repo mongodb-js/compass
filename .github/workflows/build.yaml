@@ -44,7 +44,7 @@ jobs:
         uses: actions/setup-node@v2.1.2
         with:
           # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
-          node-version: ^12.4.0
+          node-version: ^12.9.0
 
       - name: Install npm@7
         run: npm install -g npm@7
@@ -95,7 +95,7 @@ jobs:
           n=0
           exitcode=0
           until [ "$n" -ge 5 ]
-          do  
+          do
               echo ""
               echo "Attempting to publish packages ($((n+1))/5) ..."
               echo ""

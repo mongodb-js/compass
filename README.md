@@ -84,7 +84,7 @@ This repository contains MongoDB Compass application source, all Compass plugins
 
 ## Working With the Monorepo
 
-You'll need node ^12.4.0 and npm 7 installed on your machine to work with the repository locally. After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
+You'll need node ^12.9.0 and npm 7 installed on your machine to work with the repository locally. After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
 
 After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
 
@@ -118,7 +118,7 @@ Error: Module did not self-register: '/path/to/native/module.node'.
 Error: The module '/path/to/native/module.node' was compiled against a different Node.js version using NODE_MODULE_VERSION $XYZ. This version of Node.js requires NODE_MODULE_VERSION $ABC.
 ```
 
-The root cause is native modules compiled for a different version of the runtime (either Node.js or Electron) that tries to import the module. In our case this is usually caused by combination of two things: 
+The root cause is native modules compiled for a different version of the runtime (either Node.js or Electron) that tries to import the module. In our case this is usually caused by combination of two things:
 
 1. Modules have to be recompiled for the runtime they will be used in
 1. Due to npm workspaces hoisting all shared dependencies to the very root of the monorepo, all packages use the same modules imported from the same location
