@@ -34,7 +34,7 @@ const hotkeys = [
   },
   {
     key: 'Ctrl+F',
-    description: 'Moves the cursor forward one character.'
+    description: 'Moves the cursor Forward one character.'
   },
   {
     key: 'Ctrl+H',
