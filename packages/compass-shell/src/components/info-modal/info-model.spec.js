@@ -36,7 +36,7 @@ describe('InfoModal [Component]', () => {
 
   it('renders the hotkeys description', () => {
     expect(component.find(`.${styles['info-modal-shortcuts-hotkey']}`).at(5)).to.have.text(
-      'Ctrl+FMoves the cursor forward one character.'
+      'Ctrl+FMoves the cursor Forward one character.'
     );
   });
 });
