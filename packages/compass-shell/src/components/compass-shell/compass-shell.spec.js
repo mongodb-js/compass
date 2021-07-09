@@ -126,7 +126,7 @@ describe('CompassShell', () => {
     });
 
     context('when it is clicked to collapse', () => {
-      it('sets the collapsed height to 24', () => {
+      it('sets the collapsed height to 32', () => {
         const shell = new CompassShell({ isExpanded: true });
         let sizeSetTo = {};
         shell.resizableRef = {
@@ -141,7 +141,7 @@ describe('CompassShell', () => {
 
         expect(sizeSetTo).to.deep.equal({
           width: '100%',
-          height: 24
+          height: 32
         });
       });
 

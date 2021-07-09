@@ -3,19 +3,22 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
+import packageJson from '../../../package.json';
 
 import { SET_SHOW_INFO_MODAL } from '../../modules/info-modal';
+
+const mongoshVersion = `v${packageJson.dependencies['@mongosh/browser-repl'].replace('^', '')}`;
 
 import styles from './info-modal.less';
 
 const hotkeys = [
   {
     key: 'Ctrl+A',
-    description: 'Moves the cursor to the begining of the line.'
+    description: 'Moves the cursor to the beginning of the line.'
   },
   {
     key: 'Ctrl+B',
-    description: 'Moves the cursor backwards one character.'
+    description: 'Moves the cursor Backward one character.'
   },
   {
     key: 'Ctrl+C',
@@ -23,7 +26,7 @@ const hotkeys = [
   },
   {
     key: 'Ctrl+D',
-    description: 'Erases the next character.'
+    description: 'Deletes the next character.'
   },
   {
     key: 'Ctrl+E',
@@ -31,11 +34,11 @@ const hotkeys = [
   },
   {
     key: 'Ctrl+F',
-    description: 'Moves the cursor forwards one character.'
+    description: 'Moves the cursor Forward one character.'
   },
   {
     key: 'Ctrl+H',
-    description: 'Erases one character. Similar to hitting backspace.'
+    description: 'Erases one character, similar to hitting backspace.'
   },
   {
     key: 'Ctrl+L',
@@ -47,7 +50,7 @@ const hotkeys = [
   },
   {
     key: 'Ctrl+U',
-    description: 'Changes the line to uppercase.'
+    description: 'Changes the line to Uppercase.'
   }
 ];
 
@@ -74,18 +77,18 @@ export class InfoModal extends PureComponent {
     return (
       <Modal show={isInfoModalVisible}>
         <Modal.Header closeButton onHide={hideInfoModal}>
-          <h4>MongoSH Beta</h4>
+          <h4>mongosh {mongoshVersion}</h4>
         </Modal.Header>
         <Modal.Body>
           <div className={styles['info-modal-banner']}>
-            More information on this release of&nbsp;
+            More information on this release of the&nbsp;
             <a
               className={styles['info-modal-banner-link']}
               id="mongosh-info-link"
               rel="noreopener"
               href="https://docs.mongodb.com/compass/beta/embedded-shell/"
               target="_blank"
-            >MongoSH Beta</a>
+            >MongoDB Shell</a>
           </div>
           <div className={styles['info-modal-shortcuts-title']}>
             Keyboard Shortcuts
