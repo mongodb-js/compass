@@ -11,6 +11,7 @@
  * and include in assets.
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
+const execa = require('execa');
 const Target = require('../lib/target');
 const verifyDistro = require('../lib/distro');
 const cli = require('mongodb-js-cli')('hadron-build:release');
@@ -348,6 +349,8 @@ const transformPackageJson = (CONFIG, done) => {
   distributions[contents.distribution].metrics_stitch_app_id = process.env.HADRON_METRICS_STITCH_APP_ID;
 
   fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(contents, null, 2), done);
+
+  cli.debug(JSON.stringify(contents, null, 2));
 };
 
 /**
@@ -382,6 +385,22 @@ const installDependencies = (CONFIG, done) => {
     if (err) {
       return done(err);
     }
+
+    // NOTE: temporary fix for https://jira.mongodb.org/browse/COMPASS-4939:
+    // reinstall the mongodb driver if coming from a "github:" fork so it gets
+    // post-install hooks and compiled sources
+    const packageJson = fs.readJsonSync(path.join(appPackagePath, 'package.json'));
+    const mongodbDepVersion = packageJson.dependencies.mongodb;
+
+    if ((mongodbDepVersion || '').startsWith('github')) {
+      cli.debug(`Installing mongodb@${mongodbDepVersion}`);
+
+      execa.sync('npm', ['install', `mongodb@${mongodbDepVersion}`], {
+        env: process.env,
+        cwd: appPackagePath
+      });
+    }
+
     cli.debug('Dependencies installed');
 
     rebuild({
