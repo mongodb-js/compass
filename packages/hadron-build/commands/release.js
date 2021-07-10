@@ -506,6 +506,12 @@ const createApplicationAsar = (CONFIG, done) => {
  * @api public
  */
 const createBrandedInstaller = (CONFIG, done) => {
+  if (process.env.HADRON_SKIP_INSTALLER === 'true') {
+    cli.debug('skipping installer');
+    done();
+    return;
+  }
+
   cli.debug('Creating installer');
   CONFIG.createInstaller().then(() => done()).catch(done);
 };
