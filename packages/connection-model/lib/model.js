@@ -428,6 +428,12 @@ function encodeURIComponentRFC3986(str) {
   });
 }
 
+function setAuthSourceToExternal(url) {
+  const uri = new ConnectionString(url);
+  uri.searchParams.set('authSource', '$external');
+  return uri.toString();
+}
+
 /**
  * Adds auth info to URL. The connection model builds two URLs.
  * driverUrl - for the driver with the password included.
@@ -472,7 +478,7 @@ function addAuthToUrl({ url, isPasswordProtected }) {
   url = url.replace('AUTH_TOKEN', authField, 1);
 
   if (includes(['LDAP', 'KERBEROS', 'X509'], this.authStrategy)) {
-    url = `${url}&authSource=$external`;
+    url = setAuthSourceToExternal(url);
   }
 
   if (this.authStrategy === 'KERBEROS' && this.kerberosCanonicalizeHostname) {

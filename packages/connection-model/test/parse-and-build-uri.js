@@ -101,7 +101,7 @@ const tests = [
     expectedConnectionString:
       'mongodb://%40rlo@localhost:27017/?' +
       'authMechanism=GSSAPI&readPreference=primary&' +
-      'authSource=%24external&directConnection=true&ssl=false&authSource=$external'
+      'authSource=%24external&directConnection=true&ssl=false'
   },
   {
     description: 'with authMechanismProperties and gssapiServiceName',
@@ -109,7 +109,7 @@ const tests = [
       'mongodb://%40rlo@localhost:27017/?' +
       'authMechanism=GSSAPI&readPreference=primary&' +
       'authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue&' +
-      'gssapiCanonicalizeHostName=true&directConnection=true&ssl=false&authSource=$external'
+      'gssapiCanonicalizeHostName=true&directConnection=true&ssl=false'
   },
   {
     description:
