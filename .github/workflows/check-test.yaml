@@ -48,7 +48,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install --force
+          npm ci --force
           # Dependencies are included when installing as npm workspaces will
           # hoist every package in the repo and it's important that the
           # dependencies of packages we are planning to test are also prepared
