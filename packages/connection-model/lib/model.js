@@ -15,7 +15,7 @@ const {
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
 const { ReadPreference } = require('mongodb');
-const { parseConnectionString } = require('mongodb3/lib/core');
+const parseConnectionString = require('./uri-parser-36');
 const resolveMongodbSrv = require('resolve-mongodb-srv');
 const ConnectionString = require('mongodb-connection-string-url').default;
 const dataTypes = require('./data-types');
@@ -1066,6 +1066,8 @@ async function createConnectionFromUrl(url) {
   const resolvedUrl = await resolveMongodbSrv(unescapedUrl);
   const parsed = await parseConnectionStringAsPromise(resolvedUrl);
   const isSrvRecord = unescapedUrl.startsWith('mongodb+srv://');
+
+  console.log('***', {parsed});
   const attrs = Object.assign(
     {
       hosts: parsed.hosts,
