@@ -104,6 +104,8 @@ class CreateDatabaseModal extends PureComponent {
    * @returns {React.Component} The react component.
    */
   render() {
+    const hasCollectionName = !!(this.state.data.collection || '').trim();
+
     return (
       <ConfirmationModal
         title="Create Database"
@@ -112,7 +114,7 @@ class CreateDatabaseModal extends PureComponent {
         onCancel={this.onCancel}
         buttonText="Create Database"
         submitDisabled={(
-          !(this.state.data.collection || '').trim() ||
+          !hasCollectionName ||
           !(this.state.data.database || '').trim()
         )}
         className={styles['create-database-modal']}
@@ -123,7 +125,7 @@ class CreateDatabaseModal extends PureComponent {
           onChange={this.onChange}
           openLink={this.props.openLink}
         />
-        {this.renderCollectionNameRequiredNotice()}
+        {!hasCollectionName && this.renderCollectionNameRequiredNotice()}
         {this.renderError()}
       </ConfirmationModal>
     );

@@ -63,6 +63,39 @@ describe('CreateDatabaseModal [Component]', () => {
     });
   });
 
+  context('when a collection name has been entered', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <CreateDatabaseModal
+          isVisible
+          isRunning={false}
+          openLink={() => {}}
+          createDatabase={() => {}}
+          toggleIsVisible={() => {}}
+          clearError={() => {}}
+        />
+      );
+
+      component.setState({
+        data: {
+          collection: 'aa'
+        }
+      });
+
+      component.update();
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('does not render a message', () => {
+      expect(component.find(Banner)).to.have.length(0);
+    });
+  });
+
   context('when the modal is not visible', () => {
     let component;
     let toggleIsVisibleSpy;
