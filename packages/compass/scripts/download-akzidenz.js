@@ -5,23 +5,14 @@
  */
 
 /* eslint-disable no-console */
-const os = require('os');
 const path = require('path');
 const { promises: fs } = require('fs');
 
 const PACKAGE_ROOT = process.cwd();
 
-// const MONOREPO_ROOT = path.resolve(__dirname, '..');
-
-const CACHE_DIR = path.join(os.tmpdir(), '.akzidenz-font-cache');
-
-const fetch = require('make-fetch-happen').defaults({
-  cacheManager: CACHE_DIR
-});
+const fetch = require('make-fetch-happen');
 
 const AKZIDENZ_CDN_BASE_URL = 'https://d2va9gm4j17fy9.cloudfront.net/fonts/';
-
-const UPDATE_CACHE = process.argv.includes('--update-cache');
 
 const AKZIDENZ_CDN_URLS = [
   'akzidgrostdita.eot',
@@ -71,41 +62,29 @@ const download = async(url, destDir) => {
     throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
   }
 
-  if (!UPDATE_CACHE) {
-    await fs.writeFile(destFilePath, await res.buffer());
-  }
+  await fs.writeFile(destFilePath, await res.buffer());
 };
 
 (async() => {
   const packageJson = require(path.join(PACKAGE_ROOT, 'package.json'));
 
-  if (!UPDATE_CACHE) {
-    try {
-      await fs.access(FONTS_DIRECTORY);
-    } catch (err) {
-      // We only want to install the fonts when we are in a project which requires
-      // fonts to be present
-      console.log(
-        'Package %s doesn\'t require fonts to be present, exiting.',
-        packageJson.name
-      );
-      return;
-    }
-  }
-
-  if (UPDATE_CACHE) {
-    console.log('Re-populating akzidenz fonts cache at %s', CACHE_DIR);
-
-    try {
-      await fs.rmdir(CACHE_DIR, { recursive: true });
-    } catch (e) {}
-  } else {
+  try {
+    await fs.access(FONTS_DIRECTORY);
+  } catch (err) {
+    // We only want to install the fonts when we are in a project which requires
+    // fonts to be present
     console.log(
-      'Downloading %d fonts for package %s',
-      AKZIDENZ_CDN_URLS.length,
+      'Package %s doesn\'t require fonts to be present, exiting.',
       packageJson.name
     );
+    return;
   }
+
+  console.log(
+    'Downloading %d fonts for package %s',
+    AKZIDENZ_CDN_URLS.length,
+    packageJson.name
+  );
 
   await Promise.all(
     AKZIDENZ_CDN_URLS.map((url) => download(url, FONTS_DIRECTORY))
