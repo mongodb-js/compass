@@ -16,7 +16,6 @@ const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
 const { ReadPreference } = require('mongodb');
 const parseConnectionString = require('./uri-parser-36');
-const resolveMongodbSrv = require('resolve-mongodb-srv');
 const ConnectionString = require('mongodb-connection-string-url').default;
 const dataTypes = require('./data-types');
 const localPortGenerator = require('./local-port-generator');
@@ -1055,16 +1054,8 @@ Connection = AmpersandModel.extend({
 const parseConnectionStringAsPromise = promisify(parseConnectionString);
 
 async function createConnectionFromUrl(url) {
-  // We use resolveMongodbSrv because it understands the load balancer
-  // option, whereas parseConnectionString from the 3.6 driver does not.
-  // This could potentially go away once we're using the 3.7 driver,
-  // which will have load balancer support, *but* the whole reason that
-  // resolveMongodbSrv exists is as a possible solution for
-  // https://jira.mongodb.org/browse/COMPASS-4768
-  // so we may want to keep it around anyway.
   const unescapedUrl = unescape(url);
-  const resolvedUrl = await resolveMongodbSrv(unescapedUrl);
-  const parsed = await parseConnectionStringAsPromise(resolvedUrl);
+  const parsed = await parseConnectionStringAsPromise(unescapedUrl);
   const isSrvRecord = unescapedUrl.startsWith('mongodb+srv://');
 
   console.log('***', {parsed});
