@@ -162,10 +162,6 @@
       "^1.0.0-rc.2",
       "^1.0.0-rc.3"
     ],
-    "bson": [
-      "4.1.0",
-      "github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again"
-    ],
     "ampersand-collection": [
       "^1.6.1",
       "^2.0.1",

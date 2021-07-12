@@ -1,6 +1,6 @@
 {
   "name": "bson-transpilers",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "apiVersion": "0.0.1",
   "productName": "BSON Transpilers",
   "description": "Source to source compilers using ANTLR",
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "antlr4": "4.7.2",
-    "bson": "4.1.0",
+    "bson": "^4.4.1",
     "context-eval": "^0.1.0",
     "js-yaml": "^3.11.0"
   }

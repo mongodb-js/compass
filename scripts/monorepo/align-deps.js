@@ -36,8 +36,6 @@ const depOverrides = {
  **/
 
 const pinnedDeps = {
-  'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again': 'github:addaleax/js-bson#after-the-next-bson-release-you-can-just-use-the-npm-package-again',
-
   // TODO: Do we need this override? Can we just use v3.3.5?
   'https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz': 'https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz',
 

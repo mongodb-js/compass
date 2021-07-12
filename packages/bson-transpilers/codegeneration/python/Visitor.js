@@ -455,8 +455,10 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
         }
         return v;
       });
-      /* month is 0-based in node, 1-based in everything else (afaict) */
+      /* month is 0-based in JS, 1-based in everything else (afaict) */
       argvals[1]--;
+      /* date is 1900-based in JS, 0-based in python */
+      argvals[0] -= 1900;
       try {
         date = new Date(Date.UTC(...argvals));
       } catch (e) {

@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-type-checker/issues",
   "homepage": "https://github.com/mongodb-js/hadron-type-checker",
-  "version": "6.3.0",
+  "version": "6.3.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/hadron-type-checker.git"
@@ -22,7 +22,7 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "bson": "^4.4.0",
+    "bson": "^4.4.1",
     "lodash": "^4.17.15"
   },
   "devDependencies": {
