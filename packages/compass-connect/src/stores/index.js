@@ -991,8 +991,15 @@ const Store = Reflux.createStore({
       return;
     }
 
-    // Set the connection's app name to the electron app name of Compass.
-    connectionModel.appname = electron.remote.app.getName();
+    /**
+     * Set the connection's app name to the electron app name only if it's not
+     * set by the user already
+     *
+     * See https://jira.mongodb.org/browse/COMPASS-4901
+     */
+    if (typeof connectionModel.appname === 'undefined') {
+      connectionModel.appname = electron.remote.app.getName();
+    }
 
     try {
       const dataService = new DataService(connectionModel);
