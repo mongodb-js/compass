@@ -1058,7 +1058,6 @@ async function createConnectionFromUrl(url) {
   const parsed = await parseConnectionStringAsPromise(unescapedUrl);
   const isSrvRecord = unescapedUrl.startsWith('mongodb+srv://');
 
-  console.log('***', {parsed});
   const attrs = Object.assign(
     {
       hosts: parsed.hosts,
