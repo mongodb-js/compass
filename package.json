@@ -27,6 +27,7 @@
     "packages-version": "lerna version --allow-branch main --no-push --no-private -m \"chore(release): Bump package versions\"",
     "release": "npm run release --workspace mongodb-compass --",
     "release-evergreen": "npm run release-evergreen --workspace=mongodb-compass --",
+    "build-dist-package": "DEBUG='hadron*' HADRON_SKIP_INSTALLER='true' HADRON_PRODUCT='mongodb-compass' HADRON_PRODUCT_NAME='MongoDB Compass' HADRON_DISTRIBUTION='compass' npm run release-evergreen",
     "start": "npm run start --workspace=mongodb-compass",
     "test": "lerna run test --concurrency 1 --stream",
     "test-changed": "lerna run test --stream --concurrency 1 --since origin/HEAD",
