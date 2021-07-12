@@ -903,7 +903,7 @@ Templates:
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
         (lhs, arg, isNumber) => {
             if (isNumber) {
-                return `(new java.util.Date(${arg}))`;
+                return `(new java.util.Date(${arg.replace(/L$/, '000L')}))`;
             }
             return `(${arg})`;
         }

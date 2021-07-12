@@ -293,7 +293,7 @@
     "app-migrations": "^2.2.0",
     "async": "^1.5.2",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "bson": "^4.4.0",
+    "bson": "^4.4.1",
     "bson-transpilers": "^1.1.0",
     "clean-stack": "^2.0.0",
     "compass-preferences-model": "^1.7.2",

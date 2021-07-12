@@ -55,7 +55,7 @@
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "bson": "^4.4.0",
+    "bson": "^4.4.1",
     "chai": "^4.1.2",
     "chai-enzyme": "1.0.0-beta.0",
     "classnames": "^2.2.5",
