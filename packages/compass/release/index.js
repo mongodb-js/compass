@@ -30,8 +30,9 @@ npm run release wait
 npm run release publish
 \tpublishes a release from a release branch.
 
-npm run release changelog
-\tprints the git log between a release and the previous one.
+npm run release changelog [version to compare to]
+\tprints the git log between a release and the provided git tag (optional,
+\tdefault is the previous one).
 
 npm run release help
 \tprints this screen of help.
@@ -109,11 +110,11 @@ async function runCheckoutCommand(args) {
 }
 
 async function runChangelogCommand(args) {
-  if (args.length) {
+  if (args.length > 1) {
     failWithUsage();
   }
 
-  return await releaseChangelog();
+  return await releaseChangelog(args[0]);
 }
 
 async function runGaCommand(args) {
