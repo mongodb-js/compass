@@ -67,7 +67,7 @@ tests:
                         client.close();
                       });
                 shell: |-
-                    mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
+                    mongosh 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
                     db.collection.aggregate({
                       'x': new NumberLong(0), 
                       'y': new ObjectId()
@@ -154,7 +154,7 @@ tests:
                         client.close();
                       });
                 shell: |-
-                    mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
+                    mongosh 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
                     db.collection.find({
                       'x': new NumberLong(0)
                     });"
@@ -308,7 +308,7 @@ tests:
                         client.close();
                       });
                 shell: |-
-                    mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
+                    mongosh 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
                     db.collection.find({
                       'x': new NumberLong(0)
                     }, {

@@ -29,7 +29,7 @@ Templates:
                 return s;
                 }, `find(${spec.filter}${project})`);
             }
-            return `mongo '${spec.options.uri}' --eval "db = db.getSiblingDB('${spec.options.database}');
+            return `mongosh '${spec.options.uri}' --eval "db = db.getSiblingDB('${spec.options.database}');
         db.${spec.options.collection}.${cmd};"`;
         }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
