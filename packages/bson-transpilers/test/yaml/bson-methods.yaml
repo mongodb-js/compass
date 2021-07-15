@@ -291,7 +291,7 @@ tests:
             java: "-429496729601L"
             csharp: "-429496729601L"
             shell: "-new NumberLong(429496729601)"
-            output: "-429496729601"
+            object: "-429496729601"
     -   input:
             javascript: new Long(1, 100).add(new Long(9, 1))
         output:
@@ -388,7 +388,7 @@ tests:
             java: Decimal128.parse("5.3E-6175").toString()
             csharp: Decimal128.Parse("5.3E-6175").ToString()
             shell: new NumberDecimal(5.3E-6175).toString()
-            output: "'5.3E-6175'"
+            object: "'5.3E-6175'"
     Timestamp-methods:
     -   input:
             javascript: Timestamp(1, 100).toString()
@@ -515,7 +515,7 @@ tests:
             java: new Symbol("2").toString()
             csharp: '"2"'
             shell: "'2'"
-            output: "'2'"
+            object: "'2'"
     -   input:
             javascript: new BSONSymbol('2').inspect()
         output:
@@ -523,7 +523,7 @@ tests:
             java: new Symbol("2").getSymbol()
             csharp: '"2"'
             shell: "'2'"
-            output: "'2'"
+            object: "'2'"
     ObjectId-utils:
     - input:
           javascript: ObjectId.createFromHexString('5ab901c29ee65f5c8550c5b9')
