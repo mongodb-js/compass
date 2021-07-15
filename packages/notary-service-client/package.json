@@ -13,13 +13,14 @@
   "bin": {
     "notary": "cli.js"
   },
-  "homepage": "http://github.com/mongodb-js/notary-service-client",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/notary-service-client.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "bugs": {
-    "url": "git://github.com/mongodb-js/notary-service-client.git/issues"
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   },
   "dependencies": {
     "cli-table": "^0.3.1",

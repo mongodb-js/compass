@@ -173,5 +173,14 @@
     "turf-destination": "^3.0.12",
     "turf-distance": "^3.0.12",
     "turf-point": "^2.0.1"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
   }
 }

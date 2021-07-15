@@ -3,9 +3,15 @@
   "description": "MongoDB instance model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "11.7.3",
-  "bugs": "https://github.com/mongodb-js/instance-model/issues",
-  "homepage": "https://github.com/mongodb-js/instance-model",
-  "repository": "git://github.com/mongodb-js/instance-model.git",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
   "license": "SSPL",
   "browser": "browser.js",
   "keywords": [

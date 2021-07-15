@@ -2,12 +2,15 @@
   "name": "mongodb-connection-model",
   "description": "MongoDB connection model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "bugs": "https://github.com/mongodb-js/connection-model/issues",
-  "homepage": "https://github.com/mongodb-js/connection-model",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
   "version": "21.5.3",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/connection-model.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "keywords": [

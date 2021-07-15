@@ -4,10 +4,10 @@
   "description": "Portable business logic of MongoDB security model",
   "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)",
   "license": "SSPL",
-  "homepage": "http://github.com/mongodb-js/security",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/security.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "keywords": [
     "mongodb",
@@ -31,5 +31,9 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "lodash.pluck": "^3.1.2",
     "mocha": "^7.0.0"
+  },
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   }
 }

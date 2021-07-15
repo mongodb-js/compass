@@ -3,11 +3,14 @@
   "description": "MongoDB index model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "3.3.1",
-  "bugs": "https://github.com/mongodb-js/index-model/issues",
-  "homepage": "https://github.com/mongodb-js/index-model",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/index-model"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "keywords": [

@@ -127,5 +127,14 @@
     "js-beautify": "^1.10.2",
     "react-select-plus": "^1.2.0",
     "redux-thunk": "^2.2.0"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
   }
 }

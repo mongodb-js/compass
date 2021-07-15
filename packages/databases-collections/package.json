@@ -153,5 +153,14 @@
     "lodash.isnan": "^3.0.2",
     "lodash.sortbyorder": "^3.4.4",
     "lodash.zipobject": "^4.1.3"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
   }
 }

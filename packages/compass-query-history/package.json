@@ -5,19 +5,19 @@
   "apiVersion": "3.0.0",
   "description": "The query history sidebar.",
   "main": "lib/index.js",
-  "homepage": "https://compass.mongodb.com",
+  "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
   "bugs": {
-    "url": "https://docs.mongodb.com/compass/current/#contact",
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/compass-query-history.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "scripts": {
     "clean": "rimraf lib",

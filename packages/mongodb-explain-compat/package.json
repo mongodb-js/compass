@@ -27,13 +27,14 @@
     "test-ci": "npm run test",
     "depcheck": "depcheck"
   },
-  "homepage": "https://github.com/mongodb-js/mongodb-explain-compat",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/mongodb-explain-compat.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "bugs": {
-    "url": "https://github.com/mongodb-js/mongodb-explain-compat/issues"
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   },
   "license": "SSPL",
   "devDependencies": {
