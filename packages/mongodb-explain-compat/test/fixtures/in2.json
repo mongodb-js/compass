@@ -1,0 +1,225 @@
+{
+  "explainVersion": "2",
+  "queryPlanner": {
+    "namespace": "test.test",
+    "indexFilterSet": false,
+    "parsedQuery": {
+      "i": {
+        "$lt": 1000
+      }
+    },
+    "maxIndexedOrSolutionsReached": false,
+    "maxIndexedAndSolutionsReached": false,
+    "maxScansToExplodeReached": false,
+    "winningPlan": {
+      "queryPlan": {
+        "stage": "PROJECTION_SIMPLE",
+        "planNodeId": 2,
+        "transformBy": {
+          "i": true,
+          "_id": true
+        },
+        "inputStage": {
+          "stage": "COLLSCAN",
+          "planNodeId": 1,
+          "filter": {
+            "i": {
+              "$lt": 1000
+            }
+          },
+          "direction": "forward"
+        }
+      },
+      "slotBasedPlan": {
+        "slots": "$$RESULT=s9 $$RID=s5 env: { s3 = 1626346276832 (NOW), s1 = TimeZoneDatabase(Africa/Mogadishu...Antarctica/Syowa) (timeZoneDB), s2 = Timestamp(1626346273, 1) (CLUSTER_TIME) }",
+        "stages": "[2] mkbson s9 s4 [_id, i] keep [] true false \n[1] filter {fillEmpty (s8, false)} \n[1] traverse s8 s7 s6 [s4, s5] {s8 || s7} {s8} \nfrom \n    [1] project [s6 = getField (s4, \"i\")] \n    [1] scan s4 s5 none none none none [] @\"78c5ce66-d871-4313-b4f0-39ad010a8742\" true false \nin \n    [1] project [s7 = ! fillEmpty (isNaN (s6), false) && fillEmpty (s6 < 1000, false)] \n    [1] limit 1 \n    [1] coscan \n"
+      }
+    },
+    "rejectedPlans": []
+  },
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": 1000,
+    "executionTimeMillis": 61,
+    "totalKeysExamined": 0,
+    "totalDocsExamined": 100000,
+    "executionStages": {
+      "stage": "mkbson",
+      "planNodeId": 2,
+      "nReturned": 1000,
+      "executionTimeMillisEstimate": 61,
+      "opens": 1,
+      "closes": 1,
+      "saveState": 100,
+      "restoreState": 100,
+      "isEOF": 1,
+      "objSlot": 9,
+      "rootSlot": 4,
+      "fieldBehavior": "keep",
+      "fields": [
+        "_id",
+        "i"
+      ],
+      "projectFields": [],
+      "projectSlots": [],
+      "forceNewObject": true,
+      "returnOldObject": false,
+      "inputStage": {
+        "stage": "filter",
+        "planNodeId": 1,
+        "nReturned": 1000,
+        "executionTimeMillisEstimate": 61,
+        "opens": 1,
+        "closes": 1,
+        "saveState": 100,
+        "restoreState": 100,
+        "isEOF": 1,
+        "numTested": 100000,
+        "filter": "fillEmpty (s8, false) ",
+        "inputStage": {
+          "stage": "traverse",
+          "planNodeId": 1,
+          "nReturned": 100000,
+          "executionTimeMillisEstimate": 61,
+          "opens": 1,
+          "closes": 1,
+          "saveState": 100,
+          "restoreState": 100,
+          "isEOF": 1,
+          "innerOpens": 0,
+          "innerCloses": 0,
+          "inputSlot": 6,
+          "outputSlot": 8,
+          "outputSlotInner": 7,
+          "correlatedSlots": [
+            {
+              "low": 4,
+              "high": 0,
+              "unsigned": false
+            },
+            {
+              "low": 5,
+              "high": 0,
+              "unsigned": false
+            }
+          ],
+          "nestedArraysDepth": 1,
+          "fold": "s8 || s7 ",
+          "final": "s8 ",
+          "outerStage": {
+            "stage": "project",
+            "planNodeId": 1,
+            "nReturned": 100000,
+            "executionTimeMillisEstimate": 58,
+            "opens": 1,
+            "closes": 1,
+            "saveState": 100,
+            "restoreState": 100,
+            "isEOF": 1,
+            "projections": {
+              "6": "getField (s4, \"i\") "
+            },
+            "inputStage": {
+              "stage": "scan",
+              "planNodeId": 1,
+              "nReturned": 100000,
+              "executionTimeMillisEstimate": 57,
+              "opens": 1,
+              "closes": 1,
+              "saveState": 100,
+              "restoreState": 100,
+              "isEOF": 1,
+              "numReads": 100000,
+              "recordSlot": 4,
+              "recordIdSlot": 5,
+              "fields": [],
+              "outputSlots": []
+            }
+          },
+          "innerStage": {
+            "stage": "project",
+            "planNodeId": 1,
+            "nReturned": 100000,
+            "executionTimeMillisEstimate": 2,
+            "opens": 100000,
+            "closes": 1,
+            "saveState": 100,
+            "restoreState": 100,
+            "isEOF": 0,
+            "projections": {
+              "7": "! fillEmpty (isNaN (s6), false) && fillEmpty (s6 < 1000, false) "
+            },
+            "inputStage": {
+              "stage": "limit",
+              "planNodeId": 1,
+              "nReturned": 100000,
+              "executionTimeMillisEstimate": 0,
+              "opens": 100000,
+              "closes": 1,
+              "saveState": 100,
+              "restoreState": 100,
+              "isEOF": 0,
+              "limit": 1,
+              "inputStage": {
+                "stage": "coscan",
+                "planNodeId": 1,
+                "nReturned": 100000,
+                "executionTimeMillisEstimate": 0,
+                "opens": 100000,
+                "closes": 1,
+                "saveState": 100,
+                "restoreState": 100,
+                "isEOF": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "command": {
+    "find": "test",
+    "filter": {
+      "i": {
+        "$lt": 1000
+      }
+    },
+    "projection": {
+      "i": 1
+    },
+    "$db": "test"
+  },
+  "serverInfo": {
+    "host": "addaleax2",
+    "port": 27017,
+    "version": "5.0.0-rc7",
+    "gitVersion": "8c11a9d7c59a156619ba387be14eb584f979442a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "$timestamp": "6985104054506487809"
+    },
+    "signature": {
+      "hash": "AAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "keyId": {
+        "low": 0,
+        "high": 0,
+        "unsigned": false
+      }
+    }
+  },
+  "operationTime": {
+    "$timestamp": "6985104054506487809"
+  }
+}
