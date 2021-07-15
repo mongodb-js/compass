@@ -45,7 +45,7 @@ const AUTH_STRATEGY_DEFAULT = 'NONE';
 const READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY;
 const MONGODB_DATABASE_NAME_DEFAULT = 'admin';
 const KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
-const SSL_DEFAULT = 'NONE';
+const SSL_DEFAULT = 'DEFAULT';
 const SSH_TUNNEL_DEFAULT = 'NONE';
 const DRIVER_OPTIONS_DEFAULT = { };
 
@@ -593,6 +593,8 @@ const prepareRequest = (model) => {
 
   if (model.ssl) {
     req.query.ssl = model.ssl;
+  } else if (model.sslMethod === 'DEFAULT') {
+    delete req.query.ssl;
   } else if (
     includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], model.sslMethod)
   ) {
