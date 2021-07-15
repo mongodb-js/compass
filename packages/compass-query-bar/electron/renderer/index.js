@@ -62,7 +62,7 @@ function useQueryBarPlugin(initialStoreConfig) {
 
     const onResetWithState = useCallback(() => {
       onReset({ ...store.current.state });
-    }, [onApply]);
+    }, [onReset]);
 
     return (
       <QueryBarPlugin
