@@ -10,10 +10,10 @@
     "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
-  "homepage": "http://github.com/mongodb-js/metrics",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/metrics.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
     "ampersand-collection": "^2.0.1",
@@ -44,5 +44,9 @@
     "sinon": "^9.0.0",
     "xvfb-maybe": "^0.2.1"
   },
-  "license": "SSPL"
+  "license": "SSPL",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  }
 }

@@ -2,14 +2,17 @@
   "name": "hadron-react-components",
   "description": "Hadron React Components",
   "author": "Durran Jordan <durran@gmail.com>",
-  "bugs": "https://github.com/mongodb-js/hadron-react/issues",
-  "homepage": "https://github.com/mongodb-js/hadron-react/packages/hadron-react-components",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
   "version": "5.4.0",
   "main": "lib/index.js",
   "module": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/hadron-react.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "keywords": [

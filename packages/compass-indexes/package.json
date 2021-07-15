@@ -147,5 +147,14 @@
     "numeral": "^2.0.6",
     "react-bootstrap": "^0.32.1",
     "reflux": "^0.4.1"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
   }
 }

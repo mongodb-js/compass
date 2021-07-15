@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/mongosh.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "config": {
     "unsafe-perm": true
@@ -140,5 +140,10 @@
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^3.0.0"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   }
 }

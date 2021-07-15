@@ -171,5 +171,14 @@
     "redux-thunk": "^2.3.0",
     "semver": "^5.7.1",
     "storage-mixin": "^4.5.0"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
   }
 }

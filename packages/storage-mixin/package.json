@@ -2,17 +2,18 @@
   "name": "storage-mixin",
   "description": "Ampersand model mixin to persist data via various storage backends",
   "bugs": {
-    "url": "https://github.com/mongodb-js/storage-mixin/issues"
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   },
   "main": "index.js",
   "directories": {
     "test": "test"
   },
-  "homepage": "https://github.com/mongodb-js/storage-mixin",
+  "homepage": "https://github.com/mongodb-js/compass",
   "version": "4.5.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mongodb-js/storage-mixin.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "author": "Thomas Rueckstiess <thomas@mongodb.com>",
   "contributors": [

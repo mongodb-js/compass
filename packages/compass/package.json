@@ -248,7 +248,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/compass.git"
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   },
   "dependencies": {
     "@mongodb-js/compass-aggregations": "^8.8.3",
@@ -418,9 +422,5 @@
   "engines": {
     "node": "^12.9.0",
     "npm": ">=6.13.0"
-  },
-  "bugs": {
-    "url": "https://docs.mongodb.com/compass/current/#contact",
-    "email": "compass@mongodb.com"
   }
 }
