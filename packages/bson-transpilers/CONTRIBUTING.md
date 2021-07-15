@@ -57,7 +57,7 @@ for each node in the parse tree.
 
 
 ### Step 2: Visitor
-<img alt="visiting-tree" width="60%" align="right" src="/img-docs/visiting-tree.png"/>
+<img alt="visiting-tree" width="60%" align="right" src="img-docs/visiting-tree.png"/>
 
 Because the project is designed to handle multiple input languages and multiple
 output languages, the tree visitation stage is split into parts. The first part
@@ -192,7 +192,7 @@ calls, the `argsTemplate` is a function that gets applied to the arguments in ca
 need rearranging between languages.
 
 ## Project Structure
-<img alt="indexjs" width="60%" align="right" src="/img-docs/indexjs.jpg"/>
+<img alt="indexjs" width="60%" align="right" src="img-docs/indexjs.jpg"/>
 
 Entry point to the project is `index.js`. It currently exports [two
 APIs](https://github.com/mongodb-js/bson-transpilers#api), compiling a string
