@@ -20,7 +20,7 @@
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" index.js",
     "depcheck": "depcheck",
     "test-ci": "npm run test",
-    "prepare": "npm run compile"
+    "prepublishOnly": "npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {

@@ -24,7 +24,7 @@
     "test:dev": "cross-env NODE_ENV=test mocha-webpack",
     "cover": "nyc npm run test",
     "check": "npm run lint && npm run depcheck",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "node ../../scripts/download-akzidenz.js && npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\"",
     "depcheck": "depcheck",
     "test-ci": "npm run test"
