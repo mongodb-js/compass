@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import InputBuilderToolbar from '../input-builder-toolbar';
 import InputPreviewToolbar from '../input-preview-toolbar';
 
@@ -26,7 +25,7 @@ class InputToolbar extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['input-toolbar'])}>
+      <div className={styles['input-toolbar']}>
         <InputBuilderToolbar
           toggleInputDocumentsCollapsed={
             this.props.toggleInputDocumentsCollapsed

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { Document } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
 import LoadingOverlay from '../loading-overlay';
@@ -33,12 +32,12 @@ class InputPreview extends Component {
           key={i} />);
     });
     return (
-      <div className={classnames(styles['input-preview'])}>
+      <div className={styles['input-preview']}>
         { this.props.isLoading ?
           <LoadingOverlay text="Sampling Documents..." /> :
           null
         }
-        <div className={classnames(styles['input-preview-documents'])}>
+        <div className={styles['input-preview-documents']}>
           {documents}
         </div>
       </div>

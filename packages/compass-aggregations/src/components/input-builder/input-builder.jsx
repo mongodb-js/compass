@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
 import styles from './input-builder.less';
 
@@ -19,9 +18,9 @@ class InputBuilder extends PureComponent {
 
   render() {
     return (
-      <div className={classnames(styles['input-builder'])}>
+      <div className={styles['input-builder']}>
         Select an operator to construct expressions used in the aggregation pipeline stages.
-        <span onClick={this.learnMore} className={classnames(styles['input-builder-link'])}>
+        <span onClick={this.learnMore} className={styles['input-builder-link']}>
           Learn more
         </span>
       </div>
