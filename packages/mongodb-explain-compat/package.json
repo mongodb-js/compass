@@ -23,7 +23,7 @@
     "lint": "eslint **/*.js",
     "test": "npm run lint && npm run build && nyc mocha --colors test/*.js",
     "build": "gen-esm-wrapper . ./.esm-wrapper.mjs",
-    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
     "test-ci": "npm run test",
     "depcheck": "depcheck"
   },

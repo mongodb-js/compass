@@ -24,7 +24,7 @@
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
     "test-ci": "npm run test",
-    "prepare": "npm run compile"
+    "prepublishOnly": "npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {

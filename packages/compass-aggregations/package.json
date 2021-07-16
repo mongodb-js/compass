@@ -20,7 +20,7 @@
     "check": "npm run lint && npm run depcheck",
     "preanalyze": "mkdir -p .ghpages && cross-env NODE_ENV=production webpack --profile --json --config ./config/webpack.prod.config.js > .ghpages/stats.json",
     "analyze": "webpack-bundle-analyzer .ghpages/stats.json --no-open  --report .ghpages/report.html --mode static --bundleDir lib",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "node ../../scripts/download-akzidenz.js && npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
     "test-ci": "npm run test"
