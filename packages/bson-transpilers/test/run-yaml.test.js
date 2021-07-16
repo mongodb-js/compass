@@ -6,6 +6,7 @@ const expect = chai.expect;
 const yaml = require('js-yaml');
 const Context = require('context-eval');
 const bson = require('bson');
+const { eval: replEval } = require('./repl-helper');
 
 const transpiler = require('../index');
 
@@ -24,6 +25,13 @@ const readYAML = (filename) => {
     throw err;
   }
   return parseResult;
+};
+
+const maybeDescribe = (description, fn) => {
+  if (description) {
+    return describe(description, fn);
+  }
+  return fn();
 };
 
 const executeJavascript = (input) => {
@@ -71,7 +79,7 @@ fs.readdirSync(testpath).map((file) => {
     return; // Ignore edge case tests, they have their own runners
   }
   const mode = file.replace('.yaml', '');
-  if (modes.length > 0 && modes.indexOf(mode) === -1) {
+  if (modes.length > 0 && !modes.includes('*') && modes.indexOf(mode) === -1) {
     return;
   }
   describe(mode, () => {
@@ -82,12 +90,7 @@ fs.readdirSync(testpath).map((file) => {
       }
       describe(`${type}`, () => {
         for (const test of tests.tests[type]) {
-          const description = test.description
-            ? (d) => {
-              describe(`${test.description}`, () => (d()));
-            }
-            : (d) => (d());
-          description(() => {
+          maybeDescribe(test.description, () => {
             for (const input of Object.keys(test.input)) {
               if (inputLanguages.indexOf(input) === -1) {
                 continue;
@@ -118,6 +121,32 @@ fs.readdirSync(testpath).map((file) => {
               }
             }
           });
+
+          if (
+            test.output &&
+            test.output.shell &&
+            // Can't meaningfully run this code in repl
+            [
+              'partial',
+              // TODO: This can be done but will require running mongodb during
+              // the tests and just a bit more wiring, so I'm leaving this for
+              // last
+              'driver-syntax'
+            ].includes(mode) === false
+          ) {
+            describe('shell output', function() {
+              it(`"${test.output.shell}" output works in shell`, async() => {
+                try {
+                  const result = await replEval(test.output.shell);
+                  if (test.output.object) {
+                    expect(result).to.eq(test.output.object);
+                  }
+                } catch (e) {
+                  expect.fail(e.message);
+                }
+              });
+            });
+          }
         }
       });
     }
