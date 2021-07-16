@@ -50,6 +50,7 @@
     "find-up": "^5.0.0",
     "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
+    "jscodeshift": "^0.13.0",
     "lerna": "^4.0.0",
     "lodash": "^4.17.21",
     "make-fetch-happen": "^8.0.14",
