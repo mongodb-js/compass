@@ -2,12 +2,15 @@
   "name": "mongodb-data-service",
   "description": "MongoDB Data Service",
   "author": "Durran Jordan <durran@gmail.com>",
-  "bugs": "https://github.com/mongodb-js/data-service/issues",
-  "homepage": "https://github.com/mongodb-js/data-service",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
   "version": "21.5.3",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/data-service.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "engines": {
     "node": ">=12"

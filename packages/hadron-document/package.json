@@ -2,12 +2,15 @@
   "name": "hadron-document",
   "description": "Hadron Document",
   "author": "Durran Jordan <durran@gmail.com>",
-  "bugs": "https://github.com/mongodb-js/hadron-document/issues",
-  "homepage": "https://github.com/mongodb-js/hadron-document",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
   "version": "7.4.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/hadron-document.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "keywords": [

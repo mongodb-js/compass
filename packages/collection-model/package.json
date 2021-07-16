@@ -3,9 +3,15 @@
   "description": "MongoDB collection model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "4.7.3",
-  "bugs": "https://github.com/mongodb-js/mongodb-collection-model/issues",
-  "homepage": "https://github.com/mongodb-js/mongodb-collection-model",
-  "repository": "git://github.com/mongodb-js/mongodb-collection-model.git",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
   "license": "SSPL",
   "keywords": [
     "mongodb-js"

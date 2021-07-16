@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/ace-theme"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "keywords": [
     "MongoDB",
@@ -19,5 +19,10 @@
   },
   "devDependencies": {
     "depcheck": "^1.4.0"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   }
 }

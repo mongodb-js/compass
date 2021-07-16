@@ -10,8 +10,11 @@ function fixture(name) {
 }
 
 describe('convertExplainCompat', () => {
-  it('maps stuff from the SBE format to the pre-SBE format', () => {
+  it('maps stuff from the SBE format to the pre-SBE format (in1)', () => {
     assert.deepStrictEqual(convertExplainCompat(fixture('in1')), fixture('out1'));
+  });
+  it('maps stuff from the SBE format to the pre-SBE format (in2)', () => {
+    assert.deepStrictEqual(convertExplainCompat(fixture('in2')), fixture('out2'));
   });
   it('keeps the old SBE format as-is', () => {
     assert.deepStrictEqual(convertExplainCompat(fixture('out1')), fixture('out1'));

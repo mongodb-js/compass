@@ -7,7 +7,7 @@
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/compass-collection.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "scripts": {
     "clean": "rimraf lib",
@@ -164,5 +164,10 @@
     "lodash.filter": "^4.6.0",
     "lodash.isempty": "^4.4.0",
     "react-sortable-hoc": "^1.10.1"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   }
 }

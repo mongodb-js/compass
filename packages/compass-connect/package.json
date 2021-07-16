@@ -7,7 +7,7 @@
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "http://github.com/mongodb-js/compass-connect.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "scripts": {
     "clean": "rimraf lib",
@@ -139,5 +139,10 @@
     "@leafygreen-ui/typography": "^8.0.2",
     "lodash": "^4.17.15",
     "react-ios-switch": "^0.1.19"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   }
 }

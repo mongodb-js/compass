@@ -10,10 +10,10 @@
     "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
-  "homepage": "http://github.com/mongodb-js/electron-license",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/electron-license.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "bin": {
     "electron-license": "bin/electron-license.js"
@@ -38,5 +38,9 @@
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^3.1.2"
   },
-  "license": "SSPL"
+  "license": "SSPL",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  }
 }

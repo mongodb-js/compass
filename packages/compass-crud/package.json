@@ -3,7 +3,10 @@
   "productName": "Compass CRUD plugin",
   "version": "12.8.3",
   "description": "Compass Plugin for CRUD Operations",
-  "repository": "https://github.com/10gen/compass-crud",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
   "main": "lib/index.js",
   "apiVersion": "3.0.0",
   "scripts": {
@@ -154,5 +157,10 @@
     "mongodb-extended-json": "^1.11.1",
     "react-click-outside": "^3.0.1",
     "react-tooltip": "^3.2.6"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   }
 }

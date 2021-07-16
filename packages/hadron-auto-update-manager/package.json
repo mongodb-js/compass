@@ -10,10 +10,10 @@
     "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
-  "homepage": "http://github.com/mongodb-js/hadron-auto-update-manager",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/hadron-auto-update-manager.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
     "debug": "^4.1.1",
@@ -28,5 +28,9 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "xvfb-maybe": "^0.2.1"
   },
-  "license": "SSPL"
+  "license": "SSPL",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  }
 }
