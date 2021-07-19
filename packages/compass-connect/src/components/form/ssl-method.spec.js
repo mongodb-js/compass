@@ -12,26 +12,9 @@ describe('SSLMethod [Component]', () => {
   const appRegistry = new AppRegistry();
   let component;
 
-  class SSLMethodComponent extends React.Component {
-    render() {
-      return (<div id="SSLMethodComponent" />);
-    }
-  }
-
-  const ROLE = {
-    name: 'NONE',
-    component: SSLMethodComponent,
-    selectOption: { 'NONE': 'None' }
-  };
-
   before(() => {
     global.hadronApp = hadronApp;
     global.hadronApp.appRegistry = appRegistry;
-    global.hadronApp.appRegistry.registerRole('Connect.SSLMethod', ROLE);
-  });
-
-  after(() => {
-    global.hadronApp.appRegistry.deregisterRole('Connect.SSLMethod', ROLE);
   });
 
   beforeEach(() => {

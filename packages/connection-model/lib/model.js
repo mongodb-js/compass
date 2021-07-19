@@ -15,8 +15,7 @@ const {
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
 const { ReadPreference } = require('mongodb');
-const { parseConnectionString } = require('mongodb3/lib/core');
-const resolveMongodbSrv = require('resolve-mongodb-srv');
+const parseConnectionString = require('./uri-parser-36');
 const ConnectionString = require('mongodb-connection-string-url').default;
 const dataTypes = require('./data-types');
 const localPortGenerator = require('./local-port-generator');
@@ -46,7 +45,7 @@ const AUTH_STRATEGY_DEFAULT = 'NONE';
 const READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY;
 const MONGODB_DATABASE_NAME_DEFAULT = 'admin';
 const KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
-const SSL_DEFAULT = 'NONE';
+const SSL_DEFAULT = 'DEFAULT';
 const SSH_TUNNEL_DEFAULT = 'NONE';
 const DRIVER_OPTIONS_DEFAULT = { };
 
@@ -594,6 +593,8 @@ const prepareRequest = (model) => {
 
   if (model.ssl) {
     req.query.ssl = model.ssl;
+  } else if (model.sslMethod === 'DEFAULT') {
+    delete req.query.ssl;
   } else if (
     includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], model.sslMethod)
   ) {
@@ -1055,17 +1056,10 @@ Connection = AmpersandModel.extend({
 const parseConnectionStringAsPromise = promisify(parseConnectionString);
 
 async function createConnectionFromUrl(url) {
-  // We use resolveMongodbSrv because it understands the load balancer
-  // option, whereas parseConnectionString from the 3.6 driver does not.
-  // This could potentially go away once we're using the 3.7 driver,
-  // which will have load balancer support, *but* the whole reason that
-  // resolveMongodbSrv exists is as a possible solution for
-  // https://jira.mongodb.org/browse/COMPASS-4768
-  // so we may want to keep it around anyway.
   const unescapedUrl = unescape(url);
-  const resolvedUrl = await resolveMongodbSrv(unescapedUrl);
-  const parsed = await parseConnectionStringAsPromise(resolvedUrl);
+  const parsed = await parseConnectionStringAsPromise(unescapedUrl);
   const isSrvRecord = unescapedUrl.startsWith('mongodb+srv://');
+
   const attrs = Object.assign(
     {
       hosts: parsed.hosts,

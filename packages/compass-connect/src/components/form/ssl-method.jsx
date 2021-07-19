@@ -6,6 +6,38 @@ import Actions from '../../actions';
 import FormGroup from './form-group';
 import FormItemSelect from './form-item-select';
 
+import SSLServerValidation from './ssl-server-validation';
+import SSLServerClientValidation from './ssl-server-client-validation';
+
+const ROLES = [
+  {
+    name: 'DEFAULT',
+    selectOption: { DEFAULT: 'Default' }
+  },
+  {
+    name: 'NONE',
+    selectOption: { NONE: 'Never use SSL/TLS' }
+  },
+  {
+    name: 'SYSTEMCA',
+    selectOption: { SYSTEMCA: 'System CA / Atlas Deployment' }
+  },
+  {
+    name: 'UNVALIDATED',
+    selectOption: { UNVALIDATED: 'Unvalidated (insecure)' }
+  },
+  {
+    name: 'SERVER',
+    selectOption: { SERVER: 'Server Validation' },
+    component: SSLServerValidation
+  },
+  {
+    name: 'ALL',
+    selectOption: { ALL: 'Server and Client Validation' },
+    component: SSLServerClientValidation
+  }
+];
+
 class SSLMethod extends React.Component {
   static displayName = 'SSLMethod';
 
@@ -39,7 +71,7 @@ class SSLMethod extends React.Component {
    * Sets options for an SSL method.
    */
   setupSSLRoles() {
-    this.roles = global.hadronApp.appRegistry.getRole('Connect.SSLMethod');
+    this.roles = ROLES;
     this.selectOptions = this.roles.map(role => role.selectOption);
   }
 
@@ -53,6 +85,10 @@ class SSLMethod extends React.Component {
       this.roles,
       role => role.name === this.state.sslMethod
     );
+
+    if (!currentRole) {
+      return (<div/>);
+    }
 
     if (currentRole.component) {
       return <currentRole.component {...this.props} />;

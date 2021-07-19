@@ -1,6 +1,10 @@
 // Allowed values for the `sslMethod` field
 module.exports = [
   /**
+   * Don't pass anything and let the driver decide
+   */
+  'DEFAULT',
+  /**
    * Do not use SSL for anything.
    */
   'NONE',

@@ -183,12 +183,10 @@ describe('ConnectionForm [Component]', () => {
     before(() => {
       global.hadronApp = hadronApp;
       global.hadronApp.appRegistry = appRegistry;
-      global.hadronApp.appRegistry.registerRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
       global.hadronApp.appRegistry.registerRole('Connect.SSHTunnel', SERVER_VALIDATION_SSL_ROLE);
     });
 
     after(() => {
-      global.hadronApp.appRegistry.deregisterRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
       global.hadronApp.appRegistry.deregisterRole('Connect.SSHTunnel', SERVER_VALIDATION_SSL_ROLE);
     });
 

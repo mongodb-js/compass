@@ -16,48 +16,6 @@ const ROLE = {
 };
 
 /**
- * No ssl role has no component.
- */
-const NO_SSL_ROLE = {
-  name: 'NONE',
-  selectOption: { NONE: 'None' }
-};
-
-/**
- * System CA ssl role has no component.
- */
-const SYSTEM_CA_SSL_ROLE = {
-  name: 'SYSTEMCA',
-  selectOption: { SYSTEMCA: 'System CA / Atlas Deployment' }
-};
-
-/**
- * Unvalidated (insecure) ssl role has no component.
- */
-const UNVALIDATED_SLL_ROLE = {
-  name: 'UNVALIDATED',
-  selectOption: { UNVALIDATED: 'Unvalidated (insecure)' }
-};
-
-/**
- * Server validation role.
- */
-const SERVER_VALIDATION_SSL_ROLE = {
-  name: 'SERVER',
-  selectOption: { SERVER: 'Server Validation' },
-  component: SSLServerValidation
-};
-
-/**
- * Server/Client validation role.
- */
-const SERVER_CLIENT_VALIDATION_SSL_ROLE = {
-  name: 'ALL',
-  selectOption: { ALL: 'Server and Client Validation' },
-  component: SSLServerClientValidation
-};
-
-/**
  * No SSH tunnel role has no component.
  */
 const NO_SSH_TUNNEL_ROLE = {
@@ -90,11 +48,6 @@ const IDENTITY_FILE_SSH_TUNNEL_ROLE = {
  */
 function activate(appRegistry) {
   appRegistry.registerRole('Application.Connect', ROLE);
-  appRegistry.registerRole('Connect.SSLMethod', NO_SSL_ROLE);
-  appRegistry.registerRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
-  appRegistry.registerRole('Connect.SSLMethod', SERVER_VALIDATION_SSL_ROLE);
-  appRegistry.registerRole('Connect.SSLMethod', SERVER_CLIENT_VALIDATION_SSL_ROLE);
-  appRegistry.registerRole('Connect.SSLMethod', UNVALIDATED_SLL_ROLE);
   appRegistry.registerRole('Connect.SSHTunnel', NO_SSH_TUNNEL_ROLE);
   appRegistry.registerRole('Connect.SSHTunnel', PASSWORD_SSH_TUNNEL_ROLE);
   appRegistry.registerRole('Connect.SSHTunnel', IDENTITY_FILE_SSH_TUNNEL_ROLE);
@@ -109,11 +62,6 @@ function activate(appRegistry) {
  */
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('Application.Connect', ROLE);
-  appRegistry.deregisterRole('Connect.SSLMethod', NO_SSL_ROLE);
-  appRegistry.deregisterRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
-  appRegistry.deregisterRole('Connect.SSLMethod', SERVER_VALIDATION_SSL_ROLE);
-  appRegistry.deregisterRole('Connect.SSLMethod', SERVER_CLIENT_VALIDATION_SSL_ROLE);
-  appRegistry.deregisterRole('Connect.SSLMethod', UNVALIDATED_SLL_ROLE);
   appRegistry.deregisterRole('Connect.SSHTunnel', NO_SSH_TUNNEL_ROLE);
   appRegistry.deregisterRole('Connect.SSHTunnel', PASSWORD_SSH_TUNNEL_ROLE);
   appRegistry.deregisterRole('Connect.SSHTunnel', IDENTITY_FILE_SSH_TUNNEL_ROLE);
