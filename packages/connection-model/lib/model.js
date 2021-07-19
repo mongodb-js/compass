@@ -7,6 +7,7 @@ const fs = require('fs');
 const {
   assign,
   defaults,
+  defaultTo,
   clone,
   cloneDeep,
   includes,
@@ -256,6 +257,7 @@ assign(props, {
    * `mongodb://#{encodeURIComponentRFC3986(this.kerberosPrincipal)}`
    */
   kerberosPrincipal: { type: 'string', default: undefined },
+  kerberosServiceRealm: { type: 'string', default: undefined },
   kerberosCanonicalizeHostname: { type: 'boolean', default: false }
 });
 
@@ -481,10 +483,6 @@ function addAuthToUrl({ url, isPasswordProtected }) {
     url = setAuthSourceToExternal(url);
   }
 
-  if (this.authStrategy === 'KERBEROS' && this.kerberosCanonicalizeHostname) {
-    url = `${url}&authMechanismProperties=CANONICALIZE_HOST_NAME:true`;
-  }
-
   return url;
 }
 
@@ -530,6 +528,8 @@ const prepareRequest = (model) => {
     req.pathname = format('/%s', model.ns);
   }
 
+  const authMechanismProperties = {};
+
   // Encode auth for url format.
   if (model.authStrategy === 'MONGODB') {
     req.auth = 'AUTH_TOKEN';
@@ -545,6 +545,18 @@ const prepareRequest = (model) => {
     defaults(req.query, {
       authMechanism: model.driverAuthMechanism
     });
+    if (model.kerberosServiceName && model.kerberosServiceName !== KERBEROS_SERVICE_NAME_DEFAULT) {
+      authMechanismProperties.SERVICE_NAME = model.kerberosServiceName;
+    }
+    if (model.kerberosServiceRealm) {
+      authMechanismProperties.SERVICE_REALM = model.kerberosServiceRealm;
+    }
+    if (model.kerberosCanonicalizeHostname === true) {
+      // TODO: we have to set the proper authMechanismProperty once it is supported by the driver
+      // see NODE-3351
+      // authMechanismProperties.CANONICALIZE_HOST_NAME = true;
+      authMechanismProperties.gssapiCanonicalizeHostName = true;
+    }
   } else if (model.authStrategy === 'X509') {
     if (model.x509Username) {
       // Username is not required with x509.
@@ -558,7 +570,14 @@ const prepareRequest = (model) => {
   }
 
   Object.keys(CONNECTION_STRING_OPTIONS).forEach((item) => {
-    if (typeof model[item] !== 'undefined' && !req.query[item]) {
+    if (item === 'authMechanismProperties') {
+      Object.assign(authMechanismProperties, model.authMechanismProperties || {});
+      if (Object.keys(authMechanismProperties).length) {
+        req.query.authMechanismProperties = Object.keys(authMechanismProperties)
+          .map((tag) => `${tag}:${authMechanismProperties[tag]}`)
+          .join(',');
+      }
+    } else if (typeof model[item] !== 'undefined' && !req.query[item]) {
       if (item === 'compression') {
         if (model.compression && model.compression.compressors) {
           req.query.compressors = model.compression.compressors.join(',');
@@ -567,14 +586,6 @@ const prepareRequest = (model) => {
         if (model.compression && model.compression.zlibCompressionLevel) {
           req.query.zlibCompressionLevel =
             model.compression.zlibCompressionLevel;
-        }
-      } else if (item === 'authMechanismProperties') {
-        if (model.authMechanismProperties) {
-          req.query.authMechanismProperties = Object.keys(
-            model.authMechanismProperties
-          )
-            .map((tag) => `${tag}:${model.authMechanismProperties[tag]}`)
-            .join(',');
         }
       } else if (item === 'readPreferenceTags') {
         if (model.readPreferenceTags) {
@@ -620,8 +631,9 @@ assign(derived, {
   driverUrl: {
     cache: false,
     fn() {
+      const req = prepareRequest(this);
       return addAuthToUrl.call(this, {
-        url: toURL(prepareRequest(this)),
+        url: toURL(req),
         isPasswordProtected: false
       });
     }
@@ -811,11 +823,7 @@ Connection = AmpersandModel.extend({
     }
 
     if (attrs.authStrategy === 'KERBEROS') {
-      if (!attrs.kerberosServiceName) {
-        attrs.kerberosServiceName = KERBEROS_SERVICE_NAME_DEFAULT;
-      }
-
-      this.kerberosServiceName = attrs.kerberosServiceName;
+      this.parseKerberosProperties(attrs);
     }
 
     // Map the old password fields to the new ones.
@@ -827,6 +835,30 @@ Connection = AmpersandModel.extend({
     });
 
     return attrs;
+  },
+  parseKerberosProperties(attrs) {
+    const authProperties = attrs.authMechanismProperties || {};
+    this.kerberosServiceName = attrs.kerberosServiceName || attrs.gssapiServiceName || authProperties.SERVICE_NAME;
+    this.kerberosServiceRealm = attrs.kerberosServiceRealm || attrs.gssapiServiceRealm || authProperties.SERVICE_REALM;
+    this.kerberosCanonicalizeHostname = attrs.kerberosCanonicalizeHostname || attrs.gssapiCanonicalizeHostName || authProperties.CANONICALIZE_HOST_NAME || authProperties.gssapiCanonicalizeHostName;
+
+    this.gssapiServiceName = undefined;
+    delete attrs.gssapiServiceName;
+    this.gssapiServiceRealm = undefined;
+    delete attrs.gssapiServiceRealm;
+    this.gssapiCanonicalizeHostName = undefined;
+    delete attrs.gssapiCanonicalizeHostName;
+
+    delete authProperties.SERVICE_NAME;
+    delete authProperties.SERVICE_REALM;
+    delete authProperties.CANONICALIZE_HOST_NAME;
+    delete authProperties.gssapiCanonicalizeHostName;
+    if (this.authProperties) {
+      delete this.authProperties.SERVICE_NAME;
+      delete this.authProperties.SERVICE_REALM;
+      delete this.authProperties.CANONICALIZE_HOST_NAME;
+      delete this.authProperties.gssapiCanonicalizeHostName;
+    }
   },
   validate(attrs) {
     try {

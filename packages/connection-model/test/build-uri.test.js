@@ -339,7 +339,7 @@ describe('Connection model builder', () => {
       expect(c.driverUrl).to.be.equal(
         [
           'mongodb://user%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D',
-          '@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME:true'
+          '@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&authMechanismProperties=gssapiCanonicalizeHostName%3Atrue&ssl=false&authSource=%24external'
         ].join('')
       );
 
@@ -854,6 +854,54 @@ describe('Connection model builder', () => {
         const expectedPrefix = `mongodb://${kerberosPrincipal}@localhost:27017`;
 
         expect(c.driverUrl.indexOf(expectedPrefix)).to.be.equal(0);
+
+        Connection.from(c.driverUrl, (error) => {
+          expect(error).to.not.exist;
+          done();
+        });
+      });
+
+      it('should properly handle service name, realm, and canonicalization', (done) => {
+        const c = new Connection({
+          kerberosPrincipal: 'lucas@kerb.mongodb.parts',
+          kerberosServiceName: 'alternate',
+          kerberosServiceRealm: 'THEREALM',
+          kerberosCanonicalizeHostname: true
+        });
+        const kerberosPrincipal = encodeURIComponentRFC3986(
+          c.kerberosPrincipal
+        );
+        const expectedPrefix = `mongodb://${kerberosPrincipal}@localhost:27017`;
+
+        expect(c.driverUrl.indexOf(expectedPrefix)).to.be.equal(0);
+        expect(c.driverUrl).to.contain('&authMechanismProperties=SERVICE_NAME%3Aalternate%2CSERVICE_REALM%3ATHEREALM%2CgssapiCanonicalizeHostName%3Atrue');
+        expect(c.driverUrl).to.not.match(/(\?|&)gssapi/);
+
+        Connection.from(c.driverUrl, (error) => {
+          expect(error).to.not.exist;
+          done();
+        });
+      });
+
+      it('should properly translate other properties', (done) => {
+        const c = new Connection({
+          kerberosPrincipal: 'lucas@kerb.mongodb.parts',
+          gssapiServiceName: 'alternate',
+          gssapiCanonicalizeHostName: true
+        });
+        const kerberosPrincipal = encodeURIComponentRFC3986(
+          c.kerberosPrincipal
+        );
+        const expectedPrefix = `mongodb://${kerberosPrincipal}@localhost:27017`;
+
+        expect(c.driverUrl.indexOf(expectedPrefix)).to.be.equal(0);
+        expect(c.driverUrl).to.contain('&authMechanismProperties=SERVICE_NAME%3Aalternate%2CgssapiCanonicalizeHostName%3Atrue');
+        expect(c.driverUrl).to.not.match(/(\?|&)gssapi/);
+
+        expect(c.gssapiServiceName).to.be.undefined;
+        expect(c.gssapiCanonicalizeHostName).to.be.undefined;
+        expect(c.kerberosServiceName).to.equal('alternate');
+        expect(c.kerberosCanonicalizeHostname).to.be.true;
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;

@@ -21,7 +21,7 @@ const stubedConnection = proxyquire('../', stubs);
 
 chai.use(require('chai-subset'));
 
-describe('connection model partser should parse URI components such as', () => {
+describe('connection model parser should parse URI components such as', () => {
   describe('prefix', () => {
     it('should set isSrvRecord to false', (done) => {
       Connection.from(
@@ -500,24 +500,30 @@ describe('connection model partser should parse URI components such as', () => {
           'mongodb://user%40EXAMPLE.COM:secret@localhost/?authMechanismProperties=SERVICE_NAME:other,SERVICE_REALM:blah,CANONICALIZE_HOST_NAME:true&authMechanism=GSSAPI',
           (error, result) => {
             expect(error).to.not.exist;
+            expect(result.gssapiServiceName).to.be.undefined;
+            expect(result.gssapiServiceRealm).to.be.undefined;
+            expect(result.gssapiCanonicalizeHostName).to.be.undefined;
             expect(result).to.deep.include({
-              gssapiServiceName: 'other',
-              gssapiServiceRealm: 'blah',
-              gssapiCanonicalizeHostName: true
+              authMechanism: 'GSSAPI',
+              kerberosServiceName: 'other',
+              kerberosServiceRealm: 'blah',
+              kerberosCanonicalizeHostname: true
             });
-            expect(result).to.have.property('authMechanism');
-            expect(result.authMechanism).to.equal('GSSAPI');
             done();
           }
         );
       });
 
-      it('should parse authMechanismProperties', (done) => {
+      it('should parse gssapiServiceName option', (done) => {
         Connection.from(
-          'mongodb://user:password@example.com/?authMechanism=GSSAPI&authSource=$external&gssapiServiceName=mongodb',
+          'mongodb://user:password@example.com/?authMechanism=GSSAPI&authSource=$external&gssapiServiceName=other',
           (error, result) => {
             expect(error).to.not.exist;
-            expect(result.gssapiServiceName).to.be.equal('mongodb');
+            expect(result.gssapiServiceName).to.be.undefined;
+            expect(result).to.deep.include({
+              authMechanism: 'GSSAPI',
+              kerberosServiceName: 'other'
+            });
             done();
           }
         );
