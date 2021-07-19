@@ -243,7 +243,7 @@
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\"",
     "depcheck": "depcheck",
     "pretest-ci": "npm run electron-rebuild",
-    "test-ci": "xvfb-maybe electron-mocha --no-sandbox ./test/**/*.test.js",
+    "test-ci": "npm run test-release-tasks && xvfb-maybe electron-mocha --no-sandbox ./test/**/*.test.js",
     "posttest-ci": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos keytar interruptor"
   },
   "repository": {

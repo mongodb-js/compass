@@ -145,10 +145,10 @@ async function releaseCheckout(versionLike) {
   cli.info('Switched to branch:', chalk.bold(await git.getCurrentBranch()));
 }
 
-async function releaseChangelog() {
+async function releaseChangelog(optionalVersionToCompareTo) {
   await getValidReleaseBranch();
   const releaseVersion = await getPackageJsonVersion();
-  await changelog.render(releaseVersion);
+  await changelog.render(releaseVersion, optionalVersionToCompareTo);
 }
 
 async function releasePublish() {

@@ -21,7 +21,7 @@ function renderCommit({ scope, message, pr, ticket }) {
   return `${scope ? `**${scope}**` + ': ' : ''}${capitalize(message)}${links}`;
 }
 
-async function render(releaseVersion) {
+async function render(releaseVersion, compareTo) {
   const releaseTag = `v${releaseVersion}`;
   const isGaRelease = version.isGa(releaseTag);
 
@@ -30,8 +30,14 @@ async function render(releaseVersion) {
     throw new Error(`The release tag ${releaseTag} was not found. Is this release tagged?`);
   }
 
-  // finds the first tag that is lower than releaseTag
-  const previousTag = tags
+  if (compareTo && !tags.includes(compareTo)) {
+    throw new Error(
+      `Can't provide change log since tag ${compareTo}. This tag does not exist`
+    );
+  }
+
+  // Use provided tag name or find the first tag that is lower than releaseTag
+  const previousTag = compareTo ? compareTo : tags
     .filter((t) => t.startsWith('v') && semver.valid(t))
     .filter((t) => isGaRelease ? version.isGa(t) : true) // if is GA only consider other GAs
     .sort(semver.compare)
