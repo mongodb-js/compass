@@ -127,7 +127,7 @@ const ValidationRulesResource = BaseResource.extend({
 });
 
 // SchemaValidation resource uses 'fetched', 'activated', 'saved',
-// and `rulesadded` as actions
+// and 'rulesadded' as actions
 const SchemaValidationResource = BaseResource.extend({
   id: 'SchemaValidation',
   eventTrackers: ['stitch'],
