@@ -21,7 +21,7 @@ const stubedConnection = proxyquire('../', stubs);
 
 chai.use(require('chai-subset'));
 
-describe('connection model partser should parse URI components such as', () => {
+describe('connection model parser should parse URI components such as', () => {
   describe('prefix', () => {
     it('should set isSrvRecord to false', (done) => {
       Connection.from(
@@ -500,24 +500,30 @@ describe('connection model partser should parse URI components such as', () => {
           'mongodb://user%40EXAMPLE.COM:secret@localhost/?authMechanismProperties=SERVICE_NAME:other,SERVICE_REALM:blah,CANONICALIZE_HOST_NAME:true&authMechanism=GSSAPI',
           (error, result) => {
             expect(error).to.not.exist;
+            expect(result.gssapiServiceName).to.be.undefined;
+            expect(result.gssapiServiceRealm).to.be.undefined;
+            expect(result.gssapiCanonicalizeHostName).to.be.undefined;
             expect(result).to.deep.include({
-              gssapiServiceName: 'other',
-              gssapiServiceRealm: 'blah',
-              gssapiCanonicalizeHostName: true
+              authMechanism: 'GSSAPI',
+              kerberosServiceName: 'other',
+              kerberosServiceRealm: 'blah',
+              kerberosCanonicalizeHostname: true
             });
-            expect(result).to.have.property('authMechanism');
-            expect(result.authMechanism).to.equal('GSSAPI');
             done();
           }
         );
       });
 
-      it('should parse authMechanismProperties', (done) => {
+      it('should parse gssapiServiceName option', (done) => {
         Connection.from(
-          'mongodb://user:password@example.com/?authMechanism=GSSAPI&authSource=$external&gssapiServiceName=mongodb',
+          'mongodb://user:password@example.com/?authMechanism=GSSAPI&authSource=$external&gssapiServiceName=other',
           (error, result) => {
             expect(error).to.not.exist;
-            expect(result.gssapiServiceName).to.be.equal('mongodb');
+            expect(result.gssapiServiceName).to.be.undefined;
+            expect(result).to.deep.include({
+              authMechanism: 'GSSAPI',
+              kerberosServiceName: 'other'
+            });
             done();
           }
         );
@@ -549,16 +555,33 @@ describe('connection model partser should parse URI components such as', () => {
         );
       });
 
-      // Driver brought this behaviour back in v3.6.3+ (but will remove in v4), we don't need to handle directConnection ourselves
-      // See https://github.com/mongodb/node-mongodb-native/pull/2719
-      describe.skip('directConnection', () => {
-        it('defaults directConnection undefined', (done) => {
+      describe('directConnection', () => {
+        it('defaults directConnection undefined for srv records', (done) => {
           Connection.from(
-            'mongodb://localhost:27017',
+            'mongodb+srv://user:password@compass-data-sets.e06dc.mongodb.net',
             (error, result) => {
-              expect(error).to.not.exist;
-              expect(result.directConnection).to.be.equal(undefined);
-              done();
+              try {
+                expect(error).to.not.exist;
+                expect(result.directConnection).to.be.equal(undefined);
+                done();
+              } catch (e) {
+                done(e);
+              }
+            }
+          );
+        });
+
+        it('defaults directConnection undefined for multiple hosts', (done) => {
+          Connection.from(
+            'mongodb://host1,host2,host3',
+            (error, result) => {
+              try {
+                expect(error).to.not.exist;
+                expect(result.directConnection).to.be.equal(undefined);
+                done();
+              } catch (e) {
+                done(e);
+              }
             }
           );
         });
@@ -640,6 +663,28 @@ describe('connection model partser should parse URI components such as', () => {
           (error, result) => {
             expect(error).to.not.exist;
             expect(result.uuidRepresentation).to.be.equal('csharpLegacy');
+            done();
+          }
+        );
+      });
+
+      it('should parse loadBalanced with false value', (done) => {
+        Connection.from(
+          'mongodb://hostname?loadBalanced=false',
+          (error, result) => {
+            expect(error).to.not.exist;
+            expect(result.loadBalanced).to.be.equal(false);
+            done();
+          }
+        );
+      });
+
+      it('should parse loadBalanced with true value', (done) => {
+        Connection.from(
+          'mongodb://hostname?loadBalanced=true',
+          (error, result) => {
+            expect(error).to.not.exist;
+            expect(result.loadBalanced).to.be.equal(true);
             done();
           }
         );

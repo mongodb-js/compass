@@ -48,6 +48,51 @@ const debug = require('debug')('mongodb-compass:stores:query-bar');
 
 const QUERY_CHANGED_STORE = 'Query.ChangedStore';
 
+function isGeoCondition(object) {
+  if (typeof object !== 'object') {
+    return false;
+  }
+
+  if (!object) {
+    return false;
+  }
+
+  return 'coordinates' in object;
+}
+
+export function mergeGeoFilter(oldFilter, newGeoQueryFilter) {
+  const filter = { ...oldFilter };
+
+  // unset previous geo query by deleting any `coordinates` conditions
+  // from the main query and any other $or conditions containing a
+  // `coordinates` query
+  if (filter.coordinates) {
+    delete filter.coordinates;
+  }
+
+  if (Array.isArray(filter.$or)) {
+    filter.$or = filter.$or.filter((condition) => !isGeoCondition(condition));
+
+    // if at this point the $or is empty we just drop it
+    if (!filter.$or.length) {
+      delete filter.$or;
+    }
+  }
+
+  if (newGeoQueryFilter.coordinates) {
+    filter.coordinates = newGeoQueryFilter.coordinates;
+  }
+
+  if (newGeoQueryFilter.$or) {
+    filter.$or = [
+      ...(Array.isArray(filter.$or) ? filter.$or : []),
+      ...newGeoQueryFilter.$or
+    ];
+  }
+
+  return filter;
+}
+
 /**
  * Configure the query bar store.
  *
@@ -63,9 +108,10 @@ const configureStore = (options = {}) => {
     /*
      * listen to Namespace store and reset if ns changes.
      */
-    onCollectionChanged(ns) {
+    onCollectionChanged(ns, isTimeSeries) {
       const newState = this.getInitialState();
       newState.ns = ns;
+      newState.isTimeSeries = isTimeSeries;
       this.setState(newState);
     },
 
@@ -163,6 +209,7 @@ const configureStore = (options = {}) => {
 
         // set the namespace
         ns: '',
+        isTimeSeries: false,
 
         serverVersion: '3.6.0',
 
@@ -290,19 +337,11 @@ const configureStore = (options = {}) => {
      * Like `setQuery()`, but merge an existing query into the current one
      * instead of overwriting it.
      *
-     * @param {Object} query   a query object with some or all query properties set.
-     * @param {Boolean} autoPopulated - flag to indicate whether the query was auto-populated or not.
+     * @param {Object} newFilter - a query filter object with some or all query properties set.
      */
-    mergeQuery(query, autoPopulated) {
-      const cloned = this._cloneQuery();
-      for (const key of Object.keys(query)) {
-        if (typeof query[key] === 'object' && query[key] !== null) {
-          cloned[key] = { ...cloned[key], ...query[key] };
-        } else {
-          cloned[key] = query[key];
-        }
-      }
-      this.setQuery(cloned, autoPopulated);
+    handleGeoQueryFromSchema(newFilter) {
+      const filter = mergeGeoFilter(this.state.filter, newFilter);
+      this.setQuery({ filter }, true);
     },
 
     /**
@@ -732,8 +771,8 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('subtab-changed', () => {
       options.actions.refreshEditor();
     });
-    localAppRegistry.on('compass:schema:geo-query', (filter) => {
-      store.mergeQuery({ filter }, true);
+    localAppRegistry.on('compass:schema:geo-query', (geoQueryFilter) => {
+      store.handleGeoQueryFromSchema(geoQueryFilter);
     });
     localAppRegistry.on('compass:query-history:run-query', (query) => {
       store.setQuery(query, true);
@@ -753,8 +792,9 @@ const configureStore = (options = {}) => {
   }
 
   if (options.namespace) {
-    store.onCollectionChanged(options.namespace);
+    store.onCollectionChanged(options.namespace, options.isTimeSeries);
   }
+
   if (options.serverVersion) {
     store.onServerVersionChanged(options.serverVersion);
   }

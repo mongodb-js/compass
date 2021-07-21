@@ -1,13 +1,13 @@
 {
   "name": "@mongodb-js/compass-instance",
   "productName": "Instance plugin",
-  "version": "3.7.0",
+  "version": "3.7.3",
   "apiVersion": "3.0.0",
   "description": "compass instance plugin",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/compass-instance.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "scripts": {
     "clean": "rimraf lib",
@@ -22,10 +22,11 @@
     "test-check-ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
     "precheck": "npm run compile",
     "check": "npm run lint && npm run depcheck",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {
@@ -42,8 +43,8 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
-    "@mongodb-js/compass-database": "^2.7.0",
-    "@mongodb-js/compass-serverstats": "^15.7.0",
+    "@mongodb-js/compass-database": "^2.7.3",
+    "@mongodb-js/compass-serverstats": "^15.7.3",
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.2.2",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
@@ -66,9 +67,9 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.7.0",
+    "hadron-app": "^4.7.3",
     "hadron-app-registry": "^8.3.0",
-    "hadron-react-bson": "^5.4.0",
+    "hadron-react-bson": "^5.4.1",
     "hadron-react-buttons": "^5.3.0",
     "hadron-react-components": "^5.4.0",
     "html-webpack-plugin": "^3.2.0",
@@ -89,8 +90,8 @@
     "less-loader": "^4.0.5",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-connection-model": "^21.5.0",
-    "mongodb-data-service": "^21.5.0",
+    "mongodb-connection-model": "^21.5.3",
+    "mongodb-data-service": "^21.5.3",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
@@ -119,5 +120,10 @@
   },
   "dependencies": {
     "lodash.filter": "^4.6.0"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   }
 }

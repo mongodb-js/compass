@@ -2,12 +2,15 @@
   "name": "hadron-reflux-store",
   "description": "Hadron Reflux Stores",
   "author": "Durran Jordan <durran@gmail.com>",
-  "bugs": "https://github.com/mongodb-js/reflux-store/issues",
-  "homepage": "https://github.com/mongodb-js/reflux-store",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
   "version": "1.2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/reflux-store.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "keywords": [

@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps.",
-  "version": "24.5.0",
+  "version": "24.5.1",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha -R spec",
@@ -12,10 +12,10 @@
   "bin": {
     "hadron-build": "cli.js"
   },
-  "homepage": "http://github.com/mongodb-js/hadron-build",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/hadron-build.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
     "@mongodb-js/electron-wix-msi": "^3.0.0",
@@ -83,5 +83,9 @@
     "electron-osx-sign": "^0.4.1",
     "electron-winstaller": "2.5.1"
   },
-  "license": "SSPL"
+  "license": "SSPL",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  }
 }

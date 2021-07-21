@@ -1,13 +1,13 @@
 {
   "name": "@mongodb-js/compass-find-in-page",
   "productName": "Compass Find In Page plugin",
-  "version": "3.7.0",
+  "version": "3.7.3",
   "apiVersion": "3.0.0",
   "description": "cmd-f UI for compass",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/compass-find-in-page.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "scripts": {
     "clean": "rimraf lib",
@@ -24,7 +24,8 @@
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
     "test-ci": "npm run test",
-    "prepare": "npm run compile"
+    "prepublishOnly": "npm run compile",
+    "bootstrap": "npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {
@@ -66,10 +67,10 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.7.0",
+    "hadron-app": "^4.7.3",
     "hadron-app-registry": "^8.3.0",
     "hadron-ipc": "^2.3.0",
-    "hadron-react-bson": "^5.4.0",
+    "hadron-react-bson": "^5.4.1",
     "hadron-react-components": "^5.4.0",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
@@ -89,8 +90,8 @@
     "less-loader": "^5.0.0",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-connection-model": "^21.5.0",
-    "mongodb-data-service": "^21.5.0",
+    "mongodb-connection-model": "^21.5.3",
+    "mongodb-data-service": "^21.5.3",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
@@ -120,5 +121,10 @@
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^3.0.0",
     "xvfb-maybe": "^0.2.1"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   }
 }

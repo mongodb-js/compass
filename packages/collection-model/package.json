@@ -2,10 +2,16 @@
   "name": "mongodb-collection-model",
   "description": "MongoDB collection model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "4.7.0",
-  "bugs": "https://github.com/mongodb-js/mongodb-collection-model/issues",
-  "homepage": "https://github.com/mongodb-js/mongodb-collection-model",
-  "repository": "git://github.com/mongodb-js/mongodb-collection-model.git",
+  "version": "4.7.3",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
   "license": "SSPL",
   "keywords": [
     "mongodb-js"
@@ -26,8 +32,8 @@
     "lodash.clone": "^4.5.0",
     "lodash.foreach": "^4.2.0",
     "lodash.result": "^4.5.2",
-    "mongodb-index-model": "^3.3.0",
-    "mongodb-ns": "^2.0.0"
+    "mongodb-index-model": "^3.3.1",
+    "mongodb-ns": "^2.2.0"
   },
   "peerDependencies": {
     "mongodb-data-service": "*"
@@ -40,7 +46,7 @@
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.0",
-    "mongodb-data-service": "^21.5.0",
+    "mongodb-data-service": "^21.5.3",
     "raf": "^3.4.1",
     "xvfb-maybe": "^0.2.1"
   }

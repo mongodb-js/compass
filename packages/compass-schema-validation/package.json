@@ -1,13 +1,13 @@
 {
   "name": "@mongodb-js/compass-schema-validation",
   "productName": "Compass Json Schema Validation plugin",
-  "version": "5.8.0",
+  "version": "5.8.3",
   "apiVersion": "3.0.0",
   "description": "Compass plugin for document JSON schema validation",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/compass-schema-validation.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "scripts": {
     "clean": "rimraf lib",
@@ -21,10 +21,11 @@
     "cover": "nyc npm run test",
     "test-check-ci": "npm run cover && npm run compile && npm run check",
     "check": "npm run lint && npm run depcheck",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {
@@ -57,14 +58,14 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.8.2",
-    "@mongodb-js/compass-crud": "^12.8.0",
-    "@mongodb-js/compass-query-bar": "^7.7.0",
-    "@mongodb-js/compass-status": "^5.7.0",
+    "@mongodb-js/compass-crud": "^12.8.3",
+    "@mongodb-js/compass-query-bar": "^7.7.3",
+    "@mongodb-js/compass-status": "^5.7.3",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "brace": "^0.11.1",
-    "bson": "^4.4.0",
+    "bson": "^4.4.1",
     "chai": "^4.1.2",
     "chai-enzyme": "1.0.0-beta.1",
     "classnames": "^2.2.5",
@@ -83,10 +84,10 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.7.0",
+    "hadron-app": "^4.7.3",
     "hadron-app-registry": "^8.3.0",
-    "hadron-document": "^7.4.0",
-    "hadron-react-bson": "^5.4.0",
+    "hadron-document": "^7.4.1",
+    "hadron-react-bson": "^5.4.1",
     "hadron-react-buttons": "^5.3.0",
     "hadron-react-components": "^5.4.0",
     "html-webpack-plugin": "^3.2.0",
@@ -103,9 +104,9 @@
     "mongodb-ace-mode": "^1.2.0",
     "mongodb-ace-theme": "^1.2.0",
     "mongodb-client-encryption": "^1.2.3",
-    "mongodb-connection-model": "^21.5.0",
-    "mongodb-data-service": "^21.5.0",
-    "mongodb-extended-json": "^1.11.0",
+    "mongodb-connection-model": "^21.5.3",
+    "mongodb-data-service": "^21.5.3",
+    "mongodb-extended-json": "^1.11.1",
     "mongodb-ns": "^2.2.0",
     "mongodb-query-parser": "^2.1.1",
     "mongodb-reflux-store": "^0.0.1",
@@ -145,5 +146,10 @@
     "lodash": "^4.17.15",
     "react-bootstrap": "^0.32.1",
     "semver": "^5.7.1"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   }
 }

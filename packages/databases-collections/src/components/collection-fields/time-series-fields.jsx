@@ -1,9 +1,12 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import TextInput from '@leafygreen-ui/text-input';
+import { Select, Option } from '@leafygreen-ui/select';
 
 import FieldSet from '../field-set/field-set';
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
+
+import styles from './time-series-fields.less';
 
 const TIME_FIELD_INPUT_DESCRIPTION = 'Specify which field should be used ' +
   'as timeField for the time-series collection. ' +
@@ -15,7 +18,18 @@ const META_FIELD_INPUT_DESCRIPTION = 'The metaField is the designated field ' +
 const EXPIRE_AFTER_SECONDS_DESCRIPTION = 'The expireAfterSeconds field enables ' +
   'automatic deletion of documents older than the specified number of seconds.';
 
+const GRANULARITY_DESCRIPTION = 'The granularity field allows specifying a ' +
+  'coarser granularity so measurements over a longer time span can be ' +
+  'more efficiently stored and queried.';
+
+const GRANULARITY_OPTIONS = [
+  'seconds',
+  'minutes',
+  'hours'
+];
+
 function TimeSeriesFields({
+  isCapped,
   isTimeSeries,
   onChangeIsTimeSeries,
   onChangeTimeSeriesField,
@@ -23,6 +37,7 @@ function TimeSeriesFields({
   expireAfterSeconds
 }) {
   const {
+    granularity,
     metaField,
     timeField
   } = timeSeries;
@@ -37,6 +52,7 @@ function TimeSeriesFields({
 
   return (
     <CollapsibleFieldSet
+      disabled={isCapped}
       onToggle={checked => onChangeIsTimeSeries(checked)}
       toggled={isTimeSeries}
       label="Time-Series"
@@ -65,6 +81,29 @@ function TimeSeriesFields({
       </FieldSet>
 
       <FieldSet>
+        <Select
+          className={styles['options-select-dropdown']}
+          label="granularity"
+          name="timeSeries.granularity"
+          placeholder="Select a value [optional]"
+          description={GRANULARITY_DESCRIPTION}
+          onChange={(val) => onChangeTimeSeriesField('timeSeries.granularity', val)}
+          usePortal={false}
+          allowDeselect={false}
+          value={granularity}
+        >
+          {GRANULARITY_OPTIONS.map((granularityOption) => (
+            <Option
+              key={granularityOption}
+              value={granularityOption}
+            >
+              {granularityOption}
+            </Option>
+          ))}
+        </Select>
+      </FieldSet>
+
+      <FieldSet>
         <TextInput
           value={expireAfterSeconds}
           label="expireAfterSeconds"
@@ -80,6 +119,7 @@ function TimeSeriesFields({
 }
 
 TimeSeriesFields.propTypes = {
+  isCapped: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool.isRequired,
   onChangeIsTimeSeries: PropTypes.func.isRequired,
   onChangeTimeSeriesField: PropTypes.func.isRequired,

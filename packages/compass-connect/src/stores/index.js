@@ -931,6 +931,13 @@ const Store = Reflux.createStore({
         (item) => item._id === recents[9]
       );
 
+      // Because we're storing the connections twice and performing async operations
+      // on the connections with synchronous assumptions, sometimes these two connection
+      // stores get out of sync and we can fail to find the connection to delete.
+      if (!toDestroy) {
+        return;
+      }
+
       toDestroy.destroy({
         success: () => {
           this.state.fetchedConnections.remove(toDestroy._id);
@@ -991,8 +998,15 @@ const Store = Reflux.createStore({
       return;
     }
 
-    // Set the connection's app name to the electron app name of Compass.
-    connectionModel.appname = electron.remote.app.getName();
+    /**
+     * Set the connection's app name to the electron app name only if it's not
+     * set by the user already
+     *
+     * See https://jira.mongodb.org/browse/COMPASS-4901
+     */
+    if (typeof connectionModel.appname === 'undefined') {
+      connectionModel.appname = electron.remote.app.getName();
+    }
 
     try {
       const dataService = new DataService(connectionModel);

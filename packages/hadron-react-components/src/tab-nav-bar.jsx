@@ -17,21 +17,8 @@ class TabNavBar extends React.Component {
     super(props);
     this.state = {
       paused: false,
-      activeTabIndex: props.activeTabIndex
+      activeTabIndex: props.activeTabIndex ? props.activeTabIndex : 0
     };
-  }
-
-  /**
-   * Handle component receiving new props.
-   *
-   * @param {Object} nextProps - The new props.
-   */
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.activeTabIndex !== undefined && nextProps.activeTabIndex !== this.state.activeTabIndex) {
-      this.setState({
-        activeTabIndex: nextProps.activeTabIndex
-      });
-    }
   }
 
   /**
@@ -46,22 +33,27 @@ class TabNavBar extends React.Component {
     }
   }
 
+
+  /**
+   * @returns {number} The active tab index, regardless of controlled/uncontrolled.
+   */
+  getActiveTabIndex() {
+    const isControlled = typeof this.props.activeTabIndex === 'number';
+    return isControlled ? this.props.activeTabIndex : this.state.activeTabIndex;
+  }
+
   /**
    * Render the tabs.
    *
    * @returns {React.Component} The tabs.
    */
   renderTabs() {
-    const {
-      activeTabIndex
-    } = this.state;
-
     return (
       <Tabs
         aria-label={this.props['aria-label']}
         className="test-tab-nav-bar-tabs"
         setSelected={this.onTabClicked}
-        selected={activeTabIndex}
+        selected={this.getActiveTabIndex()}
         darkMode={this.props.darkMode}
       >
         {this.props.tabs.map((tab, idx) => (
@@ -81,7 +73,7 @@ class TabNavBar extends React.Component {
    * @return {React.Element}    active view
    */
   renderActiveView() {
-    return this.props.views[this.state.activeTabIndex];
+    return this.props.views[this.getActiveTabIndex()];
   }
 
   /**
@@ -97,7 +89,8 @@ class TabNavBar extends React.Component {
         <div
           key={`tab-content-${idx}`}
           data-test-id={`${this.props.tabs[idx].toLowerCase().replace(/ /g, '-')}-content`}
-          className={idx === this.state.activeTabIndex ? 'tab' : 'tab hidden'}>
+          className={idx === this.getActiveTabIndex() ? 'tab' : 'tab hidden'}
+        >
           {view}
         </div>
       );

@@ -12,6 +12,7 @@ import error, {
   clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
 } from '../error';
 import { reset, RESET } from '../reset';
+import { prepareMetrics } from '../metrics';
 
 /**
  * Open action name.
@@ -100,10 +101,14 @@ export const createDatabase = (data) => {
 
     try {
       dispatch(toggleIsRunning(true));
-      ds.createCollection(`${dbName}.${collName}`, data.options, (e) => {
-        if (e) {
-          return stopWithError(dispatch, e);
+      ds.createCollection(`${dbName}.${collName}`, data.options, (err, collection) => {
+        if (err) {
+          return stopWithError(dispatch, err);
         }
+
+        prepareMetrics(collection).then((metrics) => {
+          global.hadronApp.appRegistry.emit('compass:collection:created', metrics);
+        });
         global.hadronApp.appRegistry.emit('refresh-data');
         dispatch(reset());
       });

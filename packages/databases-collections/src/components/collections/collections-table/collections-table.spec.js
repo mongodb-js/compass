@@ -64,6 +64,27 @@ describe('CollectionsTable [Component]', () => {
     expect(component.find('.main')).to.be.present();
   });
 
+  it('renders the drop collection button', () => {
+    expect(component.find('[data-test-id="sortable-table-delete"]')).to.be.present();
+  });
+
+  context('with compass readonly', () => {
+    const hadronReadOnlyBkp = process.env.HADRON_READONLY;
+
+    beforeEach(() => {
+      process.env.HADRON_READONLY = 'true';
+      remount();
+    });
+
+    afterEach(() => {
+      process.env.HADRON_READONLY = hadronReadOnlyBkp;
+    });
+
+    it('does not render the drop collection button', () => {
+      expect(component.find('[data-test-id="sortable-table-delete"]')).not.to.be.present();
+    });
+  });
+
   it('passes the document count', () => {
     expect(component.find(SortableTable).props().rows[0].Documents).to.equal('5');
   });

@@ -31,20 +31,20 @@ const tests = [
     description: 'with socketTimeoutMS',
     connectionString:
       'mongodb://localhost:27017/sampleDb' +
-      '?socketTimeoutMS=30000&w=majority&readPreference=primary&ssl=false'
+      '?socketTimeoutMS=30000&w=majority&readPreference=primary&directConnection=true&ssl=false'
     // only: true // Uncomment this line to run only one test debugging purpose
   },
   {
     description: 'with compression',
     connectionString:
       'mongodb://localhost:27017/?compressors=snappy%2Czlib&' +
-      'readPreference=primary&ssl=false'
+      'readPreference=primary&directConnection=true&ssl=false'
   },
   {
     description: 'with zlibCompressionLevel',
     connectionString:
       'mongodb://localhost:27017/?zlibCompressionLevel=9&' +
-      'readPreference=primary&ssl=false'
+      'readPreference=primary&directConnection=true&ssl=false'
   },
   {
     description:
@@ -59,7 +59,7 @@ const tests = [
     connectionString:
       'mongodb://localhost:27017/test?' +
       'maxPoolSize=50&minPoolSize=5&maxIdleTimeMS=1000&waitQueueMultiple=200&waitQueueTimeoutMS=100&' +
-      'w=1&wTimeoutMS=2000&journal=true&readPreference=primary&ssl=false'
+      'w=1&wTimeoutMS=2000&journal=true&readPreference=primary&directConnection=true&ssl=false'
   },
   {
     description: 'with readConcernLevel',
@@ -84,32 +84,37 @@ const tests = [
     description: 'with authSource and authMechanism (SCRAM-SHA-1)',
     connectionString:
       'mongodb://%40rlo:w%40of@localhost:27017/dogdb?authSource=catdb&' +
-      'readPreference=primary&authMechanism=SCRAM-SHA-1&ssl=false'
+      'readPreference=primary&authMechanism=SCRAM-SHA-1&directConnection=true&ssl=false'
   },
   {
     description: 'with authSource and authMechanism (SCRAM-SHA-256)',
     connectionString:
       'mongodb://%40rlo:w%40of@localhost:27017/dogdb?authSource=catdb&' +
-      'authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false'
+      'authMechanism=SCRAM-SHA-256&readPreference=primary&directConnection=true&ssl=false'
   },
   {
     description: 'with password which is ignored for GSSAPI',
     connectionString:
       'mongodb://%40rlo:woof@localhost:27017/?' +
       'authMechanism=GSSAPI&readPreference=primary&' +
-      'authSource=%24external&ssl=false&authSource=$external',
+      'ssl=false&authSource=$external',
     expectedConnectionString:
       'mongodb://%40rlo@localhost:27017/?' +
       'authMechanism=GSSAPI&readPreference=primary&' +
-      'authSource=%24external&ssl=false&authSource=$external'
+      'authSource=%24external&directConnection=true&ssl=false'
   },
   {
     description: 'with authMechanismProperties and gssapiServiceName',
     connectionString:
       'mongodb://%40rlo@localhost:27017/?' +
       'authMechanism=GSSAPI&readPreference=primary&' +
-      'authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue&' +
-      'gssapiCanonicalizeHostName=true&ssl=false&authSource=$external'
+      'authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue%2CSERVICE_REALM%3Arealm&' +
+      'gssapiServiceName=alternate&directConnection=true&ssl=false',
+    expectedConnectionString:
+      'mongodb://%40rlo@localhost:27017/?' +
+      'authMechanism=GSSAPI&readPreference=primary&authSource=%24external&' +
+      'authMechanismProperties=SERVICE_NAME%3Aalternate%2CSERVICE_REALM%3Arealm%2CgssapiCanonicalizeHostName%3Atrue&' +
+      'directConnection=true&ssl=false',
   },
   {
     description:
@@ -123,22 +128,27 @@ const tests = [
     description: 'with serverSelectionTryOnce',
     connectionString:
       'mongodb://a:27017/?readPreference=primary&' +
-      'serverSelectionTryOnce=false&ssl=false'
+      'serverSelectionTryOnce=false&directConnection=true&ssl=false'
   },
   {
     description: 'with appName',
     connectionString:
-      'mongodb://localhost:27017/?readPreference=primary&appname=foo&ssl=false'
+      'mongodb://localhost:27017/?readPreference=primary&appname=foo&directConnection=true&ssl=false'
   },
   {
     description: 'with retryWrites',
     connectionString:
-      'mongodb://hostname:27017/?readPreference=primary&retryWrites=true&ssl=false'
+      'mongodb://hostname:27017/?readPreference=primary&retryWrites=true&directConnection=true&ssl=false'
   },
   {
     description: 'with uuidRepresentation',
     connectionString:
-      'mongodb://foo:27017/?readPreference=primary&uuidRepresentation=csharpLegacy&ssl=false'
+      'mongodb://foo:27017/?readPreference=primary&uuidRepresentation=csharpLegacy&directConnection=true&ssl=false'
+  },
+  {
+    description: 'with loadBalanced',
+    connectionString:
+      'mongodb://hostname:27017/?readPreference=primary&loadBalanced=true&ssl=false'
   }
 ];
 
@@ -151,8 +161,12 @@ describe('connection model', () => {
 
           const c = new Connection(result.toJSON());
 
-          expect(c.driverUrl).to.be.equal(test.expectedConnectionString || test.connectionString);
-          done();
+          try {
+            expect(c.driverUrl).to.be.equal(test.expectedConnectionString || test.connectionString);
+            done();
+          } catch (e) {
+            done(e);
+          }
         });
       const runMode = test.only ? it.only : it;
       runMode(test.description, runTest);

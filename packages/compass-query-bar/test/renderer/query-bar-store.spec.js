@@ -8,6 +8,7 @@
 
 import configureStore from '../../src/stores';
 import configureActions from '../../src/actions';
+import { mergeGeoFilter } from '../../src/stores/query-bar-store';
 
 import {
   DEFAULT_FILTER,
@@ -66,11 +67,107 @@ describe('QueryBarStore [Store]', function() {
       autoPopulated: false,
       expanded: false,
       ns: '',
+      isTimeSeries: false,
       schemaFields: []
     });
   });
 
-  describe('AppRegistry events', function() {
+  describe('onCollectionChanged', function() {
+    afterEach(function() {
+      unsubscribe();
+    });
+
+    it('sets ns and isTimeSeries', function(done) {
+      expect(store.state.ns).to.equal('');
+      expect(store.state.isTimeSeries).to.equal(false);
+
+      unsubscribe = store.listen(state => {
+        expect(state.ns).to.equal('db1.coll1');
+        expect(state.isTimeSeries).to.equal(true);
+        done();
+      });
+
+      store.onCollectionChanged('db1.coll1', true);
+    });
+  });
+
+  describe('mergeGeoFilter', () => {
+    it('replaces previous coordinates geo filter', () => {
+      const merged = mergeGeoFilter(
+        {coordinates: {lat: 1, lng: 1}},
+        {coordinates: {lat: 2, lng: 2}}
+      );
+
+      expect(merged).to.deep.equal({coordinates: {lat: 2, lng: 2}});
+    });
+
+    it('replaces previous $or geo filter', () => {
+      const merged = mergeGeoFilter(
+        {$or: [
+          {coordinates: {lat: 1, lng: 1}},
+          {coordinates: {lat: 1, lng: 2}}]
+        },
+        {$or: [
+          {coordinates: {lat: 2, lng: 3}},
+          {coordinates: {lat: 2, lng: 4}}]
+        }
+      );
+
+      expect(merged).to.deep.equal({$or: [
+        {coordinates: {lat: 2, lng: 3}},
+        {coordinates: {lat: 2, lng: 4}}]
+      });
+    });
+
+    it('replaces previous coordinates with $or geo filter', () => {
+      const merged = mergeGeoFilter(
+        {coordinates: {lat: 1, lng: 1}},
+        {$or: [
+          {coordinates: {lat: 2, lng: 3}},
+          {coordinates: {lat: 2, lng: 4}}]
+        }
+      );
+
+      expect(merged).to.deep.equal({$or: [
+        {coordinates: {lat: 2, lng: 3}},
+        {coordinates: {lat: 2, lng: 4}}]
+      });
+    });
+
+    it('keeps other properties unchanged', () => {
+      expect(mergeGeoFilter(
+        {x: 1},
+        {coordinates: {lat: 2, lng: 2}}
+      ).x).to.equal(1);
+
+      expect(mergeGeoFilter(
+        {x: 1},
+        {$or: [
+          {coordinates: {lat: 2, lng: 2}},
+          {coordinates: {lat: 3, lng: 3}}]
+        }
+      ).x).to.equal(1);
+    });
+
+    it('preserves other $or conditions', () => {
+      const merged = mergeGeoFilter(
+        {$or: [
+          {coordinates: {lat: 1, lng: 1}},
+          {coordinates: {lat: 1, lng: 2}},
+          {x: 1}
+        ]},
+        {$or: [
+          {coordinates: {lat: 2, lng: 3}},
+          {coordinates: {lat: 2, lng: 4}}]
+        }
+      );
+
+      expect(merged).to.deep.equal({$or: [
+        {x: 1},
+        {coordinates: {lat: 2, lng: 3}},
+        {coordinates: {lat: 2, lng: 4}}
+      ]});
+    });
   });
 
   describe('toggleQueryOptions', function() {
@@ -179,21 +276,44 @@ describe('QueryBarStore [Store]', function() {
     });
   });
 
-  describe('mergeQuery', function() {
+  describe('handleGeoQueryFromSchema', function() {
     afterEach(function() {
       unsubscribe();
     });
 
-    describe('when setting two query properties separately', function() {
-      it('composes them when it is an object`', function(done) {
+    describe('when handing a geo query from schema', function() {
+      it('only sets the filter`', function(done) {
+        const originalQuery = {
+          filter: { a: { $exists: true } },
+          project: { b: 1 },
+          sort: { c: -1, d: 1 },
+          collation: { locale: 'simple' },
+          skip: 5,
+          limit: 10,
+          sample: false,
+          maxTimeMS: 5000
+        };
+
+        store.setQuery(originalQuery);
+
         let calls = 0;
         unsubscribe = store.listen(state => {
           switch (++calls) {
             case 1:
-              expect(state.filter).to.be.deep.equal({ foo: 1 });
+              expect(state.filter).to.be.deep.equal({
+                a: { $exists: true },
+                coordinates: {lat: 1, lng: 1}
+              });
+              expect(state.maxTimeMS).to.equal(5000);
               break;
             case 2:
-              expect(state.filter).to.be.deep.equal({ foo: 1, bar: 1 });
+              expect(state.filter).to.be.deep.equal({
+                a: { $exists: true },
+                $or: [
+                  { coordinates: {lat: 2, lng: 2} }
+                ]
+              });
+              expect(state.maxTimeMS).to.equal(5000);
               done();
               break;
             default:
@@ -201,35 +321,12 @@ describe('QueryBarStore [Store]', function() {
           }
         });
 
-        store.mergeQuery({ filter: { foo: 1 } });
-        store.mergeQuery({ filter: { bar: 1 } });
-      });
-
-      it('overrides them when it is a primtive`', function(done) {
-        let calls = 0;
-        unsubscribe = store.listen(state => {
-          switch (++calls) {
-            case 1:
-              expect(state.filter).to.be.deep.equal({ foo: 1 });
-              expect(state.maxTimeMS).to.not.equal(20);
-              break;
-            case 2:
-              expect(state.filter).to.be.deep.equal({ foo: 1, bar: 1 });
-              expect(state.maxTimeMS).to.equal(20);
-              break;
-            case 3:
-              expect(state.filter).to.be.deep.equal({ foo: 1, bar: 4 });
-              expect(state.maxTimeMS).to.equal(40);
-              done();
-              break;
-            default:
-              throw new Error('unreachable');
-          }
+        store.handleGeoQueryFromSchema({ coordinates: {lat: 1, lng: 1} });
+        store.handleGeoQueryFromSchema({
+          $or: [
+            { coordinates: {lat: 2, lng: 2} }
+          ]
         });
-
-        store.mergeQuery({ filter: { foo: 1 } });
-        store.mergeQuery({ filter: { bar: 1 }, maxTimeMS: 20 });
-        store.mergeQuery({ filter: { bar: 4 }, maxTimeMS: 40 });
       });
     });
   });

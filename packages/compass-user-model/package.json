@@ -2,10 +2,16 @@
   "name": "compass-user-model",
   "description": "MongoDB user model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "1.7.0",
-  "bugs": "https://github.com/mongodb-js/compass-user-model/issues",
-  "homepage": "https://github.com/mongodb-js/compass-user-model",
-  "repository": "git://github.com/mongodb-js/compass-user-model.git",
+  "version": "1.7.3",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
   "license": "SSPL",
   "browser": "browser.js",
   "keywords": [
@@ -26,9 +32,9 @@
     "ampersand-state": "4.8.2",
     "debug": "^2.2.0",
     "lodash.get": "^4.4.2",
-    "mongodb-collection-model": "^4.7.0",
+    "mongodb-collection-model": "^4.7.3",
     "mongodb-database-model": "^1.2.0",
-    "mongodb-ns": "^2.0.0",
+    "mongodb-ns": "^2.2.0",
     "raf": "^3.4.1",
     "storage-mixin": "^4.5.0",
     "uuid": "^3.3.2"

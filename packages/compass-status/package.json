@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-status",
   "productName": "Compass Status plugin",
-  "version": "5.7.0",
+  "version": "5.7.3",
   "apiVersion": "3.0.0",
   "description": "Compass Status Plugin",
   "main": "lib/index.js",
@@ -16,10 +16,11 @@
     "cover": "nyc npm run test",
     "test-check-ci": "npm run cover && npm run compile && npm run check",
     "check": "npm run lint && npm run depcheck",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {
@@ -59,7 +60,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.7.0",
+    "hadron-app": "^4.7.3",
     "hadron-app-registry": "^8.3.0",
     "hadron-react-components": "^5.4.0",
     "html-webpack-plugin": "^3.2.0",
@@ -94,5 +95,14 @@
   },
   "dependencies": {
     "lodash.isempty": "^4.4.0"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
   }
 }

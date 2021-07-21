@@ -22,7 +22,7 @@ const resizeableDirections = {
   topLeft: false
 };
 
-const defaultShellHeightClosed = 24;
+const defaultShellHeightClosed = 32;
 const defaultShellHeightOpened = 240;
 
 export class CompassShell extends Component {

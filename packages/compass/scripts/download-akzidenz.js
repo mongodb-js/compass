@@ -67,7 +67,11 @@ const download = async(url, destDir) => {
 
   const res = await fetch(url);
 
-  if (!res.ok) {
+  // If cache item stored by `make-fetch-happen` is stale, it will check if
+  // resource was not modified with the remote and can return a 304 with a body
+  // present. In that case we don't want to throw an error, but rather proceed
+  // with the normal flow
+  if (!res.ok && res.status !== 304) {
     throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
   }
 

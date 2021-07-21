@@ -7,6 +7,7 @@ const fs = require('fs');
 const {
   assign,
   defaults,
+  defaultTo,
   clone,
   cloneDeep,
   includes,
@@ -16,6 +17,8 @@ const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-rest-collection');
 const { ReadPreference } = require('mongodb');
 const { parseConnectionString } = require('mongodb3/lib/core');
+const resolveMongodbSrv = require('resolve-mongodb-srv');
+const ConnectionString = require('mongodb-connection-string-url').default;
 const dataTypes = require('./data-types');
 const localPortGenerator = require('./local-port-generator');
 
@@ -169,9 +172,8 @@ const CONNECTION_STRING_OPTIONS = {
     ],
     default: undefined
   },
-  // Driver brought this behaviour back in v3.6.3+ (but will remove in v4), we don't need to handle directConnection ourselves
-  // See https://github.com/mongodb/node-mongodb-native/pull/2719
-  // directConnection: { type: 'boolean', default: undefined }
+  directConnection: { type: 'boolean', default: undefined },
+  loadBalanced: { type: 'boolean', default: undefined }
 };
 
 assign(props, CONNECTION_STRING_OPTIONS);
@@ -255,6 +257,7 @@ assign(props, {
    * `mongodb://#{encodeURIComponentRFC3986(this.kerberosPrincipal)}`
    */
   kerberosPrincipal: { type: 'string', default: undefined },
+  kerberosServiceRealm: { type: 'string', default: undefined },
   kerberosCanonicalizeHostname: { type: 'boolean', default: false }
 });
 
@@ -427,6 +430,12 @@ function encodeURIComponentRFC3986(str) {
   });
 }
 
+function setAuthSourceToExternal(url) {
+  const uri = new ConnectionString(url);
+  uri.searchParams.set('authSource', '$external');
+  return uri.toString();
+}
+
 /**
  * Adds auth info to URL. The connection model builds two URLs.
  * driverUrl - for the driver with the password included.
@@ -471,11 +480,7 @@ function addAuthToUrl({ url, isPasswordProtected }) {
   url = url.replace('AUTH_TOKEN', authField, 1);
 
   if (includes(['LDAP', 'KERBEROS', 'X509'], this.authStrategy)) {
-    url = `${url}&authSource=$external`;
-  }
-
-  if (this.authStrategy === 'KERBEROS' && this.kerberosCanonicalizeHostname) {
-    url = `${url}&authMechanismProperties=CANONICALIZE_HOST_NAME:true`;
+    url = setAuthSourceToExternal(url);
   }
 
   return url;
@@ -523,6 +528,8 @@ const prepareRequest = (model) => {
     req.pathname = format('/%s', model.ns);
   }
 
+  const authMechanismProperties = {};
+
   // Encode auth for url format.
   if (model.authStrategy === 'MONGODB') {
     req.auth = 'AUTH_TOKEN';
@@ -538,6 +545,18 @@ const prepareRequest = (model) => {
     defaults(req.query, {
       authMechanism: model.driverAuthMechanism
     });
+    if (model.kerberosServiceName && model.kerberosServiceName !== KERBEROS_SERVICE_NAME_DEFAULT) {
+      authMechanismProperties.SERVICE_NAME = model.kerberosServiceName;
+    }
+    if (model.kerberosServiceRealm) {
+      authMechanismProperties.SERVICE_REALM = model.kerberosServiceRealm;
+    }
+    if (model.kerberosCanonicalizeHostname === true) {
+      // TODO: we have to set the proper authMechanismProperty once it is supported by the driver
+      // see NODE-3351
+      // authMechanismProperties.CANONICALIZE_HOST_NAME = true;
+      authMechanismProperties.gssapiCanonicalizeHostName = true;
+    }
   } else if (model.authStrategy === 'X509') {
     if (model.x509Username) {
       // Username is not required with x509.
@@ -551,7 +570,14 @@ const prepareRequest = (model) => {
   }
 
   Object.keys(CONNECTION_STRING_OPTIONS).forEach((item) => {
-    if (typeof model[item] !== 'undefined' && !req.query[item]) {
+    if (item === 'authMechanismProperties') {
+      Object.assign(authMechanismProperties, model.authMechanismProperties || {});
+      if (Object.keys(authMechanismProperties).length) {
+        req.query.authMechanismProperties = Object.keys(authMechanismProperties)
+          .map((tag) => `${tag}:${authMechanismProperties[tag]}`)
+          .join(',');
+      }
+    } else if (typeof model[item] !== 'undefined' && !req.query[item]) {
       if (item === 'compression') {
         if (model.compression && model.compression.compressors) {
           req.query.compressors = model.compression.compressors.join(',');
@@ -560,14 +586,6 @@ const prepareRequest = (model) => {
         if (model.compression && model.compression.zlibCompressionLevel) {
           req.query.zlibCompressionLevel =
             model.compression.zlibCompressionLevel;
-        }
-      } else if (item === 'authMechanismProperties') {
-        if (model.authMechanismProperties) {
-          req.query.authMechanismProperties = Object.keys(
-            model.authMechanismProperties
-          )
-            .map((tag) => `${tag}:${model.authMechanismProperties[tag]}`)
-            .join(',');
         }
       } else if (item === 'readPreferenceTags') {
         if (model.readPreferenceTags) {
@@ -613,8 +631,9 @@ assign(derived, {
   driverUrl: {
     cache: false,
     fn() {
+      const req = prepareRequest(this);
       return addAuthToUrl.call(this, {
-        url: toURL(prepareRequest(this)),
+        url: toURL(req),
         isPasswordProtected: false
       });
     }
@@ -804,11 +823,7 @@ Connection = AmpersandModel.extend({
     }
 
     if (attrs.authStrategy === 'KERBEROS') {
-      if (!attrs.kerberosServiceName) {
-        attrs.kerberosServiceName = KERBEROS_SERVICE_NAME_DEFAULT;
-      }
-
-      this.kerberosServiceName = attrs.kerberosServiceName;
+      this.parseKerberosProperties(attrs);
     }
 
     // Map the old password fields to the new ones.
@@ -820,6 +835,30 @@ Connection = AmpersandModel.extend({
     });
 
     return attrs;
+  },
+  parseKerberosProperties(attrs) {
+    const authProperties = attrs.authMechanismProperties || {};
+    this.kerberosServiceName = attrs.kerberosServiceName || attrs.gssapiServiceName || authProperties.SERVICE_NAME;
+    this.kerberosServiceRealm = attrs.kerberosServiceRealm || attrs.gssapiServiceRealm || authProperties.SERVICE_REALM;
+    this.kerberosCanonicalizeHostname = attrs.kerberosCanonicalizeHostname || attrs.gssapiCanonicalizeHostName || authProperties.CANONICALIZE_HOST_NAME || authProperties.gssapiCanonicalizeHostName;
+
+    this.gssapiServiceName = undefined;
+    delete attrs.gssapiServiceName;
+    this.gssapiServiceRealm = undefined;
+    delete attrs.gssapiServiceRealm;
+    this.gssapiCanonicalizeHostName = undefined;
+    delete attrs.gssapiCanonicalizeHostName;
+
+    delete authProperties.SERVICE_NAME;
+    delete authProperties.SERVICE_REALM;
+    delete authProperties.CANONICALIZE_HOST_NAME;
+    delete authProperties.gssapiCanonicalizeHostName;
+    if (this.authProperties) {
+      delete this.authProperties.SERVICE_NAME;
+      delete this.authProperties.SERVICE_REALM;
+      delete this.authProperties.CANONICALIZE_HOST_NAME;
+      delete this.authProperties.gssapiCanonicalizeHostName;
+    }
   },
   validate(attrs) {
     try {
@@ -1048,14 +1087,23 @@ Connection = AmpersandModel.extend({
 const parseConnectionStringAsPromise = promisify(parseConnectionString);
 
 async function createConnectionFromUrl(url) {
+  // We use resolveMongodbSrv because it understands the load balancer
+  // option, whereas parseConnectionString from the 3.6 driver does not.
+  // This could potentially go away once we're using the 3.7 driver,
+  // which will have load balancer support, *but* the whole reason that
+  // resolveMongodbSrv exists is as a possible solution for
+  // https://jira.mongodb.org/browse/COMPASS-4768
+  // so we may want to keep it around anyway.
   const unescapedUrl = unescape(url);
-  const parsed = await parseConnectionStringAsPromise(unescapedUrl);
-  const isSrvRecord = url.startsWith('mongodb+srv://');
+  const resolvedUrl = await resolveMongodbSrv(unescapedUrl);
+  const parsed = await parseConnectionStringAsPromise(resolvedUrl);
+  const isSrvRecord = unescapedUrl.startsWith('mongodb+srv://');
   const attrs = Object.assign(
-    {},
     {
       hosts: parsed.hosts,
-      hostname: isSrvRecord ? parsed.srvHost : parsed.hosts[0].host,
+      // If this is using an srv record, we can just take the original
+      // URL before SRV resolution to get the "hostname".
+      hostname: isSrvRecord ? new ConnectionString(unescapedUrl).hosts[0] : parsed.hosts[0].host,
       auth: parsed.auth,
       isSrvRecord
     },
@@ -1064,6 +1112,11 @@ async function createConnectionFromUrl(url) {
 
   if (!isSrvRecord) {
     attrs.port = parsed.hosts[0].port;
+  } else {
+    // The 3.x driver's options parser adds this for resolved SRV records
+    // that only point to a single node, it seems. We should not add it,
+    // since it interferes with load balancer support.
+    delete attrs.directConnection;
   }
 
   // We don't inherit the drivers default values
@@ -1116,6 +1169,21 @@ async function createConnectionFromUrl(url) {
         Connection._improveAtlasDefaults(url, attrs.auth.password, attrs.ns)
       );
     }
+  }
+
+  // Since the 3.x parser does not recognize loadBalanced as an option, we have to
+  // parse it ourselves.
+  const loadBalanced = new ConnectionString(unescapedUrl).searchParams.get('loadBalanced');
+  switch (loadBalanced) {
+    case 'true':
+      attrs.loadBalanced = true;
+      delete attrs.directConnection;
+      break;
+    case 'false':
+      attrs.loadBalanced = false;
+      break;
+    default:
+      break;
   }
 
   return new Connection(attrs);

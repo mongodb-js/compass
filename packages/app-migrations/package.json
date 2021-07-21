@@ -10,13 +10,14 @@
     "test-ci": "npm run test"
   },
   "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
-  "homepage": "http://github.com/mongodb-js/app-migrations",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/app-migrations.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "bugs": {
-    "url": "https://github.com/mongodb-js/app-migrations/issues"
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   },
   "dependencies": {
     "async": "^3.1.0",

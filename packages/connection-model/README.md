@@ -163,6 +163,7 @@ const c = new Connection({ appname: 'My App', replicaSet: 'testing' });
 | `appname` | String | An application name passed to server as client metadata | `undefined` |
 | `retryWrites` | Boolean | Enable retryable writes | `undefined` |
 | `uuidRepresentation` | String | The legacy representation of UUID. Possible values: `standard`, `csharpLegacy`, `javaLegacy`, `pythonLegacy` | `undefined` |
+| `loadBalanced` | Boolean | Whether or not the server is running in load balanced mode | `undefined` |
 
 ### Stitch attributes
 

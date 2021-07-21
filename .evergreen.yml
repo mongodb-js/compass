@@ -72,7 +72,7 @@ functions:
           export NPM_CACHE_DIR="$(pwd)/.deps/.npm"
           export NPM_TMP_DIR="$(pwd)/.deps/tmp"
 
-          export NODE_JS_VERSION="12.4.0"
+          export NODE_JS_VERSION="12.9.0"
           export NPM_VERSION="7"
 
           # npm configuration
@@ -130,7 +130,7 @@ functions:
           npm config ls -l
           echo "(if npm fails, debug.log will be uploaded to S3)"
 
-          # Run npm ci in all the packages
+          # Install dependencies and prepare all subpackages
           npm run bootstrap-evergreen --unsafe-perm -- --stream
 
           # Make sure that cache is populated when other packages are pulling the font
@@ -244,7 +244,7 @@ functions:
               # to do this instead of directly referencing node_module paths,
               # but first figure out what exactly was changed in our fork of
               # electron-wix-msi
-              # 
+              #
               # TODO: https://jira.mongodb.org/browse/COMPASS-4888
 
               echo "Fetching signtool -> notary-service hack..."

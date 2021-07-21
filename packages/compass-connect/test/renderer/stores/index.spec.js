@@ -1,6 +1,7 @@
 import AppRegistry from 'hadron-app-registry';
 import Connection, { ConnectionCollection } from 'mongodb-connection-model';
 import Reflux from 'reflux';
+import { remote } from 'electron';
 
 import Actions from '../../../src/actions';
 import {
@@ -1052,7 +1053,7 @@ describe('Store', () => {
 
             it('sets the driverUrl', (done) => {
               const driverUrl =
-                'mongodb://server.example.com:27017/?readPreference=primary&ssl=false';
+                'mongodb://server.example.com:27017/?readPreference=primary&directConnection=true&ssl=false';
               const unsubscribe = Store.listen((state) => {
                 try {
                   unsubscribe();
@@ -1794,14 +1795,15 @@ describe('Store', () => {
   });
 
   describe('#_connect', () => {
-    const connection = new Connection({
-      hostname: 'localhost',
-      port: 27018,
-      authStrategy: 'NONE'
-    });
+    let connection;
     let appRegistryEmitStub;
 
     beforeEach(() => {
+      connection = new Connection({
+        hostname: 'localhost',
+        port: 27018,
+        authStrategy: 'NONE'
+      });
       const connections = {
         [connection._id]: connection.getAttributes({ props: true, derived: true })
       };
@@ -1848,6 +1850,22 @@ describe('Store', () => {
       }
 
       sinon.restore();
+    });
+
+    describe('connection.appname', () => {
+      it('should set connection appname to Electron app name when undefined', async() => {
+        expect(connection.appname).to.be.undefined;
+        Store.state.currentConnectionAttempt = createConnectionAttempt();
+        await Store._connect(connection);
+        expect(connection.appname).to.eq(remote.app.getName());
+      });
+
+      it('should preserve appname if set on connection', async() => {
+        connection.appname = 'My App';
+        Store.state.currentConnectionAttempt = createConnectionAttempt();
+        await Store._connect(connection);
+        expect(connection.appname).to.eq('My App');
+      });
     });
 
     it('connects to the database and sets the dataService on the store', async() => {

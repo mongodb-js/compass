@@ -2,12 +2,15 @@
   "name": "hadron-app",
   "description": "Hadron Application Singleton",
   "author": "Durran Jordan <durran@gmail.com>",
-  "bugs": "https://github.com/mongodb-js/hadron-app/issues",
-  "homepage": "https://github.com/mongodb-js/hadron-app",
-  "version": "4.7.0",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "version": "4.7.3",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/hadron-app.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "keywords": [
@@ -30,7 +33,7 @@
     "hadron-app-registry": "^8.3.0",
     "less": "*",
     "mocha": "^7.0.1",
-    "mongodb-data-service": "^21.5.0",
+    "mongodb-data-service": "^21.5.3",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"

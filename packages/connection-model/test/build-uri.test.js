@@ -1,10 +1,7 @@
 const Connection = require('../');
 const chai = require('chai');
-const fs = require('fs');
 const sslFixture = require('./__fixtures__/ssl');
 const expect = chai.expect;
-const loadOptions = Connection.connect.loadOptions;
-const getTasks = Connection.connect.getTasks;
 const encodeURIComponentRFC3986 = Connection.encodeURIComponentRFC3986;
 
 chai.use(require('chai-subset'));
@@ -179,7 +176,7 @@ describe('Connection model builder', () => {
       });
 
       expect(c.driverUrl).to.be.equal(
-        'mongodb://testing@localhost:27017/?authMechanism=MONGODB-X509&readPreference=primary&ssl=true&authSource=$external'
+        'mongodb://testing@localhost:27017/?authMechanism=MONGODB-X509&readPreference=primary&ssl=true&authSource=%24external'
       );
       expect(c.driverOptions).to.deep.equal(options);
 
@@ -305,7 +302,7 @@ describe('Connection model builder', () => {
       expect(c.driverUrl).to.be.equal(
         [
           'mongodb://user%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D:user%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D',
-          '@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+          '@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=%24external'
         ].join('')
       );
 
@@ -322,7 +319,7 @@ describe('Connection model builder', () => {
       expect(c.driverUrl).to.be.equal(
         [
           'mongodb://user%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D',
-          '@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+          '@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=%24external'
         ].join('')
       );
 
@@ -342,7 +339,7 @@ describe('Connection model builder', () => {
       expect(c.driverUrl).to.be.equal(
         [
           'mongodb://user%40-azMPk%5D%263Wt%29iP_9C%3APMQ%3D',
-          '@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true'
+          '@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&authMechanismProperties=gssapiCanonicalizeHostName%3Atrue&ssl=false&authSource=%24external'
         ].join('')
       );
 
@@ -374,10 +371,10 @@ describe('Connection model builder', () => {
       const c = new Connection(attrs);
 
       expect(c.driverUrl).to.be.equal(
-        'mongodb://ldap-user:ldap-password@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+        'mongodb://ldap-user:ldap-password@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=%24external'
       );
       expect(c.safeUrl).to.be.equal(
-        'mongodb://ldap-user:*****@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+        'mongodb://ldap-user:*****@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=%24external'
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -393,7 +390,7 @@ describe('Connection model builder', () => {
       c.ldapPassword = 'ldap-password';
 
       expect(c.driverUrl).to.be.equal(
-        'mongodb://ldap-user:ldap-password@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+        'mongodb://ldap-user:ldap-password@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=%24external'
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -412,7 +409,7 @@ describe('Connection model builder', () => {
 
       expect(c.driverAuthMechanism).to.be.equal('PLAIN');
       expect(c.driverUrl).to.be.equal(
-        'mongodb://arlo:w%40of@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+        'mongodb://arlo:w%40of@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=%24external'
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -432,7 +429,7 @@ describe('Connection model builder', () => {
 
       expect(c.driverAuthMechanism).to.be.equal('PLAIN');
       expect(c.driverUrl).to.be.equal(
-        'mongodb://arlo%40t.co:woof@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
+        'mongodb://arlo%40t.co:woof@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=%24external'
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -452,7 +449,7 @@ describe('Connection model builder', () => {
       expect(c.driverUrl).to.be.equal(
         'mongodb://CN%3Dclient%2COU%3Dkerneluser%3Ainfo%2CO%3D10Gen%2CL%3DNew%20York%20City' +
           '%2CST%3DNew%20York%2CC%3DUS@localhost:27017/' +
-          '?authMechanism=MONGODB-X509&readPreference=primary&ssl=false&authSource=$external'
+          '?authMechanism=MONGODB-X509&readPreference=primary&ssl=false&authSource=%24external'
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -469,7 +466,7 @@ describe('Connection model builder', () => {
       expect(c.driverAuthMechanism).to.be.equal('MONGODB-X509');
       expect(c.driverUrl).to.be.equal(
         'mongodb://localhost:27017/?authMechanism=MONGODB-X509' +
-          '&readPreference=primary&ssl=false&authSource=$external'
+          '&readPreference=primary&ssl=false&authSource=%24external'
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -740,7 +737,7 @@ describe('Connection model builder', () => {
         });
 
         expect(c.driverUrl).to.be.equal(
-          'mongodb://lucas%40kerb.mongodb.parts@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+          'mongodb://lucas%40kerb.mongodb.parts@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=%24external'
         );
 
         Connection.from(c.driverUrl, (error) => {
@@ -789,10 +786,10 @@ describe('Connection model builder', () => {
         const c = new Connection(attrs);
 
         expect(c.driverUrl).to.be.equal(
-          'mongodb://alena%40test.test@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+          'mongodb://alena%40test.test@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=%24external'
         );
         expect(c.safeUrl).to.be.equal(
-          'mongodb://alena%40test.test@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
+          'mongodb://alena%40test.test@localhost:27017/?authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=%24external'
         );
 
         Connection.from(c.driverUrl, (error) => {
@@ -857,6 +854,54 @@ describe('Connection model builder', () => {
         const expectedPrefix = `mongodb://${kerberosPrincipal}@localhost:27017`;
 
         expect(c.driverUrl.indexOf(expectedPrefix)).to.be.equal(0);
+
+        Connection.from(c.driverUrl, (error) => {
+          expect(error).to.not.exist;
+          done();
+        });
+      });
+
+      it('should properly handle service name, realm, and canonicalization', (done) => {
+        const c = new Connection({
+          kerberosPrincipal: 'lucas@kerb.mongodb.parts',
+          kerberosServiceName: 'alternate',
+          kerberosServiceRealm: 'THEREALM',
+          kerberosCanonicalizeHostname: true
+        });
+        const kerberosPrincipal = encodeURIComponentRFC3986(
+          c.kerberosPrincipal
+        );
+        const expectedPrefix = `mongodb://${kerberosPrincipal}@localhost:27017`;
+
+        expect(c.driverUrl.indexOf(expectedPrefix)).to.be.equal(0);
+        expect(c.driverUrl).to.contain('&authMechanismProperties=SERVICE_NAME%3Aalternate%2CSERVICE_REALM%3ATHEREALM%2CgssapiCanonicalizeHostName%3Atrue');
+        expect(c.driverUrl).to.not.match(/(\?|&)gssapi/);
+
+        Connection.from(c.driverUrl, (error) => {
+          expect(error).to.not.exist;
+          done();
+        });
+      });
+
+      it('should properly translate other properties', (done) => {
+        const c = new Connection({
+          kerberosPrincipal: 'lucas@kerb.mongodb.parts',
+          gssapiServiceName: 'alternate',
+          gssapiCanonicalizeHostName: true
+        });
+        const kerberosPrincipal = encodeURIComponentRFC3986(
+          c.kerberosPrincipal
+        );
+        const expectedPrefix = `mongodb://${kerberosPrincipal}@localhost:27017`;
+
+        expect(c.driverUrl.indexOf(expectedPrefix)).to.be.equal(0);
+        expect(c.driverUrl).to.contain('&authMechanismProperties=SERVICE_NAME%3Aalternate%2CgssapiCanonicalizeHostName%3Atrue');
+        expect(c.driverUrl).to.not.match(/(\?|&)gssapi/);
+
+        expect(c.gssapiServiceName).to.be.undefined;
+        expect(c.gssapiCanonicalizeHostName).to.be.undefined;
+        expect(c.kerberosServiceName).to.equal('alternate');
+        expect(c.kerberosCanonicalizeHostname).to.be.true;
 
         Connection.from(c.driverUrl, (error) => {
           expect(error).to.not.exist;

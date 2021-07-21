@@ -9,8 +9,8 @@
   "shortcutFolderName": "MongoDB",
   "license": "SSPL",
   "scripts": {
-    "bootstrap": "npm install && lerna run prepare --stream",
-    "bootstrap-evergreen": "npm ci && lerna run prepare",
+    "bootstrap": "npm install && lerna run bootstrap --stream",
+    "bootstrap-evergreen": "npm ci && lerna run bootstrap",
     "precheck": "npm run depcheck",
     "check": "lerna run check --stream",
     "check-changed": "npm run check -- --since origin/HEAD --exclude-dependents",
@@ -27,12 +27,13 @@
     "packages-version": "lerna version --allow-branch main --no-push --no-private -m \"chore(release): Bump package versions\"",
     "release": "npm run release --workspace mongodb-compass --",
     "release-evergreen": "npm run release-evergreen --workspace=mongodb-compass --",
+    "build-dist-package": "DEBUG='hadron*' HADRON_SKIP_INSTALLER='true' HADRON_PRODUCT='mongodb-compass' HADRON_PRODUCT_NAME='MongoDB Compass' HADRON_DISTRIBUTION='compass' npm run release-evergreen",
     "start": "npm run start --workspace=mongodb-compass",
     "test": "lerna run test --concurrency 1 --stream",
     "test-changed": "lerna run test --stream --concurrency 1 --since origin/HEAD",
     "test-ci": "lerna run test-ci --concurrency 1",
     "pretest-packages-publish": "./scripts/monorepo/start-proxy-registry.sh && wait-on -t 3000 http://localhost:4873 && npm-cli-adduser -u test -p test -e test@test.test --registry http://localhost:4873 && echo $'\\n\\n!!! LOCAL REGISTRY DOCKER IMAGE IS RUNNING, DO NOT FORGET TO CLEAN IN UP WHEN YOU ARE DONE\\n\\n'",
-    "test-packages-publish": "npm run packages-publish -- --registry http://localhost:4873",
+    "test-packages-publish": "lerna publish from-package --registry http://localhost:4873",
     "test-packages-version": "lerna version --no-push --no-private -m \"tmp(release): Test release\"",
     "update-akzidenz-cache": "node scripts/download-akzidenz.js --update-cache",
     "update-authors": "node scripts/generate-authors.js",
@@ -61,7 +62,7 @@
     "wait-on": "^5.3.0"
   },
   "engines": {
-    "node": ">=12.4.0",
+    "node": ">=12.9.0",
     "npm": ">=7.16.0"
   },
   "bugs": {

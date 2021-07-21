@@ -13,7 +13,8 @@ import styles from './validation-states.less';
  * Warnings for the banner.
  */
 export const READ_ONLY_WARNING = {
-  collectionReadOnly: 'Schema validation on readonly views are not supported.',
+  collectionTimeSeries: 'Schema validation for time-series collections is not supported.',
+  collectionReadOnly: 'Schema validation for readonly views is not supported.',
   writeStateStoreReadOnly: 'This action is not available on a secondary node.',
   oldServerReadOnly: 'Compass no longer supports the visual rule builder for server versions below 3.2. To use the visual rule builder, please'
 };
@@ -61,7 +62,8 @@ class ValidationStates extends Component {
   isEditable() {
     return (
       !this.props.editMode.collectionReadOnly &&
-      !this.props.editMode.hardonReadOnly &&
+      !this.props.editMode.collectionTimeSeries &&
+      !this.props.editMode.hadronReadOnly &&
       !this.props.editMode.writeStateStoreReadOnly &&
       !this.props.editMode.oldServerReadOnly
     );
@@ -74,6 +76,16 @@ class ValidationStates extends Component {
    */
   renderBanner() {
     if (!this.isEditable()) {
+      if (this.props.editMode.collectionTimeSeries) {
+        return (
+          <StatusRow style="warning">
+            <div id="collectionTimeSeries">
+              {READ_ONLY_WARNING.collectionTimeSeries}
+            </div>
+          </StatusRow>
+        );
+      }
+
       if (this.props.editMode.collectionReadOnly) {
         return (
           <StatusRow style="warning">

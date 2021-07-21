@@ -1,23 +1,23 @@
 {
   "name": "@mongodb-js/compass-query-bar",
   "productName": "Query Bar plugin",
-  "version": "7.7.0",
+  "version": "7.7.3",
   "apiVersion": "3.0.0",
   "description": "Renders a component for executing MongoDB queries through a GUI.",
   "main": "lib/index.js",
-  "homepage": "https://compass.mongodb.com",
+  "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
   "bugs": {
-    "url": "https://docs.mongodb.com/compass/current/#contact",
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/compass-query-bar.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "scripts": {
     "clean": "rimraf lib",
@@ -31,10 +31,11 @@
     "cover": "nyc npm run test",
     "test-check-ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
     "check": "npm run lint && npm run depcheck",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "peerDependencies": {
     "debug": "*",
@@ -82,9 +83,8 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.7.0",
     "hadron-app-registry": "^8.3.0",
-    "hadron-react-bson": "^5.4.0",
+    "hadron-react-bson": "^5.4.1",
     "hadron-react-components": "^5.4.0",
     "html-webpack-plugin": "^3.2.0",
     "htmlhint": "^0.11.0",
@@ -109,8 +109,7 @@
     "mongodb-ace-autocompleter": "^0.6.0",
     "mongodb-ace-mode": "^1.2.0",
     "mongodb-ace-theme-query": "^1.2.0",
-    "mongodb-connection-model": "^21.5.0",
-    "mongodb-data-service": "^21.5.0",
+    "mongodb-connection-model": "^21.5.3",
     "mongodb-query-parser": "^2.4.2",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",

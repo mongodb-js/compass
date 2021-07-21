@@ -2,12 +2,15 @@
   "name": "mongodb-index-model",
   "description": "MongoDB index model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "3.3.0",
-  "bugs": "https://github.com/mongodb-js/index-model/issues",
-  "homepage": "https://github.com/mongodb-js/index-model",
+  "version": "3.3.1",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/index-model"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "keywords": [
@@ -29,7 +32,6 @@
     "ampersand-rest-collection": "^6.0.0",
     "async": "^3.2.0",
     "lodash": "^4.17.15",
-    "mongodb": "4.0.0-beta.5",
     "mongodb-js-errors": "^0.5.0",
     "mongodb-ns": "^2.2.0"
   },
@@ -39,6 +41,7 @@
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.1.0",
+    "mongodb": "addaleax/node-mongodb-native#71d4c39e5c858f49d10e840df626eca4da653e28",
     "mongodb-runner": "^4.8.0"
   }
 }

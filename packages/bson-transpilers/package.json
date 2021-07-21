@@ -1,6 +1,6 @@
 {
   "name": "bson-transpilers",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "apiVersion": "0.0.1",
   "productName": "BSON Transpilers",
   "description": "Source to source compilers using ANTLR",
@@ -25,10 +25,10 @@
     "lint": "eslint .",
     "check-ci": "npm run check"
   },
-  "homepage": "http://github.com/mongodb-js/compass/packages/bson-transpilers",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/compass.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "devDependencies": {
@@ -40,8 +40,12 @@
   },
   "dependencies": {
     "antlr4": "4.7.2",
-    "bson": "4.1.0",
+    "bson": "^4.4.1",
     "context-eval": "^0.1.0",
     "js-yaml": "^3.11.0"
+  },
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   }
 }

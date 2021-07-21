@@ -1,13 +1,13 @@
 {
   "name": "@mongodb-js/compass-connect",
   "productName": "Compass Connect Plugin",
-  "version": "7.7.0",
+  "version": "7.7.3",
   "apiVersion": "3.0.0",
   "description": "Connection Screen Plugin that supports Compass",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "http://github.com/mongodb-js/compass-connect.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "scripts": {
     "clean": "rimraf lib",
@@ -25,11 +25,12 @@
     "cover": "nyc npm run test:mocha",
     "precheck": "npm run compile",
     "check": "npm run lint && npm run depcheck",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
     "test-ci": "npm run test",
-    "posttest-ci": "node ../../scripts/killall-mongo.js"
+    "posttest-ci": "node ../../scripts/killall-mongo.js",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {
@@ -53,7 +54,7 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
-    "@mongodb-js/compass-status": "^5.7.0",
+    "@mongodb-js/compass-status": "^5.7.3",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
@@ -74,7 +75,7 @@
     "eslint-plugin-react": "^7.24.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.7.0",
+    "hadron-app": "^4.7.3",
     "hadron-app-registry": "^8.3.0",
     "hadron-ipc": "^2.3.0",
     "hadron-react-buttons": "^5.3.0",
@@ -101,8 +102,8 @@
     "mocha-webpack": "^2.0.0-beta.0",
     "moment": "^2.10.6",
     "mongodb-client-encryption": "^1.2.3",
-    "mongodb-connection-model": "^21.5.0",
-    "mongodb-data-service": "^21.5.0",
+    "mongodb-connection-model": "^21.5.3",
+    "mongodb-data-service": "^21.5.3",
     "mongodb-runner": "^4.8.1",
     "mongodb-shell-to-url": "^0.1.0",
     "node-loader": "^0.6.0",
@@ -139,5 +140,10 @@
     "@leafygreen-ui/typography": "^8.0.2",
     "lodash": "^4.17.15",
     "react-ios-switch": "^0.1.19"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   }
 }

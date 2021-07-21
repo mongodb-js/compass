@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-ssh-tunnel-status",
   "productName": "SSH Tunnel Status",
-  "version": "6.7.0",
+  "version": "6.7.3",
   "apiVersion": "3.0.0",
   "description": "Compass SSH Tunnel Status",
   "main": "lib/index.js",
@@ -19,10 +19,11 @@
     "test-check-ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
     "precheck": "npm run compile",
     "check": "npm run lint && npm run depcheck",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {
@@ -62,7 +63,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.7.0",
+    "hadron-app": "^4.7.3",
     "hadron-app-registry": "^8.3.0",
     "hadron-react-components": "^5.4.0",
     "html-webpack-plugin": "^3.2.0",
@@ -83,8 +84,8 @@
     "less-loader": "^4.0.5",
     "mocha": "^4.1.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-connection-model": "^21.5.0",
-    "mongodb-data-service": "^21.5.0",
+    "mongodb-connection-model": "^21.5.3",
+    "mongodb-data-service": "^21.5.3",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^11.0.3",
@@ -108,5 +109,14 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.2",
     "webpack-node-externals": "^3.0.0"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
   }
 }

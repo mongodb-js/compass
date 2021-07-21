@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Thu Jul 01 2021.
+This document was automatically generated on Thu Jul 15 2021.
 
 ## List of dependencies
 
@@ -85,70 +85,72 @@ Package|Version|License
 **[@mapbox/unitbezier](#49dc81ac646217b70a4d87061825aef2e89d2731ca0531a6f642043ea2595309)**|0.0.0|BSD-2-Clause
 **[@mapbox/vector-tile](#246dbbb1645df001d1030325c9ee68e28e40389926bcf1f832ca8863f73f9703)**|1.3.1|BSD-3-Clause
 **[@mapbox/whoots-js](#2df966a0a5e211ff96378adb982919ca3915c8a48c60a07db4527e6b9bad0921)**|3.1.0|ISC
-**[@mongodb-js/compass-aggregations](#2c04c2f1906fd9e3a6a691f26013dd29906af73940b69784397b5efcc8e88230)**|8.8.0|SSPL
-**[@mongodb-js/compass-app-stores](#43b8ccf5139a6f24fe053b5ffd06bd2566691e0af51ed74d63ea934c5ae0545a)**|5.7.0|SSPL
-**[@mongodb-js/compass-auto-updates](#f8e31857cf6e51325cbc1fdee40d2a3b9c7be785fc58bd9abbf1d6a36ac7f0e6)**|3.7.0|SSPL
-**[@mongodb-js/compass-collection](#d75a50c45d315f8692e2fb9898f4c4643278ba10358c599d09074348dd8d9c0c)**|3.10.0|SSPL
-**[@mongodb-js/compass-collection-stats](#64669c4f8bb784076e7b9ea89e90d872315481e0212df51cfc655522b14a213e)**|6.7.0|SSPL
-**[@mongodb-js/compass-connect](#1cd41f229aa2dd526793a603c8811e3ca1d4e730c9229cd7bf3132f3cdca3daa)**|7.7.0|SSPL
-**[@mongodb-js/compass-crud](#b24ed9e41cd11f87327156bab4189d01d6b1b84ab361ea7f9e4bd779a3034124)**|12.8.0|SSPL
-**[@mongodb-js/compass-database](#379ed0416386540e15e7814d86170e12cb344032b64bb588c112aeb56004d38a)**|2.7.0|SSPL
-**[@mongodb-js/compass-databases-collections](#d21ef145d98f5a661a66bbd5196992a579b5a983274a1d8cccdfc2c2395e89a0)**|0.8.0|SSPL
-**[@mongodb-js/compass-deployment-awareness](#03446cdb16ba2cf105e87284b81c851c08d2b3db0ac19c88d15d0eed1cc54e34)**|11.7.0|SSPL
-**[@mongodb-js/compass-explain-plan](#d3938fe37cace7caf0167ae622834f9154c6a882ec0084992c08153c32608bfb)**|5.10.0|SSPL
-**[@mongodb-js/compass-export-to-language](#b5556aa88a77869aca2e44a00406f0bd432f11f1c5fd311c9e8d0f38e7b9b058)**|7.7.0|SSPL
-**[@mongodb-js/compass-field-store](#8225cce7f6a9bfe75c870e7b4948ef3ff7623a26a0d10cb0016da75e8f4be3a7)**|7.7.0|SSPL
-**[@mongodb-js/compass-find-in-page](#d4196703c6cacef17b8f7574833a40702f1a11af55e4ec20e16b85a5297d7cdb)**|3.7.0|SSPL
-**[@mongodb-js/compass-home](#332d592a214e03eed35115865ccf7188abfb450c8b2ca373118b8d762a1911e7)**|5.10.0|SSPL
-**[@mongodb-js/compass-import-export](#cd3e411a4747d6464bcba3b4f3f96de3a1cf8a1060c6ea8d3343993cfa9fb7c4)**|6.8.0|SSPL
-**[@mongodb-js/compass-indexes](#31ec0c09794077cc6c172db17ba82f4a35ec127c09beb7a6585428063581ed18)**|4.9.0|SSPL
-**[@mongodb-js/compass-instance](#7933a820d3d1843d4abf4d001c406725b82ce6ae91237f330c1d36adb2ccc498)**|3.7.0|SSPL
-**[@mongodb-js/compass-loading](#db06b86ca7c74b098b7a9cd8ed54722fd656ca988a9ef8fc19996c5d0b081e3f)**|2.7.0|SSPL
-**[@mongodb-js/compass-metrics](#d922d4203439298ea07fa16a69ceacbe28ea28457a1368a83a769585e7ff78fb)**|4.7.0|SSPL
-**[@mongodb-js/compass-plugin-info](#1350b763803e2d689471c2a6c61815648b7b9db311fd3f1de33aec6990908787)**|3.7.0|SSPL
-**[@mongodb-js/compass-query-bar](#1e36afa278dbc8ab4119736b90ba5ad6b5c34e8875fbee1c252eb085c9ceb444)**|7.7.0|SSPL
-**[@mongodb-js/compass-query-history](#6346b23dff924f2109e76d44b6e1b3188599424f7904e7846b6d910c6a7937c4)**|8.7.0|SSPL
-**[@mongodb-js/compass-schema](#42efa2a8a009b0f14f9da60c2c5367aa8b589dce96713501d11eb153893a3ee8)**|5.7.0|SSPL
-**[@mongodb-js/compass-schema-validation](#76beea6ee690b0c38844917a120573168daf5abc97f8c31da7b760f207f3423a)**|5.8.0|SSPL
-**[@mongodb-js/compass-server-version](#97d12ff8e28ecfec5a0695512d3bdf2f312396f835e7002e2b22b62f668d857e)**|5.7.0|SSPL
-**[@mongodb-js/compass-serverstats](#4ae0a835d6cdc61907fd430e167da9364fb56b0778d311cf3daced96e9dd1eb6)**|15.7.0|SSPL
-**[@mongodb-js/compass-shell](#6cee723c6dc06c9325f5ca3dce8e2c60272210e53bf7d5a4bf98a7be0c66e4e2)**|2.8.0|SSPL
-**[@mongodb-js/compass-sidebar](#8cce95a6eab24079b84b399bdf1bfd41a056a37761f79efcdb87a2eafe745831)**|4.8.0|SSPL
-**[@mongodb-js/compass-ssh-tunnel-status](#d869091a29c5773d0dfaa4b71dbd93a56337ce6c908a0c567592bb9971c0caa2)**|6.7.0|SSPL
-**[@mongodb-js/compass-status](#25c8bcc5e4a6f1ca3002a1782cc2073d255bf09368e0192fb4b80909f6b5b127)**|5.7.0|SSPL
+**[@mongodb-js/compass-aggregations](#830d71c23eb7815f72c5c918455d13563e0a09ac995a3a20dc3e3367f015b546)**|8.8.3|SSPL
+**[@mongodb-js/compass-app-stores](#59eb017a5836937ce78ec4fbaa80af45c1650a90487da020e1280b7574c993b9)**|5.7.3|SSPL
+**[@mongodb-js/compass-auto-updates](#97666182256f7c3fe4d6a156ef6b47da2c9888bd349a64f5f8593463c6d7c73e)**|3.7.3|SSPL
+**[@mongodb-js/compass-collection](#8acabb187fad8460e171789df23c5b766ef64d5790e6120d6ef5aa0ee1df1398)**|3.10.3|SSPL
+**[@mongodb-js/compass-collection-stats](#eeddcdcf5da4b8b4cecb18df0275e603ed7b6b8230e58ee5e62273c6953d7dce)**|6.7.3|SSPL
+**[@mongodb-js/compass-connect](#8f1ab5e1e14a6af8a38177824556a54c47b7a90a26d9f895f17ecab5144c8932)**|7.7.3|SSPL
+**[@mongodb-js/compass-crud](#f58db6491c02d7ff7c0b17e577e18c3be1c8ff99f4889ff312842871a9f987a6)**|12.8.3|SSPL
+**[@mongodb-js/compass-database](#672486b7a6464de955f50eedaf52e028ac7e7414631b3d49f0ba1672d11952d4)**|2.7.3|SSPL
+**[@mongodb-js/compass-databases-collections](#d804be5dc3d11dca932db7cf4738bd5e88585e6a255010263c3d59c89e8d0ff8)**|0.8.3|SSPL
+**[@mongodb-js/compass-deployment-awareness](#78951435c2ddb3a05498f817f61336829094691244752d9bf878da84f8b2a5e6)**|11.7.3|SSPL
+**[@mongodb-js/compass-explain-plan](#b718692f37a9b0d6e579fd00f4d45c9d604f1cf9c31ff8552edaac7a96b5612c)**|5.10.3|SSPL
+**[@mongodb-js/compass-export-to-language](#595d26993e02ed57976660f943afbc4d65fcfbcf5718d3e41f4ca55c2949c526)**|7.7.3|SSPL
+**[@mongodb-js/compass-field-store](#1ada7886bc80a2bae0d5412d2dabc22b64f3c55950619f4487e037f356b5f9f4)**|7.7.3|SSPL
+**[@mongodb-js/compass-find-in-page](#c19f5d0072c5e42ee90cd218a03be4f954e0f73b3463d9aaab241b0494bb01f8)**|3.7.3|SSPL
+**[@mongodb-js/compass-home](#3676abd790b480053c71264ae2af0253efd726444b57edcc8c608b03222fe194)**|5.10.3|SSPL
+**[@mongodb-js/compass-import-export](#cb294d198c506e7c102e86c79c3aaf51f6f94292c9f2a6d1b01ee5449c13d05f)**|6.8.3|SSPL
+**[@mongodb-js/compass-indexes](#d3ffcacb5fc2c2ea80518a7e629325e146ac1e388902c77cc74e7f61d64e41bb)**|4.9.3|SSPL
+**[@mongodb-js/compass-instance](#a6afae1e33d5191ab736c9191213d0e7174362d5928eada22c4933f10f4ea1ee)**|3.7.3|SSPL
+**[@mongodb-js/compass-loading](#8f403fdb2030cb31f0d51a620bd6690149cacceb2fa011d82cdad3aa3da76518)**|2.7.3|SSPL
+**[@mongodb-js/compass-metrics](#70bd73d7d8b9e0e46c736bbf71e774f5902e403dca0e43fa805b874bffe8546e)**|4.7.3|SSPL
+**[@mongodb-js/compass-plugin-info](#703a9f6675338db74f539c8d60e4e82b7a024a977a5131e29796aa4e9ea46ca9)**|3.7.3|SSPL
+**[@mongodb-js/compass-query-bar](#510404aed34795b303302f693de768fbc98f9b47680613f0fb2f2ca1f223390f)**|7.7.3|SSPL
+**[@mongodb-js/compass-query-history](#88098733b6e34438fc8b2b0dff0f9b79ad2c9a55fa6478ff62ffb672a7701750)**|8.7.3|SSPL
+**[@mongodb-js/compass-schema](#92016681f8a2f8e25a754aa4506ed0d36604020f546220e40319dba4cdd90425)**|5.7.3|SSPL
+**[@mongodb-js/compass-schema-validation](#481464a73431b82f3617b0031656192888396b26d84d6bbd20e76dcd2416c315)**|5.8.3|SSPL
+**[@mongodb-js/compass-server-version](#f045bcd78525e169ac6d4f832f972cf1f92cf883ed1e84fccc7b92a9b9a6223c)**|5.7.3|SSPL
+**[@mongodb-js/compass-serverstats](#ad8e594a211b9e0310a9be91fae21872312d3b46443fd9ce495900ab1676a25f)**|15.7.3|SSPL
+**[@mongodb-js/compass-shell](#8b26be6337ea3a7626bbc146f1204536c38a75f6a7e36a91d17c5bde3286d71e)**|2.8.3|SSPL
+**[@mongodb-js/compass-sidebar](#a9a1b937deee411e7f0f2785d6956f36f212f42414fa79c1c97d4615e2b1efde)**|4.8.3|SSPL
+**[@mongodb-js/compass-ssh-tunnel-status](#988cf5d18deb68ea105f34c5b5569ba9247152452588777aaa4c5e8ee0b8a329)**|6.7.3|SSPL
+**[@mongodb-js/compass-status](#b52d67d0f01a31d4ad9391fa7d247fbbbd2d916e920a5af3f564750521e8bdcc)**|5.7.3|SSPL
 **[@mongodb-js/hadron-plugin-manager](#7c4d0a7e278233d606f2457e3d50cbec1c6011ce87643969b6c42ad0e99dcae9)**|6.3.0|SSPL
 **[@mongodb-js/mongodb-redux-common](#bae922227dbeb5b5db749880d9f828d95b7eae969066df5951e834a151740b15)**|1.3.0|SSPL
 **[@mongodb-js/ssh-tunnel](#61a8a28f7e768cb9357131fced91bb727add9058d8ccaa9a53f3dffeebda249c)**|1.2.0|Apache-2.0
-**[@mongosh/async-rewriter2](#f8d6f7e2135647e5c0123bee3dbfdf9cbd6a4d9b2bd19a0efcee7874711007b0)**|0.15.1|Apache-2.0
-**[@mongosh/autocomplete](#65045898d4446c2142301a2660602e05782564009ef586a292be72cc9fabd5f8)**|0.15.1|Apache-2.0
-**[@mongosh/browser-repl](#769bb6d348807c6be11c546d284a4b4b18374d0a7ce768fa597e0e046c149625)**|0.15.1|Apache-2.0
-**[@mongosh/browser-runtime-core](#5e4c54e61cdfe247ab25defa885d3928ad294e3ac42bc050438238728e724e34)**|0.15.1|Apache-2.0
-**[@mongosh/browser-runtime-electron](#085009d9a8e1c4a1aabc69d2d92b70765f834b6772390d87238b0aebfe9fffb4)**|0.15.1|Apache-2.0
-**[@mongosh/errors](#6d871b9021fb90dec7b43b11ff9ad56804f550287c8689c2cae5a3d6303973c4)**|0.15.1|Apache-2.0
-**[@mongosh/history](#8a57e938c95940ef77e77c37cf513c111459bf9b1adb30cfd23e12d22b30d00e)**|0.15.1|Apache-2.0
-**[@mongosh/i18n](#e49da5ee9588d588939a03fd7c0e1248d96ee0496f865d00d10ba3e83d4a547d)**|0.15.1|Apache-2.0
-**[@mongosh/node-runtime-worker-thread](#fbe3b4b41302647ed7e04e2c9c765fc62887b1254217b6ba270edfe28b5d67d4)**|0.15.1|Apache-2.0
-**[@mongosh/service-provider-core](#60207d6f4a4b075f63d0271b72ba297cac0f71d34bd3051c160ec79eb087735f)**|0.15.1|Apache-2.0
-**[@mongosh/service-provider-server](#85f7d42f37bb61843a5c86059fd458ed9f9c0e798734d488d56db6c28863e321)**|0.15.1|Apache-2.0
-**[@mongosh/shell-api](#7bd722ffb3480a2c1407a8dbdcc81f45949764a59c90a46258c5a979ec3c6743)**|0.15.1|Apache-2.0
-**[@mongosh/shell-evaluator](#a215dd39dc6f7d7fa84edfac71119f7d73451ee6cddd73ca40591c7587982286)**|0.15.1|Apache-2.0
-**[@mongosh/types](#300e265ba3b940dae47dea27923258172670c57807050e395ac0116c008a7324)**|0.15.1|Apache-2.0
+**[@mongosh/async-rewriter2](#e4c74909d3ee36920777f26776f5ca0a28b002ba1a6c19bfff4ade62b3d28850)**|1.0.0|Apache-2.0
+**[@mongosh/autocomplete](#638f166f98434095c16aa6f9eaa5777e6e435855aae6a2af67e517145bc02fef)**|1.0.0|Apache-2.0
+**[@mongosh/browser-repl](#62b96f909bb2135bd766a48fe2c6c9df9edbd94bcd748057ddfe428ffe7092ca)**|1.0.0|Apache-2.0
+**[@mongosh/browser-runtime-core](#29592fe48d7f6e7efc0f2ebb647d5b04806b86b9d1992cfda82db730aeaf709c)**|1.0.0|Apache-2.0
+**[@mongosh/browser-runtime-electron](#af891b17a5d6197b96723acf96efdf36838959f40eadf408356e7b013dd5bbb0)**|1.0.0|Apache-2.0
+**[@mongosh/errors](#5dc9096b3ff3a55501e4107f5054d225396a346f0f49b8126d6dd5e204cc31a8)**|1.0.0|Apache-2.0
+**[@mongosh/history](#d1456ee07180022ffe60e91803e2d2c98a988b96b41818101ceed413413e22c1)**|1.0.0|Apache-2.0
+**[@mongosh/i18n](#f3ccda6a9a53f50d9d1efccc34cbc72ac85a2835f8d20447dfac2f5e604770ef)**|1.0.0|Apache-2.0
+**[@mongosh/node-runtime-worker-thread](#5f52eca399951bf31738fd469a689e0ff67ca3959490d5f714af96f4418dadce)**|1.0.0|Apache-2.0
+**[@mongosh/service-provider-core](#a56fc04759bc84fc26a48bf1726ad0091c0ba2764e8e7e03a4f14657c9c9ff03)**|1.0.0|Apache-2.0
+**[@mongosh/service-provider-server](#e774e65babd8ac445d8261d73fac02a68c7dc1f1b36fb098379a23e285e91480)**|1.0.0|Apache-2.0
+**[@mongosh/shell-api](#b97cc29f2f9f2527602e978c78dca8b395673fa877e9963f83aad84d6c73e114)**|1.0.0|Apache-2.0
+**[@mongosh/shell-evaluator](#ea92d5ac98b5b34fc47196b8cbea9a128d18ee86ea61385d609f7c4dd8265caf)**|1.0.0|Apache-2.0
+**[@mongosh/types](#88b514cb7a0582bde535fdfed064a36c447501649ab739e41bec3527afc1367f)**|1.0.0|Apache-2.0
 **[@npmcli/move-file](#b7b87ae4f596a12a8a88a505d573b3d9b9dc86a1d9ff3b75b77c881eb2143cdc)**|1.1.2|MIT
 **[@react-dnd/asap](#48010989aaec720af5a018ed2fd3e6541514b8d4244595e0df3985bdee63eade)**|4.0.0|MIT
 **[@react-dnd/invariant](#eaa7966ca6a331042272288192ae9bdbdcd2c6e7fbcb60af673ed0f128b3e3f2)**|2.0.0|MIT
 **[@react-dnd/shallowequal](#e64dbe9671070f47ef862fc48741ca66d280562c710fee0ca3e2a15115a96d7b)**|2.0.0|MIT
 **[@sheerun/mutationobserver-shim](#d45d8c9facc615cd0ae130f25ad1ab856f84e0e5e7d7eedb5e918f9d9285a880)**|0.3.3|MIT
 **[@sindresorhus/is](#53cb98d38543c2161b64c9fda0d5f567742cd5f517504040f6157d6d25d70833)**|2.1.1|MIT
+**[@sinonjs/commons](#a554b4072a2793063bccdd97fb01c44a06765daf7291b75284311f7262948031)**|1.8.3|BSD-3-Clause
+**[@sinonjs/fake-timers](#b3455d11457e2de0346b9b8a4429a42022fee85955740337be0e802774699f98)**|7.1.2|BSD-3-Clause
 **[@szmarczak/http-timer](#ec1012587deae4be75d548dff109ae139d4864dc8c1d9dd3c9fa225ae037b8b8)**|4.0.5|MIT
 **[@testing-library/dom](#32fb5c19671079908e65b45312a4d99ee18b90dad33be6b79e1da44881961f9b)**|5.6.1|MIT
 **[@testing-library/react](#ac3558fdff031aba1b507c10871650f3438095882a224a6db599f69d40e841cd)**|8.0.9|MIT
 **[@tootallnate/once](#ac62c4fc4980648602d2574993b11311bfdad106c153eb8da81f24da590235b1)**|1.1.2|MIT
-**[@types/babel__core](#7e73b09ce68aec3e3d2bb2c6d7f62789d01f912cbb47ebd440ca2d29326aa332)**|7.1.14|MIT
-**[@types/babel__generator](#7e899b13cbfedb3bf233a44be4ab5fea3b888975410c84ebfd8f805bc0b2e8d8)**|7.6.2|MIT
-**[@types/babel__template](#ccdadd06002ca5f07f4db3472b699d0fd1e04f174cf56963be17921c935a7702)**|7.4.0|MIT
-**[@types/babel__traverse](#66713bd122cb8b3cfab9fa4456f3fccdde198279ee68ca4482f835f5f97d41a7)**|7.11.1|MIT
+**[@types/babel__core](#892695f60539de69aafeb8e2525a0db2e671914d5928ff23fc459ae5c0d21646)**|7.1.15|MIT
+**[@types/babel__generator](#4d3ea622c355812e2e5559153f16b5a388c6d9eb303de21744ce9e6c0bd0c27a)**|7.6.3|MIT
+**[@types/babel__template](#10a3b95570c9b42a3ac3a0bcb3695ffb5252513019e944d4f137e2f05d64f66d)**|7.4.1|MIT
+**[@types/babel__traverse](#49354c25e4c67737cbe7e9a64e5afd2eb9dd5a2d86fa15625409b0959c2e0381)**|7.14.2|MIT
 **[@types/cacheable-request](#3bd9bf88a52a49fcbac01978705f7d2640f63498bf4d910f11fde7c8f45dac42)**|6.0.1|MIT
-**[@types/chai](#f38916043b51daf68b3fd63df1e76b60e3f9a28481922c88c0d5b26708d8b4a1)**|4.2.19|MIT
+**[@types/chai](#415ac28d3fccdf3c44413fc5a1a5885106138a655acfaee93dfc423343952ebe)**|4.2.21|MIT
 **[@types/hoist-non-react-statics](#5dffba4574f0e34391feaeca261f5e5b8be2ff9308a7e2804dc38c258d4e671a)**|3.3.1|MIT
 **[@types/http-cache-semantics](#2a203d85fc55bf68c519f0b76464d66525f75848792196622d0a8c79ab751844)**|4.0.0|MIT
 **[@types/istanbul-lib-coverage](#832e44626969d6a9dd118c8607e307d5e053e544513f33c38a5621ef043698f7)**|2.0.3|MIT
@@ -163,7 +165,7 @@ Package|Version|License
 **[@types/react-is](#313602ddf0f7f4b396db185d516b28882a2fe9d7f8a1fe75a8badf52facb7161)**|17.0.1|MIT
 **[@types/responselike](#f578c9e9c9e97d4c01cb71270d403c34092f886daa2cf16c0e7ea586fbad5cbc)**|1.0.0|MIT
 **[@types/scheduler](#a421c73bae92358f8d51bcdecbc76d745fb43730d06c431b82fdab8206106d85)**|0.16.1|MIT
-**[@types/sinon](#725d25542bdd70fdafa8c25453f70b158cede4bcfc539a569990c8b17ee78872)**|7.5.2|MIT
+**[@types/sinon](#130d82e4e97a4c0f0301f504593c7eee61465b978b7c3d06a62d804f9613ebf7)**|10.0.2|MIT
 **[@types/sinon-chai](#24b7466552357bc06ea67daab5378cd2436af00a18666c9ffcbf815d97872456)**|3.2.5|MIT
 **[@types/yargs](#9adfdaff80d55265d4dc12d05636b05c2138ee6b34ca9f742269762cf376038f)**|13.0.11|MIT
 **[@types/yargs-parser](#07cf5a31b0063548686ce40064b2ab7774abd14460f5ab56206110a3fbf38e24)**|20.2.0|MIT
@@ -282,11 +284,10 @@ Package|Version|License
 **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**|1.1.11|MIT
 **[braces](#57342b612d0ebf408cf342d7c5abb7940cf7c7330b2782d9d77a90253f8ae02f)**|3.0.2|MIT
 **[browserslist](#a5bfb1ae7d71806536a968a858a0b624c13fb380c551914b97479fee2b3ec524)**|4.16.6|MIT
-**[bson](#3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282)**|4.4.0|Apache-2.0
-**[bson](#ee52fad50f125b1ac53959bf638e62cafa1a273e20164cc18313012e39035bb5)**|4.1.0|Apache-2.0
+**[bson](#394c5421206f2ec526852cb6fa0ee38d42b14e205104586179d37d18573f8f95)**|4.4.1|Apache-2.0
 **[bson](#0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87)**|1.1.6|Apache-2.0
 **[bson](#9568646decb901218e67075eb984d7bbd5c4fae711cd931bb42bb85757af4a4b)**|4.0.2|Apache-2.0
-**[bson-transpilers](#b0a8fba2d2e3cd3bb85fac1c83259c8e6dd151985f590070d7833e6e236afb7f)**|1.1.0|SSPL
+**[bson-transpilers](#224753a426de96a306468b116f105cc54889e72c4bce25cc775179c20c24a85b)**|1.1.1|SSPL
 **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**|1.2.0|MIT
 **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**|1.1.0|MIT
 **[buffer-equal-constant-time](#77cd18a59a06e032914b3c4148b3467dd3f720b6c6b419c079891ca15b2f488e)**|1.0.1|BSD-3-Clause
@@ -337,8 +338,8 @@ Package|Version|License
 **[commander](#15691f652096ef6b4e4141f693c6d59371663e7259c2376fc857d9fe2e84332f)**|2.6.0|MIT
 **[commander](#24ab11e1b73368dedbb70b1985003bf0636191bc7885dee47c5861cfa74a24eb)**|2.20.3|MIT
 **[commander](#e4c9fecb646585d045b341693411a783d82a5ad33372aaa9b41d86491bec10a0)**|2.8.1|MIT
-**[compass-preferences-model](#4bcebd17daa28ec496b665e5c966140934c88e9887f314629cbd2c3ab0ff6136)**|1.7.0|SSPL
-**[compass-user-model](#73d7dfb09d530c903e35d698c0a4eba6562691ad19eae96dff50dbc79b467f07)**|1.7.0|SSPL
+**[compass-preferences-model](#a0b31ebc423afd06b6c92007797e21fee7614cc5cf8a5abc43f98e002bdf90a7)**|1.7.3|SSPL
+**[compass-user-model](#7e5b59807792d8eeb2415ec71a43dace377025dde087a96edbd6b2de4c6afae8)**|1.7.3|SSPL
 **[component-classes](#4bb7ced1e7e20e737e0e6b6052e3be5ed68f9e68c3a6a816e6ca486aec62e77d)**|1.2.6|MIT
 **[component-event](#32d720e7a217746311d55af1f088a9ab8ae8a3966be80250634fbff4c2c45935)**|0.1.4|See [details](#32d720e7a217746311d55af1f088a9ab8ae8a3966be80250634fbff4c2c45935)
 **[component-indexof](#d48df125666f2751d0e651a1b151fe2adf6acc909761f9f1e86fc8193f426656)**|0.0.3|See [details](#d48df125666f2751d0e651a1b151fe2adf6acc909761f9f1e86fc8193f426656)
@@ -491,19 +492,19 @@ Package|Version|License
 **[graceful-fs](#4b15f222709cc7e15b088507f95bc6ed989b26f0276f520aca19c2e5dbed1aed)**|4.2.6|ISC
 **[graceful-readlink](#f6daae66ac8e70d03b75c40b8935e499c084c9ff05948cb890fa4cd8e790ee64)**|1.0.1|MIT
 **[grid-index](#85d8348e33ee3c3b3d7e161b796c4a02ba2f349873195c2ed788f4c66daf2eef)**|1.1.0|ISC
-**[hadron-app](#a4e0775f53bb78e77665b8fc5d3ef720f087279085f2ffc6dcba677f1ae7ffe7)**|4.7.0|SSPL
+**[hadron-app](#483b0d80f1a663a78ec60f78706202c5a93e5805b2ced4044330608016bdd2e4)**|4.7.3|SSPL
 **[hadron-app-registry](#b334bd08bcf60502d3d564f6827fb8dd37e431322fd9616c8ec881c06398ed97)**|8.3.0|SSPL
 **[hadron-auto-update-manager](#264c09102dfd7fff63410d35336b6f201dda71810831e8bb81b09ea05c699de2)**|4.3.0|SSPL
 **[hadron-compile-cache](#1c0ee82ef990f8eb220c42e58fef9445db98cfb39c9bbc40c410cf2b56d3c7b1)**|4.3.0|SSPL
-**[hadron-document](#d5058511f0320c76032538aed4a2e14f86bbb3d525788557847eb1648b2ad9b9)**|7.4.0|SSPL
+**[hadron-document](#044982026c36927ddb55b8500e080ecd812991d99d77ab8c619dc56b7b3694e3)**|7.4.1|SSPL
 **[hadron-ipc](#16993f6548e73dd2dc9a031f9525aebfe5879875747b7e3aa645ef301a07c569)**|2.3.0|SSPL
 **[hadron-module-cache](#17f411ba4f37d86a1537931678060eed8227fcafa6d2ff7d53df4e1cdac702e0)**|2.2.0|SSPL
-**[hadron-react-bson](#4dabe68d049b4291c3a4420b903b25abc9170689afb8b2ea56a3cdab714781c7)**|5.4.0|SSPL
+**[hadron-react-bson](#8feefc827dde03789ca38a8cd65b20d31c01cce6d2ef22537f367e64d89f65aa)**|5.4.1|SSPL
 **[hadron-react-buttons](#dd123c127c945d0a313c614db194e5315d5d3cc40bcce35aedac28bea892ea52)**|5.3.0|SSPL
 **[hadron-react-components](#8a9adad988eec8d32dfa6f41c644efb4143811bef53ebd1329b8ad30d358b182)**|5.4.0|SSPL
 **[hadron-react-utils](#58ded5088da6a2990c740c39d96a38ef331d46e45ad471aba4f59fdf8ee8c5c5)**|5.3.0|SSPL
 **[hadron-style-manager](#c19726961e36cb51c6b1f2a809d3e30e82c1a2de30986b16cf018b859eb9182c)**|1.2.0|SSPL
-**[hadron-type-checker](#639749c61ee876d79cc89e18fd589ca48e75d35dc6ed3e0080c723e9f2202c67)**|6.3.0|SSPL
+**[hadron-type-checker](#c27c6363aa50d716637ad69a67b32e7fc3543ef128bef5157099641e693e85e6)**|6.3.1|SSPL
 **[har-schema](#021bd6e9270455073ace1c28a804219c71b32c9fd6751810055dff10ef3a8d4a)**|1.0.5|ISC
 **[har-schema](#cb654835cf60c983f33aa958bcdc70ce714bdf87bc8e9bc4b08a02e2297106e3)**|2.0.0|ISC
 **[har-validator](#d1d810ef3aa258caada14c82f7fc363b18c49c5b1346992b83e0a989822e5373)**|4.2.1|ISC
@@ -589,8 +590,8 @@ Package|Version|License
 **[js-yaml](#c82a34a38ab0debe302cf958caa7a51b455f5fb8a32a3ce6b9b4cab3f500c60a)**|3.14.1|MIT
 **[js-yaml](#e4c2d5d72b89591abc2a4d2872c3678b296e252cd865f6b9792d310dcf3ce4e9)**|2.0.5|MIT
 **[jsbn](#82c9822c7d914bb274ffde07a3a8a71c3b1a2e3b337b7e2cefa461cad0f4fa10)**|0.1.1|MIT
-**[jsesc](#253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e)**|2.5.2|MIT
 **[jsesc](#fe4a0347f5a8a490eb493ed9e51cb1494b926330ef656bd433de854c1d7abb80)**|1.3.0|MIT
+**[jsesc](#253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e)**|2.5.2|MIT
 **[json-buffer](#adbc921fc34de3b1dd4336cbc047bc3af1405e6ad820eb4de99569d728f35016)**|3.0.1|MIT
 **[json-parse-even-better-errors](#936d44f89505eb2fa60a1dfaeef0108bd6352ae9b9be607eddc74c5d2b6b9be4)**|2.3.1|MIT
 **[json-schema](#472c637bb423f20ad7340500864a823d161220ac7e4a1758270cd8b0182e7749)**|0.2.3|AFLv2.1, BSD
@@ -872,29 +873,29 @@ Package|Version|License
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[moment](#d8f96cf3e8fde11ddd63693bbb806b273f74faf4ba8426497c8b28c62950f148)**|2.29.1|MIT
 **[moment-timezone](#c0b94a3f1712536d5766e63717b3e5ea3007bc87993295193d7ca95aacbcba7a)**|0.5.33|MIT
-**[mongodb](#9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f)**|4.0.0-beta.5|Apache-2.0
+**[mongodb](#238ca94190dc6ecfefb8038eba61fdc9b317f49234c6775cac809521e13446af)**|4.0.0-beta.6|Apache-2.0
 **[mongodb](#79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f)**|3.6.9|Apache-2.0
 **[mongodb-ace-autocompleter](#88e3cacc0ba023dca2a6a0445053a925e9d44883bc4e7b2a48c7a9f36749a7d0)**|0.6.0|Apache-2.0
 **[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
 **[mongodb-ace-mode](#da937d0152ba6e8e6d88ec58c3270c6389fdc7e4c7b4281bdf4a209bb74b2af7)**|1.2.0|SSPL
 **[mongodb-ace-theme](#4d011ab7fc48c55a6210bdf011cc0d7e5bb2a52a2fe9af0d26ea7a4ea9aeeec3)**|1.2.0|SSPL
 **[mongodb-ace-theme-query](#99fe1485224159b75cca8a963114fe8c1422ce08e1013ab2c7ebf5fa293b1f62)**|1.2.0|SSPL
-**[mongodb-build-info](#7b92944dac466e442bbd1f2ef3f6b9f2cc37cc53375714306f73b29ca409ff37)**|1.1.1|Apache-2.0
-**[mongodb-client-encryption](#4bdb45219f73908025ebd24ca2809e81a5c4866c5bcec60be103d1dbda24fee3)**|1.2.5|Apache-2.0
-**[mongodb-collection-model](#7d1d9fbe3ff29797c20a8400c2985e18905d006f1def98b77bc0aea108729309)**|4.7.0|SSPL
+**[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
+**[mongodb-client-encryption](#2400753e4c313cbe1059fed67cfe07c83a8887810d236b84878dad8fdfba9ef7)**|1.2.6|Apache-2.0
+**[mongodb-collection-model](#8c3c38b211c609d27f0d14e0c39f006e7d19e47c6e4819b261fa03ab0e7e21d8)**|4.7.3|SSPL
 **[mongodb-collection-sample](#79daa5770151f329c1c9dcf0e80eb13343b14b576c0d21f790e9209c1f0afa5b)**|4.5.1|Apache-2.0
 **[mongodb-compass](#2fd756a7b8b16bab9fcff1b6a60f3fe302c38dc1a73b48902ee106dcd5c6799f)**|0.0.0-dev.0|SSPL
-**[mongodb-connection-model](#65bfe495e384540468e37574dd593abaa15f49c69d181e34f51c944df3f9c37b)**|21.5.0|SSPL
-**[mongodb-connection-string-url](#d842513739d9a848af83ab12b884b179e6e84eb165072b73472b59d20f103c0d)**|1.0.0|Apache-2.0
-**[mongodb-data-service](#14d9831628f7055a1d78fe2aa9332d583266b5722f808e17f5df3fec23acf566)**|21.5.0|SSPL
+**[mongodb-connection-model](#bf7ee646e6961626a0c8056a3627aa6b20f6823f16992f0a7675210d9118c1d4)**|21.5.3|SSPL
+**[mongodb-connection-string-url](#b63d47d79486839e30669c011e5a35b0b780fccb15add1ec9c16b9508acf3884)**|1.0.1|Apache-2.0
+**[mongodb-data-service](#f1b3dddee0358a77165181c5edc9732e729fabfee194b56b4e1eee37711c21a6)**|21.5.3|SSPL
 **[mongodb-database-model](#220b1784e70dbc2fa930c425e0d87612a88716881fce62017ff99921604bdc8e)**|1.2.0|SSPL
 **[mongodb-explain-plan-model](#053e132563eab2346007f2508ee3cf996ce6f90fe4a8070dc565753eb96c8db2)**|1.2.0|SSPL
-**[mongodb-extended-json](#d2ab62d581a5da4f8cd19d3ebd317b7464ef1b2e7536524716f2ebfaee04afd5)**|1.11.0|Apache-2.0
-**[mongodb-index-model](#bfac50ba289dc74987315c94fad68987bd9baf97f7f617a28839300c51ff88a5)**|3.3.0|SSPL
-**[mongodb-instance-model](#8ebaa9bf4c713a551f32851626cd56e7012bfd2a0fcb2d2e0747e36bd4895844)**|11.7.0|SSPL
+**[mongodb-extended-json](#768a71b2ae4c1a6821baeb4b46fe55f85fa496ba97e06e70b63efc97eb2e27d8)**|1.11.1|Apache-2.0
+**[mongodb-index-model](#b4c742c60e1bdbed649fa33ae9ec3d0430dab5996a5788c0710736fd50d9cff2)**|3.3.1|SSPL
+**[mongodb-instance-model](#781bfc0ec48cd45fbaa7be55c685868198c0d60e53b32d5af24dde1d71edb381)**|11.7.3|SSPL
 **[mongodb-js-errors](#2a0fc1dd130170b4d54400e654724c9d7b7fde1341f313f1d77944c115c30a11)**|0.3.3|Apache-2.0
 **[mongodb-js-errors](#3c078d1fae4939f8c1b56d7fd21588277752fd1911bfb6e1d3114a4d2bc57cac)**|0.5.0|Apache-2.0
-**[mongodb-js-metrics](#c9998fc64b36f174d593952fd6f516d6593e26e1ba3b0b27e0f0299667756212)**|7.3.0|SSPL
+**[mongodb-js-metrics](#da1525634d74a5e37c58d1a31d53210a09bdf87c758dd8c577c3e84b7467e068)**|7.3.1|SSPL
 **[mongodb-language-model](#25aa255f9ef82ff568eb9157299c6d4a90df478cf577259e8fb159288ab69279)**|2.2.0|SSPL
 **[mongodb-language-model](#0dd22abc80cef69725ac9663fc47e7778e3d7dd9d478f17f866721d0103842cc)**|1.7.1|Apache-2.0
 **[mongodb-ns](#0ab278b2cfb1f3c3efbf2786ee9e15f2fd7506306b1428e4fe4641480ea93225)**|2.2.0|MIT
@@ -1182,6 +1183,7 @@ Package|Version|License
 **[tweetnacl](#496caef692284d7a5d6acd31283b785ebca47d82b2d85c9af7ea1913bb4b49a8)**|0.14.5|Unlicense
 **[type-detect](#a81c8c06a8286435f4fc21a5d52a45dde6f6d841bffcb19e679a0a485cce041c)**|1.0.0|MIT
 **[type-detect](#2a404703bb27c6093ba568a713be566095764ea3b2217d0293f473290f40e3b7)**|0.1.1|MIT
+**[type-detect](#8e730716b3685f8208504f481f53fb45d1d3be517ebcfe935580698a1638d372)**|4.0.8|MIT
 **[type-fest](#25a12d5b02ef8904eea84213370e8ae011fb8a889530bc0aaff6059cc8677067)**|0.10.0|(MIT OR CC0-1.0)
 **[typedarray-to-buffer](#a3e8aa280fe704e71a8d4ce2d3a8c5ca28681593ee66925eace6aa686951a575)**|3.1.5|MIT
 **[uglify-js](#f064fabbacce40a537bd91c8af3bdff0b23342050fb8de1050d5f5b941b7fee6)**|2.8.29|BSD-2-Clause
@@ -3217,176 +3219,176 @@ Authors:
 * Bryan Housel <bryan@mapbox.com>
 
 
-<a id="2c04c2f1906fd9e3a6a691f26013dd29906af73940b69784397b5efcc8e88230"></a>
-### [@mongodb-js/compass-aggregations](https://www.npmjs.com/package/@mongodb-js/compass-aggregations) (version 8.8.0)
+<a id="830d71c23eb7815f72c5c918455d13563e0a09ac995a3a20dc3e3367f015b546"></a>
+### [@mongodb-js/compass-aggregations](https://www.npmjs.com/package/@mongodb-js/compass-aggregations) (version 8.8.3)
 <!-- initially found at packages/compass-aggregations -->
 > Compass Aggregation Pipeline Builder
 
 License tags: SSPL
 
 
-<a id="43b8ccf5139a6f24fe053b5ffd06bd2566691e0af51ed74d63ea934c5ae0545a"></a>
-### [@mongodb-js/compass-app-stores](https://www.npmjs.com/package/@mongodb-js/compass-app-stores) (version 5.7.0)
+<a id="59eb017a5836937ce78ec4fbaa80af45c1650a90487da020e1280b7574c993b9"></a>
+### [@mongodb-js/compass-app-stores](https://www.npmjs.com/package/@mongodb-js/compass-app-stores) (version 5.7.3)
 <!-- initially found at packages/compass-app-stores -->
 > The external stores repo for compass
 
 License tags: SSPL
 
 
-<a id="f8e31857cf6e51325cbc1fdee40d2a3b9c7be785fc58bd9abbf1d6a36ac7f0e6"></a>
-### [@mongodb-js/compass-auto-updates](https://www.npmjs.com/package/@mongodb-js/compass-auto-updates) (version 3.7.0)
+<a id="97666182256f7c3fe4d6a156ef6b47da2c9888bd349a64f5f8593463c6d7c73e"></a>
+### [@mongodb-js/compass-auto-updates](https://www.npmjs.com/package/@mongodb-js/compass-auto-updates) (version 3.7.3)
 <!-- initially found at packages/compass-auto-updates -->
 > Compass Auto Updates Plugin
 
 License tags: SSPL
 
 
-<a id="d75a50c45d315f8692e2fb9898f4c4643278ba10358c599d09074348dd8d9c0c"></a>
-### [@mongodb-js/compass-collection](https://www.npmjs.com/package/@mongodb-js/compass-collection) (version 3.10.0)
+<a id="8acabb187fad8460e171789df23c5b766ef64d5790e6120d6ef5aa0ee1df1398"></a>
+### [@mongodb-js/compass-collection](https://www.npmjs.com/package/@mongodb-js/compass-collection) (version 3.10.3)
 <!-- initially found at packages/compass-collection -->
 > Compass Collection Plugin
 
 License tags: SSPL
 
 
-<a id="64669c4f8bb784076e7b9ea89e90d872315481e0212df51cfc655522b14a213e"></a>
-### [@mongodb-js/compass-collection-stats](https://www.npmjs.com/package/@mongodb-js/compass-collection-stats) (version 6.7.0)
+<a id="eeddcdcf5da4b8b4cecb18df0275e603ed7b6b8230e58ee5e62273c6953d7dce"></a>
+### [@mongodb-js/compass-collection-stats](https://www.npmjs.com/package/@mongodb-js/compass-collection-stats) (version 6.7.3)
 <!-- initially found at packages/compass-collection-stats -->
 > Compass Collection Stats Plugin
 
 License tags: SSPL
 
 
-<a id="1cd41f229aa2dd526793a603c8811e3ca1d4e730c9229cd7bf3132f3cdca3daa"></a>
-### [@mongodb-js/compass-connect](https://www.npmjs.com/package/@mongodb-js/compass-connect) (version 7.7.0)
+<a id="8f1ab5e1e14a6af8a38177824556a54c47b7a90a26d9f895f17ecab5144c8932"></a>
+### [@mongodb-js/compass-connect](https://www.npmjs.com/package/@mongodb-js/compass-connect) (version 7.7.3)
 <!-- initially found at packages/compass-connect -->
 > Connection Screen Plugin that supports Compass
 
 License tags: SSPL
 
 
-<a id="b24ed9e41cd11f87327156bab4189d01d6b1b84ab361ea7f9e4bd779a3034124"></a>
-### [@mongodb-js/compass-crud](https://www.npmjs.com/package/@mongodb-js/compass-crud) (version 12.8.0)
+<a id="f58db6491c02d7ff7c0b17e577e18c3be1c8ff99f4889ff312842871a9f987a6"></a>
+### [@mongodb-js/compass-crud](https://www.npmjs.com/package/@mongodb-js/compass-crud) (version 12.8.3)
 <!-- initially found at packages/compass-crud -->
 > Compass Plugin for CRUD Operations
 
 License tags: SSPL
 
 
-<a id="379ed0416386540e15e7814d86170e12cb344032b64bb588c112aeb56004d38a"></a>
-### [@mongodb-js/compass-database](https://www.npmjs.com/package/@mongodb-js/compass-database) (version 2.7.0)
+<a id="672486b7a6464de955f50eedaf52e028ac7e7414631b3d49f0ba1672d11952d4"></a>
+### [@mongodb-js/compass-database](https://www.npmjs.com/package/@mongodb-js/compass-database) (version 2.7.3)
 <!-- initially found at packages/compass-database -->
 > Compass Database Plugin
 
 License tags: SSPL
 
 
-<a id="d21ef145d98f5a661a66bbd5196992a579b5a983274a1d8cccdfc2c2395e89a0"></a>
-### [@mongodb-js/compass-databases-collections](https://www.npmjs.com/package/@mongodb-js/compass-databases-collections) (version 0.8.0)
+<a id="d804be5dc3d11dca932db7cf4738bd5e88585e6a255010263c3d59c89e8d0ff8"></a>
+### [@mongodb-js/compass-databases-collections](https://www.npmjs.com/package/@mongodb-js/compass-databases-collections) (version 0.8.3)
 <!-- initially found at packages/databases-collections -->
 > Plugin for viewing the list of, creating, and dropping databases and collections
 
 License tags: SSPL
 
 
-<a id="03446cdb16ba2cf105e87284b81c851c08d2b3db0ac19c88d15d0eed1cc54e34"></a>
-### [@mongodb-js/compass-deployment-awareness](https://www.npmjs.com/package/@mongodb-js/compass-deployment-awareness) (version 11.7.0)
+<a id="78951435c2ddb3a05498f817f61336829094691244752d9bf878da84f8b2a5e6"></a>
+### [@mongodb-js/compass-deployment-awareness](https://www.npmjs.com/package/@mongodb-js/compass-deployment-awareness) (version 11.7.3)
 <!-- initially found at packages/compass-deployment-awareness -->
 > Compass Deployment Awareness Plugin
 
 License tags: SSPL
 
 
-<a id="d3938fe37cace7caf0167ae622834f9154c6a882ec0084992c08153c32608bfb"></a>
-### [@mongodb-js/compass-explain-plan](https://www.npmjs.com/package/@mongodb-js/compass-explain-plan) (version 5.10.0)
+<a id="b718692f37a9b0d6e579fd00f4d45c9d604f1cf9c31ff8552edaac7a96b5612c"></a>
+### [@mongodb-js/compass-explain-plan](https://www.npmjs.com/package/@mongodb-js/compass-explain-plan) (version 5.10.3)
 <!-- initially found at packages/compass-explain-plan -->
 > Evaluate the performance of your quer
 
 License tags: SSPL
 
 
-<a id="b5556aa88a77869aca2e44a00406f0bd432f11f1c5fd311c9e8d0f38e7b9b058"></a>
-### [@mongodb-js/compass-export-to-language](https://www.npmjs.com/package/@mongodb-js/compass-export-to-language) (version 7.7.0)
+<a id="595d26993e02ed57976660f943afbc4d65fcfbcf5718d3e41f4ca55c2949c526"></a>
+### [@mongodb-js/compass-export-to-language](https://www.npmjs.com/package/@mongodb-js/compass-export-to-language) (version 7.7.3)
 <!-- initially found at packages/compass-export-to-language -->
 > export to language modal
 
 License tags: SSPL
 
 
-<a id="8225cce7f6a9bfe75c870e7b4948ef3ff7623a26a0d10cb0016da75e8f4be3a7"></a>
-### [@mongodb-js/compass-field-store](https://www.npmjs.com/package/@mongodb-js/compass-field-store) (version 7.7.0)
+<a id="1ada7886bc80a2bae0d5412d2dabc22b64f3c55950619f4487e037f356b5f9f4"></a>
+### [@mongodb-js/compass-field-store](https://www.npmjs.com/package/@mongodb-js/compass-field-store) (version 7.7.3)
 <!-- initially found at packages/compass-field-store -->
 > FieldStore keeps track of available fields in a collection.
 
 License tags: SSPL
 
 
-<a id="d4196703c6cacef17b8f7574833a40702f1a11af55e4ec20e16b85a5297d7cdb"></a>
-### [@mongodb-js/compass-find-in-page](https://www.npmjs.com/package/@mongodb-js/compass-find-in-page) (version 3.7.0)
+<a id="c19f5d0072c5e42ee90cd218a03be4f954e0f73b3463d9aaab241b0494bb01f8"></a>
+### [@mongodb-js/compass-find-in-page](https://www.npmjs.com/package/@mongodb-js/compass-find-in-page) (version 3.7.3)
 <!-- initially found at packages/compass-find-in-page -->
 > cmd-f UI for compass
 
 License tags: SSPL
 
 
-<a id="332d592a214e03eed35115865ccf7188abfb450c8b2ca373118b8d762a1911e7"></a>
-### [@mongodb-js/compass-home](https://www.npmjs.com/package/@mongodb-js/compass-home) (version 5.10.0)
+<a id="3676abd790b480053c71264ae2af0253efd726444b57edcc8c608b03222fe194"></a>
+### [@mongodb-js/compass-home](https://www.npmjs.com/package/@mongodb-js/compass-home) (version 5.10.3)
 <!-- initially found at packages/compass-home -->
 > Home
 
 License tags: SSPL
 
 
-<a id="cd3e411a4747d6464bcba3b4f3f96de3a1cf8a1060c6ea8d3343993cfa9fb7c4"></a>
-### [@mongodb-js/compass-import-export](https://www.npmjs.com/package/@mongodb-js/compass-import-export) (version 6.8.0)
+<a id="cb294d198c506e7c102e86c79c3aaf51f6f94292c9f2a6d1b01ee5449c13d05f"></a>
+### [@mongodb-js/compass-import-export](https://www.npmjs.com/package/@mongodb-js/compass-import-export) (version 6.8.3)
 <!-- initially found at packages/compass-import-export -->
 > Compass Import/Export Plugin
 
 License tags: SSPL
 
 
-<a id="31ec0c09794077cc6c172db17ba82f4a35ec127c09beb7a6585428063581ed18"></a>
-### [@mongodb-js/compass-indexes](https://www.npmjs.com/package/@mongodb-js/compass-indexes) (version 4.9.0)
+<a id="d3ffcacb5fc2c2ea80518a7e629325e146ac1e388902c77cc74e7f61d64e41bb"></a>
+### [@mongodb-js/compass-indexes](https://www.npmjs.com/package/@mongodb-js/compass-indexes) (version 4.9.3)
 <!-- initially found at packages/compass-indexes -->
 > Indexes support for Compass
 
 License tags: SSPL
 
 
-<a id="7933a820d3d1843d4abf4d001c406725b82ce6ae91237f330c1d36adb2ccc498"></a>
-### [@mongodb-js/compass-instance](https://www.npmjs.com/package/@mongodb-js/compass-instance) (version 3.7.0)
+<a id="a6afae1e33d5191ab736c9191213d0e7174362d5928eada22c4933f10f4ea1ee"></a>
+### [@mongodb-js/compass-instance](https://www.npmjs.com/package/@mongodb-js/compass-instance) (version 3.7.3)
 <!-- initially found at packages/compass-instance -->
 > compass instance plugin
 
 License tags: SSPL
 
 
-<a id="db06b86ca7c74b098b7a9cd8ed54722fd656ca988a9ef8fc19996c5d0b081e3f"></a>
-### [@mongodb-js/compass-loading](https://www.npmjs.com/package/@mongodb-js/compass-loading) (version 2.7.0)
+<a id="8f403fdb2030cb31f0d51a620bd6690149cacceb2fa011d82cdad3aa3da76518"></a>
+### [@mongodb-js/compass-loading](https://www.npmjs.com/package/@mongodb-js/compass-loading) (version 2.7.3)
 <!-- initially found at packages/compass-loading -->
 > Compass Loading Screen
 
 License tags: SSPL
 
 
-<a id="d922d4203439298ea07fa16a69ceacbe28ea28457a1368a83a769585e7ff78fb"></a>
-### [@mongodb-js/compass-metrics](https://www.npmjs.com/package/@mongodb-js/compass-metrics) (version 4.7.0)
+<a id="70bd73d7d8b9e0e46c736bbf71e774f5902e403dca0e43fa805b874bffe8546e"></a>
+### [@mongodb-js/compass-metrics](https://www.npmjs.com/package/@mongodb-js/compass-metrics) (version 4.7.3)
 <!-- initially found at packages/compass-metrics -->
 > Compass Metrics Plugin
 
 License tags: SSPL
 
 
-<a id="1350b763803e2d689471c2a6c61815648b7b9db311fd3f1de33aec6990908787"></a>
-### [@mongodb-js/compass-plugin-info](https://www.npmjs.com/package/@mongodb-js/compass-plugin-info) (version 3.7.0)
+<a id="703a9f6675338db74f539c8d60e4e82b7a024a977a5131e29796aa4e9ea46ca9"></a>
+### [@mongodb-js/compass-plugin-info](https://www.npmjs.com/package/@mongodb-js/compass-plugin-info) (version 3.7.3)
 <!-- initially found at packages/compass-plugin-info -->
 > Compass Plugin Information Plugin
 
 License tags: SSPL
 
 
-<a id="1e36afa278dbc8ab4119736b90ba5ad6b5c34e8875fbee1c252eb085c9ceb444"></a>
-### [@mongodb-js/compass-query-bar](https://www.npmjs.com/package/@mongodb-js/compass-query-bar) (version 7.7.0)
+<a id="510404aed34795b303302f693de768fbc98f9b47680613f0fb2f2ca1f223390f"></a>
+### [@mongodb-js/compass-query-bar](https://www.npmjs.com/package/@mongodb-js/compass-query-bar) (version 7.7.3)
 <!-- initially found at packages/compass-query-bar -->
 > Renders a component for executing MongoDB queries through a GUI.
 
@@ -3396,8 +3398,8 @@ Authors:
 * MongoDB Inc <[compass@mongodb.com](nomail)>
 
 
-<a id="6346b23dff924f2109e76d44b6e1b3188599424f7904e7846b6d910c6a7937c4"></a>
-### [@mongodb-js/compass-query-history](https://www.npmjs.com/package/@mongodb-js/compass-query-history) (version 8.7.0)
+<a id="88098733b6e34438fc8b2b0dff0f9b79ad2c9a55fa6478ff62ffb672a7701750"></a>
+### [@mongodb-js/compass-query-history](https://www.npmjs.com/package/@mongodb-js/compass-query-history) (version 8.7.3)
 <!-- initially found at packages/compass-query-history -->
 > The query history sidebar.
 
@@ -3407,64 +3409,64 @@ Authors:
 * MongoDB Inc <[compass@mongodb.com](nomail)>
 
 
-<a id="42efa2a8a009b0f14f9da60c2c5367aa8b589dce96713501d11eb153893a3ee8"></a>
-### [@mongodb-js/compass-schema](https://www.npmjs.com/package/@mongodb-js/compass-schema) (version 5.7.0)
+<a id="92016681f8a2f8e25a754aa4506ed0d36604020f546220e40319dba4cdd90425"></a>
+### [@mongodb-js/compass-schema](https://www.npmjs.com/package/@mongodb-js/compass-schema) (version 5.7.3)
 <!-- initially found at packages/compass-schema -->
 > Compass Schema Tab Plugin
 
 License tags: SSPL
 
 
-<a id="76beea6ee690b0c38844917a120573168daf5abc97f8c31da7b760f207f3423a"></a>
-### [@mongodb-js/compass-schema-validation](https://www.npmjs.com/package/@mongodb-js/compass-schema-validation) (version 5.8.0)
+<a id="481464a73431b82f3617b0031656192888396b26d84d6bbd20e76dcd2416c315"></a>
+### [@mongodb-js/compass-schema-validation](https://www.npmjs.com/package/@mongodb-js/compass-schema-validation) (version 5.8.3)
 <!-- initially found at packages/compass-schema-validation -->
 > Compass plugin for document JSON schema validation
 
 License tags: SSPL
 
 
-<a id="97d12ff8e28ecfec5a0695512d3bdf2f312396f835e7002e2b22b62f668d857e"></a>
-### [@mongodb-js/compass-server-version](https://www.npmjs.com/package/@mongodb-js/compass-server-version) (version 5.7.0)
+<a id="f045bcd78525e169ac6d4f832f972cf1f92cf883ed1e84fccc7b92a9b9a6223c"></a>
+### [@mongodb-js/compass-server-version](https://www.npmjs.com/package/@mongodb-js/compass-server-version) (version 5.7.3)
 <!-- initially found at packages/compass-server-version -->
 > Compass Server Version
 
 License tags: SSPL
 
 
-<a id="4ae0a835d6cdc61907fd430e167da9364fb56b0778d311cf3daced96e9dd1eb6"></a>
-### [@mongodb-js/compass-serverstats](https://www.npmjs.com/package/@mongodb-js/compass-serverstats) (version 15.7.0)
+<a id="ad8e594a211b9e0310a9be91fae21872312d3b46443fd9ce495900ab1676a25f"></a>
+### [@mongodb-js/compass-serverstats](https://www.npmjs.com/package/@mongodb-js/compass-serverstats) (version 15.7.3)
 <!-- initially found at packages/compass-serverstats -->
 > Compass Real Time Server Stats Component.
 
 License tags: SSPL
 
 
-<a id="6cee723c6dc06c9325f5ca3dce8e2c60272210e53bf7d5a4bf98a7be0c66e4e2"></a>
-### [@mongodb-js/compass-shell](https://www.npmjs.com/package/@mongodb-js/compass-shell) (version 2.8.0)
+<a id="8b26be6337ea3a7626bbc146f1204536c38a75f6a7e36a91d17c5bde3286d71e"></a>
+### [@mongodb-js/compass-shell](https://www.npmjs.com/package/@mongodb-js/compass-shell) (version 2.8.3)
 <!-- initially found at packages/compass-shell -->
 > Compass Shell Plugin
 
 License tags: SSPL
 
 
-<a id="8cce95a6eab24079b84b399bdf1bfd41a056a37761f79efcdb87a2eafe745831"></a>
-### [@mongodb-js/compass-sidebar](https://www.npmjs.com/package/@mongodb-js/compass-sidebar) (version 4.8.0)
+<a id="a9a1b937deee411e7f0f2785d6956f36f212f42414fa79c1c97d4615e2b1efde"></a>
+### [@mongodb-js/compass-sidebar](https://www.npmjs.com/package/@mongodb-js/compass-sidebar) (version 4.8.3)
 <!-- initially found at packages/compass-sidebar -->
 > Sidebar external plugin
 
 License tags: SSPL
 
 
-<a id="d869091a29c5773d0dfaa4b71dbd93a56337ce6c908a0c567592bb9971c0caa2"></a>
-### [@mongodb-js/compass-ssh-tunnel-status](https://www.npmjs.com/package/@mongodb-js/compass-ssh-tunnel-status) (version 6.7.0)
+<a id="988cf5d18deb68ea105f34c5b5569ba9247152452588777aaa4c5e8ee0b8a329"></a>
+### [@mongodb-js/compass-ssh-tunnel-status](https://www.npmjs.com/package/@mongodb-js/compass-ssh-tunnel-status) (version 6.7.3)
 <!-- initially found at packages/compass-ssh-tunnel-status -->
 > Compass SSH Tunnel Status
 
 License tags: SSPL
 
 
-<a id="25c8bcc5e4a6f1ca3002a1782cc2073d255bf09368e0192fb4b80909f6b5b127"></a>
-### [@mongodb-js/compass-status](https://www.npmjs.com/package/@mongodb-js/compass-status) (version 5.7.0)
+<a id="b52d67d0f01a31d4ad9391fa7d247fbbbd2d916e920a5af3f564750521e8bdcc"></a>
+### [@mongodb-js/compass-status](https://www.npmjs.com/package/@mongodb-js/compass-status) (version 5.7.3)
 <!-- initially found at packages/compass-status -->
 > Compass Status Plugin
 
@@ -3698,8 +3700,8 @@ License files:
       
 
 
-<a id="f8d6f7e2135647e5c0123bee3dbfdf9cbd6a4d9b2bd19a0efcee7874711007b0"></a>
-### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 0.15.1)
+<a id="e4c74909d3ee36920777f26776f5ca0a28b002ba1a6c19bfff4ade62b3d28850"></a>
+### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/async-rewriter2 -->
 > MongoDB Shell Async Rewriter Package
 
@@ -3912,8 +3914,8 @@ License files:
          limitations under the License.
 
 
-<a id="65045898d4446c2142301a2660602e05782564009ef586a292be72cc9fabd5f8"></a>
-### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 0.15.1)
+<a id="638f166f98434095c16aa6f9eaa5777e6e435855aae6a2af67e517145bc02fef"></a>
+### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/autocomplete -->
 > MongoDB Shell Autocomplete Package
 
@@ -4117,8 +4119,8 @@ License files:
       
 
 
-<a id="769bb6d348807c6be11c546d284a4b4b18374d0a7ce768fa597e0e046c149625"></a>
-### [@mongosh/browser-repl](https://www.npmjs.com/package/@mongosh/browser-repl) (version 0.15.1)
+<a id="62b96f909bb2135bd766a48fe2c6c9df9edbd94bcd748057ddfe428ffe7092ca"></a>
+### [@mongosh/browser-repl](https://www.npmjs.com/package/@mongosh/browser-repl) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/browser-repl -->
 > Browser presentation component for Mongo Shell
 
@@ -4330,8 +4332,8 @@ License files:
          limitations under the License.
 
 
-<a id="5e4c54e61cdfe247ab25defa885d3928ad294e3ac42bc050438238728e724e34"></a>
-### [@mongosh/browser-runtime-core](https://www.npmjs.com/package/@mongosh/browser-runtime-core) (version 0.15.1)
+<a id="29592fe48d7f6e7efc0f2ebb647d5b04806b86b9d1992cfda82db730aeaf709c"></a>
+### [@mongosh/browser-runtime-core](https://www.npmjs.com/package/@mongosh/browser-runtime-core) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/browser-runtime-core -->
 > Mongosh browser runtime core
 
@@ -4543,8 +4545,8 @@ License files:
          limitations under the License.
 
 
-<a id="085009d9a8e1c4a1aabc69d2d92b70765f834b6772390d87238b0aebfe9fffb4"></a>
-### [@mongosh/browser-runtime-electron](https://www.npmjs.com/package/@mongosh/browser-runtime-electron) (version 0.15.1)
+<a id="af891b17a5d6197b96723acf96efdf36838959f40eadf408356e7b013dd5bbb0"></a>
+### [@mongosh/browser-runtime-electron](https://www.npmjs.com/package/@mongosh/browser-runtime-electron) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/browser-runtime-electron -->
 > Mongosh browser runtime electron
 
@@ -4756,8 +4758,8 @@ License files:
          limitations under the License.
 
 
-<a id="6d871b9021fb90dec7b43b11ff9ad56804f550287c8689c2cae5a3d6303973c4"></a>
-### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 0.15.1)
+<a id="5dc9096b3ff3a55501e4107f5054d225396a346f0f49b8126d6dd5e204cc31a8"></a>
+### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/errors -->
 > MongoDB Shell Errors Package
 
@@ -4971,8 +4973,8 @@ License files:
       
 
 
-<a id="8a57e938c95940ef77e77c37cf513c111459bf9b1adb30cfd23e12d22b30d00e"></a>
-### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 0.15.1)
+<a id="d1456ee07180022ffe60e91803e2d2c98a988b96b41818101ceed413413e22c1"></a>
+### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/history -->
 > MongoDB Shell History Package
 
@@ -5184,8 +5186,8 @@ License files:
          limitations under the License.
 
 
-<a id="e49da5ee9588d588939a03fd7c0e1248d96ee0496f865d00d10ba3e83d4a547d"></a>
-### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 0.15.1)
+<a id="f3ccda6a9a53f50d9d1efccc34cbc72ac85a2835f8d20447dfac2f5e604770ef"></a>
+### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/i18n -->
 > MongoDB Shell i18n Project
 
@@ -5397,213 +5399,16 @@ License files:
          limitations under the License.
 
 
-<a id="fbe3b4b41302647ed7e04e2c9c765fc62887b1254217b6ba270edfe28b5d67d4"></a>
-### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 0.15.1)
+<a id="5f52eca399951bf31738fd469a689e0ff67ca3959490d5f714af96f4418dadce"></a>
+### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/node-runtime-worker-thread -->
 > MongoDB shell runtime that lives in a worker thread
 
 License tags: Apache-2.0
 
-License files:
-* LICENSE:
 
-      
-                                       Apache License
-                                 Version 2.0, January 2004
-                              http://www.apache.org/licenses/
-      
-         TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-      
-         1. Definitions.
-      
-            "License" shall mean the terms and conditions for use, reproduction,
-            and distribution as defined by Sections 1 through 9 of this document.
-      
-            "Licensor" shall mean the copyright owner or entity authorized by
-            the copyright owner that is granting the License.
-      
-            "Legal Entity" shall mean the union of the acting entity and all
-            other entities that control, are controlled by, or are under common
-            control with that entity. For the purposes of this definition,
-            "control" means (i) the power, direct or indirect, to cause the
-            direction or management of such entity, whether by contract or
-            otherwise, or (ii) ownership of fifty percent (50%) or more of the
-            outstanding shares, or (iii) beneficial ownership of such entity.
-      
-            "You" (or "Your") shall mean an individual or Legal Entity
-            exercising permissions granted by this License.
-      
-            "Source" form shall mean the preferred form for making modifications,
-            including but not limited to software source code, documentation
-            source, and configuration files.
-      
-            "Object" form shall mean any form resulting from mechanical
-            transformation or translation of a Source form, including but
-            not limited to compiled object code, generated documentation,
-            and conversions to other media types.
-      
-            "Work" shall mean the work of authorship, whether in Source or
-            Object form, made available under the License, as indicated by a
-            copyright notice that is included in or attached to the work
-            (an example is provided in the Appendix below).
-      
-            "Derivative Works" shall mean any work, whether in Source or Object
-            form, that is based on (or derived from) the Work and for which the
-            editorial revisions, annotations, elaborations, or other modifications
-            represent, as a whole, an original work of authorship. For the purposes
-            of this License, Derivative Works shall not include works that remain
-            separable from, or merely link (or bind by name) to the interfaces of,
-            the Work and Derivative Works thereof.
-      
-            "Contribution" shall mean any work of authorship, including
-            the original version of the Work and any modifications or additions
-            to that Work or Derivative Works thereof, that is intentionally
-            submitted to Licensor for inclusion in the Work by the copyright owner
-            or by an individual or Legal Entity authorized to submit on behalf of
-            the copyright owner. For the purposes of this definition, "submitted"
-            means any form of electronic, verbal, or written communication sent
-            to the Licensor or its representatives, including but not limited to
-            communication on electronic mailing lists, source code control systems,
-            and issue tracking systems that are managed by, or on behalf of, the
-            Licensor for the purpose of discussing and improving the Work, but
-            excluding communication that is conspicuously marked or otherwise
-            designated in writing by the copyright owner as "Not a Contribution."
-      
-            "Contributor" shall mean Licensor and any individual or Legal Entity
-            on behalf of whom a Contribution has been received by Licensor and
-            subsequently incorporated within the Work.
-      
-         2. Grant of Copyright License. Subject to the terms and conditions of
-            this License, each Contributor hereby grants to You a perpetual,
-            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-            copyright license to reproduce, prepare Derivative Works of,
-            publicly display, publicly perform, sublicense, and distribute the
-            Work and such Derivative Works in Source or Object form.
-      
-         3. Grant of Patent License. Subject to the terms and conditions of
-            this License, each Contributor hereby grants to You a perpetual,
-            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-            (except as stated in this section) patent license to make, have made,
-            use, offer to sell, sell, import, and otherwise transfer the Work,
-            where such license applies only to those patent claims licensable
-            by such Contributor that are necessarily infringed by their
-            Contribution(s) alone or by combination of their Contribution(s)
-            with the Work to which such Contribution(s) was submitted. If You
-            institute patent litigation against any entity (including a
-            cross-claim or counterclaim in a lawsuit) alleging that the Work
-            or a Contribution incorporated within the Work constitutes direct
-            or contributory patent infringement, then any patent licenses
-            granted to You under this License for that Work shall terminate
-            as of the date such litigation is filed.
-      
-         4. Redistribution. You may reproduce and distribute copies of the
-            Work or Derivative Works thereof in any medium, with or without
-            modifications, and in Source or Object form, provided that You
-            meet the following conditions:
-      
-            (a) You must give any other recipients of the Work or
-                Derivative Works a copy of this License; and
-      
-            (b) You must cause any modified files to carry prominent notices
-                stating that You changed the files; and
-      
-            (c) You must retain, in the Source form of any Derivative Works
-                that You distribute, all copyright, patent, trademark, and
-                attribution notices from the Source form of the Work,
-                excluding those notices that do not pertain to any part of
-                the Derivative Works; and
-      
-            (d) If the Work includes a "NOTICE" text file as part of its
-                distribution, then any Derivative Works that You distribute must
-                include a readable copy of the attribution notices contained
-                within such NOTICE file, excluding those notices that do not
-                pertain to any part of the Derivative Works, in at least one
-                of the following places: within a NOTICE text file distributed
-                as part of the Derivative Works; within the Source form or
-                documentation, if provided along with the Derivative Works; or,
-                within a display generated by the Derivative Works, if and
-                wherever such third-party notices normally appear. The contents
-                of the NOTICE file are for informational purposes only and
-                do not modify the License. You may add Your own attribution
-                notices within Derivative Works that You distribute, alongside
-                or as an addendum to the NOTICE text from the Work, provided
-                that such additional attribution notices cannot be construed
-                as modifying the License.
-      
-            You may add Your own copyright statement to Your modifications and
-            may provide additional or different license terms and conditions
-            for use, reproduction, or distribution of Your modifications, or
-            for any such Derivative Works as a whole, provided Your use,
-            reproduction, and distribution of the Work otherwise complies with
-            the conditions stated in this License.
-      
-         5. Submission of Contributions. Unless You explicitly state otherwise,
-            any Contribution intentionally submitted for inclusion in the Work
-            by You to the Licensor shall be under the terms and conditions of
-            this License, without any additional terms or conditions.
-            Notwithstanding the above, nothing herein shall supersede or modify
-            the terms of any separate license agreement you may have executed
-            with Licensor regarding such Contributions.
-      
-         6. Trademarks. This License does not grant permission to use the trade
-            names, trademarks, service marks, or product names of the Licensor,
-            except as required for reasonable and customary use in describing the
-            origin of the Work and reproducing the content of the NOTICE file.
-      
-         7. Disclaimer of Warranty. Unless required by applicable law or
-            agreed to in writing, Licensor provides the Work (and each
-            Contributor provides its Contributions) on an "AS IS" BASIS,
-            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-            implied, including, without limitation, any warranties or conditions
-            of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-            PARTICULAR PURPOSE. You are solely responsible for determining the
-            appropriateness of using or redistributing the Work and assume any
-            risks associated with Your exercise of permissions under this License.
-      
-         8. Limitation of Liability. In no event and under no legal theory,
-            whether in tort (including negligence), contract, or otherwise,
-            unless required by applicable law (such as deliberate and grossly
-            negligent acts) or agreed to in writing, shall any Contributor be
-            liable to You for damages, including any direct, indirect, special,
-            incidental, or consequential damages of any character arising as a
-            result of this License or out of the use or inability to use the
-            Work (including but not limited to damages for loss of goodwill,
-            work stoppage, computer failure or malfunction, or any and all
-            other commercial damages or losses), even if such Contributor
-            has been advised of the possibility of such damages.
-      
-         9. Accepting Warranty or Additional Liability. While redistributing
-            the Work or Derivative Works thereof, You may choose to offer,
-            and charge a fee for, acceptance of support, warranty, indemnity,
-            or other liability obligations and/or rights consistent with this
-            License. However, in accepting such obligations, You may act only
-            on Your own behalf and on Your sole responsibility, not on behalf
-            of any other Contributor, and only if You agree to indemnify,
-            defend, and hold each Contributor harmless for any liability
-            incurred by, or claims asserted against, such Contributor by reason
-            of your accepting any such warranty or additional liability.
-      
-         END OF TERMS AND CONDITIONS
-      
-         Copyright 2020 MongoDB Inc.
-      
-         Licensed under the Apache License, Version 2.0 (the "License");
-         you may not use this file except in compliance with the License.
-         You may obtain a copy of the License at
-      
-             http://www.apache.org/licenses/LICENSE-2.0
-      
-         Unless required by applicable law or agreed to in writing, software
-         distributed under the License is distributed on an "AS IS" BASIS,
-         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-         See the License for the specific language governing permissions and
-         limitations under the License.
-      
-      
-
-
-<a id="60207d6f4a4b075f63d0271b72ba297cac0f71d34bd3051c160ec79eb087735f"></a>
-### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 0.15.1)
+<a id="a56fc04759bc84fc26a48bf1726ad0091c0ba2764e8e7e03a4f14657c9c9ff03"></a>
+### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/service-provider-core -->
 > MongoDB Shell Core Service Provider Package
 
@@ -5815,8 +5620,8 @@ License files:
          limitations under the License.
 
 
-<a id="85f7d42f37bb61843a5c86059fd458ed9f9c0e798734d488d56db6c28863e321"></a>
-### [@mongosh/service-provider-server](https://www.npmjs.com/package/@mongosh/service-provider-server) (version 0.15.1)
+<a id="e774e65babd8ac445d8261d73fac02a68c7dc1f1b36fb098379a23e285e91480"></a>
+### [@mongosh/service-provider-server](https://www.npmjs.com/package/@mongosh/service-provider-server) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/service-provider-server -->
 > MongoDB Shell Server Service Provider Package
 
@@ -6028,8 +5833,8 @@ License files:
          limitations under the License.
 
 
-<a id="7bd722ffb3480a2c1407a8dbdcc81f45949764a59c90a46258c5a979ec3c6743"></a>
-### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 0.15.1)
+<a id="b97cc29f2f9f2527602e978c78dca8b395673fa877e9963f83aad84d6c73e114"></a>
+### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/shell-api -->
 > MongoDB Shell API Classes Package
 
@@ -6241,8 +6046,8 @@ License files:
          limitations under the License.
 
 
-<a id="a215dd39dc6f7d7fa84edfac71119f7d73451ee6cddd73ca40591c7587982286"></a>
-### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 0.15.1)
+<a id="ea92d5ac98b5b34fc47196b8cbea9a128d18ee86ea61385d609f7c4dd8265caf"></a>
+### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/shell-evaluator -->
 > MongoDB Top Level API Package
 
@@ -6455,8 +6260,8 @@ License files:
          limitations under the License.
 
 
-<a id="300e265ba3b940dae47dea27923258172670c57807050e395ac0116c008a7324"></a>
-### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 0.15.1)
+<a id="88b514cb7a0582bde535fdfed064a36c447501649ab739e41bec3527afc1367f"></a>
+### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 1.0.0)
 <!-- initially found at node_modules/@mongosh/types -->
 > Types for mongosh internals
 
@@ -6863,6 +6668,74 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (https://sindresorhus.com)
 
 
+<a id="a554b4072a2793063bccdd97fb01c44a06765daf7291b75284311f7262948031"></a>
+### [@sinonjs/commons](https://www.npmjs.com/package/@sinonjs/commons) (version 1.8.3)
+<!-- initially found at node_modules/@sinonjs/commons -->
+> Simple functions shared among the sinon end user libraries
+
+License tags: BSD-3-Clause
+
+License files:
+* LICENSE:
+
+      BSD 3-Clause License
+      
+      Copyright (c) 2018, Sinon.JS
+      All rights reserved.
+      
+      Redistribution and use in source and binary forms, with or without
+      modification, are permitted provided that the following conditions are met:
+      
+      * Redistributions of source code must retain the above copyright notice, this
+        list of conditions and the following disclaimer.
+      
+      * Redistributions in binary form must reproduce the above copyright notice,
+        this list of conditions and the following disclaimer in the documentation
+        and/or other materials provided with the distribution.
+      
+      * Neither the name of the copyright holder nor the names of its
+        contributors may be used to endorse or promote products derived from
+        this software without specific prior written permission.
+      
+      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+      AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+      IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+      DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+      FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+      DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+      SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+      CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+      OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+      OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+      
+
+
+<a id="b3455d11457e2de0346b9b8a4429a42022fee85955740337be0e802774699f98"></a>
+### [@sinonjs/fake-timers](https://www.npmjs.com/package/@sinonjs/fake-timers) (version 7.1.2)
+<!-- initially found at node_modules/@types/sinon/node_modules/@sinonjs/fake-timers -->
+> Fake JavaScript timers
+
+License tags: BSD-3-Clause
+
+License files:
+* LICENSE:
+
+      Copyright (c) 2010-2014, Christian Johansen, christian@cjohansen.no. All rights reserved.
+      
+      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+      
+      1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+      
+      2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+      
+      3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+      
+      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+Authors:
+* Christian Johansen
+
+
 <a id="ec1012587deae4be75d548dff109ae139d4864dc8c1d9dd3c9fa225ae037b8b8"></a>
 ### [@szmarczak/http-timer](https://www.npmjs.com/package/@szmarczak/http-timer) (version 4.0.5)
 <!-- initially found at node_modules/@szmarczak/http-timer -->
@@ -6983,8 +6856,8 @@ Authors:
 * Nathan Rajlich <nathan@tootallnate.net> (http://n8.io/)
 
 
-<a id="7e73b09ce68aec3e3d2bb2c6d7f62789d01f912cbb47ebd440ca2d29326aa332"></a>
-### [@types/babel__core](https://www.npmjs.com/package/@types/babel__core) (version 7.1.14)
+<a id="892695f60539de69aafeb8e2525a0db2e671914d5928ff23fc459ae5c0d21646"></a>
+### [@types/babel__core](https://www.npmjs.com/package/@types/babel__core) (version 7.1.15)
 <!-- initially found at node_modules/@types/babel__core -->
 > TypeScript definitions for @babel/core
 
@@ -7024,8 +6897,8 @@ Authors:
 * Ifiok Jr. (https://github.com/ifiokjr)
 
 
-<a id="7e899b13cbfedb3bf233a44be4ab5fea3b888975410c84ebfd8f805bc0b2e8d8"></a>
-### [@types/babel__generator](https://www.npmjs.com/package/@types/babel__generator) (version 7.6.2)
+<a id="4d3ea622c355812e2e5559153f16b5a388c6d9eb303de21744ce9e6c0bd0c27a"></a>
+### [@types/babel__generator](https://www.npmjs.com/package/@types/babel__generator) (version 7.6.3)
 <!-- initially found at node_modules/@types/babel__generator -->
 > TypeScript definitions for @babel/generator
 
@@ -7065,8 +6938,8 @@ Authors:
 * Lyanbin (https://github.com/Lyanbin)
 
 
-<a id="ccdadd06002ca5f07f4db3472b699d0fd1e04f174cf56963be17921c935a7702"></a>
-### [@types/babel__template](https://www.npmjs.com/package/@types/babel__template) (version 7.4.0)
+<a id="10a3b95570c9b42a3ac3a0bcb3695ffb5252513019e944d4f137e2f05d64f66d"></a>
+### [@types/babel__template](https://www.npmjs.com/package/@types/babel__template) (version 7.4.1)
 <!-- initially found at node_modules/@types/babel__template -->
 > TypeScript definitions for @babel/template
 
@@ -7105,8 +6978,8 @@ Authors:
 * ExE Boss (https://github.com/ExE-Boss)
 
 
-<a id="66713bd122cb8b3cfab9fa4456f3fccdde198279ee68ca4482f835f5f97d41a7"></a>
-### [@types/babel__traverse](https://www.npmjs.com/package/@types/babel__traverse) (version 7.11.1)
+<a id="49354c25e4c67737cbe7e9a64e5afd2eb9dd5a2d86fa15625409b0959c2e0381"></a>
+### [@types/babel__traverse](https://www.npmjs.com/package/@types/babel__traverse) (version 7.14.2)
 <!-- initially found at node_modules/@types/babel__traverse -->
 > TypeScript definitions for @babel/traverse
 
@@ -7146,6 +7019,7 @@ Authors:
 * Dean L. (https://github.com/dlgrit)
 * Ifiok Jr. (https://github.com/ifiokjr)
 * ExE Boss (https://github.com/ExE-Boss)
+* Daniel Tschinder (https://github.com/danez)
 
 
 <a id="3bd9bf88a52a49fcbac01978705f7d2640f63498bf4d910f11fde7c8f45dac42"></a>
@@ -7186,8 +7060,8 @@ Authors:
 * Paul Melnikow (https://github.com/paulmelnikow)
 
 
-<a id="f38916043b51daf68b3fd63df1e76b60e3f9a28481922c88c0d5b26708d8b4a1"></a>
-### [@types/chai](https://www.npmjs.com/package/@types/chai) (version 4.2.19)
+<a id="415ac28d3fccdf3c44413fc5a1a5885106138a655acfaee93dfc423343952ebe"></a>
+### [@types/chai](https://www.npmjs.com/package/@types/chai) (version 4.2.21)
 <!-- initially found at node_modules/@types/chai -->
 > TypeScript definitions for chai
 
@@ -7864,8 +7738,8 @@ Authors:
 * Sebastian Silbermann (https://github.com/eps1lon)
 
 
-<a id="725d25542bdd70fdafa8c25453f70b158cede4bcfc539a569990c8b17ee78872"></a>
-### [@types/sinon](https://www.npmjs.com/package/@types/sinon) (version 7.5.2)
+<a id="130d82e4e97a4c0f0301f504593c7eee61465b978b7c3d06a62d804f9613ebf7"></a>
+### [@types/sinon](https://www.npmjs.com/package/@types/sinon) (version 10.0.2)
 <!-- initially found at node_modules/@types/sinon -->
 > TypeScript definitions for Sinon
 
@@ -7874,32 +7748,31 @@ License tags: MIT
 License files:
 * LICENSE:
 
-          MIT License      
-            
-          Copyright (c) Microsoft Corporation. All rights reserved.      
-            
-          Permission is hereby granted, free of charge, to any person obtaining a copy      
-          of this software and associated documentation files (the "Software"), to deal      
-          in the Software without restriction, including without limitation the rights      
-          to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      
-          copies of the Software, and to permit persons to whom the Software is      
-          furnished to do so, subject to the following conditions:      
-            
-          The above copyright notice and this permission notice shall be included in all      
-          copies or substantial portions of the Software.      
-            
-          THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR      
-          IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,      
-          FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE      
-          AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      
-          LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,      
-          OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE      
-          SOFTWARE      
+          MIT License
+      
+          Copyright (c) Microsoft Corporation.
+      
+          Permission is hereby granted, free of charge, to any person obtaining a copy
+          of this software and associated documentation files (the "Software"), to deal
+          in the Software without restriction, including without limitation the rights
+          to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+          copies of the Software, and to permit persons to whom the Software is
+          furnished to do so, subject to the following conditions:
+      
+          The above copyright notice and this permission notice shall be included in all
+          copies or substantial portions of the Software.
+      
+          THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+          IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+          FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+          AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+          LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+          OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+          SOFTWARE
       
 
 Authors:
 * William Sears (https://github.com/mrbigdog2u)
-* Jonathan Little (https://github.com/rationull)
 * Lukas Spieß (https://github.com/lumaxis)
 * Nico Jansen (https://github.com/nicojs)
 * James Garbutt (https://github.com/43081j)
@@ -7908,7 +7781,6 @@ Authors:
 * John Wood (https://github.com/johnjesse)
 * Alec Flett (https://github.com/alecf)
 * Simon Schick (https://github.com/SimonSchick)
-* Roey Berman (https://github.com/bergundy)
 
 
 <a id="24b7466552357bc06ea67daab5378cd2436af00a18666c9ffcbf815d97872456"></a>
@@ -11649,226 +11521,9 @@ Authors:
 * Andrey Sitnik <andrey@sitnik.ru>
 
 
-<a id="3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 4.4.0)
+<a id="394c5421206f2ec526852cb6fa0ee38d42b14e205104586179d37d18573f8f95"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 4.4.1)
 <!-- initially found at node_modules/bson -->
-> A bson parser for node.js and the browser
-
-License tags: Apache-2.0
-
-License files:
-* LICENSE.md:
-
-                                       Apache License
-                                 Version 2.0, January 2004
-                              http://www.apache.org/licenses/
-      
-         TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-      
-         1. Definitions.
-      
-            "License" shall mean the terms and conditions for use, reproduction,
-            and distribution as defined by Sections 1 through 9 of this document.
-      
-            "Licensor" shall mean the copyright owner or entity authorized by
-            the copyright owner that is granting the License.
-      
-            "Legal Entity" shall mean the union of the acting entity and all
-            other entities that control, are controlled by, or are under common
-            control with that entity. For the purposes of this definition,
-            "control" means (i) the power, direct or indirect, to cause the
-            direction or management of such entity, whether by contract or
-            otherwise, or (ii) ownership of fifty percent (50%) or more of the
-            outstanding shares, or (iii) beneficial ownership of such entity.
-      
-            "You" (or "Your") shall mean an individual or Legal Entity
-            exercising permissions granted by this License.
-      
-            "Source" form shall mean the preferred form for making modifications,
-            including but not limited to software source code, documentation
-            source, and configuration files.
-      
-            "Object" form shall mean any form resulting from mechanical
-            transformation or translation of a Source form, including but
-            not limited to compiled object code, generated documentation,
-            and conversions to other media types.
-      
-            "Work" shall mean the work of authorship, whether in Source or
-            Object form, made available under the License, as indicated by a
-            copyright notice that is included in or attached to the work
-            (an example is provided in the Appendix below).
-      
-            "Derivative Works" shall mean any work, whether in Source or Object
-            form, that is based on (or derived from) the Work and for which the
-            editorial revisions, annotations, elaborations, or other modifications
-            represent, as a whole, an original work of authorship. For the purposes
-            of this License, Derivative Works shall not include works that remain
-            separable from, or merely link (or bind by name) to the interfaces of,
-            the Work and Derivative Works thereof.
-      
-            "Contribution" shall mean any work of authorship, including
-            the original version of the Work and any modifications or additions
-            to that Work or Derivative Works thereof, that is intentionally
-            submitted to Licensor for inclusion in the Work by the copyright owner
-            or by an individual or Legal Entity authorized to submit on behalf of
-            the copyright owner. For the purposes of this definition, "submitted"
-            means any form of electronic, verbal, or written communication sent
-            to the Licensor or its representatives, including but not limited to
-            communication on electronic mailing lists, source code control systems,
-            and issue tracking systems that are managed by, or on behalf of, the
-            Licensor for the purpose of discussing and improving the Work, but
-            excluding communication that is conspicuously marked or otherwise
-            designated in writing by the copyright owner as "Not a Contribution."
-      
-            "Contributor" shall mean Licensor and any individual or Legal Entity
-            on behalf of whom a Contribution has been received by Licensor and
-            subsequently incorporated within the Work.
-      
-         2. Grant of Copyright License. Subject to the terms and conditions of
-            this License, each Contributor hereby grants to You a perpetual,
-            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-            copyright license to reproduce, prepare Derivative Works of,
-            publicly display, publicly perform, sublicense, and distribute the
-            Work and such Derivative Works in Source or Object form.
-      
-         3. Grant of Patent License. Subject to the terms and conditions of
-            this License, each Contributor hereby grants to You a perpetual,
-            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-            (except as stated in this section) patent license to make, have made,
-            use, offer to sell, sell, import, and otherwise transfer the Work,
-            where such license applies only to those patent claims licensable
-            by such Contributor that are necessarily infringed by their
-            Contribution(s) alone or by combination of their Contribution(s)
-            with the Work to which such Contribution(s) was submitted. If You
-            institute patent litigation against any entity (including a
-            cross-claim or counterclaim in a lawsuit) alleging that the Work
-            or a Contribution incorporated within the Work constitutes direct
-            or contributory patent infringement, then any patent licenses
-            granted to You under this License for that Work shall terminate
-            as of the date such litigation is filed.
-      
-         4. Redistribution. You may reproduce and distribute copies of the
-            Work or Derivative Works thereof in any medium, with or without
-            modifications, and in Source or Object form, provided that You
-            meet the following conditions:
-      
-            (a) You must give any other recipients of the Work or
-                Derivative Works a copy of this License; and
-      
-            (b) You must cause any modified files to carry prominent notices
-                stating that You changed the files; and
-      
-            (c) You must retain, in the Source form of any Derivative Works
-                that You distribute, all copyright, patent, trademark, and
-                attribution notices from the Source form of the Work,
-                excluding those notices that do not pertain to any part of
-                the Derivative Works; and
-      
-            (d) If the Work includes a "NOTICE" text file as part of its
-                distribution, then any Derivative Works that You distribute must
-                include a readable copy of the attribution notices contained
-                within such NOTICE file, excluding those notices that do not
-                pertain to any part of the Derivative Works, in at least one
-                of the following places: within a NOTICE text file distributed
-                as part of the Derivative Works; within the Source form or
-                documentation, if provided along with the Derivative Works; or,
-                within a display generated by the Derivative Works, if and
-                wherever such third-party notices normally appear. The contents
-                of the NOTICE file are for informational purposes only and
-                do not modify the License. You may add Your own attribution
-                notices within Derivative Works that You distribute, alongside
-                or as an addendum to the NOTICE text from the Work, provided
-                that such additional attribution notices cannot be construed
-                as modifying the License.
-      
-            You may add Your own copyright statement to Your modifications and
-            may provide additional or different license terms and conditions
-            for use, reproduction, or distribution of Your modifications, or
-            for any such Derivative Works as a whole, provided Your use,
-            reproduction, and distribution of the Work otherwise complies with
-            the conditions stated in this License.
-      
-         5. Submission of Contributions. Unless You explicitly state otherwise,
-            any Contribution intentionally submitted for inclusion in the Work
-            by You to the Licensor shall be under the terms and conditions of
-            this License, without any additional terms or conditions.
-            Notwithstanding the above, nothing herein shall supersede or modify
-            the terms of any separate license agreement you may have executed
-            with Licensor regarding such Contributions.
-      
-         6. Trademarks. This License does not grant permission to use the trade
-            names, trademarks, service marks, or product names of the Licensor,
-            except as required for reasonable and customary use in describing the
-            origin of the Work and reproducing the content of the NOTICE file.
-      
-         7. Disclaimer of Warranty. Unless required by applicable law or
-            agreed to in writing, Licensor provides the Work (and each
-            Contributor provides its Contributions) on an "AS IS" BASIS,
-            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-            implied, including, without limitation, any warranties or conditions
-            of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-            PARTICULAR PURPOSE. You are solely responsible for determining the
-            appropriateness of using or redistributing the Work and assume any
-            risks associated with Your exercise of permissions under this License.
-      
-         8. Limitation of Liability. In no event and under no legal theory,
-            whether in tort (including negligence), contract, or otherwise,
-            unless required by applicable law (such as deliberate and grossly
-            negligent acts) or agreed to in writing, shall any Contributor be
-            liable to You for damages, including any direct, indirect, special,
-            incidental, or consequential damages of any character arising as a
-            result of this License or out of the use or inability to use the
-            Work (including but not limited to damages for loss of goodwill,
-            work stoppage, computer failure or malfunction, or any and all
-            other commercial damages or losses), even if such Contributor
-            has been advised of the possibility of such damages.
-      
-         9. Accepting Warranty or Additional Liability. While redistributing
-            the Work or Derivative Works thereof, You may choose to offer,
-            and charge a fee for, acceptance of support, warranty, indemnity,
-            or other liability obligations and/or rights consistent with this
-            License. However, in accepting such obligations, You may act only
-            on Your own behalf and on Your sole responsibility, not on behalf
-            of any other Contributor, and only if You agree to indemnify,
-            defend, and hold each Contributor harmless for any liability
-            incurred by, or claims asserted against, such Contributor by reason
-            of your accepting any such warranty or additional liability.
-      
-         END OF TERMS AND CONDITIONS
-      
-         APPENDIX: How to apply the Apache License to your work.
-      
-            To apply the Apache License to your work, attach the following
-            boilerplate notice, with the fields enclosed by brackets "[]"
-            replaced with your own identifying information. (Don't include
-            the brackets!)  The text should be enclosed in the appropriate
-            comment syntax for the file format. We also recommend that a
-            file or class name and description of purpose be included on the
-            same "printed page" as the copyright notice for easier
-            identification within third-party archives.
-      
-         Copyright [yyyy] [name of copyright owner]
-      
-         Licensed under the Apache License, Version 2.0 (the "License");
-         you may not use this file except in compliance with the License.
-         You may obtain a copy of the License at
-      
-             http://www.apache.org/licenses/LICENSE-2.0
-      
-         Unless required by applicable law or agreed to in writing, software
-         distributed under the License is distributed on an "AS IS" BASIS,
-         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-         See the License for the specific language governing permissions and
-         limitations under the License.
-      
-
-Authors:
-* Christian Amor Kvalheim <christkv@gmail.com>
-
-
-<a id="ee52fad50f125b1ac53959bf638e62cafa1a273e20164cc18313012e39035bb5"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 4.1.0)
-<!-- initially found at packages/bson-transpilers/node_modules/bson -->
 > A bson parser for node.js and the browser
 
 License tags: Apache-2.0
@@ -12517,8 +12172,8 @@ Authors:
 * Christian Amor Kvalheim <christkv@gmail.com>
 
 
-<a id="b0a8fba2d2e3cd3bb85fac1c83259c8e6dd151985f590070d7833e6e236afb7f"></a>
-### [bson-transpilers](https://www.npmjs.com/package/bson-transpilers) (version 1.1.0)
+<a id="224753a426de96a306468b116f105cc54889e72c4bce25cc775179c20c24a85b"></a>
+### [bson-transpilers](https://www.npmjs.com/package/bson-transpilers) (version 1.1.1)
 <!-- initially found at packages/bson-transpilers -->
 > Source to source compilers using ANTLR
 
@@ -14309,8 +13964,8 @@ Authors:
 * TJ Holowaychuk <tj@vision-media.ca>
 
 
-<a id="4bcebd17daa28ec496b665e5c966140934c88e9887f314629cbd2c3ab0ff6136"></a>
-### [compass-preferences-model](https://www.npmjs.com/package/compass-preferences-model) (version 1.7.0)
+<a id="a0b31ebc423afd06b6c92007797e21fee7614cc5cf8a5abc43f98e002bdf90a7"></a>
+### [compass-preferences-model](https://www.npmjs.com/package/compass-preferences-model) (version 1.7.3)
 <!-- initially found at packages/compass-preferences-model -->
 > Compass preferences model.
 
@@ -14320,8 +13975,8 @@ Authors:
 * Lucas Hrabovsky <lucas@mongodb.com>
 
 
-<a id="73d7dfb09d530c903e35d698c0a4eba6562691ad19eae96dff50dbc79b467f07"></a>
-### [compass-user-model](https://www.npmjs.com/package/compass-user-model) (version 1.7.0)
+<a id="7e5b59807792d8eeb2415ec71a43dace377025dde087a96edbd6b2de4c6afae8"></a>
+### [compass-user-model](https://www.npmjs.com/package/compass-user-model) (version 1.7.3)
 <!-- initially found at packages/compass-user-model -->
 > MongoDB user model.
 
@@ -19715,8 +19370,8 @@ License files:
       
 
 
-<a id="a4e0775f53bb78e77665b8fc5d3ef720f087279085f2ffc6dcba677f1ae7ffe7"></a>
-### [hadron-app](https://www.npmjs.com/package/hadron-app) (version 4.7.0)
+<a id="483b0d80f1a663a78ec60f78706202c5a93e5805b2ced4044330608016bdd2e4"></a>
+### [hadron-app](https://www.npmjs.com/package/hadron-app) (version 4.7.3)
 <!-- initially found at packages/hadron-app -->
 > Hadron Application Singleton
 
@@ -19756,8 +19411,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="d5058511f0320c76032538aed4a2e14f86bbb3d525788557847eb1648b2ad9b9"></a>
-### [hadron-document](https://www.npmjs.com/package/hadron-document) (version 7.4.0)
+<a id="044982026c36927ddb55b8500e080ecd812991d99d77ab8c619dc56b7b3694e3"></a>
+### [hadron-document](https://www.npmjs.com/package/hadron-document) (version 7.4.1)
 <!-- initially found at packages/hadron-document -->
 > Hadron Document
 
@@ -19786,8 +19441,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="4dabe68d049b4291c3a4420b903b25abc9170689afb8b2ea56a3cdab714781c7"></a>
-### [hadron-react-bson](https://www.npmjs.com/package/hadron-react-bson) (version 5.4.0)
+<a id="8feefc827dde03789ca38a8cd65b20d31c01cce6d2ef22537f367e64d89f65aa"></a>
+### [hadron-react-bson](https://www.npmjs.com/package/hadron-react-bson) (version 5.4.1)
 <!-- initially found at packages/hadron-react-bson -->
 > Hadron React BSON Components
 
@@ -19841,8 +19496,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="639749c61ee876d79cc89e18fd589ca48e75d35dc6ed3e0080c723e9f2202c67"></a>
-### [hadron-type-checker](https://www.npmjs.com/package/hadron-type-checker) (version 6.3.0)
+<a id="c27c6363aa50d716637ad69a67b32e7fc3543ef128bef5157099641e693e85e6"></a>
+### [hadron-type-checker](https://www.npmjs.com/package/hadron-type-checker) (version 6.3.1)
 <!-- initially found at packages/hadron-type-checker -->
 > Hadron Type Checker
 
@@ -23192,10 +22847,10 @@ Authors:
 * Tom Wu
 
 
-<a id="253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e"></a>
-### [jsesc](https://www.npmjs.com/package/jsesc) (version 2.5.2)
-<!-- initially found at node_modules/jsesc -->
-> Given some data, jsesc returns the shortest possible stringified & ASCII-safe representation of that data.
+<a id="fe4a0347f5a8a490eb493ed9e51cb1494b926330ef656bd433de854c1d7abb80"></a>
+### [jsesc](https://www.npmjs.com/package/jsesc) (version 1.3.0)
+<!-- initially found at node_modules/babel-generator/node_modules/jsesc -->
+> A JavaScript library for escaping JavaScript strings while generating the shortest possible valid output.
 
 License tags: MIT
 
@@ -23228,10 +22883,10 @@ Authors:
 * Mathias Bynens (https://mathiasbynens.be/)
 
 
-<a id="fe4a0347f5a8a490eb493ed9e51cb1494b926330ef656bd433de854c1d7abb80"></a>
-### [jsesc](https://www.npmjs.com/package/jsesc) (version 1.3.0)
-<!-- initially found at node_modules/babel-generator/node_modules/jsesc -->
-> A JavaScript library for escaping JavaScript strings while generating the shortest possible valid output.
+<a id="253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e"></a>
+### [jsesc](https://www.npmjs.com/package/jsesc) (version 2.5.2)
+<!-- initially found at node_modules/jsesc -->
+> Given some data, jsesc returns the shortest possible stringified & ASCII-safe representation of that data.
 
 License tags: MIT
 
@@ -36714,8 +36369,8 @@ Authors:
 * Tim Wood <washwithcare@gmail.com> (http://timwoodcreates.com/)
 
 
-<a id="9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.5)
+<a id="238ca94190dc6ecfefb8038eba61fdc9b317f49234c6775cac809521e13446af"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.6)
 <!-- initially found at node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
@@ -36925,6 +36580,9 @@ License files:
          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
          See the License for the specific language governing permissions and
          limitations under the License.
+
+Authors:
+* The MongoDB NodeJS Team <[dbx-node@mongodb.com](nomail)>
 
 
 <a id="79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f"></a>
@@ -37195,8 +36853,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="7b92944dac466e442bbd1f2ef3f6b9f2cc37cc53375714306f73b29ca409ff37"></a>
-### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.1.1)
+<a id="3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958"></a>
+### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.2.0)
 <!-- initially found at node_modules/mongodb-build-info -->
 > Extract information from mongodb's buildInfo
 
@@ -37412,8 +37070,8 @@ Authors:
 * Irina Shestak <shestak.irina@gmail.com>
 
 
-<a id="4bdb45219f73908025ebd24ca2809e81a5c4866c5bcec60be103d1dbda24fee3"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 1.2.5)
+<a id="2400753e4c313cbe1059fed67cfe07c83a8887810d236b84878dad8fdfba9ef7"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 1.2.6)
 <!-- initially found at node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
@@ -37629,8 +37287,8 @@ Authors:
 * Matt Broadstone <mbroadst@mongodb.com>
 
 
-<a id="7d1d9fbe3ff29797c20a8400c2985e18905d006f1def98b77bc0aea108729309"></a>
-### [mongodb-collection-model](https://www.npmjs.com/package/mongodb-collection-model) (version 4.7.0)
+<a id="8c3c38b211c609d27f0d14e0c39f006e7d19e47c6e4819b261fa03ab0e7e21d8"></a>
+### [mongodb-collection-model](https://www.npmjs.com/package/mongodb-collection-model) (version 4.7.3)
 <!-- initially found at packages/collection-model -->
 > MongoDB collection model.
 
@@ -38426,8 +38084,8 @@ Authors:
 * MongoDB Inc <[compass@mongodb.com](nomail)>
 
 
-<a id="65bfe495e384540468e37574dd593abaa15f49c69d181e34f51c944df3f9c37b"></a>
-### [mongodb-connection-model](https://www.npmjs.com/package/mongodb-connection-model) (version 21.5.0)
+<a id="bf7ee646e6961626a0c8056a3627aa6b20f6823f16992f0a7675210d9118c1d4"></a>
+### [mongodb-connection-model](https://www.npmjs.com/package/mongodb-connection-model) (version 21.5.3)
 <!-- initially found at packages/connection-model -->
 > MongoDB connection model.
 
@@ -38437,8 +38095,8 @@ Authors:
 * Lucas Hrabovsky <lucas@mongodb.com>
 
 
-<a id="d842513739d9a848af83ab12b884b179e6e84eb165072b73472b59d20f103c0d"></a>
-### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 1.0.0)
+<a id="b63d47d79486839e30669c011e5a35b0b780fccb15add1ec9c16b9508acf3884"></a>
+### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 1.0.1)
 <!-- initially found at node_modules/mongodb-connection-string-url -->
 > MongoDB connection strings, based on the WhatWG URL API
 
@@ -38642,8 +38300,8 @@ License files:
       
 
 
-<a id="14d9831628f7055a1d78fe2aa9332d583266b5722f808e17f5df3fec23acf566"></a>
-### [mongodb-data-service](https://www.npmjs.com/package/mongodb-data-service) (version 21.5.0)
+<a id="f1b3dddee0358a77165181c5edc9732e729fabfee194b56b4e1eee37711c21a6"></a>
+### [mongodb-data-service](https://www.npmjs.com/package/mongodb-data-service) (version 21.5.3)
 <!-- initially found at packages/data-service -->
 > MongoDB Data Service
 
@@ -38672,8 +38330,8 @@ Authors:
 License tags: SSPL
 
 
-<a id="d2ab62d581a5da4f8cd19d3ebd317b7464ef1b2e7536524716f2ebfaee04afd5"></a>
-### [mongodb-extended-json](https://www.npmjs.com/package/mongodb-extended-json) (version 1.11.0)
+<a id="768a71b2ae4c1a6821baeb4b46fe55f85fa496ba97e06e70b63efc97eb2e27d8"></a>
+### [mongodb-extended-json](https://www.npmjs.com/package/mongodb-extended-json) (version 1.11.1)
 <!-- initially found at node_modules/mongodb-extended-json -->
 > MongoDB Extended JSON.
 
@@ -38889,8 +38547,8 @@ Authors:
 * Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)
 
 
-<a id="bfac50ba289dc74987315c94fad68987bd9baf97f7f617a28839300c51ff88a5"></a>
-### [mongodb-index-model](https://www.npmjs.com/package/mongodb-index-model) (version 3.3.0)
+<a id="b4c742c60e1bdbed649fa33ae9ec3d0430dab5996a5788c0710736fd50d9cff2"></a>
+### [mongodb-index-model](https://www.npmjs.com/package/mongodb-index-model) (version 3.3.1)
 <!-- initially found at packages/index-model -->
 > MongoDB index model.
 
@@ -38900,8 +38558,8 @@ Authors:
 * Lucas Hrabovsky <lucas@mongodb.com>
 
 
-<a id="8ebaa9bf4c713a551f32851626cd56e7012bfd2a0fcb2d2e0747e36bd4895844"></a>
-### [mongodb-instance-model](https://www.npmjs.com/package/mongodb-instance-model) (version 11.7.0)
+<a id="781bfc0ec48cd45fbaa7be55c685868198c0d60e53b32d5af24dde1d71edb381"></a>
+### [mongodb-instance-model](https://www.npmjs.com/package/mongodb-instance-model) (version 11.7.3)
 <!-- initially found at packages/instance-model -->
 > MongoDB instance model.
 
@@ -39339,8 +38997,8 @@ License files:
       
 
 
-<a id="c9998fc64b36f174d593952fd6f516d6593e26e1ba3b0b27e0f0299667756212"></a>
-### [mongodb-js-metrics](https://www.npmjs.com/package/mongodb-js-metrics) (version 7.3.0)
+<a id="da1525634d74a5e37c58d1a31d53210a09bdf87c758dd8c577c3e84b7467e068"></a>
+### [mongodb-js-metrics](https://www.npmjs.com/package/mongodb-js-metrics) (version 7.3.1)
 <!-- initially found at packages/metrics -->
 > Shareable metric recording.
 
@@ -52567,6 +52225,52 @@ License tags: MIT
 
 Authors:
 * Jake Luer <jake@alogicalparadox.com> (http://alogicalparadox.com)
+
+
+<a id="8e730716b3685f8208504f481f53fb45d1d3be517ebcfe935580698a1638d372"></a>
+### [type-detect](https://www.npmjs.com/package/type-detect) (version 4.0.8)
+<!-- initially found at node_modules/type-detect -->
+> Improved typeof detection for node.js and the browser.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright (c) 2013 Jake Luer <jake@alogicalparadox.com> (http://alogicalparadox.com)
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+      
+
+Authors:
+* Jake Luer <jake@alogicalparadox.com> (http://alogicalparadox.com)
+* Keith Cirkel (https://github.com/keithamus)
+* David Losert (https://github.com/davelosert)
+* Aleksey Shvayka (https://github.com/shvaikalesh)
+* Lucas Fernandes da Costa (https://github.com/lucasfcosta)
+* Grant Snodgrass (https://github.com/meeber)
+* Jeremy Tice (https://github.com/jetpacmonkey)
+* Edward Betts (https://github.com/EdwardBetts)
+* dvlsg (https://github.com/dvlsg)
+* Amila Welihinda (https://github.com/amilajack)
+* Jake Champion (https://github.com/JakeChampion)
+* Miroslav Bajtoš (https://github.com/bajtos)
 
 
 <a id="25a12d5b02ef8904eea84213370e8ae011fb8a889530bc0aaff6059cc8677067"></a>

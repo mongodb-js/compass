@@ -32,13 +32,13 @@ export const setDataProvider = (store, error, provider) => {
 };
 
 /**
- * Set the data provider.
+ * Set the isReadonly flag in the store.
  *
  * @param {Store} store - The store.
- * @param {Boolean} isReadonly - Is the store readonly.
+ * @param {Boolean} isReadonly - If the collection is readonly.
  */
 export const setIsReadonly = (store, isReadonly) => {
-  store.setState({ isReadonly: isReadonly });
+  store.setState({ isReadonly });
 };
 
 /**

@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-schema",
   "productName": "Compass Schema plugin",
-  "version": "5.7.0",
+  "version": "5.7.3",
   "apiVersion": "3.0.0",
   "description": "Compass Schema Tab Plugin",
   "main": "lib/index.js",
@@ -19,8 +19,9 @@
     "depcheck": "depcheck",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "check": "npm run depcheck && npm run lint",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
-    "test-ci": "npm run test"
+    "prepublishOnly": "npm run compile",
+    "test-ci": "npm run test",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {
@@ -50,12 +51,12 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
-    "@mongodb-js/compass-query-bar": "^7.7.0",
-    "@mongodb-js/compass-status": "^5.7.0",
+    "@mongodb-js/compass-query-bar": "^7.7.3",
+    "@mongodb-js/compass-status": "^5.7.3",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "bson": "^4.4.0",
+    "bson": "^4.4.1",
     "chai": "^4.1.2",
     "chai-enzyme": "1.0.0-beta.0",
     "classnames": "^2.2.5",
@@ -74,7 +75,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.7.0",
+    "hadron-app": "^4.7.3",
     "hadron-app-registry": "^8.3.0",
     "hadron-ipc": "^2.3.0",
     "hadron-react-buttons": "^5.3.0",
@@ -101,13 +102,13 @@
     "lodash": "^4.17.21",
     "mocha": "^5.2.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb": "4.0.0-beta.5",
+    "mongodb": "addaleax/node-mongodb-native#71d4c39e5c858f49d10e840df626eca4da653e28",
     "mongodb-ace-autocompleter": "^0.6.0",
     "mongodb-ace-mode": "^1.2.0",
     "mongodb-ace-theme-query": "^1.2.0",
     "mongodb-client-encryption": "^1.2.3",
-    "mongodb-connection-model": "^21.5.0",
-    "mongodb-data-service": "^21.5.0",
+    "mongodb-connection-model": "^21.5.3",
+    "mongodb-data-service": "^21.5.3",
     "mongodb-ns": "^2.2.0",
     "mongodb-query-parser": "^2.2.0",
     "mongodb-reflux-store": "^0.0.1",
@@ -173,5 +174,14 @@
     "turf-destination": "^3.0.12",
     "turf-distance": "^3.0.12",
     "turf-point": "^2.0.1"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
   }
 }
