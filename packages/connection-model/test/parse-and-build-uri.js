@@ -97,7 +97,7 @@ const tests = [
     connectionString:
       'mongodb://%40rlo:woof@localhost:27017/?' +
       'authMechanism=GSSAPI&readPreference=primary&' +
-      'authSource=%24external&ssl=false&authSource=$external',
+      'ssl=false&authSource=$external',
     expectedConnectionString:
       'mongodb://%40rlo@localhost:27017/?' +
       'authMechanism=GSSAPI&readPreference=primary&' +
@@ -108,8 +108,13 @@ const tests = [
     connectionString:
       'mongodb://%40rlo@localhost:27017/?' +
       'authMechanism=GSSAPI&readPreference=primary&' +
-      'authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue&' +
-      'gssapiCanonicalizeHostName=true&directConnection=true&ssl=false'
+      'authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue%2CSERVICE_REALM%3Arealm&' +
+      'gssapiServiceName=alternate&directConnection=true&ssl=false',
+    expectedConnectionString:
+      'mongodb://%40rlo@localhost:27017/?' +
+      'authMechanism=GSSAPI&readPreference=primary&authSource=%24external&' +
+      'authMechanismProperties=SERVICE_NAME%3Aalternate%2CSERVICE_REALM%3Arealm%2CgssapiCanonicalizeHostName%3Atrue&' +
+      'directConnection=true&ssl=false',
   },
   {
     description:

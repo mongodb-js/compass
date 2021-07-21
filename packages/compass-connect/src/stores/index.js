@@ -931,6 +931,13 @@ const Store = Reflux.createStore({
         (item) => item._id === recents[9]
       );
 
+      // Because we're storing the connections twice and performing async operations
+      // on the connections with synchronous assumptions, sometimes these two connection
+      // stores get out of sync and we can fail to find the connection to delete.
+      if (!toDestroy) {
+        return;
+      }
+
       toDestroy.destroy({
         success: () => {
           this.state.fetchedConnections.remove(toDestroy._id);

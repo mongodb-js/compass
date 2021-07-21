@@ -18,10 +18,11 @@
     "cover": "nyc npm run test",
     "precheck": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js",
     "check": "npm run lint && npm run depcheck",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {

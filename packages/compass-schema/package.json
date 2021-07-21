@@ -19,8 +19,9 @@
     "depcheck": "depcheck",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "check": "npm run depcheck && npm run lint",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
-    "test-ci": "npm run test"
+    "prepublishOnly": "npm run compile",
+    "test-ci": "npm run test",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {

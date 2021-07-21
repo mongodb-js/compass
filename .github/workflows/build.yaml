@@ -86,9 +86,9 @@ jobs:
               --force-publish "*" \
               --yes
 
-          # We will run prepare manually to isolate the flakiest part of the
+          # We will run `bootstrap` manually to isolate the flakiest part of the
           # process which is publishing
-          npx lerna run prepare --stream
+          npx lerna run bootstrap --stream
 
           # Publish process seems to be pretty flaky on Windows so we are
           # retrying it up to 5 times before bailing

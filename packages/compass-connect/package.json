@@ -25,11 +25,12 @@
     "cover": "nyc npm run test:mocha",
     "precheck": "npm run compile",
     "check": "npm run lint && npm run depcheck",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
     "test-ci": "npm run test",
-    "posttest-ci": "node ../../scripts/killall-mongo.js"
+    "posttest-ci": "node ../../scripts/killall-mongo.js",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {

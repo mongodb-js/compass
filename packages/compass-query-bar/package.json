@@ -31,10 +31,11 @@
     "cover": "nyc npm run test",
     "test-check-ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
     "check": "npm run lint && npm run depcheck",
-    "prepare": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "peerDependencies": {
     "debug": "*",
@@ -82,7 +83,6 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.7.3",
     "hadron-app-registry": "^8.3.0",
     "hadron-react-bson": "^5.4.1",
     "hadron-react-components": "^5.4.0",
@@ -110,7 +110,6 @@
     "mongodb-ace-mode": "^1.2.0",
     "mongodb-ace-theme-query": "^1.2.0",
     "mongodb-connection-model": "^21.5.3",
-    "mongodb-data-service": "^21.5.3",
     "mongodb-query-parser": "^2.4.2",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",
