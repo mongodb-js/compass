@@ -130,7 +130,7 @@ functions:
           npm config ls -l
           echo "(if npm fails, debug.log will be uploaded to S3)"
 
-          # Run npm ci in all the packages
+          # Install dependencies and prepare all subpackages
           npm run bootstrap-evergreen --unsafe-perm -- --stream
 
           # Make sure that cache is populated when other packages are pulling the font
