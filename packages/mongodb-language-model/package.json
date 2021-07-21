@@ -30,7 +30,8 @@
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
     "test-ci": "npm run test",
-    "prepublishOnly": "npm run compile"
+    "prepublishOnly": "npm run compile",
+    "bootstrap": "npm run compile"
   },
   "main": "index.js",
   "devDependencies": {

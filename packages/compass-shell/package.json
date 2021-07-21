@@ -6,7 +6,7 @@
   "description": "Compass Shell Plugin",
   "main": "lib/index.js",
   "scripts": {
-    "prepublishOnly": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "clean": "rimraf lib",
     "precompile": "npm run clean",
     "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js",
@@ -24,7 +24,8 @@
     "cover": "echo",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
-    "depcheck": "depcheck"
+    "depcheck": "depcheck",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "repository": {
     "type": "git",

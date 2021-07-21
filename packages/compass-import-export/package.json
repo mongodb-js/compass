@@ -24,10 +24,11 @@
     "test:dev": "cross-env NODE_ENV=test mocha-webpack",
     "cover": "nyc npm run test",
     "check": "npm run lint && npm run depcheck",
-    "prepublishOnly": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\"",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {

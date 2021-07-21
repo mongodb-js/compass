@@ -18,10 +18,11 @@
     "test-check-ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
     "precheck": "npm run compile",
     "check": "npm run lint && npm run depcheck",
-    "prepublishOnly": "node ../../scripts/download-akzidenz.js && npm run compile",
+    "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {
