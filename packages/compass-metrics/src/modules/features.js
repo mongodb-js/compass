@@ -29,7 +29,8 @@ const featureResources = zipObject(map(features, function(feature) {
   return [feature, new Klass()];
 }));
 
-// Geo Data resource uses `detected` as action
+// TODO: check if this being used anywhere.
+// Geo Data resource uses 'detected' as action
 const GeoDataResource = FeatureResource.extend({
   id: 'Geo Data',
   eventTrackers: ['stitch'],
@@ -38,7 +39,7 @@ const GeoDataResource = FeatureResource.extend({
   }
 });
 
-// Collection resource uses `fetched` as action
+// Collection resource uses 'fetched' and 'created' as actions
 const CollectionResource = FeatureResource.extend({
   id: 'Collection',
   eventTrackers: ['stitch'],
@@ -50,7 +51,7 @@ const CollectionResource = FeatureResource.extend({
   }
 });
 
-// Deployment resource uses `detected` as action
+// Deployment resource uses 'detected' as action
 const DeploymentResource = FeatureResource.extend({
   id: 'Deployment',
   eventTrackers: ['ga', 'intercom', 'stitch'],
@@ -59,7 +60,7 @@ const DeploymentResource = FeatureResource.extend({
   }
 });
 
-// Schema resource uses `sampled` as action
+// Schema resource uses 'sampled' as action
 const SchemaResource = BaseResource.extend({
   id: 'Schema',
   eventTrackers: ['stitch'],
@@ -68,7 +69,8 @@ const SchemaResource = BaseResource.extend({
   }
 });
 
-// Index resource uses `fetched` as action
+// TODO: check if this being used anywhere. Probably 'created' should be used instead.
+// Index resource uses 'fetched' as action
 const IndexesResource = BaseResource.extend({
   id: 'Indexes',
   eventTrackers: ['stitch'],
@@ -104,6 +106,7 @@ const QueryResource = BaseResource.extend({
   }
 });
 
+// TODO: check if this being used anywhere.
 // Application resource uses 'connected' as action
 const ApplicationResource = BaseResource.extend({
   id: 'Application',
@@ -113,6 +116,7 @@ const ApplicationResource = BaseResource.extend({
   }
 });
 
+// TODO: check if this being used anywhere.
 // Validation Rules resource uses 'fetched' as action
 const ValidationRulesResource = BaseResource.extend({
   id: 'Validation Rules',
@@ -123,7 +127,7 @@ const ValidationRulesResource = BaseResource.extend({
 });
 
 // SchemaValidation resource uses 'fetched', 'activated', 'saved',
-// and 'rulesadded' as actions
+// and `rulesadded` as actions
 const SchemaValidationResource = BaseResource.extend({
   id: 'SchemaValidation',
   eventTrackers: ['stitch'],
@@ -150,6 +154,7 @@ const ExplainResource = BaseResource.extend({
   }
 });
 
+// TODO: check probably the 'viewed' action is missing.
 // Document resource uses 'inserted', 'updated', and 'deleted' as actions
 const DocumentResource = BaseResource.extend({
   id: 'Document',
@@ -165,6 +170,8 @@ const DocumentResource = BaseResource.extend({
   }
 });
 
+// TODO: check probably the following actions are missing: 'viewUpdated', 'viewCreated',
+// 'settingsChanged', 'pipelineImported', 'pipelineOpened'.
 // Aggregation resource uses 'executed', 'saved', and 'deleted' as actions
 const AggregationResource = BaseResource.extend({
   id: 'Aggregation',
@@ -189,6 +196,7 @@ const AtlasLinkResource = BaseResource.extend({
   }
 });
 
+// TODO: check if this being used anywhere. Probably 'refreshed' and 'paginated' should be used instead.
 // Documents resource uses 'loaded' as action
 const DocumentsResource = BaseResource.extend({
   id: 'Documents',
@@ -198,6 +206,7 @@ const DocumentsResource = BaseResource.extend({
   }
 });
 
+// TODO: check if this being used anywhere.
 // Documents List View resource uses 'paginated' as action
 const DocumentsListViewResource = BaseResource.extend({
   id: 'Documents List View',
@@ -207,6 +216,7 @@ const DocumentsListViewResource = BaseResource.extend({
   }
 });
 
+// TODO: check if this being used anywhere.
 // Documents Table View resource uses 'paginated' as action
 const DocumentsTableViewResource = BaseResource.extend({
   id: 'Documents Table View',
@@ -216,6 +226,7 @@ const DocumentsTableViewResource = BaseResource.extend({
   }
 });
 
+// TODO: check if this being used anywhere.
 // License resource uses 'viewed' as action
 const LicenseResource = BaseResource.extend({
   id: 'License',
@@ -225,6 +236,7 @@ const LicenseResource = BaseResource.extend({
   }
 });
 
+// TODO: check if this being used anywhere.
 // Auto Update resource uses 'checking', 'uptodate', 'available',
 // 'downloaded', 'cancelled' and 'confirmed' as actions
 const AutoUpdateResource = BaseResource.extend({
@@ -250,6 +262,7 @@ const AutoUpdateResource = BaseResource.extend({
   }
 });
 
+// TODO: check probably the 'opened' action is missing.
 // Import resource uses 'completed' as action
 const ImportResource = BaseResource.extend({
   id: 'Import',
@@ -259,11 +272,24 @@ const ImportResource = BaseResource.extend({
   }
 });
 
+// TODO: check probably the 'opened' action is missing.
 // Export resource uses 'completed' as action
 const ExportResource = BaseResource.extend({
   id: 'Export',
   eventTrackers: ['stitch'],
   completed: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// ExportToLanguage resource uses 'opened' and 'run' as actions.
+const ExportToLanguageResource = BaseResource.extend({
+  id: 'ExportToLanguage',
+  eventTrackers: ['stitch'],
+  opened: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  run: function(metadata, callback) {
     this._send_event(metadata, callback);
   }
 });
@@ -312,6 +338,7 @@ featureResources['Geo Data'] = new GeoDataResource();
 featureResources['Auto Update'] = new AutoUpdateResource();
 featureResources.Collection = new CollectionResource();
 featureResources.AtlasLink = new AtlasLinkResource();
+featureResources.ExportToLanguageResource = new ExportToLanguageResource();
 featureResources.Deployment = new DeploymentResource();
 featureResources.Shell = new ShellResource();
 featureResources.Schema = new SchemaResource();

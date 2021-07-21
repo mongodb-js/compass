@@ -248,6 +248,8 @@ const RULES = [
       compass_version: version
     })
   },
+  // TODO: check probably 'compass:collection:fetched' rules are missing
+  // or remove the 'fetched' action form features.js.
   {
     registryEvent: 'compass:collection:created',
     resource: 'Collection',
@@ -275,6 +277,8 @@ const RULES = [
       compass_version: version
     })
   },
+  // TODO: check probably 'compass:indexes:fetched' rules are missing
+  // or remove the 'fetched' action form features.js.
   {
     registryEvent: 'compass:indexes:created',
     resource: 'Indexes',
