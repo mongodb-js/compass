@@ -1,6 +1,6 @@
 # MongoDB Compass Monorepo
 
-This repository contains MongoDB Compass application source, all Compass plugins and most of application dependencies and build tooling for the app.
+This repository contains the source code and build tooling used in [MongoDB Compass](https://compass.mongodb.com).
 
 ![Aggregation Pipeline Builder Tab in Compass](packages/compass/compass-screenshot.png)
 
