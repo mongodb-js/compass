@@ -115,7 +115,12 @@ describe('release', () => {
   });
 
   afterEach(() => {
-    fs.removeSync(tempDir);
+    try {
+      fs.removeSync(tempDir);
+    } catch (e) {
+      // windows fails to clean those up sometimes, let's just skip it and move
+      // forward with runnning the tests
+    }
   });
 
   it('prints usage if no argument is passed', async() => {
