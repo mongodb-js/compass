@@ -28,16 +28,40 @@ describe('QueryBar [Plugin]', () => {
     expect(component.find(StoreConnector).first().props('store')).to.be.an('object');
   });
 
-  describe('when an input occurs and find is clicked', function() {
-    it('it calls onApply and update the store with the query', async function() {
+  describe('when a valid query is inputted', function() {
+    beforeEach(() => {
       store.setState({
         valid: false,
         filterString: 'a',
         filterValid: false
       });
 
-      let calledApply = false;
       const component = mount(
+        <QueryBarPlugin
+          store={store}
+          actions={actions}
+          layout={['filter']}
+        />
+      );
+
+      // Set the ace editor input value.
+      component.find(OptionEditor).instance().editor.session.setValue(
+        '{a: 3}'
+      );
+    });
+
+    it('updates the store state to valid', () => {
+      expect(store.state.valid).to.equal(true);
+      expect(store.state.filterString).to.equal('{a: 3}');
+    });
+  });
+
+  describe('when find is clicked', function() {
+    let calledApply = false;
+    let component;
+
+    beforeEach(() => {
+      component = mount(
         <QueryBarPlugin
           store={store}
           actions={actions}
@@ -48,19 +72,18 @@ describe('QueryBar [Plugin]', () => {
         />
       );
 
-      // Set the ace editor input value.
-      component.find(OptionEditor).instance().editor.session.setValue(
-        '{a: 3}'
-      );
-
-      expect(store.state.valid).to.equal(true);
-      expect(store.state.filterString).to.equal('{a: 3}');
-
       // Click the filter button.
       component.find(
         {'data-test-id': 'query-bar-apply-filter-button'}
       ).props().onClick();
+    });
 
+    afterEach(() => {
+      calledApply = false;
+      component = null;
+    });
+
+    it('it calls the onApply prop', async function() {
       expect(calledApply).to.equal(true);
     });
   });
