@@ -1,0 +1,7 @@
+{
+  "extends": [
+    "semistandard",
+    "plugin:promise/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ]
+}

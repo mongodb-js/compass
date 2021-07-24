@@ -15,6 +15,7 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**@mongodb-js/compass-auto-updates**](packages/compass-auto-updates): Compass Auto Updates Plugin
 - [**@mongodb-js/compass-collection**](packages/compass-collection): Compass Collection Plugin
 - [**@mongodb-js/compass-collection-stats**](packages/compass-collection-stats): Compass Collection Stats Plugin
+- [**@mongodb-js/compass-components**](packages/compass-components): A set of React Components used in Compass
 - [**@mongodb-js/compass-connect**](packages/compass-connect): Connection Screen Plugin that supports Compass
 - [**@mongodb-js/compass-crud**](packages/compass-crud): Compass Plugin for CRUD Operations
 - [**@mongodb-js/compass-database**](packages/compass-database): Compass Database Plugin
@@ -62,7 +63,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**hadron-react-bson**](packages/hadron-react-bson): Hadron React BSON Components
 - [**hadron-react-buttons**](packages/hadron-react-buttons): Hadron React Button Components
 - [**hadron-react-components**](packages/hadron-react-components): Hadron React Components
-- [**hadron-react-utils**](packages/hadron-react-utils): Hadron React Utils
 - [**hadron-reflux-store**](packages/reflux-store): Hadron Reflux Stores
 - [**hadron-style-manager**](packages/hadron-style-manager): Hadron Style Manager
 - [**hadron-type-checker**](packages/hadron-type-checker): Hadron Type Checker

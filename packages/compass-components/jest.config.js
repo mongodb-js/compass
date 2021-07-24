@@ -1,9 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
-  testEnvironment: 'node',
   transform: {
-    '^.+\\.(ts|tsx)?$': 'ts-jest',
-    '^.+\\.(js|jsx)$': 'babel-jest'
+    '^.+\\.(ts|tsx)?$': 'ts-jest'
   },
   moduleFileExtensions: [
     'ts',
@@ -15,8 +13,5 @@ module.exports = {
   ],
   setupFiles: [
     `${__dirname}/setup-tests.js`
-  ],
-  moduleNameMapper: {
-    "\\.(css|less)$": "identity-obj-proxy"
-  }
+  ]
 };
