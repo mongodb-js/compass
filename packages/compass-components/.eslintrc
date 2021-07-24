@@ -2,6 +2,10 @@
   "extends": [
     "semistandard",
     "plugin:promise/recommended",
-    "plugin:@typescript-eslint/recommended"
-  ]
+    "plugin:@typescript-eslint/recommended",
+    "mongodb-js/node",
+    "mongodb-js/browser",
+    "mongodb-js/react"
+  ],
+  "plugins": ["react"]
 }

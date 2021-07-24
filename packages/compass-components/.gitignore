@@ -1,7 +1,6 @@
 .nyc_output
 node_modules
 package-lock.json
-dist
 coverage
 .esm-wrapper.mjs
-lib/
+lib

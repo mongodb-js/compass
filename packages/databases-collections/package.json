@@ -27,6 +27,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
+    "@mongodb-js/compass-components": "*",
     "debug": "*",
     "hadron-ipc": "*",
     "hadron-react-buttons": "*",
@@ -51,6 +52,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@leafygreen-ui/icon-button": "^9.1.5",
+    "@mongodb-js/compass-components": "^0.0.1",
     "@mongodb-js/compass-deployment-awareness": "^11.7.4",
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.2.2",

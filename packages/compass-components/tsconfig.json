@@ -1,19 +1,21 @@
 {
   "compilerOptions": {
-    "jsx": "react",
-    "module": "commonjs",
+    "allowJs": false,
     "esModuleInterop": true,
     "downlevelIteration": true,
     "declaration": true,
-    "strictNullChecks": false,
-    "sourceMap": true,
-    "removeComments": true,
-    "strict": true,
-    "outDir": "lib",
+    "jsx": "react",
     "lib": [
       "dom",
-      "es2019"
-    ]
+      "es2018"
+    ],
+    "module": "commonjs",
+    "outDir": "lib",
+    "removeComments": true,
+    "strictNullChecks": false,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2018"
   },
   "include": [
     "src/**/*"

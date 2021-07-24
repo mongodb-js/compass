@@ -4,11 +4,18 @@
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
+  "module": "./lib/.esm-wrapper.mjs",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "lib",
+    "package.json",
+    "README.md"
+  ],
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "clean": "rimraf lib",
     "precompile": "npm run clean",
-    "compile": "npm run compile-ts && gen-esm-wrapper . ./.esm-wrapper.mjs",
+    "compile": "npm run compile-ts && gen-esm-wrapper . ./lib/esm-wrapper.mjs",
     "compile-ts": "tsc -p tsconfig.json",
     "cover": "nyc npm run test",
     "depcheck": "depcheck",
@@ -23,18 +30,24 @@
     "@leafygreen-ui/confirmation-modal": "^2.2.1"
   },
   "peerDependencies": {
-    "react": "^16.8.0",
-    "react-dom": "^16.8.0"
+    "react": "^16.8.0"
   },
   "devDependencies": {
     "@types/enzyme": "^3.10.8",
-    "@types/jest": "^26.0.23",
     "@types/react": "^17.0.5",
-    "@types/react-dom": "^17.0.3",
     "@typescript-eslint/eslint-plugin": "^4.28.4",
     "@typescript-eslint/parser": "^4.28.4",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
+    "eslint": "^7.25.0",
+    "eslint-config-semistandard": "^15.0.1",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-config-mongodb-js": "^5.0.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-react": "^7.24.0",
     "jest": "^26.6.3",
     "nyc": "^15.0.0",
     "react": "^16.14.0",
