@@ -10,8 +10,5 @@ module.exports = {
     'jsx',
     'json',
     'node'
-  ],
-  setupFiles: [
-    `${__dirname}/setup-tests.js`
   ]
 };

@@ -1,19 +1,36 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import LeafyGreenConfirmationModal from '@leafygreen-ui/confirmation-modal';
-import assert from 'assert';
+import { render, screen } from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
 
 import ConfirmationModal from './';
 
 describe('App', () => {
-  it('should show a leafygreen-ui confirmation modal', () => {
-    const wrapper = shallow(
+  beforeEach(function() {
+    render(
       <ConfirmationModal
-        title="modal"
+        title="modal title"
         buttonText="ok"
-      ><div /></ConfirmationModal>
+      >
+        <div
+          role="testing-inner-content"
+        >
+          inner content
+        </div>
+      </ConfirmationModal>
     );
+  });
 
-    assert(wrapper.find(LeafyGreenConfirmationModal).exists());
+  it('should show the modal heading', () => {
+    expect(screen.getByRole('heading')).toHaveTextContent('modal title');
+    expect(screen.getByRole('button')).toHaveTextContent('ok')
+  });
+
+  it('should show the modal button', () => {
+    expect(screen.getByRole('button')).toHaveTextContent('ok');
+    expect(screen.getByRole('button')).not.toBeDisabled();
+  });
+
+  it('should show the modal content', () => {
+    expect(screen.getByRole('testing-inner-content')).toHaveTextContent('inner content')
   });
 });
