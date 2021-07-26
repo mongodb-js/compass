@@ -30,7 +30,7 @@
     "pretest-package-compass": "npm run gen-package-lock mongodb-compass",
     "test-package-compass": "cross-env DEBUG=hadron* HADRON_PRODUCT=mongodb-compass HADRON_PRODUCT_NAME=\"MongoDB Compass\" HADRON_DISTRIBUTION=compass npm run package-compass",
     "start": "npm run start --workspace=mongodb-compass",
-    "test": "lerna run test --concurrency 1 --stream --scope=@mongodb-js/compass-components",
+    "test": "lerna run test --concurrency 1 --stream",
     "test-changed": "lerna run test --stream --concurrency 1 --since origin/HEAD",
     "test-ci": "lerna run test-ci --concurrency 1",
     "pretest-packages-publish": "./scripts/monorepo/start-proxy-registry.sh && wait-on -t 3000 http://localhost:4873 && npm-cli-adduser -u test -p test -e test@test.test --registry http://localhost:4873 && echo $'\\n\\n!!! LOCAL REGISTRY DOCKER IMAGE IS RUNNING, DO NOT FORGET TO CLEAN IN UP WHEN YOU ARE DONE\\n\\n'",
