@@ -12,7 +12,7 @@
     "module": "commonjs",
     "outDir": "lib",
     "removeComments": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "sourceMap": true,
     "strict": true,
     "target": "es2018"

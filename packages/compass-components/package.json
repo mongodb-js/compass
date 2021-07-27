@@ -4,7 +4,10 @@
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
-  "module": "./lib/.esm-wrapper.mjs",
+  "exports": {
+    "require": "./lib/index.js",
+    "import": "./lib/.esm-wrapper.mjs"
+  },
   "types": "./lib/index.d.ts",
   "files": [
     "lib",
@@ -15,7 +18,7 @@
     "check": "npm run lint && npm run depcheck",
     "clean": "rimraf lib",
     "precompile": "npm run clean",
-    "compile": "npm run compile-ts && gen-esm-wrapper . ./lib/esm-wrapper.mjs",
+    "compile": "npm run compile-ts && gen-esm-wrapper . ./lib/.esm-wrapper.mjs",
     "compile-ts": "tsc -p tsconfig.json",
     "cover": "nyc npm run test",
     "depcheck": "depcheck",
