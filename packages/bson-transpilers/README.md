@@ -6,6 +6,8 @@ Transpilers for building BSON documents in any language. Current support
 provided for `shell` `javascript` and `python` as inputs. `java`, `c#`, `node`, `shell` and `python` as
 outputs.
 
+> ⚠️&nbsp;&nbsp;`shell` output produces code that is compatible only with legacy `mongo` shell not the new `mongosh` shell. See [COMPASS-4930](https://jira.mongodb.org/browse/COMPASS-4930) for some additional context
+
 See also the original presentation: https://drive.google.com/file/d/1jvwtR3k9oBUzIjL4z_VtpHvdWahfcjTK/view
 
 # Usage
