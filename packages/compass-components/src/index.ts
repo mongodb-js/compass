@@ -1,4 +1,4 @@
-import ConfirmationModal from './components/confirmation-modal';
+import ConfirmationModal from './components/ConfirmationModal';
 
 export {
   ConfirmationModal

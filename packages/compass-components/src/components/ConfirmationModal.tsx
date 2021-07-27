@@ -11,6 +11,4 @@ function ConfirmationModal(
   );
 }
 
-ConfirmationModal.propTypes = LeafyGreenConfirmationModal.propTypes;
-
 export default ConfirmationModal;
