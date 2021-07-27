@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
-import ConfirmationModal from './';
+import ConfirmationModal from './ConfirmationModal';
 
 expect.extend(toHaveNoViolations);
 
