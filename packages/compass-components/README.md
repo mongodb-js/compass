@@ -9,6 +9,8 @@
 - https://jestjs.io/ - Jest testing framework
 - https://reactjs.org/ - React
 - https://testing-library.com/docs/react-testing-library/intro/ - React testing library
+- https://github.com/mongodb/leafygreen-ui - LeafyGreen UI kit
+- https://www.mongodb.design/ - MongoDB.Design
 
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-components.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-components
