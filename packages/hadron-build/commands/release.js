@@ -11,7 +11,6 @@
  * and include in assets.
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
-const execa = require('execa');
 const Target = require('../lib/target');
 const verifyDistro = require('../lib/distro');
 const cli = require('mongodb-js-cli')('hadron-build:release');
@@ -369,11 +368,6 @@ const transformPackageJson = (CONFIG, done) => {
 const installDependencies = (CONFIG, done) => {
   const appPackagePath = path.join(CONFIG.resources, 'app');
 
-  var args = [
-    'install',
-    '--production'
-  ];
-
   cli.debug('Installing dependencies');
 
   var opts = {
@@ -381,43 +375,36 @@ const installDependencies = (CONFIG, done) => {
     cwd: appPackagePath
   };
 
-  run('npm', args, opts, function(err) {
+  run('npm', ['ci'], opts, function(err) {
     if (err) {
       return done(err);
     }
 
-    // NOTE: temporary fix for https://jira.mongodb.org/browse/COMPASS-4939:
-    // reinstall the mongodb driver if coming from a "github:" fork so it gets
-    // post-install hooks and compiled sources
-    const packageJson = fs.readJsonSync(path.join(appPackagePath, 'package.json'));
-    const mongodbDepVersion = packageJson.dependencies.mongodb;
-
-    if ((mongodbDepVersion || '').startsWith('github')) {
-      cli.debug(`Installing mongodb@${mongodbDepVersion}`);
-
-      execa.sync('npm', ['install', `mongodb@${mongodbDepVersion}`], {
-        env: process.env,
-        cwd: appPackagePath
-      });
-    }
-
     cli.debug('Dependencies installed');
 
-    rebuild({
-      ...CONFIG.rebuild,
-      electronVersion: CONFIG.packagerOptions.electronVersion,
-      buildPath: appPackagePath,
-      // `projectRootPath` is undocumented, but changes modules resolution quite
-      // a bit and required for the electron-rebuild to be able to pick up
-      // dependencies inside project root, but outside of their dependants (e.g.
-      // a transitive dependency that was hoisted by npm installation process)
-      projectRootPath: appPackagePath,
-      force: true
-    }).then(() => {
-      cli.debug('Native modules rebuilt against Electron.');
-      return done();
-    }).catch((e) => {
-      return done(e);
+    run('npm', ['prune', '--production'], opts, (err) => {
+      if (err) {
+        return done(err);
+      }
+
+      cli.debug('Dev-only dependencies removed');
+
+      rebuild({
+        ...CONFIG.rebuild,
+        electronVersion: CONFIG.packagerOptions.electronVersion,
+        buildPath: appPackagePath,
+        // `projectRootPath` is undocumented, but changes modules resolution quite
+        // a bit and required for the electron-rebuild to be able to pick up
+        // dependencies inside project root, but outside of their dependants (e.g.
+        // a transitive dependency that was hoisted by npm installation process)
+        projectRootPath: appPackagePath,
+        force: true
+      }).then(() => {
+        cli.debug('Native modules rebuilt against Electron.');
+        return done();
+      }).catch((e) => {
+        return done(e);
+      });
     });
   });
 };
@@ -599,9 +586,9 @@ exports.run = (argv, done) => {
     task('create module cache', createModuleCache),
     task('create packaged styles', createPackagedStyles),
     task('remove development files', removeDevelopmentFiles),
-    task('create application asar', createApplicationAsar),
-    task('create branded installer', createBrandedInstaller),
-    task('create application zip', createApplicationZip)
+    // task('create application asar', createApplicationAsar),
+    // task('create branded installer', createBrandedInstaller),
+    // task('create application zip', createApplicationZip)
   ]);
 
   return async.series(tasks, (_err) => {
