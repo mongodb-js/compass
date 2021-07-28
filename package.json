@@ -39,13 +39,15 @@
     "update-authors": "node scripts/generate-authors.js",
     "update-third-party-notices": "node scripts/gather-licenses.js packages/compass/ > THIRD-PARTY-NOTICES.md",
     "version": "node ./scripts/bump-private-dependencies.js --no-commit",
-    "where": "node ./scripts/monorepo/where.js"
+    "where": "node ./scripts/monorepo/where.js",
+    "gen-package-lock": "node ./scripts/generate-package-lock.js"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/compass.git"
   },
   "devDependencies": {
+    "@npmcli/arborist": "^2.7.1",
     "chalk": "^4.1.1",
     "find-up": "^5.0.0",
     "fs-extra": "^9.1.0",
@@ -53,6 +55,7 @@
     "make-fetch-happen": "^8.0.14",
     "npm-cli-adduser": "^1.1.4",
     "ora": "^5.4.0",
+    "pacote": "^11.3.5",
     "pkg-up": "^3.1.0",
     "ps-list": "^7.2.0",
     "semver": "^7.3.5",
