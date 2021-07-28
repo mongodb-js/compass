@@ -126,6 +126,11 @@ jobs:
           # Setting debug before this line breaks plugins build process
           export DEBUG=hadron*,mongo*,electron*
 
+          # Generate package lock for the Compass workspace so that external 
+          # dependencies are exactly matching monorepo root package-lock
+          npm run gen-package-lock mongodb-compass
+
+          # Finally start the packaging process
           npm run release-evergreen
 
           # Clean-up background verdaccio process
