@@ -154,7 +154,10 @@ const nodePackageKeys = ['inBundle', 'hasShrinkwrap', 'hasInstallScript'];
  * [1] - https://github.com/npm/arborist/blob/75c785f64bc27f326b645854be0b2607e219f09b/lib/shrinkwrap.js#L107-L146
  */
 async function resolvePackageMetaForLink(link) {
-  const manifest = await pacote.manifest(`${link.name}@${link.version}`);
+  const manifest = await pacote.manifest(`${link.name}@${link.version}`, {
+    // if env is undefined, defaults to https://registry.npmjs.org
+    registry: process.env.npm_config_registry
+  });
 
   const meta = {
     // XXX: We are not providing `dev`, `optional`, `devOptional` (see npm docs
