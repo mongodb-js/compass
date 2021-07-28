@@ -2,7 +2,6 @@ const path = require('path');
 const { promises: fs } = require('fs');
 const { Arborist, Shrinkwrap } = require('@npmcli/arborist');
 const pacote = require('pacote');
-const { runInDir } = require('./run-in-dir');
 const { withProgress } = require('./monorepo/with-progress');
 
 /**
@@ -17,50 +16,43 @@ const { withProgress } = require('./monorepo/with-progress');
  * [0] - https://github.com/npm/arborist#data-structures
  */
 async function main() {
-  const LERNA_BIN = path.resolve(
-    __dirname,
-    '..',
-    'node_modules',
-    '.bin',
-    'lerna'
-  );
-
-  const workspaces = JSON.parse(
-    (await runInDir(`${LERNA_BIN} list --all --json --toposort`)).stdout
-  );
-
   const rootPath = path.resolve(__dirname, '..');
   const workspaceName = process.argv.slice(2)[0];
-  const workspace = workspaces.find((info) => info.name === workspaceName);
 
-  if (!workspace) {
-    throw new Error(
-      `Workspace "${workspaceName}" doesn't exist. Available options:\n\n${workspaces
-        .map((info) => ` - ${info.name}`)
-        .join('\n')}`
-    );
-  }
-
-  let arb, tree, workspaceNode;
+  let arb, tree, workspaceNode, workspacePath;
 
   await withProgress('Loading dependencies tree', async () => {
     arb = new Arborist({ path: rootPath });
     // Using virtual here so that optional and system specific pacakges are also
     // included (they will be missing in `actual` if they are not on disk).
     tree = await arb.loadVirtual();
-    workspaceNode = tree.children.get(workspace.name);
+  });
+
+  await withProgress(`Looking for ${workspaceName} workspace`, async () => {
+    if (!tree.workspaces.has(workspaceName)) {
+      const availableWorkspaces = Array.from(tree.workspaces.keys());
+
+      throw new Error(
+        `Workspace "${workspaceName}" doesn't exist. Available workspaces:\n\n${availableWorkspaces
+          .map((name) => ` - ${name}`)
+          .join('\n')}`
+      );
+    }
+
+    workspacePath = tree.workspaces.get(workspaceName);
+    workspaceNode = tree.children.get(workspaceName);
   });
 
   const packagesMeta = new Map();
 
   await withProgress(
-    `Building dependency tree for ${workspace.name} workspace`,
+    `Building dependency tree for ${workspaceName} workspace`,
     async () => {
       const packages = getAllChildrenForNode(workspaceNode);
 
       for (const packageNode of packages) {
         const metaPath = packageNode.path
-          .replace(workspace.location, '')
+          .replace(workspacePath, '')
           .replace(rootPath, '')
           .replace(/^(\/|\\)/, '');
 
@@ -90,7 +82,7 @@ async function main() {
   await withProgress(
     `Writing package lock file to ${path.relative(
       process.cwd(),
-      path.join(workspace.location, 'package-lock.json')
+      path.join(workspacePath, 'package-lock.json')
     )}`,
     async () => {
       // https://docs.npmjs.com/cli/v7/configuring-npm/package-lock-json#file-format
@@ -102,7 +94,7 @@ async function main() {
       };
 
       await fs.writeFile(
-        path.join(workspace.location, 'package-lock.json'),
+        path.join(workspacePath, 'package-lock.json'),
         JSON.stringify(packageLock, null, 2)
       );
     }
