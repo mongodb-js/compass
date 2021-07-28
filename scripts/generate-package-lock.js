@@ -114,16 +114,16 @@ const maybeMissingType = ['optional', 'peer', 'peerOptional'];
 function getAllChildrenForNode(nodeOrLink, packages = new Set()) {
   const node = nodeOrLink.isLink ? nodeOrLink.target : nodeOrLink;
   for (const edge of node.edgesOut.values()) {
-    const package = findPackageNodeRec(edge.name, nodeOrLink);
-    if (!maybeMissingType.includes(edge.type) && !package) {
+    const pkg = findPackageNodeRec(edge.name, nodeOrLink);
+    if (!maybeMissingType.includes(edge.type) && !pkg) {
       throw new Error(
         `Failed to resolve edge ${edge.name} from package ${
           node.packageName
         } at ${node.realpath}:\n\n${JSON.stringify(edge, null, 2)}`
       );
-    } else if (package && !packages.has(package)) {
-      packages.add(package);
-      getAllChildrenForNode(package, packages);
+    } else if (pkg && !packages.has(pkg)) {
+      packages.add(pkg);
+      getAllChildrenForNode(pkg, packages);
     }
   }
   return packages;
@@ -157,7 +157,7 @@ const nodePackageKeys = ['inBundle', 'hasShrinkwrap', 'hasInstallScript'];
  * description in npm docs[0] and internal arborist implementation[1] (we can't
  * use `Shrinkwrap.metaFromNode` directly for LINKs as their metadata will
  * produce an incorrect shrinkwrap meta)
- * 
+ *
  * [0] - https://docs.npmjs.com/cli/v7/configuring-npm/package-lock-json#packages
  * [1] - https://github.com/npm/arborist/blob/75c785f64bc27f326b645854be0b2607e219f09b/lib/shrinkwrap.js#L107-L146
  */
