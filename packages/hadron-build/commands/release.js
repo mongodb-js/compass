@@ -586,9 +586,9 @@ exports.run = (argv, done) => {
     task('create module cache', createModuleCache),
     task('create packaged styles', createPackagedStyles),
     task('remove development files', removeDevelopmentFiles),
-    // task('create application asar', createApplicationAsar),
-    // task('create branded installer', createBrandedInstaller),
-    // task('create application zip', createApplicationZip)
+    task('create application asar', createApplicationAsar),
+    task('create branded installer', createBrandedInstaller),
+    task('create application zip', createApplicationZip)
   ]);
 
   return async.series(tasks, (_err) => {
