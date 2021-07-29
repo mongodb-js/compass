@@ -8,6 +8,14 @@ chai.use(sinonChai);
 const { expect } = chai;
 
 describe('CompassDownloadCenter', () => {
+  if (!!process.env.EVERGREEN && process.platform === 'darwin') {
+    // These tests are not working well on Evergreen macOS machines and we will
+    // skip them for now (they will run in GitHub CI)
+    // eslint-disable-next-line no-console
+    console.warn('Skipping release tests on Evergreen macOS machine');
+    return;
+  }
+
   let downloadCenter;
   let config;
   beforeEach(async() => {
