@@ -5,6 +5,14 @@ const {
 } = require('./bump');
 
 describe('bump', () => {
+  if (!!process.env.EVERGREEN && process.platform === 'darwin') {
+    // These tests are not working well on Evergreen macOS machines and we will
+    // skip them for now (they will run in GitHub CI)
+    // eslint-disable-next-line no-console
+    console.warn('Skipping release tests on Evergreen macOS machine');
+    return;
+  }
+
   describe('newBeta', () => {
     it('returns new beta for a newly promoted release branch', () => {
       expect(newBeta('1.21.0', '1.22-releases')).to.equal('1.22.0-beta.0');
