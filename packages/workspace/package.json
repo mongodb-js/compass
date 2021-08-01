@@ -1,0 +1,60 @@
+{
+  "name": "@mongodb-js/compass-workspace",
+  "version": "0.0.1",
+  "description": "React Components used in Compass",
+  "license": "SSPL",
+  "main": "lib/index.js",
+  "exports": {
+    "require": "./lib/index.js",
+    "import": "./lib/.esm-wrapper.mjs"
+  },
+  "types": "./lib/index.d.ts",
+  "files": [
+    "lib",
+    "package.json",
+    "README.md"
+  ],
+  "scripts": {
+    "check": "npm run lint && npm run depcheck",
+    "clean": "rimraf lib",
+    "precompile": "npm run clean",
+    "compile": "npm run compile-ts && gen-esm-wrapper . ./lib/.esm-wrapper.mjs",
+    "compile-ts": "tsc -p tsconfig.json",
+    "cover": "nyc npm run test",
+    "depcheck": "depcheck",
+    "lint": "eslint src/**/*.tsx src/**/*.ts",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "test": "npm run lint && echo \"NO TESTS :)\"",
+    "test-check-ci": "npm run check && npm test",
+    "test-ci": "npm run test"
+  },
+  "dependencies": {
+    "@mongodb-js/compass-collection": "^3.10.3",
+    "@mongodb-js/compass-database": "^2.7.3",
+    "@mongodb-js/compass-instance": "^3.7.3",
+    "@mongodb-js/compass-shell": "^2.8.3",
+    "flexlayout-react": "v0.5.12"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^12.0.0",
+    "@types/react": "^17.0.5",
+    "@typescript-eslint/eslint-plugin": "^4.28.4",
+    "@typescript-eslint/parser": "^4.28.4",
+    "eslint": "^7.25.0",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "nyc": "^15.0.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.3.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
+  "homepage": "https://github.com/mongodb-js/compass"
+}

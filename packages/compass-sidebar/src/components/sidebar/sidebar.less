@@ -163,6 +163,38 @@
     color: fade(@pw, 40%);
     cursor: not-allowed;
   }
+
+  &-button-open-shell {
+    background: @compass-sidebar-hover-background-color;
+    border-radius: 14px;
+    border: 0;
+    color: @pw;
+    display: block;
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 28px;
+    height: 28px;
+    // width: 28px;
+    width: 100%;
+    // margin: 0 auto;
+    margin: 5px 10px;
+    margin-top: 0;
+    overflow: hidden;
+    text-transform: uppercase;
+    transition: all 180ms ease;
+    text-align: center;
+    padding: 0;
+
+    .plus-button {
+      // opacity: 0;
+      transition: all 180ms ease;
+      display: inline-block;
+    }
+
+    i {
+      line-height: inherit !important;
+    }
+  }
 }
 
 .compass-sidebar-collapsed {

@@ -4,7 +4,6 @@ ignores: [
   "@mongodb-js/compass-auto-updates",
   "@mongodb-js/compass-metrics",
   "@mongodb-js/compass-plugin-info",
-  "@mongodb-js/compass-shell",
   "core-js",
   "font-awesome",
   "karma-electron",

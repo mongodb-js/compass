@@ -25,7 +25,6 @@ ignores: [
   "@mongodb-js/compass-schema-validation",
   "@mongodb-js/compass-server-version",
   "@mongodb-js/compass-serverstats",
-  "@mongodb-js/compass-shell",
   "@mongodb-js/compass-sidebar",
   "@mongodb-js/compass-ssh-tunnel-status",
   "@mongodb-js/compass-status",

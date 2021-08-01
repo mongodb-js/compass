@@ -172,7 +172,7 @@ class Sidebar extends PureComponent {
             title="Create Database"
             onClick={this.handleCreateDatabaseClick.bind(this, this.props.isWritable)}>
             <i className="mms-icon-add" />
-            <div className={classnames(styles['plus-button'])}>
+            <div className={styles['plus-button']}>
               Create Database
             </div>
           </button>
@@ -180,6 +180,25 @@ class Sidebar extends PureComponent {
       );
     }
   }
+
+  renderOpenShellButton() {
+    return (
+      <button
+        className={styles['compass-sidebar-button-open-shell']}
+        title="Open Shell"
+        onClick={() => {
+          global.hadronApp.appRegistry.emit('open-shell');
+        }}
+      >
+        <i className="mms-icon-add" />
+        <div className={styles['plus-button']}>
+          Open Shell
+        </div>
+      </button>
+    );
+  }
+
+  // global.hadronApp.appRegistry.emit('data-service-connected', null, 'ds');
 
   renderSidebarDatabase({index, key, style}) {
     const db = this.props.databases.databases[index];
@@ -275,6 +294,7 @@ class Sidebar extends PureComponent {
           toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
           openLink={this.props.openLink} />
         {this.renderCreateDatabaseButton()}
+        {this.renderOpenShellButton()}
         <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
         <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
         <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />

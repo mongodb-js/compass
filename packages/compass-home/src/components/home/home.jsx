@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import toNS from 'mongodb-ns';
 import { StatusRow } from 'hadron-react-components';
+import Workspace from '@mongodb-js/compass-workspace';
+
 import UI_STATES from '../../constants/ui-states';
 
 const debug = require('debug')('mongodb-compass:stores:HomeComponent');
@@ -13,6 +15,8 @@ import { toggleIsCollapsed } from '../../modules/is-collapsed';
 
 import classnames from 'classnames';
 import styles from './home.less';
+
+import 'flexlayout-react/style/light.css';
 
 const ERROR_WARNING = 'An error occurred while loading navigation';
 
@@ -75,7 +79,7 @@ class Home extends PureComponent {
     this.databaseRole = this.getRoleOrNull('Database.Workspace');
     this.instanceRole = this.getRoleOrNull('Instance.Workspace');
     this.globalModals = this.getRoleOrNull('Global.Modal');
-    this.globalShellComponent = this.getComponentOrNull('Global.Shell');
+    // this.globalShellComponent = this.getComponentOrNull('Global.Shell');
     this.globalWarnings = this.getRoleOrNull('Global.Warning');
     this.findInPageRole = this.getRoleOrNull('Find');
   }
@@ -126,7 +130,7 @@ class Home extends PureComponent {
   renderInstanceView() {
     if (this.instanceRole) {
       const Instance = this.instanceRole[0].component;
-      return (<Instance interval={1000} isDataLake={this.props.isDataLake}/>);
+      return (<Instance isDataLake={this.props.isDataLake}/>);
     }
     return null;
   }
@@ -200,18 +204,25 @@ class Home extends PureComponent {
   }
 
   renderHome() {
+    const {
+      isDataLake
+    } = this.props;
+
     return (
       <div className={classnames(styles['home-view'])} data-test-id="home-view">
         <div className={classnames(styles['home-view-page'])}>
           <div className={this.getContentClasses()}>
-            {this.renderContent()}
+            {/* {this.renderContent()} */}
+            <Workspace
+              isDataLake={isDataLake}
+            />
           </div>
           {this.renderSidebar()}
           {this.renderFindInPage()}
         </div>
         {this.renderGlobalModals()}
         {this.renderGlobalWarnings()}
-        {this.renderGlobalShell()}
+        {/* {this.renderGlobalShell()} */}
       </div>
     );
   }

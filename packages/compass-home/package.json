@@ -25,6 +25,9 @@
     "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
   },
   "license": "SSPL",
+  "dependencies": {
+    "@mongodb-js/compass-workspace": "^0.0.1"
+  },
   "peerDependencies": {
     "debug": "*",
     "hadron-react-buttons": "*",
@@ -69,7 +72,6 @@
     "@mongodb-js/compass-schema-validation": "^5.8.3",
     "@mongodb-js/compass-server-version": "^5.7.3",
     "@mongodb-js/compass-serverstats": "^15.7.3",
-    "@mongodb-js/compass-shell": "^2.8.3",
     "@mongodb-js/compass-sidebar": "^4.8.3",
     "@mongodb-js/compass-ssh-tunnel-status": "^6.7.3",
     "@mongodb-js/compass-status": "^5.7.3",

@@ -9,7 +9,7 @@ import { changeUiStatus } from '../modules/ui-status';
 import { updateTitle } from '../modules/title';
 import { changeConnectionTitle } from '../modules/connection-title';
 import { changeNamespace } from '../modules/namespace';
-import { dataServiceDisconnected } from '../modules';
+import { SET_DS, dataServiceDisconnected } from '../modules';
 
 const debug = require('debug')('mongodb-compass:stores:HomeStore');
 
@@ -51,6 +51,10 @@ store.onActivated = (appRegistry) => {
       });
     }
 
+    store.dispatch({
+      type: SET_DS,
+      dataService: ds
+    });
     store.dispatch(toggleIsConnected(true));
     store.dispatch(changeUiStatus(UI_STATES.LOADING));
   });

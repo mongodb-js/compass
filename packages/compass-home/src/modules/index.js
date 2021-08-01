@@ -27,6 +27,8 @@ import title, {
 import { RESET, reset } from './reset';
 import UI_STATES from '../constants/ui-states';
 
+export const SET_DS = 'SET_DATASERVICE';
+
 /**
  * The reducer.
  */
@@ -60,7 +62,14 @@ const rootReducer = (state, action) => {
       namespace: NAMESPACE_INITIAL_STATE,
       uiStatus: UI_STATUS_INITIAL_STATE,
       title: TITLE_INITIAL_STATE,
-      connectionTitle: INSTANCE_ID_INITIAL_STATE
+      connectionTitle: INSTANCE_ID_INITIAL_STATE,
+      dataService: null,
+    };
+  }
+  if (action.type === SET_DS) {
+    return {
+      ...state,
+      dataService: action.dataService
     };
   }
   return reducer(state, action);

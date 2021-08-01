@@ -80,14 +80,15 @@ class Workspace extends PureComponent {
    * Add the keypress listener on mount.
    */
   componentDidMount() {
-    window.addEventListener('keydown', this.boundHandleKeypress);
+    // TODO: Re-add buttons for managing tabs.
+    // window.addEventListener('keydown', this.boundHandleKeypress);
   }
 
   /**
    * Remove the keypress listener on unmount.
    */
   componentWillUnmount() {
-    window.removeEventListener('keydown', this.boundHandleKeypress);
+    // window.removeEventListener('keydown', this.boundHandleKeypress);
   }
 
   onSortEnd = ({oldIndex, newIndex}) => {

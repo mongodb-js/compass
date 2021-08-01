@@ -16,6 +16,7 @@
     "check-changed": "npm run check -- --since origin/HEAD --exclude-dependents",
     "precheck-ci": "npm run depcheck",
     "check-ci": "lerna run check",
+    "compile": "lerna run compile --stream --scope=@mongodb-js/{compass-workspace,compass-home}",
     "compile-changed": "lerna run compile --stream --since origin/HEAD",
     "predepcheck": "node scripts/depalign.js",
     "depcheck": "depcheck",

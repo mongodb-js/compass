@@ -1,40 +1,64 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
+import PropTypes from 'prop-types';
+
 import CompassShell from './components/compass-shell';
 import CompassShellStore from './stores';
 import { getUserDataFilePath } from './modules/get-user-data-file-path';
 import { HistoryStorage } from './modules/history-storage';
+import { setupRuntime } from './modules/runtime';
 
-function createPlugin() {
-  const store = new CompassShellStore();
-  const Plugin = class extends Component {
-    static displayName = 'CompassShellPlugin';
+// function createPlugin() {
+class Plugin extends Component {
+  static displayName = 'CompassShellPlugin';
 
-    initializeHistoryStorage() {
-      const historyFilePath = getUserDataFilePath('shell-history.json');
+  static propTypes = {
+    dataService: PropTypes.object.isRequired
+  }
 
-      if (!historyFilePath) {
-        return;
-      }
+  constructor(props) {
+    super(props);
 
-      return new HistoryStorage(historyFilePath);
+    this.store = new CompassShellStore();
+    this.store.reduxStore.dispatch(setupRuntime(
+      null,
+      props.dataService,
+      global.hadronApp.appRegistry
+    ));
+  }
+
+  initializeHistoryStorage() {
+    const historyFilePath = getUserDataFilePath('shell-history.json');
+
+    if (!historyFilePath) {
+      return;
     }
 
-    /**
-     * Connect the Plugin to the store and render.
-     *
-     * @returns {React.Component} The rendered component.
-     */
-    render() {
-      return (
-        <Provider store={store.reduxStore}>
-          <CompassShell historyStorage={this.initializeHistoryStorage()} />
-        </Provider>
-      );
-    }
-  };
+    return new HistoryStorage(historyFilePath);
+  }
 
-  return {store, Plugin};
+  /**
+   * Connect the Plugin to the store and render.
+   *
+   * @returns {React.Component} The rendered component.
+   */
+  render() {
+    return (
+      <Provider store={this.store.reduxStore}>
+        <CompassShell
+          historyStorage={this.initializeHistoryStorage()}
+        />
+      </Provider>
+    );
+  }
 }
 
-export default createPlugin;
+// return {store, Plugin};
+// }
+
+// export {
+//   Plugin,
+//   // store
+// };
+
+export default Plugin;
