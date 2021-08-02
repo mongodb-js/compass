@@ -56,7 +56,6 @@
     "@mongodb-js/compass-collection-stats": "^6.7.3",
     "@mongodb-js/compass-connect": "^7.7.3",
     "@mongodb-js/compass-crud": "^12.8.3",
-    "@mongodb-js/compass-database": "^2.7.3",
     "@mongodb-js/compass-databases-collections": "^0.8.3",
     "@mongodb-js/compass-deployment-awareness": "^11.7.3",
     "@mongodb-js/compass-export-to-language": "^7.7.3",

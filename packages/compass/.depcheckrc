@@ -6,7 +6,6 @@ ignores: [
   "@mongodb-js/compass-collection-stats",
   "@mongodb-js/compass-connect",
   "@mongodb-js/compass-crud",
-  "@mongodb-js/compass-database",
   "@mongodb-js/compass-databases-collections",
   "@mongodb-js/compass-deployment-awareness",
   "@mongodb-js/compass-explain-plan",

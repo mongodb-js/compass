@@ -2,11 +2,12 @@ import React from 'react';
 // import LeafyGreenConfirmationModal from '@leafygreen-ui/confirmation-modal';
 
 // import Collection from '@mongodb-js/compass-collection';
-import Database from '@mongodb-js/compass-database';
+// import Database from '@mongodb-js/compass-database';
 // import Instance from '@mongodb-js/compass-instance';
 
 import Breadcrumb from './Breadcrumb';
 import { Namespace } from './types';
+import Database from './Database';
 import Instance from './Instance';
 
 type FieldValue = unknown;

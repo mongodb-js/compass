@@ -25,7 +25,6 @@
   "dependencies": {
     "@leafygreen-ui/icon": "^11.2.0",
     "@leafygreen-ui/icon-button": "^9.1.5",
-    "@mongodb-js/compass-database": "^2.7.3",
     "flexlayout-react": "v0.5.12"
   },
   "peerDependencies": {
