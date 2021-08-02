@@ -34,6 +34,14 @@ function deactivate() {
   global.hadronApp.appRegistry.deregisterStore('RTSS.TopStore', TopStore);
 }
 
-module.exports.d3 = require('./lib/d3/');
+module.exports = {
+  d3: require('./lib/d3/'),
+  activate,
+  deactivate,
+  PerformanceComponent
+};
+
 module.exports.activate = activate;
 module.exports.deactivate = deactivate;
+module.exports.d3 = require('./lib/d3/');
+module.exports.PerformanceComponent = PerformanceComponent;

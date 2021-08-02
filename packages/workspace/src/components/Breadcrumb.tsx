@@ -1,37 +1,60 @@
 import React from 'react';
 
-type Props = {
+type Namespace = {
   databaseName?: string,
   collectionName?: string
-  // TODO: onclick functions.
+}
+
+type Props = {
+  databaseName?: string,
+  collectionName?: string,
+  updateNamespace: (ns: Namespace) => void
 }
 
 function Breadcrumb({
   collectionName,
-  databaseName
+  databaseName,
+  updateNamespace
 }: Props): React.ReactElement {
   return (
     <div
       // {...props}
     >
-      {databaseName && <button
+      <button
         // className={}
-        onClick={() => { alert('open instance'); }}
+        onClick={() => updateNamespace({})}
         // href="#"
       >
         Instance
-      </button>}
+      </button>
       {databaseName && <button
         // className={}
-        onClick={() => { alert(`open db ${databaseName}`); }}
+        onClick={() => updateNamespace({
+          databaseName
+        })}
         // href="#"
       >
         {databaseName}
       </button>}
-      <span>.</span>
-      <span>
-        {collectionName}
-      </span>
+      {databaseName && collectionName && (
+        <>
+          <div
+            style={{
+              display: 'inline-block'
+            }}
+          >.</div>
+          <button
+            // className={}
+            onClick={() => updateNamespace({
+              collectionName,
+              databaseName
+            })}
+            // href="#"
+          >
+            {collectionName}
+          </button>
+        </>
+      )}
     </div>
   );
 }

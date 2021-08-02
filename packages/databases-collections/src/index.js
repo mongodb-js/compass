@@ -1,7 +1,7 @@
 import CollectionsPlugin from './collections-plugin';
 import DatabasesPlugin from './databases-plugin';
 import CollectionsStore from './stores/collections-store';
-import DatabasesStore from './stores/databases-store';
+import createDatabasesStore from './stores/databases-store';
 import CreateCollectionPlugin from './components/create-collection-plugin';
 import CreateCollectionStore from './stores/create-collection';
 import DropCollectionPlugin from './components/drop-collection-plugin';
@@ -20,11 +20,11 @@ const COLLECTIONS_PLUGIN_ROLE = {
 };
 
 // View databases list plugin.
-const DATABASES_PLUGIN_ROLE = {
-  name: 'Databases',
-  component: DatabasesPlugin,
-  order: 1
-};
+// const DATABASES_PLUGIN_ROLE = {
+//   name: 'Databases',
+//   component: DatabasesPlugin,
+//   order: 1
+// };
 
 // Create collection modal plugin.
 const CREATE_COLLECTION_ROLE = {
@@ -63,10 +63,10 @@ function activate(appRegistry) {
   appRegistry.registerStore('CollectionsPlugin.CreateCollectionStore', CreateCollectionStore);
   appRegistry.registerStore('CollectionsPlugin.DropCollectionStore', DropCollectionStore);
 
-  appRegistry.registerRole('Instance.Tab', DATABASES_PLUGIN_ROLE);
+  // appRegistry.registerRole('Instance.Tab', DATABASES_PLUGIN_ROLE);
   appRegistry.registerRole('Global.Modal', CREATE_DATABASE_ROLE);
   appRegistry.registerRole('Global.Modal', DROP_DATABASE_ROLE);
-  appRegistry.registerStore('DatabasesPlugin.DatabasesStore', DatabasesStore);
+  // appRegistry.registerStore('DatabasesPlugin.DatabasesStore', DatabasesStore);
   appRegistry.registerStore('DatabasesPlugin.CreateDatabaseStore', CreateDatabaseStore);
   appRegistry.registerStore('DatabasesPlugin.DropDatabaseStore', DropDatabaseStore);
 }
@@ -84,16 +84,18 @@ function deactivate(appRegistry) {
   appRegistry.deregisterStore('CollectionsPlugin.CreateCollectionStore');
   appRegistry.deregisterStore('CollectionsPlugin.DropCollectionStore');
 
-  appRegistry.deregisterRole('Instance.Tab', DATABASES_PLUGIN_ROLE);
+  // appRegistry.deregisterRole('Instance.Tab', DATABASES_PLUGIN_ROLE);
   appRegistry.deregisterRole('Global.Modal', CREATE_DATABASE_ROLE);
   appRegistry.deregisterRole('Global.Modal', DROP_DATABASE_ROLE);
-  appRegistry.deregisterStore('DatabasesPlugin.DatabasesStore');
+  // appRegistry.deregisterStore('DatabasesPlugin.DatabasesStore');
   appRegistry.deregisterStore('DatabasesPlugin.CreateDatabaseStore');
   appRegistry.deregisterStore('DatabasesPlugin.DropDatabaseStore');
 }
 
-export default {
+export {
   CollectionsPlugin,
-  DatabasesPlugin
+  DatabasesPlugin,
+  createDatabasesStore,
+  activate,
+  deactivate
 };
-export { activate, deactivate };

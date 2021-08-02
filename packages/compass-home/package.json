@@ -64,7 +64,6 @@
     "@mongodb-js/compass-find-in-page": "^3.7.3",
     "@mongodb-js/compass-import-export": "^6.8.3",
     "@mongodb-js/compass-indexes": "^4.9.3",
-    "@mongodb-js/compass-instance": "^3.7.3",
     "@mongodb-js/compass-metrics": "^4.7.3",
     "@mongodb-js/compass-plugin-info": "^3.7.3",
     "@mongodb-js/compass-query-bar": "^7.7.3",

@@ -2,6 +2,10 @@ import CompassShell from './plugin';
 
 export default CompassShell;
 
+export {
+  CompassShell
+};
+
 // const {
 //   store,
 //   Plugin

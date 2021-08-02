@@ -10,7 +10,6 @@
       "es2018"
     ],
     "module": "commonjs",
-    "outDir": "lib",
     "removeComments": true,
     "strictNullChecks": true,
     "sourceMap": true,
@@ -18,9 +17,10 @@
     "target": "es2018"
   },
   "include": [
-    "src/**/*"
+    "./src/**/*"
   ],
   "exclude": [
-    "./src/**/*.spec.*"
+    "./src/**/*.spec.*",
+    "node_modules/**/*"
   ]
 }

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
 import { TabNavBar, UnsafeComponent } from 'hadron-react-components';
 
 import styles from './database.less';
@@ -50,14 +49,15 @@ class Database extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles.database)}>
+      <div className={styles.database}>
         <TabNavBar
           aria-label="Database Tabs"
           tabs={this.tabs}
           views={this.views}
           mountAllViews={false}
           activeTabIndex={this.state.activeTab}
-          onTabClicked={this.onTabClicked} />
+          onTabClicked={this.onTabClicked}
+        />
       </div>
     );
   }

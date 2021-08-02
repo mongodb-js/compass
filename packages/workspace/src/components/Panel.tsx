@@ -3,8 +3,11 @@ import React from 'react';
 
 import Collection from '@mongodb-js/compass-collection';
 import Database from '@mongodb-js/compass-database';
-import Instance from '@mongodb-js/compass-instance';
+// import Instance from '@mongodb-js/compass-instance';
+
 import Breadcrumb from './Breadcrumb';
+import { Namespace } from './types';
+import Instance from './Instance';
 
 type FieldValue = unknown;
 
@@ -26,30 +29,37 @@ type Props = {
   collectionName?: string,
   collectionAttributes?: CollectionAttributes,
   isDataLake: boolean,
-  // TODO: Panel type: shell, etc.
+  updateNamespace: (ns: Namespace) => void
 }
 
 function Panel({
   collectionName,
   databaseName,
-  isDataLake
+  isDataLake,
+  updateNamespace
 }: Props): React.ReactElement {
   console.log('render panel,', databaseName, collectionName);
+
+  // const [ instance, setInstance ] = useState(null);
+
+  // global
 
   return (
     <>
       <Breadcrumb
         databaseName={databaseName}
         collectionName={collectionName}
+        updateNamespace={updateNamespace}
       />
       {!databaseName && <Instance
         isDataLake={isDataLake}
+        updateNamespace={updateNamespace}
       />}
       {databaseName && !collectionName && <Database />}
       {databaseName && collectionName && (
         <Collection
-          // TODO: Don't use one namespace, seperate db and col name.
-          namespace={`${databaseName}.${collectionName}`}
+          collectionName={collectionName}
+          databaseName={databaseName}
           isDataLake={isDataLake}
         />
       )}

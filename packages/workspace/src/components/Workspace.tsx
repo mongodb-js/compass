@@ -9,11 +9,12 @@ import FlexLayout, {
 import { ITabSetRenderValues } from 'flexlayout-react/declarations/view/Layout';
 import IconButton from '@leafygreen-ui/icon-button';
 import Icon from '@leafygreen-ui/icon';
-const Shell = require('@mongodb-js/compass-shell');
+import Shell from '@mongodb-js/compass-shell';
 
 // import 'flexlayout-react/style/light.css';
 
 import Panel from './Panel';
+import { Namespace } from './types';
 
 // declare global {
 //   interface Window { [someField: string]: any }
@@ -106,14 +107,26 @@ function Workspace(
     const component = node.getComponent();
     console.log('factory component', component);
     if (component === PANEL_COMPONENT_ID) {
+      const nodeConfig = node.getConfig();
       const {
         databaseName,
         collectionName
-      } = node.getConfig();
+      } = nodeConfig;
       return <Panel
         databaseName={databaseName}
         collectionName={collectionName}
         isDataLake={props.isDataLake}
+        updateNamespace={(ns: Namespace) => {
+          console.log('update to ns', ns);
+          model.doAction(FlexLayout.Actions.updateNodeAttributes(
+            node.getId(),
+            { config: {
+              ...nodeConfig,
+              databaseName: ns.databaseName,
+              collectionName: ns.collectionName
+            }}
+          ));
+        }}
       />;
     } else if (component === SHELL_COMPONENT_ID) {
       // const {
@@ -128,6 +141,8 @@ function Workspace(
 
       console.log('render shell w/ dataService', props.dataService);
       console.log('Shell', Shell);
+
+      return <div>Shell</div>;
 
       // return <Shell
       //   dataService={props.dataService}

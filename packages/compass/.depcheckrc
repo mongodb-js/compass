@@ -16,7 +16,6 @@ ignores: [
   "@mongodb-js/compass-home",
   "@mongodb-js/compass-import-export",
   "@mongodb-js/compass-indexes",
-  "@mongodb-js/compass-instance",
   "@mongodb-js/compass-metrics",
   "@mongodb-js/compass-plugin-info",
   "@mongodb-js/compass-query-bar",
