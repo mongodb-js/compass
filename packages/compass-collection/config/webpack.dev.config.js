@@ -37,7 +37,8 @@ const config = {
   output: {
     path: project.path.output,
     publicPath: '/',
-    filename: '[name].js'
+    filename: '[name].js',
+    globalObject: 'this'
   },
   module: {
     rules: [

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import CollectionsToolbar from './collections-toolbar';
 import CollectionsTable from './collections-table';
-import { showCollection } from '../../modules/show-collection';
 import { sortCollections } from '../../modules/collections/collections';
 import { openLink } from '../../modules/link';
 import { open as openCreate } from '../../modules/create-collection';
@@ -21,11 +20,12 @@ class Collections extends PureComponent {
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     openLink: PropTypes.func.isRequired,
-    showCollection: PropTypes.func.isRequired,
+    // showCollection: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortCollections: PropTypes.func.isRequired,
-    isDataLake: PropTypes.bool.isRequired
+    isDataLake: PropTypes.bool.isRequired,
+    updateNamespace: PropTypes.func.isRequired
   }
 
   /**
@@ -52,7 +52,7 @@ class Collections extends PureComponent {
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           sortCollections={this.props.sortCollections}
-          showCollection={this.props.showCollection}
+          updateNamespace={this.props.updateNamespace}
           open={openDrop}
         />
       </div>
@@ -70,7 +70,6 @@ class Collections extends PureComponent {
 const mapStateToProps = (state) => ({
   columns: state.columns,
   collections: state.collections,
-  databaseName: state.databaseName,
   isReadonly: state.isReadonly,
   isWritable: state.isWritable,
   sortColumn: state.sortColumn,
@@ -85,7 +84,6 @@ const mapStateToProps = (state) => ({
 const ConnectedCollections = connect(
   mapStateToProps,
   {
-    showCollection,
     sortCollections,
     openLink
   },

@@ -65,7 +65,8 @@ class CollectionsTable extends PureComponent {
     sortOrder: PropTypes.string.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortCollections: PropTypes.func.isRequired,
-    showCollection: PropTypes.func.isRequired
+    // showCollection: PropTypes.func.isRequired,
+    updateNamespace: PropTypes.func.isRequired
   }
 
   /**
@@ -94,7 +95,10 @@ class CollectionsTable extends PureComponent {
    * @param {String} name - The db name.
    */
   onNameClicked(name) {
-    this.props.showCollection(name);
+    this.props.updateNamespace({
+      databaseName: this.props.databaseName,
+      collectionName: name
+    });
   }
 
   shouldDisplayRemoveButton() {

@@ -121,6 +121,5 @@ module.exports = {
     // main import and for that reason it needs to stay external to the
     // compass-shell
     '@mongosh/node-runtime-worker-thread': 'commonjs2 @mongosh/node-runtime-worker-thread',
-  },
-  node: false
+  }
 };

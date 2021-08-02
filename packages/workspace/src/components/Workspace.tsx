@@ -9,7 +9,12 @@ import FlexLayout, {
 import { ITabSetRenderValues } from 'flexlayout-react/declarations/view/Layout';
 import IconButton from '@leafygreen-ui/icon-button';
 import Icon from '@leafygreen-ui/icon';
-import Shell from '@mongodb-js/compass-shell';
+// import { CompassShell } from '@mongodb-js/compass-shell';
+// import Shell from '@mongodb-js/compass-shell';
+// const Shell = require('@mongodb-js/compass-shell');
+//     "hadron-react-components": "^5.4.0",
+// const Shell = require('../../../compass-shell/src');
+// import Shell from '../../../compass-shell/src';
 
 // import 'flexlayout-react/style/light.css';
 
@@ -96,16 +101,17 @@ const defaultLayout: IJsonModel = {
   borders: []
 };
 
-function Workspace(
-  props: Props
-): React.ReactElement {
+export default function Workspace({
+  isDataLake,
+  dataService
+}: Props) {
   const [ model, setModel ] = useState(
     FlexLayout.Model.fromJson(defaultLayout)
   );
 
   function factory(node: TabNode) {
     const component = node.getComponent();
-    console.log('factory component', component);
+    // console.log('factory component', component);
     if (component === PANEL_COMPONENT_ID) {
       const nodeConfig = node.getConfig();
       const {
@@ -115,7 +121,7 @@ function Workspace(
       return <Panel
         databaseName={databaseName}
         collectionName={collectionName}
-        isDataLake={props.isDataLake}
+        isDataLake={isDataLake}
         updateNamespace={(ns: Namespace) => {
           console.log('update to ns', ns);
           model.doAction(FlexLayout.Actions.updateNodeAttributes(
@@ -139,17 +145,29 @@ function Workspace(
       //   Plugin
       // } = createPlugin();
 
-      console.log('render shell w/ dataService', props.dataService);
-      console.log('Shell', Shell);
+      console.log('render shell w/ dataService', dataService);
+      const ShellComponent = (global as any).hadronApp.appRegistry.getComponent(
+        'Global.Shell'
+      );
+      console.log('ShellComponent', ShellComponent);
 
-      return <div>Shell</div>;
+      return (
+        <ShellComponent
+          // Hacky :)
+          dataService={(global as any).hadronApp.appRegistry.stores[
+            'Connect.Store'
+          ].dataService}
+        />
+      );
 
-      // return <Shell
-      //   dataService={props.dataService}
-      //   // databaseName={databaseName}
-      //   // collectionName={collectionName}
-      //   // isDataLake={props.isDataLake}
-      // />;
+    //   return <Shell
+    //     // Hacky :)
+    //     dataService={(global as any).hadronApp.appRegistry.stores['Connect.Store'].dataService}
+    //     // dataService={props.dataService}
+    //     // databaseName={databaseName}
+    //     // collectionName={collectionName}
+    //     // isDataLake={props.isDataLake}
+    //   />;
     }
   }
 
@@ -211,10 +229,10 @@ function Workspace(
 
     layoutRef.current?.addTabToTabSet(node.getId(), {
       component: PANEL_COMPONENT_ID,
-      name: 'aaaaa',
+      name: 'Instance',
       config: {
         id: '55', // TODO: Keep an id index counter.
-        databaseName: 'aa'
+        databaseName: 'air'
       }
     });
   }
@@ -255,5 +273,3 @@ function Workspace(
     </div>
   );
 }
-
-export default Workspace;

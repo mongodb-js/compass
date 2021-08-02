@@ -1,26 +1,30 @@
 {
   "compilerOptions": {
-    "allowJs": false,
-    "esModuleInterop": true,
-    "downlevelIteration": true,
-    "declaration": true,
+    "outDir": "./lib/",
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "es5",
     "jsx": "react",
-    "lib": [
-      "dom",
-      "es2018"
-    ],
-    "module": "commonjs",
-    "removeComments": true,
-    "strictNullChecks": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "es2018"
+    "allowJs": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true
   },
-  "include": [
-    "./src/**/*"
-  ],
   "exclude": [
-    "./src/**/*.spec.*",
-    "node_modules/**/*"
+    "node_modules"
   ]
 }
+
+
+// Working:
+// {
+//   "compilerOptions": {
+//     "outDir": "./lib/",
+//     "noImplicitAny": true,
+//     "module": "es6",
+//     "target": "es5",
+//     "jsx": "react",
+//     "allowJs": true,
+//     "moduleResolution": "node",
+//     "esModuleInterop": true
+//   }
+// }

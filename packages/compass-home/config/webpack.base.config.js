@@ -5,7 +5,7 @@ module.exports = {
   mode: (process.env.NODE_ENV !== 'production') ? 'development' : 'production',
   resolve: {
     modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less', '.wasm'],
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', 'less', '.wasm'],
     alias: {
       actions: path.join(project.path.src, 'actions'),
       components: path.join(project.path.src, 'components'),
@@ -102,6 +102,11 @@ module.exports = {
       {
         test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
         use: [{ loader: 'shebang-loader' }]
+      },
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
       },
       {
         test: /\.(js|jsx)$/,

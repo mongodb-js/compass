@@ -1,7 +1,7 @@
 import React from 'react';
 // import LeafyGreenConfirmationModal from '@leafygreen-ui/confirmation-modal';
 
-import Collection from '@mongodb-js/compass-collection';
+// import Collection from '@mongodb-js/compass-collection';
 import Database from '@mongodb-js/compass-database';
 // import Instance from '@mongodb-js/compass-instance';
 
@@ -38,14 +38,28 @@ function Panel({
   isDataLake,
   updateNamespace
 }: Props): React.ReactElement {
-  console.log('render panel,', databaseName, collectionName);
+  // console.log('render panel,', databaseName, collectionName);
 
   // const [ instance, setInstance ] = useState(null);
 
   // global
 
+  const CollectionComponent = (global as any).hadronApp.appRegistry.getRole(
+    'Collection.Workspace'
+  )[0].component;
+
   return (
-    <>
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
       <Breadcrumb
         databaseName={databaseName}
         collectionName={collectionName}
@@ -55,16 +69,30 @@ function Panel({
         isDataLake={isDataLake}
         updateNamespace={updateNamespace}
       />}
-      {databaseName && !collectionName && <Database />}
+      {databaseName && !collectionName && (
+        <Database
+          databaseName={databaseName}
+          updateNamespace={updateNamespace}
+        />
+      )}
       {databaseName && collectionName && (
-        <Collection
+        <CollectionComponent
           collectionName={collectionName}
           databaseName={databaseName}
           isDataLake={isDataLake}
+          updateNamespace={updateNamespace}
         />
       )}
-    </>
+    </div>
   );
 }
+          // namespace={this.props.namespace}
+
+        // <Collection
+        //   collectionName={collectionName}
+        //   databaseName={databaseName}
+        //   isDataLake={isDataLake}
+        // />
+        // <div>Collection</div>
 
 export default Panel;

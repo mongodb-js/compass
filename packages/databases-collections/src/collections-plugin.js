@@ -1,11 +1,22 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import CollectionsPlugin from './components/collections';
-import store from './stores/collections-store';
+import store, { loadDatabase } from './stores/collections-store';
 
 class Plugin extends Component {
   static displayName = 'CollectionsPlugin';
+
+  static propTypes = {
+    databaseName: PropTypes.string.isRequired,
+    updateNamespace: PropTypes.func.isRequired
+  }
+
+  componentDidMount() {
+    // TODO: Isolation for this component, not global store
+    loadDatabase(this.props.databaseName);
+  }
 
   /**
    * Connect the Plugin to the store and render.
@@ -15,7 +26,10 @@ class Plugin extends Component {
   render() {
     return (
       <Provider store={store}>
-        <CollectionsPlugin />
+        <CollectionsPlugin
+          databaseName={this.props.databaseName}
+          updateNamespace={this.props.updateNamespace}
+        />
       </Provider>
     );
   }

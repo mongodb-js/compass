@@ -6,7 +6,7 @@ const baseWebpackConfig = require('./webpack.base.config');
 
 const config = {
   mode: 'production',
-  target: 'electron-renderer',
+  target: 'web',
   devtool: false,
   entry: {
     index: path.join(__dirname, '..', 'src')
@@ -16,7 +16,8 @@ const config = {
     publicPath: './',
     filename: 'index.js',
     library: 'hadron-react-components',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    globalObject: 'this'
   },
   plugins: [
     new PeerDepsExternalsPlugin()

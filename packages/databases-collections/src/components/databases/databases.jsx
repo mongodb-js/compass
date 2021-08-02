@@ -5,7 +5,7 @@ import { ZeroState } from 'hadron-react-components';
 
 import DatabasesToolbar from './databases-toolbar';
 import DatabasesTable from './databases-table';
-import { showDatabase } from '../../modules/show-database';
+// import { showDatabase } from '../../modules/show-database';
 import { sortDatabases } from '../../modules/databases/databases';
 import { open as openCreate } from '../../modules/create-database';
 import { open as openDrop } from '../../modules/drop-database';
@@ -28,12 +28,12 @@ class Databases extends PureComponent {
     databases: PropTypes.array.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    showDatabase: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortDatabases: PropTypes.func.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
-    isDataLake: PropTypes.bool.isRequired
+    isDataLake: PropTypes.bool.isRequired,
+    updateNamespace: PropTypes.func.isRequired
   }
 
   renderDatabases() {
@@ -65,7 +65,7 @@ class Databases extends PureComponent {
         sortOrder={this.props.sortOrder}
         sortColumn={this.props.sortColumn}
         sortDatabases={this.props.sortDatabases}
-        showDatabase={this.props.showDatabase}
+        updateNamespace={this.props.updateNamespace}
         open={openDrop}
       />
     );
@@ -77,6 +77,7 @@ class Databases extends PureComponent {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    console.log('render databases', this.props, this.props.databases);
     return (
       <div className={styles.databases} data-test-id="databases-table">
         <DatabasesToolbar
@@ -115,7 +116,7 @@ const mapStateToProps = (state) => ({
 const ConnectedDatabases = connect(
   mapStateToProps,
   {
-    showDatabase,
+    // showDatabase,
     sortDatabases
   },
 )(Databases);

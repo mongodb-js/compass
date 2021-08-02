@@ -27,15 +27,24 @@ function Breadcrumb({
       >
         Instance
       </button>
-      {databaseName && <button
-        // className={}
-        onClick={() => updateNamespace({
-          databaseName
-        })}
-        // href="#"
-      >
-        {databaseName}
-      </button>}
+      {databaseName && (
+        <>
+          <div
+            style={{
+              display: 'inline-block'
+            }}
+          >.</div>
+          <button
+            // className={}
+            onClick={() => updateNamespace({
+              databaseName
+            })}
+            // href="#"
+          >
+            {databaseName}
+          </button>
+        </>
+      )}
       {databaseName && collectionName && (
         <>
           <div

@@ -26,6 +26,11 @@ const loadAll = (databaseName, databases) => {
   store.dispatch(changeDatabaseName(database ? databaseName : null));
   store.dispatch(loadCollectionStats(database ? database.collections : []));
 };
+export function loadDatabase(databaseName) {
+  const databases = store.getState().databases;
+
+  loadAll(databaseName, databases);
+}
 
 store.onActivated = (appRegistry) => {
   /**

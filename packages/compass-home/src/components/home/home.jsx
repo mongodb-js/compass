@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import toNS from 'mongodb-ns';
 import { StatusRow } from 'hadron-react-components';
 import Workspace from '@mongodb-js/compass-workspace';
+// const Workspace = require('@mongodb-js/compass-workspace');
 
 import UI_STATES from '../../constants/ui-states';
 
@@ -207,6 +208,8 @@ class Home extends PureComponent {
     const {
       isDataLake
     } = this.props;
+
+    console.log('\n\nWorkspace', Workspace);
 
     return (
       <div className={classnames(styles['home-view'])} data-test-id="home-view">

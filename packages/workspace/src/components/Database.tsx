@@ -7,49 +7,49 @@ import { Namespace } from './types';
 import ErrorBoundary from './ErrorBoundary';
 
 type Props = {
-  isDataLake: boolean;
+  databaseName: string;
   updateNamespace: (ns: Namespace) => void;
 };
 
 /**
  * Represents the instance view.
  */
-function InstanceComponent({
-  isDataLake,
+function DatabaseComponent({
+  databaseName,
   updateNamespace
 }: Props) {
 
   const [activeTab, setActiveTab] = useState(0);
 
-  // console.log('DatabasesPlugin', DatabasesPlugin);
+  // // console.log('DatabasesPlugin', DatabasesPlugin);
 
-  const createDatabasesStore = (global as any).hadronApp.appRegistry.getRole(
-    'Instance.Databases.Tab'
-  )[0].createStore;
+  // const createDatabasesStore = (global as any).hadronApp.appRegistry.getRole(
+  //   'Instance.Databases.Tab'
+  // )[0].createStore;
 
-  const [databasesPluginStore, setDatabasesPluginStore] = useState(
-    createDatabasesStore(
-      (global as any).hadronApp.appRegistry,
-      (global as any).hadronApp.appRegistry.stores[
-        'App.InstanceStore'
-      ].getState()
-    )
-  );
+  // const [databasesPluginStore, setDatabasesPluginStore] = useState(
+  //   createDatabasesStore(
+  //     (global as any).hadronApp.appRegistry,
+  //     (global as any).hadronApp.appRegistry.stores[
+  //       'App.InstanceStore'
+  //     ].getState()
+  //   )
+  // );
 
-  (global as any).hadronApp.appRegistry.on('instance-refreshed', (state: any) => {
-    // TODO: This is a very leaky event listener.
-    // setDatabasesPluginStore(
-    //   createDatabasesStore(
-    //     (global as any).hadronApp.appRegistry,
-    //     (global as any).hadronApp.appRegistry.stores[
-    //       'App.InstanceStore'
-    //     ].getState()
-    //   )
-    // );
-    // databasesPluginStore.dispatch();
-    console.log('\n\n\ninstance-refreshe');
-    databasesPluginStore.loadInstance(state.instance);
-  });
+  // (global as any).hadronApp.appRegistry.on('instance-refreshed', (state: any) => {
+  //   // TODO: This is a very leaky event listener.
+  //   // setDatabasesPluginStore(
+  //   //   createDatabasesStore(
+  //   //     (global as any).hadronApp.appRegistry,
+  //   //     (global as any).hadronApp.appRegistry.stores[
+  //   //       'App.InstanceStore'
+  //   //     ].getState()
+  //   //   )
+  //   // );
+  //   // databasesPluginStore.dispatch();
+  //   console.log('\n\n\ninstance-refreshe');
+  //   databasesPluginStore.loadInstance(state.instance);
+  // });
     // .stores['App.InstanceStore'].getState();
 
   // const tabs = ['Databases'];
@@ -70,32 +70,33 @@ function InstanceComponent({
 
   // global.hadronApp.appRegistry.getRole(name)
 
-  const DatabasesComponent = (global as any).hadronApp.appRegistry.getRole(
-    'Instance.Databases.Tab'
+  const DatabaseComponent = (global as any).hadronApp.appRegistry.getRole(
+    'Database.Workspace'
   )[0].component;
   // const DatabasesStore = 
-  const PerformanceComponent = (global as any).hadronApp.appRegistry.getRole(
-    'Instance.Tab'
-  )[0].component;
+  // const PerformanceComponent = (global as any).hadronApp.appRegistry.getRole(
+  //   'Instance.Tab'
+  // )[0].component;
 
-  const tabs = ['Databases'];
+  const tabs = ['Collections'];
   const views = [
     <ErrorBoundary>
-      <DatabasesComponent
-        store={databasesPluginStore}
+      <DatabaseComponent
+        // store={databasesPluginStore}
+        databaseName={databaseName}
         updateNamespace={updateNamespace}
       />
     </ErrorBoundary>
   ];
 
-  if (!isDataLake) {
-    tabs.push('Performance')
-    views.push(
-      <ErrorBoundary>
-        <PerformanceComponent />
-      </ErrorBoundary>
-    );
-  }
+  // if (!isDataLake) {
+  //   tabs.push('Performance')
+  //   views.push(
+  //     <ErrorBoundary>
+  //       <PerformanceComponent />
+  //     </ErrorBoundary>
+  //   );
+  // }
 
   // const tabs = ['Databases'];
   // const views = [
@@ -115,7 +116,7 @@ function InstanceComponent({
 
   return (
     <TabNavBar
-      aria-label="Instance Tabs"
+      aria-label="Database Tabs"
       tabs={tabs}
       views={views}
       activeTabIndex={activeTab}
@@ -136,6 +137,6 @@ function InstanceComponent({
   // }
 }
 
-InstanceComponent.displayName = 'InstanceComponent';
+DatabaseComponent.displayName = 'DatabaseComponent';
 
-export default InstanceComponent;
+export default DatabaseComponent;

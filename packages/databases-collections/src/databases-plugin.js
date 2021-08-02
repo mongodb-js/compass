@@ -8,8 +8,9 @@ import Databases from './components/databases';
 class Plugin extends Component {
   static displayName = 'DatabasesPlugin';
 
-  propTypes = {
-    store: PropTypes.object.isRequired
+  static propTypes = {
+    store: PropTypes.object.isRequired,
+    updateNamespace: PropTypes.func.isRequired
   }
 
   /**
@@ -18,9 +19,12 @@ class Plugin extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    console.log('render databases plugin store:', this.props.store);
     return (
       <Provider store={this.props.store}>
-        <Databases />
+        <Databases
+          updateNamespace={this.props.updateNamespace}
+        />
       </Provider>
     );
   }

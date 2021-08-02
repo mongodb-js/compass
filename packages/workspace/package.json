@@ -4,23 +4,15 @@
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
-  "exports": {
-    "require": "./lib/index.js",
-    "import": "./lib/.esm-wrapper.mjs"
-  },
+  "module": "lib/index.js",
   "types": "./lib/index.d.ts",
-  "files": [
-    "lib",
-    "package.json",
-    "README.md"
-  ],
   "scripts": {
     "bootstrap": "npm run compile",
     "check": "npm run lint && npm run depcheck",
     "clean": "rimraf lib",
     "precompile": "npm run clean",
-    "compile": "npm run compile-ts && gen-esm-wrapper . ./lib/.esm-wrapper.mjs",
-    "compile-ts": "webpack ./webpack.config.js",
+    "compile": "npm run compile-ts",
+    "compile-ts": "webpack --config ./webpack.config.js",
     "cover": "nyc npm run test",
     "depcheck": "depcheck",
     "lint": "eslint src/**/*.tsx src/**/*.ts",
@@ -31,15 +23,12 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "@mongodb-js/compass-collection": "^3.10.3",
+    "@leafygreen-ui/icon": "^11.2.0",
+    "@leafygreen-ui/icon-button": "^9.1.5",
     "@mongodb-js/compass-database": "^2.7.3",
-    "@mongodb-js/compass-databases-collections": "^0.8.3",
-    "@mongodb-js/compass-serverstats": "^15.7.3",
-    "@mongodb-js/compass-shell": "^2.8.3",
     "flexlayout-react": "v0.5.12"
   },
   "peerDependencies": {
-    "hadron-react-components": "*",
     "react": "^16.8.0"
   },
   "devDependencies": {
@@ -49,12 +38,11 @@
     "@typescript-eslint/parser": "^4.28.4",
     "eslint": "^7.25.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
-    "hadron-react-components": "^5.4.0",
     "nyc": "^15.0.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "rimraf": "^3.0.2",
-    "ts-loader": "^9.2.4",
+    "ts-loader": "^8.2.0",
     "typescript": "^4.3.5",
     "webpack": "^4.46.0",
     "webpack-cli": "^3.3.12"
