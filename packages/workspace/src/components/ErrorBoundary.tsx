@@ -9,19 +9,26 @@ class ErrorBoundary extends React.Component<Props> {
 
   state = { hasError: false };
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     this.setState({
       error: error,
       errorInfo: errorInfo
     });
 
-    console.error('Error mounting component:', error, errorInfo);
+    console.debug(error);
+    console.debug(errorInfo);
+
+    // console.error('Error mounting component:', error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      // You can render any custom fallback UI
-      return <h1>Error rendering component (TODO: Descriptive).</h1>;
+      // TODO: Nice descriptive errors
+      return <h1>Error rendering component</h1>;
     }
 
     return this.props.children; 

@@ -10,7 +10,10 @@ class Collection extends Component {
   static displayName = 'CollectionComponent';
 
   static propTypes = {
-    namespace: PropTypes.string.isRequired,
+    databaseName: PropTypes.string.isRequired,
+    collectionName: PropTypes.string.isRequired,
+
+    // namespace: PropTypes.string.isRequired,
     isTimeSeries: PropTypes.bool,
     isReadonly: PropTypes.bool.isRequired,
     tabs: PropTypes.array.isRequired,
@@ -18,7 +21,7 @@ class Collection extends Component {
     scopedModals: PropTypes.array.isRequired,
     queryHistoryIndexes: PropTypes.array.isRequired,
     statsPlugin: PropTypes.func.isRequired,
-    selectOrCreateTab: PropTypes.func.isRequired,
+    // selectOrCreateTab: PropTypes.func.isRequired,
     statsStore: PropTypes.object.isRequired,
     localAppRegistry: PropTypes.object.isRequired,
     globalAppRegistry: PropTypes.object.isRequired,
@@ -63,12 +66,19 @@ class Collection extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const {
+      databaseName,
+      collectionName
+    } = this.props;
+
     return (
       <div className={classnames(styles.collection, 'clearfix')}>
         <div className={classnames(styles['collection-container'])}>
           <CollectionHeader
             globalAppRegistry={this.props.globalAppRegistry}
-            namespace={this.props.namespace}
+            // namespace={this.props.namespace}
+            databaseName={databaseName}
+            collectionName={collectionName}
             isReadonly={this.props.isReadonly}
             isTimeSeries={this.props.isTimeSeries}
             statsPlugin={this.props.statsPlugin}
@@ -76,16 +86,18 @@ class Collection extends Component {
             editViewName={this.props.editViewName}
             sourceReadonly={this.props.sourceReadonly}
             sourceViewOn={this.props.sourceViewOn}
-            selectOrCreateTab={this.props.selectOrCreateTab}
+            // selectOrCreateTab={this.props.selectOrCreateTab}
             pipeline={this.props.pipeline}
-            sourceName={this.props.sourceName} />
+            sourceName={this.props.sourceName}
+          />
           <TabNavBar
             aria-label="Collection Tabs"
             tabs={this.props.tabs}
             views={this.props.views}
             mountAllViews
             activeTabIndex={this.props.activeSubTab}
-            onTabClicked={this.onSubTabClicked} />
+            onTabClicked={this.onSubTabClicked}
+          />
         </div>
         <div className={classnames(styles['collection-modal-container'])}>
           {this.renderScopedModals()}

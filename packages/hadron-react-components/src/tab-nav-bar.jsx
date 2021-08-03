@@ -111,7 +111,12 @@ class TabNavBar extends React.Component {
   render() {
     return (
       <LeafyGreenProvider>
-        <div className="tab-nav-bar">
+        <div
+          className="tab-nav-bar"
+          style={this.props.topBump ? {
+            paddingTop: 30
+          } : {}}
+        >
           <div className="tab-nav-bar-tabs">
             {this.renderTabs()}
           </div>
@@ -129,7 +134,8 @@ TabNavBar.propTypes = {
   mountAllViews: PropTypes.bool,
   tabs: PropTypes.arrayOf(PropTypes.string).isRequired,
   views: PropTypes.arrayOf(PropTypes.element).isRequired,
-  onTabClicked: PropTypes.func
+  onTabClicked: PropTypes.func,
+  topBump: PropTypes.bool
 };
 
 TabNavBar.defaultProps = {

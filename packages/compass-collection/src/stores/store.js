@@ -13,14 +13,21 @@ import {
   databaseDropped
 } from '../modules/tabs';
 
-const store = createStore(reducer, applyMiddleware(thunk));
+function createCollectionStore(
+  appRegistry,
+  dataService,
+  // TODO: Would be nice for these not to persist in the store.
+  databaseName,
+  collectionName
+) {
+  const store = createStore(reducer, applyMiddleware(thunk));
 
-/**
- * This hook is Compass specific to listen to app registry events.
- *
- * @param {AppRegistry} appRegistry - The app registry.
- */
-store.onActivated = (appRegistry) => {
+  /**
+   * This hook is Compass specific to listen to app registry events.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
+   */
+  // store.onActivated = (appRegistry) => {
   const ipc = require('hadron-ipc');
 
   /**
@@ -28,57 +35,57 @@ store.onActivated = (appRegistry) => {
    *
    * @param {Object} metadata - The metadata.
    */
-  appRegistry.on('open-namespace-in-new-tab', (metadata) => {
-    if (metadata.namespace) {
-      const namespace = toNS(metadata.namespace);
-      if (namespace.collection !== '') {
-        store.dispatch(
-          createNewTab({
-            namespace: metadata.namespace,
-            isReadonly: metadata.isReadonly,
-            sourceName: metadata.sourceName,
-            editViewName: metadata.editViewName,
-            sourceReadonly: metadata.sourceReadonly,
-            isTimeSeries: !!metadata.isTimeSeries,
-            sourceViewOn: metadata.sourceViewOn,
-            sourcePipeline: metadata.sourcePipeline
-          })
-        );
-      }
-    }
-  });
+  // appRegistry.on('open-namespace-in-new-tab', (metadata) => {
+  //   if (metadata.namespace) {
+  //     const namespace = toNS(metadata.namespace);
+  //     if (namespace.collection !== '') {
+  //       store.dispatch(
+  //         createNewTab({
+  //           namespace: metadata.namespace,
+  //           isReadonly: metadata.isReadonly,
+  //           sourceName: metadata.sourceName,
+  //           editViewName: metadata.editViewName,
+  //           sourceReadonly: metadata.sourceReadonly,
+  //           isTimeSeries: !!metadata.isTimeSeries,
+  //           sourceViewOn: metadata.sourceViewOn,
+  //           sourcePipeline: metadata.sourcePipeline
+  //         })
+  //       );
+  //     }
+  //   }
+  // });
 
   /**
    * When a collection namespace is selected in the sidebar.
    *
    * @param {Object} metatada - The metadata.
    */
-  appRegistry.on('select-namespace', (metadata) => {
-    if (metadata.namespace) {
-      const namespace = toNS(metadata.namespace);
-      if (namespace.collection !== '') {
-        store.dispatch(
-          selectOrCreateTab({
-            namespace: metadata.namespace,
-            isReadonly: metadata.isReadonly,
-            isTimeSeries: metadata.isTimeSeries,
-            sourceName: metadata.sourceName,
-            editViewName: metadata.editViewName,
-            sourceReadonly: metadata.sourceReadonly,
-            sourceViewOn: metadata.sourceViewOn,
-            sourcePipeline: metadata.sourcePipeline
-          })
-        );
-      }
-    }
-  });
+  // appRegistry.on('select-namespace', (metadata) => {
+  //   if (metadata.namespace) {
+  //     const namespace = toNS(metadata.namespace);
+  //     if (namespace.collection !== '') {
+  //       store.dispatch(
+  //         selectOrCreateTab({
+  //           namespace: metadata.namespace,
+  //           isReadonly: metadata.isReadonly,
+  //           isTimeSeries: metadata.isTimeSeries,
+  //           sourceName: metadata.sourceName,
+  //           editViewName: metadata.editViewName,
+  //           sourceReadonly: metadata.sourceReadonly,
+  //           sourceViewOn: metadata.sourceViewOn,
+  //           sourcePipeline: metadata.sourcePipeline
+  //         })
+  //       );
+  //     }
+  //   }
+  // });
 
   /**
    * Clear the tabs when selecting a database.
    */
-  appRegistry.on('database-selected', () => {
-    store.dispatch(clearTabs());
-  });
+  // appRegistry.on('database-selected', () => {
+  //   store.dispatch(clearTabs());
+  // });
 
   /**
    * Remove any open tabs when collection dropped.
@@ -104,9 +111,10 @@ store.onActivated = (appRegistry) => {
    * @param {Error} error - The error.
    * @param {DataService} dataService - The data service.
    */
-  appRegistry.on('data-service-connected', (error, dataService) => {
-    store.dispatch(dataServiceConnected(error, dataService));
-  });
+  // appRegistry.on('data-service-connected', (error, dataService) => {
+  //   store.dispatch(dataServiceConnected(error, dataService));
+  // });
+  store.dispatch(dataServiceConnected(null, dataService));
 
   /**
    * When the instance is loaded, set our server version.
@@ -141,15 +149,32 @@ store.onActivated = (appRegistry) => {
    * Set the app registry to use later.
    */
   store.dispatch(appRegistryActivated(appRegistry));
-};
+  // };
 
-store.subscribe(() => {
-  const state = store.getState();
-  if (state.tabs.length === 0) {
-    if (state.appRegistry) {
-      state.appRegistry.emit('all-collection-tabs-closed');
-    }
-  }
-});
+  // TODO: Rework this.
+  store.dispatch(
+    selectOrCreateTab({
+      namespace: `${databaseName}.${collectionName}`,
+      // isReadonly: metadata.isReadonly,
+      // isTimeSeries: metadata.isTimeSeries,
+      // sourceName: metadata.sourceName,
+      // editViewName: metadata.editViewName,
+      // sourceReadonly: metadata.sourceReadonly,
+      // sourceViewOn: metadata.sourceViewOn,
+      // sourcePipeline: metadata.sourcePipeline
+    })
+  );
 
-export default store;
+  return store;
+}
+
+// store.subscribe(() => {
+//   const state = store.getState();
+//   if (state.tabs.length === 0) {
+//     if (state.appRegistry) {
+//       state.appRegistry.emit('all-collection-tabs-closed');
+//     }
+//   }
+// });
+
+export default createCollectionStore;

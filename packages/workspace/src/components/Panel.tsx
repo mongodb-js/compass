@@ -9,6 +9,7 @@ import Breadcrumb from './Breadcrumb';
 import { Namespace } from './types';
 import Database from './Database';
 import Instance from './Instance';
+import ErrorBoundary from './ErrorBoundary';
 
 type FieldValue = unknown;
 
@@ -17,12 +18,13 @@ type Stage = {
 };
 
 type CollectionAttributes = {
+  editViewName?: string,
   isReadOnly: boolean,
   isTimeSeries: boolean,
   sourceName?: string,
   sourceReadonly?: boolean,
   sourceViewOn?: string,
-  pipeline?: Stage[]
+  sourcePipeline?: Stage[]
 }
 
 type Props = {
@@ -66,24 +68,31 @@ function Panel({
         collectionName={collectionName}
         updateNamespace={updateNamespace}
       />
-      {!databaseName && <Instance
-        isDataLake={isDataLake}
-        updateNamespace={updateNamespace}
-      />}
-      {databaseName && !collectionName && (
-        <Database
-          databaseName={databaseName}
-          updateNamespace={updateNamespace}
-        />
-      )}
-      {databaseName && collectionName && (
-        <CollectionComponent
-          collectionName={collectionName}
-          databaseName={databaseName}
+      <ErrorBoundary>
+        {!databaseName && <Instance
           isDataLake={isDataLake}
           updateNamespace={updateNamespace}
-        />
-      )}
+        />}
+        {databaseName && !collectionName && (
+          <Database
+            databaseName={databaseName}
+            updateNamespace={updateNamespace}
+          />
+        )}
+        {databaseName && collectionName && (
+          <CollectionComponent
+            appRegistry={(global as any).hadronApp.appRegistry}
+            dataService={(global as any).hadronApp.appRegistry.stores[
+              'Connect.Store'
+            ].dataService}
+            collectionName={collectionName}
+            databaseName={databaseName}
+            // dataService={datase}
+            isDataLake={isDataLake}
+            updateNamespace={updateNamespace}
+          />
+        )}
+      </ErrorBoundary>
     </div>
   );
 }

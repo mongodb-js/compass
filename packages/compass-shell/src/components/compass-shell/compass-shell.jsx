@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 // import classnames from 'classnames';
-// import styles from './compass-shell.less';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 // import { Resizable } from 're-resizable';
 
 import { Shell } from '@mongosh/browser-repl';
 
-// import InfoModal from '../info-modal';
+import InfoModal from '../info-modal';
 // import ResizeHandle from '../resize-handle';
-// import ShellHeader from '../shell-header';
+import ShellHeader from '../shell-header';
+
+import styles from './compass-shell.less';
 
 // const resizeableDirections = {
 //   top: false, // This property is controlled in the component.
@@ -148,27 +149,41 @@ export class CompassShell extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    // const {
-    //   isExpanded,
-    //   isOperationInProgress
-    // } = this.state;
+    const {
+      // isExpanded,
+      isOperationInProgress
+    } = this.state;
 
-    console.log('shell runtime', this.props.runtime);
+    // console.log('shell runtime', this.props.runtime);
 
     if (!this.props.runtime || !this.state.initialHistory) {
       return (<div />);
     }
 
     return (
-      <Shell
-        runtime={this.props.runtime}
-        initialHistory={this.state.initialHistory}
-        initialOutput={this.shellOutput}
-        onHistoryChanged={this.saveHistory}
-        onOutputChanged={this.onShellOutputChanged}
-        onOperationStarted={this.onOperationStarted}
-        onOperationEnd={this.onOperationEnd}
-      />
+      <div
+        className={styles['compass-shell']}
+      >
+        <InfoModal />
+        <ShellHeader
+          isExpanded// ={isExpanded}
+          onShellToggleClicked={this.shellToggleClicked}
+          isOperationInProgress={isOperationInProgress}
+        />
+        <div
+          className={styles['compass-shell-shell-container']}
+        >
+          <Shell
+            runtime={this.props.runtime}
+            initialHistory={this.state.initialHistory}
+            initialOutput={this.shellOutput}
+            onHistoryChanged={this.saveHistory}
+            onOutputChanged={this.onShellOutputChanged}
+            onOperationStarted={this.onOperationStarted}
+            onOperationEnd={this.onOperationEnd}
+          />
+        </div>
+      </div>
     );
 
     // return (

@@ -269,6 +269,7 @@ export default function Workspace({
         ref={layoutRef}
         // iconFactory={iconFactory}
         onRenderTabSet={onRenderTabSet}
+        // supportsPopout
       />
     </div>
   );

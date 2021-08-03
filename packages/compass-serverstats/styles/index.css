@@ -542,3 +542,12 @@
   display: flex;
   flex-direction: column;
 }
+.flexlayout__outline_rect {
+  /* !important */
+  border-color: #019EE2 !important;
+}
+:global .flexlayout__outline_rect {
+  /* !important */
+  border-color: #019EE2 !important;
+  border: 2px solid #019EE2;
+}

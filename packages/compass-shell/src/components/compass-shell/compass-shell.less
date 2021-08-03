@@ -9,15 +9,16 @@
   position: relative;
   flex-direction: column;
   z-index: 1;
+  height: 100%;
 
   &-shell-container {
     flex-grow: 1;
-    display: none;
+    display: flex;
     overflow: auto;
     border-top: 1px solid @leafygreen__gray--dark-2;
 
-    &-visible {
-      display: flex;
-    }
+    // &-visible {
+    //   display: flex;
+    // }
   }
 }

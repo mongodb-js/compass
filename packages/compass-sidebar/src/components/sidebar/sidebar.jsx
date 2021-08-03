@@ -245,19 +245,20 @@ class Sidebar extends PureComponent {
     const collapsed = this.props.isCollapsed ?
       'compass-sidebar-collapsed' :
       'compass-sidebar-expanded';
-    const collapsedButton = 'fa' +
-      (this.props.isCollapsed ? ' fa-caret-right' : ' fa-caret-left');
+    // const collapsedButton = 'fa' +
+      // (this.props.isCollapsed ? ' fa-caret-right' : ' fa-caret-left');
 
     return (
       <div
         className={classnames(styles['compass-sidebar'], styles[collapsed])}
-        onClick={this.handleExpand.bind(this)}>
-        <button
+        onClick={this.handleExpand.bind(this)}
+      >
+        {/* <button
           className={classnames(styles['compass-sidebar-toggle'], 'btn btn-default btn-sm')}
           onClick={this.handleCollapse.bind(this)}
           data-test-id="toggle-sidebar">
           <i className={collapsedButton}/>
-        </button>
+        </button> */}
         <SidebarTitle
           connectionModel={this.props.connectionModel}
           isSidebarCollapsed={this.props.isCollapsed}

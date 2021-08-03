@@ -17,7 +17,7 @@ type Props = {
 function DatabaseComponent({
   databaseName,
   updateNamespace
-}: Props) {
+}: Props): React.ReactElement {
 
   const [activeTab, setActiveTab] = useState(0);
 
@@ -122,6 +122,7 @@ function DatabaseComponent({
       activeTabIndex={activeTab}
       onTabClicked={setActiveTab}
       mountAllViews={false}
+      topBump
     />
     // <div>
     //   aaaaa

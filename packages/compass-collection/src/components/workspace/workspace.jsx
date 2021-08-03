@@ -6,17 +6,17 @@ import classnames from 'classnames';
 import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 
 import {
-  createNewTab,
-  selectOrCreateTab,
-  closeTab,
-  prevTab,
-  nextTab,
-  moveTab,
-  selectTab,
+  // createNewTab,
+  // selectOrCreateTab,
+  // closeTab,
+  // prevTab,
+  // nextTab,
+  // moveTab,
+  // selectTab,
   changeActiveSubTab
 } from '../../modules/tabs';
-import CollectionTab from '../collection-tab';
-import CreateTab from '../create-tab';
+// import CollectionTab from '../collection-tab';
+// import CreateTab from '../create-tab';
 import Collection from '../collection';
 
 import styles from './workspace.less';
@@ -24,28 +24,28 @@ import styles from './workspace.less';
 /**
  * W key is key code 87.
  */
-const KEY_W = 87;
+// const KEY_W = 87;
 
-/**
- * T key is key code 84.
- */
-const KEY_T = 84;
+// /**
+//  * T key is key code 84.
+//  */
+// const KEY_T = 84;
 
-/**
- * ] is 221.
- */
-const KEY_CLOSE_BRKT = 221;
+// /**
+//  * ] is 221.
+//  */
+// const KEY_CLOSE_BRKT = 221;
 
-/**
- * [ = 219
- */
-const KEY_OPEN_BRKT = 219;
+// /**
+//  * [ = 219
+//  */
+// const KEY_OPEN_BRKT = 219;
 
-const DEFAULT_NEW_TAB = {
-  namespace: '',
-  isReadonly: false,
-  sourceName: ''
-};
+// const DEFAULT_NEW_TAB = {
+//   namespace: '',
+//   isReadonly: false,
+//   sourceName: ''
+// };
 
 /**
  * The collection workspace contains tabs of multiple collections.
@@ -55,15 +55,20 @@ class Workspace extends PureComponent {
 
   static propTypes = {
     tabs: PropTypes.array.isRequired,
-    closeTab: PropTypes.func.isRequired,
-    createNewTab: PropTypes.func.isRequired,
-    selectOrCreateTab: PropTypes.func.isRequired,
+    // closeTab: PropTypes.func.isRequired,
+    // createNewTab: PropTypes.func.isRequired,
+    // selectOrCreateTab: PropTypes.func.isRequired,
     appRegistry: PropTypes.object.isRequired,
-    prevTab: PropTypes.func.isRequired,
-    nextTab: PropTypes.func.isRequired,
-    moveTab: PropTypes.func.isRequired,
-    selectTab: PropTypes.func.isRequired,
-    changeActiveSubTab: PropTypes.func.isRequired
+    // prevTab: PropTypes.func.isRequired,
+    // nextTab: PropTypes.func.isRequired,
+    // moveTab: PropTypes.func.isRequired,
+    // selectTab: PropTypes.func.isRequired,
+    changeActiveSubTab: PropTypes.func.isRequired,
+
+    databaseName: PropTypes.string.isRequired,
+    collectionName: PropTypes.string.isRequired,
+
+    updateNamespace: PropTypes.func.isRequired
   };
 
   /**
@@ -73,7 +78,7 @@ class Workspace extends PureComponent {
    */
   constructor(props) {
     super(props);
-    this.boundHandleKeypress = this.handleKeypress.bind(this);
+    // this.boundHandleKeypress = this.handleKeypress.bind(this);
   }
 
   /**
@@ -91,26 +96,26 @@ class Workspace extends PureComponent {
     // window.removeEventListener('keydown', this.boundHandleKeypress);
   }
 
-  onSortEnd = ({oldIndex, newIndex}) => {
-    this.props.moveTab(oldIndex, newIndex);
-  }
+  // onSortEnd = ({oldIndex, newIndex}) => {
+  //   this.props.moveTab(oldIndex, newIndex);
+  // }
 
-  onCreateNewTab = () => {
-    const activeTab = this.activeTab();
-    const newTabProps = activeTab
-      ? {
-        namespace: activeTab.namespace,
-        isReadonly: activeTab.isReadonly,
-        isTimeSeries: activeTab.isTimeSeries,
-        sourceName: activeTab.sourceName,
-        editViewName: activeTab.editViewName,
-        sourceReadonly: activeTab.sourceReadonly,
-        sourceViewOn: activeTab.sourceViewOn,
-        sourcePipeline: activeTab.pipeline
-      }
-      : DEFAULT_NEW_TAB;
-    this.props.createNewTab(newTabProps);
-  }
+  // onCreateNewTab = () => {
+  //   const activeTab = this.activeTab();
+  //   const newTabProps = activeTab
+  //     ? {
+  //       namespace: activeTab.namespace,
+  //       isReadonly: activeTab.isReadonly,
+  //       isTimeSeries: activeTab.isTimeSeries,
+  //       sourceName: activeTab.sourceName,
+  //       editViewName: activeTab.editViewName,
+  //       sourceReadonly: activeTab.sourceReadonly,
+  //       sourceViewOn: activeTab.sourceViewOn,
+  //       sourcePipeline: activeTab.pipeline
+  //     }
+  //     : DEFAULT_NEW_TAB;
+  //   this.props.createNewTab(newTabProps);
+  // }
 
   /**
    * Handle key press. This listens for CTRL/CMD+T and CTRL/CMD+W to control
@@ -119,74 +124,74 @@ class Workspace extends PureComponent {
    *
    * @param {Event} evt - The event.
    */
-  handleKeypress = (evt) => {
-    if (evt.ctrlKey || evt.metaKey) {
-      if (evt.shiftKey) {
-        if (evt.keyCode === KEY_CLOSE_BRKT) {
-          this.props.nextTab();
-        } else if (evt.keyCode === KEY_OPEN_BRKT) {
-          this.props.prevTab();
-        }
-      } else if (evt.keyCode === KEY_W) {
-        this.props.closeTab(this.props.tabs.findIndex(tab => tab.isActive));
-        if (this.props.tabs.length > 0) {
-          evt.preventDefault();
-        }
-      } else if (evt.keyCode === KEY_T) {
-        this.onCreateNewTab();
-      }
-    }
-  }
+  // handleKeypress = (evt) => {
+  //   if (evt.ctrlKey || evt.metaKey) {
+  //     if (evt.shiftKey) {
+  //       if (evt.keyCode === KEY_CLOSE_BRKT) {
+  //         this.props.nextTab();
+  //       } else if (evt.keyCode === KEY_OPEN_BRKT) {
+  //         this.props.prevTab();
+  //       }
+  //     } else if (evt.keyCode === KEY_W) {
+  //       this.props.closeTab(this.props.tabs.findIndex(tab => tab.isActive));
+  //       if (this.props.tabs.length > 0) {
+  //         evt.preventDefault();
+  //       }
+  //     } else if (evt.keyCode === KEY_T) {
+  //       this.onCreateNewTab();
+  //     }
+  //   }
+  // }
 
   activeTab() {
     return this.props.tabs.find(tab => tab.isActive);
   }
 
-  renderTab = (tab, i) => {
-    return (
-      <CollectionTab
-        key={i}
-        index={i}
-        namespace={tab.namespace}
-        localAppRegistry={tab.localAppRegistry}
-        isReadonly={tab.isReadonly}
-        isActive={tab.isActive}
-        closeTab={this.props.closeTab}
-        activeSubTabName={tab.activeSubTabName}
-        selectTab={this.props.selectTab}
-        moveTab={this.props.moveTab} />
-    );
-  }
+  // renderTab = (tab, i) => {
+  //   return (
+  //     <CollectionTab
+  //       key={i}
+  //       index={i}
+  //       namespace={tab.namespace}
+  //       localAppRegistry={tab.localAppRegistry}
+  //       isReadonly={tab.isReadonly}
+  //       isActive={tab.isActive}
+  //       closeTab={this.props.closeTab}
+  //       activeSubTabName={tab.activeSubTabName}
+  //       selectTab={this.props.selectTab}
+  //       moveTab={this.props.moveTab} />
+  //   );
+  // }
 
   /**
    * Render the tabs.
    *
    * @returns {Component} The component.
    */
-  renderTabs() {
-    const SortableItem = SortableElement(({value}) => this.renderTab(value.tab, value.index));
+  // renderTabs() {
+  //   const SortableItem = SortableElement(({value}) => this.renderTab(value.tab, value.index));
 
-    const SortableList = SortableContainer(({items}) => {
-      return (<div className={styles['workspace-tabs-sortable-list']}>
-        {items.map(
-          (tab, index) => (<SortableItem
-            key={`tab-${index}`}
-            index={index}
-            value={{ tab: tab, index: index }}
-          />)
-        )}
-      </div>);
-    });
+  //   const SortableList = SortableContainer(({items}) => {
+  //     return (<div className={styles['workspace-tabs-sortable-list']}>
+  //       {items.map(
+  //         (tab, index) => (<SortableItem
+  //           key={`tab-${index}`}
+  //           index={index}
+  //           value={{ tab: tab, index: index }}
+  //         />)
+  //       )}
+  //     </div>);
+  //   });
 
-    return (<SortableList
-      items={this.props.tabs}
-      axis="x"
-      lockAxis="x"
-      distance={10}
-      onSortEnd={this.onSortEnd}
-      helperClass={styles['workspace-tabs-sortable-clone']}
-    />);
-  }
+  //   return (<SortableList
+  //     items={this.props.tabs}
+  //     axis="x"
+  //     lockAxis="x"
+  //     distance={10}
+  //     onSortEnd={this.onSortEnd}
+  //     helperClass={styles['workspace-tabs-sortable-clone']}
+  //   />);
+  // }
 
   /**
    * Render the views.
@@ -194,6 +199,11 @@ class Workspace extends PureComponent {
    * @returns {Component} The views.
    */
   renderViews() {
+    const {
+      databaseName,
+      collectionName
+    } = this.props;
+
     return this.props.tabs.map((tab) => {
       const viewTabClass = classnames({
         [styles['workspace-view-tab']]: true,
@@ -203,7 +213,11 @@ class Workspace extends PureComponent {
         <Collection
           key={tab.id}
           id={tab.id}
-          namespace={tab.namespace}
+          // namespace={tab.namespace}
+
+          databaseName={databaseName}
+          collectionName={collectionName}
+
           isReadonly={tab.isReadonly}
           isTimeSeries={tab.isTimeSeries}
           sourceName={tab.sourceName}
@@ -219,9 +233,10 @@ class Workspace extends PureComponent {
           activeSubTab={tab.activeSubTab}
           pipeline={tab.pipeline}
           changeActiveSubTab={this.props.changeActiveSubTab}
-          selectOrCreateTab={this.props.selectOrCreateTab}
+          // selectOrCreateTab={this.props.selectOrCreateTab}
           globalAppRegistry={this.props.appRegistry}
-          localAppRegistry={tab.localAppRegistry} />
+          localAppRegistry={tab.localAppRegistry}
+        />
       </div>);
     });
   }
@@ -234,7 +249,7 @@ class Workspace extends PureComponent {
   render() {
     return (
       <div className={styles.workspace}>
-        <div className={styles['workspace-tabs']}>
+        {/* <div className={styles['workspace-tabs']}>
           <div onClick={this.props.prevTab} className={styles['workspace-tabs-prev']}>
             <i className="fa fa-chevron-left" aria-hidden/>
           </div>
@@ -249,7 +264,7 @@ class Workspace extends PureComponent {
               <i className="fa fa-chevron-right" aria-hidden/>
             </div>
           </div>
-        </div>
+        </div> */}
         <div className={styles['workspace-views']}>
           {this.renderViews()}
         </div>
@@ -277,13 +292,13 @@ const mapStateToProps = state => ({
 const MappedWorkspace = connect(
   mapStateToProps,
   {
-    createNewTab,
-    selectOrCreateTab,
-    closeTab,
-    prevTab,
-    nextTab,
-    moveTab,
-    selectTab,
+    // createNewTab,
+    // selectOrCreateTab,
+    // closeTab,
+    // prevTab,
+    // nextTab,
+    // moveTab,
+    // selectTab,
     changeActiveSubTab
   }
 )(Workspace);

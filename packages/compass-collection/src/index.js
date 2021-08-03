@@ -6,7 +6,8 @@ import CollectionStore from './stores';
  */
 const ROLE = {
   name: 'Collection',
-  component: CollectionPlugin
+  component: CollectionPlugin,
+  createCollectionStore: CollectionStore
 };
 
 /**
@@ -15,7 +16,7 @@ const ROLE = {
  **/
 function activate(appRegistry) {
   appRegistry.registerRole('Collection.Workspace', ROLE);
-  appRegistry.registerStore('Collection.Store', CollectionStore);
+  // appRegistry.registerStore('Collection.Store', CollectionStore);
 }
 
 /**
@@ -24,7 +25,7 @@ function activate(appRegistry) {
  **/
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('Collection.Workspace', ROLE);
-  appRegistry.deregisterStore('Collection.Store');
+  // appRegistry.deregisterStore('Collection.Store');
 }
 
 export default CollectionPlugin;

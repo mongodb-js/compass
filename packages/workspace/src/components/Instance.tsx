@@ -120,6 +120,7 @@ function InstanceComponent({
       activeTabIndex={activeTab}
       onTabClicked={setActiveTab}
       mountAllViews={false}
+      topBump
     />
     // <div>
     //   aaaaa

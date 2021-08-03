@@ -66,7 +66,7 @@ export class ShellHeader extends Component {
                   size="small"
                 />
               </IconButton>
-              <IconButton
+              {/* <IconButton
                 className={styles['compass-shell-header-btn']}
                 variant="dark"
                 aria-label="Close Shell"
@@ -76,10 +76,10 @@ export class ShellHeader extends Component {
                   glyph="ChevronDown"
                   size="small"
                 />
-              </IconButton>
+              </IconButton> */}
             </>
           )}
-          {!isExpanded && (
+          {/* {!isExpanded && (
             <IconButton
               className={styles['compass-shell-header-open-btn']}
               variant="dark"
@@ -90,7 +90,7 @@ export class ShellHeader extends Component {
                 glyph="ChevronUp"
               />
             </IconButton>
-          )}
+          )} */}
         </div>
       </div>
     );
