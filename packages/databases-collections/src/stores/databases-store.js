@@ -26,6 +26,7 @@ export default function createDatabasesStore(appRegistry, appInstance) {
 
     store.dispatch(toggleIsGenuineMongoDB(!!isGenuine));
   };
+
   store.loadInstance(appInstance);
 
   /**

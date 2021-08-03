@@ -32,7 +32,7 @@ function InstanceComponent({
       (global as any).hadronApp.appRegistry,
       (global as any).hadronApp.appRegistry.stores[
         'App.InstanceStore'
-      ].getState()
+      ].getState().instance
     )
   );
 
@@ -47,7 +47,6 @@ function InstanceComponent({
     //   )
     // );
     // databasesPluginStore.dispatch();
-    console.log('\n\n\ninstance-refreshe');
     databasesPluginStore.loadInstance(state.instance);
   });
     // .stores['App.InstanceStore'].getState();
