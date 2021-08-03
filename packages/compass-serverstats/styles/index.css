@@ -56,6 +56,7 @@
 .rt-perf .column.main {
   background-color: #3D4247;
   padding: 0 0 36px 0;
+  height: fit-content;
 }
 .rt__lists-out {
   display: flex;
@@ -525,6 +526,7 @@
   justify-content: space-around;
   flex-grow: 1;
   flex-shrink: 0;
+  height: fit-content;
 }
 .rtss .rt__graphs-out {
   flex-grow: 1;
