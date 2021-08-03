@@ -77,7 +77,6 @@ class Databases extends PureComponent {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    console.log('render databases', this.props, this.props.databases);
     return (
       <div className={styles.databases} data-test-id="databases-table">
         <DatabasesToolbar

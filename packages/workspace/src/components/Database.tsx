@@ -71,7 +71,7 @@ function DatabaseComponent({
   // global.hadronApp.appRegistry.getRole(name)
 
   const DatabaseComponent = (global as any).hadronApp.appRegistry.getRole(
-    'Database.Workspace'
+    'Database.Tab'
   )[0].component;
   // const DatabasesStore = 
   // const PerformanceComponent = (global as any).hadronApp.appRegistry.getRole(

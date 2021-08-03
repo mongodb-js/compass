@@ -19,7 +19,6 @@ class Plugin extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    console.log('render databases plugin store:', this.props.store);
     return (
       <Provider store={this.props.store}>
         <Databases

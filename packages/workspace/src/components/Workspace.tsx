@@ -145,11 +145,11 @@ export default function Workspace({
       //   Plugin
       // } = createPlugin();
 
-      console.log('render shell w/ dataService', dataService);
+      // console.log('render shell w/ dataService', dataService);
       const ShellComponent = (global as any).hadronApp.appRegistry.getComponent(
         'Global.Shell'
       );
-      console.log('ShellComponent', ShellComponent);
+      // console.log('ShellComponent', ShellComponent);
 
       return (
         <ShellComponent
