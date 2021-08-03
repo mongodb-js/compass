@@ -1,0 +1,6 @@
+appId: "com.mongodb.compass"
+asar: false
+mac:
+  target:
+    - dir
+  category: "public.app-category.productivity"

@@ -1,11 +1,13 @@
 {
   "name": "mongodb-compass-monorepo",
+  "version": "0.0.0-dev.0",
   "description": "Monorepo that includes Compass and all its dependencies",
   "homepage": "https://compass.mongodb.com",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
+  "main": "src/index.js",
   "shortcutFolderName": "MongoDB",
   "license": "SSPL",
   "scripts": {
@@ -19,6 +21,8 @@
     "compile-changed": "lerna run compile --stream --since origin/HEAD",
     "predepcheck": "node scripts/depalign.js",
     "depcheck": "depcheck",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
     "download-akzidenz": "lerna exec -- node ../../scripts/download-akzidenz.js",
     "electron-rebuild": "npm run electron-rebuild --workspace mongodb-compass",
     "node-rebuild": "node ./scripts/rebuild.js kerberos keytar interruptor",
@@ -28,7 +32,7 @@
     "release": "npm run release --workspace mongodb-compass --",
     "release-evergreen": "npm run release-evergreen --workspace=mongodb-compass --",
     "build-dist-package": "DEBUG='hadron*' HADRON_SKIP_INSTALLER='true' HADRON_PRODUCT='mongodb-compass' HADRON_PRODUCT_NAME='MongoDB Compass' HADRON_DISTRIBUTION='compass' npm run release-evergreen",
-    "start": "npm run start --workspace=mongodb-compass",
+    "start": "electron .",
     "test": "lerna run test --concurrency 1 --stream",
     "test-changed": "lerna run test --stream --concurrency 1 --since origin/HEAD",
     "test-ci": "lerna run test-ci --concurrency 1",
@@ -45,6 +49,9 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/compass.git"
+  },
+  "dependencies": {
+    "mongodb-compass": "0.0.0-dev.0"
   },
   "devDependencies": {
     "@npmcli/arborist": "^2.7.1",
