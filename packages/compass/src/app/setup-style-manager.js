@@ -33,23 +33,23 @@ const STYLE = 'style';
  * @param {Function} done - The callback to execute when done.
  */
 const setup = (stylesheet, done) => {
-  /**
-   * @note: This is the legacy way to load styles - stays for backwards
-   *   compatibility until all packages are external.
-   */
-  if (process.env.NODE_ENV !== 'production') {
-    const manager = new StyleManager(path.join(__dirname, 'compiled-less'), __dirname);
-    manager.use(document, path.join(__dirname, stylesheet));
+  // /**
+  //  * @note: This is the legacy way to load styles - stays for backwards
+  //  *   compatibility until all packages are external.
+  //  */
+  // if (process.env.NODE_ENV !== 'production') {
+  //   const manager = new StyleManager(path.join(__dirname, 'compiled-less'), __dirname);
+  //   manager.use(document, path.join(__dirname, stylesheet));
 
-    /**
-     * @note: This loads all the styles from all the plugins in the current
-     *   distribution. The styles must be in plugin-root/styles/index.less
-     *   This is for dev only, note that we will need to address pre-building
-     *   and loading the prebuilt styles for the Compass artifacts for better
-     *   performance.
-     */
-    manager.load(document, path.join(__dirname, '..', '..'), DISTRIBUTION.plugins);
-  }
+  //   /**
+  //    * @note: This loads all the styles from all the plugins in the current
+  //    *   distribution. The styles must be in plugin-root/styles/index.less
+  //    *   This is for dev only, note that we will need to address pre-building
+  //    *   and loading the prebuilt styles for the Compass artifacts for better
+  //    *   performance.
+  //    */
+  //   manager.load(document, path.join(__dirname, '..', '..'), DISTRIBUTION.plugins);
+  // }
 
 
   /**

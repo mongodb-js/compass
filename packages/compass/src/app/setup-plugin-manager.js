@@ -94,12 +94,12 @@ PluginManager.Action.pluginActivated.listen(() => {
   );
 });
 
-if (process.env.NODE_ENV === 'production') {
-  /* eslint no-eval:0 */
-  window.eval = global.eval = function() {
-    throw new Error('Due to security reasons, eval() is not supported.');
-  };
-}
+// if (process.env.NODE_ENV === 'production') {
+//   /* eslint no-eval:0 */
+//   window.eval = global.eval = function() {
+//     throw new Error('Due to security reasons, eval() is not supported.');
+//   };
+// }
 
 app.pluginManager.activate(app.appRegistry, pkg.apiVersion);
 
