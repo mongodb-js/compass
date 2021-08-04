@@ -1,0 +1,17 @@
+{
+  "name": "compass-e2e-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "E2E test suite for Compass app that follows feature testing matrix",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha index.js"
+  },
+  "devDependencies": {
+    "@types/webdriverio": "^4.13.3",
+    "chai": "^4.3.4",
+    "mocha": "^9.0.2",
+    "@mongodb-js/devtools-docker-test-envs": "github:mongodb-js/devtools-docker-test-envs#5c3811fd45642cbd2c9a4a00c5e213fed121835c",
+    "spectron": "^8.0.0"
+  }
+}
