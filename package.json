@@ -22,7 +22,7 @@
     "predepcheck": "node scripts/depalign.js",
     "depcheck": "depcheck",
     "predist": "npm run compile --workspace mongodb-compass",
-    "dist": "electron-builder",
+    "dist": "electron-builder build",
     "download-akzidenz": "lerna exec -- node ../../scripts/download-akzidenz.js",
     "electron-rebuild": "npm run electron-rebuild --workspace mongodb-compass",
     "node-rebuild": "node ./scripts/rebuild.js kerberos keytar interruptor",

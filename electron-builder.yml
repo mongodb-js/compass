@@ -33,6 +33,8 @@ win:
 dmg:
   background: packages/compass/src/app/images/darwin/background.png
 
+publish: []
+
       #   "build": {
       #   "win32": {
       #     "icon": "src/app/images/win32/mongodb-compass.ico",
