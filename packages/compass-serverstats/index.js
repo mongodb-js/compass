@@ -18,7 +18,7 @@ const INSTANCE_TAB_ROLE = {
  * @param{Object} appRegistry   the hadron app registry
  */
 function activate(appRegistry) {
-  appRegistry.registerRole('Instance.Tab', INSTANCE_TAB_ROLE);
+  appRegistry.registerRole('Performance.Tab', INSTANCE_TAB_ROLE);
   appRegistry.registerStore('RTSS.ServerStatsStore', ServerStatsStore);
   appRegistry.registerStore('RTSS.CurrentOpStore', CurrentOpStore);
   appRegistry.registerStore('RTSS.TopStore', TopStore);
@@ -28,7 +28,7 @@ function activate(appRegistry) {
  * Deactivate all the components in the RTSS package.
  */
 function deactivate() {
-  global.hadronApp.appRegistry.deregisterRole('Instance.Tab', INSTANCE_TAB_ROLE);
+  global.hadronApp.appRegistry.deregisterRole('Performance.Tab', INSTANCE_TAB_ROLE);
   global.hadronApp.appRegistry.deregisterStore('RTSS.ServerStatsStore', ServerStatsStore);
   global.hadronApp.appRegistry.deregisterStore('RTSS.CurrentOpStore', CurrentOpStore);
   global.hadronApp.appRegistry.deregisterStore('RTSS.TopStore', TopStore);

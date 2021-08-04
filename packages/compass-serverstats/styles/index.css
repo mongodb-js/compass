@@ -546,11 +546,20 @@
   flex-direction: column;
 }
 .flexlayout__outline_rect {
-  /* !important */
-  border-color: #019EE2 !important;
-}
-:global .flexlayout__outline_rect {
-  /* !important */
   border-color: #019EE2 !important;
   border: 2px solid #019EE2;
+}
+.flexlayout__splitter {
+  transition: all 100ms ease-in-out 0s;
+  transition-delay: 200ms;
+  background-color: #E7EEEC !important;
+}
+@media (hover: hover) {
+  .flexlayout__splitter:hover {
+    background-color: #019EE2 !important;
+    z-index: 100;
+  }
+}
+.flexlayout__splitter_drag {
+  background-color: #019EE2 !important;
 }

@@ -5,6 +5,7 @@ import CollectionsToolbar from './collections-toolbar';
 import CollectionsTable from './collections-table';
 import { sortCollections } from '../../modules/collections/collections';
 import { openLink } from '../../modules/link';
+import { showCollection } from '../../modules/show-collection';
 import { open as openCreate } from '../../modules/create-collection';
 import { open as openDrop } from '../../modules/drop-collection';
 
@@ -20,7 +21,7 @@ class Collections extends PureComponent {
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     openLink: PropTypes.func.isRequired,
-    // showCollection: PropTypes.func.isRequired,
+    showCollection: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortCollections: PropTypes.func.isRequired,
@@ -49,6 +50,7 @@ class Collections extends PureComponent {
           isReadonly={this.props.isReadonly}
           databaseName={this.props.databaseName}
           openLink={this.props.openLink}
+          showCollection={this.props.showCollection}
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           sortCollections={this.props.sortCollections}
@@ -84,6 +86,7 @@ const mapStateToProps = (state) => ({
 const ConnectedCollections = connect(
   mapStateToProps,
   {
+    showCollection,
     sortCollections,
     openLink
   },

@@ -5,6 +5,7 @@ import cloneDeep from 'lodash.clonedeep';
 import ReactTooltip from 'react-tooltip';
 import { AutoSizer, List } from 'react-virtualized';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import Icon from '@leafygreen-ui/icon';
 
 import classnames from 'classnames';
 import styles from './sidebar.less';
@@ -181,19 +182,40 @@ class Sidebar extends PureComponent {
     }
   }
 
+  renderOpenPerformanceButton() {
+    return (
+      <button
+        className={styles['compass-sidebar-button-open-panel']}
+        title="Open Performance"
+        onClick={() => {
+          global.hadronApp.appRegistry.emit('sidebar-open-performance');
+        }}
+      >
+        <Icon
+          glyph="TimeSeries"
+          title="Open Performance"
+        />&nbsp;Performance
+        {/* <div className={styles['plus-button']}> */}
+        {/* </div> */}
+      </button>
+    );
+  }
+
   renderOpenShellButton() {
     return (
       <button
-        className={styles['compass-sidebar-button-open-shell']}
+        className={styles['compass-sidebar-button-open-panel']}
         title="Open Shell"
         onClick={() => {
           global.hadronApp.appRegistry.emit('open-shell');
         }}
       >
-        <i className="mms-icon-add" />
-        <div className={styles['plus-button']}>
-          Open Shell
-        </div>
+        <Icon
+          glyph="Shell"
+          title="Open Shell"
+        />&nbsp;Shell
+        {/* <div className={styles['plus-button']}> */}
+        {/* </div> */}
       </button>
     );
   }
@@ -262,7 +284,13 @@ class Sidebar extends PureComponent {
         <SidebarTitle
           connectionModel={this.props.connectionModel}
           isSidebarCollapsed={this.props.isCollapsed}
-          globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
+          globalAppRegistryEmit={this.props.globalAppRegistryEmit}
+
+          toggleIsModalVisible={this.props.toggleIsModalVisible}
+          isModalVisible={this.props.isModalVisible}
+          saveFavorite={this.props.saveFavorite}
+          deleteFavorite={this.props.deleteFavorite}
+        />
         <SidebarInstance
           instance={this.props.instance}
           isExpanded={this.props.isDetailsExpanded}
@@ -272,10 +300,13 @@ class Sidebar extends PureComponent {
           toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit}
           connectionModel={this.props.connectionModel}
-          toggleIsModalVisible={this.props.toggleIsModalVisible}
-          isModalVisible={this.props.isModalVisible}
-          saveFavorite={this.props.saveFavorite}
-          deleteFavorite={this.props.deleteFavorite} />
+          // toggleIsModalVisible={this.props.toggleIsModalVisible}
+          // isModalVisible={this.props.isModalVisible}
+          // saveFavorite={this.props.saveFavorite}
+          // deleteFavorite={this.props.deleteFavorite}
+        />
+        {this.renderOpenPerformanceButton()}
+        {this.renderOpenShellButton()}
         <div
           className={classnames(styles['compass-sidebar-filter'])}
           onClick={this.handleSearchFocus.bind(this)}>
@@ -284,8 +315,9 @@ class Sidebar extends PureComponent {
             data-test-id="sidebar-filter-input"
             ref="filter"
             className={classnames(styles['compass-sidebar-search-input'])}
-            placeholder="Filter your data"
-            onChange={this.handleFilter.bind(this)} />
+            placeholder="Database or Collection name"
+            onChange={this.handleFilter.bind(this)}
+          />
         </div>
         <div className={classnames(styles['compass-sidebar-content'])}>
           {this.renderSidebarScroll()}
@@ -295,7 +327,6 @@ class Sidebar extends PureComponent {
           toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
           openLink={this.props.openLink} />
         {this.renderCreateDatabaseButton()}
-        {this.renderOpenShellButton()}
         <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
         <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
         <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />

@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import SidebarInstanceStats from '../sidebar-instance-stats';
 import SidebarInstanceDetails from '../sidebar-instance-details';
 import NonGenuineWarningPill from '../non-genuine-warning-pill';
-import IsFavoritePill from '../is-favorite-pill';
-import { FavoriteModal } from '@mongodb-js/compass-connect';
+// import IsFavoritePill from '../is-favorite-pill';
+// import { FavoriteModal } from '@mongodb-js/compass-connect';
 
 import classnames from 'classnames';
 import styles from './sidebar-instance.less';
@@ -20,57 +20,57 @@ class SidebarInstance extends PureComponent {
     globalAppRegistryEmit: PropTypes.func.isRequired,
     detailsPlugins: PropTypes.array.isRequired,
     connectionModel: PropTypes.object,
-    toggleIsModalVisible: PropTypes.func.isRequired,
-    isModalVisible: PropTypes.bool.isRequired,
-    deleteFavorite: PropTypes.func.isRequired,
-    saveFavorite: PropTypes.func.isRequired
+    // toggleIsModalVisible: PropTypes.func.isRequired,
+    // isModalVisible: PropTypes.bool.isRequired,
+    // deleteFavorite: PropTypes.func.isRequired,
+    // saveFavorite: PropTypes.func.isRequired
   };
 
-  /**
-   * Deletes the current favorite.
-   *
-   * @param {Object} connection - The current connection.
-   */
-  deleteFavorite(connection) {
-    this.props.deleteFavorite(connection);
-    this.props.toggleIsModalVisible(false);
-    global.hadronApp.appRegistry.emit('clear-current-favorite');
-  }
+  // /**
+  //  * Deletes the current favorite.
+  //  *
+  //  * @param {Object} connection - The current connection.
+  //  */
+  // deleteFavorite(connection) {
+  //   this.props.deleteFavorite(connection);
+  //   this.props.toggleIsModalVisible(false);
+  //   global.hadronApp.appRegistry.emit('clear-current-favorite');
+  // }
 
-  /**
-   * Closes the favorite modal.
-   */
-  closeFavoriteModal() {
-    this.props.toggleIsModalVisible(false);
-  }
+  // /**
+  //  * Closes the favorite modal.
+  //  */
+  // closeFavoriteModal() {
+  //   this.props.toggleIsModalVisible(false);
+  // }
 
-  /**
-   * Saves the current connection to favorites.
-   *
-   * @param {String} name - The favorite name.
-   * @param {String} color - The favorite color.
-   */
-  saveFavorite(name, color) {
-    this.props.saveFavorite(this.props.connectionModel.connection, name, color);
-    this.props.toggleIsModalVisible(false);
-  }
+  // /**
+  //  * Saves the current connection to favorites.
+  //  *
+  //  * @param {String} name - The favorite name.
+  //  * @param {String} color - The favorite color.
+  //  */
+  // saveFavorite(name, color) {
+  //   this.props.saveFavorite(this.props.connectionModel.connection, name, color);
+  //   this.props.toggleIsModalVisible(false);
+  // }
 
-  /**
-   * Renders the favorite modal.
-   *
-   * @returns {React.Component}
-   */
-  renderFavoriteModal() {
-    if (this.props.isModalVisible) {
-      return (
-        <FavoriteModal
-          connectionModel={this.props.connectionModel.connection}
-          deleteFavorite={this.deleteFavorite.bind(this)}
-          closeFavoriteModal={this.closeFavoriteModal.bind(this)}
-          saveFavorite={this.saveFavorite.bind(this)} />
-      );
-    }
-  }
+  // /**
+  //  * Renders the favorite modal.
+  //  *
+  //  * @returns {React.Component}
+  //  */
+  // renderFavoriteModal() {
+  //   if (this.props.isModalVisible) {
+  //     return (
+  //       <FavoriteModal
+  //         connectionModel={this.props.connectionModel.connection}
+  //         deleteFavorite={this.deleteFavorite.bind(this)}
+  //         closeFavoriteModal={this.closeFavoriteModal.bind(this)}
+  //         saveFavorite={this.saveFavorite.bind(this)} />
+  //     );
+  //   }
+  // }
 
   /**
    * Renders the SidebarInstance component.
@@ -85,11 +85,11 @@ class SidebarInstance extends PureComponent {
           isExpanded={this.props.isExpanded}
           toggleIsExpanded={this.props.toggleIsDetailsExpanded}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
-        <IsFavoritePill
+        {/* <IsFavoritePill
           isSidebarCollapsed={this.props.isSidebarCollapsed}
           connectionModel={this.props.connectionModel}
-          toggleIsModalVisible={this.props.toggleIsModalVisible} />
-        {this.renderFavoriteModal()}
+          toggleIsModalVisible={this.props.toggleIsModalVisible} /> */}
+        {/* {this.renderFavoriteModal()} */}
         <NonGenuineWarningPill
           isSidebarCollapsed={this.props.isSidebarCollapsed}
           isGenuineMongoDB={this.props.isGenuineMongoDB} />

@@ -63,15 +63,15 @@ const rootReducer = (state, action) => {
       uiStatus: UI_STATUS_INITIAL_STATE,
       title: TITLE_INITIAL_STATE,
       connectionTitle: INSTANCE_ID_INITIAL_STATE,
-      dataService: null,
+      // dataService: null,
     };
   }
-  if (action.type === SET_DS) {
-    return {
-      ...state,
-      dataService: action.dataService
-    };
-  }
+  // if (action.type === SET_DS) {
+  //   return {
+  //     ...state,
+  //     dataService: action.dataService
+  //   };
+  // }
   return reducer(state, action);
 };
 

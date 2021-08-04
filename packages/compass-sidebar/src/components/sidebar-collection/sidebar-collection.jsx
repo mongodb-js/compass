@@ -82,8 +82,15 @@ class SidebarCollection extends PureComponent {
    * Handle clicking on the collection name.
    */
   onClick = () => {
+    // TODO: One event and sidebar listens to active node panel.
+
     this.showCollection(
       'select-namespace',
+      this.props,
+      this.props.collections
+    );
+    this.showCollection(
+      'sidebar-select-namespace',
       this.props,
       this.props.collections
     );

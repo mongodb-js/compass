@@ -27,6 +27,7 @@ import { Namespace } from './types';
 
 const PANEL_COMPONENT_ID = 'Panel';
 const SHELL_COMPONENT_ID = 'Shell';
+const PERFORMANCE_COMPONENT_ID = 'Performance';
 
 type DataService = any; // TODO
 
@@ -35,8 +36,21 @@ type Props = {
   dataService: DataService
 }
 
+function getNodeNameFromNS(ns: Namespace) {
+  if (!ns.databaseName) {
+    return 'Databases';
+  }
+
+  if (!ns.collectionName) {
+    return ns.databaseName;
+  }
+
+  return `${ns.databaseName}.${ns.collectionName}`
+}
+
 const defaultLayout: IJsonModel = {
   global: {
+    splitterSize: 4,
     tabEnableRename: false
   },
   layout: {
@@ -53,47 +67,14 @@ const defaultLayout: IJsonModel = {
           {
             type: 'tab',
             id: '#4',
-            name: 'Instance',
+            name: 'Databases',
             // component: 'grid',
             component: PANEL_COMPONENT_ID,
             config: {
               id: '2'
               // No db or col.
             }
-          },
-          {
-            type: 'tab',
-            id: '#5',
-            name: 'Database',
-            // component: 'grid',
-            component: PANEL_COMPONENT_ID,
-            config: {
-              id: '2',
-              databaseName: 'air'
-            }
-          },
-          {
-            type: 'tab',
-            id: '#6',
-            name: 'Collection',
-            // component: 'grid',
-            component: PANEL_COMPONENT_ID,
-            config: {
-              id: '2',
-              databaseName: 'air',
-              collectionName: 'airports'
-            }
-          },
-          {
-            type: 'tab',
-            id: '#14',
-            name: 'Shell',
-            // component: 'grid',
-            component: SHELL_COMPONENT_ID,
-            config: {
-              id: '14'
-            }
-          },
+          }
         ]
       }
     ]
@@ -103,7 +84,7 @@ const defaultLayout: IJsonModel = {
 
 export default function Workspace({
   isDataLake,
-  dataService
+  // dataService
 }: Props) {
   const [ model, setModel ] = useState(
     FlexLayout.Model.fromJson(defaultLayout)
@@ -116,21 +97,26 @@ export default function Workspace({
       const nodeConfig = node.getConfig();
       const {
         databaseName,
-        collectionName
+        collectionName,
+        // shortcutToPerformance
       } = nodeConfig;
       return <Panel
         databaseName={databaseName}
         collectionName={collectionName}
         isDataLake={isDataLake}
+        // shortcutToPerformance={shortcutToPerformance}
         updateNamespace={(ns: Namespace) => {
-          console.log('update to ns', ns);
+          // console.log('update to ns', ns);
           model.doAction(FlexLayout.Actions.updateNodeAttributes(
             node.getId(),
-            { config: {
-              ...nodeConfig,
-              databaseName: ns.databaseName,
-              collectionName: ns.collectionName
-            }}
+            {
+              name: getNodeNameFromNS(ns),
+              config: {
+                ...nodeConfig,
+                databaseName: ns.databaseName,
+                collectionName: ns.collectionName
+              }
+            }
           ));
         }}
       />;
@@ -168,6 +154,12 @@ export default function Workspace({
     //     // collectionName={collectionName}
     //     // isDataLake={props.isDataLake}
     //   />;
+    } else if (component === PERFORMANCE_COMPONENT_ID) {
+      const PerformanceComponent = (global as any).hadronApp.appRegistry.getRole(
+        'Performance.Tab'
+      )[0].component;
+
+      return <PerformanceComponent />;
     }
   }
 
@@ -177,7 +169,7 @@ export default function Workspace({
 
   // Listen for the open shell events and open a shell tab.
   useEffect(() => {
-    const openShellFromEvent = () => {
+    function openShellFromEvent() {
       console.log('openShellFromEvent');
       // if (!model.getMaximizedTabset()) {
       layoutRef.current?.addTabToActiveTabSet({
@@ -185,12 +177,53 @@ export default function Workspace({
         name: 'Shell'
       });
       // }
-    };
+    }
+    
+    function openNamespaceFromSidebar(meta: {
+      namespace: string
+    }) {
+      const {
+        namespace
+        // TODO: Break ns into db name and col name.
+        // Add collection attributes.
+      } = meta;
+
+      const namespaceObject = {
+        databaseName: namespace.split('.')[0],
+        collectionName: namespace.split('.')[1]
+      };
+
+      layoutRef.current?.addTabToActiveTabSet({
+        component: PANEL_COMPONENT_ID,
+        name: getNodeNameFromNS(namespaceObject), // TODO: Ensure this is xss safe.
+        config: namespaceObject
+      });
+    }
+
+    function openPerformance() {
+      layoutRef.current?.addTabToActiveTabSet({
+        component: PERFORMANCE_COMPONENT_ID,
+        name: 'Performance'
+      });
+    }
 
     // Add an event listener for opening shell, which will update our state.
     // TODO: Type for global app registry.
     (global as any).hadronApp.appRegistry.on('open-shell', openShellFromEvent);
     
+    // Actions.updateNodeAttributes(nodeId, attributes)
+    // TODO: Event types and hadron + app registry types.
+    (global as any).hadronApp.appRegistry.on(
+      'sidebar-select-namespace',
+      openNamespaceFromSidebar
+    );
+
+    (global as any).hadronApp.appRegistry.on(
+      'sidebar-open-performance',
+      openPerformance
+    );
+    // 
+
     return () => {
       // TODO: Cleanup event listener.
       // (global as any).hadronApp.appRegistry.on('open-shell', openShellFromEvent)
@@ -225,14 +258,14 @@ export default function Workspace({
   // }
 
   function onAddFromTabSetButton(node: TabSetNode | BorderNode) {
-    console.log('on add node.getName:', node.getId());
+    // console.log('on add node.getName:', node.getId());
 
     layoutRef.current?.addTabToTabSet(node.getId(), {
       component: PANEL_COMPONENT_ID,
-      name: 'Instance',
+      name: getNodeNameFromNS({ }),
       config: {
         id: '55', // TODO: Keep an id index counter.
-        databaseName: 'air'
+        // databaseName: 'air'
       }
     });
   }

@@ -14,7 +14,7 @@ export class ShellHeader extends Component {
   static propTypes = {
     isExpanded: PropTypes.bool.isRequired,
     isOperationInProgress: PropTypes.bool.isRequired,
-    onShellToggleClicked: PropTypes.func.isRequired,
+    // onShellToggleClicked: PropTypes.func.isRequired,
     showInfoModal: PropTypes.func.isRequired
   };
 
@@ -27,16 +27,16 @@ export class ShellHeader extends Component {
     const {
       isExpanded,
       isOperationInProgress,
-      onShellToggleClicked,
+      // onShellToggleClicked,
       showInfoModal
     } = this.props;
 
     return (
       <div className={styles['compass-shell-header']}>
         <div className={styles['compass-shell-header-left']}>
-          <button
+          <div
             className={styles['compass-shell-header-toggle']}
-            onClick={onShellToggleClicked}
+            // onClick={onShellToggleClicked}
           >
             &gt;_MONGOSH
             {!isExpanded && isOperationInProgress && (
@@ -50,7 +50,7 @@ export class ShellHeader extends Component {
                 >Command in progress...</span>
               </>
             )}
-          </button>
+          </div>
         </div>
         <div className={styles['compass-shell-header-right-actions']}>
           {isExpanded && (

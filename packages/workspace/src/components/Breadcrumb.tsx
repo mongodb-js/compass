@@ -21,52 +21,69 @@ function Breadcrumb({
       // {...props}
       style={{
         position: 'absolute',
-        top: 5,
-        left: 5,
+        top: 15,
+        left: 15,
+        fontSize: '22px',
+        // fontWeight: 'normal',
+        transition: '150ms all'
       }}
     >
-      <button
-        // className={}
-        onClick={() => updateNamespace({})}
-        // href="#"
-      >
-        Instance
-      </button>
       {databaseName && (
         <>
+          <a
+            // className={}
+            onClick={() => updateNamespace({})}
+            href="#"
+          >
+            Databases
+          </a>
           <div
             style={{
-              display: 'inline-block'
+              display: 'inline-block',
+              margin: '0px 2px'
             }}
           >.</div>
-          <button
-            // className={}
-            onClick={() => updateNamespace({
-              databaseName
-            })}
-            // href="#"
-          >
-            {databaseName}
-          </button>
+          {!collectionName && (
+            <div
+              style={{
+                display: 'inline-block'
+              }}
+            >
+              {databaseName}
+            </div>
+          )}
         </>
       )}
       {databaseName && collectionName && (
         <>
+          <a
+            // className={}
+            onClick={() => updateNamespace({
+              databaseName
+            })}
+            href="#"
+          >
+            {databaseName}
+          </a>
           <div
+            style={{
+              display: 'inline-block',
+              margin: '0px 2px'
+            }}
+          >.</div>
+          <div
+            // className={}
+            // onClick={() => updateNamespace({
+            //   collectionName,
+            //   databaseName
+            // })}
+            // href="#"
             style={{
               display: 'inline-block'
             }}
-          >.</div>
-          <button
-            // className={}
-            onClick={() => updateNamespace({
-              collectionName,
-              databaseName
-            })}
-            // href="#"
           >
             {collectionName}
-          </button>
+          </div>
         </>
       )}
     </div>

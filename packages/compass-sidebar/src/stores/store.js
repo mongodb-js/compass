@@ -44,6 +44,7 @@ store.onActivated = (appRegistry) => {
   });
 
   appRegistry.on('select-namespace', (metadata) => {
+    console.log('\n\n\ngot select namespace');
     store.dispatch(filterDatabases(null, null, metadata.namespace || ''));
   });
 

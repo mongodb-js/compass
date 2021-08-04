@@ -114,7 +114,7 @@ class TabNavBar extends React.Component {
         <div
           className="tab-nav-bar"
           style={this.props.topBump ? {
-            paddingTop: 30
+            paddingTop: 52
           } : {}}
         >
           <div className="tab-nav-bar-tabs">

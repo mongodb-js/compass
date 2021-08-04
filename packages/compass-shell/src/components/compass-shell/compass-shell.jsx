@@ -167,7 +167,7 @@ export class CompassShell extends Component {
         <InfoModal />
         <ShellHeader
           isExpanded// ={isExpanded}
-          onShellToggleClicked={this.shellToggleClicked}
+          // onShellToggleClicked={this.shellToggleClicked}
           isOperationInProgress={isOperationInProgress}
         />
         <div

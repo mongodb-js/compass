@@ -7,7 +7,7 @@ import { Namespace } from './types';
 import ErrorBoundary from './ErrorBoundary';
 
 type Props = {
-  isDataLake: boolean;
+  // isDataLake: boolean;
   updateNamespace: (ns: Namespace) => void;
 };
 
@@ -15,7 +15,7 @@ type Props = {
  * Represents the instance view.
  */
 function InstanceComponent({
-  isDataLake,
+  // isDataLake,
   updateNamespace
 }: Props) {
 
@@ -73,9 +73,6 @@ function InstanceComponent({
     'Instance.Databases.Tab'
   )[0].component;
   // const DatabasesStore = 
-  const PerformanceComponent = (global as any).hadronApp.appRegistry.getRole(
-    'Instance.Tab'
-  )[0].component;
 
   const tabs = ['Databases'];
   const views = [
@@ -87,14 +84,14 @@ function InstanceComponent({
     </ErrorBoundary>
   ];
 
-  if (!isDataLake) {
-    tabs.push('Performance')
-    views.push(
-      <ErrorBoundary>
-        <PerformanceComponent />
-      </ErrorBoundary>
-    );
-  }
+  // if (!isDataLake) {
+  //   tabs.push('Performance')
+  //   views.push(
+  //     <ErrorBoundary>
+  //       <PerformanceComponent />
+  //     </ErrorBoundary>
+  //   );
+  // }
 
   // const tabs = ['Databases'];
   // const views = [
@@ -120,7 +117,7 @@ function InstanceComponent({
       activeTabIndex={activeTab}
       onTabClicked={setActiveTab}
       mountAllViews={false}
-      topBump
+      // topBump
     />
     // <div>
     //   aaaaa

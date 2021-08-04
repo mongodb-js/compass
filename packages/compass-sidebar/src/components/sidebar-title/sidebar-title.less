@@ -10,14 +10,15 @@
 .sidebar-title {
   background-color: @compass-sidebar-title-background-color;
 
-  padding: 7px 10px 7px 10px;
+  padding: 7px 14px;
+  padding-left: 10px;
   border-bottom: 1px solid @gray2;
-  cursor: pointer;
+  // cursor: pointer;
 
-  &:hover {
-    background: @compass-sidebar-hover-background-color;
-    color: @pw;
-  }
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  align-items: center;
 
   &-is-active {
     color: @pw;
@@ -37,6 +38,15 @@
 
     &-icon {
       font-size: 16px;
+    }
+  }
+
+  &-button {
+    color: @pw;
+    margin-left: 8px;
+
+    &:hover {
+      color: #2a3e4c;
     }
   }
 }

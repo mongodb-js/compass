@@ -60,7 +60,8 @@ function Panel({
         right: 0,
         bottom: 0,
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        color: '#494747'
       }}
     >
       <Breadcrumb
@@ -70,8 +71,9 @@ function Panel({
       />
       <ErrorBoundary>
         {!databaseName && <Instance
-          isDataLake={isDataLake}
+          // isDataLake={isDataLake}
           updateNamespace={updateNamespace}
+          // shortcutToPerformance={shortcutToPerformance}
         />}
         {databaseName && !collectionName && (
           <Database

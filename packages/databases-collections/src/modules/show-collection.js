@@ -28,6 +28,7 @@ export const showCollection = (name) => {
   return (dispatch, getState) => {
     const state = getState();
     const appRegistry = state.appRegistry;
+
     if (appRegistry) {
       // Get the collection to select.
       const collection = find(state.collections, (coll) => {
@@ -35,6 +36,9 @@ export const showCollection = (name) => {
       });
       // Get the source of the view, if a view.
       const source = getSource(collection, state.collections);
+
+      // TODO: Need to call updateNamespace with these
+      // collection stats.
 
       dispatch(appRegistryEmit(
         'select-namespace',
