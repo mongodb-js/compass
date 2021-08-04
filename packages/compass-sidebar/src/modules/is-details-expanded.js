@@ -6,7 +6,7 @@ export const TOGGLE_IS_DETAILS_EXPANDED = 'sidebar/is-details-expanded/TOGGLE_IS
 /**
  * The initial state of the is expanded attribute.
  */
-export const INITIAL_STATE = true;
+export const INITIAL_STATE = false;
 
 /**
  * Reducer function for handle state changes to is details expanded.

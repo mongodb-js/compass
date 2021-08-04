@@ -308,24 +308,26 @@ class Sidebar extends PureComponent {
         {this.renderOpenPerformanceButton()}
         {this.renderOpenShellButton()}
         <div
-          className={classnames(styles['compass-sidebar-filter'])}
-          onClick={this.handleSearchFocus.bind(this)}>
-          <i className={classnames('fa', 'fa-search', styles['compass-sidebar-search-icon'])}/>
+          className={styles['compass-sidebar-filter']}
+          onClick={this.handleSearchFocus.bind(this)}
+        >
+          <i className={classnames('fa', 'fa-search', styles['compass-sidebar-search-icon'])} />
           <input
             data-test-id="sidebar-filter-input"
             ref="filter"
-            className={classnames(styles['compass-sidebar-search-input'])}
-            placeholder="Database or Collection name"
+            className={styles['compass-sidebar-search-input']}
+            placeholder="Databases and Collections"
             onChange={this.handleFilter.bind(this)}
           />
         </div>
-        <div className={classnames(styles['compass-sidebar-content'])}>
+        <div className={styles['compass-sidebar-content']}>
           {this.renderSidebarScroll()}
         </div>
         <NonGenuineWarningModal
           isVisible={this.props.isGenuineMongoDBVisible}
           toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
-          openLink={this.props.openLink} />
+          openLink={this.props.openLink}
+        />
         {this.renderCreateDatabaseButton()}
         <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
         <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
