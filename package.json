@@ -57,6 +57,7 @@
   "devDependencies": {
     "@npmcli/arborist": "^2.7.1",
     "chalk": "^4.1.1",
+    "electron-builder-squirrel-windows": "^22.11.11",
     "find-up": "^5.0.0",
     "fs-extra": "^9.1.0",
     "lerna": "^4.0.0",
@@ -70,7 +71,7 @@
     "wait-on": "^5.3.0"
   },
   "engines": {
-    "node": ">=12.9.0",
+    "node": "^12 || ^14",
     "npm": ">=7.16.0"
   },
   "bugs": {

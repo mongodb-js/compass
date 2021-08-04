@@ -366,10 +366,6 @@
   "optionalDependencies": {
     "vscode-windows-registry": "1.0.2"
   },
-  "engines": {
-    "node": "^12.9.0",
-    "npm": ">=6.13.0"
-  },
   "_compileCacheMappings": {
     "src-app-network-optin-index.jade": "jade/b330bdea0cce4c5afed2c0cbf1f3484a13d8b84a.js",
     "src-app-tour-index.jade": "jade/326944ed841c42c6580831aec81aa566fe26cda3.js",
