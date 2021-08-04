@@ -29,6 +29,17 @@ const HP_VERSION = '3.4.0';
  */
 const INVALID = `${VALUE_CLASS}-is-invalid-type`;
 
+
+const LONG_STRING_THRESHOLD = 100;
+/**
+ * @param {number} characterLength
+ * @returns {number} The length character length bounded to a min and max more
+ * suited for viewing.
+ */
+function boundTextAreaWidth(characterLength) {
+  return Math.min(LONG_STRING_THRESHOLD, Math.max(5, characterLength + 2));
+}
+
 /**
  * General editable value component.
  */
@@ -241,7 +252,9 @@ class EditableValue extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const length = this.editor().size(this.state.editing) + (this.state.editing ? 1 : 0.5);
+    const valueLength = this.editor().size(this.state.editing) + (
+      this.state.editing ? 1 : 0.5
+    );
     return (
       <span className={this.wrapperStyle()}>
         <Tooltip
@@ -266,8 +279,8 @@ class EditableValue extends React.Component {
               minHeight: '77px',
               width: '100%' // Scale to max width when it's a multi-line string.
             } : {
-              minHeight: '17px',
-              width: `${Math.max(5, length + 2)}ch`
+              minHeight: valueLength < LONG_STRING_THRESHOLD ? '17px' : '33px',
+              width: `${boundTextAreaWidth(valueLength)}ch`
             }}
             value={this.editor().value(this.state.editing)}
           />
@@ -283,7 +296,7 @@ class EditableValue extends React.Component {
             onChange={this.handleChange.bind(this)}
             onKeyDown={this.handleKeyDown.bind(this)}
             onPaste={this.handlePaste.bind(this)}
-            style={{ width: `${length}ch` }}
+            style={{ width: `${valueLength}ch` }}
             value={this.editor().value(this.state.editing)}
           />
         )}
