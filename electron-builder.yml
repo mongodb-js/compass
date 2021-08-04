@@ -26,12 +26,17 @@ mac:
     - dmg
 
 win:
+  icon: "packages/compass/src/app/images/win32/mongodb-compass.ico"
   target:
     - squirrel
-    - msi
 
 dmg:
   background: packages/compass/src/app/images/darwin/background.png
+
+squirrelWindows:
+  msi: false
+  iconUrl: "https://compass.mongodb.com/favicon.ico"
+  loadingGif: "packages/compass/src/app/images/win32/mongodb-compass-installer-loading.gif"
 
 publish: []
 
@@ -39,7 +44,7 @@ publish: []
       #   "win32": {
       #     "icon": "src/app/images/win32/mongodb-compass.ico",
       #     "favicon_url": "https://compass.mongodb.com/favicon.ico",
-      #     "loading_gif": "src/app/images/win32/mongodb-compass-installer-loading.gif",
+      #     "loading_gif": "",
       #     "background": "src/app/images/win32/background.jpg",
       #     "banner": "src/app/images/win32/banner.jpg"
       #   },
