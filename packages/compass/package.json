@@ -219,8 +219,7 @@
   "scripts": {
     "install": "node scripts/download-akzidenz.js",
     "electron-rebuild": "electron-rebuild --force --only kerberos,keytar,interruptor",
-    "prestart": "rm -rf .compiled-sources && npm run electron-rebuild",
-    "start": "hadron-build develop",
+    "prestart": "npm run compile && npm run electron-rebuild",
     "pretest": "npm run electron-rebuild",
     "test": "hadron-build test",
     "posttest": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos keytar interruptor",

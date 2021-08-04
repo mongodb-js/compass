@@ -13,7 +13,9 @@ report.json
 .user-data/
 .compiled-sources/
 src/app/compiled-less/
+src/app/.compiled-less/
 expansions.yml
 .nvmrc
 .vscode
 src/app/fonts/akzid*
+src/app/index.html
