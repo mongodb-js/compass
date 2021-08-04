@@ -22,14 +22,16 @@ mac:
   icon: packages/compass/src/app/images/darwin/mongodb-compass.icns
   category: public.app-category.productivity
   target:
-    - dir
     - dmg
+    - zip
+    # only useful for debugging / development
+    - dir
 
 win:
-  icon: "packages/compass/src/app/images/win32/mongodb-compass.ico"
+  icon: packages/compass/src/app/images/win32/mongodb-compass.ico
   target:
     - squirrel
-    - msi
+    - zip
 
 linux:
   target:
@@ -42,13 +44,12 @@ dmg:
 
 squirrelWindows:
   msi: false
-  iconUrl: "https://compass.mongodb.com/favicon.ico"
-  loadingGif: "packages/compass/src/app/images/win32/mongodb-compass-installer-loading.gif"
-
-
+  iconUrl: https://compass.mongodb.com/favicon.ico
+  loadingGif: packages/compass/src/app/images/win32/mongodb-compass-installer-loading.gif
 
 publish: []
 
+      # appBundleId: 'com.mongodb.compass.dev'
       #   "build": {
       #   "win32": {
       #     "icon": "src/app/images/win32/mongodb-compass.ico",
