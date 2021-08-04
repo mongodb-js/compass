@@ -242,5 +242,91 @@ describe('QueryBar [Component]', function() {
         });
       });
     });
+
+    describe('when rendered with or without a query history button', function() {
+      const layout = ['filter'];
+
+      it('query history button renderes by default', function() {
+        const component = shallow(
+          <QueryBar
+            store={store}
+            actions={actions}
+            layout={layout}
+            expanded
+            serverVersion="3.4.0" />
+        );
+        expect(component.find('button[data-test-id="query-history-button"]')).to.exist;
+      });
+
+
+      it('query history button renderes when showQueryHistoryButton prop is passed and set to true', function() {
+        const component = shallow(
+          <QueryBar
+            store={store}
+            actions={actions}
+            layout={layout}
+            showQueryHistoryButton
+            expanded
+            serverVersion="3.4.0" />
+        );
+        expect(component.find('button[data-test-id="query-history-button"]')).to.exist;
+      });
+
+      it('query history button does not render when showQueryHistoryButton prop is passed and set to false', function() {
+        const component = shallow(
+          <QueryBar
+            store={store}
+            actions={actions}
+            layout={layout}
+            showQueryHistoryButton={false}
+            expanded
+            serverVersion="3.4.0" />
+        );
+        expect(component.find('button[data-test-id="query-history-button"]')).to.not.exist;
+      });
+    });
+
+    describe('when rendered with or without an export to language button', function() {
+      const layout = ['filter'];
+
+      it('export to language button renderes by default', function() {
+        const component = shallow(
+          <QueryBar
+            store={store}
+            actions={actions}
+            layout={layout}
+            showExportToLanguageButton
+            expanded
+            serverVersion="3.4.0" />
+        );
+        expect(component.find('#query-bar-menu-actions')).to.exist;
+      });
+
+      it('export to language button renderes when showExportToLanguageButton prop is passed and set to true', function() {
+        const component = shallow(
+          <QueryBar
+            store={store}
+            actions={actions}
+            layout={layout}
+            showExportToLanguageButton
+            expanded
+            serverVersion="3.4.0" />
+        );
+        expect(component.find('#query-bar-menu-actions')).to.exist;
+      });
+
+      it('export to language button does not render when showExportToLanguageButton prop is passed and set to false', function() {
+        const component = shallow(
+          <QueryBar
+            store={store}
+            actions={actions}
+            layout={layout}
+            showExportToLanguageButton={false}
+            expanded
+            serverVersion="3.4.0" />
+        );
+        expect(component.find('#query-bar-menu-actions')).to.not.exist;
+      });
+    });
   });
 });

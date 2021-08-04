@@ -92,14 +92,14 @@ This monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/usi
 
 ### Working on Plugins
 
-Most of the plugins have their own development environment so you can work on them in isolation. If you want to work on plugin without running the whole Compass application, you can run `npm run start` in the plugin directory, either with the help of `lerna` or `npm workspaces`. For example to start compass-connect plugin locally you can run `npm run start --workspace @mongodb-js/compass-connect` or `npx lerna run start --scope @mongodb-js/compass-connect --stream`.
+Most of the plugins have their own development environment so you can work on them in isolation. If you want to work on a plugin without running the whole Compass application, you can run `npm run start` in the plugin directory (such as at the top of the `compass/packages/compass-connect` directory), either with the help of `lerna` or `npm workspaces`. For example, to start `compass-connect` plugin locally, you can either run `npm run start --workspace @mongodb-js/compass-connect` from the top of `compass` directory, run `npx lerna run start --scope @mongodb-js/compass-connect --stream` from anywhere in the `compass` directory, or run `npm run start` from the top of the `compass/packages/compass-connect` directory. Same approaches will work for any other workspace-specific script. If you want to run commands like `test` or `check` only for one specific workspace in the repository, you can use any of the methods described above. As an example, to run all tests in one plugin that you are working on such as the `compass-connect` plugin, you can run `npm run test` from the top of the `compass/packages/compass-connect` directory.
 
 If you want to see your changes applied in Compass, you might need to rebuild plugins that you changed with the `compile` command. Instead of manually writing out the `scope` you might want to use `lerna --since` filter to rebuild everything since your local or origin `HEAD` of the git history: `npx lerna run compile --stream --since origin/HEAD`. Restarting or hard-reloading (Shift+CMD+R) Compass after compilation is finished should apply your changes.
 
 In addition to running lerna commands directly, there are a few convenient npm scripts for working with packages:
 
 - `npm run compile-changed` will compile all plugins and their dependants changed since `origin/HEAD`
-- `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`
+- `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`. 
 - `npm run check-changed` will run `eslint` and `depcheck` validation in all packages (ignoring dependants) changed since `origin/HEAD`
 
 ### Caveats
