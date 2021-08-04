@@ -36,7 +36,7 @@ const LONG_STRING_THRESHOLD = 100;
  * @returns {number} The length character length bounded to a min and max more
  * suited for viewing.
  */
-function boundTextAreaWidth(characterLength) {
+export function boundTextAreaLength(characterLength) {
   return Math.min(LONG_STRING_THRESHOLD, Math.max(5, characterLength + 2));
 }
 
@@ -279,8 +279,8 @@ class EditableValue extends React.Component {
               minHeight: '77px',
               width: '100%' // Scale to max width when it's a multi-line string.
             } : {
-              minHeight: valueLength < LONG_STRING_THRESHOLD ? '17px' : '33px',
-              width: `${boundTextAreaWidth(valueLength)}ch`
+              minHeight: valueLength < LONG_STRING_THRESHOLD ? '17px' : '28px',
+              width: `${boundTextAreaLength(valueLength)}ch`
             }}
             value={this.editor().value(this.state.editing)}
           />
