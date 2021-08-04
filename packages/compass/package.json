@@ -226,7 +226,7 @@
     "posttest": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos keytar interruptor",
     "check": "npm run lint && npm run depcheck",
     "clean": "hadron-build clean",
-    "compile-ui": "hadron-build ui",
+    "compile": "node scripts/compile.js",
     "release": "node release/index.js",
     "release-evergreen": "hadron-build release",
     "test-unit": "npm test -- --unit",
@@ -422,5 +422,10 @@
   "engines": {
     "node": "^12.9.0",
     "npm": ">=6.13.0"
+  },
+  "_compileCacheMappings": {
+    "src-app-network-optin-index.jade": "jade/b330bdea0cce4c5afed2c0cbf1f3484a13d8b84a.js",
+    "src-app-tour-index.jade": "jade/326944ed841c42c6580831aec81aa566fe26cda3.js",
+    "src-main-README.md": "md/47a0b13058ecb8fd0fba3baed627edfcd6589d21.js"
   }
 }
