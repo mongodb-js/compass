@@ -66,6 +66,8 @@ jobs:
           HADRON_PRODUCT: mongodb-compass
           HADRON_PRODUCT_NAME: MongoDB Compass
           HADRON_DISTRIBUTION: compass
+          # disable code signing
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         run: |
           npm run dist
         shell: bash
