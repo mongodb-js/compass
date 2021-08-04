@@ -56,7 +56,7 @@
     "eslint-plugin-mocha": "^8.0.0",
     "mocha": "^8.2.1",
     "mock-require": "^3.0.3",
-    "mongodb": "addaleax/node-mongodb-native#71d4c39e5c858f49d10e840df626eca4da653e28",
+    "mongodb": "^4.1.0",
     "mongodb-connection-model": "^21.5.3",
     "mongodb-runner": "^4.8.0",
     "sinon": "^9.2.3",
