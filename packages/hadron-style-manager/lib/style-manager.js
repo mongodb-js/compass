@@ -47,6 +47,7 @@ class StyleManager {
    * @param {String} resourcePath - Where to look for less resources.
    */
   constructor(cacheDir, resourcePath) {
+    console.log({cacheDir, resourcePath});
     this.cache = new LessCache({
       cacheDir: cacheDir,
       resourcePath: resourcePath,
@@ -62,6 +63,7 @@ class StyleManager {
    * @param {Array} packages - The list of packages.
    */
   load(doc, root, packages) {
+    console.log('load', {doc, root, packages});
     for (let pluginNameOrPath of packages) {
       let pluginPath;
       try {

@@ -50,7 +50,9 @@ jobs:
         run: npm install -g npm@7
 
       - name: Install Dependencies
-        run: npm install --force
+        run: |
+          npm install --force
+          npx lerna run bootstrap --stream
 
       # https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708/3
       - name: Set path for candle.exe and light.exe
