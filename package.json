@@ -21,7 +21,7 @@
     "compile-changed": "lerna run compile --stream --since origin/HEAD",
     "predepcheck": "node scripts/depalign.js",
     "depcheck": "depcheck",
-    "predist": "npm run compile --workspace mongodb-compass",
+    "_predist": "npm run compile --workspace mongodb-compass",
     "dist": "electron-builder build --publish never",
     "download-akzidenz": "lerna exec -- node ../../scripts/download-akzidenz.js",
     "electron-rebuild": "npm run electron-rebuild --workspace mongodb-compass",

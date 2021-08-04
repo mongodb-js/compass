@@ -29,6 +29,13 @@ win:
   icon: "packages/compass/src/app/images/win32/mongodb-compass.ico"
   target:
     - squirrel
+    - msi
+
+linux:
+  target:
+    - deb
+    - rpm
+    - tar.gz
 
 dmg:
   background: packages/compass/src/app/images/darwin/background.png
@@ -37,6 +44,8 @@ squirrelWindows:
   msi: false
   iconUrl: "https://compass.mongodb.com/favicon.ico"
   loadingGif: "packages/compass/src/app/images/win32/mongodb-compass-installer-loading.gif"
+
+
 
 publish: []
 

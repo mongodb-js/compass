@@ -77,6 +77,8 @@ jobs:
         with:
           name: Compass Build ${{ runner.os }}
           path: |
+            dist/squirrel-windows/*.exe
+            dist/squirrel-windows/*.nupkg
             dist/*.dmg
             dist/*.zip
             dist/*.exe
