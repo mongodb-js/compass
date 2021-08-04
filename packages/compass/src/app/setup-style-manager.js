@@ -2,7 +2,6 @@ const _ = require('lodash');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const StyleManager = require('hadron-style-manager');
 const debug = require('debug')('mongodb-compass:setup-style-manager');
 const pkg = require('../../package.json');
 
