@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Wed Aug 04 2021.
+This document was automatically generated on Thu Aug 05 2021.
 
 ## List of dependencies
 
@@ -7,25 +7,25 @@ Package|Version|License
 -------|-------|-------
 **[@babel/code-frame](#964c49eaca6945b6519172222dd8f79aef744d6e4974d1652ba534467e0cd8db)**|7.14.5|MIT
 **[@babel/compat-data](#0463953e1453b9d5cfc035b9ded4fdb858c710b2042f5839fb85c420ce672c6a)**|7.14.7|MIT
-**[@babel/core](#85d8403e9499f9a2d2de47918a38ec0544d483eadafb73c7f3fce2f51bf910f7)**|7.14.6|MIT
-**[@babel/generator](#1c1967801f28ed06e4a615aaa13d34a1b90a27b35ac8d585ac8d5dce59f27a79)**|7.14.5|MIT
+**[@babel/core](#8dadb9fb7f817cfb89e2f01007278e5f07c536b04c58bf574906431bb924d0e0)**|7.14.8|MIT
+**[@babel/generator](#41b49ad5d837f129d4a8740dd85630e8e5d1b926250ade7124eeea8dfd697ef1)**|7.14.9|MIT
 **[@babel/helper-compilation-targets](#5dc4b464a18da9d162f1ecb8bd669f449170b02fcb01d324b342b3e313c07f8a)**|7.14.5|MIT
 **[@babel/helper-function-name](#5db627ab4f5306311951f129e4ae74601d07aa3cb7471c5c6e3236650b9353f3)**|7.14.5|MIT
 **[@babel/helper-get-function-arity](#18bd1404a473dda9d11ff75e2f612fe6cfe9721466dcc159a2df73ee5c088ed8)**|7.14.5|MIT
 **[@babel/helper-hoist-variables](#c72b1ffc560c42770e2cc9ab1abb8eab25e372d69aed957540e0861ad439b214)**|7.14.5|MIT
 **[@babel/helper-member-expression-to-functions](#9340387aee145f08eb19f853dc5e83212883884732ea644ba6de8e968b3b51f2)**|7.14.7|MIT
 **[@babel/helper-module-imports](#6a97aff20cc72231576e8ba8ef344352f4dca4935e1b77e4be475576142fcb69)**|7.14.5|MIT
-**[@babel/helper-module-transforms](#4debc06d9309de85ffc84cea48845a92a48fba0e818965c89239adedd2d272ed)**|7.14.5|MIT
+**[@babel/helper-module-transforms](#a0ddc7816a03d912bc3bc7deb88f5e5ebd78cfdabfefe8e9dd6ff95f8d8c3c63)**|7.14.8|MIT
 **[@babel/helper-optimise-call-expression](#acc0e0adc28d6b8a82f938be87a437ede3fdd5c8c25e12603328f709b59b2ec8)**|7.14.5|MIT
 **[@babel/helper-plugin-utils](#7c5ad2edf94fb7dacba62b1b900902f9af9c9364e64b91102331ca32c3966276)**|7.14.5|MIT
 **[@babel/helper-replace-supers](#08876879b736e48dd871aba6c485d04c4d51e3045991007f1c217e0cf0961ebc)**|7.14.5|MIT
-**[@babel/helper-simple-access](#f663d611b7a6bed56c1709da8f2cb343944eac78f5ceb50304d108b8742cd036)**|7.14.5|MIT
+**[@babel/helper-simple-access](#29aca193de95add370a977a1a754753a17ca2be9d750149de455db675f9e68cd)**|7.14.8|MIT
 **[@babel/helper-split-export-declaration](#f86f3815edd3e1e98263e67c561e579939f54b62035f98fe8700e5db09f5c958)**|7.14.5|MIT
-**[@babel/helper-validator-identifier](#3a2235ad3b3e787f1bc3bc41434e53d5838d2c1b9df5b5b3653b7d99e11cf5f1)**|7.14.5|MIT
+**[@babel/helper-validator-identifier](#433f3379dd7033391d15f58d21054c8ce6651116d7ef0b0f7c9102d13502fef5)**|7.14.9|MIT
 **[@babel/helper-validator-option](#346eb4840390092c2e31c7b7468ba74ea04b24fe92080ccbf6e0965b49fd49ab)**|7.14.5|MIT
-**[@babel/helpers](#5ad63d22c8c60fdcc8209f71f5074694251d4094ecd9bca6826e2caeadc4c705)**|7.14.6|MIT
+**[@babel/helpers](#9051411dffcd5febbf4522f9a280bf7ddbc20a29ce9212a4fd194edf746a9148)**|7.14.8|MIT
 **[@babel/highlight](#dbc6155fe656d9d71de721f31aa5508d54057d5cf4d61387559432eee493f246)**|7.14.5|MIT
-**[@babel/parser](#9d42f3aa99c91481df3651fe4fd6a5e1398e5fb84cbe62810362c1d14ff22126)**|7.14.7|MIT
+**[@babel/parser](#bb271e6154883eb05273e2b555cf0a0998808e09baf34a98debbcc58ee3833bf)**|7.14.9|MIT
 **[@babel/plugin-syntax-jsx](#c3a8bc17690a7aff72c22918370e177c0c1689293c9572d34a5b7463f043fa27)**|7.14.5|MIT
 **[@babel/plugin-transform-destructuring](#1baa274ae86e308681bbce6715ee5c43e730d7c791d566a343ace9f5a2570e5c)**|7.14.7|MIT
 **[@babel/plugin-transform-parameters](#9b27d2f6c67e744003b6169d39f2f63f5b54c6c97a5a6df6d45a34c9a229ac40)**|7.14.5|MIT
@@ -34,8 +34,8 @@ Package|Version|License
 **[@babel/runtime](#25c5f9cf92017e353001135c110e992014f2fd0503adc45804dc68e538bc5277)**|7.14.6|MIT
 **[@babel/runtime-corejs2](#a815aa0cd309144c957a4179ae72d168d571175b970267e8b960e53435ae34ec)**|7.14.6|MIT
 **[@babel/template](#b199a24ecdaaf3c5ce7900abcebfcea447f98d52b21bbf2701d0bb16efd158b1)**|7.14.5|MIT
-**[@babel/traverse](#15d3f2bc498406bb48ae64622cb45b98e43b6c860762a842d976ae34ba74c90d)**|7.14.7|MIT
-**[@babel/types](#4d6aeb808b612565fb295cfa5fe05d5efa96707b46bc41beddda12156f269f4f)**|7.14.5|MIT
+**[@babel/traverse](#beec965fedb7c57c0eed4e75c6b79732085a5b34abcdea9fe109dbf111cdef4e)**|7.14.9|MIT
+**[@babel/types](#100e0cc79db9d3cf46a059bce213706fe64eddfe6bd145844c875a6f638e3a85)**|7.14.9|MIT
 **[@emotion/babel-plugin](#5a3e7e49c6056d6ea28dfe8deb2e9c1f5a9147f843e02c620149a7a2bfa36ffb)**|11.3.0|MIT
 **[@emotion/cache](#83e9fbfd8abcd4e9034b208ea613039b259c587c764894dcb9346c98dcb6009c)**|10.0.29|MIT
 **[@emotion/cache](#db428d77c9ae4b98785a11de76cd7dd9ff5828a1f362602862e1b768c201d0ed)**|11.4.0|MIT
@@ -131,20 +131,20 @@ Package|Version|License
 **[@mongodb-js/hadron-plugin-manager](#7c4d0a7e278233d606f2457e3d50cbec1c6011ce87643969b6c42ad0e99dcae9)**|6.3.0|SSPL
 **[@mongodb-js/mongodb-redux-common](#bae922227dbeb5b5db749880d9f828d95b7eae969066df5951e834a151740b15)**|1.3.0|SSPL
 **[@mongodb-js/ssh-tunnel](#61a8a28f7e768cb9357131fced91bb727add9058d8ccaa9a53f3dffeebda249c)**|1.2.0|Apache-2.0
-**[@mongosh/async-rewriter2](#d919a8015cb46d0a63f99a623aa9c3f93507398b88e5f7c27d4176a68365418a)**|1.0.1|Apache-2.0
-**[@mongosh/autocomplete](#aa653e90ac5fb638b7e1a0afa7d87842b6757e303d908bc8ca1c3d8f3c345066)**|1.0.1|Apache-2.0
-**[@mongosh/browser-repl](#c52fb7d0b89047441a9006526a9a407b6ff21056156c15c958b1d9cfbe4794d3)**|1.0.1|Apache-2.0
-**[@mongosh/browser-runtime-core](#7d8adefd701494788524f32ed5ebcc38a0aad0652513d07a51795069cb451f20)**|1.0.1|Apache-2.0
-**[@mongosh/browser-runtime-electron](#0ca972cfb724c35ee38841a9160d412c1fa3d54682a61907b9d5857bdda65069)**|1.0.1|Apache-2.0
-**[@mongosh/errors](#a68a7701baa7cf531da4d6c7a26b9d3100658e4b892b1d84df874661617867a8)**|1.0.1|Apache-2.0
-**[@mongosh/history](#c04eeae1a71a4d0e01a407b354961181ec32d071f8e1c16bb68601c408186185)**|1.0.1|Apache-2.0
-**[@mongosh/i18n](#75b0fb4d48991df755617bf8d1d83e7a3ee85ad1fbe409a52d92f1b2f01cbfba)**|1.0.1|Apache-2.0
-**[@mongosh/node-runtime-worker-thread](#02f170ee0e58cde2738b484566563062e7d51163831f7c3867e05da6f8728f04)**|1.0.1|Apache-2.0
-**[@mongosh/service-provider-core](#79433f94b4ecaa33aa88db4d909e547d120c99350c7f464321d2c655c4da54bc)**|1.0.1|Apache-2.0
-**[@mongosh/service-provider-server](#fc5efb1b7528b54260d6a66a5a3155c4b53583ec422796d7493611d8bd51ea11)**|1.0.1|Apache-2.0
-**[@mongosh/shell-api](#cb4e6aabf3b411317ee591de3c809cdfde338738dbe6e0432dfb52871c550845)**|1.0.1|Apache-2.0
-**[@mongosh/shell-evaluator](#43ed48b6fe11ca7598cef6dd159dc696607da19086ba67f2eb46981629fcd564)**|1.0.1|Apache-2.0
-**[@mongosh/types](#60fd3def12c6aad092b59dad68657da3ec2814337e2f68b970443249d61b5835)**|1.0.1|Apache-2.0
+**[@mongosh/async-rewriter2](#e8e7fcde29262d3dbd899f3ceeb43e6de27ad8250471a6cf00ff9ea861c181e3)**|1.0.4|Apache-2.0
+**[@mongosh/autocomplete](#d8ca7e40e99354c5b543de71e9c2e9cbc7db84eda1e2ce9954c66205af08fd5b)**|1.0.4|Apache-2.0
+**[@mongosh/browser-repl](#001f2947d8b52fb39d7e5be6c558aaa0fbf5db0186f2be164548df9d138c6489)**|1.0.4|Apache-2.0
+**[@mongosh/browser-runtime-core](#4fddad2c4c10841ec84c5f6aaf649c4c6c8a8cb6a78ec37b165a715777fc9268)**|1.0.4|Apache-2.0
+**[@mongosh/browser-runtime-electron](#cd993ad52aa9ab615a95884b018237b94a504499ef49197cd55cbb64d5260c5e)**|1.0.4|Apache-2.0
+**[@mongosh/errors](#4b5edfaa959bdf0167bbbc1fd5cf8f48f7d99dd8bd84754002f34730642e8b77)**|1.0.4|Apache-2.0
+**[@mongosh/history](#d5db790accc4878776d7d417a14f6f8ff24ac6dcaa45d317f386ff8454c9592e)**|1.0.4|Apache-2.0
+**[@mongosh/i18n](#c4382c0ec32bc19ed9f20279ed32313800182e45e72f72a49e3e8327caac521e)**|1.0.4|Apache-2.0
+**[@mongosh/node-runtime-worker-thread](#77d84150c03000e31749a566cfd533465edec329b5724f8b8a7592d2d5b24508)**|1.0.4|Apache-2.0
+**[@mongosh/service-provider-core](#9bc7ab9baf2ab3548b7b153b8934d628acaa938dcf88b76c69a637ca9633acca)**|1.0.4|Apache-2.0
+**[@mongosh/service-provider-server](#98a406441dcb49be1f8b6630002fb7ecc3b0dea6859135a0b9ec97570b2fd2d1)**|1.0.4|Apache-2.0
+**[@mongosh/shell-api](#9e176ddb0dcacfd83ea74c88fbe2befe95527517098ffddea60709cad1cd622a)**|1.0.4|Apache-2.0
+**[@mongosh/shell-evaluator](#1ffaa3c2190350a2d1d8261e0b69a3c4aaf40c35c0d227899473203bcdbaa1d7)**|1.0.4|Apache-2.0
+**[@mongosh/types](#b165f9ae7ceb752e8fc1357bc2c55e0858c97ada6c358dd9229818ad5e044d6f)**|1.0.4|Apache-2.0
 **[@npmcli/move-file](#b7b87ae4f596a12a8a88a505d573b3d9b9dc86a1d9ff3b75b77c881eb2143cdc)**|1.1.2|MIT
 **[@react-dnd/asap](#48010989aaec720af5a018ed2fd3e6541514b8d4244595e0df3985bdee63eade)**|4.0.0|MIT
 **[@react-dnd/invariant](#eaa7966ca6a331042272288192ae9bdbdcd2c6e7fbcb60af673ed0f128b3e3f2)**|2.0.0|MIT
@@ -880,7 +880,7 @@ Package|Version|License
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[moment](#d8f96cf3e8fde11ddd63693bbb806b273f74faf4ba8426497c8b28c62950f148)**|2.29.1|MIT
 **[moment-timezone](#c0b94a3f1712536d5766e63717b3e5ea3007bc87993295193d7ca95aacbcba7a)**|0.5.33|MIT
-**[mongodb](#238ca94190dc6ecfefb8038eba61fdc9b317f49234c6775cac809521e13446af)**|4.0.0-beta.6|Apache-2.0
+**[mongodb](#4d2560b608e7584e8fe4acc7a70e8a54dcfe7b2d16743efc268654cdae061ce6)**|4.1.0|Apache-2.0
 **[mongodb](#79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f)**|3.6.9|Apache-2.0
 **[mongodb-ace-autocompleter](#88e3cacc0ba023dca2a6a0445053a925e9d44883bc4e7b2a48c7a9f36749a7d0)**|0.6.0|Apache-2.0
 **[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
@@ -1325,8 +1325,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="85d8403e9499f9a2d2de47918a38ec0544d483eadafb73c7f3fce2f51bf910f7"></a>
-### [@babel/core](https://www.npmjs.com/package/@babel/core) (version 7.14.6)
+<a id="8dadb9fb7f817cfb89e2f01007278e5f07c536b04c58bf574906431bb924d0e0"></a>
+### [@babel/core](https://www.npmjs.com/package/@babel/core) (version 7.14.8)
 <!-- initially found at node_modules/@babel/core -->
 > Babel compiler core.
 
@@ -1363,8 +1363,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="1c1967801f28ed06e4a615aaa13d34a1b90a27b35ac8d585ac8d5dce59f27a79"></a>
-### [@babel/generator](https://www.npmjs.com/package/@babel/generator) (version 7.14.5)
+<a id="41b49ad5d837f129d4a8740dd85630e8e5d1b926250ade7124eeea8dfd697ef1"></a>
+### [@babel/generator](https://www.npmjs.com/package/@babel/generator) (version 7.14.9)
 <!-- initially found at node_modules/@babel/generator -->
 > Turns an AST into code.
 
@@ -1629,8 +1629,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="4debc06d9309de85ffc84cea48845a92a48fba0e818965c89239adedd2d272ed"></a>
-### [@babel/helper-module-transforms](https://www.npmjs.com/package/@babel/helper-module-transforms) (version 7.14.5)
+<a id="a0ddc7816a03d912bc3bc7deb88f5e5ebd78cfdabfefe8e9dd6ff95f8d8c3c63"></a>
+### [@babel/helper-module-transforms](https://www.npmjs.com/package/@babel/helper-module-transforms) (version 7.14.8)
 <!-- initially found at node_modules/@babel/helper-module-transforms -->
 > Babel helper functions for implementing ES6 module transformations
 
@@ -1781,8 +1781,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="f663d611b7a6bed56c1709da8f2cb343944eac78f5ceb50304d108b8742cd036"></a>
-### [@babel/helper-simple-access](https://www.npmjs.com/package/@babel/helper-simple-access) (version 7.14.5)
+<a id="29aca193de95add370a977a1a754753a17ca2be9d750149de455db675f9e68cd"></a>
+### [@babel/helper-simple-access](https://www.npmjs.com/package/@babel/helper-simple-access) (version 7.14.8)
 <!-- initially found at node_modules/@babel/helper-simple-access -->
 > Babel helper for ensuring that access to a given value is performed through simple accesses
 
@@ -1855,8 +1855,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="3a2235ad3b3e787f1bc3bc41434e53d5838d2c1b9df5b5b3653b7d99e11cf5f1"></a>
-### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.14.5)
+<a id="433f3379dd7033391d15f58d21054c8ce6651116d7ef0b0f7c9102d13502fef5"></a>
+### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.14.9)
 <!-- initially found at node_modules/@babel/helper-validator-identifier -->
 > Validate identifier/keywords name
 
@@ -1931,8 +1931,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="5ad63d22c8c60fdcc8209f71f5074694251d4094ecd9bca6826e2caeadc4c705"></a>
-### [@babel/helpers](https://www.npmjs.com/package/@babel/helpers) (version 7.14.6)
+<a id="9051411dffcd5febbf4522f9a280bf7ddbc20a29ce9212a4fd194edf746a9148"></a>
+### [@babel/helpers](https://www.npmjs.com/package/@babel/helpers) (version 7.14.8)
 <!-- initially found at node_modules/@babel/helpers -->
 > Collection of helper functions used by Babel transforms.
 
@@ -2007,8 +2007,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="9d42f3aa99c91481df3651fe4fd6a5e1398e5fb84cbe62810362c1d14ff22126"></a>
-### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.14.7)
+<a id="bb271e6154883eb05273e2b555cf0a0998808e09baf34a98debbcc58ee3833bf"></a>
+### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.14.9)
 <!-- initially found at node_modules/@babel/parser -->
 > A JavaScript parser
 
@@ -2346,8 +2346,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="15d3f2bc498406bb48ae64622cb45b98e43b6c860762a842d976ae34ba74c90d"></a>
-### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.14.7)
+<a id="beec965fedb7c57c0eed4e75c6b79732085a5b34abcdea9fe109dbf111cdef4e"></a>
+### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.14.9)
 <!-- initially found at node_modules/@babel/traverse -->
 > The Babel Traverse module maintains the overall tree state, and is responsible for replacing, removing, and adding nodes
 
@@ -2384,8 +2384,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="4d6aeb808b612565fb295cfa5fe05d5efa96707b46bc41beddda12156f269f4f"></a>
-### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.14.5)
+<a id="100e0cc79db9d3cf46a059bce213706fe64eddfe6bd145844c875a6f638e3a85"></a>
+### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.14.9)
 <!-- initially found at node_modules/@babel/types -->
 > Babel Types is a Lodash-esque utility library for AST nodes
 
@@ -4071,8 +4071,8 @@ License files:
       
 
 
-<a id="d919a8015cb46d0a63f99a623aa9c3f93507398b88e5f7c27d4176a68365418a"></a>
-### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 1.0.1)
+<a id="e8e7fcde29262d3dbd899f3ceeb43e6de27ad8250471a6cf00ff9ea861c181e3"></a>
+### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/async-rewriter2 -->
 > MongoDB Shell Async Rewriter Package
 
@@ -4285,8 +4285,8 @@ License files:
          limitations under the License.
 
 
-<a id="aa653e90ac5fb638b7e1a0afa7d87842b6757e303d908bc8ca1c3d8f3c345066"></a>
-### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 1.0.1)
+<a id="d8ca7e40e99354c5b543de71e9c2e9cbc7db84eda1e2ce9954c66205af08fd5b"></a>
+### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/autocomplete -->
 > MongoDB Shell Autocomplete Package
 
@@ -4490,8 +4490,8 @@ License files:
       
 
 
-<a id="c52fb7d0b89047441a9006526a9a407b6ff21056156c15c958b1d9cfbe4794d3"></a>
-### [@mongosh/browser-repl](https://www.npmjs.com/package/@mongosh/browser-repl) (version 1.0.1)
+<a id="001f2947d8b52fb39d7e5be6c558aaa0fbf5db0186f2be164548df9d138c6489"></a>
+### [@mongosh/browser-repl](https://www.npmjs.com/package/@mongosh/browser-repl) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/browser-repl -->
 > Browser presentation component for Mongo Shell
 
@@ -4703,8 +4703,8 @@ License files:
          limitations under the License.
 
 
-<a id="7d8adefd701494788524f32ed5ebcc38a0aad0652513d07a51795069cb451f20"></a>
-### [@mongosh/browser-runtime-core](https://www.npmjs.com/package/@mongosh/browser-runtime-core) (version 1.0.1)
+<a id="4fddad2c4c10841ec84c5f6aaf649c4c6c8a8cb6a78ec37b165a715777fc9268"></a>
+### [@mongosh/browser-runtime-core](https://www.npmjs.com/package/@mongosh/browser-runtime-core) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/browser-runtime-core -->
 > Mongosh browser runtime core
 
@@ -4916,8 +4916,8 @@ License files:
          limitations under the License.
 
 
-<a id="0ca972cfb724c35ee38841a9160d412c1fa3d54682a61907b9d5857bdda65069"></a>
-### [@mongosh/browser-runtime-electron](https://www.npmjs.com/package/@mongosh/browser-runtime-electron) (version 1.0.1)
+<a id="cd993ad52aa9ab615a95884b018237b94a504499ef49197cd55cbb64d5260c5e"></a>
+### [@mongosh/browser-runtime-electron](https://www.npmjs.com/package/@mongosh/browser-runtime-electron) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/browser-runtime-electron -->
 > Mongosh browser runtime electron
 
@@ -5129,8 +5129,8 @@ License files:
          limitations under the License.
 
 
-<a id="a68a7701baa7cf531da4d6c7a26b9d3100658e4b892b1d84df874661617867a8"></a>
-### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 1.0.1)
+<a id="4b5edfaa959bdf0167bbbc1fd5cf8f48f7d99dd8bd84754002f34730642e8b77"></a>
+### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/errors -->
 > MongoDB Shell Errors Package
 
@@ -5344,8 +5344,8 @@ License files:
       
 
 
-<a id="c04eeae1a71a4d0e01a407b354961181ec32d071f8e1c16bb68601c408186185"></a>
-### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 1.0.1)
+<a id="d5db790accc4878776d7d417a14f6f8ff24ac6dcaa45d317f386ff8454c9592e"></a>
+### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/history -->
 > MongoDB Shell History Package
 
@@ -5557,8 +5557,8 @@ License files:
          limitations under the License.
 
 
-<a id="75b0fb4d48991df755617bf8d1d83e7a3ee85ad1fbe409a52d92f1b2f01cbfba"></a>
-### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 1.0.1)
+<a id="c4382c0ec32bc19ed9f20279ed32313800182e45e72f72a49e3e8327caac521e"></a>
+### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/i18n -->
 > MongoDB Shell i18n Project
 
@@ -5770,8 +5770,8 @@ License files:
          limitations under the License.
 
 
-<a id="02f170ee0e58cde2738b484566563062e7d51163831f7c3867e05da6f8728f04"></a>
-### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.0.1)
+<a id="77d84150c03000e31749a566cfd533465edec329b5724f8b8a7592d2d5b24508"></a>
+### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/node-runtime-worker-thread -->
 > MongoDB shell runtime that lives in a worker thread
 
@@ -5975,8 +5975,8 @@ License files:
       
 
 
-<a id="79433f94b4ecaa33aa88db4d909e547d120c99350c7f464321d2c655c4da54bc"></a>
-### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 1.0.1)
+<a id="9bc7ab9baf2ab3548b7b153b8934d628acaa938dcf88b76c69a637ca9633acca"></a>
+### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/service-provider-core -->
 > MongoDB Shell Core Service Provider Package
 
@@ -6188,8 +6188,8 @@ License files:
          limitations under the License.
 
 
-<a id="fc5efb1b7528b54260d6a66a5a3155c4b53583ec422796d7493611d8bd51ea11"></a>
-### [@mongosh/service-provider-server](https://www.npmjs.com/package/@mongosh/service-provider-server) (version 1.0.1)
+<a id="98a406441dcb49be1f8b6630002fb7ecc3b0dea6859135a0b9ec97570b2fd2d1"></a>
+### [@mongosh/service-provider-server](https://www.npmjs.com/package/@mongosh/service-provider-server) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/service-provider-server -->
 > MongoDB Shell Server Service Provider Package
 
@@ -6401,8 +6401,8 @@ License files:
          limitations under the License.
 
 
-<a id="cb4e6aabf3b411317ee591de3c809cdfde338738dbe6e0432dfb52871c550845"></a>
-### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 1.0.1)
+<a id="9e176ddb0dcacfd83ea74c88fbe2befe95527517098ffddea60709cad1cd622a"></a>
+### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/shell-api -->
 > MongoDB Shell API Classes Package
 
@@ -6614,8 +6614,8 @@ License files:
          limitations under the License.
 
 
-<a id="43ed48b6fe11ca7598cef6dd159dc696607da19086ba67f2eb46981629fcd564"></a>
-### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 1.0.1)
+<a id="1ffaa3c2190350a2d1d8261e0b69a3c4aaf40c35c0d227899473203bcdbaa1d7"></a>
+### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/shell-evaluator -->
 > MongoDB Top Level API Package
 
@@ -6828,8 +6828,8 @@ License files:
          limitations under the License.
 
 
-<a id="60fd3def12c6aad092b59dad68657da3ec2814337e2f68b970443249d61b5835"></a>
-### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 1.0.1)
+<a id="b165f9ae7ceb752e8fc1357bc2c55e0858c97ada6c358dd9229818ad5e044d6f"></a>
+### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/types -->
 > Types for mongosh internals
 
@@ -36873,9 +36873,9 @@ Authors:
 * Tim Wood <washwithcare@gmail.com> (http://timwoodcreates.com/)
 
 
-<a id="238ca94190dc6ecfefb8038eba61fdc9b317f49234c6775cac809521e13446af"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.6)
-<!-- initially found at node_modules/mongodb -->
+<a id="4d2560b608e7584e8fe4acc7a70e8a54dcfe7b2d16743efc268654cdae061ce6"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.1.0)
+<!-- initially found at packages/compass/node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
 License tags: Apache-2.0
