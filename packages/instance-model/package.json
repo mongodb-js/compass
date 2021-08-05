@@ -41,7 +41,7 @@
     "mongodb-data-service": "*"
   },
   "devDependencies": {
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "lodash.clone": "^4.5.0",

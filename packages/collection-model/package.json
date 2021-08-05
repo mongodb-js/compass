@@ -30,7 +30,7 @@
     "ampersand-model": "^8.0.0",
     "ampersand-rest-collection": "^6.0.0",
     "lodash.clone": "^4.5.0",
-    "lodash.foreach": "^4.2.0",
+    "lodash.foreach": "^4.5.0",
     "lodash.result": "^4.5.2",
     "mongodb-index-model": "^3.3.2",
     "mongodb-ns": "^2.2.0"
@@ -39,7 +39,7 @@
     "mongodb-data-service": "*"
   },
   "devDependencies": {
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "electron": "^6.1.12",
     "electron-mocha": "^8.2.0",
     "electron-rebuild": "^2.3.5",

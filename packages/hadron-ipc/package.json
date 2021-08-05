@@ -17,13 +17,13 @@
   },
   "dependencies": {
     "debug": "^4.1.1",
-    "is-electron-renderer": "^2.0.0",
+    "is-electron-renderer": "^2.0.1",
     "is-promise": "^2.1.0",
     "lodash.forin": "^4.4.0",
     "lodash.isplainobject": "^4.0.6"
   },
   "devDependencies": {
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "electron": "^6.1.12",
     "electron-mocha": "^8.2.0",
     "eslint": "^7.25.0",

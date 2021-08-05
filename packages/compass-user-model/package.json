@@ -40,7 +40,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "electron": "^6.1.12",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^3.0.1",

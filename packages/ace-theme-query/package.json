@@ -18,7 +18,7 @@
     "depcheck": "depcheck"
   },
   "devDependencies": {
-    "depcheck": "^1.4.0"
+    "depcheck": "^1.4.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {
