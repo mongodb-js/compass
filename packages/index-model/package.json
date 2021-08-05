@@ -41,7 +41,7 @@
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.1.0",
-    "mongodb": "addaleax/node-mongodb-native#71d4c39e5c858f49d10e840df626eca4da653e28",
+    "mongodb": "^4.1.0",
     "mongodb-runner": "^4.8.0"
   }
 }
