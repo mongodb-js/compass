@@ -131,7 +131,7 @@ jobs:
           npm run gen-package-lock mongodb-compass
 
           # Finally start the packaging process
-          npm run release-evergreen
+          npm run package-compass
 
           # Clean-up background verdaccio process
           kill $VERDACCIO_PID

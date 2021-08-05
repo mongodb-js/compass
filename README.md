@@ -99,10 +99,40 @@ If you want to see your changes applied in Compass, you might need to rebuild pl
 In addition to running lerna commands directly, there are a few convenient npm scripts for working with packages:
 
 - `npm run compile-changed` will compile all plugins and their dependants changed since `origin/HEAD`
-- `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`. 
+- `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`.
 - `npm run check-changed` will run `eslint` and `depcheck` validation in all packages (ignoring dependants) changed since `origin/HEAD`
 
+### Building Compass Locally
+
+To build compass you can run `package-compass` script in the scope of `mongodb-compass` workspace:
+
+```sh
+npm run package-compass --workspace mongodb-compass
+```
+
+This command requires a bunch of environment variables provided (`HADRON_PRODUCT`, `HADRON_PRODUCT_NAME`, `HADRON_DISTRIBUTION`, etc) so for your convenience there is a script provided that sets all those vars to some default values and will take care of generating a required package-lock.json file for the compass workspace
+
+```sh
+npm run test-package-compass
+```
+
+To speed up the process you might want to disable creating installer for the application. To do that you can set `HADRON_SKIP_INSTALLER` environmental variable to `true` when running the script
+
+```sh
+HADRON_SKIP_INSTALLER=true npm run test-package-compass
+```
+
 ### Caveats
+
+#### `hdiutil: couldn't unmount "diskn" - Resource busy` or Similar `hdiutil` Errors
+
+<!-- TODO: might go away after https://jira.mongodb.org/browse/COMPASS-4947 -->
+
+Sometimes when trying to package compass on macOS you can run into the said error. There doesn't seems to be any common solution to it and the reasons are probably related to the outdated versions of some electron packages we are currently using (but will eventually update). If you are running into that issue, you can disable creating an installer during the packaging process by setting `HADRON_SKIP_INSTALLER` env variable to `true`:
+
+```sh
+HADRON_SKIP_INSTALLER=true npm run test-package-compass
+```
 
 #### `Module did not self-register` or `Module '<path>' was compiled against a different Node.js version` Errors
 
@@ -136,7 +166,7 @@ For package changes to be applied in Compass beta or GA releases they need to be
 
 ### Add / Update / Remove Dependencies in Packages
 
-To add, remove, or update a dependency in any subpackage you can use the usual `npm install` with a `--workspace` argument added, e.g. to add `react-aria` dependency to compass-connect and compass-query-bar plugins you can run `npm install --save react-aria --workspace @mongodb-js/compass-connect --workspace @mongodb-js/compass-query-bar`.
+To add, remove, or update a dependency in any workspace you can use the usual `npm install` with a `--workspace` argument added, e.g. to add `react-aria` dependency to compass-connect and compass-query-bar plugins you can run `npm install --save react-aria --workspace @mongodb-js/compass-connect --workspace @mongodb-js/compass-query-bar`.
 
 Additionally if you want to update a version of an existing dependency, but don't want to figure out the scope manually, you can use `npm run where` helper script. To update `webpack` in every package that has it as a dev dependency you can run `npm run where "devDependencies['webpack']" -- install --save-dev webpack@latest`
 
