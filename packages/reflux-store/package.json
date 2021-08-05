@@ -27,13 +27,13 @@
   "dependencies": {
     "debug": "^2.2.0",
     "react-dom": "^16.14.0",
-    "reflux": "^0.4.0"
+    "reflux": "^0.4.1"
   },
   "devDependencies": {
     "babel-preset-react": "^6.5.0",
-    "babel-register": "^6.5.2",
+    "babel-register": "^6.26.0",
     "chai": "^3.4.1",
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^3.1.2",

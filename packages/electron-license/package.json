@@ -19,7 +19,7 @@
     "electron-license": "bin/electron-license.js"
   },
   "dependencies": {
-    "bluebird": "^3.3.5",
+    "bluebird": "^3.7.2",
     "chalk": "^1.1.1",
     "csv-write-stream": "^2.0.0",
     "debug": "^2.2.0",
@@ -33,7 +33,7 @@
     "read-installed": "^4.0.3"
   },
   "devDependencies": {
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^3.1.2"
