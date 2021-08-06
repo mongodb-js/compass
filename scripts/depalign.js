@@ -133,7 +133,8 @@ async function main(args) {
       );
     }
 
-    return extraneous.size;
+    process.exitCode = extraneous.size;
+    return;
   }
 
   if (!includeDeduped) {
