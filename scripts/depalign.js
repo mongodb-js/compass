@@ -20,6 +20,7 @@ Options:
   --autofix-only                     Will only autofix dependencies provided with this option
   --dangerously-include-mismatched   Include mismatched dependencies into autofix.
   --config                           Path to the config. Default is .depalignrc.json
+  --validate-config                  Check that 'ignore' option in the config doesn't include extraneous dependencies and versions
 
 .depalignrc.json
 
@@ -38,38 +39,25 @@ async function main(args) {
     return;
   }
 
+  const depalignrcPath =
+    typeof args.config == 'string'
+      ? path.resolve(process.cwd(), args.config)
+      : path.join(process.cwd(), '.depalignrc.json');
+
   let depalignrc;
 
   if (typeof args.config === 'boolean' && !args.config) {
     depalignrc = {};
   } else {
     try {
-      depalignrc = JSON.parse(
-        await fs.readFile(
-          typeof args.config !== 'undefined'
-            ? path.resolve(process.cwd(), args.config)
-            : path.join(process.cwd(), '.depalignrc.json'),
-          'utf8'
-        )
-      );
+      depalignrc = JSON.parse(await fs.readFile(depalignrcPath, 'utf8'));
     } catch (e) {
       if (e.code === 'ENOENT' && args.config) {
-        console.error(
-          "Can't find config at path %s.",
-          path.resolve(process.cwd(), args.config)
-        );
-        console.error();
-        console.error(e);
-        console.error();
-        process.exitCode = 1;
-        return;
+        console.error("Can't find config at path %s.", depalignrcPath);
+        throw e;
       } else if (e.code !== 'ENOENT') {
         console.error('Unexpected error happened loading config file:');
-        console.error();
-        console.error(e);
-        console.error();
-        process.exitCode = 1;
-        return;
+        throw e;
       }
       // We didn't find the file and it's a default config path that we were
       // checking for, we can ignore that as config file is optional
@@ -78,6 +66,7 @@ async function main(args) {
 
   const outputJson = args.json;
   const shouldApplyFixes = args.autofix;
+  const shouldCheckConfig = args['validate-config'];
   const fixOnly = new Set(args['autofix-only']);
   const includeTypes = args.type;
   const includeTypesOnly = args['types-only'];
@@ -89,8 +78,63 @@ async function main(args) {
   const report = generateReport(dependencies, {
     includeTypes,
     includeTypesOnly,
-    ...depalignrc
+    ...depalignrc,
+    // We want a full report with ignore option "disabled" so that we can check
+    // config against all existing mismatches
+    ...(shouldCheckConfig && { ignore: {} })
   });
+
+  if (shouldCheckConfig) {
+    const { ignore, extraneous } = normalizeIgnore(report, depalignrc.ignore);
+
+    if (shouldApplyFixes) {
+      await fs.writeFile(
+        depalignrcPath,
+        JSON.stringify({ ...depalignrc, ignore }, null, 2),
+        'utf8'
+      );
+
+      extraneous.clear();
+    }
+
+    if (extraneous.size > 0) {
+      console.log(
+        'Following extraneous versions found in the `ignore` config option in %s: %s',
+        path.relative(process.cwd(), depalignrcPath),
+        chalk.dim('(can be fixed with --autofix)')
+      );
+      console.log();
+
+      for (const [depName, versions] of extraneous) {
+        const versionPadStart = Math.max(
+          ...versions.map((version) => version.length)
+        );
+        console.log(
+          '  %s %s',
+          chalk.bold(depName),
+          versions.length === depalignrc.ignore[depName].length
+            ? chalk.dim('(whole rule)')
+            : ''
+        );
+        console.log();
+        versions.forEach((version) => {
+          console.log(
+            '    %s%s',
+            ' '.repeat(versionPadStart - version.length),
+            version
+          );
+        });
+        console.log();
+      }
+    } else {
+      console.log(
+        '%s',
+        chalk.green('No extraneous rules found in depalign config')
+      );
+    }
+
+    return extraneous.size;
+  }
 
   if (!includeDeduped) {
     report.deduped = new Map();
@@ -310,6 +354,35 @@ function getHighestRange(ranges) {
   return sortedRanges[0] || null;
 }
 
+function normalizeIgnore({ deduped, mismatched }, ignore = {}) {
+  const ignoreMap = new Map(Object.entries(ignore));
+  const mergedReport = new Map([...deduped, ...mismatched]);
+  const extraneous = new Map();
+  const newIgnore = { ...ignore };
+
+  for (const [depName, versions] of ignoreMap) {
+    if (mergedReport.has(depName)) {
+      const reportItemVersionsOnly = new Set(
+        mergedReport.get(depName).versions.map(({ version }) => version)
+      );
+      const extraneousVersions = versions.filter(
+        (version) => !reportItemVersionsOnly.has(version)
+      );
+      if (extraneousVersions.length > 0) {
+        extraneous.set(depName, extraneousVersions);
+      }
+      newIgnore[depName] = versions.filter((version) =>
+        reportItemVersionsOnly.has(version)
+      );
+    } else {
+      extraneous.set(depName, versions);
+      delete newIgnore[depName];
+    }
+  }
+
+  return { ignore: newIgnore, extraneous };
+}
+
 async function applyFixes(
   { deduped, mismatched },
   includeMismatched = false,
@@ -387,9 +460,9 @@ async function applyFixes(
 function prettyPrintReport({ deduped, mismatched }) {
   function printReportItems(items) {
     items.forEach(({ versions }, depName) => {
-      const versionPadStart = versions.reduce((longest, { version }) => {
-        return longest > version.length ? longest : version.length;
-      }, -Infinity);
+      const versionPadStart = Math.max(
+        ...versions.map(({ version }) => version.length)
+      );
       console.log('  %s', chalk.bold(depName));
       console.log();
       versions.forEach(({ version, from, type }) => {
@@ -436,6 +509,7 @@ function prettyPrintReport({ deduped, mismatched }) {
 process.on('unhandledRejection', (err) => {
   console.error();
   console.error(err.stack || err.message || err);
+  process.exitCode = 1;
 });
 
 function parseOptions() {
@@ -457,6 +531,7 @@ function parseOptions() {
     autofix: false,
     ['autofix-only']: [],
     ['dangerously-include-mismatched']: false,
+    ['validate-config']: false,
     ...args
   };
 }
