@@ -6,7 +6,7 @@
 - https://electron.atom.io/docs - Electron's documentation
 - https://www.typescriptlang.org/ - Typescript
 - https://nodejs.org/en/ - Node.js
-- https://jestjs.io/ - Jest testing framework
+- https://mochajs.org/ - Mocha testing framework
 - https://reactjs.org/ - React
 - https://testing-library.com/docs/react-testing-library/intro/ - React testing library
 - https://github.com/mongodb/leafygreen-ui - LeafyGreen UI kit

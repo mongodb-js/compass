@@ -15,7 +15,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**@mongodb-js/compass-auto-updates**](packages/compass-auto-updates): Compass Auto Updates Plugin
 - [**@mongodb-js/compass-collection**](packages/compass-collection): Compass Collection Plugin
 - [**@mongodb-js/compass-collection-stats**](packages/compass-collection-stats): Compass Collection Stats Plugin
-- [**@mongodb-js/compass-components**](packages/compass-components): A set of React Components used in Compass
 - [**@mongodb-js/compass-connect**](packages/compass-connect): Connection Screen Plugin that supports Compass
 - [**@mongodb-js/compass-crud**](packages/compass-crud): Compass Plugin for CRUD Operations
 - [**@mongodb-js/compass-database**](packages/compass-database): Compass Database Plugin
@@ -45,6 +44,7 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 
 ### Shared Libraries and Build Tools
 
+- [**@mongodb-js/compass-components**](packages/compass-components): A set of React Components used in Compass
 - [**@mongodb-js/hadron-plugin-manager**](packages/hadron-plugin-manager): Hadron Plugin Manager
 - [**@mongodb-js/mongodb-notary-service-client**](packages/notary-service-client): A client for our notary-service: an API for codesigning.
 - [**@mongodb-js/mongodb-redux-common**](packages/redux-common): Common Redux Modules for mongodb-js

@@ -1,11 +1,8 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { render, screen } from '@testing-library/react';
+import { expect } from 'chai';
 
 import ConfirmationModal from './ConfirmationModal';
-
-expect.extend(toHaveNoViolations);
 
 function renderModal() {
   return render(
@@ -23,39 +20,22 @@ function renderModal() {
   );
 }
 
-describe('ConfirmationModal Component', () => {
-  describe('a11y', () => {
-    it('does not have basic accessibility issues', async () => {
-      const { container, getByText } = renderModal();
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-
-      let newResults;
-      act(() => {
-        fireEvent.click(getByText('Confirm'))
-      });
-      await act(async () => {
-        newResults = await axe(container);
-      });
-      expect(newResults).toHaveNoViolations();
-    });
-  });
-
-  it('should show the modal heading', () => {
+describe('ConfirmationModal Component', function() {
+  it('should show the modal heading', function() {
     renderModal();
-    expect(screen.getByRole('heading')).toHaveTextContent('Pineapples');
+    expect(screen.getByRole('heading')).to.have.text('Pineapples');
   });
 
-  it('should show the modal button', () => {
+  it('should show the modal button', function() {
     renderModal();
     const button = screen.getByText('Confirm').closest('button');
-    expect(button).not.toBeDisabled();
+    expect(button).to.not.match('disabled');
   });
 
-  it('should show the modal content', () => {
+  it('should show the modal content', function() {
     renderModal();
     const innerContent = screen.getByTestId('testing-inner-content');
-    expect(innerContent).toHaveTextContent('inner content');
-    expect(innerContent).toBeVisible();
+    expect(innerContent).to.have.text('inner content');
+    expect(innerContent).to.be.visible;
   });
 });

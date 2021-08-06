@@ -4,6 +4,8 @@
     "esModuleInterop": true,
     "downlevelIteration": true,
     "declaration": true,
+    // "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
     "jsx": "react",
     "lib": [
       "dom",
@@ -12,10 +14,10 @@
     "module": "commonjs",
     "outDir": "lib",
     "removeComments": true,
-    "strictNullChecks": true,
+    "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2018"
+    "target": "es2018",
   },
   "include": [
     "src/**/*"
