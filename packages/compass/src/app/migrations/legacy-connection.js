@@ -4,7 +4,6 @@ var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
 var ReadPreference = require('mongodb').ReadPreference;
 var clone = require('lodash.clone');
-var includes = require('lodash.includes');
 var parse = require('mongodb-url');
 var dataTypes = require('./data-types');
 var fs = require('fs');
@@ -720,7 +719,7 @@ Object.assign(derived, {
       };
       encodeAuthForUrlFormat();
 
-      if (includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.ssl)) {
+      if (['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'].includes(this.ssl)) {
         req.query.ssl = 'true';
       } else if (this.ssl === 'IFAVAILABLE') {
         req.query.ssl = 'prefer';
@@ -972,7 +971,7 @@ Connection = AmpersandModel.extend({
    * @param {Object} attrs - Incoming attributes.
    */
   validate_ssl: function(attrs) {
-    if (!attrs.ssl || includes(['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'], attrs.ssl)) {
+    if (!attrs.ssl || ['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'].includes(attrs.ssl)) {
       return;
     }
     if (attrs.ssl === 'SERVER' && !attrs.ssl_ca) {

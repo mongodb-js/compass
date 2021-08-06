@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import {
-  includes,
   isFunction,
   pick,
   isEqual,
@@ -129,7 +128,7 @@ class QueryBar extends Component {
     const type = OPTION_DEFINITION[label].type;
     const { actions } = this.props;
 
-    if (includes(['numeric', 'document'], type)) {
+    if (['numeric', 'document'].includes(type)) {
       return actions.typeQueryString(label, evt.target.value);
     }
     if (type === 'boolean') {

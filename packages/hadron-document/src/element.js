@@ -6,7 +6,6 @@ const isObject = require('lodash.isplainobject');
 const isArray = require('lodash.isarray');
 const isEqual = require('lodash.isequal');
 const isString = require('lodash.isstring');
-const includes = require('lodash.includes');
 const ObjectGenerator = require('./object-generator');
 const TypeChecker = require('hadron-type-checker');
 const uuid = require('uuid');
@@ -456,7 +455,7 @@ class Element extends EventEmitter {
    * @returns {Boolean} If the value is editable.
    */
   isValueEditable() {
-    return this.isKeyEditable() && !includes(UNEDITABLE_TYPES, this.currentType);
+    return this.isKeyEditable() && !UNEDITABLE_TYPES.includes(this.currentType);
   }
 
   /**

@@ -14,13 +14,11 @@ import {
   isEqual,
   isArray,
   isPlainObject,
-  includes,
   every,
   values,
   without,
   mapKeys,
   mapValues,
-  assign,
   clone,
   contains,
   omit
@@ -294,7 +292,7 @@ const configureStore = (options = {}) => {
      * @param {Boolean} userTyping   (optional) whether the user is still typing
      */
     setQueryString(label, input, userTyping) {
-      assert(includes(QUERY_PROPERTIES, label));
+      assert(QUERY_PROPERTIES.includes(label));
       const validatedInput = this._validateInput(label, input);
 
       const state = {

@@ -5,12 +5,9 @@ const { format, promisify, callbackify } = require('util');
 const fs = require('fs');
 
 const {
-  assign,
   defaults,
-  defaultTo,
   clone,
   cloneDeep,
-  includes,
   unescape
 } = require('lodash');
 const AmpersandModel = require('ampersand-model');
@@ -479,7 +476,7 @@ function addAuthToUrl({ url, isPasswordProtected }) {
   // so a single string replace should always work.
   url = url.replace('AUTH_TOKEN', authField, 1);
 
-  if (includes(['LDAP', 'KERBEROS', 'X509'], this.authStrategy)) {
+  if (['LDAP', 'KERBEROS', 'X509'].includes(this.authStrategy)) {
     url = setAuthSourceToExternal(url);
   }
 
@@ -606,7 +603,7 @@ const prepareRequest = (model) => {
   if (model.ssl) {
     req.query.ssl = model.ssl;
   } else if (
-    includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], model.sslMethod)
+    ['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'].includes(model.sslMethod)
   ) {
     req.query.ssl = 'true';
   } else if (model.sslMethod === 'IFAVAILABLE') {
@@ -880,8 +877,7 @@ Connection = AmpersandModel.extend({
   validateSsl(attrs) {
     if (
       !attrs.sslMethod ||
-      includes(
-        ['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'],
+      ['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'].includes(
         attrs.sslMethod
       )
     ) {
