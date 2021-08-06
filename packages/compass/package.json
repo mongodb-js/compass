@@ -329,7 +329,6 @@
     "local-links": "^1.4.0",
     "lodash.assign": "^ 3.2.0",
     "lodash.clone": "^3.0.3",
-    "lodash.defaults": "^3.1.2",
     "lodash.includes": "^3.1.3",
     "make-fetch-happen": "^8.0.14",
     "marky": "^1.2.1",

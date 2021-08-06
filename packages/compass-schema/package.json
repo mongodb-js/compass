@@ -145,7 +145,6 @@
     "leaflet-draw": "^1.0.4",
     "lodash.assign": "^4.2.0",
     "lodash.debounce": "^4.0.8",
-    "lodash.defaults": "^4.2.0",
     "lodash.defer": "^4.1.0",
     "lodash.find": "^4.6.0",
     "lodash.get": "^4.4.2",

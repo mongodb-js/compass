@@ -2,7 +2,6 @@
 import d3 from 'd3';
 import $ from 'jquery';
 import assign from 'lodash.assign';
-import defaults from 'lodash.defaults';
 import pluck from 'lodash.pluck';
 import map from 'lodash.map';
 import min from 'lodash.min';
@@ -243,7 +242,7 @@ const minicharts_d3fns_many = (appRegistry) => {
       const maxValue = d3.max(values);
       const sumValues = d3.sum(values);
       const percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
-      const labels = options.labels;
+      let labels = options.labels;
       el = d3.select(this);
 
       xScale
@@ -259,7 +258,7 @@ const minicharts_d3fns_many = (appRegistry) => {
 
       // set label defaults
       if (options.labels) {
-        defaults(labels, {
+        labels = {
           'text-anchor': function(d, i) {
             if (i === 0) {
               return 'start';
@@ -282,8 +281,9 @@ const minicharts_d3fns_many = (appRegistry) => {
           dy: '0.75em',
           text: function(d) {
             return d.count;
-          }
-        });
+          },
+          ...labels
+        };
       }
 
       // setup tool tips

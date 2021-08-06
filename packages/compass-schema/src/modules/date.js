@@ -7,7 +7,6 @@ import min from 'lodash.min';
 import max from 'lodash.max';
 import sortBy from 'lodash.sortby';
 import groupBy from 'lodash.groupby';
-import defaults from 'lodash.defaults';
 import map from 'lodash.map';
 import $ from 'jquery';
 import moment from 'moment';
@@ -235,7 +234,7 @@ const minicharts_d3fns_date = (appRegistry) => {
       const w = groupBy(values, function(d) {
         return moment(d.ts).weekday();
       });
-      const wd = defaults(w, generateDefaults(7));
+      const wd = { ...generateDefaults(7), ...w };
       const weekdays = map(wd, function(d, i) {
         return {
           label: weekdayLabels[i],
@@ -248,7 +247,7 @@ const minicharts_d3fns_date = (appRegistry) => {
       const h = groupBy(values, function(d) {
         return d.ts.getHours();
       });
-      const hd = defaults(h, generateDefaults(24));
+      const hd = { ...generateDefaults(24), ...h };
       const hours = map(hd, function(d, i) {
         return {
           label: hourLabels[i] + ':00',

@@ -4,7 +4,6 @@ var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
 var ReadPreference = require('mongodb').ReadPreference;
 var assign = require('lodash.assign');
-var defaults = require('lodash.defaults');
 var clone = require('lodash.clone');
 var includes = require('lodash.includes');
 var parse = require('mongodb-url');
@@ -700,22 +699,24 @@ assign(derived, {
           req.query.authSource = this.mongodb_database_name || MONGODB_DATABASE_NAME_DEFAULT;
           req.query.authMechanism = this.driver_auth_mechanism;
         } else if (this.authentication === 'KERBEROS') {
-          defaults(req.query, {
+          req.query = {
             gssapiServiceName: this.kerberos_service_name,
-            authMechanism: this.driver_auth_mechanism
-          });
+            authMechanism: this.driver_auth_mechanism,
+            ...req.query
+          };
           req.auth = AUTH_TOKEN;
         } else if (this.authentication === 'X509') {
           req.auth = this.x509_username;
-          defaults(req.query, {
-            authMechanism: this.driver_auth_mechanism
-          });
+          req.query = {
+            authMechanism: this.driver_auth_mechanism,
+            ...req.query
+          };
         } else if (this.authentication === 'LDAP') {
           req.auth = AUTH_TOKEN;
-
-          defaults(req.query, {
-            authMechanism: this.driver_auth_mechanism
-          });
+          req.query = {
+            authMechanism: this.driver_auth_mechanism,
+            ...req.query
+          };
         }
       };
       encodeAuthForUrlFormat();
