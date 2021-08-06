@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import numeral from 'numeral';
-import { assign } from 'lodash';
 import classnames from 'classnames';
 import { SortableTable } from 'hadron-react-components';
 import dropDatabaseStore from '../../../stores/drop-database';
@@ -73,7 +72,7 @@ class DatabasesTable extends PureComponent {
   render() {
     const rows = this.props.databases.map((db) => {
       const dbName = db[NAME];
-      return assign({}, db, {
+      return Object.assign({}, db, {
         [NAME]: <a className={classnames(styles['databases-table-link'])} onClick={this.onNameClicked.bind(this, dbName)}>{dbName}</a>,
         [STORAGE]: numeral(db[STORAGE]).format('0.0b')
       });

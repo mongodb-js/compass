@@ -143,7 +143,6 @@
   "dependencies": {
     "leaflet": "^1.5.1",
     "leaflet-draw": "^1.0.4",
-    "lodash.assign": "^4.2.0",
     "lodash.debounce": "^4.0.8",
     "lodash.defer": "^4.1.0",
     "lodash.find": "^4.6.0",

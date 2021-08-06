@@ -1,7 +1,6 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
 import d3 from 'd3';
 import $ from 'jquery';
-import assign from 'lodash.assign';
 import pluck from 'lodash.pluck';
 import map from 'lodash.map';
 import min from 'lodash.min';
@@ -468,7 +467,7 @@ const minicharts_d3fns_many = (appRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    assign(options, value);
+    Object.assign(options, value);
     return chart;
   };
 

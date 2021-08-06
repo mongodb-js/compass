@@ -3,7 +3,6 @@ var format = require('util').format;
 var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
 var ReadPreference = require('mongodb').ReadPreference;
-var assign = require('lodash.assign');
 var clone = require('lodash.clone');
 var includes = require('lodash.includes');
 var parse = require('mongodb-url');
@@ -38,7 +37,7 @@ var CONNECTION_TYPE_VALUES = {
   STITCH_ATLAS: 'STITCH_ATLAS'
 };
 
-assign(session, {
+Object.assign(session, {
   selected: {
     type: 'boolean',
     default: false
@@ -48,7 +47,7 @@ assign(session, {
 /**
  * # Top-Level
  */
-assign(props, {
+Object.assign(props, {
   /**
    * User specified name for this connection.
    *
@@ -126,7 +125,7 @@ assign(props, {
   }
 });
 
-assign(derived, {
+Object.assign(derived, {
   /**
    * @see http://npm.im/mongodb-instance-model
    */
@@ -174,7 +173,7 @@ var READ_PREFERENCE_VALUES = [
  */
 var READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY;
 
-assign(props, {
+Object.assign(props, {
   /**
    * @property {String} authentication - `auth_mechanism` for humans.
    */
@@ -221,7 +220,7 @@ var AUTHENTICATION_VALUES = [
  */
 var AUTHENTICATION_DEFAULT = 'NONE';
 
-assign(props, {
+Object.assign(props, {
   /**
    * @property {String} authentication - `auth_mechanism` for humans.
    */
@@ -244,7 +243,7 @@ var AUTHENICATION_TO_AUTH_MECHANISM = {
   'SCRAM-SHA-256': 'SCRAM-SHA-256'
 };
 
-assign(derived, {
+Object.assign(derived, {
   /**
    * Converts the value of `authentication` (for humans)
    * into the `auth_mechanism` value for the driver.
@@ -318,7 +317,7 @@ var AUTHENTICATION_TO_FIELD_NAMES = {
  *   >>> { db: { readPreference: 'nearest' },
  *     replSet: { } }
  */
-assign(props, {
+Object.assign(props, {
   mongodb_username: {
     type: 'string',
     default: undefined
@@ -368,7 +367,7 @@ var MONGODB_NAMESPACE_DEFAULT = 'test';
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-kerberos
  */
-assign(props, {
+Object.assign(props, {
   /**
    * Any program or computer you access over a network. Examples of
    * services include “host” (a host, e.g., when you use telnet and rsh),
@@ -434,7 +433,7 @@ var KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-ldap
  */
-assign(props, {
+Object.assign(props, {
   /**
    * @see http://bit.ly/mongodb-node-driver-ldap
    * @see http://bit.ly/mongodb-ldap
@@ -474,7 +473,7 @@ assign(props, {
  * @see http://bit.ly/mongodb-node-driver-x509
  * @see http://bit.ly/mongodb-x509
  */
-assign(props, {
+Object.assign(props, {
   /**
    * The x.509 certificate derived user name, e.g. "CN=user,OU=OrgUnit,O=myOrg,..."
    */
@@ -524,7 +523,7 @@ var SSL_VALUES = [
  */
 var SSL_DEFAULT = 'NONE';
 
-assign(props, {
+Object.assign(props, {
   ssl: {
     type: 'string',
     values: SSL_VALUES,
@@ -588,7 +587,7 @@ var SSH_TUNNEL_VALUES = [
  */
 var SSH_TUNNEL_DEFAULT = 'NONE';
 
-assign(props, {
+Object.assign(props, {
   ssh_tunnel: {
     type: 'string',
     values: SSH_TUNNEL_VALUES,
@@ -656,7 +655,7 @@ assign(props, {
 var DRIVER_OPTIONS_DEFAULT = {
 };
 
-assign(derived, {
+Object.assign(derived, {
   /**
    * Get the URL which can be passed to `MongoClient.connect(url)`.
    * @see http://bit.ly/mongoclient-connect
@@ -792,12 +791,12 @@ assign(derived, {
     fn: function() {
       var opts = clone(DRIVER_OPTIONS_DEFAULT, true);
       if (this.ssl === 'SERVER') {
-        assign(opts, {
+        Object.assign(opts, {
           sslValidate: true,
           sslCA: this.ssl_ca
         });
       } else if (this.ssl === 'ALL') {
-        assign(opts, {
+        Object.assign(opts, {
           sslValidate: true,
           sslCA: this.ssl_ca,
           sslKey: this.ssl_private_key,
@@ -813,24 +812,24 @@ assign(derived, {
           opts.sslValidate = false;
         }
       } else if (this.ssl === 'UNVALIDATED') {
-        assign(opts, {
+        Object.assign(opts, {
           checkServerIdentity: false,
           sslValidate: false
         });
       } else if (this.ssl === 'SYSTEMCA') {
-        assign(opts, {
+        Object.assign(opts, {
           checkServerIdentity: true,
           sslValidate: true
         });
       } else if (this.ssl === 'IFAVAILABLE') {
-        assign(opts, {
+        Object.assign(opts, {
           checkServerIdentity: false,
           sslValidate: true
         });
       }
 
       // assign and overwrite all extra options provided by user
-      assign(opts, this.extra_options);
+      Object.assign(opts, this.extra_options);
 
       // only set promoteValues if it is defined
       if (this.promote_values !== undefined) {

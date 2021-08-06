@@ -71,7 +71,7 @@ let Connection = {};
 /**
  * Assigning observable top-level properties of a state class.
  */
-assign(props, {
+Object.assign(props, {
   /**
    * User specified name for this connection.
    *
@@ -100,7 +100,7 @@ assign(props, {
   }
 });
 
-assign(session, {
+Object.assign(session, {
   auth: { type: 'object', default: undefined }
 });
 
@@ -176,12 +176,12 @@ const CONNECTION_STRING_OPTIONS = {
   loadBalanced: { type: 'boolean', default: undefined }
 };
 
-assign(props, CONNECTION_STRING_OPTIONS);
+Object.assign(props, CONNECTION_STRING_OPTIONS);
 
 /**
  * Stitch attributes.
  */
-assign(props, {
+Object.assign(props, {
   stitchServiceName: { type: 'string', default: undefined },
   stitchClientAppId: { type: 'string', default: undefined },
   stitchGroupId: { type: 'string', default: undefined },
@@ -201,7 +201,7 @@ assign(props, {
  *   console.log(c.driverOptions)
  *   >>> { db: { readPreference: 'nearest' }, replSet: { } }
  */
-assign(props, {
+Object.assign(props, {
   mongodbUsername: { type: 'string', default: undefined },
   mongodbPassword: { type: 'string', default: undefined },
   /**
@@ -235,7 +235,7 @@ assign(props, {
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-kerberos
  */
-assign(props, {
+Object.assign(props, {
   /**
    * Any program or computer you access over a network. Examples of
    * services include “host” (a host, e.g., when you use telnet and rsh),
@@ -278,7 +278,7 @@ assign(props, {
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-ldap
  */
-assign(props, {
+Object.assign(props, {
   /**
    * @see http://bit.ly/mongodb-node-driver-ldap
    * @see http://bit.ly/mongodb-ldap
@@ -311,7 +311,7 @@ assign(props, {
  * @see http://bit.ly/mongodb-node-driver-x509
  * @see http://bit.ly/mongodb-x509
  */
-assign(props, {
+Object.assign(props, {
   /**
    * The x.509 certificate derived user name, e.g. "CN=user,OU=OrgUnit,O=myOrg,..."
    */
@@ -321,7 +321,7 @@ assign(props, {
 /**
  * SSL
  */
-assign(props, {
+Object.assign(props, {
   ssl: { type: 'any', default: undefined },
   sslMethod: {
     type: 'string',
@@ -353,7 +353,7 @@ assign(props, {
 /**
  * SSH TUNNEL
  */
-assign(props, {
+Object.assign(props, {
   sshTunnel: {
     type: 'string',
     values: SSH_TUNNEL_VALUES,
@@ -392,7 +392,7 @@ assign(props, {
 /**
  * Assigning derived (computed) properties of a state class.
  */
-assign(derived, {
+Object.assign(derived, {
   /**
    * @see http://npm.im/mongodb-instance-model
    */
@@ -618,7 +618,7 @@ const prepareRequest = (model) => {
   return req;
 };
 
-assign(derived, {
+Object.assign(derived, {
   safeUrl: {
     cache: false,
     fn() {
@@ -667,9 +667,9 @@ assign(derived, {
       const opts = clone(DRIVER_OPTIONS_DEFAULT, true);
 
       if (this.sslMethod === 'SERVER') {
-        assign(opts, { sslValidate: true, sslCA: this.sslCA });
+        Object.assign(opts, { sslValidate: true, sslCA: this.sslCA });
       } else if (this.sslMethod === 'ALL') {
-        assign(opts, {
+        Object.assign(opts, {
           sslValidate: true,
           sslCA: this.sslCA,
           sslKey: this.sslKey,
@@ -685,15 +685,15 @@ assign(derived, {
           opts.sslValidate = false;
         }
       } else if (this.sslMethod === 'UNVALIDATED') {
-        assign(opts, { tlsAllowInvalidHostnames: true, sslValidate: false });
+        Object.assign(opts, { tlsAllowInvalidHostnames: true, sslValidate: false });
       } else if (this.sslMethod === 'SYSTEMCA') {
-        assign(opts, { tlsAllowInvalidHostnames: false, sslValidate: true });
+        Object.assign(opts, { tlsAllowInvalidHostnames: false, sslValidate: true });
       } else if (this.sslMethod === 'IFAVAILABLE') {
-        assign(opts, { tlsAllowInvalidHostnames: true, sslValidate: true });
+        Object.assign(opts, { tlsAllowInvalidHostnames: true, sslValidate: true });
       }
 
       // Assign and overwrite all extra options provided by user.
-      assign(opts, this.extraOptions);
+      Object.assign(opts, this.extraOptions);
 
       // Only set promoteValues if it is defined.
       if (this.promoteValues !== undefined) {

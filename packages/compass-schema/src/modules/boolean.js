@@ -1,6 +1,5 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import assign from 'lodash.assign';
 import groupBy from 'lodash.groupby';
 import map from 'lodash.map';
 import sortByOrder from 'lodash.sortbyorder';
@@ -74,7 +73,7 @@ const minicharts_d3fns_boolean = (localAppRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    assign(options, value);
+    Object.assign(options, value);
     return chart;
   };
 

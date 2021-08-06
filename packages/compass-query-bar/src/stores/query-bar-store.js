@@ -374,7 +374,7 @@ const configureStore = (options = {}) => {
       // determine if query is valid overall with these new values
       const valid = every(
         values(
-          assign(
+          Object.assign(
             {
               filter: this.state.filterValid,
               project: this.state.projectValid,
@@ -398,7 +398,7 @@ const configureStore = (options = {}) => {
       });
 
       // merge query, query strings, valid flags into state object
-      const state = assign({}, pick(query, validKeys), inputStrings, inputValids);
+      const state = Object.assign({}, pick(query, validKeys), inputStrings, inputValids);
 
       // add sample state if available
       if (has(query, 'sample')) {

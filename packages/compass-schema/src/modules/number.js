@@ -1,6 +1,5 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import assign from 'lodash.assign';
 import includes from 'lodash.includes';
 import groupBy from 'lodash.groupby';
 import sortBy from 'lodash.sortby';
@@ -148,7 +147,7 @@ const minicharts_d3fns_number = (appRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    assign(options, value);
+    Object.assign(options, value);
     return chart;
   };
 

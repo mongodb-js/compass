@@ -1,6 +1,5 @@
 /* eslint-disable no-use-before-define */
 import d3 from 'd3';
-import assign from 'lodash.assign';
 import isEqual from 'lodash.isequal';
 import range from 'lodash.range';
 import min from 'lodash.min';
@@ -422,7 +421,7 @@ const minicharts_d3fns_date = (appRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    assign(options, value);
+    Object.assign(options, value);
     return chart;
   };
 
