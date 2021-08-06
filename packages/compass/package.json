@@ -219,7 +219,7 @@
   "scripts": {
     "install": "node scripts/download-akzidenz.js",
     "electron-rebuild": "electron-rebuild --force --only kerberos,keytar,interruptor",
-    "prestart": "rm -rf .compiled-sources && npm run electron-rebuild",
+    "prestart": "rm -rf .compiled-sources && rm -rf package-lock.json && npm run electron-rebuild",
     "start": "hadron-build develop",
     "pretest": "npm run electron-rebuild",
     "test": "hadron-build test",
@@ -228,7 +228,7 @@
     "clean": "hadron-build clean",
     "compile-ui": "hadron-build ui",
     "release": "node release/index.js",
-    "release-evergreen": "hadron-build release",
+    "package-compass": "hadron-build release",
     "test-unit": "npm test -- --unit",
     "test-enzyme": "npm test -- --enzyme",
     "test-packages": "npm test -- --packages",

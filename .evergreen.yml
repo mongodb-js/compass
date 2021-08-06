@@ -130,7 +130,7 @@ functions:
           npm config ls -l
           echo "(if npm fails, debug.log will be uploaded to S3)"
 
-          # Install dependencies and prepare all subpackages
+          # Install dependencies and prepare all workspaces
           npm run bootstrap-evergreen --unsafe-perm -- --stream
 
           # Make sure that cache is populated when other packages are pulling the font
@@ -243,7 +243,7 @@ functions:
           export npm_config_loglevel=info
           export DEBUG="*,-flora-colossus"
 
-          npm run release-evergreen ${compass_distribution};
+          npm run package-compass ${compass_distribution};
 
           rm -f /tmp/compass-apple-cred.json
           EOF_BUILD_SH
