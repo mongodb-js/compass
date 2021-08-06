@@ -327,7 +327,6 @@
     "keytar": "^5.1.0",
     "less": "^2.6.1",
     "local-links": "^1.4.0",
-    "lodash.clone": "^3.0.3",
     "make-fetch-happen": "^8.0.14",
     "marky": "^1.2.1",
     "moment": "^2.27.0",

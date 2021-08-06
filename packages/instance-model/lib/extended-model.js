@@ -7,7 +7,6 @@ var filterableMixin = require('ampersand-collection-filterable');
 var toNS = require('mongodb-ns');
 var raf = require('raf');
 var result = require('lodash.result');
-var clone = require('lodash.clone');
 
 /**
  * A user selectable collection of `MongoDBCollection`'s with `specialish`
@@ -80,7 +79,7 @@ module.exports = MongoDBInstance.extend({
     var model = this;
     var url = result(model, 'url');
 
-    options = options ? clone(options) : {};
+    options = options ? { ...options } : {};
     if (!options.parse) {
       options.parse = true;
     }

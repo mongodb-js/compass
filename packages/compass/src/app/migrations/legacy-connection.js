@@ -3,7 +3,6 @@ var format = require('util').format;
 var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
 var ReadPreference = require('mongodb').ReadPreference;
-var clone = require('lodash.clone');
 var parse = require('mongodb-url');
 var dataTypes = require('./data-types');
 var fs = require('fs');
@@ -726,7 +725,7 @@ Object.assign(derived, {
       } else if (this.ssl === 'NONE') {
         req.query.ssl = 'false';
       }
-      var reqClone = clone(req);
+      var reqClone = { ...req };
       if (this.ssh_tunnel !== 'NONE') {
         // Populate the SSH Tunnel options correctly
         reqClone.hostname = this.ssh_tunnel_options.localAddr;
@@ -788,7 +787,7 @@ Object.assign(derived, {
   driver_options: {
     cache: false,
     fn: function() {
-      var opts = clone(DRIVER_OPTIONS_DEFAULT, true);
+      var opts = { ...DRIVER_OPTIONS_DEFAULT };
       if (this.ssl === 'SERVER') {
         Object.assign(opts, {
           sslValidate: true,
