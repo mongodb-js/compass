@@ -1,0 +1,4 @@
+ignores: [
+  "global-jsdom",
+  "ts-node"
+]
