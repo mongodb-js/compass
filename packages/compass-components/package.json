@@ -47,7 +47,7 @@
     "chai-dom": "^1.9.0",
     "eslint": "^7.25.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-mocha": "^9.0.0",
+    "eslint-plugin-mocha": "^8.0.0",
     "eslint-plugin-react": "^7.24.0",
     "global-jsdom": "^8.1.0",
     "mocha": "^8.4.0",
