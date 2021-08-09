@@ -1,6 +1,13 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true
+    },
+    tsconfigRootDir: __dirname,
+    project: ['./tsconfig-lint.json']
+  },
   plugins: [
     '@typescript-eslint',
     'jsx-a11y',
@@ -10,6 +17,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'plugin:react/recommended',
     'plugin:mocha/recommended',
     'plugin:jsx-a11y/recommended'
@@ -17,15 +25,10 @@ module.exports = {
   env: { node: true },
   overrides: [
     {
-      files: ['src/**/*.test.ts'],
+      files: ['src/**/*.spec.ts', 'src/**/*.spec.tsx'],
       env: { mocha: true },
     },
   ],
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true
-    }
-  },
   settings: {
     react: {
       version: 'detect'
