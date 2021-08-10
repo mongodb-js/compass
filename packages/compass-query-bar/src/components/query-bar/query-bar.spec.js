@@ -328,5 +328,41 @@ describe('QueryBar [Component]', function() {
         expect(component.find('#query-bar-menu-actions')).to.not.exist;
       });
     });
+
+    describe('the correct sort placeholder is rendered when the component receives a custom sort placeholder', function() {
+      const layout = ['filter', 'project', 'sort'];
+
+      it('square bracket sorts placeholder is rendered by default', function() {
+        const component = mount(
+          <QueryBar
+            store={store}
+            actions={actions}
+            layout={layout}
+            expanded
+            serverVersion="3.4.0" />
+        );
+
+        expect(component.find('div[data-test-id="query-bar-options-toggle"]')).to.exist;
+        component.find('div[data-test-id="query-bar-options-toggle"]').simulate('click');
+        expect(component.find('OptionEditor[label="sort"][placeholder="{ field: -1 } or [[\'field\', -1]]"]')).to.exist;
+      });
+
+      it('the query bar renders the specified sort option placeholder', function() {
+        const component = mount(
+          <QueryBar
+            store={store}
+            actions={actions}
+            layout={layout}
+            sortOptionPlaceholder="{ field: -1 }"
+            expanded
+            serverVersion="3.4.0" />
+        );
+
+        expect(component.find('div[data-test-id="query-bar-options-toggle"]')).to.exist;
+        component.find('div[data-test-id="query-bar-options-toggle"]').simulate('click');
+        expect(component.find('OptionEditor[label="sort"][placeholder="{ field: -1 } or [[\'field\', -1]]"]')).to.not.exist;
+        expect(component.find('OptionEditor[label="sort"][placeholder="{ field: -1 }"]')).to.exist;
+      });
+    });
   });
 });

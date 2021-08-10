@@ -109,6 +109,7 @@ class QueryBar extends Component {
     schemaFields: PropTypes.array,
     showQueryHistoryButton: PropTypes.bool,
     showExportToLanguageButton: PropTypes.bool,
+    sortOptionPlaceholder: PropTypes.string,
   };
 
   static defaultProps = {
@@ -206,7 +207,7 @@ class QueryBar extends Component {
    * @return {Component}          the option component
    */
   renderOption(option, id, hasToggle) {
-    const { filterValid, featureFlag, autoPopulated } = this.props;
+    const { filterValid, featureFlag, autoPopulated, sortOptionPlaceholder } = this.props;
 
     // for filter only, also validate feature flag directives
     const hasError = option === 'filter'
@@ -219,6 +220,7 @@ class QueryBar extends Component {
       this.props[option] : this.props[`${option}String`];
 
     const label = OPTION_DEFINITION[option].label || option;
+    const placeholder = option === 'sort' && sortOptionPlaceholder ? sortOptionPlaceholder : OPTION_DEFINITION[option].placeholder;
 
     return (
       <QueryOption
