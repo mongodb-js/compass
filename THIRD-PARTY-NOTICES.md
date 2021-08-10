@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Sun Aug 08 2021.
+This document was automatically generated on Tue Aug 10 2021.
 
 ## List of dependencies
 
@@ -102,6 +102,7 @@ Package|Version|License
 **[@mongodb-js/compass-auto-updates](#2eeb10502e009e5c76f4a5af9b6174c1a288157b199134d04c7235a609b4a68f)**|3.7.4|SSPL
 **[@mongodb-js/compass-collection](#1a12f37ea70c0e6b52ba7b371a54d4a29a3c3568e4ed24cd5e3aad66bab1f7ee)**|3.10.4|SSPL
 **[@mongodb-js/compass-collection-stats](#add5206c979ef6b9692dc723c67bff0bfa5b6db0ca2fdfad812b9dc8daab19a1)**|6.7.4|SSPL
+**[@mongodb-js/compass-components](#007505f6885eb5af21f946a4d6835dec2a41a8f835abedddc2726b06de2fd15f)**|0.0.1|SSPL
 **[@mongodb-js/compass-connect](#f1003e112edb8178bf603ccceb6923c7dd1be573f4a51a2e5dd6ddbd1c6e9c5e)**|7.7.4|SSPL
 **[@mongodb-js/compass-crud](#fdeaf5c68aab11004b74ac27d2327596afd932ec639ce3daac3f27cffecc2bc0)**|12.8.4|SSPL
 **[@mongodb-js/compass-database](#57b0f5b276d864be87cc64328d7b68c28fbd92b8f30e86a25e2ad9a9d3cbba83)**|2.7.4|SSPL
@@ -3626,6 +3627,14 @@ License tags: SSPL
 ### [@mongodb-js/compass-collection-stats](https://www.npmjs.com/package/@mongodb-js/compass-collection-stats) (version 6.7.4)
 <!-- initially found at packages/compass-collection-stats -->
 > Compass Collection Stats Plugin
+
+License tags: SSPL
+
+
+<a id="007505f6885eb5af21f946a4d6835dec2a41a8f835abedddc2726b06de2fd15f"></a>
+### [@mongodb-js/compass-components](https://www.npmjs.com/package/@mongodb-js/compass-components) (version 0.0.1)
+<!-- initially found at packages/compass-components -->
+> React Components used in Compass
 
 License tags: SSPL
 
