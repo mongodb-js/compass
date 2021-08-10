@@ -44,6 +44,7 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 
 ### Shared Libraries and Build Tools
 
+- [**@mongodb-js/compass-components**](packages/compass-components): A set of React Components used in Compass
 - [**@mongodb-js/hadron-plugin-manager**](packages/hadron-plugin-manager): Hadron Plugin Manager
 - [**@mongodb-js/mongodb-notary-service-client**](packages/notary-service-client): A client for our notary-service: an API for codesigning.
 - [**@mongodb-js/mongodb-redux-common**](packages/redux-common): Common Redux Modules for mongodb-js
@@ -62,7 +63,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**hadron-react-bson**](packages/hadron-react-bson): Hadron React BSON Components
 - [**hadron-react-buttons**](packages/hadron-react-buttons): Hadron React Button Components
 - [**hadron-react-components**](packages/hadron-react-components): Hadron React Components
-- [**hadron-react-utils**](packages/hadron-react-utils): Hadron React Utils
 - [**hadron-reflux-store**](packages/reflux-store): Hadron Reflux Stores
 - [**hadron-style-manager**](packages/hadron-style-manager): Hadron Style Manager
 - [**hadron-type-checker**](packages/hadron-type-checker): Hadron Type Checker

@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "declaration": true,
+    // "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react",
+    "lib": [
+      "dom",
+      "es2018"
+    ],
+    "module": "commonjs",
+    "outDir": "lib",
+    "removeComments": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2018",
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "./src/**/*.spec.*"
+  ]
+}
