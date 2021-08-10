@@ -1,10 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-// import classnames from 'classnames';
-import { Modal } from 'react-bootstrap';
-import { TextButton } from 'hadron-react-buttons';
-
-import styles from './saving-pipeline-modal.less';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
 
 /**
  * Saving pipeline modal.
@@ -68,40 +64,24 @@ class SavingPipelineModal extends PureComponent {
   render() {
     const title = this.props.isSaveAs ? 'Save Pipeline As...' : 'Save Pipeline';
     return (
-      <Modal
-        className={styles['saving-pipeline-modal']}
-        show={this.props.isOpen}
-        onHide={this.props.savingPipelineCancel}>
-        <Modal.Header closeButton>
-          <h4>{title}</h4>
-        </Modal.Header>
-        <Modal.Body>
-          <form onSubmit={this.onSubmit.bind(this)}>
-            <input
-              type="text"
-              value={this.props.name}
-              onChange={this.onNameChanged.bind(this)}
-              className="form-control input-lg"
-              placeholder="Untitled"
-            />
-          </form>
-        </Modal.Body>
-        <Modal.Footer>
-          <TextButton
-            id="cancel-saving-pipeline"
-            className="btn btn-default btn-sm"
-            text="Cancel"
-            clickHandler={this.props.savingPipelineCancel}
+      <ConfirmationModal
+        title={title}
+        open={this.props.isOpen}
+        onConfirm={this.save.bind(this)}
+        onCancel={this.props.savingPipelineCancel}
+        buttonText="Save"
+        submitDisabled={this.props.name === ''}
+      >
+        <form onSubmit={this.onSubmit.bind(this)}>
+          <input
+            type="text"
+            value={this.props.name}
+            onChange={this.onNameChanged.bind(this)}
+            className="form-control input-lg"
+            placeholder="Untitled"
           />
-          <TextButton
-            id="apply-saving-pipeline"
-            className="btn btn-primary btn-sm"
-            text="Save"
-            disabled={this.props.name === ''}
-            clickHandler={this.save.bind(this)}
-          />
-        </Modal.Footer>
-      </Modal>
+        </form>
+      </ConfirmationModal>
     );
   }
 }

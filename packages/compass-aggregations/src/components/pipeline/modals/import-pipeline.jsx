@@ -1,8 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
 import AceEditor from 'react-ace';
-import { TextButton } from 'hadron-react-buttons';
 
 import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';
@@ -70,41 +69,31 @@ class ImportPipeline extends PureComponent {
    */
   render() {
     return (
-      <Modal show={this.props.isOpen} onHide={this.props.closeImport}>
-        <Modal.Header closeButton>
-          <h4>{TITLE}</h4>
-        </Modal.Header>
-        <Modal.Body>
-          <div className={styles['import-pipeline-note']}>
-            {NOTE}
-          </div>
-          <div className={styles['import-pipeline-editor']}>
-            <AceEditor
-              mode="mongodb"
-              theme="mongodb"
-              width="100%"
-              value={this.props.text}
-              onChange={this.props.changeText}
-              editorProps={{ $blockScrolling: Infinity }}
-              name="import-pipeline-editor"
-              setOptions={OPTIONS} />
-          </div>
-          {this.renderError()}
-        </Modal.Body>
-        <Modal.Footer>
-          <TextButton
-            id="cancel-import-pipeline-from-text"
-            className="btn btn-default btn-sm"
-            text="Cancel"
-            clickHandler={this.props.closeImport} />
-          <TextButton
-            id="import-pipeline-from-text"
-            className="btn btn-primary btn-sm"
-            text="Create New"
-            disabled={this.props.text === ''}
-            clickHandler={this.props.createNew} />
-        </Modal.Footer>
-      </Modal>
+      <ConfirmationModal
+        title={TITLE}
+        open={this.props.isOpen}
+        onConfirm={this.props.createNew}
+        onCancel={this.props.closeImport}
+        buttonText="Create New"
+        submitDisabled={this.props.text === ''}
+      >
+        <div className={styles['import-pipeline-note']}>
+          {NOTE}
+        </div>
+        <div className={styles['import-pipeline-editor']}>
+          <AceEditor
+            mode="mongodb"
+            theme="mongodb"
+            width="100%"
+            value={this.props.text}
+            onChange={this.props.changeText}
+            editorProps={{ $blockScrolling: Infinity }}
+            name="import-pipeline-editor"
+            setOptions={OPTIONS}
+          />
+        </div>
+        {this.renderError()}
+      </ConfirmationModal>
     );
   }
 }

@@ -28,6 +28,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
+    "@mongodb-js/compass-components": "*",
     "@mongodb-js/compass-crud": "*",
     "@mongodb-js/compass-export-to-language": "*",
     "@mongodb-js/compass-field-store": "*",
@@ -58,6 +59,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.9.0",
+    "@mongodb-js/compass-components": "^0.0.1",
     "@mongodb-js/compass-crud": "^12.9.0",
     "@mongodb-js/compass-export-to-language": "^7.8.0",
     "@mongodb-js/compass-field-store": "^7.8.0",

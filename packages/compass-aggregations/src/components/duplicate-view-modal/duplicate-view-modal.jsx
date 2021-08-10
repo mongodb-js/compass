@@ -1,17 +1,15 @@
-import { TextButton } from 'hadron-react-buttons';
 import React, { PureComponent } from 'react';
-import { Modal } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-
 import { connect } from 'react-redux';
 
 import { ModalInput, ModalStatusMessage } from 'hadron-react-components';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
 
 import { createView } from '../../modules/create-view';
 import { changeViewName } from '../../modules/create-view/name';
 import { toggleIsVisible } from '../../modules/create-view/is-visible';
 
-import styles from './duplicate-view-modal.less';
+const TITLE = 'Duplicate a View';
 
 class DuplicateViewModal extends PureComponent {
   static displayName = 'DuplicateViewModalComponent';
@@ -60,60 +58,41 @@ class DuplicateViewModal extends PureComponent {
    */
   render() {
     return (
-      <Modal
-        show={this.props.isVisible}
-        backdrop="static"
-        bsSize="small"
-        onHide={this.onCancel}
-        dialogClassName={styles['create-view-modal']}>
-        <Modal.Header>
-          <Modal.Title>Duplicate a View</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body className={styles['create-view-modal-body']}>
-          <form
-            name="create-view-modal-form"
-            onSubmit={this.onFormSubmit.bind(this)}
-            data-test-id="create-view-modal">
-            <ModalInput
-              autoFocus
-              id="create-view-name"
-              name="Enter a View Name"
-              value={this.props.name || ''}
-              onChangeHandler={this.onNameChange}
+      <ConfirmationModal
+        title={TITLE}
+        open={this.props.isVisible}
+        onConfirm={this.props.createView}
+        onCancel={this.onCancel}
+        buttonText="Duplicate"
+      >
+        <form
+          name="create-view-modal-form"
+          onSubmit={this.onFormSubmit.bind(this)}
+          data-test-id="create-view-modal"
+        >
+          <ModalInput
+            autoFocus
+            id="create-view-name"
+            name="Enter a View Name"
+            value={this.props.name || ''}
+            onChangeHandler={this.onNameChange}
+          />
+          {this.props.error ? (
+            <ModalStatusMessage
+              icon="times"
+              message={this.props.error.message}
+              type="error"
             />
-            {this.props.error ? (
-              <ModalStatusMessage
-                icon="times"
-                message={this.props.error.message}
-                type="error"
-              />
-            ) : null}
-            {this.props.isRunning ? (
-              <ModalStatusMessage
-                icon="spinner"
-                message="Duplicate in Progress"
-                type="in-progress"
-              />
-            ) : null}
-          </form>
-        </Modal.Body>
-
-        <Modal.Footer className={styles['create-view-modal-footer']}>
-          <TextButton
-            className="btn btn-default btn-sm"
-            dataTestId="cancel-create-view-button"
-            text="Cancel"
-            clickHandler={this.onCancel}
-          />
-          <TextButton
-            className="btn btn-primary btn-sm"
-            dataTestId="create-view-button"
-            text="Duplicate"
-            clickHandler={this.props.createView}
-          />
-        </Modal.Footer>
-      </Modal>
+          ) : null}
+          {this.props.isRunning ? (
+            <ModalStatusMessage
+              icon="spinner"
+              message="Duplicate in Progress"
+              type="in-progress"
+            />
+          ) : null}
+        </form>
+      </ConfirmationModal>
     );
   }
 }
