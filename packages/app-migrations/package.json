@@ -1,7 +1,7 @@
 {
   "name": "app-migrations",
   "description": "Helper for application schema migrations.",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",

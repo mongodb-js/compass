@@ -2,7 +2,7 @@
   "name": "mongodb-language-model",
   "description": "Parses MongoDB query language and returns an abstract syntax tree",
   "author": "Thomas Rueckstiess <thomas@mongodb.com>",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
