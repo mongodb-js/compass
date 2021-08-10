@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
 import QueryBar from '../query-bar';
 import QueryOption from '../query-option';

@@ -232,7 +232,7 @@ class QueryBar extends Component {
         key={`query-option-${id}`}
         value={value}
         actions={this.props.actions}
-        placeholder={OPTION_DEFINITION[option].placeholder}
+        placeholder={placeholder}
         link={OPTION_DEFINITION[option].link}
         inputType={OPTION_DEFINITION[option].type}
         onChange={this.onChange.bind(this, option)}
