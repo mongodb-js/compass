@@ -347,7 +347,7 @@ describe('QueryBar [Component]', function() {
         expect(component.find('OptionEditor[label="sort"][placeholder="{ field: -1 } or [[\'field\', -1]]"]')).to.exist;
       });
 
-      it('the query bar renders the specified sort option placeholder', function() {
+      it('the query bar renders the specified sort option placeholder that is passed as a prop', function() {
         const component = mount(
           <QueryBar
             store={store}
