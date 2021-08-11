@@ -19,13 +19,33 @@
   width: 250px;
   background: @compass-sidebar-base-background-color;
 
+  &-favorites {
+    & .connect-sidebar-header {
+      display: flex;
+      align-items: center;
+    }
+
+    & .connect-sidebar-header-icon {
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0;
+      width: 36px;
+    }
+
+    .connect-sidebar-header-label {
+      flex: 1;
+    }
+  }
+
   &-connections {
     overflow-y: auto;
     height: 100%;
   }
 
   &-new-connection {
-    border-bottom: 1px solid rgba(0,0,0,.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     cursor: pointer;
 
     &-is-active {
@@ -86,7 +106,7 @@
   }
 
   &-list {
-    border-bottom: 1px solid rgba(0,0,0,.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     list-style: none;
     padding-left: 0px;
     margin: 0px;
@@ -117,7 +137,6 @@
         flex-grow: 0;
         color: @pw;
         font-size: 16px;
-
       }
 
       &-is-active {

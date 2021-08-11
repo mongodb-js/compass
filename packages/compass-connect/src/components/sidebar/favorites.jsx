@@ -4,6 +4,7 @@ import { map } from 'lodash';
 import moment from 'moment';
 import classnames from 'classnames';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
+import Icon from '@leafygreen-ui/icon';
 
 import Actions from '../../actions';
 
@@ -186,10 +187,14 @@ class Favorites extends React.Component {
 
   render() {
     return (
-      <div className="connect-sidebar-connections-favorites">
+      <div className={styles['connect-sidebar-favorites']}>
         <div className={styles['connect-sidebar-header']}>
-          <i className="fa fa-fw fa-star" />
-          <span>Favorites</span>
+          <span className={styles['connect-sidebar-header-icon']}>
+            <Icon glyph="Favorite" title={false} fill="currentColor" />
+          </span>
+          <span className={styles['connect-sidebar-header-label']}>
+            Favorites
+          </span>
         </div>
         <ul className={styles['connect-sidebar-list']}>
           {this.renderFavorites()}

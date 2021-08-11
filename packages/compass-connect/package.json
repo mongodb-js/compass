@@ -136,6 +136,7 @@
   },
   "dependencies": {
     "@leafygreen-ui/button": "^12.0.3",
+    "@leafygreen-ui/icon": "^11.4.0",
     "@leafygreen-ui/leafygreen-provider": "^2.1.2",
     "@leafygreen-ui/typography": "^8.0.2",
     "lodash": "^4.17.15",

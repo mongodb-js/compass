@@ -34,9 +34,5 @@ describe('FormFileInput [Component]', () => {
 
       expect(component.find(button).text()).to.equal('Select a file...');
     });
-
-    it('renders the file icon', () => {
-      expect(component.find('.fa-upload')).to.be.present();
-    });
   });
 });
