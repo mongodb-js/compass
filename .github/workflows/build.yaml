@@ -47,7 +47,8 @@ jobs:
           node-version: ^12.9.0
 
       - name: Install npm@7
-        run: npm install -g npm@7
+        # Can be changed back to npm@7 when https://github.com/npm/cli/issues/3637 is resolved
+        run: npm install -g npm@7.20.2
 
       - name: Install verdaccio
         run: npm install -g verdaccio
