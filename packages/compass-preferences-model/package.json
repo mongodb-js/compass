@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "depcheck": "^1.4.1",
-    "electron": "^6.1.12",
+    "electron": "^13.1.8",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^3.0.1",
     "lodash.result": "^4.5.2",

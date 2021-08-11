@@ -28,10 +28,7 @@
     "ampersand.js"
   ],
   "scripts": {
-    "pretest:electron": "electron-rebuild --force --only keytar",
-    "test:electron": "xvfb-maybe electron-mocha --no-sandbox --renderer",
-    "posttest:electron": "node ../../scripts/rebuild.js keytar",
-    "pretest:node": "node ../../scripts/rebuild.js keytar",
+    "test:electron": "xvfb-maybe electron-mocha --no-sandbox --renderer --window-config=test/window.config.json",
     "test:node": "xvfb-maybe mocha",
     "check": "npm run lint && npm run depcheck",
     "test": "npm run test:node && npm run test:electron",
@@ -46,7 +43,7 @@
     "async": "^3.1.0",
     "debug": "^4.1.1",
     "hadron-ipc": "^2.4.0",
-    "keytar": "^5.1.0",
+    "keytar": "^7.7.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",
     "rimraf": "^3.0.0",
@@ -55,9 +52,8 @@
   },
   "devDependencies": {
     "depcheck": "^1.4.1",
-    "electron": "^6.1.12",
-    "electron-mocha": "^8.1.2",
-    "electron-rebuild": "^2.3.5",
+    "electron": "^13.1.8",
+    "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.0",

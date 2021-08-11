@@ -31,7 +31,9 @@ module.exports = (config) => {
         flags: ['--no-sandbox'],
         browserWindowOptions: {
           webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true
           }
         }
       }
