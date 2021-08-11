@@ -2,7 +2,7 @@
   "name": "mongodb-language-model",
   "description": "Parses MongoDB query language and returns an abstract syntax tree",
   "author": "Thomas Rueckstiess <thomas@mongodb.com>",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -35,7 +35,7 @@
   },
   "main": "index.js",
   "devDependencies": {
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.0",

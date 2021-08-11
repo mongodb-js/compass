@@ -1,8 +1,6 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import assign from 'lodash.assign';
 import groupBy from 'lodash.groupby';
-import defaults from 'lodash.defaults';
 import map from 'lodash.map';
 import sortByOrder from 'lodash.sortbyorder';
 import few from './few';
@@ -29,10 +27,7 @@ const minicharts_d3fns_boolean = (localAppRegistry) => {
       const gr = groupBy(data, function(d) {
         return d;
       });
-      const grd = defaults(gr, {
-        false: [],
-        true: []
-      });
+      const grd = { false: [], true: [], ...gr };
       const grdm = map(grd, function(v, k) {
         return {
           label: k,
@@ -78,7 +73,7 @@ const minicharts_d3fns_boolean = (localAppRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    assign(options, value);
+    Object.assign(options, value);
     return chart;
   };
 

@@ -1,7 +1,7 @@
 {
   "name": "mongodb-js-metrics",
   "description": "Shareable metric recording.",
-  "version": "7.3.1",
+  "version": "7.3.2",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
@@ -35,7 +35,7 @@
     "xhr": "^2.2.0"
   },
   "devDependencies": {
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "electron": "^6.1.12",
     "electron-mocha": "^8.2.0",
     "eslint": "^7.25.0",

@@ -4,7 +4,6 @@ import isNumber from 'lodash.isnumber';
 import isString from 'lodash.isstring';
 import uniq from 'lodash.uniq';
 import isArray from 'lodash.isarray';
-import includes from 'lodash.includes';
 import pick from 'lodash.pick';
 import cloneDeep from 'lodash.clonedeep';
 import union from 'lodash.union';
@@ -72,7 +71,7 @@ const configureStore = (options = {}) => {
         fields[rootField.path].nestedFields = [];
       }
       nestedFields.map((f) => {
-        if (!includes(fields[rootField.path].nestedFields, f.path)) {
+        if (!fields[rootField.path].nestedFields.includes(f.path)) {
           fields[rootField.path].nestedFields.push(f.path);
         }
       });

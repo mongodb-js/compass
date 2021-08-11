@@ -10,7 +10,7 @@
     "test": "test"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "4.5.0",
+  "version": "4.5.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -45,8 +45,8 @@
     "ampersand-sync": "^5.1.0",
     "async": "^3.1.0",
     "debug": "^4.1.1",
-    "hadron-ipc": "^2.3.0",
-    "keytar": "^5.0.0",
+    "hadron-ipc": "^2.3.1",
+    "keytar": "^5.1.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",
     "rimraf": "^3.0.0",
@@ -54,7 +54,7 @@
     "write-file-atomic": "^3.0.1"
   },
   "devDependencies": {
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "electron": "^6.1.12",
     "electron-mocha": "^8.1.2",
     "electron-rebuild": "^2.3.5",

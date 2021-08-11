@@ -44,6 +44,7 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 
 ### Shared Libraries and Build Tools
 
+- [**@mongodb-js/compass-components**](packages/compass-components): A set of React Components used in Compass
 - [**@mongodb-js/hadron-plugin-manager**](packages/hadron-plugin-manager): Hadron Plugin Manager
 - [**@mongodb-js/mongodb-notary-service-client**](packages/notary-service-client): A client for our notary-service: an API for codesigning.
 - [**@mongodb-js/mongodb-redux-common**](packages/redux-common): Common Redux Modules for mongodb-js
@@ -62,7 +63,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**hadron-react-bson**](packages/hadron-react-bson): Hadron React BSON Components
 - [**hadron-react-buttons**](packages/hadron-react-buttons): Hadron React Button Components
 - [**hadron-react-components**](packages/hadron-react-components): Hadron React Components
-- [**hadron-react-utils**](packages/hadron-react-utils): Hadron React Utils
 - [**hadron-reflux-store**](packages/reflux-store): Hadron Reflux Stores
 - [**hadron-style-manager**](packages/hadron-style-manager): Hadron Style Manager
 - [**hadron-type-checker**](packages/hadron-type-checker): Hadron Type Checker
@@ -92,17 +92,47 @@ This monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/usi
 
 ### Working on Plugins
 
-Most of the plugins have their own development environment so you can work on them in isolation. If you want to work on plugin without running the whole Compass application, you can run `npm run start` in the plugin directory, either with the help of `lerna` or `npm workspaces`. For example to start compass-connect plugin locally you can run `npm run start --workspace @mongodb-js/compass-connect` or `npx lerna run start --scope @mongodb-js/compass-connect --stream`.
+Most of the plugins have their own development environment so you can work on them in isolation. If you want to work on a plugin without running the whole Compass application, you can run `npm run start` in the plugin directory (such as at the top of the `compass/packages/compass-connect` directory), either with the help of `lerna` or `npm workspaces`. For example, to start `compass-connect` plugin locally, you can either run `npm run start --workspace @mongodb-js/compass-connect` from the top of `compass` directory, run `npx lerna run start --scope @mongodb-js/compass-connect --stream` from anywhere in the `compass` directory, or run `npm run start` from the top of the `compass/packages/compass-connect` directory. Same approaches will work for any other workspace-specific script. If you want to run commands like `test` or `check` only for one specific workspace in the repository, you can use any of the methods described above. As an example, to run all tests in one plugin that you are working on such as the `compass-connect` plugin, you can run `npm run test` from the top of the `compass/packages/compass-connect` directory.
 
 If you want to see your changes applied in Compass, you might need to rebuild plugins that you changed with the `compile` command. Instead of manually writing out the `scope` you might want to use `lerna --since` filter to rebuild everything since your local or origin `HEAD` of the git history: `npx lerna run compile --stream --since origin/HEAD`. Restarting or hard-reloading (Shift+CMD+R) Compass after compilation is finished should apply your changes.
 
 In addition to running lerna commands directly, there are a few convenient npm scripts for working with packages:
 
 - `npm run compile-changed` will compile all plugins and their dependants changed since `origin/HEAD`
-- `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`
+- `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`.
 - `npm run check-changed` will run `eslint` and `depcheck` validation in all packages (ignoring dependants) changed since `origin/HEAD`
 
+### Building Compass Locally
+
+To build compass you can run `package-compass` script in the scope of `mongodb-compass` workspace:
+
+```sh
+npm run package-compass --workspace mongodb-compass
+```
+
+This command requires a bunch of environment variables provided (`HADRON_PRODUCT`, `HADRON_PRODUCT_NAME`, `HADRON_DISTRIBUTION`, etc) so for your convenience there is a script provided that sets all those vars to some default values and will take care of generating a required package-lock.json file for the compass workspace
+
+```sh
+npm run test-package-compass
+```
+
+To speed up the process you might want to disable creating installer for the application. To do that you can set `HADRON_SKIP_INSTALLER` environmental variable to `true` when running the script
+
+```sh
+HADRON_SKIP_INSTALLER=true npm run test-package-compass
+```
+
 ### Caveats
+
+#### `hdiutil: couldn't unmount "diskn" - Resource busy` or Similar `hdiutil` Errors
+
+<!-- TODO: might go away after https://jira.mongodb.org/browse/COMPASS-4947 -->
+
+Sometimes when trying to package compass on macOS you can run into the said error. There doesn't seems to be any common solution to it and the reasons are probably related to the outdated versions of some electron packages we are currently using (but will eventually update). If you are running into that issue, you can disable creating an installer during the packaging process by setting `HADRON_SKIP_INSTALLER` env variable to `true`:
+
+```sh
+HADRON_SKIP_INSTALLER=true npm run test-package-compass
+```
 
 #### `Module did not self-register` or `Module '<path>' was compiled against a different Node.js version` Errors
 
@@ -136,7 +166,7 @@ For package changes to be applied in Compass beta or GA releases they need to be
 
 ### Add / Update / Remove Dependencies in Packages
 
-To add, remove, or update a dependency in any subpackage you can use the usual `npm install` with a `--workspace` argument added, e.g. to add `react-aria` dependency to compass-connect and compass-query-bar plugins you can run `npm install --save react-aria --workspace @mongodb-js/compass-connect --workspace @mongodb-js/compass-query-bar`.
+To add, remove, or update a dependency in any workspace you can use the usual `npm install` with a `--workspace` argument added, e.g. to add `react-aria` dependency to compass-connect and compass-query-bar plugins you can run `npm install --save react-aria --workspace @mongodb-js/compass-connect --workspace @mongodb-js/compass-query-bar`.
 
 Additionally if you want to update a version of an existing dependency, but don't want to figure out the scope manually, you can use `npm run where` helper script. To update `webpack` in every package that has it as a dev dependency you can run `npm run where "devDependencies['webpack']" -- install --save-dev webpack@latest`
 

@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "21.5.3",
+  "version": "21.5.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -33,7 +33,7 @@
     "check"
   ],
   "peerDependencies": {
-    "mongodb": "4.x",
+    "mongodb": "^4.1.0",
     "mongodb-connection-model": "*"
   },
   "dependencies": {
@@ -41,24 +41,24 @@
     "debug": "^4.2.0",
     "lodash": "^4.17.20",
     "mongodb-build-info": "^1.1.1",
-    "mongodb-index-model": "^3.3.1",
+    "mongodb-index-model": "^3.3.2",
     "mongodb-js-errors": "^0.5.0",
     "mongodb-ns": "^2.2.0",
-    "mongodb-security": "^1.2.0",
+    "mongodb-security": "^1.2.1",
     "mongodb-url": "^3.0.3"
   },
   "devDependencies": {
     "bson": "^4.4.1",
     "chai": "^4.2.0",
-    "depcheck": "^1.3.1",
-    "eslint": "^7.18.0",
+    "depcheck": "^1.4.1",
+    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "eslint-plugin-mocha": "^8.0.0",
     "mocha": "^8.2.1",
     "mock-require": "^3.0.3",
-    "mongodb": "addaleax/node-mongodb-native#71d4c39e5c858f49d10e840df626eca4da653e28",
-    "mongodb-connection-model": "^21.5.3",
-    "mongodb-runner": "^4.8.0",
+    "mongodb": "^4.1.0",
+    "mongodb-connection-model": "^21.5.4",
+    "mongodb-runner": "^4.8.1",
     "sinon": "^9.2.3",
     "sinon-chai": "^3.5.0"
   }

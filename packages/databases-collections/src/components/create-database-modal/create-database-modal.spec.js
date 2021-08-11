@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
 import Banner from '@leafygreen-ui/banner';
 
 import { CreateDatabaseModal } from '../create-database-modal';

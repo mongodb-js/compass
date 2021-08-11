@@ -5,8 +5,6 @@ import DocumentMinichart from '../document-minichart';
 import ArrayMinichart from '../array-minichart';
 import CoordinatesMinichart from '../coordinates-minichart';
 import D3Component from '../d3-component';
-
-import includes from 'lodash.includes';
 import vizFns from '../../modules';
 import CONSTANTS from '../../constants/schema';
 
@@ -83,7 +81,7 @@ class MiniChart extends Component {
 
   minichartFactory() {
     // cast all numeric types to Number pseudo-type
-    const typeName = includes([ CONSTANTS.DECIMAL_128, CONSTANTS.DOUBLE, CONSTANTS.INT_32, CONSTANTS.LONG ],
+    const typeName = [ CONSTANTS.DECIMAL_128, CONSTANTS.DOUBLE, CONSTANTS.INT_32, CONSTANTS.LONG ].includes(
       this.props.type.name) ? CONSTANTS.NUMBER : this.props.type.name;
 
     const fieldName = this.props.fieldName;
@@ -92,7 +90,7 @@ class MiniChart extends Component {
     const fn = vizFns[typeName.toLowerCase()];
     const width = this.state.containerWidth;
 
-    if (includes([ CONSTANTS.STRING, CONSTANTS.NUMBER ], typeName) && !hasDuplicates) {
+    if ([ CONSTANTS.STRING, CONSTANTS.NUMBER ].includes(typeName) && !hasDuplicates) {
       return (
         <UniqueMiniChart
           localAppRegistry={this.props.localAppRegistry}

@@ -1,6 +1,5 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import assign from 'lodash.assign';
 import map from 'lodash.map';
 import groupBy from 'lodash.groupby';
 import sortByOrder from 'lodash.sortbyorder';
@@ -82,7 +81,7 @@ const minicharts_d3fns_string = (appRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    assign(options, value);
+    Object.assign(options, value);
     return chart;
   };
 

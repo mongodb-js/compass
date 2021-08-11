@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import {
-  includes,
   isFunction,
   pick,
   isEqual,
@@ -107,14 +106,18 @@ class QueryBar extends Component {
     lastExecutedQuery: PropTypes.object,
     onReset: PropTypes.func,
     onApply: PropTypes.func,
-    schemaFields: PropTypes.array
+    schemaFields: PropTypes.array,
+    showQueryHistoryButton: PropTypes.bool,
+    showExportToLanguageButton: PropTypes.bool,
   };
 
   static defaultProps = {
     expanded: false,
     buttonLabel: 'Apply',
     layout: ['filter', 'project', ['sort', 'maxTimeMS'], ['collation', 'skip', 'limit']],
-    schemaFields: []
+    schemaFields: [],
+    showQueryHistoryButton: true,
+    showExportToLanguageButton: true,
   };
 
   state = {
@@ -125,7 +128,7 @@ class QueryBar extends Component {
     const type = OPTION_DEFINITION[label].type;
     const { actions } = this.props;
 
-    if (includes(['numeric', 'document'], type)) {
+    if (['numeric', 'document'].includes(type)) {
       return actions.typeQueryString(label, evt.target.value);
     }
     if (type === 'boolean') {
@@ -298,7 +301,7 @@ class QueryBar extends Component {
    * @returns {React.Component} The Query Bar view.
    */
   renderForm = () => {
-    const { valid, featureFlag, queryState, buttonLabel } = this.props;
+    const { valid, featureFlag, queryState, buttonLabel, showQueryHistoryButton, showExportToLanguageButton } = this.props;
     const { hasFocus } = this.state;
 
     const _inputGroupClassName = classnames(
@@ -363,29 +366,34 @@ class QueryBar extends Component {
             onClick={this.onResetButtonClicked}>
             Reset
           </button>
-          <button
-            id="query_history_button"
-            key="query-history-button"
-            className={_queryHistoryClassName}
-            data-test-id="query-history-button"
-            type="button"
-            onClick={this.props.actions.toggleQueryHistory}
-            title="Toggle Query History"
-          >
-            <FontAwesome
-              data-test-id="query-history-button-icon"
-              name="history"
-            />
-          </button>
+          {showQueryHistoryButton &&
+              <button
+                id="query_history_button"
+                key="query-history-button"
+                className={_queryHistoryClassName}
+                data-test-id="query-history-button"
+                type="button"
+                onClick={this.props.actions.toggleQueryHistory}
+                title="Toggle Query History"
+              >
+                <FontAwesome
+                  data-test-id="query-history-button-icon"
+                  name="history"
+                />
+              </button>
+          }
         </div>
-        <Dropdown pullRight id="query-bar-menu-actions">
-          <Dropdown.Toggle noCaret>
-            <i className="mms-icon-ellipsis" aria-hidden />
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <MenuItem onClick={this.props.actions.exportToLanguage}>Export To Language</MenuItem>
-          </Dropdown.Menu>
-        </Dropdown>
+
+        {showExportToLanguageButton &&
+          <Dropdown pullRight id="query-bar-menu-actions">
+            <Dropdown.Toggle noCaret>
+              <i className="mms-icon-ellipsis" aria-hidden />
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <MenuItem onClick={this.props.actions.exportToLanguage}>Export To Language</MenuItem>
+            </Dropdown.Menu>
+          </Dropdown>
+        }
       </div>
     );
   }
