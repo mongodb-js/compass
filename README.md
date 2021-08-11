@@ -45,9 +45,11 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 ### Shared Libraries and Build Tools
 
 - [**@mongodb-js/compass-components**](packages/compass-components): A set of React Components used in Compass
+- [**@mongodb-js/eslint-config-compass**](packages/eslint-config-compass): Shared eslint configuration used in Compass packages.
 - [**@mongodb-js/hadron-plugin-manager**](packages/hadron-plugin-manager): Hadron Plugin Manager
 - [**@mongodb-js/mongodb-notary-service-client**](packages/notary-service-client): A client for our notary-service: an API for codesigning.
 - [**@mongodb-js/mongodb-redux-common**](packages/redux-common): Common Redux Modules for mongodb-js
+- [**@mongodb-js/tsconfig-compass**](packages/tsconfig-compass): Shared based TypeScript configurations used in Compass packages.
 - [**app-migrations**](packages/app-migrations): Helper for application schema migrations.
 - [**compass-preferences-model**](packages/compass-preferences-model): Compass preferences model.
 - [**compass-user-model**](packages/compass-user-model): MongoDB user model.
