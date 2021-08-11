@@ -97,6 +97,14 @@ class QueryBar extends Component {
     skipString: PropTypes.string,
     limitString: PropTypes.string,
 
+    filterPlaceholder: PropTypes.string,
+    projectPlaceholder: PropTypes.string,
+    collationPlaceholder: PropTypes.string,
+    sortPlaceholder: PropTypes.string,
+    skipPlaceholder: PropTypes.string,
+    limitPlaceholder: PropTypes.string,
+    maxTimeMSPlaceholder: PropTypes.string,
+
     actions: PropTypes.object,
     buttonLabel: PropTypes.string,
     queryState: PropTypes.string,
@@ -219,6 +227,8 @@ class QueryBar extends Component {
       this.props[option] : this.props[`${option}String`];
 
     const label = OPTION_DEFINITION[option].label || option;
+    const placeholder = this.props[`${option}Placeholder`] || OPTION_DEFINITION[option].placeholder;
+
 
     return (
       <QueryOption
@@ -230,7 +240,7 @@ class QueryBar extends Component {
         key={`query-option-${id}`}
         value={value}
         actions={this.props.actions}
-        placeholder={OPTION_DEFINITION[option].placeholder}
+        placeholder={placeholder}
         link={OPTION_DEFINITION[option].link}
         inputType={OPTION_DEFINITION[option].type}
         onChange={this.onChange.bind(this, option)}
