@@ -14,13 +14,11 @@ import {
   isEqual,
   isArray,
   isPlainObject,
-  includes,
   every,
   values,
   without,
   mapKeys,
   mapValues,
-  assign,
   clone,
   contains,
   omit
@@ -294,7 +292,7 @@ const configureStore = (options = {}) => {
      * @param {Boolean} userTyping   (optional) whether the user is still typing
      */
     setQueryString(label, input, userTyping) {
-      assert(includes(QUERY_PROPERTIES, label));
+      assert(QUERY_PROPERTIES.includes(label));
       const validatedInput = this._validateInput(label, input);
 
       const state = {
@@ -374,7 +372,7 @@ const configureStore = (options = {}) => {
       // determine if query is valid overall with these new values
       const valid = every(
         values(
-          assign(
+          Object.assign(
             {
               filter: this.state.filterValid,
               project: this.state.projectValid,
@@ -398,7 +396,7 @@ const configureStore = (options = {}) => {
       });
 
       // merge query, query strings, valid flags into state object
-      const state = assign({}, pick(query, validKeys), inputStrings, inputValids);
+      const state = Object.assign({}, pick(query, validKeys), inputStrings, inputValids);
 
       // add sample state if available
       if (has(query, 'sample')) {

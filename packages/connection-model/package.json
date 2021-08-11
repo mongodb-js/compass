@@ -28,7 +28,7 @@
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "peerDependencies": {
-    "mongodb": "4.x"
+    "mongodb": "^4.1.0"
   },
   "dependencies": {
     "@mongodb-js/ssh-tunnel": "^1.2.0",

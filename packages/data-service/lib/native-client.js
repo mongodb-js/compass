@@ -1,4 +1,4 @@
-const { map, isFunction, assignIn, assign } = require('lodash');
+const { map, isFunction, assignIn } = require('lodash');
 const async = require('async');
 const EventEmitter = require('events');
 
@@ -1077,7 +1077,7 @@ class NativeClient extends EventEmitter {
             if (err) {
               return callback(this._translateMessage(err));
             }
-            assign(
+            Object.assign(
               shardStats,
               this._buildShardDistribution(
                 detail,

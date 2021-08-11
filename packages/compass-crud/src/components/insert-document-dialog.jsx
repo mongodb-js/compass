@@ -1,4 +1,4 @@
-import { includes, pull } from 'lodash';
+import { pull } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
@@ -80,7 +80,7 @@ class InsertDocumentDialog extends React.PureComponent {
    * @param {String} uuid - The uuid of the element.
    */
   handleInvalid(uuid) {
-    if (!includes(this.invalidElements, uuid)) {
+    if (!this.invalidElements.includes(uuid)) {
       this.invalidElements.push(uuid);
       this.forceUpdate();
     }

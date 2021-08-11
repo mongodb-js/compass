@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import numeral from 'numeral';
-import assign from 'lodash.assign';
 import isNaN from 'lodash.isnan';
 import { SortableTable } from 'hadron-react-components';
 
@@ -136,7 +135,7 @@ class CollectionsTable extends PureComponent {
   render() {
     const rows = this.props.collections.map((coll) => {
       const linkName = this.renderLink(coll);
-      return assign({}, coll, {
+      return Object.assign({}, coll, {
         [NAME]: linkName,
         [DOCUMENTS]: (
           coll.type === TIME_SERIES_COLLECTION_TYPE ||

@@ -1,7 +1,5 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import assign from 'lodash.assign';
-import includes from 'lodash.includes';
 import groupBy from 'lodash.groupby';
 import sortBy from 'lodash.sortby';
 import map from 'lodash.map';
@@ -16,10 +14,10 @@ import shared from './shared';
 */
 function extractNumericValueFromBSON(value) {
   if (value && value._bsontype) {
-    if (includes([ 'Decimal128', 'Long' ], value._bsontype)) {
+    if ([ 'Decimal128', 'Long' ].includes(value._bsontype)) {
       return parseFloat(value.toString(), 10);
     }
-    if (includes([ 'Double', 'Int32' ], value._bsontype)) {
+    if ([ 'Double', 'Int32' ].includes(value._bsontype)) {
       return value.value;
     }
   }
@@ -148,7 +146,7 @@ const minicharts_d3fns_number = (appRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    assign(options, value);
+    Object.assign(options, value);
     return chart;
   };
 

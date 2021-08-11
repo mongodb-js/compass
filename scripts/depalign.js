@@ -1,22 +1,26 @@
 const path = require('path');
+const { promises: fs } = require('fs');
 const semver = require('semver');
 const chalk = require('chalk');
 const { runInDir } = require('./run-in-dir');
 const { updatePackageJson } = require('./monorepo/update-package-json');
 const { withProgress } = require('./monorepo/with-progress');
 
-const depalignrc = require('../.depalignrc.json');
-
 const USAGE = `Check for dependency alignment issues.
 
-USAGE: depalign.js [--skip-deduped|--json|--autofix]
+USAGE: depalign.js [--skip-deduped] [--json] [--autofix] [--type peer,optional]
 
 Options:
 
   --skip-deduped                     Don't output warnings and don't autofix ranges that can be resolved to a single version.
-  --json                             Output a json report
-  --autofix                          Output a list of replacements to normalize ranges and align everything to the highest possible range
-  --dangerously-include-mismatched   Include mismatched dependencies into autofix
+  --json                             Output a json report.
+  --type                             Type (or types) of the dependencies to include in the report. Possible values are 'prod', 'dev', 'peer', and 'optional'. Defaults to prod, dev, and optional.
+  --types-only                       Will only include a dependency in the report if all packages have this dependency as one of the provided with --type argument.
+  --autofix                          Output a list of replacements to normalize ranges and align everything to the highest possible range.
+  --autofix-only                     Will only autofix dependencies provided with this option
+  --dangerously-include-mismatched   Include mismatched dependencies into autofix.
+  --config                           Path to the config. Default is .depalignrc.json
+  --validate-config                  Check that 'ignore' option in the config doesn't include extraneous dependencies and versions
 
 .depalignrc.json
 
@@ -30,19 +34,108 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const LERNA_BIN = path.join(ROOT_DIR, 'node_modules', '.bin', 'lerna');
 
 async function main(args) {
-  if (args.includes('--help')) {
+  if (args.help) {
     console.log(USAGE);
     return;
   }
 
-  const outputJson = args.includes('--json');
-  const shouldApplyFixes = args.includes('--autofix');
-  const includeDeduped = !args.includes('--skip-deduped');
-  const includeMismatched = args.includes('--dangerously-include-mismatched');
+  const depalignrcPath =
+    typeof args.config == 'string'
+      ? path.resolve(process.cwd(), args.config)
+      : path.join(process.cwd(), '.depalignrc.json');
+
+  let depalignrc;
+
+  if (typeof args.config === 'boolean' && !args.config) {
+    depalignrc = {};
+  } else {
+    try {
+      depalignrc = JSON.parse(await fs.readFile(depalignrcPath, 'utf8'));
+    } catch (e) {
+      if (e.code === 'ENOENT' && args.config) {
+        console.error("Can't find config at path %s.", depalignrcPath);
+        throw e;
+      } else if (e.code !== 'ENOENT') {
+        console.error('Unexpected error happened loading config file:');
+        throw e;
+      }
+      // We didn't find the file and it's a default config path that we were
+      // checking for, we can ignore that as config file is optional
+    }
+  }
+
+  const outputJson = args.json;
+  const shouldApplyFixes = args.autofix;
+  const shouldCheckConfig = args['validate-config'];
+  const fixOnly = new Set(args['autofix-only']);
+  const includeTypes = args.type;
+  const includeTypesOnly = args['types-only'];
+  const includeDeduped = !args['skip-deduped'];
+  const includeMismatched = args['dangerously-include-mismatched'];
 
   const workspaces = await collectWorkspacesMeta();
   const dependencies = collectWorkspacesDependencies(workspaces);
-  const report = generateReport(dependencies, depalignrc);
+  const report = generateReport(dependencies, {
+    includeTypes,
+    includeTypesOnly,
+    ...depalignrc,
+    // We want a full report with ignore option "disabled" so that we can check
+    // config against all existing mismatches
+    ...(shouldCheckConfig && { ignore: {} })
+  });
+
+  if (shouldCheckConfig) {
+    const { ignore, extraneous } = normalizeIgnore(report, depalignrc.ignore);
+
+    if (shouldApplyFixes) {
+      await fs.writeFile(
+        depalignrcPath,
+        JSON.stringify({ ...depalignrc, ignore }, null, 2),
+        'utf8'
+      );
+
+      extraneous.clear();
+    }
+
+    if (extraneous.size > 0) {
+      console.log(
+        'Following extraneous versions found in the `ignore` config option in %s: %s',
+        path.relative(process.cwd(), depalignrcPath),
+        chalk.dim('(can be fixed with --autofix)')
+      );
+      console.log();
+
+      for (const [depName, versions] of extraneous) {
+        const versionPadStart = Math.max(
+          ...versions.map((version) => version.length)
+        );
+        console.log(
+          '  %s %s',
+          chalk.bold(depName),
+          versions.length === depalignrc.ignore[depName].length
+            ? chalk.dim('(whole rule)')
+            : ''
+        );
+        console.log();
+        versions.forEach((version) => {
+          console.log(
+            '    %s%s',
+            ' '.repeat(versionPadStart - version.length),
+            version
+          );
+        });
+        console.log();
+      }
+    } else {
+      console.log(
+        '%s',
+        chalk.green('No extraneous rules found in depalign config')
+      );
+    }
+
+    process.exitCode = extraneous.size;
+    return;
+  }
 
   if (!includeDeduped) {
     report.deduped = new Map();
@@ -63,7 +156,8 @@ async function main(args) {
       `Applying autofixes`,
       applyFixes,
       report,
-      includeMismatched
+      includeMismatched,
+      fixOnly
     );
 
     console.log();
@@ -107,26 +201,48 @@ async function collectWorkspacesMeta() {
   );
 }
 
+const DepTypes = {
+  Prod: 'prod',
+  Dev: 'dev',
+  Optional: 'optional',
+  Peer: 'peer'
+};
+
+function getDepType(dependency, version, pkgJson) {
+  return pkgJson.devDependencies &&
+    pkgJson.devDependencies[dependency] === version
+    ? DepTypes.Dev
+    : pkgJson.peerDependencies &&
+      pkgJson.peerDependencies[dependency] === version
+    ? DepTypes.Peer
+    : pkgJson.optionalDependencies &&
+      pkgJson.optionalDependencies[dependency] === version
+    ? DepTypes.Optional
+    : pkgJson.dependencies && pkgJson.dependencies[dependency] === version
+    ? DepTypes.Prod
+    : null;
+}
+
 function collectWorkspacesDependencies(workspaces) {
   const dependencies = new Map();
 
-  for (const [location, packageJson] of workspaces) {
+  for (const [location, pkgJson] of workspaces) {
     for (const [dependency, versionRange] of [
-      ...Object.entries(packageJson.dependencies || {}),
-      ...Object.entries(packageJson.devDependencies || {}),
-      ...filterOutStarDeps(Object.entries(packageJson.peerDependencies || {})),
-      ...filterOutStarDeps(
-        Object.entries(packageJson.optionalDependencies || {})
-      )
+      ...Object.entries(pkgJson.dependencies || {}),
+      ...Object.entries(pkgJson.devDependencies || {}),
+      ...filterOutStarDeps(Object.entries(pkgJson.peerDependencies || {})),
+      ...filterOutStarDeps(Object.entries(pkgJson.optionalDependencies || {}))
     ]) {
+      const item = {
+        version: versionRange,
+        from: location,
+        type: getDepType(dependency, versionRange, pkgJson)
+      };
+
       if (dependencies.has(dependency)) {
-        dependencies
-          .get(dependency)
-          .push({ version: versionRange, from: location });
+        dependencies.get(dependency).push(item);
       } else {
-        dependencies.set(dependency, [
-          { version: versionRange, from: location }
-        ]);
+        dependencies.set(dependency, [item]);
       }
     }
   }
@@ -138,7 +254,10 @@ function filterOutStarDeps(entries) {
   return entries.filter(([, v]) => v !== '*');
 }
 
-function generateReport(dependencies, { ignore = {} } = { ignore: {} }) {
+function generateReport(
+  dependencies,
+  { includeTypes, includeTypesOnly, ignore = {} } = { ignore: {} }
+) {
   const report = { mismatched: new Map(), deduped: new Map() };
 
   for (const [depName, versions] of dependencies) {
@@ -151,6 +270,14 @@ function generateReport(dependencies, { ignore = {} } = { ignore: {} }) {
     );
 
     if (notIgnoredUniqueVersionsOnly.length <= 1) {
+      continue;
+    }
+
+    if (
+      includeTypesOnly
+        ? !notIgnoredVersions.every(({ type }) => includeTypes.includes(type))
+        : !notIgnoredVersions.some(({ type }) => includeTypes.includes(type))
+    ) {
       continue;
     }
 
@@ -189,8 +316,13 @@ function calculateReplacements(ranges) {
   const highestRange = getHighestRange(ranges);
 
   for (const range of ranges) {
-    if (semver.subset(highestRange, range)) {
-      replacements.set(range, highestRange);
+    try {
+      if (semver.subset(highestRange, range)) {
+        replacements.set(range, highestRange);
+      }
+    } catch (e) {
+      // Range is probably not valid, let's proceed as if there is no
+      // replacement for it
     }
   }
 
@@ -223,9 +355,44 @@ function getHighestRange(ranges) {
   return sortedRanges[0] || null;
 }
 
-async function applyFixes({ deduped, mismatched }, includeMismatched = false) {
+function normalizeIgnore({ deduped, mismatched }, ignore = {}) {
+  const ignoreMap = new Map(Object.entries(ignore));
+  const mergedReport = new Map([...deduped, ...mismatched]);
+  const extraneous = new Map();
+  const newIgnore = { ...ignore };
+
+  for (const [depName, versions] of ignoreMap) {
+    if (mergedReport.has(depName)) {
+      const reportItemVersionsOnly = new Set(
+        mergedReport.get(depName).versions.map(({ version }) => version)
+      );
+      const extraneousVersions = versions.filter(
+        (version) => !reportItemVersionsOnly.has(version)
+      );
+      if (extraneousVersions.length > 0) {
+        extraneous.set(depName, extraneousVersions);
+      }
+      newIgnore[depName] = versions.filter((version) =>
+        reportItemVersionsOnly.has(version)
+      );
+    } else {
+      extraneous.set(depName, versions);
+      delete newIgnore[depName];
+    }
+  }
+
+  return { ignore: newIgnore, extraneous };
+}
+
+async function applyFixes(
+  { deduped, mismatched },
+  includeMismatched = false,
+  fixOnly = new Set()
+) {
   const spinner = this;
   const spinnerText = spinner.text;
+
+  const fixAll = fixOnly.size === 0;
 
   const updates = new Map([
     ...deduped,
@@ -241,6 +408,10 @@ async function applyFixes({ deduped, mismatched }, includeMismatched = false) {
   const updatesByPackage = new Map();
 
   for (const [depName, { versions, fixes }] of updates) {
+    if (!fixAll && !fixOnly.has(depName)) {
+      continue;
+    }
+
     deduped.delete(depName);
     mismatched.delete(depName);
 
@@ -290,17 +461,22 @@ async function applyFixes({ deduped, mismatched }, includeMismatched = false) {
 function prettyPrintReport({ deduped, mismatched }) {
   function printReportItems(items) {
     items.forEach(({ versions }, depName) => {
-      const versionPadStart = versions.reduce((longest, { version }) => {
-        return longest > version.length ? longest : version.length;
-      }, -Infinity);
+      const versionPadStart = Math.max(
+        ...versions.map(({ version }) => version.length)
+      );
       console.log('  %s', chalk.bold(depName));
       console.log();
-      versions.forEach(({ version, from }) => {
+      versions.forEach(({ version, from, type }) => {
         console.log(
           '    %s%s %s',
           ' '.repeat(versionPadStart - version.length),
           version,
-          chalk.dim(`at ${path.relative(process.cwd(), from)}`)
+          chalk.dim(
+            `at ${path.relative(process.cwd(), from) || 'root'} ${
+              // Not printing prod ones as it's kinda implied
+              type !== DepTypes.Prod ? `(${type})` : ''
+            }`.trim()
+          )
         );
       });
       console.log();
@@ -337,4 +513,28 @@ process.on('unhandledRejection', (err) => {
   process.exitCode = 1;
 });
 
-main(process.argv.slice(2));
+function parseOptions() {
+  args = require('minimist')(process.argv.slice(2));
+
+  if (typeof args.type === 'string') {
+    args.type = args.type.split(',');
+  }
+
+  if (typeof args['autofix-only'] === 'string') {
+    args['autofix-only'] = args['autofix-only'].split(',');
+  }
+
+  return {
+    ['skip-deduped']: false,
+    json: false,
+    type: ['prod', 'dev', 'optional'],
+    ['types-only']: false,
+    autofix: false,
+    ['autofix-only']: [],
+    ['dangerously-include-mismatched']: false,
+    ['validate-config']: false,
+    ...args
+  };
+}
+
+main(parseOptions());

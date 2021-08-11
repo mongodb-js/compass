@@ -33,7 +33,7 @@
     "check"
   ],
   "peerDependencies": {
-    "mongodb": "4.x",
+    "mongodb": "^4.1.0",
     "mongodb-connection-model": "*"
   },
   "dependencies": {

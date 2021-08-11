@@ -1,7 +1,6 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
 import d3 from 'd3';
 import $ from 'jquery';
-import assign from 'lodash.assign';
 import map from 'lodash.map';
 import sortBy from 'lodash.sortby';
 import sum from 'lodash.sum';
@@ -240,7 +239,7 @@ const minicharts_d3fns_few = (localAppRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    assign(options, value);
+    Object.assign(options, value);
     return chart;
   };
 
