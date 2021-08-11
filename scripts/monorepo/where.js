@@ -100,6 +100,7 @@ async function main() {
 process.on('unhandledRejection', (err) => {
   console.error();
   console.error(err.stack || err.message || err);
+  process.exitCode = 1;
 });
 
 main();
