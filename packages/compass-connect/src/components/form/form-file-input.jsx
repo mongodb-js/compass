@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import path from 'path';
 import { shell } from 'electron';
 import classnames from 'classnames';
+import Icon from '@leafygreen-ui/icon';
 
 import styles from '../connect.less';
 
@@ -70,8 +71,8 @@ function FormFileInput({
           inputRef.current.click();
         }}
         title="Select a file"
+        leftGlyph={<Icon glyph="AddFile" title={false} fill="currentColor" />}
       >
-        <i className="fa fa-upload" aria-hidden />
         {buttonText}
       </Button>
     </div>

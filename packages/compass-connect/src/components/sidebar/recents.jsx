@@ -176,6 +176,7 @@ class Recents extends React.Component {
         <div className={styles['connect-sidebar-header']}>
           <div className={styles['connect-sidebar-header-recent']}>
             <div>
+              {/* There is no leafygreen replacement for this icon */}
               <i className="fa fa-fw fa-history" />
               <span>Recents</span>
             </div>

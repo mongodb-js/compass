@@ -44,6 +44,7 @@ class NewConnection extends React.Component {
           className={styles['connect-sidebar-header']}
           onClick={this.onNewConnectionClicked.bind(this)}
         >
+          {/* There is no leafygreen replacement for this icon */}
           <i className="fa fa-fw fa-bolt" />
           <span>New Connection</span>
         </div>
