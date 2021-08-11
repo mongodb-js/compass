@@ -210,7 +210,6 @@
       "rebuild": {
         "onlyModules": [
           "interruptor",
-          "keytar",
           "kerberos"
         ]
       }
@@ -223,7 +222,7 @@
     "start": "npm run webpack serve -- --mode development",
     "pretest": "npm run electron-rebuild",
     "test": "hadron-build test",
-    "posttest": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos keytar interruptor",
+    "posttest": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos interruptor",
     "check": "npm run lint && npm run depcheck",
     "clean": "hadron-build clean",
     "prewebpack": "rm -rf ./build",
@@ -246,7 +245,7 @@
     "depcheck": "depcheck",
     "pretest-ci": "npm run electron-rebuild",
     "test-ci": "npm run test-release-tasks && xvfb-maybe electron-mocha --no-sandbox ./test/**/*.test.js",
-    "posttest-ci": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos keytar interruptor"
+    "posttest-ci": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos interruptor"
   },
   "repository": {
     "type": "git",
@@ -403,7 +402,7 @@
     "cross-env": "^7.0.3",
     "depcheck": "^1.4.1",
     "download": "^8.0.0",
-    "electron": "^6.1.12",
+    "electron": "^13.1.8",
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^8.2.2",
     "electron-rebuild": "^2.3.5",

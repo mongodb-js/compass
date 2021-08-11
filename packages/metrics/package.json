@@ -4,8 +4,8 @@
   "version": "7.4.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
-    "test": "mocha",
-    "test:electron": "xvfb-maybe electron-mocha --no-sandbox --renderer",
+    "test": "mocha && npm run test:electron",
+    "test:electron": "xvfb-maybe electron-mocha --no-sandbox --renderer --window-config=test/window.config.json",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
     "test-ci": "npm run test"
@@ -36,8 +36,8 @@
   },
   "devDependencies": {
     "depcheck": "^1.4.1",
-    "electron": "^6.1.12",
-    "electron-mocha": "^8.2.0",
+    "electron": "^13.1.8",
+    "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.0",

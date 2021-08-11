@@ -29,7 +29,7 @@
     "cli-table": "^0.3.1",
     "debug": "^4.1.1",
     "del": "^2.0.2",
-    "electron": "^6.1.12",
+    "electron": "^13.1.8",
     "electron-license": "^2.4.0",
     "electron-mocha": "^8.2.0",
     "electron-notarize": "^0.3.0",
