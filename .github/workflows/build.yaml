@@ -44,7 +44,7 @@ jobs:
         uses: actions/setup-node@v2.1.2
         with:
           # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
-          node-version: ^12.9.0
+          node-version: ^12.22.4
 
       - name: Install npm@7
         # Can be changed back to npm@7 when https://github.com/npm/cli/issues/3637 is resolved

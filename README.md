@@ -84,7 +84,7 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 
 ## Working With the Monorepo
 
-You'll need node ^12.9.0 and npm 7 installed on your machine to work with the repository locally. After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
+You'll need node ^12.22.4 and npm 7 installed on your machine to work with the repository locally. After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
 
 After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
 
