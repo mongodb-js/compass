@@ -1,4 +1,4 @@
 ignores: [
-  "global-jsdom",
+  "jsdom-global",
   "ts-node"
 ]

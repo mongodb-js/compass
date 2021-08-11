@@ -25,7 +25,7 @@
     "lint": "eslint src/**/*.tsx src/**/*.ts",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
-    "test": "npm run lint && nyc mocha --colors -r global-jsdom/register -r ts-node/register -r test-setup.ts src/**/*.spec.tsx",
+    "test": "npm run lint && nyc mocha --colors -r jsdom-global/register -r ts-node/register -r test-setup.ts src/**/*.spec.tsx",
     "test-check-ci": "npm run check && npm test",
     "test-ci": "npm run test"
   },
@@ -49,7 +49,7 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-mocha": "^8.0.0",
     "eslint-plugin-react": "^7.24.0",
-    "global-jsdom": "^8.1.0",
+    "jsdom-global": "^3.0.2",
     "mocha": "^8.4.0",
     "nyc": "^15.0.0",
     "react": "^16.14.0",
