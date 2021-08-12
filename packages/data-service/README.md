@@ -13,14 +13,14 @@ npm install --save mongodb-data-service
 ### Instantiating the service.
 
 ```javascript
-const Connection = require('mongodb-connection-model');
-const DataService = require('mongodb-data-service');
+const Connection = require("mongodb-connection-model");
+const DataService = require("mongodb-data-service");
 
 var service = new DataService(
   new Connection({
-    hostname: '127.0.0.1',
+    hostname: "127.0.0.1",
     port: 27018,
-    ns: 'data-service'
+    ns: "data-service",
   })
 );
 ```
@@ -38,27 +38,27 @@ service.connect((err) => assert.equal(null, err)})
 
 ```javascript
 // Get information for a collection.
-service.collection('database.collection', {}, (error, result) => {
+service.collection("database.collection", {}, (error, result) => {
   assert.equal(null, error);
 });
 
 // Get a document count.
-service.count('database.collection', { a: 1 }, {}, (error, count) => {
+service.count("database.collection", { a: 1 }, {}, (error, count) => {
   assert.equal(null, error);
 });
 
 // Get information for a database.
-service.database('database', {}, (error, result) => {
+service.database("database", {}, (error, result) => {
   assert.equal(null, error);
 });
 
 // Find documents in a collection.
-service.find('database.collection', { a: 1 }, {}, (error, documents) => {
+service.find("database.collection", { a: 1 }, {}, (error, documents) => {
   assert.equal(null, error);
 });
 
 // Get a result for a RESTful endpoint.
-service.get('/collection/database.test', {}, (error, result) => {
+service.get("/collection/database.test", {}, (error, result) => {
   assert.equal(null, error);
 });
 
@@ -68,7 +68,7 @@ service.instance({}, (error, result) => {
 });
 
 // Get a sample stream of documents from a collection.
-service.sample('database.collection', {});
+service.sample("database.collection", {});
 ```
 
 ## Instance Details
@@ -78,65 +78,65 @@ service.sample('database.collection', {});
 ```javascript
 [
   {
-    _id: 'admin.system.version',
-    name: 'system.version',
-    database: 'admin',
+    _id: "admin.system.version",
+    name: "system.version",
+    database: "admin",
     readonly: false,
     collation: null,
-    type: 'collection',
+    type: "collection",
     view_on: undefined,
-    pipeline: undefined
+    pipeline: undefined,
   },
   {
-    _id: 'config.system.sessions',
-    name: 'system.sessions',
-    database: 'config',
+    _id: "config.system.sessions",
+    name: "system.sessions",
+    database: "config",
     readonly: false,
     collation: null,
-    type: 'collection',
+    type: "collection",
     view_on: undefined,
-    pipeline: undefined
+    pipeline: undefined,
   },
   {
-    _id: 'data-service.test',
-    name: 'test',
-    database: 'data-service',
+    _id: "data-service.test",
+    name: "test",
+    database: "data-service",
     readonly: false,
     collation: null,
-    type: 'collection',
+    type: "collection",
     view_on: undefined,
-    pipeline: undefined
+    pipeline: undefined,
   },
   {
-    _id: 'data-service.system.views',
-    name: 'system.views',
-    database: 'data-service',
+    _id: "data-service.system.views",
+    name: "system.views",
+    database: "data-service",
     readonly: false,
     collation: null,
-    type: 'collection',
+    type: "collection",
     view_on: undefined,
-    pipeline: undefined
+    pipeline: undefined,
   },
   {
-    _id: 'data-service.myView',
-    name: 'myView',
-    database: 'data-service',
+    _id: "data-service.myView",
+    name: "myView",
+    database: "data-service",
     readonly: true,
     collation: null,
-    type: 'view',
-    view_on: 'test',
-    pipeline: [{ $project: { a: 0 } }]
+    type: "view",
+    view_on: "test",
+    pipeline: [{ $project: { a: 0 } }],
   },
   {
-    _id: 'local.startup_log',
-    name: 'startup_log',
-    database: 'local',
+    _id: "local.startup_log",
+    name: "startup_log",
+    database: "local",
     readonly: false,
     collation: null,
-    type: 'collection',
+    type: "collection",
     view_on: undefined,
-    pipeline: undefined
-  }
+    pipeline: undefined,
+  },
 ];
 ```
 

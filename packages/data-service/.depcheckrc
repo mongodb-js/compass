@@ -1,1 +1,4 @@
-ignores: []
+ignores: [
+  "ts-node",
+  "@mongodb-js/tsconfig-compass"
+]

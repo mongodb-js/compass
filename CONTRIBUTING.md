@@ -75,7 +75,8 @@ To create a new package, follow the outlined steps:
    1. Add the `prettier` package as a `devDependency`.
    2. Set up a `.prettierignore` file with the following content:
       ```
-      lib/
+      lib
+      .nyc_output
       ```
    3. Add an `.prettierrc.json` file with just `{}` as contents to make sure `prettier` will be triggered in VSCode.
 5. For setting up typical packages tasks and depcheck refer to existing packages like [`compass-components`](./packages/compass-components). Make sure to add `@mongodb-js/tsconfig-compass` to the ignored packages in `.depcheckrc`.
