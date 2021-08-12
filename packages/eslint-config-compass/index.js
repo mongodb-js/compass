@@ -18,7 +18,11 @@ module.exports = {
   env: { node: true },
   overrides: [
     {
+      parserOptions: {
+        ecmaVersion: 2018,
+      },
       files: ["**/*.js"],
+      env: { node: true, es6: true },
       extends: [...jsConfigurations, "prettier"],
     },
     {
@@ -27,8 +31,11 @@ module.exports = {
       extends: [...tsConfigurations, "prettier"],
     },
     {
+      parserOptions: {
+        ecmaVersion: 2018,
+      },
       files: ["**/*.jsx"],
-      env: { node: true, browser: true },
+      env: { node: true, browser: true, es6: true },
       extends: [...jsConfigurations, ...reactConfigurations, "prettier"],
     },
     {

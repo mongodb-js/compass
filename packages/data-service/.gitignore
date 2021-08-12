@@ -8,3 +8,5 @@ coverage
 *.iml
 .nvmrc
 *.swp
+lib/
+.nyc_output/
