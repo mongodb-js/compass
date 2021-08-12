@@ -22,12 +22,13 @@
     "compile-ts": "tsc -p tsconfig.json",
     "cover": "nyc npm run test",
     "depcheck": "depcheck",
-    "lint": "eslint src/**/*.tsx src/**/*.ts",
+    "lint": "eslint . && prettier --check .",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "test": "npm run lint && nyc mocha --colors -r jsdom-global/register -r ts-node/register -r test-setup.ts src/**/*.spec.tsx",
     "test-check-ci": "npm run check && npm test",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "reformat": "prettier --write ."
   },
   "dependencies": {
     "@leafygreen-ui/confirmation-modal": "^2.2.1"
@@ -36,22 +37,20 @@
     "react": "^16.14.0"
   },
   "devDependencies": {
+    "@mongodb-js/eslint-config-compass": "^0.0.1",
+    "@mongodb-js/tsconfig-compass": "^0.0.1",
     "@testing-library/react": "^12.0.0",
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",
     "@types/react": "^17.0.5",
-    "@typescript-eslint/eslint-plugin": "^4.28.4",
-    "@typescript-eslint/parser": "^4.28.4",
     "chai": "^4.3.4",
     "chai-dom": "^1.9.0",
     "eslint": "^7.25.0",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-mocha": "^8.0.0",
-    "eslint-plugin-react": "^7.24.0",
     "jsdom-global": "^3.0.2",
     "mocha": "^8.4.0",
     "nyc": "^15.0.0",
+    "prettier": "2.3.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "rimraf": "^3.0.2",
