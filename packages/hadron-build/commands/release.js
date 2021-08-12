@@ -43,7 +43,7 @@ exports.command = 'release';
 exports.describe = ':shipit:';
 
 const COMPILE_CACHE = '.compiled-sources';
-const COMPILE_CACHE_MAPPINGS = '_compileCacheMappings';
+const COMPILE_CACHE_MAPPINGS = '.compile-cache-mappings.json';
 const CACHE_PATTERN = '**/*.{jade,jsx,md}';
 
 /**
@@ -53,7 +53,7 @@ const CACHE_PATTERN = '**/*.{jade,jsx,md}';
  * @param {Function} done
  * @api public
  */
-const cleanCompileCache = (CONFIG, done) => {
+const cleanCompileCache = exports.cleanCompileCache = (CONFIG, done) => {
   cli.debug('cleaning out development compile cache');
   fs.remove(path.resolve(CONFIG.dir, COMPILE_CACHE), function() {
     done();
@@ -67,9 +67,9 @@ const cleanCompileCache = (CONFIG, done) => {
  * @param {Function} done
  * @api public
  */
-const createCompileCache = (CONFIG, done) => {
+const createCompileCache = exports.createCompileCache = (CONFIG, done) => {
   cli.debug('creating compile cache');
-  var appDir = path.join(CONFIG.resources, 'app');
+  var appDir = CONFIG.resourcesAppDir;
   CompileCache.setHomeDirectory(appDir);
   glob(`src/${CACHE_PATTERN}`, function(error, files) {
     cli.abortIfError(error);
@@ -77,11 +77,12 @@ const createCompileCache = (CONFIG, done) => {
       var compiler = CompileCache.COMPILERS[path.extname(file)];
       CompileCache.compileFileAtPath(compiler, file);
     });
-    // Write the compile cache mappings to the package.json.
-    const PACKAGE_JSON_DEST = path.join(CONFIG.resources, 'app', 'package.json');
-    let metadata = require(PACKAGE_JSON_DEST);
-    metadata[COMPILE_CACHE_MAPPINGS] = CompileCache.digestMappings;
-    fs.writeFile(path.join(appDir, 'package.json'), JSON.stringify(metadata, null, 2), done);
+    const mappings = JSON.stringify(CompileCache.digestMappings, null, 2);
+    const mappingsPath = path.join(
+      CONFIG.resourcesAppDir,
+      COMPILE_CACHE_MAPPINGS
+    );
+    fs.writeFile(mappingsPath, mappings, done);
   });
 };
 
@@ -89,21 +90,21 @@ const createCompileCache = (CONFIG, done) => {
  * Use the style manager to build the css and inject into the index.html
  * and help.html.
  */
-const createPackagedStyles = (CONFIG, done) => {
-  const rootDir = path.join(CONFIG.resources, 'app');
-  const appDir = path.join(rootDir, 'src', 'app');
+const createPackagedStyles = exports.createPackagedStyles = (CONFIG, done) => {
+  const appDir = CONFIG.resourcesAppDir;
+  const appSrcDir = path.join(appDir, 'src', 'app');
   const metadata = CONFIG.pkg;
-  const dist = metadata.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
+  const dist = metadata.config.hadron.distributions[CONFIG.distribution];
 
-  cli.debug(`Creating styles for distribution: ${process.env.HADRON_DISTRIBUTION}`);
+  cli.debug(`Creating styles for distribution: ${CONFIG.distribution}`);
 
   const tasks = [];
-  const manager = new StyleManager(path.join(appDir, '.compiled-less'), appDir);
+  const manager = new StyleManager(path.join(appSrcDir, '.compiled-less'), appSrcDir);
 
   const styles = dist.styles;
   for (let file of styles) {
     tasks.push((done) => {
-      manager.build(path.join(appDir, `${file}.html`), path.join(appDir, `${file}.less`), done);
+      manager.build(path.join(appSrcDir, `${file}.html`), path.join(appSrcDir, `${file}.less`), done);
     });
   }
 
@@ -112,14 +113,14 @@ const createPackagedStyles = (CONFIG, done) => {
     let pluginPath;
     try {
       pluginPath = path.dirname(
-        pkgUp.sync({ cwd: require.resolve(dir, { paths: [rootDir] }) })
+        pkgUp.sync({ cwd: require.resolve(dir, { paths: [appDir] }) })
       );
     } catch (e) {
-      pluginPath = path.join(rootDir, dir);
+      pluginPath = path.join(appDir, dir);
     }
     const fullDir = path.join(pluginPath, 'styles', 'index.less');
     tasks.push((done) => {
-      manager.build(path.join(appDir, `${styles[0]}.html`), fullDir, done);
+      manager.build(path.join(appSrcDir, `${styles[0]}.html`), fullDir, done);
     });
   }
 
@@ -247,9 +248,9 @@ const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
  * @returns {Promise}
  * @api public
  */
-const writeLicenseFile = (target, done) => {
+const writeLicenseFile = (CONFIG, done) => {
   var opts = {
-    dir: path.join(target.resources, 'app'),
+    dir: CONFIG.resourcesAppDir,
     production: false,
     excludeOrg: 'mongodb-js,10gen,christkv'
   };
@@ -260,11 +261,11 @@ const writeLicenseFile = (target, done) => {
    */
   return license.list(opts).then((deps) => {
     return license.render(deps, opts.dir)
-      .then(contents => target.write('LICENSE', contents))
+      .then(contents => CONFIG.write('LICENSE', contents))
       /**
        * TODO (imlucas) Write `deps` to an Atlas instance so we can analyze it.
        */
-      // .then(() => target.write('LICENSE.json', JSON.stringify(licenseData, null, 2)))
+      // .then(() => CONFIG.write('LICENSE.json', JSON.stringify(licenseData, null, 2)))
       .then(dest => {
         cli.debug(format('LICENSE written to `%s`', dest));
         if (done) {
@@ -315,7 +316,7 @@ const writeVersionFile = (CONFIG, done) => {
  * @api public
  */
 const transformPackageJson = (CONFIG, done) => {
-  const PACKAGE_JSON_DEST = path.join(CONFIG.resources, 'app', 'package.json');
+  const PACKAGE_JSON_DEST = path.join(CONFIG.resourcesAppDir, 'package.json');
   const packageKeysToRemove = [
     'devDependencies',
     'dependency-check',
@@ -329,7 +330,7 @@ const transformPackageJson = (CONFIG, done) => {
   _.assign(contents, {
     channel: CONFIG.channel,
     version: CONFIG.version,
-    distribution: process.env.HADRON_DISTRIBUTION
+    distribution: CONFIG.distribution
   });
 
   /**
@@ -366,7 +367,7 @@ const transformPackageJson = (CONFIG, done) => {
  * @api public
  */
 const installDependencies = (CONFIG, done) => {
-  const appPackagePath = path.join(CONFIG.resources, 'app');
+  const appPackagePath = CONFIG.resourcesAppDir;
 
   cli.debug('Installing dependencies');
 
@@ -440,13 +441,14 @@ const removeDevelopmentFiles = (CONFIG, done) => {
   ];
 
   var globsToDelete = [
-    path.join(CONFIG.resources, 'app', 'test'),
-    path.join(CONFIG.resources, 'app', 'scripts')
+    path.join(CONFIG.resourcesAppDir, 'test'),
+    path.join(CONFIG.resourcesAppDir, 'scripts')
   ];
 
   if (CONFIG.platform === 'darwin') {
-    globsToDelete.push(path.join(CONFIG.resources,
-      'app', '{' + DOT_FILES.join(',') + '}'));
+    globsToDelete.push(
+      path.join(CONFIG.resourcesAppDir, '{' + DOT_FILES.join(',') + '}')
+    );
   }
 
   cli.debug('Checking for extraneous files to remove:\n' +
@@ -472,9 +474,6 @@ const removeDevelopmentFiles = (CONFIG, done) => {
  * @param {Function} done
  */
 const createApplicationAsar = (CONFIG, done) => {
-  if (process.env.NO_ASAR) {
-    return done();
-  }
   var opts = {
     /**
      * TODO (imlucas) Find a good way to automate generating
@@ -489,8 +488,8 @@ const createApplicationAsar = (CONFIG, done) => {
       .join(',')}}`
   };
 
-  var src = path.join(CONFIG.resources, 'app');
-  var dest = path.join(CONFIG.resources, 'app.asar');
+  var src = CONFIG.resourcesAppDir;
+  var dest = `${CONFIG.resourcesAppDir}.asar`;
 
   asar.createPackageWithOptions(src, dest, opts).then(() => {
     del(src, { force: true }).then(() => {
@@ -512,21 +511,15 @@ const createApplicationAsar = (CONFIG, done) => {
  * @api public
  */
 const createBrandedInstaller = (CONFIG, done) => {
-  if (process.env.HADRON_SKIP_INSTALLER === 'true') {
-    cli.debug('skipping installer');
-    done();
-    return;
-  }
-
   cli.debug('Creating installer');
   CONFIG.createInstaller().then(() => done()).catch(done);
 };
 
 const createModuleCache = (CONFIG, done) => {
-  const appDir = path.join(CONFIG.resources, 'app');
+  const appDir = CONFIG.resourcesAppDir;
   ModuleCache.create(appDir);
 
-  const PACKAGE_JSON_DEST = path.join(CONFIG.resources, 'app', 'package.json');
+  const PACKAGE_JSON_DEST = path.join(CONFIG.resourcesAppDir, 'package.json');
   let metadata = require(PACKAGE_JSON_DEST);
 
   for (let folder in _.get(metadata, '_compassModuleCache.folders')) {
@@ -534,13 +527,29 @@ const createModuleCache = (CONFIG, done) => {
       folder.paths = ['', 'test', 'src', 'src/app'];
     }
   }
-  fs.writeFile(path.join(appDir, 'package.json'), JSON.stringify(metadata, null, 2), done);
+  fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(metadata, null, 2), done);
+};
+
+const writeConfigToJson = (CONFIG, done) => {
+  fs.writeFile(
+    path.join(CONFIG.out, 'target.json'),
+    JSON.stringify(CONFIG, null, 2),
+    done
+  );
 };
 
 exports.builder = {
   dir: {
     description: 'Project root directory',
     default: process.cwd()
+  },
+  skip_installer: {
+    description: 'Skip installer generation',
+    default: false
+  },
+  no_asar: {
+    description: 'Do not package application source to .asar bundle',
+    default: false
   }
 };
 
@@ -551,9 +560,10 @@ exports.run = (argv, done) => {
 
   verifyDistro(argv);
 
-  cli.debug(`Building distribution: ${process.env.HADRON_DISTRIBUTION}`);
-
   const target = new Target(argv.dir);
+
+  cli.debug(`Building distribution: ${target.distribution}`);
+
   const task = (name, fn) => {
     return function(cb) {
       cli.debug(`start: ${name}`);
@@ -567,6 +577,11 @@ exports.run = (argv, done) => {
       });
     };
   };
+
+  const skipInstaller =
+    process.env.HADRON_SKIP_INSTALLER === 'true' || argv.skip_installer;
+
+  const noAsar = process.env.NO_ASAR === 'true' || argv.no_asar;
 
   const tasks = _.flatten([
     function(cb) {
@@ -586,10 +601,11 @@ exports.run = (argv, done) => {
     task('create module cache', createModuleCache),
     task('create packaged styles', createPackagedStyles),
     task('remove development files', removeDevelopmentFiles),
-    task('create application asar', createApplicationAsar),
-    task('create branded installer', createBrandedInstaller),
-    task('create application zip', createApplicationZip)
-  ]);
+    !noAsar && task('create application asar', createApplicationAsar),
+    !skipInstaller && task('create branded installer', createBrandedInstaller),
+    task('create application zip', createApplicationZip),
+    task('store build configuration as json', writeConfigToJson)
+  ].filter(Boolean));
 
   return async.series(tasks, (_err) => {
     if (_err) {

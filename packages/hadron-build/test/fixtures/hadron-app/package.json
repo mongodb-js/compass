@@ -93,6 +93,5 @@
   "author": {
     "name": "MongoDB Inc."
   },
-  "electronVersion": "1.4.12",
-  "_compileCacheMappings": {}
+  "electronVersion": "1.4.12"
 }
