@@ -210,6 +210,7 @@
       "rebuild": {
         "onlyModules": [
           "interruptor",
+          "keytar",
           "kerberos"
         ]
       }
@@ -217,12 +218,12 @@
   },
   "scripts": {
     "install": "node scripts/download-akzidenz.js",
-    "electron-rebuild": "electron-rebuild --force --only kerberos,interruptor",
+    "electron-rebuild": "electron-rebuild --force --only kerberos,keytar,interruptor",
     "prestart": "rm -rf .compiled-sources && rm -rf package-lock.json && npm run electron-rebuild",
     "start": "hadron-build develop",
     "pretest": "npm run electron-rebuild",
     "test": "hadron-build test",
-    "posttest": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos interruptor",
+    "posttest": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos keytar interruptor",
     "check": "npm run lint && npm run depcheck",
     "clean": "hadron-build clean",
     "compile-ui": "hadron-build ui",
@@ -243,7 +244,7 @@
     "depcheck": "depcheck",
     "pretest-ci": "npm run electron-rebuild",
     "test-ci": "npm run test-release-tasks && xvfb-maybe electron-mocha --no-sandbox ./test/**/*.test.js",
-    "posttest-ci": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos interruptor"
+    "posttest-ci": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos keytar interruptor"
   },
   "repository": {
     "type": "git",
@@ -339,7 +340,7 @@
     "highlight.js": "^8.9.1",
     "jquery": "^3.5.0",
     "kerberos": "^1.1.6",
-    "keytar": "^7.7.0",
+    "keytar": "^5.1.0",
     "less": "^2.6.1",
     "local-links": "^1.4.0",
     "make-fetch-happen": "^8.0.14",
@@ -403,7 +404,7 @@
     "download": "^8.0.0",
     "electron": "^13.1.8",
     "electron-devtools-installer": "^3.2.0",
-    "electron-mocha": "^8.2.2",
+    "electron-mocha": "^10.1.0",
     "electron-rebuild": "^2.3.5",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",

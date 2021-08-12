@@ -22,7 +22,7 @@
     "depcheck": "depcheck",
     "download-akzidenz": "lerna exec -- node ../../scripts/download-akzidenz.js",
     "electron-rebuild": "npm run electron-rebuild --workspace mongodb-compass",
-    "node-rebuild": "node ./scripts/rebuild.js kerberos interruptor",
+    "node-rebuild": "node ./scripts/rebuild.js kerberos keytar interruptor",
     "packages-publish": "lerna publish from-package --allow-branch main",
     "postpackages-publish": "git push && git push --tags",
     "packages-version": "lerna version --allow-branch main --no-push --no-private -m \"chore(release): Bump package versions\"",
