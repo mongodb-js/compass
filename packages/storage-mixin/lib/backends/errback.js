@@ -1,4 +1,4 @@
-const debug = require('debug')('mongodb-storage-mixin:backends:errback');
+// const debug = require('debug')('mongodb-storage-mixin:backends:errback');
 
 /**
  * Helper so you can just use errbacks `function(err, res)`
@@ -16,7 +16,7 @@ function wrapOptions(method, model, options) {
       if (options.error) {
         return options.error(res, err);
       }
-      debug('An error ocurred with no handler specified!', err);
+      // debug('An error ocurred with no handler specified!', err);
       throw err;
     }
 

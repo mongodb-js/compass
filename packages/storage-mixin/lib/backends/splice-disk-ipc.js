@@ -9,7 +9,7 @@ var wrapErrback = require('./errback').wrapErrback;
 var mergeSpliceResults = require('./util').mergeSpliceResults;
 var inherits = require('util').inherits;
 
-var debug = require('debug')('mongodb-storage-mixin:backends:splice-disk');
+// var debug = require('debug')('mongodb-storage-mixin:backends:splice-disk');
 
 function SpliceDiskIpcBackend(options) {
   if (!(this instanceof SpliceDiskIpcBackend)) {
@@ -28,14 +28,14 @@ function SpliceDiskIpcBackend(options) {
   // patch the serialize methods in both backends
   var condition = options.secureCondition;
   DiskBackend.prototype.serialize = function(model) {
-    debug('Serializing for disk backend with condition', condition);
+    // debug('Serializing for disk backend with condition', condition);
     var res = _.omitBy(model.serialize(), condition);
     return res;
   };
   this.diskBackend = new DiskBackend(options);
 
   SecureIpcBackend.prototype.serialize = function(model) {
-    debug('Serializing for secure backend with condition', condition);
+    // debug('Serializing for secure backend with condition', condition);
     var res = _.pickBy(model.serialize(), condition);
     return res;
   };
@@ -51,7 +51,7 @@ inherits(SpliceDiskIpcBackend, BaseBackend);
  * @param {Function} done
  */
 SpliceDiskIpcBackend.clear = function(namespace, done) {
-  debug('Clear for all involved backends');
+  // debug('Clear for all involved backends');
   var tasks = [
     DiskBackend.clear.bind(null, namespace),
     SecureIpcBackend.clear.bind(null, namespace) // note: this is a no-op

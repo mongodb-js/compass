@@ -3,7 +3,7 @@ var resources = require('../lib/resources');
 var assert = require('assert');
 var sinon = require('sinon');
 
-var debug = require('debug')('mongodb-js-metrics:test:error');
+// var debug = require('debug')('mongodb-js-metrics:test:error');
 var DEBUG = true;
 
 describe('Error Resource', function() {
@@ -28,7 +28,7 @@ describe('Error Resource', function() {
 
   it('should be usable from the metrics module directly', function(done) {
     errorResource.error = function(err, metadata) {
-      debug('arguments', arguments);
+      // debug('arguments', arguments);
       assert.equal(err.message, 'foo bar');
       assert.equal(metadata.meta, 'data');
       done();
