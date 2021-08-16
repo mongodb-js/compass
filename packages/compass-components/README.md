@@ -3,6 +3,7 @@
 > A set of React Components which help build Compass
 
 ## Resources
+
 - https://electron.atom.io/docs - Electron's documentation
 - https://www.typescriptlang.org/ - Typescript
 - https://nodejs.org/en/ - Node.js

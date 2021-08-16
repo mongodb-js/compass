@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
 import QueryBar from '../query-bar';
 import QueryOption from '../query-option';
@@ -326,6 +326,61 @@ describe('QueryBar [Component]', function() {
             serverVersion="3.4.0" />
         );
         expect(component.find('#query-bar-menu-actions')).to.not.exist;
+      });
+    });
+
+    describe('a user is able to provide custom placeholders for the input fields', function() {
+      const layout = ['filter', 'project', ['sort', 'maxTimeMS'], ['collation', 'skip', 'limit']];
+
+
+      it('the input fields have a placeholder by default', function() {
+        const component = mount(
+          <QueryBar
+            store={store}
+            actions={actions}
+            layout={layout}
+            expanded
+            serverVersion="3.4.0" />
+        );
+
+        expect(component.find('div[data-test-id="query-bar-options-toggle"]')).to.exist;
+        component.find('div[data-test-id="query-bar-options-toggle"]').simulate('click');
+        expect(component.find('OptionEditor[label="filter"]').prop('placeholder')).to.not.be.empty;
+        expect(component.find('OptionEditor[label="project"]').prop('placeholder')).to.not.be.empty;
+        expect(component.find('OptionEditor[label="collation"]').prop('placeholder')).to.not.be.empty;
+        expect(component.find('OptionEditor[label="sort"]').prop('placeholder')).to.not.be.empty;
+        expect(component.find('QueryOption[label="Max Time MS"]').prop('placeholder')).to.not.be.empty;
+        expect(component.find('QueryOption[label="skip"]').prop('placeholder')).to.not.be.empty;
+        expect(component.find('QueryOption[label="limit"]').prop('placeholder')).to.not.be.empty;
+      });
+
+      it('the input fields placeholders can be modified', function() {
+        const component = mount(
+          <QueryBar
+            store={store}
+            actions={actions}
+            layout={layout}
+            sortOptionPlaceholder="{ field: -1 }"
+            expanded
+            serverVersion="3.4.0"
+            filterPlaceholder="{field: 'matchValue'}"
+            projectPlaceholder="{field: 1}"
+            collationPlaceholder="{locale: 'fr' }"
+            sortPlaceholder="{field: 1}"
+            skipPlaceholder="10"
+            limitPlaceholder="20"
+            maxTimeMSPlaceholder="50000" />
+        );
+
+        expect(component.find('div[data-test-id="query-bar-options-toggle"]')).to.exist;
+        component.find('div[data-test-id="query-bar-options-toggle"]').simulate('click');
+        expect(component.find('OptionEditor[label="filter"]').prop('placeholder')).to.equal("{field: 'matchValue'}");
+        expect(component.find('OptionEditor[label="project"]').prop('placeholder')).to.equal('{field: 1}');
+        expect(component.find('OptionEditor[label="collation"]').prop('placeholder')).to.equal("{locale: 'fr' }");
+        expect(component.find('OptionEditor[label="sort"]').prop('placeholder')).to.equal('{field: 1}');
+        expect(component.find('QueryOption[label="Max Time MS"]').prop('placeholder')).to.equal('50000');
+        expect(component.find('QueryOption[label="skip"]').prop('placeholder')).to.equal('10');
+        expect(component.find('QueryOption[label="limit"]').prop('placeholder')).to.equal('20');
       });
     });
   });

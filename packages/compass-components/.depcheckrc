@@ -1,4 +1,5 @@
 ignores: [
-  "global-jsdom",
-  "ts-node"
+  "jsdom-global",
+  "ts-node",
+  "@mongodb-js/tsconfig-compass"
 ]
