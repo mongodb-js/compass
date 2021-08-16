@@ -13,27 +13,27 @@ module.exports.expect = expect;
 module.exports.connection = new Connection({
   hostname: '127.0.0.1',
   port: 27018,
-  ns: 'data-service'
+  ns: 'data-service',
 });
 
-module.exports.insertTestDocuments = function(client, callback) {
+module.exports.insertTestDocuments = function (client, callback) {
   var collection = client.database.collection('test');
   collection.insertMany(
     [
       {
         1: 'a',
-        a: 1
+        a: 1,
       },
       {
         2: 'a',
-        a: 2
-      }
+        a: 2,
+      },
     ],
     callback
   );
 };
 
-module.exports.deleteTestDocuments = function(client, callback) {
+module.exports.deleteTestDocuments = function (client, callback) {
   var collection = client.database.collection('test');
   collection.deleteMany(callback);
 };

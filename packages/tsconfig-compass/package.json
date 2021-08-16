@@ -12,6 +12,7 @@
     "typescript": "^4.3.5"
   },
   "devDependencies": {
+    "@mongodb-js/prettier-config-compass": "^0.0.1",
     "prettier": "2.3.2"
   },
   "scripts": {

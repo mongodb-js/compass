@@ -1,5 +1,3 @@
-# @mongodb-js/eslint-config-compass
+# @mongodb-js/tsconfig-compass
 
-> Shared [eslint][eslint] configuration for Compass packages.
-
-[eslint]: https://eslint.org/
+> Shared TypeScript base configurations for Compass packages.
