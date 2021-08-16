@@ -28,6 +28,7 @@ class CnameInput extends React.PureComponent {
             id="canonicalizeHostName"
             name="canonicalizeHostName"
             type="button"
+            aria-labelledby="canonicalizeHostNameLabel"
             checked={this.props.canonicalize_hostname}
             onChange={this.onCnameToggle}
             className={styles['form-control-switch']}

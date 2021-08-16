@@ -34,7 +34,7 @@ describe('<CnameInput />', () => {
       });
 
       it('enables the switch', () => {
-        expect(component.find('input')).to.have.prop('checked', true);
+        expect(component.find('[role="switch"]')).to.have.prop('aria-checked', true);
       });
     });
   });
