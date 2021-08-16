@@ -22,20 +22,8 @@ class SidebarInstance extends PureComponent {
     connectionModel: PropTypes.object,
     toggleIsModalVisible: PropTypes.func.isRequired,
     isModalVisible: PropTypes.bool.isRequired,
-    deleteFavorite: PropTypes.func.isRequired,
     saveFavorite: PropTypes.func.isRequired
   };
-
-  /**
-   * Deletes the current favorite.
-   *
-   * @param {Object} connection - The current connection.
-   */
-  deleteFavorite(connection) {
-    this.props.deleteFavorite(connection);
-    this.props.toggleIsModalVisible(false);
-    global.hadronApp.appRegistry.emit('clear-current-favorite');
-  }
 
   /**
    * Closes the favorite modal.
@@ -65,7 +53,6 @@ class SidebarInstance extends PureComponent {
       return (
         <FavoriteModal
           connectionModel={this.props.connectionModel.connection}
-          deleteFavorite={this.deleteFavorite.bind(this)}
           closeFavoriteModal={this.closeFavoriteModal.bind(this)}
           saveFavorite={this.saveFavorite.bind(this)} />
       );

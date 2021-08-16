@@ -1,10 +1,8 @@
-import Button from '@leafygreen-ui/button';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
 
 import Actions from '../../actions';
-import styles from '../connect.less';
 
 /**
  * Question text.
@@ -45,24 +43,15 @@ class ConfirmEditConnectionString extends PureComponent {
    */
   render() {
     return (
-      <Modal show={this.props.isEditURIConfirm}>
-        <Modal.Header closeButton onHide={this.onClose}>
-          <h4>{QUESTION}</h4>
-        </Modal.Header>
-        <Modal.Body>
-          <div id="edit-uri-note">{NOTE}</div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            onClick={this.onClose}
-          >Cancel</Button>
-          <Button
-            className={styles['confirm-edit-modal-button']}
-            variant="primary"
-            onClick={this.onConfirm}
-          >Confirm</Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmationModal
+        title={QUESTION}
+        open={this.props.isEditURIConfirm}
+        onConfirm={this.onConfirm}
+        onCancel={this.onClose}
+        buttonText="Confirm"
+      >
+        <div id="edit-uri-note">{NOTE}</div>
+      </ConfirmationModal>
     );
   }
 }

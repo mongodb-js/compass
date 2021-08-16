@@ -4,11 +4,6 @@
 export const CHANGE_CONNECTION = 'sidebar/connection/CHANGE_CONNECTION';
 
 /**
- * Delete favorite action name.
- */
-export const DELETE_FAVORITE = 'sidebar/connection/DELETE_FAVORITE';
-
-/**
  * Save favorite action name.
  */
 export const SAVE_FAVORITE = 'sidebar/connection/SAVE_FAVORITE';
@@ -46,27 +41,11 @@ const doSaveFavorite = (state, action) => {
 };
 
 /**
- * Deletes the favorite.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
- */
-const doDeleteFavorite = (state, action) => {
-  action.connection.set({ isFavorite: false, name: '', color: undefined });
-  action.connection.destroy();
-
-  return { ...state, connection: action.connection };
-};
-
-/**
  * To not have a huge switch statement in the reducer.
  */
 const MAPPINGS = {
   [CHANGE_CONNECTION]: doChangeConnection,
-  [SAVE_FAVORITE]: doSaveFavorite,
-  [DELETE_FAVORITE]: doDeleteFavorite
+  [SAVE_FAVORITE]: doSaveFavorite
 };
 
 /**
@@ -111,14 +90,3 @@ export const saveFavorite = (connection, name, color) => ({
   color
 });
 
-/**
- * Delete favorite action creator.
- *
- * @param {Object} connection - The connection.
- *
- * @returns {Object} The action.
- */
-export const deleteFavorite = (connection) => ({
-  type: DELETE_FAVORITE,
-  connection
-});
