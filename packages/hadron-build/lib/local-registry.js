@@ -16,7 +16,7 @@ async function lernaPublish(registryAddress) {
   await execa('npx', [
     'lerna', 'publish', 'from-package',
     '--ignore-scripts',
-    '--registry', `http://${registryAddress}`
+    '--registry', registryAddress
     // , '--yes'
   ], { cwd: monorepoPath, stdio: 'inherit' });
 }
