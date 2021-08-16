@@ -37,8 +37,9 @@
     "react": "^16.14.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^0.1.0",
-    "@mongodb-js/tsconfig-compass": "^0.1.0",
+    "@mongodb-js/eslint-config-compass": "*",
+    "@mongodb-js/prettier-config-compass": "*",
+    "@mongodb-js/tsconfig-compass": "*",
     "@testing-library/react": "^12.0.0",
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
