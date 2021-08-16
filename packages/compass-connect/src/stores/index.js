@@ -604,10 +604,13 @@ const Store = Reflux.createStore({
 
   /**
    * Handle change of cname param.
+   * @param {boolean} newVal
    */
-  onCnameToggle() {
-    const connection = this.state.connectionModel;
-    connection.kerberosCanonicalizeHostname = !connection.kerberosCanonicalizeHostname;
+  onCnameToggle(newVal) {
+    this.state.connectionModel.kerberosCanonicalizeHostname =
+      typeof newVal !== 'undefined'
+        ? newVal
+        : !this.state.connectionModel.kerberosCanonicalizeHostname;
     this.trigger(this.state);
   },
 
