@@ -138,6 +138,13 @@ jobs:
           kill $VERDACCIO_PID
         shell: bash
 
+      - name: Test Packaged Application
+        env:
+          E2E_TESTS_ATLAS_HOST: ${{ secrets.E2E_TESTS_ATLAS_HOST }}
+          E2E_TESTS_ATLAS_USERNAME: ${{ secrets.E2E_TESTS_ATLAS_USERNAME }}
+          E2E_TESTS_ATLAS_PASSWORD: ${{ secrets.E2E_TESTS_ATLAS_PASSWORD }}
+        run: npm run test-packaged-ci --workspace compass-e2e-tests
+
       - name: Upload Compass Artifacts
         uses: actions/upload-artifact@v2
         with:
