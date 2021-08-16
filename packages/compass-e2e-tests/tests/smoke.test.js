@@ -25,8 +25,10 @@ describe('Compass', function () {
 
   after(async () => {
     try {
-      await compass.stop();
-      compass = null;
+      if (compass) {
+        await compass.stop();
+        compass = null;
+      }
     } finally {
       keychain.reset();
     }

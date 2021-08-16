@@ -105,6 +105,31 @@ async function startCompass(
     env: { APP_ENV: 'spectron' }
   };
 
+  if (process.env.CI) {
+    // Mimicking webdriver path with this
+    const nowFormatted = new Date()
+      .toISOString()
+      .replace(/:/g, '-')
+      .replace(/Z$/, '');
+
+    const chromeDriverLogPath = path.join(
+      __dirname,
+      '..',
+      '.log',
+      'chromedriver',
+      `electron.${nowFormatted}.log`
+    );
+    const webdriverLogPath = path.join(__dirname, '..', '.log', 'webdriver');
+
+    // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
+    // for consistency let's mkdir for both of them just in case
+    await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
+    await fs.mkdir(path.dirname(webdriverLogPath), { recursive: true });
+
+    appOptions.chromeDriverLogPath = chromeDriverLogPath;
+    appOptions.webdriverLogPath = webdriverLogPath;
+  }
+
   /** @type {ExtendedApplication} */
   // It's missing methods that we will add in a moment
   // @ts-expect-error

@@ -35,6 +35,12 @@ async function main() {
   const failures = await promisify(mocha.run.bind(mocha))();
 
   process.exitCode = failures ? 1 : 0;
+
+  if (process.exitCode > 0) {
+    // Force-exit if tests failed (sometimes electron gets stuck and causes
+    // script to run forever)
+    process.exit();
+  }
 }
 
 process.on('unhandledRejection', (err) => {
