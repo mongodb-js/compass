@@ -1,0 +1,5 @@
+ignores: [
+  "jsdom-global",
+  "ts-node",
+  "@mongodb-js/tsconfig-compass"
+]

@@ -2,13 +2,16 @@
   "name": "mongodb-compass-monorepo",
   "description": "Monorepo that includes Compass and all its dependencies",
   "homepage": "https://compass.mongodb.com",
+  "version": "0.0.0-dev.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
+  "main": "packages/compass/src/main.js",
   "shortcutFolderName": "MongoDB",
   "license": "SSPL",
   "scripts": {
+    "trybuild": "compass-build",
     "bootstrap": "npm install && lerna run bootstrap --stream",
     "bootstrap-evergreen": "npm ci && lerna run bootstrap",
     "precheck": "npm run depcheck",
@@ -47,6 +50,9 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/compass.git"
+  },
+  "dependencies": {
+    "mongodb-compass": "0.0.0-dev.0"
   },
   "devDependencies": {
     "@npmcli/arborist": "^2.7.1",
