@@ -34,11 +34,14 @@ async function listPackages() {
   const { stdout } = await execa('npx', [
     'lerna', 'ls', '--json'
   ], { cwd: monorepoPath });
-  console.log(stdout);
   return JSON.parse(stdout);
 }
 
 async function writeConfigFile(tempDir) {
+  // creates a verdaccio yaml config for the tmp folder
+  // NOTE: in order to disable the uplink with npm for internal packages
+  // we add overrides for each package.
+
   const storagePath = path.join(tempDir, 'storage');
   const packages = await listPackages();
   const packagesOverrides = packages.map(({name}) => `  '${name}': {access: $all, publish: $all}`).join('\n');
