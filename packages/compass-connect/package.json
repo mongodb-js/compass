@@ -104,7 +104,7 @@
     "mongodb-client-encryption": "^1.2.3",
     "mongodb-connection-model": "^21.6.0",
     "mongodb-data-service": "^21.6.0",
-    "mongodb-runner": "^4.8.1",
+    "mongodb-runner": "^4.8.3",
     "mongodb-shell-to-url": "^0.1.0",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
