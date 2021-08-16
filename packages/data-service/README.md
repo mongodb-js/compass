@@ -20,7 +20,7 @@ var service = new DataService(
   new Connection({
     hostname: '127.0.0.1',
     port: 27018,
-    ns: 'data-service'
+    ns: 'data-service',
   })
 );
 ```
@@ -85,7 +85,7 @@ service.sample('database.collection', {});
     collation: null,
     type: 'collection',
     view_on: undefined,
-    pipeline: undefined
+    pipeline: undefined,
   },
   {
     _id: 'config.system.sessions',
@@ -95,7 +95,7 @@ service.sample('database.collection', {});
     collation: null,
     type: 'collection',
     view_on: undefined,
-    pipeline: undefined
+    pipeline: undefined,
   },
   {
     _id: 'data-service.test',
@@ -105,7 +105,7 @@ service.sample('database.collection', {});
     collation: null,
     type: 'collection',
     view_on: undefined,
-    pipeline: undefined
+    pipeline: undefined,
   },
   {
     _id: 'data-service.system.views',
@@ -115,7 +115,7 @@ service.sample('database.collection', {});
     collation: null,
     type: 'collection',
     view_on: undefined,
-    pipeline: undefined
+    pipeline: undefined,
   },
   {
     _id: 'data-service.myView',
@@ -125,7 +125,7 @@ service.sample('database.collection', {});
     collation: null,
     type: 'view',
     view_on: 'test',
-    pipeline: [{ $project: { a: 0 } }]
+    pipeline: [{ $project: { a: 0 } }],
   },
   {
     _id: 'local.startup_log',
@@ -135,8 +135,8 @@ service.sample('database.collection', {});
     collation: null,
     type: 'collection',
     view_on: undefined,
-    pipeline: undefined
-  }
+    pipeline: undefined,
+  },
 ];
 ```
 
