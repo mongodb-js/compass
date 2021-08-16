@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-components",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
@@ -37,8 +37,8 @@
     "react": "^16.14.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^0.0.1",
-    "@mongodb-js/tsconfig-compass": "^0.0.1",
+    "@mongodb-js/eslint-config-compass": "^0.1.0",
+    "@mongodb-js/tsconfig-compass": "^0.1.0",
     "@testing-library/react": "^12.0.0",
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
