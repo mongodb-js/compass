@@ -30,9 +30,7 @@ const ModuleCache = require('hadron-module-cache');
 const CompileCache = require('hadron-compile-cache');
 const StyleManager = require('hadron-style-manager');
 const rebuild = require('electron-rebuild').rebuild;
-const builder = require('electron-builder');
 const pkgUp = require('pkg-up');
-const Platform = builder.Platform;
 
 const ui = require('./ui');
 const verify = require('./verify');
@@ -89,6 +87,9 @@ const createCompileCache = exports.createCompileCache = (CONFIG, done) => {
 /**
  * Use the style manager to build the css and inject into the index.html
  * and help.html.
+ *
+ * @param {any} CONFIG Target configuration
+ * @param {Function} done Callback
  */
 const createPackagedStyles = exports.createPackagedStyles = (CONFIG, done) => {
   const appDir = CONFIG.resourcesAppDir;
@@ -163,27 +164,6 @@ const createBrandedApplication = (CONFIG, done) => {
   }).catch((err) => {
     return done(err);
   });
-};
-
-/**
- * Create the Windows NSIS installer.
- *
- * @param {Object} CONFIG - The config.
- * @param {Function} done - The callback.
- */
-const createNsisApplication = (CONFIG, done) => {
-  builder.build({
-    targets: Platform.MAC.createTarget(),
-    config: {
-      '//': 'build options, see https://goo.gl/QQXmcV'
-    }
-  })
-    .then(() => {
-    // handle result
-    })
-    .catch((error) => {
-      return done(error);
-    });
 };
 
 /**
@@ -555,6 +535,11 @@ exports.builder = {
 
 _.assign(exports.builder, ui.builder, verify.builder);
 
+/**
+ * @param {any} argv Parsed command arguments
+ * @param {Function} done Callback
+ * @returns {any}
+ */
 exports.run = (argv, done) => {
   cli.argv = argv;
 
