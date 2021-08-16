@@ -830,10 +830,13 @@ const Store = Reflux.createStore({
 
   /**
    * Changes the srv record flag.
+   * @param {boolean} newVal
    */
-  onSRVRecordToggled() {
-    this.state.connectionModel.isSrvRecord = !this.state.connectionModel
-      .isSrvRecord;
+  onSRVRecordToggled(newVal) {
+    this.state.connectionModel.isSrvRecord =
+      typeof newVal !== 'undefined'
+        ? newVal
+        : !this.state.connectionModel.isSrvRecord;
     this.trigger(this.state);
   },
 
