@@ -33,7 +33,7 @@ const cleanCompileCacheAsync = promisify(cleanCompileCache);
 const createCompileCacheAsync = promisify(createCompileCache);
 const createPackagedStylesAsync = promisify(createPackagedStyles);
 
-const THREE_MINS = 1000 * 60 * 3;
+const MINUTE = 1000 * 60 * 1;
 
 const COMPASS_PATH = path.dirname(
   require.resolve('mongodb-compass/package.json')
@@ -75,7 +75,7 @@ let i = 0;
  * @returns {Promise<ExtendedApplication>}
  */
 async function startCompass(
-  testPackagedApp = process.argv.includes('--test-packaged-app'),
+  testPackagedApp = ['1', 'true'].includes(process.env.TEST_PACKAGED_APP),
   opts = {}
 ) {
   /** @type {string} */
@@ -84,11 +84,6 @@ async function startCompass(
   // @ts-expect-error
   const electronPath = require('electron');
 
-  if (!testPackagedApp) {
-    await rebuildNativeModules();
-    await compileCompassAssets();
-  }
-
   /** @type {import('spectron').AppConstructorOptions} */
   const applicationStartOptions = !testPackagedApp
     ? {
@@ -96,7 +91,7 @@ async function startCompass(
         args: [COMPASS_PATH],
         cwd: COMPASS_PATH
       }
-    : { path: getCompassBinPath(getCompassBuildMetadata()) };
+    : { path: getCompassBinPath(await getCompassBuildMetadata()) };
 
   const userDataDir = path.join(
     os.tmpdir(),
@@ -168,9 +163,12 @@ async function compileCompassAssets(compassPath = COMPASS_PATH) {
   await createPackagedStylesAsync(buildTarget);
 }
 
-function getCompassBuildMetadata() {
+async function getCompassBuildMetadata() {
   try {
-    return require('mongodb-compass/dist/target.json');
+    const metadata = require('mongodb-compass/dist/target.json');
+    // Double-checking that Compass app path exists, not only the metadata
+    fs.stat(metadata.appPath);
+    return metadata;
   } catch (e) {
     throw new Error(
       "Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests"
@@ -181,7 +179,7 @@ function getCompassBuildMetadata() {
 async function buildCompass(force = false, compassPath = COMPASS_PATH) {
   if (!force) {
     try {
-      getCompassBuildMetadata();
+      await getCompassBuildMetadata();
       return;
     } catch (e) {
       // No compass build found, let's build it
@@ -244,7 +242,7 @@ function addCommands(app) {
           await app.client.windowByIndex(0);
           return await app.client.waitForVisible(Selectors.ConnectSection);
         },
-        THREE_MINS,
+        MINUTE,
         'Expected connection screen to be visible',
         50
       );
@@ -547,6 +545,8 @@ function addCommands(app) {
 
 module.exports = {
   startCompass,
+  rebuildNativeModules,
+  compileCompassAssets,
   getCompassBuildMetadata,
   getCompassBinPath,
   getAtlasConnectionOptions,
