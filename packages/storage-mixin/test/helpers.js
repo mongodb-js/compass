@@ -2,7 +2,7 @@ var backends = require('../lib/backends');
 var Model = require('ampersand-model');
 var Collection = require('ampersand-rest-collection');
 var async = require('async');
-var debug = require('debug')('mongodb-storage-mixin:test:helpers');
+// var debug = require('debug')('mongodb-storage-mixin:test:helpers');
 const { execSync } = require('child_process');
 
 /**
@@ -12,7 +12,7 @@ const { execSync } = require('child_process');
  * @param  {Function} done          errback
  */
 var clearNamespaces = function(backendName, namespaces, done) {
-  debug('Clearing namespaces for backend %s', backendName, namespaces);
+  // debug('Clearing namespaces for backend %s', backendName, namespaces);
   var tasks = namespaces.map(function(namespace) {
     var backend = backends[backendName];
     return function(cb) {
@@ -21,10 +21,10 @@ var clearNamespaces = function(backendName, namespaces, done) {
   });
   async.parallel(tasks, function(err, res) {
     if (err) {
-      debug('Error clearing namespaces', err);
+      // debug('Error clearing namespaces', err);
       return done(err);
     }
-    debug('Namespaces cleared for backend %s', backendName);
+    // debug('Namespaces cleared for backend %s', backendName);
     done(err, res);
   });
 };
@@ -110,15 +110,15 @@ function createUnlockedKeychain() {
         execSync(`security default-keychain -s "${tempKeychainName}"`);
         execSync(`security unlock-keychain -p "" "${tempKeychainName}"`);
 
-        debug(`Using temporary keychain ${getDefaultKeychain()}`);
+        // debug(`Using temporary keychain ${getDefaultKeychain()}`);
       },
       after() {
         execSync(`security default-keychain -s "${origDefaultKeychain}"`);
         execSync(`security delete-keychain "${tempKeychainName}"`);
 
-        debug(
-          `Switched back to original default keychain ${getDefaultKeychain()}`
-        );
+        // debug(
+        //   `Switched back to original default keychain ${getDefaultKeychain()}`
+        // );
       }
     };
   }

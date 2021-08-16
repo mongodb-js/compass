@@ -7,7 +7,7 @@ var async = require('async');
 var _ = require('lodash');
 var rimraf = require('rimraf');
 
-var debug = require('debug')('storage-mixin:backends:disk');
+// var debug = require('debug')('storage-mixin:backends:disk');
 
 /**
  * Match a UUID.
@@ -167,7 +167,7 @@ DiskBackend.prototype.find = function(collection, options, done) {
     }
 
     if (files.length === 0) {
-      debug('no keys found for namespace `%s`', self.namespace);
+      // debug('no keys found for namespace `%s`', self.namespace);
       return done(null, []);
     }
 
@@ -179,7 +179,7 @@ DiskBackend.prototype.find = function(collection, options, done) {
         path.basename(file, path.extname(file)), options);
     });
 
-    debug('fetching %d models', tasks.length);
+    // debug('fetching %d models', tasks.length);
     async.parallel(tasks, done);
   });
 };

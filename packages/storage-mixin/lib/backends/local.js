@@ -4,7 +4,7 @@ var NullBackend = require('./null');
 var _ = require('lodash');
 var async = require('async');
 var localforage = require('localforage');
-var debug = require('debug')('mongodb-storage-mixin:backends:local');
+// var debug = require('debug')('mongodb-storage-mixin:backends:local');
 
 // singleton holding all stores keyed by namespace
 var globalStores = {};
@@ -42,7 +42,7 @@ inherits(LocalBackend, BaseBackend);
  */
 LocalBackend.clear = function(namespace, done) {
   if (namespace in globalStores) {
-    debug('Clearing store for', namespace);
+    // debug('Clearing store for', namespace);
     globalStores[namespace].clear(done);
   } else {
     done();
@@ -117,14 +117,14 @@ LocalBackend.prototype.find = function(collection, options, done) {
     }
 
     if (keys.length === 0) {
-      debug('no keys found for namespace `%s`', self.namespace);
+      // debug('no keys found for namespace `%s`', self.namespace);
       return done(null, []);
     }
 
     var tasks = keys.map(function(key) {
       return self.findOne.bind(self, key, options);
     });
-    debug('fetching `%d` keys on namespace `%s`', tasks.length, self.namespace);
+    // debug('fetching `%d` keys on namespace `%s`', tasks.length, self.namespace);
     async.parallel(tasks, done);
   });
 };

@@ -1,5 +1,5 @@
 const keytar = require('keytar');
-const debug = require('debug')('mongodb-storage-mixin:backends:secure-main');
+// const debug = require('debug')('mongodb-storage-mixin:backends:secure-main');
 
 if (process && process.type === 'browser') {
   const ipc = require('hadron-ipc');
@@ -11,13 +11,13 @@ if (process && process.type === 'browser') {
    * @param {Object} meta - The metadata.
    */
   ipc.respondTo('storage-mixin:clear', (evt, meta) => {
-    debug('Clearing all secure values for', meta.serviceName);
+    // debug('Clearing all secure values for', meta.serviceName);
 
     let promise;
     try {
       promise = keytar.findCredentials(meta.serviceName);
     } catch (e) {
-      debug('Error calling findCredentials', e);
+      // debug('Error calling findCredentials', e);
       throw e;
     }
 
@@ -28,27 +28,27 @@ if (process && process.type === 'browser') {
           return keytar
             .deletePassword(meta.serviceName, accountName)
             .then(function() {
-              debug('Deleted account %s successfully', accountName);
+              // debug('Deleted account %s successfully', accountName);
               return accountName;
             })
             .catch(function(err) {
-              debug('Failed to delete', accountName, err);
+              // debug('Failed to delete', accountName, err);
               throw err;
             });
         })
       );
     })
       .then(function(accountNames) {
-        debug(
-          'Cleared %d accounts for serviceName %s',
-          accountNames.length,
-          meta.serviceName,
-          accountNames
-        );
-      })
-      .catch(function(err) {
-        debug('Failed to clear credentials!', err);
+        // debug(
+        //   'Cleared %d accounts for serviceName %s',
+        //   accountNames.length,
+        //   meta.serviceName,
+        //   accountNames
+        // );
       });
+    // .catch(function(err) {
+    //   debug('Failed to clear credentials!', err);
+    // });
   });
 
   /**
@@ -61,14 +61,14 @@ if (process && process.type === 'browser') {
     keytar
       .deletePassword(meta.serviceName, meta.accountName)
       .then(function() {
-        debug('Removed password for', {
-          service: meta.serviceName,
-          account: meta.accountName
-        });
-      })
-      .catch((err) => {
-        debug('Error removing password', err);
+        // debug('Removed password for', {
+        //   service: meta.serviceName,
+        //   account: meta.accountName
+        // });
       });
+    // .catch((err) => {
+    //   debug('Error removing password', err);
+    // });
   });
 
   /**
@@ -81,14 +81,14 @@ if (process && process.type === 'browser') {
     keytar
       .setPassword(meta.serviceName, meta.accountName, meta.value)
       .then(function() {
-        debug('Updated password successfully for', {
-          service: meta.serviceName,
-          account: meta.accountName
-        });
-      })
-      .catch(function(err) {
-        debug('Error updating password', err);
+        // debug('Updated password successfully for', {
+        //   service: meta.serviceName,
+        //   account: meta.accountName
+        // });
       });
+    // .catch(function(err) {
+    //   // debug('Error updating password', err);
+    // });
   });
 
   /**
@@ -101,14 +101,14 @@ if (process && process.type === 'browser') {
     keytar
       .setPassword(meta.serviceName, meta.accountName, meta.value)
       .then(function() {
-        debug('Successfully dreated password for', {
-          service: meta.serviceName,
-          account: meta.accountName
-        });
-      })
-      .catch(function(err) {
-        debug('Error creating password', err);
+        // debug('Successfully dreated password for', {
+        //   service: meta.serviceName,
+        //   account: meta.accountName
+        // });
       });
+    // .catch(function(err) {
+    //   // debug('Error creating password', err);
+    // });
   });
 
   /**
@@ -125,10 +125,10 @@ if (process && process.type === 'browser') {
           uuid: meta.uuid,
           rawJsonString: rawJsonString
         });
-      })
-      .catch(function(err) {
-        debug('Error finding one', err);
       });
+    // .catch(function(err) {
+    //   // debug('Error finding one', err);
+    // });
   });
 
   /**
@@ -146,9 +146,9 @@ if (process && process.type === 'browser') {
           credentials: credentials,
           callId: meta.callId
         });
-      })
-      .catch(function(err) {
-        debug('Error finding', err);
       });
+    // .catch(function(err) {
+    //   // debug('Error finding', err);
+    // });
   });
 }
