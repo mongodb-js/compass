@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
-import { TextButton } from 'hadron-react-buttons';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
 
 import styles from './confirm-import-pipeline.less';
 
@@ -43,28 +42,17 @@ class ConfirmImportPipeline extends PureComponent {
    */
   render() {
     return (
-      <Modal show={this.props.isConfirmationNeeded} onHide={this.props.closeImport}>
-        <Modal.Header closeButton>
-          <h4>{QUESTION}</h4>
-        </Modal.Header>
-        <Modal.Body>
-          <div className={styles['confirm-import-pipeline-note']}>
-            {NOTE}
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <TextButton
-            id="cancel-confirm-import-pipeline"
-            className="btn btn-default btn-sm"
-            text="Cancel"
-            clickHandler={this.props.closeImport} />
-          <TextButton
-            id="confirm-import-pipeline"
-            className="btn btn-primary btn-sm"
-            text="Confirm"
-            clickHandler={this.onConfirm} />
-        </Modal.Footer>
-      </Modal>
+      <ConfirmationModal
+        title={QUESTION}
+        open={this.props.isConfirmationNeeded}
+        onConfirm={this.onConfirm}
+        onCancel={this.props.closeImport}
+        buttonText="Confirm"
+      >
+        <div className={styles['confirm-import-pipeline-note']}>
+          {NOTE}
+        </div>
+      </ConfirmationModal>
     );
   }
 }

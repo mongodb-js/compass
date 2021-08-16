@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
-import { TextButton } from 'hadron-react-buttons';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
 
 import styles from './confirm-new-pipeline.less';
 
@@ -49,28 +48,17 @@ class ConfirmNewPipeline extends PureComponent {
    */
   render() {
     return (
-      <Modal show={this.props.isNewPipelineConfirm}>
-        <Modal.Header closeButton>
-          <h4>{QUESTION}</h4>
-        </Modal.Header>
-        <Modal.Body>
-          <div className={styles['confirm-new-pipeline-note']}>
-            {NOTE}
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <TextButton
-            id="cancel-confirm-new-pipeline"
-            className="btn btn-default btn-sm"
-            text="Cancel"
-            clickHandler={this.onClose} />
-          <TextButton
-            id="confirm-new-pipeline"
-            className="btn btn-primary btn-sm"
-            text="Confirm"
-            clickHandler={this.onConfirm} />
-        </Modal.Footer>
-      </Modal>
+      <ConfirmationModal
+        title={QUESTION}
+        open={this.props.isNewPipelineConfirm}
+        onConfirm={this.onConfirm}
+        onCancel={this.onClose}
+        buttonText="Confirm"
+      >
+        <div className={styles['confirm-new-pipeline-note']}>
+          {NOTE}
+        </div>
+      </ConfirmationModal>
     );
   }
 }
