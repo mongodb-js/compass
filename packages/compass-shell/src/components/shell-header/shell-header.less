@@ -8,6 +8,8 @@
 
   &-left {
     flex-grow: 1;
+    display: flex;
+    align-items: center;
   }
 
   &-right-actions {
@@ -38,7 +40,7 @@
 
     &:hover {
       color: @leafygreen__gray--light-3;
-    }  
+    }
   }
 
   &-operation-in-progress {
@@ -46,12 +48,10 @@
   }
 
   &-loader-icon {
-    margin: auto;
-    margin-left: 16px;
-    margin-right: 6px;
+    margin: 8px 8px 8px 16px;
   }
 
-  &-btn {
+  &-btn:not(:last-child) {
     margin-right: 4px;
   }
 }
