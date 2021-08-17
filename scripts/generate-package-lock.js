@@ -16,6 +16,13 @@ const { withProgress } = require('./monorepo/with-progress');
  * [0] - https://github.com/npm/arborist#data-structures
  */
 async function main() {
+  if (process.argv.length < 3) {
+    console.error(`ERROR: Missing workspace name - usage:`);
+    console.error();
+    console.error(`  npm run gen-package-lock <workspace>`);
+    return process.exit(1);
+  }
+
   const rootPath = path.resolve(__dirname, '..');
   const workspaceName = process.argv.slice(2)[0];
 
