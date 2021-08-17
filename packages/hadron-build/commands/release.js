@@ -18,7 +18,7 @@ const verifyDistro = require('../lib/distro');
 const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
 const startLocalRegistry = require('../lib/local-registry');
-
+const genPackageLock = require('../lib/gen-package-lock');
 
 const format = util.format;
 const glob = require('glob');
@@ -41,7 +41,6 @@ const Platform = builder.Platform;
 
 const ui = require('./ui');
 const verify = require('./verify');
-const run = require('../lib/run');
 
 exports.command = 'release';
 
@@ -379,6 +378,13 @@ const installDependencies = util.callbackify(async(CONFIG) => {
 
   try {
     const appPackagePath = path.join(CONFIG.resources, 'app');
+
+    const packageLockContent = await genPackageLock(localRegistry.address);
+
+    await fs.writeFile(
+      path.join(appPackagePath, 'package-lock.json'),
+      packageLockContent
+    );
 
     const opts = {
       env: process.env,
