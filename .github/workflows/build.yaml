@@ -51,7 +51,7 @@ jobs:
         run: npm install -g npm@7.20.2
 
       - name: Install Dependencies
-        run: npm install --force
+        run: npm ci --force
 
       - name: Bootstrap
         run: npx lerna run bootstrap --stream
