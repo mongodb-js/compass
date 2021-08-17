@@ -7,12 +7,11 @@ const uuid = require('uuid');
 const os = require('os');
 const fs = require('fs');
 const util = require('util');
+const lerna = require('./lerna');
 
 const writeFile = util.promisify(fs.writeFile);
 const mkdir = util.promisify(fs.mkdir);
 const rmdir = util.promisify(fs.rmdir);
-
-const monorepoPath = path.dirname(require.resolve('../../../package.json'));
 
 function startServer(port, configPath) {
   return execa('npx', [
@@ -22,29 +21,14 @@ function startServer(port, configPath) {
   ], { cwd: path.dirname(configPath), stdio: 'inherit' });
 }
 
-async function lernaPublish(registryAddress) {
-  await execa('npx', [
-    'lerna', 'publish', 'from-package',
-    '--ignore-scripts',
-    '--registry', registryAddress,
-    '--yes'
-  ], { cwd: monorepoPath, stdio: 'inherit' });
-}
-
-async function listPackages() {
-  const { stdout } = await execa('npx', [
-    'lerna', 'ls', '--json'
-  ], { cwd: monorepoPath });
-  return JSON.parse(stdout);
-}
-
 async function writeConfigFile(tempDir) {
   // creates a verdaccio yaml config for the tmp folder
   // NOTE: in order to disable the uplink with npm for internal packages
   // we add overrides for each package.
 
-  const packages = await listPackages();
-  const packagesOverrides = packages.map(({name}) => `  '${name}': {access: $all, publish: $all}`).join('\n');
+  const packages = await lerna.listPackages();
+  const packagesOverrides = packages.map(
+    ({name}) => `  '${name}': {access: $all, publish: $all}`).join('\n');
 
   const yaml = `
 storage: "storage"
@@ -111,8 +95,6 @@ async function startLocalRegistry() {
     });
 
     console.log('verdaccio ready on', registryAddress);
-
-    await lernaPublish(registryAddress);
   } catch (error) {
     await stopServer();
     throw error;
@@ -125,4 +107,3 @@ async function startLocalRegistry() {
 }
 
 module.exports = startLocalRegistry;
-

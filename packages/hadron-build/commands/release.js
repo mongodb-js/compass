@@ -19,7 +19,7 @@ const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
 const startLocalRegistry = require('../lib/local-registry');
 const generatePackageLock = require('../lib/generate-package-lock');
-
+const lerna = require('../lib/lerna');
 const format = util.format;
 const glob = require('glob');
 const path = require('path');
@@ -356,7 +356,6 @@ const transformPackageJson = (CONFIG, done) => {
   cli.debug(JSON.stringify(contents, null, 2));
 };
 
-
 /**
  * TODO (imlucas) Switch to using http://npm.im/yarn instead of npm.
  *
@@ -377,6 +376,9 @@ const installDependencies = util.callbackify(async(CONFIG) => {
   const localRegistry = await startLocalRegistry();
 
   try {
+    // publishes all the packages to the local registry first
+    await lerna.publish(localRegistry.address);
+
     const appPackagePath = path.join(CONFIG.resources, 'app');
     const packageLockContent = await generatePackageLock(
       'mongodb-compass',

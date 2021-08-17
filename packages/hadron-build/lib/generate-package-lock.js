@@ -1,21 +1,8 @@
 const path = require('path');
 const { Arborist, Shrinkwrap } = require('@npmcli/arborist');
 const pacote = require('pacote');
-const ora = require('ora');
 
-async function withProgress(text, fn, ...args) {
-  const spinner = ora(text).start();
-  try {
-    const result = await fn.call(spinner, ...args);
-    spinner.succeed();
-    return result;
-  } catch (e) {
-    if (spinner.isSpinning) {
-      spinner.fail();
-    }
-    throw e;
-  }
-}
+const cli = require('mongodb-js-cli')('hadron-build:generate-package-lock');
 
 /**
  * This script produces a fully "detached" package-lock file for a specific
@@ -39,64 +26,61 @@ async function generatePackageLock(workspaceName, npmRegistry) {
   let workspaceNode;
   let workspacePath;
 
-  await withProgress('Loading dependencies tree', async() => {
-    arb = new Arborist({ path: rootPath });
-    // Using virtual here so that optional and system specific pacakges are also
-    // included (they will be missing in `actual` if they are not on disk).
-    tree = await arb.loadVirtual();
-  });
+  cli.debug('Loading dependencies tree');
+  arb = new Arborist({ path: rootPath });
+  // Using virtual here so that optional and system specific pacakges are also
+  // included (they will be missing in `actual` if they are not on disk).
+  tree = await arb.loadVirtual();
 
-  await withProgress(`Looking for ${workspaceName} workspace`, async() => {
-    if (!tree.workspaces.has(workspaceName)) {
-      const availableWorkspaces = Array.from(tree.workspaces.keys());
+  cli.debug(`Looking for ${workspaceName} workspace`);
 
-      throw new Error(
-        `Workspace "${workspaceName}" doesn't exist. Available workspaces:\n\n${availableWorkspaces
-          .map((name) => ` - ${name}`)
-          .join('\n')}`
-      );
-    }
+  if (!tree.workspaces.has(workspaceName)) {
+    const availableWorkspaces = Array.from(tree.workspaces.keys());
 
-    workspacePath = tree.workspaces.get(workspaceName);
-    workspaceNode = tree.children.get(workspaceName);
-  });
+    throw new Error(
+      `Workspace "${workspaceName}" doesn't exist. Available workspaces:\n\n${availableWorkspaces
+        .map((name) => ` - ${name}`)
+        .join('\n')}`
+    );
+  }
+
+  workspacePath = tree.workspaces.get(workspaceName);
+  workspaceNode = tree.children.get(workspaceName);
 
   const packagesMeta = new Map();
 
-  await withProgress(
-    `Building dependency tree for ${workspaceName} workspace`,
-    async() => {
-      const packages = getAllChildrenForNode(workspaceNode);
+  cli.debug(`Building dependency tree for ${workspaceName} workspace`);
 
-      for (const packageNode of packages) {
-        const metaPath = packageNode.path
-          .replace(workspacePath, '')
-          .replace(rootPath, '')
-          .replace(/^(\/|\\)/, '');
+  const packages = getAllChildrenForNode(workspaceNode);
 
-        // In theory should never happen
-        if (packagesMeta.has(metaPath)) {
-          // TODO: print nice diff maybe
-          // const pkgA = JSON.stringify(packagesMeta.get(metaPath), null, 2);
-          const pkgB = JSON.stringify(packageNode, null, 2);
-          throw new Error(
-            `Conflicting package dependency: package ${packageNode.name} already exists on path ${metaPath}\n\n${pkgB}`
-          );
-        }
+  for (const packageNode of packages) {
+    const metaPath = packageNode.path
+      .replace(workspacePath, '')
+      .replace(rootPath, '')
+      .replace(/^(\/|\\)/, '');
 
-        let meta;
-
-        if (packageNode.isLink) {
-          meta = await resolvePackageMetaForLink(packageNode, npmRegistry);
-        } else {
-          meta = Shrinkwrap.metaFromNode(packageNode);
-        }
-
-        packagesMeta.set(metaPath, meta);
-      }
+    // In theory should never happen
+    if (packagesMeta.has(metaPath)) {
+      // TODO: print nice diff maybe
+      // const pkgA = JSON.stringify(packagesMeta.get(metaPath), null, 2);
+      const pkgB = JSON.stringify(packageNode, null, 2);
+      throw new Error(
+        `Conflicting package dependency: package ${packageNode.name} already exists on path ${metaPath}\n\n${pkgB}`
+      );
     }
-  );
 
+    let meta;
+
+    if (packageNode.isLink) {
+      meta = await resolvePackageMetaForLink(packageNode, npmRegistry);
+    } else {
+      meta = Shrinkwrap.metaFromNode(packageNode);
+    }
+
+    packagesMeta.set(metaPath, meta);
+  }
+
+  // https://docs.npmjs.com/cli/v7/configuring-npm/package-lock-json#file-format
   const packageLock = {
     name: workspaceName,
     version: workspaceNode.version,
