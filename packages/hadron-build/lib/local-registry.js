@@ -16,9 +16,9 @@ const monorepoPath = path.dirname(require.resolve('../../../package.json'));
 function startServer(port, configPath) {
   return execa('npx', [
     'verdaccio',
-    '--config', configPath,
+    '--config', path.basename(configPath), // circumvent any issues with windows paths
     '--listen', port
-  ], { cwd: monorepoPath, stdio: 'inherit' });
+  ], { cwd: path.dirname(configPath), stdio: 'inherit' });
 }
 
 async function lernaPublish(registryAddress) {
@@ -42,12 +42,11 @@ async function writeConfigFile(tempDir) {
   // NOTE: in order to disable the uplink with npm for internal packages
   // we add overrides for each package.
 
-  const storagePath = path.join(tempDir, 'storage');
   const packages = await listPackages();
   const packagesOverrides = packages.map(({name}) => `  '${name}': {access: $all, publish: $all}`).join('\n');
 
   const yaml = `
-storage: "${storagePath}"
+storage: "storage"
 uplinks:
   npmjs:
     url: https://registry.npmjs.org/
