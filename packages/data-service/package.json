@@ -67,9 +67,9 @@
     "mongodb-url": "^3.0.3"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^0.1.0",
-    "@mongodb-js/prettier-config-compass": "^0.1.0",
-    "@mongodb-js/tsconfig-compass": "^0.1.0",
+    "@mongodb-js/eslint-config-compass": "*",
+    "@mongodb-js/prettier-config-compass": "*",
+    "@mongodb-js/tsconfig-compass": "*",
     "bson": "^4.4.1",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
