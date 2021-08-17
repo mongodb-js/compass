@@ -55,6 +55,7 @@
     "make-fetch-happen": "^8.0.14",
     "minimist": "^1.2.5",
     "npm-cli-adduser": "^1.1.4",
+    "ora": "^5.4.0",
     "pkg-up": "^3.1.0",
     "ps-list": "^7.2.0",
     "semver": "^7.3.5",
