@@ -385,7 +385,7 @@ const installDependencies = util.callbackify(async(CONFIG) => {
 
     await fs.writeFile(
       path.join(appPackagePath, 'package-lock.json'),
-      packageLockContent
+      JSON.stringify(packageLockContent, null, 2)
     );
 
     const opts = {
