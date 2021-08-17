@@ -1,8 +1,21 @@
 const path = require('path');
-const { promises: fs } = require('fs');
 const { Arborist, Shrinkwrap } = require('@npmcli/arborist');
 const pacote = require('pacote');
-const { withProgress } = require('./monorepo/with-progress');
+const ora = require('ora');
+
+async function withProgress(text, fn, ...args) {
+  const spinner = ora(text).start();
+  try {
+    const result = await fn.call(spinner, ...args);
+    spinner.succeed();
+    return result;
+  } catch (e) {
+    if (spinner.isSpinning) {
+      spinner.fail();
+    }
+    throw e;
+  }
+}
 
 /**
  * This script produces a fully "detached" package-lock file for a specific
@@ -14,28 +27,26 @@ const { withProgress } = require('./monorepo/with-progress');
  * arborist docs[0].
  *
  * [0] - https://github.com/npm/arborist#data-structures
+ *
+ * @param {*} workspaceName
+ * @param {*} npmRegistry
  */
-async function main() {
-  if (process.argv.length < 3) {
-    console.error(`ERROR: Missing workspace name - usage:`);
-    console.error();
-    console.error(`  npm run gen-package-lock <workspace>`);
-    return process.exit(1);
-  }
+async function generatePackageLock(workspaceName, npmRegistry) {
+  const rootPath = path.dirname(require.resolve('../../../package.json'));
 
-  const rootPath = path.resolve(__dirname, '..');
-  const workspaceName = process.argv.slice(2)[0];
+  let arb;
+  let tree;
+  let workspaceNode;
+  let workspacePath;
 
-  let arb, tree, workspaceNode, workspacePath;
-
-  await withProgress('Loading dependencies tree', async () => {
+  await withProgress('Loading dependencies tree', async() => {
     arb = new Arborist({ path: rootPath });
     // Using virtual here so that optional and system specific pacakges are also
     // included (they will be missing in `actual` if they are not on disk).
     tree = await arb.loadVirtual();
   });
 
-  await withProgress(`Looking for ${workspaceName} workspace`, async () => {
+  await withProgress(`Looking for ${workspaceName} workspace`, async() => {
     if (!tree.workspaces.has(workspaceName)) {
       const availableWorkspaces = Array.from(tree.workspaces.keys());
 
@@ -54,7 +65,7 @@ async function main() {
 
   await withProgress(
     `Building dependency tree for ${workspaceName} workspace`,
-    async () => {
+    async() => {
       const packages = getAllChildrenForNode(workspaceNode);
 
       for (const packageNode of packages) {
@@ -76,7 +87,7 @@ async function main() {
         let meta;
 
         if (packageNode.isLink) {
-          meta = await resolvePackageMetaForLink(packageNode);
+          meta = await resolvePackageMetaForLink(packageNode, npmRegistry);
         } else {
           meta = Shrinkwrap.metaFromNode(packageNode);
         }
@@ -86,26 +97,14 @@ async function main() {
     }
   );
 
-  await withProgress(
-    `Writing package lock file to ${path.relative(
-      process.cwd(),
-      path.join(workspacePath, 'package-lock.json')
-    )}`,
-    async () => {
-      // https://docs.npmjs.com/cli/v7/configuring-npm/package-lock-json#file-format
-      const packageLock = {
-        name: workspaceName,
-        version: workspaceNode.version,
-        lockfileVersion: 3,
-        packages: Object.fromEntries(packagesMeta)
-      };
+  const packageLock = {
+    name: workspaceName,
+    version: workspaceNode.version,
+    lockfileVersion: 3,
+    packages: Object.fromEntries(packagesMeta)
+  };
 
-      await fs.writeFile(
-        path.join(workspacePath, 'package-lock.json'),
-        JSON.stringify(packageLock, null, 2)
-      );
-    }
-  );
+  return packageLock;
 }
 
 const maybeMissingType = ['optional', 'peer', 'peerOptional'];
@@ -134,8 +133,8 @@ function findPackageNodeRec(packageName, startNode) {
   return startNode.children.has(packageName)
     ? node.children.get(packageName)
     : parent && parent !== startNode
-    ? findPackageNodeRec(packageName, parent)
-    : null;
+      ? findPackageNodeRec(packageName, parent)
+      : null;
 }
 
 const manifestKeys = [
@@ -160,10 +159,10 @@ const nodePackageKeys = ['inBundle', 'hasShrinkwrap', 'hasInstallScript'];
  * [0] - https://docs.npmjs.com/cli/v7/configuring-npm/package-lock-json#packages
  * [1] - https://github.com/npm/arborist/blob/75c785f64bc27f326b645854be0b2607e219f09b/lib/shrinkwrap.js#L107-L146
  */
-async function resolvePackageMetaForLink(link) {
+async function resolvePackageMetaForLink(link, npmRegistry) {
   const manifest = await pacote.manifest(`${link.name}@${link.version}`, {
     // if env is undefined, defaults to https://registry.npmjs.org
-    registry: process.env.npm_config_registry
+    registry: npmRegistry
   });
 
   const meta = {
@@ -189,10 +188,4 @@ async function resolvePackageMetaForLink(link) {
   return meta;
 }
 
-process.on('unhandledRejection', (err) => {
-  console.error();
-  console.error(err.stack || err.message || err);
-  process.exitCode = 1;
-});
-
-main();
+module.exports = generatePackageLock;

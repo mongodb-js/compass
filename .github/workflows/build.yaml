@@ -53,6 +53,9 @@ jobs:
       - name: Install Dependencies
         run: npm install --force
 
+      - name: Bootstrap
+        run: npx lerna run bootstrap --stream
+
       # https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708/3
       - name: Set path for candle.exe and light.exe
         if: ${{ runner.os == 'Windows' }}
@@ -64,23 +67,8 @@ jobs:
           HADRON_PRODUCT: mongodb-compass
           HADRON_PRODUCT_NAME: MongoDB Compass
           HADRON_DISTRIBUTION: compass
-        run: |
-          # Whatever changes occured at that point, they are irrelevant
-          git reset HEAD --hard
-
-          # We will run `bootstrap` manually to isolate the flakiest part of the
-          # process which is publishing
-          npx lerna run bootstrap --stream
-
-          # Setting debug before this line breaks plugins build process
-          export DEBUG=hadron*,mongo*,electron*
-
-          # Generate package lock for the Compass workspace so that external
-          # dependencies are exactly matching monorepo root package-lock
-          npm run gen-package-lock mongodb-compass
-
-          # Finally start the packaging process
-          npm run package-compass
+          DEBUG: "hadron*,mongo*,electron*"
+        run: npm run package-compass
         shell: bash
 
       - name: Upload Compass Artifacts

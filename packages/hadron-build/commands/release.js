@@ -18,7 +18,7 @@ const verifyDistro = require('../lib/distro');
 const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
 const startLocalRegistry = require('../lib/local-registry');
-const genPackageLock = require('../lib/gen-package-lock');
+const generatePackageLock = require('../lib/generate-package-lock');
 
 const format = util.format;
 const glob = require('glob');
@@ -378,8 +378,11 @@ const installDependencies = util.callbackify(async(CONFIG) => {
 
   try {
     const appPackagePath = path.join(CONFIG.resources, 'app');
-
-    const packageLockContent = await genPackageLock(localRegistry.address);
+    const packageLockContent = await generatePackageLock(
+      'mongodb-compass', {
+        registry: localRegistry.address
+      }
+    );
 
     await fs.writeFile(
       path.join(appPackagePath, 'package-lock.json'),

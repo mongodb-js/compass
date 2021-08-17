@@ -41,8 +41,7 @@
     "update-authors": "node scripts/generate-authors.js",
     "update-third-party-notices": "node scripts/gather-licenses.js packages/compass/ > THIRD-PARTY-NOTICES.md",
     "version": "node ./scripts/bump-private-dependencies.js --no-commit",
-    "where": "node ./scripts/monorepo/where.js",
-    "gen-package-lock": "node ./scripts/generate-package-lock.js"
+    "where": "node ./scripts/monorepo/where.js"
   },
   "repository": {
     "type": "git",
