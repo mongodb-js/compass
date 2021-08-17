@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const path = require('path');
 const execa = require('execa');
 const getPort = require('get-port');
@@ -80,25 +81,42 @@ async function startLocalRegistry() {
   const verdaccioProcess = startServer(port, configFilePath);
 
   const registryAddress = `http://localhost:${port}`;
-  await waitOn({resources: [
-    registryAddress
-  ]});
-
-  console.log('verdaccio ready on', registryAddress);
-
-  await lernaPublish(registryAddress);
 
   const stopServer = async() => {
-    verdaccioProcess.cancel();
-
     try {
-      await verdaccioProcess;
+      verdaccioProcess.cancel();
+
+      try {
+        await verdaccioProcess;
+      } catch (error) {
+        console.log('verdaccio server terminated');
+      }
     } catch (error) {
-      console.log('verdaccio server terminated');
+      console.log('WARNING: closing verdaccio failed, skipping. Caused by:', error);
     }
 
-    await rmdir(tempDir, { recursive: true });
+    try {
+      await rmdir(tempDir, { recursive: true });
+    } catch (error) {
+      console.log('WARNING: removing verdaccio storage and config failed, skipping. Caused by:', error);
+    }
   };
+
+  try {
+    await waitOn({
+      resources: [
+        registryAddress
+      ],
+      timeout: 60000
+    });
+
+    console.log('verdaccio ready on', registryAddress);
+
+    await lernaPublish(registryAddress);
+  } catch (error) {
+    await stopServer();
+    throw error;
+  }
 
   return {
     address: registryAddress,
