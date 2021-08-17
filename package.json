@@ -48,7 +48,6 @@
     "url": "git://github.com/mongodb-js/compass.git"
   },
   "devDependencies": {
-    "@npmcli/arborist": "^2.7.1",
     "chalk": "^4.1.1",
     "cross-env": "^7.0.3",
     "find-up": "^5.0.0",
@@ -56,8 +55,6 @@
     "make-fetch-happen": "^8.0.14",
     "minimist": "^1.2.5",
     "npm-cli-adduser": "^1.1.4",
-    "ora": "^5.4.0",
-    "pacote": "^11.3.5",
     "pkg-up": "^3.1.0",
     "ps-list": "^7.2.0",
     "semver": "^7.3.5",

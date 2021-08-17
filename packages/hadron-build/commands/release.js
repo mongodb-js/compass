@@ -379,9 +379,8 @@ const installDependencies = util.callbackify(async(CONFIG) => {
   try {
     const appPackagePath = path.join(CONFIG.resources, 'app');
     const packageLockContent = await generatePackageLock(
-      'mongodb-compass', {
-        registry: localRegistry.address
-      }
+      'mongodb-compass',
+      localRegistry.address
     );
 
     await fs.writeFile(
