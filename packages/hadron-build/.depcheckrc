@@ -1,6 +1,5 @@
 ignores: [
   "electron-mocha",
-  "execa",
   "getos",
   "got",
   "in-publish",

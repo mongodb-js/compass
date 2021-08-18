@@ -396,7 +396,7 @@
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "eslint-plugin-react": "^7.24.0",
-    "execa": "^5.0.0",
+    "execa": "^5.1.1",
     "fs-extra": "^9.1.0",
     "hadron-build": "^24.6.0",
     "jsdom": "^16.6.0",
