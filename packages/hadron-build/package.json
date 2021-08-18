@@ -46,7 +46,6 @@
     "github": "^7.1.0",
     "glob": "^7.1.1",
     "got": "^10.4.0",
-    "ora": "^5.4.0",
     "pacote": "^11.3.5",
     "hadron-compile-cache": "^4.4.0",
     "hadron-module-cache": "^2.3.0",
