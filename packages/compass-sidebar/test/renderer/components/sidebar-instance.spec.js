@@ -18,7 +18,6 @@ describe('SidebarInstance [Component]', () => {
         toggleIsDetailsExpanded={() => {}}
         connectionModel={{ connection: {} }}
         toggleIsModalVisible={() => {}}
-        deleteFavorite={() => {}}
         saveFavorite={() => {}}
         isModalVisible={false}
       />);
