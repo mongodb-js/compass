@@ -1,8 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import FontAwesome from 'react-fontawesome';
 import { connect } from 'react-redux';
+import {
+  LogoMark
+} from '@leafygreen-ui/logo';
 
 import {
   NO_ACTIVE_NAMESPACE,
@@ -36,14 +38,27 @@ class SidebarTitle extends PureComponent {
 
   renderTitle() {
     if (this.props.isSidebarCollapsed) {
+      const isFavorite = this.props.connectionModel.connection.isFavorite;
+
       return (
-        <FontAwesome
-          name="home"
-          className={styles['sidebar-title-name-icon']}
-        />
+        <div
+          style={isFavorite ? {
+            backgroundColor: this.props.connectionModel.connection.color || 'transparent'
+          } : {}}
+          className={styles['sidebar-title-logo']}
+        >
+          <LogoMark
+            darkMode
+            knockout
+          />
+        </div>
       );
     }
-    return this.props.connectionModel.connection.name;
+    return (
+      <div className={styles['sidebar-title-name']}>
+        {this.props.connectionModel.connection.name}
+      </div>
+    );
   }
 
   /**
@@ -59,9 +74,7 @@ class SidebarTitle extends PureComponent {
         })}
         onClick={this.clickName}
       >
-        <div className={styles['sidebar-title-name']}>
-          {this.renderTitle()}
-        </div>
+        {this.renderTitle()}
       </div>
     );
   }

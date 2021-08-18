@@ -45,6 +45,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.9.0",
+    "@leafygreen-ui/logo": "^5.0.0",
     "@mongodb-js/compass-app-stores": "^5.9.0",
     "@mongodb-js/compass-connect": "^7.9.0",
     "@mongodb-js/compass-deployment-awareness": "^11.9.0",
