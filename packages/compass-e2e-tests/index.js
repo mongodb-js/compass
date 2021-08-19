@@ -2,6 +2,7 @@ const path = require('path');
 const { promisify } = require('util');
 const glob = require('glob');
 const Mocha = require('mocha');
+const debug = require('debug')('compass-e2e-tests');
 const {
   rebuildNativeModules,
   compileCompassAssets,
@@ -13,12 +14,14 @@ async function main() {
 
   if (shouldTestPackagedApp) {
     process.env.TEST_PACKAGED_APP = '1';
-    console.info('Building Compass before running the tests ...');
+    debug('Building Compass before running the tests ...');
     await buildCompass();
   } else {
     delete process.env.TEST_PACKAGED_APP;
-    console.log('Preparing Compass before running the tests ...');
+    debug('Preparing Compass before running the tests');
+    debug('Rebuilding native modules ...');
     await rebuildNativeModules();
+    debug('Compiling Compass assets ...');
     await compileCompassAssets();
   }
 
@@ -35,12 +38,6 @@ async function main() {
   const failures = await promisify(mocha.run.bind(mocha))();
 
   process.exitCode = failures ? 1 : 0;
-
-  if (process.exitCode > 0) {
-    // Force-exit if tests failed (sometimes electron gets stuck and causes
-    // script to run forever)
-    process.exit();
-  }
 }
 
 process.on('unhandledRejection', (err) => {

@@ -5,6 +5,7 @@ const os = require('os');
 const { promisify } = require('util');
 const { Application } = require('spectron');
 const { rebuild } = require('electron-rebuild');
+const debug = require('debug')('compass-e2e-tests');
 const {
   run: packageCompass,
   cleanCompileCache,
@@ -38,6 +39,8 @@ const MINUTE = 1000 * 60 * 1;
 const COMPASS_PATH = path.dirname(
   require.resolve('mongodb-compass/package.json')
 );
+
+const LOG_PATH = path.resolve(__dirname, '..', '.log');
 
 function delay(ms = 1000) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -98,28 +101,37 @@ async function startCompass(
     `user-data-dir-${Date.now().toString(32)}-${++i}`
   );
 
+  await fs.mkdir(userDataDir, { recursive: true });
+
   const appOptions = {
     ...opts,
     ...applicationStartOptions,
-    chromeDriverArgs: [`--user-data-dir=${userDataDir}`],
-    env: { APP_ENV: 'spectron' }
+    chromeDriverArgs: [
+      `--user-data-dir=${userDataDir}`,
+      // Chromecast feature that is enabled by default in some chrome versions
+      // and breaks the app on Ubuntu
+      '--media-router=0',
+      // Evergren RHEL ci runs everything as root, and chrome will not start as
+      // root without this flag
+      '--no-sandbox'
+    ],
+    env: { APP_ENV: 'spectron', DEBUG: process.env.DEBUG }
   };
 
-  if (process.env.CI) {
-    // Mimicking webdriver path with this
-    const nowFormatted = new Date()
-      .toISOString()
-      .replace(/:/g, '-')
-      .replace(/Z$/, '');
+  const shouldStoreAppLogs = process.env.ci || process.env.CI;
 
+  // Mimicking webdriver path with this for consistency
+  const nowFormatted = new Date()
+    .toISOString()
+    .replace(/:/g, '-')
+    .replace(/Z$/, '');
+
+  if (shouldStoreAppLogs) {
     const chromeDriverLogPath = path.join(
-      __dirname,
-      '..',
-      '.log',
-      'chromedriver',
-      `electron.${nowFormatted}.log`
+      LOG_PATH,
+      `chromedriver.${nowFormatted}.log`
     );
-    const webdriverLogPath = path.join(__dirname, '..', '.log', 'webdriver');
+    const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
 
     // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
     // for consistency let's mkdir for both of them just in case
@@ -129,6 +141,9 @@ async function startCompass(
     appOptions.chromeDriverLogPath = chromeDriverLogPath;
     appOptions.webdriverLogPath = webdriverLogPath;
   }
+
+  debug('Starting Spectron with the following configuration:');
+  debug(JSON.stringify(appOptions, null, 2));
 
   /** @type {ExtendedApplication} */
   // It's missing methods that we will add in a moment
@@ -142,8 +157,23 @@ async function startCompass(
   const _stop = app.stop.bind(app);
 
   app.stop = async () => {
-    const app = await _stop();
-    await fs.rmdir(userDataDir, { recursive: true });
+    if (shouldStoreAppLogs) {
+      const logPath = path.join(LOG_PATH, `electron-main.${nowFormatted}.log`);
+      debug(`Writing application main process log to ${logPath}`);
+      const logs = await app.client.getMainProcessLogs();
+      await fs.writeFile(logPath, logs.join('\n'));
+    }
+    debug('Stopping Compass application');
+    await _stop();
+    debug('Removing user data');
+    try {
+      await fs.rmdir(userDataDir, { recursive: true });
+    } catch (e) {
+      debug(
+        `Failed to remove temporary user data directory at ${userDataDir}:`
+      );
+      debug(e);
+    }
     return app;
   };
 
@@ -161,7 +191,8 @@ async function rebuildNativeModules(compassPath = COMPASS_PATH) {
     ...rebuildConfig,
     electronVersion: require('electron/package.json').version,
     buildPath: compassPath,
-    projectRootPath: compassPath
+    // monorepo root, so that the root packages are also inspected
+    projectRootPath: path.resolve(compassPath, '..', '..')
   });
 }
 
