@@ -8,7 +8,6 @@
 
 import configureStore from '../../src/stores';
 import configureActions from '../../src/actions';
-import { mergeGeoFilter } from '../../src/stores/query-bar-store';
 
 import {
   DEFAULT_FILTER,
@@ -88,85 +87,6 @@ describe('QueryBarStore [Store]', function() {
       });
 
       store.onCollectionChanged('db1.coll1', true);
-    });
-  });
-
-  describe('mergeGeoFilter', () => {
-    it('replaces previous coordinates geo filter', () => {
-      const merged = mergeGeoFilter(
-        {coordinates: {lat: 1, lng: 1}},
-        {coordinates: {lat: 2, lng: 2}}
-      );
-
-      expect(merged).to.deep.equal({coordinates: {lat: 2, lng: 2}});
-    });
-
-    it('replaces previous $or geo filter', () => {
-      const merged = mergeGeoFilter(
-        {$or: [
-          {coordinates: {lat: 1, lng: 1}},
-          {coordinates: {lat: 1, lng: 2}}]
-        },
-        {$or: [
-          {coordinates: {lat: 2, lng: 3}},
-          {coordinates: {lat: 2, lng: 4}}]
-        }
-      );
-
-      expect(merged).to.deep.equal({$or: [
-        {coordinates: {lat: 2, lng: 3}},
-        {coordinates: {lat: 2, lng: 4}}]
-      });
-    });
-
-    it('replaces previous coordinates with $or geo filter', () => {
-      const merged = mergeGeoFilter(
-        {coordinates: {lat: 1, lng: 1}},
-        {$or: [
-          {coordinates: {lat: 2, lng: 3}},
-          {coordinates: {lat: 2, lng: 4}}]
-        }
-      );
-
-      expect(merged).to.deep.equal({$or: [
-        {coordinates: {lat: 2, lng: 3}},
-        {coordinates: {lat: 2, lng: 4}}]
-      });
-    });
-
-    it('keeps other properties unchanged', () => {
-      expect(mergeGeoFilter(
-        {x: 1},
-        {coordinates: {lat: 2, lng: 2}}
-      ).x).to.equal(1);
-
-      expect(mergeGeoFilter(
-        {x: 1},
-        {$or: [
-          {coordinates: {lat: 2, lng: 2}},
-          {coordinates: {lat: 3, lng: 3}}]
-        }
-      ).x).to.equal(1);
-    });
-
-    it('preserves other $or conditions', () => {
-      const merged = mergeGeoFilter(
-        {$or: [
-          {coordinates: {lat: 1, lng: 1}},
-          {coordinates: {lat: 1, lng: 2}},
-          {x: 1}
-        ]},
-        {$or: [
-          {coordinates: {lat: 2, lng: 3}},
-          {coordinates: {lat: 2, lng: 4}}]
-        }
-      );
-
-      expect(merged).to.deep.equal({$or: [
-        {x: 1},
-        {coordinates: {lat: 2, lng: 3}},
-        {coordinates: {lat: 2, lng: 4}}
-      ]});
     });
   });
 
@@ -302,7 +222,14 @@ describe('QueryBarStore [Store]', function() {
             case 1:
               expect(state.filter).to.be.deep.equal({
                 a: { $exists: true },
-                coordinates: {lat: 1, lng: 1}
+                coordinates: {
+                  '$geoWithin': {
+                    '$centerSphere': [
+                      [1, 2],
+                      3
+                    ]
+                  }
+                }
               });
               expect(state.maxTimeMS).to.equal(5000);
               break;
@@ -310,7 +237,16 @@ describe('QueryBarStore [Store]', function() {
               expect(state.filter).to.be.deep.equal({
                 a: { $exists: true },
                 $or: [
-                  { coordinates: {lat: 2, lng: 2} }
+                  {
+                    coordinates: {
+                      '$geoWithin': {
+                        '$centerSphere': [
+                          [4, 5],
+                          6
+                        ]
+                      }
+                    }
+                  }
                 ]
               });
               expect(state.maxTimeMS).to.equal(5000);
@@ -321,10 +257,28 @@ describe('QueryBarStore [Store]', function() {
           }
         });
 
-        store.handleGeoQueryFromSchema({ coordinates: {lat: 1, lng: 1} });
+        store.handleGeoQueryFromSchema({
+          coordinates: {
+            '$geoWithin': {
+              '$centerSphere': [
+                [1, 2],
+                3
+              ]
+            }
+          }
+        });
         store.handleGeoQueryFromSchema({
           $or: [
-            { coordinates: {lat: 2, lng: 2} }
+            {
+              coordinates: {
+                '$geoWithin': {
+                  '$centerSphere': [
+                    [4, 5],
+                    6
+                  ]
+                }
+              }
+            }
           ]
         });
       });
@@ -362,7 +316,7 @@ describe('QueryBarStore [Store]', function() {
       it('sets a new `collation`', function(done) {
         unsubscribe = store.listen(state => {
           expect(state.collation).to.be.deep.equal({ locale: 'simple' });
-          expect(state.collationString).to.be.equal("{locale: 'simple'}");
+          expect(state.collationString).to.be.equal('{locale: \'simple\'}');
           expect(state.collationValid).to.be.true;
           done();
         });
@@ -699,12 +653,12 @@ describe('QueryBarStore [Store]', function() {
         it('sets the collationString, collationValid and collation', function(done) {
           expect(store.state.collationString).to.be.equal('');
           unsubscribe = store.listen(state => {
-            expect(state.collationString).to.be.equal("{locale: 'simple'}");
+            expect(state.collationString).to.be.equal('{locale: "simple"}');
             expect(state.collationValid).to.be.true;
             expect(state.collation).to.deep.equal({ locale: 'simple' });
             done();
           });
-          store.setQueryString('collation', "{locale: 'simple'}");
+          store.setQueryString('collation', '{locale: "simple"}');
         });
       });
 
