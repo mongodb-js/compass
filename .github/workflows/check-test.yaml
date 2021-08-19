@@ -64,6 +64,9 @@ jobs:
 
       - name: Run Tests
         env:
+          E2E_TESTS_ATLAS_HOST: ${{ secrets.E2E_TESTS_ATLAS_HOST }}
+          E2E_TESTS_ATLAS_USERNAME: ${{ secrets.E2E_TESTS_ATLAS_USERNAME }}
+          E2E_TESTS_ATLAS_PASSWORD: ${{ secrets.E2E_TESTS_ATLAS_PASSWORD }}
           # Matches what we are doing in Evergreen
           MONGODB_VERSION: '4'
         run: npm run test-ci -- --stream --since $MAIN_BRANCH_NAME
