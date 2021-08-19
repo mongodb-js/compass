@@ -15,7 +15,7 @@ describe('ConfirmEditConnectionString [Component]', () => {
   });
 
   it('renders the title text', () => {
-    expect(component.find('h4')).to.have.text(
+    expect(component.find('h1')).to.have.text(
       'Are you sure you want to edit your connection string?'
     );
   });

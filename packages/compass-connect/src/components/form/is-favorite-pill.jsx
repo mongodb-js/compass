@@ -24,16 +24,6 @@ class IsFavoritePill extends PureComponent {
   }
 
   /**
-   * Deletes the current favorite.
-   *
-   * @param {Object} connection - The current connection.
-   */
-  deleteFavorite(connection) {
-    Actions.onDeleteConnectionClicked(connection);
-    Actions.hideFavoriteModal();
-  }
-
-  /**
    * Closes the favorite modal.
    */
   closeFavoriteModal() {
@@ -72,9 +62,9 @@ class IsFavoritePill extends PureComponent {
       return (
         <FavoriteModal
           connectionModel={this.props.connectionModel}
-          deleteFavorite={this.deleteFavorite}
           closeFavoriteModal={this.closeFavoriteModal}
-          saveFavorite={this.saveFavorite} />
+          saveFavorite={this.saveFavorite}
+        />
       );
     }
   }

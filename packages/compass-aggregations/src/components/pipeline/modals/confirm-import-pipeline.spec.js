@@ -32,7 +32,7 @@ describe('ConfirmImportPipeline [Component]', () => {
   });
 
   it('renders the title text', () => {
-    expect(component.find('h4')).to.have.text(
+    expect(component.find('h1')).to.have.text(
       'Are you sure you want to create a new pipeline?'
     );
   });
@@ -45,14 +45,14 @@ describe('ConfirmImportPipeline [Component]', () => {
 
   context('when clicking on the cancel button', () => {
     it('calls the action', () => {
-      component.find('#cancel-confirm-import-pipeline').hostNodes().simulate('click');
+      component.find('button').at(1).hostNodes().simulate('click');
       expect(closeImportSpy.calledOnce).to.equal(true);
     });
   });
 
   context('when clicking on the confirm button', () => {
     it('calls the action', () => {
-      component.find('#confirm-import-pipeline').hostNodes().simulate('click');
+      component.find('button').at(0).hostNodes().simulate('click');
       expect(confirmNewSpy.calledOnce).to.equal(true);
       expect(runStageSpy.calledOnce).to.equal(true);
     });
