@@ -369,15 +369,18 @@ const transformPackageJson = (CONFIG, done) => {
  * @param {Function} done
  * @api public
  */
-
 const installDependencies = util.callbackify(async(CONFIG) => {
   cli.debug('Installing dependencies');
 
-  const localRegistry = await startLocalRegistry();
+  const localRegistry = !!process.env.HADRON_LOCAL_PUBLISH
+    ? await startLocalRegistry()
+    : { address: process.env.npm_config_registry };
 
   try {
-    // publishes all the packages to the local registry first
-    await lerna.publish(localRegistry.address);
+    if (!!process.env.HADRON_LOCAL_PUBLISH) {
+      // publishes all the packages to the local registry first
+      await lerna.publish(localRegistry.address);
+    }
 
     const appPackagePath = path.join(CONFIG.resources, 'app');
     const packageLockContent = await generatePackageLock(
@@ -396,7 +399,9 @@ const installDependencies = util.callbackify(async(CONFIG) => {
       stdio: 'inherit'
     };
 
-    const registryArgs = ['--registry', localRegistry.address];
+    const registryArgs = !!localRegistry.address
+      ? ['--registry', localRegistry.address]
+      : [];
 
     await execa('npm', [...registryArgs, 'ci'], opts);
     cli.debug('Dependencies installed');
@@ -418,7 +423,9 @@ const installDependencies = util.callbackify(async(CONFIG) => {
 
     cli.debug('Native modules rebuilt against Electron.');
   } finally {
-    await localRegistry.stop();
+    if (localRegistry.stop) {
+      await localRegistry.stop();
+    }
   }
 });
 
