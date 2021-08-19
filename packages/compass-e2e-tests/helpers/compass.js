@@ -214,6 +214,7 @@ async function compileCompassAssets(compassPath = COMPASS_PATH) {
       'compass'
   };
 
+  // @ts-ignore some weirdness from util-callbackify
   await cleanCompileCacheAsync(buildTarget);
   await createCompileCacheAsync(buildTarget);
   await createPackagedStylesAsync(buildTarget);
@@ -607,5 +608,7 @@ module.exports = {
   getCompassBinPath,
   getAtlasConnectionOptions,
   buildCompass,
-  Selectors
+  Selectors,
+  COMPASS_PATH,
+  LOG_PATH,
 };

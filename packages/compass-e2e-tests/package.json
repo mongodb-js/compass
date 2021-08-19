@@ -9,8 +9,8 @@
     "posttest": "mongodb-runner stop --port=27018 && node -e \"try { fs.rmdirSync('.mongodb', { recursive: true }); } catch (e) {}\"",
     "test-ci": "npm run test",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
-    "test-packaged": "npm run test -- --test-packaged-app",
-    "test-packaged-ci": "npm run test-ci -- --test-packaged-app"
+    "test-packaged": "npm run test -- -- --test-packaged-app",
+    "test-packaged-ci": "npm run test-ci -- -- --test-packaged-app"
   },
   "dependencies": {
     "mongodb-compass": "0.0.0-dev.0"

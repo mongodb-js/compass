@@ -47,6 +47,8 @@ exports.describe = ':shipit:';
 const COMPILE_CACHE = '.compiled-sources';
 const COMPILE_CACHE_MAPPINGS = '.compile-cache-mappings.json';
 const CACHE_PATTERN = '**/*.{jade,jsx,md}';
+const INDEX_HTML = path.join('src', 'app', 'index.html');
+const INDEX_HTML_TEMPLATE = path.join('src', 'app', 'index.template.html');
 
 /**
  * Clean out the existing development compile cache.
@@ -55,12 +57,19 @@ const CACHE_PATTERN = '**/*.{jade,jsx,md}';
  * @param {Function} done
  * @api public
  */
-const cleanCompileCache = exports.cleanCompileCache = (CONFIG, done) => {
-  cli.debug('cleaning out development compile cache');
-  fs.remove(path.resolve(CONFIG.dir, COMPILE_CACHE), function() {
-    done();
-  });
-};
+const cleanCompileCache = (exports.cleanCompileCache = util.callbackify(
+  async(CONFIG) => {
+    cli.debug(
+      'cleaning out development compile cache and resetting index.html'
+    );
+    await fs.remove(path.resolve(CONFIG.dir, COMPILE_CACHE));
+    await fs.remove(path.resolve(CONFIG.dir, INDEX_HTML));
+    await fs.writeFile(
+      path.resolve(CONFIG.dir, INDEX_HTML),
+      await fs.readFile(path.resolve(CONFIG.dir, INDEX_HTML_TEMPLATE))
+    );
+  }
+));
 
 /**
  * Create a precompiled cache of .jade and .jsx sources.
