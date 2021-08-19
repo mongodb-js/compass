@@ -35,8 +35,8 @@ import {
   UpdateOptions,
   UpdateResult,
 } from 'mongodb';
+import { ConnectionModel } from 'mongodb-connection-model';
 import NativeClient, {
-  ConnectionModel,
   NativeClient as NativeClientType,
 } from './native-client';
 import { Callback, Instance } from './types';

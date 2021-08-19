@@ -1,4 +1,5 @@
-import { AnyError, Db, Document, MongoClient } from 'mongodb';
+import { AnyError, CollStats, Db, Document, MongoClient } from 'mongodb';
+import { IndexDetails } from 'mongodb-index-model';
 
 export interface Callback<R> {
   (
@@ -18,12 +19,12 @@ export interface ResolvedInstanceTaskData {
   dataLake: DataLakeDetails;
   listDatabases: string[];
   allowedDatabases: string[];
-  databases: DatabaseDetails[];
-  listCollections: CollectionDetails[];
-  allowedCollections: CollectionDetails[];
-  collections: CollectionDetails[];
+  databases: InstanceDatabaseDetails[];
+  listCollections: InstanceCollectionDetails[];
+  allowedCollections: InstanceCollectionDetails[];
+  collections: InstanceCollectionDetails[];
   hierarchy: never;
-  stats: DatabaseStats;
+  stats: InstanceDatabaseStats;
 }
 
 export type InstanceDetails = Omit<
@@ -43,7 +44,7 @@ export interface Instance extends InstanceDetails {
   port: number;
 }
 
-export interface CollectionDetails {
+export interface InstanceCollectionDetails {
   _id: string;
   name: string;
   database: string;
@@ -54,14 +55,14 @@ export interface CollectionDetails {
   pipeline?: Document[];
 }
 
-export interface DatabaseDetails {
+export interface InstanceDatabaseDetails {
   _id: string;
   name: string;
   document_count: number;
   storage_size: number;
   index_count: number;
   index_size: number;
-  collections?: CollectionDetails[];
+  collections?: InstanceCollectionDetails[];
 }
 
 export interface HostInfoDetails {
@@ -107,7 +108,7 @@ export interface BuildInfoDetails {
   raw: Document;
 }
 
-export interface DatabaseStats {
+export interface InstanceDatabaseStats {
   document_count: number;
   storage_size: number;
   index_count: number;
@@ -117,4 +118,57 @@ export interface DatabaseStats {
 export interface DataLakeDetails {
   isDataLake: boolean;
   version: string;
+}
+
+export interface CollectionStats {
+  ns: string;
+  name: string;
+  database: string;
+  is_capped?: boolean;
+  max?: number;
+  is_power_of_two: boolean;
+  index_sizes?: CollStats['indexSizes'];
+  document_count: CollStats['documentCount'];
+  document_size?: CollStats['size'];
+  storage_size?: CollStats['storageSize'];
+  index_count?: CollStats['nindexes'];
+  index_size?: CollStats['totalIndexSize'];
+  padding_factor?: CollStats['paddingFactor'];
+  extent_count?: CollStats['numExtents'];
+  extent_last_size?: CollStats['lastExtentSize'];
+  flags_user: CollStats['userFlags'];
+  max_document_size?: CollStats['maxSize'];
+  sharded: boolean;
+  shards: CollStats['shards'];
+  size?: CollStats['size'];
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  index_details: CollStats['indexDetails'];
+  wired_tiger: Partial<CollStats['wiredTiger']>;
+}
+
+export interface CollStatsIndexDetails {
+  metadata: {
+    formatVersion: number;
+    infoObj: string;
+  };
+  creationString: string;
+  type: string;
+  uri?: string;
+  LSM?: Record<string, number>;
+  'block-manager'?: Record<string, number>;
+  btree?: Record<string, number>;
+  cache?: Record<string, number>;
+  cache_walk?: Record<string, number>;
+  'checkpoint-cleanup'?: Record<string, number>;
+  compression?: Record<string, number>;
+  reconciliation?: Record<string, number>;
+  session?: Record<string, number>;
+  transations?: Record<string, number>;
+}
+
+export interface CollectionDetails extends CollectionStats {
+  _id: string;
+  name: string;
+  database: string;
+  indexes: IndexDetails[];
 }

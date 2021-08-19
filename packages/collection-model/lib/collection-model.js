@@ -33,7 +33,6 @@ var Collection = AmpersandModel.extend({
      * http://docs.mongodb.org/manual/reference/command/collStats/#collStats.userFlags
      */
     flags_user: 'number',
-    flags_system: 'number',
     /**
      * Is this a capped collection?
      */

@@ -29,29 +29,24 @@ import {
   InsertOneOptions,
   InsertOneResult,
   MongoClient,
-  ReadPreferenceLike,
   TopologyDescriptionChangedEvent,
   UpdateFilter,
   UpdateOptions,
   UpdateResult,
 } from 'mongodb';
+import { connect, ConnectionModel, SshTunnel } from 'mongodb-connection-model';
+import { fetch as getIndexes, IndexDetails } from 'mongodb-index-model';
+import parseNamespace from 'mongodb-ns';
 import { getInstance } from './instance-detail-helper';
-import { Callback, Instance, InstanceDetails } from './types';
-
-/* eslint-disable @typescript-eslint/no-var-requires */
-const { connect } = require('mongodb-connection-model');
-const { fetch: getIndexes } = require('mongodb-index-model');
-const parseNamespace = require('mongodb-ns');
-/* eslint-enable */
+import {
+  Callback,
+  CollectionDetails,
+  CollectionStats,
+  Instance,
+  InstanceDetails,
+} from './types';
 
 const debug = createDebug('mongodb-data-service:native-client');
-
-export interface ConnectionModel {
-  hostname: string;
-  port: number;
-  ns: string;
-  readPreference: ReadPreferenceLike;
-}
 
 /**
  * The constant for a mongos.
@@ -120,10 +115,7 @@ class NativeClient extends EventEmitter {
   readonly model: ConnectionModel;
 
   connectionOptions?: ConnectionOptions;
-  tunnel?: {
-    listen(): Promise<void>;
-    close(): Promise<void>;
-  };
+  tunnel?: SshTunnel;
 
   isWritable = false;
   isMongos = false;
@@ -187,7 +179,7 @@ class NativeClient extends EventEmitter {
       (
         err: Error,
         _client: MongoClient,
-        tunnel: any,
+        tunnel: SshTunnel,
         connectionOptions: ConnectionOptions
       ) => {
         if (err) {
@@ -336,7 +328,8 @@ class NativeClient extends EventEmitter {
    * @param ns - The namespace.
    * @param callback - The callback.
    */
-  collectionDetail(ns: string, callback: Callback<Document>): void {
+  collectionDetail(ns: string, callback: Callback<CollectionDetails>): void {
+    // @ts-expect-error async typings are not nice :(
     async.parallel(
       {
         stats: this.collectionStats.bind(
@@ -345,8 +338,8 @@ class NativeClient extends EventEmitter {
           this._collectionName(ns)
         ),
         indexes: this.indexes.bind(this, ns),
-      } as any,
-      (error, coll: any) => {
+      },
+      (error, coll: { stats: CollectionStats; indexes: IndexDetails[] }) => {
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
@@ -407,7 +400,10 @@ class NativeClient extends EventEmitter {
    * @param databaseName - The database name.
    * @param callback - The callback.
    */
-  collections(databaseName: string, callback: Callback<Document[]>): void {
+  collections(
+    databaseName: string,
+    callback: Callback<CollectionStats[]>
+  ): void {
     if (databaseName === SYSTEM) {
       return callback(null, []);
     }
@@ -416,13 +412,14 @@ class NativeClient extends EventEmitter {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
       }
+      // @ts-expect-error async typings are not nice :(
       async.parallel(
         (names || []).map((name) => {
-          return (done: any) => {
+          return (done: Callback<CollectionStats>) => {
             this.collectionStats(databaseName, name, done);
           };
-        }) as any,
-        callback as any
+        }),
+        callback
       );
     });
   }
@@ -511,7 +508,7 @@ class NativeClient extends EventEmitter {
   collectionStats(
     databaseName: string,
     collectionName: string,
-    callback: Callback<Document>
+    callback: Callback<CollectionStats>
   ): void {
     const db = this.client.db(databaseName);
     db.command({ collStats: collectionName, verbose: true }, (error, data) => {
@@ -919,14 +916,18 @@ class NativeClient extends EventEmitter {
    * @param ns - The collection namespace.
    * @param callback - The callback.
    */
-  indexes(ns: string, callback: Callback<Document>): void {
-    getIndexes(this.client, ns, (error?: Error, data?: Document) => {
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+  indexes(ns: string, callback: Callback<IndexDetails[]>): void {
+    getIndexes(
+      this.client,
+      ns,
+      (error: Error | undefined, data: IndexDetails[]) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, data);
       }
-      callback(null, data!);
-    });
+    );
   }
 
   /**
@@ -1314,8 +1315,11 @@ class NativeClient extends EventEmitter {
    * @param ns - The namespace.
    * @param data - The collection stats.
    */
-  _buildCollectionDetail(ns: string, data: Document): Document {
-    return assignIn<Document>(data.stats, {
+  _buildCollectionDetail(
+    ns: string,
+    data: { stats: CollectionStats; indexes: IndexDetails[] }
+  ): CollectionDetails {
+    return assignIn<CollectionDetails>(data.stats, {
       _id: ns,
       name: this._collectionName(ns),
       database: this._databaseName(ns),
@@ -1360,8 +1364,8 @@ class NativeClient extends EventEmitter {
   _buildCollectionStats(
     databaseName: string,
     collectionName: string,
-    data: Partial<CollStats>
-  ): Document {
+    data: Partial<CollStats & { shards: Document; sharded: boolean }>
+  ): CollectionStats {
     return {
       ns: databaseName + '.' + collectionName,
       name: collectionName,
@@ -1379,11 +1383,11 @@ class NativeClient extends EventEmitter {
       extent_count: data.numExtents,
       extent_last_size: data.lastExtentSize,
       flags_user: data.userFlags,
-      flags_system: data.systemFlags,
       max_document_size: data.maxSize,
       sharded: data.sharded || false,
       shards: data.shards || {},
       size: data.size,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       index_details: data.indexDetails || {},
       wired_tiger: data.wiredTiger || {},
     };

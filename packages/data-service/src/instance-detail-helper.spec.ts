@@ -1,10 +1,10 @@
 import assert from 'assert';
 import _ from 'lodash';
 import { Db, MongoClient } from 'mongodb';
+import { ConnectionModel } from 'mongodb-connection-model';
 import * as helper from '../test/helper';
 import DataService from './data-service';
 import { getInstance } from './instance-detail-helper';
-import { ConnectionModel } from './native-client';
 import { Instance } from './types';
 
 /* eslint-disable @typescript-eslint/no-var-requires */

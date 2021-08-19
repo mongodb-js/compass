@@ -15,9 +15,9 @@ import { Db, Document, MongoClient, ReadPreference } from 'mongodb';
 import {
   BuildInfoDetails,
   Callback,
-  CollectionDetails,
-  DatabaseDetails,
-  DatabaseStats,
+  InstanceCollectionDetails,
+  InstanceDatabaseDetails,
+  InstanceDatabaseStats,
   DataLakeDetails,
   ResolvedInstanceTaskData,
   GenuineMongoDBDetails,
@@ -50,17 +50,17 @@ function getReadPreferenceOptions(db: Db) {
  */
 function getStats(
   results: Pick<ResolvedInstanceTaskData, 'databases'>,
-  done: Callback<DatabaseStats>
+  done: Callback<InstanceDatabaseStats>
 ) {
   const databases = results.databases;
 
-  const keys: Array<keyof DatabaseStats> = [
+  const keys: Array<keyof InstanceDatabaseStats> = [
     'document_count',
     'storage_size',
     'index_count',
     'index_size',
   ];
-  const stats: DatabaseStats = {
+  const stats: InstanceDatabaseStats = {
     document_count: 0,
     storage_size: 0,
     index_count: 0,
@@ -380,19 +380,19 @@ function listDatabases(
 function getDatabase(
   client: MongoClient,
   db: Db,
-  done: Callback<DatabaseDetails>
+  done: Callback<InstanceDatabaseDetails>
 ): void;
 function getDatabase(
   client: MongoClient,
   db: Db,
   name: string,
-  done: Callback<DatabaseDetails>
+  done: Callback<InstanceDatabaseDetails>
 ): void;
 function getDatabase(
   client: MongoClient,
   db: Db,
-  name: string | Callback<DatabaseDetails>,
-  done?: Callback<DatabaseDetails>
+  name: string | Callback<InstanceDatabaseDetails>,
+  done?: Callback<InstanceDatabaseDetails>
 ): void {
   if (typeof name === 'function') {
     done = name;
@@ -413,7 +413,7 @@ function getDatabase(
       debug('got dbStats for `%s`', name, res);
     }
     const dbName = res.db || name;
-    const details: DatabaseDetails = {
+    const details: InstanceDatabaseDetails = {
       _id: dbName,
       name: dbName,
       document_count: res.objects || 0,
@@ -432,7 +432,7 @@ function getDatabases(
     listDatabases: string[];
     allowedDatabases: string[];
   },
-  done: Callback<DatabaseDetails[]>
+  done: Callback<InstanceDatabaseDetails[]>
 ): void {
   const db = results.db;
   const client = results.client;
@@ -525,7 +525,7 @@ function getAllowedDatabases(
 }
 function parseCollection(
   resp: Document & { db: string; name: string }
-): CollectionDetails {
+): InstanceCollectionDetails {
   const ns = toNS(`${resp.db}.${resp.name}`);
   return {
     _id: ns.toString(),
@@ -541,7 +541,7 @@ function parseCollection(
 
 function getAllowedCollections(
   results: { userInfo: Document },
-  done: Callback<CollectionDetails[]>
+  done: Callback<InstanceCollectionDetails[]>
 ): void {
   type DbAndCollection = { db: string; collection: string };
   type DbAndName = { db: string; name: string };
@@ -586,7 +586,7 @@ function isMongosLocalException(err?: any): boolean {
 
 function getDatabaseCollections(
   db: Db,
-  done: Callback<CollectionDetails[]>
+  done: Callback<InstanceCollectionDetails[]>
 ): void {
   debug('getDatabaseCollections...');
 
@@ -631,7 +631,7 @@ function getCollections(
     ResolvedInstanceTaskData,
     'listCollections' | 'allowedCollections'
   >,
-  done: Callback<CollectionDetails[]>
+  done: Callback<InstanceCollectionDetails[]>
 ) {
   // var db = results.db;
 
@@ -658,8 +658,8 @@ function getCollections(
 }
 
 function listCollections(
-  results: { client: MongoClient; databases: DatabaseDetails[] },
-  done: Callback<CollectionDetails[]>
+  results: { client: MongoClient; databases: InstanceDatabaseDetails[] },
+  done: Callback<InstanceCollectionDetails[]>
 ): void {
   const client = results.client;
   const databases = results.databases;
@@ -675,12 +675,15 @@ function listCollections(
       // @ts-expect-error Callback without result...
       return done(err);
     }
-    done(null, flatten(res) as CollectionDetails[]);
+    done(null, flatten(res) as InstanceCollectionDetails[]);
   });
 }
 
 function getHierarchy(
-  results: { databases: DatabaseDetails[]; collections: CollectionDetails[] },
+  results: {
+    databases: InstanceDatabaseDetails[];
+    collections: InstanceCollectionDetails[];
+  },
   done: Callback<void>
 ): void {
   const databases = results.databases;
