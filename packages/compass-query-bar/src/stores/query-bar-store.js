@@ -4,28 +4,30 @@ import queryParser from 'mongodb-query-parser';
 import assert from 'assert';
 import diff from 'object-diff';
 import {
-  get,
-  has,
-  pull,
-  pick,
-  isBoolean,
-  isUndefined,
-  isNull,
-  isEqual,
-  isArray,
-  isPlainObject,
-  every,
-  values,
-  without,
-  mapKeys,
-  mapValues,
   clone,
   contains,
-  omit
+  every,
+  get,
+  has,
+  isArray,
+  isBoolean,
+  isEqual,
+  isNull,
+  isPlainObject,
+  isUndefined,
+  mapKeys,
+  mapValues,
+  omit,
+  pick,
+  pull,
+  values,
+  without
+
 } from 'lodash';
 
 import { bsonEqual, hasDistinctValue } from 'mongodb-query-util';
 import QUERY_PROPERTIES from '../constants/query-properties';
+import mergeGeoFilter from '../modules/merge-geo-filter';
 import {
   USER_TYPING_DEBOUNCE_MS,
   APPLY_STATE,
@@ -46,50 +48,6 @@ const debug = require('debug')('mongodb-compass:stores:query-bar');
 
 const QUERY_CHANGED_STORE = 'Query.ChangedStore';
 
-function isGeoCondition(object) {
-  if (typeof object !== 'object') {
-    return false;
-  }
-
-  if (!object) {
-    return false;
-  }
-
-  return 'coordinates' in object;
-}
-
-export function mergeGeoFilter(oldFilter, newGeoQueryFilter) {
-  const filter = { ...oldFilter };
-
-  // unset previous geo query by deleting any `coordinates` conditions
-  // from the main query and any other $or conditions containing a
-  // `coordinates` query
-  if (filter.coordinates) {
-    delete filter.coordinates;
-  }
-
-  if (Array.isArray(filter.$or)) {
-    filter.$or = filter.$or.filter((condition) => !isGeoCondition(condition));
-
-    // if at this point the $or is empty we just drop it
-    if (!filter.$or.length) {
-      delete filter.$or;
-    }
-  }
-
-  if (newGeoQueryFilter.coordinates) {
-    filter.coordinates = newGeoQueryFilter.coordinates;
-  }
-
-  if (newGeoQueryFilter.$or) {
-    filter.$or = [
-      ...(Array.isArray(filter.$or) ? filter.$or : []),
-      ...newGeoQueryFilter.$or
-    ];
-  }
-
-  return filter;
-}
 
 /**
  * Configure the query bar store.
