@@ -15,19 +15,23 @@ const cli = require('mongodb-js-cli')('hadron-build:generate-package-lock');
  *
  * [0] - https://github.com/npm/arborist#data-structures
  *
- * @param {*} workspaceName
- * @param {*} npmRegistry
+ * @param {string} workspaceName
+ * @param {string} npmRegistry
+ * @param {string} monorepoRootPath
+ * @returns {Object}
  */
-async function generatePackageLock(workspaceName, npmRegistry) {
-  const rootPath = path.dirname(require.resolve('../../../package.json'));
-
+async function generatePackageLock(
+  workspaceName,
+  npmRegistry = process.env.npm_config_registry,
+  monorepoRootPath = path.resolve(__dirname, '..', '..', '..')
+) {
   let arb;
   let tree;
   let workspaceNode;
   let workspacePath;
 
   cli.debug('Loading dependencies tree');
-  arb = new Arborist({ path: rootPath });
+  arb = new Arborist({ path: monorepoRootPath });
   // Using virtual here so that optional and system specific pacakges are also
   // included (they will be missing in `actual` if they are not on disk).
   tree = await arb.loadVirtual();
@@ -56,7 +60,7 @@ async function generatePackageLock(workspaceName, npmRegistry) {
   for (const packageNode of packages) {
     const metaPath = packageNode.path
       .replace(workspacePath, '')
-      .replace(rootPath, '')
+      .replace(monorepoRootPath, '')
       .replace(/^(\/|\\)/, '');
 
     // In theory should never happen
