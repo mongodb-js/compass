@@ -384,57 +384,57 @@ tasks:
 
       - func: install
 
-      # - func: verify
+      - func: verify
 
       - func: test
         variants: [macos, windows, ubuntu, rhel]
         vars:
           debug: 'hadron*,mongo*'
 
-      # - func: package
-      #   vars:
-      #     compass_distribution: compass
-      # - func: publish
-      #   vars:
-      #     compass_distribution: compass
-      # - func: 'save windows artifacts'
-      #   variants: [windows]
-      # - func: 'save osx artifacts'
-      #   variants: [macos]
-      # - func: 'save linux artifacts'
-      #   variants: [ubuntu]
-      # - func: 'save rhel artifacts'
-      #   variants: [rhel]
+      - func: package
+        vars:
+          compass_distribution: compass
+      - func: publish
+        vars:
+          compass_distribution: compass
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]
+      - func: 'save rhel artifacts'
+        variants: [rhel]
 
-      # - func: package
-      #   vars:
-      #     compass_distribution: compass-isolated
-      # - func: publish
-      #   vars:
-      #     compass_distribution: compass-isolated
-      # - func: 'save windows artifacts'
-      #   variants: [windows]
-      # - func: 'save osx artifacts'
-      #   variants: [macos]
-      # - func: 'save linux artifacts'
-      #   variants: [ubuntu]
-      # - func: 'save rhel artifacts'
-      #   variants: [rhel]
+      - func: package
+        vars:
+          compass_distribution: compass-isolated
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]
+      - func: 'save rhel artifacts'
+        variants: [rhel]
 
-      # - func: package
-      #   vars:
-      #     compass_distribution: compass-readonly
-      # - func: publish
-      #   vars:
-      #     compass_distribution: compass-readonly
-      # - func: 'save windows artifacts'
-      #   variants: [windows]
-      # - func: 'save osx artifacts'
-      #   variants: [macos]
-      # - func: 'save linux artifacts'
-      #   variants: [ubuntu]
-      # - func: 'save rhel artifacts'
-      #   variants: [rhel]
+      - func: package
+        vars:
+          compass_distribution: compass-readonly
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]
+      - func: 'save rhel artifacts'
+        variants: [rhel]
 
 # TODO (@imlucas) determine OS/version deprecation policy, following server, so we don't fall behind
 # what maximal resources we're using.
