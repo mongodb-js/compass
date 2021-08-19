@@ -2,6 +2,7 @@ const debug = require('debug')('mongodb-aggregations:modules:index');
 
 import { combineReducers } from 'redux';
 import { ObjectId } from 'bson';
+import isEmpty from 'lodash.isempty';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
@@ -675,6 +676,19 @@ export const getPipelineFromIndexedDB = (pipelineId) => {
   };
 };
 
+
+/**
+ * Make view pipeline.
+ *
+ * @returns {Array} The mapped/filtered view pipeline.
+ */
+export const makeViewPipeline = (unfilteredPipeline) => {
+  return unfilteredPipeline
+    .map((p) => (p.executor || generateStage(p)))
+    // generateStage can return {} under various conditions
+    .filter((stage) => !isEmpty(stage));
+};
+
 /**
  * Open create view.
  *
@@ -686,7 +700,7 @@ export const openCreateView = () => {
   return (dispatch, getState) => {
     const state = getState();
     const sourceNs = state.namespace;
-    const sourcePipeline = state.pipeline.map((p) => (p.executor || generateStage(p)));
+    const sourcePipeline = makeViewPipeline(state.pipeline);
 
     const meta = {
       source: sourceNs,
