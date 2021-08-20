@@ -61,6 +61,9 @@ module.exports = {
       files: ["**/*.spec.js", "**/*.spec.jsx", "**/*.spec.ts", "**/*.spec.tsx"],
       env: { mocha: true },
       extends: [...testConfigurations],
+      rules: {
+        "mocha/no-exclusive-tests": "error"
+      }
     },
   ],
   settings: {
