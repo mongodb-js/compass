@@ -43,7 +43,6 @@
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile",
     "test": "cross-env TS_NODE_FILES=true mocha --colors --timeout 15000 -r ts-node/register **/*.spec.*",
-    "prepare": "npm run compile",
     "pretest": "npm run compile && mongodb-runner start --port=27018 && node ../../scripts/rebuild.js keytar",
     "test-watch": "mocha --colors --timeout 15000 --watch -r ts-node/register **/*.spec.*",
     "test-ci": "npm run test",
