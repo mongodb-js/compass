@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Thu Aug 19 2021.
+This document was automatically generated on Fri Aug 20 2021.
 
 ## List of dependencies
 
@@ -69,7 +69,7 @@ Package|Version|License
 **[@leafygreen-ui/icon](#9335fcbb02cf9eefc388844900e0d7e49d2885790471570f5819c77167514916)**|11.4.0|Apache-2.0
 **[@leafygreen-ui/icon](#b5ac17567d129a7e3ce56ba923d001576c78886bb2ea834aec73ec9b65e924b2)**|4.3.0|Apache-2.0
 **[@leafygreen-ui/icon-button](#bd7823878cc7402abcdd646ebfcaafb1af57811817fa976309103ba6fce95993)**|9.1.6|Apache-2.0
-**[@leafygreen-ui/interaction-ring](#6c87b2c241268cfc4dd6e0f43cb17e4bf4c5da62f69ad6414d52309c6220c58a)**|1.0.4|Apache-2.0
+**[@leafygreen-ui/interaction-ring](#b5e1b7ade779a3b82b39ff76b20ebce84f01ef5934829644bd42dcf038af82e5)**|1.1.0|Apache-2.0
 **[@leafygreen-ui/leafygreen-provider](#36a54088ae5d34fa5e9a732e9cfeff6cc45d623039000fed562decf0ff81dd3a)**|2.1.3|Apache-2.0
 **[@leafygreen-ui/lib](#35c4bed27ba37ac1f2211977d15b81d1ac62ee14e5f3dd4684fef2b8e3fb9737)**|8.0.0|Apache-2.0
 **[@leafygreen-ui/lib](#30e9ed6c2e550dfed8b9be8d41b5b9b5ea99c892204ce640e4ca75702c6d003b)**|9.0.0|Apache-2.0
@@ -84,6 +84,7 @@ Package|Version|License
 **[@leafygreen-ui/syntax](#5cdb6561a356218c1b8dfaf30b84a030581ad33bed8ebbbaf1940ed7c94d6f11)**|2.8.0|Apache-2.0
 **[@leafygreen-ui/tabs](#a2ca7651f2752f0fb392f42e6942cedca87388c124ae1789f8f3b32fb7b15f94)**|5.1.3|Apache-2.0
 **[@leafygreen-ui/text-input](#7d4813ea1bdfe3adb68adcefab312bec90dcf201093c2307db92c5b975e7bd57)**|6.0.3|Apache-2.0
+**[@leafygreen-ui/toggle](#4b9d37b29cb36fa38eb01a04d0a9b1fd53f0a973e5989212400f122346d3c4d4)**|7.0.4|Apache-2.0
 **[@leafygreen-ui/tokens](#abb3f3bd8f538461e96421ea4c92aa7595c29081e13652645737bea328a90349)**|0.5.2|Apache-2.0
 **[@leafygreen-ui/tooltip](#d543851d8597245c6181562d62c8b38bb7807a61230f9d992a3c259d99946ed6)**|6.2.2|Apache-2.0
 **[@leafygreen-ui/typography](#43605f4bb784fb19869f1788c6b04f60632166fe6cf57a358b916aedc11b9b4b)**|8.0.2|Apache-2.0
@@ -3188,8 +3189,8 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="6c87b2c241268cfc4dd6e0f43cb17e4bf4c5da62f69ad6414d52309c6220c58a"></a>
-### [@leafygreen-ui/interaction-ring](https://www.npmjs.com/package/@leafygreen-ui/interaction-ring) (version 1.0.4)
+<a id="b5e1b7ade779a3b82b39ff76b20ebce84f01ef5934829644bd42dcf038af82e5"></a>
+### [@leafygreen-ui/interaction-ring](https://www.npmjs.com/package/@leafygreen-ui/interaction-ring) (version 1.1.0)
 <!-- initially found at node_modules/@leafygreen-ui/interaction-ring -->
 > leafyGreen UI Kit Interaction Ring
 
@@ -3304,6 +3305,14 @@ License tags: Apache-2.0
 ### [@leafygreen-ui/text-input](https://www.npmjs.com/package/@leafygreen-ui/text-input) (version 6.0.3)
 <!-- initially found at node_modules/@leafygreen-ui/text-input -->
 > leafyGreen UI Kit Text Input
+
+License tags: Apache-2.0
+
+
+<a id="4b9d37b29cb36fa38eb01a04d0a9b1fd53f0a973e5989212400f122346d3c4d4"></a>
+### [@leafygreen-ui/toggle](https://www.npmjs.com/package/@leafygreen-ui/toggle) (version 7.0.4)
+<!-- initially found at node_modules/@leafygreen-ui/toggle -->
+> LeafyGreen UI Kit Toggle
 
 License tags: Apache-2.0
 
