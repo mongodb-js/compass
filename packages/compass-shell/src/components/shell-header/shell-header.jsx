@@ -35,15 +35,18 @@ export class ShellHeader extends Component {
       <div className={styles['compass-shell-header']}>
         <div className={styles['compass-shell-header-left']}>
           <button
+            data-test-id="shell-expand-button"
             className={styles['compass-shell-header-toggle']}
+            aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
             onClick={onShellToggleClicked}
+            aria-pressed={isExpanded}
           >
             &gt;_MONGOSH
             {!isExpanded && isOperationInProgress && (
               <>
                 <ShellLoader
                   className={styles['compass-shell-header-loader-icon']}
-                  size="10px"
+                  size="12px"
                 />
                 <span
                   className={styles['compass-shell-header-operation-in-progress']}
@@ -53,44 +56,31 @@ export class ShellHeader extends Component {
           </button>
         </div>
         <div className={styles['compass-shell-header-right-actions']}>
-          {isExpanded && (
-            <>
+          {isExpanded &&
               <IconButton
                 className={styles['compass-shell-header-btn']}
                 variant="dark"
                 aria-label="Shell Info"
+                aria-haspopup="dialog"
                 onClick={showInfoModal}
               >
                 <Icon
                   glyph="InfoWithCircle"
                   size="small"
                 />
-              </IconButton>
-              <IconButton
-                className={styles['compass-shell-header-btn']}
-                variant="dark"
-                aria-label="Close Shell"
-                onClick={onShellToggleClicked}
-              >
-                <Icon
-                  glyph="ChevronDown"
-                  size="small"
-                />
-              </IconButton>
-            </>
-          )}
-          {!isExpanded && (
-            <IconButton
-              className={styles['compass-shell-header-open-btn']}
-              variant="dark"
-              aria-label="Open Shell"
-              onClick={onShellToggleClicked}
-            >
-              <Icon
-                glyph="ChevronUp"
-              />
-            </IconButton>
-          )}
+              </IconButton>}
+          <IconButton
+            className={styles['compass-shell-header-btn']}
+            variant="dark"
+            aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
+            onClick={onShellToggleClicked}
+            aria-pressed={isExpanded}
+          >
+            <Icon
+              glyph={isExpanded ? 'ChevronDown' : 'ChevronUp'}
+              size="small"
+            />
+          </IconButton>
         </div>
       </div>
     );

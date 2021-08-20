@@ -30,7 +30,6 @@
     "debug": "^4.1.1",
     "del": "^2.0.2",
     "electron": "^6.1.12",
-    "electron-builder": "22.10.5",
     "electron-license": "^2.4.0",
     "electron-mocha": "^8.2.0",
     "electron-notarize": "^0.3.0",

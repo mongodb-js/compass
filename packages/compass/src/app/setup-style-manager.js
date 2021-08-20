@@ -38,7 +38,7 @@ const setup = (stylesheet, done) => {
    *   compatibility until all packages are external.
    */
   if (process.env.NODE_ENV !== 'production') {
-    const manager = new StyleManager(path.join(__dirname, 'compiled-less'), __dirname);
+    const manager = new StyleManager(path.join(__dirname, '.compiled-less'), __dirname);
     manager.use(document, path.join(__dirname, stylesheet));
 
     /**

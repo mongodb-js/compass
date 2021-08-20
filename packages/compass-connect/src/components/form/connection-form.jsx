@@ -162,6 +162,7 @@ class ConnectionForm extends React.Component {
   render() {
     return (
       <form
+        data-test-id="connection-form"
         onChange={this.onConnectionFormChanged.bind(this)}
         className={classnames(styles['connect-form'])}
       >

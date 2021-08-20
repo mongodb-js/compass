@@ -64,10 +64,20 @@ jobs:
           HADRON_PRODUCT: mongodb-compass
           HADRON_PRODUCT_NAME: MongoDB Compass
           HADRON_DISTRIBUTION: compass
-          HADRON_LOCAL_PUBLISH: "true"
-          DEBUG: "hadron*,mongo*,electron*"
+          HADRON_LOCAL_PUBLISH: 'true'
+          DEBUG: 'hadron*,mongo*,electron*'
         run: npm run package-compass
         shell: bash
+
+      - name: Test Packaged Application
+        env:
+          E2E_TESTS_ATLAS_HOST: ${{ secrets.E2E_TESTS_ATLAS_HOST }}
+          E2E_TESTS_ATLAS_USERNAME: ${{ secrets.E2E_TESTS_ATLAS_USERNAME }}
+          E2E_TESTS_ATLAS_PASSWORD: ${{ secrets.E2E_TESTS_ATLAS_PASSWORD }}
+          # Matches what we are doing in Evergreen
+          MONGODB_VERSION: '4'
+          DEBUG: 'hadron*,mongo*,electron*'
+        run: npm run test-packaged-ci --workspace compass-e2e-tests
 
       - name: Upload Compass Artifacts
         uses: actions/upload-artifact@v2
@@ -81,3 +91,10 @@ jobs:
             packages/compass/dist/*.deb
             packages/compass/dist/*.rpm
             packages/compass/dist/*.tar.gz
+
+      - name: Upload Spectron Logs
+        uses: actions/upload-artifact@v2
+        if: ${{ cancelled() || failure() }}
+        with:
+          name: Spectron Debug Log ${{ runner.os }}
+          path: packages/compass-e2e-tests/.log/**/*.log

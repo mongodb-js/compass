@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src
+        'self'
+        'unsafe-eval'
+        blob:
+        https://js.intercomcdn.com
+        https://api.intercom.io
+        https://api-iam.intercom.io
+        https://api-ping.intercom.io
+        https://nexus-websocket-a.intercom.io
+        https://nexus-websocket-b.intercom.io
+        https://nexus-long-poller-a.intercom.io
+        https://nexus-long-poller-b.intercom.io
+        wss://nexus-websocket-a.intercom.io
+        wss://nexus-websocket-b.intercom.io
+        https://widget.intercom.io
+        https://js.intercomcdn.com
+        https://uploads.intercomcdn.com
+        https://uploads.intercomusercontent.com;
+      img-src
+        data:
+        blob:
+        file://*
+        https://compass-maps.mongodb.com
+        https://notify.bugsnag.com
+        https://js.intercomcdn.com
+        https://static.intercomassets.com
+        https://downloads.intercomcdn.com
+        https://uploads.intercomusercontent.com
+        https://webassets.mongodb.com
+        https://gifs.intercomcdn.com;
+      style-src * 'unsafe-inline';
+      connect-src
+        https://compass-maps.mongodb.com
+        https://stitch.mongodb.com
+        https://api.intercom.io
+        https://api-iam.intercom.io
+        https://api-ping.intercom.io
+        https://nexus-websocket-a.intercom.io
+        https://nexus-websocket-b.intercom.io
+        https://nexus-long-poller-a.intercom.io
+        https://nexus-long-poller-b.intercom.io
+        wss://nexus-websocket-a.intercom.io
+        wss://nexus-websocket-b.intercom.io
+        https://widget.intercom.io
+        https://js.intercomcdn.com
+        https://uploads.intercomcdn.com
+        https://uploads.intercomusercontent.com
+        https://app.getsentry.com
+        https://ip-ranges.amazonaws.com
+        https://*.google-analytics.com;
+      child-src
+        blob:
+        https://share.intercom.io
+        https://www.youtube.com
+        https://player.vimeo.com
+        https://fast.wistia.net
+        https://intercom-sheets.com;
+      script-src
+        'self'
+        https://app.intercom.io
+        https://widget.intercom.io
+        https://js.intercomcdn.com
+        'unsafe-eval';
+      object-src
+        'none';
+      font-src * https://js.intercomcdn.com;">
+  </head>
+  <body>
+    <div id="application">
+      <div data-hook="auto-update"></div>
+      <div data-hook="statusbar" data-test-id="status-bar"></div>
+      <div data-hook="layout-container">
+      </div>
+    </div>
+    <script src="index.js" charset="UTF-8" async></script>
+  </body>
+</html>

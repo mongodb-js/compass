@@ -78,7 +78,7 @@
     "mock-require": "^3.0.3",
     "mongodb": "^4.1.0",
     "mongodb-connection-model": "^21.6.0",
-    "mongodb-runner": "^4.8.1",
+    "mongodb-runner": "^4.8.3",
     "nyc": "^15.0.0",
     "prettier": "2.3.2",
     "rimraf": "^3.0.2",

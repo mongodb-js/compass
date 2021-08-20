@@ -160,6 +160,7 @@ class FormActions extends React.Component {
   renderConnect = () => {
     return (
       <Button
+        data-test-id="connect-button"
         className={styles.button}
         type="submit"
         name="connect"

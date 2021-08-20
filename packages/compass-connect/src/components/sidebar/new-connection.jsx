@@ -40,14 +40,18 @@ class NewConnection extends React.Component {
   render() {
     return (
       <div className={this.getClassName()}>
-        <div
-          className={styles['connect-sidebar-header']}
+        <button
+          data-test-id="new-connection-button"
+          className={classnames(
+            styles['connect-sidebar-header'],
+            styles['connect-sidebar-new-connection-button']
+          )}
           onClick={this.onNewConnectionClicked.bind(this)}
         >
           {/* There is no leafygreen replacement for this icon */}
           <i className="fa fa-fw fa-bolt" />
           <span>New Connection</span>
-        </div>
+        </button>
       </div>
     );
   }

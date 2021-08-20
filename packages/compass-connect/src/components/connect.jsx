@@ -2,7 +2,7 @@ import classnames from 'classnames';
 import { remote } from 'electron';
 import PropTypes from 'prop-types';
 import React from 'react';
-
+import { Link } from '@leafygreen-ui/typography';
 import Actions from '../actions';
 import Sidebar from './sidebar';
 import ConnectionForm from './form/connection-form';
@@ -40,12 +40,10 @@ class Connect extends React.Component {
   /**
    * Changes viewType.
    *
-   * @param {String} viewType - viewType.
-   * @param {Object} evt - evt.
+   * @param {React.SyntheticEvent<HTMLButtonElement, MouseEvent>} evt
    */
-  onChangeViewClicked(viewType, evt) {
-    evt.preventDefault();
-    Actions.onChangeViewClicked(viewType);
+  onChangeViewClicked(evt) {
+    Actions.onChangeViewClicked(evt.currentTarget.dataset.viewType);
   }
 
   /**
@@ -76,27 +74,27 @@ class Connect extends React.Component {
    * @returns {React.Component}
    */
   renderChangeViewLink() {
-    if (this.props.viewType === CONNECTION_STRING_VIEW) {
-      return (
-        <div className={classnames(styles['change-view-link'])}>
-          <a
-            data-test-id="form-view-link"
-            onClick={this.onChangeViewClicked.bind(
-              this,
-              CONNECTION_FORM_VIEW
-            )}
-          >
-            Fill in connection fields individually
-          </a>
-        </div>
-      );
-    }
+    const showConnectionForm = this.props.viewType === CONNECTION_STRING_VIEW;
+    const testId = `show-connection-${
+      showConnectionForm ? 'form' : 'string'
+    }-button`;
 
     return (
-      <div className={classnames(styles['change-view-link'])}>
-        <a onClick={this.onChangeViewClicked.bind(this, CONNECTION_STRING_VIEW)}>
-          Paste connection string
-        </a>
+      <div className={styles['change-view-link']}>
+        <Link
+          as="button"
+          hideExternalIcon
+          data-test-id={testId}
+          data-view-type={
+            showConnectionForm ? CONNECTION_FORM_VIEW : CONNECTION_STRING_VIEW
+          }
+          onClick={this.onChangeViewClicked}
+          className={styles['change-view-link-button']}
+        >
+          {showConnectionForm
+            ? 'Fill in connection fields individually'
+            : 'Paste connection string'}
+        </Link>
       </div>
     );
   }
@@ -132,13 +130,16 @@ class Connect extends React.Component {
   }
 
   render() {
-    const Status = global.hadronApp.appRegistry.getRole('Application.Status')[0]
-      .component;
+    const Status =
+      global.hadronApp.appRegistry.getRole('Application.Status')[0].component;
 
     return (
       <div>
         <Status />
-        <div className={classnames(styles.page, styles.connect)}>
+        <div
+          data-test-id="connect-section"
+          className={classnames(styles.page, styles.connect)}
+        >
           <Sidebar {...this.props} />
           <div className={classnames(styles['form-container'])}>
             <div

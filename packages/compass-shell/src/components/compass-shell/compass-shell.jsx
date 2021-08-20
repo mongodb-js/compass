@@ -159,6 +159,7 @@ export class CompassShell extends Component {
       <Fragment>
         <InfoModal />
         <Resizable
+          data-test-id="shell-section"
           className={styles['compass-shell']}
           defaultSize={{
             width: '100%',
@@ -182,6 +183,7 @@ export class CompassShell extends Component {
             isOperationInProgress={isOperationInProgress}
           />
           <div
+            data-test-id="shell-content"
             className={classnames(
               styles['compass-shell-shell-container'], {
                 [styles['compass-shell-shell-container-visible']]: isExpanded

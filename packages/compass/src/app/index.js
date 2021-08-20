@@ -51,7 +51,7 @@ var { Action } = require('@mongodb-js/hadron-plugin-manager');
 
 ipc.once('app:launched', function() {
   console.log('in app:launched');
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV === 'development') {
     require('debug').enable('mon*,had*');
   }
 });
@@ -219,7 +219,7 @@ var Application = View.extend({
 
     handleTour();
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'development') {
       debug('Installing "Inspect Element" context menu');
       const addInspectElementMenu = require('debug-menu').install;
       addInspectElementMenu();
