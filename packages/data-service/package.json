@@ -32,6 +32,7 @@
   ],
   "scripts": {
     "check": "npm run lint && npm run depcheck",
+    "check-ci": "npm run check",
     "clean": "rimraf lib",
     "precompile": "npm run clean",
     "compile": "npm run compile-ts && gen-esm-wrapper . ./lib/.esm-wrapper.mjs",
@@ -42,9 +43,8 @@
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile",
     "pretest": "npm run compile && mongodb-runner start --port=27018",
-    "test": "npm run lint && cross-env TS_NODE_FILES=true nyc mocha --colors --timeout 15000 -r ts-node/register src/**/*.spec.*",
+    "test": "cross-env TS_NODE_FILES=true nyc mocha --colors --timeout 15000 -r ts-node/register src/**/*.spec.*",
     "test-ci": "npm run test",
-    "test-check-ci": "npm run check && npm test",
     "posttest": "mongodb-runner stop --port=27018",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
     "reformat": "prettier --write ."
