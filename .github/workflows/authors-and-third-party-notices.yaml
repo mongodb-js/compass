@@ -17,6 +17,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ^12.9.0
+          cache: 'npm'
 
       - name: Install Deps Ubuntu
         run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
