@@ -38,10 +38,11 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node.js Environment
-        uses: actions/setup-node@v2.1.2
+        uses: actions/setup-node@v2
         with:
           # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
           node-version: ^12.9.0
+          cache: 'npm'
 
       - name: Install npm@7
         run: npm install -g npm@7
