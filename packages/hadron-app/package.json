@@ -17,7 +17,7 @@
     "mongodb-js"
   ],
   "scripts": {
-    "test": "mocha",
+    "test": "mocha --timeout 15000",
     "check": "npm run lint && npm run depcheck",
     "test-check-ci": "npm run check && npm test",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",

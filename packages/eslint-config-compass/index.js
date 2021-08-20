@@ -5,6 +5,12 @@ const tsConfigurations = [
   "plugin:@typescript-eslint/recommended",
   "plugin:@typescript-eslint/recommended-requiring-type-checking",
 ];
+const tsRules = {
+  "@typescript-eslint/no-unsafe-assignment": "off",
+  "@typescript-eslint/no-unsafe-call": "off",
+  "@typescript-eslint/no-unsafe-member-access": "off",
+  "@typescript-eslint/no-unsafe-return": "off",
+};
 
 const reactConfigurations = [
   "plugin:react/recommended",
@@ -29,6 +35,7 @@ module.exports = {
       parser: "@typescript-eslint/parser",
       files: ["**/*.ts"],
       extends: [...tsConfigurations, "prettier"],
+      rules: { ...tsRules },
     },
     {
       parserOptions: {
@@ -48,6 +55,7 @@ module.exports = {
       files: ["**/*.tsx"],
       env: { node: true, browser: true },
       extends: [...tsConfigurations, ...reactConfigurations, "prettier"],
+      rules: { ...tsRules },
     },
     {
       files: ["**/*.spec.js", "**/*.spec.jsx", "**/*.spec.ts", "**/*.spec.tsx"],
