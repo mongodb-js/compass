@@ -3,4 +3,5 @@ module.exports = {
   timeout: 15000,
   require: ['ts-node/register'],
   spec: 'src/**/*.spec.*',
+  watchFiles: 'src/**/*',
 };

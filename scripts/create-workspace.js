@@ -170,8 +170,11 @@ async function main(argv) {
       depcheck: 'depcheck',
       check: 'npm run lint && npm run depcheck',
       'check-ci': 'npm run check',
-      test: 'cross-env TS_NODE_FILES=true nyc mocha',
-      'test-ci': 'npm run test',
+      test: 'mocha',
+      'test-cov':
+        'cross-env TS_NODE_FILES=true nyc -x "**/*.spec.*" npm run test',
+      'test-watch': 'npm run test -- --watch',
+      'test-ci': 'npm run test-cov',
       reformat: 'npm run prettier -- --write .'
     },
     ...(react && { peerDependencies: { react: '*', 'react-dom': '*' } }),
@@ -183,6 +186,7 @@ async function main(argv) {
       '@mongodb-js/tsconfig-compass': '*',
       '@types/chai': '*',
       '@types/mocha': '*',
+      'cross-env': '*',
       chai: '*',
       depcheck: '*',
       eslint: '*',
