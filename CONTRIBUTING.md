@@ -17,66 +17,108 @@ MongoDB welcomes community contributions! If you’re interested in making a con
 You can report new bugs by [creating a new issue](https://jira.mongodb.org/browse/COMPASS/). Please include as much information as possible about your environment.
 
 ## VSCode Setup
-Make sure to have the following steps completed to get the best development experience:
-1. Install the [prettier VSCode plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) and make sure to set the `prettier.requireConfig` option for the workspace! This will ensure only packages that have `prettier` enabled will get formatted.
 
-## Creating a new package
+This repository includes a few recommended plugins for your convenience:
 
-To create a new package, follow the outlined steps:
+- Prettier extension helps to format your code following this repository code style.
+  > ⚠️&nbsp;&nbsp;If you install the [Prettier VSCode extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) please make sure to set the `prettier.requireConfig` option for the workspace! This will ensure only packages that have `prettier` enabled will get formatted.
+- ESLint extension highlights possible issues in your code following our common eslint configuration.
+- ANTLR4 grammar support extension helps to work with the `bson-transpilers` package that is implemented with the help of antlr (.g and .g4 files).
 
-1. Set up a basic NPM package in the `packages/` directory.
-2. To configure TypeScript:
-   1. Add the `@mongodb-js/tsconfig-compass` package as a `devDependency`.
-   2. Add the required `typescript` dependency.
-   3. Add a `tsconfig.json`, make it extend from `@mongodb-js/tsconfig-compass/tsconfig.react.json` if you plan on using React or extend from `@mongodb-js/tsconfig-compass/tsconfig.common.json` otherwise, and modify additional settings as follows:
-      ```
-      {
-        "extends": "@mongodb-js/tsconfig-compass/tsconfig.<common|react>.json",
-        "compilerOptions": {
-            "outDir": "lib",
-        },
-        "include": [
-            "src/**/*"
-        ],
-        "exclude": [
-            "src/**/*.spec.*"
-        ]
-      }
-      ```
-      _Note that you **must** set the `outDir` explicitly as it is always relative to the config file it is declared in!_
-   4. For linting purposes, add another `tsconfig-lint.json` to include all source files:
-      ```
-      {
-        "extends": "./tsconfig.json",
-        "include": ["**/*"],
-        "exclude": ["node_modules", "lib"]
-      }
-      ```
-3. To configure `eslint`:
-   1. Add the `@mongodb-js/eslint-config-compass` package as a `devDependency`.
-   2. Set up an `.eslintrc.js` with the following content:
-      ```
-      module.exports = {
-        root: true,
-        extends: [
-            '@mongodb-js/eslint-config-compass'
-        ],
-        parserOptions: {
-            tsconfigRootDir: __dirname,
-            project: ['./tsconfig-lint.json']
-        }
-      }
-      ```
-  3. Add an `.eslintignore` with the following content:
-     ```
-     lib/
-     ```
-4. To configure `prettier`:
-   1. Add the `prettier` package as a `devDependency`.
-   2. Set up a `.prettierignore` file with the following content:
-      ```
-      lib
-      .nyc_output
-      ```
-   3. Add an `.prettierrc.json` file with just `"@mongodb-js/prettier-config-compass"` as contents.
-5. For setting up typical packages tasks and depcheck refer to existing packages like [`compass-components`](./packages/compass-components). Make sure to add `@mongodb-js/tsconfig-compass` and `@mongodb-js/prettier-config-compass` to the ignored packages in `.depcheckrc`.
+## Working With the Monorepo
+
+You'll need node `^12.9.0` and npm `7` installed on your machine to work with the repository locally. After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
+
+After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
+
+This monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/using-npm/workspaces) an [`lerna`](https://github.com/lerna/lerna#readme), although not necessary, it might be helpful to have a high level understanding of those tools.
+
+### Working on Plugins
+
+Most of the plugins have their own development environment so you can work on them in isolation. If you want to work on a plugin without running the whole Compass application, you can run `npm run start` in the plugin directory (such as at the top of the `compass/packages/compass-connect` directory), either with the help of `lerna` or `npm workspaces`. For example, to start `compass-connect` plugin locally, you can either run `npm run start --workspace @mongodb-js/compass-connect` from the top of `compass` directory, run `npx lerna run start --scope @mongodb-js/compass-connect --stream` from anywhere in the `compass` directory, or run `npm run start` from the top of the `compass/packages/compass-connect` directory. Same approaches will work for any other workspace-specific script. If you want to run commands like `test` or `check` only for one specific workspace in the repository, you can use any of the methods described above. As an example, to run all tests in one plugin that you are working on such as the `compass-connect` plugin, you can run `npm run test` from the top of the `compass/packages/compass-connect` directory.
+
+If you want to see your changes applied in Compass, you might need to rebuild plugins that you changed with the `compile` command. Instead of manually writing out the `scope` you might want to use `lerna --since` filter to rebuild everything since your local or origin `HEAD` of the git history: `npx lerna run compile --stream --since origin/HEAD`. Restarting or hard-reloading (Shift+CMD+R) Compass after compilation is finished should apply your changes.
+
+In addition to running lerna commands directly, there are a few convenient npm scripts for working with packages:
+
+- `npm run compile-changed` will compile all plugins and their dependants changed since `origin/HEAD`
+- `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`.
+- `npm run check-changed` will run `eslint` and `depcheck` validation in all packages (ignoring dependants) changed since `origin/HEAD`
+
+### Building Compass Locally
+
+To build compass you can run `package-compass` script in the scope of `mongodb-compass` workspace:
+
+```sh
+npm run package-compass --workspace mongodb-compass
+```
+
+This command requires a bunch of environment variables provided (`HADRON_PRODUCT`, `HADRON_PRODUCT_NAME`, `HADRON_DISTRIBUTION`, etc) so for your convenience there is a script provided that sets all those vars to some default values and will take care of generating a required package-lock.json file for the compass workspace
+
+```sh
+npm run test-package-compass
+```
+
+To speed up the process you might want to disable creating installer for the application. To do that you can set `HADRON_SKIP_INSTALLER` environmental variable to `true` when running the script
+
+```sh
+HADRON_SKIP_INSTALLER=true npm run test-package-compass
+```
+
+### Publishing Packages
+
+For package changes to be applied in Compass beta or GA releases they need to be published first. The whole publish process happens from the main branch with the following command in order:
+
+1. `npm run packages-version [semver bump]`: updates package versions for everything that was changed since the last release, updates package-lock file at the root of the repository, commits and tags the changes. See lerna docs to learn more about optional [`semver bump`](https://github.com/lerna/lerna/tree/main/commands/version#semver-bump) argument.
+1. `npm run packages-publish`: publishes packages to the registry, if your npm account uses OTP publishing protection get ready to enter the code a few times, as an alternative you might want to use [npm automation authorization tokens](https://docs.npmjs.com/creating-and-viewing-access-tokens) locally if OTP gets in the way too much (in that case add a [`--no-verify-access`](https://github.com/lerna/lerna/tree/main/commands/publish#--no-verify-access) flag to the publish command). Publish command can be re-run safely multiple times, so if something bad happens mid-release (e.g., your internet goes out), you should be able to safely fiinish the process. After publish finishes successfully the script will push version update commit and tags created in step 1. We do it automatically only post-release so that when evergreen picks up a commit in the main branch, all the tasks can run with the packages already published.
+
+### Add / Update / Remove Dependencies in Packages
+
+To add, remove, or update a dependency in any workspace you can use the usual `npm install` with a `--workspace` argument added, e.g. to add `react-aria` dependency to compass-connect and compass-query-bar plugins you can run `npm install --save react-aria --workspace @mongodb-js/compass-connect --workspace @mongodb-js/compass-query-bar`.
+
+Additionally if you want to update a version of an existing dependency, but don't want to figure out the scope manually, you can use `npm run where` helper script. To update `webpack` in every package that has it as a dev dependency you can run `npm run where "devDependencies['webpack']" -- install --save-dev webpack@latest`
+
+## Creating a New Workspace / Package
+
+To create a new package please use the `create-workspace` npm script:
+
+```sh
+npm run create-workspace [workspace name]
+```
+
+This will do all the initial workspace bootstrapping for you, ensuring that your package has all the standard configs set up and ready, and all the npm scripts aligned with other packages in the monorepo, which is important to get the most out of all the provided helpers in this repository (like `npm run check-changed` commands or to make sure that your tests will not immediately fail in CI because of the test timeout being too small)
+
+### Caveats
+
+#### `hdiutil: couldn't unmount "diskn" - Resource busy` or Similar `hdiutil` Errors
+
+<!-- TODO: might go away after https://jira.mongodb.org/browse/COMPASS-4947 -->
+
+Sometimes when trying to package compass on macOS you can run into the said error. There doesn't seems to be any common solution to it and the reasons are probably related to the outdated versions of some electron packages we are currently using (but will eventually update). If you are running into that issue, you can disable creating an installer during the packaging process by setting `HADRON_SKIP_INSTALLER` env variable to `true`:
+
+```sh
+HADRON_SKIP_INSTALLER=true npm run test-package-compass
+```
+
+#### `Module did not self-register` or `Module '<path>' was compiled against a different Node.js version` Errors
+
+<!-- TODO: should go away after https://jira.mongodb.org/browse/COMPASS-4896 -->
+
+When running Compass application or tests suites locally, you might run into errors like the following:
+
+```
+Error: Module did not self-register: '/path/to/native/module.node'.
+```
+
+```
+Error: The module '/path/to/native/module.node' was compiled against a different Node.js version using NODE_MODULE_VERSION $XYZ. This version of Node.js requires NODE_MODULE_VERSION $ABC.
+```
+
+The root cause is native modules compiled for a different version of the runtime (either Node.js or Electron) that tries to import the module. In our case this is usually caused by combination of two things:
+
+1. Modules have to be recompiled for the runtime they will be used in
+1. Due to npm workspaces hoisting all shared dependencies to the very root of the monorepo, all packages use the same modules imported from the same location
+
+This means that if you e.g., start Compass application locally it will recompile all native modules to work in Electron runtime, if you would try to run tests for `mongodb-connection-model` library right after that, tests would fail due to `keytar` library not being compatible with Node.js environment that the tests are running in.
+
+If you run into this issue, make sure that native modules are rebuilt for whatever runtime you are planning to use at the moment. To help with that we provide two npm scripts: `npm run electron-rebuild` will recompile native modules to work with Electron and `npm run node-rebuild` will recompile them to work with Node.js.

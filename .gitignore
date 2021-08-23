@@ -12,7 +12,7 @@ report.json
 .compiled-sources
 expansions.yml
 .nvmrc
-.vscode
+!./.vscode/extentions.json
 .migration-cache
 lerna-debug.log
 packages/**/*.tgz
