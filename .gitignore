@@ -1,15 +1,15 @@
 npm-debug.log
-build/
-dist/
+build
+dist
 node_modules
 .DS_Store
-.idea/
+.idea
 *.swp
 *.iml
 .cache*
 report.json
-.user-data/
-.compiled-sources/
+.user-data
+.compiled-sources
 expansions.yml
 .nvmrc
 .vscode
@@ -18,5 +18,6 @@ lerna-debug.log
 packages/**/*.tgz
 packages/**/package-lock.json
 tmp
-# Verdaccio storage path
 storage
+.nyc_output
+coverage
