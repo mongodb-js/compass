@@ -1,0 +1,39 @@
+{
+  "name": "@mongodb-js/eslint-config-compass",
+  "version": "0.1.0",
+  "description": "Shared Compass eslint configuration",
+  "license": "SSPL",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "package.json",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "eslint": "^7.25.0"
+  },
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.28.4",
+    "@typescript-eslint/parser": "^4.28.4",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-mocha": "^8.0.0",
+    "eslint-plugin-react": "^7.24.0"
+  },
+  "devDependencies": {
+    "prettier": "2.3.2"
+  },
+  "scripts": {
+    "check": "npm run lint",
+    "lint": "prettier --check .",
+    "reformat": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "publishConfig": {
+    "access": "public"
+  }
+}
