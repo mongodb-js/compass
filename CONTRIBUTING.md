@@ -78,7 +78,7 @@ To add, remove, or update a dependency in any workspace you can use the usual `n
 
 Additionally if you want to update a version of an existing dependency, but don't want to figure out the scope manually, you can use `npm run where` helper script. To update `webpack` in every package that has it as a dev dependency you can run `npm run where "devDependencies['webpack']" -- install --save-dev webpack@latest`
 
-## Creating a New Workspace / Package
+### Creating a New Workspace / Package
 
 To create a new package please use the `create-workspace` npm script:
 
