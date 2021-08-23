@@ -2,8 +2,8 @@
 import d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import range from 'lodash.range';
-import min from 'lodash.min';
-import max from 'lodash.max';
+import minBy from 'lodash.minby';
+import maxBy from 'lodash.maxby';
 import sortBy from 'lodash.sortby';
 import groupBy from 'lodash.groupby';
 import map from 'lodash.map';
@@ -58,20 +58,8 @@ const minicharts_d3fns_date = (appRegistry) => {
 
   const brush = d3.svg.brush()
     .x(barcodeX)
-    // .on('brushstart', brushstart)
     .on('brush', brushed)
     .on('brushend', brushend);
-
-  // function brushstart(clickedLine) {
-  //   // remove selections and half selections
-  //   const lines = d3.selectAll(options.view.queryAll('.selectable'));
-  //   lines.classed('selected', function() {
-  //     return this === clickedLine;
-  //   });
-  //   lines.classed('unselected', function() {
-  //     return this !== clickedLine;
-  //   });
-  // }
 
   function handleDrag() {
     const QueryAction = appRegistry.getAction('Query.Actions');
@@ -103,10 +91,10 @@ const minicharts_d3fns_date = (appRegistry) => {
       }
     }
 
-    const minValue = min(selected.data(), function(d) {
+    const minValue = minBy(selected.data(), function(d) {
       return d.ts;
     });
-    const maxValue = max(selected.data(), function(d) {
+    const maxValue = maxBy(selected.data(), function(d) {
       return d.ts;
     });
 
@@ -118,6 +106,7 @@ const minicharts_d3fns_date = (appRegistry) => {
       }, true);
       return;
     }
+
     // binned values, build range query with $gte and $lte
     QueryAction.setRangeValues({
       field: options.fieldName,
