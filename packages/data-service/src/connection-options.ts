@@ -49,12 +49,12 @@ export interface ConnectionSshOptions {
   /**
    * Private key file to use as SSH identity.
    */
-  identityFile?: string;
+  privateKey?: string;
 
   /**
    * Password for protected `identitiyFile`.
    */
-  identityKey?: string;
+  passphrase?: string;
 }
 
 interface ConnectionFavoriteOptions {

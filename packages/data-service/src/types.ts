@@ -1,5 +1,4 @@
 import { AnyError, CollStats, Db, Document, MongoClient } from 'mongodb';
-import { IndexDetails } from 'mongodb-index-model';
 
 export interface Callback<R> {
   (
@@ -164,6 +163,10 @@ export interface CollStatsIndexDetails {
   reconciliation?: Record<string, number>;
   session?: Record<string, number>;
   transations?: Record<string, number>;
+}
+
+export interface IndexDetails {
+  name: string;
 }
 
 export interface CollectionDetails extends CollectionStats {

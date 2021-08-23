@@ -10,7 +10,6 @@ import {
   Collection,
   CollectionInfo,
   CollStats,
-  ConnectionOptions,
   CountDocumentsOptions,
   CreateCollectionOptions,
   CreateIndexesOptions,
@@ -29,24 +28,38 @@ import {
   InsertOneOptions,
   InsertOneResult,
   MongoClient,
+  MongoClientOptions,
   TopologyDescriptionChangedEvent,
   UpdateFilter,
   UpdateOptions,
   UpdateResult,
 } from 'mongodb';
-import { connect, ConnectionModel, SshTunnel } from 'mongodb-connection-model';
-import { fetch as getIndexes, IndexDetails } from 'mongodb-index-model';
-import parseNamespace from 'mongodb-ns';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { fetch: getIndexes } = require('mongodb-index-model');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const parseNamespace = require('mongodb-ns');
+
 import { getInstance } from './instance-detail-helper';
+import { LegacyConnectionModel } from './legacy-connection-model';
+import SSHTunnel from '@mongodb-js/ssh-tunnel';
 import {
   Callback,
   CollectionDetails,
   CollectionStats,
   Instance,
+  IndexDetails,
   InstanceDetails,
 } from './types';
 
+import connect from './legacy-connect';
+
 const debug = createDebug('mongodb-data-service:native-client');
+
+export type NativeClientConnectionOptions = {
+  url: string;
+  options: MongoClientOptions;
+};
 
 /**
  * The constant for a mongos.
@@ -112,10 +125,10 @@ const DEFAULT_SAMPLE_SIZE = 1000;
  * The native client class.
  */
 class NativeClient extends EventEmitter {
-  readonly model: ConnectionModel;
+  readonly model: LegacyConnectionModel;
 
-  connectionOptions?: ConnectionOptions;
-  tunnel?: SshTunnel;
+  connectionOptions?: NativeClientConnectionOptions;
+  tunnel?: SSHTunnel | null;
 
   isWritable = false;
   isMongos = false;
@@ -124,7 +137,7 @@ class NativeClient extends EventEmitter {
   private _client?: MongoClient;
   private _database?: Db;
 
-  constructor(model: ConnectionModel) {
+  constructor(model: LegacyConnectionModel) {
     super();
     this.model = model;
   }
@@ -177,10 +190,10 @@ class NativeClient extends EventEmitter {
       this.model,
       this.setupListeners.bind(this),
       (
-        err: Error,
-        _client: MongoClient,
-        tunnel: SshTunnel,
-        connectionOptions: ConnectionOptions
+        err: Error | null,
+        client?: void | MongoClient | undefined,
+        tunnel?: SSHTunnel | null | undefined,
+        connectionOptions?: NativeClientConnectionOptions | undefined
       ) => {
         if (err) {
           this._isConnecting = false;
@@ -339,7 +352,10 @@ class NativeClient extends EventEmitter {
         ),
         indexes: this.indexes.bind(this, ns),
       },
-      (error, coll: { stats: CollectionStats; indexes: IndexDetails[] }) => {
+      (
+        error,
+        coll: { stats: CollectionStats; indexes: { name: string }[] }
+      ) => {
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
@@ -1315,7 +1331,7 @@ class NativeClient extends EventEmitter {
    * @param ns - The namespace.
    * @param data - The collection stats.
    */
-  _buildCollectionDetail(
+  private _buildCollectionDetail(
     ns: string,
     data: { stats: CollectionStats; indexes: IndexDetails[] }
   ): CollectionDetails {
