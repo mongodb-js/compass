@@ -49,6 +49,21 @@ functions:
           export CI=1
           export EVERGREEN=1
 
+          # XXX: This is a workaround for the issues we are getting in Evergreen
+          # ci with the way cygwin drives are set up and linked and the Node.js
+          # bug that we can't really do anything about.
+          # 
+          # For more context, see:
+          # - https://github.com/nodejs/node/issues/34866
+          # - https://github.com/mongodb-js/compass/pull/2403
+          # - https://github.com/mongodb-js/compass/pull/2410
+          if [[ "\$OSTYPE" == "cygwin" ]]; then
+            # Change cygdrive from c to z without chanding rest of the path
+            CHANGE_DIR_TO="\$(pwd | sed 's/^\/cygdrive\/c/\/cygdrive\/z/')"
+            cd \$CHANGE_DIR_TO;
+            echo "Changed cwd on cygwin. Current working dir: \$(pwd)"
+          fi
+
           # Make default evergreen expansions accessible to hadron-build
           export EVERGREEN_ASSET_PREFIX="s3://mciuploads/${project}/${revision}";
           export EVERGREEN_AUTHOR="${author}";

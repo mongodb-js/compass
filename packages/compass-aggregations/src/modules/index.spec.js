@@ -5,6 +5,7 @@ import reducer, {
   clonePipeline,
   newPipeline,
   modifySource,
+  makeViewPipeline,
   RESET,
   CLEAR_PIPELINE,
   RESTORE_PIPELINE,
@@ -254,6 +255,23 @@ describe('root [ module ]', () => {
           expect(state.inputDocuments.isExpanded).to.equal(true);
         });
       });
+    });
+  });
+
+  describe('#makeViewPipeline', () => {
+    it('filters out empty stages', () => {
+      const pipeline = [
+        // executor preferred
+        { executor: { a: 1 } },
+
+        // falling back to generateStage()
+        { isEnabled: false}, // !isEnabled
+        {}, // no stageOperator
+        { stage: '' } // stage === ''
+        // leaving out non-blank generated ones for generateStage()'s own unit tests
+      ];
+
+      expect(makeViewPipeline(pipeline)).to.deep.equal([{ a: 1 }]);
     });
   });
 });

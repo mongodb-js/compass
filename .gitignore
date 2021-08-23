@@ -21,3 +21,4 @@ tmp
 storage
 .nyc_output
 coverage
+.ackrc
