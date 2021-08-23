@@ -189,7 +189,6 @@ async function main(argv) {
       mocha: '*',
       nyc: '*',
       prettier: '*',
-      'ts-node': '*',
       typescript: '*',
       ...(react && {
         '@testing-library/react': '*',
@@ -214,10 +213,24 @@ async function main(argv) {
   const packageJsonPath = path.join(packagePath, 'package.json');
   const packageJsonContent = JSON.stringify(pkgJson, null, 2);
 
+  const depcheckrcPath = path.join(packagePath, '.depcheckrc');
+  const depcheckrcContent = `ignores: [
+  "@mongodb-js/prettier-config-compass",
+  "@mongodb-js/tsconfig-compass",
+  "@types/chai",
+  "@types/chai-dom",
+  "@types/react",
+  "@types/react-dom"
+]
+`;
+
   const prettierrcPath = path.join(packagePath, '.prettierrc.json');
   const prettierrcContent = JSON.stringify(
     '@mongodb-js/prettier-config-compass'
   );
+
+  const prettierIgnorePath = path.join(packagePath, '.prettierignore');
+  const prettierIgnoreContent = '.nyc-output\ndist\n';
 
   const tsconfigPath = path.join(packagePath, 'tsconfig.json');
   const tsconfigContent = JSON.stringify(
@@ -257,6 +270,9 @@ module.exports = {
   },
 };`;
 
+  const eslintIgnorePath = path.join(packagePath, '.eslintignore');
+  const eslintIgnoreContent = '.nyc-output\ndist\n';
+
   const mocharcPath = path.join(packagePath, '.mocharc.js');
   const mocharcContent = `module.exports = require('${
     react
@@ -271,10 +287,13 @@ module.exports = {
   await withProgress('Generating package source', async () => {
     await fs.mkdir(packagePath, { recursive: true });
     await fs.writeFile(packageJsonPath, packageJsonContent);
+    await fs.writeFile(depcheckrcPath, depcheckrcContent);
     await fs.writeFile(prettierrcPath, prettierrcContent);
+    await fs.writeFile(prettierIgnorePath, prettierIgnoreContent);
     await fs.writeFile(tsconfigPath, tsconfigContent);
     await fs.writeFile(tsconfigLintPath, tsconfigLintContent);
     await fs.writeFile(eslintrcPath, eslintrcContent);
+    await fs.writeFile(eslintIgnorePath, eslintIgnoreContent);
     await fs.writeFile(mocharcPath, mocharcContent);
     await fs.mkdir(indexSrcDir, { recursive: true });
     await fs.writeFile(indexSrcPath, '');
@@ -285,6 +304,9 @@ module.exports = {
     await withProgress('Updating dependants', async () => {
       for (const location of dependants) {
         await updatePackageJson(location, (pkgJson) => {
+          if (!pkgJson[depType]) {
+            pkgJson[depType] = {};
+          }
           pkgJson[depType][dirToScopedPackageName(name)] = '^0.1.0';
           sortDepsByName(pkgJson, [depType]);
           return pkgJson;
