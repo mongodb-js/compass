@@ -61,14 +61,18 @@ jobs:
         shell: bash
 
       - name: Publish Packages Locally and Build Compass
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 5
+          shell: bash
+          command: npm run package-compass
         env:
           HADRON_PRODUCT: mongodb-compass
           HADRON_PRODUCT_NAME: MongoDB Compass
           HADRON_DISTRIBUTION: compass
           HADRON_LOCAL_PUBLISH: 'true'
           DEBUG: 'hadron*,mongo*,electron*'
-        run: npm run package-compass
-        shell: bash
 
       - name: Test Packaged Application
         env:
