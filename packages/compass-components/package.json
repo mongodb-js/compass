@@ -26,8 +26,7 @@
     "depcheck": "depcheck",
     "lint": "eslint . && prettier --check .",
     "prepublishOnly": "npm run compile",
-    "pretest": "npm run compile",
-    "test": "nyc mocha --colors -r jsdom-global/register -r ts-node/register -r test-setup.ts src/**/*.spec.tsx",
+    "test": "nyc mocha",
     "test-ci": "npm run test",
     "reformat": "prettier --write ."
   },
@@ -38,9 +37,10 @@
     "react": "^16.14.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "*",
-    "@mongodb-js/prettier-config-compass": "*",
-    "@mongodb-js/tsconfig-compass": "*",
+    "@mongodb-js/eslint-config-compass": "^0.1.0",
+    "@mongodb-js/mocha-config-compass": "^0.1.0",
+    "@mongodb-js/prettier-config-compass": "^0.1.0",
+    "@mongodb-js/tsconfig-compass": "^0.1.0",
     "@testing-library/react": "^12.0.0",
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
