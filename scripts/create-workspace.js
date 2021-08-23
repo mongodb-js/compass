@@ -222,9 +222,9 @@ async function main(argv) {
     .concat(
       react ? ['@types/chai-dom', '@types/react', '@types/react-dom'] : []
     )
-    .map((dep) => `"${dep}"`)
-    .join(',\n');
-  const depcheckrcContent = `ignores: [${ignores}\n]\n`;
+    .map((dep) => ` - "${dep}"`)
+    .join('\n');
+  const depcheckrcContent = `ignores:\n${ignores}\n`;
 
   const prettierrcPath = path.join(packagePath, '.prettierrc.json');
   const prettierrcContent = JSON.stringify(
