@@ -1,71 +1,71 @@
-const jsConfigurations = ["eslint:recommended"];
+const jsConfigurations = ['eslint:recommended'];
 
 const tsConfigurations = [
   ...jsConfigurations,
-  "plugin:@typescript-eslint/recommended",
-  "plugin:@typescript-eslint/recommended-requiring-type-checking",
+  'plugin:@typescript-eslint/recommended',
+  'plugin:@typescript-eslint/recommended-requiring-type-checking',
 ];
 const tsRules = {
-  "@typescript-eslint/no-unsafe-assignment": "off",
-  "@typescript-eslint/no-unsafe-call": "off",
-  "@typescript-eslint/no-unsafe-member-access": "off",
-  "@typescript-eslint/no-unsafe-return": "off",
+  '@typescript-eslint/no-unsafe-assignment': 'off',
+  '@typescript-eslint/no-unsafe-call': 'off',
+  '@typescript-eslint/no-unsafe-member-access': 'off',
+  '@typescript-eslint/no-unsafe-return': 'off',
 };
 
 const reactConfigurations = [
-  "plugin:react/recommended",
-  "plugin:jsx-a11y/recommended",
+  'plugin:react/recommended',
+  'plugin:jsx-a11y/recommended',
 ];
 
-const testConfigurations = ["plugin:mocha/recommended"];
+const testConfigurations = ['plugin:mocha/recommended'];
 
 module.exports = {
-  plugins: ["@typescript-eslint", "jsx-a11y", "mocha", "react"],
+  plugins: ['@typescript-eslint', 'jsx-a11y', 'mocha', 'react'],
   env: { node: true },
   overrides: [
     {
       parserOptions: {
         ecmaVersion: 2018,
       },
-      files: ["**/*.js"],
+      files: ['**/*.js'],
       env: { node: true, es6: true },
-      extends: [...jsConfigurations, "prettier"],
+      extends: [...jsConfigurations, 'prettier'],
     },
     {
-      parser: "@typescript-eslint/parser",
-      files: ["**/*.ts"],
-      extends: [...tsConfigurations, "prettier"],
+      parser: '@typescript-eslint/parser',
+      files: ['**/*.ts'],
+      extends: [...tsConfigurations, 'prettier'],
       rules: { ...tsRules },
     },
     {
       parserOptions: {
         ecmaVersion: 2018,
       },
-      files: ["**/*.jsx"],
+      files: ['**/*.jsx'],
       env: { node: true, browser: true, es6: true },
-      extends: [...jsConfigurations, ...reactConfigurations, "prettier"],
+      extends: [...jsConfigurations, ...reactConfigurations, 'prettier'],
     },
     {
-      parser: "@typescript-eslint/parser",
+      parser: '@typescript-eslint/parser',
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
         },
       },
-      files: ["**/*.tsx"],
+      files: ['**/*.tsx'],
       env: { node: true, browser: true },
-      extends: [...tsConfigurations, ...reactConfigurations, "prettier"],
+      extends: [...tsConfigurations, ...reactConfigurations, 'prettier'],
       rules: { ...tsRules },
     },
     {
-      files: ["**/*.spec.js", "**/*.spec.jsx", "**/*.spec.ts", "**/*.spec.tsx"],
+      files: ['**/*.spec.js', '**/*.spec.jsx', '**/*.spec.ts', '**/*.spec.tsx'],
       env: { mocha: true },
       extends: [...testConfigurations],
     },
   ],
   settings: {
     react: {
-      version: "detect",
+      version: 'detect',
     },
   },
 };

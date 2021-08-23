@@ -51,7 +51,7 @@ async function main(argv) {
   const {
     name = workspaceNameFromArgs,
     description,
-    public,
+    isPublic,
     react,
     dependants,
     depType
@@ -81,7 +81,7 @@ async function main(argv) {
       },
       {
         type: 'confirm',
-        name: 'public',
+        name: 'isPublic',
         message: 'Is it a public package?',
         initial: true
       },
@@ -140,7 +140,7 @@ async function main(argv) {
       name: 'MongoDB Inc',
       email: 'compass@mongodb.com'
     },
-    ...(public ? { publishConfig: { access: 'public' } } : { private: true }),
+    ...(isPublic ? { publishConfig: { access: 'public' } } : { private: true }),
     bugs: {
       url: 'https://jira.mongodb.org/projects/COMPASS/issues',
       email: 'compass@mongodb.com'
@@ -214,15 +214,17 @@ async function main(argv) {
   const packageJsonContent = JSON.stringify(pkgJson, null, 2);
 
   const depcheckrcPath = path.join(packagePath, '.depcheckrc');
-  const depcheckrcContent = `ignores: [
-  "@mongodb-js/prettier-config-compass",
-  "@mongodb-js/tsconfig-compass",
-  "@types/chai",
-  "@types/chai-dom",
-  "@types/react",
-  "@types/react-dom"
-]
-`;
+  const ignores = [
+    '@mongodb-js/prettier-config-compass',
+    '@mongodb-js/tsconfig-compass',
+    '@types/chai'
+  ]
+    .concat(
+      react ? ['@types/chai-dom', '@types/react', '@types/react-dom'] : []
+    )
+    .map((dep) => `"${dep}"`)
+    .join(',\n');
+  const depcheckrcContent = `ignores: [${ignores}\n]\n`;
 
   const prettierrcPath = path.join(packagePath, '.prettierrc.json');
   const prettierrcContent = JSON.stringify(
