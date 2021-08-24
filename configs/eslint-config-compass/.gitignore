@@ -1,0 +1,6 @@
+.nyc_output
+node_modules
+package-lock.json
+coverage
+lib
+.DS_Store

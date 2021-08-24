@@ -17,7 +17,6 @@ async function forEachPackage(fn) {
   const interrupt = () => {
     interrupted = true;
   };
-  const packagesDir = path.resolve(ROOT, 'packages');
   const packages = JSON.parse(
     (await runInDir(`${LERNA_BIN} list --all --json --toposort`)).stdout
   );

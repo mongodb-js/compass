@@ -1,10 +1,15 @@
 const path = require('path');
 const { promises: fs } = require('fs');
-const semver = require('semver');
 const chalk = require('chalk');
 const { runInDir } = require('./run-in-dir');
 const { updatePackageJson } = require('./monorepo/update-package-json');
 const { withProgress } = require('./monorepo/with-progress');
+const {
+  collectWorkspacesMeta,
+  collectWorkspacesDependencies,
+  DepTypes
+} = require('./workspace-dependencies');
+const { calculateReplacements, intersects } = require('./semver-helpers');
 
 const USAGE = `Check for dependency alignment issues.
 
@@ -28,10 +33,6 @@ Options:
 
 For example: {"ignore": {"async": ["^1.2.3"]}}.
 `;
-
-const ROOT_DIR = path.resolve(__dirname, '..');
-
-const LERNA_BIN = path.join(ROOT_DIR, 'node_modules', '.bin', 'lerna');
 
 async function main(args) {
   if (args.help) {
@@ -186,74 +187,6 @@ async function main(args) {
   process.exitCode = report.mismatched.size;
 }
 
-async function collectWorkspacesMeta() {
-  const workspaces = JSON.parse(
-    (await runInDir(`${LERNA_BIN} list --all --json --toposort`)).stdout
-  );
-
-  return new Map(
-    workspaces
-      .concat({ location: ROOT_DIR })
-      .map(({ location }) => [
-        location,
-        require(path.join(location, 'package.json'))
-      ])
-  );
-}
-
-const DepTypes = {
-  Prod: 'prod',
-  Dev: 'dev',
-  Optional: 'optional',
-  Peer: 'peer'
-};
-
-function getDepType(dependency, version, pkgJson) {
-  return pkgJson.devDependencies &&
-    pkgJson.devDependencies[dependency] === version
-    ? DepTypes.Dev
-    : pkgJson.peerDependencies &&
-      pkgJson.peerDependencies[dependency] === version
-    ? DepTypes.Peer
-    : pkgJson.optionalDependencies &&
-      pkgJson.optionalDependencies[dependency] === version
-    ? DepTypes.Optional
-    : pkgJson.dependencies && pkgJson.dependencies[dependency] === version
-    ? DepTypes.Prod
-    : null;
-}
-
-function collectWorkspacesDependencies(workspaces) {
-  const dependencies = new Map();
-
-  for (const [location, pkgJson] of workspaces) {
-    for (const [dependency, versionRange] of [
-      ...Object.entries(pkgJson.dependencies || {}),
-      ...Object.entries(pkgJson.devDependencies || {}),
-      ...filterOutStarDeps(Object.entries(pkgJson.peerDependencies || {})),
-      ...filterOutStarDeps(Object.entries(pkgJson.optionalDependencies || {}))
-    ]) {
-      const item = {
-        version: versionRange,
-        from: location,
-        type: getDepType(dependency, versionRange, pkgJson)
-      };
-
-      if (dependencies.has(dependency)) {
-        dependencies.get(dependency).push(item);
-      } else {
-        dependencies.set(dependency, [item]);
-      }
-    }
-  }
-
-  return dependencies;
-}
-
-function filterOutStarDeps(entries) {
-  return entries.filter(([, v]) => v !== '*');
-}
-
 function generateReport(
   dependencies,
   { includeTypes, includeTypesOnly, ignore = {} } = { ignore: {} }
@@ -294,65 +227,6 @@ function generateReport(
   }
 
   return report;
-}
-
-function intersects(range) {
-  for (const [idx, v1] of Object.entries(range)) {
-    for (const v2 of range.slice(Number(idx) + 1)) {
-      try {
-        if (!semver.intersects(v1, v2)) {
-          return false;
-        }
-      } catch (e) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-function calculateReplacements(ranges) {
-  const replacements = new Map();
-  const highestRange = getHighestRange(ranges);
-
-  for (const range of ranges) {
-    try {
-      if (semver.subset(highestRange, range)) {
-        replacements.set(range, highestRange);
-      }
-    } catch (e) {
-      // Range is probably not valid, let's proceed as if there is no
-      // replacement for it
-    }
-  }
-
-  return replacements;
-}
-
-function getHighestRange(ranges) {
-  const validRanges = ranges.filter(
-    (range) => semver.validRange(range) && range !== '*'
-  );
-
-  const sortedRanges = validRanges.sort((v1, v2) => {
-    const res = semver.compare(semver.minVersion(v2), semver.minVersion(v1));
-
-    if (res === 1 || res === -1) {
-      return res;
-    }
-
-    if (semver.valid(v1) && !semver.valid(v2)) {
-      return 1;
-    }
-
-    if (!semver.valid(v1) && semver.valid(v2)) {
-      return -1;
-    }
-
-    return 0;
-  });
-
-  return sortedRanges[0] || null;
 }
 
 function normalizeIgnore({ deduped, mismatched }, ignore = {}) {

@@ -40,7 +40,8 @@
     "update-authors": "node scripts/generate-authors.js",
     "update-third-party-notices": "node scripts/gather-licenses.js packages/compass/ > THIRD-PARTY-NOTICES.md",
     "version": "node ./scripts/bump-private-dependencies.js --no-commit",
-    "where": "node ./scripts/monorepo/where.js"
+    "where": "node ./scripts/monorepo/where.js",
+    "create-workspace": "node ./scripts/create-workspace.js"
   },
   "repository": {
     "type": "git",
@@ -55,7 +56,9 @@
     "minimist": "^1.2.5",
     "npm-cli-adduser": "^1.1.4",
     "ora": "^5.4.0",
+    "pacote": "^11.3.5",
     "pkg-up": "^3.1.0",
+    "prompts": "^2.4.1",
     "ps-list": "^7.2.0",
     "semver": "^7.3.5",
     "wait-on": "^5.3.0"
@@ -69,6 +72,7 @@
     "email": "compass@mongodb.com"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "configs/*"
   ]
 }

@@ -31,27 +31,26 @@
     "README.md"
   ],
   "scripts": {
-    "check": "npm run lint && npm run depcheck",
-    "check-ci": "npm run check",
-    "clean": "rimraf lib",
-    "precompile": "npm run clean",
-    "compile": "npm run compile-ts && gen-esm-wrapper . ./lib/.esm-wrapper.mjs",
-    "compile-ts": "tsc -p tsconfig.json",
-    "cover": "nyc npm run test",
-    "depcheck": "depcheck",
-    "lint": "eslint . && prettier --check .",
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile",
+    "clean": "rimraf lib",
+    "precompile": "npm run clean",
+    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./lib/.esm-wrapper.mjs",
+    "eslint": "eslint",
+    "prettier": "prettier",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
+    "depcheck": "depcheck",
+    "check": "npm run lint && npm run depcheck",
+    "check-ci": "npm run check",
     "pretest": "npm run compile && mongodb-runner start --port=27018",
-    "test": "cross-env TS_NODE_FILES=true nyc mocha --colors --timeout 15000 -r ts-node/register src/**/*.spec.*",
-    "test-ci": "npm run test",
+    "test": "mocha",
     "posttest": "mongodb-runner stop --port=27018",
+    "test-cov": "cross-env TS_NODE_FILES=true nyc -x \"**/*.spec.*\" npm run test",
+    "test-watch": "npm run test -- --watch",
+    "test-ci": "npm run test-cov",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
-    "reformat": "prettier --write ."
+    "reformat": "npm run prettier -- --write ."
   },
-  "pre-commit": [
-    "check"
-  ],
   "peerDependencies": {
     "mongodb": "^4.1.0",
     "mongodb-connection-model": "*"
@@ -67,9 +66,10 @@
     "mongodb-security": "^1.3.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "*",
-    "@mongodb-js/prettier-config-compass": "*",
-    "@mongodb-js/tsconfig-compass": "*",
+    "@mongodb-js/eslint-config-compass": "^0.1.0",
+    "@mongodb-js/mocha-config-compass": "^0.1.0",
+    "@mongodb-js/prettier-config-compass": "^0.1.0",
+    "@mongodb-js/tsconfig-compass": "^0.1.0",
     "@types/async": "^3.2.7",
     "@types/debug": "^4.1.7",
     "@types/lodash": "^4.14.172",
