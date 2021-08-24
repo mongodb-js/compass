@@ -11,7 +11,7 @@ import { LegacyConnectionModel } from './legacy-connection-model';
 const debug = createDebug('mongodb-data-service:connect');
 
 type ConnectReturnTuple = [
-  MongoClient | void,
+  MongoClient,
   SSHTunnel | null,
   { url: string; options: MongoClientOptions }
 ];
@@ -120,10 +120,10 @@ async function connect(
 
   try {
     debug('waiting for MongoClient to connect ...');
-    const client = await Promise.race([
+    const client = (await Promise.race([
       mongoClient.connect(),
       waitForTunnelError(tunnel),
-    ]);
+    ])) as MongoClient; // waitForTunnel always throws, never resolves
 
     return [client, tunnel, { url, options }];
   } catch (err) {
@@ -139,14 +139,18 @@ export default function connectCallback(
   setupListeners: (client: MongoClient) => void,
   done: (
     err: Error | null,
-    client?: MongoClient | void,
-    tunnel?: SSHTunnel | null,
-    options?: { url: string; options: MongoClientOptions }
+    client: MongoClient,
+    tunnel: SSHTunnel | null,
+    options: { url: string; options: MongoClientOptions }
   ) => void
 ): void {
   connect(model, setupListeners).then(
     ([client, tunnel, options]) =>
       process.nextTick(() => done(null, client, tunnel, options)),
-    (err) => process.nextTick(() => done(err))
+    (err) =>
+      process.nextTick(() => {
+        // @ts-expect-error error callback without args
+        return done(err);
+      })
   );
 }

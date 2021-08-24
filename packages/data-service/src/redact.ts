@@ -1,3 +1,4 @@
+import { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
 import { ConnectionSshOptions } from './connection-options';
 
 export function redactConnectionString(uri: string): string {
@@ -14,8 +15,8 @@ export function redactConnectionString(uri: string): string {
 }
 
 export function redactSshTunnelOptions(
-  options: ConnectionSshOptions
-): ConnectionSshOptions {
+  options: SshTunnelConfig
+): SshTunnelConfig {
   const redacted = { ...options };
 
   if (redacted.password) {

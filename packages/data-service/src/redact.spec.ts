@@ -1,7 +1,7 @@
 /* eslint-disable mocha/no-mocha-arrows */
+import { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
 import assert from 'assert';
-
-import { redactSshTunnelOptions, redactConnectionString } from '../lib/redact';
+import { redactConnectionString, redactSshTunnelOptions } from './redact';
 
 describe('redact', () => {
   describe('redactConnectionString', function () {
@@ -50,20 +50,19 @@ describe('redact', () => {
   });
 
   describe('redactSshTunnelOptions', function () {
-    let baseOptions;
+    let baseOptions: Partial<SshTunnelConfig>;
 
     beforeEach(function () {
       baseOptions = {
-        readyTimeout: 'readyTimeout',
-        forwardTimeout: 'forwardTimeout',
-        keepaliveInterval: 'keepaliveInterval',
+        readyTimeout: 10,
+        keepaliveInterval: 10,
         srcAddr: 'srcAddr',
-        dstPort: 'dstPort',
+        dstPort: 22,
         dstAddr: 'dstAddr',
-        localPort: 'localPort',
+        localPort: 22222,
         localAddr: 'localAddr',
         host: 'host',
-        port: 'port',
+        port: 27017,
         username: 'username',
       };
     });
@@ -75,7 +74,7 @@ describe('redact', () => {
           redactSshTunnelOptions({
             ...baseOptions,
             [key]: 'secret',
-          }),
+          } as SshTunnelConfig),
           {
             ...baseOptions,
             [key]: '<redacted>',

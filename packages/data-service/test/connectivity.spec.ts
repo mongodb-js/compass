@@ -11,7 +11,7 @@ const envs = createTestEnvs(['community']);
 async function connectAndGetConnectionStatus(
   connectionOptions: ConnectionOptions
 ) {
-  let dataService: DataService;
+  let dataService: DataService | undefined;
 
   try {
     dataService = await connect(connectionOptions);
@@ -25,7 +25,7 @@ async function connectAndGetConnectionStatus(
   }
 }
 
-describe.only('connectivity integration tests', function () {
+describe('connectivity integration tests', function () {
   before(async function () {
     console.log('setting up testing environments ...');
     await envs.setup();
@@ -33,7 +33,7 @@ describe.only('connectivity integration tests', function () {
   });
 
   after(async function () {
-    console.log('tearing down up testing environments ...');
+    console.log('tearing down testing environments ...');
     await envs.teardown();
     console.log('done.');
   });
