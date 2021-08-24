@@ -73,9 +73,6 @@ export default function({
 
           assert.equal(typeof key, 'string', `import-preview: expected key to be a String not ${typeof key}`);
 
-          // eslint-disable-next-line no-control-regex
-          key = key.replace(/[^\x00-\x7F]/g, '');
-
           const isCSV = fileType === FILE_TYPES.CSV;
           const item = { path: key, checked: true };
 

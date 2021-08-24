@@ -31,8 +31,8 @@
     "README.md"
   ],
   "scripts": {
-    "check": "npm run lint && npm run depcheck",
-    "check-ci": "npm run check",
+    "bootstrap": "npm run compile",
+    "prepublishOnly": "npm run compile",
     "clean": "rimraf lib",
     "precompile": "npm run clean",
     "compile": "npm run compile-ts && gen-esm-wrapper . ./lib/.esm-wrapper.mjs",
@@ -40,20 +40,16 @@
     "cover": "nyc -x '**/*.spec.*' npm run test",
     "depcheck": "depcheck",
     "lint": "eslint . && prettier --check .",
-    "bootstrap": "npm run compile",
-    "prepublishOnly": "npm run compile",
     "test": "cross-env TS_NODE_FILES=true mocha --colors --timeout 15000 -r ts-node/register **/*.spec.*",
     "pretest": "npm run compile && mongodb-runner start --port=27018 && node ../../scripts/rebuild.js keytar",
-    "test-watch": "mocha --colors --timeout 15000 --watch -r ts-node/register **/*.spec.*",
-    "test-ci": "npm run test",
     "test-connectivity": "mocha --colors --timeout 15000 -r ts-node/register test/connectivity.spec.ts",
     "posttest": "mongodb-runner stop --port=27018",
+    "test-cov": "cross-env TS_NODE_FILES=true nyc -x \"**/*.spec.*\" npm run test",
+    "test-watch": "npm run test -- --watch",
+    "test-ci": "npm run test-cov",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
-    "reformat": "prettier --write ."
+    "reformat": "npm run prettier -- --write ."
   },
-  "pre-commit": [
-    "check"
-  ],
   "peerDependencies": {
     "mongodb": "^4.1.0",
     "mongodb-connection-model": "*"
@@ -72,9 +68,10 @@
   },
   "devDependencies": {
     "@mongodb-js/devtools-docker-test-envs": "git://github.com/mongodb-js/devtools-docker-test-envs.git#19497dc4abdce6ea9b96a36d62940f83bc0ef3b2",
-    "@mongodb-js/eslint-config-compass": "*",
-    "@mongodb-js/prettier-config-compass": "*",
-    "@mongodb-js/tsconfig-compass": "*",
+    "@mongodb-js/eslint-config-compass": "^0.1.0",
+    "@mongodb-js/mocha-config-compass": "^0.1.0",
+    "@mongodb-js/prettier-config-compass": "^0.1.0",
+    "@mongodb-js/tsconfig-compass": "^0.1.0",
     "@types/async": "^3.2.7",
     "@types/debug": "^4.1.7",
     "@types/lodash": "^4.14.172",
