@@ -1,6 +1,7 @@
 const path = require('path');
 const { promises: fs } = require('fs');
 const prompts = require('prompts');
+const pacote = require('pacote');
 const {
   collectWorkspacesDependencies,
   collectWorkspacesMeta
@@ -186,6 +187,7 @@ async function main(argv) {
       '@mongodb-js/tsconfig-compass': '*',
       '@types/chai': '*',
       '@types/mocha': '*',
+      '@types/sinon-chai': '*',
       'cross-env': '*',
       chai: '*',
       depcheck: '*',
@@ -193,6 +195,7 @@ async function main(argv) {
       mocha: '*',
       nyc: '*',
       prettier: '*',
+      sinon: '*',
       typescript: '*',
       ...(react && {
         '@testing-library/react': '*',
@@ -221,7 +224,9 @@ async function main(argv) {
   const ignores = [
     '@mongodb-js/prettier-config-compass',
     '@mongodb-js/tsconfig-compass',
-    '@types/chai'
+    '@types/chai',
+    '@types/sinon-chai',
+    'sinon'
   ]
     .concat(
       react ? ['@types/chai-dom', '@types/react', '@types/react-dom'] : []
@@ -339,6 +344,17 @@ module.exports = {
 
 const BestMatchCache = new Map();
 
+async function resolveLatestVersionFromRegistry(
+  depName,
+  registry = process.env.npm_config_registry
+) {
+  try {
+    return `^${(await pacote.manifest(depName, { registry })).version}`;
+  } catch (e) {
+    return '*';
+  }
+}
+
 async function applyBestVersionMatch(
   pkgJson,
   meta,
@@ -350,10 +366,14 @@ async function applyBestVersionMatch(
     for (const depName in pkgJson[depType]) {
       if (BestMatchCache.has(depName)) {
         pkgJson[depType][depName] = BestMatchCache.get(depName);
-      } else if (dependencies.has(depName)) {
-        pkgJson[depType][depName] = getHighestRange(
-          dependencies.get(depName).map(({ version }) => version)
+      } else {
+        const maybeRanges = (dependencies.get(depName) || []).map(
+          ({ version }) => version
         );
+        pkgJson[depType][depName] =
+          getHighestRange(maybeRanges) ||
+          (await resolveLatestVersionFromRegistry(depName));
+
         BestMatchCache.set(depName, pkgJson[depType][depName]);
       }
     }
