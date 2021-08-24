@@ -13,7 +13,7 @@
     "test-packaged-ci": "npm run test-ci -- -- --test-packaged-app"
   },
   "dependencies": {
-    "mongodb-compass": "0.0.0-dev.0"
+    "mongodb-compass": "^0.0.0-dev.0"
   },
   "devDependencies": {
     "@types/webdriverio": "^4.13.3",
