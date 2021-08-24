@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   colors: true,
   timeout: 15000,
