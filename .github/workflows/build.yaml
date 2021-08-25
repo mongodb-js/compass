@@ -105,4 +105,4 @@ jobs:
         if: ${{ cancelled() || failure() }}
         with:
           name: Spectron Debug Log ${{ runner.os }}
-          path: packages/compass-e2e-tests/.log/**/*.log
+          path: packages/compass-e2e-tests/.log/**/*

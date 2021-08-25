@@ -71,7 +71,12 @@ function getAtlasConnectionOptions() {
   return { host, username, password, srvRecord: true };
 }
 
+// For the tmpdirs
 let i = 0;
+// For the screenshots
+let j = 0;
+// For the html
+let k = 0;
 
 /**
  * @param {boolean} testPackagedApp Should compass start from the packaged binary or just from the source (defaults to source)
@@ -121,11 +126,7 @@ async function startCompass(
 
   const shouldStoreAppLogs = process.env.ci || process.env.CI;
 
-  // Mimicking webdriver path with this for consistency
-  const nowFormatted = new Date()
-    .toISOString()
-    .replace(/:/g, '-')
-    .replace(/Z$/, '');
+  const nowFormatted = formattedDate();
 
   if (shouldStoreAppLogs) {
     const chromeDriverLogPath = path.join(
@@ -179,6 +180,11 @@ async function startCompass(
   };
 
   return app;
+}
+
+function formattedDate() {
+  // Mimicking webdriver path with this for consistency
+  return new Date().toISOString().replace(/:/g, '-').replace(/Z$/, '');
 }
 
 async function rebuildNativeModules(compassPath = COMPASS_PATH) {
@@ -625,6 +631,45 @@ function addCommands(app) {
   );
 }
 
+/**
+ * @param {ExtendedApplication} app
+ * @param {string} imgPathName
+ */
+async function capturePage(
+  app,
+  imgPathName = `screenshot-${formattedDate()}-${++j}.png`
+) {
+  try {
+    const buffer = await app.browserWindow.capturePage();
+    await fs.mkdir(LOG_PATH, { recursive: true });
+    // @ts-expect-error buffer is Electron.NativeImage not a real buffer, but it
+    //                  can be used as a buffer when storing an image
+    await fs.writeFile(path.join(LOG_PATH, imgPathName), buffer);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+/**
+ * @param {ExtendedApplication} app
+ * @param {string} htmlPathName
+ */
+async function savePage(
+  app,
+  htmlPathName = `page-${formattedDate()}-${++k}.html`
+) {
+  try {
+    await app.webContents.savePage(
+      path.join(LOG_PATH, htmlPathName),
+      'HTMLComplete'
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 module.exports = {
   startCompass,
   rebuildNativeModules,
@@ -633,6 +678,8 @@ module.exports = {
   getCompassBinPath,
   getAtlasConnectionOptions,
   buildCompass,
+  capturePage,
+  savePage,
   Selectors,
   COMPASS_PATH,
   LOG_PATH
