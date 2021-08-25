@@ -1,4 +1,4 @@
-import { toJSString as toShellString } from 'mongodb-query-parser';
+import { toJSString } from 'mongodb-query-parser';
 import { emptyStage } from './pipeline';
 import { extractStages } from './extract-stages';
 const debug = require('debug')('mongodb-aggregations:modules:import-pipeline');
@@ -196,7 +196,7 @@ export const createPipelineFromView = (pipeline) => {
   return pipeline.map((stage) => {
     return createStage(
       Object.keys(stage)[0],
-      toShellString(Object.values(stage)[0], INDENT),
+      toJSString(Object.values(stage)[0], INDENT),
       null
     );
   });
