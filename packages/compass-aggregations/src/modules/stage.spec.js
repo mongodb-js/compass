@@ -371,7 +371,7 @@ describe('Stage module', () => {
         '  minkey: MinKey(),\n' +
         '  maxkey: MaxKey(),\n' +
         '  isodate: ISODate(\'1999-01-01\'),\n' +
-        '  regexp: RegExp(\'/^[a-z0-9_-]{3,16}$/\'),\n' +
+        '  regexp: RegExp(/^[a-z0-9_-]{3,16}$/),\n' +
         '  ts: Timestamp(-321469502, 367)\n' +
         '}'
       };
@@ -425,7 +425,7 @@ describe('Stage module', () => {
       });
 
       it('generates regexp', () => {
-        expect(generated.regexp).to.deep.equal(new RegExp('/^[a-z0-9_-]{3,16}$/'));
+        expect(generated.regexp).to.deep.equal(new RegExp('^[a-z0-9_-]{3,16}$'));
       });
 
       it('generates timestamp', () => {
@@ -444,7 +444,7 @@ describe('Stage module', () => {
  minkey: MinKey(),
  maxkey: MaxKey(),
  isodate: ISODate('1999-01-01T00:00:00.000Z'),
- regexp: RegExp('\\/^[a-z0-9_-]{3,16}$\\/'),
+ regexp: RegExp('^[a-z0-9_-]{3,16}$'),
  ts: Timestamp(-321469502, 367)
 }}`);
       });
