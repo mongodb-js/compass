@@ -19,6 +19,7 @@ const Selectors = require('./selectors');
  * @property {(selector: string, timeout?: number) => Promise<void>} clickVisible
  * @property {(selector: string, value: any, timeout?: number) => Promise<void>} setValueVisible
  * @property {() => Promise<void>} waitForConnectionScreen
+ * @property {() => Promise<void>} closeTourModal
  * @property {() => Promise<void>} closePrivacySettingsModal
  * @property {(timeout?: number) => Promise<void>} doConnect
  * @property {(connectionString: string, timeout?: number) => Promise<void>} connectWithConnectionString
@@ -305,6 +306,30 @@ function addCommands(app) {
       );
     }
   );
+
+  app.client.addCommand('closeTourModal', async function () {
+    if (await app.client.isExisting(Selectors.FeatureTourModal)) {
+      await app.client.waitUntil(
+        async () => {
+          return await app.client.isVisible(Selectors.FeatureTourModal);
+        },
+        1000,
+        'Expected feature tour modal to be visible',
+        50
+      );
+      // Wait a bit before clicking so that transition is through
+      await delay(100);
+      await app.client.clickVisible(Selectors.CloseFeatureTourModal);
+      await app.client.waitUntil(
+        async () => {
+          return !(await app.client.isExisting(Selectors.FeatureTourModal));
+        },
+        5000,
+        'Expected feature tour modal to disappear after closing it',
+        50
+      );
+    }
+  });
 
   app.client.addCommand(
     'closePrivacySettingsModal',
@@ -610,5 +635,5 @@ module.exports = {
   buildCompass,
   Selectors,
   COMPASS_PATH,
-  LOG_PATH,
+  LOG_PATH
 };

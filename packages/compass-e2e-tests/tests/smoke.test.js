@@ -20,6 +20,7 @@ describe('Compass', function () {
     keychain.activate();
     compass = await startCompass();
     await compass.client.waitForConnectionScreen();
+    await compass.client.closeTourModal();
     await compass.client.closePrivacySettingsModal();
   });
 
