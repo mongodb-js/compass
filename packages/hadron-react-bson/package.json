@@ -2,14 +2,17 @@
   "name": "hadron-react-bson",
   "description": "Hadron React BSON Components",
   "author": "Durran Jordan <durran@gmail.com>",
-  "bugs": "https://github.com/mongodb-js/hadron-react/issues",
-  "homepage": "https://github.com/mongodb-js/hadron-react/packages/hadron-react-bson",
-  "version": "5.4.1",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "version": "5.5.0",
   "main": "lib/index.js",
   "module": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/hadron-react.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "keywords": [
@@ -25,17 +28,17 @@
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
     "test-ci": "npm run test",
-    "prepare": "npm run compile"
+    "prepublishOnly": "npm run compile",
+    "bootstrap": "npm run compile"
   },
   "peerDependencies": {
-    "prop-types": "^15.5.8",
-    "react": "^16.8.0",
-    "react-dom": "^16.8.0"
+    "prop-types": "^15.7.2",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "dependencies": {
-    "hadron-react-utils": "^5.3.0",
     "hex-to-uuid": "^1.0.1",
-    "moment-timezone": "^0.5.14"
+    "moment-timezone": "^0.5.21"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
@@ -50,9 +53,9 @@
     "chai-enzyme": "1.0.0-beta.0",
     "core-js": "^3.12.1",
     "cross-env": "^7.0.0",
-    "depcheck": "^1.4.0",
-    "enzyme": "^3.7.0",
-    "enzyme-adapter-react-16": "^1.6.0",
+    "depcheck": "^1.4.1",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "eslint-plugin-react": "^7.24.0",
@@ -62,7 +65,7 @@
     "mocha": "^7.1.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
-    "prop-types": "^15.5.8",
+    "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "rimraf": "^3.0.2",

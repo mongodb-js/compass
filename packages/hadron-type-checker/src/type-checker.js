@@ -8,7 +8,6 @@ const {
   without,
   toNumber,
   toString,
-  includes,
 } = require('lodash');
 
 const {
@@ -194,7 +193,7 @@ const toDecimal128 = (object) => {
   /*
    If converting a BSON Object, extract the value before converting to a string.
    */
-  if (hasIn(object, BSON_TYPE) && includes(NUMBER_TYPES, object._bsontype)) {
+  if (hasIn(object, BSON_TYPE) && NUMBER_TYPES.includes(object._bsontype)) {
     object = object._bsontype === LONG ? object.toString() : object.valueOf();
   }
   return Decimal128.fromString('' + object);

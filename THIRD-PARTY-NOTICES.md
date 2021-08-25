@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Mon Jul 12 2021.
+This document was automatically generated on Tue Aug 24 2021.
 
 ## List of dependencies
 
@@ -7,25 +7,26 @@ Package|Version|License
 -------|-------|-------
 **[@babel/code-frame](#964c49eaca6945b6519172222dd8f79aef744d6e4974d1652ba534467e0cd8db)**|7.14.5|MIT
 **[@babel/compat-data](#0463953e1453b9d5cfc035b9ded4fdb858c710b2042f5839fb85c420ce672c6a)**|7.14.7|MIT
-**[@babel/core](#85d8403e9499f9a2d2de47918a38ec0544d483eadafb73c7f3fce2f51bf910f7)**|7.14.6|MIT
-**[@babel/generator](#1c1967801f28ed06e4a615aaa13d34a1b90a27b35ac8d585ac8d5dce59f27a79)**|7.14.5|MIT
+**[@babel/core](#8dadb9fb7f817cfb89e2f01007278e5f07c536b04c58bf574906431bb924d0e0)**|7.14.8|MIT
+**[@babel/generator](#41b49ad5d837f129d4a8740dd85630e8e5d1b926250ade7124eeea8dfd697ef1)**|7.14.9|MIT
 **[@babel/helper-compilation-targets](#5dc4b464a18da9d162f1ecb8bd669f449170b02fcb01d324b342b3e313c07f8a)**|7.14.5|MIT
 **[@babel/helper-function-name](#5db627ab4f5306311951f129e4ae74601d07aa3cb7471c5c6e3236650b9353f3)**|7.14.5|MIT
 **[@babel/helper-get-function-arity](#18bd1404a473dda9d11ff75e2f612fe6cfe9721466dcc159a2df73ee5c088ed8)**|7.14.5|MIT
 **[@babel/helper-hoist-variables](#c72b1ffc560c42770e2cc9ab1abb8eab25e372d69aed957540e0861ad439b214)**|7.14.5|MIT
 **[@babel/helper-member-expression-to-functions](#9340387aee145f08eb19f853dc5e83212883884732ea644ba6de8e968b3b51f2)**|7.14.7|MIT
 **[@babel/helper-module-imports](#6a97aff20cc72231576e8ba8ef344352f4dca4935e1b77e4be475576142fcb69)**|7.14.5|MIT
-**[@babel/helper-module-transforms](#4debc06d9309de85ffc84cea48845a92a48fba0e818965c89239adedd2d272ed)**|7.14.5|MIT
+**[@babel/helper-module-transforms](#a0ddc7816a03d912bc3bc7deb88f5e5ebd78cfdabfefe8e9dd6ff95f8d8c3c63)**|7.14.8|MIT
 **[@babel/helper-optimise-call-expression](#acc0e0adc28d6b8a82f938be87a437ede3fdd5c8c25e12603328f709b59b2ec8)**|7.14.5|MIT
 **[@babel/helper-plugin-utils](#7c5ad2edf94fb7dacba62b1b900902f9af9c9364e64b91102331ca32c3966276)**|7.14.5|MIT
 **[@babel/helper-replace-supers](#08876879b736e48dd871aba6c485d04c4d51e3045991007f1c217e0cf0961ebc)**|7.14.5|MIT
-**[@babel/helper-simple-access](#f663d611b7a6bed56c1709da8f2cb343944eac78f5ceb50304d108b8742cd036)**|7.14.5|MIT
+**[@babel/helper-simple-access](#29aca193de95add370a977a1a754753a17ca2be9d750149de455db675f9e68cd)**|7.14.8|MIT
 **[@babel/helper-split-export-declaration](#f86f3815edd3e1e98263e67c561e579939f54b62035f98fe8700e5db09f5c958)**|7.14.5|MIT
-**[@babel/helper-validator-identifier](#3a2235ad3b3e787f1bc3bc41434e53d5838d2c1b9df5b5b3653b7d99e11cf5f1)**|7.14.5|MIT
+**[@babel/helper-validator-identifier](#433f3379dd7033391d15f58d21054c8ce6651116d7ef0b0f7c9102d13502fef5)**|7.14.9|MIT
 **[@babel/helper-validator-option](#346eb4840390092c2e31c7b7468ba74ea04b24fe92080ccbf6e0965b49fd49ab)**|7.14.5|MIT
-**[@babel/helpers](#5ad63d22c8c60fdcc8209f71f5074694251d4094ecd9bca6826e2caeadc4c705)**|7.14.6|MIT
+**[@babel/helpers](#9051411dffcd5febbf4522f9a280bf7ddbc20a29ce9212a4fd194edf746a9148)**|7.14.8|MIT
 **[@babel/highlight](#dbc6155fe656d9d71de721f31aa5508d54057d5cf4d61387559432eee493f246)**|7.14.5|MIT
-**[@babel/parser](#9d42f3aa99c91481df3651fe4fd6a5e1398e5fb84cbe62810362c1d14ff22126)**|7.14.7|MIT
+**[@babel/parser](#bb271e6154883eb05273e2b555cf0a0998808e09baf34a98debbcc58ee3833bf)**|7.14.9|MIT
+**[@babel/plugin-syntax-jsx](#c3a8bc17690a7aff72c22918370e177c0c1689293c9572d34a5b7463f043fa27)**|7.14.5|MIT
 **[@babel/plugin-transform-destructuring](#1baa274ae86e308681bbce6715ee5c43e730d7c791d566a343ace9f5a2570e5c)**|7.14.7|MIT
 **[@babel/plugin-transform-parameters](#9b27d2f6c67e744003b6169d39f2f63f5b54c6c97a5a6df6d45a34c9a229ac40)**|7.14.5|MIT
 **[@babel/plugin-transform-shorthand-properties](#2f8c0e0f32b0760dd542bb9892fba0940fff597b550e344d34674dbc895c6804)**|7.14.5|MIT
@@ -33,45 +34,57 @@ Package|Version|License
 **[@babel/runtime](#25c5f9cf92017e353001135c110e992014f2fd0503adc45804dc68e538bc5277)**|7.14.6|MIT
 **[@babel/runtime-corejs2](#a815aa0cd309144c957a4179ae72d168d571175b970267e8b960e53435ae34ec)**|7.14.6|MIT
 **[@babel/template](#b199a24ecdaaf3c5ce7900abcebfcea447f98d52b21bbf2701d0bb16efd158b1)**|7.14.5|MIT
-**[@babel/traverse](#15d3f2bc498406bb48ae64622cb45b98e43b6c860762a842d976ae34ba74c90d)**|7.14.7|MIT
-**[@babel/types](#4d6aeb808b612565fb295cfa5fe05d5efa96707b46bc41beddda12156f269f4f)**|7.14.5|MIT
+**[@babel/traverse](#beec965fedb7c57c0eed4e75c6b79732085a5b34abcdea9fe109dbf111cdef4e)**|7.14.9|MIT
+**[@babel/types](#100e0cc79db9d3cf46a059bce213706fe64eddfe6bd145844c875a6f638e3a85)**|7.14.9|MIT
+**[@emotion/babel-plugin](#5a3e7e49c6056d6ea28dfe8deb2e9c1f5a9147f843e02c620149a7a2bfa36ffb)**|11.3.0|MIT
 **[@emotion/cache](#83e9fbfd8abcd4e9034b208ea613039b259c587c764894dcb9346c98dcb6009c)**|10.0.29|MIT
+**[@emotion/cache](#db428d77c9ae4b98785a11de76cd7dd9ff5828a1f362602862e1b768c201d0ed)**|11.4.0|MIT
+**[@emotion/css](#a3f58b272cacabff6688dc1bff26dc5eb249a2c0a9cf4f129a657cd13ebc3ec8)**|11.1.3|MIT
 **[@emotion/hash](#28d888fd2b55ad544152d8e1106f9fb67ebaf8e8ab3bf63836ce4f513f8a4fd6)**|0.8.0|MIT
 **[@emotion/memoize](#3f033eea7eb32720fd1d4eb19167d11e51fe669790ea38401082693ee10db2cc)**|0.7.4|MIT
+**[@emotion/memoize](#58c206ceffd0c234aa21f4649556e9ad7225fd69680027f6d98b5e4a1ad594b5)**|0.7.5|MIT
+**[@emotion/react](#509c27343665e7d744fb98dd40d1ec5c0b9d17d19f2be510108e593082d7bd9b)**|11.4.0|MIT
 **[@emotion/serialize](#1bcfa0571b766b885accb308c5618892e9d544d9b1536d4683add3463fb3fd1d)**|0.11.16|MIT
+**[@emotion/serialize](#24090d55b03a9df9b0ff621a694b47543ae6cf09062933305cf43282f97ee420)**|1.0.2|MIT
+**[@emotion/server](#b8ddfcaf14564b337d4339d4703bac7920a3846834eb3b5307072901a91de1ff)**|11.4.0|MIT
 **[@emotion/sheet](#fd1fbd25c2afb1c3d264edfd8938239c14e6d63c10dacc8faf036e7cf9d237a4)**|0.9.4|MIT
+**[@emotion/sheet](#83ae7a7b2d1819f7ffa19aed4005d5425d1da2283b6fb7cf6b2525f2b623718b)**|1.0.1|MIT
 **[@emotion/stylis](#1e9d44a31b919b71fb7d8f1df8c904dfab9a4302534449b8f066e31c24556171)**|0.8.5|MIT
 **[@emotion/unitless](#33c90c27ba47755f07747bb9ca066ce37fc3622fd4aa8c03303d05afa45ff355)**|0.7.5|MIT
 **[@emotion/utils](#f5b8ec1a4cd5741ab4eecacf65413eec0339fbf5ae97fc7d1cccdd94d701b093)**|0.11.3|MIT
+**[@emotion/utils](#5c13d0480f06a0f7d52c4fdcae5f74014319f43b15326ebd2cb9339558088f4e)**|1.0.0|MIT
 **[@emotion/weak-memoize](#fe4943b1984d0fa6afec91f0a6f279a514f9bb02ad3f95aa3b8e13c1e2883086)**|0.2.5|MIT
 **[@jest/types](#299e1394847af7384a091e5cdd28b9a4026f252a8c519d5c47784d9a1fdd1de1)**|24.9.0|MIT
-**[@leafygreen-ui/a11y](#c7b9647bbfd165b0010b2545011639cc563ca037c4480e37b4a9e199317ad1d2)**|1.2.1|Apache-2.0
+**[@leafygreen-ui/a11y](#475380b9a40fd66894724c2afb2ab50a27cf2020137c106592e824812fa38639)**|1.2.2|Apache-2.0
 **[@leafygreen-ui/badge](#ec1459e19c02ea54cae2c1fe597b154e1e67517e754d25269762140b06f04d95)**|4.0.4|Apache-2.0
 **[@leafygreen-ui/banner](#694adad07e3bf98f882e9de74ab9e592b92c1c130b7cb2ed6a4a0652a78a5acb)**|3.0.8|Apache-2.0
-**[@leafygreen-ui/box](#eb099d7f2230afb70c51b95aebef7555b07d4a529754276f0a81918467b39b7c)**|3.0.5|Apache-2.0
+**[@leafygreen-ui/box](#9e96e3427ee1463e6facd873816480c32f05274ccd27377b0f4fecf0ef6e2305)**|3.0.6|Apache-2.0
 **[@leafygreen-ui/button](#8c19e9d3cc416b3c28837db196433e89af903f4272bd06f20a036a9fbb73219a)**|12.0.3|Apache-2.0
 **[@leafygreen-ui/checkbox](#62a8c53bd8a99e5aed0b88dd13961d14cb300ced151744852c6d766cf154afeb)**|6.0.5|Apache-2.0
 **[@leafygreen-ui/confirmation-modal](#90b2e2f759b658dfc5f450239c0f720dfbcb257e51562159751f45930a204104)**|2.2.1|Apache-2.0
 **[@leafygreen-ui/emotion](#005656bd4139276fde949cd423ff6c3333044dc142e11f404f1bc6cdd3169214)**|3.0.1|Apache-2.0
+**[@leafygreen-ui/emotion](#7d43f41cd846021cad693374c81facede1eba829964a24f550678fc16ec04b0d)**|4.0.0|Apache-2.0
 **[@leafygreen-ui/emotion](#c1b2da756a23cfe554cfbf09d80031c937502a122f4f8806160c7d7c87a12d3d)**|2.0.2|Apache-2.0
 **[@leafygreen-ui/hooks](#0d56584eed1c048904ab969fd834ba63dfa744dcdcae4a7c9e6429b4fd5e707a)**|7.0.0|Apache-2.0
-**[@leafygreen-ui/icon](#06b73ef6276d9b28cd92e16e42edf480cf33633de506cf9c28ec0127862bf65d)**|11.2.0|Apache-2.0
+**[@leafygreen-ui/icon](#9335fcbb02cf9eefc388844900e0d7e49d2885790471570f5819c77167514916)**|11.4.0|Apache-2.0
 **[@leafygreen-ui/icon](#b5ac17567d129a7e3ce56ba923d001576c78886bb2ea834aec73ec9b65e924b2)**|4.3.0|Apache-2.0
-**[@leafygreen-ui/icon-button](#4a4e3ff7ce62ca9fe6a65018743d1d9f41ad97587038d1c7603db33167584d33)**|9.1.5|Apache-2.0
-**[@leafygreen-ui/interaction-ring](#6c87b2c241268cfc4dd6e0f43cb17e4bf4c5da62f69ad6414d52309c6220c58a)**|1.0.4|Apache-2.0
-**[@leafygreen-ui/leafygreen-provider](#1d527e79b5882495e5fbeb2bc2647b8bd8814ab634509ea93eea451cf333ae8c)**|2.1.2|Apache-2.0
+**[@leafygreen-ui/icon-button](#bd7823878cc7402abcdd646ebfcaafb1af57811817fa976309103ba6fce95993)**|9.1.6|Apache-2.0
+**[@leafygreen-ui/interaction-ring](#b5e1b7ade779a3b82b39ff76b20ebce84f01ef5934829644bd42dcf038af82e5)**|1.1.0|Apache-2.0
+**[@leafygreen-ui/leafygreen-provider](#36a54088ae5d34fa5e9a732e9cfeff6cc45d623039000fed562decf0ff81dd3a)**|2.1.3|Apache-2.0
 **[@leafygreen-ui/lib](#35c4bed27ba37ac1f2211977d15b81d1ac62ee14e5f3dd4684fef2b8e3fb9737)**|8.0.0|Apache-2.0
+**[@leafygreen-ui/lib](#30e9ed6c2e550dfed8b9be8d41b5b9b5ea99c892204ce640e4ca75702c6d003b)**|9.0.0|Apache-2.0
 **[@leafygreen-ui/lib](#086127748510d761d6e7843dbc86695047b23f99b87a6097414d28a9b8e7648a)**|4.5.1|Apache-2.0
 **[@leafygreen-ui/modal](#56f100d1c57d3b9c34679fdabcc402d3e4353712335c2034a546ad25502f38e3)**|6.1.1|Apache-2.0
-**[@leafygreen-ui/palette](#01c72c8b76dc6edc117b6c47cab1c4150d7a442db4e83c396fd7df89c02f38b7)**|3.2.1|Apache-2.0
+**[@leafygreen-ui/palette](#aac301506921cf8ea69e201d03f69e56d0c7b6c6819939404b0b01de26937833)**|3.2.2|Apache-2.0
 **[@leafygreen-ui/palette](#5667b1cc6d87fc8ce2a94b4d9886c2122872bdd97db1249c92d9adba3ef9cf2f)**|2.0.2|Apache-2.0
 **[@leafygreen-ui/popover](#eafe724eac35920906938d0b930a9c4cb4d1157f6240c7c3634a88877f9c8f9e)**|7.2.1|Apache-2.0
 **[@leafygreen-ui/portal](#f034d37a474782ff139d05e98f6e299b10ec4fd40f4e86c8ff2388e548ef0dda)**|3.1.3|Apache-2.0
 **[@leafygreen-ui/ripple](#7767b150d9e89f8ac4cd94c4ebd4cd5df3fb05ee34a3b9203c694b8716d69e6c)**|1.1.1|Apache-2.0
 **[@leafygreen-ui/select](#d5a312d02475bd1ab020c0aa21a0e22ff30d93c2d1cd4a92d49070e5342cc23b)**|3.0.4|Apache-2.0
 **[@leafygreen-ui/syntax](#5cdb6561a356218c1b8dfaf30b84a030581ad33bed8ebbbaf1940ed7c94d6f11)**|2.8.0|Apache-2.0
-**[@leafygreen-ui/tabs](#37e06c745f1e8d00aefcb223bfbf648146ea8ee5a4bd90796e70d139517c6ee1)**|5.1.2|Apache-2.0
+**[@leafygreen-ui/tabs](#a2ca7651f2752f0fb392f42e6942cedca87388c124ae1789f8f3b32fb7b15f94)**|5.1.3|Apache-2.0
 **[@leafygreen-ui/text-input](#7d4813ea1bdfe3adb68adcefab312bec90dcf201093c2307db92c5b975e7bd57)**|6.0.3|Apache-2.0
+**[@leafygreen-ui/toggle](#4b9d37b29cb36fa38eb01a04d0a9b1fd53f0a973e5989212400f122346d3c4d4)**|7.0.4|Apache-2.0
 **[@leafygreen-ui/tokens](#abb3f3bd8f538461e96421ea4c92aa7595c29081e13652645737bea328a90349)**|0.5.2|Apache-2.0
 **[@leafygreen-ui/tooltip](#d543851d8597245c6181562d62c8b38bb7807a61230f9d992a3c259d99946ed6)**|6.2.2|Apache-2.0
 **[@leafygreen-ui/typography](#43605f4bb784fb19869f1788c6b04f60632166fe6cf57a358b916aedc11b9b4b)**|8.0.2|Apache-2.0
@@ -85,54 +98,55 @@ Package|Version|License
 **[@mapbox/unitbezier](#49dc81ac646217b70a4d87061825aef2e89d2731ca0531a6f642043ea2595309)**|0.0.0|BSD-2-Clause
 **[@mapbox/vector-tile](#246dbbb1645df001d1030325c9ee68e28e40389926bcf1f832ca8863f73f9703)**|1.3.1|BSD-3-Clause
 **[@mapbox/whoots-js](#2df966a0a5e211ff96378adb982919ca3915c8a48c60a07db4527e6b9bad0921)**|3.1.0|ISC
-**[@mongodb-js/compass-aggregations](#830d71c23eb7815f72c5c918455d13563e0a09ac995a3a20dc3e3367f015b546)**|8.8.3|SSPL
-**[@mongodb-js/compass-app-stores](#59eb017a5836937ce78ec4fbaa80af45c1650a90487da020e1280b7574c993b9)**|5.7.3|SSPL
-**[@mongodb-js/compass-auto-updates](#97666182256f7c3fe4d6a156ef6b47da2c9888bd349a64f5f8593463c6d7c73e)**|3.7.3|SSPL
-**[@mongodb-js/compass-collection](#8acabb187fad8460e171789df23c5b766ef64d5790e6120d6ef5aa0ee1df1398)**|3.10.3|SSPL
-**[@mongodb-js/compass-collection-stats](#eeddcdcf5da4b8b4cecb18df0275e603ed7b6b8230e58ee5e62273c6953d7dce)**|6.7.3|SSPL
-**[@mongodb-js/compass-connect](#8f1ab5e1e14a6af8a38177824556a54c47b7a90a26d9f895f17ecab5144c8932)**|7.7.3|SSPL
-**[@mongodb-js/compass-crud](#f58db6491c02d7ff7c0b17e577e18c3be1c8ff99f4889ff312842871a9f987a6)**|12.8.3|SSPL
-**[@mongodb-js/compass-database](#672486b7a6464de955f50eedaf52e028ac7e7414631b3d49f0ba1672d11952d4)**|2.7.3|SSPL
-**[@mongodb-js/compass-databases-collections](#d804be5dc3d11dca932db7cf4738bd5e88585e6a255010263c3d59c89e8d0ff8)**|0.8.3|SSPL
-**[@mongodb-js/compass-deployment-awareness](#78951435c2ddb3a05498f817f61336829094691244752d9bf878da84f8b2a5e6)**|11.7.3|SSPL
-**[@mongodb-js/compass-explain-plan](#b718692f37a9b0d6e579fd00f4d45c9d604f1cf9c31ff8552edaac7a96b5612c)**|5.10.3|SSPL
-**[@mongodb-js/compass-export-to-language](#595d26993e02ed57976660f943afbc4d65fcfbcf5718d3e41f4ca55c2949c526)**|7.7.3|SSPL
-**[@mongodb-js/compass-field-store](#1ada7886bc80a2bae0d5412d2dabc22b64f3c55950619f4487e037f356b5f9f4)**|7.7.3|SSPL
-**[@mongodb-js/compass-find-in-page](#c19f5d0072c5e42ee90cd218a03be4f954e0f73b3463d9aaab241b0494bb01f8)**|3.7.3|SSPL
-**[@mongodb-js/compass-home](#3676abd790b480053c71264ae2af0253efd726444b57edcc8c608b03222fe194)**|5.10.3|SSPL
-**[@mongodb-js/compass-import-export](#cb294d198c506e7c102e86c79c3aaf51f6f94292c9f2a6d1b01ee5449c13d05f)**|6.8.3|SSPL
-**[@mongodb-js/compass-indexes](#d3ffcacb5fc2c2ea80518a7e629325e146ac1e388902c77cc74e7f61d64e41bb)**|4.9.3|SSPL
-**[@mongodb-js/compass-instance](#a6afae1e33d5191ab736c9191213d0e7174362d5928eada22c4933f10f4ea1ee)**|3.7.3|SSPL
-**[@mongodb-js/compass-loading](#8f403fdb2030cb31f0d51a620bd6690149cacceb2fa011d82cdad3aa3da76518)**|2.7.3|SSPL
-**[@mongodb-js/compass-metrics](#70bd73d7d8b9e0e46c736bbf71e774f5902e403dca0e43fa805b874bffe8546e)**|4.7.3|SSPL
-**[@mongodb-js/compass-plugin-info](#703a9f6675338db74f539c8d60e4e82b7a024a977a5131e29796aa4e9ea46ca9)**|3.7.3|SSPL
-**[@mongodb-js/compass-query-bar](#510404aed34795b303302f693de768fbc98f9b47680613f0fb2f2ca1f223390f)**|7.7.3|SSPL
-**[@mongodb-js/compass-query-history](#88098733b6e34438fc8b2b0dff0f9b79ad2c9a55fa6478ff62ffb672a7701750)**|8.7.3|SSPL
-**[@mongodb-js/compass-schema](#92016681f8a2f8e25a754aa4506ed0d36604020f546220e40319dba4cdd90425)**|5.7.3|SSPL
-**[@mongodb-js/compass-schema-validation](#481464a73431b82f3617b0031656192888396b26d84d6bbd20e76dcd2416c315)**|5.8.3|SSPL
-**[@mongodb-js/compass-server-version](#f045bcd78525e169ac6d4f832f972cf1f92cf883ed1e84fccc7b92a9b9a6223c)**|5.7.3|SSPL
-**[@mongodb-js/compass-serverstats](#ad8e594a211b9e0310a9be91fae21872312d3b46443fd9ce495900ab1676a25f)**|15.7.3|SSPL
-**[@mongodb-js/compass-shell](#8b26be6337ea3a7626bbc146f1204536c38a75f6a7e36a91d17c5bde3286d71e)**|2.8.3|SSPL
-**[@mongodb-js/compass-sidebar](#a9a1b937deee411e7f0f2785d6956f36f212f42414fa79c1c97d4615e2b1efde)**|4.8.3|SSPL
-**[@mongodb-js/compass-ssh-tunnel-status](#988cf5d18deb68ea105f34c5b5569ba9247152452588777aaa4c5e8ee0b8a329)**|6.7.3|SSPL
-**[@mongodb-js/compass-status](#b52d67d0f01a31d4ad9391fa7d247fbbbd2d916e920a5af3f564750521e8bdcc)**|5.7.3|SSPL
-**[@mongodb-js/hadron-plugin-manager](#7c4d0a7e278233d606f2457e3d50cbec1c6011ce87643969b6c42ad0e99dcae9)**|6.3.0|SSPL
-**[@mongodb-js/mongodb-redux-common](#bae922227dbeb5b5db749880d9f828d95b7eae969066df5951e834a151740b15)**|1.3.0|SSPL
+**[@mongodb-js/compass-aggregations](#0381bfac172418712ac69f97c571631a71eb7705e2c392a81fc7d1e46c082f21)**|8.11.0|SSPL
+**[@mongodb-js/compass-app-stores](#35fe7cb0d28f31f273152c48129d6e879a96448cfc6cd3dc27d01a07accc7a7b)**|5.10.0|SSPL
+**[@mongodb-js/compass-auto-updates](#49f76a09fb21e9eb149ee0a5b1c5820b48776b15435b377025a8ebf89f37d270)**|3.10.0|SSPL
+**[@mongodb-js/compass-collection](#5773a1f654cf1b4c1dc643508b7b0858f8ae2b7b082e20c1bce02cf7dc6721b9)**|3.13.0|SSPL
+**[@mongodb-js/compass-collection-stats](#db8e57423ec845ba9c70fc3fdfaae7d3e7c54a6aa502979487bbd7861e13f4a1)**|6.10.0|SSPL
+**[@mongodb-js/compass-components](#1219216fe174fb9c3721c9e7d8d34b78c588eec91770314bc8073b53df3236db)**|0.3.0|SSPL
+**[@mongodb-js/compass-connect](#b194c2bdd9c5d70cefdd395b846fd3c7aaf3c7abf0664eb632536da178eba1d0)**|7.10.0|SSPL
+**[@mongodb-js/compass-crud](#9364ae1cfc2a675f7a1408285f16d7c65c7edd291fbe143aa082f1e8499bee67)**|12.11.0|SSPL
+**[@mongodb-js/compass-database](#f7a37869c72402609ee75a1ee7382b225a236477ee8766091c016c25e7b6b7c4)**|2.10.0|SSPL
+**[@mongodb-js/compass-databases-collections](#312a9ab9627422b6f14776151a6a500fb229f2478afbf0cb43cd72b56bba5d87)**|0.11.0|SSPL
+**[@mongodb-js/compass-deployment-awareness](#c12bf79cfa87eb3deb71c040b01d2111b31d08d92ec36e12a0218bfe01173d7e)**|11.10.0|SSPL
+**[@mongodb-js/compass-explain-plan](#6536e50474245286dbeb1f93f34ad87a9dac458aa5bfb13d6c88d8b89e82c926)**|5.13.0|SSPL
+**[@mongodb-js/compass-export-to-language](#356ab839bd336a8cc6ef984c44111a95a5296ef12a1b415efbc7035597185f2b)**|7.10.0|SSPL
+**[@mongodb-js/compass-field-store](#ece41f2b5828e9759b7b819044e881ff5ce71c97c7000fa4ec944d3532b06b63)**|7.10.0|SSPL
+**[@mongodb-js/compass-find-in-page](#3d59df54f7f8486e7ebd559199c31c6718cd78ffd94af3ab0e0ba8bd92990cbd)**|3.10.0|SSPL
+**[@mongodb-js/compass-home](#1db9b6b7a18146a2199b38dc40312cb606b0f94974ad490df7ce44922d223d62)**|5.13.0|SSPL
+**[@mongodb-js/compass-import-export](#994a1f4c443b378de27637c7a16c55723faf9369713bc363a3982ba788fe8ead)**|6.11.0|SSPL
+**[@mongodb-js/compass-indexes](#fe7da71b047b763450ecd198b9d706d0d1fbf86434d20db4ea2225dc3b155a25)**|4.12.0|SSPL
+**[@mongodb-js/compass-instance](#9e25d7f4412a62193fff2d49ce2d76420afd1a2f445fe387ebd4aa1c80fb5363)**|3.10.0|SSPL
+**[@mongodb-js/compass-loading](#382608926aced614fde0795da0e52fe0d15f3a5eb77d63a76facfac57aac3c00)**|2.10.0|SSPL
+**[@mongodb-js/compass-metrics](#7d0b65968403f7e4ca9fdc7dabfc1b768c70cd5d03fd3e516f22dea384a7433a)**|4.10.0|SSPL
+**[@mongodb-js/compass-plugin-info](#9528c26820c7b61a89cf96f620b7234bf87e59473617d63814daaa587194e487)**|3.10.0|SSPL
+**[@mongodb-js/compass-query-bar](#15b1e71a51764086d1f521bb5cdda7c9c80f5cce4f8dbc0c292d03a837212adf)**|7.10.0|SSPL
+**[@mongodb-js/compass-query-history](#d33a4dda32df33e112ea1d5e03751117ad66654e952e64dde03a0fd015989ed7)**|8.10.0|SSPL
+**[@mongodb-js/compass-schema](#f48abc45f69821661d0a97c5c2582190fad9daccec4c3df24696a6fb20f58575)**|5.10.0|SSPL
+**[@mongodb-js/compass-schema-validation](#3f82c049d8cfa62e7e7116228284ab98cc76acc5f8d7fb442e22bfe2ff84db26)**|5.11.0|SSPL
+**[@mongodb-js/compass-server-version](#7c5dffc957333ea7f0c0daec1df2b71d6fc28c9cd3978a40b05b32d9bd47a363)**|5.10.0|SSPL
+**[@mongodb-js/compass-serverstats](#429ef83eb3e575c363e714962ff952535b66422a9ab6dac459675a5f903f2101)**|15.10.0|SSPL
+**[@mongodb-js/compass-shell](#be637c5ddea1d3d6894b0c9a220c0fc37efc011d73da319a47a667e62e939406)**|2.11.0|SSPL
+**[@mongodb-js/compass-sidebar](#40da98b571c7f200d929865dc60f841f6c5c95e5157774c132957fa2c4b2f791)**|4.11.0|SSPL
+**[@mongodb-js/compass-ssh-tunnel-status](#c7833b6f3db30e57a83b1cb09186311c538e14287c7e7c9f8bf124c55bf63705)**|6.10.0|SSPL
+**[@mongodb-js/compass-status](#471ee2b9ffc72673e0a0764ad2e6b5f4b8a2bc86d2c54a85eb41de059d8174f9)**|5.10.0|SSPL
+**[@mongodb-js/hadron-plugin-manager](#f58fba022c69842351c2f2030bfba5b7a07248229bed1f1a1cf04c5cedd82e3a)**|6.4.0|SSPL
+**[@mongodb-js/mongodb-redux-common](#b307689af7481546c0c102f4014ec6eb2171ab46e83f5330aae88a0e14634c1f)**|1.4.0|SSPL
 **[@mongodb-js/ssh-tunnel](#61a8a28f7e768cb9357131fced91bb727add9058d8ccaa9a53f3dffeebda249c)**|1.2.0|Apache-2.0
-**[@mongosh/async-rewriter2](#e4c74909d3ee36920777f26776f5ca0a28b002ba1a6c19bfff4ade62b3d28850)**|1.0.0|Apache-2.0
-**[@mongosh/autocomplete](#638f166f98434095c16aa6f9eaa5777e6e435855aae6a2af67e517145bc02fef)**|1.0.0|Apache-2.0
-**[@mongosh/browser-repl](#62b96f909bb2135bd766a48fe2c6c9df9edbd94bcd748057ddfe428ffe7092ca)**|1.0.0|Apache-2.0
-**[@mongosh/browser-runtime-core](#29592fe48d7f6e7efc0f2ebb647d5b04806b86b9d1992cfda82db730aeaf709c)**|1.0.0|Apache-2.0
-**[@mongosh/browser-runtime-electron](#af891b17a5d6197b96723acf96efdf36838959f40eadf408356e7b013dd5bbb0)**|1.0.0|Apache-2.0
-**[@mongosh/errors](#5dc9096b3ff3a55501e4107f5054d225396a346f0f49b8126d6dd5e204cc31a8)**|1.0.0|Apache-2.0
-**[@mongosh/history](#d1456ee07180022ffe60e91803e2d2c98a988b96b41818101ceed413413e22c1)**|1.0.0|Apache-2.0
-**[@mongosh/i18n](#f3ccda6a9a53f50d9d1efccc34cbc72ac85a2835f8d20447dfac2f5e604770ef)**|1.0.0|Apache-2.0
-**[@mongosh/node-runtime-worker-thread](#5f52eca399951bf31738fd469a689e0ff67ca3959490d5f714af96f4418dadce)**|1.0.0|Apache-2.0
-**[@mongosh/service-provider-core](#a56fc04759bc84fc26a48bf1726ad0091c0ba2764e8e7e03a4f14657c9c9ff03)**|1.0.0|Apache-2.0
-**[@mongosh/service-provider-server](#e774e65babd8ac445d8261d73fac02a68c7dc1f1b36fb098379a23e285e91480)**|1.0.0|Apache-2.0
-**[@mongosh/shell-api](#b97cc29f2f9f2527602e978c78dca8b395673fa877e9963f83aad84d6c73e114)**|1.0.0|Apache-2.0
-**[@mongosh/shell-evaluator](#ea92d5ac98b5b34fc47196b8cbea9a128d18ee86ea61385d609f7c4dd8265caf)**|1.0.0|Apache-2.0
-**[@mongosh/types](#88b514cb7a0582bde535fdfed064a36c447501649ab739e41bec3527afc1367f)**|1.0.0|Apache-2.0
+**[@mongosh/async-rewriter2](#e8e7fcde29262d3dbd899f3ceeb43e6de27ad8250471a6cf00ff9ea861c181e3)**|1.0.4|Apache-2.0
+**[@mongosh/autocomplete](#d8ca7e40e99354c5b543de71e9c2e9cbc7db84eda1e2ce9954c66205af08fd5b)**|1.0.4|Apache-2.0
+**[@mongosh/browser-repl](#001f2947d8b52fb39d7e5be6c558aaa0fbf5db0186f2be164548df9d138c6489)**|1.0.4|Apache-2.0
+**[@mongosh/browser-runtime-core](#4fddad2c4c10841ec84c5f6aaf649c4c6c8a8cb6a78ec37b165a715777fc9268)**|1.0.4|Apache-2.0
+**[@mongosh/browser-runtime-electron](#cd993ad52aa9ab615a95884b018237b94a504499ef49197cd55cbb64d5260c5e)**|1.0.4|Apache-2.0
+**[@mongosh/errors](#4b5edfaa959bdf0167bbbc1fd5cf8f48f7d99dd8bd84754002f34730642e8b77)**|1.0.4|Apache-2.0
+**[@mongosh/history](#d5db790accc4878776d7d417a14f6f8ff24ac6dcaa45d317f386ff8454c9592e)**|1.0.4|Apache-2.0
+**[@mongosh/i18n](#c4382c0ec32bc19ed9f20279ed32313800182e45e72f72a49e3e8327caac521e)**|1.0.4|Apache-2.0
+**[@mongosh/node-runtime-worker-thread](#77d84150c03000e31749a566cfd533465edec329b5724f8b8a7592d2d5b24508)**|1.0.4|Apache-2.0
+**[@mongosh/service-provider-core](#9bc7ab9baf2ab3548b7b153b8934d628acaa938dcf88b76c69a637ca9633acca)**|1.0.4|Apache-2.0
+**[@mongosh/service-provider-server](#98a406441dcb49be1f8b6630002fb7ecc3b0dea6859135a0b9ec97570b2fd2d1)**|1.0.4|Apache-2.0
+**[@mongosh/shell-api](#9e176ddb0dcacfd83ea74c88fbe2befe95527517098ffddea60709cad1cd622a)**|1.0.4|Apache-2.0
+**[@mongosh/shell-evaluator](#1ffaa3c2190350a2d1d8261e0b69a3c4aaf40c35c0d227899473203bcdbaa1d7)**|1.0.4|Apache-2.0
+**[@mongosh/types](#b165f9ae7ceb752e8fc1357bc2c55e0858c97ada6c358dd9229818ad5e044d6f)**|1.0.4|Apache-2.0
 **[@npmcli/move-file](#b7b87ae4f596a12a8a88a505d573b3d9b9dc86a1d9ff3b75b77c881eb2143cdc)**|1.1.2|MIT
 **[@react-dnd/asap](#48010989aaec720af5a018ed2fd3e6541514b8d4244595e0df3985bdee63eade)**|4.0.0|MIT
 **[@react-dnd/invariant](#eaa7966ca6a331042272288192ae9bdbdcd2c6e7fbcb60af673ed0f128b3e3f2)**|2.0.0|MIT
@@ -220,7 +234,7 @@ Package|Version|License
 **[ansi-to-html](#1415882bca35fe4af2b6d3d636e56c2fda756e57bcb1dc5e78dd52bbf354b1b3)**|0.6.15|MIT
 **[antlr4](#c5ad356fae2f067425b6c90b7251290842a1f2dec296bbd5afd5ccc32dcf3acc)**|4.7.2|BSD-3-Clause
 **[anymatch](#fa791c3ef4b144dbd23f0f27fc86fbd05960169d88b9292d14bc689a966465a9)**|3.1.2|ISC
-**[app-migrations](#ddd5cb348dae1ff6c451a9883eb8b1def5481e273378e0bfad35690f76fc39af)**|2.2.0|SSPL
+**[app-migrations](#2be67cb5d47a4651f0c6547caf2ac612f248642f9cd86e352f62e9f1f19cb466)**|2.3.0|SSPL
 **[aproba](#b8b30f42274956b772cec4ea9f13cebaa5900724e514eaf0098a3ad6f1f7f16e)**|1.2.0|ISC
 **[are-we-there-yet](#1370d475c62d2fa9bb9d34573e067fe045672d7fdf86cb1449b73fed67d42278)**|1.1.5|ISC
 **[argparse](#6b1264f725773d7ca1059ef45bbbee5955048816d26fad5ef45c56951ee60641)**|1.0.10|MIT
@@ -272,7 +286,6 @@ Package|Version|License
 **[binary-extensions](#84ca85c31005eb249401ead98d76b7642fe4c96be1aa11139e45c9c68d186400)**|2.2.0|MIT
 **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**|1.5.0|MIT
 **[bl](#914f886368f63b0b33239e048b8533119b0a42116c4ff7498b9373c4c305e2a4)**|2.2.1|MIT
-**[bl](#a665ea6dffc925870ff11bcb4b8b477d4db5bba410ea1ab72d2048190b34e19e)**|1.2.3|MIT
 **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**|4.1.0|MIT
 **[boolbase](#3e46c391f578eda81064581050243e9d142b7bb9d256afc1f10d45d888b447b3)**|1.0.0|ISC
 **[boom](#31b353c538f54f553e647ee8f7507998dfd5661b3229f6ac1ee89cec7fe90199)**|4.3.1|BSD-3-Clause
@@ -287,11 +300,8 @@ Package|Version|License
 **[bson](#394c5421206f2ec526852cb6fa0ee38d42b14e205104586179d37d18573f8f95)**|4.4.1|Apache-2.0
 **[bson](#0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87)**|1.1.6|Apache-2.0
 **[bson](#9568646decb901218e67075eb984d7bbd5c4fae711cd931bb42bb85757af4a4b)**|4.0.2|Apache-2.0
-**[bson-transpilers](#224753a426de96a306468b116f105cc54889e72c4bce25cc775179c20c24a85b)**|1.1.1|SSPL
-**[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**|1.2.0|MIT
-**[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**|1.1.0|MIT
+**[bson-transpilers](#0f2125007e21ed8e27dfbeb4955e50d992d7227f60c7ade5f4d1f25d88097143)**|1.2.0|SSPL
 **[buffer-equal-constant-time](#77cd18a59a06e032914b3c4148b3467dd3f720b6c6b419c079891ca15b2f488e)**|1.0.1|BSD-3-Clause
-**[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**|1.0.0|MIT
 **[buffer-from](#3dcff218e9c4fa2693fbfb63ee6a17483a662804fa7e26dd92051d7b95284ef3)**|1.1.1|MIT
 **[buffer-from](#166900f590fa9a47eb99e805b8f06bea103c7509620318716147a9609286fb55)**|0.1.2|MIT
 **[bugsnag-js](#d12c3cc42b8a74b3997abc2a651956171ae6c5d4cdbc5284d53f145cc7352937)**|3.3.3|MIT
@@ -338,8 +348,8 @@ Package|Version|License
 **[commander](#15691f652096ef6b4e4141f693c6d59371663e7259c2376fc857d9fe2e84332f)**|2.6.0|MIT
 **[commander](#24ab11e1b73368dedbb70b1985003bf0636191bc7885dee47c5861cfa74a24eb)**|2.20.3|MIT
 **[commander](#e4c9fecb646585d045b341693411a783d82a5ad33372aaa9b41d86491bec10a0)**|2.8.1|MIT
-**[compass-preferences-model](#a0b31ebc423afd06b6c92007797e21fee7614cc5cf8a5abc43f98e002bdf90a7)**|1.7.3|SSPL
-**[compass-user-model](#7e5b59807792d8eeb2415ec71a43dace377025dde087a96edbd6b2de4c6afae8)**|1.7.3|SSPL
+**[compass-preferences-model](#9db7c7283a22233cd9b80adfa47e5d2dde536c9067d1a24f635af36877414623)**|1.10.0|SSPL
+**[compass-user-model](#e7b37a7307e6832d983b97d2d36848729711e0c993b4a255781f791266bb3600)**|1.10.0|SSPL
 **[component-classes](#4bb7ced1e7e20e737e0e6b6052e3be5ed68f9e68c3a6a816e6ca486aec62e77d)**|1.2.6|MIT
 **[component-event](#32d720e7a217746311d55af1f088a9ab8ae8a3966be80250634fbff4c2c45935)**|0.1.4|See [details](#32d720e7a217746311d55af1f088a9ab8ae8a3966be80250634fbff4c2c45935)
 **[component-indexof](#d48df125666f2751d0e651a1b151fe2adf6acc909761f9f1e86fc8193f426656)**|0.0.3|See [details](#d48df125666f2751d0e651a1b151fe2adf6acc909761f9f1e86fc8193f426656)
@@ -378,7 +388,6 @@ Package|Version|License
 **[decamelize](#269723723584e4b59e128f4575b77e8f0519d9aba78cecc7c4c1e9800cccca96)**|1.2.0|MIT
 **[decomment](#b5f98a799fdec0004ca8a3fcbed046602984d40a18ad7a72a32d7ce3a5a91838)**|0.9.4|MIT
 **[decompress-response](#71cad5eab34cc643a6a7853a43d3090ac7e8b6014c9ec55fabb8112cdbfd9fbd)**|5.0.0|MIT
-**[decompress-response](#46099480250f7aa8cf2b8137a8611392266770618d74e0d131b89eea24e741b2)**|3.3.0|MIT
 **[decompress-response](#a6cd6a055b9fb5f987ff8afad14fe0f248586487482a709c00f121ef5decdbbb)**|4.2.1|MIT
 **[deep-eql](#e81f46c725babeae9ce7c176fb1c412a3973bc34fb4ad15ddf4f4c5dfd29fa9d)**|0.1.3|MIT
 **[deep-extend](#654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf)**|0.6.0|MIT
@@ -429,6 +438,7 @@ Package|Version|License
 **[error-ex](#8d74a33ba70573b2c76da017b416914cdcb4b3dcfcc49e670ddab2bf1b61f54a)**|1.3.2|MIT
 **[escalade](#914b0c6f347ee5644225bb7156929bd6e9163641cd78367af3b4e1b24f373ec0)**|3.1.1|MIT
 **[escape-string-regexp](#a9c53481a9db89e7cf01e302086c50fcfbde360978cdd2bbe1e52a430d3fee42)**|1.0.5|MIT
+**[escape-string-regexp](#8c51af36cd574fcb38fb535dd3e485948143a1b5e8580efe21fcbf259b54c87c)**|4.0.0|MIT
 **[esprima](#48204389e2519fd65c7341ad2eb6174fad10df3c5b019e78cbabeb2488eeca37)**|4.0.1|BSD-2-Clause
 **[esprima](#b6419fcf09d7cf8bd179b68a08da78293f8c178579550b326480a8dd78ce1927)**|1.0.4|BSD
 **[esutils](#cbd4dd8d594e202bb6c9713d3b097eea62783e99d79069a29ebf4ce921e129b6)**|2.0.3|BSD-2-Clause
@@ -492,19 +502,18 @@ Package|Version|License
 **[graceful-fs](#4b15f222709cc7e15b088507f95bc6ed989b26f0276f520aca19c2e5dbed1aed)**|4.2.6|ISC
 **[graceful-readlink](#f6daae66ac8e70d03b75c40b8935e499c084c9ff05948cb890fa4cd8e790ee64)**|1.0.1|MIT
 **[grid-index](#85d8348e33ee3c3b3d7e161b796c4a02ba2f349873195c2ed788f4c66daf2eef)**|1.1.0|ISC
-**[hadron-app](#483b0d80f1a663a78ec60f78706202c5a93e5805b2ced4044330608016bdd2e4)**|4.7.3|SSPL
-**[hadron-app-registry](#b334bd08bcf60502d3d564f6827fb8dd37e431322fd9616c8ec881c06398ed97)**|8.3.0|SSPL
-**[hadron-auto-update-manager](#264c09102dfd7fff63410d35336b6f201dda71810831e8bb81b09ea05c699de2)**|4.3.0|SSPL
-**[hadron-compile-cache](#1c0ee82ef990f8eb220c42e58fef9445db98cfb39c9bbc40c410cf2b56d3c7b1)**|4.3.0|SSPL
-**[hadron-document](#044982026c36927ddb55b8500e080ecd812991d99d77ab8c619dc56b7b3694e3)**|7.4.1|SSPL
-**[hadron-ipc](#16993f6548e73dd2dc9a031f9525aebfe5879875747b7e3aa645ef301a07c569)**|2.3.0|SSPL
-**[hadron-module-cache](#17f411ba4f37d86a1537931678060eed8227fcafa6d2ff7d53df4e1cdac702e0)**|2.2.0|SSPL
-**[hadron-react-bson](#8feefc827dde03789ca38a8cd65b20d31c01cce6d2ef22537f367e64d89f65aa)**|5.4.1|SSPL
-**[hadron-react-buttons](#dd123c127c945d0a313c614db194e5315d5d3cc40bcce35aedac28bea892ea52)**|5.3.0|SSPL
-**[hadron-react-components](#8a9adad988eec8d32dfa6f41c644efb4143811bef53ebd1329b8ad30d358b182)**|5.4.0|SSPL
-**[hadron-react-utils](#58ded5088da6a2990c740c39d96a38ef331d46e45ad471aba4f59fdf8ee8c5c5)**|5.3.0|SSPL
-**[hadron-style-manager](#c19726961e36cb51c6b1f2a809d3e30e82c1a2de30986b16cf018b859eb9182c)**|1.2.0|SSPL
-**[hadron-type-checker](#c27c6363aa50d716637ad69a67b32e7fc3543ef128bef5157099641e693e85e6)**|6.3.1|SSPL
+**[hadron-app](#a512e484ea8590b7a85cad38025ed23be5cb1563323c21e724ad1444d6f48d2f)**|4.10.0|SSPL
+**[hadron-app-registry](#dcd1d6ea3ba5dc04ef587ef8233535190a0a50661509e16d3c07ff8ab06e30f3)**|8.4.0|SSPL
+**[hadron-auto-update-manager](#c60dfbd2f83ce1b5a1d86327ed0ce7c0bdd92fd819e1858c3edcf8b34ecfbc6f)**|4.4.0|SSPL
+**[hadron-compile-cache](#922afe7e765d8eff43312eb33540b7fa561d2a7f743597c1ed731ff151a112a6)**|4.4.0|SSPL
+**[hadron-document](#28d732fec5c1a658312c41a679a918739f3512153fc59183216a1a5e0ccc1129)**|7.5.0|SSPL
+**[hadron-ipc](#94b9e7c640f73bd46901e63ec932e98cd55603d9674ca49bd29d95d1588f7445)**|2.4.0|SSPL
+**[hadron-module-cache](#9b431800529bfc2ebe38a49d927dbf481824b60fcdf21b7657eba26e398b5601)**|2.3.0|SSPL
+**[hadron-react-bson](#e5d1f8d86a53741d3489ec8a58da14fff0cc68ac7e67c244be6dbfc0d86a1a8a)**|5.5.0|SSPL
+**[hadron-react-buttons](#b8422743e9ee478d273ef49dae9394878fa48cd139a3b6b2af286a653e7248ac)**|5.4.0|SSPL
+**[hadron-react-components](#39969a5ed7ce4b4df6ae4aa7431d68b611f453036054fd2a78c5c3fe7180516f)**|5.5.0|SSPL
+**[hadron-style-manager](#e64a33220b5cf7ba21654a7236f0c99befdc2451bf91075f92f45d2198786736)**|1.3.0|SSPL
+**[hadron-type-checker](#bf539deec3ac01aac38d5f7c868a49918c5fc5da1f145dc3bad3bc1f02164ec7)**|6.4.0|SSPL
 **[har-schema](#021bd6e9270455073ace1c28a804219c71b32c9fd6751810055dff10ef3a8d4a)**|1.0.5|ISC
 **[har-schema](#cb654835cf60c983f33aa958bcdc70ce714bdf87bc8e9bc4b08a02e2297106e3)**|2.0.0|ISC
 **[har-validator](#d1d810ef3aa258caada14c82f7fc363b18c49c5b1346992b83e0a989822e5373)**|4.2.1|ISC
@@ -610,7 +619,7 @@ Package|Version|License
 **[jwa](#c4a0632406b26de348d83c0487e6c10302e7a6e05f12c377ab8ce398d577bd67)**|1.4.1|MIT
 **[jws](#e0d52f89c10a0b6d669da2b76dab3b7da9d4c2c82c0f694079c8d06d10d0a71e)**|3.2.2|MIT
 **[kdbush](#d2032b52caed8f4a30074aa03e1f9f214060c1faaac9c0ba44b82f01e72f10e5)**|3.0.0|ISC
-**[kerberos](#d7e47ac9df61966034032e67a19db552f15e752061b74946bf2504ca7c13c3f7)**|1.1.5|Apache-2.0
+**[kerberos](#82c8ffbe0e870b8d96fdd28a26b87523271e2674da22025b256a069dce1c5c51)**|1.1.6|Apache-2.0
 **[key-tree-store](#63e3bcb8e06ac6b9f7c153030ce57fad6e985a0cc7f0109d3fc6073192a932f8)**|1.3.0|MIT
 **[keyboardevent-from-electron-accelerator](#31dc1ee9e5ae7f7523fa9175b5630881abdfacbd0ff451799b75107d3e282b0c)**|2.0.0|MIT
 **[keyboardevents-areequal](#d832f810c63f729482a944bcdceb386ffa5ff2035a3f420aa65f9300542aba93)**|0.2.2|MIT
@@ -662,8 +671,8 @@ Package|Version|License
 **[lodash._basefor](#9452e64da946cc633bba85112f9d585983d4d34ddb922312c23509f31b9cf54a)**|3.0.3|MIT
 **[lodash._baseforright](#30deefb20ac351f54b0b0adac9fdff29e949d6d245995789fe1ff03075510621)**|3.0.2|MIT
 **[lodash._baseget](#c3cf4bbadde17410a34e84962cf52620d922e4c477c0c67407e3905a668d5b3f)**|3.7.2|MIT
-**[lodash._baseindexof](#984f3f17e0475ba7b138ad2bcd02121d1069d6b685100583bb4bc9d6127a29a1)**|3.1.0|MIT
 **[lodash._baseindexof](#2a142cb43d8de4f31a66b1c9c277e652712dfde8a1da5ed1d5a4ec74015feffa)**|2.4.1|MIT
+**[lodash._baseindexof](#984f3f17e0475ba7b138ad2bcd02121d1069d6b685100583bb4bc9d6127a29a1)**|3.1.0|MIT
 **[lodash._baseisequal](#5722da50c112fc1c4eb299375a140f952d867bf75c7433a0fb78b121b90a6fa0)**|3.0.7|MIT
 **[lodash._baserandom](#1043e7d5ff1be493974ac295cb9e9388c9fffca9071f2f3fc36cb92913762f2a)**|3.0.1|MIT
 **[lodash._basereduce](#705eec4fe15a0b669ebca858a83a9c10543091fc8a06ff672ff211c4d79f384d)**|3.0.2|MIT
@@ -704,7 +713,6 @@ Package|Version|License
 **[lodash.bind](#8ba49954012ae2467d7367dfd82e0d7713b57dfd13d3563e69bb9b662ea6913a)**|2.4.1|MIT
 **[lodash.chunk](#fa9b7d7289fcbb8618cf7025922e4adda4638a9dbbd301c61ad271de36cb0939)**|4.2.0|MIT
 **[lodash.clone](#bf668c76da524ab2331101eb0cbf8f5be26a56aab7004c69ab5a6e26ede03f5e)**|3.0.3|MIT
-**[lodash.clone](#ea363f03e04cf3bdd8a97f7eb1822b95d178247d0ce3b84416706aab7e2d6a3f)**|4.5.0|MIT
 **[lodash.clonedeep](#2d6567936a8d4e7a3e67f2b4c5394988219916b6a527d9588d48014daee523cb)**|4.5.0|MIT
 **[lodash.compact](#4bbcad2bb8b7debae2a7d6df05368217342eb3124c48ac8f0349e0f3dba1e29b)**|3.0.1|MIT
 **[lodash.contains](#38f120327cdf548070395f981d6af686f5b3e52bad3abebc2f2fa6fd915e1ec7)**|2.4.3|MIT
@@ -873,30 +881,30 @@ Package|Version|License
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[moment](#d8f96cf3e8fde11ddd63693bbb806b273f74faf4ba8426497c8b28c62950f148)**|2.29.1|MIT
 **[moment-timezone](#c0b94a3f1712536d5766e63717b3e5ea3007bc87993295193d7ca95aacbcba7a)**|0.5.33|MIT
-**[mongodb](#238ca94190dc6ecfefb8038eba61fdc9b317f49234c6775cac809521e13446af)**|4.0.0-beta.6|Apache-2.0
+**[mongodb](#4d2560b608e7584e8fe4acc7a70e8a54dcfe7b2d16743efc268654cdae061ce6)**|4.1.0|Apache-2.0
 **[mongodb](#79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f)**|3.6.9|Apache-2.0
 **[mongodb-ace-autocompleter](#88e3cacc0ba023dca2a6a0445053a925e9d44883bc4e7b2a48c7a9f36749a7d0)**|0.6.0|Apache-2.0
 **[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
-**[mongodb-ace-mode](#da937d0152ba6e8e6d88ec58c3270c6389fdc7e4c7b4281bdf4a209bb74b2af7)**|1.2.0|SSPL
-**[mongodb-ace-theme](#4d011ab7fc48c55a6210bdf011cc0d7e5bb2a52a2fe9af0d26ea7a4ea9aeeec3)**|1.2.0|SSPL
-**[mongodb-ace-theme-query](#99fe1485224159b75cca8a963114fe8c1422ce08e1013ab2c7ebf5fa293b1f62)**|1.2.0|SSPL
+**[mongodb-ace-mode](#a10b29e05e5635b3c80b332c052ceaec27dc595da9c09fbbd780d69e4b80ef69)**|1.3.0|SSPL
+**[mongodb-ace-theme](#649bb08c359ea0dab6e650beacb46ef37d9022add4feab5067a28903688aa495)**|1.3.0|SSPL
+**[mongodb-ace-theme-query](#ed265f118bc08332e9f7f49a43cb65f82bec3d5b1056c3bd3262ac63705160f4)**|1.3.0|SSPL
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
 **[mongodb-client-encryption](#2400753e4c313cbe1059fed67cfe07c83a8887810d236b84878dad8fdfba9ef7)**|1.2.6|Apache-2.0
-**[mongodb-collection-model](#8c3c38b211c609d27f0d14e0c39f006e7d19e47c6e4819b261fa03ab0e7e21d8)**|4.7.3|SSPL
+**[mongodb-collection-model](#c58269667c84f727a9e2e3e39e94b9d87280e1412dda13faf30b1c79acf21d5d)**|4.10.0|SSPL
 **[mongodb-collection-sample](#79daa5770151f329c1c9dcf0e80eb13343b14b576c0d21f790e9209c1f0afa5b)**|4.5.1|Apache-2.0
 **[mongodb-compass](#2fd756a7b8b16bab9fcff1b6a60f3fe302c38dc1a73b48902ee106dcd5c6799f)**|0.0.0-dev.0|SSPL
-**[mongodb-connection-model](#bf7ee646e6961626a0c8056a3627aa6b20f6823f16992f0a7675210d9118c1d4)**|21.5.3|SSPL
+**[mongodb-connection-model](#f9952d78ff1ed55b3d72b89b496f4df7fc0e3e74115b5b8de01c4bc805ba98c2)**|21.7.0|SSPL
 **[mongodb-connection-string-url](#b63d47d79486839e30669c011e5a35b0b780fccb15add1ec9c16b9508acf3884)**|1.0.1|Apache-2.0
-**[mongodb-data-service](#f1b3dddee0358a77165181c5edc9732e729fabfee194b56b4e1eee37711c21a6)**|21.5.3|SSPL
-**[mongodb-database-model](#220b1784e70dbc2fa930c425e0d87612a88716881fce62017ff99921604bdc8e)**|1.2.0|SSPL
-**[mongodb-explain-plan-model](#053e132563eab2346007f2508ee3cf996ce6f90fe4a8070dc565753eb96c8db2)**|1.2.0|SSPL
+**[mongodb-data-service](#66d2281d839120dbfb8f9ca54782229abd6d473e5437c7338870b794df9f62ae)**|21.8.0|SSPL
+**[mongodb-database-model](#a2d006089e8e11f049ad7e4ee118892a4cae7ce69373afd6e58b1d4515c78552)**|1.3.0|SSPL
+**[mongodb-explain-plan-model](#04ad18ddb015b09fdbaf1f6626158bc8c6b2d3479562edae8289814b926bc7c5)**|1.3.0|SSPL
 **[mongodb-extended-json](#768a71b2ae4c1a6821baeb4b46fe55f85fa496ba97e06e70b63efc97eb2e27d8)**|1.11.1|Apache-2.0
-**[mongodb-index-model](#b4c742c60e1bdbed649fa33ae9ec3d0430dab5996a5788c0710736fd50d9cff2)**|3.3.1|SSPL
-**[mongodb-instance-model](#781bfc0ec48cd45fbaa7be55c685868198c0d60e53b32d5af24dde1d71edb381)**|11.7.3|SSPL
+**[mongodb-index-model](#669c60b8ece4f3c685389e8bba993e89eafd1a03feb4a4e392d329ae55bd2160)**|3.5.0|SSPL
+**[mongodb-instance-model](#6b1f0d81153686523c3a7d2e3c4299a2ef425557e7d371e1be77c0fded040a7d)**|11.10.0|SSPL
 **[mongodb-js-errors](#2a0fc1dd130170b4d54400e654724c9d7b7fde1341f313f1d77944c115c30a11)**|0.3.3|Apache-2.0
 **[mongodb-js-errors](#3c078d1fae4939f8c1b56d7fd21588277752fd1911bfb6e1d3114a4d2bc57cac)**|0.5.0|Apache-2.0
-**[mongodb-js-metrics](#da1525634d74a5e37c58d1a31d53210a09bdf87c758dd8c577c3e84b7467e068)**|7.3.1|SSPL
-**[mongodb-language-model](#25aa255f9ef82ff568eb9157299c6d4a90df478cf577259e8fb159288ab69279)**|2.2.0|SSPL
+**[mongodb-js-metrics](#887f16e8f60bd2d8faea91f894f87b72b5811040fd6c140c82667f5b76834506)**|7.4.0|SSPL
+**[mongodb-language-model](#cbd794dfb2a6af2e6a26543302378b298f3e263ae3324040c108f7777e154ca9)**|2.3.0|SSPL
 **[mongodb-language-model](#0dd22abc80cef69725ac9663fc47e7778e3d7dd9d478f17f866721d0103842cc)**|1.7.1|Apache-2.0
 **[mongodb-ns](#0ab278b2cfb1f3c3efbf2786ee9e15f2fd7506306b1428e4fe4641480ea93225)**|2.2.0|MIT
 **[mongodb-query-parser](#d0030a6c7c4fed3fd4462b412975a2318ce97ef39d8e9f54dc70b4efaec32ee6)**|2.4.2|Apache-2.0
@@ -905,7 +913,7 @@ Package|Version|License
 **[mongodb-redact](#b015ceda6a559a7605749ba16f53b8daa25d1a6b86af9abb7d1b03e555935642)**|0.2.0|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[mongodb-schema](#82d9fccd435774fc150d4ac2388d72fc8c232e484c17007fb920c9c088c22702)**|8.2.5|Apache-2.0
-**[mongodb-security](#e8bea2bfb86d71250834d30e19d34864d30077eca44fc9a5eb95dbc1e9ceaa48)**|1.2.0|SSPL
+**[mongodb-security](#95d4fdb287ebce3a8a83a6c816e8989759ad0f9ebcd285e8fedca1f3fd854e86)**|1.3.0|SSPL
 **[mongodb-shell-to-url](#826db1c2c0b9cabe6083627a2bc0a187d12eba1fe7a74538747a41a5541bcf97)**|0.1.0|Apache-2.0
 **[mongodb-stitch-browser-core](#8fc8c155fef5fdb8d17124c89849ffb3af463b2ba3fef91acfdba4e127ad141b)**|4.8.0|Apache-2.0
 **[mongodb-stitch-browser-sdk](#f44a8c493c27c28135670b66d740c688f3d21a95107578360df14c3361cb98e9)**|4.8.0|Apache-2.0
@@ -952,7 +960,7 @@ Package|Version|License
 **[optimist](#1957220ad8d463029078acc86accc2669fb1dfccccba55f676e750a3957f7b1d)**|0.3.7|MIT/X11
 **[optional-require](#fb08161ee7f032bdcf4e9166e430c33aadee9498171c00907f3e070338c8b987)**|1.0.3|Apache-2.0
 **[original](#4f60e1651a05eda1277dbcfae6008336243ef960f5e0b5fce7003188e92bc8db)**|1.0.2|MIT
-**[os-dns-native](#ca27ab1e249200708e6caced3591910c8dff6e5e8ba919d133af5857bd3e1cbe)**|1.0.3|MIT
+**[os-dns-native](#5d45311b03654011d1c3b954ab04e39e677b9383924a5d261ad2ef880af38162)**|1.0.4|MIT
 **[os-homedir](#88726a86426b0c45fbf4752e069a73665ee6291af6767440971c5344f174f262)**|1.0.2|MIT
 **[os-locale](#92d20634ca8d1ef1ec750e936ea98362743e7ae5013b9ad1bb8ad85dcaee2037)**|1.4.0|MIT
 **[os-tmpdir](#7453cc845606ac7542547f389fd30b950f21651a528b9bcbc2ea1b834d768661)**|1.0.2|MIT
@@ -995,9 +1003,8 @@ Package|Version|License
 **[popmotion](#c7dffef9aa22f3ed4f8bb80cb3bd6c8263f53ed270a4770f2f3a67ef850b92c2)**|7.8.2|MIT
 **[postmsg-rpc](#1afdb3002a5e69f6be21a2f5d1dda4cbdfc043e87c9528667d0b057a32aee3cd)**|2.4.0|MIT
 **[potpack](#0be0402c42b7ebc0817acedad56c3463187dd68313712d78596c7b55b7f6488f)**|1.0.1|ISC
-**[prebuild-install](#a5149c349a53cbc4fc91f141f06c2439fe7ffaeaf27ca4c268fde06a7812bf4f)**|5.3.0|MIT
-**[prebuild-install](#bb0c15b59a60bfb588b95eac158895de82ab409819db6156c24a723ee63b8595)**|5.3.3|MIT
 **[prebuild-install](#a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda)**|6.1.2|MIT
+**[prebuild-install](#bb0c15b59a60bfb588b95eac158895de82ab409819db6156c24a723ee63b8595)**|5.3.3|MIT
 **[pretty-bytes](#9e33688b6e1c9e20b4c01df3ef7f62225265b012eb4f58f56897d7a7aed4ca4e)**|5.6.0|MIT
 **[pretty-format](#4648aaa3717a289ef7e20fca3a511a9410c43130c91e5757f89150656c8ed11a)**|24.9.0|MIT
 **[private](#843c5937b4f961408c76dc72c2c6a8911a898a70e4e5bacb1f97ae8f9a7bc942)**|0.1.8|MIT
@@ -1016,9 +1023,7 @@ Package|Version|License
 **[prr](#3a452c740b9f09ca19be6faf05d2cc2dac904ef8c35b283cddfafb0e1fb06fc2)**|1.0.1|MIT
 **[pseudomap](#2717ba801aa21d9d572ae9bd6f3dfc7d4ec9235f0ea155e9c2639c9a2e8493f8)**|1.0.2|ISC
 **[psl](#69687e6405ee52017fe3122fb5fb78e84cb92c9a1dd50bbf6b953debd263489c)**|1.8.0|MIT
-**[pump](#6a3eb1e12d101ad807720be15837917dba7ca7abbec690099cd570a51c1883db)**|2.0.1|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
-**[pump](#cc68fe234a9a480ab0eda317a52d5f6b5bc33fd0f264281374c700b428b1a150)**|1.0.3|MIT
 **[qs](#9c088e0f24adfe067654682fd0ad64e114f54e80d799021195f9cca9385190e4)**|6.10.1|BSD-3-Clause
 **[qs](#7fab69d335755b08c02dab44e39c0c0f62252424b2a843d4cf362799360f9cdc)**|4.0.0|BSD-3-Clause
 **[qs](#278658f138c494266ce48616a53e10630fee6b7f9be67855d3c8aabbce01f028)**|6.4.0|BSD-3-Clause
@@ -1104,7 +1109,6 @@ Package|Version|License
 **[sigmund](#b7bc393e5a232bcdbb43c9634479890abf328baafea4bd42382331ef113761e9)**|1.0.1|ISC
 **[signal-exit](#e452c59b77b29cd391c67abe2e5c14f51a637e4b72e07cf78d31de57fd34ef41)**|3.0.3|ISC
 **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**|1.0.1|MIT
-**[simple-get](#28060a6f279627a4b59fc7fcb6ee02825360f55200e75aef649140d9f784d3c6)**|2.8.1|MIT
 **[simple-get](#ade55c33f4d681462bccf90b122b9e974e43632f78545b6d8dc845e7f185e5da)**|3.1.0|MIT
 **[singleton-js](#e13eccc1bc63cfac29f440f35fb80eab10f301ace26bbb1c94395fdac8208ee2)**|1.0.0|MIT
 **[slash](#253455b6753772959e62065cd58b96ef1acb482930279b7cdcf50b1de93678b1)**|1.0.0|MIT
@@ -1131,7 +1135,7 @@ Package|Version|License
 **[ssri](#8bc82a6848154ea044a46844d2e7aa24d57caf468e1ad5f7eebe8a6e6d2aeaaf)**|8.0.1|ISC
 **[stack-trace](#a3ba9b27f8fd661ce4699414d57d1bc1553264139940d33b7083248d81ceef76)**|0.0.10|MIT
 **[stats-lite](#0321007c8cacd594d60fb07761b76230fcd2b1f40214281e5f41cc9e589665f2)**|2.2.0|MIT
-**[storage-mixin](#942474eb011caf92988b54c6c23eea133012a5aeaecdeefb3669cc79c081b24f)**|4.5.0|SSPL
+**[storage-mixin](#57f3f3ffff1c9a64c159a03a445b060c7ad595868f6a150b7f30e19ac59d3773)**|4.6.0|SSPL
 **[stream-combiner](#412ecdd289108c0c22af60f052f9c288ea1289b8f7d91bc132435fb6172084f2)**|0.2.2|MIT
 **[stream-shift](#513ebf3700acd6dbdf16f2afa6287b18330c12e7023f6576c75b102884b4ff4d)**|1.0.1|MIT
 **[streamsearch](#a524a1fb055f1cecabebc8234489220ded63fbc1fd32ce1ff9fe21693dbe97da)**|0.1.2|MIT
@@ -1146,15 +1150,14 @@ Package|Version|License
 **[strip-bom-buf](#4f426c3eaeb7d288c70eb64ad2e2617952c0d8da8cdedf4f8cb29ba65bb3b65e)**|2.0.0|MIT
 **[strip-bom-stream](#f7e90a4335dbb561f2b002d1b73cdb9d891c023959465fee58c1636e0216af2e)**|4.0.0|MIT
 **[strip-json-comments](#30c033ea06e2fc5831069ae3348fedc44cf44d65ec1ca8e7a0afd01789f5bb05)**|2.0.1|MIT
+**[stylis](#773086f7f9d5cf44b0f3eaf639f304e2cb109bad37b5751409129b88285090f1)**|4.0.10|MIT
 **[supercluster](#ccb0aec9d278e891df6268636b9748becc6c5c5f5b736c9e77f50d589057cc7c)**|7.1.3|ISC
 **[supports-color](#4a9d49d946cc9c1d41e14168288f32a1d956fb1ae4f9548c9481cff8694e5b4a)**|2.0.0|MIT
 **[supports-color](#113926f6cb42a3d41d1c11fb1209faf789d78f51fb458da90c61e5c1a2307a8e)**|5.5.0|MIT
 **[symbol-observable](#8c5865ce88610e4a57b7c7dd45e638925fc008af5a0a6b04cba69e076ba11a27)**|1.2.0|MIT
 **[tabbable](#b8436514d88a0cfb796da80b5bbed6a5688779a4bd24c358bd27e14d6b6337f9)**|5.2.0|MIT
 **[tar](#69a4a429010c75611c4685cb56ebe0a7c1644a16d207b69e33de43d2460eff15)**|6.1.0|ISC
-**[tar-fs](#ba2f2fe5915cd373f38207cb1c3fd9ba0782494022dd3e64a64f32bbe0642a87)**|1.16.3|MIT
 **[tar-fs](#8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d)**|2.1.1|MIT
-**[tar-stream](#5605712784129d10d2559e12f8031603f0cf4e5ff206f09356e4bf1dc5ab1168)**|1.6.2|MIT
 **[tar-stream](#0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27)**|2.2.0|MIT
 **[text-table](#408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23)**|0.2.0|MIT
 **[through](#7ce7e595c081fd8d101bc9b7b5233a4db3c677f852db4fcb461737c1bade4340)**|2.3.8|MIT
@@ -1163,7 +1166,6 @@ Package|Version|License
 **[through2](#49ea10d33755968a429005054b33741dab895879aaae5a94054a3c4565b59009)**|0.6.5|MIT
 **[through2](#cb629f174a305e3558be50fffeb142d45e2a6cb609cfba5ee17cf85460a018e9)**|0.4.2|MIT
 **[tinyqueue](#191b20b84b033abe4c6fccb915914781807441769d7a48f81132ef3155a52f13)**|2.0.3|ISC
-**[to-buffer](#5934a0e0ea92470fb3bbe2a1d6869494c53208b1b06aaee8ffd31e4e040e4e85)**|1.1.1|MIT
 **[to-fast-properties](#1bd3651838c023d37e34213ba416da5d036e578fd4ecbae994de81a90ae13b90)**|1.0.3|MIT
 **[to-fast-properties](#79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954)**|2.0.0|MIT
 **[to-readable-stream](#6f7dfdf4cade3bb0bdc1eb3ecc86f2833eae9f0fdb99eb287392f4879295e3c2)**|2.1.0|MIT
@@ -1324,8 +1326,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="85d8403e9499f9a2d2de47918a38ec0544d483eadafb73c7f3fce2f51bf910f7"></a>
-### [@babel/core](https://www.npmjs.com/package/@babel/core) (version 7.14.6)
+<a id="8dadb9fb7f817cfb89e2f01007278e5f07c536b04c58bf574906431bb924d0e0"></a>
+### [@babel/core](https://www.npmjs.com/package/@babel/core) (version 7.14.8)
 <!-- initially found at node_modules/@babel/core -->
 > Babel compiler core.
 
@@ -1362,8 +1364,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="1c1967801f28ed06e4a615aaa13d34a1b90a27b35ac8d585ac8d5dce59f27a79"></a>
-### [@babel/generator](https://www.npmjs.com/package/@babel/generator) (version 7.14.5)
+<a id="41b49ad5d837f129d4a8740dd85630e8e5d1b926250ade7124eeea8dfd697ef1"></a>
+### [@babel/generator](https://www.npmjs.com/package/@babel/generator) (version 7.14.9)
 <!-- initially found at node_modules/@babel/generator -->
 > Turns an AST into code.
 
@@ -1628,8 +1630,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="4debc06d9309de85ffc84cea48845a92a48fba0e818965c89239adedd2d272ed"></a>
-### [@babel/helper-module-transforms](https://www.npmjs.com/package/@babel/helper-module-transforms) (version 7.14.5)
+<a id="a0ddc7816a03d912bc3bc7deb88f5e5ebd78cfdabfefe8e9dd6ff95f8d8c3c63"></a>
+### [@babel/helper-module-transforms](https://www.npmjs.com/package/@babel/helper-module-transforms) (version 7.14.8)
 <!-- initially found at node_modules/@babel/helper-module-transforms -->
 > Babel helper functions for implementing ES6 module transformations
 
@@ -1780,8 +1782,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="f663d611b7a6bed56c1709da8f2cb343944eac78f5ceb50304d108b8742cd036"></a>
-### [@babel/helper-simple-access](https://www.npmjs.com/package/@babel/helper-simple-access) (version 7.14.5)
+<a id="29aca193de95add370a977a1a754753a17ca2be9d750149de455db675f9e68cd"></a>
+### [@babel/helper-simple-access](https://www.npmjs.com/package/@babel/helper-simple-access) (version 7.14.8)
 <!-- initially found at node_modules/@babel/helper-simple-access -->
 > Babel helper for ensuring that access to a given value is performed through simple accesses
 
@@ -1854,8 +1856,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="3a2235ad3b3e787f1bc3bc41434e53d5838d2c1b9df5b5b3653b7d99e11cf5f1"></a>
-### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.14.5)
+<a id="433f3379dd7033391d15f58d21054c8ce6651116d7ef0b0f7c9102d13502fef5"></a>
+### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.14.9)
 <!-- initially found at node_modules/@babel/helper-validator-identifier -->
 > Validate identifier/keywords name
 
@@ -1930,8 +1932,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="5ad63d22c8c60fdcc8209f71f5074694251d4094ecd9bca6826e2caeadc4c705"></a>
-### [@babel/helpers](https://www.npmjs.com/package/@babel/helpers) (version 7.14.6)
+<a id="9051411dffcd5febbf4522f9a280bf7ddbc20a29ce9212a4fd194edf746a9148"></a>
+### [@babel/helpers](https://www.npmjs.com/package/@babel/helpers) (version 7.14.8)
 <!-- initially found at node_modules/@babel/helpers -->
 > Collection of helper functions used by Babel transforms.
 
@@ -2006,8 +2008,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="9d42f3aa99c91481df3651fe4fd6a5e1398e5fb84cbe62810362c1d14ff22126"></a>
-### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.14.7)
+<a id="bb271e6154883eb05273e2b555cf0a0998808e09baf34a98debbcc58ee3833bf"></a>
+### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.14.9)
 <!-- initially found at node_modules/@babel/parser -->
 > A JavaScript parser
 
@@ -2035,6 +2037,44 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
+      
+
+Authors:
+* The Babel Team (https://babel.dev/team)
+
+
+<a id="c3a8bc17690a7aff72c22918370e177c0c1689293c9572d34a5b7463f043fa27"></a>
+### [@babel/plugin-syntax-jsx](https://www.npmjs.com/package/@babel/plugin-syntax-jsx) (version 7.14.5)
+<!-- initially found at node_modules/@babel/plugin-syntax-jsx -->
+> Allow parsing of jsx
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) 2014-present Sebastian McKenzie and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
 
 Authors:
@@ -2307,8 +2347,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="15d3f2bc498406bb48ae64622cb45b98e43b6c860762a842d976ae34ba74c90d"></a>
-### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.14.7)
+<a id="beec965fedb7c57c0eed4e75c6b79732085a5b34abcdea9fe109dbf111cdef4e"></a>
+### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.14.9)
 <!-- initially found at node_modules/@babel/traverse -->
 > The Babel Traverse module maintains the overall tree state, and is responsible for replacing, removing, and adding nodes
 
@@ -2345,8 +2385,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="4d6aeb808b612565fb295cfa5fe05d5efa96707b46bc41beddda12156f269f4f"></a>
-### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.14.5)
+<a id="100e0cc79db9d3cf46a059bce213706fe64eddfe6bd145844c875a6f638e3a85"></a>
+### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.14.9)
 <!-- initially found at node_modules/@babel/types -->
 > Babel Types is a Lodash-esque utility library for AST nodes
 
@@ -2383,6 +2423,43 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
+<a id="5a3e7e49c6056d6ea28dfe8deb2e9c1f5a9147f843e02c620149a7a2bfa36ffb"></a>
+### [@emotion/babel-plugin](https://www.npmjs.com/package/@emotion/babel-plugin) (version 11.3.0)
+<!-- initially found at node_modules/@emotion/babel-plugin -->
+> A recommended babel preprocessing plugin for emotion, The Next Generation of CSS-in-JS.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) Emotion team and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* Kye Hohenberger
+
+
 <a id="83e9fbfd8abcd4e9034b208ea613039b259c587c764894dcb9346c98dcb6009c"></a>
 ### [@emotion/cache](https://www.npmjs.com/package/@emotion/cache) (version 10.0.29)
 <!-- initially found at node_modules/@emotion/cache -->
@@ -2415,6 +2492,77 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
       
+
+
+<a id="db428d77c9ae4b98785a11de76cd7dd9ff5828a1f362602862e1b768c201d0ed"></a>
+### [@emotion/cache](https://www.npmjs.com/package/@emotion/cache) (version 11.4.0)
+<!-- initially found at node_modules/@emotion/css/node_modules/@emotion/cache -->
+> emotion's cache
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) Emotion team and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+
+<a id="a3f58b272cacabff6688dc1bff26dc5eb249a2c0a9cf4f129a657cd13ebc3ec8"></a>
+### [@emotion/css](https://www.npmjs.com/package/@emotion/css) (version 11.1.3)
+<!-- initially found at node_modules/@emotion/css -->
+> The Next Generation of CSS-in-JS.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) Emotion team and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* Kye Hohenberger
 
 
 <a id="28d888fd2b55ad544152d8e1106f9fb67ebaf8e8ab3bf63836ce4f513f8a4fd6"></a>
@@ -2485,6 +2633,75 @@ License files:
       
 
 
+<a id="58c206ceffd0c234aa21f4649556e9ad7225fd69680027f6d98b5e4a1ad594b5"></a>
+### [@emotion/memoize](https://www.npmjs.com/package/@emotion/memoize) (version 0.7.5)
+<!-- initially found at node_modules/@emotion/babel-plugin/node_modules/@emotion/memoize -->
+> emotion's memoize utility
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) Emotion team and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+
+<a id="509c27343665e7d744fb98dd40d1ec5c0b9d17d19f2be510108e593082d7bd9b"></a>
+### [@emotion/react](https://www.npmjs.com/package/@emotion/react) (version 11.4.0)
+<!-- initially found at node_modules/@emotion/react -->
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) Emotion team and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* mitchellhamilton <mitchell@mitchellhamilton.me>
+
+
 <a id="1bcfa0571b766b885accb308c5618892e9d544d9b1536d4683add3463fb3fd1d"></a>
 ### [@emotion/serialize](https://www.npmjs.com/package/@emotion/serialize) (version 0.11.16)
 <!-- initially found at node_modules/@emotion/serialize -->
@@ -2519,9 +2736,114 @@ License files:
       
 
 
+<a id="24090d55b03a9df9b0ff621a694b47543ae6cf09062933305cf43282f97ee420"></a>
+### [@emotion/serialize](https://www.npmjs.com/package/@emotion/serialize) (version 1.0.2)
+<!-- initially found at node_modules/@emotion/css/node_modules/@emotion/serialize -->
+> serialization utils for emotion
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) Emotion team and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+
+<a id="b8ddfcaf14564b337d4339d4703bac7920a3846834eb3b5307072901a91de1ff"></a>
+### [@emotion/server](https://www.npmjs.com/package/@emotion/server) (version 11.4.0)
+<!-- initially found at node_modules/@emotion/server -->
+> Extract and inline critical css with emotion for server side rendering.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) Emotion team and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* Kye Hohenberger
+
+
 <a id="fd1fbd25c2afb1c3d264edfd8938239c14e6d63c10dacc8faf036e7cf9d237a4"></a>
 ### [@emotion/sheet](https://www.npmjs.com/package/@emotion/sheet) (version 0.9.4)
 <!-- initially found at node_modules/@emotion/sheet -->
+> emotion's stylesheet
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) Emotion team and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+
+<a id="83ae7a7b2d1819f7ffa19aed4005d5425d1da2283b6fb7cf6b2525f2b623718b"></a>
+### [@emotion/sheet](https://www.npmjs.com/package/@emotion/sheet) (version 1.0.1)
+<!-- initially found at node_modules/@emotion/css/node_modules/@emotion/sheet -->
 > emotion's stylesheet
 
 License tags: MIT
@@ -2655,6 +2977,40 @@ License files:
       
 
 
+<a id="5c13d0480f06a0f7d52c4fdcae5f74014319f43b15326ebd2cb9339558088f4e"></a>
+### [@emotion/utils](https://www.npmjs.com/package/@emotion/utils) (version 1.0.0)
+<!-- initially found at node_modules/@emotion/css/node_modules/@emotion/utils -->
+> internal utils for emotion
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) Emotion team and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+
 <a id="fe4943b1984d0fa6afec91f0a6f279a514f9bb02ad3f95aa3b8e13c1e2883086"></a>
 ### [@emotion/weak-memoize](https://www.npmjs.com/package/@emotion/weak-memoize) (version 0.2.5)
 <!-- initially found at node_modules/@emotion/weak-memoize -->
@@ -2721,8 +3077,8 @@ License files:
       
 
 
-<a id="c7b9647bbfd165b0010b2545011639cc563ca037c4480e37b4a9e199317ad1d2"></a>
-### [@leafygreen-ui/a11y](https://www.npmjs.com/package/@leafygreen-ui/a11y) (version 1.2.1)
+<a id="475380b9a40fd66894724c2afb2ab50a27cf2020137c106592e824812fa38639"></a>
+### [@leafygreen-ui/a11y](https://www.npmjs.com/package/@leafygreen-ui/a11y) (version 1.2.2)
 <!-- initially found at node_modules/@leafygreen-ui/a11y -->
 > leafyGreen UI Kit A11y
 
@@ -2745,8 +3101,8 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="eb099d7f2230afb70c51b95aebef7555b07d4a529754276f0a81918467b39b7c"></a>
-### [@leafygreen-ui/box](https://www.npmjs.com/package/@leafygreen-ui/box) (version 3.0.5)
+<a id="9e96e3427ee1463e6facd873816480c32f05274ccd27377b0f4fecf0ef6e2305"></a>
+### [@leafygreen-ui/box](https://www.npmjs.com/package/@leafygreen-ui/box) (version 3.0.6)
 <!-- initially found at node_modules/@leafygreen-ui/box -->
 > leafyGreen UI Kit Box
 
@@ -2785,6 +3141,14 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
+<a id="7d43f41cd846021cad693374c81facede1eba829964a24f550678fc16ec04b0d"></a>
+### [@leafygreen-ui/emotion](https://www.npmjs.com/package/@leafygreen-ui/emotion) (version 4.0.0)
+<!-- initially found at node_modules/@leafygreen-ui/icon-button/node_modules/@leafygreen-ui/emotion -->
+> leafyGreen UI Kit's Custom Instance of Emotion
+
+License tags: Apache-2.0
+
+
 <a id="c1b2da756a23cfe554cfbf09d80031c937502a122f4f8806160c7d7c87a12d3d"></a>
 ### [@leafygreen-ui/emotion](https://www.npmjs.com/package/@leafygreen-ui/emotion) (version 2.0.2)
 <!-- initially found at node_modules/@leafygreen-ui/syntax/node_modules/@leafygreen-ui/emotion -->
@@ -2801,8 +3165,8 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="06b73ef6276d9b28cd92e16e42edf480cf33633de506cf9c28ec0127862bf65d"></a>
-### [@leafygreen-ui/icon](https://www.npmjs.com/package/@leafygreen-ui/icon) (version 11.2.0)
+<a id="9335fcbb02cf9eefc388844900e0d7e49d2885790471570f5819c77167514916"></a>
+### [@leafygreen-ui/icon](https://www.npmjs.com/package/@leafygreen-ui/icon) (version 11.4.0)
 <!-- initially found at node_modules/@leafygreen-ui/icon -->
 > LeafyGreen UI Kit Icons
 
@@ -2817,24 +3181,24 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="4a4e3ff7ce62ca9fe6a65018743d1d9f41ad97587038d1c7603db33167584d33"></a>
-### [@leafygreen-ui/icon-button](https://www.npmjs.com/package/@leafygreen-ui/icon-button) (version 9.1.5)
+<a id="bd7823878cc7402abcdd646ebfcaafb1af57811817fa976309103ba6fce95993"></a>
+### [@leafygreen-ui/icon-button](https://www.npmjs.com/package/@leafygreen-ui/icon-button) (version 9.1.6)
 <!-- initially found at node_modules/@leafygreen-ui/icon-button -->
 > LeafyGreen UI Kit Icon Buttons
 
 License tags: Apache-2.0
 
 
-<a id="6c87b2c241268cfc4dd6e0f43cb17e4bf4c5da62f69ad6414d52309c6220c58a"></a>
-### [@leafygreen-ui/interaction-ring](https://www.npmjs.com/package/@leafygreen-ui/interaction-ring) (version 1.0.4)
+<a id="b5e1b7ade779a3b82b39ff76b20ebce84f01ef5934829644bd42dcf038af82e5"></a>
+### [@leafygreen-ui/interaction-ring](https://www.npmjs.com/package/@leafygreen-ui/interaction-ring) (version 1.1.0)
 <!-- initially found at node_modules/@leafygreen-ui/interaction-ring -->
 > leafyGreen UI Kit Interaction Ring
 
 License tags: Apache-2.0
 
 
-<a id="1d527e79b5882495e5fbeb2bc2647b8bd8814ab634509ea93eea451cf333ae8c"></a>
-### [@leafygreen-ui/leafygreen-provider](https://www.npmjs.com/package/@leafygreen-ui/leafygreen-provider) (version 2.1.2)
+<a id="36a54088ae5d34fa5e9a732e9cfeff6cc45d623039000fed562decf0ff81dd3a"></a>
+### [@leafygreen-ui/leafygreen-provider](https://www.npmjs.com/package/@leafygreen-ui/leafygreen-provider) (version 2.1.3)
 <!-- initially found at node_modules/@leafygreen-ui/leafygreen-provider -->
 > LeafyGreen UI Context Provider
 
@@ -2844,6 +3208,14 @@ License tags: Apache-2.0
 <a id="35c4bed27ba37ac1f2211977d15b81d1ac62ee14e5f3dd4684fef2b8e3fb9737"></a>
 ### [@leafygreen-ui/lib](https://www.npmjs.com/package/@leafygreen-ui/lib) (version 8.0.0)
 <!-- initially found at node_modules/@leafygreen-ui/lib -->
+> leafyGreen UI Kit Internal Library
+
+License tags: Apache-2.0
+
+
+<a id="30e9ed6c2e550dfed8b9be8d41b5b9b5ea99c892204ce640e4ca75702c6d003b"></a>
+### [@leafygreen-ui/lib](https://www.npmjs.com/package/@leafygreen-ui/lib) (version 9.0.0)
+<!-- initially found at node_modules/@leafygreen-ui/icon/node_modules/@leafygreen-ui/lib -->
 > leafyGreen UI Kit Internal Library
 
 License tags: Apache-2.0
@@ -2865,8 +3237,8 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="01c72c8b76dc6edc117b6c47cab1c4150d7a442db4e83c396fd7df89c02f38b7"></a>
-### [@leafygreen-ui/palette](https://www.npmjs.com/package/@leafygreen-ui/palette) (version 3.2.1)
+<a id="aac301506921cf8ea69e201d03f69e56d0c7b6c6819939404b0b01de26937833"></a>
+### [@leafygreen-ui/palette](https://www.npmjs.com/package/@leafygreen-ui/palette) (version 3.2.2)
 <!-- initially found at node_modules/@leafygreen-ui/palette -->
 > LeafyGreen UI Palettes
 
@@ -2921,9 +3293,9 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="37e06c745f1e8d00aefcb223bfbf648146ea8ee5a4bd90796e70d139517c6ee1"></a>
-### [@leafygreen-ui/tabs](https://www.npmjs.com/package/@leafygreen-ui/tabs) (version 5.1.2)
-<!-- initially found at packages/hadron-react-components/node_modules/@leafygreen-ui/tabs -->
+<a id="a2ca7651f2752f0fb392f42e6942cedca87388c124ae1789f8f3b32fb7b15f94"></a>
+### [@leafygreen-ui/tabs](https://www.npmjs.com/package/@leafygreen-ui/tabs) (version 5.1.3)
+<!-- initially found at node_modules/@leafygreen-ui/tabs -->
 > leafyGreen UI Kit Tabs
 
 License tags: Apache-2.0
@@ -2933,6 +3305,14 @@ License tags: Apache-2.0
 ### [@leafygreen-ui/text-input](https://www.npmjs.com/package/@leafygreen-ui/text-input) (version 6.0.3)
 <!-- initially found at node_modules/@leafygreen-ui/text-input -->
 > leafyGreen UI Kit Text Input
+
+License tags: Apache-2.0
+
+
+<a id="4b9d37b29cb36fa38eb01a04d0a9b1fd53f0a973e5989212400f122346d3c4d4"></a>
+### [@leafygreen-ui/toggle](https://www.npmjs.com/package/@leafygreen-ui/toggle) (version 7.0.4)
+<!-- initially found at node_modules/@leafygreen-ui/toggle -->
+> LeafyGreen UI Kit Toggle
 
 License tags: Apache-2.0
 
@@ -3219,176 +3599,184 @@ Authors:
 * Bryan Housel <bryan@mapbox.com>
 
 
-<a id="830d71c23eb7815f72c5c918455d13563e0a09ac995a3a20dc3e3367f015b546"></a>
-### [@mongodb-js/compass-aggregations](https://www.npmjs.com/package/@mongodb-js/compass-aggregations) (version 8.8.3)
+<a id="0381bfac172418712ac69f97c571631a71eb7705e2c392a81fc7d1e46c082f21"></a>
+### [@mongodb-js/compass-aggregations](https://www.npmjs.com/package/@mongodb-js/compass-aggregations) (version 8.11.0)
 <!-- initially found at packages/compass-aggregations -->
 > Compass Aggregation Pipeline Builder
 
 License tags: SSPL
 
 
-<a id="59eb017a5836937ce78ec4fbaa80af45c1650a90487da020e1280b7574c993b9"></a>
-### [@mongodb-js/compass-app-stores](https://www.npmjs.com/package/@mongodb-js/compass-app-stores) (version 5.7.3)
+<a id="35fe7cb0d28f31f273152c48129d6e879a96448cfc6cd3dc27d01a07accc7a7b"></a>
+### [@mongodb-js/compass-app-stores](https://www.npmjs.com/package/@mongodb-js/compass-app-stores) (version 5.10.0)
 <!-- initially found at packages/compass-app-stores -->
 > The external stores repo for compass
 
 License tags: SSPL
 
 
-<a id="97666182256f7c3fe4d6a156ef6b47da2c9888bd349a64f5f8593463c6d7c73e"></a>
-### [@mongodb-js/compass-auto-updates](https://www.npmjs.com/package/@mongodb-js/compass-auto-updates) (version 3.7.3)
+<a id="49f76a09fb21e9eb149ee0a5b1c5820b48776b15435b377025a8ebf89f37d270"></a>
+### [@mongodb-js/compass-auto-updates](https://www.npmjs.com/package/@mongodb-js/compass-auto-updates) (version 3.10.0)
 <!-- initially found at packages/compass-auto-updates -->
 > Compass Auto Updates Plugin
 
 License tags: SSPL
 
 
-<a id="8acabb187fad8460e171789df23c5b766ef64d5790e6120d6ef5aa0ee1df1398"></a>
-### [@mongodb-js/compass-collection](https://www.npmjs.com/package/@mongodb-js/compass-collection) (version 3.10.3)
+<a id="5773a1f654cf1b4c1dc643508b7b0858f8ae2b7b082e20c1bce02cf7dc6721b9"></a>
+### [@mongodb-js/compass-collection](https://www.npmjs.com/package/@mongodb-js/compass-collection) (version 3.13.0)
 <!-- initially found at packages/compass-collection -->
 > Compass Collection Plugin
 
 License tags: SSPL
 
 
-<a id="eeddcdcf5da4b8b4cecb18df0275e603ed7b6b8230e58ee5e62273c6953d7dce"></a>
-### [@mongodb-js/compass-collection-stats](https://www.npmjs.com/package/@mongodb-js/compass-collection-stats) (version 6.7.3)
+<a id="db8e57423ec845ba9c70fc3fdfaae7d3e7c54a6aa502979487bbd7861e13f4a1"></a>
+### [@mongodb-js/compass-collection-stats](https://www.npmjs.com/package/@mongodb-js/compass-collection-stats) (version 6.10.0)
 <!-- initially found at packages/compass-collection-stats -->
 > Compass Collection Stats Plugin
 
 License tags: SSPL
 
 
-<a id="8f1ab5e1e14a6af8a38177824556a54c47b7a90a26d9f895f17ecab5144c8932"></a>
-### [@mongodb-js/compass-connect](https://www.npmjs.com/package/@mongodb-js/compass-connect) (version 7.7.3)
+<a id="1219216fe174fb9c3721c9e7d8d34b78c588eec91770314bc8073b53df3236db"></a>
+### [@mongodb-js/compass-components](https://www.npmjs.com/package/@mongodb-js/compass-components) (version 0.3.0)
+<!-- initially found at packages/compass-components -->
+> React Components used in Compass
+
+License tags: SSPL
+
+
+<a id="b194c2bdd9c5d70cefdd395b846fd3c7aaf3c7abf0664eb632536da178eba1d0"></a>
+### [@mongodb-js/compass-connect](https://www.npmjs.com/package/@mongodb-js/compass-connect) (version 7.10.0)
 <!-- initially found at packages/compass-connect -->
 > Connection Screen Plugin that supports Compass
 
 License tags: SSPL
 
 
-<a id="f58db6491c02d7ff7c0b17e577e18c3be1c8ff99f4889ff312842871a9f987a6"></a>
-### [@mongodb-js/compass-crud](https://www.npmjs.com/package/@mongodb-js/compass-crud) (version 12.8.3)
+<a id="9364ae1cfc2a675f7a1408285f16d7c65c7edd291fbe143aa082f1e8499bee67"></a>
+### [@mongodb-js/compass-crud](https://www.npmjs.com/package/@mongodb-js/compass-crud) (version 12.11.0)
 <!-- initially found at packages/compass-crud -->
 > Compass Plugin for CRUD Operations
 
 License tags: SSPL
 
 
-<a id="672486b7a6464de955f50eedaf52e028ac7e7414631b3d49f0ba1672d11952d4"></a>
-### [@mongodb-js/compass-database](https://www.npmjs.com/package/@mongodb-js/compass-database) (version 2.7.3)
+<a id="f7a37869c72402609ee75a1ee7382b225a236477ee8766091c016c25e7b6b7c4"></a>
+### [@mongodb-js/compass-database](https://www.npmjs.com/package/@mongodb-js/compass-database) (version 2.10.0)
 <!-- initially found at packages/compass-database -->
 > Compass Database Plugin
 
 License tags: SSPL
 
 
-<a id="d804be5dc3d11dca932db7cf4738bd5e88585e6a255010263c3d59c89e8d0ff8"></a>
-### [@mongodb-js/compass-databases-collections](https://www.npmjs.com/package/@mongodb-js/compass-databases-collections) (version 0.8.3)
+<a id="312a9ab9627422b6f14776151a6a500fb229f2478afbf0cb43cd72b56bba5d87"></a>
+### [@mongodb-js/compass-databases-collections](https://www.npmjs.com/package/@mongodb-js/compass-databases-collections) (version 0.11.0)
 <!-- initially found at packages/databases-collections -->
 > Plugin for viewing the list of, creating, and dropping databases and collections
 
 License tags: SSPL
 
 
-<a id="78951435c2ddb3a05498f817f61336829094691244752d9bf878da84f8b2a5e6"></a>
-### [@mongodb-js/compass-deployment-awareness](https://www.npmjs.com/package/@mongodb-js/compass-deployment-awareness) (version 11.7.3)
+<a id="c12bf79cfa87eb3deb71c040b01d2111b31d08d92ec36e12a0218bfe01173d7e"></a>
+### [@mongodb-js/compass-deployment-awareness](https://www.npmjs.com/package/@mongodb-js/compass-deployment-awareness) (version 11.10.0)
 <!-- initially found at packages/compass-deployment-awareness -->
 > Compass Deployment Awareness Plugin
 
 License tags: SSPL
 
 
-<a id="b718692f37a9b0d6e579fd00f4d45c9d604f1cf9c31ff8552edaac7a96b5612c"></a>
-### [@mongodb-js/compass-explain-plan](https://www.npmjs.com/package/@mongodb-js/compass-explain-plan) (version 5.10.3)
+<a id="6536e50474245286dbeb1f93f34ad87a9dac458aa5bfb13d6c88d8b89e82c926"></a>
+### [@mongodb-js/compass-explain-plan](https://www.npmjs.com/package/@mongodb-js/compass-explain-plan) (version 5.13.0)
 <!-- initially found at packages/compass-explain-plan -->
 > Evaluate the performance of your quer
 
 License tags: SSPL
 
 
-<a id="595d26993e02ed57976660f943afbc4d65fcfbcf5718d3e41f4ca55c2949c526"></a>
-### [@mongodb-js/compass-export-to-language](https://www.npmjs.com/package/@mongodb-js/compass-export-to-language) (version 7.7.3)
+<a id="356ab839bd336a8cc6ef984c44111a95a5296ef12a1b415efbc7035597185f2b"></a>
+### [@mongodb-js/compass-export-to-language](https://www.npmjs.com/package/@mongodb-js/compass-export-to-language) (version 7.10.0)
 <!-- initially found at packages/compass-export-to-language -->
 > export to language modal
 
 License tags: SSPL
 
 
-<a id="1ada7886bc80a2bae0d5412d2dabc22b64f3c55950619f4487e037f356b5f9f4"></a>
-### [@mongodb-js/compass-field-store](https://www.npmjs.com/package/@mongodb-js/compass-field-store) (version 7.7.3)
+<a id="ece41f2b5828e9759b7b819044e881ff5ce71c97c7000fa4ec944d3532b06b63"></a>
+### [@mongodb-js/compass-field-store](https://www.npmjs.com/package/@mongodb-js/compass-field-store) (version 7.10.0)
 <!-- initially found at packages/compass-field-store -->
 > FieldStore keeps track of available fields in a collection.
 
 License tags: SSPL
 
 
-<a id="c19f5d0072c5e42ee90cd218a03be4f954e0f73b3463d9aaab241b0494bb01f8"></a>
-### [@mongodb-js/compass-find-in-page](https://www.npmjs.com/package/@mongodb-js/compass-find-in-page) (version 3.7.3)
+<a id="3d59df54f7f8486e7ebd559199c31c6718cd78ffd94af3ab0e0ba8bd92990cbd"></a>
+### [@mongodb-js/compass-find-in-page](https://www.npmjs.com/package/@mongodb-js/compass-find-in-page) (version 3.10.0)
 <!-- initially found at packages/compass-find-in-page -->
 > cmd-f UI for compass
 
 License tags: SSPL
 
 
-<a id="3676abd790b480053c71264ae2af0253efd726444b57edcc8c608b03222fe194"></a>
-### [@mongodb-js/compass-home](https://www.npmjs.com/package/@mongodb-js/compass-home) (version 5.10.3)
+<a id="1db9b6b7a18146a2199b38dc40312cb606b0f94974ad490df7ce44922d223d62"></a>
+### [@mongodb-js/compass-home](https://www.npmjs.com/package/@mongodb-js/compass-home) (version 5.13.0)
 <!-- initially found at packages/compass-home -->
 > Home
 
 License tags: SSPL
 
 
-<a id="cb294d198c506e7c102e86c79c3aaf51f6f94292c9f2a6d1b01ee5449c13d05f"></a>
-### [@mongodb-js/compass-import-export](https://www.npmjs.com/package/@mongodb-js/compass-import-export) (version 6.8.3)
+<a id="994a1f4c443b378de27637c7a16c55723faf9369713bc363a3982ba788fe8ead"></a>
+### [@mongodb-js/compass-import-export](https://www.npmjs.com/package/@mongodb-js/compass-import-export) (version 6.11.0)
 <!-- initially found at packages/compass-import-export -->
 > Compass Import/Export Plugin
 
 License tags: SSPL
 
 
-<a id="d3ffcacb5fc2c2ea80518a7e629325e146ac1e388902c77cc74e7f61d64e41bb"></a>
-### [@mongodb-js/compass-indexes](https://www.npmjs.com/package/@mongodb-js/compass-indexes) (version 4.9.3)
+<a id="fe7da71b047b763450ecd198b9d706d0d1fbf86434d20db4ea2225dc3b155a25"></a>
+### [@mongodb-js/compass-indexes](https://www.npmjs.com/package/@mongodb-js/compass-indexes) (version 4.12.0)
 <!-- initially found at packages/compass-indexes -->
 > Indexes support for Compass
 
 License tags: SSPL
 
 
-<a id="a6afae1e33d5191ab736c9191213d0e7174362d5928eada22c4933f10f4ea1ee"></a>
-### [@mongodb-js/compass-instance](https://www.npmjs.com/package/@mongodb-js/compass-instance) (version 3.7.3)
+<a id="9e25d7f4412a62193fff2d49ce2d76420afd1a2f445fe387ebd4aa1c80fb5363"></a>
+### [@mongodb-js/compass-instance](https://www.npmjs.com/package/@mongodb-js/compass-instance) (version 3.10.0)
 <!-- initially found at packages/compass-instance -->
 > compass instance plugin
 
 License tags: SSPL
 
 
-<a id="8f403fdb2030cb31f0d51a620bd6690149cacceb2fa011d82cdad3aa3da76518"></a>
-### [@mongodb-js/compass-loading](https://www.npmjs.com/package/@mongodb-js/compass-loading) (version 2.7.3)
+<a id="382608926aced614fde0795da0e52fe0d15f3a5eb77d63a76facfac57aac3c00"></a>
+### [@mongodb-js/compass-loading](https://www.npmjs.com/package/@mongodb-js/compass-loading) (version 2.10.0)
 <!-- initially found at packages/compass-loading -->
 > Compass Loading Screen
 
 License tags: SSPL
 
 
-<a id="70bd73d7d8b9e0e46c736bbf71e774f5902e403dca0e43fa805b874bffe8546e"></a>
-### [@mongodb-js/compass-metrics](https://www.npmjs.com/package/@mongodb-js/compass-metrics) (version 4.7.3)
+<a id="7d0b65968403f7e4ca9fdc7dabfc1b768c70cd5d03fd3e516f22dea384a7433a"></a>
+### [@mongodb-js/compass-metrics](https://www.npmjs.com/package/@mongodb-js/compass-metrics) (version 4.10.0)
 <!-- initially found at packages/compass-metrics -->
 > Compass Metrics Plugin
 
 License tags: SSPL
 
 
-<a id="703a9f6675338db74f539c8d60e4e82b7a024a977a5131e29796aa4e9ea46ca9"></a>
-### [@mongodb-js/compass-plugin-info](https://www.npmjs.com/package/@mongodb-js/compass-plugin-info) (version 3.7.3)
+<a id="9528c26820c7b61a89cf96f620b7234bf87e59473617d63814daaa587194e487"></a>
+### [@mongodb-js/compass-plugin-info](https://www.npmjs.com/package/@mongodb-js/compass-plugin-info) (version 3.10.0)
 <!-- initially found at packages/compass-plugin-info -->
 > Compass Plugin Information Plugin
 
 License tags: SSPL
 
 
-<a id="510404aed34795b303302f693de768fbc98f9b47680613f0fb2f2ca1f223390f"></a>
-### [@mongodb-js/compass-query-bar](https://www.npmjs.com/package/@mongodb-js/compass-query-bar) (version 7.7.3)
+<a id="15b1e71a51764086d1f521bb5cdda7c9c80f5cce4f8dbc0c292d03a837212adf"></a>
+### [@mongodb-js/compass-query-bar](https://www.npmjs.com/package/@mongodb-js/compass-query-bar) (version 7.10.0)
 <!-- initially found at packages/compass-query-bar -->
 > Renders a component for executing MongoDB queries through a GUI.
 
@@ -3398,8 +3786,8 @@ Authors:
 * MongoDB Inc <[compass@mongodb.com](nomail)>
 
 
-<a id="88098733b6e34438fc8b2b0dff0f9b79ad2c9a55fa6478ff62ffb672a7701750"></a>
-### [@mongodb-js/compass-query-history](https://www.npmjs.com/package/@mongodb-js/compass-query-history) (version 8.7.3)
+<a id="d33a4dda32df33e112ea1d5e03751117ad66654e952e64dde03a0fd015989ed7"></a>
+### [@mongodb-js/compass-query-history](https://www.npmjs.com/package/@mongodb-js/compass-query-history) (version 8.10.0)
 <!-- initially found at packages/compass-query-history -->
 > The query history sidebar.
 
@@ -3409,72 +3797,72 @@ Authors:
 * MongoDB Inc <[compass@mongodb.com](nomail)>
 
 
-<a id="92016681f8a2f8e25a754aa4506ed0d36604020f546220e40319dba4cdd90425"></a>
-### [@mongodb-js/compass-schema](https://www.npmjs.com/package/@mongodb-js/compass-schema) (version 5.7.3)
+<a id="f48abc45f69821661d0a97c5c2582190fad9daccec4c3df24696a6fb20f58575"></a>
+### [@mongodb-js/compass-schema](https://www.npmjs.com/package/@mongodb-js/compass-schema) (version 5.10.0)
 <!-- initially found at packages/compass-schema -->
 > Compass Schema Tab Plugin
 
 License tags: SSPL
 
 
-<a id="481464a73431b82f3617b0031656192888396b26d84d6bbd20e76dcd2416c315"></a>
-### [@mongodb-js/compass-schema-validation](https://www.npmjs.com/package/@mongodb-js/compass-schema-validation) (version 5.8.3)
+<a id="3f82c049d8cfa62e7e7116228284ab98cc76acc5f8d7fb442e22bfe2ff84db26"></a>
+### [@mongodb-js/compass-schema-validation](https://www.npmjs.com/package/@mongodb-js/compass-schema-validation) (version 5.11.0)
 <!-- initially found at packages/compass-schema-validation -->
 > Compass plugin for document JSON schema validation
 
 License tags: SSPL
 
 
-<a id="f045bcd78525e169ac6d4f832f972cf1f92cf883ed1e84fccc7b92a9b9a6223c"></a>
-### [@mongodb-js/compass-server-version](https://www.npmjs.com/package/@mongodb-js/compass-server-version) (version 5.7.3)
+<a id="7c5dffc957333ea7f0c0daec1df2b71d6fc28c9cd3978a40b05b32d9bd47a363"></a>
+### [@mongodb-js/compass-server-version](https://www.npmjs.com/package/@mongodb-js/compass-server-version) (version 5.10.0)
 <!-- initially found at packages/compass-server-version -->
 > Compass Server Version
 
 License tags: SSPL
 
 
-<a id="ad8e594a211b9e0310a9be91fae21872312d3b46443fd9ce495900ab1676a25f"></a>
-### [@mongodb-js/compass-serverstats](https://www.npmjs.com/package/@mongodb-js/compass-serverstats) (version 15.7.3)
+<a id="429ef83eb3e575c363e714962ff952535b66422a9ab6dac459675a5f903f2101"></a>
+### [@mongodb-js/compass-serverstats](https://www.npmjs.com/package/@mongodb-js/compass-serverstats) (version 15.10.0)
 <!-- initially found at packages/compass-serverstats -->
 > Compass Real Time Server Stats Component.
 
 License tags: SSPL
 
 
-<a id="8b26be6337ea3a7626bbc146f1204536c38a75f6a7e36a91d17c5bde3286d71e"></a>
-### [@mongodb-js/compass-shell](https://www.npmjs.com/package/@mongodb-js/compass-shell) (version 2.8.3)
+<a id="be637c5ddea1d3d6894b0c9a220c0fc37efc011d73da319a47a667e62e939406"></a>
+### [@mongodb-js/compass-shell](https://www.npmjs.com/package/@mongodb-js/compass-shell) (version 2.11.0)
 <!-- initially found at packages/compass-shell -->
 > Compass Shell Plugin
 
 License tags: SSPL
 
 
-<a id="a9a1b937deee411e7f0f2785d6956f36f212f42414fa79c1c97d4615e2b1efde"></a>
-### [@mongodb-js/compass-sidebar](https://www.npmjs.com/package/@mongodb-js/compass-sidebar) (version 4.8.3)
+<a id="40da98b571c7f200d929865dc60f841f6c5c95e5157774c132957fa2c4b2f791"></a>
+### [@mongodb-js/compass-sidebar](https://www.npmjs.com/package/@mongodb-js/compass-sidebar) (version 4.11.0)
 <!-- initially found at packages/compass-sidebar -->
 > Sidebar external plugin
 
 License tags: SSPL
 
 
-<a id="988cf5d18deb68ea105f34c5b5569ba9247152452588777aaa4c5e8ee0b8a329"></a>
-### [@mongodb-js/compass-ssh-tunnel-status](https://www.npmjs.com/package/@mongodb-js/compass-ssh-tunnel-status) (version 6.7.3)
+<a id="c7833b6f3db30e57a83b1cb09186311c538e14287c7e7c9f8bf124c55bf63705"></a>
+### [@mongodb-js/compass-ssh-tunnel-status](https://www.npmjs.com/package/@mongodb-js/compass-ssh-tunnel-status) (version 6.10.0)
 <!-- initially found at packages/compass-ssh-tunnel-status -->
 > Compass SSH Tunnel Status
 
 License tags: SSPL
 
 
-<a id="b52d67d0f01a31d4ad9391fa7d247fbbbd2d916e920a5af3f564750521e8bdcc"></a>
-### [@mongodb-js/compass-status](https://www.npmjs.com/package/@mongodb-js/compass-status) (version 5.7.3)
+<a id="471ee2b9ffc72673e0a0764ad2e6b5f4b8a2bc86d2c54a85eb41de059d8174f9"></a>
+### [@mongodb-js/compass-status](https://www.npmjs.com/package/@mongodb-js/compass-status) (version 5.10.0)
 <!-- initially found at packages/compass-status -->
 > Compass Status Plugin
 
 License tags: SSPL
 
 
-<a id="7c4d0a7e278233d606f2457e3d50cbec1c6011ce87643969b6c42ad0e99dcae9"></a>
-### [@mongodb-js/hadron-plugin-manager](https://www.npmjs.com/package/@mongodb-js/hadron-plugin-manager) (version 6.3.0)
+<a id="f58fba022c69842351c2f2030bfba5b7a07248229bed1f1a1cf04c5cedd82e3a"></a>
+### [@mongodb-js/hadron-plugin-manager](https://www.npmjs.com/package/@mongodb-js/hadron-plugin-manager) (version 6.4.0)
 <!-- initially found at packages/hadron-plugin-manager -->
 > Hadron Plugin Manager
 
@@ -3484,8 +3872,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="bae922227dbeb5b5db749880d9f828d95b7eae969066df5951e834a151740b15"></a>
-### [@mongodb-js/mongodb-redux-common](https://www.npmjs.com/package/@mongodb-js/mongodb-redux-common) (version 1.3.0)
+<a id="b307689af7481546c0c102f4014ec6eb2171ab46e83f5330aae88a0e14634c1f"></a>
+### [@mongodb-js/mongodb-redux-common](https://www.npmjs.com/package/@mongodb-js/mongodb-redux-common) (version 1.4.0)
 <!-- initially found at packages/redux-common -->
 > Common Redux Modules for mongodb-js
 
@@ -3700,8 +4088,8 @@ License files:
       
 
 
-<a id="e4c74909d3ee36920777f26776f5ca0a28b002ba1a6c19bfff4ade62b3d28850"></a>
-### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 1.0.0)
+<a id="e8e7fcde29262d3dbd899f3ceeb43e6de27ad8250471a6cf00ff9ea861c181e3"></a>
+### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/async-rewriter2 -->
 > MongoDB Shell Async Rewriter Package
 
@@ -3914,8 +4302,8 @@ License files:
          limitations under the License.
 
 
-<a id="638f166f98434095c16aa6f9eaa5777e6e435855aae6a2af67e517145bc02fef"></a>
-### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 1.0.0)
+<a id="d8ca7e40e99354c5b543de71e9c2e9cbc7db84eda1e2ce9954c66205af08fd5b"></a>
+### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/autocomplete -->
 > MongoDB Shell Autocomplete Package
 
@@ -4119,8 +4507,8 @@ License files:
       
 
 
-<a id="62b96f909bb2135bd766a48fe2c6c9df9edbd94bcd748057ddfe428ffe7092ca"></a>
-### [@mongosh/browser-repl](https://www.npmjs.com/package/@mongosh/browser-repl) (version 1.0.0)
+<a id="001f2947d8b52fb39d7e5be6c558aaa0fbf5db0186f2be164548df9d138c6489"></a>
+### [@mongosh/browser-repl](https://www.npmjs.com/package/@mongosh/browser-repl) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/browser-repl -->
 > Browser presentation component for Mongo Shell
 
@@ -4332,8 +4720,8 @@ License files:
          limitations under the License.
 
 
-<a id="29592fe48d7f6e7efc0f2ebb647d5b04806b86b9d1992cfda82db730aeaf709c"></a>
-### [@mongosh/browser-runtime-core](https://www.npmjs.com/package/@mongosh/browser-runtime-core) (version 1.0.0)
+<a id="4fddad2c4c10841ec84c5f6aaf649c4c6c8a8cb6a78ec37b165a715777fc9268"></a>
+### [@mongosh/browser-runtime-core](https://www.npmjs.com/package/@mongosh/browser-runtime-core) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/browser-runtime-core -->
 > Mongosh browser runtime core
 
@@ -4545,8 +4933,8 @@ License files:
          limitations under the License.
 
 
-<a id="af891b17a5d6197b96723acf96efdf36838959f40eadf408356e7b013dd5bbb0"></a>
-### [@mongosh/browser-runtime-electron](https://www.npmjs.com/package/@mongosh/browser-runtime-electron) (version 1.0.0)
+<a id="cd993ad52aa9ab615a95884b018237b94a504499ef49197cd55cbb64d5260c5e"></a>
+### [@mongosh/browser-runtime-electron](https://www.npmjs.com/package/@mongosh/browser-runtime-electron) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/browser-runtime-electron -->
 > Mongosh browser runtime electron
 
@@ -4758,8 +5146,8 @@ License files:
          limitations under the License.
 
 
-<a id="5dc9096b3ff3a55501e4107f5054d225396a346f0f49b8126d6dd5e204cc31a8"></a>
-### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 1.0.0)
+<a id="4b5edfaa959bdf0167bbbc1fd5cf8f48f7d99dd8bd84754002f34730642e8b77"></a>
+### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/errors -->
 > MongoDB Shell Errors Package
 
@@ -4973,8 +5361,8 @@ License files:
       
 
 
-<a id="d1456ee07180022ffe60e91803e2d2c98a988b96b41818101ceed413413e22c1"></a>
-### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 1.0.0)
+<a id="d5db790accc4878776d7d417a14f6f8ff24ac6dcaa45d317f386ff8454c9592e"></a>
+### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/history -->
 > MongoDB Shell History Package
 
@@ -5186,8 +5574,8 @@ License files:
          limitations under the License.
 
 
-<a id="f3ccda6a9a53f50d9d1efccc34cbc72ac85a2835f8d20447dfac2f5e604770ef"></a>
-### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 1.0.0)
+<a id="c4382c0ec32bc19ed9f20279ed32313800182e45e72f72a49e3e8327caac521e"></a>
+### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/i18n -->
 > MongoDB Shell i18n Project
 
@@ -5399,16 +5787,213 @@ License files:
          limitations under the License.
 
 
-<a id="5f52eca399951bf31738fd469a689e0ff67ca3959490d5f714af96f4418dadce"></a>
-### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.0.0)
+<a id="77d84150c03000e31749a566cfd533465edec329b5724f8b8a7592d2d5b24508"></a>
+### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/node-runtime-worker-thread -->
 > MongoDB shell runtime that lives in a worker thread
 
 License tags: Apache-2.0
 
+License files:
+* LICENSE:
 
-<a id="a56fc04759bc84fc26a48bf1726ad0091c0ba2764e8e7e03a4f14657c9c9ff03"></a>
-### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 1.0.0)
+      
+                                       Apache License
+                                 Version 2.0, January 2004
+                              http://www.apache.org/licenses/
+      
+         TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+      
+         1. Definitions.
+      
+            "License" shall mean the terms and conditions for use, reproduction,
+            and distribution as defined by Sections 1 through 9 of this document.
+      
+            "Licensor" shall mean the copyright owner or entity authorized by
+            the copyright owner that is granting the License.
+      
+            "Legal Entity" shall mean the union of the acting entity and all
+            other entities that control, are controlled by, or are under common
+            control with that entity. For the purposes of this definition,
+            "control" means (i) the power, direct or indirect, to cause the
+            direction or management of such entity, whether by contract or
+            otherwise, or (ii) ownership of fifty percent (50%) or more of the
+            outstanding shares, or (iii) beneficial ownership of such entity.
+      
+            "You" (or "Your") shall mean an individual or Legal Entity
+            exercising permissions granted by this License.
+      
+            "Source" form shall mean the preferred form for making modifications,
+            including but not limited to software source code, documentation
+            source, and configuration files.
+      
+            "Object" form shall mean any form resulting from mechanical
+            transformation or translation of a Source form, including but
+            not limited to compiled object code, generated documentation,
+            and conversions to other media types.
+      
+            "Work" shall mean the work of authorship, whether in Source or
+            Object form, made available under the License, as indicated by a
+            copyright notice that is included in or attached to the work
+            (an example is provided in the Appendix below).
+      
+            "Derivative Works" shall mean any work, whether in Source or Object
+            form, that is based on (or derived from) the Work and for which the
+            editorial revisions, annotations, elaborations, or other modifications
+            represent, as a whole, an original work of authorship. For the purposes
+            of this License, Derivative Works shall not include works that remain
+            separable from, or merely link (or bind by name) to the interfaces of,
+            the Work and Derivative Works thereof.
+      
+            "Contribution" shall mean any work of authorship, including
+            the original version of the Work and any modifications or additions
+            to that Work or Derivative Works thereof, that is intentionally
+            submitted to Licensor for inclusion in the Work by the copyright owner
+            or by an individual or Legal Entity authorized to submit on behalf of
+            the copyright owner. For the purposes of this definition, "submitted"
+            means any form of electronic, verbal, or written communication sent
+            to the Licensor or its representatives, including but not limited to
+            communication on electronic mailing lists, source code control systems,
+            and issue tracking systems that are managed by, or on behalf of, the
+            Licensor for the purpose of discussing and improving the Work, but
+            excluding communication that is conspicuously marked or otherwise
+            designated in writing by the copyright owner as "Not a Contribution."
+      
+            "Contributor" shall mean Licensor and any individual or Legal Entity
+            on behalf of whom a Contribution has been received by Licensor and
+            subsequently incorporated within the Work.
+      
+         2. Grant of Copyright License. Subject to the terms and conditions of
+            this License, each Contributor hereby grants to You a perpetual,
+            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+            copyright license to reproduce, prepare Derivative Works of,
+            publicly display, publicly perform, sublicense, and distribute the
+            Work and such Derivative Works in Source or Object form.
+      
+         3. Grant of Patent License. Subject to the terms and conditions of
+            this License, each Contributor hereby grants to You a perpetual,
+            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+            (except as stated in this section) patent license to make, have made,
+            use, offer to sell, sell, import, and otherwise transfer the Work,
+            where such license applies only to those patent claims licensable
+            by such Contributor that are necessarily infringed by their
+            Contribution(s) alone or by combination of their Contribution(s)
+            with the Work to which such Contribution(s) was submitted. If You
+            institute patent litigation against any entity (including a
+            cross-claim or counterclaim in a lawsuit) alleging that the Work
+            or a Contribution incorporated within the Work constitutes direct
+            or contributory patent infringement, then any patent licenses
+            granted to You under this License for that Work shall terminate
+            as of the date such litigation is filed.
+      
+         4. Redistribution. You may reproduce and distribute copies of the
+            Work or Derivative Works thereof in any medium, with or without
+            modifications, and in Source or Object form, provided that You
+            meet the following conditions:
+      
+            (a) You must give any other recipients of the Work or
+                Derivative Works a copy of this License; and
+      
+            (b) You must cause any modified files to carry prominent notices
+                stating that You changed the files; and
+      
+            (c) You must retain, in the Source form of any Derivative Works
+                that You distribute, all copyright, patent, trademark, and
+                attribution notices from the Source form of the Work,
+                excluding those notices that do not pertain to any part of
+                the Derivative Works; and
+      
+            (d) If the Work includes a "NOTICE" text file as part of its
+                distribution, then any Derivative Works that You distribute must
+                include a readable copy of the attribution notices contained
+                within such NOTICE file, excluding those notices that do not
+                pertain to any part of the Derivative Works, in at least one
+                of the following places: within a NOTICE text file distributed
+                as part of the Derivative Works; within the Source form or
+                documentation, if provided along with the Derivative Works; or,
+                within a display generated by the Derivative Works, if and
+                wherever such third-party notices normally appear. The contents
+                of the NOTICE file are for informational purposes only and
+                do not modify the License. You may add Your own attribution
+                notices within Derivative Works that You distribute, alongside
+                or as an addendum to the NOTICE text from the Work, provided
+                that such additional attribution notices cannot be construed
+                as modifying the License.
+      
+            You may add Your own copyright statement to Your modifications and
+            may provide additional or different license terms and conditions
+            for use, reproduction, or distribution of Your modifications, or
+            for any such Derivative Works as a whole, provided Your use,
+            reproduction, and distribution of the Work otherwise complies with
+            the conditions stated in this License.
+      
+         5. Submission of Contributions. Unless You explicitly state otherwise,
+            any Contribution intentionally submitted for inclusion in the Work
+            by You to the Licensor shall be under the terms and conditions of
+            this License, without any additional terms or conditions.
+            Notwithstanding the above, nothing herein shall supersede or modify
+            the terms of any separate license agreement you may have executed
+            with Licensor regarding such Contributions.
+      
+         6. Trademarks. This License does not grant permission to use the trade
+            names, trademarks, service marks, or product names of the Licensor,
+            except as required for reasonable and customary use in describing the
+            origin of the Work and reproducing the content of the NOTICE file.
+      
+         7. Disclaimer of Warranty. Unless required by applicable law or
+            agreed to in writing, Licensor provides the Work (and each
+            Contributor provides its Contributions) on an "AS IS" BASIS,
+            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+            implied, including, without limitation, any warranties or conditions
+            of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+            PARTICULAR PURPOSE. You are solely responsible for determining the
+            appropriateness of using or redistributing the Work and assume any
+            risks associated with Your exercise of permissions under this License.
+      
+         8. Limitation of Liability. In no event and under no legal theory,
+            whether in tort (including negligence), contract, or otherwise,
+            unless required by applicable law (such as deliberate and grossly
+            negligent acts) or agreed to in writing, shall any Contributor be
+            liable to You for damages, including any direct, indirect, special,
+            incidental, or consequential damages of any character arising as a
+            result of this License or out of the use or inability to use the
+            Work (including but not limited to damages for loss of goodwill,
+            work stoppage, computer failure or malfunction, or any and all
+            other commercial damages or losses), even if such Contributor
+            has been advised of the possibility of such damages.
+      
+         9. Accepting Warranty or Additional Liability. While redistributing
+            the Work or Derivative Works thereof, You may choose to offer,
+            and charge a fee for, acceptance of support, warranty, indemnity,
+            or other liability obligations and/or rights consistent with this
+            License. However, in accepting such obligations, You may act only
+            on Your own behalf and on Your sole responsibility, not on behalf
+            of any other Contributor, and only if You agree to indemnify,
+            defend, and hold each Contributor harmless for any liability
+            incurred by, or claims asserted against, such Contributor by reason
+            of your accepting any such warranty or additional liability.
+      
+         END OF TERMS AND CONDITIONS
+      
+         Copyright 2020 MongoDB Inc.
+      
+         Licensed under the Apache License, Version 2.0 (the "License");
+         you may not use this file except in compliance with the License.
+         You may obtain a copy of the License at
+      
+             http://www.apache.org/licenses/LICENSE-2.0
+      
+         Unless required by applicable law or agreed to in writing, software
+         distributed under the License is distributed on an "AS IS" BASIS,
+         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         See the License for the specific language governing permissions and
+         limitations under the License.
+      
+      
+
+
+<a id="9bc7ab9baf2ab3548b7b153b8934d628acaa938dcf88b76c69a637ca9633acca"></a>
+### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/service-provider-core -->
 > MongoDB Shell Core Service Provider Package
 
@@ -5620,8 +6205,8 @@ License files:
          limitations under the License.
 
 
-<a id="e774e65babd8ac445d8261d73fac02a68c7dc1f1b36fb098379a23e285e91480"></a>
-### [@mongosh/service-provider-server](https://www.npmjs.com/package/@mongosh/service-provider-server) (version 1.0.0)
+<a id="98a406441dcb49be1f8b6630002fb7ecc3b0dea6859135a0b9ec97570b2fd2d1"></a>
+### [@mongosh/service-provider-server](https://www.npmjs.com/package/@mongosh/service-provider-server) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/service-provider-server -->
 > MongoDB Shell Server Service Provider Package
 
@@ -5833,8 +6418,8 @@ License files:
          limitations under the License.
 
 
-<a id="b97cc29f2f9f2527602e978c78dca8b395673fa877e9963f83aad84d6c73e114"></a>
-### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 1.0.0)
+<a id="9e176ddb0dcacfd83ea74c88fbe2befe95527517098ffddea60709cad1cd622a"></a>
+### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/shell-api -->
 > MongoDB Shell API Classes Package
 
@@ -6046,8 +6631,8 @@ License files:
          limitations under the License.
 
 
-<a id="ea92d5ac98b5b34fc47196b8cbea9a128d18ee86ea61385d609f7c4dd8265caf"></a>
-### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 1.0.0)
+<a id="1ffaa3c2190350a2d1d8261e0b69a3c4aaf40c35c0d227899473203bcdbaa1d7"></a>
+### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/shell-evaluator -->
 > MongoDB Top Level API Package
 
@@ -6260,8 +6845,8 @@ License files:
          limitations under the License.
 
 
-<a id="88b514cb7a0582bde535fdfed064a36c447501649ab739e41bec3527afc1367f"></a>
-### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 1.0.0)
+<a id="b165f9ae7ceb752e8fc1357bc2c55e0858c97ada6c358dd9229818ad5e044d6f"></a>
+### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 1.0.4)
 <!-- initially found at node_modules/@mongosh/types -->
 > Types for mongosh internals
 
@@ -9644,8 +10229,8 @@ Authors:
 * Elan Shanker (https://github.com/es128)
 
 
-<a id="ddd5cb348dae1ff6c451a9883eb8b1def5481e273378e0bfad35690f76fc39af"></a>
-### [app-migrations](https://www.npmjs.com/package/app-migrations) (version 2.2.0)
+<a id="2be67cb5d47a4651f0c6547caf2ac612f248642f9cd86e352f62e9f1f19cb466"></a>
+### [app-migrations](https://www.npmjs.com/package/app-migrations) (version 2.3.0)
 <!-- initially found at packages/app-migrations -->
 > Helper for application schema migrations.
 
@@ -11092,32 +11677,6 @@ License files:
       
 
 
-<a id="a665ea6dffc925870ff11bcb4b8b477d4db5bba410ea1ab72d2048190b34e19e"></a>
-### [bl](https://www.npmjs.com/package/bl) (version 1.2.3)
-<!-- initially found at node_modules/tar-stream/node_modules/bl -->
-> Buffer List: collect buffers and access with a standard readable Buffer interface, streamable too!
-
-License tags: MIT
-
-License files:
-* LICENSE.md:
-
-      The MIT License (MIT)
-      =====================
-      
-      Copyright (c) 2013-2016 bl contributors
-      ----------------------------------
-      
-      *bl contributors listed at <https://github.com/rvagg/bl#contributors>*
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
 <a id="0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c"></a>
 ### [bl](https://www.npmjs.com/package/bl) (version 4.1.0)
 <!-- initially found at node_modules/bl -->
@@ -12172,8 +12731,8 @@ Authors:
 * Christian Amor Kvalheim <christkv@gmail.com>
 
 
-<a id="224753a426de96a306468b116f105cc54889e72c4bce25cc775179c20c24a85b"></a>
-### [bson-transpilers](https://www.npmjs.com/package/bson-transpilers) (version 1.1.1)
+<a id="0f2125007e21ed8e27dfbeb4955e50d992d7227f60c7ade5f4d1f25d88097143"></a>
+### [bson-transpilers](https://www.npmjs.com/package/bson-transpilers) (version 1.2.0)
 <!-- initially found at packages/bson-transpilers -->
 > Source to source compilers using ANTLR
 
@@ -12183,18 +12742,6 @@ Authors:
 * Anna Herlihy <herlihyap@gmail.com>
 * Alena Khineika <alena.khineika@mongodb.com>
 * Irina Shestak <irina.shestak@mongodb.com>
-
-
-<a id="d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0"></a>
-### [buffer-alloc](https://www.npmjs.com/package/buffer-alloc) (version 1.2.0)
-<!-- initially found at node_modules/buffer-alloc -->
-License tags: MIT
-
-
-<a id="1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0"></a>
-### [buffer-alloc-unsafe](https://www.npmjs.com/package/buffer-alloc-unsafe) (version 1.1.0)
-<!-- initially found at node_modules/buffer-alloc-unsafe -->
-License tags: MIT
 
 
 <a id="77cd18a59a06e032914b3c4148b3467dd3f720b6c6b419c079891ca15b2f488e"></a>
@@ -12223,12 +12770,6 @@ License files:
 
 Authors:
 * GoInstant Inc., a salesforce.com company
-
-
-<a id="c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4"></a>
-### [buffer-fill](https://www.npmjs.com/package/buffer-fill) (version 1.0.0)
-<!-- initially found at node_modules/buffer-fill -->
-License tags: MIT
 
 
 <a id="3dcff218e9c4fa2693fbfb63ee6a17483a662804fa7e26dd92051d7b95284ef3"></a>
@@ -13964,8 +14505,8 @@ Authors:
 * TJ Holowaychuk <tj@vision-media.ca>
 
 
-<a id="a0b31ebc423afd06b6c92007797e21fee7614cc5cf8a5abc43f98e002bdf90a7"></a>
-### [compass-preferences-model](https://www.npmjs.com/package/compass-preferences-model) (version 1.7.3)
+<a id="9db7c7283a22233cd9b80adfa47e5d2dde536c9067d1a24f635af36877414623"></a>
+### [compass-preferences-model](https://www.npmjs.com/package/compass-preferences-model) (version 1.10.0)
 <!-- initially found at packages/compass-preferences-model -->
 > Compass preferences model.
 
@@ -13975,8 +14516,8 @@ Authors:
 * Lucas Hrabovsky <lucas@mongodb.com>
 
 
-<a id="7e5b59807792d8eeb2415ec71a43dace377025dde087a96edbd6b2de4c6afae8"></a>
-### [compass-user-model](https://www.npmjs.com/package/compass-user-model) (version 1.7.3)
+<a id="e7b37a7307e6832d983b97d2d36848729711e0c993b4a255781f791266bb3600"></a>
+### [compass-user-model](https://www.npmjs.com/package/compass-user-model) (version 1.10.0)
 <!-- initially found at packages/compass-user-model -->
 > MongoDB user model.
 
@@ -15087,43 +15628,9 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="46099480250f7aa8cf2b8137a8611392266770618d74e0d131b89eea24e741b2"></a>
-### [decompress-response](https://www.npmjs.com/package/decompress-response) (version 3.3.0)
-<!-- initially found at node_modules/simple-get/node_modules/decompress-response -->
-> Decompress a HTTP response if needed
-
-License tags: MIT
-
-License files:
-* license:
-
-      `The MIT License (MIT)
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-
 <a id="a6cd6a055b9fb5f987ff8afad14fe0f248586487482a709c00f121ef5decdbbb"></a>
 ### [decompress-response](https://www.npmjs.com/package/decompress-response) (version 4.2.1)
-<!-- initially found at node_modules/keytar/node_modules/decompress-response -->
+<!-- initially found at node_modules/simple-get/node_modules/decompress-response -->
 > Decompress a HTTP response if needed
 
 License tags: MIT
@@ -17344,6 +17851,31 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
+<a id="8c51af36cd574fcb38fb535dd3e485948143a1b5e8580efe21fcbf259b54c87c"></a>
+### [escape-string-regexp](https://www.npmjs.com/package/escape-string-regexp) (version 4.0.0)
+<!-- initially found at node_modules/@emotion/babel-plugin/node_modules/escape-string-regexp -->
+> Escape RegExp special characters
+
+License tags: MIT
+
+License files:
+* license:
+
+      MIT License
+      
+      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (https://sindresorhus.com)
+
+
 <a id="48204389e2519fd65c7341ad2eb6174fad10df3c5b019e78cbabeb2488eeca37"></a>
 ### [esprima](https://www.npmjs.com/package/esprima) (version 4.0.1)
 <!-- initially found at node_modules/esprima -->
@@ -19370,8 +19902,8 @@ License files:
       
 
 
-<a id="483b0d80f1a663a78ec60f78706202c5a93e5805b2ced4044330608016bdd2e4"></a>
-### [hadron-app](https://www.npmjs.com/package/hadron-app) (version 4.7.3)
+<a id="a512e484ea8590b7a85cad38025ed23be5cb1563323c21e724ad1444d6f48d2f"></a>
+### [hadron-app](https://www.npmjs.com/package/hadron-app) (version 4.10.0)
 <!-- initially found at packages/hadron-app -->
 > Hadron Application Singleton
 
@@ -19381,8 +19913,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="b334bd08bcf60502d3d564f6827fb8dd37e431322fd9616c8ec881c06398ed97"></a>
-### [hadron-app-registry](https://www.npmjs.com/package/hadron-app-registry) (version 8.3.0)
+<a id="dcd1d6ea3ba5dc04ef587ef8233535190a0a50661509e16d3c07ff8ab06e30f3"></a>
+### [hadron-app-registry](https://www.npmjs.com/package/hadron-app-registry) (version 8.4.0)
 <!-- initially found at packages/hadron-app-registry -->
 > Hadron App Registry
 
@@ -19392,16 +19924,16 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="264c09102dfd7fff63410d35336b6f201dda71810831e8bb81b09ea05c699de2"></a>
-### [hadron-auto-update-manager](https://www.npmjs.com/package/hadron-auto-update-manager) (version 4.3.0)
+<a id="c60dfbd2f83ce1b5a1d86327ed0ce7c0bdd92fd819e1858c3edcf8b34ecfbc6f"></a>
+### [hadron-auto-update-manager](https://www.npmjs.com/package/hadron-auto-update-manager) (version 4.4.0)
 <!-- initially found at packages/hadron-auto-update-manager -->
 > Atoms AutoUpdateManager class as a standalone module.
 
 License tags: SSPL
 
 
-<a id="1c0ee82ef990f8eb220c42e58fef9445db98cfb39c9bbc40c410cf2b56d3c7b1"></a>
-### [hadron-compile-cache](https://www.npmjs.com/package/hadron-compile-cache) (version 4.3.0)
+<a id="922afe7e765d8eff43312eb33540b7fa561d2a7f743597c1ed731ff151a112a6"></a>
+### [hadron-compile-cache](https://www.npmjs.com/package/hadron-compile-cache) (version 4.4.0)
 <!-- initially found at packages/hadron-compile-cache -->
 > Hadron Compile Cache
 
@@ -19411,8 +19943,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="044982026c36927ddb55b8500e080ecd812991d99d77ab8c619dc56b7b3694e3"></a>
-### [hadron-document](https://www.npmjs.com/package/hadron-document) (version 7.4.1)
+<a id="28d732fec5c1a658312c41a679a918739f3512153fc59183216a1a5e0ccc1129"></a>
+### [hadron-document](https://www.npmjs.com/package/hadron-document) (version 7.5.0)
 <!-- initially found at packages/hadron-document -->
 > Hadron Document
 
@@ -19422,16 +19954,16 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="16993f6548e73dd2dc9a031f9525aebfe5879875747b7e3aa645ef301a07c569"></a>
-### [hadron-ipc](https://www.npmjs.com/package/hadron-ipc) (version 2.3.0)
+<a id="94b9e7c640f73bd46901e63ec932e98cd55603d9674ca49bd29d95d1588f7445"></a>
+### [hadron-ipc](https://www.npmjs.com/package/hadron-ipc) (version 2.4.0)
 <!-- initially found at packages/hadron-ipc -->
 > Simplified IPC for electron apps.
 
 License tags: SSPL
 
 
-<a id="17f411ba4f37d86a1537931678060eed8227fcafa6d2ff7d53df4e1cdac702e0"></a>
-### [hadron-module-cache](https://www.npmjs.com/package/hadron-module-cache) (version 2.2.0)
+<a id="9b431800529bfc2ebe38a49d927dbf481824b60fcdf21b7657eba26e398b5601"></a>
+### [hadron-module-cache](https://www.npmjs.com/package/hadron-module-cache) (version 2.3.0)
 <!-- initially found at packages/module-cache -->
 > Hadron Module Cache
 
@@ -19441,8 +19973,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="8feefc827dde03789ca38a8cd65b20d31c01cce6d2ef22537f367e64d89f65aa"></a>
-### [hadron-react-bson](https://www.npmjs.com/package/hadron-react-bson) (version 5.4.1)
+<a id="e5d1f8d86a53741d3489ec8a58da14fff0cc68ac7e67c244be6dbfc0d86a1a8a"></a>
+### [hadron-react-bson](https://www.npmjs.com/package/hadron-react-bson) (version 5.5.0)
 <!-- initially found at packages/hadron-react-bson -->
 > Hadron React BSON Components
 
@@ -19452,8 +19984,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="dd123c127c945d0a313c614db194e5315d5d3cc40bcce35aedac28bea892ea52"></a>
-### [hadron-react-buttons](https://www.npmjs.com/package/hadron-react-buttons) (version 5.3.0)
+<a id="b8422743e9ee478d273ef49dae9394878fa48cd139a3b6b2af286a653e7248ac"></a>
+### [hadron-react-buttons](https://www.npmjs.com/package/hadron-react-buttons) (version 5.4.0)
 <!-- initially found at packages/hadron-react-buttons -->
 > Hadron React Button Components
 
@@ -19463,8 +19995,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="8a9adad988eec8d32dfa6f41c644efb4143811bef53ebd1329b8ad30d358b182"></a>
-### [hadron-react-components](https://www.npmjs.com/package/hadron-react-components) (version 5.4.0)
+<a id="39969a5ed7ce4b4df6ae4aa7431d68b611f453036054fd2a78c5c3fe7180516f"></a>
+### [hadron-react-components](https://www.npmjs.com/package/hadron-react-components) (version 5.5.0)
 <!-- initially found at packages/hadron-react-components -->
 > Hadron React Components
 
@@ -19474,19 +20006,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="58ded5088da6a2990c740c39d96a38ef331d46e45ad471aba4f59fdf8ee8c5c5"></a>
-### [hadron-react-utils](https://www.npmjs.com/package/hadron-react-utils) (version 5.3.0)
-<!-- initially found at packages/hadron-react-utils -->
-> Hadron React Utils
-
-License tags: SSPL
-
-Authors:
-* Durran Jordan <durran@gmail.com>
-
-
-<a id="c19726961e36cb51c6b1f2a809d3e30e82c1a2de30986b16cf018b859eb9182c"></a>
-### [hadron-style-manager](https://www.npmjs.com/package/hadron-style-manager) (version 1.2.0)
+<a id="e64a33220b5cf7ba21654a7236f0c99befdc2451bf91075f92f45d2198786736"></a>
+### [hadron-style-manager](https://www.npmjs.com/package/hadron-style-manager) (version 1.3.0)
 <!-- initially found at packages/hadron-style-manager -->
 > Hadron Style Manager
 
@@ -19496,8 +20017,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="c27c6363aa50d716637ad69a67b32e7fc3543ef128bef5157099641e693e85e6"></a>
-### [hadron-type-checker](https://www.npmjs.com/package/hadron-type-checker) (version 6.3.1)
+<a id="bf539deec3ac01aac38d5f7c868a49918c5fc5da1f145dc3bad3bc1f02164ec7"></a>
+### [hadron-type-checker](https://www.npmjs.com/package/hadron-type-checker) (version 6.4.0)
 <!-- initially found at packages/hadron-type-checker -->
 > Hadron Type Checker
 
@@ -23535,8 +24056,8 @@ Authors:
 * Vladimir Agafonkin
 
 
-<a id="d7e47ac9df61966034032e67a19db552f15e752061b74946bf2504ca7c13c3f7"></a>
-### [kerberos](https://www.npmjs.com/package/kerberos) (version 1.1.5)
+<a id="82c8ffbe0e870b8d96fdd28a26b87523271e2674da22025b256a069dce1c5c51"></a>
+### [kerberos](https://www.npmjs.com/package/kerberos) (version 1.1.6)
 <!-- initially found at node_modules/kerberos -->
 > Kerberos library for Node.js
 
@@ -23749,7 +24270,7 @@ License files:
       
 
 Authors:
-* Matt Broadstone <mbroadst@gmail.com>
+* The MongoDB NodeJS Team <[dbx-node@mongodb.com](nomail)>
 
 
 <a id="63e3bcb8e06ac6b9f7c153030ce57fad6e985a0cc7f0109d3fc6073192a932f8"></a>
@@ -26054,6 +26575,46 @@ Authors:
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
+<a id="2a142cb43d8de4f31a66b1c9c277e652712dfde8a1da5ed1d5a4ec74015feffa"></a>
+### [lodash._baseindexof](https://www.npmjs.com/package/lodash._baseindexof) (version 2.4.1)
+<!-- initially found at node_modules/lodash._baseindexof -->
+> The internal Lo-Dash function `baseIndexOf` as a Node.js module generated by lodash-cli.
+
+License tags: MIT
+
+License files:
+* LICENSE.txt:
+
+      Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+      Based on Underscore.js 1.5.2, copyright 2009-2013 Jeremy Ashkenas,
+      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Authors:
+* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
+* Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
+* Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
+* Mathias Bynens <mathias@qiwi.be> (http://mathiasbynens.be/)
+
+
 <a id="984f3f17e0475ba7b138ad2bcd02121d1069d6b685100583bb4bc9d6127a29a1"></a>
 ### [lodash._baseindexof](https://www.npmjs.com/package/lodash._baseindexof) (version 3.1.0)
 <!-- initially found at node_modules/lodash.includes/node_modules/lodash._baseindexof -->
@@ -26094,46 +26655,6 @@ Authors:
 * Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
 * Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
-
-
-<a id="2a142cb43d8de4f31a66b1c9c277e652712dfde8a1da5ed1d5a4ec74015feffa"></a>
-### [lodash._baseindexof](https://www.npmjs.com/package/lodash._baseindexof) (version 2.4.1)
-<!-- initially found at node_modules/lodash._baseindexof -->
-> The internal Lo-Dash function `baseIndexOf` as a Node.js module generated by lodash-cli.
-
-License tags: MIT
-
-License files:
-* LICENSE.txt:
-
-      Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-      Based on Underscore.js 1.5.2, copyright 2009-2013 Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Authors:
-* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
-* Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
-* Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
-* Mathias Bynens <mathias@qiwi.be> (http://mathiasbynens.be/)
 
 
 <a id="5722da50c112fc1c4eb299375a140f952d867bf75c7433a0fb78b121b90a6fa0"></a>
@@ -27465,7 +27986,7 @@ Authors:
 
 <a id="a124709e2f86b9f0c2d31c6a954b2957cd5a7019f47c16e012633ccba1ddbea0"></a>
 ### [lodash.assign](https://www.npmjs.com/package/lodash.assign) (version 4.2.0)
-<!-- initially found at packages/databases-collections/node_modules/lodash.assign -->
+<!-- initially found at node_modules/gce-ips/node_modules/lodash.assign -->
 > The lodash method `_.assign` exported as a module.
 
 License tags: MIT
@@ -27889,71 +28410,6 @@ Authors:
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
-<a id="ea363f03e04cf3bdd8a97f7eb1822b95d178247d0ce3b84416706aab7e2d6a3f"></a>
-### [lodash.clone](https://www.npmjs.com/package/lodash.clone) (version 4.5.0)
-<!-- initially found at node_modules/lodash.clone -->
-> The lodash method `_.clone` exported as a module.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright jQuery Foundation and other contributors <https://jquery.org/>
-      
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-      
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-      
-      The following license applies to all parts of this software except as
-      documented below:
-      
-      ====
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-      ====
-      
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-      
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-      
-      ====
-      
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
-      
-
-Authors:
-* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
-* Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)
-* Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
-
-
 <a id="2d6567936a8d4e7a3e67f2b4c5394988219916b6a527d9588d48014daee523cb"></a>
 ### [lodash.clonedeep](https://www.npmjs.com/package/lodash.clonedeep) (version 4.5.0)
 <!-- initially found at node_modules/lodash.clonedeep -->
@@ -28360,7 +28816,7 @@ Authors:
 
 <a id="4863ac6cc907bb27640d1e0570c960932db3d66d6adbcfa90158ec72ef18f032"></a>
 ### [lodash.defaults](https://www.npmjs.com/package/lodash.defaults) (version 4.2.0)
-<!-- initially found at packages/compass-schema/node_modules/lodash.defaults -->
+<!-- initially found at packages/hadron-style-manager/node_modules/lodash.defaults -->
 > The lodash method `_.defaults` exported as a module.
 
 License tags: MIT
@@ -29959,7 +30415,7 @@ Authors:
 
 <a id="0c6ab2b6944ac2fc6926e04aff6de924a99e581818596e932af6c67dd073533f"></a>
 ### [lodash.includes](https://www.npmjs.com/package/lodash.includes) (version 4.3.0)
-<!-- initially found at packages/compass-schema/node_modules/lodash.includes -->
+<!-- initially found at node_modules/jsonwebtoken/node_modules/lodash.includes -->
 > The lodash method `_.includes` exported as a module.
 
 License tags: MIT
@@ -31482,7 +31938,7 @@ Authors:
 
 <a id="c588afca24b161c04c66b7fe976458f32d1871dbdc38343d2249c15af51e6df0"></a>
 ### [lodash.keys](https://www.npmjs.com/package/lodash.keys) (version 3.1.2)
-<!-- initially found at node_modules/lodash.assign/node_modules/lodash.keys -->
+<!-- initially found at node_modules/ampersand-events/node_modules/lodash.keys -->
 > The modern build of lodash’s `_.keys` as a module.
 
 License tags: MIT
@@ -36369,8 +36825,8 @@ Authors:
 * Tim Wood <washwithcare@gmail.com> (http://timwoodcreates.com/)
 
 
-<a id="238ca94190dc6ecfefb8038eba61fdc9b317f49234c6775cac809521e13446af"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.6)
+<a id="4d2560b608e7584e8fe4acc7a70e8a54dcfe7b2d16743efc268654cdae061ce6"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.1.0)
 <!-- initially found at node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
@@ -36820,8 +37276,8 @@ Authors:
 * durran@gmail.com
 
 
-<a id="da937d0152ba6e8e6d88ec58c3270c6389fdc7e4c7b4281bdf4a209bb74b2af7"></a>
-### [mongodb-ace-mode](https://www.npmjs.com/package/mongodb-ace-mode) (version 1.2.0)
+<a id="a10b29e05e5635b3c80b332c052ceaec27dc595da9c09fbbd780d69e4b80ef69"></a>
+### [mongodb-ace-mode](https://www.npmjs.com/package/mongodb-ace-mode) (version 1.3.0)
 <!-- initially found at packages/ace-mode -->
 > MongoDB Mode for the ACE Editor
 
@@ -36831,8 +37287,8 @@ Authors:
 * Anna Herlihy <anna@mongodb.com>
 
 
-<a id="4d011ab7fc48c55a6210bdf011cc0d7e5bb2a52a2fe9af0d26ea7a4ea9aeeec3"></a>
-### [mongodb-ace-theme](https://www.npmjs.com/package/mongodb-ace-theme) (version 1.2.0)
+<a id="649bb08c359ea0dab6e650beacb46ef37d9022add4feab5067a28903688aa495"></a>
+### [mongodb-ace-theme](https://www.npmjs.com/package/mongodb-ace-theme) (version 1.3.0)
 <!-- initially found at packages/ace-theme -->
 > MongoDB Theme for the ACE Editor
 
@@ -36842,8 +37298,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="99fe1485224159b75cca8a963114fe8c1422ce08e1013ab2c7ebf5fa293b1f62"></a>
-### [mongodb-ace-theme-query](https://www.npmjs.com/package/mongodb-ace-theme-query) (version 1.2.0)
+<a id="ed265f118bc08332e9f7f49a43cb65f82bec3d5b1056c3bd3262ac63705160f4"></a>
+### [mongodb-ace-theme-query](https://www.npmjs.com/package/mongodb-ace-theme-query) (version 1.3.0)
 <!-- initially found at packages/ace-theme-query -->
 > MongoDB Theme for the ACE Editor in the Query Bar
 
@@ -37287,8 +37743,8 @@ Authors:
 * Matt Broadstone <mbroadst@mongodb.com>
 
 
-<a id="8c3c38b211c609d27f0d14e0c39f006e7d19e47c6e4819b261fa03ab0e7e21d8"></a>
-### [mongodb-collection-model](https://www.npmjs.com/package/mongodb-collection-model) (version 4.7.3)
+<a id="c58269667c84f727a9e2e3e39e94b9d87280e1412dda13faf30b1c79acf21d5d"></a>
+### [mongodb-collection-model](https://www.npmjs.com/package/mongodb-collection-model) (version 4.10.0)
 <!-- initially found at packages/collection-model -->
 > MongoDB collection model.
 
@@ -38084,8 +38540,8 @@ Authors:
 * MongoDB Inc <[compass@mongodb.com](nomail)>
 
 
-<a id="bf7ee646e6961626a0c8056a3627aa6b20f6823f16992f0a7675210d9118c1d4"></a>
-### [mongodb-connection-model](https://www.npmjs.com/package/mongodb-connection-model) (version 21.5.3)
+<a id="f9952d78ff1ed55b3d72b89b496f4df7fc0e3e74115b5b8de01c4bc805ba98c2"></a>
+### [mongodb-connection-model](https://www.npmjs.com/package/mongodb-connection-model) (version 21.7.0)
 <!-- initially found at packages/connection-model -->
 > MongoDB connection model.
 
@@ -38300,8 +38756,8 @@ License files:
       
 
 
-<a id="f1b3dddee0358a77165181c5edc9732e729fabfee194b56b4e1eee37711c21a6"></a>
-### [mongodb-data-service](https://www.npmjs.com/package/mongodb-data-service) (version 21.5.3)
+<a id="66d2281d839120dbfb8f9ca54782229abd6d473e5437c7338870b794df9f62ae"></a>
+### [mongodb-data-service](https://www.npmjs.com/package/mongodb-data-service) (version 21.8.0)
 <!-- initially found at packages/data-service -->
 > MongoDB Data Service
 
@@ -38311,8 +38767,8 @@ Authors:
 * Durran Jordan <durran@gmail.com>
 
 
-<a id="220b1784e70dbc2fa930c425e0d87612a88716881fce62017ff99921604bdc8e"></a>
-### [mongodb-database-model](https://www.npmjs.com/package/mongodb-database-model) (version 1.2.0)
+<a id="a2d006089e8e11f049ad7e4ee118892a4cae7ce69373afd6e58b1d4515c78552"></a>
+### [mongodb-database-model](https://www.npmjs.com/package/mongodb-database-model) (version 1.3.0)
 <!-- initially found at packages/database-model -->
 > MongoDB database model.
 
@@ -38322,8 +38778,8 @@ Authors:
 * Lucas Hrabovsky <lucas@mongodb.com>
 
 
-<a id="053e132563eab2346007f2508ee3cf996ce6f90fe4a8070dc565753eb96c8db2"></a>
-### [mongodb-explain-plan-model](https://www.npmjs.com/package/mongodb-explain-plan-model) (version 1.2.0)
+<a id="04ad18ddb015b09fdbaf1f6626158bc8c6b2d3479562edae8289814b926bc7c5"></a>
+### [mongodb-explain-plan-model](https://www.npmjs.com/package/mongodb-explain-plan-model) (version 1.3.0)
 <!-- initially found at packages/explain-plan-model -->
 > Ampersand model abstraction for MongoDB explain plans (3.0+)
 
@@ -38547,8 +39003,8 @@ Authors:
 * Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)
 
 
-<a id="b4c742c60e1bdbed649fa33ae9ec3d0430dab5996a5788c0710736fd50d9cff2"></a>
-### [mongodb-index-model](https://www.npmjs.com/package/mongodb-index-model) (version 3.3.1)
+<a id="669c60b8ece4f3c685389e8bba993e89eafd1a03feb4a4e392d329ae55bd2160"></a>
+### [mongodb-index-model](https://www.npmjs.com/package/mongodb-index-model) (version 3.5.0)
 <!-- initially found at packages/index-model -->
 > MongoDB index model.
 
@@ -38558,8 +39014,8 @@ Authors:
 * Lucas Hrabovsky <lucas@mongodb.com>
 
 
-<a id="781bfc0ec48cd45fbaa7be55c685868198c0d60e53b32d5af24dde1d71edb381"></a>
-### [mongodb-instance-model](https://www.npmjs.com/package/mongodb-instance-model) (version 11.7.3)
+<a id="6b1f0d81153686523c3a7d2e3c4299a2ef425557e7d371e1be77c0fded040a7d"></a>
+### [mongodb-instance-model](https://www.npmjs.com/package/mongodb-instance-model) (version 11.10.0)
 <!-- initially found at packages/instance-model -->
 > MongoDB instance model.
 
@@ -38997,16 +39453,16 @@ License files:
       
 
 
-<a id="da1525634d74a5e37c58d1a31d53210a09bdf87c758dd8c577c3e84b7467e068"></a>
-### [mongodb-js-metrics](https://www.npmjs.com/package/mongodb-js-metrics) (version 7.3.1)
+<a id="887f16e8f60bd2d8faea91f894f87b72b5811040fd6c140c82667f5b76834506"></a>
+### [mongodb-js-metrics](https://www.npmjs.com/package/mongodb-js-metrics) (version 7.4.0)
 <!-- initially found at packages/metrics -->
 > Shareable metric recording.
 
 License tags: SSPL
 
 
-<a id="25aa255f9ef82ff568eb9157299c6d4a90df478cf577259e8fb159288ab69279"></a>
-### [mongodb-language-model](https://www.npmjs.com/package/mongodb-language-model) (version 2.2.0)
+<a id="cbd794dfb2a6af2e6a26543302378b298f3e263ae3324040c108f7777e154ca9"></a>
+### [mongodb-language-model](https://www.npmjs.com/package/mongodb-language-model) (version 2.3.0)
 <!-- initially found at packages/mongodb-language-model -->
 > Parses MongoDB query language and returns an abstract syntax tree
 
@@ -40157,8 +40613,8 @@ Authors:
 * Thomas Rueckstiess <thomas@rueckstiess.net>
 
 
-<a id="e8bea2bfb86d71250834d30e19d34864d30077eca44fc9a5eb95dbc1e9ceaa48"></a>
-### [mongodb-security](https://www.npmjs.com/package/mongodb-security) (version 1.2.0)
+<a id="95d4fdb287ebce3a8a83a6c816e8989759ad0f9ebcd285e8fedca1f3fd854e86"></a>
+### [mongodb-security](https://www.npmjs.com/package/mongodb-security) (version 1.3.0)
 <!-- initially found at packages/security -->
 > Portable business logic of MongoDB security model
 
@@ -43509,8 +43965,8 @@ Authors:
 * Arnout Kazemier
 
 
-<a id="ca27ab1e249200708e6caced3591910c8dff6e5e8ba919d133af5857bd3e1cbe"></a>
-### [os-dns-native](https://www.npmjs.com/package/os-dns-native) (version 1.0.3)
+<a id="5d45311b03654011d1c3b954ab04e39e677b9383924a5d261ad2ef880af38162"></a>
+### [os-dns-native](https://www.npmjs.com/package/os-dns-native) (version 1.0.4)
 <!-- initially found at node_modules/os-dns-native -->
 > Perform DNS queries using OS APIs
 
@@ -45046,8 +45502,8 @@ Authors:
 * Vladimir Agafonkin
 
 
-<a id="a5149c349a53cbc4fc91f141f06c2439fe7ffaeaf27ca4c268fde06a7812bf4f"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 5.3.0)
+<a id="a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda"></a>
+### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 6.1.2)
 <!-- initially found at node_modules/prebuild-install -->
 > A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
 
@@ -45093,50 +45549,6 @@ Authors:
 <a id="bb0c15b59a60bfb588b95eac158895de82ab409819db6156c24a723ee63b8595"></a>
 ### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 5.3.3)
 <!-- initially found at node_modules/keytar/node_modules/prebuild-install -->
-> A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2015 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Mathias Buus (@mafintosh)
-* Julian Gruber <julian@juliangruber.com> (https://github.com/juliangruber)
-* Brett Lawson <brett19@gmail.com> (https://github.com/brett19)
-* Pieter Hintjens <ph@imatix.com> (https://github.com/hintjens)
-* Lars-Magnus Skog <ralphtheninja@riseup.net> (https://github.com/ralphtheninja)
-* Jesús Leganés Combarro <piranna@gmail.com> (https://github.com/piranna)
-* Mathias Küsel <mathiask@hotmail.de> (https://github.com/mathiask88)
-* Lukas Geiger <lukas.geiger94@gmail.com> (https://github.com/lgeiger)
-
-
-<a id="a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 6.1.2)
-<!-- initially found at node_modules/mongodb-client-encryption/node_modules/prebuild-install -->
 > A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
 
 License tags: MIT
@@ -45755,81 +46167,9 @@ Authors:
 * Lupo Montero <lupomontero@gmail.com> (https://lupomontero.com/)
 
 
-<a id="6a3eb1e12d101ad807720be15837917dba7ca7abbec690099cd570a51c1883db"></a>
-### [pump](https://www.npmjs.com/package/pump) (version 2.0.1)
-<!-- initially found at node_modules/pump -->
-> pipe streams together and close all of them if one of them closes
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2014 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-
-Authors:
-* Mathias Buus Madsen <mathiasbuus@gmail.com>
-
-
 <a id="147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a"></a>
 ### [pump](https://www.npmjs.com/package/pump) (version 3.0.0)
-<!-- initially found at node_modules/keytar/node_modules/pump -->
-> pipe streams together and close all of them if one of them closes
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2014 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-
-Authors:
-* Mathias Buus Madsen <mathiasbuus@gmail.com>
-
-
-<a id="cc68fe234a9a480ab0eda317a52d5f6b5bc33fd0f264281374c700b428b1a150"></a>
-### [pump](https://www.npmjs.com/package/pump) (version 1.0.3)
-<!-- initially found at node_modules/tar-fs/node_modules/pump -->
+<!-- initially found at node_modules/prebuild-install/node_modules/pump -->
 > pipe streams together and close all of them if one of them closes
 
 License tags: MIT
@@ -49350,45 +49690,9 @@ Authors:
 * Feross Aboukhadijeh <[feross@feross.org](nomail)> (https://feross.org)
 
 
-<a id="28060a6f279627a4b59fc7fcb6ee02825360f55200e75aef649140d9f784d3c6"></a>
-### [simple-get](https://www.npmjs.com/package/simple-get) (version 2.8.1)
-<!-- initially found at node_modules/simple-get -->
-> Simplest way to make http get requests. Supports HTTPS, redirects, gzip/deflate, streams in < 100 lines.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Feross Aboukhadijeh
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of
-      this software and associated documentation files (the "Software"), to deal in
-      the Software without restriction, including without limitation the rights to
-      use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-      the Software, and to permit persons to whom the Software is furnished to do so,
-      subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-      FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-      COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-      IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Feross Aboukhadijeh <[feross@feross.org](nomail)> (http://feross.org/)
-
-
 <a id="ade55c33f4d681462bccf90b122b9e974e43632f78545b6d8dc845e7f185e5da"></a>
 ### [simple-get](https://www.npmjs.com/package/simple-get) (version 3.1.0)
-<!-- initially found at node_modules/keytar/node_modules/simple-get -->
+<!-- initially found at node_modules/simple-get -->
 > Simplest way to make http get requests. Supports HTTPS, redirects, gzip/deflate, streams in < 100 lines.
 
 License tags: MIT
@@ -50482,8 +50786,8 @@ Authors:
 * Bryce B. Baril
 
 
-<a id="942474eb011caf92988b54c6c23eea133012a5aeaecdeefb3669cc79c081b24f"></a>
-### [storage-mixin](https://www.npmjs.com/package/storage-mixin) (version 4.5.0)
+<a id="57f3f3ffff1c9a64c159a03a445b060c7ad595868f6a150b7f30e19ac59d3773"></a>
+### [storage-mixin](https://www.npmjs.com/package/storage-mixin) (version 4.6.0)
 <!-- initially found at packages/storage-mixin -->
 > Ampersand model mixin to persist data via various storage backends
 
@@ -50937,6 +51241,43 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
+<a id="773086f7f9d5cf44b0f3eaf639f304e2cb109bad37b5751409129b88285090f1"></a>
+### [stylis](https://www.npmjs.com/package/stylis) (version 4.0.10)
+<!-- initially found at node_modules/stylis -->
+> A Light–weight CSS Preprocessor
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) 2016-present Sultan Tarimo
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* Sultan Tarimo <sultantarimo@me.com>
+
+
 <a id="ccb0aec9d278e891df6268636b9748becc6c5c5f5b736c9e77f50d589057cc7c"></a>
 ### [supercluster](https://www.npmjs.com/package/supercluster) (version 7.1.3)
 <!-- initially found at node_modules/supercluster -->
@@ -51137,8 +51478,8 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
 
 
-<a id="ba2f2fe5915cd373f38207cb1c3fd9ba0782494022dd3e64a64f32bbe0642a87"></a>
-### [tar-fs](https://www.npmjs.com/package/tar-fs) (version 1.16.3)
+<a id="8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d"></a>
+### [tar-fs](https://www.npmjs.com/package/tar-fs) (version 2.1.1)
 <!-- initially found at node_modules/tar-fs -->
 > filesystem bindings for tar-stream
 
@@ -51173,81 +51514,9 @@ Authors:
 * Mathias Buus
 
 
-<a id="8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d"></a>
-### [tar-fs](https://www.npmjs.com/package/tar-fs) (version 2.1.1)
-<!-- initially found at node_modules/keytar/node_modules/tar-fs -->
-> filesystem bindings for tar-stream
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2014 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-
-Authors:
-* Mathias Buus
-
-
-<a id="5605712784129d10d2559e12f8031603f0cf4e5ff206f09356e4bf1dc5ab1168"></a>
-### [tar-stream](https://www.npmjs.com/package/tar-stream) (version 1.6.2)
-<!-- initially found at node_modules/tar-stream -->
-> tar-stream is a streaming tar parser and generator and nothing else. It is streams2 and operates purely using streams which means you can easily extract/parse tarballs without ever hitting the file system.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2014 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-
-Authors:
-* Mathias Buus <mathiasbuus@gmail.com>
-
-
 <a id="0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27"></a>
 ### [tar-stream](https://www.npmjs.com/package/tar-stream) (version 2.2.0)
-<!-- initially found at node_modules/keytar/node_modules/tar-stream -->
+<!-- initially found at node_modules/tar-fs/node_modules/tar-stream -->
 > tar-stream is a streaming tar parser and generator and nothing else. It is streams2 and operates purely using streams which means you can easily extract/parse tarballs without ever hitting the file system.
 
 License tags: MIT
@@ -51558,43 +51827,6 @@ License files:
       TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
       THIS SOFTWARE.
       
-
-
-<a id="5934a0e0ea92470fb3bbe2a1d6869494c53208b1b06aaee8ffd31e4e040e4e85"></a>
-### [to-buffer](https://www.npmjs.com/package/to-buffer) (version 1.1.1)
-<!-- initially found at node_modules/to-buffer -->
-> Pass in a string, get a buffer back. Pass in a buffer, get the same buffer back
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2016 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Mathias Buus (@mafintosh)
 
 
 <a id="1bd3651838c023d37e34213ba416da5d036e578fd4ecbae994de81a90ae13b90"></a>

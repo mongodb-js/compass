@@ -525,6 +525,7 @@
   justify-content: space-around;
   flex-grow: 1;
   flex-shrink: 0;
+  height: fit-content;
 }
 .rtss .rt__graphs-out {
   flex-grow: 1;

@@ -145,6 +145,7 @@ class Connecting extends React.Component {
         >
           <Modal.Body>
             <div
+              data-test-id="connecting-modal-content"
               className={styles['connecting-modal-content']}
               id="connectingStatusText"
             >
@@ -160,7 +161,8 @@ class Connecting extends React.Component {
               </h2>
               <ConnectingAnimation />
               <Link
-                tabIndex={0}
+                as="button"
+                data-test-id="cancel-connection-button"
                 onClick={this.onCancelConnectionClicked}
                 hideExternalIcon
                 className={styles['connecting-modal-cancel-btn']}

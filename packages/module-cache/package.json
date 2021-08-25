@@ -2,12 +2,15 @@
   "name": "hadron-module-cache",
   "description": "Hadron Module Cache",
   "author": "Durran Jordan <durran@gmail.com>",
-  "bugs": "https://github.com/mongodb-js/module-cache/issues",
-  "homepage": "https://github.com/mongodb-js/module-cache",
-  "version": "2.2.0",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "version": "2.3.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/module-cache.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "keywords": [
@@ -28,7 +31,7 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.0.1"

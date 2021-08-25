@@ -1,11 +1,9 @@
 import reducer, {
   INITIAL_STATE,
   CHANGE_CONNECTION,
-  DELETE_FAVORITE,
   SAVE_FAVORITE,
   changeConnection,
-  saveFavorite,
-  deleteFavorite
+  saveFavorite
 } from './connection-model';
 
 describe('connection module', () => {
@@ -43,17 +41,6 @@ describe('connection module', () => {
       });
     });
 
-    context('when the action is deleteFavorite', () => {
-      it('returns the new state', () => {
-        const newConnection = deleteFavorite(connection);
-        const state = reducer(undefined, newConnection);
-
-        expect(state.connection.name).to.equal('');
-        expect(state.connection.color).to.equal(undefined);
-        expect(state.connection.isFavorite).to.equal(false);
-      });
-    });
-
     context('when an action is not provided', () => {
       it('returns the default state', () => {
         expect(reducer(undefined, {})).to.equal(INITIAL_STATE);
@@ -83,15 +70,6 @@ describe('connection module', () => {
           connection,
           name,
           color
-        });
-      });
-    });
-
-    context('when the connection should be deleted from favorites', () => {
-      it('clears the favourite name, color and isFavorite flag', () => {
-        expect(deleteFavorite(connection)).to.deep.equal({
-          type: DELETE_FAVORITE,
-          connection
         });
       });
     });

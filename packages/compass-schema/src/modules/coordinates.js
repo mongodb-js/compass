@@ -1,6 +1,5 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import assign from 'lodash.assign';
 import defer from 'lodash.defer';
 import get from 'lodash.get';
 import isEqual from 'lodash.isequal';
@@ -460,7 +459,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    assign(options, value);
+    Object.assign(options, value);
     return chart;
   };
 

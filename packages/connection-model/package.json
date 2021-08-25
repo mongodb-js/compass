@@ -2,12 +2,15 @@
   "name": "mongodb-connection-model",
   "description": "MongoDB connection model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "bugs": "https://github.com/mongodb-js/connection-model/issues",
-  "homepage": "https://github.com/mongodb-js/connection-model",
-  "version": "21.5.3",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "version": "21.7.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/connection-model.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "keywords": [
@@ -25,7 +28,7 @@
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "peerDependencies": {
-    "mongodb": "4.x"
+    "mongodb": "^4.1.0"
   },
   "dependencies": {
     "@mongodb-js/ssh-tunnel": "^1.2.0",
@@ -38,19 +41,19 @@
     "raf": "^3.4.1",
     "resolve-mongodb-srv": "^1.1.0",
     "ssh2": "^0.8.7",
-    "storage-mixin": "^4.5.0"
+    "storage-mixin": "^4.6.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "electron": "^6.1.12",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^8.0.1",
     "mock-require": "^3.0.3",
-    "mongodb": "addaleax/node-mongodb-native#71d4c39e5c858f49d10e840df626eca4da653e28",
-    "mongodb-runner": "^4.8.1",
+    "mongodb": "^4.1.0",
+    "mongodb-runner": "^4.8.3",
     "proxyquire": "^2.1.0",
     "sinon": "^9.0.2",
     "uuid": "^8.2.0"

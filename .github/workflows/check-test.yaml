@@ -38,21 +38,22 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node.js Environment
-        uses: actions/setup-node@v2.1.2
+        uses: actions/setup-node@v2
         with:
           # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
           node-version: ^12.9.0
+          cache: 'npm'
 
       - name: Install npm@7
         run: npm install -g npm@7
 
       - name: Install Dependencies
         run: |
-          npm ci --force
+          npm ci
           # Dependencies are included when installing as npm workspaces will
           # hoist every package in the repo and it's important that the
           # dependencies of packages we are planning to test are also prepared
-          npx lerna run prepare --stream --since $MAIN_BRANCH_NAME --include-dependencies
+          npx lerna run bootstrap --stream --since $MAIN_BRANCH_NAME --include-dependencies
         shell: bash
 
       - name: Run Checks
@@ -63,5 +64,18 @@ jobs:
         shell: bash
 
       - name: Run Tests
+        env:
+          E2E_TESTS_ATLAS_HOST: ${{ secrets.E2E_TESTS_ATLAS_HOST }}
+          E2E_TESTS_ATLAS_USERNAME: ${{ secrets.E2E_TESTS_ATLAS_USERNAME }}
+          E2E_TESTS_ATLAS_PASSWORD: ${{ secrets.E2E_TESTS_ATLAS_PASSWORD }}
+          # Matches what we are doing in Evergreen
+          MONGODB_VERSION: '4'
         run: npm run test-ci -- --stream --since $MAIN_BRANCH_NAME
         shell: bash
+
+      - name: Upload Spectron Logs
+        uses: actions/upload-artifact@v2
+        if: ${{ cancelled() || failure() }}
+        with:
+          name: Spectron Debug Log ${{ runner.os }}
+          path: packages/compass-e2e-tests/.log/**/*

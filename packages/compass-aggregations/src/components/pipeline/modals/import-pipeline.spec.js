@@ -32,7 +32,7 @@ describe('ImportPipeline [Component]', () => {
   });
 
   it('renders the title text', () => {
-    expect(component.find('h4')).to.have.text(
+    expect(component.find('h1')).to.have.text(
       'New Pipeline From Plain Text'
     );
   });
@@ -45,14 +45,14 @@ describe('ImportPipeline [Component]', () => {
 
   context('when clicking on the cancel button', () => {
     it('calls the action', () => {
-      component.find('#cancel-import-pipeline-from-text').hostNodes().simulate('click');
+      component.find('button').at(1).hostNodes().simulate('click');
       expect(closeImportSpy.calledOnce).to.equal(true);
     });
   });
 
-  context('when clicking on the  button', () => {
+  context('when clicking on the confirm import button', () => {
     it('calls the action', () => {
-      component.find('#import-pipeline-from-text').hostNodes().simulate('click');
+      component.find('button').at(0).hostNodes().simulate('click');
       expect(createNewSpy.calledOnce).to.equal(true);
     });
   });

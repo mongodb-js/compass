@@ -4,6 +4,7 @@ ignores: [
   "@mongodb-js/compass-auto-updates",
   "@mongodb-js/compass-collection",
   "@mongodb-js/compass-collection-stats",
+  "@mongodb-js/compass-components",
   "@mongodb-js/compass-connect",
   "@mongodb-js/compass-crud",
   "@mongodb-js/compass-database",

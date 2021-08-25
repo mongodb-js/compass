@@ -1,6 +1,5 @@
 const Reflux = require('reflux');
 const app = require('hadron-app');
-const includes = require('lodash.includes');
 const debug = require('debug')('mongodb-compass:namespace-store');
 
 /**
@@ -20,7 +19,7 @@ const NamespaceStore = Reflux.createStore({
     if (!ns) {
       return ['', ''];
     }
-    if (includes(ns, '.')) {
+    if (ns.includes('.')) {
       return ns.split('.');
     }
 

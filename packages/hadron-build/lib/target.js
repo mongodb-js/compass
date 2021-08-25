@@ -194,6 +194,9 @@ class Target {
     } else {
       this.configureForLinux();
     }
+
+    this.resourcesAppDir = path.join(this.resources, 'app');
+
     debug('target ready', this);
   }
   /**

@@ -1,0 +1,29 @@
+{
+  "name": "compass-e2e-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "E2E test suite for Compass app that follows smoke tests / feature testing matrix",
+  "scripts": {
+    "pretest": "mongodb-runner start --port=27018 --dbpath ./.mongodb",
+    "test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1024x768x24\" -- node index.js",
+    "posttest": "mongodb-runner stop --port=27018 && node -e \"try { fs.rmdirSync('.mongodb', { recursive: true }); } catch (e) {}\"",
+    "test-ci": "npm run test",
+    "posttest-ci": "node ../../scripts/killall-mongo.js",
+    "test-packaged": "npm run test -- -- --test-packaged-app",
+    "test-packaged-ci": "npm run test-ci -- -- --test-packaged-app"
+  },
+  "dependencies": {
+    "mongodb-compass": "^0.0.0-dev.0"
+  },
+  "devDependencies": {
+    "@types/webdriverio": "^4.13.3",
+    "chai": "^4.3.4",
+    "debug": "^4.3.1",
+    "electron-rebuild": "^2.3.5",
+    "glob": "^7.1.6",
+    "mocha": "^8.4.0",
+    "mongodb-runner": "^4.8.3",
+    "spectron": "^8.0.0",
+    "xvfb-maybe": "^0.2.1"
+  }
+}

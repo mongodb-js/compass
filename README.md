@@ -1,6 +1,6 @@
 # MongoDB Compass Monorepo
 
-This repository contains MongoDB Compass application source, all Compass plugins and most of application dependencies and build tooling for the app.
+This repository contains the source code and build tooling used in [MongoDB Compass](https://compass.mongodb.com).
 
 ![Aggregation Pipeline Builder Tab in Compass](packages/compass/compass-screenshot.png)
 
@@ -44,6 +44,7 @@ This repository contains MongoDB Compass application source, all Compass plugins
 
 ### Shared Libraries and Build Tools
 
+- [**@mongodb-js/compass-components**](packages/compass-components): A set of React Components used in Compass
 - [**@mongodb-js/hadron-plugin-manager**](packages/hadron-plugin-manager): Hadron Plugin Manager
 - [**@mongodb-js/mongodb-notary-service-client**](packages/notary-service-client): A client for our notary-service: an API for codesigning.
 - [**@mongodb-js/mongodb-redux-common**](packages/redux-common): Common Redux Modules for mongodb-js
@@ -62,7 +63,6 @@ This repository contains MongoDB Compass application source, all Compass plugins
 - [**hadron-react-bson**](packages/hadron-react-bson): Hadron React BSON Components
 - [**hadron-react-buttons**](packages/hadron-react-buttons): Hadron React Button Components
 - [**hadron-react-components**](packages/hadron-react-components): Hadron React Components
-- [**hadron-react-utils**](packages/hadron-react-utils): Hadron React Utils
 - [**hadron-reflux-store**](packages/reflux-store): Hadron Reflux Stores
 - [**hadron-style-manager**](packages/hadron-style-manager): Hadron Style Manager
 - [**hadron-type-checker**](packages/hadron-type-checker): Hadron Type Checker
@@ -82,69 +82,18 @@ This repository contains MongoDB Compass application source, all Compass plugins
 - [**mongodb-security**](packages/security): Portable business logic of MongoDB security model
 - [**storage-mixin**](packages/storage-mixin): Ampersand model mixin to persist data via various storage backends
 
-## Working With the Monorepo
+### Shared Configuration Files
 
-You'll need node ^12.9.0 and npm 7 installed on your machine to work with the repository locally. After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
-
-After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
-
-This monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/using-npm/workspaces) an [`lerna`](https://github.com/lerna/lerna#readme), although not necessary, it might be helpful to have a high level understanding of those tools.
-
-### Working on Plugins
-
-Most of the plugins have their own development environment so you can work on them in isolation. If you want to work on plugin without running the whole Compass application, you can run `npm run start` in the plugin directory, either with the help of `lerna` or `npm workspaces`. For example to start compass-connect plugin locally you can run `npm run start --workspace @mongodb-js/compass-connect` or `npx lerna run start --scope @mongodb-js/compass-connect --stream`.
-
-If you want to see your changes applied in Compass, you might need to rebuild plugins that you changed with the `compile` command. Instead of manually writing out the `scope` you might want to use `lerna --since` filter to rebuild everything since your local or origin `HEAD` of the git history: `npx lerna run compile --stream --since origin/HEAD`. Restarting or hard-reloading (Shift+CMD+R) Compass after compilation is finished should apply your changes.
-
-In addition to running lerna commands directly, there are a few convenient npm scripts for working with packages:
-
-- `npm run compile-changed` will compile all plugins and their dependants changed since `origin/HEAD`
-- `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`
-- `npm run check-changed` will run `eslint` and `depcheck` validation in all packages (ignoring dependants) changed since `origin/HEAD`
-
-### Caveats
-
-#### `Module did not self-register` or `Module '<path>' was compiled against a different Node.js version` Errors
-
-<!-- TODO: should go away after https://jira.mongodb.org/browse/COMPASS-4896 -->
-
-When running Compass application or tests suites locally, you might run into errors like the following:
-
-```
-Error: Module did not self-register: '/path/to/native/module.node'.
-```
-
-```
-Error: The module '/path/to/native/module.node' was compiled against a different Node.js version using NODE_MODULE_VERSION $XYZ. This version of Node.js requires NODE_MODULE_VERSION $ABC.
-```
-
-The root cause is native modules compiled for a different version of the runtime (either Node.js or Electron) that tries to import the module. In our case this is usually caused by combination of two things:
-
-1. Modules have to be recompiled for the runtime they will be used in
-1. Due to npm workspaces hoisting all shared dependencies to the very root of the monorepo, all packages use the same modules imported from the same location
-
-This means that if you e.g., start Compass application locally it will recompile all native modules to work in Electron runtime, if you would try to run tests for `mongodb-connection-model` library right after that, tests would fail due to `keytar` library not being compatible with Node.js environment that the tests are running in.
-
-If you run into this issue, make sure that native modules are rebuilt for whatever runtime you are planning to use at the moment. To help with that we provide two npm scripts: `npm run electron-rebuild` will recompile native modules to work with Electron and `npm run node-rebuild` will recompile them to work with Node.js.
-
-### Publishing Packages
-
-For package changes to be applied in Compass beta or GA releases they need to be published first. The whole publish process happens from the main branch with the following command in order:
-
-1. `npm run packages-version [semver bump]`: updates package versions for everything that was changed since the last release, updates package-lock file at the root of the repository, commits and tags the changes. See lerna docs to learn more about optional [`semver bump`](https://github.com/lerna/lerna/tree/main/commands/version#semver-bump) argument.
-1. `npm run packages-publish`: publishes packages to the registry, if your npm account uses OTP publishing protection get ready to enter the code a few times, as an alternative you might want to use [npm automation authorization tokens](https://docs.npmjs.com/creating-and-viewing-access-tokens) locally if OTP gets in the way too much (in that case add a [`--no-verify-access`](https://github.com/lerna/lerna/tree/main/commands/publish#--no-verify-access) flag to the publish command). Publish command can be re-run safely multiple times, so if something bad happens mid-release (e.g., your internet goes out), you should be able to safely fiinish the process. After publish finishes successfully the script will push version update commit and tags created in step 1. We do it automatically only post-release so that when evergreen picks up a commit in the main branch, all the tasks can run with the packages already published.
-
-### Add / Update / Remove Dependencies in Packages
-
-To add, remove, or update a dependency in any subpackage you can use the usual `npm install` with a `--workspace` argument added, e.g. to add `react-aria` dependency to compass-connect and compass-query-bar plugins you can run `npm install --save react-aria --workspace @mongodb-js/compass-connect --workspace @mongodb-js/compass-query-bar`.
-
-Additionally if you want to update a version of an existing dependency, but don't want to figure out the scope manually, you can use `npm run where` helper script. To update `webpack` in every package that has it as a dev dependency you can run `npm run where "devDependencies['webpack']" -- install --save-dev webpack@latest`
+- [**@mongodb-js/eslint-config-compass**](configs/eslint-config-compass): Shared eslint configuration used in Compass packages.
+- [**@mongodb-js/mocha-config-compass**](configs/mocha-config-compass): Shared mocha configuration used in Compass packages.
+- [**@mongodb-js/prettier-config-compass**](configs/prettier-config-compass): Shared prettier configurations used in Compass packages.
+- [**@mongodb-js/tsconfig-compass**](configs/tsconfig-compass): Shared basic TypeScript configurations used in Compass packages.
 
 ## Contributing
 
-For issues, please create a ticket in our [JIRA Project](https://jira.mongodb.org/browse/COMPASS).
-
 For contributing, please refer to [CONTRIBUTING.md](CONTRIBUTING.md)
+
+For issues, please create a ticket in our [JIRA Project](https://jira.mongodb.org/browse/COMPASS).
 
 Is there anything else you’d like to see in Compass? Let us know by submitting suggestions in out [feedback forum](https://feedback.mongodb.com/forums/924283-compass).
 

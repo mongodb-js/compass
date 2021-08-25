@@ -1,7 +1,7 @@
 {
   "name": "mongodb-js-metrics",
   "description": "Shareable metric recording.",
-  "version": "7.3.1",
+  "version": "7.4.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
@@ -10,10 +10,10 @@
     "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
-  "homepage": "http://github.com/mongodb-js/metrics",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/metrics.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
     "ampersand-collection": "^2.0.1",
@@ -35,7 +35,7 @@
     "xhr": "^2.2.0"
   },
   "devDependencies": {
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "electron": "^6.1.12",
     "electron-mocha": "^8.2.0",
     "eslint": "^7.25.0",
@@ -44,5 +44,9 @@
     "sinon": "^9.0.0",
     "xvfb-maybe": "^0.2.1"
   },
-  "license": "SSPL"
+  "license": "SSPL",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  }
 }

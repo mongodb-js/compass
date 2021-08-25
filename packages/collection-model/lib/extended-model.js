@@ -1,6 +1,5 @@
 var MongoDBCollection = require('./collection-model');
 var toNS = require('mongodb-ns');
-var clone = require('lodash.clone');
 var raf = require('raf');
 
 /**
@@ -46,7 +45,7 @@ var CollectionModel = MongoDBCollection.extend({
   fetch: function(options) {
     var model = this;
 
-    options = options ? clone(options) : {};
+    options = options ? { ...options } : {};
     if (!options.parse) {
       options.parse = true;
     }

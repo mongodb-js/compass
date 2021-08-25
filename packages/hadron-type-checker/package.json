@@ -2,12 +2,15 @@
   "name": "hadron-type-checker",
   "description": "Hadron Type Checker",
   "author": "Durran Jordan <durran@gmail.com>",
-  "bugs": "https://github.com/mongodb-js/hadron-type-checker/issues",
-  "homepage": "https://github.com/mongodb-js/hadron-type-checker",
-  "version": "6.3.1",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "version": "6.4.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/hadron-type-checker.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
   "keywords": [
@@ -27,7 +30,7 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^8.0.1"

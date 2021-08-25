@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { truncate } from 'hadron-react-utils';
+import truncate from './truncate';
 import hexToUUID from 'hex-to-uuid';
 
 /**

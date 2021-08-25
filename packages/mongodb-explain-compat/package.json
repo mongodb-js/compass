@@ -1,6 +1,6 @@
 {
   "name": "mongodb-explain-compat",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Convert mongodb SBE explain output to 4.4 explain output",
   "keywords": [
     "mongodb",
@@ -21,23 +21,25 @@
   ],
   "scripts": {
     "lint": "eslint **/*.js",
-    "test": "npm run lint && npm run build && nyc mocha --colors test/*.js",
-    "build": "gen-esm-wrapper . ./.esm-wrapper.mjs",
-    "prepare": "npm run build",
+    "test": "npm run lint && npm run compile && nyc mocha --colors test/*.js",
+    "compile": "gen-esm-wrapper . ./.esm-wrapper.mjs",
+    "prepublishOnly": "npm run compile",
     "test-ci": "npm run test",
-    "depcheck": "depcheck"
+    "depcheck": "depcheck",
+    "bootstrap": "npm run compile"
   },
-  "homepage": "https://github.com/mongodb-js/mongodb-explain-compat",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/mongodb-explain-compat.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "bugs": {
-    "url": "https://github.com/mongodb-js/mongodb-explain-compat/issues"
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
   },
   "license": "SSPL",
   "devDependencies": {
-    "eslint": "^7.9.0",
+    "eslint": "^7.25.0",
     "eslint-config-semistandard": "^15.0.1",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.22.0",

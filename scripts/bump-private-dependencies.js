@@ -58,8 +58,10 @@ async function main() {
   }
 
   if (!NO_PACKAGE_LOCK) {
-    await withProgress('Updating package-lock at root', async () => {
-      await runInDir('npm install --package-lock-only');
+    await withProgress('Updating node_modules and package-lock at root', async () => {
+      // We do full install here so not only package-lock is updated, but your
+      // local dependencies are up to date and ready for publish step
+      await runInDir('npm install');
     });
   }
 
@@ -85,6 +87,7 @@ async function main() {
 process.on('unhandledRejection', (err) => {
   console.error();
   console.error(err.stack || err.message || err);
+  process.exitCode = 1;
 });
 
 main();

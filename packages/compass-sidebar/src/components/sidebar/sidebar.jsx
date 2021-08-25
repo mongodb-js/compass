@@ -21,7 +21,7 @@ import { filterDatabases, changeDatabases } from '../../modules/databases';
 import { changeFilterRegex } from '../../modules/filter-regex';
 import { openLink } from '../../modules/link';
 import { toggleIsModalVisible } from '../../modules/is-modal-visible';
-import { saveFavorite, deleteFavorite } from '../../modules/connection-model';
+import { saveFavorite } from '../../modules/connection-model';
 
 import { TOOLTIP_IDS } from '../../constants/sidebar-constants';
 
@@ -55,7 +55,6 @@ class Sidebar extends PureComponent {
     connectionModel: PropTypes.object.isRequired,
     toggleIsModalVisible: PropTypes.func.isRequired,
     isModalVisible: PropTypes.bool.isRequired,
-    deleteFavorite: PropTypes.func.isRequired,
     saveFavorite: PropTypes.func.isRequired
   };
 
@@ -255,7 +254,7 @@ class Sidebar extends PureComponent {
           toggleIsModalVisible={this.props.toggleIsModalVisible}
           isModalVisible={this.props.isModalVisible}
           saveFavorite={this.props.saveFavorite}
-          deleteFavorite={this.props.deleteFavorite} />
+        />
         <div
           className={classnames(styles['compass-sidebar-filter'])}
           onClick={this.handleSearchFocus.bind(this)}>
@@ -326,7 +325,6 @@ const MappedSidebar = connect(
     openLink,
     globalAppRegistryEmit,
     toggleIsModalVisible,
-    deleteFavorite,
     saveFavorite
   },
 )(Sidebar);

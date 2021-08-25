@@ -65,9 +65,7 @@ function run(cmd, args, opts, fn) {
       return fn(err);
     }
 
-    debug('running', {
-      cmd: cmd
-    });
+    debug('running', { cmd, args });
 
     var output = [];
     var proc = spawn(bin, args, opts);

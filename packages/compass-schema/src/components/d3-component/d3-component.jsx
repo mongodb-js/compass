@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import d3 from 'd3';
 import bson from 'bson';
-import assign from 'lodash.assign';
 
 /**
  * Conversion for display in minicharts for non-promoted BSON types.
@@ -78,7 +77,7 @@ class D3Component extends Component {
       height: this.props.height
     };
     if (this.props.renderMode === 'svg') {
-      options = assign(options, sizeOptions);
+      options = Object.assign(options, sizeOptions);
       return (
         <svg {...options}>
           <defs>
@@ -92,7 +91,7 @@ class D3Component extends Component {
         </svg>
       );
     }
-    options = assign(options, {
+    options = Object.assign(options, {
       style: sizeOptions
     });
     return <div {...options} />;

@@ -41,19 +41,18 @@ jobs:
           git config --local user.name "github-actions[bot]"
 
       - name: Setup Node.js Environment
-        uses: actions/setup-node@v2.1.2
+        uses: actions/setup-node@v2
         with:
           # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
           node-version: ^12.9.0
+          cache: 'npm'
 
       - name: Install npm@7
-        run: npm install -g npm@7
-
-      - name: Install verdaccio
-        run: npm install -g verdaccio
+        # Can be changed back to npm@7 when https://github.com/npm/cli/issues/3637 is resolved
+        run: npm install -g npm@7.20.2
 
       - name: Install Dependencies
-        run: npm install --force
+        run: npm run bootstrap-ci
 
       # https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708/3
       - name: Set path for candle.exe and light.exe
@@ -62,75 +61,28 @@ jobs:
         shell: bash
 
       - name: Publish Packages Locally and Build Compass
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 5
+          shell: bash
+          command: npm run package-compass
         env:
-          npm_config_registry: http://localhost:4873/
           HADRON_PRODUCT: mongodb-compass
           HADRON_PRODUCT_NAME: MongoDB Compass
           HADRON_DISTRIBUTION: compass
-        run: |
-          # Whatever changes occured at that point, they are irrelevant
-          git reset HEAD --hard
+          HADRON_LOCAL_PUBLISH: 'true'
+          DEBUG: 'hadron*,mongo*,electron*'
 
-          # Remove verdaccio storage. Should not be there, but just in case
-          rm -rf ./storage
-          verdaccio --config ./scripts/monorepo/verdaccio.yaml --listen 4873 &
-          VERDACCIO_PID=$!
-          npx wait-on -t 15000 "$npm_config_registry"
-
-          nice_hash=$(git rev-parse --short "$GITHUB_SHA")
-
-          npx lerna version prerelease \
-              --preid "pr$nice_hash" \
-              --no-push \
-              --no-private \
-              --force-publish "*" \
-              --yes
-
-          # We will run prepare manually to isolate the flakiest part of the
-          # process which is publishing
-          npx lerna run prepare --stream
-
-          # Publish process seems to be pretty flaky on Windows so we are
-          # retrying it up to 5 times before bailing
-          n=0
-          exitcode=0
-          until [ "$n" -ge 5 ]
-          do
-              echo ""
-              echo "Attempting to publish packages ($((n+1))/5) ..."
-              echo ""
-              exitcode=0
-              npx lerna publish from-package \
-                  --ignore-scripts \
-                  --registry "$npm_config_registry" \
-                  --yes && break
-              exitcode=$?
-              # If we failed, lerna might've left some changes in the history,
-              # this needs to be cleaned up before we can retry
-              git reset HEAD --hard
-              n=$((n+1))
-              sleep 1
-          done
-
-          if [ "$exitcode" -gt 0 ]
-          then
-              echo ""
-              echo "Failed to publish packages"
-              echo ""
-              # Clean-up background verdaccio process
-              kill $VERDACCIO_PID
-              # If we couldn't publish, exit with last publish command exit code
-              exit $exitcode
-          fi
-
-          # Setting debug before this line breaks plugins build process
-          export DEBUG=hadron*,mongo*,electron*
-
-          npm run release-evergreen
-
-          # Clean-up background verdaccio process
-          kill $VERDACCIO_PID
-        shell: bash
+      - name: Test Packaged Application
+        env:
+          E2E_TESTS_ATLAS_HOST: ${{ secrets.E2E_TESTS_ATLAS_HOST }}
+          E2E_TESTS_ATLAS_USERNAME: ${{ secrets.E2E_TESTS_ATLAS_USERNAME }}
+          E2E_TESTS_ATLAS_PASSWORD: ${{ secrets.E2E_TESTS_ATLAS_PASSWORD }}
+          # Matches what we are doing in Evergreen
+          MONGODB_VERSION: '4'
+          DEBUG: 'hadron*,mongo*,electron*'
+        run: npm run test-packaged-ci --workspace compass-e2e-tests
 
       - name: Upload Compass Artifacts
         uses: actions/upload-artifact@v2
@@ -144,3 +96,10 @@ jobs:
             packages/compass/dist/*.deb
             packages/compass/dist/*.rpm
             packages/compass/dist/*.tar.gz
+
+      - name: Upload Spectron Logs
+        uses: actions/upload-artifact@v2
+        if: ${{ cancelled() || failure() }}
+        with:
+          name: Spectron Debug Log ${{ runner.os }}
+          path: packages/compass-e2e-tests/.log/**/*.log

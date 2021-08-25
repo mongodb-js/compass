@@ -21,20 +21,8 @@ describe('Favorites [Component]', () => {
       );
     });
 
-    it('renders the wrapper div', () => {
-      const style = '.connect-sidebar-connections-favorites';
-
-      expect(component.find(style)).to.be.present();
-    });
-
     it('renders the header', () => {
       const style = `.${styles['connect-sidebar-header']}`;
-
-      expect(component.find(style)).to.be.present();
-    });
-
-    it('renders the favorites icon', () => {
-      const style = 'i.fa-star';
 
       expect(component.find(style)).to.be.present();
     });

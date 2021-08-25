@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-serverstats",
   "productName": "Compass Server Stats plugin",
-  "version": "15.7.3",
+  "version": "15.10.0",
   "apiVersion": "3.0.0",
   "description": "Compass Real Time Server Stats Component.",
   "main": "index.js",
@@ -20,14 +20,15 @@
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" index.js",
     "depcheck": "depcheck",
     "test-ci": "npm run test",
-    "prepare": "npm run compile"
+    "prepublishOnly": "npm run compile",
+    "bootstrap": "npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {
     "hadron-react-buttons": "*",
     "hadron-react-components": "*",
-    "react": "^16.8.0",
-    "react-dom": "^16.8.0"
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "dependencies": {
     "d3": "^3.5.17",
@@ -50,33 +51,33 @@
     "@babel/register": "^7.13.16",
     "babel-loader": "^8.2.2",
     "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.0",
+    "chai-as-promised": "^7.1.1",
     "chai-enzyme": "1.0.0-beta.0",
     "cheerio": "^1.0.0-rc.2",
     "debug": "^4.1.1",
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "electron": "^6.1.12",
     "electron-mocha": "^6.0.1",
-    "enzyme": "^3.7.0",
-    "enzyme-adapter-react-16": "^1.6.0",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.1.0",
     "eslint-plugin-react": "^7.24.0",
-    "hadron-app": "^4.7.3",
-    "hadron-app-registry": "^8.3.0",
-    "hadron-build": "^24.5.1",
-    "hadron-react-buttons": "^5.3.0",
-    "hadron-react-components": "^5.4.0",
+    "hadron-app": "^4.10.0",
+    "hadron-app-registry": "^8.4.0",
+    "hadron-build": "^24.7.0",
+    "hadron-react-buttons": "^5.4.0",
+    "hadron-react-components": "^5.5.0",
     "jsdom": "^16.6.0",
     "jsdom-global": "^3.0.2",
     "less": "^3.11.1",
     "less-loader": "^2.2.3",
     "mocha": "^2.5.3",
     "mock-require": "^2.0.1",
-    "mongodb-connection-model": "^21.5.3",
-    "mongodb-data-service": "^21.5.3",
+    "mongodb-connection-model": "^21.7.0",
+    "mongodb-data-service": "^21.8.0",
     "mongodb-ns": "^2.2.0",
-    "prop-types": "^15.5.8",
+    "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
@@ -84,5 +85,14 @@
     "sinon-chai": "^2.8.0",
     "watch": "^0.19.2",
     "xvfb-maybe": "^0.2.1"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
   }
 }

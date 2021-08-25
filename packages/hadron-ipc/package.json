@@ -1,7 +1,7 @@
 {
   "name": "hadron-ipc",
   "description": "Simplified IPC for electron apps.",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "xvfb-maybe electron-mocha --no-sandbox",
@@ -10,25 +10,29 @@
     "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
-  "homepage": "http://github.com/mongodb-js/hadron-ipc",
+  "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/hadron-ipc.git"
+    "url": "https://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
     "debug": "^4.1.1",
-    "is-electron-renderer": "^2.0.0",
+    "is-electron-renderer": "^2.0.1",
     "is-promise": "^2.1.0",
     "lodash.forin": "^4.4.0",
     "lodash.isplainobject": "^4.0.6"
   },
   "devDependencies": {
-    "depcheck": "^1.4.0",
+    "depcheck": "^1.4.1",
     "electron": "^6.1.12",
     "electron-mocha": "^8.2.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "xvfb-maybe": "^0.2.1"
   },
-  "license": "SSPL"
+  "license": "SSPL",
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  }
 }

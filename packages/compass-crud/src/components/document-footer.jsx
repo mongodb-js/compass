@@ -1,4 +1,4 @@
-import { pull, includes } from 'lodash';
+import { pull } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Element } from 'hadron-document';
@@ -150,7 +150,7 @@ class DocumentFooter extends React.Component {
    * @param {String} uuid - The element uuid.
    */
   handleInvalid(uuid) {
-    if (!includes(this.invalidElements, uuid)) {
+    if (!this.invalidElements.includes(uuid)) {
       this.invalidElements.push(uuid);
       this.handleModification();
     }

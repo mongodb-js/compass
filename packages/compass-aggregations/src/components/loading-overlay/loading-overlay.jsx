@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
 import styles from './loading-overlay.less';
 
@@ -21,10 +20,10 @@ class LoadingOverlay extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['loading-overlay'])}>
-        <div className={classnames(styles['loading-overlay-box'])}>
+      <div className={styles['loading-overlay']}>
+        <div className={styles['loading-overlay-box']}>
           <i className="fa fa-circle-o-notch fa-spin" aria-hidden />
-          <div className={classnames(styles['loading-overlay-box-text'])}>
+          <div className={styles['loading-overlay-box-text']}>
             {this.props.text}
           </div>
         </div>

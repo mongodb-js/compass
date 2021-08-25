@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
 import Banner from '@leafygreen-ui/banner';
 
 import { createDatabase } from '../../modules/create-database';
@@ -104,6 +104,8 @@ class CreateDatabaseModal extends PureComponent {
    * @returns {React.Component} The react component.
    */
   render() {
+    const hasCollectionName = !!(this.state.data.collection || '').trim();
+
     return (
       <ConfirmationModal
         title="Create Database"
@@ -112,7 +114,7 @@ class CreateDatabaseModal extends PureComponent {
         onCancel={this.onCancel}
         buttonText="Create Database"
         submitDisabled={(
-          !(this.state.data.collection || '').trim() ||
+          !hasCollectionName ||
           !(this.state.data.database || '').trim()
         )}
         className={styles['create-database-modal']}
@@ -123,7 +125,7 @@ class CreateDatabaseModal extends PureComponent {
           onChange={this.onChange}
           openLink={this.props.openLink}
         />
-        {this.renderCollectionNameRequiredNotice()}
+        {!hasCollectionName && this.renderCollectionNameRequiredNotice()}
         {this.renderError()}
       </ConfirmationModal>
     );

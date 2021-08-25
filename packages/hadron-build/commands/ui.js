@@ -17,7 +17,7 @@ const generateLessCache = (opts) => {
   /**
    * TODO (imlucas) Standardize to use CONFIG.
    */
-  const appDir = path.join(process.cwd(), 'src', 'app');
+  const appDir = path.join(opts.dir, 'src', 'app');
   const src = path.join(appDir, 'index.less');
   if (!fs.existsSync(src)) {
     return new Promise(function(resolve) {
@@ -50,7 +50,7 @@ const generateLessHelpCache = (opts) => {
   /**
    * TODO (imlucas) Standardize to use CONFIG.
    */
-  const appDir = path.join(process.cwd(), 'src', 'app');
+  const appDir = path.join(opts.dir, 'src', 'app');
   const src = path.join(appDir, 'help.less');
   if (!fs.existsSync(src)) {
     return new Promise(function(resolve) {
@@ -76,9 +76,13 @@ const generateLessHelpCache = (opts) => {
 };
 
 exports.builder = {
+  dir: {
+    description: 'Project root directory',
+    default: process.cwd()
+  },
   less_cache: {
     description: 'Path for less cache',
-    default: 'src/app/compiled-less'
+    default: path.join('src', 'app', '.compiled-less')
   }
 };
 

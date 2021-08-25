@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
 import Banner from '@leafygreen-ui/banner';
 
 import { CreateDatabaseModal } from '../create-database-modal';
@@ -60,6 +60,39 @@ describe('CreateDatabaseModal [Component]', () => {
 
     it('renders the error message and info message', () => {
       expect(component.find(Banner)).to.have.length(2);
+    });
+  });
+
+  context('when a collection name has been entered', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <CreateDatabaseModal
+          isVisible
+          isRunning={false}
+          openLink={() => {}}
+          createDatabase={() => {}}
+          toggleIsVisible={() => {}}
+          clearError={() => {}}
+        />
+      );
+
+      component.setState({
+        data: {
+          collection: 'aa'
+        }
+      });
+
+      component.update();
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('does not render a message', () => {
+      expect(component.find(Banner)).to.have.length(0);
     });
   });
 
