@@ -1,10 +1,9 @@
 import createTestEnvs from '@mongodb-js/devtools-docker-test-envs';
-import util from 'util';
 import assert from 'assert';
-
+import util from 'util';
 import connect from '../src/connect';
-import DataService from '../src/data-service';
 import { ConnectionOptions } from '../src/connection-options';
+import DataService from '../src/data-service';
 
 const envs = createTestEnvs(['community']);
 
@@ -26,13 +25,27 @@ async function connectAndGetConnectionStatus(
 }
 
 describe('connectivity integration tests', function () {
+  let environmentsStarted = false;
+
   before(async function () {
+    if (
+      process.platform !== 'linux' &&
+      !process.env.COMPASS_RUN_CONNECTIVITY_TESTS
+    ) {
+      return this.skip();
+    }
+
     console.log('setting up testing environments ...');
     await envs.setup();
+    environmentsStarted = true;
     console.log('done.');
   });
 
   after(async function () {
+    if (!environmentsStarted) {
+      return;
+    }
+
     console.log('tearing down testing environments ...');
     await envs.teardown();
     console.log('done.');

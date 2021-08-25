@@ -22,7 +22,7 @@ export default async function connect(
     connectionModel.sshTunnel = 'NONE';
   } else if (connectionOptions.sshTunnel.password) {
     connectionModel.sshTunnel = 'USER_PASSWORD';
-  } else if (connectionOptions.sshTunnel.privateKey) {
+  } else if (connectionOptions.sshTunnel.privateKeyFile) {
     connectionModel.sshTunnel = 'IDENTITY_FILE';
   }
 

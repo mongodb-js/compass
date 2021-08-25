@@ -1,14 +1,20 @@
-import SSHTunnel from '@mongodb-js/ssh-tunnel';
-import { MongoClientOptions, MongoClient, ReadPreferenceLike } from 'mongodb';
-import { ConnectionSshOptions } from './connection-options';
+import SSHTunnel, { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
+import { MongoClient, MongoClientOptions, ReadPreferenceLike } from 'mongodb';
 
 export interface LegacyConnectionModel {
   hostname: string;
   port: number;
   ns: string;
   readPreference: ReadPreferenceLike;
-  sshTunnel?: string;
-  sshTunnelOptions?: ConnectionSshOptions;
+  sshTunnel?: 'NONE' | 'USER_PASSWORD' | 'IDENTITY_FILE';
+  sshTunnelHostname?: string;
+  sshTunnelPort?: number;
+  sshTunnelBindToLocalPort?: number;
+  sshTunnelUsername?: string;
+  sshTunnelPassword?: string;
+  sshTunnelIdentityFile?: string;
+  sshTunnelPassphrase?: string;
+  readonly sshTunnelOptions?: SshTunnelConfig;
   driverUrlWithSsh: string;
   driverOptions: MongoClientOptions;
   directConnection?: boolean;
