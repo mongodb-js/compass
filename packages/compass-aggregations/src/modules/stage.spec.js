@@ -133,7 +133,10 @@ describe('Stage module', () => {
         isValid: true,
         snippet: '',
         stageOperator: '$addFields',
-        stage: '{\n       totalHomework: { $sum: "$homework" } ,\n       totalQuiz: { $sum: "$quiz" }\n  \n}'
+        stage: `{
+       totalHomework: { $sum: "$homework" } ,
+       totalQuiz: { $sum: "$quiz" }
+}`
       };
 
       it('returns the stage', () => {
@@ -190,7 +193,15 @@ describe('Stage module', () => {
         isValid: true,
         snippet: '',
         stageOperator: '$bucket',
-        stage: '{\n     groupBy: "$price",\n     boundaries: [ 0, 200, 400 ],\n     default: "Other",\n     output: {\n       "count": { $sum: 1 },\n       "titles" : { $push: "$title" }\n     }\n   }'
+        stage: `{
+     groupBy: "$price",
+     boundaries: [ 0, 200, 400 ],
+     default: "Other",
+     output: {
+       "count": { $sum: 1 },
+       "titles" : { $push: "$title" }
+     }
+   }`
       };
 
       it('returns the stage', () => {
@@ -275,7 +286,7 @@ describe('Stage module', () => {
                 args: [
                   '$name'
                 ],
-                body: 'function(name) {\n                     return hex_md5(name) == \'15b0a220baa16331e8d80e15367677ad\'\n                  }',
+                body: 'function(name) {\n                     return hex_md5(name) == "15b0a220baa16331e8d80e15367677ad"\n                  }',
                 lang: 'js'
               }
             },
