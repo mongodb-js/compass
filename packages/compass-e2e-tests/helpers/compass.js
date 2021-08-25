@@ -314,6 +314,9 @@ function addCommands(app) {
   );
 
   app.client.addCommand('closeTourModal', async function () {
+    // Wait a bit in any case if it exists or doesn't just so it has a chance to
+    // render if possible
+    await delay(1000);
     if (await app.client.isExisting(Selectors.FeatureTourModal)) {
       await app.client.waitUntil(
         async () => {
@@ -340,6 +343,9 @@ function addCommands(app) {
   app.client.addCommand(
     'closePrivacySettingsModal',
     async function closePrivacySettingsModal() {
+      // Wait a bit in any case if it exists or doesn't just so it has a chance to
+      // render if possible
+      await delay(1000);
       if (await app.client.isExisting(Selectors.PrivacySettingsModal)) {
         await app.client.waitUntil(
           async () => {
