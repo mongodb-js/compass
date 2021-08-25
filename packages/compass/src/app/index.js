@@ -289,7 +289,11 @@ var Application = View.extend({
       var oldVersion = _.get(prefs, 'lastKnownVersion', '0.0.0');
       var currentVersion = APP_VERSION;
       var save = false;
-      if (semver.lt(oldVersion, currentVersion)) {
+      if (
+        semver.lt(oldVersion, currentVersion) ||
+        // So we can test the tour in any e2e environment, not only on prod
+        process.env.APP_ENV === 'spectron'
+      ) {
         prefs.showFeatureTour = oldVersion;
         save = true;
       }
