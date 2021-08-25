@@ -601,18 +601,6 @@ class DataService extends EventEmitter {
   }
 
   /**
-   * Get the collection stats plus sharding distribution information. This merges
-   * the shard distribution statistics under the "shards" array that was a result
-   * of the collStats command.
-   *
-   * @param ns - The namespace.
-   * @param callback - The callback.
-   */
-  shardedCollectionDetail(ns: string, callback: Callback<Document>): void {
-    this.client.shardedCollectionDetail(ns, callback);
-  }
-
-  /**
    * Returns the result of top.
    *
    * @param callback - the callback.
