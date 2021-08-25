@@ -116,6 +116,6 @@ export function generateStageAsString(state) {
   state.syntaxError = null;
 
   // This will turn function() {} into 'function() {}' for us which helps bson-transpilers later
-  const jsString = mongodbQueryParser.stringify(parsed);
+  const jsString = mongodbQueryParser.toJSString(parsed);
   return `{${state.stageOperator}: ${jsString}}`;
 }
