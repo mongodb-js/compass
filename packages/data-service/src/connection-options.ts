@@ -66,5 +66,5 @@ interface ConnectionFavoriteOptions {
   /**
    * Hex-code of the user-defined color.
    */
-  color: string;
+  color?: string;
 }
