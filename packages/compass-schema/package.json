@@ -110,7 +110,7 @@
     "mongodb-connection-model": "^21.7.0",
     "mongodb-data-service": "^21.8.0",
     "mongodb-ns": "^2.2.0",
-    "mongodb-query-parser": "^2.4.2",
+    "mongodb-query-parser": "^2.4.3",
     "mongodb-reflux-store": "^0.0.1",
     "node-fetch": "^2.6.1",
     "node-loader": "^0.6.0",
