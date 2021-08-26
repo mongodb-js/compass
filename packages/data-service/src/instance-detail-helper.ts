@@ -209,8 +209,6 @@ function parseHostInfo(hostInfo: Document): HostInfoDetails {
     cpu_bits: hostInfoSystem.cpuAddrSize,
     machine_model: hostInfoExtra.model,
     feature_numa: hostInfoSystem.numaEnabled,
-    /* `alwaysFullSync` seen as synchronous :p */
-    /* eslint no-sync: 0 */
     feature_always_full_sync: hostInfoExtra.alwaysFullSync,
     feature_nfs_async: hostInfoExtra.nfsAsync,
   };

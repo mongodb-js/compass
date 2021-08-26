@@ -3,7 +3,9 @@ const { expect } = require('chai');
 const { createUnlockedKeychain } = require('../helpers/keychain');
 const {
   startCompass,
-  getAtlasConnectionOptions
+  getAtlasConnectionOptions,
+  capturePage,
+  savePage
 } = require('../helpers/compass');
 
 /**
@@ -20,12 +22,17 @@ describe('Compass', function () {
     keychain.activate();
     compass = await startCompass();
     await compass.client.waitForConnectionScreen();
+    await compass.client.closeTourModal();
     await compass.client.closePrivacySettingsModal();
   });
 
   after(async () => {
     try {
       if (compass) {
+        if (process.env.CI) {
+          await capturePage(compass);
+          await savePage(compass);
+        }
         await compass.stop();
         compass = null;
       }

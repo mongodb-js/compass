@@ -19,6 +19,7 @@ const Selectors = require('./selectors');
  * @property {(selector: string, timeout?: number) => Promise<void>} clickVisible
  * @property {(selector: string, value: any, timeout?: number) => Promise<void>} setValueVisible
  * @property {() => Promise<void>} waitForConnectionScreen
+ * @property {() => Promise<void>} closeTourModal
  * @property {() => Promise<void>} closePrivacySettingsModal
  * @property {(timeout?: number) => Promise<void>} doConnect
  * @property {(connectionString: string, timeout?: number) => Promise<void>} connectWithConnectionString
@@ -70,7 +71,12 @@ function getAtlasConnectionOptions() {
   return { host, username, password, srvRecord: true };
 }
 
+// For the tmpdirs
 let i = 0;
+// For the screenshots
+let j = 0;
+// For the html
+let k = 0;
 
 /**
  * @param {boolean} testPackagedApp Should compass start from the packaged binary or just from the source (defaults to source)
@@ -120,11 +126,7 @@ async function startCompass(
 
   const shouldStoreAppLogs = process.env.ci || process.env.CI;
 
-  // Mimicking webdriver path with this for consistency
-  const nowFormatted = new Date()
-    .toISOString()
-    .replace(/:/g, '-')
-    .replace(/Z$/, '');
+  const nowFormatted = formattedDate();
 
   if (shouldStoreAppLogs) {
     const chromeDriverLogPath = path.join(
@@ -178,6 +180,11 @@ async function startCompass(
   };
 
   return app;
+}
+
+function formattedDate() {
+  // Mimicking webdriver path with this for consistency
+  return new Date().toISOString().replace(/:/g, '-').replace(/Z$/, '');
 }
 
 async function rebuildNativeModules(compassPath = COMPASS_PATH) {
@@ -306,9 +313,39 @@ function addCommands(app) {
     }
   );
 
+  app.client.addCommand('closeTourModal', async function () {
+    // Wait a bit in any case if it exists or doesn't just so it has a chance to
+    // render if possible
+    await delay(1000);
+    if (await app.client.isExisting(Selectors.FeatureTourModal)) {
+      await app.client.waitUntil(
+        async () => {
+          return await app.client.isVisible(Selectors.FeatureTourModal);
+        },
+        1000,
+        'Expected feature tour modal to be visible',
+        50
+      );
+      // Wait a bit before clicking so that transition is through
+      await delay(100);
+      await app.client.clickVisible(Selectors.CloseFeatureTourModal);
+      await app.client.waitUntil(
+        async () => {
+          return !(await app.client.isExisting(Selectors.FeatureTourModal));
+        },
+        5000,
+        'Expected feature tour modal to disappear after closing it',
+        50
+      );
+    }
+  });
+
   app.client.addCommand(
     'closePrivacySettingsModal',
     async function closePrivacySettingsModal() {
+      // Wait a bit in any case if it exists or doesn't just so it has a chance to
+      // render if possible
+      await delay(1000);
       if (await app.client.isExisting(Selectors.PrivacySettingsModal)) {
         await app.client.waitUntil(
           async () => {
@@ -600,6 +637,45 @@ function addCommands(app) {
   );
 }
 
+/**
+ * @param {ExtendedApplication} app
+ * @param {string} imgPathName
+ */
+async function capturePage(
+  app,
+  imgPathName = `screenshot-${formattedDate()}-${++j}.png`
+) {
+  try {
+    const buffer = await app.browserWindow.capturePage();
+    await fs.mkdir(LOG_PATH, { recursive: true });
+    // @ts-expect-error buffer is Electron.NativeImage not a real buffer, but it
+    //                  can be used as a buffer when storing an image
+    await fs.writeFile(path.join(LOG_PATH, imgPathName), buffer);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+/**
+ * @param {ExtendedApplication} app
+ * @param {string} htmlPathName
+ */
+async function savePage(
+  app,
+  htmlPathName = `page-${formattedDate()}-${++k}.html`
+) {
+  try {
+    await app.webContents.savePage(
+      path.join(LOG_PATH, htmlPathName),
+      'HTMLComplete'
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 module.exports = {
   startCompass,
   rebuildNativeModules,
@@ -608,7 +684,9 @@ module.exports = {
   getCompassBinPath,
   getAtlasConnectionOptions,
   buildCompass,
+  capturePage,
+  savePage,
   Selectors,
   COMPASS_PATH,
-  LOG_PATH,
+  LOG_PATH
 };

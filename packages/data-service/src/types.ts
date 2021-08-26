@@ -137,8 +137,6 @@ export interface CollectionStats {
   extent_last_size?: CollStats['lastExtentSize'];
   flags_user: CollStats['userFlags'];
   max_document_size?: CollStats['maxSize'];
-  sharded: boolean;
-  shards: CollStats['shards'];
   size?: CollStats['size'];
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   index_details: CollStats['indexDetails'];

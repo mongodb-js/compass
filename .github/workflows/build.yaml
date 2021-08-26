@@ -67,6 +67,9 @@ jobs:
           max_attempts: 5
           shell: bash
           command: npm run package-compass
+          # When lerna fails to publish, it leaves the repo in the dirty state
+          # that will mess up the following attempts
+          on_retry_command: git reset HEAD --hard
         env:
           HADRON_PRODUCT: mongodb-compass
           HADRON_PRODUCT_NAME: MongoDB Compass
@@ -102,4 +105,4 @@ jobs:
         if: ${{ cancelled() || failure() }}
         with:
           name: Spectron Debug Log ${{ runner.os }}
-          path: packages/compass-e2e-tests/.log/**/*.log
+          path: packages/compass-e2e-tests/.log/**/*
