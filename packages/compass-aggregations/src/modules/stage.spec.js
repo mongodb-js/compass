@@ -437,7 +437,7 @@ describe('Stage module', () => {
  code: Code('some code'),
  oid: ObjectId('5a7382114ec1f67ae445f778'),
  bin: BinData(1, 'YWFramFkZmphZGZsZGtzamZhZGY='),
- dbref: DBRef('coll', '1'),
+ dbref: DBRef('coll', '1', 'db'),
  nl: NumberLong(3),
  nd: NumberDecimal('5.00000001'),
  ni: 5,
