@@ -62,14 +62,14 @@ describe('mongodb-data-service#instance', function () {
         service = new DataService(helper.connection);
         service.connect(function (err) {
           if (err) return done(err);
-          helper.insertTestDocuments(service.client, function () {
+          helper.insertTestDocuments(service, function () {
             done();
           });
         });
       });
 
       after(function (done) {
-        helper.deleteTestDocuments(service.client, function () {
+        helper.deleteTestDocuments(service, function () {
           service.disconnect(function () {
             done();
           });

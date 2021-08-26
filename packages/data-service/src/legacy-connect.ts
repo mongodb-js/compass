@@ -104,7 +104,6 @@ async function connect(
   // if we start to use `options.auth`.
   delete options.auth;
 
-  /** @type {SSHTunnel} */
   const tunnel = await openSshTunnel(model);
 
   debug('creating MongoClient', {

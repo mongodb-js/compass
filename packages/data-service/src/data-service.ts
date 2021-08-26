@@ -1,4 +1,8 @@
+import SshTunnel from '@mongodb-js/ssh-tunnel';
+import async from 'async';
+import createDebug from 'debug';
 import { EventEmitter } from 'events';
+import { isFunction } from 'lodash';
 import {
   AggregateOptions,
   AggregationCursor,
@@ -6,9 +10,11 @@ import {
   ClientSession,
   Collection,
   CollectionInfo,
+  CollStats,
   CountDocumentsOptions,
   CreateCollectionOptions,
   CreateIndexesOptions,
+  Db,
   DeleteOptions,
   DeleteResult,
   Document,
@@ -23,24 +29,87 @@ import {
   InsertManyResult,
   InsertOneOptions,
   InsertOneResult,
-  ServerClosedEvent,
-  ServerDescriptionChangedEvent,
-  ServerOpeningEvent,
-  TopologyClosedEvent,
+  MongoClient,
+  MongoClientOptions,
   TopologyDescription,
   TopologyDescriptionChangedEvent,
-  TopologyOpeningEvent,
   UpdateFilter,
   UpdateOptions,
   UpdateResult,
 } from 'mongodb';
-
-import NativeClient, {
-  NativeClient as NativeClientType,
-  NativeClientConnectionOptions,
-} from './native-client';
-import { Callback, Instance } from './types';
+import { getInstance } from './instance-detail-helper';
+import { default as connect } from './legacy-connect';
 import { LegacyConnectionModel } from './legacy-connection-model';
+import {
+  Callback,
+  CollectionDetails,
+  CollectionStats,
+  IndexDetails,
+  Instance,
+  InstanceDetails,
+} from './types';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { fetch: getIndexes } = require('mongodb-index-model');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const parseNamespace = require('mongodb-ns');
+
+const debug = createDebug('mongodb-data-service:data-service');
+
+/**
+ * The constant for a mongos.
+ */
+const SHARDED = 'Sharded';
+
+/**
+ * Single topology type.
+ */
+const SINGLE = 'Single';
+
+/**
+ * RS with primary.
+ */
+const RS_WITH_PRIMARY = 'ReplicaSetWithPrimary';
+
+/**
+ * Primary rs member.
+ */
+const RS_PRIMARY = 'RSPrimary';
+
+/**
+ * Standalone member.
+ */
+const STANDALONE = 'Standalone';
+
+/**
+ * Mongos.
+ */
+const MONGOS = 'Mongos';
+
+/**
+ * Writable server types.
+ */
+const WRITABLE_SERVER_TYPES = [RS_PRIMARY, STANDALONE, MONGOS];
+
+/**
+ * Writable topology types.
+ */
+const WRITABLE_TYPES = [SHARDED, SINGLE, RS_WITH_PRIMARY];
+
+/**
+ * Error message sustring for view operations.
+ */
+const VIEW_ERROR = 'is a view, not a collection';
+
+/**
+ * The system collection name.
+ */
+const SYSTEM = 'system';
+
+/**
+ * The default sample size.
+ */
+const DEFAULT_SAMPLE_SIZE = 1000;
 
 class DataService extends EventEmitter {
   /**
@@ -49,39 +118,35 @@ class DataService extends EventEmitter {
    */
   lastSeenTopology: TopologyDescription | null = null;
 
-  client: NativeClientType;
+  /**
+   * Currently used in:
+   * - compass-deployment/read-state-store.js
+   * - compass-export-to-language/store.js
+   * - compass-home/store.js
+   * - compass-sidebar/store.js
+   * - compass-ssh-tunnel-status/store.js
+   */
+  model: LegacyConnectionModel;
+
+  private _isConnecting = false;
+  private connectionOptions?: { url: string; options: MongoClientOptions };
+
+  private _client?: MongoClient;
+  private _database?: Db;
+  private _tunnel: SshTunnel | null = null;
+
+  private _isWritable = false;
+  private _isMongos = false;
 
   constructor(model: LegacyConnectionModel) {
     super();
-
-    this.client = new NativeClient(model)
-      .on('status', (evt: any) => this.emit('status', evt))
-      .on('serverDescriptionChanged', (evt: ServerDescriptionChangedEvent) =>
-        this.emit('serverDescriptionChanged', evt)
-      )
-      .on('serverOpening', (evt: ServerOpeningEvent) =>
-        this.emit('serverOpening', evt)
-      )
-      .on('serverClosed', (evt: ServerClosedEvent) =>
-        this.emit('serverClosed', evt)
-      )
-      .on('topologyOpening', (evt: TopologyOpeningEvent) =>
-        this.emit('topologyOpening', evt)
-      )
-      .on('topologyClosed', (evt: TopologyClosedEvent) =>
-        this.emit('topologyClosed', evt)
-      )
-      .on(
-        'topologyDescriptionChanged',
-        (evt: TopologyDescriptionChangedEvent) => {
-          this.lastSeenTopology = evt.newDescription;
-          this.emit('topologyDescriptionChanged', evt);
-        }
-      );
+    this.model = model;
   }
 
-  getConnectionOptions(): NativeClientConnectionOptions | undefined {
-    return this.client.connectionOptions;
+  getConnectionOptions():
+    | { url: string; options: MongoClientOptions }
+    | undefined {
+    return this.connectionOptions;
   }
 
   /**
@@ -92,7 +157,57 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   collection(ns: string, options: unknown, callback: Callback<Document>): void {
-    this.client.collectionDetail(ns, callback);
+    // @ts-expect-error async typings are not nice :(
+    async.parallel(
+      {
+        stats: this.collectionStats.bind(
+          this,
+          this._databaseName(ns),
+          this._collectionName(ns)
+        ),
+        indexes: this.indexes.bind(this, ns, options),
+      },
+      (
+        error,
+        coll: { stats: CollectionStats; indexes: { name: string }[] }
+      ) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, this._buildCollectionDetail(ns, coll));
+      }
+    );
+  }
+
+  /**
+   * Get the stats for all collections in the database.
+   *
+   * @param databaseName - The database name.
+   * @param callback - The callback.
+   */
+  collections(
+    databaseName: string,
+    callback: Callback<CollectionStats[]>
+  ): void {
+    if (databaseName === SYSTEM) {
+      return callback(null, []);
+    }
+    this._collectionNames(databaseName, (error, names) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      // @ts-expect-error async typings are not nice :(
+      async.parallel(
+        (names || []).map((name) => {
+          return (done: Callback<CollectionStats>) => {
+            this.collectionStats(databaseName, name, done);
+          };
+        }),
+        callback
+      );
+    });
   }
 
   /**
@@ -105,9 +220,19 @@ class DataService extends EventEmitter {
   collectionStats(
     databaseName: string,
     collectionName: string,
-    callback: Callback<Document>
+    callback: Callback<CollectionStats>
   ): void {
-    this.client.collectionStats(databaseName, collectionName, callback);
+    const db = this.mongoClient.db(databaseName);
+    db.command({ collStats: collectionName, verbose: true }, (error, data) => {
+      if (error && !error.message.includes(VIEW_ERROR)) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(
+        null,
+        this._buildCollectionStats(databaseName, collectionName, data || {})
+      );
+    });
   }
 
   /**
@@ -122,7 +247,14 @@ class DataService extends EventEmitter {
     comm: Document,
     callback: Callback<Document>
   ): void {
-    this.client.command(databaseName, comm, callback);
+    const db = this.mongoClient.db(databaseName);
+    db.command(comm, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -131,7 +263,7 @@ class DataService extends EventEmitter {
    * @returns If the data service is writable.
    */
   isWritable(): boolean {
-    return this.client.isWritable;
+    return this._isWritable;
   }
 
   /**
@@ -140,7 +272,7 @@ class DataService extends EventEmitter {
    * @returns If the data service is connected to a mongos.
    */
   isMongos(): boolean {
-    return this.client.isMongos;
+    return this._isMongos;
   }
 
   /**
@@ -155,7 +287,14 @@ class DataService extends EventEmitter {
     filter: Document,
     callback: Callback<CollectionInfo[]>
   ): void {
-    this.client.listCollections(databaseName, filter, callback);
+    const db = this.mongoClient.db(databaseName);
+    db.listCollections(filter, {}).toArray((error, data) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, data!);
+    });
   }
 
   /**
@@ -164,7 +303,21 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   listDatabases(callback: Callback<Document>): void {
-    this.client.listDatabases(callback);
+    this.mongoClient.db('admin').command(
+      {
+        listDatabases: 1,
+      },
+      {
+        readPreference: this.model.readPreference,
+      },
+      (error, result) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result?.databases);
+      }
+    );
   }
 
   /**
@@ -173,14 +326,51 @@ class DataService extends EventEmitter {
    * @param done - The callback function.
    */
   connect(done: Callback<DataService>): void {
-    this.client.connect((err) => {
-      if (err) {
+    debug('connecting...');
+
+    if (this._isConnecting) {
+      setImmediate(() => {
         // @ts-expect-error Callback without result...
-        return done(err);
+        done(
+          new Error(
+            'Connect method has been called more than once without disconnecting.'
+          )
+        );
+      });
+      return;
+    }
+
+    // Not really true at that point, we are doing it just so we don't allow
+    // simultaneous syncronous calls to the connect method
+    this._isConnecting = true;
+
+    connect(
+      this.model,
+      this.setupListeners.bind(this),
+      (err, client, tunnel, connectionOptions) => {
+        if (err) {
+          this._isConnecting = false;
+          // @ts-expect-error Callback without result...
+          return done(this._translateMessage(err));
+        }
+
+        this._client = client;
+        this._tunnel = tunnel;
+
+        this.connectionOptions = connectionOptions;
+
+        debug('connected!', {
+          isWritable: this.isWritable(),
+          isMongos: this.isMongos(),
+        });
+
+        this._database = this._client.db(this.model.ns || 'admin');
+
+        done(null, this);
+        this.emit('readable');
       }
-      done(null, this);
-      this.emit('readable');
-    });
+    );
+    return;
   }
 
   /**
@@ -195,7 +385,9 @@ class DataService extends EventEmitter {
     options: EstimatedDocumentCountOptions,
     callback: Callback<number>
   ): void {
-    this.client.estimatedCount(ns, options, callback);
+    this._collection(ns).estimatedDocumentCount(options, (err, result) =>
+      callback(err, result!)
+    );
   }
 
   /**
@@ -212,7 +404,9 @@ class DataService extends EventEmitter {
     options: CountDocumentsOptions,
     callback: Callback<number>
   ): void {
-    this.client.count(ns, filter, options, callback);
+    this._collection(ns).countDocuments(filter, options, (err, result) =>
+      callback(err, result!)
+    );
   }
 
   /**
@@ -227,7 +421,15 @@ class DataService extends EventEmitter {
     options: CreateCollectionOptions,
     callback: Callback<Collection<Document>>
   ): void {
-    this.client.createCollection(ns, options, callback);
+    const collectionName = this._collectionName(ns);
+    const db = this.mongoClient.db(this._databaseName(ns));
+    db.createCollection(collectionName, options, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -244,7 +446,13 @@ class DataService extends EventEmitter {
     options: CreateIndexesOptions,
     callback: Callback<string>
   ): void {
-    this.client.createIndex(ns, spec, options, callback);
+    this._collection(ns).createIndex(spec, options, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -255,7 +463,19 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   database(name: string, options: unknown, callback: Callback<Document>): void {
-    this.client.databaseDetail(name, callback);
+    async.parallel(
+      {
+        stats: this.databaseStats.bind(this, name),
+        collections: this.collections.bind(this, name),
+      } as any,
+      (error, db: any) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, this._buildDatabaseDetail(name, db));
+      }
+    );
   }
 
   /**
@@ -272,7 +492,13 @@ class DataService extends EventEmitter {
     options: DeleteOptions,
     callback: Callback<DeleteResult>
   ): void {
-    this.client.deleteOne(ns, filter, options, callback);
+    this._collection(ns).deleteOne(filter, options, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -289,7 +515,13 @@ class DataService extends EventEmitter {
     options: DeleteOptions,
     callback: Callback<DeleteResult>
   ): void {
-    this.client.deleteMany(ns, filter, options, callback);
+    this._collection(ns).deleteMany(filter, options, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -297,7 +529,31 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   disconnect(callback: Callback<never>): void {
-    this.client.disconnect(callback);
+    // This follows MongoClient behavior where calling `close` on client that is
+    // not connected
+    if (!this._client) {
+      setImmediate(() => {
+        // @ts-expect-error Callback without result...
+        callback(null);
+      });
+      return;
+    }
+
+    this._client.close(true, (err) => {
+      if (this._tunnel) {
+        debug('mongo client closed. shutting down ssh tunnel');
+        this._tunnel.close().finally(() => {
+          this._cleanup();
+          debug('ssh tunnel stopped');
+          // @ts-expect-error Callback without result...
+          callback(err);
+        });
+      } else {
+        this._cleanup();
+        // @ts-expect-error Callback without result...
+        return callback(err);
+      }
+    });
   }
 
   /**
@@ -307,7 +563,13 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   dropCollection(ns: string, callback: Callback<boolean>): void {
-    this.client.dropCollection(ns, callback);
+    this._collection(ns).drop((error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -317,7 +579,15 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   dropDatabase(name: string, callback: Callback<boolean>): void {
-    this.client.dropDatabase(name, callback);
+    this.mongoClient
+      .db(this._databaseName(name))
+      .dropDatabase((error, result) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!);
+      });
   }
 
   /**
@@ -328,7 +598,13 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   dropIndex(ns: string, name: string, callback: Callback<Document>): void {
-    this.client.dropIndex(ns, name, callback);
+    this._collection(ns).dropIndex(name, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -363,7 +639,18 @@ class DataService extends EventEmitter {
     options?: AggregateOptions | Callback<AggregationCursor>,
     callback?: Callback<AggregationCursor>
   ): AggregationCursor | void {
-    return this.client.aggregate(ns, pipeline, options as any, callback as any);
+    if (typeof options === 'function') {
+      callback = options;
+      options = undefined;
+    }
+    const cursor = this._collection(ns).aggregate(pipeline, options);
+    // async when a callback is provided
+    if (isFunction(callback)) {
+      process.nextTick(callback, null, cursor);
+      return;
+    }
+    // otherwise return cursor
+    return cursor;
   }
 
   /**
@@ -380,7 +667,15 @@ class DataService extends EventEmitter {
     options: FindOptions,
     callback: Callback<Document[]>
   ): void {
-    this.client.find(ns, filter, options, callback);
+    // Workaround for https://jira.mongodb.org/browse/NODE-3173
+    const cursor = this._collection(ns).find(filter, options);
+    cursor.toArray((error, documents) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, documents!);
+    });
   }
 
   /**
@@ -395,7 +690,7 @@ class DataService extends EventEmitter {
     filter: Filter<Document>,
     options: FindOptions
   ): FindCursor {
-    return this.client.fetch(ns, filter, options);
+    return this._collection(ns).find(filter, options);
   }
 
   /**
@@ -414,7 +709,18 @@ class DataService extends EventEmitter {
     options: FindOneAndReplaceOptions,
     callback: Callback<Document>
   ): void {
-    this.client.findOneAndReplace(ns, filter, replacement, options, callback);
+    this._collection(ns).findOneAndReplace(
+      filter,
+      replacement,
+      options,
+      (error, result) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!.value!);
+      }
+    );
   }
 
   /**
@@ -433,7 +739,18 @@ class DataService extends EventEmitter {
     options: FindOneAndUpdateOptions,
     callback: Callback<Document>
   ): void {
-    this.client.findOneAndUpdate(ns, filter, update, options, callback);
+    this._collection(ns).findOneAndUpdate(
+      filter,
+      update,
+      options,
+      (error, result) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!.value!);
+      }
+    );
   }
 
   /**
@@ -450,7 +767,17 @@ class DataService extends EventEmitter {
     options: ExplainOptions,
     callback: Callback<Document>
   ): void {
-    this.client.explain(ns, filter, options, callback);
+    // @todo thomasr: driver explain() does not yet support verbosity,
+    // once it does, should be passed along from the options object.
+    this._collection(ns)
+      .find(filter, options)
+      .explain((error, explanation) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, explanation);
+      });
   }
 
   /**
@@ -461,7 +788,17 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   indexes(ns: string, options: unknown, callback: Callback<Document>): void {
-    this.client.indexes(ns, callback);
+    getIndexes(
+      this.mongoClient,
+      ns,
+      (error: Error | undefined, data: IndexDetails[]) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, data);
+      }
+    );
   }
 
   /**
@@ -471,7 +808,20 @@ class DataService extends EventEmitter {
    * @param callback - The callback function.
    */
   instance(options: unknown, callback: Callback<Instance>): void {
-    this.client.instance(callback);
+    getInstance(this.mongoClient, this.db, ((error, instanceData) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+
+      const instance: Instance = {
+        ...instanceData,
+        _id: `${this.model.hostname}:${this.model.port}`,
+        hostname: this.model.hostname,
+        port: this.model.port,
+      };
+      callback(null, instance);
+    }) as Callback<InstanceDetails>);
   }
 
   /**
@@ -488,7 +838,13 @@ class DataService extends EventEmitter {
     options: InsertOneOptions,
     callback: Callback<InsertOneResult<Document>>
   ): void {
-    this.client.insertOne(ns, doc, options, callback);
+    this._collection(ns).insertOne(doc, options, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -505,7 +861,13 @@ class DataService extends EventEmitter {
     options: BulkWriteOptions,
     callback: Callback<InsertManyResult<Document>>
   ): void {
-    this.client.insertMany(ns, docs, options, callback);
+    this._collection(ns).insertMany(docs, options, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -520,7 +882,7 @@ class DataService extends EventEmitter {
     docs: Document[],
     options: BulkWriteOptions
   ): Promise<InsertManyResult<Document>> {
-    return this.client.putMany(ns, docs, options);
+    return this._collection(ns).insertMany(docs, options);
   }
 
   /**
@@ -532,10 +894,27 @@ class DataService extends EventEmitter {
    */
   updateCollection(
     ns: string,
-    flags: Document,
+    // Collection name to update that will be passed to the collMod command will
+    // be derived from the provided namespace, this is why we are explicitly
+    // prohibiting to pass collMod flag here
+    flags: Document & { collMod?: never },
     callback: Callback<Document>
   ): void {
-    this.client.updateCollection(ns, flags, callback);
+    const collectionName = this._collectionName(ns);
+    const db = this.mongoClient.db(this._databaseName(ns));
+    // Order of arguments is important here, collMod is a command name and it
+    // should always be the first one in the object
+    const command = {
+      collMod: collectionName,
+      ...flags,
+    };
+    db.command(command, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -554,7 +933,13 @@ class DataService extends EventEmitter {
     options: UpdateOptions,
     callback: Callback<Document>
   ): void {
-    this.client.updateOne(ns, filter, update, options, callback);
+    this._collection(ns).updateOne(filter, update, options, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -573,7 +958,18 @@ class DataService extends EventEmitter {
     options: UpdateOptions,
     callback: Callback<Document | UpdateResult>
   ): void {
-    this.client.updateMany(ns, filter, update, options, callback);
+    this._collection(ns).updateMany(
+      filter,
+      update,
+      options,
+      (error, result) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!);
+      }
+    );
   }
 
   /**
@@ -583,7 +979,24 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   currentOp(includeAll: boolean, callback: Callback<Document>): void {
-    this.client.currentOp(includeAll, callback);
+    this.mongoClient
+      .db('admin')
+      .command({ currentOp: 1, $all: includeAll }, (error, result) => {
+        if (error) {
+          this.mongoClient
+            .db('admin')
+            .collection('$cmd.sys.inprog')
+            .findOne({ $all: includeAll }, (error2, result2) => {
+              if (error2) {
+                // @ts-expect-error Callback without result...
+                return callback(this._translateMessage(error2));
+              }
+              callback(null, result2!);
+            });
+          return;
+        }
+        callback(null, result!);
+      });
   }
 
   /**
@@ -598,7 +1011,13 @@ class DataService extends EventEmitter {
    * Returns the result of serverStats.
    */
   serverstats(callback: Callback<Document>): void {
-    this.client.serverStats(callback);
+    this.db.admin().serverStatus((error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -607,7 +1026,13 @@ class DataService extends EventEmitter {
    * @param callback - the callback.
    */
   top(callback: Callback<Document>): void {
-    this.client.top(callback);
+    this.db.admin().command({ top: 1 }, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -626,7 +1051,18 @@ class DataService extends EventEmitter {
     options: CreateCollectionOptions,
     callback: Callback<Collection<Document>>
   ): void {
-    this.client.createView(name, sourceNs, pipeline, options, callback);
+    options.viewOn = this._collectionName(sourceNs);
+    options.pipeline = pipeline;
+
+    this.mongoClient
+      .db(this._databaseName(sourceNs))
+      .createCollection(name, options, (error, result) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!);
+      });
   }
 
   /**
@@ -645,7 +1081,22 @@ class DataService extends EventEmitter {
     options: Document,
     callback: Callback<Document>
   ): void {
-    this.client.updateView(name, sourceNs, pipeline, options, callback);
+    options.viewOn = this._collectionName(sourceNs);
+    options.pipeline = pipeline;
+
+    const command = {
+      collMod: name,
+      ...options,
+    };
+    const db = this.mongoClient.db(this._databaseName(sourceNs));
+
+    db.command(command, (error, result) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result!);
+    });
   }
 
   /**
@@ -655,7 +1106,7 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   dropView(ns: string, callback: Callback<boolean>): void {
-    this.client.dropView(ns, callback);
+    this.dropCollection(ns, callback);
   }
 
   /**
@@ -667,17 +1118,44 @@ class DataService extends EventEmitter {
    */
   sample(
     ns: string,
-    args: { query?: Filter<Document>; size?: number; fields?: Document } = {},
+    {
+      query,
+      size,
+      fields,
+    }: { query?: Filter<Document>; size?: number; fields?: Document } = {},
     options: AggregateOptions = {}
   ): AggregationCursor {
-    return this.client.sample(ns, args, options);
+    const pipeline = [];
+    if (query && Object.keys(query).length > 0) {
+      pipeline.push({
+        $match: query,
+      });
+    }
+
+    pipeline.push({
+      $sample: {
+        size: size === 0 ? 0 : size || DEFAULT_SAMPLE_SIZE,
+      },
+    });
+
+    // add $project stage if projection (fields) was specified
+    if (fields && Object.keys(fields).length > 0) {
+      pipeline.push({
+        $project: fields,
+      });
+    }
+
+    return this.aggregate(ns, pipeline, {
+      allowDiskUse: true,
+      ...options,
+    });
   }
 
   /**
    * Create a ClientSession that can be passed to commands.
    */
   startSession(): ClientSession {
-    return this.client.startSession();
+    return this.mongoClient.startSession();
   }
 
   /**
@@ -685,11 +1163,305 @@ class DataService extends EventEmitter {
    * @param clientSession - a ClientSession (can be created with startSession())
    */
   killSession(session: ClientSession): Promise<Document> {
-    return this.client.killSession(session);
+    return this.mongoClient.db('admin').command({
+      killSessions: [session.id],
+    });
   }
 
   isConnected(): boolean {
-    return this.client.isConnected();
+    // This is better than just returning internal `_isConnecting` as this
+    // actually shows when the client is available on the NativeClient instance
+    // and connected
+    return !!this._client;
+  }
+
+  /**
+   * Subscribe to SDAM monitoring events on the mongo client.
+   *
+   * @param {MongoClient} client - The driver client.
+   */
+  private setupListeners(client: MongoClient): void {
+    this._client = client;
+
+    if (client) {
+      client.on('status', (...args) => {
+        debug('status', args);
+        this.emit('status', args[0]);
+      });
+
+      client.on('serverDescriptionChanged', (evt) => {
+        debug('serverDescriptionChanged', evt);
+        this.emit('serverDescriptionChanged', evt);
+      });
+
+      client.on('serverOpening', (...args) => {
+        debug('serverOpening', args);
+        this.emit('serverOpening', args[0]);
+      });
+
+      client.on('serverClosed', (...args) => {
+        debug('serverClosed', args);
+        this.emit('serverClosed', args[0]);
+      });
+
+      client.on('topologyOpening', (...args) => {
+        debug('topologyOpening', args);
+        this.emit('topologyOpening', args[0]);
+      });
+
+      client.on('topologyClosed', (...args) => {
+        debug('topologyClosed', args);
+        this.emit('topologyClosed', args[0]);
+      });
+
+      client.on('topologyDescriptionChanged', (...args) => {
+        debug('topologyDescriptionChanged', args);
+        this._isWritable = this.checkIsWritable(args[0]);
+        this._isMongos = this.checkIsMongos(args[0]);
+        debug('updated to', {
+          isWritable: this.isWritable(),
+          isMongos: this.isMongos(),
+        });
+
+        this.lastSeenTopology = args[0].newDescription;
+
+        this.emit('topologyDescriptionChanged', args[0]);
+      });
+
+      client.on('serverHeartbeatSucceeded', (...args) => {
+        debug('serverHeartbeatSucceeded', args);
+        this.emit('serverHeartbeatSucceeded', args[0]);
+      });
+
+      client.on('serverHeartbeatFailed', (...args) => {
+        debug('serverHeartbeatFailed', args);
+        this.emit('serverHeartbeatFailed', args[0]);
+      });
+    }
+  }
+
+  private get mongoClient(): MongoClient {
+    if (!this._client) {
+      throw new Error('client not yet initialized');
+    }
+    return this._client;
+  }
+
+  private get db(): Db {
+    if (!this._database) {
+      throw new Error('database not yet initialized');
+    }
+    return this._database;
+  }
+
+  /**
+   * Get the stats for a database.
+   *
+   * @param name - The database name.
+   * @param callback - The callback.
+   */
+  private databaseStats(name: string, callback: Callback<Document>): void {
+    const db = this.mongoClient.db(name);
+    db.command({ dbStats: 1 }, (error, data) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, this._buildDatabaseStats(data || {}));
+    });
+  }
+
+  /**
+   * Builds the collection detail.
+   *
+   * @param ns - The namespace.
+   * @param data - The collection stats.
+   */
+  private _buildCollectionDetail(
+    ns: string,
+    data: { stats: CollectionStats; indexes: IndexDetails[] }
+  ): CollectionDetails {
+    return {
+      ...data.stats,
+      _id: ns,
+      name: this._collectionName(ns),
+      database: this._databaseName(ns),
+      indexes: data.indexes,
+    };
+  }
+
+  /**
+   * @param databaseName - The name of the database.
+   * @param collectionName - The name of the collection.
+   * @param data - The result of the collStats command.
+   */
+  private _buildCollectionStats(
+    databaseName: string,
+    collectionName: string,
+    data: Partial<CollStats>
+  ): CollectionStats {
+    return {
+      ns: databaseName + '.' + collectionName,
+      name: collectionName,
+      database: databaseName,
+      is_capped: data.capped,
+      max: data.max,
+      is_power_of_two: data.userFlags === 1,
+      index_sizes: data.indexSizes,
+      document_count: data.count,
+      document_size: data.size,
+      storage_size: data.storageSize,
+      index_count: data.nindexes,
+      index_size: data.totalIndexSize,
+      padding_factor: data.paddingFactor,
+      extent_count: data.numExtents,
+      extent_last_size: data.lastExtentSize,
+      flags_user: data.userFlags,
+      max_document_size: data.maxSize,
+      size: data.size,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      index_details: data.indexDetails || {},
+      wired_tiger: data.wiredTiger || {},
+    };
+  }
+
+  /**
+   * Builds the database detail.
+   *
+   * @param name - The database name.
+   * @param db - The database statistics.
+   */
+  private _buildDatabaseDetail(name: string, db: Document): Document {
+    return {
+      _id: name,
+      name: name,
+      stats: db.stats,
+      collections: db.collections,
+    };
+  }
+
+  /**
+   * @todo: Durran: User JS style for keys, make builder.
+   *
+   * @param data - The result of the dbStats command.
+   *
+   * @return The database stats.
+   */
+  private _buildDatabaseStats(data: Document): Document {
+    return {
+      document_count: data.objects,
+      document_size: data.dataSize,
+      storage_size: data.storageSize,
+      index_count: data.indexes,
+      index_size: data.indexSize,
+      extent_count: data.numExtents,
+      file_size: data.fileSize,
+      ns_size: data.nsSizeMB * 1024 * 1024,
+    };
+  }
+
+  /**
+   * Get the collection to operate on.
+   *
+   * @param ns - The namespace.
+   */
+  // TODO: this is used directly in compass-import-export/collection-stream
+  _collection(ns: string): Collection {
+    return this.mongoClient
+      .db(this._databaseName(ns))
+      .collection(this._collectionName(ns));
+  }
+
+  /**
+   * Get all the collection names for a database.
+   *
+   * @param databaseName - The database name.
+   * @param callback - The callback.
+   */
+  private _collectionNames(
+    databaseName: string,
+    callback: Callback<string[]>
+  ): void {
+    this.listCollections(databaseName, {}, (error, collections) => {
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      const names = collections?.map((c) => c.name);
+      callback(null, names);
+    });
+  }
+
+  /**
+   * Get the collection name from a namespace.
+   *
+   * @param ns - The namespace in database.collection format.
+   */
+  private _collectionName(ns: string): string {
+    return parseNamespace(ns).collection;
+  }
+
+  /**
+   * Get the database name from a namespace.
+   *
+   * @param ns - The namespace in database.collection format.
+   */
+  private _databaseName(ns: string): string {
+    return parseNamespace(ns).database;
+  }
+
+  /**
+   * Determine if the ismaster response is for a writable server.
+   *
+   * @param evt - The topology description changed event.
+   *
+   * @returns If the server is writable.
+   */
+  private checkIsWritable(evt: TopologyDescriptionChangedEvent): boolean {
+    const topologyType = evt.newDescription.type;
+    // If type is SINGLE we must be connected to primary, standalone or mongos.
+    if (topologyType === SINGLE) {
+      const server = [...evt.newDescription.servers.values()][0];
+      return server && WRITABLE_SERVER_TYPES.includes(server.type);
+    }
+    return WRITABLE_TYPES.includes(topologyType);
+  }
+
+  /**
+   * Determine if we are connected to a mongos
+   *
+   * @param evt - The topology descriptiopn changed event.
+   *
+   * @returns If the server is a mongos.
+   */
+  private checkIsMongos(evt: TopologyDescriptionChangedEvent): boolean {
+    return evt.newDescription.type === SHARDED;
+  }
+
+  /**
+   * Translates the error message to something human readable.
+   *
+   * @param error - The error.
+   *
+   * @returns The error with message translated.
+   */
+  private _translateMessage(error: any): Error | { message: string } {
+    if (typeof error === 'string') {
+      error = { message: error };
+    } else {
+      error.message = error.message || error.err || error.errmsg;
+    }
+    return error;
+  }
+
+  private _cleanup(): void {
+    this._client = undefined;
+    this._database = undefined;
+    this.connectionOptions = undefined;
+    this._tunnel = null;
+    this._isWritable = false;
+    this._isMongos = false;
+    this._isConnecting = false;
   }
 }
 
