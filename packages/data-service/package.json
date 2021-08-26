@@ -43,7 +43,7 @@
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "pretest": "npm run compile && mongodb-runner start --port=27018",
-    "test": "mocha",
+    "test": "cross-env TS_NODE_FILES=true mocha",
     "posttest": "mongodb-runner stop --port=27018",
     "test-cov": "cross-env TS_NODE_FILES=true nyc -x \"**/*.spec.*\" npm run test",
     "test-watch": "npm run test -- --watch",

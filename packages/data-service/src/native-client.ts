@@ -1,7 +1,7 @@
 import async from 'async';
 import createDebug from 'debug';
 import { EventEmitter } from 'events';
-import { assignIn, isFunction, map } from 'lodash';
+import { assignIn, isFunction } from 'lodash';
 import {
   AggregateOptions,
   AggregationCursor,
@@ -1078,42 +1078,6 @@ class NativeClient extends EventEmitter {
   }
 
   /**
-   * Get the collection details for sharded collections.
-   *
-   * @param ns - The full collection namespace.
-   * @param callback - The callback.
-   */
-  shardedCollectionDetail(ns: string, callback: Callback<Document>): void {
-    this.collectionDetail(ns, (error, data) => {
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
-      }
-      if (!data?.sharded) {
-        return callback(null, data);
-      }
-      async.parallel(
-        map(data.shards, (shardStats, shardName) => {
-          return this._shardDistribution.bind(
-            this,
-            ns,
-            shardName,
-            data,
-            shardStats
-          );
-        }),
-        (err) => {
-          if (err) {
-            // @ts-expect-error Callback without result...
-            return callback(this._translateMessage(err));
-          }
-          callback(null, data);
-        }
-      );
-    });
-  }
-
-  /**
    * Update a collection.
    *
    * @param ns - The namespace.
@@ -1127,8 +1091,10 @@ class NativeClient extends EventEmitter {
   ): void {
     const collectionName = this._collectionName(ns);
     const db = this.client.db(this._databaseName(ns));
-    const collMod = { collMod: collectionName };
-    const command = assignIn<Document>(collMod, flags);
+    const command = {
+      ...flags,
+      collMod: collectionName,
+    };
     db.command(command, (error, result) => {
       if (error) {
         // @ts-expect-error Callback without result...
@@ -1240,8 +1206,10 @@ class NativeClient extends EventEmitter {
     options.viewOn = this._collectionName(sourceNs);
     options.pipeline = pipeline;
 
-    const collMod = { collMod: name };
-    const command = assignIn(collMod, options);
+    const command = {
+      collMod: name,
+      ...options,
+    };
     const db = this.client.db(this._databaseName(sourceNs));
 
     db.command(command, (error, result) => {
@@ -1264,52 +1232,6 @@ class NativeClient extends EventEmitter {
   }
 
   /**
-   * Merges the shard distribution information into the collection detail.
-   *
-   * @param ns - The namespace.
-   * @param shardName - The shard name.
-   * @param detail - The collection detail.
-   * @param shardStats - The shard stats to merge into.
-   * @param callback - The callback.
-   */
-  _shardDistribution(
-    ns: string,
-    shardName: string,
-    detail: Document,
-    shardStats: Document,
-    callback: Callback<Document>
-  ): void {
-    const configDb = this.client.db('config');
-    configDb
-      .collection('shards')
-      .findOne({ _id: shardName }, (error, shardDoc) => {
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateMessage(error));
-        }
-        configDb
-          .collection('chunks')
-          .count({ ns: ns, shard: shardName }, (err, chunkCount) => {
-            if (err) {
-              // @ts-expect-error Callback without result...
-              return callback(this._translateMessage(err));
-            }
-            Object.assign(
-              shardStats,
-              this._buildShardDistribution(
-                detail,
-                shardStats,
-                shardDoc!,
-                chunkCount!
-              )
-            );
-            // @ts-expect-error Callback without result...
-            callback(null);
-          });
-      });
-  }
-
-  /**
    * Builds the collection detail.
    *
    * @param ns - The namespace.
@@ -1319,44 +1241,16 @@ class NativeClient extends EventEmitter {
     ns: string,
     data: { stats: CollectionStats; indexes: IndexDetails[] }
   ): CollectionDetails {
-    return assignIn<CollectionDetails>(data.stats, {
+    return {
+      ...data.stats,
       _id: ns,
       name: this._collectionName(ns),
       database: this._databaseName(ns),
       indexes: data.indexes,
-    });
-  }
-
-  /**
-   * Build the shard distribution.
-   *
-   * @param detail - The collection details.
-   * @param shardStats - The shard stats.
-   * @param shardDoc - The shard doc.
-   * @param chunkCount - The chunk counts.
-   */
-  _buildShardDistribution(
-    detail: Document,
-    shardStats: Document,
-    shardDoc: Document,
-    chunkCount: number
-  ): Document {
-    return {
-      host: shardDoc.host,
-      shardData: shardStats.size,
-      shardDocs: shardStats.count,
-      estimatedDataPerChunk: shardStats.size / chunkCount,
-      estimatedDocsPerChunk: Math.floor(shardStats.count / chunkCount),
-      estimatedDataPercent:
-        Math.floor((shardStats.size / detail.size || 0) * 10000) / 100,
-      estimatedDocPercent:
-        Math.floor((shardStats.count / detail.count || 0) * 10000) / 100,
     };
   }
 
   /**
-   * @todo: Durran: User JS style for keys, make builder.
-   *
    * @param databaseName - The name of the database.
    * @param collectionName - The name of the collection.
    * @param data - The result of the collStats command.
@@ -1364,7 +1258,7 @@ class NativeClient extends EventEmitter {
   _buildCollectionStats(
     databaseName: string,
     collectionName: string,
-    data: Partial<CollStats & { shards: Document; sharded: boolean }>
+    data: Partial<CollStats>
   ): CollectionStats {
     return {
       ns: databaseName + '.' + collectionName,
@@ -1384,8 +1278,6 @@ class NativeClient extends EventEmitter {
       extent_last_size: data.lastExtentSize,
       flags_user: data.userFlags,
       max_document_size: data.maxSize,
-      sharded: data.sharded || false,
-      shards: data.shards || {},
       size: data.size,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       index_details: data.indexDetails || {},
@@ -1426,17 +1318,6 @@ class NativeClient extends EventEmitter {
       file_size: data.fileSize,
       ns_size: data.nsSizeMB * 1024 * 1024,
     };
-  }
-
-  /**
-   * Build the instance detail.
-   *
-   * @param data The data.
-   *
-   * @returns The instance detail.
-   */
-  _buildInstance(data: Instance): Document {
-    return assignIn<Document>(data);
   }
 
   /**
