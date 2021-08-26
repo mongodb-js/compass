@@ -68,7 +68,7 @@ function addDirectConnectionWhenNeeded(
 ): MongoClientOptions {
   if (
     model.directConnection === undefined &&
-    model.hosts.length === 1 &&
+    model.hosts?.length === 1 &&
     !model.isSrvRecord &&
     !model.loadBalanced &&
     (model.replicaSet === undefined || model.replicaSet === '')
