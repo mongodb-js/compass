@@ -68,7 +68,7 @@
     "mongodb-security": "^1.3.0"
   },
   "devDependencies": {
-    "@mongodb-js/devtools-docker-test-envs": "git://github.com/mongodb-js/devtools-docker-test-envs.git#19497dc4abdce6ea9b96a36d62940f83bc0ef3b2",
+    "@mongodb-js/devtools-docker-test-envs": "^1.0.1",
     "@mongodb-js/eslint-config-compass": "^0.2.0",
     "@mongodb-js/mocha-config-compass": "^0.2.0",
     "@mongodb-js/prettier-config-compass": "^0.2.0",
