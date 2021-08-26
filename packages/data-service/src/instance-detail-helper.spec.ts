@@ -1,10 +1,10 @@
 import assert from 'assert';
 import _ from 'lodash';
 import { Db, MongoClient } from 'mongodb';
-import { ConnectionModel } from 'mongodb-connection-model';
 import * as helper from '../test/helper';
 import DataService from './data-service';
 import { getInstance } from './instance-detail-helper';
+import { LegacyConnectionModel } from './legacy-connection-model';
 import { Instance } from './types';
 
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -23,7 +23,7 @@ describe('mongodb-data-service#instance', function () {
     it('should connect to `localhost:27018`', function (done) {
       Connection.from(
         'mongodb://localhost:27018/data-service',
-        function (error: any, model: ConnectionModel) {
+        function (error: any, model: LegacyConnectionModel) {
           assert.equal(error, null);
           connect(model, null, function (err: any, _client: MongoClient) {
             if (err) {

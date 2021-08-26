@@ -1,5 +1,6 @@
 ignores: [
   "ts-node",
   "@mongodb-js/prettier-config-compass",
-  "@mongodb-js/tsconfig-compass"
+  "@mongodb-js/tsconfig-compass",
+  "@types/whatwg-url"
 ]
