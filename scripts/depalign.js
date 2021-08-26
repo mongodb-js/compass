@@ -23,6 +23,8 @@ Options:
   --types-only                       Will only include a dependency in the report if all packages have this dependency as one of the provided with --type argument.
   --autofix                          Output a list of replacements to normalize ranges and align everything to the highest possible range.
   --autofix-only                     Will only autofix dependencies provided with this option
+  --align                            Update peerDepencencies, dependencies and devDependencies that specify the package
+  --range                            The range to use when aligning (default latest)
   --dangerously-include-mismatched   Include mismatched dependencies into autofix.
   --config                           Path to the config. Default is .depalignrc.json
   --validate-config                  Check that 'ignore' option in the config doesn't include extraneous dependencies and versions
@@ -67,12 +69,19 @@ async function main(args) {
 
   const outputJson = args.json;
   const shouldApplyFixes = args.autofix;
+  const alignPackage = args.align;
+  const alignToRange = args.range || 'latest';
   const shouldCheckConfig = args['validate-config'];
   const fixOnly = new Set(args['autofix-only']);
   const includeTypes = args.type;
   const includeTypesOnly = args['types-only'];
   const includeDeduped = !args['skip-deduped'];
   const includeMismatched = args['dangerously-include-mismatched'];
+
+  if (alignPackage) {
+    await alignPackageToRange(alignPackage, alignToRange);
+    return;
+  }
 
   const workspaces = await collectWorkspacesMeta();
   const dependencies = collectWorkspacesDependencies(workspaces);
@@ -185,6 +194,26 @@ async function main(args) {
   }
 
   process.exitCode = report.mismatched.size;
+}
+
+async function alignPackageToRange(packageName, range) {
+    await withProgress(
+      'Aligning package',
+      async function () {
+        const spinner = this;
+
+        spinner.text = `Updating peerDependencies using "${packageName}@${range}"`;
+        await runInDir(`npm run where "peerDependencies['${packageName}']" -- install --save-peer ${packageName}@${range}`);
+
+        spinner.text = `Updating dependencies using "${packageName}@${range}"`;
+        await runInDir(`npm run where "dependencies['${packageName}']" -- install --save ${packageName}@${range}`);
+
+        spinner.text = `Updating devDependencies using "${packageName}@${range}"`;
+        await runInDir(`npm run where "devDependencies['${packageName}']" -- install --save-dev ${packageName}@${range}`);
+
+        spinner.text = `Update peerDependencies, dependencies and devDependencies using "${packageName}@${range}"`;
+      }
+    );
 }
 
 function generateReport(
