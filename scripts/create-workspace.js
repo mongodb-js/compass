@@ -171,7 +171,7 @@ async function main(argv) {
       depcheck: 'depcheck',
       check: 'npm run lint && npm run depcheck',
       'check-ci': 'npm run check',
-      test: 'cross-env TS_NODE_FILES=true mocha',
+      test: 'mocha',
       'test-cov':
         'nyc -x "**/*.spec.*" npm run test',
       'test-watch': 'npm run test -- --watch',
@@ -188,7 +188,6 @@ async function main(argv) {
       '@types/chai': '*',
       '@types/mocha': '*',
       '@types/sinon-chai': '*',
-      'cross-env': '*',
       chai: '*',
       depcheck: '*',
       eslint: '*',

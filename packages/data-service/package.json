@@ -43,7 +43,7 @@
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "pretest": "npm run compile && mongodb-runner start --port=27018",
-    "test": "cross-env TS_NODE_FILES=true mocha",
+    "test": "mocha",
     "posttest": "mongodb-runner stop --port=27018",
     "test-cov": "nyc -x \"**/*.spec.*\" npm run test",
     "test-watch": "npm run test -- --watch",
@@ -87,7 +87,6 @@
     "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
     "sinon-chai": "^3.5.0",
-    "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
   }
 }
