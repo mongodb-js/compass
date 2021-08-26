@@ -171,9 +171,9 @@ async function main(argv) {
       depcheck: 'depcheck',
       check: 'npm run lint && npm run depcheck',
       'check-ci': 'npm run check',
-      test: 'mocha',
+      test: 'cross-env TS_NODE_FILES=true mocha',
       'test-cov':
-        'cross-env TS_NODE_FILES=true nyc -x "**/*.spec.*" npm run test',
+        'nyc -x "**/*.spec.*" npm run test',
       'test-watch': 'npm run test -- --watch',
       'test-ci': 'npm run test-cov',
       reformat: 'npm run prettier -- --write .'

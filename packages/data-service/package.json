@@ -45,7 +45,7 @@
     "pretest": "npm run compile && mongodb-runner start --port=27018",
     "test": "cross-env TS_NODE_FILES=true mocha",
     "posttest": "mongodb-runner stop --port=27018",
-    "test-cov": "cross-env TS_NODE_FILES=true nyc -x \"**/*.spec.*\" npm run test",
+    "test-cov": "nyc -x \"**/*.spec.*\" npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
