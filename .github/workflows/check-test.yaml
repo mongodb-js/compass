@@ -77,5 +77,5 @@ jobs:
         uses: actions/upload-artifact@v2
         if: ${{ cancelled() || failure() }}
         with:
-          name: Spectron Debug Log ${{ runner.os }}
+          name: Spectron Debug Files ${{ github.workflow }} ${{ runner.os }}
           path: packages/compass-e2e-tests/.log/**/*

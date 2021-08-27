@@ -173,7 +173,7 @@ async function main(argv) {
       'check-ci': 'npm run check',
       test: 'mocha',
       'test-cov':
-        'cross-env TS_NODE_FILES=true nyc -x "**/*.spec.*" npm run test',
+        'nyc -x "**/*.spec.*" npm run test',
       'test-watch': 'npm run test -- --watch',
       'test-ci': 'npm run test-cov',
       reformat: 'npm run prettier -- --write .'
@@ -188,7 +188,6 @@ async function main(argv) {
       '@types/chai': '*',
       '@types/mocha': '*',
       '@types/sinon-chai': '*',
-      'cross-env': '*',
       chai: '*',
       depcheck: '*',
       eslint: '*',

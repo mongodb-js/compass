@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Wed Aug 25 2021.
+This document was automatically generated on Fri Aug 27 2021.
 
 ## List of dependencies
 
@@ -793,9 +793,11 @@ Package|Version|License
 **[lodash.map](#a6882440f297dd12620f960308c4bbe07ec13b84f2855468644c71b35c34cc37)**|3.1.4|MIT
 **[lodash.max](#31e70aad321630132c351fe427feb5dc52b2dfaab66f7407ff1c1e1157a7b5e0)**|4.0.1|MIT
 **[lodash.max](#bdc8a776b955b983e4820bd66d3debf4aae72a7ab26679039ec91a1900eeecb1)**|3.4.0|MIT
+**[lodash.maxby](#fa7a68cbc58e7bd6fb71a56a5e00f8abca1914f17800a8fd69a4473de6cdff89)**|4.6.0|MIT
 **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**|4.6.2|MIT
 **[lodash.min](#5c1eefb0eb4ac35b131e3e44222693a0c88c3c1aaea7886dd058c4a829ec8252)**|4.0.1|MIT
 **[lodash.min](#85dfe97f1f0178cb341d8d1520d6753861e76a9d87e55a26a3cfd4e75a6e9b10)**|3.4.0|MIT
+**[lodash.minby](#c0afc5e207bd713eb2e231d8dc5d2f5bc490d2b8e85ac359bed289e11d086d40)**|4.6.0|MIT
 **[lodash.noop](#a5a8077bf5617afeec99539b24165c747b7b6263b0f5a2e119bfe9089670692f)**|2.4.1|MIT
 **[lodash.omit](#babde7076e3dbe66c1cd8dd0af071af1fcd4b49d2c7dbf8a306cc09b860c9ad9)**|3.1.0|MIT
 **[lodash.omit](#48ef8d60dcfc818215a87b48818c61b0bf3bb734fe91b8892f01d404aba1cced)**|4.5.0|MIT
@@ -1046,8 +1048,8 @@ Package|Version|License
 **[react-fontawesome](#a36cffccd692eca2566a71730a3586dd7cb7cb72114daa243f5f881954360797)**|1.7.1|MIT
 **[react-input-autosize](#ac7902f564214a5b5283cec57c09d52206514578c721c4619fcd4a0171d27d38)**|2.2.2|MIT
 **[react-ios-switch](#37285d405a0d735bebd66e6a0f9a46a86aa9214aaf8e3b3c77209dd2c7288940)**|0.1.19|MIT
-**[react-is](#7183835e2bcaca6754fe10854fc3b65407d2cb9aa3b68b1c06ccaafb7b9be28a)**|16.13.1|MIT
 **[react-is](#5ec174b50bba38f48ee8da3d8a5b9463a9e77c3f01d74a132ecc30a2be099c4b)**|17.0.2|MIT
+**[react-is](#7183835e2bcaca6754fe10854fc3b65407d2cb9aa3b68b1c06ccaafb7b9be28a)**|16.13.1|MIT
 **[react-leaflet](#a5fc1f0504a89a932a12c5a183b75a748207329f20af6078f926e182d55aee8d)**|2.4.0|MIT
 **[react-leaflet-draw](#d80b4b765d856cdefe411a073d3b3dde06100128005f1381b4d26d6cf53134c7)**|0.19.0|ISC
 **[react-lifecycles-compat](#eb3ac074fe890bd9b53596baf6b3d4cd1aa851f3a82fdbd7e86bdeee38069b56)**|3.0.4|MIT
@@ -32423,6 +32425,71 @@ Authors:
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
+<a id="fa7a68cbc58e7bd6fb71a56a5e00f8abca1914f17800a8fd69a4473de6cdff89"></a>
+### [lodash.maxby](https://www.npmjs.com/package/lodash.maxby) (version 4.6.0)
+<!-- initially found at node_modules/lodash.maxby -->
+> The lodash method `_.maxBy` exported as a module.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright jQuery Foundation and other contributors <https://jquery.org/>
+      
+      Based on Underscore.js, copyright Jeremy Ashkenas,
+      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
+      
+      This software consists of voluntary contributions made by many
+      individuals. For exact contribution history, see the revision history
+      available at https://github.com/lodash/lodash
+      
+      The following license applies to all parts of this software except as
+      documented below:
+      
+      ====
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+      ====
+      
+      Copyright and related rights for sample code are waived via CC0. Sample
+      code is defined as all source code displayed within the prose of the
+      documentation.
+      
+      CC0: http://creativecommons.org/publicdomain/zero/1.0/
+      
+      ====
+      
+      Files located in the node_modules and vendor directories are externally
+      maintained libraries used by this software which have their own
+      licenses; we recommend you read them, as their terms may differ from the
+      terms above.
+      
+
+Authors:
+* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
+* Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)
+* Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
+
+
 <a id="996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db"></a>
 ### [lodash.merge](https://www.npmjs.com/package/lodash.merge) (version 4.6.2)
 <!-- initially found at node_modules/lodash.merge -->
@@ -32591,6 +32658,71 @@ Authors:
 * Benjamin Tan <demoneaux@gmail.com> (https://d10.github.io/)
 * Blaine Bublitz <blaine@iceddev.com> (http://www.iceddev.com/)
 * Kit Cambridge <github@kitcambridge.be> (http://kitcambridge.be/)
+* Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
+
+
+<a id="c0afc5e207bd713eb2e231d8dc5d2f5bc490d2b8e85ac359bed289e11d086d40"></a>
+### [lodash.minby](https://www.npmjs.com/package/lodash.minby) (version 4.6.0)
+<!-- initially found at node_modules/lodash.minby -->
+> The lodash method `_.minBy` exported as a module.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright jQuery Foundation and other contributors <https://jquery.org/>
+      
+      Based on Underscore.js, copyright Jeremy Ashkenas,
+      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
+      
+      This software consists of voluntary contributions made by many
+      individuals. For exact contribution history, see the revision history
+      available at https://github.com/lodash/lodash
+      
+      The following license applies to all parts of this software except as
+      documented below:
+      
+      ====
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+      ====
+      
+      Copyright and related rights for sample code are waived via CC0. Sample
+      code is defined as all source code displayed within the prose of the
+      documentation.
+      
+      CC0: http://creativecommons.org/publicdomain/zero/1.0/
+      
+      ====
+      
+      Files located in the node_modules and vendor directories are externally
+      maintained libraries used by this software which have their own
+      licenses; we recommend you read them, as their terms may differ from the
+      terms above.
+      
+
+Authors:
+* John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
+* Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
@@ -47062,9 +47194,9 @@ Authors:
 * Matthew King <mking@clari.com>
 
 
-<a id="7183835e2bcaca6754fe10854fc3b65407d2cb9aa3b68b1c06ccaafb7b9be28a"></a>
-### [react-is](https://www.npmjs.com/package/react-is) (version 16.13.1)
-<!-- initially found at node_modules/prop-types/node_modules/react-is -->
+<a id="5ec174b50bba38f48ee8da3d8a5b9463a9e77c3f01d74a132ecc30a2be099c4b"></a>
+### [react-is](https://www.npmjs.com/package/react-is) (version 17.0.2)
+<!-- initially found at node_modules/react-is -->
 > Brand checking of React Elements.
 
 License tags: MIT
@@ -47096,9 +47228,9 @@ License files:
       
 
 
-<a id="5ec174b50bba38f48ee8da3d8a5b9463a9e77c3f01d74a132ecc30a2be099c4b"></a>
-### [react-is](https://www.npmjs.com/package/react-is) (version 17.0.2)
-<!-- initially found at node_modules/react-is -->
+<a id="7183835e2bcaca6754fe10854fc3b65407d2cb9aa3b68b1c06ccaafb7b9be28a"></a>
+### [react-is](https://www.npmjs.com/package/react-is) (version 16.13.1)
+<!-- initially found at node_modules/prop-types/node_modules/react-is -->
 > Brand checking of React Elements.
 
 License tags: MIT

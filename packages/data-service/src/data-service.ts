@@ -6,7 +6,6 @@ import {
   ClientSession,
   Collection,
   CollectionInfo,
-  ConnectionOptions,
   CountDocumentsOptions,
   CreateCollectionOptions,
   CreateIndexesOptions,
@@ -35,11 +34,13 @@ import {
   UpdateOptions,
   UpdateResult,
 } from 'mongodb';
-import { ConnectionModel } from 'mongodb-connection-model';
+
 import NativeClient, {
   NativeClient as NativeClientType,
+  NativeClientConnectionOptions,
 } from './native-client';
 import { Callback, Instance } from './types';
+import { LegacyConnectionModel } from './legacy-connection-model';
 
 class DataService extends EventEmitter {
   /**
@@ -50,7 +51,7 @@ class DataService extends EventEmitter {
 
   client: NativeClientType;
 
-  constructor(model: ConnectionModel) {
+  constructor(model: LegacyConnectionModel) {
     super();
 
     this.client = new NativeClient(model)
@@ -79,7 +80,7 @@ class DataService extends EventEmitter {
       );
   }
 
-  getConnectionOptions(): ConnectionOptions | undefined {
+  getConnectionOptions(): NativeClientConnectionOptions | undefined {
     return this.client.connectionOptions;
   }
 
@@ -598,18 +599,6 @@ class DataService extends EventEmitter {
    */
   serverstats(callback: Callback<Document>): void {
     this.client.serverStats(callback);
-  }
-
-  /**
-   * Get the collection stats plus sharding distribution information. This merges
-   * the shard distribution statistics under the "shards" array that was a result
-   * of the collStats command.
-   *
-   * @param ns - The namespace.
-   * @param callback - The callback.
-   */
-  shardedCollectionDetail(ns: string, callback: Callback<Document>): void {
-    this.client.shardedCollectionDetail(ns, callback);
   }
 
   /**

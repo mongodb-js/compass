@@ -51,21 +51,19 @@ function mockedConnectionModel(
     },
   };
 
-  return {
-    connect(_model: any, setupListeners: any, cb: any) {
-      const mockedClient = new EventEmitter() as any;
-      mockedClient.db = () => {
-        // pass
-      };
-      mockedClient.close = (_force: any, closeCb: Callback<void>) => {
-        closeCb(null);
-      };
-      setupListeners(mockedClient);
-      mockedClient.emit('topologyDescriptionChanged', {
-        newDescription: _topologyDescription,
-      });
-      cb(null, mockedClient, mockedTunnel, _connectionOptions);
-    },
+  return function (_model: any, setupListeners: any, cb: any) {
+    const mockedClient = new EventEmitter() as any;
+    mockedClient.db = () => {
+      // pass
+    };
+    mockedClient.close = (_force: any, closeCb: Callback<void>) => {
+      closeCb(null);
+    };
+    setupListeners(mockedClient);
+    mockedClient.emit('topologyDescriptionChanged', {
+      newDescription: _topologyDescription,
+    });
+    cb(null, mockedClient, mockedTunnel, _connectionOptions);
   };
 }
 
@@ -105,7 +103,7 @@ describe('NativeClient', function () {
       });
 
       it('does not allow to connect twice without disonnecting first', function (done) {
-        mock('mongodb-connection-model', mockedConnectionModel());
+        mock('./legacy-connect', mockedConnectionModel());
 
         const MockedNativeClient = mock.reRequire('./native-client').default;
         const mockedClient = new MockedNativeClient(helper.connection);
@@ -126,7 +124,7 @@ describe('NativeClient', function () {
       });
 
       it('sets .connectionOptions after successful connection', function (done) {
-        mock('mongodb-connection-model', mockedConnectionModel());
+        mock('./legacy-connect', mockedConnectionModel());
 
         const MockedNativeClient = mock.reRequire('./native-client').default;
         const mockedClient = new MockedNativeClient(helper.connection);
@@ -148,7 +146,7 @@ describe('NativeClient', function () {
 
       it('sets .isMongos to true when topology is sharded', function (done) {
         mock(
-          'mongodb-connection-model',
+          './legacy-connect',
           mockedConnectionModel(mockedTopologyDescription('Sharded'))
         );
 
@@ -162,7 +160,7 @@ describe('NativeClient', function () {
       });
 
       it('sets .isMongos to false when topology is not sharded', function (done) {
-        mock('mongodb-connection-model', mockedConnectionModel());
+        mock('./legacy-connect', mockedConnectionModel());
 
         const MockedNativeClient = mock.reRequire('./native-client').default;
         const mockedClient = new MockedNativeClient(helper.connection);
@@ -175,7 +173,7 @@ describe('NativeClient', function () {
 
       it('sets .isWritable to true when the node is a primary replset member', function (done) {
         mock(
-          'mongodb-connection-model',
+          './legacy-connect',
           mockedConnectionModel(
             mockedTopologyDescription('ReplicaSetWithPrimary')
           )
@@ -192,7 +190,7 @@ describe('NativeClient', function () {
 
       it('sets .isWritable to false when the node is a secondary replset member', function (done) {
         mock(
-          'mongodb-connection-model',
+          './legacy-connect',
           mockedConnectionModel(
             mockedTopologyDescription('Single', 'RSSecondary')
           )
@@ -209,7 +207,7 @@ describe('NativeClient', function () {
 
       it('sets .isWritable to true when the node is a mongos', function (done) {
         mock(
-          'mongodb-connection-model',
+          './legacy-connect',
           mockedConnectionModel(mockedTopologyDescription('Single', 'Mongos'))
         );
 
@@ -231,7 +229,7 @@ describe('NativeClient', function () {
       });
 
       it('should close tunnel before calling disconnect callback', function (done) {
-        mock('mongodb-connection-model', mockedConnectionModel());
+        mock('./legacy-connect', mockedConnectionModel());
 
         const MockedNativeClient = mock.reRequire('./native-client').default;
         const mockedClient = new MockedNativeClient(helper.connection);
@@ -513,17 +511,6 @@ describe('NativeClient', function () {
   describe('#collectionDetail', function () {
     it('returns the collection details', function (done) {
       client.collectionDetail('data-service.test', function (err, coll) {
-        assert.equal(null, err);
-        expect(coll.ns).to.equal('data-service.test');
-        expect(coll.index_count).to.equal(1);
-        done();
-      });
-    });
-  });
-
-  describe('#shardedCollectionDetail', function () {
-    it('returns the collection details', function (done) {
-      client.shardedCollectionDetail('data-service.test', function (err, coll) {
         assert.equal(null, err);
         expect(coll.ns).to.equal('data-service.test');
         expect(coll.index_count).to.equal(1);

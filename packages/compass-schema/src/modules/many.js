@@ -3,8 +3,8 @@ import d3 from 'd3';
 import $ from 'jquery';
 import pluck from 'lodash.pluck';
 import map from 'lodash.map';
-import min from 'lodash.min';
-import max from 'lodash.max';
+import minBy from 'lodash.minby';
+import maxBy from 'lodash.maxby';
 import sortBy from 'lodash.sortby';
 import shared from './shared';
 import { hasDistinctValue, inValueRange } from 'mongodb-query-util';
@@ -82,10 +82,10 @@ const minicharts_d3fns_many = (appRegistry) => {
         return;
       }
       // numeric types
-      const minValue = min(selected.data(), function(d) {
+      const minValue = minBy(selected.data(), function(d) {
         return d.value;
       });
-      const maxValue = max(selected.data(), function(d) {
+      const maxValue = maxBy(selected.data(), function(d) {
         return d.value;
       });
 
