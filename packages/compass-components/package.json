@@ -36,6 +36,7 @@
     "@leafygreen-ui/confirmation-modal": "^2.2.1"
   },
   "peerDependencies": {
+    "@leafygreen-ui/confirmation-modal": "^2.2.1",
     "react": "^16.14.0"
   },
   "devDependencies": {

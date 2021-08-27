@@ -51,6 +51,8 @@
     "hadron-react-buttons": "^5.4.0"
   },
   "peerDependencies": {
+    "@leafygreen-ui/icon": "^11.4.0",
+    "@leafygreen-ui/icon-button": "^9.1.5",
     "hadron-ipc": "*",
     "hadron-react-components": "*",
     "prop-types": "^15.7.2",

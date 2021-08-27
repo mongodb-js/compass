@@ -34,6 +34,11 @@
   },
   "license": "SSPL",
   "peerDependencies": {
+    "@leafygreen-ui/button": "^12.0.3",
+    "@leafygreen-ui/icon": "^11.4.0",
+    "@leafygreen-ui/leafygreen-provider": "^2.1.2",
+    "@leafygreen-ui/toggle": "^7.0.4",
+    "@leafygreen-ui/typography": "^8.0.2",
     "@mongodb-js/compass-components": "*",
     "hadron-ipc": "*",
     "hadron-react-buttons": "*",

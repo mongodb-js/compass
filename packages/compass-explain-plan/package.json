@@ -26,6 +26,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
+    "@leafygreen-ui/banner": "^3.0.8",
     "@mongodb-js/compass-crud": "*",
     "@mongodb-js/compass-field-store": "*",
     "@mongodb-js/compass-indexes": "*",
