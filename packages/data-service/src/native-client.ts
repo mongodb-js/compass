@@ -1110,7 +1110,7 @@ class NativeClient extends EventEmitter {
   ): void {
     const collectionName = this._collectionName(ns);
     const db = this.client.db(this._databaseName(ns));
-    // Order of arguments is important there, collMod is a command name and it
+    // Order of arguments is important here, collMod is a command name and it
     // should always be the first one in the object
     const command = {
       collMod: collectionName,
