@@ -1102,11 +1102,16 @@ class NativeClient extends EventEmitter {
    */
   updateCollection(
     ns: string,
-    flags: Document,
+    // Collection name to update that will be passed to the collMod command will
+    // be derived from the provided namespace, this is why we are explicitly
+    // prohibiting to pass collMod flag here explicitly
+    flags: Document & { collMod?: never },
     callback: Callback<Document>
   ): void {
     const collectionName = this._collectionName(ns);
     const db = this.client.db(this._databaseName(ns));
+    // Order of arguments is important there, collMod is a command name and it
+    // should always be the first one in the object
     const command = {
       collMod: collectionName,
       ...flags,
