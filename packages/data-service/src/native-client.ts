@@ -1108,8 +1108,8 @@ class NativeClient extends EventEmitter {
     const collectionName = this._collectionName(ns);
     const db = this.client.db(this._databaseName(ns));
     const command = {
-      ...flags,
       collMod: collectionName,
+      ...flags,
     };
     db.command(command, (error, result) => {
       if (error) {
