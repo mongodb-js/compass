@@ -1,7 +1,9 @@
 const path = require('path');
 const { promises: fs } = require('fs');
 const chalk = require('chalk');
+const pacote = require('pacote');
 const { runInDir } = require('./run-in-dir');
+const { forEachPackage } = require('./monorepo/for-each-package');
 const { updatePackageJson } = require('./monorepo/update-package-json');
 const { withProgress } = require('./monorepo/with-progress');
 const {
@@ -10,6 +12,8 @@ const {
   DepTypes
 } = require('./workspace-dependencies');
 const { calculateReplacements, intersects } = require('./semver-helpers');
+
+const DEPENDENCY_GROUPS = ['peerDependencies', 'dependencies', 'devDependencies'];
 
 const USAGE = `Check for dependency alignment issues.
 
@@ -197,23 +201,44 @@ async function main(args) {
 }
 
 async function alignPackageToRange(packageName, range) {
-    await withProgress(
-      'Aligning package',
-      async function () {
-        const spinner = this;
+  range = range === 'latest'
+    // resolve in registry so we don't update package.json to literally "latest"
+    ? `^${(await pacote.manifest(`${packageName}@${range}`)).version}`
+    : range
 
-        spinner.text = `Updating peerDependencies using "${packageName}@${range}"`;
-        await runInDir(`npm run where "peerDependencies['${packageName}']" -- install --save-peer ${packageName}@${range}`);
+  await forEachPackage(async ({ location, packageJson }) => {
+    if (!hasDep(packageJson, packageName)) {
+      return;
+    }
 
-        spinner.text = `Updating dependencies using "${packageName}@${range}"`;
-        await runInDir(`npm run where "dependencies['${packageName}']" -- install --save ${packageName}@${range}`);
+    await updatePackageJson(location, (pkgJson) => {
+      return updateDepToRange(pkgJson, packageName, range);
+    });
+  });
 
-        spinner.text = `Updating devDependencies using "${packageName}@${range}"`;
-        await runInDir(`npm run where "devDependencies['${packageName}']" -- install --save-dev ${packageName}@${range}`);
+  await runInDir('npm install');
+}
 
-        spinner.text = `Update peerDependencies, dependencies and devDependencies using "${packageName}@${range}"`;
-      }
-    );
+function hasDep(packageJson, packageName) {
+  for (const group of DEPENDENCY_GROUPS) {
+    if (packageJson[group] && packageJson[group][packageName]) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function updateDepToRange(packageJson, packageName, range) {
+  const updated = Object.assign({}, packageJson);
+
+  for (const group of DEPENDENCY_GROUPS) {
+    if (packageJson[group] && packageJson[group][packageName]) {
+      updated[group] = Object.assign({}, packageJson[group], { [packageName]: range });
+    }
+  }
+
+  return updated;
 }
 
 function generateReport(
