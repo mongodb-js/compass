@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "bson": "*",
+    "bson": "^4.4.1",
     "highlight.js": "^9.12.0",
     "lodash": "^4.17.15"
   },
@@ -48,7 +48,7 @@
     "bson": "*",
     "debug": "*",
     "hadron-react-components": "*",
-    "mongodb-query-parser": "^2.4.3",
+    "mongodb-query-parser": "^2.4.2",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
@@ -117,7 +117,7 @@
     "mongodb-extended-json": "^1.11.1",
     "mongodb-js-metrics": "^7.4.0",
     "mongodb-ns": "^2.2.0",
-    "mongodb-query-parser": "^2.4.3",
+    "mongodb-query-parser": "^2.4.2",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
