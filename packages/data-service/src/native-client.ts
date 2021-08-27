@@ -1104,7 +1104,7 @@ class NativeClient extends EventEmitter {
     ns: string,
     // Collection name to update that will be passed to the collMod command will
     // be derived from the provided namespace, this is why we are explicitly
-    // prohibiting to pass collMod flag here explicitly
+    // prohibiting to pass collMod flag here
     flags: Document & { collMod?: never },
     callback: Callback<Document>
   ): void {
