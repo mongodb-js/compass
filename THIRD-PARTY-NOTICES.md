@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Thu Aug 26 2021.
+This document was automatically generated on Fri Aug 27 2021.
 
 ## List of dependencies
 
@@ -1048,8 +1048,8 @@ Package|Version|License
 **[react-fontawesome](#a36cffccd692eca2566a71730a3586dd7cb7cb72114daa243f5f881954360797)**|1.7.1|MIT
 **[react-input-autosize](#ac7902f564214a5b5283cec57c09d52206514578c721c4619fcd4a0171d27d38)**|2.2.2|MIT
 **[react-ios-switch](#37285d405a0d735bebd66e6a0f9a46a86aa9214aaf8e3b3c77209dd2c7288940)**|0.1.19|MIT
-**[react-is](#7183835e2bcaca6754fe10854fc3b65407d2cb9aa3b68b1c06ccaafb7b9be28a)**|16.13.1|MIT
 **[react-is](#5ec174b50bba38f48ee8da3d8a5b9463a9e77c3f01d74a132ecc30a2be099c4b)**|17.0.2|MIT
+**[react-is](#7183835e2bcaca6754fe10854fc3b65407d2cb9aa3b68b1c06ccaafb7b9be28a)**|16.13.1|MIT
 **[react-leaflet](#a5fc1f0504a89a932a12c5a183b75a748207329f20af6078f926e182d55aee8d)**|2.4.0|MIT
 **[react-leaflet-draw](#d80b4b765d856cdefe411a073d3b3dde06100128005f1381b4d26d6cf53134c7)**|0.19.0|ISC
 **[react-lifecycles-compat](#eb3ac074fe890bd9b53596baf6b3d4cd1aa851f3a82fdbd7e86bdeee38069b56)**|3.0.4|MIT
@@ -47194,9 +47194,9 @@ Authors:
 * Matthew King <mking@clari.com>
 
 
-<a id="7183835e2bcaca6754fe10854fc3b65407d2cb9aa3b68b1c06ccaafb7b9be28a"></a>
-### [react-is](https://www.npmjs.com/package/react-is) (version 16.13.1)
-<!-- initially found at node_modules/prop-types/node_modules/react-is -->
+<a id="5ec174b50bba38f48ee8da3d8a5b9463a9e77c3f01d74a132ecc30a2be099c4b"></a>
+### [react-is](https://www.npmjs.com/package/react-is) (version 17.0.2)
+<!-- initially found at node_modules/react-is -->
 > Brand checking of React Elements.
 
 License tags: MIT
@@ -47228,9 +47228,9 @@ License files:
       
 
 
-<a id="5ec174b50bba38f48ee8da3d8a5b9463a9e77c3f01d74a132ecc30a2be099c4b"></a>
-### [react-is](https://www.npmjs.com/package/react-is) (version 17.0.2)
-<!-- initially found at node_modules/react-is -->
+<a id="7183835e2bcaca6754fe10854fc3b65407d2cb9aa3b68b1c06ccaafb7b9be28a"></a>
+### [react-is](https://www.npmjs.com/package/react-is) (version 16.13.1)
+<!-- initially found at node_modules/prop-types/node_modules/react-is -->
 > Brand checking of React Elements.
 
 License tags: MIT
