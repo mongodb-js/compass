@@ -1,7 +1,9 @@
 const path = require('path');
 const { promises: fs } = require('fs');
 const chalk = require('chalk');
+const pacote = require('pacote');
 const { runInDir } = require('./run-in-dir');
+const { forEachPackage } = require('./monorepo/for-each-package');
 const { updatePackageJson } = require('./monorepo/update-package-json');
 const { withProgress } = require('./monorepo/with-progress');
 const {
@@ -10,6 +12,8 @@ const {
   DepTypes
 } = require('./workspace-dependencies');
 const { calculateReplacements, intersects } = require('./semver-helpers');
+
+const DEPENDENCY_GROUPS = ['peerDependencies', 'dependencies', 'devDependencies'];
 
 const USAGE = `Check for dependency alignment issues.
 
@@ -23,6 +27,8 @@ Options:
   --types-only                       Will only include a dependency in the report if all packages have this dependency as one of the provided with --type argument.
   --autofix                          Output a list of replacements to normalize ranges and align everything to the highest possible range.
   --autofix-only                     Will only autofix dependencies provided with this option
+  --align                            Update peerDepencencies, dependencies and devDependencies that specify the package
+  --range                            The range to use when aligning (default latest)
   --dangerously-include-mismatched   Include mismatched dependencies into autofix.
   --config                           Path to the config. Default is .depalignrc.json
   --validate-config                  Check that 'ignore' option in the config doesn't include extraneous dependencies and versions
@@ -67,12 +73,19 @@ async function main(args) {
 
   const outputJson = args.json;
   const shouldApplyFixes = args.autofix;
+  const alignPackage = args.align;
+  const alignToRange = args.range || 'latest';
   const shouldCheckConfig = args['validate-config'];
   const fixOnly = new Set(args['autofix-only']);
   const includeTypes = args.type;
   const includeTypesOnly = args['types-only'];
   const includeDeduped = !args['skip-deduped'];
   const includeMismatched = args['dangerously-include-mismatched'];
+
+  if (alignPackage) {
+    await alignPackageToRange(alignPackage, alignToRange);
+    return;
+  }
 
   const workspaces = await collectWorkspacesMeta();
   const dependencies = collectWorkspacesDependencies(workspaces);
@@ -185,6 +198,47 @@ async function main(args) {
   }
 
   process.exitCode = report.mismatched.size;
+}
+
+async function alignPackageToRange(packageName, range) {
+  range = range === 'latest'
+    // resolve in registry so we don't update package.json to literally "latest"
+    ? `^${(await pacote.manifest(`${packageName}@${range}`)).version}`
+    : range
+
+  await forEachPackage(async ({ location, packageJson }) => {
+    if (!hasDep(packageJson, packageName)) {
+      return;
+    }
+
+    await updatePackageJson(location, (pkgJson) => {
+      return updateDepToRange(pkgJson, packageName, range);
+    });
+  });
+
+  await runInDir('npm install');
+}
+
+function hasDep(packageJson, packageName) {
+  for (const group of DEPENDENCY_GROUPS) {
+    if (packageJson[group] && packageJson[group][packageName]) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function updateDepToRange(packageJson, packageName, range) {
+  const updated = { ...packageJson };
+
+  for (const group of DEPENDENCY_GROUPS) {
+    if (packageJson[group] && packageJson[group][packageName]) {
+      updated[group] = { ...packageJson[group], [packageName]: range };
+    }
+  }
+
+  return updated;
 }
 
 function generateReport(
