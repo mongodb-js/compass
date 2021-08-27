@@ -230,11 +230,11 @@ function hasDep(packageJson, packageName) {
 }
 
 function updateDepToRange(packageJson, packageName, range) {
-  const updated = Object.assign({}, packageJson);
+  const updated = { ...packageJson };
 
   for (const group of DEPENDENCY_GROUPS) {
     if (packageJson[group] && packageJson[group][packageName]) {
-      updated[group] = Object.assign({}, packageJson[group], { [packageName]: range });
+      updated[group] = { ...packageJson[group], [packageName]: range };
     }
   }
 
