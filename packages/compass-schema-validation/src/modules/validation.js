@@ -471,9 +471,8 @@ export const saveValidation = (validation) => {
         'schema-validation-saved'
       );
       dataService.updateCollection(
-        namespace.database,
+        `${namespace.database}.${namespace.collection}`,
         {
-          collMod: namespace.collection,
           validator: savedValidation.validator,
           validationAction: savedValidation.validationAction,
           validationLevel: savedValidation.validationLevel
