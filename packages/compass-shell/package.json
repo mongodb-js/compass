@@ -35,7 +35,7 @@
     "unsafe-perm": true
   },
   "engines": {
-    "node": ">=12.9.0"
+    "node": ">=14.17.5"
   },
   "license": "SSPL",
   "publishConfig": {
