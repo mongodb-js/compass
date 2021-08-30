@@ -432,7 +432,7 @@
     "vscode-windows-registry": "1.0.2"
   },
   "engines": {
-    "node": "^12.9.0",
-    "npm": ">=6.13.0"
+    "node": "^14.17.5",
+    "npm": ">=7.0.0"
   }
 }

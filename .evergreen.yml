@@ -91,7 +91,7 @@ functions:
           export NPM_CACHE_DIR="$(pwd)/.deps/.npm"
           export NPM_TMP_DIR="$(pwd)/.deps/tmp"
 
-          export NODE_JS_VERSION="12.13.0"
+          export NODE_JS_VERSION="14.17.5"
           export NPM_VERSION="7"
 
           # npm configuration
