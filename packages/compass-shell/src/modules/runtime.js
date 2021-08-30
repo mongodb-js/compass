@@ -75,7 +75,7 @@ function createWorkerRuntime(dataService, appRegistry) {
     options: driverOptions,
     // Not really provided by dataService, used only for testing purposes
     cliOptions,
-  } = dataService.getConnectionOptions();
+  } = dataService.getMongoClientConnectionOptions();
 
   return new WorkerRuntime(
     driverUrl,

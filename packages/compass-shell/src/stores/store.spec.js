@@ -1,18 +1,15 @@
-import CompassShellStore from './';
 import { EventEmitter } from 'events';
 import { WorkerRuntime } from '../modules/worker-runtime';
+import CompassShellStore from './';
 
 function createMockDataService() {
   return {
-    getConnectionOptions() {
+    getMongoClientConnectionOptions() {
       return {
         url: 'mongodb://nodb/',
         options: {},
         cliOptions: { nodb: true },
       };
-    },
-    client: {
-      client: {},
     },
   };
 }

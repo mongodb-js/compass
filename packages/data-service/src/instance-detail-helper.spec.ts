@@ -52,6 +52,7 @@ describe('mongodb-data-service#instance', function () {
     });
     describe('views', function () {
       let service: DataService;
+      let mongoClient: MongoClient;
       let instanceDetails: Instance;
 
       before(function (done) {
@@ -62,16 +63,23 @@ describe('mongodb-data-service#instance', function () {
         service = new DataService(helper.connection);
         service.connect(function (err) {
           if (err) return done(err);
-          helper.insertTestDocuments(service.client, function () {
-            done();
+          const opts = service.getMongoClientConnectionOptions();
+          MongoClient.connect(opts!.url, opts!.options, (err, client) => {
+            if (err) {
+              return done(err);
+            }
+            mongoClient = client!;
+            helper.insertTestDocuments(mongoClient, function () {
+              done();
+            });
           });
         });
       });
 
       after(function (done) {
-        helper.deleteTestDocuments(service.client, function () {
+        helper.deleteTestDocuments(mongoClient, function () {
           service.disconnect(function () {
-            done();
+            mongoClient.close(done);
           });
         });
       });

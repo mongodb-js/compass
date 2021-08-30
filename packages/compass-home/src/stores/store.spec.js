@@ -96,9 +96,7 @@ describe('HomeStore [Store]', () => {
         expect(store.getState()).to.deep.equal(initialState);
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
-          client: {
-            model: { connectionTitle: 'test_id', hostname: 'mongodb.net' }
-          }
+          model: { connectionTitle: 'test_id', hostname: 'mongodb.net' }
         });
       });
       it('dispatches the change ui status action', () => {
@@ -112,9 +110,7 @@ describe('HomeStore [Store]', () => {
       beforeEach(() => {
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
-          client: {
-            model: { title: 'test_id', hostname: 'mongodb.net' }
-          }
+          model: { title: 'test_id', hostname: 'mongodb.net' }
         });
         expect(store.getState()).to.deep.equal({
           errorMessage: '',
@@ -160,9 +156,7 @@ describe('HomeStore [Store]', () => {
         expect(store.getState()).to.deep.equal(initialState);
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
-          client: {
-            model: { title: 'test_id', hostname: 'mongodb.net' }
-          }
+          model: { title: 'test_id', hostname: 'mongodb.net' }
         });
 
         expect(store.getState().title).to.equal(' - test_id');

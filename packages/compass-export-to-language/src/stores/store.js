@@ -28,10 +28,10 @@ export const setCopyToClipboardFn = (store, fn) => {
  *
  * @param {Store} store - The store.
  * @param {Error} error - The error (if any) while connecting.
- * @param {Object} provider - The data provider.
+ * @param {Object} dataService - The data provider.
  */
-export const setDataProvider = (store, error, provider) => {
-  store.dispatch(uriChanged(provider.client.model.driverUrl));
+export const setDataProvider = (store, error, dataService) => {
+  store.dispatch(uriChanged(dataService.model.driverUrl));
 };
 
 /**

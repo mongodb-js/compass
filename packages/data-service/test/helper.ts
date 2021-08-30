@@ -1,7 +1,7 @@
 import chai from 'chai';
-import { DeleteResult, InsertManyResult } from 'mongodb';
+import { MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
-import { NativeClient } from '../src/native-client';
+import { LegacyConnectionModel } from '../src/legacy-connection-model';
 import { Callback } from '../src/types';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -9,17 +9,17 @@ const Connection = require('mongodb-connection-model');
 
 chai.use(sinonChai);
 
-export const connection = new Connection({
+export const connection: LegacyConnectionModel = new Connection({
   hostname: '127.0.0.1',
   port: 27018,
   ns: 'data-service',
 });
 
 export function insertTestDocuments(
-  client: NativeClient,
-  callback: Callback<InsertManyResult<Document>>
+  client: MongoClient,
+  callback: Callback<void>
 ): void {
-  const collection = client.database.collection('test');
+  const collection = client.db().collection('test');
   void collection.insertMany(
     [
       {
@@ -31,14 +31,14 @@ export function insertTestDocuments(
         a: 2,
       },
     ],
-    (err, result) => callback(err, result!)
+    callback as any
   );
 }
 
 export function deleteTestDocuments(
-  client: NativeClient,
-  callback: Callback<DeleteResult>
+  client: MongoClient,
+  callback: Callback<void>
 ): void {
-  const collection = client.database.collection('test');
-  void collection.deleteMany((err: any, result: any) => callback(err, result));
+  const collection = client.db().collection('test');
+  void collection.deleteMany(callback);
 }

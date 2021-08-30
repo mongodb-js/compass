@@ -26,7 +26,7 @@ describe('ExportToLanguage Store', () => {
     store = configureStore({
       localAppRegistry: appRegistry,
       namespace: 'db.coll',
-      dataProvider: { dataProvider: { client: { model: { driverUrl: 'localhost' } } } }
+      dataProvider: { dataProvider: { model: { driverUrl: 'localhost' } } }
     });
   });
   afterEach(() => {

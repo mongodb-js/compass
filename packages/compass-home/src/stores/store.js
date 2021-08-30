@@ -38,7 +38,7 @@ store.onActivated = (appRegistry) => {
       store.dispatch(changeUiStatus(UI_STATES.ERROR));
       return;
     }
-    const connection = ds.client.model;
+    const connection = ds.model;
 
     store.dispatch(changeConnectionTitle(connection.title || ''));
 

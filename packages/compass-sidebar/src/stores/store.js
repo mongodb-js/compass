@@ -21,7 +21,7 @@ store.onActivated = (appRegistry) => {
   store.dispatch(loadDetailsPlugins(appRegistry));
 
   appRegistry.on('data-service-connected', (_, dataService) => {
-    store.dispatch(changeConnection(dataService.client.model));
+    store.dispatch(changeConnection(dataService.model));
   });
 
   appRegistry.on('instance-refreshed', (state) => {
