@@ -1,7 +1,6 @@
 import chai from 'chai';
-import { DeleteResult, InsertManyResult } from 'mongodb';
+import { MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
-import DataService from '../src/data-service';
 import { LegacyConnectionModel } from '../src/legacy-connection-model';
 import { Callback } from '../src/types';
 
@@ -17,10 +16,10 @@ export const connection: LegacyConnectionModel = new Connection({
 });
 
 export function insertTestDocuments(
-  service: DataService,
-  callback: Callback<InsertManyResult<Document>>
+  client: MongoClient,
+  callback: Callback<void>
 ): void {
-  const collection = (service as any).db.collection('test');
+  const collection = client.db().collection('test');
   void collection.insertMany(
     [
       {
@@ -32,14 +31,14 @@ export function insertTestDocuments(
         a: 2,
       },
     ],
-    callback
+    callback as any
   );
 }
 
 export function deleteTestDocuments(
-  service: DataService,
-  callback: Callback<DeleteResult>
+  client: MongoClient,
+  callback: Callback<void>
 ): void {
-  const collection = (service as any).db.collection('test');
+  const collection = client.db().collection('test');
   void collection.deleteMany(callback);
 }

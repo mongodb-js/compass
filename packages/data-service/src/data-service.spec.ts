@@ -2,7 +2,7 @@ import assert from 'assert';
 import { ObjectId } from 'bson';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
-import { Db, MongoClient, Sort } from 'mongodb';
+import { MongoClient, Sort } from 'mongodb';
 import sinon from 'sinon';
 import * as helper from '../test/helper';
 import DataService from './data-service';
@@ -69,18 +69,28 @@ describe('DataService', function () {
   this.timeout(20000);
 
   let service: DataService;
-  const getServiceClient: () => MongoClient = () =>
-    (service as any).mongoClient;
-  const getServiceDb: () => Db = () => (service as any).db;
+  let mongoClient: MongoClient;
   let sandbox: sinon.SinonSandbox;
 
   before(function (done) {
     sandbox = sinon.createSandbox();
     service = new DataService(helper.connection);
-    service.connect(done);
+    service.connect((err) => {
+      if (err) return done(err);
+      const opts = service.getMongoClientConnectionOptions();
+      MongoClient.connect(opts!.url, opts!.options, (err, client) => {
+        if (err) {
+          return done(err);
+        }
+        mongoClient = client!;
+        done();
+      });
+    });
   });
   after(function (done) {
-    service.disconnect(done);
+    service.disconnect(() => {
+      mongoClient.close(done);
+    });
   });
   afterEach(function () {
     sandbox.restore();
@@ -169,7 +179,7 @@ describe('DataService', function () {
 
   describe('#dropCollection', function () {
     before(function (done) {
-      getServiceDb().createCollection('bar', {}, function (error) {
+      mongoClient.db().createCollection('bar', {}, function (error) {
         assert.equal(null, error);
         done();
       });
@@ -190,7 +200,7 @@ describe('DataService', function () {
 
   describe('#dropDatabase', function () {
     before(function (done) {
-      getServiceClient()
+      mongoClient
         .db('mangoDB')
         .createCollection('testing', {}, function (error) {
           assert.equal(null, error);
@@ -212,7 +222,8 @@ describe('DataService', function () {
 
   describe('#dropIndex', function () {
     before(function (done) {
-      getServiceDb()
+      mongoClient
+        .db()
         .collection('test')
         .createIndex(
           {
@@ -278,13 +289,13 @@ describe('DataService', function () {
 
   describe('#aggregate', function () {
     before(function (done) {
-      helper.insertTestDocuments(service, function () {
+      helper.insertTestDocuments(mongoClient, function () {
         done();
       });
     });
 
     after(function (done) {
-      helper.deleteTestDocuments(service, function () {
+      helper.deleteTestDocuments(mongoClient, function () {
         done();
       });
     });
@@ -327,13 +338,13 @@ describe('DataService', function () {
 
   describe('#find', function () {
     before(function (done) {
-      helper.insertTestDocuments(service, function () {
+      helper.insertTestDocuments(mongoClient, function () {
         done();
       });
     });
 
     after(function (done) {
-      helper.deleteTestDocuments(service, function () {
+      helper.deleteTestDocuments(mongoClient, function () {
         done();
       });
     });
@@ -415,13 +426,13 @@ describe('DataService', function () {
 
   describe('#fetch', function () {
     before(function (done) {
-      helper.insertTestDocuments(service, function () {
+      helper.insertTestDocuments(mongoClient, function () {
         done();
       });
     });
 
     after(function (done) {
-      helper.deleteTestDocuments(service, function () {
+      helper.deleteTestDocuments(mongoClient, function () {
         done();
       });
     });
@@ -471,7 +482,7 @@ describe('DataService', function () {
 
   describe('#findOneAndReplace', function () {
     after(function (done) {
-      helper.deleteTestDocuments(service, function () {
+      helper.deleteTestDocuments(mongoClient, function () {
         done();
       });
     });
@@ -514,7 +525,7 @@ describe('DataService', function () {
 
   describe('#findOneAndUpdate', function () {
     after(function (done) {
-      helper.deleteTestDocuments(service, function () {
+      helper.deleteTestDocuments(mongoClient, function () {
         done();
       });
     });
@@ -690,7 +701,7 @@ describe('DataService', function () {
 
   describe('#createCollection', function () {
     after(function (done) {
-      getServiceDb().dropCollection('foo', {}, function (error) {
+      mongoClient.db().dropCollection('foo', {}, function (error) {
         assert.equal(null, error);
         done();
       });
@@ -726,7 +737,7 @@ describe('DataService', function () {
 
   describe('#createIndex', function () {
     after(function (done) {
-      const testCollection = getServiceDb().collection('test');
+      const testCollection = mongoClient.db().collection('test');
       testCollection.dropIndex('a_1', {}, function () {
         testCollection.dropIndex('b_1', {}, function () {
           testCollection.dropIndex('a_-1_b_1', {}, function () {
@@ -815,7 +826,7 @@ describe('DataService', function () {
 
   describe('#insertOne', function () {
     after(function (done) {
-      helper.deleteTestDocuments(service, function () {
+      helper.deleteTestDocuments(mongoClient, function () {
         done();
       });
     });
@@ -848,7 +859,7 @@ describe('DataService', function () {
 
   describe('#insertMany', function () {
     after(function (done) {
-      helper.deleteTestDocuments(service, function () {
+      helper.deleteTestDocuments(mongoClient, function () {
         done();
       });
     });
@@ -886,13 +897,13 @@ describe('DataService', function () {
 
   describe('#sample', function () {
     before(function (done) {
-      helper.insertTestDocuments(service, function () {
+      helper.insertTestDocuments(mongoClient, function () {
         done();
       });
     });
 
     after(function (done) {
-      helper.deleteTestDocuments(service, function () {
+      helper.deleteTestDocuments(mongoClient, function () {
         done();
       });
     });
@@ -989,7 +1000,7 @@ describe('DataService', function () {
 
   describe('#updateOne', function () {
     after(function (done) {
-      helper.deleteTestDocuments(service, function () {
+      helper.deleteTestDocuments(mongoClient, function () {
         done();
       });
     });
@@ -1060,7 +1071,7 @@ describe('DataService', function () {
 
   describe('#updateMany', function () {
     after(function (done) {
-      helper.deleteTestDocuments(service, function () {
+      helper.deleteTestDocuments(mongoClient, function () {
         done();
       });
     });
@@ -1113,13 +1124,13 @@ describe('DataService', function () {
 
   describe('#views', function () {
     before(function (done) {
-      helper.insertTestDocuments(service, function () {
+      helper.insertTestDocuments(mongoClient, function () {
         done();
       });
     });
 
     after(function (done) {
-      helper.deleteTestDocuments(service, function () {
+      helper.deleteTestDocuments(mongoClient, function () {
         done();
       });
     });
@@ -1223,17 +1234,19 @@ describe('DataService', function () {
           helper.connection
         );
 
-        expect(mockedService.getConnectionOptions()).to.be.undefined;
+        expect(mockedService.getMongoClientConnectionOptions()).to.be.undefined;
 
         mockedService.connect(function () {
-          expect(mockedService.getConnectionOptions()).to.deep.equal({
-            url: 'mongodb://127.0.0.1:27018/data-service?readPreference=primary&ssl=false',
-            options: {
-              readPreference: 'primary',
-              useNewUrlParser: true,
-              useUnifiedTopology: true,
-            },
-          });
+          expect(mockedService.getMongoClientConnectionOptions()).to.deep.equal(
+            {
+              url: 'mongodb://127.0.0.1:27018/data-service?readPreference=primary&ssl=false',
+              options: {
+                readPreference: 'primary',
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+              },
+            }
+          );
           done();
         });
       });
@@ -1265,61 +1278,6 @@ describe('DataService', function () {
 
         mockedService.connect(function () {
           expect(mockedService.isMongos()).to.be.false;
-          done();
-        });
-      });
-
-      it('sets .isWritable to true when the node is a primary replset member', function (done) {
-        mock(
-          './legacy-connect',
-          mockedConnectionModel(
-            mockedTopologyDescription('ReplicaSetWithPrimary')
-          )
-        );
-
-        const MockedDataService = mock.reRequire('./data-service');
-        const mockedService: DataService = new MockedDataService(
-          helper.connection
-        );
-
-        mockedService.connect(function () {
-          expect(mockedService.isWritable()).to.be.true;
-          done();
-        });
-      });
-
-      it('sets .isWritable to false when the node is a secondary replset member', function (done) {
-        mock(
-          './legacy-connect',
-          mockedConnectionModel(
-            mockedTopologyDescription('Single', 'RSSecondary')
-          )
-        );
-
-        const MockedDataService = mock.reRequire('./data-service');
-        const mockedService: DataService = new MockedDataService(
-          helper.connection
-        );
-
-        mockedService.connect(function () {
-          expect(mockedService.isWritable()).to.be.false;
-          done();
-        });
-      });
-
-      it('sets .isWritable to true when the node is a mongos', function (done) {
-        mock(
-          './legacy-connect',
-          mockedConnectionModel(mockedTopologyDescription('Single', 'Mongos'))
-        );
-
-        const MockedDataService = mock.reRequire('./data-service');
-        const mockedService: DataService = new MockedDataService(
-          helper.connection
-        );
-
-        mockedService.connect(function () {
-          expect(mockedService.isWritable()).to.be.true;
           done();
         });
       });
@@ -1525,7 +1483,7 @@ describe('DataService', function () {
     it('kills a command with a session', async function () {
       const commandSpy = sinon.spy();
       sandbox.replace(
-        getServiceClient(),
+        (service as any)._client,
         'db',
         () =>
           ({

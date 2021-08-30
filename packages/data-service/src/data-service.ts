@@ -31,6 +31,7 @@ import {
   InsertOneResult,
   MongoClient,
   MongoClientOptions,
+  ServerDescription,
   TopologyDescription,
   TopologyDescriptionChangedEvent,
   UpdateFilter,
@@ -38,7 +39,7 @@ import {
   UpdateResult,
 } from 'mongodb';
 import { getInstance } from './instance-detail-helper';
-import { default as connect } from './legacy-connect';
+import connect from './legacy-connect';
 import { LegacyConnectionModel } from './legacy-connection-model';
 import {
   Callback,
@@ -55,61 +56,6 @@ const { fetch: getIndexes } = require('mongodb-index-model');
 const parseNamespace = require('mongodb-ns');
 
 const debug = createDebug('mongodb-data-service:data-service');
-
-/**
- * The constant for a mongos.
- */
-const SHARDED = 'Sharded';
-
-/**
- * Single topology type.
- */
-const SINGLE = 'Single';
-
-/**
- * RS with primary.
- */
-const RS_WITH_PRIMARY = 'ReplicaSetWithPrimary';
-
-/**
- * Primary rs member.
- */
-const RS_PRIMARY = 'RSPrimary';
-
-/**
- * Standalone member.
- */
-const STANDALONE = 'Standalone';
-
-/**
- * Mongos.
- */
-const MONGOS = 'Mongos';
-
-/**
- * Writable server types.
- */
-const WRITABLE_SERVER_TYPES = [RS_PRIMARY, STANDALONE, MONGOS];
-
-/**
- * Writable topology types.
- */
-const WRITABLE_TYPES = [SHARDED, SINGLE, RS_WITH_PRIMARY];
-
-/**
- * Error message sustring for view operations.
- */
-const VIEW_ERROR = 'is a view, not a collection';
-
-/**
- * The system collection name.
- */
-const SYSTEM = 'system';
-
-/**
- * The default sample size.
- */
-const DEFAULT_SAMPLE_SIZE = 1000;
 
 class DataService extends EventEmitter {
   /**
@@ -129,7 +75,10 @@ class DataService extends EventEmitter {
   model: LegacyConnectionModel;
 
   private _isConnecting = false;
-  private connectionOptions?: { url: string; options: MongoClientOptions };
+  private _mongoClientConnectionOptions?: {
+    url: string;
+    options: MongoClientOptions;
+  };
 
   private _client?: MongoClient;
   private _database?: Db;
@@ -143,10 +92,10 @@ class DataService extends EventEmitter {
     this.model = model;
   }
 
-  getConnectionOptions():
+  getMongoClientConnectionOptions():
     | { url: string; options: MongoClientOptions }
     | undefined {
-    return this.connectionOptions;
+    return this._mongoClientConnectionOptions;
   }
 
   /**
@@ -190,7 +139,7 @@ class DataService extends EventEmitter {
     databaseName: string,
     callback: Callback<CollectionStats[]>
   ): void {
-    if (databaseName === SYSTEM) {
+    if (databaseName === 'system') {
       return callback(null, []);
     }
     this._collectionNames(databaseName, (error, names) => {
@@ -224,7 +173,7 @@ class DataService extends EventEmitter {
   ): void {
     const db = this.mongoClient.db(databaseName);
     db.command({ collStats: collectionName, verbose: true }, (error, data) => {
-      if (error && !error.message.includes(VIEW_ERROR)) {
+      if (error && !error.message.includes('is a view, not a collection')) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
       }
@@ -357,7 +306,7 @@ class DataService extends EventEmitter {
         this._client = client;
         this._tunnel = tunnel;
 
-        this.connectionOptions = connectionOptions;
+        this._mongoClientConnectionOptions = connectionOptions;
 
         debug('connected!', {
           isWritable: this.isWritable(),
@@ -667,7 +616,6 @@ class DataService extends EventEmitter {
     options: FindOptions,
     callback: Callback<Document[]>
   ): void {
-    // Workaround for https://jira.mongodb.org/browse/NODE-3173
     const cursor = this._collection(ns).find(filter, options);
     cursor.toArray((error, documents) => {
       if (error) {
@@ -1134,7 +1082,7 @@ class DataService extends EventEmitter {
 
     pipeline.push({
       $sample: {
-        size: size === 0 ? 0 : size || DEFAULT_SAMPLE_SIZE,
+        size: size === 0 ? 0 : size || 1000,
       },
     });
 
@@ -1411,20 +1359,16 @@ class DataService extends EventEmitter {
   }
 
   /**
-   * Determine if the ismaster response is for a writable server.
+   * Determine if the hello response indicates a writable server.
    *
    * @param evt - The topology description changed event.
    *
    * @returns If the server is writable.
    */
   private checkIsWritable(evt: TopologyDescriptionChangedEvent): boolean {
-    const topologyType = evt.newDescription.type;
-    // If type is SINGLE we must be connected to primary, standalone or mongos.
-    if (topologyType === SINGLE) {
-      const server = [...evt.newDescription.servers.values()][0];
-      return server && WRITABLE_SERVER_TYPES.includes(server.type);
-    }
-    return WRITABLE_TYPES.includes(topologyType);
+    return [...evt.newDescription.servers.values()].some(
+      (server: ServerDescription) => server.isWritable
+    );
   }
 
   /**
@@ -1435,7 +1379,7 @@ class DataService extends EventEmitter {
    * @returns If the server is a mongos.
    */
   private checkIsMongos(evt: TopologyDescriptionChangedEvent): boolean {
-    return evt.newDescription.type === SHARDED;
+    return evt.newDescription.type === 'Sharded';
   }
 
   /**
@@ -1457,7 +1401,7 @@ class DataService extends EventEmitter {
   private _cleanup(): void {
     this._client = undefined;
     this._database = undefined;
-    this.connectionOptions = undefined;
+    this._mongoClientConnectionOptions = undefined;
     this._tunnel = null;
     this._isWritable = false;
     this._isMongos = false;
