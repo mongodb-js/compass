@@ -152,7 +152,7 @@
     "lodash.throttle": "^4.1.1",
     "marky": "^1.2.1",
     "mime-types": "^2.1.24",
-    "mongodb-query-parser": "^2.4.2",
+    "mongodb-query-parser": "^2.4.3",
     "object-sizeof": "^1.5.1",
     "parse-json": "^5.0.0",
     "peek-stream": "^1.1.3",
