@@ -7,6 +7,7 @@ import { ConnectionOptions } from './connection-options';
 const ConnectionModel = require('mongodb-connection-model');
 
 export interface LegacyConnectionModelProperties {
+  _id?: string;
   hostname: string;
   port: number;
   ns?: string;
@@ -126,6 +127,7 @@ export function convertConnectionModelToOptions(
   model: LegacyConnectionModel
 ): ConnectionOptions {
   const options: ConnectionOptions = {
+    id: model._id,
     connectionString: model.driverUrl,
   };
 
@@ -167,7 +169,9 @@ export async function convertConnectionOptionsToModel(
     ConnectionModel.from
   )(options.connectionString);
 
-  const additionalOptions: Partial<LegacyConnectionModelProperties> = {};
+  const additionalOptions: Partial<LegacyConnectionModelProperties> = {
+    _id: options.id
+  };
 
   if (options.sshTunnel) {
     additionalOptions.sshTunnel = !options.sshTunnel.privateKeyFile

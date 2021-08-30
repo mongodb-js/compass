@@ -4,7 +4,7 @@ import {
   convertConnectionModelToOptions,
   convertConnectionOptionsToModel,
   LegacyConnectionModel,
-  LegacyConnectionModelProperties,
+  LegacyConnectionModelProperties
 } from './legacy-connection-model';
 
 function expectConnectionModelEquals(
@@ -13,12 +13,12 @@ function expectConnectionModelEquals(
 ): void {
   expect({
     ...model1.toJSON(),
-    _id: undefined,
     sshTunnelBindToLocalPort: undefined,
+    _id: undefined,
   }).to.deep.equal({
     ...model2,
-    _id: undefined,
     sshTunnelBindToLocalPort: undefined,
+    _id: undefined,
   });
 }
 
@@ -177,6 +177,10 @@ describe('legacy-connection-model', function () {
 
         const convertedOptions =
           convertConnectionModelToOptions(convertedModel);
+        expect(convertedOptions.id).to.not.be.undefined;
+        expect(convertedModel._id).to.equal(convertedOptions.id);
+
+        delete (convertedOptions as any).id;
         expect(convertedOptions).to.deep.equal(inverseOptions ?? options);
       });
     });
