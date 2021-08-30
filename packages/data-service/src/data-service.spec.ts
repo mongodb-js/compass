@@ -5,6 +5,7 @@ import { EventEmitter } from 'events';
 import { MongoClient, Sort } from 'mongodb';
 import sinon from 'sinon';
 import * as helper from '../test/helper';
+import connect from './connect';
 import DataService from './data-service';
 import { Callback } from './types';
 
@@ -72,20 +73,11 @@ describe('DataService', function () {
   let mongoClient: MongoClient;
   let sandbox: sinon.SinonSandbox;
 
-  before(function (done) {
+  before(async function () {
     sandbox = sinon.createSandbox();
-    service = new DataService(helper.connection);
-    service.connect((err) => {
-      if (err) return done(err);
-      const opts = service.getMongoClientConnectionOptions();
-      MongoClient.connect(opts!.url, opts!.options, (err, client) => {
-        if (err) {
-          return done(err);
-        }
-        mongoClient = client!;
-        done();
-      });
-    });
+    service = await connect(helper.connectionOptions);
+    const opts = service.getMongoClientConnectionOptions();
+    mongoClient = await MongoClient.connect(opts!.url, opts!.options);
   });
   after(function (done) {
     service.disconnect(() => {

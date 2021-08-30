@@ -1,7 +1,7 @@
 const sinon = require('sinon');
 const app = require('hadron-app');
 const _ = require('lodash');
-const DataService = require('mongodb-data-service');
+const { DataService } = require('mongodb-data-service');
 
 /**
  * wraps the mocked callbacks and returns either cb(err) or cb(null, res)

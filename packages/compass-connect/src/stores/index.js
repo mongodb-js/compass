@@ -2,7 +2,6 @@ const electron = require('electron');
 const ipc = require('hadron-ipc');
 const { sortBy, forEach, omit } = require('lodash');
 const Connection = require('mongodb-connection-model');
-const DataService = require('mongodb-data-service');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const { promisify } = require('util');
@@ -1015,10 +1014,7 @@ const Store = Reflux.createStore({
     }
 
     try {
-      const dataService = new DataService(connectionModel);
-      const connectedDataService = await this.state.currentConnectionAttempt.connect(
-        dataService
-      );
+      const connectedDataService = await this.state.currentConnectionAttempt.connect(connectionModel);
 
       if (!connectedDataService || !this.state.currentConnectionAttempt) {
         return;

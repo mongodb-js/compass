@@ -4,14 +4,7 @@ import { Db, MongoClient } from 'mongodb';
 import * as helper from '../test/helper';
 import DataService from './data-service';
 import { getInstance } from './instance-detail-helper';
-import { LegacyConnectionModel } from './legacy-connection-model';
 import { Instance } from './types';
-
-/* eslint-disable @typescript-eslint/no-var-requires */
-const Connection = require('mongodb-connection-model');
-/* eslint-enable */
-
-const connect = Connection.connect;
 
 describe('mongodb-data-service#instance', function () {
   describe('local', function () {
@@ -20,21 +13,11 @@ describe('mongodb-data-service#instance', function () {
     after(function (done) {
       client.close(true, done);
     });
-    it('should connect to `localhost:27018`', function (done) {
-      Connection.from(
-        'mongodb://localhost:27018/data-service',
-        function (error: any, model: LegacyConnectionModel) {
-          assert.equal(error, null);
-          connect(model, null, function (err: any, _client: MongoClient) {
-            if (err) {
-              return done(err);
-            }
-            client = _client;
-            db = client.db('data-service');
-            done();
-          });
-        }
+    it('should connect to `localhost:27018`', async function () {
+      client = await MongoClient.connect(
+        'mongodb://localhost:27018/data-service?directConnection=true'
       );
+      db = client.db('data-service');
     });
     it('should not close the db after getting instance details', function (done) {
       assert(db);

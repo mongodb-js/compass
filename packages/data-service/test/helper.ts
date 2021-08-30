@@ -1,7 +1,8 @@
 import chai from 'chai';
 import { MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
-import { LegacyConnectionModel } from '../src/legacy-connection-model';
+import { LegacyConnectionModel } from '../lib/legacy-connection-model';
+import { convertConnectionModelToOptions } from '../src/legacy-connection-model';
 import { Callback } from '../src/types';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -14,6 +15,7 @@ export const connection: LegacyConnectionModel = new Connection({
   port: 27018,
   ns: 'data-service',
 });
+export const connectionOptions = convertConnectionModelToOptions(connection);
 
 export function insertTestDocuments(
   client: MongoClient,
