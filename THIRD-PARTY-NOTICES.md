@@ -909,7 +909,7 @@ Package|Version|License
 **[mongodb-language-model](#cbd794dfb2a6af2e6a26543302378b298f3e263ae3324040c108f7777e154ca9)**|2.3.0|SSPL
 **[mongodb-language-model](#0dd22abc80cef69725ac9663fc47e7778e3d7dd9d478f17f866721d0103842cc)**|1.7.1|Apache-2.0
 **[mongodb-ns](#0ab278b2cfb1f3c3efbf2786ee9e15f2fd7506306b1428e4fe4641480ea93225)**|2.2.0|MIT
-**[mongodb-query-parser](#d0030a6c7c4fed3fd4462b412975a2318ce97ef39d8e9f54dc70b4efaec32ee6)**|2.4.2|Apache-2.0
+**[mongodb-query-parser](#096a65b6dfe5d78c2c6a1f9ffdf9e381dcf688032aa8ab48bcb324007d0b6e26)**|2.4.3|Apache-2.0
 **[mongodb-query-util](#cca38af88354cbe08b44f198be120ccf55e468b2aad0dc82a55f98aa972b9686)**|0.2.1|Apache-2.0
 **[mongodb-query-util](#1cdb3b70a5e114dae29f1b35f9d6db51c92eb87f2577dc4054c75119970b2df1)**|0.0.3|Apache-2.0
 **[mongodb-redact](#b015ceda6a559a7605749ba16f53b8daa25d1a6b86af9abb7d1b03e555935642)**|0.2.0|Apache-2.0
@@ -39858,8 +39858,8 @@ Authors:
 * Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)
 
 
-<a id="d0030a6c7c4fed3fd4462b412975a2318ce97ef39d8e9f54dc70b4efaec32ee6"></a>
-### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 2.4.2)
+<a id="096a65b6dfe5d78c2c6a1f9ffdf9e381dcf688032aa8ab48bcb324007d0b6e26"></a>
+### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 2.4.3)
 <!-- initially found at node_modules/mongodb-query-parser -->
 > Parse MongoDB queries
 
