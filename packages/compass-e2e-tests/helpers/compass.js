@@ -1,4 +1,5 @@
 // @ts-check
+const { inspect } = require('util');
 const { promises: fs } = require('fs');
 const path = require('path');
 const os = require('os');
@@ -13,6 +14,7 @@ const {
   createPackagedStyles
 } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
+const { delay } = require('./delay');
 
 /**
  * @typedef {Object} ExtendedClient
@@ -42,10 +44,6 @@ const COMPASS_PATH = path.dirname(
 );
 
 const LOG_PATH = path.resolve(__dirname, '..', '.log');
-
-function delay(ms = 1000) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function getAtlasConnectionOptions() {
   const missingKeys = [
@@ -155,6 +153,7 @@ async function startCompass(
   await app.start();
 
   addCommands(app);
+  addDebugger(app);
 
   const _stop = app.stop.bind(app);
 
@@ -635,6 +634,38 @@ function addCommands(app) {
       return result;
     }
   );
+}
+
+/**
+ * @param {ExtendedApplication} app
+ */
+function addDebugger(app) {
+  const debugClient = debug.extend('webdriver:client');
+  // @ts-expect-error getPrototype is not typed in spectron or webdriver but
+  // exists
+  const clientProto = app.client.getPrototype();
+  for (const prop of Object.getOwnPropertyNames(clientProto)) {
+    if (prop.includes('.')) {
+      continue;
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(clientProto, prop);
+    if (typeof descriptor.value !== 'function') {
+      continue;
+    }
+    const origFn = descriptor.value;
+    /**
+     * @param  {any[]} args
+     */
+    descriptor.value = function (...args) {
+      debugClient(
+        `${prop}(${args
+          .map((arg) => inspect(arg, { breakLength: Infinity }))
+          .join(', ')})`
+      );
+      return origFn.call(this, ...args);
+    };
+    Object.defineProperty(clientProto, prop, descriptor);
+  }
 }
 
 /**
