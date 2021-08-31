@@ -80,7 +80,7 @@ class DropIndexModal extends PureComponent {
         <div>
           <p className={styles['drop-index-modal-confirm']}>
             <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-              Type the index name
+              &nbsp;Type the index name
             <strong> {this.props.name} </strong>
               to drop
           </p>
