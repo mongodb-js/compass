@@ -8,6 +8,7 @@ import reducer, {
   validationCanceled,
   validationSaveFailed,
   syntaxErrorOccurred,
+  validationFromCollection,
   VALIDATOR_CHANGED,
   VALIDATION_CANCELED,
   VALIDATION_SAVE_FAILED,
@@ -112,6 +113,56 @@ describe('validation module', () => {
       expect(syntaxErrorOccurred({ message: 'Syntax Error!' })).to.deep.equal({
         type: SYNTAX_ERROR_OCCURRED,
         syntaxError: { message: 'Syntax Error!' }
+      });
+    });
+  });
+
+  describe('validationFromCollection', () => {
+    context('when an error occurs listing the collection', () => {
+      it('includes the error', () => {
+        const error = new Error('Fake error');
+        expect(validationFromCollection(error)).to.deep.equal({
+          validationAction: 'error',
+          validationLevel: 'strict',
+          error
+        });
+      });
+    });
+
+    context('when the options contains no options', () => {
+      it('returns defaults', () => {
+        const data = [{}];
+        expect(validationFromCollection(null, data)).to.deep.equal({
+          validationAction: 'error',
+          validationLevel: 'strict'
+        });
+      });
+    });
+
+    context('when the options contains no validation-related options', () => {
+      it('returns defaults', () => {
+        const data = [{ options: {} }];
+        expect(validationFromCollection(null, data)).to.deep.equal({
+          validationAction: 'error',
+          validationLevel: 'strict'
+        });
+      });
+    });
+
+    context('when the options contains validation-related options', () => {
+      it('overrides the defaults', () => {
+        const data = [{
+          options: {
+            validationAction: 'new-validationAction',
+            validationLevel: 'new-validationLevel',
+            validator: { foo: 'bar' }
+          }
+        }];
+        expect(validationFromCollection(null, data)).to.deep.equal({
+          validationAction: 'new-validationAction',
+          validationLevel: 'new-validationLevel',
+          validator: { foo: 'bar' }
+        });
       });
     });
   });
