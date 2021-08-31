@@ -29,8 +29,9 @@ describe('connectivity integration tests', function () {
 
   before(async function () {
     if (
-      process.platform !== 'linux' &&
-      !process.env.COMPASS_RUN_CONNECTIVITY_TESTS
+      (process.platform !== 'linux' &&
+        !process.env.COMPASS_RUN_CONNECTIVITY_TESTS) ||
+      process.env.EVERGREEN_BUILD_VARIANT === 'rhel'
     ) {
       return this.skip();
     }
