@@ -1,8 +1,9 @@
 const path = require('path');
+const { inspect } = require('util');
 const { Arborist, Shrinkwrap } = require('@npmcli/arborist');
 const pacote = require('pacote');
 
-const cli = require('mongodb-js-cli')('hadron-build:generate-package-lock');
+const debug = require('debug')('hadron-build:generate-package-lock');
 
 /**
  * This script produces a fully "detached" package-lock file for a specific
@@ -28,15 +29,14 @@ async function generatePackageLock(
   let arb;
   let tree;
   let workspaceNode;
-  let workspacePath;
 
-  cli.debug('Loading dependencies tree');
+  debug('Loading dependencies tree');
   arb = new Arborist({ path: monorepoRootPath });
   // Using virtual here so that optional and system specific pacakges are also
   // included (they will be missing in `actual` if they are not on disk).
   tree = await arb.loadVirtual();
 
-  cli.debug(`Looking for ${workspaceName} workspace`);
+  debug(`Looking for ${workspaceName} workspace`);
 
   if (!tree.workspaces.has(workspaceName)) {
     const availableWorkspaces = Array.from(tree.workspaces.keys());
@@ -48,31 +48,52 @@ async function generatePackageLock(
     );
   }
 
-  workspacePath = tree.workspaces.get(workspaceName);
   workspaceNode = tree.children.get(workspaceName);
 
   const packagesMeta = new Map();
 
-  cli.debug(`Building dependency tree for ${workspaceName} workspace`);
+  debug(`Building dependency tree for ${workspaceName} workspace`);
+
+  debug('Collecting all packages for node');
 
   const packages = getAllChildrenForNode(workspaceNode);
 
-  for (const packageNode of packages) {
-    const metaPath = packageNode.path
-      .replace(workspacePath, '')
-      .replace(monorepoRootPath, '')
-      .replace(/^(\/|\\)/, '');
+  debug(`Found ${packages.size} packages`);
 
-    // In theory should never happen
+  debug('Normalizing packages tree paths');
+
+  for (const packageNode of packages) {
+    const metaPath = path.join(
+      parentPackageToPath(getNodeParent(packageNode), workspaceName),
+      'node_modules',
+      packageNode.packageName
+    );
+
+    /**
+     * We can end up here if workspace that we are trying to build a
+     * package-lock for has a direct dependency with the version that was not
+     * deduped for the workspace, but was deduped and hoisted to root of the
+     * monorepo for other packages (e.g., if workspace-a has a dependency on
+     * pkg-a@1 and workspace-b with workspace-c both have dependency on pkg-a@2
+     * we will run into a collision here trying to buid a package-lock for
+     * workspace-a)
+     *
+     * To mitigate that, if we run into the issue like that, we will un-hoist
+     * already existing dependency and remove it from packagesMeta map
+     */
     if (packagesMeta.has(metaPath)) {
-      // TODO: print nice diff maybe
-      // const pkgA = JSON.stringify(packagesMeta.get(metaPath), null, 2);
-      const pkgB = JSON.stringify(packageNode, null, 2);
-      throw new Error(
-        `Conflicting package dependency: package ${packageNode.name} already exists on path ${metaPath}\n\n${pkgB}`
+      debug(
+        `Unhoisting existing package ${packageNode.packageName} from ${metaPath}`
       );
+      unhoistDependencyAtPath(packagesMeta, metaPath, workspaceName);
     }
 
+    packagesMeta.set(metaPath, packageNode);
+  }
+
+  debug('Generating package-lock metadata for package nodes');
+
+  for (const [packageName, packageNode] of packagesMeta) {
     let meta;
 
     if (packageNode.isLink) {
@@ -81,8 +102,10 @@ async function generatePackageLock(
       meta = Shrinkwrap.metaFromNode(packageNode);
     }
 
-    packagesMeta.set(metaPath, meta);
+    packagesMeta.set(packageName, meta);
   }
+
+  debug('Generating package-lock v3');
 
   // https://docs.npmjs.com/cli/v7/configuring-npm/package-lock-json#file-format
   const packageLock = {
@@ -105,9 +128,10 @@ function getAllChildrenForNode(nodeOrLink, packages = new Set()) {
       throw new Error(
         `Failed to resolve edge ${edge.name} from package ${
           node.packageName
-        } at ${node.realpath}:\n\n${JSON.stringify(edge, null, 2)}`
+        } at ${node.realpath}:\n\n${inspect(edge)}`
       );
-    } else if (pkg && !packages.has(pkg)) {
+    }
+    if (pkg && !packages.has(pkg)) {
       packages.add(pkg);
       getAllChildrenForNode(pkg, packages);
     }
@@ -115,10 +139,50 @@ function getAllChildrenForNode(nodeOrLink, packages = new Set()) {
   return packages;
 }
 
+function getNodeParent(node) {
+  return (
+    node.parent ||
+    (node.isWorkspace ? node.root : node.top) ||
+    node.root ||
+    null
+  );
+}
+
+function parentPackageToPath(parentNode, targetWorkspacePackageName) {
+  if (parentNode.packageName === targetWorkspacePackageName) {
+    return '';
+  } else if (parentNode.top.isWorkspace) {
+    return parentNode.location.replace(
+      parentNode.top.location,
+      path.join('node_modules', parentNode.top.packageName)
+    );
+  }
+  return parentNode.location;
+}
+
+function unhoistDependencyAtPath(
+  packagesMap,
+  packagePath,
+  packageLockRootPackageName
+) {
+  const packageNode = packagesMap.get(packagePath);
+  for (const edge of packageNode.edgesIn) {
+    const newPath = path.join(
+      parentPackageToPath(edge.from, packageLockRootPackageName),
+      'node_modules',
+      packageNode.packageName
+    );
+    packagesMap.set(newPath, packageNode);
+  }
+  packagesMap.delete(packagePath);
+  return packagesMap;
+}
+
 function findPackageNodeRec(packageName, startNode) {
-  const parent = startNode.parent || startNode.top || startNode.root || null;
+  const parent = getNodeParent(startNode);
   const node = startNode.isLink ? startNode.target : startNode;
-  return startNode.children.has(packageName)
+
+  return node.children.has(packageName)
     ? node.children.get(packageName)
     : parent && parent !== startNode
       ? findPackageNodeRec(packageName, parent)
@@ -148,6 +212,12 @@ const nodePackageKeys = ['inBundle', 'hasShrinkwrap', 'hasInstallScript'];
  * [1] - https://github.com/npm/arborist/blob/75c785f64bc27f326b645854be0b2607e219f09b/lib/shrinkwrap.js#L107-L146
  */
 async function resolvePackageMetaForLink(link, npmRegistry) {
+  debug(
+    `Fetching metadata for ${
+      link.isWorkspace ? 'workspace' : 'linked'
+    } package ${link.name}@${link.version}`
+  );
+
   const manifest = await pacote.manifest(`${link.name}@${link.version}`, {
     // if env is undefined, defaults to https://registry.npmjs.org
     registry: npmRegistry
