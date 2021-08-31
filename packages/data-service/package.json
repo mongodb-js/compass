@@ -59,7 +59,7 @@
     "@mongodb-js/ssh-tunnel": "^1.2.0",
     "async": "^3.2.0",
     "debug": "^4.2.0",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "mongodb-build-info": "^1.1.1",
     "mongodb-connection-string-url": "^1.0.1",
     "mongodb-index-model": "^3.5.0",

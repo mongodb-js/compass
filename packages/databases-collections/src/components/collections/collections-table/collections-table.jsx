@@ -143,12 +143,12 @@ class CollectionsTable extends PureComponent {
           isNaN(coll.Documents)
         ) ? DASH : numeral(coll.Documents).format('0,0'),
         [AVG_DOC_SIZE]: isNaN(coll[AVG_DOC_SIZE]) ?
-          DASH : numeral(coll[AVG_DOC_SIZE]).format('0.0 b'),
+          DASH : numeral(coll[AVG_DOC_SIZE]).format('0.0 ib'),
         [TOT_DOC_SIZE]: isNaN(coll[TOT_DOC_SIZE]) ?
-          DASH : numeral(coll[TOT_DOC_SIZE]).format('0.0 b'),
+          DASH : numeral(coll[TOT_DOC_SIZE]).format('0.0 ib'),
         [NUM_INDEX]: isNaN(coll[NUM_INDEX]) ? DASH : coll[NUM_INDEX],
         [TOT_INDEX_SIZE]: isNaN(coll[TOT_INDEX_SIZE]) ?
-          DASH : numeral(coll[TOT_INDEX_SIZE]).format('0.0 b'),
+          DASH : numeral(coll[TOT_INDEX_SIZE]).format('0.0 ib'),
         [PROPS]: <CollectionProperties collection={coll} />
       });
     });

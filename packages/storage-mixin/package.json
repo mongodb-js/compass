@@ -48,8 +48,8 @@
     "hadron-ipc": "^2.4.0",
     "keytar": "^5.1.0",
     "localforage": "^1.7.3",
-    "lodash": "^4.17.15",
-    "rimraf": "^3.0.0",
+    "lodash": "^4.17.21",
+    "rimraf": "^3.0.2",
     "uuid": "^3.3.3",
     "write-file-atomic": "^3.0.1"
   },

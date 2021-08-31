@@ -23,7 +23,7 @@
     "bugsnag-js": "^3.2.0",
     "caller-id": "^0.1.0",
     "debug": "^4.1.1",
-    "lodash": "^4.13.1",
+    "lodash": "^4.17.21",
     "mongodb-ns": "^2.2.0",
     "mongodb-redact": "0.2.0",
     "mongodb-stitch-browser-sdk": "^4.8.0",

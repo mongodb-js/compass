@@ -7,7 +7,6 @@ ignores: [
   "chai-as-promised",
   "core-js",
   "font-awesome",
-  "jquery",
   "karma-chai",
   "karma-chai-sinon",
   "karma-electron",

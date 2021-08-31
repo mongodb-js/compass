@@ -54,7 +54,7 @@
     "cheerio": "^1.0.0-rc.3",
     "classnames": "^2.2.6",
     "core-js": "^3.12.1",
-    "cross-env": "^7.0.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^4.3.0",
     "debug": "^4.1.1",
     "depcheck": "^1.4.1",

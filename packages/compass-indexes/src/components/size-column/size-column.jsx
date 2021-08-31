@@ -22,7 +22,7 @@ class SizeColumn extends PureComponent {
 
   _format(size) {
     const precision = size <= 1000 ? '0' : '0.0';
-    return numeral(size).format(precision + ' b');
+    return numeral(size).format(precision + ' ib');
   }
 
   /**

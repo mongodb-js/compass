@@ -1,5 +1,3 @@
-import ms from 'ms';
-
 const USER_TYPING_DEBOUNCE_MS = 100;
 
 const RESET_STATE = 'reset';
@@ -13,7 +11,7 @@ const DEFAULT_SKIP = 0;
 const DEFAULT_LIMIT = 0;
 const DEFAULT_SAMPLE = false;
 
-const DEFAULT_MAX_TIME_MS = ms('1m');
+const DEFAULT_MAX_TIME_MS = 1000 * 60;
 const DEFAULT_SAMPLE_SIZE = 1000;
 const DEFAULT_STATE = RESET_STATE;
 
