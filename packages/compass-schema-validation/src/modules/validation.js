@@ -3,8 +3,9 @@ import queryParser from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import { fetchSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
+import { isLoadedChanged } from './is-loaded';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { defaults, isEqual, pick, isObject } from 'lodash';
+import { isEqual, pick, isObject } from 'lodash';
 
 /**
  * The module action prefix.
@@ -382,65 +383,77 @@ export const fetchValidation = (namespace) => {
   return (dispatch, getState) => {
     const state = getState();
     const dataService = state.dataService.dataService;
-    let validation = {
-      validationAction: INITIAL_STATE.validationAction,
-      validationLevel: INITIAL_STATE.validationLevel
-    };
 
-
-    if (dataService) {
-      dataService.listCollections(
-        namespace.database,
-        { name: namespace.collection },
-        (errorColl, data) => {
-          if (errorColl) {
-            validation.error = errorColl;
-
-            dispatch(zeroStateChanged(false));
-            dispatch(validationFetched(validation));
-
-            return;
-          }
-
-          const options = data[0].options;
-
-          if (options) {
-            validation = defaults(
-              {
-                validator: options.validator,
-                validationAction: options.validationAction,
-                validationLevel: options.validationLevel
-              },
-              validation
-            );
-          }
-
-          if (validation.validator) {
-            sendMetrics(
-              dispatch,
-              dataService,
-              namespace,
-              validation,
-              'schema-validation-fetched'
-            );
-
-            validation.validator = EJSON.stringify(validation.validator, null, 2);
-
-            dispatch(zeroStateChanged(false));
-            dispatch(fetchSampleDocuments(validation.validator));
-            dispatch(validationFetched(validation));
-
-            return;
-          }
-
-          validation.validator = '{}';
-
-          return dispatch(validationFetched(validation));
-        }
-      );
+    if (!dataService) {
+      return;
     }
+
+    dataService.listCollections(
+      namespace.database,
+      { name: namespace.collection },
+      (err, data) => {
+        const validation = validationFromCollection(err, data);
+
+        if (err) {
+          dispatch(validationFetched(validation));
+          dispatch(zeroStateChanged(false));
+          dispatch(isLoadedChanged(true));
+          return;
+        }
+
+        if (!validation.validator) {
+          validation.validator = '{}';
+          dispatch(validationFetched(validation));
+          dispatch(isLoadedChanged(true));
+          return;
+        }
+
+        sendMetrics(
+          dispatch,
+          dataService,
+          namespace,
+          validation,
+          'schema-validation-fetched'
+        );
+
+        validation.validator = EJSON.stringify(validation.validator, null, 2);
+
+        dispatch(fetchSampleDocuments(validation.validator));
+        dispatch(validationFetched(validation));
+        dispatch(zeroStateChanged(false));
+        dispatch(isLoadedChanged(true));
+      }
+    );
   };
 };
+
+export function validationFromCollection(err, data) {
+  const validation = {
+    validationAction: INITIAL_STATE.validationAction,
+    validationLevel: INITIAL_STATE.validationLevel
+  };
+
+  if (err) {
+    validation.error = err;
+    return validation;
+  }
+
+  const options = data[0].options || {};
+
+  if (options.validationAction) {
+    validation.validationAction = options.validationAction;
+  }
+
+  if (options.validationLevel) {
+    validation.validationLevel = options.validationLevel;
+  }
+
+  if (options.validator) {
+    validation.validator = options.validator;
+  }
+
+  return validation;
+}
 
 /**
  * Save validation.
@@ -521,9 +534,12 @@ export const cancelValidation = () => {
 export const activateValidation = () => {
   return (dispatch, getState) => {
     const state = getState();
-    const dataService = state.dataService.dataService;
     const namespace = state.namespace;
-    const validation = state.validation;
+
+    dispatch(fetchValidation(namespace));
+
+    const dataService = state.dataService.dataService;
+    const validation = state.validation; // this is almost certainly still the initial state
 
     if (dataService) {
       sendMetrics(
