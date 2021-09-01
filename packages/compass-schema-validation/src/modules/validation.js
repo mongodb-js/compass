@@ -395,8 +395,8 @@ export const fetchValidation = (namespace) => {
         const validation = validationFromCollection(err, data);
 
         if (err) {
-          dispatch(zeroStateChanged(false));
           dispatch(validationFetched(validation));
+          dispatch(zeroStateChanged(false));
           dispatch(isLoadedChanged(true));
           return;
         }
@@ -418,9 +418,9 @@ export const fetchValidation = (namespace) => {
 
         validation.validator = EJSON.stringify(validation.validator, null, 2);
 
-        dispatch(zeroStateChanged(false));
         dispatch(fetchSampleDocuments(validation.validator));
         dispatch(validationFetched(validation));
+        dispatch(zeroStateChanged(false));
         dispatch(isLoadedChanged(true));
       }
     );
