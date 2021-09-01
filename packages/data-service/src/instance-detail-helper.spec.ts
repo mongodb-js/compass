@@ -43,7 +43,7 @@ describe('mongodb-data-service#instance', function () {
           return this.skip();
         }
 
-        service = new DataService(helper.connection);
+        service = new DataService(helper.connectionOptions, helper.connection);
         service.connect(function (err) {
           if (err) return done(err);
           const opts = service.getMongoClientConnectionOptions();

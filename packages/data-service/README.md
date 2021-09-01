@@ -18,7 +18,7 @@ const { connect } = require('mongodb-data-service');
 // ...
 
 const service = await connect({
-  driverUrl: 'mongodb://localhost:27018/data-service'
+  driverUrl: 'mongodb://localhost:27018/data-service',
 });
 ```
 

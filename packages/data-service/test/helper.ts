@@ -1,7 +1,10 @@
 import chai from 'chai';
 import { MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
-import { LegacyConnectionModel, LegacyConnectionModelProperties } from '../lib/legacy-connection-model';
+import {
+  LegacyConnectionModel,
+  LegacyConnectionModelProperties,
+} from '../lib/legacy-connection-model';
 import { convertConnectionModelToOptions } from '../src/legacy-connection-model';
 import { Callback } from '../src/types';
 
@@ -17,7 +20,9 @@ export const connection: LegacyConnectionModel = new Connection({
 });
 export const connectionOptions = convertConnectionModelToOptions(connection);
 
-export function createConnectionModel(opts: Partial<LegacyConnectionModelProperties>) {
+export function createConnectionModel(
+  opts: Partial<LegacyConnectionModelProperties>
+) {
   return new Connection(opts);
 }
 

@@ -6,12 +6,9 @@ import { convertConnectionOptionsToModel } from './legacy-connection-model';
 export default async function connect(
   connectionOptions: ConnectionOptions
 ): Promise<DataService> {
-  const connectionModel = await convertConnectionOptionsToModel(
-    connectionOptions
-  );
+  const model = await convertConnectionOptionsToModel(connectionOptions);
 
-  const dataService = new DataService(connectionModel);
-
+  const dataService = new DataService(connectionOptions, model);
   await util.promisify(dataService.connect.bind(dataService))();
 
   return dataService;

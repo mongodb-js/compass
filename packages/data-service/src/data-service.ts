@@ -45,6 +45,7 @@ import { getInstance } from './instance-detail-helper';
 import connect from './legacy-connect';
 import {
   convertConnectionModelToOptions,
+  convertConnectionOptionsToModel,
   LegacyConnectionModel,
 } from './legacy-connection-model';
 import {
@@ -68,7 +69,7 @@ class DataService extends EventEmitter {
    * Currently used in:
    * - compass-sidebar/store.js
    */
-  model: LegacyConnectionModel;
+  readonly model: LegacyConnectionModel;
 
   private _connectionOptions: ConnectionOptions;
   private _isConnecting = false;
@@ -90,10 +91,13 @@ class DataService extends EventEmitter {
   private _isWritable = false;
   private _isMongos = false;
 
-  constructor(model: LegacyConnectionModel) {
+  constructor(
+    connectionOptions: ConnectionOptions,
+    model: LegacyConnectionModel
+  ) {
     super();
+    this._connectionOptions = connectionOptions;
     this.model = model;
-    this._connectionOptions = convertConnectionModelToOptions(model);
   }
 
   getMongoClientConnectionOptions():

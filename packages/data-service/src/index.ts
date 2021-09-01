@@ -3,7 +3,7 @@ import { getConnectionTitle } from './connection-title';
 import DataService from './data-service';
 import {
   convertConnectionModelToOptions,
-  convertConnectionOptionsToModel
+  convertConnectionOptionsToModel,
 } from './legacy-connection-model';
 
 export {

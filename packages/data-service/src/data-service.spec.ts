@@ -93,12 +93,12 @@ describe('DataService', function () {
     let _service: DataService;
 
     it('returns false when not connected initially', function () {
-      _service = new DataService(helper.connection);
+      _service = new DataService(helper.connectionOptions, helper.connection);
       expect(_service.isConnected()).to.equal(false);
     });
 
     it('returns true if client is connected', function (done) {
-      _service = new DataService(helper.connection);
+      _service = new DataService(helper.connectionOptions, helper.connection);
       _service.connect(() => {
         expect(_service.isConnected()).to.equal(true);
         done();
@@ -106,7 +106,7 @@ describe('DataService', function () {
     });
 
     it('returns false if client is disconnected', function (done) {
-      _service = new DataService(helper.connection);
+      _service = new DataService(helper.connectionOptions, helper.connection);
       _service.connect(() => {
         _service.disconnect(() => {
           expect(_service.isConnected()).to.equal(false);
@@ -1056,7 +1056,10 @@ describe('DataService', function () {
     });
 
     it("it returns null when a topology description event hasn't yet occured", function () {
-      const testService = new DataService(helper.connection);
+      const testService = new DataService(
+        helper.connectionOptions,
+        helper.connection
+      );
       expect(testService.getLastSeenTopology()).to.equal(null);
     });
   });
@@ -1200,6 +1203,7 @@ describe('DataService', function () {
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
+          helper.connectionOptions,
           helper.connection
         );
 
@@ -1223,6 +1227,7 @@ describe('DataService', function () {
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
+          helper.connectionOptions,
           helper.connection
         );
 
@@ -1251,6 +1256,7 @@ describe('DataService', function () {
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
+          helper.connectionOptions,
           helper.connection
         );
 
@@ -1265,6 +1271,7 @@ describe('DataService', function () {
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
+          helper.connectionOptions,
           helper.connection
         );
 
@@ -1287,6 +1294,7 @@ describe('DataService', function () {
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
+          helper.connectionOptions,
           helper.connection
         );
 
