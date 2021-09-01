@@ -41,13 +41,13 @@ const ReadStateStore = Reflux.createStore({
   },
 
   /**
-   * When the data service initialises, update the connection in the state here.
+   * When the data service initialises, update the data service in the state here.
    *
    * @param {Error | null} _ - The error that might have occured when connecting.
    * @param {Object} dataService - The data service.
    */
   onDataServiceConnected(_, dataService) {
-    this.setState({ connection: dataService.model });
+    this.setState({ dataService });
   },
 
   /**
@@ -57,9 +57,9 @@ const ReadStateStore = Reflux.createStore({
    * @param {Object} description - The topology description.
    */
   topologyChanged(description) {
-    if (this.state.connection) {
+    if (this.state.dataService) {
       const topologyType = description.topologyType;
-      const readPreference = this.state.connection.read_preference;
+      const readPreference = this.state.dataService.getReadPreference();
       const isReadable = isTopologyReadable(topologyType, readPreference);
       this.setState({
         isReadable: isReadable,
@@ -77,7 +77,7 @@ const ReadStateStore = Reflux.createStore({
   getInitialState() {
     return {
       isReadable: false,
-      connection: null,
+      dataService: null,
       description: DEFAULT_DESCRIPTION
     };
   },

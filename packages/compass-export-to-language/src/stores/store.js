@@ -31,7 +31,9 @@ export const setCopyToClipboardFn = (store, fn) => {
  * @param {Object} dataService - The data provider.
  */
 export const setDataProvider = (store, error, dataService) => {
-  store.dispatch(uriChanged(dataService.model.driverUrl));
+  // TODO: verify - do we want the _driver_ URL we modified (directConnection, etc.) -> getMongoClientConnectionOptions().url
+  // or do we pick the user's connection string -> getConnectionOptions().connectionString
+  store.dispatch(uriChanged(dataService.getConnectionOptions().connectionString));
 };
 
 /**

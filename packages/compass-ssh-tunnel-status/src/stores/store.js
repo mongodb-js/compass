@@ -39,12 +39,13 @@ const SshTunnelStatusStore = Reflux.createStore({
   onConnected(err, ds) {
     if (err) return;
 
-    const sshTunnel = ds.model.sshTunnel !== 'NONE';
+    const connectionOptions = ds.getConnectionOptions();
+    const sshTunnel = !!connectionOptions.sshTunnel;
     const sshTunnelHostname = sshTunnel
-      ? ds.model.sshTunnelHostname
+      ? connectionOptions.sshTunnel.host
       : '';
     const sshTunnelPort = sshTunnel
-      ? ds.model.sshTunnelOptions.dstPort
+      ? connectionOptions.sshTunnel.port
       : '';
     const sshTunnelHostPortString = sshTunnel
       ? this._combineHostPort(sshTunnelHostname, sshTunnelPort, true)

@@ -21,7 +21,10 @@ export interface LegacyConnectionModelProperties {
     | 'LDAP'
     | 'SCRAM-SHA-256';
 
-  hosts?: string[];
+  hosts?: Array<{
+    host: string;
+    port: number;
+  }>;
   isSrvRecord?: boolean;
 
   replicaSet?: string;

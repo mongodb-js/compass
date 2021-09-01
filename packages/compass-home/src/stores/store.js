@@ -1,4 +1,5 @@
 import { createStore, applyMiddleware } from 'redux';
+import { getConnectionTitle } from 'mongodb-data-service';
 import reducer from '../modules';
 import thunk from 'redux-thunk';
 
@@ -38,9 +39,9 @@ store.onActivated = (appRegistry) => {
       store.dispatch(changeUiStatus(UI_STATES.ERROR));
       return;
     }
-    const connection = ds.model;
 
-    store.dispatch(changeConnectionTitle(connection.title || ''));
+    const connectionOptions = ds.getConnectionOptions();
+    store.dispatch(changeConnectionTitle(getConnectionTitle(connectionOptions) || ''));
 
     const StatusAction = appRegistry.getAction('Status.Actions');
     if (StatusAction) {

@@ -5,6 +5,7 @@ const Connection = require('mongodb-connection-model');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const { promisify } = require('util');
+const { getConnectionTitle, convertConnectionModelToOptions } = require('mongodb-data-service');
 
 const Actions = require('../actions');
 const {
@@ -1049,7 +1050,7 @@ const Store = Reflux.createStore({
     }
 
     this.setState({
-      connectingStatusText: `Connecting to ${connectionModel.title}`
+      connectingStatusText: `Connecting to ${getConnectionTitle(convertConnectionModelToOptions(connectionModel))}`
     });
 
     await this._connect(connectionModel);

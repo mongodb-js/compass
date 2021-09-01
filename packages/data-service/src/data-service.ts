@@ -31,6 +31,7 @@ import {
   InsertOneResult,
   MongoClient,
   MongoClientOptions,
+  ReadPreferenceLike,
   ServerDescription,
   TopologyDescription,
   TopologyDescriptionChangedEvent,
@@ -38,9 +39,14 @@ import {
   UpdateOptions,
   UpdateResult,
 } from 'mongodb';
+import ConnectionString from 'mongodb-connection-string-url';
+import { ConnectionOptions } from './connection-options';
 import { getInstance } from './instance-detail-helper';
 import connect from './legacy-connect';
-import { LegacyConnectionModel } from './legacy-connection-model';
+import {
+  convertConnectionModelToOptions,
+  LegacyConnectionModel,
+} from './legacy-connection-model';
 import {
   Callback,
   CollectionDetails,
@@ -59,21 +65,12 @@ const debug = createDebug('mongodb-data-service:data-service');
 
 class DataService extends EventEmitter {
   /**
-   * Stores the most recent topology description from the server's SDAM events:
-   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
-   */
-  lastSeenTopology: TopologyDescription | null = null;
-
-  /**
    * Currently used in:
-   * - compass-deployment/read-state-store.js
-   * - compass-export-to-language/store.js
-   * - compass-home/store.js
    * - compass-sidebar/store.js
-   * - compass-ssh-tunnel-status/store.js
    */
   model: LegacyConnectionModel;
 
+  private _connectionOptions: ConnectionOptions;
   private _isConnecting = false;
   private _mongoClientConnectionOptions?: {
     url: string;
@@ -84,18 +81,37 @@ class DataService extends EventEmitter {
   private _database?: Db;
   private _tunnel: SshTunnel | null = null;
 
+  /**
+   * Stores the most recent topology description from the server's SDAM events:
+   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
+   */
+  private _lastSeenTopology: TopologyDescription | null = null;
+
   private _isWritable = false;
   private _isMongos = false;
 
   constructor(model: LegacyConnectionModel) {
     super();
     this.model = model;
+    this._connectionOptions = convertConnectionModelToOptions(model);
   }
 
   getMongoClientConnectionOptions():
     | { url: string; options: MongoClientOptions }
     | undefined {
     return this._mongoClientConnectionOptions;
+  }
+
+  getConnectionOptions(): Readonly<ConnectionOptions> {
+    return this._connectionOptions;
+  }
+
+  getConnectionString(): ConnectionString {
+    return new ConnectionString(this._connectionOptions.connectionString);
+  }
+
+  getReadPreference(): ReadPreferenceLike {
+    return this.mongoClient.readPreference;
   }
 
   /**
@@ -952,7 +968,7 @@ class DataService extends EventEmitter {
    * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
    */
   getLastSeenTopology(): null | TopologyDescription {
-    return this.lastSeenTopology;
+    return this._lastSeenTopology;
   }
 
   /**
@@ -1171,7 +1187,7 @@ class DataService extends EventEmitter {
           isMongos: this.isMongos(),
         });
 
-        this.lastSeenTopology = args[0].newDescription;
+        this._lastSeenTopology = args[0].newDescription;
 
         this.emit('topologyDescriptionChanged', args[0]);
       });
