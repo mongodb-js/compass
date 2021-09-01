@@ -18,6 +18,9 @@ const reactConfigurations = [
 ];
 
 const testConfigurations = ['plugin:mocha/recommended'];
+const testRules = {
+  'mocha/no-exclusive-tests': 'error'
+};
 
 module.exports = {
   plugins: ['@typescript-eslint', 'jsx-a11y', 'mocha', 'react'],
@@ -61,6 +64,7 @@ module.exports = {
       files: ['**/*.spec.js', '**/*.spec.jsx', '**/*.spec.ts', '**/*.spec.tsx'],
       env: { mocha: true },
       extends: [...testConfigurations],
+      rules: { ...testRules }
     },
   ],
   settings: {
@@ -69,3 +73,4 @@ module.exports = {
     },
   },
 };
+

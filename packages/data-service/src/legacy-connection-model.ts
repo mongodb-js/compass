@@ -7,6 +7,7 @@ import { ConnectionOptions } from './connection-options';
 const ConnectionModel = require('mongodb-connection-model');
 
 export interface LegacyConnectionModelProperties {
+  _id: string;
   hostname: string;
   port: number;
   ns?: string;
@@ -99,6 +100,17 @@ export interface LegacyConnectionModelProperties {
   isFavorite: boolean;
   name: string;
   color?: string;
+  save: (
+    attributes?: Partial<LegacyConnectionModel>,
+    options?: AmpersandMethodOptions<LegacyConnectionModel>
+  ) => void;
+  destroy: (options?: AmpersandMethodOptions<LegacyConnectionModel>) => void;
+  once: (event: string, handler: () => void) => void;
+}
+
+export interface AmpersandMethodOptions<T> {
+  success: (model: T) => void;
+  error: (model: T, error: Error) => void;
 }
 
 export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
@@ -126,6 +138,7 @@ export function convertConnectionModelToOptions(
   model: LegacyConnectionModel
 ): ConnectionOptions {
   const options: ConnectionOptions = {
+    id: model._id,
     connectionString: model.driverUrl,
   };
 
@@ -167,7 +180,9 @@ export async function convertConnectionOptionsToModel(
     ConnectionModel.from
   )(options.connectionString);
 
-  const additionalOptions: Partial<LegacyConnectionModelProperties> = {};
+  const additionalOptions: Partial<LegacyConnectionModelProperties> = {
+    _id: options.id,
+  };
 
   if (options.sshTunnel) {
     additionalOptions.sshTunnel = !options.sshTunnel.privateKeyFile
