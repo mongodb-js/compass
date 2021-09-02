@@ -19,7 +19,7 @@ const reactConfigurations = [
 
 const testConfigurations = ['plugin:mocha/recommended'];
 const testRules = {
-  'mocha/no-exclusive-tests': 'error'
+  'mocha/no-exclusive-tests': 'error',
 };
 
 module.exports = {
@@ -64,7 +64,7 @@ module.exports = {
       files: ['**/*.spec.js', '**/*.spec.jsx', '**/*.spec.ts', '**/*.spec.tsx'],
       env: { mocha: true },
       extends: [...testConfigurations],
-      rules: { ...testRules }
+      rules: { ...testRules },
     },
   ],
   settings: {
@@ -73,4 +73,3 @@ module.exports = {
     },
   },
 };
-
