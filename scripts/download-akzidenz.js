@@ -90,7 +90,7 @@ const download = async (url, destDir) => {
     console.log('Re-populating akzidenz fonts cache at %s', CACHE_DIR);
 
     try {
-      await fs.rmdir(CACHE_DIR, { recursive: true });
+      await fs.rm(CACHE_DIR, { recursive: true });
     } catch (e) {}
   } else {
     console.log(

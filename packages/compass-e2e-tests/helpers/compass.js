@@ -168,7 +168,7 @@ async function startCompass(
     await _stop();
     debug('Removing user data');
     try {
-      await fs.rmdir(userDataDir, { recursive: true });
+      await fs.rm(userDataDir, { recursive: true });
     } catch (e) {
       debug(
         `Failed to remove temporary user data directory at ${userDataDir}:`
