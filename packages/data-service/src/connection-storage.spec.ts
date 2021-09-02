@@ -79,7 +79,7 @@ describe('ConnectionStorage', function () {
       assert.deepStrictEqual(connections, []);
     });
 
-    it('should return an empty array of saved connections', async function () {
+    it('should return an array of saved connections', async function () {
       const id = uuid();
       writeFakeConnection(tmpDir, { _id: id });
       const connectionStorage = new ConnectionStorage();
