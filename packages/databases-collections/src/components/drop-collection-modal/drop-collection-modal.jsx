@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { Modal } from 'react-bootstrap';
+import { TextButton } from 'hadron-react-buttons';
 import { ModalStatusMessage } from 'hadron-react-components';
-
 import { changeCollectionName } from '../../modules/drop-collection/name';
 import { changeCollectionNameConfirmation } from '../../modules/drop-collection/name-confirmation';
 import { dropCollection } from '../../modules/drop-collection';
@@ -64,52 +64,72 @@ class DropCollectionModal extends PureComponent {
    */
   render() {
     return (
-      <ConfirmationModal
-        title="Drop Collection"
-        open={this.props.isVisible}
-        onConfirm={this.props.dropCollection}
-        onCancel={this.onHide}
-        buttonText="Drop Collection"
-        submitDisabled={this.props.name !== this.props.nameConfirmation}
+      <Modal
+        show={this.props.isVisible}
+        backdrop="static"
+        onHide={this.onHide}
+        dialogClassName={styles['drop-collection-modal']}
       >
-        <div>
-          <p className={styles['drop-collection-modal-confirm']}>
-            <i className="fa fa-exclamation-triangle" aria-hidden="true" />
-            To drop
-            <span className={styles['drop-collection-modal-confirm-namespace']}>
-              {this.props.name}
-            </span>
-            type the collection name
-            <span className={styles['drop-collection-modal-confirm-name']}>
-              {this.props.name}
-            </span>.
-          </p>
-        </div>
-        <form
-          name="drop-collection-modal-form"
-          onSubmit={this.onFormSubmit}
-          data-test-id="drop-collection-modal"
-        >
-          <div className="form-group">
-            <input
-              autoFocus
-              type="text"
-              className="form-control"
-              data-test-id="confirm-drop-collection-name"
-              value={this.props.nameConfirmation}
-              onChange={this.onNameConfirmationChange}
-            />
+        <Modal.Header>
+          <Modal.Title>Drop Collection</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <div>
+            <p className={styles['drop-collection-modal-confirm']}>
+              <i className="fa fa-exclamation-triangle" aria-hidden="true" />
+              To drop
+              <span className={styles['drop-collection-modal-confirm-namespace']}>
+                {this.props.name}
+              </span>
+              type the collection name
+              <span className={styles['drop-collection-modal-confirm-name']}>
+                {this.props.name}
+              </span>.
+            </p>
           </div>
-          {this.props.error ?
-            <ModalStatusMessage icon="times" message={this.props.error.message} type="error" />
-            : null
-          }
-          {this.props.isRunning ?
-            <ModalStatusMessage icon="spinner" message="Drop in Progress" type="in-progress" />
-            : null
-          }
-        </form>
-      </ConfirmationModal>
+          <form
+            name="drop-collection-modal-form"
+            onSubmit={this.onFormSubmit}
+            data-test-id="drop-collection-modal"
+          >
+            <div className="form-group">
+              <input
+                autoFocus
+                type="text"
+                className="form-control"
+                data-test-id="confirm-drop-collection-name"
+                value={this.props.nameConfirmation}
+                onChange={this.onNameConfirmationChange}
+              />
+            </div>
+            {this.props.error ?
+              <ModalStatusMessage icon="times" message={this.props.error.message} type="error" />
+              : null
+            }
+            {this.props.isRunning ?
+              <ModalStatusMessage icon="spinner" message="Drop in Progress" type="in-progress" />
+              : null
+            }
+          </form>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <TextButton
+            className="btn btn-default btn-sm"
+            dataTestId="cancel-drop-collection-button"
+            text="Cancel"
+            clickHandler={this.onHide}
+          />
+          <TextButton
+            className="btn btn-alert btn-sm"
+            dataTestId="drop-collection-button"
+            disabled={this.props.name !== this.props.nameConfirmation}
+            text="Drop Collection"
+            clickHandler={this.props.dropCollection}
+          />
+        </Modal.Footer>
+      </Modal>
     );
   }
 }

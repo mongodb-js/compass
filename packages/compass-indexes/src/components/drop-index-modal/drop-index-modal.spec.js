@@ -1,8 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
-
 import { DropIndexModal } from '../drop-index-modal';
+import styles from './drop-index-modal.less';
 
 describe('DropIndexModal [Component]', () => {
   let component;
@@ -43,23 +42,23 @@ describe('DropIndexModal [Component]', () => {
     });
 
     it('displays the modal', () => {
-      expect(component.find(ConfirmationModal)).to.be.present();
+      expect(component.find('.modal')).to.be.present();
+    });
+
+    it('renders the correct root classname', () => {
+      expect(component.find(`.${styles['drop-index-modal']}`)).to.be.present();
     });
 
     it('renders the header text', () => {
-      expect(component.find('h1')).to.have.text('Drop Index');
-    });
-
-    it('renders the form', () => {
-      expect(component.find('form')).to.be.present();
+      expect(component.find('.modal-title')).to.have.text('Drop Index');
     });
 
     it('renders the cancel button', () => {
-      expect(component.find('button').at(1).hostNodes()).to.have.text('Cancel');
+      expect(component.find('[data-test-id="cancel-drop-index-button"]').hostNodes()).to.have.text('Cancel');
     });
 
     it('renders the drop button', () => {
-      expect(component.find('button').at(0).hostNodes()).to.have.text('Drop');
+      expect(component.find('[data-test-id="drop-index-button"]').hostNodes()).to.have.text('Drop');
     });
 
     it('renders the modal form', () => {
@@ -74,14 +73,14 @@ describe('DropIndexModal [Component]', () => {
     });
     context('when clicking cancel', () => {
       it('closes the modal', () => {
-        component.find('button').at(1).hostNodes().simulate('click');
+        component.find('[data-test-id="cancel-drop-index-button"]').hostNodes().simulate('click');
         expect(toggleIsVisibleSpy.calledOnce).to.equal(true);
         expect(resetFormSpy.called).to.equal(true);
       });
     });
     context('when clicking drop', () => {
       it('does not drop the index', () => {
-        component.find('button').at(0).hostNodes().simulate('click');
+        component.find('[data-test-id="drop-index-button"]').hostNodes().simulate('click');
         expect(dropIndexSpy.called).to.equal(false);
       });
     });
@@ -120,7 +119,7 @@ describe('DropIndexModal [Component]', () => {
 
     context('when clicking drop', () => {
       it('drops the index', () => {
-        component.find('button').at(0).hostNodes().simulate('click');
+        component.find('[data-test-id="drop-index-button"]').hostNodes().simulate('click');
         expect(dropIndexSpy.called).to.equal(true);
         // expect(dropIndexSpy.args[0][0]).to.equal('test name');
       });
@@ -208,19 +207,17 @@ describe('DropIndexModal [Component]', () => {
       resetFormSpy = sinon.spy();
       dropIndexSpy = sinon.spy();
       component = mount(
-        <div>
-          <DropIndexModal
-            isVisible={false}
-            inProgress={false}
-            name="test name"
-            confirmName=""
-            toggleIsVisible={toggleIsVisibleSpy}
-            toggleInProgress={toggleInProgressSpy}
-            changeConfirmName={changeConfirmNameSpy}
-            resetForm={resetFormSpy}
-            dropIndex={dropIndexSpy}
-          />
-        </div>
+        <DropIndexModal
+          isVisible={false}
+          inProgress={false}
+          name="test name"
+          confirmName=""
+          toggleIsVisible={toggleIsVisibleSpy}
+          toggleInProgress={toggleInProgressSpy}
+          changeConfirmName={changeConfirmNameSpy}
+          resetForm={resetFormSpy}
+          dropIndex={dropIndexSpy}
+        />
       );
     });
 
@@ -233,9 +230,8 @@ describe('DropIndexModal [Component]', () => {
       component = null;
     });
 
-    it('does not display the form', () => {
-      expect(component.find('button')).to.not.be.present();
-      expect(component.find('form')).to.not.be.present();
+    it('displays the error message', () => {
+      expect(component.find('.modal')).to.not.be.present();
     });
   });
 });
