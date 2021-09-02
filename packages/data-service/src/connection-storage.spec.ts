@@ -1,6 +1,7 @@
 import { TestBackend } from 'storage-mixin';
 
-import assert from 'assert';
+import { expect } from 'chai';
+
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -76,7 +77,7 @@ describe('ConnectionStorage', function () {
     it('should load an empty array with no connections', async function () {
       const connectionStorage = new ConnectionStorage();
       const connections = await connectionStorage.loadAll();
-      assert.deepStrictEqual(connections, []);
+      expect(connections).to.deep.equal([]);
     });
 
     it('should return an array of saved connections', async function () {
@@ -84,7 +85,7 @@ describe('ConnectionStorage', function () {
       writeFakeConnection(tmpDir, { _id: id });
       const connectionStorage = new ConnectionStorage();
       const connections = await connectionStorage.loadAll();
-      assert.deepStrictEqual(connections, [
+      expect(connections).to.deep.equal([
         {
           id,
           connectionString:
@@ -97,7 +98,7 @@ describe('ConnectionStorage', function () {
   describe('save', function () {
     it('saves a valid connection object', async function () {
       const id: string = uuid();
-      assert(!fs.existsSync(getConnectionFilePath(tmpDir, id)));
+      expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.false;
 
       const connectionStorage = new ConnectionStorage();
       await connectionStorage.save({
@@ -106,12 +107,11 @@ describe('ConnectionStorage', function () {
       });
 
       await eventually(() => {
-        assert.strictEqual(
+        expect(
           JSON.parse(
             fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
-          )._id,
-          id
-        );
+          )._id
+        ).to.be.equal(id);
       });
     });
 
@@ -124,7 +124,7 @@ describe('ConnectionStorage', function () {
         })
         .catch((err) => err);
 
-      assert.strictEqual(error.message, 'id is required');
+      expect(error.message).to.be.equal('id is required');
     });
 
     it('requires id to be a uuid', async function () {
@@ -136,7 +136,7 @@ describe('ConnectionStorage', function () {
         })
         .catch((err) => err);
 
-      assert.strictEqual(error.message, 'id must be a uuid');
+      expect(error.message).to.be.equal('id must be a uuid');
     });
   });
 
@@ -145,7 +145,7 @@ describe('ConnectionStorage', function () {
       const id: string = uuid();
       writeFakeConnection(tmpDir, { _id: id });
 
-      assert(fs.existsSync(getConnectionFilePath(tmpDir, id)));
+      expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.true;
 
       const connectionStorage = new ConnectionStorage();
       await connectionStorage.delete({
@@ -155,9 +155,7 @@ describe('ConnectionStorage', function () {
 
       await eventually(() => {
         const filePath = getConnectionFilePath(tmpDir, id);
-        if (fs.existsSync(filePath)) {
-          throw new Error('Not deleted ' + filePath);
-        }
+        expect(fs.existsSync(filePath)).to.be.false;
       });
     });
   });

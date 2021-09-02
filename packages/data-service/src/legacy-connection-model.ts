@@ -100,12 +100,6 @@ export interface LegacyConnectionModelProperties {
   isFavorite: boolean;
   name: string;
   color?: string;
-  save: (
-    attributes?: Partial<LegacyConnectionModel>,
-    options?: AmpersandMethodOptions<LegacyConnectionModel>
-  ) => void;
-  destroy: (options?: AmpersandMethodOptions<LegacyConnectionModel>) => void;
-  once: (event: string, handler: () => void) => void;
 }
 
 export interface AmpersandMethodOptions<T> {
@@ -132,6 +126,12 @@ export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
   ): void;
 
   toJSON(): LegacyConnectionModelProperties;
+  save: (
+    attributes?: Partial<LegacyConnectionModel>,
+    options?: AmpersandMethodOptions<LegacyConnectionModel>
+  ) => void;
+  destroy: (options?: AmpersandMethodOptions<LegacyConnectionModel>) => void;
+  once: (event: string, handler: () => void) => void;
 }
 
 export function convertConnectionModelToOptions(
