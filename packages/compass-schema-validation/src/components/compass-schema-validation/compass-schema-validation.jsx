@@ -53,6 +53,7 @@ const mapStateToProps = (state) => pick(
     'namespace',
     'sampleDocuments',
     'isZeroState',
+    'isLoaded',
     'editMode'
   ]
 );

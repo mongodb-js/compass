@@ -97,11 +97,14 @@ export function generateStageAsString(state) {
   if (!state.isEnabled || !state.stageOperator || state.stage === '') {
     return '{}';
   }
-  let stage;
+
+  const decommented = decomment(state.stage);
+
+  let parsed;
+
+  // Run the parse so we can error check
   try {
-    const decommented = decomment(state.stage);
-    stage = `{${state.stageOperator}: ${decommented}}`;
-    parse(decommented); // Run the parse so we can error check
+    parsed = parse(decommented);
   } catch (e) {
     state.syntaxError = PARSE_ERROR;
     state.isValid = false;
@@ -111,5 +114,8 @@ export function generateStageAsString(state) {
 
   state.isValid = true;
   state.syntaxError = null;
-  return stage;
+
+  // This will turn function() {} into 'function() {}' for us which helps bson-transpilers later
+  const jsString = mongodbQueryParser.toJSString(parsed);
+  return `{${state.stageOperator}: ${jsString}}`;
 }

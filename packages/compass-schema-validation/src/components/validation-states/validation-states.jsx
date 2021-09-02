@@ -47,6 +47,7 @@ class ValidationStates extends Component {
 
   static propTypes = {
     isZeroState: PropTypes.bool.isRequired,
+    isLoaded: PropTypes.bool.isRequired,
     changeZeroState: PropTypes.func.isRequired,
     zeroStateChanged: PropTypes.func.isRequired,
     editMode: PropTypes.object.isRequired,
@@ -70,7 +71,7 @@ class ValidationStates extends Component {
   }
 
   /**
-   * Renders the banner if the validatiion is not editable.
+   * Renders the banner if the validation is not editable.
    *
    * @returns {React.Component} The component.
    */
@@ -131,30 +132,37 @@ class ValidationStates extends Component {
    * @returns {React.Component} The component.
    */
   renderZeroState() {
-    if (this.props.isZeroState) {
-      return (
-        <div className={classnames(styles['zero-state-container'])}>
-          <ZeroGraphic />
-          <ZeroState header={HEADER} subtext={SUBTEXT}>
-            <div className={classnames(styles['zero-state-action'])}>
-              <div>
-                <TextButton
-                  className={`btn btn-primary btn-lg ${
-                    !this.isEditable() ? 'disabled' : ''
-                  }`}
-                  text="Add Rule"
-                  clickHandler={this.props.changeZeroState.bind(this, false)} />
-              </div>
-              <a
-                className={classnames(styles['zero-state-link'])}
-                onClick={this.props.openLink.bind(this, DOC_SCHEMA_VALIDATION)}>
-                Learn more about validations
-              </a>
-            </div>
-          </ZeroState>
-        </div>
-      );
+    if (!this.props.isZeroState) {
+      return;
     }
+
+    if (!this.props.isLoaded) {
+      // Don't display the form until we finished fetching validation because that would be misleading.
+      return;
+    }
+
+    return (
+      <div className={classnames(styles['zero-state-container'])}>
+        <ZeroGraphic />
+        <ZeroState header={HEADER} subtext={SUBTEXT}>
+          <div className={classnames(styles['zero-state-action'])}>
+            <div>
+              <TextButton
+                className={`btn btn-primary btn-lg ${
+                  !this.isEditable() ? 'disabled' : ''
+                }`}
+                text="Add Rule"
+                clickHandler={this.props.changeZeroState.bind(this, false)} />
+            </div>
+            <a
+              className={classnames(styles['zero-state-link'])}
+              onClick={this.props.openLink.bind(this, DOC_SCHEMA_VALIDATION)}>
+              Learn more about validations
+            </a>
+          </div>
+        </ZeroState>
+      </div>
+    );
   }
 
   /**
@@ -163,14 +171,20 @@ class ValidationStates extends Component {
    * @returns {React.Component} The component.
    */
   renderContent() {
-    if (!this.props.isZeroState) {
-      return (
-        <div className={classnames(styles['content-container'])}>
-          <ValidationEditor {...this.props} isEditable={this.isEditable()} />
-          <SampleDocuments {...this.props} />
-        </div>
-      );
+    if (this.props.isZeroState) {
+      return;
     }
+
+    if (!this.props.isLoaded) {
+      return;
+    }
+
+    return (
+      <div className={classnames(styles['content-container'])}>
+        <ValidationEditor {...this.props} isEditable={this.isEditable()} />
+        <SampleDocuments {...this.props} />
+      </div>
+    );
   }
 
   /**

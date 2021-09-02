@@ -3,60 +3,59 @@ import { mount } from 'enzyme';
 import ValidationStates from '../validation-states';
 import styles from './validation-states.less';
 
+import { ZeroState } from 'hadron-react-components';
+import ValidationEditor from '../validation-editor';
+
 describe('ValidationStates [Component]', () => {
-  context('when the server version is below than 3.2', () => {
-    let component;
-    const changeZeroStateSpy = sinon.spy();
-    const setZeroStateChangedSpy = sinon.spy();
-    const openLinkSpy = sinon.spy();
-    const setValidatorChangedSpy = sinon.spy();
-    const setValidationActionChangedSpy = sinon.spy();
-    const setValidationLevelChangedSpy = sinon.spy();
-    const setCancelValidationSpy = sinon.spy();
-    const saveValidationSpy = sinon.spy();
-    const fetchSampleDocumentsSpy = sinon.spy();
-    const fields = [];
-    const validation = {
-      validator: '',
-      validationAction: 'warn',
-      validationLevel: 'moderate',
-      isChanged: false,
-      syntaxError: null,
-      error: null
-    };
-    const sampleDocuments = {};
-    const editMode = {
-      collectionReadOnly: false,
-      hadronReadOnly: false,
-      writeStateStoreReadOnly: false,
-      oldServerReadOnly: true
-    };
-    const isZeroState = true;
-    const serverVersion = '3.1.0';
+  let props;
+  let component;
 
+  beforeEach(() => {
+    props = {
+      changeZeroState: sinon.spy(),
+      zeroStateChanged: sinon.spy(),
+      openLink: sinon.spy(),
+      validatorChanged: sinon.spy(),
+      validationActionChanged: sinon.spy(),
+      validationLevelChanged: sinon.spy(),
+      cancelValidation: sinon.spy(),
+      saveValidation: sinon.spy(),
+      fetchSampleDocuments: sinon.spy(),
+      fields: [],
+      sampleDocuments: {},
+      validation: {
+        validator: '',
+        validationAction: 'warn',
+        validationLevel: 'moderate',
+        isChanged: false,
+        syntaxError: null,
+        error: null
+      }
+
+      /*
+      // These all get set by each context() below
+      editMode,
+      isZeroState,
+      isLoaded,
+      serverVersion
+      */
+    };
+  });
+
+  context('when the server version is below 3.2', () => {
     beforeEach(() => {
-      component = mount(
-        <ValidationStates
-          validatorChanged={setValidatorChangedSpy}
-          validationActionChanged={setValidationActionChangedSpy}
-          validationLevelChanged={setValidationLevelChangedSpy}
-          cancelValidation={setCancelValidationSpy}
-          saveValidation={saveValidationSpy}
-          fetchSampleDocuments={fetchSampleDocumentsSpy}
-          fields={fields}
-          validation={validation}
-          changeZeroState={changeZeroStateSpy}
-          zeroStateChanged={setZeroStateChangedSpy}
-          isZeroState={isZeroState}
-          editMode={editMode}
-          sampleDocuments={sampleDocuments}
-          serverVersion={serverVersion}
-          openLink={openLinkSpy} />
-      );
-    });
+      props.editMode = {
+        collectionReadOnly: false,
+        hadronReadOnly: false,
+        writeStateStoreReadOnly: false,
+        oldServerReadOnly: true
+      };
 
-    afterEach(() => {
-      component = null;
+      props.isZeroState = true;
+      props.isLoaded = false;
+      props.serverVersion = '3.1.0';
+
+      component = mount(<ValidationStates {...props} />);
     });
 
     it('renders the wrapper div', () => {
@@ -75,59 +74,19 @@ describe('ValidationStates [Component]', () => {
   });
 
   context('when the collection is time-series', () => {
-    let component;
-    const changeZeroStateSpy = sinon.spy();
-    const setZeroStateChangedSpy = sinon.spy();
-    const openLinkSpy = sinon.spy();
-    const setValidatorChangedSpy = sinon.spy();
-    const setValidationActionChangedSpy = sinon.spy();
-    const setValidationLevelChangedSpy = sinon.spy();
-    const setCancelValidationSpy = sinon.spy();
-    const saveValidationSpy = sinon.spy();
-    const fetchSampleDocumentsSpy = sinon.spy();
-    const fields = [];
-    const validation = {
-      validator: '',
-      validationAction: 'warn',
-      validationLevel: 'moderate',
-      isChanged: false,
-      syntaxError: null,
-      error: null
-    };
-    const sampleDocuments = {};
-    const editMode = {
-      collectionTimeSeries: true,
-      collectionReadOnly: false,
-      hadronReadOnly: false,
-      writeStateStoreReadOnly: false,
-      oldServerReadOnly: false
-    };
-    const isZeroState = true;
-    const serverVersion = '3.2.0';
-
     beforeEach(() => {
-      component = mount(
-        <ValidationStates
-          validatorChanged={setValidatorChangedSpy}
-          validationActionChanged={setValidationActionChangedSpy}
-          validationLevelChanged={setValidationLevelChangedSpy}
-          cancelValidation={setCancelValidationSpy}
-          saveValidation={saveValidationSpy}
-          fetchSampleDocuments={fetchSampleDocumentsSpy}
-          fields={fields}
-          validation={validation}
-          changeZeroState={changeZeroStateSpy}
-          zeroStateChanged={setZeroStateChangedSpy}
-          isZeroState={isZeroState}
-          editMode={editMode}
-          sampleDocuments={sampleDocuments}
-          serverVersion={serverVersion}
-          openLink={openLinkSpy} />
-      );
-    });
+      props.editMode = {
+        collectionTimeSeries: true,
+        collectionReadOnly: false,
+        hadronReadOnly: false,
+        writeStateStoreReadOnly: false,
+        oldServerReadOnly: false
+      };
+      props.isZeroState = true;
+      props.isLoaded = false;
+      props.serverVersion = '3.2.0';
 
-    afterEach(() => {
-      component = null;
+      component = mount(<ValidationStates {...props} />);
     });
 
     it('renders the collection time-series banner', () => {
@@ -136,58 +95,18 @@ describe('ValidationStates [Component]', () => {
   });
 
   context('when the collection is read-only', () => {
-    let component;
-    const changeZeroStateSpy = sinon.spy();
-    const setZeroStateChangedSpy = sinon.spy();
-    const openLinkSpy = sinon.spy();
-    const setValidatorChangedSpy = sinon.spy();
-    const setValidationActionChangedSpy = sinon.spy();
-    const setValidationLevelChangedSpy = sinon.spy();
-    const setCancelValidationSpy = sinon.spy();
-    const saveValidationSpy = sinon.spy();
-    const fetchSampleDocumentsSpy = sinon.spy();
-    const fields = [];
-    const validation = {
-      validator: '',
-      validationAction: 'warn',
-      validationLevel: 'moderate',
-      isChanged: false,
-      syntaxError: null,
-      error: null
-    };
-    const sampleDocuments = {};
-    const editMode = {
-      collectionReadOnly: true,
-      hadronReadOnly: false,
-      writeStateStoreReadOnly: false,
-      oldServerReadOnly: false
-    };
-    const isZeroState = true;
-    const serverVersion = '3.2.0';
-
     beforeEach(() => {
-      component = mount(
-        <ValidationStates
-          validatorChanged={setValidatorChangedSpy}
-          validationActionChanged={setValidationActionChangedSpy}
-          validationLevelChanged={setValidationLevelChangedSpy}
-          cancelValidation={setCancelValidationSpy}
-          saveValidation={saveValidationSpy}
-          fetchSampleDocuments={fetchSampleDocumentsSpy}
-          fields={fields}
-          validation={validation}
-          changeZeroState={changeZeroStateSpy}
-          zeroStateChanged={setZeroStateChangedSpy}
-          isZeroState={isZeroState}
-          editMode={editMode}
-          sampleDocuments={sampleDocuments}
-          serverVersion={serverVersion}
-          openLink={openLinkSpy} />
-      );
-    });
+      props.editMode = {
+        collectionReadOnly: true,
+        hadronReadOnly: false,
+        writeStateStoreReadOnly: false,
+        oldServerReadOnly: false
+      };
+      props.isZeroState = true;
+      props.isLoaded = false;
+      props.serverVersion = '3.2.0';
 
-    afterEach(() => {
-      component = null;
+      component = mount(<ValidationStates {...props} />);
     });
 
     it('renders the collection read-only banner', () => {
@@ -202,58 +121,18 @@ describe('ValidationStates [Component]', () => {
   });
 
   context('when the server version is higher than 3.2', () => {
-    let component;
-    const changeZeroStateSpy = sinon.spy();
-    const setZeroStateChangedSpy = sinon.spy();
-    const openLinkSpy = sinon.spy();
-    const setValidatorChangedSpy = sinon.spy();
-    const setValidationActionChangedSpy = sinon.spy();
-    const setValidationLevelChangedSpy = sinon.spy();
-    const setCancelValidationSpy = sinon.spy();
-    const saveValidationSpy = sinon.spy();
-    const fetchSampleDocumentsSpy = sinon.spy();
-    const fields = [];
-    const validation = {
-      validator: '',
-      validationAction: 'warn',
-      validationLevel: 'moderate',
-      isChanged: false,
-      syntaxError: null,
-      error: null
-    };
-    const sampleDocuments = {};
-    const editMode = {
-      collectionReadOnly: false,
-      hadronReadOnly: false,
-      writeStateStoreReadOnly: false,
-      oldServerReadOnly: false
-    };
-    const isZeroState = true;
-    const serverVersion = '3.2.0';
-
     beforeEach(() => {
-      component = mount(
-        <ValidationStates
-          validatorChanged={setValidatorChangedSpy}
-          validationActionChanged={setValidationActionChangedSpy}
-          validationLevelChanged={setValidationLevelChangedSpy}
-          cancelValidation={setCancelValidationSpy}
-          saveValidation={saveValidationSpy}
-          fetchSampleDocuments={fetchSampleDocumentsSpy}
-          fields={fields}
-          validation={validation}
-          changeZeroState={changeZeroStateSpy}
-          zeroStateChanged={setZeroStateChangedSpy}
-          isZeroState={isZeroState}
-          editMode={editMode}
-          sampleDocuments={sampleDocuments}
-          serverVersion={serverVersion}
-          openLink={openLinkSpy} />
-      );
-    });
+      props.editMode = {
+        collectionReadOnly: false,
+        hadronReadOnly: false,
+        writeStateStoreReadOnly: false,
+        oldServerReadOnly: false
+      };
+      props.isZeroState = true;
+      props.isLoaded = false;
+      props.serverVersion = '3.2.0';
 
-    afterEach(() => {
-      component = null;
+      component = mount(<ValidationStates {...props} />);
     });
 
     it('does not render a warning banner', () => {
@@ -262,58 +141,18 @@ describe('ValidationStates [Component]', () => {
   });
 
   context('when compass is in the read-only mode', () => {
-    let component;
-    const changeZeroStateSpy = sinon.spy();
-    const setZeroStateChangedSpy = sinon.spy();
-    const openLinkSpy = sinon.spy();
-    const setValidatorChangedSpy = sinon.spy();
-    const setValidationActionChangedSpy = sinon.spy();
-    const setValidationLevelChangedSpy = sinon.spy();
-    const setCancelValidationSpy = sinon.spy();
-    const saveValidationSpy = sinon.spy();
-    const fetchSampleDocumentsSpy = sinon.spy();
-    const fields = [];
-    const validation = {
-      validator: '',
-      validationAction: 'warn',
-      validationLevel: 'moderate',
-      isChanged: false,
-      syntaxError: null,
-      error: null
-    };
-    const sampleDocuments = {};
-    const editMode = {
-      collectionReadOnly: false,
-      hadronReadOnly: true,
-      writeStateStoreReadOnly: false,
-      oldServerReadOnly: false
-    };
-    const isZeroState = false;
-    const serverVersion = '3.2.0';
-
     beforeEach(() => {
-      component = mount(
-        <ValidationStates
-          validatorChanged={setValidatorChangedSpy}
-          validationActionChanged={setValidationActionChangedSpy}
-          validationLevelChanged={setValidationLevelChangedSpy}
-          cancelValidation={setCancelValidationSpy}
-          saveValidation={saveValidationSpy}
-          fetchSampleDocuments={fetchSampleDocumentsSpy}
-          fields={fields}
-          validation={validation}
-          changeZeroState={changeZeroStateSpy}
-          zeroStateChanged={setZeroStateChangedSpy}
-          isZeroState={isZeroState}
-          editMode={editMode}
-          sampleDocuments={sampleDocuments}
-          serverVersion={serverVersion}
-          openLink={openLinkSpy} />
-      );
-    });
+      props.editMode = {
+        collectionReadOnly: false,
+        hadronReadOnly: true,
+        writeStateStoreReadOnly: false,
+        oldServerReadOnly: false
+      };
+      props.isZeroState = false;
+      props.isLoaded = false;
+      props.serverVersion = '3.2.0';
 
-    afterEach(() => {
-      component = null;
+      component = mount(<ValidationStates {...props} />);
     });
 
     it('does not render a warning banner', () => {
@@ -322,58 +161,18 @@ describe('ValidationStates [Component]', () => {
   });
 
   context('when compass is not writable', () => {
-    let component;
-    const changeZeroStateSpy = sinon.spy();
-    const setZeroStateChangedSpy = sinon.spy();
-    const openLinkSpy = sinon.spy();
-    const setValidatorChangedSpy = sinon.spy();
-    const setValidationActionChangedSpy = sinon.spy();
-    const setValidationLevelChangedSpy = sinon.spy();
-    const setCancelValidationSpy = sinon.spy();
-    const saveValidationSpy = sinon.spy();
-    const fetchSampleDocumentsSpy = sinon.spy();
-    const fields = [];
-    const validation = {
-      validator: '',
-      validationAction: 'warn',
-      validationLevel: 'moderate',
-      isChanged: false,
-      syntaxError: null,
-      error: null
-    };
-    const sampleDocuments = {};
-    const editMode = {
-      collectionReadOnly: false,
-      hadronReadOnly: false,
-      writeStateStoreReadOnly: true,
-      oldServerReadOnly: false
-    };
-    const isZeroState = false;
-    const serverVersion = '3.2.0';
-
     beforeEach(() => {
-      component = mount(
-        <ValidationStates
-          validatorChanged={setValidatorChangedSpy}
-          validationActionChanged={setValidationActionChangedSpy}
-          validationLevelChanged={setValidationLevelChangedSpy}
-          cancelValidation={setCancelValidationSpy}
-          saveValidation={saveValidationSpy}
-          fetchSampleDocuments={fetchSampleDocumentsSpy}
-          fields={fields}
-          validation={validation}
-          changeZeroState={changeZeroStateSpy}
-          zeroStateChanged={setZeroStateChangedSpy}
-          isZeroState={isZeroState}
-          editMode={editMode}
-          sampleDocuments={sampleDocuments}
-          serverVersion={serverVersion}
-          openLink={openLinkSpy} />
-      );
-    });
+      props.editMode = {
+        collectionReadOnly: false,
+        hadronReadOnly: false,
+        writeStateStoreReadOnly: true,
+        oldServerReadOnly: false
+      };
+      props.isZeroState = false;
+      props.isLoaded = false;
+      props.serverVersion = '3.2.0';
 
-    afterEach(() => {
-      component = null;
+      component = mount(<ValidationStates {...props} />);
     });
 
     it('renders the writable banner', () => {
@@ -384,6 +183,86 @@ describe('ValidationStates [Component]', () => {
       expect(component.find({ id: 'collectionReadOnly' })).to.be.not.present();
       expect(component.find({ id: 'hadronReadOnly' })).to.be.not.present();
       expect(component.find({ id: 'oldServerReadOnly' })).to.be.not.present();
+    });
+  });
+
+  context('when it is in the zero state and not loaded', () => {
+    beforeEach(() => {
+      props.editMode = {
+        collectionReadOnly: false,
+        hadronReadOnly: false,
+        writeStateStoreReadOnly: true,
+        oldServerReadOnly: false
+      };
+      props.isZeroState = false;
+      props.isLoaded = false;
+      props.serverVersion = '3.2.0';
+
+      component = mount(<ValidationStates {...props} />);
+    });
+
+    it('does not render the zero state', () => {
+      expect(component.find(ZeroState)).to.not.be.present();
+    });
+  });
+
+  context('when it is in the zero state and loaded', () => {
+    beforeEach(() => {
+      props.editMode = {
+        collectionReadOnly: false,
+        hadronReadOnly: false,
+        writeStateStoreReadOnly: true,
+        oldServerReadOnly: false
+      };
+      props.isZeroState = true;
+      props.isLoaded = true;
+      props.serverVersion = '3.2.0';
+
+      component = mount(<ValidationStates {...props} />);
+    });
+
+    it('renders the zero state', () => {
+      expect(component.find(ZeroState)).to.be.present();
+    });
+  });
+
+  context('when it is not in the zero state and not loaded', () => {
+    beforeEach(() => {
+      props.editMode = {
+        collectionReadOnly: false,
+        hadronReadOnly: false,
+        writeStateStoreReadOnly: true,
+        oldServerReadOnly: false
+      };
+      props.isZeroState = false;
+      props.isLoaded = false;
+      props.serverVersion = '3.2.0';
+
+      component = mount(<ValidationStates {...props} />);
+    });
+
+    it('does not render the content', () => {
+      expect(component.find(ValidationEditor)).to.not.be.present();
+    });
+  });
+
+  context('when it is not in the zero state and loaded', () => {
+    beforeEach(() => {
+      props.editMode = {
+        collectionReadOnly: false,
+        hadronReadOnly: false,
+        writeStateStoreReadOnly: true,
+        oldServerReadOnly: false
+      };
+      props.isZeroState = false;
+      props.isLoaded = true;
+      props.serverVersion = '3.2.0';
+
+      component = mount(<ValidationStates {...props} />);
+    });
+
+    it('renders the content', () => {
+      expect(component.find(ValidationEditor)).to.be.present();
     });
   });
 });

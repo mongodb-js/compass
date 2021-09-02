@@ -6,7 +6,7 @@ import { namespaceChanged } from '../modules/namespace';
 import { dataServiceConnected } from '../modules/data-service';
 import { fieldsChanged } from '../modules/fields';
 import { serverVersionChanged } from '../modules/server-version';
-import { fetchValidation, activateValidation } from '../modules/validation';
+import { activateValidation } from '../modules/validation';
 import { editModeChanged } from '../modules/edit-mode';
 import { changeZeroState } from '../modules/zero-state';
 import {
@@ -97,8 +97,6 @@ const configureStore = (options = {}) => {
 
     if (editMode.collectionReadOnly || editMode.collectionTimeSeries) {
       store.dispatch(changeZeroState(true));
-    } else {
-      store.dispatch(fetchValidation(namespace));
     }
 
     store.dispatch(editModeChanged(editMode));

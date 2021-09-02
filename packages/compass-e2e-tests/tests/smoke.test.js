@@ -7,6 +7,7 @@ const {
   capturePage,
   savePage
 } = require('../helpers/compass');
+const { retryWithBackoff } = require('../helpers/retry-with-backoff');
 
 /**
  * This test suite is based on compass smoke test matrix
@@ -21,9 +22,14 @@ describe('Compass', function () {
   before(async () => {
     keychain.activate();
     compass = await startCompass();
-    await compass.client.waitForConnectionScreen();
-    await compass.client.closeTourModal();
-    await compass.client.closePrivacySettingsModal();
+    // XXX: This seems to be a bit unstable in GitHub CI on macOS machines, for
+    // that reason we want to do a few retries here (in most other cases this
+    // should pass on first attempt)
+    await retryWithBackoff(async () => {
+      await compass.client.waitForConnectionScreen();
+      await compass.client.closeTourModal();
+      await compass.client.closePrivacySettingsModal();
+    });
   });
 
   after(async () => {
