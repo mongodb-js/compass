@@ -344,9 +344,12 @@ async function savePage(
   }
 }
 
-async function beforeTests() {
-  const keychain = createUnlockedKeychain();
-  keychain.activate();
+async function beforeTests(unlockKeychain=false) {
+  let keychain;
+  if (unlockKeychain) {
+    keychain = createUnlockedKeychain();
+    keychain.activate();
+  }
   const compass = await startCompass();
 
   // XXX: This seems to be a bit unstable in GitHub CI on macOS machines, for
@@ -361,7 +364,7 @@ async function beforeTests() {
   return { keychain, compass };
 }
 
-async function afterTests(keychain, compass) {
+async function afterTests({ keychain, compass }) {
   try {
     if (compass) {
       if (process.env.CI) {
@@ -372,7 +375,9 @@ async function afterTests(keychain, compass) {
       compass = null;
     }
   } finally {
-    keychain.reset();
+    if (keychain) {
+      keychain.reset();
+    }
   }
 }
 

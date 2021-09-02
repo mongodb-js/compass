@@ -17,11 +17,11 @@ describe('Compass', function () {
   let compass;
 
   before(async function () {
-    ({ keychain, compass } = await beforeTests(keychain));
+    ({ keychain, compass } = await beforeTests(true));
   });
 
   after(function () {
-    return afterTests(keychain, compass);
+    return afterTests({ keychain, compass });
   });
 
   describe('Connect screen', function () {
