@@ -83,6 +83,7 @@ describe('SidebarCollection [Component]', () => {
   });
 
   describe('Views', () => {
+    const pipeline = [ { $unwind: '$albums' }, { $project: { artist: '$name', title: '$albums.name' } }];
     beforeEach(() => {
       emitSpy = sinon.spy();
       component = mount(<SidebarCollection
@@ -92,7 +93,7 @@ describe('SidebarCollection [Component]', () => {
         capped={false}
         power_of_two={false}
         type="view"
-        pipeline={[ { $unwind: '$albums' }, { $project: { artist: '$name', title: '$albums.name' } }]}
+        pipeline={pipeline}
         view_on="artists"
         readonly
         isWritable
@@ -115,6 +116,26 @@ describe('SidebarCollection [Component]', () => {
     it('has a view icon', () => {
       expect(component.find(Icon)).to.be.present();
       expect(component.find(Icon).props().glyph).to.equal('Visibility');
+    });
+
+    describe('when the view is duplicated', () => {
+      beforeEach(() => {
+        component.findWhere(node => {
+          return node.type() === 'a' && node.text() === 'Duplicate View';
+        }).at(0).hostNodes().simulate('click');
+      });
+
+      it('calls the app registry with the view to duplicate', () => {
+        expect(emitSpy.called).to.equal(true);
+        expect(emitSpy.firstCall.args).to.deep.equal([
+          'open-create-view',
+          {
+            source: 'echo.artists',
+            pipeline,
+            duplicate: true
+          }
+        ]);
+      });
     });
   });
 
