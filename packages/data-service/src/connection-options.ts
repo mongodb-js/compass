@@ -15,6 +15,16 @@ export interface ConnectionOptions {
   connectionString: string;
 
   /**
+   * This setting only exists for compatibility with the `sslCert` property of the legacy connection model.
+   * Compass allows users to specify both a certificate as well as a certificate key as individual files
+   * which are then mapped to explicit `tlsCertificateFile` and `tlsCertificateKeyFile` driver options.
+   * The connection string spec only supports a single `tlsCertificateKeyFile` parameter, however.
+   *
+   * See https://jira.mongodb.org/browse/COMPASS-5058
+   */
+  tlsCertificateFile?: string;
+
+  /**
    * If present the connection should be established via an SSH tunnel according to the provided SSH options.
    */
   sshTunnel?: ConnectionSshOptions;
