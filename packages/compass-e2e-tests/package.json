@@ -4,6 +4,8 @@
   "private": true,
   "description": "E2E test suite for Compass app that follows smoke tests / feature testing matrix",
   "scripts": {
+    "eslint": "eslint",
+    "lint": "npm run eslint .",
     "pretest": "mongodb-runner start --port=27018 --dbpath ./.mongodb",
     "test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1024x768x24\" -- node index.js",
     "posttest": "mongodb-runner stop --port=27018 && node -e \"try { fs.rmdirSync('.mongodb', { recursive: true }); } catch (e) {}\"",
@@ -16,6 +18,7 @@
     "mongodb-compass": "^0.0.0-dev.0"
   },
   "devDependencies": {
+    "@mongodb-js/eslint-config-compass": "*",
     "@types/webdriverio": "^4.13.3",
     "chai": "^4.3.4",
     "debug": "^4.3.1",
