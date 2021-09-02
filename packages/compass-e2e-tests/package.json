@@ -5,7 +5,8 @@
   "description": "E2E test suite for Compass app that follows smoke tests / feature testing matrix",
   "scripts": {
     "pretest": "mongodb-runner start --port=27018 --dbpath ./.mongodb",
-    "test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1024x768x24\" -- node index.js",
+    "test": "",
+    "skipped-test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1024x768x24\" -- node index.js",
     "posttest": "mongodb-runner stop --port=27018 && node -e \"try { fs.rmdirSync('.mongodb', { recursive: true }); } catch (e) {}\"",
     "test-ci": "npm run test",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
