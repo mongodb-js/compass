@@ -27,7 +27,6 @@
   "license": "SSPL",
   "peerDependencies": {
     "@hot-loader/react-dom": "^16.9.0",
-    "@mongodb-js/compass-components": "*",
     "@mongodb-js/compass-deployment-awareness": "*",
     "debug": "^4.1.1",
     "hadron-react-buttons": "*",
@@ -51,7 +50,6 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.9.0",
-    "@mongodb-js/compass-components": "^0.4.0",
     "@mongodb-js/compass-deployment-awareness": "^11.12.0",
     "@mongodb-js/compass-field-store": "^7.12.0",
     "autoprefixer": "^9.4.6",
