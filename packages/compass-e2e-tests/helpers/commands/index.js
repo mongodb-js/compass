@@ -14,6 +14,6 @@ exports.addCommands = function(app) {
   app.client.addCommand('doConnect', require('./do-connect')(app));
   app.client.addCommand('connectWithConnectionString', require('./connect-with-connection-string')(app));
   app.client.addCommand('connectWithConnectionForm', require('./connect-with-connection-form')(app));
-  app.client.addCommand('disconnect', require('./disonnect')(app));
+  app.client.addCommand('disconnect', require('./disconnect')(app));
   app.client.addCommand('shellEval', require('./shell-eval')(app));
 };

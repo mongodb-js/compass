@@ -23,6 +23,7 @@ describe.only('Time to first query', function () {
     expect(result).to.have.property('ok', 1);
   });
 
+  // eslint-disable-next-line mocha/no-hooks-for-single-case
   after(function () {
 
     // cleanup outside of the test so that the time it takes to run does not
