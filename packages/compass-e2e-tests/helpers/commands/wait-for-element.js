@@ -44,7 +44,7 @@ module.exports = function(app) {
       // Ideally we could check if various properties of the element aren't
       // changing between two intervals, but this should be good enough for
       // now.
-      await delay(1000);
+      await delay(200);
     }
 
     return getResult(true);
