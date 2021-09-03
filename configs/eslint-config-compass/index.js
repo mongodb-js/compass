@@ -58,7 +58,13 @@ module.exports = {
       rules: { ...tsRules },
     },
     {
-      files: ['**/*.spec.js', '**/*.spec.jsx', '**/*.spec.ts', '**/*.spec.tsx', '**/*.test.js'],
+      files: [
+        '**/*.spec.js',
+        '**/*.spec.jsx',
+        '**/*.spec.ts',
+        '**/*.spec.tsx',
+        '**/*.test.js',
+      ],
       env: { mocha: true },
       extends: [...testConfigurations],
     },
