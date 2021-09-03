@@ -1,6 +1,6 @@
 const Selectors = require('../selectors');
 
-module.exports = function(app) {
+module.exports = function (app) {
   return async function connectWithConnectionForm(
     {
       host,
@@ -19,7 +19,7 @@ module.exports = function(app) {
       sshTunnelPort,
       sshTunnelUsername,
       sshTunnelPassword,
-      sshTunnelIdentityFile
+      sshTunnelIdentityFile,
     },
     timeout = 10000
   ) {

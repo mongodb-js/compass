@@ -7,7 +7,7 @@ describe('Time to first query', function () {
 
   let compass;
 
-  it('can open compass and connect to a database', async function() {
+  it('can open compass and connect to a database', async function () {
     // start compass inside the test so that the time is measured together
     ({ compass } = await beforeTests(false));
 
@@ -25,7 +25,6 @@ describe('Time to first query', function () {
 
   // eslint-disable-next-line mocha/no-hooks-for-single-case
   after(function () {
-
     // cleanup outside of the test so that the time it takes to run does not
     // get added to the time it took to run the first query
     return afterTests({ compass });

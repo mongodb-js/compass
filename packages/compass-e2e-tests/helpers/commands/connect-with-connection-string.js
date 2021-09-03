@@ -1,6 +1,6 @@
 const Selectors = require('../selectors');
 
-module.exports = function(app) {
+module.exports = function (app) {
   return async function connectWithConnectionString(
     connectionString,
     timeout = 10000
@@ -11,4 +11,4 @@ module.exports = function(app) {
     );
     await app.client.doConnect(timeout);
   };
-}
+};

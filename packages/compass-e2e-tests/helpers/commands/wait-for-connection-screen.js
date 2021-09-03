@@ -2,7 +2,7 @@ const Selectors = require('../selectors');
 
 const MINUTE = 1000 * 60 * 1;
 
-module.exports = function(app) {
+module.exports = function (app) {
   return async function waitForConnectionScreen() {
     await app.client.waitUntil(
       async () => {

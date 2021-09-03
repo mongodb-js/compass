@@ -18,12 +18,11 @@ function createUnlockedKeychain() {
         execSync(`security create-keychain -p "" "${tempKeychainName}"`);
         execSync(`security default-keychain -s "${tempKeychainName}"`);
         execSync(`security unlock-keychain -p "" "${tempKeychainName}"`);
-
       },
       reset() {
         execSync(`security default-keychain -s "${origDefaultKeychain}"`);
         execSync(`security delete-keychain "${tempKeychainName}"`);
-      }
+      },
     };
   }
 

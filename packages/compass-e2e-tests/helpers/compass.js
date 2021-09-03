@@ -12,7 +12,7 @@ const {
   run: packageCompass,
   cleanCompileCache,
   createCompileCache,
-  createPackagedStyles
+  createPackagedStyles,
 } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
 const { createUnlockedKeychain } = require('./keychain');
@@ -40,7 +40,6 @@ const cleanCompileCacheAsync = promisify(cleanCompileCache);
 const createCompileCacheAsync = promisify(createCompileCache);
 const createPackagedStylesAsync = promisify(createPackagedStyles);
 
-
 const COMPASS_PATH = path.dirname(
   require.resolve('mongodb-compass/package.json')
 );
@@ -51,7 +50,7 @@ function getAtlasConnectionOptions() {
   const missingKeys = [
     'E2E_TESTS_ATLAS_HOST',
     'E2E_TESTS_ATLAS_USERNAME',
-    'E2E_TESTS_ATLAS_PASSWORD'
+    'E2E_TESTS_ATLAS_PASSWORD',
   ].filter((key) => !process.env[key]);
 
   if (missingKeys.length > 0) {
@@ -65,7 +64,7 @@ function getAtlasConnectionOptions() {
   const {
     E2E_TESTS_ATLAS_HOST: host,
     E2E_TESTS_ATLAS_USERNAME: username,
-    E2E_TESTS_ATLAS_PASSWORD: password
+    E2E_TESTS_ATLAS_PASSWORD: password,
   } = process.env;
 
   return { host, username, password, srvRecord: true };
@@ -98,7 +97,7 @@ async function startCompass(
     ? {
         path: electronPath,
         args: [COMPASS_PATH],
-        cwd: COMPASS_PATH
+        cwd: COMPASS_PATH,
       }
     : { path: getCompassBinPath(await getCompassBuildMetadata()) };
 
@@ -119,9 +118,9 @@ async function startCompass(
       '--media-router=0',
       // Evergren RHEL ci runs everything as root, and chrome will not start as
       // root without this flag
-      '--no-sandbox'
+      '--no-sandbox',
     ],
-    env: { APP_ENV: 'spectron', DEBUG: process.env.DEBUG }
+    env: { APP_ENV: 'spectron', DEBUG: process.env.DEBUG },
   };
 
   const shouldStoreAppLogs = process.env.ci || process.env.CI;
@@ -191,8 +190,8 @@ function formattedDate() {
 async function rebuildNativeModules(compassPath = COMPASS_PATH) {
   const {
     config: {
-      hadron: { rebuild: rebuildConfig }
-    }
+      hadron: { rebuild: rebuildConfig },
+    },
   } = require(path.join(compassPath, 'package.json'));
 
   await rebuild({
@@ -200,7 +199,7 @@ async function rebuildNativeModules(compassPath = COMPASS_PATH) {
     electronVersion: require('electron/package.json').version,
     buildPath: compassPath,
     // monorepo root, so that the root packages are also inspected
-    projectRootPath: path.resolve(compassPath, '..', '..')
+    projectRootPath: path.resolve(compassPath, '..', '..'),
   });
 }
 
@@ -208,8 +207,8 @@ async function compileCompassAssets(compassPath = COMPASS_PATH) {
   const pkgJson = require(path.join(compassPath, 'package.json'));
   const {
     config: {
-      hadron: { distributions: distConfig }
-    }
+      hadron: { distributions: distConfig },
+    },
   } = pkgJson;
 
   const buildTarget = {
@@ -219,7 +218,7 @@ async function compileCompassAssets(compassPath = COMPASS_PATH) {
     distribution:
       process.env.HADRON_DISTRIBUTION ||
       (distConfig && distConfig.default) ||
-      'compass'
+      'compass',
   };
 
   // @ts-ignore some weirdness from util-callbackify
@@ -253,7 +252,7 @@ async function buildCompass(force = false, compassPath = COMPASS_PATH) {
 
   await packageCompassAsync({
     dir: compassPath,
-    skip_installer: true
+    skip_installer: true,
   });
 }
 
@@ -338,13 +337,12 @@ async function savePage(
       'HTMLComplete'
     );
     return true;
-  }
-  catch(err) {
+  } catch (err) {
     return false;
   }
 }
 
-async function beforeTests(unlockKeychain=false) {
+async function beforeTests(unlockKeychain = false) {
   let keychain;
   if (unlockKeychain) {
     keychain = createUnlockedKeychain();
@@ -395,5 +393,5 @@ module.exports = {
   COMPASS_PATH,
   LOG_PATH,
   beforeTests,
-  afterTests
+  afterTests,
 };

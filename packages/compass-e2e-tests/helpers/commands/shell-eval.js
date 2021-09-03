@@ -1,7 +1,7 @@
 const { delay } = require('../delay');
 const Selectors = require('../selectors');
 
-module.exports = function(app) {
+module.exports = function (app) {
   return async function (str, parse = false, timeout = 10000) {
     if (!(await app.client.isVisible(Selectors.ShellContent))) {
       await app.client.clickVisible(Selectors.ShellExpandButton);

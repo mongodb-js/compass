@@ -4,16 +4,17 @@ const Selectors = require('../selectors');
 async function closeConnectionModal(app) {
   await app.client.clickVisible(Selectors.CancelConnectionButton);
   await app.client.waitUntilGone(Selectors.ConnectionStatusModalContent, {
-    timeoutMsg: 'Expected connection status modal to disappear after cancelling the connection'
+    timeoutMsg:
+      'Expected connection status modal to disappear after cancelling the connection',
   });
 }
 
-module.exports = function(app) {
+module.exports = function (app) {
   return async function () {
     // If we are still connecting, let's try cancelling the connection first
     if (await app.client.isVisible(Selectors.CancelConnectionButton)) {
       try {
-        await closeConnectionModal(app)
+        await closeConnectionModal(app);
       } catch (e) {
         // If that failed, the button was probably gone before we managed to
         // click it. Let's go through the whole disconnecting flow now

@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const {
   getAtlasConnectionOptions,
   beforeTests,
-  afterTests
+  afterTests,
 } = require('../helpers/compass');
 
 /**
@@ -43,7 +43,7 @@ describe('Compass', function () {
     it('can connect using connection form', async function () {
       await compass.client.connectWithConnectionForm({
         host: 'localhost',
-        port: 27018
+        port: 27018,
       });
       const result = await compass.client.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
