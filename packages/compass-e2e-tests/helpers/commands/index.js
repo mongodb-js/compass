@@ -4,6 +4,8 @@
  * @param {ExtendedApplication} app
  */
 exports.addCommands = function(app) {
+  app.client.addCommand('waitForElement', require('./wait-for-element')(app));
+  app.client.addCommand('waitUntilGone', require('./wait-until-gone')(app));
   app.client.addCommand('clickVisible', require('./click-visible')(app));
   app.client.addCommand('setValueVisible', require('./set-value-visible')(app));
   app.client.addCommand('waitForConnectionScreen', require('./wait-for-connection-screen')(app));
