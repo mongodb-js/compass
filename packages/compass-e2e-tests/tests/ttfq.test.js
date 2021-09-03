@@ -7,7 +7,7 @@ describe('Time to first query', function () {
 
   let compass;
 
-  it('can connect connect and run a query', async function() {
+  it('can open compass and connect to a database', async function() {
     // start compass inside the test so that the time is measured together
     ({ compass } = await beforeTests(false));
 
