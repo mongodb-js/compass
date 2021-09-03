@@ -28,7 +28,7 @@ module.exports = {
   overrides: [
     {
       parserOptions: {
-        ecmaVersion: 2018,
+        ecmaVersion: 12,
       },
       files: ['**/*.js'],
       env: { node: true, es6: true },
@@ -61,7 +61,13 @@ module.exports = {
       rules: { ...tsRules },
     },
     {
-      files: ['**/*.spec.js', '**/*.spec.jsx', '**/*.spec.ts', '**/*.spec.tsx'],
+      files: [
+        '**/*.spec.js',
+        '**/*.spec.jsx',
+        '**/*.spec.ts',
+        '**/*.spec.tsx',
+        '**/*.test.js',
+      ],
       env: { mocha: true },
       extends: [...testConfigurations],
       rules: { ...testRules },

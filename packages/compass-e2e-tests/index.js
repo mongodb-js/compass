@@ -6,7 +6,7 @@ const debug = require('debug')('compass-e2e-tests');
 const {
   rebuildNativeModules,
   compileCompassAssets,
-  buildCompass
+  buildCompass,
 } = require('./helpers/compass');
 
 async function main() {
@@ -26,7 +26,7 @@ async function main() {
   }
 
   const tests = await promisify(glob)('tests/**/*.{test,spec}.js', {
-    cwd: __dirname
+    cwd: __dirname,
   });
 
   const mocha = new Mocha();

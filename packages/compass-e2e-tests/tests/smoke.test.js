@@ -1,13 +1,10 @@
 // @ts-check
 const { expect } = require('chai');
-const { createUnlockedKeychain } = require('../helpers/keychain');
 const {
-  startCompass,
   getAtlasConnectionOptions,
-  capturePage,
-  savePage
+  beforeTests,
+  afterTests,
 } = require('../helpers/compass');
-const { retryWithBackoff } = require('../helpers/retry-with-backoff');
 
 /**
  * This test suite is based on compass smoke test matrix
@@ -15,44 +12,24 @@ const { retryWithBackoff } = require('../helpers/retry-with-backoff');
 describe('Compass', function () {
   this.timeout(1000 * 60 * 1);
 
-  const keychain = createUnlockedKeychain();
+  let keychain;
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
 
-  before(async () => {
-    keychain.activate();
-    compass = await startCompass();
-    // XXX: This seems to be a bit unstable in GitHub CI on macOS machines, for
-    // that reason we want to do a few retries here (in most other cases this
-    // should pass on first attempt)
-    await retryWithBackoff(async () => {
-      await compass.client.waitForConnectionScreen();
-      await compass.client.closeTourModal();
-      await compass.client.closePrivacySettingsModal();
-    });
+  before(async function () {
+    ({ keychain, compass } = await beforeTests(true));
   });
 
-  after(async () => {
-    try {
-      if (compass) {
-        if (process.env.CI) {
-          await capturePage(compass);
-          await savePage(compass);
-        }
-        await compass.stop();
-        compass = null;
-      }
-    } finally {
-      keychain.reset();
-    }
+  after(function () {
+    return afterTests({ keychain, compass });
   });
 
-  describe('Connect screen', () => {
-    afterEach(async () => {
+  describe('Connect screen', function () {
+    afterEach(async function () {
       await compass.client.disconnect();
     });
 
-    it('can connect using connection string', async () => {
+    it('can connect using connection string', async function () {
       await compass.client.connectWithConnectionString(
         'mongodb://localhost:27018/test'
       );
@@ -63,10 +40,10 @@ describe('Compass', function () {
       expect(result).to.have.property('ok', 1);
     });
 
-    it('can connect using connection form', async () => {
+    it('can connect using connection form', async function () {
       await compass.client.connectWithConnectionForm({
         host: 'localhost',
-        port: 27018
+        port: 27018,
       });
       const result = await compass.client.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
