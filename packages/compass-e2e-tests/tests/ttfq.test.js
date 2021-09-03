@@ -2,7 +2,7 @@
 const { expect } = require('chai');
 const { beforeTests, afterTests } = require('../helpers/compass');
 
-describe.only('Time to first query', function () {
+describe('Time to first query', function () {
   this.timeout(1000 * 60 * 1);
 
   let compass;
