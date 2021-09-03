@@ -1208,6 +1208,7 @@ Package|Version|License
 **[util-deprecate](#a1bd80d6a50b36e34032c402c5204d6276747d8212b68b164a9e3f895b90c2d6)**|1.0.2|MIT
 **[uuid](#e023df51e61e43f45cd8882485cac21ba6eb49b42732a93fe4f1f967d3933beb)**|3.4.0|MIT
 **[uuid](#a8cef35e9a1de774e802eae3efa8678dbf15ec777159ac06ebc56004b0b46309)**|7.0.3|MIT
+**[uuid](#a34e7819c122fe308fef4f0c9e534d305065097a743da82251b903f2761b2d26)**|8.3.2|MIT
 **[uuid-parse](#cc0e0f747d2bffbf8e6ca28deef89214c23016d30f39a287f307b8fe98a5741a)**|1.1.0|MIT
 **[validate-npm-package-license](#74dfaf598991c15c0f5164e31a7b747aed19f9824f6748786a91ae6094a39b65)**|3.0.4|Apache-2.0
 **[validator](#a0b01c3f81050a488449443f0d77c4121dcc6f18f3162ad03df798e29dae4cf3)**|9.4.1|MIT
@@ -53233,6 +53234,28 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
+      
+
+
+<a id="a34e7819c122fe308fef4f0c9e534d305065097a743da82251b903f2761b2d26"></a>
+### [uuid](https://www.npmjs.com/package/uuid) (version 8.3.2)
+<!-- initially found at packages/data-service/node_modules/uuid -->
+> RFC4122 (v1, v4, and v5) UUIDs
+
+License tags: MIT
+
+License files:
+* LICENSE.md:
+
+      The MIT License (MIT)
+      
+      Copyright (c) 2010-2020 Robert Kieffer and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
 
 
