@@ -5,6 +5,7 @@ if (!process.env.NODE_ENV) {
 const pkg = require('../../package.json');
 
 require('../setup-hadron-distribution');
+require('./logging');
 
 /**
  * Check if the distribution is defined, if not, we need to override

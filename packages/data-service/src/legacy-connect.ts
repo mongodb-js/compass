@@ -3,12 +3,15 @@ import { EventEmitter, once } from 'events';
 import { MongoClientOptions, MongoClient } from 'mongodb';
 import SSHTunnel from '@mongodb-js/ssh-tunnel';
 import ConnectionString from 'mongodb-connection-string-url';
+import resolveMongodbSrv from 'resolve-mongodb-srv';
 import { redactSshTunnelOptions, redactConnectionString } from './redact';
 
+import createLogger from '@mongodb-js/compass-logging';
 import createDebug from 'debug';
 import { LegacyConnectionModel } from './legacy-connection-model';
 
 const debug = createDebug('mongodb-data-service:connect');
+const { log, mongoLogId } = createLogger('COMPASS-DS-CONNECT');
 
 type ConnectReturnTuple = [
   MongoClient,
@@ -31,6 +34,13 @@ async function openSshTunnel(model: LegacyConnectionModel) {
     return null;
   }
 
+  log.info(
+    mongoLogId(1_001_000_006),
+    'SSHTunnel',
+    'Creating SSH tunnel',
+    redactSshTunnelOptions(model.sshTunnelOptions)
+  );
+
   debug(
     'creating ssh tunnel with options',
     model.sshTunnel,
@@ -43,11 +53,14 @@ async function openSshTunnel(model: LegacyConnectionModel) {
   await tunnel.listen();
   debug('ssh tunnel opened');
 
+  log.info(mongoLogId(1_001_000_007), 'SSHTunnel', 'SSH tunnel opened');
+
   return tunnel;
 }
 
 async function forceCloseTunnel(tunnelToClose?: SSHTunnel | null) {
   if (tunnelToClose) {
+    log.info(mongoLogId(1_001_000_008), 'SSHTunnel', 'Closing SSH tunnel');
     try {
       await tunnelToClose.close();
       debug('ssh tunnel stopped');
@@ -111,7 +124,29 @@ async function connect(
     options,
   });
 
-  const mongoClient = new MongoClient(url, options);
+  log.info(mongoLogId(1_001_000_009), 'Connect', 'Initiating connection', {
+    url: redactConnectionString(url),
+    options,
+  });
+
+  let resolvedUrl: string;
+  try {
+    resolvedUrl = await resolveMongodbSrv(url);
+    log.info(mongoLogId(1_001_000_010), 'Connect', 'Resolved SRV record', {
+      from: redactConnectionString(url),
+      to: redactConnectionString(resolvedUrl),
+    });
+  } catch (error) {
+    log.error(
+      mongoLogId(1_001_000_011),
+      'Connect',
+      'Resolving SRV record failed',
+      { from: redactConnectionString(url), error: error.message }
+    );
+    throw error;
+  }
+
+  const mongoClient = new MongoClient(resolvedUrl, options);
 
   if (setupListeners) {
     setupListeners(mongoClient);
@@ -124,8 +159,18 @@ async function connect(
       waitForTunnelError(tunnel),
     ])) as MongoClient; // waitForTunnel always throws, never resolves
 
+    log.info(mongoLogId(1_001_000_012), 'Connect', 'Connection established', {
+      url: redactConnectionString(url),
+    });
+
     return [client, tunnel, { url, options }];
   } catch (err) {
+    log.error(
+      mongoLogId(1_001_000_013),
+      'Connect',
+      'Connection attempt failed',
+      { error: err.message }
+    );
     debug('connection error', err);
     debug('force shutting down ssh tunnel ...');
     await forceCloseTunnel(tunnel);

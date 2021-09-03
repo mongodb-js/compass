@@ -147,6 +147,7 @@
     "@leafygreen-ui/leafygreen-provider": "^2.1.2",
     "@leafygreen-ui/toggle": "^7.0.4",
     "@leafygreen-ui/typography": "^8.0.2",
+    "@mongodb-js/compass-logging": "^0.1.0",
     "lodash": "^4.17.15"
   },
   "homepage": "https://github.com/mongodb-js/compass",
