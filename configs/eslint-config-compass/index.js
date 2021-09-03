@@ -25,7 +25,7 @@ module.exports = {
   overrides: [
     {
       parserOptions: {
-        ecmaVersion: 2018,
+        ecmaVersion: 12,
       },
       files: ['**/*.js'],
       env: { node: true, es6: true },

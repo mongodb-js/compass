@@ -59,7 +59,7 @@ describe('Compass', function () {
       }
       await compass.client.connectWithConnectionForm(
         atlasConnectionOptions,
-        30000
+        30_000
       );
       const result = await compass.client.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
