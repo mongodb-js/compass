@@ -44,7 +44,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
-          node-version: ^12.9.0
+          node-version: ^14.17.5
           cache: 'npm'
 
       - name: Install npm@7
