@@ -1,5 +1,5 @@
 var backends = require('./backends');
-var debug = require('debug')('storage-mixin');
+// var debug = require('debug')('sstorage-mixin');
 
 /**
  * storage-mixin
@@ -42,7 +42,7 @@ module.exports = {
     };
 
     options.error = function(resp, err) {
-      debug('Unexpected storage-mixin sync error', { err: err, resp: resp });
+      // debug('Unexpected storage-mixin sync error', { err: err, resp: resp });
       throw err;
     };
     this.fetched = false;

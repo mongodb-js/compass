@@ -31,7 +31,7 @@
     "eslint": "*",
     "prettier": "*",
     "debug": "^4.3.1",
-    "electron": "^6.1.12",
+    "electron": "^13.1.8",
     "electron-rebuild": "^2.3.5",
     "glob": "^7.1.6",
     "hadron-build": "^24.7.0",
