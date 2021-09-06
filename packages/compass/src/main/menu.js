@@ -304,13 +304,13 @@ function viewSubMenu() {
         }
       },
       {
-        label: 'Darkmode On',
+        label: 'Darkmode Enable',
         click: function() {
           ipc.broadcast('app:darkreader-enable');
         }
       },
       {
-        label: 'Darkmode Off',
+        label: 'Darkmode Disable',
         click: function() {
           ipc.broadcast('app:darkreader-disable');
         }
