@@ -84,7 +84,7 @@ DiskBackend.prototype._getId = function(modelOrFilename) {
  */
 DiskBackend.prototype._write = function(model, options, done) {
   var file = this._getId(model);
-  debug('_write', file);
+  // debug('_write', file);
   writeFileAtomic(file, JSON.stringify(this.serialize(model)), done);
 };
 
@@ -101,11 +101,11 @@ DiskBackend.prototype.remove = function(model, options, done) {
   var file = this._getId(model);
   fs.exists(file, function(exists) {
     if (!exists) {
-      debug('remove: skipping', file, 'not exists');
+      // debug('remove: skipping', file, 'not exists');
       return done(); // just ignore if the file isn't there
     }
 
-    debug('remove: unlinking', file);
+    // debug('remove: unlinking', file);
     fs.unlink(file, done);
   });
 };
