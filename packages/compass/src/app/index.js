@@ -48,6 +48,7 @@ marky.stop('Migrations');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var { Action } = require('@mongodb-js/hadron-plugin-manager');
+const darkreader = require('darkreader');
 
 ipc.once('app:launched', function() {
   console.log('in app:launched');
@@ -61,6 +62,14 @@ var debug = require('debug')('mongodb-compass:app');
 window.addEventListener('error', (event) => {
   event.preventDefault();
   ipc.call('compass:error:fatal', { message: event.error.message, stack: event.error.stack });
+});
+
+ipc.on('app:darkreader-enable', () => {
+  darkreader.enable({ brightness: 100, contrast: 90, sepia: 10 });
+});
+
+ipc.on('app:darkreader-disable', () => {
+  darkreader.disable();
 });
 
 /**
@@ -172,6 +181,7 @@ var Application = View.extend({
     // or so if you move this to the top of the file.
     require('local-links');
     require('mongodb-instance-model');
+    darkreader.enable({ brightness: 100, contrast: 90, sepia: 10 });
     marky.stop('Pre-loading additional modules required to connect');
   },
   /**
