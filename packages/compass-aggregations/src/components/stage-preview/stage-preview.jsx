@@ -1,3 +1,4 @@
+import { AtlasLogoMark } from '@leafygreen-ui/logo';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
@@ -24,7 +25,9 @@ class StagePreview extends Component {
     isValid: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
-    isComplete: PropTypes.any,
+    isComplete: PropTypes.bool.isRequired,
+    isMissingStageSupport: PropTypes.bool.isRequired,
+    openLink: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,
     stage: PropTypes.string
@@ -50,6 +53,13 @@ class StagePreview extends Component {
    */
   onSaveDocuments = () => {
     this.props.runOutStage(this.props.index);
+  }
+
+  /**
+   * Called when the Atlas Signup CTA link is clicked.
+   */
+  onCreateAtlasCluster = () => {
+    this.props.openLink('https://www.mongodb.com/cloud/atlas/lp/general/try?utm_source=compass&utm_medium=product');
   }
 
   /**
@@ -133,11 +143,38 @@ class StagePreview extends Component {
   }
 
   /**
+   * If the stage operator is $search and it is not supported we
+   * show a Atlas signup CTA.
+   *
+   * @returns {Component} The component.
+   */
+  renderMissingStageSupportSection() {
+    return (
+      <div className={styles['stage-preview-missing-search-support']}>
+        <AtlasLogoMark size={30} className={styles['stage-preview-missing-search-support-icon']} />
+        <div className={styles['stage-preview-missing-search-support-text']}>
+          Not available with this cluster. $search only available with MonogoDB Atlas.
+
+          Create a free cluster now, and start using the aggregation stages for running search queries.
+        </div>
+        <TextButton
+          text="Create Free Cluster"
+          className="btn btn-xs btn-primary"
+          clickHandler={this.onCreateAtlasCluster}
+        />
+      </div>
+    );
+  }
+
+  /**
    * Render the preview section.
    *
    * @returns {Component} The component.
    */
   renderPreview() {
+    if (this.props.isMissingStageSupport) {
+      return this.renderMissingStageSupportSection();
+    }
     if (this.props.isValid && this.props.isEnabled) {
       if (this.props.stageOperator === OUT) {
         return this.renderOutSection();
