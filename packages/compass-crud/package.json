@@ -35,6 +35,7 @@
   "license": "SSPL",
   "peerDependencies": {
     "@hot-loader/react-dom": "^16.9.0",
+    "@mongodb-js/compass-components": "*",
     "@mongodb-js/compass-query-bar": "*",
     "@mongodb-js/compass-status": "*",
     "bson": "*",
@@ -43,7 +44,6 @@
     "hadron-react-components": "*",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
-    "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-tooltip": "^3.11.1"
   },
@@ -56,6 +56,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.9.0",
+    "@mongodb-js/compass-components": "^0.4.0",
     "@mongodb-js/compass-query-bar": "^7.11.0",
     "@mongodb-js/compass-status": "^5.12.0",
     "autoprefixer": "^9.4.6",
@@ -120,7 +121,6 @@
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-ace": "^6.6.0",
-    "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-fontawesome": "^1.6.1",
     "react-hot-loader": "^4.13.0",
