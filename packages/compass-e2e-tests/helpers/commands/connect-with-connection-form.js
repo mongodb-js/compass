@@ -56,12 +56,18 @@ module.exports = function (app) {
         ? 'MONGODB'
         : 'NONE';
 
-    const authStrategyInputComponent = await client.$(Selectors.ConnectionFormInputAuthStrategy);
+    const authStrategyInputComponent = await client.$(
+      Selectors.ConnectionFormInputAuthStrategy
+    );
     await authStrategyInputComponent.selectByAttribute('value', authStrategy);
 
     if (typeof username !== 'undefined') {
-      const kerberosPrincipalInputElement = await app.client.$(Selectors.ConnectionFormInputKerberosPrincipal);
-      const ldapUsernameInputElement = await app.client.$(Selectors.ConnectionFormInputLDAPUsername);
+      const kerberosPrincipalInputElement = await app.client.$(
+        Selectors.ConnectionFormInputKerberosPrincipal
+      );
+      const ldapUsernameInputElement = await app.client.$(
+        Selectors.ConnectionFormInputLDAPUsername
+      );
       // TODO: No point in having different `name`s in UI, they are not used for
       // anything and all those map to `username` in driver options anyway
       if (await kerberosPrincipalInputElement.isDisplayed()) {

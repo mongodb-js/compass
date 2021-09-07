@@ -27,10 +27,11 @@ module.exports = function (app) {
         async () => {
           return !(await shellLoaderBarElement.isDisplayed());
         },
+        {
         timeout,
-        `Expected shell evaluation to finish in ${timeout}ms`,
-        50
-      );
+        timeoutMsg: `Expected shell evaluation to finish in ${timeout}ms`,
+        interval: 50,
+      });
     }
 
     // const shellLoaderBarElement = await client.$(Selectors.ShellLoader);
@@ -46,7 +47,9 @@ module.exports = function (app) {
 
     await delay(50);
     const shellOutputElements = await client.$$(Selectors.ShellOutput);
-    const output = await shellOutputElements[shellOutputElements.length - 1].getText();
+    const output = await shellOutputElements[
+      shellOutputElements.length - 1
+    ].getText();
     let result = Array.isArray(output) ? output.pop() : output;
     if (parse === true) {
       result = JSON.parse(result.replace(/(^['"]|['"]$)/g, ''));

@@ -19,7 +19,7 @@ module.exports = function (app) {
       {
         timeout: MINUTE,
         timeoutMsg: 'Expected connection screen to be visible',
-        interval: 50
+        interval: 50,
       }
     );
   };
