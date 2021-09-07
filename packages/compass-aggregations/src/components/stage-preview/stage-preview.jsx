@@ -26,7 +26,7 @@ class StagePreview extends Component {
     isEnabled: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
     isComplete: PropTypes.bool.isRequired,
-    isMissingStageSupport: PropTypes.bool.isRequired,
+    isMissingAtlasOnlyStageSupport: PropTypes.bool.isRequired,
     openLink: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,
@@ -58,7 +58,7 @@ class StagePreview extends Component {
   /**
    * Called when the Atlas Signup CTA link is clicked.
    */
-  onCreateAtlasCluster = () => {
+  onAtlasSignupCtaClicked = () => {
     this.props.openLink('https://www.mongodb.com/cloud/atlas/lp/general/try?utm_source=compass&utm_medium=product');
   }
 
@@ -148,7 +148,7 @@ class StagePreview extends Component {
    *
    * @returns {Component} The component.
    */
-  renderMissingStageSupportSection() {
+  renderAtlasOnlyStagePreviewSection() {
     return (
       <div className={styles['stage-preview-missing-search-support']}>
         <AtlasLogoMark size={30} className={styles['stage-preview-missing-search-support-icon']} />
@@ -160,7 +160,7 @@ class StagePreview extends Component {
         <TextButton
           text="Create Free Cluster"
           className="btn btn-xs btn-primary"
-          clickHandler={this.onCreateAtlasCluster}
+          clickHandler={this.onAtlasSignupCtaClicked}
         />
       </div>
     );
@@ -172,8 +172,8 @@ class StagePreview extends Component {
    * @returns {Component} The component.
    */
   renderPreview() {
-    if (this.props.isMissingStageSupport) {
-      return this.renderMissingStageSupportSection();
+    if (this.props.isMissingAtlasOnlyStageSupport) {
+      return this.renderAtlasOnlyStagePreviewSection();
     }
     if (this.props.isValid && this.props.isEnabled) {
       if (this.props.stageOperator === OUT) {
