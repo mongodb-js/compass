@@ -1,4 +1,4 @@
-import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
+import { ADL, ATLAS, STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 import { generateStage, generateStageAsString } from './stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { ObjectId } from 'bson';
@@ -308,7 +308,9 @@ const toggleStageCollapse = (state, action) => {
  */
 const updateStagePreview = (state, action) => {
   const newState = copyState(state);
-  if (newState[action.index].stageOperator === SEARCH &&
+  if (newState.env !== ADL &&
+      newState.env !== ATLAS &&
+      newState[action.index].stageOperator === SEARCH &&
       action.error &&
       (action.error.code === 40324 /* Unrecognized pipeline stage name */ ||
        action.error.code === 31082 /* $search not enabled */)) {
