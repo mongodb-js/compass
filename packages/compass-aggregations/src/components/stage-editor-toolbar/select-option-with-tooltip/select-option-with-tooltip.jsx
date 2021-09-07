@@ -9,7 +9,9 @@ import styles from './select-option-with-tooltip.less';
 
 class SelectOptionWithTooltip extends Component {
   static propTypes = {
-    option: PropTypes.object
+    option: PropTypes.object,
+    className: PropTypes.string,
+    children: PropTypes.array,
   };
 
   render() {

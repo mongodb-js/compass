@@ -492,7 +492,7 @@ export const stagePreviewUpdated = (docs, index, error, isComplete) => {
     error: error,
     isComplete: isComplete
   };
-}
+};
 
 /**
  * The loading stage results action.
