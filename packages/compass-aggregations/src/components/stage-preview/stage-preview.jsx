@@ -59,7 +59,7 @@ class StagePreview extends Component {
    * Called when the Atlas Signup CTA link is clicked.
    */
   onAtlasSignupCtaClicked = () => {
-    this.props.openLink('https://www.mongodb.com/cloud/atlas/lp/general/try?utm_source=compass&utm_medium=product');
+    this.props.openLink('https://www.mongodb.com/cloud/atlas/lp/search-1?utm_campaign=atlas_search&utm_source=compass&utm_medium=product&utm_content=v1');
   }
 
   /**
@@ -153,9 +153,9 @@ class StagePreview extends Component {
       <div className={styles['stage-preview-missing-search-support']}>
         <AtlasLogoMark size={30} className={styles['stage-preview-missing-search-support-icon']} />
         <div className={styles['stage-preview-missing-search-support-text']}>
-          Not available with this cluster. $search only available with MonogoDB Atlas.
+          This stage is only available with MongoDB Atlas. 
 
-          Create a free cluster now, and start using the aggregation stages for running search queries.
+          Create a free cluster or connect to an Atlas cluster to build search indexes and use the $search aggregation stage to run fast, relevant search queries.
         </div>
         <TextButton
           text="Create Free Cluster"
