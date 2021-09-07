@@ -73,5 +73,5 @@ var ModuleCache = require('hadron-module-cache');
 ModuleCache.register(resourcePath);
 ModuleCache.add(resourcePath);
 
-setupLogging();
+setupLogging(app);
 require('./application').main();

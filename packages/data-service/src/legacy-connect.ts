@@ -131,6 +131,11 @@ async function connect(
 
   let resolvedUrl: string;
   try {
+    // While the driver also performs SRV record resolution as part
+    // of its connection step, this gives us the ability to log the
+    // before/after state, and we may very well need to do our own
+    // SRV record resolution as part of
+    // https://jira.mongodb.org/browse/COMPASS-4768 anyway.
     resolvedUrl = await resolveMongodbSrv(url);
     log.info(mongoLogId(1_001_000_010), 'Connect', 'Resolved SRV record', {
       from: redactConnectionString(url),

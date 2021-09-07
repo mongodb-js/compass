@@ -6,7 +6,7 @@ const { mongoLogId, MongoLogManager } = require('mongodb-log-writer');
 const { version } = require('../../package.json');
 const debug = require('debug')('mongodb-compass:main:logging');
 
-module.exports = async function setupLogging() {
+module.exports = async function setupLogging(app) {
   try {
     const directory = process.platform === 'win32' ?
       path.join(
@@ -44,17 +44,17 @@ module.exports = async function setupLogging() {
       });
     });
 
-    ipc.on('compass:log:finish', () => {
-      process.emit('compass:log:finish');
-    });
-
-    process.once('compass:log:finish', () => {
+    app.on('before-quit', function() {
       writer.info('COMPASS-MAIN', mongoLogId(1_001_000_003), 'app', 'Closing application');
       writer.end();
     });
 
-    ipc.respondTo('compass:log', (evt, meta) => {
+    process.on('compass:log', (meta) => {
       writer.target.write(meta.line);
+    });
+
+    ipc.respondTo('compass:log', (evt, meta) => {
+      process.emit('compass:log', meta);
     });
 
     await manager.cleanupOldLogfiles();

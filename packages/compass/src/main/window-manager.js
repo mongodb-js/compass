@@ -405,7 +405,6 @@ app.on('window:show-about-dialog', showAboutDialog);
 app.on('app:show-connect-window', showConnectWindow);
 
 app.on('before-quit', function() {
-  process.emit('compass:log:finish');
   var win = _.first(BrowserWindow.getAllWindows());
   if (win) {
     debug('sending `app:quit` msg');
