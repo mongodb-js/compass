@@ -13,11 +13,14 @@ module.exports = function (app) {
         // time we run the check (spectron doesn't do it for you automatically
         // and will fail when certain methods are called on closed windows)
         await client.windowByIndex(0);
-        return await client.waitForVisible(Selectors.ConnectSection);
+        const element = await client.$(Selectors.ConnectSection);
+        return await element.isDisplayed();
       },
-      MINUTE,
-      'Expected connection screen to be visible',
-      50
+      {
+        timeout: MINUTE,
+        timeoutMsg: 'Expected connection screen to be visible',
+        interval: 50
+      }
     );
   };
 };

@@ -3,7 +3,7 @@ module.exports = function (app) {
     // waitForVisible gives better errors than interacting with a non-existing
     // element
     const { client } = app;
-    await client.waitForVisible(selector);
-    await client.click(selector);
+    const element = await client.$(selector);
+    await element.click();
   };
 };

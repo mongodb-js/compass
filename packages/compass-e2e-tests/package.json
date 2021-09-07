@@ -38,7 +38,7 @@
     "mocha": "*",
     "mongodb": "^4.1.0",
     "mongodb-runner": "^4.8.3",
-    "spectron": "^8.0.0",
+    "spectron": "^15.0.0",
     "xvfb-maybe": "^0.2.1"
   }
 }

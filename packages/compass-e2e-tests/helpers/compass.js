@@ -338,11 +338,12 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
 /**
  * @param {ExtendedApplication} app
  */
-function addDebugger(app) {
+async function addDebugger(app) {
   const debugClient = debug.extend('webdriver:client');
-  // @ts-expect-error getPrototype is not typed in spectron or webdriver but
+  // asdasd// @ts-expect-error getPrototype is not typed in spectron or webdriver but
   // exists
-  const clientProto = app.client.getPrototype();
+  const clientProto = Object.getPrototypeOf(app.client);
+
   for (const prop of Object.getOwnPropertyNames(clientProto)) {
     if (prop.includes('.')) {
       continue;

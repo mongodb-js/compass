@@ -15,8 +15,9 @@ module.exports = function (app) {
   return async function () {
     const { client } = app;
 
+    const cancelConnectionButtonElement = await client.$(Selectors.CancelConnectionButton);
     // If we are still connecting, let's try cancelling the connection first
-    if (await client.isVisible(Selectors.CancelConnectionButton)) {
+    if (await cancelConnectionButtonElement.isDisplayed()) {
       try {
         await closeConnectionModal(app);
       } catch (e) {
@@ -26,7 +27,23 @@ module.exports = function (app) {
     }
 
     app.webContents.send('app:disconnect');
-    await client.waitForVisible(Selectors.ConnectSection, 5000);
+    // await client.waitForVisible(Selectors.ConnectSection, 5000);
+
+    const element = await client.$(Selectors.ConnectSection);
+    await element.waitForVisible(5000);
+
+    // await client.waitUntil(
+    //   async () => {
+    //     const element = await client.$(Selectors.ConnectSection);
+    //     return await element.isDisplayed();
+    //   },
+    //   {
+    //     timeout: 5000,
+    //     timeoutMsg: 'Expected connection screen to be visible',
+    //     interval: 50
+    //   }
+    // );
+    
     // Show "new connection" section as if we just opened this screen
     await client.clickVisible(Selectors.SidebarNewConnectionButton);
     await delay(100);
