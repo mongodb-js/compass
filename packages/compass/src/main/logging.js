@@ -61,4 +61,4 @@ module.exports = async function setupLogging(app) {
   } catch (err) {
     debug('Failure setting up logging!', err);
   }
-}
+};
