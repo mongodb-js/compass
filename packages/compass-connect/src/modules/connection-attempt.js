@@ -2,7 +2,7 @@ import createDebug from 'debug';
 import createLogger from '@mongodb-js/compass-logging';
 import { promisify } from 'util';
 
-const { log, mongoLogId } = createLogger('COMPASS-CONNECT-UI');
+const { log, mongoLogId } = createLogger('COMPASS-CONNECT');
 const debug = createDebug('mongodb-compass:compass-connect:connection-attempt');
 
 function isConnectionAttemptTerminatedError(err) {

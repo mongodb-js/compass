@@ -11,7 +11,7 @@ import createDebug from 'debug';
 import { LegacyConnectionModel } from './legacy-connection-model';
 
 const debug = createDebug('mongodb-data-service:connect');
-const { log, mongoLogId } = createLogger('COMPASS-DS-CONNECT');
+const { log, mongoLogId } = createLogger('COMPASS-DATA-SERVICE');
 
 type ConnectReturnTuple = [
   MongoClient,
