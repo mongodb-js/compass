@@ -5,7 +5,7 @@ var wrapErrback = require('../lib/backends/errback').wrapErrback;
 var helpers = require('./helpers');
 var assert = require('assert');
 var async = require('async');
-// var debug = require('debug')('storage-mixin:splice:test');
+var debug = require('debug')('storage-mixin:splice:test');
 
 describe('storage backend splice-disk', function() {
   if (process.platform === 'linux') {
@@ -258,7 +258,7 @@ describe('storage backend splice-disk', function() {
       }
       var users = new StorableUsers();
       users.once('sync', function() {
-        // debug('fetch collections', users.serialize());
+        debug('fetch collections', users.serialize());
         assert.equal(users.length, 1);
         if (!SecureBackend.isNullBackend) {
           assert.equal(
@@ -319,7 +319,7 @@ describe('storage backend splice-disk', function() {
         function() {
           users = new SortedUsers();
           users.on('sync', function() {
-            // debug('users', users.serialize());
+            debug('users', users.serialize());
             assert.equal(users.get('apollo').password, 'cyl0nHunt3r');
             assert.equal(users.get('starbuck').password, 'caprica');
             done();

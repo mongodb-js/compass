@@ -26,7 +26,7 @@ inherits(SecureBackend, BaseBackend);
  */
 SecureBackend.clear = function(namespace, done) {
   var serviceName = `storage-mixin/${namespace}`;
-  // debug('Clearing all secure values for', serviceName);
+  debug('Clearing all secure values for', serviceName);
 
   var promise;
 
@@ -38,39 +38,39 @@ SecureBackend.clear = function(namespace, done) {
   }
 
   promise.then(function(accounts) {
-    // debug(
-    //   'Found credentials',
-    //   accounts.map(function(credential) {
-    //     return credential.account;
-    //   })
-    // );
+    debug(
+      'Found credentials',
+      accounts.map(function(credential) {
+        return credential.account;
+      })
+    );
     return Promise.all(
       accounts.map(function(entry) {
         var accountName = entry.account;
         return keytar
           .deletePassword(serviceName, accountName)
           .then(function() {
-            // debug('Deleted account %s successfully', accountName);
+            debug('Deleted account %s successfully', accountName);
             return accountName;
           })
           .catch(function(err) {
-            // debug('Failed to delete', accountName, err);
+            debug('Failed to delete', accountName, err);
             throw err;
           });
       })
     );
   })
     .then(function(accountNames) {
-      // debug(
-      //   'Cleared %d accounts for serviceName %s',
-      //   accountNames.length,
-      //   serviceName,
-      //   accountNames
-      // );
+      debug(
+        'Cleared %d accounts for serviceName %s',
+        accountNames.length,
+        serviceName,
+        accountNames
+      );
       done();
     })
     .catch(function(err) {
-      // debug('Failed to clear credentials!', err);
+      debug('Failed to clear credentials!', err);
       done(err);
     });
 };
@@ -91,10 +91,10 @@ SecureBackend.prototype.remove = function(model, options, done) {
   keytar
     .deletePassword(serviceName, accountName)
     .then(function() {
-      // debug('Removed password for', {
-      //   service: serviceName,
-      //   account: accountName
-      // });
+      debug('Removed password for', {
+        service: serviceName,
+        account: accountName
+      });
       done();
     })
     .catch(done);
@@ -117,10 +117,10 @@ SecureBackend.prototype.update = function(model, options, done) {
   keytar
     .setPassword(serviceName, accountName, value)
     .then(function() {
-      // debug('Updated password successfully for', {
-      //   service: serviceName,
-      //   account: accountName
-      // });
+      debug('Updated password successfully for', {
+        service: serviceName,
+        account: accountName
+      });
       done();
     })
     .catch(function(err) {
@@ -145,10 +145,10 @@ SecureBackend.prototype.create = function(model, options, done) {
   keytar
     .setPassword(serviceName, accountName, value)
     .then(function() {
-      // debug('Successfully dreated password for', {
-      //   service: serviceName,
-      //   account: accountName
-      // });
+      debug('Successfully dreated password for', {
+        service: serviceName,
+        account: accountName
+      });
 
       done();
     })
@@ -174,17 +174,17 @@ SecureBackend.prototype.findOne = function(model, options, done) {
     .getPassword(serviceName, accountName)
     .then(function(rawJsonString) {
       if (!rawJsonString) {
-        // debug('findOne failed. No value found', {
-        //   service: serviceName,
-        //   account: accountName
-        // });
+        debug('findOne failed. No value found', {
+          service: serviceName,
+          account: accountName
+        });
 
         return done(null, {});
       }
-      // debug('findOne successful', {
-      //   service: serviceName,
-      //   account: accountName
-      // });
+      debug('findOne successful', {
+        service: serviceName,
+        account: accountName
+      });
 
       done(null, JSON.parse(rawJsonString));
     })

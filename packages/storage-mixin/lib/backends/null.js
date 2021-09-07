@@ -1,14 +1,14 @@
 var inherits = require('util').inherits;
 var BaseBackend = require('./base');
 
-// var debug = require('debug')('storage-mixin:backends:null');
+var debug = require('debug')('storage-mixin:backends:null');
 
 function NullBackend(options) {
   if (!(this instanceof NullBackend)) {
     return new NullBackend(options);
   }
   this.namespace = options.namespace;
-  // debug('Warning: the `null` storage backend does not store any data.');
+  debug('Warning: the `null` storage backend does not store any data.');
 }
 inherits(NullBackend, BaseBackend);
 

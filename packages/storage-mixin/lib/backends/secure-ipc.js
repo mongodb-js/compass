@@ -1,7 +1,7 @@
 const inherits = require('util').inherits;
 const BaseBackend = require('./base');
 const _ = require('lodash');
-// const debug = require('debug')('mongodb-storage-mixin:backends:secure-ipc');
+const debug = require('debug')('mongodb-storage-mixin:backends:secure-ipc');
 const uuidv4 = require('uuid/v4');
 
 function SecureIpcBackend(options) {
@@ -28,7 +28,7 @@ if (typeof window !== 'undefined') {
    */
   SecureIpcBackend.clear = function(namespace, done) {
     const serviceName = `storage-mixin/${namespace}`;
-    // debug('Clearing all secure values for', serviceName);
+    debug('Clearing all secure values for', serviceName);
     ipc.call('storage-mixin:clear', { serviceName: serviceName });
     done();
   };
@@ -142,7 +142,7 @@ if (typeof window !== 'undefined') {
    * @see http://ampersandjs.com/docs#ampersand-collection-fetch
    */
   SecureIpcBackend.prototype.find = function(collection, options, done) {
-    // debug('Fetching data...', collection.length);
+    debug('Fetching data...', collection.length);
 
     const handleResponse = (result) => {
       if (result.namespace === this.namespace) {
@@ -171,18 +171,18 @@ if (typeof window !== 'undefined') {
       try {
         if (result.callId && result.callId !== callId) {
           // do not handle responses from other `.find` calls
-          // debug(
-          //   'Skip response from another storage-mixin:find call',
-          //   {
-          //     expectedCallId: callId,
-          //     receivedCallId: result.callId
-          //   }
-          // );
+          debug(
+            'Skip response from another storage-mixin:find call',
+            {
+              expectedCallId: callId,
+              receivedCallId: result.callId
+            }
+          );
 
           return;
         }
 
-        // debug('Processing results of storage-mixin:find', { callId: result.callId });
+        debug('Processing results of storage-mixin:find', { callId: result.callId });
 
         // make sure we process the same response once and we
         // avoid zombie listeners
@@ -190,7 +190,7 @@ if (typeof window !== 'undefined') {
 
         handleResponse(result);
       } catch (err) {
-        // debug('Error processing the results of storage-mixin:find', err);
+        debug('Error processing the results of storage-mixin:find', err);
       }
     };
 

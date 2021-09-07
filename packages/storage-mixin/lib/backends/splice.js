@@ -9,7 +9,7 @@ var wrapErrback = require('./errback').wrapErrback;
 var mergeSpliceResults = require('./util').mergeSpliceResults;
 var inherits = require('util').inherits;
 
-// var debug = require('debug')('mongodb-storage-mixin:backends:splice');
+var debug = require('debug')('mongodb-storage-mixin:backends:splice');
 
 function SpliceBackend(options) {
   if (!(this instanceof SpliceBackend)) {
@@ -28,14 +28,14 @@ function SpliceBackend(options) {
   // patch the serialize methods in both backends
   var condition = options.secureCondition;
   LocalBackend.prototype.serialize = function(model) {
-    // debug('Serializing for local backend with condition', condition);
+    debug('Serializing for local backend with condition', condition);
     var res = _.omitBy(model.serialize(), condition);
     return res;
   };
   this.localBackend = new LocalBackend(options);
 
   SecureBackend.prototype.serialize = function(model) {
-    // debug('Serializing for secure backend with condition', condition);
+    debug('Serializing for secure backend with condition', condition);
     var res = _.pickBy(model.serialize(), condition);
     return res;
   };
@@ -51,7 +51,7 @@ inherits(SpliceBackend, BaseBackend);
  * @param {Function} done
  */
 SpliceBackend.clear = function(namespace, done) {
-  // debug('Clear for all involved backends');
+  debug('Clear for all involved backends');
   var tasks = [
     LocalBackend.clear.bind(null, namespace),
     SecureBackend.clear.bind(null, namespace) // note: this is a no-op
