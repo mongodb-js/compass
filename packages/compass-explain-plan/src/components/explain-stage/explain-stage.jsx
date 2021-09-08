@@ -5,7 +5,7 @@ import { map, isBoolean, camelCase } from 'lodash';
 import d3 from 'd3';
 import { Button } from 'react-bootstrap';
 
-import styles from './explain-stage.less';
+import styles from './explain-stage.module.less';
 
 /**
  * Reference to the clock div.

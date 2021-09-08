@@ -5,7 +5,7 @@ import hadronApp from 'hadron-app';
 
 import SSLMethod from './ssl-method';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 describe('SSLMethod [Component]', () => {
   const connection = { sslMethod: 'NONE' };

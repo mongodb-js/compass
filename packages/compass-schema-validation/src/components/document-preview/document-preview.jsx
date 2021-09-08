@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { Document } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
 
-import styles from './document-preview.less';
+import styles from './document-preview.module.less';
 
 /**
  * The document preview component.

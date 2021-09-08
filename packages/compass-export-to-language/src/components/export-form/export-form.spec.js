@@ -6,7 +6,7 @@ import SelectLang from '../select-lang';
 import { Alert } from 'react-bootstrap';
 import Editor from '../editor';
 
-import styles from './export-form.less';
+import styles from './export-form.module.less';
 
 describe('ExportForm [Component]', () => {
   context('when the component is rendered', () => {

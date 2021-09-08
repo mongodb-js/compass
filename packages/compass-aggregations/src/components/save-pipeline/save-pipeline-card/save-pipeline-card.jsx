@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import RestoreButton from './restore-pipeline-button';
 import DeleteButton from './delete-pipeline-button';
 
-import styles from './save-pipeline-card.less';
+import styles from './save-pipeline-card.module.less';
 
 /**
  * saved pipelines card

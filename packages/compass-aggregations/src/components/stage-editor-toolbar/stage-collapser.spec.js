@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import StageCollapser from './stage-collapser';
-import styles from './stage-collapser.less';
+import styles from './stage-collapser.module.less';
 
 describe('StageCollaper [Component]', () => {
   context('when the stage is expanded', () => {

@@ -6,7 +6,7 @@ import { isEmpty } from 'lodash';
 import Actions from '../../actions';
 import FormFileInput from './form-file-input';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 class SSLServerValidation extends React.Component {
   static displayName = 'SSLServerValidation';

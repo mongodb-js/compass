@@ -9,7 +9,7 @@ import { TextButton } from 'hadron-react-buttons';
 import { InfoSprinkle } from 'hadron-react-components';
 import ValidationSelector from '../validation-selector';
 
-import styles from './validation-editor.less';
+import styles from './validation-editor.module.less';
 
 import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';

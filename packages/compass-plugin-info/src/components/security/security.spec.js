@@ -2,8 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Security from '../security';
-import styles from './security.less';
-import pluginStyles from '../plugin/plugin.less';
+import styles from './security.module.less';
+import pluginStyles from '../plugin/plugin.module.less';
 import { corePlugin } from '../../../test/renderer/fixtures';
 
 describe('Security [Component]', () => {

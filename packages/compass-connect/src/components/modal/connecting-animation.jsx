@@ -1,6 +1,6 @@
 import React from 'react';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 // This function returns the speed at which the needle shoots off in
 // a direction. The farther from 0 the number, the farther/faster it goes.

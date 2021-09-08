@@ -6,7 +6,7 @@ import Actions from '../../actions';
 import FormGroup from './form-group';
 import { CONNECTION_STRING_VIEW } from '../../constants/connection-views';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 class FormActions extends React.Component {
   static displayName = 'FormActions';

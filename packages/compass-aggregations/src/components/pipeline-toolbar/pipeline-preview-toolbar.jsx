@@ -5,7 +5,7 @@ import Switch from 'react-ios-switch';
 import { Tooltip } from 'hadron-react-components';
 import { IconButton } from 'hadron-react-buttons';
 
-import styles from './pipeline-preview-toolbar.less';
+import styles from './pipeline-preview-toolbar.module.less';
 import { TOOLTIP_PREVIEW_MODE, TOOLTIP_SAMPLING_MODE } from '../../constants';
 
 const SHARED_SWITCH_PROPS = {

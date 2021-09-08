@@ -6,7 +6,7 @@ import { shell } from 'electron';
 import classnames from 'classnames';
 import Icon from '@leafygreen-ui/icon';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 function FormFileInput({
   id,

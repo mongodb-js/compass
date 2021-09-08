@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { TextButton } from 'hadron-react-buttons';
 import classnames from 'classnames';
 
-import styles from './auto-update.less';
+import styles from './auto-update.module.less';
 
 const NOT_NOW = 'Not Now';
 

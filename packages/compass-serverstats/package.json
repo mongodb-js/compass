@@ -71,7 +71,7 @@
     "jsdom": "^16.6.0",
     "jsdom-global": "^3.0.2",
     "less": "^3.11.1",
-    "less-loader": "^2.2.3",
+    "less-loader": "^7.3.0",
     "mocha": "^2.5.3",
     "mock-require": "^2.0.1",
     "mongodb-connection-model": "^21.7.0",

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import styles from './loading.less';
+import styles from './loading.module.less';
 
 class Loading extends Component {
   static displayName = 'LoadingComponent';

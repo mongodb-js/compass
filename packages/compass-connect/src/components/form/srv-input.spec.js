@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import SRVInput from './srv-input';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 describe('SRVInput [Component]', () => {
   context('when the connection is not an srv record', () => {

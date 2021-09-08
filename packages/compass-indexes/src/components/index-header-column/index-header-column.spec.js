@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import IndexHeaderColumn from '../index-header-column';
-import styles from './index-header-column.less';
+import styles from './index-header-column.module.less';
 
 describe('index-header-column [Component]', () => {
   let component;

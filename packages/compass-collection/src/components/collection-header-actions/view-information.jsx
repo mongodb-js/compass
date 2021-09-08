@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import styles from './collection-header-actions.less';
+import styles from './collection-header-actions.module.less';
 
 function ViewInformation({
   sourceName

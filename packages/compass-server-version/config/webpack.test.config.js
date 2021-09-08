@@ -37,121 +37,92 @@ module.exports = {
     }
   },
   module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: [
-          { loader: 'style-loader'},
-          { loader: 'css-loader' }
-        ]
-      },
-      {
-        test: /\.node$/,
-        use: 'node-loader'
-      },
-      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
-      {
-        test: /\.less$/,
-        include: [/\.global/, /bootstrap/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: false
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      // For CSS-Modules locally scoped styles
-      {
-        test: /\.less$/,
-        exclude: [/\.global/, /bootstrap/, /node_modules/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              importLoaders: 1,
+    rules: [{
+      test: /\.css$/,
+      use: [
+        { loader: 'style-loader'},
+        { loader: 'css-loader' }
+      ]
+    }, {
+      test: /\.node$/,
+      use: 'node-loader'
+    }, {
+      test: /.less$/,
 
-              modules: {
-                localIdentName: 'ServerVersionPlugin_[name]-[local]__[hash:base64:5]'
-              }
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
+      use: [
+        { loader: 'style-loader' },
+        {
+          loader: 'css-loader',
+          options: {
+            importLoaders: 1,
+
+            modules: {
+              // Based on file name
+              auto: true,
+              localIdentName: 'ServerVersionPlugin_[name]-[local]__[hash:base64:5]'
             }
           }
-        ]
-      },
-      {
-        test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
-        use: [{ loader: 'shebang-loader' }]
-      },
-      {
-        test: /\.(js|jsx)$/,
-        use: [{
-          loader: 'babel-loader',
+        },
+        {
+          loader: 'postcss-loader',
           options: {
-            root: path.resolve(__dirname, '..'),
-            cacheDirectory: !process.env.CI
+            plugins: function() {
+              return [project.plugin.autoprefixer];
+            }
           }
-        }],
-        exclude: /(node_modules)/
-      },
-      {
-        test: /\.(js|jsx)/,
-        enforce: 'post', // Enforce as a post step so babel can do its compilation prior to instrumenting code
-        exclude: [
-          /node_modules/,
-          /constants/,
-          /.*?(?=\.spec).*?\.js/
-        ],
-        include: project.path.src,
-        use: {
-          loader: 'istanbul-instrumenter-loader',
+        },
+        {
+          loader: 'less-loader',
           options: {
-            esModules: true
+            lessOptions: {
+              modifyVars: {
+                // Only affects dev build (standalone plugin playground), required
+                // so that font-awesome can correctly resolve image paths relative
+                // to the compass
+                'compass-fonts-path': '../fonts',
+                'compass-images-path': '../images',
+                'fa-font-path': path.dirname(
+                  require.resolve('mongodb-compass/src/app/fonts/FontAwesome.otf')
+                )
+              }
+            }
           }
         }
-      },
-      {
-        test: /\.(png|jpg|jpeg|gif|svg)$/,
-        use: [{ loader: 'ignore-loader' }]
-      },
-      {
-        test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-        use: [{ loader: 'ignore-loader' }]
+      ]
+    }, {
+      test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
+      use: [{ loader: 'shebang-loader' }]
+    }, {
+      test: /\.(js|jsx)$/,
+      use: [{
+        loader: 'babel-loader',
+        options: {
+          root: path.resolve(__dirname, '..'),
+          cacheDirectory: !process.env.CI
+        }
+      }],
+      exclude: /(node_modules)/
+    }, {
+      test: /\.(js|jsx)/,
+      enforce: 'post', // Enforce as a post step so babel can do its compilation prior to instrumenting code
+      exclude: [
+        /node_modules/,
+        /constants/,
+        /.*?(?=\.spec).*?\.js/
+      ],
+      include: project.path.src,
+      use: {
+        loader: 'istanbul-instrumenter-loader',
+        options: {
+          esModules: true
+        }
       }
-    ]
+    }, {
+      test: /\.(png|jpg|jpeg|gif|svg)$/,
+      use: [{ loader: 'ignore-loader' }]
+    }, {
+      test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+      use: [{ loader: 'ignore-loader' }]
+    }]
   }
 };

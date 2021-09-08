@@ -5,7 +5,7 @@ import Banner from '@leafygreen-ui/banner';
 
 import { CreateDatabaseModal } from '../create-database-modal';
 import CollectionFields from '../collection-fields';
-import styles from './create-database-modal.less';
+import styles from './create-database-modal.module.less';
 
 describe('CreateDatabaseModal [Component]', () => {
   context('when the modal is visible', () => {

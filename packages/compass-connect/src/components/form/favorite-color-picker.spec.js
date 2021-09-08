@@ -3,7 +3,7 @@ import React from 'react';
 
 import FavoriteColorPicker from './favorite-color-picker';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 describe('FavoriteColorPicker [Component]', () => {
   context('when it is a new connection', () => {

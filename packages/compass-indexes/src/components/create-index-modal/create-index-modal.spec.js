@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { CreateIndexModal } from '../create-index-modal';
-import styles from './create-index-modal.less';
+import styles from './create-index-modal.module.less';
 
 describe('CreateIndexModal [Component]', () => {
   let component;

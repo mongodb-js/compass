@@ -1,7 +1,7 @@
 import React from 'react';
 import Badge, { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 
-import styles from './collection-header.less';
+import styles from './collection-header.module.less';
 
 function ReadOnlyBadge() {
   return (

@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import StagePreviewToolbar from '../stage-preview-toolbar';
-import styles from './stage-preview-toolbar.less';
+import styles from './stage-preview-toolbar.module.less';
 
 describe('StagePreviewToolbar [Component]', () => {
   context('when the stage is enabled', () => {

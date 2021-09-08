@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import OptionEditor from '../option-editor';
 import configureActions from '../../actions';
 
-import styles from './option-editor.less';
+import styles from './option-editor.module.less';
 
 describe('OptionEditor [Component]', function() {
   let onChangeSpy;

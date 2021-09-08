@@ -9,7 +9,7 @@ import { changeCollectionNameConfirmation } from '../../modules/drop-collection/
 import { dropCollection } from '../../modules/drop-collection';
 import { toggleIsVisible } from '../../modules/is-visible';
 
-import styles from './drop-collection-modal.less';
+import styles from './drop-collection-modal.module.less';
 
 /**
  * The modal to drop a collection.

@@ -4,7 +4,7 @@ import { mount, shallow } from 'enzyme';
 import SelectLang from '../select-lang';
 import Select from 'react-select-plus';
 
-import styles from './select-lang.less';
+import styles from './select-lang.module.less';
 
 describe('SelectLang [Component]', () => {
   context('when the component is rendered', () => {

@@ -1,4 +1,5 @@
 ignores: [
     '@mongodb-js/prettier-config-compass',
-    '@types/webdriverio'
+    '@types/webdriverio',
+  "mongodb-compass"
 ]

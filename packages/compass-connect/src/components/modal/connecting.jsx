@@ -6,7 +6,7 @@ import { Modal } from 'react-bootstrap';
 import ConnectingAnimation from './connecting-animation';
 import Actions from '../../actions';
 import Illustration from '../../assets/svg/connecting-illustration.svg';
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 // We delay showing the modal for this amount of time to avoid flashing.
 const showModalDelayMS = 250;

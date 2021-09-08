@@ -9,7 +9,7 @@ import AppRegistry from 'hadron-app-registry';
 // import ShellPlugin from '@mongodb-js/compass-shell';
 
 import classnames from 'classnames';
-import styles from './home.less';
+import styles from './home.module.less';
 
 import { Home } from '../home';
 import UI_STATES from '../../constants/ui-states';

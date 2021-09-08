@@ -6,7 +6,7 @@ import FontAwesome from 'react-fontawesome';
 import { Card, CardHeader, CardBody } from '../card';
 import Query from '../query';
 
-import styles from './favorite-list-item.less';
+import styles from './favorite-list-item.module.less';
 
 class FavoriteListItem extends PureComponent {
   static displayName = 'QueryHistoryFavoritesListItem';

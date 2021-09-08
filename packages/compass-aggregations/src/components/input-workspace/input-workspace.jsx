@@ -6,7 +6,7 @@ import InputBuilder from '../input-builder';
 import InputPreview from '../input-preview';
 import ResizeHandle from '../resize-handle/resize-handle';
 
-import styles from './input-workspace.less';
+import styles from './input-workspace.module.less';
 
 const resizeableDirections = {
   top: false,

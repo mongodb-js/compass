@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import StageEditor from '../stage-editor';
-import styles from './stage-editor.less';
+import styles from './stage-editor.module.less';
 
 describe('StageEditor [Component]', () => {
   let component;

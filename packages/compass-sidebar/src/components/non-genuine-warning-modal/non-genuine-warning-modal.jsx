@@ -6,7 +6,7 @@ import { TextButton } from 'hadron-react-buttons';
 import FontAwesome from 'react-fontawesome';
 
 import classnames from 'classnames';
-import styles from './non-genuine-warning-modal.less';
+import styles from './non-genuine-warning-modal.module.less';
 
 /**
  * The help URL for collation.

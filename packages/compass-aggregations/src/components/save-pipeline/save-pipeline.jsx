@@ -3,7 +3,7 @@ import { IconButton } from 'hadron-react-buttons';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import SavePipelineCard from './save-pipeline-card/save-pipeline-card';
-import styles from './save-pipeline.less';
+import styles from './save-pipeline.module.less';
 
 class SavePipeline extends Component {
   static displayName = 'SavePipelineComponent';

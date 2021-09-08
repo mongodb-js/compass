@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import InputBuilder from '../input-builder';
-import styles from './input-builder.less';
+import styles from './input-builder.module.less';
 
 describe('InputBuilder [Component]', () => {
   let component;

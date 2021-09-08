@@ -10,7 +10,7 @@ import { changeDatabaseNameConfirmation } from '../../modules/drop-database/name
 import { dropDatabase } from '../../modules/drop-database';
 import { toggleIsVisible } from '../../modules/is-visible';
 
-import styles from './drop-database-modal.less';
+import styles from './drop-database-modal.module.less';
 
 /**
  * The modal to drop a database.

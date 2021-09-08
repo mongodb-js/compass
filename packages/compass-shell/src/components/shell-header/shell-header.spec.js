@@ -6,7 +6,7 @@ import IconButton from '@leafygreen-ui/icon-button';
 import { ShellLoader } from '@mongosh/browser-repl';
 
 import { ShellHeader } from './shell-header';
-import styles from './shell-header.less';
+import styles from './shell-header.module.less';
 
 describe('ShellHeader', () => {
   context('when isExpanded prop is true', () => {

@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 
-import styles from './stage-grabber.less';
+import styles from './stage-grabber.module.less';
 
 /**
  * Grab a stage component.

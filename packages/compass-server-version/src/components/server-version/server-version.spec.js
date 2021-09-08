@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import ServerVersion from '../server-version';
-import styles from './server-version.less';
+import styles from './server-version.module.less';
 
 describe('ServerVersion [Component]', () => {
   context('when the version number is null', () => {

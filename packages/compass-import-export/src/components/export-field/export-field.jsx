@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import createStyler from '../../utils/styler.js';
-import styles from './export-field.less';
+import styles from './export-field.module.less';
 import PropTypes from 'prop-types';
 
 const style = createStyler(styles, 'export-field');

@@ -5,7 +5,7 @@ import isNaN from 'lodash.isnan';
 import { SortableTable } from 'hadron-react-components';
 
 import dropCollectionStore from '../../../stores/drop-collection';
-import styles from './collections-table.less';
+import styles from './collections-table.module.less';
 import CollectionProperties from './collection-properties';
 import {
   TIME_SERIES_COLLECTION_TYPE,

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import styles from './overview-toggler.less';
+import styles from './overview-toggler.module.less';
 
 /**
  * Collapse text.

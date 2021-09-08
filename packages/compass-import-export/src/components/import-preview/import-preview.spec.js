@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import ImportPreview from './';
 import createStyler from '../../utils/styler.js';
-import styles from './import-preview.less';
+import styles from './import-preview.module.less';
 
 let onFieldCheckedChangedSpy;
 let setFieldTypeSpy;

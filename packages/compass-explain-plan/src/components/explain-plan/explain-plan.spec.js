@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import ExplainPlan from '../explain-plan';
 import configureStore from '../../stores';
-import styles from './explain-plan.less';
+import styles from './explain-plan.module.less';
 import AppRegistry from 'hadron-app-registry';
 
 describe('ExplainPlan [Component]', () => {

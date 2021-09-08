@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import SummaryStat from '../summary-stat';
 
-import styles from './summary-stat.less';
+import styles from './summary-stat.module.less';
 
 describe('SummaryStat [Component]', () => {
   let component;

@@ -16,7 +16,7 @@ import QueryOption from '../query-option';
 import OptionsToggle from '../options-toggle';
 import QUERY_PROPERTIES from '../../constants/query-properties';
 
-import styles from './query-bar.less';
+import styles from './query-bar.module.less';
 
 /**
  * @type {Record<string, { type: 'document' | 'numeric' | 'boolean', placeholder: string | null, link: string, label?: string }>}

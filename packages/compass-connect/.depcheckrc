@@ -14,5 +14,6 @@ ignores: [
   "mongodb-client-encryption",
   "mongodb-shell-to-url",
   "webpack-bundle-analyzer",
-  "webpack-cli"
+  "webpack-cli",
+  "mongodb-compass"
 ]

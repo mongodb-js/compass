@@ -13,5 +13,6 @@ ignores: [
   "uuid",
   "webpack-bundle-analyzer",
   "webpack-cli",
-  "mongodb"
+  "mongodb",
+  "mongodb-compass"
 ]

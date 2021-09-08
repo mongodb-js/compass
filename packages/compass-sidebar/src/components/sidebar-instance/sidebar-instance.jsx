@@ -7,7 +7,7 @@ import IsFavoritePill from '../is-favorite-pill';
 import { FavoriteModal } from '@mongodb-js/compass-connect';
 
 import classnames from 'classnames';
-import styles from './sidebar-instance.less';
+import styles from './sidebar-instance.module.less';
 
 class SidebarInstance extends PureComponent {
   static displayName = 'SidebarInstance';

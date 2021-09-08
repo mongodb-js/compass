@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Splitter from './splitter';
-import styles from './splitter.less';
+import styles from './splitter.module.less';
 
 describe('Splitter [Component]', () => {
   let component;

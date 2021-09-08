@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import DeleteStage from './delete-stage';
-import styles from './delete-stage.less';
+import styles from './delete-stage.module.less';
 
 describe('DeleteStage [Component]', () => {
   context('when the component is rendered', () => {

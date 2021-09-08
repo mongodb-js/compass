@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import NewConnection from './new-connection';
 
-import styles from './sidebar.less';
+import styles from './sidebar.module.less';
 
 describe('NewConnection [Component]', () => {
   context('when a connection is new', () => {

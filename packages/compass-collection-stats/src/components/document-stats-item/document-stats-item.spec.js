@@ -2,8 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import DocumentStatsItem from '../document-stats-item';
-import styles from './document-stats-item.less';
-import statsStyles from '../collection-stats-item/collection-stats-item.less';
+import styles from './document-stats-item.module.less';
+import statsStyles from '../collection-stats-item/collection-stats-item.module.less';
 
 describe('DocumentStatsItem [Component]', () => {
   describe('when rendered', () => {

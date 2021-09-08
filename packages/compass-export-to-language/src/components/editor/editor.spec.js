@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import Editor from '../editor';
 import AceEditor from 'react-ace';
 
-import styles from './editor.less';
+import styles from './editor.module.less';
 
 describe('Editor [Component]', () => {
   context('when the component is rendered as input', () => {

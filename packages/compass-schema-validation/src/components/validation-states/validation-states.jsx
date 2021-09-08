@@ -7,7 +7,7 @@ import ValidationEditor from '../validation-editor';
 import SampleDocuments from '../sample-documents';
 import { ZeroGraphic } from '../zero-graphic';
 
-import styles from './validation-states.less';
+import styles from './validation-states.module.less';
 
 /**
  * Warnings for the banner.

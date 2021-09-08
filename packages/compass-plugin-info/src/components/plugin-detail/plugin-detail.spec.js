@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import PluginDetail from '../plugin-detail';
-import styles from './plugin-detail.less';
+import styles from './plugin-detail.module.less';
 import { corePlugin, errPlugin } from '../../../test/renderer/fixtures';
 
 describe('PluginDetail [Component]', () => {

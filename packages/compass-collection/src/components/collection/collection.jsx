@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { TabNavBar } from 'hadron-react-components';
 import CollectionHeader from '../collection-header';
 
-import styles from './collection.less';
+import styles from './collection.module.less';
 
 class Collection extends Component {
   static displayName = 'CollectionComponent';

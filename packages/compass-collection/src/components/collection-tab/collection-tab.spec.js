@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 
 import CollectionTab from '../collection-tab';
-import styles from './collection-tab.less';
+import styles from './collection-tab.module.less';
 
 describe('CollectionTab [Component]', () => {
   const localAppRegistry = new AppRegistry();

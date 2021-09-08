@@ -3,7 +3,7 @@ import React from 'react';
 
 import SSLServerValidation from '../../../src/components/form/ssl-server-validation';
 
-import styles from '../../../src/components/connect.less';
+import styles from '../../../src/components/connect.module.less';
 
 describe('SSLServerValidation [Component]', () => {
   describe('#render', () => {

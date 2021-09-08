@@ -11,7 +11,7 @@ import { IconTextButton } from 'hadron-react-buttons';
 import FILE_TYPES from '../../constants/file-types';
 import SelectFileType from '../select-file-type';
 
-import styles from './import-options.less';
+import styles from './import-options.module.less';
 import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'import-options');
 

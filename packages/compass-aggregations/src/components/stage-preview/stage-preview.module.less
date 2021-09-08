@@ -1,0 +1,96 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
+.stage-preview {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  overflow: auto;
+  position: relative;
+  flex-grow: 1;
+
+  &-empty {
+    padding-left: 15px;
+    margin: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    fill: none;
+    stroke: #89979B;
+    text-align: center;
+  }
+
+  &-out {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+
+    &-text {
+      padding: 0px 15px 2px 15px;
+      text-align: center;
+    }
+
+    &-button {
+      margin-top: 3px;
+    }
+
+    &-link {
+      text-decoration: underline;
+      cursor: pointer;
+      color: #5b81a9;
+    }
+  }
+
+  &-documents {
+    display: flex;
+    align-items: stretch;
+    overflow-x: scroll;
+    margin: 10px;
+
+    :global {
+      .document {
+        background-color: @pw;
+        margin: 10px;
+        padding: 0;
+        border: 1px solid @gray6;
+        border-radius: 4px;
+        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
+        width: 350px;
+        min-height: 150px;
+        overflow: scroll;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+
+        &-contents {
+          flex-basis: 150px;
+          flex-grow: 1;
+          flex-shrink: 0;
+          overflow: auto;
+          padding: 20px;
+        }
+
+        &-elements {
+          padding: 0px;
+          margin-bottom: 0px;
+        }
+      }
+
+      .document::-webkit-scrollbar {
+        display: none;
+      }
+
+      .document-contents::-webkit-scrollbar {
+        display: none;
+      }
+
+      .element-value-is-string {
+        word-break: normal;
+      }
+    }
+  }
+}
+
+.stage-preview::-webkit-scrollbar {
+  display:none;
+}

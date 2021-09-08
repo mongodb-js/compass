@@ -8,7 +8,7 @@ import Actions from '../../actions';
 import FormInput from './form-input';
 import FormFileInput from './form-file-input';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 class SSLServerClientValidation extends React.Component {
   static displayName = 'SSLServerClientValidation';

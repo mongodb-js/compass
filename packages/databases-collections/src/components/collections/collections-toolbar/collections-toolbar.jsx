@@ -5,7 +5,7 @@ import { Tooltip } from 'hadron-react-components';
 
 import createCollectionStore from '../../../stores/create-collection';
 
-import styles from './collections-toolbar.less';
+import styles from './collections-toolbar.module.less';
 
 /**
  * The button component name.

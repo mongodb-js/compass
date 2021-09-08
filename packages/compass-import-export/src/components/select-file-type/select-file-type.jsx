@@ -5,7 +5,7 @@ import { Button, FormGroup, ControlLabel } from 'react-bootstrap';
 import classnames from 'classnames';
 import FILE_TYPES from '../../constants/file-types';
 
-import styles from './select-file-type.less';
+import styles from './select-file-type.module.less';
 import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'select-file-type');
 

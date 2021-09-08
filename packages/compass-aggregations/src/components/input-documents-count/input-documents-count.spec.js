@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import InputDocumentsCount from '../input-documents-count';
-import styles from './input-documents-count.less';
+import styles from './input-documents-count.module.less';
 
 describe('InputDocumentsCount [Component]', () => {
   let component;

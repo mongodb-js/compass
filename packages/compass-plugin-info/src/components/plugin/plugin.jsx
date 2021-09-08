@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import PluginDetail from '../plugin-detail';
 import PluginError from '../plugin-error';
 
-import styles from './plugin.less';
+import styles from './plugin.module.less';
 
 /**
  * The plugin component.

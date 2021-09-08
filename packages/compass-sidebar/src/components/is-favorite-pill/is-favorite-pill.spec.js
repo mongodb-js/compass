@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import IsFavoritePill from './is-favorite-pill';
 
-import styles from './is-favorite-pill.less';
+import styles from './is-favorite-pill.module.less';
 
 describe('IsFavoritePill [Component]', () => {
   context('when it is a new connection', () => {

@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { formatQuery } from '../../utils';
 
 import Code from '../code';
-import styles from './query.less';
+import styles from './query.module.less';
 
 class Query extends PureComponent {
   static displayName = 'Query';
