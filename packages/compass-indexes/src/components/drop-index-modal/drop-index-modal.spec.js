@@ -3,7 +3,6 @@ import { mount } from 'enzyme';
 import { ConfirmationModal } from '@mongodb-js/compass-components';
 
 import { DropIndexModal } from '../drop-index-modal';
-import styles from './drop-index-modal.module.less';
 
 describe('DropIndexModal [Component]', () => {
   let component;
