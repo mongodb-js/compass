@@ -11,7 +11,7 @@
     "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js",
     "start": "webpack-dev-server --config ./config/webpack.dev.config.js",
     "start:watch": "npm run clean && webpack --config ./config/webpack.watch.config.js",
-    "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" && npm run test:karma",
+    "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
     "test:karma": "xvfb-maybe cross-env NODE_ENV=test karma start",
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
     "cover": "nyc npm run test",

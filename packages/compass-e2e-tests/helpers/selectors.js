@@ -18,7 +18,7 @@ module.exports = {
   ShellOutput:
     '[data-test-id="shell-content"] [class^=mongosh-shell-output-line] pre',
   ShellLoader:
-    '[data-test-id="shell-content"] [class^=mongosh-shell-loader-shell-loader]',
+    '[data-test-id="shell-loader-in-progress"] [name="shell-loader-in-progress-text"]',
   ShowConnectionFormButton: '[data-test-id="show-connection-form-button"]',
   ConnectionForm: '[data-test-id="connection-form"]',
   ConnectionFormHostnameTabButton: '[data-test-id="connection-form"] #Hostname',

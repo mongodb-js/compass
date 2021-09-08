@@ -135,7 +135,8 @@ describe('storage backend secure', function() {
               done();
             })
             .catch(done);
-        }
+        },
+        error: done
       });
     });
   });
