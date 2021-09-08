@@ -77,7 +77,9 @@ class Sidebar extends PureComponent {
   };
 
   componentWillReceiveProps() {
-    this.list.recomputeRowHeights();
+    if (this.list) {
+      this.list.recomputeRowHeights();
+    }
   }
 
   componentDidUpdate() {
@@ -99,10 +101,6 @@ class Sidebar extends PureComponent {
         width: sidebarWidthCollapsed,
         height: '100%'
       });
-
-      // this.props.onCollapse();
-      // this.props.globalAppRegistryEmit('compass:status:configure', { sidebar: false });
-      // this.props.toggleIsCollapsed(!this.props.isCollapsed);
     } else {
       this.resizableRef.updateSize({
         width: Math.min(this.lastExpandedWidth, window.innerWidth - 100),
@@ -111,7 +109,10 @@ class Sidebar extends PureComponent {
     }
 
     this.props.onCollapse();
-    this.props.globalAppRegistryEmit('compass:status:configure', { sidebar: !this.props.isCollapsed });
+    this.props.globalAppRegistryEmit(
+      'compass:status:configure',
+      { sidebar: !this.props.isCollapsed }
+    );
     this.props.toggleIsCollapsed(!this.props.isCollapsed);
   }
 
@@ -275,7 +276,6 @@ class Sidebar extends PureComponent {
           resizeableDirections,
           right: !this.props.isCollapsed
         }}
-        // onResize={this.onResize.bind(this)}
         ref={c => { this.resizableRef = c; }}
         handleWrapperClass={styles['compass-sidebar-resize-handle-wrapper']}
         handleComponent={{
@@ -321,9 +321,11 @@ class Sidebar extends PureComponent {
             onChange={this.handleFilter.bind(this)}
           />
         </div>
-        <div className={styles['compass-sidebar-content']}>
-          {this.renderSidebarScroll()}
-        </div>
+        {!this.props.isCollapsed && (
+          <div className={styles['compass-sidebar-content']}>
+            {this.renderSidebarScroll()}
+          </div>
+        )}
         <NonGenuineWarningModal
           isVisible={this.props.isGenuineMongoDBVisible}
           toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
@@ -334,7 +336,6 @@ class Sidebar extends PureComponent {
         <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
         <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
         <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
-        {/* </div> */}
       </Resizable>
     );
   }
