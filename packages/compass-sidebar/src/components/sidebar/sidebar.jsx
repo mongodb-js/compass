@@ -5,10 +5,12 @@ import cloneDeep from 'lodash.clonedeep';
 import ReactTooltip from 'react-tooltip';
 import { AutoSizer, List } from 'react-virtualized';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { Resizable } from 're-resizable';
 
 import classnames from 'classnames';
 import styles from './sidebar.module.less';
 
+import ResizeHandle from '../resize-handle';
 import SidebarTitle from '../sidebar-title';
 import SidebarInstance from '../sidebar-instance';
 import SidebarDatabase from '../sidebar-database';
@@ -28,6 +30,22 @@ import { TOOLTIP_IDS } from '../../constants/sidebar-constants';
 const OVER_SCAN_COUNT = 100;
 const ROW_HEIGHT = 28;
 const EXPANDED_WHITESPACE = 12;
+
+const resizeableDirections = {
+  top: false,
+  right: false, // This property is controlled in the component.
+  bottom: false,
+  left: false,
+  topRight: false,
+  bottomRight: false,
+  bottomLeft: false,
+  topLeft: false
+};
+
+// In pixels. (px)
+const sidebarWidthCollapsed = 36;
+const sidebarMinWidthOpened = 160;
+const defaultSidebarWidthOpened = 250;
 
 class Sidebar extends PureComponent {
   static displayName = 'Sidebar';
@@ -68,23 +86,40 @@ class Sidebar extends PureComponent {
     ReactTooltip.rebuild();
   }
 
-  handleCollapse() {
-    if (!this.props.isCollapsed) {
-      this.props.onCollapse();
-      this.props.globalAppRegistryEmit('compass:status:configure', { sidebar: false });
-      this.props.toggleIsCollapsed(!this.props.isCollapsed);
-    }
-  }
+  lastExpandedWidth = defaultSidebarWidthOpened;
+  resizableRef = null;
 
-  handleExpand() {
-    if (this.props.isCollapsed) {
-      this.props.onCollapse();
-      this.props.globalAppRegistryEmit('compass:status:configure', { sidebar: true });
-      this.props.toggleIsCollapsed(!this.props.isCollapsed);
+  toggleCollapsed() {
+    if (!this.props.isCollapsed) {
+      // Apply bounds to width to ensure it's always visible to the user.
+      const widthToResume = Math.max(60, this.resizableRef.size.width);
+      this.lastExpandedWidth = widthToResume;
+
+      this.resizableRef.updateSize({
+        width: sidebarWidthCollapsed,
+        height: '100%'
+      });
+
+      // this.props.onCollapse();
+      // this.props.globalAppRegistryEmit('compass:status:configure', { sidebar: false });
+      // this.props.toggleIsCollapsed(!this.props.isCollapsed);
+    } else {
+      this.resizableRef.updateSize({
+        width: Math.min(this.lastExpandedWidth, window.innerWidth - 100),
+        height: '100%'
+      });
     }
+
+    this.props.onCollapse();
+    this.props.globalAppRegistryEmit('compass:status:configure', { sidebar: !this.props.isCollapsed });
+    this.props.toggleIsCollapsed(!this.props.isCollapsed);
   }
 
   handleSearchFocus() {
+    if (this.props.isCollapsed) {
+      this.toggleCollapsed();
+    }
+
     this.refs.filter.focus();
   }
 
@@ -222,63 +257,85 @@ class Sidebar extends PureComponent {
   }
 
   render() {
-    const collapsed = this.props.isCollapsed ?
-      'compass-sidebar-collapsed' :
-      'compass-sidebar-expanded';
     const collapsedButton = 'fa' +
       (this.props.isCollapsed ? ' fa-caret-right' : ' fa-caret-left');
 
     return (
-      <div
-        className={classnames(styles['compass-sidebar'], styles[collapsed])}
-        onClick={this.handleExpand.bind(this)}>
+      <Resizable
+        className={classnames(styles['compass-sidebar'], {
+          [styles['compass-sidebar-collapsed']]: this.props.isCollapsed
+        })}
+        defaultSize={{
+          width: defaultSidebarWidthOpened,
+          height: '100%'
+        }}
+        minWidth={this.props.isCollapsed ? sidebarWidthCollapsed : sidebarMinWidthOpened}
+        maxWidth="80%"
+        enable={{
+          resizeableDirections,
+          right: !this.props.isCollapsed
+        }}
+        // onResize={this.onResize.bind(this)}
+        ref={c => { this.resizableRef = c; }}
+        handleWrapperClass={styles['compass-sidebar-resize-handle-wrapper']}
+        handleComponent={{
+          right: <ResizeHandle />,
+        }}
+      >
         <button
           className={classnames(styles['compass-sidebar-toggle'], 'btn btn-default btn-sm')}
-          onClick={this.handleCollapse.bind(this)}
-          data-test-id="toggle-sidebar">
+          onClick={this.toggleCollapsed.bind(this)}
+          data-test-id="toggle-sidebar"
+        >
           <i className={collapsedButton}/>
         </button>
         <SidebarTitle
           connectionModel={this.props.connectionModel}
           isSidebarCollapsed={this.props.isCollapsed}
-          globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
-        <SidebarInstance
-          instance={this.props.instance}
-          isExpanded={this.props.isDetailsExpanded}
-          isSidebarCollapsed={this.props.isCollapsed}
-          detailsPlugins={this.props.detailsPlugins}
-          isGenuineMongoDB={this.props.isGenuineMongoDB}
-          toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit}
-          connectionModel={this.props.connectionModel}
-          toggleIsModalVisible={this.props.toggleIsModalVisible}
-          isModalVisible={this.props.isModalVisible}
-          saveFavorite={this.props.saveFavorite}
         />
+        {!this.props.isCollapsed && (
+          <SidebarInstance
+            instance={this.props.instance}
+            isExpanded={this.props.isDetailsExpanded}
+            detailsPlugins={this.props.detailsPlugins}
+            isGenuineMongoDB={this.props.isGenuineMongoDB}
+            toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
+            globalAppRegistryEmit={this.props.globalAppRegistryEmit}
+            connectionModel={this.props.connectionModel}
+            toggleIsModalVisible={this.props.toggleIsModalVisible}
+            isModalVisible={this.props.isModalVisible}
+            saveFavorite={this.props.saveFavorite}
+          />
+        )}
         <div
-          className={classnames(styles['compass-sidebar-filter'])}
-          onClick={this.handleSearchFocus.bind(this)}>
+          className={styles['compass-sidebar-filter']}
+          onClick={this.handleSearchFocus.bind(this)}
+        >
           <i className={classnames('fa', 'fa-search', styles['compass-sidebar-search-icon'])}/>
           <input
             data-test-id="sidebar-filter-input"
             ref="filter"
-            className={classnames(styles['compass-sidebar-search-input'])}
+            className={styles['compass-sidebar-search-input']}
             placeholder="Filter your data"
-            onChange={this.handleFilter.bind(this)} />
+            onChange={this.handleFilter.bind(this)}
+          />
         </div>
-        <div className={classnames(styles['compass-sidebar-content'])}>
+        <div className={styles['compass-sidebar-content']}>
           {this.renderSidebarScroll()}
         </div>
         <NonGenuineWarningModal
           isVisible={this.props.isGenuineMongoDBVisible}
           toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
-          openLink={this.props.openLink} />
+          openLink={this.props.openLink}
+        />
         {this.renderCreateDatabaseButton()}
         <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
         <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
         <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
         <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
-      </div>
+        {/* </div> */}
+      </Resizable>
     );
   }
 }

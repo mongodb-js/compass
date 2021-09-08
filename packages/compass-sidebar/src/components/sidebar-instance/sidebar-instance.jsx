@@ -6,7 +6,6 @@ import NonGenuineWarningPill from '../non-genuine-warning-pill';
 import IsFavoritePill from '../is-favorite-pill';
 import { FavoriteModal } from '@mongodb-js/compass-connect';
 
-import classnames from 'classnames';
 import styles from './sidebar-instance.module.less';
 
 class SidebarInstance extends PureComponent {
@@ -14,7 +13,6 @@ class SidebarInstance extends PureComponent {
   static propTypes = {
     instance: PropTypes.object,
     isExpanded: PropTypes.bool.isRequired,
-    isSidebarCollapsed: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
@@ -54,7 +52,8 @@ class SidebarInstance extends PureComponent {
         <FavoriteModal
           connectionModel={this.props.connectionModel.connection}
           closeFavoriteModal={this.closeFavoriteModal.bind(this)}
-          saveFavorite={this.saveFavorite.bind(this)} />
+          saveFavorite={this.saveFavorite.bind(this)}
+        />
       );
     }
   }
@@ -66,24 +65,25 @@ class SidebarInstance extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['sidebar-instance'])}>
+      <div className={styles['sidebar-instance']}>
         <SidebarInstanceStats
           instance={this.props.instance}
           isExpanded={this.props.isExpanded}
           toggleIsExpanded={this.props.toggleIsDetailsExpanded}
-          globalAppRegistryEmit={this.props.globalAppRegistryEmit} />
+          globalAppRegistryEmit={this.props.globalAppRegistryEmit}
+        />
         <IsFavoritePill
-          isSidebarCollapsed={this.props.isSidebarCollapsed}
           connectionModel={this.props.connectionModel}
-          toggleIsModalVisible={this.props.toggleIsModalVisible} />
+          toggleIsModalVisible={this.props.toggleIsModalVisible}
+        />
         {this.renderFavoriteModal()}
         <NonGenuineWarningPill
-          isSidebarCollapsed={this.props.isSidebarCollapsed}
-          isGenuineMongoDB={this.props.isGenuineMongoDB} />
+          isGenuineMongoDB={this.props.isGenuineMongoDB}
+        />
         <SidebarInstanceDetails
           detailsPlugins={this.props.detailsPlugins}
-          isSidebarCollapsed={this.props.isSidebarCollapsed}
-          isExpanded={this.props.isExpanded} />
+          isExpanded={this.props.isExpanded}
+        />
       </div>
     );
   }

@@ -139,7 +139,8 @@
   "dependencies": {
     "@leafygreen-ui/icon": "^11.4.0",
     "@mongodb-js/mongodb-redux-common": "^1.4.0",
-    "lodash.clonedeep": "^4.5.0"
+    "lodash.clonedeep": "^4.5.0",
+    "re-resizable": "^6.9.0"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {
