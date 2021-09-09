@@ -161,7 +161,7 @@ describe('Sidebar [Component]', () => {
 
       sidebarComponent.resizableRef = {
         size: {
-          width: 99
+          width: 199
         },
         updateSize: newSize => {
           sizeSetTo = newSize;
@@ -191,7 +191,78 @@ describe('Sidebar [Component]', () => {
       it('resumes its previous width', () => {
         expect(sizeSetTo).to.deep.equal({
           height: '100%',
-          width: 99
+          width: 199
+        });
+      });
+    });
+  });
+
+  describe('arrow resize actions', () => {
+    let sidebarComponent;
+    let sizeSetTo;
+
+    beforeEach(() => {
+      sidebarComponent = new UnconnectedSidebar({
+        isCollapsed: false,
+        onCollapse: () => {},
+        toggleIsCollapsed: () => {},
+        globalAppRegistryEmit: () => {}
+      });
+
+      sidebarComponent.resizableRef = {
+        size: {
+          width: 199
+        },
+        updateSize: newSize => {
+          sizeSetTo = newSize;
+
+          sidebarComponent.resizableRef.size.width = newSize.width;
+        }
+      };
+    });
+
+    afterEach(() => {
+      sizeSetTo = null;
+    });
+
+    describe('when the move right is called from the resize handle', () => {
+      beforeEach(() => {
+        sidebarComponent.handleResizeRight();
+      });
+
+      it('calls to update the width +10', () => {
+        expect(sizeSetTo).to.deep.equal({
+          height: '100%',
+          width: 209
+        });
+      });
+    });
+
+    describe('when the move left is called from the resize handle', () => {
+      beforeEach(() => {
+        sidebarComponent.handleResizeLeft();
+      });
+
+      it('calls to update the width -10', () => {
+        expect(sizeSetTo).to.deep.equal({
+          height: '100%',
+          width: 189
+        });
+      });
+
+      describe('when it hits the lower bound', () => {
+        beforeEach(() => {
+          sidebarComponent.handleResizeLeft();
+          sidebarComponent.handleResizeLeft();
+          sidebarComponent.handleResizeLeft();
+          sidebarComponent.handleResizeLeft();
+        });
+
+        it('does not resize past the lower bound', () => {
+          expect(sizeSetTo).to.deep.equal({
+            height: '100%',
+            width: 160
+          });
         });
       });
     });

@@ -46,6 +46,15 @@ const resizeableDirections = {
 const sidebarWidthCollapsed = 36;
 const sidebarMinWidthOpened = 160;
 const defaultSidebarWidthOpened = 250;
+const sidebarArrowControlIncrement = 10;
+
+// Apply bounds to the sidebar width when resizing to ensure it's always
+// visible and usable to the user.
+function boundSidebarWidth(attemptedWidth) {
+  const maxWidth = window.innerWidth - 100;
+
+  return Math.min(maxWidth, Math.max(sidebarMinWidthOpened, attemptedWidth));
+}
 
 class Sidebar extends PureComponent {
   static displayName = 'Sidebar';
@@ -93,9 +102,7 @@ class Sidebar extends PureComponent {
 
   toggleCollapsed() {
     if (!this.props.isCollapsed) {
-      // Apply bounds to width to ensure it's always visible to the user.
-      const widthToResume = Math.max(60, this.resizableRef.size.width);
-      this.lastExpandedWidth = widthToResume;
+      this.lastExpandedWidth = boundSidebarWidth(this.resizableRef.size.width);
 
       this.resizableRef.updateSize({
         width: sidebarWidthCollapsed,
@@ -103,7 +110,7 @@ class Sidebar extends PureComponent {
       });
     } else {
       this.resizableRef.updateSize({
-        width: Math.min(this.lastExpandedWidth, window.innerWidth - 100),
+        width: boundSidebarWidth(this.lastExpandedWidth),
         height: '100%'
       });
     }
@@ -142,6 +149,36 @@ class Sidebar extends PureComponent {
     if (isWritable) {
       this.props.globalAppRegistryEmit('open-create-database');
     }
+  }
+
+  handleResizeRight() {
+    if (this.props.isCollapsed) {
+      return;
+    }
+
+    const newWidth = boundSidebarWidth(
+      this.resizableRef.size.width + sidebarArrowControlIncrement
+    );
+
+    this.resizableRef.updateSize({
+      width: newWidth,
+      height: '100%'
+    });
+  }
+
+  handleResizeLeft() {
+    if (this.props.isCollapsed) {
+      return;
+    }
+
+    const newWidth = boundSidebarWidth(
+      this.resizableRef.size.width - sidebarArrowControlIncrement
+    );
+
+    this.resizableRef.updateSize({
+      width: newWidth,
+      height: '100%'
+    });
   }
 
   _calculateRowHeight({index}) {
@@ -279,7 +316,10 @@ class Sidebar extends PureComponent {
         ref={c => { this.resizableRef = c; }}
         handleWrapperClass={styles['compass-sidebar-resize-handle-wrapper']}
         handleComponent={{
-          right: <ResizeHandle />,
+          right: <ResizeHandle
+            onMoveRightPressed={this.handleResizeRight.bind(this)}
+            onMoveLeftPressed={this.handleResizeLeft.bind(this)}
+          />,
         }}
       >
         <button
