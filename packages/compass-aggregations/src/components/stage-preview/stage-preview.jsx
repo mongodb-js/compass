@@ -59,6 +59,7 @@ class StagePreview extends Component {
    * Called when the Atlas Signup CTA link is clicked.
    */
   onAtlasSignupCtaClicked = () => {
+    // TODO: Add tracking after switching to Segment
     this.props.openLink('https://www.mongodb.com/cloud/atlas/lp/search-1?utm_campaign=atlas_search&utm_source=compass&utm_medium=product&utm_content=v1');
   }
 
