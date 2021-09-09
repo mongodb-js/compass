@@ -74,6 +74,7 @@ Package|Version|License
 **[@leafygreen-ui/lib](#35c4bed27ba37ac1f2211977d15b81d1ac62ee14e5f3dd4684fef2b8e3fb9737)**|8.0.0|Apache-2.0
 **[@leafygreen-ui/lib](#30e9ed6c2e550dfed8b9be8d41b5b9b5ea99c892204ce640e4ca75702c6d003b)**|9.0.0|Apache-2.0
 **[@leafygreen-ui/lib](#086127748510d761d6e7843dbc86695047b23f99b87a6097414d28a9b8e7648a)**|4.5.1|Apache-2.0
+**[@leafygreen-ui/logo](#0a730d34211dd05f383ec502f09049152152674ed9095c3bbc047c6dd078ee9f)**|5.0.0|Apache-2.0
 **[@leafygreen-ui/modal](#56f100d1c57d3b9c34679fdabcc402d3e4353712335c2034a546ad25502f38e3)**|6.1.1|Apache-2.0
 **[@leafygreen-ui/palette](#aac301506921cf8ea69e201d03f69e56d0c7b6c6819939404b0b01de26937833)**|3.2.2|Apache-2.0
 **[@leafygreen-ui/palette](#5667b1cc6d87fc8ce2a94b4d9886c2122872bdd97db1249c92d9adba3ef9cf2f)**|2.0.2|Apache-2.0
@@ -3207,6 +3208,14 @@ License tags: Apache-2.0
 ### [@leafygreen-ui/lib](https://www.npmjs.com/package/@leafygreen-ui/lib) (version 4.5.1)
 <!-- initially found at node_modules/@leafygreen-ui/syntax/node_modules/@leafygreen-ui/lib -->
 > leafyGreen UI Kit Internal Library
+
+License tags: Apache-2.0
+
+
+<a id="0a730d34211dd05f383ec502f09049152152674ed9095c3bbc047c6dd078ee9f"></a>
+### [@leafygreen-ui/logo](https://www.npmjs.com/package/@leafygreen-ui/logo) (version 5.0.0)
+<!-- initially found at node_modules/@leafygreen-ui/logo -->
+> LeafyGreen UI Kit Logos
 
 License tags: Apache-2.0
 
