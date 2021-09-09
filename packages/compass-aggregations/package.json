@@ -30,6 +30,7 @@
   "peerDependencies": {
     "@leafygreen-ui/badge": "^4.0.4",
     "@leafygreen-ui/banner": "^3.0.8",
+    "@leafygreen-ui/logo": "^5.0.0",
     "@mongodb-js/compass-components": "*",
     "@mongodb-js/compass-crud": "*",
     "@mongodb-js/compass-export-to-language": "*",
@@ -153,6 +154,7 @@
   "dependencies": {
     "@leafygreen-ui/badge": "^4.0.4",
     "@leafygreen-ui/banner": "^3.0.8",
+    "@leafygreen-ui/logo": "^5.0.0",
     "@mongodb-js/mongodb-redux-common": "^1.4.0",
     "acorn-loose": "^8.0.2",
     "astring": "^1.7.0",

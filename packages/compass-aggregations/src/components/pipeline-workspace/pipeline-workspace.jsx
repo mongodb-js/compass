@@ -72,6 +72,7 @@ class PipelineWorkspace extends PureComponent {
       isEnabled={stage.isEnabled}
       isLoading={stage.isLoading}
       isComplete={stage.isComplete}
+      isMissingAtlasOnlyStageSupport={stage.isMissingAtlasOnlyStageSupport}
       isExpanded={stage.isExpanded}
       isCommenting={this.props.isCommenting}
       isAutoPreviewing={this.props.isAutoPreviewing}

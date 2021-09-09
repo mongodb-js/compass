@@ -51,6 +51,7 @@ class Stage extends Component {
     isExpanded: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
     isComplete: PropTypes.bool.isRequired,
+    isMissingAtlasOnlyStageSupport: PropTypes.bool.isRequired,
     fromStageOperators: PropTypes.bool.isRequired,
     previewDocuments: PropTypes.array.isRequired,
     index: PropTypes.number.isRequired,
@@ -88,6 +89,7 @@ class Stage extends Component {
       nextProps.isExpanded !== this.props.isExpanded ||
       nextProps.isLoading !== this.props.isLoading ||
       nextProps.isComplete !== this.props.isComplete ||
+      nextProps.isMissingAtlasOnlyStageSupport !== this.props.isMissingAtlasOnlyStageSupport ||
       nextProps.fromStageOperators !== this.props.fromStageOperators ||
       nextProps.index !== this.props.index ||
       nextProps.isCommenting !== this.props.isCommenting ||
@@ -191,6 +193,7 @@ class Stage extends Component {
             isEnabled={this.props.isEnabled}
             isLoading={this.props.isLoading}
             isComplete={this.props.isComplete}
+            isMissingAtlasOnlyStageSupport={this.props.isMissingAtlasOnlyStageSupport}
             error={this.props.error}
             stageOperator={this.props.stageOperator}
             stage={this.props.stage}
@@ -198,6 +201,7 @@ class Stage extends Component {
             runOutStage={this.props.runOutStage}
             gotoOutResults={this.props.gotoOutResults}
             gotoMergeResults={this.props.gotoMergeResults}
+            openLink={this.props.openLink}
           />
         )}
       </div>
