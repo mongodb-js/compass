@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import PipelinePreviewToolbar from './pipeline-preview-toolbar';
-import styles from './pipeline-preview-toolbar.less';
+import styles from './pipeline-preview-toolbar.module.less';
 
 describe('PipelinePreviewToolbar [Component]', () => {
   let component;

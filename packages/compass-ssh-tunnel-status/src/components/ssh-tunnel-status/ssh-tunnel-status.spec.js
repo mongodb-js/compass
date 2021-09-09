@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import SshTunnelStatus from '../ssh-tunnel-status';
-import styles from './ssh-tunnel-status.less';
+import styles from './ssh-tunnel-status.module.less';
 
 describe('SshTunnelStatus [Component]', () => {
   context('when ssh tunnel does not exist', () => {

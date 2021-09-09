@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import Plugin from '../plugin';
 import Actions from '../../actions';
 
-import styles from './security.less';
+import styles from './security.module.less';
 
 /**
  * The security panel component.

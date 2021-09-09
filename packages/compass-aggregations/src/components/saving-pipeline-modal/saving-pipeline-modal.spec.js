@@ -3,7 +3,7 @@
 
 // import SavingPipelineModal from '../saving-pipeline-modal';
 
-// import styles from './saving-pipeline-modal.less';
+// import styles from './saving-pipeline-modal.module.less';
 
 // describe('SavingPipelineModal [Component]', () => {
 //   context('when the component is rendered', () => {

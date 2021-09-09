@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import SidebarInstanceDetails from './sidebar-instance-details';
 
-import styles from './sidebar-instance-details.less';
+import styles from './sidebar-instance-details.module.less';
 
 describe('SidebarInstanceDetails [Component]', () => {
   context('when details are expanded and sidebar is nor collapsed', () => {

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import IndexDefinitionType from '../index-definition-type';
 
 import classnames from 'classnames';
-import styles from './name-column.less';
+import styles from './name-column.module.less';
 
 /**
  * Component for the name column.

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 
 import classnames from 'classnames';
-import styles from './size-column.less';
+import styles from './size-column.module.less';
 
 const TOOLTIP_ID = 'index-size';
 

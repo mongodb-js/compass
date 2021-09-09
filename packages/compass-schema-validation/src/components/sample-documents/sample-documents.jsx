@@ -6,7 +6,7 @@ import CrossCircle from '../cross-circle';
 import DocumentPreview from '../document-preview';
 import LoadingOverlay from '../loading-overlay';
 
-import styles from './sample-documents.less';
+import styles from './sample-documents.module.less';
 
 /**
  * The Sample Documents editor component.

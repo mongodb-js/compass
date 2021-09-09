@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
 import { listFactory } from '../list';
-import styles from './list.less';
+import styles from './list.module.less';
 
 const ListComponent = listFactory(
   () => (<span data-test-id="mock-item" />),

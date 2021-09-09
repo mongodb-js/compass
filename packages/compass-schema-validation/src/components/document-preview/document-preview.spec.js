@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import DocumentPreview from '../document-preview';
-import styles from './document-preview.less';
+import styles from './document-preview.module.less';
 
 describe('DocumentPreview [Component]', () => {
   let component;

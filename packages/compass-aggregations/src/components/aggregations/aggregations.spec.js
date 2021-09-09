@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import Aggregations from '../aggregations';
 import configureStore from '../../stores';
-import styles from './aggregations.less';
+import styles from './aggregations.module.less';
 
 describe('Aggregations [Component]', () => {
   let component;

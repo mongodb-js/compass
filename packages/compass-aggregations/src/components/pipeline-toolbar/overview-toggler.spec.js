@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import OverviewToggler from './overview-toggler';
-import styles from './overview-toggler.less';
+import styles from './overview-toggler.module.less';
 
 describe('OverviewToggler [Component]', () => {
   context('when expanded', () => {

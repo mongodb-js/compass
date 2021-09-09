@@ -3,7 +3,7 @@ import React from 'react';
 
 import MongoDBAuthentication from './mongodb-auth';
 
-import styles from '../../../connect.less';
+import styles from '../../../connect.module.less';
 
 describe('MongoDBAuthentication [Component]', () => {
   context('when the form is valid', () => {

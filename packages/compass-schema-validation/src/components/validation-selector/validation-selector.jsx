@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 import classnames from 'classnames';
 
-import styles from './validation-selector.less';
+import styles from './validation-selector.module.less';
 
 /**
  * Validation selector component.

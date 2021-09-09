@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import Collections from '.';
 import Toolbar from './collections-toolbar';
 import store from '../../stores/collections-store';
-import styles from './collections.less';
+import styles from './collections.module.less';
 
 describe('Collections [Component]', () => {
   let component;

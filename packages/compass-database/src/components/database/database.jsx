@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import { TabNavBar, UnsafeComponent } from 'hadron-react-components';
 
-import styles from './database.less';
+import styles from './database.module.less';
 
 class Database extends Component {
   static displayName = 'DatabaseComponent';

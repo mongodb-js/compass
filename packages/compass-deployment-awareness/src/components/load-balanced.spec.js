@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import LoadBalanced from './load-balanced';
 
-import styles from './load-balanced.less';
+import styles from './load-balanced.module.less';
 
 describe('<LoadBalanced />', () => {
   describe('#render', () => {

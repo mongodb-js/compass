@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import mongodbns from 'mongodb-ns';
 
 import { Card, CardBody } from '../card';
-import styles from './list.less';
+import styles from './list.module.less';
 
 const factory = (ListItem, Saving) => {
   class List extends Component {

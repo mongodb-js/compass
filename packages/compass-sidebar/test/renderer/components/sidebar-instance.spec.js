@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import SidebarInstance from '../../../src/components/sidebar-instance';
-import styles from '../../../src/components/sidebar-instance/sidebar-instance.less';
+import styles from '../../../src/components/sidebar-instance/sidebar-instance.module.less';
 
 describe('SidebarInstance [Component]', () => {
   let component;

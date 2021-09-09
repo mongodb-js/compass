@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import styles from './plugin-detail.less';
+import styles from './plugin-detail.module.less';
 
 /**
  * The plugin detail component.

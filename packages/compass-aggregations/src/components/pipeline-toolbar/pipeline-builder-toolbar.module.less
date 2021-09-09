@@ -1,0 +1,95 @@
+.pipeline-builder-toolbar {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  height: 34px;
+  padding: 0px 10px 0px 15px;
+  flex-grow: 1;
+  z-index: 100;
+
+  :global {
+    .dropdown {
+      margin-left: 3px;
+      padding-right: 6px;
+      height: 22px;
+
+      i {
+        top: 1px;
+      }
+
+      &-toggle {
+        height: 22px;
+        padding: 0 7px 0px 5px;
+        font-size: 11px;
+        border-radius: 0px 3px 3px 0px;
+      }
+
+      &-menu {
+        font-size: 12px;
+      }
+    }
+  }
+
+  &-update-view {
+    margin-right: 5px;
+  }
+
+  &-add-wrapper {
+    margin: 0px 3px 0px 3px;
+    margin-right: 3px;
+    background-color: rgba(70, 76, 79, 0.1);
+    border-radius: 3px;
+    display: flex;
+    border-radius: 3px;
+    font-size: 12px;
+    padding: 2px 6px 2px 6px;
+
+  }
+
+  &-name {
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  &-open-saved-pipelines-button {
+    margin-right: 3px;
+    white-space: nowrap;
+  }
+
+  &-new-button {
+    white-space: nowrap;
+    border-radius: 3px 0px 0px 3px;
+    border-right: 0;
+
+    &:hover {
+      border-right: 0;
+    }
+  }
+
+  &-save-pipeline-button {
+    white-space: nowrap;
+    border-radius: 3px 0px 0px 3px;
+    border-right: 0;
+
+    &:hover+button {
+      border-left: 0;
+    }
+  }
+
+  &-export-to-language {
+    display: flex;
+  }
+}
+
+.is-modified {
+  padding-top: 1px;
+  font-style: italic;
+}
+
+.export-icon {
+  height: 12px;
+  width: 12px;
+  display: block;
+  background-image: url("data:image/svg+xml,%3Csvg width='12px' height='12px' viewBox='0 0 12 12' version='1.1' xmlns='http://www.w3.org/2000/svg'%3E%3Cg id='Symbols' stroke='none' strokeWidth='1' fill='none' fillRule='evenodd'%3E%3Cg id='Icons-/-Export' transform='translate(-4.000000, -3.000000)' fill='%23494747'%3E%3Cg id='Icon' transform='translate(4.000000, 3.500000)'%3E%3Cpath d='M6.2777,0 L8.8,2.5223 C8.8,3.2415132 8.8,3.78074648 8.8,4.13999987 C8.8,4.3593827 8.8,5.03623299 8.8,5.7224982 C8.8,6.35273364 8.8,6.99090941 8.8,7.28999996 C8.8,7.80644 8.8,8.67644001 8.8,9.9 C8.8,10.5072 8.3072,11 7.7,11 L1.1,11 C0.49335,11 0,10.5072 0,9.9 L0,1.1 C0,0.4939 0.49335,0 1.1,0 L6.2777,0 Z M7.70005545,4 C7.70003697,3.77478974 7.70001848,3.54145641 7.7,3.3 L5.5,3.3 L5.5,1.1 L1.1,1.1 L1.1,9.9 L7.70055,9.9 L7.70035031,7.5 L8.79999983,7.5 L8.79999983,4 L7.70005491,4 Z M7.70005545,4 C7.70005931,4.04702072 7.70006317,4.09368734 7.70006703,4.13999987 C7.70009571,4.48417772 7.70014216,5.03201886 7.70019082,5.60623096 C7.70024165,6.20608089 7.7002949,6.83470922 7.70033284,7.28999996 L7.70035031,7.5 L7.69999981,4 Z' id='File' /%3E%3Cg id='Arrow' transform='translate(4.000000, 3.000000)'%3E%3Crect id='Rectangle' x='0.5' y='2.25' width='6' height='1' /%3E%3Cpolygon id='Triangle' transform='translate(7.000000, 2.750000) rotate(-270.000000) translate(-7.000000, -2.750000)' points='7 1.875 9 3.625 5 3.625' /%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}

@@ -5,7 +5,7 @@ import Select from 'react-select-plus';
 import SelectOptionWithTooltip from './select-option-with-tooltip/select-option-with-tooltip';
 import { filterStageOperators } from '../../utils/stage';
 
-import styles from './stage-operator-select.less';
+import styles from './stage-operator-select.module.less';
 
 /**
  * Select from a list of stage operators.

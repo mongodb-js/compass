@@ -3,7 +3,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import FindInPageInput from '../find-in-page-input';
-import styles from './find-in-page-input.less';
+import styles from './find-in-page-input.module.less';
 
 describe('FindInPageInput [Component]', () => {
   context('when the component is first rendered', () => {

@@ -6,7 +6,7 @@ import { SummaryIndexStat } from '../summary-index-stat';
 
 import INDEX_TYPES from '../../constants/index-types';
 
-import styles from './explain-summary.less';
+import styles from './explain-summary.module.less';
 
 /**
  * The base url.

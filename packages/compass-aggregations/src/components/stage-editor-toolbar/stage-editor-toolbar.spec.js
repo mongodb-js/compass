@@ -8,7 +8,7 @@ import StageOperatorSelect from './stage-operator-select';
 import ToggleStage from './toggle-stage';
 import AddAfterStage from './add-after-stage';
 import DeleteStage from './delete-stage';
-import styles from './stage-editor-toolbar.less';
+import styles from './stage-editor-toolbar.module.less';
 
 describe('StageEditorToolbar [Component]', () => {
   let component;

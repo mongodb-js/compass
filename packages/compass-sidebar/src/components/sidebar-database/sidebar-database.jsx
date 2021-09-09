@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import classnames from 'classnames';
-import styles from './sidebar-database.less';
+import styles from './sidebar-database.module.less';
 
 import { TOOLTIP_IDS } from '../../constants/sidebar-constants';
 import SidebarCollection from '../sidebar-collection';

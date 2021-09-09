@@ -5,7 +5,7 @@ import { Modal } from 'react-bootstrap';
 import { ModalStatusMessage } from 'hadron-react-components';
 
 import classnames from 'classnames';
-import styles from './drop-index-modal.less';
+import styles from './drop-index-modal.module.less';
 
 import { toggleIsVisible } from '../../modules/is-visible';
 import { toggleInProgress } from '../../modules/in-progress';

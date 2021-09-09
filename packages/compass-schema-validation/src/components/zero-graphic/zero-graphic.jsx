@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 
-import styles from './zero-graphic.less';
+import styles from './zero-graphic.module.less';
 
 /**
  * The zero graphic.

@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import CollationToolbar from './collation-toolbar';
-import styles from './collation-toolbar.less';
+import styles from './collation-toolbar.module.less';
 
 describe('CollationToolbar [Component]', () => {
   let component;

@@ -12,7 +12,7 @@ const debug = require('debug')('mongodb-compass:stores:HomeComponent');
 import { toggleIsCollapsed } from '../../modules/is-collapsed';
 
 import classnames from 'classnames';
-import styles from './home.less';
+import styles from './home.module.less';
 
 const ERROR_WARNING = 'An error occurred while loading navigation';
 

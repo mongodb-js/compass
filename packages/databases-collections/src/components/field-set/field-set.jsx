@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import styles from './field-set.less';
+import styles from './field-set.module.less';
 
 function FieldSet({
   children

@@ -7,7 +7,7 @@ import ReadOnlyBadge from './read-only-badge';
 import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';
 
-import styles from './collection-header.less';
+import styles from './collection-header.module.less';
 
 class CollectionHeader extends Component {
   static displayName = 'CollectionHeaderComponent';

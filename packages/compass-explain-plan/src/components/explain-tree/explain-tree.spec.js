@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import ExplainTree from '../explain-tree';
 
-import styles from './explain-tree.less';
+import styles from './explain-tree.module.less';
 
 describe('ExplainTree [Component]', () => {
   let component;

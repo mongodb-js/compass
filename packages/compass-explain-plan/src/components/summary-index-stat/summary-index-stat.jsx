@@ -6,7 +6,7 @@ import { IndexDefinitionType } from '../index-definition-type';
 
 import INDEX_TYPES from '../../constants/index-types';
 
-import styles from './summary-index-stat.less';
+import styles from './summary-index-stat.module.less';
 
 /**
  * The SummaryIndexStat component.

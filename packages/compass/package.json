@@ -341,7 +341,7 @@
     "jquery": "^3.5.0",
     "kerberos": "^1.1.6",
     "keytar": "^5.1.0",
-    "less": "^2.6.1",
+    "less": "^3.11.1",
     "local-links": "^1.4.0",
     "make-fetch-happen": "^8.0.14",
     "marky": "^1.2.1",

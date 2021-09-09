@@ -4,7 +4,7 @@ import { SortableTable } from 'hadron-react-components';
 
 import { INITIAL_STATE as COLUMNS } from '../../../modules/collections/columns';
 import CollectionsTable from '../collections-table';
-import styles from './collections-table.less';
+import styles from './collections-table.module.less';
 
 describe('CollectionsTable [Component]', () => {
   let collections;

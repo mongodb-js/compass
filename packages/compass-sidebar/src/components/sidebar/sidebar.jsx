@@ -7,7 +7,7 @@ import { AutoSizer, List } from 'react-virtualized';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import classnames from 'classnames';
-import styles from './sidebar.less';
+import styles from './sidebar.module.less';
 
 import SidebarTitle from '../sidebar-title';
 import SidebarInstance from '../sidebar-instance';

@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import IndexComponent from '../index-component';
-import styles from './index-component.less';
+import styles from './index-component.module.less';
 
 import NameColumn from '../name-column';
 import TypeColumn from '../type-column';

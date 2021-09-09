@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import Icon from '@leafygreen-ui/icon';
 
-import styles from './sidebar-collection.less';
+import styles from './sidebar-collection.module.less';
 import SidebarCollection from '../sidebar-collection';
 
 describe('SidebarCollection [Component]', () => {

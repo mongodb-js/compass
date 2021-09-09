@@ -11,7 +11,7 @@ import { toggleIsVisible } from '../../modules/is-visible';
 import { openLink } from '../../modules/link';
 
 import CollectionFields from '../collection-fields';
-import styles from './create-collection-modal.less';
+import styles from './create-collection-modal.module.less';
 
 class CreateCollectionModal extends PureComponent {
   static propTypes = {

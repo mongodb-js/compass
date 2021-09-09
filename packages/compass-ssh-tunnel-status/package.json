@@ -23,7 +23,7 @@
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
     "test-ci": "npm run test",
-    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
+    "bootstrap": "npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {
@@ -44,7 +44,6 @@
     "@babel/register": "^7.13.16",
     "autoprefixer": "^7.1.2",
     "babel-loader": "^8.2.2",
-    "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "chai": "^4.1.2",
     "chai-enzyme": "1.0.0-beta.0",
     "cheerio": "^1.0.0-rc.2",
@@ -80,8 +79,8 @@
     "karma-sinon": "^1.0.5",
     "karma-sourcemap-loader": "^0.3.8",
     "karma-webpack": "^4.0.2",
-    "less": "^2.7.2",
-    "less-loader": "^4.0.5",
+    "less": "^3.11.1",
+    "less-loader": "^7.3.0",
     "mocha": "^4.1.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-connection-model": "^21.7.0",

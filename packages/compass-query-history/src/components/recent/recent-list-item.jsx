@@ -6,7 +6,7 @@ import FontAwesome from 'react-fontawesome';
 import { Card, CardHeader, CardBody } from '../card';
 import Query from '../query';
 
-import styles from './recent-list-item.less';
+import styles from './recent-list-item.module.less';
 
 class RecentListItem extends PureComponent {
   static displayName = 'QueryHistoryRecentListItem';

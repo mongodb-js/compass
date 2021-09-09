@@ -31,7 +31,7 @@
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "hadron-app-registry": "^8.4.0",
-    "less": "*",
+    "less": "^3.11.1",
     "mocha": "^7.0.1",
     "mongodb-data-service": "^21.10.0",
     "prop-types": "^15.7.2",
@@ -41,7 +41,7 @@
   "peerDependencies": {
     "babel-register": "^6.26.0",
     "hadron-app-registry": "*",
-    "less": "*",
+    "less": "^3.11.1",
     "mongodb-data-service": "*",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",

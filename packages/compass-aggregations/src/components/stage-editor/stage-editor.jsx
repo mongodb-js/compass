@@ -5,7 +5,7 @@ import ace from 'brace';
 import debounce from 'lodash.debounce';
 import { StageAutoCompleter } from 'mongodb-ace-autocompleter';
 
-import styles from './stage-editor.less';
+import styles from './stage-editor.module.less';
 
 import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';

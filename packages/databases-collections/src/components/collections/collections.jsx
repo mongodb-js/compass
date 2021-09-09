@@ -9,7 +9,7 @@ import { openLink } from '../../modules/link';
 import { open as openCreate } from '../../modules/create-collection';
 import { open as openDrop } from '../../modules/drop-collection';
 
-import styles from './collections.less';
+import styles from './collections.module.less';
 
 class Collections extends PureComponent {
   static displayName = 'CollectionsComponent';

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Tooltip } from 'hadron-react-components';
-import styles from './add-after-stage.less';
+import styles from './add-after-stage.module.less';
 
 /**
  * The add after stage button.

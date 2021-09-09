@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import LoadingOverlay from '../loading-overlay';
-import styles from './loading-overlay.less';
+import styles from './loading-overlay.module.less';
 
 describe('LoadingOverlay [Component]', () => {
   context('when the component is rendered', () => {

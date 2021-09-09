@@ -8,7 +8,7 @@ import PropertyColumn from '../property-column';
 import DropColumn from '../drop-column';
 
 import classnames from 'classnames';
-import styles from './index-component.less';
+import styles from './index-component.module.less';
 
 /**
  * Component for the index.

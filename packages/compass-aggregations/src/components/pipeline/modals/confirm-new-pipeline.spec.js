@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import ConfirmNewPipeline from './confirm-new-pipeline';
-import styles from './confirm-new-pipeline.less';
+import styles from './confirm-new-pipeline.module.less';
 
 describe('ConfirmNewPipeline [Component]', () => {
   let component;

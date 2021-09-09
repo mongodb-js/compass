@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Tooltip } from 'hadron-react-components';
 import { Option } from 'react-select-plus';
 
-import styles from './select-option-with-tooltip.less';
+import styles from './select-option-with-tooltip.module.less';
 
 class SelectOptionWithTooltip extends Component {
   static propTypes = {

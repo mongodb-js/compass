@@ -1,0 +1,31 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
+.topology {
+  &-unknown {
+    display: flex;
+    flex-direction: column;
+    font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    padding: 0px 24px 0px 24px;
+  }
+
+  &-unknown {
+    &-host, &-cluster {
+      display: flex;
+      flex-direction: column;
+      padding: 6px 0px 6px 0px;
+
+      &-title {
+        text-transform: uppercase;
+        color: @gray5;
+        font-weight: bold;
+        font-size: 11px;
+      }
+
+      &-address, &-name, &-nodes, &-type {
+        color: @pw;
+        text-overflow: ellipsis;
+        font-size: 14px;
+      }
+    }
+  }
+}

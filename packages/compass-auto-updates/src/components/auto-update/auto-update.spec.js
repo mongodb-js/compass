@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import AutoUpdate from '../auto-update';
-import styles from './auto-update.less';
+import styles from './auto-update.module.less';
 
 describe('AutoUpdate [Component]', () => {
   context('when the state is visible', () => {

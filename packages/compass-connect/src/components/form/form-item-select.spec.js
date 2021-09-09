@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import FormItemSelect from './form-item-select';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 describe('FormItemSelect [Component]', () => {
   const spy = sinon.spy();

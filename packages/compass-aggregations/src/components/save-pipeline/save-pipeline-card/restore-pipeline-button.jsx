@@ -3,7 +3,7 @@ import { TextButton } from 'hadron-react-buttons';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import styles from './restore-pipeline-button.less';
+import styles from './restore-pipeline-button.module.less';
 
 /**
  * restore pipeline open button

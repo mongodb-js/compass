@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import FormGroup from './form-group';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 describe('FormGroup [Component]', () => {
   let component;

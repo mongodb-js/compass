@@ -20,5 +20,6 @@ ignores: [
   "mongodb-stitch-browser-sdk",
   "nise",
   "resolve",
-  "webpack-cli"
+  "webpack-cli",
+  "mongodb-compass"
 ]

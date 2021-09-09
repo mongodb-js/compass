@@ -5,7 +5,7 @@ import IconButton from '@leafygreen-ui/icon-button';
 import Icon from '@leafygreen-ui/icon';
 
 import FieldSet from '../field-set/field-set';
-import styles from './collapsible-field-set.less';
+import styles from './collapsible-field-set.module.less';
 
 function CollapsibleFieldSet({
   children,

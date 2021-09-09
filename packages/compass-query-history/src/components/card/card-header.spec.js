@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import { CardHeader } from '../card';
-import styles from './card.less';
+import styles from './card.module.less';
 
 describe('CardHeader [Component]', () => {
   describe('#rendering', () => {

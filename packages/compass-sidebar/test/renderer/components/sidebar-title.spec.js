@@ -2,7 +2,7 @@ import React from 'react';
 import { mount, shallow } from 'enzyme';
 
 import { SidebarTitle as SidebarTitleClass } from '../../../src/components/sidebar-title/sidebar-title';
-import styles from '../../../src/components/sidebar-title/sidebar-title.less';
+import styles from '../../../src/components/sidebar-title/sidebar-title.module.less';
 
 describe('SidebarTitle [Component]', () => {
   const connectionModel = {

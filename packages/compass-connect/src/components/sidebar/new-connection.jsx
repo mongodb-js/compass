@@ -4,7 +4,7 @@ import classnames from 'classnames';
 
 import Actions from '../../actions';
 
-import styles from './sidebar.less';
+import styles from './sidebar.module.less';
 
 class NewConnection extends React.Component {
   static displayName = 'NewConnection';

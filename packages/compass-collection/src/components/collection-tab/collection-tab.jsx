@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import styles from './collection-tab.less';
+import styles from './collection-tab.module.less';
 
 /**
  * Display a single stage in the aggregation pipeline.

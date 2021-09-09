@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import Favorites from './favorites';
 
-import styles from './sidebar.less';
+import styles from './sidebar.module.less';
 
 describe('Favorites [Component]', () => {
   context('when the connection has no color', () => {

@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import CollationCollapser from './collation-collapser';
-import styles from './collation-collapser.less';
+import styles from './collation-collapser.module.less';
 
 describe('CollationCollaper [Component]', () => {
   context('when the collation is expanded', () => {

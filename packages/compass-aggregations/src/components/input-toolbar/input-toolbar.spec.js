@@ -5,7 +5,7 @@ import InputToolbar from '../input-toolbar';
 import InputBuilderToolbar from '../input-builder-toolbar';
 import InputPreviewToolbar from '../input-preview-toolbar';
 
-import styles from './input-toolbar.less';
+import styles from './input-toolbar.module.less';
 
 describe('InputToolbar [Component]', () => {
   let component;

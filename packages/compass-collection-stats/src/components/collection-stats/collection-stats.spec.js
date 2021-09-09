@@ -5,7 +5,7 @@ import AppRegistry from 'hadron-app-registry';
 import CollectionStats from '../collection-stats';
 import DocumentStatsItem from '../document-stats-item';
 import IndexStatsItem from '../index-stats-item';
-import styles from './collection-stats.less';
+import styles from './collection-stats.module.less';
 
 describe('CollectionStats [Component]', () => {
   describe('when rendered', () => {

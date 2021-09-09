@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import styles from './ssh-tunnel-status.less';
+import styles from './ssh-tunnel-status.module.less';
 
 class SshTunnelStatus extends Component {
   static displayName = 'SshTunnelStatusComponent';

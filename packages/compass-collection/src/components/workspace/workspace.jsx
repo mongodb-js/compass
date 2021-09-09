@@ -19,7 +19,7 @@ import CollectionTab from '../collection-tab';
 import CreateTab from '../create-tab';
 import Collection from '../collection';
 
-import styles from './workspace.less';
+import styles from './workspace.module.less';
 
 /**
  * W key is key code 87.

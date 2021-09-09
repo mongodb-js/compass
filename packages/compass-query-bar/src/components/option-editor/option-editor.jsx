@@ -4,7 +4,7 @@ import AceEditor from 'react-ace';
 import ace from 'brace';
 import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
 
-import styles from './option-editor.less';
+import styles from './option-editor.module.less';
 
 import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';

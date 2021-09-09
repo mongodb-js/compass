@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import Recents from './recents';
 
-import styles from './sidebar.less';
+import styles from './sidebar.module.less';
 
 describe('Recents [Component]', () => {
   describe('when rendered', () => {

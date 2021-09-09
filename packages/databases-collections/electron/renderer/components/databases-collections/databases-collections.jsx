@@ -5,7 +5,7 @@ import Icon from '@leafygreen-ui/icon';
 import CollectionsPlugin from '../../../../src/collections-plugin';
 import DatabasePlugin from '../../../../src/databases-plugin';
 
-import styles from './databases-collections.less';
+import styles from './databases-collections.module.less';
 
 const VIEWS = {
   OPTIONS: 'OPTIONS',

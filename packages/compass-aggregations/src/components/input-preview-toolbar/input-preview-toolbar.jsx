@@ -1,7 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import styles from './input-preview-toolbar.less';
+import styles from './input-preview-toolbar.module.less';
 
 /**
  * The static text.

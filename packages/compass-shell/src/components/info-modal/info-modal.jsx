@@ -9,7 +9,7 @@ import { SET_SHOW_INFO_MODAL } from '../../modules/info-modal';
 
 const mongoshVersion = `v${packageJson.dependencies['@mongosh/browser-repl'].replace('^', '')}`;
 
-import styles from './info-modal.less';
+import styles from './info-modal.module.less';
 
 const hotkeys = [
   {

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import classnames from 'classnames';
-import styles from './create-index-field.less';
+import styles from './create-index-field.module.less';
 
 import Select from 'react-select-plus';
 

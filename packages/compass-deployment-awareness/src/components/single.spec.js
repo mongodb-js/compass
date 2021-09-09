@@ -12,7 +12,7 @@ import {
   POSSIBLE_PRIMARY
 } from '../models/server-type';
 
-import styles from './single.less';
+import styles from './single.module.less';
 
 describe('<Single />', () => {
   describe('#render', () => {

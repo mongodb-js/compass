@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import styles from './splitter.less';
+import styles from './splitter.module.less';
 
 /**
  * Displays the splitter/separator for resizing.

@@ -8,7 +8,7 @@ import { shell } from 'electron';
 import getIndexHelpLink from '../../utils/index-link-helper';
 
 import classnames from 'classnames';
-import styles from './property-column.less';
+import styles from './property-column.module.less';
 
 const TOOLTIP_ID = 'index-property';
 

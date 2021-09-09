@@ -3,7 +3,7 @@ import { shallow, mount } from 'enzyme';
 
 import { ViewSwitcher } from 'hadron-react-components';
 import Header from '../header';
-import styles from './header.less';
+import styles from './header.module.less';
 
 describe('Header [Component]', () => {
   let actions;

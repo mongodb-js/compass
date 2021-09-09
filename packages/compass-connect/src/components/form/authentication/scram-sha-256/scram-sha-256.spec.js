@@ -2,7 +2,7 @@ import { mount } from 'enzyme';
 import React from 'react';
 
 import ScramSha256 from './scram-sha-256';
-import styles from '../../../connect.less';
+import styles from '../../../connect.module.less';
 
 describe('ScramSha256 [Component]', () => {
   describe('#render', () => {

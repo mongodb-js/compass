@@ -17,7 +17,7 @@ import IndexHeader from '../index-header';
 import IndexList from '../index-list';
 
 import classnames from 'classnames';
-import styles from './indexes.less';
+import styles from './indexes.module.less';
 
 class Indexes extends PureComponent {
   static displayName = 'IndexesComponent';

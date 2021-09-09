@@ -14,7 +14,7 @@ import ReplicaSet from './replica-set';
 import LoadBalanced from './load-balanced';
 import Unknown from './unknown';
 
-import styles from './deployment-awareness.less';
+import styles from './deployment-awareness.module.less';
 
 /**
  * The deployment awareness component.

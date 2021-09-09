@@ -5,7 +5,7 @@ import hadronApp from 'hadron-app';
 
 import Authentication from './authentication';
 
-import styles from '../../connect.less';
+import styles from '../../connect.module.less';
 
 describe('Authentication [Component]', () => {
   const connectionModel = { authStrategy: 'MONGODB' };

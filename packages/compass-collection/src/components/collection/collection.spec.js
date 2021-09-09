@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 
 import Collection from '../collection';
-import styles from './collection.less';
+import styles from './collection.module.less';
 
 describe('Collection [Component]', () => {
   let component;

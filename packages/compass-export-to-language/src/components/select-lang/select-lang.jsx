@@ -3,7 +3,7 @@ import Select from 'react-select-plus';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
-import styles from './select-lang.less';
+import styles from './select-lang.module.less';
 
 class SelectLang extends PureComponent {
   static displayName = 'SelectLangComponent';

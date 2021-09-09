@@ -7,7 +7,7 @@ import LoadingOverlay from '../loading-overlay';
 import { OUT, MERGE } from '../../modules/pipeline';
 import decomment from 'decomment';
 
-import styles from './stage-preview.less';
+import styles from './stage-preview.module.less';
 
 /**
  * The stage preview component.

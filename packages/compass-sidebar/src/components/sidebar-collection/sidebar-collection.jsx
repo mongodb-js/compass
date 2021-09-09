@@ -7,7 +7,7 @@ import toNS from 'mongodb-ns';
 import { collectionMetadata, getSource } from '../../modules/collection';
 import CollectionTypeIcon from '../collection-type-icon';
 
-import styles from './sidebar-collection.less';
+import styles from './sidebar-collection.module.less';
 
 class SidebarCollection extends PureComponent {
   static displayName = 'SidebarCollection';

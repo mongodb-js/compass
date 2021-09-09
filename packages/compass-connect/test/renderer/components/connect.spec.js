@@ -6,7 +6,7 @@ import React from 'react';
 
 import Connect from '../../../src/components/connect';
 
-import styles from '../../../src/components/connect.less';
+import styles from '../../../src/components/connect.module.less';
 
 describe('Connect [Component]', () => {
   const connection = new Connection();

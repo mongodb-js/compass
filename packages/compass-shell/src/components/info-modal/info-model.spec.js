@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import { InfoModal } from './info-modal';
-import styles from './info-modal.less';
+import styles from './info-modal.module.less';
 
 describe('InfoModal [Component]', () => {
   let component;

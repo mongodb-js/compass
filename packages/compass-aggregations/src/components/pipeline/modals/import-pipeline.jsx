@@ -7,7 +7,7 @@ import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';
 
-import styles from './import-pipeline.less';
+import styles from './import-pipeline.module.less';
 
 /**
  * Title.

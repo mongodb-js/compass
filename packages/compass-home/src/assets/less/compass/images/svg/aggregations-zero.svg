@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <g fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" transform="translate(1 1)">
-    <path stroke="#116149" d="M14 6.002L14 13.002C14 14.656 15.344 16.002 17 16.002L23 16.002C24.656 16.002 26 17.346 26 19.002L26 22.002M36 28.002L36 39.002C36 40.656 34.658 42.002 33 42.002L26 42.002"/>
-    <polygon stroke="#16CC62" points="0 6.002 26 6.002 26 .002 0 .002"/>
-    <polygon stroke="#16CC62" points="20 28.002 46 28.002 46 22.002 20 22.002"/>
-    <polygon stroke="#16CC62" points="0 46.002 26 46.002 26 40.002 0 40.002"/>
-  </g>
-</svg>

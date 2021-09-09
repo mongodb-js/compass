@@ -32,7 +32,7 @@ import {
   toggleIncludeField,
   setFieldType
 } from '../../modules/import';
-import styles from './import-modal.less';
+import styles from './import-modal.module.less';
 import createStyler from '../../utils/styler.js';
 import classnames from 'classnames';
 

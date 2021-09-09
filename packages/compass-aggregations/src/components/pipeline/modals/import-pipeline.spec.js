@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import ImportPipeline from './import-pipeline';
-import styles from './import-pipeline.less';
+import styles from './import-pipeline.module.less';
 
 describe('ImportPipeline [Component]', () => {
   let component;

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import styles from './card.less';
+import styles from './card.module.less';
 
 const CardHeader = ({children, title, className, actionsVisible, ...other}) => {
   const _className = classnames(
