@@ -143,6 +143,7 @@ var createWindow = (module.exports.create = function(opts) {
     height: opts.height,
     icon: opts.icon,
     show: false,
+    backgroundColor: '#F5F6F7',
     minWidth: opts.minwidth,
     minHeight: opts.minheight,
     webPreferences: {
