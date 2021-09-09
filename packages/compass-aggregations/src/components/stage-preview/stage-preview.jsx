@@ -153,7 +153,7 @@ class StagePreview extends Component {
       <div className={styles['stage-preview-missing-search-support']}>
         <AtlasLogoMark size={30} className={styles['stage-preview-missing-search-support-icon']} />
         <div className={styles['stage-preview-missing-search-support-text']}>
-          This stage is only available with MongoDB Atlas. 
+          This stage is only available with MongoDB Atlas.
 
           Create a free cluster or connect to an Atlas cluster to build search indexes and use the $search aggregation stage to run fast, relevant search queries.
         </div>
