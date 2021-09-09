@@ -47,7 +47,7 @@ class SidebarCollection extends PureComponent {
   onDuplicateView = () => {
     this.props.globalAppRegistryEmit(
       'open-create-view', {
-        source: this.props.view_on,
+        source: `${this.props.database}.${this.props.view_on}`,
         pipeline: this.props.pipeline,
         duplicate: true
       }
