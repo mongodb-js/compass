@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 import Sharded from './sharded';
 import ServerType from '../models/server-type';
 
-import styles from './sharded.less';
+import styles from './sharded.module.less';
 
 describe('<Sharded />', () => {
   describe('#render', () => {

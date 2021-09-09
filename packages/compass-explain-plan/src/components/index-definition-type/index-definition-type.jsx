@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { map } from 'lodash';
 
-import styles from './index-definition-type.less';
+import styles from './index-definition-type.module.less';
 
 
 /**

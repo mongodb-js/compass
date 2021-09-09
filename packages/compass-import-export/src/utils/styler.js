@@ -10,7 +10,7 @@
  *
  * @example
  * ```jsx
- * import styles from './progress-bar.less;
+ * import styles from './progress-bar.module.less;
  * import createStyler from './styler.js';
  * const style = createStyler('progress-bar');
  *

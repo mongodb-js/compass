@@ -5,7 +5,7 @@ import React, { PureComponent } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
-import styles from './export-modal.less';
+import styles from './export-modal.module.less';
 
 class ExportModal extends PureComponent {
   static displayName = 'ExportModalComponent';

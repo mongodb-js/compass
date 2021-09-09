@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 import FontAwesome from 'react-fontawesome';
 import ToggleQueryHistoryButton from '../toggle-query-history-button';
 
-import styles from './toggle-query-history-button.less';
+import styles from './toggle-query-history-button.module.less';
 
 describe('ToggleQueryHistoryButton [Component]', () => {
   describe('#rendering', () => {

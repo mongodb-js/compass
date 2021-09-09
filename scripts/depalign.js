@@ -331,7 +331,9 @@ async function applyFixes(
     return updates.size;
   }
 
-  spinner.text = `${spinnerText} for ${updates.size} dependencies (collecting info)`;
+  const totalToUpdate = fixAll ? updates.size : fixOnly.size
+
+  spinner.text = `${spinnerText} for ${totalToUpdate} dependencies (collecting info)`;
 
   const updatesByPackage = new Map();
 
@@ -357,7 +359,7 @@ async function applyFixes(
     }
   }
 
-  spinner.text = `${spinnerText} for ${updates.size} dependencies (updating package.json)`;
+  spinner.text = `${spinnerText} for ${totalToUpdate} dependencies (updating package.json)`;
 
   for (const [location, updates] of updatesByPackage) {
     await updatePackageJson(location, (pkgJson) => {
@@ -377,11 +379,11 @@ async function applyFixes(
     });
   }
 
-  spinner.text = `${spinnerText} for ${updates.size} dependencies (updating package-lock.json)`;
+  spinner.text = `${spinnerText} for ${totalToUpdate} dependencies (updating package-lock.json)`;
 
   await runInDir('npm install --package-lock-only');
 
-  spinner.text = `${spinnerText} for ${updates.size} dependencies`;
+  spinner.text = `${spinnerText} for ${totalToUpdate} dependencies`;
 
   return updates.size;
 }

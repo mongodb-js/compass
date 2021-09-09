@@ -4,7 +4,7 @@ import { Document } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
 import LoadingOverlay from '../loading-overlay';
 
-import styles from './input-preview.less';
+import styles from './input-preview.module.less';
 
 /**
  * The input preview component.

@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import CreateTab from '../create-tab';
-import styles from './create-tab.less';
+import styles from './create-tab.module.less';
 
 describe('CreateTab [Component]', () => {
   let component;

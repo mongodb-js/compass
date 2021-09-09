@@ -9,7 +9,7 @@ import { RecentList } from '../recent';
 import { FavoriteList } from '../favorite';
 
 // Stores
-import styles from './query-history.less';
+import styles from './query-history.module.less';
 
 class QueryHistory extends PureComponent {
   static displayName = 'QueryHistory';

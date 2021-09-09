@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ConfirmationModal } from '@mongodb-js/compass-components';
 
-import styles from './confirm-import-pipeline.less';
+import styles from './confirm-import-pipeline.module.less';
 
 /**
  * Question text.

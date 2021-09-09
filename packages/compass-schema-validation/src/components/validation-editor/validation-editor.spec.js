@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import ValidationEditor from '../validation-editor';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
-import styles from './validation-editor.less';
+import styles from './validation-editor.module.less';
 
 describe('ValidationEditor [Component]', () => {
   context('when it is an editable mode', () => {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { ENTERPRISE, COMMUNITY } from '../../constants/server-version';
 
-import styles from './server-version.less';
+import styles from './server-version.module.less';
 
 class ServerVersion extends Component {
   static displayName = 'ServerVersionComponent';

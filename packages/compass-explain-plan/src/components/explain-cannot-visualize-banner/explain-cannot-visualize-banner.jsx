@@ -1,7 +1,7 @@
 import React from 'react';
 import Banner, { Variant } from '@leafygreen-ui/banner';
 
-import styles from './explain-cannot-visualize-banner.less';
+import styles from './explain-cannot-visualize-banner.module.less';
 
 export function ExplainCannotVisualizeBanner() {
   return (

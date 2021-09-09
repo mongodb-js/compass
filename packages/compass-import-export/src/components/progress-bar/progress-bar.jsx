@@ -11,7 +11,7 @@ import {
   UNSPECIFIED
 } from '../../constants/process-status';
 
-import styles from './progress-bar.less';
+import styles from './progress-bar.module.less';
 import createStyler from '../../utils/styler.js';
 import formatNumber from '../../utils/format-number.js';
 

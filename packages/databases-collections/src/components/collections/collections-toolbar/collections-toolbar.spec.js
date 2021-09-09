@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Toolbar from '../collections-toolbar';
-import styles from './collections-toolbar.less';
+import styles from './collections-toolbar.module.less';
 
 describe('Collections Toolbar [Component]', () => {
   context('when the distribution is readonly', () => {

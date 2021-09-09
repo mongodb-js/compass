@@ -23,94 +23,71 @@ module.exports = {
     }
   },
   module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
-      },
-      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
-      {
-        test: /\.less$/,
-        include: [/global/, /bootstrap/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: false
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [project.plugin.autoprefixer];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      // For CSS-Modules locally scoped styles
-      {
-        test: /\.less$/,
-        exclude: [/\.global/, /bootstrap/, /node_modules/, /global\.less/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              importLoaders: 1,
+    rules: [{
+      test: /\.css$/,
+      use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
+    }, {
+      test: /.less$/,
 
-              modules: {
-                localIdentName:
-                  'QueryBar_[name]-[local]__[hash:base64:5]'
-              }
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [project.plugin.autoprefixer];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
+      use: [
+        { loader: 'style-loader' },
+        {
+          loader: 'css-loader',
+          options: {
+            importLoaders: 1,
+
+            modules: {
+              // Based on file name
+              auto: true,
+              localIdentName: 'QueryBar_[name]-[local]__[hash:base64:5]'
             }
           }
-        ]
-      },
-      // For native modules to be able to be loaded.
-      {
-        test: /\.node$/,
-        use: 'node-loader'
-      },
-      {
-        test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
-        use: [{ loader: 'shebang-loader' }]
-      },
-      {
-        test: /\.(js|jsx)$/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: {
-              root: path.resolve(__dirname, '..'),
-              cacheDirectory: !process.env.CI
+        },
+        {
+          loader: 'postcss-loader',
+          options: {
+            plugins: function() {
+              return [project.plugin.autoprefixer];
             }
           }
-        ],
-        exclude: /(node_modules)/
-      }
-    ]
+        },
+        {
+          loader: 'less-loader',
+          options: {
+            lessOptions: {
+              modifyVars: {
+                // Only affects dev build (standalone plugin playground), required
+                // so that font-awesome can correctly resolve image paths relative
+                // to the compass
+                'compass-fonts-path': '../fonts',
+                'compass-images-path': '../images',
+                'fa-font-path': path.dirname(
+                  require.resolve('mongodb-compass/src/app/fonts/FontAwesome.otf')
+                )
+              }
+            }
+          }
+        }
+      ]
+    }, // For native modules to be able to be loaded.
+    {
+      test: /\.node$/,
+      use: 'node-loader'
+    }, {
+      test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
+      use: [{ loader: 'shebang-loader' }]
+    }, {
+      test: /\.(js|jsx)$/,
+      use: [
+        {
+          loader: 'babel-loader',
+          options: {
+            root: path.resolve(__dirname, '..'),
+            cacheDirectory: !process.env.CI
+          }
+        }
+      ],
+      exclude: /(node_modules)/
+    }]
   }
 };

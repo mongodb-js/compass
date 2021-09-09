@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import { Indexes } from '../indexes';
-import styles from './indexes.less';
+import styles from './indexes.module.less';
 
 import CreateIndexButton from '../create-index-button';
 import { StatusRow } from 'hadron-react-components';

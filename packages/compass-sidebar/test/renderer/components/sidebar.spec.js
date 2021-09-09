@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 
 import SidebarStore from '../../../src/stores';
 import Sidebar from '../../../src/components/sidebar';
-import styles from '../../../src/components/sidebar/sidebar.less';
+import styles from '../../../src/components/sidebar/sidebar.module.less';
 
 describe('Sidebar [Component]', () => {
   let component;

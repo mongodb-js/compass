@@ -5,7 +5,7 @@ import sortBy from 'lodash.sortby';
 import COLLATION_OPTIONS from '../../../../src/constants/collation';
 
 import classnames from 'classnames';
-import styles from './collation.less';
+import styles from './collation.module.less';
 
 /**
  * The collation component.

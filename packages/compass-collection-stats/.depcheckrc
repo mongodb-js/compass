@@ -9,5 +9,6 @@ ignores: [
   "mongodb-client-encryption",
   "resolve",
   "webpack-bundle-analyzer",
-  "webpack-cli"
+  "webpack-cli",
+  "mongodb-compass"
 ]

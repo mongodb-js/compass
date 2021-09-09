@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import DocumentStatsItem from '../document-stats-item';
 import IndexStatsItem from '../index-stats-item';
 
-import styles from './collection-stats.less';
+import styles from './collection-stats.module.less';
 
 class CollectionStats extends Component {
   static displayName = 'CollectionStatsComponent';

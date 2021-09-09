@@ -3,7 +3,7 @@ import React from 'react';
 
 import ConnectionString from './connection-string';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 describe('ConnectionString [Component]', () => {
   const connection = {

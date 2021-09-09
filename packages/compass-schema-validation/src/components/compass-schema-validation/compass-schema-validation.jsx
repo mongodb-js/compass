@@ -15,7 +15,7 @@ import { openLink } from '../../modules/link';
 import { fetchSampleDocuments } from '../../modules/sample-documents';
 import { changeZeroState, zeroStateChanged } from '../../modules/zero-state';
 
-import styles from './compass-schema-validation.less';
+import styles from './compass-schema-validation.module.less';
 
 /**
  * The core schema validation component.

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { LOADING_STATE } from '../../constants/sidebar-constants';
 
 import classnames from 'classnames';
-import styles from './sidebar-instance-stats.less';
+import styles from './sidebar-instance-stats.module.less';
 
 class SidebarInstanceStats extends PureComponent {
   static displayName = 'SidebarInstanceStats';

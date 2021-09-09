@@ -5,7 +5,7 @@ import NewConnection from './new-connection';
 import Favorites from './favorites';
 import Recents from './recents';
 
-import styles from './sidebar.less';
+import styles from './sidebar.module.less';
 
 class Sidebar extends React.Component {
   static displayName = 'Sidebar';

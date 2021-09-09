@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import Databases, { Databases as UnconnectedDatabases } from '../databases';
 import Toolbar from './databases-toolbar';
 import store from '../../stores/databases-store';
-import styles from './databases.less';
+import styles from './databases.module.less';
 
 import { INITIAL_STATE as columns } from '../../modules/databases/columns';
 

@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
-import styles from './find-in-page-input.less';
+import styles from './find-in-page-input.module.less';
 
 const KEYCODE_ENTER = 13;
 const KEYCODE_ESC = 27;

@@ -8,7 +8,7 @@ import StageGrabber from './stage-grabber';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
 
-import styles from './stage-editor-toolbar.less';
+import styles from './stage-editor-toolbar.module.less';
 
 /**
  * The stage editor toolbar component.

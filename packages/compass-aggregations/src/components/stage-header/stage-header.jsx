@@ -8,7 +8,7 @@ import StageGrabber from '../stage-grabber';
 import StageCollapser from '../stage-collapser';
 import StageOperatorSelect from '../stage-operator-select';
 
-import styles from './stage-header.less';
+import styles from './stage-header.module.less';
 
 /**
  * Display the header on the stage card.

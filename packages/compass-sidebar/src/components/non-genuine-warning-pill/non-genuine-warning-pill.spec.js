@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import NonGenuineWarningPill from '../non-genuine-warning-pill';
-import styles from './non-genuine-warning-pill.less';
+import styles from './non-genuine-warning-pill.module.less';
 
 describe('NonGenuineWarningPill [Component]', () => {
   let component;

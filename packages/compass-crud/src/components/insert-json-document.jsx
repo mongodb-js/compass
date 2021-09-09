@@ -10,7 +10,7 @@ import 'mongodb-ace-theme';
 
 import 'brace/mode/json';
 
-import styles from './insert-json-document.less';
+import styles from './insert-json-document.module.less';
 
 /**
  * The comment block.

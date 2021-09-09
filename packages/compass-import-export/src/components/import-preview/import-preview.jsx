@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import styles from './import-preview.less';
+import styles from './import-preview.module.less';
 
 import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'import-preview');

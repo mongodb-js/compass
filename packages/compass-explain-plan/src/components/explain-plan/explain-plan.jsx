@@ -14,7 +14,7 @@ import {
 import ExplainStates from '../explain-states';
 import { queryExecuted } from '../../modules/query';
 
-import styles from './explain-plan.less';
+import styles from './explain-plan.module.less';
 
 /**
  * The root ExplainPlan component.

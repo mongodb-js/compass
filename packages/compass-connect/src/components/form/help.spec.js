@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import Help from './help';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 describe('HostInput [Component]', () => {
   let component;

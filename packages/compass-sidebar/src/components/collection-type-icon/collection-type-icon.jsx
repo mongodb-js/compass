@@ -5,7 +5,7 @@ import Icon from '@leafygreen-ui/icon';
 
 import { TIME_SERIES_COLLECTION_TYPE } from '../../modules/collection';
 
-import styles from './collection-type-icon.less';
+import styles from './collection-type-icon.module.less';
 
 const VIEW_COLLECTION_TYPE = 'view';
 

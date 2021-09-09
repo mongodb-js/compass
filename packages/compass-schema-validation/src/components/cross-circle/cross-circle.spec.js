@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import CrossCircle from '../cross-circle';
 
-import styles from './cross-circle.less';
+import styles from './cross-circle.module.less';
 
 describe('CrossCircle [Component]', () => {
   let component;

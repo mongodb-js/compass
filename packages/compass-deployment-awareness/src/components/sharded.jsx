@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import styles from './sharded.less';
+import styles from './sharded.module.less';
 
 /**
  * The sharded component.

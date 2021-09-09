@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import RestorePipelineButton from './restore-pipeline-button';
-import styles from './restore-pipeline-button.less';
+import styles from './restore-pipeline-button.module.less';
 
 describe('RestorePipelineButton [Component]', () => {
   context('when the component is rendered', () => {

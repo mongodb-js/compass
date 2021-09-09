@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import ValidationStates from '../validation-states';
-import styles from './validation-states.less';
+import styles from './validation-states.module.less';
 
 import { ZeroState } from 'hadron-react-components';
 import ValidationEditor from '../validation-editor';

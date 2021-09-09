@@ -6,7 +6,7 @@ import { InfoSprinkle } from 'hadron-react-components';
 import { Tooltip } from 'hadron-react-components';
 import { OUT } from '../../modules/pipeline';
 
-import styles from './stage-preview-toolbar.less';
+import styles from './stage-preview-toolbar.module.less';
 
 /**
  * Zero state text.

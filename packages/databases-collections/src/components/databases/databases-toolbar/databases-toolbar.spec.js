@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Toolbar from '../databases-toolbar';
-import styles from './databases-toolbar.less';
+import styles from './databases-toolbar.module.less';
 
 describe('Databases Toolbar [Component]', () => {
   context('when the distribution is readonly', () => {

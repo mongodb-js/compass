@@ -6,7 +6,7 @@ import _ from 'lodash';
 import COLLATION_OPTIONS from '../../constants/collation';
 import FieldSet from '../field-set/field-set';
 
-import styles from './collation-fields.less';
+import styles from './collation-fields.module.less';
 
 function CollationOptions(values) {
   const unifiedValues = values.map((elem) => ({

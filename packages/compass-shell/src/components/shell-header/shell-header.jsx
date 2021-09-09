@@ -8,7 +8,7 @@ import { ShellLoader } from '@mongosh/browser-repl';
 
 import { SET_SHOW_INFO_MODAL } from '../../modules/info-modal';
 
-import styles from './shell-header.less';
+import styles from './shell-header.module.less';
 
 export class ShellHeader extends Component {
   static propTypes = {

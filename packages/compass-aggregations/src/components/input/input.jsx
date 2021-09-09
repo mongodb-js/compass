@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import InputToolbar from '../input-toolbar';
 import InputWorkspace from '../input-workspace';
 
-import styles from './input.less';
+import styles from './input.module.less';
 
 class Input extends PureComponent {
   static displayName = 'InputComponent';

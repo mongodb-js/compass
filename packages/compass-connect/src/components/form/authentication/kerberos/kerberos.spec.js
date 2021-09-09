@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import Kerberos from './kerberos';
 import FormGroup from '../../form-group';
-import styles from '../../../connect.less';
+import styles from '../../../connect.module.less';
 
 describe('<Kerberos />', () => {
   describe('#render', () => {

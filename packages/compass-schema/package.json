@@ -21,7 +21,7 @@
     "check": "npm run depcheck && npm run lint",
     "prepublishOnly": "npm run compile",
     "test-ci": "npm run test",
-    "bootstrap": "node ../../scripts/download-akzidenz.js && npm run compile"
+    "bootstrap": "npm run compile"
   },
   "license": "SSPL",
   "peerDependencies": {
@@ -55,7 +55,6 @@
     "@mongodb-js/compass-status": "^5.12.0",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
-    "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "bson": "^4.4.1",
     "chai": "^4.1.2",
     "chai-enzyme": "1.0.0-beta.0",
@@ -97,8 +96,8 @@
     "karma-sourcemap-loader": "^0.3.8",
     "karma-webpack": "^4.0.2",
     "leaflet-defaulticon-compatibility": "^0.1.1",
-    "less": "^2.7.2",
-    "less-loader": "^4.0.5",
+    "less": "^3.11.1",
+    "less-loader": "^7.3.0",
     "lodash": "^4.17.21",
     "mocha": "^5.2.0",
     "mocha-webpack": "^2.0.0-beta.0",

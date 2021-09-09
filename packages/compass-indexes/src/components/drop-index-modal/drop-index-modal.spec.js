@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { DropIndexModal } from '../drop-index-modal';
-import styles from './drop-index-modal.less';
+import styles from './drop-index-modal.module.less';
 
 describe('DropIndexModal [Component]', () => {
   let component;

@@ -4,7 +4,7 @@ import AceEditor from 'react-ace';
 import classnames from 'classnames';
 import getShellJS from '../../utils/get-shell-js';
 
-import styles from './query-viewer.less';
+import styles from './query-viewer.module.less';
 
 import 'brace/mode/javascript';
 import 'mongodb-ace-theme';

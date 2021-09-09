@@ -5,7 +5,7 @@ import { Tooltip } from 'hadron-react-components';
 
 import createDatabaseStore from '../../../stores/create-database';
 
-import styles from './databases-toolbar.less';
+import styles from './databases-toolbar.module.less';
 
 /**
  * The button component name.

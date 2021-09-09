@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { ViewSwitcher } from 'hadron-react-components';
 
-import styles from './header.less';
+import styles from './header.module.less';
 
 class Header extends PureComponent {
   static displayName = 'QueryHistoryHeader';

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import CollectionStatsItem from '../collection-stats-item';
 
-import styles from './document-stats-item.less';
+import styles from './document-stats-item.module.less';
 
 /**
  * The list class.

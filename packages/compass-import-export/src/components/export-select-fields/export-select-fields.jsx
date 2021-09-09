@@ -1,7 +1,7 @@
 import { Tooltip } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
 import ExportField from '../export-field';
-import styles from './export-select-fields.less';
+import styles from './export-select-fields.module.less';
 import { FIELDS } from '../../constants/export-step';
 import React, { PureComponent } from 'react';
 import createStyler from '../../utils/styler.js';

@@ -4,7 +4,7 @@ import AppRegistry from 'hadron-app-registry';
 
 import CompassSchemaValidation from '../compass-schema-validation';
 import configureStore from '../../stores';
-import styles from './compass-schema-validation.less';
+import styles from './compass-schema-validation.module.less';
 
 describe('CompassSchemaValidation [Component]', () => {
   let component;

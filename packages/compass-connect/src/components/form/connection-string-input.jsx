@@ -6,7 +6,7 @@ import classnames from 'classnames';
 
 import Actions from '../../actions';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 /**
  * A connection string placeholder.

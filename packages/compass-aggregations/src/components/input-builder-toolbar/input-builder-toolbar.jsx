@@ -5,7 +5,7 @@ import InputCollapser from '../input-collapser';
 import InputDocumentsCount from '../input-documents-count';
 import InputRefresh from '../input-refresh';
 
-import styles from './input-builder-toolbar.less';
+import styles from './input-builder-toolbar.module.less';
 
 /**
  * The input builder toolbar component.

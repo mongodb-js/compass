@@ -9,5 +9,6 @@ ignores: [
   "mongodb-ns",
   "raf",
   "lodash.clone",
-  "lodash.result"
+  "lodash.result",
+  "mongodb-compass"
 ]

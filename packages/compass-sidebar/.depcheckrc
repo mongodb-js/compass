@@ -18,5 +18,6 @@ ignores: [
   "react-ios-switch",
   "resolve",
   "webpack-bundle-analyzer",
-  "webpack-cli"
+  "webpack-cli",
+  "mongodb-compass"
 ]

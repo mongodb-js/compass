@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import classnames from 'classnames';
-import styles from './compass-shell.less';
+import styles from './compass-shell.module.less';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';

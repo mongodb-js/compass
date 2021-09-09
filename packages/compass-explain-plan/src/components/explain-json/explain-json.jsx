@@ -4,7 +4,7 @@ import HadronDocument from 'hadron-document';
 import { Document } from '@mongodb-js/compass-crud';
 import { clipboard } from 'electron';
 
-import styles from './explain-json.less';
+import styles from './explain-json.module.less';
 
 /**
  * The ExplainJSON component.

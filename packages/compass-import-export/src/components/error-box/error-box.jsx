@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import ANSIConverter from 'ansi-to-html';
 
-import styles from './error-box.less';
+import styles from './error-box.module.less';
 import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'error-box');
 

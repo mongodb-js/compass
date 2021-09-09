@@ -6,7 +6,7 @@ import Editor from '../editor';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
-import styles from './export-form.less';
+import styles from './export-form.module.less';
 
 class ExportForm extends PureComponent {
   static displayName = 'ExportFormComponent';

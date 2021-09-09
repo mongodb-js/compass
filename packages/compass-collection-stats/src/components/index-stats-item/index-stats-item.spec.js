@@ -2,8 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import IndexStatsItem from '../index-stats-item';
-import styles from './index-stats-item.less';
-import statsStyles from '../collection-stats-item/collection-stats-item.less';
+import styles from './index-stats-item.module.less';
+import statsStyles from '../collection-stats-item/collection-stats-item.module.less';
 
 describe('IndexStatsItem [Component]', () => {
   let component;

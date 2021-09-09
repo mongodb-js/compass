@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import styles from './loading-overlay.less';
+import styles from './loading-overlay.module.less';
 
 /**
  * The loading overlay component.

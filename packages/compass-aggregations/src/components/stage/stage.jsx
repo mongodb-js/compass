@@ -9,7 +9,7 @@ import StageEditor from '../stage-editor';
 import StagePreview from '../stage-preview';
 import StagePreviewToolbar from '../stage-preview-toolbar';
 
-import styles from './stage.less';
+import styles from './stage.module.less';
 
 const resizeableDirections = {
   top: false,

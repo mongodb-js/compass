@@ -4,7 +4,7 @@ import ExplainJSON from '../explain-json';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
 
-import styles from './explain-json.less';
+import styles from './explain-json.module.less';
 
 describe('ExplainJSON [Component]', () => {
   let component;

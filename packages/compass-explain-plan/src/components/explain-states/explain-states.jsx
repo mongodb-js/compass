@@ -9,7 +9,7 @@ import INDEX_TYPES from '../../constants/index-types';
 import EXPLAIN_STATES from '../../constants/explain-states';
 import EXPLAIN_VIEWS from '../../constants/explain-views';
 
-import styles from './explain-states.less';
+import styles from './explain-states.module.less';
 
 /**
  * Readonly warning for the status row.

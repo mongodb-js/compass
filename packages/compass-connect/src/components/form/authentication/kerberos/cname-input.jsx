@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Toggle from '@leafygreen-ui/toggle';
 
 import Actions from '../../../../actions';
-import styles from '../../../connect.less';
+import styles from '../../../connect.module.less';
 
 class CnameInput extends React.PureComponent {
   static displayName = 'CnameInput';

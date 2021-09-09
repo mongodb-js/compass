@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import ExplainStates from '../explain-states';
-import styles from './explain-states.less';
+import styles from './explain-states.module.less';
 import AppRegistry from 'hadron-app-registry';
 
 describe('ExplainStates [Component]', () => {

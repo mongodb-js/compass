@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { InfoSprinkle } from 'hadron-react-components';
 import OptionEditor from '../option-editor';
 
-import styles from './query-option.less';
+import styles from './query-option.module.less';
 
 class QueryOption extends Component {
   static displayName = 'QueryOption';

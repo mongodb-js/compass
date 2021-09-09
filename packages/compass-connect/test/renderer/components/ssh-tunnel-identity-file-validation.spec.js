@@ -3,7 +3,7 @@ import React from 'react';
 
 import SSHTunnelIdentityFile from '../../../src/components/form/ssh-tunnel-identity-file-validation';
 
-import styles from '../../../src/components/connect.less';
+import styles from '../../../src/components/connect.module.less';
 
 describe('SSHTunnelIdentityFile [Component]', () => {
   describe('#render', () => {

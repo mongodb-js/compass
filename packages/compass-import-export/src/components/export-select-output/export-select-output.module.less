@@ -1,0 +1,42 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+.export-select-output {
+  &-form {
+    box-shadow: initial;
+    padding: 0;
+  }
+
+  &-browse {
+    &-group {
+      height: 40px;
+      display: flex;
+      border-radius: 3px;
+      border: 1px solid @gray4;
+      height: 45px;
+      background-color: #ffffff !important;
+      flex-direction: row;
+
+      input {
+        flex-grow: 1;
+        background-color: #ffffff !important;
+        border: none;
+        color: @gray1;
+        padding-top: 15px;
+      }
+
+      button {
+        width: 20%;
+        margin: 7px;
+        i {
+          padding-right: 3px;
+        }
+      }
+    }
+  }
+
+  &-output {
+    padding: 5px 0px 5px 0px;
+    font-weight: bold;
+    font-size: 14px;
+  }
+}

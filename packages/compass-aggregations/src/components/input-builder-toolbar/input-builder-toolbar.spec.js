@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 
 import InputBuilderToolbar from '../input-builder-toolbar';
 import InputCollapser from '../input-collapser';
-import styles from './input-builder-toolbar.less';
+import styles from './input-builder-toolbar.module.less';
 
 describe('InputBuilderToolbar [Component]', () => {
   let component;

@@ -8,7 +8,7 @@ import { CompassShell } from './compass-shell';
 import ResizeHandle from '../resize-handle';
 import ShellHeader from '../shell-header';
 import InfoModal from '../info-modal';
-import styles from './compass-shell.less';
+import styles from './compass-shell.module.less';
 
 function updateAndWaitAsync(wrapper) {
   wrapper.update();

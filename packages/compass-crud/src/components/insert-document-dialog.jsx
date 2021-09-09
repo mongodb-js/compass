@@ -1,14 +1,14 @@
 import { pull } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import jsonParse from 'fast-json-parse';
+import { ViewSwitcher } from 'hadron-react-components';
+import { Element } from 'hadron-document';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
+
 import InsertJsonDocument from './insert-json-document';
 import InsertDocument from './insert-document';
 import InsertDocumentFooter from './insert-document-footer';
-import { TextButton } from 'hadron-react-buttons';
-import { ViewSwitcher } from 'hadron-react-components';
-import { Element } from 'hadron-document';
 
 /**
  * The insert invalid message.
@@ -26,7 +26,7 @@ class InsertDocumentDialog extends React.PureComponent {
    */
   constructor(props) {
     super(props);
-    this.state = { canHide: false, message: this.props.message, mode: this.props.mode };
+    this.state = { message: this.props.message, mode: this.props.mode };
     this.unsubscribeInvalid = this.handleInvalid.bind(this);
     this.unsubscribeValid = this.handleValid.bind(this);
     this.invalidElements = [];
@@ -83,24 +83,6 @@ class InsertDocumentDialog extends React.PureComponent {
     if (!this.invalidElements.includes(uuid)) {
       this.invalidElements.push(uuid);
       this.forceUpdate();
-    }
-  }
-
-  /**
-   * handle losing focus from element
-   */
-  handleBlur() {
-    this.setState({ canHide: false });
-  }
-
-  /**
-   * handle hide event rather than cancel
-   */
-  handleHide() {
-    if (this.state.canHide) {
-      this.props.closeInsertDocumentDialog();
-    } else {
-      this.setState({ canHide: true });
     }
   }
 
@@ -212,44 +194,31 @@ class InsertDocumentDialog extends React.PureComponent {
     const currentView = this.props.jsonView ? 'JSON' : 'List';
 
     return (
-      <Modal
-        show={this.props.isOpen}
-        backdrop="static"
-        onHide={this.handleHide.bind(this)}>
-        <Modal.Header>
-          <Modal.Title>Insert to Collection {this.props.ns}</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body onFocus={this.handleBlur.bind(this)}>
-          <div className="insert-document-views">
-            <ViewSwitcher
-              label="View"
-              buttonLabels={['JSON', 'List']}
-              showLabels={false}
-              iconClassNames={['curly-bracket', 'fa fa-list-ul']}
-              activeButton={currentView}
-              disabled={this.hasErrors()}
-              onClick={this.switchInsertDocumentView.bind(this)} />
-          </div>
-          {this.renderDocumentOrJsonView()}
-          <InsertDocumentFooter
-            message={this.hasErrors() ? INSERT_INVALID_MESSAGE : this.state.message}
-            mode={this.hasErrors() ? 'error' : this.state.mode} />
-        </Modal.Body>
-
-        <Modal.Footer>
-          <TextButton
-            className="btn btn-default btn-sm"
-            text="Cancel"
-            clickHandler={this.props.closeInsertDocumentDialog} />
-          <TextButton
-            className="btn btn-primary btn-sm"
-            dataTestId="insert-document-button"
-            text="Insert"
+      <ConfirmationModal
+        title={`Insert to Collection ${this.props.ns}`}
+        open={this.props.isOpen}
+        onConfirm={this.handleInsert.bind(this)}
+        onCancel={this.props.closeInsertDocumentDialog}
+        buttonText="Insert"
+        submitDisabled={this.hasErrors()}
+      >
+        <div className="insert-document-views">
+          <ViewSwitcher
+            label="View"
+            buttonLabels={['JSON', 'List']}
+            showLabels={false}
+            iconClassNames={['curly-bracket', 'fa fa-list-ul']}
+            activeButton={currentView}
             disabled={this.hasErrors()}
-            clickHandler={this.handleInsert.bind(this)} />
-        </Modal.Footer>
-      </Modal>
+            onClick={this.switchInsertDocumentView.bind(this)}
+          />
+        </div>
+        {this.renderDocumentOrJsonView()}
+        <InsertDocumentFooter
+          message={this.hasErrors() ? INSERT_INVALID_MESSAGE : this.state.message}
+          mode={this.hasErrors() ? 'error' : this.state.mode}
+        />
+      </ConfirmationModal>
     );
   }
 }

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import styles from './create-tab.less';
+import styles from './create-tab.module.less';
 
 class CreateTab extends PureComponent {
   static displayName = 'CreateTabComponent';

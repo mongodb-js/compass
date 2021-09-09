@@ -3,7 +3,7 @@ import { IconButton } from 'hadron-react-buttons';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import styles from './delete-pipeline-button.less';
+import styles from './delete-pipeline-button.module.less';
 
 /**
  * delete pipeline open button

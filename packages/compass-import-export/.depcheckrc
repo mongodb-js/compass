@@ -17,5 +17,6 @@ ignores: [
   "resolve",
   "webpack-bundle-analyzer",
   "webpack-cli",
-  "xvfb-maybe"
+  "xvfb-maybe",
+  "mongodb-compass"
 ]

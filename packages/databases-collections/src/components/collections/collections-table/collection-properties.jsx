@@ -12,7 +12,7 @@ import {
 
 import PropertyBadge from './property-badge';
 
-import styles from './collection-properties.less';
+import styles from './collection-properties.module.less';
 
 export default class CollectionProperties extends PureComponent {
   static propTypes = {

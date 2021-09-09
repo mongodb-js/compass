@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Status from './status';
-import styles from './status.less';
+import styles from './status.module.less';
 
 describe('Status [Component]', () => {
   describe('#render', () => {

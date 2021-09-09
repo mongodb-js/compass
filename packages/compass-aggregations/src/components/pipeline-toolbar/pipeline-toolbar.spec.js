@@ -5,7 +5,7 @@ import PipelineToolbar from './pipeline-toolbar';
 import PipelineBuilderToolbar from './pipeline-builder-toolbar';
 import PipelinePreviewToolbar from './pipeline-preview-toolbar';
 
-import styles from './pipeline-toolbar.less';
+import styles from './pipeline-toolbar.module.less';
 
 describe('PipelineToolbar [Component]', () => {
   let component;

@@ -7,13 +7,14 @@
 
 // TODO: Is this import broken?
 // @import (css) "../../node_modules/highlight.js/styles/github.css";
-@import "palette.less";
-@import "fontawesome.less";
-@import "fonts.less";
-@import "mms-icons.less";
+@import "./palette.less";
+@import "./fontawesome.less";
+@import "./fonts.less";
+@import "./mms-icons.less";
 
 // Configuration
 @import "./palette.less";
+
 @sidebar-width: 250px;
 
 // Tweaks to bootstrap
@@ -84,7 +85,7 @@ html, body {
 // make all help buttons consistent
 i.help,
 i.syntax-help {
-  .fa-icon;
+  .fa-icon();
   margin: 0 5px;
   cursor: pointer;
   color: @gray5;

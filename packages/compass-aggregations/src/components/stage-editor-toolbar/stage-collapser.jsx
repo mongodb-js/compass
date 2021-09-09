@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import styles from './stage-collapser.less';
+import styles from './stage-collapser.module.less';
 
 /**
  * Collapse text.

@@ -5,7 +5,7 @@ import FontAwesome from 'react-fontawesome';
 import Actions from '../../actions';
 import ReactTooltip from 'react-tooltip';
 
-import styles from './toggle-query-history-button.less';
+import styles from './toggle-query-history-button.module.less';
 
 class ToggleQueryHistoryButton extends PureComponent {
   static displayName = 'ToggleQueryHistoryButton';
