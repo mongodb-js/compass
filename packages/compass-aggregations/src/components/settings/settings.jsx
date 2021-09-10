@@ -9,7 +9,7 @@ import {
   DEFAULT_LARGE_LIMIT
 } from '../../constants';
 
-import styles from './settings.less';
+import styles from './settings.module.less';
 
 class Settings extends PureComponent {
   static displayName = 'Settings';

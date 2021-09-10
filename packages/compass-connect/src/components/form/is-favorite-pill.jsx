@@ -6,7 +6,7 @@ import FontAwesome from 'react-fontawesome';
 import Actions from '../../actions';
 import FavoriteModal from './favorite-modal';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 /**
  * The is favorite pill.

@@ -1,0 +1,79 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+.import-preview {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+
+  &-header {
+    font-size: 14px;
+    font-weight: bold;
+    border-bottom: 0;
+    margin-bottom: 5px;
+    color: #494747;
+  }
+
+  table,
+  th,
+  td {
+    padding: 3px 5px;
+    border: 1px solid @gray6;
+  }
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0px;
+    font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-size: 11px;
+    height: 100%;
+    width: 100%;
+
+    thead {
+      background: @gray8;
+      tr {
+        th {
+          min-width: 25px;
+          font-weight: normal;
+
+          div {
+            display: flex;
+            align-items: center;
+            input[type='checkbox'] {
+              margin: 0px 5px 0px 0px;
+            }
+            ul {
+              list-style: none;
+              margin: 0;
+              padding: 0;
+
+              li:first-child {
+                font-weight: bold;
+              }
+            }
+          }
+        }
+        th:first-child {
+          width: 25px;
+          max-width: 25px;
+        }
+      }
+    }
+
+    tbody {
+      height: 100%;
+      width: 100%;
+      tr {
+        height: 25px;
+        td:first-child {
+          text-align: center;
+        }
+        td {
+          white-space: nowrap;
+        }
+        td.unchecked {
+          opacity: 0.4;
+        }
+      }
+    }
+  }
+}

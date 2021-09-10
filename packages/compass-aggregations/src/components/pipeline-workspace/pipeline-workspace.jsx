@@ -7,7 +7,7 @@ import AddStage from '../add-stage';
 import SortableStageList from './sortable-stage-list';
 import ModifySourceBanner from '../modify-source-banner';
 
-import styles from './pipeline-workspace.less';
+import styles from './pipeline-workspace.module.less';
 
 /**
  * The pipeline workspace component.
@@ -72,6 +72,7 @@ class PipelineWorkspace extends PureComponent {
       isEnabled={stage.isEnabled}
       isLoading={stage.isLoading}
       isComplete={stage.isComplete}
+      isMissingAtlasOnlyStageSupport={stage.isMissingAtlasOnlyStageSupport}
       isExpanded={stage.isExpanded}
       isCommenting={this.props.isCommenting}
       isAutoPreviewing={this.props.isAutoPreviewing}

@@ -8,7 +8,7 @@ import Icon from '@leafygreen-ui/icon';
 
 import Actions from '../../actions';
 
-import styles from './sidebar.less';
+import styles from './sidebar.module.less';
 
 const TWO_DAYS = 24 * 60 * 60 * 1000;
 

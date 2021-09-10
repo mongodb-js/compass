@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import classnames from 'classnames';
-import styles from './index-header-column.less';
+import styles from './index-header-column.module.less';
 
 import { DEFAULT, DESC, ASC } from '../../modules/indexes';
 

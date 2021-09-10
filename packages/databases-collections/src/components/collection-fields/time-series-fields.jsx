@@ -6,7 +6,7 @@ import { Select, Option } from '@leafygreen-ui/select';
 import FieldSet from '../field-set/field-set';
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
 
-import styles from './time-series-fields.less';
+import styles from './time-series-fields.module.less';
 
 const TIME_FIELD_INPUT_DESCRIPTION = 'Specify which field should be used ' +
   'as timeField for the time-series collection. ' +

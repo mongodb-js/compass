@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { Card, CardHeader, CardBody } from '../card';
 import Query from '../query';
 
-import styles from './saving.less';
+import styles from './saving.module.less';
 
 class Saving extends PureComponent {
   static displayName = 'QueryHistorySaving';

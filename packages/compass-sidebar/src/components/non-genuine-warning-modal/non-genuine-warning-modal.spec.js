@@ -4,7 +4,7 @@ import NonGenuineWarningModal, {
   MODAL_TITLE,
   LEARN_MORE_URL
 } from './non-genuine-warning-modal.jsx';
-import styles from './non-genuine-warning-modal.less';
+import styles from './non-genuine-warning-modal.module.less';
 
 describe('NonGenuineWarningModal [Component]', () => {
   let component;

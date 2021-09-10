@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import Settings from './settings.jsx';
 import { INITIAL_STATE } from '../../modules/settings';
 
-import styles from './settings.less';
+import styles from './settings.module.less';
 
 describe('Settings [Component]', () => {
   let state;

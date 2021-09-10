@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import classnames from 'classnames';
-import styles from './sidebar-database.less';
+import styles from './sidebar-database.module.less';
 import SidebarDatabase from '../sidebar-database';
 import SidebarCollection from '../sidebar-collection';
 

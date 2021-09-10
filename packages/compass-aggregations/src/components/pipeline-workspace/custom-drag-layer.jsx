@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { DragLayer } from 'react-dnd';
 
-import styles from './custom-drag-layer.less';
+import styles from './custom-drag-layer.module.less';
 
 const getItemStyles = (props) => {
   const { initialOffset, currentOffset } = props;

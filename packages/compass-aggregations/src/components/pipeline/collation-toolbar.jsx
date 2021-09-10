@@ -3,7 +3,7 @@ import { InfoSprinkle } from 'hadron-react-components';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import styles from './collation-toolbar.less';
+import styles from './collation-toolbar.module.less';
 
 /**
  * The help URL for collation.

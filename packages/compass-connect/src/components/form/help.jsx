@@ -4,7 +4,7 @@ import classnames from 'classnames';
 
 import { HelpItems, AtlasLink } from '../../helpers/help-items';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 class Help extends React.Component {
   static displayName = 'Help';

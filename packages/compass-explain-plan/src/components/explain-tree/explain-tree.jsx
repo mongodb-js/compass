@@ -7,7 +7,7 @@ import { ExplainStage } from '../explain-stage';
 
 import STAGE_CARD_PROPERTIES from '../../constants/stage-card-properties';
 
-import styles from './explain-tree.less';
+import styles from './explain-tree.module.less';
 
 /**
  * Reference to the tree div.

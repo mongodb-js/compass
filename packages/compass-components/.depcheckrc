@@ -3,5 +3,6 @@ ignores: [
   "ts-node",
   "@mongodb-js/prettier-config-compass",
   "@mongodb-js/tsconfig-compass",
-  "@types/chai-dom"
+  "@types/chai-dom",
+  "mongodb-compass"
 ]

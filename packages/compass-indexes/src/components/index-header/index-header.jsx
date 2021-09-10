@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import IndexHeaderColumn from '../index-header-column';
 
 import classnames from 'classnames';
-import styles from './index-header.less';
+import styles from './index-header.module.less';
 
 /**
  * Component for the index header.

@@ -53,8 +53,8 @@ module.exports = {
         ]
       },
       {
-        test: /\.less$/,
-        exclude: /node_modules/,
+        test: /.less$/,
+
         use: [
           { loader: 'style-loader' },
           {
@@ -63,6 +63,8 @@ module.exports = {
               importLoaders: 1,
 
               modules: {
+                // Based on file name
+                auto: true,
                 localIdentName: 'Status_[name]-[local]__[hash:base64:5]'
               }
             }
@@ -71,16 +73,25 @@ module.exports = {
             loader: 'postcss-loader',
             options: {
               plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
+                return [project.plugin.autoprefixer];
               }
             }
           },
           {
             loader: 'less-loader',
             options: {
-              noIeCompat: true
+              lessOptions: {
+                modifyVars: {
+                  // Only affects dev build (standalone plugin playground), required
+                  // so that font-awesome can correctly resolve image paths relative
+                  // to the compass
+                  'compass-fonts-path': '../fonts',
+                  'compass-images-path': '../images',
+                  'fa-font-path': path.dirname(
+                    require.resolve('mongodb-compass/src/app/fonts/FontAwesome.otf')
+                  )
+                }
+              }
             }
           }
         ]

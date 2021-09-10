@@ -7,7 +7,7 @@ import toNS from 'mongodb-ns';
 import { collectionMetadata, getSource } from '../../modules/collection';
 import CollectionTypeIcon from '../collection-type-icon';
 
-import styles from './sidebar-collection.less';
+import styles from './sidebar-collection.module.less';
 
 class SidebarCollection extends PureComponent {
   static displayName = 'SidebarCollection';
@@ -47,7 +47,7 @@ class SidebarCollection extends PureComponent {
   onDuplicateView = () => {
     this.props.globalAppRegistryEmit(
       'open-create-view', {
-        source: this.props.view_on,
+        source: `${this.props.database}.${this.props.view_on}`,
         pipeline: this.props.pipeline,
         duplicate: true
       }

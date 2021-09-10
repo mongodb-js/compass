@@ -1,0 +1,19 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
+.index-header-column {
+  margin-top: 30px;
+  height: 50px;
+  &-sort {
+    display: inline-block;
+    font-size: 13px;
+    color: @gray4;
+  }
+
+  &:not(&-active) &-sort{
+    opacity: 0;
+  }
+
+  &:hover:not(&-active) &-sort {
+    display: inline-block;
+  }
+}

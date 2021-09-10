@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import ExplainSummary from '../explain-summary';
 
-import styles from './explain-summary.less';
+import styles from './explain-summary.module.less';
 
 describe('ExplainSummary [Component]', () => {
   let component;

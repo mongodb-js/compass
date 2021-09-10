@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import highlight from 'highlight.js/lib/highlight';
 import javascript from 'highlight.js/lib/languages/javascript';
 
-import styles from './code.less';
+import styles from './code.module.less';
 
 class Code extends PureComponent {
   static displayName = 'Code';

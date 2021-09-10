@@ -15,5 +15,6 @@ ignores: [
   "sshpk",
   "tough-cookie",
   "webpack-bundle-analyzer",
-  "webpack-cli"
+  "webpack-cli",
+  "mongodb-compass"
 ]

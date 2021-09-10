@@ -1,3 +1,8 @@
+// Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
+// of global styles. If you are wishing to style a given component, you should be writing a less file per
+// component as per the CSS Modules ICSS spec. @see src/components/toggle-button for an example.
+import 'mongodb-compass/src/app/styles/index.less';
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import app from 'hadron-app';
@@ -10,12 +15,6 @@ import { activate as awarenessActivate } from '@mongodb-js/compass-deployment-aw
 import { activate as versionActivate } from '@mongodb-js/compass-server-version';
 import { activate as sshActivate } from '@mongodb-js/compass-ssh-tunnel-status';
 import InstanceModel from 'mongodb-instance-model';
-
-// Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
-// of global styles. If you are wishing to style a given component, you should be writing a less file per
-// component as per the CSS Modules ICSS spec. @see src/components/toggle-button for an example.
-import 'bootstrap/less/bootstrap.less';
-import 'less/index.less';
 
 const appRegistry = new AppRegistry();
 

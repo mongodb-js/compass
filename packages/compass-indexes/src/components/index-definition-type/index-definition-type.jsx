@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import map from 'lodash.map';
 
 import classnames from 'classnames';
-import styles from './index-definition-type.less';
+import styles from './index-definition-type.module.less';
 
 /**
  * Component for an index definition type.

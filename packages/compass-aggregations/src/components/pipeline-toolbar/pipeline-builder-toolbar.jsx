@@ -14,7 +14,7 @@ import {
   VIEWS_MIN_SERVER_VERSION
 } from '../../constants';
 
-import styles from './pipeline-builder-toolbar.less';
+import styles from './pipeline-builder-toolbar.module.less';
 
 /**
  * The pipeline builder toolbar component.

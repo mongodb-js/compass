@@ -10,7 +10,7 @@ import getIndexHelpLink from '../../utils/index-link-helper';
 const TOOLTIP_ID = 'index-type';
 
 import classnames from 'classnames';
-import styles from './type-column.less';
+import styles from './type-column.module.less';
 
 /**
  * Component for the type column.

@@ -9,7 +9,7 @@ import { ExplainTree } from '../explain-tree';
 import INDEX_TYPES from '../../constants/index-types';
 import EXPLAIN_VIEWS from '../../constants/explain-views';
 
-import styles from './explain-body.less';
+import styles from './explain-body.module.less';
 
 /**
  * The ExplainBody component.

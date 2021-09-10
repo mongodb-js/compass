@@ -44,122 +44,94 @@ module.exports = {
     }
   },
   module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: [
-          { loader: 'style-loader'},
-          { loader: 'css-loader' }
-        ]
-      },
-      {
-        test: /\.node$/,
-        use: 'node-loader'
-      },
-      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
-      {
-        test: /\.less$/,
-        include: [/\.global/, /bootstrap/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: false
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      // For CSS-Modules locally scoped styles
-      {
-        test: /\.less$/,
-        exclude: [/\.global/, /bootstrap/, /node_modules/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              importLoaders: 1,
+    rules: [{
+      test: /\.css$/,
+      use: [
+        { loader: 'style-loader'},
+        { loader: 'css-loader' }
+      ]
+    }, {
+      test: /\.node$/,
+      use: 'node-loader'
+    }, {
+      test: /.less$/,
 
-              modules: {
-                localIdentName: 'SshTunnelStatusPlugin_[name]-[local]__[hash:base64:5]'
-              }
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      {
-        test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
-        use: [{ loader: 'shebang-loader' }]
-      },
-      {
-        test: /\.(js|jsx)$/,
-        use: [{
-          loader: 'babel-loader',
+      use: [
+        { loader: 'style-loader' },
+        {
+          loader: 'css-loader',
           options: {
-            root: path.resolve(__dirname, '..'),
-            cacheDirectory: !process.env.CI
+            importLoaders: 1,
+
+            modules: {
+              // Based on file name
+              auto: true,
+              localIdentName: 'SshTunnelStatusPlugin_[name]-[local]__[hash:base64:5]'
+            }
           }
-        }],
-        exclude: /(node_modules)/
-      },
-      {
-        test: /\.(png|jpg|jpeg|gif|svg)$/,
-        use: [{
-          loader: 'file-loader',
-          // In prod we need to go to $COMPASS_HOME/node_modules/<plugin>/lib or
-          // $USER_HOME/.mongodb/compasss(-community)/plugins
-          query: {
-            name: 'assets/images/[name].[ext]',
-            publicPath: ''
+        },
+        {
+          loader: 'postcss-loader',
+          options: {
+            plugins: function() {
+              return [project.plugin.autoprefixer];
+            }
           }
-        }]
-      },
-      {
-        test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-        use: [{
-          loader: 'file-loader',
-          // In prod we need to go to $COMPASS_HOME/node_modules/<plugin>/lib or
-          // $USER_HOME/.mongodb/compasss(-community)/plugins
-          query: {
-            name: 'assets/fonts/[name].[ext]',
-            publicPath: ''
+        },
+        {
+          loader: 'less-loader',
+          options: {
+            lessOptions: {
+              modifyVars: {
+                // Only affects dev build (standalone plugin playground), required
+                // so that font-awesome can correctly resolve image paths relative
+                // to the compass
+                'compass-fonts-path': '../fonts',
+                'compass-images-path': '../images',
+                'fa-font-path': path.dirname(
+                  require.resolve('mongodb-compass/src/app/fonts/FontAwesome.otf')
+                )
+              }
+            }
           }
-        }]
-      }
-    ]
+        }
+      ]
+    }, {
+      test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
+      use: [{ loader: 'shebang-loader' }]
+    }, {
+      test: /\.(js|jsx)$/,
+      use: [{
+        loader: 'babel-loader',
+        options: {
+          root: path.resolve(__dirname, '..'),
+          cacheDirectory: !process.env.CI
+        }
+      }],
+      exclude: /(node_modules)/
+    }, {
+      test: /\.(png|jpg|jpeg|gif|svg)$/,
+      use: [{
+        loader: 'file-loader',
+        // In prod we need to go to $COMPASS_HOME/node_modules/<plugin>/lib or
+        // $USER_HOME/.mongodb/compasss(-community)/plugins
+        query: {
+          name: 'assets/images/[name].[ext]',
+          publicPath: ''
+        }
+      }]
+    }, {
+      test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+      use: [{
+        loader: 'file-loader',
+        // In prod we need to go to $COMPASS_HOME/node_modules/<plugin>/lib or
+        // $USER_HOME/.mongodb/compasss(-community)/plugins
+        query: {
+          name: 'assets/fonts/[name].[ext]',
+          publicPath: ''
+        }
+      }]
+    }]
   },
   plugins: [
     // Auto-create webpack externals for any dependency listed as a peerDependency in package.json

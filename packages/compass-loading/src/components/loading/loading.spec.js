@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import { Loading } from '../loading';
-import styles from './loading.less';
+import styles from './loading.module.less';
 
 describe('Loading [Component]', () => {
   let component;

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import InputBuilderToolbar from '../input-builder-toolbar';
 import InputPreviewToolbar from '../input-preview-toolbar';
 
-import styles from './input-toolbar.less';
+import styles from './input-toolbar.module.less';
 
 /**
  * The input toolbar component.

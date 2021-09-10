@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import StageOperatorSelect from './stage-operator-select';
-import styles from './stage-operator-select.less';
+import styles from './stage-operator-select.module.less';
 
 describe('StageOperatorSelect [Component]', () => {
   let component;

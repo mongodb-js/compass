@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import styles from './input-documents-count.less';
+import styles from './input-documents-count.module.less';
 
 /**
  * Display count of input documents.

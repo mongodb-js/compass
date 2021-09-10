@@ -5,6 +5,7 @@ if (!process.env.NODE_ENV) {
 const pkg = require('../../package.json');
 
 require('../setup-hadron-distribution');
+const setupLogging = require('./logging');
 
 /**
  * Check if the distribution is defined, if not, we need to override
@@ -72,4 +73,5 @@ var ModuleCache = require('hadron-module-cache');
 ModuleCache.register(resourcePath);
 ModuleCache.add(resourcePath);
 
+setupLogging(app);
 require('./application').main();

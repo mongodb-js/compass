@@ -4,7 +4,7 @@ import Button, { Size as ButtonSize } from '@leafygreen-ui/button';
 
 import ViewInformation from './view-information';
 
-import styles from './collection-header-actions.less';
+import styles from './collection-header-actions.module.less';
 
 function CollectionHeaderActions({
   editViewName,

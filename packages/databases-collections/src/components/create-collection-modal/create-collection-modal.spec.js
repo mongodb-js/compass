@@ -5,7 +5,7 @@ import Banner from '@leafygreen-ui/banner';
 
 import { CreateCollectionModal } from '../create-collection-modal';
 import CollectionFields from '../collection-fields';
-import styles from './create-collection-modal.less';
+import styles from './create-collection-modal.module.less';
 
 describe('CreateCollectionModal [Component]', () => {
   context('when the modal is visible', () => {

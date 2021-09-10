@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 
-import styles from './cross-circle.less';
+import styles from './cross-circle.module.less';
 
 /**
  * The cross circle.

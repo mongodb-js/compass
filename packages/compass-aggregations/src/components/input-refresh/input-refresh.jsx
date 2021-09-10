@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import styles from './input-refresh.less';
+import styles from './input-refresh.module.less';
 
 /**
  * Collapse/Expand a stage.

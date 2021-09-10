@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import SidebarInstanceStats from '../sidebar-instance-stats';
-import styles from './sidebar-instance-stats.less';
+import styles from './sidebar-instance-stats.module.less';
 
 describe('SidebarInstanceStats [Component]', () => {
   let component;

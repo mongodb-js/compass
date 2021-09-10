@@ -10,7 +10,7 @@ import CONSTANTS from '../../constants/schema';
 import get from 'lodash.get';
 import classnames from 'classnames';
 
-import styles from './compass-schema.less';
+import styles from './compass-schema.module.less';
 import SchemaSteps from '../steps/steps';
 import {
   ANALYSIS_STATE_INITIAL,

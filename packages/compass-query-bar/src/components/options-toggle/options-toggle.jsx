@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import FontAwesome from 'react-fontawesome';
 
-import styles from './options-toggle.less';
+import styles from './options-toggle.module.less';
 
 class OptionsToggle extends PureComponent {
   static displayName = 'OptionsToggle';

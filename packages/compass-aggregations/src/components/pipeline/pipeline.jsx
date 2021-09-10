@@ -16,7 +16,7 @@ import ImportPipeline from './modals/import-pipeline';
 import ConfirmImportPipeline from './modals/confirm-import-pipeline';
 import SavingPipelineModal from '../saving-pipeline-modal';
 import ConfirmNewPipeline from './modals/confirm-new-pipeline';
-import styles from './pipeline.less';
+import styles from './pipeline.module.less';
 
 import {
   DEFAULT_MAX_TIME_MS,

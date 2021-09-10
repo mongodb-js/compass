@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { SortableTable } from 'hadron-react-components';
 import dropDatabaseStore from '../../../stores/drop-database';
 
-import styles from './databases-table.less';
+import styles from './databases-table.module.less';
 
 /**
  * The name constant.

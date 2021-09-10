@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import ZeroGraphic from '../zero-graphic';
-import styles from './zero-graphic.less';
+import styles from './zero-graphic.module.less';
 
 describe('ZeroGraphic [Component]', () => {
   let component;

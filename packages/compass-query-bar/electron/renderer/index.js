@@ -1,14 +1,13 @@
+// Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
+// of global styles. If you are wishing to style a given component, you should be writing a less file per
+// component as per the CSS Modules ICSS spec. @see src/components/toggle-button for an example.
+import 'mongodb-compass/src/app/styles/index.less';
+
 import React, { useCallback, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import QueryBarPlugin, { configureStore, configureActions } from '../../src';
-
-// Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
-// of global styles. If you are wishing to style a given component, you should be writing a less file per
-// component as per the CSS Modules ICSS spec. @see src/components/toggle-button for an example.
-import 'bootstrap/less/bootstrap.less';
-import 'less/index.less';
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
 // we should create our own root node in the body element before rendering into it.

@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import IndexDefinitionType from '../index-definition-type';
 
-import styles from './index-definition-type.less';
+import styles from './index-definition-type.module.less';
 
 describe('IndexDefinitionType [Component]', () => {
   let component;

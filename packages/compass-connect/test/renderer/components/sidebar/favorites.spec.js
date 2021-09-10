@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import Favorites from '../../../../src/components/sidebar/favorites';
 import Actions from '../../../../src/actions';
 
-import styles from '../../../../src/components/sidebar/sidebar.less';
+import styles from '../../../../src/components/sidebar/sidebar.module.less';
 
 const delay = (amt) => new Promise((resolve) => setTimeout(resolve, amt));
 

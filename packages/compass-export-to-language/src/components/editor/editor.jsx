@@ -12,7 +12,7 @@ import 'brace/mode/java';
 
 import 'mongodb-ace-theme';
 
-import styles from './editor.less';
+import styles from './editor.module.less';
 
 class Editor extends PureComponent {
   static displayName = 'EditorComponent';

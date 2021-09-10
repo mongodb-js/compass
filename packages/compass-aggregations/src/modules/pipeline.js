@@ -1,4 +1,4 @@
-import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
+import { ADL, ATLAS, STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 import { generateStage, generateStageAsString } from './stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { ObjectId } from 'bson';
@@ -111,6 +111,11 @@ export const OUT = '$out';
 export const MERGE = '$merge';
 
 /**
+ * The search stage operator.
+ */
+export const SEARCH = '$search';
+
+/**
  * Generate an empty stage for the pipeline.
  *
  * @returns {Object} An empty stage.
@@ -157,9 +162,9 @@ const copyState = state => state.map(s => Object.assign({}, s));
  *
  * @returns {Object} The stage operator details.
  */
-const getStageOperator = (name, env) => {
+const getStageOperator = (name) => {
   return STAGE_OPERATORS.find((op) => {
-    return op.name === name && (op.env ? op.env.includes(env) : true);
+    return op.name === name;
   });
 };
 
@@ -249,8 +254,7 @@ const selectStageOperator = (state, action) => {
   const operatorName = action.stageOperator;
   if (operatorName !== state[action.index].stageOperator) {
     const newState = copyState(state);
-    // TODO: Durran: Need to account for ENV with operator name!!!!
-    const operatorDetails = getStageOperator(operatorName, action.env);
+    const operatorDetails = getStageOperator(operatorName);
     const snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
     const comment = (operatorDetails || {}).comment || '';
     const value = action.isCommenting ? `${comment}${snippet}` : snippet;
@@ -303,9 +307,21 @@ const toggleStageCollapse = (state, action) => {
  */
 const updateStagePreview = (state, action) => {
   const newState = copyState(state);
-  newState[action.index].previewDocuments =
-    action.error === null || action.error === undefined ? action.documents : [];
-  newState[action.index].error = action.error ? action.error.message : null;
+  if (newState.env !== ADL &&
+      newState.env !== ATLAS &&
+      newState[action.index].stageOperator === SEARCH &&
+      action.error &&
+      (action.error.code === 40324 /* Unrecognized pipeline stage name */ ||
+       action.error.code === 31082 /* $search not enabled */)) {
+    newState[action.index].previewDocuments = [];
+    newState[action.index].error = null;
+    newState[action.index].isMissingAtlasOnlyStageSupport = true;
+  } else {
+    newState[action.index].previewDocuments =
+      action.error === null || action.error === undefined ? action.documents : [];
+    newState[action.index].error = action.error ? action.error.message : null;
+    newState[action.index].isMissingAtlasOnlyStageSupport = false;
+  }
   newState[action.index].isLoading = false;
   newState[action.index].isComplete = action.isComplete;
   return newState;
@@ -467,13 +483,15 @@ export const stageToggled = index => ({
  *
  * @returns {Object} The action.
  */
-export const stagePreviewUpdated = (docs, index, error, isComplete) => ({
-  type: STAGE_PREVIEW_UPDATED,
-  documents: docs,
-  index: index,
-  error: error,
-  isComplete: isComplete
-});
+export const stagePreviewUpdated = (docs, index, error, isComplete) => {
+  return {
+    type: STAGE_PREVIEW_UPDATED,
+    documents: docs,
+    index: index,
+    error: error,
+    isComplete: isComplete
+  };
+};
 
 /**
  * The loading stage results action.

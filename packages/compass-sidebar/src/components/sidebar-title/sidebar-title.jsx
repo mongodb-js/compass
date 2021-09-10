@@ -10,7 +10,7 @@ import {
   NO_ACTIVE_NAMESPACE,
   changeActiveNamespace
 } from '../../modules/databases';
-import styles from './sidebar-title.less';
+import styles from './sidebar-title.module.less';
 
 /**
  * The title row in the sidebar.

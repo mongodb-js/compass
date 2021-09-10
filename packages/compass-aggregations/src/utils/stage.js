@@ -3,7 +3,7 @@ import semver from 'semver';
 
 import { generateStage } from '../modules/stage';
 import { emptyStage } from '../modules/pipeline';
-import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
+import { STAGE_OPERATORS, ATLAS } from 'mongodb-ace-autocompleter';
 
 const OUT = '$out';
 const MERGE = '$merge';
@@ -37,9 +37,21 @@ export const parseNamespace = (currentDb, stage) => {
 };
 
 /**
+ * Does this list of environments indicate Atlas-Cluster-only support?
+ *
+ * @param {Array} opEnvs - The operation-supported environments.
+ *
+ * @returns {boolean} If the env is atlas-only.
+ */
+export const isAtlasOnly = (opEnvs) => {
+  if (!opEnvs) return false;
+  return opEnvs.every(env => env === ATLAS);
+};
+
+/**
  * Is the env supported?
  *
- * @param {Array} opEnvs - The operation supported environments.
+ * @param {Array} opEnvs - The operation-supported environments.
  * @param {String} env - The current env.
  *
  * @returns {boolean} If the env is supported.
@@ -66,6 +78,6 @@ export const filterStageOperators = (version, allowWrites, env) => {
 
   return STAGE_OPERATORS.filter((o) => {
     if ((o.name === OUT || o.name === MERGE) && !allowWrites) return false;
-    return semver.gte(cleanVersion, o.version) && isSupportedEnv(o.env, env);
+    return semver.gte(cleanVersion, o.version) && (isSupportedEnv(o.env, env) || isAtlasOnly(o.env));
   });
 };

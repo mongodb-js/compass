@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import classnames from 'classnames';
-import styles from './drop-column.less';
+import styles from './drop-column.module.less';
 
 /**
  * Component for the drop column.

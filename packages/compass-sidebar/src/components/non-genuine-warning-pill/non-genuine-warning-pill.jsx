@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import FontAwesome from 'react-fontawesome';
 
-import styles from './non-genuine-warning-pill.less';
+import styles from './non-genuine-warning-pill.module.less';
 
 /**
  * The non genuine warning pill.

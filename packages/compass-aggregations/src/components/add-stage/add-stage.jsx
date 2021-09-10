@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { TextButton } from 'hadron-react-buttons';
 
-import styles from './add-stage.less';
+import styles from './add-stage.module.less';
 
 /**
  * Display a card with an add stage button.

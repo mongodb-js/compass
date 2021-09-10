@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import DeletePipelineButton from './delete-pipeline-button';
-import styles from './delete-pipeline-button.less';
+import styles from './delete-pipeline-button.module.less';
 
 describe('DeletePipelineButton [Component]', () => {
   context('when the component is rendered', () => {

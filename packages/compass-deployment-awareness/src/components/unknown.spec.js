@@ -6,7 +6,7 @@ import {
   RS_SECONDARY
 } from '../models/server-type';
 
-import styles from './unknown.less';
+import styles from './unknown.module.less';
 
 describe('<Unknown />', () => {
   describe('#render', () => {

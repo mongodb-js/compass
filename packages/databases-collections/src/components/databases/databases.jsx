@@ -10,7 +10,7 @@ import { sortDatabases } from '../../modules/databases/databases';
 import { open as openCreate } from '../../modules/create-database';
 import { open as openDrop } from '../../modules/drop-database';
 
-import styles from './databases.less';
+import styles from './databases.module.less';
 
 const HEADER = 'Unable to display databases and collections';
 const SUBTEXT = 'This server or service appears to be emulating'

@@ -40,7 +40,7 @@ import {
   toggleFullCollection,
 } from '../../modules/export';
 
-import styles from './export-modal.less';
+import styles from './export-modal.module.less';
 import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'export-modal');
 

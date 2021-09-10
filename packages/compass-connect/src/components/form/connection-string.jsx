@@ -6,7 +6,7 @@ import FormGroup from './form-group';
 import ConnectionStringInput from './connection-string-input';
 import FormActions from './form-actions';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 class ConnectionString extends React.Component {
   static displayName = 'ConnectionString';

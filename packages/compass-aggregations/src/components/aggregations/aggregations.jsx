@@ -84,7 +84,7 @@ import {
   updateView
 } from '../../modules/update-view';
 
-import styles from './aggregations.less';
+import styles from './aggregations.module.less';
 
 /**
  * The core aggregations component.

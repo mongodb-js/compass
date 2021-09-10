@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import styles from './input-builder.less';
+import styles from './input-builder.module.less';
 
 const LINK = 'https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline/';
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import FontAwesome from 'react-fontawesome';
 
-import styles from './is-favorite-pill.less';
+import styles from './is-favorite-pill.module.less';
 
 /**
  * The component for is favorite pill.

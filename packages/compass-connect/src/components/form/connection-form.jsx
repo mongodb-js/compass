@@ -14,7 +14,7 @@ import SSLMethod from './ssl-method';
 import SSHTunnel from './ssh-tunnel';
 import FormActions from './form-actions';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 class ConnectionForm extends React.Component {
   static displayName = 'ConnectionForm';

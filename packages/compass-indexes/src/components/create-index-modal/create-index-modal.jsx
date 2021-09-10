@@ -8,7 +8,7 @@ import { ModalStatusMessage, ModalCheckbox, ModalInput } from 'hadron-react-comp
 import pluck from 'lodash.pluck';
 
 import classnames from 'classnames';
-import styles from './create-index-modal.less';
+import styles from './create-index-modal.module.less';
 
 import CreateIndexField from '../create-index-field';
 

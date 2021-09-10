@@ -1,3 +1,8 @@
+// Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
+// of global styles. If you are wishing to style a given component, you should be writing a less file per
+// component as per the CSS Modules ICSS spec. @see src/components/toggle-button for an example.
+import 'mongodb-compass/src/app/styles/index.less';
+
 /* eslint-disable no-console */
 /* eslint-disable no-var */
 
@@ -17,11 +22,6 @@ import configureImportStore, {
   setDataProvider as setImportDataProvider
 } from '../../src/stores/import-store';
 import { activate as activateStats } from '@mongodb-js/compass-collection-stats';
-
-// Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
-// of global styles. If you are wishing to style a given component, you should be writing a less file per
-// component as per the CSS Modules ICSS spec. @see src/components/toggle-button for an example.
-import 'less/global.less';
 
 /**
  * Customize data service for your sandbox.

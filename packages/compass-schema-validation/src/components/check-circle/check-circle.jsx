@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 
-import styles from './check-circle.less';
+import styles from './check-circle.module.less';
 
 /**
  * The check circle.

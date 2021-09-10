@@ -9,7 +9,7 @@ import { clearError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
 import { openLink } from '../../modules/link';
 import CollectionFields from '../collection-fields';
-import styles from './create-database-modal.less';
+import styles from './create-database-modal.module.less';
 
 // The more information url.
 const INFO_URL_CREATE_DB =

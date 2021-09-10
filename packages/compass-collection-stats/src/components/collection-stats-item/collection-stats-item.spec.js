@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import CollectionStatsItem from '../collection-stats-item';
-import styles from './collection-stats-item.less';
+import styles from './collection-stats-item.module.less';
 
 describe('CollectionStatsItem [Component]', () => {
   context('when the component is not primary', () => {

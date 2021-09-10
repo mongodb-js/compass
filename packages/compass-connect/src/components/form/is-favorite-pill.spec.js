@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 
 import IsFavoritePill from './is-favorite-pill';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 describe('IsFavoritePill [Component]', () => {
   context('when it is a new connection', () => {

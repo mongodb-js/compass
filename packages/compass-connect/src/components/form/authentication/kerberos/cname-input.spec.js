@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import CnameInput from './cname-input';
-import styles from '../../../connect.less';
+import styles from '../../../connect.module.less';
 
 describe('<CnameInput />', () => {
   describe('#render', () => {

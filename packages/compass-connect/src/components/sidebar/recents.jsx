@@ -7,7 +7,7 @@ import { DropdownButton, MenuItem } from 'react-bootstrap';
 
 import Actions from '../../actions';
 
-import styles from './sidebar.less';
+import styles from './sidebar.module.less';
 
 const TWO_DAYS = 24 * 60 * 60 * 1000;
 

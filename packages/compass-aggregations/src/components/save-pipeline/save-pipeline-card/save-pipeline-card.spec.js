@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import SavePipelineCard from './save-pipeline-card';
-import styles from './save-pipeline-card.less';
+import styles from './save-pipeline-card.module.less';
 
 describe('SavePipelineCard [Component]', () => {
   context('when the component is rendered', () => {

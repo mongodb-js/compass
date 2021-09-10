@@ -8,6 +8,7 @@ var debug = require('debug')('storage-mixin');
  * them to a number of different storage backends.
  */
 module.exports = {
+  TestBackend: require('./backends/test'),
   secureMain: backends['secure-main'],
   storage: 'local',
   session: {

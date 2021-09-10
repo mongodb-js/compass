@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import Plugin from '../../../../src/index.js';
 import { TextButton } from 'hadron-react-buttons';
 
-import styles from './import-export.less';
+import styles from './import-export.module.less';
 
 class ImportExport extends Component {
   static displayName = 'ImportExportComponent';

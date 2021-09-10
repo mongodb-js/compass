@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import isEmpty from 'lodash.isempty';
 
-import styles from './status.less';
+import styles from './status.module.less';
 
 const STATUS_ID = 'statusbar';
 

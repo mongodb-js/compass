@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import CollectionHeader from '../collection-header';
-import styles from './collection-header.less';
+import styles from './collection-header.module.less';
 import ReadOnlyBadge from './read-only-badge';
 import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';

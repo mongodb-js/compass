@@ -4,7 +4,7 @@ import ReplicaSet from './replica-set';
 import ServerType from '../models/server-type';
 import TopologyType from '../models/topology-type';
 
-import styles from './replica-set.less';
+import styles from './replica-set.module.less';
 
 describe('<ReplicaSet />', () => {
   describe('#render', () => {

@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import FormFileInput from '../../../src/components/form/form-file-input';
 
-import styles from '../../../src/components/connect.less';
+import styles from '../../../src/components/connect.module.less';
 
 describe('FormFileInput [Component]', () => {
   context('when no values are provided', () => {

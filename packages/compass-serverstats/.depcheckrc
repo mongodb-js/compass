@@ -7,5 +7,6 @@ ignores: [
   "mock-require",
   "reflux-state-mixin",
   "sinon",
-  "sinon-chai"
+  "sinon-chai",
+  "mongodb-compass"
 ]

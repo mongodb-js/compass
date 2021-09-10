@@ -1,3 +1,4 @@
+import { AtlasLogoMark } from '@leafygreen-ui/logo';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
@@ -7,7 +8,7 @@ import LoadingOverlay from '../loading-overlay';
 import { OUT, MERGE } from '../../modules/pipeline';
 import decomment from 'decomment';
 
-import styles from './stage-preview.less';
+import styles from './stage-preview.module.less';
 
 /**
  * The stage preview component.
@@ -24,7 +25,9 @@ class StagePreview extends Component {
     isValid: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
-    isComplete: PropTypes.any,
+    isComplete: PropTypes.bool.isRequired,
+    isMissingAtlasOnlyStageSupport: PropTypes.bool.isRequired,
+    openLink: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,
     stage: PropTypes.string
@@ -50,6 +53,14 @@ class StagePreview extends Component {
    */
   onSaveDocuments = () => {
     this.props.runOutStage(this.props.index);
+  }
+
+  /**
+   * Called when the Atlas Signup CTA link is clicked.
+   */
+  onAtlasSignupCtaClicked = () => {
+    // TODO: Add tracking after switching to Segment
+    this.props.openLink('https://www.mongodb.com/cloud/atlas/lp/search-1?utm_campaign=atlas_search&utm_source=compass&utm_medium=product&utm_content=v1');
   }
 
   /**
@@ -133,11 +144,38 @@ class StagePreview extends Component {
   }
 
   /**
+   * If the stage operator is $search and it is not supported we
+   * show a Atlas signup CTA.
+   *
+   * @returns {Component} The component.
+   */
+  renderAtlasOnlyStagePreviewSection() {
+    return (
+      <div className={styles['stage-preview-missing-search-support']}>
+        <AtlasLogoMark size={30} className={styles['stage-preview-missing-search-support-icon']} />
+        <div className={styles['stage-preview-missing-search-support-text']}>
+          This stage is only available with MongoDB Atlas.
+
+          Create a free cluster or connect to an Atlas cluster to build search indexes and use the $search aggregation stage to run fast, relevant search queries.
+        </div>
+        <TextButton
+          text="Create Free Cluster"
+          className="btn btn-xs btn-primary"
+          clickHandler={this.onAtlasSignupCtaClicked}
+        />
+      </div>
+    );
+  }
+
+  /**
    * Render the preview section.
    *
    * @returns {Component} The component.
    */
   renderPreview() {
+    if (this.props.isMissingAtlasOnlyStageSupport) {
+      return this.renderAtlasOnlyStagePreviewSection();
+    }
     if (this.props.isValid && this.props.isEnabled) {
       if (this.props.stageOperator === OUT) {
         return this.renderOutSection();

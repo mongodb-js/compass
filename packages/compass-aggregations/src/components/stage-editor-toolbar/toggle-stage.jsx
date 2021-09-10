@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import Switch from 'react-ios-switch';
 import { Tooltip } from 'hadron-react-components';
 
-import styles from './toggle-stage.less';
+import styles from './toggle-stage.module.less';
 
 /**
  * The toggle stage button.

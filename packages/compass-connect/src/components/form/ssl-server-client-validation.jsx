@@ -8,7 +8,7 @@ import Actions from '../../actions';
 import FormInput from './form-input';
 import FormFileInput from './form-file-input';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 class SSLServerClientValidation extends React.Component {
   static displayName = 'SSLServerClientValidation';
@@ -120,7 +120,6 @@ class SSLServerClientValidation extends React.Component {
           changeHandler={this.onCertificateAuthorityChanged.bind(this)}
           values={this.props.connectionModel.sslCA}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities"
-          multi
         />
         <FormFileInput
           label="Client Certificate"

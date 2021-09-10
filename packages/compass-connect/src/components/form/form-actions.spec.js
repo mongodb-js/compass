@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import FormActions from './form-actions';
 
-import styles from '../connect.less';
+import styles from '../connect.module.less';
 
 describe('FormActions [Component]', () => {
   context('when no error is present', () => {

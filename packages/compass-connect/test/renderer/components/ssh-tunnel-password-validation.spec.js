@@ -3,7 +3,7 @@ import React from 'react';
 
 import SSHTunnelPassword from '../../../src/components/form/ssh-tunnel-password-validation';
 
-import styles from '../../../src/components/connect.less';
+import styles from '../../../src/components/connect.module.less';
 
 describe('SSHTunnelPassword [Component]', () => {
   describe('#render', () => {

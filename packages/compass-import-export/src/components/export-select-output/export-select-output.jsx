@@ -4,7 +4,7 @@ import toNS from 'mongodb-ns';
 import fileSaveDialog from '../../utils/file-save-dialog';
 import ProgressBar from '../progress-bar';
 import { FILETYPE } from '../../constants/export-step';
-import styles from './export-select-output.less';
+import styles from './export-select-output.module.less';
 import React, { PureComponent } from 'react';
 import createStyler from '../../utils/styler.js';
 import classnames from 'classnames';

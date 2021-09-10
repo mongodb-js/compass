@@ -1,5 +1,6 @@
 import SSHTunnel, { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
 import { MongoClient, MongoClientOptions, ReadPreferenceLike } from 'mongodb';
+import ConnectionString from 'mongodb-connection-string-url';
 import { promisify } from 'util';
 import { ConnectionOptions } from './connection-options';
 
@@ -7,6 +8,7 @@ import { ConnectionOptions } from './connection-options';
 const ConnectionModel = require('mongodb-connection-model');
 
 export interface LegacyConnectionModelProperties {
+  _id: string;
   hostname: string;
   port: number;
   ns?: string;
@@ -81,7 +83,7 @@ export interface LegacyConnectionModelProperties {
     | 'UNVALIDATED'
     | 'SERVER'
     | 'ALL';
-  sslCA?: any;
+  sslCA?: string[];
   sslCert?: any;
   sslKey?: any;
   sslPass?: string;
@@ -99,6 +101,11 @@ export interface LegacyConnectionModelProperties {
   isFavorite: boolean;
   name: string;
   color?: string;
+}
+
+export interface AmpersandMethodOptions<T> {
+  success: (model: T) => void;
+  error: (model: T, error: Error) => void;
 }
 
 export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
@@ -120,14 +127,26 @@ export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
   ): void;
 
   toJSON(): LegacyConnectionModelProperties;
+  save: (
+    attributes?: Partial<LegacyConnectionModel>,
+    options?: AmpersandMethodOptions<LegacyConnectionModel>
+  ) => void;
+  destroy: (options?: AmpersandMethodOptions<LegacyConnectionModel>) => void;
+  once: (event: string, handler: () => void) => void;
 }
 
 export function convertConnectionModelToOptions(
   model: LegacyConnectionModel
 ): ConnectionOptions {
   const options: ConnectionOptions = {
+    id: model._id,
     connectionString: model.driverUrl,
   };
+
+  convertSslPropertiesToConnectionOptions(model, options);
+  if (model.sslCert && model.sslCert !== model.sslKey) {
+    options.tlsCertificateFile = model.sslCert;
+  }
 
   if (
     model.sshTunnel !== 'NONE' &&
@@ -160,6 +179,61 @@ export function convertConnectionModelToOptions(
   return options;
 }
 
+function convertSslPropertiesToConnectionOptions(
+  model: LegacyConnectionModel,
+  options: ConnectionOptions
+): void {
+  const url = new ConnectionString(options.connectionString);
+
+  switch (model.sslMethod) {
+    case 'SERVER':
+      url.searchParams.set('tlsAllowInvalidCertificates', 'false');
+      convertSslCAToConnectionString(model.sslCA, url);
+      break;
+    case 'ALL':
+      url.searchParams.set('tlsAllowInvalidCertificates', 'false');
+      convertSslCAToConnectionString(model.sslCA, url);
+      if (model.sslCert && model.sslCert !== model.sslKey) {
+        options.tlsCertificateFile = model.sslCert;
+      }
+      if (model.sslKey) {
+        url.searchParams.set('tlsCertificateKeyFile', model.sslKey);
+      }
+      if (model.sslPass) {
+        url.searchParams.set('tlsCertificateKeyFilePassword', model.sslPass);
+      }
+      break;
+    case 'UNVALIDATED':
+      url.searchParams.set('tlsAllowInvalidCertificates', 'true');
+      url.searchParams.set('tlsAllowInvalidHostnames', 'true');
+      break;
+    case 'SYSTEMCA':
+      url.searchParams.set('tlsAllowInvalidCertificates', 'false');
+      url.searchParams.set('tlsAllowInvalidHostnames', 'false');
+      break;
+    case 'IFAVAILABLE':
+      url.searchParams.set('tlsAllowInvalidCertificates', 'false');
+      url.searchParams.set('tlsAllowInvalidHostnames', 'true');
+      break;
+  }
+
+  options.connectionString = url.toString();
+}
+
+function convertSslCAToConnectionString(
+  sslCA: string | string[] | undefined,
+  url: ConnectionString
+): void {
+  if (!sslCA) {
+    return;
+  }
+  if (typeof sslCA === 'string') {
+    url.searchParams.set('tlsCAFile', sslCA);
+  } else if (Array.isArray(sslCA) && sslCA.length > 0) {
+    url.searchParams.set('tlsCAFile', sslCA[0]);
+  }
+}
+
 export async function convertConnectionOptionsToModel(
   options: ConnectionOptions
 ): Promise<LegacyConnectionModel> {
@@ -167,7 +241,11 @@ export async function convertConnectionOptionsToModel(
     ConnectionModel.from
   )(options.connectionString);
 
-  const additionalOptions: Partial<LegacyConnectionModelProperties> = {};
+  const additionalOptions: Partial<LegacyConnectionModelProperties> = {
+    _id: options.id,
+  };
+
+  convertSslOptionsToLegacyProperties(options, additionalOptions);
 
   if (options.sshTunnel) {
     additionalOptions.sshTunnel = !options.sshTunnel.privateKeyFile
@@ -191,4 +269,56 @@ export async function convertConnectionOptionsToModel(
     ...connection.toJSON(),
     ...additionalOptions,
   });
+}
+
+function convertSslOptionsToLegacyProperties(
+  options: ConnectionOptions,
+  properties: Partial<LegacyConnectionModelProperties>
+): void {
+  const url = new ConnectionString(options.connectionString);
+  const tlsAllowInvalidCertificates = url.searchParams.get(
+    'tlsAllowInvalidCertificates'
+  );
+  const tlsAllowInvalidHostnames = url.searchParams.get(
+    'tlsAllowInvalidHostnames'
+  );
+  const tlsCAFile = url.searchParams.get('tlsCAFile');
+  const tlsCertificateKeyFile = url.searchParams.get('tlsCertificateKeyFile');
+  const tlsCertificateKeyFilePassword = url.searchParams.get(
+    'tlsCertificateKeyFilePassword'
+  );
+
+  if (tlsAllowInvalidCertificates === 'false' && tlsCAFile) {
+    properties.sslMethod = 'SERVER';
+    properties.sslCert = undefined;
+    properties.sslKey = undefined;
+
+    if (options.tlsCertificateFile || tlsCertificateKeyFile) {
+      properties.sslMethod = 'ALL';
+      properties.sslCert = options.tlsCertificateFile ?? tlsCertificateKeyFile;
+      properties.sslKey = tlsCertificateKeyFile ?? undefined;
+      properties.sslPass = tlsCertificateKeyFilePassword ?? undefined;
+    }
+  } else {
+    properties.sslCA = undefined;
+    properties.sslCert = undefined;
+    properties.sslKey = undefined;
+    properties.sslPass = undefined;
+    if (
+      tlsAllowInvalidCertificates === 'true' &&
+      tlsAllowInvalidHostnames === 'true'
+    ) {
+      properties.sslMethod = 'UNVALIDATED';
+    } else if (
+      tlsAllowInvalidCertificates === 'false' &&
+      tlsAllowInvalidHostnames === 'false'
+    ) {
+      properties.sslMethod = 'SYSTEMCA';
+    } else if (
+      tlsAllowInvalidCertificates === 'false' &&
+      tlsAllowInvalidHostnames === 'true'
+    ) {
+      properties.sslMethod = 'IFAVAILABLE';
+    }
+  }
 }

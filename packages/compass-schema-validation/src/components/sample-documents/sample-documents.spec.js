@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import SampleDocuments from '../sample-documents';
-import styles from './sample-documents.less';
+import styles from './sample-documents.module.less';
 
 describe('SampleDocuments [Component]', () => {
   let component;

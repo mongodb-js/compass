@@ -8,10 +8,20 @@ var wrapOptions = require('./errback').wrapOptions;
 var wrapErrback = require('./errback').wrapErrback;
 var mergeSpliceResults = require('./util').mergeSpliceResults;
 var inherits = require('util').inherits;
+var TestBackend = require('./test');
 
 var debug = require('debug')('mongodb-storage-mixin:backends:splice-disk');
 
 function SpliceDiskIpcBackend(options) {
+  // replace with tests backend
+  if (process.env.MONGODB_COMPASS_STORAGE_MIXIN_TEST === 'true') {
+    return new TestBackend(options);
+  }
+
+  if (typeof window === 'undefined') {
+    return NullBackend;
+  }
+
   if (!(this instanceof SpliceDiskIpcBackend)) {
     return new SpliceDiskIpcBackend(options);
   }
@@ -91,4 +101,4 @@ SpliceDiskIpcBackend.prototype.exec = function(method, model, options, done) {
   async.waterfall(tasks, done);
 };
 
-module.exports = typeof window !== 'undefined' ? SpliceDiskIpcBackend : NullBackend;
+module.exports = SpliceDiskIpcBackend;

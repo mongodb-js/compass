@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import ValidationSelector from '../validation-selector';
 
-import styles from './validation-selector.less';
+import styles from './validation-selector.module.less';
 
 describe('ValidationSelector [Component]', () => {
   let component;

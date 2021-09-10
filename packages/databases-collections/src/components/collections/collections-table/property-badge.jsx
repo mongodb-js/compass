@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Badge from '@leafygreen-ui/badge';
 import Tooltip from '@leafygreen-ui/tooltip';
 
-import styles from './property-badge.less';
+import styles from './property-badge.module.less';
 
 export default class PropertyBadge extends PureComponent {
   static displayName = 'PropertyBadge';

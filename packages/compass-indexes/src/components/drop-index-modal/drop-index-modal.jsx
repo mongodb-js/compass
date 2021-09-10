@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import { ModalStatusMessage } from 'hadron-react-components';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
 
-import classnames from 'classnames';
-import styles from './drop-index-modal.less';
+import styles from './drop-index-modal.module.less';
 
 import { toggleIsVisible } from '../../modules/is-visible';
 import { toggleInProgress } from '../../modules/in-progress';
@@ -70,63 +69,44 @@ class DropIndexModal extends PureComponent {
    */
   render() {
     return (
-      <Modal show={this.props.isVisible}
-        backdrop="static"
-        dialogClassName={classnames(styles['drop-index-modal'])}
-        onHide={this.handleClose.bind(this)} >
-
-        <Modal.Header>
-          <Modal.Title>Drop Index</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>
-          <div>
-            <p className={classnames(styles['drop-index-modal-confirm'])}>
-              <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+      <ConfirmationModal
+        title="Drop Index"
+        open={this.props.isVisible}
+        onConfirm={this.handleConfirm.bind(this)}
+        onCancel={this.handleClose.bind(this)}
+        buttonText="Drop"
+        variant="danger"
+        submitDisabled={this.props.confirmName !== this.props.name}
+        className={styles['drop-index-modal']}
+      >
+        <div>
+          <p className={styles['drop-index-modal-confirm']}>
+            <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
               Type the index name
-              <strong> {this.props.name} </strong>
+            <strong> {this.props.name} </strong>
               to drop
-            </p>
+          </p>
+        </div>
+        <form
+          onSubmit={this.onFormSubmit.bind(this)}>
+          <div className="form-group">
+            <input
+              type="text"
+              className="form-control"
+              data-test-id="confirm-drop-index-name"
+              value={this.props.confirmName}
+              onChange={(evt) => (this.props.changeConfirmName(evt.target.value))}
+            />
           </div>
-          <form
-            onSubmit={this.onFormSubmit.bind(this)}>
-            <div className="form-group">
-              <input
-                autoFocus
-                type="text"
-                className="form-control"
-                data-test-id="confirm-drop-index-name"
-                value={this.props.confirmName}
-                onChange={(evt) => (this.props.changeConfirmName(evt.target.value))} />
-            </div>
-            {!(this.props.error === null || this.props.error === undefined) ?
-              <ModalStatusMessage icon="times" message={this.props.error} type="error" />
-              : null}
+          {!(this.props.error === null || this.props.error === undefined) ?
+            <ModalStatusMessage icon="times" message={this.props.error} type="error" />
+            : null}
 
-            {this.props.inProgress && (this.props.error === null || this.props.error === undefined) ?
-              <ModalStatusMessage icon="spinner" message="Drop in Progress" type="in-progress" />
-              : null}
-
-            <div className={classnames(styles['drop-index-modal-buttons'])}>
-              <button
-                className="btn btn-default btn-sm"
-                data-test-id="cancel-drop-index-button"
-                type="button"
-                onClick={this.handleClose.bind(this)}>
-                Cancel
-              </button>
-              <button
-                className="btn btn-alert btn-sm"
-                data-test-id="drop-index-button"
-                disabled={this.props.confirmName !== this.props.name}
-                type="button"
-                onClick={this.handleConfirm.bind(this)}>
-                Drop
-              </button>
-            </div>
-          </form>
-        </Modal.Body>
-      </Modal>
+          {this.props.inProgress && (this.props.error === null || this.props.error === undefined) ?
+            <ModalStatusMessage icon="spinner" message="Drop in Progress" type="in-progress" />
+            : null}
+        </form>
+      </ConfirmationModal>
     );
   }
 }

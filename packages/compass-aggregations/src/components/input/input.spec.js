@@ -3,9 +3,9 @@ import { mount } from 'enzyme';
 
 import Input from '../input';
 import InputToolbar from '../input-toolbar';
-import styles from './input.less';
+import styles from './input.module.less';
 
-import workspaceStyles from '../input-workspace/input-workspace.less';
+import workspaceStyles from '../input-workspace/input-workspace.module.less';
 
 describe('Input [Component]', () => {
   let component;
