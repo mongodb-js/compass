@@ -2,19 +2,12 @@ const Selectors = require('../selectors');
 
 module.exports = function (app) {
   return async function () {
-    const exists = await app.client.waitForElement(Selectors.FeatureTourModal, {
-      mustExist: false,
-      visibleError: 'Expected feature tour modal to be visible',
-    });
-
-    if (!exists) {
+    if (!await app.client.existsEventually(Selectors.FeatureTourModal, 1000)) {
       return;
     }
 
+    await app.client.waitForVisible(Selectors.FeatureTourModal);
     await app.client.clickVisible(Selectors.CloseFeatureTourModal);
-
-    await app.client.waitUntilGone(Selectors.FeatureTourModal, {
-      timeoutMsg: 'Expected feature tour modal to disappear after closing it',
-    });
+    await app.client.waitForExist(Selectors.FeatureTourModal, 1000, false);
   };
 };

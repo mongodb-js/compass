@@ -79,7 +79,7 @@ class CollectionHeader extends Component {
     return (
       <div className={styles['collection-header']}>
         {!this.props.isReadonly && this.renderStats()}
-        <div className={styles['collection-header-title']} title={`${database}.${collection}`}>
+        <div className={styles['collection-header-title']} data-test-id="collection-header-title" title={`${database}.${collection}`}>
           <a
             className={styles['collection-header-title-db']}
             onClick={() => this.handleDBClick(database)}

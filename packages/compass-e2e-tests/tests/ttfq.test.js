@@ -1,27 +1,40 @@
 // @ts-check
 const { expect } = require('chai');
 const { beforeTests, afterTests } = require('../helpers/compass');
+const Selectors = require('../helpers/selectors');
 
-describe('Time to first query', function () {
+describe.only('Time to first query', function () {
   this.timeout(1000 * 60 * 1);
 
   let keychain;
   let compass;
 
-  it('can open compass and connect to a database', async function () {
+  it('can open compass, connect to a database and run a query on a collection', async function () {
     // start compass inside the test so that the time is measured together
     ({ keychain, compass } = await beforeTests());
 
-    await compass.client.connectWithConnectionString(
+    const { client } = compass;
+
+    await client.connectWithConnectionString(
       'mongodb://localhost:27018/test'
     );
 
-    const result = await compass.client.shellEval(
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
+    await client.navigateToCollectionTab('test', 'numbers', 'Documents');
 
-    expect(result).to.have.property('ok', 1);
+    // search for the document with id == 42 and wait for just one result to appear
+    // NOTE: .ace_comment will only exist if it is empty, so this isn't perfectly idempotent
+    await client.click('.ace_comment');
+    await client.keys('{ i: 42 }');
+    await client.click(Selectors.QueryBarApplyFilterButton);
+    await client.waitUntil(async () => {
+      // we start off with 20 results (assuming no filter) and we expect to
+      // have just one once the filter finishes
+      const result = await client.elements('.document-list .document');
+      return result.value.length === 1;
+    });
+
+    const text = await client.getText('.document-list .document .element-value-is-int32');
+    expect(text).to.equal('42');
   });
 
   // eslint-disable-next-line mocha/no-hooks-for-single-case

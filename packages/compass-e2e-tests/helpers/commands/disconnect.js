@@ -3,10 +3,7 @@ const Selectors = require('../selectors');
 
 async function closeConnectionModal(app) {
   await app.client.clickVisible(Selectors.CancelConnectionButton);
-  await app.client.waitUntilGone(Selectors.ConnectionStatusModalContent, {
-    timeoutMsg:
-      'Expected connection status modal to disappear after cancelling the connection',
-  });
+  await app.client.waitForExist(Selectors.ConnectionStatusModalContent, 1000, false);
 }
 
 module.exports = function (app) {
