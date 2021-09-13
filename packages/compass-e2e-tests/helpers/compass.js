@@ -380,7 +380,7 @@ async function beforeTests() {
   keychain.activate();
   const compass = await startCompass();
 
-  const client = compass.client;
+  const client = compass.wrappedClient;
 
   // XXX: This seems to be a bit unstable in GitHub CI on macOS machines, for
   // that reason we want to do a few retries here (in most other cases this
