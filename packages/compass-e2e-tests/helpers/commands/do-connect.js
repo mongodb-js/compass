@@ -1,4 +1,3 @@
-const { delay } = require('../delay');
 const Selectors = require('../selectors');
 
 module.exports = function (app) {

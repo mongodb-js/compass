@@ -63,9 +63,7 @@ module.exports = function (app) {
       // TODO: No point in having different `name`s in UI, they are not used for
       // anything and all those map to `username` in driver options anyway
       if (
-        await client.isVisible(
-          Selectors.ConnectionFormInputKerberosPrincipal
-        )
+        await client.isVisible(Selectors.ConnectionFormInputKerberosPrincipal)
       ) {
         await client.setValue(
           Selectors.ConnectionFormInputKerberosPrincipal,
@@ -79,27 +77,19 @@ module.exports = function (app) {
           username
         );
       } else {
-        await client.setValue(
-          Selectors.ConnectionFormInputUsername,
-          username
-        );
+        await client.setValue(Selectors.ConnectionFormInputUsername, username);
       }
     }
 
     if (typeof password !== 'undefined') {
       // TODO: See above
-      if (
-        await client.isVisible(Selectors.ConnectionFormInputLDAPPassword)
-      ) {
+      if (await client.isVisible(Selectors.ConnectionFormInputLDAPPassword)) {
         await client.setValue(
           Selectors.ConnectionFormInputLDAPPassword,
           password
         );
       } else {
-        await client.setValue(
-          Selectors.ConnectionFormInputPassword,
-          password
-        );
+        await client.setValue(Selectors.ConnectionFormInputPassword, password);
       }
     }
 
@@ -161,10 +151,7 @@ module.exports = function (app) {
     );
 
     if (typeof sshTunnelHostname !== 'undefined') {
-      await client.setValue(
-        '[name="sshTunnelHostname"]',
-        sshTunnelHostname
-      );
+      await client.setValue('[name="sshTunnelHostname"]', sshTunnelHostname);
     }
 
     if (typeof sshTunnelPort !== 'undefined') {
@@ -172,17 +159,11 @@ module.exports = function (app) {
     }
 
     if (typeof sshTunnelUsername !== 'undefined') {
-      await client.setValue(
-        '[name="sshTunnelUsername"]',
-        sshTunnelUsername
-      );
+      await client.setValue('[name="sshTunnelUsername"]', sshTunnelUsername);
     }
 
     if (typeof sshTunnelPassword !== 'undefined') {
-      await client.setValue(
-        '[name="sshTunnelPassword"]',
-        sshTunnelPassword
-      );
+      await client.setValue('[name="sshTunnelPassword"]', sshTunnelPassword);
     }
 
     await client.doConnect(timeout);

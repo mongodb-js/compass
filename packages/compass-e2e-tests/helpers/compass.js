@@ -308,14 +308,14 @@ function addDebugger(app) {
 function wrapCommands(app) {
   const proto = Object.getPrototypeOf(app.client);
   const commands = Object.keys(proto).filter((key) => {
-    return (typeof proto[key] === 'function' && !key.includes('.'));
+    return typeof proto[key] === 'function' && !key.includes('.');
   });
 
   const wrapped = {};
   for (const command of commands) {
     wrapped[command] = async function (...args) {
       console.log(`${command} ${args.join(', ')}`);
-      const stack = (new Error(command)).stack;
+      const stack = new Error(command).stack;
       try {
         return await app.client[command].call(app.client, ...args);
       } catch (error) {
@@ -330,10 +330,11 @@ function wrapCommands(app) {
 }
 
 function stripWrapped(stack) {
-
   const lines = stack.split('\n');
   // This is the same every time and not very useful
-  return lines.filter((line) => !line.startsWith('    at Object.wrapped.<computed>')).join('\n');
+  return lines
+    .filter((line) => !line.startsWith('    at Object.wrapped.<computed>'))
+    .join('\n');
 }
 
 /**
@@ -416,7 +417,9 @@ async function printLogs(compass) {
   const types = (await client.logTypes()).value;
   for (const type of types) {
     const logs = (await client.log(type)).value;
-    const filtered = logs.filter((log) => !['DEBUG', 'INFO'].includes(log.level));
+    const filtered = logs.filter(
+      (log) => !['DEBUG', 'INFO'].includes(log.level)
+    );
     if (filtered.length === 0) {
       continue;
     }

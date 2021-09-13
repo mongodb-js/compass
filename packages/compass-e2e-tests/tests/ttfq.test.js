@@ -15,9 +15,7 @@ describe('Time to first query', function () {
 
     const client = compass.wrappedClient;
 
-    await client.connectWithConnectionString(
-      'mongodb://localhost:27018/test'
-    );
+    await client.connectWithConnectionString('mongodb://localhost:27018/test');
 
     await client.navigateToCollectionTab('test', 'numbers', 'Documents');
 
@@ -33,7 +31,9 @@ describe('Time to first query', function () {
       return result.value.length === 1;
     });
 
-    const text = await client.getText('.document-list .document .element-value-is-int32');
+    const text = await client.getText(
+      '.document-list .document .element-value-is-int32'
+    );
     expect(text).to.equal('42');
   });
 

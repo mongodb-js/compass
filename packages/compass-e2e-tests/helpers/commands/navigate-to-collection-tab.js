@@ -22,7 +22,11 @@ module.exports = function (app) {
     await client.waitForVisible(headerSelector);
   }
 
-  return async function navigateToCollectionTab(dbName, collectionName, tabName) {
+  return async function navigateToCollectionTab(
+    dbName,
+    collectionName,
+    tabName
+  ) {
     const client = app.wrappedClient;
 
     const tabSelector = `${Selectors.CollectionTab}[name="${tabName}"]`;
@@ -38,5 +42,5 @@ module.exports = function (app) {
     // otherwise select the tab and wait for it to become selected
     await client.click(tabSelector);
     await client.waitForVisible(tabSelectedSelector);
-  }
-}
+  };
+};

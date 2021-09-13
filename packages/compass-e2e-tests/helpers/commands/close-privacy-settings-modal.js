@@ -4,7 +4,9 @@ module.exports = function (app) {
   return async function closePrivacySettingsModal() {
     const client = app.wrappedClient;
 
-    if (!(await client.existsEventually(Selectors.PrivacySettingsModal, 1000))) {
+    if (
+      !(await client.existsEventually(Selectors.PrivacySettingsModal, 1000))
+    ) {
       return;
     }
 

@@ -4,7 +4,7 @@ module.exports = function (app) {
   return async function () {
     const client = app.wrappedClient;
 
-    if (!await client.existsEventually(Selectors.FeatureTourModal, 1000)) {
+    if (!(await client.existsEventually(Selectors.FeatureTourModal, 1000))) {
       return;
     }
 

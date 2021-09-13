@@ -38,9 +38,8 @@ async function main() {
   try {
     const failures = await promisify(mocha.run.bind(mocha))();
     process.exitCode = failures ? 1 : 0;
-  }
-  catch (err) {
-    console.error('mocha threw', err);// we never see failures. mocha throws 1
+  } catch (err) {
+    console.error('mocha threw', err); // we never see failures. mocha throws 1
     process.exitCode = 1;
   }
 }

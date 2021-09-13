@@ -4,7 +4,11 @@ const Selectors = require('../selectors');
 async function closeConnectionModal(app) {
   const client = app.wrappedClient;
   await client.clickVisible(Selectors.CancelConnectionButton);
-  await client.waitForExist(Selectors.ConnectionStatusModalContent, 1000, false);
+  await client.waitForExist(
+    Selectors.ConnectionStatusModalContent,
+    1000,
+    false
+  );
 }
 
 module.exports = function (app) {

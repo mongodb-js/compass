@@ -4,8 +4,7 @@ module.exports = function (app) {
     try {
       // return true if it exists before the timeout expires
       return await client.waitForExist(selector, timeout);
-    }
-    catch (err) {
+    } catch (err) {
       // return false if not
       return false;
     }
