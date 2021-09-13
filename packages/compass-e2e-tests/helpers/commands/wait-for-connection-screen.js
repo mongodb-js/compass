@@ -4,7 +4,7 @@ const MINUTE = 1000 * 60 * 1;
 
 module.exports = function (app) {
   return async function waitForConnectionScreen() {
-    const client = app.client;
+    const client = app.wrappedClient;
     await client.waitUntil(
       async () => {
         // Compass starts with two windows (one is loading, another is main)
