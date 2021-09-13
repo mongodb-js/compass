@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import FontAwesome from 'react-fontawesome';
 
 import styles from './non-genuine-warning-pill.module.less';
@@ -11,7 +10,6 @@ import styles from './non-genuine-warning-pill.module.less';
 class NonGenuineWarningPill extends PureComponent {
   static displayName = 'NonGenuineWarningPill';
   static propTypes = {
-    isSidebarCollapsed: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired
   }
 
@@ -21,12 +19,12 @@ class NonGenuineWarningPill extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    if (this.props.isGenuineMongoDB || this.props.isSidebarCollapsed) {
+    if (this.props.isGenuineMongoDB) {
       return null;
     }
     return (
-      <div className={classnames(styles['non-genuine-warning-pill'])}>
-        <div className={classnames(styles['non-genuine-warning-pill-text'])}>
+      <div className={styles['non-genuine-warning-pill']}>
+        <div className={styles['non-genuine-warning-pill-text']}>
           <FontAwesome name="exclamation-circle"/>
           &nbsp;NON-GENUINE MONGODB
         </div>

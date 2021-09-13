@@ -48,7 +48,8 @@
     "@mongosh/browser-repl": "^1.0.4",
     "@mongosh/node-runtime-worker-thread": "^1.0.4",
     "@mongosh/service-provider-core": "^1.0.4",
-    "hadron-react-buttons": "^5.4.0"
+    "hadron-react-buttons": "^5.4.0",
+    "re-resizable": "^6.9.0"
   },
   "peerDependencies": {
     "@leafygreen-ui/icon": "^11.4.0",
@@ -117,7 +118,6 @@
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "postcss-loader": "^2.1.6",
     "prop-types": "^15.7.2",
-    "re-resizable": "^6.9.0",
     "react": "^16.14.0",
     "react-ace": "^6.6.0",
     "react-bootstrap": "^0.32.1",

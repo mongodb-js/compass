@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import FontAwesome from 'react-fontawesome';
 
 import styles from './is-favorite-pill.module.less';
@@ -11,7 +10,6 @@ import styles from './is-favorite-pill.module.less';
 class IsFavoritePill extends PureComponent {
   static displayName = 'IsFavoritePill';
   static propTypes = {
-    isSidebarCollapsed: PropTypes.bool.isRequired,
     connectionModel: PropTypes.object.isRequired,
     toggleIsModalVisible: PropTypes.func.isRequired
   }
@@ -33,10 +31,6 @@ class IsFavoritePill extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    if (this.props.isSidebarCollapsed) {
-      return null;
-    }
-
     const isFavorite = this.props.connectionModel.connection.isFavorite;
     const fontAwesomeName = isFavorite ? 'star' : 'star-o';
     const hex = this.props.connectionModel.connection.color;
@@ -46,9 +40,9 @@ class IsFavoritePill extends PureComponent {
     };
 
     return (
-      <div className={classnames(styles['is-favorite-pill'])}>
+      <div className={styles['is-favorite-pill']}>
         <a
-          style={style} className={classnames(styles['is-favorite-pill-text'])}
+          style={style} className={styles['is-favorite-pill-text']}
           onClick={this.clickFavoritePill.bind(this)}>
           <FontAwesome name={fontAwesomeName}/>
           &nbsp;FAVORITE
