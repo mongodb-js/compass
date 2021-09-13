@@ -27,6 +27,10 @@ module.exports = async function setupLogging(app) {
     await fs.mkdir(directory, { recursive: true });
     const writer = await manager.createLogWriter();
 
+    // Note: The e2e tests rely on this particular line for figuring
+    // out where the log output is written.
+    debug('Writing log output to', writer.logFilePath);
+
     writer.info('COMPASS-MAIN', mongoLogId(1_001_000_001), 'logging', 'Starting logging', {
       version,
       platform: os.platform(),

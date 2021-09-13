@@ -60,7 +60,10 @@ var debug = require('debug')('mongodb-compass:app');
 
 window.addEventListener('error', (event) => {
   event.preventDefault();
-  ipc.call('compass:error:fatal', { message: event.error.message, stack: event.error.stack });
+  ipc.call('compass:error:fatal',
+    event.error ?
+      { message: event.error.message, stack: event.error.stack } :
+      { message: event.message, stack: '<no stack available>' });
 });
 
 /**
@@ -375,6 +378,11 @@ app.extend({
           state.startRouter();
           state.postRender();
           marky.stop('Time to user can Click Connect');
+          if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {
+            queueMicrotask(() => {
+              throw new Error('fake exception');
+            });
+          }
         });
         require('./setup-plugin-manager');
       }

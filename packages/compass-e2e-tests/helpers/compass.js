@@ -4,6 +4,7 @@ const { promises: fs } = require('fs');
 const path = require('path');
 const os = require('os');
 const { promisify } = require('util');
+const { gunzip } = require('zlib');
 const { Application } = require('spectron');
 const { rebuild } = require('electron-rebuild');
 const debug = require('debug')('compass-e2e-tests');
@@ -105,7 +106,6 @@ async function startCompass(
     os.tmpdir(),
     `user-data-dir-${Date.now().toString(32)}-${++i}`
   );
-
   await fs.mkdir(userDataDir, { recursive: true });
 
   const appOptions = {
@@ -120,7 +120,11 @@ async function startCompass(
       // root without this flag
       '--no-sandbox',
     ],
-    env: { APP_ENV: 'spectron', DEBUG: process.env.DEBUG },
+    env: {
+      APP_ENV: 'spectron',
+      DEBUG: `${process.env.DEBUG || ''},mongodb-compass:main:logging`,
+      HOME: userDataDir,
+    },
   };
 
   const shouldStoreAppLogs = process.env.ci || process.env.CI;
@@ -159,15 +163,18 @@ async function startCompass(
   const _stop = app.stop.bind(app);
 
   app.stop = async () => {
+    const logs = await app.client.getMainProcessLogs();
     if (shouldStoreAppLogs) {
       const logPath = path.join(LOG_PATH, `electron-main.${nowFormatted}.log`);
       debug(`Writing application main process log to ${logPath}`);
-      const logs = await app.client.getMainProcessLogs();
       await fs.writeFile(logPath, logs.join('\n'));
     }
     debug('Stopping Compass application');
     await _stop();
     debug('Removing user data');
+
+    app.compassLog = await getCompassLog(logs);
+
     try {
       await fs.rmdir(userDataDir, { recursive: true });
     } catch (e) {
@@ -180,6 +187,35 @@ async function startCompass(
   };
 
   return app;
+}
+
+/**
+ * @param {string[]} logs The main process console logs
+ * @returns {Promise<any[]>}
+ */
+async function getCompassLog(logs) {
+  const logOutputIndicatorMatch = logs
+    .map((line) => line.match(/Writing log output to (?<filename>.+)$/))
+    .find((match) => match);
+  if (!logOutputIndicatorMatch) {
+    debug('no log output indicator found!');
+    return [];
+  }
+
+  const { filename } = logOutputIndicatorMatch.groups;
+  debug('reading Compass application logs from', filename);
+  const contents = await promisify(gunzip)(await fs.readFile(filename));
+  return contents
+    .toString()
+    .split('\n')
+    .filter((line) => line.trim())
+    .map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return { unparsabableLine: line };
+      }
+    });
 }
 
 function formattedDate() {
