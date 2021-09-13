@@ -156,6 +156,8 @@ async function startCompass(
   addCommands(app);
   addDebugger(app);
 
+  app.wrappedClient = wrapCommands(app);
+
   const _stop = app.stop.bind(app);
 
   app.stop = async () => {
@@ -303,6 +305,37 @@ function addDebugger(app) {
   }
 }
 
+function wrapCommands(app) {
+  const proto = Object.getPrototypeOf(app.client);
+  const commands = Object.keys(proto).filter((key) => {
+    return (typeof proto[key] === 'function' && !key.includes('.'));
+  });
+
+  const wrapped = {};
+  for (const command of commands) {
+    wrapped[command] = async function (...args) {
+      console.log(`${command} ${args.join(', ')}`);
+      const stack = (new Error(command)).stack;
+      try {
+        return await app.client[command].call(app.client, ...args);
+      } catch (error) {
+        // Log how we got here, but still throw the original error
+        error.stack = `${error.stack}\nvia ${stripWrapped(stack)}`;
+        throw error;
+      }
+    };
+  }
+
+  return wrapped;
+}
+
+function stripWrapped(stack) {
+
+  const lines = stack.split('\n');
+  // This is the same every time and not very useful
+  return lines.filter((line) => !line.startsWith('    at Object.wrapped.<computed>')).join('\n');
+}
+
 /**
  * @param {ExtendedApplication} app
  * @param {string} imgPathName
@@ -347,13 +380,15 @@ async function beforeTests() {
   keychain.activate();
   const compass = await startCompass();
 
+  const client = compass.client;
+
   // XXX: This seems to be a bit unstable in GitHub CI on macOS machines, for
   // that reason we want to do a few retries here (in most other cases this
   // should pass on first attempt)
   await retryWithBackoff(async () => {
-    await compass.client.waitForConnectionScreen();
-    await compass.client.closeTourModal();
-    await compass.client.closePrivacySettingsModal();
+    await client.waitForConnectionScreen();
+    await client.closeTourModal();
+    await client.closePrivacySettingsModal();
   });
 
   return { keychain, compass };
@@ -362,6 +397,8 @@ async function beforeTests() {
 async function afterTests({ keychain, compass }) {
   try {
     if (compass) {
+      await printLogs(compass);
+
       if (process.env.CI) {
         await capturePage(compass);
         await savePage(compass);
@@ -371,6 +408,19 @@ async function afterTests({ keychain, compass }) {
     }
   } finally {
     keychain.reset();
+  }
+}
+
+async function printLogs(compass) {
+  const { client } = compass;
+  const types = (await client.logTypes()).value;
+  for (const type of types) {
+    const logs = (await client.log(type)).value;
+    const filtered = logs.filter((log) => !['DEBUG', 'INFO'].includes(log.level));
+    if (filtered.length === 0) {
+      continue;
+    }
+    console.log(`${type} logs:`, filtered);
   }
 }
 

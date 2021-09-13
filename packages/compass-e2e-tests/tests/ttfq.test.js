@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { beforeTests, afterTests } = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');
 
-describe.only('Time to first query', function () {
+describe('Time to first query', function () {
   this.timeout(1000 * 60 * 1);
 
   let keychain;
@@ -13,7 +13,7 @@ describe.only('Time to first query', function () {
     // start compass inside the test so that the time is measured together
     ({ keychain, compass } = await beforeTests());
 
-    const { client } = compass;
+    const client = compass.wrappedClient;
 
     await client.connectWithConnectionString(
       'mongodb://localhost:27018/test'
@@ -41,6 +41,8 @@ describe.only('Time to first query', function () {
   after(function () {
     // cleanup outside of the test so that the time it takes to run does not
     // get added to the time it took to run the first query
-    return afterTests({ keychain, compass });
+    if (keychain && compass) {
+      return afterTests({ keychain, compass });
+    }
   });
 });

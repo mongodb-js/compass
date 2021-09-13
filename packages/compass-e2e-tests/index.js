@@ -35,13 +35,18 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
-  const failures = await promisify(mocha.run.bind(mocha))();
-
-  process.exitCode = failures ? 1 : 0;
+  try {
+    const failures = await promisify(mocha.run.bind(mocha))();
+    process.exitCode = failures ? 1 : 0;
+  }
+  catch (err) {
+    console.error('mocha threw', err);// we never see failures. mocha throws 1
+    process.exitCode = 1;
+  }
 }
 
 process.on('unhandledRejection', (err) => {
-  console.error();
+  console.error('unhandledRejection:');
   console.error(err.stack || err.message || err);
   process.exitCode = 1;
 });
