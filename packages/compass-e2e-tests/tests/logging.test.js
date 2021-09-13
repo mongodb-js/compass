@@ -3,7 +3,9 @@ const { expect } = require('chai');
 const { beforeTests, afterTests } = require('../helpers/compass');
 
 function cleanLog(log) {
-  log = JSON.parse(JSON.stringify(log));
+  log = JSON.parse(
+    JSON.stringify(log).replace(/(MongoDB[ +]Compass)([+ ]\w+)+/g, '$1')
+  );
   for (const entry of log) {
     expect(entry.t.$date).to.be.a('string');
     delete entry.t; // Timestamps vary between each execution
@@ -15,10 +17,11 @@ function cleanLog(log) {
       delete entry.attr;
     }
     if (entry.id === 1001000002) {
-      entry.attr.stack = entry.attr.stack.replace(
-        /file:\/\/\/.+:\d+:\d+/g,
-        '<filename>'
-      );
+      entry.attr.stack = entry.attr.stack
+        .replace(/file:\/\/\/.+:\d+:\d+/g, '<filename>')
+        .split('\n')
+        .slice(0, 2)
+        .join('\n');
     }
   }
   return log;
