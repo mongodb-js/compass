@@ -37,7 +37,8 @@ module.exports = (config) => {
         browserWindowOptions: {
           webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
+            enableRemoteModule: true
           }
         }
       }
