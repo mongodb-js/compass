@@ -35,13 +35,7 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
-  try {
-    const failures = await promisify(mocha.run.bind(mocha))();
-    process.exitCode = failures ? 1 : 0;
-  } catch (err) {
-    console.error('mocha threw', err); // we never see failures. mocha throws 1
-    process.exitCode = 1;
-  }
+  mocha.run((failures) => process.exitCode = failures ? 1 : 0);
 }
 
 process.on('unhandledRejection', (err) => {
