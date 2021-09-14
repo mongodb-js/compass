@@ -1,5 +1,8 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
+import {
+  LogoMark
+} from '@leafygreen-ui/logo';
 
 import { SidebarTitle as SidebarTitleClass } from '../../../src/components/sidebar-title/sidebar-title';
 import styles from '../../../src/components/sidebar-title/sidebar-title.module.less';
@@ -36,9 +39,10 @@ describe('SidebarTitle [Component]', () => {
 
     it('renders icon', () => {
       expect(component.find(`.${styles['sidebar-title']}`)).to.be.present();
-      expect(component.find(`.${styles['sidebar-title-name']}`)).to.be.present();
+      expect(component.find(`.${styles['sidebar-title-name']}`)).to.not.be.present();
+      expect(component.find(`.${styles['sidebar-title-logo']}`)).to.be.present();
       expect(component.find(`.${styles['sidebar-title-is-active']}`)).to.not.be.present();
-      expect(component.find('FontAwesome[name="home"]')).to.be.present();
+      expect(component.find(LogoMark)).to.be.present();
     });
   });
 
@@ -64,7 +68,8 @@ describe('SidebarTitle [Component]', () => {
     it('renders icon', () => {
       expect(component.find(`.${styles['sidebar-title']}`)).to.be.present();
       expect(component.find(`.${styles['sidebar-title-name']}`)).to.be.present();
-      expect(component.find('FontAwesome[name="home"]')).to.be.not.present();
+      expect(component.find(`.${styles['sidebar-title-logo']}`)).to.not.be.present();
+      expect(component.find(LogoMark)).to.be.not.present();
     });
   });
 

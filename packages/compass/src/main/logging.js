@@ -18,7 +18,6 @@ module.exports = async function setupLogging(app) {
     const manager = new MongoLogManager({
       directory,
       gzip: true,
-      alwaysFlush: true,
       retentionDays: 30,
       onerror: (err, filepath) => debug('Failed to access path', filepath, err),
       onwarn: (err, filepath) => debug('Failed to access path', filepath, err)
@@ -26,6 +25,10 @@ module.exports = async function setupLogging(app) {
 
     await fs.mkdir(directory, { recursive: true });
     const writer = await manager.createLogWriter();
+
+    // Note: The e2e tests rely on this particular line for figuring
+    // out where the log output is written.
+    debug('Writing log output to', writer.logFilePath);
 
     writer.info('COMPASS-MAIN', mongoLogId(1_001_000_001), 'logging', 'Starting logging', {
       version,
@@ -42,6 +45,10 @@ module.exports = async function setupLogging(app) {
         message: exception && exception.message,
         stack: exception && exception.stack
       });
+    });
+
+    app.on('window-all-closed', function() {
+      writer.flush();
     });
 
     app.on('before-quit', function() {

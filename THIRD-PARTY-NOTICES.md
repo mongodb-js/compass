@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Thu Sep 09 2021.
+This document was automatically generated on Tue Sep 14 2021.
 
 ## List of dependencies
 
@@ -895,7 +895,7 @@ Package|Version|License
 **[mongodb-js-metrics](#887f16e8f60bd2d8faea91f894f87b72b5811040fd6c140c82667f5b76834506)**|7.4.0|SSPL
 **[mongodb-language-model](#cbd794dfb2a6af2e6a26543302378b298f3e263ae3324040c108f7777e154ca9)**|2.3.0|SSPL
 **[mongodb-language-model](#0dd22abc80cef69725ac9663fc47e7778e3d7dd9d478f17f866721d0103842cc)**|1.7.1|Apache-2.0
-**[mongodb-log-writer](#e2f16e6ca6f48b57b31b3f55efb66af0fb0a5343e1fe83c2fe62cab63d7e0f37)**|1.0.2|Apache-2.0
+**[mongodb-log-writer](#8a1799a23f75e9ecd7b5954ead5e790d26a6037ee0a64f4676ce6f5febbd6aa5)**|1.0.3|Apache-2.0
 **[mongodb-ns](#0ab278b2cfb1f3c3efbf2786ee9e15f2fd7506306b1428e4fe4641480ea93225)**|2.2.0|MIT
 **[mongodb-query-parser](#096a65b6dfe5d78c2c6a1f9ffdf9e381dcf688032aa8ab48bcb324007d0b6e26)**|2.4.3|Apache-2.0
 **[mongodb-query-util](#cca38af88354cbe08b44f198be120ccf55e468b2aad0dc82a55f98aa972b9686)**|0.2.1|Apache-2.0
@@ -39129,8 +39129,8 @@ Authors:
 * Thomas Rueckstiess <thomas@mongodb.com>
 
 
-<a id="e2f16e6ca6f48b57b31b3f55efb66af0fb0a5343e1fe83c2fe62cab63d7e0f37"></a>
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 1.0.2)
+<a id="8a1799a23f75e9ecd7b5954ead5e790d26a6037ee0a64f4676ce6f5febbd6aa5"></a>
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 1.0.3)
 <!-- initially found at node_modules/mongodb-log-writer -->
 > A library for writing MongoDB logv2 messages
 

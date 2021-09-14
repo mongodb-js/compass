@@ -40,30 +40,30 @@ class SidebarInstanceStats extends PureComponent {
       'fa-repeat');
 
     return (
-      <div className={classnames(styles['sidebar-instance-stats'])}>
+      <div className={styles['sidebar-instance-stats']}>
         <div
-          className={classnames(styles['sidebar-instance-stats-expand'])}
+          className={styles['sidebar-instance-stats-expand']}
           onClick={this.onToggleExpanded}>
           <i className={this.getArrowIconClasses()} />
         </div>
-        <div className={classnames(styles['sidebar-instance-stats-column'])}>
+        <div className={styles['sidebar-instance-stats-column']}>
           <span
             id="sidebar-instance-stats-dbs"
-            className={classnames(styles['sidebar-instance-stats-strong-property'])}>
+            className={styles['sidebar-instance-stats-strong-property']}>
             {numDbs}
           </span> DBs
         </div>
-        <div className={classnames(styles['sidebar-instance-stats-column'])}>
+        <div className={styles['sidebar-instance-stats-column']}>
           <span
             id="sidebar-instance-stats-collections"
-            className={classnames(styles['sidebar-instance-stats-strong-property'])}>
+            className={styles['sidebar-instance-stats-strong-property']}>
             {numCollections}
           </span> Collections
         </div>
-        <div className={classnames(styles['sidebar-instance-stats-refresh-button-container'])}>
+        <div className={styles['sidebar-instance-stats-refresh-button-container']}>
           <button
             onClick={this.onRefresh}
-            className={classnames(styles['sidebar-instance-stats-refresh-button'])}>
+            className={styles['sidebar-instance-stats-refresh-button']}>
             <i className={refreshName}/>
           </button>
         </div>

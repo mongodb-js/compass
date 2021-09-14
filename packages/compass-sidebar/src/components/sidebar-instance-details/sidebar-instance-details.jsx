@@ -1,14 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import classnames from 'classnames';
 import styles from './sidebar-instance-details.module.less';
 
 class SidebarInstanceDetails extends PureComponent {
   static displayName = 'SidebarInstanceDetails';
   static propTypes = {
     isExpanded: PropTypes.bool.isRequired,
-    isSidebarCollapsed: PropTypes.bool.isRequired,
     detailsPlugins: PropTypes.array.isRequired
   };
 
@@ -20,9 +18,9 @@ class SidebarInstanceDetails extends PureComponent {
   }
 
   renderPlugins() {
-    if (this.props.isExpanded && !this.props.isSidebarCollapsed) {
+    if (this.props.isExpanded) {
       return (
-        <div className={classnames(styles['sidebar-instance-details-container'])}>
+        <div className={styles['sidebar-instance-details-container']}>
           {this.details}
         </div>
       );
@@ -32,7 +30,7 @@ class SidebarInstanceDetails extends PureComponent {
   // @todo: Non genuine outside container.
   render() {
     return (
-      <div className={classnames(styles['sidebar-instance-details'])}>
+      <div className={styles['sidebar-instance-details']}>
         {this.renderPlugins()}
       </div>
     );
