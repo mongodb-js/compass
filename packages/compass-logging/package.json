@@ -44,7 +44,7 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "mongodb-log-writer": "^1.0.2"
+    "mongodb-log-writer": "^1.0.3"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.2.0",
