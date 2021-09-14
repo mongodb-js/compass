@@ -30,7 +30,6 @@ if (require.main === module) {
   };
 
   run()
-    .then(console.log)
     .catch((err) => {
       console.error(err);
       process.exit(1);
