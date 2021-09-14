@@ -330,9 +330,23 @@ function wrapCommands(app) {
 
 function stripWrapped(stack) {
   const lines = stack.split('\n');
-  // This is the same every time and not very useful
   return lines
-    .filter((line) => !line.startsWith('    at Object.wrapped.<computed>'))
+    .filter((line, index) => {
+      // try to only contain lines that originated in this workspace
+      if (index === 0) {
+        return true;
+      }
+      if (line.startsWith('    at Object.wrapped.<computed>')) {
+        return false;
+      }
+      if (line.includes('helpers/')) {
+        return true;
+      }
+      if (line.includes('tests/')) {
+        return true;
+      }
+      return false;
+    })
     .join('\n');
 }
 
