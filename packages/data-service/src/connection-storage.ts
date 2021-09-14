@@ -1,8 +1,5 @@
 import { ConnectionOptions } from './connection-options';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { ConnectionCollection } = require('mongodb-connection-model');
-
 import {
   convertConnectionModelToOptions,
   convertConnectionOptionsToModel,
@@ -21,6 +18,8 @@ export class ConnectionStorage {
    * @returns Promise<ConnectionOptions[]>
    */
   async loadAll(): Promise<ConnectionOptions[]> {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { ConnectionCollection } = require('mongodb-connection-model');
     const connectionCollection = new ConnectionCollection();
     const fetchConnectionModels = promisifyAmpersandMethod(
       connectionCollection.fetch.bind(connectionCollection)

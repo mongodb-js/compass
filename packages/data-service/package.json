@@ -21,8 +21,7 @@
   ],
   "main": "lib/index.js",
   "exports": {
-    "require": "./lib/index.js",
-    "import": "./lib/.esm-wrapper.mjs"
+    "require": "./lib/index.js"
   },
   "types": "./lib/index.d.ts",
   "files": [
@@ -35,7 +34,7 @@
     "prepublishOnly": "npm run compile",
     "clean": "rimraf lib",
     "precompile": "npm run clean",
-    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./lib/.esm-wrapper.mjs",
+    "compile": "tsc -p tsconfig.json",
     "depcheck": "depcheck",
     "eslint": "eslint",
     "prettier": "prettier",

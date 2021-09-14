@@ -163,8 +163,7 @@ async function main(argv) {
     scripts: {
       bootstrap: 'npm run compile',
       prepublishOnly: 'npm run compile',
-      compile:
-        'tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs',
+      compile: 'tsc -p tsconfig.json',
       eslint: 'eslint',
       prettier: 'prettier',
       lint: 'npm run eslint . && npm run prettier -- --check .',

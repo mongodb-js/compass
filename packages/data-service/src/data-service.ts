@@ -43,11 +43,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 import { ConnectionOptions } from './connection-options';
 import { getInstance } from './instance-detail-helper';
 import connect from './legacy-connect';
-import {
-  convertConnectionModelToOptions,
-  convertConnectionOptionsToModel,
-  LegacyConnectionModel,
-} from './legacy-connection-model';
+import { LegacyConnectionModel } from './legacy-connection-model';
 import {
   Callback,
   CollectionDetails,
