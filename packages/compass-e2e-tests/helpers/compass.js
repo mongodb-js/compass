@@ -173,7 +173,13 @@ async function startCompass(
     await _stop();
     debug('Removing user data');
 
-    app.compassLog = await getCompassLog(logs);
+    const compassLog = await getCompassLog(logs);
+    if (shouldStoreAppLogs) {
+      const logPath = path.join(LOG_PATH, `compass-log.${nowFormatted}.log`);
+      debug(`Writing Compass application log to ${logPath}`);
+      await fs.writeFile(logPath, compassLog.raw);
+    }
+    app.compassLog = compassLog.structured;
 
     try {
       await fs.rmdir(userDataDir, { recursive: true });
@@ -205,17 +211,20 @@ async function getCompassLog(logs) {
   const { filename } = logOutputIndicatorMatch.groups;
   debug('reading Compass application logs from', filename);
   const contents = await promisify(gunzip)(await fs.readFile(filename));
-  return contents
-    .toString()
-    .split('\n')
-    .filter((line) => line.trim())
-    .map((line) => {
-      try {
-        return JSON.parse(line);
-      } catch {
-        return { unparsabableLine: line };
-      }
-    });
+  return {
+    raw: contents,
+    structured: contents
+      .toString()
+      .split('\n')
+      .filter((line) => line.trim())
+      .map((line) => {
+        try {
+          return JSON.parse(line);
+        } catch {
+          return { unparsabableLine: line };
+        }
+      }),
+  };
 }
 
 function formattedDate() {
