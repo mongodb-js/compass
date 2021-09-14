@@ -314,7 +314,6 @@ function wrapCommands(app) {
   const wrapped = {};
   for (const command of commands) {
     wrapped[command] = async function (...args) {
-      console.log(`${command} ${args.join(', ')}`);
       const stack = new Error(command).stack;
       try {
         return await app.client[command].call(app.client, ...args);
