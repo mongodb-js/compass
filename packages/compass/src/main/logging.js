@@ -18,7 +18,6 @@ module.exports = async function setupLogging(app) {
     const manager = new MongoLogManager({
       directory,
       gzip: true,
-      alwaysFlush: true,
       retentionDays: 30,
       onerror: (err, filepath) => debug('Failed to access path', filepath, err),
       onwarn: (err, filepath) => debug('Failed to access path', filepath, err)
@@ -46,6 +45,10 @@ module.exports = async function setupLogging(app) {
         message: exception && exception.message,
         stack: exception && exception.stack
       });
+    });
+
+    app.on('window-all-closed', function() {
+      writer.flush();
     });
 
     app.on('before-quit', function() {

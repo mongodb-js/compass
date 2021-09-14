@@ -4,7 +4,10 @@ const { promises: fs } = require('fs');
 const path = require('path');
 const os = require('os');
 const { promisify } = require('util');
-const { gunzip } = require('zlib');
+const {
+  gunzip,
+  constants: { Z_SYNC_FLUSH },
+} = require('zlib');
 const { Application } = require('spectron');
 const { rebuild } = require('electron-rebuild');
 const debug = require('debug')('compass-e2e-tests');
@@ -210,7 +213,9 @@ async function getCompassLog(logs) {
 
   const { filename } = logOutputIndicatorMatch.groups;
   debug('reading Compass application logs from', filename);
-  const contents = await promisify(gunzip)(await fs.readFile(filename));
+  const contents = await promisify(gunzip)(await fs.readFile(filename), {
+    finishFlush: Z_SYNC_FLUSH,
+  });
   return {
     raw: contents,
     structured: contents
