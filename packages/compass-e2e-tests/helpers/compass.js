@@ -172,10 +172,10 @@ async function startCompass(
 
       const renderLogPath = path.join(
         LOG_PATH,
-        `electron-render.${nowFormatted}.log`
+        `electron-render.${nowFormatted}.json`
       );
       debug(`Writing application render process log to ${renderLogPath}`);
-      await fs.writeFile(renderLogPath, renderLogs.join('\n'));
+      await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
     }
 
     debug('Stopping Compass application');
