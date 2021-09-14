@@ -39,7 +39,7 @@ module.exports = function (app) {
     //   },
     //   {
     //     timeout: 5000,
-    //     timeoutMsg: 'Expected connection screen to be visible',
+    //     timeoutMsg: 'Expected connection screen to be visible after disconnecting',
     //     interval: 50
     //   }
     // );
