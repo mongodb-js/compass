@@ -159,14 +159,22 @@ async function startCompass(
   const _stop = app.stop.bind(app);
 
   app.stop = async () => {
+    const mainLogs = await app.client.getMainProcessLogs();
+    const renderLogs = await app.client.getRenderProcessLogs();
+
     if (shouldStoreAppLogs) {
-      const logPath = path.join(LOG_PATH, `electron-main.${nowFormatted}.log`);
-      debug(`Writing application main process log to ${logPath}`);
-      const logs = await app.client.getMainProcessLogs();
-      await fs.writeFile(logPath, logs.join('\n'));
+      const mainLogPath = path.join(LOG_PATH, `electron-main.${nowFormatted}.log`);
+      debug(`Writing application main process log to ${mainLogPath}`);
+      await fs.writeFile(mainLogPath, mainLogs.join('\n'));
+
+      const renderLogPath = path.join(LOG_PATH, `electron-render.${nowFormatted}.log`);
+      debug(`Writing application render process log to ${renderLogPath}`);
+      await fs.writeFile(renderLogPath, renderLogs.join('\n'));
     }
+
     debug('Stopping Compass application');
     await _stop();
+
     debug('Removing user data');
     try {
       await fs.rmdir(userDataDir, { recursive: true });
@@ -176,6 +184,19 @@ async function startCompass(
       );
       debug(e);
     }
+
+    // ERROR, CRITICAL and whatever unknown things might end up in the logs
+    const errors = renderLogs.filter((log) => !(['DEBUG', 'INFO', 'WARNING'].includes(log.level)));
+    if (errors.length) {
+      console.error('Errors encountered during testing:');
+      console.error(errors);
+
+      // fail the tests
+      const error = new Error('Errors encountered in render process during testing');
+      error.errors = errors;
+      throw error;
+    }
+
     return app;
   };
 
@@ -418,32 +439,18 @@ async function beforeTests() {
 async function afterTests({ keychain, compass }) {
   try {
     if (compass) {
-      await printLogs(compass);
-
       if (process.env.CI) {
         await capturePage(compass);
         await savePage(compass);
       }
+
       await compass.stop();
       compass = null;
     }
   } finally {
-    keychain.reset();
-  }
-}
-
-async function printLogs(compass) {
-  const { client } = compass;
-  const types = (await client.logTypes()).value;
-  for (const type of types) {
-    const logs = (await client.log(type)).value;
-    const filtered = logs.filter(
-      (log) => !['DEBUG', 'INFO'].includes(log.level)
-    );
-    if (filtered.length === 0) {
-      continue;
+    if (keychain) {
+      keychain.reset();
     }
-    console.log(`${type} logs:`, filtered);
   }
 }
 
