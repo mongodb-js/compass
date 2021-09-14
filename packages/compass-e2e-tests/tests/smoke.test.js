@@ -4,6 +4,10 @@ const {
   getAtlasConnectionOptions,
   beforeTests,
   afterTests,
+  capturePage,
+  savePage,
+  screenshotPathName,
+  pagePathName,
 } = require('../helpers/compass');
 
 /**
@@ -24,6 +28,16 @@ describe('Compass', function () {
 
   after(function () {
     return afterTests({ keychain, compass });
+  });
+
+  afterEach(async function () {
+    if (this.currentTest.state == 'failed') {
+      await capturePage(
+        compass,
+        screenshotPathName(this.currentTest.fullTitle())
+      );
+      await savePage(compass, pagePathName(this.currentTest.fullTitle()));
+    }
   });
 
   describe('Connect screen', function () {

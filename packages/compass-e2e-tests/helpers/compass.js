@@ -463,6 +463,23 @@ async function afterTests({ keychain, compass }) {
   }
 }
 
+function pathName(text) {
+  return (
+    text
+      .replace(/ /g, '-') // spaces to dashes
+      // eslint-disable-next-line no-control-regex
+      .replace(/[^\x00-\x7F]/g, '')
+  ); // strip everything non-ascii (for now)
+}
+
+function screenshotPathName(text) {
+  return `screenshot-${pathName(text)}.png`;
+}
+
+function pagePathName(text) {
+  return `page-${pathName(text)}.html`;
+}
+
 module.exports = {
   startCompass,
   rebuildNativeModules,
@@ -478,4 +495,6 @@ module.exports = {
   LOG_PATH,
   beforeTests,
   afterTests,
+  screenshotPathName,
+  pagePathName,
 };
