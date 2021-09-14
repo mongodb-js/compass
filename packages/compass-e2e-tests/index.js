@@ -35,7 +35,7 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
-  mocha.run((failures) => process.exitCode = failures ? 1 : 0);
+  mocha.run((failures) => (process.exitCode = failures ? 1 : 0));
 }
 
 process.on('unhandledRejection', (err) => {

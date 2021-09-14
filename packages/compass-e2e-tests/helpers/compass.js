@@ -163,11 +163,17 @@ async function startCompass(
     const renderLogs = await app.client.getRenderProcessLogs();
 
     if (shouldStoreAppLogs) {
-      const mainLogPath = path.join(LOG_PATH, `electron-main.${nowFormatted}.log`);
+      const mainLogPath = path.join(
+        LOG_PATH,
+        `electron-main.${nowFormatted}.log`
+      );
       debug(`Writing application main process log to ${mainLogPath}`);
       await fs.writeFile(mainLogPath, mainLogs.join('\n'));
 
-      const renderLogPath = path.join(LOG_PATH, `electron-render.${nowFormatted}.log`);
+      const renderLogPath = path.join(
+        LOG_PATH,
+        `electron-render.${nowFormatted}.log`
+      );
       debug(`Writing application render process log to ${renderLogPath}`);
       await fs.writeFile(renderLogPath, renderLogs.join('\n'));
     }
@@ -186,13 +192,17 @@ async function startCompass(
     }
 
     // ERROR, CRITICAL and whatever unknown things might end up in the logs
-    const errors = renderLogs.filter((log) => !(['DEBUG', 'INFO', 'WARNING'].includes(log.level)));
+    const errors = renderLogs.filter(
+      (log) => !['DEBUG', 'INFO', 'WARNING'].includes(log.level)
+    );
     if (errors.length) {
       console.error('Errors encountered during testing:');
       console.error(errors);
 
       // fail the tests
-      const error = new Error('Errors encountered in render process during testing');
+      const error = new Error(
+        'Errors encountered in render process during testing'
+      );
       error.errors = errors;
       throw error;
     }
@@ -347,29 +357,28 @@ function addDebugger(app) {
 
 function augmentError(error, stack) {
   const lines = stack.split('\n');
-  const strippedLines = lines
-    .filter((line, index) => {
-      // try to only contain lines that originated in this workspace
-      if (index === 0) {
-        return true;
-      }
-      if (line.startsWith('    at augmentError')) {
-        return false;
-      }
-      if (line.startsWith('    at Object.descriptor.value [as')) {
-        return false;
-      }
-      if (line.includes('node_modules')) {
-        return false;
-      }
-      if (line.includes('helpers/')) {
-        return true;
-      }
-      if (line.includes('tests/')) {
-        return true;
-      }
+  const strippedLines = lines.filter((line, index) => {
+    // try to only contain lines that originated in this workspace
+    if (index === 0) {
+      return true;
+    }
+    if (line.startsWith('    at augmentError')) {
       return false;
-    });
+    }
+    if (line.startsWith('    at Object.descriptor.value [as')) {
+      return false;
+    }
+    if (line.includes('node_modules')) {
+      return false;
+    }
+    if (line.includes('helpers/')) {
+      return true;
+    }
+    if (line.includes('tests/')) {
+      return true;
+    }
+    return false;
+  });
 
   if (strippedLines.length === 1) {
     return;
