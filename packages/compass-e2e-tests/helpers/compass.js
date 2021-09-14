@@ -156,8 +156,6 @@ async function startCompass(
   addCommands(app);
   addDebugger(app);
 
-  app.wrappedClient = wrapCommands(app);
-
   const _stop = app.stop.bind(app);
 
   app.stop = async () => {
@@ -299,44 +297,48 @@ function addDebugger(app) {
           .map((arg) => inspect(arg, { breakLength: Infinity }))
           .join(', ')})`
       );
-      return origFn.call(this, ...args);
+
+      const stack = new Error(prop).stack;
+
+      let result;
+      try {
+        result = origFn.call(this, ...args);
+      } catch (error) {
+        // In this case the method threw synchronously
+        augmentError(error, stack);
+        throw error;
+      }
+
+      if (result && result.then) {
+        // If the result looks like a promise, resolve it and look for errors
+        return result.catch((error) => {
+          augmentError(error, stack);
+          throw error;
+        });
+      }
+
+      // return the synchronous result
+      return result;
     };
     Object.defineProperty(clientProto, prop, descriptor);
   }
 }
 
-function wrapCommands(app) {
-  const proto = Object.getPrototypeOf(app.client);
-  const commands = Object.keys(proto).filter((key) => {
-    return typeof proto[key] === 'function' && !key.includes('.');
-  });
-
-  const wrapped = {};
-  for (const command of commands) {
-    wrapped[command] = async function (...args) {
-      const stack = new Error(command).stack;
-      try {
-        return await app.client[command].call(app.client, ...args);
-      } catch (error) {
-        // Log how we got here, but still throw the original error
-        error.stack = `${error.stack}\nvia ${stripWrapped(stack)}`;
-        throw error;
-      }
-    };
-  }
-
-  return wrapped;
-}
-
-function stripWrapped(stack) {
+function augmentError(error, stack) {
   const lines = stack.split('\n');
-  return lines
+  const strippedLines = lines
     .filter((line, index) => {
       // try to only contain lines that originated in this workspace
       if (index === 0) {
         return true;
       }
-      if (line.startsWith('    at Object.wrapped.<computed>')) {
+      if (line.startsWith('    at augmentError')) {
+        return false;
+      }
+      if (line.startsWith('    at Object.descriptor.value [as')) {
+        return false;
+      }
+      if (line.includes('node_modules')) {
         return false;
       }
       if (line.includes('helpers/')) {
@@ -346,8 +348,13 @@ function stripWrapped(stack) {
         return true;
       }
       return false;
-    })
-    .join('\n');
+    });
+
+  if (strippedLines.length === 1) {
+    return;
+  }
+
+  error.stack = `${error.stack}\nvia ${strippedLines.join('\n')}`;
 }
 
 /**
@@ -394,7 +401,7 @@ async function beforeTests() {
   keychain.activate();
   const compass = await startCompass();
 
-  const client = compass.wrappedClient;
+  const { client } = compass;
 
   // XXX: This seems to be a bit unstable in GitHub CI on macOS machines, for
   // that reason we want to do a few retries here (in most other cases this

@@ -2,7 +2,7 @@ const { delay } = require('../delay');
 const Selectors = require('../selectors');
 
 async function closeConnectionModal(app) {
-  const client = app.wrappedClient;
+  const { client } = app;
   await client.clickVisible(Selectors.CancelConnectionButton);
   await client.waitForExist(
     Selectors.ConnectionStatusModalContent,
@@ -13,7 +13,7 @@ async function closeConnectionModal(app) {
 
 module.exports = function (app) {
   return async function () {
-    const client = app.wrappedClient;
+    const { client } = app;
 
     // If we are still connecting, let's try cancelling the connection first
     if (await client.isVisible(Selectors.CancelConnectionButton)) {

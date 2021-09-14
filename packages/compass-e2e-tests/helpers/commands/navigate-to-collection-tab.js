@@ -2,7 +2,7 @@ const Selectors = require('../selectors');
 
 module.exports = function (app) {
   async function navigateToCollection(dbName, collectionName) {
-    const client = app.wrappedClient;
+    const { client } = app;
 
     const headerSelector = `${Selectors.CollectionHeaderTitle}[title="${dbName}.${collectionName}"]`;
     const collectionSelector = `${Selectors.SidebarCollection}[title="${dbName}.${collectionName}"]`;
@@ -27,7 +27,7 @@ module.exports = function (app) {
     collectionName,
     tabName
   ) {
-    const client = app.wrappedClient;
+    const { client } = app;
 
     const tabSelector = `${Selectors.CollectionTab}[name="${tabName}"]`;
     const tabSelectedSelector = `${tabSelector}[aria-selected="true"]`;

@@ -3,7 +3,7 @@ const Selectors = require('../selectors');
 
 module.exports = function (app) {
   return async function (str, parse = false, timeout = 10000) {
-    const client = app.wrappedClient;
+    const { client } = app;
     if (!(await client.isVisible(Selectors.ShellContent))) {
       await client.clickVisible(Selectors.ShellExpandButton);
     }

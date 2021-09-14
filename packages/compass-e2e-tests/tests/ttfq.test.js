@@ -13,7 +13,7 @@ describe('Time to first query', function () {
     // start compass inside the test so that the time is measured together
     ({ keychain, compass } = await beforeTests());
 
-    const client = compass.wrappedClient;
+    const { client } = compass;
 
     await client.connectWithConnectionString('mongodb://localhost:27018/test');
 

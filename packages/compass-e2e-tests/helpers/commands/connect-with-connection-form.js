@@ -23,7 +23,7 @@ module.exports = function (app) {
     },
     timeout = 10000
   ) {
-    const client = app.wrappedClient;
+    const { client } = app;
 
     if (await client.isVisible(Selectors.ShowConnectionFormButton)) {
       await client.click(Selectors.ShowConnectionFormButton);

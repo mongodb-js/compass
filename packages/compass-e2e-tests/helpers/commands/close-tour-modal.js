@@ -2,7 +2,7 @@ const Selectors = require('../selectors');
 
 module.exports = function (app) {
   return async function () {
-    const client = app.wrappedClient;
+    const { client } = app;
 
     if (!(await client.existsEventually(Selectors.FeatureTourModal, 1000))) {
       return;

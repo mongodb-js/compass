@@ -5,7 +5,7 @@ module.exports = function (app) {
     connectionString,
     timeout = 10000
   ) {
-    const client = app.wrappedClient;
+    const { client } = app;
     await client.setValueVisible(
       Selectors.ConnectionStringInput,
       connectionString
