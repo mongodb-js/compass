@@ -190,7 +190,10 @@ async function startCompass(
 
     const compassLog = await getCompassLog(mainLogs);
     if (shouldStoreAppLogs) {
-      const compassLogPath = path.join(LOG_PATH, `compass-log.${nowFormatted}.log`);
+      const compassLogPath = path.join(
+        LOG_PATH,
+        `compass-log.${nowFormatted}.log`
+      );
       debug(`Writing Compass application log to ${compassLogPath}`);
       await fs.writeFile(compassLogPath, compassLog.raw);
     }
