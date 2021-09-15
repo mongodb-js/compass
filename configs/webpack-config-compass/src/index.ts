@@ -22,9 +22,7 @@ const electronVersion = (() => {
   return `${maj}.${min}`;
 })();
 
-const electronBinary: string = (() => {
-  return require('electron');
-})();
+const electronBinary: string = require('electron');
 
 class StartElectronWebpackPlugin {
   private opts: {
