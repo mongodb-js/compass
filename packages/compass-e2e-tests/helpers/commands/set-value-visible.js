@@ -6,8 +6,12 @@ module.exports = function (app) {
     await client.waitForVisible(selector);
     // In CI on macOS this can throw "element not interactable". Ideally we'd
     // have a waitForInteractable or similar.
-    await retryWithBackoff(async () => {
-      await client.setValue(selector, value);
-    });
+    await retryWithBackoff(
+      async () => {
+        await client.setValue(selector, value);
+      },
+      3,
+      1000
+    );
   };
 };
