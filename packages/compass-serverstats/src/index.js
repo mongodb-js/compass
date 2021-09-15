@@ -1,7 +1,7 @@
-const PerformanceComponent = require('./lib/components/');
-const ServerStatsStore = require('./lib/stores/server-stats-graphs-store');
-const CurrentOpStore = require('./lib/stores/current-op-store');
-const TopStore = require('./lib/stores/top-store');
+const PerformanceComponent = require('./components');
+const ServerStatsStore = require('./stores/server-stats-graphs-store');
+const CurrentOpStore = require('./stores/current-op-store');
+const TopStore = require('./stores/top-store');
 
 /**
  * The instance tab definition.
@@ -34,6 +34,6 @@ function deactivate() {
   global.hadronApp.appRegistry.deregisterStore('RTSS.TopStore', TopStore);
 }
 
-module.exports.d3 = require('./lib/d3/');
+module.exports.d3 = require('./d3');
 module.exports.activate = activate;
 module.exports.deactivate = deactivate;
