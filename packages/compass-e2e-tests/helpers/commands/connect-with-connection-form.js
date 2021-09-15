@@ -23,22 +23,24 @@ module.exports = function (app) {
     },
     timeout = 10000
   ) {
-    if (await app.client.isVisible(Selectors.ShowConnectionFormButton)) {
-      await app.client.click(Selectors.ShowConnectionFormButton);
+    const { client } = app;
+
+    if (await client.isVisible(Selectors.ShowConnectionFormButton)) {
+      await client.click(Selectors.ShowConnectionFormButton);
     }
 
-    await app.client.clickVisible(Selectors.ConnectionFormHostnameTabButton);
+    await client.clickVisible(Selectors.ConnectionFormHostnameTabButton);
 
     if (typeof host !== 'undefined') {
-      await app.client.setValue(Selectors.ConnectionFormInputHostname, host);
+      await client.setValue(Selectors.ConnectionFormInputHostname, host);
     }
 
     if (typeof port !== 'undefined') {
-      await app.client.setValue(Selectors.ConnectionFormInputPort, port);
+      await client.setValue(Selectors.ConnectionFormInputPort, port);
     }
 
     if (srvRecord === true) {
-      await app.client.clickVisible(Selectors.ConnectionFormInputSrvRecord);
+      await client.clickVisible(Selectors.ConnectionFormInputSrvRecord);
     }
 
     const authStrategy =
@@ -52,7 +54,7 @@ module.exports = function (app) {
         ? 'MONGODB'
         : 'NONE';
 
-    await app.client.selectByValue(
+    await client.selectByValue(
       Selectors.ConnectionFormInputAuthStrategy,
       authStrategy
     );
@@ -61,57 +63,47 @@ module.exports = function (app) {
       // TODO: No point in having different `name`s in UI, they are not used for
       // anything and all those map to `username` in driver options anyway
       if (
-        await app.client.isVisible(
-          Selectors.ConnectionFormInputKerberosPrincipal
-        )
+        await client.isVisible(Selectors.ConnectionFormInputKerberosPrincipal)
       ) {
-        await app.client.setValue(
+        await client.setValue(
           Selectors.ConnectionFormInputKerberosPrincipal,
           username
         );
       } else if (
-        await app.client.isVisible(Selectors.ConnectionFormInputLDAPUsername)
+        await client.isVisible(Selectors.ConnectionFormInputLDAPUsername)
       ) {
-        await app.client.setValue(
+        await client.setValue(
           Selectors.ConnectionFormInputLDAPUsername,
           username
         );
       } else {
-        await app.client.setValue(
-          Selectors.ConnectionFormInputUsername,
-          username
-        );
+        await client.setValue(Selectors.ConnectionFormInputUsername, username);
       }
     }
 
     if (typeof password !== 'undefined') {
       // TODO: See above
-      if (
-        await app.client.isVisible(Selectors.ConnectionFormInputLDAPPassword)
-      ) {
-        await app.client.setValue(
+      if (await client.isVisible(Selectors.ConnectionFormInputLDAPPassword)) {
+        await client.setValue(
           Selectors.ConnectionFormInputLDAPPassword,
           password
         );
       } else {
-        await app.client.setValue(
-          Selectors.ConnectionFormInputPassword,
-          password
-        );
+        await client.setValue(Selectors.ConnectionFormInputPassword, password);
       }
     }
 
     if (typeof gssapiServiceName !== 'undefined') {
-      await app.client.setValue(
+      await client.setValue(
         '[name="kerberos-service-name"]',
         gssapiServiceName
       );
     }
 
-    await app.client.clickVisible('#More_Options');
+    await client.clickVisible('#More_Options');
 
     if (typeof replicaSet !== 'undefined') {
-      await app.client.setValue(
+      await client.setValue(
         Selectors.ConnectionFormInputReplicaSet,
         replicaSet
       );
@@ -129,7 +121,7 @@ module.exports = function (app) {
         ? 'SYSTEMCA'
         : 'NONE';
 
-    await app.client.selectByValue(
+    await client.selectByValue(
       Selectors.ConnectionFormInputSSLMethod,
       sslMethod
     );
@@ -153,36 +145,27 @@ module.exports = function (app) {
       );
     }
 
-    await app.client.selectByValue(
+    await client.selectByValue(
       Selectors.ConnectionFormInputSSHTunnel,
       sshTunnel
     );
 
     if (typeof sshTunnelHostname !== 'undefined') {
-      await app.client.setValue(
-        '[name="sshTunnelHostname"]',
-        sshTunnelHostname
-      );
+      await client.setValue('[name="sshTunnelHostname"]', sshTunnelHostname);
     }
 
     if (typeof sshTunnelPort !== 'undefined') {
-      await app.client.setValue('[name="sshTunnelPort"]', sshTunnelPort);
+      await client.setValue('[name="sshTunnelPort"]', sshTunnelPort);
     }
 
     if (typeof sshTunnelUsername !== 'undefined') {
-      await app.client.setValue(
-        '[name="sshTunnelUsername"]',
-        sshTunnelUsername
-      );
+      await client.setValue('[name="sshTunnelUsername"]', sshTunnelUsername);
     }
 
     if (typeof sshTunnelPassword !== 'undefined') {
-      await app.client.setValue(
-        '[name="sshTunnelPassword"]',
-        sshTunnelPassword
-      );
+      await client.setValue('[name="sshTunnelPassword"]', sshTunnelPassword);
     }
 
-    await app.client.doConnect(timeout);
+    await client.doConnect(timeout);
   };
 };

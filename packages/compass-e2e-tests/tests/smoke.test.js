@@ -4,6 +4,7 @@ const {
   getAtlasConnectionOptions,
   beforeTests,
   afterTests,
+  afterTest,
 } = require('../helpers/compass');
 
 /**
@@ -15,9 +16,11 @@ describe('Compass', function () {
   let keychain;
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
+  let client;
 
   before(async function () {
-    ({ keychain, compass } = await beforeTests(true));
+    ({ keychain, compass } = await beforeTests());
+    client = compass.client;
   });
 
   after(function () {
@@ -26,14 +29,21 @@ describe('Compass', function () {
 
   describe('Connect screen', function () {
     afterEach(async function () {
-      await compass.client.disconnect();
+      await afterTest(compass, this.currentTest);
+
+      try {
+        await client.disconnect();
+      } catch (err) {
+        console.error('Error during disconnect:');
+        console.error(err);
+      }
     });
 
     it('can connect using connection string', async function () {
-      await compass.client.connectWithConnectionString(
+      await client.connectWithConnectionString(
         'mongodb://localhost:27018/test'
       );
-      const result = await compass.client.shellEval(
+      const result = await client.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -41,11 +51,11 @@ describe('Compass', function () {
     });
 
     it('can connect using connection form', async function () {
-      await compass.client.connectWithConnectionForm({
+      await client.connectWithConnectionForm({
         host: 'localhost',
         port: 27018,
       });
-      const result = await compass.client.shellEval(
+      const result = await client.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -57,11 +67,8 @@ describe('Compass', function () {
       if (!atlasConnectionOptions) {
         return this.skip();
       }
-      await compass.client.connectWithConnectionForm(
-        atlasConnectionOptions,
-        30_000
-      );
-      const result = await compass.client.shellEval(
+      await client.connectWithConnectionForm(atlasConnectionOptions, 30_000);
+      const result = await client.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
         true
       );

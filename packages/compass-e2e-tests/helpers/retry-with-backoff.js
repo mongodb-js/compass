@@ -13,7 +13,9 @@ async function retryWithBackoff(
     } catch (e) {
       err = e;
       attempt++;
-      delay(backoffStep * attempt);
+      if (attempt < retries) {
+        delay(backoffStep * attempt);
+      }
     }
   }
   throw err;

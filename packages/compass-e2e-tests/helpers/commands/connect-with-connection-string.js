@@ -5,10 +5,11 @@ module.exports = function (app) {
     connectionString,
     timeout = 10000
   ) {
-    await app.client.setValueVisible(
+    const { client } = app;
+    await client.setValueVisible(
       Selectors.ConnectionStringInput,
       connectionString
     );
-    await app.client.doConnect(timeout);
+    await client.doConnect(timeout);
   };
 };

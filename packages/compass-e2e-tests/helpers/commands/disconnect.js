@@ -2,17 +2,21 @@ const { delay } = require('../delay');
 const Selectors = require('../selectors');
 
 async function closeConnectionModal(app) {
-  await app.client.clickVisible(Selectors.CancelConnectionButton);
-  await app.client.waitUntilGone(Selectors.ConnectionStatusModalContent, {
-    timeoutMsg:
-      'Expected connection status modal to disappear after cancelling the connection',
-  });
+  const { client } = app;
+  await client.clickVisible(Selectors.CancelConnectionButton);
+  await client.waitForExist(
+    Selectors.ConnectionStatusModalContent,
+    1000,
+    false
+  );
 }
 
 module.exports = function (app) {
   return async function () {
+    const { client } = app;
+
     // If we are still connecting, let's try cancelling the connection first
-    if (await app.client.isVisible(Selectors.CancelConnectionButton)) {
+    if (await client.isVisible(Selectors.CancelConnectionButton)) {
       try {
         await closeConnectionModal(app);
       } catch (e) {
@@ -22,9 +26,9 @@ module.exports = function (app) {
     }
 
     app.webContents.send('app:disconnect');
-    await app.client.waitForVisible(Selectors.ConnectSection, 5000);
+    await client.waitForVisible(Selectors.ConnectSection, 5000);
     // Show "new connection" section as if we just opened this screen
-    await app.client.clickVisible(Selectors.SidebarNewConnectionButton);
+    await client.clickVisible(Selectors.SidebarNewConnectionButton);
     await delay(100);
   };
 };

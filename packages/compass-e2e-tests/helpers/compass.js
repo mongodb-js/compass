@@ -166,24 +166,40 @@ async function startCompass(
   const _stop = app.stop.bind(app);
 
   app.stop = async () => {
-    const logs = await app.client.getMainProcessLogs();
+    const mainLogs = await app.client.getMainProcessLogs();
+    const renderLogs = await app.client.getRenderProcessLogs();
+
     if (shouldStoreAppLogs) {
-      const logPath = path.join(LOG_PATH, `electron-main.${nowFormatted}.log`);
-      debug(`Writing application main process log to ${logPath}`);
-      await fs.writeFile(logPath, logs.join('\n'));
+      const mainLogPath = path.join(
+        LOG_PATH,
+        `electron-main.${nowFormatted}.log`
+      );
+      debug(`Writing application main process log to ${mainLogPath}`);
+      await fs.writeFile(mainLogPath, mainLogs.join('\n'));
+
+      const renderLogPath = path.join(
+        LOG_PATH,
+        `electron-render.${nowFormatted}.json`
+      );
+      debug(`Writing application render process log to ${renderLogPath}`);
+      await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
     }
+
     debug('Stopping Compass application');
     await _stop();
-    debug('Removing user data');
 
-    const compassLog = await getCompassLog(logs);
+    const compassLog = await getCompassLog(mainLogs);
     if (shouldStoreAppLogs) {
-      const logPath = path.join(LOG_PATH, `compass-log.${nowFormatted}.log`);
-      debug(`Writing Compass application log to ${logPath}`);
-      await fs.writeFile(logPath, compassLog.raw);
+      const compassLogPath = path.join(
+        LOG_PATH,
+        `compass-log.${nowFormatted}.log`
+      );
+      debug(`Writing Compass application log to ${compassLogPath}`);
+      await fs.writeFile(compassLogPath, compassLog.raw);
     }
     app.compassLog = compassLog.structured;
 
+    debug('Removing user data');
     try {
       await fs.rmdir(userDataDir, { recursive: true });
     } catch (e) {
@@ -192,6 +208,23 @@ async function startCompass(
       );
       debug(e);
     }
+
+    // ERROR, CRITICAL and whatever unknown things might end up in the logs
+    const errors = renderLogs.filter(
+      (log) => !['DEBUG', 'INFO', 'WARNING'].includes(log.level)
+    );
+    if (errors.length) {
+      console.error('Errors encountered during testing:');
+      console.error(errors);
+
+      // fail the tests
+      const error = new Error(
+        'Errors encountered in render process during testing'
+      );
+      error.errors = errors;
+      throw error;
+    }
+
     return app;
   };
 
@@ -347,10 +380,63 @@ function addDebugger(app) {
           .map((arg) => inspect(arg, { breakLength: Infinity }))
           .join(', ')})`
       );
-      return origFn.call(this, ...args);
+
+      const stack = new Error(prop).stack;
+
+      let result;
+      try {
+        result = origFn.call(this, ...args);
+      } catch (error) {
+        // In this case the method threw synchronously
+        augmentError(error, stack);
+        throw error;
+      }
+
+      if (result && result.then) {
+        // If the result looks like a promise, resolve it and look for errors
+        return result.catch((error) => {
+          augmentError(error, stack);
+          throw error;
+        });
+      }
+
+      // return the synchronous result
+      return result;
     };
     Object.defineProperty(clientProto, prop, descriptor);
   }
+}
+
+function augmentError(error, stack) {
+  const lines = stack.split('\n');
+  const strippedLines = lines.filter((line, index) => {
+    // try to only contain lines that originated in this workspace
+    if (index === 0) {
+      return true;
+    }
+    if (line.startsWith('    at augmentError')) {
+      return false;
+    }
+    if (line.startsWith('    at Object.descriptor.value [as')) {
+      return false;
+    }
+    if (line.includes('node_modules')) {
+      return false;
+    }
+    if (line.includes('helpers/')) {
+      return true;
+    }
+    if (line.includes('tests/')) {
+      return true;
+    }
+    return false;
+  });
+
+  if (strippedLines.length === 1) {
+    return;
+  }
+
+  error.stack = `${error.stack}\nvia ${strippedLines.join('\n')}`;
 }
 
 /**
@@ -392,21 +478,20 @@ async function savePage(
   }
 }
 
-async function beforeTests(unlockKeychain = false) {
-  let keychain;
-  if (unlockKeychain) {
-    keychain = createUnlockedKeychain();
-    keychain.activate();
-  }
+async function beforeTests() {
+  const keychain = createUnlockedKeychain();
+  keychain.activate();
   const compass = await startCompass();
+
+  const { client } = compass;
 
   // XXX: This seems to be a bit unstable in GitHub CI on macOS machines, for
   // that reason we want to do a few retries here (in most other cases this
   // should pass on first attempt)
   await retryWithBackoff(async () => {
-    await compass.client.waitForConnectionScreen();
-    await compass.client.closeTourModal();
-    await compass.client.closePrivacySettingsModal();
+    await client.waitForConnectionScreen();
+    await client.closeTourModal();
+    await client.closePrivacySettingsModal();
   });
 
   return { keychain, compass };
@@ -419,6 +504,7 @@ async function afterTests({ keychain, compass }) {
         await capturePage(compass);
         await savePage(compass);
       }
+
       await compass.stop();
       compass = null;
     }
@@ -426,6 +512,27 @@ async function afterTests({ keychain, compass }) {
     if (keychain) {
       keychain.reset();
     }
+  }
+}
+
+function pathName(text) {
+  return text
+    .replace(/ /g, '-') // spaces to dashes
+    .replace(/[^a-z0-9-_]/gi, ''); // strip everything non-ascii (for now)
+}
+
+function screenshotPathName(text) {
+  return `screenshot-${pathName(text)}.png`;
+}
+
+function pagePathName(text) {
+  return `page-${pathName(text)}.html`;
+}
+
+async function afterTest(compass, test) {
+  if (test.state == 'failed') {
+    await capturePage(compass, screenshotPathName(test.fullTitle()));
+    await savePage(compass, pagePathName(test.fullTitle()));
   }
 }
 
@@ -444,4 +551,7 @@ module.exports = {
   LOG_PATH,
   beforeTests,
   afterTests,
+  screenshotPathName,
+  pagePathName,
+  afterTest,
 };

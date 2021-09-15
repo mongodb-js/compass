@@ -4,28 +4,21 @@
  * @param {ExtendedApplication} app
  */
 exports.addCommands = function (app) {
-  app.client.addCommand('waitForElement', require('./wait-for-element')(app));
-  app.client.addCommand('waitUntilGone', require('./wait-until-gone')(app));
-  app.client.addCommand('clickVisible', require('./click-visible')(app));
-  app.client.addCommand('setValueVisible', require('./set-value-visible')(app));
-  app.client.addCommand(
-    'waitForConnectionScreen',
-    require('./wait-for-connection-screen')(app)
-  );
-  app.client.addCommand('closeTourModal', require('./close-tour-modal')(app));
-  app.client.addCommand(
-    'closePrivacySettingsModal',
-    require('./close-privacy-settings-modal')(app)
-  );
-  app.client.addCommand('doConnect', require('./do-connect')(app));
-  app.client.addCommand(
-    'connectWithConnectionString',
-    require('./connect-with-connection-string')(app)
-  );
-  app.client.addCommand(
-    'connectWithConnectionForm',
-    require('./connect-with-connection-form')(app)
-  );
-  app.client.addCommand('disconnect', require('./disconnect')(app));
-  app.client.addCommand('shellEval', require('./shell-eval')(app));
+  const add = (name, path) => {
+    const f = require(path)(app);
+    app.client.addCommand(name, f);
+  };
+
+  add('existsEventually', './exists-eventually');
+  add('clickVisible', './click-visible');
+  add('setValueVisible', './set-value-visible');
+  add('waitForConnectionScreen', './wait-for-connection-screen');
+  add('closeTourModal', './close-tour-modal');
+  add('closePrivacySettingsModal', './close-privacy-settings-modal');
+  add('doConnect', './do-connect');
+  add('connectWithConnectionString', './connect-with-connection-string');
+  add('connectWithConnectionForm', './connect-with-connection-form');
+  add('disconnect', './disconnect');
+  add('shellEval', './shell-eval');
+  add('navigateToCollectionTab', './navigate-to-collection-tab');
 };

@@ -9,6 +9,8 @@ module.exports = {
   ConnectionStringInput: 'input[name="connectionString"]',
   CancelConnectionButton: '[data-test-id="cancel-connection-button"]',
   ConnectionStatusModalContent: '[data-test-id="connecting-modal-content"]',
+  SidebarCollection: '[data-test-id="sidebar-collection"]',
+  SidebarFilterInput: '[data-test-id="sidebar-filter-input"]',
   SidebarNewConnectionButton: '[data-test-id="new-connection-button"]',
   ShellContent: '[data-test-id="shell-content"]',
   ShellExpandButton: '[data-test-id="shell-expand-button"]',
@@ -55,4 +57,7 @@ module.exports = {
     '[data-test-id="connection-form"] [name="sshTunnelUsername"]',
   ConnectionFormInputSSHTunnelPassword:
     '[data-test-id="connection-form"] [name="sshTunnelPassword"]',
+  CollectionHeaderTitle: '[data-test-id="collection-header-title"]',
+  CollectionTab: '.test-tab-nav-bar-tab',
+  QueryBarApplyFilterButton: '[data-test-id="query-bar-apply-filter-button"]',
 };
