@@ -72,6 +72,7 @@ class SidebarTitle extends PureComponent {
         className={classnames(styles['sidebar-title'], {
           [styles['sidebar-title-is-active']]: this.props.activeNamespace === NO_ACTIVE_NAMESPACE
         })}
+        data-test-id="sidebar-title"
         onClick={this.clickName}
       >
         {this.renderTitle()}

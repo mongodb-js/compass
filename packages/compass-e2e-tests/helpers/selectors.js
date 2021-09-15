@@ -58,6 +58,15 @@ module.exports = {
   ConnectionFormInputSSHTunnelPassword:
     '[data-test-id="connection-form"] [name="sshTunnelPassword"]',
   CollectionHeaderTitle: '[data-test-id="collection-header-title"]',
-  CollectionTab: '.test-tab-nav-bar-tab',
   QueryBarApplyFilterButton: '[data-test-id="query-bar-apply-filter-button"]',
+  TopologySingleHostAddress: '[data-test-id="topology-single-host-address"]',
+  SingleClusterType: '[data-test-id="topology-single-cluster-type"]',
+  ServerVersionText: '[data-test-id="server-version-text"]',
+  SidebarTitle: '[data-test-id="sidebar-title"]',
+  InstanceTabs: '[data-test-id="instance-tabs"]',
+  InstanceTab: '.test-tab-nav-bar-tab',
+  DatabaseTabs: '[data-test-id="database-tabs"]',
+  DatabaseTab: '.test-tab-nav-bar-tab',
+  CollectionTabs: '[data-test-id="collection-tabs"]',
+  CollectionTab: '.test-tab-nav-bar-tab',
 };

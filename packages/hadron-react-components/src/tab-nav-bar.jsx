@@ -50,6 +50,7 @@ class TabNavBar extends React.Component {
   renderTabs() {
     return (
       <Tabs
+        data-test-id={this.props['data-test-id']}
         aria-label={this.props['aria-label']}
         className="test-tab-nav-bar-tabs"
         setSelected={this.onTabClicked}
@@ -123,6 +124,7 @@ class TabNavBar extends React.Component {
 }
 
 TabNavBar.propTypes = {
+  'data-test-id': PropTypes.string,
   'aria-label': PropTypes.string,
   darkMode: PropTypes.bool,
   activeTabIndex: PropTypes.number,

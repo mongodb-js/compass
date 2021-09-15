@@ -500,11 +500,6 @@ async function beforeTests() {
 async function afterTests({ keychain, compass }) {
   try {
     if (compass) {
-      if (process.env.CI) {
-        await capturePage(compass);
-        await savePage(compass);
-      }
-
       await compass.stop();
       compass = null;
     }
@@ -530,9 +525,11 @@ function pagePathName(text) {
 }
 
 async function afterTest(compass, test) {
-  if (test.state == 'failed') {
-    await capturePage(compass, screenshotPathName(test.fullTitle()));
-    await savePage(compass, pagePathName(test.fullTitle()));
+  if (process.env.CI) {
+    if (test.state == 'failed') {
+      await capturePage(compass, screenshotPathName(test.fullTitle()));
+      await savePage(compass, pagePathName(test.fullTitle()));
+    }
   }
 }
 

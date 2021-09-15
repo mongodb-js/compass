@@ -20,5 +20,7 @@ exports.addCommands = function (app) {
   add('connectWithConnectionForm', './connect-with-connection-form');
   add('disconnect', './disconnect');
   add('shellEval', './shell-eval');
+  add('navigateToInstanceTab', './navigate-to-instance-tab');
+  add('navigateToDatabaseTab', './navigate-to-database-tab');
   add('navigateToCollectionTab', './navigate-to-collection-tab');
 };
