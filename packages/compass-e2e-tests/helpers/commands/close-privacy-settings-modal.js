@@ -5,13 +5,13 @@ module.exports = function (app) {
     const { client } = app;
 
     if (
-      !(await client.existsEventually(Selectors.PrivacySettingsModal, 1000))
+      !(await client.existsEventually(Selectors.PrivacySettingsModal, 5000))
     ) {
       return;
     }
 
     await client.waitForVisible(Selectors.PrivacySettingsModal);
     await client.clickVisible(Selectors.ClosePrivacySettingsButton);
-    await client.waitForExist(Selectors.PrivacySettingsModal, 1000, false);
+    await client.waitForExist(Selectors.PrivacySettingsModal, 5000, false);
   };
 };
