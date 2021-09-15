@@ -532,6 +532,13 @@ function pagePathName(text) {
   return `page-${pathName(text)}.html`;
 }
 
+async function afterTest(compass, test) {
+  if (test.state == 'failed') {
+    await capturePage(compass, screenshotPathName(test.fullTitle()));
+    await savePage(compass, pagePathName(test.fullTitle()));
+  }
+}
+
 module.exports = {
   startCompass,
   rebuildNativeModules,
@@ -549,4 +556,5 @@ module.exports = {
   afterTests,
   screenshotPathName,
   pagePathName,
+  afterTest,
 };

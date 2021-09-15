@@ -1,6 +1,6 @@
 // @ts-check
 const { expect } = require('chai');
-const { beforeTests, afterTests } = require('../helpers/compass');
+const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');
 
 describe('Time to first query', function () {
@@ -38,11 +38,12 @@ describe('Time to first query', function () {
   });
 
   // eslint-disable-next-line mocha/no-hooks-for-single-case
-  after(function () {
+  after(async function () {
     // cleanup outside of the test so that the time it takes to run does not
     // get added to the time it took to run the first query
     if (keychain && compass) {
-      return afterTests({ keychain, compass });
+      await afterTest(compass, this.currentTest);
+      await afterTests({ keychain, compass });
     }
   });
 });
