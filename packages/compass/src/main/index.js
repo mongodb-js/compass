@@ -66,12 +66,5 @@ process.on('uncaughtException', err => {
   }
 });
 
-var path = require('path');
-var resourcePath = path.join(__dirname, '..', '..');
-
-var ModuleCache = require('hadron-module-cache');
-ModuleCache.register(resourcePath);
-ModuleCache.add(resourcePath);
-
 setupLogging(app);
 require('./application').main();

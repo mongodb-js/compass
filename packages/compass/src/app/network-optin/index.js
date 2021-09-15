@@ -5,7 +5,7 @@ var _ = require('lodash');
 
 var debug = require('debug')('mongodb-compass:network-optin:index');
 
-var indexTemplate = require('./index.jade');
+var indexTemplate = require('./index.html.tmpl');
 
 var NetworkOptInView = View.extend({
   template: indexTemplate,
