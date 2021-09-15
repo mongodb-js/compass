@@ -45,7 +45,9 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/compass.git"
   },
+  "//": "TODO: This is a hack to make @webpack-cli/serve dependency unhoist back to the webpack config package. This can be removed after all packages are using the same webpack config.",
   "devDependencies": {
+    "@webpack-cli/serve": "^0.2.0",
     "chalk": "^4.1.1",
     "cross-env": "^7.0.3",
     "find-up": "^5.0.0",

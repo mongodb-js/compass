@@ -1,0 +1,3 @@
+ignores:
+  # TODO: See package.json. Remove when all packages using the same webpack version
+  - '@webpack-cli/serve'
