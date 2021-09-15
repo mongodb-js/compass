@@ -7,7 +7,7 @@ export function getConnectionTitle(options: ConnectionOptions): string {
   }
 
   const url = new ConnectionString(options.connectionString);
-  if (url.isSRV && url.hosts.length === 1) {
+  if (url.isSRV) {
     return url.hosts[0];
   }
 
