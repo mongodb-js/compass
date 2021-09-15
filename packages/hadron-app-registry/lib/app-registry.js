@@ -337,16 +337,7 @@ class AppRegistry {
    * @returns {AppRegistry} The chainable app registry.
    */
   on(eventName, listener) {
-    const listenerWithDebugErrors = (...args) => {
-      try {
-        return listener(...args);
-      } catch (e) {
-        debug('listener error', eventName, e);
-        throw e;
-      }
-    };
-
-    this._emitter.on(eventName, listenerWithDebugErrors);
+    this._emitter.on(eventName, listener);
     return this;
   }
 
