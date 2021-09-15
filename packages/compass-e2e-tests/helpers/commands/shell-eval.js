@@ -28,10 +28,11 @@ module.exports = function (app) {
           return !(await shellLoaderBarElement.isDisplayed());
         },
         {
-        timeout,
-        timeoutMsg: `Expected shell evaluation to finish in ${timeout}ms`,
-        interval: 50,
-      });
+          timeout,
+          timeoutMsg: `Expected shell evaluation to finish in ${timeout}ms`,
+          interval: 50,
+        }
+      );
     }
 
     // const shellLoaderBarElement = await client.$(Selectors.ShellLoader);

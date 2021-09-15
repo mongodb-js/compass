@@ -15,7 +15,9 @@ module.exports = function (app) {
   return async function () {
     const { client } = app;
 
-    const cancelConnectionButtonElement = await client.$(Selectors.CancelConnectionButton);
+    const cancelConnectionButtonElement = await client.$(
+      Selectors.CancelConnectionButton
+    );
     // If we are still connecting, let's try cancelling the connection first
     if (await cancelConnectionButtonElement.isDisplayed()) {
       try {
@@ -39,12 +41,12 @@ module.exports = function (app) {
     //   },
     //   {
     //     timeout: 5000,
-    //     timeoutMsg: 
+    //     timeoutMsg:
     //        'Expected connection screen to be visible after disconnecting',
     //     interval: 50
     //   }
     // );
-    
+
     // Show "new connection" section as if we just opened this screen
     await client.clickVisible(Selectors.SidebarNewConnectionButton);
     await delay(100);

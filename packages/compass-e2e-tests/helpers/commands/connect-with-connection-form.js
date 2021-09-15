@@ -24,7 +24,9 @@ module.exports = function (app) {
     timeout = 10000
   ) {
     const { client } = app;
-    const connectionFormButtonElement = await client.$(Selectors.ShowConnectionFormButton);
+    const connectionFormButtonElement = await client.$(
+      Selectors.ShowConnectionFormButton
+    );
     if (await connectionFormButtonElement.isDisplayed()) {
       await connectionFormButtonElement.click();
     }
@@ -71,10 +73,14 @@ module.exports = function (app) {
       // TODO: No point in having different `name`s in UI, they are not used for
       // anything and all those map to `username` in driver options anyway
       if (await kerberosPrincipalInputElement.isDisplayed()) {
-        const element = await client.$(Selectors.ConnectionFormInputKerberosPrincipal);
+        const element = await client.$(
+          Selectors.ConnectionFormInputKerberosPrincipal
+        );
         await element.setValue(username);
       } else if (await ldapUsernameInputElement.isDisplayed()) {
-        const element = await client.$(Selectors.ConnectionFormInputLDAPUsername);
+        const element = await client.$(
+          Selectors.ConnectionFormInputLDAPUsername
+        );
         await element.setValue(username);
       } else {
         const element = await client.$(Selectors.ConnectionFormInputUsername);
@@ -83,9 +89,13 @@ module.exports = function (app) {
     }
 
     if (typeof password !== 'undefined') {
-      const ldapPasswordInputElement = await client.$(Selectors.ConnectionFormInputLDAPPassword);
+      const ldapPasswordInputElement = await client.$(
+        Selectors.ConnectionFormInputLDAPPassword
+      );
       if (await ldapPasswordInputElement.isDisplayed()) {
-        const element = await client.$(Selectors.ConnectionFormInputLDAPPassword);
+        const element = await client.$(
+          Selectors.ConnectionFormInputLDAPPassword
+        );
         await element.setValue(password);
       } else {
         const element = await client.$(Selectors.ConnectionFormInputPassword);
@@ -121,7 +131,9 @@ module.exports = function (app) {
         ? 'SYSTEMCA'
         : 'NONE';
 
-    const sslMethodInputComponent = await client.$(Selectors.ConnectionFormInputSSLMethod);
+    const sslMethodInputComponent = await client.$(
+      Selectors.ConnectionFormInputSSLMethod
+    );
     await sslMethodInputComponent.selectByAttribute('value', sslMethod);
 
     if (['ALL', 'SERVER'].includes(sslMethod)) {
@@ -143,7 +155,9 @@ module.exports = function (app) {
       );
     }
 
-    const sshTunnelTypeInputComponent = await client.$(Selectors.ConnectionFormInputSSHTunnel);
+    const sshTunnelTypeInputComponent = await client.$(
+      Selectors.ConnectionFormInputSSHTunnel
+    );
     await sshTunnelTypeInputComponent.selectByAttribute('value', sshTunnel);
 
     if (typeof sshTunnelHostname !== 'undefined') {
