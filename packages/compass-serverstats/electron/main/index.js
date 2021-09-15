@@ -1,5 +1,6 @@
 const electron = require('electron');
 const path = require('path');
+const { pathToFileURL } = require('url');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
@@ -13,7 +14,7 @@ function createWindow() {
   });
   mainWindow.loadURL(
     process.env.COMPASS_INDEX_RENDERER_URL ||
-      `file://${path.resolve(__dirname, '..', 'index.html')}`
+      pathToFileURL(path.resolve(__dirname, 'index.html')).toString()
   );
   mainWindow.on('closed', () => {
     mainWindow = null;

@@ -2,6 +2,7 @@
  * A high-level wrapper around electron's builtin [BrowserWindow][0] class.
  * https://github.com/atom/electron/blob/main/docs/api/browser-window.md
  */
+const { pathToFileURL } = require('url');
 var electron = require('electron');
 var electronLocalShortcut = require('electron-localshortcut');
 var AppMenu = require('./menu');
@@ -45,11 +46,11 @@ if (process.platform === 'linux') {
  */
 var DEFAULT_URL =
   process.env.COMPASS_INDEX_RENDERER_URL ||
-  `file://${path.join(__dirname, 'index.html')}`;
+  pathToFileURL(path.join(__dirname, 'index.html')).toString();
 
 var LOADING_URL =
   process.env.COMPASS_LOADING_RENDERER_URL ||
-  `file://${path.join(__dirname, 'loading.html')}`;
+  pathToFileURL(path.join(__dirname, 'loading.html')).toString();
 
 // track if app was launched, @see `renderer ready` handler below
 var appLaunched = false;
