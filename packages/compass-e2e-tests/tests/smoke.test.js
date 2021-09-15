@@ -19,7 +19,7 @@ describe('Compass', function () {
   let client;
 
   before(async function () {
-    ({ keychain, compass } = await beforeTests(true));
+    ({ keychain, compass } = await beforeTests());
     client = compass.client;
   });
 
