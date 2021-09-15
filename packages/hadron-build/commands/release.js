@@ -21,7 +21,6 @@ const startLocalRegistry = require('../lib/local-registry');
 const generatePackageLock = require('../lib/generate-package-lock');
 const lerna = require('../lib/lerna');
 const format = util.format;
-const glob = require('glob');
 const path = require('path');
 const del = require('del');
 const fs = require('fs-extra');
@@ -31,11 +30,7 @@ const asar = require('asar');
 const packager = require('electron-packager');
 const createApplicationZip = require('../lib/zip');
 const license = require('electron-license');
-const ModuleCache = require('hadron-module-cache');
-const CompileCache = require('hadron-compile-cache');
-const StyleManager = require('hadron-style-manager');
 const rebuild = require('electron-rebuild').rebuild;
-const pkgUp = require('pkg-up');
 
 const ui = require('./ui');
 const verify = require('./verify');
@@ -43,103 +38,6 @@ const verify = require('./verify');
 exports.command = 'release';
 
 exports.describe = ':shipit:';
-
-const COMPILE_CACHE = '.compiled-sources';
-const COMPILE_CACHE_MAPPINGS = '.compile-cache-mappings.json';
-const CACHE_PATTERN = '**/*.{jade,jsx,md}';
-const INDEX_HTML = path.join('src', 'app', 'index.html');
-const INDEX_HTML_TEMPLATE = path.join('src', 'app', 'index.template.html');
-
-/**
- * Clean out the existing development compile cache.
- *
- * @param {Object} CONFIG
- * @param {Function} done
- * @api public
- */
-const cleanCompileCache = (exports.cleanCompileCache = util.callbackify(
-  async(CONFIG) => {
-    cli.debug(
-      'cleaning out development compile cache and resetting index.html'
-    );
-    await fs.remove(path.resolve(CONFIG.dir, COMPILE_CACHE));
-    await fs.remove(path.resolve(CONFIG.dir, INDEX_HTML));
-    await fs.writeFile(
-      path.resolve(CONFIG.dir, INDEX_HTML),
-      await fs.readFile(path.resolve(CONFIG.dir, INDEX_HTML_TEMPLATE))
-    );
-  }
-));
-
-/**
- * Create a precompiled cache of .jade and .jsx sources.
- *
- * @param {Object} CONFIG
- * @param {Function} done
- * @api public
- */
-const createCompileCache = exports.createCompileCache = (CONFIG, done) => {
-  cli.debug('creating compile cache');
-  var appDir = CONFIG.resourcesAppDir;
-  CompileCache.setHomeDirectory(appDir);
-  glob(`src/${CACHE_PATTERN}`, function(error, files) {
-    cli.abortIfError(error);
-    _.each(files, function(file) {
-      var compiler = CompileCache.COMPILERS[path.extname(file)];
-      CompileCache.compileFileAtPath(compiler, file);
-    });
-    const mappings = JSON.stringify(CompileCache.digestMappings, null, 2);
-    const mappingsPath = path.join(
-      CONFIG.resourcesAppDir,
-      COMPILE_CACHE_MAPPINGS
-    );
-    fs.writeFile(mappingsPath, mappings, done);
-  });
-};
-
-/**
- * Use the style manager to build the css and inject into the index.html
- * and help.html.
- *
- * @param {any} CONFIG Target configuration
- * @param {Function} done Callback
- */
-const createPackagedStyles = exports.createPackagedStyles = (CONFIG, done) => {
-  const appDir = CONFIG.resourcesAppDir;
-  const appSrcDir = path.join(appDir, 'src', 'app');
-  const metadata = CONFIG.pkg;
-  const dist = metadata.config.hadron.distributions[CONFIG.distribution];
-
-  cli.debug(`Creating styles for distribution: ${CONFIG.distribution}`);
-
-  const tasks = [];
-  const manager = new StyleManager(path.join(appSrcDir, '.compiled-less'), appSrcDir);
-
-  const styles = dist.styles;
-  for (let file of styles) {
-    tasks.push((done) => {
-      manager.build(path.join(appSrcDir, `${file}.html`), path.join(appSrcDir, `${file}.less`), done);
-    });
-  }
-
-  const plugins = dist.plugins;
-  for (let dir of plugins) {
-    let pluginPath;
-    try {
-      pluginPath = path.dirname(
-        pkgUp.sync({ cwd: require.resolve(dir, { paths: [appDir] }) })
-      );
-    } catch (e) {
-      pluginPath = path.join(appDir, dir);
-    }
-    const fullDir = path.join(pluginPath, 'styles', 'index.less');
-    tasks.push((done) => {
-      manager.build(path.join(appSrcDir, `${styles[0]}.html`), fullDir, done);
-    });
-  }
-
-  async.series(tasks, done);
-};
 
 /**
  * Run `electron-packager`
@@ -452,7 +350,9 @@ const removeDevelopmentFiles = (CONFIG, done) => {
 
   var globsToDelete = [
     path.join(CONFIG.resourcesAppDir, 'test'),
-    path.join(CONFIG.resourcesAppDir, 'scripts')
+    path.join(CONFIG.resourcesAppDir, 'scripts'),
+    path.join(CONFIG.resourcesAppDir, 'src'),
+    path.join(CONFIG.resourcesAppDir, 'release')
   ];
 
   if (CONFIG.platform === 'darwin') {
@@ -525,21 +425,6 @@ const createBrandedInstaller = (CONFIG, done) => {
   CONFIG.createInstaller().then(() => done()).catch(done);
 };
 
-const createModuleCache = (CONFIG, done) => {
-  const appDir = CONFIG.resourcesAppDir;
-  ModuleCache.create(appDir);
-
-  const PACKAGE_JSON_DEST = path.join(CONFIG.resourcesAppDir, 'package.json');
-  let metadata = require(PACKAGE_JSON_DEST);
-
-  for (let folder in _.get(metadata, '_compassModuleCache.folders')) {
-    if (_.includes(folder.paths, '')) {
-      folder.paths = ['', 'test', 'src', 'src/app'];
-    }
-  }
-  fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(metadata, null, 2), done);
-};
-
 const writeConfigToJson = (CONFIG, done) => {
   fs.writeFile(
     path.join(CONFIG.out, 'target.json'),
@@ -604,7 +489,6 @@ exports.run = (argv, done) => {
         .then(() => cb())
         .catch(cb);
     },
-    task('clean compile cache', cleanCompileCache),
     task('create branded application', createBrandedApplication),
     task('create executable symlink', symlinkExecutable),
     task('cleanup branded application scaffold', cleanupBrandedApplicationScaffold),
@@ -612,9 +496,6 @@ exports.run = (argv, done) => {
     task('transform package.json', transformPackageJson),
     task('install dependencies', installDependencies),
     task('write license file', writeLicenseFile),
-    task('create compile cache', createCompileCache),
-    task('create module cache', createModuleCache),
-    task('create packaged styles', createPackagedStyles),
     task('remove development files', removeDevelopmentFiles),
     !noAsar && task('create application asar', createApplicationAsar),
     !skipInstaller && task('create branded installer', createBrandedInstaller),
