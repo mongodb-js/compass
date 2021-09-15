@@ -516,11 +516,9 @@ async function afterTests({ keychain, compass }) {
 }
 
 function pathName(text) {
-  return (
-    text
-      .replace(/ /g, '-') // spaces to dashes
-      .replace(/[^a-z0-9-_]/gi, '')
-  ); // strip everything non-ascii (for now)
+  return text
+    .replace(/ /g, '-') // spaces to dashes
+    .replace(/[^a-z0-9-_]/gi, ''); // strip everything non-ascii (for now)
 }
 
 function screenshotPathName(text) {
