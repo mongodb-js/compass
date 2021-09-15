@@ -38,6 +38,7 @@ const ReadStateStore = Reflux.createStore({
    */
   onActivated(appRegistry) {
     appRegistry.on('data-service-connected', this.onDataServiceConnected.bind(this));
+    appRegistry.on('data-service-disconnected', this.onDataServiceDisconnected.bind(this));
   },
 
   /**
@@ -50,6 +51,10 @@ const ReadStateStore = Reflux.createStore({
     this.setState({ dataService });
   },
 
+  onDataServiceDisconnected() {
+    this.setState({ dataService: null });
+  },
+
   /**
    * Looks at the topology description and determines if Compass is in a
    * readable state.
@@ -57,7 +62,7 @@ const ReadStateStore = Reflux.createStore({
    * @param {Object} description - The topology description.
    */
   topologyChanged(description) {
-    if (this.state.dataService) {
+    if (this.state.dataService && this.state.dataService.isConnected()) {
       const topologyType = description.topologyType;
       const readPreference = this.state.dataService.getReadPreference();
       const isReadable = isTopologyReadable(topologyType, readPreference);

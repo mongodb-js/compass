@@ -2,6 +2,8 @@
 
 const Reflux = require('reflux');
 const EventEmitter = require('eventemitter3');
+const debug = require('debug')('hadron-app-registry:app-registry');
+
 const Action = require('./actions');
 
 /**
@@ -335,7 +337,16 @@ class AppRegistry {
    * @returns {AppRegistry} The chainable app registry.
    */
   on(eventName, listener) {
-    this._emitter.on(eventName, listener);
+    const listenerWithDebugErrors = (...args) => {
+      try {
+        return listener(...args);
+      } catch (e) {
+        debug('listener error', eventName, e);
+        throw e;
+      }
+    };
+
+    this._emitter.on(eventName, listenerWithDebugErrors);
     return this;
   }
 
