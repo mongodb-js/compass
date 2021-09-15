@@ -4,12 +4,25 @@ module.exports = function (app) {
   return async function () {
     const { client } = app;
 
-    if (!(await client.existsEventually(Selectors.FeatureTourModal, 5000))) {
+    const featureTourModalElement = await client.$(Selectors.FeatureTourModal);
+    // if (!(await client.existsEventually(Selectors.FeatureTourModal, 5000))) {
+    //   return;
+    // }
+
+    try {
+      await featureTourModalElement.waitForExist({
+        timeout: 5000,
+      });
+    } catch (err) {
       return;
     }
 
-    await client.waitForVisible(Selectors.FeatureTourModal);
+    await featureTourModalElement.waitForDisplayed();
     await client.clickVisible(Selectors.CloseFeatureTourModal);
-    await client.waitForVisible(Selectors.FeatureTourModal, 2000, true);
+    await featureTourModalElement.waitForExist({
+      timeout: 2000,
+      interval: 50,
+      reverse: true,
+    });
   };
 };

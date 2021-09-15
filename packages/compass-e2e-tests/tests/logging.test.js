@@ -40,7 +40,7 @@ describe('Logging integration', function () {
   let compass;
 
   it('provides some basic logging information', async function () {
-    ({ compass } = await beforeTests(false));
+    ({ compass } = await beforeTests());
 
     await compass.client.connectWithConnectionString(
       'mongodb://localhost:27018/test'
@@ -188,7 +188,7 @@ describe('Logging integration', function () {
   it('provides logging information for uncaught exceptions', async function () {
     try {
       process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION = '1';
-      ({ compass } = await beforeTests(false));
+      ({ compass } = await beforeTests());
     } finally {
       delete process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION;
     }

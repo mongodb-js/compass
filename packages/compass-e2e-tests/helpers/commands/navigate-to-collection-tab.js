@@ -7,19 +7,25 @@ module.exports = function (app) {
     const headerSelector = `${Selectors.CollectionHeaderTitle}[title="${dbName}.${collectionName}"]`;
     const collectionSelector = `${Selectors.SidebarCollection}[title="${dbName}.${collectionName}"]`;
 
+    const headerElement = await client.$(headerSelector);
+
     // if the collection header is already visible we don't have to browse to the collection
-    if (await client.isExisting(headerSelector)) {
+    if (await headerElement.isExisting()) {
       return;
     }
 
     // search for the collection and wait for the collection to be there and visible
     await client.clickVisible(Selectors.SidebarFilterInput);
-    await client.setValue(Selectors.SidebarFilterInput, collectionName);
-    await client.waitForVisible(collectionSelector);
+    const sidebarFilterInputElement = await client.$(
+      Selectors.SidebarFilterInput
+    );
+    await sidebarFilterInputElement.setValue(collectionName);
+    const collectionElement = await client.$(collectionSelector);
+    await collectionElement.waitForDisplayed();
 
     // click it and wait for the collection header to become visible
-    await client.click(collectionSelector);
-    await client.waitForVisible(headerSelector);
+    await collectionElement.click();
+    await headerElement.waitForDisplayed();
   }
 
   return async function navigateToCollectionTab(
@@ -34,13 +40,16 @@ module.exports = function (app) {
 
     await navigateToCollection(dbName, collectionName);
 
+    const tabSelectedSelectorElement = await client.$(tabSelectedSelector);
     // if the correct tab is already visible, do nothing
-    if (await client.isExisting(tabSelectedSelector)) {
+    if (await tabSelectedSelectorElement.isExisting()) {
       return;
     }
 
     // otherwise select the tab and wait for it to become selected
-    await client.click(tabSelector);
-    await client.waitForVisible(tabSelectedSelector);
+    const tabSelectorElement = await client.$(tabSelector);
+    await tabSelectorElement.click();
+
+    await tabSelectedSelectorElement.waitForDisplayed();
   };
 };

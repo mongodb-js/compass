@@ -4,11 +4,13 @@ const Selectors = require('../selectors');
 async function closeConnectionModal(app) {
   const { client } = app;
   await client.clickVisible(Selectors.CancelConnectionButton);
-  await client.waitForExist(
-    Selectors.ConnectionStatusModalContent,
-    1000,
-    false
+  const connectionModalContentElement = await client.$(
+    Selectors.ConnectionStatusModalContent
   );
+  await connectionModalContentElement.waitForExist({
+    timeout: 1000,
+    reverse: true,
+  });
 }
 
 module.exports = function (app) {
@@ -32,7 +34,9 @@ module.exports = function (app) {
     // await client.waitForVisible(Selectors.ConnectSection, 5000);
 
     const element = await client.$(Selectors.ConnectSection);
-    await element.waitForVisible(5000);
+    await element.waitForDisplayed({
+      timeout: 5000,
+    });
 
     // await client.waitUntil(
     //   async () => {
