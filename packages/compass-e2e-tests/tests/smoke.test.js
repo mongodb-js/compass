@@ -30,7 +30,13 @@ describe('Compass', function () {
   describe('Connect screen', function () {
     afterEach(async function () {
       await afterTest(compass, this.currentTest);
-      await client.disconnect();
+
+      try {
+        await client.disconnect();
+      } catch (err) {
+        console.error('Error during disconnect:');
+        console.error(err);
+      }
     });
 
     it('can connect using connection string', async function () {
