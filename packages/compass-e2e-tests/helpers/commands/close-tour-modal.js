@@ -10,6 +10,6 @@ module.exports = function (app) {
 
     await client.waitForVisible(Selectors.FeatureTourModal);
     await client.clickVisible(Selectors.CloseFeatureTourModal);
-    await client.waitForExist(Selectors.FeatureTourModal, 5000, false);
+    await client.waitForVisible(Selectors.FeatureTourModal, 2000, true);
   };
 };

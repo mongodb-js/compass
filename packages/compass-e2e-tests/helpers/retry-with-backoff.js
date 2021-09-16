@@ -14,6 +14,7 @@ async function retryWithBackoff(
       err = e;
       attempt++;
       if (attempt < retries) {
+        console.warn(err);
         delay(backoffStep * attempt);
       }
     }
