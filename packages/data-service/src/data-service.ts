@@ -1,5 +1,6 @@
 import SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
+import createLogger from '@mongodb-js/compass-logging';
 import createDebug from 'debug';
 import { EventEmitter } from 'events';
 import { isFunction } from 'lodash';
@@ -29,11 +30,19 @@ import {
   InsertManyResult,
   InsertOneOptions,
   InsertOneResult,
+  ListCollectionsOptions,
   MongoClient,
   MongoClientOptions,
+  ServerClosedEvent,
   ServerDescription,
+  ServerDescriptionChangedEvent,
+  ServerHeartbeatFailedEvent,
+  ServerHeartbeatSucceededEvent,
+  ServerOpeningEvent,
+  TopologyClosedEvent,
   TopologyDescription,
   TopologyDescriptionChangedEvent,
+  TopologyOpeningEvent,
   UpdateFilter,
   UpdateOptions,
   UpdateResult,
@@ -41,6 +50,7 @@ import {
 import { getInstance } from './instance-detail-helper';
 import connect from './legacy-connect';
 import { LegacyConnectionModel } from './legacy-connection-model';
+import { redactConnectionString } from './redact';
 import {
   Callback,
   CollectionDetails,
@@ -56,6 +66,9 @@ const { fetch: getIndexes } = require('mongodb-index-model');
 const parseNamespace = require('mongodb-ns');
 
 const debug = createDebug('mongodb-data-service:data-service');
+const { log, mongoLogId } = createLogger('COMPASS-DATA-SERVICE');
+
+let id = 0;
 
 class DataService extends EventEmitter {
   /**
@@ -86,16 +99,22 @@ class DataService extends EventEmitter {
 
   private _isWritable = false;
   private _isMongos = false;
+  private _id: number;
 
   constructor(model: LegacyConnectionModel) {
     super();
     this.model = model;
+    this._id = id++;
   }
 
   getMongoClientConnectionOptions():
     | { url: string; options: MongoClientOptions }
     | undefined {
     return this._mongoClientConnectionOptions;
+  }
+
+  private _logCtx(): string {
+    return `Connection ${this._id}`;
   }
 
   /**
@@ -234,16 +253,34 @@ class DataService extends EventEmitter {
   listCollections(
     databaseName: string,
     filter: Document,
+    options: { nameOnly: boolean },
     callback: Callback<CollectionInfo[]>
+  ): void;
+  listCollections(
+    databaseName: string,
+    filter: Document,
+    callback: Callback<CollectionInfo[]>
+  ): void;
+  listCollections(
+    databaseName: string,
+    filter: Document,
+    options: { nameOnly?: boolean } | Callback<CollectionInfo[]>,
+    callback?: Callback<CollectionInfo[]>
   ): void {
+    if (typeof options === 'function') {
+      callback = options;
+      options = {};
+    }
     const db = this.mongoClient.db(databaseName);
-    db.listCollections(filter, {}).toArray((error, data) => {
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+    db.listCollections(filter, options as ListCollectionsOptions).toArray(
+      (error, data) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        (callback as Callback<CollectionInfo[]>)(null, data!);
       }
-      callback(null, data!);
-    });
+    );
   }
 
   /**
@@ -292,6 +329,9 @@ class DataService extends EventEmitter {
     // Not really true at that point, we are doing it just so we don't allow
     // simultaneous syncronous calls to the connect method
     this._isConnecting = true;
+    log.info(mongoLogId(1_001_000_014), this._logCtx(), 'Connecting', {
+      url: this.model.driverUrlWithSsh,
+    });
 
     connect(
       this.model,
@@ -308,10 +348,12 @@ class DataService extends EventEmitter {
 
         this._mongoClientConnectionOptions = connectionOptions;
 
-        debug('connected!', {
+        const attr = {
           isWritable: this.isWritable(),
           isMongos: this.isMongos(),
-        });
+        };
+        debug('connected!', attr);
+        log.info(mongoLogId(1_001_000_015), this._logCtx(), 'Connected', attr);
 
         this._database = this._client.db(this.model.ns || 'admin');
 
@@ -487,12 +529,14 @@ class DataService extends EventEmitter {
       });
       return;
     }
+    log.info(mongoLogId(1_001_000_016), this._logCtx(), 'Disconnecting');
 
     this._client.close(true, (err) => {
       if (this._tunnel) {
         debug('mongo client closed. shutting down ssh tunnel');
         this._tunnel.close().finally(() => {
           this._cleanup();
+          log.info(mongoLogId(1_001_000_017), this._logCtx(), 'Fully closed');
           debug('ssh tunnel stopped');
           // @ts-expect-error Callback without result...
           callback(err);
@@ -1132,58 +1176,103 @@ class DataService extends EventEmitter {
     this._client = client;
 
     if (client) {
-      client.on('status', (...args) => {
-        debug('status', args);
-        this.emit('status', args[0]);
-      });
+      client.on(
+        'serverDescriptionChanged',
+        (evt: ServerDescriptionChangedEvent) => {
+          debug('serverDescriptionChanged', evt);
+          log.info(
+            mongoLogId(1_001_000_018),
+            this._logCtx(),
+            'Server description changed',
+            {
+              address: evt.address,
+              error: evt.newDescription.error ?? null,
+            }
+          );
+          this.emit('serverDescriptionChanged', evt);
+        }
+      );
 
-      client.on('serverDescriptionChanged', (evt) => {
-        debug('serverDescriptionChanged', evt);
-        this.emit('serverDescriptionChanged', evt);
-      });
-
-      client.on('serverOpening', (...args) => {
-        debug('serverOpening', args);
-        this.emit('serverOpening', args[0]);
-      });
-
-      client.on('serverClosed', (...args) => {
-        debug('serverClosed', args);
-        this.emit('serverClosed', args[0]);
-      });
-
-      client.on('topologyOpening', (...args) => {
-        debug('topologyOpening', args);
-        this.emit('topologyOpening', args[0]);
-      });
-
-      client.on('topologyClosed', (...args) => {
-        debug('topologyClosed', args);
-        this.emit('topologyClosed', args[0]);
-      });
-
-      client.on('topologyDescriptionChanged', (...args) => {
-        debug('topologyDescriptionChanged', args);
-        this._isWritable = this.checkIsWritable(args[0]);
-        this._isMongos = this.checkIsMongos(args[0]);
-        debug('updated to', {
-          isWritable: this.isWritable(),
-          isMongos: this.isMongos(),
+      client.on('serverOpening', (evt: ServerOpeningEvent) => {
+        debug('serverOpening', evt);
+        log.info(mongoLogId(1_001_000_019), this._logCtx(), 'Server opening', {
+          address: evt.address,
         });
-
-        this.lastSeenTopology = args[0].newDescription;
-
-        this.emit('topologyDescriptionChanged', args[0]);
+        this.emit('serverOpening', evt);
       });
 
-      client.on('serverHeartbeatSucceeded', (...args) => {
-        debug('serverHeartbeatSucceeded', args);
-        this.emit('serverHeartbeatSucceeded', args[0]);
+      client.on('serverClosed', (evt: ServerClosedEvent) => {
+        debug('serverClosed', evt);
+        log.info(mongoLogId(1_001_000_020), this._logCtx(), 'Server closed', {
+          address: evt.address,
+        });
+        this.emit('serverClosed', evt);
       });
 
-      client.on('serverHeartbeatFailed', (...args) => {
-        debug('serverHeartbeatFailed', args);
-        this.emit('serverHeartbeatFailed', args[0]);
+      client.on('topologyOpening', (evt: TopologyOpeningEvent) => {
+        debug('topologyOpening', evt);
+        this.emit('topologyOpening', evt);
+      });
+
+      client.on('topologyClosed', (evt: TopologyClosedEvent) => {
+        debug('topologyClosed', evt);
+        this.emit('topologyClosed', evt);
+      });
+
+      client.on(
+        'topologyDescriptionChanged',
+        (evt: TopologyDescriptionChangedEvent) => {
+          debug('topologyDescriptionChanged', evt);
+          this._isWritable = this.checkIsWritable(evt);
+          this._isMongos = this.checkIsMongos(evt);
+          const attr = {
+            isWritable: this.isWritable(),
+            isMongos: this.isMongos(),
+          };
+          debug('updated to', attr);
+          log.info(
+            mongoLogId(1_001_000_021),
+            this._logCtx(),
+            'Topology description changed',
+            attr
+          );
+
+          this.lastSeenTopology = evt.newDescription;
+
+          this.emit('topologyDescriptionChanged', evt);
+        }
+      );
+
+      client.on(
+        'serverHeartbeatSucceeded',
+        (evt: ServerHeartbeatSucceededEvent) => {
+          debug('serverHeartbeatSucceeded', evt);
+          log.info(
+            mongoLogId(1_001_000_022),
+            this._logCtx(),
+            'Server heartbeat succeeded',
+            {
+              connectionId: evt.connectionId,
+              duration: evt.duration,
+            }
+          );
+          this.emit('serverHeartbeatSucceeded', evt);
+        }
+      );
+
+      client.on('serverHeartbeatFailed', (evt: ServerHeartbeatFailedEvent) => {
+        debug('serverHeartbeatFailed', evt);
+        log.warn(
+          mongoLogId(1_001_000_023),
+          this._logCtx(),
+          'Server heartbeat succeeded',
+          {
+            connectionId: evt.connectionId,
+            duration: evt.duration,
+            failure: evt.failure.message,
+          }
+        );
+        this.emit('serverHeartbeatFailed', evt);
       });
     }
   }
@@ -1330,14 +1419,24 @@ class DataService extends EventEmitter {
     databaseName: string,
     callback: Callback<string[]>
   ): void {
-    this.listCollections(databaseName, {}, (error, collections) => {
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+    // Since all we are interested in are collection names, we should
+    // pass nameOnly: true. This speeds things up when collections are
+    // actively being used because it means that the server has to
+    // acquire fewer locks on the collections:
+    // https://jira.mongodb.org/browse/SERVER-34244
+    this.listCollections(
+      databaseName,
+      {},
+      { nameOnly: true },
+      (error, collections) => {
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        const names = collections?.map((c) => c.name);
+        callback(null, names);
       }
-      const names = collections?.map((c) => c.name);
-      callback(null, names);
-    });
+    );
   }
 
   /**
