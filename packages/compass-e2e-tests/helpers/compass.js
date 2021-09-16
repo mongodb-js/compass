@@ -11,7 +11,10 @@ const {
 const { Application } = require('spectron');
 const { rebuild } = require('electron-rebuild');
 const debug = require('debug')('compass-e2e-tests');
-const { run: packageCompass, compileAssets } = require('hadron-build/commands/release');
+const {
+  run: packageCompass,
+  compileAssets,
+} = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
 const { createUnlockedKeychain } = require('./keychain');
 const { retryWithBackoff } = require('./retry-with-backoff');
