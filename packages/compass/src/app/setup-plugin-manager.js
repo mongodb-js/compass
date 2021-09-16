@@ -1,3 +1,4 @@
+const marky = require('marky');
 const app = require('hadron-app');
 const pkg = require('../../package.json');
 const path = require('path');
@@ -23,7 +24,8 @@ const ROOT = path.join(__dirname, '..', '..');
 /**
  * The current distribution information.
  */
-const DISTRIBUTION = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
+const DISTRIBUTION =
+  pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
 
 /**
  * The plugins directory constant.
@@ -35,7 +37,20 @@ const PLUGINS_DIR = 'plugins-directory';
  */
 const DEV_PLUGINS = path.join(os.homedir(), DISTRIBUTION[PLUGINS_DIR]);
 
-const PLUGIN_COUNT = DISTRIBUTION.plugins.length;
+marky.mark('Loading plugins');
+
+ipc.call('compass:loading:change-status', {
+  status: 'loading plugins'
+});
+
+// eslint-disable-next-line no-nested-ternary
+const COMPASS_PLUGINS = process.env.HADRON_READONLY === 'true'
+  ? require('./plugins/readonly')
+  : process.env.HADRON_ISOLATED === 'true'
+    ? require('./plugins/isolated')
+    : require('./plugins/default');
+
+const PLUGIN_COUNT = COMPASS_PLUGINS.length;
 
 /**
  * @note: The 2nd and 3rd arguments are the root directory and an array
@@ -43,9 +58,9 @@ const PLUGIN_COUNT = DISTRIBUTION.plugins.length;
  *   root directory.
  */
 app.pluginManager = new PluginManager(
-  [ DEV_PLUGINS ],
+  [DEV_PLUGINS],
   ROOT,
-  DISTRIBUTION.plugins
+  COMPASS_PLUGINS
 );
 
 /**
@@ -57,7 +72,8 @@ const loader = Module._load;
 /**
  * The require error message.
  */
-const ERROR = 'Due to security reasons, 3rd party plugins are not allowed to require ' +
+const ERROR =
+  'Due to security reasons, 3rd party plugins are not allowed to require ' +
   'modules with filesystem (fs), network (net/tls), or child process (child_process) access.';
 
 /**
@@ -88,12 +104,18 @@ let loadedCount = 0;
 
 PluginManager.Action.pluginActivated.listen(() => {
   loadedCount++;
-  ipc.call(
-    'compass:loading:change-status',
-    { status: `loading plugins ${loadedCount}/${PLUGIN_COUNT}` }
-  );
+
+  if (loadedCount === PLUGIN_COUNT) {
+    marky.stop('Loading plugins');
+  }
+
+  ipc.call('compass:loading:change-status', {
+    status: `loading plugins ${loadedCount}/${PLUGIN_COUNT}`
+  });
 });
 
 app.pluginManager.activate(app.appRegistry, pkg.apiVersion);
 
-debug(`Plugin manager activated with distribution ${process.env.HADRON_DISTRIBUTION}.`);
+debug(
+  `Plugin manager activated with distribution ${process.env.HADRON_DISTRIBUTION}.`
+);

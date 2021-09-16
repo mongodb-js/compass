@@ -33,3 +33,4 @@ function deactivate(appRegistry) {
 
 export default ExplainPlanPlugin;
 export { activate, deactivate, configureStore };
+export { default as metadata } from '../package.json';

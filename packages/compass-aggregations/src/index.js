@@ -75,3 +75,4 @@ export {
   configureStore,
   configureCreateViewStore
 };
+export { default as metadata } from '../package.json';

@@ -53,3 +53,4 @@ export {
   configureExportStore,
   configureImportStore
 };
+export { default as metadata } from '../package.json';
