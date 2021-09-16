@@ -29,6 +29,7 @@ const async = require('async');
 const asar = require('asar');
 const packager = require('electron-packager');
 const createApplicationZip = require('../lib/zip');
+const run = require('./../lib/run');
 const license = require('electron-license');
 const rebuild = require('electron-rebuild').rebuild;
 
@@ -38,6 +39,10 @@ const verify = require('./verify');
 exports.command = 'release';
 
 exports.describe = ':shipit:';
+
+const compileAssets = module.exports.compileAssets = (CONFIG, done) => {
+  run('npm', ['run', 'compile'], { cwd: CONFIG.dir }, done);
+};
 
 /**
  * Run `electron-packager`
@@ -489,6 +494,7 @@ exports.run = (argv, done) => {
         .then(() => cb())
         .catch(cb);
     },
+    task('compile application assets with webpack', compileAssets),
     task('create branded application', createBrandedApplication),
     task('create executable symlink', symlinkExecutable),
     task('cleanup branded application scaffold', cleanupBrandedApplicationScaffold),

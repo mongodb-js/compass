@@ -83,7 +83,7 @@ var TourView = View.extend({
         <div id="tour">
           <div class="modal-header">
             <h2 data-hook="title"></h2>
-            <button class="tour-close-button" data-test-if="close-tour-button">&times;</button>
+            <button class="tour-close-button" data-test-id="close-tour-button">&times;</button>
           </div>
           <div id="animation">
             <img id="animation-gif" src="${features[0].image}" /> 

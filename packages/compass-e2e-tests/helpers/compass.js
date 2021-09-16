@@ -11,13 +11,7 @@ const {
 const { Application } = require('spectron');
 const { rebuild } = require('electron-rebuild');
 const debug = require('debug')('compass-e2e-tests');
-
-const {
-  run: packageCompass,
-  cleanCompileCache,
-  createCompileCache,
-  createPackagedStyles,
-} = require('hadron-build/commands/release');
+const { run: packageCompass, compileAssets } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
 const { createUnlockedKeychain } = require('./keychain');
 const { retryWithBackoff } = require('./retry-with-backoff');
@@ -36,13 +30,15 @@ const { addCommands } = require('./commands');
  * @property {() => Promise<void>} disconnect
  * @property {(str: string, parse?: boolean, timeout?: number) => Promise<any>} shellEval
  *
- * @typedef {import('spectron').Application & { client: import('spectron').SpectronClient & ExtendedClient }} ExtendedApplication
+ * @typedef {Object} CompassLog
+ * @property {Buffer} raw
+ * @property {any[]} structured
+ *
+ * @typedef {import('spectron').Application & { compassLog: CompassLog['structured'], client: import('spectron').SpectronClient & ExtendedClient }} ExtendedApplication
  */
 
+const compileAssetsAsync = promisify(compileAssets);
 const packageCompassAsync = promisify(packageCompass);
-const cleanCompileCacheAsync = promisify(cleanCompileCache);
-const createCompileCacheAsync = promisify(createCompileCache);
-const createPackagedStylesAsync = promisify(createPackagedStyles);
 
 const COMPASS_PATH = path.dirname(
   require.resolve('mongodb-compass/package.json')
@@ -217,11 +213,12 @@ async function startCompass(
       console.error('Errors encountered during testing:');
       console.error(errors);
 
-      // fail the tests
+      /** @type { Error & { errors?: any[] } } */
       const error = new Error(
         'Errors encountered in render process during testing'
       );
       error.errors = errors;
+      // fail the tests
       throw error;
     }
 
@@ -233,7 +230,7 @@ async function startCompass(
 
 /**
  * @param {string[]} logs The main process console logs
- * @returns {Promise<any[]>}
+ * @returns {Promise<CompassLog>}
  */
 async function getCompassLog(logs) {
   const logOutputIndicatorMatch = logs
@@ -241,7 +238,7 @@ async function getCompassLog(logs) {
     .find((match) => match);
   if (!logOutputIndicatorMatch) {
     debug('no log output indicator found!');
-    return [];
+    return { raw: Buffer.from(''), structured: [] };
   }
 
   const { filename } = logOutputIndicatorMatch.groups;
@@ -287,27 +284,8 @@ async function rebuildNativeModules(compassPath = COMPASS_PATH) {
 }
 
 async function compileCompassAssets(compassPath = COMPASS_PATH) {
-  const pkgJson = require(path.join(compassPath, 'package.json'));
-  const {
-    config: {
-      hadron: { distributions: distConfig },
-    },
-  } = pkgJson;
-
-  const buildTarget = {
-    dir: compassPath,
-    resourcesAppDir: compassPath,
-    pkg: pkgJson,
-    distribution:
-      process.env.HADRON_DISTRIBUTION ||
-      (distConfig && distConfig.default) ||
-      'compass',
-  };
-
   // @ts-ignore some weirdness from util-callbackify
-  await cleanCompileCacheAsync(buildTarget);
-  await createCompileCacheAsync(buildTarget);
-  await createPackagedStylesAsync(buildTarget);
+  await compileAssetsAsync({ dir: compassPath });
 }
 
 async function getCompassBuildMetadata() {

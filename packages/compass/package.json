@@ -230,7 +230,6 @@
     "webpack": "webpack-compass",
     "compile": "npm run webpack -- --mode production",
     "release": "node release/index.js",
-    "prepackage-compass": "npm run compile",
     "package-compass": "hadron-build release",
     "test-unit": "npm test -- --unit",
     "test-enzyme": "npm test -- --enzyme",
