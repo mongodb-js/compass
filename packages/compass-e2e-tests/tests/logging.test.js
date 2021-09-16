@@ -4,7 +4,10 @@ const { beforeTests, afterTests } = require('../helpers/compass');
 
 function cleanLog(log) {
   log = JSON.parse(
-    JSON.stringify(log).replace(/(MongoDB[ +]Compass)([+ ]\w+)+/g, '$1')
+    JSON.stringify(log).replace(
+      /(MongoDB( |\+|%20)Compass)(( |\+|%20)\w+)+/g,
+      '$1'
+    )
   );
   for (const entry of log) {
     expect(entry.t.$date).to.be.a('string');
@@ -22,6 +25,10 @@ function cleanLog(log) {
         .split('\n')
         .slice(0, 2)
         .join('\n');
+    }
+    if (entry.id === 1001000022 || entry.id === 1001000023) {
+      expect(entry.attr.duration).to.be.a('number');
+      entry.attr.duration = 100;
     }
   }
   return log;
@@ -63,6 +70,16 @@ describe('Logging integration', function () {
       },
       {
         s: 'I',
+        c: 'COMPASS-DATA-SERVICE',
+        id: 1001000014,
+        ctx: 'Connection 0',
+        msg: 'Connecting',
+        attr: {
+          url: 'mongodb://localhost:27018/test?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false',
+        },
+      },
+      {
+        s: 'I',
         c: 'COMPASS-CONNECT',
         id: 1001000009,
         ctx: 'Connect',
@@ -85,12 +102,77 @@ describe('Logging integration', function () {
       },
       {
         s: 'I',
+        c: 'COMPASS-DATA-SERVICE',
+        id: 1001000021,
+        ctx: 'Connection 0',
+        msg: 'Topology description changed',
+        attr: {
+          isMongos: false,
+          isWritable: false,
+        },
+      },
+      {
+        s: 'I',
+        c: 'COMPASS-DATA-SERVICE',
+        id: 1001000019,
+        ctx: 'Connection 0',
+        msg: 'Server opening',
+        attr: {
+          address: 'localhost:27018',
+        },
+      },
+      {
+        s: 'I',
+        c: 'COMPASS-DATA-SERVICE',
+        id: 1001000022,
+        ctx: 'Connection 0',
+        msg: 'Server heartbeat succeeded',
+        attr: {
+          connectionId: 'localhost:27018',
+          duration: 100,
+        },
+      },
+      {
+        s: 'I',
+        c: 'COMPASS-DATA-SERVICE',
+        id: 1001000018,
+        ctx: 'Connection 0',
+        msg: 'Server description changed',
+        attr: {
+          address: 'localhost:27018',
+          error: null,
+        },
+      },
+      {
+        s: 'I',
+        c: 'COMPASS-DATA-SERVICE',
+        ctx: 'Connection 0',
+        id: 1001000021,
+        msg: 'Topology description changed',
+        attr: {
+          isMongos: false,
+          isWritable: true,
+        },
+      },
+      {
+        s: 'I',
         c: 'COMPASS-CONNECT',
         id: 1001000012,
         ctx: 'Connect',
         msg: 'Connection established',
         attr: {
           url: 'mongodb://localhost:27018/test?readPreference=primary&appname=MongoDB+Compass&directConnection=true&ssl=false',
+        },
+      },
+      {
+        s: 'I',
+        c: 'COMPASS-DATA-SERVICE',
+        id: 1001000015,
+        ctx: 'Connection 0',
+        msg: 'Connected',
+        attr: {
+          isMongos: false,
+          isWritable: true,
         },
       },
       {

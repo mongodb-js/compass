@@ -1,4 +1,4 @@
-import { AnyError, CollStats, Db, Document, MongoClient } from 'mongodb';
+import type { AnyError, CollStats, Db, Document, MongoClient } from 'mongodb';
 
 export interface Callback<R> {
   (

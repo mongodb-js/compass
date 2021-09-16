@@ -1,5 +1,9 @@
 import SSHTunnel, { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
-import { MongoClient, MongoClientOptions, ReadPreferenceLike } from 'mongodb';
+import type {
+  MongoClient,
+  MongoClientOptions,
+  ReadPreferenceLike,
+} from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
 import { promisify } from 'util';
 import { ConnectionOptions } from './connection-options';
