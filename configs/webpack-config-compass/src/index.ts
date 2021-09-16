@@ -22,6 +22,7 @@ const electronVersion = (() => {
   return `${maj}.${min}`;
 })();
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const electronBinary: string = require('electron');
 
 class StartElectronWebpackPlugin {
