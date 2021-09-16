@@ -12,6 +12,6 @@ module.exports = function (app) {
 
     await client.waitForVisible(Selectors.PrivacySettingsModal);
     await client.clickVisible(Selectors.ClosePrivacySettingsButton);
-    await client.waitForExist(Selectors.PrivacySettingsModal, 5000, false);
+    await client.waitForVisible(Selectors.PrivacySettingsModal, 2000, true);
   };
 };
