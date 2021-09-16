@@ -45,9 +45,10 @@
     "@leafygreen-ui/icon": "^11.4.0",
     "@leafygreen-ui/icon-button": "^9.1.5",
     "@mongodb-js/mongodb-redux-common": "^1.4.0",
-    "@mongosh/browser-repl": "^1.0.4",
-    "@mongosh/node-runtime-worker-thread": "^1.0.4",
-    "@mongosh/service-provider-core": "^1.0.4",
+    "@mongosh/logging": "^1.0.7",
+    "@mongosh/browser-repl": "^1.0.7",
+    "@mongosh/node-runtime-worker-thread": "^1.0.7",
+    "@mongosh/service-provider-core": "^1.0.7",
     "hadron-react-buttons": "^5.4.0",
     "re-resizable": "^6.9.0"
   },
