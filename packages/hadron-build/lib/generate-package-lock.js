@@ -136,8 +136,8 @@ function findPackageNodeRec(packageName, startNode) {
   return startNode.children.has(packageName)
     ? node.children.get(packageName)
     : parent && parent !== startNode
-    ? findPackageNodeRec(packageName, parent)
-    : null;
+      ? findPackageNodeRec(packageName, parent)
+      : null;
 }
 
 const manifestKeys = [
