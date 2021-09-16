@@ -38,3 +38,4 @@ function deactivate(appRegistry) {
 
 export default CompassFindInPagePlugin;
 export { activate, deactivate };
+export { default as metadata } from '../package.json';

@@ -21,3 +21,4 @@ function deactivate(appRegistry) {
 
 export default HomePlugin;
 export { activate, deactivate };
+export { default as metadata } from '../package.json';

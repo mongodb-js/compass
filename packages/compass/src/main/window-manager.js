@@ -83,11 +83,12 @@ var createWindow = (module.exports.create = function(opts) {
     icon: process.platform === 'linux' ? COMPASS_ICON : undefined
   });
 
-  debug('creating new window:', {
+  const mainWindowOpts = {
     width: opts.width,
     height: opts.height,
     icon: opts.icon,
-    show: false,
+    // Helpful for debugging
+    show: !!process.env.DEBUG_MAIN_WINDOW,
     backgroundColor: '#F5F6F7',
     minWidth: opts.minwidth,
     minHeight: opts.minheight,
@@ -96,28 +97,17 @@ var createWindow = (module.exports.create = function(opts) {
       'direct-write': true,
       nodeIntegration: true
     }
-  });
+  };
 
-  var _window = new BrowserWindow({
-    width: opts.width,
-    height: opts.height,
-    icon: opts.icon,
-    show: false,
-    backgroundColor: '#F5F6F7',
-    minWidth: opts.minwidth,
-    minHeight: opts.minheight,
-    webPreferences: {
-      'subpixel-font-scaling': true,
-      'direct-write': true,
-      nodeIntegration: true
-    }
-  });
+  debug('creating new window:', mainWindowOpts);
+
+  var _window = new BrowserWindow(mainWindowOpts);
 
   electronLocalShortcut.register(_window, 'CmdOrCtrl+=', () => {
     ipc.broadcast('window:zoom-in');
   });
 
-  debug('creating new loading window:', {
+  const loadingWindowOpts = {
     width: opts.width,
     height: opts.height,
     icon: opts.icon,
@@ -129,36 +119,28 @@ var createWindow = (module.exports.create = function(opts) {
       'direct-write': true,
       nodeIntegration: true
     }
-  });
+  };
+
+  debug('creating new loading window:', loadingWindowOpts);
 
   /**
    * TODO (@imlucas) COMPASS-3134 to factor out 2 BrowserWindow's.
    */
-  var _loading = new BrowserWindow({
-    width: opts.width,
-    height: opts.height,
-    icon: opts.icon,
-    devTools: false,
-    backgroundColor: '#3D4F58',
-    minWidth: opts.minwidth,
-    webPreferences: {
-      'subpixel-font-scaling': true,
-      'direct-write': true,
-      nodeIntegration: true
-    }
-  });
+  var _loading = new BrowserWindow(loadingWindowOpts);
 
   _loading.webContents.on('will-navigate', (evt) => evt.preventDefault());
 
-  _loading.on('move', () => {
-    const position = _loading.getPosition();
-    _window.setPosition(position[0], position[1]);
-  });
+  if (!process.env.DEBUG_MAIN_WINDOW) {
+    _loading.on('move', () => {
+      const position = _loading.getPosition();
+      _window.setPosition(position[0], position[1]);
+    });
 
-  _loading.on('resize', () => {
-    const size = _loading.getSize();
-    _window.setSize(size[0], size[1]);
-  });
+    _loading.on('resize', () => {
+      const size = _loading.getSize();
+      _window.setSize(size[0], size[1]);
+    });
+  }
 
   /**
    * Take all the loading status changes and broadcast to other windows.
@@ -203,8 +185,10 @@ var createWindow = (module.exports.create = function(opts) {
         _window.setFullScreen(true);
       }
 
-      debug('close _loading');
-      _loading.close();
+      if (!process.env.DEBUG_LOADING_WINDOW) {
+        debug('close _loading');
+        _loading.close();
+      }
 
       debug('showing _window');
       _window.show();

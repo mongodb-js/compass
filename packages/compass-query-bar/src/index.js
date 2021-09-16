@@ -32,3 +32,4 @@ function deactivate(appRegistry) {
 
 export default QueryBarPlugin;
 export { activate, deactivate, configureStore, configureActions };
+export { default as metadata } from '../package.json';

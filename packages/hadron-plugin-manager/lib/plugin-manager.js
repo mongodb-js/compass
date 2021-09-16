@@ -2,7 +2,6 @@
 
 const { promises: fs } = require('fs');
 const path = require('path');
-const req = require('./require');
 const Plugin = require('./plugin');
 const Action = require('./action');
 
@@ -17,13 +16,12 @@ class PluginManager {
    *
    * @param {string[]} paths - The paths to look for plugins in.
    * @param {string} baseDir - The base directory.
-   * @param {string[]} pluginList - A list of individual plugins.
+   * @param {Plugin[]} plugins - A list of individual plugins.
    */
-  constructor(paths, baseDir, pluginList) {
+  constructor(paths, baseDir, plugins) {
     this.paths = paths;
     this.baseDir = baseDir;
-    this.pluginList = pluginList;
-    this.plugins = [];
+    this.plugins = [...plugins];
   }
 
   /**
@@ -35,11 +33,14 @@ class PluginManager {
   async activate(appRegistry, apiVersion = '1.0.0') {
     await Promise.all(
       this.paths.map((pluginPath) =>
-        this._loadPluginsFromPath(pluginPath, appRegistry, apiVersion)
+        this._loadPluginsFromPath(pluginPath, apiVersion)
       )
     );
 
-    await this._loadPluginsFromList(this.pluginList, appRegistry, apiVersion);
+    this.plugins.forEach(plugin => {
+      plugin.activate(appRegistry);
+      Action.pluginActivated(plugin);
+    });
 
     Action.pluginActivationCompleted(appRegistry);
   }
@@ -63,32 +64,12 @@ class PluginManager {
     return [];
   }
 
-  async _loadPluginsFromList(pluginList, appRegistry, apiVersion) {
-    debug('Loading plugins from list', pluginList);
-    try {
-      return await Promise.all(
-        pluginList.map((pluginName) => {
-          return this._loadPlugin(
-            path.dirname(req.resolve(path.join(pluginName, 'package.json'))),
-            appRegistry,
-            apiVersion
-          );
-        })
-      );
-    } catch (e) {
-      debug('Failed to load plugins from list:', e);
-    }
-    return [];
-  }
-
-  async _loadPlugin(pluginPath, appRegistry, apiVersion) {
+  async _loadPlugin(pluginPath, apiVersion) {
     debug('Loading plugin from path', pluginPath);
     try {
       const plugin = new Plugin(pluginPath, apiVersion);
-      plugin.activate(appRegistry);
       const frozen = Object.freeze(plugin);
       this.plugins.push(frozen);
-      Action.pluginActivated(frozen);
       return plugin;
     } catch (e) {
       debug('Failed to load plugin:', e);

@@ -35,3 +35,4 @@ function deactivate(appRegistry) {
 
 export default CompassSchemaPlugin;
 export { activate, deactivate, configureStore };
+export { default as metadata } from '../package.json';

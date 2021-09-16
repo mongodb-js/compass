@@ -23,7 +23,8 @@ const ROOT = path.join(__dirname, '..', '..');
 /**
  * The current distribution information.
  */
-const DISTRIBUTION = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
+const DISTRIBUTION =
+  pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
 
 /**
  * The plugins directory constant.
@@ -35,7 +36,40 @@ const PLUGINS_DIR = 'plugins-directory';
  */
 const DEV_PLUGINS = path.join(os.homedir(), DISTRIBUTION[PLUGINS_DIR]);
 
-const PLUGIN_COUNT = DISTRIBUTION.plugins.length;
+const COMPASS_PLUGINS = [
+  require('@mongodb-js/compass-app-stores'),
+  require('@mongodb-js/compass-aggregations'),
+  require('@mongodb-js/compass-auto-updates'),
+  require('@mongodb-js/compass-export-to-language'),
+  require('@mongodb-js/compass-collection'),
+  require('@mongodb-js/compass-collection-stats'),
+  require('@mongodb-js/compass-crud'),
+  require('@mongodb-js/compass-database'),
+  require('@mongodb-js/compass-databases-collections'),
+  require('@mongodb-js/compass-field-store'),
+  require('@mongodb-js/compass-find-in-page'),
+  require('@mongodb-js/compass-home'),
+  require('@mongodb-js/compass-import-export'),
+  require('@mongodb-js/compass-connect'),
+  require('@mongodb-js/compass-schema'),
+  require('@mongodb-js/compass-schema-validation'),
+  require('@mongodb-js/compass-deployment-awareness'),
+  require('@mongodb-js/compass-metrics'),
+  require('@mongodb-js/compass-query-bar'),
+  require('@mongodb-js/compass-query-history'),
+  require('@mongodb-js/compass-loading'),
+  require('@mongodb-js/compass-plugin-info'),
+  require('@mongodb-js/compass-instance'),
+  require('@mongodb-js/compass-serverstats'),
+  require('@mongodb-js/compass-server-version'),
+  require('@mongodb-js/compass-sidebar'),
+  require('@mongodb-js/compass-ssh-tunnel-status'),
+  require('@mongodb-js/compass-status'),
+  require('@mongodb-js/compass-indexes'),
+  require('@mongodb-js/compass-explain-plan')
+];
+
+const PLUGIN_COUNT = COMPASS_PLUGINS.length;
 
 /**
  * @note: The 2nd and 3rd arguments are the root directory and an array
@@ -43,9 +77,9 @@ const PLUGIN_COUNT = DISTRIBUTION.plugins.length;
  *   root directory.
  */
 app.pluginManager = new PluginManager(
-  [ DEV_PLUGINS ],
+  [DEV_PLUGINS],
   ROOT,
-  DISTRIBUTION.plugins
+  COMPASS_PLUGINS
 );
 
 /**
@@ -57,7 +91,8 @@ const loader = Module._load;
 /**
  * The require error message.
  */
-const ERROR = 'Due to security reasons, 3rd party plugins are not allowed to require ' +
+const ERROR =
+  'Due to security reasons, 3rd party plugins are not allowed to require ' +
   'modules with filesystem (fs), network (net/tls), or child process (child_process) access.';
 
 /**
@@ -88,12 +123,13 @@ let loadedCount = 0;
 
 PluginManager.Action.pluginActivated.listen(() => {
   loadedCount++;
-  ipc.call(
-    'compass:loading:change-status',
-    { status: `loading plugins ${loadedCount}/${PLUGIN_COUNT}` }
-  );
+  ipc.call('compass:loading:change-status', {
+    status: `loading plugins ${loadedCount}/${PLUGIN_COUNT}`
+  });
 });
 
 app.pluginManager.activate(app.appRegistry, pkg.apiVersion);
 
-debug(`Plugin manager activated with distribution ${process.env.HADRON_DISTRIBUTION}.`);
+debug(
+  `Plugin manager activated with distribution ${process.env.HADRON_DISTRIBUTION}.`
+);
