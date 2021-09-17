@@ -129,7 +129,8 @@ async function startCompass(
     },
   };
 
-  const shouldStoreAppLogs = ['true', '1'].includes(process.env.SKIP_LOGS) === false;
+  const shouldStoreAppLogs =
+    ['true', '1'].includes(process.env.SKIP_LOGS) === false;
 
   const nowFormatted = formattedDate();
 
