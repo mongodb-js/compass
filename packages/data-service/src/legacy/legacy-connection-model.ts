@@ -286,13 +286,14 @@ function convertSslOptionsToLegacyProperties(
   const tlsAllowInvalidHostnames = url.searchParams.get(
     'tlsAllowInvalidHostnames'
   );
+  const tlsInsecure = url.searchParams.get('tlsInsecure');
   const tlsCAFile = url.searchParams.get('tlsCAFile');
   const tlsCertificateKeyFile = url.searchParams.get('tlsCertificateKeyFile');
   const tlsCertificateKeyFilePassword = url.searchParams.get(
     'tlsCertificateKeyFilePassword'
   );
 
-  if (tlsAllowInvalidCertificates === 'false' && tlsCAFile) {
+  if (tlsAllowInvalidCertificates !== 'true' && tlsCAFile) {
     properties.sslMethod = 'SERVER';
     properties.sslCert = undefined;
     properties.sslKey = undefined;
@@ -308,18 +309,20 @@ function convertSslOptionsToLegacyProperties(
     properties.sslCert = undefined;
     properties.sslKey = undefined;
     properties.sslPass = undefined;
-    if (
+    if (tlsInsecure === 'true') {
+      properties.sslMethod = 'UNVALIDATED';
+    } else if (
       tlsAllowInvalidCertificates === 'true' &&
       tlsAllowInvalidHostnames === 'true'
     ) {
       properties.sslMethod = 'UNVALIDATED';
     } else if (
-      tlsAllowInvalidCertificates === 'false' &&
-      tlsAllowInvalidHostnames === 'false'
+      tlsAllowInvalidCertificates !== 'true' &&
+      tlsAllowInvalidHostnames !== 'true'
     ) {
       properties.sslMethod = 'SYSTEMCA';
     } else if (
-      tlsAllowInvalidCertificates === 'false' &&
+      tlsAllowInvalidCertificates !== 'true' &&
       tlsAllowInvalidHostnames === 'true'
     ) {
       properties.sslMethod = 'IFAVAILABLE';

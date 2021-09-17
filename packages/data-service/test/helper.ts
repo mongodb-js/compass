@@ -1,6 +1,9 @@
+import { ConnectionOptions } from '@mongodb-js/devtools-docker-test-envs/src/test-environment-configuration';
 import chai from 'chai';
 import { MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
+import util from 'util';
+
 import {
   LegacyConnectionModel,
   LegacyConnectionModelProperties,

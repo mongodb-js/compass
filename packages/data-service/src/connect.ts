@@ -7,6 +7,7 @@ export default async function connect(
   connectionOptions: ConnectionOptions
 ): Promise<DataService> {
   const model = await convertConnectionOptionsToModel(connectionOptions);
+  console.log(connectionOptions);
 
   const dataService = new DataService(connectionOptions, model);
   await util.promisify(dataService.connect.bind(dataService))();

@@ -250,7 +250,7 @@ describe('legacy-connection-model', function () {
       });
     });
 
-    it.only('converts sshTunnelOptions correctly (identity key)', async function () {
+    it('converts sshTunnelOptions correctly (identity key)', async function () {
       const connectionOptions: ConnectionOptions = {
         connectionString: 'mongodb://mongo:27017',
         sshTunnel: {
@@ -401,6 +401,25 @@ describe('legacy-connection-model', function () {
             'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile',
         }
       );
+
+      await expectConversion(
+        {
+          id: defaultId,
+          connectionString:
+            'mongodb://localhost/?tls=true&tlsCAFile=pathToCaFile',
+        },
+        {
+          ...baseModel,
+          sslMethod: 'SERVER',
+          ssl: true,
+          sslCA: ['pathToCaFile'],
+        },
+        {
+          id: defaultId,
+          connectionString:
+            'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile',
+        }
+      );
     });
 
     it('converts client/server validation (no passphrase)', async function () {
@@ -448,6 +467,25 @@ describe('legacy-connection-model', function () {
           connectionString:
             'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile&tlsCertificateKeyFile=pathToCertKey&tlsCertificateKeyFilePassword=pass',
           tlsCertificateFile: 'pathToCert',
+        }
+      );
+    });
+
+    it('converts insecure', async function () {
+      await expectConversion(
+        {
+          id: defaultId,
+          connectionString: 'mongodb://localhost/?tls=true&tlsInsecure=true',
+        },
+        {
+          ...baseModel,
+          sslMethod: 'UNVALIDATED',
+          ssl: true,
+        },
+        {
+          id: defaultId,
+          connectionString:
+            'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true',
         }
       );
     });
