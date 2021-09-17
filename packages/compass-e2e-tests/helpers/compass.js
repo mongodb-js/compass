@@ -129,21 +129,23 @@ async function startCompass(
     },
   };
 
-  const shouldStoreAppLogs = process.env.ci || process.env.CI;
+  const shouldStoreAppLogs = ['true', '1'].includes(process.env.SKIP_LOGS) === false;
 
   const nowFormatted = formattedDate();
 
   if (shouldStoreAppLogs) {
+    // Chromedriver expects a path to the log file
     const chromeDriverLogPath = path.join(
       LOG_PATH,
       `chromedriver.${nowFormatted}.log`
     );
+    // Webdriver expects a path to the DIRECTORY where the logs will be stored
     const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
 
-    // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
-    // for consistency let's mkdir for both of them just in case
+    // Both chromedriver and webdriver expect DIRECTORIES for the logs to exist,
+    // otherwise they will fail trying to store the logs
     await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
-    await fs.mkdir(path.dirname(webdriverLogPath), { recursive: true });
+    await fs.mkdir(webdriverLogPath, { recursive: true });
 
     appOptions.chromeDriverLogPath = chromeDriverLogPath;
     appOptions.webdriverLogPath = webdriverLogPath;
