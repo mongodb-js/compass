@@ -9,12 +9,6 @@ function cleanLog(log) {
       '$1'
     )
   );
-  cleanedLog = cleanedLog.filter(
-    (entry) =>
-      // Remove "Server heartbeat succeeded" logs as they can occur
-      // a varying number of times when tests run.
-      entry.msg !== 'Server heartbeat succeeded'
-  );
   for (const entry of cleanedLog) {
     expect(entry.t.$date).to.be.a('string');
     delete entry.t; // Timestamps vary between each execution
