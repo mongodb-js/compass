@@ -9,6 +9,11 @@ function cleanLog(log) {
       '$1'
     )
   );
+  cleanedLog = cleanedLog.filter(logEntry => (
+    // Remove server heartbeat logs as they can happen a varying amount of
+    // times depending on how long tests are taking.
+    logEntry.id !== 1_001_000_022
+  ));
   for (const entry of cleanedLog) {
     expect(entry.t.$date).to.be.a('string');
     delete entry.t; // Timestamps vary between each execution
@@ -119,17 +124,6 @@ describe('Logging integration', function () {
         msg: 'Server opening',
         attr: {
           address: 'localhost:27018',
-        },
-      },
-      {
-        s: 'I',
-        c: 'COMPASS-DATA-SERVICE',
-        id: 1001000022,
-        ctx: 'Connection 0',
-        msg: 'Server heartbeat succeeded',
-        attr: {
-          connectionId: 'localhost:27018',
-          duration: 100,
         },
       },
       {
