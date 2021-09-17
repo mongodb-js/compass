@@ -3,13 +3,18 @@ const { expect } = require('chai');
 const { beforeTests, afterTests } = require('../helpers/compass');
 
 function cleanLog(log) {
-  log = JSON.parse(
+  let cleanedLog = JSON.parse(
     JSON.stringify(log).replace(
       /(MongoDB( |\+|%20)Compass)(( |\+|%20)\w+)+/g,
       '$1'
     )
   );
-  for (const entry of log) {
+  cleanedLog = cleanedLog.filter((entry) => (
+    // Remove "Server heartbeat succeeded" logs as they can occur
+    // a varying number of times when tests run.
+    entry.msg !== 'Server heartbeat succeeded'
+  ));
+  for (const entry of cleanedLog) {
     expect(entry.t.$date).to.be.a('string');
     delete entry.t; // Timestamps vary between each execution
 
@@ -31,7 +36,7 @@ function cleanLog(log) {
       entry.attr.duration = 100;
     }
   }
-  return log;
+  return cleanedLog;
 }
 
 describe('Logging integration', function () {
