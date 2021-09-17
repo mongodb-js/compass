@@ -41,12 +41,13 @@
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
-    "pretest": "npm run compile && mongodb-runner start --port=27018 && node ../../scripts/rebuild.js keytar",
+    "__pretest": "npm run compile && mongodb-runner start --port=27018 && node ../../scripts/rebuild.js keytar",
     "test": "mocha",
     "posttest": "mongodb-runner stop --port=27018",
     "test-cov": "nyc -x \"**/*.spec.*\" npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
+    "test-connectivity": "",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
     "reformat": "npm run prettier -- --write ."
   },
@@ -70,7 +71,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@mongodb-js/devtools-docker-test-envs": "^1.0.1",
+    "@mongodb-js/devtools-docker-test-envs": "^1.1.2",
     "@mongodb-js/eslint-config-compass": "^0.3.0",
     "@mongodb-js/mocha-config-compass": "^0.3.0",
     "@mongodb-js/prettier-config-compass": "^0.2.0",
