@@ -1,5 +1,7 @@
 import { expect } from 'chai';
-import { ConnectionOptions, ConnectionSshOptions } from './connection-options';
+import path from 'path';
+
+import { ConnectionOptions, ConnectionSshOptions } from '../connection-options';
 import {
   convertConnectionModelToOptions,
   convertConnectionOptionsToModel,
@@ -52,7 +54,7 @@ const MODEL_DEFAULTS: any = {
 };
 
 describe('legacy-connection-model', function () {
-  describe('sipmle conversion', function () {
+  describe('simple conversion', function () {
     // Test case is originalOptions -> converted model =? expectedConvertedModel; model -> converted options =? expectedConvertedOptions
     // we need "expectedConvertedOptions" as the connection string is modified by ConnectionModel
     const tests: Array<{
@@ -183,7 +185,7 @@ describe('legacy-connection-model', function () {
     });
 
     it('converts an SSH tunnel with key file', async function () {
-      const ssh: Partial<ConnectionSshOptions> = { privateKeyFile: 'myfile' };
+      const ssh: Partial<ConnectionSshOptions> = { identityKeyFile: 'myfile' };
       await expectConversion(
         optionsWithSsh(baseConnectionString, ssh),
         {
@@ -197,8 +199,8 @@ describe('legacy-connection-model', function () {
 
     it('converts an SSH tunnel with key file and passphrase', async function () {
       const ssh: Partial<ConnectionSshOptions> = {
-        privateKeyFile: 'myfile',
-        privateKeyPassphrase: 'mypass',
+        identityKeyFile: 'myfile',
+        identityKeyPassphrase: 'mypass',
       };
       await expectConversion(
         optionsWithSsh(baseConnectionString, ssh),
@@ -210,6 +212,79 @@ describe('legacy-connection-model', function () {
         },
         optionsWithSsh(baseInverseConnectionString, ssh)
       );
+    });
+
+    it('converts sshTunnelOptions correctly (password)', async function () {
+      const connectionOptions = {
+        connectionString: 'mongodb://mongo:27017',
+        sshTunnel: {
+          host: 'localhost',
+          port: 22222,
+          username: 'root',
+          password: 'password',
+        },
+      };
+
+      const legacyModel = await convertConnectionOptionsToModel(
+        connectionOptions
+      );
+
+      expect(legacyModel.sshTunnel).to.equal('USER_PASSWORD');
+
+      expect({
+        ...legacyModel.sshTunnelOptions,
+        localPort: undefined,
+      }).to.deep.equal({
+        dstAddr: 'mongo',
+        dstPort: 27017,
+        forwardTimeout: 20000,
+        host: 'localhost',
+        keepaliveInterval: 20000,
+        localAddr: '127.0.0.1',
+        localPort: undefined,
+        password: 'password',
+        port: 22222,
+        readyTimeout: 20000,
+        srcAddr: '127.0.0.1',
+        username: 'root',
+      });
+    });
+
+    it.only('converts sshTunnelOptions correctly (identity key)', async function () {
+      const connectionOptions: ConnectionOptions = {
+        connectionString: 'mongodb://mongo:27017',
+        sshTunnel: {
+          host: 'localhost',
+          port: 22222,
+          username: 'root',
+          identityKeyFile: path.resolve(__dirname, 'fakeidkey'),
+        },
+      };
+
+      const legacyModel = await convertConnectionOptionsToModel(
+        connectionOptions
+      );
+
+      expect(legacyModel.sshTunnel).to.equal('IDENTITY_FILE');
+
+      expect({
+        ...legacyModel.sshTunnelOptions,
+        localPort: undefined,
+        privateKey: legacyModel.sshTunnelOptions.privateKey.toString(),
+      }).to.deep.equal({
+        dstAddr: 'mongo',
+        dstPort: 27017,
+        forwardTimeout: 20000,
+        host: 'localhost',
+        keepaliveInterval: 20000,
+        localAddr: '127.0.0.1',
+        localPort: undefined,
+        privateKey: 'hi!',
+        port: 22222,
+        readyTimeout: 20000,
+        srcAddr: '127.0.0.1',
+        username: 'root',
+      });
     });
   });
 

@@ -4,7 +4,7 @@ import {
   convertConnectionModelToOptions,
   convertConnectionOptionsToModel,
   AmpersandMethodOptions,
-} from './legacy-connection-model';
+} from './legacy/legacy-connection-model';
 
 type ConnectionOptionsWithRequiredId = ConnectionOptions &
   Required<Pick<ConnectionOptions, 'id'>>;

@@ -1199,7 +1199,7 @@ describe('DataService', function () {
       });
 
       it('does not allow to connect twice without disonnecting first', function (done) {
-        mock('./legacy-connect', mockedConnectionModel());
+        mock('./connect-mongo-client', mockedConnectionModel());
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
@@ -1223,7 +1223,7 @@ describe('DataService', function () {
       });
 
       it('sets .connectionOptions after successful connection', function (done) {
-        mock('./legacy-connect', mockedConnectionModel());
+        mock('./connect-mongo-client', mockedConnectionModel());
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
@@ -1250,7 +1250,7 @@ describe('DataService', function () {
 
       it('sets .isMongos to true when topology is sharded', function (done) {
         mock(
-          './legacy-connect',
+          './connect-mongo-client',
           mockedConnectionModel(mockedTopologyDescription('Sharded'))
         );
 
@@ -1267,7 +1267,7 @@ describe('DataService', function () {
       });
 
       it('sets .isMongos to false when topology is not sharded', function (done) {
-        mock('./legacy-connect', mockedConnectionModel());
+        mock('./connect-mongo-client', mockedConnectionModel());
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
@@ -1290,7 +1290,7 @@ describe('DataService', function () {
       });
 
       it('should close tunnel before calling disconnect callback', function (done) {
-        mock('./legacy-connect', mockedConnectionModel());
+        mock('./connect-mongo-client', mockedConnectionModel());
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(

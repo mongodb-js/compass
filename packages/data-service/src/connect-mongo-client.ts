@@ -8,7 +8,7 @@ import { redactSshTunnelOptions, redactConnectionString } from './redact';
 
 import createLogger from '@mongodb-js/compass-logging';
 import createDebug from 'debug';
-import { LegacyConnectionModel } from './legacy-connection-model';
+import { LegacyConnectionModel } from './legacy/legacy-connection-model';
 
 const debug = createDebug('mongodb-data-service:connect');
 const { log, mongoLogId } = createLogger('COMPASS-CONNECT');
@@ -64,7 +64,7 @@ async function forceCloseTunnel(tunnelToClose?: SSHTunnel | null) {
     try {
       await tunnelToClose.close();
       debug('ssh tunnel stopped');
-    } catch (err) {
+    } catch (err: any) {
       debug('ssh tunnel stopped with error: %s', err.message);
     }
   }
@@ -141,7 +141,7 @@ async function connect(
       from: redactConnectionString(url),
       to: redactConnectionString(resolvedUrl),
     });
-  } catch (error) {
+  } catch (error: any) {
     log.error(
       mongoLogId(1_001_000_011),
       'Connect',
@@ -169,7 +169,7 @@ async function connect(
     });
 
     return [client, tunnel, { url, options }];
-  } catch (err) {
+  } catch (err: any) {
     log.error(
       mongoLogId(1_001_000_013),
       'Connect',
@@ -183,7 +183,7 @@ async function connect(
   }
 }
 
-export default function connectCallback(
+export default function connectMongoClient(
   model: LegacyConnectionModel,
   setupListeners: (client: MongoClient) => void,
   done: (

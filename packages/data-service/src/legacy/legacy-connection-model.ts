@@ -2,7 +2,7 @@ import SSHTunnel, { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
 import { MongoClient, MongoClientOptions, ReadPreferenceLike } from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
 import { promisify } from 'util';
-import { ConnectionOptions } from './connection-options';
+import { ConnectionOptions } from '../connection-options';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ConnectionModel = require('mongodb-connection-model');
@@ -165,10 +165,10 @@ export function convertConnectionModelToOptions(
       options.sshTunnel.password = model.sshTunnelPassword;
     }
     if (model.sshTunnelIdentityFile !== undefined) {
-      options.sshTunnel.privateKeyFile = model.sshTunnelIdentityFile;
+      options.sshTunnel.identityKeyFile = model.sshTunnelIdentityFile;
     }
     if (model.sshTunnelPassphrase !== undefined) {
-      options.sshTunnel.privateKeyPassphrase = model.sshTunnelPassphrase;
+      options.sshTunnel.identityKeyPassphrase = model.sshTunnelPassphrase;
     }
   }
 
@@ -251,15 +251,16 @@ export async function convertConnectionOptionsToModel(
   convertSslOptionsToLegacyProperties(options, additionalOptions);
 
   if (options.sshTunnel) {
-    additionalOptions.sshTunnel = !options.sshTunnel.privateKeyFile
+    additionalOptions.sshTunnel = !options.sshTunnel.identityKeyFile
       ? 'USER_PASSWORD'
       : 'IDENTITY_FILE';
     additionalOptions.sshTunnelHostname = options.sshTunnel.host;
+    additionalOptions.sshTunnelPort = options.sshTunnel.port;
     additionalOptions.sshTunnelUsername = options.sshTunnel.username;
     additionalOptions.sshTunnelPassword = options.sshTunnel.password;
-    additionalOptions.sshTunnelIdentityFile = options.sshTunnel.privateKeyFile;
+    additionalOptions.sshTunnelIdentityFile = options.sshTunnel.identityKeyFile;
     additionalOptions.sshTunnelPassphrase =
-      options.sshTunnel.privateKeyPassphrase;
+      options.sshTunnel.identityKeyPassphrase;
   }
 
   if (options.favorite) {

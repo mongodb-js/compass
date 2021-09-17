@@ -1,7 +1,7 @@
 import util from 'util';
 import { ConnectionOptions } from './connection-options';
 import DataService from './data-service';
-import { convertConnectionOptionsToModel } from './legacy-connection-model';
+import { convertConnectionOptionsToModel } from './legacy/legacy-connection-model';
 
 export default async function connect(
   connectionOptions: ConnectionOptions

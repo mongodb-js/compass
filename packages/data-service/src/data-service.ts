@@ -42,8 +42,8 @@ import {
 import ConnectionString from 'mongodb-connection-string-url';
 import { ConnectionOptions } from './connection-options';
 import { getInstance } from './instance-detail-helper';
-import connect from './legacy-connect';
-import { LegacyConnectionModel } from './legacy-connection-model';
+import connectMongoClient from './connect-mongo-client';
+import { LegacyConnectionModel } from './legacy/legacy-connection-model';
 import {
   Callback,
   CollectionDetails,
@@ -309,7 +309,7 @@ class DataService extends EventEmitter {
     // simultaneous syncronous calls to the connect method
     this._isConnecting = true;
 
-    connect(
+    connectMongoClient(
       this.model,
       this.setupListeners.bind(this),
       (err, client, tunnel, connectionOptions) => {

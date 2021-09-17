@@ -5,7 +5,7 @@ import {
   LegacyConnectionModel,
   LegacyConnectionModelProperties,
 } from '../lib/legacy-connection-model';
-import { convertConnectionModelToOptions } from '../src/legacy-connection-model';
+import { convertConnectionModelToOptions } from '../src/legacy/legacy-connection-model';
 import { Callback } from '../src/types';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

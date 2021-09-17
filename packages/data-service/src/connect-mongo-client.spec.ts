@@ -2,8 +2,8 @@
 import SSHTunnel from '@mongodb-js/ssh-tunnel';
 import assert from 'assert';
 import sinon from 'sinon';
-import { default as connect } from './legacy-connect';
-import { LegacyConnectionModel } from './legacy-connection-model';
+import { default as connect } from './connect-mongo-client';
+import { LegacyConnectionModel } from './legacy/legacy-connection-model';
 
 const mock = require('mock-require');
 const Connection = require('mongodb-connection-model');
@@ -111,7 +111,7 @@ describe('connection model connector', function () {
       );
 
       const MockConnection = mock.reRequire('mongodb-connection-model');
-      const mockConnect = mock.reRequire('./legacy-connect')
+      const mockConnect = mock.reRequire('./connect-mongo-client')
         .default as unknown as typeof connect;
 
       it('should close ssh tunnel if the connection fails', function (done) {
