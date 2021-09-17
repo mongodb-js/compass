@@ -9,11 +9,12 @@ function cleanLog(log) {
       '$1'
     )
   );
-  cleanedLog = cleanedLog.filter(logEntry => (
-    // Remove server heartbeat logs as they can happen a varying amount of
-    // times depending on how long tests are taking.
-    logEntry.id !== 1_001_000_022
-  ));
+  cleanedLog = cleanedLog.filter(
+    (logEntry) =>
+      // Remove server heartbeat logs as they can happen a varying amount of
+      // times depending on how long tests are taking.
+      logEntry.id !== 1_001_000_022
+  );
   for (const entry of cleanedLog) {
     expect(entry.t.$date).to.be.a('string');
     delete entry.t; // Timestamps vary between each execution
