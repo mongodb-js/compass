@@ -7,6 +7,8 @@ module.exports = function (app) {
     await client.clickVisible(`${stageSelector} button[title="Collapse"]`);
     await client.clickVisible(`${stageSelector} button[title="Expand"]`);
     await client.keys(['Tab']);
-    await client.waitForVisible(`${stageSelector} .Select-control input[aria-expanded="true"]`)
+    await client.waitForVisible(
+      `${stageSelector} .Select-control input[aria-expanded="true"]`
+    );
   };
 };

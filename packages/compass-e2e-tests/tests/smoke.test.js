@@ -92,7 +92,6 @@ describe('Compass', function () {
   });
 
   describe.only('localhost:27018', () => {
-
     before(async () => {
       await client.connectWithConnectionString(
         'mongodb://localhost:27018/test'
@@ -101,13 +100,19 @@ describe('Compass', function () {
 
     describe('Sidebar', () => {
       it('contains cluster info', async () => {
-        const topologySingleHostAddress = await client.getText(Selectors.TopologySingleHostAddress);
+        const topologySingleHostAddress = await client.getText(
+          Selectors.TopologySingleHostAddress
+        );
         expect(topologySingleHostAddress).to.equal('localhost:27018');
 
-        const singleClusterType = await client.getText(Selectors.SingleClusterType);
+        const singleClusterType = await client.getText(
+          Selectors.SingleClusterType
+        );
         expect(singleClusterType).to.equal('Standalone');
 
-        const serverVersionText = await client.getText(Selectors.ServerVersionText);
+        const serverVersionText = await client.getText(
+          Selectors.ServerVersionText
+        );
         expect(serverVersionText).to.equal('MongoDB 5.0.2 Community'); // this will fail every time we update
       });
 
@@ -124,9 +129,11 @@ describe('Compass', function () {
       });
 
       it('contains a list of databases', async () => {
-        const dbSelectors = ['admin', 'config', 'local', 'test'].map((dbName) => {
-          return `[data-test-id="databases-table-link-${dbName}"]`;
-        });
+        const dbSelectors = ['admin', 'config', 'local', 'test'].map(
+          (dbName) => {
+            return `[data-test-id="databases-table-link-${dbName}"]`;
+          }
+        );
 
         for (const dbSelector of dbSelectors) {
           expect(await client.isExisting(dbSelector)).to.be.true;
@@ -154,13 +161,19 @@ describe('Compass', function () {
     });
 
     describe('Collection screen', () => {
-
       before(async () => {
         await client.navigateToCollectionTab('test', 'numbers', 'Documents');
       });
 
       it('contains the collection tabs', async () => {
-        const tabSelectors = ['Documents', 'Aggregations', 'Schema', 'Explain Plan', 'Indexes', 'Validation'].map((tabName) => {
+        const tabSelectors = [
+          'Documents',
+          'Aggregations',
+          'Schema',
+          'Explain Plan',
+          'Indexes',
+          'Validation',
+        ].map((tabName) => {
           return `${Selectors.InstanceTab}[name="${tabName}"]`;
         });
 
@@ -170,14 +183,25 @@ describe('Compass', function () {
       });
 
       it('contains the collection stats', async () => {
+        expect(
+          await client.getText('[data-test-id="document-count-value"]')
+        ).to.equal('1k');
+        expect(
+          await client.getText('[data-test-id="total-document-size-value"]')
+        ).to.equal('29.0KB');
+        expect(
+          await client.getText('[data-test-id="avg-document-size-value"]')
+        ).to.equal('29B');
 
-        expect(await client.getText('[data-test-id="document-count-value"]')).to.equal('1k');
-        expect(await client.getText('[data-test-id="total-document-size-value"]')).to.equal('29.0KB');
-        expect(await client.getText('[data-test-id="avg-document-size-value"]')).to.equal('29B');
-
-        expect(await client.getText('[data-test-id="index-count-value"]')).to.equal('1');
-        expect(await client.getText('[data-test-id="total-index-size-value"]')).to.equal('4.1KB');
-        expect(await client.getText('[data-test-id="avg-index-size-value"]')).to.equal('4.1KB');
+        expect(
+          await client.getText('[data-test-id="index-count-value"]')
+        ).to.equal('1');
+        expect(
+          await client.getText('[data-test-id="total-index-size-value"]')
+        ).to.equal('4.1KB');
+        expect(
+          await client.getText('[data-test-id="avg-index-size-value"]')
+        ).to.equal('4.1KB');
       });
     });
 
@@ -188,7 +212,7 @@ describe('Compass', function () {
 
       it('supports simple find operations', async () => {
         await client.runFindOperation({
-          filter: '{ i: 5 }'
+          filter: '{ i: 5 }',
         });
 
         const text = await client.getText('.document-list-action-bar-message');
@@ -201,7 +225,7 @@ describe('Compass', function () {
           project: '{ _id: 0 }',
           sort: '{ i: -1 }',
           skip: '5',
-          limit: '50'
+          limit: '50',
         });
 
         const text = await client.getText('.document-list-action-bar-message');
@@ -222,7 +246,7 @@ describe('Compass', function () {
       // behaviour with multiple tabs
       it('can view query history');
       it('keeps the query when navigating to schema and explain');
-      it('can copy/clone/delete a document from contextual toolbar')
+      it('can copy/clone/delete a document from contextual toolbar');
     });
 
     describe('Aggregations tab', () => {
@@ -232,12 +256,16 @@ describe('Compass', function () {
 
       it('supports the right stages for the environment', async () => {
         // sanity check to make sure there's only one
-        const stageContainers = await client.$$('[data-test-id="stage-container"]');
+        const stageContainers = await client.$$(
+          '[data-test-id="stage-container"]'
+        );
         expect(stageContainers).to.have.lengthOf(1);
 
         await client.focusStageOperator(0);
 
-        const options = await client.getText('[data-stage-index="0"] [role="option"]');
+        const options = await client.getText(
+          '[data-stage-index="0"] [role="option"]'
+        );
         expect(options).to.deep.equal([
           '$addFields',
           '$bucket',
@@ -267,7 +295,7 @@ describe('Compass', function () {
           '$sortByCount',
           '$unionWith',
           '$unset',
-          '$unwind'
+          '$unwind',
         ]);
       });
 
@@ -278,7 +306,9 @@ describe('Compass', function () {
         await client.setAceValue('#aggregations-stage-editor-0', '{ i: 0 }');
 
         await client.waitUntil(async () => {
-          const text = await client.getText('[data-stage-index="0"] [data-test-id="stage-preview-toolbar-tooltip"]');
+          const text = await client.getText(
+            '[data-stage-index="0"] [data-test-id="stage-preview-toolbar-tooltip"]'
+          );
           return text === '(Sample of 1 document)';
         });
       });
@@ -325,7 +355,9 @@ describe('Compass', function () {
 
         await client.waitForVisible('.schema-field-list');
         const message = await client.getText('.analysis-message');
-        expect(message).to.equal('This report is based on a sample of 1000 documents.');
+        expect(message).to.equal(
+          'This report is based on a sample of 1000 documents.'
+        );
 
         const fields = await client.$$('.schema-field');
         expect(fields).to.have.lengthOf(2);
@@ -339,9 +371,9 @@ describe('Compass', function () {
 
       it('analyzes the schema with a query');
       it('can reset the query');
-      it('can create a geoquery from a map')
-      it('can create a geoquery from the charts')
-      it('supports maxTimeMS')
+      it('can create a geoquery from a map');
+      it('can create a geoquery from the charts');
+      it('supports maxTimeMS');
     });
 
     describe('Explain Plan tab', () => {
@@ -375,9 +407,10 @@ describe('Compass', function () {
         const indexes = await client.$$('[data-test-id="index-component"]');
         expect(indexes).to.have.lengthOf(1);
 
-        expect(await client.getText('[data-test-id="name-column-name"]')).to.equal('_id_');
+        expect(
+          await client.getText('[data-test-id="name-column-name"]')
+        ).to.equal('_id_');
       });
-
     });
 
     describe('Validation tab', () => {
@@ -386,7 +419,6 @@ describe('Compass', function () {
       });
 
       it('allows rules to be added', async () => {
-
         const buttonSelector = '[data-test-id="add-rule-button"]';
         await client.clickVisible(buttonSelector);
 
@@ -397,19 +429,13 @@ describe('Compass', function () {
 
       it('supports rules in MQL');
       it('supports rules in JSON Schema');
-      it('does not allow invalid documents to be inserted')
+      it('does not allow invalid documents to be inserted');
     });
 
-    describe('Import', () => {
+    describe('Import', () => {});
 
-    });
+    describe('Export', () => {});
 
-    describe('Export', () => {
-
-    });
-
-    describe('Compass Shell', () => {
-
-    });
+    describe('Compass Shell', () => {});
   });
 });

@@ -7,4 +7,4 @@ module.exports = function (app) {
     await client.keys(['Backspace']);
     await client.keys(value);
   };
-}
+};
