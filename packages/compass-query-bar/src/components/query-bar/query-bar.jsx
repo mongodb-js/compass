@@ -203,6 +203,27 @@ class QueryBar extends Component {
       : null;
   }
 
+  getQueryOption(label, autoPopulated, hasToggle, hasError, id, value, placeholder, option) {
+    return (
+      <QueryOption
+        label={label}
+        autoPopulated={autoPopulated}
+        serverVersion={this.props.serverVersion}
+        hasToggle={hasToggle}
+        hasError={hasError}
+        key={`query-option-${id}`}
+        value={value}
+        actions={this.props.actions}
+        placeholder={placeholder}
+        link={OPTION_DEFINITION[option].link}
+        inputType={OPTION_DEFINITION[option].type}
+        onChange={this.onChange.bind(this, option)}
+        onApply={this.onApplyButtonClicked}
+        schemaFields={this.props.schemaFields}
+      />
+    );
+  }
+
   /**
    * renders a single query option, either as its own row, or as part of a
    * option group.
@@ -229,54 +250,20 @@ class QueryBar extends Component {
     const label = OPTION_DEFINITION[option].label || option;
     const placeholder = this.props[`${option}Placeholder`] || OPTION_DEFINITION[option].placeholder;
 
+    const queryOption = this.getQueryOption(label, autoPopulated, hasToggle, hasError, id, value, placeholder, option);
+
     if (hasToggle) {
       return (
         <div
           className={styles['query-option-toggle-row']}
-          style={{
-            display: 'flex',
-            flexDirection: 'row'
-          }}
         >
-          <QueryOption
-            label={label}
-            autoPopulated={autoPopulated}
-            serverVersion={this.props.serverVersion}
-            hasToggle={hasToggle}
-            hasError={hasError}
-            key={`query-option-${id}`}
-            value={value}
-            actions={this.props.actions}
-            placeholder={placeholder}
-            link={OPTION_DEFINITION[option].link}
-            inputType={OPTION_DEFINITION[option].type}
-            onChange={this.onChange.bind(this, option)}
-            onApply={this.onApplyButtonClicked}
-            schemaFields={this.props.schemaFields}
-          />
+          {queryOption}
           {this.renderToggle()}
         </div>
       );
     }
 
-    return (
-      <QueryOption
-        label={label}
-        autoPopulated={autoPopulated}
-        serverVersion={this.props.serverVersion}
-        hasToggle={hasToggle}
-        hasError={hasError}
-        key={`query-option-${id}`}
-        value={value}
-        actions={this.props.actions}
-        placeholder={placeholder}
-        link={OPTION_DEFINITION[option].link}
-        inputType={OPTION_DEFINITION[option].type}
-        onChange={this.onChange.bind(this, option)}
-        onApply={this.onApplyButtonClicked}
-        schemaFields={this.props.schemaFields}
-      />
-    );
+    return queryOption;
   }
 
   /**
