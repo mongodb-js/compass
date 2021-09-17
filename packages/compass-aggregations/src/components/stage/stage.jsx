@@ -217,6 +217,8 @@ class Stage extends Component {
     const opacity = this.getOpacity();
     return (
       <div
+        data-test-id="stage-container"
+        data-stage-index={this.props.index}
         className={classnames(styles['stage-container'], {
           [styles['stage-container-is-first']]: this.props.index === 0
         })}

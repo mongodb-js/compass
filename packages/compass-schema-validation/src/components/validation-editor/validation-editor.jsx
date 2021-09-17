@@ -281,7 +281,7 @@ class ValidationEditor extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles['validation-editor'])}>
+      <div className={classnames(styles['validation-editor'])} data-test-id="validation-editor">
         <div className={classnames(styles['validation-editor-content'])}>
           <div className={classnames(styles['validation-options-container'])}>
             {this.renderActionSelector()}

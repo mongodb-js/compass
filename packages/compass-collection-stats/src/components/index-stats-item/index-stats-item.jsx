@@ -45,9 +45,9 @@ class IndexStatsItem extends Component {
   render() {
     return (
       <div className={styles[LIST_CLASS]}>
-        <CollectionStatsItem label={INDEXES} value={this.props.indexCount} primary />
-        <CollectionStatsItem label={TOTAL_SIZE} value={this.props.totalIndexSize} />
-        <CollectionStatsItem label={AVG_SIZE} value={this.props.avgIndexSize} />
+        <CollectionStatsItem data-test-id="index-count" label={INDEXES} value={this.props.indexCount} primary />
+        <CollectionStatsItem data-test-id="total-index-size" label={TOTAL_SIZE} value={this.props.totalIndexSize} />
+        <CollectionStatsItem data-test-id="avg-index-size" label={AVG_SIZE} value={this.props.avgIndexSize} />
       </div>
     );
   }

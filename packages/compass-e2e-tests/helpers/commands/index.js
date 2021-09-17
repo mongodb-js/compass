@@ -23,4 +23,9 @@ exports.addCommands = function (app) {
   add('navigateToInstanceTab', './navigate-to-instance-tab');
   add('navigateToDatabaseTab', './navigate-to-database-tab');
   add('navigateToCollectionTab', './navigate-to-collection-tab');
+  add('runFindOperation', './run-find-operation');
+  add('setAceValue', './set-ace-value');
+  add('focusStageOperator', './focus-stage-operator');
+  add('selectStageOperator', './select-stage-operator');
+  add('closeCollectionTabs', './close-collection-tabs');
 };

@@ -136,6 +136,7 @@ class Toolbar extends React.Component {
             {this.renderExportButton()}
             <div className={VIEW_SWITCHER_CLASS}>
               <ViewSwitcher
+                dataTestId="toolbar-view"
                 label="View"
                 buttonLabels={['List', 'JSON', 'Table']}
                 showLabels={false}
