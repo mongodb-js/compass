@@ -61,13 +61,7 @@ const parseNamespace = require('mongodb-ns');
 const debug = createDebug('mongodb-data-service:data-service');
 
 class DataService extends EventEmitter {
-  /**
-   * Currently used in:
-   * - compass-sidebar/store.js
-   */
-  readonly model: LegacyConnectionModel;
-
-  private _connectionOptions: ConnectionOptions;
+  private readonly _connectionOptions: ConnectionOptions;
   private _isConnecting = false;
   private _mongoClientConnectionOptions?: {
     url: string;
@@ -75,7 +69,6 @@ class DataService extends EventEmitter {
   };
 
   private _client?: MongoClient;
-  private _database?: Db;
   private _tunnel: SshTunnel | null = null;
 
   /**
@@ -87,13 +80,9 @@ class DataService extends EventEmitter {
   private _isWritable = false;
   private _isMongos = false;
 
-  constructor(
-    connectionOptions: ConnectionOptions,
-    model: LegacyConnectionModel
-  ) {
+  constructor(connectionOptions: ConnectionOptions) {
     super();
     this._connectionOptions = connectionOptions;
-    this.model = model;
   }
 
   getMongoClientConnectionOptions():
@@ -273,7 +262,7 @@ class DataService extends EventEmitter {
         listDatabases: 1,
       },
       {
-        readPreference: this.model.readPreference,
+        readPreference: this.getReadPreference(),
       },
       (error, result) => {
         if (error) {
@@ -285,12 +274,39 @@ class DataService extends EventEmitter {
     );
   }
 
+  async connect(): Promise<void> {
+    debug('connecting...');
+    if (this._isConnecting) {
+      debug('connect method called more than once.');
+      return;
+    }
+
+    this._isConnecting = true;
+
+    try {
+      const [client, tunnel, connectionOptions] = await connectMongoClient(
+        this.connectionOptions,
+        this.setupListeners.bind(this)
+      );
+      debug('connected!', {
+        isWritable: this.isWritable(),
+        isMongos: this.isMongos(),
+      });
+
+      this._client = client;
+      this._tunnel = tunnel;
+      this._mongoClientConnectionOptions = connectionOptions;
+    } finally {
+      this._isConnecting = false;
+    }
+  }
+
   /**
    * Connect to the server.
    *
    * @param done - The callback function.
    */
-  connect(done: Callback<DataService>): void {
+  connsect(done: Callback<DataService>): void {
     debug('connecting...');
 
     if (this._isConnecting) {
@@ -309,32 +325,20 @@ class DataService extends EventEmitter {
     // simultaneous syncronous calls to the connect method
     this._isConnecting = true;
 
-    connectMongoClient(
-      this.model,
-      this.setupListeners.bind(this),
-      (err, client, tunnel, connectionOptions) => {
-        if (err) {
-          this._isConnecting = false;
-          // @ts-expect-error Callback without result...
-          return done(this._translateMessage(err));
-        }
+    // {
 
-        this._client = client;
-        this._tunnel = tunnel;
+    //   },
+    //   (err, client, tunnel, connectionOptions) => {
+    //     if (err) {
+    //       this._isConnecting = false;
+    //       // @ts-expect-error Callback without result...
+    //       return done(this._translateMessage(err));
+    //     }
 
-        this._mongoClientConnectionOptions = connectionOptions;
-
-        debug('connected!', {
-          isWritable: this.isWritable(),
-          isMongos: this.isMongos(),
-        });
-
-        this._database = this._client.db(this.model.ns || 'admin');
-
-        done(null, this);
-        this.emit('readable');
-      }
-    );
+    //     done(null, this);
+    //     // this.emit('readable');
+    //   }
+    // );
     return;
   }
 
@@ -772,7 +776,7 @@ class DataService extends EventEmitter {
    * @param callback - The callback function.
    */
   instance(options: unknown, callback: Callback<Instance>): void {
-    getInstance(this._initializedClient, this._initializedDb, ((
+    getInstance(this._initializedClient, this._defaultDb, ((
       error,
       instanceData
     ) => {
@@ -781,11 +785,20 @@ class DataService extends EventEmitter {
         return callback(this._translateMessage(error));
       }
 
+      const connectionString = new ConnectionString(
+        this._connectionOptions.connectionString
+      );
+
+      const firstHost = connectionString.hosts[0] || '';
+
+      const [hostname, port] = firstHost.split(':');
+      // ---TODO: understand how is used and maybe replace with data coming
+      // from connected client
       const instance: Instance = {
         ...instanceData,
-        _id: `${this.model.hostname}:${this.model.port}`,
-        hostname: this.model.hostname,
-        port: this.model.port,
+        _id: firstHost,
+        hostname: hostname,
+        port: +port,
       };
       callback(null, instance);
     }) as Callback<InstanceDetails>);
@@ -978,7 +991,7 @@ class DataService extends EventEmitter {
    * Returns the result of serverStats.
    */
   serverstats(callback: Callback<Document>): void {
-    this._initializedDb.admin().serverStatus((error, result) => {
+    this._defaultDb.admin().serverStatus((error, result) => {
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -993,7 +1006,7 @@ class DataService extends EventEmitter {
    * @param callback - the callback.
    */
   top(callback: Callback<Document>): void {
-    this._initializedDb.admin().command({ top: 1 }, (error, result) => {
+    this._defaultDb.admin().command({ top: 1 }, (error, result) => {
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -1214,11 +1227,8 @@ class DataService extends EventEmitter {
     return this._client;
   }
 
-  private get _initializedDb(): Db {
-    if (!this._database) {
-      throw new Error('database not yet initialized');
-    }
-    return this._database;
+  private get _defaultDb(): Db {
+    return this._initializedClient.db();
   }
 
   /**
@@ -1422,7 +1432,6 @@ class DataService extends EventEmitter {
       this._client.removeAllListeners();
     }
     this._client = undefined;
-    this._database = undefined;
     this._mongoClientConnectionOptions = undefined;
     this._tunnel = null;
     this._isWritable = false;

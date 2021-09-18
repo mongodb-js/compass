@@ -275,57 +275,114 @@ export async function convertConnectionOptionsToModel(
   });
 }
 
-function convertSslOptionsToLegacyProperties(
-  options: ConnectionOptions,
-  properties: Partial<LegacyConnectionModelProperties>
-): void {
-  const url = new ConnectionString(options.connectionString);
-  const tlsAllowInvalidCertificates = url.searchParams.get(
-    'tlsAllowInvalidCertificates'
-  );
-  const tlsAllowInvalidHostnames = url.searchParams.get(
-    'tlsAllowInvalidHostnames'
-  );
-  const tlsInsecure = url.searchParams.get('tlsInsecure');
+function guessSslMethod(
+  url: ConnectionString
+):
+  | 'NONE'
+  | 'SYSTEMCA'
+  | 'IFAVAILABLE'
+  | 'UNVALIDATED'
+  | 'SERVER'
+  | 'ALL'
+  | undefined {
+  const tls =
+    url.searchParams.get('tls') === 'true' ||
+    url.searchParams.get('ssl') === 'true';
+  const tlsAllowInvalidCertificates =
+    url.searchParams.get('tlsAllowInvalidCertificates') === 'true';
+  const tlsAllowInvalidHostnames =
+    url.searchParams.get('tlsAllowInvalidHostnames') === 'true';
+  const tlsInsecure = url.searchParams.get('tlsInsecure') === 'true';
   const tlsCAFile = url.searchParams.get('tlsCAFile');
-  const tlsCertificateKeyFile = url.searchParams.get('tlsCertificateKeyFile');
+
+  if (!tls) {
+    return 'NONE';
+  }
+
+  if (tlsInsecure || tlsAllowInvalidCertificates) {
+    return 'UNVALIDATED';
+  }
+
+  if (tlsAllowInvalidHostnames) {
+    return 'IFAVAILABLE';
+  }
+
+  return 'SYSTEMCA';
+}
+
+function convertSslOptionsToLegacyProperties(
+  options: ConnectionOptions
+): Partial<LegacyConnectionModelProperties> {
+  const url = new ConnectionString(options.connectionString);
+  const tls =
+    url.searchParams.get('tls') === 'true' ||
+    url.searchParams.get('ssl') === 'true';
+  const tlsAllowInvalidCertificates =
+    url.searchParams.get('tlsAllowInvalidCertificates') === 'true';
+  const tlsAllowInvalidHostnames =
+    url.searchParams.get('tlsAllowInvalidHostnames') === 'true';
+
+  const tlsInsecure = url.searchParams.get('tlsInsecure') === 'true';
+  const tlsCAFile = url.searchParams.get('tlsCAFile');
+  const tlsCertificateKeyFile =
+    options.tlsCertificateFile || url.searchParams.get('tlsCertificateKeyFile');
   const tlsCertificateKeyFilePassword = url.searchParams.get(
     'tlsCertificateKeyFilePassword'
   );
 
-  if (tlsAllowInvalidCertificates !== 'true' && tlsCAFile) {
-    properties.sslMethod = 'SERVER';
-    properties.sslCert = undefined;
-    properties.sslKey = undefined;
-
-    if (options.tlsCertificateFile || tlsCertificateKeyFile) {
-      properties.sslMethod = 'ALL';
-      properties.sslCert = options.tlsCertificateFile ?? tlsCertificateKeyFile;
-      properties.sslKey = tlsCertificateKeyFile ?? undefined;
-      properties.sslPass = tlsCertificateKeyFilePassword ?? undefined;
-    }
-  } else {
-    properties.sslCA = undefined;
-    properties.sslCert = undefined;
-    properties.sslKey = undefined;
-    properties.sslPass = undefined;
-    if (tlsInsecure === 'true') {
-      properties.sslMethod = 'UNVALIDATED';
-    } else if (
-      tlsAllowInvalidCertificates === 'true' &&
-      tlsAllowInvalidHostnames === 'true'
-    ) {
-      properties.sslMethod = 'UNVALIDATED';
-    } else if (
-      tlsAllowInvalidCertificates !== 'true' &&
-      tlsAllowInvalidHostnames !== 'true'
-    ) {
-      properties.sslMethod = 'SYSTEMCA';
-    } else if (
-      tlsAllowInvalidCertificates !== 'true' &&
-      tlsAllowInvalidHostnames === 'true'
-    ) {
-      properties.sslMethod = 'IFAVAILABLE';
-    }
+  if (!tls) {
+    return { sslMethod: 'NONE' };
   }
+
+  if (tlsInsecure || tlsAllowInvalidCertificates) {
+    return { sslMethod: 'UNVALIDATED' };
+  }
+
+  // if (tlsCAFile) {
+  //   return {
+  //     sslMethod: 'SERVER',
+  //     sslCA: tlsCAFile,
+  //     // properties.sslKey = undefined;
+  //   };
+  // }
+
+  if (tlsAllowInvalidHostnames) {
+    return 'IFAVAILABLE';
+  }
+
+  return {
+    sslMethod: 'SYSTEMCA',
+  };
+
+  // if (!tls) {
+  //   properties.sslMethod = 'NONE';
+  // } else if (tlsCAFile && !tlsAllowInvalidCertificates) {
+  //   properties.sslMethod = 'SERVER';
+  //   properties.sslCert = undefined;
+
+  //   properties.sslKey = undefined;
+  //   if (options.tlsCertificateFile || tlsCertificateKeyFile) {
+  //     properties.sslMethod = 'ALL';
+  //     properties.sslCert = options.tlsCertificateFile ?? tlsCertificateKeyFile;
+  //     properties.sslKey = tlsCertificateKeyFile ?? undefined;
+  //     properties.sslPass = tlsCertificateKeyFilePassword ?? undefined;
+  //   }
+  // } else {
+  //   properties.sslCA = undefined;
+  //   properties.sslCert = undefined;
+  //   properties.sslKey = undefined;
+  //   properties.sslPass = undefined;
+  //   if (tlsInsecure) {
+  //     properties.sslMethod = 'UNVALIDATED';
+  //   } else if (
+  //     tlsInsecure ||
+  //     (tlsAllowInvalidCertificates && tlsAllowInvalidHostnames)
+  //   ) {
+  //     properties.sslMethod = 'UNVALIDATED';
+  //   } else if (!tlsAllowInvalidCertificates && !tlsAllowInvalidHostnames) {
+  //     properties.sslMethod = 'SYSTEMCA';
+  //   } else if (!tlsAllowInvalidCertificates && tlsAllowInvalidHostnames) {
+  //     properties.sslMethod = 'IFAVAILABLE';
+  //   }
+  // }
 }

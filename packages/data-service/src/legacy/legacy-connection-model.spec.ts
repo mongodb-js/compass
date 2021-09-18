@@ -53,7 +53,7 @@ const MODEL_DEFAULTS: any = {
   lastUsed: null,
 };
 
-describe('legacy-connection-model', function () {
+describe.only('legacy-connection-model', function () {
   describe('simple conversion', function () {
     // Test case is originalOptions -> converted model =? expectedConvertedModel; model -> converted options =? expectedConvertedOptions
     // we need "expectedConvertedOptions" as the connection string is modified by ConnectionModel
@@ -113,7 +113,7 @@ describe('legacy-connection-model', function () {
         { originalOptions, expectedConvertedModel, expectedConvertedOptions },
         i
       ) => {
-        it(`can convert #${i}`, async function () {
+        it(`can convert #${originalOptions.connectionString}`, async function () {
           await expectConversion(
             originalOptions,
             expectedConvertedModel,
@@ -427,7 +427,7 @@ describe('legacy-connection-model', function () {
         {
           id: defaultId,
           connectionString:
-            'mongodb://localhost/?tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile&tlsCertificateKeyFile=pathToCertKey',
+            'mongodb://localhost/?tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile&tlsCertificateKeyFile=pathToCertKey&tls=true',
         },
         {
           ...baseModel,

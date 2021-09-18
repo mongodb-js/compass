@@ -8,7 +8,7 @@ import { redactSshTunnelOptions, redactConnectionString } from './redact';
 
 import createLogger from '@mongodb-js/compass-logging';
 import createDebug from 'debug';
-import { LegacyConnectionModel } from './legacy/legacy-connection-model';
+import { ConnectionOptions } from './connection-options';
 
 const debug = createDebug('mongodb-data-service:connect');
 const { log, mongoLogId } = createLogger('COMPASS-CONNECT');
@@ -25,7 +25,7 @@ function removeGssapiServiceName(url: string) {
   return uri.toString();
 }
 
-async function openSshTunnel(model: LegacyConnectionModel) {
+async function openSshTunnel(model: ConnectionOptions) {
   if (
     !model.sshTunnel ||
     model.sshTunnel === 'NONE' ||
@@ -95,7 +95,7 @@ function addDirectConnectionWhenNeeded(
   return options;
 }
 
-async function connect(
+export default async function connect(
   model: LegacyConnectionModel,
   setupListeners: (client: MongoClient) => void
 ): Promise<ConnectReturnTuple> {
@@ -183,23 +183,23 @@ async function connect(
   }
 }
 
-export default function connectMongoClient(
-  model: LegacyConnectionModel,
-  setupListeners: (client: MongoClient) => void,
-  done: (
-    err: Error | null,
-    client: MongoClient,
-    tunnel: SSHTunnel | null,
-    options: { url: string; options: MongoClientOptions }
-  ) => void
-): void {
-  connect(model, setupListeners).then(
-    ([client, tunnel, options]) =>
-      process.nextTick(() => done(null, client, tunnel, options)),
-    (err) =>
-      process.nextTick(() => {
-        // @ts-expect-error error callback without args
-        return done(err);
-      })
-  );
-}
+// export default function connect(
+//   model: LegacyConnectionModel,
+//   setupListeners: (client: MongoClient) => void,
+//   done: (
+//     err: Error | null,
+//     client: MongoClient,
+//     tunnel: SSHTunnel | null,
+//     options: { url: string; options: MongoClientOptions }
+//   ) => void
+// ): void {
+//   connect(model, setupListeners).then(
+//     ([client, tunnel, options]) =>
+//       process.nextTick(() => done(null, client, tunnel, options)),
+//     (err) =>
+//       process.nextTick(() => {
+//         // @ts-expect-error error callback without args
+//         return done(err);
+//       })
+//   );
+// }
