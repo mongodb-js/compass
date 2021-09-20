@@ -49,8 +49,6 @@ export class ShellHeader extends Component {
                   size="12px"
                 />
                 <span
-                  data-test-id="shell-loader-in-progress"
-                  name="shell-loader-in-progress-text"
                   className={styles['compass-shell-header-operation-in-progress']}
                 >Command in progress...</span>
               </>
