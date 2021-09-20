@@ -38,14 +38,6 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-input:focus {
-  outline: #019EE2 auto 5px;
-}
-
-select:focus {
-  outline: #019EE2 auto 5px;
-}
-
 #application {
 
   // TODO: These #statusbar should be moved into internal-packages/status/styles
@@ -78,6 +70,7 @@ select:focus {
 * {
   user-select: text;
   -webkit-user-select: text;
+  outline-color: #019EE2;
 }
 // disable highlighting for most of the schema and document viewers
 .schema-field-list *, .document-list * {

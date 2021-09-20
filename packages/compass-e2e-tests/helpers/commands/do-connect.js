@@ -11,14 +11,5 @@ module.exports = function (app) {
       timeout,
       interval: 50,
     });
-
-    // // indicator that we are connected to the server.
-    // const element = await app.client.$(Selectors.DatabasesTable);
-    // if (!(await element.isDisplayed())) {
-    //   await app.client.waitForElement(Selectors.DatabasesTable, {
-    //     visibleError: 'Expected databases table to be visible',
-    //     timeout
-    //   });
-    // }
   };
 };

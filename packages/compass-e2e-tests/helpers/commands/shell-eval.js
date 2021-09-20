@@ -17,12 +17,6 @@ module.exports = function (app) {
 
     const shellLoaderBarElement = await client.$(Selectors.ShellLoader);
     if (await shellLoaderBarElement.isDisplayed()) {
-      // await client.waitUntilGone(Selectors.ShellLoader, {
-      //   timeout,
-      //   timeoutMsg: `Expected shell evaluation to finish in ${timeout}ms`,
-      //   interval: 50
-      // });
-
       await client.waitUntil(
         async () => {
           return !(await shellLoaderBarElement.isDisplayed());
@@ -34,17 +28,6 @@ module.exports = function (app) {
         }
       );
     }
-
-    // const shellLoaderBarElement = await client.$(Selectors.ShellLoader);
-    // await client.waitUntil(
-    //   async () => {
-    //
-    //     return !(await shellLoaderBarElement.isDisplayed());
-    //   },
-    //   timeout,
-    //   `Expected shell evaluation to finish in ${timeout}ms`,
-    //   50
-    // );
 
     await delay(50);
     const shellOutputElements = await client.$$(Selectors.ShellOutput);
