@@ -17,16 +17,12 @@ module.exports = function (app) {
 
     const shellLoaderBarElement = await client.$(Selectors.ShellLoader);
     if (await shellLoaderBarElement.isDisplayed()) {
-      await client.waitUntil(
-        async () => {
-          return !(await shellLoaderBarElement.isDisplayed());
-        },
-        {
-          timeout,
-          timeoutMsg: `Expected shell evaluation to finish in ${timeout}ms`,
-          interval: 50,
-        }
-      );
+      await shellLoaderBarElement.waitForDisplayed({
+        timeout,
+        timeoutMsg: `Expected shell evaluation to finish in ${timeout}ms`,
+        reverse: true,
+        interval: 50,
+      });
     }
 
     await delay(50);

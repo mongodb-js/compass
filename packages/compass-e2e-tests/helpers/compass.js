@@ -341,7 +341,7 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
 /**
  * @param {ExtendedApplication} app
  */
-async function addDebugger(app) {
+function addDebugger(app) {
   const debugClient = debug.extend('webdriver:client');
   const clientProto = Object.getPrototypeOf(app.client);
 
