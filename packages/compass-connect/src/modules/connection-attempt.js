@@ -1,7 +1,7 @@
 import createDebug from 'debug';
 import createLogger from '@mongodb-js/compass-logging';
 import { promisify } from 'util';
-import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
+import { connect } from 'mongodb-data-service';
 
 const { log, mongoLogId } = createLogger('COMPASS-CONNECT-UI');
 const debug = createDebug('mongodb-compass:compass-connect:connection-attempt');
@@ -18,12 +18,12 @@ class ConnectionAttempt {
     });
   }
 
-  connect(connectionModel) {
+  connect(connectionOptions) {
     log.info(mongoLogId(1001000004), 'Connection UI', 'Initiating connection attempt');
 
     return Promise.race([
       this._cancelled,
-      this._connect(connectionModel)
+      this._connect(connectionOptions)
     ]);
   }
 
@@ -34,14 +34,13 @@ class ConnectionAttempt {
     this._close();
   }
 
-  async _connect(connectionModel) {
+  async _connect(connectionOptions) {
     if (this._closed) {
       return;
     }
 
-    const options = convertConnectionModelToInfo(connectionModel);
     try {
-      this._dataService = await this._connectFn(options);
+      this._dataService = await this._connectFn(connectionOptions);
       return this._dataService;
     } catch (err) {
       if (isConnectionAttemptTerminatedError(err)) {

@@ -6,6 +6,7 @@ const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const { promisify } = require('util');
 const { getConnectionTitle, convertConnectionModelToInfo } = require('mongodb-data-service');
+const debug = require('debug')('compass-connect:store');
 
 const Actions = require('../actions');
 const {
@@ -196,6 +197,7 @@ const Store = Reflux.createStore({
     }
 
     if (!Connection.isURI(customUrl)) {
+      debug('Invalid schema, expected `mongodb` or `mongodb+srv`');
       this._setSyntaxErrorMessage(
         'Invalid schema, expected `mongodb` or `mongodb+srv`'
       );
@@ -209,6 +211,7 @@ const Store = Reflux.createStore({
 
       this._resetSyntaxErrorMessage();
     } catch (error) {
+      debug('buildConnectionModelFromUrl', error);
       this._setSyntaxErrorMessage(error.message);
     }
   },
@@ -315,6 +318,7 @@ const Store = Reflux.createStore({
         await this._connectWithConnectionForm();
       }
     } catch (error) {
+      debug('connect error', error);
       this.setState({
         isValid: false,
         errorMessage: error.message,
@@ -983,7 +987,8 @@ const Store = Reflux.createStore({
       'data-service-connected',
       null, // No error connecting.
       dataService,
-      connectionInfo
+      connectionInfo,
+      connectionModel // TODO: remove
     );
 
     // Compass relies on `compass-connect` showing a progress
@@ -1016,6 +1021,7 @@ const Store = Reflux.createStore({
     }
 
     try {
+      debug('connecting with connection model', connectionModel);
       const connectionInfo = convertConnectionModelToInfo(connectionModel);
       const connectedDataService = await this.state.currentConnectionAttempt.connect(connectionInfo.connectionOptions);
 
@@ -1025,6 +1031,7 @@ const Store = Reflux.createStore({
 
       this._onConnectSuccess(connectedDataService, connectionInfo);
     } catch (error) {
+      debug('_connect error', error);
       this.setState({
         isValid: false,
         errorMessage: error.message,
@@ -1080,6 +1087,7 @@ const Store = Reflux.createStore({
       const buildConnectionModelFromUrl = promisify(Connection.from);
       parsedConnection = await buildConnectionModelFromUrl(url);
     } catch (error) {
+      debug('buildConnectionModelFromUrl error', error);
       this._setSyntaxErrorMessage(error.message);
 
       return;
