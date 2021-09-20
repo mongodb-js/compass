@@ -88,8 +88,10 @@ describe('ConnectionStorage', function () {
       expect(connections).to.deep.equal([
         {
           id,
-          connectionString:
-            'mongodb://localhost:27017/?readPreference=primary&ssl=false',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?readPreference=primary&ssl=false',
+          },
         },
       ]);
     });

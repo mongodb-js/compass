@@ -15,8 +15,12 @@ type Closeable = {
   close: () => Promise<void>;
 };
 
-describe('connection model connector', function () {
+describe('connectMongoClient', function () {
   let cleanUpQueue: [Closeable?, Closeable?][];
+
+  beforeEach(function () {
+    cleanUpQueue = [];
+  });
 
   afterEach(async function () {
     for (const [client, tunnel] of cleanUpQueue) {
@@ -54,15 +58,10 @@ describe('connection model connector', function () {
 
       assert.strictEqual(
         url,
-        'mongodb://localhost:27018/?readPreference=primary&directConnection=true&ssl=false'
+        'mongodb://localhost:27018/?directConnection=true'
       );
 
-      assert.deepStrictEqual(options, {
-        // this is never truly added at the moment since Connection.from
-        // already adds this to the model and query string when necessary:
-        // directConnection: true,
-        readPreference: 'primary',
-      });
+      assert.deepStrictEqual(options, {});
     });
 
     describe('ssh tunnel failures', function () {
@@ -104,7 +103,7 @@ describe('connection model connector', function () {
         ).catch((err) => err);
         assert.ok(error instanceof Error);
         assert.ok(
-          closeSpy.calledOnce,
+          closeSpy?.calledOnce,
           'Expected tunnel.close to be called exactly once'
         );
       });

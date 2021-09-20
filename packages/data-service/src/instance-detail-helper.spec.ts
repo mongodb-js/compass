@@ -1,7 +1,6 @@
 import assert from 'assert';
 import _ from 'lodash';
 import { Db, MongoClient } from 'mongodb';
-import * as helper from '../test/helper';
 import { ConnectionOptions } from './connection-options';
 import DataService from './data-service';
 import { getInstance } from './instance-detail-helper';
@@ -53,12 +52,28 @@ describe('mongodb-data-service#instance', function () {
         mongoClient = await MongoClient.connect(
           connectionOptions.connectionString
         );
-        await helper.insertTestDocuments(mongoClient);
+
+        await mongoClient
+          .db()
+          .collection('test')
+          .insertMany([
+            {
+              1: 'a',
+              a: 1,
+            },
+            {
+              2: 'a',
+              a: 2,
+            },
+          ]);
       });
 
       after(async function () {
-        await helper.deleteTestDocuments(mongoClient);
-        await mongoClient.close();
+        try {
+          await mongoClient.db().collection('test').drop();
+        } finally {
+          await mongoClient.close();
+        }
       });
 
       it('creates a new view', function (done) {

@@ -23,7 +23,7 @@ const shouldRunConnectivityTests = () =>
 
 const SETUP_TEARDOWN_TIMEOUT = 10 * 60 * 1000; // 10 minutes
 
-describe.only('connect', function () {
+describe('connect', function () {
   before(async function () {
     this.timeout(SETUP_TEARDOWN_TIMEOUT);
 

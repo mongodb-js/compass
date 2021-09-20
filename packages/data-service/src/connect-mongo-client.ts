@@ -101,9 +101,11 @@ function connectionOptionsToMongoClientParams(
 ): [string, MongoClientOptions] {
   const url = new ConnectionStringUrl(connectionOptions.connectionString);
 
-  const options = {
-    sslCert: connectionOptions.tlsCertificateFile,
-  };
+  const options: MongoClientOptions = {};
+
+  if (connectionOptions.tlsCertificateFile) {
+    options.sslCert = connectionOptions.tlsCertificateFile;
+  }
 
   const isLoadBalanced = url.searchParams.get('loadBalanced') === 'true';
   const isReplicaSet =
