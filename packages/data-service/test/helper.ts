@@ -8,7 +8,7 @@ import {
   LegacyConnectionModel,
   LegacyConnectionModelProperties,
 } from '../lib/legacy-connection-model';
-import { convertConnectionModelToOptions } from '../src/legacy/legacy-connection-model';
+import { convertConnectionModelToInfo } from '../src/legacy/legacy-connection-model';
 import { Callback } from '../src/types';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -21,7 +21,7 @@ export const connection: LegacyConnectionModel = new Connection({
   port: 27018,
   ns: 'data-service',
 });
-export const connectionOptions = convertConnectionModelToOptions(connection);
+export const connectionOptions = convertConnectionModelToInfo(connection);
 
 export function createConnectionModel(
   opts: Partial<LegacyConnectionModelProperties>

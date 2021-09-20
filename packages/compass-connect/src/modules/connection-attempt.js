@@ -1,7 +1,7 @@
 import createDebug from 'debug';
 import createLogger from '@mongodb-js/compass-logging';
 import { promisify } from 'util';
-import { connect, convertConnectionModelToOptions } from 'mongodb-data-service';
+import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 
 const { log, mongoLogId } = createLogger('COMPASS-CONNECT-UI');
 const debug = createDebug('mongodb-compass:compass-connect:connection-attempt');
@@ -39,7 +39,7 @@ class ConnectionAttempt {
       return;
     }
 
-    const options = convertConnectionModelToOptions(connectionModel);
+    const options = convertConnectionModelToInfo(connectionModel);
     try {
       this._dataService = await this._connectFn(options);
       return this._dataService;

@@ -1,12 +1,12 @@
 import ConnectionString from 'mongodb-connection-string-url';
-import { ConnectionOptions } from './connection-options';
+import { ConnectionInfo } from './connection-info';
 
-export function getConnectionTitle(options: ConnectionOptions): string {
-  if (options.favorite?.name) {
-    return options.favorite.name;
+export function getConnectionTitle(info: ConnectionInfo): string {
+  if (info.favorite?.name) {
+    return info.favorite.name;
   }
 
-  const url = new ConnectionString(options.connectionString);
+  const url = new ConnectionString(info.connectionOptions.connectionString);
   if (url.isSRV) {
     return url.hosts[0];
   }

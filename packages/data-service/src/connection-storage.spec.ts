@@ -103,7 +103,9 @@ describe('ConnectionStorage', function () {
       const connectionStorage = new ConnectionStorage();
       await connectionStorage.save({
         id,
-        connectionString: 'mongodb://localhost:27017',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
       });
 
       await eventually(() => {
@@ -120,7 +122,9 @@ describe('ConnectionStorage', function () {
       const error = await connectionStorage
         .save({
           id: '',
-          connectionString: 'mongodb://localhost:27017',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
         })
         .catch((err) => err);
 
@@ -132,7 +136,9 @@ describe('ConnectionStorage', function () {
       const error = await connectionStorage
         .save({
           id: 'someid',
-          connectionString: 'mongodb://localhost:27017',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
         })
         .catch((err) => err);
 
@@ -150,7 +156,9 @@ describe('ConnectionStorage', function () {
       const connectionStorage = new ConnectionStorage();
       await connectionStorage.delete({
         id,
-        connectionString: 'mongodb://localhost:27017',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
       });
 
       await eventually(() => {

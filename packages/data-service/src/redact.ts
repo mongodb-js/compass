@@ -1,5 +1,5 @@
 import { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
-import { ConnectionSshOptions } from './connection-options';
+import { ConnectionOptions } from './connection-options';
 
 export function redactConnectionString(uri: string): string {
   const regexes = [
@@ -12,6 +12,24 @@ export function redactConnectionString(uri: string): string {
     uri = uri.replace(r, '<credentials>');
   });
   return uri;
+}
+
+export function redactConnectionOptions(
+  options: ConnectionOptions
+): ConnectionOptions {
+  const redacted = { ...options };
+
+  redacted.connectionString = redactConnectionString(options.connectionString);
+
+  if (redacted.sshTunnel?.password) {
+    redacted.sshTunnel.password = '<redacted>';
+  }
+
+  if (redacted.sshTunnel?.identityKeyPassphrase) {
+    redacted.sshTunnel.identityKeyPassphrase = '<redacted>';
+  }
+
+  return redacted;
 }
 
 export function redactSshTunnelOptions(

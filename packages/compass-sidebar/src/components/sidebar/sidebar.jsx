@@ -79,7 +79,7 @@ class Sidebar extends PureComponent {
     isGenuineMongoDBVisible: PropTypes.bool.isRequired,
     toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
-    connectionModel: PropTypes.object.isRequired,
+    connectionInfo: PropTypes.object.isRequired,
     toggleIsModalVisible: PropTypes.func.isRequired,
     isModalVisible: PropTypes.bool.isRequired,
     saveFavorite: PropTypes.func.isRequired
@@ -330,7 +330,7 @@ class Sidebar extends PureComponent {
           <i className={collapsedButton}/>
         </button>
         <SidebarTitle
-          connectionModel={this.props.connectionModel}
+          connectionInfo={this.props.connectionInfo}
           isSidebarCollapsed={this.props.isCollapsed}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit}
         />
@@ -342,7 +342,7 @@ class Sidebar extends PureComponent {
             isGenuineMongoDB={this.props.isGenuineMongoDB}
             toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
             globalAppRegistryEmit={this.props.globalAppRegistryEmit}
-            connectionModel={this.props.connectionModel}
+            connectionInfo={this.props.connectionInfo}
             toggleIsModalVisible={this.props.toggleIsModalVisible}
             isModalVisible={this.props.isModalVisible}
             saveFavorite={this.props.saveFavorite}
@@ -403,7 +403,7 @@ const mapStateToProps = (state, ownProps) => ({
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
-  connectionModel: state.connectionModel,
+  connectionInfo: state.connectionInfo,
   isModalVisible: state.isModalVisible
 });
 

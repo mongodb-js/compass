@@ -47,7 +47,6 @@
     "test-cov": "nyc -x \"**/*.spec.*\" npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "test-connectivity": "",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
     "reformat": "npm run prettier -- --write ."
   },
@@ -61,6 +60,7 @@
     "async": "^3.2.0",
     "debug": "^4.2.0",
     "lodash": "^4.17.20",
+    "get-port": "^5.1.1",
     "mongodb-build-info": "^1.1.1",
     "mongodb-connection-string-url": "^1.0.1",
     "mongodb-index-model": "^3.5.0",

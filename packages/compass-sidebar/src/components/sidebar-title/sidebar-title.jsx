@@ -20,7 +20,7 @@ class SidebarTitle extends PureComponent {
   static propTypes = {
     activeNamespace: PropTypes.string.isRequired,
     changeActiveNamespace: PropTypes.func.isRequired,
-    connectionModel: PropTypes.object.isRequired,
+    connectionInfo: PropTypes.object.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
     isSidebarCollapsed: PropTypes.bool.isRequired
   };
@@ -38,12 +38,12 @@ class SidebarTitle extends PureComponent {
 
   renderTitle() {
     if (this.props.isSidebarCollapsed) {
-      const isFavorite = this.props.connectionModel.connection.isFavorite;
+      const isFavorite = this.props.connectionInfo.isFavorite;
 
       return (
         <div
           style={isFavorite ? {
-            backgroundColor: this.props.connectionModel.connection.color || 'transparent'
+            backgroundColor: this.props.connectionInfo.color || 'transparent'
           } : {}}
           className={styles['sidebar-title-logo']}
         >
@@ -56,7 +56,7 @@ class SidebarTitle extends PureComponent {
     }
     return (
       <div className={styles['sidebar-title-name']}>
-        {this.props.connectionModel.connection.name}
+        {this.props.connectionInfo.name}
       </div>
     );
   }

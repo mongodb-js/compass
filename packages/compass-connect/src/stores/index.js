@@ -5,7 +5,7 @@ const Connection = require('mongodb-connection-model');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const { promisify } = require('util');
-const { getConnectionTitle, convertConnectionModelToOptions } = require('mongodb-data-service');
+const { getConnectionTitle, convertConnectionModelToInfo } = require('mongodb-data-service');
 
 const Actions = require('../actions');
 const {
@@ -955,7 +955,7 @@ const Store = Reflux.createStore({
     }
   },
 
-  _onConnectSuccess(dataService) {
+  _onConnectSuccess(dataService, connectionInfo) {
     const connectionModel = this.state.connectionModel;
     const currentSaved = this.state.connections[connectionModel._id];
 
@@ -982,7 +982,8 @@ const Store = Reflux.createStore({
     this.appRegistry.emit(
       'data-service-connected',
       null, // No error connecting.
-      dataService
+      dataService,
+      connectionInfo
     );
 
     // Compass relies on `compass-connect` showing a progress
@@ -1015,13 +1016,14 @@ const Store = Reflux.createStore({
     }
 
     try {
-      const connectedDataService = await this.state.currentConnectionAttempt.connect(connectionModel);
+      const connectionInfo = convertConnectionModelToInfo(connectionModel);
+      const connectedDataService = await this.state.currentConnectionAttempt.connect(connectionInfo.connectionOptions);
 
       if (!connectedDataService || !this.state.currentConnectionAttempt) {
         return;
       }
 
-      this._onConnectSuccess(connectedDataService);
+      this._onConnectSuccess(connectedDataService, connectionInfo);
     } catch (error) {
       this.setState({
         isValid: false,
@@ -1050,7 +1052,7 @@ const Store = Reflux.createStore({
     }
 
     this.setState({
-      connectingStatusText: `Connecting to ${getConnectionTitle(convertConnectionModelToOptions(connectionModel))}`
+      connectingStatusText: `Connecting to ${getConnectionTitle(convertConnectionModelToInfo(connectionModel))}`
     });
 
     await this._connect(connectionModel);

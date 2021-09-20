@@ -1,23 +1,22 @@
-import { ConnectionOptions } from './connection-options';
+import { ConnectionInfo } from './connection-info';
 
-import {
-  convertConnectionModelToOptions,
-  convertConnectionOptionsToModel,
-  AmpersandMethodOptions,
-} from './legacy/legacy-connection-model';
-
-type ConnectionOptionsWithRequiredId = ConnectionOptions &
-  Required<Pick<ConnectionOptions, 'id'>>;
+type ConnectionInfoWithRequiredId = ConnectionInfo &
+  Required<Pick<ConnectionInfo, 'id'>>;
 
 import { validate as uuidValidate } from 'uuid';
+import {
+  AmpersandMethodOptions,
+  convertConnectionInfoToModel,
+  convertConnectionModelToInfo,
+} from './legacy/legacy-connection-model';
 
 export class ConnectionStorage {
   /**
-   * Loads all the ConnectionOptions currently stored.
+   * Loads all the ConnectionInfo currently stored.
    *
-   * @returns Promise<ConnectionOptions[]>
+   * @returns Promise<ConnectionInfo[]>
    */
-  async loadAll(): Promise<ConnectionOptions[]> {
+  async loadAll(): Promise<ConnectionInfo[]> {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { ConnectionCollection } = require('mongodb-connection-model');
     const connectionCollection = new ConnectionCollection();
@@ -26,53 +25,49 @@ export class ConnectionStorage {
     );
 
     await fetchConnectionModels();
-    return connectionCollection.map(convertConnectionModelToOptions);
+    return connectionCollection.map(convertConnectionModelToInfo);
   }
 
   /**
-   * Inserts or replaces a ConnectionOptions object in the storage.
+   * Inserts or replaces a ConnectionInfo object in the storage.
    *
-   * The ConnectionOptions object must have an id set to a string
+   * The ConnectionInfo object must have an id set to a string
    * matching the uuid format.
    *
-   * @param connectionOptions - The ConnectionOptions object to be saved.
+   * @param connectionInfo - The ConnectionInfo object to be saved.
    */
-  async save(
-    connectionOptions: ConnectionOptionsWithRequiredId
-  ): Promise<void> {
-    if (!connectionOptions.id) {
+  async save(connectionInfo: ConnectionInfoWithRequiredId): Promise<void> {
+    if (!connectionInfo.id) {
       throw new Error('id is required');
     }
 
-    if (!uuidValidate(connectionOptions.id)) {
+    if (!uuidValidate(connectionInfo.id)) {
       throw new Error('id must be a uuid');
     }
 
-    const model = await convertConnectionOptionsToModel(connectionOptions);
+    const model = await convertConnectionInfoToModel(connectionInfo);
     model.save();
   }
 
   /**
-   * Deletes a ConnectionOptions object from the storage.
+   * Deletes a ConnectionInfo object from the storage.
    *
-   * If the ConnectionOptions does not have an id, the operation will
+   * If the ConnectionInfo does not have an id, the operation will
    * ignore and return.
    *
-   * Trying to remove a ConnectionOptions that is not stored has no effect
+   * Trying to remove a ConnectionInfo that is not stored has no effect
    * and won't throw an exception.
    *
-   * @param connectionOptions - The ConnectionOptions object to be deleted.
+   * @param connectionOptions - The ConnectionInfo object to be deleted.
    */
-  async delete(
-    connectionOptions: ConnectionOptionsWithRequiredId
-  ): Promise<void> {
+  async delete(connectionOptions: ConnectionInfoWithRequiredId): Promise<void> {
     if (!connectionOptions.id) {
       // don't throw attempting to delete a connection
       // that was never saved.
       return;
     }
 
-    const model = await convertConnectionOptionsToModel(connectionOptions);
+    const model = await convertConnectionInfoToModel(connectionOptions);
     model.destroy();
   }
 }

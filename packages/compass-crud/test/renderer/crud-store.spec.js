@@ -1,5 +1,5 @@
 import Connection from 'mongodb-connection-model';
-import { DataService, connect, convertConnectionModelToOptions } from 'mongodb-data-service';
+import { DataService, connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import configureStore from '../../src/stores/crud-store';
@@ -20,7 +20,7 @@ describe('store', function() {
   const globalAppRegistry = new AppRegistry();
 
   before(async() => {
-    dataService = await connect(convertConnectionModelToOptions(CONNECTION));
+    dataService = await connect(convertConnectionModelToInfo(CONNECTION));
   });
 
   after((done) => {

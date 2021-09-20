@@ -1,10 +1,12 @@
 import { expect } from 'chai';
 import path from 'path';
+import { ConnectionInfo } from '../connection-info';
 
 import { ConnectionOptions, ConnectionSshOptions } from '../connection-options';
 import {
-  convertConnectionModelToOptions,
-  convertConnectionOptionsToModel,
+  convertConnectionInfoToModel,
+  convertConnectionModelToInfo,
+  // convertConnectionInfoToModel,
   LegacyConnectionModel,
   LegacyConnectionModelProperties,
 } from './legacy-connection-model';
@@ -25,15 +27,15 @@ function expectConnectionModelEquals(
 }
 
 async function expectConversion(
-  options: ConnectionOptions,
+  info: ConnectionInfo,
   model: LegacyConnectionModelProperties,
-  inverseOptions?: ConnectionOptions
+  inverseOptions?: ConnectionInfo
 ) {
-  const convertedModel = await convertConnectionOptionsToModel(options);
+  const convertedModel = await convertConnectionInfoToModel(info);
   expectConnectionModelEquals(convertedModel, model);
 
-  const convertedOptions = convertConnectionModelToOptions(convertedModel);
-  expect(convertedOptions).to.deep.equal(inverseOptions ?? options);
+  const convertedOptions = convertConnectionModelToInfo(convertedModel);
+  expect(convertedOptions).to.deep.equal(inverseOptions ?? info);
 }
 
 const defaultId = 'fe8e41bb-e4e3-4417-b3b0-160731cca20f';
@@ -53,19 +55,21 @@ const MODEL_DEFAULTS: any = {
   lastUsed: null,
 };
 
-describe.only('legacy-connection-model', function () {
+describe('legacy-connection-model', function () {
   describe('simple conversion', function () {
-    // Test case is originalOptions -> converted model =? expectedConvertedModel; model -> converted options =? expectedConvertedOptions
-    // we need "expectedConvertedOptions" as the connection string is modified by ConnectionModel
+    // Test case is originalInfo -> converted model =? expectedConvertedModel; model -> converted options =? expectedConvertedInfo
+    // we need "expectedConvertedInfo" as the connection string is modified by ConnectionModel
     const tests: Array<{
-      originalOptions: ConnectionOptions;
+      originalInfo: ConnectionInfo;
       expectedConvertedModel: LegacyConnectionModelProperties;
-      expectedConvertedOptions?: ConnectionOptions;
+      expectedConvertedInfo?: ConnectionInfo;
     }> = [
       {
-        originalOptions: {
+        originalInfo: {
           id: defaultId,
-          connectionString: 'mongodb://localhost:27017/admin',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017/admin',
+          },
         },
         expectedConvertedModel: {
           ...MODEL_DEFAULTS,
@@ -75,16 +79,21 @@ describe.only('legacy-connection-model', function () {
           directConnection: true,
           hosts: [{ host: 'localhost', port: 27017 }],
         },
-        expectedConvertedOptions: {
+        expectedConvertedInfo: {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost:27017/admin?readPreference=primary&directConnection=true&ssl=false',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/admin?readPreference=primary&directConnection=true&ssl=false',
+          },
         },
       },
       {
-        originalOptions: {
+        originalInfo: {
           id: defaultId,
-          connectionString: 'mongodb://user:password@localhost/admin?ssl=true',
+          connectionOptions: {
+            connectionString:
+              'mongodb://user:password@localhost/admin?ssl=true',
+          },
         },
         expectedConvertedModel: {
           ...MODEL_DEFAULTS,
@@ -99,25 +108,24 @@ describe.only('legacy-connection-model', function () {
           mongodbPassword: 'password',
           ssl: true,
         },
-        expectedConvertedOptions: {
+        expectedConvertedInfo: {
           id: defaultId,
-          connectionString:
-            'mongodb://user:password@localhost:27017/admin?authSource=admin&readPreference=primary&directConnection=true&ssl=true',
+          connectionOptions: {
+            connectionString:
+              'mongodb://user:password@localhost:27017/admin?authSource=admin&readPreference=primary&directConnection=true&ssl=true',
+          },
         },
       },
     ];
 
     // eslint-disable-next-line mocha/no-setup-in-describe
     tests.forEach(
-      (
-        { originalOptions, expectedConvertedModel, expectedConvertedOptions },
-        i
-      ) => {
-        it(`can convert #${originalOptions.connectionString}`, async function () {
+      ({ originalInfo, expectedConvertedModel, expectedConvertedInfo }, i) => {
+        it(`can convert #${originalInfo.connectionOptions.connectionString}`, async function () {
           await expectConversion(
-            originalOptions,
+            originalInfo,
             expectedConvertedModel,
-            expectedConvertedOptions
+            expectedConvertedInfo
           );
         });
       }
@@ -143,15 +151,17 @@ describe.only('legacy-connection-model', function () {
     const optionsWithSsh = (
       connectionString: string,
       sshTunnel: Partial<ConnectionSshOptions>
-    ): ConnectionOptions => {
+    ): ConnectionInfo => {
       return {
         id: defaultId,
-        connectionString,
-        sshTunnel: {
-          host: 'jumphost',
-          port: 22,
-          username: 'root',
-          ...sshTunnel,
+        connectionOptions: {
+          connectionString,
+          sshTunnel: {
+            host: 'jumphost',
+            port: 22,
+            username: 'root',
+            ...sshTunnel,
+          },
         },
       };
     };
@@ -225,9 +235,9 @@ describe.only('legacy-connection-model', function () {
         },
       };
 
-      const legacyModel = await convertConnectionOptionsToModel(
-        connectionOptions
-      );
+      const legacyModel = await convertConnectionInfoToModel({
+        connectionOptions,
+      });
 
       expect(legacyModel.sshTunnel).to.equal('USER_PASSWORD');
 
@@ -261,9 +271,9 @@ describe.only('legacy-connection-model', function () {
         },
       };
 
-      const legacyModel = await convertConnectionOptionsToModel(
-        connectionOptions
-      );
+      const legacyModel = await convertConnectionInfoToModel({
+        connectionOptions,
+      });
 
       expect(legacyModel.sshTunnel).to.equal('IDENTITY_FILE');
 
@@ -293,7 +303,9 @@ describe.only('legacy-connection-model', function () {
       await expectConversion(
         {
           id: defaultId,
-          connectionString: 'mongodb://localhost:27017/admin',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017/admin',
+          },
           favorite: {
             name: 'A Favorite',
             color: '#00ff00',
@@ -312,8 +324,10 @@ describe.only('legacy-connection-model', function () {
         },
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost:27017/admin?readPreference=primary&directConnection=true&ssl=false',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/admin?readPreference=primary&directConnection=true&ssl=false',
+          },
           favorite: {
             name: 'A Favorite',
             color: '#00ff00',
@@ -328,8 +342,10 @@ describe.only('legacy-connection-model', function () {
       await expectConversion(
         {
           id: defaultId,
-          connectionString:
-            'mongodb://user@localhost/admin?authMechanism=GSSAPI&authMechanismProperties=SERVICE_NAME%3Aalternate',
+          connectionOptions: {
+            connectionString:
+              'mongodb://user@localhost/admin?authMechanism=GSSAPI&authMechanismProperties=SERVICE_NAME%3Aalternate',
+          },
         },
         {
           ...MODEL_DEFAULTS,
@@ -346,8 +362,10 @@ describe.only('legacy-connection-model', function () {
         },
         {
           id: defaultId,
-          connectionString:
-            'mongodb://user@localhost:27017/admin?authMechanism=GSSAPI&readPreference=primary&authMechanismProperties=SERVICE_NAME%3Aalternate&directConnection=true&ssl=false&authSource=%24external',
+          connectionOptions: {
+            connectionString:
+              'mongodb://user@localhost:27017/admin?authMechanism=GSSAPI&readPreference=primary&authMechanismProperties=SERVICE_NAME%3Aalternate&directConnection=true&ssl=false&authSource=%24external',
+          },
         }
       );
     });
@@ -366,8 +384,10 @@ describe.only('legacy-connection-model', function () {
       await expectConversion(
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost/?tlsAllowInvalidCertificates=false&tlsAllowInvalidHostnames=false&tls=true',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost/?tlsAllowInvalidCertificates=false&tlsAllowInvalidHostnames=false&tls=true',
+          },
         },
         {
           ...baseModel,
@@ -376,8 +396,10 @@ describe.only('legacy-connection-model', function () {
         },
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsAllowInvalidHostnames=false',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsAllowInvalidHostnames=false',
+          },
         }
       );
     });
@@ -386,8 +408,10 @@ describe.only('legacy-connection-model', function () {
       await expectConversion(
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost/?tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost/?tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile',
+          },
         },
         {
           ...baseModel,
@@ -397,16 +421,20 @@ describe.only('legacy-connection-model', function () {
         },
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile',
+          },
         }
       );
 
       await expectConversion(
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost/?tls=true&tlsCAFile=pathToCaFile',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost/?tls=true&tlsCAFile=pathToCaFile',
+          },
         },
         {
           ...baseModel,
@@ -416,8 +444,10 @@ describe.only('legacy-connection-model', function () {
         },
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile',
+          },
         }
       );
     });
@@ -426,8 +456,10 @@ describe.only('legacy-connection-model', function () {
       await expectConversion(
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost/?tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile&tlsCertificateKeyFile=pathToCertKey&tls=true',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost/?tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile&tlsCertificateKeyFile=pathToCertKey&tls=true',
+          },
         },
         {
           ...baseModel,
@@ -439,8 +471,10 @@ describe.only('legacy-connection-model', function () {
         },
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile&tlsCertificateKeyFile=pathToCertKey',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile&tlsCertificateKeyFile=pathToCertKey',
+          },
         }
       );
     });
@@ -449,9 +483,11 @@ describe.only('legacy-connection-model', function () {
       await expectConversion(
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost/?tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile&tlsCertificateKeyFile=pathToCertKey&tlsCertificateKeyFilePassword=pass',
-          tlsCertificateFile: 'pathToCert',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost/?tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile&tlsCertificateKeyFile=pathToCertKey&tlsCertificateKeyFilePassword=pass',
+            tlsCertificateFile: 'pathToCert',
+          },
         },
         {
           ...baseModel,
@@ -464,9 +500,11 @@ describe.only('legacy-connection-model', function () {
         },
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile&tlsCertificateKeyFile=pathToCertKey&tlsCertificateKeyFilePassword=pass',
-          tlsCertificateFile: 'pathToCert',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=false&tlsCAFile=pathToCaFile&tlsCertificateKeyFile=pathToCertKey&tlsCertificateKeyFilePassword=pass',
+            tlsCertificateFile: 'pathToCert',
+          },
         }
       );
     });
@@ -475,7 +513,9 @@ describe.only('legacy-connection-model', function () {
       await expectConversion(
         {
           id: defaultId,
-          connectionString: 'mongodb://localhost/?tls=true&tlsInsecure=true',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost/?tls=true&tlsInsecure=true',
+          },
         },
         {
           ...baseModel,
@@ -484,8 +524,10 @@ describe.only('legacy-connection-model', function () {
         },
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true',
+          },
         }
       );
     });
@@ -494,8 +536,10 @@ describe.only('legacy-connection-model', function () {
       await expectConversion(
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost/?tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true&tls=true',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost/?tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true&tls=true',
+          },
         },
         {
           ...baseModel,
@@ -504,8 +548,10 @@ describe.only('legacy-connection-model', function () {
         },
         {
           id: defaultId,
-          connectionString:
-            'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true',
+          },
         }
       );
     });

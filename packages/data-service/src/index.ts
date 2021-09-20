@@ -2,14 +2,14 @@ import connect from './connect';
 import { getConnectionTitle } from './connection-title';
 import DataService from './data-service';
 import {
-  convertConnectionModelToOptions,
-  convertConnectionOptionsToModel,
+  convertConnectionModelToInfo,
+  convertConnectionInfoToModel,
 } from './legacy/legacy-connection-model';
 
 export {
   DataService,
   connect,
   getConnectionTitle,
-  convertConnectionModelToOptions,
-  convertConnectionOptionsToModel,
+  convertConnectionModelToInfo,
+  convertConnectionInfoToModel,
 };

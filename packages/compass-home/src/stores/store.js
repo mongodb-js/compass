@@ -33,15 +33,14 @@ store.onActivated = (appRegistry) => {
     }
   });
 
-  appRegistry.on('data-service-connected', (err, ds) => {
+  appRegistry.on('data-service-connected', (err, ds, connectionInfo) => {
     if (err) {
       store.dispatch(changeErrorMessage(err.message));
       store.dispatch(changeUiStatus(UI_STATES.ERROR));
       return;
     }
 
-    const connectionOptions = ds.getConnectionOptions();
-    store.dispatch(changeConnectionTitle(getConnectionTitle(connectionOptions) || ''));
+    store.dispatch(changeConnectionTitle(getConnectionTitle(connectionInfo) || ''));
 
     const StatusAction = appRegistry.getAction('Status.Actions');
     if (StatusAction) {

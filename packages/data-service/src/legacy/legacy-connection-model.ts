@@ -2,6 +2,7 @@ import SSHTunnel, { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
 import { MongoClient, MongoClientOptions, ReadPreferenceLike } from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
 import { promisify } from 'util';
+import { ConnectionInfo } from '../connection-info';
 import { ConnectionOptions } from '../connection-options';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -138,17 +139,19 @@ export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
   once: (event: string, handler: () => void) => void;
 }
 
-export function convertConnectionModelToOptions(
+export function convertConnectionModelToInfo(
   model: LegacyConnectionModel
-): ConnectionOptions {
-  const options: ConnectionOptions = {
+): ConnectionInfo {
+  const info: ConnectionInfo = {
     id: model._id,
-    connectionString: model.driverUrl,
+    connectionOptions: {
+      connectionString: model.driverUrl,
+    },
   };
 
-  convertSslPropertiesToConnectionOptions(model, options);
+  convertSslPropertiesToConnectionOptions(model, info.connectionOptions);
   if (model.sslCert && model.sslCert !== model.sslKey) {
-    options.tlsCertificateFile = model.sslCert;
+    info.connectionOptions.tlsCertificateFile = model.sslCert;
   }
 
   if (
@@ -156,30 +159,32 @@ export function convertConnectionModelToOptions(
     model.sshTunnelHostname &&
     model.sshTunnelUsername
   ) {
-    options.sshTunnel = {
+    info.connectionOptions.sshTunnel = {
       host: model.sshTunnelHostname,
       port: model.sshTunnelPort,
       username: model.sshTunnelUsername,
     };
     if (model.sshTunnelPassword !== undefined) {
-      options.sshTunnel.password = model.sshTunnelPassword;
+      info.connectionOptions.sshTunnel.password = model.sshTunnelPassword;
     }
     if (model.sshTunnelIdentityFile !== undefined) {
-      options.sshTunnel.identityKeyFile = model.sshTunnelIdentityFile;
+      info.connectionOptions.sshTunnel.identityKeyFile =
+        model.sshTunnelIdentityFile;
     }
     if (model.sshTunnelPassphrase !== undefined) {
-      options.sshTunnel.identityKeyPassphrase = model.sshTunnelPassphrase;
+      info.connectionOptions.sshTunnel.identityKeyPassphrase =
+        model.sshTunnelPassphrase;
     }
   }
 
   if (model.isFavorite) {
-    options.favorite = {
+    info.favorite = {
       name: model.name,
       color: model.color,
     };
   }
 
-  return options;
+  return info;
 }
 
 function convertSslPropertiesToConnectionOptions(
@@ -187,6 +192,10 @@ function convertSslPropertiesToConnectionOptions(
   options: ConnectionOptions
 ): void {
   const url = new ConnectionString(options.connectionString);
+
+  if (model.sslMethod !== 'NONE') {
+    url.searchParams.set('tls', 'true');
+  }
 
   switch (model.sslMethod) {
     case 'SERVER':
@@ -237,36 +246,41 @@ function convertSslCAToConnectionString(
   }
 }
 
-export async function convertConnectionOptionsToModel(
-  options: ConnectionOptions
+export async function convertConnectionInfoToModel(
+  connectionInfo: ConnectionInfo
 ): Promise<LegacyConnectionModel> {
   const connection: LegacyConnectionModel = await promisify(
     ConnectionModel.from
-  )(options.connectionString);
+  )(connectionInfo.connectionOptions.connectionString);
 
   const additionalOptions: Partial<LegacyConnectionModelProperties> = {
-    _id: options.id,
+    _id: connectionInfo.id,
   };
 
-  convertSslOptionsToLegacyProperties(options, additionalOptions);
+  convertSslOptionsToLegacyProperties(
+    connectionInfo.connectionOptions,
+    additionalOptions
+  );
 
-  if (options.sshTunnel) {
-    additionalOptions.sshTunnel = !options.sshTunnel.identityKeyFile
+  const connectionOptions = connectionInfo.connectionOptions;
+
+  if (connectionOptions.sshTunnel) {
+    additionalOptions.sshTunnel = !connectionOptions.sshTunnel.identityKeyFile
       ? 'USER_PASSWORD'
       : 'IDENTITY_FILE';
-    additionalOptions.sshTunnelHostname = options.sshTunnel.host;
-    additionalOptions.sshTunnelPort = options.sshTunnel.port;
-    additionalOptions.sshTunnelUsername = options.sshTunnel.username;
-    additionalOptions.sshTunnelPassword = options.sshTunnel.password;
-    additionalOptions.sshTunnelIdentityFile = options.sshTunnel.identityKeyFile;
+    additionalOptions.sshTunnelHostname = connectionOptions.sshTunnel.host;
+    additionalOptions.sshTunnelUsername = connectionOptions.sshTunnel.username;
+    additionalOptions.sshTunnelPassword = connectionOptions.sshTunnel.password;
+    additionalOptions.sshTunnelIdentityFile =
+      connectionOptions.sshTunnel.identityKeyFile;
     additionalOptions.sshTunnelPassphrase =
-      options.sshTunnel.identityKeyPassphrase;
+      connectionOptions.sshTunnel.identityKeyPassphrase;
   }
 
-  if (options.favorite) {
+  if (connectionInfo.favorite) {
     additionalOptions.isFavorite = true;
-    additionalOptions.name = options.favorite.name;
-    additionalOptions.color = options.favorite.color;
+    additionalOptions.name = connectionInfo.favorite.name;
+    additionalOptions.color = connectionInfo.favorite.color;
   }
 
   return new ConnectionModel({
@@ -275,114 +289,54 @@ export async function convertConnectionOptionsToModel(
   });
 }
 
-function guessSslMethod(
-  url: ConnectionString
-):
-  | 'NONE'
-  | 'SYSTEMCA'
-  | 'IFAVAILABLE'
-  | 'UNVALIDATED'
-  | 'SERVER'
-  | 'ALL'
-  | undefined {
-  const tls =
-    url.searchParams.get('tls') === 'true' ||
-    url.searchParams.get('ssl') === 'true';
-  const tlsAllowInvalidCertificates =
-    url.searchParams.get('tlsAllowInvalidCertificates') === 'true';
-  const tlsAllowInvalidHostnames =
-    url.searchParams.get('tlsAllowInvalidHostnames') === 'true';
-  const tlsInsecure = url.searchParams.get('tlsInsecure') === 'true';
-  const tlsCAFile = url.searchParams.get('tlsCAFile');
-
-  if (!tls) {
-    return 'NONE';
-  }
-
-  if (tlsInsecure || tlsAllowInvalidCertificates) {
-    return 'UNVALIDATED';
-  }
-
-  if (tlsAllowInvalidHostnames) {
-    return 'IFAVAILABLE';
-  }
-
-  return 'SYSTEMCA';
-}
-
 function convertSslOptionsToLegacyProperties(
-  options: ConnectionOptions
-): Partial<LegacyConnectionModelProperties> {
+  options: ConnectionOptions,
+  properties: Partial<LegacyConnectionModelProperties>
+): void {
   const url = new ConnectionString(options.connectionString);
-  const tls =
-    url.searchParams.get('tls') === 'true' ||
-    url.searchParams.get('ssl') === 'true';
-  const tlsAllowInvalidCertificates =
-    url.searchParams.get('tlsAllowInvalidCertificates') === 'true';
-  const tlsAllowInvalidHostnames =
-    url.searchParams.get('tlsAllowInvalidHostnames') === 'true';
-
-  const tlsInsecure = url.searchParams.get('tlsInsecure') === 'true';
+  const tlsAllowInvalidCertificates = url.searchParams.get(
+    'tlsAllowInvalidCertificates'
+  );
+  const tlsAllowInvalidHostnames = url.searchParams.get(
+    'tlsAllowInvalidHostnames'
+  );
   const tlsCAFile = url.searchParams.get('tlsCAFile');
-  const tlsCertificateKeyFile =
-    options.tlsCertificateFile || url.searchParams.get('tlsCertificateKeyFile');
+  const tlsCertificateKeyFile = url.searchParams.get('tlsCertificateKeyFile');
   const tlsCertificateKeyFilePassword = url.searchParams.get(
     'tlsCertificateKeyFilePassword'
   );
 
-  if (!tls) {
-    return { sslMethod: 'NONE' };
+  if (tlsAllowInvalidCertificates === 'false' && tlsCAFile) {
+    properties.sslMethod = 'SERVER';
+    properties.sslCert = undefined;
+    properties.sslKey = undefined;
+
+    if (options.tlsCertificateFile || tlsCertificateKeyFile) {
+      properties.sslMethod = 'ALL';
+      properties.sslCert = options.tlsCertificateFile ?? tlsCertificateKeyFile;
+      properties.sslKey = tlsCertificateKeyFile ?? undefined;
+      properties.sslPass = tlsCertificateKeyFilePassword ?? undefined;
+    }
+  } else {
+    properties.sslCA = undefined;
+    properties.sslCert = undefined;
+    properties.sslKey = undefined;
+    properties.sslPass = undefined;
+    if (
+      tlsAllowInvalidCertificates === 'true' &&
+      tlsAllowInvalidHostnames === 'true'
+    ) {
+      properties.sslMethod = 'UNVALIDATED';
+    } else if (
+      tlsAllowInvalidCertificates === 'false' &&
+      tlsAllowInvalidHostnames === 'false'
+    ) {
+      properties.sslMethod = 'SYSTEMCA';
+    } else if (
+      tlsAllowInvalidCertificates === 'false' &&
+      tlsAllowInvalidHostnames === 'true'
+    ) {
+      properties.sslMethod = 'IFAVAILABLE';
+    }
   }
-
-  if (tlsInsecure || tlsAllowInvalidCertificates) {
-    return { sslMethod: 'UNVALIDATED' };
-  }
-
-  // if (tlsCAFile) {
-  //   return {
-  //     sslMethod: 'SERVER',
-  //     sslCA: tlsCAFile,
-  //     // properties.sslKey = undefined;
-  //   };
-  // }
-
-  if (tlsAllowInvalidHostnames) {
-    return 'IFAVAILABLE';
-  }
-
-  return {
-    sslMethod: 'SYSTEMCA',
-  };
-
-  // if (!tls) {
-  //   properties.sslMethod = 'NONE';
-  // } else if (tlsCAFile && !tlsAllowInvalidCertificates) {
-  //   properties.sslMethod = 'SERVER';
-  //   properties.sslCert = undefined;
-
-  //   properties.sslKey = undefined;
-  //   if (options.tlsCertificateFile || tlsCertificateKeyFile) {
-  //     properties.sslMethod = 'ALL';
-  //     properties.sslCert = options.tlsCertificateFile ?? tlsCertificateKeyFile;
-  //     properties.sslKey = tlsCertificateKeyFile ?? undefined;
-  //     properties.sslPass = tlsCertificateKeyFilePassword ?? undefined;
-  //   }
-  // } else {
-  //   properties.sslCA = undefined;
-  //   properties.sslCert = undefined;
-  //   properties.sslKey = undefined;
-  //   properties.sslPass = undefined;
-  //   if (tlsInsecure) {
-  //     properties.sslMethod = 'UNVALIDATED';
-  //   } else if (
-  //     tlsInsecure ||
-  //     (tlsAllowInvalidCertificates && tlsAllowInvalidHostnames)
-  //   ) {
-  //     properties.sslMethod = 'UNVALIDATED';
-  //   } else if (!tlsAllowInvalidCertificates && !tlsAllowInvalidHostnames) {
-  //     properties.sslMethod = 'SYSTEMCA';
-  //   } else if (!tlsAllowInvalidCertificates && tlsAllowInvalidHostnames) {
-  //     properties.sslMethod = 'IFAVAILABLE';
-  //   }
-  // }
 }

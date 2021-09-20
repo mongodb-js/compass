@@ -39,11 +39,10 @@ import {
   UpdateOptions,
   UpdateResult,
 } from 'mongodb';
-import ConnectionString from 'mongodb-connection-string-url';
+import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from './connection-options';
 import { getInstance } from './instance-detail-helper';
 import connectMongoClient from './connect-mongo-client';
-import { LegacyConnectionModel } from './legacy/legacy-connection-model';
 import {
   Callback,
   CollectionDetails,
@@ -69,7 +68,7 @@ class DataService extends EventEmitter {
   };
 
   private _client?: MongoClient;
-  private _tunnel: SshTunnel | null = null;
+  private _tunnel?: SshTunnel;
 
   /**
    * Stores the most recent topology description from the server's SDAM events:
@@ -95,8 +94,8 @@ class DataService extends EventEmitter {
     return this._connectionOptions;
   }
 
-  getConnectionString(): ConnectionString {
-    return new ConnectionString(this._connectionOptions.connectionString);
+  getConnectionString(): ConnectionStringUrl {
+    return new ConnectionStringUrl(this._connectionOptions.connectionString);
   }
 
   getReadPreference(): ReadPreferenceLike {
@@ -275,17 +274,22 @@ class DataService extends EventEmitter {
   }
 
   async connect(): Promise<void> {
-    debug('connecting...');
-    if (this._isConnecting) {
-      debug('connect method called more than once.');
+    if (this._client) {
+      debug('already connected');
       return;
     }
 
+    if (this._isConnecting) {
+      debug('connect method called more than once');
+      return;
+    }
+
+    debug('connecting...');
     this._isConnecting = true;
 
     try {
       const [client, tunnel, connectionOptions] = await connectMongoClient(
-        this.connectionOptions,
+        this._connectionOptions,
         this.setupListeners.bind(this)
       );
       debug('connected!', {
@@ -299,47 +303,6 @@ class DataService extends EventEmitter {
     } finally {
       this._isConnecting = false;
     }
-  }
-
-  /**
-   * Connect to the server.
-   *
-   * @param done - The callback function.
-   */
-  connsect(done: Callback<DataService>): void {
-    debug('connecting...');
-
-    if (this._isConnecting) {
-      setImmediate(() => {
-        // @ts-expect-error Callback without result...
-        done(
-          new Error(
-            'Connect method has been called more than once without disconnecting.'
-          )
-        );
-      });
-      return;
-    }
-
-    // Not really true at that point, we are doing it just so we don't allow
-    // simultaneous syncronous calls to the connect method
-    this._isConnecting = true;
-
-    // {
-
-    //   },
-    //   (err, client, tunnel, connectionOptions) => {
-    //     if (err) {
-    //       this._isConnecting = false;
-    //       // @ts-expect-error Callback without result...
-    //       return done(this._translateMessage(err));
-    //     }
-
-    //     done(null, this);
-    //     // this.emit('readable');
-    //   }
-    // );
-    return;
   }
 
   /**
@@ -785,7 +748,7 @@ class DataService extends EventEmitter {
         return callback(this._translateMessage(error));
       }
 
-      const connectionString = new ConnectionString(
+      const connectionString = new ConnectionStringUrl(
         this._connectionOptions.connectionString
       );
 
@@ -1432,8 +1395,8 @@ class DataService extends EventEmitter {
       this._client.removeAllListeners();
     }
     this._client = undefined;
+    this._tunnel = undefined;
     this._mongoClientConnectionOptions = undefined;
-    this._tunnel = null;
     this._isWritable = false;
     this._isMongos = false;
     this._isConnecting = false;

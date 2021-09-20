@@ -1,15 +1,5 @@
 export interface ConnectionOptions {
   /**
-   * Unique ID of the connection.
-   */
-  readonly id?: string;
-
-  /**
-   * Date and time when the connection was last used, i.e. connected with.
-   */
-  lastUsed?: Date;
-
-  /**
    * The connection string to connect to the MongoDB instance including all options set by the user.
    */
   connectionString: string;
@@ -28,11 +18,6 @@ export interface ConnectionOptions {
    * If present the connection should be established via an SSH tunnel according to the provided SSH options.
    */
   sshTunnel?: ConnectionSshOptions;
-
-  /**
-   * If present the connection is marked as a favorite by the user.
-   */
-  favorite?: ConnectionFavoriteOptions;
 }
 
 export interface ConnectionSshOptions {
@@ -65,16 +50,4 @@ export interface ConnectionSshOptions {
    * Password for protected `identitiyFile`.
    */
   identityKeyPassphrase?: string;
-}
-
-interface ConnectionFavoriteOptions {
-  /**
-   * User-defined name of the connection.
-   */
-  name: string;
-
-  /**
-   * Hex-code of the user-defined color.
-   */
-  color?: string;
 }
