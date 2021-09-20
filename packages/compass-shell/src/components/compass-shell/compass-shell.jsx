@@ -6,9 +6,10 @@ import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 
 import { Shell } from '@mongosh/browser-repl';
+import { ResizeHandleHorizontal } from '@mongodb-js/compass-components';
 
 import InfoModal from '../info-modal';
-import ResizeHandle from '../resize-handle';
+import ResizeHandleBars from '../resize-handle';
 import ShellHeader from '../shell-header';
 
 const resizeableDirections = {
@@ -24,6 +25,15 @@ const resizeableDirections = {
 
 const defaultShellHeightClosed = 32;
 const defaultShellHeightOpened = 240;
+const resizeControlIncrement = 10;
+
+// Apply bounds to the shell height when resizing to ensure it's always
+// visible and usable to the user.
+function boundShellHeight(attemptedHeight) {
+  const maxWidth = window.innerHeight - 40;
+
+  return Math.min(maxWidth, Math.max(defaultShellHeightClosed, attemptedHeight));
+}
 
 export class CompassShell extends Component {
   static propTypes = {
@@ -72,6 +82,36 @@ export class CompassShell extends Component {
   onOperationEnd = () => {
     this.setState({
       isOperationInProgress: false
+    });
+  }
+
+  onResizeDown = () => {
+    if (!this.state.isExpanded) {
+      return;
+    }
+
+    const newHeight = boundShellHeight(
+      this.resizableRef.size.height - resizeControlIncrement
+    );
+
+    this.resizableRef.updateSize({
+      height: newHeight,
+      width: '100%'
+    });
+  }
+
+  onResizeUp = () => {
+    if (!this.state.isExpanded) {
+      return;
+    }
+
+    const newHeight = boundShellHeight(
+      this.resizableRef.size.height + resizeControlIncrement
+    );
+
+    this.resizableRef.updateSize({
+      height: newHeight,
+      width: '100%'
     });
   }
 
@@ -124,14 +164,14 @@ export class CompassShell extends Component {
 
       this.resizableRef.updateSize({
         width: '100%',
-        height: defaultShellHeightClosed
+        height: boundShellHeight(defaultShellHeightClosed)
       });
     } else {
       this.props.emitShellPluginOpened();
 
       this.resizableRef.updateSize({
         width: '100%',
-        height: Math.min(this.lastOpenHeight, window.innerHeight - 40)
+        height: boundShellHeight(this.lastOpenHeight)
       });
     }
 
@@ -173,8 +213,15 @@ export class CompassShell extends Component {
             top: isExpanded
           }}
           ref={c => { this.resizableRef = c; }}
+          handleWrapperClass={styles['compass-shell-resize-handle-wrapper']}
           handleComponent={{
-            top: <ResizeHandle />,
+            top: <>
+              <ResizeHandleHorizontal
+                onMoveDownPressed={this.onResizeDown}
+                onMoveUpPressed={this.onResizeUp}
+              />
+              <ResizeHandleBars />
+            </>,
           }}
         >
           <ShellHeader

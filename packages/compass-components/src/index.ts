@@ -1,3 +1,7 @@
 import ConfirmationModal from './components/confirmation-modal';
+import {
+  ResizeHandleHorizontal,
+  ResizeHandleVertical,
+} from './components/resize-handle';
 
-export { ConfirmationModal };
+export { ConfirmationModal, ResizeHandleHorizontal, ResizeHandleVertical };

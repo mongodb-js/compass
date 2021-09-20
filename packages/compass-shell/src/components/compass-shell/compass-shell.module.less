@@ -23,4 +23,16 @@
       display: flex;
     }
   }
+
+  &-resize-handle-wrapper {
+    z-index: 100;
+    &:hover, &:active, &:focus {
+      div {
+        div:first-child {
+          transition-delay: 250ms;
+          opacity: 1;
+        }
+      }
+    }
+  }
 }

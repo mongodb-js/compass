@@ -5,7 +5,6 @@ import { Shell } from '@mongosh/browser-repl';
 import { Resizable } from 're-resizable';
 
 import { CompassShell } from './compass-shell';
-import ResizeHandle from '../resize-handle';
 import ShellHeader from '../shell-header';
 import InfoModal from '../info-modal';
 import styles from './compass-shell.module.less';
@@ -82,14 +81,6 @@ describe('CompassShell', () => {
         const fakeRuntime = {};
         const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
         expect(wrapper.find(InfoModal)).to.be.present();
-      });
-
-      it('passes the resize handle component to the Resizable component', () => {
-        const fakeRuntime = {};
-        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
-        expect(wrapper.find(Resizable).prop('handleComponent')).to.deep.equal({
-          top: <ResizeHandle />,
-        });
       });
 
       it('renders the Shell with an output change handler', () => {
@@ -254,6 +245,74 @@ describe('CompassShell', () => {
       type: 'output',
       value: 'some output'
     }]);
+  });
+
+  context('arrow resize actions', () => {
+    let shellComponent;
+    let sizeSetTo;
+
+    beforeEach(() => {
+      shellComponent = new CompassShell({
+        isExpanded: true
+      });
+
+      shellComponent.resizableRef = {
+        size: {
+          height: 51
+        },
+        updateSize: newSize => {
+          sizeSetTo = newSize;
+
+          shellComponent.resizableRef.size.height = newSize.height;
+        }
+      };
+    });
+
+    afterEach(() => {
+      sizeSetTo = null;
+    });
+
+    context('when the move up is called from the resize handle', () => {
+      beforeEach(() => {
+        shellComponent.onResizeUp();
+      });
+
+      it('calls to update the height +10', () => {
+        expect(sizeSetTo).to.deep.equal({
+          width: '100%',
+          height: 61
+        });
+      });
+    });
+
+    context('when the move down is called from the resize handle', () => {
+      beforeEach(() => {
+        shellComponent.onResizeDown();
+      });
+
+      it('calls to update the height -10', () => {
+        expect(sizeSetTo).to.deep.equal({
+          width: '100%',
+          height: 41
+        });
+      });
+
+      context('when it hits the lower bound', () => {
+        beforeEach(() => {
+          shellComponent.onResizeDown();
+          shellComponent.onResizeDown();
+          shellComponent.onResizeDown();
+          shellComponent.onResizeDown();
+        });
+
+        it('does not resize past the lower bound', () => {
+          expect(sizeSetTo).to.deep.equal({
+            width: '100%',
+            height: 32
+          });
+        });
+      });
+    });
   });
 });
 

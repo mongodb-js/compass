@@ -6,11 +6,11 @@ import ReactTooltip from 'react-tooltip';
 import { AutoSizer, List } from 'react-virtualized';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { Resizable } from 're-resizable';
+import { ResizeHandleVertical } from '@mongodb-js/compass-components';
 
 import classnames from 'classnames';
 import styles from './sidebar.module.less';
 
-import ResizeHandle from '../resize-handle';
 import SidebarTitle from '../sidebar-title';
 import SidebarInstance from '../sidebar-instance';
 import SidebarDatabase from '../sidebar-database';
@@ -316,7 +316,7 @@ class Sidebar extends PureComponent {
         ref={c => { this.resizableRef = c; }}
         handleWrapperClass={styles['compass-sidebar-resize-handle-wrapper']}
         handleComponent={{
-          right: <ResizeHandle
+          right: <ResizeHandleVertical
             onMoveRightPressed={this.handleResizeRight.bind(this)}
             onMoveLeftPressed={this.handleResizeLeft.bind(this)}
           />,
