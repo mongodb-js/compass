@@ -31,25 +31,11 @@ module.exports = function (app) {
     }
 
     app.webContents.send('app:disconnect');
-    // await client.waitForVisible(Selectors.ConnectSection, 5000);
 
     const element = await client.$(Selectors.ConnectSection);
     await element.waitForDisplayed({
       timeout: 5000,
     });
-
-    // await client.waitUntil(
-    //   async () => {
-    //     const element = await client.$(Selectors.ConnectSection);
-    //     return await element.isDisplayed();
-    //   },
-    //   {
-    //     timeout: 5000,
-    //     timeoutMsg:
-    //        'Expected connection screen to be visible after disconnecting',
-    //     interval: 50
-    //   }
-    // );
 
     // Show "new connection" section as if we just opened this screen
     await client.clickVisible(Selectors.SidebarNewConnectionButton);

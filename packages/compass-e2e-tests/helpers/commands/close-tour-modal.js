@@ -5,9 +5,6 @@ module.exports = function (app) {
     const { client } = app;
 
     const featureTourModalElement = await client.$(Selectors.FeatureTourModal);
-    // if (!(await client.existsEventually(Selectors.FeatureTourModal, 5000))) {
-    //   return;
-    // }
 
     try {
       await featureTourModalElement.waitForExist({
