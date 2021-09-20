@@ -8,6 +8,7 @@ import * as helper from '../test/helper';
 import connect from './connect';
 import DataService from './data-service';
 import { Callback } from './types';
+import { ConnectionOptions } from './connection-options';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mock = require('mock-require');
@@ -27,7 +28,7 @@ function mockedTopologyDescription(
  * required in NativeClient#connect, but returns topology and connection
  * params of our choice
  */
-function mockedConnectionModel(
+function connectMongoClientMock(
   topologyDescription?: any,
   connectionOptions?: any
 ) {
@@ -61,7 +62,8 @@ function mockedConnectionModel(
     mockedClient.emit('topologyDescriptionChanged', {
       newDescription: _topologyDescription,
     });
-    cb(null, mockedClient, mockedTunnel, _connectionOptions);
+
+    return Promise.resolve([mockedClient, mockedTunnel, _connectionOptions]);
   };
 }
 
@@ -72,53 +74,57 @@ describe('DataService', function () {
   let service: DataService;
   let mongoClient: MongoClient;
   let sandbox: sinon.SinonSandbox;
+  let connectionOptions: ConnectionOptions;
 
   before(async function () {
+    connectionOptions = {
+      connectionString: 'mongodb://127.0.0.1:27018/data-service',
+    };
+
     sandbox = sinon.createSandbox();
-    service = await connect(helper.connectionOptions);
+    service = await connect(connectionOptions);
     const opts = service.getMongoClientConnectionOptions();
     mongoClient = await MongoClient.connect(opts!.url, opts!.options);
   });
-  after(function (done) {
-    service.disconnect(() => {
-      mongoClient.close(done);
-    });
+
+  after(async function () {
+    try {
+      await service.disconnect();
+    } finally {
+      await mongoClient.close();
+    }
   });
+
   afterEach(function () {
     sandbox.restore();
   });
 
   // Each test gets its own service so that we can connect/disconnect it freely
   describe('#isConnected', function () {
-    let _service: DataService;
+    let dataService: DataService;
 
     it('returns false when not connected initially', function () {
-      _service = new DataService(helper.connectionOptions, helper.connection);
-      expect(_service.isConnected()).to.equal(false);
+      dataService = new DataService(connectionOptions);
+      expect(dataService.isConnected()).to.equal(false);
     });
 
-    it('returns true if client is connected', function (done) {
-      _service = new DataService(helper.connectionOptions, helper.connection);
-      _service.connect(() => {
-        expect(_service.isConnected()).to.equal(true);
-        done();
-      });
+    it('returns true if client is connected', async function () {
+      dataService = new DataService(connectionOptions);
+      await dataService.connect();
+      expect(dataService.isConnected()).to.equal(true);
     });
 
-    it('returns false if client is disconnected', function (done) {
-      _service = new DataService(helper.connectionOptions, helper.connection);
-      _service.connect(() => {
-        _service.disconnect(() => {
-          expect(_service.isConnected()).to.equal(false);
-          done();
-        });
-      });
+    it('returns false if client is disconnected', async function () {
+      dataService = new DataService(connectionOptions);
+
+      await dataService.connect();
+      await dataService.disconnect();
+
+      expect(dataService.isConnected()).to.equal(false);
     });
 
-    afterEach(function (done) {
-      if (_service) {
-        _service.disconnect(done);
-      }
+    afterEach(async function () {
+      await dataService?.disconnect();
     });
   });
 
@@ -280,16 +286,12 @@ describe('DataService', function () {
   });
 
   describe('#aggregate', function () {
-    before(function (done) {
-      helper.insertTestDocuments(mongoClient, function () {
-        done();
-      });
+    before(async function () {
+      await helper.insertTestDocuments(mongoClient);
     });
 
-    after(function (done) {
-      helper.deleteTestDocuments(mongoClient, function () {
-        done();
-      });
+    after(async function () {
+      await helper.deleteTestDocuments(mongoClient);
     });
 
     it('returns a cursor for the documents', function (done) {
@@ -329,16 +331,12 @@ describe('DataService', function () {
   });
 
   describe('#find', function () {
-    before(function (done) {
-      helper.insertTestDocuments(mongoClient, function () {
-        done();
-      });
+    before(async function () {
+      await helper.insertTestDocuments(mongoClient);
     });
 
-    after(function (done) {
-      helper.deleteTestDocuments(mongoClient, function () {
-        done();
-      });
+    after(async function () {
+      await helper.deleteTestDocuments(mongoClient);
     });
 
     it('returns a cursor for the documents', function (done) {
@@ -417,16 +415,12 @@ describe('DataService', function () {
   });
 
   describe('#fetch', function () {
-    before(function (done) {
-      helper.insertTestDocuments(mongoClient, function () {
-        done();
-      });
+    before(async function () {
+      await helper.insertTestDocuments(mongoClient);
     });
 
-    after(function (done) {
-      helper.deleteTestDocuments(mongoClient, function () {
-        done();
-      });
+    after(async function () {
+      await helper.deleteTestDocuments(mongoClient);
     });
 
     it('returns a cursor for the documents', function (done) {
@@ -473,10 +467,8 @@ describe('DataService', function () {
   });
 
   describe('#findOneAndReplace', function () {
-    after(function (done) {
-      helper.deleteTestDocuments(mongoClient, function () {
-        done();
-      });
+    after(async function () {
+      await helper.deleteTestDocuments(mongoClient);
     });
 
     const id = new ObjectId();
@@ -516,10 +508,8 @@ describe('DataService', function () {
   });
 
   describe('#findOneAndUpdate', function () {
-    after(function (done) {
-      helper.deleteTestDocuments(mongoClient, function () {
-        done();
-      });
+    after(async function () {
+      await helper.deleteTestDocuments(mongoClient);
     });
 
     const id = new ObjectId();
@@ -817,10 +807,8 @@ describe('DataService', function () {
   });
 
   describe('#insertOne', function () {
-    after(function (done) {
-      helper.deleteTestDocuments(mongoClient, function () {
-        done();
-      });
+    after(async function () {
+      await helper.deleteTestDocuments(mongoClient);
     });
 
     it('inserts the document into the collection', function (done) {
@@ -850,10 +838,8 @@ describe('DataService', function () {
   });
 
   describe('#insertMany', function () {
-    after(function (done) {
-      helper.deleteTestDocuments(mongoClient, function () {
-        done();
-      });
+    after(async function () {
+      await helper.deleteTestDocuments(mongoClient);
     });
 
     it('inserts the documents into the collection', function (done) {
@@ -888,16 +874,12 @@ describe('DataService', function () {
   });
 
   describe('#sample', function () {
-    before(function (done) {
-      helper.insertTestDocuments(mongoClient, function () {
-        done();
-      });
+    before(async function () {
+      await helper.insertTestDocuments(mongoClient);
     });
 
-    after(function (done) {
-      helper.deleteTestDocuments(mongoClient, function () {
-        done();
-      });
+    after(async function () {
+      await helper.deleteTestDocuments(mongoClient);
     });
 
     it('returns a cursor of sampled documents', async function () {
@@ -991,10 +973,8 @@ describe('DataService', function () {
   });
 
   describe('#updateOne', function () {
-    after(function (done) {
-      helper.deleteTestDocuments(mongoClient, function () {
-        done();
-      });
+    after(async function () {
+      await helper.deleteTestDocuments(mongoClient);
     });
 
     it('updates the document', function (done) {
@@ -1056,19 +1036,14 @@ describe('DataService', function () {
     });
 
     it("it returns null when a topology description event hasn't yet occured", function () {
-      const testService = new DataService(
-        helper.connectionOptions,
-        helper.connection
-      );
+      const testService = new DataService(connectionOptions);
       expect(testService.getLastSeenTopology()).to.equal(null);
     });
   });
 
   describe('#updateMany', function () {
-    after(function (done) {
-      helper.deleteTestDocuments(mongoClient, function () {
-        done();
-      });
+    after(async function () {
+      await helper.deleteTestDocuments(mongoClient);
     });
 
     it('updates the documents', function (done) {
@@ -1118,16 +1093,12 @@ describe('DataService', function () {
   });
 
   describe('#views', function () {
-    before(function (done) {
-      helper.insertTestDocuments(mongoClient, function () {
-        done();
-      });
+    before(async function () {
+      await helper.insertTestDocuments(mongoClient);
     });
 
-    after(function (done) {
-      helper.deleteTestDocuments(mongoClient, function () {
-        done();
-      });
+    after(async function () {
+      await helper.deleteTestDocuments(mongoClient);
     });
 
     it('creates a new view', function (done) {
@@ -1198,87 +1169,52 @@ describe('DataService', function () {
         mock.stop('mongodb-connection-model');
       });
 
-      it('does not allow to connect twice without disonnecting first', function (done) {
-        mock('./connect-mongo-client', mockedConnectionModel());
+      it('sets .connectionOptions after successful connection', async function () {
+        mock('./connect-mongo-client', connectMongoClientMock());
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
-          helper.connectionOptions,
-          helper.connection
-        );
-
-        mockedService.connect(() => {
-          // pass
-        });
-        mockedService.connect((err: any) => {
-          expect(err).to.be.instanceOf(Error);
-          expect(err)
-            .to.have.property('message')
-            .match(
-              /Connect method has been called more than once without disconnecting/
-            );
-
-          done();
-        });
-      });
-
-      it('sets .connectionOptions after successful connection', function (done) {
-        mock('./connect-mongo-client', mockedConnectionModel());
-
-        const MockedDataService = mock.reRequire('./data-service');
-        const mockedService: DataService = new MockedDataService(
-          helper.connectionOptions,
-          helper.connection
+          connectionOptions
         );
 
         expect(mockedService.getMongoClientConnectionOptions()).to.be.undefined;
 
-        mockedService.connect(function () {
-          expect(mockedService.getMongoClientConnectionOptions()).to.deep.equal(
-            {
-              url: 'mongodb://127.0.0.1:27018/data-service?readPreference=primary&ssl=false',
-              options: {
-                readPreference: 'primary',
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-              },
-            }
-          );
-          done();
+        await mockedService.connect();
+        expect(mockedService.getMongoClientConnectionOptions()).to.deep.equal({
+          url: 'mongodb://127.0.0.1:27018/data-service?readPreference=primary&ssl=false',
+          options: {
+            readPreference: 'primary',
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+          },
         });
       });
 
-      it('sets .isMongos to true when topology is sharded', function (done) {
+      it('sets .isMongos to true when topology is sharded', async function () {
         mock(
           './connect-mongo-client',
-          mockedConnectionModel(mockedTopologyDescription('Sharded'))
+          connectMongoClientMock(mockedTopologyDescription('Sharded'))
         );
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
-          helper.connectionOptions,
-          helper.connection
+          connectionOptions
         );
 
-        mockedService.connect(function () {
-          expect(mockedService.isMongos()).to.be.true;
-          done();
-        });
+        await mockedService.connect();
+        expect(mockedService.isMongos()).to.be.true;
       });
 
-      it('sets .isMongos to false when topology is not sharded', function (done) {
-        mock('./connect-mongo-client', mockedConnectionModel());
+      it('sets .isMongos to false when topology is not sharded', async function () {
+        mock('./connect-mongo-client', connectMongoClientMock());
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
-          helper.connectionOptions,
-          helper.connection
+          connectionOptions
         );
 
-        mockedService.connect(function () {
-          expect(mockedService.isMongos()).to.be.false;
-          done();
-        });
+        await mockedService.connect();
+        expect(mockedService.isMongos()).to.be.false;
       });
     });
   });
@@ -1289,30 +1225,18 @@ describe('DataService', function () {
         mock.stop('mongodb-connection-model');
       });
 
-      it('should close tunnel before calling disconnect callback', function (done) {
-        mock('./connect-mongo-client', mockedConnectionModel());
+      it('should close tunnel before calling disconnect callback', async function (done) {
+        mock('./connect-mongo-client', connectMongoClientMock());
 
         const MockedDataService = mock.reRequire('./data-service');
         const mockedService: DataService = new MockedDataService(
-          helper.connectionOptions,
-          helper.connection
+          connectionOptions
         );
 
-        mockedService.connect(() => {
-          const closeSpy = sandbox.spy((mockedService as any)._tunnel, 'close');
-
-          const disconnectCallbackSpy = sandbox.spy(() => {
-            try {
-              expect(closeSpy).to.have.been.calledOnce;
-              expect(closeSpy).to.have.been.calledBefore(disconnectCallbackSpy);
-              done();
-            } catch (err) {
-              done(err);
-            }
-          });
-
-          mockedService.disconnect(disconnectCallbackSpy);
-        });
+        await mockedService.connect();
+        const closeSpy = sandbox.spy((mockedService as any)._tunnel, 'close');
+        await mockedService.disconnect();
+        expect(closeSpy).to.have.been.calledOnce;
       });
     });
   });

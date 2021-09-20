@@ -66,11 +66,7 @@ class ConnectionAttempt {
     }
 
     try {
-      const runDisconnect = promisify(
-        this._dataService.disconnect.bind(this._dataService )
-      );
-
-      await runDisconnect();
+      await this._dataService.disconnect();
       debug('disconnected from connection attempt');
     } catch (err) {
       // When the disconnect fails, we free up the ui and we can

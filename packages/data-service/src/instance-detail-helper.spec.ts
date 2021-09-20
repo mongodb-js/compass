@@ -2,9 +2,14 @@ import assert from 'assert';
 import _ from 'lodash';
 import { Db, MongoClient } from 'mongodb';
 import * as helper from '../test/helper';
+import { ConnectionOptions } from './connection-options';
 import DataService from './data-service';
 import { getInstance } from './instance-detail-helper';
 import { Instance } from './types';
+
+const connectionOptions: ConnectionOptions = Object.freeze({
+  connectionString: 'mongodb://127.0.0.1:27018/data-service',
+});
 
 describe('mongodb-data-service#instance', function () {
   describe('local', function () {
@@ -38,33 +43,22 @@ describe('mongodb-data-service#instance', function () {
       let mongoClient: MongoClient;
       let instanceDetails: Instance;
 
-      before(function (done) {
+      before(async function () {
         if (process.env.MONGODB_TOPOLOGY === 'cluster') {
           return this.skip();
         }
 
-        service = new DataService(helper.connectionOptions, helper.connection);
-        service.connect(function (err) {
-          if (err) return done(err);
-          const opts = service.getMongoClientConnectionOptions();
-          MongoClient.connect(opts!.url, opts!.options, (err, client) => {
-            if (err) {
-              return done(err);
-            }
-            mongoClient = client!;
-            helper.insertTestDocuments(mongoClient, function () {
-              done();
-            });
-          });
-        });
+        service = new DataService(connectionOptions);
+        await service.connect();
+        mongoClient = await MongoClient.connect(
+          connectionOptions.connectionString
+        );
+        await helper.insertTestDocuments(mongoClient);
       });
 
-      after(function (done) {
-        helper.deleteTestDocuments(mongoClient, function () {
-          service.disconnect(function () {
-            mongoClient.close(done);
-          });
-        });
+      after(async function () {
+        await helper.deleteTestDocuments(mongoClient);
+        await mongoClient.close();
       });
 
       it('creates a new view', function (done) {

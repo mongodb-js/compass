@@ -460,32 +460,18 @@ class DataService extends EventEmitter {
    * Disconnect the service.
    * @param callback - The callback.
    */
-  disconnect(callback: Callback<never>): void {
-    // This follows MongoClient behavior where calling `close` on client that is
-    // not connected
-    if (!this._client) {
-      setImmediate(() => {
-        // @ts-expect-error Callback without result...
-        callback(null);
-      });
-      return;
-    }
+  async disconnect(): Promise<void> {
+    try {
+      await this._client
+        ?.close(true)
+        .catch((err) => debug('failed to close MongoClient', err));
 
-    this._client.close(true, (err) => {
-      if (this._tunnel) {
-        debug('mongo client closed. shutting down ssh tunnel');
-        this._tunnel.close().finally(() => {
-          this._cleanup();
-          debug('ssh tunnel stopped');
-          // @ts-expect-error Callback without result...
-          callback(err);
-        });
-      } else {
-        this._cleanup();
-        // @ts-expect-error Callback without result...
-        return callback(err);
-      }
-    });
+      await this._tunnel
+        ?.close()
+        .catch((err) => debug('failed to close tunnel', err));
+    } finally {
+      this._cleanup();
+    }
   }
 
   /**

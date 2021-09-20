@@ -23,8 +23,8 @@ describe('store', function() {
     dataService = await connect(convertConnectionModelToInfo(CONNECTION));
   });
 
-  after((done) => {
-    dataService.disconnect(done);
+  after(async() => {
+    await dataService.disconnect();
   });
 
   describe('#getInitialState', () => {

@@ -1,16 +1,22 @@
 import SSHTunnel from '@mongodb-js/ssh-tunnel';
 import assert from 'assert';
 import sinon from 'sinon';
-import { default as connectMongoClient } from './connect-mongo-client';
+import connectMongoClient from './connect-mongo-client';
 import { ConnectionOptions } from './connection-options';
-import mock from 'mock-require';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const mockRequire = require('mock-require');
 
 const setupListeners = () => {
   //
 };
 
+type Closeable = {
+  close: () => Promise<void>;
+};
+
 describe('connection model connector', function () {
-  let cleanUpQueue;
+  let cleanUpQueue: [Closeable?, Closeable?][];
 
   afterEach(async function () {
     for (const [client, tunnel] of cleanUpQueue) {
@@ -61,10 +67,10 @@ describe('connection model connector', function () {
 
     describe('ssh tunnel failures', function () {
       let closeSpy: sinon.SinonSpy;
-      let mockConnect;
+      let mockConnect: typeof connectMongoClient;
 
       beforeEach(function () {
-        mock(
+        mockRequire(
           '@mongodb-js/ssh-tunnel',
           class MockTunnel extends SSHTunnel {
             constructor(...args: any[]) {
@@ -76,7 +82,7 @@ describe('connection model connector', function () {
           }
         );
 
-        mockConnect = mock.reRequire('./connect-mongo-client')
+        mockConnect = mockRequire.reRequire('./connect-mongo-client')
           .default as unknown as typeof connectMongoClient;
       });
 

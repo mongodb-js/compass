@@ -462,11 +462,7 @@ const Store = Reflux.createStore({
       return;
     }
 
-    const runDisconnect = promisify(
-      this.dataService.disconnect.bind(this.dataService)
-    );
-
-    await runDisconnect();
+    await this.dataService.disconnect();
 
     this.appRegistry.emit('data-service-disconnected');
     this.state.isValid = true;
