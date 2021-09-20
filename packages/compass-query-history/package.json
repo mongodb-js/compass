@@ -5,6 +5,7 @@
   "apiVersion": "3.0.0",
   "description": "The query history sidebar.",
   "main": "lib/index.js",
+  "source": "src/index.js",
   "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
   "author": {

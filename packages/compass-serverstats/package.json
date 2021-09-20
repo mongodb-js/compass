@@ -5,6 +5,7 @@
   "apiVersion": "3.0.0",
   "description": "Compass Real Time Server Stats Component.",
   "main": "lib/index.js",
+  "source": "src/index.js",
   "browser": "lib/browser.js",
   "scripts": {
     "compile": "npm run webpack -- --mode production",
@@ -14,7 +15,6 @@
     "node-rebuild": "node ../../scripts/rebuild.js keytar",
     "prestart": "npm run electron-rebuild",
     "start": "npm run webpack serve -- --mode development",
-    "poststart": "npm run node-rebuild",
     "test:node": "mocha",
     "pretest:electron": "npm run electron-rebuild",
     "test:electron": "xvfb-maybe electron-mocha --no-sandbox",

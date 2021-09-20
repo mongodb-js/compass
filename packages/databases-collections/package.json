@@ -5,6 +5,7 @@
   "apiVersion": "3.0.0",
   "description": "Plugin for viewing the list of, creating, and dropping databases and collections",
   "main": "lib/index.js",
+  "source": "src/index.js",
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",
@@ -153,7 +154,7 @@
     "@leafygreen-ui/text-input": "^6.0.3",
     "@leafygreen-ui/tooltip": "^6.2.2",
     "@leafygreen-ui/typography": "^8.0.2",
-    "async": "^3.1.1",
+    "async": "^3.2.0",
     "lodash": "^4.17.15",
     "lodash.find": "^4.6.0",
     "lodash.isempty": "^4.4.0",

@@ -9,6 +9,7 @@
   "homepage": "https://github.com/mongodb-js/compass",
   "version": "5.4.0",
   "main": "lib/index.js",
+  "source": "src/index.js",
   "module": "lib/index.js",
   "repository": {
     "type": "git",

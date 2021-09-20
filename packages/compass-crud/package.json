@@ -8,6 +8,7 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "main": "lib/index.js",
+  "source": "src/index.js",
   "apiVersion": "3.0.0",
   "scripts": {
     "clean": "rimraf lib",

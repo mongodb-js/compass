@@ -4,6 +4,7 @@
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
+  "source": "src/index.ts",
   "exports": {
     "require": "./lib/index.js",
     "import": "./lib/.esm-wrapper.mjs"

@@ -5,6 +5,7 @@
   "apiVersion": "3.0.0",
   "description": "Compass Shell Plugin",
   "main": "lib/index.js",
+  "source": "src/index.js",
   "scripts": {
     "prepublishOnly": "npm run compile",
     "clean": "rimraf lib",

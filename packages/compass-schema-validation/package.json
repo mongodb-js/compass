@@ -5,6 +5,7 @@
   "apiVersion": "3.0.0",
   "description": "Compass plugin for document JSON schema validation",
   "main": "lib/index.js",
+  "source": "src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"

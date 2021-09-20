@@ -41,7 +41,7 @@ export class ShellHeader extends Component {
             onClick={onShellToggleClicked}
             aria-pressed={isExpanded}
           >
-            &gt;_MONGOSH
+            &gt;&nbsp;MongoDB Shell
             {!isExpanded && isOperationInProgress && (
               <>
                 <ShellLoader

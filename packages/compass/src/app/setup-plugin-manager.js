@@ -1,3 +1,4 @@
+const marky = require('marky');
 const app = require('hadron-app');
 const pkg = require('../../package.json');
 const path = require('path');
@@ -36,38 +37,18 @@ const PLUGINS_DIR = 'plugins-directory';
  */
 const DEV_PLUGINS = path.join(os.homedir(), DISTRIBUTION[PLUGINS_DIR]);
 
-const COMPASS_PLUGINS = [
-  require('@mongodb-js/compass-app-stores'),
-  require('@mongodb-js/compass-aggregations'),
-  require('@mongodb-js/compass-auto-updates'),
-  require('@mongodb-js/compass-export-to-language'),
-  require('@mongodb-js/compass-collection'),
-  require('@mongodb-js/compass-collection-stats'),
-  require('@mongodb-js/compass-crud'),
-  require('@mongodb-js/compass-database'),
-  require('@mongodb-js/compass-databases-collections'),
-  require('@mongodb-js/compass-field-store'),
-  require('@mongodb-js/compass-find-in-page'),
-  require('@mongodb-js/compass-home'),
-  require('@mongodb-js/compass-import-export'),
-  require('@mongodb-js/compass-connect'),
-  require('@mongodb-js/compass-schema'),
-  require('@mongodb-js/compass-schema-validation'),
-  require('@mongodb-js/compass-deployment-awareness'),
-  require('@mongodb-js/compass-metrics'),
-  require('@mongodb-js/compass-query-bar'),
-  require('@mongodb-js/compass-query-history'),
-  require('@mongodb-js/compass-loading'),
-  require('@mongodb-js/compass-plugin-info'),
-  require('@mongodb-js/compass-instance'),
-  require('@mongodb-js/compass-serverstats'),
-  require('@mongodb-js/compass-server-version'),
-  require('@mongodb-js/compass-sidebar'),
-  require('@mongodb-js/compass-ssh-tunnel-status'),
-  require('@mongodb-js/compass-status'),
-  require('@mongodb-js/compass-indexes'),
-  require('@mongodb-js/compass-explain-plan')
-];
+marky.mark('Loading plugins');
+
+ipc.call('compass:loading:change-status', {
+  status: 'loading plugins'
+});
+
+// eslint-disable-next-line no-nested-ternary
+const COMPASS_PLUGINS = process.env.HADRON_READONLY === 'true'
+  ? require('./plugins/readonly')
+  : process.env.HADRON_ISOLATED === 'true'
+    ? require('./plugins/isolated')
+    : require('./plugins/default');
 
 const PLUGIN_COUNT = COMPASS_PLUGINS.length;
 
@@ -123,6 +104,11 @@ let loadedCount = 0;
 
 PluginManager.Action.pluginActivated.listen(() => {
   loadedCount++;
+
+  if (loadedCount === PLUGIN_COUNT) {
+    marky.stop('Loading plugins');
+  }
+
   ipc.call('compass:loading:change-status', {
     status: `loading plugins ${loadedCount}/${PLUGIN_COUNT}`
   });
