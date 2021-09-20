@@ -10,7 +10,7 @@ import styles from './is-favorite-pill.module.less';
 class IsFavoritePill extends PureComponent {
   static displayName = 'IsFavoritePill';
   static propTypes = {
-    connectionInfo: PropTypes.object.isRequired,
+    connectionModel: PropTypes.object.isRequired,
     toggleIsModalVisible: PropTypes.func.isRequired
   }
 
@@ -31,9 +31,9 @@ class IsFavoritePill extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const isFavorite = this.props.connectionInfo.isFavorite;
+    const isFavorite = this.props.connectionModel.connection.isFavorite;
     const fontAwesomeName = isFavorite ? 'star' : 'star-o';
-    const hex = this.props.connectionInfo.color;
+    const hex = this.props.connectionModel.connection.color;
     const style = {
       backgroundColor: hex || '#243642',
       color: isFavorite ? '#ffffff' : '#88989a'

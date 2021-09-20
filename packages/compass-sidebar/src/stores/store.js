@@ -20,8 +20,8 @@ store.onActivated = (appRegistry) => {
   store.dispatch(globalAppRegistryActivated(appRegistry));
   store.dispatch(loadDetailsPlugins(appRegistry));
 
-  appRegistry.on('data-service-connected', (_, dataService, connectionInfo) => {
-    store.dispatch(changeConnection(connectionInfo));
+  appRegistry.on('data-service-connected', (_, dataService, connectionInfo, legacyConnectionModel) => {
+    store.dispatch(changeConnection(legacyConnectionModel));
   });
 
   appRegistry.on('instance-refreshed', (state) => {
