@@ -256,6 +256,7 @@ class QueryBar extends Component {
       return (
         <div
           className={styles['query-option-toggle-row']}
+          key={`query-option-${id}`}
         >
           {queryOption}
           {this.renderToggle()}
