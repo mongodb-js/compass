@@ -37,7 +37,10 @@ async function main() {
 
   mocha.run((failures) => {
     process.exitCode = failures ? 1 : 0;
-    process.exit();
+    if (failures) {
+      // TODO: Figure out why tests don’t exit without this.
+      process.exit();
+    }
   });
 }
 
