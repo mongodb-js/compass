@@ -8,7 +8,6 @@ node_modules
 *.iml
 .cache*
 src/app/templates.js
-src/app/index.html
 src/connect/static-connect.html
 report.json
 .user-data/

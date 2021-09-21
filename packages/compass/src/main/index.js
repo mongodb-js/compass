@@ -31,7 +31,7 @@ process.on('uncaughtException', err => {
   err = ensureError(err);
   const stack = cleanStack(err.stack);
 
-  var detail = '${app.getName()} version ${app.getVersion()}\n';
+  var detail = `${app.getName()} version ${app.getVersion()}\n`;
   detail += `Stacktrace:\n${stack}`;
   const message = `${app.getName()} has encountered an unexpected error`;
 
@@ -65,13 +65,6 @@ process.on('uncaughtException', err => {
     return;
   }
 });
-
-var path = require('path');
-var resourcePath = path.join(__dirname, '..', '..');
-
-var ModuleCache = require('hadron-module-cache');
-ModuleCache.register(resourcePath);
-ModuleCache.add(resourcePath);
 
 setupLogging(app);
 require('./application').main();

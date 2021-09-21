@@ -1,16 +1,12 @@
 /* eslint no-unused-vars: 0, no-unused-expressions: 0 */
 const app = require('hadron-app');
 const chai = require('chai');
-const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
-const {shallow} = require('enzyme');
-const AppRegistry = require('hadron-app-registry');
+const { shallow } = require('enzyme');
 const { StatusRow } = require('hadron-react-components');
 const ServerStatsStore = require('../../src/stores/server-stats-graphs-store');
 const PerformanceComponent = require('../../src/components/');
-
-chai.use(chaiEnzyme());
 
 describe('rtss', () => {
   const appDataService = app.dataService;
@@ -37,8 +33,9 @@ describe('rtss', () => {
 
     it('displays the top not available in mongos message', () => {
       const state = component.find(StatusRow);
-      expect(state.dive()).to.have
-        .text('Top command is not available for mongos, some charts may not show any data.');
+      expect(state.dive()).to.have.text(
+        'Top command is not available for mongos, some charts may not show any data.'
+      );
     });
   });
 });

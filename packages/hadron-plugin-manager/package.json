@@ -25,14 +25,13 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "async": "^2.3.0",
     "debug": "^2.2.0",
-    "pkg-up": "^3.1.0",
     "react-dom": "^16.14.0",
     "reflux": "^0.4.1",
     "semver": "^5.4.1"
   },
   "devDependencies": {
+    "@external-plugins/example3": "file:./test/external-plugins/example3",
     "chai": "^3.4.1",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",

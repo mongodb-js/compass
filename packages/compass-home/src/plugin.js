@@ -3,6 +3,8 @@ import { Provider } from 'react-redux';
 import Home from './components/home';
 import store from './stores';
 
+import './index.less';
+
 class Plugin extends Component {
   static displayName = 'HomePlugin';
 

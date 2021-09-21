@@ -1,0 +1,7 @@
+{
+  "webPreferences": {
+    "subpixel-font-scaling": true,
+    "direct-write": true,
+    "nodeIntegration": true
+  }
+}

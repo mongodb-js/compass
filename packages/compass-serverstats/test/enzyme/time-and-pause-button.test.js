@@ -1,11 +1,8 @@
 const chai = require('chai');
-const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const enzyme = require('enzyme');
 const React = require('react');
 const d3 = require('d3');
-
-chai.use(chaiEnzyme());
 
 const realTimeDispatcher = require('../../src/d3/real-time-dispatcher');
 const TimeAndPauseButton = require('../../src/components/time-and-pause-button');

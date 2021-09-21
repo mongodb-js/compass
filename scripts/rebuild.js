@@ -110,7 +110,9 @@ async function main() {
       if (maybeRebuildScript) {
         try {
           spinner.text = `${spinnerText} using "npm run ${maybeRebuildScript}"`;
-          return await runInDir(`npm run ${maybeRebuildScript}`, packagePath);
+
+          await runInDir(`npm run ${maybeRebuildScript}`, packagePath);
+          total++;
         } catch (e) {}
       }
 
@@ -122,7 +124,8 @@ async function main() {
 
           spinner.text = `${spinnerText} using prebuild-install`;
 
-          return await runInDir(`node ${bin}`, packagePath);
+          await runInDir(`node ${bin}`, packagePath);
+          total++;
         } catch (e) {}
       }
 
@@ -131,7 +134,6 @@ async function main() {
       spinner.text = `${spinnerText} using node-gyp`;
 
       await runInDir(`node ${bin} rebuild`, packagePath);
-
       total++;
     });
   }

@@ -1,4 +1,6 @@
 /* eslint no-console:0 */
+import './index.less';
+
 const marky = require('marky');
 const EventEmitter = require('events');
 marky.mark('Time to Connect rendered');
@@ -20,8 +22,6 @@ require('bootstrap/js/transition');
  */
 const app = require('hadron-app');
 global.hadronApp = app;
-
-require('./setup-hadron-caches');
 
 /**
  * The main entrypoint for the application!
@@ -262,7 +262,10 @@ var Application = View.extend({
       event.preventDefault();
       this.router.history.navigate(pathname);
       return;
-    } else if (event.target.getAttribute('href') !== '#') {
+    } else if (
+      event.target.getAttribute('href') &&
+      event.target.getAttribute('href') !== '#'
+    ) {
       event.preventDefault();
       event.stopPropagation();
       electron.shell.openExternal(event.target.href);
@@ -435,13 +438,7 @@ Object.defineProperty(app, 'state', {
   }
 });
 
-marky.mark('Loading styles');
-const setupStyleManager = require('./setup-style-manager');
-setupStyleManager('index.less', () => {
-  ipc.call('compass:loading:change-status', { status: 'loading styles' });
-  require('./reflux-listen-to-external-store');
-  app.init();
-  // expose app globally for debugging purposes
-  window.app = app;
-  marky.stop('Loading styles');
-});
+require('./reflux-listen-to-external-store');
+app.init();
+// expose app globally for debugging purposes
+window.app = app;

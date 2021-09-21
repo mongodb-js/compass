@@ -3,10 +3,7 @@ var View = require('ampersand-view');
 var app = require('hadron-app');
 var semver = require('semver');
 var _ = require('lodash');
-var path = require('path');
 var electronApp = require('electron').remote.app;
-
-var indexTemplate = require('./index.jade');
 
 // var debug = require('debug')('mongodb-compass:tour:index');
 
@@ -54,15 +51,60 @@ var TourView = View.extend({
       type: 'number',
       default: 0
     },
-    tourImagesFolder: {
-      type: 'string',
-      default: './images/tour/'
-    },
     timeAtStart: {
       type: 'date'
     }
   },
-  template: indexTemplate,
+  template({features}) {
+    const featuresHtml = features
+      .map((feature, index) => {
+        const cls = ['feature-content', index === 0 && 'active']
+          .filter(Boolean)
+          .join(' ');
+
+        return `
+          <div id="f${index}-content" class="${cls}">
+            <h3 class="feature-title">${feature.title}</h3>
+            <p class="feature-description">${feature.description}</p>
+          </div>`;
+      })
+      .join('');
+
+    const pagerHtml = features
+      .map((feature, index) => {
+        const cls = index === 0 ? 'selected' : '';
+        return `<li id="f${index}" class="${cls}" data-n="${index} title="${feature.title}"></li>`;
+      })
+      .join('');
+
+    return `
+      <div id="tour-out" data-test-id="feature-tour-modal">
+        <div id="tour-bg"></div>
+        <div id="tour">
+          <div class="modal-header">
+            <h2 data-hook="title"></h2>
+            <button class="tour-close-button" data-test-id="close-tour-button">&times;</button>
+          </div>
+          <div id="animation">
+            <img id="animation-gif" src="${features[0].image}" /> 
+          </div>
+          <div id="features">
+            ${featuresHtml}
+            <div class="pager">
+              <button class="previous-slide hide">Previous</button>
+              <button class="next-slide">Next</button>
+            </div>
+            <div class="get-started-button-holder">
+              <button id="tour-remove" type="button" class="btn btn-info hide">Get Started</button>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+          <div class="pager">
+            <ul>${pagerHtml}</ul>
+          </div>
+        </div>
+      </div>`;
+  },
   derived: {
     previousVersion: {
       deps: ['app.preferences.showFeatureTour'],
@@ -177,7 +219,7 @@ var TourView = View.extend({
     ev.target.className = 'selected';
 
     $('#animation-gif').one('webkitTransitionEnd', function() {
-      that.$animationGIF.src = path.join(that.tourImagesFolder, that.features[nFeature].image);
+      that.$animationGIF.src = that.features[nFeature].image;
       $('#animation-gif').css('opacity', '1');
     });
     $('#animation-gif').css('opacity', '0');
@@ -201,7 +243,7 @@ var TourView = View.extend({
     $('.pager li#f' + previousFeature).addClass('selected');
 
     $('#animation-gif').one('webkitTransitionEnd', function() {
-      that.$animationGIF.src = path.join(that.tourImagesFolder, that.features[previousFeature].image);
+      that.$animationGIF.src = that.features[previousFeature].image;
       $('#animation-gif').css('opacity', '1');
     });
     $('#animation-gif').css('opacity', '0');
@@ -225,7 +267,7 @@ var TourView = View.extend({
     $('.pager li#f' + nextFeature).addClass('selected');
 
     $('#animation-gif').one('webkitTransitionEnd', function() {
-      that.$animationGIF.src = path.join(that.tourImagesFolder, that.features[nextFeature].image);
+      that.$animationGIF.src = that.features[nextFeature].image;
       $('#animation-gif').css('opacity', '1');
     });
     $('#animation-gif').css('opacity', '0');
