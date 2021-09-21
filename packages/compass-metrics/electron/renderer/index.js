@@ -92,7 +92,7 @@ if (module.hot) {
     }
   };
 
-  module.hot.accept('plugin', () => {
+  module.hot.accept('../../src/index.js', () => {
     // Because Webpack 2 has built-in support for ES2015 modules,
     // you won't need to re-require your app root in module.hot.accept
     render(MetricsPlugin);

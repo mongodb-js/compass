@@ -119,5 +119,5 @@ if (module.hot) {
     }
   };
 
-  module.hot.accept('plugin', () => render(ExplainPlanPlugin));
+  module.hot.accept('../../src/index.js', () => render(ExplainPlanPlugin));
 }

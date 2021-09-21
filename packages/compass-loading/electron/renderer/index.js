@@ -96,5 +96,5 @@ if (module.hot) {
     }
   };
 
-  module.hot.accept('plugin', () => render(LoadingPlugin));
+  module.hot.accept('../../src/index.js', () => render(LoadingPlugin));
 }
