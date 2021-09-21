@@ -64,7 +64,7 @@
     "babel-loader": "^8.2.2",
     "core-js": "^3.17.3",
     "css-loader": "^4.3.0",
-    "electron": "6.1.12",
+    "electron": "^13.1.8",
     "html-webpack-plugin": "^5.3.2",
     "less-loader": "^10.0.1",
     "node-loader": "^2.0.0",
