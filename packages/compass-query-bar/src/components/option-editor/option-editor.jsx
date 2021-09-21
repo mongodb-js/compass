@@ -118,7 +118,7 @@ class OptionEditor extends Component {
         className={styles['option-editor']}
         mode="mongodb"
         theme="mongodb-query"
-        width="80%"
+        width="100%"
         value={this.props.value}
         onChange={this.onChangeQuery}
         editorProps={{ $blockScrolling: Infinity }}
