@@ -442,6 +442,12 @@ function camelCase(str: string): string {
     .join('');
 }
 
+function getLibraryNameFromCwd(cwd: string) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { name, productName } = require(path.join(cwd, 'package.json'));
+  return camelCase(productName || name);
+}
+
 export function createElectronMainConfig(
   args: Partial<ConfigArgs>
 ): WebpackConfig {
@@ -500,6 +506,8 @@ export function createElectronRendererConfig(
       path: opts.outputPath,
       filename: opts.outputFilename ?? '[name].[contenthash].renderer.js',
       assetModuleFilename: 'assets/[name].[hash][ext]',
+      library: getLibraryNameFromCwd(opts.cwd),
+      libraryTarget: 'umd',
     },
     mode: opts.mode,
     target: 'electron-renderer',
@@ -571,12 +579,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
   const opts = argsWithDefaults(args);
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { name, productName, peerDependencies = {} } = require(path.join(
-    opts.cwd,
-    'package.json'
-  ));
-
-  const library = camelCase(productName || name);
+  const { peerDependencies } = require(path.join(opts.cwd, 'package.json'));
 
   return {
     entry: entriesToNamedEntries(opts.entry),
@@ -585,7 +588,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
       path: opts.outputPath,
       filename: opts.outputFilename ?? '[name].js',
       assetModuleFilename: 'assets/[name][ext]',
-      library,
+      library: getLibraryNameFromCwd(opts.cwd),
       libraryTarget: 'umd',
       publicPath: './',
     },
