@@ -5,7 +5,10 @@
   "apiVersion": "3.0.0",
   "description": "Compass Aggregation Pipeline Builder",
   "main": "lib/index.js",
-  "source": "src/index.js",
+  "exports": {
+    "webpack": "./src/index.js",
+    "require": "./lib/index.js"
+  },
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",

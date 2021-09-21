@@ -5,6 +5,7 @@
   "license": "SSPL",
   "main": "lib/index.js",
   "exports": {
+    "webpack": "./src/index.ts",
     "require": "./lib/index.js",
     "import": "./lib/.esm-wrapper.mjs"
   },

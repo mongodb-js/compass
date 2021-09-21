@@ -16,6 +16,11 @@
   "keywords": [
     "mongodb-js"
   ],
+  "main": "index.js",
+  "exports": {
+    "webpack": "./index.js",
+    "require": "./index.js"
+  },
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha && npm run test:electron",

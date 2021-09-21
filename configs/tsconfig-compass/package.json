@@ -4,9 +4,8 @@
   "description": "Shared Compass Typescript configuration",
   "license": "SSPL",
   "files": [
-    "index.js",
-    "package.json",
-    "README.md"
+    "tsconfig.common.json",
+    "tsconfig.react.json"
   ],
   "peerDependencies": {
     "typescript": "^4.3.5"

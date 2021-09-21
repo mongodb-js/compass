@@ -6,6 +6,10 @@
     "email": "compass@mongodb.com"
   },
   "main": "index.js",
+  "exports": {
+    "webpack": "./index.js",
+    "require": "./index.js"
+  },
   "directories": {
     "test": "test"
   },

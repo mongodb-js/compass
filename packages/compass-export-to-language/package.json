@@ -5,6 +5,10 @@
   "apiVersion": "3.0.0",
   "description": "export to language modal",
   "main": "lib/index.js",
+  "exports": {
+    "webpack": "./src/index.js",
+    "require": "./lib/index.js"
+  },
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",

@@ -23,13 +23,13 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "source": "src/index.ts",
-  "bin": {
-    "webpack-compass": "./bin/webpack.js"
-  },
   "exports": {
+    "webpack": "./src/index.ts",
     "require": "./dist/index.js",
     "import": "./dist/.esm-wrapper.mjs"
+  },
+  "bin": {
+    "webpack-compass": "./bin/webpack.js"
   },
   "types": "./dist/index.d.ts",
   "scripts": {

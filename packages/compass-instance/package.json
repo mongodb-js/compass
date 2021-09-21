@@ -5,6 +5,10 @@
   "apiVersion": "3.0.0",
   "description": "compass instance plugin",
   "main": "lib/index.js",
+  "exports": {
+    "webpack": "./src/index.js",
+    "require": "./lib/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"

@@ -13,7 +13,12 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "license": "SSPL",
-  "browser": "browser.js",
+  "main": "index.js",
+  "exports": {
+    "webpack": "./index.js",
+    "browser": "./browser.js",
+    "require": "./index.js"
+  },
   "keywords": [
     "mongodb-js"
   ],

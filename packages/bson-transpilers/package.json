@@ -10,6 +10,10 @@
     "Irina Shestak <irina.shestak@mongodb.com>"
   ],
   "main": "index.js",
+  "exports": {
+    "webpack": "./index.js",
+    "require": "./index.js"
+  },
   "scripts": {
     "start": "node index.js",
     "precompile": "node download-antlr.js",

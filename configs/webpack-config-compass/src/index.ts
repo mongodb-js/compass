@@ -56,9 +56,6 @@ export function createElectronMainConfig(
       // To avoid resolving the `browser` field
       aliasFields: [],
       extensions: ['.jsx', '.tsx', '.ts', '...'],
-      // Prefer source to bundled code (so that compass plugins are processed
-      // from source)
-      mainFields: ['source', 'module', 'main'],
     },
     externals: toCommonJsExternal(sharedExternals),
   };
@@ -89,9 +86,7 @@ export function createElectronMainConfig(
       : {},
     process.stdout.isTTY
       ? {
-          plugins: [
-            new WebpackPluginMulticompilerProgress(),
-          ],
+          plugins: [new WebpackPluginMulticompilerProgress()],
         }
       : {}
   );
@@ -132,9 +127,6 @@ export function createElectronRendererConfig(
       // To avoid resolving the `browser` field
       aliasFields: [],
       extensions: ['.jsx', '.tsx', '.ts', '...'],
-      // Prefer source to bundled code (so that compass plugins are processed
-      // from source)
-      mainFields: ['source', 'module', 'main'],
     },
   };
 
@@ -214,7 +206,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
       filename: opts.outputFilename ?? '[name].js',
       assetModuleFilename: 'assets/[name][ext]',
       library: getLibraryNameFromCwd(opts.cwd),
-      libraryTarget: 'umd'
+      libraryTarget: 'umd',
     },
     mode: opts.mode,
     target: opts.target,
