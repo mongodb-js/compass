@@ -117,7 +117,7 @@ const render = (Component) => {
 render(ImportExportPlugin);
 
 // // Data service initialization and connection.
-import DataService from 'mongodb-data-service';
+import { DataService } from 'mongodb-data-service';
 const dataService = new DataService(connection);
 
 dataService.connect((error, ds) => {

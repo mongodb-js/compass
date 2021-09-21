@@ -5,7 +5,7 @@ import 'mongodb-compass/src/app/styles/index.less';
 
 const React = require('react');
 const ReactDOM = require('react-dom');
-const DataService = require('mongodb-data-service');
+const { DataService } = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
 const app = require('hadron-app');
 const AppRegistry = require('hadron-app-registry');

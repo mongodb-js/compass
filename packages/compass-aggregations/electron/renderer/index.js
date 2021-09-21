@@ -33,7 +33,7 @@ document.body.appendChild(root);
 
 // // Data service initialization and connection.
 import Connection from 'mongodb-connection-model';
-import DataService from 'mongodb-data-service';
+import { DataService } from 'mongodb-data-service';
 
 const localAppRegistry = new AppRegistry();
 const store = configureStore({

@@ -33,7 +33,7 @@ root.style = 'height: 100vh';
 document.body.appendChild(root);
 
 import Connection from 'mongodb-connection-model';
-import DataService from 'mongodb-data-service';
+import { DataService } from 'mongodb-data-service';
 
 const localAppRegistry = new AppRegistry();
 

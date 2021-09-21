@@ -61,7 +61,7 @@ render(CompassSchemaValidationPlugin);
 
 // Data service initialization and connection.
 import Connection from 'mongodb-connection-model';
-import DataService from 'mongodb-data-service';
+import { DataService } from 'mongodb-data-service';
 
 const connection = new Connection({
   hostname: '127.0.0.1',

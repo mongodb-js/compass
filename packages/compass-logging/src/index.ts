@@ -28,4 +28,4 @@ function createLogger(component: string): {
   };
 }
 
-export = createLogger;
+export default createLogger;
