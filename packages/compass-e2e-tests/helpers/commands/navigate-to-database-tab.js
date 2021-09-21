@@ -8,13 +8,12 @@ module.exports = function (app) {
 
     await client.navigateToInstanceTab('Databases');
 
-    await client.click(`[data-test-id="databases-table-link-${dbName}"]`);
+    await client.click(Selectors.databaseTableLink(dbName));
 
     // there is only the one tab for now, so this just just an assertion
     expect(tabName).to.equal('Collections');
 
-    const tabSelector = `${Selectors.DatabaseTab}[name="${tabName}"]`;
-    const tabSelectedSelector = `${tabSelector}[aria-selected="true"]`;
+    const tabSelectedSelector = Selectors.databaseTab(tabName, true);
 
     await client.waitForVisible(tabSelectedSelector);
   };

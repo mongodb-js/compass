@@ -1,24 +1,18 @@
 module.exports = {
-  ConnectSection: '[data-test-id="connect-section"]',
+  // Privacy Settings Modal
   PrivacySettingsModal: '[data-test-id="privacy-settings-modal"]',
   ClosePrivacySettingsButton: '[data-test-id="close-privacy-settings-button"]',
+
+  // Feature Tour Modal
   FeatureTourModal: '[data-test-id="feature-tour-modal"]',
   CloseFeatureTourModal: '[data-test-id="close-tour-button"]',
+
+  // Connection screen
+  ConnectSection: '[data-test-id="connect-section"]',
   ConnectButton: '[data-test-id="connect-button"]',
-  DatabasesTable: '[data-test-id="databases-table"]',
   ConnectionStringInput: 'input[name="connectionString"]',
   CancelConnectionButton: '[data-test-id="cancel-connection-button"]',
   ConnectionStatusModalContent: '[data-test-id="connecting-modal-content"]',
-  SidebarCollection: '[data-test-id="sidebar-collection"]',
-  SidebarFilterInput: '[data-test-id="sidebar-filter-input"]',
-  SidebarNewConnectionButton: '[data-test-id="new-connection-button"]',
-  ShellContent: '[data-test-id="shell-content"]',
-  ShellExpandButton: '[data-test-id="shell-expand-button"]',
-  ShellInput: '[data-test-id="shell-content"] .ace_content',
-  ShellOutput:
-    '[data-test-id="shell-content"] [class^=mongosh-shell-output-line] pre',
-  ShellLoader:
-    '[data-test-id="shell-content"] [class^=mongosh-shell-loader-shell-loader]',
   ShowConnectionFormButton: '[data-test-id="show-connection-form-button"]',
   ConnectionForm: '[data-test-id="connection-form"]',
   ConnectionFormHostnameTabButton: '[data-test-id="connection-form"] #Hostname',
@@ -57,16 +51,188 @@ module.exports = {
     '[data-test-id="connection-form"] [name="sshTunnelUsername"]',
   ConnectionFormInputSSHTunnelPassword:
     '[data-test-id="connection-form"] [name="sshTunnelPassword"]',
-  CollectionHeaderTitle: '[data-test-id="collection-header-title"]',
-  QueryBarApplyFilterButton: '[data-test-id="query-bar-apply-filter-button"]',
+
+  // Sidebar
+  SidebarCollection: '[data-test-id="sidebar-collection"]',
+  SidebarFilterInput: '[data-test-id="sidebar-filter-input"]',
+  SidebarNewConnectionButton: '[data-test-id="new-connection-button"]',
   TopologySingleHostAddress: '[data-test-id="topology-single-host-address"]',
   SingleClusterType: '[data-test-id="topology-single-cluster-type"]',
   ServerVersionText: '[data-test-id="server-version-text"]',
   SidebarTitle: '[data-test-id="sidebar-title"]',
+
+  sidebarCollection: (dbName, collectionName) => {
+    return `${exports.SidebarCollection}[title="${dbName}.${collectionName}"]`;
+  },
+
+  // Shell
+  ShellContent: '[data-test-id="shell-content"]',
+  ShellExpandButton: '[data-test-id="shell-expand-button"]',
+  ShellInput: '[data-test-id="shell-content"] .ace_content',
+  ShellOutput:
+    '[data-test-id="shell-content"] [class^=mongosh-shell-output-line] pre',
+  ShellLoader:
+    '[data-test-id="shell-content"] [class^=mongosh-shell-loader-shell-loader]',
+
+  // Query bar (Find, Schema, Explain Plan)
+  QueryBarApplyFilterButton: '[data-test-id="query-bar-apply-filter-button"]',
+
+  // Instance screen
   InstanceTabs: '[data-test-id="instance-tabs"]',
   InstanceTab: '.test-tab-nav-bar-tab',
+  DatabasesTable: '[data-test-id="databases-table"]',
+
+  instanceTab: (tabName, selected) => {
+    const selector = `${exports.InstanceTab}[name="${tabName}"]`;
+
+    if (selected === true) {
+      return `${selector}[aria-selected="true"]`;
+    }
+
+    if (selected === false) {
+      return `${selector}[aria-selected="false"]`;
+    }
+
+    return selector;
+  },
+  databaseTableLink: (dbName) => {
+    return `[data-test-id="databases-table-link-${dbName}"]`;
+  },
+
+  // Database screen
   DatabaseTabs: '[data-test-id="database-tabs"]',
   DatabaseTab: '.test-tab-nav-bar-tab',
-  CollectionTabs: '[data-test-id="collection-tabs"]',
+  CollectionsTableLinkNumbers:
+    '[data-test-id="collections-table-link-numbers"]',
+
+  databaseTab: (tabName, selected) => {
+    const selector = `${exports.DatabaseTab}[name="${tabName}"]`;
+
+    if (selected === true) {
+      return `${selector}[aria-selected="true"]`;
+    }
+
+    if (selected === false) {
+      return `${selector}[aria-selected="false"]`;
+    }
+
+    return selector;
+  },
+
+  // Collection screen
   CollectionTab: '.test-tab-nav-bar-tab',
+  CollectionHeaderTitle: '[data-test-id="collection-header-title"]',
+  DocumentCountValue: '[data-test-id="document-count-value"]',
+  TotalDocumentSizeValue: '[data-test-id="total-document-size-value"]',
+  AvgDocumentSizeValue: '[data-test-id="avg-document-size-value"]',
+  IndexCountValue: '[data-test-id="index-count-value"]',
+  TotalIndexSizeValue: '[data-test-id="total-index-size-value"]',
+  AvgIndexSizeValue: '[data-test-id="avg-index-size-value"]',
+
+  collectionTab: (tabName, selected) => {
+    const selector = `${exports.CollectionTab}[name="${tabName}"]`;
+
+    if (selected === true) {
+      return `${selector}[aria-selected="true"]`;
+    }
+
+    if (selected === false) {
+      return `${selector}[aria-selected="false"]`;
+    }
+
+    return selector;
+  },
+  collectionContent: (tabName) => {
+    const tn = tabName.toLowerCase().replace(/ /g, ' ');
+    return `[data-test-id="${tn}-content"]`;
+  },
+  collectionHeaderTitle: (dbName, collectionName) => {
+    return `${exports.CollectionHeaderTitle}[title="${dbName}.${collectionName}"]`;
+  },
+
+  // Documents tab
+  DocumentListActionBarMessage: '.document-list-action-bar-message',
+
+  // Aggregations tab
+  StageContainer: '[data-test-id="stage-container"]',
+
+  stageOperatorOptions: (stageIndex) => {
+    return `[data-stage-index="${stageIndex}"] [role="option"]`;
+  },
+  stageEditor: (stageIndex) => {
+    return `#aggregations-stage-editor-${stageIndex}`;
+  },
+  stagePreviewToolbarTooltip: (stageIndex) => {
+    return `[data-stage-index="${stageIndex}"] [data-test-id="stage-preview-toolbar-tooltip"]`;
+  },
+  stageCollapseButton: (stageIndex) => {
+    return `[data-stage-index="${stageIndex}"] button[title="Collapse"]`;
+  },
+  stageExpandButton: (stageIndex) => {
+    return `[data-stage-index="${stageIndex}"] button[title="Expand"]`;
+  },
+  stageSelectControlInput: (stageIndex, expanded) => {
+    const selector = `[data-stage-index="${stageIndex}"] .Select-control input`; // [role="combobox"]
+
+    if (expanded === true) {
+      return `${selector}[aria-expanded="true"]`;
+    }
+
+    if (expanded === false) {
+      return `${selector}[aria-expanded="false"]`;
+    }
+
+    return selector;
+  },
+  stageTextarea: (stageIndex) => {
+    return `[data-stage-index="${stageIndex}"] .ace_editor textarea`; // .ace_text-input
+  },
+
+  // Schema tab
+  AnalyzeSchemaButton: '[data-test-id="analyze-schema-button"]',
+  SchemaFieldList: '.schema-field-list',
+  AnalysisMessage: '.analysis-message',
+  SchemaField: '.schema-field',
+  SchemaFieldName: '.schema-field-name',
+  SchemaFieldTypeList: '.schema-field-type-list',
+
+  // Explain Plan tab
+  ExecuteExplainButton: '[data-test-id="execute-explain-button"]',
+  ExplainSummary: '[data-test-id="explain-summary"]',
+  ExplainStage: '[data-test-id="explain-stage"]',
+
+  // Indexes tab
+  IndexList: '[data-test-id="index-list"]',
+  IndexComponent: '[data-test-id="index-component"]',
+  NameColumnName: '[data-test-id="name-column-name"]',
+
+  // Validation tab
+  AddRuleButton: '[data-test-id="add-rule-button"]',
+  ValidationEditor: '[data-test-id="validation-editor"]',
+
+  // Find (Documents, Schema and Explain Plan tabs)
+  queryBarOptionInputFilter: (tabSelector) => {
+    return `${tabSelector} #query-bar-option-input-filter`;
+  },
+  queryBarOptionInputProject: (tabSelector) => {
+    return `${tabSelector} #query-bar-option-input-project`;
+  },
+  queryBarOptionInputSort: (tabSelector) => {
+    return `${tabSelector} #query-bar-option-input-sort`;
+  },
+  queryBarOptionInputCollation: (tabSelector) => {
+    return `${tabSelector} #query-bar-option-input-collation`;
+  },
+  queryBarOptionInputMaxTimeMS: (tabSelector) => {
+    return `${tabSelector} [id="querybar-option-input-Max Time MS"]`;
+  },
+  queryBarOptionInputSkip: (tabSelector) => {
+    return `${tabSelector} #querybar-option-input-skip`;
+  },
+  queryBarOptionInputLimit: (tabSelector) => {
+    return `${tabSelector} #querybar-option-input-limit`;
+  },
+
+  // Tabs at the top
+  CloseCollectionTab: '[data-test-id="close-collection-tab"]',
 };

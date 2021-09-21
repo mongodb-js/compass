@@ -4,8 +4,8 @@ module.exports = function (app) {
   return async function navigateToInstanceTab(tabName) {
     const { client } = app;
 
-    const tabSelector = `${Selectors.InstanceTab}[name="${tabName}"]`;
-    const tabSelectedSelector = `${tabSelector}[aria-selected="true"]`;
+    const tabSelector = Selectors.instanceTab(tabName);
+    const tabSelectedSelector = Selectors.instanceTab(tabName, true);
 
     await client.click(Selectors.SidebarTitle);
     await client.waitForVisible(Selectors.InstanceTabs);

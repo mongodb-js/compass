@@ -1,9 +1,11 @@
+const Selectors = require('../selectors');
+
 module.exports = function (app) {
   return async function selectStageOperator(index, stageOperator) {
     const { client } = app;
 
-    const stageSelector = `[data-stage-index="${index}"]`;
-    const inputSelector = `${stageSelector} .Select-input [role="combobox"]`;
+    const inputSelector = Selectors.stageSelectInputControl(index);
+    const textareaSelector = Selectors.stageTextarea(index);
 
     // it should become focused straight after focusStageSelector()
     await client.waitUntil(async () => {
@@ -15,7 +17,6 @@ module.exports = function (app) {
     await client.keys(['Enter']);
 
     // the "select" should now blur and the ace textarea become focused
-    const textareaSelector = `${stageSelector} .ace_text-input`;
     await client.waitUntil(async () => {
       const isFocused = await client.hasFocus(textareaSelector);
       return isFocused === true;

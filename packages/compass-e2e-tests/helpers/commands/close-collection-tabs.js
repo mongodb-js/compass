@@ -1,8 +1,10 @@
+const Selectors = require('../selectors');
+
 module.exports = function (app) {
   return async function closeCollectionTabs() {
     const { client } = app;
 
-    const closeSelector = '[data-test-id="close-collection-tab"]';
+    const closeSelector = Selectors.CloseCollectionTab;
 
     const countTabs = async () => {
       return (await client.$$(closeSelector)).length;

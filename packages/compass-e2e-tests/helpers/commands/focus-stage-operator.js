@@ -1,14 +1,12 @@
+const Selectors = require('../selectors');
+
 module.exports = function (app) {
   return async function focusStageOperator(index) {
     const { client } = app;
 
-    const stageSelector = `[data-stage-index="${index}"]`;
-
-    await client.clickVisible(`${stageSelector} button[title="Collapse"]`);
-    await client.clickVisible(`${stageSelector} button[title="Expand"]`);
+    await client.clickVisible(Selectors.stageCollapseButton(index));
+    await client.clickVisible(Selectors.stageExpandButton(index));
     await client.keys(['Tab']);
-    await client.waitForVisible(
-      `${stageSelector} .Select-control input[aria-expanded="true"]`
-    );
+    await client.waitForVisible(Selectors.stageSelectControlInput(index, true));
   };
 };

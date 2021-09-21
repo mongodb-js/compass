@@ -60,12 +60,13 @@ describe('Smoke tests', function () {
     });
 
     it('contains a list of databases', async function () {
-      const dbSelectors = ['admin', 'config', 'local', 'test'].map((dbName) => {
-        return `[data-test-id="databases-table-link-${dbName}"]`;
-      });
+      const dbSelectors = ['admin', 'config', 'local', 'test'].map(
+        Selectors.databaseTableLink
+      );
 
       for (const dbSelector of dbSelectors) {
         expect(await client.isExisting(dbSelector)).to.be.true;
+        // TODO: Storage Size, Collections, Indexes, Drop button
       }
     });
 
@@ -79,8 +80,8 @@ describe('Smoke tests', function () {
     });
 
     it('contains a list of collections', async function () {
-      const collectionSelector = `[data-test-id="collections-table-link-numbers"]`;
-      expect(await client.isExisting(collectionSelector)).to.be.true;
+      expect(await client.isExisting(Selectors.CollectionsTableLinkNumbers)).to
+        .be.true;
 
       // TODO: Collections are listed with their stats and the button to delete them
     });
@@ -102,9 +103,7 @@ describe('Smoke tests', function () {
         'Explain Plan',
         'Indexes',
         'Validation',
-      ].map((tabName) => {
-        return `${Selectors.InstanceTab}[name="${tabName}"]`;
-      });
+      ].map(Selectors.collectionTab);
 
       for (const tabSelector of tabSelectors) {
         expect(await client.isExisting(tabSelector), tabSelector).to.be.true;
@@ -112,25 +111,21 @@ describe('Smoke tests', function () {
     });
 
     it('contains the collection stats', async function () {
-      expect(
-        await client.getText('[data-test-id="document-count-value"]')
-      ).to.equal('1k');
-      expect(
-        await client.getText('[data-test-id="total-document-size-value"]')
-      ).to.equal('29.0KB');
-      expect(
-        await client.getText('[data-test-id="avg-document-size-value"]')
-      ).to.equal('29B');
+      expect(await client.getText(Selectors.DocumentCountValue)).to.equal('1k');
+      expect(await client.getText(Selectors.TotalDocumentSizeValue)).to.equal(
+        '29.0KB'
+      );
+      expect(await client.getText(Selectors.AvgDocumentSizeValue)).to.equal(
+        '29B'
+      );
 
-      expect(
-        await client.getText('[data-test-id="index-count-value"]')
-      ).to.equal('1');
-      expect(
-        await client.getText('[data-test-id="total-index-size-value"]')
-      ).to.equal('4.1KB');
-      expect(
-        await client.getText('[data-test-id="avg-index-size-value"]')
-      ).to.equal('4.1KB');
+      expect(await client.getText(Selectors.IndexCountValue)).to.equal('1');
+      expect(await client.getText(Selectors.TotalIndexSizeValue)).to.equal(
+        '4.1KB'
+      );
+      expect(await client.getText(Selectors.AvgIndexSizeValue)).to.equal(
+        '4.1KB'
+      );
     });
   });
 
@@ -144,7 +139,7 @@ describe('Smoke tests', function () {
         filter: '{ i: 5 }',
       });
 
-      const text = await client.getText('.document-list-action-bar-message');
+      const text = await client.getText(Selectors.DocumentListActionBarMessage);
       expect(text).to.equal('Displaying documents 1 - 1 of 1');
     });
 
@@ -157,7 +152,7 @@ describe('Smoke tests', function () {
         limit: '50',
       });
 
-      const text = await client.getText('.document-list-action-bar-message');
+      const text = await client.getText(Selectors.DocumentListActionBarMessage);
       expect(text).to.equal('Displaying documents 1 - 20 of 50');
     });
 
@@ -185,16 +180,12 @@ describe('Smoke tests', function () {
 
     it('supports the right stages for the environment', async function () {
       // sanity check to make sure there's only one
-      const stageContainers = await client.$$(
-        '[data-test-id="stage-container"]'
-      );
+      const stageContainers = await client.$$(Selectors.StageContainer);
       expect(stageContainers).to.have.lengthOf(1);
 
       await client.focusStageOperator(0);
 
-      const options = await client.getText(
-        '[data-stage-index="0"] [role="option"]'
-      );
+      const options = await client.getText(Selectors.stageOperatorOptions(0));
       expect(options).to.deep.equal([
         '$addFields',
         '$bucket',
@@ -232,11 +223,11 @@ describe('Smoke tests', function () {
     it('supports creating an aggregation', async function () {
       await client.focusStageOperator(0);
       await client.selectStageOperator(0, '$match');
-      await client.setAceValue('#aggregations-stage-editor-0', '{ i: 0 }');
+      await client.setAceValue(Selectors.stageEditor(0), '{ i: 0 }');
 
       await client.waitUntil(async function () {
         const text = await client.getText(
-          '[data-stage-index="0"] [data-test-id="stage-preview-toolbar-tooltip"]'
+          Selectors.stagePreviewToolbarTooltip(0)
         );
         return text === '(Sample of 1 document)';
       });
@@ -279,22 +270,21 @@ describe('Smoke tests', function () {
     });
 
     it('analyzes a schema', async function () {
-      const buttonSelector = '[data-test-id="analyze-schema-button"]';
-      await client.clickVisible(buttonSelector);
+      await client.clickVisible(Selectors.AnalyzeSchemaButton);
 
-      await client.waitForVisible('.schema-field-list');
-      const message = await client.getText('.analysis-message');
+      await client.waitForVisible(Selectors.SchemaFieldList);
+      const message = await client.getText(Selectors.AnalysisMessage);
       expect(message).to.equal(
         'This report is based on a sample of 1000 documents.'
       );
 
-      const fields = await client.$$('.schema-field');
+      const fields = await client.$$(Selectors.SchemaField);
       expect(fields).to.have.lengthOf(2);
 
-      const fieldNames = await client.getText('.schema-field-name');
+      const fieldNames = await client.getText(Selectors.SchemaFieldName);
       expect(fieldNames).to.deep.equal(['_id', 'i']);
 
-      const fieldTypes = await client.getText('.schema-field-type-list');
+      const fieldTypes = await client.getText(Selectors.SchemaFieldTypeList);
       expect(fieldTypes).to.deep.equal(['objectid', 'int32']);
     });
 
@@ -311,11 +301,10 @@ describe('Smoke tests', function () {
     });
 
     it('supports queries not covered by an index', async function () {
-      const buttonSelector = '[data-test-id="execute-explain-button"]';
-      await client.clickVisible(buttonSelector);
+      await client.clickVisible(Selectors.ExecuteExplainButton);
 
-      await client.waitForVisible('[data-test-id="explain-summary"]');
-      const stages = await client.$$('[data-test-id="explain-stage"]');
+      await client.waitForVisible(Selectors.ExplainSummary);
+      const stages = await client.$$(Selectors.ExplainStage);
       expect(stages).to.have.lengthOf(1);
     });
 
@@ -326,19 +315,18 @@ describe('Smoke tests', function () {
   });
 
   describe('Indexes tab', function () {
+    // eslint-disable-next-line mocha/no-hooks-for-single-case
     before(async function () {
       await client.navigateToCollectionTab('test', 'numbers', 'Indexes');
     });
 
     it('lists indexes', async function () {
-      await client.waitForVisible('[data-test-id="index-list"]');
+      await client.waitForVisible(Selectors.IndexList);
 
-      const indexes = await client.$$('[data-test-id="index-component"]');
+      const indexes = await client.$$(Selectors.IndexComponent);
       expect(indexes).to.have.lengthOf(1);
 
-      expect(
-        await client.getText('[data-test-id="name-column-name"]')
-      ).to.equal('_id_');
+      expect(await client.getText(Selectors.NameColumnName)).to.equal('_id_');
     });
   });
 
@@ -348,10 +336,8 @@ describe('Smoke tests', function () {
     });
 
     it('allows rules to be added', async function () {
-      const buttonSelector = '[data-test-id="add-rule-button"]';
-      await client.clickVisible(buttonSelector);
-
-      await client.waitForVisible('[data-test-id="validation-editor"]');
+      await client.clickVisible(Selectors.AddRuleButton);
+      await client.waitForVisible(Selectors.ValidationEditor);
 
       // TODO: how do you write validation rules again?
     });
