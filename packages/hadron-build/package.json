@@ -22,7 +22,7 @@
     "@mongodb-js/mongodb-notary-service-client": "^1.4.0",
     "@npmcli/arborist": "^2.7.1",
     "asar": "^3.0.3",
-    "async": "^3.1.1",
+    "async": "^3.2.0",
     "aws-sdk": "^2.611.0",
     "bluebird": "^3.7.2",
     "chalk": "^4.1.0",
