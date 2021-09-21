@@ -233,6 +233,7 @@
     "hadron-react-buttons": "^5.4.0",
     "hadron-react-components": "^5.6.0",
     "highlight.js": "^8.9.1",
+    "interruptor": "^1.0.1",
     "jquery": "^3.5.0",
     "kerberos": "^1.1.6",
     "keytar": "^5.1.0",
