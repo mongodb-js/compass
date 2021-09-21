@@ -129,12 +129,20 @@ async function startCompass(
     },
   };
 
+  const shouldSkipLogs = ['true', '1'].includes(process.env.SKIP_LOGS);
+  const shouldShowLogsInConsole =
+    shouldSkipLogs === false &&
+    ['true', '1'].includes(process.env.SHOW_LOGS_IN_CONSOLE);
   const shouldStoreAppLogs =
-    ['true', '1'].includes(process.env.SKIP_LOGS) === false;
+    shouldSkipLogs === false && shouldShowLogsInConsole === false;
 
   const nowFormatted = formattedDate();
 
-  if (shouldStoreAppLogs) {
+  if (shouldShowLogsInConsole) {
+    appOptions.webdriverOptions = {
+      logLevel: 'debug',
+    };
+  } else if (shouldStoreAppLogs) {
     // Chromedriver expects a path to the log file
     const chromeDriverLogPath = path.join(
       LOG_PATH,
