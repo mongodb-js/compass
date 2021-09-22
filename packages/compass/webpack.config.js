@@ -9,7 +9,7 @@ module.exports = (_env, args) => {
   return [
     createElectronMainConfig({
       ...args,
-      entry: path.resolve(__dirname, 'src', 'main', 'index.js'),
+      entry: path.resolve(__dirname, 'src', 'main.js'),
       outputPath: path.resolve(__dirname, 'build'),
       outputFilename: 'main.js'
     }),
