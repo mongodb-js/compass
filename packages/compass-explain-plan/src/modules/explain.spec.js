@@ -1,3 +1,5 @@
+import { omit } from 'lodash';
+
 import reducer, {
   isAggregationExplainOutput,
   switchToTreeView,
@@ -115,7 +117,12 @@ describe('explain module', () => {
   describe('#reducer', () => {
     context('when the action is not presented in the explain module', () => {
       it('returns the default state', () => {
-        expect(reducer(undefined, { type: 'test' })).to.deep.equal({
+        const result = reducer(undefined, { type: 'test' });
+
+        // resultId is a random number
+        expect(result.resultId).to.be.a('number');
+
+        expect(omit(result, 'resultId')).to.deep.equal({
           explainState: 'initial',
           viewType: 'tree',
           error: null,
@@ -169,7 +176,7 @@ describe('explain module', () => {
       it('returns the new state', () => {
         const explain = reducer(undefined, explainPlanFetched(explainExample));
 
-        expect(explain).to.deep.equal(explainExample);
+        expect(omit(explain, 'resultId')).to.deep.equal(explainExample);
       });
     });
   });

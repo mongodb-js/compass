@@ -4,7 +4,7 @@ module.exports = function (app) {
   return async function selectStageOperator(index, stageOperator) {
     const { client } = app;
 
-    const inputSelector = Selectors.stageSelectInputControl(index);
+    const inputSelector = Selectors.stageSelectControlInput(index);
     const textareaSelector = Selectors.stageTextarea(index);
 
     // it should become focused straight after focusStageSelector()

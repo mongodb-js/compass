@@ -142,6 +142,7 @@ class DocumentList extends React.Component {
           store={this.queryBarStore}
           actions={this.queryBarActions}
           buttonLabel="Find"
+          resultId={this.props.resultId}
           onApply={this.onApplyClicked.bind(this)}
           onReset={this.onResetClicked.bind(this)}
         />
@@ -250,7 +251,8 @@ DocumentList.propTypes = {
   tz: PropTypes.string,
   updateComment: PropTypes.func.isRequired,
   status: PropTypes.string,
-  outdated: PropTypes.bool
+  outdated: PropTypes.bool,
+  resultId: PropTypes.number
 };
 
 DocumentList.defaultProps = {

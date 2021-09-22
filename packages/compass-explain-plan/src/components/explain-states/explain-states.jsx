@@ -58,7 +58,8 @@ class ExplainStates extends Component {
       viewType: PropTypes.string.isRequired,
       rawExplainObject: PropTypes.object.isRequired,
       explainState: PropTypes.string.isRequired,
-      error: PropTypes.object
+      error: PropTypes.object,
+      resultId: PropTypes.number.isRequired
     }),
     fetchExplainPlan: PropTypes.func.isRequired,
     changeExplainPlanState: PropTypes.func.isRequired,
@@ -200,6 +201,7 @@ class ExplainStates extends Component {
         store={this.queryBarStore}
         actions={this.queryBarActions}
         buttonLabel="Explain"
+        resultId={this.props.explain.resultId}
         onApply={this.onExecuteExplainClicked.bind(this)}
         onReset={this.onExecuteExplainClicked.bind(this)}
       />

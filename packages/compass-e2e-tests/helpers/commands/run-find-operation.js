@@ -1,140 +1,121 @@
 const Selectors = require('../selectors');
 
-async function setFilter(client, tabSelector, value) {
+async function setFilter(client, tabName, value) {
   await client.setAceValue(
-    Selectors.queryBarOptionInputFilter(tabSelector),
+    Selectors.queryBarOptionInputFilter(tabName),
     value
   );
 }
 
-async function setProject(client, tabSelector, value) {
+async function setProject(client, tabName, value) {
   await client.setAceValue(
-    Selectors.queryBarOptionInputProject(tabSelector),
+    Selectors.queryBarOptionInputProject(tabName),
     value
   );
 }
 
-async function setSort(client, tabSelector, value) {
+async function setSort(client, tabName, value) {
   await client.setAceValue(
-    Selectors.queryBarOptionInputSort(tabSelector),
+    Selectors.queryBarOptionInputSort(tabName),
     value
   );
 }
 
-async function setCollation(client, tabSelector, value) {
+async function setCollation(client, tabName, value) {
   await client.setAceValue(
-    Selectors.queryBarOptionInputCollation(tabSelector),
+    Selectors.queryBarOptionInputCollation(tabName),
     value
   );
 }
 
-async function setMaxTimeMS(client, tabSelector, value) {
-  const selector = Selectors.queryBarOptionInputMaxTimeMS(tabSelector);
+async function setMaxTimeMS(client, tabName, value) {
+  const selector = Selectors.queryBarOptionInputMaxTimeMS(tabName);
   await client.clickVisible(selector);
   await client.setValue(selector, value);
 }
 
-async function setSkip(client, tabSelector, value) {
-  const selector = Selectors.queryBarOptionInputSkip(tabSelector);
+async function setSkip(client, tabName, value) {
+  const selector = Selectors.queryBarOptionInputSkip(tabName);
   await client.clickVisible(selector);
   await client.setValue(selector, value);
 }
 
-async function setLimit(client, tabSelector, value) {
-  const selector = Selectors.queryBarOptionInputLimit(tabSelector);
+async function setLimit(client, tabName, value) {
+  const selector = Selectors.queryBarOptionInputLimit(tabName);
   await client.clickVisible(selector);
   await client.setValue(selector, value);
 }
 
-async function runFind(client, tabSelector) {
-  const selector = `${tabSelector} ${Selectors.QueryBarApplyFilterButton}`;
-  await client.clickVisible(selector);
-  // TODO: maybe there are some generic checks we can perform here to make sure the find is done?
+async function runFind(client, tabName) {
+  await client.clickVisible(Selectors.queryBarApplyFilterButton(tabName));
 }
 
-async function isOptionsExpanded(client, tabSelector) {
+async function isOptionsExpanded(client, tabName) {
   // it doesn't look like there's some attribute on the options button or container that we can easily check, so just look for a field that exists if it is expanded
-  return await client.isVisible(
-    `${tabSelector} #query-bar-option-input-project`
-  );
+  return await client.isVisible(Selectors.queryBarOptionInputProject(tabName));
 }
 
-async function collapseOptions(client, tabSelector) {
-  if (!(await isOptionsExpanded(client))) {
+async function waitUntilCollapsed(client, tabName) {
+  await client.waitForVisible(Selectors.queryBarOptionInputProject(tabName), 1000, true);
+}
+
+async function collapseOptions(client, tabName) {
+  if (!(await isOptionsExpanded(client, tabName))) {
     return;
   }
 
-  await client.clickVisible(
-    `${tabSelector} [data-test-id="query-bar-options-toggle"]`
-  );
-  await client.waitUntil(async () => {
-    return !(await isOptionsExpanded(client));
-  });
+  await client.clickVisible(Selectors.queryBarOptionsToggle(tabName));
+  await waitUntilCollapsed(client, tabName);
 }
 
-async function expandOptions(client, tabSelector) {
-  if (await isOptionsExpanded(client)) {
+async function waitUntilExpanded(client, tabName) {
+  await client.waitForVisible(Selectors.queryBarOptionInputProject(tabName));
+}
+
+async function expandOptions(client, tabName) {
+  if (await isOptionsExpanded(client, tabName)) {
     return;
   }
 
-  await client.click(
-    `${tabSelector} [data-test-id="query-bar-options-toggle"]`
-  );
-  await client.waitUntil(async () => {
-    return await isOptionsExpanded(client);
-  });
+  await client.clickVisible(Selectors.queryBarOptionsToggle(tabName));
+  await waitUntilExpanded(client, tabName);
 }
 
 module.exports = function (app) {
-  return async function runFindOperation({
-    filter,
+  return async function runFindOperation(tabName, filter, {
     project = '',
     sort = '',
     maxTimeMS = '',
     collation = '',
     skip = '',
     limit = '',
-  }) {
+  } = {}) {
     const { client } = app;
 
-    // TODO: support Schema and Explain Plan tabs
-    const tabSelector = '[data-test-id="documents-content"]';
+    const queryBarSelector = Selectors.queryBar(tabName);
 
-    // start by deliberately finding nothing so we can easily check if we found something later
-    await collapseOptions(client, tabSelector);
-    await setFilter(client, tabSelector, '{ thisDoesNotExist: 1 }');
-    await runFind(client, tabSelector);
+    // look up the current resultId
+    const initialResultId = await client.getAttribute(queryBarSelector, 'data-result-id');
 
-    // TODO: this only works on the Documents tab
-    await client.waitUntil(async () => {
-      const text = await client.getText(
-        `${tabSelector} .document-list-action-bar-message`
-      );
-      return text === 'Displaying documents 0 - 0 of N/A';
-    });
-
-    // now we can easily see if we get away from the zero state
-    await setFilter(client, tabSelector, filter);
+    // now we can easily see if we get a new resultId
+    await setFilter(client, tabName, filter);
     if (project || sort || maxTimeMS || collation || skip || limit) {
-      await expandOptions(client, tabSelector);
+      await expandOptions(client, tabName);
 
-      await setProject(client, tabSelector, project);
-      await setSort(client, tabSelector, sort);
-      await setMaxTimeMS(client, tabSelector, maxTimeMS);
-      await setCollation(client, tabSelector, collation);
-      await setSkip(client, tabSelector, skip);
-      await setLimit(client, tabSelector, limit);
+      await setProject(client, tabName, project);
+      await setSort(client, tabName, sort);
+      await setMaxTimeMS(client, tabName, maxTimeMS);
+      await setCollation(client, tabName, collation);
+      await setSkip(client, tabName, skip);
+      await setLimit(client, tabName, limit);
     } else {
-      await collapseOptions(client, tabSelector);
+      await collapseOptions(client, tabName);
     }
-    await runFind(client, tabSelector);
+    await runFind(client, tabName);
 
-    // TODO: this only works on the Documents tab
     await client.waitUntil(async () => {
-      const text = await client.getText(
-        `${tabSelector} .document-list-action-bar-message`
-      );
-      return text !== 'Displaying documents 0 - 0 of N/A';
+      const resultId = await client.getAttribute(queryBarSelector, 'data-result-id');
+      return resultId !== initialResultId;
     });
   };
 };

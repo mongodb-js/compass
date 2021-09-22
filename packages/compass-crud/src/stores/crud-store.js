@@ -186,7 +186,8 @@ const configureStore = (options = {}) => {
         isTimeSeries: false,
         status: 'fetching',
         outdated: false,
-        shardKeys: null
+        shardKeys: null,
+        resultId: resultId()
       };
     },
 
@@ -980,14 +981,15 @@ const configureStore = (options = {}) => {
           start: docs.length > 0 ? 1 : 0,
           end: docs.length,
           table: this.getInitialTableState(),
-          shardKeys
+          shardKeys,
+          resultId: resultId()
         });
 
         this.localAppRegistry.emit('documents-refreshed', this.state.view, docs);
         this.globalAppRegistry.emit('documents-refreshed', this.state.view, docs);
       } catch (error) {
         debug('Failed to fetch data for refresh documents', error);
-        this.setState({ error });
+        this.setState({ error, resultId: resultId() });
       } finally {
         this.globalAppRegistry.emit('compass:status:done');
         this.isRefreshingDocuments = false;
@@ -1116,3 +1118,6 @@ async function fetchDocuments(dataService, ns, filter, findOptions) {
   return find(ns, filter, findOptions);
 }
 
+function resultId() {
+  return Math.floor(Math.random() * Math.pow(2, 64));
+}

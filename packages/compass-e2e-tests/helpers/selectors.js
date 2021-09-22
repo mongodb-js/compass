@@ -1,4 +1,4 @@
-module.exports = {
+const Selectors = {
   // Privacy Settings Modal
   PrivacySettingsModal: '[data-test-id="privacy-settings-modal"]',
   ClosePrivacySettingsButton: '[data-test-id="close-privacy-settings-button"]',
@@ -62,7 +62,7 @@ module.exports = {
   SidebarTitle: '[data-test-id="sidebar-title"]',
 
   sidebarCollection: (dbName, collectionName) => {
-    return `${exports.SidebarCollection}[title="${dbName}.${collectionName}"]`;
+    return `${Selectors.SidebarCollection}[title="${dbName}.${collectionName}"]`;
   },
 
   // Shell
@@ -83,7 +83,7 @@ module.exports = {
   DatabasesTable: '[data-test-id="databases-table"]',
 
   instanceTab: (tabName, selected) => {
-    const selector = `${exports.InstanceTab}[name="${tabName}"]`;
+    const selector = `${Selectors.InstanceTab}[name="${tabName}"]`;
 
     if (selected === true) {
       return `${selector}[aria-selected="true"]`;
@@ -106,7 +106,7 @@ module.exports = {
     '[data-test-id="collections-table-link-numbers"]',
 
   databaseTab: (tabName, selected) => {
-    const selector = `${exports.DatabaseTab}[name="${tabName}"]`;
+    const selector = `${Selectors.DatabaseTab}[name="${tabName}"]`;
 
     if (selected === true) {
       return `${selector}[aria-selected="true"]`;
@@ -130,7 +130,7 @@ module.exports = {
   AvgIndexSizeValue: '[data-test-id="avg-index-size-value"]',
 
   collectionTab: (tabName, selected) => {
-    const selector = `${exports.CollectionTab}[name="${tabName}"]`;
+    const selector = `${Selectors.CollectionTab}[name="${tabName}"]`;
 
     if (selected === true) {
       return `${selector}[aria-selected="true"]`;
@@ -147,7 +147,7 @@ module.exports = {
     return `[data-test-id="${tn}-content"]`;
   },
   collectionHeaderTitle: (dbName, collectionName) => {
-    return `${exports.CollectionHeaderTitle}[title="${dbName}.${collectionName}"]`;
+    return `${Selectors.CollectionHeaderTitle}[title="${dbName}.${collectionName}"]`;
   },
 
   // Documents tab
@@ -211,28 +211,53 @@ module.exports = {
   ValidationEditor: '[data-test-id="validation-editor"]',
 
   // Find (Documents, Schema and Explain Plan tabs)
-  queryBarOptionInputFilter: (tabSelector) => {
+  queryBar: (tabName) => {
+    const tabSelector = Selectors.collectionContent(tabName);
+    return `${tabSelector} [data-test-id="query-bar"]`;
+  },
+  queryBarOptionInputFilter: (tabName) => {
+    const tabSelector = Selectors.collectionContent(tabName);
     return `${tabSelector} #query-bar-option-input-filter`;
   },
-  queryBarOptionInputProject: (tabSelector) => {
+  queryBarOptionInputProject: (tabName) => {
+    const tabSelector = Selectors.collectionContent(tabName);
     return `${tabSelector} #query-bar-option-input-project`;
   },
-  queryBarOptionInputSort: (tabSelector) => {
+  queryBarOptionInputSort: (tabName) => {
+    const tabSelector = Selectors.collectionContent(tabName);
     return `${tabSelector} #query-bar-option-input-sort`;
   },
-  queryBarOptionInputCollation: (tabSelector) => {
+  queryBarOptionInputCollation: (tabName) => {
+    const tabSelector = Selectors.collectionContent(tabName);
     return `${tabSelector} #query-bar-option-input-collation`;
   },
-  queryBarOptionInputMaxTimeMS: (tabSelector) => {
+  queryBarOptionInputMaxTimeMS: (tabName) => {
+    const tabSelector = Selectors.collectionContent(tabName);
     return `${tabSelector} [id="querybar-option-input-Max Time MS"]`;
   },
-  queryBarOptionInputSkip: (tabSelector) => {
+  queryBarOptionInputSkip: (tabName) => {
+    const tabSelector = Selectors.collectionContent(tabName);
     return `${tabSelector} #querybar-option-input-skip`;
   },
-  queryBarOptionInputLimit: (tabSelector) => {
+  queryBarOptionInputLimit: (tabName) => {
+    const tabSelector = Selectors.collectionContent(tabName);
     return `${tabSelector} #querybar-option-input-limit`;
+  },
+  queryBarApplyFilterButton: (tabName) => {
+    const tabSelector = Selectors.collectionContent(tabName);
+    return `${tabSelector} ${Selectors.QueryBarApplyFilterButton}`;
+  },
+  queryBarOptionInputProject: (tabName) => {
+    const tabSelector = Selectors.collectionContent(tabName);
+    return `${tabSelector} #query-bar-option-input-project`;
+  },
+  queryBarOptionsToggle: (tabName) => {
+    const tabSelector = Selectors.collectionContent(tabName);
+    return `${tabSelector} [data-test-id="query-bar-options-toggle"]`;
   },
 
   // Tabs at the top
   CloseCollectionTab: '[data-test-id="close-collection-tab"]',
 };
+
+module.exports = Selectors;

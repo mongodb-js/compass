@@ -56,7 +56,8 @@ class Schema extends Component {
     errorMessage: PropTypes.string,
     maxTimeMS: PropTypes.number,
     schema: PropTypes.any,
-    count: PropTypes.number
+    count: PropTypes.number,
+    resultId: PropTypes.number
   }
 
   constructor(props) {
@@ -215,6 +216,7 @@ class Schema extends Component {
             store={this.queryBarStore}
             actions={this.queryBarActions}
             buttonLabel="Analyze"
+            resultId={this.props.resultId}
             onApply={this.onApplyClicked.bind(this)}
             onReset={this.onResetClicked.bind(this)}
           />

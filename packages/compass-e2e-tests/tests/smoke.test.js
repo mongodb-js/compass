@@ -6,7 +6,7 @@ const Selectors = require('../helpers/selectors');
 /**
  * This test suite is based on compass smoke test matrix
  */
-describe('Smoke tests', function () {
+describe.only('Smoke tests', function () {
   this.timeout(1000 * 60 * 1);
 
   let keychain;
@@ -135,17 +135,14 @@ describe('Smoke tests', function () {
     });
 
     it('supports simple find operations', async function () {
-      await client.runFindOperation({
-        filter: '{ i: 5 }',
-      });
+      await client.runFindOperation('Documents', '{ i: 5 }');
 
       const text = await client.getText(Selectors.DocumentListActionBarMessage);
       expect(text).to.equal('Displaying documents 1 - 1 of 1');
     });
 
     it('supports advanced find operations', async function () {
-      await client.runFindOperation({
-        filter: '{ i: { $gt: 5 } }',
+      await client.runFindOperation('Documents', '{ i: { $gt: 5 } }', {
         project: '{ _id: 0 }',
         sort: '{ i: -1 }',
         skip: '5',

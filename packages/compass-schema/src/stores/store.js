@@ -81,6 +81,11 @@ export const setLocalAppRegistry = (store, appRegistry) => {
   store.localAppRegistry = appRegistry;
 };
 
+
+function resultId() {
+  return Math.floor(Math.random() * Math.pow(2, 64));
+}
+
 /**
  * Configure a store with the provided options.
  *
@@ -139,7 +144,8 @@ const configureStore = (options = {}) => {
         errorMessage: '',
         schema: null,
         outdated: false,
-        isActiveTab: false
+        isActiveTab: false,
+        resultId: resultId()
       };
     },
 
@@ -257,13 +263,14 @@ const configureStore = (options = {}) => {
           analysisState: schema ?
             ANALYSIS_STATE_COMPLETE :
             ANALYSIS_STATE_INITIAL,
-          schema: schema
+          schema: schema,
+          resultId: resultId()
         });
 
         this.onSchemaSampled();
       } catch (err) {
         debug('analysis error catched', err);
-        this.setState(getErrorState(err));
+        this.setState({ ...getErrorState(err), resultId: resultId() });
       } finally {
         this.schemaAnalysis = null;
       }

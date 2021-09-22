@@ -56,7 +56,8 @@ export const INITIAL_STATE = {
   rawExplainObject: {},
   totalDocsExamined: 0,
   totalKeysExamined: 0,
-  usedIndex: null
+  usedIndex: null,
+  resultId: resultId()
 };
 
 /**
@@ -266,6 +267,7 @@ export const fetchExplainPlan = (query) => {
     if (dataService) {
       dataService.explain(namespace, filter, options, (error, data) => {
         if (error) {
+          explain.resultId = resultId();
           explain.error = error;
 
           return dispatch(explainPlanFetched(explain));
@@ -280,6 +282,7 @@ export const fetchExplainPlan = (query) => {
           // the json view of the explain plan.
           explain.errorParsing = true;
           explain.rawExplainObject = { originalData: data };
+          explain.resultId = resultId();
 
           return dispatch(explainPlanFetched(explain));
         }
@@ -289,11 +292,13 @@ export const fetchExplainPlan = (query) => {
         } catch (e) {
           explain.errorParsing = true;
           explain.rawExplainObject = { originalData: data };
+          explain.resultId = resultId();
 
           return dispatch(explainPlanFetched(explain));
         }
         explain = updateWithIndexesInfo(explain, indexes);
         explain.rawExplainObject.originalData = data;
+        explain.resultId = resultId();
 
         dispatch(explainPlanFetched(explain));
         dispatch(treeStagesChanged(explain));
@@ -337,3 +342,7 @@ export const changeExplainPlanState = (explainState) => {
     return dispatch(explainStateChanged(explainState));
   };
 };
+
+function resultId() {
+  return Math.floor(Math.random() * Math.pow(2, 64));
+}
