@@ -3,10 +3,12 @@ const { expect } = require('chai');
 const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');
 
+const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
+
 /**
  * This test suite is based on compass smoke test matrix
  */
-describe.only('Smoke tests', function () {
+describe('Smoke tests', function () {
   this.timeout(1000 * 60 * 1);
 
   let keychain;
@@ -336,7 +338,45 @@ describe.only('Smoke tests', function () {
       await client.clickVisible(Selectors.AddRuleButton);
       await client.waitForVisible(Selectors.ValidationEditor);
 
-      // TODO: how do you write validation rules again?
+      // Add validation that makes everything invalid
+
+      // the automatic indentation and brackets makes multi-line values very fiddly here
+      await client.setValidation(
+        '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }'
+      );
+
+      // nothing passed, everything failed
+      await client.waitUntil(async () => {
+        const matchText = await client.getText(
+          Selectors.ValidationMatchingDocumentsPreview
+        );
+        const notMatchingText = await client.getText(
+          Selectors.ValidationNotMatchingDocumentsPreview
+        );
+        return (
+          matchText === NO_PREVIEW_DOCUMENTS &&
+          notMatchingText !== NO_PREVIEW_DOCUMENTS
+        );
+      });
+
+      // Reset the validation again to make everything valid for future tests
+
+      // the automatic indentation and brackets makes multi-line values very fiddly here
+      await client.setValidation('{}');
+
+      // nothing failed, everything passed
+      await client.waitUntil(async () => {
+        const matchText = await client.getText(
+          Selectors.ValidationMatchingDocumentsPreview
+        );
+        const notMatchingText = await client.getText(
+          Selectors.ValidationNotMatchingDocumentsPreview
+        );
+        return (
+          matchText !== NO_PREVIEW_DOCUMENTS &&
+          notMatchingText === NO_PREVIEW_DOCUMENTS
+        );
+      });
     });
 
     it('supports rules in MQL');

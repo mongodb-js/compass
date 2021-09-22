@@ -209,6 +209,12 @@ const Selectors = {
   // Validation tab
   AddRuleButton: '[data-test-id="add-rule-button"]',
   ValidationEditor: '[data-test-id="validation-editor"]',
+  ValidationActionMessage: '[data-test-id="validation-action-message"]',
+  UpdateValidationButton: '[data-test-id="update-validation-button"]',
+  ValidationMatchingDocumentsPreview:
+    '[data-test-id="validation-content"] [data-test-id="matching-documents"] [data-test-id="document-preview"]',
+  ValidationNotMatchingDocumentsPreview:
+    '[data-test-id="validation-content"] [data-test-id="notmatching-documents"] [data-test-id="document-preview"]',
 
   // Find (Documents, Schema and Explain Plan tabs)
   queryBar: (tabName) => {

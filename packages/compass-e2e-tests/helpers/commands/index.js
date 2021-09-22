@@ -28,4 +28,5 @@ exports.addCommands = function (app) {
   add('focusStageOperator', './focus-stage-operator');
   add('selectStageOperator', './select-stage-operator');
   add('closeCollectionTabs', './close-collection-tabs');
+  add('setValidation', './set-validation');
 };

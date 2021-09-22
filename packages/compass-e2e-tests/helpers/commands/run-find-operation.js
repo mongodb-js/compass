@@ -1,10 +1,7 @@
 const Selectors = require('../selectors');
 
 async function setFilter(client, tabName, value) {
-  await client.setAceValue(
-    Selectors.queryBarOptionInputFilter(tabName),
-    value
-  );
+  await client.setAceValue(Selectors.queryBarOptionInputFilter(tabName), value);
 }
 
 async function setProject(client, tabName, value) {
@@ -15,10 +12,7 @@ async function setProject(client, tabName, value) {
 }
 
 async function setSort(client, tabName, value) {
-  await client.setAceValue(
-    Selectors.queryBarOptionInputSort(tabName),
-    value
-  );
+  await client.setAceValue(Selectors.queryBarOptionInputSort(tabName), value);
 }
 
 async function setCollation(client, tabName, value) {
@@ -56,7 +50,11 @@ async function isOptionsExpanded(client, tabName) {
 }
 
 async function waitUntilCollapsed(client, tabName) {
-  await client.waitForVisible(Selectors.queryBarOptionInputProject(tabName), 1000, true);
+  await client.waitForVisible(
+    Selectors.queryBarOptionInputProject(tabName),
+    1000,
+    true
+  );
 }
 
 async function collapseOptions(client, tabName) {
@@ -82,20 +80,27 @@ async function expandOptions(client, tabName) {
 }
 
 module.exports = function (app) {
-  return async function runFindOperation(tabName, filter, {
-    project = '',
-    sort = '',
-    maxTimeMS = '',
-    collation = '',
-    skip = '',
-    limit = '',
-  } = {}) {
+  return async function runFindOperation(
+    tabName,
+    filter,
+    {
+      project = '',
+      sort = '',
+      maxTimeMS = '',
+      collation = '',
+      skip = '',
+      limit = '',
+    } = {}
+  ) {
     const { client } = app;
 
     const queryBarSelector = Selectors.queryBar(tabName);
 
     // look up the current resultId
-    const initialResultId = await client.getAttribute(queryBarSelector, 'data-result-id');
+    const initialResultId = await client.getAttribute(
+      queryBarSelector,
+      'data-result-id'
+    );
 
     // now we can easily see if we get a new resultId
     await setFilter(client, tabName, filter);
@@ -114,7 +119,10 @@ module.exports = function (app) {
     await runFind(client, tabName);
 
     await client.waitUntil(async () => {
-      const resultId = await client.getAttribute(queryBarSelector, 'data-result-id');
+      const resultId = await client.getAttribute(
+        queryBarSelector,
+        'data-result-id'
+      );
       return resultId !== initialResultId;
     });
   };
