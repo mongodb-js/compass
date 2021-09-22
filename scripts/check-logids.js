@@ -8,7 +8,7 @@ async function main() {
   for (const line of stdout.split('\n').filter(Boolean)) {
     // git grep -H gives us `${filename}:${source}`
     const { filename, source } = line.match(/^(?<filename>[^:]+):(?<source>.+)$/).groups;
-    if (filename.match(/\.spec\.(js|jsx|ts|tsx)$/))
+    if (filename.match(/\.(spec|test)\.(js|jsx|ts|tsx)$/))
       continue;
 
     if (source.match(/mongoLogId\([^)]*$/)) {
