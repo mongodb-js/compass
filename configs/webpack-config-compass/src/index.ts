@@ -394,6 +394,12 @@ const externals = [
   // MongoDB Node.js Driver stuff
   'bson-ext',
   'snappy',
+  // Native Modules are very hard to bundle correctly with Webpack (and there is
+  // not much reason to do so) so to make our lives easier, we will always
+  // externalize them from the bulid
+  'interruptor',
+  'kerberos',
+  'keytar',
 ];
 
 type SimpleEntry = string | string[] | Record<string, string>;
@@ -471,6 +477,11 @@ export function createElectronMainConfig(
       rules: [javascriptLoader(opts), nodeLoader(opts), sourceLoader(opts)],
     },
     node: false as const,
+    // TODO: Only required until we also make compass plugins pass through a
+    // single webpack compilation with the Compass app itself
+    externals: Object.fromEntries(
+      externals.map((depName) => [depName, `commonjs2 ${depName}`])
+    ),
     resolve: {
       extensions: ['.jsx', '.tsx', '.ts', '...'],
     },
