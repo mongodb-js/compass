@@ -16,7 +16,6 @@ const {
   compileAssets,
 } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
-const { createUnlockedKeychain } = require('./keychain');
 const { retryWithBackoff } = require('./retry-with-backoff');
 const { addCommands } = require('./commands');
 
@@ -79,6 +78,20 @@ let i = 0;
 let j = 0;
 // For the html
 let k = 0;
+
+/**
+ *
+ * @param {import('webdriverio').LogEntry} logEntry
+ * @returns {string}
+ */
+function formatLogToErrorWithStack(logEntry) {
+  const [file, lineCol, ...rest] = logEntry.message.split(' ');
+  const message = rest
+    .join(' ')
+    .replace(/\\n/g, '\n')
+    .replace(/(^"|"$)/g, '');
+  return `${message}\n  at ${file}:${lineCol}`;
+}
 
 /**
  * @param {boolean} testPackagedApp Should compass start from the packaged binary or just from the source (defaults to source)
@@ -213,15 +226,21 @@ async function startCompass(
       (log) => !['DEBUG', 'INFO', 'WARNING'].includes(log.level)
     );
     if (errors.length) {
-      console.error('Errors encountered during testing:');
-      console.error(errors);
-
       /** @type { Error & { errors?: any[] } } */
       const error = new Error(
-        'Errors encountered in render process during testing'
+        `Errors encountered in render process during testing:\n\n${errors
+          .map(formatLogToErrorWithStack)
+          .map((msg) =>
+            msg
+              .split('\n')
+              .map((line) => `  ${line}`)
+              .join('\n')
+          )
+          .join('\n\n')}`
       );
       error.errors = errors;
-      // fail the tests
+      // Fail the tests if we encountered some severe errors while the
+      // application was running
       throw error;
     }
 
@@ -460,8 +479,6 @@ async function savePage(
 }
 
 async function beforeTests() {
-  const keychain = createUnlockedKeychain();
-  keychain.activate();
   const compass = await startCompass();
 
   const { client } = compass;
@@ -475,24 +492,18 @@ async function beforeTests() {
     await client.closePrivacySettingsModal();
   });
 
-  return { keychain, compass };
+  return compass;
 }
 
-async function afterTests({ keychain, compass }) {
-  try {
-    if (compass) {
-      if (process.env.CI) {
-        await capturePage(compass);
-        await savePage(compass);
-      }
+async function afterTests(compass) {
+  if (compass) {
+    if (process.env.CI) {
+      await capturePage(compass);
+      await savePage(compass);
+    }
 
-      await compass.stop();
-      compass = null;
-    }
-  } finally {
-    if (keychain) {
-      keychain.reset();
-    }
+    await compass.stop();
+    compass = null;
   }
 }
 

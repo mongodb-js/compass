@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const { promisify } = require('util');
 const glob = require('glob');
 const Mocha = require('mocha');
@@ -8,8 +9,45 @@ const {
   compileCompassAssets,
   buildCompass,
 } = require('./helpers/compass');
+const { createUnlockedKeychain } = require('./helpers/keychain');
+const { execFileSync } = require('child_process');
+
+const keychain = createUnlockedKeychain();
+
+function setup() {
+  keychain.activate();
+  debug('Starting MongoDB server and importing fixtures');
+  execFileSync(
+    'mongodb-runner',
+    ['start', '--port', '27018', '--dbpath', './.mongodb'],
+    { stdio: 'inherit' }
+  );
+  execFileSync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
+}
+
+function cleanup() {
+  keychain.reset();
+  debug('Stopping MongoDB server and cleaning up server data');
+  try {
+    execFileSync('mongodb-runner', ['stop', '--port', '27018'], {
+      // If it's taking too long we might as well kill the process and move on,
+      // in ci `posttest-ci` script will take care of additional clean up
+      timeout: 30000,
+      stdio: 'inherit',
+    });
+  } catch (e) {
+    debug('Failed to stop MongoDB Server', e);
+  }
+  try {
+    fs.rmdirSync('.mongodb', { recursive: true });
+  } catch (e) {
+    debug('Failed to clean up server data', e);
+  }
+}
 
 async function main() {
+  setup();
+
   const shouldTestPackagedApp = process.argv.includes('--test-packaged-app');
 
   if (shouldTestPackagedApp) {
@@ -35,11 +73,33 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
-  mocha.run((failures) => (process.exitCode = failures ? 1 : 0));
+  mocha.run((failures) => {
+    cleanup();
+    process.exitCode = failures ? 1 : 0;
+  });
 }
 
+process.once('SIGINT', () => {
+  debug(`Process was interrupted. Cleaning-up and exiting.`);
+  cleanup();
+  process.kill(process.pid, 'SIGINT');
+});
+
+process.once('SIGTERM', () => {
+  debug(`Process was terminated. Cleaning-up and exiting.`);
+  cleanup();
+  process.kill(process.pid, 'SIGTERM');
+});
+
+process.once('uncaughtException', (err) => {
+  debug('Uncaught exception. Cleaning-up and exiting.');
+  cleanup();
+  throw err;
+});
+
 process.on('unhandledRejection', (err) => {
-  console.error('unhandledRejection:');
+  debug('Unhandled exception. Cleaning-up and exiting.');
+  cleanup();
   console.error(err.stack || err.message || err);
   process.exitCode = 1;
 });
