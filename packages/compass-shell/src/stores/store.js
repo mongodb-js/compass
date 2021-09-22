@@ -1,9 +1,9 @@
 import { createStore } from 'redux';
 import reducer from '../modules';
 import { setupRuntime } from '../modules/runtime';
-import {
-  globalAppRegistryActivated
-} from '@mongodb-js/mongodb-redux-common/app-registry';
+import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { setupLoggerAndTelemetry } from '@mongosh/logging';
+import createLogger from '@mongodb-js/compass-logging';
 
 const debug = require('debug')('mongodb-compass-shell:store');
 
@@ -19,14 +19,21 @@ export default class CompassShellStore {
 
     this.globalAppRegistry = appRegistry;
 
-    appRegistry.on(
-      'data-service-connected',
-      this.onDataServiceConnected
-    );
+    appRegistry.on('data-service-connected', this.onDataServiceConnected);
 
-    appRegistry.on(
-      'data-service-disconnected',
-      this.onDataServiceDisconnected
+    appRegistry.on('data-service-disconnected', this.onDataServiceDisconnected);
+
+    setupLoggerAndTelemetry(
+      appRegistry,
+      createLogger('COMPASS-SHELL').log.unbound,
+      () => {
+        throw new Error('no analytics integration for compasss-shell');
+      },
+      {
+        platform: process.platform,
+        arch: process.arch,
+      },
+      require('../../package.json').version
     );
 
     // Set the global app registry in the store.
@@ -34,12 +41,10 @@ export default class CompassShellStore {
   }
 
   onDataServiceConnected = (error, dataService) => {
-    this.reduxStore.dispatch(setupRuntime(
-      error,
-      dataService,
-      this.globalAppRegistry
-    ));
-  }
+    this.reduxStore.dispatch(
+      setupRuntime(error, dataService, this.globalAppRegistry)
+    );
+  };
 
   onDataServiceDisconnected = () => {
     const {
@@ -50,10 +55,6 @@ export default class CompassShellStore {
       runtime.terminate();
     }
 
-    this.reduxStore.dispatch(setupRuntime(
-      null,
-      null,
-      null
-    ));
-  }
+    this.reduxStore.dispatch(setupRuntime(null, null, null));
+  };
 }

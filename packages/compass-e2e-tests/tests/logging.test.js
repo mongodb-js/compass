@@ -9,26 +9,35 @@ function cleanLog(log) {
       '$1'
     )
   );
-  for (const entry of log) {
+  for (let i = 0; i < log.length; i++) {
+    const entry = log[i];
     expect(entry.t.$date).to.be.a('string');
     delete entry.t; // Timestamps vary between each execution
 
-    if (entry.id === 1001000001) {
+    if (entry.id === 1_001_000_001) {
       expect(entry.attr.version).to.be.a('string');
       expect(entry.attr.platform).to.equal(process.platform);
       expect(entry.attr.arch).to.equal(process.arch);
       delete entry.attr;
     }
-    if (entry.id === 1001000002) {
+    if (entry.id === 1_001_000_002) {
       entry.attr.stack = entry.attr.stack
         .replace(/file:\/\/\/.+:\d+:\d+/g, '<filename>')
         .split('\n')
         .slice(0, 2)
         .join('\n');
     }
-    if (entry.id === 1001000022 || entry.id === 1001000023) {
-      expect(entry.attr.duration).to.be.a('number');
-      entry.attr.duration = 100;
+    // Remove server heartbeat logs as they can happen a varying amount of
+    // times depending on how long tests are taking.
+    if (entry.id === 1_001_000_022 || entry.id === 1_001_000_023) {
+      log.splice(i--, 1);
+    }
+    // Remove most mongosh entries as they are quite noisy
+    if (
+      entry.c.startsWith('MONGOSH') &&
+      (entry.id !== 1_000_000_007 || entry.attr.input.includes('typeof prompt'))
+    ) {
+      log.splice(i--, 1);
     }
   }
   return log;
@@ -57,21 +66,21 @@ describe('Logging integration', function () {
       {
         s: 'I',
         c: 'COMPASS-MAIN',
-        id: 1001000001,
+        id: 1_001_000_001,
         ctx: 'logging',
         msg: 'Starting logging',
       },
       {
         s: 'I',
         c: 'COMPASS-CONNECT-UI',
-        id: 1001000004,
+        id: 1_001_000_004,
         ctx: 'Connection UI',
         msg: 'Initiating connection attempt',
       },
       {
         s: 'I',
         c: 'COMPASS-DATA-SERVICE',
-        id: 1001000014,
+        id: 1_001_000_014,
         ctx: 'Connection 0',
         msg: 'Connecting',
         attr: {
@@ -81,7 +90,7 @@ describe('Logging integration', function () {
       {
         s: 'I',
         c: 'COMPASS-CONNECT',
-        id: 1001000009,
+        id: 1_001_000_009,
         ctx: 'Connect',
         msg: 'Initiating connection',
         attr: {
@@ -92,7 +101,7 @@ describe('Logging integration', function () {
       {
         s: 'I',
         c: 'COMPASS-CONNECT',
-        id: 1001000010,
+        id: 1_001_000_010,
         ctx: 'Connect',
         msg: 'Resolved SRV record',
         attr: {
@@ -103,7 +112,7 @@ describe('Logging integration', function () {
       {
         s: 'I',
         c: 'COMPASS-DATA-SERVICE',
-        id: 1001000021,
+        id: 1_001_000_021,
         ctx: 'Connection 0',
         msg: 'Topology description changed',
         attr: {
@@ -114,7 +123,7 @@ describe('Logging integration', function () {
       {
         s: 'I',
         c: 'COMPASS-DATA-SERVICE',
-        id: 1001000019,
+        id: 1_001_000_019,
         ctx: 'Connection 0',
         msg: 'Server opening',
         attr: {
@@ -124,18 +133,7 @@ describe('Logging integration', function () {
       {
         s: 'I',
         c: 'COMPASS-DATA-SERVICE',
-        id: 1001000022,
-        ctx: 'Connection 0',
-        msg: 'Server heartbeat succeeded',
-        attr: {
-          connectionId: 'localhost:27018',
-          duration: 100,
-        },
-      },
-      {
-        s: 'I',
-        c: 'COMPASS-DATA-SERVICE',
-        id: 1001000018,
+        id: 1_001_000_018,
         ctx: 'Connection 0',
         msg: 'Server description changed',
         attr: {
@@ -147,7 +145,7 @@ describe('Logging integration', function () {
         s: 'I',
         c: 'COMPASS-DATA-SERVICE',
         ctx: 'Connection 0',
-        id: 1001000021,
+        id: 1_001_000_021,
         msg: 'Topology description changed',
         attr: {
           isMongos: false,
@@ -157,7 +155,7 @@ describe('Logging integration', function () {
       {
         s: 'I',
         c: 'COMPASS-CONNECT',
-        id: 1001000012,
+        id: 1_001_000_012,
         ctx: 'Connect',
         msg: 'Connection established',
         attr: {
@@ -167,7 +165,7 @@ describe('Logging integration', function () {
       {
         s: 'I',
         c: 'COMPASS-DATA-SERVICE',
-        id: 1001000015,
+        id: 1_001_000_015,
         ctx: 'Connection 0',
         msg: 'Connected',
         attr: {
@@ -177,8 +175,18 @@ describe('Logging integration', function () {
       },
       {
         s: 'I',
+        c: 'MONGOSH',
+        id: 1000000007,
+        ctx: 'repl',
+        msg: 'Evaluating input',
+        attr: {
+          input: 'JSON.stringify(db.runCommand({ connectionStatus: 1 }))',
+        },
+      },
+      {
+        s: 'I',
         c: 'COMPASS-MAIN',
-        id: 1001000003,
+        id: 1_001_000_003,
         ctx: 'app',
         msg: 'Closing application',
       },
@@ -196,12 +204,12 @@ describe('Logging integration', function () {
     await afterTests({ compass });
 
     const uncaughtEntry = cleanLog(compass.compassLog).find(
-      (entry) => entry.id === 1001000002
+      (entry) => entry.id === 1_001_000_002
     );
     expect(uncaughtEntry).to.deep.equal({
       s: 'F',
       c: 'COMPASS-MAIN',
-      id: 1001000002,
+      id: 1_001_000_002,
       ctx: 'app',
       msg: 'Uncaught exception: fake exception',
       attr: {
