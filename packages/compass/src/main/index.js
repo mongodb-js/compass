@@ -16,6 +16,9 @@ if (!pkg.distribution) {
   app.setName(
     pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION].productName
   );
+  app.setVersion(
+    pkg.version
+  );
 }
 
 // TODO (@imlucas): Revisit whether to ship this at same time or not.
