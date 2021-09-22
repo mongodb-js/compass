@@ -8,7 +8,6 @@ module.exports = function (app) {
 
     // it should eventually detect that the text changed
     await client.waitForVisible(Selectors.ValidationActionMessage);
-    //expect(await client.getText(Selectors.ValidationActionMessage)).to.equal('Validation modified');
 
     await client.clickVisible(Selectors.UpdateValidationButton);
 

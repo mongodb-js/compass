@@ -253,10 +253,6 @@ const Selectors = {
     const tabSelector = Selectors.collectionContent(tabName);
     return `${tabSelector} ${Selectors.QueryBarApplyFilterButton}`;
   },
-  queryBarOptionInputProject: (tabName) => {
-    const tabSelector = Selectors.collectionContent(tabName);
-    return `${tabSelector} #query-bar-option-input-project`;
-  },
   queryBarOptionsToggle: (tabName) => {
     const tabSelector = Selectors.collectionContent(tabName);
     return `${tabSelector} [data-test-id="query-bar-options-toggle"]`;
