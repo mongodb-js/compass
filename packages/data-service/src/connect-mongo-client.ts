@@ -114,8 +114,7 @@ function connectionOptionsToMongoClientParams(
     url.searchParams.set('directConnection', 'true');
   }
 
-  // driver v4 only understands tlsCertificateFile instead
-  // of tlsCertificateKeyFile
+  // See https://jira.mongodb.org/browse/NODE-3591
   if (
     !url.searchParams.has('tlsCertificateFile') &&
     url.searchParams.has('tlsCertificateKeyFile')
