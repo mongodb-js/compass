@@ -52,6 +52,8 @@ import {
   InstanceDetails,
 } from './types';
 
+import getPort from 'get-port';
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -288,10 +290,13 @@ class DataService extends EventEmitter {
     this._isConnecting = true;
 
     try {
+      const tunnelLocalPort = await getPort();
       const [client, tunnel, connectionOptions] = await connectMongoClient(
         this._connectionOptions,
-        this.setupListeners.bind(this)
+        this.setupListeners.bind(this),
+        tunnelLocalPort
       );
+
       debug('connected!', {
         isWritable: this.isWritable(),
         isMongos: this.isMongos(),

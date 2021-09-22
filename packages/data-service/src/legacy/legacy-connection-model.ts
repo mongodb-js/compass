@@ -1,9 +1,10 @@
 import SSHTunnel, { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
 import { MongoClient, MongoClientOptions, ReadPreferenceLike } from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
-import { promisify } from 'util';
+import util from 'util';
+
 import { ConnectionInfo } from '../connection-info';
-import { ConnectionOptions } from '../connection-options';
+import { ConnectionOptions, ConnectionSshOptions } from '../connection-options';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ConnectionModel = require('mongodb-connection-model');
@@ -149,32 +150,32 @@ export function convertConnectionModelToInfo(
     },
   };
 
-  convertSslPropertiesToConnectionOptions(model, info.connectionOptions);
-  if (model.sslCert && model.sslCert !== model.sslKey) {
-    info.connectionOptions.tlsCertificateFile = model.sslCert;
+  modelSslPropertiesToConnectionOptions(
+    model.driverOptions,
+    info.connectionOptions
+  );
+
+  const sshTunnel = modelTunnelToConnectionOptions(model);
+  if (sshTunnel) {
+    info.connectionOptions.sshTunnel = sshTunnel;
   }
 
-  if (
-    model.sshTunnel !== 'NONE' &&
-    model.sshTunnelHostname &&
-    model.sshTunnelUsername
-  ) {
-    info.connectionOptions.sshTunnel = {
-      host: model.sshTunnelHostname,
-      port: model.sshTunnelPort,
-      username: model.sshTunnelUsername,
-    };
-    if (model.sshTunnelPassword !== undefined) {
-      info.connectionOptions.sshTunnel.password = model.sshTunnelPassword;
-    }
-    if (model.sshTunnelIdentityFile !== undefined) {
-      info.connectionOptions.sshTunnel.identityKeyFile =
-        model.sshTunnelIdentityFile;
-    }
-    if (model.sshTunnelPassphrase !== undefined) {
-      info.connectionOptions.sshTunnel.identityKeyPassphrase =
-        model.sshTunnelPassphrase;
-    }
+  if (model.driverOptions.directConnection !== undefined) {
+    setConnectionStringParam(
+      info.connectionOptions,
+      'directConnection',
+      model.driverOptions.directConnection ? 'true' : 'false'
+    );
+  }
+
+  if (model.driverOptions.readPreference !== undefined) {
+    setConnectionStringParam(
+      info.connectionOptions,
+      'readPreference',
+      typeof model.driverOptions.readPreference === 'string'
+        ? model.driverOptions.readPreference
+        : model.driverOptions.readPreference.preference
+    );
   }
 
   if (model.isFavorite) {
@@ -187,69 +188,111 @@ export function convertConnectionModelToInfo(
   return info;
 }
 
-function convertSslPropertiesToConnectionOptions(
-  model: LegacyConnectionModel,
-  options: ConnectionOptions
-): void {
-  const url = new ConnectionString(options.connectionString);
-
-  if (model.sslMethod !== 'NONE') {
-    url.searchParams.set('tls', 'true');
-  }
-
-  switch (model.sslMethod) {
-    case 'SERVER':
-      url.searchParams.set('tlsAllowInvalidCertificates', 'false');
-      convertSslCAToConnectionString(model.sslCA, url);
-      break;
-    case 'ALL':
-      url.searchParams.set('tlsAllowInvalidCertificates', 'false');
-      convertSslCAToConnectionString(model.sslCA, url);
-      if (model.sslCert && model.sslCert !== model.sslKey) {
-        options.tlsCertificateFile = model.sslCert;
-      }
-      if (model.sslKey) {
-        url.searchParams.set('tlsCertificateKeyFile', model.sslKey);
-      }
-      if (model.sslPass) {
-        url.searchParams.set('tlsCertificateKeyFilePassword', model.sslPass);
-      }
-      break;
-    case 'UNVALIDATED':
-      url.searchParams.set('tlsAllowInvalidCertificates', 'true');
-      url.searchParams.set('tlsAllowInvalidHostnames', 'true');
-      break;
-    case 'SYSTEMCA':
-      url.searchParams.set('tlsAllowInvalidCertificates', 'false');
-      url.searchParams.set('tlsAllowInvalidHostnames', 'false');
-      break;
-    case 'IFAVAILABLE':
-      url.searchParams.set('tlsAllowInvalidCertificates', 'false');
-      url.searchParams.set('tlsAllowInvalidHostnames', 'true');
-      break;
-  }
-
-  options.connectionString = url.toString();
+function setConnectionStringParam(
+  connectionOptions: ConnectionOptions,
+  param: string,
+  value: string
+) {
+  const url = new ConnectionString(connectionOptions.connectionString);
+  url.searchParams.set(param, value);
+  connectionOptions.connectionString = url.toString();
 }
 
-function convertSslCAToConnectionString(
-  sslCA: string | string[] | undefined,
-  url: ConnectionString
+function modelSslPropertiesToConnectionOptions(
+  driverOptions: MongoClientOptions,
+  connectionOptions: ConnectionOptions
 ): void {
-  if (!sslCA) {
+  const url = new ConnectionString(connectionOptions.connectionString);
+
+  if ('sslValidate' in driverOptions) {
+    url.searchParams.set('tls', driverOptions.sslValidate ? 'true' : 'false');
+  }
+
+  if (driverOptions.tlsAllowInvalidCertificates) {
+    url.searchParams.set('tlsAllowInvalidCertificates', 'true');
+  }
+
+  const sslCA = getSslDriverOptionsFile(driverOptions.sslCA);
+  const sslCert = getSslDriverOptionsFile(driverOptions.sslCert);
+  const sslKey = getSslDriverOptionsFile(driverOptions.sslKey);
+
+  if (sslCA) {
+    url.searchParams.set('tlsCAFile', sslCA);
+  }
+
+  // the legacy connection form allowed to specify sslCert and sslKey
+  // as separate files
+  if (sslCert && sslCert !== sslKey) {
+    connectionOptions.tlsCertificateFile = sslCert;
+  }
+
+  if (sslKey) {
+    url.searchParams.set('tlsCertificateKeyFile', sslKey);
+  }
+
+  if (driverOptions.sslPass) {
+    url.searchParams.set(
+      'tlsCertificateKeyFilePassword',
+      driverOptions.sslPass
+    );
+  }
+
+  if (
+    url.searchParams.get('ssl') === 'true' &&
+    url.searchParams.get('tls') === 'true'
+  ) {
+    url.searchParams.delete('ssl');
+  }
+
+  connectionOptions.connectionString = url.toString();
+}
+
+function getSslDriverOptionsFile(
+  value: string | string[] | undefined
+): string | undefined {
+  if (!Array.isArray(value)) {
+    return value;
+  }
+
+  return value[0];
+}
+
+function modelTunnelToConnectionOptions(
+  model: LegacyConnectionModel
+): ConnectionSshOptions | undefined {
+  if (
+    model.sshTunnel === 'NONE' ||
+    !model.sshTunnelHostname ||
+    !model.sshTunnelUsername
+  ) {
     return;
   }
-  if (typeof sslCA === 'string') {
-    url.searchParams.set('tlsCAFile', sslCA);
-  } else if (Array.isArray(sslCA) && sslCA.length > 0) {
-    url.searchParams.set('tlsCAFile', sslCA[0]);
+
+  const sshTunnel: ConnectionSshOptions = {
+    host: model.sshTunnelHostname,
+    port: model.sshTunnelPort,
+    username: model.sshTunnelUsername,
+  };
+
+  if (model.sshTunnelPassword !== undefined) {
+    sshTunnel.password = model.sshTunnelPassword;
   }
+
+  if (model.sshTunnelIdentityFile !== undefined) {
+    sshTunnel.identityKeyFile = model.sshTunnelIdentityFile;
+  }
+
+  if (model.sshTunnelPassphrase !== undefined) {
+    sshTunnel.identityKeyPassphrase = model.sshTunnelPassphrase;
+  }
+
+  return sshTunnel;
 }
 
 export async function convertConnectionInfoToModel(
   connectionInfo: ConnectionInfo
 ): Promise<LegacyConnectionModel> {
-  const connection: LegacyConnectionModel = await promisify(
+  const connection: LegacyConnectionModel = await util.promisify(
     ConnectionModel.from
   )(connectionInfo.connectionOptions.connectionString);
 
@@ -268,6 +311,7 @@ export async function convertConnectionInfoToModel(
     additionalOptions.sshTunnel = !connectionOptions.sshTunnel.identityKeyFile
       ? 'USER_PASSWORD'
       : 'IDENTITY_FILE';
+    additionalOptions.sshTunnelPort = connectionOptions.sshTunnel.port;
     additionalOptions.sshTunnelHostname = connectionOptions.sshTunnel.host;
     additionalOptions.sshTunnelUsername = connectionOptions.sshTunnel.username;
     additionalOptions.sshTunnelPassword = connectionOptions.sshTunnel.password;

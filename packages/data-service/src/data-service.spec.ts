@@ -20,7 +20,7 @@ const TEST_DOCS = [
   },
 ];
 
-describe.only('DataService', function () {
+describe('DataService', function () {
   this.slow(10000);
   this.timeout(20000);
 

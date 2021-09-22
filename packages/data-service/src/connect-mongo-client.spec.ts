@@ -1,24 +1,43 @@
-import SSHTunnel from '@mongodb-js/ssh-tunnel';
 import assert from 'assert';
-import sinon from 'sinon';
+import { expect } from 'chai';
+import getPort from 'get-port';
+import net from 'net';
+
 import connectMongoClient from './connect-mongo-client';
 import { ConnectionOptions } from './connection-options';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const mockRequire = require('mock-require');
 
 const setupListeners = () => {
   //
 };
 
-type Closeable = {
-  close: () => Promise<void>;
-};
+const tryConnect = (port: number): Promise<void> =>
+  new Promise<void>((resolve, reject) => {
+    const socket = net.connect(port);
+
+    socket
+      .once('error', (err) => reject(err))
+      .once('connect', () => {
+        resolve();
+        socket.destroy();
+      });
+  });
 
 describe('connectMongoClient', function () {
-  let cleanUpQueue: [Closeable?, Closeable?][];
+  let cleanUpQueue: [
+    {
+      // client
+      close: () => Promise<void>;
+    }?,
+    {
+      // tunnel
+      close: () => Promise<void>;
+    }?
+  ][];
 
-  beforeEach(function () {
+  let tunnelLocalPort: number;
+
+  beforeEach(async function () {
+    tunnelLocalPort = await getPort();
     cleanUpQueue = [];
   });
 
@@ -51,7 +70,8 @@ describe('connectMongoClient', function () {
         {
           connectionString: 'mongodb://localhost:27018',
         },
-        setupListeners
+        setupListeners,
+        tunnelLocalPort
       );
 
       cleanUpQueue.push([client, tunnel]);
@@ -65,67 +85,34 @@ describe('connectMongoClient', function () {
     });
 
     describe('ssh tunnel failures', function () {
-      let closeSpy: sinon.SinonSpy;
-      let mockConnect: typeof connectMongoClient;
-
-      beforeEach(function () {
-        mockRequire(
-          '@mongodb-js/ssh-tunnel',
-          class MockTunnel extends SSHTunnel {
-            constructor(...args: any[]) {
-              super(...args);
-              (this as any).serverClose = closeSpy = sinon.spy(
-                (this as any).serverClose.bind(this)
-              );
-            }
-          }
-        );
-
-        mockConnect = mockRequire.reRequire('./connect-mongo-client')
-          .default as unknown as typeof connectMongoClient;
-      });
-
       it('should close ssh tunnel if the connection fails', async function () {
         const connectionOptions: ConnectionOptions = {
           connectionString:
             'mongodb://localhost:27020?serverSelectionTimeoutMS=100',
           sshTunnel: {
-            host: 'my.ssh-server.com',
+            host: 'compass-tests.fakehost.localhost',
             port: 22,
             username: 'my-user',
             password: 'password',
           },
         };
 
-        const error = await mockConnect(
+        const error = await connectMongoClient(
           connectionOptions,
-          setupListeners
+          setupListeners,
+          tunnelLocalPort
         ).catch((err) => err);
-        assert.ok(error instanceof Error);
-        assert.ok(
-          closeSpy?.calledOnce,
-          'Expected tunnel.close to be called exactly once'
+
+        expect(error).to.be.instanceOf(Error);
+
+        // propagates the tunnel error
+        expect(error.message).to.match(
+          /ENOTFOUND compass-tests\.fakehost\.localhost/
         );
-      });
 
-      it('should propagate tunnel error if tunnel fails to connect', async function () {
-        const connectionOptions: ConnectionOptions = {
-          connectionString:
-            'mongodb://localhost:27020?serverSelectionTimeoutMS=1000&socketTimeoutMS=1000',
-          sshTunnel: {
-            host: 'my.ssh-server.com',
-            port: 22,
-            username: 'my-user',
-            password: 'password',
-          },
-        };
-
-        const error = await mockConnect(
-          connectionOptions,
-          setupListeners
-        ).catch((err) => err);
-
-        assert.match(error.message, /ENOTFOUND my.ssh-server.com/);
+        expect(
+          (await tryConnect(tunnelLocalPort).catch((err) => err)).code
+        ).to.equal('ECONNREFUSED');
       });
     });
   });

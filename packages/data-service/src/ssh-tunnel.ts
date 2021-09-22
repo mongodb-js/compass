@@ -1,7 +1,6 @@
 import { EventEmitter, once } from 'events';
 import createDebug from 'debug';
 import fs from 'fs';
-import getPort from 'get-port';
 
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import SSHTunnel from '@mongodb-js/ssh-tunnel';
@@ -15,7 +14,8 @@ const { log, mongoLogId } = createLogger('COMPASS-CONNECT');
 
 export async function openSshTunnel(
   srvResolvedConnectionString: string,
-  sshTunnelOptions: ConnectionSshOptions | undefined
+  sshTunnelOptions: ConnectionSshOptions | undefined,
+  localPort: number
 ): Promise<[SSHTunnel | undefined, string]> {
   if (!sshTunnelOptions) {
     return [undefined, srvResolvedConnectionString];
@@ -26,8 +26,6 @@ export async function openSshTunnel(
   );
   const firstHost = connectionStringUrl.hosts[0];
   const [dstHost, dstPort = 27017] = firstHost.split(':');
-
-  const localPort = await getPort();
 
   const tunnelConstructorOptions = {
     readyTimeout: 20000,

@@ -355,7 +355,7 @@ async function connectAndGetAuthInfo(connectionOptions: ConnectionOptions) {
     );
   } finally {
     if (dataService) {
-      await util.promisify(dataService.disconnect.bind(dataService))();
+      await dataService.disconnect();
     }
   }
 }
