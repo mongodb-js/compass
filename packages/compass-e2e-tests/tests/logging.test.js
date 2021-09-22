@@ -31,6 +31,7 @@ function cleanLog(log) {
     // times depending on how long tests are taking.
     if (entry.id === 1_001_000_022 || entry.id === 1_001_000_023) {
       log.splice(i--, 1);
+      continue;
     }
     // Remove most mongosh entries as they are quite noisy
     if (
@@ -38,6 +39,7 @@ function cleanLog(log) {
       (entry.id !== 1_000_000_007 || entry.attr.input.includes('typeof prompt'))
     ) {
       log.splice(i--, 1);
+      continue;
     }
   }
   return log;

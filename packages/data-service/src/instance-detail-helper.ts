@@ -8,6 +8,7 @@ import {
   has,
   map,
   omit,
+  pick,
   union,
   uniqBy,
 } from 'lodash';
@@ -122,6 +123,26 @@ function getBuildInfo(
       return done(err);
     }
     done(null, parseBuildInfo(res));
+  });
+}
+
+function getFeatureCompatibilityVersion(
+  results: { db: Db },
+  done: Callback<string | null>
+): void {
+  const db = results.db;
+
+  const spec = {
+    getParameter: 1,
+    featureCompatibilityVersion: 1,
+  };
+
+  const adminDb = db.databaseName === 'admin' ? db : db.admin();
+  void adminDb.command(spec, getReadPreferenceOptions(db), (err, res) => {
+    if (err) {
+      return done(null, null);
+    }
+    done(null, res?.featureCompatibilityVersion?.version ?? null);
   });
 }
 
@@ -720,6 +741,11 @@ function getInstanceDetail(
 
     host: ['client', 'db', getHostInfo],
     build: ['client', 'db', getBuildInfo],
+    featureCompatibilityVersion: [
+      'client',
+      'db',
+      getFeatureCompatibilityVersion,
+    ],
     cmdLineOpts: ['client', 'db', getCmdLineOpts],
     genuineMongoDB: ['build', 'cmdLineOpts', getGenuineMongoDB],
     dataLake: ['build', getDataLake],
@@ -765,6 +791,7 @@ function getInstanceDetail(
       'allowedCollections',
       'cmdLineOpts',
     ]) as unknown as InstanceDetails;
+
     return done(null, cleanedResult);
   });
 }
