@@ -41,7 +41,7 @@ module.exports = async function setupLogging(app) {
     });
 
     process.prependListener('uncaughtException', (exception) => {
-      writer.fatal('COMPASS-MAIN', mongoLogId(1_001_000_002), 'app', 'Uncaught exception: ' + String(exception), {
+      writer.fatal('COMPASS-MAIN', mongoLogId(1_001_000_002), 'app', 'Uncaught exception: ' + String(exception), { // !dupedLogId
         message: exception && exception.message,
         stack: exception && exception.stack
       });
