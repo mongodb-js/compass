@@ -10,19 +10,21 @@ const connectionOptions: ConnectionOptions = Object.freeze({
   connectionString: 'mongodb://127.0.0.1:27018/data-service',
 });
 
-describe('mongodb-data-service#instance', function () {
+describe('instance-detail-helper', function () {
   describe('local', function () {
     let client: MongoClient;
     let db: Db;
     after(function (done) {
       client.close(true, done);
     });
+
     it('should connect to `localhost:27018`', async function () {
       client = await MongoClient.connect(
         'mongodb://localhost:27018/data-service?directConnection=true'
       );
       db = client.db('data-service');
     });
+
     it('should not close the db after getting instance details', function (done) {
       assert(db);
       getInstance(client, db, function (err) {
@@ -37,8 +39,9 @@ describe('mongodb-data-service#instance', function () {
         });
       });
     });
+
     describe('views', function () {
-      let service: DataService;
+      let dataService: DataService;
       let mongoClient: MongoClient;
       let instanceDetails: Instance;
 
@@ -47,15 +50,15 @@ describe('mongodb-data-service#instance', function () {
           return this.skip();
         }
 
-        service = new DataService(connectionOptions);
-        await service.connect();
+        dataService = new DataService(connectionOptions);
+        await dataService.connect();
         mongoClient = await MongoClient.connect(
           connectionOptions.connectionString
         );
 
         await mongoClient
           .db()
-          .collection('test')
+          .collection('test-instance-detail-helper')
           .insertMany([
             {
               1: 'a',
@@ -69,17 +72,21 @@ describe('mongodb-data-service#instance', function () {
       });
 
       after(async function () {
+        await dataService.disconnect().catch(console.log);
         try {
-          await mongoClient.db().collection('test').drop();
+          await mongoClient
+            .db()
+            .collection('test-instance-detail-helper')
+            .drop();
         } finally {
           await mongoClient.close();
         }
       });
 
       it('creates a new view', function (done) {
-        service.createView(
+        dataService.createView(
           'myView',
-          'data-service.test',
+          'data-service.test-instance-detail-helper',
           [{ $project: { a: 0 } }],
           {},
           function (err) {
@@ -90,7 +97,7 @@ describe('mongodb-data-service#instance', function () {
       });
 
       it('gets the instance details', function (done) {
-        service.instance({}, function (err, res) {
+        dataService.instance({}, function (err, res) {
           if (err) return done(err);
           instanceDetails = res;
           done();
@@ -109,13 +116,13 @@ describe('mongodb-data-service#instance', function () {
           readonly: true,
           collation: null,
           type: 'view',
-          view_on: 'test',
+          view_on: 'test-instance-detail-helper',
           pipeline: [{ $project: { a: 0 } }],
         });
       });
 
       it('drops the view', function (done) {
-        service.dropView('data-service.myView', done);
+        dataService.dropView('data-service.myView', done);
       });
     });
   });

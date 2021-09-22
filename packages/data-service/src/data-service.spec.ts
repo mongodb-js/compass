@@ -5,7 +5,6 @@ import { MongoClient, Sort } from 'mongodb';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 
-import connect from './connect';
 import DataService from './data-service';
 import { ConnectionOptions } from './connection-options';
 
@@ -41,7 +40,8 @@ describe('DataService', function () {
     mongoClient = new MongoClient(connectionOptions.connectionString);
     await mongoClient.connect();
 
-    dataService = await connect(connectionOptions);
+    dataService = new DataService(connectionOptions);
+    await dataService.connect();
   });
 
   after(async function () {
@@ -73,6 +73,10 @@ describe('DataService', function () {
   describe('#isConnected', function () {
     let dataServiceIsConnected: DataService;
 
+    afterEach(async function () {
+      await dataServiceIsConnected?.disconnect();
+    });
+
     it('returns false when not connected initially', function () {
       dataServiceIsConnected = new DataService(connectionOptions);
       expect(dataServiceIsConnected.isConnected()).to.equal(false);
@@ -91,10 +95,6 @@ describe('DataService', function () {
       await dataServiceIsConnected.disconnect();
 
       expect(dataServiceIsConnected.isConnected()).to.equal(false);
-    });
-
-    afterEach(async function () {
-      await dataServiceIsConnected?.disconnect();
     });
   });
 
