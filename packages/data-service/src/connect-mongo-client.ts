@@ -109,12 +109,25 @@ function connectionOptionsToMongoClientParams(
     options.sslCert = connectionOptions.tlsCertificateFile;
   }
 
+  // adds directConnection=true unless is explicitly a replica set
   const isLoadBalanced = url.searchParams.get('loadBalanced') === 'true';
   const isReplicaSet =
     url.isSRV || url.hosts.length > 1 || url.searchParams.has('replicaSet');
 
   if (!isReplicaSet && !isLoadBalanced) {
     url.searchParams.set('directConnection', 'true');
+  }
+
+  // driver v4 only understands tlsCertificateFile instead
+  // of tlsCertificateKeyFile
+  if (
+    !url.searchParams.has('tlsCertificateFile') &&
+    url.searchParams.has('tlsCertificateKeyFile')
+  ) {
+    url.searchParams.set(
+      'tlsCertificateFile',
+      url.searchParams.get('tlsCertificateKeyFile') as string
+    );
   }
 
   return [url.href, options];

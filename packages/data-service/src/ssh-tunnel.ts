@@ -39,7 +39,7 @@ export async function openSshTunnel(
     host: sshTunnelOptions.host,
     port: sshTunnelOptions.port,
     username: sshTunnelOptions.username,
-    password: sshTunnelOptions.username,
+    password: sshTunnelOptions.password,
     privateKey: sshTunnelOptions.identityKeyFile
       ? await fs.promises.readFile(sshTunnelOptions.identityKeyFile)
       : undefined,

@@ -336,7 +336,6 @@ async function connectAndGetAuthInfo(connectionOptions: ConnectionOptions) {
 
   try {
     dataService = await connect(connectionOptions);
-
     const command = util.promisify(dataService.command.bind(dataService));
     const connectionStatus = await command('admin', { connectionStatus: 1 });
 

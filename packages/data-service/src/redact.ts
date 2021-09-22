@@ -17,7 +17,16 @@ export function redactConnectionString(uri: string): string {
 export function redactConnectionOptions(
   options: ConnectionOptions
 ): ConnectionOptions {
-  const redacted = { ...options };
+  const redactedTunnelOptions = options.sshTunnel
+    ? {
+        ...options.sshTunnel,
+      }
+    : undefined;
+
+  const redacted: ConnectionOptions = {
+    ...options,
+    sshTunnel: redactedTunnelOptions,
+  };
 
   redacted.connectionString = redactConnectionString(options.connectionString);
 
