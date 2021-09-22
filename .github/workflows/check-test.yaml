@@ -16,6 +16,8 @@ jobs:
   check-and-test:
     name: Check and Test
 
+    timeout-minutes: 45
+
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
