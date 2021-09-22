@@ -105,10 +105,6 @@ function connectionOptionsToMongoClientParams(
 
   const options: MongoClientOptions = {};
 
-  if (connectionOptions.tlsCertificateFile) {
-    options.sslCert = connectionOptions.tlsCertificateFile;
-  }
-
   // adds directConnection=true unless is explicitly a replica set
   const isLoadBalanced = url.searchParams.get('loadBalanced') === 'true';
   const isReplicaSet =

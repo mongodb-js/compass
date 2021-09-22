@@ -220,8 +220,8 @@ function modelSslPropertiesToConnectionOptions(
     url.searchParams.set('tlsCAFile', sslCA);
   }
 
-  // the legacy connection form allowed to specify sslCert and sslKey
-  // as separate files
+  // See https://jira.mongodb.org/browse/NODE-3591 and
+  // https://jira.mongodb.org/browse/COMPASS-5058
   if (sslCert && sslCert !== sslKey) {
     connectionOptions.tlsCertificateFile = sslCert;
   }

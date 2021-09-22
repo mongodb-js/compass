@@ -10,7 +10,7 @@ export interface ConnectionOptions {
    * which are then mapped to explicit `tlsCertificateFile` and `tlsCertificateKeyFile` driver options.
    * The connection string spec only supports a single `tlsCertificateKeyFile` parameter, however.
    *
-   * See https://jira.mongodb.org/browse/COMPASS-5058
+   * See https://jira.mongodb.org/browse/COMPASS-5058 and https://jira.mongodb.org/browse/NODE-3591
    */
   tlsCertificateFile?: string;
 
