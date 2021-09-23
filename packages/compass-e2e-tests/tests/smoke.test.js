@@ -327,6 +327,8 @@ describe('Smoke tests', function () {
 
       expect(await client.getText(Selectors.NameColumnName)).to.equal('_id_');
     });
+
+    it('supports creating and dropping indexes');
   });
 
   describe('Validation tab', function () {
@@ -334,7 +336,7 @@ describe('Smoke tests', function () {
       await client.navigateToCollectionTab('test', 'numbers', 'Validation');
     });
 
-    it('allows rules to be added', async function () {
+    it('supports rules in JSON schema', async function () {
       await client.clickVisible(Selectors.AddRuleButton);
       await client.waitForVisible(Selectors.ValidationEditor);
 
@@ -380,13 +382,38 @@ describe('Smoke tests', function () {
     });
 
     it('supports rules in MQL');
-    it('supports rules in JSON Schema');
     it('does not allow invalid documents to be inserted');
   });
 
-  describe('Import', function () {});
+  describe('Import', function () {
+    it('supports JSON arrays');
+    it('supports JSON files');
+    it('supports JSON files with select fields');
+    it('supports JSON files with set field types');
+    it('supports JSON files with extended json');
+    it('supports malformed JSON array');
+    it('supports malformed JSON lines file');
+    it('supports CSV files with comma separator');
+    it('supports CSV files with tab separator');
+    it('supports CSV files with semicolon separator');
+    it('supports CSV files with select fields');
+    it('supports CSV files with set field types');
+    it('supports malformed CSV file');
+  });
 
-  describe('Export', function () {});
+  describe('Export', function () {
+    it('supports collection to CSV with a query filter');
+    it('supports full collection to CSV');
+    it('supports collection to CSV with all fields');
+    it('supports collection to CSV with a subset of fields');
+    it('supports collection to JSON with a query filter');
+    it('supports full collection to JSON');
+    it('supports collection to JSON with all fields');
+    it('supports collection to JSON with a subset of fields');
+  });
 
-  describe('Compass Shell', function () {});
+  describe('Compass Shell', function () {
+    it('can be opened, collapsed and resized');
+    it('supports running commands');
+  });
 });
