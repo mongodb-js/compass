@@ -49,7 +49,7 @@ describe('Logging integration', function () {
   let compass;
 
   it('provides some basic logging information', async function () {
-    ({ compass } = await beforeTests(false));
+    compass = await beforeTests();
 
     await compass.client.connectWithConnectionString(
       'mongodb://localhost:27018/test'
@@ -60,7 +60,7 @@ describe('Logging integration', function () {
       true
     );
 
-    await afterTests({ compass });
+    await afterTests(compass);
 
     expect(cleanLog(compass.compassLog)).to.deep.equal([
       {
@@ -196,12 +196,12 @@ describe('Logging integration', function () {
   it('provides logging information for uncaught exceptions', async function () {
     try {
       process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION = '1';
-      ({ compass } = await beforeTests(false));
+      compass = await beforeTests();
     } finally {
       delete process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION;
     }
 
-    await afterTests({ compass });
+    await afterTests(compass);
 
     const uncaughtEntry = cleanLog(compass.compassLog).find(
       (entry) => entry.id === 1_001_000_002
