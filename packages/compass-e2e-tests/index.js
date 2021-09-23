@@ -17,11 +17,7 @@ const keychain = createUnlockedKeychain();
 function setup() {
   keychain.activate();
   debug('Starting MongoDB server and importing fixtures');
-  execFileSync(
-    'mongodb-runner',
-    ['start', '--port', '27018', '--dbpath', './.mongodb'],
-    { stdio: 'inherit' }
-  );
+  execFileSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
   execFileSync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
 }
 
@@ -29,9 +25,10 @@ function cleanup() {
   keychain.reset();
   debug('Stopping MongoDB server and cleaning up server data');
   try {
-    execFileSync('mongodb-runner', ['stop', '--port', '27018'], {
+    execFileSync('npm', ['run', 'stop-server'], {
       // If it's taking too long we might as well kill the process and move on,
-      // in ci `posttest-ci` script will take care of additional clean up
+      // mongodb-runer is flaky sometimes and in ci `posttest-ci` script will
+      // take care of additional clean up anyway
       timeout: 30000,
       stdio: 'inherit',
     });
