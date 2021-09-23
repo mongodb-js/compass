@@ -18,7 +18,7 @@ module.exports = (_env, args) => {
 
   const mainConfig = createElectronMainConfig({
     ...opts,
-    entry: path.resolve(__dirname, 'src', 'main', 'index.js'),
+    entry: path.resolve(__dirname, 'src', 'main.js'),
     outputFilename: 'main.js'
   });
 

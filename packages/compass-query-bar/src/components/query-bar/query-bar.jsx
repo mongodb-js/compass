@@ -172,6 +172,27 @@ class QueryBar extends Component {
     }
   };
 
+  getQueryOption(label, autoPopulated, hasToggle, hasError, id, value, placeholder, option) {
+    return (
+      <QueryOption
+        label={label}
+        autoPopulated={autoPopulated}
+        serverVersion={this.props.serverVersion}
+        hasToggle={hasToggle}
+        hasError={hasError}
+        key={`query-option-${id}`}
+        value={value}
+        actions={this.props.actions}
+        placeholder={placeholder}
+        link={OPTION_DEFINITION[option].link}
+        inputType={OPTION_DEFINITION[option].type}
+        onChange={this.onChange.bind(this, option)}
+        onApply={this.onApplyButtonClicked}
+        schemaFields={this.props.schemaFields}
+      />
+    );
+  }
+
   _onFocus = () => {
     this.setState({ hasFocus: true });
   };
@@ -229,25 +250,21 @@ class QueryBar extends Component {
     const label = OPTION_DEFINITION[option].label || option;
     const placeholder = this.props[`${option}Placeholder`] || OPTION_DEFINITION[option].placeholder;
 
+    const queryOption = this.getQueryOption(label, autoPopulated, hasToggle, hasError, id, value, placeholder, option);
 
-    return (
-      <QueryOption
-        label={label}
-        autoPopulated={autoPopulated}
-        serverVersion={this.props.serverVersion}
-        hasToggle={hasToggle}
-        hasError={hasError}
-        key={`query-option-${id}`}
-        value={value}
-        actions={this.props.actions}
-        placeholder={placeholder}
-        link={OPTION_DEFINITION[option].link}
-        inputType={OPTION_DEFINITION[option].type}
-        onChange={this.onChange.bind(this, option)}
-        onApply={this.onApplyButtonClicked}
-        schemaFields={this.props.schemaFields}
-      />
-    );
+    if (hasToggle) {
+      return (
+        <div
+          className={styles['query-option-toggle-row']}
+          key={`query-option-${id}`}
+        >
+          {queryOption}
+          {this.renderToggle()}
+        </div>
+      );
+    }
+
+    return queryOption;
   }
 
   /**
@@ -356,7 +373,6 @@ class QueryBar extends Component {
           onFocus={this._onFocus}
           className={_queryOptionClassName}>
           {this.renderOptionRows()}
-          {this.renderToggle()}
         </div>
         <div className={styles['button-group']}>
           <button

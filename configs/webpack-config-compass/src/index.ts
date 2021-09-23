@@ -52,12 +52,12 @@ export function createElectronMainConfig(
       rules: [javascriptLoader(opts), nodeLoader(opts), sourceLoader(opts)],
     },
     node: false as const,
+    externals: toCommonJsExternal(sharedExternals),
     resolve: {
       // To avoid resolving the `browser` field
       aliasFields: [],
       extensions: ['.jsx', '.tsx', '.ts', '...'],
     },
-    externals: toCommonJsExternal(sharedExternals),
   };
 
   return merge<WebpackConfig>(

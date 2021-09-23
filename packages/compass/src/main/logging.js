@@ -23,8 +23,24 @@ module.exports = async function setupLogging(app) {
       onwarn: (err, filepath) => debug('Failed to access path', filepath, err)
     });
 
-    await fs.mkdir(directory, { recursive: true });
-    const writer = await manager.createLogWriter();
+    const [ writer, osReleaseInfo ] = await Promise.all([
+      (async() => {
+        await fs.mkdir(directory, { recursive: true });
+        return await manager.createLogWriter();
+      })(),
+      (async() => {
+        let osRelease = '';
+        try {
+          osRelease = await fs.readFile('/etc/os-release', 'utf8');
+        } catch { /* ignore */ }
+        const nameMatch = osRelease.match(/^ID="?(?<name>.+?)"?$/m);
+        const versionMatch = osRelease.match(/^VERSION_ID="?(?<version>.+?)"?$/m);
+        return {
+          osReleaseName: nameMatch && nameMatch.groups.name,
+          osReleaseVersion: versionMatch && versionMatch.groups.version
+        };
+      })()
+    ]);
 
     // Note: The e2e tests rely on this particular line for figuring
     // out where the log output is written.
@@ -33,7 +49,8 @@ module.exports = async function setupLogging(app) {
     writer.info('COMPASS-MAIN', mongoLogId(1_001_000_001), 'logging', 'Starting logging', {
       version,
       platform: os.platform(),
-      arch: os.arch()
+      arch: os.arch(),
+      ...osReleaseInfo
     });
 
     ipc.on('compass:error:fatal', (evt, meta) => {
@@ -41,7 +58,7 @@ module.exports = async function setupLogging(app) {
     });
 
     process.prependListener('uncaughtException', (exception) => {
-      writer.fatal('COMPASS-MAIN', mongoLogId(1_001_000_002), 'app', 'Uncaught exception: ' + String(exception), {
+      writer.fatal('COMPASS-MAIN', mongoLogId(1_001_000_002), 'app', 'Uncaught exception: ' + String(exception), { // !dupedLogId
         message: exception && exception.message,
         stack: exception && exception.stack
       });

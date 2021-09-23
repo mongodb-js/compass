@@ -17,6 +17,8 @@ const { createConnectionAttempt } = require('../modules/connection-attempt');
 const ConnectionCollection = Connection.ConnectionCollection;
 const userAgent = navigator.userAgent.toLowerCase();
 
+const { log, mongoLogId } = require('@mongodb-js/compass-logging')('COMPASS-CONNECT-UI');
+
 /**
  * A default driverUrl.
  */
@@ -199,6 +201,7 @@ const Store = Reflux.createStore({
       this._setSyntaxErrorMessage(
         'Invalid schema, expected `mongodb` or `mongodb+srv`'
       );
+      log.info(mongoLogId(1001000025), 'Connection UI', 'Rejecting URL due to invalid schema');
 
       return;
     }
@@ -209,6 +212,7 @@ const Store = Reflux.createStore({
 
       this._resetSyntaxErrorMessage();
     } catch (error) {
+      log.info(mongoLogId(1001000026), 'Connection UI', 'Rejecting invalid URL', { error: error.message });
       this._setSyntaxErrorMessage(error.message);
     }
   },
