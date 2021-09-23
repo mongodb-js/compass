@@ -49,10 +49,10 @@ class CollectionStatsItem extends Component {
   render() {
     return (
       <div className={styles[BASE_CLASS]}>
-        <div className={styles[this.props.primary ? PRIMARY_LABEL : LABEL]} dataTestId={`${this.props.dataTestId}-label`}>
+        <div className={styles[this.props.primary ? PRIMARY_LABEL : LABEL]} data-test-id={`${this.props.dataTestId}-label`}>
           {this.props.label}
         </div>
-        <div className={styles[this.props.primary ? PRIMARY_VALUE : VALUE]} dataTestId={`${this.props.dataTestId}-value`}>
+        <div className={styles[this.props.primary ? PRIMARY_VALUE : VALUE]} data-test-id={`${this.props.dataTestId}-value`}>
           {this.props.value}
         </div>
       </div>
