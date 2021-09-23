@@ -360,7 +360,7 @@
     "mongodb-instance-model": "^11.14.0",
     "mongodb-js-metrics": "^7.4.0",
     "mongodb-language-model": "^2.3.0",
-    "mongodb-log-writer": "^1.0.3",
+    "mongodb-log-writer": "^1.0.4",
     "mongodb-ns": "^2.2.0",
     "mongodb-query-parser": "^2.4.3",
     "mongodb-query-util": "^0.2.1",
