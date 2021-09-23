@@ -104,6 +104,7 @@ async function connect(
   const url = removeGssapiServiceName(model.driverUrlWithSsh);
   const options = {
     ...addDirectConnectionWhenNeeded(model.driverOptions, model),
+    monitorCommands: true,
   };
 
   // if `auth` is passed then username and password must be present,
