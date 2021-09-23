@@ -1,5 +1,7 @@
 ignores: [
     '@mongodb-js/prettier-config-compass',
     '@types/webdriverio',
-  "mongodb-compass"
-]
+    'mongodb-compass',
+    # Directly used with execFile in the index.js
+    'mongodb-runner',
+  ]
