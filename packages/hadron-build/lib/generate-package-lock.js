@@ -2,7 +2,7 @@ const path = require('path');
 const { Arborist, Shrinkwrap } = require('@npmcli/arborist');
 const pacote = require('pacote');
 
-const cli = require('mongodb-js-cli')('hadron-build:generate-package-lock');
+const debug = require('debug')('hadron-build:generate-package-lock');
 
 /**
  * This script produces a fully "detached" package-lock file for a specific
@@ -30,13 +30,13 @@ async function generatePackageLock(
   let workspaceNode;
   let workspacePath;
 
-  cli.debug('Loading dependencies tree');
+  debug('Loading dependencies tree');
   arb = new Arborist({ path: monorepoRootPath });
   // Using virtual here so that optional and system specific pacakges are also
   // included (they will be missing in `actual` if they are not on disk).
   tree = await arb.loadVirtual();
 
-  cli.debug(`Looking for ${workspaceName} workspace`);
+  debug(`Looking for ${workspaceName} workspace`);
 
   if (!tree.workspaces.has(workspaceName)) {
     const availableWorkspaces = Array.from(tree.workspaces.keys());
@@ -53,7 +53,7 @@ async function generatePackageLock(
 
   const packagesMeta = new Map();
 
-  cli.debug(`Building dependency tree for ${workspaceName} workspace`);
+  debug(`Building dependency tree for ${workspaceName} workspace`);
 
   const packages = getAllChildrenForNode(workspaceNode);
 
@@ -76,12 +76,27 @@ async function generatePackageLock(
     let meta;
 
     if (packageNode.isLink) {
-      meta = await resolvePackageMetaForLink(packageNode, npmRegistry);
+      try {
+        meta = await resolvePackageMetaForLink(packageNode, npmRegistry);
+      } catch (e) {
+        debug(`Failed to resolve package meta for package ${packageNode.name}`);
+        // We don't care about dev/optional deps, but if it's not one of those,
+        // we need to throw
+        if (
+          !packageNode.target.dev &&
+          !packageNode.target.optional &&
+          !packageNode.target.devOptional
+        ) {
+          throw e;
+        }
+      }
     } else {
       meta = Shrinkwrap.metaFromNode(packageNode);
     }
 
-    packagesMeta.set(metaPath, meta);
+    if (meta) {
+      packagesMeta.set(metaPath, meta);
+    }
   }
 
   // https://docs.npmjs.com/cli/v7/configuring-npm/package-lock-json#file-format
@@ -138,6 +153,8 @@ const manifestKeys = [
 
 const nodePackageKeys = ['inBundle', 'hasShrinkwrap', 'hasInstallScript'];
 
+const nodeTargetPackageKeys = ['dev', 'optional', 'devOptional', 'peer'];
+
 /**
  * Create a shrinkwrap package meta from registry metadata following the
  * description in npm docs[0] and internal arborist implementation[1] (we can't
@@ -153,13 +170,7 @@ async function resolvePackageMetaForLink(link, npmRegistry) {
     registry: npmRegistry
   });
 
-  const meta = {
-    // XXX: We are not providing `dev`, `optional`, `devOptional` (see npm docs
-    // for description): those are not set on the LINKs and their children
-    // returned by arborist and there is no easy way to get that info without a
-    // deeper tree inspection. Good news are this info is not really required
-    // for our purposes, so we can skip it.
-  };
+  const meta = {};
 
   manifestKeys.forEach((key) => {
     if (manifest[key]) {
@@ -170,6 +181,12 @@ async function resolvePackageMetaForLink(link, npmRegistry) {
   nodePackageKeys.forEach((key) => {
     if (link.package[key]) {
       meta[key] = link.package[key];
+    }
+  });
+
+  nodeTargetPackageKeys.forEach((key) => {
+    if (link.target[key]) {
+      meta[key] = link.target[key];
     }
   });
 

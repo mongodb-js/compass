@@ -102,6 +102,11 @@ describe('CreateIndexModal [Component]', () => {
       changePartialFilterExpressionSpy = null;
       changeCollationOptionSpy = null;
       changeNameSpy = null;
+      // Note: We unmount the component here because of a
+      // race condition with leafygreen modals.
+      // They both attempt to maintain autofocus and cause a large noise
+      // in the test logs.
+      component.unmount();
       component = null;
     });
 
@@ -245,6 +250,7 @@ describe('CreateIndexModal [Component]', () => {
       changePartialFilterExpressionSpy = null;
       changeCollationOptionSpy = null;
       changeNameSpy = null;
+      component.unmount();
       component = null;
     });
 
@@ -384,6 +390,7 @@ describe('CreateIndexModal [Component]', () => {
       changePartialFilterExpressionSpy = null;
       changeCollationOptionSpy = null;
       changeNameSpy = null;
+      component.unmount();
       component = null;
     });
 
@@ -487,6 +494,7 @@ describe('CreateIndexModal [Component]', () => {
       changePartialFilterExpressionSpy = null;
       changeCollationOptionSpy = null;
       changeNameSpy = null;
+      component.unmount();
       component = null;
     });
 
@@ -572,6 +580,7 @@ describe('CreateIndexModal [Component]', () => {
       changePartialFilterExpressionSpy = null;
       changeCollationOptionSpy = null;
       changeNameSpy = null;
+      component.unmount();
       component = null;
     });
 
@@ -660,6 +669,7 @@ describe('CreateIndexModal [Component]', () => {
       changePartialFilterExpressionSpy = null;
       changeCollationOptionSpy = null;
       changeNameSpy = null;
+      component.unmount();
       component = null;
     });
 

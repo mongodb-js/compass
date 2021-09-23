@@ -1,3 +1,5 @@
+require('./index.less');
+
 const React = require('react');
 
 const GraphsComponent = require('./server-stats-graphs-component');

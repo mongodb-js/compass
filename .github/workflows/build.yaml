@@ -13,6 +13,8 @@ jobs:
   build:
     name: Build Compass
 
+    timeout-minutes: 45
+
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -89,6 +91,9 @@ jobs:
 
       - name: Upload Compass Artifacts
         uses: actions/upload-artifact@v2
+        # In case e2e tests failed, but assets were produced, we still want to
+        # upload them for inspection
+        if: always()
         with:
           name: Compass Build ${{ runner.os }}
           path: |
@@ -99,6 +104,7 @@ jobs:
             packages/compass/dist/*.deb
             packages/compass/dist/*.rpm
             packages/compass/dist/*.tar.gz
+            packages/compass/dist/*.json
 
       - name: Upload Spectron Logs
         uses: actions/upload-artifact@v2

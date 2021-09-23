@@ -11,15 +11,11 @@ const {
 const { Application } = require('spectron');
 const { rebuild } = require('electron-rebuild');
 const debug = require('debug')('compass-e2e-tests');
-
 const {
   run: packageCompass,
-  cleanCompileCache,
-  createCompileCache,
-  createPackagedStyles,
+  compileAssets,
 } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
-const { createUnlockedKeychain } = require('./keychain');
 const { retryWithBackoff } = require('./retry-with-backoff');
 const { addCommands } = require('./commands');
 
@@ -36,13 +32,15 @@ const { addCommands } = require('./commands');
  * @property {() => Promise<void>} disconnect
  * @property {(str: string, parse?: boolean, timeout?: number) => Promise<any>} shellEval
  *
- * @typedef {import('spectron').Application & { client: import('spectron').SpectronClient & ExtendedClient }} ExtendedApplication
+ * @typedef {Object} CompassLog
+ * @property {Buffer} raw
+ * @property {any[]} structured
+ *
+ * @typedef {import('spectron').Application & { compassLog: CompassLog['structured'], client: import('spectron').SpectronClient & ExtendedClient }} ExtendedApplication
  */
 
+const compileAssetsAsync = promisify(compileAssets);
 const packageCompassAsync = promisify(packageCompass);
-const cleanCompileCacheAsync = promisify(cleanCompileCache);
-const createCompileCacheAsync = promisify(createCompileCache);
-const createPackagedStylesAsync = promisify(createPackagedStyles);
 
 const COMPASS_PATH = path.dirname(
   require.resolve('mongodb-compass/package.json')
@@ -80,6 +78,20 @@ let i = 0;
 let j = 0;
 // For the html
 let k = 0;
+
+/**
+ *
+ * @param {import('webdriverio').LogEntry} logEntry
+ * @returns {string}
+ */
+function formatLogToErrorWithStack(logEntry) {
+  const [file, lineCol, ...rest] = logEntry.message.split(' ');
+  const message = rest
+    .join(' ')
+    .replace(/\\n/g, '\n')
+    .replace(/(^"|"$)/g, '');
+  return `${message}\n  at ${file}:${lineCol}`;
+}
 
 /**
  * @param {boolean} testPackagedApp Should compass start from the packaged binary or just from the source (defaults to source)
@@ -214,14 +226,21 @@ async function startCompass(
       (log) => !['DEBUG', 'INFO', 'WARNING'].includes(log.level)
     );
     if (errors.length) {
-      console.error('Errors encountered during testing:');
-      console.error(errors);
-
-      // fail the tests
+      /** @type { Error & { errors?: any[] } } */
       const error = new Error(
-        'Errors encountered in render process during testing'
+        `Errors encountered in render process during testing:\n\n${errors
+          .map(formatLogToErrorWithStack)
+          .map((msg) =>
+            msg
+              .split('\n')
+              .map((line) => `  ${line}`)
+              .join('\n')
+          )
+          .join('\n\n')}`
       );
       error.errors = errors;
+      // Fail the tests if we encountered some severe errors while the
+      // application was running
       throw error;
     }
 
@@ -233,7 +252,7 @@ async function startCompass(
 
 /**
  * @param {string[]} logs The main process console logs
- * @returns {Promise<any[]>}
+ * @returns {Promise<CompassLog>}
  */
 async function getCompassLog(logs) {
   const logOutputIndicatorMatch = logs
@@ -241,7 +260,7 @@ async function getCompassLog(logs) {
     .find((match) => match);
   if (!logOutputIndicatorMatch) {
     debug('no log output indicator found!');
-    return [];
+    return { raw: Buffer.from(''), structured: [] };
   }
 
   const { filename } = logOutputIndicatorMatch.groups;
@@ -287,27 +306,8 @@ async function rebuildNativeModules(compassPath = COMPASS_PATH) {
 }
 
 async function compileCompassAssets(compassPath = COMPASS_PATH) {
-  const pkgJson = require(path.join(compassPath, 'package.json'));
-  const {
-    config: {
-      hadron: { distributions: distConfig },
-    },
-  } = pkgJson;
-
-  const buildTarget = {
-    dir: compassPath,
-    resourcesAppDir: compassPath,
-    pkg: pkgJson,
-    distribution:
-      process.env.HADRON_DISTRIBUTION ||
-      (distConfig && distConfig.default) ||
-      'compass',
-  };
-
   // @ts-ignore some weirdness from util-callbackify
-  await cleanCompileCacheAsync(buildTarget);
-  await createCompileCacheAsync(buildTarget);
-  await createPackagedStylesAsync(buildTarget);
+  await compileAssetsAsync({ dir: compassPath });
 }
 
 async function getCompassBuildMetadata() {
@@ -479,8 +479,6 @@ async function savePage(
 }
 
 async function beforeTests() {
-  const keychain = createUnlockedKeychain();
-  keychain.activate();
   const compass = await startCompass();
 
   const { client } = compass;
@@ -494,24 +492,18 @@ async function beforeTests() {
     await client.closePrivacySettingsModal();
   });
 
-  return { keychain, compass };
+  return compass;
 }
 
-async function afterTests({ keychain, compass }) {
-  try {
-    if (compass) {
-      if (process.env.CI) {
-        await capturePage(compass);
-        await savePage(compass);
-      }
+async function afterTests(compass) {
+  if (compass) {
+    if (process.env.CI) {
+      await capturePage(compass);
+      await savePage(compass);
+    }
 
-      await compass.stop();
-      compass = null;
-    }
-  } finally {
-    if (keychain) {
-      keychain.reset();
-    }
+    await compass.stop();
+    compass = null;
   }
 }
 

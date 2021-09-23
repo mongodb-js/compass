@@ -1,12 +1,3 @@
 ignores: [
-  "babel-loader",
-  "chai-as-promised",
-  "electron-mocha",
-  "less-loader",
-  "mocha",
-  "mock-require",
-  "reflux-state-mixin",
-  "sinon",
-  "sinon-chai",
   "mongodb-compass"
 ]

@@ -30,7 +30,3 @@ if (!process.env.HARDRON_METRICS_INTERCOM_APP_ID) {
 if (!process.env.HARDRON_METRICS_STITCH_APP_ID) {
   process.env.HARDRON_METRICS_STITCH_APP_ID = config.metrics_stitch_app_id;
 }
-
-if (pkg.distribution) {
-  process.env.NODE_ENV = 'production';
-}

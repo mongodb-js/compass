@@ -1,4 +1,4 @@
-import { AnyError, CollStats, Db, Document, MongoClient } from 'mongodb';
+import type { AnyError, CollStats, Db, Document, MongoClient } from 'mongodb';
 
 export interface Callback<R> {
   (
@@ -24,6 +24,7 @@ export interface ResolvedInstanceTaskData {
   collections: InstanceCollectionDetails[];
   hierarchy: never;
   stats: InstanceDatabaseStats;
+  featureCompatibilityVersion: string | null;
 }
 
 export type InstanceDetails = Omit<

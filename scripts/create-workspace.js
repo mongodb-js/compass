@@ -52,6 +52,7 @@ async function main(argv) {
   const {
     name = workspaceNameFromArgs,
     description,
+    isConfig = false,
     isPublic,
     react,
     dependants,
@@ -79,6 +80,16 @@ async function main(argv) {
         type: 'text',
         name: 'description',
         message: 'Provide a one-line description of the workspace'
+      },
+      {
+        type(_, { name, description }) {
+          const regex = /\bconfig\b/i;
+          return regex.test(name) || regex.test(description) ? 'confirm' : null;
+        },
+        name: 'isConfig',
+        message: 'Is it a shared configuration package?',
+        hint: '(answering yes will create the package in the ./configs/<package-name> directory)',
+        initial: true
       },
       {
         type: 'confirm',
@@ -172,8 +183,7 @@ async function main(argv) {
       check: 'npm run lint && npm run depcheck',
       'check-ci': 'npm run check',
       test: 'mocha',
-      'test-cov':
-        'nyc -x "**/*.spec.*" npm run test',
+      'test-cov': 'nyc -x "**/*.spec.*" npm run test',
       'test-watch': 'npm run test -- --watch',
       'test-ci': 'npm run test-cov',
       reformat: 'npm run prettier -- --write .'
@@ -212,7 +222,7 @@ async function main(argv) {
   const packagePath = path.resolve(
     __dirname,
     '..',
-    'packages',
+    isConfig ? 'configs' : 'packages',
     packageNameToDir(name)
   );
 

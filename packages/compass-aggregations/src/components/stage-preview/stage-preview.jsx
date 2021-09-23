@@ -26,7 +26,8 @@ class StagePreview extends Component {
     isEnabled: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
     isComplete: PropTypes.bool.isRequired,
-    isMissingAtlasOnlyStageSupport: PropTypes.bool.isRequired,
+    // Can be undefined on the initial render
+    isMissingAtlasOnlyStageSupport: PropTypes.bool,
     openLink: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,

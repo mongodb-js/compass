@@ -2,6 +2,7 @@
 
 const path = require('path');
 const semver = require('semver');
+const req = require('./require');
 
 /**
  * The plugin module cache.
@@ -52,7 +53,7 @@ class Plugin {
     this.pluginPath = pluginPath;
     this.isActivated = false;
     try {
-      this.metadata = Object.freeze(require(path.resolve(this.pluginPath, PLUGIN_FILENAME)));
+      this.metadata = Object.freeze(req(path.resolve(this.pluginPath, PLUGIN_FILENAME)));
     } catch (e) {
       this.error = Object.freeze(e);
       this.metadata = Object.freeze({ name: `${path.basename(this.pluginPath)}` });
@@ -72,7 +73,7 @@ class Plugin {
     if (CACHE.hasOwnProperty(this.pluginPath)) {
       return CACHE[this.pluginPath];
     }
-    const module = require(path.resolve(this.pluginPath, this.metadata.main));
+    const module = req(path.resolve(this.pluginPath, this.metadata.main));
     CACHE[this.pluginPath] = module;
     return module;
   }

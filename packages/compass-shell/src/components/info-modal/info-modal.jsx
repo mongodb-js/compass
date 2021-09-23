@@ -41,7 +41,7 @@ const hotkeys = [
     description: 'Erases one character, similar to hitting backspace.'
   },
   {
-    key: 'Ctrl+L',
+    key: 'Ctrl/Cmd+L',
     description: 'Clears the screen, similar to the clear command.'
   },
   {

@@ -1,6 +1,7 @@
 /* eslint-disable no-sync */
 const fs = require('fs-extra');
 const path = require('path');
+const { pathToFileURL } = require('url');
 const os = require('os');
 const execa = require('execa');
 const { expect } = require('chai');
@@ -102,7 +103,7 @@ describe('release', () => {
     await execa('git', ['config', '--local', 'user.name', 'user']);
     await execa('git', ['config', '--local', 'user.email', 'user@example.com']);
 
-    remote = `file://${gitRemotePath}`;
+    remote = pathToFileURL(gitRemotePath).toString();
 
     // setup repo and package:
     repoPath = path.resolve(tempDir, 'compass-release-test-repo');

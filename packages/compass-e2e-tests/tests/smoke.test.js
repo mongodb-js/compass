@@ -12,20 +12,19 @@ const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 describe('Smoke tests', function () {
   this.timeout(1000 * 60 * 1);
 
-  let keychain;
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
   let client;
 
   before(async function () {
-    ({ keychain, compass } = await beforeTests());
+    compass = await beforeTests();
     client = compass.client;
 
     await client.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   after(function () {
-    return afterTests({ keychain, compass });
+    return afterTests(compass);
   });
 
   afterEach(async function () {

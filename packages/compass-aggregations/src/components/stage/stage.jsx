@@ -51,7 +51,8 @@ class Stage extends Component {
     isExpanded: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
     isComplete: PropTypes.bool.isRequired,
-    isMissingAtlasOnlyStageSupport: PropTypes.bool.isRequired,
+    // Can be undefined on the initial render
+    isMissingAtlasOnlyStageSupport: PropTypes.bool,
     fromStageOperators: PropTypes.bool.isRequired,
     previewDocuments: PropTypes.array.isRequired,
     index: PropTypes.number.isRequired,

@@ -152,6 +152,7 @@ async function connect(
   }
 
   const mongoClient = new MongoClient(resolvedUrl, options);
+  const { driver } = mongoClient.options.metadata;
 
   if (setupListeners) {
     setupListeners(mongoClient);
@@ -166,6 +167,7 @@ async function connect(
 
     log.info(mongoLogId(1_001_000_012), 'Connect', 'Connection established', {
       url: redactConnectionString(url),
+      driver,
     });
 
     return [client, tunnel, { url, options }];
@@ -174,7 +176,7 @@ async function connect(
       mongoLogId(1_001_000_013),
       'Connect',
       'Connection attempt failed',
-      { error: err.message }
+      { error: err.message, driver }
     );
     debug('connection error', err);
     debug('force shutting down ssh tunnel ...');
