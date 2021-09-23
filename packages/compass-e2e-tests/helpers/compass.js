@@ -222,9 +222,19 @@ async function startCompass(
     }
 
     // ERROR, CRITICAL and whatever unknown things might end up in the logs
-    const errors = renderLogs.filter(
-      (log) => !['DEBUG', 'INFO', 'WARNING'].includes(log.level)
-    );
+    const errors = renderLogs.filter((log) => {
+      if (['DEBUG', 'INFO', 'WARNING'].includes(log.level)) {
+        return false;
+      }
+
+      // TODO: remove this once we fixed these warnings
+      if (log.level === 'SEVERE' && log.message.includes('"Warning: Failed prop type: ')) {
+        return false;
+      }
+
+      return true;
+    });
+
     if (errors.length) {
       /** @type { Error & { errors?: any[] } } */
       const error = new Error(

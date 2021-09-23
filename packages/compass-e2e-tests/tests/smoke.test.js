@@ -415,7 +415,7 @@ describe('Smoke tests', function () {
     it('supports collection to JSON with a subset of fields');
   });
 
-  describe('Compass Shell', function () {
+  describe('Shell', function () {
     it('can be opened, collapsed and resized');
     it('supports running commands');
   });

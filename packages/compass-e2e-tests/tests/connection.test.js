@@ -22,18 +22,17 @@ async function disconnect(client) {
 describe('Connection screen', function () {
   this.timeout(1000 * 60 * 1);
 
-  let keychain;
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
   let client;
 
   before(async function () {
-    ({ keychain, compass } = await beforeTests());
+    compass = await beforeTests();
     client = compass.client;
   });
 
   after(function () {
-    return afterTests({ keychain, compass });
+    return afterTests(compass);
   });
 
   afterEach(async function () {
