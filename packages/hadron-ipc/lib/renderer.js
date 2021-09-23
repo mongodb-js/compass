@@ -3,7 +3,7 @@
 const getResponseChannel = require('./common').getResponseChannel;
 const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
-const debug = require('debug')('hadron-ipc:renderer');
+const _debug = require('debug')('hadron-ipc:renderer');
 
 exports = ipcRenderer;
 
@@ -36,7 +36,7 @@ exports.callQuiet = function(methodName, ...args) {
 };
 
 exports.call = function(methodName, ...args) {
-  return call(debug, methodName, ...args);
+  return call(_debug, methodName, ...args);
 };
 
 module.exports = exports;
