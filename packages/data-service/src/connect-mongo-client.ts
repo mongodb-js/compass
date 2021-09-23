@@ -80,7 +80,7 @@ export default async function connectMongoClient(
     ])) as MongoClient; // waitForTunnel always throws, never resolves
 
     log.info(mongoLogId(1_001_000_012), 'Connect', 'Connection established', {
-      driver: mongoClient.options?.metadata,
+      driver: mongoClient.options?.metadata?.driver,
       url: redactConnectionString(urlWithSshTunnel),
     });
 
