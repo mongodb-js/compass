@@ -228,7 +228,10 @@ async function startCompass(
       }
 
       // TODO: remove this once we fixed these warnings
-      if (log.level === 'SEVERE' && log.message.includes('"Warning: Failed prop type: ')) {
+      if (
+        log.level === 'SEVERE' &&
+        log.message.includes('"Warning: Failed prop type: ')
+      ) {
         return false;
       }
 
