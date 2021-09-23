@@ -500,6 +500,11 @@ async function beforeTests() {
 async function afterTests({ keychain, compass }) {
   try {
     if (compass) {
+      if (process.env.CI) {
+        await capturePage(compass);
+        await savePage(compass);
+      }
+
       await compass.stop();
       compass = null;
     }
