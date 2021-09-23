@@ -1,31 +1,99 @@
-import { ConnectionInfo } from './connection-info';
+import Ajv, { JTDSchemaType } from 'ajv/dist/jtd';
+import { validate as uuidValidate } from 'uuid';
+import path from 'path';
 
-type ConnectionInfoWithRequiredId = ConnectionInfo &
+import { ConnectionInfo } from './connection-info';
+import { UserData } from './user-data';
+
+type ConnectionInfoWithId = ConnectionInfo &
   Required<Pick<ConnectionInfo, 'id'>>;
 
-import { validate as uuidValidate } from 'uuid';
-import {
-  AmpersandMethodOptions,
-  convertConnectionInfoToModel,
-  convertConnectionModelToInfo,
-} from './legacy/legacy-connection-model';
+const SCHEMA_VERSION = 1;
+const CONNECTIONS_SUB_DIR = path.join('connections', `v${SCHEMA_VERSION}`);
+
+const schema: JTDSchemaType<ConnectionInfoWithId> = {
+  properties: {
+    id: {
+      type: 'string',
+    },
+    connectionOptions: {
+      properties: {
+        connectionString: {
+          type: 'string',
+        },
+      },
+      optionalProperties: {
+        tlsCertificateFile: {
+          type: 'string',
+        },
+        sshTunnel: {
+          properties: {
+            host: {
+              type: 'string',
+            },
+            port: {
+              type: 'int32',
+            },
+            username: {
+              type: 'string',
+            },
+          },
+          optionalProperties: {
+            identityKeyFile: {
+              type: 'string',
+            },
+            identityKeyPassphrase: {
+              type: 'string',
+            },
+            password: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    },
+  },
+  optionalProperties: {
+    lastUsed: {
+      type: 'timestamp',
+    },
+    favorite: {
+      properties: {
+        name: {
+          type: 'string',
+        },
+      },
+      optionalProperties: {
+        color: {
+          type: 'string',
+        },
+      },
+    },
+  },
+};
 
 export class ConnectionStorage {
+  private _userData: UserData<ConnectionInfoWithId>;
+
+  constructor() {
+    const ajv = new Ajv();
+    const serialize = ajv.compileSerializer(schema);
+    const parse = ajv.compileParser(schema);
+
+    this._userData = new UserData<ConnectionInfoWithId>({
+      subDir: CONNECTIONS_SUB_DIR,
+      parse,
+      serialize,
+    });
+  }
+
   /**
    * Loads all the ConnectionInfo currently stored.
    *
    * @returns Promise<ConnectionInfo[]>
    */
-  async loadAll(): Promise<ConnectionInfo[]> {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { ConnectionCollection } = require('mongodb-connection-model');
-    const connectionCollection = new ConnectionCollection();
-    const fetchConnectionModels = promisifyAmpersandMethod(
-      connectionCollection.fetch.bind(connectionCollection)
-    );
-
-    await fetchConnectionModels();
-    return connectionCollection.map(convertConnectionModelToInfo);
+  async loadAll(): Promise<ConnectionInfoWithId[]> {
+    return await this._userData.readAll('*.json');
   }
 
   /**
@@ -36,17 +104,15 @@ export class ConnectionStorage {
    *
    * @param connectionInfo - The ConnectionInfo object to be saved.
    */
-  async save(connectionInfo: ConnectionInfoWithRequiredId): Promise<void> {
-    if (!connectionInfo.id) {
-      throw new Error('id is required');
-    }
-
+  async save(connectionInfo: ConnectionInfoWithId): Promise<void> {
     if (!uuidValidate(connectionInfo.id)) {
       throw new Error('id must be a uuid');
     }
 
-    const model = await convertConnectionInfoToModel(connectionInfo);
-    model.save();
+    await this._userData.write(
+      this._idToFile(connectionInfo.id),
+      connectionInfo
+    );
   }
 
   /**
@@ -58,32 +124,18 @@ export class ConnectionStorage {
    * Trying to remove a ConnectionInfo that is not stored has no effect
    * and won't throw an exception.
    *
-   * @param connectionOptions - The ConnectionInfo object to be deleted.
+   * @param connectionInfo - The ConnectionInfo object to be deleted.
    */
-  async delete(connectionOptions: ConnectionInfoWithRequiredId): Promise<void> {
-    if (!connectionOptions.id) {
-      // don't throw attempting to delete a connection
-      // that was never saved.
+  async delete(connectionInfo: ConnectionInfoWithId): Promise<void> {
+    if (!connectionInfo.id) {
+      // don't throw attempting to delete an invalid connection.
       return;
     }
 
-    const model = await convertConnectionInfoToModel(connectionOptions);
-    model.destroy();
+    await this._userData.delete(this._idToFile(connectionInfo.id));
   }
-}
 
-function promisifyAmpersandMethod<T>(
-  fn: (options: AmpersandMethodOptions<T>) => void
-): () => Promise<T> {
-  return () =>
-    new Promise((resolve, reject) => {
-      fn({
-        success: (model: T) => {
-          resolve(model);
-        },
-        error: (model: T, error: Error) => {
-          reject(error);
-        },
-      });
-    });
+  private _idToFile(id: string): string {
+    return path.join(`${id}.json`);
+  }
 }
