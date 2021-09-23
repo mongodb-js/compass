@@ -18,7 +18,7 @@ class PluginManager {
    * @param {string} baseDir - The base directory.
    * @param {Plugin[]} plugins - A list of individual plugins.
    */
-  constructor(paths, baseDir, plugins) {
+  constructor(paths, baseDir, plugins = []) {
     this.paths = paths;
     this.baseDir = baseDir;
     this.plugins = [...plugins];
@@ -39,6 +39,7 @@ class PluginManager {
 
     this.plugins.forEach(plugin => {
       plugin.activate(appRegistry);
+      Object.freeze(plugin);
       Action.pluginActivated(plugin);
     });
 
@@ -68,8 +69,7 @@ class PluginManager {
     debug('Loading plugin from path', pluginPath);
     try {
       const plugin = new Plugin(pluginPath, apiVersion);
-      const frozen = Object.freeze(plugin);
-      this.plugins.push(frozen);
+      this.plugins.push(plugin);
       return plugin;
     } catch (e) {
       debug('Failed to load plugin:', e);
