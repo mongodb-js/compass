@@ -21,8 +21,7 @@
   ],
   "main": "lib/index.js",
   "exports": {
-    "require": "./lib/index.js",
-    "import": "./lib/.esm-wrapper.mjs"
+    "require": "./lib/index.js"
   },
   "types": "./lib/index.d.ts",
   "files": [
@@ -35,7 +34,7 @@
     "prepublishOnly": "npm run compile",
     "clean": "rimraf lib",
     "precompile": "npm run clean",
-    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./lib/.esm-wrapper.mjs",
+    "compile": "tsc -p tsconfig.json",
     "depcheck": "depcheck",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -61,6 +60,7 @@
     "async": "^3.2.0",
     "debug": "^4.2.0",
     "lodash": "^4.17.20",
+    "get-port": "^5.1.1",
     "mongodb-build-info": "^1.1.1",
     "mongodb-connection-string-url": "^1.0.1",
     "mongodb-index-model": "^3.5.0",
@@ -71,7 +71,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@mongodb-js/devtools-docker-test-envs": "^1.0.1",
+    "@mongodb-js/devtools-docker-test-envs": "^1.1.2",
     "@mongodb-js/eslint-config-compass": "^0.3.0",
     "@mongodb-js/mocha-config-compass": "^0.4.0",
     "@mongodb-js/prettier-config-compass": "^0.2.0",

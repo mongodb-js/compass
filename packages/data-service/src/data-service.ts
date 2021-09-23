@@ -34,6 +34,7 @@ import {
   MongoClient,
   MongoClientOptions,
   ServerClosedEvent,
+  ReadPreferenceLike,
   ServerDescription,
   ServerDescriptionChangedEvent,
   ServerHeartbeatFailedEvent,
@@ -47,10 +48,11 @@ import {
   UpdateOptions,
   UpdateResult,
 } from 'mongodb';
+import ConnectionStringUrl from 'mongodb-connection-string-url';
+import { ConnectionOptions } from './connection-options';
 import { getInstance } from './instance-detail-helper';
-import connect from './legacy-connect';
-import { LegacyConnectionModel } from './legacy-connection-model';
 import { redactConnectionString } from './redact';
+import connectMongoClient from './connect-mongo-client';
 import {
   Callback,
   CollectionDetails,
@@ -59,6 +61,8 @@ import {
   Instance,
   InstanceDetails,
 } from './types';
+
+import getPort from 'get-port';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -71,22 +75,7 @@ const { log, mongoLogId } = createLogger('COMPASS-DATA-SERVICE');
 let id = 0;
 
 class DataService extends EventEmitter {
-  /**
-   * Stores the most recent topology description from the server's SDAM events:
-   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
-   */
-  lastSeenTopology: TopologyDescription | null = null;
-
-  /**
-   * Currently used in:
-   * - compass-deployment/read-state-store.js
-   * - compass-export-to-language/store.js
-   * - compass-home/store.js
-   * - compass-sidebar/store.js
-   * - compass-ssh-tunnel-status/store.js
-   */
-  model: LegacyConnectionModel;
-
+  private readonly _connectionOptions: ConnectionOptions;
   private _isConnecting = false;
   private _mongoClientConnectionOptions?: {
     url: string;
@@ -94,17 +83,22 @@ class DataService extends EventEmitter {
   };
 
   private _client?: MongoClient;
-  private _database?: Db;
-  private _tunnel: SshTunnel | null = null;
+  private _tunnel?: SshTunnel;
+
+  /**
+   * Stores the most recent topology description from the server's SDAM events:
+   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
+   */
+  private _lastSeenTopology: TopologyDescription | null = null;
 
   private _isWritable = false;
   private _isMongos = false;
   private _id: number;
 
-  constructor(model: LegacyConnectionModel) {
+  constructor(connectionOptions: ConnectionOptions) {
     super();
-    this.model = model;
     this._id = id++;
+    this._connectionOptions = connectionOptions;
   }
 
   getMongoClientConnectionOptions():
@@ -115,6 +109,18 @@ class DataService extends EventEmitter {
 
   private _logCtx(): string {
     return `Connection ${this._id}`;
+  }
+
+  getConnectionOptions(): Readonly<ConnectionOptions> {
+    return this._connectionOptions;
+  }
+
+  getConnectionString(): ConnectionStringUrl {
+    return new ConnectionStringUrl(this._connectionOptions.connectionString);
+  }
+
+  getReadPreference(): ReadPreferenceLike {
+    return this._initializedClient.readPreference;
   }
 
   /**
@@ -190,7 +196,7 @@ class DataService extends EventEmitter {
     collectionName: string,
     callback: Callback<CollectionStats>
   ): void {
-    const db = this.mongoClient.db(databaseName);
+    const db = this._initializedClient.db(databaseName);
     db.command({ collStats: collectionName, verbose: true }, (error, data) => {
       if (error && !error.message.includes('is a view, not a collection')) {
         // @ts-expect-error Callback without result...
@@ -215,7 +221,7 @@ class DataService extends EventEmitter {
     comm: Document,
     callback: Callback<Document>
   ): void {
-    const db = this.mongoClient.db(databaseName);
+    const db = this._initializedClient.db(databaseName);
     db.command(comm, (error, result) => {
       if (error) {
         // @ts-expect-error Callback without result...
@@ -256,11 +262,13 @@ class DataService extends EventEmitter {
     options: { nameOnly: boolean },
     callback: Callback<CollectionInfo[]>
   ): void;
+
   listCollections(
     databaseName: string,
     filter: Document,
     callback: Callback<CollectionInfo[]>
   ): void;
+
   listCollections(
     databaseName: string,
     filter: Document,
@@ -271,7 +279,7 @@ class DataService extends EventEmitter {
       callback = options;
       options = {};
     }
-    const db = this.mongoClient.db(databaseName);
+    const db = this._initializedClient.db(databaseName);
     db.listCollections(filter, options as ListCollectionsOptions).toArray(
       (error, data) => {
         if (error) {
@@ -289,12 +297,12 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   listDatabases(callback: Callback<Document>): void {
-    this.mongoClient.db('admin').command(
+    this._initializedClient.db('admin').command(
       {
         listDatabases: 1,
       },
       {
-        readPreference: this.model.readPreference,
+        readPreference: this.getReadPreference(),
       },
       (error, result) => {
         if (error) {
@@ -306,62 +314,46 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Connect to the server.
-   *
-   * @param done - The callback function.
-   */
-  connect(done: Callback<DataService>): void {
-    debug('connecting...');
-
-    if (this._isConnecting) {
-      setImmediate(() => {
-        // @ts-expect-error Callback without result...
-        done(
-          new Error(
-            'Connect method has been called more than once without disconnecting.'
-          )
-        );
-      });
+  async connect(): Promise<void> {
+    if (this._client) {
+      debug('already connected');
       return;
     }
 
-    // Not really true at that point, we are doing it just so we don't allow
-    // simultaneous syncronous calls to the connect method
+    if (this._isConnecting) {
+      debug('connect method called more than once');
+      return;
+    }
+
+    debug('connecting...');
     this._isConnecting = true;
+
     log.info(mongoLogId(1_001_000_014), this._logCtx(), 'Connecting', {
-      url: this.model.driverUrlWithSsh,
+      url: redactConnectionString(this._connectionOptions.connectionString),
     });
 
-    connect(
-      this.model,
-      this.setupListeners.bind(this),
-      (err, client, tunnel, connectionOptions) => {
-        if (err) {
-          this._isConnecting = false;
-          // @ts-expect-error Callback without result...
-          return done(this._translateMessage(err));
-        }
+    try {
+      const tunnelLocalPort = await getPort();
+      const [client, tunnel, connectionOptions] = await connectMongoClient(
+        this._connectionOptions,
+        this.setupListeners.bind(this),
+        tunnelLocalPort
+      );
 
-        this._client = client;
-        this._tunnel = tunnel;
+      const attr = {
+        isWritable: this.isWritable(),
+        isMongos: this.isMongos(),
+      };
 
-        this._mongoClientConnectionOptions = connectionOptions;
+      log.info(mongoLogId(1_001_000_015), this._logCtx(), 'Connected', attr);
+      debug('connected!', attr);
 
-        const attr = {
-          isWritable: this.isWritable(),
-          isMongos: this.isMongos(),
-        };
-        debug('connected!', attr);
-        log.info(mongoLogId(1_001_000_015), this._logCtx(), 'Connected', attr);
-
-        this._database = this._client.db(this.model.ns || 'admin');
-
-        done(null, this);
-        this.emit('readable');
-      }
-    );
-    return;
+      this._client = client;
+      this._tunnel = tunnel;
+      this._mongoClientConnectionOptions = connectionOptions;
+    } finally {
+      this._isConnecting = false;
+    }
   }
 
   /**
@@ -413,7 +405,7 @@ class DataService extends EventEmitter {
     callback: Callback<Collection<Document>>
   ): void {
     const collectionName = this._collectionName(ns);
-    const db = this.mongoClient.db(this._databaseName(ns));
+    const db = this._initializedClient.db(this._databaseName(ns));
     db.createCollection(collectionName, options, (error, result) => {
       if (error) {
         // @ts-expect-error Callback without result...
@@ -456,7 +448,7 @@ class DataService extends EventEmitter {
   database(name: string, options: unknown, callback: Callback<Document>): void {
     async.parallel(
       {
-        stats: this.databaseStats.bind(this, name),
+        stats: this._databaseStats.bind(this, name),
         collections: this.collections.bind(this, name),
       } as any,
       (error, db: any) => {
@@ -519,34 +511,21 @@ class DataService extends EventEmitter {
    * Disconnect the service.
    * @param callback - The callback.
    */
-  disconnect(callback: Callback<never>): void {
-    // This follows MongoClient behavior where calling `close` on client that is
-    // not connected
-    if (!this._client) {
-      setImmediate(() => {
-        // @ts-expect-error Callback without result...
-        callback(null);
-      });
-      return;
-    }
+  async disconnect(): Promise<void> {
     log.info(mongoLogId(1_001_000_016), this._logCtx(), 'Disconnecting');
 
-    this._client.close(true, (err) => {
-      if (this._tunnel) {
-        debug('mongo client closed. shutting down ssh tunnel');
-        this._tunnel.close().finally(() => {
-          this._cleanup();
-          log.info(mongoLogId(1_001_000_017), this._logCtx(), 'Fully closed');
-          debug('ssh tunnel stopped');
-          // @ts-expect-error Callback without result...
-          callback(err);
-        });
-      } else {
-        this._cleanup();
-        // @ts-expect-error Callback without result...
-        return callback(err);
-      }
-    });
+    try {
+      await this._client
+        ?.close(true)
+        .catch((err) => debug('failed to close MongoClient', err));
+
+      await this._tunnel
+        ?.close()
+        .catch((err) => debug('failed to close tunnel', err));
+    } finally {
+      this._cleanup();
+      log.info(mongoLogId(1_001_000_017), this._logCtx(), 'Fully closed');
+    }
   }
 
   /**
@@ -572,7 +551,7 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   dropDatabase(name: string, callback: Callback<boolean>): void {
-    this.mongoClient
+    this._initializedClient
       .db(this._databaseName(name))
       .dropDatabase((error, result) => {
         if (error) {
@@ -781,7 +760,7 @@ class DataService extends EventEmitter {
    */
   indexes(ns: string, options: unknown, callback: Callback<Document>): void {
     getIndexes(
-      this.mongoClient,
+      this._initializedClient,
       ns,
       (error: Error | undefined, data: IndexDetails[]) => {
         if (error) {
@@ -800,7 +779,10 @@ class DataService extends EventEmitter {
    * @param callback - The callback function.
    */
   instance(options: unknown, callback: Callback<Instance>): void {
-    getInstance(this.mongoClient, this.db, ((error, instanceData) => {
+    getInstance(this._initializedClient, this._defaultDb, ((
+      error,
+      instanceData
+    ) => {
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -818,11 +800,20 @@ class DataService extends EventEmitter {
         }
       );
 
+      const connectionString = new ConnectionStringUrl(
+        this._connectionOptions.connectionString
+      );
+
+      const firstHost = connectionString.hosts[0] || '';
+
+      const [hostname, port] = firstHost.split(':');
+      // ---TODO: understand how is used and maybe replace with data coming
+      // from connected client
       const instance: Instance = {
         ...instanceData,
-        _id: `${this.model.hostname}:${this.model.port}`,
-        hostname: this.model.hostname,
-        port: this.model.port,
+        _id: firstHost,
+        hostname: hostname,
+        port: +port,
       };
       callback(null, instance);
     }) as Callback<InstanceDetails>);
@@ -905,7 +896,7 @@ class DataService extends EventEmitter {
     callback: Callback<Document>
   ): void {
     const collectionName = this._collectionName(ns);
-    const db = this.mongoClient.db(this._databaseName(ns));
+    const db = this._initializedClient.db(this._databaseName(ns));
     // Order of arguments is important here, collMod is a command name and it
     // should always be the first one in the object
     const command = {
@@ -983,11 +974,11 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   currentOp(includeAll: boolean, callback: Callback<Document>): void {
-    this.mongoClient
+    this._initializedClient
       .db('admin')
       .command({ currentOp: 1, $all: includeAll }, (error, result) => {
         if (error) {
-          this.mongoClient
+          this._initializedClient
             .db('admin')
             .collection('$cmd.sys.inprog')
             .findOne({ $all: includeAll }, (error2, result2) => {
@@ -1008,14 +999,14 @@ class DataService extends EventEmitter {
    * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
    */
   getLastSeenTopology(): null | TopologyDescription {
-    return this.lastSeenTopology;
+    return this._lastSeenTopology;
   }
 
   /**
    * Returns the result of serverStats.
    */
   serverstats(callback: Callback<Document>): void {
-    this.db.admin().serverStatus((error, result) => {
+    this._defaultDb.admin().serverStatus((error, result) => {
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -1030,7 +1021,7 @@ class DataService extends EventEmitter {
    * @param callback - the callback.
    */
   top(callback: Callback<Document>): void {
-    this.db.admin().command({ top: 1 }, (error, result) => {
+    this._defaultDb.admin().command({ top: 1 }, (error, result) => {
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -1058,7 +1049,7 @@ class DataService extends EventEmitter {
     options.viewOn = this._collectionName(sourceNs);
     options.pipeline = pipeline;
 
-    this.mongoClient
+    this._initializedClient
       .db(this._databaseName(sourceNs))
       .createCollection(name, options, (error, result) => {
         if (error) {
@@ -1092,7 +1083,7 @@ class DataService extends EventEmitter {
       collMod: name,
       ...options,
     };
-    const db = this.mongoClient.db(this._databaseName(sourceNs));
+    const db = this._initializedClient.db(this._databaseName(sourceNs));
 
     db.command(command, (error, result) => {
       if (error) {
@@ -1159,7 +1150,7 @@ class DataService extends EventEmitter {
    * Create a ClientSession that can be passed to commands.
    */
   startSession(): ClientSession {
-    return this.mongoClient.startSession();
+    return this._initializedClient.startSession();
   }
 
   /**
@@ -1167,7 +1158,7 @@ class DataService extends EventEmitter {
    * @param clientSession - a ClientSession (can be created with startSession())
    */
   killSession(session: ClientSession): Promise<Document> {
-    return this.mongoClient.db('admin').command({
+    return this._initializedClient.db('admin').command({
       killSessions: [session.id],
     });
   }
@@ -1237,8 +1228,8 @@ class DataService extends EventEmitter {
         'topologyDescriptionChanged',
         (evt: TopologyDescriptionChangedEvent) => {
           debug('topologyDescriptionChanged', evt);
-          this._isWritable = this.checkIsWritable(evt);
-          this._isMongos = this.checkIsMongos(evt);
+          this._isWritable = this._checkIsWritable(evt);
+          this._isMongos = this._checkIsMongos(evt);
           const attr = {
             isWritable: this.isWritable(),
             isMongos: this.isMongos(),
@@ -1253,8 +1244,7 @@ class DataService extends EventEmitter {
             attr
           );
 
-          this.lastSeenTopology = evt.newDescription;
-
+          this._lastSeenTopology = evt.newDescription;
           this.emit('topologyDescriptionChanged', evt);
         }
       );
@@ -1293,18 +1283,15 @@ class DataService extends EventEmitter {
     }
   }
 
-  private get mongoClient(): MongoClient {
+  private get _initializedClient(): MongoClient {
     if (!this._client) {
       throw new Error('client not yet initialized');
     }
     return this._client;
   }
 
-  private get db(): Db {
-    if (!this._database) {
-      throw new Error('database not yet initialized');
-    }
-    return this._database;
+  private get _defaultDb(): Db {
+    return this._initializedClient.db();
   }
 
   /**
@@ -1313,8 +1300,8 @@ class DataService extends EventEmitter {
    * @param name - The database name.
    * @param callback - The callback.
    */
-  private databaseStats(name: string, callback: Callback<Document>): void {
-    const db = this.mongoClient.db(name);
+  private _databaseStats(name: string, callback: Callback<Document>): void {
+    const db = this._initializedClient.db(name);
     db.command({ dbStats: 1 }, (error, data) => {
       if (error) {
         // @ts-expect-error Callback without result...
@@ -1420,7 +1407,7 @@ class DataService extends EventEmitter {
    */
   // TODO: this is used directly in compass-import-export/collection-stream
   _collection(ns: string): Collection {
-    return this.mongoClient
+    return this._initializedClient
       .db(this._databaseName(ns))
       .collection(this._collectionName(ns));
   }
@@ -1480,7 +1467,7 @@ class DataService extends EventEmitter {
    *
    * @returns If the server is writable.
    */
-  private checkIsWritable(evt: TopologyDescriptionChangedEvent): boolean {
+  private _checkIsWritable(evt: TopologyDescriptionChangedEvent): boolean {
     return [...evt.newDescription.servers.values()].some(
       (server: ServerDescription) => server.isWritable
     );
@@ -1493,7 +1480,7 @@ class DataService extends EventEmitter {
    *
    * @returns If the server is a mongos.
    */
-  private checkIsMongos(evt: TopologyDescriptionChangedEvent): boolean {
+  private _checkIsMongos(evt: TopologyDescriptionChangedEvent): boolean {
     return evt.newDescription.type === 'Sharded';
   }
 
@@ -1514,10 +1501,12 @@ class DataService extends EventEmitter {
   }
 
   private _cleanup(): void {
+    if (this._client) {
+      this._client.removeAllListeners();
+    }
     this._client = undefined;
-    this._database = undefined;
+    this._tunnel = undefined;
     this._mongoClientConnectionOptions = undefined;
-    this._tunnel = null;
     this._isWritable = false;
     this._isMongos = false;
     this._isConnecting = false;

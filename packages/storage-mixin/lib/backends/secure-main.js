@@ -1,4 +1,3 @@
-const keytar = require('keytar');
 const debug = require('debug')('mongodb-storage-mixin:backends:secure-main');
 
 if (process && process.type === 'browser') {
@@ -15,7 +14,7 @@ if (process && process.type === 'browser') {
 
     let promise;
     try {
-      promise = keytar.findCredentials(meta.serviceName);
+      promise = require('keytar').findCredentials(meta.serviceName);
     } catch (e) {
       debug('Error calling findCredentials', e);
       throw e;
@@ -25,7 +24,7 @@ if (process && process.type === 'browser') {
       return Promise.all(
         accounts.map(function(entry) {
           const accountName = entry.account;
-          return keytar
+          return require('keytar')
             .deletePassword(meta.serviceName, accountName)
             .then(function() {
               debug('Deleted account %s successfully', accountName);
@@ -58,7 +57,7 @@ if (process && process.type === 'browser') {
    * @param {Object} meta - The metadata.
    */
   ipc.respondTo('storage-mixin:remove', (evt, meta) => {
-    keytar
+    require('keytar')
       .deletePassword(meta.serviceName, meta.accountName)
       .then(function() {
         debug('Removed password for', {
@@ -78,7 +77,7 @@ if (process && process.type === 'browser') {
    * @param {Object} meta - The metadata.
    */
   ipc.respondTo('storage-mixin:update', (evt, meta) => {
-    keytar
+    require('keytar')
       .setPassword(meta.serviceName, meta.accountName, meta.value)
       .then(function() {
         debug('Updated password successfully for', {
@@ -98,7 +97,7 @@ if (process && process.type === 'browser') {
    * @param {Object} meta - The metadata.
    */
   ipc.respondTo('storage-mixin:create', (evt, meta) => {
-    keytar
+    require('keytar')
       .setPassword(meta.serviceName, meta.accountName, meta.value)
       .then(function() {
         debug('Successfully dreated password for', {
@@ -118,7 +117,7 @@ if (process && process.type === 'browser') {
    * @param {Object} meta - The metadata.
    */
   ipc.respondTo('storage-mixin:find-one', (evt, meta) => {
-    keytar
+    require('keytar')
       .getPassword(meta.serviceName, meta.accountName)
       .then(function(rawJsonString) {
         ipc.broadcast('storage-mixin:find-one:result', {
@@ -138,7 +137,7 @@ if (process && process.type === 'browser') {
    * @param {Object} meta - The metadata.
    */
   ipc.respondTo('storage-mixin:find', (evt, meta) => {
-    keytar
+    require('keytar')
       .findCredentials(meta.namespace)
       .then(function(credentials) {
         ipc.broadcast('storage-mixin:find:result', {

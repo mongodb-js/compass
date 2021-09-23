@@ -96,7 +96,7 @@ describe('HomeStore [Store]', () => {
         expect(store.getState()).to.deep.equal(initialState);
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
-          model: { connectionTitle: 'test_id', hostname: 'mongodb.net' }
+          getConnectionOptions: () => ({ connectionString: 'mongodb+srv://mongodb.net/' })
         });
       });
       it('dispatches the change ui status action', () => {
@@ -110,14 +110,14 @@ describe('HomeStore [Store]', () => {
       beforeEach(() => {
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
-          model: { title: 'test_id', hostname: 'mongodb.net' }
+          getConnectionOptions: () => ({ connectionString: 'mongodb+srv://mongodb.net/' })
         });
         expect(store.getState()).to.deep.equal({
           errorMessage: '',
-          connectionTitle: 'test_id',
+          connectionTitle: 'mongodb.net',
           isCollapsed: false,
           namespace: '',
-          title: ' - test_id',
+          title: ' - mongodb.net',
           isConnected: true,
           uiStatus: UI_STATES.COMPLETE,
           isDataLake: false
@@ -156,10 +156,10 @@ describe('HomeStore [Store]', () => {
         expect(store.getState()).to.deep.equal(initialState);
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
-          model: { title: 'test_id', hostname: 'mongodb.net' }
+          getConnectionOptions: () => ({ connectionString: 'mongodb+srv://mongodb.net/' })
         });
 
-        expect(store.getState().title).to.equal(' - test_id');
+        expect(store.getState().title).to.equal(' - mongodb.net');
 
         global.hadronApp.appRegistry.emit('select-database', 'test.coll');
       });
@@ -167,7 +167,7 @@ describe('HomeStore [Store]', () => {
         expect(store.getState().namespace).to.equal('test.coll');
       });
       it('dispatches the changetitle action', () => {
-        expect(store.getState().title).to.equal(' - test_id/test.coll');
+        expect(store.getState().title).to.equal(' - mongodb.net/test.coll');
       });
     });
   });

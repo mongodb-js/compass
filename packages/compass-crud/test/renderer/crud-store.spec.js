@@ -1,5 +1,5 @@
 import Connection from 'mongodb-connection-model';
-import DataService from 'mongodb-data-service';
+import { DataService, connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import configureStore from '../../src/stores/crud-store';
@@ -15,18 +15,16 @@ const CONNECTION = new Connection({
 
 describe('store', function() {
   this.timeout(5000);
-  const dataService = new DataService(CONNECTION);
+  let dataService;
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
 
-  before((done) => {
-    dataService.connect(() => {
-      done();
-    });
+  before(async() => {
+    dataService = await connect(convertConnectionModelToInfo(CONNECTION));
   });
 
-  after((done) => {
-    dataService.disconnect(done);
+  after(async() => {
+    await dataService.disconnect();
   });
 
   describe('#getInitialState', () => {

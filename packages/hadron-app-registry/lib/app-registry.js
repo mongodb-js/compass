@@ -2,6 +2,8 @@
 
 const Reflux = require('reflux');
 const EventEmitter = require('eventemitter3');
+const debug = require('debug')('hadron-app-registry:app-registry');
+
 const Action = require('./actions');
 
 /**

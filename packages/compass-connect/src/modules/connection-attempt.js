@@ -1,6 +1,7 @@
 import createDebug from 'debug';
 import createLogger from '@mongodb-js/compass-logging';
 import { promisify } from 'util';
+import { connect } from 'mongodb-data-service';
 
 const { log, mongoLogId } = createLogger('COMPASS-CONNECT-UI');
 const debug = createDebug('mongodb-compass:compass-connect:connection-attempt');
@@ -10,20 +11,19 @@ function isConnectionAttemptTerminatedError(err) {
 }
 
 class ConnectionAttempt {
-  constructor() {
+  constructor(connectFn) {
+    this._connectFn = connectFn;
     this._cancelled = new Promise((resolve) => {
       this._cancelConnectionAttempt = () => resolve(null);
     });
   }
 
-  connect(dataService) {
+  connect(connectionOptions) {
     log.info(mongoLogId(1001000004), 'Connection UI', 'Initiating connection attempt');
-
-    this._dataService = dataService;
 
     return Promise.race([
       this._cancelled,
-      this._connect()
+      this._connect(connectionOptions)
     ]);
   }
 
@@ -34,16 +34,13 @@ class ConnectionAttempt {
     this._close();
   }
 
-  async _connect() {
+  async _connect(connectionOptions) {
     if (this._closed) {
       return;
     }
 
     try {
-      const runConnect = promisify(
-        this._dataService.connect.bind(this._dataService)
-      );
-      await runConnect();
+      this._dataService = await this._connectFn(connectionOptions);
       return this._dataService;
     } catch (err) {
       if (isConnectionAttemptTerminatedError(err)) {
@@ -69,11 +66,7 @@ class ConnectionAttempt {
     }
 
     try {
-      const runDisconnect = promisify(
-        this._dataService.disconnect.bind(this._dataService )
-      );
-
-      await runDisconnect();
+      await this._dataService.disconnect();
       debug('disconnected from connection attempt');
     } catch (err) {
       // When the disconnect fails, we free up the ui and we can
@@ -83,6 +76,6 @@ class ConnectionAttempt {
   }
 }
 
-export function createConnectionAttempt() {
-  return new ConnectionAttempt();
+export function createConnectionAttempt(connectFn = connect) {
+  return new ConnectionAttempt(connectFn);
 }
