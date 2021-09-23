@@ -94,7 +94,6 @@
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-connection-model": "^21.8.0",
-    "mongodb-data-service": "^21.11.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",

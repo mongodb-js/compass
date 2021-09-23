@@ -109,7 +109,6 @@
     "less-loader": "^7.3.0",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb": "^4.1.0",
     "mongodb-collection-model": "^4.13.0",
     "mongodb-connection-model": "^21.8.0",
     "mongodb-data-service": "^21.11.0",

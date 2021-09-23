@@ -104,7 +104,8 @@ export class WebpackPluginStartElectron {
               // XXX: in non-electron environment this import returns path to
               // the binary
               electronBinaryPath as unknown as string,
-              [fullPath]
+              [fullPath],
+              { stdio: 'inherit', env: process.env }
             );
             let stderr = '';
             this.electronProcess.stderr
