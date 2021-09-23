@@ -65,8 +65,11 @@ describe('Logging integration', function () {
     await afterTests(compass);
 
     const cleanedLog = cleanLog(compass.compassLog);
-    const driverVersion = cleanedLog.find(e => e.id === 1_001_000_012).attr.driver.version;
-    const { serverVersion, featureCompatibilityVersion } = cleanedLog.find(e => e.id === 1_001_000_024).attr;
+    const driverVersion = cleanedLog.find((e) => e.id === 1_001_000_012).attr
+      .driver.version;
+    const { serverVersion, featureCompatibilityVersion } = cleanedLog.find(
+      (e) => e.id === 1_001_000_024
+    ).attr;
 
     expect(cleanedLog).to.deep.equal([
       {
@@ -125,7 +128,7 @@ describe('Logging integration', function () {
           isMongos: false,
           isWritable: false,
           newType: 'Single',
-          previousType: 'Unknown'
+          previousType: 'Unknown',
         },
       },
       {
@@ -197,7 +200,7 @@ describe('Logging integration', function () {
           featureCompatibilityVersion,
           genuineMongoDB: { dbType: 'mongodb', isGenuine: true },
           serverVersion,
-        }
+        },
       },
       {
         s: 'I',
