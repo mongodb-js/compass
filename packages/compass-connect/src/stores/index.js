@@ -17,7 +17,8 @@ const { createConnectionAttempt } = require('../modules/connection-attempt');
 const ConnectionCollection = Connection.ConnectionCollection;
 const userAgent = navigator.userAgent.toLowerCase();
 
-const { log, mongoLogId } = require('@mongodb-js/compass-logging')('COMPASS-CONNECT-UI');
+const { createLogger } = require('@mongodb-js/compass-logging');
+const { log, mongoLogId } = createLogger('COMPASS-CONNECT-UI');
 
 /**
  * A default driverUrl.

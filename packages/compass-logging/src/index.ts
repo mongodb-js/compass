@@ -2,7 +2,7 @@ import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 import type { Writable } from 'stream';
 import ipc from 'hadron-ipc';
 
-function createLogger(component: string): {
+export function createLogger(component: string): {
   log: ReturnType<MongoLogWriter['bindComponent']>;
   mongoLogId: typeof mongoLogId;
 } {
