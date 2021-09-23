@@ -806,6 +806,18 @@ class DataService extends EventEmitter {
         return callback(this._translateMessage(error));
       }
 
+      log.info(
+        mongoLogId(1_001_000_024),
+        this._logCtx(),
+        'Fetched instance information',
+        {
+          serverVersion: instanceData.build.version,
+          genuineMongoDB: instanceData.genuineMongoDB,
+          dataLake: instanceData.dataLake,
+          featureCompatibilityVersion: instanceData.featureCompatibilityVersion,
+        }
+      );
+
       const instance: Instance = {
         ...instanceData,
         _id: `${this.model.hostname}:${this.model.port}`,
@@ -1187,6 +1199,8 @@ class DataService extends EventEmitter {
             {
               address: evt.address,
               error: evt.newDescription.error ?? null,
+              previousType: evt.previousDescription.type,
+              newType: evt.newDescription.type,
             }
           );
           this.emit('serverDescriptionChanged', evt);
@@ -1228,6 +1242,8 @@ class DataService extends EventEmitter {
           const attr = {
             isWritable: this.isWritable(),
             isMongos: this.isMongos(),
+            previousType: evt.previousDescription.type,
+            newType: evt.newDescription.type,
           };
           debug('updated to', attr);
           log.info(
@@ -1265,7 +1281,7 @@ class DataService extends EventEmitter {
         log.warn(
           mongoLogId(1_001_000_023),
           this._logCtx(),
-          'Server heartbeat succeeded',
+          'Server heartbeat failed',
           {
             connectionId: evt.connectionId,
             duration: evt.duration,

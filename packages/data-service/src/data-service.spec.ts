@@ -58,6 +58,7 @@ function mockedConnectionModel(
     };
     setupListeners(mockedClient);
     mockedClient.emit('topologyDescriptionChanged', {
+      previousDescription: _topologyDescription,
       newDescription: _topologyDescription,
     });
     cb(null, mockedClient, mockedTunnel, _connectionOptions);

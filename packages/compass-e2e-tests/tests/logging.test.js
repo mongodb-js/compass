@@ -31,6 +31,7 @@ function cleanLog(log) {
     // times depending on how long tests are taking.
     if (entry.id === 1_001_000_022 || entry.id === 1_001_000_023) {
       log.splice(i--, 1);
+      continue;
     }
     // Remove most mongosh entries as they are quite noisy
     if (
@@ -38,6 +39,7 @@ function cleanLog(log) {
       (entry.id !== 1_000_000_007 || entry.attr.input.includes('typeof prompt'))
     ) {
       log.splice(i--, 1);
+      continue;
     }
   }
   return log;
@@ -62,7 +64,14 @@ describe('Logging integration', function () {
 
     await afterTests(compass);
 
-    expect(cleanLog(compass.compassLog)).to.deep.equal([
+    const cleanedLog = cleanLog(compass.compassLog);
+    const driverVersion = cleanedLog.find((e) => e.id === 1_001_000_012).attr
+      .driver.version;
+    const { serverVersion, featureCompatibilityVersion } = cleanedLog.find(
+      (e) => e.id === 1_001_000_024
+    ).attr;
+
+    expect(cleanedLog).to.deep.equal([
       {
         s: 'I',
         c: 'COMPASS-MAIN',
@@ -118,6 +127,8 @@ describe('Logging integration', function () {
         attr: {
           isMongos: false,
           isWritable: false,
+          newType: 'Single',
+          previousType: 'Unknown',
         },
       },
       {
@@ -139,6 +150,8 @@ describe('Logging integration', function () {
         attr: {
           address: 'localhost:27018',
           error: null,
+          newType: 'Standalone',
+          previousType: 'Unknown',
         },
       },
       {
@@ -150,6 +163,8 @@ describe('Logging integration', function () {
         attr: {
           isMongos: false,
           isWritable: true,
+          newType: 'Single',
+          previousType: 'Single',
         },
       },
       {
@@ -159,6 +174,7 @@ describe('Logging integration', function () {
         ctx: 'Connect',
         msg: 'Connection established',
         attr: {
+          driver: { name: 'nodejs', version: driverVersion },
           url: 'mongodb://localhost:27018/test?readPreference=primary&appname=MongoDB+Compass&directConnection=true&ssl=false',
         },
       },
@@ -171,6 +187,19 @@ describe('Logging integration', function () {
         attr: {
           isMongos: false,
           isWritable: true,
+        },
+      },
+      {
+        s: 'I',
+        c: 'COMPASS-DATA-SERVICE',
+        id: 1_001_000_024,
+        ctx: 'Connection 0',
+        msg: 'Fetched instance information',
+        attr: {
+          dataLake: { isDataLake: false, version: null },
+          featureCompatibilityVersion,
+          genuineMongoDB: { dbType: 'mongodb', isGenuine: true },
+          serverVersion,
         },
       },
       {
