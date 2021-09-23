@@ -46,6 +46,7 @@ describe('connection model connector', function () {
                   // this is never truly added at the moment since Connection.from
                   // already adds this to the model and query string when necessary:
                   // directConnection: true,
+                  monitorCommands: true,
                   readPreference: 'primary',
                 });
 
