@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
 const glob = require('glob');
+const { sync: spawnSync } = require('cross-spawn');
 const Mocha = require('mocha');
 const debug = require('debug')('compass-e2e-tests');
 const {
@@ -10,22 +11,21 @@ const {
   buildCompass,
 } = require('./helpers/compass');
 const { createUnlockedKeychain } = require('./helpers/keychain');
-const { execFileSync } = require('child_process');
 
 const keychain = createUnlockedKeychain();
 
 function setup() {
   keychain.activate();
   debug('Starting MongoDB server and importing fixtures');
-  execFileSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
-  execFileSync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
+  spawnSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
+  spawnSync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
 }
 
 function cleanup() {
   keychain.reset();
   debug('Stopping MongoDB server and cleaning up server data');
   try {
-    execFileSync('npm', ['run', 'stop-server'], {
+    spawnSync('npm', ['run', 'stop-server'], {
       // If it's taking too long we might as well kill the process and move on,
       // mongodb-runer is flaky sometimes and in ci `posttest-ci` script will
       // take care of additional clean up anyway
