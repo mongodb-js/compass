@@ -96,7 +96,8 @@ describe('HomeStore [Store]', () => {
         expect(store.getState()).to.deep.equal(initialState);
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
-          getConnectionOptions: () => ({ connectionString: 'mongodb+srv://mongodb.net/' })
+        }, {
+          connectionOptions: { connectionString: 'mongodb+srv://mongodb.net/' }
         });
       });
       it('dispatches the change ui status action', () => {
@@ -110,7 +111,8 @@ describe('HomeStore [Store]', () => {
       beforeEach(() => {
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
-          getConnectionOptions: () => ({ connectionString: 'mongodb+srv://mongodb.net/' })
+        }, {
+          connectionOptions: { connectionString: 'mongodb+srv://mongodb.net/' }
         });
         expect(store.getState()).to.deep.equal({
           errorMessage: '',
@@ -156,7 +158,8 @@ describe('HomeStore [Store]', () => {
         expect(store.getState()).to.deep.equal(initialState);
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
           get: () => {},
-          getConnectionOptions: () => ({ connectionString: 'mongodb+srv://mongodb.net/' })
+        }, {
+          connectionOptions: { connectionString: 'mongodb+srv://mongodb.net/' }
         });
 
         expect(store.getState().title).to.equal(' - mongodb.net');
