@@ -187,7 +187,7 @@ Application.prototype.setupUserDirectory = function() {
 
 Application.prototype.setupLogging = function() {
   const home = app.getPath('home');
-  const appData = app.getPath('appData');
+  const appData = process.env.LOCALAPPDATA || process.env.APPDATA;
   const logDir =
     process.env.MONGODB_COMPASS_TEST_LOG_DIR || process.platform === 'win32'
       ? path.join(appData || home, 'mongodb', 'compass')
