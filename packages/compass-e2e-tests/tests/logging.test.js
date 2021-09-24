@@ -19,13 +19,17 @@ describe('Logging integration', function () {
           'db.runCommand({ connectionStatus: 1 })',
           true
         );
-        compassLog = compass.compassLog;
       } finally {
         await afterTests(compass);
       }
+
+      compassLog = compass.compassLog;
+      expect(compassLog).not.to.be.undefined;
     });
 
     it('has a timestamp on all entries', function () {
+      expect(compassLog).not.to.be.undefined;
+
       for (const entry of compassLog) {
         expect(entry.t.$date).to.be.a('string');
       }
@@ -267,6 +271,8 @@ describe('Logging integration', function () {
         .split('\n')
         .slice(0, 2)
         .join('\n');
+
+      delete uncaughtEntry.t;
 
       expect(uncaughtEntry).to.deep.equal({
         s: 'F',
