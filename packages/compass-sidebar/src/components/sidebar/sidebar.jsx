@@ -5,7 +5,6 @@ import cloneDeep from 'lodash.clonedeep';
 import ReactTooltip from 'react-tooltip';
 import { AutoSizer, List } from 'react-virtualized';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { Resizable } from 're-resizable';
 import { ResizeHandleVertical } from '@mongodb-js/compass-components';
 
 import classnames from 'classnames';
@@ -31,27 +30,20 @@ const OVER_SCAN_COUNT = 100;
 const ROW_HEIGHT = 28;
 const EXPANDED_WHITESPACE = 12;
 
-const resizeableDirections = {
-  top: false,
-  right: false, // This property is controlled in the component.
-  bottom: false,
-  left: false,
-  topRight: false,
-  bottomRight: false,
-  bottomLeft: false,
-  topLeft: false
-};
-
 // In pixels. (px)
 const sidebarWidthCollapsed = 36;
 const sidebarMinWidthOpened = 160;
 const defaultSidebarWidthOpened = 250;
 const sidebarArrowControlIncrement = 10;
 
+function getMaxSidebarWidth() {
+  return Math.max(sidebarMinWidthOpened, window.innerWidth - 100);
+}
+
 // Apply bounds to the sidebar width when resizing to ensure it's always
 // visible and usable to the user.
 function boundSidebarWidth(attemptedWidth) {
-  const maxWidth = window.innerWidth - 100;
+  const maxWidth = getMaxSidebarWidth();
 
   return Math.min(maxWidth, Math.max(sidebarMinWidthOpened, attemptedWidth));
 }
@@ -85,6 +77,16 @@ class Sidebar extends PureComponent {
     saveFavorite: PropTypes.func.isRequired
   };
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      width: props.isCollapsed
+        ? sidebarWidthCollapsed
+        : defaultSidebarWidthOpened
+    };
+  }
+
   componentWillReceiveProps() {
     if (this.list) {
       this.list.recomputeRowHeights();
@@ -98,20 +100,17 @@ class Sidebar extends PureComponent {
   }
 
   lastExpandedWidth = defaultSidebarWidthOpened;
-  resizableRef = null;
 
   toggleCollapsed() {
     if (!this.props.isCollapsed) {
-      this.lastExpandedWidth = boundSidebarWidth(this.resizableRef.size.width);
+      this.lastExpandedWidth = boundSidebarWidth(this.state.width);
 
-      this.resizableRef.updateSize({
-        width: sidebarWidthCollapsed,
-        height: '100%'
+      this.setState({
+        width: sidebarWidthCollapsed
       });
     } else {
-      this.resizableRef.updateSize({
-        width: boundSidebarWidth(this.lastExpandedWidth),
-        height: '100%'
+      this.setState({
+        width: boundSidebarWidth(this.lastExpandedWidth)
       });
     }
 
@@ -151,33 +150,13 @@ class Sidebar extends PureComponent {
     }
   }
 
-  handleResizeRight() {
+  handleResize(newWidth) {
     if (this.props.isCollapsed) {
       return;
     }
 
-    const newWidth = boundSidebarWidth(
-      this.resizableRef.size.width + sidebarArrowControlIncrement
-    );
-
-    this.resizableRef.updateSize({
-      width: newWidth,
-      height: '100%'
-    });
-  }
-
-  handleResizeLeft() {
-    if (this.props.isCollapsed) {
-      return;
-    }
-
-    const newWidth = boundSidebarWidth(
-      this.resizableRef.size.width - sidebarArrowControlIncrement
-    );
-
-    this.resizableRef.updateSize({
-      width: newWidth,
-      height: '100%'
+    this.setState({
+      width: boundSidebarWidth(newWidth)
     });
   }
 
@@ -299,29 +278,21 @@ class Sidebar extends PureComponent {
       (this.props.isCollapsed ? ' fa-caret-right' : ' fa-caret-left');
 
     return (
-      <Resizable
+      <div
         className={classnames(styles['compass-sidebar'], {
           [styles['compass-sidebar-collapsed']]: this.props.isCollapsed
         })}
-        defaultSize={{
-          width: defaultSidebarWidthOpened,
-          height: '100%'
-        }}
-        minWidth={this.props.isCollapsed ? sidebarWidthCollapsed : sidebarMinWidthOpened}
-        maxWidth="80%"
-        enable={{
-          resizeableDirections,
-          right: !this.props.isCollapsed
-        }}
-        ref={c => { this.resizableRef = c; }}
-        handleWrapperClass={styles['compass-sidebar-resize-handle-wrapper']}
-        handleComponent={{
-          right: <ResizeHandleVertical
-            onMoveRightPressed={this.handleResizeRight.bind(this)}
-            onMoveLeftPressed={this.handleResizeLeft.bind(this)}
-          />,
+        style={{
+          width: this.state.width
         }}
       >
+        <ResizeHandleVertical
+          onResize={this.handleResize.bind(this)}
+          step={sidebarArrowControlIncrement}
+          width={this.state.width}
+          minWidth={sidebarMinWidthOpened}
+          maxWidth={getMaxSidebarWidth()}
+        />
         <button
           className={classnames(styles['compass-sidebar-toggle'], 'btn btn-default btn-sm')}
           onClick={this.toggleCollapsed.bind(this)}
@@ -376,7 +347,7 @@ class Sidebar extends PureComponent {
         <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
         <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
         <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
-      </Resizable>
+      </div>
     );
   }
 }

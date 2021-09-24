@@ -2,7 +2,7 @@ import sinon from 'sinon';
 import React from 'react';
 import { shallow } from 'enzyme';
 import { Shell } from '@mongosh/browser-repl';
-import { Resizable } from 're-resizable';
+import { ResizeHandleHorizontal } from '@mongodb-js/compass-components';
 
 import { CompassShell } from './compass-shell';
 import ShellHeader from '../shell-header';
@@ -36,12 +36,6 @@ describe('CompassShell', () => {
           isExpanded: false,
           emitShellPluginOpened: mockOnOpenShellPlugin
         });
-        shell.resizableRef = {
-          size: {
-            height: 100
-          },
-          updateSize: () => {}
-        };
         shell.shellToggleClicked();
 
         expect(calledFunc).to.equal(true);
@@ -74,7 +68,7 @@ describe('CompassShell', () => {
       it('renders a Resizable component', () => {
         const fakeRuntime = {};
         const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
-        expect(wrapper.find(Resizable)).to.be.present();
+        expect(wrapper.find(ResizeHandleHorizontal)).to.be.present();
       });
 
       it('renders the info modal component', () => {
@@ -117,72 +111,41 @@ describe('CompassShell', () => {
     });
 
     context('when it is clicked to collapse', () => {
-      it('sets the collapsed height to 32', () => {
-        const shell = new CompassShell({ isExpanded: true });
-        let sizeSetTo = {};
-        shell.resizableRef = {
-          size: {
-            height: 100
-          },
-          updateSize: newSize => {
-            sizeSetTo = newSize;
-          }
-        };
-        shell.shellToggleClicked();
+      let shell;
 
-        expect(sizeSetTo).to.deep.equal({
-          width: '100%',
-          height: 32
+      beforeEach(() => {
+        shell = new CompassShell({
+          isExpanded: true,
+          emitShellPluginOpened: () => {}
         });
-      });
-
-      it('sets the state to collapsed', () => {
-        const shell = new CompassShell({ isExpanded: true });
         shell.setState = stateUpdate => {
           shell.state = {
             ...shell.state,
             ...stateUpdate
           };
         };
-        shell.resizableRef = {
-          size: {
-            height: 100
-          },
-          updateSize: () => { }
-        };
         shell.shellToggleClicked();
+      });
+      afterEach(() => {
+        shell = null;
+      });
 
+      it('sets the collapsed height to 32', () => {
+        expect(shell.state.height).to.equal(32);
+      });
+
+      it('sets the state to collapsed', () => {
         expect(shell.state.isExpanded).to.equal(false);
       });
 
       context('when it is expanded again', () => {
         it('resumes its previous height', () => {
-          const shell = new CompassShell({
-            isExpanded: true,
-            emitShellPluginOpened: () => {}
-          });
-          shell.setState = stateUpdate => {
-            shell.state = {
-              ...shell.state,
-              ...stateUpdate
-            };
-          };
-          let sizeSetTo = {};
-          shell.resizableRef = {
-            size: {
-              height: 99
-            },
-            updateSize: newSize => {
-              sizeSetTo = newSize;
-            }
-          };
+          shell.shellToggleClicked();
+          shell.onResize(99);
           shell.shellToggleClicked();
           shell.shellToggleClicked();
 
-          expect(sizeSetTo).to.deep.equal({
-            width: '100%',
-            height: 99
-          });
+          expect(shell.state.height).to.equal(99);
         });
       });
     });
@@ -249,67 +212,37 @@ describe('CompassShell', () => {
 
   context('arrow resize actions', () => {
     let shellComponent;
-    let sizeSetTo;
 
     beforeEach(() => {
       shellComponent = new CompassShell({
         isExpanded: true
       });
-
-      shellComponent.resizableRef = {
-        size: {
-          height: 51
-        },
-        updateSize: newSize => {
-          sizeSetTo = newSize;
-
-          shellComponent.resizableRef.size.height = newSize.height;
-        }
+      shellComponent.setState = stateUpdate => {
+        shellComponent.state = {
+          ...shellComponent.state,
+          ...stateUpdate
+        };
       };
+
+      shellComponent.state.height = 51;
     });
 
-    afterEach(() => {
-      sizeSetTo = null;
-    });
-
-    context('when the move up is called from the resize handle', () => {
+    context('when the resize is called', () => {
       beforeEach(() => {
-        shellComponent.onResizeUp();
+        shellComponent.onResize(41);
       });
 
-      it('calls to update the height +10', () => {
-        expect(sizeSetTo).to.deep.equal({
-          width: '100%',
-          height: 61
-        });
-      });
-    });
-
-    context('when the move down is called from the resize handle', () => {
-      beforeEach(() => {
-        shellComponent.onResizeDown();
-      });
-
-      it('calls to update the height -10', () => {
-        expect(sizeSetTo).to.deep.equal({
-          width: '100%',
-          height: 41
-        });
+      it('updates the height', () => {
+        expect(shellComponent.state.height).to.equal(41);
       });
 
       context('when it hits the lower bound', () => {
         beforeEach(() => {
-          shellComponent.onResizeDown();
-          shellComponent.onResizeDown();
-          shellComponent.onResizeDown();
-          shellComponent.onResizeDown();
+          shellComponent.onResize(1);
         });
 
         it('does not resize past the lower bound', () => {
-          expect(sizeSetTo).to.deep.equal({
-            width: '100%',
-            height: 32
-          });
+          expect(shellComponent.state.height).to.equal(32);
         });
       });
     });

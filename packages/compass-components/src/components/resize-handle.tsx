@@ -1,87 +1,165 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-
-const LEFT_ARROW_KEY = 'ArrowLeft';
-const RIGHT_ARROW_KEY = 'ArrowRight';
-const UP_ARROW_KEY = 'ArrowUp';
-const DOWN_ARROW_KEY = 'ArrowDown';
+import React, { useState } from 'react';
 
 const baseResizerStyles = css({
   position: 'absolute',
   background: 'transparent',
-  left: 0,
-  bottom: 0,
-  right: 0,
-  top: 0,
   padding: 0,
   transition: 'opacity 250ms ease',
   transitionDelay: '0ms',
   backgroundColor: '#019EE2',
   opacity: '0',
   outline: 'none',
+  zIndex: 100,
   ':focus': {
     opacity: 1,
+  },
+  ':hover': {
+    transitionDelay: '250ms',
+    opacity: 1,
+  },
+  WebkitAppearance: 'none',
+  '::-webkit-slider-thumb': {
+    WebkitAppearance: 'none',
+  },
+  '::-ms-track': {
+    background: 'none',
+    borderColor: 'none',
+    color: 'none',
   },
 });
 
 const verticalResizerStyle = css({
-  left: '3px',
-  right: '3px',
+  width: '4px !important',
+  right: '-2px',
+  bottom: 0,
+  top: 0,
+  ':hover': {
+    cursor: 'ew-resize',
+  },
 });
 
 const horizontalResizerStyle = css({
-  top: '4px',
-  bottom: '2px',
+  height: '4px !important',
+  top: '-2px',
+  right: 0,
+  left: 0,
+  ':hover': {
+    cursor: 'ns-resize',
+  },
 });
 
 function ResizeHandleVertical({
-  onMoveRightPressed,
-  onMoveLeftPressed,
+  onResize,
+  step,
+  width,
+  minWidth,
+  maxWidth,
 }: {
-  onMoveRightPressed: () => void;
-  onMoveLeftPressed: () => void;
+  onResize: (newWidth: number) => void;
+  step: number;
+  width: number;
+  minWidth: number;
+  maxWidth: number;
 }): React.ReactElement {
+  const [isDragging, setDragging] = useState(false);
+
+  function boundWidth(attemptedWidth: number) {
+    return Math.min(maxWidth, Math.max(minWidth, attemptedWidth));
+  }
+
   return (
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-    <div
+    <input
+      type="range"
+      aria-roledescription="vertical splitter"
+      aria-label="Width of the panel, resize using arrow keys"
       css={[baseResizerStyles, verticalResizerStyle]}
-      onKeyDown={(e) => {
-        if (e.key === LEFT_ARROW_KEY) {
-          onMoveLeftPressed();
-        } else if (e.key === RIGHT_ARROW_KEY) {
-          onMoveRightPressed();
+      min={minWidth}
+      max={maxWidth}
+      value={width}
+      step={step}
+      onChange={(event) => {
+        if (isDragging) {
+          // When dragging, we want the mouse movement to update the
+          // width, not the value of the range where it's being dragged.
+          return;
+        }
+        onResize(boundWidth(Number(event.target.value)));
+      }}
+      onMouseDown={() => {
+        setDragging(true);
+      }}
+      onMouseMove={(event) => {
+        if (isDragging) {
+          onResize(boundWidth(width + event.movementX));
         }
       }}
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-      tabIndex={0}
-      role="separator"
-      aria-roledescription="vertical splitter"
+      onMouseUp={(event) => {
+        // We only want to maintain focus on the resizer when
+        // the user has focused it using the keyboard.
+        event.currentTarget.blur();
+
+        setDragging(false);
+        onResize(boundWidth(width + event.movementX));
+      }}
     />
   );
 }
 
 function ResizeHandleHorizontal({
-  onMoveUpPressed,
-  onMoveDownPressed,
+  onResize,
+  step,
+  height,
+  minHeight,
+  maxHeight,
 }: {
-  onMoveUpPressed: () => void;
-  onMoveDownPressed: () => void;
+  onResize: (newHeight: number) => void;
+  step: number;
+  height: number;
+  minHeight: number;
+  maxHeight: number;
 }): React.ReactElement {
+  const [isDragging, setDragging] = useState(false);
+
+  function boundHeight(attemptedHeight: number) {
+    return Math.min(maxHeight, Math.max(minHeight, attemptedHeight));
+  }
+
   return (
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-    <div
+    <input
+      type="range"
+      aria-roledescription="horizontal splitter"
+      aria-label="Height of the panel, resize using arrow keys"
+      min={minHeight}
+      max={maxHeight}
+      height={height}
+      step={step}
       css={[baseResizerStyles, horizontalResizerStyle]}
-      onKeyDown={(e) => {
-        if (e.key === UP_ARROW_KEY) {
-          onMoveUpPressed();
-        } else if (e.key === DOWN_ARROW_KEY) {
-          onMoveDownPressed();
+      onChange={(event) => {
+        if (isDragging) {
+          // When dragging, we want the mouse movement to update the
+          // width, not the value of the range where it's being dragged.
+          return;
+        }
+        onResize(boundHeight(Number(event.target.value)));
+      }}
+      onMouseDown={() => {
+        setDragging(true);
+      }}
+      onMouseMove={(event) => {
+        if (isDragging) {
+          onResize(boundHeight(height - event.movementY));
         }
       }}
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-      tabIndex={0}
-      role="separator"
-      aria-roledescription="horizontal splitter"
+      onMouseUp={(event) => {
+        // We only want to maintain focus on the resizer when
+        // the user has focused it using the keyboard.
+        event.currentTarget.blur();
+
+        setDragging(false);
+        onResize(boundHeight(height - event.movementY));
+      }}
     />
   );
 }

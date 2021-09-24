@@ -18,6 +18,8 @@
   flex-shrink: 0;
   margin: 0;
   height: 100%;
+  max-width: 90%;
+  position: relative;
 
   &-toggle {
     position: absolute;
@@ -154,18 +156,6 @@
     opacity: 0.4;
     color: fade(@pw, 40%);
     cursor: not-allowed;
-  }
-
-  &-resize-handle-wrapper {
-    z-index: 100;
-    &:hover, &:active, &:focus {
-      div {
-        div {
-          transition-delay: 250ms;
-          opacity: 1;
-        }
-      }
-    }
   }
 }
 

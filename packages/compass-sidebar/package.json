@@ -32,7 +32,7 @@
   "peerDependencies": {
     "@leafygreen-ui/icon": "^11.4.0",
     "@mongodb-js/compass-connect": "*",
-    "@mongodb-js/compass-components": "*",
+    "@mongodb-js/compass-components": "^0.5.0",
     "debug": "*",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
@@ -143,8 +143,7 @@
   "dependencies": {
     "@leafygreen-ui/icon": "^11.4.0",
     "@mongodb-js/mongodb-redux-common": "^1.4.0",
-    "lodash.clonedeep": "^4.5.0",
-    "re-resizable": "^6.9.0"
+    "lodash.clonedeep": "^4.5.0"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {

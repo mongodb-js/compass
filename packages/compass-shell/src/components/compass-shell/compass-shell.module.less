@@ -5,9 +5,9 @@
   background-color: @leafygreen__gray--dark-3;
   display: flex;
   flex-basis: auto;
-  overflow: hidden;
   position: relative;
   flex-direction: column;
+  max-height: 95%;
 
   &-shell-container {
     flex-grow: 1;
@@ -21,18 +21,6 @@
 
     &-visible {
       display: flex;
-    }
-  }
-
-  &-resize-handle-wrapper {
-    z-index: 100;
-    &:hover, &:active, &:focus {
-      div {
-        div:first-child {
-          transition-delay: 250ms;
-          opacity: 1;
-        }
-      }
     }
   }
 }

@@ -159,15 +159,9 @@ describe('Sidebar [Component]', () => {
         globalAppRegistryEmit: () => {}
       });
 
-      sidebarComponent.resizableRef = {
-        size: {
-          width: 199
-        },
-        updateSize: newSize => {
-          sizeSetTo = newSize;
-        }
+      sidebarComponent.setState = (newState) => {
+        sizeSetTo = newState.width;
       };
-
       sidebarComponent.toggleCollapsed();
     });
 
@@ -176,10 +170,7 @@ describe('Sidebar [Component]', () => {
     });
 
     it('sets the collapsed width to 36', () => {
-      expect(sizeSetTo).to.deep.equal({
-        width: 36,
-        height: '100%'
-      });
+      expect(sizeSetTo).to.equal(36);
     });
 
     context('when it is expanded again', () => {
@@ -189,15 +180,14 @@ describe('Sidebar [Component]', () => {
       });
 
       it('resumes its previous width', () => {
-        expect(sizeSetTo).to.deep.equal({
-          height: '100%',
-          width: 199
+        it('sets the collapsed width to 36', () => {
+          expect(sizeSetTo).to.equal(199);
         });
       });
     });
   });
 
-  describe('arrow resize actions', () => {
+  describe('resize actions', () => {
     let sidebarComponent;
     let sizeSetTo;
 
@@ -208,16 +198,8 @@ describe('Sidebar [Component]', () => {
         toggleIsCollapsed: () => {},
         globalAppRegistryEmit: () => {}
       });
-
-      sidebarComponent.resizableRef = {
-        size: {
-          width: 199
-        },
-        updateSize: newSize => {
-          sizeSetTo = newSize;
-
-          sidebarComponent.resizableRef.size.width = newSize.width;
-        }
+      sidebarComponent.setState = (newState) => {
+        sizeSetTo = newState.width;
       };
     });
 
@@ -225,44 +207,22 @@ describe('Sidebar [Component]', () => {
       sizeSetTo = null;
     });
 
-    describe('when the move right is called from the resize handle', () => {
+    describe('when resize is called', () => {
       beforeEach(() => {
-        sidebarComponent.handleResizeRight();
+        sidebarComponent.handleResize(189);
       });
 
-      it('calls to update the width +10', () => {
-        expect(sizeSetTo).to.deep.equal({
-          height: '100%',
-          width: 209
-        });
-      });
-    });
-
-    describe('when the move left is called from the resize handle', () => {
-      beforeEach(() => {
-        sidebarComponent.handleResizeLeft();
-      });
-
-      it('calls to update the width -10', () => {
-        expect(sizeSetTo).to.deep.equal({
-          height: '100%',
-          width: 189
-        });
+      it('updates the width', () => {
+        expect(sizeSetTo).to.equal(189);
       });
 
       describe('when it hits the lower bound', () => {
         beforeEach(() => {
-          sidebarComponent.handleResizeLeft();
-          sidebarComponent.handleResizeLeft();
-          sidebarComponent.handleResizeLeft();
-          sidebarComponent.handleResizeLeft();
+          sidebarComponent.handleResize(100);
         });
 
         it('does not resize past the lower bound', () => {
-          expect(sizeSetTo).to.deep.equal({
-            height: '100%',
-            width: 160
-          });
+          expect(sizeSetTo).to.equal(160);
         });
       });
     });
