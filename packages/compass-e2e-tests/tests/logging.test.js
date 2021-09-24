@@ -86,6 +86,13 @@ describe('Logging integration', function () {
       },
       {
         s: 'I',
+        c: 'COMPASS-APP',
+        ctx: 'Main Window',
+        id: 1_001_000_092,
+        msg: 'Rendering app container',
+      },
+      {
+        s: 'I',
         c: 'COMPASS-CONNECT-UI',
         id: 1_001_000_004,
         ctx: 'Connection UI',
