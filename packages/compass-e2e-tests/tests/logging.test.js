@@ -5,10 +5,10 @@ const { beforeTests, afterTests } = require('../helpers/compass');
 describe('Logging integration', function () {
   this.timeout(1000 * 60 * 1);
 
-  describe('basic logging information', function() {
+  describe('basic logging information', function () {
     let compassLog;
 
-    before(async function() {
+    before(async function () {
       const compass = await beforeTests();
       try {
         await compass.client.connectWithConnectionString(
@@ -25,13 +25,13 @@ describe('Logging integration', function () {
       }
     });
 
-    it('has a timestamp on all entries', function() {
+    it('has a timestamp on all entries', function () {
       for (const entry of compassLog) {
         expect(entry.t.$date).to.be.a('string');
       }
     });
 
-    describe('critical path', function() {
+    describe('critical path', function () {
       const criticalPathExpectedLogs = [
         {
           s: 'I',
@@ -43,7 +43,7 @@ describe('Logging integration', function () {
             expect(actual.version).to.be.a('string');
             expect(actual.platform).to.equal(process.platform);
             expect(actual.arch).to.equal(process.arch);
-          }
+          },
         },
         {
           s: 'I',
@@ -60,7 +60,7 @@ describe('Logging integration', function () {
           msg: 'Connecting',
           attr: (actual) => {
             expect(actual.url).to.match(/^mongodb:\/\/localhost:27018/);
-          }
+          },
         },
         {
           s: 'I',
@@ -70,9 +70,12 @@ describe('Logging integration', function () {
           msg: 'Initiating connection',
           attr: (actual) => {
             expect(actual.url).to.match(/^mongodb:\/\/localhost:27018/);
-            expect(actual.options).to.have.property('readPreference', 'primary');
+            expect(actual.options).to.have.property(
+              'readPreference',
+              'primary'
+            );
             expect(actual.options).to.have.property('monitorCommands', true);
-          }
+          },
         },
         {
           s: 'I',
@@ -83,7 +86,7 @@ describe('Logging integration', function () {
           attr: (actual) => {
             expect(actual.from).to.match(/^mongodb:\/\/localhost:27018/);
             expect(actual.to).to.match(/^mongodb:\/\/localhost:27018/);
-          }
+          },
         },
         {
           s: 'I',
@@ -145,7 +148,7 @@ describe('Logging integration', function () {
             expect(actual.driver.version).to.not.be.undefined;
             expect(actual.driver.name).to.equal('nodejs');
             expect(actual.to).to.match(/^mongodb:\/\/localhost:27018/);
-          }
+          },
         },
         {
           s: 'I',
@@ -165,17 +168,15 @@ describe('Logging integration', function () {
           ctx: 'Connection 0',
           msg: 'Fetched instance information',
           attr: (actual) => {
-            const {dataLake, genuineMongoDB} = actual;
-            expect({dataLake, genuineMongoDB}).to.deep.equal(
-              {
-                dataLake: { isDataLake: false, version: null },
-                genuineMongoDB: { dbType: 'mongodb', isGenuine: true }
-              }
-            );
+            const { dataLake, genuineMongoDB } = actual;
+            expect({ dataLake, genuineMongoDB }).to.deep.equal({
+              dataLake: { isDataLake: false, version: null },
+              genuineMongoDB: { dbType: 'mongodb', isGenuine: true },
+            });
 
             expect(actual.featureCompatibilityVersion).to.not.be.undefined;
             expect(actual.serverVersion).to.not.be.undefined;
-          }
+          },
         },
         {
           s: 'I',
@@ -199,24 +200,29 @@ describe('Logging integration', function () {
       let criticalPathActualLogs;
 
       // eslint-disable-next-line mocha/no-hooks-for-single-case
-      before(function() {
-        const criticalPathIds = new Set(criticalPathExpectedLogs.map((entry) => entry.id));
-        criticalPathActualLogs = compassLog
-          .filter((entry) => {
-            // Remove most mongosh entries as they are quite noisy
-            if (entry.c.startsWith('MONGOSH') && entry.attr.input.includes('typeof prompt')) {
-              return false;
-            }
+      before(function () {
+        const criticalPathIds = new Set(
+          criticalPathExpectedLogs.map((entry) => entry.id)
+        );
+        criticalPathActualLogs = compassLog.filter((entry) => {
+          // Remove most mongosh entries as they are quite noisy
+          if (
+            entry.c.startsWith('MONGOSH') &&
+            entry.attr.input.includes('typeof prompt')
+          ) {
+            return false;
+          }
 
-            return criticalPathIds.has(entry.id);
-          })
+          return criticalPathIds.has(entry.id);
+        });
       });
 
       // eslint-disable-next-line mocha/no-setup-in-describe
       criticalPathExpectedLogs.forEach((expected, i) => {
-        it(`logs ${expected.id}`, function() {
-          const {attr: expectedAttr, ...expectedWithoutAttr} = expected;
-          const {attr: actualAttr, ...actualWihoutAttr} = criticalPathActualLogs[i];
+        it(`logs ${expected.id}`, function () {
+          const { attr: expectedAttr, ...expectedWithoutAttr } = expected;
+          const { attr: actualAttr, ...actualWihoutAttr } =
+            criticalPathActualLogs[i];
 
           // Timestamps vary between each execution
           delete actualWihoutAttr.t;
@@ -235,12 +241,12 @@ describe('Logging integration', function () {
           } else {
             expect(expectedAttr).to.deep.equal(actualAttr);
           }
-        })
+        });
       });
     });
   });
 
-  describe('Uncaught exceptions', function() {
+  describe('Uncaught exceptions', function () {
     it('provides logging information for uncaught exceptions', async function () {
       let compass;
       try {
