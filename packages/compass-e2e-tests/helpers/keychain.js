@@ -18,13 +18,19 @@ function createUnlockedKeychain() {
     return {
       name: tempKeychainName,
       activate() {
-        debug(
-          `Switching to the temporary keychain ${tempKeychainName}`
-        );
-        execSync(`security create-keychain -p "" "${tempKeychainName}"`);
-        execSync(`security default-keychain -s "${tempKeychainName}"`);
-        execSync(`security unlock-keychain -p "" "${tempKeychainName}"`);
-        debug(`The default keychain is now "${getDefaultKeychain()}"`);
+        try {
+          execSync(`security unlock-keychain -p "" "${origDefaultKeychain}"`, {
+            stdio: 'ignore',
+          });
+          debug('Current default keychain is unlocked, doing nothing');
+        } catch (e) {
+          debug(
+            `Default keychain is locked, switching to the temporary keychain ${tempKeychainName}`
+          );
+          execSync(`security create-keychain -p "" "${tempKeychainName}"`);
+          execSync(`security default-keychain -s "${tempKeychainName}"`);
+          execSync(`security unlock-keychain -p "" "${tempKeychainName}"`);
+        }
       },
       reset() {
         // If they don't match, we switched the keychain with `activate`
@@ -32,13 +38,9 @@ function createUnlockedKeychain() {
           debug(
             `Switching back to the original default keychain ${origDefaultKeychain}`
           );
-          execSync(`security default-keychain -s "${tempKeychainName}"`);
+          execSync(`security default-keychain -s "${origDefaultKeychain}"`);
         }
         try {
-          debug(
-            `Removing temporary keychain ${tempKeychainName}`
-          );
-
           execSync(`security delete-keychain "${tempKeychainName}"`, {
             stdio: 'ignore',
           });
