@@ -212,7 +212,7 @@ describe('Logging integration', function () {
           // Remove most mongosh entries as they are quite noisy
           if (
             entry.c.startsWith('MONGOSH') &&
-            entry.attr.input.includes('typeof prompt')
+            entry.attr && entry.attr.input && entry.attr.input.includes('typeof prompt')
           ) {
             return false;
           }
