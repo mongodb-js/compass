@@ -141,7 +141,7 @@ export class UserData<T = unknown> {
 
     for (const { path, content } of pathAndContents) {
       try {
-        results.push(JSON.parse(content.toString()));
+        results.push(this._parse(content));
       } catch (error) {
         log.error(
           mongoLogId(1_001_000_063),
@@ -166,7 +166,7 @@ export class UserData<T = unknown> {
    * @returns {Promise<T>} the parsed content.
    */
   async read(filePath: string): Promise<T> {
-    const content = (await this._readFile(filePath)).toString();
+    const content = await this._readFile(filePath);
     return this._parse(content);
   }
 
@@ -238,9 +238,9 @@ export class UserData<T = unknown> {
 
   private async _readFileAndIgnoreErrors(
     filePath: string
-  ): Promise<Buffer | undefined> {
+  ): Promise<string | undefined> {
     try {
-      return await readFile(filePath);
+      return await readFile(filePath, 'utf-8');
     } catch {
       log.error(mongoLogId(1_001_000_065), 'UserData', 'Error reading file', {
         path: filePath,
@@ -249,14 +249,14 @@ export class UserData<T = unknown> {
     }
   }
 
-  private async _readFile(filePath: string): Promise<Buffer> {
+  private async _readFile(filePath: string): Promise<string> {
     const absolutePath = this._resolve(this._basePath, filePath);
-    return await readFile(absolutePath);
+    return await readFile(absolutePath, 'utf-8');
   }
 
   private async _readAllWithFileNames(
     pattern: string
-  ): Promise<Array<{ path: string; content: Buffer }>> {
+  ): Promise<Array<{ path: string; content: string }>> {
     const absolutePattern = this._resolve(this._basePath, pattern);
 
     const filePaths = await glob(absolutePattern);
