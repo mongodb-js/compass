@@ -138,7 +138,7 @@ async function startCompass(
     env: {
       APP_ENV: 'spectron',
       DEBUG: `${process.env.DEBUG || ''},mongodb-compass:main:logging`,
-      HOME: userDataDir,
+      MONGODB_COMPASS_TEST_LOG_DIR: path.join(LOG_PATH, 'app'),
     },
   };
 
