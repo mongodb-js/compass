@@ -77,6 +77,8 @@ module.exports = async function setupLogging() {
     });
 
     await manager.cleanupOldLogfiles();
+
+    return writer.logFilePath;
   } catch (err) {
     debug('Failure setting up logging!', err);
   }

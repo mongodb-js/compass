@@ -193,7 +193,7 @@ Application.prototype.setupLogging = function() {
       ? path.join(appData || home, 'mongodb', 'compass')
       : path.join(home, '.mongodb', 'compass');
   app.setAppLogsPath(logDir);
-  setupLogging();
+  setupLogging().then(logFilePath => { this.logFilePath = logFilePath; });
 };
 
 Application._instance = null;
