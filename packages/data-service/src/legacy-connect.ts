@@ -7,11 +7,9 @@ import resolveMongodbSrv from 'resolve-mongodb-srv';
 import { redactSshTunnelOptions, redactConnectionString } from './redact';
 
 import createLogger from '@mongodb-js/compass-logging';
-import createDebug from 'debug';
 import { LegacyConnectionModel } from './legacy-connection-model';
 
-const debug = createDebug('mongodb-data-service:connect');
-const { log, mongoLogId } = createLogger('COMPASS-CONNECT');
+const { log, mongoLogId, debug } = createLogger('COMPASS-CONNECT');
 
 type ConnectReturnTuple = [
   MongoClient,
@@ -51,7 +49,6 @@ async function openSshTunnel(model: LegacyConnectionModel) {
 
   debug('ssh tunnel listen ...');
   await tunnel.listen();
-  debug('ssh tunnel opened');
 
   log.info(mongoLogId(1_001_000_007), 'SSHTunnel', 'SSH tunnel opened');
 
@@ -104,6 +101,7 @@ async function connect(
   const url = removeGssapiServiceName(model.driverUrlWithSsh);
   const options = {
     ...addDirectConnectionWhenNeeded(model.driverOptions, model),
+    monitorCommands: true,
   };
 
   // if `auth` is passed then username and password must be present,
@@ -118,11 +116,6 @@ async function connect(
   delete options.auth;
 
   const tunnel = await openSshTunnel(model);
-
-  debug('creating MongoClient', {
-    url: redactConnectionString(url),
-    options,
-  });
 
   log.info(mongoLogId(1_001_000_009), 'Connect', 'Initiating connection', {
     url: redactConnectionString(url),
@@ -178,8 +171,6 @@ async function connect(
       'Connection attempt failed',
       { error: err.message, driver }
     );
-    debug('connection error', err);
-    debug('force shutting down ssh tunnel ...');
     await forceCloseTunnel(tunnel);
     throw err;
   }

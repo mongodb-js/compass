@@ -85,7 +85,6 @@
     "core-js": "^3.12.1",
     "cross-env": "^5.0.1",
     "css-loader": "^4.3.0",
-    "debug": "^3.0.1",
     "depcheck": "^1.4.1",
     "electron": "^6.1.12",
     "electron-devtools-installer": "^3.2.0",
