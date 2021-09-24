@@ -45,7 +45,9 @@ async function runFind(client, tabName) {
 }
 
 async function isOptionsExpanded(client, tabName) {
-  // it doesn't look like there's some attribute on the options button or container that we can easily check, so just look for a field that exists if it is expanded
+  // it doesn't look like there's some attribute on the options button or
+  // container that we can easily check, so just look for a field that exists
+  // if it is expanded
   return await client.isVisible(Selectors.queryBarOptionInputProject(tabName));
 }
 
