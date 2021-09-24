@@ -1,5 +1,5 @@
 // @ts-check
-var _ = require('lodash');
+const _ = require('lodash');
 const { expect } = require('chai');
 const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');
