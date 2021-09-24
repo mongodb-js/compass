@@ -183,6 +183,7 @@ export class UserData<T = unknown> {
     } catch (error) {
       log.error(mongoLogId(1_001_000_064), 'UserData', 'Error deleting file', {
         path: absolutePath,
+        error: error.message
       });
     }
   }
