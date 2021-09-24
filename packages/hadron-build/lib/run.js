@@ -1,5 +1,5 @@
 var fs = require('fs');
-var format = require('util').format;
+var { format, promisify } = require('util');
 var spawn = require('child_process').spawn;
 var which = require('which');
 var debug = require('debug')('hadron-build:run');
@@ -100,5 +100,7 @@ function run(cmd, args, opts, fn) {
     });
   });
 }
+
+run.async = promisify(run);
 
 module.exports = run;

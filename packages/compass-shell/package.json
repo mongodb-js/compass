@@ -60,6 +60,7 @@
   "peerDependencies": {
     "@leafygreen-ui/icon": "^11.4.0",
     "@leafygreen-ui/icon-button": "^9.1.5",
+    "@mongosh/node-runtime-worker-thread": "^1.0.7",
     "hadron-ipc": "*",
     "hadron-react-components": "*",
     "prop-types": "^15.7.2",

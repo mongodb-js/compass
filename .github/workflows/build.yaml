@@ -76,7 +76,6 @@ jobs:
           HADRON_PRODUCT: mongodb-compass
           HADRON_PRODUCT_NAME: MongoDB Compass
           HADRON_DISTRIBUTION: compass
-          HADRON_LOCAL_PUBLISH: 'true'
           DEBUG: 'hadron*,mongo*,electron*'
 
       - name: Test Packaged Application
