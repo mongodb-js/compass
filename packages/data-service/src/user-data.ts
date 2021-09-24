@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import writeFileAtomic from 'write-file-atomic';
 
-const { log, mongoLogId } = createLogger('USER-DATA');
+const { log, mongoLogId } = createLogger('COMPASS-USER-DATA');
 const { mkdir, readFile, unlink } = fs.promises;
 const glob = util.promisify(globCb);
 
