@@ -1,7 +1,7 @@
+const electron = require('electron');
 const app = require('hadron-app');
 const pkg = require('../../package.json');
 const path = require('path');
-const os = require('os');
 const AppRegistry = require('hadron-app-registry');
 const PluginManager = require('@mongodb-js/hadron-plugin-manager');
 const ipc = require('hadron-ipc');
@@ -33,7 +33,10 @@ const PLUGINS_DIR = 'plugins-directory';
 /**
  * Location of the dev plugins.
  */
-const DEV_PLUGINS = path.join(os.homedir(), DISTRIBUTION[PLUGINS_DIR]);
+const DEV_PLUGINS = path.join(
+  electron.remote.app.getPath('home'),
+  DISTRIBUTION[PLUGINS_DIR]
+);
 
 const PLUGIN_COUNT = DISTRIBUTION.plugins.length;
 

@@ -41,6 +41,11 @@ function cleanLog(log) {
       log.splice(i--, 1);
       continue;
     }
+    // Remove command monitoring entries as they are also quite noisy
+    if (entry.id === 1_001_000_029 || entry.id === 1_001_000_030) {
+      log.splice(i--, 1);
+      continue;
+    }
   }
   return log;
 }
@@ -104,7 +109,7 @@ describe('Logging integration', function () {
         msg: 'Initiating connection',
         attr: {
           url: 'mongodb://localhost:27018/test?readPreference=primary&appname=MongoDB+Compass&directConnection=true&ssl=false',
-          options: { readPreference: 'primary' },
+          options: { readPreference: 'primary', monitorCommands: true },
         },
       },
       {

@@ -1,19 +1,14 @@
 const os = require('os');
 const fs = require('fs').promises;
-const path = require('path');
+const { app } = require('electron');
 const ipc = require('hadron-ipc');
 const { mongoLogId, MongoLogManager } = require('mongodb-log-writer');
 const { version } = require('../../package.json');
 const debug = require('debug')('mongodb-compass:main:logging');
 
-module.exports = async function setupLogging(app) {
+module.exports = async function setupLogging() {
   try {
-    const directory = process.platform === 'win32' ?
-      path.join(
-        process.env.LOCALAPPDATA || process.env.APPDATA || os.homedir(),
-        'mongodb',
-        'compass') :
-      path.join(os.homedir(), '.mongodb', 'compass');
+    const directory = app.getPath('logs');
 
     const manager = new MongoLogManager({
       directory,
