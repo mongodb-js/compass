@@ -5,8 +5,8 @@ import { findIndex, isEmpty } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
 import util from 'util';
-import createDebug from 'debug';
-const debug = createDebug('mongodb-compass:crud:crud-store');
+import createLogger from '@mongodb-js/compass-logging';
+const { log, mongoLogId, debug } = createLogger('COMPASS-CRUD-UI');
 
 import configureGridStore from './grid-store';
 
@@ -901,10 +901,7 @@ const configureStore = (options = {}) => {
      */
     async refreshDocuments() {
       if (this.dataService && !this.dataService.isConnected()) {
-        debug(
-          'warning: trying to refresh documents but dataService is disconnected',
-          this.dataService
-        );
+        log.warn(mongoLogId(1001000072), 'Documents', 'Trying to refresh documents but dataService is disconnected');
         return;
       }
 
@@ -949,9 +946,9 @@ const configureStore = (options = {}) => {
           findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
         }
 
-        debug('refreshing documents', {
+        log.info(mongoLogId(1001000073), 'Documents', 'Refreshing documents', {
           ns: this.state.ns,
-          filter: query.filter,
+          withFilter: !isEmpty(query.filter),
           findOptions,
           countOptions
         });
@@ -986,7 +983,7 @@ const configureStore = (options = {}) => {
         this.localAppRegistry.emit('documents-refreshed', this.state.view, docs);
         this.globalAppRegistry.emit('documents-refreshed', this.state.view, docs);
       } catch (error) {
-        debug('Failed to fetch data for refresh documents', error);
+        log.error(mongoLogId(1001000074), 'Documents', 'Failed to refresh documents', error);
         this.setState({ error });
       } finally {
         this.globalAppRegistry.emit('compass:status:done');
@@ -1078,7 +1075,7 @@ async function fetchShardingKeys(dataService, ns, fetchShardingKeysOptions) {
     { _id: ns },
     { ...fetchShardingKeysOptions, projection: { key: 1, _id: 0 } }
   ).catch((err) => {
-    debug('warning: unable to fetch sharding keys', err);
+    log.warn(mongoLogId(1001000075), 'Documents', 'Failed to fetch sharding keys', err);
     return [];
   });
 

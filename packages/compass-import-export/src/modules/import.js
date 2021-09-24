@@ -44,9 +44,9 @@ import createPreviewWritable, { createPeekStream } from '../utils/import-preview
 import createImportSizeGuesstimator from '../utils/import-size-guesstimator';
 import { transformProjectedTypesStream } from '../utils/import-apply-types-and-projection';
 
-import { createLogger } from '../utils/logger';
+import createLogger from '@mongodb-js/compass-logging';
 
-const debug = createLogger('import');
+const { log, mongoLogId, debug } = createLogger('COMPASS-IMPORT-EXPORT-UI');
 
 /**
  * ## Action names
@@ -194,6 +194,18 @@ export const startImport = () => {
     } = importData;
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
 
+    log.info(mongoLogId(1001000080), 'Import', 'Start reading from source file', {
+      ns,
+      fileName,
+      fileType,
+      fileIsMultilineJSON,
+      fileSize: size,
+      delimiter,
+      ignoreBlanks,
+      stopOnErrors,
+      exclude,
+      transform
+    });
     const source = fs.createReadStream(fileName, 'utf8');
 
     const stripBOM = stripBomStream();
@@ -279,9 +291,10 @@ export const startImport = () => {
          * json parsing errors already are.
          */
         if (err) {
-          debug('import-error', {
+          log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
+            ns,
             docsWritten: dest.docsWritten,
-            err
+            error: err.message,
           });
 
           console.groupEnd();
@@ -289,6 +302,11 @@ export const startImport = () => {
 
           return dispatch(onFailed(err));
         }
+        log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
+          ns,
+          docsWritten: dest.docsWritten,
+          docsProcessed: dest.docsProcessed,
+        });
 
         dispatch(onFinished(dest.docsWritten, dest.docsProcessed));
 

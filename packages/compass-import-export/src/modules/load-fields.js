@@ -1,11 +1,14 @@
 import util from 'util';
 import dotnotation from '../utils/dotnotation';
+import createLogger from '@mongodb-js/compass-logging';
+
+const { log, mongoLogId } = createLogger('COMPASS-IMPORT-EXPORT-UI');
 
 const DEFAULT_SAMPLE_SIZE = 50;
 const ENABLED = 1;
 
 function extractFieldsFromDocument(doc) {
-  return Object.keys(dotnotation.serialize((doc)));
+  return Object.keys(dotnotation.serialize(doc));
 }
 
 function truncateFieldToDepth(field, depth) {
@@ -26,9 +29,10 @@ export async function loadFields(
   driverOptions = {}
 ) {
   const find = util.promisify(dataService.find.bind(dataService));
+  sampleSize = sampleSize || DEFAULT_SAMPLE_SIZE;
 
   const docs = await find(ns, filter || {}, {
-    limit: sampleSize || DEFAULT_SAMPLE_SIZE,
+    limit: sampleSize,
     ...driverOptions
   });
 
@@ -39,6 +43,7 @@ export async function loadFields(
     }
   }
   const allFields = [...allFieldsSet].sort();
+  log.info(mongoLogId(1001000063), 'Export', 'Retrieved fields from sample', { allFields, sampleSize, filter });
   return Object.fromEntries(allFields.map(field => [field, ENABLED]));
 }
 

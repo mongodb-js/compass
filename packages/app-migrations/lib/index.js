@@ -1,16 +1,14 @@
-var semver = require('semver');
-var async = require('async');
-var _ = require('lodash');
-var format = require('util').format;
-
-var debug = require('debug')('app-migrations');
+const semver = require('semver');
+const async = require('async');
+const _ = require('lodash');
+const format = require('util').format;
+const { log, mongoLogId } = require('@mongodb-js/compass-logging')('COMPASS-MIGRATIONS');
 
 function migrate(migrations) {
   return function(previousVersion, currentVersion, done) {
     var tasks;
     if (semver.lt(previousVersion, currentVersion)) {
       // pick migration tasks for upgrade
-      debug('upgrading from version', previousVersion, 'to version', currentVersion);
       tasks = _.pickBy(migrations, function(fn, version) {
         return semver.gt(version, previousVersion) &&
                semver.lte(version, currentVersion);
@@ -18,7 +16,11 @@ function migrate(migrations) {
       tasks = _.mapValues(tasks, function(fn) {
         return fn.bind(null, previousVersion, currentVersion);
       });
-      debug('executing migration steps for versions %j', _.keys(tasks));
+      log.info(mongoLogId(1001000070), 'Migrations', 'Considering upgrade migration', {
+        previousVersion,
+        currentVersion,
+        tasks: _.keys(tasks)
+      });
       return async.series(tasks, done);
     }
     if (semver.gt(previousVersion, currentVersion)) {
@@ -27,7 +29,13 @@ function migrate(migrations) {
         return semver.gt(version, currentVersion) &&
                semver.lte(version, previousVersion);
       });
-      if (_.keys(tasks).length > 0) {
+      const downgradePossible = _.keys(tasks).length > 0;
+      log.info(mongoLogId(1001000071), 'Migrations', 'Encountered version downgrade', {
+        previousVersion,
+        currentVersion,
+        downgradePossible
+      });
+      if (downgradePossible) {
         // schema incompatible, return error
         return done(new Error(format('Downgrade from version %s to %s'
           + ' not possible.', previousVersion, currentVersion)));
