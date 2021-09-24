@@ -149,7 +149,7 @@ export class UserData<T = unknown> {
           'Error parsing file to json',
           {
             path: path,
-            error: error.message,
+            error: (error as Error).message,
           }
         );
       }
@@ -183,7 +183,7 @@ export class UserData<T = unknown> {
     } catch (error) {
       log.error(mongoLogId(1_001_000_064), 'UserData', 'Error deleting file', {
         path: absolutePath,
-        error: error.message
+        error: (error as Error).message,
       });
     }
   }
@@ -262,12 +262,9 @@ export class UserData<T = unknown> {
     const absolutePattern = this._resolve(this._basePath, pattern);
 
     const filePaths = await glob(absolutePattern);
-    const filteredFiles = filePaths.filter((path) =>
-      pattern ? new RegExp(pattern).exec(path) : true
-    );
 
     const pathAndContents = await Promise.all(
-      filteredFiles.map(async (path) => {
+      filePaths.map(async (path) => {
         return { path, content: await this._readFileAndIgnoreErrors(path) };
       })
     );
