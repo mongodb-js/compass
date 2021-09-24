@@ -209,6 +209,17 @@ function license() {
   };
 }
 
+function logFile() {
+  return {
+    label: '&Open Log File',
+    click: function() {
+      app.emit('window:show-log-file-dialog', {
+        logFilePath: require('./application')._instance.logFilePath
+      });
+    }
+  };
+}
+
 function helpSubMenu() {
   var subMenu = [];
   subMenu.push(helpWindowItem());
@@ -221,6 +232,7 @@ function helpSubMenu() {
 
   subMenu.push(securityItem());
   subMenu.push(license());
+  subMenu.push(logFile());
 
   if (process.platform !== 'darwin') {
     subMenu.push(separator());

@@ -319,6 +319,27 @@ function showAboutDialog() {
   });
 }
 
+function showLogFileDialog({ logFilePath }) {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Log file for this session',
+    icon: COMPASS_ICON,
+    message: `The log file for this session can be found at ${logFilePath}`,
+    buttons: ['OK', 'Copy to clipboard', 'Open Folder']
+  }).then(({ response }) => {
+    switch (response) {
+      case 1:
+        electron.clipboard.writeText(logFilePath);
+        break;
+      case 2:
+        electron.shell.showItemInFolder(logFilePath);
+        break;
+      default:
+        break;
+    }
+  });
+}
+
 /**
  * @param {Object} _bw - Current BrowserWindow
  * @param {String} message - Message to be set by MessageBox
@@ -372,6 +393,7 @@ ipc.respondTo({
   'app:show-info-dialog': showInfoDialog,
   'app:show-connect-window': showConnectWindow,
   'window:show-about-dialog': showAboutDialog,
+  'window:show-log-file-dialog': showLogFileDialog,
   'window:show-collection-submenu': showCollectionSubmenu,
   'window:hide-collection-submenu': hideCollectionSubmenu,
   'window:show-compass-overview-submenu': showCompassOverview,
@@ -382,6 +404,7 @@ ipc.respondTo({
  * Respond to events from the main process
  */
 app.on('window:show-about-dialog', showAboutDialog);
+app.on('window:show-log-file-dialog', showLogFileDialog);
 app.on('app:show-connect-window', showConnectWindow);
 
 app.on('before-quit', function() {
