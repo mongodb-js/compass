@@ -70,7 +70,6 @@
     "core-js": "^3.12.1",
     "cross-env": "^7.0.0",
     "css-loader": "^4.3.0",
-    "debug": "^4.1.0",
     "depcheck": "^1.4.1",
     "electron": "^6.1.12",
     "electron-rebuild": "^2.3.5",
