@@ -1119,5 +1119,5 @@ async function fetchDocuments(dataService, ns, filter, findOptions) {
 }
 
 function resultId() {
-  return Math.floor(Math.random() * Math.pow(2, 64));
+  return Math.floor(Math.random() * (2 ** 53));
 }
