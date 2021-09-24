@@ -142,25 +142,21 @@ async function startCompass(
     },
   };
 
-  const shouldStoreAppLogs = process.env.ci || process.env.CI;
-
   const nowFormatted = formattedDate();
 
-  if (shouldStoreAppLogs) {
-    const chromeDriverLogPath = path.join(
-      LOG_PATH,
-      `chromedriver.${nowFormatted}.log`
-    );
-    const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
+  const chromeDriverLogPath = path.join(
+    LOG_PATH,
+    `chromedriver.${nowFormatted}.log`
+  );
+  const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
 
-    // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
-    // for consistency let's mkdir for both of them just in case
-    await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
-    await fs.mkdir(path.dirname(webdriverLogPath), { recursive: true });
+  // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
+  // for consistency let's mkdir for both of them just in case
+  await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
+  await fs.mkdir(path.dirname(webdriverLogPath), { recursive: true });
 
-    appOptions.chromeDriverLogPath = chromeDriverLogPath;
-    appOptions.webdriverLogPath = webdriverLogPath;
-  }
+  appOptions.chromeDriverLogPath = chromeDriverLogPath;
+  appOptions.webdriverLogPath = webdriverLogPath;
 
   debug('Starting Spectron with the following configuration:');
   debug(JSON.stringify(appOptions, null, 2));
@@ -181,34 +177,30 @@ async function startCompass(
     const mainLogs = await app.client.getMainProcessLogs();
     const renderLogs = await app.client.getRenderProcessLogs();
 
-    if (shouldStoreAppLogs) {
-      const mainLogPath = path.join(
-        LOG_PATH,
-        `electron-main.${nowFormatted}.log`
-      );
-      debug(`Writing application main process log to ${mainLogPath}`);
-      await fs.writeFile(mainLogPath, mainLogs.join('\n'));
+    const mainLogPath = path.join(
+      LOG_PATH,
+      `electron-main.${nowFormatted}.log`
+    );
+    debug(`Writing application main process log to ${mainLogPath}`);
+    await fs.writeFile(mainLogPath, mainLogs.join('\n'));
 
-      const renderLogPath = path.join(
-        LOG_PATH,
-        `electron-render.${nowFormatted}.json`
-      );
-      debug(`Writing application render process log to ${renderLogPath}`);
-      await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
-    }
+    const renderLogPath = path.join(
+      LOG_PATH,
+      `electron-render.${nowFormatted}.json`
+    );
+    debug(`Writing application render process log to ${renderLogPath}`);
+    await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
 
     debug('Stopping Compass application');
     await _stop();
 
     const compassLog = await getCompassLog(mainLogs);
-    if (shouldStoreAppLogs) {
-      const compassLogPath = path.join(
-        LOG_PATH,
-        `compass-log.${nowFormatted}.log`
-      );
-      debug(`Writing Compass application log to ${compassLogPath}`);
-      await fs.writeFile(compassLogPath, compassLog.raw);
-    }
+    const compassLogPath = path.join(
+      LOG_PATH,
+      `compass-log.${nowFormatted}.log`
+    );
+    debug(`Writing Compass application log to ${compassLogPath}`);
+    await fs.writeFile(compassLogPath, compassLog.raw);
     app.compassLog = compassLog.structured;
 
     debug('Removing user data');
@@ -497,10 +489,8 @@ async function beforeTests() {
 
 async function afterTests(compass) {
   if (compass) {
-    if (process.env.CI) {
-      await capturePage(compass);
-      await savePage(compass);
-    }
+    await capturePage(compass);
+    await savePage(compass);
 
     await compass.stop();
     compass = null;
