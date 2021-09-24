@@ -27,7 +27,7 @@ function createLogger(component: string): {
   } as Writable;
   const writer = new MongoLogWriter('', null, target);
   const debug = createDebug(`mongodb-compass:${component.toLowerCase()}`);
-  writer.on('log', ({ s, id, ctx, msg, attr }: MongoLogEntry) => {
+  writer.on('log', ({ s, ctx, msg, attr }: MongoLogEntry) => {
     if (attr) {
       debug(msg, { s, ctx, ...attr });
     } else {

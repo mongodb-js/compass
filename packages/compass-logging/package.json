@@ -44,6 +44,7 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
+    "debug": "^4.1.1",
     "mongodb-log-writer": "^1.1.1"
   },
   "devDependencies": {
