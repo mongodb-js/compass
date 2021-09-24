@@ -1,9 +1,7 @@
-import createDebug from 'debug';
 import createLogger from '@mongodb-js/compass-logging';
 import { promisify } from 'util';
 
-const { log, mongoLogId } = createLogger('COMPASS-CONNECT-UI');
-const debug = createDebug('mongodb-compass:compass-connect:connection-attempt');
+const { log, mongoLogId, debug } = createLogger('COMPASS-CONNECT-UI');
 
 function isConnectionAttemptTerminatedError(err) {
   return err.name === 'MongoError' && err.message === 'Topology closed';

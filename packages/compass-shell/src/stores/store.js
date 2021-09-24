@@ -5,7 +5,7 @@ import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
 import createLogger from '@mongodb-js/compass-logging';
 
-const debug = require('debug')('mongodb-compass-shell:store');
+const { log, debug } = createLogger('COMPASS-SHELL');
 
 export default class CompassShellStore {
   constructor() {
@@ -25,7 +25,7 @@ export default class CompassShellStore {
 
     setupLoggerAndTelemetry(
       appRegistry,
-      createLogger('COMPASS-SHELL').log.unbound,
+      log.unbound,
       () => {
         throw new Error('no analytics integration for compasss-shell');
       },

@@ -1,7 +1,6 @@
 import SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
 import createLogger from '@mongodb-js/compass-logging';
-import createDebug from 'debug';
 import { EventEmitter } from 'events';
 import { isFunction } from 'lodash';
 import {
@@ -67,8 +66,7 @@ const { fetch: getIndexes } = require('mongodb-index-model');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const parseNamespace = require('mongodb-ns');
 
-const debug = createDebug('mongodb-data-service:data-service');
-const { log, mongoLogId } = createLogger('COMPASS-DATA-SERVICE');
+const { log, mongoLogId, debug } = createLogger('COMPASS-DATA-SERVICE');
 
 let id = 0;
 
@@ -371,7 +369,6 @@ class DataService extends EventEmitter {
           isWritable: this.isWritable(),
           isMongos: this.isMongos(),
         };
-        debug('connected!', attr);
         log.info(mongoLogId(1_001_000_015), this._logCtx(), 'Connected', attr);
 
         this._database = this._client.db(this.model.ns || 'admin');
@@ -592,7 +589,6 @@ class DataService extends EventEmitter {
         this._tunnel.close().finally(() => {
           this._cleanup();
           log.info(mongoLogId(1_001_000_017), this._logCtx(), 'Fully closed');
-          debug('ssh tunnel stopped');
           // @ts-expect-error Callback without result...
           callback(err);
         });
@@ -1374,7 +1370,6 @@ class DataService extends EventEmitter {
       client.on(
         'serverDescriptionChanged',
         (evt: ServerDescriptionChangedEvent) => {
-          debug('serverDescriptionChanged', evt);
           log.info(
             mongoLogId(1_001_000_018),
             this._logCtx(),
@@ -1391,7 +1386,6 @@ class DataService extends EventEmitter {
       );
 
       client.on('serverOpening', (evt: ServerOpeningEvent) => {
-        debug('serverOpening', evt);
         log.info(mongoLogId(1_001_000_019), this._logCtx(), 'Server opening', {
           address: evt.address,
         });
@@ -1399,7 +1393,6 @@ class DataService extends EventEmitter {
       });
 
       client.on('serverClosed', (evt: ServerClosedEvent) => {
-        debug('serverClosed', evt);
         log.info(mongoLogId(1_001_000_020), this._logCtx(), 'Server closed', {
           address: evt.address,
         });
@@ -1407,19 +1400,16 @@ class DataService extends EventEmitter {
       });
 
       client.on('topologyOpening', (evt: TopologyOpeningEvent) => {
-        debug('topologyOpening', evt);
         this.emit('topologyOpening', evt);
       });
 
       client.on('topologyClosed', (evt: TopologyClosedEvent) => {
-        debug('topologyClosed', evt);
         this.emit('topologyClosed', evt);
       });
 
       client.on(
         'topologyDescriptionChanged',
         (evt: TopologyDescriptionChangedEvent) => {
-          debug('topologyDescriptionChanged', evt);
           this._isWritable = this.checkIsWritable(evt);
           this._isMongos = this.checkIsMongos(evt);
           const attr = {
@@ -1428,7 +1418,6 @@ class DataService extends EventEmitter {
             previousType: evt.previousDescription.type,
             newType: evt.newDescription.type,
           };
-          debug('updated to', attr);
           log.info(
             mongoLogId(1_001_000_021),
             this._logCtx(),
@@ -1445,7 +1434,6 @@ class DataService extends EventEmitter {
       client.on(
         'serverHeartbeatSucceeded',
         (evt: ServerHeartbeatSucceededEvent) => {
-          debug('serverHeartbeatSucceeded', evt);
           log.info(
             mongoLogId(1_001_000_022),
             this._logCtx(),
@@ -1460,7 +1448,6 @@ class DataService extends EventEmitter {
       );
 
       client.on('serverHeartbeatFailed', (evt: ServerHeartbeatFailedEvent) => {
-        debug('serverHeartbeatFailed', evt);
         log.warn(
           mongoLogId(1_001_000_023),
           this._logCtx(),
@@ -1483,7 +1470,7 @@ class DataService extends EventEmitter {
           msg: 'Driver command succeeded',
           attr: {
             address,
-            connectionId,
+            serverConnectionId: connectionId,
             duration,
             commandName,
           },
@@ -1499,7 +1486,7 @@ class DataService extends EventEmitter {
           msg: 'Driver command failed',
           attr: {
             address,
-            connectionId,
+            serverConnectionId: connectionId,
             duration,
             commandName,
             failure: failure.message,

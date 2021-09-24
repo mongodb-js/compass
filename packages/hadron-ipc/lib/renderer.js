@@ -3,11 +3,11 @@
 const getResponseChannel = require('./common').getResponseChannel;
 const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
-const debug = require('debug')('hadron-ipc:renderer');
+const _debug = require('debug')('hadron-ipc:renderer');
 
 exports = ipcRenderer;
 
-exports.call = function(methodName, ...args) {
+function call(debug, methodName, ...args) {
   debug(`calling ${methodName} with args`, args);
   const responseChannel = getResponseChannel(methodName);
   const errorResponseChannel = `${responseChannel}-error`;
@@ -29,6 +29,14 @@ exports.call = function(methodName, ...args) {
 
     ipcRenderer.send(methodName, ...args);
   });
+}
+
+exports.callQuiet = function(methodName, ...args) {
+  return call(() => {}, methodName, ...args);
+};
+
+exports.call = function(methodName, ...args) {
+  return call(_debug, methodName, ...args);
 };
 
 module.exports = exports;
