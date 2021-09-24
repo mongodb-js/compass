@@ -32,7 +32,7 @@
   "peerDependencies": {
     "@leafygreen-ui/icon": "^11.4.0",
     "@mongodb-js/compass-connect": "*",
-    "@mongodb-js/compass-components": "^0.5.0",
+    "@mongodb-js/compass-components": "^0.6.0",
     "debug": "*",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
