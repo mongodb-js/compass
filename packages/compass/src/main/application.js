@@ -1,20 +1,23 @@
-var _ = require('lodash');
-var pkg = require('../../package.json');
-var electron = require('electron');
-var app = electron.app;
+const _ = require('lodash');
+const pkg = require('../../package.json');
+const electron = require('electron');
+const app = electron.app;
+const setupLogging = require('./logging');
+
 // For Linux users with drivers that are blacklisted by Chromium
 // we ignore the blacklist to attempt to bypass the disabled
 // WebGL settings.
 app.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
 
-var path = require('path');
-var EventEmitter = require('events').EventEmitter;
-var inherits = require('util').inherits;
-var AutoUpdateManager = require('hadron-auto-update-manager');
-var ipc = require('hadron-ipc');
-var debug = require('debug')('mongodb-compass:main:application');
+const path = require('path');
+const EventEmitter = require('events').EventEmitter;
+const inherits = require('util').inherits;
+const AutoUpdateManager = require('hadron-auto-update-manager');
+const ipc = require('hadron-ipc');
+const debug = require('debug')('mongodb-compass:main:application');
 
 function Application() {
+  this.setupLogging();
   this.setupUserDirectory();
   this.setupJavaScriptArguments();
   this.setupLifecycleListeners();
@@ -180,6 +183,17 @@ Application.prototype.setupUserDirectory = function() {
       // }
     }
   }
+};
+
+Application.prototype.setupLogging = function() {
+  const home = app.getPath('home');
+  const appData = app.getPath('appData');
+  const logDir =
+    process.env.MONGODB_COMPASS_TEST_LOG_DIR || process.platform === 'win32'
+      ? path.join(appData || home, 'mongodb', 'compass')
+      : path.join(home, '.mongodb', 'compass');
+  app.setAppLogsPath(logDir);
+  setupLogging();
 };
 
 Application._instance = null;
