@@ -149,6 +149,7 @@ export class UserData<T = unknown> {
           'Error parsing file to json',
           {
             path: path,
+            error: error.message,
           }
         );
       }
