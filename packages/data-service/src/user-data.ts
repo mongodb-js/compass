@@ -144,7 +144,7 @@ export class UserData<T = unknown> {
         results.push(JSON.parse(content.toString()));
       } catch (error) {
         log.error(
-          mongoLogId(1_001_000_061),
+          mongoLogId(1_001_000_063),
           'UserData',
           'Error parsing file to json',
           {
@@ -180,7 +180,7 @@ export class UserData<T = unknown> {
     try {
       await unlink(absolutePath);
     } catch (error) {
-      log.error(mongoLogId(1_001_000_001), 'UserData', 'Error deleting file', {
+      log.error(mongoLogId(1_001_000_064), 'UserData', 'Error deleting file', {
         path: absolutePath,
       });
     }
@@ -242,7 +242,7 @@ export class UserData<T = unknown> {
     try {
       return await readFile(filePath);
     } catch {
-      log.error(mongoLogId(1_001_000_001), 'UserData', 'Error reading file', {
+      log.error(mongoLogId(1_001_000_065), 'UserData', 'Error reading file', {
         path: filePath,
       });
       return undefined;
