@@ -292,6 +292,7 @@
     "@mongodb-js/compass-indexes": "^4.16.0",
     "@mongodb-js/compass-instance": "^3.14.0",
     "@mongodb-js/compass-loading": "^2.14.0",
+    "@mongodb-js/compass-logging": "^0.3.0",
     "@mongodb-js/compass-metrics": "^4.14.0",
     "@mongodb-js/compass-plugin-info": "^3.14.0",
     "@mongodb-js/compass-query-bar": "^7.13.0",

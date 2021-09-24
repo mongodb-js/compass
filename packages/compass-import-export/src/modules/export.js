@@ -12,11 +12,11 @@ import { createReadableCollectionStream } from '../utils/collection-stream';
 
 const createProgressStream = require('progress-stream');
 
-import { createLogger } from '../utils/logger';
+import createLogger from '@mongodb-js/compass-logging';
 import { createCSVFormatter, createJSONFormatter } from '../utils/formatters';
 import { loadFields, getSelectableFields } from './load-fields';
 
-const debug = createLogger('export');
+const { log, mongoLogId, debug } = createLogger('COMPASS-IMPORT-EXPORT-UI');
 
 const PREFIX = 'import-export/export';
 
@@ -449,7 +449,12 @@ export const startExport = () => {
       Object.entries(exportData.fields)
         .filter((keyAndValue) => keyAndValue[1] === 1));
 
-    debug('count says to expect %d docs in export', numDocsToExport);
+    log.info(mongoLogId(1001000083), 'Export', 'Start reading from collection', {
+      ns,
+      numDocsToExport,
+      spec,
+      projection
+    });
     const source = createReadableCollectionStream(dataService, ns, spec, projection);
 
     const progress = createProgressStream({
@@ -462,6 +467,12 @@ export const startExport = () => {
       dispatch(onProgress(info.percentage, info.transferred));
     });
 
+    log.info(mongoLogId(1001000084), 'Export', 'Start writing to file', {
+      ns,
+      fileType: exportData.fileType,
+      fileName: exportData.fileName,
+      fields: Object.keys(exportData.allFields)
+    });
     // Pick the columns that are going to be matched by the projection,
     // where some prefix the field (e.g. ['a', 'a.b', 'a.b.c'] for 'a.b.c')
     // has an entry in the projection object.
@@ -481,14 +492,18 @@ export const startExport = () => {
     dispatch(onStarted(source, dest, numDocsToExport));
     stream.pipeline(source, progress, formatter, dest, function(err) {
       if (err) {
+        log.error(mongoLogId(1001000085), 'Export', 'Export failed', {
+          ns,
+          error: err.message
+        });
         debug('error running export pipeline', err);
         return dispatch(onError(err));
       }
-      debug(
-        'done. %d docs exported to %s',
+      log.info(mongoLogId(1001000086), 'Export', 'Finished export', {
+        ns,
         numDocsToExport,
-        exportData.fileName
-      );
+        fileName: exportData.fileName,
+      });
       dispatch(onFinished(numDocsToExport));
       dispatch(
         appRegistryEmit(
@@ -536,10 +551,9 @@ export const cancelExport = () => {
       debug('no active streams to cancel.');
       return;
     }
-    debug('cancelling');
+    log.info(mongoLogId(1001000088), 'Export', 'Cancelling export by user request');
     source.unpipe();
 
-    debug('canceled by user');
     dispatch({ type: CANCELED });
   };
 };

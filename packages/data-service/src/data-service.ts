@@ -1434,15 +1434,16 @@ class DataService extends EventEmitter {
       client.on(
         'serverHeartbeatSucceeded',
         (evt: ServerHeartbeatSucceededEvent) => {
-          log.info(
-            mongoLogId(1_001_000_022),
-            this._logCtx(),
-            'Server heartbeat succeeded',
-            {
+          log.write({
+            s: 'D2',
+            id: mongoLogId(1_001_000_022),
+            ctx: this._logCtx(),
+            msg: 'Server heartbeat succeeded',
+            attr: {
               connectionId: evt.connectionId,
               duration: evt.duration,
-            }
-          );
+            },
+          });
           this.emit('serverHeartbeatSucceeded', evt);
         }
       );
@@ -1751,8 +1752,11 @@ class DataService extends EventEmitter {
           }
         );
       } else {
-        if (result || Object.keys(attr).length > 0) {
-          log.info(logId, this._logCtx(), op, { ...attr, result });
+        if (result) {
+          attr = { ...attr, result };
+        }
+        if (Object.keys(attr).length > 0) {
+          log.info(logId, this._logCtx(), op, attr);
         } else {
           log.info(logId, this._logCtx(), op);
         }
