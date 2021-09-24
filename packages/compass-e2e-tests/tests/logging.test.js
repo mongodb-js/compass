@@ -178,8 +178,8 @@ describe('Logging integration', function () {
               genuineMongoDB: { dbType: 'mongodb', isGenuine: true },
             });
 
-            expect(actual.featureCompatibilityVersion).to.not.be.undefined;
-            expect(actual.serverVersion).to.not.be.undefined;
+            expect(actual.featureCompatibilityVersion).to.be.a('string');
+            expect(actual.serverVersion).to.be.a('string');
           },
         },
         {
