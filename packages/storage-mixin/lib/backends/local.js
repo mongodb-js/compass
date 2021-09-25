@@ -71,7 +71,7 @@ LocalBackend.prototype._write = function(model, options, done) {
  *
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
- LocalBackend.prototype.findOne = function(model, options, done) {
+LocalBackend.prototype.findOne = function(model, options, done) {
   const id = this._getId(model);
   this.store.getItem(id, (err, data) => {
     if (err) {
