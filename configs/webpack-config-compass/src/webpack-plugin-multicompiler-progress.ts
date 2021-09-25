@@ -7,6 +7,7 @@ const multibar = new MultiBar({
   format: `{name} [{bar}] {percentage}% | {msg} ${chalk.gray('{additional}')}`,
   autopadding: true,
   barsize: 30,
+  stopOnComplete: true,
 });
 
 const bars = new Map<string, SingleBar>();
