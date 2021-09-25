@@ -31,10 +31,10 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "ampersand-collection-filterable": "^0.2.1",
-    "ampersand-model": "^6.0.2",
+    "ampersand-collection-filterable": "^0.3.0",
+    "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
-    "ampersand-state": "4.8.2",
+    "ampersand-state": "5.0.3",
     "debug": "^2.2.0",
     "lodash": "^4.10.0",
     "mongodb-collection-model": "^4.14.0",

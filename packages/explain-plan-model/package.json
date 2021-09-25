@@ -21,7 +21,7 @@
     "require": "./index.js"
   },
   "dependencies": {
-    "ampersand-model": "^6.0.3",
+    "ampersand-model": "^8.0.1",
     "lodash": "^4.17.19"
   },
   "devDependencies": {

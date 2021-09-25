@@ -195,7 +195,7 @@
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-router": "^3.0.2",
-    "ampersand-state": "4.8.2",
+    "ampersand-state": "5.0.3",
     "ampersand-view": "^9.0.0",
     "app-migrations": "^2.3.0",
     "async": "^3.2.0",

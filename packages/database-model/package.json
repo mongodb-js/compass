@@ -30,7 +30,7 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "ampersand-model": "^8.0.0",
+    "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0"
   },
   "devDependencies": {
