@@ -14,8 +14,8 @@ const { createUnlockedKeychain } = require('./helpers/keychain');
 
 const keychain = createUnlockedKeychain();
 
-function setup() {
-  keychain.activate();
+async function setup() {
+  await keychain.activate();
   debug('Starting MongoDB server and importing fixtures');
   spawnSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
   spawnSync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
@@ -43,9 +43,15 @@ function cleanup() {
 }
 
 async function main() {
-  setup();
+  await setup();
 
   const shouldTestPackagedApp = process.argv.includes('--test-packaged-app');
+  // Skip this step if you are running tests consecutively and don't need to
+  // rebuild modules all the time
+  const noNativeModules = process.argv.includes('--no-native-modules');
+  // Skip this step if you want to run tests against your own compilation (e.g,
+  // a dev build or a build running in watch mode that autorecompiles)
+  const noCompile = process.argv.includes('--no-compile');
 
   if (shouldTestPackagedApp) {
     process.env.TEST_PACKAGED_APP = '1';
@@ -54,10 +60,14 @@ async function main() {
   } else {
     delete process.env.TEST_PACKAGED_APP;
     debug('Preparing Compass before running the tests');
-    debug('Rebuilding native modules ...');
-    await rebuildNativeModules();
-    debug('Compiling Compass assets ...');
-    await compileCompassAssets();
+    if (!noNativeModules) {
+      debug('Rebuilding native modules ...');
+      await rebuildNativeModules();
+    }
+    if (!noCompile) {
+      debug('Compiling Compass assets ...');
+      await compileCompassAssets();
+    }
   }
 
   const tests = await promisify(glob)('tests/**/*.{test,spec}.js', {

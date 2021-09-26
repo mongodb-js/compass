@@ -26,6 +26,7 @@
     "@mongodb-js/eslint-config-compass": "^0.3.0",
     "@mongodb-js/prettier-config-compass": "^0.2.0",
     "@types/webdriverio": "^4.13.3",
+    "chalk": "^4.1.2",
     "chai": "*",
     "cross-spawn": "^7.0.3",
     "debug": "^4.3.1",
