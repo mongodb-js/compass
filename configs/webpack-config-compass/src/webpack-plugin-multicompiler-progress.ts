@@ -16,8 +16,8 @@ function parseAdditionalInfo(type: string, str: string[]): string {
   if (type === 'building') {
     const activeModule = str[1];
     if (activeModule) {
-      const filepath = activeModule.split('!').filter(Boolean);
-      const last = filepath[filepath.length - 1];
+      const importWithLoaders = activeModule.split(/(!|\|)/).filter(Boolean);
+      const last = importWithLoaders[importWithLoaders.length - 1];
       return path.isAbsolute(last) ? path.relative(process.cwd(), last) : last;
     }
 
@@ -32,7 +32,6 @@ function progressHandler(
   name: string,
   percentage: number,
   msg: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ...args: string[]
 ) {
   const padEndName = Math.max(
@@ -40,14 +39,14 @@ function progressHandler(
   );
 
   const padStartMsg = Math.max(
-    ...Array.from(bars.values()).map(
-      (bar) => (bar as any).payload.msg.trim().length
+    ...Array.from(bars.values()).map((bar) =>
+      bar ? (bar as any).payload.msg.trim().length : 0
     )
   );
 
   const payload = {
     name: name.padEnd(padEndName),
-    msg: (msg || 'done').padStart(padStartMsg),
+    msg: msg.padStart(padStartMsg),
     additional: parseAdditionalInfo(msg, args),
   };
 

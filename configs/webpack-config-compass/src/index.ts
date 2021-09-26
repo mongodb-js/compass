@@ -58,6 +58,7 @@ export function createElectronMainConfig(
       aliasFields: [],
       extensions: ['.jsx', '.tsx', '.ts', '...'],
     },
+    plugins: [new WebpackPluginMulticompilerProgress()],
   };
 
   return merge<WebpackConfig>(
@@ -82,11 +83,6 @@ export function createElectronMainConfig(
 
             new DuplicatePackageCheckerPlugin(),
           ],
-        }
-      : {},
-    process.stdout.isTTY
-      ? {
-          plugins: [new WebpackPluginMulticompilerProgress()],
         }
       : {}
   );
@@ -120,7 +116,10 @@ export function createElectronRendererConfig(
         sourceLoader(opts),
       ],
     },
-    plugins: [...entriesToHtml(entries)],
+    plugins: [
+      ...entriesToHtml(entries),
+      new WebpackPluginMulticompilerProgress(),
+    ],
     node: false as const,
     externals: toCommonJsExternal(sharedExternals),
     resolve: {
@@ -182,11 +181,6 @@ export function createElectronRendererConfig(
 
             new DuplicatePackageCheckerPlugin(),
           ],
-        }
-      : {},
-    process.stdout.isTTY
-      ? {
-          plugins: [new WebpackPluginMulticompilerProgress()],
         }
       : {}
   );
