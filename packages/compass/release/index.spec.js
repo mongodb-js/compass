@@ -96,14 +96,12 @@ describe('release', () => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'compass-release-tests-'));
 
     // create fake git remote:
-    const gitRemotePath = path.resolve(tempDir, 'remote');
-    fs.mkdirpSync(gitRemotePath);
-    process.chdir(gitRemotePath);
+    remote = path.resolve(tempDir, 'remote');
+    fs.mkdirpSync(remote);
+    process.chdir(remote);
     await execa('git', ['init', '--bare']);
     await execa('git', ['config', '--local', 'user.name', 'user']);
     await execa('git', ['config', '--local', 'user.email', 'user@example.com']);
-
-    remote = pathToFileURL(gitRemotePath).toString();
 
     // setup repo and package:
     repoPath = path.resolve(tempDir, 'compass-release-test-repo');
