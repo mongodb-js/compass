@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Button from '@leafygreen-ui/button';
-import Icon from '@leafygreen-ui/icon';
+import { Icon } from '@mongodb-js/compass-components';
 
 import CollectionsPlugin from '../../../../src/collections-plugin';
 import DatabasePlugin from '../../../../src/databases-plugin';

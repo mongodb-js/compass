@@ -34,10 +34,12 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "@leafygreen-ui/confirmation-modal": "^2.2.1"
+    "@leafygreen-ui/confirmation-modal": "^2.2.1",
+    "@leafygreen-ui/icon": "^11.4.0"
   },
   "peerDependencies": {
     "@leafygreen-ui/confirmation-modal": "^2.2.1",
+    "@leafygreen-ui/icon": "^11.4.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
