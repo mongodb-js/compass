@@ -146,7 +146,7 @@ Application.prototype.setupAppNameAndUserDirectory = function() {
   var appName = app.getName();
 
   // For spectron env we are changing appName so that keychain records do not
-  // overlap with anything elseOnly appName should be changed for the spectron
+  // overlap with anything else. Only appName should be changed for the spectron
   // environment that is running tests, all relevant paths are configured from
   // the test runner.
   if (process.env.APP_ENV === 'spectron') {
