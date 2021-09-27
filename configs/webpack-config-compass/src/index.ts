@@ -314,7 +314,7 @@ const assetsLoader = (_args: ConfigArgs) => ({
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const resourceLoader = (_args: ConfigArgs) => ({
   test: /\.(jpe?g|png|svg|gif|woff|woff2|ttf|eot)(\?.+?)?$/,
-  // asset/resourse always compiles imports to paths to files, this is a good
+  // asset/resource always compiles imports to paths to files, this is a good
   // strategy for electron main (node.js) process where handling data uris might
   // be more work than handling files
   type: 'asset/resource',
