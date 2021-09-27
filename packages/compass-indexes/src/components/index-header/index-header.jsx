@@ -29,35 +29,35 @@ class IndexHeader extends PureComponent {
       <thead className={classnames(styles['index-header'])}>
         <tr>
           <IndexHeaderColumn
-            dataTestId="index-header-name"
+            data-test-id="index-header-name"
             name="Name and Definition"
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}
             sortIndexes={this.props.sortIndexes}
             indexes={this.props.indexes} />
           <IndexHeaderColumn
-            dataTestId="index-header-type"
+            data-test-id="index-header-type"
             name="Type"
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}
             sortIndexes={this.props.sortIndexes}
             indexes={this.props.indexes} />
           <IndexHeaderColumn
-            dataTestId="index-header-size"
+            data-test-id="index-header-size"
             name="Size"
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}
             sortIndexes={this.props.sortIndexes}
             indexes={this.props.indexes} />
           <IndexHeaderColumn
-            dataTestId="index-header-usage"
+            data-test-id="index-header-usage"
             name="Usage"
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}
             sortIndexes={this.props.sortIndexes}
             indexes={this.props.indexes} />
           <IndexHeaderColumn
-            dataTestId="index-header-properties"
+            data-test-id="index-header-properties"
             name="Properties"
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}

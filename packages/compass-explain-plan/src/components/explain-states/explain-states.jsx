@@ -157,7 +157,7 @@ class ExplainStates extends Component {
             <div className={styles['zero-state-action']}>
               <div>
                 <TextButton
-                  dataTestId="execute-explain-button"
+                  data-test-id="execute-explain-button"
                   className={
                     `btn btn-primary btn-lg ${!this.props.isEditable ? 'disabled' : ''}`
                   }
@@ -222,7 +222,7 @@ class ExplainStates extends Component {
       <div className={styles['action-bar']}>
         <ViewSwitcher
           label="View Details As"
-          dataTestId="explain-states"
+          data-test-id="explain-states"
           buttonLabels={['Visual Tree', 'Raw JSON']}
           activeButton={activeViewTypeButton}
           disabled={this.checkIfZeroState()}

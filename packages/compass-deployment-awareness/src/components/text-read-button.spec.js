@@ -27,7 +27,7 @@ describe('<TextReadButton />', () => {
             className="testing"
             clickHandler={click}
             text="test button"
-            dataTestId="test-id"
+            data-test-id="test-id"
             tooltipId="test-button" />
         );
       });

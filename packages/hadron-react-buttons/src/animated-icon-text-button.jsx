@@ -70,7 +70,7 @@ class AnimatedIconTextButton extends React.Component {
     return (
       <button
         type={BUTTON}
-        data-test-id={this.props.dataTestId}
+        data-test-id={this.props['data-test-id']}
         className={this.props.className}
         onClick={this.handleClick.bind(this)}
         disabled={this.props.disabled}>
@@ -89,7 +89,7 @@ AnimatedIconTextButton.propTypes = {
   className: PropTypes.string,
   iconClassName: PropTypes.string.isRequired,
   animatingIconClassName: PropTypes.string.isRequired,
-  dataTestId: PropTypes.string,
+  'data-test-id': PropTypes.string,
   stopAnimationListenable: PropTypes.any.isRequired,
   disabled: PropTypes.bool
 };

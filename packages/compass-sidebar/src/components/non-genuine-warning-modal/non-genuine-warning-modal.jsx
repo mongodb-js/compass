@@ -76,7 +76,7 @@ class NonGenuineWarningModal extends PureComponent {
         <Modal.Footer>
           <TextButton
             className="btn btn-primary btn-sm"
-            dataTestId="continue-button"
+            data-test-id="continue-button"
             text="CONTINUE"
             clickHandler={this.handleClose.bind(this)} />
         </Modal.Footer>

@@ -161,7 +161,7 @@ class SamplingMessage extends React.Component {
           <AnimatedIconTextButton
             clickHandler={this.handleRefreshDocuments.bind(this)}
             stopAnimationListenable={this.resetDocumentListStore}
-            dataTestId="refresh-documents-button"
+            data-test-id="refresh-documents-button"
             className="btn btn-default btn-xs sampling-message-refresh-documents"
             iconClassName="fa fa-repeat"
             animatingIconClassName="fa fa-refresh fa-spin"
@@ -170,7 +170,7 @@ class SamplingMessage extends React.Component {
         <div className="action-bar">
           <TextButton
             className="btn btn-primary btn-xs open-insert"
-            dataTestId="open-insert-document-modal-button"
+            data-test-id="open-insert-document-modal-button"
             text="Insert Document"
             tooltipId="document-is-not-writable"
             clickHandler={this.props.insertHandler} />

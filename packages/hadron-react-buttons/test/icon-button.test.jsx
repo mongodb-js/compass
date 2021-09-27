@@ -11,7 +11,7 @@ describe('<IconButton />', () => {
       clickHandler={click}
       className="class-name"
       iconClassName="icon-class-name"
-      dataTestId="icon-button-test" />
+      data-test-id="icon-button-test" />
   ));
 
   it('sets the base class', () => {

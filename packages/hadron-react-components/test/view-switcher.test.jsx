@@ -14,7 +14,7 @@ describe('<ViewSwitcher />', () => {
       label="Edit Mode"
       buttonLabels={[ 'Chart Builder', 'JSON Editor' ]}
       activeButton="json-editor"
-      dataTestId="chart-view-switcher"
+      data-test-id="chart-view-switcher"
       onClick={onClick}
     />
   );
@@ -47,7 +47,7 @@ describe('<ViewSwitcher />', () => {
         buttonLabels={[ 'Chart Builder', 'JSON Editor' ]}
         iconClassNames={['list', 'table']}
         activeButton="json-editor"
-        dataTestId="chart-view-switcher"
+        data-test-id="chart-view-switcher"
         onClick={onClick}
       />
     );
@@ -66,7 +66,7 @@ describe('<ViewSwitcher />', () => {
         iconClassNames={['list', 'table']}
         showLabels={false}
         activeButton="json-editor"
-        dataTestId="chart-view-switcher"
+        data-test-id="chart-view-switcher"
         onClick={onClick}
       />
     );

@@ -49,18 +49,18 @@ class DocumentStatsItem extends Component {
     return (
       <div className={styles[LIST_CLASS]}>
         {!isTimeSeries && <CollectionStatsItem
-          dataTestId="document-count"
+          data-test-id="document-count"
           label={DOCUMENTS}
           value={this.props.documentCount}
           primary
         />}
         <CollectionStatsItem
-          dataTestId="total-document-size"
+          data-test-id="total-document-size"
           label={TOTAL_SIZE}
           value={this.props.totalDocumentSize}
         />
         {!isTimeSeries && <CollectionStatsItem
-          dataTestId="avg-document-size"
+          data-test-id="avg-document-size"
           label={AVG_SIZE}
           value={this.props.avgDocumentSize}
         />}

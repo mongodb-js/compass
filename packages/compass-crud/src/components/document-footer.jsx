@@ -228,13 +228,13 @@ class DocumentFooter extends React.Component {
           <TextButton
             className="btn btn-borderless btn-xs cancel"
             text="Cancel"
-            dataTestId="cancel-document-button"
+            data-test-id="cancel-document-button"
             clickHandler={this.boundHandleCancel} />
           <TextButton
             className="btn btn-default btn-xs"
             text="Update"
             disabled={this.hasErrors()}
-            dataTestId="update-document-button"
+            data-test-id="update-document-button"
             clickHandler={this.handleUpdate.bind(this)} />
         </div>
       </div>

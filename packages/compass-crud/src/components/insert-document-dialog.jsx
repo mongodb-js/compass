@@ -204,7 +204,7 @@ class InsertDocumentDialog extends React.PureComponent {
       >
         <div className="insert-document-views">
           <ViewSwitcher
-            dataTestId="insert-document-dialog-view"
+            data-test-id="insert-document-dialog-view"
             label="View"
             buttonLabels={['JSON', 'List']}
             showLabels={false}

@@ -13,7 +13,7 @@ class IndexDefinitionType extends PureComponent {
 
   static propTypes = {
     index: PropTypes.object.isRequired,
-    dataTestId: PropTypes.string
+    'data-test-id': PropTypes.string
   };
 
   /**
@@ -78,7 +78,7 @@ class IndexDefinitionType extends PureComponent {
     });
     return (
       <div className={classnames(styles['index-definition'])}>
-        <p className={classnames(styles['index-definition-type'])} data-test-id={this.props.dataTestId}>
+        <p className={classnames(styles['index-definition-type'])} data-test-id={this.props['data-test-id']}>
           {fields}
         </p>
       </div>

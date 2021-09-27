@@ -373,14 +373,14 @@ class CreateIndexModal extends PureComponent {
         <Modal.Footer>
           <TextButton
             className="btn btn-default btn-sm"
-            dataTestId="cancel-create-index-button"
+            data-test-id="cancel-create-index-button"
             disabled={this.props.inProgress}
             text="Cancel"
             clickHandler={this.handleClose.bind(this)} />
           <TextButton
             className="btn btn-primary btn-sm"
             disabled={!this.props.fields.length || this.props.inProgress}
-            dataTestId="create-index-button"
+            data-test-id="create-index-button"
             text="Create Index"
             clickHandler={this.props.createIndex} />
         </Modal.Footer>

@@ -149,7 +149,7 @@ class Schema extends Component {
           <div className={classnames(styles['schema-zero-state-action'])}>
             <div>
               <TextButton
-                dataTestId="analyze-schema-button"
+                data-test-id="analyze-schema-button"
                 className="btn btn-primary btn-lg"
                 text="Analyze Schema"
                 clickHandler={this.onApplyClicked.bind(this)} />

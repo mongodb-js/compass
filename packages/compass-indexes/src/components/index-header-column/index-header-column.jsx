@@ -15,7 +15,7 @@ class IndexHeaderColumn extends PureComponent {
     indexes: PropTypes.array.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortColumn: PropTypes.string.isRequired,
-    dataTestId: PropTypes.string.isRequired,
+    'data-test-id': PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     sortIndexes: PropTypes.func.isRequired
 
@@ -51,7 +51,7 @@ class IndexHeaderColumn extends PureComponent {
   render() {
     return (
       <th
-        data-test-id={this.props.dataTestId}
+        data-test-id={this.props['data-test-id']}
         className={this._renderClassName()}
         onClick={this.handleIndexSort.bind(this)}>
         {this.props.name}

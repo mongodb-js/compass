@@ -133,12 +133,12 @@ class RemoveDocumentFooter extends React.Component {
           <TextButton
             className="btn btn-borderless btn-xs cancel"
             text="Cancel"
-            dataTestId="cancel-document-button"
+            data-test-id="cancel-document-button"
             clickHandler={this.props.cancelHandler} />
           <TextButton
             className="btn btn-default btn-xs error"
             text="Delete"
-            dataTestId="confirm-delete-document-button"
+            data-test-id="confirm-delete-document-button"
             clickHandler={this.handleRemove.bind(this)} />
         </div>
       </div>

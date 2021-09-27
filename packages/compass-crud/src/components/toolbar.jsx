@@ -115,7 +115,7 @@ class Toolbar extends React.Component {
           title="ExportCollection"
           className={`${EXPORT_COLLECTION_CLASS} btn btn-default btn-xs`}
           iconClassName={`${EXPORT_COLLECTION_CLASS}-button fa fa-upload`}
-          dataTestId="export-collection-button"
+          data-test-id="export-collection-button"
           clickHandler={this.props.openExportFileDialog} />
         <Tooltip id="export-collection-tooltip" />
       </div>
@@ -136,7 +136,7 @@ class Toolbar extends React.Component {
             {this.renderExportButton()}
             <div className={VIEW_SWITCHER_CLASS}>
               <ViewSwitcher
-                dataTestId="toolbar-view"
+                data-test-id="toolbar-view"
                 label="View"
                 buttonLabels={['List', 'JSON', 'Table']}
                 showLabels={false}
@@ -154,7 +154,7 @@ class Toolbar extends React.Component {
               <AnimatedIconTextButton
                 clickHandler={this.handleRefreshDocuments.bind(this)}
                 stopAnimationListenable={this.props.pageLoadedListenable}
-                dataTestId="refresh-documents-button"
+                data-test-id="refresh-documents-button"
                 className="btn btn-default btn-xs"
                 iconClassName="fa fa-repeat"
                 text="REFRESH"

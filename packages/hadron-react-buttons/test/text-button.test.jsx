@@ -17,7 +17,7 @@ describe('<TextButton />', () => {
         clickHandler={click}
         className="class-name"
         style={{ color: 'green' }}
-        dataTestId="text-button-test"
+        data-test-id="text-button-test"
       />
     );
 
@@ -53,7 +53,7 @@ describe('<TextButton />', () => {
         clickHandler={click}
         className="class-name"
         disabled
-        dataTestId="text-button-test"
+        data-test-id="text-button-test"
       />
     );
 

@@ -54,7 +54,7 @@ class DatabasesToolbar extends PureComponent {
         <div className={styles['tooltip-wrapper-class']} data-tip={DATA_LAKE_WARNING} data-for="database-ddl-is-not-writable">
           <TextButton
             className="btn btn-primary btn-xs"
-            dataTestId="open-create-database-modal-button"
+            data-test-id="open-create-database-modal-button"
             text="Create Database"
             tooltipId="database-ddl-is-not-writable"
             disabled
@@ -68,7 +68,7 @@ class DatabasesToolbar extends PureComponent {
       return (
         <this.TextWriteButton
           className="btn btn-primary btn-xs"
-          dataTestId="open-create-database-modal-button"
+          data-test-id="open-create-database-modal-button"
           text="Create Database"
           tooltipId="database-ddl-is-not-writable"
           clickHandler={this.onShowCreateDatabase}

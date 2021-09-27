@@ -19,7 +19,7 @@ class TextReadButton extends React.Component {
   static propTypes = {
     className: PropTypes.string.isRequired,
     clickHandler: PropTypes.func.isRequired,
-    dataTestId: PropTypes.string,
+    'data-test-id': PropTypes.string,
     disabled: PropTypes.bool,
     id: PropTypes.string,
     style: PropTypes.object,
@@ -83,7 +83,7 @@ class TextReadButton extends React.Component {
         <TextButton
           id={this.props.id}
           className={this.props.className}
-          dataTestId={this.props.dataTestId}
+          data-test-id={this.props['data-test-id']}
           disabled={!this.state.isReadable || this.props.disabled}
           clickHandler={this.props.clickHandler}
           style={this.props.style}

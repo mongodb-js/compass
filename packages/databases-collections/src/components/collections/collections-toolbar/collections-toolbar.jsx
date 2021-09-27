@@ -59,7 +59,7 @@ class Toolbar extends PureComponent {
         >
           <TextButton
             className="btn btn-primary btn-xs"
-            dataTestId="open-create-collection-modal-button"
+            data-test-id="open-create-collection-modal-button"
             text="Create Collection"
             tooltipId="collections-ddl-is-not-writable"
             disabled
@@ -73,7 +73,7 @@ class Toolbar extends PureComponent {
       return (
         <this.TextWriteButton
           className="btn btn-primary btn-xs"
-          dataTestId="open-create-collection-modal-button"
+          data-test-id="open-create-collection-modal-button"
           text="Create Collection"
           tooltipId="collections-ddl-is-not-writable"
           clickHandler={this.onShowCreateCollection}

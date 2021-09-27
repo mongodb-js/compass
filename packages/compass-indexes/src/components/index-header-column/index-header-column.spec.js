@@ -15,7 +15,7 @@ describe('index-header-column [Component]', () => {
         sortOrder="fa-sort-asc"
         sortColumn="name"
         sortIndexes={sortSpy}
-        dataTestId="testid"
+        data-test-id="testid"
         name="testname"
       />);
     });
@@ -43,7 +43,7 @@ describe('index-header-column [Component]', () => {
         sortOrder="fa-sort-desc"
         sortColumn="testname"
         sortIndexes={sortSpy}
-        dataTestId="testid"
+        data-test-id="testid"
         name="testname"
       />);
     });
