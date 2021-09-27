@@ -20,6 +20,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
+    "@mongodb-js/compass-logging": "^0.3.0",
     "async": "^3.1.0",
     "debug": "^4.1.1",
     "lodash": "4.17.15",
