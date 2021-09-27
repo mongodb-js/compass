@@ -515,7 +515,12 @@ async function afterTests(compass) {
       await savePage(compass);
     }
 
-    await compass.stop();
+    try {
+        await compass.stop();
+    } catch (err) {
+        debug('An error occurred while stopping compass:');
+        debug(err);
+    }
     compass = null;
   }
 }
