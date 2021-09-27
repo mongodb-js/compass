@@ -27,7 +27,7 @@ export default class CompassShellStore {
       appRegistry,
       log.unbound,
       () => {
-        throw new Error('no analytics integration for compasss-shell');
+        throw new Error('no analytics integration for compass-shell');
       },
       {
         platform: process.platform,
