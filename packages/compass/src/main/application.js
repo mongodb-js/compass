@@ -18,7 +18,7 @@ const debug = require('debug')('mongodb-compass:main:application');
 
 function Application() {
   this.setupLogging();
-  this.setupUserDirectory();
+  this.setupAppNameAndUserDirectory();
   this.setupJavaScriptArguments();
   this.setupLifecycleListeners();
 
@@ -142,19 +142,21 @@ Application.prototype.setupLifecycleListeners = function() {
   });
 };
 
-Application.prototype.setupUserDirectory = function() {
-  // For testing set a clean slate for the user data.
-  if (process.env.NODE_ENV === 'testing') {
-    var userDataDir = path.resolve(
-      path.join(__dirname, '..', '..', '.user-data')
-    );
-    app.setPath('userData', userDataDir);
-  } else if (process.env.NODE_ENV === 'development') {
+Application.prototype.setupAppNameAndUserDirectory = function() {
+  var appName = app.getName();
+
+  // For spectron env we are changing appName so that keychain records do not
+  // overlap with anything else. Only appName should be changed for the spectron
+  // environment that is running tests, all relevant paths are configured from
+  // the test runner.
+  if (process.env.APP_ENV === 'spectron') {
+    app.setName(`${appName} Spectron`);
+    return;
+  }
+
+  if (process.env.NODE_ENV === 'development') {
     var channel = 'stable';
     // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
-    // TODO @thomasr this is a copy of the functionality in hadron-build.
-    // Eventually this should live in a hadron-version module.
-    var appName = app.getName();
     var mtch = app.getVersion().match(/-([a-z]+)(\.\d+)?$/);
     if (mtch) {
       channel = mtch[1];
@@ -167,20 +169,6 @@ Application.prototype.setupUserDirectory = function() {
       // path first, but we are ok with this for development builds)
       app.setPath('userData', path.join(app.getPath('appData'), newAppName));
       app.setPath('userCache', path.join(app.getPath('cache'), newAppName));
-    }
-  } else if (process.env.NODE_ENV === 'production') {
-    // If we are on windows we need to look for the registry key that tells us
-    // where Commpass is installed. If they key exists, we need to change the user
-    // data directory to a subfolder of that.
-    if (process.platform === 'win32') {
-      console.log('noop to debug.');
-      // const vsWinReg = require('vscode-windows-registry');
-      /* eslint new-cap: 0 */
-      // const installDir = vsWinReg.GetStringRegKey('HKEY_LOCAL_MACHINE', `SOFTWARE\\MongoDB\\${app.getName()}`, 'directory');
-      // if (installDir) {
-      //   app.setPath('userData', path.join(installDir, 'UserData'));
-      //   app.setPath('userCache', path.join(installDir, 'Cache'));
-      // }
     }
   }
 };
