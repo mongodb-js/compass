@@ -2,6 +2,7 @@ const assert = require('assert');
 const fs = require('fs').promises;
 const path = require('path');
 const os = require('os');
+const rimraf = require('rimraf');
 const { extractPartialLogFile } = require('../../src/main/logging');
 
 describe('extractPartialLogFile', function() {
@@ -10,8 +11,8 @@ describe('extractPartialLogFile', function() {
     tmpdir = path.join(os.tmpdir(), 'compass-logging-test', 'test-' + Date.now());
     await fs.mkdir(tmpdir, { recursive: true });
   });
-  afterEach(async function() {
-    await fs.rmdir(tmpdir, { recursive: true });
+  afterEach(function(done) {
+    rimraf(tmpdir, done);
   });
 
   it('should read an incomplete log file and write a decompressed version of it to a tmp file', async function() {
