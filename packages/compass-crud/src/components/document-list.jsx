@@ -184,7 +184,7 @@ class DocumentList extends React.Component {
           <div className="document-list-zero-state-action">
             <div>
               <TextButton
-                data-test-id="import-data-button"
+                dataTestId="import-data-button"
                 className={`btn btn-primary btn-lg ${editableClass}`}
                 text="Import Data"
                 clickHandler={this.props.openImportFileDialog} />

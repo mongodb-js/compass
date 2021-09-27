@@ -32,7 +32,7 @@ class TextWriteButton extends React.Component {
       <div className={WRAPPER}>
         <TextButton
           className={this.props.className}
-          data-test-id={this.props['data-test-id']}
+          dataTestId={this.props.dataTestId}
           disabled={!this.isWritable()}
           clickHandler={this.props.clickHandler}
           text={this.props.text} />
@@ -44,7 +44,7 @@ class TextWriteButton extends React.Component {
 TextWriteButton.propTypes = {
   className: PropTypes.string.isRequired,
   clickHandler: PropTypes.func.isRequired,
-  'data-test-id': PropTypes.string,
+  dataTestId: PropTypes.string,
   isCollectionLevel: PropTypes.bool,
   text: PropTypes.string.isRequired,
   tooltipId: PropTypes.string.isRequired

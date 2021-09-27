@@ -13,7 +13,7 @@ const icon = (
     clickHandler={click}
     className="class-name"
     iconClassName="icon-class-name"
-    data-test-id="icon-button-test" />
+    dataTestId="icon-button-test" />
 );
 
 const text = (
@@ -21,7 +21,7 @@ const text = (
     text="title"
     clickHandler={click}
     className="class-name"
-    data-test-id="text-button-test" />
+    dataTestId="text-button-test" />
 );
 
 ```

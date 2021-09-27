@@ -24,7 +24,7 @@ describe('<TextWriteButton />', () => {
               className="testing"
               clickHandler={click}
               text="test button"
-              data-test-id="test-id"
+              dataTestId="test-id"
               tooltipId="test-button" />
           );
         });
@@ -80,7 +80,7 @@ describe('<TextWriteButton />', () => {
               className="testing"
               clickHandler={click}
               text="test button"
-              data-test-id="test-id"
+              dataTestId="test-id"
               tooltipId="test-button" />
           );
         });

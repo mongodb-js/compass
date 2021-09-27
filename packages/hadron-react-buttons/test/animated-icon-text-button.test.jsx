@@ -14,7 +14,7 @@ describe('<AnimatedIconTextButton />', () => {
       className="class-name"
       iconClassName="icon-class-name"
       animatingIconClassName="animating-icon-class-name"
-      data-test-id="icon-button-test" />
+      dataTestId="icon-button-test" />
     , { disableLifecycleMethods: true });
 
   it('sets the base class', () => {

@@ -20,7 +20,7 @@ class TextButton extends React.Component {
       <button
         id={this.props.id}
         className={this.props.className}
-        data-test-id={this.props['data-test-id']}
+        data-test-id={this.props.dataTestId}
         title={this.props.title}
         type={BUTTON}
         disabled={this.props.disabled}
@@ -39,7 +39,7 @@ TextButton.propTypes = {
   title: PropTypes.string,
   clickHandler: PropTypes.func.isRequired,
   className: PropTypes.string,
-  'data-test-id': PropTypes.string,
+  dataTestId: PropTypes.string,
   disabled: PropTypes.bool,
   id: PropTypes.string,
   style: PropTypes.object

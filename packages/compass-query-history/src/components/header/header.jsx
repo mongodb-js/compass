@@ -52,7 +52,7 @@ class Header extends PureComponent {
     return (
       <div className={classnames(styles.component)}>
         <ViewSwitcher
-          data-test-id="past-queries"
+          dataTestId="past-queries"
           label="Past Queries"
           buttonLabels={['Recent', 'Favorites']}
           activeButton={activeButton}

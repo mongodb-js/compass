@@ -148,7 +148,7 @@ class ValidationStates extends Component {
           <div className={classnames(styles['zero-state-action'])}>
             <div>
               <TextButton
-                data-test-id="add-rule-button"
+                dataTestId="add-rule-button"
                 className={`btn btn-primary btn-lg ${
                   !this.isEditable() ? 'disabled' : ''
                 }`}

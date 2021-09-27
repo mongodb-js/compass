@@ -38,7 +38,7 @@ class CollectionStatsItem extends Component {
     label: PropTypes.string.isRequired,
     value: PropTypes.any.isRequired,
     primary: PropTypes.bool,
-    'data-test-id': PropTypes.string
+    dataTestId: PropTypes.string
   };
 
   /**
@@ -49,10 +49,10 @@ class CollectionStatsItem extends Component {
   render() {
     return (
       <div className={styles[BASE_CLASS]}>
-        <div className={styles[this.props.primary ? PRIMARY_LABEL : LABEL]} data-test-id={`${this.props['data-test-id']}-label`}>
+        <div className={styles[this.props.primary ? PRIMARY_LABEL : LABEL]} data-test-id={`${this.props.dataTestId}-label`}>
           {this.props.label}
         </div>
-        <div className={styles[this.props.primary ? PRIMARY_VALUE : VALUE]} data-test-id={`${this.props['data-test-id']}-value`}>
+        <div className={styles[this.props.primary ? PRIMARY_VALUE : VALUE]} data-test-id={`${this.props.dataTestId}-value`}>
           {this.props.value}
         </div>
       </div>

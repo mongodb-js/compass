@@ -262,12 +262,12 @@ class ValidationEditor extends Component {
             Validation modified
           </div>
           <TextButton
-            data-test-id="cancel-validation-button"
+            dataTestId="cancel-validation-button"
             className={`btn btn-default btn-xs ${classnames(styles.cancel)}`}
             text="Cancel"
             clickHandler={this.props.cancelValidation} />
           <TextButton
-            data-test-id="update-validation-button"
+            dataTestId="update-validation-button"
             className={`btn btn-primary btn-xs ${this.hasErrors() ? 'disabled' : ''}`}
             text="Update"
             clickHandler={this.onValidatorSave.bind(this)} />

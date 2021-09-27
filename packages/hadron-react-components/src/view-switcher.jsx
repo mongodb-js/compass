@@ -15,7 +15,7 @@ class ViewSwitcher extends React.Component {
   buttonFactory() {
     return this.props.buttonLabels.map((label, i) => {
       const active = this.props.activeButton === label;
-      const dataTestId = `${this.props['data-test-id']}-${label.toLowerCase().replace(/ /g, '-')}`;
+      const dataTestId = `${this.props.dataTestId}-${label.toLowerCase().replace(/ /g, '-')}`;
       const shownLabel = this.props.showLabels ? label : '';
       return (
         <Button
@@ -64,7 +64,7 @@ ViewSwitcher.propTypes = {
   activeButton: PropTypes.string,
   disabled: PropTypes.bool,
   showLabels: PropTypes.bool,
-  'data-test-id': PropTypes.string,
+  dataTestId: PropTypes.string,
   onClick: PropTypes.func,
   iconClassNames: PropTypes.arrayOf(PropTypes.string)
 };

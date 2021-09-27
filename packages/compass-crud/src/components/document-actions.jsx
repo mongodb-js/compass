@@ -22,7 +22,7 @@ class DocumentActions extends React.Component {
           clickHandler={this.props.expandAll}
           className="document-actions-button document-actions-expand-button btn btn-default btn-xs"
           iconClassName={`document-actions-button-icon fa ${iconClass}`}
-          data-test-id="expand-all-button"
+          dataTestId="expand-all-button"
         />
       </div>
     );
@@ -42,28 +42,28 @@ class DocumentActions extends React.Component {
             title="Edit Document"
             className="document-actions-button btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-pencil"
-            data-test-id="edit-document-button"
+            dataTestId="edit-document-button"
             clickHandler={this.props.edit}
           />}
           {this.props.copy && <IconButton
             title="Copy Document"
             className="document-actions-button document-actions-button-copy btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-copy"
-            data-test-id="copy-document-button"
+            dataTestId="copy-document-button"
             clickHandler={this.props.copy}
           />}
           {this.props.clone && <IconButton
             title="Clone Document"
             className="document-actions-button btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-clone"
-            data-test-id="clone-document-button"
+            dataTestId="clone-document-button"
             clickHandler={this.props.clone}
           />}
           {this.props.remove && <IconButton
             title="Delete Document"
             className="document-actions-button btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-trash-o"
-            data-test-id="delete-document-button"
+            dataTestId="delete-document-button"
             clickHandler={this.props.remove}
           />}
         </div>

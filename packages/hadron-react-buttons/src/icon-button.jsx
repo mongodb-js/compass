@@ -29,7 +29,7 @@ class IconButton extends React.Component {
       <button
         type={BUTTON}
         title={this.props.title}
-        data-test-id={this.props['data-test-id']}
+        data-test-id={this.props.dataTestId}
         className={this.props.className}
         onClick={this.props.clickHandler}>
         <i className={this.props.iconClassName} aria-hidden />
@@ -45,7 +45,7 @@ IconButton.propTypes = {
   clickHandler: PropTypes.func.isRequired,
   className: PropTypes.string,
   iconClassName: PropTypes.string.isRequired,
-  'data-test-id': PropTypes.string
+  dataTestId: PropTypes.string
 };
 
 export default IconButton;
