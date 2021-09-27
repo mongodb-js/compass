@@ -108,7 +108,8 @@ jobs:
 
       - name: Upload Spectron Logs
         uses: actions/upload-artifact@v2
-        if: ${{ cancelled() || failure() }}
+        # even if tests succeeded you might still want to examine logs
+        if: always()
         with:
           name: Spectron Debug Files ${{ github.workflow }} ${{ runner.os }}
           path: packages/compass-e2e-tests/.log/**/*

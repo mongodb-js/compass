@@ -19,6 +19,14 @@ function setup() {
   debug('Starting MongoDB server and importing fixtures');
   spawnSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
   spawnSync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
+
+  const LOG_PATH = path.resolve(__dirname, '.log');
+  try {
+    debug('Clearing out past logs');
+    fs.rmdirSync(LOG_PATH, { recursive: true });
+  } catch (e) {
+    debug('.log dir already removed');
+  }
 }
 
 function cleanup() {
