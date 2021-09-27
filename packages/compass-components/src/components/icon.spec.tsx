@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import Icon from './icon';
 
 describe('Icon Component', function () {
-  it('should an element with the title', function () {
+  it('should render an element with a title', function () {
     render(
       <div>
         <Icon glyph="Database" title="databases-icon" />
