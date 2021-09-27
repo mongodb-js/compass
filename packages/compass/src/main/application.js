@@ -3,6 +3,7 @@ const pkg = require('../../package.json');
 const electron = require('electron');
 const app = electron.app;
 const setupLogging = require('./logging');
+const showInitialWindow = require('./window-manager');
 
 // For Linux users with drivers that are blacklisted by Chromium
 // we ignore the blacklist to attempt to bypass the disabled
@@ -17,7 +18,7 @@ const ipc = require('hadron-ipc');
 const debug = require('debug')('mongodb-compass:main:application');
 
 function Application() {
-  this.setupLogging();
+  const loggingSetupPromise = this.setupLogging();
   this.setupAppNameAndUserDirectory();
   this.setupJavaScriptArguments();
   this.setupLifecycleListeners();
@@ -27,7 +28,9 @@ function Application() {
   }
   this.setupApplicationMenu();
 
-  require('./window-manager');
+  loggingSetupPromise.then(() => {
+    showInitialWindow();
+  });
 }
 inherits(Application, EventEmitter);
 
@@ -173,7 +176,7 @@ Application.prototype.setupAppNameAndUserDirectory = function() {
   }
 };
 
-Application.prototype.setupLogging = function() {
+Application.prototype.setupLogging = async function() {
   const home = app.getPath('home');
   const appData = process.env.LOCALAPPDATA || process.env.APPDATA;
   const logDir =
@@ -181,7 +184,7 @@ Application.prototype.setupLogging = function() {
       ? path.join(appData || home, 'mongodb', 'compass')
       : path.join(home, '.mongodb', 'compass');
   app.setAppLogsPath(logDir);
-  setupLogging().then(logFilePath => { this.logFilePath = logFilePath; });
+  this.logFilePath = await setupLogging();
 };
 
 Application._instance = null;

@@ -421,7 +421,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('ready', function() {
+function onAppReady() {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
     debug('Activating Compass specific devtools...');
@@ -442,4 +442,12 @@ app.on('ready', function() {
      */
     showConnectWindow();
   }
-});
+};
+
+module.exports = () => {
+  if (app.isReady()) {
+    onAppReady();
+  } else {
+    app.on('ready', onAppReady);
+  }
+};
