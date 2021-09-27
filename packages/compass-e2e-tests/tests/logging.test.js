@@ -151,7 +151,7 @@ describe('Logging integration', function () {
             expect(actual.driver).to.not.be.undefined;
             expect(actual.driver.version).to.not.be.undefined;
             expect(actual.driver.name).to.equal('nodejs');
-            expect(actual.to).to.match(/^mongodb:\/\/localhost:27018/);
+            expect(actual.url).to.match(/^mongodb:\/\/localhost:27018/);
           },
         },
         {
@@ -212,7 +212,9 @@ describe('Logging integration', function () {
           // Remove most mongosh entries as they are quite noisy
           if (
             entry.c.startsWith('MONGOSH') &&
-            entry.attr && entry.attr.input && entry.attr.input.includes('typeof prompt')
+            entry.attr &&
+            entry.attr.input &&
+            entry.attr.input.includes('typeof prompt')
           ) {
             return false;
           }
@@ -223,7 +225,7 @@ describe('Logging integration', function () {
 
       // eslint-disable-next-line mocha/no-setup-in-describe
       criticalPathExpectedLogs.forEach((expected, i) => {
-        it(`logs ${expected.id}`, function () {
+        it(`logs "${expected.msg}"`, function () {
           const { attr: expectedAttr, ...expectedWithoutAttr } = expected;
           const { attr: actualAttr, ...actualWihoutAttr } =
             criticalPathActualLogs[i];
@@ -234,7 +236,11 @@ describe('Logging integration', function () {
           expect(expectedWithoutAttr).to.deep.equal(actualWihoutAttr);
 
           // we already know this would fail the expectation
-          if (actualAttr && typeof expectedAttr !== 'object') {
+          if (
+            actualAttr &&
+            typeof expectedAttr !== 'object' &&
+            typeof expectedAttr !== 'function'
+          ) {
             expect(expectedAttr).to.be.an('object');
           }
 
