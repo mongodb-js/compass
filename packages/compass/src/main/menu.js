@@ -11,10 +11,12 @@ var path = require('path');
 
 var State = require('ampersand-state');
 var _ = require('lodash');
+
+const LICENSE = require('../../LICENSE');
+
 var debug = require('debug')('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
-const LICENSE = path.join(__dirname, '..', '..', 'LICENSE');
 
 function isReadonlyDistro() {
   return process.env.HADRON_READONLY === 'true';
@@ -199,12 +201,12 @@ function license() {
   return {
     label: '&License',
     click: function() {
-      const licenseTemp = path.join(app.getPath('temp'), 'file');
-      const stream = fs.createWriteStream(licenseTemp);
-      fs.createReadStream(LICENSE).pipe(stream);
-      stream.on('finish', () => {
-        electron.shell.openItem(licenseTemp);
-      });
+      const licenseTemp = path.join(app.getPath('temp'), 'License');
+      fs.writeFile(licenseTemp, LICENSE, (err) => {
+        if (!err) {
+          electron.shell.openItem(licenseTemp);
+        }
+      })
     }
   };
 }
