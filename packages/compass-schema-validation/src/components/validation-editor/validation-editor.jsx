@@ -258,14 +258,16 @@ class ValidationEditor extends Component {
     if (this.props.validation.isChanged) {
       return (
         <div className={classnames(styles['validation-action-container'])}>
-          <div className={classnames(styles['validation-action-message'])}>
+          <div className={classnames(styles['validation-action-message'])} data-test-id="validation-action-message">
             Validation modified
           </div>
           <TextButton
+            dataTestId="cancel-validation-button"
             className={`btn btn-default btn-xs ${classnames(styles.cancel)}`}
             text="Cancel"
             clickHandler={this.props.cancelValidation} />
           <TextButton
+            dataTestId="update-validation-button"
             className={`btn btn-primary btn-xs ${this.hasErrors() ? 'disabled' : ''}`}
             text="Update"
             clickHandler={this.onValidatorSave.bind(this)} />
@@ -281,7 +283,7 @@ class ValidationEditor extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles['validation-editor'])}>
+      <div className={classnames(styles['validation-editor'])} data-test-id="validation-editor">
         <div className={classnames(styles['validation-editor-content'])}>
           <div className={classnames(styles['validation-options-container'])}>
             {this.renderActionSelector()}

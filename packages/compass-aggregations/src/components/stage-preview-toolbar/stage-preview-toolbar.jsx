@@ -89,7 +89,7 @@ class StagePreviewToolbar extends PureComponent {
               </span> stage
             </span>
             {this.renderInfoSprinkle(stageInfo)}
-            <span>(Sample of {this.props.count} {this.getWord()})</span>
+            <span data-test-id="stage-preview-toolbar-tooltip">(Sample of {this.props.count} {this.getWord()})</span>
           </div>
         );
       }

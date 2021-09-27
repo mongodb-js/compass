@@ -119,6 +119,7 @@ class CollectionsTable extends PureComponent {
       <div>
         <a
           className={styles['collections-table-link']}
+          data-test-id={`collections-table-link-${collName}`}
           onClick={this.onNameClicked.bind(this, collName)}>
           {collName}
         </a>

@@ -214,9 +214,22 @@ async function startCompass(
     }
 
     // ERROR, CRITICAL and whatever unknown things might end up in the logs
-    const errors = renderLogs.filter(
-      (log) => !['DEBUG', 'INFO', 'WARNING'].includes(log.level)
-    );
+    const errors = renderLogs.filter((log) => {
+      if (['DEBUG', 'INFO', 'WARNING'].includes(log.level)) {
+        return false;
+      }
+
+      // TODO: remove this once we fixed these warnings
+      if (
+        log.level === 'SEVERE' &&
+        log.message.includes('"Warning: Failed prop type: ')
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
     if (errors.length) {
       /** @type { Error & { errors?: any[] } } */
       const error = new Error(
@@ -492,7 +505,12 @@ async function afterTests(compass) {
     await capturePage(compass);
     await savePage(compass);
 
-    await compass.stop();
+    try {
+      await compass.stop();
+    } catch (err) {
+      debug('An error occurred while stopping compass:');
+      debug(err);
+    }
     compass = null;
   }
 }
@@ -512,9 +530,11 @@ function pagePathName(text) {
 }
 
 async function afterTest(compass, test) {
-  if (test.state == 'failed') {
-    await capturePage(compass, screenshotPathName(test.fullTitle()));
-    await savePage(compass, pagePathName(test.fullTitle()));
+  if (process.env.CI) {
+    if (test.state == 'failed') {
+      await capturePage(compass, screenshotPathName(test.fullTitle()));
+      await savePage(compass, pagePathName(test.fullTitle()));
+    }
   }
 }
 

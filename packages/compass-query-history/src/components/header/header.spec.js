@@ -68,14 +68,14 @@ describe('Header [Component]', () => {
       });
 
       it('it should switch to the favorites tab when the Favorites button is clicked', () => {
-        const node = component.find({ 'data-test-id': 'undefined-favorites' }).hostNodes();
+        const node = component.find({ 'data-test-id': 'past-queries-favorites' }).hostNodes();
 
         node.simulate('click');
         actions.showFavorites.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
       });
 
       it('it should be a no-op twhen the Recents button is clicked', () => {
-        const node = component.find({ 'data-test-id': 'undefined-recent' }).hostNodes();
+        const node = component.find({ 'data-test-id': 'past-queries-recent' }).hostNodes();
 
         node.simulate('click');
         actions.showFavorites.should.not.have.been.calledOnce; // eslint-disable-line no-unused-expressions
@@ -92,14 +92,14 @@ describe('Header [Component]', () => {
       });
 
       it('it should switch to the recent tab when the Recents button is clicked', () => {
-        const node = component.find({ 'data-test-id': 'undefined-recent' }).hostNodes();
+        const node = component.find({ 'data-test-id': 'past-queries-recent' }).hostNodes();
 
         node.simulate('click');
         actions.showRecent.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
       });
 
       it('it should be a no-op twhen the Favorites button is clicked', () => {
-        const node = component.find({ 'data-test-id': 'undefined-favorites' }).hostNodes();
+        const node = component.find({ 'data-test-id': 'past-queries-favorites' }).hostNodes();
 
         node.simulate('click');
         actions.showRecent.should.not.have.been.calledOnce; // eslint-disable-line no-unused-expressions

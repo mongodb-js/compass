@@ -27,7 +27,7 @@ class Single extends React.Component {
         <div className={classnames(styles['topology-single-cluster-title'])}>
           CLUSTER
         </div>
-        <div className={classnames(styles['topology-single-cluster-type'])}>
+        <div className={classnames(styles['topology-single-cluster-type'])} data-test-id="topology-single-cluster-type">
           {humanize(this.props.server.type)}
         </div>
       </div>
@@ -47,7 +47,7 @@ class Single extends React.Component {
             HOST
           </div>
           <div
-            className={classnames(styles['topology-single-host-address'])}
+            className={classnames(styles['topology-single-host-address'])} data-test-id="topology-single-host-address"
             title={this.props.server.address}>
             {this.props.server.address}
           </div>

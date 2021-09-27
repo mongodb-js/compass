@@ -73,7 +73,7 @@ class DatabasesTable extends PureComponent {
     const rows = this.props.databases.map((db) => {
       const dbName = db[NAME];
       return Object.assign({}, db, {
-        [NAME]: <a className={classnames(styles['databases-table-link'])} onClick={this.onNameClicked.bind(this, dbName)}>{dbName}</a>,
+        [NAME]: <a className={classnames(styles['databases-table-link'])} data-test-id={`databases-table-link-${dbName}`} onClick={this.onNameClicked.bind(this, dbName)}>{dbName}</a>,
         [STORAGE]: numeral(db[STORAGE]).format('0.0b')
       });
     });

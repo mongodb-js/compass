@@ -25,7 +25,7 @@ class NameColumn extends PureComponent {
     return (
       <td className={classnames(styles['name-column'])}>
         <div className="index-definition">
-          <div className={classnames(styles['name-column-name'])} title={this.props.index.name}>
+          <div className={classnames(styles['name-column-name'])} data-test-id="name-column-name" title={this.props.index.name}>
             {this.props.index.name}
           </div>
           <IndexDefinitionType index={this.props.index}/>

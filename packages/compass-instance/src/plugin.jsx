@@ -66,6 +66,7 @@ class InstanceComponent extends React.Component {
     return (
       <div className="rtss">
         <TabNavBar
+          data-test-id="instance-tabs"
           aria-label="Instance Tabs"
           tabs={this.tabs}
           views={this.views}

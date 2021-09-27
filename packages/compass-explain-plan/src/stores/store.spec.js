@@ -1,3 +1,4 @@
+import { omit } from 'lodash';
 import AppRegistry from 'hadron-app-registry';
 import { activate } from '@mongodb-js/compass-field-store';
 import configureStore from './';
@@ -154,7 +155,7 @@ describe('Explain Plan Store', () => {
         it('updates the explain in state', (done) => {
           const unsubscribe = store.subscribe(() => {
             unsubscribe();
-            expect(store.getState().explain).to.deep.equal(explain);
+            expect(omit(store.getState().explain, 'resultId')).to.deep.equal(explain);
             done();
           });
           store.dispatch(explainPlanFetched(explain));
