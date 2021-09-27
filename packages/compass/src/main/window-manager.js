@@ -3,19 +3,20 @@
  * https://github.com/atom/electron/blob/main/docs/api/browser-window.md
  */
 const { pathToFileURL } = require('url');
-var electron = require('electron');
-var electronLocalShortcut = require('electron-localshortcut');
-var AppMenu = require('./menu');
-var BrowserWindow = electron.BrowserWindow;
+const electron = require('electron');
+const electronLocalShortcut = require('electron-localshortcut');
+const AppMenu = require('./menu');
+const BrowserWindow = electron.BrowserWindow;
 
-var _ = require('lodash');
-var app = electron.app;
+const _ = require('lodash');
+const app = electron.app;
 
-var debug = require('debug')('mongodb-compass:electron:window-manager');
-var dialog = electron.dialog;
-var path = require('path');
-var ipc = require('hadron-ipc');
-var COMPASS_ICON = require('../icon');
+const debug = require('debug')('mongodb-compass:electron:window-manager');
+const dialog = electron.dialog;
+const path = require('path');
+const ipc = require('hadron-ipc');
+const COMPASS_ICON = require('../icon');
+const { extractPartialLogFile } = require('./logging');
 
 /**
  * Constants for window sizes on multiple platforms
@@ -325,7 +326,8 @@ function showLogFileDialog({ logFilePath }) {
     title: 'Log file for this session',
     icon: COMPASS_ICON,
     message: `The log file for this session can be found at ${logFilePath}`,
-    buttons: ['OK', 'Copy to clipboard', 'Open Folder']
+    detail: 'Some tools may not be able to read the log file until Compass has exited.',
+    buttons: ['OK', 'Copy to clipboard', 'Open Folder', 'Extract']
   }).then(({ response }) => {
     switch (response) {
       case 1:
@@ -334,6 +336,13 @@ function showLogFileDialog({ logFilePath }) {
       case 2:
         electron.shell.showItemInFolder(logFilePath);
         break;
+      case 3: {
+        extractPartialLogFile({ app, logFilePath }).then(tempFilePath => {
+          electron.shell.openItem(tempFilePath);
+        }).catch(err => {
+          electron.dialog.showErrorBox('Error extracting log file', String(err));
+        });
+      }
       default:
         break;
     }

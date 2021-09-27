@@ -93,7 +93,7 @@ class StartElectronWebpackPlugin {
 
         if (this.electronProcess === null) {
           compilation.logger.info('Starting electron application');
-          this.electronProcess = spawn(electronBinary, [fullPath]);
+          this.electronProcess = spawn(electronBinary, [fullPath], {stdio:'inherit'});
         }
       }
     );

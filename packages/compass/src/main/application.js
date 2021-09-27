@@ -2,7 +2,7 @@ const _ = require('lodash');
 const pkg = require('../../package.json');
 const electron = require('electron');
 const app = electron.app;
-const setupLogging = require('./logging');
+const { setupLogging } = require('./logging');
 const showInitialWindow = require('./window-manager');
 
 // For Linux users with drivers that are blacklisted by Chromium
