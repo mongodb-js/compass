@@ -327,7 +327,7 @@ function showLogFileDialog({ logFilePath }) {
     icon: COMPASS_ICON,
     message: `The log file for this session can be found at ${logFilePath}`,
     detail: 'Some tools may not be able to read the log file until Compass has exited.',
-    buttons: ['OK', 'Copy to clipboard', 'Open Folder', 'Extract']
+    buttons: ['OK', 'Copy to clipboard', 'Open Folder', 'Extract and open as .txt']
   }).then(({ response }) => {
     switch (response) {
       case 1:
