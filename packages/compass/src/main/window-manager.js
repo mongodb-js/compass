@@ -342,6 +342,7 @@ function showLogFileDialog({ logFilePath }) {
         }).catch(err => {
           electron.dialog.showErrorBox('Error extracting log file', String(err));
         });
+        break;
       }
       default:
         break;
@@ -451,7 +452,7 @@ function onAppReady() {
      */
     showConnectWindow();
   }
-};
+}
 
 module.exports = () => {
   if (app.isReady()) {

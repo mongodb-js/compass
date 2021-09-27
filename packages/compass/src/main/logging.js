@@ -91,9 +91,12 @@ exports.setupLogging = async function setupLogging() {
 // Note: This is tested, but you need to run the tests manually
 // via `mocha test/unit/logging.test.js` for now, see
 // https://jira.mongodb.org/browse/COMPASS-5115.
-exports.extractPartialLogFile = async function extractPartialLogFile({ app, logFilePath }) {
+exports.extractPartialLogFile = async function extractPartialLogFile({ app: electronApp, logFilePath }) {
   const logFilename = path.basename(logFilePath, '.gz');
-  const tempFilePath = path.join(app.getPath('temp'), 'compass_logs', `compass_${logFilename}.txt`);
+  const tempFilePath = path.join(
+    electronApp.getPath('temp'),
+    'compass_logs',
+    `compass_${logFilename}.txt`);
   debug('Extracting partial logfile', { logFilePath, tempFilePath });
   try {
     await fs.mkdir(path.dirname(tempFilePath), { recursive: true, mode: 0o700 });
