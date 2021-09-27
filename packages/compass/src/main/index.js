@@ -1,27 +1,21 @@
-if (!process.env.NODE_ENV) {
-  process.env.NODE_ENV = 'production';
-}
-
 require('../setup-hadron-distribution');
 
 const { app, dialog, clipboard } = require('electron');
 const cleanStack = require('clean-stack');
 const ensureError = require('ensure-error');
 const COMPASS_ICON = require('../icon');
-const pkg = require('../../package.json');
 
-/**
- * Check if the distribution is defined, if not, we need to override
- * the product name of the app.
- */
-if (!pkg.distribution) {
-  app.setName(
-    pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION].productName
-  );
-  app.setVersion(
-    pkg.version
-  );
+// Name and version are setup outside of Application and before anything else so
+// that if uncaught exception happens we already show correct name and version
+app.setName(process.env.HADRON_PRODUCT_NAME);
+// For spectron env we are changing appName so that keychain records do not
+// overlap with anything else. Only appName should be changed for the spectron
+// environment that is running tests, all relevant paths are configured from the
+// test runner.
+if (process.env.APP_ENV === 'spectron') {
+  app.setName(`${app.getName()} Spectron`);
 }
+app.setVersion(process.env.HADRON_APP_VERSION);
 
 process.on('uncaughtException', (err) => {
   // eslint-disable-next-line no-console

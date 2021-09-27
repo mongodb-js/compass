@@ -18,7 +18,7 @@ const debug = require('debug')('mongodb-compass:main:application');
 
 function Application() {
   this.setupLogging();
-  this.setupAppNameAndUserDirectory();
+  this.setupUserDirectory();
   this.setupJavaScriptArguments();
   this.setupLifecycleListeners();
 
@@ -53,18 +53,6 @@ const API_PLATFORM = {
 };
 
 /**
- * Get the channel name from the version number.
- *
- * @returns {String} - The channel.
- */
-const getChannel = () => {
-  if (pkg.version.indexOf('beta') > -1) {
-    return 'beta';
-  }
-  return 'stable';
-};
-
-/**
  * TODO (imlucas) Extract .pngs from .icns so we can
  * have nice Compass icons in dialogs.
  *
@@ -75,7 +63,7 @@ Application.prototype.setupAutoUpdate = function() {
     _.get(pkg, 'config.hadron.endpoint'),
     null,
     API_PRODUCT[process.env.HADRON_PRODUCT],
-    getChannel(),
+    process.env.HADRON_CHANNEL,
     API_PLATFORM[process.platform]
   );
 
@@ -142,34 +130,14 @@ Application.prototype.setupLifecycleListeners = function() {
   });
 };
 
-Application.prototype.setupAppNameAndUserDirectory = function() {
-  var appName = app.getName();
-
-  // For spectron env we are changing appName so that keychain records do not
-  // overlap with anything else. Only appName should be changed for the spectron
-  // environment that is running tests, all relevant paths are configured from
-  // the test runner.
-  if (process.env.APP_ENV === 'spectron') {
-    app.setName(`${appName} Spectron`);
-    return;
-  }
-
+Application.prototype.setupUserDirectory = function() {
   if (process.env.NODE_ENV === 'development') {
-    var channel = 'stable';
-    // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
-    var mtch = app.getVersion().match(/-([a-z]+)(\.\d+)?$/);
-    if (mtch) {
-      channel = mtch[1];
-    }
-    if (channel !== 'stable' && !appName.toLowerCase().endsWith(channel)) {
-      // add channel suffix to product name, e.g. "MongoDB Compass Dev"
-      var newAppName = appName + ' ' + _.capitalize(channel);
-      app.setName(newAppName);
-      // change preference paths (note: this will still create the default
-      // path first, but we are ok with this for development builds)
-      app.setPath('userData', path.join(app.getPath('appData'), newAppName));
-      app.setPath('userCache', path.join(app.getPath('cache'), newAppName));
-    }
+    const appName = app.getName();
+    // When NODE_ENV is dev, we are probably be running application unpackaged
+    // directly with Electron binary which causes user dirs to be just
+    // `Electron` instead of app name that we want here
+    app.setPath('userData', path.join(app.getPath('appData'), appName));
+    app.setPath('userCache', path.join(app.getPath('cache'), appName));
   }
 };
 
