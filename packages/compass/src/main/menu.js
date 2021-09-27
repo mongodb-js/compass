@@ -206,7 +206,7 @@ function license() {
         if (!err) {
           electron.shell.openItem(licenseTemp);
         }
-      })
+      });
     }
   };
 }
