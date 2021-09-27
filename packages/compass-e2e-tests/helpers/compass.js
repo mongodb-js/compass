@@ -516,10 +516,10 @@ async function afterTests(compass) {
     }
 
     try {
-        await compass.stop();
+      await compass.stop();
     } catch (err) {
-        debug('An error occurred while stopping compass:');
-        debug(err);
+      debug('An error occurred while stopping compass:');
+      debug(err);
     }
     compass = null;
   }
