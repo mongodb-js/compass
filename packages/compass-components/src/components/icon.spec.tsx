@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 
-import Icon from './icon';
+import { Icon } from '../';
 
 describe('Icon Component', function () {
   it('should render an element with a title', function () {

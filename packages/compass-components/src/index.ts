@@ -1,4 +1,4 @@
 import ConfirmationModal from './components/confirmation-modal';
-import Icon from './components/icon';
+export { default as Icon } from '@leafygreen-ui/icon';
 
-export { ConfirmationModal, Icon };
+export { ConfirmationModal };
