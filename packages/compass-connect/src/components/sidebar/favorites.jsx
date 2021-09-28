@@ -4,7 +4,7 @@ import { map } from 'lodash';
 import moment from 'moment';
 import classnames from 'classnames';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
-import Icon from '@leafygreen-ui/icon';
+import { Icon } from '@mongodb-js/compass-components';
 
 import Actions from '../../actions';
 

@@ -30,8 +30,8 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@leafygreen-ui/icon": "^11.4.0",
-    "@mongodb-js/compass-connect": "*",
+    "@mongodb-js/compass-components": "^0.6.0",
+    "@mongodb-js/compass-connect": "7.14.0",
     "debug": "*",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
@@ -52,6 +52,7 @@
     "@hot-loader/react-dom": "^16.9.0",
     "@leafygreen-ui/logo": "^5.0.0",
     "@mongodb-js/compass-app-stores": "^5.14.0",
+    "@mongodb-js/compass-components": "^0.6.0",
     "@mongodb-js/compass-connect": "^7.14.0",
     "@mongodb-js/compass-deployment-awareness": "^11.14.0",
     "@mongodb-js/compass-server-version": "^5.14.0",
@@ -139,7 +140,6 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@leafygreen-ui/icon": "^11.4.0",
     "@mongodb-js/mongodb-redux-common": "^1.4.0",
     "lodash.clonedeep": "^4.5.0",
     "re-resizable": "^6.9.0"

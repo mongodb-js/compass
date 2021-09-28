@@ -1,5 +1,5 @@
 import IconButton from '@leafygreen-ui/icon-button';
-import Icon from '@leafygreen-ui/icon';
+import { Icon } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
