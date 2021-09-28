@@ -162,7 +162,7 @@ describe('Sidebar [Component]', () => {
       sidebarComponent.setState = (newState) => {
         sizeSetTo = newState.width;
       };
-      sidebarComponent.toggleCollapsed();
+      sidebarComponent.toggleCollapsed(true);
     });
 
     afterEach(() => {
@@ -190,39 +190,91 @@ describe('Sidebar [Component]', () => {
   describe('resize actions', () => {
     let sidebarComponent;
     let sizeSetTo;
+    let toggleIsCollapsed;
 
     beforeEach(() => {
-      sidebarComponent = new UnconnectedSidebar({
-        isCollapsed: false,
-        onCollapse: () => {},
-        toggleIsCollapsed: () => {},
-        globalAppRegistryEmit: () => {}
-      });
-      sidebarComponent.setState = (newState) => {
-        sizeSetTo = newState.width;
-      };
+      toggleIsCollapsed = sinon.spy();
     });
 
     afterEach(() => {
       sizeSetTo = null;
+      toggleIsCollapsed = null;
     });
 
-    describe('when resize is called', () => {
+    context('when expanded', () => {
       beforeEach(() => {
-        sidebarComponent.handleResize(189);
+        sidebarComponent = new UnconnectedSidebar({
+          isCollapsed: false,
+          onCollapse: () => {},
+          toggleIsCollapsed,
+          globalAppRegistryEmit: () => {}
+        });
+        sidebarComponent.setState = (newState) => {
+          sizeSetTo = newState.width;
+        };
       });
 
-      it('updates the width', () => {
-        expect(sizeSetTo).to.equal(189);
-      });
-
-      describe('when it hits the lower bound', () => {
+      describe('when resize is called', () => {
         beforeEach(() => {
-          sidebarComponent.handleResize(100);
+          sidebarComponent.handleResize(189);
         });
 
-        it('does not resize past the lower bound', () => {
-          expect(sizeSetTo).to.equal(160);
+        it('updates the width', () => {
+          expect(sizeSetTo).to.equal(189);
+        });
+
+        it('does not collapse the component', () => {
+          expect(toggleIsCollapsed.called).to.equal(false);
+        });
+
+        context('when it hits the lower bound', () => {
+          beforeEach(() => {
+            sidebarComponent.handleResize(1);
+          });
+
+          it('collapses the sidebar', () => {
+            expect(sizeSetTo).to.equal(1);
+            expect(toggleIsCollapsed.called).to.equal(true);
+          });
+        });
+      });
+    });
+
+    context('when collapsed', () => {
+      beforeEach(() => {
+        sidebarComponent = new UnconnectedSidebar({
+          isCollapsed: true,
+          onCollapse: () => {},
+          toggleIsCollapsed,
+          globalAppRegistryEmit: () => {}
+        });
+        sidebarComponent.setState = (newState) => {
+          sizeSetTo = newState.width;
+        };
+      });
+
+      describe('when resize is called', () => {
+        beforeEach(() => {
+          sidebarComponent.handleResize(55);
+        });
+
+        it('updates the width', () => {
+          expect(sizeSetTo).to.equal(55);
+        });
+
+        it('does not expand the component', () => {
+          expect(toggleIsCollapsed.called).to.equal(false);
+        });
+
+        context('when it hits the expand threshold bound', () => {
+          beforeEach(() => {
+            sidebarComponent.handleResize(171);
+          });
+
+          it('expands the sidebar', () => {
+            expect(sizeSetTo).to.equal(171);
+            expect(toggleIsCollapsed.called).to.equal(true);
+          });
         });
       });
     });

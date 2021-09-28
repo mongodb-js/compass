@@ -134,12 +134,13 @@ function ResizeHandleHorizontal({
       min={minHeight}
       max={maxHeight}
       height={height}
+      value={height}
       step={step}
       css={[baseResizerStyles, horizontalResizerStyle]}
       onChange={(event) => {
         if (isDragging) {
           // When dragging, we want the mouse movement to update the
-          // width, not the value of the range where it's being dragged.
+          // height, not the value of the range where it's being dragged.
           return;
         }
         onResize(boundHeight(Number(event.target.value)));

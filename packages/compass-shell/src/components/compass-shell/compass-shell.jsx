@@ -10,8 +10,9 @@ import { ResizeHandleHorizontal } from '@mongodb-js/compass-components';
 import InfoModal from '../info-modal';
 import ShellHeader from '../shell-header';
 
-const defaultShellHeightClosed = 32;
 const defaultShellHeightOpened = 240;
+const shellHeightClosed = 32;
+const shellMinHeightOpened = 100;
 const resizeControlIncrement = 10;
 
 function getMaxShellHeight() {
@@ -23,7 +24,7 @@ function getMaxShellHeight() {
 function boundShellHeight(attemptedHeight) {
   const maxHeight = getMaxShellHeight();
 
-  return Math.min(maxHeight, Math.max(defaultShellHeightClosed, attemptedHeight));
+  return Math.min(maxHeight, Math.max(shellMinHeightOpened, attemptedHeight));
 }
 
 export class CompassShell extends Component {
@@ -47,7 +48,7 @@ export class CompassShell extends Component {
     this.state = {
       height: props.isExpanded
         ? defaultShellHeightOpened
-        : defaultShellHeightClosed,
+        : shellHeightClosed,
       initialHistory: this.props.historyStorage ? null : [],
       isExpanded: !!this.props.isExpanded,
       isOperationInProgress: false
@@ -80,13 +81,30 @@ export class CompassShell extends Component {
   }
 
   onResize = (newHeight) => {
+    this.setState({
+      height: newHeight
+    });
+
     if (!this.state.isExpanded) {
+      if (newHeight > shellMinHeightOpened) {
+        // When we are not expanded and the user drags over a threshold we expand.
+        this.props.emitShellPluginOpened();
+        this.setState({
+          isExpanded: true
+        });
+      }
       return;
     }
 
-    this.setState({
-      height: boundShellHeight(newHeight)
-    });
+    if (newHeight < shellMinHeightOpened) {
+      // When we are expanded and the user drags under a threshold we collapse.
+      this.lastOpenHeight = shellMinHeightOpened;
+
+      this.setState({
+        isExpanded: false
+      });
+      return;
+    }
   }
 
   terminateRuntime = () => {
@@ -131,12 +149,9 @@ export class CompassShell extends Component {
 
   shellToggleClicked = () => {
     if (this.state.isExpanded) {
-      // Apply bounds to height to ensure it's always visible to the user.
-      const heightToResume = Math.max(60, this.state.height);
-      this.lastOpenHeight = heightToResume;
-
+      this.lastOpenHeight = boundShellHeight(this.state.height);
       this.setState({
-        height: boundShellHeight(defaultShellHeightClosed)
+        height: shellHeightClosed
       });
     } else {
       this.props.emitShellPluginOpened();
@@ -173,17 +188,17 @@ export class CompassShell extends Component {
           data-test-id="shell-section"
           className={styles['compass-shell']}
           style={{
-            height: this.state.height
+            height: isExpanded
+              ? boundShellHeight(this.state.height)
+              : shellHeightClosed
           }}
           id="content"
         >
           <ResizeHandleHorizontal
-            onMoveDownPressed={this.onResizeDown}
-            onMoveUpPressed={this.onResizeUp}
             onResize={this.onResize}
             step={resizeControlIncrement}
             height={this.state.height}
-            minHeight={defaultShellHeightClosed}
+            minHeight={shellHeightClosed}
             maxHeight={getMaxShellHeight()}
           />
           <ShellHeader

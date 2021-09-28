@@ -101,17 +101,20 @@ class Sidebar extends PureComponent {
 
   lastExpandedWidth = defaultSidebarWidthOpened;
 
-  toggleCollapsed() {
-    if (!this.props.isCollapsed) {
-      this.lastExpandedWidth = boundSidebarWidth(this.state.width);
-
-      this.setState({
-        width: sidebarWidthCollapsed
-      });
-    } else {
-      this.setState({
-        width: boundSidebarWidth(this.lastExpandedWidth)
-      });
+  toggleCollapsed(updateWidth) {
+    // When a user drags a resizer to expand/collapse we don't want to update
+    // the width as they're controlling it.
+    if (updateWidth) {
+      if (!this.props.isCollapsed) {
+        this.lastExpandedWidth = boundSidebarWidth(this.state.width);
+        this.setState({
+          width: sidebarWidthCollapsed
+        });
+      } else {
+        this.setState({
+          width: boundSidebarWidth(this.lastExpandedWidth)
+        });
+      }
     }
 
     this.props.onCollapse();
@@ -124,7 +127,7 @@ class Sidebar extends PureComponent {
 
   handleSearchFocus() {
     if (this.props.isCollapsed) {
-      this.toggleCollapsed();
+      this.toggleCollapsed(true);
     }
 
     this.refs.filter.focus();
@@ -151,13 +154,25 @@ class Sidebar extends PureComponent {
   }
 
   handleResize(newWidth) {
+    this.setState({
+      width: newWidth
+    });
+
     if (this.props.isCollapsed) {
+      if (newWidth > sidebarMinWidthOpened) {
+        // When we are not expanded and the user drags over a threshold we expand.
+        this.toggleCollapsed(false);
+      }
+
       return;
     }
 
-    this.setState({
-      width: boundSidebarWidth(newWidth)
-    });
+    if (newWidth < sidebarMinWidthOpened) {
+      // When we are expanded and the user drags under a threshold we collapse.
+      this.lastOpenWidth = sidebarMinWidthOpened;
+      this.toggleCollapsed(false);
+      return;
+    }
   }
 
   _calculateRowHeight({index}) {
@@ -283,19 +298,21 @@ class Sidebar extends PureComponent {
           [styles['compass-sidebar-collapsed']]: this.props.isCollapsed
         })}
         style={{
-          width: this.state.width
+          width: this.props.isCollapsed
+            ? sidebarWidthCollapsed
+            : boundSidebarWidth(this.state.width)
         }}
       >
         <ResizeHandleVertical
           onResize={this.handleResize.bind(this)}
           step={sidebarArrowControlIncrement}
           width={this.state.width}
-          minWidth={sidebarMinWidthOpened}
+          minWidth={sidebarWidthCollapsed}
           maxWidth={getMaxSidebarWidth()}
         />
         <button
           className={classnames(styles['compass-sidebar-toggle'], 'btn btn-default btn-sm')}
-          onClick={this.toggleCollapsed.bind(this)}
+          onClick={() => this.toggleCollapsed(true)}
           data-test-id="toggle-sidebar"
         >
           <i className={collapsedButton}/>

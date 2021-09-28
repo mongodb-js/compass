@@ -141,11 +141,11 @@ describe('CompassShell', () => {
       context('when it is expanded again', () => {
         it('resumes its previous height', () => {
           shell.shellToggleClicked();
-          shell.onResize(99);
+          shell.onResize(199);
           shell.shellToggleClicked();
           shell.shellToggleClicked();
 
-          expect(shell.state.height).to.equal(99);
+          expect(shell.state.height).to.equal(199);
         });
       });
     });
@@ -210,39 +210,103 @@ describe('CompassShell', () => {
     }]);
   });
 
-  context('arrow resize actions', () => {
+  context('resize actions', () => {
     let shellComponent;
 
-    beforeEach(() => {
-      shellComponent = new CompassShell({
-        isExpanded: true
-      });
-      shellComponent.setState = stateUpdate => {
-        shellComponent.state = {
-          ...shellComponent.state,
-          ...stateUpdate
-        };
-      };
-
-      shellComponent.state.height = 51;
-    });
-
-    context('when the resize is called', () => {
+    context('when expanded', () => {
       beforeEach(() => {
-        shellComponent.onResize(41);
+        shellComponent = new CompassShell({
+          isExpanded: true
+        });
+        shellComponent.setState = stateUpdate => {
+          shellComponent.state = {
+            ...shellComponent.state,
+            ...stateUpdate
+          };
+        };
+
+        shellComponent.state.height = 111;
       });
 
-      it('updates the height', () => {
-        expect(shellComponent.state.height).to.equal(41);
-      });
-
-      context('when it hits the lower bound', () => {
+      context('when the resize is called', () => {
         beforeEach(() => {
-          shellComponent.onResize(1);
+          shellComponent.onResize(131);
         });
 
-        it('does not resize past the lower bound', () => {
-          expect(shellComponent.state.height).to.equal(32);
+        it('updates the height', () => {
+          expect(shellComponent.state.height).to.equal(131);
+        });
+
+        it('does not collapse the component', () => {
+          expect(shellComponent.state.isExpanded).to.equal(true);
+        });
+
+        context('when it hits the lower bound', () => {
+          beforeEach(() => {
+            shellComponent.onResize(1);
+          });
+
+          it('collapses the shell', () => {
+            expect(shellComponent.state.height).to.equal(1);
+            expect(shellComponent.state.isExpanded).to.equal(false);
+          });
+        });
+      });
+    });
+
+    context('when collapsed', () => {
+      let mockOnOpenShellPlugin;
+      let calledFunc;
+
+      beforeEach(() => {
+        calledFunc = false;
+        mockOnOpenShellPlugin = () => {
+          calledFunc = true;
+        };
+        shellComponent = new CompassShell({
+          isExpanded: false,
+          emitShellPluginOpened: mockOnOpenShellPlugin
+        });
+        shellComponent.setState = stateUpdate => {
+          shellComponent.state = {
+            ...shellComponent.state,
+            ...stateUpdate
+          };
+        };
+
+        shellComponent.state.height = 32;
+      });
+
+      context('when the resize is called', () => {
+        beforeEach(() => {
+          shellComponent.onResize(55);
+        });
+
+        it('updates the height', () => {
+          expect(shellComponent.state.height).to.equal(55);
+        });
+
+        it('does not expand the component', () => {
+          expect(shellComponent.state.isExpanded).to.equal(false);
+        });
+
+        it('does not calls the function prop emitShellPluginOpened', () => {
+          expect(calledFunc).to.equal(false);
+        });
+
+        context('when it hits the resize threshold', () => {
+          beforeEach(() => {
+            shellComponent.onResize(151);
+          });
+
+          it('expands the shell', () => {
+            expect(shellComponent.state.height).to.equal(151);
+            expect(shellComponent.state.isExpanded).to.equal(true);
+          });
+
+          it('calls the function prop emitShellPluginOpened', () => {
+            expect(calledFunc).to.equal(true);
+          });
         });
       });
     });
