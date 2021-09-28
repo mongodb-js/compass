@@ -1,7 +1,7 @@
 const Selectors = require('../selectors');
 
 module.exports = function (app) {
-  return async function doConnect(timeout = 10000) {
+  return async function doConnect(timeout = 20000) {
     const { client } = app;
     await client.clickVisible(Selectors.ConnectButton);
     // First meaningful thing on the screen after being connected, good enough

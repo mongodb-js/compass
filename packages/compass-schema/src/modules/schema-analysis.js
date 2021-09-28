@@ -1,7 +1,7 @@
 import util from 'util';
 
-import createDebug from 'debug';
-const debug = createDebug('mongodb-compass:stores:schema-analysis');
+import createLogger from '@mongodb-js/compass-logging';
+const { log, mongoLogId, debug } = createLogger('COMPASS-SCHEMA');
 
 import mongodbSchema from 'mongodb-schema';
 const analyzeDocuments = util.promisify(mongodbSchema);
@@ -32,6 +32,7 @@ function promoteMongoErrorCode(err) {
 
 class SchemaAnalysis {
   constructor(dataService, ns, query, driverOptions) {
+    this._ns = ns;
     this._dataService = dataService;
     this._cursor = dataService.sample(
       ns,
@@ -62,14 +63,18 @@ class SchemaAnalysis {
 
   async _sampleAndAnalyze() {
     try {
+      log.info(mongoLogId(1001000089), 'Schema', 'Starting schema analysis', { ns: this._ns });
       const docs = await this._cursor.toArray()
         .catch(
           err => Promise.reject(promoteMongoErrorCode(err))
         );
-      return await analyzeDocuments(docs);
+      const schemaData = await analyzeDocuments(docs);
+      log.info(mongoLogId(1001000090), 'Schema', 'Schema analysis completed', { ns: this._ns });
+      return schemaData;
     } catch (err) {
+      log.error(mongoLogId(1001000091), 'Schema', 'Schema analysis failed', { ns: this._ns, error: err.message });
       if (isOperationTerminatedError(err)) {
-        debug('catched background operation terminated error', err);
+        debug('caught background operation terminated error', err);
         return null;
       }
 

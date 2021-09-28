@@ -56,7 +56,7 @@ ipc.once('app:launched', function() {
   }
 });
 
-var debug = require('debug')('mongodb-compass:app');
+const { log, mongoLogId, debug } = require('@mongodb-js/compass-logging')('COMPASS-APP');
 
 window.addEventListener('error', (event) => {
   event.preventDefault();
@@ -183,7 +183,7 @@ var Application = View.extend({
    * quickly as possible.
    */
   render: function() {
-    debug('Rendering app container...');
+    log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container');
 
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);

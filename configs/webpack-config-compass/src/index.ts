@@ -22,6 +22,7 @@ import {
   cssLoader,
   lessLoader,
   assetsLoader,
+  resourceLoader,
 } from './loaders';
 import {
   entriesToNamedEntries,
@@ -49,7 +50,12 @@ export function createElectronMainConfig(
     mode: opts.mode,
     target: opts.target,
     module: {
-      rules: [javascriptLoader(opts), nodeLoader(opts), sourceLoader(opts)],
+      rules: [
+        javascriptLoader(opts),
+        nodeLoader(opts),
+        resourceLoader(opts),
+        sourceLoader(opts),
+      ],
     },
     node: false as const,
     externals: toCommonJsExternal(sharedExternals),
@@ -263,8 +269,6 @@ export function compassPluginConfig(
   ];
 }
 
-export { webpack } from 'webpack';
-
-export { merge } from 'webpack-merge';
-
 export { webpackArgsWithDefaults } from './args';
+export { default as webpack } from 'webpack';
+export { merge } from 'webpack-merge';

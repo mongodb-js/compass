@@ -116,6 +116,8 @@ class Target {
 
     this.id = distOpts.name;
     this.name = distOpts.name;
+    this.readonly = !!distOpts.readonly;
+    this.isolated = !!distOpts.isolated;
     this.productName = distOpts.productName;
     this.bundleId = distOpts.bundleId;
     this.upgradeCode = distOpts.upgradeCode;

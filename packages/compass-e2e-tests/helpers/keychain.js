@@ -1,5 +1,6 @@
 // @ts-check
 const { execSync } = require('child_process');
+const chalk = require('chalk');
 const debug = require('debug')('compass-e2e-tests').extend('keychain');
 
 function getDefaultKeychain() {
@@ -8,8 +9,25 @@ function getDefaultKeychain() {
   );
 }
 
-// This should ensure that the tests that we are running against secure backend
-// will be executed against unlocked keychain on macos
+function wait(ms = 1000) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Compass uses user keychain through the keytar module. If the keychain is not
+ * unlocked, macOS will show a prompt that is asking for password and this will
+ * block the tests if there is no user input provided. Usually when running
+ * tests with Chromiun the keychain can be switched to the mocked implementation
+ * by using --use-mock-keychian flag, but Electron doesn't seem to support this
+ * feature[1][2]. For that reason when running e2e tests we will try to do work
+ * around this issue by first checking if the current user default keychain (the
+ * one keytar will try to use to store secrets) is unlocked and switch default
+ * keychain to a temporary one that we will clean-up after the tests if the
+ * current default one is not unlocked.
+ *
+ * [1]: https://github.com/electron/electron/pull/30020#discussion_r664153197
+ * [2]: https://www.electronjs.org/docs/latest/api/command-line-switches
+ */
 function createUnlockedKeychain() {
   if (process.platform === 'darwin') {
     const tempKeychainName = `temp${Date.now().toString(32)}.keychain`;
@@ -17,13 +35,30 @@ function createUnlockedKeychain() {
 
     return {
       name: tempKeychainName,
-      activate() {
+      async activate() {
         try {
           execSync(`security unlock-keychain -p "" "${origDefaultKeychain}"`, {
             stdio: 'ignore',
           });
           debug('Current default keychain is unlocked, doing nothing');
         } catch (e) {
+          if (!process.env.CI && !process.env.ci) {
+            console.warn();
+            console.warn(
+              chalk.yellow(
+                `${chalk.bold(
+                  '⚠️ Warning'
+                )}: Default keychain is locked, switching to the temporary ` +
+                  'one. This can potentially cause any running applications to store ' +
+                  'new secrets in the new temporary keychain that will be removed after ' +
+                  'the tests. If you want to stop any running applications before running ' +
+                  'tests, use Ctrl+C and restart the tests after you are ready.'
+              )
+            );
+            console.warn();
+            // Give some time to read and interrupt
+            await wait(15000);
+          }
           debug(
             `Default keychain is locked, switching to the temporary keychain ${tempKeychainName}`
           );

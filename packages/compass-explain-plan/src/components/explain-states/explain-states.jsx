@@ -58,7 +58,8 @@ class ExplainStates extends Component {
       viewType: PropTypes.string.isRequired,
       rawExplainObject: PropTypes.object.isRequired,
       explainState: PropTypes.string.isRequired,
-      error: PropTypes.object
+      error: PropTypes.object,
+      resultId: PropTypes.number.isRequired
     }),
     fetchExplainPlan: PropTypes.func.isRequired,
     changeExplainPlanState: PropTypes.func.isRequired,
@@ -156,6 +157,7 @@ class ExplainStates extends Component {
             <div className={styles['zero-state-action']}>
               <div>
                 <TextButton
+                  dataTestId="execute-explain-button"
                   className={
                     `btn btn-primary btn-lg ${!this.props.isEditable ? 'disabled' : ''}`
                   }
@@ -199,6 +201,7 @@ class ExplainStates extends Component {
         store={this.queryBarStore}
         actions={this.queryBarActions}
         buttonLabel="Explain"
+        resultId={this.props.explain.resultId}
         onApply={this.onExecuteExplainClicked.bind(this)}
         onReset={this.onExecuteExplainClicked.bind(this)}
       />
@@ -219,6 +222,7 @@ class ExplainStates extends Component {
       <div className={styles['action-bar']}>
         <ViewSwitcher
           label="View Details As"
+          dataTestId="explain-states"
           buttonLabels={['Visual Tree', 'Raw JSON']}
           activeButton={activeViewTypeButton}
           disabled={this.checkIfZeroState()}

@@ -11,10 +11,10 @@ var path = require('path');
 
 var State = require('ampersand-state');
 var _ = require('lodash');
+
 var debug = require('debug')('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
-const LICENSE = path.join(__dirname, '..', '..', 'LICENSE');
 
 function isReadonlyDistro() {
   return process.env.HADRON_READONLY === 'true';
@@ -199,11 +199,23 @@ function license() {
   return {
     label: '&License',
     click: function() {
-      const licenseTemp = path.join(app.getPath('temp'), 'file');
-      const stream = fs.createWriteStream(licenseTemp);
-      fs.createReadStream(LICENSE).pipe(stream);
-      stream.on('finish', () => {
-        electron.shell.openItem(licenseTemp);
+      const LICENSE = require('../../LICENSE');
+      const licenseTemp = path.join(app.getPath('temp'), 'License');
+      fs.writeFile(licenseTemp, LICENSE, (err) => {
+        if (!err) {
+          electron.shell.openItem(licenseTemp);
+        }
+      });
+    }
+  };
+}
+
+function logFile() {
+  return {
+    label: '&Open Log File',
+    click: function() {
+      app.emit('window:show-log-file-dialog', {
+        logFilePath: require('./application')._instance.logFilePath
       });
     }
   };
@@ -221,6 +233,7 @@ function helpSubMenu() {
 
   subMenu.push(securityItem());
   subMenu.push(license());
+  subMenu.push(logFile());
 
   if (process.platform !== 'darwin') {
     subMenu.push(separator());

@@ -19,8 +19,7 @@ describe('Time to first query', function () {
     await client.navigateToCollectionTab('test', 'numbers', 'Documents');
 
     // search for the document with id == 42 and wait for just one result to appear
-    // NOTE: .ace_comment will only exist if it is empty, so this isn't perfectly idempotent
-    await client.click('.ace_comment');
+    await client.click('#query-bar-option-input-filter .ace_scroller');
     await client.keys('{ i: 42 }');
     await client.click(Selectors.QueryBarApplyFilterButton);
     await client.waitUntil(async () => {

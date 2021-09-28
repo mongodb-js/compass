@@ -3,19 +3,20 @@
  * https://github.com/atom/electron/blob/main/docs/api/browser-window.md
  */
 const { pathToFileURL } = require('url');
-var electron = require('electron');
-var electronLocalShortcut = require('electron-localshortcut');
-var AppMenu = require('./menu');
-var BrowserWindow = electron.BrowserWindow;
+const electron = require('electron');
+const electronLocalShortcut = require('electron-localshortcut');
+const AppMenu = require('./menu');
+const BrowserWindow = electron.BrowserWindow;
 
-var _ = require('lodash');
-var app = electron.app;
+const _ = require('lodash');
+const app = electron.app;
 
-var debug = require('debug')('mongodb-compass:electron:window-manager');
-var dialog = electron.dialog;
-var path = require('path');
-var ipc = require('hadron-ipc');
-var COMPASS_ICON = require('../icon');
+const debug = require('debug')('mongodb-compass:electron:window-manager');
+const dialog = electron.dialog;
+const path = require('path');
+const ipc = require('hadron-ipc');
+const COMPASS_ICON = require('../icon');
+const { extractPartialLogFile } = require('./logging');
 
 /**
  * Constants for window sizes on multiple platforms
@@ -303,6 +304,36 @@ function showAboutDialog() {
   });
 }
 
+function showLogFileDialog({ logFilePath }) {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Log file for this session',
+    icon: COMPASS_ICON,
+    message: `The log file for this session can be found at ${logFilePath}`,
+    detail: 'Some tools may not be able to read the log file until Compass has exited.',
+    buttons: ['OK', 'Copy to clipboard', 'Open Folder', 'Extract and open as .txt']
+  }).then(({ response }) => {
+    switch (response) {
+      case 1:
+        electron.clipboard.writeText(logFilePath);
+        break;
+      case 2:
+        electron.shell.showItemInFolder(logFilePath);
+        break;
+      case 3: {
+        extractPartialLogFile({ app, logFilePath }).then(tempFilePath => {
+          electron.shell.openItem(tempFilePath);
+        }).catch(err => {
+          electron.dialog.showErrorBox('Error extracting log file', String(err));
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  });
+}
+
 /**
  * @param {Object} _bw - Current BrowserWindow
  * @param {String} message - Message to be set by MessageBox
@@ -356,6 +387,7 @@ ipc.respondTo({
   'app:show-info-dialog': showInfoDialog,
   'app:show-connect-window': showConnectWindow,
   'window:show-about-dialog': showAboutDialog,
+  'window:show-log-file-dialog': showLogFileDialog,
   'window:show-collection-submenu': showCollectionSubmenu,
   'window:hide-collection-submenu': hideCollectionSubmenu,
   'window:show-compass-overview-submenu': showCompassOverview,
@@ -366,6 +398,7 @@ ipc.respondTo({
  * Respond to events from the main process
  */
 app.on('window:show-about-dialog', showAboutDialog);
+app.on('window:show-log-file-dialog', showLogFileDialog);
 app.on('app:show-connect-window', showConnectWindow);
 
 app.on('before-quit', function() {
@@ -382,7 +415,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('ready', function() {
+function onAppReady() {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
     debug('Activating Compass specific devtools...');
@@ -403,4 +436,12 @@ app.on('ready', function() {
      */
     showConnectWindow();
   }
-});
+}
+
+module.exports = () => {
+  if (app.isReady()) {
+    onAppReady();
+  } else {
+    app.on('ready', onAppReady);
+  }
+};

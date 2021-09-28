@@ -227,6 +227,7 @@ class ExplainStage extends Component {
 
     return (
       <div
+        data-test-id="explain-stage"
         className={classnames(styles['explain-stage'])}
         style={{
           zIndex: this.state.detailsOpen ? this.getNewZIndex() : 'initial',

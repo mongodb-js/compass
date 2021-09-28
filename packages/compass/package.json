@@ -58,21 +58,21 @@
       },
       "build": {
         "win32": {
-          "icon": "src/app/images/win32/mongodb-compass.ico",
+          "icon": "app-icons/win32/mongodb-compass.ico",
           "favicon_url": "https://compass.mongodb.com/favicon.ico",
-          "loading_gif": "src/app/images/win32/mongodb-compass-installer-loading.gif",
-          "background": "src/app/images/win32/background.jpg",
-          "banner": "src/app/images/win32/banner.jpg"
+          "loading_gif": "app-icons/win32/mongodb-compass-installer-loading.gif",
+          "background": "app-icons/win32/background.jpg",
+          "banner": "app-icons/win32/banner.jpg"
         },
         "darwin": {
-          "icon": "src/app/images/darwin/mongodb-compass.icns",
-          "dmg_background": "src/app/images/darwin/background.png",
+          "icon": "app-icons/darwin/mongodb-compass.icns",
+          "dmg_background": "app-icons/darwin/background.png",
           "codesign_identity": "Developer ID Application: MongoDB, Inc. (4XWMY46275)",
           "codesign_sha1": "BBF6BCF14C4365D5632BA5E68B378DA4D8CBDF4C",
           "app_category_type": "public.app-category.productivity"
         },
         "linux": {
-          "icon": "src/app/images/linux/mongodb-compass.png",
+          "icon": "app-icons/linux/mongodb-compass.png",
           "deb_section": "Databases",
           "rpm_categories": [
             "Office",
@@ -114,14 +114,14 @@
   "scripts": {
     "install": "node scripts/download-akzidenz.js",
     "electron-rebuild": "electron-rebuild --only kerberos,keytar,interruptor",
-    "prestart": "rm -rf package-lock.json && npm run electron-rebuild",
+    "prestart": "rimraf package-lock.json && npm run electron-rebuild",
     "start": "npm run webpack serve -- --mode development",
     "pretest": "npm run electron-rebuild",
     "test": "hadron-build test",
     "posttest": "node ../../scripts/killall-mongo.js && node ../../scripts/rebuild.js kerberos keytar interruptor",
     "check": "npm run lint && npm run depcheck",
     "clean": "hadron-build clean",
-    "prewebpack": "rm -rf ./build",
+    "prewebpack": "rimraf ./build",
     "webpack": "webpack-compass",
     "compile": "npm run webpack -- --mode production",
     "release": "node release/index.js",
@@ -176,6 +176,7 @@
     "@mongodb-js/compass-indexes": "^4.16.0",
     "@mongodb-js/compass-instance": "^3.14.0",
     "@mongodb-js/compass-loading": "^2.14.0",
+    "@mongodb-js/compass-logging": "^0.3.0",
     "@mongodb-js/compass-metrics": "^4.14.0",
     "@mongodb-js/compass-plugin-info": "^3.14.0",
     "@mongodb-js/compass-query-bar": "^7.13.0",
@@ -244,16 +245,14 @@
     "nock": "^13.0.11",
     "node-notifier": "^9.0.1",
     "pkg-up": "^3.1.0",
+    "rimraf": "^3.0.2",
     "qs": "^6.0.4",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "reflux": "^0.4.1",
-    "semver": "^5.7.1",
-    "sinon": "^8.1.1",
-    "sinon-chai": "^3.6.0",
+    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "storage-mixin": "^4.7.0",
-    "uuid": "^3.0.0",
-    "xvfb-maybe": "^0.2.1"
+    "uuid": "^3.0.0"
   },
   "optionalDependencies": {
     "vscode-windows-registry": "1.0.2"

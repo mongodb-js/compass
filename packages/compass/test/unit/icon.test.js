@@ -1,3 +1,7 @@
+require.extensions['.png'] = (module, filepath) => {
+  module.exports = require('path').relative(module.parent.path, filepath);
+};
+
 var assert = require('assert');
 var icon = require('../../src/icon');
 
