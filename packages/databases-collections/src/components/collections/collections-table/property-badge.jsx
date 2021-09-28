@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Badge from '@leafygreen-ui/badge';
-import Tooltip from '@leafygreen-ui/tooltip';
+import { Badge } from '@mongodb-js/compass-components';
+import { Tooltip } from '@mongodb-js/compass-components';
 
 import styles from './property-badge.module.less';
 

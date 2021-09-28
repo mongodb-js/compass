@@ -35,8 +35,6 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@leafygreen-ui/badge": "^4.0.4",
-    "@leafygreen-ui/button": "^12.0.3",
     "@mongodb-js/compass-components": "^0.6.0",
     "bson": "*",
     "hadron-ipc": "*",
@@ -155,8 +153,6 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@leafygreen-ui/badge": "^4.0.4",
-    "@leafygreen-ui/button": "^12.0.3",
     "lodash.filter": "^4.6.0",
     "lodash.isempty": "^4.4.0",
     "react-sortable-hoc": "^1.10.1"

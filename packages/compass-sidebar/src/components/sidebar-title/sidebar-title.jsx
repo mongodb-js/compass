@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { connect } from 'react-redux';
 import {
   LogoMark
-} from '@leafygreen-ui/logo';
+} from '@mongodb-js/compass-components';
 
 import {
   NO_ACTIVE_NAMESPACE,

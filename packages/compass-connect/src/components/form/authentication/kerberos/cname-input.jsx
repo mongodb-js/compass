@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Toggle from '@leafygreen-ui/toggle';
+import { Toggle } from '@mongodb-js/compass-components';
 
 import Actions from '../../../../actions';
 import styles from '../../../connect.module.less';

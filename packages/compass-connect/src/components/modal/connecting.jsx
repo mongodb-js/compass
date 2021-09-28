@@ -1,4 +1,4 @@
-import { Link } from '@leafygreen-ui/typography';
+import { Link } from '@mongodb-js/compass-components';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';

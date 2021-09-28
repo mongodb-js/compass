@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Select, Option, Size } from '@leafygreen-ui/select';
+import { Select, Option, SelectSize } from '@mongodb-js/compass-components';
 import _ from 'lodash';
 
 import COLLATION_OPTIONS from '../../constants/collation';
@@ -67,7 +67,7 @@ function CollationFields({
             getCollationValue(val)
           )}
           usePortal={false}
-          size={Size.Small}
+          size={SelectSize.Small}
           allowDeselect={false}
           value={
             _.isNil(collation[element.field])

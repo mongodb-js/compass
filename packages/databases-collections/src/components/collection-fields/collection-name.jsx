@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import TextInput from '@leafygreen-ui/text-input';
+import { TextInput } from '@mongodb-js/compass-components';
 
 import FieldSet from '../field-set/field-set';
 

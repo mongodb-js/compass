@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
 import { Icon } from '@mongodb-js/compass-components';
-import IconButton from '@leafygreen-ui/icon-button';
+import { IconButton } from '@mongodb-js/compass-components';
 
 import { ShellLoader } from '@mongosh/browser-repl';
 
