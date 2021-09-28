@@ -2,7 +2,9 @@ const semver = require('semver');
 const async = require('async');
 const _ = require('lodash');
 const format = require('util').format;
-const { log, mongoLogId } = require('@mongodb-js/compass-logging')('COMPASS-MIGRATIONS');
+const { log, mongoLogId } = require('@mongodb-js/compass-logging').createLogger(
+  'COMPASS-MIGRATIONS'
+);
 
 function migrate(migrations) {
   return function(previousVersion, currentVersion, done) {
