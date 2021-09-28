@@ -21,7 +21,11 @@ module.exports = (_env, args) => {
   const mainConfig = createElectronMainConfig({
     ...opts,
     entry: path.resolve(__dirname, 'src', 'main.js'),
-    outputFilename: 'main.js'
+    // Explicitly provide outputFilename so that it's not changed between dev,
+    // prod, or any other build mode. It's important for the main entrypoint as
+    // it would be require additional logic for electron to start the app
+    // correctly. Having a stable name allows us to avoid this
+    outputFilename: '[name].js'
   });
 
   const rendererConfig = createElectronRendererConfig({
@@ -38,6 +42,25 @@ module.exports = (_env, args) => {
     // compass-shell plugin)
     '@mongosh/node-runtime-worker-thread':
       'commonjs2 @mongosh/node-runtime-worker-thread'
+  };
+
+  // Having persistent build cache makes initial dev build slower, but
+  // subsequent builds much much faster
+  const cache = {
+    /** @type {'filesystem'} */
+    type: 'filesystem',
+    allowCollectingMemory: opts.nodeEnv !== 'production',
+    buildDependencies: {
+      config: [__filename]
+    }
+  };
+
+  // Having runtime outside of entries means less rebuilding when dependencies
+  // change (default is runtime is part of the entry and the whole entry needs
+  // a rebuild when dependency tree changes)
+  const optimization = {
+    /** @type {'single'} */
+    runtimeChunk: 'single'
   };
 
   const target = new HadronBuildTarget(__dirname);
@@ -62,10 +85,15 @@ module.exports = (_env, args) => {
 
   return [
     merge(mainConfig, {
+      cache,
       externals,
       plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)]
     }),
     merge(rendererConfig, {
+      cache,
+      // Runtime chunk optimization makes sense only for renderer processes
+      // where the amount of dependencies is massive
+      optimization,
       externals,
       plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)]
     })
