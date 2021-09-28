@@ -114,21 +114,5 @@ describe('ResizeHandle Component', function () {
         actionableElement
       );
     });
-
-    // describe('when is it dragging', function() {
-    //   beforeEach(function() {
-    //     const actionableElement = screen.getByRole('slider');
-    //     fireEvent.mouseDown(actionableElement);
-    //   });
-    //   describe('when the mouse is moved' , function() {
-    //     it('it should call to resize with the event movement', function () {
-    //       const actionableElement = screen.getByRole('slider');
-    //       fireEvent.mouseMove(actionableElement, {
-    //         movementY: -50
-    //       });
-    //       expect(onResizeSpy).to.have.been.calledWith(150);
-    //     });
-    //   });
-    // });
   });
 });
