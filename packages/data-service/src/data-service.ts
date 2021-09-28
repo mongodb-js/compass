@@ -1431,34 +1431,74 @@ class DataService extends EventEmitter {
         }
       );
 
+      // Heartbeat events are fairly noisy. We put some effort into
+      // making sure that we only log events that actually contain
+      // meaningful information.
+      const heartbeatStatusMap = new Map<
+        string,
+        { failure: string | null; duration: number }
+      >();
+      function isSignificantDurationChange(
+        before: number,
+        after: number
+      ): boolean {
+        // Changes in pings below 200ms are not particularly concerning here.
+        before = Math.max(before, 200);
+        after = Math.max(after, 200);
+        // Check if changes is at least 2× (in either direction).
+        return Math.abs(Math.log2(before / after)) >= 1;
+      }
+
       client.on(
         'serverHeartbeatSucceeded',
         (evt: ServerHeartbeatSucceededEvent) => {
-          log.write({
-            s: 'D2',
-            id: mongoLogId(1_001_000_022),
-            ctx: this._logCtx(),
-            msg: 'Server heartbeat succeeded',
-            attr: {
-              connectionId: evt.connectionId,
+          const previousStatus = heartbeatStatusMap.get(evt.connectionId);
+          if (
+            !previousStatus ||
+            previousStatus.failure ||
+            isSignificantDurationChange(previousStatus.duration, evt.duration)
+          ) {
+            heartbeatStatusMap.set(evt.connectionId, {
+              failure: null,
               duration: evt.duration,
-            },
-          });
+            });
+            log.write({
+              s: 'D2',
+              id: mongoLogId(1_001_000_022),
+              ctx: this._logCtx(),
+              msg: 'Server heartbeat succeeded',
+              attr: {
+                connectionId: evt.connectionId,
+                duration: evt.duration,
+              },
+            });
+          }
           this.emit('serverHeartbeatSucceeded', evt);
         }
       );
 
       client.on('serverHeartbeatFailed', (evt: ServerHeartbeatFailedEvent) => {
-        log.warn(
-          mongoLogId(1_001_000_023),
-          this._logCtx(),
-          'Server heartbeat failed',
-          {
-            connectionId: evt.connectionId,
-            duration: evt.duration,
+        const previousStatus = heartbeatStatusMap.get(evt.connectionId);
+        if (
+          !previousStatus ||
+          !previousStatus.failure ||
+          isSignificantDurationChange(previousStatus.duration, evt.duration)
+        ) {
+          heartbeatStatusMap.set(evt.connectionId, {
             failure: evt.failure.message,
-          }
-        );
+            duration: evt.duration,
+          });
+          log.warn(
+            mongoLogId(1_001_000_023),
+            this._logCtx(),
+            'Server heartbeat failed',
+            {
+              connectionId: evt.connectionId,
+              duration: evt.duration,
+              failure: evt.failure.message,
+            }
+          );
+        }
         this.emit('serverHeartbeatFailed', evt);
       });
 
