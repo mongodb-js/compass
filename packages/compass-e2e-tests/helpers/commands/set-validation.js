@@ -12,7 +12,15 @@ module.exports = function (app) {
     await client.clickVisible(Selectors.UpdateValidationButton);
 
     // both buttons should become hidden if it succeeds
-    await client.waitForVisible(Selectors.ValidationActionMessage, 1000, true);
-    await client.waitForVisible(Selectors.UpdateValidationButton, 1000, true);
+    await client.waitForVisible(
+      Selectors.ValidationActionMessage,
+      undefined,
+      true
+    );
+    await client.waitForVisible(
+      Selectors.UpdateValidationButton,
+      undefined,
+      true
+    );
   };
 };

@@ -3,10 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1" />
+    <% if (process.env.NODE_ENV !== 'development') { %>
     <meta
-      http-equiv="Content-Security-Policy"
-      content="
-      default-src
+    http-equiv="Content-Security-Policy"
+    content="
+    default-src
         'self'
         'unsafe-eval'
         blob:
@@ -74,6 +75,7 @@
         'none';
       font-src * https://js.intercomcdn.com;"
     />
+    <% } %>
   </head>
   <body>
     <div id="application">

@@ -19,9 +19,14 @@
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
   },
+  "main": "index.js",
+  "exports": {
+    "webpack": "./index.js",
+    "require": "./index.js"
+  },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.3.0",
-    "async": "^3.1.0",
+    "async": "^3.2.0",
     "debug": "^4.1.1",
     "lodash": "4.17.15",
     "semver": "^7.1.1"

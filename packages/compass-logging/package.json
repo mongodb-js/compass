@@ -26,6 +26,10 @@
     "hadron-ipc": "*"
   },
   "main": "dist/index.js",
+  "exports": {
+    "webpack": "./src/index.ts",
+    "require": "./dist/index.js"
+  },
   "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",

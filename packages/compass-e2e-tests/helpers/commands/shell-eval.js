@@ -2,7 +2,7 @@ const { delay } = require('../delay');
 const Selectors = require('../selectors');
 
 module.exports = function (app) {
-  return async function (str, parse = false, timeout = 10000) {
+  return async function (str, parse = false, timeout) {
     const { client } = app;
     if (!(await client.isVisible(Selectors.ShellContent))) {
       await client.clickVisible(Selectors.ShellExpandButton);
@@ -17,7 +17,7 @@ module.exports = function (app) {
         return !(await client.isVisible(Selectors.ShellLoader));
       },
       timeout,
-      `Expected shell evaluation to finish in ${timeout}ms`,
+      `Expected shell evaluation to finish before timeout`,
       50
     );
     await delay(50);

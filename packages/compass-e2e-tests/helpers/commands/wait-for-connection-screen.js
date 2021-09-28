@@ -1,7 +1,5 @@
 const Selectors = require('../selectors');
 
-const MINUTE = 1000 * 60 * 1;
-
 module.exports = function (app) {
   return async function waitForConnectionScreen() {
     const { client } = app;
@@ -13,9 +11,9 @@ module.exports = function (app) {
         // time we run the check (spectron doesn't do it for you automatically
         // and will fail when certain methods are called on closed windows)
         await client.windowByIndex(0);
-        return await client.waitForVisible(Selectors.ConnectSection);
+        return await client.isVisible(Selectors.ConnectSection);
       },
-      MINUTE,
+      60_000,
       'Expected connection screen to be visible',
       50
     );

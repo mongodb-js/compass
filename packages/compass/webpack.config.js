@@ -4,26 +4,64 @@ const HadronBuildTarget = require('hadron-build/lib/target');
 const {
   createElectronMainConfig,
   createElectronRendererConfig,
+  webpackArgsWithDefaults,
   webpack,
   merge
 } = require('@mongodb-js/webpack-config-compass');
 
 module.exports = (_env, args) => {
-  const electronMainConfig = createElectronMainConfig({
-    ...args,
-    entry: path.resolve(__dirname, 'src', 'main.js'),
+  const opts = {
+    ...webpackArgsWithDefaults(args),
     outputPath: path.resolve(__dirname, 'build'),
-    outputFilename: 'main.js'
+    hot: true
+  };
+
+  process.env.NODE_ENV = opts.nodeEnv;
+
+  const mainConfig = createElectronMainConfig({
+    ...opts,
+    entry: path.resolve(__dirname, 'src', 'main.js'),
+    // Explicitly provide outputFilename so that it's not changed between dev,
+    // prod, or any other build mode. It's important for the main entrypoint as
+    // it would be require additional logic for electron to start the app
+    // correctly. Having a stable name allows us to avoid this
+    outputFilename: '[name].js'
   });
 
-  const electronRendererConfig = createElectronRendererConfig({
-    ...args,
+  const rendererConfig = createElectronRendererConfig({
+    ...opts,
     entry: [
       path.resolve(__dirname, 'src', 'app', 'index.js'),
       path.resolve(__dirname, 'src', 'app', 'loading', 'loading.js')
-    ],
-    outputPath: path.resolve(__dirname, 'build')
+    ]
   });
+
+  const externals = {
+    // Runtime implementation depends on worker file existing near the library
+    // main import and for that reason it needs to stay external to compass (and
+    // compass-shell plugin)
+    '@mongosh/node-runtime-worker-thread':
+      'commonjs2 @mongosh/node-runtime-worker-thread'
+  };
+
+  // Having persistent build cache makes initial dev build slower, but
+  // subsequent builds much much faster
+  const cache = {
+    /** @type {'filesystem'} */
+    type: 'filesystem',
+    allowCollectingMemory: opts.nodeEnv !== 'production',
+    buildDependencies: {
+      config: [__filename]
+    }
+  };
+
+  // Having runtime outside of entries means less rebuilding when dependencies
+  // change (default is runtime is part of the entry and the whole entry needs
+  // a rebuild when dependency tree changes)
+  const optimization = {
+    /** @type {'single'} */
+    runtimeChunk: 'single'
+  };
 
   const target = new HadronBuildTarget(__dirname);
 
@@ -46,10 +84,17 @@ module.exports = (_env, args) => {
   };
 
   return [
-    merge(electronMainConfig, {
+    merge(mainConfig, {
+      cache,
+      externals,
       plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)]
     }),
-    merge(electronRendererConfig, {
+    merge(rendererConfig, {
+      cache,
+      // Runtime chunk optimization makes sense only for renderer processes
+      // where the amount of dependencies is massive
+      optimization,
+      externals,
       plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)]
     })
   ];

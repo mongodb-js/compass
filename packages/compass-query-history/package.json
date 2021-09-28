@@ -5,6 +5,10 @@
   "apiVersion": "3.0.0",
   "description": "The query history sidebar.",
   "main": "lib/index.js",
+  "exports": {
+    "webpack": "./src/index.js",
+    "require": "./lib/index.js"
+  },
   "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
   "author": {
@@ -45,7 +49,7 @@
     "lodash": "^4.17.15"
   },
   "peerDependencies": {
-    "bson": "*",
+    "bson": "^4.4.1",
     "debug": "*",
     "hadron-react-components": "*",
     "mongodb-query-parser": "^2.4.3",
@@ -113,7 +117,6 @@
     "mocha": "^5.0.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-connection-model": "^21.8.0",
-    "mongodb-data-service": "^21.12.0",
     "mongodb-extended-json": "^1.11.1",
     "mongodb-js-metrics": "^7.4.0",
     "mongodb-ns": "^2.2.0",

@@ -20,8 +20,6 @@ async function disconnect(client) {
  * Connection tests
  */
 describe('Connection screen', function () {
-  this.timeout(1000 * 60 * 1);
-
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
   let client;

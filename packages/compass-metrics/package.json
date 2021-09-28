@@ -5,6 +5,10 @@
   "apiVersion": "3.0.0",
   "description": "Compass Metrics Plugin",
   "main": "lib/index.js",
+  "exports": {
+    "webpack": "./src/index.js",
+    "require": "./lib/index.js"
+  },
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",
@@ -84,7 +88,6 @@
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-connection-model": "^21.8.0",
-    "mongodb-data-service": "^21.12.0",
     "mongodb-js-metrics": "^7.4.0",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",
@@ -92,7 +95,6 @@
     "nyc": "^15.0.0",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "postcss-loader": "^2.1.6",
-    "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-bootstrap": "^0.33.1",
     "react-dom": "^16.14.0",

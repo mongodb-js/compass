@@ -16,6 +16,11 @@
   "keywords": [
     "mongodb-js"
   ],
+  "main": "index.js",
+  "exports": {
+    "webpack": "./index.js",
+    "require": "./index.js"
+  },
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "pretest": "mongodb-runner install && mongodb-runner start --port=27017",
@@ -27,8 +32,8 @@
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "dependencies": {
-    "ampersand-collection": "^1.6.1",
-    "ampersand-model": "^6.0.2",
+    "ampersand-collection": "^2.0.1",
+    "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "async": "^3.2.0",
     "lodash": "^4.17.15",

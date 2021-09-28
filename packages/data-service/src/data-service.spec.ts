@@ -1207,7 +1207,7 @@ describe('DataService', function () {
       it('does not allow to connect twice without disonnecting first', function (done) {
         mock('./legacy-connect', mockedConnectionModel());
 
-        const MockedDataService = mock.reRequire('./data-service');
+        const MockedDataService = mock.reRequire('./data-service').default;
         const mockedService: DataService = new MockedDataService(
           helper.connection
         );
@@ -1230,7 +1230,7 @@ describe('DataService', function () {
       it('sets .connectionOptions after successful connection', function (done) {
         mock('./legacy-connect', mockedConnectionModel());
 
-        const MockedDataService = mock.reRequire('./data-service');
+        const MockedDataService = mock.reRequire('./data-service').default;
         const mockedService: DataService = new MockedDataService(
           helper.connection
         );
@@ -1258,7 +1258,7 @@ describe('DataService', function () {
           mockedConnectionModel(mockedTopologyDescription('Sharded'))
         );
 
-        const MockedDataService = mock.reRequire('./data-service');
+        const MockedDataService = mock.reRequire('./data-service').default;
         const mockedService: DataService = new MockedDataService(
           helper.connection
         );
@@ -1272,7 +1272,7 @@ describe('DataService', function () {
       it('sets .isMongos to false when topology is not sharded', function (done) {
         mock('./legacy-connect', mockedConnectionModel());
 
-        const MockedDataService = mock.reRequire('./data-service');
+        const MockedDataService = mock.reRequire('./data-service').default;
         const mockedService: DataService = new MockedDataService(
           helper.connection
         );
@@ -1332,7 +1332,7 @@ describe('DataService', function () {
       it('should close tunnel before calling disconnect callback', function (done) {
         mock('./legacy-connect', mockedConnectionModel());
 
-        const MockedDataService = mock.reRequire('./data-service');
+        const MockedDataService = mock.reRequire('./data-service').default;
         const mockedService: DataService = new MockedDataService(
           helper.connection
         );

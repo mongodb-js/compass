@@ -72,14 +72,8 @@ jobs:
           E2E_TESTS_ATLAS_PASSWORD: ${{ secrets.E2E_TESTS_ATLAS_PASSWORD }}
           # Matches what we are doing in Evergreen
           MONGODB_VERSION: '4'
-          DEBUG: 'compass-e2e-tests*'
-        run: npm run test-ci -- --stream --since $MAIN_BRANCH_NAME
+        # compass-e2e-tests are ignored as we are already running tests against
+        # a packaged application in a separate workflow, so running them here
+        # slows down things while testing the same thing
+        run: npm run test-ci -- --stream --since $MAIN_BRANCH_NAME --ignore compass-e2e-tests
         shell: bash
-
-      - name: Upload Spectron Logs
-        uses: actions/upload-artifact@v2
-        # even if tests succeeded you might still want to examine logs
-        if: always()
-        with:
-          name: Spectron Debug Files ${{ github.workflow }} ${{ runner.os }}
-          path: packages/compass-e2e-tests/.log/**/*

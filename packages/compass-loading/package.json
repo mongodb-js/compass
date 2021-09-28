@@ -5,6 +5,10 @@
   "apiVersion": "3.0.0",
   "description": "Compass Loading Screen",
   "main": "lib/index.js",
+  "exports": {
+    "webpack": "./src/index.js",
+    "require": "./lib/index.js"
+  },
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",
@@ -78,7 +82,6 @@
     "mini-css-extract-plugin": "^0.8.0",
     "mocha": "^6.0.2",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-data-service": "^21.12.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",

@@ -4,12 +4,12 @@ module.exports = function (app) {
   return async function () {
     const { client } = app;
 
-    if (!(await client.existsEventually(Selectors.FeatureTourModal, 5000))) {
+    if (!(await client.existsEventually(Selectors.FeatureTourModal))) {
       return;
     }
 
     await client.waitForVisible(Selectors.FeatureTourModal);
     await client.clickVisible(Selectors.CloseFeatureTourModal);
-    await client.waitForVisible(Selectors.FeatureTourModal, 2000, true);
+    await client.waitForVisible(Selectors.FeatureTourModal, undefined, true);
   };
 };

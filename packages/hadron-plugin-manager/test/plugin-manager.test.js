@@ -17,7 +17,7 @@ describe('PluginManager', () => {
         manager = new PluginManager(
           [ intPluginsPath, pluginsPath ],
           __dirname,
-          ['@external-plugins/example3']
+          [require('@external-plugins/example3')]
         );
       });
 

@@ -3,7 +3,7 @@ import isElectronRenderer from 'is-electron-renderer';
 import createDebug from 'debug';
 import type { Writable } from 'stream';
 
-function createLogger(component: string): {
+export function createLogger(component: string): {
   log: ReturnType<MongoLogWriter['bindComponent']>;
   mongoLogId: typeof mongoLogId;
   debug: ReturnType<typeof createDebug>;
@@ -50,4 +50,4 @@ function createLogger(component: string): {
   };
 }
 
-export = createLogger;
+export default createLogger;

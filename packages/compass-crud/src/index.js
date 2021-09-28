@@ -111,3 +111,4 @@ export {
   configureStore,
   configureActions
 };
+export { default as metadata } from '../package.json';

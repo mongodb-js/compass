@@ -6,8 +6,6 @@ const fetch = require('node-fetch');
 const { Netmask } = require('netmask');
 const gceIps = require('gce-ips');
 
-const azureServiceTagsPublic = require('./ServiceTags_Public_20191202.json');
-
 const dnsLookup = util.promisify(dns.lookup.bind(dns));
 
 function isIpv4Range(range) {
@@ -31,10 +29,13 @@ async function getAwsIpRanges() {
     .filter(isIpv4Range);
 }
 
-function getAzureIpRanges() {
-  return azureServiceTagsPublic
-    .values
-    .map(value => value.properties.addressPrefixes)
+async function getAzureIpRanges() {
+  const { default: azureServiceTagsPublic } = await import(
+    /* webpackPreload: true */ './ServiceTags_Public_20191202.json'
+  );
+
+  return azureServiceTagsPublic.values
+    .map((value) => value.properties.addressPrefixes)
     .reduce((acc, val) => acc.concat(val), [])
     .filter(isIpv4Range);
 }
@@ -52,12 +53,12 @@ async function getCloudInfo(host) {
     };
   }
 
-  const ip = await dnsLookup(host);
-  const [gcpIpRanges, awsIpRanges, azureIpRanges] = (await Promise.all([
+  const [ip, gcpIpRanges, awsIpRanges, azureIpRanges] = await Promise.all([
+    dnsLookup(host),
     getGCPIpRanges(),
     getAwsIpRanges(),
     getAzureIpRanges()
-  ]));
+  ]);
 
   return {
     is_aws: rangeContainsIp(awsIpRanges, ip),

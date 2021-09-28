@@ -30,3 +30,4 @@ function deactivate(appRegistry) {
 
 export default ExportToLanguagePlugin;
 export { activate, deactivate, configureStore };
+export { default as metadata } from '../package.json';

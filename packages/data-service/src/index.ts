@@ -1,3 +1,3 @@
 import DataService from './data-service';
-
-export = DataService;
+export default DataService;
+export { DataService };

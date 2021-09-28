@@ -18,3 +18,4 @@ function deactivate(appRegistry) {
 
 export default configureStore;
 export { activate, deactivate, configureStore };
+export { default as metadata } from '../package.json';

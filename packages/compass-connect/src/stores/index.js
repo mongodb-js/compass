@@ -2,7 +2,7 @@ const electron = require('electron');
 const ipc = require('hadron-ipc');
 const { sortBy, forEach, omit } = require('lodash');
 const Connection = require('mongodb-connection-model');
-const DataService = require('mongodb-data-service');
+const { DataService } = require('mongodb-data-service');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const { promisify } = require('util');
@@ -17,7 +17,8 @@ const { createConnectionAttempt } = require('../modules/connection-attempt');
 const ConnectionCollection = Connection.ConnectionCollection;
 const userAgent = navigator.userAgent.toLowerCase();
 
-const { log, mongoLogId } = require('@mongodb-js/compass-logging')('COMPASS-CONNECT-UI');
+const { createLogger } = require('@mongodb-js/compass-logging');
+const { log, mongoLogId } = createLogger('COMPASS-CONNECT-UI');
 
 /**
  * A default driverUrl.

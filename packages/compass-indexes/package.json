@@ -5,6 +5,10 @@
   "apiVersion": "3.0.0",
   "description": "Indexes support for Compass",
   "main": "lib/index.js",
+  "exports": {
+    "webpack": "./src/index.js",
+    "require": "./lib/index.js"
+  },
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",
@@ -96,14 +100,12 @@
     "less-loader": "^7.3.0",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb": "^4.1.0",
     "mongodb-connection-model": "^21.8.0",
     "mongodb-data-service": "^21.12.0",
     "mongodb-extended-json": "^1.11.1",
     "mongodb-index-model": "^3.5.0",
     "mongodb-language-model": "^2.3.0",
     "mongodb-reflux-store": "^0.0.1",
-    "mongodb-schema": "^8.2.5",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
     "peer-deps-externals-webpack-plugin": "^1.0.4",

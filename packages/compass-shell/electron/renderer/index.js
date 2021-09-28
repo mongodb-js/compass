@@ -91,5 +91,5 @@ MongoClient.connect(
 );
 
 if (module.hot) {
-  module.hot.accept('plugin', () => render(CompassShellPlugin));
+  module.hot.accept('../../src/index.js', () => render(CompassShellPlugin));
 }

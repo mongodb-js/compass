@@ -1805,4 +1805,4 @@ class DataService extends EventEmitter {
   }
 }
 
-export = DataService;
+export default DataService;

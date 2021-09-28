@@ -117,7 +117,7 @@ const render = (Component) => {
 render(ImportExportPlugin);
 
 // // Data service initialization and connection.
-import DataService from 'mongodb-data-service';
+import { DataService } from 'mongodb-data-service';
 const dataService = new DataService(connection);
 
 dataService.connect((error, ds) => {
@@ -138,7 +138,7 @@ if (module.hot) {
    * See https://github.com/gaearon/react-hot-loader/issues/298
    */
 
-  module.hot.accept('plugin', () => {
+  module.hot.accept('../../src/index.js', () => {
     // Because Webpack 2 has built-in support for ES2015 modules,
     // you won't need to re-require your app root in module.hot.accept
     render(ImportExportPlugin);

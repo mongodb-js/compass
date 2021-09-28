@@ -20,6 +20,11 @@
     "language",
     "model"
   ],
+  "main": "index.js",
+  "exports": {
+    "webpack": "./index.js",
+    "require": "./index.js"
+  },
   "scripts": {
     "test": "mocha",
     "compile": "npm run pegjs",
@@ -33,7 +38,6 @@
     "prepublishOnly": "npm run compile",
     "bootstrap": "npm run compile"
   },
-  "main": "index.js",
   "devDependencies": {
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",

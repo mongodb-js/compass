@@ -6,7 +6,7 @@ async function closeConnectionModal(app) {
   await client.clickVisible(Selectors.CancelConnectionButton);
   await client.waitForExist(
     Selectors.ConnectionStatusModalContent,
-    1000,
+    undefined,
     false
   );
 }
@@ -26,7 +26,7 @@ module.exports = function (app) {
     }
 
     app.webContents.send('app:disconnect');
-    await client.waitForVisible(Selectors.ConnectSection, 5000);
+    await client.waitForVisible(Selectors.ConnectSection);
     // Show "new connection" section as if we just opened this screen
     await client.clickVisible(Selectors.SidebarNewConnectionButton);
     await delay(100);

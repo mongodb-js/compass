@@ -21,6 +21,7 @@
   ],
   "main": "lib/index.js",
   "exports": {
+    "webpack": "./src/index.ts",
     "require": "./lib/index.js",
     "import": "./lib/.esm-wrapper.mjs"
   },
@@ -62,7 +63,7 @@
     "debug": "^4.2.0",
     "lodash": "^4.17.20",
     "mongodb-build-info": "^1.1.1",
-    "mongodb-connection-string-url": "^1.0.1",
+    "mongodb-connection-string-url": "^2.1.0",
     "mongodb-index-model": "^3.5.0",
     "mongodb-js-errors": "^0.5.0",
     "mongodb-ns": "^2.2.0",
