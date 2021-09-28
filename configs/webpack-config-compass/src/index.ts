@@ -301,12 +301,23 @@ const lessLoader = (args: ConfigArgs) => ({
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const assetsLoader = (_args: ConfigArgs) => ({
   test: /\.(jpe?g|png|svg|gif|woff|woff2|ttf|eot)(\?.+?)?$/,
+  // asset (or asset auto) will either compile as data-uri or to a file path
+  // based on the size, this is a good strategy for loading assets in the GUI
   type: 'asset',
   parser: {
     dataUrlCondition: {
       maxSize: 2 * 1024, // 2kb
     },
   },
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const resourceLoader = (_args: ConfigArgs) => ({
+  test: /\.(jpe?g|png|svg|gif|woff|woff2|ttf|eot)(\?.+?)?$/,
+  // asset/resource always compiles imports to paths to files, this is a good
+  // strategy for electron main (node.js) process where handling data uris might
+  // be more work than handling files
+  type: 'asset/resource',
 });
 
 const sourceLoader = (args: ConfigArgs) => ({
@@ -474,7 +485,12 @@ export function createElectronMainConfig(
     mode: opts.mode,
     target: 'electron-main',
     module: {
-      rules: [javascriptLoader(opts), nodeLoader(opts), sourceLoader(opts)],
+      rules: [
+        javascriptLoader(opts),
+        nodeLoader(opts),
+        resourceLoader(opts),
+        sourceLoader(opts),
+      ],
     },
     node: false as const,
     // TODO: Only required until we also make compass plugins pass through a
@@ -663,3 +679,7 @@ export function compassPluginConfig(
     }),
   ];
 }
+
+export { default as webpack } from 'webpack';
+
+export { merge } from 'webpack-merge';

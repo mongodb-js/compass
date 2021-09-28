@@ -7,7 +7,6 @@ const zlib = require('zlib');
 const { app } = require('electron');
 const ipc = require('hadron-ipc');
 const { mongoLogId, MongoLogManager } = require('mongodb-log-writer');
-const { version } = require('../../package.json');
 const debug = require('debug')('mongodb-compass:main:logging');
 
 exports.setupLogging = async function setupLogging() {
@@ -46,7 +45,7 @@ exports.setupLogging = async function setupLogging() {
     debug('Writing log output to', writer.logFilePath);
 
     writer.info('COMPASS-MAIN', mongoLogId(1_001_000_001), 'logging', 'Starting logging', {
-      version,
+      version: app.getVersion(),
       platform: os.platform(),
       arch: os.arch(),
       ...osReleaseInfo
