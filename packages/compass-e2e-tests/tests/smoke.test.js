@@ -10,8 +10,6 @@ const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
  * This test suite is based on compass smoke test matrix
  */
 describe('Smoke tests', function () {
-  this.timeout(1000 * 60 * 1);
-
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
   let client;

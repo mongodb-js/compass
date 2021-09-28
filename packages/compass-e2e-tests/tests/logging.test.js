@@ -3,8 +3,6 @@ const { expect } = require('chai');
 const { beforeTests, afterTests } = require('../helpers/compass');
 
 describe('Logging integration', function () {
-  this.timeout(1000 * 60 * 1);
-
   describe('basic logging information', function () {
     let compassLog;
 

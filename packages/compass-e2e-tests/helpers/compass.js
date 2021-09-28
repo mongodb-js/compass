@@ -117,11 +117,23 @@ async function startCompass(
       }
     : { path: getCompassBinPath(await getCompassBuildMetadata()) };
 
+  const nowFormatted = formattedDate();
+
   const userDataDir = path.join(
     os.tmpdir(),
     `user-data-dir-${Date.now().toString(32)}-${++i}`
   );
+  const chromeDriverLogPath = path.join(
+    LOG_PATH,
+    `chromedriver.${nowFormatted}.log`
+  );
+  const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
+
   await fs.mkdir(userDataDir, { recursive: true });
+  // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
+  // for consistency let's mkdir for both of them just in case
+  await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
+  await fs.mkdir(webdriverLogPath, { recursive: true });
 
   const appOptions = {
     ...opts,
@@ -140,23 +152,13 @@ async function startCompass(
       DEBUG: `${process.env.DEBUG || ''},mongodb-compass:main:logging`,
       MONGODB_COMPASS_TEST_LOG_DIR: path.join(LOG_PATH, 'app'),
     },
+    chromeDriverLogPath,
+    webdriverLogPath,
+    // It's usually not required when running tests in Evergreen or locally, but
+    // GitHub CI machines are pretty slow sometimes, especially the macOS one
+    startTimeout: 20_000,
+    waitTimeout: 20_000,
   };
-
-  const nowFormatted = formattedDate();
-
-  const chromeDriverLogPath = path.join(
-    LOG_PATH,
-    `chromedriver.${nowFormatted}.log`
-  );
-  const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
-
-  // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
-  // for consistency let's mkdir for both of them just in case
-  await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
-  await fs.mkdir(path.dirname(webdriverLogPath), { recursive: true });
-
-  appOptions.chromeDriverLogPath = chromeDriverLogPath;
-  appOptions.webdriverLogPath = webdriverLogPath;
 
   debug('Starting Spectron with the following configuration:');
   debug(JSON.stringify(appOptions, null, 2));

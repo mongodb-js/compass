@@ -37,7 +37,7 @@ function cleanup() {
       // If it's taking too long we might as well kill the process and move on,
       // mongodb-runer is flaky sometimes and in ci `posttest-ci` script will
       // take care of additional clean up anyway
-      timeout: 30000,
+      timeout: 30_000,
       stdio: 'inherit',
     });
   } catch (e) {
@@ -82,7 +82,9 @@ async function main() {
     cwd: __dirname,
   });
 
-  const mocha = new Mocha();
+  const mocha = new Mocha({
+    timeout: 120_000,
+  });
 
   tests.forEach((testPath) => {
     mocha.addFile(path.join(__dirname, testPath));

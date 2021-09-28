@@ -54,7 +54,7 @@ async function isOptionsExpanded(client, tabName) {
 async function waitUntilCollapsed(client, tabName) {
   await client.waitForVisible(
     Selectors.queryBarOptionInputProject(tabName),
-    1000,
+    undefined,
     true
   );
 }

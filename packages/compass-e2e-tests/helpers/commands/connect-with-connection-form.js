@@ -21,7 +21,7 @@ module.exports = function (app) {
       sshTunnelPassword,
       sshTunnelIdentityFile,
     },
-    timeout = 10000
+    timeout
   ) {
     const { client } = app;
 

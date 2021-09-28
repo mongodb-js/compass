@@ -4,8 +4,6 @@ const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');
 
 describe('Time to first query', function () {
-  this.timeout(1000 * 60 * 1);
-
   let compass;
 
   it('can open compass, connect to a database and run a query on a collection', async function () {
