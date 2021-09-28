@@ -1,6 +1,6 @@
 import React from 'react';
 import Badge, { Variant as BadgeVariant } from '@leafygreen-ui/badge';
-import Icon from '@leafygreen-ui/icon';
+import { Icon } from '@mongodb-js/compass-components';
 
 import styles from './collection-header.module.less';
 
