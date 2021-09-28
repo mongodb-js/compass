@@ -46,6 +46,9 @@ exports.setupLogging = async function setupLogging() {
 
     writer.info('COMPASS-MAIN', mongoLogId(1_001_000_001), 'logging', 'Starting logging', {
       version: app.getVersion(),
+      nodeVersion: process.versions.node,
+      electronVersion: process.versions.electron,
+      chromeVersion: process.versions.chrome,
       platform: os.platform(),
       arch: os.arch(),
       ...osReleaseInfo
