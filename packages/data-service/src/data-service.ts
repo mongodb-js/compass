@@ -1438,16 +1438,16 @@ class DataService extends EventEmitter {
         string,
         { failure: string | null; duration: number }
       >();
-      function isSignificantDurationChange(
+      const isSignificantDurationChange = (
         before: number,
         after: number
-      ): boolean {
+      ): boolean => {
         // Changes in pings below 200ms are not particularly concerning here.
         before = Math.max(before, 200);
         after = Math.max(after, 200);
         // Check if changes is at least 2× (in either direction).
         return Math.abs(Math.log2(before / after)) >= 1;
-      }
+      };
 
       client.on(
         'serverHeartbeatSucceeded',
