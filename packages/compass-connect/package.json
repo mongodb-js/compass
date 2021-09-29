@@ -38,12 +38,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@leafygreen-ui/button": "^12.0.3",
-    "@leafygreen-ui/icon": "^11.4.0",
-    "@leafygreen-ui/leafygreen-provider": "^2.1.2",
-    "@leafygreen-ui/toggle": "^7.0.4",
-    "@leafygreen-ui/typography": "^8.0.2",
-    "@mongodb-js/compass-components": "*",
+    "@mongodb-js/compass-components": "^0.6.0",
     "hadron-ipc": "*",
     "hadron-react-buttons": "*",
     "hadron-react-components": "*",
@@ -144,11 +139,6 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@leafygreen-ui/button": "^12.0.3",
-    "@leafygreen-ui/icon": "^11.4.0",
-    "@leafygreen-ui/leafygreen-provider": "^2.1.2",
-    "@leafygreen-ui/toggle": "^7.0.4",
-    "@leafygreen-ui/typography": "^8.0.2",
     "@mongodb-js/compass-logging": "^0.3.0",
     "lodash": "^4.17.15"
   },

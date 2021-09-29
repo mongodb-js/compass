@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import map from 'lodash.map';
-import { Tabs, Tab } from '@leafygreen-ui/tabs';
-import LeafyGreenProvider from '@leafygreen-ui/leafygreen-provider';
+import { LeafyGreenProvider, Tabs, Tab } from '@mongodb-js/compass-components';
 
 /**
  * Represents tabbed navigation with a tabbed header and content.

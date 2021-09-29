@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { Select } from '@leafygreen-ui/select';
+import { Select } from '@mongodb-js/compass-components';
 
 import Collation from '.';
 
