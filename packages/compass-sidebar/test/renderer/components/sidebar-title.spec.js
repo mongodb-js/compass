@@ -2,7 +2,7 @@ import React from 'react';
 import { mount, shallow } from 'enzyme';
 import {
   LogoMark
-} from '@leafygreen-ui/logo';
+} from '@mongodb-js/compass-components';
 
 import { SidebarTitle as SidebarTitleClass } from '../../../src/components/sidebar-title/sidebar-title';
 import styles from '../../../src/components/sidebar-title/sidebar-title.module.less';

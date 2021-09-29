@@ -1,4 +1,4 @@
-import { AtlasLogoMark } from '@leafygreen-ui/logo';
+import { AtlasLogoMark } from '@mongodb-js/compass-components';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';

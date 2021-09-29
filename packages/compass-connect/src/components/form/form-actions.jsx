@@ -1,4 +1,4 @@
-import Button from '@leafygreen-ui/button';
+import { Button } from '@mongodb-js/compass-components';
 import React from 'react';
 import PropTypes from 'prop-types';
 

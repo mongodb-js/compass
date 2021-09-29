@@ -1,10 +1,10 @@
 import React from 'react';
-import Button from '@leafygreen-ui/button';
+import { Button } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 import path from 'path';
 import { shell } from 'electron';
 import classnames from 'classnames';
-import Icon from '@leafygreen-ui/icon';
+import { Icon } from '@mongodb-js/compass-components';
 
 import styles from '../connect.module.less';
 

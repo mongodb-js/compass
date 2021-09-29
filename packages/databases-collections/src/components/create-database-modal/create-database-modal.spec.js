@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { ConfirmationModal } from '@mongodb-js/compass-components';
-import Banner from '@leafygreen-ui/banner';
+import { Banner } from '@mongodb-js/compass-components';
 
 import { CreateDatabaseModal } from '../create-database-modal';
 import CollectionFields from '../collection-fields';

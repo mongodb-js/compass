@@ -46,7 +46,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@leafygreen-ui/icon-button": "^9.1.5",
     "@mongodb-js/compass-logging": "^0.3.0",
     "@mongodb-js/mongodb-redux-common": "^1.4.0",
     "@mongosh/browser-repl": "^1.0.7",
@@ -56,7 +55,6 @@
     "hadron-react-buttons": "^5.4.0"
   },
   "peerDependencies": {
-    "@leafygreen-ui/icon-button": "^9.1.5",
     "@mongodb-js/compass-components": "^0.6.0",
     "@mongosh/node-runtime-worker-thread": "^1.0.7",
     "hadron-ipc": "*",

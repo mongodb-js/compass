@@ -2,7 +2,7 @@ import classnames from 'classnames';
 import { remote } from 'electron';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Link } from '@leafygreen-ui/typography';
+import { Link } from '@mongodb-js/compass-components';
 import Actions from '../actions';
 import Sidebar from './sidebar';
 import ConnectionForm from './form/connection-form';

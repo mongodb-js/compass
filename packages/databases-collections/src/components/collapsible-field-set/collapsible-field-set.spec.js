@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import IconButton from '@leafygreen-ui/icon-button';
+import { IconButton } from '@mongodb-js/compass-components';
 
 import CollapsibleFieldSet from './collapsible-field-set';
 

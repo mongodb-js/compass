@@ -1,4 +1,4 @@
-import IconButton from '@leafygreen-ui/icon-button';
+import { IconButton } from '@mongodb-js/compass-components';
 import { Icon } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';

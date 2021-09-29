@@ -1,7 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import TextInput from '@leafygreen-ui/text-input';
-import { Select } from '@leafygreen-ui/select';
+import { Select, TextInput } from '@mongodb-js/compass-components';
 
 import CollectionFields from '.';
 

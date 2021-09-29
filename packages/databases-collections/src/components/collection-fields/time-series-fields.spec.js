@@ -1,7 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { Select } from '@leafygreen-ui/select';
-import Checkbox from '@leafygreen-ui/checkbox';
+import { Checkbox, Select } from '@mongodb-js/compass-components';
 
 import TimeSeriesFields from './time-series-fields';
 import FieldSet from '../field-set/field-set';

@@ -30,7 +30,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@leafygreen-ui/banner": "^3.0.8",
+    "@mongodb-js/compass-components": "^0.6.0",
     "@mongodb-js/compass-crud": "*",
     "@mongodb-js/compass-field-store": "*",
     "@mongodb-js/compass-indexes": "*",
@@ -62,6 +62,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@babel/types": "^7.14.2",
+    "@mongodb-js/compass-components": "^0.6.0",
     "@mongodb-js/compass-crud": "^12.15.0",
     "@mongodb-js/compass-field-store": "^7.14.0",
     "@mongodb-js/compass-indexes": "^4.16.0",
@@ -154,7 +155,6 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@leafygreen-ui/banner": "^3.0.8",
     "@mongodb-js/mongodb-redux-common": "^1.4.0",
     "d3-flextree": "1.0.3",
     "d3-timer": "1.0.10",

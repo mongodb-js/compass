@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import Checkbox from '@leafygreen-ui/checkbox';
-import TextInput from '@leafygreen-ui/text-input';
+import { Checkbox } from '@mongodb-js/compass-components';
+import { TextInput } from '@mongodb-js/compass-components';
 
 import CappedCollectionFields from './capped-collection-fields';
 
