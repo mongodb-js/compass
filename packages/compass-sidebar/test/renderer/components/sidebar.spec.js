@@ -69,7 +69,6 @@ describe('Sidebar [Component]', () => {
             collections={[]}
             readonly={false}
             isWritable
-            onCollapse={() => {}}
             isDataLake={false}
             globalAppRegistryEmit={emitSpy}
             isGenuineMongoDB
@@ -77,7 +76,6 @@ describe('Sidebar [Component]', () => {
             toggleIsGenuineMongoDBVisible={()=>{}}
             isModalVisible={false}
             openLink={() => {}}
-            toggleIsCollapsed={() => {}}
             isDetailsExpanded={false}
             toggleIsDetailsExpanded={() => {}}
             detailsPlugins={[]}
@@ -122,12 +120,11 @@ describe('Sidebar [Component]', () => {
         <Provider store={SidebarStore}>
           <Sidebar
             store={SidebarStore}
-
-            onCollapse={() => {}}
-            isCollapsed
           />
         </Provider>
       );
+      component.find('[data-test-id="toggle-sidebar"]').simulate('click');
+      component.update();
     });
 
     afterEach(() => {
@@ -143,98 +140,79 @@ describe('Sidebar [Component]', () => {
     it('does not render the sidebar content', () => {
       expect(component.find(
         `.${styles['compass-sidebar-content']}`
-      )).to.be.present();
+      )).to.not.be.present();
     });
   });
 
   context('when it is clicked to collapse', () => {
-    let sidebarComponent;
-    let sizeSetTo;
+    let component;
 
     beforeEach(() => {
-      sidebarComponent = new UnconnectedSidebar({
-        isCollapsed: false,
-        onCollapse: () => {},
-        toggleIsCollapsed: () => {},
-        globalAppRegistryEmit: () => {}
-      });
-
-      sidebarComponent.setState = (newState) => {
-        sizeSetTo = newState.width;
-      };
-      sidebarComponent.toggleCollapsed(true);
-    });
-
-    afterEach(() => {
-      sizeSetTo = null;
+      component = mount(
+        <Provider store={SidebarStore}>
+          <Sidebar
+            store={SidebarStore}
+          />
+        </Provider>
+      );
+      component.find('[data-test-id="toggle-sidebar"]').simulate('click');
+      component.update();
     });
 
     it('sets the collapsed width to 36', () => {
-      expect(sizeSetTo).to.equal(36);
+      expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(36);
     });
 
     context('when it is expanded again', () => {
       beforeEach(() => {
-        sidebarComponent.props.isCollapsed = true;
-        sidebarComponent.toggleCollapsed();
+        component.find('[data-test-id="toggle-sidebar"]').simulate('click');
+        component.update();
       });
 
       it('resumes its previous width', () => {
         it('sets the collapsed width to 36', () => {
-          expect(sizeSetTo).to.equal(199);
+          expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(199);
         });
       });
     });
   });
 
   describe('resize actions', () => {
-    let sidebarComponent;
-    let sizeSetTo;
-    let toggleIsCollapsed;
+    let component;
 
     beforeEach(() => {
-      toggleIsCollapsed = sinon.spy();
-    });
-
-    afterEach(() => {
-      sizeSetTo = null;
-      toggleIsCollapsed = null;
+      component = mount(
+        <Provider store={SidebarStore}>
+          <Sidebar
+            store={SidebarStore}
+          />
+        </Provider>
+      );
+      component.find('[data-test-id="toggle-sidebar"]').simulate('click');
+      component.update();
     });
 
     context('when expanded', () => {
-      beforeEach(() => {
-        sidebarComponent = new UnconnectedSidebar({
-          isCollapsed: false,
-          onCollapse: () => {},
-          toggleIsCollapsed,
-          globalAppRegistryEmit: () => {}
-        });
-        sidebarComponent.setState = (newState) => {
-          sizeSetTo = newState.width;
-        };
-      });
-
       describe('when resize is called', () => {
         beforeEach(() => {
-          sidebarComponent.handleResize(189);
+          const sidebarComponent = component.find(UnconnectedSidebar);
+          sidebarComponent.instance().updateWidth(189);
+          component.update();
         });
 
         it('updates the width', () => {
-          expect(sizeSetTo).to.equal(189);
-        });
-
-        it('does not collapse the component', () => {
-          expect(toggleIsCollapsed.called).to.equal(false);
+          expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(189);
         });
 
         context('when it hits the lower bound', () => {
           beforeEach(() => {
-            sidebarComponent.handleResize(1);
+            const sidebarComponent = component.find(UnconnectedSidebar);
+            sidebarComponent.instance().updateWidth(1);
+            component.update();
           });
 
           it('collapses the sidebar', () => {
-            expect(sizeSetTo).to.equal(1);
-            expect(toggleIsCollapsed.called).to.equal(true);
+            expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(36);
           });
         });
       });
@@ -242,38 +220,31 @@ describe('Sidebar [Component]', () => {
 
     context('when collapsed', () => {
       beforeEach(() => {
-        sidebarComponent = new UnconnectedSidebar({
-          isCollapsed: true,
-          onCollapse: () => {},
-          toggleIsCollapsed,
-          globalAppRegistryEmit: () => {}
-        });
-        sidebarComponent.setState = (newState) => {
-          sizeSetTo = newState.width;
-        };
+        component.find('[data-test-id="toggle-sidebar"]').simulate('click');
+        component.update();
       });
 
       describe('when resize is called', () => {
         beforeEach(() => {
-          sidebarComponent.handleResize(55);
+          const sidebarComponent = component.find(UnconnectedSidebar);
+          sidebarComponent.instance().updateWidth(55);
+          component.update();
         });
 
         it('updates the width', () => {
-          expect(sizeSetTo).to.equal(55);
-        });
-
-        it('does not expand the component', () => {
-          expect(toggleIsCollapsed.called).to.equal(false);
+          expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(36);
+          expect(component.find('[type="range"]').at(0).prop('value')).to.equal(55);
         });
 
         context('when it hits the expand threshold bound', () => {
           beforeEach(() => {
-            sidebarComponent.handleResize(171);
+            const sidebarComponent = component.find(UnconnectedSidebar);
+            sidebarComponent.instance().updateWidth(171);
+            component.update();
           });
 
           it('expands the sidebar', () => {
-            expect(sizeSetTo).to.equal(171);
-            expect(toggleIsCollapsed.called).to.equal(true);
+            expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(171);
           });
         });
       });

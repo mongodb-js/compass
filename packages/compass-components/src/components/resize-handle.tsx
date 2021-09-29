@@ -1,8 +1,8 @@
 /** @jsx jsx */
-import { css, jsx, SerializedStyles } from '@emotion/react';
+import { css, jsx } from '@emotion/react';
 import React, { useRef } from 'react';
 
-enum RESIZE_DIRECTION {
+enum ResizeDirection {
   TOP = 'TOP',
   RIGHT = 'RIGHT',
 }
@@ -56,38 +56,44 @@ const horizontalResizerStyle = css({
 });
 
 function ResizeHandle({
-  ariaLabel,
-  ariaRoledescription,
   direction,
   step,
-  styles,
   value,
   minValue,
   maxValue,
-  onResize,
+  onChange,
+  title,
 }: {
-  ariaLabel: string;
-  ariaRoledescription: string;
-  direction: RESIZE_DIRECTION;
+  direction: ResizeDirection;
   step: number;
-  styles: SerializedStyles;
   value: number;
   minValue: number;
   maxValue: number;
-  onResize: (newSize: number) => void;
-}) {
+  onChange: (newValue: number) => void;
+  title: string;
+}): React.ReactElement {
   const isDragging = useRef(false);
 
   function boundSize(attemptedSize: number) {
     return Math.min(maxValue, Math.max(minValue, attemptedSize));
   }
 
+  let directionTitle = 'vertical';
+  let dimensionTitle = 'Width';
+  let resizerStyle = verticalResizerStyle;
+
+  if (direction === ResizeDirection.TOP) {
+    directionTitle = 'horizontal';
+    dimensionTitle = 'Height';
+    resizerStyle = horizontalResizerStyle;
+  }
+
   return (
     <input
       type="range"
-      aria-roledescription={ariaRoledescription}
-      aria-label={ariaLabel}
-      css={[baseResizerStyles, styles]}
+      aria-roledescription={`${directionTitle} splitter`}
+      aria-label={`${dimensionTitle} of the ${title}, resize using arrow keys`}
+      css={[baseResizerStyles, resizerStyle]}
       min={minValue}
       max={maxValue}
       value={value}
@@ -98,17 +104,17 @@ function ResizeHandle({
           // width, not the value of the range where it's being dragged.
           return;
         }
-        onResize(boundSize(Number(event.target.value)));
+        onChange(boundSize(Number(event.target.value)));
       }}
       onMouseDown={() => {
         isDragging.current = true;
       }}
       onMouseMove={(event) => {
         if (isDragging.current) {
-          if (direction === RESIZE_DIRECTION.RIGHT) {
-            onResize(boundSize(value + event.movementX));
-          } else if (direction === RESIZE_DIRECTION.TOP) {
-            onResize(boundSize(value - event.movementY));
+          if (direction === ResizeDirection.RIGHT) {
+            onChange(boundSize(value + event.movementX));
+          } else if (direction === ResizeDirection.TOP) {
+            onChange(boundSize(value - event.movementY));
           }
         }
       }}
@@ -118,74 +124,14 @@ function ResizeHandle({
         event.currentTarget.blur();
 
         isDragging.current = false;
-        if (direction === RESIZE_DIRECTION.RIGHT) {
-          onResize(boundSize(value + event.movementX));
-        } else if (direction === RESIZE_DIRECTION.TOP) {
-          onResize(boundSize(value - event.movementY));
+        if (direction === ResizeDirection.RIGHT) {
+          onChange(boundSize(value + event.movementX));
+        } else if (direction === ResizeDirection.TOP) {
+          onChange(boundSize(value - event.movementY));
         }
       }}
     />
   );
 }
 
-function ResizeHandleVertical({
-  onResize,
-  step,
-  width,
-  minWidth,
-  maxWidth,
-  title,
-}: {
-  onResize: (newWidth: number) => void;
-  step: number;
-  width: number;
-  minWidth: number;
-  maxWidth: number;
-  title: string;
-}): React.ReactElement {
-  return (
-    <ResizeHandle
-      ariaRoledescription="vertical splitter"
-      ariaLabel={`Width of the ${title}, resize using arrow keys`}
-      styles={verticalResizerStyle}
-      direction={RESIZE_DIRECTION.RIGHT}
-      minValue={minWidth}
-      maxValue={maxWidth}
-      onResize={onResize}
-      value={width}
-      step={step}
-    />
-  );
-}
-
-function ResizeHandleHorizontal({
-  onResize,
-  step,
-  height,
-  minHeight,
-  maxHeight,
-  title,
-}: {
-  onResize: (newHeight: number) => void;
-  step: number;
-  height: number;
-  minHeight: number;
-  maxHeight: number;
-  title: string;
-}): React.ReactElement {
-  return (
-    <ResizeHandle
-      ariaRoledescription="horizontal splitter"
-      ariaLabel={`Height of the ${title}, resize using arrow keys`}
-      direction={RESIZE_DIRECTION.TOP}
-      minValue={minHeight}
-      maxValue={maxHeight}
-      value={height}
-      step={step}
-      styles={horizontalResizerStyle}
-      onResize={onResize}
-    />
-  );
-}
-
-export { ResizeHandleHorizontal, ResizeHandleVertical };
+export { ResizeHandle, ResizeDirection };

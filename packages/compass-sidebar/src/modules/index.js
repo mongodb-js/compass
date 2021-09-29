@@ -14,9 +14,6 @@ import instance, {
 import filterRegex, {
   INITIAL_STATE as FILTER_REGEX_INITIAL_STATE
 } from './filter-regex';
-import isCollapsed, {
-  INITIAL_STATE as IS_COLLAPSED_INITIAL_STATE
-} from './is-collapsed';
 import isDetailsExpanded, {
   INITIAL_STATE as IS_DETAILS_EXPANDED_INITIAL_STATE
 } from './is-details-expanded';
@@ -50,7 +47,6 @@ const reducer = combineReducers({
   detailsPlugins,
   instance,
   filterRegex,
-  isCollapsed,
   isDetailsExpanded,
   isWritable,
   isGenuineMongoDB,
@@ -76,7 +72,6 @@ const rootReducer = (state, action) => {
       description: DESCRIPTION_INITIAL_STATE,
       instance: INSTANCE_INITIAL_STATE,
       filterRegex: FILTER_REGEX_INITIAL_STATE,
-      isCollapsed: IS_COLLAPSED_INITIAL_STATE,
       isDetailsExpanded: IS_DETAILS_EXPANDED_INITIAL_STATE,
       isWritable: IS_WRITABLE_INITIAL_STATE,
       isGenuineMongoDB: GENUINE_IS,

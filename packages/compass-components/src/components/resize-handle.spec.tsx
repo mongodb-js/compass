@@ -3,21 +3,22 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { ResizeHandleVertical, ResizeHandleHorizontal } from './resize-handle';
+import { ResizeHandle, ResizeDirection } from './resize-handle';
 
 describe('ResizeHandle Component', function () {
-  describe('ResizeHandleVertical Component', function () {
-    let onResizeSpy: sinon.SinonSpy;
+  describe('resize direction RIGHT', function () {
+    let onChangeSpy: sinon.SinonSpy;
     beforeEach(function () {
-      onResizeSpy = sinon.spy();
+      onChangeSpy = sinon.spy();
 
       render(
-        <ResizeHandleVertical
-          onResize={onResizeSpy}
+        <ResizeHandle
+          direction={ResizeDirection.RIGHT}
+          onChange={onChangeSpy}
           step={20}
-          width={100}
-          minWidth={50}
-          maxWidth={150}
+          value={100}
+          minValue={50}
+          maxValue={150}
           title="Pineapple"
         />
       );
@@ -37,11 +38,11 @@ describe('ResizeHandle Component', function () {
       });
 
       it('should call to resize the width', function () {
-        expect(onResizeSpy).to.have.been.called;
+        expect(onChangeSpy).to.have.been.called;
       });
 
       it('should call resize with the new width', function () {
-        expect(onResizeSpy).to.have.been.calledWith(80);
+        expect(onChangeSpy).to.have.been.calledWith(80);
       });
     });
 
@@ -49,13 +50,13 @@ describe('ResizeHandle Component', function () {
       it('should stick to the upper bounds', function () {
         const actionableElement = screen.getByRole('slider');
         fireEvent.change(actionableElement, { target: { value: 1234 } });
-        expect(onResizeSpy).to.have.been.calledWith(150);
+        expect(onChangeSpy).to.have.been.calledWith(150);
       });
 
       it('should stick to the lower bounds', function () {
         const actionableElement = screen.getByRole('slider');
         fireEvent.change(actionableElement, { target: { value: 10 } });
-        expect(onResizeSpy).to.have.been.calledWith(50);
+        expect(onChangeSpy).to.have.been.calledWith(50);
       });
     });
 
@@ -72,18 +73,19 @@ describe('ResizeHandle Component', function () {
     });
   });
 
-  describe('ResizeHandleHorizontal Component', function () {
-    let onResizeSpy: sinon.SinonSpy;
+  describe('resize direction TOP', function () {
+    let onChangeSpy: sinon.SinonSpy;
     beforeEach(function () {
-      onResizeSpy = sinon.spy();
+      onChangeSpy = sinon.spy();
 
       render(
-        <ResizeHandleHorizontal
-          onResize={onResizeSpy}
+        <ResizeHandle
+          direction={ResizeDirection.TOP}
+          onChange={onChangeSpy}
           step={20}
-          height={100}
-          minHeight={50}
-          maxHeight={150}
+          value={100}
+          minValue={50}
+          maxValue={150}
           title="Pineapple"
         />
       );
@@ -103,11 +105,11 @@ describe('ResizeHandle Component', function () {
       });
 
       it('should call to resize the width', function () {
-        expect(onResizeSpy).to.have.been.called;
+        expect(onChangeSpy).to.have.been.called;
       });
 
       it('should call resize with the new width', function () {
-        expect(onResizeSpy).to.have.been.calledWith(80);
+        expect(onChangeSpy).to.have.been.calledWith(80);
       });
     });
 
@@ -115,7 +117,7 @@ describe('ResizeHandle Component', function () {
       it('should stick to the upper bounds', function () {
         const actionableElement = screen.getByRole('slider');
         fireEvent.change(actionableElement, { target: { value: 1234 } });
-        expect(onResizeSpy).to.have.been.calledWith(150);
+        expect(onChangeSpy).to.have.been.calledWith(150);
       });
     });
 

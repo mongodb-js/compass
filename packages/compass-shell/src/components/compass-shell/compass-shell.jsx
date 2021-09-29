@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { Shell } from '@mongosh/browser-repl';
-import { ResizeHandleHorizontal } from '@mongodb-js/compass-components';
+import { ResizeHandle, ResizeDirection } from '@mongodb-js/compass-components';
 
 import InfoModal from '../info-modal';
 import ShellHeader from '../shell-header';
@@ -30,7 +30,6 @@ function boundShellHeight(attemptedHeight) {
 export class CompassShell extends Component {
   static propTypes = {
     emitShellPluginOpened: PropTypes.func,
-    isExpanded: PropTypes.bool,
     runtime: PropTypes.object,
     shellOutput: PropTypes.array,
     historyStorage: PropTypes.object
@@ -46,18 +45,24 @@ export class CompassShell extends Component {
     this.shellOutput = this.props.shellOutput || [];
 
     this.state = {
-      height: props.isExpanded
-        ? defaultShellHeightOpened
-        : shellHeightClosed,
+      height: shellHeightClosed,
+      prevHeight: defaultShellHeightOpened,
       initialHistory: this.props.historyStorage ? null : [],
-      isExpanded: !!this.props.isExpanded,
-      isOperationInProgress: false
+      isOperationInProgress: false,
+      showInfoModal: false
     };
   }
 
   componentDidMount() {
     this.loadHistory();
     window.addEventListener('beforeunload', this.terminateRuntime);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { height } = this.state;
+    if (prevState.height < shellMinHeightOpened && height > shellMinHeightOpened) {
+      this.props.emitShellPluginOpened();
+    }
   }
 
   componentWillUnmount() {
@@ -80,40 +85,11 @@ export class CompassShell extends Component {
     });
   }
 
-  onResize = (newHeight) => {
-    this.setState({
-      height: newHeight
-    });
-
-    if (!this.state.isExpanded) {
-      if (newHeight > shellMinHeightOpened) {
-        // When we are not expanded and the user drags over a threshold we expand.
-        this.props.emitShellPluginOpened();
-        this.setState({
-          isExpanded: true
-        });
-      }
-      return;
-    }
-
-    if (newHeight < shellMinHeightOpened) {
-      // When we are expanded and the user drags under a threshold we collapse.
-      this.lastOpenHeight = shellMinHeightOpened;
-
-      this.setState({
-        isExpanded: false
-      });
-      return;
-    }
-  }
-
   terminateRuntime = () => {
     if (this.props.runtime) {
       this.props.runtime.terminate();
     }
   }
-
-  lastOpenHeight = defaultShellHeightOpened;
 
   saveHistory = async(history) => {
     if (!this.props.historyStorage) {
@@ -147,23 +123,18 @@ export class CompassShell extends Component {
     }
   }
 
-  shellToggleClicked = () => {
-    if (this.state.isExpanded) {
-      this.lastOpenHeight = boundShellHeight(this.state.height);
-      this.setState({
-        height: shellHeightClosed
-      });
-    } else {
-      this.props.emitShellPluginOpened();
-
-      this.setState({
-        height: boundShellHeight(this.lastOpenHeight)
-      });
-    }
-
-    this.setState({
-      isExpanded: !this.state.isExpanded
-    });
+  updateHeight(height) {
+    this.setState(
+      (height > shellMinHeightOpened)
+        ? {
+          height,
+          // Store the previous height to use when toggling open/close
+          // when we resize while the shell is expanded.
+          prevHeight: height
+        } : {
+          height
+        }
+    );
   }
 
   /**
@@ -173,38 +144,48 @@ export class CompassShell extends Component {
    */
   render() {
     const {
-      isExpanded,
-      isOperationInProgress
+      height,
+      prevHeight,
+      isOperationInProgress,
+      showInfoModal
     } = this.state;
 
     if (!this.props.runtime || !this.state.initialHistory) {
       return (<div />);
     }
 
+    const isExpanded = height > shellMinHeightOpened;
+    const renderedHeight = isExpanded ? boundShellHeight(height) : shellHeightClosed;
+
     return (
       <Fragment>
-        <InfoModal />
+        <InfoModal
+          show={showInfoModal}
+          hideInfoModal={() => this.setState({ showInfoModal: false })}
+        />
         <div
           data-test-id="shell-section"
           className={styles['compass-shell']}
-          style={{
-            height: isExpanded
-              ? boundShellHeight(this.state.height)
-              : shellHeightClosed
-          }}
+          style={{ height: renderedHeight }}
           id="content"
         >
-          <ResizeHandleHorizontal
-            onResize={this.onResize}
+          <ResizeHandle
+            direction={ResizeDirection.TOP}
+            onChange={(newHeight) => this.updateHeight(newHeight)}
             step={resizeControlIncrement}
-            height={this.state.height}
-            minHeight={shellHeightClosed}
-            maxHeight={getMaxShellHeight()}
+            value={height}
+            minValue={shellHeightClosed}
+            maxValue={getMaxShellHeight()}
+            title="MongoDB Shell"
           />
           <ShellHeader
             isExpanded={isExpanded}
-            onShellToggleClicked={this.shellToggleClicked}
+            onShellToggleClicked={() => isExpanded
+              ? this.updateHeight(shellHeightClosed)
+              : this.updateHeight(prevHeight)
+            }
             isOperationInProgress={isOperationInProgress}
+            showInfoModal={() => this.setState({ showInfoModal: true })}
           />
           <div
             data-test-id="shell-content"

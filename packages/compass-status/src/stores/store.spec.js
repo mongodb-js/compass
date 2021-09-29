@@ -46,10 +46,6 @@ describe('StatusStore [Store]', () => {
       expect(Store.state.subview).to.equal(null);
     });
 
-    it('sets sidebar to true', () => {
-      expect(Store.state.sidebar).to.equal(true);
-    });
-
     it('sets trickle to false', () => {
       expect(Store.state.trickle).to.equal(false);
     });
@@ -184,33 +180,6 @@ describe('StatusStore [Store]', () => {
         done();
       });
       Actions.clearMessage();
-    });
-  });
-
-  describe('#showStaticSidebar', () => {
-    it('sets a visible sidebar', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.visible).to.equal(true);
-        expect(state.sidebar).to.equal(true);
-        done();
-      });
-      Actions.showStaticSidebar();
-    });
-  });
-
-  describe('#hideStaticSidebar', () => {
-    beforeEach(() => {
-      Store.state.sidebar = true;
-    });
-
-    it('hides the sidebar', (done) => {
-      const unsubscribe = Store.listen((state) => {
-        unsubscribe();
-        expect(state.sidebar).to.equal(false);
-        done();
-      });
-      Actions.hideStaticSidebar();
     });
   });
 

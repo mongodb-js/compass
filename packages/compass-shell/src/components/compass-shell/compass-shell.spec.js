@@ -1,8 +1,8 @@
 import sinon from 'sinon';
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import { Shell } from '@mongosh/browser-repl';
-import { ResizeHandleHorizontal } from '@mongodb-js/compass-components';
+import { ResizeHandle } from '@mongodb-js/compass-components';
 
 import { CompassShell } from './compass-shell';
 import ShellHeader from '../shell-header';
@@ -14,85 +14,110 @@ function updateAndWaitAsync(wrapper) {
   return new Promise(setImmediate);
 }
 
+const fakeRuntime = {
+  evaluate: sinon.fake.returns({ printable: 'some result' }),
+  setEvaluationListener: () => {}
+};
+
 describe('CompassShell', () => {
-  context('when the prop isExpanded is false', () => {
-    it('has the shell display none', () => {
-      const fakeRuntime = {};
-      const wrapper = shallow(<CompassShell
+  context('when rendered', () => {
+    let wrapper;
+    let emitShellOpenedSpy;
+
+    beforeEach(() => {
+      emitShellOpenedSpy = sinon.spy();
+
+      wrapper = mount(<CompassShell
         runtime={fakeRuntime}
-        isExpanded={false}
+        emitShellPluginOpened={emitShellOpenedSpy}
       />);
+    });
+
+    afterEach(() => {
+      wrapper = null;
+    });
+
+    it('has the shell display none', () => {
       expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(false);
     });
 
     context('when is it expanded', () => {
       it('calls the function prop emitShellPluginOpened', () => {
-        let calledFunc = false;
-        const mockOnOpenShellPlugin = () => {
-          calledFunc = true;
-        };
+        expect(emitShellOpenedSpy.calledOnce).to.equal(false);
 
-        const shell = new CompassShell({
-          isExpanded: false,
-          emitShellPluginOpened: mockOnOpenShellPlugin
-        });
-        shell.shellToggleClicked();
+        wrapper.setState({ height: 300 });
+        wrapper.update();
 
-        expect(calledFunc).to.equal(true);
+        expect(emitShellOpenedSpy.calledOnce).to.equal(true);
       });
     });
   });
 
-  context('when the prop isExpanded is true', () => {
+  context('when rendered expanded', () => {
     context('when runtime property is not present', () => {
       it('does not render a shell if runtime is null', () => {
-        const wrapper = shallow(<CompassShell runtime={null} isExpanded />);
+        const wrapper = mount(
+          <CompassShell
+            runtime={null}
+          />
+        );
+        wrapper.setState({ height: 300 });
+        wrapper.update();
         expect(wrapper.find(Shell).exists()).to.equal(false);
       });
     });
 
     context('when runtime property is present', () => {
+      let wrapper;
+
+      beforeEach(() => {
+        wrapper = mount(<CompassShell
+          runtime={fakeRuntime}
+          emitShellPluginOpened={() => {}}
+        />);
+
+        wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+        wrapper.update();
+      });
+      afterEach(() => {
+        wrapper = null;
+      });
+
       it('renders the Shell', () => {
-        const fakeRuntime = {};
-        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
         expect(wrapper.find(Shell).prop('runtime')).to.equal(fakeRuntime);
         expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(true);
       });
 
       it('renders the ShellHeader component', () => {
-        const fakeRuntime = {};
-        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
         expect(wrapper.find(ShellHeader).exists()).to.equal(true);
       });
 
       it('renders a Resizable component', () => {
-        const fakeRuntime = {};
-        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
-        expect(wrapper.find(ResizeHandleHorizontal)).to.be.present();
+        expect(wrapper.find(ResizeHandle)).to.be.present();
       });
 
       it('renders the info modal component', () => {
-        const fakeRuntime = {};
-        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
         expect(wrapper.find(InfoModal)).to.be.present();
       });
 
       it('renders the Shell with an output change handler', () => {
-        const fakeRuntime = {};
-        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
         expect(!!wrapper.find(Shell).prop('onOutputChanged')).to.equal(true);
       });
+    });
 
-      it('passes saved shell output', () => {
-        const fakeRuntime = {};
-        const wrapper = shallow(<CompassShell
+    context('with a runtime and saved shell output', () => {
+      it('renders the inital output', () => {
+        const wrapper = mount(<CompassShell
           runtime={fakeRuntime}
-          isExpanded
+          emitShellPluginOpened={() => {}}
           shellOutput={[{
             type: 'output',
             value: 'pineapple'
           }]}
         />);
+
+        wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+        wrapper.update();
 
         expect(wrapper.find(Shell).prop('initialOutput')).to.deep.equal([{
           type: 'output',
@@ -103,7 +128,6 @@ describe('CompassShell', () => {
 
     context('when historyStorage is not present', () => {
       it('passes an empty history to the Shell', () => {
-        const fakeRuntime = {};
         const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
 
         expect(wrapper.find(Shell).prop('initialHistory')).to.deep.equal([]);
@@ -111,41 +135,43 @@ describe('CompassShell', () => {
     });
 
     context('when it is clicked to collapse', () => {
-      let shell;
+      let wrapper;
 
       beforeEach(() => {
-        shell = new CompassShell({
-          isExpanded: true,
-          emitShellPluginOpened: () => {}
-        });
-        shell.setState = stateUpdate => {
-          shell.state = {
-            ...shell.state,
-            ...stateUpdate
-          };
-        };
-        shell.shellToggleClicked();
+        wrapper = mount(<CompassShell
+          runtime={fakeRuntime}
+          emitShellPluginOpened={() => {}}
+        />);
+
+        wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+        wrapper.update();
+
+        wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+        wrapper.update();
       });
       afterEach(() => {
-        shell = null;
+        wrapper = null;
       });
 
       it('sets the collapsed height to 32', () => {
-        expect(shell.state.height).to.equal(32);
-      });
-
-      it('sets the state to collapsed', () => {
-        expect(shell.state.isExpanded).to.equal(false);
+        expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(32);
       });
 
       context('when it is expanded again', () => {
         it('resumes its previous height', () => {
-          shell.shellToggleClicked();
-          shell.onResize(199);
-          shell.shellToggleClicked();
-          shell.shellToggleClicked();
+          wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+          wrapper.update();
 
-          expect(shell.state.height).to.equal(199);
+          wrapper.instance().updateHeight(399);
+          wrapper.update();
+
+          wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+          wrapper.update();
+
+          wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+          wrapper.update();
+
+          expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(399);
         });
       });
     });
@@ -153,22 +179,19 @@ describe('CompassShell', () => {
 
   context('when historyStorage is present', () => {
     let fakeStorage;
-    let fakeRuntime;
 
     beforeEach(() => {
       fakeStorage = {
         load: sinon.spy(() => Promise.resolve([])),
         save: sinon.spy(() => Promise.resolve()),
       };
-
-      fakeRuntime = {};
     });
 
     it('passes the loaded history as initialHistory to Shell', async() => {
       fakeStorage.load = sinon.spy(() => Promise.resolve(['line1']));
 
       const wrapper = shallow(<CompassShell
-        runtime={fakeRuntime}
+        runtime={{}}
         historyStorage={fakeStorage}
         isExpanded
       />);
@@ -180,7 +203,7 @@ describe('CompassShell', () => {
 
     it('saves the history when history changes', async() => {
       const wrapper = shallow(<CompassShell
-        runtime={fakeRuntime}
+        runtime={{}}
         historyStorage={fakeStorage}
         isExpanded
       />);
@@ -211,101 +234,84 @@ describe('CompassShell', () => {
   });
 
   context('resize actions', () => {
-    let shellComponent;
+    let onOpenShellSpy;
+    let wrapper;
+
+    beforeEach(() => {
+      onOpenShellSpy = sinon.spy();
+      wrapper = mount(<CompassShell
+        runtime={fakeRuntime}
+        emitShellPluginOpened={onOpenShellSpy}
+      />);
+    });
+    afterEach(() => {
+      onOpenShellSpy = null;
+      wrapper = null;
+    });
 
     context('when expanded', () => {
       beforeEach(() => {
-        shellComponent = new CompassShell({
-          isExpanded: true
-        });
-        shellComponent.setState = stateUpdate => {
-          shellComponent.state = {
-            ...shellComponent.state,
-            ...stateUpdate
-          };
-        };
-
-        shellComponent.state.height = 111;
+        wrapper.setState({ height: 199 });
+        wrapper.update();
       });
 
-      context('when the resize is called', () => {
+      context('when the height is updated', () => {
         beforeEach(() => {
-          shellComponent.onResize(131);
-        });
-
-        it('updates the height', () => {
-          expect(shellComponent.state.height).to.equal(131);
+          wrapper.setState({ height: 131 });
+          wrapper.update();
         });
 
         it('does not collapse the component', () => {
-          expect(shellComponent.state.isExpanded).to.equal(true);
+          expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(true);
         });
 
         context('when it hits the lower bound', () => {
           beforeEach(() => {
-            shellComponent.onResize(1);
+            wrapper.setState({ height: 1 });
+            wrapper.update();
           });
 
           it('collapses the shell', () => {
-            expect(shellComponent.state.height).to.equal(1);
-            expect(shellComponent.state.isExpanded).to.equal(false);
+            expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(32);
+            expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(false);
           });
         });
       });
     });
 
     context('when collapsed', () => {
-      let mockOnOpenShellPlugin;
-      let calledFunc;
-
-      beforeEach(() => {
-        calledFunc = false;
-        mockOnOpenShellPlugin = () => {
-          calledFunc = true;
-        };
-        shellComponent = new CompassShell({
-          isExpanded: false,
-          emitShellPluginOpened: mockOnOpenShellPlugin
-        });
-        shellComponent.setState = stateUpdate => {
-          shellComponent.state = {
-            ...shellComponent.state,
-            ...stateUpdate
-          };
-        };
-
-        shellComponent.state.height = 32;
-      });
-
-      context('when the resize is called', () => {
+      context('when the height is updated', () => {
         beforeEach(() => {
-          shellComponent.onResize(55);
+          wrapper.setState({ height: 55 });
+          wrapper.update();
         });
 
         it('updates the height', () => {
-          expect(shellComponent.state.height).to.equal(55);
+          expect(wrapper.find('[type="range"]').at(0).prop('value')).to.equal(55);
+          expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(32);
         });
 
         it('does not expand the component', () => {
-          expect(shellComponent.state.isExpanded).to.equal(false);
+          expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(false);
         });
 
         it('does not calls the function prop emitShellPluginOpened', () => {
-          expect(calledFunc).to.equal(false);
+          expect(onOpenShellSpy.called).to.equal(false);
         });
 
         context('when it hits the resize threshold', () => {
           beforeEach(() => {
-            shellComponent.onResize(151);
+            wrapper.setState({ height: 151 });
+            wrapper.update();
           });
 
           it('expands the shell', () => {
-            expect(shellComponent.state.height).to.equal(151);
-            expect(shellComponent.state.isExpanded).to.equal(true);
+            expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(151);
+            expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(true);
           });
 
           it('calls the function prop emitShellPluginOpened', () => {
-            expect(calledFunc).to.equal(true);
+            expect(onOpenShellSpy.calledOnce).to.equal(true);
           });
         });
       });
