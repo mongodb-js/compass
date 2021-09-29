@@ -52,9 +52,6 @@ describe('Sidebar [Component]', () => {
         <Provider store={SidebarStore}>
           <Sidebar
             store={SidebarStore}
-
-            isCollapsed={false}
-
             connectionModel={connectionModel}
             description="Topology type not yet discovered."
             databases={{
