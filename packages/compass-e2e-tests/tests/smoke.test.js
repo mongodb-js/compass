@@ -1,7 +1,13 @@
 // @ts-check
+const fs = require('fs');
 const _ = require('lodash');
 const { expect } = require('chai');
-const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
+const {
+  beforeTests,
+  afterTests,
+  afterTest,
+  outputFilename,
+} = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
@@ -405,7 +411,81 @@ describe('Smoke tests', function () {
   });
 
   describe('Export', function () {
-    it('supports collection to CSV with a query filter');
+    before(async function () {
+      await client.navigateToCollectionTab('test', 'numbers', 'Documents');
+    });
+
+    it('supports collection to CSV with a query filter', async function () {
+      await client.runFindOperation('Documents', '{ i: 5 }');
+      await client.click(Selectors.ExportCollectionButton);
+      await client.waitForVisible(Selectors.ExportModal);
+
+      expect(await client.getText(Selectors.ExportModalQueryText)).to
+        .equal(`db.numbers.find(
+  {i: 5}
+)`);
+
+      await client.clickVisible(Selectors.ExportModalSelectFieldsButton);
+
+      // don't change any field selections for now
+      await client.clickVisible(Selectors.ExportModalSelectOutputButton);
+
+      // select csv (unselected at first, selected by the end)
+      await client.clickVisible(
+        Selectors.selectExportFileTypeButton('csv', false)
+      );
+      await client.waitForVisible(
+        Selectors.selectExportFileTypeButton('csv', true)
+      );
+
+      const filename = outputFilename('filtered-numbers.csv');
+
+      // sanity check to make sure the file isn't already there when we start
+      expect(fs.existsSync(filename)).to.be.false;
+
+      // this is cheating a bit, but we cannot interact with the native dialog
+      // it pops up from webdriver and writing to the readonly text field
+      // doesn't help either.
+      await client.execute(function (f) {
+        // eslint-disable-next-line no-undef
+        document.dispatchEvent(
+          // eslint-disable-next-line no-undef
+          new CustomEvent('selectExportFileName', { detail: f })
+        );
+      }, filename);
+
+      await client.waitUntil(async () => {
+        const value = await client.getAttribute(
+          Selectors.ExportModalFileText,
+          'value'
+        );
+        return value === filename;
+      });
+
+      await client.click(Selectors.ExportModalExportButton);
+
+      await client.waitForVisible(Selectors.ExportModalShowFileButton);
+
+      // clicking the button would open the file in finder/explorer/whatever
+      // which is probably not something we can check with webdriver. But we can
+      // check that the file exists.
+
+      expect(fs.existsSync(filename)).to.be.true;
+
+      await client.click(Selectors.ExportModalCloseButton);
+
+      // the modal should go away
+      await client.waitForVisible(Selectors.ExportModal, 2000, true);
+
+      const text = fs.readFileSync(filename, 'utf-8');
+      //  example:'_id,i\n6154788cc5f1fd4544fcedb1,5'
+      const lines = text.split(/\r?\n/);
+      expect(lines[0]).to.equal('_id,i');
+      const fields = lines[1].split(',');
+      // first field is an id, so always different
+      expect(fields[1]).to.equal('5');
+    });
+
     it('supports full collection to CSV');
     it('supports collection to CSV with all fields');
     it('supports collection to CSV with a subset of fields');

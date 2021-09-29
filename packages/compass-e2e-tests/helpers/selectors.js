@@ -152,6 +152,7 @@ const Selectors = {
 
   // Documents tab
   DocumentListActionBarMessage: '.document-list-action-bar-message',
+  ExportCollectionButton: '[data-test-id="export-collection-button"]',
 
   // Aggregations tab
   StageContainer: '[data-test-id="stage-container"]',
@@ -260,6 +261,36 @@ const Selectors = {
 
   // Tabs at the top
   CloseCollectionTab: '[data-test-id="close-collection-tab"]',
+
+  // Export modal
+  ExportModal: '[data-test-id="export-modal"]',
+  ExportModalQueryText:
+    '[data-test-id="export-modal"] [data-test-id="query-viewer-wrapper"] .ace_text-layer',
+  ExportModalSelectFieldsButton:
+    '[data-test-id="export-modal"] [data-test-id="select-fields-button"]',
+  ExportModalSelectOutputButton:
+    '[data-test-id="export-modal"] [data-test-id="select-output-button"]',
+  ExportModalExportButton:
+    '[data-test-id="export-modal"] [data-test-id="export-button"]',
+  ExportModalShowFileButton:
+    '[data-test-id="export-modal"] [data-test-id="show-file-button"]',
+  ExportModalCloseButton:
+    '[data-test-id="export-modal"] [data-test-id="close-button"]',
+  ExportModalFileText: '[data-test-id="export-modal"] #export-file',
+
+  selectExportFileTypeButton: (fileType, selected) => {
+    const selector = `[data-test-id="export-modal"] [data-test-id="select-file-type-${fileType}"]`;
+
+    if (selected === true) {
+      return `${selector}[aria-selected="true"]`;
+    }
+
+    if (selected === false) {
+      return `${selector}[aria-selected="false"]`;
+    }
+
+    return selector;
+  },
 };
 
 module.exports = Selectors;
