@@ -1,6 +1,11 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/react';
-import React, { useState } from 'react';
+import { css, jsx, SerializedStyles } from '@emotion/react';
+import React, { useRef } from 'react';
+
+enum RESIZE_DIRECTION {
+  TOP = 'TOP',
+  RIGHT = 'RIGHT',
+}
 
 const baseResizerStyles = css({
   position: 'absolute',
@@ -50,49 +55,61 @@ const horizontalResizerStyle = css({
   },
 });
 
-function ResizeHandleVertical({
-  onResize,
+function ResizeHandle({
+  ariaLabel,
+  ariaRoledescription,
+  direction,
   step,
-  width,
-  minWidth,
-  maxWidth,
+  styles,
+  value,
+  minValue,
+  maxValue,
+  onResize,
 }: {
-  onResize: (newWidth: number) => void;
+  ariaLabel: string;
+  ariaRoledescription: string;
+  direction: RESIZE_DIRECTION;
   step: number;
-  width: number;
-  minWidth: number;
-  maxWidth: number;
-}): React.ReactElement {
-  const [isDragging, setDragging] = useState(false);
+  styles: SerializedStyles;
+  value: number;
+  minValue: number;
+  maxValue: number;
+  onResize: (newSize: number) => void;
+}) {
+  const isDragging = useRef(false);
 
-  function boundWidth(attemptedWidth: number) {
-    return Math.min(maxWidth, Math.max(minWidth, attemptedWidth));
+  function boundSize(attemptedSize: number) {
+    return Math.min(maxValue, Math.max(minValue, attemptedSize));
   }
 
   return (
     <input
       type="range"
-      aria-roledescription="vertical splitter"
-      aria-label="Width of the panel, resize using arrow keys"
-      css={[baseResizerStyles, verticalResizerStyle]}
-      min={minWidth}
-      max={maxWidth}
-      value={width}
+      aria-roledescription={ariaRoledescription}
+      aria-label={ariaLabel}
+      css={[baseResizerStyles, styles]}
+      min={minValue}
+      max={maxValue}
+      value={value}
       step={step}
       onChange={(event) => {
-        if (isDragging) {
+        if (isDragging.current) {
           // When dragging, we want the mouse movement to update the
           // width, not the value of the range where it's being dragged.
           return;
         }
-        onResize(boundWidth(Number(event.target.value)));
+        onResize(boundSize(Number(event.target.value)));
       }}
       onMouseDown={() => {
-        setDragging(true);
+        isDragging.current = true;
       }}
       onMouseMove={(event) => {
-        if (isDragging) {
-          onResize(boundWidth(width + event.movementX));
+        if (isDragging.current) {
+          if (direction === RESIZE_DIRECTION.RIGHT) {
+            onResize(boundSize(value + event.movementX));
+          } else if (direction === RESIZE_DIRECTION.TOP) {
+            onResize(boundSize(value - event.movementY));
+          }
         }
       }}
       onMouseUp={(event) => {
@@ -100,9 +117,43 @@ function ResizeHandleVertical({
         // the user has focused it using the keyboard.
         event.currentTarget.blur();
 
-        setDragging(false);
-        onResize(boundWidth(width + event.movementX));
+        isDragging.current = false;
+        if (direction === RESIZE_DIRECTION.RIGHT) {
+          onResize(boundSize(value + event.movementX));
+        } else if (direction === RESIZE_DIRECTION.TOP) {
+          onResize(boundSize(value - event.movementY));
+        }
       }}
+    />
+  );
+}
+
+function ResizeHandleVertical({
+  onResize,
+  step,
+  width,
+  minWidth,
+  maxWidth,
+  title,
+}: {
+  onResize: (newWidth: number) => void;
+  step: number;
+  width: number;
+  minWidth: number;
+  maxWidth: number;
+  title: string;
+}): React.ReactElement {
+  return (
+    <ResizeHandle
+      ariaRoledescription="vertical splitter"
+      ariaLabel={`Width of the ${title}, resize using arrow keys`}
+      styles={verticalResizerStyle}
+      direction={RESIZE_DIRECTION.RIGHT}
+      minValue={minWidth}
+      maxValue={maxWidth}
+      onResize={onResize}
+      value={width}
+      step={step}
     />
   );
 }
@@ -113,54 +164,26 @@ function ResizeHandleHorizontal({
   height,
   minHeight,
   maxHeight,
+  title,
 }: {
   onResize: (newHeight: number) => void;
   step: number;
   height: number;
   minHeight: number;
   maxHeight: number;
+  title: string;
 }): React.ReactElement {
-  const [isDragging, setDragging] = useState(false);
-
-  function boundHeight(attemptedHeight: number) {
-    return Math.min(maxHeight, Math.max(minHeight, attemptedHeight));
-  }
-
   return (
-    <input
-      type="range"
-      aria-roledescription="horizontal splitter"
-      aria-label="Height of the panel, resize using arrow keys"
-      min={minHeight}
-      max={maxHeight}
-      height={height}
+    <ResizeHandle
+      ariaRoledescription="horizontal splitter"
+      ariaLabel={`Height of the ${title}, resize using arrow keys`}
+      direction={RESIZE_DIRECTION.TOP}
+      minValue={minHeight}
+      maxValue={maxHeight}
       value={height}
       step={step}
-      css={[baseResizerStyles, horizontalResizerStyle]}
-      onChange={(event) => {
-        if (isDragging) {
-          // When dragging, we want the mouse movement to update the
-          // height, not the value of the range where it's being dragged.
-          return;
-        }
-        onResize(boundHeight(Number(event.target.value)));
-      }}
-      onMouseDown={() => {
-        setDragging(true);
-      }}
-      onMouseMove={(event) => {
-        if (isDragging) {
-          onResize(boundHeight(height - event.movementY));
-        }
-      }}
-      onMouseUp={(event) => {
-        // We only want to maintain focus on the resizer when
-        // the user has focused it using the keyboard.
-        event.currentTarget.blur();
-
-        setDragging(false);
-        onResize(boundHeight(height - event.movementY));
-      }}
+      styles={horizontalResizerStyle}
+      onResize={onResize}
     />
   );
 }

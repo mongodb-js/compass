@@ -18,7 +18,15 @@ describe('ResizeHandle Component', function () {
           width={100}
           minWidth={50}
           maxWidth={150}
+          title="Pineapple"
         />
+      );
+    });
+
+    it('should render the title in the aria description', function () {
+      const actionableElement = screen.getByRole('slider');
+      expect(actionableElement.getAttribute('aria-label')).to.equal(
+        'Width of the Pineapple, resize using arrow keys'
       );
     });
 
@@ -76,7 +84,15 @@ describe('ResizeHandle Component', function () {
           height={100}
           minHeight={50}
           maxHeight={150}
+          title="Pineapple"
         />
+      );
+    });
+
+    it('should render the title in the aria description', function () {
+      const actionableElement = screen.getByRole('slider');
+      expect(actionableElement.getAttribute('aria-label')).to.equal(
+        'Height of the Pineapple, resize using arrow keys'
       );
     });
 
