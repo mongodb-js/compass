@@ -144,7 +144,7 @@ export class UserData<T = unknown> {
         results.push(this._parse(content));
       } catch (error) {
         log.error(
-          mongoLogId(1_001_000_063),
+          mongoLogId(1_001_000_066),
           'UserData',
           'Error parsing file to json',
           {
