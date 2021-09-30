@@ -1,5 +1,3 @@
-var $ = window.jQuery = window.$ = require('jquery');
-
 require('bootstrap/js/dropdown');
 require('bootstrap/js/collapse');
 require('bootstrap/js/tooltip');
