@@ -22,7 +22,7 @@ module.exports = function (app) {
     await client.waitForVisible(collectionSelector);
 
     // click it and wait for the collection header to become visible
-    await client.click(collectionSelector);
+    await client.clickVisible(collectionSelector);
     await client.waitForVisible(headerSelector);
   }
 
@@ -44,7 +44,7 @@ module.exports = function (app) {
     }
 
     // otherwise select the tab and wait for it to become selected
-    await client.click(tabSelector);
+    await client.clickVisible(tabSelector);
     await client.waitForVisible(tabSelectedSelector);
   };
 };

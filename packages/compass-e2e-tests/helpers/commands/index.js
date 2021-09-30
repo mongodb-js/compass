@@ -29,4 +29,5 @@ exports.addCommands = function (app) {
   add('selectStageOperator', './select-stage-operator');
   add('closeCollectionTabs', './close-collection-tabs');
   add('setValidation', './set-validation');
+  add('waitForAnimations', './wait-for-animations');
 };

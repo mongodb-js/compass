@@ -16,7 +16,6 @@ const {
   compileAssets,
 } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
-const { retryWithBackoff } = require('./retry-with-backoff');
 const { addCommands } = require('./commands');
 
 /**
@@ -47,6 +46,8 @@ const COMPASS_PATH = path.dirname(
 );
 
 const LOG_PATH = path.resolve(__dirname, '..', '.log');
+
+const OUTPUT_PATH = path.join(LOG_PATH, 'output');
 
 function getAtlasConnectionOptions() {
   const missingKeys = [
@@ -134,6 +135,7 @@ async function startCompass(
   // for consistency let's mkdir for both of them just in case
   await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
   await fs.mkdir(webdriverLogPath, { recursive: true });
+  await fs.mkdir(OUTPUT_PATH, { recursive: true });
 
   const appOptions = {
     ...opts,
@@ -158,6 +160,9 @@ async function startCompass(
     // GitHub CI machines are pretty slow sometimes, especially the macOS one
     startTimeout: 20_000,
     waitTimeout: 20_000,
+    webdriverOptions: {
+      waitforInterval: 200, // default is 500ms
+    },
   };
 
   debug('Starting Spectron with the following configuration:');
@@ -490,14 +495,9 @@ async function beforeTests() {
 
   const { client } = compass;
 
-  // XXX: This seems to be a bit unstable in GitHub CI on macOS machines, for
-  // that reason we want to do a few retries here (in most other cases this
-  // should pass on first attempt)
-  await retryWithBackoff(async () => {
-    await client.waitForConnectionScreen();
-    await client.closeTourModal();
-    await client.closePrivacySettingsModal();
-  });
+  await client.waitForConnectionScreen();
+  await client.closeTourModal();
+  await client.closePrivacySettingsModal();
 
   return compass;
 }
@@ -531,6 +531,13 @@ function pagePathName(text) {
   return `page-${pathName(text)}.html`;
 }
 
+/**
+ * @param {string} filename
+ */
+function outputFilename(filename) {
+  return path.join(OUTPUT_PATH, filename);
+}
+
 async function afterTest(compass, test) {
   if (process.env.CI) {
     if (test.state == 'failed') {
@@ -553,9 +560,11 @@ module.exports = {
   Selectors,
   COMPASS_PATH,
   LOG_PATH,
+  OUTPUT_PATH,
   beforeTests,
   afterTests,
   screenshotPathName,
   pagePathName,
+  outputFilename,
   afterTest,
 };

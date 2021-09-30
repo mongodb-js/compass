@@ -8,7 +8,7 @@ module.exports = function (app) {
 
     await client.navigateToInstanceTab('Databases');
 
-    await client.click(Selectors.databaseTableLink(dbName));
+    await client.clickVisible(Selectors.databaseTableLink(dbName));
 
     // there is only the one tab for now, so this just just an assertion
     expect(tabName).to.equal('Collections');
