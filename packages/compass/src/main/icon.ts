@@ -1,9 +1,11 @@
-const path = require('path');
+import path from 'path'
+import { nativeImage } from 'electron';
+import compassIconPath from '../app/images/compass-dialog-icon.png';
+
 const COMPASS_ICON = path.join(
   __dirname,
-  require('./app/images/compass-dialog-icon.png')
+  compassIconPath
 );
-const nativeImage = require('electron').nativeImage;
 
 /**
  * Convenience for getting the app icon to customize native UI components
@@ -18,5 +20,7 @@ const nativeImage = require('electron').nativeImage;
  *
  * @see https://jira.mongodb.org/browse/COMPASS-586
  */
-module.exports = nativeImage.createFromPath(COMPASS_ICON);
-module.exports.path = COMPASS_ICON;
+const image = nativeImage.createFromPath(COMPASS_ICON);
+
+export default image;
+export { COMPASS_ICON as path };
