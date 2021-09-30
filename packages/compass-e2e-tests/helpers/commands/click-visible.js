@@ -4,6 +4,7 @@ module.exports = function (app) {
     // element
     const { client } = app;
     await client.waitForVisible(selector);
+    await client.waitForAnimations(selector);
     await client.click(selector);
   };
 };

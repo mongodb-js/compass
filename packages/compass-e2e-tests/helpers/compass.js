@@ -16,7 +16,6 @@ const {
   compileAssets,
 } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
-const { retryWithBackoff } = require('./retry-with-backoff');
 const { addCommands } = require('./commands');
 
 /**
@@ -161,6 +160,9 @@ async function startCompass(
     // GitHub CI machines are pretty slow sometimes, especially the macOS one
     startTimeout: 20_000,
     waitTimeout: 20_000,
+    chromeDriverOptions: {
+      waitforInterval: 200, // default is 500ms
+    },
   };
 
   debug('Starting Spectron with the following configuration:');
@@ -493,14 +495,9 @@ async function beforeTests() {
 
   const { client } = compass;
 
-  // XXX: This seems to be a bit unstable in GitHub CI on macOS machines, for
-  // that reason we want to do a few retries here (in most other cases this
-  // should pass on first attempt)
-  await retryWithBackoff(async () => {
-    await client.waitForConnectionScreen();
-    await client.closeTourModal();
-    await client.closePrivacySettingsModal();
-  });
+  await client.waitForConnectionScreen();
+  await client.closeTourModal();
+  await client.closePrivacySettingsModal();
 
   return compass;
 }

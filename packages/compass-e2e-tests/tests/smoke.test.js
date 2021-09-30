@@ -421,7 +421,7 @@ describe('Smoke tests', function () {
       await client.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
-    it('supports collection to CSV with a query filter', async function () {
+    it.only('supports collection to CSV with a query filter', async function () {
       await client.runFindOperation('Documents', '{ i: 5 }');
       await client.click(Selectors.ExportCollectionButton);
       await client.waitForVisible(Selectors.ExportModal);
@@ -475,7 +475,7 @@ describe('Smoke tests', function () {
       // which is probably not something we can check with webdriver. But we can
       // check that the file exists.
 
-      await client.click(Selectors.ExportModalCloseButton);
+      await client.clickVisible(Selectors.ExportModalCloseButton);
 
       // the modal should go away
       await client.waitForVisible(Selectors.ExportModal, 2000, true);
