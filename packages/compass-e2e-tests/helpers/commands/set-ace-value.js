@@ -1,5 +1,3 @@
-const { identifier } = require('jscodeshift');
-
 const debug = require('debug')('compass-e2e-tests').extend('set-ace-value');
 
 const FOCUS_TAG = 'textarea';

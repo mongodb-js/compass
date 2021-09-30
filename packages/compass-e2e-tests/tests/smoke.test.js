@@ -1,7 +1,13 @@
 // @ts-check
-const fs = require('fs');
+const { promises: fs } = require('fs');
 const _ = require('lodash');
-const { expect } = require('chai');
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+
+const { expect } = chai;
+
+chai.use(chaiAsPromised);
+
 const {
   beforeTests,
   afterTests,
@@ -415,7 +421,7 @@ describe('Smoke tests', function () {
       await client.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
-    it('supports collection to CSV with a query filter', async function () {
+    it.only('supports collection to CSV with a query filter', async function () {
       await client.runFindOperation('Documents', '{ i: 5 }');
       await client.click(Selectors.ExportCollectionButton);
       await client.waitForVisible(Selectors.ExportModal);
@@ -440,8 +446,7 @@ describe('Smoke tests', function () {
 
       const filename = outputFilename('filtered-numbers.csv');
 
-      // sanity check to make sure the file isn't already there when we start
-      expect(fs.existsSync(filename)).to.be.false;
+      await expect(fs.stat(filename)).to.be.rejected;
 
       // this is cheating a bit, but we cannot interact with the native dialog
       // it pops up from webdriver and writing to the readonly text field
@@ -470,14 +475,12 @@ describe('Smoke tests', function () {
       // which is probably not something we can check with webdriver. But we can
       // check that the file exists.
 
-      expect(fs.existsSync(filename)).to.be.true;
-
       await client.click(Selectors.ExportModalCloseButton);
 
       // the modal should go away
       await client.waitForVisible(Selectors.ExportModal, 2000, true);
 
-      const text = fs.readFileSync(filename, 'utf-8');
+      const text = await fs.readFile(filename, 'utf-8');
       //  example:'_id,i\n6154788cc5f1fd4544fcedb1,5'
       const lines = text.split(/\r?\n/);
       expect(lines[0]).to.equal('_id,i');
