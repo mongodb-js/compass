@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { UserData } from './user-data';
+import { expect } from 'chai';
 
 describe('UserData', function () {
   let tempDir;

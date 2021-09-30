@@ -218,7 +218,7 @@ export class UserData<T = unknown> {
   }
 
   private _resolve(root: string, filePath: string) {
-    const pathRelativeToRoot = path.relative(root, filePath);
+    const pathRelativeToRoot = path.relative(root, path.join(root, filePath));
     const resolved = path.resolve(root, pathRelativeToRoot);
 
     if (
