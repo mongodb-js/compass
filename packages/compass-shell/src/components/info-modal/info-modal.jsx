@@ -2,10 +2,8 @@ import { TextButton } from 'hadron-react-buttons';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { Modal } from 'react-bootstrap';
-import { connect } from 'react-redux';
-import packageJson from '../../../package.json';
 
-import { SET_SHOW_INFO_MODAL } from '../../modules/info-modal';
+import packageJson from '../../../package.json';
 
 const mongoshVersion = `v${packageJson.dependencies['@mongosh/browser-repl'].replace('^', '')}`;
 
@@ -60,7 +58,7 @@ const hotkeys = [
 export class InfoModal extends PureComponent {
   static propTypes = {
     hideInfoModal: PropTypes.func.isRequired,
-    isInfoModalVisible: PropTypes.bool.isRequired
+    show: PropTypes.bool.isRequired
   };
 
   /**
@@ -71,11 +69,11 @@ export class InfoModal extends PureComponent {
   render() {
     const {
       hideInfoModal,
-      isInfoModalVisible
+      show
     } = this.props;
 
     return (
-      <Modal show={isInfoModalVisible}>
+      <Modal show={show}>
         <Modal.Header closeButton onHide={hideInfoModal}>
           <h4>mongosh {mongoshVersion}</h4>
         </Modal.Header>
@@ -129,14 +127,4 @@ export class InfoModal extends PureComponent {
   }
 }
 
-export default connect(
-  (state) => ({
-    isInfoModalVisible: state.infoModal.isInfoModalVisible
-  }),
-  (dispatch) => ({
-    hideInfoModal: () => dispatch({
-      type: SET_SHOW_INFO_MODAL,
-      isInfoModalVisible: false
-    })
-  })
-)(InfoModal);
+export default InfoModal;

@@ -52,12 +52,11 @@
     "@mongosh/logging": "^1.0.7",
     "@mongosh/node-runtime-worker-thread": "^1.0.7",
     "@mongosh/service-provider-core": "^1.0.7",
-    "hadron-react-buttons": "^5.4.0",
-    "re-resizable": "^6.9.0"
+    "hadron-react-buttons": "^5.4.0"
   },
-  "peerDependencies": {    
-    "@mongosh/node-runtime-worker-thread": "^1.0.7",
+  "peerDependencies": {
     "@mongodb-js/compass-components": "^0.6.0",
+    "@mongosh/node-runtime-worker-thread": "^1.0.7",
     "hadron-ipc": "*",
     "hadron-react-components": "*",
     "prop-types": "^15.7.2",

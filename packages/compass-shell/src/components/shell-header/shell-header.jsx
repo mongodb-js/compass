@@ -2,11 +2,8 @@ import { IconButton } from '@mongodb-js/compass-components';
 import { Icon } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 
 import { ShellLoader } from '@mongosh/browser-repl';
-
-import { SET_SHOW_INFO_MODAL } from '../../modules/info-modal';
 
 import styles from './shell-header.module.less';
 
@@ -87,12 +84,4 @@ export class ShellHeader extends Component {
   }
 }
 
-export default connect(
-  null,
-  (dispatch) => ({
-    showInfoModal: () => dispatch({
-      type: SET_SHOW_INFO_MODAL,
-      isInfoModalVisible: true
-    })
-  })
-)(ShellHeader);
+export default ShellHeader;

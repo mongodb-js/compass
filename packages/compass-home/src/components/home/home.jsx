@@ -9,9 +9,6 @@ import UI_STATES from '../../constants/ui-states';
 
 const debug = require('debug')('mongodb-compass:stores:HomeComponent');
 
-import { toggleIsCollapsed } from '../../modules/is-collapsed';
-
-import classnames from 'classnames';
 import styles from './home.module.less';
 
 const ERROR_WARNING = 'An error occurred while loading navigation';
@@ -44,8 +41,6 @@ class Home extends PureComponent {
     namespace: PropTypes.string,
     uiStatus: PropTypes.string,
     isConnected: PropTypes.bool,
-    isCollapsed: PropTypes.bool,
-    toggleIsCollapsed: PropTypes.func,
     isDataLake: PropTypes.bool
   };
 
@@ -84,27 +79,12 @@ class Home extends PureComponent {
     this.QueryHistoryComponent = this.getComponentOrNull('QueryHistory.Component');
   }
 
-  getContentClasses() {
-    const collapsed = this.props.isCollapsed ?
-      'content-sidebar-collapsed' :
-      'content-sidebar-expanded';
-    return classnames(
-      styles['home-view-page-content'],
-      collapsed
-    );
-  }
-
   getErrorMessage() {
     const message = this.props.errorMessage;
     if (message.includes(NOT_MASTER)) {
       return `'${message}': ${RS_RECOMMEND}`;
     }
     return message;
-  }
-
-  collapseSidebar() {
-    this.props.toggleIsCollapsed(!this.props.isCollapsed);
-    global.hadronApp.appRegistry.emit('sidebar-toggle');
   }
 
   renderCollectionView() {
@@ -193,7 +173,7 @@ class Home extends PureComponent {
   renderSidebar() {
     if (this.SidebarComponent) {
       return (
-        <this.SidebarComponent onCollapse={this.collapseSidebar.bind(this)}/>
+        <this.SidebarComponent />
       );
     }
     return null;
@@ -201,9 +181,9 @@ class Home extends PureComponent {
 
   renderHome() {
     return (
-      <div className={classnames(styles['home-view'])} data-test-id="home-view">
-        <div className={classnames(styles['home-view-page'])}>
-          <div className={this.getContentClasses()}>
+      <div className={styles['home-view']} data-test-id="home-view">
+        <div className={styles['home-view-page']}>
+          <div className={styles['home-view-page-content']}>
             {this.renderContent()}
           </div>
           {this.renderSidebar()}
@@ -220,8 +200,8 @@ class Home extends PureComponent {
     if (this.connectRole) {
       const Connect = this.connectRole[0].component;
       return (
-        <div className={classnames(styles['home-view'])} data-test-id="home-view">
-          <div className={classnames(styles['home-view-page'])}>
+        <div className={styles['home-view']} data-test-id="home-view">
+          <div className={styles['home-view-page']}>
             <Connect />
             {this.renderGlobalWarnings()}
           </div>
@@ -253,7 +233,6 @@ const mapStateToProps = (state) => ({
   namespace: state.namespace,
   uiStatus: state.uiStatus,
   isConnected: state.isConnected,
-  isCollapsed: state.isCollapsed,
   isDataLake: state.isDataLake
 });
 
@@ -263,9 +242,7 @@ const mapStateToProps = (state) => ({
  */
 const MappedHome = connect(
   mapStateToProps,
-  {
-    toggleIsCollapsed
-  },
+  null
 )(Home);
 
 export default MappedHome;

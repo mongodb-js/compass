@@ -6,9 +6,6 @@ import errorMessage, {
 import isDataLake, {
   INITIAL_STATE as IS_DATA_LAKE_INITIAL_STATE
 } from './is-data-lake';
-import isCollapsed, {
-  INITIAL_STATE as IS_COLLAPSED_INITIAL_STATE
-} from './is-collapsed';
 import isConnected, {
   INITIAL_STATE as IS_CONNECTED_INITIAL_STATE
 } from './is-connected';
@@ -33,7 +30,6 @@ import UI_STATES from '../constants/ui-states';
 const reducer = combineReducers({
   errorMessage,
   isDataLake,
-  isCollapsed,
   isConnected,
   namespace,
   uiStatus,
@@ -55,7 +51,6 @@ const rootReducer = (state, action) => {
       ...state,
       errorMessage: ERROR_MESSAGE_INITIAL_STATE,
       isDataLake: IS_DATA_LAKE_INITIAL_STATE,
-      isCollapsed: IS_COLLAPSED_INITIAL_STATE,
       isConnected: IS_CONNECTED_INITIAL_STATE,
       namespace: NAMESPACE_INITIAL_STATE,
       uiStatus: UI_STATUS_INITIAL_STATE,

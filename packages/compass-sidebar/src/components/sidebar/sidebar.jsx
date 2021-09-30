@@ -5,18 +5,16 @@ import cloneDeep from 'lodash.clonedeep';
 import ReactTooltip from 'react-tooltip';
 import { AutoSizer, List } from 'react-virtualized';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { Resizable } from 're-resizable';
+import { ResizeHandle, ResizeDirection } from '@mongodb-js/compass-components';
 
 import classnames from 'classnames';
 import styles from './sidebar.module.less';
 
-import ResizeHandle from '../resize-handle';
 import SidebarTitle from '../sidebar-title';
 import SidebarInstance from '../sidebar-instance';
 import SidebarDatabase from '../sidebar-database';
 import NonGenuineWarningModal from '../non-genuine-warning-modal';
 
-import { toggleIsCollapsed } from '../../modules/is-collapsed';
 import { toggleIsDetailsExpanded } from '../../modules/is-details-expanded';
 import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
 import { filterDatabases, changeDatabases } from '../../modules/databases';
@@ -31,27 +29,20 @@ const OVER_SCAN_COUNT = 100;
 const ROW_HEIGHT = 28;
 const EXPANDED_WHITESPACE = 12;
 
-const resizeableDirections = {
-  top: false,
-  right: false, // This property is controlled in the component.
-  bottom: false,
-  left: false,
-  topRight: false,
-  bottomRight: false,
-  bottomLeft: false,
-  topLeft: false
-};
-
 // In pixels. (px)
 const sidebarWidthCollapsed = 36;
 const sidebarMinWidthOpened = 160;
 const defaultSidebarWidthOpened = 250;
 const sidebarArrowControlIncrement = 10;
 
+function getMaxSidebarWidth() {
+  return Math.max(sidebarMinWidthOpened, window.innerWidth - 100);
+}
+
 // Apply bounds to the sidebar width when resizing to ensure it's always
 // visible and usable to the user.
 function boundSidebarWidth(attemptedWidth) {
-  const maxWidth = window.innerWidth - 100;
+  const maxWidth = getMaxSidebarWidth();
 
   return Math.min(maxWidth, Math.max(sidebarMinWidthOpened, attemptedWidth));
 }
@@ -63,11 +54,8 @@ class Sidebar extends PureComponent {
     description: PropTypes.string.isRequired,
     filterRegex: PropTypes.any.isRequired,
     instance: PropTypes.object.isRequired,
-    isCollapsed: PropTypes.bool.isRequired,
     isDetailsExpanded: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    onCollapse: PropTypes.func.isRequired,
-    toggleIsCollapsed: PropTypes.func.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
     detailsPlugins: PropTypes.array.isRequired,
     filterDatabases: PropTypes.func.isRequired,
@@ -85,6 +73,11 @@ class Sidebar extends PureComponent {
     saveFavorite: PropTypes.func.isRequired
   };
 
+  state = {
+    width: defaultSidebarWidthOpened,
+    prevWidth: defaultSidebarWidthOpened
+  };
+
   componentWillReceiveProps() {
     if (this.list) {
       this.list.recomputeRowHeights();
@@ -97,35 +90,24 @@ class Sidebar extends PureComponent {
     ReactTooltip.rebuild();
   }
 
-  lastExpandedWidth = defaultSidebarWidthOpened;
-  resizableRef = null;
-
-  toggleCollapsed() {
-    if (!this.props.isCollapsed) {
-      this.lastExpandedWidth = boundSidebarWidth(this.resizableRef.size.width);
-
-      this.resizableRef.updateSize({
-        width: sidebarWidthCollapsed,
-        height: '100%'
-      });
-    } else {
-      this.resizableRef.updateSize({
-        width: boundSidebarWidth(this.lastExpandedWidth),
-        height: '100%'
-      });
-    }
-
-    this.props.onCollapse();
-    this.props.globalAppRegistryEmit(
-      'compass:status:configure',
-      { sidebar: !this.props.isCollapsed }
+  updateWidth(width) {
+    this.setState(
+      (width > sidebarMinWidthOpened)
+        ? {
+          width,
+          // Store the previous width to use when toggling open/close
+          // when we resize while the sidebar is expanded.
+          prevWidth: width
+        } : {
+          width
+        }
     );
-    this.props.toggleIsCollapsed(!this.props.isCollapsed);
   }
 
   handleSearchFocus() {
-    if (this.props.isCollapsed) {
-      this.toggleCollapsed();
+    if (this.state.width < sidebarMinWidthOpened) {
+      // Expand the sidebar when it's collapsed and search is clicked.
+      this.updateWidth(this.state.prevWidth);
     }
 
     this.refs.filter.focus();
@@ -149,36 +131,6 @@ class Sidebar extends PureComponent {
     if (isWritable) {
       this.props.globalAppRegistryEmit('open-create-database');
     }
-  }
-
-  handleResizeRight() {
-    if (this.props.isCollapsed) {
-      return;
-    }
-
-    const newWidth = boundSidebarWidth(
-      this.resizableRef.size.width + sidebarArrowControlIncrement
-    );
-
-    this.resizableRef.updateSize({
-      width: newWidth,
-      height: '100%'
-    });
-  }
-
-  handleResizeLeft() {
-    if (this.props.isCollapsed) {
-      return;
-    }
-
-    const newWidth = boundSidebarWidth(
-      this.resizableRef.size.width - sidebarArrowControlIncrement
-    );
-
-    this.resizableRef.updateSize({
-      width: newWidth,
-      height: '100%'
-    });
   }
 
   _calculateRowHeight({index}) {
@@ -295,46 +247,47 @@ class Sidebar extends PureComponent {
   }
 
   render() {
+    const { width, prevWidth } = this.state;
+
+    const isExpanded = width > sidebarMinWidthOpened;
+    const renderedWidth = isExpanded ? boundSidebarWidth(width) : sidebarWidthCollapsed;
+
     const collapsedButton = 'fa' +
-      (this.props.isCollapsed ? ' fa-caret-right' : ' fa-caret-left');
+      (isExpanded ? ' fa-caret-left' : ' fa-caret-right');
 
     return (
-      <Resizable
+      <div
         className={classnames(styles['compass-sidebar'], {
-          [styles['compass-sidebar-collapsed']]: this.props.isCollapsed
+          [styles['compass-sidebar-collapsed']]: !isExpanded
         })}
-        defaultSize={{
-          width: defaultSidebarWidthOpened,
-          height: '100%'
-        }}
-        minWidth={this.props.isCollapsed ? sidebarWidthCollapsed : sidebarMinWidthOpened}
-        maxWidth="80%"
-        enable={{
-          resizeableDirections,
-          right: !this.props.isCollapsed
-        }}
-        ref={c => { this.resizableRef = c; }}
-        handleWrapperClass={styles['compass-sidebar-resize-handle-wrapper']}
-        handleComponent={{
-          right: <ResizeHandle
-            onMoveRightPressed={this.handleResizeRight.bind(this)}
-            onMoveLeftPressed={this.handleResizeLeft.bind(this)}
-          />,
-        }}
+        data-test-id="compass-sidebar-panel"
+        style={{ width: renderedWidth }}
       >
+        <ResizeHandle
+          onChange={(newWidth) => this.updateWidth(newWidth)}
+          direction={ResizeDirection.RIGHT}
+          step={sidebarArrowControlIncrement}
+          value={width}
+          minValue={sidebarWidthCollapsed}
+          maxValue={getMaxSidebarWidth()}
+          title="sidebar"
+        />
         <button
           className={classnames(styles['compass-sidebar-toggle'], 'btn btn-default btn-sm')}
-          onClick={this.toggleCollapsed.bind(this)}
+          onClick={() => isExpanded
+            ? this.updateWidth(sidebarWidthCollapsed)
+            : this.updateWidth(prevWidth)
+          }
           data-test-id="toggle-sidebar"
         >
           <i className={collapsedButton}/>
         </button>
         <SidebarTitle
           connectionModel={this.props.connectionModel}
-          isSidebarCollapsed={this.props.isCollapsed}
+          isSidebarExpanded={isExpanded}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit}
         />
-        {!this.props.isCollapsed && (
+        {isExpanded && (
           <SidebarInstance
             instance={this.props.instance}
             isExpanded={this.props.isDetailsExpanded}
@@ -361,7 +314,7 @@ class Sidebar extends PureComponent {
             onChange={this.handleFilter.bind(this)}
           />
         </div>
-        {!this.props.isCollapsed && (
+        {isExpanded && (
           <div className={styles['compass-sidebar-content']}>
             {this.renderSidebarScroll()}
           </div>
@@ -376,7 +329,7 @@ class Sidebar extends PureComponent {
         <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
         <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
         <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
-      </Resizable>
+      </div>
     );
   }
 }
@@ -385,21 +338,18 @@ class Sidebar extends PureComponent {
  * Map the store state to properties to pass to the components.
  *
  * @param {Object} state - The store state.
- * @param {Object} ownProps - Props passed not through the state.
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   databases: state.databases,
   description: state.description,
   detailsPlugins: state.detailsPlugins,
   filterRegex: state.filterRegex,
   instance: state.instance,
-  isCollapsed: state.isCollapsed,
   isDblistExpanded: state.isDblistExpanded,
   isDetailsExpanded: state.isDetailsExpanded,
   isWritable: state.isWritable,
-  onCollapse: ownProps.onCollapse,
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
@@ -414,7 +364,6 @@ const mapStateToProps = (state, ownProps) => ({
 const MappedSidebar = connect(
   mapStateToProps,
   {
-    toggleIsCollapsed,
     toggleIsDetailsExpanded,
     toggleIsGenuineMongoDBVisible,
     filterDatabases,
