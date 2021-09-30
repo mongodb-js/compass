@@ -2,6 +2,7 @@ import { MongoLogWriter, MongoLogEntry, mongoLogId } from 'mongodb-log-writer';
 import isElectronRenderer from 'is-electron-renderer';
 import createDebug from 'debug';
 import type { Writable } from 'stream';
+import type { HadronIpcRenderer } from 'hadron-ipc';
 
 export function createLogger(component: string): {
   log: ReturnType<MongoLogWriter['bindComponent']>;
@@ -9,7 +10,7 @@ export function createLogger(component: string): {
   debug: ReturnType<typeof createDebug>;
 } {
   // This application may not be running in an Node.js/Electron context.
-  const ipc: typeof import('hadron-ipc') | null = isElectronRenderer
+  const ipc: HadronIpcRenderer | null = isElectronRenderer
     ? require('hadron-ipc')
     : null;
 
