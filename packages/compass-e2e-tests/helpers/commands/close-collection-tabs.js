@@ -12,7 +12,7 @@ module.exports = function (app) {
 
     let numTabs = await countTabs();
     while (numTabs > 0) {
-      await client.click(closeSelector);
+      await client.clickVisible(closeSelector);
 
       await client.waitUntil(async () => {
         return (await countTabs()) < numTabs;

@@ -423,7 +423,7 @@ describe('Smoke tests', function () {
 
     it('supports collection to CSV with a query filter', async function () {
       await client.runFindOperation('Documents', '{ i: 5 }');
-      await client.click(Selectors.ExportCollectionButton);
+      await client.clickVisible(Selectors.ExportCollectionButton);
       await client.waitForVisible(Selectors.ExportModal);
 
       expect(await client.getText(Selectors.ExportModalQueryText)).to
@@ -467,7 +467,7 @@ describe('Smoke tests', function () {
         return value === filename;
       });
 
-      await client.click(Selectors.ExportModalExportButton);
+      await client.clickVisible(Selectors.ExportModalExportButton);
 
       await client.waitForVisible(Selectors.ExportModalShowFileButton);
 
