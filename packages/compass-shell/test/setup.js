@@ -22,6 +22,12 @@ class Worker {
 
 global.Worker = Worker;
 
+// https://github.com/jsdom/jsdom/issues/1721
+global.window.URL.createObjectURL = function() {};
+
+// https://github.com/jsdom/jsdom/issues/1695
+global.window.HTMLElement.prototype.scrollIntoView = function() {};
+
 chai.should();
 chai.use(sinonChai);
 chai.use(chaiEnzyme());

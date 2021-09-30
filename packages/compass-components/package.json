@@ -34,6 +34,7 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
+    "@emotion/react": "11.4.1",
     "@leafygreen-ui/badge": "^4.0.4",
     "@leafygreen-ui/banner": "^3.0.8",
     "@leafygreen-ui/button": "^12.0.3",
@@ -52,8 +53,6 @@
     "@leafygreen-ui/typography": "^8.0.2"
   },
   "peerDependencies": {
-    "@leafygreen-ui/confirmation-modal": "^2.2.1",
-    "@leafygreen-ui/icon": "^11.4.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -75,6 +74,7 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "rimraf": "^3.0.2",
+    "sinon": "^9.0.0",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
   },

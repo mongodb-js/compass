@@ -90,6 +90,14 @@ class ExportModal extends PureComponent {
     selectExportFileName: PropTypes.func.isRequired,
   };
 
+  componentDidMount = () => {
+    document.addEventListener('selectExportFileName', this.handleSelectExportFilename);
+  }
+
+  componentWillUnmount = () => {
+    document.removeEventListener('selectExportFileName', this.handleSelectExportFilename);
+  }
+
   /**
    * Get the status message.
    *
@@ -101,6 +109,14 @@ class ExportModal extends PureComponent {
       (this.props.error ? this.props.error.message : '')
     );
   };
+
+  /**
+   * 
+   * Handle custom event made by e2e tests and map it to props.
+   */
+  handleSelectExportFilename = ({ detail }) => {
+    this.props.selectExportFileName(detail);
+  }
 
   /**
    * Handle clicking the cancel button.
@@ -188,6 +204,7 @@ class ExportModal extends PureComponent {
         <div className={style('radio')}>
           <label className={queryClassName}>
             <input type="radio"
+              data-test-id="export-with-filters"
               value="filter"
               checked={!isFullCollection}
               onChange={this.handleExportOptionSelect}
@@ -195,7 +212,7 @@ class ExportModal extends PureComponent {
             Export query with filters &mdash; {formatNumber(this.props.count)} results (Recommended)
           </label>
         </div>
-        <div className={queryViewerClassName}>
+        <div className={queryViewerClassName} data-test-id="query-viewer-wrapper">
           <QueryViewer
             ns={this.props.ns}
             query={this.props.query}
@@ -204,6 +221,7 @@ class ExportModal extends PureComponent {
         <div className={style('radio')}>
           <label>
             <input type="radio"
+              data-test-id="export-full-collection"
               value="full"
               checked={isFullCollection}
               onChange={this.handleExportOptionSelect}
@@ -248,6 +266,7 @@ class ExportModal extends PureComponent {
     if (this.props.exportStep !== QUERY) {
       return (
         <TextButton
+          dataTestId="back-button"
           text="< BACK"
           className={backButtonClassname}
           clickHandler={this.handleBackButton}/>
@@ -260,6 +279,7 @@ class ExportModal extends PureComponent {
     if (this.props.status === COMPLETED && this.props.exportStep === FILETYPE) {
       return (
         <TextButton
+          dataTestId="show-file-button"
           text="Show File"
           className="btn btn-primary btn-sm"
           clickHandler={this.handleRevealClick}/>
@@ -268,6 +288,7 @@ class ExportModal extends PureComponent {
     if (this.props.exportStep === QUERY) {
       return (
         <TextButton
+          dataTestId="select-fields-button"
           text="Select Fields"
           className="btn btn-primary btn-sm"
           clickHandler={this.handleChangeModalStatus.bind(this, FIELDS)}/>
@@ -279,6 +300,7 @@ class ExportModal extends PureComponent {
 
       return (
         <TextButton
+          dataTestId="select-output-button"
           text="Select Output"
           disabled={emptyFields}
           className="btn btn-primary btn-sm"
@@ -287,6 +309,7 @@ class ExportModal extends PureComponent {
     }
     return (
       <TextButton
+        dataTestId="export-button"
         text="Export"
         clickHandler={this.handleExport}
         className="btn btn-primary btn-sm"
@@ -308,7 +331,7 @@ class ExportModal extends PureComponent {
         : 'Cancel';
 
     return (
-      <Modal show={this.props.open} onHide={this.handleClose} backdrop="static">
+      <Modal show={this.props.open} onHide={this.handleClose} backdrop="static" data-test-id="export-modal">
         <Modal.Header closeButton>
           Export Collection {this.props.ns}
         </Modal.Header>
@@ -323,6 +346,7 @@ class ExportModal extends PureComponent {
         <Modal.Footer>
           {this.renderBackButton()}
           <TextButton
+            dataTestId={`${closeButton.toLowerCase()}-button`}
             text={closeButton}
             clickHandler={this.handleClose}
             className="btn btn-default btn-sm"/>

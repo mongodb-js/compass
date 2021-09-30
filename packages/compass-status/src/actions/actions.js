@@ -29,16 +29,6 @@ const StatusActions = Reflux.createActions([
    */
   'clearMessage',
   /**
-   * shows a static gray sidebar in the background. This is useful when
-   * no other content is on the screen yet (e.g. when connecting to a mongod)
-   * so that the message/loading animation look centered.
-   */
-  'showStaticSidebar',
-  /**
-   * hide static gray sidebar.
-   */
-  'hideStaticSidebar',
-  /**
    * set a custom subview that is shown below the loading animation. For example,
    * the schema view sets a subview to indicate longer than usual parsing.
    *
@@ -74,11 +64,10 @@ const StatusActions = Reflux.createActions([
    * @param {Boolean} options.animation     show/hide animation
    * @param {String}  options.message       message to show, '' disables message
    * @param {View}    options.subview       subview to show, or `null`
-   * @param {Boolean} options.sidebar       show/hide static sidebar
    */
   'configure',
   /**
-   * hide all status components (progress bar, message, animation, sidebar).
+   * hide all status components (progress bar, message, animation).
    * Use when loading was interrupted.
    */
   'hide',

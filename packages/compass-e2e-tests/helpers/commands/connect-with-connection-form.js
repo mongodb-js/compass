@@ -26,7 +26,7 @@ module.exports = function (app) {
     const { client } = app;
 
     if (await client.isVisible(Selectors.ShowConnectionFormButton)) {
-      await client.click(Selectors.ShowConnectionFormButton);
+      await client.clickVisible(Selectors.ShowConnectionFormButton);
     }
 
     await client.clickVisible(Selectors.ConnectionFormHostnameTabButton);

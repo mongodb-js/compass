@@ -87,22 +87,24 @@ class Toolbar extends React.Component {
   }
 
   renderInsertButton() {
-    if (!this.props.readonly) {
-      const dropdownOptions = { 'import-file': 'Import File', 'insert-document': 'Insert Document' };
-      const OptionWriteSelector = global.hadronApp.appRegistry.
-        getComponent('DeploymentAwareness.OptionWriteSelector');
-      return (
-        <OptionWriteSelector
-          className={INSERT_DATA}
-          id="insert-data-dropdown"
-          isCollectionLevel
-          title={<div className={INSERT_DATA_TITLE}><i className="fa fa-download"/><div>ADD DATA</div></div>}
-          options={dropdownOptions}
-          bsSize="xs"
-          tooltipId="document-is-not-writable"
-          onSelect={this.props.insertHandler} />
-      );
+    if (this.props.readonly) {
+      return;
     }
+
+    const dropdownOptions = { 'import-file': 'Import File', 'insert-document': 'Insert Document' };
+    const OptionWriteSelector = global.hadronApp.appRegistry.
+      getComponent('DeploymentAwareness.OptionWriteSelector');
+    return (
+      <OptionWriteSelector
+        className={INSERT_DATA}
+        id="insert-data-dropdown"
+        isCollectionLevel
+        title={<div className={INSERT_DATA_TITLE}><i className="fa fa-download"/><div>ADD DATA</div></div>}
+        options={dropdownOptions}
+        bsSize="xs"
+        tooltipId="document-is-not-writable"
+        onSelect={this.props.insertHandler} />
+    );
   }
 
   renderExportButton() {

@@ -10,7 +10,7 @@ describe('InfoModal [Component]', () => {
   beforeEach(() => {
     component = mount(
       <InfoModal
-        isInfoModalVisible
+        show
         hideInfoModal={() => {}}
       />
     );
