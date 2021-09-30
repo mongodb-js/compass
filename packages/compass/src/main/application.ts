@@ -118,6 +118,19 @@ class CompassApplication extends EventEmitter {
 
     return this.instance;
   }
+
+  on(event: 'show-connect-window', handler: () => void): this;
+  on(event: 'show-log-file-dialog', handler: () => void): this;
+  on(event: string, handler: (...args: any[]) => void): this {
+    super.on(event, handler);
+    return this;
+  }
+
+  emit(event: 'show-connect-window'): boolean;
+  emit(event: 'show-log-file-dialog'): boolean;
+  emit(event: string, ...args: any[]): boolean {
+    return super.emit(event, ...args);
+  }
 }
 
 export { CompassApplication };
