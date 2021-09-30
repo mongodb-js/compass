@@ -10,6 +10,7 @@
     "webpack": "./index.js",
     "require": "./index.js"
   },
+  "types": "index.d.ts",
   "directories": {
     "test": "test"
   },
