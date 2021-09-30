@@ -145,11 +145,14 @@ export function createElectronRendererConfig(
             assetModuleFilename: 'assets/[name][ext]',
           },
         }
-      : {
+      : {},
+    opts.mode === 'production'
+      ? {
           plugins: [
             new MiniCssExtractPlugin(),
           ] as unknown as WebpackPluginInstance[],
-        },
+        }
+      : {},
     isServe(opts)
       ? {
           devServer: {

@@ -64,9 +64,9 @@ export const nodeLoader = (_args: ConfigArgs) => ({
 export const cssLoader = (args: ConfigArgs) => ({
   test: /\.css$/,
   use: [
-    args.mode === 'development'
-      ? { loader: require.resolve('style-loader') }
-      : MiniCssExtractPlugin.loader,
+    args.mode === 'production' && args.target === 'electron-renderer'
+      ? MiniCssExtractPlugin.loader
+      : { loader: require.resolve('style-loader') },
     {
       loader: require.resolve('css-loader'),
       options: {
