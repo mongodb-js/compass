@@ -47,16 +47,28 @@ In addition to running lerna commands directly, there are a few convenient npm s
 
 ### Building Compass Locally
 
-To build compass you can run `package-compass` script in the scope of `mongodb-compass` workspace:
+To build compass you can run `package-compass` script:
 
 ```sh
-npm run package-compass --workspace mongodb-compass
+npm run package-compass
 ```
 
-This command requires a bunch of environment variables provided (`HADRON_PRODUCT`, `HADRON_PRODUCT_NAME`, `HADRON_DISTRIBUTION`, etc) so for your convenience there is a script provided that sets all those vars to some default values and will take care of generating a required package-lock.json file for the compass workspace
+You can change the type of distribution you are building with `HADRON_DISTRIBUTION` environmental variable:
 
 ```sh
-npm run test-package-compass
+HADRON_DISTRIBUTION='compass-readonly' npm run package-compass
+```
+
+Available options are:
+
+- `compass` (default): Your usual Compass build with all functionality available
+- `compass-readonly`: Build that doesn't allow any modifications for server data
+- `compass-isolated`: Doesn't establish any connections except for the database
+
+Build process can take a while and a bit quiet by default. You can use `DEBUG` env variable to make it more verbose:
+
+```sh
+DEBUG=hadron* npm run package-compass
 ```
 
 To speed up the process you might want to disable creating installer for the application. To do that you can set `HADRON_SKIP_INSTALLER` environmental variable to `true` when running the script
