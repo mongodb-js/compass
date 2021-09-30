@@ -33,4 +33,45 @@ describe('UserData', function () {
       expect(parsed).to.deep.equal({ x: 1 });
     });
   });
+
+  describe('readAll', function () {
+    it('reads all available files', async function () {
+      await fs.writeFile(path.join(tempDir, 'file1.json'), '{"x":1}');
+      await fs.writeFile(path.join(tempDir, 'file2.json'), '{"x":2}');
+
+      const userData = new UserData({ alternateDataRoot: tempDir });
+
+      const parsed = await userData.readAll();
+      expect(parsed).to.deep.equal([{ x: 1 }, { x: 2 }]);
+    });
+
+    it('reads available files matching a glob pattern', async function () {
+      await fs.writeFile(path.join(tempDir, 'file1.json'), '{"x":1}');
+      await fs.writeFile(path.join(tempDir, 'file2.json'), '{"x":2}');
+
+      const userData = new UserData({ alternateDataRoot: tempDir });
+
+      const parsed = await userData.readAll('file1.*');
+      expect(parsed).to.deep.equal([{ x: 1 }]);
+    });
+  });
+
+  describe('write', function () {
+    it('writes data to a file', async function () {
+      const userData = new UserData({ alternateDataRoot: tempDir });
+      await userData.write('file.json', { z: 1 });
+      const parsed = await userData.readAll();
+      expect(parsed).to.deep.equal([{ z: 1 }]);
+    });
+  });
+
+  describe('delete', function () {
+    it('deletes already-written files', async function () {
+      const userData = new UserData({ alternateDataRoot: tempDir });
+      await userData.write('file.json', { z: 1 });
+      await userData.delete('file.json');
+      const parsed = await userData.readAll();
+      expect(parsed).to.deep.equal([]);
+    });
+  });
 });
