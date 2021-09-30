@@ -5,8 +5,8 @@
     <meta name="viewport" content="initial-scale=1" />
     <% if (process.env.NODE_ENV !== 'development') { %>
     <meta
-    http-equiv="Content-Security-Policy"
-    content="
+      http-equiv="Content-Security-Policy"
+      content="
     default-src
         'self'
         'unsafe-eval'
@@ -78,10 +78,14 @@
     <% } %>
   </head>
   <body>
-    <div id="application">
-      <div data-hook="auto-update"></div>
-      <div data-hook="statusbar" data-test-id="status-bar"></div>
-      <div data-hook="layout-container"></div>
+    <!-- This is a placeholder for when application is just starting -->
+    <div class="loading-placeholder">
+      <div class="loading-sidebar">
+        <div class="loading-new-connection-button"></div>
+      </div>
+      <div class="loading-content"></div>
     </div>
+    <!-- Main container where the application would mount -->
+    <div id="application"></div>
   </body>
 </html>
