@@ -421,7 +421,7 @@ describe('Smoke tests', function () {
       await client.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
-    it.only('supports collection to CSV with a query filter', async function () {
+    it('supports collection to CSV with a query filter', async function () {
       await client.runFindOperation('Documents', '{ i: 5 }');
       await client.click(Selectors.ExportCollectionButton);
       await client.waitForVisible(Selectors.ExportModal);
