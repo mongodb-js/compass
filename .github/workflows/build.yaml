@@ -67,9 +67,6 @@ jobs:
 
       - name: Build Compass
         env:
-          HADRON_PRODUCT: mongodb-compass
-          HADRON_PRODUCT_NAME: MongoDB Compass
-          HADRON_DISTRIBUTION: compass
           DEBUG: 'hadron*,mongo*,electron*'
         run: npm run package-compass
 
