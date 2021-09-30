@@ -160,7 +160,7 @@ async function startCompass(
     // GitHub CI machines are pretty slow sometimes, especially the macOS one
     startTimeout: 20_000,
     waitTimeout: 20_000,
-    chromeDriverOptions: {
+    webdriverOptions: {
       waitforInterval: 200, // default is 500ms
     },
   };
