@@ -33,7 +33,7 @@ const explainExample = {
   originalExplainData: {},
   totalDocsExamined: 18801,
   totalKeysExamined: 0,
-  usedIndex: null,
+  usedIndexes: [],
   viewType: 'tree'
 };
 
@@ -145,7 +145,7 @@ describe('explain module', () => {
           originalExplainData: {},
           totalDocsExamined: 0,
           totalKeysExamined: 0,
-          usedIndex: null
+          usedIndexes: []
         });
       });
     });

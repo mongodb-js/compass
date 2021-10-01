@@ -56,7 +56,7 @@ export const INITIAL_STATE = {
   originalExplainData: {},
   totalDocsExamined: 0,
   totalKeysExamined: 0,
-  usedIndex: null,
+  usedIndexes: [],
   resultId: resultId()
 };
 
@@ -182,7 +182,7 @@ const getIndexType = (explainPlan) => {
   if (!explainPlan) {
     return 'UNAVAILABLE';
   }
-  if (Array.isArray(explainPlan.usedIndex)) {
+  if (new Set(explainPlan.usedIndexes.map(({ index }) => index)).size > 1) {
     return 'MULTIPLE';
   }
   if (explainPlan.isCollectionScan) {
@@ -210,7 +210,7 @@ const parseExplainPlan = (explain, data) => {
   const {
     namespace, parsedQuery, executionSuccess, nReturned, executionTimeMillis,
     totalKeysExamined, totalDocsExamined, rawExplainObject, originalExplainData,
-    usedIndex, isCovered, isMultiKey, inMemorySort, isCollectionScan,
+    usedIndexes, isCovered, isMultiKey, inMemorySort, isCollectionScan,
     isSharded, numShards
   } = explainPlanModel;
 
@@ -218,7 +218,7 @@ const parseExplainPlan = (explain, data) => {
     ...explain,
     namespace, parsedQuery, executionSuccess, nReturned, executionTimeMillis,
     totalKeysExamined, totalDocsExamined, rawExplainObject, originalExplainData,
-    usedIndex, isCovered, isMultiKey, inMemorySort, isCollectionScan,
+    usedIndexes, isCovered, isMultiKey, inMemorySort, isCollectionScan,
     isSharded, numShards
   };
 };
@@ -235,8 +235,8 @@ const parseExplainPlan = (explain, data) => {
 const updateWithIndexesInfo = (explain, indexes) => ({
   ...explain,
   indexType: getIndexType(explain),
-  index: isString(explain.usedIndex)
-    ? find(indexes, (idx) => (idx.name === explain.usedIndex))
+  index: explain.usedIndexes.length > 0 && typeof explain.usedIndexes[0].index === 'string'
+    ? find(indexes, (idx) => (idx.name === explain.usedIndexes[0].index))
     : null
 });
 
@@ -332,7 +332,7 @@ export const fetchExplainPlan = (query) => {
             numberOfShards: explain.numShards,
             totalDocsExamined: explain.totalDocsExamined,
             totalKeysExamined: explain.totalKeysExamined,
-            indexUsed: explain.usedIndex
+            usedIndexes: explain.usedIndexes
           }
         ));
 

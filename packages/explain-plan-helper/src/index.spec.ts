@@ -44,8 +44,8 @@ describe('explain-plan-plan', function () {
         expect(plan.isCollectionScan).to.equal(true);
       });
 
-      it('should not have the `usedIndex` field set', function () {
-        expect(plan.usedIndex).to.equal(null);
+      it('should have empty `usedIndexes`', function () {
+        expect(plan.usedIndexes).to.deep.equal([]);
       });
 
       it('should have `inMemorySort` disabled', function () {
@@ -78,8 +78,10 @@ describe('explain-plan-plan', function () {
         expect(plan.isCollectionScan).to.equal(false);
       });
 
-      it('should have the correct `usedIndex` value', function () {
-        expect(plan.usedIndex).to.equal('age_1');
+      it('should have the correct `usedIndexes` value', function () {
+        expect(plan.usedIndexes).to.deep.equal([
+          { index: 'age_1', shard: null },
+        ]);
       });
 
       it('should have `inMemorySort` disabled', function () {
@@ -115,7 +117,9 @@ describe('explain-plan-plan', function () {
       });
 
       it('should return the used index', function () {
-        expect(plan.usedIndex).to.equal('age_1');
+        expect(plan.usedIndexes).to.deep.equal([
+          { index: 'age_1', shard: null },
+        ]);
       });
 
       it('should not be a covered index', function () {
@@ -133,7 +137,9 @@ describe('explain-plan-plan', function () {
       });
 
       it('should recognize an IDHACK stage and return the correct index name', function () {
-        expect(plan.usedIndex).to.equal('_id_');
+        expect(plan.usedIndexes).to.deep.equal([
+          { index: '_id_', shard: null },
+        ]);
         expect(plan.isCollectionScan).to.equal(false);
       });
     });
@@ -141,14 +147,20 @@ describe('explain-plan-plan', function () {
     describe('Multiple Indexes', function () {
       it('should detect multiple different indexes', async function () {
         plan = await loadExplainFixture('sharded_mixed_index_3.2.json');
-        expect(plan.usedIndex).to.deep.equal(['age_1', null]);
+        expect(plan.usedIndexes).to.deep.equal([
+          { index: 'age_1', shard: 'shard02' },
+          { index: 'age_1', shard: 'shard03' },
+          { index: null, shard: 'shard01' },
+        ]);
       });
     });
 
     describe('Single Sharded Indexes', function () {
       it('should detect IDHACK stage', async function () {
         plan = await loadExplainFixture('sharded_single_index_3.2.json');
-        expect(plan.usedIndex).to.equal('_id_');
+        expect(plan.usedIndexes).to.deep.equal([
+          { index: '_id_', shard: 'rsmyset' },
+        ]);
       });
     });
   });

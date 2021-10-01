@@ -1,6 +1,12 @@
 import convertExplainCompat from 'mongodb-explain-compat';
 
-type Stage = Record<string, any> & { stage: string };
+const kParent = Symbol('ExplainPlan.kParent');
+
+type Stage = Record<string, any> & { stage: string; [kParent]: Stage | null };
+type IndexInformation =
+  | { shard: string; index: string }
+  | { shard: string; index: null }
+  | { shard: null; index: string };
 
 export class ExplainPlan {
   namespace: string;
@@ -15,6 +21,9 @@ export class ExplainPlan {
 
   constructor(originalExplainData: Stage) {
     const rawExplainObject = convertExplainCompat(originalExplainData);
+    ExplainPlan.addParentStages(
+      rawExplainObject.executionStats.executionStages
+    );
     const qpInfo =
       rawExplainObject.queryPlanner?.winningPlan?.shards?.[0] ??
       rawExplainObject.queryPlanner;
@@ -33,22 +42,34 @@ export class ExplainPlan {
     this.originalExplainData = originalExplainData;
   }
 
-  get usedIndex(): string[] | string | null {
+  get usedIndexes(): IndexInformation[] {
     const ixscan = this.findAllStagesByName('IXSCAN');
-    const names = [...new Set(ixscan.map((stage) => stage.indexName))];
     // special case for IDHACK stage, using the _id_ index.
     const idhack = this.findStageByName('IDHACK');
-    // if not all shards use an index, add `null` to the array
-    if (ixscan.length < this.numShards) {
-      names.push(idhack ? '_id_' : null);
+    const ret: IndexInformation[] = [];
+    for (const stage of [...ixscan, idhack]) {
+      if (!stage) continue;
+      let shard: string | null = null;
+      if (this.isSharded) {
+        for (const parent of ExplainPlan.getParentStages(stage)) {
+          if (typeof parent.shardName === 'string') {
+            shard = parent.shardName;
+            break;
+          }
+        }
+      }
+      const index: string = stage === idhack ? '_id_' : stage.indexName;
+      ret.push({ index, shard });
     }
-    if (names.length === 1) {
-      return names[0];
+    if (this.isSharded) {
+      for (const shard of this.rawExplainObject.executionStats.executionStages
+        .shards) {
+        if (!ret.some((indexInfo) => indexInfo.shard === shard.shardName)) {
+          ret.push({ index: null, shard: shard.shardName });
+        }
+      }
     }
-    if (names.length > 1) {
-      return names;
-    }
-    return idhack ? '_id_' : null;
+    return ret;
   }
 
   get isCovered(): boolean {
@@ -160,6 +181,31 @@ export class ExplainPlan {
     }
     if (stage.inputStages) {
       yield* stage.inputStages;
+    }
+  }
+
+  /**
+   * Recursively add a hidden property to all child stages
+   * that points to the parent, or `null` for the root stage.
+   * The list of parents can be iterated via getParentStages().
+   */
+  static addParentStages(stage: Stage): void {
+    stage[kParent] = null;
+    for (const child of ExplainPlan.getChildStages(stage)) {
+      ExplainPlan.addParentStages(child);
+      child[kParent] = stage;
+    }
+  }
+
+  /**
+   * Iterator over all parent stages of a stage. Only works if
+   * ExplainPlan.addParentStages() has been called on a parent stage
+   * first. Does not yield the stage itself.
+   */
+  static *getParentStages(stage: Stage): Iterable<Stage> {
+    let current: Stage | null = stage;
+    while ((current = current?.[kParent])) {
+      yield current;
     }
   }
 }

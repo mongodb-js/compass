@@ -142,7 +142,7 @@ describe('Explain Plan Store', () => {
           originalExplainData: {},
           totalDocsExamined: 18801,
           totalKeysExamined: 0,
-          usedIndex: null,
+          usedIndexes: [],
           viewType: 'tree'
         };
 
@@ -178,7 +178,7 @@ describe('Explain Plan Store', () => {
           rawExplainObject: {},
           totalDocsExamined: 18801,
           totalKeysExamined: 0,
-          usedIndex: null,
+          usedIndexes: [],
           viewType: 'tree'
         };
 
