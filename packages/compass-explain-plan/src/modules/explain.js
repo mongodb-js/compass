@@ -1,5 +1,5 @@
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
-import { isString, find } from 'lodash';
+import { isString, find, groupBy, isEqual } from 'lodash';
 import { treeStagesChanged } from './tree-stages';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 
@@ -182,9 +182,19 @@ const getIndexType = (explainPlan) => {
   if (!explainPlan) {
     return 'UNAVAILABLE';
   }
-  if (new Set(explainPlan.usedIndexes.map(({ index }) => index)).size > 1) {
-    return 'MULTIPLE';
+
+  const indexInfoByShard =
+    groupBy(explainPlan.usedIndexes, 'shard');
+  const indexNamesForAllShards =
+    Object.values(indexInfoByShard).map(entries => entries.map(({ index }) => index));
+  for (let i = 0; i < indexNamesForAllShards.length; i++) {
+    for (let j = i + 1; j < indexNamesForAllShards.length; j++) {
+      if (!isEqual(indexNamesForAllShards[i], indexNamesForAllShards[j])) {
+        return 'MULTIPLE'; // As in, multiple index setups that differ between shards
+      }
+    }
   }
+
   if (explainPlan.isCollectionScan) {
     return 'COLLSCAN';
   }
