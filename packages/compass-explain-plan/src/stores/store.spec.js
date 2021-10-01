@@ -139,6 +139,7 @@ describe('Explain Plan Store', () => {
           numShards: 0,
           parsedQuery: {},
           rawExplainObject: {},
+          originalExplainData: {},
           totalDocsExamined: 18801,
           totalKeysExamined: 0,
           usedIndex: null,

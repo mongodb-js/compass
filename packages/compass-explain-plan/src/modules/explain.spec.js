@@ -30,6 +30,7 @@ const explainExample = {
   numShards: 0,
   parsedQuery: {},
   rawExplainObject: {},
+  originalExplainData: {},
   totalDocsExamined: 18801,
   totalKeysExamined: 0,
   usedIndex: null,
@@ -141,6 +142,7 @@ describe('explain module', () => {
           numShards: 0,
           parsedQuery: {},
           rawExplainObject: {},
+          originalExplainData: {},
           totalDocsExamined: 0,
           totalKeysExamined: 0,
           usedIndex: null

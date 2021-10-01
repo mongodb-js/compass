@@ -1,8 +1,7 @@
-import ExplainPlanModel from 'mongodb-explain-plan-model';
-import { defaults, isString, find } from 'lodash';
+import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import { isString, find } from 'lodash';
 import { treeStagesChanged } from './tree-stages';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import convertExplainCompat from 'mongodb-explain-compat';
 
 import EXPLAIN_STATES from '../constants/explain-states';
 import EXPLAIN_VIEWS from '../constants/explain-views';
@@ -54,6 +53,7 @@ export const INITIAL_STATE = {
   numShards: 0,
   parsedQuery: {},
   rawExplainObject: {},
+  originalExplainData: {},
   totalDocsExamined: 0,
   totalKeysExamined: 0,
   usedIndex: null,
@@ -200,14 +200,27 @@ const getIndexType = (explainPlan) => {
  * Parses the explain plan.
  *
  * @param {Object} explain - The current explain plan state.
- * @param {Object} data - The new explain plan received from dataService.
+ * @param {ExplainPlan} data - The new explain plan received from dataService.
  *
  * @returns {Object} The parsed explain plan.
  */
 const parseExplainPlan = (explain, data) => {
-  const explainPlanModel = new ExplainPlanModel(data);
+  const explainPlanModel = new ExplainPlan(data);
 
-  return defaults(explainPlanModel.serialize(), explain);
+  const {
+    namespace, parsedQuery, executionSuccess, nReturned, executionTimeMillis,
+    totalKeysExamined, totalDocsExamined, rawExplainObject, originalExplainData,
+    usedIndex, isCovered, isMultiKey, inMemorySort, isCollectionScan,
+    isSharded, numShards
+  } = explainPlanModel;
+
+  return {
+    ...explain,
+    namespace, parsedQuery, executionSuccess, nReturned, executionTimeMillis,
+    totalKeysExamined, totalDocsExamined, rawExplainObject, originalExplainData,
+    usedIndex, isCovered, isMultiKey, inMemorySort, isCollectionScan,
+    isSharded, numShards
+  };
 };
 
 /**
@@ -281,23 +294,22 @@ export const fetchExplainPlan = (query) => {
           // so we return here before parsing more, and ensure we can show
           // the json view of the explain plan.
           explain.errorParsing = true;
-          explain.rawExplainObject = { originalData: data };
+          explain.originalExplainData = data;
           explain.resultId = resultId();
 
           return dispatch(explainPlanFetched(explain));
         }
 
         try {
-          explain = parseExplainPlan(explain, convertExplainCompat(data));
+          explain = parseExplainPlan(explain, data);
         } catch (e) {
           explain.errorParsing = true;
-          explain.rawExplainObject = { originalData: data };
+          explain.originalExplainData = data;
           explain.resultId = resultId();
 
           return dispatch(explainPlanFetched(explain));
         }
         explain = updateWithIndexesInfo(explain, indexes);
-        explain.rawExplainObject.originalData = data;
         explain.resultId = resultId();
 
         dispatch(explainPlanFetched(explain));
