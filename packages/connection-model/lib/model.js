@@ -735,16 +735,17 @@ Object.assign(derived, {
         opts.password = this.sshTunnelPassword;
       } else if (this.sshTunnel === 'IDENTITY_FILE') {
         /* eslint no-sync: 0 */
-        if (this.sshTunnelIdentityFile && this.sshTunnelIdentityFile[0]) {
-          // @note: COMPASS-2263: Handle the case where the file no longer exists.
-          const fileName = this.sshTunnelIdentityFile[0];
 
+        const sshTunnelIdentityFileName = Array.isArray(this.sshTunnelIdentityFile) ?
+          this.sshTunnelIdentityFile[0] : this.sshTunnelIdentityFile;
+
+        if (sshTunnelIdentityFileName) {
           try {
-            opts.privateKey = fs.readFileSync(fileName);
+            opts.privateKey = fs.readFileSync(sshTunnelIdentityFileName);
           } catch (e) {
             /* eslint no-console: 0 */
             console.error(
-              `Could not locate ssh tunnel identity file: ${fileName}`
+              `Could not locate ssh tunnel identity file: ${sshTunnelIdentityFileName}`
             );
           }
         }

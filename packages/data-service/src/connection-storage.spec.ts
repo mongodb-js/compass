@@ -8,7 +8,7 @@ import os from 'os';
 import { v4 as uuid } from 'uuid';
 
 import { ConnectionStorage } from './connection-storage';
-import { LegacyConnectionModel } from './legacy-connection-model';
+import { LegacyConnectionModel } from './legacy/legacy-connection-model';
 
 async function eventually(
   fn: () => void | Promise<void>,
@@ -88,8 +88,10 @@ describe('ConnectionStorage', function () {
       expect(connections).to.deep.equal([
         {
           id,
-          connectionString:
-            'mongodb://localhost:27017/?readPreference=primary&ssl=false',
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?readPreference=primary&ssl=false',
+          },
         },
       ]);
     });
@@ -103,7 +105,9 @@ describe('ConnectionStorage', function () {
       const connectionStorage = new ConnectionStorage();
       await connectionStorage.save({
         id,
-        connectionString: 'mongodb://localhost:27017',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
       });
 
       await eventually(() => {
@@ -120,7 +124,9 @@ describe('ConnectionStorage', function () {
       const error = await connectionStorage
         .save({
           id: '',
-          connectionString: 'mongodb://localhost:27017',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
         })
         .catch((err) => err);
 
@@ -132,7 +138,9 @@ describe('ConnectionStorage', function () {
       const error = await connectionStorage
         .save({
           id: 'someid',
-          connectionString: 'mongodb://localhost:27017',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
         })
         .catch((err) => err);
 
@@ -150,7 +158,9 @@ describe('ConnectionStorage', function () {
       const connectionStorage = new ConnectionStorage();
       await connectionStorage.delete({
         id,
-        connectionString: 'mongodb://localhost:27017',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
       });
 
       await eventually(() => {

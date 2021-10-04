@@ -3,31 +3,25 @@ import { createConnectionAttempt } from './connection-attempt';
 describe('connection-attempt', () => {
   describe('connect', () => {
     it('returns the connected data service', async() => {
-      const dataService = {
-        connect: (callback) => setTimeout(() => callback(), 25)
-      };
-
-      const connectionAttempt = createConnectionAttempt();
-
-      const connectionAttemptResult = await connectionAttempt.connect(
-        dataService
-      );
-
+      const dataService = {};
+      const connectionAttempt = createConnectionAttempt(() => {
+        return new Promise(resolve => setTimeout(() => resolve(dataService), 25));
+      });
+      const connectionAttemptResult = await connectionAttempt.connect({
+        driverUrl: 'mongodb://localhost:27017'
+      });
       expect(connectionAttemptResult).to.deep.equal(dataService);
     });
 
     it('returns null if is cancelled', async() => {
-      const dataService = {
-        connect: () => new Promise((resolve) => {
-          setTimeout(() => resolve(), 100);
-        })
-      };
+      const dataService = {};
+      const connectionAttempt = createConnectionAttempt(() => {
+        return new Promise(resolve => setTimeout(() => resolve(dataService), 100));
+      });
 
-      const connectionAttempt = createConnectionAttempt();
-
-      const connectPromise = connectionAttempt.connect(
-        dataService
-      );
+      const connectPromise = connectionAttempt.connect({
+        driverUrl: 'mongodb://localhost:27017'
+      });
 
       connectionAttempt.cancelConnectionAttempt();
 
@@ -36,17 +30,15 @@ describe('connection-attempt', () => {
 
     it('throws if connecting throws', async() => {
       let rejectOnConnect;
-      const dataService = {
-        connect: (callback) => {
-          rejectOnConnect = callback;
-        }
-      };
+      const connectionAttempt = createConnectionAttempt(() => {
+        return new Promise((_, reject) => {
+          rejectOnConnect = reject;
+        });
+      });
 
-      const connectionAttempt = createConnectionAttempt();
-
-      const connectPromise = connectionAttempt.connect(
-        dataService
-      ).catch(
+      const connectPromise = connectionAttempt.connect({
+        driverUrl: 'mongodb://localhost:27017'
+      }).catch(
         err => err
       );
 
