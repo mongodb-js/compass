@@ -269,6 +269,29 @@ export function compassPluginConfig(
   ];
 }
 
+export function compassTypescriptPluginConfig(
+  _env: WebpackCLIArgs['env'],
+  _args: Partial<WebpackCLIArgs>
+): WebpackConfig[] {
+  const args = webpackArgsWithDefaults(_args);
+  const opts = { ...args, outputPath: path.join(args.cwd, 'lib'), hot: true };
+
+  process.env.NODE_ENV = opts.nodeEnv;
+
+  return [
+    createElectronRendererConfig({
+      ...opts,
+      entry: path.join(opts.cwd, 'src', 'index.ts'),
+      outputFilename: 'index.js',
+    }),
+    createWebConfig({
+      ...opts,
+      entry: path.join(opts.cwd, 'src', 'index.ts'),
+      outputFilename: 'browser.js',
+    }),
+  ];
+}
+
 export { webpackArgsWithDefaults } from './args';
 export { default as webpack } from 'webpack';
 export { merge } from 'webpack-merge';

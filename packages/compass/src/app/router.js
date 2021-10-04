@@ -6,11 +6,13 @@ module.exports = AmpersandRouter.extend({
   routes: {
     '': 'home'
   },
-  home: function(ns) {
+  home: function() {
     this.homeView = global.hadronApp.appRegistry.getComponent('Home.Home');
     this.trigger('page',
       ReactDOM.render(
-        React.createElement(this.homeView, {ns: ns}),
+        React.createElement(this.homeView, {
+          appRegistry: global.hadronApp.appRegistry
+        }),
         global.hadronApp.state.queryByHook('layout-container')
       ));
   }
