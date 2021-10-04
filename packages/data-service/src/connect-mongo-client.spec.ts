@@ -23,35 +23,22 @@ const tryConnect = (port: number): Promise<void> =>
   });
 
 describe('connectMongoClient', function () {
-  let cleanUpQueue: [
-    {
-      // client
-      close: () => Promise<void>;
-    }?,
-    {
-      // tunnel
-      close: () => Promise<void>;
-    }?
-  ][];
+  let toBeClosed: { close: () => Promise<void> }[] = [];
 
   let tunnelLocalPort: number;
 
   beforeEach(async function () {
     tunnelLocalPort = await getPort();
-    cleanUpQueue = [];
   });
 
   afterEach(async function () {
-    for (const [client, tunnel] of cleanUpQueue) {
-      if (tunnel) {
-        await tunnel.close();
-      }
-      if (client) {
-        await client.close();
+    for (const mongoClientOrTunnel of toBeClosed) {
+      if (mongoClientOrTunnel) {
+        await mongoClientOrTunnel.close();
       }
     }
 
-    cleanUpQueue = [];
+    toBeClosed = [];
   });
 
   describe('local', function () {
@@ -74,7 +61,7 @@ describe('connectMongoClient', function () {
         tunnelLocalPort
       );
 
-      cleanUpQueue.push([client, tunnel]);
+      toBeClosed.push(client, tunnel);
 
       assert.strictEqual(
         url,
