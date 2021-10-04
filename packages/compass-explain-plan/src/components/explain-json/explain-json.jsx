@@ -13,11 +13,11 @@ class ExplainJSON extends Component {
   static displayName = 'ExplainJSONComponent';
 
   static propTypes = {
-    rawExplainObject: PropTypes.object.isRequired
+    originalExplainData: PropTypes.object.isRequired
   }
 
   copyToClipboard = () => {
-    clipboard.writeText(JSON.stringify(this.props.rawExplainObject.originalData));
+    clipboard.writeText(JSON.stringify(this.props.originalExplainData));
   }
 
   /**
@@ -26,7 +26,7 @@ class ExplainJSON extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const doc = new HadronDocument(this.props.rawExplainObject.originalData);
+    const doc = new HadronDocument(this.props.originalExplainData);
 
     return (
       <div className={styles['explain-json']}>
