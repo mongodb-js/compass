@@ -34,7 +34,6 @@ export class AppRegistry {
   actions: Record<string, unknown>;
   components: Record<string, React.JSXElementConstructor<unknown>>;
   stores: Record<string, Store>;
-  containers: Record<string, unknown[]>;
   roles: Record<string, Role[]>;
   storeMisses: Record<string, number>;
 
@@ -46,7 +45,6 @@ export class AppRegistry {
     this.actions = {};
     this.components = {};
     this.stores = {};
-    this.containers = {};
     this.roles = {};
     this.storeMisses = {};
   }
@@ -84,21 +82,6 @@ export class AppRegistry {
   deregisterComponent(name: string): this {
     delete this.components[name];
     Actions.componentDeregistered(name);
-    return this;
-  }
-
-  /**
-   * Deregister a container.
-   *
-   * @param {String} name - The container name.
-   * @param {Component} component - The container to deregister.
-   *
-   * @returns {AppRegistry} This instance.
-   */
-  deregisterContainer(name: string, component: unknown): this {
-    const containers = this.containers[name];
-    containers.splice(containers.indexOf(component), 1);
-    Actions.containerDeregistered(name);
     return this;
   }
 
@@ -142,24 +125,13 @@ export class AppRegistry {
   }
 
   /**
-   * Get a container by name.
-   *
-   * @param {String} name - The container name.
-   *
-   * @returns {Array} The container components.
-   */
-  getContainer(name: string): unknown[] {
-    return this.containers[name];
-  }
-
-  /**
    * Get a component by name.
    *
    * @param {String} name - The component name.
    *
    * @returns {Component} The component.
    */
-  getComponent(name: string): unknown {
+  getComponent(name: string): React.JSXElementConstructor<unknown> | undefined {
     return this.components[name];
   }
 
@@ -219,27 +191,6 @@ export class AppRegistry {
     } else {
       Actions.actionRegistered(name);
     }
-    return this;
-  }
-
-  /**
-   * Register a container.
-   *
-   * @param {String} name - The container name.
-   * @param {Component} container - The container component.
-   *
-   * @returns {AppRegistry} This instance.
-   */
-  registerContainer(name: string, container: unknown): this {
-    if (
-      Object.prototype.hasOwnProperty.call(this.containers, name) &&
-      !this.containers[name].includes(container)
-    ) {
-      this.containers[name].push(container);
-    } else {
-      this.containers[name] = [container];
-    }
-    Actions.containerRegistered(name);
     return this;
   }
 
