@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import Button from '@leafygreen-ui/button';
+import { Button } from '@mongodb-js/compass-components';
 
 import CollectionHeaderActions from '../collection-header-actions';
 import ViewInformation from '../collection-header-actions/view-information';

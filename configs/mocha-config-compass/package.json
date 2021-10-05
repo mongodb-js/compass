@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/mocha-config-compass",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Shared mocha mocha configuration for Compass packages",
   "license": "SSPL",
   "main": "index.js",

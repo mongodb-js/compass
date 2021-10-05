@@ -16,8 +16,6 @@ const {
   compileAssets,
 } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
-const { createUnlockedKeychain } = require('./keychain');
-const { retryWithBackoff } = require('./retry-with-backoff');
 const { addCommands } = require('./commands');
 
 /**
@@ -48,6 +46,8 @@ const COMPASS_PATH = path.dirname(
 );
 
 const LOG_PATH = path.resolve(__dirname, '..', '.log');
+
+const OUTPUT_PATH = path.join(LOG_PATH, 'output');
 
 function getAtlasConnectionOptions() {
   const missingKeys = [
@@ -81,6 +81,20 @@ let j = 0;
 let k = 0;
 
 /**
+ *
+ * @param {import('webdriverio').LogEntry} logEntry
+ * @returns {string}
+ */
+function formatLogToErrorWithStack(logEntry) {
+  const [file, lineCol, ...rest] = logEntry.message.split(' ');
+  const message = rest
+    .join(' ')
+    .replace(/\\n/g, '\n')
+    .replace(/(^"|"$)/g, '');
+  return `${message}\n  at ${file}:${lineCol}`;
+}
+
+/**
  * @param {boolean} testPackagedApp Should compass start from the packaged binary or just from the source (defaults to source)
  * @param {Partial<import('spectron').AppConstructorOptions>} opts
  * @returns {Promise<ExtendedApplication>}
@@ -104,11 +118,24 @@ async function startCompass(
       }
     : { path: getCompassBinPath(await getCompassBuildMetadata()) };
 
+  const nowFormatted = formattedDate();
+
   const userDataDir = path.join(
     os.tmpdir(),
     `user-data-dir-${Date.now().toString(32)}-${++i}`
   );
+  const chromeDriverLogPath = path.join(
+    LOG_PATH,
+    `chromedriver.${nowFormatted}.log`
+  );
+  const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
+
   await fs.mkdir(userDataDir, { recursive: true });
+  // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
+  // for consistency let's mkdir for both of them just in case
+  await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
+  await fs.mkdir(webdriverLogPath, { recursive: true });
+  await fs.mkdir(OUTPUT_PATH, { recursive: true });
 
   const appOptions = {
     ...opts,
@@ -125,40 +152,18 @@ async function startCompass(
     env: {
       APP_ENV: 'spectron',
       DEBUG: `${process.env.DEBUG || ''},mongodb-compass:main:logging`,
-      HOME: userDataDir,
+      MONGODB_COMPASS_TEST_LOG_DIR: path.join(LOG_PATH, 'app'),
+    },
+    chromeDriverLogPath,
+    webdriverLogPath,
+    // It's usually not required when running tests in Evergreen or locally, but
+    // GitHub CI machines are pretty slow sometimes, especially the macOS one
+    startTimeout: 20_000,
+    waitTimeout: 20_000,
+    webdriverOptions: {
+      waitforInterval: 200, // default is 500ms
     },
   };
-
-  const shouldSkipLogs = ['true', '1'].includes(process.env.SKIP_LOGS);
-  const shouldShowLogsInConsole =
-    shouldSkipLogs === false &&
-    ['true', '1'].includes(process.env.SHOW_LOGS_IN_CONSOLE);
-  const shouldStoreAppLogs =
-    shouldSkipLogs === false && shouldShowLogsInConsole === false;
-
-  const nowFormatted = formattedDate();
-
-  if (shouldShowLogsInConsole) {
-    appOptions.webdriverOptions = {
-      logLevel: 'debug',
-    };
-  } else if (shouldStoreAppLogs) {
-    // Chromedriver expects a path to the log file
-    const chromeDriverLogPath = path.join(
-      LOG_PATH,
-      `chromedriver.${nowFormatted}.log`
-    );
-    // Webdriver expects a path to the DIRECTORY where the logs will be stored
-    const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
-
-    // Both chromedriver and webdriver expect DIRECTORIES for the logs to exist,
-    // otherwise they will fail trying to store the logs
-    await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
-    await fs.mkdir(webdriverLogPath, { recursive: true });
-
-    appOptions.chromeDriverLogPath = chromeDriverLogPath;
-    appOptions.webdriverLogPath = webdriverLogPath;
-  }
 
   debug('Starting Spectron with the following configuration:');
   debug(JSON.stringify(appOptions, null, 2));
@@ -179,34 +184,30 @@ async function startCompass(
     const mainLogs = await app.client.getMainProcessLogs();
     const renderLogs = await app.client.getRenderProcessLogs();
 
-    if (shouldStoreAppLogs) {
-      const mainLogPath = path.join(
-        LOG_PATH,
-        `electron-main.${nowFormatted}.log`
-      );
-      debug(`Writing application main process log to ${mainLogPath}`);
-      await fs.writeFile(mainLogPath, mainLogs.join('\n'));
+    const mainLogPath = path.join(
+      LOG_PATH,
+      `electron-main.${nowFormatted}.log`
+    );
+    debug(`Writing application main process log to ${mainLogPath}`);
+    await fs.writeFile(mainLogPath, mainLogs.join('\n'));
 
-      const renderLogPath = path.join(
-        LOG_PATH,
-        `electron-render.${nowFormatted}.json`
-      );
-      debug(`Writing application render process log to ${renderLogPath}`);
-      await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
-    }
+    const renderLogPath = path.join(
+      LOG_PATH,
+      `electron-render.${nowFormatted}.json`
+    );
+    debug(`Writing application render process log to ${renderLogPath}`);
+    await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
 
     debug('Stopping Compass application');
     await _stop();
 
     const compassLog = await getCompassLog(mainLogs);
-    if (shouldStoreAppLogs) {
-      const compassLogPath = path.join(
-        LOG_PATH,
-        `compass-log.${nowFormatted}.log`
-      );
-      debug(`Writing Compass application log to ${compassLogPath}`);
-      await fs.writeFile(compassLogPath, compassLog.raw);
-    }
+    const compassLogPath = path.join(
+      LOG_PATH,
+      `compass-log.${nowFormatted}.log`
+    );
+    debug(`Writing Compass application log to ${compassLogPath}`);
+    await fs.writeFile(compassLogPath, compassLog.raw);
     app.compassLog = compassLog.structured;
 
     debug('Removing user data');
@@ -220,19 +221,38 @@ async function startCompass(
     }
 
     // ERROR, CRITICAL and whatever unknown things might end up in the logs
-    const errors = renderLogs.filter(
-      (log) => !['DEBUG', 'INFO', 'WARNING'].includes(log.level)
-    );
-    if (errors.length) {
-      console.error('Errors encountered during testing:');
-      console.error(errors);
+    const errors = renderLogs.filter((log) => {
+      if (['DEBUG', 'INFO', 'WARNING'].includes(log.level)) {
+        return false;
+      }
 
+      // TODO: remove this once we fixed these warnings
+      if (
+        log.level === 'SEVERE' &&
+        log.message.includes('"Warning: Failed prop type: ')
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (errors.length) {
       /** @type { Error & { errors?: any[] } } */
       const error = new Error(
-        'Errors encountered in render process during testing'
+        `Errors encountered in render process during testing:\n\n${errors
+          .map(formatLogToErrorWithStack)
+          .map((msg) =>
+            msg
+              .split('\n')
+              .map((line) => `  ${line}`)
+              .join('\n')
+          )
+          .join('\n\n')}`
       );
       error.errors = errors;
-      // fail the tests
+      // Fail the tests if we encountered some severe errors while the
+      // application was running
       throw error;
     }
 
@@ -470,39 +490,29 @@ async function savePage(
 }
 
 async function beforeTests() {
-  const keychain = createUnlockedKeychain();
-  keychain.activate();
   const compass = await startCompass();
 
   const { client } = compass;
 
-  // XXX: This seems to be a bit unstable in GitHub CI on macOS machines, for
-  // that reason we want to do a few retries here (in most other cases this
-  // should pass on first attempt)
-  await retryWithBackoff(async () => {
-    await client.waitForConnectionScreen();
-    await client.closeTourModal();
-    await client.closePrivacySettingsModal();
-  });
+  await client.waitForConnectionScreen();
+  await client.closeTourModal();
+  await client.closePrivacySettingsModal();
 
-  return { keychain, compass };
+  return compass;
 }
 
-async function afterTests({ keychain, compass }) {
-  try {
-    if (compass) {
-      if (process.env.CI) {
-        await capturePage(compass);
-        await savePage(compass);
-      }
+async function afterTests(compass) {
+  if (compass) {
+    await capturePage(compass);
+    await savePage(compass);
 
+    try {
       await compass.stop();
-      compass = null;
+    } catch (err) {
+      debug('An error occurred while stopping compass:');
+      debug(err);
     }
-  } finally {
-    if (keychain) {
-      keychain.reset();
-    }
+    compass = null;
   }
 }
 
@@ -520,10 +530,19 @@ function pagePathName(text) {
   return `page-${pathName(text)}.html`;
 }
 
+/**
+ * @param {string} filename
+ */
+function outputFilename(filename) {
+  return path.join(OUTPUT_PATH, filename);
+}
+
 async function afterTest(compass, test) {
-  if (test.state == 'failed') {
-    await capturePage(compass, screenshotPathName(test.fullTitle()));
-    await savePage(compass, pagePathName(test.fullTitle()));
+  if (process.env.CI) {
+    if (test.state == 'failed') {
+      await capturePage(compass, screenshotPathName(test.fullTitle()));
+      await savePage(compass, pagePathName(test.fullTitle()));
+    }
   }
 }
 
@@ -540,9 +559,11 @@ module.exports = {
   Selectors,
   COMPASS_PATH,
   LOG_PATH,
+  OUTPUT_PATH,
   beforeTests,
   afterTests,
   screenshotPathName,
   pagePathName,
+  outputFilename,
   afterTest,
 };

@@ -1,10 +1,14 @@
 {
   "name": "@mongodb-js/compass-shell",
   "productName": "Compass Shell plugin",
-  "version": "2.14.0",
+  "version": "2.15.0",
   "apiVersion": "3.0.0",
   "description": "Compass Shell Plugin",
   "main": "lib/index.js",
+  "exports": {
+    "webpack": "./src/index.js",
+    "require": "./lib/index.js"
+  },
   "scripts": {
     "prepublishOnly": "npm run compile",
     "clean": "rimraf lib",
@@ -42,18 +46,17 @@
     "access": "public"
   },
   "dependencies": {
-    "@leafygreen-ui/icon": "^11.4.0",
-    "@leafygreen-ui/icon-button": "^9.1.5",
+    "@mongodb-js/compass-logging": "^0.3.0",
     "@mongodb-js/mongodb-redux-common": "^1.4.0",
-    "@mongosh/browser-repl": "^1.0.4",
-    "@mongosh/node-runtime-worker-thread": "^1.0.4",
-    "@mongosh/service-provider-core": "^1.0.4",
-    "hadron-react-buttons": "^5.4.0",
-    "re-resizable": "^6.9.0"
+    "@mongosh/browser-repl": "^1.0.7",
+    "@mongosh/logging": "^1.0.7",
+    "@mongosh/node-runtime-worker-thread": "^1.0.7",
+    "@mongosh/service-provider-core": "^1.0.7",
+    "hadron-react-buttons": "^5.4.0"
   },
   "peerDependencies": {
-    "@leafygreen-ui/icon": "^11.4.0",
-    "@leafygreen-ui/icon-button": "^9.1.5",
+    "@mongodb-js/compass-components": "^0.6.0",
+    "@mongosh/node-runtime-worker-thread": "^1.0.7",
     "hadron-ipc": "*",
     "hadron-react-components": "*",
     "prop-types": "^15.7.2",
@@ -70,6 +73,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.9.0",
+    "@mongodb-js/compass-components": "^0.6.0",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
     "chai": "^4.2.0",
@@ -78,9 +82,8 @@
     "core-js": "^3.12.1",
     "cross-env": "^5.0.1",
     "css-loader": "^4.3.0",
-    "debug": "^3.0.1",
     "depcheck": "^1.4.1",
-    "electron": "^13.1.8",
+    "electron": "^13.5.1",
     "electron-devtools-installer": "^3.2.0",
     "electron-rebuild": "^2.3.5",
     "enzyme": "^3.11.0",
@@ -90,7 +93,7 @@
     "eslint-plugin-react": "^7.24.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.13.0",
+    "hadron-app": "^4.14.0",
     "hadron-app-registry": "^8.4.0",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",

@@ -19,7 +19,6 @@ describe('HomeStore [Store]', () => {
     const initialState = {
       errorMessage: '',
       connectionTitle: '',
-      isCollapsed: false,
       isConnected: false,
       namespace: '',
       title: '',
@@ -115,7 +114,6 @@ describe('HomeStore [Store]', () => {
         expect(store.getState()).to.deep.equal({
           errorMessage: '',
           connectionTitle: 'test_id',
-          isCollapsed: false,
           namespace: '',
           title: ' - test_id',
           isConnected: true,
@@ -136,7 +134,6 @@ describe('HomeStore [Store]', () => {
         expect(store.getState()).to.deep.equal({
           errorMessage: 'err',
           connectionTitle: '',
-          isCollapsed: false,
           namespace: '',
           title: '',
           isConnected: false,

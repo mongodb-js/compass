@@ -18,6 +18,11 @@
   "bin": {
     "electron-license": "bin/electron-license.js"
   },
+  "main": "index.js",
+  "exports": {
+    "webpack": "./index.js",
+    "require": "./index.js"
+  },
   "dependencies": {
     "bluebird": "^3.7.2",
     "chalk": "^1.1.1",

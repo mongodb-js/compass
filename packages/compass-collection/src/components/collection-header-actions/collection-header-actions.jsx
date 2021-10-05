@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button, { Size as ButtonSize } from '@leafygreen-ui/button';
+import { Button, ButtonSize } from '@mongodb-js/compass-components';
 
 import ViewInformation from './view-information';
 

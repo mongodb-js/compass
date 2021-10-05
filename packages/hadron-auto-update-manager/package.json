@@ -15,6 +15,11 @@
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
   },
+  "main": "index.js",
+  "exports": {
+    "webpack": "./index.js",
+    "require": "./index.js"
+  },
   "dependencies": {
     "debug": "^4.1.1",
     "got": "^10.4.0",
@@ -22,7 +27,7 @@
   },
   "devDependencies": {
     "depcheck": "^1.4.1",
-    "electron": "^13.1.8",
+    "electron": "^13.5.1",
     "electron-mocha": "^8.2.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",

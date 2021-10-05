@@ -2,7 +2,7 @@ const { delay } = require('../delay');
 const Selectors = require('../selectors');
 
 module.exports = function (app) {
-  return async function (str, parse = false, timeout = 10000) {
+  return async function (str, parse = false, timeout) {
     const { client } = app;
     const shellContentElement = await client.$(Selectors.ShellContent);
     if (!(await shellContentElement.isDisplayed())) {
@@ -14,7 +14,6 @@ module.exports = function (app) {
 
     await client.keys(parse === true ? `JSON.stringify(${str})` : str);
     await client.keys('\uE007');
-
     const shellLoaderElement = await client.$(Selectors.ShellLoader);
     if (shellLoaderElement.isDisplayed()) {
       await shellLoaderElement.waitForDisplayed({
@@ -24,7 +23,6 @@ module.exports = function (app) {
         interval: 50,
       });
     }
-
     await delay(50);
     const shellOutputElements = await client.$$(Selectors.ShellOutput);
     const output = await shellOutputElements[

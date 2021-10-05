@@ -20,5 +20,14 @@ exports.addCommands = function (app) {
   add('connectWithConnectionForm', './connect-with-connection-form');
   add('disconnect', './disconnect');
   add('shellEval', './shell-eval');
+  add('navigateToInstanceTab', './navigate-to-instance-tab');
+  add('navigateToDatabaseTab', './navigate-to-database-tab');
   add('navigateToCollectionTab', './navigate-to-collection-tab');
+  add('runFindOperation', './run-find-operation');
+  add('setAceValue', './set-ace-value');
+  add('focusStageOperator', './focus-stage-operator');
+  add('selectStageOperator', './select-stage-operator');
+  add('closeCollectionTabs', './close-collection-tabs');
+  add('setValidation', './set-validation');
+  add('waitForAnimations', './wait-for-animations');
 };

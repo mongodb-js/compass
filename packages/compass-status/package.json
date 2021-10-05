@@ -1,10 +1,14 @@
 {
   "name": "@mongodb-js/compass-status",
   "productName": "Compass Status plugin",
-  "version": "5.13.0",
+  "version": "5.14.0",
   "apiVersion": "3.0.0",
   "description": "Compass Status Plugin",
   "main": "lib/index.js",
+  "exports": {
+    "webpack": "./src/index.js",
+    "require": "./lib/index.js"
+  },
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",
@@ -50,7 +54,7 @@
     "cross-env": "^5.0.1",
     "css-loader": "^4.3.0",
     "depcheck": "^1.4.1",
-    "electron": "^13.1.8",
+    "electron": "^13.5.1",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^7.25.0",
@@ -59,7 +63,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.13.0",
+    "hadron-app": "^4.14.0",
     "hadron-app-registry": "^8.4.0",
     "hadron-react-components": "^5.6.0",
     "html-webpack-plugin": "^3.2.0",

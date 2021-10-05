@@ -1,7 +1,4 @@
 ignores: [
-  "@leafygreen-ui/modal",
-  "@leafygreen-ui/portal",
-  "@leafygreen-ui/typography",
   "lodash.isempty",
   "@babel/cli",
   "@babel/register",

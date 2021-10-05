@@ -1,0 +1,101 @@
+{
+  "queryPlanner": {
+    "plannerVersion": 1,
+    "namespace": "mongodb.fanclub",
+    "indexFilterSet": false,
+    "parsedQuery": {
+      "$and": [
+        {
+          "age": {
+            "$lte": 40
+          }
+        },
+        {
+          "age": {
+            "$gte": 33
+          }
+        }
+      ]
+    },
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN",
+        "keyPattern": {
+          "age": 1
+        },
+        "indexName": "age_1",
+        "isMultiKey": false,
+        "isUnique": false,
+        "isSparse": false,
+        "isPartial": false,
+        "indexVersion": 1,
+        "direction": "forward",
+        "indexBounds": {
+          "age": ["[33, 40]"]
+        }
+      }
+    },
+    "rejectedPlans": []
+  },
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": 191665,
+    "executionTimeMillis": 135,
+    "totalKeysExamined": 191665,
+    "totalDocsExamined": 191665,
+    "executionStages": {
+      "stage": "FETCH",
+      "nReturned": 191665,
+      "executionTimeMillisEstimate": 110,
+      "works": 191666,
+      "advanced": 191665,
+      "needTime": 0,
+      "needYield": 0,
+      "saveState": 1497,
+      "restoreState": 1497,
+      "isEOF": 1,
+      "invalidates": 0,
+      "docsExamined": 191665,
+      "alreadyHasObj": 0,
+      "inputStage": {
+        "stage": "IXSCAN",
+        "nReturned": 191665,
+        "executionTimeMillisEstimate": 50,
+        "works": 191666,
+        "advanced": 191665,
+        "needTime": 0,
+        "needYield": 0,
+        "saveState": 1497,
+        "restoreState": 1497,
+        "isEOF": 1,
+        "invalidates": 0,
+        "keyPattern": {
+          "age": 1
+        },
+        "indexName": "age_1",
+        "isMultiKey": false,
+        "isUnique": false,
+        "isSparse": false,
+        "isPartial": false,
+        "indexVersion": 1,
+        "direction": "forward",
+        "indexBounds": {
+          "age": ["[33, 40]"]
+        },
+        "keysExamined": 191665,
+        "dupsTested": 0,
+        "dupsDropped": 0,
+        "seenInvalidated": 0
+      }
+    },
+    "allPlansExecution": []
+  },
+  "serverInfo": {
+    "host": "Groot.local",
+    "port": 27018,
+    "version": "3.2.5",
+    "gitVersion": "34e65e5383f7ea1726332cb175b73077ec4a1b02"
+  },
+  "ok": 1
+}

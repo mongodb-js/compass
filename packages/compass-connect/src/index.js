@@ -131,3 +131,4 @@ export {
   deactivate,
   FavoriteModal
 };
+export { default as metadata } from '../package.json';

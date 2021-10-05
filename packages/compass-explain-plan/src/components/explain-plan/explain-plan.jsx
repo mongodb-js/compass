@@ -46,7 +46,6 @@ class ExplainPlan extends Component {
 const mapStateToProps = (state) => pick(
   state,
   [
-    'serverVersion',
     'namespace',
     'isEditable',
     'explain',

@@ -4,9 +4,17 @@ const Selectors = require('../selectors');
 async function closeConnectionModal(app) {
   const { client } = app;
   await client.clickVisible(Selectors.CancelConnectionButton);
+  // <<<<<<< HEAD
   const connectionModalContentElement = await client.$(
     Selectors.ConnectionStatusModalContent
   );
+  // =======
+  //   await client.waitForExist(
+  //     Selectors.ConnectionStatusModalContent,
+  //     undefined,
+  //     false
+  // >>>>>>> main
+  // );
   await connectionModalContentElement.waitForExist({
     timeout: 1000,
     reverse: true,
@@ -37,7 +45,6 @@ module.exports = function (app) {
       timeout: 5000,
     });
 
-    // Show "new connection" section as if we just opened this screen
     await client.clickVisible(Selectors.SidebarNewConnectionButton);
     await delay(100);
   };

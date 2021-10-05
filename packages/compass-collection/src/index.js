@@ -29,3 +29,4 @@ function deactivate(appRegistry) {
 
 export default CollectionPlugin;
 export { activate, deactivate };
+export { default as metadata } from '../package.json';

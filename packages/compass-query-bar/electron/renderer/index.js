@@ -140,7 +140,7 @@ if (module.hot) {
     }
   };
 
-  module.hot.accept('plugin', () => {
+  module.hot.accept('../../src/index.js', () => {
     render(QueryBarExampleApp);
   });
 }

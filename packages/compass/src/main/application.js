@@ -1,20 +1,24 @@
-var _ = require('lodash');
-var pkg = require('../../package.json');
-var electron = require('electron');
-var app = electron.app;
+const _ = require('lodash');
+const pkg = require('../../package.json');
+const electron = require('electron');
+const app = electron.app;
+const { setupLogging } = require('./logging');
+const showInitialWindow = require('./window-manager');
+
 // For Linux users with drivers that are blacklisted by Chromium
 // we ignore the blacklist to attempt to bypass the disabled
 // WebGL settings.
 app.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
 
-var path = require('path');
-var EventEmitter = require('events').EventEmitter;
-var inherits = require('util').inherits;
-var AutoUpdateManager = require('hadron-auto-update-manager');
-var ipc = require('hadron-ipc');
-var debug = require('debug')('mongodb-compass:main:application');
+const path = require('path');
+const EventEmitter = require('events').EventEmitter;
+const inherits = require('util').inherits;
+const AutoUpdateManager = require('hadron-auto-update-manager');
+const ipc = require('hadron-ipc');
+const debug = require('debug')('mongodb-compass:main:application');
 
 function Application() {
+  const loggingSetupPromise = this.setupLogging();
   this.setupUserDirectory();
   this.setupJavaScriptArguments();
   this.setupLifecycleListeners();
@@ -24,7 +28,9 @@ function Application() {
   }
   this.setupApplicationMenu();
 
-  require('./window-manager');
+  loggingSetupPromise.then(() => {
+    showInitialWindow();
+  });
 }
 inherits(Application, EventEmitter);
 
@@ -50,18 +56,6 @@ const API_PLATFORM = {
 };
 
 /**
- * Get the channel name from the version number.
- *
- * @returns {String} - The channel.
- */
-const getChannel = () => {
-  if (pkg.version.indexOf('beta') > -1) {
-    return 'beta';
-  }
-  return 'stable';
-};
-
-/**
  * TODO (imlucas) Extract .pngs from .icns so we can
  * have nice Compass icons in dialogs.
  *
@@ -72,7 +66,7 @@ Application.prototype.setupAutoUpdate = function() {
     _.get(pkg, 'config.hadron.endpoint'),
     null,
     API_PRODUCT[process.env.HADRON_PRODUCT],
-    getChannel(),
+    process.env.HADRON_CHANNEL,
     API_PLATFORM[process.platform]
   );
 
@@ -140,46 +134,25 @@ Application.prototype.setupLifecycleListeners = function() {
 };
 
 Application.prototype.setupUserDirectory = function() {
-  // For testing set a clean slate for the user data.
-  if (process.env.NODE_ENV === 'testing') {
-    var userDataDir = path.resolve(
-      path.join(__dirname, '..', '..', '.user-data')
-    );
-    app.setPath('userData', userDataDir);
-  } else if (process.env.NODE_ENV === 'development') {
-    var channel = 'stable';
-    // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
-    // TODO @thomasr this is a copy of the functionality in hadron-build.
-    // Eventually this should live in a hadron-version module.
-    var appName = app.getName();
-    var mtch = app.getVersion().match(/-([a-z]+)(\.\d+)?$/);
-    if (mtch) {
-      channel = mtch[1];
-    }
-    if (channel !== 'stable' && !appName.toLowerCase().endsWith(channel)) {
-      // add channel suffix to product name, e.g. "MongoDB Compass Dev"
-      var newAppName = appName + ' ' + _.capitalize(channel);
-      app.setName(newAppName);
-      // change preference paths (note: this will still create the default
-      // path first, but we are ok with this for development builds)
-      app.setPath('userData', path.join(app.getPath('appData'), newAppName));
-      app.setPath('userCache', path.join(app.getPath('cache'), newAppName));
-    }
-  } else if (process.env.NODE_ENV === 'production') {
-    // If we are on windows we need to look for the registry key that tells us
-    // where Commpass is installed. If they key exists, we need to change the user
-    // data directory to a subfolder of that.
-    if (process.platform === 'win32') {
-      console.log('noop to debug.');
-      // const vsWinReg = require('vscode-windows-registry');
-      /* eslint new-cap: 0 */
-      // const installDir = vsWinReg.GetStringRegKey('HKEY_LOCAL_MACHINE', `SOFTWARE\\MongoDB\\${app.getName()}`, 'directory');
-      // if (installDir) {
-      //   app.setPath('userData', path.join(installDir, 'UserData'));
-      //   app.setPath('userCache', path.join(installDir, 'Cache'));
-      // }
-    }
+  if (process.env.NODE_ENV === 'development') {
+    const appName = app.getName();
+    // When NODE_ENV is dev, we are probably be running application unpackaged
+    // directly with Electron binary which causes user dirs to be just
+    // `Electron` instead of app name that we want here
+    app.setPath('userData', path.join(app.getPath('appData'), appName));
+    app.setPath('userCache', path.join(app.getPath('cache'), appName));
   }
+};
+
+Application.prototype.setupLogging = async function() {
+  const home = app.getPath('home');
+  const appData = process.env.LOCALAPPDATA || process.env.APPDATA;
+  const logDir =
+    process.env.MONGODB_COMPASS_TEST_LOG_DIR || process.platform === 'win32'
+      ? path.join(appData || home, 'mongodb', 'compass')
+      : path.join(home, '.mongodb', 'compass');
+  app.setAppLogsPath(logDir);
+  this.logFilePath = await setupLogging();
 };
 
 Application._instance = null;

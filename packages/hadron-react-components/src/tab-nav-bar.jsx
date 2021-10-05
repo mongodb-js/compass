@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import map from 'lodash.map';
-import { Tabs, Tab } from '@leafygreen-ui/tabs';
-import LeafyGreenProvider from '@leafygreen-ui/leafygreen-provider';
+import { LeafyGreenProvider, Tabs, Tab } from '@mongodb-js/compass-components';
 
 /**
  * Represents tabbed navigation with a tabbed header and content.
@@ -50,6 +49,7 @@ class TabNavBar extends React.Component {
   renderTabs() {
     return (
       <Tabs
+        data-test-id={this.props['data-test-id']}
         aria-label={this.props['aria-label']}
         className="test-tab-nav-bar-tabs"
         setSelected={this.onTabClicked}
@@ -123,6 +123,7 @@ class TabNavBar extends React.Component {
 }
 
 TabNavBar.propTypes = {
+  'data-test-id': PropTypes.string,
   'aria-label': PropTypes.string,
   darkMode: PropTypes.bool,
   activeTabIndex: PropTypes.number,

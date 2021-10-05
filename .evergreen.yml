@@ -258,8 +258,8 @@ functions:
           fi
 
           # Provide a verbose logging for the release process
-          export npm_config_loglevel=info
-          export DEBUG="*,-flora-colossus"
+          export npm_config_loglevel="${npm_loglevel}"
+          export DEBUG="${debug}"
 
           npm run package-compass ${compass_distribution};
 
@@ -407,6 +407,8 @@ tasks:
 
       - func: package
         vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
           compass_distribution: compass
       - func: publish
         vars:
@@ -422,6 +424,8 @@ tasks:
 
       - func: package
         vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
           compass_distribution: compass-isolated
       - func: publish
         vars:
@@ -437,6 +441,8 @@ tasks:
 
       - func: package
         vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
           compass_distribution: compass-readonly
       - func: publish
         vars:

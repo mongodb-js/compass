@@ -114,6 +114,7 @@ class QueryBar extends Component {
     lastExecutedQuery: PropTypes.object,
     onReset: PropTypes.func,
     onApply: PropTypes.func,
+    resultId: PropTypes.number,
     schemaFields: PropTypes.array,
     showQueryHistoryButton: PropTypes.bool,
     showExportToLanguageButton: PropTypes.bool,
@@ -126,6 +127,7 @@ class QueryBar extends Component {
     schemaFields: [],
     showQueryHistoryButton: true,
     showExportToLanguageButton: true,
+    resultId: 0
   };
 
   state = {
@@ -426,7 +428,7 @@ class QueryBar extends Component {
 
   render() {
     return (
-      <div className={classnames(styles.component)}>
+      <div className={classnames(styles.component)} data-test-id="query-bar" data-result-id={this.props.resultId}>
         <div className={classnames(styles['input-container'])}>
           {this.renderForm()}
         </div>

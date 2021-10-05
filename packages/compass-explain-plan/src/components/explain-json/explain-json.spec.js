@@ -8,12 +8,12 @@ import styles from './explain-json.module.less';
 
 describe('ExplainJSON [Component]', () => {
   let component;
-  const rawExplainObject = { originalData: {} };
+  const originalExplainData = {};
   const appRegistry = new AppRegistry();
 
   beforeEach(() => {
     component = mount(
-      <ExplainJSON rawExplainObject={rawExplainObject} />
+      <ExplainJSON rawExplainObject={originalExplainData} />
     );
   });
 

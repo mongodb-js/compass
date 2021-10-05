@@ -5,7 +5,6 @@ module.exports = function (app) {
     const { client } = app;
 
     const featureTourModalElement = await client.$(Selectors.FeatureTourModal);
-
     try {
       await featureTourModalElement.waitForExist({
         timeout: 5000,
@@ -16,6 +15,7 @@ module.exports = function (app) {
 
     await featureTourModalElement.waitForDisplayed();
     await client.clickVisible(Selectors.CloseFeatureTourModal);
+
     await featureTourModalElement.waitForExist({
       timeout: 2000,
       interval: 50,

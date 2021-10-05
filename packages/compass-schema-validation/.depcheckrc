@@ -2,6 +2,7 @@ ignores: [
   "decomment",
   "@babel/cli",
   "@babel/register",
+  '@hot-loader/react-dom',
   "core-js",
   "font-awesome",
   "mongodb-client-encryption",

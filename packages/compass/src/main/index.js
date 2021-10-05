@@ -1,31 +1,23 @@
-if (!process.env.NODE_ENV) {
-  process.env.NODE_ENV = 'production';
-}
-
-const pkg = require('../../package.json');
-
 require('../setup-hadron-distribution');
-const setupLogging = require('./logging');
 
-/**
- * Check if the distribution is defined, if not, we need to override
- * the product name of the app.
- */
-if (!pkg.distribution) {
-  const { app } = require('electron');
-  app.setName(
-    pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION].productName
-  );
-}
-
-// TODO (@imlucas): Revisit whether to ship this at same time or not.
-//
-const { dialog, clipboard, app } = require('electron');
-const COMPASS_ICON = require('../icon');
+const { app, dialog, clipboard } = require('electron');
 const cleanStack = require('clean-stack');
 const ensureError = require('ensure-error');
+const COMPASS_ICON = require('../icon');
 
-process.on('uncaughtException', err => {
+// Name and version are setup outside of Application and before anything else so
+// that if uncaught exception happens we already show correct name and version
+app.setName(process.env.HADRON_PRODUCT_NAME);
+// For spectron env we are changing appName so that keychain records do not
+// overlap with anything else. Only appName should be changed for the spectron
+// environment that is running tests, all relevant paths are configured from the
+// test runner.
+if (process.env.APP_ENV === 'spectron') {
+  app.setName(`${app.getName()} Spectron`);
+}
+app.setVersion(process.env.HADRON_APP_VERSION);
+
+process.on('uncaughtException', (err) => {
   // eslint-disable-next-line no-console
   console.error('handling uncaughtException', err);
   err = ensureError(err);
@@ -38,33 +30,35 @@ process.on('uncaughtException', err => {
   // eslint-disable-next-line no-console
   console.error(`${message}: ${detail}`);
 
-  const btnIndex = dialog.showMessageBox({
-    type: 'error',
-    buttons: [
-      'OK',
-      process.platform === 'darwin' ? 'Copy Error' : 'Copy error'
-    ],
-    icon: COMPASS_ICON,
-    defaultId: 0,
-    noLink: true,
-    message: message,
-    detail: detail
-  });
-  /**
-   * TODO (@imlucas) Copy diagnostics to clipboard?
-   * or prepopulated JIRA link?
-   * https://confluence.atlassian.com/jirakb/creating-issues-via-direct-html-links-159474.html
-   */
-  if (btnIndex === 1) {
-    clipboard.writeText(`${message}\n${stack}`);
-    return;
-  }
+  // Dialog can't be used until app emits a `ready` event
+  app.on('ready', () => {
+    const btnIndex = dialog.showMessageBox({
+      type: 'error',
+      buttons: [
+        'OK',
+        process.platform === 'darwin' ? 'Copy Error' : 'Copy error'
+      ],
+      icon: COMPASS_ICON,
+      defaultId: 0,
+      noLink: true,
+      message: message,
+      detail: detail
+    });
+    /**
+     * TODO (@imlucas) Copy diagnostics to clipboard?
+     * or prepopulated JIRA link?
+     * https://confluence.atlassian.com/jirakb/creating-issues-via-direct-html-links-159474.html
+     */
+    if (btnIndex === 1) {
+      clipboard.writeText(`${message}\n${stack}`);
+      return;
+    }
 
-  if (btnIndex === 0) {
-    app.quit();
-    return;
-  }
+    if (btnIndex === 0) {
+      app.quit();
+      return;
+    }
+  });
 });
 
-setupLogging(app);
 require('./application').main();

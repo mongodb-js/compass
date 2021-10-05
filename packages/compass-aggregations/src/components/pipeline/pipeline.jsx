@@ -4,7 +4,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import Banner from '@leafygreen-ui/banner';
+import { Banner } from '@mongodb-js/compass-components';
 
 import PipelineWorkspace from '../pipeline-workspace';
 import SavePipeline from '../save-pipeline';

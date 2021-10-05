@@ -79,7 +79,7 @@ render(ExplainPlanPlugin);
 
 // Data service initialization and connection
 import Connection from 'mongodb-connection-model';
-import DataService from 'mongodb-data-service';
+import { DataService } from 'mongodb-data-service';
 
 const connection = new Connection({
   hostname: '127.0.0.1',
@@ -119,5 +119,5 @@ if (module.hot) {
     }
   };
 
-  module.hot.accept('plugin', () => render(ExplainPlanPlugin));
+  module.hot.accept('../../src/index.js', () => render(ExplainPlanPlugin));
 }

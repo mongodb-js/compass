@@ -4,11 +4,6 @@
   "description": "Shared Compass prettier configuration",
   "license": "SSPL",
   "main": "index.json",
-  "files": [
-    "index.jsson",
-    "package.json",
-    "README.md"
-  ],
   "peerDependencies": {
     "prettier": "2.3.2"
   },

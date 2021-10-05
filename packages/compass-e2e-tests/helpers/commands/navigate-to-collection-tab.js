@@ -4,15 +4,19 @@ module.exports = function (app) {
   async function navigateToCollection(dbName, collectionName) {
     const { client } = app;
 
-    const headerSelector = `${Selectors.CollectionHeaderTitle}[title="${dbName}.${collectionName}"]`;
-    const collectionSelector = `${Selectors.SidebarCollection}[title="${dbName}.${collectionName}"]`;
+    const headerSelector = Selectors.collectionHeaderTitle(
+      dbName,
+      collectionName
+    );
+    const collectionSelector = Selectors.sidebarCollection(
+      dbName,
+      collectionName
+    );
 
     const headerElement = await client.$(headerSelector);
 
-    // if the collection header is already visible we don't have to browse to the collection
-    if (await headerElement.isExisting()) {
-      return;
-    }
+    // Close all the collection tabs to get rid of all the state we might have accumulated. This is the only way to get back to the zero state of Schema, Explain Plan and Validation tabs without re-connecting.
+    await client.closeCollectionTabs();
 
     // search for the collection and wait for the collection to be there and visible
     await client.clickVisible(Selectors.SidebarFilterInput);
@@ -35,8 +39,8 @@ module.exports = function (app) {
   ) {
     const { client } = app;
 
-    const tabSelector = `${Selectors.CollectionTab}[name="${tabName}"]`;
-    const tabSelectedSelector = `${tabSelector}[aria-selected="true"]`;
+    const tabSelector = Selectors.collectionTab(tabName);
+    const tabSelectedSelector = Selectors.collectionTab(tabName, true);
 
     await navigateToCollection(dbName, collectionName);
 

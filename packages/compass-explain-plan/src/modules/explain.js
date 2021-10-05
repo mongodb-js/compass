@@ -1,8 +1,7 @@
-import ExplainPlanModel from 'mongodb-explain-plan-model';
-import { defaults, isString, find } from 'lodash';
+import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import { isString, find, groupBy, isEqual } from 'lodash';
 import { treeStagesChanged } from './tree-stages';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import convertExplainCompat from 'mongodb-explain-compat';
 
 import EXPLAIN_STATES from '../constants/explain-states';
 import EXPLAIN_VIEWS from '../constants/explain-views';
@@ -54,9 +53,11 @@ export const INITIAL_STATE = {
   numShards: 0,
   parsedQuery: {},
   rawExplainObject: {},
+  originalExplainData: {},
   totalDocsExamined: 0,
   totalKeysExamined: 0,
-  usedIndex: null
+  usedIndexes: [],
+  resultId: resultId()
 };
 
 /**
@@ -181,9 +182,19 @@ const getIndexType = (explainPlan) => {
   if (!explainPlan) {
     return 'UNAVAILABLE';
   }
-  if (Array.isArray(explainPlan.usedIndex)) {
-    return 'MULTIPLE';
+
+  const indexInfoByShard =
+    groupBy(explainPlan.usedIndexes, 'shard');
+  const indexNamesForAllShards =
+    Object.values(indexInfoByShard).map(entries => entries.map(({ index }) => index));
+  for (let i = 0; i < indexNamesForAllShards.length; i++) {
+    for (let j = i + 1; j < indexNamesForAllShards.length; j++) {
+      if (!isEqual(indexNamesForAllShards[i], indexNamesForAllShards[j])) {
+        return 'MULTIPLE'; // As in, multiple index setups that differ between shards
+      }
+    }
   }
+
   if (explainPlan.isCollectionScan) {
     return 'COLLSCAN';
   }
@@ -199,14 +210,27 @@ const getIndexType = (explainPlan) => {
  * Parses the explain plan.
  *
  * @param {Object} explain - The current explain plan state.
- * @param {Object} data - The new explain plan received from dataService.
+ * @param {ExplainPlan} data - The new explain plan received from dataService.
  *
  * @returns {Object} The parsed explain plan.
  */
 const parseExplainPlan = (explain, data) => {
-  const explainPlanModel = new ExplainPlanModel(data);
+  const explainPlanModel = new ExplainPlan(data);
 
-  return defaults(explainPlanModel.serialize(), explain);
+  const {
+    namespace, parsedQuery, executionSuccess, nReturned, executionTimeMillis,
+    totalKeysExamined, totalDocsExamined, rawExplainObject, originalExplainData,
+    usedIndexes, isCovered, isMultiKey, inMemorySort, isCollectionScan,
+    isSharded, numShards
+  } = explainPlanModel;
+
+  return {
+    ...explain,
+    namespace, parsedQuery, executionSuccess, nReturned, executionTimeMillis,
+    totalKeysExamined, totalDocsExamined, rawExplainObject, originalExplainData,
+    usedIndexes, isCovered, isMultiKey, inMemorySort, isCollectionScan,
+    isSharded, numShards
+  };
 };
 
 /**
@@ -221,8 +245,8 @@ const parseExplainPlan = (explain, data) => {
 const updateWithIndexesInfo = (explain, indexes) => ({
   ...explain,
   indexType: getIndexType(explain),
-  index: isString(explain.usedIndex)
-    ? find(indexes, (idx) => (idx.name === explain.usedIndex))
+  index: explain.usedIndexes.length > 0 && typeof explain.usedIndexes[0].index === 'string'
+    ? find(indexes, (idx) => (idx.name === explain.usedIndexes[0].index))
     : null
 });
 
@@ -266,6 +290,7 @@ export const fetchExplainPlan = (query) => {
     if (dataService) {
       dataService.explain(namespace, filter, options, (error, data) => {
         if (error) {
+          explain.resultId = resultId();
           explain.error = error;
 
           return dispatch(explainPlanFetched(explain));
@@ -279,21 +304,23 @@ export const fetchExplainPlan = (query) => {
           // so we return here before parsing more, and ensure we can show
           // the json view of the explain plan.
           explain.errorParsing = true;
-          explain.rawExplainObject = { originalData: data };
+          explain.originalExplainData = data;
+          explain.resultId = resultId();
 
           return dispatch(explainPlanFetched(explain));
         }
 
         try {
-          explain = parseExplainPlan(explain, convertExplainCompat(data));
+          explain = parseExplainPlan(explain, data);
         } catch (e) {
           explain.errorParsing = true;
-          explain.rawExplainObject = { originalData: data };
+          explain.originalExplainData = data;
+          explain.resultId = resultId();
 
           return dispatch(explainPlanFetched(explain));
         }
         explain = updateWithIndexesInfo(explain, indexes);
-        explain.rawExplainObject.originalData = data;
+        explain.resultId = resultId();
 
         dispatch(explainPlanFetched(explain));
         dispatch(treeStagesChanged(explain));
@@ -315,7 +342,7 @@ export const fetchExplainPlan = (query) => {
             numberOfShards: explain.numShards,
             totalDocsExamined: explain.totalDocsExamined,
             totalKeysExamined: explain.totalKeysExamined,
-            indexUsed: explain.usedIndex
+            usedIndexes: explain.usedIndexes
           }
         ));
 
@@ -337,3 +364,7 @@ export const changeExplainPlanState = (explainState) => {
     return dispatch(explainStateChanged(explainState));
   };
 };
+
+function resultId() {
+  return Math.floor(Math.random() * (2 ** 53));
+}

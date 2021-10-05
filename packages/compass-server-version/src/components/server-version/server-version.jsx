@@ -41,7 +41,7 @@ class ServerVersion extends Component {
         <div className={classnames(styles['server-version-edition'])}>
           EDITION
         </div>
-        <div className={classnames(styles['server-version-text'])}>
+        <div className={classnames(styles['server-version-text'])} data-test-id="server-version-text">
           {this.getVersion()}
         </div>
       </div>

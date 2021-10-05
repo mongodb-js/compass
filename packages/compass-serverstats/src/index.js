@@ -37,3 +37,4 @@ function deactivate() {
 module.exports.d3 = require('./d3');
 module.exports.activate = activate;
 module.exports.deactivate = deactivate;
+module.exports.metadata = require('../package.json');

@@ -2,7 +2,7 @@ import React from 'react';
 import { mount, shallow } from 'enzyme';
 import {
   LogoMark
-} from '@leafygreen-ui/logo';
+} from '@mongodb-js/compass-components';
 
 import { SidebarTitle as SidebarTitleClass } from '../../../src/components/sidebar-title/sidebar-title';
 import styles from '../../../src/components/sidebar-title/sidebar-title.module.less';
@@ -20,7 +20,7 @@ describe('SidebarTitle [Component]', () => {
 
   context('when sidebar is collapsed', () => {
     const globalAppRegistryEmit = sinon.spy();
-    const isSidebarCollapsed = true;
+    const isSidebarExpanded = false;
     let component;
 
     beforeEach(() => {
@@ -28,7 +28,7 @@ describe('SidebarTitle [Component]', () => {
         <SidebarTitleClass
           globalAppRegistryEmit={globalAppRegistryEmit}
           connectionModel={connectionModel}
-          isSidebarCollapsed={isSidebarCollapsed}
+          isSidebarExpanded={isSidebarExpanded}
         />
       );
     });
@@ -46,9 +46,9 @@ describe('SidebarTitle [Component]', () => {
     });
   });
 
-  context('when sidebar is not collapsed', () => {
+  context('when sidebar is expanded', () => {
     const globalAppRegistryEmit = sinon.spy();
-    const isSidebarCollapsed = false;
+    const isSidebarExpanded = true;
     let component;
 
     beforeEach(() => {
@@ -56,7 +56,7 @@ describe('SidebarTitle [Component]', () => {
         <SidebarTitleClass
           globalAppRegistryEmit={globalAppRegistryEmit}
           connectionModel={connectionModel}
-          isSidebarCollapsed={isSidebarCollapsed}
+          isSidebarExpanded={isSidebarExpanded}
         />
       );
     });
@@ -76,7 +76,6 @@ describe('SidebarTitle [Component]', () => {
   context('when the title is clicked', () => {
     const globalAppRegistryEmit = sinon.fake();
     const changeActiveNamespaceFake = sinon.fake();
-    const isSidebarCollapsed = false;
     let component;
 
     beforeEach(() => {
@@ -85,7 +84,7 @@ describe('SidebarTitle [Component]', () => {
           changeActiveNamespace={changeActiveNamespaceFake}
           globalAppRegistryEmit={globalAppRegistryEmit}
           connectionModel={connectionModel}
-          isSidebarCollapsed={isSidebarCollapsed}
+          isSidebarExpanded
         />
       );
 
@@ -105,7 +104,6 @@ describe('SidebarTitle [Component]', () => {
   context('when the sidebar title is active', () => {
     const globalAppRegistryEmit = sinon.fake();
     const changeActiveNamespaceFake = sinon.fake();
-    const isSidebarCollapsed = false;
     let component;
 
     beforeEach(() => {
@@ -115,7 +113,7 @@ describe('SidebarTitle [Component]', () => {
           changeActiveNamespace={changeActiveNamespaceFake}
           globalAppRegistryEmit={globalAppRegistryEmit}
           connectionModel={connectionModel}
-          isSidebarCollapsed={isSidebarCollapsed}
+          isSidebarExpanded
         />
       );
 

@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Icon from '@leafygreen-ui/icon';
+import { Icon } from '@mongodb-js/compass-components';
 
 import {
   PROPERTIES_CAPPED,

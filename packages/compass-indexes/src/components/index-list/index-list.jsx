@@ -38,7 +38,7 @@ class IndexList extends PureComponent {
       );
     });
     return (
-      <tbody>
+      <tbody data-test-id="index-list">
         {indexes}
       </tbody>
     );

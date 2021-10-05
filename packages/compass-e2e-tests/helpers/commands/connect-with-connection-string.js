@@ -1,10 +1,7 @@
 const Selectors = require('../selectors');
 
 module.exports = function (app) {
-  return async function connectWithConnectionString(
-    connectionString,
-    timeout = 10000
-  ) {
+  return async function connectWithConnectionString(connectionString, timeout) {
     const { client } = app;
     await client.setValueVisible(
       Selectors.ConnectionStringInput,

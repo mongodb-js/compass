@@ -1,10 +1,14 @@
 {
   "name": "@mongodb-js/compass-collection-stats",
   "productName": "Collection Stats",
-  "version": "6.13.0",
+  "version": "6.14.0",
   "apiVersion": "3.0.0",
   "description": "Compass Collection Stats Plugin",
   "main": "lib/index.js",
+  "exports": {
+    "webpack": "./src/index.js",
+    "require": "./lib/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -57,7 +61,7 @@
     "css-loader": "^4.3.0",
     "debug": "^4.1.1",
     "depcheck": "^1.4.1",
-    "electron": "^13.1.8",
+    "electron": "^13.5.1",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^7.25.0",
@@ -66,7 +70,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.13.0",
+    "hadron-app": "^4.14.0",
     "hadron-app-registry": "^8.4.0",
     "hadron-react-bson": "^5.5.0",
     "hadron-react-components": "^5.6.0",
@@ -90,7 +94,7 @@
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-client-encryption": "^1.2.3",
     "mongodb-connection-model": "^21.8.0",
-    "mongodb-data-service": "^21.11.0",
+    "mongodb-data-service": "^21.12.0",
     "mongodb-ns": "^2.2.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",

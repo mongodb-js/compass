@@ -3,19 +3,20 @@
  * https://github.com/atom/electron/blob/main/docs/api/browser-window.md
  */
 const { pathToFileURL } = require('url');
-var electron = require('electron');
-var electronLocalShortcut = require('electron-localshortcut');
-var AppMenu = require('./menu');
-var BrowserWindow = electron.BrowserWindow;
+const electron = require('electron');
+const electronLocalShortcut = require('electron-localshortcut');
+const AppMenu = require('./menu');
+const BrowserWindow = electron.BrowserWindow;
 
-var _ = require('lodash');
-var app = electron.app;
+const _ = require('lodash');
+const app = electron.app;
 
-var debug = require('debug')('mongodb-compass:electron:window-manager');
-var dialog = electron.dialog;
-var path = require('path');
-var ipc = require('hadron-ipc');
-var COMPASS_ICON = require('../icon');
+const debug = require('debug')('mongodb-compass:electron:window-manager');
+const dialog = electron.dialog;
+const path = require('path');
+const ipc = require('hadron-ipc');
+const COMPASS_ICON = require('../icon');
+const { extractPartialLogFile } = require('./logging');
 
 /**
  * Constants for window sizes on multiple platforms
@@ -83,26 +84,12 @@ var createWindow = (module.exports.create = function(opts) {
     icon: process.platform === 'linux' ? COMPASS_ICON : undefined
   });
 
-  debug('creating new window:', {
+  const mainWindowOpts = {
     width: opts.width,
     height: opts.height,
     icon: opts.icon,
-    show: false,
-    backgroundColor: '#F5F6F7',
-    minWidth: opts.minwidth,
-    minHeight: opts.minheight,
-    webPreferences: {
-      'subpixel-font-scaling': true,
-      'direct-write': true,
-      nodeIntegration: true
-    }
-  });
-
-  var _window = new BrowserWindow({
-    width: opts.width,
-    height: opts.height,
-    icon: opts.icon,
-    show: false,
+    // Helpful for debugging
+    show: !!process.env.DEBUG_MAIN_WINDOW,
     backgroundColor: '#F5F6F7',
     minWidth: opts.minwidth,
     minHeight: opts.minheight,
@@ -113,30 +100,17 @@ var createWindow = (module.exports.create = function(opts) {
       contextIsolation: false,
       enableRemoteModule: true
     }
-  });
+  };
+
+  debug('creating new window:', mainWindowOpts);
+
+  var _window = new BrowserWindow(mainWindowOpts);
 
   electronLocalShortcut.register(_window, 'CmdOrCtrl+=', () => {
     ipc.broadcast('window:zoom-in');
   });
 
-  debug('creating new loading window:', {
-    width: opts.width,
-    height: opts.height,
-    icon: opts.icon,
-    devTools: false,
-    backgroundColor: '#3D4F58',
-    minWidth: opts.minwidth,
-    webPreferences: {
-      'subpixel-font-scaling': true,
-      'direct-write': true,
-      nodeIntegration: true
-    }
-  });
-
-  /**
-   * TODO (@imlucas) COMPASS-3134 to factor out 2 BrowserWindow's.
-   */
-  var _loading = new BrowserWindow({
+  const loadingWindowOpts = {
     width: opts.width,
     height: opts.height,
     icon: opts.icon,
@@ -150,19 +124,28 @@ var createWindow = (module.exports.create = function(opts) {
       contextIsolation: false,
       enableRemoteModule: true
     }
-  });
+  };
+
+  debug('creating new loading window:', loadingWindowOpts);
+
+  /**
+   * TODO (@imlucas) COMPASS-3134 to factor out 2 BrowserWindow's.
+   */
+  var _loading = new BrowserWindow(loadingWindowOpts);
 
   _loading.webContents.on('will-navigate', (evt) => evt.preventDefault());
 
-  _loading.on('move', () => {
-    const position = _loading.getPosition();
-    _window.setPosition(position[0], position[1]);
-  });
+  if (!process.env.DEBUG_MAIN_WINDOW) {
+    _loading.on('move', () => {
+      const position = _loading.getPosition();
+      _window.setPosition(position[0], position[1]);
+    });
 
-  _loading.on('resize', () => {
-    const size = _loading.getSize();
-    _window.setSize(size[0], size[1]);
-  });
+    _loading.on('resize', () => {
+      const size = _loading.getSize();
+      _window.setSize(size[0], size[1]);
+    });
+  }
 
   /**
    * Take all the loading status changes and broadcast to other windows.
@@ -207,8 +190,10 @@ var createWindow = (module.exports.create = function(opts) {
         _window.setFullScreen(true);
       }
 
-      debug('close _loading');
-      _loading.close();
+      if (!process.env.DEBUG_LOADING_WINDOW) {
+        debug('close _loading');
+        _loading.close();
+      }
 
       debug('showing _window');
       _window.show();
@@ -323,6 +308,36 @@ function showAboutDialog() {
   });
 }
 
+function showLogFileDialog({ logFilePath }) {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Log file for this session',
+    icon: COMPASS_ICON,
+    message: `The log file for this session can be found at ${logFilePath}`,
+    detail: 'Some tools may not be able to read the log file until Compass has exited.',
+    buttons: ['OK', 'Copy to clipboard', 'Open Folder', 'Extract and open as .txt']
+  }).then(({ response }) => {
+    switch (response) {
+      case 1:
+        electron.clipboard.writeText(logFilePath);
+        break;
+      case 2:
+        electron.shell.showItemInFolder(logFilePath);
+        break;
+      case 3: {
+        extractPartialLogFile({ app, logFilePath }).then(tempFilePath => {
+          electron.shell.openItem(tempFilePath);
+        }).catch(err => {
+          electron.dialog.showErrorBox('Error extracting log file', String(err));
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  });
+}
+
 /**
  * @param {Object} _bw - Current BrowserWindow
  * @param {String} message - Message to be set by MessageBox
@@ -376,6 +391,7 @@ ipc.respondTo({
   'app:show-info-dialog': showInfoDialog,
   'app:show-connect-window': showConnectWindow,
   'window:show-about-dialog': showAboutDialog,
+  'window:show-log-file-dialog': showLogFileDialog,
   'window:show-collection-submenu': showCollectionSubmenu,
   'window:hide-collection-submenu': hideCollectionSubmenu,
   'window:show-compass-overview-submenu': showCompassOverview,
@@ -386,6 +402,7 @@ ipc.respondTo({
  * Respond to events from the main process
  */
 app.on('window:show-about-dialog', showAboutDialog);
+app.on('window:show-log-file-dialog', showLogFileDialog);
 app.on('app:show-connect-window', showConnectWindow);
 
 app.on('before-quit', function() {
@@ -402,7 +419,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('ready', function() {
+function onAppReady() {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
     debug('Activating Compass specific devtools...');
@@ -423,4 +440,12 @@ app.on('ready', function() {
      */
     showConnectWindow();
   }
-});
+}
+
+module.exports = () => {
+  if (app.isReady()) {
+    onAppReady();
+  } else {
+    app.on('ready', onAppReady);
+  }
+};

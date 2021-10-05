@@ -13,6 +13,8 @@ jobs:
   build:
     name: Build Compass
 
+    timeout-minutes: 45
+
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -52,7 +54,10 @@ jobs:
         run: npm install -g npm@7.20.2
 
       - name: Install Dependencies
-        run: npm run bootstrap-ci
+        run: |
+          npm ci
+          # We don't need to bootstrap anything else before running the e2e tests
+          npx lerna run bootstrap -- --stream --scope @mongodb/webpack-config-compass
 
       # https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708/3
       - name: Set path for candle.exe and light.exe
@@ -60,22 +65,10 @@ jobs:
         run: echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" >> $GITHUB_PATH
         shell: bash
 
-      - name: Publish Packages Locally and Build Compass
-        uses: nick-invision/retry@v2
-        with:
-          timeout_minutes: 10
-          max_attempts: 5
-          shell: bash
-          command: npm run package-compass
-          # When lerna fails to publish, it leaves the repo in the dirty state
-          # that will mess up the following attempts
-          on_retry_command: git reset HEAD --hard
+      - name: Build Compass
         env:
-          HADRON_PRODUCT: mongodb-compass
-          HADRON_PRODUCT_NAME: MongoDB Compass
-          HADRON_DISTRIBUTION: compass
-          HADRON_LOCAL_PUBLISH: 'true'
           DEBUG: 'hadron*,mongo*,electron*'
+        run: npm run package-compass
 
       - name: Test Packaged Application
         env:
@@ -84,11 +77,14 @@ jobs:
           E2E_TESTS_ATLAS_PASSWORD: ${{ secrets.E2E_TESTS_ATLAS_PASSWORD }}
           # Matches what we are doing in Evergreen
           MONGODB_VERSION: '4'
-          DEBUG: 'compass-e2e-tests*'
+          DEBUG: 'compass-e2e-tests*,hadron*'
         run: npm run test-packaged-ci --workspace compass-e2e-tests
 
       - name: Upload Compass Artifacts
         uses: actions/upload-artifact@v2
+        # In case e2e tests failed, but assets were produced, we still want to
+        # upload them for inspection
+        if: always()
         with:
           name: Compass Build ${{ runner.os }}
           path: |
@@ -99,10 +95,12 @@ jobs:
             packages/compass/dist/*.deb
             packages/compass/dist/*.rpm
             packages/compass/dist/*.tar.gz
+            packages/compass/dist/*.json
 
       - name: Upload Spectron Logs
         uses: actions/upload-artifact@v2
-        if: ${{ cancelled() || failure() }}
+        # even if tests succeeded you might still want to examine logs
+        if: always()
         with:
           name: Spectron Debug Files ${{ github.workflow }} ${{ runner.os }}
           path: packages/compass-e2e-tests/.log/**/*

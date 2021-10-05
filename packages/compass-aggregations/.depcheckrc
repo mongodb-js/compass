@@ -1,6 +1,7 @@
 ignores: [
   "mongodb-extended-json",
   "storage-mixin",
+  "@hot-loader/react-dom",
   "@babel/cli",
   "@babel/register",
   "bootstrap",

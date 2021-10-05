@@ -72,7 +72,21 @@ LocalBackend.prototype._write = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
 LocalBackend.prototype.findOne = function(model, options, done) {
-  this.store.getItem(this._getId(model), done);
+  const id = this._getId(model);
+  this.store.getItem(id, (err, data) => {
+    if (err) {
+      done(err);
+      return;
+    }
+    if (!data) {
+      debug(`Can't find model with id ${id}`);
+      // We don't want to error out here, if something is not found in local
+      // backend, return an empty object as if there are just no "options"
+      // stored (we need to return an object, otherwise ampersand blows up)
+      data = {};
+    }
+    done(null, data);
+  });
 };
 
 /**

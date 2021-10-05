@@ -1,7 +1,6 @@
 import SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
 import createLogger from '@mongodb-js/compass-logging';
-import createDebug from 'debug';
 import { EventEmitter } from 'events';
 import { isFunction } from 'lodash';
 import {
@@ -12,6 +11,8 @@ import {
   Collection,
   CollectionInfo,
   CollStats,
+  CommandFailedEvent,
+  CommandSucceededEvent,
   CountDocumentsOptions,
   CreateCollectionOptions,
   CreateIndexesOptions,
@@ -65,8 +66,7 @@ const { fetch: getIndexes } = require('mongodb-index-model');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const parseNamespace = require('mongodb-ns');
 
-const debug = createDebug('mongodb-data-service:data-service');
-const { log, mongoLogId } = createLogger('COMPASS-DATA-SERVICE');
+const { log, mongoLogId, debug } = createLogger('COMPASS-DATA-SERVICE');
 
 let id = 0;
 
@@ -190,8 +190,14 @@ class DataService extends EventEmitter {
     collectionName: string,
     callback: Callback<CollectionStats>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_031),
+      'Fetching collection info',
+      { ns: `${databaseName}.${collectionName}` }
+    );
     const db = this.mongoClient.db(databaseName);
     db.command({ collStats: collectionName, verbose: true }, (error, data) => {
+      logop(error);
       if (error && !error.message.includes('is a view, not a collection')) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -272,8 +278,14 @@ class DataService extends EventEmitter {
       options = {};
     }
     const db = this.mongoClient.db(databaseName);
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_032),
+      'Running listCollections',
+      { db: databaseName }
+    );
     db.listCollections(filter, options as ListCollectionsOptions).toArray(
       (error, data) => {
+        logop(error);
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
@@ -289,6 +301,10 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   listDatabases(callback: Callback<Document>): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_033),
+      'Running listDatabases'
+    );
     this.mongoClient.db('admin').command(
       {
         listDatabases: 1,
@@ -297,6 +313,7 @@ class DataService extends EventEmitter {
         readPreference: this.model.readPreference,
       },
       (error, result) => {
+        logop(error);
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
@@ -352,7 +369,6 @@ class DataService extends EventEmitter {
           isWritable: this.isWritable(),
           isMongos: this.isMongos(),
         };
-        debug('connected!', attr);
         log.info(mongoLogId(1_001_000_015), this._logCtx(), 'Connected', attr);
 
         this._database = this._client.db(this.model.ns || 'admin');
@@ -376,9 +392,15 @@ class DataService extends EventEmitter {
     options: EstimatedDocumentCountOptions,
     callback: Callback<number>
   ): void {
-    this._collection(ns).estimatedDocumentCount(options, (err, result) =>
-      callback(err, result!)
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_034),
+      'Running estimatedCount',
+      { ns }
     );
+    this._collection(ns).estimatedDocumentCount(options, (err, result) => {
+      logop(err, result);
+      callback(err, result!);
+    });
   }
 
   /**
@@ -395,9 +417,15 @@ class DataService extends EventEmitter {
     options: CountDocumentsOptions,
     callback: Callback<number>
   ): void {
-    this._collection(ns).countDocuments(filter, options, (err, result) =>
-      callback(err, result!)
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_035),
+      'Running countDocuments',
+      { ns }
     );
+    this._collection(ns).countDocuments(filter, options, (err, result) => {
+      logop(err, result);
+      callback(err, result!);
+    });
   }
 
   /**
@@ -414,7 +442,13 @@ class DataService extends EventEmitter {
   ): void {
     const collectionName = this._collectionName(ns);
     const db = this.mongoClient.db(this._databaseName(ns));
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_036),
+      'Running createCollection',
+      { ns, options }
+    );
     db.createCollection(collectionName, options, (error, result) => {
+      logop(error);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -437,7 +471,13 @@ class DataService extends EventEmitter {
     options: CreateIndexesOptions,
     callback: Callback<string>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_037),
+      'Running createIndex',
+      { ns, spec, options }
+    );
     this._collection(ns).createIndex(spec, options, (error, result) => {
+      logop(error);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -483,7 +523,13 @@ class DataService extends EventEmitter {
     options: DeleteOptions,
     callback: Callback<DeleteResult>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_038),
+      'Running deleteOne',
+      { ns }
+    );
     this._collection(ns).deleteOne(filter, options, (error, result) => {
+      logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -506,7 +552,13 @@ class DataService extends EventEmitter {
     options: DeleteOptions,
     callback: Callback<DeleteResult>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_039),
+      'Running deleteMany',
+      { ns }
+    );
     this._collection(ns).deleteMany(filter, options, (error, result) => {
+      logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -537,7 +589,6 @@ class DataService extends EventEmitter {
         this._tunnel.close().finally(() => {
           this._cleanup();
           log.info(mongoLogId(1_001_000_017), this._logCtx(), 'Fully closed');
-          debug('ssh tunnel stopped');
           // @ts-expect-error Callback without result...
           callback(err);
         });
@@ -556,7 +607,13 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   dropCollection(ns: string, callback: Callback<boolean>): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_059),
+      'Running dropCollection',
+      { ns }
+    );
     this._collection(ns).drop((error, result) => {
+      logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -572,9 +629,15 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   dropDatabase(name: string, callback: Callback<boolean>): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_040),
+      'Running dropDatabase',
+      { db: name }
+    );
     this.mongoClient
       .db(this._databaseName(name))
       .dropDatabase((error, result) => {
+        logop(error, result);
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
@@ -591,7 +654,13 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   dropIndex(ns: string, name: string, callback: Callback<Document>): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_060),
+      'Running dropIndex',
+      { ns, name }
+    );
     this._collection(ns).dropIndex(name, (error, result) => {
+      logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -632,6 +701,10 @@ class DataService extends EventEmitter {
     options?: AggregateOptions | Callback<AggregationCursor>,
     callback?: Callback<AggregationCursor>
   ): AggregationCursor | void {
+    log.info(mongoLogId(1_001_000_041), this._logCtx(), 'Running aggregation', {
+      ns,
+      stages: pipeline.map((stage) => Object.keys(stage)[0]),
+    });
     if (typeof options === 'function') {
       callback = options;
       options = undefined;
@@ -660,8 +733,12 @@ class DataService extends EventEmitter {
     options: FindOptions,
     callback: Callback<Document[]>
   ): void {
+    const logop = this._startLogOp(mongoLogId(1_001_000_042), 'Running find', {
+      ns,
+    });
     const cursor = this._collection(ns).find(filter, options);
     cursor.toArray((error, documents) => {
+      logop(error);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -682,6 +759,11 @@ class DataService extends EventEmitter {
     filter: Filter<Document>,
     options: FindOptions
   ): FindCursor {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_043),
+      'Running raw find',
+      { ns }
+    );
     return this._collection(ns).find(filter, options);
   }
 
@@ -701,11 +783,17 @@ class DataService extends EventEmitter {
     options: FindOneAndReplaceOptions,
     callback: Callback<Document>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_044),
+      'Running findOneAndReplace',
+      { ns }
+    );
     this._collection(ns).findOneAndReplace(
       filter,
       replacement,
       options,
       (error, result) => {
+        logop(error);
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
@@ -731,11 +819,17 @@ class DataService extends EventEmitter {
     options: FindOneAndUpdateOptions,
     callback: Callback<Document>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_045),
+      'Running findOneAndUpdate',
+      { ns }
+    );
     this._collection(ns).findOneAndUpdate(
       filter,
       update,
       options,
       (error, result) => {
+        logop(error);
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
@@ -759,11 +853,17 @@ class DataService extends EventEmitter {
     options: ExplainOptions,
     callback: Callback<Document>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_046),
+      'Running find explain',
+      { ns }
+    );
     // @todo thomasr: driver explain() does not yet support verbosity,
     // once it does, should be passed along from the options object.
     this._collection(ns)
       .find(filter, options)
       .explain((error, explanation) => {
+        logop(error);
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
@@ -780,10 +880,16 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   indexes(ns: string, options: unknown, callback: Callback<Document>): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_047),
+      'Listing indexes',
+      { ns }
+    );
     getIndexes(
       this.mongoClient,
       ns,
       (error: Error | undefined, data: IndexDetails[]) => {
+        logop(error);
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
@@ -805,6 +911,18 @@ class DataService extends EventEmitter {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
       }
+
+      log.info(
+        mongoLogId(1_001_000_024),
+        this._logCtx(),
+        'Fetched instance information',
+        {
+          serverVersion: instanceData.build.version,
+          genuineMongoDB: instanceData.genuineMongoDB,
+          dataLake: instanceData.dataLake,
+          featureCompatibilityVersion: instanceData.featureCompatibilityVersion,
+        }
+      );
 
       const instance: Instance = {
         ...instanceData,
@@ -830,7 +948,13 @@ class DataService extends EventEmitter {
     options: InsertOneOptions,
     callback: Callback<InsertOneResult<Document>>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_048),
+      'Running insertOne',
+      { ns }
+    );
     this._collection(ns).insertOne(doc, options, (error, result) => {
+      logop(error, { acknowledged: result?.acknowledged });
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -853,7 +977,16 @@ class DataService extends EventEmitter {
     options: BulkWriteOptions,
     callback: Callback<InsertManyResult<Document>>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_049),
+      'Running insertOne',
+      { ns }
+    );
     this._collection(ns).insertMany(docs, options, (error, result) => {
+      logop(error, {
+        acknowledged: result?.acknowledged,
+        insertedCount: result?.insertedCount,
+      });
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -868,6 +1001,7 @@ class DataService extends EventEmitter {
    * @param ns - The namespace.
    * @param docs - The documents to insert.
    * @param options - The options.
+   * @deprecated
    */
   putMany(
     ns: string,
@@ -892,6 +1026,11 @@ class DataService extends EventEmitter {
     flags: Document & { collMod?: never },
     callback: Callback<Document>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_050),
+      'Running updateCollection',
+      { ns }
+    );
     const collectionName = this._collectionName(ns);
     const db = this.mongoClient.db(this._databaseName(ns));
     // Order of arguments is important here, collMod is a command name and it
@@ -901,6 +1040,7 @@ class DataService extends EventEmitter {
       ...flags,
     };
     db.command(command, (error, result) => {
+      logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -925,7 +1065,13 @@ class DataService extends EventEmitter {
     options: UpdateOptions,
     callback: Callback<Document>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_051),
+      'Running updateOne',
+      { ns }
+    );
     this._collection(ns).updateOne(filter, update, options, (error, result) => {
+      logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -950,11 +1096,17 @@ class DataService extends EventEmitter {
     options: UpdateOptions,
     callback: Callback<Document | UpdateResult>
   ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_052),
+      'Running updateMany',
+      { ns }
+    );
     this._collection(ns).updateMany(
       filter,
       update,
       options,
       (error, result) => {
+        logop(error, result);
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
@@ -971,14 +1123,24 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   currentOp(includeAll: boolean, callback: Callback<Document>): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_053),
+      'Running currentOp'
+    );
     this.mongoClient
       .db('admin')
       .command({ currentOp: 1, $all: includeAll }, (error, result) => {
+        logop(error);
         if (error) {
+          const logop = this._startLogOp(
+            mongoLogId(1_001_000_054),
+            'Searching $cmd.sys.inprog manually'
+          );
           this.mongoClient
             .db('admin')
             .collection('$cmd.sys.inprog')
             .findOne({ $all: includeAll }, (error2, result2) => {
+              logop(error2);
               if (error2) {
                 // @ts-expect-error Callback without result...
                 return callback(this._translateMessage(error2));
@@ -1003,7 +1165,12 @@ class DataService extends EventEmitter {
    * Returns the result of serverStats.
    */
   serverstats(callback: Callback<Document>): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_061),
+      'Running serverStats'
+    );
     this.db.admin().serverStatus((error, result) => {
+      logop(error);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -1018,7 +1185,9 @@ class DataService extends EventEmitter {
    * @param callback - the callback.
    */
   top(callback: Callback<Document>): void {
+    const logop = this._startLogOp(mongoLogId(1_001_000_062), 'Running top');
     this.db.admin().command({ top: 1 }, (error, result) => {
+      logop(error);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -1046,9 +1215,20 @@ class DataService extends EventEmitter {
     options.viewOn = this._collectionName(sourceNs);
     options.pipeline = pipeline;
 
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_055),
+      'Running createView',
+      {
+        name,
+        sourceNs,
+        stages: pipeline.map((stage) => Object.keys(stage)[0]),
+        options,
+      }
+    );
     this.mongoClient
       .db(this._databaseName(sourceNs))
       .createCollection(name, options, (error, result) => {
+        logop(error, result);
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
@@ -1082,7 +1262,18 @@ class DataService extends EventEmitter {
     };
     const db = this.mongoClient.db(this._databaseName(sourceNs));
 
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_056),
+      'Running updateView',
+      {
+        name,
+        sourceNs,
+        stages: pipeline.map((stage) => Object.keys(stage)[0]),
+        options,
+      }
+    );
     db.command(command, (error, result) => {
+      logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -1179,7 +1370,6 @@ class DataService extends EventEmitter {
       client.on(
         'serverDescriptionChanged',
         (evt: ServerDescriptionChangedEvent) => {
-          debug('serverDescriptionChanged', evt);
           log.info(
             mongoLogId(1_001_000_018),
             this._logCtx(),
@@ -1187,6 +1377,8 @@ class DataService extends EventEmitter {
             {
               address: evt.address,
               error: evt.newDescription.error ?? null,
+              previousType: evt.previousDescription.type,
+              newType: evt.newDescription.type,
             }
           );
           this.emit('serverDescriptionChanged', evt);
@@ -1194,7 +1386,6 @@ class DataService extends EventEmitter {
       );
 
       client.on('serverOpening', (evt: ServerOpeningEvent) => {
-        debug('serverOpening', evt);
         log.info(mongoLogId(1_001_000_019), this._logCtx(), 'Server opening', {
           address: evt.address,
         });
@@ -1202,7 +1393,6 @@ class DataService extends EventEmitter {
       });
 
       client.on('serverClosed', (evt: ServerClosedEvent) => {
-        debug('serverClosed', evt);
         log.info(mongoLogId(1_001_000_020), this._logCtx(), 'Server closed', {
           address: evt.address,
         });
@@ -1210,26 +1400,24 @@ class DataService extends EventEmitter {
       });
 
       client.on('topologyOpening', (evt: TopologyOpeningEvent) => {
-        debug('topologyOpening', evt);
         this.emit('topologyOpening', evt);
       });
 
       client.on('topologyClosed', (evt: TopologyClosedEvent) => {
-        debug('topologyClosed', evt);
         this.emit('topologyClosed', evt);
       });
 
       client.on(
         'topologyDescriptionChanged',
         (evt: TopologyDescriptionChangedEvent) => {
-          debug('topologyDescriptionChanged', evt);
           this._isWritable = this.checkIsWritable(evt);
           this._isMongos = this.checkIsMongos(evt);
           const attr = {
             isWritable: this.isWritable(),
             isMongos: this.isMongos(),
+            previousType: evt.previousDescription.type,
+            newType: evt.newDescription.type,
           };
-          debug('updated to', attr);
           log.info(
             mongoLogId(1_001_000_021),
             this._logCtx(),
@@ -1243,36 +1431,108 @@ class DataService extends EventEmitter {
         }
       );
 
+      // Heartbeat events are fairly noisy. We put some effort into
+      // making sure that we only log events that actually contain
+      // meaningful information.
+      const heartbeatStatusMap = new Map<
+        string,
+        { failure: string | null; duration: number }
+      >();
+      const isSignificantDurationChange = (
+        before: number,
+        after: number
+      ): boolean => {
+        // Changes in pings below 200ms are not particularly concerning here.
+        before = Math.max(before, 200);
+        after = Math.max(after, 200);
+        // Check if changes is at least 2× (in either direction).
+        return Math.abs(Math.log2(before / after)) >= 1;
+      };
+
       client.on(
         'serverHeartbeatSucceeded',
         (evt: ServerHeartbeatSucceededEvent) => {
-          debug('serverHeartbeatSucceeded', evt);
-          log.info(
-            mongoLogId(1_001_000_022),
-            this._logCtx(),
-            'Server heartbeat succeeded',
-            {
-              connectionId: evt.connectionId,
+          const previousStatus = heartbeatStatusMap.get(evt.connectionId);
+          if (
+            !previousStatus ||
+            previousStatus.failure ||
+            isSignificantDurationChange(previousStatus.duration, evt.duration)
+          ) {
+            heartbeatStatusMap.set(evt.connectionId, {
+              failure: null,
               duration: evt.duration,
-            }
-          );
+            });
+            log.write({
+              s: 'D2',
+              id: mongoLogId(1_001_000_022),
+              ctx: this._logCtx(),
+              msg: 'Server heartbeat succeeded',
+              attr: {
+                connectionId: evt.connectionId,
+                duration: evt.duration,
+              },
+            });
+          }
           this.emit('serverHeartbeatSucceeded', evt);
         }
       );
 
       client.on('serverHeartbeatFailed', (evt: ServerHeartbeatFailedEvent) => {
-        debug('serverHeartbeatFailed', evt);
-        log.warn(
-          mongoLogId(1_001_000_023),
-          this._logCtx(),
-          'Server heartbeat succeeded',
-          {
-            connectionId: evt.connectionId,
-            duration: evt.duration,
+        const previousStatus = heartbeatStatusMap.get(evt.connectionId);
+        if (
+          !previousStatus ||
+          !previousStatus.failure ||
+          isSignificantDurationChange(previousStatus.duration, evt.duration)
+        ) {
+          heartbeatStatusMap.set(evt.connectionId, {
             failure: evt.failure.message,
-          }
-        );
+            duration: evt.duration,
+          });
+          log.warn(
+            mongoLogId(1_001_000_023),
+            this._logCtx(),
+            'Server heartbeat failed',
+            {
+              connectionId: evt.connectionId,
+              duration: evt.duration,
+              failure: evt.failure.message,
+            }
+          );
+        }
         this.emit('serverHeartbeatFailed', evt);
+      });
+
+      client.on('commandSucceeded', (evt: CommandSucceededEvent) => {
+        const { address, connectionId, duration, commandName } = evt;
+        log.write({
+          s: 'D2',
+          id: mongoLogId(1_001_000_029),
+          ctx: this._logCtx(),
+          msg: 'Driver command succeeded',
+          attr: {
+            address,
+            serverConnectionId: connectionId,
+            duration,
+            commandName,
+          },
+        });
+      });
+
+      client.on('commandFailed', (evt: CommandFailedEvent) => {
+        const { address, connectionId, duration, commandName, failure } = evt;
+        log.write({
+          s: 'D1',
+          id: mongoLogId(1_001_000_030),
+          ctx: this._logCtx(),
+          msg: 'Driver command failed',
+          attr: {
+            address,
+            serverConnectionId: connectionId,
+            duration,
+            commandName,
+            failure: failure.message,
+          },
+        });
       });
     }
   }
@@ -1299,7 +1559,13 @@ class DataService extends EventEmitter {
    */
   private databaseStats(name: string, callback: Callback<Document>): void {
     const db = this.mongoClient.db(name);
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_057),
+      'Running databaseStats',
+      { db: name }
+    );
     db.command({ dbStats: 1 }, (error, data) => {
+      logop(error);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
@@ -1506,6 +1772,37 @@ class DataService extends EventEmitter {
     this._isMongos = false;
     this._isConnecting = false;
   }
+
+  private _startLogOp(
+    logId: ReturnType<typeof mongoLogId>,
+    op: string,
+    attr: any = {}
+  ): (error: any, result?: any) => void {
+    return (error: any, result: any) => {
+      if (error) {
+        const { message } = this._translateMessage(error);
+        log.error(
+          mongoLogId(1_001_000_058),
+          this._logCtx(),
+          'Failed to perform data service operation',
+          {
+            op,
+            message,
+            ...attr,
+          }
+        );
+      } else {
+        if (result) {
+          attr = { ...attr, result };
+        }
+        if (Object.keys(attr).length > 0) {
+          log.info(logId, this._logCtx(), op, attr);
+        } else {
+          log.info(logId, this._logCtx(), op);
+        }
+      }
+    };
+  }
 }
 
-export = DataService;
+export default DataService;

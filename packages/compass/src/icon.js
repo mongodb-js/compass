@@ -1,6 +1,9 @@
-var path = require('path');
-var COMPASS_ICON = path.join(__dirname, 'app', 'images', 'compass-dialog-icon.png');
-var nativeImage = require('electron').nativeImage;
+const path = require('path');
+const COMPASS_ICON = path.join(
+  __dirname,
+  require('./app/images/compass-dialog-icon.png')
+);
+const nativeImage = require('electron').nativeImage;
 
 /**
  * Convenience for getting the app icon to customize native UI components
@@ -8,8 +11,8 @@ var nativeImage = require('electron').nativeImage;
  *
  * @example
  * ```javascript
- * var icon = require('./icon');
- * var dialog = require('electron').dialog;
+ * const icon = require('./icon');
+ * const dialog = require('electron').dialog;
  * dialog.showMessageBox({icon: icon, message: 'I have a nice Compass icon.'});
  * ```
  *

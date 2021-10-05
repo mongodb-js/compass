@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Checkbox from '@leafygreen-ui/checkbox';
-import IconButton from '@leafygreen-ui/icon-button';
-import Icon from '@leafygreen-ui/icon';
+import { Checkbox } from '@mongodb-js/compass-components';
+import { IconButton } from '@mongodb-js/compass-components';
+import { Icon } from '@mongodb-js/compass-components';
 
 import FieldSet from '../field-set/field-set';
 import styles from './collapsible-field-set.module.less';

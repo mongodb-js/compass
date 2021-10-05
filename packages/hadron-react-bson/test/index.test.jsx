@@ -11,7 +11,8 @@ import {
   KeyValue,
   RegexValue,
   DBRefValue,
-  StringValue
+  StringValue,
+  TimestampValue
 } from '../';
 
 describe('#getComponent', () => {
@@ -95,7 +96,7 @@ describe('#getComponent', () => {
 
   context('when the type is Timestamp', () => {
     it('returns an element value component', () => {
-      expect(getComponent('Timestamp')).to.deep.equal(Value);
+      expect(getComponent('Timestamp')).to.deep.equal(TimestampValue);
     });
   });
 

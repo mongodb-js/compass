@@ -9,6 +9,7 @@
   ],
   "main": "lib/index.js",
   "exports": {
+    "webpack": "./lib/index.js",
     "require": "./lib/index.js",
     "import": "./.esm-wrapper.mjs"
   },

@@ -12,7 +12,6 @@ import StatusActions from '../actions';
  * @param {Boolean} animation     show/hide animation
  * @param {String}  message       message to show, '' disables message
  * @param {View}    subview       subview to show, or `null`
- * @param {Boolean} sidebar       show/hide static sidebar
  */
 const StatusStore = Reflux.createStore({
   mixins: [StateMixin.store],
@@ -23,8 +22,6 @@ const StatusStore = Reflux.createStore({
     appRegistry.on('compass:status:show-indeterminate-progress-bar', this.showIndeterminateProgressBar.bind(this));
     appRegistry.on('compass:status:set-message', this.setMessage.bind(this));
     appRegistry.on('compass:status:clear-message', this.clearMessage.bind(this));
-    appRegistry.on('compass:status:show-static-sidebar', this.showStaticSidebar.bind(this));
-    appRegistry.on('compass:status:hide-static-sidebar', this.hideStaticSidebar.bind(this));
     appRegistry.on('compass:status:set-subview', this.setSubview.bind(this));
     appRegistry.on('compass:status:set-subview-store', this.setSubviewStore.bind(this));
     appRegistry.on('compass:status:set-subview-actions', this.setSubviewActions.bind(this));
@@ -58,7 +55,6 @@ const StatusStore = Reflux.createStore({
       subview: null,
       subviewStore: null,
       subviewActions: null,
-      sidebar: true,
       trickle: false,
       globalAppRegistry: null
     };
@@ -143,19 +139,6 @@ const StatusStore = Reflux.createStore({
   hideAnimation() {
     this.setState({
       animation: false
-    });
-  },
-
-  showStaticSidebar() {
-    this.setState({
-      visible: true,
-      sidebar: true
-    });
-  },
-
-  hideStaticSidebar() {
-    this.setState({
-      sidebar: false
     });
   },
 

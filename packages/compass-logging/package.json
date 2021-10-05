@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -26,6 +26,10 @@
     "hadron-ipc": "*"
   },
   "main": "dist/index.js",
+  "exports": {
+    "webpack": "./src/index.ts",
+    "require": "./dist/index.js"
+  },
   "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
@@ -44,11 +48,13 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "mongodb-log-writer": "^1.0.3"
+    "debug": "^4.1.1",
+    "is-electron-renderer": "^2.0.1",
+    "mongodb-log-writer": "^1.1.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.3.0",
-    "@mongodb-js/mocha-config-compass": "^0.3.0",
+    "@mongodb-js/mocha-config-compass": "^0.4.0",
     "@mongodb-js/prettier-config-compass": "^0.2.0",
     "@mongodb-js/tsconfig-compass": "^0.2.0",
     "@types/chai": "^4.2.21",

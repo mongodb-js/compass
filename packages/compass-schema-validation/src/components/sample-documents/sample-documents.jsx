@@ -47,7 +47,7 @@ class SampleDocuments extends Component {
       <div className={classnames(
         styles['document-container'],
         styles['matching-documents']
-      )}>
+      )} data-test-id="matching-documents">
         <CheckCircle />
         <span className={classnames(styles['matching-documents-title'])}>
           {title}
@@ -71,7 +71,7 @@ class SampleDocuments extends Component {
       <div className={classnames(
         styles['document-container'],
         styles['notmatching-documents']
-      )}>
+      )} data-test-id="notmatching-documents">
         <CrossCircle />
         <span className={classnames(styles['matching-documents-title'])}>
           {title}

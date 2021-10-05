@@ -32,7 +32,7 @@ class IndexComponent extends PureComponent {
    */
   render() {
     return (
-      <tr className={classnames(styles['index-component'])}>
+      <tr className={classnames(styles['index-component'])} data-test-id="index-component">
         <NameColumn index={this.props.index} />
         <TypeColumn index={this.props.index} openLink={this.props.openLink}/>
         <SizeColumn

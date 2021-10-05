@@ -27,11 +27,8 @@ class OptionSelector extends React.Component {
     const htmlLabel = this.constructor.renderLabel(this.props.label, this.props.id);
 
     const menuItems = [];
-    for (const key in this.props.options) {
-      if (this.props.options.hasOwnProperty(key)) {
-        const label = this.props.options[key];
-        menuItems.push(<MenuItem key={key} eventKey={key} href="#">{label}</MenuItem>);
-      }
+    for (const [key, label] of Object.entries(this.props.options)) {
+      menuItems.push(<MenuItem data-test-id={`${this.props.id}-${key}`} key={key} eventKey={key} href="#">{label}</MenuItem>);
     }
 
     return (

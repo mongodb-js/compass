@@ -1,6 +1,6 @@
 import schemaStats from 'mongodb-schema/lib/stats';
 import lodashGet from 'lodash.get';
-import { getCloudInfo } from './get-cloud-info';
+import { getCloudInfo } from 'mongodb-cloud-info';
 
 const ATLAS = /mongodb.net[:/]/i;
 const LOCALHOST = /(^localhost)|(^127\.0\.0\.1)/gi;

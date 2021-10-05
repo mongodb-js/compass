@@ -24,6 +24,7 @@ export interface ResolvedInstanceTaskData {
   collections: InstanceCollectionDetails[];
   hierarchy: never;
   stats: InstanceDatabaseStats;
+  featureCompatibilityVersion: string | null;
 }
 
 export type InstanceDetails = Omit<

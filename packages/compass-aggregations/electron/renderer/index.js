@@ -33,7 +33,7 @@ document.body.appendChild(root);
 
 // // Data service initialization and connection.
 import Connection from 'mongodb-connection-model';
-import DataService from 'mongodb-data-service';
+import { DataService } from 'mongodb-data-service';
 
 const localAppRegistry = new AppRegistry();
 const store = configureStore({
@@ -132,7 +132,7 @@ if (module.hot) {
     }
   };
 
-  module.hot.accept('plugin', () => {
+  module.hot.accept('../../src/index.js', () => {
     // Because Webpack 2 has built-in support for ES2015 modules,
     // you won't need to re-require your app root in module.hot.accept
     render(AggregationsPlugin);

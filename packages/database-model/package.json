@@ -16,6 +16,11 @@
   "keywords": [
     "mongodb-js"
   ],
+  "main": "index.js",
+  "exports": {
+    "webpack": "./index.js",
+    "require": "./index.js"
+  },
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test-check-ci": "npm run check && npm test",
@@ -25,7 +30,7 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "ampersand-model": "^8.0.0",
+    "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0"
   },
   "devDependencies": {

@@ -80,6 +80,7 @@ class Collection extends Component {
             pipeline={this.props.pipeline}
             sourceName={this.props.sourceName} />
           <TabNavBar
+            data-test-id="collection-tabs"
             aria-label="Collection Tabs"
             tabs={this.props.tabs}
             views={this.props.views}

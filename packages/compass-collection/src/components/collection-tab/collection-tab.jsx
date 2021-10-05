@@ -99,7 +99,7 @@ class CollectionTab extends PureComponent {
       [styles['collection-tab-is-active']]: this.props.isActive
     });
 
-    return (<div ref={this.tabRef} className={tabClass}>
+    return (<div ref={this.tabRef} className={tabClass} data-test-id="collection-tab">
       <div className={classnames(styles['collection-tab-info'])} onClick={this.selectTab}>
         <div className={classnames(styles['collection-tab-info-label'])}>
           <div className={classnames(styles['collection-tab-info-ns'])}>
@@ -111,7 +111,7 @@ class CollectionTab extends PureComponent {
           {this.props.activeSubTabName}
         </div>
       </div>
-      <div className={classnames(styles['collection-tab-close'])} onClick={this.closeTab}>
+      <div className={classnames(styles['collection-tab-close'])} onClick={this.closeTab} data-test-id="close-collection-tab">
         <i className="fa fa-times" aria-hidden />
       </div>
     </div>);

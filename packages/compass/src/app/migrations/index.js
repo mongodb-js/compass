@@ -1,4 +1,3 @@
-const pkg = require('../../../package.json');
 const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
 const semver = require('semver');
@@ -26,7 +25,7 @@ function getPreviousVersion(done) {
     namespace: 'Preferences',
     storage: {
       backend: 'local',
-      appName: pkg.productName
+      appName: electronApp.getName()
     }
   });
 
@@ -53,7 +52,7 @@ module.exports = function(done) {
     if (err) {
       done(err);
     }
-    const currentVersion = pkg.version;
+    const currentVersion = electronApp.getVersion();
     if (currentVersion.match(/^0\.0\.0/)) {
       debug(`running with placeholder version ${currentVersion} - skipping migrations`);
       return done();

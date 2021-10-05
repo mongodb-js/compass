@@ -61,3 +61,4 @@ function deactivate(appRegistry) {
 
 export default IndexesPlugin;
 export { activate, deactivate, configureStore };
+export { default as metadata } from '../package.json';

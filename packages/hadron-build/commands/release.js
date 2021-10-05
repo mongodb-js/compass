@@ -11,15 +11,10 @@
  * and include in assets.
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
-const execa = require('execa');
-
 const Target = require('../lib/target');
 const verifyDistro = require('../lib/distro');
 const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
-const startLocalRegistry = require('../lib/local-registry');
-const generatePackageLock = require('../lib/generate-package-lock');
-const lerna = require('../lib/lerna');
 const format = util.format;
 const path = require('path');
 const del = require('del');
@@ -265,62 +260,29 @@ const transformPackageJson = (CONFIG, done) => {
 const installDependencies = util.callbackify(async(CONFIG) => {
   const appPackagePath = CONFIG.resourcesAppDir;
 
-  cli.debug('Installing dependencies');
+  cli.debug('Installing dependencies and rebuilding native modules');
 
-  const localRegistry = !!process.env.HADRON_LOCAL_PUBLISH
-    ? await startLocalRegistry()
-    : { address: process.env.npm_config_registry };
+  const opts = {
+    cwd: appPackagePath
+  };
 
-  try {
-    if (!!process.env.HADRON_LOCAL_PUBLISH) {
-      // publishes all the packages to the local registry first
-      await lerna.publish(localRegistry.address);
-    }
+  await run.async('npm', ['install', '--production'], opts);
 
-    const packageLockContent = await generatePackageLock(
-      'mongodb-compass',
-      localRegistry.address
-    );
+  cli.debug('Production dependencies installed');
 
-    await fs.writeFile(
-      path.join(appPackagePath, 'package-lock.json'),
-      JSON.stringify(packageLockContent, null, 2)
-    );
+  await rebuild({
+    ...CONFIG.rebuild,
+    electronVersion: CONFIG.packagerOptions.electronVersion,
+    buildPath: appPackagePath,
+    // `projectRootPath` is undocumented, but changes modules resolution quite
+    // a bit and required for the electron-rebuild to be able to pick up
+    // dependencies inside project root, but outside of their dependants (e.g.
+    // a transitive dependency that was hoisted by npm installation process)
+    projectRootPath: appPackagePath,
+    force: true
+  });
 
-    const opts = {
-      env: process.env,
-      cwd: appPackagePath,
-      stdio: 'inherit'
-    };
-
-    const registryArgs = !!localRegistry.address
-      ? ['--registry', localRegistry.address]
-      : [];
-
-    await execa('npm', [...registryArgs, 'ci'], opts);
-    cli.debug('Dependencies installed');
-
-    await execa('npm', [...registryArgs, 'prune', '--production'], opts);
-    cli.debug('Dev-only dependencies removed');
-
-    await rebuild({
-      ...CONFIG.rebuild,
-      electronVersion: CONFIG.packagerOptions.electronVersion,
-      buildPath: appPackagePath,
-      // `projectRootPath` is undocumented, but changes modules resolution quite
-      // a bit and required for the electron-rebuild to be able to pick up
-      // dependencies inside project root, but outside of their dependants (e.g.
-      // a transitive dependency that was hoisted by npm installation process)
-      projectRootPath: appPackagePath,
-      force: true
-    });
-
-    cli.debug('Native modules rebuilt against Electron.');
-  } finally {
-    if (localRegistry.stop) {
-      await localRegistry.stop();
-    }
-  }
+  cli.debug('Native modules rebuilt against Electron.');
 });
 
 /**

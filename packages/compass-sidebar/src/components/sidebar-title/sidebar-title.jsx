@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { connect } from 'react-redux';
 import {
   LogoMark
-} from '@leafygreen-ui/logo';
+} from '@mongodb-js/compass-components';
 
 import {
   NO_ACTIVE_NAMESPACE,
@@ -22,7 +22,7 @@ class SidebarTitle extends PureComponent {
     changeActiveNamespace: PropTypes.func.isRequired,
     connectionModel: PropTypes.object.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
-    isSidebarCollapsed: PropTypes.bool.isRequired
+    isSidebarExpanded: PropTypes.bool.isRequired
   };
 
   /**
@@ -37,26 +37,27 @@ class SidebarTitle extends PureComponent {
   }
 
   renderTitle() {
-    if (this.props.isSidebarCollapsed) {
-      const isFavorite = this.props.connectionModel.connection.isFavorite;
-
+    if (this.props.isSidebarExpanded) {
       return (
-        <div
-          style={isFavorite ? {
-            backgroundColor: this.props.connectionModel.connection.color || 'transparent'
-          } : {}}
-          className={styles['sidebar-title-logo']}
-        >
-          <LogoMark
-            darkMode
-            knockout
-          />
+        <div className={styles['sidebar-title-name']}>
+          {this.props.connectionModel.connection.name}
         </div>
       );
     }
+
+    const isFavorite = this.props.connectionModel.connection.isFavorite;
+
     return (
-      <div className={styles['sidebar-title-name']}>
-        {this.props.connectionModel.connection.name}
+      <div
+        style={isFavorite ? {
+          backgroundColor: this.props.connectionModel.connection.color || 'transparent'
+        } : {}}
+        className={styles['sidebar-title-logo']}
+      >
+        <LogoMark
+          darkMode
+          knockout
+        />
       </div>
     );
   }
@@ -72,6 +73,7 @@ class SidebarTitle extends PureComponent {
         className={classnames(styles['sidebar-title'], {
           [styles['sidebar-title-is-active']]: this.props.activeNamespace === NO_ACTIVE_NAMESPACE
         })}
+        data-test-id="sidebar-title"
         onClick={this.clickName}
       >
         {this.renderTitle()}
