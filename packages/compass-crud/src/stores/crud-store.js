@@ -8,6 +8,15 @@ import util from 'util';
 import createLogger from '@mongodb-js/compass-logging';
 const { log, mongoLogId, debug } = createLogger('COMPASS-CRUD-UI');
 
+import {
+  DOCUMENTS_STATUS_INITIAL,
+  DOCUMENTS_STATUS_FETCHING,
+  DOCUMENTS_STATUS_ERROR,
+  DOCUMENTS_STATUS_FETCHED_INITIAL,
+  DOCUMENTS_STATUS_FETCHED_CUSTOM,
+  DOCUMENTS_STATUS_FETCHED_PAGINATION
+} from '../constants/documents-statuses';
+
 import configureGridStore from './grid-store';
 
 /**
@@ -184,7 +193,7 @@ const configureStore = (options = {}) => {
         isDataLake: false,
         isReadonly: false,
         isTimeSeries: false,
-        status: 'initial',
+        status: DOCUMENTS_STATUS_INITIAL,
         outdated: false,
         shardKeys: null,
         resultId: resultId()
@@ -307,8 +316,8 @@ const configureStore = (options = {}) => {
       this.state.query.maxTimeMS = state.maxTimeMS;
 
       if (
-        this.state.status === 'fetchedWithInitialQuery' ||
-        this.state.status === 'fetchedWithCustomQuery'
+        this.state.status === DOCUMENTS_STATUS_FETCHED_INITIAL ||
+        this.state.status === DOCUMENTS_STATUS_FETCHED_CUSTOM
       ) {
         this.setState({ outdated: true });
       }
@@ -545,23 +554,24 @@ const configureStore = (options = {}) => {
         promoteValues: false
       };
 
-      if (this.state.status === 'fetching') {
+      if (this.state.status === DOCUMENTS_STATUS_FETCHING) {
         return;
       }
 
-      this.setState({ status: 'fetching' });
+      this.setState({ status: DOCUMENTS_STATUS_FETCHING });
 
       this.dataService.find(this.state.ns, this.state.query.filter, opts, (error, documents) => {
         const length = error ? 0 : documents.length;
         this.setState({
           error: error,
-          status: error ? 'error' : 'fetchedWithPaginationQuery',
+          status: error ? DOCUMENTS_STATUS_ERROR : DOCUMENTS_STATUS_FETCHED_PAGINATION,
           docs: documents.map(doc => new HadronDocument(doc)),
           start: skip + 1,
           end: skip + ((length === 0) ? skip : length),
           page: page,
           counter: this.state.counter + NUM_PAGE_DOCS,
-          table: this.getInitialTableState()
+          table: this.getInitialTableState(),
+          resultId: resultId()
         });
         this.localAppRegistry.emit('documents-paginated', this.state.view, documents);
         this.globalAppRegistry.emit('documents-paginated', this.state.view, documents);
@@ -586,24 +596,25 @@ const configureStore = (options = {}) => {
         promoteValues: false
       };
 
-      if (this.state.status === 'fetching') {
+      if (this.state.status === DOCUMENTS_STATUS_FETCHING) {
         return;
       }
 
-      this.setState({ status: 'fetching' });
+      this.setState({ status: DOCUMENTS_STATUS_FETCHING });
 
       this.dataService.find(this.state.ns, this.state.query.filter, opts, (error, documents) => {
         const length = error ? 0 : documents.length;
 
         this.setState({
           error: error,
-          status: error ? 'error' : 'fetchedWithPaginationQuery',
+          status: error ? DOCUMENTS_STATUS_ERROR : DOCUMENTS_STATUS_FETCHED_PAGINATION,
           docs: documents.map(doc => new HadronDocument(doc)),
           start: skip + 1,
           end: skip + length,
           page: page,
           counter: this.state.counter - NUM_PAGE_DOCS,
-          table: this.getInitialTableState()
+          table: this.getInitialTableState(),
+          resultId: resultId()
         });
         this.localAppRegistry.emit('documents-paginated', this.state.view, documents);
         this.globalAppRegistry.emit('documents-paginated', this.state.view, documents);
@@ -945,12 +956,12 @@ const configureStore = (options = {}) => {
         findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
       }
 
-      if (this.state.status === 'fetching') {
+      if (this.state.status === DOCUMENTS_STATUS_FETCHING) {
         return;
       }
 
       this.setState({
-        status: 'fetching',
+        status: DOCUMENTS_STATUS_FETCHING,
         outdated: false
       });
 
@@ -974,8 +985,8 @@ const configureStore = (options = {}) => {
 
         this.setState({
           status: this.isInitialQuery(query) ?
-            'fetchedWithInitialQuery' :
-            'fetchedWithCustomQuery',
+            DOCUMENTS_STATUS_FETCHED_INITIAL :
+            DOCUMENTS_STATUS_FETCHED_CUSTOM,
           isEditable: this.hasProjection(query) ? false : this.isListEditable(),
           error: null,
           docs: docs.map(doc => new HadronDocument(doc)),
@@ -992,7 +1003,7 @@ const configureStore = (options = {}) => {
         this.globalAppRegistry.emit('documents-refreshed', this.state.view, docs);
       } catch (error) {
         log.error(mongoLogId(1001000074), 'Documents', 'Failed to refresh documents', error);
-        this.setState({ error, status: 'error', resultId: resultId() });
+        this.setState({ error, status: DOCUMENTS_STATUS_ERROR, resultId: resultId() });
       }
     },
 
