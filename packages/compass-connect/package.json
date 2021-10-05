@@ -140,6 +140,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.3.0",
+    "debug": "^4.3.2",
     "lodash": "^4.17.15"
   },
   "homepage": "https://github.com/mongodb-js/compass",
