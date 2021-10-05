@@ -201,6 +201,7 @@ class InsertDocumentDialog extends React.PureComponent {
         onCancel={this.props.closeInsertDocumentDialog}
         buttonText="Insert"
         submitDisabled={this.hasErrors()}
+        closeOnBackdropClick={false}
       >
         <div className="insert-document-views">
           <ViewSwitcher
