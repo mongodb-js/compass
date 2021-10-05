@@ -125,7 +125,7 @@
     "lodash.pluck": "^3.1.2",
     "lodash.values": "^4.3.0",
     "lodash.zipobject": "^4.1.3",
-    "mongodb-cloud-info": "^1.1.2"
+    "mongodb-cloud-info": "^1.1.3"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {
