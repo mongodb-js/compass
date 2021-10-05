@@ -449,9 +449,6 @@ describe('Smoke tests', function () {
         Selectors.selectExportFileTypeButton('csv', true)
       );
       await selectExportFileTypeButtonElement.waitForDisplayed();
-      // await client.waitForVisible(
-      //   Selectors.selectExportFileTypeButton('csv', true)
-      // );
 
       const filename = outputFilename('filtered-numbers.csv');
 
@@ -495,9 +492,7 @@ describe('Smoke tests', function () {
         reverse: true,
         timeout: 2000,
       });
-      // const element = await client.$(Selectors.ExportModal, 2000, true);
-      // element waitForDisplayed..ExportModal, 2000, true);
-
+      
       const text = await fs.readFile(filename, 'utf-8');
       //  example:'_id,i\n6154788cc5f1fd4544fcedb1,5'
       const lines = text.split(/\r?\n/);
