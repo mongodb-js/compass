@@ -10,7 +10,7 @@ module.exports = function (app) {
 
     try {
       await privateSettingsModalElement.waitForExist({
-        timeout: 5000,
+        timeout: 2000,
       });
     } catch (err) {
       return;

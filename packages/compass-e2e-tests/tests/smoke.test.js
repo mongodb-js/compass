@@ -43,20 +43,26 @@ describe('Smoke tests', function () {
 
   describe('Sidebar', function () {
     it('contains cluster info', async function () {
-      const topologySingleHostAddress = await client.getText(
+      const topologySingleHostAddressElement = await client.$(
         Selectors.TopologySingleHostAddress
       );
+
+      const topologySingleHostAddress =
+        await topologySingleHostAddressElement.getText();
       expect(topologySingleHostAddress).to.equal('localhost:27018');
 
-      const singleClusterType = await client.getText(
+      const singleClusterTypeElement = await client.$(
         Selectors.SingleClusterType
       );
+
+      const singleClusterType = await singleClusterTypeElement.getText();
       expect(singleClusterType).to.equal('Standalone');
 
-      const serverVersionText = await client.getText(
+      const serverVersionTextElement = await client.$(
         Selectors.ServerVersionText
       );
-      // the version number changes constantly and is different in CI
+
+      const serverVersionText = await serverVersionTextElement.getText(); // the version number changes constantly and is different in CI
       expect(serverVersionText).to.include('MongoDB');
       expect(serverVersionText).to.include('Community');
     });
@@ -79,7 +85,8 @@ describe('Smoke tests', function () {
       );
 
       for (const dbSelector of dbSelectors) {
-        expect(await client.isExisting(dbSelector)).to.be.true;
+        const dbElement = await client.$(dbSelector);
+        expect(await dbElement.isExisting()).to.be.true;
         // TODO: Storage Size, Collections, Indexes, Drop button
       }
     });
@@ -94,8 +101,11 @@ describe('Smoke tests', function () {
     });
 
     it('contains a list of collections', async function () {
-      expect(await client.isExisting(Selectors.CollectionsTableLinkNumbers)).to
-        .be.true;
+      const collectionsTableElement = await client.$(
+        Selectors.CollectionsTableLinkNumbers
+      );
+
+      expect(await collectionsTableElement.isExisting()).to.be.true;
 
       // TODO: Collections are listed with their stats and the button to delete them
     });
@@ -120,27 +130,36 @@ describe('Smoke tests', function () {
       ].map(Selectors.collectionTab);
 
       for (const tabSelector of tabSelectors) {
-        expect(await client.isExisting(tabSelector), tabSelector).to.be.true;
+        const tabElement = await client.$(tabSelector);
+        expect(await tabElement.isExisting()).to.be.true;
       }
     });
 
     it('contains the collection stats', async function () {
-      expect(await client.getText(Selectors.DocumentCountValue)).to.equal('1k');
-      expect(await client.getText(Selectors.IndexCountValue)).to.equal('1');
+      const documentCountValueElement = await client.$(
+        Selectors.DocumentCountValue
+      );
+      expect(await documentCountValueElement.getText()).to.equal('1k');
+      const indexCountValueElement = await client.$(Selectors.IndexCountValue);
+      expect(await indexCountValueElement.getText()).to.equal('1');
 
       // all of these unfortunately differ slightly between different versions of mongodb
-      expect(await client.getText(Selectors.TotalDocumentSizeValue)).to.include(
-        'KB'
+      const totalDocumentSizeValueElement = await client.$(
+        Selectors.TotalDocumentSizeValue
       );
-      expect(await client.getText(Selectors.AvgDocumentSizeValue)).to.include(
-        'B'
+      expect(await totalDocumentSizeValueElement.getText()).to.include('KB');
+      const avgDocumentSizeValueElement = await client.$(
+        Selectors.AvgDocumentSizeValue
       );
-      expect(await client.getText(Selectors.TotalIndexSizeValue)).to.include(
-        'KB'
+      expect(await avgDocumentSizeValueElement.getText()).to.include('B');
+      const totalIndexSizeValueElement = await client.$(
+        Selectors.TotalIndexSizeValue
       );
-      expect(await client.getText(Selectors.AvgIndexSizeValue)).to.include(
-        'KB'
+      expect(await totalIndexSizeValueElement.getText()).to.include('KB');
+      const avgIndexSizeValueElement = await client.$(
+        Selectors.AvgIndexSizeValue
       );
+      expect(await avgIndexSizeValueElement.getText()).to.include('KB');
     });
   });
 
@@ -152,7 +171,10 @@ describe('Smoke tests', function () {
     it('supports simple find operations', async function () {
       await client.runFindOperation('Documents', '{ i: 5 }');
 
-      const text = await client.getText(Selectors.DocumentListActionBarMessage);
+      const documentListActionBarMessageElement = await client.$(
+        Selectors.DocumentListActionBarMessage
+      );
+      const text = await documentListActionBarMessageElement.getText();
       expect(text).to.equal('Displaying documents 1 - 1 of 1');
     });
 
@@ -164,7 +186,10 @@ describe('Smoke tests', function () {
         limit: '50',
       });
 
-      const text = await client.getText(Selectors.DocumentListActionBarMessage);
+      const documentListActionBarMessageElement = await client.$(
+        Selectors.DocumentListActionBarMessage
+      );
+      const text = await documentListActionBarMessageElement.getText();
       expect(text).to.equal('Displaying documents 1 - 20 of 50');
     });
 
@@ -199,7 +224,10 @@ describe('Smoke tests', function () {
 
       await client.focusStageOperator(0);
 
-      const options = await client.getText(Selectors.stageOperatorOptions(0));
+      const stageOperatorOptionsElement = await client.$(
+        Selectors.stageOperatorOptions
+      );
+      const options = await stageOperatorOptionsElement.getText(0);
       expect(_.without(options, '$setWindowFields')).to.deep.equal([
         '$addFields',
         '$bucket',
@@ -240,9 +268,10 @@ describe('Smoke tests', function () {
       await client.setAceValue(Selectors.stageEditor(0), '{ i: 0 }');
 
       await client.waitUntil(async function () {
-        const text = await client.getText(
+        const textElement = await client.$(
           Selectors.stagePreviewToolbarTooltip(0)
         );
+        const text = await textElement.getText();
         return text === '(Sample of 1 document)';
       });
     });
@@ -288,7 +317,8 @@ describe('Smoke tests', function () {
 
       const element = await client.$(Selectors.SchemaFieldList);
       await element.waitForDisplayed();
-      const message = await client.getText(Selectors.AnalysisMessage);
+      const analysisMessageElement = await client.$(Selectors.AnalysisMessage);
+      const message = await analysisMessageElement.getText();
       expect(message).to.equal(
         'This report is based on a sample of 1000 documents.'
       );
@@ -296,10 +326,14 @@ describe('Smoke tests', function () {
       const fields = await client.$$(Selectors.SchemaField);
       expect(fields).to.have.lengthOf(2);
 
-      const fieldNames = await client.getText(Selectors.SchemaFieldName);
+      const schemaFieldNameElement = await client.$(Selectors.SchemaFieldName);
+      const fieldNames = await schemaFieldNameElement.getText();
       expect(fieldNames).to.deep.equal(['_id', 'i']);
 
-      const fieldTypes = await client.getText(Selectors.SchemaFieldTypeList);
+      const schemaFieldTypeListElement = await client.$(
+        Selectors.SchemaFieldTypeList
+      );
+      const fieldTypes = await schemaFieldTypeListElement.getText();
       expect(fieldTypes).to.deep.equal(['objectid', 'int32']);
     });
 
@@ -343,7 +377,8 @@ describe('Smoke tests', function () {
       const indexes = await client.$$(Selectors.IndexComponent);
       expect(indexes).to.have.lengthOf(1);
 
-      expect(await client.getText(Selectors.NameColumnName)).to.equal('_id_');
+      const nameColumnNameElement = await client.$(Selectors.NameColumnName);
+      expect(await nameColumnNameElement.getText()).to.equal('_id_');
     });
 
     it('supports creating and dropping indexes');
@@ -368,12 +403,14 @@ describe('Smoke tests', function () {
 
       // nothing passed, everything failed
       await client.waitUntil(async () => {
-        const matchText = await client.getText(
+        const matchTextElement = await client.$(
           Selectors.ValidationMatchingDocumentsPreview
         );
-        const notMatchingText = await client.getText(
+        const matchText = await matchTextElement.getText();
+        const notMatchingTextElement = await client.$(
           Selectors.ValidationNotMatchingDocumentsPreview
         );
+        const notMatchingText = await notMatchingTextElement.getText();
         return (
           matchText === NO_PREVIEW_DOCUMENTS &&
           notMatchingText !== NO_PREVIEW_DOCUMENTS
@@ -387,12 +424,14 @@ describe('Smoke tests', function () {
 
       // nothing failed, everything passed
       await client.waitUntil(async () => {
-        const matchText = await client.getText(
+        const matchTextElement = await client.$(
           Selectors.ValidationMatchingDocumentsPreview
         );
-        const notMatchingText = await client.getText(
+        const matchText = await matchTextElement.getText();
+        const notMatchingTextElement = await client.$(
           Selectors.ValidationNotMatchingDocumentsPreview
         );
+        const notMatchingText = await notMatchingTextElement.getText();
         return (
           matchText !== NO_PREVIEW_DOCUMENTS &&
           notMatchingText === NO_PREVIEW_DOCUMENTS
@@ -431,7 +470,10 @@ describe('Smoke tests', function () {
       const exportModal = await client.$(Selectors.ExportModal);
       await exportModal.waitForDisplayed();
 
-      expect(await client.getText(Selectors.ExportModalQueryText)).to
+      const exportModalQueryTextElement = await client.$(
+        Selectors.ExportModalQueryText
+      );
+      expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.numbers.find(
   {i: 5}
 )`);
@@ -466,10 +508,10 @@ describe('Smoke tests', function () {
       }, filename);
 
       await client.waitUntil(async () => {
-        const value = await client.getAttribute(
-          Selectors.ExportModalFileText,
-          'value'
+        const exportModalFileText = await client.$(
+          Selectors.ExportModalFileText
         );
+        const value = await exportModalFileText.getValue();
         return value === filename;
       });
 
@@ -492,7 +534,7 @@ describe('Smoke tests', function () {
         reverse: true,
         timeout: 2000,
       });
-      
+
       const text = await fs.readFile(filename, 'utf-8');
       //  example:'_id,i\n6154788cc5f1fd4544fcedb1,5'
       const lines = text.split(/\r?\n/);

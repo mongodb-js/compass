@@ -25,19 +25,22 @@ async function setCollation(client, tabName, value) {
 async function setMaxTimeMS(client, tabName, value) {
   const selector = Selectors.queryBarOptionInputMaxTimeMS(tabName);
   await client.clickVisible(selector);
-  await client.setValue(selector, value);
+  const queryBarInputMaxTimeMSElement = await client.$(selector);
+  await queryBarInputMaxTimeMSElement.setValue(value);
 }
 
 async function setSkip(client, tabName, value) {
   const selector = Selectors.queryBarOptionInputSkip(tabName);
   await client.clickVisible(selector);
-  await client.setValue(selector, value);
+  const queryBarSkipElement = await client.$(selector);
+  await queryBarSkipElement.setValue(value);
 }
 
 async function setLimit(client, tabName, value) {
   const selector = Selectors.queryBarOptionInputLimit(tabName);
   await client.clickVisible(selector);
-  await client.setValue(selector, value);
+  const queryBarLimitElement = await client.$(selector);
+  await queryBarLimitElement.setValue(value);
 }
 
 async function runFind(client, tabName) {
@@ -103,8 +106,8 @@ module.exports = function (app) {
     const queryBarSelector = Selectors.queryBar(tabName);
 
     // look up the current resultId
-    const initialResultId = await client.getAttribute(
-      queryBarSelector,
+    const queryBarSelectorElement = await client.$(queryBarSelector);
+    const initialResultId = await queryBarSelectorElement.getAttribute(
       'data-result-id'
     );
 
@@ -125,8 +128,7 @@ module.exports = function (app) {
     await runFind(client, tabName);
 
     await client.waitUntil(async () => {
-      const resultId = await client.getAttribute(
-        queryBarSelector,
+      const resultId = await queryBarSelectorElement.getAttribute(
         'data-result-id'
       );
       return resultId !== initialResultId;

@@ -11,14 +11,15 @@ module.exports = function (app) {
     const instanceTabElement = await client.$(Selectors.InstanceTabs);
     await instanceTabElement.waitForDisplayed();
 
+    const tabSelectorElement = await client.$(tabSelectedSelector);
+
     // if the correct tab is already visible, do nothing
-    if (await client.isExisting(tabSelectedSelector)) {
+    if (await tabSelectorElement.isExisting()) {
       return;
     }
 
     // otherwise select the tab and wait for it to become selected
     await client.clickVisible(tabSelector);
-    const tabSelectorElement = await client.$(tabSelectedSelector);
     await tabSelectorElement.waitForDisplayed();
   };
 };
