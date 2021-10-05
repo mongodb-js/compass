@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 
 import InstanceLoadedStatus from '../constants/instance-loaded-status';
-
+import AppRegistryContext from '../contexts/app-registry-context';
 import WorkspaceContent from './workspace-content';
 
 const getComponent = (name: string) => {
@@ -43,13 +43,14 @@ describe('WorkspaceContent [Component]', function () {
   describe('instanceLoadingStatus is loading', function () {
     beforeEach(function () {
       render(
-        <WorkspaceContent
-          appRegistry={testAppRegistry}
-          instanceLoadingStatus={InstanceLoadedStatus.LOADING}
-          errorLoadingInstanceMessage={null}
-          isDataLake={false}
-          namespace={{ database: '', collection: '' }}
-        />
+        <AppRegistryContext.Provider value={testAppRegistry}>
+          <WorkspaceContent
+            instanceLoadingStatus={InstanceLoadedStatus.LOADING}
+            errorLoadingInstanceMessage={null}
+            isDataLake={false}
+            namespace={{ database: '', collection: '' }}
+          />
+        </AppRegistryContext.Provider>
       );
     });
     describe('instance status is loading', function () {
@@ -64,13 +65,14 @@ describe('WorkspaceContent [Component]', function () {
   describe('instance status is error', function () {
     beforeEach(function () {
       render(
-        <WorkspaceContent
-          appRegistry={testAppRegistry}
-          instanceLoadingStatus={InstanceLoadedStatus.ERROR}
-          errorLoadingInstanceMessage="testing the error"
-          isDataLake={false}
-          namespace={{ database: '', collection: '' }}
-        />
+        <AppRegistryContext.Provider value={testAppRegistry}>
+          <WorkspaceContent
+            instanceLoadingStatus={InstanceLoadedStatus.ERROR}
+            errorLoadingInstanceMessage="testing the error"
+            isDataLake={false}
+            namespace={{ database: '', collection: '' }}
+          />
+        </AppRegistryContext.Provider>
       );
     });
 
@@ -88,13 +90,14 @@ describe('WorkspaceContent [Component]', function () {
     describe('namespace is unset', function () {
       beforeEach(function () {
         render(
-          <WorkspaceContent
-            appRegistry={testAppRegistry}
-            instanceLoadingStatus={InstanceLoadedStatus.LOADED}
-            errorLoadingInstanceMessage={null}
-            isDataLake={false}
-            namespace={{ database: '', collection: '' }}
-          />
+          <AppRegistryContext.Provider value={testAppRegistry}>
+            <WorkspaceContent
+              instanceLoadingStatus={InstanceLoadedStatus.LOADED}
+              errorLoadingInstanceMessage={null}
+              isDataLake={false}
+              namespace={{ database: '', collection: '' }}
+            />
+          </AppRegistryContext.Provider>
         );
       });
 
@@ -108,13 +111,14 @@ describe('WorkspaceContent [Component]', function () {
     describe('namespace has a db', function () {
       beforeEach(function () {
         render(
-          <WorkspaceContent
-            appRegistry={testAppRegistry}
-            instanceLoadingStatus={InstanceLoadedStatus.LOADED}
-            errorLoadingInstanceMessage={null}
-            isDataLake={false}
-            namespace={{ database: 'db', collection: '' }}
-          />
+          <AppRegistryContext.Provider value={testAppRegistry}>
+            <WorkspaceContent
+              instanceLoadingStatus={InstanceLoadedStatus.LOADED}
+              errorLoadingInstanceMessage={null}
+              isDataLake={false}
+              namespace={{ database: 'db', collection: '' }}
+            />
+          </AppRegistryContext.Provider>
         );
       });
 
@@ -128,13 +132,14 @@ describe('WorkspaceContent [Component]', function () {
     describe('namespace has db and collection', function () {
       beforeEach(function () {
         render(
-          <WorkspaceContent
-            appRegistry={testAppRegistry}
-            instanceLoadingStatus={InstanceLoadedStatus.LOADED}
-            errorLoadingInstanceMessage={null}
-            isDataLake={false}
-            namespace={{ database: 'db', collection: 'col' }}
-          />
+          <AppRegistryContext.Provider value={testAppRegistry}>
+            <WorkspaceContent
+              instanceLoadingStatus={InstanceLoadedStatus.LOADED}
+              errorLoadingInstanceMessage={null}
+              isDataLake={false}
+              namespace={{ database: 'db', collection: 'col' }}
+            />
+          </AppRegistryContext.Provider>
         );
       });
 

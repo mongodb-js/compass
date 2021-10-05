@@ -20,7 +20,7 @@ const reactConfigurations = [
 const testConfigurations = ['plugin:mocha/recommended'];
 const testRules = {
   'mocha/no-exclusive-tests': 'error',
-  'mocha/no-hooks-for-single-case': 'off'
+  'mocha/no-hooks-for-single-case': 'off',
 };
 
 module.exports = {

@@ -1,15 +1,18 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import React, { useRef } from 'react';
-import debugModule from 'debug';
-import AppRegistry from 'hadron-app-registry';
+import React, { useEffect } from 'react';
+import DataService from 'mongodb-data-service';
 
 import WorkspaceContent from './workspace-content';
 import Namespace from '../types/namespace';
 import InstanceLoadedStatus from '../constants/instance-loaded-status';
-import getRoleOrNull from '../modules/get-role-or-null';
-
-const debug = debugModule('mongodb-compass:home:WorkspaceComponent');
+import {
+  AppRegistryComponents,
+  AppRegistryRoles,
+  useAppRegistryComponent,
+  useAppRegistryRole,
+} from '../contexts/app-registry-context';
+import updateTitle from '../modules/update-title';
 
 const homeViewStyles = css({
   display: 'flex',
@@ -35,60 +38,55 @@ const homePageContentStyles = css({
   overflowX: 'hidden',
 });
 
-function getComponentOrNull(appRegistry: AppRegistry, name: string) {
-  const component = appRegistry.getComponent(name);
-  if (!component) debug(`home plugin loading component, but ${name} is NULL`);
-  return component ? component : null;
-}
-
 export default function Workspace({
-  appRegistry,
+  appName,
+  dataService,
   instanceLoadingStatus,
   errorLoadingInstanceMessage,
   isDataLake,
   namespace,
 }: {
-  appRegistry: AppRegistry;
+  appName: string;
+  dataService: DataService;
   instanceLoadingStatus: InstanceLoadedStatus;
   errorLoadingInstanceMessage: string | null;
   isDataLake: boolean;
   namespace: Namespace;
 }): React.ReactElement {
-  const SidebarComponent = useRef(
-    getComponentOrNull(appRegistry, 'Sidebar.Component')
+  const SidebarComponent = useAppRegistryComponent(
+    AppRegistryComponents.SIDEBAR_COMPONENT
   );
-  const globalModals = useRef(getRoleOrNull(appRegistry, 'Global.Modal'));
-  const GlobalShellComponent = useRef(
-    getComponentOrNull(appRegistry, 'Global.Shell')
+  const globalModals = useAppRegistryRole(AppRegistryRoles.GLOBAL_MODAL);
+  const GlobalShellComponent = useAppRegistryComponent(
+    AppRegistryComponents.SHELL_COMPONENT
   );
-  const findInPageRole = useRef(getRoleOrNull(appRegistry, 'Find'));
+  const findInPageRole = useAppRegistryRole(AppRegistryRoles.FIND_IN_PAGE);
+  const FindInPage = findInPageRole ? findInPageRole[0].component : null;
 
-  let FindInPage;
-  if (findInPageRole.current) {
-    FindInPage = findInPageRole.current[0].component;
-  }
+  useEffect(() => {
+    updateTitle(appName, dataService.model.title || '', namespace);
+  });
 
   return (
     <div data-test-id="home-view" css={homeViewStyles}>
       <div css={homePageStyles}>
         <div css={homePageContentStyles}>
           <WorkspaceContent
-            appRegistry={appRegistry}
             namespace={namespace}
             instanceLoadingStatus={instanceLoadingStatus}
             errorLoadingInstanceMessage={errorLoadingInstanceMessage}
             isDataLake={isDataLake}
           />
         </div>
-        {SidebarComponent.current && <SidebarComponent.current />}
+        {SidebarComponent && <SidebarComponent />}
         {FindInPage && <FindInPage />}
       </div>
-      {globalModals.current &&
-        globalModals.current.map((globalModal, index) => {
+      {globalModals &&
+        globalModals.map((globalModal, index) => {
           const GlobalModal = globalModal.component;
           return <GlobalModal key={index} />;
         })}
-      {GlobalShellComponent.current && <GlobalShellComponent.current />}
+      {GlobalShellComponent && <GlobalShellComponent />}
     </div>
   );
 }

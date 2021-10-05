@@ -157,7 +157,6 @@
     "keytar": "^5.1.0"
   },
   "devDependencies": {
-    "@emotion/react": "11.4.1",
     "@mongodb-js/compass-aggregations": "^8.15.0",
     "@mongodb-js/compass-app-stores": "^5.14.0",
     "@mongodb-js/compass-auto-updates": "^3.14.0",

@@ -1,4 +1,2 @@
-const {
-  compassTypescriptPluginConfig,
-} = require('@mongodb-js/webpack-config-compass');
-module.exports = compassTypescriptPluginConfig;
+const { compassPluginConfig } = require('@mongodb-js/webpack-config-compass');
+module.exports = compassPluginConfig;

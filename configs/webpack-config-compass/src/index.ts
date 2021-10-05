@@ -6,6 +6,7 @@ import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import DuplicatePackageCheckerPlugin from '@cerner/duplicate-package-checker-webpack-plugin';
 import path from 'path';
 import { builtinModules } from 'module';
+import fs from 'fs';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { WebpackPluginStartElectron } from './webpack-plugin-start-electron';
 import {
@@ -246,47 +247,34 @@ export function compassPluginConfig(
     return [
       createElectronMainConfig({
         ...opts,
-        entry: path.join(opts.cwd, 'electron', 'index.js'),
+        entry: fs.existsSync(path.join(opts.cwd, 'electron', 'index.ts'))
+          ? path.join(opts.cwd, 'electron', 'index.ts')
+          : path.join(opts.cwd, 'electron', 'index.js'),
       }),
       createElectronRendererConfig({
         ...opts,
-        entry: path.join(opts.cwd, 'electron', 'renderer', 'index.js'),
+        entry: fs.existsSync(
+          path.join(opts.cwd, 'electron', 'renderer', 'index.ts')
+        )
+          ? path.join(opts.cwd, 'electron', 'renderer', 'index.ts')
+          : path.join(opts.cwd, 'electron', 'renderer', 'index.js'),
       }),
     ];
   }
 
-  return [
-    createElectronRendererConfig({
-      ...opts,
-      entry: path.join(opts.cwd, 'src', 'index.js'),
-      outputFilename: 'index.js',
-    }),
-    createWebConfig({
-      ...opts,
-      entry: path.join(opts.cwd, 'src', 'index.js'),
-      outputFilename: 'browser.js',
-    }),
-  ];
-}
-
-export function compassTypescriptPluginConfig(
-  _env: WebpackCLIArgs['env'],
-  _args: Partial<WebpackCLIArgs>
-): WebpackConfig[] {
-  const args = webpackArgsWithDefaults(_args);
-  const opts = { ...args, outputPath: path.join(args.cwd, 'lib'), hot: true };
-
-  process.env.NODE_ENV = opts.nodeEnv;
+  const entry = fs.existsSync(path.join(opts.cwd, 'src', 'index.ts'))
+    ? path.join(opts.cwd, 'src', 'index.ts')
+    : path.join(opts.cwd, 'src', 'index.js');
 
   return [
     createElectronRendererConfig({
       ...opts,
-      entry: path.join(opts.cwd, 'src', 'index.ts'),
+      entry,
       outputFilename: 'index.js',
     }),
     createWebConfig({
       ...opts,
-      entry: path.join(opts.cwd, 'src', 'index.ts'),
+      entry,
       outputFilename: 'browser.js',
     }),
   ];

@@ -1,14 +1,19 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import DataService from 'mongodb-data-service';
 import toNS from 'mongodb-ns';
-import AppRegistry from 'hadron-app-registry';
 
 import Workspace from './workspace';
 import Namespace from '../types/namespace';
 import InstanceLoadedStatus from '../constants/instance-loaded-status';
-import getRoleOrNull from '../modules/get-role-or-null';
+import {
+  AppRegistryActions,
+  AppRegistryRoles,
+  useAppRegistryContext,
+  useAppRegistryRole,
+} from '../contexts/app-registry-context';
+import updateTitle from '../modules/update-title';
 
 const homeViewStyles = css({
   display: 'flex',
@@ -31,23 +36,79 @@ const defaultNS: Namespace = {
   collection: '',
 };
 
-function Home({
-  appRegistry,
-}: {
-  appRegistry: AppRegistry;
-}): React.ReactElement | null {
-  const connectRole = useRef(getRoleOrNull(appRegistry, 'Application.Connect'));
+type State = {
+  dataService: DataService | null;
+  isDataLake: boolean;
+  namespace: Namespace;
+  errorLoadingInstanceMessage: string | null;
+  instanceLoadingStatus: InstanceLoadedStatus;
+};
 
-  const [dataService, setDataService] = useState<DataService | null>(null);
-  const [isDataLake, setIsDataLake] = useState(false);
-  const [namespace, setNamespace] = useState<Namespace>(defaultNS);
+const initialState = {
+  dataService: null,
+  isDataLake: false,
+  namespace: defaultNS,
+  errorLoadingInstanceMessage: null,
+  instanceLoadingStatus: InstanceLoadedStatus.INITIAL,
+};
 
-  const [errorLoadingInstanceMessage, setErrorMessage] = useState<
-    null | string
-  >(null);
-  const [instanceLoadingStatus, setInstanceLoadingStatus] = useState(
-    InstanceLoadedStatus.LOADING
-  );
+type Action =
+  | { type: 'connected'; dataService: DataService }
+  | { type: 'disconnected' }
+  | { type: 'instance-loaded'; isDatalake: boolean }
+  | { type: 'instance-loaded-error'; errorMessage: string }
+  | { type: 'update-namespace'; namespace: Namespace };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'connected':
+      return {
+        ...state,
+        namespace: { ...defaultNS },
+        dataService: action.dataService,
+        instanceLoadingStatus: InstanceLoadedStatus.LOADING,
+      };
+    case 'instance-loaded':
+      return {
+        ...state,
+        isDataLake: action.isDatalake,
+        instanceLoadingStatus: InstanceLoadedStatus.LOADED,
+      };
+    case 'instance-loaded-error':
+      return {
+        ...state,
+        errorLoadingInstanceMessage: action.errorMessage,
+        instanceLoadingStatus: InstanceLoadedStatus.ERROR,
+      };
+    case 'update-namespace':
+      return {
+        ...state,
+        namespace: action.namespace,
+      };
+    case 'disconnected':
+      return {
+        // Reset to initial state.
+        ...initialState,
+      };
+    default:
+      return state;
+  }
+}
+
+function Home({ appName }: { appName: string }): React.ReactElement | null {
+  const appRegistry = useAppRegistryContext();
+  const connectRole = useAppRegistryRole(AppRegistryRoles.APPLICATION_CONNECT);
+
+  const [
+    {
+      dataService,
+      isDataLake,
+      namespace,
+      errorLoadingInstanceMessage,
+      instanceLoadingStatus,
+    },
+    dispatch,
+  ] = useReducer(reducer, { ...initialState });
 
   useEffect(() => {
     // Setup listeners.
@@ -60,19 +121,18 @@ function Home({
       };
     }) {
       if (instanceInformation.errorMessage) {
-        setErrorMessage(instanceInformation.errorMessage);
-        setInstanceLoadingStatus(InstanceLoadedStatus.ERROR);
+        dispatch({
+          type: 'instance-loaded-error',
+          errorMessage: instanceInformation.errorMessage,
+        });
 
         return;
       }
 
-      setInstanceLoadingStatus(InstanceLoadedStatus.LOADED);
-
-      if (instanceInformation.instance?.dataLake?.isDataLake) {
-        setIsDataLake(true);
-      } else {
-        setIsDataLake(false);
-      }
+      dispatch({
+        type: 'instance-loaded',
+        isDatalake: !!instanceInformation.instance?.dataLake?.isDataLake,
+      });
     }
     appRegistry.on('instance-refreshed', onInstanceRefreshed);
 
@@ -80,51 +140,48 @@ function Home({
       err: Error | undefined | null,
       ds: DataService
     ) {
-      const StatusAction = appRegistry.getAction('Status.Actions');
+      const StatusAction = appRegistry.getAction(
+        AppRegistryActions.STATUS_ACTIONS
+      );
       if (StatusAction) {
-        (
-          StatusAction as {
-            configure: (opts: {
-              animation: boolean;
-              message: string;
-              visible: boolean;
-            }) => void;
-          }
-        ).configure({
+        StatusAction.configure({
           animation: true,
           message: 'Loading navigation',
           visible: true,
         });
       }
 
-      setNamespace(toNS(''));
-      setDataService(ds);
-      setInstanceLoadingStatus(InstanceLoadedStatus.LOADING);
+      dispatch({
+        type: 'connected',
+        dataService: ds,
+      });
     }
     appRegistry.on('data-service-connected', onDataServiceConnected);
 
     function onDataServiceDisconnected() {
       if (instanceLoadingStatus !== InstanceLoadedStatus.LOADING) {
-        const StatusAction = appRegistry.getAction('Status.Actions');
-        setDataService(null);
-        setErrorMessage(null);
-        setIsDataLake(false);
-        setNamespace(toNS(''));
-        setInstanceLoadingStatus(InstanceLoadedStatus.LOADING);
-        if (StatusAction) (StatusAction as { done: () => void }).done();
+        const StatusAction = appRegistry.getAction(
+          AppRegistryActions.STATUS_ACTIONS
+        );
+        dispatch({
+          type: 'disconnected',
+        });
+        updateTitle(appName);
+        if (StatusAction) StatusAction.done();
 
         return;
       }
 
       const timer = setInterval(() => {
         if (instanceLoadingStatus !== InstanceLoadedStatus.LOADING) {
-          const StatusAction = appRegistry.getAction('Status.Actions');
-          setDataService(null);
-          setErrorMessage(null);
-          setIsDataLake(false);
-          setNamespace(toNS(''));
-          setInstanceLoadingStatus(InstanceLoadedStatus.LOADING);
-          if (StatusAction) (StatusAction as { done: () => void }).done();
+          const StatusAction = appRegistry.getAction(
+            AppRegistryActions.STATUS_ACTIONS
+          );
+          dispatch({
+            type: 'disconnected',
+          });
+          updateTitle(appName);
+          if (StatusAction) StatusAction.done();
           clearInterval(timer);
         }
       }, 100);
@@ -132,27 +189,42 @@ function Home({
     appRegistry.on('data-service-disconnected', onDataServiceDisconnected);
 
     function onSelectDatabase(ns: string) {
-      setNamespace(toNS(ns));
+      dispatch({
+        type: 'update-namespace',
+        namespace: toNS(ns),
+      });
     }
     appRegistry.on('select-database', onSelectDatabase);
 
     function onSelectNamespace(meta: { namespace: string }) {
-      setNamespace(toNS(meta.namespace));
+      dispatch({
+        type: 'update-namespace',
+        namespace: toNS(meta.namespace),
+      });
     }
     appRegistry.on('select-namespace', onSelectNamespace);
 
     function onSelectInstance() {
-      setNamespace(toNS(''));
+      dispatch({
+        type: 'update-namespace',
+        namespace: toNS(''),
+      });
     }
     appRegistry.on('select-instance', onSelectInstance);
 
     function onOpenNamespaceInNewTab(meta: { namespace: string }) {
-      setNamespace(toNS(meta.namespace));
+      dispatch({
+        type: 'update-namespace',
+        namespace: toNS(meta.namespace),
+      });
     }
     appRegistry.on('open-namespace-in-new-tab', onOpenNamespaceInNewTab);
 
     function onAllTabsClosed() {
-      setNamespace(toNS(''));
+      dispatch({
+        type: 'update-namespace',
+        namespace: toNS(''),
+      });
     }
     appRegistry.on('all-collection-tabs-closed', onAllTabsClosed);
 
@@ -181,7 +253,8 @@ function Home({
   if (dataService) {
     return (
       <Workspace
-        appRegistry={appRegistry}
+        appName={appName}
+        dataService={dataService}
         namespace={namespace}
         instanceLoadingStatus={instanceLoadingStatus}
         errorLoadingInstanceMessage={errorLoadingInstanceMessage}
@@ -190,11 +263,11 @@ function Home({
     );
   }
 
-  if (!connectRole.current) {
+  if (!connectRole) {
     return null;
   }
 
-  const Connect = connectRole.current[0].component;
+  const Connect = connectRole[0].component;
   return (
     <div css={homeViewStyles} data-test-id="home-view">
       <div css={homePageStyles}>

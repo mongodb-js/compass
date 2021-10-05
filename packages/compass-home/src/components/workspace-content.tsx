@@ -1,10 +1,12 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { Banner, BannerVariant } from '@mongodb-js/compass-components';
-import AppRegistry from 'hadron-app-registry';
 
 import Namespace from '../types/namespace';
 import InstanceLoadedStatus from '../constants/instance-loaded-status';
-import getRoleOrNull from '../modules/get-role-or-null';
+import {
+  AppRegistryRoles,
+  useAppRegistryRole,
+} from '../contexts/app-registry-context';
 
 const ERROR_WARNING = 'An error occurred while loading navigation';
 
@@ -16,23 +18,21 @@ const RECOMMEND_READ_PREF_MSG = `It is recommended to change your read
  or provide a replica set name for a full topology connection.`;
 
 export default function WorkspaceContent({
-  appRegistry,
   instanceLoadingStatus,
   errorLoadingInstanceMessage,
   isDataLake,
   namespace,
 }: {
-  appRegistry: AppRegistry;
   instanceLoadingStatus: InstanceLoadedStatus;
   errorLoadingInstanceMessage: string | null;
   isDataLake: boolean;
   namespace: Namespace;
 }): React.ReactElement | null {
-  const collectionRole = useRef(
-    getRoleOrNull(appRegistry, 'Collection.Workspace')
+  const collectionRole = useAppRegistryRole(
+    AppRegistryRoles.COLLECTION_WORKSPACE
   );
-  const databaseRole = useRef(getRoleOrNull(appRegistry, 'Database.Workspace'));
-  const instanceRole = useRef(getRoleOrNull(appRegistry, 'Instance.Workspace'));
+  const databaseRole = useAppRegistryRole(AppRegistryRoles.DATABASE_WORKSPACE);
+  const instanceRole = useAppRegistryRole(AppRegistryRoles.INSTANCE_WORKSPACE);
 
   if (instanceLoadingStatus === InstanceLoadedStatus.ERROR) {
     let message = errorLoadingInstanceMessage || '';
@@ -54,32 +54,24 @@ export default function WorkspaceContent({
 
   if (namespace.database === '') {
     // Render databases list & performance tabs.
-    if (!instanceRole.current) {
+    if (!instanceRole) {
       return null;
     }
-    const Instance = instanceRole.current[0]
-      .component as React.JSXElementConstructor<{
-      isDataLake: boolean;
-    }>;
+    const Instance = instanceRole[0].component;
     return <Instance isDataLake={isDataLake} />;
   } else if (namespace.collection === '') {
-    if (!databaseRole.current) {
+    // Render collections table.
+    if (!databaseRole) {
       return null;
     }
-
-    // Render collections table.
-    const Database = databaseRole.current[0].component;
+    const Database = databaseRole[0].component;
     return <Database />;
   }
 
-  if (!collectionRole.current) {
+  // Render collection workspace.
+  if (!collectionRole) {
     return null;
   }
-
-  // Render collection workspace.
-  const Collection = collectionRole.current[0]
-    .component as React.JSXElementConstructor<{
-    isDataLake: boolean;
-  }>;
+  const Collection = collectionRole[0].component;
   return <Collection isDataLake={isDataLake} />;
 }

@@ -1,8 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 
+import AppRegistryContext from '../contexts/app-registry-context';
 import Home from '.';
 
 const getComponent = (name: string) => {
@@ -44,13 +45,13 @@ describe('Home [Component]', function () {
     testAppRegistry.onActivated();
   });
 
-  // afterEach(function () {
-  //   testAppRegistry = null;
-  // });
-
   describe('is not connected', function () {
     beforeEach(function () {
-      render(<Home appRegistry={testAppRegistry} />);
+      render(
+        <AppRegistryContext.Provider value={testAppRegistry}>
+          <Home appName="home-testing" />
+        </AppRegistryContext.Provider>
+      );
     });
 
     it('renders the connect screen', function () {
@@ -64,8 +65,14 @@ describe('Home [Component]', function () {
 
   describe('is connected', function () {
     beforeEach(function () {
-      render(<Home appRegistry={testAppRegistry} />);
-      testAppRegistry.emit('data-service-connected', null, 'not real ds');
+      render(
+        <AppRegistryContext.Provider value={testAppRegistry}>
+          <Home appName="home-testing" />
+        </AppRegistryContext.Provider>
+      );
+      testAppRegistry.emit('data-service-connected', null, {
+        model: { title: 'not real ds' },
+      });
     });
     describe('UI status is loading', function () {
       it('renders content correctly', function () {
@@ -84,6 +91,11 @@ describe('Home [Component]', function () {
       });
       it('renders the global modal role', function () {
         expect(screen.getByTestId('test-Global.Modal')).to.be.visible;
+      });
+      it('updates the document title', async function () {
+        await waitFor(() =>
+          expect(document.title).to.equal('home-testing - not real ds')
+        );
       });
     });
 
@@ -159,6 +171,11 @@ describe('Home [Component]', function () {
         it('renders the global modal role', function () {
           expect(screen.getByTestId('test-Global.Modal')).to.be.visible;
         });
+        it('updates the document title', async function () {
+          await waitFor(() =>
+            expect(document.title).to.equal('home-testing - not real ds/db')
+          );
+        });
       });
 
       describe('on `select-database`', function () {
@@ -180,6 +197,11 @@ describe('Home [Component]', function () {
         });
         it('renders the global modal role', function () {
           expect(screen.getByTestId('test-Global.Modal')).to.be.visible;
+        });
+        it('updates the document title', async function () {
+          await waitFor(() =>
+            expect(document.title).to.equal('home-testing - not real ds/db')
+          );
         });
       });
 
@@ -203,6 +225,11 @@ describe('Home [Component]', function () {
         it('renders the shell plugin', function () {
           expect(screen.getByTestId('test-Global.Shell')).to.be.visible;
         });
+        it('updates the document title', async function () {
+          await waitFor(() =>
+            expect(document.title).to.equal('home-testing - not real ds/db.col')
+          );
+        });
       });
 
       describe('on `data-service-disconnected`', function () {
@@ -223,7 +250,11 @@ describe('Home [Component]', function () {
 
   describe('when rendered', function () {
     beforeEach(function () {
-      render(<Home appRegistry={testAppRegistry} />);
+      render(
+        <AppRegistryContext.Provider value={testAppRegistry}>
+          <Home appName="home-testing" />
+        </AppRegistryContext.Provider>
+      );
     });
 
     it('adds all the listeners', function () {
@@ -256,7 +287,11 @@ describe('Home [Component]', function () {
 
   describe('on dismount', function () {
     beforeEach(function () {
-      const { unmount } = render(<Home appRegistry={testAppRegistry} />);
+      const { unmount } = render(
+        <AppRegistryContext.Provider value={testAppRegistry}>
+          <Home appName="home-testing" />
+        </AppRegistryContext.Provider>
+      );
       unmount();
     });
 
