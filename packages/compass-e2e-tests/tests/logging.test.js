@@ -90,10 +90,6 @@ describe('Logging integration', function () {
           msg: 'Initiating connection',
           attr: (actual) => {
             expect(actual.url).to.match(/^mongodb:\/\/localhost:27018/);
-            expect(actual.options).to.have.property(
-              'readPreference',
-              'primary'
-            );
             expect(actual.options).to.have.property('monitorCommands', true);
           },
         },

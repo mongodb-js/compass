@@ -5,7 +5,6 @@ import resolveMongodbSrv from 'resolve-mongodb-srv';
 import { redactConnectionOptions, redactConnectionString } from './redact';
 
 import createLogger from '@mongodb-js/compass-logging';
-import createDebug from 'debug';
 import { ConnectionOptions } from './connection-options';
 import {
   forceCloseTunnel,
@@ -13,8 +12,7 @@ import {
   waitForTunnelError,
 } from './ssh-tunnel';
 
-const debug = createDebug('mongodb-data-service:connect');
-const { log, mongoLogId } = createLogger('COMPASS-CONNECT');
+const { debug, log, mongoLogId } = createLogger('COMPASS-CONNECT');
 
 export default async function connectMongoClient(
   connectionOptions: ConnectionOptions,
@@ -58,12 +56,7 @@ export default async function connectMongoClient(
 
   log.info(mongoLogId(1_001_000_009), 'Connect', 'Initiating connection', {
     url: redactConnectionString(urlWithSshTunnel),
-    driverOptions,
-  });
-
-  debug('Creating MongoClient', {
-    url: redactConnectionString(urlWithSshTunnel),
-    driverOptions,
+    options: driverOptions,
   });
 
   const mongoClient = new MongoClient(urlWithSshTunnel, driverOptions);
@@ -104,7 +97,9 @@ function connectionOptionsToMongoClientParams(
 ): [string, MongoClientOptions] {
   const url = new ConnectionStringUrl(connectionOptions.connectionString);
 
-  const options: MongoClientOptions = {};
+  const options: MongoClientOptions = {
+    monitorCommands: true,
+  };
 
   // adds directConnection=true unless is explicitly a replica set
   const isLoadBalanced = url.searchParams.get('loadBalanced') === 'true';
