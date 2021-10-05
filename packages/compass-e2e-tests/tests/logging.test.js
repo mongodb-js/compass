@@ -74,6 +74,17 @@ describe('Logging integration', function () {
         {
           s: 'I',
           c: 'COMPASS-CONNECT',
+          id: 1_001_000_010,
+          ctx: 'Connect',
+          msg: 'Resolved SRV record',
+          attr: (actual) => {
+            expect(actual.from).to.match(/^mongodb:\/\/localhost:27018/);
+            expect(actual.to).to.match(/^mongodb:\/\/localhost:27018/);
+          },
+        },
+        {
+          s: 'I',
+          c: 'COMPASS-CONNECT',
           id: 1_001_000_009,
           ctx: 'Connect',
           msg: 'Initiating connection',
@@ -84,17 +95,6 @@ describe('Logging integration', function () {
               'primary'
             );
             expect(actual.options).to.have.property('monitorCommands', true);
-          },
-        },
-        {
-          s: 'I',
-          c: 'COMPASS-CONNECT',
-          id: 1_001_000_010,
-          ctx: 'Connect',
-          msg: 'Resolved SRV record',
-          attr: (actual) => {
-            expect(actual.from).to.match(/^mongodb:\/\/localhost:27018/);
-            expect(actual.to).to.match(/^mongodb:\/\/localhost:27018/);
           },
         },
         {
