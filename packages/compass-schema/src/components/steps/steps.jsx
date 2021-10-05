@@ -18,6 +18,7 @@ class SchemaSteps extends Component {
   }
 
   renderStopButton() {
+    // TODO: this whole screen will only render if analysisState is ANALYSIS_STATE_ANALYZING
     if (this.props.analysisState !== ANALYSIS_STATE_ANALYZING) {
       return;
     }

@@ -18,20 +18,6 @@ const StatusStore = Reflux.createStore({
   listenables: StatusActions,
 
   onActivated(appRegistry) {
-    appRegistry.on('compass:status:show-progress-bar', this.showProgressBar.bind(this));
-    appRegistry.on('compass:status:show-indeterminate-progress-bar', this.showIndeterminateProgressBar.bind(this));
-    appRegistry.on('compass:status:set-message', this.setMessage.bind(this));
-    appRegistry.on('compass:status:clear-message', this.clearMessage.bind(this));
-    appRegistry.on('compass:status:set-subview', this.setSubview.bind(this));
-    appRegistry.on('compass:status:set-subview-store', this.setSubviewStore.bind(this));
-    appRegistry.on('compass:status:set-subview-actions', this.setSubviewActions.bind(this));
-    appRegistry.on('compass:status:clear-subview', this.clearSubview.bind(this));
-    appRegistry.on('compass:status:enable-modal', this.enableModal.bind(this));
-    appRegistry.on('compass:status:disable-modal', this.disableModal.bind(this));
-    appRegistry.on('compass:status:configure', this.configure.bind(this));
-    appRegistry.on('compass:status:hide', this.hide.bind(this));
-    appRegistry.on('compass:status:done', this.done.bind(this));
-    appRegistry.on('compass:status:set-global-app-registry', this.setGlobalAppRegistry.bind(this));
     this.setGlobalAppRegistry(appRegistry);
   },
 

@@ -10,6 +10,11 @@ import DocumentJsonView from './document-json-view';
 import DocumentTableView from './document-table-view';
 import Toolbar from './toolbar';
 
+import {
+  DOCUMENTS_STATUS_FETCHING,
+  DOCUMENTS_STATUS_FETCHED_CUSTOM
+} from '../constants/documents-statuses';
+
 import './index.less';
 import './ag-grid-dist.css';
 
@@ -83,6 +88,27 @@ class DocumentList extends React.Component {
   }
 
   /**
+   * Render the fetching indicator with cancel button
+   */
+  renderFetching() {
+    return (
+      <div className="document-list-fetching">
+        <ul className="steps">
+          <li>
+            <i className="fa fa-fw fa-spin fa-circle-o-notch" />
+            Fetching Documents
+          </li>
+        </ul>
+        <div className="buttons">
+          <div>
+            <button className="btn btn-sm btn-info">Cancel</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /**
    * Render the list of documents.
    *
    * @returns {React.Component} The list.
@@ -94,6 +120,10 @@ class DocumentList extends React.Component {
           {this.props.error.message}
         </StatusRow>
       );
+    }
+
+    if (this.props.status === DOCUMENTS_STATUS_FETCHING) {
+      return this.renderFetching();
     }
 
     return (
@@ -159,11 +189,11 @@ class DocumentList extends React.Component {
     let header = 'This collection has no data';
     let subtext = 'It only takes a few seconds to import data from a JSON or CSV file';
 
-    if (this.props.docs.length > 0 || this.props.status === 'fetching') {
+    if (this.props.docs.length > 0 || this.props.status === DOCUMENTS_STATUS_FETCHING) {
       return null;
     }
 
-    if (this.props.docs.length === 0 && this.props.status === 'fetchedWithCustomQuery') {
+    if (this.props.docs.length === 0 && this.props.status === DOCUMENTS_STATUS_FETCHED_CUSTOM) {
       header = 'No results';
       subtext = 'Try to modify your query to get results';
 

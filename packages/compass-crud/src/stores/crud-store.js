@@ -184,7 +184,7 @@ const configureStore = (options = {}) => {
         isDataLake: false,
         isReadonly: false,
         isTimeSeries: false,
-        status: 'fetching',
+        status: 'initial',
         outdated: false,
         shardKeys: null,
         resultId: resultId()
@@ -534,6 +534,7 @@ const configureStore = (options = {}) => {
           return;
         }
       }
+
       const opts = {
         skip: skip + this.state.query.skip,
         limit: nextPageCount,
@@ -544,13 +545,17 @@ const configureStore = (options = {}) => {
         promoteValues: false
       };
 
-      this.globalAppRegistry.emit('compass:status:show-progress-bar');
+      if (this.state.status === 'fetching') {
+        return;
+      }
+
+      this.setState({ status: 'fetching' });
 
       this.dataService.find(this.state.ns, this.state.query.filter, opts, (error, documents) => {
         const length = error ? 0 : documents.length;
-        this.globalAppRegistry.emit('compass:status:done');
         this.setState({
           error: error,
+          status: error ? 'error' : 'fetchedWithPaginationQuery',
           docs: documents.map(doc => new HadronDocument(doc)),
           start: skip + 1,
           end: skip + ((length === 0) ? skip : length),
@@ -581,13 +586,18 @@ const configureStore = (options = {}) => {
         promoteValues: false
       };
 
-      this.globalAppRegistry.emit('compass:status:show-progress-bar');
+      if (this.state.status === 'fetching') {
+        return;
+      }
+
+      this.setState({ status: 'fetching' });
 
       this.dataService.find(this.state.ns, this.state.query.filter, opts, (error, documents) => {
         const length = error ? 0 : documents.length;
-        this.globalAppRegistry.emit('compass:status:done');
+
         this.setState({
           error: error,
+          status: error ? 'error' : 'fetchedWithPaginationQuery',
           docs: documents.map(doc => new HadronDocument(doc)),
           start: skip + 1,
           end: skip + length,
@@ -906,56 +916,52 @@ const configureStore = (options = {}) => {
         return;
       }
 
-      if (this.isRefreshingDocuments) {
+      const query = this.state.query || {};
+
+      const countOptions = {
+        skip: query.skip,
+        maxTimeMS: query.maxTimeMS > COUNT_MAX_TIME_MS_CAP ?
+          COUNT_MAX_TIME_MS_CAP :
+          query.maxTimeMS
+      };
+
+      const findOptions = {
+        sort: query.sort,
+        projection: query.project,
+        skip: query.skip,
+        limit: NUM_PAGE_DOCS,
+        collation: query.collation,
+        maxTimeMS: query.maxTimeMS,
+        promoteValues: false
+      };
+
+      const fetchShardingKeysOptions = {
+        maxTimeMS: query.maxTimeMS
+      };
+
+      // only set limit if it's > 0, read-only views cannot handle 0 limit.
+      if (query.limit > 0) {
+        countOptions.limit = query.limit;
+        findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
+      }
+
+      if (this.state.status === 'fetching') {
         return;
       }
 
-      this.isRefreshingDocuments = true;
+      this.setState({
+        status: 'fetching',
+        outdated: false
+      });
+
+      log.info(mongoLogId(1001000073), 'Documents', 'Refreshing documents', {
+        ns: this.state.ns,
+        withFilter: !isEmpty(query.filter),
+        findOptions,
+        countOptions
+      });
 
       try {
-        this.setState({
-          status: 'fetching',
-          outdated: false
-        });
-
-        const query = this.state.query || {};
-
-        const countOptions = {
-          skip: query.skip,
-          maxTimeMS: query.maxTimeMS > COUNT_MAX_TIME_MS_CAP ?
-            COUNT_MAX_TIME_MS_CAP :
-            query.maxTimeMS
-        };
-
-        const findOptions = {
-          sort: query.sort,
-          projection: query.project,
-          skip: query.skip,
-          limit: NUM_PAGE_DOCS,
-          collation: query.collation,
-          maxTimeMS: query.maxTimeMS,
-          promoteValues: false
-        };
-
-        const fetchShardingKeysOptions = {
-          maxTimeMS: query.maxTimeMS
-        };
-
-        // only set limit if it's > 0, read-only views cannot handle 0 limit.
-        if (query.limit > 0) {
-          countOptions.limit = query.limit;
-          findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
-        }
-
-        log.info(mongoLogId(1001000073), 'Documents', 'Refreshing documents', {
-          ns: this.state.ns,
-          withFilter: !isEmpty(query.filter),
-          findOptions,
-          countOptions
-        });
-
-        this.globalAppRegistry.emit('compass:status:show-progress-bar');
-
         const [
           shardKeys,
           count,
@@ -986,10 +992,7 @@ const configureStore = (options = {}) => {
         this.globalAppRegistry.emit('documents-refreshed', this.state.view, docs);
       } catch (error) {
         log.error(mongoLogId(1001000074), 'Documents', 'Failed to refresh documents', error);
-        this.setState({ error, resultId: resultId() });
-      } finally {
-        this.globalAppRegistry.emit('compass:status:done');
-        this.isRefreshingDocuments = false;
+        this.setState({ error, status: 'error', resultId: resultId() });
       }
     },
 

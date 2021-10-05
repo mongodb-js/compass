@@ -184,9 +184,7 @@ class Schema extends Component {
       );
     }
 
-    if (
-      this.props.analysisState === ANALYSIS_STATE_ANALYZING
-    ) {
+    if (this.props.analysisState === ANALYSIS_STATE_ANALYZING) {
       return (
         this.renderStepsScreen()
       );
