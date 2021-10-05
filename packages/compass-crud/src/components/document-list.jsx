@@ -99,13 +99,15 @@ class DocumentList extends React.Component {
             Fetching Documents
           </li>
         </ul>
+      </div>
+    );
+    /*
         <div className="buttons">
           <div>
             <button className="btn btn-sm btn-info">Cancel</button>
           </div>
         </div>
-      </div>
-    );
+    */
   }
 
   /**
