@@ -45,6 +45,11 @@ class DocumentList extends React.Component {
     this.props.store.refreshDocuments();
   }
 
+  onCancelClicked() {
+    console.log('cancel');
+    this.props.store.cancelOperation();
+  }
+
   /**
    * Handle opening of the insert dialog.
    *
@@ -99,15 +104,16 @@ class DocumentList extends React.Component {
             Fetching Documents
           </li>
         </ul>
-      </div>
-    );
-    /*
         <div className="buttons">
           <div>
-            <button className="btn btn-sm btn-info">Cancel</button>
+            <button
+              className="btn btn-sm btn-info"
+              onClick={this.onCancelClicked.bind(this)}
+            >Cancel</button>
           </div>
         </div>
-    */
+      </div>
+    );
   }
 
   /**
