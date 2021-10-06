@@ -46,7 +46,6 @@ class DocumentList extends React.Component {
   }
 
   onCancelClicked() {
-    console.log('cancel');
     this.props.store.cancelOperation();
   }
 
