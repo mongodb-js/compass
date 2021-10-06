@@ -8,7 +8,7 @@ describe('connection-attempt', () => {
         return new Promise(resolve => setTimeout(() => resolve(dataService), 25));
       });
       const connectionAttemptResult = await connectionAttempt.connect({
-        driverUrl: 'mongodb://localhost:27017'
+        connectionString: 'mongodb://localhost:27017'
       });
       expect(connectionAttemptResult).to.deep.equal(dataService);
     });
@@ -20,7 +20,7 @@ describe('connection-attempt', () => {
       });
 
       const connectPromise = connectionAttempt.connect({
-        driverUrl: 'mongodb://localhost:27017'
+        connectionString: 'mongodb://localhost:27017'
       });
 
       connectionAttempt.cancelConnectionAttempt();
@@ -37,7 +37,7 @@ describe('connection-attempt', () => {
       });
 
       const connectPromise = connectionAttempt.connect({
-        driverUrl: 'mongodb://localhost:27017'
+        connectionString: 'mongodb://localhost:27017'
       }).catch(
         err => err
       );
