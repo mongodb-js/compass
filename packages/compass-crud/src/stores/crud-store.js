@@ -17,6 +17,7 @@ import {
 } from '../constants/documents-statuses';
 
 import configureGridStore from './grid-store';
+import { nullFormat } from 'numeral';
 
 /**
  * Number of docs per page.
@@ -947,12 +948,6 @@ const configureStore = (options = {}) => {
         findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
       }
 
-      this.setState({
-        status: DOCUMENTS_STATUS_FETCHING,
-        outdated: false,
-        error: null
-      });
-
       log.info(mongoLogId(1001000073), 'Documents', 'Refreshing documents', {
         ns,
         withFilter: !isEmpty(query.filter),
@@ -966,8 +961,12 @@ const configureStore = (options = {}) => {
         findDocuments(this.dataService, ns, query.filter, findOptions)
       ];
 
-      // keep the queries so we can cancel them
-      this.setState({ queries });
+      this.setState({
+        status: DOCUMENTS_STATUS_FETCHING,
+        queries,
+        outdated: false,
+        error: null
+      });
 
       const promises = queries.map(({ promise }) => promise);
 
@@ -978,6 +977,7 @@ const configureStore = (options = {}) => {
           status: this.isInitialQuery(query) ?
             DOCUMENTS_STATUS_FETCHED_INITIAL :
             DOCUMENTS_STATUS_FETCHED_CUSTOM,
+          queries: null,
           isEditable: this.hasProjection(query) ? false : this.isListEditable(),
           error: null,
           docs: docs.map(doc => new HadronDocument(doc)),
@@ -995,12 +995,11 @@ const configureStore = (options = {}) => {
       } catch (error) {
         log.error(mongoLogId(1001000074), 'Documents', 'Failed to refresh documents', error);
         this.setState({
+          queries: null,
           error,
           status: DOCUMENTS_STATUS_ERROR,
           resultId: resultId()
         });
-      } finally {
-        this.setState({ queries: null });
       }
     },
 
