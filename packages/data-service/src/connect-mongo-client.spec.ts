@@ -68,7 +68,9 @@ describe('connectMongoClient', function () {
         'mongodb://localhost:27018/?directConnection=true'
       );
 
-      assert.deepStrictEqual(options, {});
+      assert.deepStrictEqual(options, {
+        monitorCommands: true,
+      });
     });
 
     describe('ssh tunnel failures', function () {
