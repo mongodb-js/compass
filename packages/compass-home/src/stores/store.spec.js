@@ -119,7 +119,6 @@ describe('HomeStore [Store]', () => {
           isCollapsed: false,
           namespace: '',
           title: ' - mongodb.net',
-          isConnected: true,
           uiStatus: UI_STATES.COMPLETE,
           isDataLake: false
         });
