@@ -15,7 +15,7 @@ module.exports = function (app) {
     await client.keys(parse === true ? `JSON.stringify(${str})` : str);
     await client.keys('\uE007');
     const shellLoaderElement = await client.$(Selectors.ShellLoader);
-    if (shellLoaderElement.isDisplayed()) {
+    if (await shellLoaderElement.isDisplayed()) {
       await shellLoaderElement.waitForDisplayed({
         timeout,
         timeoutMsg: `Expected shell evaluation to finish in ${timeout}ms`,
