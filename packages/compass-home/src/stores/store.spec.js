@@ -116,7 +116,7 @@ describe('HomeStore [Store]', () => {
         expect(store.getState()).to.deep.equal({
           errorMessage: '',
           connectionTitle: 'mongodb.net',
-          isCollapsed: false,
+          isConnected: true,
           namespace: '',
           title: ' - mongodb.net',
           uiStatus: UI_STATES.COMPLETE,
