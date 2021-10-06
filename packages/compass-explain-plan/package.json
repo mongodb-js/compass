@@ -115,7 +115,6 @@
     "less-loader": "^7.3.0",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-client-encryption": "^1.2.3",
     "mongodb-connection-model": "^21.8.0",
     "mongodb-data-service": "^21.12.0",
     "mongodb-query-parser": "^2.4.3",
