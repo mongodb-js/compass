@@ -1089,54 +1089,9 @@ const configureStore = (options = {}) => {
 
 export default configureStore;
 
-
 /*
-async function fetchShardingKeys(dataService, ns, fetchShardingKeysOptions) {
-  const find = util.promisify(dataService.find.bind(dataService));
-
-  const configDocs = await find(
-    'config.collections',
-    { _id: ns },
-    { ...fetchShardingKeysOptions, projection: { key: 1, _id: 0 } }
-  ).catch((err) => {
-    log.warn(mongoLogId(1001000075), 'Documents', 'Failed to fetch sharding keys', err);
-    return [];
-  });
-
-  if (configDocs && configDocs.length) {
-    return configDocs[0].key;
-  }
-
-  return {};
-}
-*/
-
-/*
-async function countWithHint(dataService, ns, filter, countOptions = {}) {
-  const dataServiceCount = util.promisify(dataService.count.bind(dataService));
-
-  if (filter && Object.keys(filter).length > 0) {
-    return await dataServiceCount(ns, filter, countOptions);
-  }
-
-  try { // suggest to use the _id_ index if available to speed up full count
-    return await dataServiceCount(ns, filter, { hint: '_id_', ...countOptions });
-  } catch (err) {
-    return await dataServiceCount(ns, filter, countOptions);
-  }
-}
-*/
-
-/*
-async function fetchDocuments(dataService, ns, filter, findOptions) {
-  const find = util.promisify(dataService.find.bind(dataService));
-  return find(ns, filter, findOptions);
-}
-*/
-
-/*
- * Return a cursor (so we can cancel the query) and the promise that resolves to
- * the shard keys if any.
+ * Return a cancel() function and the promise that resolves to the shard keys if
+ * any.
 */
 export function fetchShardingKeys(dataService, ns, { maxTimeMS } = {}) {
   let cursor;
@@ -1176,8 +1131,7 @@ export function fetchShardingKeys(dataService, ns, { maxTimeMS } = {}) {
 }
 
 /*
- * Return a cursor (so we can cancel the query) and the promise that resolves to
- * the count.
+ * Return a cancel() function and the promise that resolves to the count.
 */
 export function countDocuments(dataService, ns, filter, { skip, maxTimeMS } = {}) {
   let reject;
@@ -1223,8 +1177,7 @@ export function countDocuments(dataService, ns, filter, { skip, maxTimeMS } = {}
 }
 
 /*
- * Return a cursor (so we can cancel the query) and the promise that resolves to
- * the documents.
+ * Return a cancel() function and the promise that resolves to the documents.
 */
 export function findDocuments(dataService, ns, filter, options) {
   let reject;
