@@ -13,7 +13,7 @@ module.exports = function (app) {
     await client.waitUntil(async () => {
       await client.clickVisible(`${selector} .ace_scroller`);
 
-      const aceElement = await client.$(`${selector} .ace_scroller`);
+      const aceElement = await client.$(`${selector} .ace_text-input`);
       const focused = await aceElement.isFocused();
 
       if (!focused) {

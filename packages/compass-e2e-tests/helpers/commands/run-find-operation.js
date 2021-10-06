@@ -51,7 +51,8 @@ async function isOptionsExpanded(client, tabName) {
   // it doesn't look like there's some attribute on the options button or
   // container that we can easily check, so just look for a field that exists
   // if it is expanded
-  return await client.isVisible(Selectors.queryBarOptionInputProject(tabName));
+  const element = await client.$(Selectors.queryBarOptionInputProject(tabName));
+  return element.isDisplayed();
 }
 
 async function waitUntilCollapsed(client, tabName) {
