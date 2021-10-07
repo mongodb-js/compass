@@ -12,7 +12,7 @@
   },
   "scripts": {
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rm -rf ./lib",
+    "prewebpack": "rimraf ./lib",
     "webpack": "webpack-compass",
     "electron-rebuild": "electron-rebuild --only keytar",
     "node-rebuild": "node ../../scripts/rebuild.js keytar",
@@ -72,6 +72,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
+    "rimraf": "^3.0.1",
     "xvfb-maybe": "^0.2.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",
