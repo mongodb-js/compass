@@ -1133,7 +1133,7 @@ export function fetchShardingKeys(dataService, ns, { maxTimeMS } = {}) {
 /*
  * Return a cancel() function and the promise that resolves to the count.
 */
-export function countDocuments(dataService, ns, filter, { skip, maxTimeMS } = {}) {
+export function countDocuments(dataService, ns, filter, { skip, limit, maxTimeMS } = {}) {
   let reject;
   let cursor;
 
@@ -1152,6 +1152,9 @@ export function countDocuments(dataService, ns, filter, { skip, maxTimeMS } = {}
     const stages = [{ $match }];
     if (skip) {
       stages.push({ $skip: skip });
+    }
+    if (limit) {
+      stages.push({ $limit: limit });
     }
     stages.push({ $count: 'count' });
 
