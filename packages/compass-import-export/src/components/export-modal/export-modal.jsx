@@ -199,6 +199,11 @@ class ExportModal extends PureComponent {
       [style('query-viewer-is-disabled')]: isFullCollection
     });
 
+    // count will be null or undefined if the count query timed out
+    const count = this.props.count;
+    const hasCount = !!count || count === 0;
+    const resultsSummary = hasCount ? `&mdash; ${formatNumber(count)}` : '';
+
     return (
       <FormGroup controlId="export-collection-option">
         <div className={style('radio')}>
@@ -209,7 +214,7 @@ class ExportModal extends PureComponent {
               checked={!isFullCollection}
               onChange={this.handleExportOptionSelect}
               aria-label="Export collection with filters radio button"/>
-            Export query with filters &mdash; {formatNumber(this.props.count)} results (Recommended)
+            Export query with filters {resultsSummary} (Recommended)
           </label>
         </div>
         <div className={queryViewerClassName} data-test-id="query-viewer-wrapper">
@@ -364,21 +369,29 @@ class ExportModal extends PureComponent {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = state => ({
-  ns: state.ns,
-  error: state.exportData.error,
-  query: state.exportData.query,
-  open: state.exportData.isOpen,
-  status: state.exportData.status,
-  fields: state.exportData.fields,
-  fileType: state.exportData.fileType,
-  fileName: state.exportData.fileName,
-  progress: state.exportData.progress,
-  exportStep: state.exportData.exportStep,
-  isFullCollection: state.exportData.isFullCollection,
-  exportedDocsCount: state.exportData.exportedDocsCount,
-  count: state.exportData.count || state.stats.rawDocumentCount,
-});
+const mapStateToProps = (state) => {
+  const exportCount = state.exportData.count;
+  const rawCount = state.stats.rawDocumentCount;
+
+  // 0 is a valid number of documents
+  const count = exportCount || exportCount === 0 ? exportCount : rawCount;
+
+  return {
+    ns: state.ns,
+    error: state.exportData.error,
+    query: state.exportData.query,
+    open: state.exportData.isOpen,
+    status: state.exportData.status,
+    fields: state.exportData.fields,
+    fileType: state.exportData.fileType,
+    fileName: state.exportData.fileName,
+    progress: state.exportData.progress,
+    exportStep: state.exportData.exportStep,
+    isFullCollection: state.exportData.isFullCollection,
+    exportedDocsCount: state.exportData.exportedDocsCount,
+    count
+  };
+};
 
 /**
  * Export the connected component as the default.
