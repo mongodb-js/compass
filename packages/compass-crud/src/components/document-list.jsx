@@ -91,7 +91,7 @@ class DocumentList extends React.Component {
     );
   }
 
-  /**
+  /*
    * Render the fetching indicator with cancel button
    */
   renderFetching() {
@@ -108,7 +108,7 @@ class DocumentList extends React.Component {
             <button
               className="btn btn-sm btn-info"
               onClick={this.onCancelClicked.bind(this)}
-            >Cancel</button>
+            >Stop</button>
           </div>
         </div>
       </div>
