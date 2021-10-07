@@ -333,7 +333,6 @@ const fetchDocumentCount = async(dataService, ns, query) => {
     try {
       const runEstimatedDocumentCount = promisify(dataService.estimatedCount.bind(dataService));
       const count = await runEstimatedDocumentCount(ns, {});
-
       return count;
     } catch (estimatedCountErr) {
       // `estimatedDocumentCount` is currently unsupported for
@@ -376,7 +375,7 @@ export const openExport = (count) => {
 
     const spec = exportData.query;
 
-    if (count) {
+    if (count || count === 0) {
       return dispatch(onModalOpen(count, spec));
     }
 
