@@ -25,4 +25,13 @@ jobs:
         run: npm run bootstrap-ci
 
       - name: Run connectivity tests
+        env:
+          E2E_TESTS_ATLAS_HOST: ${{ secrets.E2E_TESTS_ATLAS_HOST }}
+          E2E_TESTS_DATA_LAKE_HOST: ${{ secrets.E2E_TESTS_DATA_LAKE_HOST }}
+          E2E_TESTS_SERVERLESS_HOST: ${{ secrets.E2E_TESTS_SERVERLESS_HOST }}
+          E2E_TESTS_ATLAS_USERNAME: ${{ secrets.E2E_TESTS_ATLAS_USERNAME }}
+          E2E_TESTS_ATLAS_PASSWORD: ${{ secrets.E2E_TESTS_ATLAS_PASSWORD }}
+          # Matches what we are doing in Evergreen
+          MONGODB_VERSION: '4'
         run: COMPASS_RUN_DOCKER_TESTS=true npm run test --workspace mongodb-data-service
+        shell: bash
