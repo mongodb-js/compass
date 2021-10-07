@@ -63,8 +63,6 @@ const COMPASS_TEST_SERVERLESS_URL = buildConnectionString(
   E2E_TESTS_SERVERLESS_HOST
 );
 
-const SETUP_TEARDOWN_TIMEOUT = 10 * 60 * 1000; // 10 minutes
-
 const envs = createTestEnvs([
   'enterprise',
   'ldap',
@@ -72,7 +70,6 @@ const envs = createTestEnvs([
   'sharded',
   'ssh',
   'tls',
-  // ...(IS_GITHUB_ACTIONS_LINUX ? ['kerberos'] : []), // run docker as root to set host
 ]);
 
 describe('connect', function () {
@@ -109,29 +106,10 @@ describe('connect', function () {
   });
 
   describe('docker', function () {
-    before(async function () {
-      this.timeout(SETUP_TEARDOWN_TIMEOUT);
-
+    before(function () {
       if (!SHOULD_RUN_DOCKER_TESTS) {
         return this.skip();
       }
-
-      try {
-        await envs.setup();
-      } catch (e) {
-        await envs.teardown();
-        throw e;
-      }
-    });
-
-    after(async function () {
-      this.timeout(SETUP_TEARDOWN_TIMEOUT);
-
-      if (!SHOULD_RUN_DOCKER_TESTS) {
-        return;
-      }
-
-      await envs.teardown();
     });
 
     it('Can connect to an enterprise server', async function () {
