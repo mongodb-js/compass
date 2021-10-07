@@ -327,13 +327,17 @@ describe('Smoke tests', function () {
       expect(fields).to.have.lengthOf(2);
 
       const schemaFieldNameElement = await client.$$(Selectors.SchemaFieldName);
-      const fieldNames = await Promise.all(schemaFieldNameElement.map(el => el.getText()));
+      const fieldNames = await Promise.all(
+        schemaFieldNameElement.map((el) => el.getText())
+      );
       expect(fieldNames).to.deep.equal(['_id', 'i']);
 
       const schemaFieldTypeListElement = await client.$$(
         Selectors.SchemaFieldTypeList
       );
-      const fieldTypes = await Promise.all(schemaFieldTypeListElement.map(el => el.getText()));
+      const fieldTypes = await Promise.all(
+        schemaFieldTypeListElement.map((el) => el.getText())
+      );
       expect(fieldTypes).to.deep.equal(['objectid', 'int32']);
     });
 
