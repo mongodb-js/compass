@@ -9,13 +9,7 @@ import DataService from './data-service';
 
 const IS_CI = process.env.EVERGREEN_BUILD_VARIANT || process.env.CI === 'true';
 
-const IS_GITHUB_ACTIONS_LINUX =
-  process.env.CI === 'true' && process.env.RUNNER_OS === 'Linux';
-
-const SHOULD_RUN_DOCKER_TESTS =
-  process.env.COMPASS_RUN_CONNECTIVITY_TESTS === 'true' ||
-  process.env.EVERGREEN_BUILD_VARIANT === 'ubuntu' ||
-  IS_GITHUB_ACTIONS_LINUX;
+const SHOULD_RUN_DOCKER_TESTS = process.env.COMPASS_RUN_DOCKER_TESTS === 'true';
 
 const {
   E2E_TESTS_ATLAS_USERNAME,
