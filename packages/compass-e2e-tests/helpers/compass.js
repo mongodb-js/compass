@@ -159,7 +159,7 @@ async function startCompass(
     // It's usually not required when running tests in Evergreen or locally, but
     // GitHub CI machines are pretty slow sometimes, especially the macOS one
     startTimeout: 20_000,
-    waitTimeout: 20_000,
+    waitTimeout: 0,
     webdriverOptions: {
       waitforInterval: 200, // default is 500ms
     },
