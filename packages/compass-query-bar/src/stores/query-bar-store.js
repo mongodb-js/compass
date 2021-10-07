@@ -393,7 +393,14 @@ const configureStore = (options = {}) => {
      *                            cleaned-up string input.
      */
     _validateInput(label, input) {
-      return queryParser.validate(label, input, { validate: false });
+      const validated = queryParser.validate(label, input, { validate: false });
+      if (label === 'filter' && validated === '') {
+        // Things like { i: $} confuses queryParser and ultimately it sets
+        // filter to '' whereas it has to be a {} (if valid) or false (if
+        // invalid). Should probably be fixed in mongodb-query-parser, though.
+        return false;
+      }
+      return validated;
     },
 
     /**
