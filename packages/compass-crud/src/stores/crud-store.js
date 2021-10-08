@@ -181,7 +181,7 @@ const configureStore = (options = {}) => {
       return {
         ns: '',
         collection: '',
-        queries: null,
+        abortController: null,
         error: null,
         docs: [],
         start: 0,
@@ -570,7 +570,11 @@ const configureStore = (options = {}) => {
         }
       }
 
+      const abortController = new AbortController();
+      const signal = abortController.signal;
+
       const opts = {
+        signal,
         skip,
         limit: nextPageCount,
         sort,
@@ -580,18 +584,16 @@ const configureStore = (options = {}) => {
         promoteValues: false
       };
 
-      const query = findDocuments(this.dataService, ns, filter, opts);
-
       this.setState({
         status: DOCUMENTS_STATUS_FETCHING,
-        queries: [query],
+        abortController,
         error: null
       });
 
       let error;
       let documents;
       try {
-        documents = await query.promise;
+        documents = await findDocuments(this.dataService, ns, filter, opts);
       } catch (err) {
         error = err;
       }
@@ -955,7 +957,14 @@ const configureStore = (options = {}) => {
         countOptions
       });
 
-      const queries = [
+      const abortController = new AbortController();
+      const signal = abortController.signal;
+
+      fetchShardingKeysOptions.signal = signal;
+      countOptions.signal = signal;
+      findOptions.signal = signal;
+
+      const promises = [
         fetchShardingKeys(this.dataService, ns, fetchShardingKeysOptions),
         countDocuments(this.dataService, ns, query.filter, countOptions),
         findDocuments(this.dataService, ns, query.filter, findOptions)
@@ -963,12 +972,10 @@ const configureStore = (options = {}) => {
 
       this.setState({
         status: DOCUMENTS_STATUS_FETCHING,
-        queries,
+        abortController,
         outdated: false,
         error: null
       });
-
-      const promises = queries.map(({ promise }) => promise);
 
       try {
         const [shardKeys, count, docs] = await Promise.all(promises);
@@ -977,7 +984,7 @@ const configureStore = (options = {}) => {
           status: this.isInitialQuery(query) ?
             DOCUMENTS_STATUS_FETCHED_INITIAL :
             DOCUMENTS_STATUS_FETCHED_CUSTOM,
-          queries: null,
+          abortController: null,
           isEditable: this.hasProjection(query) ? false : this.isListEditable(),
           error: null,
           docs: docs.map(doc => new HadronDocument(doc)),
@@ -995,7 +1002,7 @@ const configureStore = (options = {}) => {
       } catch (error) {
         log.error(mongoLogId(1001000074), 'Documents', 'Failed to refresh documents', error);
         this.setState({
-          queries: null,
+          abortController: null,
           error,
           status: DOCUMENTS_STATUS_ERROR,
           resultId: resultId()
@@ -1004,14 +1011,12 @@ const configureStore = (options = {}) => {
     },
 
     async cancelOperation() {
-      const queries = this.state.queries;
-      if (!queries) {
+      const { abortController } = this.state;
+      if (!abortController) {
         return;
       }
-      for (const query of queries) {
-        query.cancel();
-      }
-      this.setState({ queries: null });
+      abortController.abort();
+      this.setState({ abortController: null });
     },
 
     hasProjection(query) {
@@ -1089,120 +1094,186 @@ const configureStore = (options = {}) => {
 
 export default configureStore;
 
+/**
+ * Return a promise you can race (just like a timeout from timeouts/promises).
+ * It will reject if abortSignal triggers before successSignal
+ */
+function abortablePromise(abortSignal, successSignal) {
+  let reject;
+
+  const promise = new Promise(function(resolve, _reject) {
+    reject = _reject;
+  });
+
+  const abort = () => {
+    // if this task aborts it will never succeed, so clean up that event listener
+    // (abortSignal's event handler is already removed due to { once: true })
+    successSignal.removeEventListener('abort', succeed);
+
+    reject(new Error(OPERATION_CANCELLED_MESSAGE));
+  };
+
+  const succeed = () => {
+    // if this task succeeds it will never abort, so clean up that event listener
+    // (successSignal's event handler is already removed due to { once: true })
+    abortSignal.removeEventListener('abort', abort);
+  };
+
+  abortSignal.addEventListener('abort', abort, { once: true });
+  successSignal.addEventListener('abort', succeed, { once: true });
+
+  return promise;
+}
+
 /*
  * Return a cancel() function and the promise that resolves to the shard keys if
  * any.
 */
-export function fetchShardingKeys(dataService, ns, { maxTimeMS } = {}) {
-  let cursor;
-  let reject;
+export async function fetchShardingKeys(dataService, ns, { signal, maxTimeMS }) {
+  // best practise is to first check if the signal wasn't already aborted
+  if (signal.aborted) {
+    throw new Error(OPERATION_CANCELLED_MESSAGE);
+  }
 
-  const promise = new Promise(async(resolve, _reject) => {
-    reject = _reject;
+  const cursor = dataService.fetch(
+    'config.collections',
+    { _id: ns },
+    { maxTimeMS, projection: { key: 1, _id: 0 } }
+  );
 
-    cursor = dataService.fetch(
-      'config.collections',
-      { _id: ns },
-      { maxTimeMS, projection: { key: 1, _id: 0 } }
-    );
-
-    let configDocs;
-    try {
-      configDocs = await cursor.toArray();
-    } catch (err) {
-      log.warn(mongoLogId(1001000075), 'Documents', 'Failed to fetch sharding keys', err);
-      configDocs = [];
-    }
-
-    if (configDocs && configDocs.length) {
-      resolve(configDocs[0].key);
-      return;
-    }
-
-    resolve({});
-  });
-
-  const cancel = () => {
+  // close the cursor if the operation is aborted
+  const abort = () => {
     cursor.close();
-    reject(new Error(OPERATION_CANCELLED_MESSAGE));
   };
+  signal.addEventListener('abort', abort, { once: true });
 
-  return { cancel, promise };
+  // we need a promise that will reject as soon as the operation is aborted
+  // since closing the cursor isn't enough to immediately make the cursor
+  // method's promise reject
+  const successController = new AbortController();
+  const abortPromise = abortablePromise(signal, successController.signal);
+
+  let configDocs;
+
+  try {
+    configDocs = await Promise.race([abortPromise, cursor.toArray()]);
+  } catch (err) {
+    // rethrow if we aborted along the way
+    if (err.message === OPERATION_CANCELLED_MESSAGE) {
+      throw err;
+    }
+
+    // for other errors assume that the query failed
+    log.warn(mongoLogId(1001000075), 'Documents', 'Failed to fetch sharding keys', err);
+    configDocs = [];
+  }
+
+  // clean up event handlers because we succeeded
+  signal.removeEventListener('abort', abort);
+  successController.abort();
+
+  if (configDocs && configDocs.length) {
+    return configDocs[0].key;
+  }
+
+  return {};
 }
 
 /*
  * Return a cancel() function and the promise that resolves to the count.
 */
-export function countDocuments(dataService, ns, filter, { skip, limit, maxTimeMS } = {}) {
-  let reject;
-  let cursor;
+export async function countDocuments(dataService, ns, filter, { signal, skip, limit, maxTimeMS }) {
+  if (signal.aborted) {
+    throw new Error(OPERATION_CANCELLED_MESSAGE);
+  }
 
-  const promise = new Promise(async(resolve, _reject) => {
-    reject = _reject;
+  let $match;
+  if (filter && Object.keys(filter).length > 0) {
+    // not all find filters are valid $match stages..
+    $match = filter;
+  } else {
+    $match = {};
+  }
 
-    let $match;
+  const stages = [{ $match }];
+  if (skip) {
+    stages.push({ $skip: skip });
+  }
+  if (limit) {
+    stages.push({ $limit: limit });
+  }
+  stages.push({ $count: 'count' });
 
-    if (filter && Object.keys(filter).length > 0) {
-      // not all find filters are valid $match stages..
-      $match = filter;
-    } else {
-      $match = {};
-    }
+  const cursor = dataService.aggregate(ns, stages, { maxTimeMS });
 
-    const stages = [{ $match }];
-    if (skip) {
-      stages.push({ $skip: skip });
-    }
-    if (limit) {
-      stages.push({ $limit: limit });
-    }
-    stages.push({ $count: 'count' });
-
-    cursor = dataService.aggregate(ns, stages, { maxTimeMS });
-
-    try {
-      const result = await cursor.toArray();
-      resolve(result[0].count);
-    } catch (err) {
-      debug('warning: unable to count documents', err);
-      // The count queries can frequently time out on large collections.
-      // The UI will just have to deal with null.
-      resolve(null);
-    }
-  });
-
-  const cancel = () => {
+  const abort = () => {
     cursor.close();
-    reject(new Error(OPERATION_CANCELLED_MESSAGE));
   };
+  signal.addEventListener('abort', abort, { once: true });
 
-  return { cancel, promise };
+  const successController = new AbortController();
+  const abortPromise = abortablePromise(signal, successController.signal);
+
+  let result;
+  try {
+    const array = await Promise.race([abortPromise, cursor.toArray()]);
+    result = array[0].count;
+  } catch (err) {
+    // rethrow if we aborted along the way
+    if (err.message === OPERATION_CANCELLED_MESSAGE) {
+      throw err;
+    }
+
+    // for all other errors we assume the query failed
+    debug('warning: unable to count documents', err);
+    // The count queries can frequently time out on large collections.
+    // The UI will just have to deal with null.
+    result = null;
+  }
+
+  signal.removeEventListener('abort', abort);
+  successController.abort();
+
+  return result;
 }
 
 /*
  * Return a cancel() function and the promise that resolves to the documents.
 */
-export function findDocuments(dataService, ns, filter, options) {
-  let reject;
-  let cursor;
+export async function findDocuments(dataService, ns, filter, options) {
+  const { signal } = options;
+  delete options.signal;
 
-  const promise = new Promise(async(resolve, _reject) => {
-    reject = _reject;
-    cursor = dataService.fetch(ns, filter, options);
-    try {
-      const result = await cursor.toArray();
-      resolve(result);
-    } catch (err) {
-      reject(err);
-    }
-  });
+  if (signal.aborted) {
+    throw new Error(OPERATION_CANCELLED_MESSAGE);
+  }
 
-  const cancel = () => {
+  const cursor = dataService.fetch(ns, filter, options);
+
+  const abort = () => {
     cursor.close();
-    reject(new Error(OPERATION_CANCELLED_MESSAGE));
   };
+  signal.addEventListener('abort', abort, { once: true });
 
-  return { cancel, promise };
+  const successController = new AbortController();
+  const abortPromise = abortablePromise(signal, successController.signal);
+
+  let result;
+  try {
+    result = await Promise.race([abortPromise, cursor.toArray()]);
+  } catch(err) {
+    throw err;
+  } finally {
+    signal.removeEventListener('abort', abort);
+
+    if (!signal.aborted) {
+      // either the operation succeeded or it failed because of some error
+      // that's not an abort
+      successController.abort();
+    }
+  }
+
+  return result;
 }
 
 function resultId() {
