@@ -18,16 +18,7 @@ jobs:
       - name: Install Deps Ubuntu
         run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
 
-      - name: Install npm@7
-        run: npm install -g npm@7
-
-      - name: nslookup
-        run: nslookup compass-tests.fakehost.localhost
-
-      - name: Install Dependencies
-        run: npm run bootstrap-ci
-
-      - name: Clone docker repo
+      - name: Start docker environments
         run: |
           git clone https://github.com/mongodb-js/devtools-docker-test-envs.git
           cd devtools-docker-test-envs
@@ -38,6 +29,12 @@ jobs:
           docker-compose -f docker/sharded/docker-compose.yaml up -d
           docker-compose -f docker/ssh/docker-compose.yaml up -d
           docker-compose -f docker/tls/docker-compose.yaml up -d
+
+      - name: Install npm@7
+        run: npm install -g npm@7
+
+      - name: Install Dependencies
+        run: npm run bootstrap-ci
 
       - name: Run connectivity tests
         env:
