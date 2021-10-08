@@ -92,6 +92,7 @@ module.exports = function (app) {
       collation = '',
       skip = '',
       limit = '',
+      waitForResult = true,
     } = {}
   ) {
     const { client } = app;
@@ -104,7 +105,6 @@ module.exports = function (app) {
       'data-result-id'
     );
 
-    // now we can easily see if we get a new resultId
     await setFilter(client, tabName, filter);
     if (project || sort || maxTimeMS || collation || skip || limit) {
       await expandOptions(client, tabName);
@@ -120,12 +120,15 @@ module.exports = function (app) {
     }
     await runFind(client, tabName);
 
-    await client.waitUntil(async () => {
-      const resultId = await client.getAttribute(
-        queryBarSelector,
-        'data-result-id'
-      );
-      return resultId !== initialResultId;
-    });
+    if (waitForResult) {
+      // now we can easily see if we get a new resultId
+      await client.waitUntil(async () => {
+        const resultId = await client.getAttribute(
+          queryBarSelector,
+          'data-result-id'
+        );
+        return resultId !== initialResultId;
+      });
+    }
   };
 };
