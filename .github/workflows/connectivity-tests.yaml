@@ -30,13 +30,14 @@ jobs:
       - name: Clone docker repo
         run: |
           git clone https://github.com/mongodb-js/devtools-docker-test-envs.git
-          cd devtools-docker-test-envs/docker
-          docker-compose -f enterprise/docker-compose.yaml up -d
-          docker-compose -f ldap/docker-compose.yaml up -d
-          docker-compose -f scram/docker-compose.yaml up -d
-          docker-compose -f sharded/docker-compose.yaml up -d
-          docker-compose -f ssh/docker-compose.yaml up -d
-          docker-compose -f tls/docker-compose.yaml up -d
+          cd devtools-docker-test-envs
+          git checkout 316790d2fbf5766d8867cb3b804546ec50f158c4
+          docker-compose -f docker/enterprise/docker-compose.yaml up -d
+          docker-compose -f docker/ldap/docker-compose.yaml up -d
+          docker-compose -f docker/scram/docker-compose.yaml up -d
+          docker-compose -f docker/sharded/docker-compose.yaml up -d
+          docker-compose -f docker/ssh/docker-compose.yaml up -d
+          docker-compose -f docker/tls/docker-compose.yaml up -d
 
       - name: Run connectivity tests
         env:
