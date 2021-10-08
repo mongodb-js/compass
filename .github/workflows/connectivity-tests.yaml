@@ -37,7 +37,7 @@ jobs:
         run: npm run bootstrap-ci
 
       - name: Docker ps
-        run: docker ps
+        run: docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
       - name: Run connectivity tests
         env:
