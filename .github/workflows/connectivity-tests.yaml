@@ -36,6 +36,9 @@ jobs:
       - name: Install Dependencies
         run: npm run bootstrap-ci
 
+      - name: Docker ps
+        run: docker ps
+
       - name: Run connectivity tests
         env:
           E2E_TESTS_ATLAS_HOST: ${{ secrets.E2E_TESTS_ATLAS_HOST }}
