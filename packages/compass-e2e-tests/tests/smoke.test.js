@@ -536,7 +536,7 @@ describe('Smoke tests', function () {
       const exportModalElement = await client.$(Selectors.ExportModal);
       await exportModalElement.waitForDisplayed({
         reverse: true,
-        timeout: 2000,
+        timeout: 20000,
       });
 
       const text = await fs.readFile(filename, 'utf-8');
