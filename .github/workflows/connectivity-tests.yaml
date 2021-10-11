@@ -45,7 +45,8 @@ jobs:
 
       - name: Setup krb5.conf
         run: |
-          sudo echo '[libdefaults]
+          sudo -i
+          echo '[libdefaults]
             default_realm = EXAMPLE.COM
             dns_canonicalize_hostname = false
 
@@ -62,9 +63,10 @@ jobs:
 
       - name: Setup hostfiles
         run: |
-          sudo echo '127.0.0.1 mongodb-kerberos-1.example.com' >> /etc/hosts
-          sudo echo '127.0.0.1 mongodb-kerberos-2.example.com' >> /etc/hosts
-          sudo echo '127.0.0.1 mongodb-kerberos-3.examplecrossrealm.com' >> /etc/hosts
+          sudo -i
+          echo '127.0.0.1 mongodb-kerberos-1.example.com' >> /etc/hosts
+          echo '127.0.0.1 mongodb-kerberos-2.example.com' >> /etc/hosts
+          echo '127.0.0.1 mongodb-kerberos-3.examplecrossrealm.com' >> /etc/hosts
           cat /etc/hosts
         shell: bash
 
