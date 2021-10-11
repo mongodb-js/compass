@@ -30,6 +30,31 @@ jobs:
             libstdc++6 \
             gnome-keyring
 
+      - name: Setup krb5.conf
+        run: |
+          echo '[libdefaults]
+            default_realm = EXAMPLE.COM
+            dns_canonicalize_hostname = false
+
+          [realms]
+            EXAMPLE.COM = {
+                    kdc = localhost
+                    admin_server = localhost
+            }
+          ' | sudo tee /etc/krb5.conf >/dev/null
+
+          cat /etc/krb5.conf
+        shell: bash
+
+      - name: Setup hostfiles
+        run: |
+          sudo -i
+          echo '127.0.0.1 mongodb-kerberos-1.example.com' | sudo tee -a /etc/hosts >/dev/null
+          echo '127.0.0.1 mongodb-kerberos-2.example.com' | sudo tee -a /etc/hosts >/dev/null
+          echo '127.0.0.1 mongodb-kerberos-3.examplecrossrealm.com' | sudo tee -a /etc/hosts >/dev/null
+          cat /etc/hosts
+        shell: bash
+
       - name: Start docker environments
         run: |
           git clone https://github.com/mongodb-js/devtools-docker-test-envs.git
@@ -42,33 +67,6 @@ jobs:
           docker-compose -f docker/ssh/docker-compose.yaml up -d
           docker-compose -f docker/tls/docker-compose.yaml up -d
           docker-compose -f docker/kerberos/docker-compose.yaml up -d
-
-      - name: Setup krb5.conf
-        run: |
-          sudo -i
-          echo '[libdefaults]
-            default_realm = EXAMPLE.COM
-            dns_canonicalize_hostname = false
-
-          [realms]
-            EXAMPLE.COM = {
-                    kdc = localhost
-                    admin_server = localhost
-            }
-          ' > /etc/krb5.conf
-
-          cat /etc/krb5.conf
-        shell: bash
-
-
-      - name: Setup hostfiles
-        run: |
-          sudo -i
-          echo '127.0.0.1 mongodb-kerberos-1.example.com' >> /etc/hosts
-          echo '127.0.0.1 mongodb-kerberos-2.example.com' >> /etc/hosts
-          echo '127.0.0.1 mongodb-kerberos-3.examplecrossrealm.com' >> /etc/hosts
-          cat /etc/hosts
-        shell: bash
 
       - name: Install npm@7
         run: npm install -g npm@7
