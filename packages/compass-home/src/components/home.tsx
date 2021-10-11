@@ -1,7 +1,11 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
 import React, { useEffect, useReducer } from 'react';
-import DataService from 'mongodb-data-service';
+import {
+  DataService,
+  getConnectionTitle,
+  ConnectionInfo,
+} from 'mongodb-data-service';
 import toNS from 'mongodb-ns';
 
 import Workspace from './workspace';
@@ -37,6 +41,7 @@ const defaultNS: Namespace = {
 };
 
 type State = {
+  connectionTitle: string;
   dataService: DataService | null;
   isDataLake: boolean;
   namespace: Namespace;
@@ -45,6 +50,7 @@ type State = {
 };
 
 const initialState = {
+  connectionTitle: '',
   dataService: null,
   isDataLake: false,
   namespace: defaultNS,
@@ -53,11 +59,24 @@ const initialState = {
 };
 
 type Action =
-  | { type: 'connected'; dataService: DataService }
+  | {
+      type: 'connected';
+      dataService: DataService;
+      connectionTitle: string;
+    }
   | { type: 'disconnected' }
   | { type: 'instance-loaded'; isDatalake: boolean }
   | { type: 'instance-loaded-error'; errorMessage: string }
   | { type: 'update-namespace'; namespace: Namespace };
+
+type StatusActionType = {
+  configure: (opts: {
+    animation: boolean;
+    message: string;
+    visible: boolean;
+  }) => void;
+  done: () => void;
+};
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -66,6 +85,7 @@ function reducer(state: State, action: Action): State {
         ...state,
         namespace: { ...defaultNS },
         dataService: action.dataService,
+        connectionTitle: action.connectionTitle,
         instanceLoadingStatus: InstanceLoadedStatus.LOADING,
       };
     case 'instance-loaded':
@@ -101,6 +121,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
   const [
     {
+      connectionTitle,
       dataService,
       isDataLake,
       namespace,
@@ -138,11 +159,12 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
     function onDataServiceConnected(
       err: Error | undefined | null,
-      ds: DataService
+      ds: DataService,
+      connectionInfo: ConnectionInfo
     ) {
       const StatusAction = appRegistry.getAction(
         AppRegistryActions.STATUS_ACTIONS
-      );
+      ) as StatusActionType | undefined;
       if (StatusAction) {
         StatusAction.configure({
           animation: true,
@@ -154,6 +176,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       dispatch({
         type: 'connected',
         dataService: ds,
+        connectionTitle: getConnectionTitle(connectionInfo) || '',
       });
     }
     appRegistry.on('data-service-connected', onDataServiceConnected);
@@ -162,7 +185,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       if (instanceLoadingStatus !== InstanceLoadedStatus.LOADING) {
         const StatusAction = appRegistry.getAction(
           AppRegistryActions.STATUS_ACTIONS
-        );
+        ) as StatusActionType | undefined;
         dispatch({
           type: 'disconnected',
         });
@@ -176,7 +199,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
         if (instanceLoadingStatus !== InstanceLoadedStatus.LOADING) {
           const StatusAction = appRegistry.getAction(
             AppRegistryActions.STATUS_ACTIONS
-          );
+          ) as StatusActionType | undefined;
           dispatch({
             type: 'disconnected',
           });
@@ -254,7 +277,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     return (
       <Workspace
         appName={appName}
-        dataService={dataService}
+        connectionTitle={connectionTitle}
         namespace={namespace}
         instanceLoadingStatus={instanceLoadingStatus}
         errorLoadingInstanceMessage={errorLoadingInstanceMessage}

@@ -2,10 +2,11 @@ const electron = require('electron');
 const ipc = require('hadron-ipc');
 const { sortBy, forEach, omit } = require('lodash');
 const Connection = require('mongodb-connection-model');
-const { DataService } = require('mongodb-data-service');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const { promisify } = require('util');
+const { getConnectionTitle, convertConnectionModelToInfo } = require('mongodb-data-service');
+const debug = require('debug')('compass-connect:store');
 
 const Actions = require('../actions');
 const {
@@ -199,6 +200,7 @@ const Store = Reflux.createStore({
     }
 
     if (!Connection.isURI(customUrl)) {
+      debug('Invalid schema, expected `mongodb` or `mongodb+srv`');
       this._setSyntaxErrorMessage(
         'Invalid schema, expected `mongodb` or `mongodb+srv`'
       );
@@ -214,6 +216,7 @@ const Store = Reflux.createStore({
       this._resetSyntaxErrorMessage();
     } catch (error) {
       log.info(mongoLogId(1001000026), 'Connection UI', 'Rejecting invalid URL', { error: error.message });
+      debug('buildConnectionModelFromUrl', error);
       this._setSyntaxErrorMessage(error.message);
     }
   },
@@ -320,6 +323,7 @@ const Store = Reflux.createStore({
         await this._connectWithConnectionForm();
       }
     } catch (error) {
+      debug('connect error', error);
       this.setState({
         isValid: false,
         errorMessage: error.message,
@@ -463,11 +467,7 @@ const Store = Reflux.createStore({
       return;
     }
 
-    const runDisconnect = promisify(
-      this.dataService.disconnect.bind(this.dataService)
-    );
-
-    await runDisconnect();
+    await this.dataService.disconnect();
 
     this.appRegistry.emit('data-service-disconnected');
     this.state.isValid = true;
@@ -960,7 +960,7 @@ const Store = Reflux.createStore({
     }
   },
 
-  _onConnectSuccess(dataService) {
+  _onConnectSuccess(dataService, connectionInfo) {
     const connectionModel = this.state.connectionModel;
     const currentSaved = this.state.connections[connectionModel._id];
 
@@ -987,7 +987,9 @@ const Store = Reflux.createStore({
     this.appRegistry.emit(
       'data-service-connected',
       null, // No error connecting.
-      dataService
+      dataService,
+      connectionInfo,
+      connectionModel // TODO: remove
     );
 
     // Compass relies on `compass-connect` showing a progress
@@ -1020,17 +1022,17 @@ const Store = Reflux.createStore({
     }
 
     try {
-      const dataService = new DataService(connectionModel);
-      const connectedDataService = await this.state.currentConnectionAttempt.connect(
-        dataService
-      );
+      debug('connecting with connection model', connectionModel);
+      const connectionInfo = convertConnectionModelToInfo(connectionModel);
+      const connectedDataService = await this.state.currentConnectionAttempt.connect(connectionInfo.connectionOptions);
 
       if (!connectedDataService || !this.state.currentConnectionAttempt) {
         return;
       }
 
-      this._onConnectSuccess(connectedDataService);
+      this._onConnectSuccess(connectedDataService, connectionInfo);
     } catch (error) {
+      debug('_connect error', error);
       this.setState({
         isValid: false,
         errorMessage: error.message,
@@ -1058,7 +1060,7 @@ const Store = Reflux.createStore({
     }
 
     this.setState({
-      connectingStatusText: `Connecting to ${connectionModel.title}`
+      connectingStatusText: `Connecting to ${getConnectionTitle(convertConnectionModelToInfo(connectionModel))}`
     });
 
     await this._connect(connectionModel);
@@ -1086,6 +1088,7 @@ const Store = Reflux.createStore({
       const buildConnectionModelFromUrl = promisify(Connection.from);
       parsedConnection = await buildConnectionModelFromUrl(url);
     } catch (error) {
+      debug('buildConnectionModelFromUrl error', error);
       this._setSyntaxErrorMessage(error.message);
 
       return;

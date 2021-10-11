@@ -28,7 +28,8 @@ class ExplainBody extends Component {
       indexType: PropTypes.oneOf(INDEX_TYPES).isRequired,
       index: PropTypes.object,
       viewType: PropTypes.string.isRequired,
-      rawExplainObject: PropTypes.object.isRequired
+      rawExplainObject: PropTypes.object.isRequired,
+      originalExplainData: PropTypes.object.isRequired
     }),
     openLink: PropTypes.func.isRequired,
     treeStages: PropTypes.object.isRequired
@@ -60,7 +61,7 @@ class ExplainBody extends Component {
   renderDetailsView() {
     if (this.props.explain.viewType === EXPLAIN_VIEWS.json) {
       return (
-        <ExplainJSON rawExplainObject={this.props.explain.rawExplainObject} />
+        <ExplainJSON originalExplainData={this.props.explain.originalExplainData} />
       );
     }
 

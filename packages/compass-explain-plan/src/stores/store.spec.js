@@ -21,8 +21,7 @@ describe('Explain Plan Store', () => {
       dataProvider: {
         error: 'error',
         dataProvider: 'ds'
-      },
-      serverVersion: '4.0.0'
+      }
     });
   });
 
@@ -60,12 +59,6 @@ describe('Explain Plan Store', () => {
 
       it('sets the error in the state', () => {
         expect(store.getState().dataService.error).to.equal('error');
-      });
-    });
-
-    context('when the server version is changed', () => {
-      it('sets the server version in the state', () => {
-        expect(store.getState().serverVersion).to.equal('4.0.0');
       });
     });
 
@@ -146,9 +139,10 @@ describe('Explain Plan Store', () => {
           numShards: 0,
           parsedQuery: {},
           rawExplainObject: {},
+          originalExplainData: {},
           totalDocsExamined: 18801,
           totalKeysExamined: 0,
-          usedIndex: null,
+          usedIndexes: [],
           viewType: 'tree'
         };
 
@@ -184,7 +178,7 @@ describe('Explain Plan Store', () => {
           rawExplainObject: {},
           totalDocsExamined: 18801,
           totalKeysExamined: 0,
-          usedIndex: null,
+          usedIndexes: [],
           viewType: 'tree'
         };
 

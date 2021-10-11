@@ -89,7 +89,6 @@ const config = {
   externals: {
     // "Optional" mongodb dependencies that should stay out of the build in dev
     // mode
-    'mongodb-client-encryption': 'commonjs2 mongodb-client-encryption',
     kerberos: 'commonjs2 kerberos',
     snappy: 'commonjs2 snappy'
   }

@@ -30,6 +30,7 @@ describe('WorkspaceContent [Component]', function () {
     ['Collection.Workspace', 'Database.Workspace', 'Instance.Workspace'].map(
       (name) =>
         testAppRegistry.registerRole(name, {
+          name,
           component: getComponent(name),
         })
     );

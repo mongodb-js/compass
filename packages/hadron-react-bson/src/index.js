@@ -8,6 +8,7 @@ import KeyValue from './key-value';
 import RegexValue from './regex-value';
 import DBRefValue from './dbref-value';
 import StringValue from './string-value';
+import TimestampValue from './timestamp-value';
 
 /**
  * The mappings from the BSON type to the value component
@@ -27,7 +28,7 @@ const MAPPINGS = {
   'ObjectId': Value,
   'BSONRegExp': RegexValue,
   'Symbol': Value,
-  'Timestamp': Value,
+  'Timestamp': TimestampValue,
   'Undefined': Value,
   'Null': Value,
   'Boolean': Value,
@@ -55,5 +56,6 @@ export {
   KeyValue,
   RegexValue,
   DBRefValue,
-  StringValue
+  StringValue,
+  TimestampValue
 };

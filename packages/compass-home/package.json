@@ -17,7 +17,7 @@
     "compile": "npm run webpack -- --mode production",
     "prettier": "prettier",
     "test:node": "mocha",
-    "test:electron": "xvfb-maybe electron-mocha \"./src/**/*.spec.tsx\" --no-sandbox",
+    "test:electron": "xvfb-maybe electron-mocha \"./src/**/*.spec.tsx\"",
     "test": "npm run test:node && npm run test:electron",
     "cover": "nyc npm run test",
     "check": "npm run lint && npm run depcheck",

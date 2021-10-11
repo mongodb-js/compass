@@ -1,7 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
 import React, { useEffect } from 'react';
-import DataService from 'mongodb-data-service';
 
 import WorkspaceContent from './workspace-content';
 import Namespace from '../types/namespace';
@@ -40,14 +39,14 @@ const homePageContentStyles = css({
 
 export default function Workspace({
   appName,
-  dataService,
+  connectionTitle,
   instanceLoadingStatus,
   errorLoadingInstanceMessage,
   isDataLake,
   namespace,
 }: {
   appName: string;
-  dataService: DataService;
+  connectionTitle: string;
   instanceLoadingStatus: InstanceLoadedStatus;
   errorLoadingInstanceMessage: string | null;
   isDataLake: boolean;
@@ -64,7 +63,7 @@ export default function Workspace({
   const FindInPage = findInPageRole ? findInPageRole[0].component : null;
 
   useEffect(() => {
-    updateTitle(appName, dataService.model.title || '', namespace);
+    updateTitle(appName, connectionTitle, namespace);
   });
 
   return (

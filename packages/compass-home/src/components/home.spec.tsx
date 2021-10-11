@@ -39,6 +39,7 @@ describe('Home [Component]', function () {
       'Application.Connect',
     ].map((name) =>
       testAppRegistry.registerRole(name, {
+        name,
         component: getComponent(name),
       })
     );
@@ -70,9 +71,16 @@ describe('Home [Component]', function () {
           <Home appName="home-testing" />
         </AppRegistryContext.Provider>
       );
-      testAppRegistry.emit('data-service-connected', null, {
-        model: { title: 'not real ds' },
-      });
+      testAppRegistry.emit(
+        'data-service-connected',
+        null,
+        {
+          'fake ds': true,
+        },
+        {
+          connectionOptions: { connectionString: 'mongodb+srv://mongodb.net/' },
+        }
+      );
     });
     describe('UI status is loading', function () {
       it('renders content correctly', function () {
@@ -94,7 +102,7 @@ describe('Home [Component]', function () {
       });
       it('updates the document title', async function () {
         await waitFor(() =>
-          expect(document.title).to.equal('home-testing - not real ds')
+          expect(document.title).to.equal('home-testing - mongodb.net')
         );
       });
     });
@@ -173,7 +181,7 @@ describe('Home [Component]', function () {
         });
         it('updates the document title', async function () {
           await waitFor(() =>
-            expect(document.title).to.equal('home-testing - not real ds/db')
+            expect(document.title).to.equal('home-testing - mongodb.net/db')
           );
         });
       });
@@ -200,7 +208,7 @@ describe('Home [Component]', function () {
         });
         it('updates the document title', async function () {
           await waitFor(() =>
-            expect(document.title).to.equal('home-testing - not real ds/db')
+            expect(document.title).to.equal('home-testing - mongodb.net/db')
           );
         });
       });
@@ -227,7 +235,7 @@ describe('Home [Component]', function () {
         });
         it('updates the document title', async function () {
           await waitFor(() =>
-            expect(document.title).to.equal('home-testing - not real ds/db.col')
+            expect(document.title).to.equal('home-testing - mongodb.net/db.col')
           );
         });
       });
