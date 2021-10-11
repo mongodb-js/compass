@@ -24,8 +24,14 @@ export async function openSshTunnel(
   const connectionStringUrl = new ConnectionStringUrl(
     srvResolvedConnectionString
   );
-  const firstHost = connectionStringUrl.hosts[0];
-  const [dstHost, dstPort = 27017] = firstHost.split(':');
+
+  if (connectionStringUrl.hosts.length !== 1) {
+    throw new Error(
+      'It is currently not possible to open an SSH tunnel to a replica set'
+    );
+  }
+
+  const [dstHost, dstPort = 27017] = connectionStringUrl.hosts[0].split(':');
 
   const tunnelConstructorOptions = {
     readyTimeout: 20000,
