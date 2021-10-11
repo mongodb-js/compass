@@ -8,7 +8,6 @@ async function closeConnectionModal(app) {
     Selectors.ConnectionStatusModalContent
   );
   await connectionModalContentElement.waitForExist({
-    timeout: 1000,
     reverse: true,
   });
 }
@@ -33,9 +32,7 @@ module.exports = function (app) {
     app.webContents.send('app:disconnect');
 
     const element = await client.$(Selectors.ConnectSection);
-    await element.waitForDisplayed({
-      timeout: 5000,
-    });
+    await element.waitForDisplayed();
 
     await client.clickVisible(Selectors.SidebarNewConnectionButton);
     await delay(100);
