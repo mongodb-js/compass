@@ -10,5 +10,7 @@ ignores:
   - 'postcss'
   # used implicitly by the bin/webpack file
   - 'webpack-cli'
+  # used implicitly by the webpack loaders file
+  - 'browserslist'
   # recursive
   - 'mongodb-compass'

@@ -82,7 +82,7 @@ export const cssLoader = (_args: ConfigArgs) => ({
           plugins: [
             [
               require.resolve('postcss-preset-env'),
-              { browsers: 'electron 6.1' },
+              { browsers: `electron ${electronVersion}` },
             ],
           ],
         },
