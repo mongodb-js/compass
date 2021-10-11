@@ -8,7 +8,7 @@ module.exports = function (app) {
     // indicator that we are connected to the server
     const element = await client.$(Selectors.DatabasesTable);
     await element.waitForDisplayed({
-      timeout
+      timeout,
     });
   };
 };
