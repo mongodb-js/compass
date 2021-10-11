@@ -26,7 +26,7 @@ describe('ExportToLanguage Store', () => {
     store = configureStore({
       localAppRegistry: appRegistry,
       namespace: 'db.coll',
-      dataProvider: { dataProvider: { model: { driverUrl: 'localhost' } } }
+      dataProvider: { dataProvider: { getConnectionOptions: () => ({ connectionString: 'mongodb://localhost/' }) } }
     });
   });
   afterEach(() => {
@@ -39,7 +39,7 @@ describe('ExportToLanguage Store', () => {
         expect(store.getState().namespace).to.equal('db.coll');
       });
       it('URI', () => {
-        expect(store.getState().uri).to.equal('localhost');
+        expect(store.getState().uri).to.equal('mongodb://localhost/');
       });
     });
 
