@@ -11,8 +11,5 @@ export function getConnectionTitle(info: ConnectionInfo): string {
     return url.hosts[0];
   }
 
-  return url.hosts
-    .map((hostname) => hostname.split(':'))
-    .map(([host, port]) => (port ? `${host}:${port}` : `${host}`))
-    .join(',');
+  return url.hosts.join(',');
 }
