@@ -20,7 +20,7 @@ module.exports = function (app) {
         timeout,
         timeoutMsg: `Expected shell evaluation to finish in ${timeout}ms`,
         reverse: true,
-        interval: 50,
+        interval: 50
       });
     }
     await delay(50);

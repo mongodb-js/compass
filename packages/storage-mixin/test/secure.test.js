@@ -122,6 +122,7 @@ describe('storage backend secure', function() {
     helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], function(err) {
       if (err) {
         done(err);
+        return;
       }
       var earth = new StorablePlanet({
         name: 'Earth',

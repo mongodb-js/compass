@@ -89,7 +89,7 @@ function getPkg(directory) {
   _.defaults(pkg, {
     productName: pkg.name,
     author: pkg.authors,
-    electronVersion: process.versions.electron
+    electronVersion: require('electron/package.json').version
   });
 
   return pkg;

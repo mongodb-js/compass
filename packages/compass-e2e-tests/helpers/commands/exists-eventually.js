@@ -1,5 +1,5 @@
 module.exports = function (app) {
-  return async function existsEventually(selector, timeout = 5000) {
+  return async function existsEventually(selector, timeout) {
     const { client } = app;
     try {
       // return true if it exists before the timeout expires

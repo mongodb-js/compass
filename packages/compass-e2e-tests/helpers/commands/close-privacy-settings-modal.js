@@ -9,17 +9,13 @@ module.exports = function (app) {
     );
 
     try {
-      await privateSettingsModalElement.waitForExist({
-        timeout: 2000,
-      });
+      await privateSettingsModalElement.waitForExist();
     } catch (err) {
       return;
     }
 
     await client.clickVisible(Selectors.ClosePrivacySettingsButton);
     await privateSettingsModalElement.waitForDisplayed({
-      timeout: 2000,
-      interval: 50,
       reverse: true,
     });
   };
