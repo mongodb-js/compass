@@ -3,6 +3,9 @@ name: Connectivity tests
 on:
   pull_request:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   run_connectivity_tests:
@@ -16,19 +19,54 @@ jobs:
           cache: 'npm'
 
       - name: Install Deps Ubuntu
-        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
+        run: |
+          sudo apt-get -y install \
+            krb5-user \
+            libsasl2-modules-gssapi-mit \
+            ldap-utils \
+            libkrb5-dev \
+            libsecret-1-dev \
+            net-tools \
+            libstdc++6 \
+            gnome-keyring
 
       - name: Start docker environments
         run: |
           git clone https://github.com/mongodb-js/devtools-docker-test-envs.git
           cd devtools-docker-test-envs
-          git checkout f4bdc0e32bb5e5597a8b20fa94f12c649c4b24e3
+          git checkout v1.2.0
           docker-compose -f docker/enterprise/docker-compose.yaml up -d
           docker-compose -f docker/ldap/docker-compose.yaml up -d
           docker-compose -f docker/scram/docker-compose.yaml up -d
           docker-compose -f docker/sharded/docker-compose.yaml up -d
           docker-compose -f docker/ssh/docker-compose.yaml up -d
           docker-compose -f docker/tls/docker-compose.yaml up -d
+          docker-compose -f docker/kerberos/docker-compose.yaml up -d
+
+      - name: Setup krb5.conf
+        run: |
+          sudo echo '[libdefaults]
+            default_realm = EXAMPLE.COM
+            dns_canonicalize_hostname = false
+
+          [realms]
+            EXAMPLE.COM = {
+                    kdc = localhost
+                    admin_server = localhost
+            }
+          ' > /etc/krb5.conf
+
+          cat /etc/krb5.conf
+        shell: bash
+
+
+      - name: Setup hostfiles
+        run: |
+          sudo echo '127.0.0.1 mongodb-kerberos-1.example.com' >> /etc/hosts
+          sudo echo '127.0.0.1 mongodb-kerberos-2.example.com' >> /etc/hosts
+          sudo echo '127.0.0.1 mongodb-kerberos-3.examplecrossrealm.com' >> /etc/hosts
+          cat /etc/hosts
+        shell: bash
 
       - name: Install npm@7
         run: npm install -g npm@7
@@ -38,6 +76,12 @@ jobs:
 
       - name: Docker ps
         run: docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+      - name: Kinit
+        run: |
+          echo 'password' | kinit mongodb.user@EXAMPLE.COM
+          klist
+        shell: bash
 
       - name: Run connectivity tests
         env:

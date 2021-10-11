@@ -6,6 +6,7 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import connect from './connect';
 import { ConnectionOptions } from './connection-options';
 import DataService from './data-service';
+import { redactConnectionOptions } from './redact';
 
 const IS_CI = process.env.EVERGREEN_BUILD_VARIANT || process.env.CI === 'true';
 
@@ -70,11 +71,12 @@ const envs = createTestEnvs([
   'sharded',
   'ssh',
   'tls',
+  'kerberos',
 ]);
 
 describe('connect', function () {
   describe('atlas', function () {
-    it('can connect to atlas replica set', async function () {
+    it('connects to atlas replica set', async function () {
       if (!IS_CI && !COMPASS_TEST_ATLAS_URL) {
         return this.skip();
       }
@@ -84,7 +86,7 @@ describe('connect', function () {
       });
     });
 
-    it('can connect to data lake', async function () {
+    it('connects to data lake', async function () {
       if (!IS_CI && !COMPASS_TEST_DATA_LAKE_URL) {
         return this.skip();
       }
@@ -94,7 +96,7 @@ describe('connect', function () {
       });
     });
 
-    it('can connect to serverless', async function () {
+    it('connects to serverless', async function () {
       if (!IS_CI && !COMPASS_TEST_SERVERLESS_URL) {
         return this.skip();
       }
@@ -112,7 +114,7 @@ describe('connect', function () {
       }
     });
 
-    it('Can connect to an enterprise server', async function () {
+    it('connects to an enterprise server', async function () {
       await testConnection(envs.getConnectionOptions('enterprise'), {
         authenticatedUserRoles: [],
         authenticatedUsers: [],
@@ -120,7 +122,7 @@ describe('connect', function () {
     });
 
     describe('ldap', function () {
-      it('Can connect with ldap', async function () {
+      it('connects with ldap', async function () {
         await testConnection(envs.getConnectionOptions('ldap'), {
           authenticatedUserRoles: [
             {
@@ -139,7 +141,7 @@ describe('connect', function () {
     });
 
     describe('scram', function () {
-      it('Connects with scram (scramReadWriteAnyDatabase)', async function () {
+      it('connects with scram (scramReadWriteAnyDatabase)', async function () {
         await testConnection(
           envs.getConnectionOptions('scramReadWriteAnyDatabase'),
           {
@@ -159,7 +161,7 @@ describe('connect', function () {
         );
       });
 
-      it('Connects with scram (scramReadWriteAnyDatabaseScramSha1)', async function () {
+      it('connects with scram (scramReadWriteAnyDatabaseScramSha1)', async function () {
         await testConnection(
           envs.getConnectionOptions('scramReadWriteAnyDatabaseScramSha1'),
           {
@@ -179,7 +181,7 @@ describe('connect', function () {
         );
       });
 
-      it('Connects with scram (scramReadWriteAnyDatabaseScramSha256)', async function () {
+      it('connects with scram (scramReadWriteAnyDatabaseScramSha256)', async function () {
         await testConnection(
           envs.getConnectionOptions('scramReadWriteAnyDatabaseScramSha256'),
           {
@@ -199,7 +201,7 @@ describe('connect', function () {
         );
       });
 
-      it('Connects with scram (scramOnlyScramSha1)', async function () {
+      it('connects with scram (scramOnlyScramSha1)', async function () {
         await testConnection(envs.getConnectionOptions('scramOnlyScramSha1'), {
           authenticatedUserRoles: [
             {
@@ -216,7 +218,7 @@ describe('connect', function () {
         });
       });
 
-      it('Connects with scram (scramOnlyScramSha256)', async function () {
+      it('connects with scram (scramOnlyScramSha256)', async function () {
         await testConnection(
           envs.getConnectionOptions('scramOnlyScramSha256'),
           {
@@ -236,7 +238,7 @@ describe('connect', function () {
         );
       });
 
-      it('Connects with scram (scramEncodedPassword)', async function () {
+      it('connects with scram (scramEncodedPassword)', async function () {
         await testConnection(
           envs.getConnectionOptions('scramEncodedPassword'),
           {
@@ -256,7 +258,7 @@ describe('connect', function () {
         );
       });
 
-      it('Connects with scram (scramPrivilegesOnNonExistingDatabases)', async function () {
+      it('connects with scram (scramPrivilegesOnNonExistingDatabases)', async function () {
         await testConnection(
           envs.getConnectionOptions('scramPrivilegesOnNonExistingDatabases'),
           {
@@ -288,7 +290,7 @@ describe('connect', function () {
         );
       });
 
-      it('Connects with scram (scramPrivilegesOnNonExistingCollections)', async function () {
+      it('connects with scram (scramPrivilegesOnNonExistingCollections)', async function () {
         await testConnection(
           envs.getConnectionOptions('scramPrivilegesOnNonExistingCollections'),
           {
@@ -308,7 +310,7 @@ describe('connect', function () {
         );
       });
 
-      it('Connects with scram (scramAlternateAuthDb)', async function () {
+      it('connects with scram (scramAlternateAuthDb)', async function () {
         await testConnection(
           envs.getConnectionOptions('scramAlternateAuthDb'),
           {
@@ -319,7 +321,7 @@ describe('connect', function () {
       });
     });
 
-    it('Connects to sharded', async function () {
+    it('connects to sharded', async function () {
       await testConnection(envs.getConnectionOptions('sharded'), {
         authenticatedUserRoles: [{ db: 'admin', role: 'root' }],
         authenticatedUsers: [{ db: 'admin', user: 'root' }],
@@ -327,21 +329,21 @@ describe('connect', function () {
     });
 
     describe('ssh', function () {
-      it('Connects with ssh (sshPassword)', async function () {
+      it('connects with ssh (sshPassword)', async function () {
         await testConnection(envs.getConnectionOptions('sshPassword'), {
           authenticatedUserRoles: [],
           authenticatedUsers: [],
         });
       });
 
-      it('Connects with ssh (sshIdentityKey)', async function () {
+      it('connects with ssh (sshIdentityKey)', async function () {
         await testConnection(envs.getConnectionOptions('sshIdentityKey'), {
           authenticatedUserRoles: [],
           authenticatedUsers: [],
         });
       });
 
-      it('Connects with ssh (sshIdentityKeyWithPassphrase)', async function () {
+      it('connects with ssh (sshIdentityKeyWithPassphrase)', async function () {
         await testConnection(
           envs.getConnectionOptions('sshIdentityKeyWithPassphrase'),
           { authenticatedUserRoles: [], authenticatedUsers: [] }
@@ -350,28 +352,28 @@ describe('connect', function () {
     });
 
     describe('tls', function () {
-      it('Connects with tls (tlsUnvalidated)', async function () {
+      it('connects with tls (tlsUnvalidated)', async function () {
         await testConnection(envs.getConnectionOptions('tlsUnvalidated'), {
           authenticatedUserRoles: [],
           authenticatedUsers: [],
         });
       });
 
-      it('Connects with tls (tlsServerValidation)', async function () {
+      it('connects with tls (tlsServerValidation)', async function () {
         await testConnection(envs.getConnectionOptions('tlsServerValidation'), {
           authenticatedUserRoles: [],
           authenticatedUsers: [],
         });
       });
 
-      it('Connects with tls (tlsServerAndClientValidation)', async function () {
+      it('connects with tls (tlsServerAndClientValidation)', async function () {
         await testConnection(
           envs.getConnectionOptions('tlsServerAndClientValidation'),
           { authenticatedUserRoles: [], authenticatedUsers: [] }
         );
       });
 
-      it('Connects with tls (tlsX509)', async function () {
+      it('connects with tls (tlsX509)', async function () {
         await testConnection(envs.getConnectionOptions('tlsX509'), {
           authenticatedUserRoles: [
             { db: 'test', role: 'readWrite' },
@@ -386,7 +388,7 @@ describe('connect', function () {
         });
       });
 
-      it('Connects with tls (tlsX509WithSsh)', async function () {
+      it('connects with tls (tlsX509WithSsh)', async function () {
         await testConnection(envs.getConnectionOptions('tlsX509WithSsh'), {
           authenticatedUserRoles: [
             { db: 'test', role: 'readWrite' },
@@ -396,6 +398,59 @@ describe('connect', function () {
             {
               db: '$external',
               user: 'emailAddress=user@domain.com,CN=client1,OU=clients,O=Organisation,ST=NSW,C=AU',
+            },
+          ],
+        });
+      });
+    });
+
+    describe('kerberos', function () {
+      it('connects to kerberos', async function () {
+        await testConnection(envs.getConnectionOptions('kerberos'), {
+          authenticatedUserRoles: [
+            {
+              db: 'admin',
+              role: 'readWriteAnyDatabase',
+            },
+          ],
+          authenticatedUsers: [
+            {
+              db: '$external',
+              user: 'mongodb.user@EXAMPLE.COM',
+            },
+          ],
+        });
+      });
+
+      it('connects to kerberosAlternate', async function () {
+        await testConnection(envs.getConnectionOptions('kerberosAlternate'), {
+          authenticatedUserRoles: [
+            {
+              db: 'admin',
+              role: 'readWriteAnyDatabase',
+            },
+          ],
+          authenticatedUsers: [
+            {
+              db: '$external',
+              user: 'mongodb.user@EXAMPLE.COM',
+            },
+          ],
+        });
+      });
+
+      it.skip('connects to kerberosCrossRealm', async function () {
+        await testConnection(envs.getConnectionOptions('kerberosCrossRealm'), {
+          authenticatedUserRoles: [
+            {
+              db: 'admin',
+              role: 'readWriteAnyDatabase',
+            },
+          ],
+          authenticatedUsers: [
+            {
+              db: '$external',
+              user: 'mongodb.user@EXAMPLE.COM',
             },
           ],
         });
@@ -420,7 +475,7 @@ async function connectAndGetAuthInfo(connectionOptions: ConnectionOptions) {
   } catch (error) {
     throw new Error(
       `Failed to connect to:\n${JSON.stringify(
-        connectionOptions,
+        redactConnectionOptions(connectionOptions),
         null,
         2
       )}\n. Caused by: ${util.inspect(error)}`
