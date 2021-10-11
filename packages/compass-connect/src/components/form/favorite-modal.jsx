@@ -85,6 +85,7 @@ class FavoriteModal extends PureComponent {
         onConfirm={this.handleSave.bind(this)}
         onCancel={this.handleClose.bind(this)}
         buttonText="Save"
+        closeOnBackdropClick={false}
       >
         <form
           name="favorite-modal"
