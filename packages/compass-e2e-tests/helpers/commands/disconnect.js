@@ -4,17 +4,9 @@ const Selectors = require('../selectors');
 async function closeConnectionModal(app) {
   const { client } = app;
   await client.clickVisible(Selectors.CancelConnectionButton);
-  // <<<<<<< HEAD
   const connectionModalContentElement = await client.$(
     Selectors.ConnectionStatusModalContent
   );
-  // =======
-  //   await client.waitForExist(
-  //     Selectors.ConnectionStatusModalContent,
-  //     undefined,
-  //     false
-  // >>>>>>> main
-  // );
   await connectionModalContentElement.waitForExist({
     timeout: 1000,
     reverse: true,
