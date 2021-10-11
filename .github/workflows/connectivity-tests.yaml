@@ -42,6 +42,11 @@ jobs:
                     admin_server = localhost
             }
 
+            EXAMPLE2.COM = {
+              kdc = localhost:89
+              admin_server = localhost:849
+            }
+
           [domain_realm]
             .examplecrossrealm.com = EXAMPLE2.COM
           ' | sudo tee /etc/krb5.conf >/dev/null
