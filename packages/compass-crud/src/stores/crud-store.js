@@ -7,6 +7,9 @@ import HadronDocument from 'hadron-document';
 import createLogger from '@mongodb-js/compass-logging';
 const { log, mongoLogId, debug } = createLogger('COMPASS-CRUD-UI');
 
+// TODO: remove the polyfill as soon as we're on node 15+
+import { AbortController } from '../utils';
+
 import {
   DOCUMENTS_STATUS_INITIAL,
   DOCUMENTS_STATUS_FETCHING,
@@ -17,7 +20,6 @@ import {
 } from '../constants/documents-statuses';
 
 import configureGridStore from './grid-store';
-import { nullFormat } from 'numeral';
 
 /**
  * Number of docs per page.
@@ -182,6 +184,7 @@ const configureStore = (options = {}) => {
         ns: '',
         collection: '',
         abortController: null,
+        session: null,
         error: null,
         docs: [],
         start: 0,
@@ -570,11 +573,15 @@ const configureStore = (options = {}) => {
         }
       }
 
+      const session = this.dataService.startSession();
       const abortController = new AbortController();
       const signal = abortController.signal;
 
+      abortController.signal.addEventListener('abort', this.onAbort, { once: true });
+
       const opts = {
         signal,
+        session,
         skip,
         limit: nextPageCount,
         sort,
@@ -587,6 +594,7 @@ const configureStore = (options = {}) => {
       this.setState({
         status: DOCUMENTS_STATUS_FETCHING,
         abortController,
+        session,
         error: null
       });
 
@@ -607,8 +615,11 @@ const configureStore = (options = {}) => {
         end: skip + length,
         page,
         table: this.getInitialTableState(),
-        resultId: resultId()
+        resultId: resultId(),
+        abortController: null,
+        session: null
       });
+      abortController.signal.removeEventListener('abort', this.onAbort);
       this.localAppRegistry.emit('documents-paginated', view, documents);
       this.globalAppRegistry.emit('documents-paginated', view, documents);
     },
@@ -957,12 +968,23 @@ const configureStore = (options = {}) => {
         countOptions
       });
 
+      const session = this.dataService.startSession();
       const abortController = new AbortController();
       const signal = abortController.signal;
 
+      abortController.signal.addEventListener('abort', this.onAbort, { once: true });
+
+      // pass the signal so that the queries can close their own cursors and
+      // reject their promises
       fetchShardingKeysOptions.signal = signal;
       countOptions.signal = signal;
       findOptions.signal = signal;
+
+      // pass the session so that the queries are all associated with the same
+      // session and then we can kill the whole session once
+      fetchShardingKeysOptions.session = session;
+      countOptions.session = session;
+      findOptions.session = session;
 
       const promises = [
         fetchShardingKeys(this.dataService, ns, fetchShardingKeysOptions),
@@ -970,21 +992,24 @@ const configureStore = (options = {}) => {
         findDocuments(this.dataService, ns, query.filter, findOptions)
       ];
 
+      // This is so that the UI can update to show that we're fetching
       this.setState({
         status: DOCUMENTS_STATUS_FETCHING,
         abortController,
+        session,
         outdated: false,
         error: null
       });
 
+      const stateChanges = {};
+
       try {
         const [shardKeys, count, docs] = await Promise.all(promises);
 
-        this.setState({
+        Object.assign(stateChanges, {
           status: this.isInitialQuery(query) ?
             DOCUMENTS_STATUS_FETCHED_INITIAL :
             DOCUMENTS_STATUS_FETCHED_CUSTOM,
-          abortController: null,
           isEditable: this.hasProjection(query) ? false : this.isListEditable(),
           error: null,
           docs: docs.map(doc => new HadronDocument(doc)),
@@ -994,20 +1019,38 @@ const configureStore = (options = {}) => {
           end: docs.length,
           table: this.getInitialTableState(),
           shardKeys,
-          resultId: resultId()
         });
 
         this.localAppRegistry.emit('documents-refreshed', view, docs);
         this.globalAppRegistry.emit('documents-refreshed', view, docs);
       } catch (error) {
         log.error(mongoLogId(1001000074), 'Documents', 'Failed to refresh documents', error);
-        this.setState({
-          abortController: null,
+        Object.assign(stateChanges, {
           error,
           status: DOCUMENTS_STATUS_ERROR,
-          resultId: resultId()
         });
       }
+
+      Object.assign(stateChanges, {
+        abortController: null,
+        session: null,
+        resultId: resultId(),
+      });
+
+      abortController.signal.removeEventListener('abort', this.onAbort);
+
+      // Trigger all the accumulated changes once at the end
+      this.setState(stateChanges);
+    },
+
+    async onAbort() {
+      try {
+        await this.dataService.killSession(this.state.session);
+      } catch (err) {
+        log.warn(mongoLogId(1001000093), 'Documents', 'Attempting to kill the session failed');
+      }
+
+      this.setState({ session: null });
     },
 
     async cancelOperation() {
@@ -1062,7 +1105,7 @@ const configureStore = (options = {}) => {
     setGlobalAppRegistry(store, globalAppRegistry);
   }
 
-  if (options.isReadonly !== null || options.isReadonly !== undefined) {
+  if (options.isReadonly !== null && options.isReadonly !== undefined) {
     setIsReadonly(store, options.isReadonly);
   }
 
@@ -1129,7 +1172,7 @@ function abortablePromise(abortSignal, successSignal) {
  * Return a cancel() function and the promise that resolves to the shard keys if
  * any.
 */
-export async function fetchShardingKeys(dataService, ns, { signal, maxTimeMS }) {
+export async function fetchShardingKeys(dataService, ns, { signal, session, maxTimeMS }) {
   // best practise is to first check if the signal wasn't already aborted
   if (signal.aborted) {
     throw new Error(OPERATION_CANCELLED_MESSAGE);
@@ -1138,7 +1181,7 @@ export async function fetchShardingKeys(dataService, ns, { signal, maxTimeMS }) 
   const cursor = dataService.fetch(
     'config.collections',
     { _id: ns },
-    { maxTimeMS, projection: { key: 1, _id: 0 } }
+    { session, maxTimeMS, projection: { key: 1, _id: 0 } }
   );
 
   // close the cursor if the operation is aborted
@@ -1182,7 +1225,7 @@ export async function fetchShardingKeys(dataService, ns, { signal, maxTimeMS }) 
 /*
  * Return a cancel() function and the promise that resolves to the count.
 */
-export async function countDocuments(dataService, ns, filter, { signal, skip, limit, maxTimeMS }) {
+export async function countDocuments(dataService, ns, filter, { signal, session, skip, limit, maxTimeMS }) {
   if (signal.aborted) {
     throw new Error(OPERATION_CANCELLED_MESSAGE);
   }
@@ -1204,7 +1247,7 @@ export async function countDocuments(dataService, ns, filter, { signal, skip, li
   }
   stages.push({ $count: 'count' });
 
-  const cursor = dataService.aggregate(ns, stages, { maxTimeMS });
+  const cursor = dataService.aggregate(ns, stages, { session, maxTimeMS });
 
   const abort = () => {
     cursor.close();
@@ -1217,7 +1260,8 @@ export async function countDocuments(dataService, ns, filter, { signal, skip, li
   let result;
   try {
     const array = await Promise.race([abortPromise, cursor.toArray()]);
-    result = array[0].count;
+    // the collection could be empty
+    result = array.length ? array[0].count : 0;
   } catch (err) {
     // rethrow if we aborted along the way
     if (err.message === OPERATION_CANCELLED_MESSAGE) {
