@@ -5,7 +5,10 @@ import HadronDocument, { Element } from 'hadron-document';
 import configureStore from '../../src/stores/crud-store';
 import configureActions from '../../src/actions';
 import EJSON from 'mongodb-extended-json';
-import { StitchAppRequestClient } from 'mongodb-stitch-core-sdk';
+
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+chai.use(chaiAsPromised);
 
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',
@@ -1462,7 +1465,7 @@ describe('store', function() {
       let store;
       let actions;
 
-      beforeEach((done) => {
+      beforeEach(() => {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1475,16 +1478,9 @@ describe('store', function() {
           namespace: 'compass-crud.test',
           noRefreshOnConfigure: true
         });
-
-        const docs = [...Array(1000).keys()].map((i) => ({ i }));
-        dataService.insertMany('compass-crud.test', docs, {}, done);
       });
 
-      afterEach((done) => {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
-      });
-
-      it.only('aborts the queries and kills the session', async() => {
+      it('aborts the queries and kills the session', async() => {
         const listener = listenToStore(store, (state, index) => {
           if (index === 1) {
             // cancel the operation as soon as the query starts
@@ -1523,14 +1519,115 @@ describe('store', function() {
   });
 
   describe('#getPage', () => {
-    it('does nothing for negative page numbers');
-    it('does nothing if documents are already being fetched');
-    it('does nothing if the page being requested is past the end');
-    it('does not ask for documents past the end');
-    it('sets status fetchedInitial if it succeeds with no filter');
-    it('sets status fetchedCustom if it succeeds with a filter');
-    it('sets status error if it fails');
-    it('allows the operation to be cancelled');
+    let store;
+    let actions;
+    let fetchSpy;
+
+    beforeEach((done) => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test',
+        noRefreshOnConfigure: true
+      });
+
+      sinon.restore();
+      fetchSpy = sinon.spy(store.dataService, 'fetch');
+
+      const docs = [...Array(1000).keys()].map((i) => ({ i }));
+      dataService.insertMany('compass-crud.test', docs, {}, done);
+    });
+
+    afterEach((done) => {
+      sinon.restore();
+      dataService.deleteMany('compass-crud.test', {}, {}, done);
+    });
+
+    it('does nothing for negative page numbers', async() => {
+      await store.getPage(-1);
+      expect(fetchSpy.called).to.be.false;
+    });
+
+    it('does nothing if documents are already being fetched', async() => {
+      store.state.status = 'fetching';
+      await store.getPage(1);
+      expect(fetchSpy.called).to.be.false;
+    });
+
+    it('does nothing if the page being requested is past the end', async() => {
+      store.state.query.limit = 20;
+      await store.getPage(1); // there is only one page of 20
+      expect(fetchSpy.called).to.be.false;
+    });
+
+    it('does not ask for documents past the end', async() => {
+      store.state.query.limit = 21;
+      await store.getPage(1); // there is only one page of 20
+      expect(fetchSpy.called).to.be.true;
+      const opts = fetchSpy.args[0][2];
+      // the second page should only have 1 due to the limit
+      expect(opts.limit).to.equal(1);
+    });
+
+    it('sets status fetchedPagination if it succeeds with no filter', async() => {
+      await store.getPage(1); // there is only one page of 20
+      expect(fetchSpy.called).to.be.true;
+      expect(store.state.status).to.equal('fetchedPagination');
+    });
+
+    it('sets status fetchedPagination if it succeeds with a filter', async() => {
+      store.state.query.filter = { i: { $gt: 1 }};
+      await store.getPage(1); // there is only one page of 20
+      expect(fetchSpy.called).to.be.true;
+      expect(store.state.status).to.equal('fetchedPagination');
+    });
+
+    it('sets status error if it fails', async() => {
+      // remove the spy and replace it with a stub
+      fetchSpy.restore();
+      const fetchStub = sinon.stub(store.dataService, 'fetch').returns(({
+        toArray: () => {
+          throw new Error('This is a fake error.');
+        }
+      }));
+
+      expect(store.state.abortController).to.be.null;
+      expect(store.state.session).to.be.null;
+
+      const promise = store.getPage(1);
+      expect(store.state.abortController).to.not.be.null;
+      expect(store.state.session).to.not.be.null;
+
+      await promise;
+      expect(store.state.error.message).to.equal('This is a fake error.');
+
+      expect(fetchStub.called).to.be.true;
+    });
+
+    it('allows the operation to be cancelled', async() => {
+      expect(store.state.abortController).to.be.null;
+      expect(store.state.session).to.be.null;
+
+      const promise = store.getPage(1);
+      expect(store.state.abortController).to.not.be.null;
+      expect(store.state.session).to.not.be.null;
+
+      store.cancelOperation();
+      expect(store.state.abortController).to.be.null;
+      expect(store.state.session).to.be.null;
+      expect(store.state.error).to.be.null;
+
+      await promise;
+      expect(store.state.error.message).to.equal('The operation was cancelled.');
+
+      expect(fetchSpy.called).to.be.true;
+    });
   });
 
   describe('default query for view with own sort order', () => {
