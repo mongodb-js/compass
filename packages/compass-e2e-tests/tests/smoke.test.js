@@ -30,7 +30,10 @@ describe('Smoke tests', function () {
     compass = await beforeTests();
     client = compass.client;
 
-    await client.connectWithConnectionString('mongodb://localhost:27018/test', 30_000);
+    await client.connectWithConnectionString(
+      'mongodb://localhost:27018/test',
+      30_000
+    );
   });
 
   after(function () {
