@@ -83,6 +83,7 @@ class DropDatabaseModal extends PureComponent {
         variant="danger"
         submitDisabled={this.props.name !== this.props.nameConfirmation}
         className={styles['drop-database-modal']}
+        closeOnBackdropClick={false}
       >
         <div>
           <p className={styles['drop-database-modal-confirm']}>

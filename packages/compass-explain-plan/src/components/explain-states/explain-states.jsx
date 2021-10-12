@@ -57,6 +57,7 @@ class ExplainStates extends Component {
       index: PropTypes.object,
       viewType: PropTypes.string.isRequired,
       rawExplainObject: PropTypes.object.isRequired,
+      originalExplainData: PropTypes.object.isRequired,
       explainState: PropTypes.string.isRequired,
       error: PropTypes.object,
       resultId: PropTypes.number.isRequired

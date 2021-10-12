@@ -1,13 +1,14 @@
 import schemaStats from 'mongodb-schema/lib/stats';
-import lodashGet from 'lodash.get';
-import { getCloudInfo } from './get-cloud-info';
+import { getCloudInfo } from 'mongodb-cloud-info';
+import ConnectionString from 'mongodb-connection-string-url';
 
 const ATLAS = /mongodb.net[:/]/i;
 const LOCALHOST = /(^localhost)|(^127\.0\.0\.1)/gi;
 
 async function getCloudInfoFromDataService(dataService) {
   try {
-    const firstServerHostname = lodashGet(dataService, 'client.model.hosts.0.host');
+    const url = new ConnectionString(dataService.getConnectionOptions().connectionString);
+    const firstServerHostname = (url.hosts[0] || '').split(':')[0];
     return await getCloudInfo(firstServerHostname);
   } catch (e) {
     return {};

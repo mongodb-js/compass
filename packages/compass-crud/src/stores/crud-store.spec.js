@@ -1,5 +1,5 @@
 import Connection from 'mongodb-connection-model';
-import { DataService } from 'mongodb-data-service';
+import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import configureStore from '../../src/stores/crud-store';
@@ -37,34 +37,34 @@ function listenToStore(store, cb, expectedCalls = 1) {
   });
 }
 
-describe('store', function() {
+describe.only('store', function() {
   this.timeout(5000);
-  const dataService = new DataService(CONNECTION);
+  let dataService;
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
 
-  before((done) => {
-    dataService.connect(() => {
-      // Add some validation so that we can test what happens when insert/update
-      // fails below.
-      dataService.createCollection('compass-crud.test', {
-        validator: {
-          $jsonSchema: {
-            bsonType: 'object',
-            properties: {
-              status: {
-                enum: ['Unknown', 'Incomplete'],
-                description: 'can only be one of the enum values'
-              }
+  before(async(done) => {
+    dataService = await connect(convertConnectionModelToInfo(CONNECTION));
+
+    // Add some validation so that we can test what happens when insert/update
+    // fails below.
+    dataService.createCollection('compass-crud.test', {
+      validator: {
+        $jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            status: {
+              enum: ['Unknown', 'Incomplete'],
+              description: 'can only be one of the enum values'
             }
           }
         }
-      }, done);
-    });
+      }
+    }, done);
   });
 
-  after((done) => {
-    dataService.disconnect(done);
+  after(async() => {
+    await dataService.disconnect();
   });
 
   describe('#getInitialState', () => {

@@ -1,4 +1,5 @@
-import { has, omit, map, isPlainObject, keys, max, maxBy, minBy, forEach } from 'lodash';
+import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import { has, omit, map, keys, max, maxBy, minBy, forEach } from 'lodash';
 import d3 from 'd3';
 import STAGE_CARD_PROPERTIES from '../constants/stage-card-properties';
 import { format } from 'util';
@@ -82,27 +83,12 @@ const parseExplain = (parent, obj) => {
     y: obj.y,
     depth: obj.depth,
     isShard: !!obj.shardName,
-    parent
+    parent,
+    children: [...ExplainPlan.getChildStages(obj)].map(child => parseExplain(parent, child))
   };
 
   // Extract highlights relevant for the current stage from details
   stage.highlights = extractHighlights(stage);
-
-  // Recursively parse child or children of this stage
-  const children = (
-    obj.inputStage ||
-    obj.inputStages ||
-    obj.shards ||
-    obj.executionStages
-  );
-
-  if (Array.isArray(children)) {
-    stage.children = map(children, parseExplain.bind(this, stage));
-  } else if (isPlainObject(children)) {
-    stage.children = [parseExplain(stage, children)];
-  } else {
-    stage.children = [];
-  }
 
   return stage;
 };

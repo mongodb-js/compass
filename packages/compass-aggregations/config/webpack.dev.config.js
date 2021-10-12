@@ -88,7 +88,7 @@ const config = {
     }
   },
   externals: {
-    'mongodb-client-encryption': 'commonjs2 mongodb-client-encryption'
+
   }
 };
 
