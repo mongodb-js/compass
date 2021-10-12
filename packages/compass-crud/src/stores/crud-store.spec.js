@@ -41,6 +41,8 @@ describe('store', function() {
 
   before((done) => {
     dataService.connect(() => {
+      // Add some validation so that we can test what happens when insert/update
+      // fails below.
       dataService.createCollection('compass-crud.test', {
         validator: {
           $jsonSchema: {
