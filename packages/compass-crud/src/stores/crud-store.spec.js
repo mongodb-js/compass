@@ -43,24 +43,32 @@ describe.only('store', function() {
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
 
-  before(async(done) => {
-    dataService = await connect(convertConnectionModelToInfo(CONNECTION));
+  before(async() => {
+    const info = convertConnectionModelToInfo(CONNECTION);
+    dataService = await connect(info.connectionOptions);
 
     // Add some validation so that we can test what happens when insert/update
     // fails below.
-    dataService.createCollection('compass-crud.test', {
-      validator: {
-        $jsonSchema: {
-          bsonType: 'object',
-          properties: {
-            status: {
-              enum: ['Unknown', 'Incomplete'],
-              description: 'can only be one of the enum values'
+    return new Promise((resolve, reject) => {
+      dataService.createCollection('compass-crud.test', {
+        validator: {
+          $jsonSchema: {
+            bsonType: 'object',
+            properties: {
+              status: {
+                enum: ['Unknown', 'Incomplete'],
+                description: 'can only be one of the enum values'
+              }
             }
           }
         }
-      }
-    }, done);
+      }, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve();
+      });
+    });
   });
 
   after(async() => {
