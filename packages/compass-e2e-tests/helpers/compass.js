@@ -161,7 +161,7 @@ async function startCompass(
     startTimeout: 20_000,
     waitTimeout: 0,
     webdriverOptions: {
-      waitforInterval: 200, // default is 500ms
+      waitforInterval: 100, // default is 500ms
     },
   };
 
