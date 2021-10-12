@@ -1024,7 +1024,7 @@ describe('store', function() {
               expect(state.end).to.equal(2);
 
               // this is fetchedInitial because there's no filter/projection/collation
-              expect(state.status).to.equal('fetchedInitial'); 
+              expect(state.status).to.equal('fetchedInitial');
               expect(state.isEditable).to.equal(true);
               expect(state.error).to.be.null;
               expect(state.docs).to.have.lengthOf(2);
