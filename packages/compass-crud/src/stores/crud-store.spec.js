@@ -37,7 +37,7 @@ function listenToStore(store, cb, expectedCalls = 1) {
   });
 }
 
-describe.only('store', function() {
+describe('store', function() {
   this.timeout(5000);
   let dataService;
   const localAppRegistry = new AppRegistry();
