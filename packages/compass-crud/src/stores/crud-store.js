@@ -566,10 +566,13 @@ const configureStore = (options = {}) => {
       let nextPageCount = NUM_PAGE_DOCS;
 
       // Make sure we don't go past the limit if a limit is set
-      if (limit && skip + nextPageCount > limit) {
-        nextPageCount = limit - skip;
-        if (nextPageCount < 1) {
+      if (limit) {
+        const remaining = limit - skip;
+        if (remaining < 1) {
           return;
+        }
+        if (remaining < nextPageCount) {
+          nextPageCount = remaining;
         }
       }
 
@@ -603,6 +606,7 @@ const configureStore = (options = {}) => {
       try {
         documents = await findDocuments(this.dataService, ns, filter, opts);
       } catch (err) {
+        documents = [];
         error = err;
       }
 
@@ -1044,22 +1048,27 @@ const configureStore = (options = {}) => {
     },
 
     async onAbort() {
+      const session = this.state.session;
+      if (!session) {
+        return;
+      }
+      this.setState({ session: null });
+
       try {
-        await this.dataService.killSession(this.state.session);
+        await this.dataService.killSession(session);
       } catch (err) {
         log.warn(mongoLogId(1001000093), 'Documents', 'Attempting to kill the session failed');
       }
-
-      this.setState({ session: null });
     },
 
-    async cancelOperation() {
+    cancelOperation() {
       const { abortController } = this.state;
       if (!abortController) {
         return;
       }
-      abortController.abort();
       this.setState({ abortController: null });
+
+      abortController.abort();
     },
 
     hasProjection(query) {
@@ -1137,10 +1146,10 @@ const configureStore = (options = {}) => {
 
 export default configureStore;
 
-/**
+/*
  * Return a promise you can race (just like a timeout from timeouts/promises).
  * It will reject if abortSignal triggers before successSignal
- */
+*/
 function abortablePromise(abortSignal, successSignal) {
   let reject;
 

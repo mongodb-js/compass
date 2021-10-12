@@ -5,6 +5,7 @@ import HadronDocument, { Element } from 'hadron-document';
 import configureStore from '../../src/stores/crud-store';
 import configureActions from '../../src/actions';
 import EJSON from 'mongodb-extended-json';
+import { StitchAppRequestClient } from 'mongodb-stitch-core-sdk';
 
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',
@@ -1133,7 +1134,6 @@ describe('store', function() {
     });
   });
 
-
   describe('#openInsertDocumentDialog', () => {
     const doc = { _id: 1, name: 'test' };
     let store;
@@ -1450,16 +1450,90 @@ describe('store', function() {
           if (index === 2) {
             expect(state.isEditable).to.equal(true);
           }
-        });
+        }, 2);
 
         store.refreshDocuments();
 
         await listener;
-      }, 2);
+      });
+    });
+
+    context('when cancelling the operation', () => {
+      let store;
+      let actions;
+
+      beforeEach((done) => {
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions,
+          namespace: 'compass-crud.test',
+          noRefreshOnConfigure: true
+        });
+
+        const docs = [...Array(1000).keys()].map((i) => ({ i }));
+        dataService.insertMany('compass-crud.test', docs, {}, done);
+      });
+
+      afterEach((done) => {
+        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      });
+
+      it.only('aborts the queries and kills the session', async() => {
+        const listener = listenToStore(store, (state, index) => {
+          if (index === 1) {
+            // cancel the operation as soon as the query starts
+            expect(state.status).to.equal('fetching');
+            expect(state.error).to.be.null;
+            expect(state.abortController).to.not.be.null;
+            expect(state.session).to.not.be.null;
+
+            store.cancelOperation();
+          }
+
+          if (index === 2) {
+            // cancelOperation cleans up abortController
+            expect(state.abortController).to.be.null;
+          }
+
+          if (index === 3) {
+            // onAbort cleans up state.session
+            expect(state.session).to.be.null;
+          }
+
+          if (index === 4) {
+            // the operation should fail
+            expect(state.status).to.equal('error');
+            expect(state.error.message).to.equal('The operation was cancelled.');
+            expect(state.abortController).to.be.null;
+            expect(state.session).to.be.null;
+          }
+        }, 4);
+
+        store.refreshDocuments();
+
+        await listener;
+      });
     });
   });
 
-  describe('default query for view with own sort orter', () => {
+  describe('#getPage', () => {
+    it('does nothing for negative page numbers');
+    it('does nothing if documents are already being fetched');
+    it('does nothing if the page being requested is past the end');
+    it('does not ask for documents past the end');
+    it('sets status fetchedInitial if it succeeds with no filter');
+    it('sets status fetchedCustom if it succeeds with a filter');
+    it('sets status error if it fails');
+    it('allows the operation to be cancelled');
+  });
+
+  describe('default query for view with own sort order', () => {
     let store;
     let actions;
 
