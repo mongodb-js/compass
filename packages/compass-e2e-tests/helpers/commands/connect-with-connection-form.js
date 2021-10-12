@@ -1,5 +1,7 @@
 const Selectors = require('../selectors');
 
+const defaultTimeoutMS = 30_000;
+
 module.exports = function (app) {
   return async function connectWithConnectionForm(
     {
@@ -21,7 +23,7 @@ module.exports = function (app) {
       sshTunnelPassword,
       sshTunnelIdentityFile,
     },
-    timeout
+    timeout = defaultTimeoutMS
   ) {
     const { client } = app;
     const connectionFormButtonElement = await client.$(

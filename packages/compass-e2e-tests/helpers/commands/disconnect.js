@@ -29,6 +29,8 @@ module.exports = function (app) {
       }
     }
 
+    await delay(100);
+
     app.webContents.send('app:disconnect');
 
     const element = await client.$(Selectors.ConnectSection);
