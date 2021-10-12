@@ -227,6 +227,14 @@ describe('Logging integration', function () {
       // eslint-disable-next-line mocha/no-setup-in-describe
       criticalPathExpectedLogs.forEach((expected, i) => {
         it(`logs "${expected.msg}"`, function () {
+          if (!criticalPathActualLogs[i]) {
+            throw new Error(
+              `No criticalPathActualLog for index ${i} expected ${JSON.stringify(
+                expected
+              )} was empty`
+            );
+          }
+
           const { attr: expectedAttr, ...expectedWithoutAttr } = expected;
           const { attr: actualAttr, ...actualWihoutAttr } =
             criticalPathActualLogs[i];
