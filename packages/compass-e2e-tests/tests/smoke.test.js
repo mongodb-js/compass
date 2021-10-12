@@ -536,6 +536,7 @@ describe('Smoke tests', function () {
       const exportModalElement = await client.$(Selectors.ExportModal);
       await exportModalElement.waitForDisplayed({
         reverse: true,
+        timeout: 30_000, // Fixes flaky macOS CI.
       });
 
       const text = await fs.readFile(filename, 'utf-8');

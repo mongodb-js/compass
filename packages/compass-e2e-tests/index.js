@@ -83,7 +83,7 @@ async function main() {
   });
 
   const mocha = new Mocha({
-    timeout: 180_000, // 3 mins.
+    timeout: 120_000,
   });
 
   tests.forEach((testPath) => {
