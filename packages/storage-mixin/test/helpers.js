@@ -110,6 +110,10 @@ function createUnlockedKeychain() {
         execSync(`security default-keychain -s "${tempKeychainName}"`);
         execSync(`security unlock-keychain -p "" "${tempKeychainName}"`);
 
+        // Make the new keychain searchable, otherwise nothing will
+        // save to it. (`security list-keychains` will now show it.)
+        execSync(`security list-keychains -d user -s login.keychain "${tempKeychainName}"`);
+
         debug(`Using temporary keychain ${getDefaultKeychain()}`);
       },
       after() {
