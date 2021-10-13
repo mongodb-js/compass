@@ -159,9 +159,9 @@ async function startCompass(
     // It's usually not required when running tests in Evergreen or locally, but
     // GitHub CI machines are pretty slow sometimes, especially the macOS one
     startTimeout: 20_000,
-    waitTimeout: 20_000,
+    waitTimeout: 0, // https://github.com/electron-userland/spectron/issues/763
     webdriverOptions: {
-      waitforInterval: 200, // default is 500ms
+      waitforInterval: 100, // default is 500ms
     },
   };
 
@@ -371,9 +371,8 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
  */
 function addDebugger(app) {
   const debugClient = debug.extend('webdriver:client');
-  // @ts-expect-error getPrototype is not typed in spectron or webdriver but
-  // exists
-  const clientProto = app.client.getPrototype();
+  const clientProto = Object.getPrototypeOf(app.client);
+
   for (const prop of Object.getOwnPropertyNames(clientProto)) {
     if (prop.includes('.')) {
       continue;

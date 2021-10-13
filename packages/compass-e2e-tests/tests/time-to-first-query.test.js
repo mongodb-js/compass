@@ -17,19 +17,27 @@ describe('Time to first query', function () {
     await client.navigateToCollectionTab('test', 'numbers', 'Documents');
 
     // search for the document with id == 42 and wait for just one result to appear
-    await client.click('#query-bar-option-input-filter .ace_scroller');
+    const aceCommentElement = await client.$(
+      '#query-bar-option-input-filter .ace_scroller'
+    );
+    await aceCommentElement.click();
+
     await client.keys('{ i: 42 }');
-    await client.click(Selectors.QueryBarApplyFilterButton);
+    const filterButtonElement = await client.$(
+      Selectors.QueryBarApplyFilterButton
+    );
+    await filterButtonElement.click();
     await client.waitUntil(async () => {
       // we start off with 20 results (assuming no filter) and we expect to
       // have just one once the filter finishes
-      const result = await client.elements('.document-list .document');
-      return result.value.length === 1;
+      const result = await client.$$('.document-list .document');
+      return result.length === 1;
     });
 
-    const text = await client.getText(
+    const documentElementValue = await client.$(
       '.document-list .document .element-value-is-int32'
     );
+    const text = await documentElementValue.getText();
     expect(text).to.equal('42');
   });
 

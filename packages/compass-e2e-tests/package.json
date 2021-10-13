@@ -4,6 +4,7 @@
   "private": true,
   "description": "E2E test suite for Compass app that follows smoke tests / feature testing matrix",
   "scripts": {
+    "clean": "node -e \"try { fs.rmdirSync('.mongodb', { recursive: true }); } catch (e) {}\" && node -e \"try { fs.rmdirSync('.log', { recursive: true }); } catch (e) {}\"",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -25,14 +26,13 @@
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.3.0",
     "@mongodb-js/prettier-config-compass": "^0.2.0",
-    "@types/webdriverio": "^4.13.3",
     "chalk": "^4.1.2",
     "chai": "*",
     "chai-as-promised": "*",
     "cross-spawn": "^7.0.3",
     "debug": "^4.3.1",
+    "electron": "^13.5.1",
     "depcheck": "*",
-    "electron": "^6.1.12",
     "electron-rebuild": "^2.3.5",
     "eslint": "*",
     "glob": "^7.1.6",
@@ -41,7 +41,7 @@
     "mongodb": "^4.1.0",
     "mongodb-runner": "^4.8.3",
     "prettier": "*",
-    "spectron": "^8.0.0",
+    "spectron": "^15.0.0",
     "xvfb-maybe": "^0.2.1",
     "lodash": "^4.17.21"
   }

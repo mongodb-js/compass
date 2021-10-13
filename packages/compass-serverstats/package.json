@@ -12,7 +12,7 @@
   },
   "scripts": {
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rm -rf ./lib",
+    "prewebpack": "rimraf ./lib",
     "webpack": "webpack-compass",
     "electron-rebuild": "electron-rebuild --only keytar",
     "node-rebuild": "node ../../scripts/rebuild.js keytar",
@@ -55,8 +55,8 @@
     "chai": "^4.1.2",
     "debug": "^4.1.1",
     "depcheck": "^1.4.1",
-    "electron": "^6.1.12",
-    "electron-mocha": "^9.3.3",
+    "electron": "^13.5.1",
+    "electron-mocha": "^10.1.0",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.1.0",
@@ -72,6 +72,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
+    "rimraf": "^3.0.1",
     "xvfb-maybe": "^0.2.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",

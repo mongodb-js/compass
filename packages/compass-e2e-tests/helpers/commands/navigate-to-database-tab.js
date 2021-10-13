@@ -15,6 +15,7 @@ module.exports = function (app) {
 
     const tabSelectedSelector = Selectors.databaseTab(tabName, true);
 
-    await client.waitForVisible(tabSelectedSelector);
+    const tabSelectorElement = await client.$(tabSelectedSelector);
+    await tabSelectorElement.waitForDisplayed();
   };
 };
