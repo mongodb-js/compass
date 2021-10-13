@@ -213,13 +213,13 @@ async function main(argv) {
     },
     types: './dist/index.d.ts',
     scripts: {
-      // Plugins are bundled by webpack and tested with ts-node require, no need
+      // Plugins are bundled by webpack from source and tested with ts-node runtime processor, no need
       // to bootstrap them
       ...(!isPlugin && {
         bootstrap: 'npm run compile'
       }),
       prepublishOnly: 'npm run compile',
-      // For normal
+      // For normal packages we are just compiling code with typescript, for plugins (but only for them) we are using webpack to create independent plugin packages
       compile: 'tsc -p tsconfig.json',
       ...(isPlugin && {
         compile: 'npm run webpack -- --mode production',
