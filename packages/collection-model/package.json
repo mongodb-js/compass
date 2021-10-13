@@ -23,7 +23,7 @@
   },
   "scripts": {
     "check": "npm run lint && npm run depcheck",
-    "test": "mocha && npm run test:electron",
+    "test": "mocha && npm run test:electron --no-sandbox",
     "test:electron": "xvfb-maybe electron-mocha",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
