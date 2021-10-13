@@ -1116,7 +1116,7 @@ describe('store', function() {
     });
 
     context('when there is an error', () => {
-      const docs = '[ { "$name": "Chashu", "type": "Norwegian Forest", "status": "invalid" }, { "name": "Rey", "type": "Viszla" } ]';
+      const docs = '[ { "name": "Chashu", "type": "Norwegian Forest", "status": "invalid" }, { "name": "Rey", "type": "Viszla" } ]';
 
       beforeEach(() => {
         store.state.insert.jsonDoc = JSON.stringify(docs);
