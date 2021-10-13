@@ -25,19 +25,19 @@ async function setCollation(client, tabName, value) {
 async function setMaxTimeMS(client, tabName, value) {
   const selector = Selectors.queryBarOptionInputMaxTimeMS(tabName);
   await client.clickVisible(selector);
-  await client.setValue(selector, value);
+  await client.setOrClearValue(selector, value);
 }
 
 async function setSkip(client, tabName, value) {
   const selector = Selectors.queryBarOptionInputSkip(tabName);
   await client.clickVisible(selector);
-  await client.setValue(selector, value);
+  await client.setOrClearValue(selector, value);
 }
 
 async function setLimit(client, tabName, value) {
   const selector = Selectors.queryBarOptionInputLimit(tabName);
   await client.clickVisible(selector);
-  await client.setValue(selector, value);
+  await client.setOrClearValue(selector, value);
 }
 
 async function runFind(client, tabName) {
@@ -63,6 +63,19 @@ async function collapseOptions(client, tabName) {
   if (!(await isOptionsExpanded(client, tabName))) {
     return;
   }
+
+  // Before collapsing the options, clear out all the fields in case they are
+  // set. This helps to make the tests idempotent which is handy because you can
+  // work on them by focusing one it() at a time and expect it to find the same
+  // results as if you ran the whole suite. If we ever do want to test that all
+  // the options you had set before you collapsed the options are still in
+  // effect then we can make this behaviour opt-out through an option.
+  await setProject(client, tabName, '');
+  await setSort(client, tabName, '');
+  await setMaxTimeMS(client, tabName, '');
+  await setCollation(client, tabName, '');
+  await setSkip(client, tabName, '');
+  await setLimit(client, tabName, '');
 
   await client.clickVisible(Selectors.queryBarOptionsToggle(tabName));
   await waitUntilCollapsed(client, tabName);
@@ -105,7 +118,6 @@ module.exports = function (app) {
       'data-result-id'
     );
 
-    await setFilter(client, tabName, filter);
     if (project || sort || maxTimeMS || collation || skip || limit) {
       await expandOptions(client, tabName);
 
@@ -118,6 +130,8 @@ module.exports = function (app) {
     } else {
       await collapseOptions(client, tabName);
     }
+
+    await setFilter(client, tabName, filter);
     await runFind(client, tabName);
 
     if (waitForResult) {

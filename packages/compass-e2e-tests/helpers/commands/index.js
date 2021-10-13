@@ -30,4 +30,5 @@ exports.addCommands = function (app) {
   add('closeCollectionTabs', './close-collection-tabs');
   add('setValidation', './set-validation');
   add('waitForAnimations', './wait-for-animations');
+  add('setOrClearValue', './set-or-clear-value');
 };
