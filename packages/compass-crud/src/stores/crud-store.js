@@ -1314,8 +1314,6 @@ export async function findDocuments(dataService, ns, filter, options) {
   let result;
   try {
     result = await Promise.race([abortPromise, cursor.toArray()]);
-  } catch (err) {
-    throw err;
   } finally {
     signal.removeEventListener('abort', abort);
 
