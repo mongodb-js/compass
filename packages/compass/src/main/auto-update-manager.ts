@@ -34,8 +34,6 @@ function isSupportedPlatform(str?: string): str is keyof typeof API_PLATFORM {
 }
 
 class CompassAutoUpdateManager {
-  private static autoUpdateManager: AutoUpdateManager;
-
   private static initCalled = false;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -47,21 +45,21 @@ class CompassAutoUpdateManager {
       return;
     }
 
-    const updateManager = (this.autoUpdateManager = new AutoUpdateManager({
+    const updateManager = new AutoUpdateManager({
       endpoint: process.env.HADRON_AUTO_UPDATE_ENDPOINT,
       icon: COMPASS_ICON,
       product: API_PRODUCT[process.env.HADRON_PRODUCT],
       channel: process.env.HADRON_CHANNEL,
       platform: API_PLATFORM[process.platform],
-    }));
+    });
 
-    this.autoUpdateManager.on('state-change', (newState) => {
+    updateManager.on('state-change', (newState) => {
       debug('new state', newState);
 
       if (newState === 'update-available') {
         ipcMain.broadcast('app:update-available', {
-          releaseNotes: this.autoUpdateManager.releaseNotes,
-          releaseVersion: this.autoUpdateManager.releaseVersion,
+          releaseNotes: updateManager.releaseNotes,
+          releaseVersion: updateManager.releaseVersion,
         });
       }
     });

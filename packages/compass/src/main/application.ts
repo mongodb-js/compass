@@ -1,6 +1,6 @@
 import path from 'path';
 import { EventEmitter } from 'events';
-import { app } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import createDebug from 'debug';
 import { CompassLogging } from './logging';
@@ -36,7 +36,6 @@ class CompassApplication extends EventEmitter {
   async setupSecureStore(): Promise<void> {
     // importing storage-mixin attaches secure-store ipc listeners to handle
     // keychain requests from the renderer processes
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     await import('storage-mixin');
   }
 
@@ -83,7 +82,7 @@ class CompassApplication extends EventEmitter {
   setupUserDirectory(): void {
     if (process.env.NODE_ENV === 'development') {
       const appName = app.getName();
-      // When NODE_ENV is dev, we are probably be running application unpackaged
+      // When NODE_ENV is dev, we are probably running the app unpackaged
       // directly with Electron binary which causes user dirs to be just
       // `Electron` instead of app name that we want here
       app.setPath('userData', path.join(app.getPath('appData'), appName));
@@ -121,14 +120,16 @@ class CompassApplication extends EventEmitter {
 
   on(event: 'show-connect-window', handler: () => void): this;
   on(event: 'show-log-file-dialog', handler: () => void): this;
-  on(event: string, handler: (...args: any[]) => void): this {
+  on(event: 'new-window', handler: (bw: BrowserWindow) => void): this;
+  on(event: string, handler: (...args: unknown[]) => void): this {
     super.on(event, handler);
     return this;
   }
 
   emit(event: 'show-connect-window'): boolean;
   emit(event: 'show-log-file-dialog'): boolean;
-  emit(event: string, ...args: any[]): boolean {
+  emit(event: 'new-window', bw: BrowserWindow): boolean;
+  emit(event: string, ...args: unknown[]): boolean {
     return super.emit(event, ...args);
   }
 }

@@ -205,14 +205,6 @@ class CompassLogging {
 
   private static initPromise: Promise<void> | null = null;
 
-  static async init(app: CompassApplication): Promise<void> {
-    if (this.initPromise) {
-      await this.initPromise;
-    }
-    this.initPromise = this._init(app);
-    await this.initPromise;
-  }
-
   private static async _init(app: CompassApplication) {
     const logFilePath = await setupLogging();
 
@@ -221,6 +213,14 @@ class CompassLogging {
         void showLogFileDialog(logFilePath);
       });
     }
+  }
+
+  static init(app: CompassApplication): Promise<void> {
+    if (this.initPromise) {
+      return this.initPromise;
+    }
+    this.initPromise = this._init(app);
+    return this.initPromise;
   }
 }
 

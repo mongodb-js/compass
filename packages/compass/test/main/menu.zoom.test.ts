@@ -1,8 +1,7 @@
 import { expect } from 'chai';
-import { BrowserWindow, Menu } from 'electron';
+import { BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
 import { CompassMenu } from '../../src/main/menu';
 import _ from 'lodash';
-import { MenuItemConstructorOptions } from 'electron/main';
 import { EventEmitter } from 'stream';
 import { CompassApplication } from '../../src/main/application';
 

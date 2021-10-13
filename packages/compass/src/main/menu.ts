@@ -162,7 +162,7 @@ function editSubMenu() {
         label: 'Find',
         accelerator: 'CmdOrCtrl+F',
         click() {
-          ipcMain.broadcast('app:find');
+          ipcMain.broadcastFocused('app:find');
         },
       },
     ],
@@ -409,11 +409,17 @@ class CompassMenu {
 
   private static _init(app: CompassApplication): void {
     this.app = app;
-    void this.setupDockMenu();
+
+    app.on('new-window', (bw) => {
+      this.load(bw);
+    });
+
     ipcMain.respondTo({
       'window:show-collection-submenu': this.showCollection.bind(this),
       'window:hide-collection-submenu': this.hideCollection.bind(this),
     });
+
+    void this.setupDockMenu();
   }
 
   static init(app: CompassApplication): void {

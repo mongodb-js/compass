@@ -75,9 +75,11 @@ async function showWindowWhenReady(bw: BrowserWindow) {
  * [0]: http://git.io/vnwTY
  */
 function showConnectWindow(
+  compassApp: CompassApplication,
   opts: Partial<BrowserWindowConstructorOptions & { url: string }> = {}
 ): BrowserWindow {
-  const url = opts.url || DEFAULT_URL;
+  const url = opts.url ?? DEFAULT_URL;
+
   const windowOpts = {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
@@ -105,70 +107,14 @@ function showConnectWindow(
 
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
 
-  /**
-   * Take all the loading status changes and broadcast to other windows.
-   */
-  ipcMain.respondTo('compass:loading:change-status', (bw, meta) => {
-    ipcMain.broadcast('compass:loading:change-status', meta);
-  });
-
-  ipcMain.respondTo('compass:error:fatal', (bw, meta) => {
-    ipcMain.broadcast('compass:error:fatal', meta);
-  });
-
-  ipcMain.respondTo('compass:log', (bw, meta) => {
-    ipcMain.broadcast('compass:log', meta);
-  });
-
-  /**
-   * ## Find in page support
-   */
-
-  const onFindInPage = (
-    bw: BrowserWindow,
-    searchTerm: string,
-    opt: FindInPageOptions = {}
-  ) => {
-    if (!window) {
-      debug('window gone away! dropping ipc app:find-in-page');
-      return;
-    }
-    opt = opt || {};
-    window.webContents.findInPage(searchTerm, opt);
-  };
-
-  ipcMain.respondTo('app:find-in-page', onFindInPage);
-
-  const onStopFindInPage = (
-    bw: BrowserWindow,
-    action: 'clearSelection' | 'keepSelection' | 'activateSelection'
-  ) => {
-    if (!window) {
-      debug('window gone away! dropping ipc app:stop-find-in-page');
-      return;
-    }
-    window.webContents.stopFindInPage(action);
-  };
-
-  ipcMain.respondTo('app:stop-find-in-page', onStopFindInPage);
-
-  // TODO: ideally use this to send results to find-in-page component to show
-  // indications of where you are in the page.  currently sending results
-  // messes up findInPage results, however.
-  // _window.webContents.on('found-in-page', function(event, results) {
-  //   ipcMain.broadcast('app:find-in-page-results', results);
-  // })
+  compassApp.emit('new-window', window);
 
   const onWindowClosed = () => {
-    debug('Window closed. Removing ipc responders and dereferencing.');
-    ipcMain.remove('app:find-in-page', onFindInPage);
-    ipcMain.remove('app:stop-find-in-page', onStopFindInPage);
+    debug('Window closed. Dereferencing.');
     window = null;
   };
 
   window.once('closed', onWindowClosed);
-
-  CompassMenu.load(window);
 
   debug(`Loading page ${url} in main window`);
 
@@ -201,21 +147,6 @@ function showConnectWindow(
 }
 
 /**
- * @param {Object} _bw - Current BrowserWindow
- * @param {String} message - Message to be set by MessageBox
- * @param {String} detail - Details to be shown in MessageBox
- */
-function showInfoDialog(_bw: BrowserWindow, message: string, detail: string) {
-  void dialog.showMessageBox({
-    type: 'info',
-    icon: COMPASS_ICON,
-    message: message,
-    detail: detail,
-    buttons: ['OK'],
-  });
-}
-
-/**
  * can't use webContents `did-finish-load` event here because
  * metrics aren't set up at that point. renderer app sends custom event
  * `window:renderer-ready` when metrics are set up. If first app launch,
@@ -232,6 +163,36 @@ function rendererReady(bw: BrowserWindow) {
 }
 
 /**
+ * @param {Object} _bw - Current BrowserWindow
+ * @param {String} message - Message to be set by MessageBox
+ * @param {String} detail - Details to be shown in MessageBox
+ */
+function showInfoDialog(_bw: BrowserWindow, message: string, detail: string) {
+  void dialog.showMessageBox({
+    type: 'info',
+    icon: COMPASS_ICON,
+    message: message,
+    detail: detail,
+    buttons: ['OK'],
+  });
+}
+
+const onFindInPage = (
+  bw: BrowserWindow,
+  searchTerm: string,
+  opt: FindInPageOptions = {}
+) => {
+  bw.webContents.findInPage(searchTerm, opt);
+};
+
+const onStopFindInPage = (
+  bw: BrowserWindow,
+  action: 'clearSelection' | 'keepSelection' | 'activateSelection'
+) => {
+  bw.webContents.stopFindInPage(action);
+};
+
+/**
  * Respond to events relevant to BrowserWindow management from the renderer
  * process.
  *
@@ -240,7 +201,7 @@ function rendererReady(bw: BrowserWindow) {
  * those API's.
  */
 
-async function onAppReady() {
+async function onAppReady(compassApp: CompassApplication) {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
     debug('Activating Compass specific devtools...');
@@ -254,12 +215,14 @@ async function onAppReady() {
     }
   }
 
-  showConnectWindow();
+  showConnectWindow(compassApp);
 }
 
-async function showConnectWindowWhenReady(): Promise<void> {
+async function showConnectWindowWhenReady(
+  compassApp: CompassApplication
+): Promise<void> {
   await electronApp.whenReady();
-  await onAppReady();
+  await onAppReady(compassApp);
 }
 
 class CompassWindowManager {
@@ -281,22 +244,33 @@ class CompassWindowManager {
     });
 
     compassApp.on('show-connect-window', () => {
-      showConnectWindow();
+      showConnectWindow(compassApp);
     });
 
     ipcMain.respondTo({
-      'app:show-info-dialog': showInfoDialog,
       'window:renderer-ready': rendererReady,
+      'app:show-info-dialog': showInfoDialog,
+      'app:find-in-page': onFindInPage,
+      'app:stop-find-in-page': onStopFindInPage,
+      'compass:loading:change-status'(_bw, meta) {
+        ipcMain.broadcast('compass:loading:change-status', meta);
+      },
+      'compass:error:fatal'(_bw, meta) {
+        ipcMain.broadcast('compass:error:fatal', meta);
+      },
+      'compass:log'(_bw, meta) {
+        ipcMain.broadcast('compass:log', meta);
+      },
     });
 
-    await showConnectWindowWhenReady();
+    await showConnectWindowWhenReady(compassApp);
 
     // Start listening to the macOS activate event only after first Compass window
     // is shown. Otherwise activate can happen on application start and cause
     // multiple Compass windows to appear
     electronApp.on('activate', (evt, hasVisibleWindows) => {
       if (!hasVisibleWindows) {
-        showConnectWindow();
+        showConnectWindow(compassApp);
       }
     });
   }
