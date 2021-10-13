@@ -266,8 +266,9 @@ describe('Logging integration', function () {
   });
 
   describe('Uncaught exceptions', function () {
-    it('provides logging information for uncaught exceptions', async function () {
-      let compass;
+    let compass;
+
+    before(async function () {
       try {
         process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION = '1';
         compass = await beforeTests();
@@ -276,7 +277,17 @@ describe('Logging integration', function () {
       }
 
       await afterTests(compass);
+    });
 
+    after(async function () {
+      if (compass) {
+        // cleanup outside of the test so that the time it takes to run does not
+        // get added to the time it took to run the first query
+        await afterTests(compass);
+      }
+    });
+
+    it('provides logging information for uncaught exceptions', async function () {
       const uncaughtEntry = compass.compassLog.find(
         (entry) => entry.id === 1_001_000_002
       );
