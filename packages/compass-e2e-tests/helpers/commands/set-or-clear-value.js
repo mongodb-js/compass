@@ -1,5 +1,3 @@
-const { _ } = require("core-js");
-
 const META = process.platform === 'darwin' ? 'Meta' : 'Control';
 
 module.exports = function (app) {
