@@ -51,6 +51,14 @@ function cleanup() {
 }
 
 async function main() {
+  if (process.platform === 'win32') {
+    // These tests are not working well on windows machines and we will
+    // skip them for now.
+    // https://jira.mongodb.org/browse/COMPASS-5159
+    console.warn('Skipping e2e tests on windows machine');
+    return;
+  }
+
   await setup();
 
   const shouldTestPackagedApp = process.argv.includes('--test-packaged-app');
