@@ -37,7 +37,7 @@ function CancelLoader({
   dataTestId: string;
   progressText: string;
   cancelText: string;
-  cancelClicked: () => void;
+  onCancel: () => void;
 }): React.ReactElement {
   return (
     <div data-testid={dataTestId} css={cancelLoaderStyle}>
