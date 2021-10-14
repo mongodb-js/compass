@@ -96,7 +96,9 @@ var createWindow = (module.exports.create = function(opts) {
     webPreferences: {
       'subpixel-font-scaling': true,
       'direct-write': true,
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true
     }
   };
 
@@ -118,7 +120,9 @@ var createWindow = (module.exports.create = function(opts) {
     webPreferences: {
       'subpixel-font-scaling': true,
       'direct-write': true,
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true
     }
   };
 
@@ -322,7 +326,7 @@ function showLogFileDialog({ logFilePath }) {
         break;
       case 3: {
         extractPartialLogFile({ app, logFilePath }).then(tempFilePath => {
-          electron.shell.openItem(tempFilePath);
+          return electron.shell.openPath(tempFilePath);
         }).catch(err => {
           electron.dialog.showErrorBox('Error extracting log file', String(err));
         });

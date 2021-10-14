@@ -78,7 +78,12 @@ describe('storage backend secure', function() {
             name: 'Battlestar Galactica'
           });
           otherSpaceship.once('sync', function() {
-            assert.equal(otherSpaceship.warpSpeed, 3.14);
+            try {
+              assert.equal(otherSpaceship.warpSpeed, 3.14);
+            } catch (e) {
+              done(e);
+              return;
+            }
             done();
           });
           otherSpaceship.fetch();
@@ -117,6 +122,7 @@ describe('storage backend secure', function() {
     helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], function(err) {
       if (err) {
         done(err);
+        return;
       }
       var earth = new StorablePlanet({
         name: 'Earth',
@@ -128,14 +134,20 @@ describe('storage backend secure', function() {
           return keytar
             .findPassword('storage-mixin/Planets')
             .then(function(rawJsonString) {
-              assert.strictEqual(
-                rawJsonString,
-                '{"name":"Earth","population":7000000000}'
-              );
+              try {
+                assert.strictEqual(
+                  rawJsonString,
+                  '{"name":"Earth","population":7000000000}'
+                );
+              } catch (e) {
+                done(e);
+                return;
+              }
               done();
             })
             .catch(done);
-        }
+        },
+        error: done
       });
     });
   });

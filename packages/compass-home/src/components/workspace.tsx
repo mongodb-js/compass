@@ -25,6 +25,7 @@ const homePageStyles = css({
   flexDirection: 'row',
   alignItems: 'stretch',
   flex: 1,
+  overflow: 'auto',
   height: '100%',
   zIndex: 0,
 });

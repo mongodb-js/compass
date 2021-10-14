@@ -7,20 +7,23 @@ module.exports = function (app) {
     await client.setAceValue(Selectors.ValidationEditor, value);
 
     // it should eventually detect that the text changed
-    await client.waitForVisible(Selectors.ValidationActionMessage);
+    const validationActionMessageElement = await client.$(
+      Selectors.ValidationActionMessage
+    );
+    await validationActionMessageElement.waitForDisplayed();
 
     await client.clickVisible(Selectors.UpdateValidationButton);
 
     // both buttons should become hidden if it succeeds
-    await client.waitForVisible(
-      Selectors.ValidationActionMessage,
-      undefined,
-      true
+    await validationActionMessageElement.waitForDisplayed({
+      reverse: true,
+    });
+
+    const updateValidationButtonElement = await client.$(
+      Selectors.UpdateValidationButton
     );
-    await client.waitForVisible(
-      Selectors.UpdateValidationButton,
-      undefined,
-      true
-    );
+    await updateValidationButtonElement.waitForDisplayed({
+      reverse: true,
+    });
   };
 };

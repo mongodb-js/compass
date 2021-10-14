@@ -1,10 +1,9 @@
 module.exports = function (app) {
   return async function clickVisible(selector) {
-    // waitForVisible gives better errors than interacting with a non-existing
-    // element
     const { client } = app;
-    await client.waitForVisible(selector);
+    const element = await client.$(selector);
+    await element.waitForDisplayed();
     await client.waitForAnimations(selector);
-    await client.click(selector);
+    await element.click();
   };
 };

@@ -5,9 +5,7 @@ import {
   convertConnectionModelToInfo,
   convertConnectionInfoToModel,
 } from './legacy/legacy-connection-model';
-import {
-  ConnectionInfo
-} from './connection-info';
+import { ConnectionInfo } from './connection-info';
 
 export {
   ConnectionInfo,

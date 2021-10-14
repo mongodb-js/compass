@@ -4,16 +4,19 @@ module.exports = function (app) {
   return async function closePrivacySettingsModal() {
     const { client } = app;
 
-    if (!(await client.existsEventually(Selectors.PrivacySettingsModal))) {
+    const privateSettingsModalElement = await client.$(
+      Selectors.PrivacySettingsModal
+    );
+
+    try {
+      await privateSettingsModalElement.waitForExist();
+    } catch (err) {
       return;
     }
 
-    await client.waitForVisible(Selectors.PrivacySettingsModal);
     await client.clickVisible(Selectors.ClosePrivacySettingsButton);
-    await client.waitForVisible(
-      Selectors.PrivacySettingsModal,
-      undefined,
-      true
-    );
+    await privateSettingsModalElement.waitForDisplayed({
+      reverse: true,
+    });
   };
 };
