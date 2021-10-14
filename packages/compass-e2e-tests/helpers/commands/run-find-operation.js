@@ -48,15 +48,17 @@ async function isOptionsExpanded(client, tabName) {
   // it doesn't look like there's some attribute on the options button or
   // container that we can easily check, so just look for a field that exists
   // if it is expanded
-  return await client.isVisible(Selectors.queryBarOptionInputProject(tabName));
+  const element = await client.$(Selectors.queryBarOptionInputProject(tabName));
+  return element.isDisplayed();
 }
 
 async function waitUntilCollapsed(client, tabName) {
-  await client.waitForVisible(
-    Selectors.queryBarOptionInputProject(tabName),
-    undefined,
-    true
+ const queryBarOptionInputProjectElement = await client.$(
+    Selectors.queryBarOptionInputProject(tabName)
   );
+  await queryBarOptionInputProjectElement.waitForDisplayed({
+    reverse: true,
+  });
 }
 
 async function collapseOptions(client, tabName) {
@@ -82,7 +84,10 @@ async function collapseOptions(client, tabName) {
 }
 
 async function waitUntilExpanded(client, tabName) {
-  await client.waitForVisible(Selectors.queryBarOptionInputProject(tabName));
+  const queryBarOptionInputProjectElement = await client.$(
+    Selectors.queryBarOptionInputProject(tabName)
+  );
+  await queryBarOptionInputProjectElement.waitForDisplayed();
 }
 
 async function expandOptions(client, tabName) {
@@ -113,8 +118,8 @@ module.exports = function (app) {
     const queryBarSelector = Selectors.queryBar(tabName);
 
     // look up the current resultId
-    const initialResultId = await client.getAttribute(
-      queryBarSelector,
+    const queryBarSelectorElement = await client.$(queryBarSelector);
+    const initialResultId = await queryBarSelectorElement.getAttribute(
       'data-result-id'
     );
 
@@ -137,8 +142,7 @@ module.exports = function (app) {
     if (waitForResult) {
       // now we can easily see if we get a new resultId
       await client.waitUntil(async () => {
-        const resultId = await client.getAttribute(
-          queryBarSelector,
+        const resultId = await queryBarSelectorElement.getAttribute(
           'data-result-id'
         );
         return resultId !== initialResultId;

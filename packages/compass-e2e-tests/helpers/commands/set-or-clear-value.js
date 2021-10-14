@@ -1,16 +1,18 @@
+const { _ } = require("core-js");
+
 const META = process.platform === 'darwin' ? 'Meta' : 'Control';
 
 module.exports = function (app) {
   return async function setOrClearValue(selector, value) {
     const { client } = app;
 
-    // client.setValue() doesn't reliably work with ''.
-    await client.setValue(selector, value);
+    // element.setValue() doesn't reliably work with ''.
+    const element = await client.$(selector);
+    await element.setValue(value);
 
     if (value === '') {
-      // client.elementIdClear() doesn't work reliably either.
-      const elem = await client.$(selector);
-      await client.elementIdClear(elem.value.ELEMENT);
+      // element.clearValue() doesn't work reliably either.
+      await element.clearValue();
 
       await client.waitUntil(async () => {
         await client.clickVisible(selector);
@@ -22,7 +24,7 @@ module.exports = function (app) {
         await client.keys([META]); // meta a second time to release it
         await client.keys(['Backspace']);
 
-        const newValue = await client.getValue(selector);
+        const newValue = await element.getValue(selector);
         return newValue === value;
       });
     }

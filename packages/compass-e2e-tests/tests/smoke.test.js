@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-checkhelper
 const { promises: fs } = require('fs');
 const _ = require('lodash');
 const chai = require('chai');
@@ -21,7 +21,7 @@ const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 /**
  * This test suite is based on compass smoke test matrix
  */
-describe('Smoke tests', function () {
+describe.only('Smoke tests', function () {
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
   let client;
@@ -202,17 +202,23 @@ describe('Smoke tests', function () {
       );
 
       // stop it
-      await client.waitForVisible(Selectors.DocumentListFetching);
+      const documentListFetchingElement = await client.$(Selectors.DocumentListFetching);
+      await documentListFetchingElement.waitForDisplayed();
+
       await client.clickVisible(Selectors.DocumentListFetchingStopButton);
-      await client.waitForVisible(Selectors.DocumentListError);
-      const errorText = await client.getText(Selectors.DocumentListError);
+
+      const documentListErrorElement = await client.$(Selectors.DocumentListError);
+      await documentListErrorElement.waitForDisplayed();
+
+      const errorText = await documentListErrorElement.getText();
       expect(errorText).to.equal('The operation was cancelled.');
 
       // execute another (small, fast) query
       await client.runFindOperation('Documents', '{ i: 5 }');
-      const displayText = await client.getText(
+      const documentListActionBarMessageElement = await client.$(
         Selectors.DocumentListActionBarMessage
       );
+      const displayText = await documentListActionBarMessageElement.getText();
       expect(displayText).to.equal('Displaying documents 1 - 1 of 1');
     });
 
