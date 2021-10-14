@@ -8,7 +8,7 @@ import createLogger from '@mongodb-js/compass-logging';
 const { log, mongoLogId, debug } = createLogger('COMPASS-CRUD-UI');
 
 // TODO: remove the polyfill as soon as we're on node 15+
-import { AbortController } from "node-abort-controller";
+import { AbortController } from 'node-abort-controller';
 
 import {
   DOCUMENTS_STATUS_INITIAL,
