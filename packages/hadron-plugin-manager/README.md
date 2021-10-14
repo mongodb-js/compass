@@ -14,7 +14,7 @@ npm install --save @mongodb-js/hadron-plugin-manager
 const pluginsPath = path.join(__dirname, 'plugins');
 const intPluginsPath = path.join(__dirname, 'internal-plugins');
 const PluginManager = require('@mongodb-js/hadron-plugin-manager');
-const AppRegistry = require('hadron-app-registry');
+const { AppRegistry } = require('hadron-app-registry');
 
 const manager = new PluginManager(
   [ intPluginsPath, pluginsPath ],

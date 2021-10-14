@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import Reflux from 'reflux';
-import { Actions, AppRegistry } from '..';
+import { AppRegistry } from './';
+import { Actions } from './actions';
 
 describe('AppRegistry', function () {
   describe('getStore', function () {

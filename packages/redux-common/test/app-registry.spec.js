@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const AppRegistry = require('hadron-app-registry');
+const { AppRegistry } = require('hadron-app-registry');
 const reducer = require('../app-registry');
 const {
   LOCAL_APP_REGISTRY_ACTIVATED,
