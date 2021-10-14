@@ -130,6 +130,36 @@ describe('convertConnectionModelToInfo', function () {
     });
   });
 
+  it('converts X509', async function () {
+    const { connectionOptions } = await createAndConvertModel(
+      'mongodb://localhost:27017?&socketTimeoutMS=2000',
+      {
+        _id: '1234-1234-1234-1234',
+        sslMethod: 'ALL',
+        ssl: true,
+        sslCA: ['pathToCaFile'],
+        sslCert: 'pathToCertKey1',
+        sslKey: 'pathToCertKey2',
+        authStrategy: 'X509',
+      }
+    );
+
+    expect(connectionOptions).to.deep.equal({
+      connectionString:
+        'mongodb://localhost:27017/?authMechanism=MONGODB-X509' +
+        '&socketTimeoutMS=2000' +
+        '&readPreference=primary' +
+        '&directConnection=true' +
+        '&ssl=true' +
+        '&authSource=%24external' +
+        '&tlsAllowInvalidCertificates=true' +
+        '&tlsAllowInvalidHostnames=true' +
+        '&tlsCAFile=pathToCaFile' +
+        '&tlsCertificateKeyFile=pathToCertKey2',
+      tlsCertificateFile: 'pathToCertKey1',
+    });
+  });
+
   it('converts extra options', async function () {
     const { connectionOptions } = await createAndConvertModel(
       'mongodb://localhost:27017?&socketTimeoutMS=2000'

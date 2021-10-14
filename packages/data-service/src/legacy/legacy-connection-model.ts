@@ -212,6 +212,10 @@ function modelSslPropertiesToConnectionOptions(
     url.searchParams.set('tlsAllowInvalidCertificates', 'true');
   }
 
+  if (driverOptions.tlsAllowInvalidHostnames) {
+    url.searchParams.set('tlsAllowInvalidHostnames', 'true');
+  }
+
   const sslCA = getSslDriverOptionsFile(driverOptions.sslCA);
   const sslCert = getSslDriverOptionsFile(driverOptions.sslCert);
   const sslKey = getSslDriverOptionsFile(driverOptions.sslKey);
