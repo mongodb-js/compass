@@ -3,6 +3,7 @@ import React from 'react';
 import { ObjectID as ObjectId } from 'bson';
 import { StatusRow, ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
+import { CancelLoader } from '@mongodb-js/compass-components';
 import InsertDocumentDialog from './insert-document-dialog';
 import ZeroGraphic from './zero-graphic';
 import DocumentListView from './document-list-view';
@@ -84,6 +85,7 @@ class DocumentList extends React.Component {
       return;
     }
 
+
     return (
       <StatusRow style="warning">
         {OUTDATED_WARNING}
@@ -95,24 +97,12 @@ class DocumentList extends React.Component {
    * Render the fetching indicator with cancel button
    */
   renderFetching() {
-    return (
-      <div className="document-list-fetching">
-        <ul className="steps">
-          <li>
-            <i className="fa fa-fw fa-spin fa-circle-o-notch" />
-            Fetching Documents
-          </li>
-        </ul>
-        <div className="buttons">
-          <div>
-            <button
-              className="btn btn-sm btn-info"
-              onClick={this.onCancelClicked.bind(this)}
-            >Stop</button>
-          </div>
-        </div>
-      </div>
-    );
+    return (<CancelLoader
+      dataTestId="fetching-documents"
+      progressText="Fetching Documents"
+      cancelText="Stop"
+      cancelClicked={this.onCancelClicked.bind(this)}
+    />);
   }
 
   /**

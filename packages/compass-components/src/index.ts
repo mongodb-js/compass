@@ -1,3 +1,4 @@
+import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 export {
@@ -22,4 +23,4 @@ export { default as Toggle } from '@leafygreen-ui/toggle';
 export { default as Tooltip } from '@leafygreen-ui/tooltip';
 export { Link } from '@leafygreen-ui/typography';
 
-export { ConfirmationModal, ResizeHandle, ResizeDirection };
+export { CancelLoader, ConfirmationModal, ResizeHandle, ResizeDirection };
