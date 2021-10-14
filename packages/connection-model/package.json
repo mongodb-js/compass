@@ -36,7 +36,7 @@
     "mongodb": "^4.1.0"
   },
   "dependencies": {
-    "@mongodb-js/ssh-tunnel": "^1.2.0",
+    "@mongodb-js/ssh-tunnel": "^1.2.1",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "debug": "^4.1.1",
