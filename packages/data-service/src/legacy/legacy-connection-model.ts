@@ -208,11 +208,7 @@ function modelSslPropertiesToConnectionOptions(
 ): void {
   const url = new ConnectionString(connectionOptions.connectionString);
 
-  if ('sslValidate' in driverOptions) {
-    url.searchParams.set('tls', driverOptions.sslValidate ? 'true' : 'false');
-  }
-
-  if (driverOptions.tlsAllowInvalidCertificates) {
+  if (driverOptions.sslValidate === false) {
     url.searchParams.set('tlsAllowInvalidCertificates', 'true');
   }
 

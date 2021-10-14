@@ -100,7 +100,7 @@ describe('convertConnectionModelToInfo', function () {
       connectionString:
         'mongodb://user:password@localhost:27017/admin?' +
         'authSource=admin&readPreference=primary&directConnection=true' +
-        '&tls=true' +
+        '&ssl=true' +
         '&tlsCAFile=pathToCaFile' +
         '&tlsCertificateKeyFile=pathToCertKey',
     });
@@ -123,7 +123,7 @@ describe('convertConnectionModelToInfo', function () {
       connectionString:
         'mongodb://user:password@localhost:27017/admin?' +
         'authSource=admin&readPreference=primary&directConnection=true' +
-        '&tls=true' +
+        '&ssl=true' +
         '&tlsCAFile=pathToCaFile' +
         '&tlsCertificateKeyFile=pathToCertKey2',
       tlsCertificateFile: 'pathToCertKey1',
