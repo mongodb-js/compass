@@ -1,6 +1,6 @@
 import './style.css';
 
-const AppRegistry = require('hadron-app-registry');
+const { AppRegistry } = require('hadron-app-registry');
 const ipc = require('hadron-ipc');
 const React = require('react');
 const ReactDOM = require('react-dom');

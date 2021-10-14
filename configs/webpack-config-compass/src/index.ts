@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { WebpackPluginInstance } from 'webpack';
 import { merge } from 'webpack-merge';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
@@ -243,14 +244,31 @@ export function compassPluginConfig(
   process.env.NODE_ENV = opts.nodeEnv;
 
   if (isServe(opts)) {
+    const sandboxMain = path.join(opts.cwd, 'electron', 'index.js');
+    const sandboxRenderer = path.join(
+      opts.cwd,
+      'electron',
+      'renderer',
+      'index.js'
+    );
+
+    try {
+      fs.statSync(sandboxMain);
+      fs.statSync(sandboxRenderer);
+    } catch (e) {
+      throw new Error(
+        `Compass plugin is missing sandbox entry points. To be able to run the plugin in a sandbox outside of Compass, please add ./electron/index.ts and ./electron/renderer/index.ts entry points`
+      );
+    }
+
     return [
       createElectronMainConfig({
         ...opts,
-        entry: path.join(opts.cwd, 'electron', 'index.js'),
+        entry: sandboxMain,
       }),
       createElectronRendererConfig({
         ...opts,
-        entry: path.join(opts.cwd, 'electron', 'renderer', 'index.js'),
+        entry: sandboxRenderer,
       }),
     ];
   }

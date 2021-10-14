@@ -3,7 +3,7 @@ const electron = require('electron');
 const app = require('hadron-app');
 const pkg = require('../../package.json');
 const path = require('path');
-const AppRegistry = require('hadron-app-registry');
+const { AppRegistry } = require('hadron-app-registry');
 const PluginManager = require('@mongodb-js/hadron-plugin-manager');
 const ipc = require('hadron-ipc');
 
