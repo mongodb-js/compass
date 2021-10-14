@@ -6,9 +6,13 @@ import type {
 } from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
 import util from 'util';
-
 import { ConnectionInfo } from '../connection-info';
 import { ConnectionOptions, ConnectionSshOptions } from '../connection-options';
+import {
+  ConnectionSecrets,
+  extractSecrets,
+  mergeSecrets,
+} from '../connection-secrets';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ConnectionModel = require('mongodb-connection-model');
@@ -18,6 +22,8 @@ export interface LegacyConnectionModelProperties {
   hostname: string;
   port: number;
   ns?: string;
+  connectionInfo?: ConnectionInfo;
+  secrets?: ConnectionSecrets;
 
   authStrategy:
     | 'NONE'
@@ -147,6 +153,12 @@ export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
 export function convertConnectionModelToInfo(
   model: LegacyConnectionModel
 ): ConnectionInfo {
+  // Already migrated
+  if (model.connectionInfo) {
+    return mergeSecrets(model.connectionInfo, model.secrets ?? {});
+  }
+
+  // Not migrated yet, has to be converted
   const info: ConnectionInfo = {
     id: model._id,
     connectionOptions: {
@@ -336,6 +348,7 @@ export async function convertConnectionInfoToModel(
   return new ConnectionModel({
     ...connection.toJSON(),
     ...additionalOptions,
+    ...extractSecrets(connectionInfo),
   });
 }
 
