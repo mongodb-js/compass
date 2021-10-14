@@ -8,7 +8,7 @@ const cancelLoaderStyle = css({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '10px 0'
+  padding: '10px 0',
 });
 
 const progressTextStyle = css({
@@ -26,7 +26,7 @@ const iconStyle = css({
 
 const buttonsStyle = css({
   fontSize: '14px',
-})
+});
 
 function CancelLoader({
   dataTestId,
