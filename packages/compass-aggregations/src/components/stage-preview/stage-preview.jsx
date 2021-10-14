@@ -145,7 +145,7 @@ class StagePreview extends Component {
   }
 
   /**
-   * If the stage operator is $search and it is not supported we
+   * If the stage operator is a full-text search operator and it is not supported we
    * show a Atlas signup CTA.
    *
    * @returns {Component} The component.
@@ -157,7 +157,7 @@ class StagePreview extends Component {
         <div className={styles['stage-preview-missing-search-support-text']}>
           This stage is only available with MongoDB Atlas.
 
-          Create a free cluster or connect to an Atlas cluster to build search indexes and use the $search aggregation stage to run fast, relevant search queries.
+          Create a free cluster or connect to an Atlas cluster to build search indexes and use full-text search aggregation stages to run fast, relevant search queries.
         </div>
         <TextButton
           text="Create Free Cluster"

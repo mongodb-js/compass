@@ -116,6 +116,11 @@ export const MERGE = '$merge';
 export const SEARCH = '$search';
 
 /**
+ * The searchMeta stage operator.
+ */
+export const SEARCH_META = '$searchMeta';
+
+/**
  * Generate an empty stage for the pipeline.
  *
  * @returns {Object} An empty stage.
@@ -309,10 +314,11 @@ const updateStagePreview = (state, action) => {
   const newState = copyState(state);
   if (newState.env !== ADL &&
       newState.env !== ATLAS &&
-      newState[action.index].stageOperator === SEARCH &&
+      (newState[action.index].stageOperator === SEARCH ||
+       newState[action.index].stageOperator === SEARCH_META) &&
       action.error &&
       (action.error.code === 40324 /* Unrecognized pipeline stage name */ ||
-       action.error.code === 31082 /* $search not enabled */)) {
+       action.error.code === 31082 /* The full-text search stage is not enabled */)) {
     newState[action.index].previewDocuments = [];
     newState[action.index].error = null;
     newState[action.index].isMissingAtlasOnlyStageSupport = true;

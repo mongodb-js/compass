@@ -250,6 +250,7 @@ describe('Smoke tests', function () {
         '$replaceRoot',
         '$sample',
         '$search',
+        '$searchMeta',
         '$set',
         //'$setWindowFields', // New in version 5.0.
         '$skip',

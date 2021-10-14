@@ -10,7 +10,6 @@ ignores: [
   "karma-electron",
   "karma-sourcemap-loader",
   "karma-webpack",
-  "mongodb-language-model",
   "resolve",
   "webpack-bundle-analyzer",
   "webpack-cli",
