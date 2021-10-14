@@ -19,13 +19,40 @@ const progressTextStyle = css({
   fontWeight: 200,
 });
 
-const iconStyle = css({
-  fontSize: '20px',
+const spinnerStyle = css({
+  animation: 'fa-spin 2s infinite linear',
   width: '40px',
+  textAlign: 'center',
+  display: 'inline-block',
+  textRendering: 'auto',
+  '-webkit-font-smoothing': 'antialiased',
+  '-moz-osx-font-smoothing': 'grayscale',
+  font: 'normal normal normal 20px/1 FontAwesome',
+  '&::before': {
+    boxSizing: 'border-box',
+    content: '"\\f1ce"'
+  }
 });
 
-const buttonsStyle = css({
-  fontSize: '14px',
+const buttonStyle = css({
+  padding: '0 10px 0 10px',
+  height: '28px',
+  fontWeight: 'bold',
+  fontSize: '13px',
+  lineHeight: '26px',
+  textTransform: 'uppercase',
+  backgroundColor: 'transparent',
+  border: '1px solid #13AA52',
+  borderRadius: '3px',
+  boxShadow: 'none',
+  color: '#13AA52',
+  fontFamily: 'Akzidenz',
+  '-webkit-appearance': 'button',
+  cursor: 'pointer',
+  overflow: 'visible',
+  margin: 0,
+  boxSizing: 'border-box',
+  outline: 'none'
 });
 
 function CancelLoader({
@@ -42,11 +69,11 @@ function CancelLoader({
   return (
     <div data-testid={dataTestId} css={cancelLoaderStyle}>
       <div css={progressTextStyle}>
-        <i className="fa fa-fw fa-spin fa-circle-o-notch" css={iconStyle} />
+        <i css={spinnerStyle} />
         {progressText}
       </div>
-      <div css={buttonsStyle}>
-        <button className="btn btn-sm btn-info" onClick={onCancel}>
+      <div>
+        <button css={buttonStyle} onClick={onCancel}>
           {cancelText}
         </button>
       </div>
