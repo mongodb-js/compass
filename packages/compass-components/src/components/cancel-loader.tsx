@@ -30,8 +30,8 @@ const spinnerStyle = css({
   font: 'normal normal normal 20px/1 FontAwesome',
   '&::before': {
     boxSizing: 'border-box',
-    content: '"\\f1ce"'
-  }
+    content: '"\\f1ce"',
+  },
 });
 
 const buttonStyle = css({
@@ -52,7 +52,7 @@ const buttonStyle = css({
   overflow: 'visible',
   margin: 0,
   boxSizing: 'border-box',
-  outline: 'none'
+  outline: 'none',
 });
 
 function CancelLoader({
