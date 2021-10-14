@@ -234,6 +234,7 @@ describe('Smoke tests', function () {
         '$bucketAuto',
         '$collStats',
         '$count',
+        '$documents',
         '$facet',
         '$geoNear',
         '$graphLookup',

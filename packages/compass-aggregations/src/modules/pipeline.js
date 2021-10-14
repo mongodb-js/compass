@@ -121,6 +121,11 @@ export const SEARCH = '$search';
 export const SEARCH_META = '$searchMeta';
 
 /**
+* The documents stage operator.
+*/
+export const DOCUMENTS = '$documents';
+
+/**
  * Generate an empty stage for the pipeline.
  *
  * @returns {Object} An empty stage.
@@ -314,8 +319,7 @@ const updateStagePreview = (state, action) => {
   const newState = copyState(state);
   if (newState.env !== ADL &&
       newState.env !== ATLAS &&
-      (newState[action.index].stageOperator === SEARCH ||
-       newState[action.index].stageOperator === SEARCH_META) &&
+      ([SEARCH, SEARCH_META, DOCUMENTS].includes(newState[action.index].stageOperator)) &&
       action.error &&
       (action.error.code === 40324 /* Unrecognized pipeline stage name */ ||
        action.error.code === 31082 /* The full-text search stage is not enabled */)) {
