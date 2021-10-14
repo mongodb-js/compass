@@ -32,7 +32,7 @@ function CancelLoader({
   dataTestId,
   progressText,
   cancelText,
-  cancelClicked,
+  onCancel,
 }: {
   dataTestId: string;
   progressText: string;
@@ -46,7 +46,7 @@ function CancelLoader({
         {progressText}
       </div>
       <div css={buttonsStyle}>
-        <button className="btn btn-sm btn-info" onClick={cancelClicked}>
+        <button className="btn btn-sm btn-info" onClick={onCancel}>
           {cancelText}
         </button>
       </div>

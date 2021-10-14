@@ -11,7 +11,7 @@ function renderLoader(spy) {
       dataTestId="my-test-id"
       progressText="Doing something"
       cancelText="Stop doing it"
-      cancelClicked={spy}
+      onCancel={spy}
     />
   );
 }

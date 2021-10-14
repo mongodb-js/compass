@@ -172,7 +172,7 @@ class Schema extends Component {
       dataTestId="analyzing-documents"
       progressText="Analyzing Documents"
       cancelText="Stop"
-      cancelClicked={this.onCancelClicked.bind(this)}
+      onCancel={this.onCancelClicked.bind(this)}
     />);
   }
 

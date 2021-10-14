@@ -101,7 +101,7 @@ class DocumentList extends React.Component {
       dataTestId="fetching-documents"
       progressText="Fetching Documents"
       cancelText="Stop"
-      cancelClicked={this.onCancelClicked.bind(this)}
+      onCancel={this.onCancelClicked.bind(this)}
     />);
   }
 
