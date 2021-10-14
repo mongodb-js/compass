@@ -21,7 +21,7 @@ const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 /**
  * This test suite is based on compass smoke test matrix
  */
-describe.only('Smoke tests', function () {
+describe('Smoke tests', function () {
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
   let client;
