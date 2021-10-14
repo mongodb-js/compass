@@ -207,20 +207,24 @@ async function main(argv) {
     main: 'dist/index.js',
     exports: {
       webpack: './src/index.ts',
-      require: './dist/index.js'
-      // ???: Did we decided to remove it from template?
-      // import: './dist/.esm-wrapper.mjs'
+      require: './dist/index.js',
+      ...(!isPlugin && {
+        import: './dist/.esm-wrapper.mjs'
+      })
     },
     types: './dist/index.d.ts',
     scripts: {
-      // Plugins are bundled by webpack from source and tested with ts-node runtime processor, no need
-      // to bootstrap them
+      // Plugins are bundled by webpack from source and tested with ts-node
+      // runtime processor, no need to bootstrap them
       ...(!isPlugin && {
         bootstrap: 'npm run compile'
       }),
       prepublishOnly: 'npm run compile',
-      // For normal packages we are just compiling code with typescript, for plugins (but only for them) we are using webpack to create independent plugin packages
-      compile: 'tsc -p tsconfig.json',
+      // For normal packages we are just compiling code with typescript, for
+      // plugins (but only for them) we are using webpack to create independent
+      // plugin packages
+      compile:
+        'tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs',
       ...(isPlugin && {
         compile: 'npm run webpack -- --mode production',
         prewebpack: 'rm -rf ./lib',
@@ -267,7 +271,8 @@ async function main(argv) {
         '@types/react-dom': '*'
       }),
       ...(!isPlugin && {
-        typescript: '*'
+        typescript: '*',
+        'gen-esm-wrapper': '*'
       }),
       ...(isPlugin && {
         '@mongodb-js/webpack-config-compass': '*',
