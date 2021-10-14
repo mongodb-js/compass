@@ -1,6 +1,6 @@
 const Enzyme = require('enzyme');
 const Adapter = require('enzyme-adapter-react-16');
-const AppRegistry = require('hadron-app-registry');
+const { AppRegistry } = require('hadron-app-registry');
 const app = require('hadron-app');
 Enzyme.configure({ adapter: new Adapter() });
 

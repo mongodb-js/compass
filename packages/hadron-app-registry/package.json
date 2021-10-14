@@ -18,6 +18,7 @@
   ],
   "main": "dist/index.js",
   "exports": {
+    "webpack": "./src/index.ts",
     "require": "./dist/index.js",
     "import": "./dist/.esm-wrapper.mjs"
   },

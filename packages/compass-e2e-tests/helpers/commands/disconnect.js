@@ -4,19 +4,23 @@ const Selectors = require('../selectors');
 async function closeConnectionModal(app) {
   const { client } = app;
   await client.clickVisible(Selectors.CancelConnectionButton);
-  await client.waitForExist(
-    Selectors.ConnectionStatusModalContent,
-    undefined,
-    false
+  const connectionModalContentElement = await client.$(
+    Selectors.ConnectionStatusModalContent
   );
+  await connectionModalContentElement.waitForExist({
+    reverse: true,
+  });
 }
 
 module.exports = function (app) {
   return async function () {
     const { client } = app;
 
+    const cancelConnectionButtonElement = await client.$(
+      Selectors.CancelConnectionButton
+    );
     // If we are still connecting, let's try cancelling the connection first
-    if (await client.isVisible(Selectors.CancelConnectionButton)) {
+    if (await cancelConnectionButtonElement.isDisplayed()) {
       try {
         await closeConnectionModal(app);
       } catch (e) {
@@ -25,9 +29,13 @@ module.exports = function (app) {
       }
     }
 
+    await delay(100);
+
     app.webContents.send('app:disconnect');
-    await client.waitForVisible(Selectors.ConnectSection);
-    // Show "new connection" section as if we just opened this screen
+
+    const element = await client.$(Selectors.ConnectSection);
+    await element.waitForDisplayed();
+
     await client.clickVisible(Selectors.SidebarNewConnectionButton);
     await delay(100);
   };
