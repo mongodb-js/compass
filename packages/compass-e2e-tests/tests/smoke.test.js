@@ -202,12 +202,16 @@ describe('Smoke tests', function () {
       );
 
       // stop it
-      const documentListFetchingElement = await client.$(Selectors.DocumentListFetching);
+      const documentListFetchingElement = await client.$(
+        Selectors.DocumentListFetching
+      );
       await documentListFetchingElement.waitForDisplayed();
 
       await client.clickVisible(Selectors.DocumentListFetchingStopButton);
 
-      const documentListErrorElement = await client.$(Selectors.DocumentListError);
+      const documentListErrorElement = await client.$(
+        Selectors.DocumentListError
+      );
       await documentListErrorElement.waitForDisplayed();
 
       const errorText = await documentListErrorElement.getText();

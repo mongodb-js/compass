@@ -53,7 +53,7 @@ async function isOptionsExpanded(client, tabName) {
 }
 
 async function waitUntilCollapsed(client, tabName) {
- const queryBarOptionInputProjectElement = await client.$(
+  const queryBarOptionInputProjectElement = await client.$(
     Selectors.queryBarOptionInputProject(tabName)
   );
   await queryBarOptionInputProjectElement.waitForDisplayed({
