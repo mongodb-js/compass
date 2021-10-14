@@ -111,7 +111,7 @@ class ExportModal extends PureComponent {
   };
 
   /**
-   * 
+   *
    * Handle custom event made by e2e tests and map it to props.
    */
   handleSelectExportFilename = ({ detail }) => {
@@ -201,7 +201,7 @@ class ExportModal extends PureComponent {
 
     // count will be null or undefined if the count query timed out
     const count = this.props.count;
-    const hasCount = !!count || count === 0;
+    const hasCount = typeof count === 'number';
     const resultsSummary = hasCount ? `&mdash; ${formatNumber(count)}` : '';
 
     return (
@@ -374,7 +374,7 @@ const mapStateToProps = (state) => {
   const rawCount = state.stats.rawDocumentCount;
 
   // 0 is a valid number of documents
-  const count = exportCount || exportCount === 0 ? exportCount : rawCount;
+  const count = typeof exportCount === 'number' ? exportCount : rawCount;
 
   return {
     ns: state.ns,

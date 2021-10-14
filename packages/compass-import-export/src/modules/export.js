@@ -375,7 +375,7 @@ export const openExport = (count) => {
 
     const spec = exportData.query;
 
-    if (count || count === 0) {
+    if (typeof count === 'number') {
       return dispatch(onModalOpen(count, spec));
     }
 
