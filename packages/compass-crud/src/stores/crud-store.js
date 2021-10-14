@@ -1178,6 +1178,25 @@ function abortablePromise(abortSignal, successSignal) {
 }
 
 /*
+ * We need a promise that will reject as soon as the operation is aborted since
+ * closing the cursor isn't enough to immediately make the cursor method's
+ * promise reject.
+*/
+async function raceWithAbort(promise, signal) {
+  const successController = new AbortController();
+  const abortPromise = abortablePromise(signal, successController.signal);
+  try {
+    return await Promise.race([abortPromise, promise]);
+  } finally {
+    if (!signal.aborted) {
+      // either the operation succeeded or it failed because of some error
+      // that's not an abort
+      successController.abort();
+    }
+  }
+}
+
+/*
  * Return a cancel() function and the promise that resolves to the shard keys if
  * any.
 */
@@ -1199,16 +1218,11 @@ export async function fetchShardingKeys(dataService, ns, { signal, session, maxT
   };
   signal.addEventListener('abort', abort, { once: true });
 
-  // we need a promise that will reject as soon as the operation is aborted
-  // since closing the cursor isn't enough to immediately make the cursor
-  // method's promise reject
-  const successController = new AbortController();
-  const abortPromise = abortablePromise(signal, successController.signal);
 
   let configDocs;
 
   try {
-    configDocs = await Promise.race([abortPromise, cursor.toArray()]);
+    configDocs = await raceWithAbort(cursor.toArray(), signal);
   } catch (err) {
     // rethrow if we aborted along the way
     if (err.message === OPERATION_CANCELLED_MESSAGE) {
@@ -1222,7 +1236,6 @@ export async function fetchShardingKeys(dataService, ns, { signal, session, maxT
 
   // clean up event handlers because we succeeded
   signal.removeEventListener('abort', abort);
-  successController.abort();
 
   if (configDocs && configDocs.length) {
     return configDocs[0].key;
@@ -1263,12 +1276,9 @@ export async function countDocuments(dataService, ns, filter, { signal, session,
   };
   signal.addEventListener('abort', abort, { once: true });
 
-  const successController = new AbortController();
-  const abortPromise = abortablePromise(signal, successController.signal);
-
   let result;
   try {
-    const array = await Promise.race([abortPromise, cursor.toArray()]);
+    const array = await raceWithAbort(cursor.toArray(), signal);
     // the collection could be empty
     result = array.length ? array[0].count : 0;
   } catch (err) {
@@ -1285,7 +1295,6 @@ export async function countDocuments(dataService, ns, filter, { signal, session,
   }
 
   signal.removeEventListener('abort', abort);
-  successController.abort();
 
   return result;
 }
@@ -1308,20 +1317,11 @@ export async function findDocuments(dataService, ns, filter, options) {
   };
   signal.addEventListener('abort', abort, { once: true });
 
-  const successController = new AbortController();
-  const abortPromise = abortablePromise(signal, successController.signal);
-
   let result;
   try {
-    result = await Promise.race([abortPromise, cursor.toArray()]);
+    result = await raceWithAbort(cursor.toArray(), signal);
   } finally {
     signal.removeEventListener('abort', abort);
-
-    if (!signal.aborted) {
-      // either the operation succeeded or it failed because of some error
-      // that's not an abort
-      successController.abort();
-    }
   }
 
   return result;
