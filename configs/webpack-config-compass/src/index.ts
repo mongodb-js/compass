@@ -287,6 +287,6 @@ export function compassPluginConfig(
   ];
 }
 
-export { webpackArgsWithDefaults } from './args';
+export { webpackArgsWithDefaults, isServe } from './args';
 export { default as webpack } from 'webpack';
 export { merge } from 'webpack-merge';
