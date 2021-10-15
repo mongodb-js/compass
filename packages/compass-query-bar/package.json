@@ -93,7 +93,7 @@
     "ignore-loader": "^0.1.2",
     "inject-loader": "^4.0.1",
     "istanbul-instrumenter-loader": "^3.0.1",
-    "jsdom": "^16.6.0",
+    "jsdom": "^16.7.0",
     "jsdom-global": "^3.0.2",
     "karma": "^6.3.4",
     "karma-chai": "^0.1.0",
