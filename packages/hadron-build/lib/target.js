@@ -96,7 +96,12 @@ function getPkg(directory) {
 }
 
 class Target {
-  constructor(dir, opts = {}) {
+  constructor(
+    dir,
+    opts = {
+      version: process.env.HADRON_APP_VERSION
+    }
+  ) {
     this.dir = dir || process.cwd();
     this.out = path.join(this.dir, 'dist');
 
@@ -112,7 +117,15 @@ class Target {
     const distributions = pkg.config.hadron.distributions;
     this.distribution =
       process.env.HADRON_DISTRIBUTION || distributions.default;
-    const distOpts = distributions[this.distribution];
+    const distOpts = _.defaults(
+      {
+        name: process.env.HADRON_PRODUCT,
+        productName: process.env.HADRON_PRODUCT_NAME,
+        readonly: ['1', 'true'].includes(process.env.HADRON_READONLY),
+        isolated: ['1', 'true'].includes(process.env.HADRON_ISOLATED)
+      },
+      distributions[this.distribution]
+    );
 
     this.id = distOpts.name;
     this.name = distOpts.name;
