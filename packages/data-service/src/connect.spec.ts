@@ -42,7 +42,7 @@ const buildConnectionString = (
   url.username = username;
   url.password = password;
 
-  if (!url.isSRV) {
+  if (params) {
     url.search = new URLSearchParams(params).toString();
   }
 
@@ -72,6 +72,16 @@ const COMPASS_TEST_ANALYTICS_NODE_URL = buildConnectionString(
     readConcernLevel: 'local',
     readPreference: 'secondary',
     readPreferenceTags: 'nodeType:ANALYTICS',
+  }
+);
+
+const COMPASS_TEST_SECONDARY_NODE_URL = buildConnectionString(
+  'mongodb+srv',
+  E2E_TESTS_ATLAS_USERNAME,
+  E2E_TESTS_ATLAS_PASSWORD,
+  E2E_TESTS_ANALYTICS_NODE_HOST,
+  {
+    readPreference: 'secondary',
   }
 );
 
@@ -122,7 +132,38 @@ describe('connect', function () {
       });
     });
 
-    it.skip('connects to atlas analytics node', async function () {
+    it('connects to atlas and routes query correctly with readPreferences=secondary', async function () {
+      if (!IS_CI && !COMPASS_TEST_SECONDARY_NODE_URL) {
+        return this.skip();
+      }
+
+      let dataService: DataService;
+
+      try {
+        dataService = await connect({
+          connectionString: COMPASS_TEST_SECONDARY_NODE_URL,
+        });
+
+        const [command, explain] = [
+          dataService.command.bind(dataService),
+          dataService.explain.bind(dataService),
+        ].map(util.promisify);
+
+        const explainPlan = await explain('test.test', {}, {});
+
+        const targetHost = explainPlan?.serverInfo?.host;
+        const replSetStatus = await command('admin', { replSetGetStatus: 1 });
+        const targetHostStatus = replSetStatus?.members.find((member) =>
+          member.name.startsWith(targetHost)
+        );
+
+        expect(targetHostStatus.stateStr).to.equal('SECONDARY');
+      } finally {
+        await dataService?.disconnect();
+      }
+    });
+
+    it('connects to an analytics node and routes queries correctly', async function () {
       if (!IS_CI && !COMPASS_TEST_ANALYTICS_NODE_URL) {
         return this.skip();
       }
@@ -158,7 +199,7 @@ describe('connect', function () {
       }
     });
 
-    it('connects to atlas with X09', async function () {
+    it('connects to atlas with X509', async function () {
       if (!IS_CI && !(E2E_TESTS_ATLAS_HOST || E2E_TESTS_ATLAS_X509_PEM)) {
         return this.skip();
       }
