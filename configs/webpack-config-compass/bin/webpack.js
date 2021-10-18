@@ -19,4 +19,13 @@ process.env.WEBPACK_CLI_SKIP_IMPORT_LOCAL = true;
 // );
 const pkgPath = require.resolve(`webpack-cli/package.json`);
 const pkg = require(pkgPath);
+// We handle analyze through env vars instead of just allowing webpack to handle
+// it because webpack default behaviour here is not that great: it will try to
+// start multiple bundle analyzers on the same port and fail. You also can't
+// pass custom args to webpack bin, it will fail with unknown argument error
+const analyze = process.argv.includes('--analyze');
+if (analyze) {
+  process.env.ANALYZE = 'true';
+  process.argv = process.argv.filter((key) => key !== '--analyze');
+}
 require(path.resolve(path.dirname(pkgPath), pkg.bin['webpack-cli']));

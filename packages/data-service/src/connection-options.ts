@@ -1,15 +1,5 @@
 export interface ConnectionOptions {
   /**
-   * Unique ID of the connection.
-   */
-  readonly id?: string;
-
-  /**
-   * Date and time when the connection was last used, i.e. connected with.
-   */
-  lastUsed?: Date;
-
-  /**
    * The connection string to connect to the MongoDB instance including all options set by the user.
    */
   connectionString: string;
@@ -20,7 +10,7 @@ export interface ConnectionOptions {
    * which are then mapped to explicit `tlsCertificateFile` and `tlsCertificateKeyFile` driver options.
    * The connection string spec only supports a single `tlsCertificateKeyFile` parameter, however.
    *
-   * See https://jira.mongodb.org/browse/COMPASS-5058
+   * See https://jira.mongodb.org/browse/COMPASS-5058 and https://jira.mongodb.org/browse/NODE-3591
    */
   tlsCertificateFile?: string;
 
@@ -28,11 +18,6 @@ export interface ConnectionOptions {
    * If present the connection should be established via an SSH tunnel according to the provided SSH options.
    */
   sshTunnel?: ConnectionSshOptions;
-
-  /**
-   * If present the connection is marked as a favorite by the user.
-   */
-  favorite?: ConnectionFavoriteOptions;
 }
 
 export interface ConnectionSshOptions {
@@ -59,22 +44,10 @@ export interface ConnectionSshOptions {
   /**
    * Private key file to use as SSH identity.
    */
-  privateKeyFile?: string;
+  identityKeyFile?: string;
 
   /**
    * Password for protected `identitiyFile`.
    */
-  privateKeyPassphrase?: string;
-}
-
-interface ConnectionFavoriteOptions {
-  /**
-   * User-defined name of the connection.
-   */
-  name: string;
-
-  /**
-   * Hex-code of the user-defined color.
-   */
-  color?: string;
+  identityKeyPassphrase?: string;
 }

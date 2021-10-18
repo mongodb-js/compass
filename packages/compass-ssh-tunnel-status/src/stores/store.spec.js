@@ -24,11 +24,12 @@ describe('SshTunnelStatusStore [Store]', () => {
   describe('#onConnected', () => {
     context('when the host is less that 25 chars', () => {
       const dataService = {
-        model: {
-          sshTunnel: 'USER_PASSWORD',
-          sshTunnelHostname: '123.45.67.8',
-          sshTunnelOptions: { dstPort: '27019' }
-        }
+        getConnectionOptions: () => ({
+          sshTunnel: {
+            host: '123.45.67.8',
+            port: 27019
+          }
+        })
       };
 
       it('triggers with the full host and port', (done) => {
@@ -44,11 +45,12 @@ describe('SshTunnelStatusStore [Store]', () => {
 
     context('when teh host is greater than 25 characters', () => {
       const dataService = {
-        model: {
-          sshTunnel: 'USER_PASSWORD',
-          sshTunnelHostname: 'areallylong.amazonlikeaws.com',
-          sshTunnelOptions: { dstPort: '27019' }
-        }
+        getConnectionOptions: () => ({
+          sshTunnel: {
+            host: 'areallylong.amazonlikeaws.com',
+            port: 27019
+          }
+        })
       };
 
       it('triggers with the full host and port', (done) => {

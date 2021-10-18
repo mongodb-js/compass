@@ -9,7 +9,8 @@ module.exports = function (app) {
 
     // it should become focused straight after focusStageSelector()
     await client.waitUntil(async () => {
-      const isFocused = await client.hasFocus(inputSelector);
+      const inputElement = await client.$(inputSelector);
+      const isFocused = await inputElement.isFocused();
       return isFocused === true;
     });
 
@@ -18,7 +19,8 @@ module.exports = function (app) {
 
     // the "select" should now blur and the ace textarea become focused
     await client.waitUntil(async () => {
-      const isFocused = await client.hasFocus(textareaSelector);
+      const textareaElement = await client.$(textareaSelector);
+      const isFocused = await textareaElement.isFocused();
       return isFocused === true;
     });
   };

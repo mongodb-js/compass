@@ -187,7 +187,7 @@ async function showLogFileDialog(logFilePath: string) {
     case 3: {
       try {
         const tempFilePath = await extractPartialLogFile(logFilePath);
-        shell.openItem(tempFilePath);
+        shell.openPath(tempFilePath);
       } catch (err) {
         dialog.showErrorBox('Error extracting log file', String(err));
       }

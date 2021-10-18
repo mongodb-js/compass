@@ -6,6 +6,9 @@ module.exports = function (app) {
     await client.clickVisible(Selectors.ConnectButton);
     // First meaningful thing on the screen after being connected, good enough
     // indicator that we are connected to the server
-    await client.waitForVisible(Selectors.DatabasesTable, timeout);
+    const element = await client.$(Selectors.DatabasesTable);
+    await element.waitForDisplayed({
+      timeout,
+    });
   };
 };

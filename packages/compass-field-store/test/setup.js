@@ -6,7 +6,7 @@ const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const sinonChai = require('sinon-chai');
 const hadronApp = require('hadron-app');
-const AppRegistry = require('hadron-app-registry');
+const { AppRegistry } = require('hadron-app-registry');
 
 require('jsdom-global')('', {
   beforeParse(win) {

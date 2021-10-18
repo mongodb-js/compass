@@ -2,11 +2,11 @@ const React = require('react');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
 const { Timestamp } = require('bson');
-const { Value } = require('../');
+const { TimestampValue } = require('../');
 
 describe('<Value /> (rendering timestamp)', () => {
-  const value = Timestamp.ZERO;
-  const component = shallow(<Value type="Timestamp" value={value} />);
+  const value = new Timestamp({ t: 12345, i: 10 });
+  const component = shallow(<TimestampValue type="Timestamp" value={value} />);
 
   it('sets the base class', () => {
     expect(component.hasClass('element-value')).to.equal(true);
@@ -17,10 +17,10 @@ describe('<Value /> (rendering timestamp)', () => {
   });
 
   it('sets the title', () => {
-    expect(component.props().title).to.equal('0');
+    expect(component.props().title).to.equal('Timestamp({ t: 12345, i: 10 })');
   });
 
   it('sets the value', () => {
-    expect(component.text()).to.equal('0');
+    expect(component.text()).to.equal('Timestamp({ t: 12345, i: 10 })');
   });
 });

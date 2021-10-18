@@ -31,7 +31,7 @@ export const setCopyToClipboardFn = (store, fn) => {
  * @param {Object} dataService - The data provider.
  */
 export const setDataProvider = (store, error, dataService) => {
-  store.dispatch(uriChanged(dataService.model.driverUrl));
+  store.dispatch(uriChanged(dataService.getConnectionOptions().connectionString));
 };
 
 /**

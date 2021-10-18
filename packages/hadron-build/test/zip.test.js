@@ -25,7 +25,7 @@ function getTargetZipPath(target) {
 function setupAndZipFakeTarget(target) {
   beforeEach((done) => {
     fsExtra.mkdirpSync(target.appPath);
-    fsExtra.writeFileSync(path.join(target.appPath, 'file'));
+    fsExtra.writeFileSync(path.join(target.appPath, 'file'), '');
     zip(target, done);
   });
 

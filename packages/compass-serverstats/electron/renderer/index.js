@@ -8,7 +8,7 @@ const ReactDOM = require('react-dom');
 const { DataService } = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
 const app = require('hadron-app');
-const AppRegistry = require('hadron-app-registry');
+const { AppRegistry } = require('hadron-app-registry');
 
 const ServerStatsStore = require('../../src/stores/server-stats-graphs-store');
 const CurrentOpStore = require('../../src/stores/current-op-store');

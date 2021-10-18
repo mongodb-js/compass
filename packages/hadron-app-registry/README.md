@@ -11,7 +11,7 @@ npm install --save hadron-app-registry
 ### Usage
 
 ```javascript
-const AppRegistry = require('hadron-app-registry');
+const { AppRegistry } = require('hadron-app-registry');
 
 var registry = new AppRegistry();
 

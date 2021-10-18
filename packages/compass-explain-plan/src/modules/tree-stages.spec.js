@@ -22,7 +22,7 @@ const explainExample = {
   rawExplainObject: {},
   totalDocsExamined: 18801,
   totalKeysExamined: 0,
-  usedIndex: null,
+  usedIndexes: [],
   viewType: 'tree'
 };
 

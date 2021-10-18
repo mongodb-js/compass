@@ -52,7 +52,7 @@ functions:
           # XXX: This is a workaround for the issues we are getting in Evergreen
           # ci with the way cygwin drives are set up and linked and the Node.js
           # bug that we can't really do anything about.
-          # 
+          #
           # For more context, see:
           # - https://github.com/nodejs/node/issues/34866
           # - https://github.com/mongodb-js/compass/pull/2403
@@ -91,7 +91,7 @@ functions:
           export NPM_CACHE_DIR="$(pwd)/.deps/.npm"
           export NPM_TMP_DIR="$(pwd)/.deps/tmp"
 
-          export NODE_JS_VERSION="12.13.0"
+          export NODE_JS_VERSION="14.17.5"
           export NPM_VERSION="7"
 
           # npm configuration
@@ -180,8 +180,13 @@ functions:
           bash .evergreen/pretest.sh
 
           export E2E_TESTS_ATLAS_HOST="${e2e_tests_atlas_host}"
+          export E2E_TESTS_DATA_LAKE_HOST="${e2e_tests_data_lake_host}"
+          export E2E_TESTS_SERVERLESS_HOST="${e2e_tests_serverless_host}"
+          export E2E_TESTS_ANALYTICS_NODE_HOST="${e2e_tests_analytics_node_host}"
+          export E2E_TESTS_FREE_TIER_HOST="${e2e_tests_free_tier_host}"
           export E2E_TESTS_ATLAS_USERNAME="${e2e_tests_atlas_username}"
           export E2E_TESTS_ATLAS_PASSWORD="${e2e_tests_atlas_password}"
+          export E2E_TESTS_ATLAS_X509_PEM="${e2e_tests_atlas_x509_pem}"
 
           # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
           # have dropped support for macOS 10.10 because it is now outside

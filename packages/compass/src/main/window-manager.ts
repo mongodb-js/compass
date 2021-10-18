@@ -16,7 +16,6 @@ import {
   FindInPageOptions,
 } from 'electron';
 import COMPASS_ICON from './icon';
-import { CompassMenu } from './menu';
 import type { CompassApplication } from './application';
 
 const debug = createDebug('mongodb-compass:electron:window-manager');
@@ -99,6 +98,8 @@ function showConnectWindow(
       'subpixel-font-scaling': true,
       'direct-write': true,
       nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
       ...(opts && opts.webPreferences),
     },
   };

@@ -1,0 +1,317 @@
+{
+  "queryPlanner": {
+    "mongosPlannerVersion": 1,
+    "winningPlan": {
+      "stage": "SHARD_MERGE",
+      "shards": [
+        {
+          "shardName": "shard01",
+          "connectionString": "Groot.local:27051",
+          "serverInfo": {
+            "host": "Groot.local",
+            "port": 27051,
+            "version": "3.2.6",
+            "gitVersion": "05552b562c7a0b3143a729aaa0838e558dc49b25"
+          },
+          "plannerVersion": 1,
+          "namespace": "mongodb.fanclub",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "age": {
+              "$eq": 40
+            }
+          },
+          "winningPlan": {
+            "stage": "SHARDING_FILTER",
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "age": {
+                  "$eq": 40
+                }
+              },
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        {
+          "shardName": "shard02",
+          "connectionString": "Groot.local:27052",
+          "serverInfo": {
+            "host": "Groot.local",
+            "port": 27052,
+            "version": "3.2.6",
+            "gitVersion": "05552b562c7a0b3143a729aaa0838e558dc49b25"
+          },
+          "plannerVersion": 1,
+          "namespace": "mongodb.fanclub",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "age": {
+              "$eq": 40
+            }
+          },
+          "winningPlan": {
+            "stage": "SHARDING_FILTER",
+            "inputStage": {
+              "stage": "FETCH",
+              "inputStage": {
+                "stage": "IXSCAN",
+                "keyPattern": {
+                  "age": 1
+                },
+                "indexName": "age_1",
+                "isMultiKey": false,
+                "isUnique": false,
+                "isSparse": false,
+                "isPartial": false,
+                "indexVersion": 1,
+                "direction": "forward",
+                "indexBounds": {
+                  "age": ["[40.0, 40.0]"]
+                }
+              }
+            }
+          },
+          "rejectedPlans": []
+        },
+        {
+          "shardName": "shard03",
+          "connectionString": "Groot.local:27053",
+          "serverInfo": {
+            "host": "Groot.local",
+            "port": 27053,
+            "version": "3.2.6",
+            "gitVersion": "05552b562c7a0b3143a729aaa0838e558dc49b25"
+          },
+          "plannerVersion": 1,
+          "namespace": "mongodb.fanclub",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "age": {
+              "$eq": 40
+            }
+          },
+          "winningPlan": {
+            "stage": "SHARDING_FILTER",
+            "inputStage": {
+              "stage": "FETCH",
+              "inputStage": {
+                "stage": "IXSCAN",
+                "keyPattern": {
+                  "age": 1
+                },
+                "indexName": "age_1",
+                "isMultiKey": false,
+                "isUnique": false,
+                "isSparse": false,
+                "isPartial": false,
+                "indexVersion": 1,
+                "direction": "forward",
+                "indexBounds": {
+                  "age": ["[40.0, 40.0]"]
+                }
+              }
+            }
+          },
+          "rejectedPlans": []
+        }
+      ]
+    }
+  },
+  "executionStats": {
+    "nReturned": 22528,
+    "executionTimeMillis": 260,
+    "totalKeysExamined": 15485,
+    "totalDocsExamined": 330552,
+    "executionStages": {
+      "stage": "SHARD_MERGE",
+      "nReturned": 22528,
+      "executionTimeMillis": 260,
+      "totalKeysExamined": 15485,
+      "totalDocsExamined": 330552,
+      "totalChildMillis": 370,
+      "shards": [
+        {
+          "shardName": "shard01",
+          "executionSuccess": true,
+          "executionStages": {
+            "stage": "SHARDING_FILTER",
+            "nReturned": 7043,
+            "executionTimeMillisEstimate": 190,
+            "works": 315069,
+            "advanced": 7043,
+            "needTime": 308025,
+            "needYield": 0,
+            "saveState": 2461,
+            "restoreState": 2461,
+            "isEOF": 1,
+            "invalidates": 0,
+            "chunkSkips": 0,
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "age": {
+                  "$eq": 40
+                }
+              },
+              "nReturned": 7043,
+              "executionTimeMillisEstimate": 160,
+              "works": 315069,
+              "advanced": 7043,
+              "needTime": 308025,
+              "needYield": 0,
+              "saveState": 2461,
+              "restoreState": 2461,
+              "isEOF": 1,
+              "invalidates": 0,
+              "direction": "forward",
+              "docsExamined": 315067
+            }
+          }
+        },
+        {
+          "shardName": "shard02",
+          "executionSuccess": true,
+          "executionStages": {
+            "stage": "SHARDING_FILTER",
+            "nReturned": 8254,
+            "executionTimeMillisEstimate": 30,
+            "works": 8255,
+            "advanced": 8254,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 64,
+            "restoreState": 64,
+            "isEOF": 1,
+            "invalidates": 0,
+            "chunkSkips": 0,
+            "inputStage": {
+              "stage": "FETCH",
+              "nReturned": 8254,
+              "executionTimeMillisEstimate": 30,
+              "works": 8255,
+              "advanced": 8254,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 64,
+              "restoreState": 64,
+              "isEOF": 1,
+              "invalidates": 0,
+              "docsExamined": 8254,
+              "alreadyHasObj": 0,
+              "inputStage": {
+                "stage": "IXSCAN",
+                "nReturned": 8254,
+                "executionTimeMillisEstimate": 10,
+                "works": 8255,
+                "advanced": 8254,
+                "needTime": 0,
+                "needYield": 0,
+                "saveState": 64,
+                "restoreState": 64,
+                "isEOF": 1,
+                "invalidates": 0,
+                "keyPattern": {
+                  "age": 1
+                },
+                "indexName": "age_1",
+                "isMultiKey": false,
+                "isUnique": false,
+                "isSparse": false,
+                "isPartial": false,
+                "indexVersion": 1,
+                "direction": "forward",
+                "indexBounds": {
+                  "age": ["[40.0, 40.0]"]
+                },
+                "keysExamined": 8254,
+                "dupsTested": 0,
+                "dupsDropped": 0,
+                "seenInvalidated": 0
+              }
+            }
+          }
+        },
+        {
+          "shardName": "shard03",
+          "executionSuccess": true,
+          "executionStages": {
+            "stage": "SHARDING_FILTER",
+            "nReturned": 7231,
+            "executionTimeMillisEstimate": 40,
+            "works": 7232,
+            "advanced": 7231,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 56,
+            "restoreState": 56,
+            "isEOF": 1,
+            "invalidates": 0,
+            "chunkSkips": 0,
+            "inputStage": {
+              "stage": "FETCH",
+              "nReturned": 7231,
+              "executionTimeMillisEstimate": 20,
+              "works": 7232,
+              "advanced": 7231,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 56,
+              "restoreState": 56,
+              "isEOF": 1,
+              "invalidates": 0,
+              "docsExamined": 7231,
+              "alreadyHasObj": 0,
+              "inputStage": {
+                "stage": "IXSCAN",
+                "nReturned": 7231,
+                "executionTimeMillisEstimate": 20,
+                "works": 7232,
+                "advanced": 7231,
+                "needTime": 0,
+                "needYield": 0,
+                "saveState": 56,
+                "restoreState": 56,
+                "isEOF": 1,
+                "invalidates": 0,
+                "keyPattern": {
+                  "age": 1
+                },
+                "indexName": "age_1",
+                "isMultiKey": false,
+                "isUnique": false,
+                "isSparse": false,
+                "isPartial": false,
+                "indexVersion": 1,
+                "direction": "forward",
+                "indexBounds": {
+                  "age": ["[40.0, 40.0]"]
+                },
+                "keysExamined": 7231,
+                "dupsTested": 0,
+                "dupsDropped": 0,
+                "seenInvalidated": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "allPlansExecution": [
+      {
+        "shardName": "shard01",
+        "allPlans": []
+      },
+      {
+        "shardName": "shard02",
+        "allPlans": []
+      },
+      {
+        "shardName": "shard03",
+        "allPlans": []
+      }
+    ]
+  }
+}

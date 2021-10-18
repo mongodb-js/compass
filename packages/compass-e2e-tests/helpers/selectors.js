@@ -72,7 +72,7 @@ const Selectors = {
   ShellOutput:
     '[data-test-id="shell-content"] [class^=mongosh-shell-output-line] pre',
   ShellLoader:
-    '[data-test-id="shell-content"] [class^=mongosh-shell-loader-shell-loader]',
+    '[data-test-id="shell-content"] [class~=mongosh-shell-loader-shell-loader]',
 
   // Query bar (Find, Schema, Explain Plan)
   QueryBarApplyFilterButton: '[data-test-id="query-bar-apply-filter-button"]',

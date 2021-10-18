@@ -1,0 +1,61 @@
+{
+  "queryPlanner": {
+    "mongosPlannerVersion": 1,
+    "winningPlan": {
+      "stage": "SINGLE_SHARD",
+      "shards": [
+        {
+          "shardName": "rsmyset",
+          "connectionString": "rsmyset/localhost:47017,localhost:47018,localhost:470191",
+          "serverInfo": {
+            "host": "myroot.local",
+            "port": 47017,
+            "version": "3.2.6",
+            "gitVersion": "489d177dbd0f0420a8ca04d39fd78d0a2c539420"
+          },
+          "plannerVersion": 1,
+          "namespace": "mongodb.stories",
+          "indexFilterSet": false,
+          "parsedQuery": { "_id": { "$eq": "" } },
+          "winningPlan": { "stage": "IDHACK" },
+          "rejectedPlans": []
+        }
+      ]
+    }
+  },
+  "executionStats": {
+    "nReturned": 0,
+    "executionTimeMillis": 4,
+    "totalKeysExamined": 0,
+    "totalDocsExamined": 0,
+    "executionStages": {
+      "stage": "SINGLE_SHARD",
+      "nReturned": 0,
+      "executionTimeMillis": 0,
+      "totalKeysExamined": 0,
+      "totalDocsExamined": 0,
+      "totalChildMillis": 0,
+      "shards": [
+        {
+          "shardName": "rsmyset",
+          "executionSuccess": true,
+          "executionStages": {
+            "stage": "IDHACK",
+            "nReturned": 0,
+            "executionTimeMillisEstimate": 0,
+            "works": 1,
+            "advanced": 0,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 0,
+            "restoreState": 0,
+            "isEOF": 1,
+            "invalidates": 0,
+            "chunkSkips": 0
+          }
+        }
+      ]
+    },
+    "allPlansExecution": [{ "shardName": "rsmyset", "allPlans": [] }]
+  }
+}

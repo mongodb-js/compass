@@ -46,7 +46,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
-          node-version: ^12.9.0
+          node-version: ^14.17.5
           cache: 'npm'
 
       - name: Install npm@7
@@ -73,8 +73,13 @@ jobs:
       - name: Test Packaged Application
         env:
           E2E_TESTS_ATLAS_HOST: ${{ secrets.E2E_TESTS_ATLAS_HOST }}
+          E2E_TESTS_DATA_LAKE_HOST: ${{ secrets.E2E_TESTS_DATA_LAKE_HOST }}
+          E2E_TESTS_ANALYTICS_NODE_HOST: ${{ secrets.E2E_TESTS_ANALYTICS_NODE_HOST }}
+          E2E_TESTS_SERVERLESS_HOST: ${{ secrets.E2E_TESTS_SERVERLESS_HOST }}
+          E2E_TESTS_FREE_TIER_HOST: ${{ secrets.E2E_TESTS_FREE_TIER_HOST }}
           E2E_TESTS_ATLAS_USERNAME: ${{ secrets.E2E_TESTS_ATLAS_USERNAME }}
           E2E_TESTS_ATLAS_PASSWORD: ${{ secrets.E2E_TESTS_ATLAS_PASSWORD }}
+          E2E_TESTS_ATLAS_X509_PEM: ${{ secrets.E2E_TESTS_ATLAS_X509_PEM }}
           # Matches what we are doing in Evergreen
           MONGODB_VERSION: '4'
           DEBUG: 'compass-e2e-tests*,hadron*'

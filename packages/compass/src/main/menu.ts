@@ -212,7 +212,7 @@ function license() {
       const licenseTemp = path.join(app.getPath('temp'), 'License');
       fs.writeFile(licenseTemp, LICENSE, (err) => {
         if (!err) {
-          shell.openItem(licenseTemp);
+          shell.openPath(licenseTemp);
         }
       });
     },

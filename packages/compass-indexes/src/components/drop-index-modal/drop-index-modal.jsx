@@ -78,6 +78,7 @@ class DropIndexModal extends PureComponent {
         variant="danger"
         submitDisabled={this.props.confirmName !== this.props.name}
         className={styles['drop-index-modal']}
+        closeOnBackdropClick={false}
       >
         <div>
           <p className={styles['drop-index-modal-confirm']}>

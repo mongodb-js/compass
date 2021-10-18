@@ -3,8 +3,6 @@ var BaseBackend = require('./base');
 var _ = require('lodash');
 var debug = require('debug')('mongodb-storage-mixin:backends:secure');
 
-var keytar = require('keytar');
-
 function SecureBackend(options) {
   if (!(this instanceof SecureBackend)) {
     return new SecureBackend(options);
@@ -31,7 +29,7 @@ SecureBackend.clear = function(namespace, done) {
   var promise;
 
   try {
-    promise = keytar.findCredentials(serviceName);
+    promise = require('keytar').findCredentials(serviceName);
   } catch (e) {
     debug('Error calling findCredentials', e);
     throw e;
@@ -47,7 +45,7 @@ SecureBackend.clear = function(namespace, done) {
     return Promise.all(
       accounts.map(function(entry) {
         var accountName = entry.account;
-        return keytar
+        return require('keytar')
           .deletePassword(serviceName, accountName)
           .then(function() {
             debug('Deleted account %s successfully', accountName);
@@ -88,7 +86,7 @@ SecureBackend.prototype.remove = function(model, options, done) {
   var accountName = this._getId(model);
   var serviceName = this.namespace;
 
-  keytar
+  require('keytar')
     .deletePassword(serviceName, accountName)
     .then(function() {
       debug('Removed password for', {
@@ -114,7 +112,7 @@ SecureBackend.prototype.update = function(model, options, done) {
   var accountName = this._getId(model);
   var value = JSON.stringify(this.serialize(model));
 
-  keytar
+  require('keytar')
     .setPassword(serviceName, accountName, value)
     .then(function() {
       debug('Updated password successfully for', {
@@ -142,7 +140,7 @@ SecureBackend.prototype.create = function(model, options, done) {
   var accountName = this._getId(model);
   var value = JSON.stringify(this.serialize(model));
 
-  keytar
+  require('keytar')
     .setPassword(serviceName, accountName, value)
     .then(function() {
       debug('Successfully dreated password for', {
@@ -170,7 +168,7 @@ SecureBackend.prototype.findOne = function(model, options, done) {
   var serviceName = this.namespace;
   var accountName = this._getId(model);
 
-  keytar
+  require('keytar')
     .getPassword(serviceName, accountName)
     .then(function(rawJsonString) {
       if (!rawJsonString) {
@@ -194,7 +192,7 @@ SecureBackend.prototype.findOne = function(model, options, done) {
 /**
  * Fetch all keys stored under the active namespace.
  *
- * Note: keytar does not have the ability to return all keys for a given
+ * Note: require('keytar') does not have the ability to return all keys for a given
  * namespace (service). Thus this only works if the collection is
  * pre-populated with stub models that hold their ids already.
  *
@@ -210,7 +208,7 @@ SecureBackend.prototype.findOne = function(model, options, done) {
  */
 SecureBackend.prototype.find = function(collection, options, done) {
   debug('Fetching data...', collection.length);
-  keytar
+  require('keytar')
     .findCredentials(this.namespace)
     .then(function(credentials) {
       var attributes = collection.reduce(function(attrs, model) {

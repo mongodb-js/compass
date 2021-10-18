@@ -5,6 +5,7 @@ const {
   createElectronMainConfig,
   createElectronRendererConfig,
   webpackArgsWithDefaults,
+  isServe,
   webpack,
   merge,
 } = require('@mongodb-js/webpack-config-compass');
@@ -79,7 +80,9 @@ module.exports = (_env, args) => {
     HADRON_APP_VERSION: target.version,
     HADRON_DISTRIBUTION: target.distribution,
     HADRON_PRODUCT: target.name,
-    HADRON_PRODUCT_NAME: target.productName,
+    HADRON_PRODUCT_NAME: isServe(opts)
+      ? `${target.productName} Local`
+      : target.productName,
     HADRON_READONLY: String(target.readonly),
     HADRON_ISOLATED: String(target.isolated),
     HADRON_CHANNEL: target.channel,
