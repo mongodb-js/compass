@@ -68,7 +68,7 @@ class ExportModal extends PureComponent {
   static propTypes = {
     open: PropTypes.bool,
     error: PropTypes.object,
-    count: PropTypes.number,
+    count: PropTypes.number, // this can be null
     fileType: PropTypes.string,
     fileName: PropTypes.string,
     ns: PropTypes.string.isRequired,
@@ -202,19 +202,19 @@ class ExportModal extends PureComponent {
     // count will be null or undefined if the count query timed out
     const count = this.props.count;
     const hasCount = typeof count === 'number';
-    const resultsSummary = hasCount ? `&mdash; ${formatNumber(count)}` : '';
+    const resultsSummary = hasCount ? ` — ${formatNumber(count)} results` : '';
 
     return (
       <FormGroup controlId="export-collection-option">
         <div className={style('radio')}>
-          <label className={queryClassName}>
+          <label className={queryClassName} data-test-id="export-with-filters-label">
             <input type="radio"
               data-test-id="export-with-filters"
               value="filter"
               checked={!isFullCollection}
               onChange={this.handleExportOptionSelect}
               aria-label="Export collection with filters radio button"/>
-            Export query with filters {resultsSummary} (Recommended)
+            Export query with filters{resultsSummary} (Recommended)
           </label>
         </div>
         <div className={queryViewerClassName} data-test-id="query-viewer-wrapper">

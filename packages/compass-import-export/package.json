@@ -24,6 +24,7 @@
     "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js",
     "start": "webpack-dev-server --config ./config/webpack.dev.config.js",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
+    "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
     "test:dev": "cross-env NODE_ENV=test mocha-webpack",
     "cover": "nyc npm run test",
     "check": "npm run lint && npm run depcheck",
