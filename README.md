@@ -75,7 +75,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**mongodb-index-model**](packages/index-model): MongoDB index model.
 - [**mongodb-instance-model**](packages/instance-model): MongoDB instance model.
 - [**mongodb-js-metrics**](packages/metrics): Shareable metric recording.
-- [**mongodb-language-model**](packages/mongodb-language-model): Parses MongoDB query language and returns an abstract syntax tree
 - [**mongodb-security**](packages/security): Portable business logic of MongoDB security model
 - [**storage-mixin**](packages/storage-mixin): Ampersand model mixin to persist data via various storage backends
 
