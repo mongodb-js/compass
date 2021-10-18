@@ -121,8 +121,14 @@ class Target {
       {
         name: process.env.HADRON_PRODUCT,
         productName: process.env.HADRON_PRODUCT_NAME,
-        readonly: ['1', 'true'].includes(process.env.HADRON_READONLY),
-        isolated: ['1', 'true'].includes(process.env.HADRON_ISOLATED)
+        readonly:
+          typeof process.env.HADRON_READONLY !== 'undefined'
+            ? ['1', 'true'].includes(process.env.HADRON_READONLY)
+            : undefined,
+        isolated:
+          typeof process.env.HADRON_ISOLATED !== 'undefined'
+            ? ['1', 'true'].includes(process.env.HADRON_ISOLATED)
+            : undefined
       },
       distributions[this.distribution]
     );
