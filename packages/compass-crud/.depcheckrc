@@ -15,5 +15,7 @@ ignores: [
   "karma-webpack",
   "webpack-bundle-analyzer",
   "webpack-cli",
-  "mongodb-compass"
+  "mongodb-compass",
+  "jsdom",
+  "jsdom-global"
 ]
