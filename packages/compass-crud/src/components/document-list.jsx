@@ -12,6 +12,7 @@ import DocumentTableView from './document-table-view';
 import Toolbar from './toolbar';
 
 import {
+  DOCUMENTS_STATUS_ERROR,
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_FETCHED_CUSTOM
 } from '../constants/documents-statuses';
@@ -183,12 +184,16 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The query bar.
    */
   renderZeroState() {
-    let header = 'This collection has no data';
-    let subtext = 'It only takes a few seconds to import data from a JSON or CSV file';
-
     if (this.props.docs.length > 0 || this.props.status === DOCUMENTS_STATUS_FETCHING) {
       return null;
     }
+
+    if (this.props.status === DOCUMENTS_STATUS_ERROR) {
+      return null;
+    }
+
+    let header = 'This collection has no data';
+    let subtext = 'It only takes a few seconds to import data from a JSON or CSV file';
 
     if (this.props.docs.length === 0 && this.props.status === DOCUMENTS_STATUS_FETCHED_CUSTOM) {
       header = 'No results';
