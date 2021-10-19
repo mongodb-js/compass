@@ -2,8 +2,8 @@ import Connection from 'mongodb-connection-model';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
-import configureStore from '../../src/stores/crud-store';
-import configureActions from '../../src/actions';
+import configureStore from './crud-store';
+import configureActions from '../actions';
 import EJSON from 'mongodb-extended-json';
 
 import chai from 'chai';
