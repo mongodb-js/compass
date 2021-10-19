@@ -6,7 +6,6 @@ import {
   app,
   dialog,
   shell,
-  EventEmitter,
   MenuItemConstructorOptions,
 } from 'electron';
 import { ipcMain } from 'hadron-ipc';
@@ -21,10 +20,6 @@ type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
 const debug = createDebug('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
-
-function isReadonlyDistro() {
-  return process.env.HADRON_READONLY === 'true';
-}
 
 function separator() {
   return {
@@ -89,7 +84,7 @@ function darwinCompassSubMenu() {
   };
 }
 
-function connectItem(app: CompassApplication) {
+function connectItem(app: typeof CompassApplication) {
   return {
     label: '&Connect to...',
     accelerator: 'CmdOrCtrl+N',
@@ -108,7 +103,7 @@ function disconnectItem() {
   };
 }
 
-function connectSubMenu(nonDarwin: boolean, app: CompassApplication) {
+function connectSubMenu(nonDarwin: boolean, app: typeof CompassApplication) {
   const subMenu: MenuTemplate = [connectItem(app), disconnectItem()];
 
   if (nonDarwin) {
@@ -219,16 +214,16 @@ function license() {
   };
 }
 
-function logFile(compassApp: EventEmitter) {
+function logFile(app: typeof CompassApplication) {
   return {
     label: '&Open Log File',
     click() {
-      compassApp.emit('show-log-file-dialog');
+      app.emit('show-log-file-dialog');
     },
   };
 }
 
-function helpSubMenu(app: CompassApplication) {
+function helpSubMenu(app: typeof CompassApplication) {
   const subMenu = [];
   subMenu.push(helpWindowItem());
 
@@ -263,7 +258,7 @@ function collectionSubMenu() {
     },
   });
   subMenu.push(separator());
-  if (!isReadonlyDistro()) {
+  if (process.env.HADRON_READONLY !== 'true') {
     subMenu.push({
       label: '&Import Data',
       click() {
@@ -359,7 +354,10 @@ function windowSubMenu() {
 }
 
 // menus
-function darwinMenu(menuState: WindowMenuState, app: CompassApplication) {
+function darwinMenu(
+  menuState: WindowMenuState,
+  app: typeof CompassApplication
+) {
   const menu: MenuTemplate = [darwinCompassSubMenu()];
 
   menu.push(connectSubMenu(false, app));
@@ -376,7 +374,10 @@ function darwinMenu(menuState: WindowMenuState, app: CompassApplication) {
   return menu;
 }
 
-function nonDarwinMenu(menuState: WindowMenuState, app: CompassApplication) {
+function nonDarwinMenu(
+  menuState: WindowMenuState,
+  app: typeof CompassApplication
+) {
   const menu = [connectSubMenu(true, app), viewSubMenu()];
 
   if (menuState.showCollection) {
@@ -399,7 +400,7 @@ class CompassMenu {
 
   private static windowState = new Map<BrowserWindow['id'], WindowMenuState>();
 
-  private static app: CompassApplication;
+  private static app: typeof CompassApplication;
 
   private static lastFocusedWindow?: BrowserWindow;
 
@@ -407,7 +408,7 @@ class CompassMenu {
 
   private static initCalled = false;
 
-  private static _init(app: CompassApplication): void {
+  private static _init(app: typeof CompassApplication): void {
     this.app = app;
 
     app.on('new-window', (bw) => {
@@ -422,7 +423,7 @@ class CompassMenu {
     void this.setupDockMenu();
   }
 
-  static init(app: CompassApplication): void {
+  static init(app: typeof CompassApplication): void {
     if (!this.initCalled) {
       this.initCalled = true;
       this._init(app);

@@ -20,5 +20,5 @@ app.setVersion(process.env.HADRON_APP_VERSION);
 process.on('uncaughtException', handleUncaughtException);
 
 void import('./application').then(({ CompassApplication }) => {
-  void CompassApplication.main();
+  void CompassApplication.init();
 });

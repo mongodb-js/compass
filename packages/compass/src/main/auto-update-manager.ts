@@ -2,7 +2,6 @@ import createDebug from 'debug';
 import AutoUpdateManager from 'hadron-auto-update-manager';
 import { ipcMain } from 'hadron-ipc';
 import COMPASS_ICON from './icon';
-import type { CompassApplication } from './application';
 
 const debug = createDebug(
   'mongodb-compass:main:application:auto-update-manager'
@@ -36,8 +35,7 @@ function isSupportedPlatform(str?: string): str is keyof typeof API_PLATFORM {
 class CompassAutoUpdateManager {
   private static initCalled = false;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private static _init(app: CompassApplication): void {
+  private static _init(): void {
     if (
       !isSupportedPlatform(process.platform) ||
       !isSupportedProduct(process.env.HADRON_PRODUCT)
@@ -80,10 +78,10 @@ class CompassAutoUpdateManager {
     });
   }
 
-  static init(app: CompassApplication): void {
+  static init(): void {
     if (!this.initCalled) {
       this.initCalled = true;
-      this._init(app);
+      this._init();
     }
   }
 }

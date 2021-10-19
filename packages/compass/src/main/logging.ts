@@ -5,11 +5,12 @@ import { promisify } from 'util';
 import path from 'path';
 import createDebug from 'debug';
 import zlib from 'zlib';
-import { app, shell, dialog, clipboard, EventEmitter } from 'electron';
+import { app, shell, dialog, clipboard } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { mongoLogId, MongoLogManager } from 'mongodb-log-writer';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
+import type { EventEmitter } from 'events';
 
 const debug = createDebug('mongodb-compass:main:logging');
 
@@ -205,7 +206,7 @@ class CompassLogging {
 
   private static initPromise: Promise<void> | null = null;
 
-  private static async _init(app: CompassApplication) {
+  private static async _init(app: typeof CompassApplication) {
     const logFilePath = await setupLogging();
 
     if (logFilePath) {
@@ -215,7 +216,7 @@ class CompassLogging {
     }
   }
 
-  static init(app: CompassApplication): Promise<void> {
+  static init(app: typeof CompassApplication): Promise<void> {
     if (this.initPromise) {
       return this.initPromise;
     }

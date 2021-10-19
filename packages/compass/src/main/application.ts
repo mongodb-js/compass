@@ -9,37 +9,50 @@ import { CompassMenu } from './menu';
 
 const debug = createDebug('mongodb-compass:main:application');
 
-class CompassApplication extends EventEmitter {
+class CompassApplication {
   private constructor() {
-    super();
+    // marking constructor as private to disallow usage
+  }
+
+  private static emitter: EventEmitter = new EventEmitter();
+
+  private static initPromise: Promise<void> | null = null;
+
+  private static async _init() {
+    if (require('electron-squirrel-startup')) {
+      debug('electron-squirrel-startup event handled sucessfully');
+      return;
+    }
 
     this.setupUserDirectory();
 
-    void Promise.all([
+    await Promise.all([
       this.setupLogging(),
       this.setupAutoUpdate(),
       this.setupSecureStore(),
-    ])
-      .then(() => {
-        this.setupJavaScriptArguments();
-        this.setupLifecycleListeners();
-        this.setupApplicationMenu();
-        this.setupWindowManager();
-      })
-      .catch((err) => {
-        // If anything failed during setup it's probably a big deal. Rethrow so
-        // that our uncaughtException handlers can kick in
-        throw err;
-      });
+    ]);
+
+    this.setupJavaScriptArguments();
+    this.setupLifecycleListeners();
+    this.setupApplicationMenu();
+    this.setupWindowManager();
   }
 
-  async setupSecureStore(): Promise<void> {
+  static init(): Promise<void> {
+    if (this.initPromise) {
+      return this.initPromise;
+    }
+    this.initPromise = this._init();
+    return this.initPromise;
+  }
+
+  private static async setupSecureStore(): Promise<void> {
     // importing storage-mixin attaches secure-store ipc listeners to handle
     // keychain requests from the renderer processes
     await import('storage-mixin');
   }
 
-  setupJavaScriptArguments(): void {
+  private static setupJavaScriptArguments(): void {
     // Enable ES6 features
     app.commandLine.appendSwitch('js-flags', '--harmony');
     // For Linux users with drivers that are avoided by Chromium we disable the
@@ -47,26 +60,26 @@ class CompassApplication extends EventEmitter {
     app.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
   }
 
-  async setupAutoUpdate(): Promise<void> {
+  private static async setupAutoUpdate(): Promise<void> {
     if (process.env.HADRON_ISOLATED !== 'true') {
       // This is done asyncronously so that webpack can completely remove
       // autoupdater from the application bundle during compilation
       const { CompassAutoUpdateManager } = await import(
         './auto-update-manager'
       );
-      CompassAutoUpdateManager.init(this);
+      CompassAutoUpdateManager.init();
     }
   }
 
-  setupApplicationMenu(): void {
+  private static setupApplicationMenu(): void {
     CompassMenu.init(this);
   }
 
-  setupWindowManager(): void {
+  private static setupWindowManager(): void {
     void CompassWindowManager.init(this);
   }
 
-  setupLifecycleListeners(): void {
+  private static setupLifecycleListeners(): void {
     app.on('window-all-closed', function () {
       debug('All windows closed. Waiting for a new connection window.');
     });
@@ -79,7 +92,7 @@ class CompassApplication extends EventEmitter {
     });
   }
 
-  setupUserDirectory(): void {
+  private static setupUserDirectory(): void {
     if (process.env.NODE_ENV === 'development') {
       const appName = app.getName();
       // When NODE_ENV is dev, we are probably running the app unpackaged
@@ -90,7 +103,7 @@ class CompassApplication extends EventEmitter {
     }
   }
 
-  async setupLogging(): Promise<void> {
+  private static async setupLogging(): Promise<void> {
     const home = app.getPath('home');
     const appData = process.env.LOCALAPPDATA || process.env.APPDATA;
     const logDir =
@@ -103,34 +116,34 @@ class CompassApplication extends EventEmitter {
     await CompassLogging.init(this);
   }
 
-  private static instance: CompassApplication;
-
-  static main(): CompassApplication | undefined {
-    if (require('electron-squirrel-startup')) {
-      console.log('electron-squirrel-startup event handled sucessfully.');
-      return;
-    }
-
-    if (!this.instance) {
-      this.instance = new CompassApplication();
-    }
-
-    return this.instance;
-  }
-
-  on(event: 'show-connect-window', handler: () => void): this;
-  on(event: 'show-log-file-dialog', handler: () => void): this;
-  on(event: 'new-window', handler: (bw: BrowserWindow) => void): this;
-  on(event: string, handler: (...args: unknown[]) => void): this {
-    super.on(event, handler);
+  static on(
+    event: 'show-connect-window',
+    handler: () => void
+  ): typeof CompassApplication;
+  static on(
+    event: 'show-log-file-dialog',
+    handler: () => void
+  ): typeof CompassApplication;
+  // @ts-expect-error typescript is not happy with this overload even though it
+  //                  worked when it wasn't static and the implementation does
+  //                  match the overload declaration
+  static on(
+    event: 'new-window',
+    handler: (bw: BrowserWindow) => void
+  ): typeof CompassApplication;
+  static on(
+    event: string,
+    handler: (...args: unknown[]) => void
+  ): typeof CompassApplication {
+    this.emitter.on(event, handler);
     return this;
   }
 
-  emit(event: 'show-connect-window'): boolean;
-  emit(event: 'show-log-file-dialog'): boolean;
-  emit(event: 'new-window', bw: BrowserWindow): boolean;
-  emit(event: string, ...args: unknown[]): boolean {
-    return super.emit(event, ...args);
+  static emit(event: 'show-connect-window'): boolean;
+  static emit(event: 'show-log-file-dialog'): boolean;
+  static emit(event: 'new-window', bw: BrowserWindow): boolean;
+  static emit(event: string, ...args: unknown[]): boolean {
+    return this.emitter.emit(event, ...args);
   }
 }
 
