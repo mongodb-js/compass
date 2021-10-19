@@ -1,13 +1,11 @@
 /**
- * Compass plugins depend on some of those variables being available during
- * runtime. This is not easy to set up with webpack as it will inline env
- * variables during compilation, so we can't just `process.env.VAR = ...` here
- * without doing some weird things with the way we provide those variables to
- * the compilation during the build step, so this Object.assign just works
- * around Webpack detection.
- *
- * TODO: This is just a temporary workaround that can go away when Compass and
- * all its plugins are processed by the same compilation
+ * All these variables below are used by Compass and its plugins in one way or
+ * another. These process.env vars are inlined in the code durng the build 
+ * process by webpack and are not accessible directly in the runtime by default.
+ * It's helpful to have them though for debugging purposes, so that's why we are
+ * adding them back to the runtime. It's done in this weird Object.assign way to
+ * work around Webpack detection that would not allow us to just do the
+ * assignment here
  */
 const env = Object.fromEntries(
   Object.entries({

@@ -453,11 +453,6 @@ Object.assign(props, {
 /**
  * ### `authentication = X509`
  *
- * @todo (imlucas): We've been assuming authenticaiton=X509 that SSL=ALL is implied,
- * but the driver docs only send `ssl_private_key` and `ssl_certificate`
- * so we may need to add another value to `SSL_VALUES`.  Need to verify this and
- * then update the example below.
- *
  * @example
  *   var c = new Connection({
  *    'x509_username': 'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,ST=Pennsylvania,C=US',
@@ -1155,9 +1150,6 @@ Connection.from = function(url) {
   }
 
   if (parsed.auth && parsed.auth.user) {
-    /**
-     * @todo (imlucas): This case is ambiguous... support `mongodb+ldap://user:pass@host`.
-     */
     if (parsed.auth.password) {
       parsed.authMechanism = 'DEFAULT';
     } else {

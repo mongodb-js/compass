@@ -29,11 +29,6 @@ function handleUncaughtException(err: Error): void {
       detail: detail,
     });
 
-    /**
-     * TODO (@imlucas) Copy diagnostics to clipboard?
-     * or prepopulated JIRA link?
-     * https://confluence.atlassian.com/jirakb/creating-issues-via-direct-html-links-159474.html
-     */
     if (response === 1) {
       clipboard.writeText(`${message}\n${stack}`);
       return;
