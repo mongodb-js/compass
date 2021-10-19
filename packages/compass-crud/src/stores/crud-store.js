@@ -1300,7 +1300,6 @@ export async function countDocuments(dataService, ns, filter, { signal, session,
  * Return a cancel() function and the promise that resolves to the documents.
 */
 export async function findDocuments(dataService, ns, filter, { signal, ...options }) {
-
   if (signal.aborted) {
     throw new Error(OPERATION_CANCELLED_MESSAGE);
   }
