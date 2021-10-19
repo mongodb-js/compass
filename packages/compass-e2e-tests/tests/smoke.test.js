@@ -267,6 +267,7 @@ describe('Smoke tests', function () {
         '$bucketAuto',
         '$collStats',
         '$count',
+        '$documents',
         '$facet',
         '$geoNear',
         '$graphLookup',
@@ -283,6 +284,7 @@ describe('Smoke tests', function () {
         '$replaceRoot',
         '$sample',
         '$search',
+        '$searchMeta',
         '$set',
         //'$setWindowFields', // New in version 5.0.
         '$skip',

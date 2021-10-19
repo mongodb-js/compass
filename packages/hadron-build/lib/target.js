@@ -96,7 +96,12 @@ function getPkg(directory) {
 }
 
 class Target {
-  constructor(dir, opts = {}) {
+  constructor(
+    dir,
+    opts = {
+      version: process.env.HADRON_APP_VERSION
+    }
+  ) {
     this.dir = dir || process.cwd();
     this.out = path.join(this.dir, 'dist');
 
@@ -112,7 +117,21 @@ class Target {
     const distributions = pkg.config.hadron.distributions;
     this.distribution =
       process.env.HADRON_DISTRIBUTION || distributions.default;
-    const distOpts = distributions[this.distribution];
+    const distOpts = _.defaults(
+      {
+        name: process.env.HADRON_PRODUCT,
+        productName: process.env.HADRON_PRODUCT_NAME,
+        readonly:
+          typeof process.env.HADRON_READONLY !== 'undefined'
+            ? ['1', 'true'].includes(process.env.HADRON_READONLY)
+            : undefined,
+        isolated:
+          typeof process.env.HADRON_ISOLATED !== 'undefined'
+            ? ['1', 'true'].includes(process.env.HADRON_ISOLATED)
+            : undefined
+      },
+      distributions[this.distribution]
+    );
 
     this.id = distOpts.name;
     this.name = distOpts.name;
@@ -134,6 +153,8 @@ class Target {
     this.slug = this.name;
     this.semver = new semver.SemVer(this.version);
     this.channel = 'stable';
+
+    this.autoUpdateBaseUrl = _.get(pkg, 'config.hadron.endpoint', null);
 
     this.asar = { unpack: [], ...pkg.config.hadron.asar };
     this.rebuild = { ...pkg.config.hadron.rebuild };

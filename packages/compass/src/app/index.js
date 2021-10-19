@@ -1,5 +1,5 @@
-/* eslint no-console:0 */
-import './index.less';
+require('./index.less');
+require('../setup-hadron-distribution');
 
 const marky = require('marky');
 const EventEmitter = require('events');
@@ -11,9 +11,6 @@ EventEmitter.defaultMaxListeners = 100;
 document.addEventListener('dragover', (evt) => evt.preventDefault());
 document.addEventListener('drop', (evt) => evt.preventDefault());
 
-require('../setup-hadron-distribution');
-
-window.jQuery = require('jquery');
 require('bootstrap/js/modal');
 require('bootstrap/js/transition');
 

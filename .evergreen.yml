@@ -182,8 +182,11 @@ functions:
           export E2E_TESTS_ATLAS_HOST="${e2e_tests_atlas_host}"
           export E2E_TESTS_DATA_LAKE_HOST="${e2e_tests_data_lake_host}"
           export E2E_TESTS_SERVERLESS_HOST="${e2e_tests_serverless_host}"
+          export E2E_TESTS_ANALYTICS_NODE_HOST="${e2e_tests_analytics_node_host}"
+          export E2E_TESTS_FREE_TIER_HOST="${e2e_tests_free_tier_host}"
           export E2E_TESTS_ATLAS_USERNAME="${e2e_tests_atlas_username}"
           export E2E_TESTS_ATLAS_PASSWORD="${e2e_tests_atlas_password}"
+          export E2E_TESTS_ATLAS_X509_PEM="${e2e_tests_atlas_x509_pem}"
 
           # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
           # have dropped support for macOS 10.10 because it is now outside
@@ -205,7 +208,7 @@ functions:
           source ~/compass_env.sh
     - command: shell.exec
       params:
-        working_dir: src/packages/compass
+        working_dir: src
         shell: bash
         script: |
           set -e
@@ -213,7 +216,9 @@ functions:
           source ~/compass_env.sh
 
           echo "Synchronizing evergreen environment from Compass build tools..."
-          npm run evergreen-expansions ${compass_distribution}
+
+          # Generates and expansion file with build target metadata in packages/compass/expansions.yml
+          npm run evergreen-expansions ${compass_distribution} --workspace mongodb-compass
     - command: expansions.update
       params:
         # The only variables used from hadron-build generated expansions seems
@@ -221,7 +226,7 @@ functions:
         file: src/packages/compass/expansions.yml
     - command: shell.exec
       params:
-        working_dir: src/packages/compass
+        working_dir: src
         shell: bash
         script: |
           set -e
@@ -282,28 +287,23 @@ functions:
 
               echo "Fetching signtool -> notary-service hack..."
 
-              (
-                # We are in packages/compass, but the dependencies we are trying
-                # to replace are in the root of the monorepo
-                cd ../../
-                curl -fs \
-                  -o "signtool.exe" \
-                  --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
-                rm -f node_modules/electron-winstaller/vendor/signtool.exe
-                rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
-                chmod +x signtool.exe
-                cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
-                cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
-              )
+              curl -fs \
+                -o "signtool.exe" \
+                --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
+              rm -f node_modules/electron-winstaller/vendor/signtool.exe
+              rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
+              chmod +x signtool.exe
+              cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
+              cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
             fi
             bash ~/compass_package.sh
-            ls -la dist
+            ls -la packages/compass/dist
           fi
 
   'publish':
     command: shell.exec
     params:
-      working_dir: src/packages/compass/
+      working_dir: src
       shell: bash
       script: |
         set -e
@@ -318,7 +318,7 @@ functions:
         export DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY=${aws_secret_evergreen_integrations}
 
         echo "Uploading release assets to S3 and GitHub if needed..."
-        npm run upload ${compass_distribution}
+        npm run upload ${compass_distribution} --workspace mongodb-compass
 
   'save windows artifacts':
     # setup

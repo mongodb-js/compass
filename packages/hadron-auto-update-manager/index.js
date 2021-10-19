@@ -5,7 +5,6 @@ const _ = require('lodash');
 const EventEmitter = require('events').EventEmitter;
 const autoUpdater = require('./auto-updater');
 const debug = require('debug')('hadron-auto-update-manager');
-const BrowserWindow = require('electron').BrowserWindow;
 const ENOSIGNATURE = 'Could not get code signature for running application';
 const app = electron.app;
 
@@ -21,6 +20,16 @@ function AutoUpdateManager(endpointURL, iconURL, product, channel, platform) {
   if (!endpointURL) {
     throw new TypeError('endpointURL is required!');
   }
+
+  if (typeof endpointURL === 'object') {
+    const opts = endpointURL;
+    endpointURL = opts.endpoint;
+    iconURL = opts.icon;
+    product = opts.product;
+    channel = opts.channel;
+    platform = opts.platform;
+  }
+
   this.endpointURL = endpointURL;
   this.iconURL = iconURL;
   this.version = app.getVersion();
@@ -69,7 +78,6 @@ AutoUpdateManager.prototype.setupAutoUpdater = function() {
     this.releaseNotes = releaseNotes;
     this.releaseVersion = releaseVersion;
     this.setState(UpdateAvailableState);
-    this.emitUpdateAvailableEvent();
   });
 };
 
@@ -169,21 +177,6 @@ AutoUpdateManager.prototype.check = function() {
     return false;
   }
   return this.checkForUpdates();
-};
-
-AutoUpdateManager.prototype.emitUpdateAvailableEvent = function() {
-  if (!this.releaseVersion) {
-    return;
-  }
-  BrowserWindow.getAllWindows().forEach((_browserWindow) => {
-    debug('sending app:update-available');
-    if (_browserWindow.webContents) {
-      _browserWindow.webContents.send('app:update-available', {
-        releaseVersion: this.releaseVersion,
-        releaseNotes: this.releaseNotes
-      });
-    }
-  });
 };
 
 AutoUpdateManager.prototype.setState = function(state) {
