@@ -21,6 +21,7 @@
     "start:watch": "npm run clean && webpack --config ./config/webpack.watch.config.js",
     "pretest": "mongodb-runner start --port 27018",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
+    "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
     "posttest": "mongodb-runner stop --port 27018",
     "cover": "nyc npm run test",
     "test-check-ci": "npm run check && npm run cover",
