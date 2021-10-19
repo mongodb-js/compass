@@ -107,13 +107,12 @@ Package|Version|License
 **[json5](#09ffc110586bcf66cb9b8f0b4f993a330e4287d87d0ae06a70e22f01d16e6acf)**|2.2.0|MIT
 **[kerberos](#0246a09057539905cb79d6da85f9ec38a0e098bb0f85e64989fa7adffdee8a37)**|2.0.0-beta.0|Apache-2.0
 **[kerberos](#cc136776ab1bf5e1d7772214628938ff86a7e88881a35b9de3e4f299bfd38e44)**|1.1.7|Apache-2.0
-**[keytar](#a7cf2c3292e645d20849180f5cc7aeb0154b7e453d01b748e732f212a0ee6935)**|5.6.0|MIT
+**[keytar](#2777399d4579e44d68390c73dd209918f2092a61a8bc0d13d950da49ab4863a6)**|7.7.0|MIT
 **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
 **[lru-cache](#938513411a6603ce29334db15563fb94b7d52f839d32b9bd78c18f5d3f98aa5a)**|6.0.0|ISC
 **[memory-pager](#7fbdeab18f48c3527cae276a51cd879e42d15337aba1acb44fedcf748137608b)**|1.5.0|MIT
 **[mimic-response](#0c868fd85c36cbce69ede58ff4693b89140b6a529a6794843f4985674d63642e)**|2.1.0|MIT
 **[minimist](#1d497ee3a918b9779d45ef4833686d5d33d0591a41bba29f22efbd4691b12eb0)**|1.2.5|MIT
-**[mkdirp](#c9b61718830a71a4143ddf8aea40ecf5cd105a06f26074c1210c42bc0fcb3c2a)**|0.5.5|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb](#83f0eeeda68b66e7d03a96411ed6e7d1b9ab36b146d770ffd98453991887d52f)**|4.1.2|Apache-2.0
 **[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
@@ -124,7 +123,6 @@ Package|Version|License
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[mustache](#9e574ae3fa6282e512b5f57e7b1b1e9463c95d0301c65e2684cb120df415c5ee)**|4.2.0|MIT
-**[nan](#91c7fdf0a68aa262fd6b944c033a394f3a6bf198103fc1a3f0ffc4b7e7f92528)**|2.14.1|MIT
 **[nan](#354f3feba0979fd26b49eb6e9527ba176bbf15fb9cc0374479fc593a09ddda8c)**|2.14.2|MIT
 **[nanoid](#ed7a467c7f5168091d52f5a61d1b652cc10fc9386716868f91f020c4da93e84b)**|2.1.11|MIT
 **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
@@ -141,7 +139,6 @@ Package|Version|License
 **[picocolors](#c5882df1f3b54a535dc5893c95d602562782e5b56bf864eeb848a308a08627c5)**|0.2.1|ISC
 **[postmsg-rpc](#1afdb3002a5e69f6be21a2f5d1dda4cbdfc043e87c9528667d0b057a32aee3cd)**|2.4.0|MIT
 **[prebuild-install](#a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda)**|6.1.2|MIT
-**[prebuild-install](#bb0c15b59a60bfb588b95eac158895de82ab409819db6156c24a723ee63b8595)**|5.3.3|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**|1.2.8|(BSD-2-Clause OR MIT OR Apache-2.0)
@@ -177,7 +174,6 @@ Package|Version|License
 **[webidl-conversions](#0868d5fd0f1744b732e4832b5dd5bd9ce27ffe9dcaa6cacda5a4efca750da5fb)**|6.1.0|BSD-2-Clause
 **[whatwg-url](#27c192a5f829a75dd40ddb7c74db291436ef4a59c16e9ed876ee2ecee80c460a)**|9.1.0|MIT
 **[whatwg-url](#1b9074bca64d1c71f4c40e9dffb78610493cda13a00a5ad06063ce2741751aff)**|8.6.0|MIT
-**[which-pm-runs](#52706f86df23330d11bd1b7736cb665692a56bb749511bc49fa54c0595974411)**|1.0.0|MIT
 **[wide-align](#c58d08bb85700ddf0f3ea9623adf6b3377301a5a4eeb3d115a63320de0cb59e6)**|1.1.3|ISC
 **[wrappy](#13cebf193d7ada5ee347b9ae819b96f5e6da21f9b53e7f268c7703b686158595)**|1.0.2|ISC
 **[yallist](#d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f)**|4.0.0|ISC
@@ -7498,8 +7494,8 @@ Authors:
 * The MongoDB NodeJS Team <[dbx-node@mongodb.com](nomail)>
 
 
-<a id="a7cf2c3292e645d20849180f5cc7aeb0154b7e453d01b748e732f212a0ee6935"></a>
-### [keytar](https://www.npmjs.com/package/keytar) (version 5.6.0)
+<a id="2777399d4579e44d68390c73dd209918f2092a61a8bc0d13d950da49ab4863a6"></a>
+### [keytar](https://www.npmjs.com/package/keytar) (version 7.7.0)
 <!-- initially found at node_modules/keytar -->
 > Bindings to native Mac/Linux/Windows password APIs
 
@@ -7720,43 +7716,6 @@ License files:
 
 Authors:
 * James Halliday <[mail@substack.net](nomail)> (http://substack.net)
-
-
-<a id="c9b61718830a71a4143ddf8aea40ecf5cd105a06f26074c1210c42bc0fcb3c2a"></a>
-### [mkdirp](https://www.npmjs.com/package/mkdirp) (version 0.5.5)
-<!-- initially found at node_modules/keytar/node_modules/mkdirp -->
-> Recursively mkdir, like `mkdir -p`
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright 2010 James Halliday (mail@substack.net)
-      
-      This project is free software released under the MIT/X11 license:
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* James Halliday <mail@substack.net> (http://substack.net)
 
 
 <a id="e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c"></a>
@@ -9512,42 +9471,6 @@ Authors:
 * mustache.js Authors <http://github.com/janl/mustache.js>
 
 
-<a id="91c7fdf0a68aa262fd6b944c033a394f3a6bf198103fc1a3f0ffc4b7e7f92528"></a>
-### [nan](https://www.npmjs.com/package/nan) (version 2.14.1)
-<!-- initially found at node_modules/keytar/node_modules/nan -->
-> Native Abstractions for Node.js: C++ header for Node 0.8 -> 14 compatibility
-
-License tags: MIT
-
-License files:
-* LICENSE.md:
-
-      The MIT License (MIT)
-      =====================
-      
-      Copyright (c) 2018 NAN contributors
-      -----------------------------------
-      
-      *NAN contributors listed at <https://github.com/nodejs/nan#contributors>*
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Rod Vagg <r@va.gg> (https://github.com/rvagg)
-* Benjamin Byholm <bbyholm@abo.fi> (https://github.com/kkoopa/)
-* Trevor Norris <trev.norris@gmail.com> (https://github.com/trevnorris)
-* Nathan Rajlich <nathan@tootallnate.net> (https://github.com/TooTallNate)
-* Brett Lawson <brett19@gmail.com> (https://github.com/brett19)
-* Ben Noordhuis <info@bnoordhuis.nl> (https://github.com/bnoordhuis)
-* David Siegel <david@artcom.de> (https://github.com/agnat)
-* Michael Ira Krufky <mkrufky@gmail.com> (https://github.com/mkrufky)
-
-
 <a id="354f3feba0979fd26b49eb6e9527ba176bbf15fb9cc0374479fc593a09ddda8c"></a>
 ### [nan](https://www.npmjs.com/package/nan) (version 2.14.2)
 <!-- initially found at node_modules/nan -->
@@ -9696,7 +9619,7 @@ Authors:
 
 <a id="41cf4a77f0b640214c5bcc5fa57dc986f9dc30676e63e34e74f23b134fe518e0"></a>
 ### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 4.2.0)
-<!-- initially found at packages/compass/node_modules/node-addon-api -->
+<!-- initially found at packages/compass/node_modules/kerberos/node_modules/node-addon-api -->
 > Node.js API (Node-API)
 
 License tags: MIT
@@ -9803,7 +9726,7 @@ Authors:
 
 <a id="29f3bd2e2ca7a2f4abf4ebfbffe6fa9fc1a33b2fb001d918f92a15ffd7dd7507"></a>
 ### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 3.2.1)
-<!-- initially found at node_modules/os-dns-native/node_modules/node-addon-api -->
+<!-- initially found at node_modules/keytar/node_modules/node-addon-api -->
 > Node.js API (Node-API)
 
 License tags: MIT
@@ -10195,50 +10118,6 @@ Authors:
 <a id="a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda"></a>
 ### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 6.1.2)
 <!-- initially found at node_modules/prebuild-install -->
-> A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2015 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Mathias Buus (@mafintosh)
-* Julian Gruber <julian@juliangruber.com> (https://github.com/juliangruber)
-* Brett Lawson <brett19@gmail.com> (https://github.com/brett19)
-* Pieter Hintjens <ph@imatix.com> (https://github.com/hintjens)
-* Lars-Magnus Skog <ralphtheninja@riseup.net> (https://github.com/ralphtheninja)
-* Jesús Leganés Combarro <piranna@gmail.com> (https://github.com/piranna)
-* Mathias Küsel <mathiask@hotmail.de> (https://github.com/mathiask88)
-* Lukas Geiger <lukas.geiger94@gmail.com> (https://github.com/lgeiger)
-
-
-<a id="bb0c15b59a60bfb588b95eac158895de82ab409819db6156c24a723ee63b8595"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 5.3.3)
-<!-- initially found at node_modules/keytar/node_modules/prebuild-install -->
 > A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
 
 License tags: MIT
@@ -11834,42 +11713,6 @@ License files:
 
 Authors:
 * Sebastian Mayr <github@smayr.name>
-
-
-<a id="52706f86df23330d11bd1b7736cb665692a56bb749511bc49fa54c0595974411"></a>
-### [which-pm-runs](https://www.npmjs.com/package/which-pm-runs) (version 1.0.0)
-<!-- initially found at node_modules/which-pm-runs -->
-> Detects what package manager executes the process
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2017 Zoltan Kochan
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-
-Authors:
-* Zoltan Kochan
 
 
 <a id="c58d08bb85700ddf0f3ea9623adf6b3377301a5a4eeb3d115a63320de0cb59e6"></a>
