@@ -154,6 +154,8 @@ class Target {
     this.semver = new semver.SemVer(this.version);
     this.channel = 'stable';
 
+    this.autoUpdateBaseUrl = _.get(pkg, 'config.hadron.endpoint', null);
+
     this.asar = { unpack: [], ...pkg.config.hadron.asar };
     this.rebuild = { ...pkg.config.hadron.rebuild };
 

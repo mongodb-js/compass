@@ -17,7 +17,15 @@ function requireExportModule() {
     return {};
   }
 
-  return isRenderer ? require('./lib/renderer') : require('./lib/main');
+  const ipc = isRenderer ? require('./lib/renderer') : require('./lib/main');
+
+  module.exports = ipc;
+
+  if (isRenderer) {
+    module.exports.ipcRenderer = ipc;
+  } else {
+    module.exports.ipcMain = ipc;
+  }
 }
 
-module.exports = requireExportModule();
+requireExportModule();

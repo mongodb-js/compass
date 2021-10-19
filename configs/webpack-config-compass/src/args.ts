@@ -6,7 +6,7 @@ export type WebpackConfig = Configuration &
   Pick<WebpackOptionsNormalized, 'devServer'>;
 
 export type WebpackCLIArgs = {
-  entry: string | string[];
+  entry: string | string[] | Record<string, string>;
   configName?: string | string[];
   name?: string;
   color?: boolean;

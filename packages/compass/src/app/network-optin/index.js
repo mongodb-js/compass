@@ -1,4 +1,3 @@
-var $ = window.jQuery;
 var View = require('ampersand-view');
 var app = require('hadron-app');
 var _ = require('lodash');

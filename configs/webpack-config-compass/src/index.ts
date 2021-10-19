@@ -33,6 +33,7 @@ import {
 } from './util';
 import { sharedExternals } from './externals';
 import { WebpackPluginMulticompilerProgress } from './webpack-plugin-multicompiler-progress';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 export function createElectronMainConfig(
   args: Partial<ConfigArgs>
@@ -144,6 +145,13 @@ export function createElectronRendererConfig(
             filename: opts.outputFilename ?? '[name].renderer.js',
             assetModuleFilename: 'assets/[name][ext]',
           },
+        }
+      : {},
+    opts.mode === 'production'
+      ? {
+          plugins: [
+            new MiniCssExtractPlugin(),
+          ] as unknown as WebpackPluginInstance[],
         }
       : {},
     isServe(opts)
