@@ -399,9 +399,7 @@ tasks:
       - func: install
 
       - func: verify
-        # We are skipping windows here because the way cygwin is setup breaks
-        # our lint configuration and doesn't allow `npm run check` to pass
-        variants: [macos, ubuntu, rhel]
+        variants: [windows, macos, ubuntu, rhel]
 
       - func: test
         vars:
