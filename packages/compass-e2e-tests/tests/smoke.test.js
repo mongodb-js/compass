@@ -1,4 +1,4 @@
-// @ts-checkhelper
+// @ts-check
 const { promises: fs } = require('fs');
 const _ = require('lodash');
 const chai = require('chai');
