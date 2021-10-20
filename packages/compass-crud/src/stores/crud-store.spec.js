@@ -1,3 +1,4 @@
+import util from 'util';
 import Connection from 'mongodb-connection-model';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
@@ -73,6 +74,14 @@ describe('store', function() {
 
   after(async() => {
     await dataService.disconnect();
+  });
+
+  beforeEach(() => {
+    sinon.restore();
+  });
+
+  afterEach(() => {
+    sinon.restore();
   });
 
   describe('#getInitialState', () => {
@@ -370,14 +379,9 @@ describe('store', function() {
     context('when the deletion errors', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
 
       beforeEach(() => {
-        stub = sinon.stub(dataService, 'deleteOne').yields({ message: 'error happened' });
-      });
-
-      afterEach(() => {
-        stub.restore();
+        sinon.stub(dataService, 'deleteOne').yields({ message: 'error happened' });
       });
 
       it('sets the error for the document', (done) => {
@@ -479,14 +483,9 @@ describe('store', function() {
     context('when there is no update to make', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
 
       beforeEach(() => {
-        stub = sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
-      });
-
-      afterEach(() => {
-        stub.restore();
+        sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
       });
 
       it('sets the error for the document', (done) => {
@@ -502,15 +501,10 @@ describe('store', function() {
     context('when the update errors', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
 
       beforeEach(() => {
         hadronDoc.elements.at(1).rename('new name');
-        stub = sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
-      });
-
-      afterEach(() => {
-        stub.restore();
+        sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
       });
 
       it('sets the error for the document', (done) => {
@@ -526,15 +520,10 @@ describe('store', function() {
     context('when the update fails', () => {
       const doc = { _id: 'testing', name: 'Beach Sand' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
 
       beforeEach(() => {
         hadronDoc.elements.at(1).rename('new name');
-        stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, null);
-      });
-
-      afterEach(() => {
-        stub.restore();
+        sinon.stub(dataService, 'findOneAndUpdate').yields(null, null);
       });
 
       it('sets the update blocked for the document', (done) => {
@@ -554,10 +543,6 @@ describe('store', function() {
       beforeEach(() => {
         hadronDoc.get('name').edit('Desert Sand');
         stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
-      });
-
-      afterEach(() => {
-        stub.restore();
       });
 
       it('has the original value for the edited value in the query', () => {
@@ -588,7 +573,6 @@ describe('store', function() {
 
       afterEach(() => {
         store.state.shardKeys = null;
-        stub.restore();
       });
 
       it('has the shard key in the query', () => {
@@ -664,14 +648,9 @@ describe('store', function() {
     context('when the replace errors', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
 
       beforeEach(() => {
-        stub = sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
-      });
-
-      afterEach(() => {
-        stub.restore();
+        sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
       });
 
       it('sets the error for the document', (done) => {
@@ -692,10 +671,6 @@ describe('store', function() {
       beforeEach(() => {
         hadronDoc.get('name').edit('Desert Sand');
         stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
-      });
-
-      afterEach(() => {
-        stub.restore();
       });
 
       it('has the original value for the edited value in the query', () => {
@@ -721,7 +696,6 @@ describe('store', function() {
 
       afterEach(() => {
         store.state.shardKeys = null;
-        stub.restore();
       });
 
       it('has the shard key in the query', () => {
@@ -786,14 +760,9 @@ describe('store', function() {
       const hadronDoc = new HadronDocument(doc);
       const stringifiedDoc = EJSON.stringify(doc);
       const ejsonDoc = EJSON.parse(stringifiedDoc);
-      let stub;
 
       beforeEach(() => {
-        stub = sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
-      });
-
-      afterEach(() => {
-        stub.restore();
+        sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
       });
 
       it('sets the error for the document', async() => {
@@ -821,7 +790,6 @@ describe('store', function() {
 
       afterEach(() => {
         store.state.shardKeys = null;
-        stub.restore();
       });
 
       it('has the shard key in the query', () => {
@@ -1469,6 +1437,50 @@ describe('store', function() {
       });
     });
 
+    context('when the collection is a timeseries', () => {
+      let store;
+      let actions;
+
+      beforeEach(async() => {
+        const createCollection = util.promisify(dataService.createCollection.bind(dataService));
+
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions,
+          namespace: 'compass-crud.timeseries',
+          noRefreshOnConfigure: true
+        });
+
+        store.setState({isTimeSeries: true});
+
+        await createCollection('cancel.noIndex', { timeseries: { timeField: 'timestamp '} });
+      });
+
+      it('does not specify the _id_ index as hint', async function() {
+        const spy = sinon.spy(dataService, 'aggregate');
+        const listener = listenToStore(store, (state, index) => {
+          if (index === 2) {
+            expect(state.count).to.equal(0);
+          }
+        }, 2);
+
+        store.refreshDocuments();
+
+        await listener;
+
+        // the count should be the only aggregate we ran
+        expect(spy.callCount).to.equal(1);
+        const opts = spy.args[0][2];
+        expect(opts.hint).to.not.exist;
+      });
+    });
+
     context('when cancelling the operation', () => {
       let store;
       let actions;
@@ -1489,6 +1501,8 @@ describe('store', function() {
       });
 
       it('aborts the queries and kills the session', async() => {
+        const spy = sinon.spy(dataService, 'aggregate');
+
         const listener = listenToStore(store, (state, index) => {
           if (index === 1) {
             // cancel the operation as soon as the query starts
@@ -1522,6 +1536,11 @@ describe('store', function() {
         store.refreshDocuments();
 
         await listener;
+
+        // the count should be the only aggregate we ran
+        expect(spy.callCount).to.equal(1);
+        const opts = spy.args[0][2];
+        expect(opts.hint).to.equal('_id_');
       });
     });
   });
@@ -1545,7 +1564,6 @@ describe('store', function() {
         noRefreshOnConfigure: true
       });
 
-      sinon.restore();
       fetchSpy = sinon.spy(store.dataService, 'fetch');
 
       const docs = [...Array(1000).keys()].map((i) => ({ i }));
@@ -1553,7 +1571,6 @@ describe('store', function() {
     });
 
     afterEach((done) => {
-      sinon.restore();
       dataService.deleteMany('compass-crud.test', {}, {}, done);
     });
 
