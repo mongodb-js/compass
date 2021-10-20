@@ -9,24 +9,21 @@ const formCardStyles = css({
   height: 'fit-content',
   width: '100%',
   minWidth: 360,
-  maxWidth: 800
+  maxWidth: 800,
 });
 
 function ConnectForm({
-  onConnectClicked
+  onConnectClicked,
 }: {
-  onConnectClicked: () => void
+  onConnectClicked: () => void;
 }): React.ReactElement {
   return (
-    <Card
-      css={formCardStyles}
-    >
+    <Card css={formCardStyles}>
       <h1>Connect form</h1>
       <div>
-        <Button
-          variant={ButtonVariant.Primary}
-          onClick={onConnectClicked}
-        >Connect</Button>
+        <Button variant={ButtonVariant.Primary} onClick={onConnectClicked}>
+          Connect
+        </Button>
       </div>
     </Card>
   );
