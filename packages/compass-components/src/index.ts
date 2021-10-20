@@ -8,7 +8,8 @@ export {
   default as Banner,
   Variant as BannerVariant,
 } from '@leafygreen-ui/banner';
-export { default as Button, Size as ButtonSize } from '@leafygreen-ui/button';
+export { default as Button, Size as ButtonSize, Variant as ButtonVariant } from '@leafygreen-ui/button';
+export { default as Card } from '@leafygreen-ui/card';
 export { default as Checkbox } from '@leafygreen-ui/checkbox';
 export { default as Icon } from '@leafygreen-ui/icon';
 export { default as IconButton } from '@leafygreen-ui/icon-button';
