@@ -55,7 +55,18 @@ async function main() {
     // These tests are not working well on windows machines and we will
     // skip them for now.
     // https://jira.mongodb.org/browse/COMPASS-5159
-    console.warn('Skipping e2e tests on windows machine');
+    console.warn('⚠️ Skipping e2e tests on windows machine');
+    return;
+  }
+
+  if (process.env.EVERGREEN && process.platform === 'darwin') {
+    // TODO: https://jira.mongodb.org/browse/COMPASS-5214
+    console.warn(
+      '⚠️ Compass e2e tests are skipped in Evergreen environment on macOS ' +
+        'machines as running tests requires temporary changes to the default ' +
+        'machine keychain and the machines are statefull which might cause issues ' +
+        'for some processes.'
+    );
     return;
   }
 
