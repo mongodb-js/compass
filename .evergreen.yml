@@ -110,14 +110,13 @@ functions:
 
           if [[ "\$OSTYPE" != "cygwin" ]]; then
             export PATH="$(pwd)/.deps/bin:\$PATH"
+          fi
 
-            if cat /etc/*release | grep ^NAME | grep Red; then
-              # Is RHEL machine.
-              # To build node modules on RHEL post electron 13 we need
-              # a newer c++ compiler version, this adds it. 
-              # https://jira.mongodb.org/browse/COMPASS-5150
-              export PATH="/opt/mongodbtoolchain/v3/bin:\$PATH"
-            fi
+          if [ "\$EVERGREEN_BUILD_VARIANT" = rhel ]; then
+            # To build node modules on RHEL post electron 13 we need
+            # a newer c++ compiler version, this adds it. 
+            # https://jira.mongodb.org/browse/COMPASS-5150
+            export PATH="/opt/mongodbtoolchain/v3/bin:\$PATH"
           fi
 
           EOF_BUILD_SH
