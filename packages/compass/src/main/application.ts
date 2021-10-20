@@ -39,11 +39,7 @@ class CompassApplication {
   }
 
   static init(): Promise<void> {
-    if (this.initPromise) {
-      return this.initPromise;
-    }
-    this.initPromise = this._init();
-    return this.initPromise;
+    return this.initPromise ??= this._init();
   }
 
   private static async setupSecureStore(): Promise<void> {
