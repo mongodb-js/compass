@@ -117,7 +117,7 @@
     "prestart": "npm run electron-rebuild",
     "start": "npm run webpack serve -- --mode development",
     "pretest": "npm run electron-rebuild",
-    "test": "xvfb-maybe electron-mocha",
+    "test": "xvfb-maybe electron-mocha --no-sandbox",
     "posttest": "node ../../scripts/rebuild.js kerberos keytar interruptor",
     "check": "npm run lint && npm run depcheck",
     "prewebpack": "rimraf ./build",
