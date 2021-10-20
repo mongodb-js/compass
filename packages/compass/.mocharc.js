@@ -1,4 +1,4 @@
-const specs = process.argv.slice(2);
+const specs = process.argv.slice(2).filter(arg => !arg.startsWith('-'));
 
 module.exports = {
   ...require('@mongodb-js/mocha-config-compass'),

@@ -62,17 +62,14 @@ const RULES = [
     registryEvent: 'instance-refreshed',
     resource: 'Deployment',
     action: 'detected',
-    condition: (state) => (state.instance.databases !== null),
+    condition: (state) =>
+      state.instance && state.instance.build && state.instance.build.version,
     metadata: async(version, state) => {
       const cloudInfo = await getCloudInfoFromDataService(state.dataService);
 
       const deploymentDetectedEvent = {
-        'databases count': state.instance.databases.length,
-        'namespaces count': state.instance.collections.length,
         'mongodb version': state.instance.build.version,
         'enterprise module': state.instance.build.enterprise_module,
-        'longest database name length': Math.max(...state.instance.databases.map((db) => db._id.length)),
-        'longest collection name length': Math.max(...state.instance.collections.map((col) => col._id.split('.')[1].length)),
         'server architecture': state.instance.host.arch,
         'server cpu cores': state.instance.host.cpu_cores,
         'server cpu frequency (mhz)': state.instance.host.cpu_frequency / 1000 / 1000,
