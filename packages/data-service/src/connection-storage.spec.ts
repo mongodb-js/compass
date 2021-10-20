@@ -1,4 +1,5 @@
-import { TestBackend } from 'storage-mixin';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { TestBackend } = require('storage-mixin');
 
 import { expect } from 'chai';
 

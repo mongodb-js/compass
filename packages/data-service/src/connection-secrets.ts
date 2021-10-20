@@ -1,6 +1,7 @@
 import _ from 'lodash';
-import ConnectionString from 'mongodb-connection-string-url';
-import { AuthMechanismProperties } from './auth-mechanism-properties';
+import ConnectionString, {
+  CommaAndColonSeparatedRecord,
+} from 'mongodb-connection-string-url';
 import { ConnectionInfo } from './connection-info';
 
 export interface ConnectionSecrets {
@@ -36,7 +37,7 @@ export function mergeSecrets(
   }
 
   if (secrets.awsSessionToken) {
-    const authMechanismProperties = new AuthMechanismProperties(
+    const authMechanismProperties = new CommaAndColonSeparatedRecord(
       uri.searchParams.get(AUTH_MECHANISM_PROPERTIES_KEY)
     );
 
@@ -74,7 +75,7 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
     delete connectionOptions.sshTunnel.identityKeyPassphrase;
   }
 
-  const authMechanismProperties = new AuthMechanismProperties(
+  const authMechanismProperties = new CommaAndColonSeparatedRecord(
     uri.searchParams.get(AUTH_MECHANISM_PROPERTIES_KEY)
   );
 
