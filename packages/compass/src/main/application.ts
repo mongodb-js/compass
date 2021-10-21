@@ -125,9 +125,10 @@ class CompassApplication {
   }
 
   static async runExitHandlers(): Promise<void> {
-    let handler: ExitHandler | undefined;
-    while ((handler = this.exitHandlers.pop()) !== undefined) {
-      await handler();
+    while (this.exitHandlers.length > 0) {
+      const handlers = this.exitHandlers;
+      this.exitHandlers = [];
+      await Promise.all(handlers.map(fn => fn()));
     }
   }
 
