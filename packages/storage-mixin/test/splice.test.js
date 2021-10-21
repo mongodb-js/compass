@@ -12,9 +12,13 @@ describe('storage backend splice', function() {
     // TODO: All storage-mixin tests that use keytar on linux machines are
     // failing even with the gnome-keyring fix applied, we will skip them for
     // now
-    //
-    // See:
     console.warn('Skipping "storage backend splice" test suite');
+    return;
+  }
+
+  if (process.env.EVERGREEN && process.platform === 'darwin') {
+    // Can't override default keychain on macOS in evergreen, skipping
+    // TODO: https://jira.mongodb.org/browse/COMPASS-5216
     return;
   }
 
