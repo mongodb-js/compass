@@ -11,6 +11,8 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
+const TEST_TIMESERIES = false; // TODO: base this off an env var once we have it
+
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',
   port: 27018,
@@ -1438,6 +1440,10 @@ describe('store', function() {
     });
 
     context('when the collection is a timeseries', () => {
+      if (!TEST_TIMESERIES) {
+        return;
+      }
+
       let store;
       let actions;
 
@@ -1459,7 +1465,7 @@ describe('store', function() {
 
         store.setState({isTimeSeries: true});
 
-        await createCollection('cancel.noIndex', { timeseries: { timeField: 'timestamp '} });
+        await createCollection('compass-crud.timeseries', { timeseries: { timeField: 'timestamp '} });
       });
 
       it('does not specify the _id_ index as hint', async function() {

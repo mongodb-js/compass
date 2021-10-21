@@ -59,24 +59,17 @@ describe('cancellable-queries', function() {
     } catch (err) {
       // noop
     }
+    await insertMany('cancel.numbers', docs, {});
 
     try {
-      await dropCollection('cancel.noIndex');
+      await dropCollection('cancel.empty');
     } catch (err) {
       // noop
     }
-
-    await deleteMany('config.collections', { _id: 'cancel.sharded' }, {});
-
-    await insertMany('cancel.numbers', docs, {});
-
-    // timeseries collections don't have the _id_ index and after MongoDB 4 you
-    // can't create a normal collection without the _id_ index. You also can't
-    // drop the _id_ index so this is probably the only way to get a collection
-    // without the index.
-    await createCollection('cancel.noIndex', { timeseries: { timeField: 'timestamp '} });
+    await createCollection('cancel.empty', {});
 
     // define a shard key for the cancel.shared collection
+    await deleteMany('config.collections', { _id: 'cancel.sharded' }, {});
     await insertOne('config.collections', { _id: 'cancel.sharded', key: { a: 1 } }, {});
   });
 
@@ -161,7 +154,7 @@ describe('cancellable-queries', function() {
     });
 
     it('resolves to 0 for empty collections', async function() {
-      const count = await countDocuments(dataService, 'cancel.noIndex', {}, {
+      const count = await countDocuments(dataService, 'cancel.empty', {}, {
         signal,
         session
       });
@@ -169,7 +162,7 @@ describe('cancellable-queries', function() {
     });
 
     it('resolves to null if the query fails', async function() {
-      const count = await countDocuments(dataService, 'cancel.noIndex', {}, {
+      const count = await countDocuments(dataService, 'cancel.numbers', 'this is not a filter', {
         signal,
         session,
         hint: { _id_: 1 } // this collection doesn't have this index so this query should fail
