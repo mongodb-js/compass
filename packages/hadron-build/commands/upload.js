@@ -1,9 +1,12 @@
-// eslint-disable-next-line strict
-'use strict';
-
 /**
  * Upload release assets to GitHub and S3.
  */
+
+// eslint-disable-next-line strict
+'use strict';
+
+const fs = require('fs');
+
 const { Octokit } = require('@octokit/rest');
 const { GitHubRepo } = require('./../lib/github-repo');
 
@@ -43,15 +46,24 @@ async function maybePublishGitHubRelease(target) {
   // already published releases.
   await repo.updateDraftRelease(release);
 
-  const uploads = target.assets.map(
+  const assets = target.assets.filter(function(asset) {
+    // eslint-disable-next-line no-sync
+    var exists = fs.existsSync(asset.path);
+    if (!exists) {
+      cli.warn(`Excluding ${asset.path} from upload because it does not exist.`);
+    }
+    return exists;
+  });
+
+  const uploads = assets.map(
     async function(asset) {
-      cli.info(`Starting upload ${asset.name} to Github (path: ${asset.path})`);
+      cli.info(`${asset.name}: upload to Github release ${releaseTag} started (path: ${asset.path}).`);
       await repo.uploadReleaseAsset(releaseTag, {
         name: asset.name,
         path: asset.path
       });
 
-      cli.info(`Upload of ${asset.name} to Github done.`);
+      cli.info(`${asset.name}: upload to Github release ${releaseTag} completed.`);
     }
   );
 
@@ -76,17 +88,7 @@ exports.handler = function(argv) {
     process.env.HADRON_DISTRIBUTION = argv.options;
   }
 
-  var fs = require('fs');
   var target = new Target(argv.dir);
-
-  target.assets = target.assets.filter(function(asset) {
-    // eslint-disable-next-line no-sync
-    var exists = fs.existsSync(asset.path);
-    if (!exists) {
-      cli.warn(`Excluding ${asset.path} from upload because it does not exist.`);
-    }
-    return exists;
-  });
 
   maybePublishGitHubRelease(target)
     .then(() => downloadCenter.maybeUpload(target))
