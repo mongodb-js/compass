@@ -3,6 +3,8 @@ import { remote } from 'electron';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from '@mongodb-js/compass-components';
+import ConnectForm from '@mongodb-js/connect-form';
+
 import Actions from '../actions';
 import Sidebar from './sidebar';
 import ConnectionForm from './form/connection-form';
@@ -133,6 +135,8 @@ class Connect extends React.Component {
     const Status =
       global.hadronApp.appRegistry.getRole('Application.Status')[0].component;
 
+    const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
+
     return (
       <div>
         <Status />
@@ -142,14 +146,19 @@ class Connect extends React.Component {
         >
           <Sidebar {...this.props} />
           <div className={classnames(styles['form-container'])}>
-            <div
-              className={classnames(styles['connect-container'])}
-              onMouseMove={this.handleMouseMove.bind(this)}
-            >
-              {this.renderHeader()}
-              {this.renderChangeViewLink()}
-              {this.renderConnectScreen()}
-            </div>
+            {showNewConnectForm && <ConnectForm
+              onConnectClicked={() => Actions.onConnectClicked()}
+            />}
+            {!showNewConnectForm && (
+              <div
+                className={classnames(styles['connect-container'])}
+                onMouseMove={this.handleMouseMove.bind(this)}
+              >
+                {this.renderHeader()}
+                {this.renderChangeViewLink()}
+                {this.renderConnectScreen()}
+              </div>
+            )}
             <Help {...this.props} />
           </div>
           <Connecting
