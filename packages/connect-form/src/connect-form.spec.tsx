@@ -17,7 +17,7 @@ function renderForm() {
 describe('ConfirmationModal Component', function () {
   it('should show the heading', function () {
     renderForm();
-    expect(screen.getByRole('heading')).to.have.text('Connect form');
+    expect(screen.getByRole('heading')).to.have.text('New Connection');
   });
 
   it('should show the connect button', function () {

@@ -1,11 +1,17 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import { Button, ButtonVariant, Card } from '@mongodb-js/compass-components';
+import {
+  Button,
+  ButtonVariant,
+  Card,
+  H2,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 const formCardStyles = css({
-  margin: 20,
+  margin: spacing[4],
   marginTop: 99,
-  padding: 20,
+  padding: spacing[4],
   height: 'fit-content',
   width: '100%',
   minWidth: 360,
@@ -19,7 +25,7 @@ function ConnectForm({
 }): React.ReactElement {
   return (
     <Card css={formCardStyles}>
-      <h1>Connect form</h1>
+      <H2>New Connection</H2>
       <div>
         <Button variant={ButtonVariant.Primary} onClick={onConnectClicked}>
           Connect

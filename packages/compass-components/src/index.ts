@@ -24,7 +24,8 @@ export { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
 export { Tabs, Tab } from '@leafygreen-ui/tabs';
 export { default as TextInput } from '@leafygreen-ui/text-input';
 export { default as Toggle } from '@leafygreen-ui/toggle';
+export { spacing } from '@leafygreen-ui/tokens';
 export { default as Tooltip } from '@leafygreen-ui/tooltip';
-export { Link } from '@leafygreen-ui/typography';
+export { H2, Link } from '@leafygreen-ui/typography';
 
 export { ConfirmationModal, ResizeHandle, ResizeDirection };
