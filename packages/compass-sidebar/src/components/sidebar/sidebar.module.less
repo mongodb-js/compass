@@ -20,6 +20,7 @@
   height: 100%;
   max-width: 90%;
   position: relative;
+  z-index: 50;
 
   &-toggle {
     position: absolute;
@@ -31,7 +32,7 @@
     top: 4px;
     padding: 0;
     cursor: pointer;
-    z-index: 1000;
+    z-index: -5;
     &:hover, &:focus {
       border-left: 0;
     }
@@ -160,10 +161,6 @@
 }
 
 .compass-sidebar-collapsed {
-  .compass-sidebar-toggle {
-    left: 36px;
-  }
-
   .compass-sidebar-item,
   .compass-sidebar-property-column,
   .compass-sidebar-instance-hostname,
