@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const preload = require('semver/preload');
+
 class GithubRepo {
   constructor(repo, octokit) {
     this.octokit = octokit;
@@ -245,4 +246,5 @@ class GithubRepo {
             error.errors[0].code === 'already_exists';
   }
 }
-exports.GithubRepo = GithubRepo;
+
+module.exports = { GithubRepo };

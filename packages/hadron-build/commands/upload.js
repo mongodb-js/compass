@@ -8,7 +8,7 @@
 const fs = require('fs');
 
 const { Octokit } = require('@octokit/rest');
-const { GitHubRepo } = require('./../lib/github-repo');
+const { GithubRepo } = require('./../lib/github-repo');
 
 const cli = require('mongodb-js-cli')('hadron-build:upload');
 const abortIfError = cli.abortIfError.bind(cli);
@@ -29,7 +29,7 @@ async function maybePublishGitHubRelease(target) {
     auth: process.env.GITHUB_TOKEN
   });
 
-  const repo = new GitHubRepo({
+  const repo = new GithubRepo({
     owner: 'mongodb-js',
     repo: 'compass'
   }, octokit);
