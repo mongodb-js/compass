@@ -1,4 +1,5 @@
 import os from 'os';
+import { once } from 'events';
 import { promises as fs, createReadStream, createWriteStream } from 'fs';
 import stream from 'stream';
 import { promisify } from 'util';
@@ -14,7 +15,7 @@ import type { EventEmitter } from 'events';
 
 const debug = createDebug('mongodb-compass:main:logging');
 
-async function setupLogging() {
+async function setupLogging(compassApp: typeof CompassApplication) {
   try {
     const directory = app.getPath('logs');
 
@@ -96,7 +97,7 @@ async function setupLogging() {
       void writer.flush();
     });
 
-    app.on('before-quit', function () {
+    compassApp.addExitHandler(async function () {
       writer.info(
         'COMPASS-MAIN',
         mongoLogId(1_001_000_003),
@@ -104,6 +105,7 @@ async function setupLogging() {
         'Closing application'
       );
       writer.end();
+      await once(writer, 'log-finish');
     });
 
     process.on('compass:log', (meta) => {
@@ -207,7 +209,7 @@ class CompassLogging {
   private static initPromise: Promise<void> | null = null;
 
   private static async _init(app: typeof CompassApplication) {
-    const logFilePath = await setupLogging();
+    const logFilePath = await setupLogging(app);
 
     if (logFilePath) {
       app.on('show-log-file-dialog', () => {
