@@ -277,11 +277,7 @@ class CompassWindowManager {
   }
 
   static init(app: CompassApplication): Promise<void> {
-    if (this.initPromise) {
-      return this.initPromise;
-    }
-    this.initPromise = this._init(app);
-    return this.initPromise;
+    return this.initPromise ??= this._init(app);
   }
 }
 
