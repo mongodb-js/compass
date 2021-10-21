@@ -4,7 +4,7 @@
 /**
  * Upload release assets to GitHub and S3.
  */
-import { Octokit } from '@octokit/rest';
+const { Octokit } = require('@octokit/rest');
 const { GitHubRepo } = require('./../lib/github-repo');
 
 const cli = require('mongodb-js-cli')('hadron-build:upload');
