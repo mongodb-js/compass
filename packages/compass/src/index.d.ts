@@ -31,6 +31,8 @@ declare module 'process' {
         HARDRON_METRICS_BUGSNAG_KEY?: string;
         HARDRON_METRICS_INTERCOM_APP_ID?: string;
         HARDRON_METRICS_STITCH_APP_ID?: string;
+        HARDRON_METRICS_SEGMENT_API_KEY?: string;
+        HARDRON_METRICS_SEGMENT_HOST?: string;
         HADRON_AUTO_UPDATE_ENDPOINT: string;
       }
     }

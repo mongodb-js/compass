@@ -1,12 +1,15 @@
 // @ts-check
 const { expect } = require('chai');
 const { beforeTests, afterTests } = require('../helpers/compass');
+const { startTelemetryServer } = require('../helpers/telemetry');
 
-describe('Logging integration', function () {
-  describe('basic logging information', function () {
+describe('Logging and Telemetry integration', function () {
+  describe('after running an example path through Compass', function () {
     let compassLog;
+    let telemetry;
 
     before(async function () {
+      telemetry = await startTelemetryServer();
       const compass = await beforeTests();
       try {
         await compass.client.connectWithConnectionString(
@@ -17,15 +20,19 @@ describe('Logging integration', function () {
           'db.runCommand({ connectionStatus: 1 })',
           true
         );
+
+        await compass.client.openTourModal();
+        await compass.client.closeTourModal();
       } finally {
         await afterTests(compass);
+        await telemetry.stop();
       }
 
       compassLog = compass.compassLog;
       expect(compassLog).not.to.be.undefined;
     });
 
-    it('has a timestamp on all entries', function () {
+    it('logs have a timestamp on all entries', function () {
       expect(compassLog).not.to.be.undefined;
 
       for (const entry of compassLog) {
@@ -33,7 +40,26 @@ describe('Logging integration', function () {
       }
     });
 
-    describe('critical path', function () {
+    describe('telemetry events for the critical path', function () {
+      it('uses the proper API key', function () {
+        expect(telemetry.requests[0].req.headers.authorization)
+          .to.include(Buffer.from(telemetry.key + ':').toString('base64'));
+      });
+
+      it('contains an identify call', function () {
+        const identify = telemetry.events().find(entry => entry.type === 'identify');
+        expect(identify.traits.platform).to.equal(process.platform);
+        expect(identify.traits.arch).to.equal(process.arch);
+      });
+
+      it('contains a call for the welcome tour being closed', function () {
+        const tourClosed = telemetry.events().find(entry => entry.event === 'Tour Closed');
+        expect(tourClosed.properties.tab_title).to.equal('Performance Charts.');
+        expect(tourClosed.properties.compass_version).to.be.a('string');
+      });
+    });
+
+    describe('log events for the critical path', function () {
       const criticalPathExpectedLogs = [
         {
           s: 'I',
@@ -49,10 +75,50 @@ describe('Logging integration', function () {
         },
         {
           s: 'I',
+          c: 'COMPASS-TELEMETRY',
+          id: 1_001_000_095,
+          ctx: 'Telemetry',
+          msg: 'Disabling Telemetry reporting'
+        },
+        {
+          s: 'I',
+          c: 'COMPASS-TELEMETRY',
+          id: 1_001_000_093,
+          ctx: 'Telemetry',
+          msg: 'Loading telemetry config',
+          attr: (actual) => {
+            expect(actual.telemetryCapableEnvironment).to.equal(true);
+            expect(actual.hasAnalytics).to.equal(true);
+            expect(actual.currentUserId).to.be.a('string');
+            expect(actual.state).to.equal('disabled');
+          },
+        },
+        {
+          s: 'I',
           c: 'COMPASS-APP',
           ctx: 'Main Window',
           id: 1_001_000_092,
           msg: 'Rendering app container',
+        },
+        {
+          s: 'I',
+          c: 'COMPASS-TELEMETRY',
+          id: 1_001_000_094,
+          ctx: 'Telemetry',
+          msg: 'Enabling Telemetry reporting'
+        },
+        {
+          s: 'I',
+          c: 'COMPASS-TELEMETRY',
+          id: 1_001_000_093,
+          ctx: 'Telemetry',
+          msg: 'Loading telemetry config',
+          attr: (actual) => {
+            expect(actual.telemetryCapableEnvironment).to.equal(true);
+            expect(actual.hasAnalytics).to.equal(true);
+            expect(actual.currentUserId).to.be.a('string');
+            expect(actual.state).to.equal('enabled');
+          },
         },
         {
           s: 'I',
