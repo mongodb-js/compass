@@ -42,18 +42,23 @@ describe('Logging and Telemetry integration', function () {
 
     describe('telemetry events for the critical path', function () {
       it('uses the proper API key', function () {
-        expect(telemetry.requests[0].req.headers.authorization)
-          .to.include(Buffer.from(telemetry.key + ':').toString('base64'));
+        expect(telemetry.requests[0].req.headers.authorization).to.include(
+          Buffer.from(telemetry.key + ':').toString('base64')
+        );
       });
 
       it('contains an identify call', function () {
-        const identify = telemetry.events().find(entry => entry.type === 'identify');
+        const identify = telemetry
+          .events()
+          .find((entry) => entry.type === 'identify');
         expect(identify.traits.platform).to.equal(process.platform);
         expect(identify.traits.arch).to.equal(process.arch);
       });
 
       it('contains a call for the welcome tour being closed', function () {
-        const tourClosed = telemetry.events().find(entry => entry.event === 'Tour Closed');
+        const tourClosed = telemetry
+          .events()
+          .find((entry) => entry.event === 'Tour Closed');
         expect(tourClosed.properties.tab_title).to.equal('Performance Charts.');
         expect(tourClosed.properties.compass_version).to.be.a('string');
       });
@@ -78,7 +83,7 @@ describe('Logging and Telemetry integration', function () {
           c: 'COMPASS-TELEMETRY',
           id: 1_001_000_095,
           ctx: 'Telemetry',
-          msg: 'Disabling Telemetry reporting'
+          msg: 'Disabling Telemetry reporting',
         },
         {
           s: 'I',
@@ -105,7 +110,7 @@ describe('Logging and Telemetry integration', function () {
           c: 'COMPASS-TELEMETRY',
           id: 1_001_000_094,
           ctx: 'Telemetry',
-          msg: 'Enabling Telemetry reporting'
+          msg: 'Enabling Telemetry reporting',
         },
         {
           s: 'I',

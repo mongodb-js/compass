@@ -4,14 +4,15 @@ import createDebug from 'debug';
 import type { Writable } from 'stream';
 import type { HadronIpcRenderer } from 'hadron-ipc';
 
-function emit(ipc: HadronIpcRenderer | null, event: string, data: Record<string, any>): void {
+function emit(
+  ipc: HadronIpcRenderer | null,
+  event: string,
+  data: Record<string, any>
+): void {
   // We use ipc.callQuiet instead of ipc.call because we already
   // print debugging messages below
   ipc?.callQuiet?.(event, data);
-  if (
-    typeof process !== 'undefined' &&
-    typeof process.emit === 'function'
-  ) {
+  if (typeof process !== 'undefined' && typeof process.emit === 'function') {
     (process as any).emit(event, data);
   }
 }
@@ -58,7 +59,7 @@ export function createLogger(component: string): {
     log: writer.bindComponent(component),
     mongoLogId,
     debug,
-    track
+    track,
   };
 }
 
