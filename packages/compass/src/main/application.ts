@@ -4,6 +4,7 @@ import { app, BrowserWindow } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import createDebug from 'debug';
 import { CompassLogging } from './logging';
+import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 
@@ -32,6 +33,7 @@ class CompassApplication {
       this.setupLogging(),
       this.setupAutoUpdate(),
       this.setupSecureStore(),
+      this.setupTelemetry(),
     ]);
 
     this.setupJavaScriptArguments();
@@ -118,6 +120,10 @@ class CompassApplication {
     app.setAppLogsPath(logDir);
 
     await CompassLogging.init(this);
+  }
+
+  private static async setupTelemetry(): Promise<void> {
+    await CompassTelemetry.init(this);
   }
 
   static addExitHandler(handler: ExitHandler): void {
