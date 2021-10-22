@@ -22,14 +22,14 @@ async function startTelemetryServer() {
   await once(srv, 'listening');
   const host = `http://localhost:${srv.address().port}`;
   const key = '🔑';
-  process.env.HARDRON_METRICS_SEGMENT_API_KEY_OVERRIDE = key;
-  process.env.HARDRON_METRICS_SEGMENT_HOST_OVERRIDE = host;
+  process.env.HADRON_METRICS_SEGMENT_API_KEY_OVERRIDE = key;
+  process.env.HADRON_METRICS_SEGMENT_HOST_OVERRIDE = host;
 
   async function stop() {
     srv.close();
     await once(srv, 'close');
-    delete process.env.HARDRON_METRICS_SEGMENT_API_KEY_OVERRIDE;
-    delete process.env.HARDRON_METRICS_SEGMENT_HOST_OVERRIDE;
+    delete process.env.HADRON_METRICS_SEGMENT_API_KEY_OVERRIDE;
+    delete process.env.HADRON_METRICS_SEGMENT_HOST_OVERRIDE;
   }
 
   function events() {

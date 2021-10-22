@@ -89,11 +89,11 @@ module.exports = (_env, args) => {
     HADRON_AUTO_UPDATE_ENDPOINT: target.autoUpdateBaseUrl,
     // Optional env variables that will be set only by Evergreen CI for publicly
     // published releases
-    HARDRON_METRICS_BUGSNAG_KEY: null,
-    HARDRON_METRICS_INTERCOM_APP_ID: null,
-    HARDRON_METRICS_STITCH_APP_ID: null,
-    HARDRON_METRICS_SEGMENT_API_KEY: null,
-    HARDRON_METRICS_SEGMENT_HOST: null,
+    HADRON_METRICS_BUGSNAG_KEY: null,
+    HADRON_METRICS_INTERCOM_APP_ID: null,
+    HADRON_METRICS_STITCH_APP_ID: null,
+    HADRON_METRICS_SEGMENT_API_KEY: null,
+    HADRON_METRICS_SEGMENT_HOST: null,
   };
 
   return [
