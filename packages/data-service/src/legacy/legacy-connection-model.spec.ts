@@ -232,6 +232,31 @@ describe('convertConnectionModelToInfo', function () {
     });
   });
 
+  it('converts ssh tunnel options (IDENTITY_FILE array)', async function () {
+    const { connectionOptions } = await createAndConvertModel(
+      'mongodb://localhost:27017',
+      {
+        sshTunnel: 'IDENTITY_FILE',
+        sshTunnelHostname: 'jumphost',
+        sshTunnelPort: 22,
+        sshTunnelUsername: 'root',
+        sshTunnelIdentityFile: ['myfile'],
+      }
+    );
+
+    expect(connectionOptions).to.deep.equal({
+      connectionString:
+        'mongodb://localhost:27017/' +
+        '?readPreference=primary&directConnection=true&ssl=false',
+      sshTunnel: {
+        host: 'jumphost',
+        port: 22,
+        identityKeyFile: 'myfile',
+        username: 'root',
+      },
+    });
+  });
+
   it('converts ssh tunnel options (IDENTITY_FILE) + passphrase', async function () {
     const { connectionOptions } = await createAndConvertModel(
       'mongodb://localhost:27017',
