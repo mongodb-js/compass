@@ -16,9 +16,9 @@ describe('Logging and Telemetry integration', function () {
           'mongodb://localhost:27018/test'
         );
 
+        await compass.client.shellEval('use test');
         await compass.client.shellEval(
-          'db.runCommand({ connectionStatus: 1 })',
-          true
+          'db.runCommand({ connectionStatus: 1 })'
         );
 
         await compass.client.openTourModal();
@@ -61,6 +61,20 @@ describe('Logging and Telemetry integration', function () {
           .find((entry) => entry.event === 'Tour Closed');
         expect(tourClosed.properties.tab_title).to.equal('Performance Charts.');
         expect(tourClosed.properties.compass_version).to.be.a('string');
+      });
+
+      it('contains call for shell use events', function () {
+        const shellUse = telemetry
+          .events()
+          .find((entry) => entry.event === 'Shell Use');
+        expect(shellUse.properties.compass_version).to.be.a('string');
+      });
+
+      it('contains call for shell connection events', function () {
+        const shellNewConnection = telemetry
+          .events()
+          .find((entry) => entry.event === 'Shell New Connection');
+        expect(shellNewConnection.properties.is_localhost).to.equal(true);
       });
     });
 

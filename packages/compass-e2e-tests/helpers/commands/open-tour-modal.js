@@ -1,5 +1,7 @@
 const Selectors = require('../selectors');
 
+const MINUTE = 60_000;
+
 module.exports = function (app) {
   return async function () {
     const { client } = app;
@@ -26,6 +28,6 @@ module.exports = function (app) {
     });
 
     const featureTourModalElement = await client.$(Selectors.FeatureTourModal);
-    await featureTourModalElement.waitForExist();
+    await featureTourModalElement.waitForExist({ timeout: MINUTE });
   };
 };
