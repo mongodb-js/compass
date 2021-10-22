@@ -9,7 +9,7 @@ describe('ServerVersionStore [Store]', () => {
     const s = {
       instance: {
         build: {
-          enterprise_module: true,
+          isEnterprise: true,
           version: '3.4.4'
         }
       }
@@ -31,7 +31,7 @@ describe('ServerVersionStore [Store]', () => {
     const s = {
       instance: {
         build: {
-          enterprise_module: true,
+          isEnterprise: true,
           version: '3.4.4'
         },
         dataLake: {
