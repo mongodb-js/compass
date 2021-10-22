@@ -17,12 +17,9 @@ const Target = require('../lib/target');
 const downloadCenter = require('../lib/download-center');
 
 async function maybePublishGitHubRelease(target) {
-  if (target.channel === 'dev') {
-    cli.info('Skipping publish GitHub release for dev channel.');
-  }
-
   if (!process.env.GITHUB_TOKEN) {
     cli.warn('Skipping publish release because process.env.GITHUB_TOKEN not set.');
+    return;
   }
 
   const octokit = new Octokit({
@@ -89,6 +86,11 @@ exports.handler = function(argv) {
   }
 
   var target = new Target(argv.dir);
+
+  if (target.channel === 'dev') {
+    cli.info('Skipping publish GitHub release for dev channel.');
+    return;
+  }
 
   maybePublishGitHubRelease(target)
     .then(() => downloadCenter.maybeUpload(target))
