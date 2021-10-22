@@ -1,9 +1,10 @@
 import classnames from 'classnames';
-import { remote } from 'electron';
+import { remote, shell } from 'electron';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from '@mongodb-js/compass-components';
 import ConnectForm from '@mongodb-js/connect-form';
+import { convertConnectionModelToInfo } from 'mongodb-data-service';
 
 import Actions from '../actions';
 import Sidebar from './sidebar';
@@ -145,13 +146,19 @@ class Connect extends React.Component {
           className={classnames(styles.page, styles.connect)}
         >
           <Sidebar {...this.props} />
-          <div className={classnames(styles['form-container'])}>
+          <div className={styles['form-container']}>
             {showNewConnectForm && <ConnectForm
+              // TODO: Maybe remove this.
+              key={this.props.connectionModel._id}
+              initialConnectionInfo={convertConnectionModelToInfo(this.props.connectionModel)}
               onConnectClicked={() => Actions.onConnectClicked()}
+              openLink={(link) => {
+                shell.openExternal(link);
+              }}
             />}
             {!showNewConnectForm && (
               <div
-                className={classnames(styles['connect-container'])}
+                className={styles['connect-container']}
                 onMouseMove={this.handleMouseMove.bind(this)}
               >
                 {this.renderHeader()}

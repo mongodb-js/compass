@@ -10,6 +10,14 @@ function renderForm() {
       onConnectClicked={() => {
         /* */
       }}
+      initialConnectionInfo={{
+        connectionOptions: {
+          connectionString: '',
+        },
+      }}
+      openLink={() => {
+        /* do nothing */
+      }}
     />
   );
 }
