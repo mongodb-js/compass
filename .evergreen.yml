@@ -114,7 +114,7 @@ functions:
 
           if [ "\$EVERGREEN_BUILD_VARIANT" = rhel ]; then
             # To build node modules on RHEL post electron 13 we need
-            # a newer c++ compiler version, this adds it. 
+            # a newer c++ compiler version, this adds it.
             # https://jira.mongodb.org/browse/COMPASS-5150
             export PATH="/opt/mongodbtoolchain/v3/bin:\$PATH"
           fi
@@ -318,7 +318,7 @@ functions:
         source ~/compass_env.sh
 
         # Required to upload release assets to GitHub
-        export GITHUB_TOKEN=${leafybot_github_token}
+        export GITHUB_TOKEN=${devtoolsbot_github_token}
 
         # Required to upload release assets to s3 for download center
         export DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID=${aws_key_evergreen_integrations}
