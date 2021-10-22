@@ -8,41 +8,21 @@ var hostname = require('os').hostname();
 
 var HostInfo = AmpersandState.extend({
   props: {
-    system_time: 'date',
-    hostname: 'string',
+    arch: 'string',
+    cpu_cores: 'number',
+    cpu_frequency: 'number',
+    memory_bits: 'number',
     os: 'string',
     os_family: 'string',
     kernel_version: 'string',
-    kernel_version_string: 'string',
-    memory_bits: 'number',
-    memory_page_size: 'number',
-    arch: 'string',
-    cpu_cores: 'number',
-    cpu_cores_physical: 'number',
-    cpu_scheduler: 'string',
-    cpu_frequency: 'number',
-    cpu_string: 'string',
-    cpu_bits: 'number',
-    machine_model: 'string',
-    feature_numa: 'boolean',
-    feature_always_full_sync: 'number',
-    feature_nfs_async: 'number'
+    kernel_version_string: 'string'
   }
 });
 
 var BuildInfo = AmpersandState.extend({
   props: {
-    version: 'string',
-    commit: 'string',
-    commit_url: 'string',
-    flags_loader: 'string',
-    flags_compiler: 'string',
-    allocator: 'string',
-    javascript_engine: 'string',
-    debug: 'boolean',
-    for_bits: 'number',
-    max_bson_object_size: 'number',
-    enterprise_module: 'boolean'
+    isEnterprise: 'boolean',
+    version: 'string'
   }
 });
 
