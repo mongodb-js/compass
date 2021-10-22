@@ -275,7 +275,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'repl',
           msg: 'Evaluating input',
           attr: {
-            input: 'JSON.stringify(db.runCommand({ connectionStatus: 1 }))',
+            input: 'db.runCommand({ connectionStatus: 1 })',
           },
         },
         {
