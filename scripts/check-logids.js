@@ -2,7 +2,7 @@ const { runInDir } = require('./run-in-dir');
 
 // Gather all log ids from the Compass source,
 async function main() {
-  const { stdout } = await runInDir(`git grep -H mongoLogId`);
+  const { stdout } = await runInDir(`git grep --untracked -H mongoLogId`);
   const mapNumberToSource = new Map();
 
   for (const line of stdout.split('\n').filter(Boolean)) {
