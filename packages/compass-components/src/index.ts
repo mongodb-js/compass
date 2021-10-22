@@ -8,7 +8,12 @@ export {
   default as Banner,
   Variant as BannerVariant,
 } from '@leafygreen-ui/banner';
-export { default as Button, Size as ButtonSize } from '@leafygreen-ui/button';
+export {
+  default as Button,
+  Size as ButtonSize,
+  Variant as ButtonVariant,
+} from '@leafygreen-ui/button';
+export { default as Card } from '@leafygreen-ui/card';
 export { default as Checkbox } from '@leafygreen-ui/checkbox';
 export { default as Icon } from '@leafygreen-ui/icon';
 export { default as IconButton } from '@leafygreen-ui/icon-button';
@@ -19,7 +24,8 @@ export { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
 export { Tabs, Tab } from '@leafygreen-ui/tabs';
 export { default as TextInput } from '@leafygreen-ui/text-input';
 export { default as Toggle } from '@leafygreen-ui/toggle';
+export { spacing } from '@leafygreen-ui/tokens';
 export { default as Tooltip } from '@leafygreen-ui/tooltip';
-export { Link } from '@leafygreen-ui/typography';
+export { H2, Link } from '@leafygreen-ui/typography';
 
 export { ConfirmationModal, ResizeHandle, ResizeDirection };

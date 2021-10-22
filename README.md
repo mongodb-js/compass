@@ -45,6 +45,7 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 ### Shared Libraries and Build Tools
 
 - [**@mongodb-js/compass-components**](packages/compass-components): A set of React Components used in Compass
+- [**@mongodb-js/connect-form**](packages/connect-form): A form for specifying information needed to connect to a MongoDB instance
 - [**@mongodb-js/hadron-plugin-manager**](packages/hadron-plugin-manager): Hadron Plugin Manager
 - [**@mongodb-js/mongodb-notary-service-client**](packages/notary-service-client): A client for our notary-service: an API for codesigning.
 - [**@mongodb-js/mongodb-redux-common**](packages/redux-common): Common Redux Modules for mongodb-js

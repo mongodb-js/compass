@@ -32,6 +32,9 @@ declare module 'process' {
         HARDRON_METRICS_INTERCOM_APP_ID?: string;
         HARDRON_METRICS_STITCH_APP_ID?: string;
         HADRON_AUTO_UPDATE_ENDPOINT: string;
+
+        // Feature flags.
+        USE_NEW_CONNECT_FORM?: 'true' | 'false';
       }
     }
   }

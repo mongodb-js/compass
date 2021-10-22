@@ -17,12 +17,9 @@ const Target = require('../lib/target');
 const downloadCenter = require('../lib/download-center');
 
 async function maybePublishGitHubRelease(target) {
-  if (target.channel === 'dev') {
-    cli.info('Skipping publish GitHub release for dev channel.');
-  }
-
   if (!process.env.GITHUB_TOKEN) {
     cli.warn('Skipping publish release because process.env.GITHUB_TOKEN not set.');
+    return;
   }
 
   const octokit = new Octokit({
@@ -46,16 +43,7 @@ async function maybePublishGitHubRelease(target) {
   // already published releases.
   await repo.updateDraftRelease(release);
 
-  const assets = target.assets.filter(function(asset) {
-    // eslint-disable-next-line no-sync
-    var exists = fs.existsSync(asset.path);
-    if (!exists) {
-      cli.warn(`Excluding ${asset.path} from upload because it does not exist.`);
-    }
-    return exists;
-  });
-
-  const uploads = assets.map(
+  const uploads = target.assets.map(
     async function(asset) {
       cli.info(`${asset.name}: upload to Github release ${releaseTag} started (path: ${asset.path}).`);
       await repo.uploadReleaseAsset(releaseTag, {
@@ -89,6 +77,20 @@ exports.handler = function(argv) {
   }
 
   var target = new Target(argv.dir);
+
+  if (target.channel === 'dev') {
+    cli.info('Skipping publish GitHub release for dev channel.');
+    return;
+  }
+
+  target.assets = target.assets.filter(function(asset) {
+    // eslint-disable-next-line no-sync
+    var exists = fs.existsSync(asset.path);
+    if (!exists) {
+      cli.warn(`Excluding ${asset.path} from upload because it does not exist.`);
+    }
+    return exists;
+  });
 
   maybePublishGitHubRelease(target)
     .then(() => downloadCenter.maybeUpload(target))
