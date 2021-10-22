@@ -1,4 +1,4 @@
-import assert from 'assert';
+import { expect } from 'chai';
 import _ from 'lodash';
 import { Db, MongoClient } from 'mongodb';
 import { ConnectionOptions } from './connection-options';
@@ -26,18 +26,17 @@ describe('instance-detail-helper', function () {
     });
 
     it('should not close the db after getting instance details', function (done) {
-      assert(db);
-      getInstance(client, db, function (err) {
-        if (err) {
-          return done(err);
-        }
-        db.admin().ping(function (_err) {
-          if (_err) {
-            done(_err);
-          }
-          done();
-        });
-      });
+      getInstance(client)
+        .then(() => {
+          db.admin().ping(function (err) {
+            if (err) {
+              done(err);
+              return;
+            }
+            done();
+          });
+        })
+        .catch(done);
     });
 
     describe('views', function () {
@@ -105,11 +104,10 @@ describe('instance-detail-helper', function () {
       });
 
       it('includes the view details in instance details', function () {
-        const viewInfo = _.find(instanceDetails.collections, [
-          '_id',
-          'data-service.myView',
-        ]);
-        assert.deepEqual(viewInfo, {
+        const db = _.find(instanceDetails.databases, ['_id', 'data-service']);
+        const viewInfo = _.find(db.collections, ['name', 'myView']);
+
+        expect(viewInfo).to.deep.equal({
           _id: 'data-service.myView',
           name: 'myView',
           database: 'data-service',
