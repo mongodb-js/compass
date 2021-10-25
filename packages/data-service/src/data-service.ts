@@ -70,7 +70,9 @@ const { fetch: getIndexes } = require('mongodb-index-model');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const parseNamespace = require('mongodb-ns');
 
-const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-DATA-SERVICE');
+const { log, mongoLogId, debug } = createLoggerAndTelemetry(
+  'COMPASS-DATA-SERVICE'
+);
 
 let id = 0;
 
