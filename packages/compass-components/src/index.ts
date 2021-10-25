@@ -18,7 +18,11 @@ export { default as Checkbox } from '@leafygreen-ui/checkbox';
 export { default as Icon } from '@leafygreen-ui/icon';
 export { default as IconButton } from '@leafygreen-ui/icon-button';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
-export { AtlasLogoMark, MongoDBLogoMark, MongoDBLogo } from '@leafygreen-ui/logo';
+export {
+  AtlasLogoMark,
+  MongoDBLogoMark,
+  MongoDBLogo,
+} from '@leafygreen-ui/logo';
 export { uiColors } from '@leafygreen-ui/palette';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
