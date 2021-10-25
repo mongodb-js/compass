@@ -80,7 +80,7 @@ const dataService = new DataService(connection);
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  dataService.instance({}, (err, data) => {
+  dataService.instance((err, data) => {
     const dbs = data.databases;
     dbs.forEach((db) => {
       db.collections = db.collections

@@ -884,10 +884,9 @@ class DataService extends EventEmitter {
   /**
    * Get the current instance details.
    *
-   * @param options - The options.
    * @param callback - The callback function.
    */
-  instance(options: unknown, callback: Callback<Instance>): void {
+  instance(callback: Callback<Instance>): void {
     getInstance(this._initializedClient).then(
       (instanceData) => {
         log.info(
