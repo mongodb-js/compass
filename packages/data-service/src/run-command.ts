@@ -1,4 +1,4 @@
-import type { Document, Db, RunCommandOptions } from 'mongodb';
+import { Document, Db, RunCommandOptions, ReadPreference } from 'mongodb';
 import type { UUID } from 'bson';
 
 export type ConnectionStatus = {
@@ -241,9 +241,20 @@ export const runCommand: RunCommand = (
   spec: Document,
   options?: RunCommandOptions
 ) => {
+  /**
+   * NB: Driver spec says that drivers command method should always run commands
+   * with primary readPreference disregarding whatever is the readPreference
+   * of the client/database. We don't want that, and instead want all the
+   * commands to run with whatever readPreference user has provided during the
+   * connection
+   *
+   * @see https://github.com/mongodb/specifications/blob/master/source/server-selection/server-selection.rst#use-of-read-preferences-with-commands
+   */
+  const readPreference = db.readPreference ?? ReadPreference.PRIMARY_PREFERRED;
+
   return db.command(
-    { ...spec, ...options },
-    options as RunCommandOptions
+    { ...spec },
+    { readPreference, ...options } as RunCommandOptions
     // It's pretty hard to convince TypeScript that we are doing the right thing
     // here due to how vague the driver types are hence the `any` assertion
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
