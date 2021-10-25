@@ -921,10 +921,8 @@ class DataService extends EventEmitter {
         callback(null, instance);
       },
       (err) => {
-        if (err) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateMessage(err));
-        }
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(err));
       }
     );
   }
