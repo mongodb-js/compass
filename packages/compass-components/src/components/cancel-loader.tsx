@@ -25,8 +25,6 @@ const spinnerStyle = css({
   textAlign: 'center',
   display: 'inline-block',
   textRendering: 'auto',
-  '-webkit-font-smoothing': 'antialiased',
-  '-moz-osx-font-smoothing': 'grayscale',
   font: 'normal normal normal 20px/1 FontAwesome',
   '&::before': {
     boxSizing: 'border-box',
