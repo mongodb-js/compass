@@ -1080,7 +1080,7 @@ const configureStore = (options = {}) => {
       try {
         await this.dataService.killSession(session);
       } catch (err) {
-        log.warn(mongoLogId(1001000093), 'Documents', 'Attempting to kill the session failed');
+        log.warn(mongoLogId(1001000095), 'Documents', 'Attempting to kill the session failed');
       }
     },
 
