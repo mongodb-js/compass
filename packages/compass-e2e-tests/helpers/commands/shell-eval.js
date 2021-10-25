@@ -36,16 +36,6 @@ module.exports = function (app) {
       return lines.length > numLines + 1;
     });
 
-    /*
-    const shellLoaderElement = await client.$(Selectors.ShellLoader);
-    await shellLoaderElement.waitForDisplayed({
-      timeout,
-      timeoutMsg: `Expected shell evaluation to finish in ${timeout}ms`,
-      reverse: true,
-      interval: 50,
-    });
-    */
-
     const shellOutputElements = await client.$$(Selectors.ShellOutput);
     const output = await shellOutputElements[
       shellOutputElements.length - 1
