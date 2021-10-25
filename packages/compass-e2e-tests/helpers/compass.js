@@ -175,6 +175,8 @@ async function startCompass(
 
   await app.start();
 
+  app.client.setTimeout({ implicit: 0 });
+
   addCommands(app);
   addDebugger(app);
 
