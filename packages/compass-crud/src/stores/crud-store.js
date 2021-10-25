@@ -5,8 +5,8 @@ import { findIndex, isEmpty } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
 import util from 'util';
-import createLogger from '@mongodb-js/compass-logging';
-const { log, mongoLogId, debug } = createLogger('COMPASS-CRUD-UI');
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
 import configureGridStore from './grid-store';
 

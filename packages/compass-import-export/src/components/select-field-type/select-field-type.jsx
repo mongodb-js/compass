@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 
 import bsonCSV from '../../utils/bson-csv';
 
-import { createLogger } from '../../utils/logger';
-const debug = createLogger('select-field-type');
+import { createLoggerAndTelemetry } from '../../utils/logger';
+const debug = createLoggerAndTelemetry('select-field-type');
 
 function getBSONTypeCastings() {
   return Object.keys(bsonCSV);

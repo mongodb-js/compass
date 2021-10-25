@@ -1,6 +1,6 @@
 import SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
-import createLogger from '@mongodb-js/compass-logging';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { EventEmitter } from 'events';
 import { isFunction } from 'lodash';
 import {
@@ -70,7 +70,7 @@ const { fetch: getIndexes } = require('mongodb-index-model');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const parseNamespace = require('mongodb-ns');
 
-const { log, mongoLogId, debug } = createLogger('COMPASS-DATA-SERVICE');
+const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-DATA-SERVICE');
 
 let id = 0;
 
