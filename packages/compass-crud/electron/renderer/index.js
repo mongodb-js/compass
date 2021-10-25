@@ -105,8 +105,6 @@ const dataService = new DataService(connection);
 appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
-  if (!error) appRegistry.emit('compass:status:done');
-
   setDataProvider(store, error, ds);
   localAppRegistry.emit('query-changed', { ns: `${DB}.${COLL}` });
 

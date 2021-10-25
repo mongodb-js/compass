@@ -90,13 +90,8 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 `Global` events are scoped to the whole Compass application.
 
 #### Global
-- **'compass:status:show-progress-bar'**: indicates to compass to show the
-  progress bar. Called when refreshing documents and when paginating.
 - **'document-view-changed', view**: indicates document view changed. `view` can
   be either `JSON`, `List`, or `Table`.
-- **'compass:status:done'**: indicates process is finished, this will remove the
-  progress bar in compass. Called after refreshing document and pagination are
-complete.
 - **'documents-paginated'**: indicates when pagination is complete. Called when
   calling the next or previous pages in pagination.
 - **'documents-refreshed'**: indicates documents were refreshed.

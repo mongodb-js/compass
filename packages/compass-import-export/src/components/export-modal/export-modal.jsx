@@ -68,7 +68,7 @@ class ExportModal extends PureComponent {
   static propTypes = {
     open: PropTypes.bool,
     error: PropTypes.object,
-    count: PropTypes.number,
+    count: PropTypes.number, // this can be null
     fileType: PropTypes.string,
     fileName: PropTypes.string,
     ns: PropTypes.string.isRequired,
@@ -111,7 +111,7 @@ class ExportModal extends PureComponent {
   };
 
   /**
-   * 
+   *
    * Handle custom event made by e2e tests and map it to props.
    */
   handleSelectExportFilename = ({ detail }) => {
@@ -199,17 +199,22 @@ class ExportModal extends PureComponent {
       [style('query-viewer-is-disabled')]: isFullCollection
     });
 
+    // count will be null or undefined if the count query timed out
+    const count = this.props.count;
+    const hasCount = typeof count === 'number';
+    const resultsSummary = hasCount ? ` — ${formatNumber(count)} results` : '';
+
     return (
       <FormGroup controlId="export-collection-option">
         <div className={style('radio')}>
-          <label className={queryClassName}>
+          <label className={queryClassName} data-test-id="export-with-filters-label">
             <input type="radio"
               data-test-id="export-with-filters"
               value="filter"
               checked={!isFullCollection}
               onChange={this.handleExportOptionSelect}
               aria-label="Export collection with filters radio button"/>
-            Export query with filters &mdash; {formatNumber(this.props.count)} results (Recommended)
+            Export query with filters{resultsSummary} (Recommended)
           </label>
         </div>
         <div className={queryViewerClassName} data-test-id="query-viewer-wrapper">
@@ -364,21 +369,29 @@ class ExportModal extends PureComponent {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = state => ({
-  ns: state.ns,
-  error: state.exportData.error,
-  query: state.exportData.query,
-  open: state.exportData.isOpen,
-  status: state.exportData.status,
-  fields: state.exportData.fields,
-  fileType: state.exportData.fileType,
-  fileName: state.exportData.fileName,
-  progress: state.exportData.progress,
-  exportStep: state.exportData.exportStep,
-  isFullCollection: state.exportData.isFullCollection,
-  exportedDocsCount: state.exportData.exportedDocsCount,
-  count: state.exportData.count || state.stats.rawDocumentCount,
-});
+const mapStateToProps = (state) => {
+  const exportCount = state.exportData.count;
+  const rawCount = state.stats.rawDocumentCount;
+
+  // 0 is a valid number of documents
+  const count = typeof exportCount === 'number' ? exportCount : rawCount;
+
+  return {
+    ns: state.ns,
+    error: state.exportData.error,
+    query: state.exportData.query,
+    open: state.exportData.isOpen,
+    status: state.exportData.status,
+    fields: state.exportData.fields,
+    fileType: state.exportData.fileType,
+    fileName: state.exportData.fileName,
+    progress: state.exportData.progress,
+    exportStep: state.exportData.exportStep,
+    isFullCollection: state.exportData.isFullCollection,
+    exportedDocsCount: state.exportData.exportedDocsCount,
+    count
+  };
+};
 
 /**
  * Export the connected component as the default.

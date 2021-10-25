@@ -13,7 +13,7 @@ class CollectionHeader extends Component {
   static displayName = 'CollectionHeaderComponent';
 
   static propTypes = {
-    globalAppRegistry: PropTypes.func.isRequired,
+    globalAppRegistry: PropTypes.object.isRequired,
     namespace: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isTimeSeries: PropTypes.bool.isRequired,
