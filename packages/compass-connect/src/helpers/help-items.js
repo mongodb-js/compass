@@ -3,6 +3,9 @@
 import React from 'react';
 import Actions from '../actions';
 
+import createLogger from '@mongodb-js/compass-logging';
+const { track } = createLogger('COMPASS-CONNECT-UI');
+
 import {
   CONNECTION_FORM_VIEW,
   CONNECTION_STRING_VIEW
@@ -14,10 +17,14 @@ import {
  * @param {String} href - An external link.
  * @param {String} appRegistryEvent - appRegistry event.
  * @param {Object} componentEvent - A component event.
+ * @param {Function} handler - Additional custom code to be run on click.
  */
-const onExternalLinkClicked = (href, appRegistryEvent, componentEvent) => {
+const onExternalLinkClicked = (href, appRegistryEvent, handler, componentEvent) => {
   componentEvent.preventDefault();
   Actions.onExternalLinkClicked(href, appRegistryEvent);
+  if (handler) {
+    handler();
+  }
 };
 
 /**
@@ -36,14 +43,15 @@ let paragraphCounter = 0;
  * @param {String} href - A href for the link.
  * @param {String} text - A text for the link.
  * @param {Object} event - appRegistry event if needed.
+ * @param {Function} handler - Additional custom code to be run on click.
  *
  * @returns {React.Component}
  */
-const createLink = (href, text, event) => React.createElement(
+const createLink = (href, text, event, handler) => React.createElement(
   'a',
   {
     key: `a${linkCounter++}`,
-    onClick: onExternalLinkClicked.bind(this, href, event)
+    onClick: onExternalLinkClicked.bind(this, href, event, handler)
   },
   text
 );
@@ -55,17 +63,18 @@ const createLink = (href, text, event) => React.createElement(
  * when the button clicked.
  * @param {String} text - A text for the button.
  * @param {Object} event - appRegistry event if needed.
+ * @param {Function} handler - Additional custom code to be run on click.
  *
  * @returns {React.Component}
  */
-const createButton = (href, text, event) => React.createElement(
+const createButton = (href, text, event, handler) => React.createElement(
   'button',
   {
     type: 'button',
     name: 'atlasLink',
     key: 'atlasLink',
     className: 'btn btn-sm btn-info',
-    onClick: onExternalLinkClicked.bind(this, href, event)
+    onClick: onExternalLinkClicked.bind(this, href, event, handler)
   },
   text
 );
@@ -141,7 +150,8 @@ export const AtlasLink = {
       createButton(
         'https://www.mongodb.com/cloud/atlas/lp/general/try?utm_source=compass&utm_medium=product',
         'Create Free Cluster',
-        'create-atlas-cluster-clicked'
+        'create-atlas-cluster-clicked',
+        () => track('Atlas Link Clicked', { screen: 'connect' })
       )
     ])
   ]
