@@ -29,17 +29,14 @@ class Toolbar extends React.Component {
    * Handle loading the next page of documents in the table view.
    */
   handleNextPage() {
-    this.props.getNextPage(this.props.page + 1);
+    this.props.getPage(this.props.page + 1);
   }
 
   /**
    * Handle loading the previous page of documents in the table view.
    */
   handlePrevPage() {
-    if (this.props.start - 20 <= 0) {
-      return;
-    }
-    this.props.getPrevPage(this.props.page - 1);
+    this.props.getPage(this.props.page - 1);
   }
 
   /**
@@ -175,8 +172,7 @@ Toolbar.propTypes = {
   activeDocumentView: PropTypes.string.isRequired,
   count: PropTypes.number,
   end: PropTypes.number.isRequired,
-  getNextPage: PropTypes.func.isRequired,
-  getPrevPage: PropTypes.func.isRequired,
+  getPage: PropTypes.func.isRequired,
   insertHandler: PropTypes.func,
   openExportFileDialog: PropTypes.func,
   isExportable: PropTypes.bool.isRequired,

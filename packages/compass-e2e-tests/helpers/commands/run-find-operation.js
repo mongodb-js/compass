@@ -25,22 +25,19 @@ async function setCollation(client, tabName, value) {
 async function setMaxTimeMS(client, tabName, value) {
   const selector = Selectors.queryBarOptionInputMaxTimeMS(tabName);
   await client.clickVisible(selector);
-  const queryBarInputMaxTimeMSElement = await client.$(selector);
-  await queryBarInputMaxTimeMSElement.setValue(value);
+  await client.setOrClearValue(selector, value);
 }
 
 async function setSkip(client, tabName, value) {
   const selector = Selectors.queryBarOptionInputSkip(tabName);
   await client.clickVisible(selector);
-  const queryBarSkipElement = await client.$(selector);
-  await queryBarSkipElement.setValue(value);
+  await client.setOrClearValue(selector, value);
 }
 
 async function setLimit(client, tabName, value) {
   const selector = Selectors.queryBarOptionInputLimit(tabName);
   await client.clickVisible(selector);
-  const queryBarLimitElement = await client.$(selector);
-  await queryBarLimitElement.setValue(value);
+  await client.setOrClearValue(selector, value);
 }
 
 async function runFind(client, tabName) {
@@ -68,6 +65,19 @@ async function collapseOptions(client, tabName) {
   if (!(await isOptionsExpanded(client, tabName))) {
     return;
   }
+
+  // Before collapsing the options, clear out all the fields in case they are
+  // set. This helps to make the tests idempotent which is handy because you can
+  // work on them by focusing one it() at a time and expect it to find the same
+  // results as if you ran the whole suite. If we ever do want to test that all
+  // the options you had set before you collapsed the options are still in
+  // effect then we can make this behaviour opt-out through an option.
+  await setProject(client, tabName, '');
+  await setSort(client, tabName, '');
+  await setMaxTimeMS(client, tabName, '');
+  await setCollation(client, tabName, '');
+  await setSkip(client, tabName, '');
+  await setLimit(client, tabName, '');
 
   await client.clickVisible(Selectors.queryBarOptionsToggle(tabName));
   await waitUntilCollapsed(client, tabName);
@@ -100,6 +110,7 @@ module.exports = function (app) {
       collation = '',
       skip = '',
       limit = '',
+      waitForResult = true,
     } = {}
   ) {
     const { client } = app;
@@ -112,8 +123,6 @@ module.exports = function (app) {
       'data-result-id'
     );
 
-    // now we can easily see if we get a new resultId
-    await setFilter(client, tabName, filter);
     if (project || sort || maxTimeMS || collation || skip || limit) {
       await expandOptions(client, tabName);
 
@@ -126,13 +135,18 @@ module.exports = function (app) {
     } else {
       await collapseOptions(client, tabName);
     }
+
+    await setFilter(client, tabName, filter);
     await runFind(client, tabName);
 
-    await client.waitUntil(async () => {
-      const resultId = await queryBarSelectorElement.getAttribute(
-        'data-result-id'
-      );
-      return resultId !== initialResultId;
-    });
+    if (waitForResult) {
+      // now we can easily see if we get a new resultId
+      await client.waitUntil(async () => {
+        const resultId = await queryBarSelectorElement.getAttribute(
+          'data-result-id'
+        );
+        return resultId !== initialResultId;
+      });
+    }
   };
 };

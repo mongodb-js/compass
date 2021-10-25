@@ -3,12 +3,19 @@ import React from 'react';
 import { ObjectID as ObjectId } from 'bson';
 import { StatusRow, ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
+import { CancelLoader } from '@mongodb-js/compass-components';
 import InsertDocumentDialog from './insert-document-dialog';
 import ZeroGraphic from './zero-graphic';
 import DocumentListView from './document-list-view';
 import DocumentJsonView from './document-json-view';
 import DocumentTableView from './document-table-view';
 import Toolbar from './toolbar';
+
+import {
+  DOCUMENTS_STATUS_ERROR,
+  DOCUMENTS_STATUS_FETCHING,
+  DOCUMENTS_STATUS_FETCHED_CUSTOM
+} from '../constants/documents-statuses';
 
 import './index.less';
 import './ag-grid-dist.css';
@@ -38,6 +45,10 @@ class DocumentList extends React.Component {
 
   onResetClicked() {
     this.props.store.refreshDocuments();
+  }
+
+  onCancelClicked() {
+    this.props.store.cancelOperation();
   }
 
   /**
@@ -75,11 +86,24 @@ class DocumentList extends React.Component {
       return;
     }
 
+
     return (
       <StatusRow style="warning">
         {OUTDATED_WARNING}
       </StatusRow>
     );
+  }
+
+  /*
+   * Render the fetching indicator with cancel button
+   */
+  renderFetching() {
+    return (<CancelLoader
+      dataTestId="fetching-documents"
+      progressText="Fetching Documents"
+      cancelText="Stop"
+      onCancel={this.onCancelClicked.bind(this)}
+    />);
   }
 
   /**
@@ -94,6 +118,10 @@ class DocumentList extends React.Component {
           {this.props.error.message}
         </StatusRow>
       );
+    }
+
+    if (this.props.status === DOCUMENTS_STATUS_FETCHING) {
+      return this.renderFetching();
     }
 
     return (
@@ -156,14 +184,18 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The query bar.
    */
   renderZeroState() {
-    let header = 'This collection has no data';
-    let subtext = 'It only takes a few seconds to import data from a JSON or CSV file';
-
-    if (this.props.docs.length > 0 || this.props.status === 'fetching') {
+    if (this.props.docs.length > 0 || this.props.status === DOCUMENTS_STATUS_FETCHING) {
       return null;
     }
 
-    if (this.props.docs.length === 0 && this.props.status === 'fetchedWithCustomQuery') {
+    if (this.props.status === DOCUMENTS_STATUS_ERROR) {
+      return null;
+    }
+
+    let header = 'This collection has no data';
+    let subtext = 'It only takes a few seconds to import data from a JSON or CSV file';
+
+    if (this.props.docs.length === 0 && this.props.status === DOCUMENTS_STATUS_FETCHED_CUSTOM) {
       header = 'No results';
       subtext = 'Try to modify your query to get results';
 

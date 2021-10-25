@@ -153,6 +153,11 @@ const Selectors = {
   // Documents tab
   DocumentListActionBarMessage: '.document-list-action-bar-message',
   ExportCollectionButton: '[data-test-id="export-collection-button"]',
+  DocumentListFetching:
+    '[data-test-id="documents-content"] [data-testid="fetching-documents"]',
+  DocumentListFetchingStopButton:
+    '[data-test-id="documents-content"] [data-testid="fetching-documents"] button',
+  DocumentListError: '[data-test-id="documents-content"] .status-row-has-error',
 
   // Aggregations tab
   StageContainer: '[data-test-id="stage-container"]',
