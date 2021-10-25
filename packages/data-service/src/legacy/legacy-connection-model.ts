@@ -103,7 +103,7 @@ export interface LegacyConnectionModelProperties {
   sshTunnelBindToLocalPort?: number;
   sshTunnelUsername?: string;
   sshTunnelPassword?: string;
-  sshTunnelIdentityFile?: string;
+  sshTunnelIdentityFile?: string | string[];
   sshTunnelPassphrase?: string;
 
   lastUsed?: Date;
@@ -283,7 +283,9 @@ function modelTunnelToConnectionOptions(
   }
 
   if (model.sshTunnelIdentityFile !== undefined) {
-    sshTunnel.identityKeyFile = model.sshTunnelIdentityFile;
+    sshTunnel.identityKeyFile = Array.isArray(model.sshTunnelIdentityFile)
+      ? model.sshTunnelIdentityFile[0]
+      : model.sshTunnelIdentityFile;
   }
 
   if (model.sshTunnelPassphrase !== undefined) {

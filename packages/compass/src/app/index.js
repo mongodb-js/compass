@@ -282,6 +282,7 @@ var Application = View.extend({
         this.preferences.save({
           currentUserId: user.id
         });
+        ipc.call('compass:usage:identify', { currentUserId: user.id });
         debug('user fetch successful', user.serialize());
         done(null, user);
       }.bind(this)
@@ -290,6 +291,8 @@ var Application = View.extend({
   fetchPreferences: function(done) {
     this.preferences.once('sync', function(prefs) {
       prefs.trigger('page-refresh');
+      ipc.call(prefs.isFeatureEnabled('trackUsageStatistics') ?
+        'compass:usage:enabled' : 'compass:usage:disabled');
       var oldVersion = _.get(prefs, 'lastKnownVersion', '0.0.0');
       var currentVersion = APP_VERSION;
       var save = false;

@@ -1,0 +1,9 @@
+ignores:
+ - "@mongodb-js/prettier-config-compass"
+ - "@mongodb-js/tsconfig-compass"
+ - "@types/chai"
+ - "@types/sinon-chai"
+ - "sinon"
+ - "@types/chai-dom"
+ - "@types/react"
+ - "@types/react-dom"

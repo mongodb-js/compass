@@ -151,6 +151,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
+    "@mongodb-js/compass-logging": "^0.3.0",
     "@mongodb-js/mongodb-redux-common": "^1.4.0",
     "acorn-loose": "^8.0.2",
     "astring": "^1.7.0",

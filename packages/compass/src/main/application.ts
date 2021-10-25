@@ -4,10 +4,13 @@ import { app, BrowserWindow } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import createDebug from 'debug';
 import { CompassLogging } from './logging';
+import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 
 const debug = createDebug('mongodb-compass:main:application');
+
+type ExitHandler = () => Promise<unknown>;
 
 class CompassApplication {
   private constructor() {
@@ -15,7 +18,7 @@ class CompassApplication {
   }
 
   private static emitter: EventEmitter = new EventEmitter();
-
+  private static exitHandlers: ExitHandler[] = [];
   private static initPromise: Promise<void> | null = null;
 
   private static async _init() {
@@ -30,6 +33,7 @@ class CompassApplication {
       this.setupLogging(),
       this.setupAutoUpdate(),
       this.setupSecureStore(),
+      this.setupTelemetry(),
     ]);
 
     this.setupJavaScriptArguments();
@@ -39,11 +43,7 @@ class CompassApplication {
   }
 
   static init(): Promise<void> {
-    if (this.initPromise) {
-      return this.initPromise;
-    }
-    this.initPromise = this._init();
-    return this.initPromise;
+    return this.initPromise ??= this._init();
   }
 
   private static async setupSecureStore(): Promise<void> {
@@ -84,6 +84,12 @@ class CompassApplication {
       debug('All windows closed. Waiting for a new connection window.');
     });
 
+    app.on('will-quit', async (event: Event) => {
+      event.preventDefault(); // Only exit asynchronously, after the cleanup handlers
+      await this.runExitHandlers();
+      app.exit();
+    });
+
     ipcMain.respondTo({
       'license:disagree': function () {
         debug('Did not agree to license, quitting app.');
@@ -114,6 +120,22 @@ class CompassApplication {
     app.setAppLogsPath(logDir);
 
     await CompassLogging.init(this);
+  }
+
+  private static async setupTelemetry(): Promise<void> {
+    await CompassTelemetry.init(this);
+  }
+
+  static addExitHandler(handler: ExitHandler): void {
+    this.exitHandlers.push(handler);
+  }
+
+  static async runExitHandlers(): Promise<void> {
+    let handler: ExitHandler | undefined;
+    // Run exit handlers in reverse order of addition.
+    while ((handler = this.exitHandlers.pop()) !== undefined) {
+      await handler();
+    }
   }
 
   static on(
