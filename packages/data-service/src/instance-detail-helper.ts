@@ -47,7 +47,7 @@ type GenuineMongoDBDetails = {
 
 type DataLakeDetails = {
   isDataLake: boolean;
-  version: string;
+  version: string | null;
 };
 
 type CollectionDetails = {
@@ -96,9 +96,20 @@ export async function getInstance(
     runCommand(adminDb, { connectionStatus: 1, showPrivileges: true }).catch(
       ignoreNotAuthorized(null)
     ),
-    runCommand(adminDb, { getCmdLineOpts: 1 }).catch(ignoreNotAuthorized({})),
+    runCommand(adminDb, { getCmdLineOpts: 1 }).catch((err) => {
+      /**
+       * This is something that mongodb-build-info uses to detect some
+       * "non-genuine" mongodb instances like cosmosdb or documentdb
+       *
+       * @see https://github.com/mongodb-js/mongodb-build-info/blob/a8b4c22b46e271dfcb0a620d19afc5a7c7df3d8f/index.js#L64-L70
+       */
+      return { errmsg: err.message };
+    }),
     runCommand(adminDb, { hostInfo: 1 }).catch(ignoreNotAuthorized({})),
-    runCommand(adminDb, { buildInfo: 1 }).catch(ignoreNotAuthorized({})),
+    // This command should always pass, if it throws, somethings is really off.
+    // This is why it's the only one where we are not ignoring any types of
+    // errors
+    runCommand(adminDb, { buildInfo: 1 }),
     runCommand(adminDb, { listDatabases: 1, nameOnly: true }).catch(
       ignoreNotAuthorized(null)
     ),
@@ -130,7 +141,7 @@ export async function getInstance(
 
 function buildGenuineMongoDBInfo(
   buildInfo: Partial<BuildInfo>,
-  cmdLineOpts: Partial<CmdLineOpts>
+  cmdLineOpts: Partial<CmdLineOpts & { errmsg: string }>
 ): GenuineMongoDBDetails {
   const { isGenuine, serverName } = getGenuineMongoDB(buildInfo, cmdLineOpts);
 
@@ -190,9 +201,13 @@ function extractPrivilegesByDatabaseAndCollection(
     connectionStatus?.authInfo?.authenticatedUserPrivileges ?? [];
 
   return Object.fromEntries(
-    privileges.map(({ resource: { db, collection }, actions }) => {
-      return [db, { [collection]: actions }];
-    })
+    privileges
+      .filter(({ resource: { db, collection } }) => {
+        return db && collection;
+      })
+      .map(({ resource: { db, collection }, actions }) => {
+        return [db, { [collection]: actions }];
+      })
   );
 }
 
@@ -306,7 +321,9 @@ function ignoreMongosLocalException<T>(
 function adaptHostInfo(rawHostInfo: Partial<HostInfo>): HostInfoDetails {
   return {
     os: rawHostInfo.os?.name,
-    os_family: (rawHostInfo.os?.type || '').toLowerCase(),
+    os_family: rawHostInfo.os?.type
+      ? rawHostInfo.os.type.toLowerCase()
+      : undefined,
     kernel_version: rawHostInfo.os?.version,
     kernel_version_string: rawHostInfo.extra?.versionString,
     arch: rawHostInfo.system?.cpuArch,
