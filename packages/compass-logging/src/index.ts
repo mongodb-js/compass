@@ -17,7 +17,7 @@ function emit(
   }
 }
 
-export function createLogger(component: string): {
+export function createLoggerAndTelemetry(component: string): {
   log: ReturnType<MongoLogWriter['bindComponent']>;
   mongoLogId: typeof mongoLogId;
   debug: ReturnType<typeof createDebug>;
@@ -63,4 +63,4 @@ export function createLogger(component: string): {
   };
 }
 
-export default createLogger;
+export default createLoggerAndTelemetry;

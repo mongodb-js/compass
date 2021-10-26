@@ -54,7 +54,7 @@ ipc.once('app:launched', function() {
 });
 
 const { log, mongoLogId, debug } =
-  require('@mongodb-js/compass-logging').createLogger('COMPASS-APP');
+  require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-APP');
 
 window.addEventListener('error', (event) => {
   event.preventDefault();

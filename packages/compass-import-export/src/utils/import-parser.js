@@ -2,12 +2,12 @@ import { Transform } from 'stream';
 import { parse as JSONParser } from 'JSONStream';
 import { EJSON } from 'bson';
 import csv from 'csv-parser';
-import { createLogger } from './logger';
+import { createDebug } from './logger';
 import parseJSON from 'parse-json';
 import throttle from 'lodash.throttle';
 import progressStream from 'progress-stream';
 
-const debug = createLogger('import-parser');
+const debug = createDebug('import-parser');
 
 /**
  * A transform stream that turns file contents in objects

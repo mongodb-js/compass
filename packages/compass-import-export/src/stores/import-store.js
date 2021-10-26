@@ -11,9 +11,9 @@ import {
 } from '../modules/compass';
 import { openImport } from '../modules/import';
 import { statsReceived } from '../modules/stats';
-import { createLogger } from '../utils/logger';
+import { createDebug } from '../utils/logger';
 
-const debug = createLogger('import-store');
+const debug = createDebug('import-store');
 
 /**
  * Set the data provider.

@@ -3,9 +3,9 @@ import reducer from '../modules';
 import { setupRuntime } from '../modules/runtime';
 import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
-import createLogger from '@mongodb-js/compass-logging';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
-const { log, debug, track } = createLogger('COMPASS-SHELL');
+const { log, debug, track } = createLoggerAndTelemetry('COMPASS-SHELL');
 
 export default class CompassShellStore {
   constructor() {

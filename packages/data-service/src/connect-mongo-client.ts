@@ -4,7 +4,7 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import { redactConnectionOptions, redactConnectionString } from './redact';
 
-import createLogger from '@mongodb-js/compass-logging';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { ConnectionOptions } from './connection-options';
 import {
   forceCloseTunnel,
@@ -12,7 +12,7 @@ import {
   waitForTunnelError,
 } from './ssh-tunnel';
 
-const { debug, log, mongoLogId } = createLogger('COMPASS-CONNECT');
+const { debug, log, mongoLogId } = createLoggerAndTelemetry('COMPASS-CONNECT');
 
 export default async function connectMongoClient(
   connectionOptions: ConnectionOptions,

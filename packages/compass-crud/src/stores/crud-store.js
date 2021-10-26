@@ -4,7 +4,7 @@ import EJSON from 'mongodb-extended-json';
 import { findIndex, isEmpty } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
-import createLogger from '@mongodb-js/compass-logging';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 import {
   findDocuments,
@@ -23,7 +23,7 @@ import {
 
 import configureGridStore from './grid-store';
 
-const { log, mongoLogId } = createLogger('COMPASS-CRUD-UI');
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
 /**
  * Number of docs per page.

@@ -1,10 +1,10 @@
 import Analytics from 'analytics-node';
 import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
-import { createLogger } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { CompassApplication } from './application';
 
-const { log, mongoLogId, debug } = createLogger('COMPASS-TELEMETRY');
+const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-TELEMETRY');
 
 interface EventInfo {
   event: string;
