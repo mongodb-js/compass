@@ -8,7 +8,6 @@ import ConnectionStringInput, {
 } from './connection-string-input';
 
 describe('ConnectionStringInput Component', function () {
-  let openLinkSpy: sinon.SinonSpy;
   let setConnectionStringSpy: sinon.SinonSpy;
 
   describe('#hidePasswordInConnectionString', function () {
@@ -50,12 +49,10 @@ describe('ConnectionStringInput Component', function () {
 
   describe('with an empty connection string', function () {
     beforeEach(function () {
-      openLinkSpy = sinon.spy();
       setConnectionStringSpy = sinon.spy();
 
       render(
         <ConnectionStringInput
-          openLink={openLinkSpy}
           connectionString=""
           setConnectionString={setConnectionStringSpy}
         />
@@ -63,7 +60,6 @@ describe('ConnectionStringInput Component', function () {
     });
 
     afterEach(function () {
-      openLinkSpy = null;
       setConnectionStringSpy = null;
     });
 
@@ -78,34 +74,28 @@ describe('ConnectionStringInput Component', function () {
     });
   });
 
-  describe('when clicking the info button', function () {
+  describe('the info button', function () {
     beforeEach(function () {
-      openLinkSpy = sinon.spy();
       setConnectionStringSpy = sinon.spy();
 
       render(
         <ConnectionStringInput
-          openLink={openLinkSpy}
           connectionString="mongodb+srv://turtles:pineapples@localhost/"
           setConnectionString={setConnectionStringSpy}
         />
       );
+    });
 
-      expect(openLinkSpy.called).to.equal(false);
-
+    it('has a link to docs', function () {
       const button = screen.getByTestId('connectionStringDocsButton');
-      fireEvent(
-        button,
-        new MouseEvent('click', {
-          bubbles: true,
-          cancelable: true,
-        })
+      expect(button.getAttribute('href')).to.equal(
+        'https://docs.mongodb.com/manual/reference/connection-string/'
       );
     });
 
-    it('calls to open the docs link', function () {
-      expect(openLinkSpy.called).to.equal(true);
-      expect(openLinkSpy.firstCall.args[0]).to.equal(
+    it('has a link role', function () {
+      const button = screen.getByRole('link');
+      expect(button.getAttribute('href')).to.equal(
         'https://docs.mongodb.com/manual/reference/connection-string/'
       );
     });
@@ -113,12 +103,10 @@ describe('ConnectionStringInput Component', function () {
 
   describe('with a connection string', function () {
     beforeEach(function () {
-      openLinkSpy = sinon.spy();
       setConnectionStringSpy = sinon.spy();
 
       render(
         <ConnectionStringInput
-          openLink={openLinkSpy}
           connectionString="mongodb+srv://turtles:pineapples@localhost/"
           setConnectionString={setConnectionStringSpy}
         />
@@ -126,7 +114,6 @@ describe('ConnectionStringInput Component', function () {
     });
 
     afterEach(function () {
-      openLinkSpy = null;
       setConnectionStringSpy = null;
     });
 

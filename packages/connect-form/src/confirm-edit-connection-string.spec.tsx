@@ -5,10 +5,10 @@ import sinon from 'sinon';
 
 import ConfirmEditConnectionStringModal from './confirm-edit-connection-string';
 
-function renderModal(onClose: () => void, onConfirm: () => void) {
+function renderModal(onCancel: () => void, onConfirm: () => void) {
   return render(
     <ConfirmEditConnectionStringModal
-      onClose={onClose}
+      onCancel={onCancel}
       onConfirm={onConfirm}
       open
     />
@@ -17,17 +17,17 @@ function renderModal(onClose: () => void, onConfirm: () => void) {
 
 describe('ConfirmationModal Component', function () {
   let onConfirmSpy;
-  let onCloseSpy;
+  let onCancelSpy;
   beforeEach(function () {
     onConfirmSpy = sinon.spy();
-    onCloseSpy = sinon.spy();
+    onCancelSpy = sinon.spy();
 
-    renderModal(onCloseSpy, onConfirmSpy);
+    renderModal(onCancelSpy, onConfirmSpy);
   });
 
   afterEach(function () {
     onConfirmSpy = null;
-    onCloseSpy = null;
+    onCancelSpy = null;
     cleanup(); // Modals can sometimes leave behind animations and focus traps.
   });
 
@@ -64,13 +64,13 @@ describe('ConfirmationModal Component', function () {
     );
 
     expect(onConfirmSpy.called).to.equal(true);
-    expect(onCloseSpy.called).to.equal(false);
+    expect(onCancelSpy.called).to.equal(false);
   });
 
-  it('calls the onClose prop when close is clicked', function () {
+  it('calls the onCancel prop when close is clicked', function () {
     const button = screen.getByText('Cancel').closest('button');
 
-    expect(onCloseSpy.called).to.equal(false);
+    expect(onCancelSpy.called).to.equal(false);
 
     fireEvent(
       button,
@@ -80,7 +80,7 @@ describe('ConfirmationModal Component', function () {
       })
     );
 
-    expect(onCloseSpy.called).to.equal(true);
+    expect(onCancelSpy.called).to.equal(true);
     expect(onConfirmSpy.called).to.equal(false);
   });
 });

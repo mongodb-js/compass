@@ -2,11 +2,11 @@ import React from 'react';
 import { ConfirmationModal } from '@mongodb-js/compass-components';
 
 function ConfirmEditConnectionString({
-  onClose,
+  onCancel,
   onConfirm,
   open,
 }: {
-  onClose: () => void;
+  onCancel: () => void;
   onConfirm: () => void;
   open: boolean;
 }): React.ReactElement {
@@ -15,7 +15,7 @@ function ConfirmEditConnectionString({
       title="Are you sure you want to edit your connection string?"
       open={open}
       onConfirm={onConfirm}
-      onCancel={onClose}
+      onCancel={onCancel}
       buttonText="Confirm"
     >
       <div data-testid="edit-uri-note">

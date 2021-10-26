@@ -47,7 +47,6 @@ const formActionStyles = css({
 function ConnectForm({
   initialConnectionInfo,
   onConnectClicked,
-  openLink,
 }: {
   initialConnectionInfo: ConnectionInfo;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
@@ -68,7 +67,6 @@ function ConnectForm({
           </Description>
           <ConnectionStringInput
             connectionString={connectionString}
-            openLink={openLink}
             setConnectionString={setConnectionString}
           />
         </div>

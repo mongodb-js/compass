@@ -107,12 +107,10 @@ export function hidePasswordInConnectionString(
 }
 
 function ConnectStringInput({
-  openLink,
   connectionString,
   setConnectionString,
 }: {
   connectionString: string;
-  openLink: (url: string) => void;
   setConnectionString: (connectionString: string) => void;
 }): React.ReactElement {
   const [
@@ -138,11 +136,8 @@ function ConnectStringInput({
           css={infoButtonStyles}
           aria-label="Connection String Documentation"
           data-testid="connectionStringDocsButton"
-          onClick={() => {
-            openLink(
-              'https://docs.mongodb.com/manual/reference/connection-string/'
-            );
-          }}
+          href="https://docs.mongodb.com/manual/reference/connection-string/"
+          target="_blank"
         >
           <Icon glyph="InfoWithCircle" size="small" />
         </IconButton>
@@ -179,22 +174,16 @@ function ConnectStringInput({
         )}
         <ConfirmEditConnectionString
           open={showConfirmEditConnectionStringPrompt}
-          onClose={() =>
+          onCancel={() =>
             dispatch({
               type: 'hide-edit-connection-string-confirmation',
             })
           }
-          onConfirm={() => {
+          onConfirm={() =>
             dispatch({
               type: 'enable-editing-connection-string',
-            });
-
-            // Wait for the modal focus trap to disappear.
-            setTimeout(() => {
-              // Focus the connection string input when change to editing mode.
-              textAreaEl.current?.focus();
-            }, 200);
-          }}
+            })
+          }
         />
       </div>
     </Fragment>

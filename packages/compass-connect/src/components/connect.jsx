@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import { remote, shell } from 'electron';
+import { remote } from 'electron';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from '@mongodb-js/compass-components';
@@ -151,9 +151,6 @@ class Connect extends React.Component {
               key={this.props.connectionModel._id}
               initialConnectionInfo={convertConnectionModelToInfo(this.props.connectionModel)}
               onConnectClicked={() => Actions.onConnectClicked()}
-              openLink={(link) => {
-                shell.openExternal(link);
-              }}
             />}
             {!showNewConnectForm && (
               <div
