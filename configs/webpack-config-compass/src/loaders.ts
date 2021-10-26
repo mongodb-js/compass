@@ -1,4 +1,5 @@
 import path from 'path';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { ConfigArgs, isServe } from './args';
 
 const electronVersion = (() => {
@@ -39,9 +40,9 @@ export const javascriptLoader = (args: ConfigArgs) => ({
           require.resolve('@babel/plugin-proposal-decorators'),
           { legacy: true },
         ],
-        // react-refresh only works when NODE_ENV is dev and will throw
-        // otherwise
         ['web', 'electron-renderer'].includes(args.target as string) &&
+          // react-refresh only works when NODE_ENV is dev and will throw
+          // otherwise
           args.nodeEnv === 'development' &&
           // we only need it when webpack-dev-server is running
           isServe(args) &&
@@ -60,11 +61,12 @@ export const nodeLoader = (_args: ConfigArgs) => ({
   use: [{ loader: require.resolve('node-loader') }],
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const cssLoader = (_args: ConfigArgs) => ({
+export const cssLoader = (args: ConfigArgs) => ({
   test: /\.css$/,
   use: [
-    { loader: require.resolve('style-loader') },
+    args.mode === 'production' && args.target === 'electron-renderer'
+      ? MiniCssExtractPlugin.loader
+      : { loader: require.resolve('style-loader') },
     {
       loader: require.resolve('css-loader'),
       options: {

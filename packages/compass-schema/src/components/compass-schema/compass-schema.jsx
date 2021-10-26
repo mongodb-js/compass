@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StatusRow, Tooltip, ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
+import { CancelLoader } from '@mongodb-js/compass-components';
 import Field from '../field';
 import AnalysisCompleteMessage from '../analysis-complete-message';
 import ZeroGraphic from '../zero-graphic';
@@ -11,7 +12,6 @@ import get from 'lodash.get';
 import classnames from 'classnames';
 
 import styles from './compass-schema.module.less';
-import SchemaSteps from '../steps/steps';
 import {
   ANALYSIS_STATE_INITIAL,
   ANALYSIS_STATE_ANALYZING,
@@ -86,6 +86,10 @@ class Schema extends Component {
 
   onApplyClicked() {
     this.props.actions.startAnalysis();
+  }
+
+  onCancelClicked() {
+    this.props.actions.stopAnalysis();
   }
 
   onResetClicked() {
@@ -163,14 +167,13 @@ class Schema extends Component {
     );
   }
 
-  renderStepsScreen() {
-    return (<div id="schema-status-subview">
-      <div id="schema-status-subview">
-        <SchemaSteps
-          analysisState={this.props.analysisState}
-          actions={this.props.actions} />
-      </div>
-    </div>);
+  renderAnalyzing() {
+    return (<CancelLoader
+      dataTestId="analyzing-documents"
+      progressText="Analyzing Documents"
+      cancelText="Stop"
+      onCancel={this.onCancelClicked.bind(this)}
+    />);
   }
 
   /**
@@ -184,11 +187,9 @@ class Schema extends Component {
       );
     }
 
-    if (
-      this.props.analysisState === ANALYSIS_STATE_ANALYZING
-    ) {
+    if (this.props.analysisState === ANALYSIS_STATE_ANALYZING) {
       return (
-        this.renderStepsScreen()
+        this.renderAnalyzing()
       );
     }
 

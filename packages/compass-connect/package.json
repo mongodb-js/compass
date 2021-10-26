@@ -87,7 +87,7 @@
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.1",
-    "jsdom": "^16.6.0",
+    "jsdom": "^16.7.0",
     "jsdom-global": "^3.0.2",
     "karma": "^6.3.4",
     "karma-chai": "^0.1.0",
@@ -139,6 +139,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.3.0",
+    "@mongodb-js/connect-form": "^0.1.0",
     "debug": "^4.3.2",
     "lodash": "^4.17.15"
   },

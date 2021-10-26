@@ -164,6 +164,10 @@ export const STAGE_SPRINKLE_MAPPINGS = {
     link: 'https://docs.atlas.mongodb.com/reference/full-text-search/query-syntax/#pipe._S_search',
     tooltip: 'Performs a full-text search on the specified field(s).'
   },
+  $searchMeta: {
+    link: 'https://docs.atlas.mongodb.com/reference/atlas-search/query-syntax-dupl/#mongodb-pipeline-pipe.-searchMeta',
+    tooltip: 'Performs a full-text search on the specified field(s) and gets back only the generated search meta data from a query.'
+  },
   $set: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/set/#pipe._S_set',
     tooltip: 'Adds new fields to documents.'

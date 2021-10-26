@@ -6,14 +6,7 @@ const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const sinonChai = require('sinon-chai');
 
-require('jsdom-global')('', {
-  beforeParse(win) {
-    win.URL = {
-      createObjectURL: () => {}
-    };
-  }
-});
-
+global.AbortController = window.AbortController;
 global.sinon = require('sinon');
 global.expect = chai.expect;
 global.jQuery = require('jquery');

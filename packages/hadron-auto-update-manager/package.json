@@ -20,6 +20,7 @@
     "webpack": "./index.js",
     "require": "./index.js"
   },
+  "types": "index.d.ts",
   "dependencies": {
     "debug": "^4.1.1",
     "got": "^10.4.0",

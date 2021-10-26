@@ -4,11 +4,26 @@ import EJSON from 'mongodb-extended-json';
 import { findIndex, isEmpty } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
-import util from 'util';
 import createLogger from '@mongodb-js/compass-logging';
-const { log, mongoLogId, debug } = createLogger('COMPASS-CRUD-UI');
+
+import {
+  findDocuments,
+  countDocuments,
+  fetchShardingKeys
+} from '../utils';
+
+import {
+  DOCUMENTS_STATUS_INITIAL,
+  DOCUMENTS_STATUS_FETCHING,
+  DOCUMENTS_STATUS_ERROR,
+  DOCUMENTS_STATUS_FETCHED_INITIAL,
+  DOCUMENTS_STATUS_FETCHED_CUSTOM,
+  DOCUMENTS_STATUS_FETCHED_PAGINATION
+} from '../constants/documents-statuses';
 
 import configureGridStore from './grid-store';
+
+const { log, mongoLogId } = createLogger('COMPASS-CRUD-UI');
 
 /**
  * Number of docs per page.
@@ -166,9 +181,10 @@ const configureStore = (options = {}) => {
       return {
         ns: '',
         collection: '',
+        abortController: null,
+        session: null,
         error: null,
         docs: [],
-        counter: 0,
         start: 0,
         version: '3.4.0',
         end: 0,
@@ -184,7 +200,7 @@ const configureStore = (options = {}) => {
         isDataLake: false,
         isReadonly: false,
         isTimeSeries: false,
-        status: 'fetching',
+        status: DOCUMENTS_STATUS_INITIAL,
         outdated: false,
         shardKeys: null,
         resultId: resultId()
@@ -307,8 +323,8 @@ const configureStore = (options = {}) => {
       this.state.query.maxTimeMS = state.maxTimeMS;
 
       if (
-        this.state.status === 'fetchedWithInitialQuery' ||
-        this.state.status === 'fetchedWithCustomQuery'
+        this.state.status === DOCUMENTS_STATUS_FETCHED_INITIAL ||
+        this.state.status === DOCUMENTS_STATUS_FETCHED_CUSTOM
       ) {
         this.setState({ outdated: true });
       }
@@ -522,82 +538,92 @@ const configureStore = (options = {}) => {
      *
      * @param {Number} page - The page that is being shown.
      */
-    getNextPage(page) {
-      const skip = page * NUM_PAGE_DOCS;
+    async getPage(page) {
+      const { ns, status, view } = this.state;
 
-      const documentsLoaded = this.state.counter + NUM_PAGE_DOCS;
-      const limit = this.state.query.limit;
+      if (page < 0) {
+        return;
+      }
+
+      if (status === DOCUMENTS_STATUS_FETCHING) {
+        return;
+      }
+
+      const {
+        filter,
+        limit,
+        sort,
+        project: projection,
+        collation,
+        maxTimeMS
+      } = this.state.query;
+
+      const skip = this.state.query.skip + page * NUM_PAGE_DOCS;
+
+      // nextPageCount will be the number of docs to load
       let nextPageCount = NUM_PAGE_DOCS;
-      if (limit > 0 && documentsLoaded + nextPageCount > limit) {
-        nextPageCount = limit - documentsLoaded;
-        if (nextPageCount === 0) {
+
+      // Make sure we don't go past the limit if a limit is set
+      if (limit) {
+        const remaining = limit - skip;
+        if (remaining < 1) {
           return;
         }
+        if (remaining < nextPageCount) {
+          nextPageCount = remaining;
+        }
       }
+
+      const session = this.dataService.startSession();
+      const abortController = new AbortController();
+      const signal = abortController.signal;
+
+      abortController.signal.addEventListener('abort', this.onAbort, { once: true });
+
       const opts = {
-        skip: skip + this.state.query.skip,
+        signal,
+        session,
+        skip,
         limit: nextPageCount,
-        sort: this.state.query.sort,
-        projection: this.state.query.project,
-        collation: this.state.query.collation,
-        maxTimeMS: this.state.query.maxTimeMS,
+        sort,
+        projection,
+        collation,
+        maxTimeMS,
         promoteValues: false
       };
 
-      this.globalAppRegistry.emit('compass:status:show-progress-bar');
-
-      this.dataService.find(this.state.ns, this.state.query.filter, opts, (error, documents) => {
-        const length = error ? 0 : documents.length;
-        this.globalAppRegistry.emit('compass:status:done');
-        this.setState({
-          error: error,
-          docs: documents.map(doc => new HadronDocument(doc)),
-          start: skip + 1,
-          end: skip + ((length === 0) ? skip : length),
-          page: page,
-          counter: this.state.counter + NUM_PAGE_DOCS,
-          table: this.getInitialTableState()
-        });
-        this.localAppRegistry.emit('documents-paginated', this.state.view, documents);
-        this.globalAppRegistry.emit('documents-paginated', this.state.view, documents);
+      this.setState({
+        status: DOCUMENTS_STATUS_FETCHING,
+        abortController,
+        session,
+        error: null
       });
-    },
 
-    /**
-     * Get the previous page of documents.
-     *
-     * @param {Number} page - The page that is being shown.
-     */
-    getPrevPage(page) {
-      const skip = page * NUM_PAGE_DOCS;
-      const nextPageCount = NUM_PAGE_DOCS;
-      const opts = {
-        skip: skip + this.state.query.skip,
-        limit: nextPageCount,
-        sort: this.state.query.sort,
-        projection: this.state.query.project,
-        collation: this.state.query.collation,
-        maxTimeMS: this.state.query.maxTimeMS,
-        promoteValues: false
-      };
+      let error;
+      let documents;
+      try {
+        documents = await findDocuments(this.dataService, ns, filter, opts);
+      } catch (err) {
+        documents = [];
+        error = err;
+      }
 
-      this.globalAppRegistry.emit('compass:status:show-progress-bar');
-
-      this.dataService.find(this.state.ns, this.state.query.filter, opts, (error, documents) => {
-        const length = error ? 0 : documents.length;
-        this.globalAppRegistry.emit('compass:status:done');
-        this.setState({
-          error: error,
-          docs: documents.map(doc => new HadronDocument(doc)),
-          start: skip + 1,
-          end: skip + length,
-          page: page,
-          counter: this.state.counter - NUM_PAGE_DOCS,
-          table: this.getInitialTableState()
-        });
-        this.localAppRegistry.emit('documents-paginated', this.state.view, documents);
-        this.globalAppRegistry.emit('documents-paginated', this.state.view, documents);
+      const length = error ? 0 : documents.length;
+      this.setState({
+        error,
+        status: error ? DOCUMENTS_STATUS_ERROR : DOCUMENTS_STATUS_FETCHED_PAGINATION,
+        docs: documents.map(doc => new HadronDocument(doc)),
+        start: skip + 1,
+        end: skip + length,
+        page,
+        table: this.getInitialTableState(),
+        resultId: resultId(),
+        abortController: null,
+        session: null
       });
+      abortController.signal.removeEventListener('abort', this.onAbort);
+      this.localAppRegistry.emit('documents-paginated', view, documents);
+      this.globalAppRegistry.emit('documents-paginated', view, documents);
     },
 
     /**
@@ -885,6 +911,27 @@ const configureStore = (options = {}) => {
     },
 
     /**
+     * Detect if it is safe to perform the count query optimisation where we
+     * specify the _id_ index as the hint.
+     */
+    isCountHintSafe() {
+      const { isTimeSeries, query = {} } = this.state;
+      const { filter } = query;
+
+      if (isTimeSeries) {
+        // timeseries collections don't have the _id_ filter, so we can't use the hint speedup
+        return false;
+      }
+
+      if (filter && Object.keys(filter).length) {
+        // we can't safely use the hint speedup if there's a filter
+        return false;
+      }
+
+      return true;
+    },
+
+    /**
      * Checks if the initial query was not modified.
      *
      * @param {Object} query - The query to check.
@@ -897,8 +944,6 @@ const configureStore = (options = {}) => {
 
     /**
      * This function is called when the collection filter changes.
-     *
-     * @param {Object} filter - The query filter.
      */
     async refreshDocuments() {
       if (this.dataService && !this.dataService.isConnected()) {
@@ -906,70 +951,92 @@ const configureStore = (options = {}) => {
         return;
       }
 
-      if (this.isRefreshingDocuments) {
+      const { ns, status, view, query = {} } = this.state;
+
+      if (status === DOCUMENTS_STATUS_FETCHING) {
         return;
       }
 
-      this.isRefreshingDocuments = true;
+      const fetchShardingKeysOptions = {
+        maxTimeMS: query.maxTimeMS
+      };
+
+      const countOptions = {
+        skip: query.skip,
+        maxTimeMS: query.maxTimeMS > COUNT_MAX_TIME_MS_CAP ?
+          COUNT_MAX_TIME_MS_CAP :
+          query.maxTimeMS
+      };
+
+      if (this.isCountHintSafe()) {
+        countOptions.hint = '_id_';
+      }
+
+      const findOptions = {
+        sort: query.sort,
+        projection: query.project,
+        skip: query.skip,
+        limit: NUM_PAGE_DOCS,
+        collation: query.collation,
+        maxTimeMS: query.maxTimeMS,
+        promoteValues: false
+      };
+
+      // only set limit if it's > 0, read-only views cannot handle 0 limit.
+      if (query.limit > 0) {
+        countOptions.limit = query.limit;
+        findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
+      }
+
+      log.info(mongoLogId(1001000073), 'Documents', 'Refreshing documents', {
+        ns,
+        withFilter: !isEmpty(query.filter),
+        findOptions,
+        countOptions
+      });
+
+      const session = this.dataService.startSession();
+      const abortController = new AbortController();
+      const signal = abortController.signal;
+
+      abortController.signal.addEventListener('abort', this.onAbort, { once: true });
+
+      // pass the signal so that the queries can close their own cursors and
+      // reject their promises
+      fetchShardingKeysOptions.signal = signal;
+      countOptions.signal = signal;
+      findOptions.signal = signal;
+
+      // pass the session so that the queries are all associated with the same
+      // session and then we can kill the whole session once
+      fetchShardingKeysOptions.session = session;
+      countOptions.session = session;
+      findOptions.session = session;
+
+      const promises = [
+        fetchShardingKeys(this.dataService, ns, fetchShardingKeysOptions),
+        countDocuments(this.dataService, ns, query.filter, countOptions),
+        findDocuments(this.dataService, ns, query.filter, findOptions)
+      ];
+
+      // This is so that the UI can update to show that we're fetching
+      this.setState({
+        status: DOCUMENTS_STATUS_FETCHING,
+        abortController,
+        session,
+        outdated: false,
+        error: null
+      });
+
+      const stateChanges = {};
 
       try {
-        this.setState({
-          status: 'fetching',
-          outdated: false
-        });
+        const [shardKeys, count, docs] = await Promise.all(promises);
 
-        const query = this.state.query || {};
-
-        const countOptions = {
-          skip: query.skip,
-          maxTimeMS: query.maxTimeMS > COUNT_MAX_TIME_MS_CAP ?
-            COUNT_MAX_TIME_MS_CAP :
-            query.maxTimeMS
-        };
-
-        const findOptions = {
-          sort: query.sort,
-          projection: query.project,
-          skip: query.skip,
-          limit: NUM_PAGE_DOCS,
-          collation: query.collation,
-          maxTimeMS: query.maxTimeMS,
-          promoteValues: false
-        };
-
-        const fetchShardingKeysOptions = {
-          maxTimeMS: query.maxTimeMS
-        };
-
-        // only set limit if it's > 0, read-only views cannot handle 0 limit.
-        if (query.limit > 0) {
-          countOptions.limit = query.limit;
-          findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
-        }
-
-        log.info(mongoLogId(1001000073), 'Documents', 'Refreshing documents', {
-          ns: this.state.ns,
-          withFilter: !isEmpty(query.filter),
-          findOptions,
-          countOptions
-        });
-
-        this.globalAppRegistry.emit('compass:status:show-progress-bar');
-
-        const [
-          shardKeys,
-          count,
-          docs
-        ] = await Promise.all([
-          fetchShardingKeys(this.dataService, this.state.ns, fetchShardingKeysOptions),
-          countDocuments(this.dataService, this.state.ns, query.filter, countOptions),
-          fetchDocuments(this.dataService, this.state.ns, query.filter, findOptions)
-        ]);
-
-        this.setState({
+        Object.assign(stateChanges, {
           status: this.isInitialQuery(query) ?
-            'fetchedWithInitialQuery' :
-            'fetchedWithCustomQuery',
+            DOCUMENTS_STATUS_FETCHED_INITIAL :
+            DOCUMENTS_STATUS_FETCHED_CUSTOM,
           isEditable: this.hasProjection(query) ? false : this.isListEditable(),
           error: null,
           docs: docs.map(doc => new HadronDocument(doc)),
@@ -979,18 +1046,52 @@ const configureStore = (options = {}) => {
           end: docs.length,
           table: this.getInitialTableState(),
           shardKeys,
-          resultId: resultId()
         });
 
-        this.localAppRegistry.emit('documents-refreshed', this.state.view, docs);
-        this.globalAppRegistry.emit('documents-refreshed', this.state.view, docs);
+        this.localAppRegistry.emit('documents-refreshed', view, docs);
+        this.globalAppRegistry.emit('documents-refreshed', view, docs);
       } catch (error) {
         log.error(mongoLogId(1001000074), 'Documents', 'Failed to refresh documents', error);
-        this.setState({ error, resultId: resultId() });
-      } finally {
-        this.globalAppRegistry.emit('compass:status:done');
-        this.isRefreshingDocuments = false;
+        Object.assign(stateChanges, {
+          error,
+          status: DOCUMENTS_STATUS_ERROR,
+        });
       }
+
+      Object.assign(stateChanges, {
+        abortController: null,
+        session: null,
+        resultId: resultId(),
+      });
+
+      abortController.signal.removeEventListener('abort', this.onAbort);
+
+      // Trigger all the accumulated changes once at the end
+      this.setState(stateChanges);
+    },
+
+    async onAbort() {
+      const session = this.state.session;
+      if (!session) {
+        return;
+      }
+      this.setState({ session: null });
+
+      try {
+        await this.dataService.killSession(session);
+      } catch (err) {
+        log.warn(mongoLogId(1001000096), 'Documents', 'Attempting to kill the session failed');
+      }
+    },
+
+    cancelOperation() {
+      const { abortController } = this.state;
+      if (!abortController) {
+        return;
+      }
+      this.setState({ abortController: null });
+
+      abortController.abort();
     },
 
     hasProjection(query) {
@@ -1036,7 +1137,7 @@ const configureStore = (options = {}) => {
     setGlobalAppRegistry(store, globalAppRegistry);
   }
 
-  if (options.isReadonly !== null || options.isReadonly !== undefined) {
+  if (options.isReadonly !== null && options.isReadonly !== undefined) {
     setIsReadonly(store, options.isReadonly);
   }
 
@@ -1067,53 +1168,6 @@ const configureStore = (options = {}) => {
 };
 
 export default configureStore;
-
-
-async function fetchShardingKeys(dataService, ns, fetchShardingKeysOptions) {
-  const find = util.promisify(dataService.find.bind(dataService));
-
-  const configDocs = await find(
-    'config.collections',
-    { _id: ns },
-    { ...fetchShardingKeysOptions, projection: { key: 1, _id: 0 } }
-  ).catch((err) => {
-    log.warn(mongoLogId(1001000075), 'Documents', 'Failed to fetch sharding keys', err);
-    return [];
-  });
-
-  if (configDocs && configDocs.length) {
-    return configDocs[0].key;
-  }
-
-  return {};
-}
-
-async function countDocuments(dataService, ns, filter, countOptions) {
-  return countWithHint(dataService, ns, filter, countOptions)
-    .catch((err) => {
-      debug('warning: unable to count documents', err);
-      return null;
-    });
-}
-
-async function countWithHint(dataService, ns, filter, countOptions = {}) {
-  const dataServiceCount = util.promisify(dataService.count.bind(dataService));
-
-  if (filter && Object.keys(filter).length > 0) {
-    return await dataServiceCount(ns, filter, countOptions);
-  }
-
-  try { // suggest to use the _id_ index if available to speed up full count
-    return await dataServiceCount(ns, filter, { hint: '_id_', ...countOptions });
-  } catch (err) {
-    return await dataServiceCount(ns, filter, countOptions);
-  }
-}
-
-async function fetchDocuments(dataService, ns, filter, findOptions) {
-  const find = util.promisify(dataService.find.bind(dataService));
-  return find(ns, filter, findOptions);
-}
 
 function resultId() {
   return Math.floor(Math.random() * (2 ** 53));

@@ -100,7 +100,7 @@ describe('convertConnectionModelToInfo', function () {
       connectionString:
         'mongodb://user:password@localhost:27017/admin?' +
         'authSource=admin&readPreference=primary&directConnection=true' +
-        '&tls=true' +
+        '&ssl=true' +
         '&tlsCAFile=pathToCaFile' +
         '&tlsCertificateKeyFile=pathToCertKey',
     });
@@ -123,7 +123,37 @@ describe('convertConnectionModelToInfo', function () {
       connectionString:
         'mongodb://user:password@localhost:27017/admin?' +
         'authSource=admin&readPreference=primary&directConnection=true' +
-        '&tls=true' +
+        '&ssl=true' +
+        '&tlsCAFile=pathToCaFile' +
+        '&tlsCertificateKeyFile=pathToCertKey2',
+      tlsCertificateFile: 'pathToCertKey1',
+    });
+  });
+
+  it('converts X509', async function () {
+    const { connectionOptions } = await createAndConvertModel(
+      'mongodb://localhost:27017?&socketTimeoutMS=2000',
+      {
+        _id: '1234-1234-1234-1234',
+        sslMethod: 'ALL',
+        ssl: true,
+        sslCA: ['pathToCaFile'],
+        sslCert: 'pathToCertKey1',
+        sslKey: 'pathToCertKey2',
+        authStrategy: 'X509',
+      }
+    );
+
+    expect(connectionOptions).to.deep.equal({
+      connectionString:
+        'mongodb://localhost:27017/?authMechanism=MONGODB-X509' +
+        '&socketTimeoutMS=2000' +
+        '&readPreference=primary' +
+        '&directConnection=true' +
+        '&ssl=true' +
+        '&authSource=%24external' +
+        '&tlsAllowInvalidCertificates=true' +
+        '&tlsAllowInvalidHostnames=true' +
         '&tlsCAFile=pathToCaFile' +
         '&tlsCertificateKeyFile=pathToCertKey2',
       tlsCertificateFile: 'pathToCertKey1',
@@ -186,6 +216,31 @@ describe('convertConnectionModelToInfo', function () {
         sshTunnelPort: 22,
         sshTunnelUsername: 'root',
         sshTunnelIdentityFile: 'myfile',
+      }
+    );
+
+    expect(connectionOptions).to.deep.equal({
+      connectionString:
+        'mongodb://localhost:27017/' +
+        '?readPreference=primary&directConnection=true&ssl=false',
+      sshTunnel: {
+        host: 'jumphost',
+        port: 22,
+        identityKeyFile: 'myfile',
+        username: 'root',
+      },
+    });
+  });
+
+  it('converts ssh tunnel options (IDENTITY_FILE array)', async function () {
+    const { connectionOptions } = await createAndConvertModel(
+      'mongodb://localhost:27017',
+      {
+        sshTunnel: 'IDENTITY_FILE',
+        sshTunnelHostname: 'jumphost',
+        sshTunnelPort: 22,
+        sshTunnelUsername: 'root',
+        sshTunnelIdentityFile: ['myfile'],
       }
     );
 

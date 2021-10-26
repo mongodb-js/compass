@@ -1,7 +1,11 @@
+import { promises as fs } from 'fs';
+
 import createTestEnvs from '@mongodb-js/devtools-docker-test-envs';
 import { expect } from 'chai';
 import util from 'util';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import path from 'path';
+import os from 'os';
 
 import connect from './connect';
 import { ConnectionOptions } from './connection-options';
@@ -18,6 +22,9 @@ const {
   E2E_TESTS_ATLAS_HOST,
   E2E_TESTS_DATA_LAKE_HOST,
   E2E_TESTS_SERVERLESS_HOST,
+  E2E_TESTS_FREE_TIER_HOST,
+  E2E_TESTS_ANALYTICS_NODE_HOST,
+  E2E_TESTS_ATLAS_X509_PEM,
 } = process.env;
 
 const buildConnectionString = (
@@ -35,7 +42,7 @@ const buildConnectionString = (
   url.username = username;
   url.password = password;
 
-  if (!url.isSRV) {
+  if (params) {
     url.search = new URLSearchParams(params).toString();
   }
 
@@ -47,6 +54,35 @@ const COMPASS_TEST_ATLAS_URL = buildConnectionString(
   E2E_TESTS_ATLAS_USERNAME,
   E2E_TESTS_ATLAS_PASSWORD,
   E2E_TESTS_ATLAS_HOST
+);
+
+const COMPASS_TEST_FREE_TIER_URL = buildConnectionString(
+  'mongodb+srv',
+  E2E_TESTS_ATLAS_USERNAME,
+  E2E_TESTS_ATLAS_PASSWORD,
+  E2E_TESTS_FREE_TIER_HOST
+);
+
+const COMPASS_TEST_ANALYTICS_NODE_URL = buildConnectionString(
+  'mongodb+srv',
+  E2E_TESTS_ATLAS_USERNAME,
+  E2E_TESTS_ATLAS_PASSWORD,
+  E2E_TESTS_ANALYTICS_NODE_HOST,
+  {
+    readConcernLevel: 'local',
+    readPreference: 'secondary',
+    readPreferenceTags: 'nodeType:ANALYTICS',
+  }
+);
+
+const COMPASS_TEST_SECONDARY_NODE_URL = buildConnectionString(
+  'mongodb+srv',
+  E2E_TESTS_ATLAS_USERNAME,
+  E2E_TESTS_ATLAS_PASSWORD,
+  E2E_TESTS_ANALYTICS_NODE_HOST,
+  {
+    readPreference: 'secondary',
+  }
 );
 
 const COMPASS_TEST_DATA_LAKE_URL = buildConnectionString(
@@ -84,6 +120,113 @@ describe('connect', function () {
       await connectAndGetAuthInfo({
         connectionString: COMPASS_TEST_ATLAS_URL,
       });
+    });
+
+    it('connects to atlas free tier', async function () {
+      if (!IS_CI && !COMPASS_TEST_FREE_TIER_URL) {
+        return this.skip();
+      }
+
+      await connectAndGetAuthInfo({
+        connectionString: COMPASS_TEST_FREE_TIER_URL,
+      });
+    });
+
+    it('connects to atlas and routes query correctly with readPreferences=secondary', async function () {
+      if (!IS_CI && !COMPASS_TEST_SECONDARY_NODE_URL) {
+        return this.skip();
+      }
+
+      let dataService: DataService;
+
+      try {
+        dataService = await connect({
+          connectionString: COMPASS_TEST_SECONDARY_NODE_URL,
+        });
+
+        const [command, explain] = [
+          dataService.command.bind(dataService),
+          dataService.explain.bind(dataService),
+        ].map(util.promisify);
+
+        const explainPlan = await explain('test.test', {}, {});
+
+        const targetHost = explainPlan?.serverInfo?.host;
+        const replSetStatus = await command('admin', { replSetGetStatus: 1 });
+        const targetHostStatus = replSetStatus?.members.find((member) =>
+          member.name.startsWith(targetHost)
+        );
+
+        expect(targetHostStatus.stateStr).to.equal('SECONDARY');
+      } finally {
+        await dataService?.disconnect();
+      }
+    });
+
+    it('connects to an analytics node and routes queries correctly', async function () {
+      if (!IS_CI && !COMPASS_TEST_ANALYTICS_NODE_URL) {
+        return this.skip();
+      }
+
+      let dataService: DataService;
+
+      try {
+        dataService = await connect({
+          connectionString: COMPASS_TEST_ANALYTICS_NODE_URL,
+        });
+
+        const [command, explain] = [
+          dataService.command.bind(dataService),
+          dataService.explain.bind(dataService),
+        ].map(util.promisify);
+
+        const replSetGetConfig = await command('admin', {
+          replSetGetConfig: 1,
+        });
+
+        const analtyticsNode = replSetGetConfig?.config?.members.find(
+          (member) => member?.tags.nodeType === 'ANALYTICS'
+        );
+
+        const explainPlan = await explain('test.test', {}, {});
+
+        // test that queries are routed to the analytics node
+        expect(explainPlan?.serverInfo?.host).to.be.equal(
+          analtyticsNode?.host.split(':')[0]
+        );
+      } finally {
+        await dataService?.disconnect();
+      }
+    });
+
+    it('connects to atlas with X509', async function () {
+      if (!IS_CI && !(E2E_TESTS_ATLAS_HOST || E2E_TESTS_ATLAS_X509_PEM)) {
+        return this.skip();
+      }
+
+      let tempdir;
+      try {
+        tempdir = await fs.mkdtemp(path.join(os.tmpdir(), 'connect-tests-'));
+        const certPath = path.join(tempdir, 'x509.pem');
+        await fs.writeFile(certPath, E2E_TESTS_ATLAS_X509_PEM);
+
+        const url = new ConnectionStringUrl(
+          `mongodb+srv://${E2E_TESTS_ATLAS_HOST || ''}/admin`
+        );
+
+        url.searchParams.set('authMechanism', 'MONGODB-X509');
+        url.searchParams.set('tls', 'true');
+        url.searchParams.set('tlsCertificateKeyFile', certPath);
+        url.searchParams.set('authSource', '$external');
+
+        await connectAndGetAuthInfo({
+          connectionString: url.href,
+        });
+      } finally {
+        if (tempdir) {
+          await fs.rmdir(tempdir, { recursive: true });
+        }
+      }
     });
 
     it('connects to data lake', async function () {

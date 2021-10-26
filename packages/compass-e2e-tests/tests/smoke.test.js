@@ -193,6 +193,39 @@ describe('Smoke tests', function () {
       expect(text).to.equal('Displaying documents 1 - 20 of 50');
     });
 
+    it('supports cancelling a find and then running another query', async function () {
+      // execute a query that will take a long time
+      await client.runFindOperation(
+        'Documents',
+        '{ $where: function() { return sleep(10000) || true; } }',
+        { waitForResult: false }
+      );
+
+      // stop it
+      const documentListFetchingElement = await client.$(
+        Selectors.DocumentListFetching
+      );
+      await documentListFetchingElement.waitForDisplayed();
+
+      await client.clickVisible(Selectors.DocumentListFetchingStopButton);
+
+      const documentListErrorElement = await client.$(
+        Selectors.DocumentListError
+      );
+      await documentListErrorElement.waitForDisplayed();
+
+      const errorText = await documentListErrorElement.getText();
+      expect(errorText).to.equal('The operation was cancelled.');
+
+      // execute another (small, fast) query
+      await client.runFindOperation('Documents', '{ i: 5 }');
+      const documentListActionBarMessageElement = await client.$(
+        Selectors.DocumentListActionBarMessage
+      );
+      const displayText = await documentListActionBarMessageElement.getText();
+      expect(displayText).to.equal('Displaying documents 1 - 1 of 1');
+    });
+
     it('supports view/edit via list view');
     it('supports view/edit via json view');
     it('supports view/edit via table view');
@@ -234,6 +267,7 @@ describe('Smoke tests', function () {
         '$bucketAuto',
         '$collStats',
         '$count',
+        '$documents',
         '$facet',
         '$geoNear',
         '$graphLookup',
@@ -250,6 +284,7 @@ describe('Smoke tests', function () {
         '$replaceRoot',
         '$sample',
         '$search',
+        '$searchMeta',
         '$set',
         //'$setWindowFields', // New in version 5.0.
         '$skip',

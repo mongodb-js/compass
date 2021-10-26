@@ -19,3 +19,17 @@ chai.should();
 chai.use(sinonChai);
 chai.use(chaiEnzyme());
 chai.use(chaiAsPromised);
+
+class Worker {
+  postMessage() {
+    return true;
+  }
+  terminate() {
+    return true;
+  }
+}
+
+global.Worker = Worker;
+
+// https://github.com/jsdom/jsdom/issues/1721
+global.window.URL.createObjectURL = function() {};

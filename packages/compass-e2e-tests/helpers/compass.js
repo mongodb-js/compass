@@ -371,10 +371,13 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
  */
 function addDebugger(app) {
   const debugClient = debug.extend('webdriver:client');
+  // debugClient.log starts off empty for some reason
+  debugClient.log = console.log.bind(console);
   const clientProto = Object.getPrototypeOf(app.client);
 
   for (const prop of Object.getOwnPropertyNames(clientProto)) {
-    if (prop.includes('.')) {
+    // disable emit logging for now because it is very noisy
+    if (prop.includes('.') || prop === 'emit') {
       continue;
     }
     const descriptor = Object.getOwnPropertyDescriptor(clientProto, prop);

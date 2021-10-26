@@ -103,7 +103,7 @@ export interface LegacyConnectionModelProperties {
   sshTunnelBindToLocalPort?: number;
   sshTunnelUsername?: string;
   sshTunnelPassword?: string;
-  sshTunnelIdentityFile?: string;
+  sshTunnelIdentityFile?: string | string[];
   sshTunnelPassphrase?: string;
 
   lastUsed?: Date;
@@ -209,12 +209,12 @@ function modelSslPropertiesToConnectionOptions(
 ): void {
   const url = new ConnectionString(connectionOptions.connectionString);
 
-  if ('sslValidate' in driverOptions) {
-    url.searchParams.set('tls', driverOptions.sslValidate ? 'true' : 'false');
+  if (driverOptions.sslValidate === false) {
+    url.searchParams.set('tlsAllowInvalidCertificates', 'true');
   }
 
-  if (driverOptions.tlsAllowInvalidCertificates) {
-    url.searchParams.set('tlsAllowInvalidCertificates', 'true');
+  if (driverOptions.tlsAllowInvalidHostnames) {
+    url.searchParams.set('tlsAllowInvalidHostnames', 'true');
   }
 
   const sslCA = getSslDriverOptionsFile(driverOptions.sslCA);
@@ -284,7 +284,9 @@ function modelTunnelToConnectionOptions(
   }
 
   if (model.sshTunnelIdentityFile !== undefined) {
-    sshTunnel.identityKeyFile = model.sshTunnelIdentityFile;
+    sshTunnel.identityKeyFile = Array.isArray(model.sshTunnelIdentityFile)
+      ? model.sshTunnelIdentityFile[0]
+      : model.sshTunnelIdentityFile;
   }
 
   if (model.sshTunnelPassphrase !== undefined) {

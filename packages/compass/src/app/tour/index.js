@@ -1,18 +1,19 @@
-var $ = require('jquery');
-var View = require('ampersand-view');
-var app = require('hadron-app');
-var semver = require('semver');
-var _ = require('lodash');
-var electronApp = require('electron').remote.app;
+const $ = require('jquery');
+const View = require('ampersand-view');
+const app = require('hadron-app');
+const semver = require('semver');
+const _ = require('lodash');
+const electronApp = require('electron').remote.app;
+const { track } = require('@mongodb-js/compass-logging').createLogger('COMPASS-TOUR');
 
-// var debug = require('debug')('mongodb-compass:tour:index');
+// const debug = require('debug')('mongodb-compass:tour:index');
 
-var ESC_KEY = 27;
-var LEFT_ARROW_KEY = 37;
-var RIGHT_ARROW_KEY = 39;
-var TAB_KEY = 9;
-var ENTER_KEY = 13;
-var SPACE_KEY = 32;
+const ESC_KEY = 27;
+const LEFT_ARROW_KEY = 37;
+const RIGHT_ARROW_KEY = 39;
+const TAB_KEY = 9;
+const ENTER_KEY = 13;
+const SPACE_KEY = 32;
 
 /**
  * The feature tour highlights some signature features of MongoDB Compass.
@@ -86,7 +87,7 @@ var TourView = View.extend({
             <button class="tour-close-button" data-test-id="close-tour-button">&times;</button>
           </div>
           <div id="animation">
-            <img id="animation-gif" src="${features[0].image}" /> 
+            <img id="animation-gif" src="${features[0].image}" />
           </div>
           <div id="features">
             ${featuresHtml}
@@ -278,6 +279,7 @@ var TourView = View.extend({
   },
   tourRemove: function() {
     const feature = this.features[this.tourCount];
+    track('Tour Closed', { tab_title: feature.title });
     global.hadronApp.appRegistry.emit('tour-closed', feature.title);
     this.trigger('close');
     this.body.removeEventListener('keydown', this.onKeyPress);

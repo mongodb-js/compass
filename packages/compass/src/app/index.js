@@ -1,5 +1,5 @@
-/* eslint no-console:0 */
-import './index.less';
+require('./index.less');
+require('../setup-hadron-distribution');
 
 const marky = require('marky');
 const EventEmitter = require('events');
@@ -11,9 +11,6 @@ EventEmitter.defaultMaxListeners = 100;
 document.addEventListener('dragover', (evt) => evt.preventDefault());
 document.addEventListener('drop', (evt) => evt.preventDefault());
 
-require('../setup-hadron-distribution');
-
-window.jQuery = require('jquery');
 require('bootstrap/js/modal');
 require('bootstrap/js/transition');
 
@@ -285,6 +282,7 @@ var Application = View.extend({
         this.preferences.save({
           currentUserId: user.id
         });
+        ipc.call('compass:usage:identify', { currentUserId: user.id });
         debug('user fetch successful', user.serialize());
         done(null, user);
       }.bind(this)
@@ -293,6 +291,8 @@ var Application = View.extend({
   fetchPreferences: function(done) {
     this.preferences.once('sync', function(prefs) {
       prefs.trigger('page-refresh');
+      ipc.call(prefs.isFeatureEnabled('trackUsageStatistics') ?
+        'compass:usage:enabled' : 'compass:usage:disabled');
       var oldVersion = _.get(prefs, 'lastKnownVersion', '0.0.0');
       var currentVersion = APP_VERSION;
       var save = false;

@@ -13,6 +13,7 @@ exports.addCommands = function (app) {
   add('clickVisible', './click-visible');
   add('setValueVisible', './set-value-visible');
   add('waitForConnectionScreen', './wait-for-connection-screen');
+  add('openTourModal', './open-tour-modal');
   add('closeTourModal', './close-tour-modal');
   add('closePrivacySettingsModal', './close-privacy-settings-modal');
   add('doConnect', './do-connect');
@@ -30,4 +31,5 @@ exports.addCommands = function (app) {
   add('closeCollectionTabs', './close-collection-tabs');
   add('setValidation', './set-validation');
   add('waitForAnimations', './wait-for-animations');
+  add('setOrClearValue', './set-or-clear-value');
 };

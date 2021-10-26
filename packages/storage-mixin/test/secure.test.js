@@ -13,6 +13,12 @@ describe('storage backend secure', function() {
     return;
   }
 
+  if (process.env.EVERGREEN && process.platform === 'darwin') {
+    // Can't override default keychain on macOS in evergreen, skipping
+    // TODO: https://jira.mongodb.org/browse/COMPASS-5216
+    return;
+  }
+
   var backendOptions = 'secure';
 
   var StorableSpaceship;

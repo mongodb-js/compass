@@ -9,6 +9,8 @@ import { OUT, MERGE } from '../../modules/pipeline';
 import decomment from 'decomment';
 
 import styles from './stage-preview.module.less';
+import createLogger from '@mongodb-js/compass-logging';
+const { track } = createLogger('COMPASS-AGGREGATIONS-UI');
 
 /**
  * The stage preview component.
@@ -60,7 +62,7 @@ class StagePreview extends Component {
    * Called when the Atlas Signup CTA link is clicked.
    */
   onAtlasSignupCtaClicked = () => {
-    // TODO: Add tracking after switching to Segment
+    track('Atlas Link Clicked', { screen: 'agg_builder' });
     this.props.openLink('https://www.mongodb.com/cloud/atlas/lp/search-1?utm_campaign=atlas_search&utm_source=compass&utm_medium=product&utm_content=v1');
   }
 
@@ -145,7 +147,7 @@ class StagePreview extends Component {
   }
 
   /**
-   * If the stage operator is $search and it is not supported we
+   * If the stage operator is a full-text search operator and it is not supported we
    * show a Atlas signup CTA.
    *
    * @returns {Component} The component.
@@ -157,7 +159,7 @@ class StagePreview extends Component {
         <div className={styles['stage-preview-missing-search-support-text']}>
           This stage is only available with MongoDB Atlas.
 
-          Create a free cluster or connect to an Atlas cluster to build search indexes and use the $search aggregation stage to run fast, relevant search queries.
+          Create a free cluster or connect to an Atlas cluster to build search indexes and use {this.props.stageOperator} aggregation stage to run fast, relevant search queries.
         </div>
         <TextButton
           text="Create Free Cluster"

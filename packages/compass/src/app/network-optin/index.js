@@ -1,7 +1,7 @@
-var $ = window.jQuery;
 var View = require('ampersand-view');
 var app = require('hadron-app');
 var _ = require('lodash');
+var ipc = require('hadron-ipc');
 
 var debug = require('debug')('mongodb-compass:network-optin:index');
 
@@ -83,9 +83,6 @@ var NetworkOptInView = View.extend({
     var feature = evt.target.name;
     var value = evt.target.checked;
     this.set(feature, value);
-    if (feature === 'trackUsageStatistics' && value !== true) {
-      global.hadronApp.appRegistry.emit('compass:usage:disabled');
-    }
   },
   buttonClicked: function() {
     var features = [
@@ -108,6 +105,14 @@ var NetworkOptInView = View.extend({
     _.delay(function() {
       this.remove();
     }.bind(this), 500);
+
+    {
+      // Broadcast the update to telemetry state
+      const event = this.preferences.isFeatureEnabled('trackUsageStatistics') ?
+        'compass:usage:enabled' : 'compass:usage:disabled';
+      global.hadronApp.appRegistry.emit(event); // Legacy metrics
+      ipc.call(event); // Segment
+    }
   },
   render: function() {
     this.renderWithTemplate(this);

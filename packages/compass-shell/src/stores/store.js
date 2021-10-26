@@ -5,7 +5,7 @@ import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
 import createLogger from '@mongodb-js/compass-logging';
 
-const { log, debug } = createLogger('COMPASS-SHELL');
+const { log, debug, track } = createLogger('COMPASS-SHELL');
 
 export default class CompassShellStore {
   constructor() {
@@ -26,15 +26,22 @@ export default class CompassShellStore {
     setupLoggerAndTelemetry(
       appRegistry,
       log.unbound,
-      () => {
-        throw new Error('no analytics integration for compass-shell');
-      },
+      () => ({
+        identify: () => {},
+        // Prefix Segment events with `Shell ` to avoid event name collisions
+        track: ({ event, properties }) => track(`Shell ${event}`, properties)
+      }),
       {
         platform: process.platform,
         arch: process.arch,
       },
       require('../../package.json').version
     );
+    // We always enable telemetry here, since the track call above will
+    // already check whether Compass telemetry is enabled or not.
+    // We also don't need to pass a proper user id, since that is
+    // handled by the Compass tracking code as well.
+    appRegistry.emit('mongosh:new-user', '<compass user>', true);
 
     // Set the global app registry in the store.
     this.reduxStore.dispatch(globalAppRegistryActivated(appRegistry));

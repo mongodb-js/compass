@@ -5,35 +5,33 @@ const {
   createElectronMainConfig,
   createElectronRendererConfig,
   webpackArgsWithDefaults,
+  isServe,
   webpack,
-  merge
+  merge,
 } = require('@mongodb-js/webpack-config-compass');
 
 module.exports = (_env, args) => {
   const opts = {
     ...webpackArgsWithDefaults(args),
     outputPath: path.resolve(__dirname, 'build'),
-    hot: true
+    hot: true,
   };
 
   process.env.NODE_ENV = opts.nodeEnv;
 
   const mainConfig = createElectronMainConfig({
     ...opts,
-    entry: path.resolve(__dirname, 'src', 'main.js'),
-    // Explicitly provide outputFilename so that it's not changed between dev,
-    // prod, or any other build mode. It's important for the main entrypoint as
-    // it would be require additional logic for electron to start the app
-    // correctly. Having a stable name allows us to avoid this
-    outputFilename: '[name].js'
+    // Explicitly provide entry name and outputFilename so that it's not changed
+    // between dev, prod, or any other build mode. It's important for the main
+    // entrypoint as it would be require additional logic for electron to start
+    // the app correctly. Having a stable name allows us to avoid this
+    entry: { main: path.resolve(__dirname, 'src', 'main', 'index.ts') },
+    outputFilename: '[name].js',
   });
 
   const rendererConfig = createElectronRendererConfig({
     ...opts,
-    entry: [
-      path.resolve(__dirname, 'src', 'app', 'index.js'),
-      path.resolve(__dirname, 'src', 'app', 'loading', 'loading.js')
-    ]
+    entry: path.resolve(__dirname, 'src', 'app', 'index.js'),
   });
 
   const externals = {
@@ -41,7 +39,7 @@ module.exports = (_env, args) => {
     // main import and for that reason it needs to stay external to compass (and
     // compass-shell plugin)
     '@mongosh/node-runtime-worker-thread':
-      'commonjs2 @mongosh/node-runtime-worker-thread'
+      'commonjs2 @mongosh/node-runtime-worker-thread',
   };
 
   // Having persistent build cache makes initial dev build slower, but
@@ -51,8 +49,8 @@ module.exports = (_env, args) => {
     type: 'filesystem',
     allowCollectingMemory: opts.nodeEnv !== 'production',
     buildDependencies: {
-      config: [__filename]
-    }
+      config: [__filename],
+    },
   };
 
   // Having runtime outside of entries means less rebuilding when dependencies
@@ -60,7 +58,17 @@ module.exports = (_env, args) => {
   // a rebuild when dependency tree changes)
   const optimization = {
     /** @type {'single'} */
-    runtimeChunk: 'single'
+    runtimeChunk: 'single',
+    splitChunks: {
+      /** @type {'all'} */
+      chunks: 'all',
+      maxInitialRequests: Infinity,
+      minSize: 0,
+      // Ignore all other splitting rules and enforce the split if we are
+      // hitting a 4mb limit for a single chunk (this gives us a reasonable
+      // amount of chunks loaded by the renderer in parallel)
+      maxSize: 4_000_000,
+    },
   };
 
   const target = new HadronBuildTarget(__dirname);
@@ -72,30 +80,45 @@ module.exports = (_env, args) => {
     HADRON_APP_VERSION: target.version,
     HADRON_DISTRIBUTION: target.distribution,
     HADRON_PRODUCT: target.name,
-    HADRON_PRODUCT_NAME: target.productName,
+    HADRON_PRODUCT_NAME: isServe(opts)
+      ? `${target.productName} Local`
+      : target.productName,
     HADRON_READONLY: String(target.readonly),
     HADRON_ISOLATED: String(target.isolated),
     HADRON_CHANNEL: target.channel,
+    HADRON_AUTO_UPDATE_ENDPOINT: target.autoUpdateBaseUrl,
     // Optional env variables that will be set only by Evergreen CI for publicly
     // published releases
-    HARDRON_METRICS_BUGSNAG_KEY: null,
-    HARDRON_METRICS_INTERCOM_APP_ID: null,
-    HARDRON_METRICS_STITCH_APP_ID: null
+    HADRON_METRICS_BUGSNAG_KEY: null,
+    HADRON_METRICS_INTERCOM_APP_ID: null,
+    HADRON_METRICS_STITCH_APP_ID: null,
+    HADRON_METRICS_SEGMENT_API_KEY: null,
+    HADRON_METRICS_SEGMENT_HOST: null,
   };
 
   return [
     merge(mainConfig, {
       cache,
       externals,
-      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)]
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
     }),
     merge(rendererConfig, {
       cache,
-      // Runtime chunk optimization makes sense only for renderer processes
-      // where the amount of dependencies is massive
+      // Chunk splitting makes sense only for renderer processes where the
+      // amount of dependencies is massive and can benefit from them more
       optimization,
       externals,
-      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)]
-    })
+      plugins: [
+        new webpack.EnvironmentPlugin(hadronEnvConfig),
+        // Not a part of common config because mostly a Compass thing that we
+        // might be able to get rid of eventually
+        new webpack.ProvidePlugin({
+          $: 'jquery',
+          'window.$': 'jquery',
+          jQuery: 'jquery',
+          'window.jQuery': 'jquery',
+        }),
+      ],
+    }),
   ];
 };
