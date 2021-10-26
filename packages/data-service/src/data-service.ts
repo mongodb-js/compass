@@ -60,7 +60,6 @@ import {
   CollectionStats,
   IndexDetails,
   Instance,
-  InstanceDetails,
 } from './types';
 
 import getPort from 'get-port';
@@ -887,48 +886,46 @@ class DataService extends EventEmitter {
   /**
    * Get the current instance details.
    *
-   * @param options - The options.
    * @param callback - The callback function.
    */
-  instance(options: unknown, callback: Callback<Instance>): void {
-    getInstance(this._initializedClient, this._defaultDb, ((
-      error,
-      instanceData
-    ) => {
-      if (error) {
+  instance(callback: Callback<Instance>): void {
+    getInstance(this._initializedClient).then(
+      (instanceData) => {
+        log.info(
+          mongoLogId(1_001_000_024),
+          this._logCtx(),
+          'Fetched instance information',
+          {
+            serverVersion: instanceData.build.version,
+            genuineMongoDB: instanceData.genuineMongoDB,
+            dataLake: instanceData.dataLake,
+            featureCompatibilityVersion:
+              instanceData.featureCompatibilityVersion,
+          }
+        );
+
+        const connectionString = new ConnectionStringUrl(
+          this._connectionOptions.connectionString
+        );
+
+        const firstHost = connectionString.hosts[0] || '';
+
+        const [hostname, port] = firstHost.split(':');
+
+        const instance: Instance = {
+          ...instanceData,
+          _id: firstHost,
+          hostname: hostname,
+          port: +port,
+        };
+
+        callback(null, instance);
+      },
+      (err) => {
         // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+        return callback(this._translateMessage(err));
       }
-
-      log.info(
-        mongoLogId(1_001_000_024),
-        this._logCtx(),
-        'Fetched instance information',
-        {
-          serverVersion: instanceData.build.version,
-          genuineMongoDB: instanceData.genuineMongoDB,
-          dataLake: instanceData.dataLake,
-          featureCompatibilityVersion: instanceData.featureCompatibilityVersion,
-        }
-      );
-
-      const connectionString = new ConnectionStringUrl(
-        this._connectionOptions.connectionString
-      );
-
-      const firstHost = connectionString.hosts[0] || '';
-
-      const [hostname, port] = firstHost.split(':');
-      // ---TODO: understand how is used and maybe replace with data coming
-      // from connected client
-      const instance: Instance = {
-        ...instanceData,
-        _id: firstHost,
-        hostname: hostname,
-        port: +port,
-      };
-      callback(null, instance);
-    }) as Callback<InstanceDetails>);
+    );
   }
 
   /**
