@@ -148,7 +148,6 @@ class Connect extends React.Component {
           <Sidebar {...this.props} />
           <div className={styles['form-container']}>
             {showNewConnectForm && <ConnectForm
-              // TODO: Maybe remove this.
               key={this.props.connectionModel._id}
               initialConnectionInfo={convertConnectionModelToInfo(this.props.connectionModel)}
               onConnectClicked={() => Actions.onConnectClicked()}
