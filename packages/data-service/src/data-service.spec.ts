@@ -795,8 +795,8 @@ describe('DataService', function () {
 
   describe('#instance', function () {
     it('returns the instance', function (done) {
-      dataService.instance({}, function (err, instance) {
-        assert.equal(null, err);
+      dataService.instance(function (err, instance) {
+        expect(err).to.be.eq(null);
         expect(instance._id).to.not.equal(undefined);
         expect(instance.databases[0]._id).to.not.equal(undefined);
         expect(instance.genuineMongoDB).to.deep.equal({
