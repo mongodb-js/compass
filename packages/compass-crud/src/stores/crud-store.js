@@ -23,7 +23,7 @@ import {
 
 import configureGridStore from './grid-store';
 
-const { log, mongoLogId } = createLogger('COMPASS-CRUD-UI');
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
 /**
  * Number of docs per page.
