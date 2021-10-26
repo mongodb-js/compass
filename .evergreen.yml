@@ -194,15 +194,51 @@ functions:
           export E2E_TESTS_ATLAS_USERNAME="${e2e_tests_atlas_username}"
           export E2E_TESTS_ATLAS_PASSWORD="${e2e_tests_atlas_password}"
           export E2E_TESTS_ATLAS_X509_PEM="${e2e_tests_atlas_x509_pem}"
-
+          export DEBUG="${debug}"
           # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
           # have dropped support for macOS 10.10 because it is now outside
           # of the supported version range.
           # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
-          # debug option is not very useful in normal runs, but helpful when
-          # debugging any issues with tests. Set to "mocha*", "hadron*", or
-          # "mongo*" for some helpful output from the test tooling we are using
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run test-ci --unsafe-perm -- --stream
+          export MONGODB_VERSION=${mongodb_version|4}
+
+          # compass-e2e-tests are ignored as we are already running tests against
+          # a packaged application in a separate workflow, so running them here
+          # slows down things while testing the same thing
+          npm run test-ci --unsafe-perm -- --stream  --ignore compass-e2e-tests
+
+  test-packaged-app:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+
+          # Load environment variables
+          source ~/compass_env.sh
+
+          bash .evergreen/pretest.sh
+
+          export E2E_TESTS_ATLAS_HOST="${e2e_tests_atlas_host}"
+          export E2E_TESTS_DATA_LAKE_HOST="${e2e_tests_data_lake_host}"
+          export E2E_TESTS_SERVERLESS_HOST="${e2e_tests_serverless_host}"
+          export E2E_TESTS_ANALYTICS_NODE_HOST="${e2e_tests_analytics_node_host}"
+          export E2E_TESTS_FREE_TIER_HOST="${e2e_tests_free_tier_host}"
+          export E2E_TESTS_ATLAS_USERNAME="${e2e_tests_atlas_username}"
+          export E2E_TESTS_ATLAS_PASSWORD="${e2e_tests_atlas_password}"
+          export E2E_TESTS_ATLAS_X509_PEM="${e2e_tests_atlas_x509_pem}"
+          export DEBUG="${debug}"
+          # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
+          # have dropped support for macOS 10.10 because it is now outside
+          # of the supported version range.
+          # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
+          export MONGODB_VERSION=${mongodb_version|4}
+
+          echo "Packaging application ..."
+          npm run package-compass --unsafe-perm
+
+          echo "Running tests against packaged app ..."
+          npm run test-packaged-ci --unsafe-perm --workspace compass-e2e-tests
 
   'package':
     - command: shell.exec
@@ -399,18 +435,126 @@ functions:
 
 # Tasks
 tasks:
-  - name: oneshot-compile-test-package-publish
+  - name: check
+    commands:
+      - func: prepare
+      - func: install
+      - func: verify
+
+  - name: test
+    commands:
+      - func: prepare
+      - func: install
+      - func: test
+        vars:
+          debug: 'hadron*,mongo*'
+
+  - name: test-packaged-app
+    commands:
+      - func: prepare
+      - func: install
+      - func: test-packaged-app
+        vars:
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
+  - name: package-publish-rhel
+    depends_on:
+      - name: check
+        variant: rhel
+      - name: test
+        variant: rhel
+      - name: test-packaged-app
+        variant: rhel
     commands:
       - func: prepare
 
       - func: install
 
-      - func: verify
-        variants: [windows, macos, ubuntu, rhel]
-
-      - func: test
+      - func: package
         vars:
-          debug: 'hadron*,mongo*'
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass
+      - func: publish
+        vars:
+          compass_distribution: compass
+      - func: 'save rhel artifacts'
+
+      - func: package
+        vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass-isolated
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+      - func: 'save rhel artifacts'
+
+      - func: package
+        vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass-readonly
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+      - func: 'save rhel artifacts'
+
+  - name: package-publish-macos
+    depends_on:
+      - name: check
+        variant: macos
+      - name: test
+        variant: macos
+      - name: test-packaged-app
+        variant: macos
+    commands:
+      - func: prepare
+
+      - func: install
+
+      - func: package
+        vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass
+      - func: publish
+        vars:
+          compass_distribution: compass
+      - func: 'save osx artifacts'
+
+      - func: package
+        vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass-isolated
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+      - func: 'save osx artifacts'
+
+      - func: package
+        vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass-readonly
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+      - func: 'save osx artifacts'
+
+  - name: package-publish-windows
+    depends_on:
+      - name: check
+        variant: windows
+      - name: test
+        variant: windows
+      - name: test-packaged-app
+        variant: windows
+    commands:
+      - func: prepare
+
+      - func: install
 
       - func: package
         vars:
@@ -421,13 +565,6 @@ tasks:
         vars:
           compass_distribution: compass
       - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
 
       - func: package
         vars:
@@ -438,13 +575,6 @@ tasks:
         vars:
           compass_distribution: compass-isolated
       - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
 
       - func: package
         vars:
@@ -455,23 +585,68 @@ tasks:
         vars:
           compass_distribution: compass-readonly
       - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
+
+  - name: package-publish-ubuntu
+    depends_on:
+      - name: check
+        variant: ubuntu
+      - name: test
+        variant: ubuntu
+      - name: test-packaged-app
+        variant: ubuntu
+    commands:
+      - func: prepare
+
+      - func: install
+
+      - func: package
+        vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass
+      - func: publish
+        vars:
+          compass_distribution: compass
       - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
+
+      - func: package
+        vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass-isolated
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+      - func: 'save linux artifacts'
+
+      - func: package
+        vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass-readonly
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+      - func: 'save linux artifacts'
 
 # TODO (@imlucas) determine OS/version deprecation policy, following server, so we don't fall behind
 # what maximal resources we're using.
 # See https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
 buildvariants:
   - name: macos
-    display_name: MacOS
+    display_name: MacOS Mojave (codesign but doesn't need to be)
+    # TODO: Can't use macos distros without codesigning https://jira.mongodb.org/browse/BUILD-14120
     run_on: macos-1014-codesign
     tasks:
-      - name: oneshot-compile-test-package-publish
+      - name: check
+      - name: test
+      - name: test-packaged-app
+
+  - name: macos-codesign
+    display_name: MacOS Mojave (codesign)
+    run_on: macos-1014-codesign
+    tasks:
+      - name: package-publish-macos
 
   - name: windows
     display_name: Windows
@@ -479,16 +654,25 @@ buildvariants:
     expansions:
       compass_distribution: compass
     tasks:
-      - name: oneshot-compile-test-package-publish
+      - name: check
+      - name: test
+      - name: test-packaged-app
+      - name: package-publish-windows
 
   - name: ubuntu
     display_name: Ubuntu
     run_on: ubuntu1604-large
     tasks:
-      - name: oneshot-compile-test-package-publish
+      - name: check
+      - name: test
+      - name: test-packaged-app
+      - name: package-publish-ubuntu
 
   - name: rhel
     display_name: RHEL
     run_on: rhel76-large
     tasks:
-      - name: oneshot-compile-test-package-publish
+      - name: check
+      - name: test
+      - name: test-packaged-app
+      - name: package-publish-rhel
