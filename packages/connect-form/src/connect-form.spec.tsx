@@ -12,7 +12,7 @@ function renderForm() {
       }}
       initialConnectionInfo={{
         connectionOptions: {
-          connectionString: '',
+          connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
         },
       }}
       openLink={() => {
@@ -22,7 +22,7 @@ function renderForm() {
   );
 }
 
-describe('ConfirmationModal Component', function () {
+describe('ConnectForm Component', function () {
   it('should show the heading', function () {
     renderForm();
     expect(screen.getByRole('heading')).to.have.text('New Connection');
@@ -32,5 +32,11 @@ describe('ConfirmationModal Component', function () {
     renderForm();
     const button = screen.getByText('Connect').closest('button');
     expect(button).to.not.match('disabled');
+  });
+
+  it('should render the connection string textbox', function () {
+    renderForm();
+    const textArea = screen.getByRole('textbox');
+    expect(textArea).to.have.text('mongodb://pineapple:*****@localhost:27019/');
   });
 });

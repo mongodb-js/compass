@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import { ChangeEvent, Fragment, useRef, useState, useEffect } from 'react';
+import { ChangeEvent, Fragment, useRef, useReducer } from 'react';
 import {
   Icon,
   IconButton,
@@ -47,6 +47,39 @@ const connectionStringStyles = css({
 
 const connectionStringInputId = 'connectionString';
 
+type State = {
+  enableEditingConnectionString: boolean;
+  showConfirmEditConnectionStringPrompt: boolean;
+};
+
+type Action =
+  | { type: 'enable-editing-connection-string' }
+  | { type: 'show-edit-connection-string-confirmation' }
+  | { type: 'hide-edit-connection-string-confirmation' };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'enable-editing-connection-string':
+      return {
+        ...state,
+        showConfirmEditConnectionStringPrompt: false,
+        enableEditingConnectionString: true,
+      };
+    case 'show-edit-connection-string-confirmation':
+      return {
+        ...state,
+        showConfirmEditConnectionStringPrompt: true,
+      };
+    case 'hide-edit-connection-string-confirmation':
+      return {
+        ...state,
+        showConfirmEditConnectionStringPrompt: false,
+      };
+    default:
+      return state;
+  }
+}
+
 export function hidePasswordInConnectionString(
   connectionString: string
 ): string {
@@ -82,31 +115,18 @@ function ConnectStringInput({
   openLink: (url: string) => void;
   setConnectionString: (connectionString: string) => void;
 }): React.ReactElement {
-  // If there is a connection string default it to protected.
-  const [isEditingShowCreds, setIsEditingShowCreds] = useState(
-    !connectionString
-  );
   const [
-    needsToConfirmEditConnectionString,
-    setNeedsToConfirmEditConnectionString,
-  ] = useState(false);
-
-  // TODO: Is this something we want? Might want to add extra checks
-  // that value doesn't change.
-  // TODO: Put this in a better place not use effect?
-  useEffect(() => {
-    if (isEditingShowCreds) {
-      // Wait for the modal focus trap to disappear.
-      setTimeout(() => {
-        // Focus the connection string input when change to editing mode.
-        textAreaEl.current?.focus();
-      }, 200);
-    }
-  }, [isEditingShowCreds]);
+    { enableEditingConnectionString, showConfirmEditConnectionStringPrompt },
+    dispatch,
+  ] = useReducer(reducer, {
+    // If there is a connection string default it to protected.
+    enableEditingConnectionString: !connectionString,
+    showConfirmEditConnectionStringPrompt: false,
+  });
 
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
 
-  const displayedConnectionString = isEditingShowCreds
+  const displayedConnectionString = enableEditingConnectionString
     ? connectionString
     : hidePasswordInConnectionString(connectionString);
 
@@ -135,31 +155,39 @@ function ConnectStringInput({
           value={displayedConnectionString}
           css={[
             connectionStringStyles,
-            isEditingShowCreds ? null : connectionStringEditDisabled,
+            enableEditingConnectionString ? null : connectionStringEditDisabled,
           ]}
-          disabled={!isEditingShowCreds}
+          disabled={!enableEditingConnectionString}
           id={connectionStringInputId}
           ref={textAreaEl}
           aria-labelledby="Connection String"
           placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"
         />
-        {!isEditingShowCreds && (
+        {!enableEditingConnectionString && (
           <IconButton
             css={editConnectionStringStyles}
             aria-label="Edit Connection String"
             data-testid="enableEditConnectionStringButton"
-            onClick={() => setNeedsToConfirmEditConnectionString(true)}
+            onClick={() =>
+              dispatch({
+                type: 'show-edit-connection-string-confirmation',
+              })
+            }
           >
             <Icon glyph="Edit" size="small" />
           </IconButton>
         )}
         <ConfirmEditConnectionString
-          open={needsToConfirmEditConnectionString}
-          onClose={() => setNeedsToConfirmEditConnectionString(false)}
+          open={showConfirmEditConnectionStringPrompt}
+          onClose={() =>
+            dispatch({
+              type: 'hide-edit-connection-string-confirmation',
+            })
+          }
           onConfirm={() => {
-            // TODO: Add a reducer for this?
-            setNeedsToConfirmEditConnectionString(false);
-            setIsEditingShowCreds(true);
+            dispatch({
+              type: 'enable-editing-connection-string',
+            });
 
             // Wait for the modal focus trap to disappear.
             setTimeout(() => {
