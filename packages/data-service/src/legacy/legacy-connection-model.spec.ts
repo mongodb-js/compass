@@ -374,24 +374,6 @@ describe.only('LegacyConnectionModel', function () {
       expect(connectionModel.lastUsed).to.deep.equal(lastUsed);
     });
 
-    it('converts no auth', async function () {
-      const connectionInfo: ConnectionInfo = {
-        connectionOptions: {
-          connectionString: 'mongodb://localhost:27017',
-        },
-      };
-
-      const connectionModel = await convertConnectionInfoToModel(
-        connectionInfo
-      );
-
-      expect(connectionModel.authStrategy).to.equal('NONE');
-      expect(connectionModel.hostname).to.equal('localhost');
-      expect(connectionModel.port).to.equal(27017);
-      expect(connectionModel.mongodbUsername).to.be.undefined;
-      expect(connectionModel.mongodbPassword).to.be.undefined;
-    });
-
     it('converts authSource', async function () {
       const connectionInfo = {
         connectionOptions: {
@@ -419,6 +401,55 @@ describe.only('LegacyConnectionModel', function () {
       );
 
       expect(connectionModel.replicaSet).to.equal('rs1');
+    });
+
+    it('converts readPreference', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://example.com/?readPreference=secondary',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.readPreference).to.equal('secondary');
+    });
+
+    it('converts readPreferenceTags', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://example.com/?readPreferenceTags=tag1:a,tag2:b',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.readPreferenceTags).to.deep.equal([
+        { tag1: 'a', tag2: 'b' },
+      ]);
+    });
+
+    it('converts no auth', async function () {
+      const connectionInfo: ConnectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('NONE');
+      expect(connectionModel.hostname).to.equal('localhost');
+      expect(connectionModel.port).to.equal(27017);
+      expect(connectionModel.mongodbUsername).to.be.undefined;
+      expect(connectionModel.mongodbPassword).to.be.undefined;
     });
 
     it('converts username and password', async function () {
@@ -451,7 +482,7 @@ describe.only('LegacyConnectionModel', function () {
         connectionInfo
       );
 
-      expect(connectionModel.authMechanism).to.equal('GSSAPI');
+      expect(connectionModel.authStrategy).to.equal('KERBEROS');
       expect(connectionModel.hostname).to.equal(
         'mongodb-kerberos-1.example.com'
       );
@@ -477,7 +508,7 @@ describe.only('LegacyConnectionModel', function () {
         connectionInfo
       );
 
-      expect(connectionModel.authMechanism).to.equal('GSSAPI');
+      expect(connectionModel.authStrategy).to.equal('KERBEROS');
       expect(connectionModel.hostname).to.equal(
         'mongodb-kerberos-2.example.com'
       );
@@ -503,7 +534,7 @@ describe.only('LegacyConnectionModel', function () {
         connectionInfo
       );
 
-      expect(connectionModel.authMechanism).to.equal('GSSAPI');
+      expect(connectionModel.authStrategy).to.equal('KERBEROS');
       expect(connectionModel.hostname).to.equal(
         'mongodb-kerberos-2.example.com'
       );
@@ -517,25 +548,11 @@ describe.only('LegacyConnectionModel', function () {
       expect(connectionModel.kerberosCanonicalizeHostname).to.equal(true);
     });
 
-    it('converts readPreference', async function () {
-      const connectionInfo = {
-        connectionOptions: {
-          connectionString: 'mongodb://example.com/?readPreference=secondary',
-        },
-      };
-
-      const connectionModel = await convertConnectionInfoToModel(
-        connectionInfo
-      );
-
-      expect(connectionModel.readPreference).to.equal('secondary');
-    });
-
-    it('converts readPreferenceTags', async function () {
+    it('converts LDAP', async function () {
       const connectionInfo = {
         connectionOptions: {
           connectionString:
-            'mongodb://example.com/?readPreferenceTags=tag1:a,tag2:b',
+            'mongodb://writer%40EXAMPLE.COM:Password1!@localhost:30017/?authMechanism=PLAIN',
         },
       };
 
@@ -543,9 +560,45 @@ describe.only('LegacyConnectionModel', function () {
         connectionInfo
       );
 
-      expect(connectionModel.readPreferenceTags).to.deep.equal([
-        { tag1: 'a', tag2: 'b' },
-      ]);
+      expect(connectionModel.authStrategy).to.equal('LDAP');
+      expect(connectionModel.ldapUsername).to.equal('writer@EXAMPLE.COM');
+      expect(connectionModel.ldapPassword).to.equal('Password1!');
+    });
+
+    it('converts SCRAM-SHA-1', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://user:password@localhost:27017/?authMechanism=SCRAM-SHA-1',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('MONGODB');
+      expect(connectionModel.authMechanism).to.equal('SCRAM-SHA-1');
+      expect(connectionModel.mongodbUsername).to.equal('user');
+      expect(connectionModel.mongodbPassword).to.equal('password');
+    });
+
+    it('converts SCRAM-SHA-256', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://user:password@localhost:27017/?authMechanism=SCRAM-SHA-256',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('SCRAM-SHA-256');
+      expect(connectionModel.authMechanism).to.equal('SCRAM-SHA-256');
+      expect(connectionModel.mongodbUsername).to.equal('user');
+      expect(connectionModel.mongodbPassword).to.equal('password');
     });
   });
 });
