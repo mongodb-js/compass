@@ -516,5 +516,36 @@ describe.only('LegacyConnectionModel', function () {
       expect(connectionModel.kerberosServiceName).to.be.undefined;
       expect(connectionModel.kerberosCanonicalizeHostname).to.equal(true);
     });
+
+    it('converts readPreference', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://example.com/?readPreference=secondary',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.readPreference).to.equal('secondary');
+    });
+
+    it('converts readPreferenceTags', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://example.com/?readPreferenceTags=tag1:a,tag2:b',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.readPreferenceTags).to.deep.equal([
+        { tag1: 'a', tag2: 'b' },
+      ]);
+    });
   });
 });
