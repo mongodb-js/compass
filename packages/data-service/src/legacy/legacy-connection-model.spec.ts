@@ -21,7 +21,7 @@ async function createAndConvertModel(
   return convertConnectionModelToInfo(model);
 }
 
-describe('LegacyConnectionModel', function () {
+describe.only('LegacyConnectionModel', function () {
   describe('convertConnectionModelToInfo', function () {
     it('converts _id', async function () {
       const { id } = await createAndConvertModel(
@@ -386,8 +386,8 @@ describe('LegacyConnectionModel', function () {
       );
 
       expect(connectionModel.authStrategy).to.equal('NONE');
-      expect(connectionModel.hostname).to.deep.equal('localhost');
-      expect(connectionModel.port).to.deep.equal(27017);
+      expect(connectionModel.hostname).to.equal('localhost');
+      expect(connectionModel.port).to.equal(27017);
       expect(connectionModel.mongodbUsername).to.be.undefined;
       expect(connectionModel.mongodbPassword).to.be.undefined;
     });
@@ -407,6 +407,20 @@ describe('LegacyConnectionModel', function () {
       expect(connectionModel.authSource).to.equal('db1');
     });
 
+    it('converts replicaSet', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017/?replicaSet=rs1',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.replicaSet).to.equal('rs1');
+    });
+
     it('converts username and password', async function () {
       const connectionInfo = {
         connectionOptions: {
@@ -419,10 +433,10 @@ describe('LegacyConnectionModel', function () {
       );
 
       expect(connectionModel.authStrategy).to.equal('MONGODB');
-      expect(connectionModel.hostname).to.deep.equal('localhost');
-      expect(connectionModel.port).to.deep.equal(27017);
-      expect(connectionModel.mongodbUsername).to.deep.equal('user');
-      expect(connectionModel.mongodbPassword).to.deep.equal('password');
+      expect(connectionModel.hostname).to.equal('localhost');
+      expect(connectionModel.port).to.equal(27017);
+      expect(connectionModel.mongodbUsername).to.equal('user');
+      expect(connectionModel.mongodbPassword).to.equal('password');
     });
 
     it('converts kerberos', async function () {
@@ -437,11 +451,11 @@ describe('LegacyConnectionModel', function () {
         connectionInfo
       );
 
-      expect(connectionModel.authMechanism).to.deep.equal('GSSAPI');
-      expect(connectionModel.hostname).to.deep.equal(
+      expect(connectionModel.authMechanism).to.equal('GSSAPI');
+      expect(connectionModel.hostname).to.equal(
         'mongodb-kerberos-1.example.com'
       );
-      expect(connectionModel.port).to.deep.equal(29017);
+      expect(connectionModel.port).to.equal(29017);
       expect(connectionModel.mongodbUsername).to.be.undefined;
       expect(connectionModel.mongodbPassword).to.be.undefined;
       expect(connectionModel.kerberosPrincipal).to.equal(
@@ -463,11 +477,11 @@ describe('LegacyConnectionModel', function () {
         connectionInfo
       );
 
-      expect(connectionModel.authMechanism).to.deep.equal('GSSAPI');
-      expect(connectionModel.hostname).to.deep.equal(
+      expect(connectionModel.authMechanism).to.equal('GSSAPI');
+      expect(connectionModel.hostname).to.equal(
         'mongodb-kerberos-2.example.com'
       );
-      expect(connectionModel.port).to.deep.equal(29018);
+      expect(connectionModel.port).to.equal(29018);
       expect(connectionModel.mongodbUsername).to.be.undefined;
       expect(connectionModel.mongodbPassword).to.be.undefined;
       expect(connectionModel.kerberosPrincipal).to.equal(
@@ -489,11 +503,11 @@ describe('LegacyConnectionModel', function () {
         connectionInfo
       );
 
-      expect(connectionModel.authMechanism).to.deep.equal('GSSAPI');
-      expect(connectionModel.hostname).to.deep.equal(
+      expect(connectionModel.authMechanism).to.equal('GSSAPI');
+      expect(connectionModel.hostname).to.equal(
         'mongodb-kerberos-2.example.com'
       );
-      expect(connectionModel.port).to.deep.equal(29018);
+      expect(connectionModel.port).to.equal(29018);
       expect(connectionModel.mongodbUsername).to.be.undefined;
       expect(connectionModel.mongodbPassword).to.be.undefined;
       expect(connectionModel.kerberosPrincipal).to.equal(
@@ -504,19 +518,3 @@ describe('LegacyConnectionModel', function () {
     });
   });
 });
-
-// c = {
-//   kerberos: {
-//     connectionString:
-//       'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-1.example.com:29017/?authMechanism=GSSAPI',
-//   },
-//   kerberosAlternate: {
-//     connectionString:
-//       'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-2.example.com:29018/?authMechanism=GSSAPI&authMechanismProperties=SERVICE_NAME%3Aalternate',
-//   },
-//   kerberosCrossRealm: {
-//     connectionString:
-//       'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-3.examplecrossrealm.com:29019/?authMechanism=GSSAPI',
-//   },
-// CANONICALIZE_HOST_NAME:true|false
-// };
