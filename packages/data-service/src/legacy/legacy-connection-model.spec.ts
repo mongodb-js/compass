@@ -49,6 +49,20 @@ describe('LegacyConnectionModel', function () {
       });
     });
 
+    it('converts lastUsed', async function () {
+      const lastUsed = new Date();
+
+      const { lastUsed: convertedLastUsed } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin',
+        {
+          _id: '1234-1234-1234-1234',
+          lastUsed,
+        }
+      );
+
+      expect(convertedLastUsed).to.deep.equal(lastUsed);
+    });
+
     it('converts anon local string', async function () {
       const { connectionOptions } = await createAndConvertModel(
         'mongodb://localhost:27017/admin',
@@ -336,5 +350,173 @@ describe('LegacyConnectionModel', function () {
         password: 'password',
       });
     });
+
+    it('converts favorite and history properties', async function () {
+      const lastUsed = new Date();
+      const connectionInfo: ConnectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+        lastUsed,
+        favorite: {
+          name: 'Local',
+          color: 'blue',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.isFavorite).to.equal(true);
+      expect(connectionModel.color).to.equal('blue');
+      expect(connectionModel.name).to.equal('Local');
+      expect(connectionModel.lastUsed).to.deep.equal(lastUsed);
+    });
+
+    it('converts no auth', async function () {
+      const connectionInfo: ConnectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('NONE');
+      expect(connectionModel.hostname).to.deep.equal('localhost');
+      expect(connectionModel.port).to.deep.equal(27017);
+      expect(connectionModel.mongodbUsername).to.be.undefined;
+      expect(connectionModel.mongodbPassword).to.be.undefined;
+    });
+
+    it('converts authSource', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017/test123?authSource=db1',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.ns).to.equal('test123');
+      expect(connectionModel.authSource).to.equal('db1');
+    });
+
+    it('converts username and password', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://user:password@localhost:27017',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('MONGODB');
+      expect(connectionModel.hostname).to.deep.equal('localhost');
+      expect(connectionModel.port).to.deep.equal(27017);
+      expect(connectionModel.mongodbUsername).to.deep.equal('user');
+      expect(connectionModel.mongodbPassword).to.deep.equal('password');
+    });
+
+    it('converts kerberos', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-1.example.com:29017/?authMechanism=GSSAPI',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authMechanism).to.deep.equal('GSSAPI');
+      expect(connectionModel.hostname).to.deep.equal(
+        'mongodb-kerberos-1.example.com'
+      );
+      expect(connectionModel.port).to.deep.equal(29017);
+      expect(connectionModel.mongodbUsername).to.be.undefined;
+      expect(connectionModel.mongodbPassword).to.be.undefined;
+      expect(connectionModel.kerberosPrincipal).to.equal(
+        'mongodb.user@EXAMPLE.COM'
+      );
+      expect(connectionModel.kerberosServiceName).to.be.undefined;
+      expect(connectionModel.kerberosCanonicalizeHostname).to.equal(false);
+    });
+
+    it('converts kerberos (alternate service name)', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-2.example.com:29018/?authMechanism=GSSAPI&authMechanismProperties=SERVICE_NAME%3Aalternate',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authMechanism).to.deep.equal('GSSAPI');
+      expect(connectionModel.hostname).to.deep.equal(
+        'mongodb-kerberos-2.example.com'
+      );
+      expect(connectionModel.port).to.deep.equal(29018);
+      expect(connectionModel.mongodbUsername).to.be.undefined;
+      expect(connectionModel.mongodbPassword).to.be.undefined;
+      expect(connectionModel.kerberosPrincipal).to.equal(
+        'mongodb.user@EXAMPLE.COM'
+      );
+      expect(connectionModel.kerberosServiceName).to.equal('alternate');
+      expect(connectionModel.kerberosCanonicalizeHostname).to.equal(false);
+    });
+
+    it('converts kerberos (canonicalize hostname)', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-2.example.com:29018/?authMechanism=GSSAPI&authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authMechanism).to.deep.equal('GSSAPI');
+      expect(connectionModel.hostname).to.deep.equal(
+        'mongodb-kerberos-2.example.com'
+      );
+      expect(connectionModel.port).to.deep.equal(29018);
+      expect(connectionModel.mongodbUsername).to.be.undefined;
+      expect(connectionModel.mongodbPassword).to.be.undefined;
+      expect(connectionModel.kerberosPrincipal).to.equal(
+        'mongodb.user@EXAMPLE.COM'
+      );
+      expect(connectionModel.kerberosServiceName).to.be.undefined;
+      expect(connectionModel.kerberosCanonicalizeHostname).to.equal(true);
+    });
   });
 });
+
+// c = {
+//   kerberos: {
+//     connectionString:
+//       'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-1.example.com:29017/?authMechanism=GSSAPI',
+//   },
+//   kerberosAlternate: {
+//     connectionString:
+//       'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-2.example.com:29018/?authMechanism=GSSAPI&authMechanismProperties=SERVICE_NAME%3Aalternate',
+//   },
+//   kerberosCrossRealm: {
+//     connectionString:
+//       'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-3.examplecrossrealm.com:29019/?authMechanism=GSSAPI',
+//   },
+// CANONICALIZE_HOST_NAME:true|false
+// };

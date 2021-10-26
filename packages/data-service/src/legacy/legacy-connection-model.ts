@@ -155,7 +155,17 @@ export function convertConnectionModelToInfo(
 ): ConnectionInfo {
   // Already migrated
   if (model.connectionInfo) {
-    return mergeSecrets(model.connectionInfo, model.secrets ?? {});
+    const connectionInfo = mergeSecrets(
+      model.connectionInfo,
+      model.secrets ?? {}
+    );
+
+    if (connectionInfo.lastUsed) {
+      // could be parsed from json and be a string
+      connectionInfo.lastUsed = new Date(connectionInfo.lastUsed);
+    }
+
+    return connectionInfo;
   }
 
   // Not migrated yet, has to be converted
@@ -199,6 +209,10 @@ export function convertConnectionModelToInfo(
       name: model.name,
       color: model.color,
     };
+  }
+
+  if (model.lastUsed) {
+    info.lastUsed = model.lastUsed;
   }
 
   return info;
@@ -343,6 +357,10 @@ export async function convertConnectionInfoToModel(
     additionalOptions.isFavorite = true;
     additionalOptions.name = connectionInfo.favorite.name;
     additionalOptions.color = connectionInfo.favorite.color;
+  }
+
+  if (connectionInfo.lastUsed) {
+    additionalOptions.lastUsed = connectionInfo.lastUsed;
   }
 
   return new ConnectionModel({
