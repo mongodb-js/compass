@@ -5,9 +5,9 @@ import { detectType, valueToString } from './bson-csv';
 import dotnotation from './dotnotation';
 import assert from 'assert';
 import FILE_TYPES from '../constants/file-types';
-import { createLogger } from './logger';
+import { createDebug } from './logger';
 
-const debug = createLogger('import-preview');
+const debug = createDebug('import-preview');
 
 /**
  * Peek the first 20k of a file and parse it.

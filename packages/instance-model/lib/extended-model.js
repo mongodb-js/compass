@@ -112,6 +112,6 @@ module.exports = MongoDBInstance.extend({
       });
     };
 
-    options.dataService.instance({}, done);
+    options.dataService.instance(done);
   }
 });

@@ -9,8 +9,8 @@ import { OUT, MERGE } from '../../modules/pipeline';
 import decomment from 'decomment';
 
 import styles from './stage-preview.module.less';
-import createLogger from '@mongodb-js/compass-logging';
-const { track } = createLogger('COMPASS-AGGREGATIONS-UI');
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 /**
  * The stage preview component.
