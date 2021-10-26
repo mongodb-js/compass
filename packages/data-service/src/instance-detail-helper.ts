@@ -165,7 +165,10 @@ async function fetchDatabases(
   connectionStatus: ConnectionStatusWithPriveleges | null,
   listDatabaseCommandResult: ListDatabasesResult<DatabaseNameOnly> | null
 ) {
-  const privileges = extractPrivilegesByDatabaseAndCollection(connectionStatus);
+  const privileges = extractPrivilegesByDatabaseAndCollection(
+    connectionStatus,
+    ['find']
+  );
 
   const listedDatabaseNames =
     listDatabaseCommandResult?.databases.map((db) => db.name) ?? [];
@@ -195,15 +198,22 @@ async function fetchDatabases(
 type DatabaseCollectionPrivileges = Record<string, Record<string, string[]>>;
 
 function extractPrivilegesByDatabaseAndCollection(
-  connectionStatus: ConnectionStatusWithPriveleges | null
+  connectionStatus: ConnectionStatusWithPriveleges | null,
+  requiredActions: string[] | null = null
 ): DatabaseCollectionPrivileges {
   const privileges =
     connectionStatus?.authInfo?.authenticatedUserPrivileges ?? [];
 
   return Object.fromEntries(
     privileges
-      .filter(({ resource: { db, collection } }) => {
-        return db && collection;
+      .filter(({ resource: { db, collection }, actions }) => {
+        return (
+          db &&
+          collection &&
+          (requiredActions
+            ? requiredActions.every((action) => actions.includes(action))
+            : true)
+        );
       })
       .map(({ resource: { db, collection }, actions }) => {
         return [db, { [collection]: actions }];

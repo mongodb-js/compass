@@ -453,7 +453,7 @@ describe('instance-detail-helper', function () {
         );
       });
 
-      it('should return empty list of databases', async function () {
+      it('should return empty list of databases when no database roles found', async function () {
         const client = createMongoClientMock({
           buildInfo: {},
           connectionStatus: fixtures.CONNECTION_STATUS_LISTDB_ONLY,
@@ -466,7 +466,20 @@ describe('instance-detail-helper', function () {
           .to.have.lengthOf(0);
       });
 
-      it('should return list of readable databases', async function () {
+      it('should return no dabases / collections when no find riles exist for collections', async function () {
+        const client = createMongoClientMock({
+          buildInfo: {},
+          connectionStatus: fixtures.CONNECTION_STATUS_FIND_NOT_ALLOWED,
+        });
+
+        const instanceDetails = await getInstance(client);
+
+        expect(instanceDetails)
+          .to.have.property('databases')
+          .to.have.lengthOf(0);
+      });
+
+      it('should return list of readable databases when required roles are present', async function () {
         const client = createMongoClientMock({
           buildInfo: {},
           connectionStatus: fixtures.CONNECTION_STATUS_COLL_ONLY,
@@ -478,6 +491,27 @@ describe('instance-detail-helper', function () {
           'databases[0].name',
           'db3'
         );
+      });
+    });
+
+    describe('for users with both list databases collections and roles', function () {
+      it('should deduplicate databases / collections in the list', async function () {
+        const client = createMongoClientMock({
+          buildInfo: {},
+          connectionStatus: fixtures.CONNECTION_STATUS_SAMPLE_GEOSPATIAL,
+          listDatabases: fixtures.LIST_DATABASES_NAME_ONLY,
+          dbStats(db) {
+            return fixtures.DB_STATS[db.databaseName] ?? {};
+          },
+        });
+
+        const instanceDetails = await getInstance(client);
+        const sampleGeospatial = instanceDetails.databases.filter(
+          (db) => db.name === 'sample_geospatial'
+        );
+
+        expect(sampleGeospatial).to.have.lengthOf(1);
+        expect(sampleGeospatial[0].collections).to.have.lengthOf(1);
       });
     });
   });

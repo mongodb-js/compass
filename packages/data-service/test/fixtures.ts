@@ -633,6 +633,54 @@ export const CONNECTION_STATUS_COLL_ONLY = {
   },
 };
 
+export const USER_INFO_FIND_NOT_ALLOWED = {
+  _id: 'db1.coll',
+  user: 'user1',
+  db: 'db1',
+  roles: [
+    {
+      role: 'coll',
+      db: 'db1',
+    },
+  ],
+  inheritedRoles: [
+    {
+      role: 'coll',
+      db: 'db1',
+    },
+  ],
+  inheritedPrivileges: [
+    {
+      resource: {
+        db: 'db1',
+        collection: 'coll1',
+      },
+      actions: ['collStats'],
+    },
+  ],
+  inheritedAuthenticationRestrictions: [],
+};
+
+export const CONNECTION_STATUS_FIND_NOT_ALLOWED = {
+  authInfo: {
+    authenticatedUserPrivileges: USER_INFO_FIND_NOT_ALLOWED.inheritedPrivileges,
+  },
+};
+
+export const CONNECTION_STATUS_SAMPLE_GEOSPATIAL = {
+  authInfo: {
+    authenticatedUserPrivileges: [
+      {
+        resource: {
+          db: 'sample_geospatial',
+          collection: 'shipwrecks',
+        },
+        actions: ['find'],
+      },
+    ],
+  },
+};
+
 export const BUILD_INFO_OLD = {
   version: '2.6.11',
   gitVersion: 'd00c1735675c457f75a12d530bee85421f0c5548 modules: enterprise',
