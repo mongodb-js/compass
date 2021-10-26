@@ -46,7 +46,9 @@ import { transformProjectedTypesStream } from '../utils/import-apply-types-and-p
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
-const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
+const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
+  'COMPASS-IMPORT-EXPORT-UI'
+);
 
 /**
  * ## Action names
@@ -278,6 +280,13 @@ export const startImport = () => {
       dest,
       function onStreamEnd(err) {
         console.timeEnd('import');
+        track('Import Completed', {
+          file_type: fileType,
+          all_fields: exclude.length === 0,
+          stop_on_error_selected: stopOnErrors,
+          number_of_docs: dest.docsWritten,
+          success: !err,
+        });
 
         /**
          * Refresh data (docs, aggregations) regardless of whether we have a
@@ -623,9 +632,12 @@ export const setIgnoreBlanks = ignoreBlanks => ({
  * Open the import modal.
  * @api public
  */
-export const openImport = () => ({
-  type: OPEN
-});
+export const openImport = () => {
+  track('Import Opened');
+  return {
+    type: OPEN,
+  };
+};
 
 /**
  * Close the import modal.

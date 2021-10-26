@@ -32,4 +32,5 @@ exports.addCommands = function (app) {
   add('setValidation', './set-validation');
   add('waitForAnimations', './wait-for-animations');
   add('setOrClearValue', './set-or-clear-value');
+  add('listenForTelemetryEvents', './listen-for-telemetry-events');
 };
