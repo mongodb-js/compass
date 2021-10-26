@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { Writable } from 'stream';
-import { createLoggerAndTelemetry } from './logger';
-const debug = createLoggerAndTelemetry('collection-stream');
+import { createDebug } from './logger';
+const debug = createDebug('collection-stream');
 
 function mongodbServerErrorToJSError({ index, code, errmsg, op, errInfo }) {
   const e = new Error(errmsg);

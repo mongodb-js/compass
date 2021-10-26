@@ -20,10 +20,10 @@
  * 3. etc.
  */
 import bson from 'bson';
-import { createLoggerAndTelemetry } from './logger';
+import { createDebug } from './logger';
 
 
-const debug = createLoggerAndTelemetry('bson-csv');
+const debug = createDebug('bson-csv');
 
 const BOOLEAN_TRUE = ['1', 'true', 'TRUE', true];
 const BOOLEAN_FALSE = ['0', 'false', 'FALSE', 'null', '', 'NULL', false];

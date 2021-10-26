@@ -4,9 +4,9 @@ import { serialize } from './dotnotation';
 
 import _ from 'lodash';
 
-import { createLoggerAndTelemetry } from './logger';
+import { createDebug } from './logger';
 
-const debug = createLoggerAndTelemetry('apply-import-type-and-projection');
+const debug = createDebug('apply-import-type-and-projection');
 
 /**
  * Transforms values based on what user selected in preview table.
