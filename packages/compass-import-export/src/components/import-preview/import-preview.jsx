@@ -5,8 +5,8 @@ import styles from './import-preview.module.less';
 import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'import-preview');
 
-import { createLogger } from '../../utils/logger';
-const debug = createLogger('import-preview');
+import { createDebug } from '../../utils/logger';
+const debug = createDebug('import-preview');
 
 import SelectFieldType from '../select-field-type';
 

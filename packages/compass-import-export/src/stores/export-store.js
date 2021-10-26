@@ -10,9 +10,9 @@ import {
   nsChanged
 } from '../modules/compass';
 import { openExport, queryChanged } from '../modules/export';
-import { createLogger } from '../utils/logger';
+import { createDebug } from '../utils/logger';
 
-const debug = createLogger('export-store');
+const debug = createDebug('export-store');
 
 /**
  * Set the data provider.

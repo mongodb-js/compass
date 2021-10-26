@@ -35,8 +35,7 @@ const getActions = function() {
     removeDocument: sinon.spy(),
     replaceDocument: sinon.spy(),
     updateDocument: sinon.spy(),
-    getNextPage: sinon.spy(),
-    getPrevPage: sinon.spy(),
+    getPage: sinon.spy(),
     pathChanged: sinon.spy(),
     drillDown: sinon.spy()
   };

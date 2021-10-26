@@ -1,8 +1,8 @@
 import util from 'util';
 import dotnotation from '../utils/dotnotation';
-import createLogger from '@mongodb-js/compass-logging';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
-const { log, mongoLogId } = createLogger('COMPASS-IMPORT-EXPORT-UI');
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
 const DEFAULT_SAMPLE_SIZE = 50;
 const ENABLED = 1;

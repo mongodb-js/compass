@@ -12,11 +12,11 @@ import { createReadableCollectionStream } from '../utils/collection-stream';
 
 const createProgressStream = require('progress-stream');
 
-import createLogger from '@mongodb-js/compass-logging';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { createCSVFormatter, createJSONFormatter } from '../utils/formatters';
 import { loadFields, getSelectableFields } from './load-fields';
 
-const { log, mongoLogId, debug } = createLogger('COMPASS-IMPORT-EXPORT-UI');
+const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
 const PREFIX = 'import-export/export';
 
@@ -333,7 +333,6 @@ const fetchDocumentCount = async(dataService, ns, query) => {
     try {
       const runEstimatedDocumentCount = promisify(dataService.estimatedCount.bind(dataService));
       const count = await runEstimatedDocumentCount(ns, {});
-
       return count;
     } catch (estimatedCountErr) {
       // `estimatedDocumentCount` is currently unsupported for
@@ -376,7 +375,7 @@ export const openExport = (count) => {
 
     const spec = exportData.query;
 
-    if (count) {
+    if (typeof count === 'number') {
       return dispatch(onModalOpen(count, spec));
     }
 

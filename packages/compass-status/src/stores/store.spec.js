@@ -61,18 +61,6 @@ describe('StatusStore [Store]', () => {
       });
       Actions.showProgressBar();
     });
-
-    context('when triggered from the app registry', () => {
-      it('sets visible and progressbar to true', (done) => {
-        const unsubscribe = Store.listen((state) => {
-          unsubscribe();
-          expect(state.visible).to.equal(true);
-          expect(state.progressbar).to.equal(true);
-          done();
-        });
-        appRegistry.emit('compass:status:show-progress-bar');
-      });
-    });
   });
 
   describe('#showIndeterminateProgressBar', () => {

@@ -2,10 +2,10 @@ import fs from 'fs';
 import peek from 'peek-stream';
 import stream from 'stream';
 
-import { createLogger } from './logger';
+import { createDebug } from './logger';
 import { mark, stop } from 'marky';
 
-const debug = createLogger('detect-import-file');
+const debug = createDebug('detect-import-file');
 
 const DEFAULT_FILE_TYPE = 'json';
 

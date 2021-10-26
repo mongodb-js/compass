@@ -1,10 +1,17 @@
+import util from 'util';
 import Connection from 'mongodb-connection-model';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
-import configureStore from '../../src/stores/crud-store';
-import configureActions from '../../src/actions';
+import configureStore from './crud-store';
+import configureActions from '../actions';
 import EJSON from 'mongodb-extended-json';
+
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+chai.use(chaiAsPromised);
+
+const TEST_TIMESERIES = false; // TODO: base this off an env var once we have it
 
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',
@@ -13,6 +20,26 @@ const CONNECTION = new Connection({
   mongodb_database_name: 'admin'
 });
 
+function listenToStore(store, cb, expectedCalls = 1) {
+  return new Promise((resolve, reject) => {
+    let numCalls = 0;
+    const unsubscribe = store.listen((state) => {
+      ++numCalls;
+      try {
+        // eslint-disable-next-line callback-return
+        cb(state, numCalls);
+        if (numCalls === expectedCalls) {
+          unsubscribe();
+          resolve();
+        }
+      } catch (err) {
+        unsubscribe();
+        reject(err);
+      }
+    });
+  });
+}
+
 describe('store', function() {
   this.timeout(5000);
   let dataService;
@@ -20,11 +47,43 @@ describe('store', function() {
   const globalAppRegistry = new AppRegistry();
 
   before(async() => {
-    dataService = await connect(convertConnectionModelToInfo(CONNECTION));
+    const info = convertConnectionModelToInfo(CONNECTION);
+    dataService = await connect(info.connectionOptions);
+
+    // Add some validation so that we can test what happens when insert/update
+    // fails below.
+    return new Promise((resolve, reject) => {
+      dataService.createCollection('compass-crud.test', {
+        validator: {
+          $jsonSchema: {
+            bsonType: 'object',
+            properties: {
+              status: {
+                enum: ['Unknown', 'Incomplete'],
+                description: 'can only be one of the enum values'
+              }
+            }
+          }
+        }
+      }, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve();
+      });
+    });
   });
 
   after(async() => {
     await dataService.disconnect();
+  });
+
+  beforeEach(() => {
+    sinon.restore();
+  });
+
+  afterEach(() => {
+    sinon.restore();
   });
 
   describe('#getInitialState', () => {
@@ -40,96 +99,57 @@ describe('store', function() {
       });
     });
 
-    it('sets the default filter', () => {
-      expect(store.state.query.filter).to.deep.equal({});
-    });
+    it('sets the initial state', () => {
+      expect(store.state.resultId).to.be.a('number');
+      delete store.state.resultId; // always different
 
-    it('sets the default sort', () => {
-      expect(store.state.query.sort).to.deep.equal(null);
-    });
-
-    it('sets the default limit', () => {
-      expect(store.state.query.limit).to.equal(0);
-    });
-
-    it('sets the default skip', () => {
-      expect(store.state.query.skip).to.equal(0);
-    });
-
-    it('sets the default project', () => {
-      expect(store.state.query.project).to.equal(null);
-    });
-
-    it('sets the default collation', () => {
-      expect(store.state.query.collation).to.equal(null);
-    });
-
-    it('sets the default namespace', () => {
-      expect(store.state.ns).to.equal('');
-    });
-
-    it('sets the default error', () => {
-      expect(store.state.error).to.equal(null);
-    });
-
-    it('sets the default documents', () => {
-      expect(store.state.docs).to.deep.equal([]);
-    });
-
-    it('sets the default count', () => {
-      expect(store.state.count).to.equal(0);
-    });
-
-    it('sets the default table doc', () => {
-      expect(store.state.table.doc).to.equal(null);
-    });
-
-    it('sets the default table path', () => {
-      expect(store.state.table.path).to.deep.equal([]);
-    });
-
-    it('sets the default table types', () => {
-      expect(store.state.table.types).to.deep.equal([]);
-    });
-
-    it('sets the default table edit params', () => {
-      expect(store.state.table.editParams).to.equal(null);
-    });
-
-    it('sets the default insert doc', () => {
-      expect(store.state.insert.doc).to.equal(null);
-    });
-
-    it('sets the default insert json doc', () => {
-      expect(store.state.insert.jsonDoc).to.equal(null);
-    });
-
-    it('sets the default insert json view', () => {
-      expect(store.state.insert.jsonView).to.equal(false);
-    });
-
-    it('sets the default insert message', () => {
-      expect(store.state.insert.message).to.equal('');
-    });
-
-    it('sets the default insert mode', () => {
-      expect(store.state.insert.mode).to.equal('modifying');
-    });
-
-    it('sets the default insert json view', () => {
-      expect(store.state.insert.jsonView).to.equal(false);
-    });
-
-    it('sets the default insert open status', () => {
-      expect(store.state.insert.isOpen).to.equal(false);
-    });
-
-    it('sets the default isEditable status', () => {
-      expect(store.state.isEditable).to.equal(true);
-    });
-
-    it('sets the default view', () => {
-      expect(store.state.view).to.equal('List');
+      expect(store.state).to.deep.equal({
+        abortController: null,
+        session: null,
+        collection: '',
+        count: 0,
+        docs: [],
+        end: 0,
+        error: null,
+        insert: {
+          doc: null,
+          isCommentNeeded: true,
+          isOpen: false,
+          jsonDoc: null,
+          jsonView: false,
+          message: '',
+          mode: 'modifying'
+        },
+        isDataLake: false,
+        isEditable: true,
+        isReadonly: false,
+        isTimeSeries: false,
+        ns: '',
+        outdated: false,
+        page: 0,
+        query: {
+          collation: null,
+          filter: {},
+          limit: 0,
+          maxTimeMS: 60000,
+          project: null,
+          skip: 0,
+          sort: null
+        },
+        shardKeys: null,
+        start: 0,
+        status: 'initial',
+        table: {
+          doc: null,
+          editParams: null,
+          path: [],
+          types: []
+        },
+        updateError: null,
+        updateSuccess: null,
+        version: '3.4.0',
+        view: 'List'
+      });
     });
   });
 
@@ -159,8 +179,8 @@ describe('store', function() {
         store.state.table.editParams = {};
       });
 
-      it('resets the state for the new editable collection', (done) => {
-        const unsubscribe = store.listen((state) => {
+      it('resets the state for the new editable collection', async() => {
+        const listener = listenToStore(store, (state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
           expect(state.table.doc).to.equal(null);
@@ -168,11 +188,11 @@ describe('store', function() {
           expect(state.collection).to.equal('another');
           expect(state.isEditable).to.equal(true);
           expect(state.ns).to.equal('compass-crud.another');
-          unsubscribe();
-          done();
         });
 
         store.onCollectionChanged('compass-crud.another');
+
+        await listener;
       });
     });
 
@@ -196,8 +216,8 @@ describe('store', function() {
         store.state.table.editParams = {};
       });
 
-      it('resets the state for the new readonly collection', (done) => {
-        const unsubscribe = store.listen((state) => {
+      it('resets the state for the new readonly collection', async() => {
+        const listener = listenToStore(store, (state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
           expect(state.table.doc).to.equal(null);
@@ -205,11 +225,11 @@ describe('store', function() {
           expect(state.collection).to.equal('another');
           expect(state.isEditable).to.equal(false);
           expect(state.ns).to.equal('compass-crud.another');
-          unsubscribe();
-          done();
         });
 
         store.onCollectionChanged('compass-crud.another');
+
+        await listener;
       });
     });
 
@@ -237,8 +257,8 @@ describe('store', function() {
         process.env.HADRON_READONLY = 'false';
       });
 
-      it('resets the state for the new readonly collection', (done) => {
-        const unsubscribe = store.listen((state) => {
+      it('resets the state for the new readonly collection', async() => {
+        const listener = listenToStore(store, (state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
           expect(state.table.doc).to.equal(null);
@@ -246,11 +266,11 @@ describe('store', function() {
           expect(state.collection).to.equal('another');
           expect(state.isEditable).to.equal(false);
           expect(state.ns).to.equal('compass-crud.another');
-          unsubscribe();
-          done();
         });
 
         store.onCollectionChanged('compass-crud.another');
+
+        await listener;
       });
     });
   });
@@ -281,16 +301,16 @@ describe('store', function() {
       skip: 5
     };
 
-    it('resets the state', (done) => {
-      const unsubscribe = store.listen((state) => {
+    it('resets the state', async() => {
+      const listener = listenToStore(store, (state) => {
         expect(state.error).to.equal(null);
         expect(state.docs).to.deep.equal([]);
         expect(state.count).to.equal(0);
-        unsubscribe();
-        done();
       });
 
       store.onQueryChanged(query);
+
+      await listener;
     });
   });
 
@@ -322,16 +342,16 @@ describe('store', function() {
         store.state.end = 1;
       });
 
-      it('deletes the document from the collection', (done) => {
-        const unsubscribe = store.listen((state) => {
+      it('deletes the document from the collection', async() => {
+        const listener = listenToStore(store, (state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.end).to.equal(0);
-          unsubscribe();
-          done();
         });
 
         store.removeDocument(hadronDoc);
+
+        await listener;
       });
     });
 
@@ -345,30 +365,25 @@ describe('store', function() {
         store.state.end = 1;
       });
 
-      it('deletes the document from the collection', (done) => {
-        const unsubscribe = store.listen((state) => {
+      it('deletes the document from the collection', async() => {
+        const listener = listenToStore(store, (state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.end).to.equal(0);
-          unsubscribe();
-          done();
         });
 
         store.removeDocument(hadronDoc);
+
+        await listener;
       });
     });
 
     context('when the deletion errors', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
 
       beforeEach(() => {
-        stub = sinon.stub(dataService, 'deleteOne').yields({ message: 'error happened' });
-      });
-
-      afterEach(() => {
-        stub.restore();
+        sinon.stub(dataService, 'deleteOne').yields({ message: 'error happened' });
       });
 
       it('sets the error for the document', (done) => {
@@ -422,7 +437,7 @@ describe('store', function() {
           expect(state.docs[0]).to.not.equal(hadronDoc);
           expect(state.docs[0].elements.at(1).key === 'new name');
           unsubscribe();
-          setTimeout(() => done(), 100);
+          done();
         });
 
         hadronDoc.on('update-blocked', () => {
@@ -470,14 +485,9 @@ describe('store', function() {
     context('when there is no update to make', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
 
       beforeEach(() => {
-        stub = sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
-      });
-
-      afterEach(() => {
-        stub.restore();
+        sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
       });
 
       it('sets the error for the document', (done) => {
@@ -493,15 +503,10 @@ describe('store', function() {
     context('when the update errors', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
 
       beforeEach(() => {
         hadronDoc.elements.at(1).rename('new name');
-        stub = sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
-      });
-
-      afterEach(() => {
-        stub.restore();
+        sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
       });
 
       it('sets the error for the document', (done) => {
@@ -517,15 +522,10 @@ describe('store', function() {
     context('when the update fails', () => {
       const doc = { _id: 'testing', name: 'Beach Sand' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
 
       beforeEach(() => {
         hadronDoc.elements.at(1).rename('new name');
-        stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, null);
-      });
-
-      afterEach(() => {
-        stub.restore();
+        sinon.stub(dataService, 'findOneAndUpdate').yields(null, null);
       });
 
       it('sets the update blocked for the document', (done) => {
@@ -545,10 +545,6 @@ describe('store', function() {
       beforeEach(() => {
         hadronDoc.get('name').edit('Desert Sand');
         stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
-      });
-
-      afterEach(() => {
-        stub.restore();
       });
 
       it('has the original value for the edited value in the query', () => {
@@ -579,7 +575,6 @@ describe('store', function() {
 
       afterEach(() => {
         store.state.shardKeys = null;
-        stub.restore();
       });
 
       it('has the shard key in the query', () => {
@@ -641,28 +636,23 @@ describe('store', function() {
         store.state.docs = [ hadronDoc ];
       });
 
-      it('replaces the document in the list', (done) => {
-        const unsubscribe = store.listen((state) => {
+      it('replaces the document in the list', async() => {
+        const listener = listenToStore(store, (state) => {
           expect(state.docs[0]).to.not.equal(hadronDoc);
-          unsubscribe();
-          done();
         });
 
         store.replaceDocument(hadronDoc);
+
+        await listener;
       });
     });
 
     context('when the replace errors', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
 
       beforeEach(() => {
-        stub = sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
-      });
-
-      afterEach(() => {
-        stub.restore();
+        sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
       });
 
       it('sets the error for the document', (done) => {
@@ -683,10 +673,6 @@ describe('store', function() {
       beforeEach(() => {
         hadronDoc.get('name').edit('Desert Sand');
         stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
-      });
-
-      afterEach(() => {
-        stub.restore();
       });
 
       it('has the original value for the edited value in the query', () => {
@@ -712,7 +698,6 @@ describe('store', function() {
 
       afterEach(() => {
         store.state.shardKeys = null;
-        stub.restore();
       });
 
       it('has the shard key in the query', () => {
@@ -760,15 +745,15 @@ describe('store', function() {
         store.state.docs = [ hadronDoc ];
       });
 
-      it('replaces the document in the list', (done) => {
-        const unsubscribe = store.listen((state) => {
+      it('replaces the document in the list', async() => {
+        const listener = listenToStore(store, (state) => {
           expect(state.updateSuccess).to.equal(true);
           expect(state.docs[0]).to.not.equal(hadronDoc);
-          unsubscribe();
-          done();
         });
 
         store.replaceExtJsonDocument(ejsonDoc, hadronDoc);
+
+        await listener;
       });
     });
 
@@ -777,24 +762,19 @@ describe('store', function() {
       const hadronDoc = new HadronDocument(doc);
       const stringifiedDoc = EJSON.stringify(doc);
       const ejsonDoc = EJSON.parse(stringifiedDoc);
-      let stub;
 
       beforeEach(() => {
-        stub = sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
+        sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
       });
 
-      afterEach(() => {
-        stub.restore();
-      });
-
-      it('sets the error for the document', (done) => {
-        const unsubscribe = store.listen((state) => {
+      it('sets the error for the document', async() => {
+        const listener = listenToStore(store, (state) => {
           expect(state.updateError).to.equal('error happened');
-          unsubscribe();
-          done();
         });
 
         store.replaceExtJsonDocument(ejsonDoc, hadronDoc);
+
+        await listener;
       });
     });
 
@@ -812,7 +792,6 @@ describe('store', function() {
 
       afterEach(() => {
         store.state.shardKeys = null;
-        stub.restore();
       });
 
       it('has the shard key in the query', () => {
@@ -858,8 +837,8 @@ describe('store', function() {
       context('when the document matches the filter', () => {
         const doc = new HadronDocument({ name: 'testing' });
 
-        it('inserts the document', (done) => {
-          const unsubscribe = store.listen((state) => {
+        it('inserts the document', async() => {
+          const listener = listenToStore(store, (state) => {
             expect(state.docs.length).to.equal(1);
             expect(state.count).to.equal(1);
             expect(state.end).to.equal(1);
@@ -868,12 +847,12 @@ describe('store', function() {
             expect(state.insert.isOpen).to.equal(false);
             expect(state.insert.jsonView).to.equal(false);
             expect(state.insert.message).to.equal('');
-            unsubscribe();
-            done();
           });
 
           store.state.insert.doc = doc;
           store.insertDocument();
+
+          await listener;
         });
       });
 
@@ -885,9 +864,8 @@ describe('store', function() {
           store.state.query.filter = { name: 'something' };
         });
 
-
-        it('inserts the document but does not add to the list', (done) => {
-          const unsubscribe = store.listen((state) => {
+        it('inserts the document but does not add to the list', async() => {
+          const listener = listenToStore(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(1);
             expect(state.insert.doc).to.equal(null);
@@ -895,11 +873,11 @@ describe('store', function() {
             expect(state.insert.isOpen).to.equal(false);
             expect(state.insert.jsonView).to.equal(false);
             expect(state.insert.message).to.equal('');
-            unsubscribe();
-            done();
           });
 
           store.insertDocument();
+
+          await listener;
         });
       });
     });
@@ -907,7 +885,8 @@ describe('store', function() {
     context('when there is an error', () => {
       context('when it is a json mode', () => {
         const doc = {};
-        const jsonDoc = '{ "$name": "testing" }';
+        // this should be invalid according to the validation rules
+        const jsonDoc = '{ "status": "testing" }';
 
         beforeEach(() => {
           store.state.insert.jsonView = true;
@@ -919,8 +898,8 @@ describe('store', function() {
           dataService.deleteMany('compass-crud.test', {}, {}, done);
         });
 
-        it('does not insert the document', (done) => {
-          const unsubscribe = store.listen((state) => {
+        it('does not insert the document', async() => {
+          const listener = listenToStore(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(0);
             expect(state.insert.doc).to.deep.equal(doc);
@@ -928,16 +907,16 @@ describe('store', function() {
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(true);
             expect(state.insert.message).to.not.equal('');
-            unsubscribe();
-            done();
           });
 
           store.insertDocument();
+
+          await listener;
         });
       });
 
       context('when it is not a json mode', () => {
-        const doc = new HadronDocument({ '$name': 'testing' });
+        const doc = new HadronDocument({ 'status': 'testing' });
         const jsonDoc = '';
 
         beforeEach(() => {
@@ -949,8 +928,8 @@ describe('store', function() {
           dataService.deleteMany('compass-crud.test', {}, {}, done);
         });
 
-        it('does not insert the document', (done) => {
-          const unsubscribe = store.listen((state) => {
+        it('does not insert the document', async() => {
+          const listener = listenToStore(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(0);
             expect(state.insert.doc).to.equal(doc);
@@ -958,12 +937,12 @@ describe('store', function() {
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(false);
             expect(state.insert.message).to.not.equal('');
-            unsubscribe();
-            done();
           });
 
           store.state.insert.doc = doc;
           store.insertDocument();
+
+          await listener;
         });
       });
     });
@@ -996,22 +975,59 @@ describe('store', function() {
       context('when the documents match the filter', () => {
         const docs = '[ { "name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
 
-        it('inserts the document', (done) => {
-          const unsubscribe = store.listen((state) => {
-            expect(state.docs.length).to.equal(2);
-            expect(state.count).to.equal(2);
-            expect(state.end).to.equal(2);
-            expect(state.insert.doc).to.equal(null);
-            expect(state.insert.jsonDoc).to.equal(null);
-            expect(state.insert.isOpen).to.equal(false);
-            expect(state.insert.jsonView).to.equal(false);
-            expect(state.insert.message).to.equal('');
-            unsubscribe();
-            done();
-          });
+        it('inserts the document', async() => {
+          const resultId = store.state.resultId;
+
+          const listener = listenToStore(store, (state, index) => {
+            if (index === 1) {
+              // after it inserted it will reset the insert state and start
+              // refreshing the documents
+              expect(state.insert.doc).to.equal(null);
+              expect(state.insert.jsonDoc).to.equal(null);
+              expect(state.insert.isOpen).to.equal(false);
+              expect(state.insert.jsonView).to.equal(false);
+              expect(state.insert.message).to.equal('');
+
+              expect(state.status).to.equal('fetching');
+              expect(state.abortController).to.not.be.null;
+              expect(state.session).to.not.be.null;
+              expect(state.outdated).to.be.false;
+              expect(state.error).to.be.null;
+            }
+            if (index === 2) {
+              // after it refreshed the documents it will update the store again
+              expect(state.error).to.equal(null);
+              expect(state.docs.length).to.equal(2);
+              expect(state.count).to.equal(2);
+              expect(state.end).to.equal(2);
+
+              // this is fetchedInitial because there's no filter/projection/collation
+              expect(state.status).to.equal('fetchedInitial');
+              expect(state.isEditable).to.equal(true);
+              expect(state.error).to.be.null;
+              expect(state.docs).to.have.lengthOf(2);
+              expect(state.count).to.equal(2);
+              expect(state.page).to.equal(0);
+              expect(state.start).to.equal(1);
+              expect(state.end).to.equal(2);
+              expect(state.table).to.deep.equal({
+                doc: null,
+                editParams: null,
+                path: [],
+                types: []
+              });
+              expect(state.shardKeys).to.deep.equal({});
+
+              expect(state.abortController).to.be.null;
+              expect(state.session).to.be.null;
+              expect(state.resultId).to.not.equal(resultId);
+            }
+          }, 2);
 
           store.state.insert.jsonDoc = docs;
           store.insertMany();
+
+          await listener;
         });
       });
 
@@ -1023,8 +1039,8 @@ describe('store', function() {
         });
 
 
-        it('inserts both documents but does not add to the list', (done) => {
-          const unsubscribe = store.listen((state) => {
+        it('inserts both documents but does not add to the list', async() => {
+          const listener = listenToStore(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(0);
             expect(state.end).to.equal(0);
@@ -1033,12 +1049,12 @@ describe('store', function() {
             expect(state.insert.isOpen).to.equal(false);
             expect(state.insert.jsonView).to.equal(false);
             expect(state.insert.message).to.equal('');
-            unsubscribe();
-            done();
           });
 
           store.state.insert.jsonDoc = docs;
           store.insertMany();
+
+          await listener;
         });
       });
 
@@ -1049,29 +1065,28 @@ describe('store', function() {
           store.state.query.filter = { name: 'Rey' };
         });
 
-
-        it('inserts both documents but only adds the matching one to the list', (done) => {
-          const unsubscribe = store.listen((state) => {
-            expect(state.docs.length).to.equal(1);
-            expect(state.count).to.equal(1);
-            expect(state.end).to.equal(1);
-            expect(state.insert.doc).to.equal(null);
-            expect(state.insert.jsonDoc).to.equal(null);
-            expect(state.insert.isOpen).to.equal(false);
-            expect(state.insert.jsonView).to.equal(false);
-            expect(state.insert.message).to.equal('');
-            unsubscribe();
-            done();
-          });
+        it('inserts both documents but only adds the matching one to the list', async() => {
+          const listener = listenToStore(store, (state, index) => {
+            if (index === 2) {
+              expect(state.error).to.be.null;
+              expect(state.docs).to.have.lengthOf(1);
+              expect(state.count).to.equal(1);
+              expect(state.page).to.equal(0);
+              expect(state.start).to.equal(1);
+              expect(state.end).to.equal(1);
+            }
+          }, 2);
 
           store.state.insert.jsonDoc = docs;
           store.insertMany();
+
+          await listener;
         });
       });
     });
 
     context('when there is an error', () => {
-      const docs = '[ { "$name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
+      const docs = '[ { "name": "Chashu", "type": "Norwegian Forest", "status": "invalid" }, { "name": "Rey", "type": "Viszla" } ]';
 
       beforeEach(() => {
         store.state.insert.jsonDoc = JSON.stringify(docs);
@@ -1081,25 +1096,24 @@ describe('store', function() {
         dataService.deleteMany('compass-crud.test', {}, {}, done);
       });
 
-      it('does not insert the document', (done) => {
-        const unsubscribe = store.listen((state) => {
+      it('does not insert the document', async() => {
+        const listener = listenToStore(store, (state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.insert.doc).to.deep.equal({});
-          expect(state.insert.jsonDoc).to.equal(docs);
+          expect(state.insert.jsonDoc).to.deep.equal(docs);
           expect(state.insert.isOpen).to.equal(true);
           expect(state.insert.jsonView).to.equal(true);
-          expect(state.insert.message).to.equal('key $name must not start with \'$\'');
-          unsubscribe();
-          done();
+          expect(state.insert.message).to.equal('Document failed validation');
         });
 
         store.state.insert.jsonDoc = docs;
         store.insertMany();
+
+        await listener;
       });
     });
   });
-
 
   describe('#openInsertDocumentDialog', () => {
     const doc = { _id: 1, name: 'test' };
@@ -1121,26 +1135,26 @@ describe('store', function() {
     });
 
     context('when clone is true', () => {
-      it('removes _id from the document', (done) => {
-        const unsubscribe = store.listen((state) => {
+      it('removes _id from the document', async() => {
+        const listener = listenToStore(store, (state) => {
           expect(state.insert.doc.elements.at(0).key).to.equal('name');
-          unsubscribe();
-          done();
         });
 
         store.openInsertDocumentDialog(doc, true);
+
+        await listener;
       });
     });
 
     context('when clone is false', () => {
-      it('does not remove _id from the document', (done) => {
-        const unsubscribe = store.listen((state) => {
+      it('does not remove _id from the document', async() => {
+        const listener = listenToStore(store, (state) => {
           expect(state.insert.doc.elements.at(0).key).to.equal('_id');
-          unsubscribe();
-          done();
         });
 
         store.openInsertDocumentDialog(doc, false);
+
+        await listener;
       });
     });
   });
@@ -1167,17 +1181,17 @@ describe('store', function() {
     const element = new Element('field3', 'value');
     const editParams = { colId: 1, rowIndex: 0 };
 
-    it('sets the drill down state', (done) => {
-      const unsubscribe = store.listen((state) => {
+    it('sets the drill down state', async() => {
+      const listener = listenToStore(store, (state) => {
         expect(state.table.doc).to.deep.equal(doc);
         expect(state.table.path).to.deep.equal([ 'field3' ]);
         expect(state.table.types).to.deep.equal([ 'String' ]);
         expect(state.table.editParams).to.deep.equal(editParams);
-        unsubscribe();
-        done();
       });
 
       store.drillDown(doc, element, editParams);
+
+      await listener;
     });
   });
 
@@ -1202,15 +1216,15 @@ describe('store', function() {
     const path = ['field1', 'field2'];
     const types = ['Object', 'Array'];
 
-    it('sets the path and types state', (done) => {
-      const unsubscribe = store.listen((state) => {
+    it('sets the path and types state', async() => {
+      const listener = listenToStore(store, (state) => {
         expect(state.table.path).to.deep.equal(path);
         expect(state.table.types).to.deep.equal(types);
-        unsubscribe();
-        done();
       });
 
       store.pathChanged(path, types);
+
+      await listener;
     });
   });
 
@@ -1232,14 +1246,14 @@ describe('store', function() {
       });
     });
 
-    it('sets the view', (done) => {
-      const unsubscribe = store.listen((state) => {
+    it('sets the view', async() => {
+      const listener = listenToStore(store, (state) => {
         expect(state.view).to.equal('Table');
-        unsubscribe();
-        done();
       });
 
       store.viewChanged('Table');
+
+      await listener;
     });
   });
 
@@ -1269,22 +1283,20 @@ describe('store', function() {
       });
 
       context('when there is no error', () => {
-        it('resets the documents to the first page', (done) => {
-          const unsubscribe = store.listen((state) => {
-            try {
+        it('resets the documents to the first page', async() => {
+          const listener = listenToStore(store, (state, index) => {
+            if (index === 2) {
               expect(state.error).to.equal(null);
               expect(state.docs).to.have.length(1);
               expect(state.count).to.equal(1);
               expect(state.start).to.equal(1);
-              done();
-            } catch (err) {
-              done(err);
-            } finally {
-              unsubscribe();
+              expect(state.shardKeys).to.deep.equal({});
             }
-          });
+          }, 2);
 
           store.refreshDocuments();
+
+          await listener;
         });
       });
 
@@ -1293,22 +1305,19 @@ describe('store', function() {
           store.state.query.filter = { '$iamnotanoperator': 1 };
         });
 
-        it('resets the documents to the first page', (done) => {
-          const unsubscribe = store.listen((state) => {
-            try {
+        it('resets the documents to the first page', async() => {
+          const listener = listenToStore(store, (state, index) => {
+            if (index === 2) {
               expect(state.error).to.not.equal(null);
               expect(state.docs).to.have.length(0);
               expect(state.count).to.equal(0);
               expect(state.start).to.equal(0);
-              done();
-            } catch (err) {
-              done(err);
-            } finally {
-              unsubscribe();
             }
-          });
+          }, 2);
 
           store.refreshDocuments();
+
+          await listener;
         });
       });
     });
@@ -1337,15 +1346,17 @@ describe('store', function() {
         dataService.deleteMany('config.collections', { _id: 'compass-crud.test' }, {}, done);
       });
 
-      it('looks up the shard keys', (done) => {
-        const unsubscribe = store.listen((state) => {
-          expect(state.error).to.equal(null);
-          expect(state.shardKeys).to.deep.equal({ a: 1 });
-          unsubscribe();
-          done();
-        });
+      it('looks up the shard keys', async() => {
+        const listener = listenToStore(store, (state, index) => {
+          if (index === 2) {
+            expect(state.error).to.equal(null);
+            expect(state.shardKeys).to.deep.equal({ a: 1 });
+          }
+        }, 2);
 
         store.refreshDocuments();
+
+        await listener;
       });
     });
 
@@ -1376,19 +1387,16 @@ describe('store', function() {
         dataService.deleteMany('compass-crud.test', {}, {}, done);
       });
 
-      it('sets the state as not editable', (done) => {
-        const unsubscribe = store.listen((state) => {
-          try {
+      it('sets the state as not editable', async() => {
+        const listener = listenToStore(store, (state, index) => {
+          if (index === 2) {
             expect(state.isEditable).to.equal(false);
-            done();
-          } catch (err) {
-            done(err);
-          } finally {
-            unsubscribe();
           }
-        });
+        }, 2);
 
         store.refreshDocuments();
+
+        await listener;
       });
     });
 
@@ -1418,24 +1426,242 @@ describe('store', function() {
         dataService.deleteMany('compass-crud.test', {}, {}, done);
       });
 
-      it('resets the state as editable', (done) => {
-        const unsubscribe = store.listen((state) => {
-          try {
+      it('resets the state as editable', async() => {
+        const listener = listenToStore(store, (state, index) => {
+          if (index === 2) {
             expect(state.isEditable).to.equal(true);
-            done();
-          } catch (err) {
-            done(err);
-          } finally {
-            unsubscribe();
           }
-        });
+        }, 2);
 
         store.refreshDocuments();
+
+        await listener;
+      });
+    });
+
+    context('when the collection is a timeseries', () => {
+      if (!TEST_TIMESERIES) {
+        return;
+      }
+
+      let store;
+      let actions;
+
+      beforeEach(async() => {
+        const createCollection = util.promisify(dataService.createCollection.bind(dataService));
+
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions,
+          namespace: 'compass-crud.timeseries',
+          noRefreshOnConfigure: true
+        });
+
+        store.setState({isTimeSeries: true});
+
+        await createCollection('compass-crud.timeseries', { timeseries: { timeField: 'timestamp '} });
+      });
+
+      it('does not specify the _id_ index as hint', async function() {
+        const spy = sinon.spy(dataService, 'aggregate');
+        const listener = listenToStore(store, (state, index) => {
+          if (index === 2) {
+            expect(state.count).to.equal(0);
+          }
+        }, 2);
+
+        store.refreshDocuments();
+
+        await listener;
+
+        // the count should be the only aggregate we ran
+        expect(spy.callCount).to.equal(1);
+        const opts = spy.args[0][2];
+        expect(opts.hint).to.not.exist;
+      });
+    });
+
+    context('when cancelling the operation', () => {
+      let store;
+      let actions;
+
+      beforeEach(() => {
+        actions = configureActions();
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: null,
+            dataProvider: dataService
+          },
+          actions: actions,
+          namespace: 'compass-crud.test',
+          noRefreshOnConfigure: true
+        });
+      });
+
+      it('aborts the queries and kills the session', async() => {
+        const spy = sinon.spy(dataService, 'aggregate');
+
+        const listener = listenToStore(store, (state, index) => {
+          if (index === 1) {
+            // cancel the operation as soon as the query starts
+            expect(state.status).to.equal('fetching');
+            expect(state.error).to.be.null;
+            expect(state.abortController).to.not.be.null;
+            expect(state.session).to.not.be.null;
+
+            store.cancelOperation();
+          }
+
+          if (index === 2) {
+            // cancelOperation cleans up abortController
+            expect(state.abortController).to.be.null;
+          }
+
+          if (index === 3) {
+            // onAbort cleans up state.session
+            expect(state.session).to.be.null;
+          }
+
+          if (index === 4) {
+            // the operation should fail
+            expect(state.status).to.equal('error');
+            expect(state.error.message).to.equal('The operation was cancelled.');
+            expect(state.abortController).to.be.null;
+            expect(state.session).to.be.null;
+          }
+        }, 4);
+
+        store.refreshDocuments();
+
+        await listener;
+
+        // the count should be the only aggregate we ran
+        expect(spy.callCount).to.equal(1);
+        const opts = spy.args[0][2];
+        expect(opts.hint).to.equal('_id_');
       });
     });
   });
 
-  describe('default query for view with own sort orter', () => {
+  describe('#getPage', () => {
+    let store;
+    let actions;
+    let fetchSpy;
+
+    beforeEach((done) => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        dataProvider: {
+          error: null,
+          dataProvider: dataService
+        },
+        actions: actions,
+        namespace: 'compass-crud.test',
+        noRefreshOnConfigure: true
+      });
+
+      fetchSpy = sinon.spy(store.dataService, 'fetch');
+
+      const docs = [...Array(1000).keys()].map((i) => ({ i }));
+      dataService.insertMany('compass-crud.test', docs, {}, done);
+    });
+
+    afterEach((done) => {
+      dataService.deleteMany('compass-crud.test', {}, {}, done);
+    });
+
+    it('does nothing for negative page numbers', async() => {
+      await store.getPage(-1);
+      expect(fetchSpy.called).to.be.false;
+    });
+
+    it('does nothing if documents are already being fetched', async() => {
+      store.state.status = 'fetching';
+      await store.getPage(1);
+      expect(fetchSpy.called).to.be.false;
+    });
+
+    it('does nothing if the page being requested is past the end', async() => {
+      store.state.query.limit = 20;
+      await store.getPage(1); // there is only one page of 20
+      expect(fetchSpy.called).to.be.false;
+    });
+
+    it('does not ask for documents past the end', async() => {
+      store.state.query.limit = 21;
+      await store.getPage(1); // there is only one page of 20
+      expect(fetchSpy.called).to.be.true;
+      const opts = fetchSpy.args[0][2];
+      // the second page should only have 1 due to the limit
+      expect(opts.limit).to.equal(1);
+    });
+
+    it('sets status fetchedPagination if it succeeds with no filter', async() => {
+      await store.getPage(1); // there is only one page of 20
+      expect(fetchSpy.called).to.be.true;
+      expect(store.state.status).to.equal('fetchedPagination');
+    });
+
+    it('sets status fetchedPagination if it succeeds with a filter', async() => {
+      store.state.query.filter = { i: { $gt: 1 }};
+      await store.getPage(1); // there is only one page of 20
+      expect(fetchSpy.called).to.be.true;
+      expect(store.state.status).to.equal('fetchedPagination');
+    });
+
+    it('sets status error if it fails', async() => {
+      // remove the spy and replace it with a stub
+      fetchSpy.restore();
+      const fetchStub = sinon.stub(store.dataService, 'fetch').returns(({
+        toArray: () => {
+          throw new Error('This is a fake error.');
+        }
+      }));
+
+      expect(store.state.abortController).to.be.null;
+      expect(store.state.session).to.be.null;
+
+      const promise = store.getPage(1);
+      expect(store.state.abortController).to.not.be.null;
+      expect(store.state.session).to.not.be.null;
+
+      await promise;
+      expect(store.state.error.message).to.equal('This is a fake error.');
+
+      expect(fetchStub.called).to.be.true;
+    });
+
+    it('allows the operation to be cancelled', async() => {
+      expect(store.state.abortController).to.be.null;
+      expect(store.state.session).to.be.null;
+
+      const promise = store.getPage(1);
+      expect(store.state.abortController).to.not.be.null;
+      expect(store.state.session).to.not.be.null;
+
+      store.cancelOperation();
+      expect(store.state.abortController).to.be.null;
+      expect(store.state.session).to.be.null;
+      expect(store.state.error).to.be.null;
+
+      await promise;
+      expect(store.state.error.message).to.equal('The operation was cancelled.');
+
+      expect(fetchSpy.called).to.be.true;
+    });
+  });
+
+  describe('default query for view with own sort order', () => {
     let store;
     let actions;
 
@@ -1470,20 +1696,22 @@ describe('store', function() {
       });
     });
 
-    it('returns documents in view order', (done) => {
-      const unsubscribe = store.listen((state) => {
-        expect(state.docs).to.have.lengthOf(4);
-        expect(state.docs.map(doc => doc.generateObject())).to.deep.equal([
-          { _id: '003', cat: 'amy' },
-          { _id: '002', cat: 'chashu' },
-          { _id: '001', cat: 'nori' },
-          { _id: '004', cat: 'pia' }
-        ]);
-        unsubscribe();
-        done();
-      });
+    it('returns documents in view order', async() => {
+      const listener = listenToStore(store, (state, index) => {
+        if (index === 2) {
+          expect(state.docs).to.have.lengthOf(4);
+          expect(state.docs.map(doc => doc.generateObject())).to.deep.equal([
+            { _id: '003', cat: 'amy' },
+            { _id: '002', cat: 'chashu' },
+            { _id: '001', cat: 'nori' },
+            { _id: '004', cat: 'pia' }
+          ]);
+        }
+      }, 2);
 
       store.refreshDocuments();
+
+      await listener;
     });
   });
 });

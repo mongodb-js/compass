@@ -1,4 +1,5 @@
-import type { AnyError, CollStats, Db, Document, MongoClient } from 'mongodb';
+import type { AnyError, CollStats } from 'mongodb';
+import { InstanceDetails } from './instance-detail-helper';
 
 export interface Callback<R> {
   (
@@ -7,117 +8,10 @@ export interface Callback<R> {
   ): void;
 }
 
-export interface ResolvedInstanceTaskData {
-  client: MongoClient;
-  db: Db;
-  userInfo: Document;
-  host: HostInfoDetails;
-  build: BuildInfoDetails;
-  cmdLineOpts: Document;
-  genuineMongoDB: GenuineMongoDBDetails;
-  dataLake: DataLakeDetails;
-  listDatabases: string[];
-  allowedDatabases: string[];
-  databases: InstanceDatabaseDetails[];
-  listCollections: InstanceCollectionDetails[];
-  allowedCollections: InstanceCollectionDetails[];
-  collections: InstanceCollectionDetails[];
-  hierarchy: never;
-  stats: InstanceDatabaseStats;
-  featureCompatibilityVersion: string | null;
-}
-
-export type InstanceDetails = Omit<
-  ResolvedInstanceTaskData,
-  | 'db'
-  | 'listDatabases'
-  | 'allowedDatabases'
-  | 'userInfo'
-  | 'listCollections'
-  | 'allowedCollections'
-  | 'cmdLineOpts'
->;
-
 export interface Instance extends InstanceDetails {
   _id?: string;
   hostname: string;
   port: number;
-}
-
-export interface InstanceCollectionDetails {
-  _id: string;
-  name: string;
-  database: string;
-  readonly: boolean;
-  collation: string | null;
-  type: string;
-  view_on?: string;
-  pipeline?: Document[];
-}
-
-export interface InstanceDatabaseDetails {
-  _id: string;
-  name: string;
-  document_count: number;
-  storage_size: number;
-  index_count: number;
-  index_size: number;
-  collections?: InstanceCollectionDetails[];
-}
-
-export interface HostInfoDetails {
-  system_time?: any; // ISODate?
-  hostname?: string;
-  os?: string;
-  os_family?: string;
-  kernel_version?: string;
-  kernel_version_string?: string;
-  memory_bits?: number;
-  memory_page_size?: number;
-  arch?: string;
-  cpu_cores?: number;
-  cpu_cores_physical?: number;
-  cpu_scheduler?: string;
-  cpu_frequency?: number;
-  cpu_string?: string;
-  cpu_bits?: number;
-  machine_model?: string;
-  feature_numa?: boolean;
-  feature_always_full_sync?: number;
-  feature_nfs_async?: number;
-}
-
-export interface GenuineMongoDBDetails {
-  isGenuine: boolean;
-  dbType: string;
-}
-
-export interface BuildInfoDetails {
-  version: string;
-  commit: string;
-  commit_url: string;
-  flags_loader: any;
-  flags_compiler: any;
-  allocator: string;
-  javascript_engine: string;
-  debug: boolean;
-  for_bits: number;
-  max_bson_object_size: number;
-  enterprise_module: boolean;
-  query_engine: any;
-  raw: Document;
-}
-
-export interface InstanceDatabaseStats {
-  document_count: number;
-  storage_size: number;
-  index_count: number;
-  index_size: number;
-}
-
-export interface DataLakeDetails {
-  isDataLake: boolean;
-  version: string;
 }
 
 export interface CollectionStats {
@@ -139,7 +33,6 @@ export interface CollectionStats {
   flags_user: CollStats['userFlags'];
   max_document_size?: CollStats['maxSize'];
   size?: CollStats['size'];
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   index_details: CollStats['indexDetails'];
   wired_tiger: Partial<CollStats['wiredTiger']>;
 }

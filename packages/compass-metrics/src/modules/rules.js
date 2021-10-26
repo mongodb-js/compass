@@ -69,7 +69,7 @@ const RULES = [
 
       const deploymentDetectedEvent = {
         'mongodb version': state.instance.build.version,
-        'enterprise module': state.instance.build.enterprise_module,
+        'enterprise module': state.instance.build.isEnterprise,
         'server architecture': state.instance.host.arch,
         'server cpu cores': state.instance.host.cpu_cores,
         'server cpu frequency (mhz)': state.instance.host.cpu_frequency / 1000 / 1000,
@@ -77,7 +77,6 @@ const RULES = [
         'server os': state.instance.host.os,
         'server arch': state.instance.host.arch,
         'server os family': state.instance.host.os_family,
-        'server machine model': state.instance.host.machine_model,
         'server kernel version': state.instance.host.kernel_version,
         'server kernel version string': state.instance.host.kernel_version_string,
         'is genuine mongodb': state.instance.genuineMongoDB === undefined ? true : state.instance.genuineMongoDB.isGenuine,

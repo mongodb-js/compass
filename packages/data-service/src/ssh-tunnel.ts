@@ -4,13 +4,13 @@ import fs from 'fs';
 
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import SSHTunnel from '@mongodb-js/ssh-tunnel';
-import createLogger from '@mongodb-js/compass-logging';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 import { ConnectionSshOptions } from './connection-options';
 import { redactSshTunnelOptions } from './redact';
 
 const debug = createDebug('mongodb-data-service:connect');
-const { log, mongoLogId } = createLogger('COMPASS-CONNECT');
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-CONNECT');
 
 export async function openSshTunnel(
   srvResolvedConnectionString: string,

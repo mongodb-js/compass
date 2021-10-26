@@ -19,7 +19,9 @@ import {
   STARTED,
   CANCELED,
   COMPLETED,
-  UNSPECIFIED
+  FAILED,
+  UNSPECIFIED,
+  COMPLETED_WITH_ERRORS
 } from '../../constants/process-status';
 
 const style = createStyler(styles, 'export-select-output');
@@ -29,6 +31,8 @@ const style = createStyler(styles, 'export-select-output');
  */
 const MESSAGES = {
   [UNSPECIFIED]: '',
+  [FAILED]: '',
+  [COMPLETED_WITH_ERRORS]: '',
   [CANCELED]: 'Export canceled',
   [COMPLETED]: 'Export completed',
   [STARTED]: 'Exporting documents...'

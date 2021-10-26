@@ -1,3 +1,5 @@
+import { UUID } from 'bson';
+
 export const HOST_INFO = {
   system: {
     currentTime: new Date('2015-12-03T00:51:06.763Z'),
@@ -28,6 +30,200 @@ export const HOST_INFO = {
     scheduler: 'multiq',
   },
   ok: 1,
+};
+
+export const LIST_DATABASES_NAME_ONLY = {
+  databases: [
+    { name: 'sample_airbnb' },
+    { name: 'sample_geospatial' },
+    { name: 'sample_mflix' },
+  ],
+};
+
+export const DB_STATS = {
+  sample_airbnb: {
+    db: 'sample_airbnb',
+    collections: 2,
+    views: 0,
+    objects: 5556,
+    avgObjSize: 16983,
+    dataSize: 94362224,
+    storageSize: 54075392,
+    numExtents: 0,
+    indexes: 5,
+    indexSize: 532480,
+    scaleFactor: 1,
+    fsUsedSize: 24489779200,
+    fsTotalSize: 36496736256,
+  },
+  sample_geospatial: {
+    db: 'sample_geospatial',
+    collections: 1,
+    views: 0,
+    objects: 11095,
+    avgObjSize: 328,
+    dataSize: 3649283,
+    storageSize: 753664,
+    numExtents: 0,
+    indexes: 2,
+    indexSize: 311296,
+    scaleFactor: 1,
+    fsUsedSize: 24489680896,
+    fsTotalSize: 36496736256,
+  },
+  sample_mflix: {
+    db: 'sample_mflix',
+    collections: 6,
+    views: 2,
+    objects: 75593,
+    avgObjSize: 692,
+    dataSize: 52319033,
+    storageSize: 29491200,
+    numExtents: 0,
+    indexes: 10,
+    indexSize: 15536128,
+    scaleFactor: 1,
+    fsUsedSize: 24489762816,
+    fsTotalSize: 36496736256,
+  },
+};
+
+export const LIST_COLLECTIONS = {
+  sample_airbnb: [
+    {
+      name: 'a',
+      type: 'collection',
+      options: {},
+      info: {
+        readOnly: false,
+        uuid: new UUID('0908fcbe-ad5f-4aac-bcb7-1584288467ac'),
+      },
+      idIndex: { v: 2, name: '_id_', ns: 'sample_airbnb.a' },
+    },
+    {
+      name: 'listingsAndReviews',
+      type: 'collection',
+      options: {},
+      info: {
+        readOnly: false,
+        uuid: new UUID('325b74cf-4610-41a3-af80-c4a24bd25834'),
+      },
+      idIndex: {
+        v: 2,
+        name: '_id_',
+        ns: 'sample_airbnb.listingsAndReviews',
+      },
+    },
+  ],
+  sample_geospatial: [
+    {
+      name: 'shipwrecks',
+      type: 'collection',
+      options: {},
+      info: {
+        readOnly: false,
+        uuid: new UUID('8225bda6-b5a6-4546-b96b-8992ea372b46'),
+      },
+      idIndex: {
+        v: 2,
+        name: '_id_',
+        ns: 'sample_geospatial.shipwrecks',
+      },
+    },
+  ],
+  sample_mflix: [
+    {
+      name: 'movies',
+      type: 'collection',
+      options: {},
+      info: {
+        readOnly: false,
+        uuid: new UUID('418e60d3-521e-4472-b690-87aaa3c1a87e'),
+      },
+      idIndex: { v: 2, name: '_id_', ns: 'sample_mflix.movies' },
+    },
+    {
+      name: 'theaters',
+      type: 'collection',
+      options: {},
+      info: {
+        readOnly: false,
+        uuid: new UUID('4555f315-a2f2-4754-954b-bfb9252571e0'),
+      },
+      idIndex: {
+        v: 2,
+
+        name: '_id_',
+        ns: 'sample_mflix.theaters',
+      },
+    },
+    {
+      name: 'comments',
+      type: 'collection',
+      options: {},
+      info: {
+        readOnly: false,
+        uuid: new UUID('56676d96-6ef0-4af7-9036-37d947f07b90'),
+      },
+      idIndex: {
+        v: 2,
+
+        name: '_id_',
+        ns: 'sample_mflix.comments',
+      },
+    },
+    {
+      name: 'system.views',
+      type: 'collection',
+      options: {},
+      info: {
+        readOnly: false,
+        uuid: new UUID('a76d1f0a-01ec-463f-84af-861a7f46de63'),
+      },
+      idIndex: {
+        v: 2,
+
+        name: '_id_',
+        ns: 'sample_mflix.system.views',
+      },
+    },
+    {
+      name: 'users',
+      type: 'collection',
+      options: {},
+      info: {
+        readOnly: false,
+        uuid: new UUID('c7f33b00-8b6c-4bf6-a9fe-2701437366fb'),
+      },
+      idIndex: { v: 2, name: '_id_', ns: 'sample_mflix.users' },
+    },
+    {
+      name: 'sessions',
+      type: 'collection',
+      options: {},
+      info: {
+        readOnly: false,
+        uuid: new UUID('f61fac6e-e2ca-484f-a96e-a2d2e1cadfa8'),
+      },
+      idIndex: {
+        v: 2,
+        name: '_id_',
+        ns: 'sample_mflix.sessions',
+      },
+    },
+    {
+      name: 'thrillers_by_year',
+      type: 'view',
+      options: { viewOn: 'movies', pipeline: [] },
+      info: { readOnly: true },
+    },
+    {
+      name: 'movies_to_export',
+      type: 'view',
+      options: { viewOn: 'movies', pipeline: [] },
+      info: { readOnly: true },
+    },
+  ],
 };
 
 export const USER_INFO_JOHN = {
@@ -365,6 +561,12 @@ export const USER_INFO_JOHN = {
   ],
 };
 
+export const CONNECTION_STATUS_USER_JOHN = {
+  authInfo: {
+    authenticatedUserPrivileges: USER_INFO_JOHN.inheritedPrivileges,
+  },
+};
+
 export const USER_INFO_LISTDB_ONLY = {
   _id: 'admin.listy',
   user: 'listy',
@@ -389,6 +591,12 @@ export const USER_INFO_LISTDB_ONLY = {
       actions: ['listDatabases'],
     },
   ],
+};
+
+export const CONNECTION_STATUS_LISTDB_ONLY = {
+  authInfo: {
+    authenticatedUserPrivileges: USER_INFO_LISTDB_ONLY.inheritedPrivileges,
+  },
 };
 
 export const USER_INFO_COLL_ONLY = {
@@ -417,6 +625,60 @@ export const USER_INFO_COLL_ONLY = {
     },
   ],
   inheritedAuthenticationRestrictions: [],
+};
+
+export const CONNECTION_STATUS_COLL_ONLY = {
+  authInfo: {
+    authenticatedUserPrivileges: USER_INFO_COLL_ONLY.inheritedPrivileges,
+  },
+};
+
+export const USER_INFO_FIND_NOT_ALLOWED = {
+  _id: 'db1.coll',
+  user: 'user1',
+  db: 'db1',
+  roles: [
+    {
+      role: 'coll',
+      db: 'db1',
+    },
+  ],
+  inheritedRoles: [
+    {
+      role: 'coll',
+      db: 'db1',
+    },
+  ],
+  inheritedPrivileges: [
+    {
+      resource: {
+        db: 'db1',
+        collection: 'coll1',
+      },
+      actions: ['collStats'],
+    },
+  ],
+  inheritedAuthenticationRestrictions: [],
+};
+
+export const CONNECTION_STATUS_FIND_NOT_ALLOWED = {
+  authInfo: {
+    authenticatedUserPrivileges: USER_INFO_FIND_NOT_ALLOWED.inheritedPrivileges,
+  },
+};
+
+export const CONNECTION_STATUS_SAMPLE_GEOSPATIAL = {
+  authInfo: {
+    authenticatedUserPrivileges: [
+      {
+        resource: {
+          db: 'sample_geospatial',
+          collection: 'shipwrecks',
+        },
+        actions: ['find'],
+      },
+    ],
+  },
 };
 
 export const BUILD_INFO_OLD = {
@@ -475,6 +737,64 @@ export const BUILD_INFO_3_2 = {
     'wiredTiger',
   ],
   ok: 1,
+};
+
+export const BUILD_INFO_4_2 = {
+  version: '4.2.17',
+  gitVersion: 'be089838c55d33b6f6039c4219896ee4a3cd704f',
+  modules: ['enterprise'],
+  allocator: 'tcmalloc',
+  javascriptEngine: 'mozjs',
+  sysInfo: 'deprecated',
+  versionArray: [4, 2, 17, 0],
+  openssl: {
+    running: 'OpenSSL 1.0.1e-fips 11 Feb 2013',
+    compiled: 'OpenSSL 1.0.1e-fips 11 Feb 2013',
+  },
+  buildEnvironment: {
+    distmod: 'rhel70',
+    distarch: 'x86_64',
+    cc: '/opt/mongodbtoolchain/v3/bin/gcc: gcc (GCC) 8.5.0',
+    ccflags:
+      '-fno-omit-frame-pointer -fno-strict-aliasing -ggdb -pthread -Wall ' +
+      '-Wsign-compare -Wno-unknown-pragmas -Winvalid-pch -Werror -O2 ' +
+      '-Wno-unused-local-typedefs -Wno-unused-function ' +
+      '-Wno-deprecated-declarations -Wno-unused-const-variable ' +
+      '-Wno-unused-but-set-variable -Wno-missing-braces ' +
+      '-fstack-protector-strong -fno-builtin-memcmp',
+    cxx: '/opt/mongodbtoolchain/v3/bin/g++: g++ (GCC) 8.5.0',
+    cxxflags:
+      '-Woverloaded-virtual ' +
+      '-Wno-maybe-uninitialized ' +
+      '-fsized-deallocation -std=c++17',
+    linkflags:
+      '-pthread -Wl,-z,now -rdynamic -Wl,--fatal-warnings ' +
+      '-fstack-protector-strong -fuse-ld=gold -Wl,--build-id ' +
+      '-Wl,--hash-style=gnu -Wl,-z,noexecstack -Wl,--warn-execstack ' +
+      '-Wl,-z,relro -Wl,-rpath,/usr/lib64/perl5/CORE',
+    target_arch: 'x86_64',
+    target_os: 'linux',
+  },
+  bits: 64,
+  debug: false,
+  maxBsonObjectSize: 16777216,
+  storageEngines: [
+    'biggie',
+    'devnull',
+    'ephemeralForTest',
+    'inMemory',
+    'queryable_wt',
+    'wiredTiger',
+  ],
+  ok: 1,
+};
+
+export const BUILD_INFO_DATA_LAKE = {
+  dataLake: {
+    version: 'v20200329',
+    gitVersion: '0f318ss78bfad79ede3721e91iasj6f61644f',
+    date: '2020-03-29T15:41:22Z',
+  },
 };
 
 export const CMD_LINE_OPTS = {
