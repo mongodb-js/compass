@@ -21,7 +21,7 @@ async function createAndConvertModel(
   return convertConnectionModelToInfo(model);
 }
 
-describe.only('LegacyConnectionModel', function () {
+describe('LegacyConnectionModel', function () {
   describe('convertConnectionModelToInfo', function () {
     it('converts _id', async function () {
       const { id } = await createAndConvertModel(
