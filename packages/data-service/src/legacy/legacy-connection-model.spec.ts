@@ -618,5 +618,83 @@ describe('LegacyConnectionModel', function () {
       expect(connectionModel.ssl).to.equal(true);
       expect(connectionModel.sslKey).to.equal('file.pem');
     });
+
+    it('converts tls=false', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://user@localhost:27017/?tls=false',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('NONE');
+    });
+
+    it('converts ssl=false', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://user@localhost:27017/?ssl=false',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('NONE');
+    });
+
+    it('converts tls=true', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://user@localhost:27017/?tls=true',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('SYSTEMCA');
+    });
+
+    it('converts ssl=true', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://user@localhost:27017/?ssl=true',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('SYSTEMCA');
+    });
+
+    it('converts tlsCAFile', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString:
+            'mongodb://user@localhost:27017/?ssl=true&tlsCAFile=file.pem',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('SERVER');
+      expect(connectionModel.sslCA).to.deep.equal(['file.pem']);
+    });
+
+    it('converts tlsCertificateKeyFile and tlsCertificateFile', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString:
+            'mongodb://user@localhost:27017/?ssl=true&tlsCAFile=tlsCAFilePath&tlsCertificateKeyFile=sslKeyPath',
+          tlsCertificateFile: 'sslCertPath',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('ALL');
+      expect(connectionModel.sslCA).to.deep.equal(['tlsCAFilePath']);
+      expect(connectionModel.sslKey).to.equal('sslKeyPath');
+      expect(connectionModel.sslCert).to.equal('sslCertPath');
+    });
+
+    it('converts tlsAllowInvalidCertificates and tlsAllowInvalidHostnames', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString:
+            'mongodb://user@localhost:27017/?ssl=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('UNVALIDATED');
+    });
   });
 });
