@@ -31,6 +31,7 @@
   "license": "SSPL",
   "peerDependencies": {
     "@mongodb-js/compass-components": "*",
+    "@mongodb-js/compass-connections": "^0.1.0",
     "debug": "*",
     "hadron-react-buttons": "*",
     "hadron-react-components": "*",
@@ -58,6 +59,7 @@
     "@mongodb-js/compass-collection-stats": "^6.14.0",
     "@mongodb-js/compass-components": "^0.6.0",
     "@mongodb-js/compass-connect": "^7.14.0",
+    "@mongodb-js/compass-connections": "^0.1.0",
     "@mongodb-js/compass-crud": "^12.15.0",
     "@mongodb-js/compass-database": "^2.14.0",
     "@mongodb-js/compass-databases-collections": "^0.15.0",

@@ -57,7 +57,7 @@ const horizontalResizerStyle = css({
 
 function ResizeHandle({
   direction,
-  step,
+  step = 10,
   value,
   minValue,
   maxValue,
@@ -65,7 +65,7 @@ function ResizeHandle({
   title,
 }: {
   direction: ResizeDirection;
-  step: number;
+  step?: number;
   value: number;
   minValue: number;
   maxValue: number;
