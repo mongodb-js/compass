@@ -23,7 +23,7 @@ function renderForm() {
 }
 
 describe('ConnectForm Component', function () {
-  afterEach(function() {
+  afterEach(function () {
     cleanup();
   });
 
