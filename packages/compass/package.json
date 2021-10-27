@@ -246,7 +246,8 @@
     "sinon": "^8.1.1",
     "sinon-chai": "^3.7.0",
     "storage-mixin": "^4.7.0",
-    "uuid": "^3.0.0"
+    "uuid": "^3.0.0",
+    "web-vitals": "^2.1.2"
   },
   "optionalDependencies": {
     "vscode-windows-registry": "1.0.2"
