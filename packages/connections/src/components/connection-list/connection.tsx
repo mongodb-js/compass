@@ -12,22 +12,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { ConnectionInfo } from 'mongodb-data-service';
 
-// const connectionCardStyles = css({
-//   position: 'relative',
-//   padding: `${spacing[2]}px ${spacing[3]}px`,
-//   margin: 0,
-//   marginTop: spacing[3],
-//   // width: '100%',
-//   maxHeight: 200,
-//   overflow: 'hidden',
-// });
-
 const connectionButtonStyles = css({
   position: 'absolute',
   margin: 0,
-  // marginTop: spacing[2],
   padding: 0,
-  // paddingTop: 10,
   height: 'auto',
   width: '100%',
   overflow: 'hidden',
@@ -38,14 +26,6 @@ const connectionButtonStyles = css({
   textAlign: 'left',
   '&:hover': {
     border: 'none',
-    // '&::after': {
-    //   position: 'absolute',
-    //   backgroundColor: 'red',
-    //   left: 0,
-    //   top: 0,
-    //   bottom: 0,
-    //   width: 5
-    // }
   },
   '&:focus': {
     border: 'none'
@@ -57,6 +37,7 @@ const connectionButtonStyles = css({
     textAlign: 'left',
     height: 'auto',
     width: '100%',
+    padding: 0,
     paddingLeft: spacing[4],
     paddingRight: spacing[4],
     position: 'relative'
@@ -65,8 +46,36 @@ const connectionButtonStyles = css({
 
 const connectionButtonContainerStyles = css({
   position: 'relative',
-  height: 60,
+  height: 52,
   marginTop: spacing[2],
+  padding: 0,
+  '&::after': {
+    position: 'absolute',
+    content: '""',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 0,
+    backgroundColor: 'white',
+    zIndex: 1,
+    opacity: 0,
+    transition: '150ms all',
+    borderTopRightRadius: spacing[1],
+    borderBottomRightRadius: spacing[1]
+  },
+  '&:hover': {
+    '&::after': {
+      opacity: 1,
+      width: spacing[1]
+    }
+  },
+  '&:focus-within': {
+    '&::after': {
+      opacity: 1,
+      width: spacing[1],
+      backgroundColor: uiColors.focus
+    }
+  }
 });
 
 const connectionTitleStyles = css({
@@ -74,7 +83,7 @@ const connectionTitleStyles = css({
   fontWeight: 'bold',
   fontSize: 14,
   margin: 0,
-  marginTop: spacing[2],
+  marginTop: spacing[1],
   marginRight: spacing[2],
   whiteSpace: 'nowrap',
   overflow: 'hidden',
@@ -89,16 +98,7 @@ const connectionDescriptionStyles = css({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  marginBottom: spacing[2]
-});
-
-const favoriteColorStyles = css({
-  position: 'absolute',
-  top: 0,
-  right: 0,
-  bottom: 0,
-  width: spacing[2],
-  // height: 100
+  marginBottom: spacing[1]
 });
 
 const dropdownButtonStyles = css({
@@ -120,30 +120,6 @@ function Connection({
     : connection.connectionOptions.connectionString;
 
   return (
-    // <Card
-    //   css={connectionCardStyles}
-    //   darkMode
-    //   contentStyle="clickable"
-    //   onClick={() => alert('clicked card')}
-    // >
-    //   <Subtitle css={connectionTitleStyles} title={connectionTitle}>
-    //     {connectionTitle}
-    //   </Subtitle>
-    //   {connection.lastUsed && (
-    //     <Description css={connectionDescriptionStyles}>
-    //       {connection.lastUsed.toLocaleString()}
-    //     </Description>
-    //   )}
-    //   {connection.favorite && connection.favorite.color && (
-    //     <div
-    //       css={favoriteColorStyles}
-    //       style={{
-    //         backgroundColor: connection.favorite.color,
-    //       }}
-    //     />
-    //   )}
-    // </Card>
-
     <div
       css={connectionButtonContainerStyles}
     >
@@ -154,20 +130,22 @@ function Connection({
         contentStyle="clickable"
         onClick={() => alert('clicked card')}
       >
-        <Subtitle css={connectionTitleStyles} title={connectionTitle}>
+        <Subtitle
+          css={[
+            connectionTitleStyles,
+            connection.favorite && connection.favorite.color
+              ? css({
+                color: connection.favorite.color
+              })
+              : null
+          ]}
+          title={connectionTitle}>
           {connectionTitle}
         </Subtitle>
         {connection.lastUsed && (
           <Description css={connectionDescriptionStyles}>
             {connection.lastUsed.toLocaleString()}
           </Description>
-        )}
-        {connection.favorite && connection.favorite.color && (
-          <div
-            css={[favoriteColorStyles, css({
-              backgroundColor: connection.favorite.color
-            })]}
-          />
         )}
       </Button>
       <IconButton

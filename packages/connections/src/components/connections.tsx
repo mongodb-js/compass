@@ -23,10 +23,11 @@ const formContainerStyles = css({
   flexGrow: 1,
   padding: 0,
   paddingBottom: spacing[4],
+  // paddingTop: spacing[4]
 });
 
 const mockRecents: ConnectionInfo[] = [];
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 25; i++) {
   mockRecents.push({
     connectionOptions: {
       connectionString: `localhost:2${5000 + Math.floor(Math.random() * 5000)}`,
@@ -46,7 +47,17 @@ function Connections(): React.ReactElement {
             },
             favorite: {
               name: 'Development cluster',
-              color: '#326fde',
+              color: '#deb342',
+            },
+            lastUsed: new Date(),
+          },
+          {
+            connectionOptions: {
+              connectionString: 'mongodb+srv://testUserForTesting:notMyRealPassword@test.mongodb.net/test?authSource=admin&replicaSet=art-dev-shard-0&readPreference=primary&ssl=true',
+            },
+            favorite: {
+              name: 'Atlas test',
+              color: '#d4366e',
             },
             lastUsed: new Date(),
           },
@@ -56,7 +67,7 @@ function Connections(): React.ReactElement {
             },
             favorite: {
               name: 'super long favorite name - super long favorite name - super long favorite name - super long favorite name',
-              color: '#3b8196',
+              color: '#5fc86e',
             },
             lastUsed: new Date(),
           },
@@ -70,7 +81,19 @@ function Connections(): React.ReactElement {
         ]}
       />
       <div css={formContainerStyles}>
-        <ConnectForm onConnectClicked={() => alert(`connect to ${'ok'}`)} />
+        <ConnectForm
+          onConnectClicked={() => alert(`connect to ${'ok'}`)}
+          initialConnectionInfo={{
+            connectionOptions: {
+              connectionString: 'mongodb+srv://testUserForTesting:notMyRealPassword@test.mongodb.net/test?authSource=admin&replicaSet=art-dev-shard-0&readPreference=primary&ssl=true',
+            },
+            favorite: {
+              name: 'Atlas test',
+              color: '#326fde',
+            },
+            lastUsed: new Date(),
+          }}
+        />
         <FormHelp />
       </div>
     </div>

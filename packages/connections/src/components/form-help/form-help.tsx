@@ -14,6 +14,8 @@ import {
 const formHelpContainerStyles = css({
   position: 'relative',
   margin: spacing[4],
+  // marginTop: spacing[7],
+  // verticalAlign: 'top',
   minWidth: 200,
   maxWidth: 400,
   display: 'inline-block'

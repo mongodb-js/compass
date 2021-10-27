@@ -46,7 +46,6 @@ class Toolbar extends React.Component {
    */
   switchDocumentView(view) {
     this.props.viewSwitchHandler(view);
-    this.props.refreshDocuments();
   }
 
   _loadedMessage() {
