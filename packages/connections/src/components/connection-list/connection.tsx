@@ -2,15 +2,14 @@
 import { css, jsx } from '@emotion/react';
 import {
   Button,
-  // Card,
-  IconButton,
-  Icon,
   Subtitle,
   Description,
   spacing,
   uiColors,
 } from '@mongodb-js/compass-components';
-import { ConnectionInfo } from 'mongodb-data-service';
+import { ConnectionInfo, getConnectionTitle } from 'mongodb-data-service';
+
+import ConnectionMenu from './connection-menu';
 
 const connectionButtonStyles = css({
   position: 'absolute',
@@ -24,11 +23,14 @@ const connectionButtonStyles = css({
   display: 'flex',
   flexDirection: 'column',
   textAlign: 'left',
+  background: 'none',
   '&:hover': {
     border: 'none',
+    background: uiColors.blue.dark3,
   },
   '&:focus': {
-    border: 'none'
+    border: 'none',
+    background: uiColors.blue.dark3,
   },
   '> div': {
     display: 'flex',
@@ -40,8 +42,8 @@ const connectionButtonStyles = css({
     padding: 0,
     paddingLeft: spacing[4],
     paddingRight: spacing[4],
-    position: 'relative'
-  }
+    position: 'relative',
+  },
 });
 
 const connectionButtonContainerStyles = css({
@@ -61,21 +63,21 @@ const connectionButtonContainerStyles = css({
     opacity: 0,
     transition: '150ms all',
     borderTopRightRadius: spacing[1],
-    borderBottomRightRadius: spacing[1]
+    borderBottomRightRadius: spacing[1],
   },
   '&:hover': {
     '&::after': {
       opacity: 1,
-      width: spacing[1]
-    }
+      width: spacing[1],
+    },
   },
   '&:focus-within': {
     '&::after': {
       opacity: 1,
       width: spacing[1],
-      backgroundColor: uiColors.focus
-    }
-  }
+      backgroundColor: uiColors.focus,
+    },
+  },
 });
 
 const connectionTitleStyles = css({
@@ -98,36 +100,46 @@ const connectionDescriptionStyles = css({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  marginBottom: spacing[1]
+  marginBottom: spacing[1],
 });
 
-const dropdownButtonStyles = css({
-  color: 'white',
-  position: 'absolute',
-  right: spacing[1],
-  top: spacing[2],
-  bottom: 0,
-})
+// Creates a date string formatted as `Oct 27, 2090, 2:06:04 PM EDT`.
+const dateConfig: Intl.DateTimeFormatOptions = {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  timeZoneName: 'short',
+};
+
+function getTitleForConnection(connection: ConnectionInfo) {
+  try {
+    const title = getConnectionTitle(connection);
+    return title;
+  } catch (e) {
+    // When parsing a saved connection fails we default the title.
+    // TODO: What should the default name be here?
+    return 'Recent Connection';
+  }
+}
 
 function Connection({
   connection,
 }: {
   connection: ConnectionInfo;
 }): React.ReactElement {
-  // TODO: Get title from connection string for non-favorites.
   const connectionTitle = connection.favorite
     ? connection.favorite.name
-    : connection.connectionOptions.connectionString;
+    : getTitleForConnection(connection);
 
   return (
-    <div
-      css={connectionButtonContainerStyles}
-    >
+    <div css={connectionButtonContainerStyles}>
       <Button
         // as="li"
         css={connectionButtonStyles}
         darkMode
-        contentStyle="clickable"
         onClick={() => alert('clicked card')}
       >
         <Subtitle
@@ -135,26 +147,24 @@ function Connection({
             connectionTitleStyles,
             connection.favorite && connection.favorite.color
               ? css({
-                color: connection.favorite.color
-              })
-              : null
+                  color: connection.favorite.color,
+                })
+              : null,
           ]}
-          title={connectionTitle}>
+          title={connectionTitle}
+        >
           {connectionTitle}
         </Subtitle>
         {connection.lastUsed && (
           <Description css={connectionDescriptionStyles}>
-            {connection.lastUsed.toLocaleString()}
+            {connection.lastUsed.toLocaleString('default', dateConfig)}
           </Description>
         )}
       </Button>
-      <IconButton
-        css={dropdownButtonStyles}
-        onClick={() => alert('open menu')}
-      >
-        {/* TODO: Is vertical okay? It's currently horizontal */}
-        <Icon glyph="VerticalEllipsis" />
-      </IconButton>
+      <ConnectionMenu
+        onClickDuplicate={() => alert('duplicate')}
+        onClickRemove={() => alert('remove')}
+      />
     </div>
   );
 }

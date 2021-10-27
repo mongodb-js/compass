@@ -19,22 +19,23 @@ const formContainerStyles = css({
   margin: 0,
   marginTop: 0,
   padding: spacing[4],
+  paddingRight: 0,
   paddingTop: spacing[5],
   height: 'fit-content',
   width: '100%',
   minWidth: 360,
-  maxWidth: 800,
+  maxWidth: 760,
   position: 'relative',
-  display: 'inline-block'
+  display: 'inline-block',
 });
 
 const formCardStyles = css({
   margin: 0,
   marginTop: spacing[6],
-  padding: spacing[3],
+  padding: spacing[2],
   height: 'fit-content',
   width: '100%',
-  position: 'relative'
+  position: 'relative',
 });
 
 const logoStyles = css({
@@ -63,7 +64,6 @@ function ConnectForm({
 }: {
   initialConnectionInfo: ConnectionInfo;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
-  openLink: (url: string) => void;
 }): React.ReactElement {
   const [connectionString, setConnectionString] = useState(
     initialConnectionInfo.connectionOptions.connectionString

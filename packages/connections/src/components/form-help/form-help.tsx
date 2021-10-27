@@ -14,20 +14,20 @@ import {
 const formHelpContainerStyles = css({
   position: 'relative',
   margin: spacing[4],
-  // marginTop: spacing[7],
-  // verticalAlign: 'top',
   minWidth: 200,
   maxWidth: 400,
-  display: 'inline-block'
+  display: 'inline-block',
 });
 
 const atlasContainerStyles = css({
   backgroundColor: uiColors.green.light3,
-  padding: spacing[4],
+  paddingBottom: spacing[4],
 });
 
 const sectionContainerStyles = css({
+  margin: 0,
   padding: spacing[4],
+  paddingBottom: 0,
 });
 
 const titleStyles = css({
@@ -58,7 +58,7 @@ const createClusterButtonStyles = css({
 function FormHelp(): React.ReactElement {
   return (
     <div css={formHelpContainerStyles}>
-      <div css={[atlasContainerStyles, sectionContainerStyles]}>
+      <div css={[sectionContainerStyles, atlasContainerStyles]}>
         <Subtitle css={titleStyles}>
           New to Compass and don&apos;t have a cluster?
         </Subtitle>
@@ -85,12 +85,30 @@ function FormHelp(): React.ReactElement {
       </div>
       <div css={sectionContainerStyles}>
         <Subtitle css={titleStyles}>
-          How do I find my username and password?
+          How do I find my connection string in Atlas?
         </Subtitle>
         <Description css={descriptionStyles}>
-          If your mongod instance has authentication set up, you&apos;ll need
-          the credentials of the MongoDB user that is configured on the project.
+          If you have an Atlas cluster, go to the Cluster view. Click the
+          &apos;Connect&apos; button for the cluster to which you wish to
+          connect.
         </Description>
+        <Link
+          href="https://docs.atlas.mongodb.com/compass-connection/"
+          target="_blank"
+        >
+          See example
+        </Link>
+      </div>
+      <div css={sectionContainerStyles}>
+        <Subtitle css={titleStyles}>
+          How do I format my connection string?
+        </Subtitle>
+        <Link
+          href="https://docs.mongodb.com/manual/reference/connection-string/"
+          target="_blank"
+        >
+          See example
+        </Link>
       </div>
     </div>
   );

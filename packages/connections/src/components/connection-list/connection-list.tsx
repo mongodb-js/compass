@@ -15,10 +15,11 @@ import {
 import { ConnectionInfo } from 'mongodb-data-service';
 
 import Connection from './connection';
-import { ButtonVariant } from '@mongodb-js/compass-components';
 
 const initialSidebarWidth = 250;
 const minSidebarWidth = 150;
+
+const slateBlueColor = '#001E2B';
 
 const listContainerStyles = css({
   display: 'flex',
@@ -29,16 +30,15 @@ const listContainerStyles = css({
   minWidth: minSidebarWidth,
   height: '100%',
   position: 'relative',
-  background: uiColors.gray.dark2,
+  background: slateBlueColor,
   color: 'white',
 });
 
 const newConnectionButtonContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  padding: spacing[2],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  padding: spacing[3],
+  background: uiColors.gray.dark3,
   position: 'relative',
 });
 
@@ -66,7 +66,7 @@ const sectionHeaderIconStyles = css({
 const connectionListSectionStyles = css({
   overflowY: 'scroll',
   padding: 0,
-  paddingBottom: spacing[3]
+  paddingBottom: spacing[3],
 });
 
 function getMaxSidebarWidth() {
@@ -100,7 +100,7 @@ function ConnectionList({
           darkMode
           onClick={() => alert('new connection')}
           leftGlyph={<Icon glyph="Plus" />}
-          variant={ButtonVariant.PrimaryOutline}
+          // variant={ButtonVariant.PrimaryOutline}
         >
           New Connection
         </Button>
@@ -123,11 +123,9 @@ function ConnectionList({
             />
           ))}
         <div css={sectionHeaderStyles}>
+          {/* There is no leafygreen replacement for this icon */}
           <i className="fa fa-fw fa-history" css={sectionHeaderIconStyles} />
-          <Subtitle css={sectionHeaderTitleStyles}>
-            {/* There is no leafygreen replacement for this icon */}
-            Recents
-          </Subtitle>
+          <Subtitle css={sectionHeaderTitleStyles}>Recents</Subtitle>
         </div>
         {connections
           .filter((connection) => !connection.favorite)

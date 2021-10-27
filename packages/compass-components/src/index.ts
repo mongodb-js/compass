@@ -24,6 +24,7 @@ export {
   MongoDBLogoMark,
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
+export { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 export { uiColors } from '@leafygreen-ui/palette';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
@@ -33,5 +34,12 @@ export { default as TextInput } from '@leafygreen-ui/text-input';
 export { default as Toggle } from '@leafygreen-ui/toggle';
 export { spacing } from '@leafygreen-ui/tokens';
 export { default as Tooltip } from '@leafygreen-ui/tooltip';
-export { H2, H3, Link, Subtitle, Label, Description } from '@leafygreen-ui/typography';
+export {
+  H2,
+  H3,
+  Link,
+  Subtitle,
+  Label,
+  Description,
+} from '@leafygreen-ui/typography';
 export { CancelLoader, ConfirmationModal, ResizeHandle, ResizeDirection };
