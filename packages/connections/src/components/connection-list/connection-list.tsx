@@ -36,7 +36,7 @@ const listContainerStyles = css({
 const newConnectionButtonContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  padding: 0,
+  padding: spacing[2],
   paddingLeft: spacing[3],
   paddingRight: spacing[3],
   position: 'relative',
@@ -44,7 +44,7 @@ const newConnectionButtonContainerStyles = css({
 
 const sectionHeaderStyles = css({
   marginTop: spacing[3],
-  paddingLeft: spacing[1],
+  paddingLeft: spacing[3],
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
@@ -55,9 +55,9 @@ const sectionHeaderTitleStyles = css({
   flexGrow: 1,
 });
 
-const seachHeaderIconSize = spacing[3];
+const sectionHeaderIconSize = spacing[3];
 const sectionHeaderIconStyles = css({
-  fontSize: seachHeaderIconSize,
+  fontSize: sectionHeaderIconSize,
   margin: 0,
   marginRight: spacing[2],
   padding: 0,
@@ -65,8 +65,8 @@ const sectionHeaderIconStyles = css({
 
 const connectionListSectionStyles = css({
   overflowY: 'scroll',
-  padding: spacing[3],
-  paddingTop: 0,
+  padding: 0,
+  paddingBottom: spacing[3]
 });
 
 function getMaxSidebarWidth() {
@@ -110,7 +110,7 @@ function ConnectionList({
           <Icon
             css={sectionHeaderIconStyles}
             glyph="Favorite"
-            size={seachHeaderIconSize}
+            size={sectionHeaderIconSize}
           />
           <Subtitle css={sectionHeaderTitleStyles}>Favorites</Subtitle>
         </div>

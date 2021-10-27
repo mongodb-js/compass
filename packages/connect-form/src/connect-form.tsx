@@ -21,6 +21,7 @@ const formContainerStyles = css({
 
 const formCardStyles = css({
   margin: 0,
+  marginTop: spacing[4],
   padding: spacing[4],
   height: 'fit-content',
   width: '100%',
@@ -36,8 +37,9 @@ function ConnectForm({
 }): React.ReactElement {
   return (
     <div css={formContainerStyles}>
+      <H2>New Connection</H2>
       <Card css={formCardStyles}>
-        <H2>New Connection</H2>
+
         <div>
           <Button variant={ButtonVariant.Primary} onClick={onConnectClicked}>
             Connect

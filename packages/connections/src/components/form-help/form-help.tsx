@@ -16,6 +16,7 @@ const formHelpContainerStyles = css({
   margin: spacing[4],
   minWidth: 200,
   maxWidth: 400,
+  display: 'inline-block'
 });
 
 const atlasContainerStyles = css({

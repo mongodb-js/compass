@@ -26,7 +26,7 @@ const formContainerStyles = css({
 });
 
 const mockRecents: ConnectionInfo[] = [];
-for (let i = 0; i < 25; i++) {
+for (let i = 0; i < 5; i++) {
   mockRecents.push({
     connectionOptions: {
       connectionString: `localhost:2${5000 + Math.floor(Math.random() * 5000)}`,
