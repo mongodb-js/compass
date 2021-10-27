@@ -1,10 +1,10 @@
 import Analytics from 'analytics-node';
 import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
-import { createLogger } from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { CompassApplication } from './application';
 
-const { log, mongoLogId, debug } = createLogger('COMPASS-TELEMETRY');
+const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-TELEMETRY');
 
 interface EventInfo {
   event: string;
@@ -102,6 +102,11 @@ class CompassTelemetry {
     ipcMain.respondTo('compass:usage:disabled', () => {
       log.info(mongoLogId(1_001_000_095), 'Telemetry', 'Disabling Telemetry reporting');
       this.state = 'disabled';
+    });
+
+    // only used in tests
+    ipcMain.respondTo('compass:usage:flush', () => {
+      this.analytics?.flush();
     });
 
     if (telemetryCapableEnvironment) {

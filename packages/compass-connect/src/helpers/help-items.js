@@ -3,8 +3,8 @@
 import React from 'react';
 import Actions from '../actions';
 
-import createLogger from '@mongodb-js/compass-logging';
-const { track } = createLogger('COMPASS-CONNECT-UI');
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
 import {
   CONNECTION_FORM_VIEW,

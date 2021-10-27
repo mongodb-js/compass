@@ -5,7 +5,8 @@ const path = require('path');
 const Plugin = require('./plugin');
 const Action = require('./action');
 
-const debug = require('debug')('hadron-plugin-manager:manager');
+const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
+const { debug, track } = createLoggerAndTelemetry('COMPASS-PLUGINS');
 
 /**
  * Manages plugins in the application.
@@ -67,6 +68,7 @@ class PluginManager {
 
   async _loadPlugin(pluginPath, apiVersion) {
     debug('Loading plugin from path', pluginPath);
+    track('External Plugin Loaded');
     try {
       const plugin = new Plugin(pluginPath, apiVersion);
       this.plugins.push(plugin);

@@ -20,15 +20,21 @@ export { default as Checkbox } from '@leafygreen-ui/checkbox';
 export { default as Icon } from '@leafygreen-ui/icon';
 export { default as IconButton } from '@leafygreen-ui/icon-button';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
-export { AtlasLogoMark, LogoMark } from '@leafygreen-ui/logo';
+export {
+  AtlasLogoMark,
+  MongoDBLogoMark,
+  MongoDBLogo,
+} from '@leafygreen-ui/logo';
+export { uiColors } from '@leafygreen-ui/palette';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
 export { Tabs, Tab } from '@leafygreen-ui/tabs';
+export { default as TextArea } from '@leafygreen-ui/text-area';
 export { default as TextInput } from '@leafygreen-ui/text-input';
 export { default as Toggle } from '@leafygreen-ui/toggle';
 export { spacing } from '@leafygreen-ui/tokens';
 export { default as Tooltip } from '@leafygreen-ui/tooltip';
-export { H2, Link } from '@leafygreen-ui/typography';
+export { H3, Link, Description, Label } from '@leafygreen-ui/typography';
 
 export {
   CancelLoader,

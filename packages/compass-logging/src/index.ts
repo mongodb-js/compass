@@ -17,11 +17,11 @@ function emit(
   }
 }
 
-export function createLogger(component: string): {
+export function createLoggerAndTelemetry(component: string): {
   log: ReturnType<MongoLogWriter['bindComponent']>;
   mongoLogId: typeof mongoLogId;
   debug: ReturnType<typeof createDebug>;
-  track: (event: string, properties: Record<string, any>) => void;
+  track: (event: string, properties?: Record<string, any>) => void;
 } {
   // This application may not be running in an Node.js/Electron context.
   const ipc: HadronIpcRenderer | null = isElectronRenderer
@@ -43,7 +43,7 @@ export function createLogger(component: string): {
   } as Writable;
   const writer = new MongoLogWriter('', null, target);
 
-  const track = (event: string, properties: Record<string, any>): void => {
+  const track = (event: string, properties: Record<string, any> = {}): void => {
     emit(ipc, 'compass:track', { event, properties });
   };
 
@@ -63,4 +63,4 @@ export function createLogger(component: string): {
   };
 }
 
-export default createLogger;
+export default createLoggerAndTelemetry;

@@ -12,11 +12,13 @@ import { createReadableCollectionStream } from '../utils/collection-stream';
 
 const createProgressStream = require('progress-stream');
 
-import createLogger from '@mongodb-js/compass-logging';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { createCSVFormatter, createJSONFormatter } from '../utils/formatters';
 import { loadFields, getSelectableFields } from './load-fields';
 
-const { log, mongoLogId, debug } = createLogger('COMPASS-IMPORT-EXPORT-UI');
+const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
+  'COMPASS-IMPORT-EXPORT-UI'
+);
 
 const PREFIX = 'import-export/export';
 
@@ -367,6 +369,7 @@ const fetchDocumentCount = async(dataService, ns, query) => {
  */
 export const openExport = (count) => {
   return async(dispatch, getState) => {
+    track('Export Opened');
     const {
       ns,
       exportData,
@@ -490,6 +493,15 @@ export const startExport = () => {
     debug('executing pipeline');
     dispatch(onStarted(source, dest, numDocsToExport));
     stream.pipeline(source, progress, formatter, dest, function(err) {
+      track('Export Completed', {
+        all_docs: exportData.isFullCollection,
+        file_type: exportData.fileType,
+        all_fields: Object.values(exportData.fields).every(
+          (checked) => checked === 1
+        ),
+        number_of_docs: numDocsToExport,
+        success: !err,
+      });
       if (err) {
         log.error(mongoLogId(1001000085), 'Export', 'Export failed', {
           ns,

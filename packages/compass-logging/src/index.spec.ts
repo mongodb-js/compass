@@ -1,10 +1,10 @@
-import createLogger from './';
+import createLoggerAndTelemetry from './';
 import { once } from 'events';
 import { expect } from 'chai';
 
-describe('createLogger', function () {
+describe('createLoggerAndTelemetry', function () {
   it('creates a logger that forwards log lines as events', async function () {
-    const { log, mongoLogId } = createLogger('COMPONENT');
+    const { log, mongoLogId } = createLoggerAndTelemetry('COMPONENT');
     const logevent = once(process, 'compass:log');
 
     log.info(mongoLogId(12345), 'ctx', 'message', { attr: 42 });
@@ -19,8 +19,8 @@ describe('createLogger', function () {
   });
 
   it('logs events from the same tick from multiple loggers in-order', function () {
-    const log1 = createLogger('C1');
-    const log2 = createLogger('C1');
+    const log1 = createLoggerAndTelemetry('C1');
+    const log2 = createLoggerAndTelemetry('C1');
 
     const log: any[] = [];
     process.on('compass:log', ({ line }) => log.push(JSON.parse(line).msg));

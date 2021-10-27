@@ -464,7 +464,8 @@ describe('store', function() {
       it('updates the document in the list', (done) => {
         const unsubscribe = store.listen((state) => {
           expect(state.docs[0]).to.not.equal(hadronDoc);
-          expect(state.docs[0].elements.at(2).key === 'new field');
+          expect(state.docs[0]).to.have.property('elements');
+          expect(state.docs[0].elements.at(2).key).to.equal('new field');
           unsubscribe();
           // Ensure we have enough time for update-blocked or update-error to be called.
           setTimeout(() => done(), 100);

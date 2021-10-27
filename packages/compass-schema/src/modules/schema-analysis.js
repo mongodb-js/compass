@@ -1,7 +1,7 @@
 import util from 'util';
 
-import createLogger from '@mongodb-js/compass-logging';
-const { log, mongoLogId, debug } = createLogger('COMPASS-SCHEMA');
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-SCHEMA');
 
 import mongodbSchema from 'mongodb-schema';
 const analyzeDocuments = util.promisify(mongodbSchema);
