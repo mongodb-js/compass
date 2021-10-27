@@ -699,5 +699,47 @@ describe('LegacyConnectionModel', function () {
 
       expect(connectionModel.sslMethod).to.equal('UNVALIDATED');
     });
+
+    it('converts ssh (USER_PASSWORD)', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+          sshTunnel: {
+            host: 'jumphost',
+            port: 22,
+            username: 'root',
+            password: 'password',
+          },
+        },
+      });
+
+      expect(connectionModel.sshTunnel).to.equal('USER_PASSWORD');
+      expect(connectionModel.sshTunnelHostname).to.equal('jumphost');
+      expect(connectionModel.sshTunnelPort).to.equal(22);
+      expect(connectionModel.sshTunnelUsername).to.equal('root');
+      expect(connectionModel.sshTunnelPassword).to.equal('password');
+    });
+
+    it('converts ssh (IDENTITY_FILE)', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+          sshTunnel: {
+            host: 'jumphost',
+            port: 22,
+            identityKeyFile: 'myfile',
+            username: 'root',
+            identityKeyPassphrase: 'passphrase',
+          },
+        },
+      });
+
+      expect(connectionModel.sshTunnel).to.equal('IDENTITY_FILE');
+      expect(connectionModel.sshTunnelHostname).to.equal('jumphost');
+      expect(connectionModel.sshTunnelPort).to.equal(22);
+      expect(connectionModel.sshTunnelUsername).to.equal('root');
+      expect(connectionModel.sshTunnelIdentityFile).to.equal('myfile');
+      expect(connectionModel.sshTunnelPassphrase).to.equal('passphrase');
+    });
   });
 });
