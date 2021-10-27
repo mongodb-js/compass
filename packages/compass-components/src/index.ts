@@ -1,5 +1,6 @@
 import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
+import FileInput from './components/file-input';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 export {
   default as Badge,
@@ -29,4 +30,10 @@ export { spacing } from '@leafygreen-ui/tokens';
 export { default as Tooltip } from '@leafygreen-ui/tooltip';
 export { H2, Link } from '@leafygreen-ui/typography';
 
-export { CancelLoader, ConfirmationModal, ResizeHandle, ResizeDirection };
+export {
+  CancelLoader,
+  ConfirmationModal,
+  FileInput,
+  ResizeHandle,
+  ResizeDirection,
+};

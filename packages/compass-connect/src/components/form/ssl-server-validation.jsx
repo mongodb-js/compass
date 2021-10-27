@@ -3,8 +3,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 
+import { FileInput } from '@mongodb-js/compass-components';
+
 import Actions from '../../actions';
-import FormFileInput from './form-file-input';
 
 import styles from '../connect.module.less';
 
@@ -43,7 +44,7 @@ class SSLServerValidation extends React.Component {
       <div
         id="ssl-server-validation"
         className={classnames(styles['form-group'])}>
-        <FormFileInput
+        <FileInput
           label="Certificate Authority"
           changeHandler={this.onSSLCAChanged.bind(this)}
           values={this.props.connectionModel.sslCA}

@@ -4,9 +4,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 
+import { FileInput } from '@mongodb-js/compass-components';
+
 import Actions from '../../actions';
 import FormInput from './form-input';
-import FormFileInput from './form-file-input';
 
 import styles from '../connect.module.less';
 
@@ -113,7 +114,7 @@ class SSLServerClientValidation extends React.Component {
         id="ssl-server-client-validation"
         className={classnames(styles['form-group'])}
       >
-        <FormFileInput
+        <FileInput
           label="Certificate Authority"
           id="sslCA"
           error={this.getCertAuthError()}
@@ -121,7 +122,7 @@ class SSLServerClientValidation extends React.Component {
           values={this.props.connectionModel.sslCA}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities"
         />
-        <FormFileInput
+        <FileInput
           label="Client Certificate"
           id="sslCert"
           error={this.getClientCertError()}
@@ -129,7 +130,7 @@ class SSLServerClientValidation extends React.Component {
           values={this.props.connectionModel.sslCert}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file"
         />
-        <FormFileInput
+        <FileInput
           label="Client Private Key"
           id="sslKey"
           error={this.getClientKeyError()}
