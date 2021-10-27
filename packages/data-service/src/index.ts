@@ -1,5 +1,6 @@
 import connect from './connect';
 import { getConnectionTitle } from './connection-title';
+import { ConnectionInfo } from './connection-info';
 import DataService from './data-service';
 import {
   convertConnectionModelToInfo,
@@ -7,6 +8,7 @@ import {
 } from './legacy/legacy-connection-model';
 
 export {
+  ConnectionInfo,
   DataService,
   connect,
   getConnectionTitle,
