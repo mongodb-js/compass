@@ -29,6 +29,7 @@ describe('connection secrets', function () {
         password: 'xxx',
         awsSessionToken: 'xxx',
         sshTunnelPassphrase: 'xxx',
+        tlsCertificateKeyFilePassword: 'xxx',
       });
 
       expect(newConnectionInfo).to.not.equal(originalConnectionInfo);
@@ -66,12 +67,13 @@ describe('connection secrets', function () {
         awsSessionToken: 'sessionToken',
         password: 'userPassword',
         sshTunnelPassphrase: 'passphrase',
+        tlsCertificateKeyFilePassword: 'tlsCertPassword',
       });
 
       expect(newConnectionInfo).to.be.deep.equal({
         connectionOptions: {
           connectionString:
-            'mongodb://username:userPassword@localhost:27017/?authMechanismProperties=AWS_SESSION_TOKEN%3AsessionToken',
+            'mongodb://username:userPassword@localhost:27017/?tlsCertificateKeyFilePassword=tlsCertPassword&authMechanismProperties=AWS_SESSION_TOKEN%3AsessionToken',
           sshTunnel: {
             host: 'localhost',
             username: 'user',
@@ -128,7 +130,7 @@ describe('connection secrets', function () {
       const originalConnectionInfo: ConnectionInfo = {
         connectionOptions: {
           connectionString:
-            'mongodb://username:userPassword@localhost:27017/?authMechanismProperties=AWS_SESSION_TOKEN%3AsessionToken',
+            'mongodb://username:userPassword@localhost:27017/?tlsCertificateKeyFilePassword=tlsCertPassword&authMechanismProperties=AWS_SESSION_TOKEN%3AsessionToken',
           sshTunnel: {
             host: 'localhost',
             username: 'user',
@@ -157,6 +159,7 @@ describe('connection secrets', function () {
         awsSessionToken: 'sessionToken',
         password: 'userPassword',
         sshTunnelPassphrase: 'passphrase',
+        tlsCertificateKeyFilePassword: 'tlsCertPassword',
       } as ConnectionSecrets);
     });
   });
