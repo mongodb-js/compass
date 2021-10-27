@@ -27,69 +27,10 @@ describe('SSLServerValidation [Component]', () => {
 
       it('renders the file button', () => {
         const fileButtonText = component
-          .find(`.${styles['form-item']} button`)
+          .find('#ssl-server-validation button')
           .text();
 
         expect(fileButtonText).to.equal('file');
-      });
-    });
-
-    context('when the form is invalid', () => {
-      context('when the sslCA is empty', () => {
-        const connection = { sslCA: [] };
-        let component;
-
-        beforeEach(() => {
-          component = mount(
-            <SSLServerValidation connectionModel={connection} />
-          );
-        });
-
-        afterEach(() => {
-          component = null;
-        });
-
-        it('renders the error class', () => {
-          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
-        });
-      });
-
-      context('when the sslCA is null', () => {
-        const connection = { sslCA: null };
-        let component;
-
-        beforeEach(() => {
-          component = mount(
-            <SSLServerValidation connectionModel={connection} />
-          );
-        });
-
-        afterEach(() => {
-          component = null;
-        });
-
-        it('renders the error class', () => {
-          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
-        });
-      });
-
-      context('when the sslCA is undefined', () => {
-        const connection = {};
-        let component;
-
-        beforeEach(() => {
-          component = mount(
-            <SSLServerValidation connectionModel={connection} />
-          );
-        });
-
-        afterEach(() => {
-          component = null;
-        });
-
-        it('renders the error class', () => {
-          expect(component.find(`.${styles['form-item-has-error']}`)).to.be.present();
-        });
       });
     });
   });
