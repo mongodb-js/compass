@@ -9,7 +9,6 @@ import Actions from '../../actions';
 import FormInput from './form-input';
 import FormGroup from './form-group';
 
-
 class SSHTunnelIdentityFileValidation extends React.Component {
   static displayName = 'SSHTunnelIdentityFileValidation';
 

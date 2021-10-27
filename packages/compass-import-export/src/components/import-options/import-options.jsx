@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import { FileInput } from '@mongodb-js/compass-components';
 
-
 import FILE_TYPES from '../../constants/file-types';
 import SelectFileType from '../select-file-type';
 
@@ -52,7 +51,6 @@ class ImportOptions extends PureComponent {
           values={values}
           variant="VERTICAL"
         />
-
         <SelectFileType
           fileType={this.props.fileType}
           onSelected={this.props.selectImportFileType}

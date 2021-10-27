@@ -72,6 +72,11 @@ export enum Variant {
   Vertical = 'VERTICAL',
 }
 
+// https://www.electronjs.org/docs/latest/api/file-object
+interface FileWithPath extends File {
+  path: string;
+}
+
 function FileInput({
   id,
   label,
@@ -105,8 +110,7 @@ function FileInput({
     (evt) => {
       const fileList = Array.from(evt.currentTarget.files as FileList);
       const files = fileList.map((file) => {
-        console.log(file, Object.keys(file));
-        return file.path;
+        return (file as FileWithPath).path;
       });
       changeHandler(files);
     },
