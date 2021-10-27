@@ -113,10 +113,13 @@ export async function getInstance(
     runCommand(adminDb, { listDatabases: 1, nameOnly: true }).catch(
       ignoreNotAuthorized(null)
     ),
+    // This command is only here to get data for the logs and telemetry, if it
+    // failed (e.g., not authorised or not supported) we should just ignore the
+    // failure
     runCommand<{ featureCompatibilityVersion: { version: string } }>(adminDb, {
       getParameter: 1,
       featureCompatibilityVersion: 1,
-    }).catch(ignoreNotAuthorized(null)),
+    }).catch(() => null),
   ]);
 
   const databases = await fetchDatabases(
