@@ -741,5 +741,26 @@ describe('LegacyConnectionModel', function () {
       expect(connectionModel.sshTunnelIdentityFile).to.equal('myfile');
       expect(connectionModel.sshTunnelPassphrase).to.equal('passphrase');
     });
+
+    it('strips out MONGODB-AWS but keeps it in connectionInfo and secrets', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString:
+            'mongodb://username@localhost:27017/?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN%3AsessionToken',
+        },
+      });
+
+      expect(connectionModel.authStrategy).to.equal('NONE');
+      expect(
+        connectionModel.connectionInfo.connectionOptions.connectionString
+      ).to.equal(
+        'mongodb://username@localhost:27017/?authMechanism=MONGODB-AWS'
+      );
+
+      expect(connectionModel.secrets.awsSessionToken).to.equal('sessionToken');
+      expect(connectionModel.driverUrlWithSsh).to.equal(
+        'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true'
+      );
+    });
   });
 });

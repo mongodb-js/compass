@@ -329,7 +329,7 @@ export async function convertConnectionInfoToModel(
 ): Promise<LegacyConnectionModel> {
   const connection: LegacyConnectionModel = await util.promisify(
     ConnectionModel.from
-  )(connectionInfo.connectionOptions.connectionString);
+  )(removeAWSParams(connectionInfo.connectionOptions.connectionString));
 
   const additionalOptions: Partial<LegacyConnectionModelProperties> = {
     _id: connectionInfo.id,
@@ -439,4 +439,19 @@ function optionsToSslMethod(options: ConnectionOptions): SslMethod {
   }
 
   return 'SYSTEMCA';
+}
+
+// NOTE: MONGODB-AWS was not supported by the old connection model
+// users will now be able to use that, we need to remove it so saving
+// connection won't fail and MONGODB-AWS connections will appear
+// as unauthenticated.
+function removeAWSParams(connectionString: string): string {
+  const url = new ConnectionString(connectionString);
+
+  if (url.searchParams.get('authMechanism') === 'MONGODB-AWS') {
+    url.searchParams.delete('authMechanism');
+    url.searchParams.delete('authMechanismProperties');
+  }
+
+  return url.href;
 }
