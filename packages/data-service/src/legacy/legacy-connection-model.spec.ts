@@ -600,5 +600,23 @@ describe.only('LegacyConnectionModel', function () {
       expect(connectionModel.mongodbUsername).to.equal('user');
       expect(connectionModel.mongodbPassword).to.equal('password');
     });
+
+    it('converts X509', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://user@localhost:27017/?authMechanism=MONGODB-X509&tls=true&tlsCertificateKeyFile=file.pem&authSource=$external',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('X509');
+      expect(connectionModel.sslMethod).to.equal('ALL');
+      expect(connectionModel.ssl).to.equal(true);
+      expect(connectionModel.sslKey).to.equal('file.pem');
+    });
   });
 });

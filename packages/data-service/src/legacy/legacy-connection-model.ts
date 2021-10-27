@@ -17,6 +17,14 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ConnectionModel = require('mongodb-connection-model');
 
+type SslMethod =
+  | 'NONE'
+  | 'SYSTEMCA'
+  | 'IFAVAILABLE'
+  | 'UNVALIDATED'
+  | 'SERVER'
+  | 'ALL';
+
 export interface LegacyConnectionModelProperties {
   _id: string;
   hostname: string;
@@ -91,13 +99,8 @@ export interface LegacyConnectionModelProperties {
   x509Username?: string;
 
   ssl?: any;
-  sslMethod:
-    | 'NONE'
-    | 'SYSTEMCA'
-    | 'IFAVAILABLE'
-    | 'UNVALIDATED'
-    | 'SERVER'
-    | 'ALL';
+  sslMethod: SslMethod;
+
   sslCA?: string[];
   sslCert?: any;
   sslKey?: any;
@@ -375,49 +378,65 @@ function convertSslOptionsToLegacyProperties(
   properties: Partial<LegacyConnectionModelProperties>
 ): void {
   const url = new ConnectionString(options.connectionString);
-  const tlsAllowInvalidCertificates = url.searchParams.get(
-    'tlsAllowInvalidCertificates'
-  );
-  const tlsAllowInvalidHostnames = url.searchParams.get(
-    'tlsAllowInvalidHostnames'
-  );
   const tlsCAFile = url.searchParams.get('tlsCAFile');
   const tlsCertificateKeyFile = url.searchParams.get('tlsCertificateKeyFile');
   const tlsCertificateKeyFilePassword = url.searchParams.get(
     'tlsCertificateKeyFilePassword'
   );
 
-  if (tlsAllowInvalidCertificates === 'false' && tlsCAFile) {
-    properties.sslMethod = 'SERVER';
-    properties.sslCert = undefined;
-    properties.sslKey = undefined;
-
-    if (options.tlsCertificateFile || tlsCertificateKeyFile) {
-      properties.sslMethod = 'ALL';
-      properties.sslCert = options.tlsCertificateFile ?? tlsCertificateKeyFile;
-      properties.sslKey = tlsCertificateKeyFile ?? undefined;
-      properties.sslPass = tlsCertificateKeyFilePassword ?? undefined;
-    }
-  } else {
-    properties.sslCA = undefined;
-    properties.sslCert = undefined;
-    properties.sslKey = undefined;
-    properties.sslPass = undefined;
-    if (
-      tlsAllowInvalidCertificates === 'true' &&
-      tlsAllowInvalidHostnames === 'true'
-    ) {
-      properties.sslMethod = 'UNVALIDATED';
-    } else if (
-      tlsAllowInvalidCertificates === 'false' &&
-      tlsAllowInvalidHostnames === 'false'
-    ) {
-      properties.sslMethod = 'SYSTEMCA';
-    } else if (
-      tlsAllowInvalidCertificates === 'false' &&
-      tlsAllowInvalidHostnames === 'true'
-    ) {
-      properties.sslMethod = 'IFAVAILABLE';
-    }
+  if (tlsCAFile) {
+    properties.sslCA = tlsCAFile;
   }
+
+  if (tlsCertificateKeyFile) {
+    properties.sslKey = tlsCertificateKeyFile;
+  }
+
+  if (tlsCertificateKeyFilePassword) {
+    properties.sslPass = tlsCertificateKeyFilePassword;
+  }
+
+  if (options.tlsCertificateFile) {
+    properties.sslCert = options.tlsCertificateFile;
+  }
+
+  properties.sslMethod = optionsToSslMethod(options);
+}
+
+function optionsToSslMethod(options: ConnectionOptions): SslMethod {
+  const url = new ConnectionString(options.connectionString);
+  const tls = url.searchParams.get('tls') || url.searchParams.get('ssl');
+
+  const tlsAllowInvalidCertificates = url.searchParams.get(
+    'tlsAllowInvalidCertificates'
+  );
+  const tlsAllowInvalidHostnames = url.searchParams.get(
+    'tlsAllowInvalidHostnames'
+  );
+
+  const tlsInsecure = url.searchParams.get('tlsInsecure');
+  const tlsCAFile = url.searchParams.get('tlsCAFile');
+  const tlsCertificateKeyFile = url.searchParams.get('tlsCertificateKeyFile');
+
+  if (tls === 'false') {
+    return 'NONE';
+  }
+
+  if (tlsCertificateKeyFile || options.tlsCertificateFile) {
+    return 'ALL';
+  }
+
+  if (tlsCAFile) {
+    return 'SERVER';
+  }
+
+  if (
+    tlsInsecure === 'true' ||
+    (tlsAllowInvalidCertificates === 'true' &&
+      tlsAllowInvalidHostnames === 'true')
+  ) {
+    return 'UNVALIDATED';
+  }
+
+  return 'SYSTEMCA';
 }
