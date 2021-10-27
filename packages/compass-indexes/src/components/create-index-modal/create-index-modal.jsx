@@ -47,6 +47,8 @@ import { createIndex } from '../../modules/create-index';
 import { resetForm } from '../../modules/reset-form';
 
 import getIndexHelpLink from '../../utils/index-link-helper';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
 /**
  * Component for the create index modal.
@@ -104,6 +106,10 @@ class CreateIndexModal extends PureComponent {
     this.CollationSelect = global.hadronApp.appRegistry.getComponent(
       'Collation.Select'
     );
+  }
+
+  handleShow() {
+    track('Screen', { name: 'export_modal' });
   }
 
   /**
@@ -309,6 +315,7 @@ class CreateIndexModal extends PureComponent {
       <Modal show={this.props.isVisible}
         backdrop="static"
         dialogClassName={classnames(styles['create-index-modal'])}
+        onShow={this.handleShow.bind(this)}
         onHide={this.handleClose.bind(this)} >
 
         <Modal.Header>

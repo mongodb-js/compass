@@ -25,6 +25,7 @@ class CompassTelemetry {
   private static state: 'enabled' | 'disabled' | 'waiting-for-user-config' = 'waiting-for-user-config';
   private static queuedEvents: EventInfo[] = []; // Events that happen before we fetch user preferences
   private static currentUserId: string = '';
+  private static lastReportedScreen: string = '';
 
   private constructor() {
     // marking constructor as private to disallow usage
@@ -33,6 +34,8 @@ class CompassTelemetry {
   private static initPromise: Promise<void> | null = null;
 
   private static track(info: EventInfo) {
+    const compass_version = app.getVersion();
+
     if (this.state === 'waiting-for-user-config' || !this.currentUserId) {
       this.queuedEvents.push(info);
       return;
@@ -42,13 +45,25 @@ class CompassTelemetry {
       return;
     }
 
+    if (info.event === 'Screen') {
+      const { name, ...properties } = info.properties;
+      if (name === this.lastReportedScreen) {
+        return;
+      }
+
+      this.lastReportedScreen = name;
+      this.analytics.screen({
+        userId: this.currentUserId,
+        name,
+        properties: { ...properties, compass_version }
+      });
+      return;
+    }
+
     this.analytics.track({
       userId: this.currentUserId,
       event: info.event,
-      properties: {
-        ...info.properties,
-        compass_version: app.getVersion()
-      }
+      properties: { ...info.properties, compass_version }
     });
   }
 

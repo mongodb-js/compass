@@ -595,6 +595,7 @@ describe('Smoke tests', function () {
         number_of_docs: 1,
         success: true,
       });
+      expect(telemetry.screens()).to.include('export_modal');
     });
 
     it('supports full collection to CSV');

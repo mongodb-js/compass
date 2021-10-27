@@ -76,6 +76,7 @@ class ImportPipeline extends PureComponent {
         onCancel={this.props.closeImport}
         buttonText="Create New"
         submitDisabled={this.props.text === ''}
+        trackingId="import_pipeline_modal"
       >
         <div className={styles['import-pipeline-note']}>
           {NOTE}
