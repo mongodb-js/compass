@@ -352,8 +352,10 @@ describe('LegacyConnectionModel', function () {
     });
 
     it('converts favorite and history properties', async function () {
+      const id = '1234-1234-1234-1234';
       const lastUsed = new Date();
       const connectionInfo: ConnectionInfo = {
+        id,
         connectionOptions: {
           connectionString: 'mongodb://localhost:27017',
         },
@@ -368,6 +370,7 @@ describe('LegacyConnectionModel', function () {
         connectionInfo
       );
 
+      expect(connectionModel._id).to.equal(id);
       expect(connectionModel.isFavorite).to.equal(true);
       expect(connectionModel.color).to.equal('blue');
       expect(connectionModel.name).to.equal('Local');
