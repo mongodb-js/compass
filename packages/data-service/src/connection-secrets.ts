@@ -88,9 +88,9 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
   }
 
   if (uri.searchParams.has(TLS_CERTIFICATE_KEY_FILE_PASSWORD_PARAM)) {
-    secrets.tlsCertificateKeyFilePassword = uri.searchParams.get(
-      TLS_CERTIFICATE_KEY_FILE_PASSWORD_PARAM
-    );
+    secrets.tlsCertificateKeyFilePassword =
+      uri.searchParams.get(TLS_CERTIFICATE_KEY_FILE_PASSWORD_PARAM) ||
+      undefined;
     uri.searchParams.delete(TLS_CERTIFICATE_KEY_FILE_PASSWORD_PARAM);
   }
 

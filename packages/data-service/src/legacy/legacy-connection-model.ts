@@ -385,7 +385,7 @@ function convertSslOptionsToLegacyProperties(
   );
 
   if (tlsCAFile) {
-    properties.sslCA = tlsCAFile;
+    properties.sslCA = [tlsCAFile];
   }
 
   if (tlsCertificateKeyFile) {
