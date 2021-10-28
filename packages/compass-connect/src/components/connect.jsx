@@ -20,6 +20,9 @@ import {
 } from '../constants/connection-views';
 import styles from './connect.module.less';
 
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
+
 class Connect extends React.Component {
   static displayName = 'Connect';
 
@@ -38,6 +41,7 @@ class Connect extends React.Component {
 
   componentDidMount() {
     document.title = `${remote.app.getName()} - Connect`;
+    track('Screen', { name: 'connect' });
   }
 
   /**

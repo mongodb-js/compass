@@ -44,6 +44,9 @@ import styles from './export-modal.module.less';
 import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'export-modal');
 
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
+
 /**
  * TODO: lucas: When import complete, maybe:
  * 1. hide “cancel” and replace “import” with “done”?
@@ -123,6 +126,10 @@ class ExportModal extends PureComponent {
    */
   handleCancel = () => {
     this.props.cancelExport();
+  };
+
+  handleShow = () => {
+    track('Screen', { name: 'export_modal' });
   };
 
   /**
@@ -336,7 +343,7 @@ class ExportModal extends PureComponent {
         : 'Cancel';
 
     return (
-      <Modal show={this.props.open} onHide={this.handleClose} backdrop="static" data-test-id="export-modal">
+      <Modal show={this.props.open} onShow={this.handleShow} onHide={this.handleClose} backdrop="static" data-test-id="export-modal">
         <Modal.Header closeButton>
           Export Collection {this.props.ns}
         </Modal.Header>

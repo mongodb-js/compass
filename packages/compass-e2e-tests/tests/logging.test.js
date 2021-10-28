@@ -76,6 +76,10 @@ describe('Logging and Telemetry integration', function () {
           .find((entry) => entry.event === 'Shell New Connection');
         expect(shellNewConnection.properties.is_localhost).to.equal(true);
       });
+
+      it('contains calls for screens that were accessed', function () {
+        expect(telemetry.screens()).to.include('databases');
+      });
     });
 
     describe('log events for the critical path', function () {

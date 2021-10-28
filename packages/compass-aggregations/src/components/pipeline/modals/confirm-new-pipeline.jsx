@@ -54,6 +54,7 @@ class ConfirmNewPipeline extends PureComponent {
         onConfirm={this.onConfirm}
         onCancel={this.onClose}
         buttonText="Confirm"
+        trackingId="confirm_new_pipeline_modal"
       >
         <div className={styles['confirm-new-pipeline-note']}>
           {NOTE}

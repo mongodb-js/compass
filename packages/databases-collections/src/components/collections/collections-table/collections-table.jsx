@@ -11,6 +11,8 @@ import {
   TIME_SERIES_COLLECTION_TYPE,
   VIEW_COLLECTION_TYPE
 } from '../../../modules/collections/collections';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-COLLECTIONS-UI');
 
 /**
  * The name constant.
@@ -65,6 +67,10 @@ class CollectionsTable extends PureComponent {
     sortColumn: PropTypes.string.isRequired,
     sortCollections: PropTypes.func.isRequired,
     showCollection: PropTypes.func.isRequired
+  }
+
+  componentDidMount() {
+    track('Screen', { name: 'collections' });
   }
 
   /**

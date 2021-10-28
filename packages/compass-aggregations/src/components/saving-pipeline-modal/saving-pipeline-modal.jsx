@@ -71,6 +71,7 @@ class SavingPipelineModal extends PureComponent {
         onCancel={this.props.savingPipelineCancel}
         buttonText="Save"
         submitDisabled={this.props.name === ''}
+        trackingId="save_pipeline_modal"
       >
         <form onSubmit={this.onSubmit.bind(this)}>
           <input

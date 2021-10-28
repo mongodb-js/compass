@@ -53,7 +53,8 @@
     "@leafygreen-ui/toggle": "^7.0.4",
     "@leafygreen-ui/tokens": "^0.5.3",
     "@leafygreen-ui/tooltip": "^6.2.2",
-    "@leafygreen-ui/typography": "^8.0.2"
+    "@leafygreen-ui/typography": "^8.0.2",
+    "@mongodb-js/compass-logging": "^0.3.0"
   },
   "peerDependencies": {
     "@emotion/react": "^11.4.1",

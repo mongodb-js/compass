@@ -187,7 +187,7 @@
     "@mongodb-js/tsconfig-compass": "^0.2.0",
     "@mongodb-js/webpack-config-compass": "^0.2.0",
     "@octokit/rest": "^18.5.3",
-    "@types/analytics-node": "^3.1.6",
+    "@types/analytics-node": "^3.1.7",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-router": "^3.0.2",
