@@ -104,6 +104,11 @@ class CompassTelemetry {
       this.state = 'disabled';
     });
 
+    // only used in tests
+    ipcMain.respondTo('compass:usage:flush', () => {
+      this.analytics?.flush();
+    });
+
     if (telemetryCapableEnvironment) {
       this.analytics = new Analytics(SEGMENT_API_KEY, { host: SEGMENT_HOST });
 

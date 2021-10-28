@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { connect } from 'react-redux';
 import {
-  LogoMark
+  MongoDBLogoMark
 } from '@mongodb-js/compass-components';
 
 import {
@@ -54,7 +54,7 @@ class SidebarTitle extends PureComponent {
         } : {}}
         className={styles['sidebar-title-logo']}
       >
-        <LogoMark
+        <MongoDBLogoMark
           darkMode
           knockout
         />

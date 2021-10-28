@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@external-plugins/example3": "file:./test/external-plugins/example3",
+    "@mongodb-js/compass-logging": "^0.3.0",
     "chai": "^3.4.1",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
