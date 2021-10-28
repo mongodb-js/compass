@@ -157,7 +157,7 @@ function FileInput({
         type="file"
         multiple={multi}
         onChange={onFilesChanged}
-        style={{ display: 'none' }}
+        //style={{ display: 'none' }}
       />
       <Button
         id={id}

@@ -33,4 +33,5 @@ exports.addCommands = function (app) {
   add('waitForAnimations', './wait-for-animations');
   add('setOrClearValue', './set-or-clear-value');
   add('listenForTelemetryEvents', './listen-for-telemetry-events');
+  add('selectFile', './select-file');
 };

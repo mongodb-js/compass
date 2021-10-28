@@ -28,6 +28,8 @@ module.exports = function (app) {
     await client.keys([META, 'a']);
     await client.keys([META]); // meta a second time to release it
     await client.keys(['Backspace']);
-    await client.keys(value);
+    app.electron.clipboard.writeText(value, 'clipboard');
+    await client.keys([META, 'v']);
+    await client.keys([META]); // meta a second time to release it
   };
 };
