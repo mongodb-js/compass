@@ -1,6 +1,8 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import { FavoriteQuery, FavoriteQueryCollection } from '../models';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 /**
  * Query History Favorites List store.
@@ -19,6 +21,7 @@ const configureStore = (options = {}) => {
     },
 
     saveFavorite(recent, name) {
+      track('Query History Favorite Added');
       options.actions.deleteRecent(recent); // If query shouldn't stay in recents after save
 
       const attributes = recent.getAttributes({ props: true });
@@ -41,6 +44,7 @@ const configureStore = (options = {}) => {
     },
 
     deleteFavorite(query) {
+      track('Query History Favorite Removed');
       query.destroy({
         success: () => {
           this.state.items.remove(query._id);
@@ -50,6 +54,7 @@ const configureStore = (options = {}) => {
     },
 
     runQuery(query) {
+      track('Query History Favorite Used');
       this.localAppRegistry.emit('compass:query-history:run-query', query);
     },
 

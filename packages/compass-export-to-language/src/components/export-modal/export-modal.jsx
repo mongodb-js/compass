@@ -57,6 +57,34 @@ class ExportModal extends PureComponent {
     this.props.runTranspiler(this.props.inputExpression);
   };
 
+  copySuccessChanged = (field) => {
+    if (field === 'output') {
+      let stageCount = {};
+      let event;
+      if (this.props.mode === 'Query') {
+        event = 'Query Exported';
+      } else {
+        event = 'Aggregation Exported';
+        try {
+          stageCount = {
+            num_stages: JSON.parse(this.props.inputExpression.aggregation).length
+          };
+        } catch (ignore) {
+          // Things like [{ $match: { x: NumberInt(10) } }] do not parse as JSON
+          stageCount = { num_stages: -1 };
+        }
+      }
+      track(event, {
+        language: this.props.outputLang,
+        with_import_statements: this.props.showImports,
+        with_builders: this.props.builders,
+        with_drivers_syntax: this.props.driver,
+        ...stageCount
+      });
+    }
+    this.props.copySuccessChanged(field);
+  };
+
   renderBuilderCheckbox = () => {
     if (this.props.outputLang === 'java' && this.props.mode === 'Query') {
       return (
@@ -90,7 +118,7 @@ class ExportModal extends PureComponent {
         </Modal.Header>
 
         <Modal.Body data-test-id="export-to-lang-modal-body">
-          <ExportForm {...this.props} from={this.props.mode === 'Query' ? this.props.inputExpression.filter : this.props.inputExpression.aggregation}/>
+          <ExportForm {...this.props} copySuccessChanged={this.copySuccessChanged} from={this.props.mode === 'Query' ? this.props.inputExpression.filter : this.props.inputExpression.aggregation}/>
           <div className={classnames(styles['export-to-lang-modal-checkbox-imports'])}>
             <Checkbox data-test-id="export-to-lang-checkbox-imports" onClick={this.importsHandler} defaultChecked={this.props.showImports}>
                Include Import Statements

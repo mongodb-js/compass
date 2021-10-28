@@ -5,6 +5,8 @@ import _ from 'lodash';
 
 import { formatQuery } from '../utils';
 import { RecentQuery, RecentQueryCollection } from '../models';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 const TOTAL_RECENTS = 30;
 const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit', 'collation'];
@@ -89,6 +91,7 @@ const configureStore = (options = {}) => {
     },
 
     runQuery(query) {
+      track('Query History Recent Used');
       this.localAppRegistry.emit('compass:query-history:run-query', query);
     },
 

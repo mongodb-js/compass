@@ -172,7 +172,8 @@ describe('Smoke tests', function () {
       await client.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
-    it('supports simple find operations', async function () {
+    it.only('supports simple find operations', async function () {
+      const telemetryEntry = await client.listenForTelemetryEvents(telemetry);
       await client.runFindOperation('Documents', '{ i: 5 }');
 
       const documentListActionBarMessageElement = await client.$(
@@ -180,9 +181,20 @@ describe('Smoke tests', function () {
       );
       const text = await documentListActionBarMessageElement.getText();
       expect(text).to.equal('Displaying documents 1 - 1 of 1');
+      const queryExecutedEvent = await telemetryEntry('Query Executed');
+      expect(queryExecutedEvent).to.deep.equal({
+        changed_maxtimems: false,
+        collection_type: 'collection',
+        has_collation: false,
+        has_limit: false,
+        has_projection: false,
+        has_skip: false,
+        used_regex: false
+      });
     });
 
-    it('supports advanced find operations', async function () {
+    it.only('supports advanced find operations', async function () {
+      const telemetryEntry = await client.listenForTelemetryEvents(telemetry);
       await client.runFindOperation('Documents', '{ i: { $gt: 5 } }', {
         project: '{ _id: 0 }',
         sort: '{ i: -1 }',
@@ -195,6 +207,16 @@ describe('Smoke tests', function () {
       );
       const text = await documentListActionBarMessageElement.getText();
       expect(text).to.equal('Displaying documents 1 - 20 of 50');
+      const queryExecutedEvent = await telemetryEntry('Query Executed');
+      expect(queryExecutedEvent).to.deep.equal({
+        changed_maxtimems: false,
+        collection_type: 'collection',
+        has_collation: false,
+        has_limit: true,
+        has_projection: true,
+        has_skip: true,
+        used_regex: false
+      });
     });
 
     it('supports cancelling a find and then running another query', async function () {

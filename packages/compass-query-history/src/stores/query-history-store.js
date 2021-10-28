@@ -4,6 +4,8 @@ import mongodbns from 'mongodb-ns';
 import configureFavoriteListStore from './favorite-list-store';
 import configureRecentListStore from './recent-list-store';
 import configureHeaderStore from './header-store';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 const FAVORITE_LIST_STORE = 'QueryHistory.FavoriteListStore';
 const RECENT_LIST_STORE = 'QueryHistory.RecentListStore';
@@ -29,24 +31,30 @@ const configureStore = (options = {}) => {
     listenables: options.actions,
 
     showFavorites() {
+      track('Query History Favorites');
       this.setState({
         showing: 'favorites'
       });
     },
 
     showRecent() {
+      track('Query History Recent');
       this.setState({
         showing: 'recent'
       });
     },
 
     collapse() {
-      this.setState({
-        collapsed: true
-      });
+      if (!this.state.collapsed) {
+        track('Query History Closed');
+        this.setState({
+          collapsed: true
+        });
+      }
     },
 
     toggleCollapse() {
+      track(this.state.collapsed ? 'Query History Opened' : 'Query History Closed');
       this.setState({
         collapsed: !this.state.collapsed
       });
