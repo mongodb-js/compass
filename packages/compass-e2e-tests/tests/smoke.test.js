@@ -172,7 +172,7 @@ describe('Smoke tests', function () {
       await client.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
-    it.only('supports simple find operations', async function () {
+    it('supports simple find operations', async function () {
       const telemetryEntry = await client.listenForTelemetryEvents(telemetry);
       await client.runFindOperation('Documents', '{ i: 5 }');
 
@@ -189,11 +189,11 @@ describe('Smoke tests', function () {
         has_limit: false,
         has_projection: false,
         has_skip: false,
-        used_regex: false
+        used_regex: false,
       });
     });
 
-    it.only('supports advanced find operations', async function () {
+    it('supports advanced find operations', async function () {
       const telemetryEntry = await client.listenForTelemetryEvents(telemetry);
       await client.runFindOperation('Documents', '{ i: { $gt: 5 } }', {
         project: '{ _id: 0 }',
@@ -215,7 +215,7 @@ describe('Smoke tests', function () {
         has_limit: true,
         has_projection: true,
         has_skip: true,
-        used_regex: false
+        used_regex: false,
       });
     });
 
