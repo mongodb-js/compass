@@ -31,6 +31,7 @@ export { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
 export { Tabs, Tab } from '@leafygreen-ui/tabs';
 export { default as TextArea } from '@leafygreen-ui/text-area';
 export { default as TextInput } from '@leafygreen-ui/text-input';
+export { default as Toast } from '@leafygreen-ui/toast';
 export { default as Toggle } from '@leafygreen-ui/toggle';
 export { spacing } from '@leafygreen-ui/tokens';
 export { default as Tooltip } from '@leafygreen-ui/tooltip';

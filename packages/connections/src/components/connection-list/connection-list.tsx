@@ -1,11 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import {
-  ResizeHandle,
-  ResizeDirection,
-  spacing,
-} from '@mongodb-js/compass-components';
-import { useState } from 'react';
+import { spacing } from '@mongodb-js/compass-components';
+import { Fragment } from 'react';
 import {
   Button,
   Subtitle,
@@ -15,24 +11,6 @@ import {
 import { ConnectionInfo } from 'mongodb-data-service';
 
 import Connection from './connection';
-
-const initialSidebarWidth = 250;
-const minSidebarWidth = 150;
-
-const slateBlueColor = '#001E2B';
-
-const listContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  margin: 0,
-  padding: 0,
-  maxWidth: '80%',
-  minWidth: minSidebarWidth,
-  height: '100%',
-  position: 'relative',
-  background: slateBlueColor,
-  color: 'white',
-});
 
 const newConnectionButtonContainerStyles = css({
   display: 'flex',
@@ -64,43 +42,36 @@ const sectionHeaderIconStyles = css({
 });
 
 const connectionListSectionStyles = css({
-  overflowY: 'scroll',
+  overflowY: 'auto',
   padding: 0,
   paddingBottom: spacing[3],
+  '::-webkit-scrollbar-thumb': {
+    background: 'rgba(180, 180, 180, 0.5)',
+  },
 });
 
-function getMaxSidebarWidth() {
-  return Math.max(minSidebarWidth, window.innerWidth - 100);
-}
+const connectionListStyles = css({
+  listStyleType: 'none',
+  margin: 0,
+  padding: 0,
+});
 
 function ConnectionList({
+  activeConnectionId,
   connections,
+  setActiveConnectionId,
 }: {
+  activeConnectionId?: string;
   connections: ConnectionInfo[];
+  setActiveConnectionId: (connectionId?: string) => void;
 }): React.ReactElement {
-  const [width, setWidth] = useState(initialSidebarWidth);
-
   return (
-    <div
-      css={listContainerStyles}
-      style={{
-        width: width,
-      }}
-    >
-      <ResizeHandle
-        onChange={(newWidth) => setWidth(newWidth)}
-        direction={ResizeDirection.RIGHT}
-        value={width}
-        minValue={minSidebarWidth}
-        maxValue={getMaxSidebarWidth()}
-        title="sidebar"
-      />
+    <Fragment>
       <div css={newConnectionButtonContainerStyles}>
         <Button
           darkMode
-          onClick={() => alert('new connection')}
+          onClick={() => setActiveConnectionId()}
           leftGlyph={<Icon glyph="Plus" />}
-          // variant={ButtonVariant.PrimaryOutline}
         >
           New Connection
         </Button>
@@ -114,29 +85,43 @@ function ConnectionList({
           />
           <Subtitle css={sectionHeaderTitleStyles}>Favorites</Subtitle>
         </div>
-        {connections
-          .filter((connection) => !!connection.favorite)
-          .map((connection, index) => (
-            <Connection
-              connection={connection}
-              key={`${connection.id || ''}-${index}`}
-            />
-          ))}
+        <ul css={connectionListStyles}>
+          {connections
+            .filter((connection) => !!connection.favorite)
+            .map((connection, index) => (
+              <li key={`${connection.id || ''}-${index}`}>
+                <Connection
+                  isActive={
+                    !!activeConnectionId && activeConnectionId === connection.id
+                  }
+                  connection={connection}
+                  onClick={() => setActiveConnectionId(connection.id)}
+                />
+              </li>
+            ))}
+        </ul>
         <div css={sectionHeaderStyles}>
           {/* There is no leafygreen replacement for this icon */}
           <i className="fa fa-fw fa-history" css={sectionHeaderIconStyles} />
           <Subtitle css={sectionHeaderTitleStyles}>Recents</Subtitle>
         </div>
-        {connections
-          .filter((connection) => !connection.favorite)
-          .map((connection, index) => (
-            <Connection
-              connection={connection}
-              key={`${connection.id || ''}-${index}`}
-            />
-          ))}
+        <ul css={connectionListStyles}>
+          {connections
+            .filter((connection) => !connection.favorite)
+            .map((connection, index) => (
+              <li key={`${connection.id || ''}-${index}`}>
+                <Connection
+                  isActive={
+                    !!activeConnectionId && activeConnectionId === connection.id
+                  }
+                  connection={connection}
+                  onClick={() => setActiveConnectionId(connection.id)}
+                />
+              </li>
+            ))}
+        </ul>
       </div>
-    </div>
+    </Fragment>
   );
 }
 

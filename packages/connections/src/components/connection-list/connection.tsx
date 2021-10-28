@@ -1,7 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
 import {
-  Button,
   Subtitle,
   Description,
   spacing,
@@ -9,47 +8,9 @@ import {
 } from '@mongodb-js/compass-components';
 import { ConnectionInfo, getConnectionTitle } from 'mongodb-data-service';
 
-import ConnectionMenu from './connection-menu';
-
-const connectionButtonStyles = css({
-  position: 'absolute',
-  margin: 0,
-  padding: 0,
-  height: 'auto',
-  width: '100%',
-  overflow: 'hidden',
-  border: 'none',
-  borderRadius: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  textAlign: 'left',
-  background: 'none',
-  '&:hover': {
-    border: 'none',
-    background: uiColors.blue.dark3,
-  },
-  '&:focus': {
-    border: 'none',
-    background: uiColors.blue.dark3,
-  },
-  '> div': {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    textAlign: 'left',
-    height: 'auto',
-    width: '100%',
-    padding: 0,
-    paddingLeft: spacing[4],
-    paddingRight: spacing[4],
-    position: 'relative',
-  },
-});
-
 const connectionButtonContainerStyles = css({
   position: 'relative',
-  height: 52,
-  marginTop: spacing[2],
+  marginTop: spacing[1],
   padding: 0,
   '&::after': {
     position: 'absolute',
@@ -71,6 +32,13 @@ const connectionButtonContainerStyles = css({
       width: spacing[1],
     },
   },
+  '&:focus': {
+    '&::after': {
+      opacity: 1,
+      width: spacing[1],
+      backgroundColor: uiColors.focus,
+    },
+  },
   '&:focus-within': {
     '&::after': {
       opacity: 1,
@@ -80,6 +48,33 @@ const connectionButtonContainerStyles = css({
   },
 });
 
+const connectionButtonStyles = css({
+  margin: 0,
+  padding: 0,
+  paddingLeft: spacing[4],
+  position: 'relative',
+  width: '100%',
+  overflow: 'hidden',
+  border: 'none',
+  borderRadius: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  textAlign: 'left',
+  background: 'none',
+  '&:hover': {
+    border: 'none',
+    background: uiColors.blue.dark3,
+  },
+  '&:focus': {
+    border: 'none',
+    background: uiColors.blue.dark3,
+  },
+});
+
+const activeConnectionStyles = css({
+  background: uiColors.gray.dark3,
+});
+
 const connectionTitleStyles = css({
   color: 'white',
   fontWeight: 'bold',
@@ -87,6 +82,7 @@ const connectionTitleStyles = css({
   margin: 0,
   marginTop: spacing[1],
   marginRight: spacing[2],
+  width: '100%',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -103,15 +99,13 @@ const connectionDescriptionStyles = css({
   marginBottom: spacing[1],
 });
 
-// Creates a date string formatted as `Oct 27, 2090, 2:06:04 PM EDT`.
+// Creates a date string formatted as `Oct 27, 3000, 2:06 PM`.
 const dateConfig: Intl.DateTimeFormatOptions = {
   month: 'short',
   day: 'numeric',
   year: 'numeric',
   hour: 'numeric',
   minute: 'numeric',
-  second: 'numeric',
-  timeZoneName: 'short',
 };
 
 function getTitleForConnection(connection: ConnectionInfo) {
@@ -126,9 +120,13 @@ function getTitleForConnection(connection: ConnectionInfo) {
 }
 
 function Connection({
+  isActive,
   connection,
+  onClick,
 }: {
+  isActive: boolean;
   connection: ConnectionInfo;
+  onClick: () => void;
 }): React.ReactElement {
   const connectionTitle = connection.favorite
     ? connection.favorite.name
@@ -136,11 +134,9 @@ function Connection({
 
   return (
     <div css={connectionButtonContainerStyles}>
-      <Button
-        // as="li"
-        css={connectionButtonStyles}
-        darkMode
-        onClick={() => alert('clicked card')}
+      <button
+        css={[connectionButtonStyles, isActive ? activeConnectionStyles : null]}
+        onClick={onClick}
       >
         <Subtitle
           css={[
@@ -160,11 +156,7 @@ function Connection({
             {connection.lastUsed.toLocaleString('default', dateConfig)}
           </Description>
         )}
-      </Button>
-      <ConnectionMenu
-        onClickDuplicate={() => alert('duplicate')}
-        onClickRemove={() => alert('remove')}
-      />
+      </button>
     </div>
   );
 }

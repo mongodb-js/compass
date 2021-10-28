@@ -11,6 +11,9 @@ import {
   ButtonSize,
 } from '@mongodb-js/compass-components';
 
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-CONNECTIONS-UI');
+
 const formHelpContainerStyles = css({
   position: 'relative',
   margin: spacing[4],
@@ -72,9 +75,8 @@ function FormHelp(): React.ReactElement {
         <div css={createClusterContainerStyles}>
           <Button
             css={createClusterButtonStyles}
-            onClick={() => alert('todo: track')}
+            onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
             variant={ButtonVariant.PrimaryOutline}
-            // TODO: Track link
             href="https://www.mongodb.com/cloud/atlas/lp/general/try?utm_source=compass&utm_medium=product"
             target="_blank"
             size={ButtonSize.Small}
