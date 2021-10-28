@@ -109,7 +109,7 @@ class CreateIndexModal extends PureComponent {
   }
 
   handleShow() {
-    track('Screen', { name: 'export_modal' });
+    track('Screen', { name: 'create_index_modal' });
   }
 
   /**
