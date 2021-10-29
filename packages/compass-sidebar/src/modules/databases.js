@@ -1,4 +1,3 @@
-import { LOADING_STATE } from '../constants/sidebar-constants';
 import toNS from 'mongodb-ns';
 
 /**
@@ -76,39 +75,37 @@ export const filterDatabases = (filter, dbs, ns) => {
   return (dispatch, getState) => {
     const state = getState();
     const re = filter === null ? state.filterRegex : filter;
-    const databases = dbs === null ? state.instance.databases : dbs;
+    const databases = dbs === null ? state.instance?.databases : dbs;
+    const activeNamespace = ns === null ? state.databases.activeNamespace : ns;
+    const activeDatabase = toNS(activeNamespace).database;
 
-    let dbResult;
+    let dbResult = [];
 
-    // empty array vs Ampersand collection = technical debt
-    if (databases === LOADING_STATE ||
-      (Array.isArray(databases) && databases.length === 0) ||
-      (!Array.isArray(databases) && databases.isEmpty())) {
-      dbResult = [];
-    } else {
-      dbResult = databases.reduce((filteredDbs, db) => {
-        if (re.test(db._id)) {
-          filteredDbs.push(db.toJSON());
+    if (databases && databases.length > 0) {
+      dbResult = databases.reduce((result, db) => {
+        const id = db._id;
+        if (re.test(id)) {
+          result.push(db);
         } else {
-          const collections = db.collections.models.filter(c => re.test(toNS(c._id).collection));
-          if (collections.length) {
-            filteredDbs.push({
-              _id: db._id,
-              collections
+          const collections = db.collections
+            .filter((coll) => re.test(coll.name));
+
+          if (collections.length > 0) {
+            result.push({
+              ...db,
+              collections,
             });
           }
         }
-        return filteredDbs;
+        return result;
       }, []);
     }
 
-    const activeNamespace = ns === null ? state.databases.activeNamespace : ns;
-    const expandedDblist = {};
-    dbResult.map((db) => {
-      expandedDblist[db._id] = (
-        re.source !== BLANK || db._id === toNS(activeNamespace).database
-      );
-    });
-    dispatch(changeDatabases(dbResult, expandedDblist, activeNamespace));
+    const expandedDbList = Object.fromEntries(dbResult.map(db => {
+      const id = db._id;
+      return [id, re.source !== BLANK || id === activeDatabase];
+    }));
+
+    dispatch(changeDatabases(dbResult, expandedDbList, activeNamespace));
   };
 };

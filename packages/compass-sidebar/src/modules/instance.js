@@ -1,5 +1,3 @@
-import { LOADING_STATE } from '../constants/sidebar-constants';
-
 /**
  * Instance action.
  */
@@ -8,7 +6,7 @@ export const CHANGE_INSTANCE = 'sidebar/instance/CHANGE_INSTANCE';
 /**
  * The initial state of the sidebar instance.
  */
-export const INITIAL_STATE = { databases: LOADING_STATE, collections: LOADING_STATE};
+export const INITIAL_STATE = null;
 
 /**
  * Reducer function for handle state changes to sidebar instance.
@@ -20,7 +18,7 @@ export const INITIAL_STATE = { databases: LOADING_STATE, collections: LOADING_ST
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === CHANGE_INSTANCE) {
-    return action.instance;
+    return action.instance.toJSON();
   }
   return state;
 }
@@ -34,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeInstance = (instance) => ({
   type: CHANGE_INSTANCE,
-  instance: instance
+  instance: instance,
 });
