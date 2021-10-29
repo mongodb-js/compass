@@ -388,9 +388,9 @@ export const fetchValidation = (namespace) => {
       return;
     }
 
-    dataService.listCollections(
+    dataService.collectionInfo(
       namespace.database,
-      { name: namespace.collection },
+      namespace.collection,
       (err, data) => {
         const validation = validationFromCollection(err, data);
 
@@ -427,32 +427,18 @@ export const fetchValidation = (namespace) => {
   };
 };
 
-export function validationFromCollection(err, data) {
-  const validation = {
-    validationAction: INITIAL_STATE.validationAction,
-    validationLevel: INITIAL_STATE.validationLevel
-  };
-
+export function validationFromCollection(err, { validation } = {}) {
+  const { validationAction, validationLevel } = INITIAL_STATE;
   if (err) {
-    validation.error = err;
-    return validation;
+    return { validationAction, validationLevel, error: err };
   }
-
-  const options = data[0].options || {};
-
-  if (options.validationAction) {
-    validation.validationAction = options.validationAction;
-  }
-
-  if (options.validationLevel) {
-    validation.validationLevel = options.validationLevel;
-  }
-
-  if (options.validator) {
-    validation.validator = options.validator;
-  }
-
-  return validation;
+  return {
+    validationAction: validation?.validationAction ?? validationAction,
+    validationLevel: validation?.validationLevel ?? validationLevel,
+    ...(validation?.validator && {
+      validator: validation.validator,
+    }),
+  };
 }
 
 /**
