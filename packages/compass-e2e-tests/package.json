@@ -20,7 +20,7 @@
     "start-server": "mongodb-runner start --port 27018 --dbpath ./.mongodb",
     "stop-server": "mongodb-runner stop --port 27018",
     "insert-data": "node ./scripts/insert-data.js",
-    "unzip-fixtures": "node ./scripts/gunzip.js fixtures/*"
+    "unzip-fixtures": "node ./scripts/gunzip.js fixtures/*.gz"
   },
   "dependencies": {
     "mongodb-compass": "^0.0.0-dev.0"
@@ -45,6 +45,7 @@
     "prettier": "*",
     "spectron": "^15.0.0",
     "xvfb-maybe": "^0.2.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "fast-glob": "^3.2.7"
   }
 }

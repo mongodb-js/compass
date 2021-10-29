@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
+const fastGlob = require('fast-glob');
 const { createReadStream, createWriteStream } = require('fs');
 const { pipeline } = require('stream');
 const { promisify } = require('util');
@@ -17,7 +18,9 @@ async function gunzip(input, output) {
 }
 
 async function run() {
-  const filenames = process.argv.slice(2);
+  // windows does not expand * automatically
+  const filenames = await fastGlob(process.argv.slice(2));
+
   for (const input of filenames) {
     const output = input.replace(/\.gz$/, '');
     console.log(input, '=>', output);
