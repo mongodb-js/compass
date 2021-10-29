@@ -26,6 +26,7 @@ export {
 } from '@leafygreen-ui/logo';
 export { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 export { uiColors } from '@leafygreen-ui/palette';
+export * as compassUIColors from './components/compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
 export { Tabs, Tab } from '@leafygreen-ui/tabs';

@@ -2,13 +2,13 @@
 import { css, jsx } from '@emotion/react';
 import {
   Button,
+  ButtonSize,
   ButtonVariant,
   Subtitle,
   Description,
   Link,
   spacing,
   uiColors,
-  ButtonSize,
 } from '@mongodb-js/compass-components';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -50,12 +50,12 @@ const createClusterContainerStyles = css({
 
 const createClusterButtonStyles = css({
   fontWeight: 'bold',
-  background: 'white',
+  background: uiColors.white,
   '&:hover': {
-    background: 'white',
+    background: uiColors.white,
   },
   '&:focus': {
-    background: 'white',
+    background: uiColors.white,
   },
 });
 

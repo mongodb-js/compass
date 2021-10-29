@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
 import { useReducer } from 'react';
-import { spacing } from '@mongodb-js/compass-components';
+import { compassUIColors, spacing } from '@mongodb-js/compass-components';
 import ConnectForm from '@mongodb-js/connect-form';
 import { ConnectionInfo } from 'mongodb-data-service';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,7 +17,7 @@ const connectStyles = css({
   top: 0,
   display: 'flex',
   flexDirection: 'row',
-  background: '#f5f6f7',
+  background: compassUIColors.gray8,
 });
 
 const formContainerStyles = css({
@@ -30,11 +30,13 @@ const formContainerStyles = css({
   overflow: 'auto',
 });
 
-const defaultConnection = {
-  connectionOptions: {
-    connectionString: 'mongodb://localhost:27017',
-  },
-};
+function getDefaultConnectionInfo() {
+  return {
+    connectionOptions: {
+      connectionString: 'mongodb://localhost:27017',
+    },
+  };
+}
 
 const mockRecents: ConnectionInfo[] = [];
 for (let i = 0; i < 15; i++) {
@@ -124,7 +126,7 @@ function reducer(state: State, action: Action): State {
         ...state,
         activeConnectionId: action.newConnectionId,
         activeConnectionInfo: {
-          ...defaultConnection,
+          ...getDefaultConnectionInfo(),
           id: action.newConnectionId,
         },
       };
@@ -139,7 +141,7 @@ function Connections(): React.ReactElement {
     {
       activeConnectionId: undefined,
       activeConnectionInfo: {
-        ...defaultConnection,
+        ...getDefaultConnectionInfo(),
       },
     }
   );

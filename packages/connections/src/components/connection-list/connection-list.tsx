@@ -7,6 +7,7 @@ import {
   Subtitle,
   Icon,
   uiColors,
+  compassUIColors,
 } from '@mongodb-js/compass-components';
 import { ConnectionInfo } from 'mongodb-data-service';
 
@@ -48,7 +49,7 @@ const connectionListSectionStyles = css({
   padding: 0,
   paddingBottom: spacing[3],
   '::-webkit-scrollbar-thumb': {
-    background: 'rgba(180, 180, 180, 0.5)',
+    background: compassUIColors.transparentGray,
   },
 });
 
@@ -92,18 +93,19 @@ function ConnectionList({
         </div>
         <ul css={connectionListStyles}>
           {connections
-            .filter((connection) => !!connection.favorite)
-            .map((connection, index) => (
+            .filter((connectionInfo) => !!connectionInfo.favorite)
+            .map((connectionInfo, index) => (
               <li
                 data-testid="favorite-connection"
-                key={`${connection.id || ''}-${index}`}
+                key={`${connectionInfo.id || ''}-${index}`}
               >
                 <Connection
                   isActive={
-                    !!activeConnectionId && activeConnectionId === connection.id
+                    !!activeConnectionId &&
+                    activeConnectionId === connectionInfo.id
                   }
-                  connection={connection}
-                  onClick={() => setActiveConnectionId(connection.id)}
+                  connectionInfo={connectionInfo}
+                  onClick={() => setActiveConnectionId(connectionInfo.id)}
                 />
               </li>
             ))}
@@ -115,18 +117,19 @@ function ConnectionList({
         </div>
         <ul css={connectionListStyles}>
           {connections
-            .filter((connection) => !connection.favorite)
-            .map((connection, index) => (
+            .filter((connectionInfo) => !connectionInfo.favorite)
+            .map((connectionInfo, index) => (
               <li
                 data-testid="recent-connection"
-                key={`${connection.id || ''}-${index}`}
+                key={`${connectionInfo.id || ''}-${index}`}
               >
                 <Connection
                   isActive={
-                    !!activeConnectionId && activeConnectionId === connection.id
+                    !!activeConnectionId &&
+                    activeConnectionId === connectionInfo.id
                   }
-                  connection={connection}
-                  onClick={() => setActiveConnectionId(connection.id)}
+                  connectionInfo={connectionInfo}
+                  onClick={() => setActiveConnectionId(connectionInfo.id)}
                 />
               </li>
             ))}

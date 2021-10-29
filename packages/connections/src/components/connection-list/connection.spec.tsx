@@ -17,7 +17,7 @@ describe('Connection Component', function () {
       render(
         <Connection
           isActive={false}
-          connection={{
+          connectionInfo={{
             lastUsed: new Date('Dec 17, 1995, 12:00 AM'),
             connectionOptions: {
               connectionString: '',
@@ -40,7 +40,7 @@ describe('Connection Component', function () {
         render(
           <Connection
             isActive={false}
-            connection={{
+            connectionInfo={{
               connectionOptions: {
                 connectionString: '',
               },
@@ -64,7 +64,7 @@ describe('Connection Component', function () {
         render(
           <Connection
             isActive={false}
-            connection={{
+            connectionInfo={{
               connectionOptions: {
                 connectionString: '',
               },
@@ -90,7 +90,7 @@ describe('Connection Component', function () {
         render(
           <Connection
             isActive={false}
-            connection={{
+            connectionInfo={{
               connectionOptions: {
                 connectionString: '',
               },
@@ -123,7 +123,7 @@ describe('Connection Component', function () {
       render(
         <Connection
           isActive={false}
-          connection={{
+          connectionInfo={{
             connectionOptions: {
               connectionString: 'mongodb://outerspace:27019',
             },
@@ -156,7 +156,7 @@ describe('Connection Component', function () {
       render(
         <Connection
           isActive={false}
-          connection={{
+          connectionInfo={{
             connectionOptions: {
               connectionString: 'invalid connection string',
             },
@@ -166,9 +166,30 @@ describe('Connection Component', function () {
       );
     });
 
+    it('it shows a connection string title', function () {
+      const connectionTitle = screen.getByRole('heading');
+      expect(connectionTitle.textContent).to.equal('invalid connection string');
+    });
+  });
+
+  describe('when it has no connection string or favorite name', function () {
+    beforeEach(function () {
+      render(
+        <Connection
+          isActive={false}
+          connectionInfo={{
+            connectionOptions: {
+              connectionString: '',
+            },
+          }}
+          onClick={onClickSpy}
+        />
+      );
+    });
+
     it('it shows a default connection title', function () {
       const connectionTitle = screen.getByRole('heading');
-      expect(connectionTitle.textContent).to.equal('Recent Connection');
+      expect(connectionTitle.textContent).to.equal('Connection');
     });
   });
 
@@ -177,7 +198,7 @@ describe('Connection Component', function () {
       render(
         <Connection
           isActive={false}
-          connection={{
+          connectionInfo={{
             connectionOptions: {
               connectionString: '',
             },

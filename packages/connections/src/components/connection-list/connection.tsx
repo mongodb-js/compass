@@ -20,7 +20,7 @@ const connectionButtonContainerStyles = css({
     top: 0,
     bottom: 0,
     width: 0,
-    backgroundColor: 'white',
+    backgroundColor: uiColors.white,
     zIndex: 1,
     opacity: 0,
     transition: '150ms all',
@@ -126,29 +126,18 @@ const dateConfig: Intl.DateTimeFormatOptions = {
   minute: 'numeric',
 };
 
-function getTitleForConnection(connection: ConnectionInfo) {
-  try {
-    const title = getConnectionTitle(connection);
-    return title;
-  } catch (e) {
-    // When parsing a saved connection fails we default the title.
-    // TODO: What should the default name be here?
-    return 'Recent Connection';
-  }
-}
-
 function Connection({
   isActive,
-  connection,
+  connectionInfo,
   onClick,
 }: {
   isActive: boolean;
-  connection: ConnectionInfo;
+  connectionInfo: ConnectionInfo;
   onClick: () => void;
 }): React.ReactElement {
-  const connectionTitle = connection.favorite
-    ? connection.favorite.name
-    : getTitleForConnection(connection);
+  const connectionTitle = connectionInfo.favorite
+    ? connectionInfo.favorite.name
+    : getConnectionTitle(connectionInfo);
 
   return (
     <div css={connectionButtonContainerStyles}>
@@ -157,13 +146,13 @@ function Connection({
         onClick={onClick}
       >
         <div css={connectionTitleContainerStyles}>
-          {!!(connection.favorite && connection.favorite.color) && (
+          {!!(connectionInfo.favorite && connectionInfo.favorite.color) && (
             <div
               data-testid="connection-favorite-indicator"
               css={[
                 connectionFavoriteStyles,
                 css({
-                  backgroundColor: connection.favorite.color,
+                  backgroundColor: connectionInfo.favorite.color,
                 }),
               ]}
             />
@@ -172,9 +161,9 @@ function Connection({
             {connectionTitle}
           </Subtitle>
         </div>
-        {connection.lastUsed && (
+        {connectionInfo.lastUsed && (
           <Description css={connectionDescriptionStyles}>
-            {connection.lastUsed.toLocaleString('default', dateConfig)}
+            {connectionInfo.lastUsed.toLocaleString('default', dateConfig)}
           </Description>
         )}
       </button>
