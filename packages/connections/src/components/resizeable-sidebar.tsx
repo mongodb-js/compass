@@ -46,6 +46,11 @@ function ResizableSidebar({
         width: width,
       }}
     >
+      <ConnectionList
+        activeConnectionId={activeConnectionId}
+        connections={connections}
+        setActiveConnectionId={setActiveConnectionId}
+      />
       <ResizeHandle
         onChange={(newWidth) => setWidth(newWidth)}
         direction={ResizeDirection.RIGHT}
@@ -53,11 +58,6 @@ function ResizableSidebar({
         minValue={minSidebarWidth}
         maxValue={getMaxSidebarWidth()}
         title="sidebar"
-      />
-      <ConnectionList
-        activeConnectionId={activeConnectionId}
-        connections={connections}
-        setActiveConnectionId={setActiveConnectionId}
       />
     </div>
   );

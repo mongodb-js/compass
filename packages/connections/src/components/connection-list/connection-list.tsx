@@ -15,9 +15,10 @@ import Connection from './connection';
 const newConnectionButtonContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  padding: 3, // spacing[3],
+  padding: spacing[1], // spacing[3],
   background: uiColors.gray.dark3,
   position: 'relative',
+  fontWeight: 'bold',
 });
 
 const sectionHeaderStyles = css({
@@ -70,6 +71,9 @@ function ConnectionList({
     <Fragment>
       <div css={newConnectionButtonContainerStyles}>
         <Button
+          css={css({
+            borderRadius: 0,
+          })}
           darkMode
           onClick={() => setActiveConnectionId()}
           leftGlyph={<Icon glyph="Plus" />}
@@ -90,9 +94,11 @@ function ConnectionList({
           {connections
             .filter((connection) => !!connection.favorite)
             .map((connection, index) => (
-              <li key={`${connection.id || ''}-${index}`}>
+              <li
+                data-testid="favorite-connection"
+                key={`${connection.id || ''}-${index}`}
+              >
                 <Connection
-                  key={`${connection.id || ''}-${index}`}
                   isActive={
                     !!activeConnectionId && activeConnectionId === connection.id
                   }
@@ -111,9 +117,11 @@ function ConnectionList({
           {connections
             .filter((connection) => !connection.favorite)
             .map((connection, index) => (
-              <li key={`${connection.id || ''}-${index}`}>
+              <li
+                data-testid="recent-connection"
+                key={`${connection.id || ''}-${index}`}
+              >
                 <Connection
-                  key={`${connection.id || ''}-${index}`}
                   isActive={
                     !!activeConnectionId && activeConnectionId === connection.id
                   }

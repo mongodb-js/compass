@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "@mongodb-js/connect-form": "^0.1.0",
+    "@mongodb-js/compass-logging": "^0.3.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "uuid": "^8.2.0"

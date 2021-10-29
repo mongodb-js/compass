@@ -159,6 +159,7 @@ function Connection({
         <div css={connectionTitleContainerStyles}>
           {!!(connection.favorite && connection.favorite.color) && (
             <div
+              data-testid="connection-favorite-indicator"
               css={[
                 connectionFavoriteStyles,
                 css({

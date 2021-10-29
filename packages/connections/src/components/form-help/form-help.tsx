@@ -75,6 +75,7 @@ function FormHelp(): React.ReactElement {
         </Description>
         <div css={createClusterContainerStyles}>
           <Button
+            data-testid="atlas-cta-link"
             css={createClusterButtonStyles}
             onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
             variant={ButtonVariant.PrimaryOutline}
