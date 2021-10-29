@@ -28,7 +28,7 @@ module.exports = function (app) {
     await collectionElement.waitForDisplayed();
 
     // click it and wait for the collection header to become visible
-    await collectionElement.click();
+    await client.clickVisible(collectionSelector);
     await headerElement.waitForDisplayed();
   }
 
@@ -51,8 +51,7 @@ module.exports = function (app) {
     }
 
     // otherwise select the tab and wait for it to become selected
-    const tabSelectorElement = await client.$(tabSelector);
-    await tabSelectorElement.click();
+    await client.clickVisible(tabSelector);
 
     await tabSelectedSelectorElement.waitForDisplayed();
   };
