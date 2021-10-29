@@ -1,17 +1,10 @@
 import type { AnyError, CollStats } from 'mongodb';
-import { InstanceDetails } from './instance-detail-helper';
 
 export interface Callback<R> {
   (
     err: Error | AnyError | { message: string } | null | undefined,
     result: R
   ): void;
-}
-
-export interface Instance extends InstanceDetails {
-  _id?: string;
-  hostname: string;
-  port: number;
 }
 
 export interface CollectionStats {
@@ -22,7 +15,7 @@ export interface CollectionStats {
   max?: number;
   is_power_of_two: boolean;
   index_sizes?: CollStats['indexSizes'];
-  document_count: CollStats['documentCount'];
+  document_count: CollStats['count'];
   document_size?: CollStats['size'];
   storage_size?: CollStats['storageSize'];
   index_count?: CollStats['nindexes'];

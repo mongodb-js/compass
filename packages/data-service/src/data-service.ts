@@ -1,3 +1,4 @@
+import { promisify } from 'util';
 import SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -51,7 +52,13 @@ import {
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from './connection-options';
-import { getInstance } from './instance-detail-helper';
+import {
+  adaptCollectionInfo,
+  adaptDatabaseInfo,
+  getDatabasesAndCollectionsFromPrivileges,
+  getInstance,
+  InstanceDetails,
+} from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
 import {
@@ -59,10 +66,10 @@ import {
   CollectionDetails,
   CollectionStats,
   IndexDetails,
-  Instance,
 } from './types';
 
 import getPort from 'get-port';
+import { DatabaseInfoNameOnly, DatabaseInfo } from './run-command';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -217,6 +224,29 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Returns normalized collection info provided by listCollection command for a
+   * specific collection
+   *
+   * @param dbName database name
+   * @param collName collection name
+   * @param callback callback with a collection info or null if collection doesn't exist
+   */
+  collectionInfo(
+    dbName: string,
+    collName: string,
+    callback: Callback<CollectionInfo | null>
+  ): void {
+    this.listCollections(dbName, { name: collName }, (err, res) => {
+      if (err) {
+        // @ts-expect-error callback without result
+        callback(err);
+        return;
+      }
+      callback(null, res[0] ?? null);
+    });
+  }
+
+  /**
    * Execute a command.
    *
    * @param databaseName - The db name.
@@ -266,21 +296,23 @@ class DataService extends EventEmitter {
   listCollections(
     databaseName: string,
     filter: Document,
-    options: { nameOnly: boolean },
-    callback: Callback<CollectionInfo[]>
+    options: { nameOnly: true },
+    callback: Callback<ReturnType<typeof adaptCollectionInfo>[]>
   ): void;
 
   listCollections(
     databaseName: string,
     filter: Document,
-    callback: Callback<CollectionInfo[]>
+    callback: Callback<ReturnType<typeof adaptCollectionInfo>[]>
   ): void;
 
   listCollections(
     databaseName: string,
     filter: Document,
-    options: { nameOnly?: boolean } | Callback<CollectionInfo[]>,
-    callback?: Callback<CollectionInfo[]>
+    options:
+      | { nameOnly?: boolean }
+      | Callback<ReturnType<typeof adaptCollectionInfo>[]>,
+    callback?: Callback<ReturnType<typeof adaptCollectionInfo>[]>
   ): void {
     if (typeof options === 'function') {
       callback = options;
@@ -290,7 +322,7 @@ class DataService extends EventEmitter {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_032),
       'Running listCollections',
-      { db: databaseName }
+      { db: databaseName, nameOnly: options?.nameOnly ?? false }
     );
 
     db.listCollections(filter, options as ListCollectionsOptions).toArray(
@@ -300,9 +332,64 @@ class DataService extends EventEmitter {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
         }
-        (callback as Callback<CollectionInfo[]>)(null, data!);
+        callback?.(
+          null,
+          (data ?? []).map((coll) =>
+            adaptCollectionInfo({ db: databaseName, ...coll })
+          )
+        );
       }
     );
+  }
+
+  /**
+   * Special list collections method that handles pulling collection names from
+   * user privileges when user is not allowed to listCollections on a database.
+   * Compared to the listCollections, this method will never throw
+   *
+   * TODO: Only needed while we are waiting for authorizedCollections: true
+   * support to land in the nodejs driver
+   */
+  listCollectionsNamesOnly(
+    dbName: string,
+    callback: Callback<ReturnType<typeof adaptCollectionInfo>[]>
+  ): void {
+    const listCollectionsAsync = promisify(this.listCollections.bind(this)) as (
+      // Promisify doesn't extract correct types from the method because of the
+      // overloads so we have to convince it that the arguments we provide are
+      // fine
+      dbName: string,
+      filter: Document,
+      options: { nameOnly: true; authorizedCollections?: true }
+    ) => Promise<ReturnType<typeof adaptCollectionInfo>[]>;
+
+    void Promise.all([
+      getDatabasesAndCollectionsFromPrivileges(this._initializedClient, [
+        'find',
+      ]).catch(() => ({ collections: [] })),
+      listCollectionsAsync(
+        dbName,
+        {},
+        {
+          nameOnly: true,
+          // TODO: This does nothing right now, see note above
+          authorizedCollections: true,
+        }
+      ).catch(() => []),
+    ]).then(([{ collections }, collectionsInfo]) => {
+      if (collectionsInfo.length > 0) {
+        callback(null, collectionsInfo);
+        return;
+      }
+      if (collections.length > 0) {
+        callback(
+          null,
+          collections.map((name) => adaptCollectionInfo({ name, db: dbName }))
+        );
+        return;
+      }
+      callback(null, []);
+    });
   }
 
   /**
@@ -310,27 +397,55 @@ class DataService extends EventEmitter {
    *
    * @param callback - The callback.
    */
-  listDatabases(callback: Callback<Document>): void {
+  listDatabases(
+    callback: Callback<ReturnType<typeof adaptDatabaseInfo>[]>
+  ): void;
+
+  listDatabases(
+    options: { nameOnly: true },
+    callback: Callback<ReturnType<typeof adaptDatabaseInfo>[]>
+  ): void;
+
+  listDatabases(
+    optionsOrCallback:
+      | { nameOnly: true }
+      | Callback<ReturnType<typeof adaptDatabaseInfo>[]>,
+    callback?: Callback<ReturnType<typeof adaptDatabaseInfo>[]>
+  ): void {
+    let options: { nameOnly: true } | null = null;
+
+    if (typeof optionsOrCallback === 'function') {
+      callback = optionsOrCallback;
+    } else {
+      options = optionsOrCallback;
+    }
+
     const logop = this._startLogOp(
       mongoLogId(1_001_000_033),
-      'Running listDatabases'
+      'Running listDatabases',
+      { nameOnly: options?.nameOnly ?? false }
     );
-    this._initializedClient.db('admin').command(
-      {
-        listDatabases: 1,
-      },
-      {
-        readPreference: this.getReadPreference(),
-      },
-      (error, result) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateMessage(error));
+
+    this._initializedClient
+      .db('admin')
+      .command(
+        { listDatabases: 1, ...options },
+        { readPreference: this.getReadPreference() },
+        (error, result) => {
+          logop(error);
+          if (error) {
+            // @ts-expect-error Callback without result...
+            return callback(this._translateMessage(error));
+          }
+          callback?.(
+            null,
+            result?.databases.map(
+              (db: DatabaseInfoNameOnly & Partial<DatabaseInfo>) =>
+                adaptDatabaseInfo({ db: db.name, ...db })
+            )
+          );
         }
-        callback(null, result?.databases);
-      }
-    );
+      );
   }
 
   async connect(): Promise<void> {
@@ -503,6 +618,16 @@ class DataService extends EventEmitter {
         callback(null, this._buildDatabaseDetail(name, db));
       }
     );
+  }
+
+  databaseStats(name: string, callback: Callback<Document>): void {
+    this._databaseStats(name, (err, stats) => {
+      if (err) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(err));
+      }
+      callback(null, stats);
+    });
   }
 
   /**
@@ -888,7 +1013,7 @@ class DataService extends EventEmitter {
    *
    * @param callback - The callback function.
    */
-  instance(callback: Callback<Instance>): void {
+  instance(callback: Callback<InstanceDetails>): void {
     getInstance(this._initializedClient).then(
       (instanceData) => {
         log.info(
@@ -904,22 +1029,7 @@ class DataService extends EventEmitter {
           }
         );
 
-        const connectionString = new ConnectionStringUrl(
-          this._connectionOptions.connectionString
-        );
-
-        const firstHost = connectionString.hosts[0] || '';
-
-        const [hostname, port] = firstHost.split(':');
-
-        const instance: Instance = {
-          ...instanceData,
-          _id: firstHost,
-          hostname: hostname,
-          port: +port,
-        };
-
-        callback(null, instance);
+        callback(null, instanceData);
       },
       (err) => {
         // @ts-expect-error Callback without result...
@@ -1550,7 +1660,10 @@ class DataService extends EventEmitter {
    * @param name - The database name.
    * @param callback - The callback.
    */
-  private _databaseStats(name: string, callback: Callback<Document>): void {
+  private _databaseStats(
+    name: string,
+    callback: Callback<Omit<ReturnType<typeof adaptDatabaseInfo>, '_id'>>
+  ): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_057),
       'Running databaseStats',
@@ -1564,7 +1677,9 @@ class DataService extends EventEmitter {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
       }
-      callback(null, this._buildDatabaseStats(data || {}));
+      // Omitting the _id here
+      const { _id, ...normalized } = adaptDatabaseInfo({ db: name, ...data });
+      callback(null, normalized);
     });
   }
 
@@ -1605,7 +1720,7 @@ class DataService extends EventEmitter {
       max: data.max,
       is_power_of_two: data.userFlags === 1,
       index_sizes: data.indexSizes,
-      document_count: data.count,
+      document_count: data.count ?? 0,
       document_size: data.size,
       storage_size: data.storageSize,
       index_count: data.nindexes,
@@ -1634,26 +1749,6 @@ class DataService extends EventEmitter {
       name: name,
       stats: db.stats,
       collections: db.collections,
-    };
-  }
-
-  /**
-   * @todo: Durran: User JS style for keys, make builder.
-   *
-   * @param data - The result of the dbStats command.
-   *
-   * @return The database stats.
-   */
-  private _buildDatabaseStats(data: Document): Document {
-    return {
-      document_count: data.objects,
-      document_size: data.dataSize,
-      storage_size: data.storageSize,
-      index_count: data.indexes,
-      index_size: data.indexSize,
-      extent_count: data.numExtents,
-      file_size: data.fileSize,
-      ns_size: data.nsSizeMB * 1024 * 1024,
     };
   }
 

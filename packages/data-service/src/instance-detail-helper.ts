@@ -10,13 +10,12 @@ import createLogger from '@mongodb-js/compass-logging';
 import {
   BuildInfo,
   CmdLineOpts,
-  Collection,
-  CollectionNameOnly,
+  CollectionInfo,
+  CollectionInfoNameOnly,
   ConnectionStatusWithPriveleges,
-  DatabaseNameOnly,
+  DatabaseInfo,
   DbStats,
   HostInfo,
-  ListDatabasesResult,
   runCommand,
 } from './run-command';
 
@@ -55,10 +54,21 @@ type CollectionDetails = {
   name: string;
   database: string;
   type: string;
+  system: boolean;
+  oplog: boolean;
+  command: boolean;
+  special: boolean;
+  specialish: boolean;
+  normal: boolean;
   readonly: boolean;
   collation: Document | null;
   view_on: string | null;
   pipeline: Document[] | null;
+  validation: {
+    validator: Document;
+    validationAction: string;
+    validationLevel: string;
+  } | null;
 };
 
 type DatabaseDetails = {
@@ -76,7 +86,6 @@ export type InstanceDetails = {
   host: HostInfoDetails;
   genuineMongoDB: GenuineMongoDBDetails;
   dataLake: DataLakeDetails;
-  databases: DatabaseDetails[];
   featureCompatibilityVersion: string | null;
 };
 
@@ -86,16 +95,11 @@ export async function getInstance(
   const adminDb = client.db('admin');
 
   const [
-    connectionStatus,
     getCmdLineOptsResult,
     hostInfoResult,
     buildInfoResult,
-    listDatabasesResult,
     getParameterResult,
   ] = await Promise.all([
-    runCommand(adminDb, { connectionStatus: 1, showPrivileges: true }).catch(
-      ignoreNotAuthorized(null)
-    ),
     runCommand(adminDb, { getCmdLineOpts: 1 }).catch((err) => {
       /**
        * This is something that mongodb-build-info uses to detect some
@@ -110,20 +114,11 @@ export async function getInstance(
     // This is why it's the only one where we are not ignoring any types of
     // errors
     runCommand(adminDb, { buildInfo: 1 }),
-    runCommand(adminDb, { listDatabases: 1, nameOnly: true }).catch(
-      ignoreNotAuthorized(null)
-    ),
     runCommand<{ featureCompatibilityVersion: { version: string } }>(adminDb, {
       getParameter: 1,
       featureCompatibilityVersion: 1,
     }).catch(ignoreNotAuthorized(null)),
   ]);
-
-  const databases = await fetchDatabases(
-    client,
-    connectionStatus,
-    listDatabasesResult
-  );
 
   return {
     build: adaptBuildInfo(buildInfoResult),
@@ -135,7 +130,6 @@ export async function getInstance(
     dataLake: buildDataLakeInfo(buildInfoResult),
     featureCompatibilityVersion:
       getParameterResult?.featureCompatibilityVersion.version ?? null,
-    databases: databases,
   };
 }
 
@@ -160,44 +154,9 @@ function buildDataLakeInfo(buildInfo: Partial<BuildInfo>): DataLakeDetails {
   };
 }
 
-async function fetchDatabases(
-  client: MongoClient,
-  connectionStatus: ConnectionStatusWithPriveleges | null,
-  listDatabaseCommandResult: ListDatabasesResult<DatabaseNameOnly> | null
-) {
-  const privileges = extractPrivilegesByDatabaseAndCollection(
-    connectionStatus,
-    ['find']
-  );
-
-  const listedDatabaseNames =
-    listDatabaseCommandResult?.databases.map((db) => db.name) ?? [];
-
-  // We pull in the database names listed among the user privileges. This
-  // accounts for situations where a user would not have rights to listDatabases
-  // on the cluster but is authorized to perform actions on specific databases.
-  const privilegesDatabaseNames = Object.keys(privileges);
-
-  const uniqueDbNames = Array.from(
-    new Set([...listedDatabaseNames, ...privilegesDatabaseNames])
-  ).filter(Boolean);
-
-  const databases = (
-    await Promise.all(
-      uniqueDbNames.map((name) =>
-        fetchDatabaseWithCollections(client, name, privileges)
-      )
-    )
-  )
-    .filter(Boolean)
-    .filter(({ name }) => name);
-
-  return databases;
-}
-
 type DatabaseCollectionPrivileges = Record<string, Record<string, string[]>>;
 
-function extractPrivilegesByDatabaseAndCollection(
+export function extractPrivilegesByDatabaseAndCollection(
   connectionStatus: ConnectionStatusWithPriveleges | null,
   requiredActions: string[] | null = null
 ): DatabaseCollectionPrivileges {
@@ -221,62 +180,40 @@ function extractPrivilegesByDatabaseAndCollection(
   );
 }
 
-async function fetchDatabaseWithCollections(
+type DatabasesAndCollectionsNames = {
+  databases: string[];
+  collections: string[];
+};
+
+export async function getDatabasesAndCollectionsFromPrivileges(
   client: MongoClient,
-  dbName: string,
-  privileges: DatabaseCollectionPrivileges = {}
-) {
-  const db = client.db(dbName);
+  requiredActions: string[] | null = null
+): Promise<DatabasesAndCollectionsNames> {
+  const adminDb = client.db('admin');
+  const connectionStatus = await runCommand(adminDb, {
+    connectionStatus: 1,
+    showPrivileges: true,
+  }).catch(ignoreNotAuthorized(null));
 
-  const [database, rawCollections] = await Promise.all([
-    runCommand(db, { dbStats: 1 })
-      .catch(ignoreNotAuthorized({ db: dbName }))
-      .then(adaptDatabaseInfo),
-
-    (
-      db
-        .listCollections()
-        // Convincing TypeScript to use correct types, otherwise it picks up
-        // driver ones that are a bit too loose
-        .toArray() as Promise<Collection[]>
-    )
-      .catch(ignoreNotAuthorized([] as Collection[]))
-      .catch(ignoreMongosLocalException([] as Collection[])),
-  ]);
-
-  const listedCollections = rawCollections.map((rawCollection) => ({
-    db: dbName,
-    ...rawCollection,
-  }));
-
-  const collectionsFromPrivileges = Object.keys(privileges[dbName] || {})
-    .filter((name) => name && !isSystemCollection(name))
-    .map((name) => ({
-      name,
-      db: dbName,
-      // We don't know any better when getting data from privileges. Collection
-      // is a safe default
-      type: 'collection' as const,
-    }));
-
-  const collections = Object.fromEntries(
-    // NB: Order is important, whatever is the last item in the list will take
-    // precedence, we want it to be collection info from listCollections, not
-    // from privileges
-    [...collectionsFromPrivileges, ...listedCollections].map((coll) => [
-      coll.name,
-      adaptCollectionInfo(coll),
-    ])
-  );
-
-  return {
-    ...database,
-    collections: Array.from(Object.values(collections)),
+  const result: DatabasesAndCollectionsNames = {
+    databases: [],
+    collections: [],
   };
-}
 
-function isSystemCollection(name: string) {
-  return name.startsWith('system.');
+  if (connectionStatus) {
+    const privileges = extractPrivilegesByDatabaseAndCollection(
+      connectionStatus,
+      requiredActions
+    );
+
+    result.databases = Object.keys(privileges);
+
+    result.collections = Object.values(privileges)
+      .map((collections) => Object.keys(collections))
+      .flat();
+  }
+
+  return result;
 }
 
 function isNotAuthorized(err: AnyError) {
@@ -309,25 +246,6 @@ function ignoreNotAuthorized<T>(fallback: T): (err: AnyError) => Promise<T> {
   };
 }
 
-function ignoreMongosLocalException<T>(
-  fallback: T
-): (err: AnyError) => Promise<T> {
-  return (err: AnyError) => {
-    if (isMongosLocalException(err)) {
-      debug(
-        'ignoring mongos action on local db error and returning fallback value:',
-        {
-          err,
-          fallback,
-        }
-      );
-      return Promise.resolve(fallback);
-    }
-
-    return Promise.reject(err);
-  };
-}
-
 function adaptHostInfo(rawHostInfo: Partial<HostInfo>): HostInfoDetails {
   return {
     os: rawHostInfo.os?.name,
@@ -352,8 +270,8 @@ function adaptBuildInfo(rawBuildInfo: Partial<BuildInfo>) {
   };
 }
 
-function adaptDatabaseInfo(
-  databaseStats: Pick<DbStats, 'db'> & Partial<DbStats>
+export function adaptDatabaseInfo(
+  databaseStats: { db: string } & Partial<DbStats> & Partial<DatabaseInfo>
 ): Omit<DatabaseDetails, 'collections'> {
   return {
     _id: databaseStats.db,
@@ -365,23 +283,56 @@ function adaptDatabaseInfo(
   };
 }
 
-function adaptCollectionInfo({
+export function adaptCollectionInfo({
   db,
   name,
   info,
   options,
   type,
-}: CollectionNameOnly &
-  Partial<Collection> & { db: string }): CollectionDetails {
+}: CollectionInfoNameOnly &
+  Partial<CollectionInfo> & { db: string }): CollectionDetails {
   const ns = toNS(`${db}.${name}`);
+  const {
+    collection,
+    database,
+    system,
+    oplog,
+    command,
+    special,
+    specialish,
+    normal,
+  } = ns;
+  const { readOnly } = info ?? {};
+  const {
+    collation,
+    viewOn,
+    pipeline,
+    validator,
+    validationAction,
+    validationLevel,
+  } = options ?? {};
+
+  const hasValidation = Boolean(
+    validator || validationAction || validationLevel
+  );
+
   return {
     _id: ns.toString(),
-    name: ns.collection,
-    database: ns.database,
-    type,
-    readonly: info?.readOnly ?? false,
-    collation: options?.collation ?? null,
-    view_on: options?.viewOn ?? null,
-    pipeline: options?.pipeline ?? null,
+    name: collection,
+    database,
+    system,
+    oplog,
+    command,
+    special,
+    specialish,
+    normal,
+    type: type ?? 'collection',
+    readonly: readOnly ?? false,
+    collation: collation ?? null,
+    view_on: viewOn ?? null,
+    pipeline: pipeline ?? null,
+    validation: hasValidation
+      ? { validator, validationAction, validationLevel }
+      : null,
   };
 }
