@@ -12,6 +12,7 @@ const connectionButtonContainerStyles = css({
   position: 'relative',
   marginTop: spacing[1],
   padding: 0,
+  width: '100%',
   '&::after': {
     position: 'absolute',
     content: '""',
@@ -75,12 +76,29 @@ const activeConnectionStyles = css({
   background: uiColors.gray.dark3,
 });
 
+const connectionTitleContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  marginTop: spacing[1],
+  position: 'relative',
+  width: '100%',
+});
+
+const connectionFavoriteStyles = css({
+  borderRadius: '50%',
+  width: 14,
+  height: 14,
+  flexShrink: 0,
+  marginTop: spacing[1],
+  marginRight: spacing[2],
+});
+
 const connectionTitleStyles = css({
   color: 'white',
   fontWeight: 'bold',
-  fontSize: 14,
+  fontSize: 16,
   margin: 0,
-  marginTop: spacing[1],
+  flexGrow: 1,
   marginRight: spacing[2],
   width: '100%',
   whiteSpace: 'nowrap',
@@ -138,19 +156,21 @@ function Connection({
         css={[connectionButtonStyles, isActive ? activeConnectionStyles : null]}
         onClick={onClick}
       >
-        <Subtitle
-          css={[
-            connectionTitleStyles,
-            connection.favorite && connection.favorite.color
-              ? css({
-                  color: connection.favorite.color,
-                })
-              : null,
-          ]}
-          title={connectionTitle}
-        >
-          {connectionTitle}
-        </Subtitle>
+        <div css={connectionTitleContainerStyles}>
+          {!!(connection.favorite && connection.favorite.color) && (
+            <div
+              css={[
+                connectionFavoriteStyles,
+                css({
+                  backgroundColor: connection.favorite.color,
+                }),
+              ]}
+            />
+          )}
+          <Subtitle css={connectionTitleStyles} title={connectionTitle}>
+            {connectionTitle}
+          </Subtitle>
+        </div>
         {connection.lastUsed && (
           <Description css={connectionDescriptionStyles}>
             {connection.lastUsed.toLocaleString('default', dateConfig)}

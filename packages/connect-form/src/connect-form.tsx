@@ -22,7 +22,7 @@ const formContainerStyles = css({
   paddingRight: 0,
   paddingTop: spacing[5],
   height: 'fit-content',
-  width: '100%',
+  flexGrow: 1,
   minWidth: 360,
   maxWidth: 760,
   position: 'relative',

@@ -23,6 +23,8 @@ const connectStyles = css({
 const formContainerStyles = css({
   position: 'relative',
   flexGrow: 1,
+  display: 'flex',
+  flexDirection: 'row',
   padding: 0,
   paddingBottom: spacing[4],
   overflow: 'auto',

@@ -15,13 +15,14 @@ import Connection from './connection';
 const newConnectionButtonContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  padding: spacing[3],
+  padding: 3, // spacing[3],
   background: uiColors.gray.dark3,
   position: 'relative',
 });
 
 const sectionHeaderStyles = css({
   marginTop: spacing[3],
+  marginBottom: spacing[2],
   paddingLeft: spacing[3],
   display: 'flex',
   flexDirection: 'row',
@@ -91,6 +92,7 @@ function ConnectionList({
             .map((connection, index) => (
               <li key={`${connection.id || ''}-${index}`}>
                 <Connection
+                  key={`${connection.id || ''}-${index}`}
                   isActive={
                     !!activeConnectionId && activeConnectionId === connection.id
                   }
@@ -111,6 +113,7 @@ function ConnectionList({
             .map((connection, index) => (
               <li key={`${connection.id || ''}-${index}`}>
                 <Connection
+                  key={`${connection.id || ''}-${index}`}
                   isActive={
                     !!activeConnectionId && activeConnectionId === connection.id
                   }
