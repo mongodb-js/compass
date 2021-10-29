@@ -1,4 +1,5 @@
-import { TestBackend } from 'storage-mixin';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { TestBackend } = require('storage-mixin');
 
 import { expect } from 'chai';
 
@@ -94,6 +95,19 @@ describe('ConnectionStorage', function () {
           },
         },
       ]);
+    });
+
+    it('should convert lastUsed', async function () {
+      const id = uuid();
+      const lastUsed = new Date('2021-10-26T13:51:27.585Z');
+      writeFakeConnection(tmpDir, {
+        _id: id,
+        lastUsed,
+      });
+
+      const connectionStorage = new ConnectionStorage();
+      const connections = await connectionStorage.loadAll();
+      expect(connections[0].lastUsed).to.deep.equal(lastUsed);
     });
   });
 
