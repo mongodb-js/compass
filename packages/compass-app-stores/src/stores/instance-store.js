@@ -1,7 +1,6 @@
 import { createStore } from 'redux';
+import MongoDbInstance from 'mongodb-instance-model';
 import reducer from '../modules/instance';
-
-import MongoDBInstance from 'mongodb-instance-model';
 import { reset } from '../modules/instance/reset';
 import { changeInstance } from '../modules/instance/instance';
 import { changeErrorMessage } from '../modules/instance/error-message';
@@ -11,47 +10,52 @@ const debug = require('debug')('mongodb-compass:stores:InstanceStore');
 
 const store = createStore(reducer);
 
-store.handleError = (model, resp, options) => {
-  const err = options.error.arguments[2];
-  if (err) {
-    store.dispatch(changeErrorMessage(err));
+store.refreshInstance = async(globalAppRegistry) => {
+  const { instance, dataService } = store.getState();
+  if (!instance) {
+    debug(
+      'Trying to refresh the MongoDB instance model without the model in the state'
+    );
+    return;
   }
 
-  const StatusAction = global.hadronApp.appRegistry.getAction('Status.Actions');
-  if (StatusAction) StatusAction.hide();
-  const state = {
-    errorMessage: err,
-    dataService: store.getState().dataService,
-    instance: store.getState().instance
-  };
-  global.hadronApp.appRegistry.emit('instance-refreshed', state);
-};
+  // eslint-disable-next-line chai-friendly/no-unused-expressions
+  globalAppRegistry.getAction('Status.Actions')?.configure({
+    animation: true,
+    message: 'Loading databases',
+    visible: true,
+  });
 
-store.refreshInstance = () => {
-  if (store.getState().instance.fetch) {
-    const StatusAction = global.hadronApp.appRegistry.getAction('Status.Actions');
-    if (StatusAction) {
-      StatusAction.configure({
-        animation: true,
-        message: 'Loading databases',
-        visible: true
-      });
-    }
-    store.getState().instance.fetch({
-      error: store.handleError,
-      success: function(instance) {
-        store.dispatch(changeInstance(instance));
-        store.dispatch(changeErrorMessage(''));
-        if (StatusAction) StatusAction.hide();
-        /* Emit here because ampersand changes don't trigger rerenders on their own */
-        const state = {
-          dataService: store.getState().dataService,
-          errorMessage: '',
-          instance: instance
-        };
-        global.hadronApp.appRegistry.emit('instance-refreshed', state);
-      },
-      dataService: store.getState().dataService
+  try {
+    await instance.fetch({ dataService });
+    await instance.databases.fetch({ dataService });
+    await Promise.all(
+      instance.databases
+        .map((db) => {
+          return [
+            db.fetch({ dataService }).catch(() => {
+              /* we don't care if this fails, it just means less dbStats in the UI */
+            }),
+            db.collections.fetch({ dataService }),
+          ];
+        })
+        .flat()
+    );
+
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    globalAppRegistry.getAction('Status.Actions')?.hide();
+    store.dispatch(changeErrorMessage(''));
+    globalAppRegistry.emit('instance-refreshed', {
+      ...store.getState(),
+      errorMessage: '',
+    });
+  } catch (err) {
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    globalAppRegistry.getAction('Status.Actions')?.hide();
+    store.dispatch(changeErrorMessage(err.message));
+    globalAppRegistry.emit('instance-refreshed', {
+      ...store.getState(),
+      errorMessage: err.message,
     });
   }
 };
@@ -59,39 +63,44 @@ store.refreshInstance = () => {
 store.onActivated = (appRegistry) => {
   // Events emitted from the app registry:
   appRegistry.on('data-service-disconnected', () => {
-    global.hadronApp.instance = new MongoDBInstance();
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    global.hadronApp.instance?.off();
+    global.hadronApp.instance = null;
     store.dispatch(reset());
   });
 
-  appRegistry.on('data-service-connected', (err, ds) => {
-    if (!err) {
-      store.dispatch(changeDataService(ds));
-    } else {
+  appRegistry.on('data-service-connected', (err, dataService) => {
+    if (err) {
       store.dispatch(changeErrorMessage(err.message));
-    }
-    // Was previously onFirstFetch action, which was triggered from data-service-connected in the home plugin
-    const StatusAction = appRegistry.getAction('Status.Actions');
-    if (StatusAction) StatusAction.hide();
-    store.dispatch(changeInstance(global.hadronApp.instance));
-
-    if (!err) {
-      store.refreshInstance();
-    } else {
-      const state = {
+      appRegistry.emit('instance-refreshed', {
         dataService: null,
+        instance: null,
         errorMessage: err.message,
-        instance: global.hadronApp.instance
-      };
-      global.hadronApp.appRegistry.emit('instance-refreshed', state);
+      });
+      return;
     }
+
+    const connectionString = dataService.getConnectionString();
+    const firstHost = connectionString.hosts[0] || '';
+    const [hostname, port] = firstHost.split(':');
+
+    const instance = (global.hadronApp.instance = new MongoDbInstance({
+      _id: firstHost,
+      hostname: hostname,
+      port: port ? +port : undefined,
+    }));
+
+    store.dispatch(changeDataService(dataService));
+    store.dispatch(changeInstance(instance));
+    store.refreshInstance(appRegistry);
   });
 
   appRegistry.on('refresh-data', () => {
-    store.refreshInstance();
+    store.refreshInstance(appRegistry);
   });
 
   appRegistry.on('agg-pipeline-out-executed', () => {
-    store.refreshInstance();
+    store.refreshInstance(appRegistry);
   });
 };
 
