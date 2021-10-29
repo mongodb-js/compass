@@ -15,7 +15,7 @@ import Connection from './connection';
 const newConnectionButtonContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  padding: spacing[1], // spacing[3],
+  padding: spacing[1],
   background: uiColors.gray.dark3,
   position: 'relative',
   fontWeight: 'bold',
