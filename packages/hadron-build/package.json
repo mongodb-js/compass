@@ -18,8 +18,10 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
+    "@mongodb-js/devtools-github-repo": "^1.0.1",
     "@mongodb-js/electron-wix-msi": "^3.0.0",
     "@mongodb-js/mongodb-notary-service-client": "^1.4.0",
+    "@octokit/rest": "^18.6.2",
     "asar": "^3.0.3",
     "async": "^3.2.0",
     "aws-sdk": "^2.611.0",
@@ -39,7 +41,6 @@
     "flatnest": "^1.0.0",
     "fs-extra": "^8.1.0",
     "getos": "^3.1.4",
-    "@octokit/rest": "^18.6.2",
     "got": "^10.4.0",
     "in-publish": "^2.0.0",
     "js-yaml": "^3.13.1",
