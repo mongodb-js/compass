@@ -202,6 +202,7 @@ class InsertDocumentDialog extends React.PureComponent {
         buttonText="Insert"
         submitDisabled={this.hasErrors()}
         closeOnBackdropClick={false}
+        trackingId="insert_document_modal"
       >
         <div className="insert-document-views">
           <ViewSwitcher

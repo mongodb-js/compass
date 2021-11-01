@@ -6,6 +6,8 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
 import styles from './export-modal.module.less';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-EXPORT-TO-LANGUAGE-UI');
 
 class ExportModal extends PureComponent {
   static displayName = 'ExportModalComponent';
@@ -31,6 +33,10 @@ class ExportModal extends PureComponent {
     copySuccessChanged: PropTypes.func.isRequired,
     modalOpenChanged: PropTypes.func.isRequired,
     runTranspiler: PropTypes.func.isRequired
+  };
+
+  showHandler = () => {
+    track('Screen', { name: 'export_to_language_modal' });
   };
 
   closeHandler = () => {
@@ -73,6 +79,7 @@ class ExportModal extends PureComponent {
         backdrop="static"
         bsSize="large"
         onHide={this.closeHandler}
+        onShow={this.showHandler}
         data-test-id="export-to-lang-modal"
         className={classnames(styles['export-to-lang-modal'])}>
 

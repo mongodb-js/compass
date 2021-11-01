@@ -134,45 +134,61 @@ describe('instance-detail-helper', function () {
       return client as MongoClient;
     }
 
-    it('should throw if buildInfo was not available', async function () {
-      const client = createMongoClientMock();
+    context('when errors returned from commands', function () {
+      it('should throw if buildInfo was not available', async function () {
+        const client = createMongoClientMock();
 
-      try {
-        await getInstance(client);
-      } catch (e) {
-        expect(e).to.be.instanceof(Error);
-        return;
-      }
+        try {
+          await getInstance(client);
+        } catch (e) {
+          expect(e).to.be.instanceof(Error);
+          return;
+        }
 
-      throw new Error("getInstance didn't throw");
-    });
-
-    it('should handle auth errors gracefully on any command', async function () {
-      const client = createMongoClientMock({
-        buildInfo: {},
+        throw new Error("getInstance didn't throw");
       });
 
-      await getInstance(client);
-    });
+      it('should handle auth errors gracefully on any command except buildInfo', async function () {
+        const client = createMongoClientMock({
+          buildInfo: {},
+        });
 
-    it('should throw if server returned an unexpected error on any command', async function () {
-      const randomError = new Error('Whoops');
-
-      const client = createMongoClientMock({
-        getCmdLineOpts: randomError,
-        hostInfo: randomError,
-        getParameter: randomError,
-        buildInfo: {},
+        await getInstance(client);
       });
 
-      try {
-        await getInstance(client);
-      } catch (e) {
-        expect(e).to.eq(randomError);
-        return;
-      }
+      // eslint-disable-next-line mocha/no-setup-in-describe
+      ['connectionStatus', 'hostInfo', 'dbStats'].forEach(
+        (commandName) => {
+          it(`should throw if server returned an unexpected error on ${commandName} command`, async function () {
+            const randomError = new Error('Whoops');
 
-      throw new Error("getInstance didn't throw");
+            const client = createMongoClientMock({
+              buildInfo: {},
+              [commandName]: randomError,
+            });
+
+            try {
+              await getInstance(client);
+            } catch (e) {
+              expect(e).to.eq(randomError);
+              return;
+            }
+
+            throw new Error("getInstance didn't throw");
+          });
+        }
+      );
+
+      it('should ignore all errors returned from getParameter command', async function () {
+        const randomError = new Error('Whoops');
+
+        const client = createMongoClientMock({
+          buildInfo: {},
+          getParameter: randomError,
+        });
+
+        await getInstance(client);
+      });
     });
 
     it('should parse build info', async function () {

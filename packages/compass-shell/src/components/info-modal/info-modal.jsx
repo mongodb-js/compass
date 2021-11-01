@@ -2,6 +2,8 @@ import { TextButton } from 'hadron-react-buttons';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { Modal } from 'react-bootstrap';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
 import packageJson from '../../../package.json';
 
@@ -61,6 +63,10 @@ export class InfoModal extends PureComponent {
     show: PropTypes.bool.isRequired
   };
 
+  showHandler = () => {
+    track('Screen', { name: 'shell_info_modal' });
+  };
+
   /**
    * Render the component.
    *
@@ -73,7 +79,7 @@ export class InfoModal extends PureComponent {
     } = this.props;
 
     return (
-      <Modal show={show}>
+      <Modal show={show} onShow={this.showHandler}>
         <Modal.Header closeButton onHide={hideInfoModal}>
           <h4>mongosh {mongoshVersion}</h4>
         </Modal.Header>

@@ -65,6 +65,7 @@ class CreateViewModal extends PureComponent {
         onCancel={this.onCancel}
         buttonText="Create"
         closeOnBackdropClick={false}
+        trackingId="create_view_modal"
       >
         <form
           name="create-view-modal-form"

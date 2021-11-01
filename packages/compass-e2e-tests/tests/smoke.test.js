@@ -3,6 +3,7 @@ const { promises: fs } = require('fs');
 const _ = require('lodash');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
+const { startTelemetryServer } = require('../helpers/telemetry');
 
 const { expect } = chai;
 
@@ -25,16 +26,19 @@ describe('Smoke tests', function () {
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
   let client;
+  let telemetry;
 
   before(async function () {
+    telemetry = await startTelemetryServer();
     compass = await beforeTests();
     client = compass.client;
 
     await client.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
-  after(function () {
-    return afterTests(compass);
+  after(async function () {
+    await afterTests(compass);
+    await telemetry.stop();
   });
 
   afterEach(async function () {
@@ -504,6 +508,7 @@ describe('Smoke tests', function () {
     });
 
     it('supports collection to CSV with a query filter', async function () {
+      const telemetryEntry = await client.listenForTelemetryEvents(telemetry);
       await client.runFindOperation('Documents', '{ i: 5 }');
       await client.clickVisible(Selectors.ExportCollectionButton);
       const exportModal = await client.$(Selectors.ExportModal);
@@ -581,6 +586,16 @@ describe('Smoke tests', function () {
       const fields = lines[1].split(',');
       // first field is an id, so always different
       expect(fields[1]).to.equal('5');
+
+      const exportCompletedEvent = await telemetryEntry('Export Completed');
+      expect(exportCompletedEvent).to.deep.equal({
+        all_docs: false,
+        file_type: 'csv',
+        all_fields: true,
+        number_of_docs: 1,
+        success: true,
+      });
+      expect(telemetry.screens()).to.include('export_modal');
     });
 
     it('supports full collection to CSV');

@@ -114,10 +114,13 @@ export async function getInstance(
     // This is why it's the only one where we are not ignoring any types of
     // errors
     runCommand(adminDb, { buildInfo: 1 }),
+    // This command is only here to get data for the logs and telemetry, if it
+    // failed (e.g., not authorised or not supported) we should just ignore the
+    // failure
     runCommand<{ featureCompatibilityVersion: { version: string } }>(adminDb, {
       getParameter: 1,
       featureCompatibilityVersion: 1,
-    }).catch(ignoreNotAuthorized(null)),
+    }).catch(() => null),
   ]);
 
   return {

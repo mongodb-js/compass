@@ -2,6 +2,11 @@ const React = require('react');
 const filter = require('lodash.filter');
 const PropTypes = require('prop-types');
 const { TabNavBar, UnsafeComponent } = require('hadron-react-components');
+const { track } = require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-INSTANCE-UI');
+
+function trackingIdForTabName(name) {
+  return name.toLowerCase().replace(/ /g, '_');
+}
 
 /**
  * Represents the instance view.
@@ -33,6 +38,7 @@ class InstanceComponent extends React.Component {
       return;
     }
     global.hadronApp.appRegistry.emit('compass:screen:viewed', { screen: name });
+    track('Screen', { name: trackingIdForTabName(name) });
     this.setState({ activeTab: idx });
   }
 
@@ -54,6 +60,9 @@ class InstanceComponent extends React.Component {
 
     this.tabs = tabs;
     this.views = views;
+    if (tabs.length > 0) {
+      track('Screen', { name: trackingIdForTabName(tabs[0]) });
+    }
   }
 
   /**

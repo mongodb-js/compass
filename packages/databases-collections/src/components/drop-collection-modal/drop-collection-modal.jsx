@@ -74,6 +74,7 @@ class DropCollectionModal extends PureComponent {
         submitDisabled={this.props.name !== this.props.nameConfirmation}
         className={styles['drop-collection-modal']}
         closeOnBackdropClick={false}
+        trackingId="drop_collection_modal"
       >
         <div>
           <p className={styles['drop-collection-modal-confirm']}>
