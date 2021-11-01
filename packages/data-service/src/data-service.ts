@@ -69,7 +69,7 @@ import {
 } from './types';
 
 import getPort from 'get-port';
-import { DatabaseInfoNameOnly, DatabaseInfo } from './run-command';
+import { DatabaseInfoNameOnly, DatabaseInfo, runCommand } from './run-command';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -229,21 +229,20 @@ class DataService extends EventEmitter {
    *
    * @param dbName database name
    * @param collName collection name
-   * @param callback callback with a collection info or null if collection doesn't exist
    */
-  collectionInfo(
+  async collectionInfo(
     dbName: string,
-    collName: string,
-    callback: Callback<CollectionInfo | null>
-  ): void {
-    this.listCollections(dbName, { name: collName }, (err, res) => {
-      if (err) {
-        // @ts-expect-error callback without result
-        callback(err);
-        return;
-      }
-      callback(null, res[0] ?? null);
-    });
+    collName: string
+  ): Promise<CollectionInfo | null> {
+    try {
+      const [collInfo] = await promisify(this.listCollections.bind(this))(
+        dbName,
+        { name: collName }
+      );
+      return collInfo ?? null;
+    } catch (err) {
+      throw this._translateMessage(err);
+    }
   }
 
   /**
@@ -605,29 +604,17 @@ class DataService extends EventEmitter {
    * @param callback - The callback.
    */
   database(name: string, options: unknown, callback: Callback<Document>): void {
-    async.parallel(
-      {
-        stats: this._databaseStats.bind(this, name),
-        collections: this.collections.bind(this, name),
-      } as any,
-      (error, db: any) => {
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateMessage(error));
-        }
-        callback(null, this._buildDatabaseDetail(name, db));
+    const asyncColls = promisify(this.collections.bind(this));
+
+    void Promise.all([this.databaseStats(name), asyncColls(name)]).then(
+      ([stats, collections]) => {
+        callback(null, this._buildDatabaseDetail(name, { stats, collections }));
+      },
+      (err) => {
+        // @ts-expect-error callback without result
+        callback(this._translateMessage(err));
       }
     );
-  }
-
-  databaseStats(name: string, callback: Callback<Document>): void {
-    this._databaseStats(name, (err, stats) => {
-      if (err) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(err));
-      }
-      callback(null, stats);
-    });
   }
 
   /**
@@ -1010,32 +997,27 @@ class DataService extends EventEmitter {
 
   /**
    * Get the current instance details.
-   *
-   * @param callback - The callback function.
    */
-  instance(callback: Callback<InstanceDetails>): void {
-    getInstance(this._initializedClient).then(
-      (instanceData) => {
-        log.info(
-          mongoLogId(1_001_000_024),
-          this._logCtx(),
-          'Fetched instance information',
-          {
-            serverVersion: instanceData.build.version,
-            genuineMongoDB: instanceData.genuineMongoDB,
-            dataLake: instanceData.dataLake,
-            featureCompatibilityVersion:
-              instanceData.featureCompatibilityVersion,
-          }
-        );
+  async instance(): Promise<InstanceDetails> {
+    try {
+      const instanceData = await getInstance(this._initializedClient);
 
-        callback(null, instanceData);
-      },
-      (err) => {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(err));
-      }
-    );
+      log.info(
+        mongoLogId(1_001_000_024),
+        this._logCtx(),
+        'Fetched instance information',
+        {
+          serverVersion: instanceData.build.version,
+          genuineMongoDB: instanceData.genuineMongoDB,
+          dataLake: instanceData.dataLake,
+          featureCompatibilityVersion: instanceData.featureCompatibilityVersion,
+        }
+      );
+
+      return instanceData;
+    } catch (err) {
+      throw this._translateMessage(err);
+    }
   }
 
   /**
@@ -1660,27 +1642,23 @@ class DataService extends EventEmitter {
    * @param name - The database name.
    * @param callback - The callback.
    */
-  private _databaseStats(
-    name: string,
-    callback: Callback<Omit<ReturnType<typeof adaptDatabaseInfo>, '_id'>>
-  ): void {
+  async databaseStats(
+    name: string
+  ): Promise<Omit<ReturnType<typeof adaptDatabaseInfo>, '_id'>> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_057),
       'Running databaseStats',
       { db: name }
     );
-
-    const db = this._initializedClient.db(name);
-    db.command({ dbStats: 1 }, (error, data) => {
-      logop(error);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
-      }
-      // Omitting the _id here
-      const { _id, ...normalized } = adaptDatabaseInfo({ db: name, ...data });
-      callback(null, normalized);
-    });
+    try {
+      const db = this._initializedClient.db(name);
+      const stats = await runCommand(db, { dbStats: 1 });
+      const { _id, ...normalized } = adaptDatabaseInfo(stats);
+      return normalized;
+    } catch (err) {
+      logop(err);
+      throw this._translateMessage(err);
+    }
   }
 
   /**

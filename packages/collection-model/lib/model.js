@@ -52,12 +52,9 @@ const CollectionModel = AmpersandModel.extend({
     const collectionStatsAsync = promisify(
       dataService.collectionStats.bind(dataService)
     );
-    const collectionInfoAsync = promisify(
-      dataService.collectionInfo.bind(dataService)
-    );
     const [collStats, collectionInfo] = await Promise.all([
       collectionStatsAsync(this.getId()),
-      collectionInfoAsync(this.database, this.name),
+      dataService.collectionInfo(this.database, this.name),
     ]);
     return this.set({ ...collStats, ...collectionInfo });
   },

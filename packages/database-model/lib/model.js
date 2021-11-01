@@ -1,7 +1,7 @@
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
 const {
-  Collection: MongoDbCollectionCollection
+  Collection: MongoDbCollectionCollection,
 } = require('mongodb-collection-model');
 
 const DatabaseModel = AmpersandModel.extend({
@@ -13,25 +13,18 @@ const DatabaseModel = AmpersandModel.extend({
     document_count: 'number',
     storage_size: 'number',
     index_count: 'number',
-    index_size: 'number'
+    index_size: 'number',
   },
   collections: {
-    collections: MongoDbCollectionCollection
+    collections: MongoDbCollectionCollection,
   },
   /**
    * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
    * @returns
    */
-  fetch({ dataService }) {
-    return new Promise((resolve, reject) => {
-      dataService.databaseStats(this.getId(), (err, databaseInfo) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(this.set(databaseInfo));
-      });
-    });
+  async fetch({ dataService }) {
+    const stats = await dataService.databaseStats(this.getId());
+    return this.set(stats);
   }
 });
 

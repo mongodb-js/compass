@@ -388,18 +388,9 @@ export const fetchValidation = (namespace) => {
       return;
     }
 
-    dataService.collectionInfo(
-      namespace.database,
-      namespace.collection,
-      (err, data) => {
-        const validation = validationFromCollection(err, data);
-
-        if (err) {
-          dispatch(validationFetched(validation));
-          dispatch(zeroStateChanged(false));
-          dispatch(isLoadedChanged(true));
-          return;
-        }
+    dataService.collectionInfo(namespace.database, namespace.collection).then(
+      (collInfo) => {
+        const validation = validationFromCollection(null, collInfo);
 
         if (!validation.validator) {
           validation.validator = '{}';
@@ -420,6 +411,11 @@ export const fetchValidation = (namespace) => {
 
         dispatch(fetchSampleDocuments(validation.validator));
         dispatch(validationFetched(validation));
+        dispatch(zeroStateChanged(false));
+        dispatch(isLoadedChanged(true));
+      },
+      (err) => {
+        dispatch(validationFetched(validationFromCollection(err)));
         dispatch(zeroStateChanged(false));
         dispatch(isLoadedChanged(true));
       }

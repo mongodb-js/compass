@@ -724,19 +724,13 @@ describe('DataService', function () {
             done(error);
             return;
           }
-          dataService.collectionInfo(
-            testDatabaseName,
-            'foo',
-            function (err, collInfo) {
-              if (err) {
-                done(err);
-                return;
-              }
+          dataService
+            .collectionInfo(testDatabaseName, 'foo')
+            .then((collInfo) => {
               expect(collInfo).to.have.property('name', 'foo');
               expect(collInfo).to.have.property('type', 'collection');
-              done();
-            }
-          );
+            })
+            .catch(done);
         }
       );
     });
@@ -791,21 +785,15 @@ describe('DataService', function () {
   });
 
   describe('#instance', function () {
-    it('returns the instance', function (done) {
-      dataService.instance(function (err, instance) {
-        if (err) {
-          done(err);
-          return;
-        }
-        expect(instance.genuineMongoDB).to.deep.equal({
-          isGenuine: true,
-          dbType: 'mongodb',
-        });
-        expect(instance.dataLake).to.deep.equal({
-          isDataLake: false,
-          version: null,
-        });
-        done();
+    it('returns the instance', async function () {
+      const instance = await dataService.instance();
+      expect(instance.genuineMongoDB).to.deep.equal({
+        isGenuine: true,
+        dbType: 'mongodb',
+      });
+      expect(instance.dataLake).to.deep.equal({
+        isDataLake: false,
+        version: null,
       });
     });
   });

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Db, MongoClient } from 'mongodb';
+import { MongoClient } from 'mongodb';
 import { ConnectionOptions } from './connection-options';
 import { getInstance, InstanceDetails } from './instance-detail-helper';
 
@@ -156,28 +156,23 @@ describe('instance-detail-helper', function () {
         await getInstance(client);
       });
 
-      // eslint-disable-next-line mocha/no-setup-in-describe
-      ['connectionStatus', 'hostInfo', 'dbStats'].forEach(
-        (commandName) => {
-          it(`should throw if server returned an unexpected error on ${commandName} command`, async function () {
-            const randomError = new Error('Whoops');
+      it(`should throw if server returned an unexpected error on hostInfo command`, async function () {
+        const randomError = new Error('Whoops');
 
-            const client = createMongoClientMock({
-              buildInfo: {},
-              [commandName]: randomError,
-            });
+        const client = createMongoClientMock({
+          buildInfo: {},
+          hostInfo: randomError,
+        });
 
-            try {
-              await getInstance(client);
-            } catch (e) {
-              expect(e).to.eq(randomError);
-              return;
-            }
-
-            throw new Error("getInstance didn't throw");
-          });
+        try {
+          await getInstance(client);
+        } catch (e) {
+          expect(e).to.eq(randomError);
+          return;
         }
-      );
+
+        throw new Error("getInstance didn't throw");
+      });
 
       it('should ignore all errors returned from getParameter command', async function () {
         const randomError = new Error('Whoops');

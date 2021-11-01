@@ -60,19 +60,16 @@ const InstanceModel = AmpersandModel.extend({
    * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
    * @returns
    */
-  fetch({ dataService }) {
+  async fetch({ dataService }) {
     const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
     this.set({ status: newStatus });
-    return new Promise((resolve, reject) => {
-      dataService.instance((err, instanceInfo) => {
-        if (err) {
-          this.set({ status: 'error' });
-          reject(err);
-          return;
-        }
-        resolve(this.set({ status: 'ready', ...instanceInfo }));
-      });
-    });
+    try {
+      const instanceInfo = await dataService.instance();
+      this.set({ status: 'ready', ...instanceInfo })
+    } catch (err) {
+      this.set({ status: 'error' });
+      throw err;
+    }
   },
 });
 

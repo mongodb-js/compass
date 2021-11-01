@@ -1,1 +1,1 @@
-module.exports = require('./lib/extended-model');
+module.exports = require('./lib/model');
