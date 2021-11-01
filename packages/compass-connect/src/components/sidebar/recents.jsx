@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 
 import Actions from '../../actions';
+import { CONNECTION_ENTRY_RECENT } from '../../constants/connection-entry';
 
 import styles from './sidebar.module.less';
 
@@ -25,7 +26,7 @@ class Recents extends React.Component {
    * @param {Object} recent - A recent connection.
    */
   onRecentClicked(recent) {
-    Actions.onConnectionSelected(recent);
+    Actions.onConnectionSelected(recent, CONNECTION_ENTRY_RECENT);
   }
 
   /**

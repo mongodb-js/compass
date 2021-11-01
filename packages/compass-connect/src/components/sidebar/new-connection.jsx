@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import Actions from '../../actions';
+import { CONNECTION_ENTRY_NEW } from '../../constants/connection-entry';
 
 import styles from './sidebar.module.less';
 
@@ -18,7 +19,7 @@ class NewConnection extends React.Component {
    * Resets connection when new connection clicked.
    */
   onNewConnectionClicked() {
-    Actions.onResetConnectionClicked();
+    Actions.onResetConnectionClicked(CONNECTION_ENTRY_NEW);
   }
 
   /**

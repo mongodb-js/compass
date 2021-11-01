@@ -7,6 +7,7 @@ import { DropdownButton, MenuItem } from 'react-bootstrap';
 import { Icon } from '@mongodb-js/compass-components';
 
 import Actions from '../../actions';
+import { CONNECTION_ENTRY_FAVORITE } from '../../constants/connection-entry';
 
 import styles from './sidebar.module.less';
 
@@ -26,7 +27,7 @@ class Favorites extends React.Component {
    * @param {Object} favorite - A favorite connection.
    */
   onFavoriteClicked(favorite) {
-    Actions.onConnectionSelected(favorite);
+    Actions.onConnectionSelected(favorite, CONNECTION_ENTRY_FAVORITE);
   }
 
   /**
