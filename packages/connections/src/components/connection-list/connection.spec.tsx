@@ -96,7 +96,7 @@ describe('Connection Component', function () {
               },
               favorite: {
                 name: 'aaa',
-                color: 'orange',
+                color: 'rgb(95, 200, 110)',
               },
             }}
             onClick={onClickSpy}
@@ -113,7 +113,7 @@ describe('Connection Component', function () {
           getComputedStyle(favoriteIndicator).getPropertyValue(
             'background-color'
           )
-        ).to.equal('rgb(255, 165, 0)');
+        ).to.equal('rgb(95, 200, 110)');
       });
     });
   });
