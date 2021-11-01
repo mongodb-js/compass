@@ -47,7 +47,7 @@ describe('Smoke tests', function () {
   });
 
   describe('Sidebar', function () {
-    it('contains cluster info', async function () {
+    it.only('contains cluster info', async function () {
       const topologySingleHostAddressElement = await client.$(
         Selectors.TopologySingleHostAddress
       );

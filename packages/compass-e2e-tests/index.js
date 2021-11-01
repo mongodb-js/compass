@@ -70,6 +70,8 @@ async function main() {
     return;
   }
 
+  // TODO: this would be a good place to insert the record to say the tests are started
+
   await setup();
 
   const shouldTestPackagedApp = process.argv.includes('--test-packaged-app');
@@ -110,6 +112,8 @@ async function main() {
   });
 
   mocha.run((failures) => {
+    // TODO: this would be a good place to store the results and mark the database record as failed or succeeded
+    console.log(mocha.suite.suites);
     cleanup();
     process.exitCode = failures ? 1 : 0;
   });
