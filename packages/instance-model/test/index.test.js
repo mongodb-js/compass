@@ -10,15 +10,13 @@ describe('mongodb-instance-model', function () {
   });
   context('with mocked dataService', function () {
     const dataService = {
-      instance(cb) {
+      instance() {
         // eslint-disable-next-line mocha/no-setup-in-describe
-        setImmediate(() => {
-          cb(null, {
-            build: { version: '1.2.3' },
-            host: { arch: 'x64' },
-            genuineMongoDB: { isGenuine: true },
-            dataLake: { isDataLake: false },
-          });
+        return Promise.resolve({
+          build: { version: '1.2.3' },
+          host: { arch: 'x64' },
+          genuineMongoDB: { isGenuine: true },
+          dataLake: { isDataLake: false },
         });
       },
     };
