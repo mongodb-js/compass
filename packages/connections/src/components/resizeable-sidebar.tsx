@@ -1,7 +1,6 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
+import { css } from '@emotion/css';
 import { ResizeHandle, ResizeDirection } from '@mongodb-js/compass-components';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ConnectionInfo } from 'mongodb-data-service';
 
 import ConnectionList from './connection-list/connection-list';
@@ -41,7 +40,7 @@ function ResizableSidebar({
 
   return (
     <div
-      css={listContainerStyles}
+      className={listContainerStyles}
       style={{
         width: width,
       }}

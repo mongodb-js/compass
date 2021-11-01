@@ -113,7 +113,7 @@ describe('Connection Component', function () {
           getComputedStyle(favoriteIndicator).getPropertyValue(
             'background-color'
           )
-        ).to.equal('orange');
+        ).to.equal('rgb(255, 165, 0)');
       });
     });
   });

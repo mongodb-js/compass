@@ -1,6 +1,5 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
-import { useReducer } from 'react';
+import { css } from '@emotion/css';
+import React, { useReducer } from 'react';
 import { compassUIColors, spacing } from '@mongodb-js/compass-components';
 import ConnectForm from '@mongodb-js/connect-form';
 import { ConnectionInfo } from 'mongodb-data-service';
@@ -168,13 +167,13 @@ function Connections(): React.ReactElement {
   };
 
   return (
-    <div css={connectStyles}>
+    <div className={connectStyles}>
       <ResizableSiderbar
         activeConnectionId={activeConnectionId}
         connections={connections}
         setActiveConnectionId={updateActiveConnection}
       />
-      <div css={formContainerStyles}>
+      <div className={formContainerStyles}>
         <ConnectForm
           onConnectClicked={(connectionInfo) =>
             alert(

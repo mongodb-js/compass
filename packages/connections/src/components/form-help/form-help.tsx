@@ -1,5 +1,5 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
+import { css, cx } from '@emotion/css';
+import React from 'react';
 import {
   Button,
   ButtonSize,
@@ -61,22 +61,22 @@ const createClusterButtonStyles = css({
 
 function FormHelp(): React.ReactElement {
   return (
-    <div css={formHelpContainerStyles}>
-      <div css={[sectionContainerStyles, atlasContainerStyles]}>
-        <Subtitle css={titleStyles}>
+    <div className={formHelpContainerStyles}>
+      <div className={cx(sectionContainerStyles, atlasContainerStyles)}>
+        <Subtitle className={titleStyles}>
           New to Compass and don&apos;t have a cluster?
         </Subtitle>
-        <Description css={descriptionStyles}>
+        <Description className={descriptionStyles}>
           If you don&apos;t already have a cluster, you can create one for free
           using{' '}
           <Link href="https://www.mongodb.com/cloud/atlas" target="_blank">
             MongoDB Atlas
           </Link>
         </Description>
-        <div css={createClusterContainerStyles}>
+        <div className={createClusterContainerStyles}>
           <Button
             data-testid="atlas-cta-link"
-            css={createClusterButtonStyles}
+            className={createClusterButtonStyles}
             onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
             variant={ButtonVariant.PrimaryOutline}
             href="https://www.mongodb.com/cloud/atlas/lp/general/try?utm_source=compass&utm_medium=product"
@@ -87,11 +87,11 @@ function FormHelp(): React.ReactElement {
           </Button>
         </div>
       </div>
-      <div css={sectionContainerStyles}>
-        <Subtitle css={titleStyles}>
+      <div className={sectionContainerStyles}>
+        <Subtitle className={titleStyles}>
           How do I find my connection string in Atlas?
         </Subtitle>
-        <Description css={descriptionStyles}>
+        <Description className={descriptionStyles}>
           If you have an Atlas cluster, go to the Cluster view. Click the
           &apos;Connect&apos; button for the cluster to which you wish to
           connect.
@@ -103,8 +103,8 @@ function FormHelp(): React.ReactElement {
           See example
         </Link>
       </div>
-      <div css={sectionContainerStyles}>
-        <Subtitle css={titleStyles}>
+      <div className={sectionContainerStyles}>
+        <Subtitle className={titleStyles}>
           How do I format my connection string?
         </Subtitle>
         <Link

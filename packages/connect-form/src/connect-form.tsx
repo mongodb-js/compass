@@ -1,5 +1,4 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
+import { css } from '@emotion/css';
 import React, { useState } from 'react';
 import { ConnectionInfo } from 'mongodb-data-service';
 import {
@@ -70,12 +69,12 @@ function ConnectForm({
   );
 
   return (
-    <div css={formContainerStyles}>
-      <MongoDBLogo css={logoStyles} color={'black'} />
-      <Card css={formCardStyles}>
-        <div css={formContentContainerStyles}>
+    <div className={formContainerStyles}>
+      <MongoDBLogo className={logoStyles} color={'black'} />
+      <Card className={formCardStyles}>
+        <div className={formContentContainerStyles}>
           <H3>New Connection</H3>
-          <Description css={descriptionStyles}>
+          <Description className={descriptionStyles}>
             Connect to a MongoDB deployment
           </Description>
           <ConnectionStringInput
@@ -83,7 +82,7 @@ function ConnectForm({
             setConnectionString={setConnectionString}
           />
         </div>
-        <div css={formActionStyles}>
+        <div className={formActionStyles}>
           <Button
             variant={ButtonVariant.Primary}
             onClick={() =>

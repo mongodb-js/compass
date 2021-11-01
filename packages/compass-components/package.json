@@ -58,11 +58,11 @@
     "@leafygreen-ui/typography": "^8.0.2"
   },
   "peerDependencies": {
-    "@emotion/react": "^11.4.1",
+    "@emotion/css": "^11.5.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
-    "@emotion/react": "^11.4.1",
+    "@emotion/css": "^11.5.0",
     "@mongodb-js/eslint-config-compass": "^0.3.0",
     "@mongodb-js/mocha-config-compass": "^0.4.0",
     "@mongodb-js/prettier-config-compass": "^0.2.0",

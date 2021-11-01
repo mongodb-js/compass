@@ -1,5 +1,6 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
+import { css, cx } from '@emotion/css';
+import React from 'react';
+
 import {
   Subtitle,
   Description,
@@ -107,7 +108,7 @@ const connectionTitleStyles = css({
 });
 
 const connectionDescriptionStyles = css({
-  color: uiColors.gray.light1,
+  color: uiColors.gray.base,
   fontWeight: 'bold',
   fontSize: 12,
   margin: 0,
@@ -140,29 +141,42 @@ function Connection({
     : getConnectionTitle(connectionInfo);
 
   return (
-    <div css={connectionButtonContainerStyles}>
+    <div className={connectionButtonContainerStyles}>
       <button
-        css={[connectionButtonStyles, isActive ? activeConnectionStyles : null]}
+        className={cx(
+          connectionButtonStyles,
+          isActive ? activeConnectionStyles : null
+        )}
         onClick={onClick}
       >
-        <div css={connectionTitleContainerStyles}>
+        <div className={connectionTitleContainerStyles}>
           {!!(connectionInfo.favorite && connectionInfo.favorite.color) && (
             <div
               data-testid="connection-favorite-indicator"
-              css={[
+              className={cx(
                 connectionFavoriteStyles,
                 css({
                   backgroundColor: connectionInfo.favorite.color,
-                }),
-              ]}
+                })
+              )}
             />
           )}
-          <Subtitle css={connectionTitleStyles} title={connectionTitle}>
+          <Subtitle
+            className={cx(
+              connectionTitleStyles,
+              connectionInfo.favorite && connectionInfo.favorite.color
+                ? css({
+                    color: connectionInfo.favorite.color,
+                  })
+                : null
+            )}
+            title={connectionTitle}
+          >
             {connectionTitle}
           </Subtitle>
         </div>
         {connectionInfo.lastUsed && (
-          <Description css={connectionDescriptionStyles}>
+          <Description className={connectionDescriptionStyles}>
             {connectionInfo.lastUsed.toLocaleString('default', dateConfig)}
           </Description>
         )}

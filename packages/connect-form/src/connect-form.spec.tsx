@@ -15,9 +15,6 @@ function renderForm() {
           connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
         },
       }}
-      openLink={() => {
-        /* do nothing */
-      }}
     />
   );
 }

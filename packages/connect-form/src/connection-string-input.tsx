@@ -1,6 +1,5 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
-import { ChangeEvent, Fragment, useRef, useReducer } from 'react';
+import { css, cx } from '@emotion/css';
+import React, { ChangeEvent, Fragment, useRef, useReducer } from 'react';
 import {
   Icon,
   IconButton,
@@ -130,10 +129,10 @@ function ConnectStringInput({
 
   return (
     <Fragment>
-      <Label css={labelStyles} htmlFor={connectionStringInputId}>
+      <Label className={labelStyles} htmlFor={connectionStringInputId}>
         Connection String
         <IconButton
-          css={infoButtonStyles}
+          className={infoButtonStyles}
           aria-label="Connection String Documentation"
           data-testid="connectionStringDocsButton"
           href="https://docs.mongodb.com/manual/reference/connection-string/"
@@ -142,16 +141,16 @@ function ConnectStringInput({
           <Icon glyph="InfoWithCircle" size="small" />
         </IconButton>
       </Label>
-      <div css={textAreaContainerStyle}>
+      <div className={textAreaContainerStyle}>
         <TextArea
           onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
             setConnectionString(event.target.value);
           }}
           value={displayedConnectionString}
-          css={[
+          className={cx(
             connectionStringStyles,
-            enableEditingConnectionString ? null : connectionStringEditDisabled,
-          ]}
+            enableEditingConnectionString ? null : connectionStringEditDisabled
+          )}
           disabled={!enableEditingConnectionString}
           id={connectionStringInputId}
           ref={textAreaEl}
@@ -160,7 +159,7 @@ function ConnectStringInput({
         />
         {!enableEditingConnectionString && (
           <IconButton
-            css={editConnectionStringStyles}
+            className={editConnectionStringStyles}
             aria-label="Edit Connection String"
             data-testid="enableEditConnectionStringButton"
             onClick={() =>

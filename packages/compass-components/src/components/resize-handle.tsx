@@ -1,5 +1,4 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
+import { css, cx } from '@emotion/css';
 import React, { useRef } from 'react';
 
 enum ResizeDirection {
@@ -93,7 +92,7 @@ function ResizeHandle({
       type="range"
       aria-roledescription={`${directionTitle} splitter`}
       aria-label={`${dimensionTitle} of the ${title}, resize using arrow keys`}
-      css={[baseResizerStyles, resizerStyle]}
+      className={cx(baseResizerStyles, resizerStyle)}
       min={minValue}
       max={maxValue}
       value={value}
