@@ -117,7 +117,7 @@ describe('ConnectionList Component', function () {
     });
   });
 
-  describe('when a connection is clicked', function () {
+  describe('when a favorite connection is clicked', function () {
     beforeEach(function () {
       render(
         <ConnectionList
@@ -144,7 +144,41 @@ describe('ConnectionList Component', function () {
     it('calls changed active connection id to the clicked connection', function () {
       expect(setActiveConnectionIdSpy.called).to.equal(true);
       expect(setActiveConnectionIdSpy.firstCall.args[0]).to.equal(
-        mockConnections[1].id
+        'mock-connection-empty-connection'
+      );
+    });
+  });
+
+  describe('when a recent connection is clicked', function () {
+    beforeEach(function () {
+      render(
+        <ConnectionList
+          activeConnectionId={mockConnections[2].id}
+          connections={mockConnections}
+          setActiveConnectionId={setActiveConnectionIdSpy}
+        />
+      );
+
+      expect(setActiveConnectionIdSpy.called).to.equal(false);
+
+      const button = screen
+        .getByText(
+          mockConnections[7].connectionOptions.connectionString.substr(10)
+        )
+        .closest('button');
+      fireEvent(
+        button,
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+    });
+
+    it('calls changed active connection id to the clicked connection', function () {
+      expect(setActiveConnectionIdSpy.called).to.equal(true);
+      expect(setActiveConnectionIdSpy.firstCall.args[0]).to.equal(
+        'mock-connection-4'
       );
     });
   });
