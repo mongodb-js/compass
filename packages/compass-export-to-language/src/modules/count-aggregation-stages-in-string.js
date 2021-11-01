@@ -12,8 +12,8 @@ let dummySandbox;
 export function countAggregationStagesInString(str) {
   if (!dummySandbox) {
     dummySandbox = vm.createContext(Object.create(null), {
-        codeGeneration: { strings: false, wasm: false },
-        microtaskMode: 'afterEvaluate'
+      codeGeneration: { strings: false, wasm: false },
+      microtaskMode: 'afterEvaluate'
     });
     vm.runInContext([
       'BSONRegExp', 'DBRef', 'Decimal128', 'Double', 'Int32',
