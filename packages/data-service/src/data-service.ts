@@ -347,7 +347,7 @@ class DataService extends EventEmitter {
    * Compared to the listCollections, this method will never throw
    *
    * TODO: Only needed while we are waiting for authorizedCollections: true
-   * support to land in the nodejs driver
+   * support to land in the nodejs driver https://jira.mongodb.org/browse/NODE-3728
    */
   listCollectionsNamesOnly(
     dbName: string,
