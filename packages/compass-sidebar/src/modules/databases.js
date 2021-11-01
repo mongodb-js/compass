@@ -101,9 +101,8 @@ export const filterDatabases = (filter, dbs, ns) => {
       }, []);
     }
 
-    const expandedDbList = Object.fromEntries(dbResult.map(db => {
-      const id = db._id;
-      return [id, re.source !== BLANK || id === activeDatabase];
+    const expandedDbList = Object.fromEntries(dbResult.map(({ _id }) => {
+      return [_id, re.source !== BLANK || _id === activeDatabase];
     }));
 
     dispatch(changeDatabases(dbResult, expandedDbList, activeNamespace));
