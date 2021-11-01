@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 
 import styles from './export-modal.module.less';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { countAggregationStagesInString } from '../../modules/count-aggregation-stages-in-string';
 const { track } = createLoggerAndTelemetry('COMPASS-EXPORT-TO-LANGUAGE-UI');
 
 class ExportModal extends PureComponent {
@@ -36,6 +37,9 @@ class ExportModal extends PureComponent {
   };
 
   showHandler = () => {
+    track(this.props.mode === 'Query' ? 'Query Export Opened' : 'Aggregation Export Opened', {
+      ...this.stageCountForTelemetry()
+    });
     track('Screen', { name: 'export_to_language_modal' });
   };
 
@@ -57,29 +61,35 @@ class ExportModal extends PureComponent {
     this.props.runTranspiler(this.props.inputExpression);
   };
 
+  stageCountForTelemetry = () => {
+    if (this.props.mode === 'Query') {
+      return {};
+    }
+
+    try {
+      return {
+        num_stages: countAggregationStagesInString(this.props.inputExpression.aggregation)
+      };
+    } catch (ignore) {
+      // Things like [{ $match: { x: NumberInt(10) } }] do not evaluate in any kind of context
+      return { num_stages: -1 };
+    }
+  };
+
   copySuccessChanged = (field) => {
     if (field === 'output') {
-      let stageCount = {};
       let event;
       if (this.props.mode === 'Query') {
         event = 'Query Exported';
       } else {
         event = 'Aggregation Exported';
-        try {
-          stageCount = {
-            num_stages: JSON.parse(this.props.inputExpression.aggregation).length
-          };
-        } catch (ignore) {
-          // Things like [{ $match: { x: NumberInt(10) } }] do not parse as JSON
-          stageCount = { num_stages: -1 };
-        }
       }
       track(event, {
         language: this.props.outputLang,
         with_import_statements: this.props.showImports,
         with_builders: this.props.builders,
         with_drivers_syntax: this.props.driver,
-        ...stageCount
+        ...this.stageCountForTelemetry()
       });
     }
     this.props.copySuccessChanged(field);
