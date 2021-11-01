@@ -729,6 +729,7 @@ describe('DataService', function () {
             .then((collInfo) => {
               expect(collInfo).to.have.property('name', 'foo');
               expect(collInfo).to.have.property('type', 'collection');
+              done();
             })
             .catch(done);
         }
