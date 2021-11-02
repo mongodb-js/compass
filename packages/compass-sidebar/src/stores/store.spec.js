@@ -3,8 +3,7 @@ import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import store from './';
 import { reset } from '../modules/reset';
-
-import { makeModel } from '../../electron/renderer/stores/instance-store';
+import { createInstance } from '../../test/helpers';
 
 const WriteStateStore = Reflux.createStore({
   mixins: [StateMixin.store],
@@ -13,18 +12,7 @@ const WriteStateStore = Reflux.createStore({
   }
 });
 
-const instance = {
-  instance: {
-    databases: [
-      {_id: 'admin', collections: ['citibikecoll', 'coll']},
-      {_id: 'citibike', collections: ['admincoll', 'coll2']}
-    ].map((d) => (makeModel(d))),
-    collections: [
-      { _id: 'citibikecoll' }, { _id: 'coll' }, { _id: 'admincoll' }, { _id: 'coll2' }
-    ]
-  }
-};
-
+const instance = createInstance();
 
 describe('SidebarStore [Store]', () => {
   beforeEach(() => {
@@ -60,22 +48,19 @@ describe('SidebarStore [Store]', () => {
 
     context('when instance state changes', () => {
       beforeEach(() => {
-        expect(store.getState().instance).to.deep.equal({
-          collections: null,
-          databases: null
-        }); // initial state
+        expect(store.getState().instance).to.deep.equal(null); // initial state
         expect(store.getState().databases).to.deep.equal({
           databases: [],
           expandedDblist: {},
           activeNamespace: ''
         }); // initial state
-        appRegistry.emit('instance-refreshed', instance);
+        appRegistry.emit('instance-refreshed', { instance });
       });
 
       it('updates the instance and databases state', () => {
-        expect(store.getState().instance).to.deep.equal(instance.instance);
+        expect(store.getState().instance).to.deep.equal(instance.toJSON());
         expect(store.getState().databases).to.deep.equal({
-          databases: [{'_id': 'admin', 'collections': [{'_id': 'admin.citibikecoll', 'database': 'admin', 'capped': false, 'power_of_two': false, 'readonly': false}, {'_id': 'admin.coll', 'database': 'admin', 'capped': false, 'power_of_two': false, 'readonly': false}]}, {'_id': 'citibike', 'collections': [{'_id': 'citibike.admincoll', 'database': 'citibike', 'capped': false, 'power_of_two': false, 'readonly': false}, {'_id': 'citibike.coll2', 'database': 'citibike', 'capped': false, 'power_of_two': false, 'readonly': false}]}],
+          databases: instance.databases.toJSON(),
           expandedDblist: {'admin': false, 'citibike': false},
           activeNamespace: ''
         });

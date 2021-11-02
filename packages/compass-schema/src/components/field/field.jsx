@@ -119,7 +119,7 @@ class Field extends Component {
    */
   getSemanticType(type) {
     // check if the type represents geo coordinates, if privacy settings allow
-    if (global.hadronApp.isFeatureEnabled('enableMaps') && process.env.HADRON_ISOLATED !== 'true') {
+    if (global.hadronApp.isFeatureEnabled('enableMaps')) {
       const coords = detectCoordinates(type);
       if (coords) {
         type.name = 'Coordinates';

@@ -86,6 +86,7 @@ class FavoriteModal extends PureComponent {
         onCancel={this.handleClose.bind(this)}
         buttonText="Save"
         closeOnBackdropClick={false}
+        trackingId="favorite_modal"
       >
         <form
           name="favorite-modal"

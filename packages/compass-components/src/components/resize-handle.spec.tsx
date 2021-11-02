@@ -1,11 +1,15 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { ResizeHandle, ResizeDirection } from './resize-handle';
 
 describe('ResizeHandle Component', function () {
+  afterEach(function () {
+    cleanup();
+  });
+
   describe('resize direction RIGHT', function () {
     let onChangeSpy: sinon.SinonSpy;
     beforeEach(function () {

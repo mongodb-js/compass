@@ -67,6 +67,7 @@ describe('QueryBarStore [Store]', function() {
       expanded: false,
       ns: '',
       isTimeSeries: false,
+      isReadonly: false,
       schemaFields: []
     });
   });

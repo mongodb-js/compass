@@ -43,6 +43,7 @@
     "bootstrap": "npm run compile"
   },
   "dependencies": {
+    "@mongodb-js/compass-logging": "^0.3.0",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "bson": "^4.4.1",
     "highlight.js": "^9.12.0",

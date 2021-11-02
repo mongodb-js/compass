@@ -61,6 +61,9 @@ describe('Logging and Telemetry integration', function () {
           .find((entry) => entry.event === 'Tour Closed');
         expect(tourClosed.properties.tab_title).to.equal('Performance Charts.');
         expect(tourClosed.properties.compass_version).to.be.a('string');
+        expect(tourClosed.properties.compass_version).to.match(/^\d+\.\d+$/);
+        expect(tourClosed.properties.compass_distribution).to.be.a('string');
+        expect(tourClosed.properties.compass_channel).to.be.a('string');
       });
 
       it('contains call for shell use events', function () {
@@ -103,6 +106,10 @@ describe('Logging and Telemetry integration', function () {
         expect(connectionAttempt.properties.server_arch).to.be.a('string');
         expect(connectionAttempt.properties.server_os_family).to.be.a('string');
         expect(connectionAttempt.properties.auth_type).to.be.a('string');
+      });
+      
+      it('contains calls for screens that were accessed', function () {
+        expect(telemetry.screens()).to.include('databases');
       });
     });
 

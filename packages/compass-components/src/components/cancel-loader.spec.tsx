@@ -1,7 +1,8 @@
 import React from 'react';
 import sinon from 'sinon';
-import { fireEvent, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
+
+import { fireEvent, render, screen, cleanup } from '@testing-library/react';
 
 import CancelLoader from './cancel-loader';
 
@@ -21,6 +22,10 @@ describe('ConfirmationModal Component', function () {
 
   beforeEach(function () {
     spy = sinon.spy();
+  });
+
+  afterEach(function () {
+    cleanup();
   });
 
   it('should show the loader', function () {

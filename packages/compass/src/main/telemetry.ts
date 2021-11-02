@@ -25,6 +25,7 @@ class CompassTelemetry {
   private static state: 'enabled' | 'disabled' | 'waiting-for-user-config' = 'waiting-for-user-config';
   private static queuedEvents: EventInfo[] = []; // Events that happen before we fetch user preferences
   private static currentUserId: string = '';
+  private static lastReportedScreen: string = '';
 
   private constructor() {
     // marking constructor as private to disallow usage
@@ -33,6 +34,12 @@ class CompassTelemetry {
   private static initPromise: Promise<void> | null = null;
 
   private static track(info: EventInfo) {
+    const commonProperties = {
+      compass_version: app.getVersion().split('.').slice(0, 2).join('.'), // only major.minor
+      compass_distribution: process.env.HADRON_DISTRIBUTION,
+      compass_channel: process.env.HADRON_CHANNEL
+    };
+
     if (this.state === 'waiting-for-user-config' || !this.currentUserId) {
       this.queuedEvents.push(info);
       return;
@@ -42,13 +49,25 @@ class CompassTelemetry {
       return;
     }
 
+    if (info.event === 'Screen') {
+      const { name, ...properties } = info.properties;
+      if (name === this.lastReportedScreen) {
+        return;
+      }
+
+      this.lastReportedScreen = name;
+      this.analytics.screen({
+        userId: this.currentUserId,
+        name,
+        properties: { ...properties, ...commonProperties }
+      });
+      return;
+    }
+
     this.analytics.track({
       userId: this.currentUserId,
       event: info.event,
-      properties: {
-        ...info.properties,
-        compass_version: app.getVersion()
-      }
+      properties: { ...info.properties, ...commonProperties }
     });
   }
 
@@ -102,6 +121,11 @@ class CompassTelemetry {
     ipcMain.respondTo('compass:usage:disabled', () => {
       log.info(mongoLogId(1_001_000_095), 'Telemetry', 'Disabling Telemetry reporting');
       this.state = 'disabled';
+    });
+
+    // only used in tests
+    ipcMain.respondTo('compass:usage:flush', () => {
+      this.analytics?.flush();
     });
 
     if (telemetryCapableEnvironment) {

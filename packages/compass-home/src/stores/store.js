@@ -42,15 +42,6 @@ store.onActivated = (appRegistry) => {
 
     store.dispatch(changeConnectionTitle(getConnectionTitle(connectionInfo) || ''));
 
-    const StatusAction = appRegistry.getAction('Status.Actions');
-    if (StatusAction) {
-      StatusAction.configure({
-        animation: true,
-        message: 'Loading navigation',
-        visible: true
-      });
-    }
-
     store.dispatch(toggleIsConnected(true));
     store.dispatch(changeUiStatus(UI_STATES.LOADING));
   });

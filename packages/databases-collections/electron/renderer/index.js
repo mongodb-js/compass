@@ -80,44 +80,49 @@ const dataService = new DataService(connection);
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  dataService.instance((err, data) => {
-    const dbs = data.databases;
-    dbs.forEach((db) => {
-      db.collections = db.collections
-        .filter(({ name }) => name && !name.startsWith('system.'))
-        .map((collection) => {
-          return new CollectionModel(collection);
-        });
-    });
+  dataService.instance().then(
+    (data) => {
+      const dbs = data.databases;
+      dbs.forEach((db) => {
+        db.collections = db.collections
+          .filter(({ name }) => name && !name.startsWith('system.'))
+          .map((collection) => {
+            return new CollectionModel(collection);
+          });
+      });
 
-    if (err) {
-      console.log(err);
-      process.exit(1);
-    }
-
-    appRegistry.emit('instance-refreshed', {
-      instance: {
-        databases: {
-          // Mock the ampersand model result that the instance is mapped into.
-          models: data.databases,
-          map: (mappDbsFunc) => data.databases.map(mappDbsFunc)
+      appRegistry.emit('instance-refreshed', {
+        instance: {
+          databases: {
+            // Mock the ampersand model result that the instance is mapped into.
+            models: data.databases,
+            map: (mappDbsFunc) => data.databases.map(mappDbsFunc),
+          },
+          genuineMongoDB: { isGenuine: true },
+          dataLake: { isDataLake: false },
         },
-        genuineMongoDB: { isGenuine: true },
-        dataLake: {isDataLake: false}
+      });
+
+      dataService.client.client
+        .db('admin')
+        .command({ buildinfo: 1 }, (buildInfoError, info) => {
+          if (buildInfoError) {
+            console.log(buildInfoError);
+            return;
+          }
+
+          appRegistry.emit('server-version-changed', info.version);
+        });
+
+      appRegistry.emit('select-database', 'test');
+    },
+    (err) => {
+      if (err) {
+        console.log(err);
+        process.exit(1);
       }
-    });
-
-    dataService.client.client.db('admin').command({buildinfo: 1}, (buildInfoError, info) => {
-      if (buildInfoError) {
-        console.log(buildInfoError);
-        return;
-      }
-
-      appRegistry.emit('server-version-changed', info.version);
-    });
-
-    appRegistry.emit('select-database', 'test');
-  });
+    }
+  );
 });
 
 if (module.hot) {

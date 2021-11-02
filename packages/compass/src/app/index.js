@@ -30,6 +30,7 @@ var _ = require('lodash');
 var View = require('ampersand-view');
 var async = require('async');
 var ipc = require('hadron-ipc');
+var webvitals = require('web-vitals');
 
 var semver = require('semver');
 
@@ -53,7 +54,7 @@ ipc.once('app:launched', function() {
   }
 });
 
-const { log, mongoLogId, debug } =
+const { log, mongoLogId, debug, track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-APP');
 
 window.addEventListener('error', (event) => {
@@ -119,6 +120,21 @@ var Application = View.extend({
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
     ipc.on('window:show-security-panel', this.showSecurity.bind(this));
+
+    function trackPerfEvent({ name, value }) {
+      const fullName = {
+        'FCP': 'First Contentful Paint',
+        'LCP': 'Largest Contentful Paint',
+        'FID': 'First Input Delay',
+        'CLS': 'Cumulative Layout Shift'
+      }[name];
+      track(fullName, { value });
+    }
+
+    webvitals.getFCP(trackPerfEvent);
+    webvitals.getLCP(trackPerfEvent);
+    webvitals.getFID(trackPerfEvent);
+    webvitals.getCLS(trackPerfEvent);
   },
   startRouter: function() {
     if (this.router) {
@@ -375,8 +391,6 @@ app.extend({
             global.hadronApp.appRegistry.emit('refresh-data')
           );
           // as soon as dom is ready, render and set up the rest
-          const MongoDBInstance = require('mongodb-instance-model');
-          state.instance = new MongoDBInstance();
           state.render();
           marky.stop('Time to Connect rendered');
           state.startRouter();
