@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { LOADING_STATE } from '../../constants/sidebar-constants';
 
 import classnames from 'classnames';
 import styles from './sidebar-instance-stats.module.less';
@@ -28,16 +27,27 @@ class SidebarInstanceStats extends PureComponent {
   }
 
   render() {
-    const instance = this.props.instance;
-    const numDbs = instance.databases === LOADING_STATE ?
-      '-' :
-      instance.databases.length;
-    const numCollections = instance.databases === LOADING_STATE ?
-      '-' :
-      instance.collections.length;
-    const refreshName = 'fa ' + (this.props.instance.databases === LOADING_STATE ?
-      'fa-refresh fa-spin' :
-      'fa-repeat');
+    const { instance } = this.props;
+
+    let numDbs = instance?.databases.length ?? 0;
+    let numCollections = instance?.databases
+      .map((db) => db.collections.length)
+      .reduce((acc, n) => acc + n, 0) ?? 0;
+
+    let refreshClassName = 'fa fa-repeat';
+
+    const isReady = instance?.status === 'ready';
+    const isInitialOrInitialFetching =
+      !instance || ['initial', 'fetching'].includes(instance?.status);
+
+    if (!isReady) {
+      refreshClassName = 'fa fa-refresh fa-spin';
+    }
+
+    if (isInitialOrInitialFetching) {
+      numDbs = '-';
+      numCollections = '-';
+    }
 
     return (
       <div className={styles['sidebar-instance-stats']}>
@@ -63,8 +73,10 @@ class SidebarInstanceStats extends PureComponent {
         <div className={styles['sidebar-instance-stats-refresh-button-container']}>
           <button
             onClick={this.onRefresh}
-            className={styles['sidebar-instance-stats-refresh-button']}>
-            <i className={refreshName}/>
+            className={styles['sidebar-instance-stats-refresh-button']}
+            disabled={!isReady}
+          >
+            <i className={refreshClassName}/>
           </button>
         </div>
       </div>

@@ -1,9 +1,0 @@
-{
-  "env": {
-    "mocha": true
-  },
-  "extends": ["mongodb-js/node"],
-  "parserOptions": {
-    "ecmaVersion": 2020
-  }
-}

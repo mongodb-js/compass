@@ -6,7 +6,7 @@ import reducer, {
   filterDatabases
 } from './databases';
 
-import { makeModel } from '../../electron/renderer/stores/instance-store';
+import { createInstance } from '../../test/helpers';
 
 describe('sidebar databases', () => {
   describe('#reducer', () => {
@@ -77,13 +77,11 @@ describe('sidebar databases', () => {
         const getState = () => ({
           databases: { databases: [], activeNamespace: '', expandedDblist: {} },
           filterRegex: '',
-          instance: {
-            databases: [
-              {_id: 'abc', collections: []},
-              {_id: '123', collections: []},
-              {_id: 'def', collections: []}
-            ].map((m) => (makeModel(m)))
-          }
+          instance: createInstance([
+            {_id: 'abc', collections: []},
+            {_id: '123', collections: []},
+            {_id: 'def', collections: []}
+          ]).toJSON()
         });
         filterDatabases(/^([^0-9]*)$/, null, null)(dispatch, getState);
         expect(actionSpy.calledOnce).to.equal(true);
@@ -96,7 +94,7 @@ describe('sidebar databases', () => {
               type: CHANGE_DATABASES,
               databases: [
                 {_id: 'abc', collections: []},
-                {_id: '123', collections: [{_id: '123.hij', capped: false, database: '123', power_of_two: false, readonly: false}]},
+                {_id: '123', collections: [{_id: '123.hij', name: 'hij', capped: false, database: '123', power_of_two: false, readonly: false}]},
                 {_id: 'def', collections: []}
               ],
               expandedDblist: {abc: true, def: true, '123': true},
@@ -107,13 +105,12 @@ describe('sidebar databases', () => {
         const getState = () => ({
           databases: { databases: [], activeNamespace: '', expandedDblist: {} },
           filterRegex: '',
-          instance: {
-            databases: [
-              {_id: 'abc', collections: []},
-              {_id: '123', collections: ['hij']},
-              {_id: 'def', collections: []}
-            ].map((m) => (makeModel(m)))
-          }
+          instance: createInstance([
+            {_id: 'abc', collections: []},
+            {_id: '123', collections: ['hij']},
+            {_id: 'def', collections: []},
+            {_id: '123', collections: ['321']}
+          ]).toJSON()
         });
         filterDatabases(/^([^0-9]*)$/, null, null)(dispatch, getState);
         expect(actionSpy.calledOnce).to.equal(true);
@@ -121,43 +118,53 @@ describe('sidebar databases', () => {
 
       it('filters with exact match', () => {
         const dispatch = (res) => {
-          expect(res).to.deep.equal(
-            {
-              type: CHANGE_DATABASES,
-              databases: [
-                {_id: 'abc', collections: []},
-                {_id: '123', collections: [{_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}]}
-              ],
-              expandedDblist: {abc: true, '123': true},
-              activeNamespace: ''
-            });
+          expect(res).to.deep.equal({
+            type: CHANGE_DATABASES,
+            databases: [
+              { _id: 'abc', collections: [] },
+              {
+                _id: '123',
+                collections: [
+                  {
+                    _id: '123.abc',
+                    name: 'abc',
+                    capped: false,
+                    database: '123',
+                    power_of_two: false,
+                    readonly: false,
+                  },
+                ],
+              },
+            ],
+            expandedDblist: { abc: true, 123: true },
+            activeNamespace: '',
+          });
           actionSpy();
         };
         const getState = () => ({
           databases: { databases: [], activeNamespace: '', expandedDblist: {} },
           filterRegex: '',
-          instance: {
-            databases: [
-              {_id: 'abc', collections: []},
-              {_id: '123', collections: ['abc']},
-              {_id: 'def', collections: []}
-            ].map((m) => (makeModel(m)))
-          }
+          instance: createInstance([
+            {_id: 'abc', collections: []},
+            {_id: '123', collections: ['abc']},
+            {_id: 'def', collections: []}
+          ]).toJSON()
         });
         filterDatabases(/abc/, null, null)(dispatch, getState);
         expect(actionSpy.calledOnce).to.equal(true);
       });
 
       it('does not filter when regex blank', () => {
+        const instance = createInstance([
+          {_id: 'abc', collections: []},
+          {_id: '123', collections: ['abc']},
+          {_id: 'def', collections: []}
+        ]);
         const dispatch = (res) => {
           expect(res).to.deep.equal(
             {
               type: CHANGE_DATABASES,
-              databases: [
-                {_id: 'abc', collections: []},
-                {_id: '123', collections: [{_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}]},
-                {_id: 'def', collections: []}
-              ],
+              databases: instance.databases.toJSON(),
               expandedDblist: {abc: false, '123': false, def: false},
               activeNamespace: ''
             });
@@ -166,28 +173,23 @@ describe('sidebar databases', () => {
         const getState = () => ({
           databases: { databases: [], activeNamespace: '', expandedDblist: {} },
           filterRegex: '',
-          instance: {
-            databases: [
-              {_id: 'abc', collections: []},
-              {_id: '123', collections: ['abc']},
-              {_id: 'def', collections: []}
-            ].map((m) => (makeModel(m)))
-          }
+          instance: instance.toJSON()
         });
         filterDatabases(/(?:)/, null, null)(dispatch, getState);
         expect(actionSpy.calledOnce).to.equal(true);
       });
 
       it('includes active namespace in state', () => {
+        const instance = createInstance([
+          {_id: 'abc', collections: []},
+          {_id: '123', collections: ['abc']},
+          {_id: 'def', collections: []}
+        ]);
         const dispatch = (res) => {
           expect(res).to.deep.equal(
             {
               type: CHANGE_DATABASES,
-              databases: [
-                {_id: 'abc', collections: []},
-                {_id: '123', collections: [{_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}]},
-                {_id: 'def', collections: []}
-              ],
+              databases: instance.databases.toJSON(),
               expandedDblist: {abc: false, '123': false, def: true},
               activeNamespace: 'def'
             });
@@ -196,13 +198,7 @@ describe('sidebar databases', () => {
         const getState = () => ({
           databases: { databases: [], activeNamespace: 'def', expandedDblist: {} },
           filterRegex: '',
-          instance: {
-            databases: [
-              {_id: 'abc', collections: []},
-              {_id: '123', collections: ['abc']},
-              {_id: 'def', collections: []}
-            ].map((m) => (makeModel(m)))
-          }
+          instance: instance.toJSON()
         });
         filterDatabases(/(?:)/, null, null)(dispatch, getState);
         expect(actionSpy.calledOnce).to.equal(true);
@@ -212,15 +208,16 @@ describe('sidebar databases', () => {
     describe('with filter and active namespace set', () => {
       describe('just db', () => {
         it('includes active namespace', () => {
+          const instance = createInstance([
+            {_id: 'abc', collections: []},
+            {_id: '123', collections: ['abc']},
+            {_id: 'def', collections: []}
+          ]);
           const dispatch = (res) => {
             expect(res).to.deep.equal(
               {
                 type: CHANGE_DATABASES,
-                databases: [
-                  {_id: 'abc', collections: []},
-                  {_id: '123', collections: [{_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}]},
-                  {_id: 'def', collections: []}
-                ],
+                databases: instance.databases.toJSON(),
                 expandedDblist: {abc: false, '123': false, def: true},
                 activeNamespace: 'def'
               });
@@ -229,13 +226,7 @@ describe('sidebar databases', () => {
           const getState = () => ({
             databases: { databases: [], activeNamespace: '', expandedDblist: {} },
             filterRegex: '',
-            instance: {
-              databases: [
-                {_id: 'abc', collections: []},
-                {_id: '123', collections: ['abc']},
-                {_id: 'def', collections: []}
-              ].map((m) => (makeModel(m)))
-            }
+            instance: instance.toJSON()
           });
           filterDatabases(/(?:)/, null, 'def')(dispatch, getState);
           expect(actionSpy.calledOnce).to.equal(true);
@@ -243,20 +234,16 @@ describe('sidebar databases', () => {
       });
       describe('db and collection', () => {
         it('includes active namespace', () => {
+          const instance = createInstance([
+            {_id: 'abc', collections: []},
+            {_id: '123', collections: ['abc']},
+            {_id: 'def', collections: ['coll', 'other']}
+          ]);
           const dispatch = (res) => {
             expect(res).to.deep.equal(
               {
                 type: CHANGE_DATABASES,
-                databases: [
-                  {_id: 'abc', collections: []},
-                  {_id: '123', collections: [
-                    {_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}
-                  ]},
-                  {_id: 'def', collections: [
-                    {_id: 'def.coll', capped: false, database: 'def', power_of_two: false, readonly: false},
-                    {_id: 'def.other', capped: false, database: 'def', power_of_two: false, readonly: false}
-                  ]}
-                ],
+                databases: instance.databases.toJSON(),
                 expandedDblist: {abc: false, '123': false, def: true},
                 activeNamespace: 'def.coll'
               });
@@ -265,13 +252,7 @@ describe('sidebar databases', () => {
           const getState = () => ({
             databases: { databases: [], activeNamespace: '', expandedDblist: {} },
             filterRegex: '',
-            instance: {
-              databases: [
-                {_id: 'abc', collections: []},
-                {_id: '123', collections: ['abc']},
-                {_id: 'def', collections: ['coll', 'other']}
-              ].map((m) => (makeModel(m)))
-            }
+            instance: instance.toJSON()
           });
           filterDatabases(/(?:)/, null, 'def.coll')(dispatch, getState);
           expect(actionSpy.calledOnce).to.equal(true);
@@ -287,7 +268,7 @@ describe('sidebar databases', () => {
                 type: CHANGE_DATABASES,
                 databases: [
                   {_id: 'abc', collections: []},
-                  {_id: '123', collections: [{_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}]},
+                  {_id: '123', collections: [{_id: '123.abc', name: 'abc', capped: false, database: '123', power_of_two: false, readonly: false}]},
                   {_id: 'def', collections: []}
                 ],
                 expandedDblist: {abc: false, '123': false, def: true},
@@ -298,13 +279,11 @@ describe('sidebar databases', () => {
           const getState = () => ({
             databases: { databases: [], activeNamespace: '', expandedDblist: {} },
             filterRegex: /(?:)/,
-            instance: {
-              databases: [
-                {_id: 'abc', collections: []},
-                {_id: '123', collections: ['abc']},
-                {_id: 'def', collections: []}
-              ].map((m) => (makeModel(m)))
-            }
+            instance: createInstance([
+              {_id: 'abc', collections: []},
+              {_id: '123', collections: ['abc']},
+              {_id: 'def', collections: []}
+            ]).toJSON()
           });
           filterDatabases(null, null, 'def')(dispatch, getState);
           expect(actionSpy.calledOnce).to.equal(true);
@@ -312,20 +291,16 @@ describe('sidebar databases', () => {
       });
       describe('db and collection', () => {
         it('includes active namespace', () => {
+          const instance = createInstance([
+            {_id: 'abc', collections: []},
+            {_id: '123', collections: ['abc']},
+            {_id: 'def', collections: ['coll', 'other']}
+          ]);
           const dispatch = (res) => {
             expect(res).to.deep.equal(
               {
                 type: CHANGE_DATABASES,
-                databases: [
-                  {_id: 'abc', collections: []},
-                  {_id: '123', collections: [
-                    {_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}
-                  ]},
-                  {_id: 'def', collections: [
-                    {_id: 'def.coll', capped: false, database: 'def', power_of_two: false, readonly: false},
-                    {_id: 'def.other', capped: false, database: 'def', power_of_two: false, readonly: false}
-                  ]}
-                ],
+                databases: instance.databases.toJSON(),
                 expandedDblist: {abc: false, '123': false, def: true},
                 activeNamespace: 'def.coll'
               });
@@ -334,13 +309,7 @@ describe('sidebar databases', () => {
           const getState = () => ({
             databases: { databases: [], activeNamespace: '', expandedDblist: {} },
             filterRegex: /(?:)/,
-            instance: {
-              databases: [
-                {_id: 'abc', collections: []},
-                {_id: '123', collections: ['abc']},
-                {_id: 'def', collections: ['coll', 'other']}
-              ].map((m) => (makeModel(m)))
-            }
+            instance: instance.toJSON()
           });
           filterDatabases(null, null, 'def.coll')(dispatch, getState);
           expect(actionSpy.calledOnce).to.equal(true);
@@ -349,20 +318,17 @@ describe('sidebar databases', () => {
     });
     describe('with databases set by action', () => {
       it('sets dbs', () => {
+        const instance = createInstance([
+          { _id: 'abc', collections: [] },
+          { _id: '123', collections: ['abc'] },
+          { _id: 'def', collections: ['coll', 'other'] },
+        ]);
+
         const dispatch = (res) => {
           expect(res).to.deep.equal(
             {
               type: CHANGE_DATABASES,
-              databases: [
-                {_id: 'abc', collections: []},
-                {_id: '123', collections: [
-                  {_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}
-                ]},
-                {_id: 'def', collections: [
-                  {_id: 'def.coll', capped: false, database: 'def', power_of_two: false, readonly: false},
-                  {_id: 'def.other', capped: false, database: 'def', power_of_two: false, readonly: false}
-                ]}
-              ],
+              databases: instance.databases.toJSON(),
               expandedDblist: {abc: false, def: false, 123: false},
               activeNamespace: ''
             });
@@ -377,11 +343,7 @@ describe('sidebar databases', () => {
         });
         filterDatabases(
           null,
-          [
-            {_id: 'abc', collections: []},
-            {_id: '123', collections: ['abc']},
-            {_id: 'def', collections: ['coll', 'other']}
-          ].map((m) => (makeModel(m))),
+          instance.databases.toJSON(),
           null
         )(dispatch, getState);
         expect(actionSpy.calledOnce).to.equal(true);

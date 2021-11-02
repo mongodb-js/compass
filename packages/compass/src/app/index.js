@@ -391,8 +391,6 @@ app.extend({
             global.hadronApp.appRegistry.emit('refresh-data')
           );
           // as soon as dom is ready, render and set up the rest
-          const MongoDBInstance = require('mongodb-instance-model');
-          state.instance = new MongoDBInstance();
           state.render();
           marky.stop('Time to Connect rendered');
           state.startRouter();

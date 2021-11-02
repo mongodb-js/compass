@@ -16,6 +16,10 @@ import { changeConnection } from '../modules/connection-model';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
+store.onInstanceStatusChange = (instance) => {
+  store.dispatch(changeInstance(instance));
+};
+
 store.onActivated = (appRegistry) => {
   store.dispatch(globalAppRegistryActivated(appRegistry));
   store.dispatch(loadDetailsPlugins(appRegistry));
@@ -24,16 +28,18 @@ store.onActivated = (appRegistry) => {
     store.dispatch(changeConnection(legacyConnectionModel));
   });
 
-  appRegistry.on('instance-refreshed', (state) => {
-    store.dispatch(changeInstance(state.instance));
-    store.dispatch(filterDatabases(null, state.instance.databases, null));
-    if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
+  appRegistry.on('instance-refreshed', ({ instance }) => {
+    // First time we are seeing this model, subscribe to status changes
+    if (store.getState().instance === null && instance) {
+      instance.on('change:status', store.onInstanceStatusChange);
+    }
+
+    store.dispatch(changeInstance(instance));
+    store.dispatch(filterDatabases(null, instance.databases.toJSON(), null));
+    if (instance.dataLake && instance.dataLake.isDataLake) {
       store.dispatch(toggleIsDataLake(true));
     }
-    const isGenuine = state.instance.genuineMongoDB === undefined || state.instance.genuineMongoDB.isGenuine === undefined ?
-      true :
-      state.instance.genuineMongoDB.isGenuine;
-
+    const isGenuine = instance?.genuineMongoDB?.isGenuine ?? true;
     store.dispatch(toggleIsGenuineMongoDB(!!isGenuine));
     store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
   });

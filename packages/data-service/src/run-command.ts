@@ -1,5 +1,5 @@
 import { Document, Db, RunCommandOptions, ReadPreference } from 'mongodb';
-import type { UUID } from 'bson';
+import type { Binary } from 'bson';
 
 export type ConnectionStatus = {
   authInfo: {
@@ -142,28 +142,29 @@ export type ListDatabasesOptionsNamesOnly = Omit<
   nameOnly: true;
 };
 
-export type DatabaseNameOnly = { name: string };
+export type DatabaseInfoNameOnly = { name: string };
 
-export type Database = DatabaseNameOnly & {
+export type DatabaseInfo = DatabaseInfoNameOnly & {
   sizeOnDisk: number;
   empty: boolean;
 };
 
-export type ListDatabasesResult<DatabaseType> = DatabaseType extends Database
-  ? { databases: DatabaseType[]; totalSize: number; totalSizeMb: number }
-  : { databases: DatabaseType[] };
+export type ListDatabasesResult<DatabaseType> =
+  DatabaseType extends DatabaseInfo
+    ? { databases: DatabaseType[]; totalSize: number; totalSizeMb: number }
+    : { databases: DatabaseType[] };
 
-export type CollectionNameOnly = {
+export type CollectionInfoNameOnly = {
   name: string;
-  type: 'collection' | 'view' | 'timeseries';
+  type?: 'collection' | 'view' | 'timeseries' | string;
 };
 
-export type Collection = CollectionNameOnly & {
+export type CollectionInfo = CollectionInfoNameOnly & {
   /** @see https://docs.mongodb.com/manual/reference/method/db.createCollection/#mongodb-method-db.createCollection */
   options: Document;
   info: {
-    readOnly: boolean;
-    uuid?: UUID;
+    readOnly?: boolean;
+    uuid?: Binary;
   };
   idIndex?: Document;
 };
@@ -207,22 +208,22 @@ interface RunAdministrationCommand {
     db: Db,
     spec: { listDatabases: 1 } & ListDatabasesOptions,
     options?: RunCommandOptions
-  ): Promise<ListDatabasesResult<Database>>;
+  ): Promise<ListDatabasesResult<DatabaseInfo>>;
   (
     db: Db,
     spec: { listDatabases: 1 } & ListDatabasesOptionsNamesOnly,
     options?: RunCommandOptions
-  ): Promise<ListDatabasesResult<DatabaseNameOnly>>;
+  ): Promise<ListDatabasesResult<DatabaseInfoNameOnly>>;
   (
     db: Db,
     spec: { listCollections: 1 } & ListCollectionsOptions,
     options?: RunCommandOptions
-  ): Promise<ListCollectionsResult<Collection>>;
+  ): Promise<ListCollectionsResult<CollectionInfo>>;
   (
     db: Db,
     spec: { listCollections: 1 } & ListCollectionsOptionsNamesOnly,
     options?: RunCommandOptions
-  ): Promise<ListCollectionsResult<CollectionNameOnly>>;
+  ): Promise<ListCollectionsResult<CollectionInfoNameOnly>>;
 }
 
 interface RunCommand extends RunDiagnosticsCommand, RunAdministrationCommand {}
