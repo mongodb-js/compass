@@ -76,6 +76,34 @@ describe('Logging and Telemetry integration', function () {
           .find((entry) => entry.event === 'Shell New Connection');
         expect(shellNewConnection.properties.is_localhost).to.equal(true);
       });
+
+      it('contains call for an attempt to establish a new connection', function () {
+        const connectionAttempt = telemetry
+          .events()
+          .find((entry) => entry.event === 'Connection Attempt');
+        expect(connectionAttempt.properties.is_favorite).to.equal(false);
+        expect(connectionAttempt.properties.is_recent).to.equal(false);
+      });
+
+      it('contains call a connection is established', function () {
+        const connectionAttempt = telemetry
+          .events()
+          .find((entry) => entry.event === 'New Connection');
+        expect(connectionAttempt.properties.is_localhost).to.equal(true);
+        expect(connectionAttempt.properties.is_atlas).to.equal(false);
+        expect(connectionAttempt.properties.is_dataLake).to.equal(false);
+        expect(connectionAttempt.properties.is_enterprise).to.equal(false);
+        expect(connectionAttempt.properties.is_public_cloud).to.equal(false);
+        expect(connectionAttempt.properties.is_do).to.equal(false);
+
+        expect(connectionAttempt.properties.public_cloud_name).to.be.a('string');
+        expect(connectionAttempt.properties.is_genuine).to.be.a('boolean');
+        expect(connectionAttempt.properties.non_genuine_server_name).to.be.a('string');
+        expect(connectionAttempt.properties.server_version).to.be.a('string');
+        expect(connectionAttempt.properties.server_arch).to.be.a('string');
+        expect(connectionAttempt.properties.server_os_family).to.be.a('string');
+        expect(connectionAttempt.properties.auth_type).to.be.a('string');
+      });
     });
 
     describe('log events for the critical path', function () {
