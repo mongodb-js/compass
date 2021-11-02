@@ -6,7 +6,6 @@ import {
   ButtonVariant,
   Card,
   Description,
-  MongoDBLogo,
   H3,
   spacing,
   uiColors,
@@ -16,13 +15,10 @@ import ConnectionStringInput from './connection-string-input';
 
 const formContainerStyles = css({
   margin: 0,
-  marginTop: 0,
   padding: spacing[4],
-  paddingRight: 0,
-  paddingTop: spacing[5],
   height: 'fit-content',
   flexGrow: 1,
-  minWidth: 360,
+  minWidth: 400,
   maxWidth: 760,
   position: 'relative',
   display: 'inline-block',
@@ -30,17 +26,10 @@ const formContainerStyles = css({
 
 const formCardStyles = css({
   margin: 0,
-  marginTop: spacing[6],
   padding: spacing[2],
   height: 'fit-content',
   width: '100%',
   position: 'relative',
-});
-
-const logoStyles = css({
-  position: 'absolute',
-  top: spacing[5],
-  left: spacing[5],
 });
 
 const descriptionStyles = css({
@@ -70,7 +59,6 @@ function ConnectForm({
 
   return (
     <div className={formContainerStyles}>
-      <MongoDBLogo className={logoStyles} color={'black'} />
       <Card className={formCardStyles}>
         <div className={formContentContainerStyles}>
           <H3>New Connection</H3>

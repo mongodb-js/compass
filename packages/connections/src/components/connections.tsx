@@ -1,11 +1,16 @@
 import { css } from '@emotion/css';
 import React, { useReducer } from 'react';
-import { compassUIColors, spacing } from '@mongodb-js/compass-components';
+import {
+  MongoDBLogo,
+  breakpoints,
+  compassUIColors,
+  spacing,
+} from '@mongodb-js/compass-components';
 import ConnectForm from '@mongodb-js/connect-form';
 import { ConnectionInfo } from 'mongodb-data-service';
 import { v4 as uuidv4 } from 'uuid';
 
-import ResizableSiderbar from './resizeable-sidebar';
+import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
 
 const connectStyles = css({
@@ -19,14 +24,28 @@ const connectStyles = css({
   background: compassUIColors.gray8,
 });
 
+const logoStyles = css({
+  margin: spacing[5],
+  marginBottom: 0,
+});
+
+const connectItemContainerStyles = css({
+  position: 'relative',
+  flexGrow: 1,
+  flexDirection: 'column',
+  overflow: 'auto',
+});
+
 const formContainerStyles = css({
   position: 'relative',
   flexGrow: 1,
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'column',
   padding: 0,
   paddingBottom: spacing[4],
-  overflow: 'auto',
+  [`@media only screen and (min-width: ${breakpoints.Desktop}px)`]: {
+    flexDirection: 'row',
+  },
 });
 
 function getDefaultConnectionInfo() {
@@ -168,22 +187,25 @@ function Connections(): React.ReactElement {
 
   return (
     <div className={connectStyles}>
-      <ResizableSiderbar
+      <ResizableSidebar
         activeConnectionId={activeConnectionId}
         connections={connections}
         setActiveConnectionId={updateActiveConnection}
       />
-      <div className={formContainerStyles}>
-        <ConnectForm
-          onConnectClicked={(connectionInfo) =>
-            alert(
-              `connect to ${connectionInfo.connectionOptions.connectionString}`
-            )
-          }
-          initialConnectionInfo={activeConnectionInfo}
-          key={activeConnectionId}
-        />
-        <FormHelp />
+      <div className={connectItemContainerStyles}>
+        <MongoDBLogo className={logoStyles} color={'black'} />
+        <div className={formContainerStyles}>
+          <ConnectForm
+            onConnectClicked={(connectionInfo) =>
+              alert(
+                `connect to ${connectionInfo.connectionOptions.connectionString}`
+              )
+            }
+            initialConnectionInfo={activeConnectionInfo}
+            key={activeConnectionId}
+          />
+          <FormHelp />
+        </div>
       </div>
     </div>
   );

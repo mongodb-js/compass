@@ -6,7 +6,7 @@ import { ConnectionInfo } from 'mongodb-data-service';
 import ConnectionList from './connection-list/connection-list';
 
 const initialSidebarWidth = 250;
-const minSidebarWidth = 150;
+const minSidebarWidth = 164;
 
 const slateBlueColor = '#001E2B';
 

@@ -34,7 +34,7 @@ export { default as TextArea } from '@leafygreen-ui/text-area';
 export { default as TextInput } from '@leafygreen-ui/text-input';
 export { default as Toast } from '@leafygreen-ui/toast';
 export { default as Toggle } from '@leafygreen-ui/toggle';
-export { spacing } from '@leafygreen-ui/tokens';
+export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { default as Tooltip } from '@leafygreen-ui/tooltip';
 export {
   H2,

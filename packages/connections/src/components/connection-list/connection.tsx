@@ -74,7 +74,7 @@ const connectionButtonStyles = css({
 });
 
 const activeConnectionStyles = css({
-  background: uiColors.gray.dark3,
+  background: uiColors.gray.dark2,
 });
 
 const connectionTitleContainerStyles = css({
