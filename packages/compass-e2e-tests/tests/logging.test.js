@@ -99,15 +99,19 @@ describe('Logging and Telemetry integration', function () {
         expect(connectionAttempt.properties.is_public_cloud).to.equal(false);
         expect(connectionAttempt.properties.is_do).to.equal(false);
 
-        expect(connectionAttempt.properties.public_cloud_name).to.be.a('string');
+        expect(connectionAttempt.properties.public_cloud_name).to.be.a(
+          'string'
+        );
         expect(connectionAttempt.properties.is_genuine).to.be.a('boolean');
-        expect(connectionAttempt.properties.non_genuine_server_name).to.be.a('string');
+        expect(connectionAttempt.properties.non_genuine_server_name).to.be.a(
+          'string'
+        );
         expect(connectionAttempt.properties.server_version).to.be.a('string');
         expect(connectionAttempt.properties.server_arch).to.be.a('string');
         expect(connectionAttempt.properties.server_os_family).to.be.a('string');
         expect(connectionAttempt.properties.auth_type).to.be.a('string');
       });
-      
+
       it('contains calls for screens that were accessed', function () {
         expect(telemetry.screens()).to.include('databases');
       });
