@@ -85,6 +85,25 @@ describe('import-apply-types-and-projection', () => {
       }
     });
   });
+  it('should handle nested with array-like properties', () => {
+    const doc = {
+      _id: 'arlo',
+      plans: {'1': 'a', '2': '2', '3': 'c'}
+    };
+
+    const res = apply(doc, {
+      transform: [
+        ['plans.1', undefined],
+        ['plans.2', 'Number']
+      ],
+      exclude: ['plans.3']
+    });
+
+    expect(res).to.deep.equal({
+      _id: 'arlo',
+      plans: {'1': 'a', '2': 2}
+    });
+  });
   describe('transformProjectedTypesStream', () => {
     it('should return a passthrough if nothing to actually transform', () => {
       const res = transformProjectedTypesStream({
