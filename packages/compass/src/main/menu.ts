@@ -86,7 +86,7 @@ function darwinCompassSubMenu() {
 
 function connectItem(app: typeof CompassApplication) {
   return {
-    label: '&Connect to...',
+    label: 'New &Connection',
     accelerator: 'CmdOrCtrl+N',
     click() {
       app.emit('show-connect-window');

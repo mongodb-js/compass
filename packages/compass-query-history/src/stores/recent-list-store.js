@@ -2,9 +2,12 @@ import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import { remote } from 'electron';
 import _ from 'lodash';
+import { isDeepStrictEqual } from 'util';
 
 import { formatQuery } from '../utils';
 import { RecentQuery, RecentQueryCollection } from '../models';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 const TOTAL_RECENTS = 30;
 const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit', 'collation'];
@@ -89,6 +92,17 @@ const configureStore = (options = {}) => {
     },
 
     runQuery(query) {
+      // Loosely match queries against known history entries, because
+      // currently we do not distinguish between favorites and recents
+      // when running queries. This way, we do track some queries twice
+      // (because there are more options than just .filter), but that
+      // is probably fine as a temporary measure.
+      // https://jira.mongodb.org/browse/COMPASS-5243
+      if (this.state.items.map(item => item.serialize()).some(item => {
+        return isDeepStrictEqual(item.filter, query.filter);
+      })) {
+        track('Query History Recent Used');
+      }
       this.localAppRegistry.emit('compass:query-history:run-query', query);
     },
 

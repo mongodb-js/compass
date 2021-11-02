@@ -1,42 +1,38 @@
-var assert = require('assert');
-var Instance = require('../');
-var hostname = require('os').hostname();
+const { expect } = require('chai');
+const Instance = require('../');
 
-describe('mongodb-instance-model', function() {
-  it('should have a derived hostname property', function() {
-    assert.equal(new Instance({
-      _id: 'localhost:27017'
-    }).hostname, 'localhost');
+describe('mongodb-instance-model', function () {
+  it('should be in initial state when created', function () {
+    const instance = new Instance({ _id: 'abc' });
+    expect(instance).to.have.property('status', 'initial');
+    expect(instance.build.toJSON()).to.be.an('object').that.is.empty;
+    expect(instance.host.toJSON()).to.be.an('object').that.is.empty;
   });
-  it('should have a derived port property', function() {
-    assert.equal(new Instance({
-      _id: 'localhost:27017'
-    }).port, 27017);
-  });
-  describe('getId()', function() {
-    it('should substitute localhost as the canonical hostname', function() {
-      assert.equal(Instance.getId(hostname), 'localhost');
-    });
-    it('should treat a number param as the port', function() {
-      assert.equal(Instance.getId(27017), 'localhost:27017');
-    });
-    it('should remove mongodb://', function() {
-      assert.equal(Instance.getId('mongodb://localhost:27017'), 'localhost:27017');
-    });
-    it('should remove mongodb://user:pass@', function() {
-      assert.equal(Instance.getId('mongodb://matt:123@localhost:27017'), 'localhost:27017');
-    });
-    it('should remove user:pass@', function() {
-      assert.equal(Instance.getId('matt:123@localhost:27017'), 'localhost:27017');
-    });
-    it('should remove a trailing option', function() {
-      assert.equal(Instance.getId('localhost:27017/?option=thing'), 'localhost:27017');
-    });
-    it('should remove many trailing options', function() {
-      assert.equal(Instance.getId('localhost:27017/?option=thing&otherThing=coolStuff&zombies=true'), 'localhost:27017');
-    });
-    it('should substitute localhost for 127.0.0.1', function() {
-      assert.equal(Instance.getId('127.0.0.1:27017'), 'localhost:27017');
+  context('with mocked dataService', function () {
+    const dataService = {
+      instance() {
+        // eslint-disable-next-line mocha/no-setup-in-describe
+        return Promise.resolve({
+          build: { version: '1.2.3' },
+          host: { arch: 'x64' },
+          genuineMongoDB: { isGenuine: true },
+          dataLake: { isDataLake: false },
+        });
+      },
+    };
+
+    it('should fetch and populate instance info when fetch called', async function () {
+      const instance = new Instance({ _id: 'abc' });
+
+      await instance.fetch({ dataService });
+
+      expect(instance).to.have.nested.property('build.version', '1.2.3');
+      expect(instance).to.have.nested.property('host.arch', 'x64');
+      expect(instance).to.have.nested.property(
+        'genuineMongoDB.isGenuine',
+        true
+      );
+      expect(instance).to.have.nested.property('dataLake.isDataLake', false);
     });
   });
 });

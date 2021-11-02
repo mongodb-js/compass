@@ -1,3 +1,4 @@
+import { once } from 'events';
 import store from './';
 import { reset } from '../modules/reset';
 import AppRegistry from 'hadron-app-registry';
@@ -6,6 +7,18 @@ import { activate } from '@mongodb-js/compass-app-stores';
 import UI_STATES from '../constants/ui-states';
 
 describe('HomeStore [Store]', () => {
+  const dataService = {
+    getConnectionString() {
+      return { hosts: ['localhost:27020'] };
+    },
+    instance() {
+      return Promise.resolve({});
+    },
+    listDatabases(_opts, cb) {
+      cb(null, []);
+    }
+  };
+
   beforeEach(() => {
     store.dispatch(reset());
   });
@@ -91,13 +104,12 @@ describe('HomeStore [Store]', () => {
       });
     });
     context('on data-service-connected without error', () => {
-      beforeEach(() => {
+      beforeEach(async() => {
         expect(store.getState()).to.deep.equal(initialState);
-        global.hadronApp.appRegistry.emit('data-service-connected', null, {
-          get: () => {},
-        }, {
+        global.hadronApp.appRegistry.emit('data-service-connected', null, dataService, {
           connectionOptions: { connectionString: 'mongodb+srv://mongodb.net/' }
         });
+        await once(global.hadronApp.appRegistry, 'instance-refreshed');
       });
       it('dispatches the change ui status action', () => {
         expect(store.getState().uiStatus).to.equal(UI_STATES.COMPLETE);
@@ -107,12 +119,11 @@ describe('HomeStore [Store]', () => {
       });
     });
     context('on data-service-disconnected from success', () => {
-      beforeEach(() => {
-        global.hadronApp.appRegistry.emit('data-service-connected', null, {
-          get: () => {},
-        }, {
+      beforeEach(async() => {
+        global.hadronApp.appRegistry.emit('data-service-connected', null, dataService, {
           connectionOptions: { connectionString: 'mongodb+srv://mongodb.net/' }
         });
+        await once(global.hadronApp.appRegistry, 'instance-refreshed');
         expect(store.getState()).to.deep.equal({
           errorMessage: '',
           connectionTitle: 'mongodb.net',
@@ -151,13 +162,13 @@ describe('HomeStore [Store]', () => {
       // });
     });
     context('on database-changed', () => {
-      beforeEach(() => {
+      beforeEach(async() => {
         expect(store.getState()).to.deep.equal(initialState);
-        global.hadronApp.appRegistry.emit('data-service-connected', null, {
-          get: () => {},
-        }, {
+        global.hadronApp.appRegistry.emit('data-service-connected', null, dataService, {
           connectionOptions: { connectionString: 'mongodb+srv://mongodb.net/' }
         });
+
+        await once(global.hadronApp.appRegistry, 'instance-refreshed');
 
         expect(store.getState().title).to.equal(' - mongodb.net');
 

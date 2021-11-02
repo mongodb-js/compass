@@ -196,12 +196,14 @@ class InsertDocumentDialog extends React.PureComponent {
     return (
       <ConfirmationModal
         title={`Insert to Collection ${this.props.ns}`}
+        className="insert-document-dialog"
         open={this.props.isOpen}
         onConfirm={this.handleInsert.bind(this)}
         onCancel={this.props.closeInsertDocumentDialog}
         buttonText="Insert"
         submitDisabled={this.hasErrors()}
         closeOnBackdropClick={false}
+        trackingId="insert_document_modal"
       >
         <div className="insert-document-views">
           <ViewSwitcher

@@ -66,6 +66,16 @@ const session = {};
 let Connection = {};
 
 /**
+ * New ConnectionInfo properties
+ */
+Object.assign(props, {
+  connectionInfo: { type: 'object', default: undefined },
+
+  // anything in secrets is saved in the keyring by storage mixin
+  secrets: { type: 'object', default: undefined }
+});
+
+/**
  * Assigning observable top-level properties of a state class.
  */
 Object.assign(props, {

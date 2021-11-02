@@ -35,6 +35,7 @@ class RestorePipelineModal extends Component {
         onConfirm={this.openPipeline}
         onCancel={this.onRestorePipelineModalToggle}
         buttonText="Open Pipeline"
+        trackingId="restore_pipeline_modal"
       >
         Opening this project will abandon <b>unsaved</b> changes to the current pipeline you are building.
       </ConfirmationModal>

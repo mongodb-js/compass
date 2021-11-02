@@ -158,6 +158,18 @@ const Selectors = {
   DocumentListFetchingStopButton:
     '[data-test-id="documents-content"] [data-testid="fetching-documents"] button',
   DocumentListError: '[data-test-id="documents-content"] .status-row-has-error',
+  AddDataButton: '#insert-data-dropdown',
+  InsertDialog: '.insert-document-dialog',
+  InsertDocumentOption: '[data-test-id="insert-data-dropdown-insert-document"]',
+  ImportFileOption: '[data-test-id="insert-data-dropdown-import-file"]',
+  InsertJSONEditor: '#brace-editor',
+  InsertConfirm:
+    '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child',
+  ImportModal: '[data-test-id="import-modal"]',
+  ImportFileInput: '#import-file_file_input',
+  FileTypeJSON: '[data-test-id="select-file-type-json"]',
+  ImportConfirm: '[data-test-id="import-modal"] [data-test-id="import-button"]',
+  ImportDone: '[data-test-id="import-modal"] [data-test-id="done-button"]',
 
   // Aggregations tab
   StageContainer: '[data-test-id="stage-container"]',

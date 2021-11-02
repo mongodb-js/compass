@@ -1,12 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import {
-  FormGroup,
-  InputGroup,
-  FormControl,
-  ControlLabel
-} from 'react-bootstrap';
-import { IconTextButton } from 'hadron-react-buttons';
+
+import { FileInput } from '@mongodb-js/compass-components';
 
 import FILE_TYPES from '../../constants/file-types';
 import SelectFileType from '../select-file-type';
@@ -33,12 +28,8 @@ class ImportOptions extends PureComponent {
   /**
    * Handle choosing a file from the file dialog.
    */
-  handleChooseFile = () => {
-    this.props.fileOpenDialog().then(result => {
-      if (result && result.filePaths && !result.canceled) {
-        this.props.selectImportFileName(result.filePaths[0]);
-      }
-    });
+  handleChooseFile = (files) => {
+    this.props.selectImportFileName(files[0]);
   };
 
   handleOnSubmit = (evt) => {
@@ -47,25 +38,19 @@ class ImportOptions extends PureComponent {
   };
 
   render() {
-    /**
-     * TODO: lucas: Reuse `Select File` component shared with export.
-     */
     const isCSV = this.props.fileType === FILE_TYPES.CSV;
+
+    const values = this.props.fileName ? [this.props.fileName] : undefined;
 
     return (
       <form onSubmit={this.handleOnSubmit} className={style('form')}>
-        <FormGroup controlId="import-file">
-          <ControlLabel>Select File</ControlLabel>
-          <InputGroup bsClass={style('browse-group')}>
-            <FormControl type="text" value={this.props.fileName} readOnly />
-            <IconTextButton
-              text="Browse"
-              clickHandler={this.handleChooseFile}
-              className={style('browse-button')}
-              iconClassName="fa fa-folder-open-o"
-            />
-          </InputGroup>
-        </FormGroup>
+        <FileInput
+          label="Select File"
+          id="import-file"
+          onChange={this.handleChooseFile.bind(this)}
+          values={values}
+          variant="VERTICAL"
+        />
         <SelectFileType
           fileType={this.props.fileType}
           onSelected={this.props.selectImportFileType}
