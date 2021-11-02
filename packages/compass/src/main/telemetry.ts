@@ -116,6 +116,13 @@ class CompassTelemetry {
 
     ipcMain.respondTo('compass:usage:disabled', () => {
       log.info(mongoLogId(1_001_000_095), 'Telemetry', 'Disabling Telemetry reporting');
+      if (this.state === 'enabled') {
+        this.track({
+          event: 'Telemetry Disabled',
+          properties: {}
+        });
+        this.analytics?.flush();
+      }
       this.state = 'disabled';
     });
 
