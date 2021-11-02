@@ -19,19 +19,20 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "files": [
-    "dist"
+    "lib"
   ],
   "license": "SSPL",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "exports": {
     "webpack": "./src/index.ts",
-    "require": "./dist/index.js"
+    "require": "./lib/index.js"
   },
-  "types": "./dist/index.d.ts",
+  "types": "./lib/index.d.ts",
   "scripts": {
+    "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile",
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rm -rf ./lib",
+    "prewebpack": "rimraf ./lib",
     "webpack": "webpack-compass",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
@@ -84,6 +85,7 @@
     "mongodb-data-service": "^21.12.0",
     "nyc": "^15.1.0",
     "prettier": "2.3.2",
+    "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   }
