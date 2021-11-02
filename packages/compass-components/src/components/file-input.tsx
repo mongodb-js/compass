@@ -77,9 +77,10 @@ export enum Variant {
 }
 
 // https://www.electronjs.org/docs/latest/api/file-object
-interface FileWithPath extends File {
+type FileWithPath = File & {
+  /** Electron-specific property that contains an absolute path to the file */
   path: string;
-}
+};
 
 function FileInput({
   id,
