@@ -118,6 +118,7 @@ export interface LegacyConnectionModelProperties {
   lastUsed?: Date;
   isFavorite: boolean;
   name: string;
+  title?: string;
   color?: string;
 }
 
