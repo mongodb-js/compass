@@ -21,9 +21,8 @@ describe('InstanceStore [Store]', () => {
       getConnectionString() {
         return { hosts: ['localhost:27020'] };
       },
-      instance(cb) {
-        cb(null, instanceInfo);
-        return;
+      instance() {
+        return Promise.resolve(instanceInfo);
       },
       listDatabases(_opts, cb) {
         cb(null, []);
