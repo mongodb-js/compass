@@ -34,7 +34,11 @@ class CompassTelemetry {
   private static initPromise: Promise<void> | null = null;
 
   private static track(info: EventInfo) {
-    const compass_version = app.getVersion();
+    const commonProperties = {
+      compass_version: app.getVersion().split('.').slice(0, 2).join('.'), // only major.minor
+      compass_distribution: process.env.HADRON_DISTRIBUTION,
+      compass_channel: process.env.HADRON_CHANNEL
+    };
 
     if (this.state === 'waiting-for-user-config' || !this.currentUserId) {
       this.queuedEvents.push(info);
@@ -55,7 +59,7 @@ class CompassTelemetry {
       this.analytics.screen({
         userId: this.currentUserId,
         name,
-        properties: { ...properties, compass_version }
+        properties: { ...properties, ...commonProperties }
       });
       return;
     }
@@ -63,7 +67,7 @@ class CompassTelemetry {
     this.analytics.track({
       userId: this.currentUserId,
       event: info.event,
-      properties: { ...info.properties, compass_version }
+      properties: { ...info.properties, ...commonProperties }
     });
   }
 
