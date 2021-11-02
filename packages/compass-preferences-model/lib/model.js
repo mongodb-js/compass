@@ -282,7 +282,9 @@ var Preferences = Model.extend(storageMixin, {
     // main network switch overwrites all network related features
     if (['enableMaps', 'trackErrors', 'enableFeedbackPanel',
       'trackUsageStatistics', 'autoUpdates'].indexOf(feature) !== -1) {
-      return this.networkTraffic && get(this, feature);
+      return this.networkTraffic &&
+        process.env.HADRON_ISOLATED !== 'true' &&
+        get(this, feature);
     }
     var res = get(this, feature, null);
     // don't allow asking for unknown features to prevent bugs
