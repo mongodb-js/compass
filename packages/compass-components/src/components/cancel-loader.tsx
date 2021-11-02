@@ -1,5 +1,4 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
+import { css } from '@emotion/css';
 import React from 'react';
 
 const cancelLoaderStyle = css({
@@ -65,13 +64,13 @@ function CancelLoader({
   onCancel: () => void;
 }): React.ReactElement {
   return (
-    <div data-testid={dataTestId} css={cancelLoaderStyle}>
-      <div css={progressTextStyle}>
-        <i css={spinnerStyle} />
+    <div data-testid={dataTestId} className={cancelLoaderStyle}>
+      <div className={progressTextStyle}>
+        <i className={spinnerStyle} />
         {progressText}
       </div>
       <div>
-        <button css={buttonStyle} onClick={onCancel}>
+        <button className={buttonStyle} onClick={onCancel}>
           {cancelText}
         </button>
       </div>

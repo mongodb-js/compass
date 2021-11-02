@@ -32,6 +32,9 @@
     "reformat": "npm run prettier -- --write ."
   },
   "license": "SSPL",
+  "dependencies": {
+    "@mongodb-js/compass-connections": "^0.1.0"
+  },
   "peerDependencies": {
     "@emotion/css": "^11.5.0",
     "@mongodb-js/compass-components": "^0.6.0",

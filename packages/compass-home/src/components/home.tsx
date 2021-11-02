@@ -6,6 +6,7 @@ import {
   ConnectionInfo,
 } from 'mongodb-data-service';
 import toNS from 'mongodb-ns';
+import Connections from '@mongodb-js/compass-connections';
 
 import Workspace from './workspace';
 import Namespace from '../types/namespace';
@@ -257,6 +258,18 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
         errorLoadingInstanceMessage={errorLoadingInstanceMessage}
         isDataLake={isDataLake}
       />
+    );
+  }
+
+  const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
+
+  if (showNewConnectForm) {
+    return (
+      <div className={homeViewStyles} data-test-id="home-view">
+        <div className={homePageStyles}>
+          <Connections />
+        </div>
+      </div>
     );
   }
 

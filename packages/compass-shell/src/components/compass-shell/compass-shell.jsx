@@ -13,7 +13,6 @@ import ShellHeader from '../shell-header';
 const defaultShellHeightOpened = 240;
 const shellHeightClosed = 32;
 const shellMinHeightOpened = 100;
-const resizeControlIncrement = 10;
 
 function getMaxShellHeight() {
   return Math.max(defaultShellHeightOpened, window.innerHeight - 100);
@@ -172,7 +171,6 @@ export class CompassShell extends Component {
           <ResizeHandle
             direction={ResizeDirection.TOP}
             onChange={(newHeight) => this.updateHeight(newHeight)}
-            step={resizeControlIncrement}
             value={height}
             minValue={shellHeightClosed}
             maxValue={getMaxShellHeight()}

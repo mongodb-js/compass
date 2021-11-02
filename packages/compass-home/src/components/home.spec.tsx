@@ -1,4 +1,3 @@
-import { once } from 'events';
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
@@ -36,7 +35,6 @@ describe('Home [Component]', function () {
       'Instance.Workspace',
       'Find',
       'Global.Modal',
-      'Global.Warning',
       'Application.Connect',
     ].map((name) =>
       testAppRegistry.registerRole(name, {
