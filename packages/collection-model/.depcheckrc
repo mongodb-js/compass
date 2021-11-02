@@ -1,4 +1,1 @@
-ignores: [
-  "lodash.result",
-  "electron"
-]
+ignores: ['@mongodb-js/prettier-config-compass']

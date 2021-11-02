@@ -305,6 +305,7 @@ export const startImport = () => {
             docsWritten: dest.docsWritten,
             error: err.message,
           });
+          debug('Error while importing', err);
 
           console.groupEnd();
           console.groupEnd();
@@ -426,7 +427,9 @@ const loadPreviewDocs = (
       dest,
       function(err) {
         if (err) {
-          throw err;
+          log.error(mongoLogId(1001000097), 'Import', 'Failed to load preview docs', err);
+          debug('Error while loading preview docs', err);
+          return;
         }
         dispatch({
           type: SET_PREVIEW,

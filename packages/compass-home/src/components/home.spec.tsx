@@ -1,3 +1,4 @@
+import { once } from 'events';
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
@@ -111,53 +112,18 @@ describe('Home [Component]', function () {
       });
 
       describe('on `data-service-disconnected`', function () {
-        beforeEach(function () {
+        beforeEach(async function () {
           testAppRegistry.emit('data-service-disconnected');
+
+          await waitFor(
+            () =>
+              expect(screen.queryByTestId('test-Sidebar.Component')).to.not
+                .exist
+          );
         });
 
-        it('does not disconnect since it is still loading', function () {
-          expect(screen.queryByTestId('test-Application.Connect')).to.not.exist;
-          expect(screen.getByTestId('test-Sidebar.Component')).to.be.visible;
-        });
-
-        describe('after loading has completed it disconnects', function () {
-          beforeEach(async function () {
-            testAppRegistry.emit('instance-refreshed', {});
-
-            await waitFor(
-              () =>
-                expect(screen.queryByTestId('test-Sidebar.Component')).to.not
-                  .exist
-            );
-          });
-
-          it('renders the connect screen', function () {
-            expect(screen.getByTestId('test-Application.Connect')).to.be
-              .visible;
-          });
-
-          it('does not render the sidebar', function () {
-            expect(screen.queryByTestId('test-Sidebar.Component')).to.not.exist;
-          });
-        });
-
-        describe('loading completes with error', function () {
-          beforeEach(async function () {
-            testAppRegistry.emit('instance-refreshed', {
-              errorMessage: 'Test error message',
-            });
-
-            await waitFor(
-              () =>
-                expect(screen.queryByTestId('test-Sidebar.Component')).to.not
-                  .exist
-            );
-          });
-
-          it('renders the connect screen', function () {
-            expect(screen.getByTestId('test-Application.Connect')).to.be
-              .visible;
-          });
+        it('renders the connect screen', function () {
+          expect(screen.getByTestId('test-Application.Connect')).to.be.visible;
         });
       });
     });

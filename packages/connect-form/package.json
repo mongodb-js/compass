@@ -52,6 +52,7 @@
     "react-dom": "*"
   },
   "dependencies": {
+    "mongodb-connection-string-url": "^2.1.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },
@@ -74,6 +75,7 @@
     "eslint": "^7.25.0",
     "gen-esm-wrapper": "^1.1.0",
     "mocha": "^8.4.0",
+    "mongodb-data-service": "^21.12.0",
     "nyc": "^15.1.0",
     "prettier": "2.3.2",
     "sinon": "^9.2.3",

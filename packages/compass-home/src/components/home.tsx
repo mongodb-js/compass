@@ -47,7 +47,6 @@ type State = {
   isConnected: boolean;
   isDataLake: boolean;
   namespace: Namespace;
-  waitForLoadBeforeDisconnecting: boolean;
 };
 
 const initialState = {
@@ -57,7 +56,6 @@ const initialState = {
   isConnected: false,
   isDataLake: false,
   namespace: defaultNS,
-  waitForLoadBeforeDisconnecting: false,
 };
 
 type Action =
@@ -65,7 +63,6 @@ type Action =
       type: 'connected';
       connectionTitle: string;
     }
-  | { type: 'wait-for-load-before-disconnecting' }
   | { type: 'disconnected' }
   | { type: 'instance-loaded'; isDatalake: boolean }
   | { type: 'instance-loaded-error'; errorMessage: string }
@@ -107,11 +104,6 @@ function reducer(state: State, action: Action): State {
         ...state,
         namespace: action.namespace,
       };
-    case 'wait-for-load-before-disconnecting':
-      return {
-        ...state,
-        waitForLoadBeforeDisconnecting: true,
-      };
     case 'disconnected':
       return {
         // Reset to initial state.
@@ -134,7 +126,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       namespace,
       errorLoadingInstanceMessage,
       instanceLoadingStatus,
-      waitForLoadBeforeDisconnecting,
     },
     dispatch,
   ] = useReducer(reducer, { ...initialState });
@@ -144,15 +135,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     ds: DataService,
     connectionInfo: ConnectionInfo
   ) {
-    const StatusAction = appRegistry.getAction(
-      AppRegistryActions.STATUS_ACTIONS
-    ) as StatusActionType | undefined;
-    StatusAction?.configure({
-      animation: true,
-      message: 'Loading navigation',
-      visible: true,
-    });
-
     dispatch({
       type: 'connected',
       connectionTitle: getConnectionTitle(connectionInfo) || '',
@@ -218,13 +200,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }
 
   function onDataServiceDisconnected() {
-    if (instanceLoadingStatus === InstanceLoadedStatus.LOADING) {
-      dispatch({
-        type: 'wait-for-load-before-disconnecting',
-      });
-      return;
-    }
-
     const StatusAction = appRegistry.getAction(
       AppRegistryActions.STATUS_ACTIONS
     ) as StatusActionType | undefined;
@@ -233,25 +208,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     });
     updateTitle(appName);
     StatusAction?.done();
-
-    return;
   }
-
-  useEffect(() => {
-    if (
-      waitForLoadBeforeDisconnecting &&
-      instanceLoadingStatus !== InstanceLoadedStatus.LOADING
-    ) {
-      const StatusAction = appRegistry.getAction(
-        AppRegistryActions.STATUS_ACTIONS
-      ) as StatusActionType | undefined;
-      dispatch({
-        type: 'disconnected',
-      });
-      updateTitle(appName);
-      StatusAction?.done();
-    }
-  }, [waitForLoadBeforeDisconnecting, instanceLoadingStatus]);
 
   useEffect(() => {
     if (isConnected) {

@@ -6,6 +6,9 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
 import styles from './export-modal.module.less';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { countAggregationStagesInString } from '../../modules/count-aggregation-stages-in-string';
+const { track } = createLoggerAndTelemetry('COMPASS-EXPORT-TO-LANGUAGE-UI');
 
 class ExportModal extends PureComponent {
   static displayName = 'ExportModalComponent';
@@ -33,6 +36,13 @@ class ExportModal extends PureComponent {
     runTranspiler: PropTypes.func.isRequired
   };
 
+  showHandler = () => {
+    track(this.props.mode === 'Query' ? 'Query Export Opened' : 'Aggregation Export Opened', {
+      ...this.stageCountForTelemetry()
+    });
+    track('Screen', { name: 'export_to_language_modal' });
+  };
+
   closeHandler = () => {
     this.props.modalOpenChanged(false);
   };
@@ -49,6 +59,40 @@ class ExportModal extends PureComponent {
   driverHandler = () => {
     this.props.driverChanged(!this.props.driver);
     this.props.runTranspiler(this.props.inputExpression);
+  };
+
+  stageCountForTelemetry = () => {
+    if (this.props.mode === 'Query') {
+      return {};
+    }
+
+    try {
+      return {
+        num_stages: countAggregationStagesInString(this.props.inputExpression.aggregation)
+      };
+    } catch (ignore) {
+      // Things like [{ $match: { x: NumberInt(10) } }] do not evaluate in any kind of context
+      return { num_stages: -1 };
+    }
+  };
+
+  copySuccessChanged = (field) => {
+    if (field === 'output') {
+      let event;
+      if (this.props.mode === 'Query') {
+        event = 'Query Exported';
+      } else {
+        event = 'Aggregation Exported';
+      }
+      track(event, {
+        language: this.props.outputLang,
+        with_import_statements: this.props.showImports,
+        with_builders: this.props.builders,
+        with_drivers_syntax: this.props.driver,
+        ...this.stageCountForTelemetry()
+      });
+    }
+    this.props.copySuccessChanged(field);
   };
 
   renderBuilderCheckbox = () => {
@@ -73,6 +117,7 @@ class ExportModal extends PureComponent {
         backdrop="static"
         bsSize="large"
         onHide={this.closeHandler}
+        onShow={this.showHandler}
         data-test-id="export-to-lang-modal"
         className={classnames(styles['export-to-lang-modal'])}>
 
@@ -83,7 +128,7 @@ class ExportModal extends PureComponent {
         </Modal.Header>
 
         <Modal.Body data-test-id="export-to-lang-modal-body">
-          <ExportForm {...this.props} from={this.props.mode === 'Query' ? this.props.inputExpression.filter : this.props.inputExpression.aggregation}/>
+          <ExportForm {...this.props} copySuccessChanged={this.copySuccessChanged} from={this.props.mode === 'Query' ? this.props.inputExpression.filter : this.props.inputExpression.aggregation}/>
           <div className={classnames(styles['export-to-lang-modal-checkbox-imports'])}>
             <Checkbox data-test-id="export-to-lang-checkbox-imports" onClick={this.importsHandler} defaultChecked={this.props.showImports}>
                Include Import Statements

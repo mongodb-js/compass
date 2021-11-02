@@ -388,18 +388,9 @@ export const fetchValidation = (namespace) => {
       return;
     }
 
-    dataService.listCollections(
-      namespace.database,
-      { name: namespace.collection },
-      (err, data) => {
-        const validation = validationFromCollection(err, data);
-
-        if (err) {
-          dispatch(validationFetched(validation));
-          dispatch(zeroStateChanged(false));
-          dispatch(isLoadedChanged(true));
-          return;
-        }
+    dataService.collectionInfo(namespace.database, namespace.collection).then(
+      (collInfo) => {
+        const validation = validationFromCollection(null, collInfo);
 
         if (!validation.validator) {
           validation.validator = '{}';
@@ -422,37 +413,28 @@ export const fetchValidation = (namespace) => {
         dispatch(validationFetched(validation));
         dispatch(zeroStateChanged(false));
         dispatch(isLoadedChanged(true));
+      },
+      (err) => {
+        dispatch(validationFetched(validationFromCollection(err)));
+        dispatch(zeroStateChanged(false));
+        dispatch(isLoadedChanged(true));
       }
     );
   };
 };
 
-export function validationFromCollection(err, data) {
-  const validation = {
-    validationAction: INITIAL_STATE.validationAction,
-    validationLevel: INITIAL_STATE.validationLevel
-  };
-
+export function validationFromCollection(err, { validation } = {}) {
+  const { validationAction, validationLevel } = INITIAL_STATE;
   if (err) {
-    validation.error = err;
-    return validation;
+    return { validationAction, validationLevel, error: err };
   }
-
-  const options = data[0].options || {};
-
-  if (options.validationAction) {
-    validation.validationAction = options.validationAction;
-  }
-
-  if (options.validationLevel) {
-    validation.validationLevel = options.validationLevel;
-  }
-
-  if (options.validator) {
-    validation.validator = options.validator;
-  }
-
-  return validation;
+  return {
+    validationAction: validation?.validationAction ?? validationAction,
+    validationLevel: validation?.validationLevel ?? validationLevel,
+    ...(validation?.validator && {
+      validator: validation.validator,
+    }),
+  };
 }
 
 /**

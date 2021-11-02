@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ViewSwitcher, Tooltip } from 'hadron-react-components';
 import { AnimatedIconTextButton, IconButton } from 'hadron-react-buttons';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
 const BASE_CLASS = 'document-list';
 const ACTION_BAR_CLASS = `${BASE_CLASS}-action-bar`;
@@ -22,6 +24,7 @@ class Toolbar extends React.Component {
    * Handle refreshing the document list.
    */
   handleRefreshDocuments() {
+    track('Query Results Refreshed');
     this.props.refreshDocuments();
   }
 
@@ -46,7 +49,6 @@ class Toolbar extends React.Component {
    */
   switchDocumentView(view) {
     this.props.viewSwitchHandler(view);
-    this.props.refreshDocuments();
   }
 
   _loadedMessage() {

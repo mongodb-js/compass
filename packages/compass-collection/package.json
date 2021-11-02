@@ -149,6 +149,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@mongodb-js/compass-logging": "^0.3.0",
     "lodash.filter": "^4.6.0",
     "lodash.isempty": "^4.4.0",
     "react-sortable-hoc": "^1.10.1"

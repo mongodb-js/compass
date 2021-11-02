@@ -131,7 +131,7 @@ describe('validation module', () => {
 
     context('when the options contains no options', () => {
       it('returns defaults', () => {
-        const data = [{}];
+        const data = {};
         expect(validationFromCollection(null, data)).to.deep.equal({
           validationAction: 'error',
           validationLevel: 'strict'
@@ -141,7 +141,7 @@ describe('validation module', () => {
 
     context('when the options contains no validation-related options', () => {
       it('returns defaults', () => {
-        const data = [{ options: {} }];
+        const data = { validation: {} };
         expect(validationFromCollection(null, data)).to.deep.equal({
           validationAction: 'error',
           validationLevel: 'strict'
@@ -151,13 +151,13 @@ describe('validation module', () => {
 
     context('when the options contains validation-related options', () => {
       it('overrides the defaults', () => {
-        const data = [{
-          options: {
+        const data = {
+          validation: {
             validationAction: 'new-validationAction',
             validationLevel: 'new-validationLevel',
-            validator: { foo: 'bar' }
-          }
-        }];
+            validator: { foo: 'bar' },
+          },
+        };
         expect(validationFromCollection(null, data)).to.deep.equal({
           validationAction: 'new-validationAction',
           validationLevel: 'new-validationLevel',

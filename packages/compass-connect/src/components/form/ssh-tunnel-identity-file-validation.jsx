@@ -3,9 +3,10 @@ import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { FileInput } from '@mongodb-js/compass-components';
+
 import Actions from '../../actions';
 import FormInput from './form-input';
-import FormFileInput from './form-file-input';
 import FormGroup from './form-group';
 
 class SSHTunnelIdentityFileValidation extends React.Component {
@@ -159,11 +160,11 @@ class SSHTunnelIdentityFileValidation extends React.Component {
           changeHandler={this.onSSHTunnelUsernameChanged.bind(this)}
           value={this.props.connectionModel.sshTunnelUsername || ''}
         />
-        <FormFileInput
+        <FileInput
           label="SSH Identity File"
           id="sshTunnelIdentityFile"
           error={this.getFileError()}
-          changeHandler={this.onSSHTunnelIdentityFileChanged.bind(this)}
+          onChange={this.onSSHTunnelIdentityFileChanged.bind(this)}
           values={this.props.connectionModel.sshTunnelIdentityFile}
         />
         <FormInput
