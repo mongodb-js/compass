@@ -65,7 +65,7 @@ describe('Home [Component]', function () {
   });
 
   describe('is connected', function () {
-    beforeEach(function () {
+    beforeEach(async function () {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
           <Home appName="home-testing" />
@@ -80,6 +80,10 @@ describe('Home [Component]', function () {
         {
           connectionOptions: { connectionString: 'mongodb+srv://mongodb.net/' },
         }
+      );
+      await waitFor(
+        () =>
+          expect(screen.queryByTestId('test-Application.Connect')).to.not.exist
       );
     });
     describe('UI status is loading', function () {
@@ -104,6 +108,57 @@ describe('Home [Component]', function () {
         await waitFor(() =>
           expect(document.title).to.equal('home-testing - mongodb.net')
         );
+      });
+
+      describe('on `data-service-disconnected`', function () {
+        beforeEach(function () {
+          testAppRegistry.emit('data-service-disconnected');
+        });
+
+        it('does not disconnect since it is still loading', function () {
+          expect(screen.queryByTestId('test-Application.Connect')).to.not.exist;
+          expect(screen.getByTestId('test-Sidebar.Component')).to.be.visible;
+        });
+
+        describe('after loading has completed it disconnects', function () {
+          beforeEach(async function () {
+            testAppRegistry.emit('instance-refreshed', {});
+
+            await waitFor(
+              () =>
+                expect(screen.queryByTestId('test-Sidebar.Component')).to.not
+                  .exist
+            );
+          });
+
+          it('renders the connect screen', function () {
+            expect(screen.getByTestId('test-Application.Connect')).to.be
+              .visible;
+          });
+
+          it('does not render the sidebar', function () {
+            expect(screen.queryByTestId('test-Sidebar.Component')).to.not.exist;
+          });
+        });
+
+        describe('loading completes with error', function () {
+          beforeEach(async function () {
+            testAppRegistry.emit('instance-refreshed', {
+              errorMessage: 'Test error message',
+            });
+
+            await waitFor(
+              () =>
+                expect(screen.queryByTestId('test-Sidebar.Component')).to.not
+                  .exist
+            );
+          });
+
+          it('renders the connect screen', function () {
+            expect(screen.getByTestId('test-Application.Connect')).to.be
+              .visible;
+          });
+        });
       });
     });
 

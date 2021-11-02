@@ -1,6 +1,5 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
-import React, { useEffect } from 'react';
+import { css } from '@emotion/css';
+import React from 'react';
 
 import WorkspaceContent from './workspace-content';
 import Namespace from '../types/namespace';
@@ -11,7 +10,6 @@ import {
   useAppRegistryComponent,
   useAppRegistryRole,
 } from '../contexts/app-registry-context';
-import updateTitle from '../modules/update-title';
 
 const homeViewStyles = css({
   display: 'flex',
@@ -39,15 +37,11 @@ const homePageContentStyles = css({
 });
 
 export default function Workspace({
-  appName,
-  connectionTitle,
   instanceLoadingStatus,
   errorLoadingInstanceMessage,
   isDataLake,
   namespace,
 }: {
-  appName: string;
-  connectionTitle: string;
   instanceLoadingStatus: InstanceLoadedStatus;
   errorLoadingInstanceMessage: string | null;
   isDataLake: boolean;
@@ -63,14 +57,10 @@ export default function Workspace({
   const findInPageRole = useAppRegistryRole(AppRegistryRoles.FIND_IN_PAGE);
   const FindInPage = findInPageRole ? findInPageRole[0].component : null;
 
-  useEffect(() => {
-    updateTitle(appName, connectionTitle, namespace);
-  });
-
   return (
-    <div data-test-id="home-view" css={homeViewStyles}>
-      <div css={homePageStyles}>
-        <div css={homePageContentStyles}>
+    <div data-test-id="home-view" className={homeViewStyles}>
+      <div className={homePageStyles}>
+        <div className={homePageContentStyles}>
           <WorkspaceContent
             namespace={namespace}
             instanceLoadingStatus={instanceLoadingStatus}

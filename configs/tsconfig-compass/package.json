@@ -8,7 +8,6 @@
     "tsconfig.react.json"
   ],
   "peerDependencies": {
-    "@emotion/react": "^11.4.1",
     "typescript": "^4.3.5"
   },
   "devDependencies": {

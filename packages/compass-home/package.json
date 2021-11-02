@@ -17,7 +17,7 @@
     "compile": "npm run webpack -- --mode production",
     "prettier": "prettier",
     "test:node": "mocha",
-    "test:electron": "xvfb-maybe electron-mocha \"./src/**/*.spec.tsx\" --no-sandbox --renderer=false",
+    "test:electron": "xvfb-maybe electron-mocha \"./src/**/*.spec.tsx\" --no-sandbox",
     "test": "npm run test:node && npm run test:electron",
     "cover": "nyc npm run test",
     "check": "npm run lint && npm run depcheck",
@@ -33,7 +33,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@emotion/react": "^11.4.1",
+    "@emotion/css": "^11.5.0",
     "@mongodb-js/compass-components": "^0.6.0",
     "debug": "*",
     "hadron-react-buttons": "*",
@@ -46,7 +46,7 @@
     "react-tooltip": "^3.11.1"
   },
   "devDependencies": {
-    "@emotion/react": "^11.4.1",
+    "@emotion/css": "^11.5.0",
     "@mongodb-js/compass-components": "^0.6.0",
     "@mongodb-js/eslint-config-compass": "^0.3.0",
     "@mongodb-js/mocha-config-compass": "^0.4.0",
