@@ -1,6 +1,8 @@
 import { createId } from './id';
 import { setIsModified } from './is-modified';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const PREFIX = 'aggregations/saved-pipeline';
 
@@ -137,6 +139,7 @@ export const saveCurrentPipeline = () => {
     const pipeline = state.pipeline.map((stage) => {
       return { ...stage, previewDocuments: [] };
     });
+    track('Aggregation Saved', { num_stages: pipeline.length });
 
     const stateRecord = Object.assign({}
       , { namespace: state.namespace }

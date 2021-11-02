@@ -1,5 +1,3 @@
-const debug = require('debug')('mongodb-aggregations:modules:index');
-
 import { combineReducers } from 'redux';
 import { ObjectId } from 'bson';
 import isEmpty from 'lodash.isempty';
@@ -109,6 +107,9 @@ import { gatherProjections, generateStage } from './stage';
 import updateViewError, {
   INITIAL_STATE as UPDATE_VIEW_ERROR_INITIAL_STATE
 } from './update-view';
+
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 /**
  * The intial state of the root reducer.
@@ -385,6 +386,9 @@ const createClonedPipeline = (state) => ({
 const doConfirmNewFromText = (state) => {
   const pipe = createPipeline(state.importPipeline.text);
   const error = pipe.length > 0 ? pipe[0].syntaxError : null;
+  if (!error) {
+    track('Aggregation Imported From Text', { num_stages: pipe.length });
+  }
   return {
     ...state,
     name: '',
@@ -637,6 +641,7 @@ export const newPipelineFromPaste = (text) => {
  */
 export const deletePipeline = (pipelineId) => {
   return (dispatch, getState) => {
+    track('Aggregation Deleted');
     const fs = require('fs');
     const path = require('path');
     const file = path.join(getDirectory(), `${pipelineId}.json`);
@@ -667,6 +672,7 @@ export const getPipelineFromIndexedDB = (pipelineId) => {
     fs.readFile(file, 'utf8', (error, data) => {
       if (!error) {
         const pipe = JSON.parse(data);
+        track('Aggregation Opened', { num_stages: pipe.pipeline.length });
         dispatch(clearPipeline());
         dispatch(restoreSavedPipeline(pipe));
         dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-opened'));
