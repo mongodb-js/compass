@@ -1,7 +1,8 @@
 /** @jsx jsx */
 import React from 'react';
 import path from 'path';
-import { css, jsx } from '@emotion/react';
+import { css, cx } from '@emotion/css';
+import { jsx } from '@emotion/react';
 
 import { Button, Icon } from '..';
 
@@ -34,8 +35,10 @@ const buttonErrorStyles = css`
 const labelHorizontalStyles = css`
   width: 70%;
   text-align: right;
+  vertical-align: middle;
   padding-right: 15px;
   margin: auto;
+  margin-bottom: 0;
 `;
 
 const labelErrorStyles = css`
@@ -44,6 +47,7 @@ const labelErrorStyles = css`
 
 const labelIconStyles = css`
   display: inline-block;
+  vertical-align: middle;
   font: normal normal normal 14px/1 FontAwesome;
   font-size: inherit;
   text-rendering: auto;
@@ -80,7 +84,7 @@ interface FileWithPath extends File {
 function FileInput({
   id,
   label,
-  changeHandler,
+  onChange,
   multi = false,
   error = false,
   variant = Variant.Horizontal,
@@ -89,7 +93,7 @@ function FileInput({
 }: {
   id: string;
   label: string;
-  changeHandler: (files: string[]) => void;
+  onChange: (files: string[]) => void;
   multi?: boolean;
   error?: boolean;
   variant?: Variant;
@@ -112,38 +116,33 @@ function FileInput({
       const files = fileList.map((file) => {
         return (file as FileWithPath).path;
       });
-      changeHandler(files);
+      onChange(files);
     },
-    [changeHandler]
+    [onChange]
   );
 
-  const formItemCSS = [];
-  const labelCSS = [];
-  const buttonCSS = [buttonStyles];
-
-  if (variant === Variant.Horizontal) {
-    formItemCSS.push(formItemHorizontalStyles);
-    labelCSS.push(labelHorizontalStyles);
-  } else {
-    formItemCSS.push(formItemVerticalStyles);
-  }
-
-  if (error) {
-    formItemCSS.push(formItemErrorStyles);
-    labelCSS.push(labelErrorStyles);
-    buttonCSS.push(buttonErrorStyles);
-  }
-
   return (
-    <div css={formItemCSS}>
-      <label htmlFor={id} css={labelCSS}>
+    <div
+      className={cx(
+        { [formItemHorizontalStyles]: variant === Variant.Horizontal },
+        { [formItemVerticalStyles]: variant === Variant.Vertical },
+        { [formItemErrorStyles]: error }
+      )}
+    >
+      <label
+        htmlFor={id}
+        className={cx(
+          { [labelHorizontalStyles]: variant === Variant.Horizontal },
+          { [labelErrorStyles]: error }
+        )}
+      >
         <span>{label}</span>
         {link && (
           <a
             href={link}
             target="_blank"
             rel="noreferrer"
-            css={labelIconStyles}
+            className={labelIconStyles}
             data-testid="file-input-link"
           >
             
@@ -162,7 +161,7 @@ function FileInput({
       <Button
         id={id}
         data-testid="file-input-button"
-        css={buttonCSS}
+        className={cx({ [buttonStyles]: true }, { [buttonErrorStyles]: error })}
         onClick={() => {
           if (inputRef.current) {
             inputRef.current.click();

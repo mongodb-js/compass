@@ -118,7 +118,7 @@ class SSLServerClientValidation extends React.Component {
           label="Certificate Authority"
           id="sslCA"
           error={this.getCertAuthError()}
-          changeHandler={this.onCertificateAuthorityChanged.bind(this)}
+          onChange={this.onCertificateAuthorityChanged.bind(this)}
           values={this.props.connectionModel.sslCA}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities"
         />
@@ -126,7 +126,7 @@ class SSLServerClientValidation extends React.Component {
           label="Client Certificate"
           id="sslCert"
           error={this.getClientCertError()}
-          changeHandler={this.onClientCertificateChanged.bind(this)}
+          onChange={this.onClientCertificateChanged.bind(this)}
           values={this.props.connectionModel.sslCert}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file"
         />
@@ -134,7 +134,7 @@ class SSLServerClientValidation extends React.Component {
           label="Client Private Key"
           id="sslKey"
           error={this.getClientKeyError()}
-          changeHandler={this.onClientPrivateKeyChanged.bind(this)}
+          onChange={this.onClientPrivateKeyChanged.bind(this)}
           values={this.props.connectionModel.sslKey}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file"
         />

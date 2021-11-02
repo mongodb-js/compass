@@ -19,7 +19,7 @@ describe('FileInput', function () {
 
   it('renders "Select a file..." if values is falsy and multi is false', function () {
     render(
-      <FileInput id="file-input" label="Select something" changeHandler={spy} />
+      <FileInput id="file-input" label="Select something" onChange={spy} />
     );
 
     const button = screen.getByTestId('file-input-button');
@@ -31,7 +31,7 @@ describe('FileInput', function () {
       <FileInput
         id="file-input"
         label="Select something"
-        changeHandler={spy}
+        onChange={spy}
         values={[]}
       />
     );
@@ -45,7 +45,7 @@ describe('FileInput', function () {
       <FileInput
         id="file-input"
         label="Select something"
-        changeHandler={spy}
+        onChange={spy}
         multi
       />
     );
@@ -59,7 +59,7 @@ describe('FileInput', function () {
       <FileInput
         id="file-input"
         label="Select something"
-        changeHandler={spy}
+        onChange={spy}
         values={['a.png']}
       />
     );
@@ -73,7 +73,7 @@ describe('FileInput', function () {
       <FileInput
         id="file-input"
         label="Select something"
-        changeHandler={spy}
+        onChange={spy}
         values={['a.png', 'b.png']}
       />
     );
@@ -87,7 +87,7 @@ describe('FileInput', function () {
       <FileInput
         id="file-input"
         label="Select something"
-        changeHandler={spy}
+        onChange={spy}
         variant={Variant.Vertical}
       />
     );
@@ -100,7 +100,7 @@ describe('FileInput', function () {
       <FileInput
         id="file-input"
         label="Select something"
-        changeHandler={spy}
+        onChange={spy}
         variant={Variant.Horizontal}
       />
     );
@@ -113,7 +113,7 @@ describe('FileInput', function () {
       <FileInput
         id="file-input"
         label="Select something"
-        changeHandler={spy}
+        onChange={spy}
         variant={Variant.Horizontal}
         error
       />
@@ -127,7 +127,7 @@ describe('FileInput', function () {
       <FileInput
         id="file-input"
         label="Select something"
-        changeHandler={spy}
+        onChange={spy}
         variant={Variant.Horizontal}
         link="http://google.com/"
       />

@@ -47,7 +47,7 @@ class ImportOptions extends PureComponent {
         <FileInput
           label="Select File"
           id="import-file"
-          changeHandler={this.handleChooseFile.bind(this)}
+          onChange={this.handleChooseFile.bind(this)}
           values={values}
           variant="VERTICAL"
         />
