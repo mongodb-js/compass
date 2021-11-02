@@ -35,7 +35,7 @@ class CompassTelemetry {
 
   private static track(info: EventInfo) {
     const commonProperties = {
-      compass_version: app.getVersion(),
+      compass_version: app.getVersion().split('.').slice(0, 2).join('.'), // only major.minor
       compass_distribution: process.env.HADRON_DISTRIBUTION,
       compass_channel: process.env.HADRON_CHANNEL
     };
