@@ -1,4 +1,5 @@
 // @ts-check
+const path = require('path');
 const { promises: fs } = require('fs');
 const _ = require('lodash');
 const chai = require('chai');
@@ -509,8 +510,86 @@ describe('Smoke tests', function () {
   });
 
   describe('Import', function () {
-    it('supports JSON arrays');
-    it('supports JSON files');
+    it('supports JSON arrays', async function () {
+      await client.navigateToCollectionTab('test', 'json-array', 'Documents');
+
+      const array = [];
+      for (let i = 0; i < 1000; ++i) {
+        array.push({ n: i, n_square: i * i });
+      }
+      const json = JSON.stringify(array);
+
+      await client.clickVisible(Selectors.AddDataButton);
+      const insertDocumentOption = await client.$(
+        Selectors.InsertDocumentOption
+      );
+      await insertDocumentOption.waitForDisplayed();
+      await client.clickVisible(Selectors.InsertDocumentOption);
+
+      const insertDialog = await client.$(Selectors.InsertDialog);
+      await insertDialog.waitForDisplayed();
+      await client.setAceValue(Selectors.InsertJSONEditor, json);
+
+      const insertConfirm = await client.$(Selectors.InsertConfirm);
+      // this selector is very brittle, so just make sure it works
+      expect(await insertConfirm.isDisplayed()).to.be.true;
+      expect(await insertConfirm.getText()).to.equal('Insert');
+      await insertConfirm.waitForEnabled();
+      await client.clickVisible(Selectors.InsertConfirm);
+
+      await insertDialog.waitForDisplayed({ reverse: true });
+      const messageElement = await client.$(
+        Selectors.DocumentListActionBarMessage
+      );
+      await client.waitUntil(async () => {
+        const text = await messageElement.getText();
+        return text === 'Displaying documents 1 - 20 of 1000';
+      });
+    });
+
+    it('supports JSON files', async function () {
+      const jsonPath = path.resolve(
+        __dirname,
+        '..',
+        'fixtures',
+        'listings.json'
+      );
+
+      await client.navigateToCollectionTab('test', 'json-file', 'Documents');
+
+      // open the import modal
+      await client.clickVisible(Selectors.AddDataButton);
+      const insertDocumentOption = await client.$(Selectors.ImportFileOption);
+      await insertDocumentOption.waitForDisplayed();
+      await client.clickVisible(Selectors.ImportFileOption);
+
+      // wait for the modal to appear and select the file
+      const importModal = await client.$(Selectors.ImportModal);
+      await importModal.waitForDisplayed();
+      await client.selectFile(Selectors.ImportFileInput, jsonPath);
+
+      // make sure it auto-selected JSON and then confirm
+      const fileTypeJSON = await client.$(Selectors.FileTypeJSON);
+      await client.waitUntil(async () => {
+        const selected = await fileTypeJSON.getAttribute('aria-selected');
+        return selected === 'true';
+      });
+      await client.clickVisible(Selectors.ImportConfirm);
+
+      // wait for the done button to appear and then click it
+      const doneButton = await client.$(Selectors.ImportDone);
+      await doneButton.waitForDisplayed({ timeout: 60_000 });
+      await client.clickVisible(Selectors.ImportDone);
+
+      // wait for the modal to go away
+      await importModal.waitForDisplayed({ reverse: false });
+      const messageElement = await client.$(
+        Selectors.DocumentListActionBarMessage
+      );
+      const text = await messageElement.getText();
+      expect(text).to.equal('Displaying documents 1 - 20 of 16116');
+    });
+
     it('supports JSON files with select fields');
     it('supports JSON files with set field types');
     it('supports JSON files with extended json');

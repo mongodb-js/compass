@@ -4,7 +4,7 @@ module.exports = function (app) {
     try {
       // return true if it exists before the timeout expires
       const element = await client.$(selector);
-      return await element.waitForExist({
+      return await element.waitForDisplayed({
         timeout,
       });
     } catch (err) {

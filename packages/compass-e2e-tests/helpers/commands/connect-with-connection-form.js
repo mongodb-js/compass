@@ -30,7 +30,7 @@ module.exports = function (app) {
       Selectors.ShowConnectionFormButton
     );
     if (await connectionFormButtonElement.isDisplayed()) {
-      await connectionFormButtonElement.click();
+      await client.clickVisible(Selectors.ShowConnectionFormButton);
     }
 
     await client.clickVisible(Selectors.ConnectionFormHostnameTabButton);

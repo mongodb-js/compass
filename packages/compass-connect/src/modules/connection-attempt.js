@@ -1,5 +1,4 @@
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import { promisify } from 'util';
 import { connect } from 'mongodb-data-service';
 
 const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');

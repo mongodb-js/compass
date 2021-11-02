@@ -196,6 +196,7 @@ class InsertDocumentDialog extends React.PureComponent {
     return (
       <ConfirmationModal
         title={`Insert to Collection ${this.props.ns}`}
+        className="insert-document-dialog"
         open={this.props.isOpen}
         onConfirm={this.handleInsert.bind(this)}
         onCancel={this.props.closeInsertDocumentDialog}
