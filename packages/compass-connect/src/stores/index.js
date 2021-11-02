@@ -7,6 +7,8 @@ const StateMixin = require('reflux-state-mixin');
 const { promisify } = require('util');
 const { getConnectionTitle, convertConnectionModelToInfo } = require('mongodb-data-service');
 const debug = require('debug')('compass-connect:store');
+const { isAtlas, isLocalhost, isDigitalOcean } = require('mongodb-build-info');
+const { getCloudInfo } = require('mongodb-cloud-info');
 
 const Actions = require('../actions');
 const {
@@ -980,7 +982,43 @@ const Store = Reflux.createStore({
     }
   },
 
-  _onConnectSuccess(dataService, connectionInfo) {
+  async _trackConnectionInfo() {
+    const { dataService } = this;
+    const {
+      dataLake,
+      genuineMongoDB,
+      host,
+      build,
+    } = await promisify(dataService.instance.bind(dataService))();
+    const {
+      hostname,
+      authMechanism,
+    } = this.state.connectionModel;
+    const [major, minor] = process.env.HADRON_APP_VERSION.split('.');
+    const { isAws, isAzure, isGcp } = await getCloudInfo(hostname);
+    const isPublicCloud = isAws || isAzure || isGcp;
+    const publicCloudName = isAws ? 'AWS' : isAzure ? 'Azure' : isGcp ? 'GCP' : '';
+
+    const trackEvent = {
+      is_localhost: isLocalhost(hostname),
+      is_atlas: isAtlas(hostname),
+      is_dataLake: dataLake.isDataLake,
+      is_enterprise: build.isEnterprise,
+      is_public_cloud: isPublicCloud,
+      is_do: isDigitalOcean(hostname),
+      public_cloud_name: publicCloudName,
+      is_genuine: genuineMongoDB.isGenuine,
+      non_genuine_server_name: genuineMongoDB.dbType,
+      server_version: host.kernel_version,
+      server_arch: host.arch,
+      server_os_family: host.os_family,
+      compass_version: `${major}.${minor}`,
+      auth_type: authMechanism,
+    };
+    track('New Connection', trackEvent);
+  },
+
+  async _onConnectSuccess(dataService, connectionInfo) {
     const connectionModel = this.state.connectionModel;
     const currentSaved = this.state.connections[connectionModel._id];
 
@@ -1016,6 +1054,8 @@ const Store = Reflux.createStore({
     // bar, which is hidden after the instance information is loaded
     // in another plugin.
     this.StatusActions.showIndeterminateProgressBar();
+
+    await this._trackConnectionInfo();
   },
 
   /**
@@ -1050,7 +1090,7 @@ const Store = Reflux.createStore({
         return;
       }
 
-      this._onConnectSuccess(connectedDataService, connectionInfo);
+      await this._onConnectSuccess(connectedDataService, connectionInfo);
     } catch (error) {
       debug('_connect error', error);
       this.setState({
