@@ -28,6 +28,7 @@ import {
 import { bsonEqual, hasDistinctValue } from 'mongodb-query-util';
 import QUERY_PROPERTIES from '../constants/query-properties';
 import mergeGeoFilter from '../modules/merge-geo-filter';
+import { objectContainsRegularExpression } from '../modules/utils';
 import {
   USER_TYPING_DEBOUNCE_MS,
   APPLY_STATE,
@@ -44,10 +45,10 @@ import {
 } from '../constants/query-bar-store';
 import configureQueryChangedStore from './query-changed-store';
 
-const debug = require('debug')('mongodb-compass:stores:query-bar');
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track, debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 const QUERY_CHANGED_STORE = 'Query.ChangedStore';
-
 
 /**
  * Configure the query bar store.
@@ -64,10 +65,11 @@ const configureStore = (options = {}) => {
     /*
      * listen to Namespace store and reset if ns changes.
      */
-    onCollectionChanged(ns, isTimeSeries) {
+    onCollectionChanged(ns, isTimeSeries, isReadonly) {
       const newState = this.getInitialState();
       newState.ns = ns;
       newState.isTimeSeries = isTimeSeries;
+      newState.isReadonly = isReadonly;
       this.setState(newState);
     },
 
@@ -166,6 +168,7 @@ const configureStore = (options = {}) => {
         // set the namespace
         ns: '',
         isTimeSeries: false,
+        isReadonly: false,
 
         serverVersion: '3.6.0',
 
@@ -660,6 +663,15 @@ const configureStore = (options = {}) => {
      */
     apply() {
       if (this._validateQuery()) {
+        track('Query Executed', {
+          has_projection: !!this.state.project && Object.keys(this.state.project).length > 0,
+          has_skip: this.state.skip > 0,
+          has_limit: this.state.limit > 0,
+          has_collation: !!this.state.collation,
+          changed_maxtimems: this.state.maxTimeMS !== DEFAULT_MAX_TIME_MS,
+          collection_type: this.state.isTimeSeries ? 'time-series' : this.state.isReadonly ? 'readonly' : 'collection',
+          used_regex: objectContainsRegularExpression(this.state.filter)
+        });
         const registry = this.localAppRegistry;
         if (registry) {
           const newState = {
@@ -710,6 +722,8 @@ const configureStore = (options = {}) => {
       if (this.state.valid) {
         const newState = this.getInitialState();
         newState.ns = this.state.ns;
+        newState.isTimeSeries = this.state.isTimeSeries;
+        newState.isReadonly = this.state.isReadonly;
         newState.autoPopulated = true;
         this.setState(omit(newState, 'expanded'));
       }
@@ -755,7 +769,7 @@ const configureStore = (options = {}) => {
   }
 
   if (options.namespace) {
-    store.onCollectionChanged(options.namespace, options.isTimeSeries);
+    store.onCollectionChanged(options.namespace, options.isTimeSeries, options.isReadonly);
   }
 
   if (options.serverVersion) {
