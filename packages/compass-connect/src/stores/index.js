@@ -316,9 +316,7 @@ const Store = Reflux.createStore({
    */
   async onConnectClicked() {
     const { connectionModel } = this.state;
-    const [major, minor] = process.env.HADRON_APP_VERSION.split('.');
     const trackEvent = {
-      compass_version: `${major}.${minor}`,
       is_favorite: connectionModel.isFavorite,
       is_recent: this.state.connectionEntry === CONNECTION_ENTRY_RECENT,
     };
@@ -994,7 +992,6 @@ const Store = Reflux.createStore({
       hostname,
       authMechanism,
     } = this.state.connectionModel;
-    const [major, minor] = process.env.HADRON_APP_VERSION.split('.');
     const { isAws, isAzure, isGcp } = await getCloudInfo(hostname);
     const isPublicCloud = isAws || isAzure || isGcp;
     const publicCloudName = isAws ? 'AWS' : isAzure ? 'Azure' : isGcp ? 'GCP' : '';
@@ -1012,13 +1009,12 @@ const Store = Reflux.createStore({
       server_version: host.kernel_version,
       server_arch: host.arch,
       server_os_family: host.os_family,
-      compass_version: `${major}.${minor}`,
       auth_type: authMechanism,
     };
     track('New Connection', trackEvent);
   },
 
-  async _onConnectSuccess(dataService, connectionInfo) {
+  _onConnectSuccess(dataService, connectionInfo) {
     const connectionModel = this.state.connectionModel;
     const currentSaved = this.state.connections[connectionModel._id];
 
@@ -1055,7 +1051,7 @@ const Store = Reflux.createStore({
     // in another plugin.
     this.StatusActions.showIndeterminateProgressBar();
 
-    await this._trackConnectionInfo();
+    void this._trackConnectionInfo();
   },
 
   /**
@@ -1090,7 +1086,7 @@ const Store = Reflux.createStore({
         return;
       }
 
-      await this._onConnectSuccess(connectedDataService, connectionInfo);
+      this._onConnectSuccess(connectedDataService, connectionInfo);
     } catch (error) {
       debug('_connect error', error);
       this.setState({
