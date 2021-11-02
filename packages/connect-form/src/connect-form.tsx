@@ -1,5 +1,4 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
+import { css } from '@emotion/css';
 import React, { useState } from 'react';
 import { ConnectionInfo } from 'mongodb-data-service';
 import {
@@ -7,7 +6,6 @@ import {
   ButtonVariant,
   Card,
   Description,
-  MongoDBLogo,
   H3,
   spacing,
   uiColors,
@@ -15,19 +13,23 @@ import {
 
 import ConnectionStringInput from './connection-string-input';
 
-const logoStyles = css({
-  position: 'absolute',
-  top: spacing[5],
-  left: spacing[5],
+const formContainerStyles = css({
+  margin: 0,
+  padding: spacing[4],
+  height: 'fit-content',
+  flexGrow: 1,
+  minWidth: 400,
+  maxWidth: 760,
+  position: 'relative',
+  display: 'inline-block',
 });
 
 const formCardStyles = css({
-  margin: spacing[4],
-  marginTop: 99,
+  margin: 0,
+  padding: spacing[2],
   height: 'fit-content',
   width: '100%',
-  minWidth: 360,
-  maxWidth: 800,
+  position: 'relative',
 });
 
 const descriptionStyles = css({
@@ -50,19 +52,17 @@ function ConnectForm({
 }: {
   initialConnectionInfo: ConnectionInfo;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
-  openLink: (url: string) => void;
 }): React.ReactElement {
   const [connectionString, setConnectionString] = useState(
     initialConnectionInfo.connectionOptions.connectionString
   );
 
   return (
-    <React.Fragment>
-      <MongoDBLogo css={logoStyles} color={'black'} />
-      <Card css={formCardStyles}>
-        <div css={formContentContainerStyles}>
+    <div className={formContainerStyles}>
+      <Card className={formCardStyles}>
+        <div className={formContentContainerStyles}>
           <H3>New Connection</H3>
-          <Description css={descriptionStyles}>
+          <Description className={descriptionStyles}>
             Connect to a MongoDB deployment
           </Description>
           <ConnectionStringInput
@@ -70,7 +70,7 @@ function ConnectForm({
             setConnectionString={setConnectionString}
           />
         </div>
-        <div css={formActionStyles}>
+        <div className={formActionStyles}>
           <Button
             variant={ButtonVariant.Primary}
             onClick={() =>
@@ -85,7 +85,7 @@ function ConnectForm({
           </Button>
         </div>
       </Card>
-    </React.Fragment>
+    </div>
   );
 }
 

@@ -55,4 +55,24 @@ describe('getConnectionTitle', function () {
       })
     ).to.equal('somehost:12345');
   });
+
+  it('falls back to connection string if it is an invalid connection string', function () {
+    expect(
+      getConnectionTitle({
+        connectionOptions: {
+          connectionString: 'pineapple',
+        },
+      })
+    ).to.equal('pineapple');
+  });
+
+  it('falls back to the default name Connection if there is no connection string', function () {
+    expect(
+      getConnectionTitle({
+        connectionOptions: {
+          connectionString: '',
+        },
+      })
+    ).to.equal('Connection');
+  });
 });

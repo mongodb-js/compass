@@ -1,8 +1,6 @@
-/** @jsx jsx */
 import React from 'react';
 import path from 'path';
 import { css, cx } from '@emotion/css';
-import { jsx } from '@emotion/react';
 
 import { Button, Icon } from '..';
 

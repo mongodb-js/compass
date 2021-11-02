@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import toNS from 'mongodb-ns';
 import { StatusRow } from 'hadron-react-components';
 import UI_STATES from '../../constants/ui-states';
+import Connections from '@mongodb-js/compass-connections';
 
 const debug = require('debug')('mongodb-compass:stores:HomeComponent');
 
@@ -197,6 +198,19 @@ class Home extends PureComponent {
   }
 
   renderConnect() {
+    const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
+
+    if (showNewConnectForm) {
+      return (
+        <div className={styles['home-view']} data-test-id="home-view">
+          <div className={styles['home-view-page']}>
+            <Connections />
+            {this.renderGlobalWarnings()}
+          </div>
+        </div>
+      );
+    }
+
     if (this.connectRole) {
       const Connect = this.connectRole[0].component;
       return (

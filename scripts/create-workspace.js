@@ -227,7 +227,7 @@ async function main(argv) {
         'tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs',
       ...(isPlugin && {
         compile: 'npm run webpack -- --mode production',
-        prewebpack: 'rm -rf ./lib',
+        prewebpack: 'rimraf ./lib',
         webpack: 'webpack-compass',
         start: 'npm run webpack serve -- --mode development',
         analyze: 'npm run webpack -- --mode production --analyze'
@@ -277,6 +277,7 @@ async function main(argv) {
       ...(isPlugin && {
         '@mongodb-js/webpack-config-compass': '*',
         'hadron-app-registry': '*',
+        rimraf: '*',
         'xvfb-maybe': '*'
       })
     }
