@@ -1,4 +1,5 @@
-const debug = require('debug')('mongodb-aggregations:modules:create-view:index');
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import { combineReducers } from 'redux';
 import dataService from '../data-service';
@@ -156,6 +157,7 @@ export const createView = () => {
           return stopWithError(dispatch, e);
         }
         debug('View created!');
+        track('Aggregation Saved As View', { num_stages: viewPipeline.length });
         dispatch(globalAppRegistryEmit('refresh-data'));
         dispatch(
           globalAppRegistryEmit(
