@@ -49,6 +49,9 @@ const connectionButtonContainerStyles = css({
       backgroundColor: uiColors.focus,
     },
   },
+  [`&:focus .${connectionMenuContainerStyles}`]: {
+    visibility: 'visible',
+  },
   '&:focus-within': {
     '&::after': {
       opacity: 1,
