@@ -85,6 +85,7 @@ functions:
           export HADRON_METRICS_BUGSNAG_KEY="${metrics_bugsnag_key}";
           export HADRON_METRICS_INTERCOM_APP_ID="${metrics_intercom_app_id}";
           export HADRON_METRICS_STITCH_APP_ID="${metrics_stitch_app_id}";
+          export HADRON_METRICS_SEGMENT_API_KEY="${metrics_segment_api_key}";
 
           # Directories used to install node, npm, and store artifacts
           export ARTIFACTS_PATH="$(pwd)/.deps"
