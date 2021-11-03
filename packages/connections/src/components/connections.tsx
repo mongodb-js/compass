@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import {
   MongoDBLogo,
   breakpoints,
@@ -7,11 +7,19 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import ConnectForm from '@mongodb-js/connect-form';
-import { ConnectionInfo } from 'mongodb-data-service';
+import {
+  ConnectionInfo,
+  ConnectionStorage,
+  DataService,
+} from 'mongodb-data-service';
 import { v4 as uuidv4 } from 'uuid';
 
 import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
+import {
+  ConnectionAttempt,
+  createConnectionAttempt,
+} from '../modules/connection-attempt';
 
 const connectStyles = css({
   position: 'absolute',
@@ -56,71 +64,21 @@ function getDefaultConnectionInfo() {
   };
 }
 
-const mockRecents: ConnectionInfo[] = [];
-for (let i = 0; i < 15; i++) {
-  mockRecents.push({
-    id: `mock-connection-${i}`,
-    connectionOptions: {
-      connectionString: `mongodb://localhost:2${
-        5000 + Math.floor(Math.random() * 5000)
-      }`,
-    },
-    lastUsed: new Date(Date.now() - (Date.now() / 2) * Math.random()),
-  });
-}
-
-const mockConnections = [
-  {
-    id: 'mock-connection-dev',
-    connectionOptions: {
-      connectionString: '',
-    },
-    favorite: {
-      name: 'Development cluster',
-      color: '#deb342',
-    },
-    lastUsed: new Date(),
-  },
-  {
-    id: 'mock-connection-atlas',
-    connectionOptions: {
-      connectionString:
-        'mongodb+srv://testUserForTesting:notMyRealPassword@test.mongodb.net/test?authSource=admin&replicaSet=art-dev-shard-0&readPreference=primary&ssl=true',
-    },
-    favorite: {
-      name: 'Atlas test',
-      color: '#d4366e',
-    },
-    lastUsed: new Date(),
-  },
-  {
-    id: 'mock-connection-empty-connection',
-    connectionOptions: {
-      connectionString: '',
-    },
-    favorite: {
-      name: 'super long favorite name - super long favorite name - super long favorite name - super long favorite name',
-      color: '#5fc86e',
-    },
-    lastUsed: new Date(),
-  },
-  {
-    id: 'mock-connection-invalid string',
-    connectionOptions: {
-      connectionString: 'invalid connection string',
-    },
-    lastUsed: new Date(),
-  },
-  ...mockRecents,
-];
-const connections = mockConnections;
-
 type State = {
   activeConnectionId?: string;
   activeConnectionInfo: ConnectionInfo;
+  connectionAttempt: ConnectionAttempt | null;
+  connections: ConnectionInfo[];
 };
 
 type Action =
+  | {
+      type: 'attempt-connect';
+      connectionAttempt: ConnectionAttempt;
+    }
+  | {
+      type: 'cancel-connection-attempt';
+    }
   | {
       type: 'new-connection';
       newConnectionId: string;
@@ -129,10 +87,25 @@ type Action =
       type: 'set-active-connection';
       connectionId: string;
       connectionInfo: ConnectionInfo;
+    }
+  | {
+      type: 'set-connections';
+      connections: ConnectionInfo[];
     };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
+    case 'attempt-connect':
+      return {
+        ...state,
+        connectionAttempt: action.connectionAttempt,
+      };
+    case 'cancel-connection-attempt':
+      state.connectionAttempt?.cancelConnectionAttempt();
+      return {
+        ...state,
+        connectionAttempt: null,
+      };
     case 'set-active-connection':
       return {
         ...state,
@@ -148,21 +121,33 @@ function reducer(state: State, action: Action): State {
           id: action.newConnectionId,
         },
       };
+    case 'set-connections':
+      return {
+        ...state,
+        connections: action.connections,
+      };
     default:
       return state;
   }
 }
 
 function Connections(): React.ReactElement {
-  const [{ activeConnectionId, activeConnectionInfo }, dispatch] = useReducer(
-    reducer,
+  const [
     {
-      activeConnectionId: undefined,
-      activeConnectionInfo: {
-        ...getDefaultConnectionInfo(),
-      },
-    }
-  );
+      connectionAttempt,
+      connections,
+      activeConnectionId,
+      activeConnectionInfo,
+    },
+    dispatch,
+  ] = useReducer(reducer, {
+    activeConnectionId: undefined,
+    activeConnectionInfo: {
+      ...getDefaultConnectionInfo(),
+    },
+    connections: [],
+    connectionAttempt: null,
+  });
 
   const updateActiveConnection = (newConnectionId?: string | undefined) => {
     if (newConnectionId) {
@@ -185,6 +170,90 @@ function Connections(): React.ReactElement {
     });
   };
 
+  async function loadConnections() {
+    try {
+      const connectionStorage = new ConnectionStorage();
+      const loadedConnections = await connectionStorage.loadAll();
+
+      dispatch({
+        type: 'set-connections',
+        connections: loadedConnections,
+      });
+    } catch (e) {
+      console.log('error', e);
+      // TODO
+    }
+  }
+
+  function onConnectSuccess(
+    dataService: DataService,
+    connectionInfo: ConnectionInfo
+  ) {
+    // TODO: Ensure we're still mounted here.
+    // dispatch({
+    //   type: 'connection-attempt-succeeded',
+    //   connectionAttempt: newConnectionAttempt,
+    // });
+    console.log('connection attempt succeeded');
+
+    // TODO: Update lastUsed
+
+    // TODO: appRegistry get from context?
+    (global as any).hadronApp.appRegistry.emit(
+      'data-service-connected',
+      null, // No error connecting.
+      dataService,
+      connectionInfo
+      // connectionModel // TODO: remove
+    );
+
+    // global.hadronApp
+  }
+
+  async function onConnect(connectionInfo: ConnectionInfo) {
+    // TODO: Maybe ensure we aren't current connecting.
+    const newConnectionAttempt = createConnectionAttempt();
+
+    dispatch({
+      type: 'attempt-connect',
+      connectionAttempt: newConnectionAttempt,
+    });
+
+    // debug('connecting with connectionInfo', connectionInfo);
+
+    console.log('connecting with connectionInfo', connectionInfo);
+    try {
+      const connectedDataService = await newConnectionAttempt.connect(
+        connectionInfo.connectionOptions
+      );
+
+      if (!connectedDataService || !connectionAttempt) {
+        // TODO: Improve this check? connectionAttempt.is closed
+        console.log('here');
+        return;
+      }
+
+      onConnectSuccess(connectedDataService, connectionInfo);
+    } catch (error) {
+      // debug('_connect error', error);
+      console.log('connect error', error);
+      // this.setState({
+      //   isValid: false,
+      //   errorMessage: error.message,
+      //   syntaxErrorMessage: null
+      // });
+    }
+  }
+
+  useEffect(() => {
+    void loadConnections();
+
+    return () => {
+      // Cancel any active connection attempt on unmount.
+      connectionAttempt?.cancelConnectionAttempt();
+    };
+  }, []);
+
   return (
     <div className={connectStyles}>
       <ResizableSidebar
@@ -193,14 +262,10 @@ function Connections(): React.ReactElement {
         setActiveConnectionId={updateActiveConnection}
       />
       <div className={connectItemContainerStyles}>
-        <MongoDBLogo className={logoStyles} color={'black'} />
+        <MongoDBLogo className={logoStyles} color={'green-dark-2'} />
         <div className={formContainerStyles}>
           <ConnectForm
-            onConnectClicked={(connectionInfo) =>
-              alert(
-                `connect to ${connectionInfo.connectionOptions.connectionString}`
-              )
-            }
+            onConnectClicked={(connectionInfo) => onConnect(connectionInfo)}
             initialConnectionInfo={activeConnectionInfo}
             key={activeConnectionId}
           />
