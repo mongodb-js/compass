@@ -1,6 +1,5 @@
 import { css, cx } from '@emotion/css';
 import React from 'react';
-
 import {
   Subtitle,
   Description,
@@ -8,6 +7,16 @@ import {
   uiColors,
 } from '@mongodb-js/compass-components';
 import { ConnectionInfo, getConnectionTitle } from 'mongodb-data-service';
+
+import ConnectionMenu from './connection-menu';
+
+const connectionMenuHiddenStyles = css({
+  visibility: 'hidden',
+});
+
+const connectionMenuVisibleStyles = css({
+  visibility: 'visible',
+});
 
 const connectionButtonContainerStyles = css({
   position: 'relative',
@@ -34,6 +43,7 @@ const connectionButtonContainerStyles = css({
       width: spacing[1],
     },
   },
+  [`&:hover .${connectionMenuHiddenStyles}`]: connectionMenuVisibleStyles,
   '&:focus': {
     '&::after': {
       opacity: 1,
@@ -41,6 +51,8 @@ const connectionButtonContainerStyles = css({
       backgroundColor: uiColors.focus,
     },
   },
+  [`&:focus-within .${connectionMenuHiddenStyles}`]:
+    connectionMenuVisibleStyles,
   '&:focus-within': {
     '&::after': {
       opacity: 1,
@@ -100,7 +112,7 @@ const connectionTitleStyles = css({
   fontSize: 16,
   margin: 0,
   flexGrow: 1,
-  marginRight: spacing[2],
+  marginRight: spacing[4],
   width: '100%',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
@@ -181,6 +193,15 @@ function Connection({
           </Description>
         )}
       </button>
+      <div
+        className={
+          isActive ? connectionMenuVisibleStyles : connectionMenuHiddenStyles
+        }
+      >
+        <ConnectionMenu
+          connectionString={connectionInfo.connectionOptions.connectionString}
+        />
+      </div>
     </div>
   );
 }
