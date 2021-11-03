@@ -55,8 +55,7 @@ class SidebarTitle extends PureComponent {
         className={styles['sidebar-title-logo']}
       >
         <MongoDBLogoMark
-          darkMode
-          knockout
+          color="white"
         />
       </div>
     );
