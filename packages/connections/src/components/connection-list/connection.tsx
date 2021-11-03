@@ -1,6 +1,5 @@
 import { css, cx } from '@emotion/css';
 import React from 'react';
-
 import {
   Subtitle,
   Description,
@@ -8,6 +7,8 @@ import {
   uiColors,
 } from '@mongodb-js/compass-components';
 import { ConnectionInfo, getConnectionTitle } from 'mongodb-data-service';
+
+import ConnectionMenu from './connection-menu';
 
 const connectionButtonContainerStyles = css({
   position: 'relative',
@@ -100,7 +101,7 @@ const connectionTitleStyles = css({
   fontSize: 16,
   margin: 0,
   flexGrow: 1,
-  marginRight: spacing[2],
+  marginRight: spacing[4],
   width: '100%',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
@@ -181,6 +182,9 @@ function Connection({
           </Description>
         )}
       </button>
+      <ConnectionMenu
+        connectionString={connectionInfo.connectionOptions.connectionString}
+      />
     </div>
   );
 }
