@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { useReducer } from 'react';
+import React, { useEffect, useRef, useReducer } from 'react';
 import {
   IconButton,
   Icon,
@@ -15,6 +15,7 @@ const dropdownButtonStyles = css({
   position: 'absolute',
   right: spacing[1],
   top: spacing[2],
+  marginTop: spacing[1],
   bottom: 0,
 });
 
@@ -24,21 +25,24 @@ const toastStyles = css({
   },
 });
 
+const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
+
 type State = {
-  toastVariant: ToastVariant.Success | ToastVariant.Warning;
   error: string;
+  toastVariant: ToastVariant.Success | ToastVariant.Warning;
   toastOpen: boolean;
 };
 
 const defaultToastState: State = {
+  error: '',
   toastOpen: false,
   toastVariant: ToastVariant.Success,
-  error: '',
 };
 
 type Action =
   | { type: 'show-success-toast' }
   | { type: 'show-warning-toast'; error }
+  | { type: 'toast-timeout-started' }
   | { type: 'close-toast' };
 
 function reducer(state: State, action: Action): State {
@@ -75,6 +79,19 @@ function ConnectionMenu({
   const [{ error, toastOpen, toastVariant }, dispatch] = useReducer(reducer, {
     ...defaultToastState,
   });
+  const toastHideTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function startToastHideTimeout() {
+    if (toastHideTimeout.current) {
+      // If we're currently showing a toast, cancel that previous timeout.
+      clearTimeout(toastHideTimeout.current);
+      toastHideTimeout.current = null;
+    }
+
+    toastHideTimeout.current = setTimeout(() => {
+      dispatch({ type: 'close-toast' });
+    }, TOAST_TIMEOUT_MS);
+  }
 
   async function copyConnectionString(connectionString: string) {
     try {
@@ -88,7 +105,19 @@ function ConnectionMenu({
         error: err,
       });
     }
+
+    startToastHideTimeout();
   }
+
+  useEffect(() => {
+    return () => {
+      // When we unmount, close the timeout if it exists.
+      if (toastHideTimeout.current) {
+        clearTimeout(toastHideTimeout.current);
+        toastHideTimeout.current = null;
+      }
+    };
+  }, []);
 
   return (
     <>
