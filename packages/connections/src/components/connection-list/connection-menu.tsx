@@ -14,8 +14,8 @@ const dropdownButtonStyles = css({
   color: 'white',
   position: 'absolute',
   right: spacing[1],
-  top: spacing[2],
-  marginTop: spacing[1],
+  top: 0,
+  margin: 'auto 0',
   bottom: 0,
 });
 
