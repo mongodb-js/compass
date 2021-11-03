@@ -10,8 +10,12 @@ import { ConnectionInfo, getConnectionTitle } from 'mongodb-data-service';
 
 import ConnectionMenu from './connection-menu';
 
-const connectionMenuContainerStyles = css({
+const connectionMenuHiddenStyles = css({
   visibility: 'hidden',
+});
+
+const connectionMenuVisibleStyles = css({
+  visibility: 'visible',
 });
 
 const connectionButtonContainerStyles = css({
@@ -39,9 +43,7 @@ const connectionButtonContainerStyles = css({
       width: spacing[1],
     },
   },
-  [`&:hover .${connectionMenuContainerStyles}`]: {
-    visibility: 'visible',
-  },
+  [`&:hover .${connectionMenuHiddenStyles}`]: connectionMenuVisibleStyles,
   '&:focus': {
     '&::after': {
       opacity: 1,
@@ -49,9 +51,8 @@ const connectionButtonContainerStyles = css({
       backgroundColor: uiColors.focus,
     },
   },
-  [`&:focus .${connectionMenuContainerStyles}`]: {
-    visibility: 'visible',
-  },
+  [`&:focus-within .${connectionMenuHiddenStyles}`]:
+    connectionMenuVisibleStyles,
   '&:focus-within': {
     '&::after': {
       opacity: 1,
@@ -192,7 +193,11 @@ function Connection({
           </Description>
         )}
       </button>
-      <div className={connectionMenuContainerStyles}>
+      <div
+        className={
+          isActive ? connectionMenuVisibleStyles : connectionMenuHiddenStyles
+        }
+      >
         <ConnectionMenu
           connectionString={connectionInfo.connectionOptions.connectionString}
         />
