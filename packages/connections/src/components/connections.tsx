@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer } from 'react';
 import {
   MongoDBLogo,
   breakpoints,
@@ -11,8 +11,10 @@ import {
   ConnectionInfo,
   ConnectionStorage,
   DataService,
+  convertConnectionInfoToModel
 } from 'mongodb-data-service';
 import { v4 as uuidv4 } from 'uuid';
+import debugModule from 'debug';
 
 import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
@@ -20,6 +22,9 @@ import {
   ConnectionAttempt,
   createConnectionAttempt,
 } from '../modules/connection-attempt';
+import Connecting from './connecting/connecting';
+
+const debug = debugModule('mongodb-compass:connections:connections');
 
 const connectStyles = css({
   position: 'absolute',
@@ -68,6 +73,7 @@ type State = {
   activeConnectionId?: string;
   activeConnectionInfo: ConnectionInfo;
   connectionAttempt: ConnectionAttempt | null;
+  connectionErrorMessage: string | null;
   connections: ConnectionInfo[];
 };
 
@@ -77,8 +83,15 @@ type Action =
       connectionAttempt: ConnectionAttempt;
     }
   | {
-      type: 'cancel-connection-attempt';
+    type: 'cancel-connection-attempt';
     }
+  | {
+    type: 'connection-attempt-errored';
+    connectionErrorMessage: string;
+    }
+  | {
+    type: 'connection-attempt-succeeded';
+  }
   | {
       type: 'new-connection';
       newConnectionId: string;
@@ -99,12 +112,24 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         connectionAttempt: action.connectionAttempt,
+        connectionErrorMessage: null
       };
     case 'cancel-connection-attempt':
       state.connectionAttempt?.cancelConnectionAttempt();
       return {
         ...state,
         connectionAttempt: null,
+        connectionErrorMessage: 'Connection attempt canceled.'
+      };
+    case 'connection-attempt-succeeded':
+      return {
+        ...state,
+        connectionAttempt: null
+      };
+    case 'connection-attempt-errored':
+      return {
+        ...state,
+        connectionErrorMessage: action.connectionErrorMessage
       };
     case 'set-active-connection':
       return {
@@ -147,6 +172,7 @@ function Connections(): React.ReactElement {
     },
     connections: [],
     connectionAttempt: null,
+    connectionErrorMessage: null
   });
 
   const updateActiveConnection = (newConnectionId?: string | undefined) => {
@@ -185,33 +211,45 @@ function Connections(): React.ReactElement {
     }
   }
 
-  function onConnectSuccess(
-    dataService: DataService,
-    connectionInfo: ConnectionInfo
-  ) {
-    // TODO: Ensure we're still mounted here.
-    // dispatch({
-    //   type: 'connection-attempt-succeeded',
-    //   connectionAttempt: newConnectionAttempt,
-    // });
-    console.log('connection attempt succeeded');
+  // TODO: use callback?
+  const onConnectSuccess = useCallback(
+    (
+      dataService: DataService,
+      connectionInfo: ConnectionInfo
+    ) => {
+      if (!connectionAttempt || connectionAttempt.isClosed()) {
+        // TODO: Improve this check? connectionAttempt.is closed
+        console.log('here');
+        return;
+      }
 
-    // TODO: Update lastUsed
+      // TODO: Ensure we're still mounted here.
+      dispatch({
+        type: 'connection-attempt-succeeded'
+      });
+      console.log('connection attempt succeeded');
 
-    // TODO: appRegistry get from context?
-    (global as any).hadronApp.appRegistry.emit(
-      'data-service-connected',
-      null, // No error connecting.
-      dataService,
-      connectionInfo
-      // connectionModel // TODO: remove
-    );
+      // TODO: Update lastUsed
 
-    // global.hadronApp
-  }
+      // TODO: appRegistry get from context?
+      (global as any).hadronApp.appRegistry.emit(
+        'data-service-connected',
+        null, // No error connecting.
+        dataService,
+        connectionInfo,
+        convertConnectionInfoToModel(connectionInfo) // TODO: remove
+      );
+
+      // global.hadronApp
+    }, [connectionAttempt]
+  );
 
   async function onConnect(connectionInfo: ConnectionInfo) {
-    // TODO: Maybe ensure we aren't current connecting.
+    if (connectionAttempt) {
+      // Ensure we aren't currently connecting.
+      return;
+    }
+
     const newConnectionAttempt = createConnectionAttempt();
 
     dispatch({
@@ -219,39 +257,32 @@ function Connections(): React.ReactElement {
       connectionAttempt: newConnectionAttempt,
     });
 
-    // debug('connecting with connectionInfo', connectionInfo);
+    debug('connecting with connectionInfo', connectionInfo);
 
-    console.log('connecting with connectionInfo', connectionInfo);
     try {
       const connectedDataService = await newConnectionAttempt.connect(
         connectionInfo.connectionOptions
       );
 
-      if (!connectedDataService || !connectionAttempt) {
-        // TODO: Improve this check? connectionAttempt.is closed
-        console.log('here');
+      if (!connectedDataService || newConnectionAttempt.isClosed()) {
+        // The connection attempt was cancelled.
         return;
       }
 
       onConnectSuccess(connectedDataService, connectionInfo);
     } catch (error) {
-      // debug('_connect error', error);
-      console.log('connect error', error);
-      // this.setState({
-      //   isValid: false,
-      //   errorMessage: error.message,
-      //   syntaxErrorMessage: null
-      // });
+      debug('connect error', error);
+
+      dispatch({
+        type: 'connection-attempt-errored',
+        connectionErrorMessage: error.message
+      });
     }
   }
 
   useEffect(() => {
+    // Load connections after first render.
     void loadConnections();
-
-    return () => {
-      // Cancel any active connection attempt on unmount.
-      connectionAttempt?.cancelConnectionAttempt();
-    };
   }, []);
 
   return (
@@ -265,6 +296,7 @@ function Connections(): React.ReactElement {
         <MongoDBLogo className={logoStyles} color={'green-dark-2'} />
         <div className={formContainerStyles}>
           <ConnectForm
+            // TODO: Add connectionErrorMessage
             onConnectClicked={(connectionInfo) => onConnect(connectionInfo)}
             initialConnectionInfo={activeConnectionInfo}
             key={activeConnectionId}
@@ -272,6 +304,15 @@ function Connections(): React.ReactElement {
           <FormHelp />
         </div>
       </div>
+      <Connecting
+        connectionAttempt={connectionAttempt}
+        connectingStatusText="Connecting..."
+        onCancelConnectionClicked={() =>
+          dispatch({
+            type: 'cancel-connection-attempt',
+          })
+        }
+      />
     </div>
   );
 }

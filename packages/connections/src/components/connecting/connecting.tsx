@@ -7,9 +7,7 @@ import ConnectingAnimation from './connecting-animation';
 // import Actions from '../../actions';
 import Illustration from '../../assets/svg/connecting-illustration.svg';
 // import styles from '../connect.module.less';
-import {
-  ConnectionAttempt,
-} from '../../modules/connection-attempt';
+import { ConnectionAttempt } from '../../modules/connection-attempt';
 import ConnectingBackground from './connecting-background';
 
 // We delay showing the modal for this amount of time to avoid flashing.
@@ -17,11 +15,11 @@ const showModalDelayMS = 250;
 
 const modalContentStyles = css({
   textAlign: 'center',
-  padding: spacing[3]
-})
+  padding: spacing[3],
+});
 
 const illustrationStyles = css({
-  maxHeight: '40vh'
+  maxHeight: '40vh',
 });
 
 const connectingStatusStyles = css({
@@ -30,7 +28,7 @@ const connectingStatusStyles = css({
   maxHeight: 100,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-})
+});
 
 const cancelButtonStyles = css({
   border: 'none',
@@ -38,7 +36,7 @@ const cancelButtonStyles = css({
   padding: 0,
   margin: 0,
   marginTop: spacing[3],
-})
+});
 
 /**
  * Modal shown when attempting to connect.
@@ -47,37 +45,33 @@ function Connecting({
   connectingStatusText,
   connectionAttempt,
   onCancelConnectionClicked,
-
 }: {
-  connectingStatusText: string,
-  connectionAttempt: ConnectionAttempt | null,
-  onCancelConnectionClicked: () => void,
-
+  connectingStatusText: string;
+  connectionAttempt: ConnectionAttempt | null;
+  onCancelConnectionClicked: () => void;
 }): React.ReactElement {
   const [showModal, setShowModal] = useState(false);
-  const showModalDebounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showModalDebounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
+  console.log('renderer')
   useEffect(() => {
-    if (
-      connectionAttempt
-      && !showModalDebounceTimeout.current
-      && !showModal
-    ) {
-      showModalDebounceTimeout.current = setTimeout(
-        () => {
-          // TODO: Maybe helper func this
-          // TODO: Is this using stale state
+    console.log('use effect', connectionAttempt, showModalDebounceTimeout.current);
+    if (connectionAttempt && showModalDebounceTimeout.current === null && !showModal) {
+      showModalDebounceTimeout.current = setTimeout(() => {
+        // TODO: Maybe helper func this
+        // TODO: Is this using stale state
 
-          if (connectionAttempt) {
-            setShowModal(true);
-          }
-          showModalDebounceTimeout.current = null;
-        },
-        showModalDelayMS
-      );
+        if (connectionAttempt) {
+          setShowModal(true);
+        }
+        showModalDebounceTimeout.current = null;
+      }, showModalDelayMS);
     }
 
     if (!connectionAttempt && showModal) {
+      console.log('hide connect attempt');
       setShowModal(false);
     }
 
@@ -88,7 +82,7 @@ function Connecting({
         clearTimeout(showModalDebounceTimeout.current);
         showModalDebounceTimeout.current = null;
       }
-    }
+    };
   }, [connectionAttempt, showModal]);
 
   return (
@@ -113,11 +107,7 @@ function Connecting({
               src={Illustration}
               alt="Compass connecting illustration"
             />
-            <H2
-              className={connectingStatusStyles}
-            >
-              {connectingStatusText}
-            </H2>
+            <H2 className={connectingStatusStyles}>{connectingStatusText}</H2>
             <ConnectingAnimation />
             <Link
               as="button"

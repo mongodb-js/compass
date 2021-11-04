@@ -1,22 +1,20 @@
 import { css } from '@emotion/css';
 import React, { useEffect, useRef } from 'react';
-import {
-  spacing,
-} from '@mongodb-js/compass-components';
+import { spacing } from '@mongodb-js/compass-components';
 
 const animationContainerStyles = css({
   marginTop: spacing[3],
-  textAlign: 'center'
+  textAlign: 'center',
 });
 
 const animationSvgStyles = css({
   width: 70,
-  height: 'auto'
+  height: 'auto',
 });
 
 const shadowStyles = css({
   fill: '#136149',
-  opacity: 0.12
+  opacity: 0.12,
 });
 
 const ringCircleStyles = css({
@@ -34,21 +32,20 @@ const ringShadowStyles = css(ringCircleStyles, {
 
 const innerCircleStyles = css({
   fill: '#fef7e3',
-  opacity: 0.85
+  opacity: 0.85,
 });
 
 const outerCircleStyles = css({
-  fill: '#f7a76f'
+  fill: '#f7a76f',
 });
 
-
 const redArrowStyles = css({
-  fill: '#FF5516'
+  fill: '#FF5516',
 });
 
 const arrowStyles = css({
-  fill: 'rgba(9, 128, 76, 0.3)'
-})
+  fill: 'rgba(9, 128, 76, 0.3)',
+});
 
 // .connecting-modal-animation {
 //   margin-top: 24px;
@@ -92,14 +89,11 @@ const arrowStyles = css({
 //   }
 // }
 
-
 // This function returns the speed at which the needle shoots off in
 // a direction. The farther from 0 the number, the farther/faster it goes.
 const getNewRotationVelocity = () => {
   return (
-    Math.PI / (170 + (Math.random() * 100))
-  ) * (
-    Math.random() > 0.5 ? 1 : -1
+    (Math.PI / (170 + Math.random() * 100)) * (Math.random() > 0.5 ? 1 : -1)
   );
 };
 
@@ -132,25 +126,18 @@ function ConnectingAnimation(): React.ReactElement {
 
     const arrow1 = document.getElementById('connectingArrow1');
     const rotation = currentRotation.current * (180 / Math.PI);
-    arrow1?.setAttribute(
-      'transform',
-      `rotate(${rotation}, 24.39, 39.2)`
-    );
+    arrow1?.setAttribute('transform', `rotate(${rotation}, 24.39, 39.2)`);
     const arrow2 = document.getElementById('connectingArrow2');
-    arrow2?.setAttribute(
-      'transform',
-      `rotate(${rotation}, 24.39, 39.2)`
-    );
+    arrow2?.setAttribute('transform', `rotate(${rotation}, 24.39, 39.2)`);
 
     currentRotation.current += rotationVelocity.current * deltaTime;
-    rotationVelocity.current += rotationAcceleration * (
-      currentRotation.current > 0 ? -1 : 1
-    ) * deltaTime;
+    rotationVelocity.current +=
+      rotationAcceleration * (currentRotation.current > 0 ? -1 : 1) * deltaTime;
     rotationVelocity.current *= friction;
 
     if (
-      Math.abs(rotationVelocity.current) < Math.PI / 1100
-      && Math.abs(currentRotation.current) < Math.PI / 1100
+      Math.abs(rotationVelocity.current) < Math.PI / 1100 &&
+      Math.abs(currentRotation.current) < Math.PI / 1100
     ) {
       // When the Compass hands are settled we apply a force so
       // it starts to rotate again.
@@ -163,7 +150,6 @@ function ConnectingAnimation(): React.ReactElement {
     window.requestAnimationFrame(updateAnimation);
   }
 
-
   function startAnimation() {
     window.requestAnimationFrame(updateAnimation);
   }
@@ -173,37 +159,20 @@ function ConnectingAnimation(): React.ReactElement {
 
     return () => {
       isMounted.current = false;
-    }
+    };
   }, []);
 
   return (
-    <div
-      className={animationContainerStyles}
-    >
+    <div className={animationContainerStyles}>
       <svg
         className={animationSvgStyles}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 50.82 64.05"
       >
         <g>
-          <circle
-            className={ringShadowStyles}
-            cx="26.15"
-            cy="9.86"
-            r="8.47"
-          />
-          <circle
-            className={ringCircleStyles}
-            cx="24.39"
-            cy="9.86"
-            r="8.47"
-          />
-          <circle
-            className={shadowStyles}
-            cx="26.15"
-            cy="39.2"
-            r="24.38"
-          />
+          <circle className={ringShadowStyles} cx="26.15" cy="9.86" r="8.47" />
+          <circle className={ringCircleStyles} cx="24.39" cy="9.86" r="8.47" />
+          <circle className={shadowStyles} cx="26.15" cy="39.2" r="24.38" />
           <circle
             className={outerCircleStyles}
             cx="24.39"

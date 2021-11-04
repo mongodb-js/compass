@@ -12,7 +12,7 @@ const connectingBackgroundSvgStyles = css({
 
 const connectingBackgroundGradientStyles = css({
   opacity: 0.9,
-  animation: 'opacityFadeIn 500ms ease-out'
+  animation: 'opacityFadeIn 500ms ease-out',
 });
 
 function ConnectingBackground(): React.ReactElement {
@@ -31,16 +31,8 @@ function ConnectingBackground(): React.ReactElement {
           y2="0.4"
           gradientUnits="userSpaceOnUse"
         >
-          <stop
-            offset="0.09"
-            stopColor="#ffe1ea"
-            stopOpacity="0.34"
-          />
-          <stop
-            offset="0.74"
-            stopColor="#c5e4f2"
-            stopOpacity="0.61"
-          >
+          <stop offset="0.09" stopColor="#ffe1ea" stopOpacity="0.34" />
+          <stop offset="0.74" stopColor="#c5e4f2" stopOpacity="0.61">
             <animate
               attributeName="offset"
               from="0.74"
@@ -51,11 +43,7 @@ function ConnectingBackground(): React.ReactElement {
               values="0.74;0.45;0.74"
             />
           </stop>
-          <stop
-            offset="1"
-            stopColor="#fef2c8"
-            stopOpacity="0.8"
-          />
+          <stop offset="1" stopColor="#fef2c8" stopOpacity="0.8" />
         </linearGradient>
       </defs>
       <g>

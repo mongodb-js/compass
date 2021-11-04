@@ -24,7 +24,7 @@ export class ConnectionAttempt {
     });
   }
 
-  connect(connectionOptions: ConnectionOptions): Promise<DataService> {
+  connect(connectionOptions: ConnectionOptions): Promise<DataService | void> {
     log.info(
       mongoLogId(1001000004),
       'Connection UI',
@@ -43,6 +43,10 @@ export class ConnectionAttempt {
 
     this._cancelConnectionAttempt?.();
     void this._close();
+  }
+
+  isClosed(): boolean {
+    return this._closed;
   }
 
   async _connect(

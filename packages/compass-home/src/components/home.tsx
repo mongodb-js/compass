@@ -131,25 +131,25 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     dispatch,
   ] = useReducer(reducer, { ...initialState });
 
-  function onDataServiceConnected(
+  const onDataServiceConnected = (
     err: Error | undefined | null,
     ds: DataService,
     connectionInfo: ConnectionInfo
-  ) {
+  ) => {
     dispatch({
       type: 'connected',
       connectionTitle: getConnectionTitle(connectionInfo) || '',
     });
-  }
+  };
 
-  function onInstanceRefreshed(instanceInformation: {
+  const onInstanceRefreshed = (instanceInformation: {
     errorMessage?: string;
     instance?: {
       dataLake?: {
         isDataLake?: boolean;
       };
     };
-  }) {
+  }) => {
     if (instanceInformation.errorMessage) {
       dispatch({
         type: 'instance-loaded-error',
@@ -163,42 +163,42 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       type: 'instance-loaded',
       isDatalake: !!instanceInformation.instance?.dataLake?.isDataLake,
     });
-  }
+  };
 
-  function onSelectDatabase(ns: string) {
+  const onSelectDatabase = (ns: string) => {
     dispatch({
       type: 'update-namespace',
       namespace: toNS(ns),
     });
-  }
+  };
 
-  function onSelectNamespace(meta: { namespace: string }) {
+  const onSelectNamespace = (meta: { namespace: string }) => {
     dispatch({
       type: 'update-namespace',
       namespace: toNS(meta.namespace),
     });
-  }
+  };
 
-  function onSelectInstance() {
+  const onSelectInstance = () => {
     dispatch({
       type: 'update-namespace',
       namespace: toNS(''),
     });
-  }
+  };
 
-  function onOpenNamespaceInNewTab(meta: { namespace: string }) {
+  const onOpenNamespaceInNewTab = (meta: { namespace: string }) => {
     dispatch({
       type: 'update-namespace',
       namespace: toNS(meta.namespace),
     });
-  }
+  };
 
-  function onAllTabsClosed() {
+  const onAllTabsClosed = () => {
     dispatch({
       type: 'update-namespace',
       namespace: toNS(''),
     });
-  }
+  };
 
   const onDataServiceDisconnected = useCallback(() => {
     const StatusAction = appRegistry.getAction(
