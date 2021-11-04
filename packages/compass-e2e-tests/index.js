@@ -4,6 +4,7 @@ const { promisify } = require('util');
 const glob = require('glob');
 const { sync: spawnSync } = require('cross-spawn');
 const Mocha = require('mocha');
+const { MongoClient } = require('mongodb');
 const debug = require('debug')('compass-e2e-tests');
 const {
   rebuildNativeModules,
@@ -11,8 +12,41 @@ const {
   buildCompass,
 } = require('./helpers/compass');
 const { createUnlockedKeychain } = require('./helpers/keychain');
+const DBLogger = require('./helpers/db-logger');
 
 const keychain = createUnlockedKeychain();
+
+let client;
+
+function getMetricsConnectionString() {
+  if (process.env.METRICS_CONNECTION_STRING) {
+    debug('using METRICS_CONNECTION_STRING');
+    // useful for testing locally
+    return process.env.METRICS_CONNECTION_STRING;
+  }
+
+  const missingKeys = [
+    'E2E_TESTS_ATLAS_HOST',
+    'E2E_TESTS_ATLAS_USERNAME',
+    'E2E_TESTS_ATLAS_PASSWORD',
+  ].filter((key) => !process.env[key]);
+
+  if (missingKeys.length > 0) {
+    const keysStr = missingKeys.join(', ');
+    if (process.env.ci || process.env.CI) {
+      throw new Error(`Missing required environmental variable(s): ${keysStr}`);
+    }
+    return null;
+  }
+
+  const {
+    E2E_TESTS_ATLAS_HOST: host,
+    E2E_TESTS_ATLAS_USERNAME: username,
+    E2E_TESTS_ATLAS_PASSWORD: password,
+  } = process.env;
+
+  return `mongodb+srv://${username}:${password}@${host}/test`;
+}
 
 async function setup() {
   await keychain.activate();
@@ -30,6 +64,10 @@ async function setup() {
 }
 
 function cleanup() {
+  if (client) {
+    client.close();
+  }
+
   keychain.reset();
   debug('Stopping MongoDB server and cleaning up server data');
   try {
@@ -70,8 +108,6 @@ async function main() {
     return;
   }
 
-  // TODO: this would be a good place to insert the record to say the tests are started
-
   await setup();
 
   const shouldTestPackagedApp = process.argv.includes('--test-packaged-app');
@@ -111,11 +147,44 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
-  mocha.run((failures) => {
-    // TODO: this would be a good place to store the results and mark the database record as failed or succeeded
-    console.log(mocha.suite.suites);
-    cleanup();
-    process.exitCode = failures ? 1 : 0;
+  const run = async (resolve) => {
+    let dbLogger;
+
+    const metricsConnection = getMetricsConnectionString();
+    if (metricsConnection) {
+      client = new MongoClient(metricsConnection);
+      await client.connect();
+    }
+
+    const runner = mocha.run(async (failures) => {
+      if (dbLogger) {
+        try {
+          await dbLogger.done(failures);
+        }
+        catch (err) {
+          console.error(err.stack)
+        }
+      }
+
+      process.exitCode = failures ? 1 : 0;
+      resolve(failures);
+    });
+
+    if (metricsConnection) {
+      // Synchronously create the DBLogger so it can start listening to events
+      // on runner immediately after calling mocha.run() before any of the
+      // events fire.
+      dbLogger = new DBLogger(client, runner);
+      dbLogger.init()
+        .catch((err) => {
+          console.error(err.stack);
+        });
+    }
+  }
+
+  // mocha.run has a callback and returns a result, so just promisify it manually
+  return new Promise((resolve) => {
+    run(resolve);
   });
 }
 
@@ -144,4 +213,7 @@ process.on('unhandledRejection', (err) => {
   process.exitCode = 1;
 });
 
-main();
+main()
+  .finally(() => {
+    cleanup();
+  });
