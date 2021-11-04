@@ -11,7 +11,8 @@ import {
   ConnectionInfo,
   ConnectionStorage,
   DataService,
-  convertConnectionInfoToModel
+  convertConnectionInfoToModel,
+  getConnectionTitle,
 } from 'mongodb-data-service';
 import { v4 as uuidv4 } from 'uuid';
 import debugModule from 'debug';
@@ -72,6 +73,7 @@ function getDefaultConnectionInfo() {
 type State = {
   activeConnectionId?: string;
   activeConnectionInfo: ConnectionInfo;
+  connectingStatusText: string;
   connectionAttempt: ConnectionAttempt | null;
   connectionErrorMessage: string | null;
   connections: ConnectionInfo[];
@@ -81,17 +83,18 @@ type Action =
   | {
       type: 'attempt-connect';
       connectionAttempt: ConnectionAttempt;
+      connectingStatusText: string;
     }
   | {
-    type: 'cancel-connection-attempt';
+      type: 'cancel-connection-attempt';
     }
   | {
-    type: 'connection-attempt-errored';
-    connectionErrorMessage: string;
+      type: 'connection-attempt-errored';
+      connectionErrorMessage: string;
     }
   | {
-    type: 'connection-attempt-succeeded';
-  }
+      type: 'connection-attempt-succeeded';
+    }
   | {
       type: 'new-connection';
       newConnectionId: string;
@@ -112,24 +115,26 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         connectionAttempt: action.connectionAttempt,
-        connectionErrorMessage: null
+        connectingStatusText: action.connectingStatusText,
+        connectionErrorMessage: null,
       };
     case 'cancel-connection-attempt':
       state.connectionAttempt?.cancelConnectionAttempt();
       return {
         ...state,
         connectionAttempt: null,
-        connectionErrorMessage: 'Connection attempt canceled.'
+        connectionErrorMessage: 'Connection attempt canceled.',
       };
     case 'connection-attempt-succeeded':
       return {
         ...state,
-        connectionAttempt: null
+        connectionAttempt: null,
       };
     case 'connection-attempt-errored':
       return {
         ...state,
-        connectionErrorMessage: action.connectionErrorMessage
+        connectionAttempt: null,
+        connectionErrorMessage: action.connectionErrorMessage,
       };
     case 'set-active-connection':
       return {
@@ -159,10 +164,11 @@ function reducer(state: State, action: Action): State {
 function Connections(): React.ReactElement {
   const [
     {
-      connectionAttempt,
-      connections,
       activeConnectionId,
       activeConnectionInfo,
+      connectingStatusText,
+      connectionAttempt,
+      connections,
     },
     dispatch,
   ] = useReducer(reducer, {
@@ -170,9 +176,10 @@ function Connections(): React.ReactElement {
     activeConnectionInfo: {
       ...getDefaultConnectionInfo(),
     },
+    connectingStatusText: '',
     connections: [],
     connectionAttempt: null,
-    connectionErrorMessage: null
+    connectionErrorMessage: null,
   });
 
   const updateActiveConnection = (newConnectionId?: string | undefined) => {
@@ -205,44 +212,40 @@ function Connections(): React.ReactElement {
         type: 'set-connections',
         connections: loadedConnections,
       });
-    } catch (e) {
-      console.log('error', e);
-      // TODO
+    } catch (error) {
+      debug('error loading connections', error);
+      // TODO: Create an error state for when loading connections fails?
     }
   }
 
-  // TODO: use callback?
-  const onConnectSuccess = useCallback(
-    (
-      dataService: DataService,
-      connectionInfo: ConnectionInfo
-    ) => {
-      if (!connectionAttempt || connectionAttempt.isClosed()) {
-        // TODO: Improve this check? connectionAttempt.is closed
-        console.log('here');
-        return;
-      }
+  async function onConnectSuccess(
+    dataService: DataService,
+    connectionInfo: ConnectionInfo
+  ) {
+    dispatch({
+      type: 'connection-attempt-succeeded',
+    });
+    debug('connection attempt succeeded with connection info', connectionInfo);
 
-      // TODO: Ensure we're still mounted here.
-      dispatch({
-        type: 'connection-attempt-succeeded'
-      });
-      console.log('connection attempt succeeded');
+    // TODO: Update and save connection lastUsed date.
 
-      // TODO: Update lastUsed
+    // TODO: Remove this once we remove the dependency in compass-sidebar.
+    const legacyConnectionModel = await convertConnectionInfoToModel(
+      connectionInfo
+    );
 
-      // TODO: appRegistry get from context?
-      (global as any).hadronApp.appRegistry.emit(
-        'data-service-connected',
-        null, // No error connecting.
-        dataService,
-        connectionInfo,
-        convertConnectionInfoToModel(connectionInfo) // TODO: remove
-      );
+    // TODO: appRegistry get from context?
 
-      // global.hadronApp
-    }, [connectionAttempt]
-  );
+    // TODO: Maybe move this to a useEffect to avoid race condition on
+    // closing connection attempt on dismount.
+    (global as any).hadronApp.appRegistry.emit(
+      'data-service-connected',
+      null, // No error connecting.
+      dataService,
+      connectionInfo,
+      legacyConnectionModel // TODO: remove
+    );
+  }
 
   async function onConnect(connectionInfo: ConnectionInfo) {
     if (connectionAttempt) {
@@ -254,6 +257,9 @@ function Connections(): React.ReactElement {
 
     dispatch({
       type: 'attempt-connect',
+      connectingStatusText: `Connecting to ${getConnectionTitle(
+        connectionInfo
+      )}`,
       connectionAttempt: newConnectionAttempt,
     });
 
@@ -269,20 +275,29 @@ function Connections(): React.ReactElement {
         return;
       }
 
-      onConnectSuccess(connectedDataService, connectionInfo);
+      void onConnectSuccess(connectedDataService, connectionInfo);
     } catch (error) {
       debug('connect error', error);
 
       dispatch({
         type: 'connection-attempt-errored',
-        connectionErrorMessage: error.message
+        connectionErrorMessage: error.message,
       });
     }
   }
 
+  const cancelAnyCurrentConnectionAttempt = useCallback(() => {
+    connectionAttempt?.cancelConnectionAttempt();
+  }, [connectionAttempt]);
+
   useEffect(() => {
     // Load connections after first render.
     void loadConnections();
+
+    return () => {
+      // On unmount if we're currently connecting, cancel the attempt.
+      cancelAnyCurrentConnectionAttempt();
+    };
   }, []);
 
   return (
@@ -306,7 +321,7 @@ function Connections(): React.ReactElement {
       </div>
       <Connecting
         connectionAttempt={connectionAttempt}
-        connectingStatusText="Connecting..."
+        connectingStatusText={connectingStatusText}
         onCancelConnectionClicked={() =>
           dispatch({
             type: 'cancel-connection-attempt',

@@ -55,15 +55,14 @@ function Connecting({
     null
   );
 
-  console.log('renderer')
   useEffect(() => {
-    console.log('use effect', connectionAttempt, showModalDebounceTimeout.current);
-    if (connectionAttempt && showModalDebounceTimeout.current === null && !showModal) {
+    if (
+      connectionAttempt &&
+      showModalDebounceTimeout.current === null &&
+      !showModal
+    ) {
       showModalDebounceTimeout.current = setTimeout(() => {
-        // TODO: Maybe helper func this
-        // TODO: Is this using stale state
-
-        if (connectionAttempt) {
+        if (connectionAttempt && !connectionAttempt.isClosed()) {
           setShowModal(true);
         }
         showModalDebounceTimeout.current = null;
@@ -71,11 +70,8 @@ function Connecting({
     }
 
     if (!connectionAttempt && showModal) {
-      console.log('hide connect attempt');
       setShowModal(false);
     }
-
-    // TODO: Return cleanup drop modal
 
     return () => {
       if (showModalDebounceTimeout.current) {
@@ -90,36 +86,38 @@ function Connecting({
       {!!connectionAttempt && <ConnectingBackground />}
       <Modal
         // animation={false}
-        show={showModal && !!connectionAttempt}
+        // show={showModal && !!connectionAttempt}
         // backdropClassName={styles['connecting-modal-backdrop']}
         // ^^ todo
 
-        closeOnBackdropClick={false}
+        open={showModal && !!connectionAttempt}
+        setOpen={() => onCancelConnectionClicked()}
+        // closeOnBackdropClick={false}
       >
-        <Modal.Body>
-          <div
-            data-test-id="connecting-modal-content"
-            className={modalContentStyles}
-            id="connectingStatusText"
+        {/* <Modal.Body> */}
+        <div
+          data-test-id="connecting-modal-content"
+          className={modalContentStyles}
+          id="connectingStatusText"
+        >
+          <img
+            className={illustrationStyles}
+            src={Illustration}
+            alt="Compass connecting illustration"
+          />
+          <H2 className={connectingStatusStyles}>{connectingStatusText}</H2>
+          <ConnectingAnimation />
+          <Link
+            as="button"
+            data-test-id="cancel-connection-button"
+            onClick={onCancelConnectionClicked}
+            hideExternalIcon
+            className={cancelButtonStyles}
           >
-            <img
-              className={illustrationStyles}
-              src={Illustration}
-              alt="Compass connecting illustration"
-            />
-            <H2 className={connectingStatusStyles}>{connectingStatusText}</H2>
-            <ConnectingAnimation />
-            <Link
-              as="button"
-              data-test-id="cancel-connection-button"
-              onClick={onCancelConnectionClicked}
-              hideExternalIcon
-              className={cancelButtonStyles}
-            >
-              Cancel
-            </Link>
-          </div>
-        </Modal.Body>
+            Cancel
+          </Link>
+        </div>
+        {/* </Modal.Body> */}
       </Modal>
     </React.Fragment>
   );

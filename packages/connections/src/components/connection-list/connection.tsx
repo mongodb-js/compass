@@ -148,9 +148,7 @@ function Connection({
   connectionInfo: ConnectionInfo;
   onClick: () => void;
 }): React.ReactElement {
-  const connectionTitle = connectionInfo.favorite
-    ? connectionInfo.favorite.name
-    : getConnectionTitle(connectionInfo);
+  const connectionTitle = getConnectionTitle(connectionInfo);
 
   return (
     <div className={connectionButtonContainerStyles}>
