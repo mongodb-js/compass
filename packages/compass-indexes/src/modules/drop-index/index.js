@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import dataService from '../data-service';
 import appRegistry, {
@@ -27,6 +28,8 @@ import { RESET_FORM } from '../reset-form';
 import { RESET, reset } from '../reset';
 import { parseErrorMsg } from '../indexes';
 import namespace from '../namespace';
+
+const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
 /**
  * The main reducer.
@@ -80,6 +83,7 @@ export const dropIndex = (indexName) => {
     dispatch(toggleInProgress(true));
     state.dataService.dropIndex(ns, indexName, (err) => {
       if (!err) {
+        track('Index Dropped', {});
         dispatch(reset());
         dispatch(localAppRegistryEmit('refresh-data'));
         dispatch(clearError());
