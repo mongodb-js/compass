@@ -1,12 +1,9 @@
 import { css } from '@emotion/css';
 import { H2, Link, Modal, spacing } from '@mongodb-js/compass-components';
 import React, { useEffect, useRef, useState } from 'react';
-// import { Modal } from 'react-bootstrap';
 
 import ConnectingAnimation from './connecting-animation';
-// import Actions from '../../actions';
 import Illustration from '../../assets/svg/connecting-illustration.svg';
-// import styles from '../connect.module.less';
 import { ConnectionAttempt } from '../../modules/connection-attempt';
 import ConnectingBackground from './connecting-background';
 
@@ -85,16 +82,9 @@ function Connecting({
     <React.Fragment>
       {!!connectionAttempt && <ConnectingBackground />}
       <Modal
-        // animation={false}
-        // show={showModal && !!connectionAttempt}
-        // backdropClassName={styles['connecting-modal-backdrop']}
-        // ^^ todo
-
         open={showModal && !!connectionAttempt}
         setOpen={() => onCancelConnectionClicked()}
-        // closeOnBackdropClick={false}
       >
-        {/* <Modal.Body> */}
         <div
           data-test-id="connecting-modal-content"
           className={modalContentStyles}
@@ -117,7 +107,6 @@ function Connecting({
             Cancel
           </Link>
         </div>
-        {/* </Modal.Body> */}
       </Modal>
     </React.Fragment>
   );

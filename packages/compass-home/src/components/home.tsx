@@ -267,7 +267,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     return (
       <div className={homeViewStyles} data-test-id="home-view">
         <div className={homePageStyles}>
-          <Connections />
+          <Connections appRegistry={appRegistry} />
         </div>
       </div>
     );

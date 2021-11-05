@@ -157,6 +157,7 @@ function Connection({
           connectionButtonStyles,
           isActive ? activeConnectionStyles : null
         )}
+        data-testid={`saved-connection-button-${connectionInfo.id || ''}`}
         onClick={onClick}
       >
         <div className={connectionTitleContainerStyles}>

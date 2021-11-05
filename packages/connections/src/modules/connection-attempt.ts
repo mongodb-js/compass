@@ -1,16 +1,16 @@
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { connect, ConnectionOptions, DataService } from 'mongodb-data-service';
 
-const { log, mongoLogId, debug } = createLoggerAndTelemetry(
+const { /* log, mongoLogId, */ debug } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
 );
 
-function isConnectionAttemptTerminatedError(err: any) {
+function isConnectionAttemptTerminatedError(err) {
   return err?.name === 'MongoError' && err?.message === 'Topology closed';
 }
 
 export class ConnectionAttempt {
-  _cancelled: Promise<null>;
+  _cancelled: Promise<void>;
   _cancelConnectionAttempt?: () => void;
   _closed = false;
   _connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>;
@@ -21,26 +21,28 @@ export class ConnectionAttempt {
   ) {
     this._connectFn = connectFn;
     this._cancelled = new Promise((resolve) => {
-      this._cancelConnectionAttempt = () => resolve(null);
+      this._cancelConnectionAttempt = () => resolve();
     });
   }
 
   connect(connectionOptions: ConnectionOptions): Promise<DataService | void> {
-    log.info(
-      mongoLogId(1001000004),
-      'Connection UI',
-      'Initiating connection attempt'
-    );
+    // TODO: Re-enable when we remove compass-connect (avoid duplicate log ids).
+    // log.info(
+    //   mongo  LogId(1001000004),
+    //   'Connection UI',
+    //   'Initiating connection attempt'
+    // );
 
     return Promise.race([this._cancelled, this._connect(connectionOptions)]);
   }
 
   cancelConnectionAttempt(): void {
-    log.info(
-      mongoLogId(1001000005),
-      'Connection UI',
-      'Canceling connection attempt'
-    );
+    // TODO: Re-enable when we remove compass-connect (avoid duplicate log ids).
+    // log.info(
+    //   mongo  LogId(1001000005),
+    //   'Connection UI',
+    //   'Canceling connection attempt'
+    // );
 
     this._cancelConnectionAttempt?.();
     void this._close();
@@ -63,7 +65,7 @@ export class ConnectionAttempt {
     } catch (err) {
       if (isConnectionAttemptTerminatedError(err)) {
         debug('caught connection attempt closed error', err);
-        return null;
+        return;
       }
 
       debug('connection attempt failed', err);

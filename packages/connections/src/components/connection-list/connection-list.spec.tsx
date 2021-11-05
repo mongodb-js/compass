@@ -11,9 +11,7 @@ for (let i = 0; i < 5; i++) {
   mockRecents.push({
     id: `mock-connection-${i}`,
     connectionOptions: {
-      connectionString: `mongodb://localhost:2${
-        5000 + Math.floor(Math.random() * 5000)
-      }`,
+      connectionString: `mongodb://localhost:2${5000 + i}`,
     },
     lastUsed: new Date(Date.now() - (Date.now() / 2) * Math.random()),
   });

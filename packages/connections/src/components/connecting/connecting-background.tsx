@@ -19,6 +19,7 @@ function ConnectingBackground(): React.ReactElement {
   return (
     <svg
       className={connectingBackgroundSvgStyles}
+      data-testid="connecting-background-svg"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 310.34 540.72"
     >

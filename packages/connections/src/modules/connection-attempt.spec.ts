@@ -17,7 +17,7 @@ describe('ConnectionAttempt Module', function () {
       expect(connectionAttemptResult).to.deep.equal(dataService);
     });
 
-    it('returns null if is cancelled', async function () {
+    it('returns undefined if is cancelled', async function () {
       const dataService = {};
       const connectionAttempt = createConnectionAttempt(() => {
         return new Promise((resolve) =>
@@ -31,7 +31,7 @@ describe('ConnectionAttempt Module', function () {
 
       connectionAttempt.cancelConnectionAttempt();
 
-      expect(await connectPromise).to.equal(null);
+      expect(await connectPromise).to.equal(undefined);
     });
 
     it('throws if connecting throws', async function () {
