@@ -45,7 +45,7 @@ const configureStore = (options = {}) => {
     });
 
     localAppRegistry.on('toggle-create-index-modal', (isVisible) => {
-      track('Index Create Opened', {});
+      track('Index Create Opened');
       store.dispatch(toggleIsVisible(isVisible));
     });
 

@@ -241,7 +241,7 @@ const configureStore = (options = {}) => {
     calculateSchemaDepth(schema) {
       const response = this._calculateDepthByPath(schema.fields, {});
       const values = Object.values(response);
-      return Math.max(...values, ...[0]);
+      return Math.max(...values, 0);
     },
 
     _containsGeoData(input) {
@@ -249,11 +249,9 @@ const configureStore = (options = {}) => {
       if (!input) {
         return result;
       }
-      for (let i = 0; i < input.length; i++) {
-        const { path, values, types, fields } = input[i];
-        if (path.match(/type/) && intersection(MONGODB_GEO_TYPES, values).length > 0) {
+      for (const { path, values, types, fields } of input) {
+        if (path.endsWith('.type') && intersection(MONGODB_GEO_TYPES, values).length > 0) {
           result = true;
-          return result;
         }
         if (!result) {
           result = this._containsGeoData(types ?? fields);
