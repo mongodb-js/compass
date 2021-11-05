@@ -227,6 +227,11 @@ const configureStore = (options = {}) => {
         return paths;
       }
       input.forEach(({types, fields, path, bsonType}) => {
+        /*
+         * Given the strucutre of schema, in case of an array,
+         * the path to an array item is still the same because indexes are not
+         * counted and for that reason we have an increment of 1 for arrays.
+         */
         const increment = bsonType === 'Array' ? 1 : 0;
         const score = path.split('.').length + increment;
         if (!paths[path] || paths[path] < score) {
