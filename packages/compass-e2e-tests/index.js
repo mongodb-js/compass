@@ -160,9 +160,8 @@ async function main() {
       if (dbLogger) {
         try {
           await dbLogger.done(failures);
-        }
-        catch (err) {
-          console.error(err.stack)
+        } catch (err) {
+          console.error(err.stack);
         }
       }
 
@@ -175,12 +174,11 @@ async function main() {
       // on runner immediately after calling mocha.run() before any of the
       // events fire.
       dbLogger = new DBLogger(client, runner);
-      dbLogger.init()
-        .catch((err) => {
-          console.error(err.stack);
-        });
+      dbLogger.init().catch((err) => {
+        console.error(err.stack);
+      });
     }
-  }
+  };
 
   // mocha.run has a callback and returns a result, so just promisify it manually
   return new Promise((resolve) => {
@@ -213,7 +211,6 @@ process.on('unhandledRejection', (err) => {
   process.exitCode = 1;
 });
 
-main()
-  .finally(() => {
-    cleanup();
-  });
+main().finally(() => {
+  cleanup();
+});

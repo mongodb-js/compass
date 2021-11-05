@@ -11,7 +11,7 @@ const {
   EVENT_HOOK_END,
   EVENT_TEST_BEGIN,
   EVENT_TEST_FAIL,
-  EVENT_TEST_PASS
+  EVENT_TEST_PASS,
 } = Mocha.Runner.constants;
 
 // env vars to store with the metrics. Be careful not to include secrets.
@@ -93,21 +93,28 @@ class DBLogger {
 
     // infer some common variables
 
-    this.context.ci = process.env.EVERGREEN ? 'evergreen'
-      : process.env.GITHUB_ACTIONS ? 'github-actions'
+    this.context.ci = process.env.EVERGREEN
+      ? 'evergreen'
+      : process.env.GITHUB_ACTIONS
+      ? 'github-actions'
       : 'unknown';
 
     this.context.platform = process.platform;
 
-    this.context.author = process.env.EVERGREEN_AUTHOR || process.env.GITHUB_ACTOR || 'unknown';
+    this.context.author =
+      process.env.EVERGREEN_AUTHOR || process.env.GITHUB_ACTOR || 'unknown';
 
-    this.context.branch = process.env.EVERGREEN_BRANCH_NAME || process.env.GITHUB_REF || 'unknown';
+    this.context.branch =
+      process.env.EVERGREEN_BRANCH_NAME || process.env.GITHUB_REF || 'unknown';
 
     // EVERGREEN_REVISION is the ${revision} expansion, but the ${github_commit} one might be better?
-    this.context.commit = process.env.EVERGREEN_REVISION || process.env.GITHUB_SHA || 'unknown';
+    this.context.commit =
+      process.env.EVERGREEN_REVISION || process.env.GITHUB_SHA || 'unknown';
 
-    this.context.url = process.env.EVERGREEN ? process.env.EVERGREEN_TASK_URL
-      : process.env.GITHUB_ACTIONS ? githubWorkflowRunUrl()
+    this.context.url = process.env.EVERGREEN
+      ? process.env.EVERGREEN_TASK_URL
+      : process.env.GITHUB_ACTIONS
+      ? githubWorkflowRunUrl()
       : 'unknown';
 
     this.steps = []; // hooks and tests
@@ -138,8 +145,7 @@ class DBLogger {
         // will have fired but it will never get a corresponding
         // EVENT_TEST_FAIL, leaving it stuck in the started state
         this.logPossibleError(this.fail('hook', hookOrTest, error));
-      }
-      else {
+      } else {
         this.logPossibleError(this.fail('test', hookOrTest, error));
       }
     });
@@ -160,8 +166,7 @@ class DBLogger {
   async logPossibleError(promise) {
     try {
       await promise;
-    }
-    catch (err) {
+    } catch (err) {
       // We're writing to the db from event handlers and nothing will await those promises. If they fail, just log.
       console.error(err.stack);
     }
@@ -172,7 +177,7 @@ class DBLogger {
       type,
       title: joinPath(hookOrTest.titlePath()),
       started: Date.now(),
-      status: 'started'
+      status: 'started',
     };
     this.steps.push(step);
     debug('start');
@@ -180,8 +185,8 @@ class DBLogger {
       { _id: this._id },
       {
         $push: {
-          steps: step
-        }
+          steps: step,
+        },
       }
     );
   }
@@ -201,9 +206,9 @@ class DBLogger {
     await this.collection.updateOne(
       { _id: this._id },
       {
-          $set: {
-            [`steps.${index}`]: step
-        }
+        $set: {
+          [`steps.${index}`]: step,
+        },
       }
     );
   }
@@ -225,8 +230,8 @@ class DBLogger {
       { _id: this._id },
       {
         $set: {
-          [`steps.${index}`]: step
-        }
+          [`steps.${index}`]: step,
+        },
       }
     );
   }
@@ -238,21 +243,20 @@ class DBLogger {
         { _id: this._id },
         {
           $set: {
-              status: 'failed',
-              duration: Date.now() - this.started,
-              failures
-          }
+            status: 'failed',
+            duration: Date.now() - this.started,
+            failures,
+          },
         }
       );
-    }
-    else {
+    } else {
       await this.collection.updateOne(
         { _id: this._id },
         {
           $set: {
-              status: 'succeeded',
-              duration: Date.now() - this.started
-          }
+            status: 'succeeded',
+            duration: Date.now() - this.started,
+          },
         }
       );
     }
