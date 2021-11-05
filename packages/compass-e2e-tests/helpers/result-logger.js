@@ -85,6 +85,8 @@ class ResultLogger {
       this.collection = db.collection(COLLECTION_NAME);
     }
 
+    // Things that have to resolve before we're done. ie. background database queries.
+    this.promises = [];
     this.context = {};
 
     // copy known env vars as-is if they are set
@@ -133,20 +135,20 @@ class ResultLogger {
     this.runner = runner;
 
     runner.on(EVENT_HOOK_BEGIN, (hook) => {
-      this.logPossibleError(this.startResult(hook));
+      this.promises.push(this.startResult(hook));
     });
 
     runner.on(EVENT_HOOK_END, (hook) => {
       // unlike for tests, with hooks end only fires when it passes
-      this.logPossibleError(this.passResult(hook));
+      this.promises.push(this.passResult(hook));
     });
 
     runner.on(EVENT_TEST_BEGIN, (test) => {
-      this.logPossibleError(this.startResult(test));
+      this.promises.push(this.startResult(test));
     });
 
     runner.on(EVENT_TEST_PASS, (test) => {
-      this.logPossibleError(this.passResult(test));
+      this.promises.push(this.passResult(test));
     });
 
     runner.on(EVENT_TEST_FAIL, (hookOrTest, error) => {
@@ -155,9 +157,9 @@ class ResultLogger {
         // NOTE: if this is a beforeEach hook, then the test's EVENT_TEST_BEGIN
         // will have fired but it will never get a corresponding
         // EVENT_TEST_FAIL, leaving it stuck in the start state
-        this.logPossibleError(this.fail(hookOrTest, error));
+        this.promises.push(this.fail(hookOrTest, error));
       } else {
-        this.logPossibleError(this.fail(hookOrTest, error));
+        this.promises.push(this.fail(hookOrTest, error));
       }
     });
   }
@@ -174,16 +176,6 @@ class ResultLogger {
         status: 'start',
       });
       this._id = insertedId;
-    }
-  }
-
-  async logPossibleError(promise) {
-    try {
-      await promise;
-    } catch (err) {
-      // We're writing to the db from event handlers and nothing will await
-      // those promises. If they fail, just log.
-      debug(err.stack);
     }
   }
 
@@ -261,6 +253,8 @@ class ResultLogger {
 
   async done(failures) {
     debug('done');
+
+    await Promise.all(this.promises);
 
     this.end = Date.now();
     this.elapsed = this.end - this.start;
