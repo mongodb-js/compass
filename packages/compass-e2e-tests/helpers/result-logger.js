@@ -157,9 +157,9 @@ class ResultLogger {
         // NOTE: if this is a beforeEach hook, then the test's EVENT_TEST_BEGIN
         // will have fired but it will never get a corresponding
         // EVENT_TEST_FAIL, leaving it stuck in the start state
-        this.promises.push(this.fail(hookOrTest, error));
+        this.promises.push(this.failResult(hookOrTest, error));
       } else {
-        this.promises.push(this.fail(hookOrTest, error));
+        this.promises.push(this.failResult(hookOrTest, error));
       }
     });
   }
@@ -176,6 +176,7 @@ class ResultLogger {
         status: 'start',
       });
       this._id = insertedId;
+      debug('resultId', this._id);
     }
   }
 
@@ -226,7 +227,7 @@ class ResultLogger {
     }
   }
 
-  async fail(hookOrTest, error) {
+  async failResult(hookOrTest, error) {
     debug('fail');
 
     const test_file = joinPath(hookOrTest.titlePath());
