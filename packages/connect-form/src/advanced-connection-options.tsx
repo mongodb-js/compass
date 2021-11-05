@@ -14,7 +14,7 @@ const labelStyles = css({
 const containerStyles = css({
   marginTop: spacing[3],
   display: 'flex',
-  alignContent: 'center',
+  alignItems: 'center',
   '&:hover': {
     cursor: 'pointer'
   }
