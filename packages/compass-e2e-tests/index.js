@@ -12,41 +12,11 @@ const {
   buildCompass,
 } = require('./helpers/compass');
 const { createUnlockedKeychain } = require('./helpers/keychain');
-const DBLogger = require('./helpers/db-logger');
+const ResultLogger = require('./helpers/result-logger');
 
 const keychain = createUnlockedKeychain();
 
-let client;
-
-function getMetricsConnectionString() {
-  if (process.env.METRICS_CONNECTION_STRING) {
-    debug('using METRICS_CONNECTION_STRING');
-    // useful for testing locally
-    return process.env.METRICS_CONNECTION_STRING;
-  }
-
-  const missingKeys = [
-    'E2E_TESTS_ATLAS_HOST',
-    'E2E_TESTS_ATLAS_USERNAME',
-    'E2E_TESTS_ATLAS_PASSWORD',
-  ].filter((key) => !process.env[key]);
-
-  if (missingKeys.length > 0) {
-    const keysStr = missingKeys.join(', ');
-    if (process.env.ci || process.env.CI) {
-      throw new Error(`Missing required environmental variable(s): ${keysStr}`);
-    }
-    return null;
-  }
-
-  const {
-    E2E_TESTS_ATLAS_HOST: host,
-    E2E_TESTS_ATLAS_USERNAME: username,
-    E2E_TESTS_ATLAS_PASSWORD: password,
-  } = process.env;
-
-  return `mongodb+srv://${username}:${password}@${host}/test`;
-}
+let metricsClient;
 
 async function setup() {
   await keychain.activate();
@@ -64,8 +34,8 @@ async function setup() {
 }
 
 function cleanup() {
-  if (client) {
-    client.close();
+  if (metricsClient) {
+    metricsClient.close();
   }
 
   keychain.reset();
@@ -147,42 +117,43 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
-  const run = async (resolve) => {
-    let dbLogger;
-
-    const metricsConnection = getMetricsConnectionString();
+  const run = async (resolve, reject) => {
+    const metricsConnection = process.env.E2E_TESTS_METRICS_STRING;
     if (metricsConnection) {
-      client = new MongoClient(metricsConnection);
-      await client.connect();
+      debug('Connecting to E2E_TESTS_METRICS_STRING');
+      metricsClient = new MongoClient(metricsConnection);
+      await metricsClient.connect();
+    } else {
+      debug('Not logging metrics to a database.');
     }
 
+    let resultLogger;
+
     const runner = mocha.run(async (failures) => {
-      if (dbLogger) {
-        try {
-          await dbLogger.done(failures);
-        } catch (err) {
-          console.error(err.stack);
-        }
+      try {
+        await resultLogger.done(failures);
+      } catch (err) {
+        return reject(err);
       }
 
       process.exitCode = failures ? 1 : 0;
       resolve(failures);
     });
 
-    if (metricsConnection) {
-      // Synchronously create the DBLogger so it can start listening to events
-      // on runner immediately after calling mocha.run() before any of the
-      // events fire.
-      dbLogger = new DBLogger(client, runner);
-      dbLogger.init().catch((err) => {
-        console.error(err.stack);
-      });
-    }
+    resultLogger = new ResultLogger(metricsClient, runner);
+
+    // Synchronously create the ResultLogger so it can start listening to events
+    // on runner immediately after calling mocha.run() before any of the events
+    // fire.
+    resultLogger.init().catch((err) => {
+      // reject() doesn't stop mocha.run()...
+      reject(err);
+    });
   };
 
   // mocha.run has a callback and returns a result, so just promisify it manually
-  return new Promise((resolve) => {
-    run(resolve);
+  return new Promise((resolve, reject) => {
+    run(resolve, reject);
   });
 }
 

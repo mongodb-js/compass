@@ -1,7 +1,8 @@
 // @ts-check
+const assert = require('assert');
 const Mocha = require('mocha');
 
-const debug = require('debug')('compass-e2e-tests:db-logger');
+const debug = require('debug')('compass-e2e-tests:result-logger');
 
 const DB_NAME = 'compass_e2e';
 const COLLECTION_NAME = 'results';
@@ -74,11 +75,15 @@ function githubWorkflowRunUrl() {
   return `${serverURL}/${repository}/actions/runs/${runID}`;
 }
 
-class DBLogger {
+class ResultLogger {
   constructor(client, runner) {
-    this.client = client;
-    const db = this.client.db(DB_NAME);
-    this.collection = db.collection(COLLECTION_NAME);
+    if (client) {
+      debug(`Logging E2E test metrics to ${DB_NAME}.${COLLECTION_NAME}`);
+      // client can be undefined if we don't want to write to the db
+      this.client = client;
+      const db = this.client.db(DB_NAME);
+      this.collection = db.collection(COLLECTION_NAME);
+    }
 
     this.context = {};
 
@@ -105,9 +110,12 @@ class DBLogger {
       process.env.EVERGREEN_AUTHOR || process.env.GITHUB_ACTOR || 'unknown';
 
     this.context.branch =
-      process.env.EVERGREEN_BRANCH_NAME || process.env.GITHUB_REF || 'unknown';
+      process.env.EVERGREEN_BRANCH_NAME ||
+      process.env.GITHUB_HEAD_REF ||
+      'unknown';
 
     // EVERGREEN_REVISION is the ${revision} expansion, but the ${github_commit} one might be better?
+    // GITHUB_SHA also doesn't look 100% right.
     this.context.commit =
       process.env.EVERGREEN_REVISION || process.env.GITHUB_SHA || 'unknown';
 
@@ -117,25 +125,28 @@ class DBLogger {
       ? githubWorkflowRunUrl()
       : 'unknown';
 
-    this.steps = []; // hooks and tests
+    // Hooks and tests. See
+    // https://github.com/evergreen-ci/evergreen/wiki/Project-Commands#attach-results
+    // for the target structure.
+    this.results = [];
 
     this.runner = runner;
 
     runner.on(EVENT_HOOK_BEGIN, (hook) => {
-      this.logPossibleError(this.start('hook', hook));
+      this.logPossibleError(this.startResult(hook));
     });
 
     runner.on(EVENT_HOOK_END, (hook) => {
       // unlike for tests, with hooks end only fires when it passes
-      this.logPossibleError(this.succeed('hook', hook));
+      this.logPossibleError(this.passResult(hook));
     });
 
     runner.on(EVENT_TEST_BEGIN, (test) => {
-      this.logPossibleError(this.start('test', test));
+      this.logPossibleError(this.startResult(test));
     });
 
     runner.on(EVENT_TEST_PASS, (test) => {
-      this.logPossibleError(this.succeed('test', test));
+      this.logPossibleError(this.passResult(test));
     });
 
     runner.on(EVENT_TEST_FAIL, (hookOrTest, error) => {
@@ -143,134 +154,147 @@ class DBLogger {
       if (hookOrTest.type === 'hook') {
         // NOTE: if this is a beforeEach hook, then the test's EVENT_TEST_BEGIN
         // will have fired but it will never get a corresponding
-        // EVENT_TEST_FAIL, leaving it stuck in the started state
-        this.logPossibleError(this.fail('hook', hookOrTest, error));
+        // EVENT_TEST_FAIL, leaving it stuck in the start state
+        this.logPossibleError(this.fail(hookOrTest, error));
       } else {
-        this.logPossibleError(this.fail('test', hookOrTest, error));
+        this.logPossibleError(this.fail(hookOrTest, error));
       }
     });
   }
 
   async init() {
-    this.started = Date.now();
     debug('init');
-    const { insertedId } = await this.collection.insertOne({
-      ...this.context,
-      steps: this.steps,
-      started: this.started,
-      status: 'started',
-    });
-    this._id = insertedId;
+
+    this.start = Date.now();
+    if (this.collection) {
+      const { insertedId } = await this.collection.insertOne({
+        ...this.context,
+        results: this.results,
+        start: this.start,
+        status: 'start',
+      });
+      this._id = insertedId;
+    }
   }
 
   async logPossibleError(promise) {
     try {
       await promise;
     } catch (err) {
-      // We're writing to the db from event handlers and nothing will await those promises. If they fail, just log.
-      console.error(err.stack);
+      // We're writing to the db from event handlers and nothing will await
+      // those promises. If they fail, just log.
+      debug(err.stack);
     }
   }
 
-  async start(type, hookOrTest) {
-    const step = {
-      type,
-      title: joinPath(hookOrTest.titlePath()),
-      started: Date.now(),
-      status: 'started',
-    };
-    this.steps.push(step);
+  async startResult(hookOrTest) {
     debug('start');
-    await this.collection.updateOne(
-      { _id: this._id },
-      {
-        $push: {
-          steps: step,
-        },
-      }
-    );
+
+    const result = {
+      test_file: joinPath(hookOrTest.titlePath()),
+      start: Date.now(),
+      status: 'start', // evergreen only knows fail, pass, silentfail and skip
+    };
+
+    this.results.push(result);
+
+    if (this.collection) {
+      await this.collection.updateOne(
+        { _id: this._id },
+        {
+          $push: {
+            results: result,
+          },
+        }
+      );
+    }
   }
 
-  async succeed(type, hookOrTest) {
-    const title = joinPath(hookOrTest.titlePath());
-    const { step, index } = this.findStep(type, title);
+  async passResult(hookOrTest) {
+    debug('pass');
 
-    if (!step) {
-      console.log('unable to find', type, title);
-      return;
+    const test_file = joinPath(hookOrTest.titlePath());
+    const { result, index } = this.findResult(test_file);
+
+    assert.ok(result);
+
+    result.status = 'pass';
+    result.end = Date.now();
+    result.elapsed = result.end - result.start;
+
+    if (this.collection) {
+      await this.collection.updateOne(
+        { _id: this._id },
+        {
+          $set: {
+            [`results.${index}`]: result,
+          },
+        }
+      );
     }
-
-    step.status = 'succeeded';
-    step.duration = Date.now() - step.started;
-    debug('succeed');
-    await this.collection.updateOne(
-      { _id: this._id },
-      {
-        $set: {
-          [`steps.${index}`]: step,
-        },
-      }
-    );
   }
 
-  async fail(type, hookOrTest, error) {
-    const title = joinPath(hookOrTest.titlePath());
-    const { step, index } = this.findStep(type, title);
-
-    if (!step) {
-      console.log('unable to find', type, title);
-      return;
-    }
-
-    step.status = 'failed';
-    step.duration = Date.now() - step.started;
-    step.error = error.stack;
+  async fail(hookOrTest, error) {
     debug('fail');
-    await this.collection.updateOne(
-      { _id: this._id },
-      {
-        $set: {
-          [`steps.${index}`]: step,
-        },
-      }
-    );
+
+    const test_file = joinPath(hookOrTest.titlePath());
+    const { result, index } = this.findResult(test_file);
+
+    assert.ok(result);
+
+    result.status = 'fail';
+    result.end = Date.now();
+    result.elapsed = result.end - result.start;
+    result.error = error.stack;
+
+    if (this.collection) {
+      await this.collection.updateOne(
+        { _id: this._id },
+        {
+          $set: {
+            [`results.${index}`]: result,
+          },
+        }
+      );
+    }
   }
 
   async done(failures) {
     debug('done');
-    if (failures) {
-      await this.collection.updateOne(
-        { _id: this._id },
-        {
-          $set: {
-            status: 'failed',
-            duration: Date.now() - this.started,
-            failures,
-          },
-        }
-      );
-    } else {
-      await this.collection.updateOne(
-        { _id: this._id },
-        {
-          $set: {
-            status: 'succeeded',
-            duration: Date.now() - this.started,
-          },
-        }
-      );
+
+    this.end = Date.now();
+    this.elapsed = this.end - this.start;
+
+    if (this.collection) {
+      const update = {
+        elapsed: this.elapsed,
+        status: failures ? 'fail' : 'pass',
+        failures,
+      };
+
+      await this.collection.updateOne({ _id: this._id }, { $set: update });
     }
+
+    return this.report();
   }
 
-  findStep(type, title) {
-    for (const [index, step] of this.steps.entries()) {
-      if (step.type === type && step.title === title) {
-        return { step, index };
+  report() {
+    // TODO: change all results that are still stuck as "start" into "silentfail"
+    // TODO: write a report.json to be uploaded to evergreen
+    // TODO: we need execution and task_id
+
+    return {};
+  }
+
+  findResult(test_file) {
+    for (const [index, result] of this.results.entries()) {
+      if (result.test_file === test_file) {
+        return { result, index };
       }
     }
 
-    return { step: null, index: -1 };
+    return { result: null, index: -1 };
   }
 }
 
-module.exports = DBLogger;
+module.exports = ResultLogger;
