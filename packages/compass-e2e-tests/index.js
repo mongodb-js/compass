@@ -33,11 +33,7 @@ async function setup() {
   }
 }
 
-function cleanup() {
-  if (metricsClient) {
-    metricsClient.close();
-  }
-
+async function cleanup() {
   keychain.reset();
   debug('Stopping MongoDB server and cleaning up server data');
   try {
@@ -55,6 +51,10 @@ function cleanup() {
     fs.rmdirSync('.mongodb', { recursive: true });
   } catch (e) {
     debug('Failed to clean up server data', e);
+  }
+
+  if (metricsClient) {
+    await metricsClient.close();
   }
 }
 
@@ -159,29 +159,33 @@ async function main() {
 
 process.once('SIGINT', () => {
   debug(`Process was interrupted. Cleaning-up and exiting.`);
-  cleanup();
-  process.kill(process.pid, 'SIGINT');
+  cleanup().then(() => {
+    process.kill(process.pid, 'SIGINT');
+  });
 });
 
 process.once('SIGTERM', () => {
   debug(`Process was terminated. Cleaning-up and exiting.`);
-  cleanup();
-  process.kill(process.pid, 'SIGTERM');
+  cleanup().then(() => {
+    process.kill(process.pid, 'SIGTERM');
+  });
 });
 
 process.once('uncaughtException', (err) => {
   debug('Uncaught exception. Cleaning-up and exiting.');
-  cleanup();
-  throw err;
+  cleanup().then(() => {
+    throw err;
+  });
 });
 
 process.on('unhandledRejection', (err) => {
   debug('Unhandled exception. Cleaning-up and exiting.');
-  cleanup();
-  console.error(err.stack || err.message || err);
-  process.exitCode = 1;
+  cleanup().then(() => {
+    console.error(err.stack || err.message || err);
+    process.exitCode = 1;
+  });
 });
 
 main().finally(() => {
-  cleanup();
+  return cleanup();
 });
