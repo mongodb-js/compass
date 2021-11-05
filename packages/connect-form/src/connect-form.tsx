@@ -12,6 +12,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import ConnectionStringInput from './connection-string-input';
+import AdvancedConnectionOptions from './advanced-connection-options';
 
 const formContainerStyles = css({
   margin: 0,
@@ -69,6 +70,8 @@ function ConnectForm({
             connectionString={connectionString}
             setConnectionString={setConnectionString}
           />
+          <AdvancedConnectionOptions />
+
         </div>
         <div className={formActionStyles}>
           <Button
