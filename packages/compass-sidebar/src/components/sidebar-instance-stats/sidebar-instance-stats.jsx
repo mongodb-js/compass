@@ -30,17 +30,18 @@ class SidebarInstanceStats extends PureComponent {
     const { instance } = this.props;
 
     let numDbs = instance?.databases.length ?? 0;
-    let numCollections = instance?.databases
-      .map((db) => db.collections.length)
-      .reduce((acc, n) => acc + n, 0) ?? 0;
+    let numCollections =
+      instance?.databases
+        .map((db) => db.collection_count ?? 0)
+        .reduce((acc, n) => acc + n, 0) ?? 0;
 
     let refreshClassName = 'fa fa-repeat';
 
-    const isReady = instance?.status === 'ready';
+    const isRefreshing = instance?.isRefreshing ?? false;
     const isInitialOrInitialFetching =
       !instance || ['initial', 'fetching'].includes(instance?.status);
 
-    if (!isReady) {
+    if (isRefreshing) {
       refreshClassName = 'fa fa-refresh fa-spin';
     }
 
@@ -74,7 +75,7 @@ class SidebarInstanceStats extends PureComponent {
           <button
             onClick={this.onRefresh}
             className={styles['sidebar-instance-stats-refresh-button']}
-            disabled={!isReady}
+            disabled={isRefreshing}
           >
             <i className={refreshClassName}/>
           </button>
