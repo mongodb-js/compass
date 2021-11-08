@@ -1,3 +1,4 @@
+import throttle from 'lodash/throttle';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
@@ -11,25 +12,35 @@ import { databasesReducer } from '../modules';
 const store = createStore(databasesReducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
+  const onDatabasesChange = throttle((dbs) => {
+    store.dispatch(loadDatabases(dbs.toJSON()));
+  }, 100);
+
+  appRegistry.on('instance-destroyed', () => {
+    onDatabasesChange.cancel();
+  });
+
   /**
    * Sort the databases once the instance is refreshed.
    *
    * @param {Object} state - The instance store state.
    */
-  appRegistry.on('instance-refreshed', (state) => {
-    const databases = state.instance.databases;
-    if (databases) {
-      store.dispatch(loadDatabases(databases));
-    }
-    const isGenuine = state.instance.genuineMongoDB === undefined || state.instance.genuineMongoDB.isGenuine === undefined ?
-      true :
-      state.instance.genuineMongoDB.isGenuine;
+  appRegistry.on('instance-created', ({ instance }) => {
+    instance.genuineMongoDB.on('change:isGenuine', (model, newVal) => {
+      store.dispatch(toggleIsGenuineMongoDB(newVal));
+    });
 
-    if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
-      store.dispatch(toggleIsDataLake(true));
-    }
+    instance.dataLake.on('change:isDataLake', (model, newVal) => {
+      store.dispatch(toggleIsDataLake(newVal));
+    });
 
-    store.dispatch(toggleIsGenuineMongoDB(!!isGenuine));
+    instance.on('change:databasesStatus', () => {
+      onDatabasesChange(instance.databases);
+    });
+
+    instance.on('change:databases.status', () => {
+      onDatabasesChange(instance.databases);
+    });
   });
 
   /**
