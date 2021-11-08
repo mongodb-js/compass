@@ -183,10 +183,11 @@ class ResultLogger {
   }
 
   async startResult(hookOrTest) {
-    debug('start');
+    const test_file = joinPath(hookOrTest.titlePath());
+    debug('start', test_file);
 
     const result = {
-      test_file: joinPath(hookOrTest.titlePath()),
+      test_file,
       start: Date.now(),
       status: 'start', // evergreen only knows fail, pass, silentfail and skip
     };
@@ -206,9 +207,8 @@ class ResultLogger {
   }
 
   async passResult(hookOrTest) {
-    debug('pass');
-
     const test_file = joinPath(hookOrTest.titlePath());
+    debug('pass', test_file);
     const { result, index } = this.findResult(test_file);
 
     assert.ok(result);
@@ -230,9 +230,8 @@ class ResultLogger {
   }
 
   async failResult(hookOrTest, error) {
-    debug('fail');
-
     const test_file = joinPath(hookOrTest.titlePath());
+    debug('fail', test_file);
     const { result, index } = this.findResult(test_file);
 
     assert.ok(result);
