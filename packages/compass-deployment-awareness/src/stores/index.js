@@ -1,8 +1,6 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 
-const ATLAS_REGEX = /mongodb.net[:/]/i;
-
 /**
  * Constants for various environments MongoDB can run in.
  */
@@ -31,33 +29,24 @@ const DeploymentAwarenessStore = Reflux.createStore({
   onActivated(appRegistry) {
     this.appRegistry = appRegistry;
     appRegistry.on('data-service-connected', this.onDataServiceConnected.bind(this));
-    appRegistry.on('instance-refreshed', (state) => {
-      const isAtlas = !!state.instance._id.match(ATLAS_REGEX);
-      const isDataLake = state.instance.dataLake && state.instance.dataLake.isDataLake;
-      if (isAtlas && !isDataLake) {
-        this.setState({ isDataLake: false, env: ATLAS });
-        this.appRegistry.emit(
-          'compass:deployment-awareness:topology-changed',
-          {
-            topologyType: this.state.topologyType,
-            setName: this.state.setName,
-            servers: this.state.servers,
-            env: ATLAS
-          }
-        );
-      } else if (isDataLake) {
-        this.setState({ isDataLake: true, env: ADL });
-        this.appRegistry.emit(
-          'compass:deployment-awareness:topology-changed',
-          {
-            topologyType: this.state.topologyType,
-            setName: this.state.setName,
-            servers: this.state.servers,
-            env: ADL
-          }
-        );
-      }
+    appRegistry.on('instance-created', ({ instance }) => {
+      instance.on('change:status', this.onInstanceStatusChange.bind(this));
     });
+  },
+
+  onInstanceStatusChange({ isAtlas, dataLake }, newStatus) {
+    if (newStatus === 'ready') {
+      if (isAtlas) {
+        const env = dataLake.isDataLake ? ADL : ATLAS;
+        this.setState({ isDataLake: dataLake.isDataLake, env });
+        this.appRegistry.emit('compass:deployment-awareness:topology-changed', {
+          topologyType: this.state.topologyType,
+          setName: this.state.setName,
+          servers: this.state.servers,
+          env
+        });
+      }
+    }
   },
 
   /**

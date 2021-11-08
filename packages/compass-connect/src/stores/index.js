@@ -107,7 +107,6 @@ const Store = Reflux.createStore({
 
     forEach(role, (extension) => extension(this));
 
-    this.StatusActions = appRegistry.getAction('Status.Actions');
     this.appRegistry = appRegistry;
 
     appRegistry.on('clear-current-favorite', () => {
@@ -991,11 +990,6 @@ const Store = Reflux.createStore({
       connectionInfo,
       connectionModel // TODO: remove
     );
-
-    // Compass relies on `compass-connect` showing a progress
-    // bar, which is hidden after the instance information is loaded
-    // in another plugin.
-    this.StatusActions.showIndeterminateProgressBar();
   },
 
   /**
@@ -1170,13 +1164,9 @@ const Store = Reflux.createStore({
       return;
     }
 
-    this.StatusActions.showIndeterminateProgressBar();
-
     try {
       const buildConnectionModelFromUrl = promisify(Connection.from);
       const parsedConnection = await buildConnectionModelFromUrl(url);
-
-      this.StatusActions.done();
 
       connectionModel.set(this._getPoorAttributes(parsedConnection));
 
@@ -1201,8 +1191,6 @@ const Store = Reflux.createStore({
       this.setState({ connectionModel });
       this._resetSyntaxErrorMessage();
     } catch (error) {
-      this.StatusActions.done();
-
       this.state.connectionModel = new Connection();
       this.trigger(this.state);
     }
