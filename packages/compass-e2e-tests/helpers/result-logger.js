@@ -218,6 +218,7 @@ class ResultLogger {
     result.elapsed = result.end - result.start;
 
     if (this.collection) {
+      console.log(index, 'start writing', result);
       await this.collection.updateOne(
         { _id: this._id },
         {
@@ -226,6 +227,7 @@ class ResultLogger {
           },
         }
       );
+      console.log(index, 'done writing');
     }
   }
 
@@ -242,6 +244,7 @@ class ResultLogger {
     result.error = error.stack;
 
     if (this.collection) {
+      console.log(index, 'start writing', result);
       await this.collection.updateOne(
         { _id: this._id },
         {
@@ -250,6 +253,7 @@ class ResultLogger {
           },
         }
       );
+      console.log(index, 'done writing');
     }
   }
 
