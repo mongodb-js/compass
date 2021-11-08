@@ -12,51 +12,67 @@ const store = createStore(reducer);
 
 store.refreshInstance = async(globalAppRegistry) => {
   const { instance, dataService } = store.getState();
-  if (!instance) {
+
+  if (!instance || !dataService) {
     debug(
-      'Trying to refresh the MongoDB instance model without the model in the state'
+      'Trying to refresh the MongoDB instance model without the model or dataService in the state'
     );
     return;
   }
 
-  // eslint-disable-next-line chai-friendly/no-unused-expressions
-  globalAppRegistry.getAction('Status.Actions')?.configure({
-    animation: true,
-    message: 'Loading databases',
-    visible: true,
-  });
+  if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    globalAppRegistry
+      .getAction('Status.Actions')
+      ?.showIndeterminateProgressBar();
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    globalAppRegistry.getAction('Status.Actions')?.configure({
+      animation: true,
+      message: 'Loading databases',
+      visible: true,
+    });
+  }
 
   try {
-    await instance.fetch({ dataService });
-    await instance.databases.fetch({ dataService });
-    await Promise.all(
-      instance.databases
-        .map((db) => {
-          return [
-            db.fetch({ dataService }).catch(() => {
-              /* we don't care if this fails, it just means less dbStats in the UI */
-            }),
-            db.collections.fetch({ dataService }),
-          ];
-        })
-        .flat()
-    );
-
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
-    globalAppRegistry.getAction('Status.Actions')?.hide();
+    await instance.refresh({
+      dataService,
+      // Preserving the "greedy" fetch of db and collection stats if global
+      // overlay will be shown
+      fetchAll: process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true',
+    });
     store.dispatch(changeErrorMessage(''));
     globalAppRegistry.emit('instance-refreshed', {
       ...store.getState(),
       errorMessage: '',
     });
   } catch (err) {
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
-    globalAppRegistry.getAction('Status.Actions')?.hide();
     store.dispatch(changeErrorMessage(err.message));
     globalAppRegistry.emit('instance-refreshed', {
       ...store.getState(),
       errorMessage: err.message,
     });
+  } finally {
+    if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
+      // eslint-disable-next-line chai-friendly/no-unused-expressions
+      globalAppRegistry.getAction('Status.Actions')?.hide();
+    }
+  }
+};
+
+store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
+  const { instance, dataService } = store.getState();
+  const db = instance.databases.get(dbName);
+  if (db && db.collectionsStatus === 'initial') {
+    await db.fetchCollections({ dataService });
+    if (!nameOnly) {
+      await Promise.all(
+        db.collections.map((coll) =>
+          coll.fetch({ dataService }).catch(() => {
+            /* we don't care if this fails, it just means less stats in the UI */
+          })
+        )
+      );
+    }
   }
 };
 
@@ -64,8 +80,9 @@ store.onActivated = (appRegistry) => {
   // Events emitted from the app registry:
   appRegistry.on('data-service-disconnected', () => {
     // eslint-disable-next-line chai-friendly/no-unused-expressions
-    global.hadronApp.instance?.off();
+    global.hadronApp.instance?.removeAllListeners();
     global.hadronApp.instance = null;
+    appRegistry.emit('instance-destroyed', { instance: null });
     store.dispatch(reset());
   });
 
@@ -90,9 +107,19 @@ store.onActivated = (appRegistry) => {
       port: port ? +port : undefined,
     }));
 
+    appRegistry.emit('instance-created', { instance });
+
     store.dispatch(changeDataService(dataService));
     store.dispatch(changeInstance(instance));
     store.refreshInstance(appRegistry);
+  });
+
+  appRegistry.on('select-database', (dbName) => {
+    store.fetchDatabaseDetails(dbName);
+  });
+
+  appRegistry.on('expand-database', (dbName) => {
+    store.fetchDatabaseDetails(dbName, { nameOnly: true });
   });
 
   appRegistry.on('refresh-data', () => {
