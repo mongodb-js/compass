@@ -74,6 +74,7 @@ type CollectionDetails = {
 type DatabaseDetails = {
   _id: string;
   name: string;
+  collection_count: number;
   document_count: number;
   storage_size: number;
   index_count: number;
@@ -227,14 +228,6 @@ function isNotAuthorized(err: AnyError) {
   return new RegExp('not (authorized|allowed)').test(msg);
 }
 
-function isMongosLocalException(err: AnyError) {
-  if (!err) {
-    return false;
-  }
-  const msg = err.message || JSON.stringify(err);
-  return new RegExp('database through mongos').test(msg);
-}
-
 function ignoreNotAuthorized<T>(fallback: T): (err: AnyError) => Promise<T> {
   return (err: AnyError) => {
     if (isNotAuthorized(err)) {
@@ -279,6 +272,7 @@ export function adaptDatabaseInfo(
   return {
     _id: databaseStats.db,
     name: databaseStats.db,
+    collection_count: databaseStats.collections ?? 0,
     document_count: databaseStats.objects ?? 0,
     storage_size: databaseStats.storageSize ?? 0,
     index_count: databaseStats.indexes ?? 0,
