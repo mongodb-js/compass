@@ -142,26 +142,29 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     });
   }
 
-  function onInstanceRefreshed(instanceInformation: {
-    errorMessage?: string;
-    instance?: {
-      dataLake?: {
-        isDataLake?: boolean;
-      };
+  function onInstanceCreated({
+    instance,
+  }: {
+    instance: {
+      dataLake: { isDataLake: boolean };
+      statusError: string;
+      on(evt: string, fn: (...args: any[]) => void): void;
     };
   }) {
-    if (instanceInformation.errorMessage) {
-      dispatch({
-        type: 'instance-loaded-error',
-        errorMessage: instanceInformation.errorMessage,
-      });
+    instance.on('change:status', (_model: unknown, status: string) => {
+      if (status === 'ready') {
+        dispatch({
+          type: 'instance-loaded',
+          isDatalake: instance.dataLake.isDataLake,
+        });
+      }
 
-      return;
-    }
-
-    dispatch({
-      type: 'instance-loaded',
-      isDatalake: !!instanceInformation.instance?.dataLake?.isDataLake,
+      if (status === 'error') {
+        dispatch({
+          type: 'instance-loaded-error',
+          errorMessage: instance.statusError,
+        });
+      }
     });
   }
 
@@ -219,7 +222,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
   useEffect(() => {
     // Setup listeners.
-    appRegistry.on('instance-refreshed', onInstanceRefreshed);
+    appRegistry.on('instance-created', onInstanceCreated);
     appRegistry.on('data-service-connected', onDataServiceConnected);
     appRegistry.on('data-service-disconnected', onDataServiceDisconnected);
     appRegistry.on('select-database', onSelectDatabase);
@@ -230,7 +233,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
     return () => {
       // Clean up the listeners.
-      appRegistry.removeListener('instance-refreshed', onInstanceRefreshed);
+      appRegistry.removeListener('instance-created', onInstanceCreated);
       appRegistry.removeListener(
         'data-service-connected',
         onDataServiceConnected
@@ -248,7 +251,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       );
       appRegistry.removeListener('all-collection-tabs-closed', onAllTabsClosed);
     };
-  });
+  }, [appRegistry]);
 
   if (isConnected) {
     return (
