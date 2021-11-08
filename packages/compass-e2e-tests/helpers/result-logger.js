@@ -87,8 +87,6 @@ class ResultLogger {
       this.collection = db.collection(COLLECTION_NAME);
     }
 
-    // Things that have to resolve before we're done. ie. background database queries.
-    this.promises = [];
     this.context = {};
 
     // copy known env vars as-is if they are set
@@ -137,20 +135,20 @@ class ResultLogger {
     this.runner = runner;
 
     runner.on(EVENT_HOOK_BEGIN, (hook) => {
-      this.promises.push(this.startResult(hook));
+      this.startResult(hook);
     });
 
     runner.on(EVENT_HOOK_END, (hook) => {
       // unlike for tests, with hooks end only fires when it passes
-      this.promises.push(this.passResult(hook));
+      this.passResult(hook);
     });
 
     runner.on(EVENT_TEST_BEGIN, (test) => {
-      this.promises.push(this.startResult(test));
+      this.startResult(test);
     });
 
     runner.on(EVENT_TEST_PASS, (test) => {
-      this.promises.push(this.passResult(test));
+      this.passResult(test);
     });
 
     runner.on(EVENT_TEST_FAIL, (hookOrTest, error) => {
@@ -159,9 +157,9 @@ class ResultLogger {
         // NOTE: if this is a beforeEach hook, then the test's EVENT_TEST_BEGIN
         // will have fired but it will never get a corresponding
         // EVENT_TEST_FAIL, leaving it stuck in the start state
-        this.promises.push(this.failResult(hookOrTest, error));
+        this.failResult(hookOrTest, error);
       } else {
-        this.promises.push(this.failResult(hookOrTest, error));
+        this.failResult(hookOrTest, error);
       }
     });
   }
@@ -173,7 +171,6 @@ class ResultLogger {
     if (this.collection) {
       const { insertedId } = await this.collection.insertOne({
         ...this.context,
-        results: this.results,
         start: this.start,
         status: 'start',
       });
@@ -182,7 +179,7 @@ class ResultLogger {
     }
   }
 
-  async startResult(hookOrTest) {
+  startResult(hookOrTest) {
     const test_file = joinPath(hookOrTest.titlePath());
     debug('start', test_file);
 
@@ -193,48 +190,24 @@ class ResultLogger {
     };
 
     this.results.push(result);
-
-    if (this.collection) {
-      await this.collection.updateOne(
-        { _id: this._id },
-        {
-          $push: {
-            results: result,
-          },
-        }
-      );
-    }
   }
 
-  async passResult(hookOrTest) {
+  passResult(hookOrTest) {
     const test_file = joinPath(hookOrTest.titlePath());
     debug('pass', test_file);
-    const { result, index } = this.findResult(test_file);
+    const result = this.findResult(test_file);
 
     assert.ok(result);
 
     result.status = 'pass';
     result.end = Date.now();
     result.elapsed = result.end - result.start;
-
-    if (this.collection) {
-      console.log(index, 'start writing', result);
-      await this.collection.updateOne(
-        { _id: this._id },
-        {
-          $set: {
-            [`results.${index}`]: result,
-          },
-        }
-      );
-      console.log(index, 'done writing');
-    }
   }
 
-  async failResult(hookOrTest, error) {
+  failResult(hookOrTest, error) {
     const test_file = joinPath(hookOrTest.titlePath());
     debug('fail', test_file);
-    const { result, index } = this.findResult(test_file);
+    const result = this.findResult(test_file);
 
     assert.ok(result);
 
@@ -242,31 +215,17 @@ class ResultLogger {
     result.end = Date.now();
     result.elapsed = result.end - result.start;
     result.error = error.stack;
-
-    if (this.collection) {
-      console.log(index, 'start writing', result);
-      await this.collection.updateOne(
-        { _id: this._id },
-        {
-          $set: {
-            [`results.${index}`]: result,
-          },
-        }
-      );
-      console.log(index, 'done writing');
-    }
   }
 
   async done(failures) {
     debug('done');
-
-    await Promise.all(this.promises);
 
     this.end = Date.now();
     this.elapsed = this.end - this.start;
 
     if (this.collection) {
       const update = {
+        results: this.results,
         elapsed: this.elapsed,
         status: failures ? 'fail' : 'pass',
         failures,
@@ -306,13 +265,13 @@ class ResultLogger {
   }
 
   findResult(test_file) {
-    for (const [index, result] of this.results.entries()) {
+    for (const result of this.results) {
       if (result.test_file === test_file) {
-        return { result, index };
+        return result;
       }
     }
 
-    return { result: null, index: -1 };
+    return null;
   }
 }
 
