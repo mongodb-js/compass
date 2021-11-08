@@ -276,11 +276,30 @@ class ResultLogger {
   }
 
   report() {
-    // TODO: change all results that are still stuck as "start" into "silentfail"
-    // TODO: write a report.json to be uploaded to evergreen
-    // TODO: we need execution and task_id
+    const results = this.results.map((r) => {
+      const result = { ...r };
+      // change things that are still stuck as "start" to something evergreen
+      // understands
+      if (result.status === 'start') {
+        result.status = 'silentfail';
+      }
 
-    return {};
+      // copy over some evergreen-specific fields if they exist
+      if (process.env.EVERGREEN_TASK_ID) {
+        result.task_id = process.env.EVERGREEN_TASK_ID;
+      }
+      if (process.env.EVERGREEN_EXECUTION) {
+        result.execution = process.env.EVERGREEN_EXECUTION;
+      }
+
+      // only include fields that evergreen knows about
+      // https://github.com/evergreen-ci/evergreen/wiki/Project-Commands#attach-results
+      delete result.error;
+
+      return result;
+    });
+
+    return { results };
   }
 
   findResult(test_file) {

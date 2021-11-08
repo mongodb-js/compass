@@ -16,6 +16,8 @@ const ResultLogger = require('./helpers/result-logger');
 
 const keychain = createUnlockedKeychain();
 
+const LOG_PATH = path.resolve(__dirname, '.log');
+
 let metricsClient;
 
 async function setup() {
@@ -24,7 +26,6 @@ async function setup() {
   spawnSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
   spawnSync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
 
-  const LOG_PATH = path.resolve(__dirname, '.log');
   try {
     debug('Clearing out past logs');
     fs.rmdirSync(LOG_PATH, { recursive: true });
@@ -130,11 +131,18 @@ async function main() {
     let resultLogger;
 
     const runner = mocha.run(async (failures) => {
+      let result;
       try {
-        await resultLogger.done(failures);
+        result = await resultLogger.done(failures);
       } catch (err) {
         return reject(err);
       }
+
+      // write a report.json to be uploaded to evergreen
+      debug('Writing report.json');
+      const reportPath = path.join(LOG_PATH, 'report.json');
+      const jsonReport = JSON.stringify(result, null, 2);
+      await fs.promises.writeFile(reportPath, jsonReport);
 
       process.exitCode = failures ? 1 : 0;
       resolve(failures);
