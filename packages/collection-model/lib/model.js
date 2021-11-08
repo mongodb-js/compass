@@ -42,20 +42,29 @@ function propagateCollectionEvents(namespace) {
   };
 }
 
-function pickCollectionInfo({ readonly, collation, pipeline, validation }) {
-  return { readonly, collation, pipeline, validation };
+function pickCollectionInfo({
+  type,
+  readonly,
+  view_on,
+  collation,
+  pipeline,
+  validation,
+}) {
+  return { type, readonly, view_on, collation, pipeline, validation };
 }
 
 const CollectionModel = AmpersandModel.extend({
   modelType: 'Collection',
   idAttribute: '_id',
   props: {
-    _id: 'string',
+    _id: { type: 'string', required: true },
+    type: { type: 'string', required: true },
     status: { type: 'string', default: 'initial' },
     statusError: { type: 'string', default: null },
 
     // Normalized values from collectionInfo command
     readonly: 'boolean',
+    view_on: 'string',
     collation: 'object',
     pipeline: 'array',
     validation: 'object',
@@ -96,12 +105,6 @@ const CollectionModel = AmpersandModel.extend({
       deps: ['_id'],
       fn() {
         return getNamespaceInfo(this._id).database;
-      },
-    },
-    type: {
-      deps: ['_id'],
-      fn() {
-        return getNamespaceInfo(this._id).type;
       },
     },
     system: {

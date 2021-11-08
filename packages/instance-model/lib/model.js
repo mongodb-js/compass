@@ -154,6 +154,7 @@ const InstanceModel = AmpersandModel.extend({
     fetchDatabases = true,
     fetchDbStats = true,
     fetchCollections = false,
+    fetchCollInfo = false,
     fetchCollStats = false,
   }) {
     this.set({ isRefreshing: true });
@@ -175,7 +176,7 @@ const InstanceModel = AmpersandModel.extend({
           if (fetchCollections || db.collectionsStatus !== 'initial') {
             return db.fetchCollections({
               dataService,
-              fetchInfo: fetchCollStats,
+              fetchInfo: fetchCollInfo,
             });
           }
         })
