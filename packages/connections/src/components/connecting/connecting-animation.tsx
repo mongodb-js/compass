@@ -47,48 +47,6 @@ const arrowStyles = css({
   fill: 'rgba(9, 128, 76, 0.3)',
 });
 
-// .connecting-modal-animation {
-//   margin-top: 24px;
-//   text-align: center;
-
-//   .connecting-compass-animation-svg {
-//     width: 70px;
-//     height: auto;
-//   }
-
-//   .connecting-compass-shadow {
-//     fill:#136149;
-//     opacity:0.12;
-//   }
-//   .connecting-compass-shadow-stroke {
-//     stroke:#136149;
-//     stroke-linecap:round;
-//     stroke-linejoin:round;
-//     fill: none;
-//     opacity:0.12;
-//   }
-
-//   .connecting-compass-circle-1 {
-//     fill:none;
-//     stroke:#136149;
-//     stroke-linecap:round;
-//     stroke-linejoin:round;
-//   }
-//   .connecting-compass-circle-2 {
-//     fill:#f7a76f;
-//   }
-//   .connecting-compass-circle-3 {
-//     fill:#fef7e3;
-//     opacity:0.85;
-//   }
-//   .connecting-compass-arrow-1 {
-//     fill:#FF5516;
-//   }
-//   .connecting-compass-arrow-2 {
-//     fill:rgba(9, 128, 76, 0.3);
-//   }
-// }
-
 // This function returns the speed at which the needle shoots off in
 // a direction. The farther from 0 the number, the farther/faster it goes.
 const getNewRotationVelocity = () => {
@@ -106,16 +64,13 @@ const friction = 0.974;
  * Animated compass shown when attempting to connect.
  */
 function ConnectingAnimation(): React.ReactElement {
-  const isMounted = useRef<boolean>(true);
+  const requestAnimationRef =
+    useRef<ReturnType<typeof window.requestAnimationFrame>>();
   const lastFrame = useRef<number>(Date.now());
   const currentRotation = useRef<number>(0);
   const rotationVelocity = useRef<number>(getNewRotationVelocity());
 
   function updateAnimation() {
-    if (!isMounted.current) {
-      return;
-    }
-
     if (Date.now() - lastFrame.current > 20) {
       // When the user returns from an unfocused view we disregard
       // that last frame time for a frame.
@@ -147,18 +102,15 @@ function ConnectingAnimation(): React.ReactElement {
     lastFrame.current = Date.now();
 
     // TODO: Store this and don't store mounted.
-    window.requestAnimationFrame(updateAnimation);
-  }
-
-  function startAnimation() {
-    window.requestAnimationFrame(updateAnimation);
+    requestAnimationRef.current = window.requestAnimationFrame(updateAnimation);
   }
 
   useEffect(() => {
-    startAnimation();
-
+    requestAnimationRef.current = window.requestAnimationFrame(updateAnimation);
     return () => {
-      isMounted.current = false;
+      if (requestAnimationRef.current !== undefined) {
+        window.cancelAnimationFrame(requestAnimationRef.current);
+      }
     };
   }, []);
 

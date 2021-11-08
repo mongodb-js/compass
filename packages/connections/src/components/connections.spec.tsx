@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { TestBackend } = require('storage-mixin');
-// ^^ TODO: Try import and see bug.
 
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
@@ -188,6 +187,142 @@ describe('Connections Component', function () {
           expect(appRegistryEmitSpy.firstCall.args[4]._id).to.equal(
             savedConnectionId
           );
+        });
+      });
+    });
+  });
+
+  describe('connecting to a connection that is not succeeding', function () {
+    let savedConnectableId: string;
+    let savedUnconnectableId: string;
+
+    beforeEach(async function () {
+      savedConnectableId = uuid();
+      savedUnconnectableId = uuid();
+      writeFakeConnection(tmpDir, {
+        _id: savedConnectableId,
+        port: 27018,
+      });
+      writeFakeConnection(
+        tmpDir,
+        await convertConnectionInfoToModel({
+          id: savedUnconnectableId,
+          connectionOptions: {
+            // Hopefully nothing is running on this port.
+            // Times out in 500ms.
+            connectionString:
+              'mongodb://localhost:27099/?connectTimeoutMS=500&serverSelectionTimeoutMS=500',
+          },
+        })
+      );
+
+      render(<Connections appRegistry={testAppRegistry} />);
+
+      await waitFor(
+        () =>
+          expect(
+            screen.getByTestId(
+              `saved-connection-button-${savedUnconnectableId}`
+            )
+          ).to.be.visible
+      );
+
+      const savedConnectionButton = screen.getByTestId(
+        `saved-connection-button-${savedUnconnectableId}`
+      );
+      fireEvent.click(savedConnectionButton);
+
+      // Wait for the connection to load in the form.
+      await waitFor(() =>
+        expect(screen.getByRole('textbox').textContent).to.equal(
+          'mongodb://localhost:27099/?connectTimeoutMS=500&serverSelectionTimeoutMS=500'
+        )
+      );
+
+      const connectButton = screen.getByText('Connect');
+      fireEvent.click(connectButton);
+    });
+
+    describe('when the connection attempt is cancelled', function () {
+      beforeEach(async function () {
+        // Wait for the connecting... modal to be shown.
+        await waitFor(() => expect(screen.getByText('Cancel')).to.be.visible);
+
+        const cancelButton = screen.getByText('Cancel');
+        fireEvent.click(cancelButton);
+
+        // Wait for the connecting... modal to hide.
+        await waitFor(() => expect(screen.queryByText('Cancel')).to.not.exist);
+      });
+
+      it('should enable the connect button', function () {
+        const connectButton = screen.getByText('Connect');
+        expect(connectButton).to.not.match('disabled');
+      });
+
+      it('should not emit connected', function () {
+        expect(appRegistryEmitSpy.called).to.equal(false);
+      });
+
+      it('should have the disabled connect test id', function () {
+        expect(screen.getByTestId('connections-disconnected')).to.be.visible;
+      });
+
+      describe('connecting to a successful connection after cancelling a connect', function () {
+        beforeEach(async function () {
+          const savedConnectionButton = screen.getByTestId(
+            `saved-connection-button-${savedConnectableId}`
+          );
+          fireEvent.click(savedConnectionButton);
+
+          // Wait for the connection to load in the form.
+          await waitFor(() =>
+            expect(screen.getByRole('textbox').textContent).to.equal(
+              'mongodb://localhost:27018/?readPreference=primary&ssl=false'
+            )
+          );
+
+          const connectButton = screen.getByText('Connect');
+          fireEvent.click(connectButton);
+
+          await waitFor(
+            () =>
+              expect(screen.getByTestId('connections-connected')).to.be.visible
+          );
+        });
+
+        afterEach(async function () {
+          await appRegistryEmitSpy.firstCall?.args[2]
+            .disconnect()
+            .catch(console.log);
+        });
+
+        it('should connect and emit connected', function () {
+          expect(appRegistryEmitSpy.called).to.equal(true);
+          const appRegistryEmitCall = appRegistryEmitSpy.firstCall;
+          expect(appRegistryEmitCall.args[0]).to.equal(
+            'data-service-connected'
+          );
+        });
+
+        it('should emit null for connection error', function () {
+          expect(appRegistryEmitSpy.firstCall.args[1]).to.equal(null);
+        });
+
+        it('should emit the data service', function () {
+          expect(appRegistryEmitSpy.firstCall.args[2].isWritable).to.not.equal(
+            undefined
+          );
+        });
+
+        it('should emit the connection configuration used to connect', function () {
+          expect(appRegistryEmitSpy.firstCall.args[3]).to.deep.equal({
+            id: savedConnectableId,
+            connectionOptions: {
+              connectionString:
+                'mongodb://localhost:27018/?readPreference=primary&ssl=false',
+            },
+          });
         });
       });
     });

@@ -5,6 +5,7 @@ import sinon from 'sinon';
 
 import Connecting from './connecting';
 import { ConnectionAttempt } from '../../modules/connection-attempt';
+import { DataService } from 'mongodb-data-service';
 
 const delay = (amt) => new Promise((resolve) => setTimeout(resolve, amt));
 
@@ -16,12 +17,17 @@ describe('Connecting Component', function () {
   });
 
   before(function () {
-    window.requestAnimationFrame = () => 0;
+    sinon.replace(window, 'requestAnimationFrame', () => 0);
+    sinon.replace(window, 'cancelAnimationFrame', () => 0);
   });
 
   afterEach(function () {
     // Modals can have delays and transitions so it's best to cleanup.
     cleanup();
+  });
+
+  after(function () {
+    sinon.restore();
   });
 
   describe('when there is no connection attempt in progress', function () {
@@ -48,7 +54,7 @@ describe('Connecting Component', function () {
           connectingStatusText="Connecting..."
           connectionAttempt={
             new ConnectionAttempt(() => {
-              return Promise.resolve('fake ds');
+              return Promise.resolve(new DataService({ connectionString: '' }));
             })
           }
           onCancelConnectionClicked={onCancelConnectionClickedSpy}

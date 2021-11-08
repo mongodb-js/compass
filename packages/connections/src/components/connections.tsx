@@ -215,7 +215,7 @@ function Connections({
   return (
     <div
       data-testid={
-        isConnected ? 'connections-connected' : 'connections-disconneced'
+        isConnected ? 'connections-connected' : 'connections-disconnected'
       }
       className={connectStyles}
     >
