@@ -42,8 +42,7 @@ store.refreshInstance = async(globalAppRegistry) => {
       // Preserving the "greedy" fetch of db and collection stats if global
       // overlay will be shown
       fetchCollections: fetchAll,
-      fetchCollInfo: fetchAll,
-      fetchDbStats: fetchAll,
+      fetchCollInfo: fetchAll
     });
 
     store.dispatch(changeErrorMessage(''));

@@ -202,7 +202,7 @@ const InstanceModel = AmpersandModel.extend({
                       // When fetchAll is true, we skip collection info returned
                       // by listCollections command as we already did that in
                       // the previous step
-                      fetchInfo: !fetchCollStats,
+                      fetchInfo: !fetchCollInfo,
                     })
                     .catch(() => {
                       /* we don't care if this fails, it just means less stats in the UI */
