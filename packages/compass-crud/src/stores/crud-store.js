@@ -267,18 +267,18 @@ const configureStore = (options = {}) => {
     /**
      * Handle the instance changing.
      *
-     * @param {Object} state - The instance store state.
+     * @param {Object} instance - MongoDB instance model.
      */
-    onInstanceRefreshed(state) {
-      if (!state) {
-        return;
-      }
-      const res = { version: state.instance.build.version };
-      if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
-        res.isDataLake = true;
-        res.isEditable = false;
-      }
-      this.setState(res);
+    onInstanceCreated(instance) {
+      instance.build.on('change:version', (model, version) => {
+        this.setState({ version });
+      });
+
+      instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
+        if (isDataLake) {
+          this.setState({ isDataLake, isEditable: false });
+        }
+      });
     },
 
     /**
@@ -1151,8 +1151,8 @@ const configureStore = (options = {}) => {
   if (options.globalAppRegistry) {
     const globalAppRegistry = options.globalAppRegistry;
 
-    globalAppRegistry.on('instance-refreshed', () => {
-      store.onInstanceRefreshed();
+    globalAppRegistry.on('instance-created', ({ instance }) => {
+      store.onInstanceCreated(instance);
     });
     globalAppRegistry.on('refresh-data', () => {
       store.refreshDocuments();
