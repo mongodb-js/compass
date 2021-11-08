@@ -64,15 +64,17 @@ store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
   const db = instance.databases.get(dbName);
   if (db && db.collectionsStatus === 'initial') {
     await db.fetchCollections({ dataService });
-    if (!nameOnly) {
-      await Promise.all(
-        db.collections.map((coll) =>
+  }
+  if (!nameOnly) {
+    await Promise.all(
+      db.collections.map((coll) => {
+        if (coll.status === 'initial') {
           coll.fetch({ dataService }).catch(() => {
             /* we don't care if this fails, it just means less stats in the UI */
-          })
-        )
-      );
-    }
+          });
+        }
+      })
+    );
   }
 };
 
