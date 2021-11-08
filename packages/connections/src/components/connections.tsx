@@ -116,8 +116,6 @@ function Connections({
       type: 'connection-attempt-succeeded',
     });
     debug('connection attempt succeeded with connection info', connectionInfo);
-
-    // TODO: Update and save connection lastUsed date.
   }
 
   async function onConnect(connectionInfo: ConnectionInfo) {
@@ -176,12 +174,10 @@ function Connections({
       });
     } catch (error) {
       debug('error loading connections', error);
-      // TODO: Create an error state for when loading connections fails (and a retry).
     }
   }
 
   async function notifyCompassOfConnectionSuccess() {
-    // TODO: Remove this once we remove the dependency in compass-sidebar.
     const legacyConnectionModel = await convertConnectionInfoToModel(
       connectedConnectionInfo.current
     );
@@ -228,7 +224,6 @@ function Connections({
         <MongoDBLogo className={logoStyles} color={'green-dark-2'} />
         <div className={formContainerStyles}>
           <ConnectForm
-            // TODO: Add connectionErrorMessage and isConnected handling.
             onConnectClicked={(connectionInfo) => onConnect(connectionInfo)}
             initialConnectionInfo={activeConnectionInfo}
             key={activeConnectionId}

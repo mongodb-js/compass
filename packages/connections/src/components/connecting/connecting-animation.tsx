@@ -25,8 +25,6 @@ const ringCircleStyles = css({
 });
 
 const ringShadowStyles = css(ringCircleStyles, {
-  // ...,
-  // TODO: Can we chain like this?
   opacity: 0.12,
 });
 
@@ -101,7 +99,6 @@ function ConnectingAnimation(): React.ReactElement {
 
     lastFrame.current = Date.now();
 
-    // TODO: Store this and don't store mounted.
     requestAnimationRef.current = window.requestAnimationFrame(updateAnimation);
   }
 
