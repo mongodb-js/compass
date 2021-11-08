@@ -149,7 +149,13 @@ const InstanceModel = AmpersandModel.extend({
     }
   },
 
-  async refresh({ dataService, fetchAll = false }) {
+  async refresh({
+    dataService,
+    fetchDatabases = true,
+    fetchDbStats = true,
+    fetchCollections = false,
+    fetchCollStats = false,
+  }) {
     this.set({ isRefreshing: true });
 
     try {
@@ -157,7 +163,7 @@ const InstanceModel = AmpersandModel.extend({
       // that we need to make Compass somewhat usable
       await Promise.all([
         this.fetch({ dataService }),
-        this.fetchDatabases({ dataService }),
+        fetchDatabases && this.fetchDatabases({ dataService }),
       ]);
 
       // Then collection list for every database, namespace is the main thing
@@ -166,10 +172,10 @@ const InstanceModel = AmpersandModel.extend({
         this.databases.map((db) => {
           // We only refresh collections if fetchAll is true or we fetched them
           // before (this is an actual refresh)
-          if (fetchAll || db.collectionsStatus !== 'initial') {
+          if (fetchCollections || db.collectionsStatus !== 'initial') {
             return db.fetchCollections({
               dataService,
-              fetchInfo: fetchAll,
+              fetchInfo: fetchCollStats,
             });
           }
         })
@@ -181,20 +187,21 @@ const InstanceModel = AmpersandModel.extend({
         this.databases
           .map((db) => {
             return [
-              db.fetch({ dataService }).catch(() => {
-                /* we don't care if this fails, it just means less stats in the UI */
-              }),
+              fetchDbStats &&
+                db.fetch({ dataService }).catch(() => {
+                  /* we don't care if this fails, it just means less stats in the UI */
+                }),
               ...db.collections.map((coll) => {
-                // We only refresh collections if they were fetched before or
-                // fetchAll is true
-                if (fetchAll || coll.status !== 'initial') {
+                // We only refresh collections if they were fetched before
+                // (based on status) or fetchCollStats is true
+                if (fetchCollStats || coll.status !== 'initial') {
                   return coll
                     .fetch({
                       dataService,
                       // When fetchAll is true, we skip collection info returned
                       // by listCollections command as we already did that in
                       // the previous step
-                      fetchInfo: !fetchAll,
+                      fetchInfo: !fetchCollStats,
                     })
                     .catch(() => {
                       /* we don't care if this fails, it just means less stats in the UI */

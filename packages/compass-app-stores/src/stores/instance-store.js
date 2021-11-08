@@ -34,12 +34,16 @@ store.refreshInstance = async(globalAppRegistry) => {
   }
 
   try {
+    const fetchAll = process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true';
+
     await instance.refresh({
       dataService,
       // Preserving the "greedy" fetch of db and collection stats if global
       // overlay will be shown
-      fetchAll: process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true',
+      fetchCollections: fetchAll,
+      fetchDbStats: fetchAll,
     });
+
     store.dispatch(changeErrorMessage(''));
     globalAppRegistry.emit('instance-refreshed', {
       ...store.getState(),
@@ -62,20 +66,24 @@ store.refreshInstance = async(globalAppRegistry) => {
 store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
   const { instance, dataService } = store.getState();
   const db = instance.databases.get(dbName);
+
   if (db && db.collectionsStatus === 'initial') {
     await db.fetchCollections({ dataService });
   }
-  if (!nameOnly) {
-    await Promise.all(
-      db.collections.map((coll) => {
-        if (coll.status === 'initial') {
-          coll.fetch({ dataService }).catch(() => {
-            /* we don't care if this fails, it just means less stats in the UI */
-          });
-        }
-      })
-    );
+
+  if (nameOnly) {
+    return;
   }
+
+  await Promise.all(
+    db.collections.map((coll) => {
+      if (coll.status === 'initial') {
+        return coll.fetch({ dataService }).catch(() => {
+          /* we don't care if this fails, it just means less stats in the UI */
+        });
+      }
+    })
+  );
 };
 
 store.onActivated = (appRegistry) => {
