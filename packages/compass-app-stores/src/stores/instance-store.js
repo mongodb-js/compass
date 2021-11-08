@@ -69,7 +69,7 @@ store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
   const db = instance.databases.get(dbName);
 
   if (db && db.collectionsStatus === 'initial') {
-    await db.fetchCollections({ dataService });
+    await db.fetchCollections({ dataService, fetchInfo: !nameOnly });
   }
 
   if (nameOnly) {
@@ -79,7 +79,7 @@ store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
   await Promise.all(
     db.collections.map((coll) => {
       if (coll.status === 'initial') {
-        return coll.fetch({ dataService }).catch(() => {
+        return coll.fetch({ dataService, fetchInfo: false }).catch(() => {
           /* we don't care if this fails, it just means less stats in the UI */
         });
       }
