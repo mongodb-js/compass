@@ -65,7 +65,7 @@ type Action =
       connectionTitle: string;
     }
   | { type: 'disconnected' }
-  | { type: 'instance-loaded'; isDatalake: boolean }
+  | { type: 'instance-loaded'; isDataLake: boolean }
   | { type: 'instance-loaded-error'; errorMessage: string }
   | { type: 'update-namespace'; namespace: Namespace };
 
@@ -91,10 +91,15 @@ function reducer(state: State, action: Action): State {
     case 'instance-loaded':
       return {
         ...state,
-        isDataLake: action.isDatalake,
+        isDataLake: action.isDataLake,
         instanceLoadingStatus: InstanceLoadedStatus.LOADED,
       };
     case 'instance-loaded-error':
+      // Errors can come both from instance loading and databases loading. If we
+      // already encountered an error, let's just keep the state
+      if (state.instanceLoadingStatus === InstanceLoadedStatus.ERROR) {
+        return state;
+      }
       return {
         ...state,
         errorLoadingInstanceMessage: action.errorMessage,
@@ -148,24 +153,34 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     instance: {
       dataLake: { isDataLake: boolean };
       statusError: string;
+      databasesStatusError: string;
       on(evt: string, fn: (...args: any[]) => void): void;
     };
   }) {
-    instance.on('change:status', (_model: unknown, status: string) => {
+    instance.on('change:databasesStatus', (_model: unknown, status: string) => {
       if (status === 'ready') {
         dispatch({
           type: 'instance-loaded',
-          isDatalake: instance.dataLake.isDataLake,
+          isDataLake: instance.dataLake.isDataLake,
         });
       }
 
       if (status === 'error') {
         dispatch({
           type: 'instance-loaded-error',
-          errorMessage: instance.statusError,
+          errorMessage: instance.databasesStatusError,
         });
       }
     });
+
+    instance.on('change:status', (_model: unknown, status: string) => {
+      if (status === 'error') {
+        dispatch({
+          type: 'instance-loaded-error',
+          errorMessage: instance.statusError,
+        });
+      }
+    })
   }
 
   function onSelectDatabase(ns: string) {
