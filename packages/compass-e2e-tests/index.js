@@ -148,6 +148,8 @@ async function main() {
       resolve(failures);
     });
 
+    debug.log = console.log.bind(console);
+
     resultLogger = new ResultLogger(metricsClient, runner);
 
     // Synchronously create the ResultLogger so it can start listening to events
