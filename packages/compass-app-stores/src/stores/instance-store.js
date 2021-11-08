@@ -1,5 +1,6 @@
 import { createStore } from 'redux';
 import MongoDbInstance from 'mongodb-instance-model';
+import toNS from 'mongodb-ns';
 import reducer from '../modules/instance';
 import { reset } from '../modules/instance/reset';
 import { changeInstance } from '../modules/instance/instance';
@@ -87,6 +88,33 @@ store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
   );
 };
 
+store.fetchCollectionDetails = async(ns) => {
+  const { instance, dataService } = store.getState();
+  const { database } = toNS(ns);
+  const db = instance.databases.get(database);
+  const coll = db.collections.get(ns);
+  if (coll.status === 'initial') {
+    await coll.fetch({ dataService }).catch(() => {
+      /* we don't care if this fails */
+    });
+  }
+};
+
+store.refreshNamespaceStats = async(ns) => {
+  const { instance, dataService } = store.getState();
+  const { database } = toNS(ns);
+  const db = instance.databases.get(database);
+  const coll = db.collections.get(ns);
+  await Promise.all([
+    db.fetch({ dataService }).catch(() => {
+      /* we don't care if this fails */
+    }),
+    coll.fetch({ dataService }).catch(() => {
+      /* we don't care if this fails */
+    }),
+  ]);
+};
+
 store.onActivated = (appRegistry) => {
   // Events emitted from the app registry:
   appRegistry.on('data-service-disconnected', () => {
@@ -139,6 +167,18 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('agg-pipeline-out-executed', () => {
     store.refreshInstance(appRegistry);
+  });
+
+  appRegistry.on('document-deleted', ({ ns }) => {
+    store.refreshNamespaceStats(ns);
+  });
+
+  appRegistry.on('document-inserted', ({ ns }) => {
+    store.refreshNamespaceStats(ns);
+  });
+
+  appRegistry.on('import-finished', ({ ns }) => {
+    store.refreshNamespaceStats(ns);
   });
 };
 

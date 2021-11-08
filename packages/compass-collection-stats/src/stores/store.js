@@ -5,266 +5,145 @@ import numeral from 'numeral';
 import createDebug from 'debug';
 const debug = createDebug('compass-collection-stats:store');
 
+const kInstance = Symbol('instance');
+const kGlobalAppRegistry = Symbol('globalAppRegistry');
 
 /**
  * Invalid stats.
  */
 const INVALID = 'N/A';
 
-/**
- * Refresh the input.
- *
- * @param {Store} store - The store.
- */
-export const refreshInput = (store) => {
-  store.loadCollectionStats();
-};
+const store = Reflux.createStore({
+  /**
+   * adds a state to the store, similar to React.Component's state
+   * @see https://github.com/yonatanmn/Super-Simple-Flux#reflux-state-mixin
+   *
+   * If you call `this.setState({...})` this will cause the store to trigger
+   * and push down its state as props to connected components.
+   */
+  mixins: [StateMixin.store],
 
-/**
- * Set the data provider.
- *
- * @param {Store} store - The store.
- * @param {Error} error - The error (if any) while connecting.
- * @param {Object} provider - The data provider.
- */
-export const setDataProvider = (store, error, provider) => {
-  store.onConnected(error, provider);
-};
+  updateCollectionDetails(collection) {
+    const newState = {
+      namespace: collection.ns,
+      isReadonly: collection.readonly,
+      isTimeSeries: collection.type === 'timeseries',
+      ...this._parseCollectionDetails(collection),
+    };
+    this.setState(newState);
+  },
 
-/**
- * Set the isReadonly flag in the store.
- *
- * @param {Store} store - The store.
- * @param {Boolean} isReadonly - If the collection is readonly.
- */
-export const setIsReadonly = (store, isReadonly) => {
-  store.setState({ isReadonly });
-};
+  /**
+   * Initialize the Collection Stats store state. The returned object must
+   * contain all keys that you might want to modify with this.setState().
+   *
+   * @return {Object} initial store state.
+   */
+  getInitialState() {
+    return {
+      namespace: '',
+      isReadonly: false,
+      isTimeSeries: false,
+      documentCount: INVALID,
+      totalDocumentSize: INVALID,
+      avgDocumentSize: INVALID,
+      indexCount: INVALID,
+      totalIndexSize: INVALID,
+      avgIndexSize: INVALID,
+      rawDocumentCount: 0,
+      rawTotalDocumentSize: 0,
+      rawAvgDocumentSize: 0,
+      rawIndexCount: 0,
+      rawTotalIndexSize: 0,
+      rawAvgIndexSize: 0,
+    };
+  },
 
-/**
- * Set the isTimeSeries flag in the store.
- *
- * @param {Store} store - The store.
- * @param {Boolean} isTimeSeries - If the collection is a time-series collection.
- */
-export const setIsTimeSeries = (store, isTimeSeries) => {
-  store.setState({ isTimeSeries });
-};
+  _parseCollectionDetails(result) {
+    return {
+      documentCount:
+        result.document_count !== undefined
+          ? this._format(result.document_count)
+          : INVALID,
+      totalDocumentSize: this._format(result.document_size, 'b'),
+      avgDocumentSize: this._format(
+        this._avg(result.document_size, result.document_count),
+        'b'
+      ),
+      indexCount: this._format(result.index_count),
+      totalIndexSize: this._format(result.index_size, 'b'),
+      avgIndexSize: this._format(
+        this._avg(result.index_size, result.index_count),
+        'b'
+      ),
+      rawDocumentCount: result.document_count,
+      rawTotalDocumentSize: result.document_size,
+      rawAvgDocumentSize: this._avg(
+        result.document_size,
+        result.document_count
+      ),
+      rawIndexCount: result.index_count,
+      rawTotalIndexSize: result.index_size,
+      rawAvgIndexSize: this._avg(result.index_size, result.index_count),
+    };
+  },
 
-/**
- * Set the namespace in the store.
- *
- * @param {Store} store - The store.
- * @param {String} ns - The namespace in "db.collection" format.
- */
-export const setNamespace = (store, ns) => {
-  const namespace = toNS(ns);
-  if (namespace.collection) {
-    store.ns = ns;
-    refreshInput(store);
+  _avg(size, count) {
+    if (count <= 0) {
+      return 0;
+    }
+    return size / count;
+  },
+
+  _format(value, format = 'a') {
+    const precision = value <= 1000 ? '0' : '0.0';
+    return numeral(value).format(precision + format);
+  },
+});
+
+function onCollectionStatusChange(model, status) {
+  if (model.ns === store.state.namespace) {
+    if (status === 'ready') {
+      store.updateCollectionDetails(model);
+    }
+    if (status === 'error') {
+      debug('failed to fetch collection details', model.statusError);
+      this.setState(this.getInitialState());
+    }
   }
-};
+}
 
-/**
- * Set the local app registry.
- *
- * @param {Store} store - The store.
- * @param {AppRegistry} appRegistry - The app registry.
- */
-export const setLocalAppRegistry = (store, appRegistry) => {
-  store.appRegistry = appRegistry;
-};
-
-/**
- * Set the global app registry.
- *
- * @param {Store} store - The store.
- * @param {AppRegistry} appRegistry - The app registry.
- */
-export const setGlobalAppRegistry = (store, appRegistry) => {
-  store.globalAppRegistry = appRegistry;
-};
+function onInstanceDestroyed() {
+  store[kInstance] = null;
+}
 
 /**
  * Collection Stats store.
  */
-const configureStore = (options = {}) => {
-  const store = Reflux.createStore({
-    /**
-     * adds a state to the store, similar to React.Component's state
-     * @see https://github.com/yonatanmn/Super-Simple-Flux#reflux-state-mixin
-     *
-     * If you call `this.setState({...})` this will cause the store to trigger
-     * and push down its state as props to connected components.
-     */
-    mixins: [StateMixin.store],
+const configureStore = ({
+  namespace,
+  globalAppRegistry
+} = {}) => {
+  const { instance } =
+    globalAppRegistry.getStore('App.InstanceStore')?.getState() ?? {};
 
-    /**
-     * Handle the data-service-connected event.
-     *
-     * @param {Error} err - The error.
-     * @param {DataService} dataService - The data service.
-     */
-    onConnected(err, dataService) {
-      if (!err) {
-        this.dataService = dataService;
-      }
-    },
-
-    /**
-     * Load the collection stats.
-     *
-     * @param {String} ns - The namespace.
-     */
-    loadCollectionStats() {
-      const collectionName = toNS(this.ns || '').collection;
-      if (!collectionName) {
-        return;
-      }
-
-      if (this.state.isReadonly) {
-        this.setState(this.getInitialState());
-      } else if (this.dataService && this.dataService.isConnected()) {
-        this.fetchCollectionDetails();
-      }
-    },
-
-    handleFetchError(err) {
-      debug('failed to fetch collection details', err);
-      this.setState(this.getInitialState());
-    },
-
-    fetchCollectionDetails() {
-      this.dataService.collection(this.ns, {}, (collectionError, result) => {
-        if (collectionError) {
-          return this.handleFetchError(collectionError);
-        }
-
-        const details = this._parseCollectionDetails(result);
-        this.setState(details);
-        if (this.globalAppRegistry) {
-          this.globalAppRegistry.emit('compass:collection-stats:loaded', details);
-        }
-      });
-    },
-
-    /**
-     * Initialize the Collection Stats store state. The returned object must
-     * contain all keys that you might want to modify with this.setState().
-     *
-     * @return {Object} initial store state.
-     */
-    getInitialState() {
-      return {
-        isReadonly: false,
-        isTimeSeries: false,
-        documentCount: INVALID,
-        totalDocumentSize: INVALID,
-        avgDocumentSize: INVALID,
-        indexCount: INVALID,
-        totalIndexSize: INVALID,
-        avgIndexSize: INVALID,
-        rawDocumentCount: 0,
-        rawTotalDocumentSize: 0,
-        rawAvgDocumentSize: 0,
-        rawIndexCount: 0,
-        rawTotalIndexSize: 0,
-        rawAvgIndexSize: 0
-      };
-    },
-
-    _parseCollectionDetails(result) {
-      return {
-        isReadonly: this.state.isReadonly || false,
-        isTimeSeries: this.state.isTimeSeries || false,
-        documentCount: result.document_count !== undefined ? this._format(result.document_count) : INVALID,
-        totalDocumentSize: this._format(result.document_size, 'b'),
-        avgDocumentSize: this._format(this._avg(result.document_size, result.document_count), 'b'),
-        indexCount: this._format(result.index_count),
-        totalIndexSize: this._format(result.index_size, 'b'),
-        avgIndexSize: this._format(this._avg(result.index_size, result.index_count), 'b'),
-        rawDocumentCount: result.document_count,
-        rawTotalDocumentSize: result.document_size,
-        rawAvgDocumentSize: this._avg(result.document_size, result.document_count),
-        rawIndexCount: result.index_count,
-        rawTotalIndexSize: result.index_size,
-        rawAvgIndexSize: this._avg(result.index_size, result.index_count)
-      };
-    },
-
-    _avg(size, count) {
-      if (count <= 0) {
-        return 0;
-      }
-      return size / count;
-    },
-
-    _format(value, format = 'a') {
-      const precision = value <= 1000 ? '0' : '0.0';
-      return numeral(value).format(precision + format);
-    }
-  });
-
-  // Set the app registry if preset. This must happen first.
-  if (options.localAppRegistry) {
-    const localAppRegistry = options.localAppRegistry;
-    setLocalAppRegistry(store, localAppRegistry);
-
-    /**
-     * When the collection is changed, update the store.
-     */
-    localAppRegistry.on('import-finished', () => {
-      refreshInput(store);
-    });
-
-    /**
-     * Refresh documents on data refresh.
-     */
-    localAppRegistry.on('refresh-data', () => {
-      refreshInput(store);
-    });
-
-    /**
-     * Refresh documents on document deletion.
-     */
-    localAppRegistry.on('document-deleted', () => {
-      refreshInput(store);
-    });
-
-    /**
-     * Refresh documents on document insertion.
-     */
-    localAppRegistry.on('document-inserted', () => {
-      refreshInput(store);
-    });
+  if (!store[kGlobalAppRegistry]) {
+    store[kGlobalAppRegistry] = globalAppRegistry;
+    globalAppRegistry.on('instance-destroyed', onInstanceDestroyed);
   }
 
-  if (options.globalAppRegistry) {
-    const globalAppRegistry = options.globalAppRegistry;
-    setGlobalAppRegistry(store, globalAppRegistry);
+  if (!store[kInstance]) {
+    store[kInstance] = instance;
+    instance.on('change:collections.status', onCollectionStatusChange);
   }
 
-  // Set the data provider - this must happen second.
-  if (options.dataProvider) {
-    setDataProvider(
-      store,
-      options.dataProvider.error,
-      options.dataProvider.dataProvider
-    );
-  }
+  store.setState({ namespace });
 
-  if (options.isReadonly) {
-    setIsReadonly(store, options.isReadonly);
-  }
+  const { database, ns } = toNS(namespace);
 
-  if (options.isTimeSeries) {
-    setIsTimeSeries(store, options.isTimeSeries);
-  }
+  const coll = instance.databases.get(database)?.collections.get(ns) ?? {};
 
-  // Set the namespace - must happen third.
-  if (options.namespace) {
-    setNamespace(store, options.namespace);
-  }
+  store.updateCollectionDetails(coll);
 
   return store;
 };
