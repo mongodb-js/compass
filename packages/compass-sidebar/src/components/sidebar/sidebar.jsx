@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import cloneDeep from 'lodash.clonedeep';
 import ReactTooltip from 'react-tooltip';
 import { AutoSizer, List } from 'react-virtualized';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
@@ -17,8 +16,7 @@ import NonGenuineWarningModal from '../non-genuine-warning-modal';
 
 import { toggleIsDetailsExpanded } from '../../modules/is-details-expanded';
 import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
-import { filterDatabases, changeDatabases } from '../../modules/databases';
-import { changeFilterRegex } from '../../modules/filter-regex';
+import { changeFilterRegex, toggleDatabaseExpanded } from '../../modules/databases';
 import { openLink } from '../../modules/link';
 import { toggleIsModalVisible } from '../../modules/is-modal-visible';
 import { saveFavorite } from '../../modules/connection-model';
@@ -26,7 +24,8 @@ import { saveFavorite } from '../../modules/connection-model';
 import { TOOLTIP_IDS } from '../../constants/sidebar-constants';
 
 const OVER_SCAN_COUNT = 100;
-const ROW_HEIGHT = 28;
+const HEADER_ROW_HEIGHT = 32;
+const ITEM_ROW_HEIGHT = 28;
 const EXPANDED_WHITESPACE = 12;
 
 // In pixels. (px)
@@ -57,7 +56,7 @@ class Sidebar extends PureComponent {
     isWritable: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
     detailsPlugins: PropTypes.array.isRequired,
-    filterDatabases: PropTypes.func.isRequired,
+    toggleDatabaseExpanded: PropTypes.func.isRequired,
     changeDatabases: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
@@ -116,14 +115,14 @@ class Sidebar extends PureComponent {
     const searchString = event.target.value;
 
     let re;
+
     try {
-      re = new RegExp(searchString, 'i');
+      re = searchString ? new RegExp(searchString, 'i') : null;
     } catch (e) {
-      re = /(?:)/;
+      re = null;
     }
 
     this.props.changeFilterRegex(re);
-    this.props.filterDatabases(re, null, null);
   }
 
   handleCreateDatabaseClick(isWritable) {
@@ -133,11 +132,21 @@ class Sidebar extends PureComponent {
   }
 
   _calculateRowHeight({index}) {
-    const db = this.props.databases.databases[index];
-    let height = ROW_HEIGHT;
-    if (this.props.databases.expandedDblist[db._id]) {
-      height += db.collections.length * ROW_HEIGHT + EXPANDED_WHITESPACE;
+    const { filterRegex, databases, expandedDbList } = this.props.databases;
+    const defaultExpanded = Boolean(filterRegex);
+    const db = databases[index];
+    const collectionsLength = ['initial', 'fetching'].includes(
+      db.collectionsStatus
+    )
+      ? db.collection_count ?? 0
+      : db.collections.length;
+
+    let height = HEADER_ROW_HEIGHT;
+
+    if (expandedDbList[db._id] ?? defaultExpanded) {
+      height += collectionsLength * ITEM_ROW_HEIGHT + EXPANDED_WHITESPACE;
     }
+
     return height;
   }
 
@@ -164,13 +173,12 @@ class Sidebar extends PureComponent {
   }
 
   /**
-   * On expand/collapse of sidebar-database, add/remove from expandedDblists state and recompute row heights
-   * @param{string} _id sidebar-database _id
+   * On expand/collapse of sidebar-database, add/remove from expandedDbLists state and recompute row heights
+   * @param {string} _id sidebar-database _id
+   * @param {boolean} expanded current expanded state
    */
-  _onDBClick(_id) {
-    const expandedDB = cloneDeep(this.props.databases.expandedDblist);
-    expandedDB[_id] = !expandedDB[_id];
-    this.props.changeDatabases(this.props.databases.databases, expandedDB, this.props.databases.activeNamespace);
+  _onDBClick(_id, expanded) {
+    this.props.toggleDatabaseExpanded(_id, !expanded);
     this.list.recomputeRowHeights();
   }
 
@@ -205,20 +213,24 @@ class Sidebar extends PureComponent {
   }
 
   renderSidebarDatabase({index, key, style}) {
-    const db = this.props.databases.databases[index];
+    const { databases, filterRegex, expandedDbList, activeNamespace } =
+      this.props.databases;
+    const defaultExpanded = Boolean(filterRegex);
+    const db = databases[index];
+    const expanded = expandedDbList[db._id] ?? defaultExpanded;
     const props = {
       isWritable: this.props.isWritable,
       description: this.props.description,
       _id: db._id,
-      activeNamespace: this.props.databases.activeNamespace,
+      activeNamespace,
       collections: db.collections,
-      expanded: this.props.databases.expandedDblist[db._id],
-      onClick: this._onDBClick.bind(this),
+      expanded: expanded,
+      onClick: this._onDBClick.bind(this, db._id, expanded),
       globalAppRegistryEmit: this.props.globalAppRegistryEmit,
       key,
       style,
       index,
-      isDataLake: this.props.isDataLake
+      isDataLake: this.props.isDataLake,
     };
     return (
       <SidebarDatabase {...props} />
@@ -364,8 +376,7 @@ const MappedSidebar = connect(
   {
     toggleIsDetailsExpanded,
     toggleIsGenuineMongoDBVisible,
-    filterDatabases,
-    changeDatabases,
+    toggleDatabaseExpanded,
     changeFilterRegex,
     openLink,
     globalAppRegistryEmit,
