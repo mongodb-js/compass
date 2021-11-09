@@ -34,7 +34,7 @@ The Compass plugin responsible for gluing together other plugins:
 ### Scripts
 
 `link-plugin`: Links the Compass plugin and Compass for development along with React to ensure the
-  plugin and Compass are using the same React instance.
+plugin and Compass are using the same React instance.
 
 ```shell
 COMPASS_HOME=/path/to/my/compass npm run link-plugin
@@ -69,8 +69,8 @@ To be able to debug the plugin inside `compass` make sure [webpack prod config](
 ```js
 const config = {
   target: 'electron-renderer',
-  devtool: 'source-map'
-}
+  devtool: 'source-map',
+};
 ```
 
 #### Directory Structure

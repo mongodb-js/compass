@@ -281,15 +281,19 @@ export function compassPluginConfig(
     ];
   }
 
+  const entry = fs.existsSync(path.join(opts.cwd, 'src', 'index.ts'))
+    ? path.join(opts.cwd, 'src', 'index.ts')
+    : path.join(opts.cwd, 'src', 'index.js');
+
   return [
     createElectronRendererConfig({
       ...opts,
-      entry: path.join(opts.cwd, 'src', 'index.js'),
+      entry,
       outputFilename: 'index.js',
     }),
     createWebConfig({
       ...opts,
-      entry: path.join(opts.cwd, 'src', 'index.js'),
+      entry,
       outputFilename: 'browser.js',
     }),
   ];

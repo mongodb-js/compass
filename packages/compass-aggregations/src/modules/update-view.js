@@ -1,10 +1,11 @@
 import toNS from 'mongodb-ns';
-const debug = require('debug')('mongodb-aggregations:modules:update-view');
 import {
   globalAppRegistryEmit
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import { generateStage } from './stage';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 /**
  * State `null` when there is no error, or string if there's an error.
@@ -76,6 +77,7 @@ export const updateView = () => {
         }
 
         dispatch(globalAppRegistryEmit('refresh-data'));
+        track('View Updated', { num_stages: viewPipeline.length });
         dispatch(
           globalAppRegistryEmit(
             'compass:aggregations:update-view',

@@ -6,10 +6,15 @@ export function getConnectionTitle(info: ConnectionInfo): string {
     return info.favorite.name;
   }
 
-  const url = new ConnectionString(info.connectionOptions.connectionString);
-  if (url.isSRV) {
-    return url.hosts[0];
-  }
+  try {
+    const url = new ConnectionString(info.connectionOptions.connectionString);
+    if (url.isSRV) {
+      return url.hosts[0];
+    }
 
-  return url.hosts.join(',');
+    return url.hosts.join(',');
+  } catch (e) {
+    // When parsing a connection for its title fails we default the title.
+    return info.connectionOptions.connectionString || 'Connection';
+  }
 }

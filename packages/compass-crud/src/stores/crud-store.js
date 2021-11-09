@@ -23,7 +23,7 @@ import {
 
 import configureGridStore from './grid-store';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
+const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
 /**
  * Number of docs per page.
@@ -256,6 +256,15 @@ const configureStore = (options = {}) => {
     },
 
     /**
+     * Returns the current view in the format used for telemetry
+     * ('list', 'json', 'table'). Grouped here so that this is easy
+     * to update if the labels change at some point.
+     */
+    modeForTelemetry() {
+      return this.state.view.toLowerCase();
+    },
+
+    /**
      * Handle the instance changing.
      *
      * @param {Object} state - The instance store state.
@@ -349,6 +358,7 @@ const configureStore = (options = {}) => {
      * @returns {Boolean} If the copy succeeded.
      */
     copyToClipboard(doc) {
+      track('Document Copied', { mode: this.modeForTelemetry() });
       const documentJSON = EJSON.stringify(doc.generateObject());
       let input = document.createElement(INPUT);
       input.type = TYPE;
@@ -368,6 +378,7 @@ const configureStore = (options = {}) => {
      * @param {Document} doc - The hadron document.
      */
     removeDocument(doc) {
+      track('Document Deleted', { mode: this.modeForTelemetry() });
       const id = doc.getId();
       if (id !== undefined) {
         this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
@@ -406,6 +417,7 @@ const configureStore = (options = {}) => {
      * @param {Document} doc - The hadron document.
      */
     updateDocument(doc) {
+      track('Document Updated', { mode: this.modeForTelemetry() });
       try {
         // We add the shard keys here, if there are any, because that is
         // required for updated documents in sharded collections.
@@ -452,6 +464,7 @@ const configureStore = (options = {}) => {
      * @param {Document} doc - The hadron document.
      */
     replaceDocument(doc) {
+      track('Document Updated', { mode: this.modeForTelemetry() });
       const object = doc.generateObject();
       const opts = { returnDocument: 'after', promoteValues: false };
       const query = doc.getOriginalKeysAndValuesForSpecifiedKeys({
@@ -489,6 +502,7 @@ const configureStore = (options = {}) => {
      * @param {Document} originalDoc - origin Hadron document getting modified.
      */
     replaceExtJsonDocument(doc, originalDoc) {
+      track('Document Updated', { mode: this.modeForTelemetry() });
       const opts = { returnDocument: 'after', promoteValues: false };
       const query = originalDoc.getOriginalKeysAndValuesForSpecifiedKeys({
         _id: 1,
@@ -645,6 +659,7 @@ const configureStore = (options = {}) => {
       const hadronDoc = new HadronDocument(doc, false);
 
       if (clone) {
+        track('Document Cloned', { mode: this.modeForTelemetry() });
         // We need to remove the _id or we will get an duplicate key error on
         // insert, and we currently do not allow editing of the _id field.
         for (const element of hadronDoc.elements) {
@@ -776,6 +791,10 @@ const configureStore = (options = {}) => {
      */
     insertMany() {
       const docs = EJSON.parse(this.state.insert.jsonDoc);
+      track('Document Inserted', {
+        mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
+        multiple: docs.length > 1
+      });
 
       this.dataService.insertMany(this.state.ns, docs, {}, (error) => {
         if (error) {
@@ -810,6 +829,11 @@ const configureStore = (options = {}) => {
      * view to insert.
      */
     insertDocument() {
+      track('Document Inserted', {
+        mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
+        multiple: false
+      });
+
       let doc;
 
       if (this.state.insert.jsonView) {
