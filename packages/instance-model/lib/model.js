@@ -59,6 +59,10 @@ const DataLake = AmpersandModel.extend({
   },
 });
 
+function shouldRefresh(status, force) {
+  return force || status !== 'initial';
+}
+
 const InstanceModel = AmpersandModel.extend({
   modelType: 'Instance',
   idAttribute: '_id',
@@ -71,13 +75,20 @@ const InstanceModel = AmpersandModel.extend({
     databasesStatus: { type: 'string', default: 'initial' },
     databasesStatusError: { type: 'string', default: null },
     loadingModels: { type: 'array', default: () => [] },
-    isRefreshing: { type: 'boolean', default: false },
+    refreshingStatus: { type: 'string', default: 'initial' },
+    refreshingStatusError: { type: 'string', default: null },
   },
   derived: {
     isAtlas: {
       deps: ['hostname'],
       fn() {
         return /mongodb.net$/i.test(this.hostname);
+      },
+    },
+    isRefreshing: {
+      deps: ['refreshingStatus'],
+      fn() {
+        return ['fetching', 'refreshing'].includes(this.refreshingStatus);
       },
     },
   },
@@ -151,29 +162,40 @@ const InstanceModel = AmpersandModel.extend({
 
   async refresh({
     dataService,
-    fetchDatabases = true,
-    fetchDbStats = true,
+    fetchDatabases = false,
+    fetchDbStats = false,
     fetchCollections = false,
     fetchCollInfo = false,
     fetchCollStats = false,
   }) {
-    this.set({ isRefreshing: true });
+    this.set({
+      refreshingStatus:
+        this.refreshingStatus === 'initial' ? 'fetching' : 'refreshing',
+    });
+
+    console.log({
+      refreshingStatus: this.refreshingStatus,
+      fetchDatabases,
+      fetchDbStats,
+      fetchCollections,
+      fetchCollInfo,
+      fetchCollStats,
+    });
 
     try {
       // First fetch instance info and databases list, these are the essentials
       // that we need to make Compass somewhat usable
       await Promise.all([
         this.fetch({ dataService }),
-        fetchDatabases && this.fetchDatabases({ dataService }),
+        shouldRefresh(this.databasesStatus, fetchDatabases) &&
+          this.fetchDatabases({ dataService }),
       ]);
 
       // Then collection list for every database, namespace is the main thing
       // needed to be able to interact with any collection related tab
       await Promise.all(
         this.databases.map((db) => {
-          // We only refresh collections if fetchAll is true or we fetched them
-          // before (this is an actual refresh)
-          if (fetchCollections || db.collectionsStatus !== 'initial') {
+          if (shouldRefresh(db.collectionsStatus, fetchCollections)) {
             return db.fetchCollections({
               dataService,
               fetchInfo: fetchCollInfo,
@@ -188,20 +210,18 @@ const InstanceModel = AmpersandModel.extend({
         this.databases
           .map((db) => {
             return [
-              fetchDbStats &&
+              shouldRefresh(db.status, fetchDbStats) &&
                 db.fetch({ dataService }).catch(() => {
                   /* we don't care if this fails, it just means less stats in the UI */
                 }),
               ...db.collections.map((coll) => {
-                // We only refresh collections if they were fetched before
-                // (based on status) or fetchCollStats is true
-                if (fetchCollStats || coll.status !== 'initial') {
+                if (shouldRefresh(coll.status, fetchCollStats)) {
                   return coll
                     .fetch({
                       dataService,
-                      // When fetchAll is true, we skip collection info returned
-                      // by listCollections command as we already did that in
-                      // the previous step
+                      // When fetchCollInfo is true, we skip fetching collection
+                      // info returned by listCollections command as we already
+                      // did that in the previous step
                       fetchInfo: !fetchCollInfo,
                     })
                     .catch(() => {
@@ -213,8 +233,14 @@ const InstanceModel = AmpersandModel.extend({
           })
           .flat()
       );
-    } finally {
-      this.set({ isRefreshing: false });
+
+      this.set({ refreshingStatus: 'ready', refreshingStatusError: null });
+    } catch (err) {
+      this.set({
+        refreshingStatus: 'error',
+        refreshingStatusError: err.message,
+      });
+      throw err;
     }
   },
 

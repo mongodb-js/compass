@@ -11,7 +11,7 @@ const debug = require('debug')('mongodb-compass:stores:InstanceStore');
 
 const store = createStore(reducer);
 
-store.refreshInstance = async(globalAppRegistry) => {
+store.refreshInstance = async(globalAppRegistry, refreshOptions) => {
   const { instance, dataService } = store.getState();
 
   if (!instance || !dataService) {
@@ -35,15 +35,7 @@ store.refreshInstance = async(globalAppRegistry) => {
   }
 
   try {
-    const fetchAll = process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true';
-
-    await instance.refresh({
-      dataService,
-      // Preserving the "greedy" fetch of db and collection stats if global
-      // overlay will be shown
-      fetchCollections: fetchAll,
-      fetchCollInfo: fetchAll
-    });
+    await instance.refresh({ dataService, ...refreshOptions });
 
     store.dispatch(changeErrorMessage(''));
     globalAppRegistry.emit('instance-refreshed', {
@@ -149,7 +141,17 @@ store.onActivated = (appRegistry) => {
 
     store.dispatch(changeDataService(dataService));
     store.dispatch(changeInstance(instance));
-    store.refreshInstance(appRegistry);
+
+    // Preserving the "greedy" fetch of db and collection stats if global
+    // overlay will be shown
+    const fetchCollectionsInfo = process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true';
+
+    store.refreshInstance(appRegistry, {
+      fetchDatabases: true,
+      fetchDbStats: true,
+      fetchCollections: fetchCollectionsInfo,
+      fetchCollInfo: fetchCollectionsInfo,
+    });
   });
 
   appRegistry.on('select-database', (dbName) => {

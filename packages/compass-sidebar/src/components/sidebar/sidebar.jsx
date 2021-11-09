@@ -258,10 +258,19 @@ class Sidebar extends PureComponent {
   }
 
   render() {
+    const { instance } = this.props;
     const { width, prevWidth } = this.state;
 
     const isExpanded = width > sidebarMinWidthOpened;
     const renderedWidth = isExpanded ? boundSidebarWidth(width) : sidebarWidthCollapsed;
+
+    const isInitialOrInitialFetching = ['initial', 'fetching'].includes(
+      process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true'
+        ? instance?.refreshingStatus
+        : instance?.databasesStatus
+    );
+
+    const isDatabasesListVisible = !isInitialOrInitialFetching;
 
     const collapsedButton = 'fa' +
       (isExpanded ? ' fa-caret-left' : ' fa-caret-right');
@@ -324,21 +333,25 @@ class Sidebar extends PureComponent {
             onChange={this.handleFilter.bind(this)}
           />
         </div>
-        {isExpanded && (
-          <div className={styles['compass-sidebar-content']}>
-            {this.renderSidebarScroll()}
-          </div>
+        {isDatabasesListVisible && (
+          <>
+            {isExpanded && (
+              <div className={styles['compass-sidebar-content']}>
+                {this.renderSidebarScroll()}
+              </div>
+            )}
+            <NonGenuineWarningModal
+              isVisible={this.props.isGenuineMongoDBVisible}
+              toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
+              openLink={this.props.openLink}
+            />
+            {this.renderCreateDatabaseButton()}
+            <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
+            <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
+            <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
+            <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
+          </>
         )}
-        <NonGenuineWarningModal
-          isVisible={this.props.isGenuineMongoDBVisible}
-          toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
-          openLink={this.props.openLink}
-        />
-        {this.renderCreateDatabaseButton()}
-        <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
-        <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
-        <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
-        <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
       </div>
     );
   }

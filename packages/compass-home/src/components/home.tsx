@@ -89,22 +89,24 @@ function reducer(state: State, action: Action): State {
         instanceLoadingStatus: InstanceLoadedStatus.LOADING,
       };
     case 'instance-loaded':
-      return {
-        ...state,
-        isDataLake: action.isDataLake,
-        instanceLoadingStatus: InstanceLoadedStatus.LOADED,
-      };
-    case 'instance-loaded-error':
-      // Errors can come both from instance loading and databases loading. If we
-      // already encountered an error, let's just keep the state
-      if (state.instanceLoadingStatus === InstanceLoadedStatus.ERROR) {
-        return state;
+      // We only want to progress to the LOADED state on the initial load
+      if (state.instanceLoadingStatus === InstanceLoadedStatus.LOADING) {
+        return {
+          ...state,
+          isDataLake: action.isDataLake,
+          instanceLoadingStatus: InstanceLoadedStatus.LOADED,
+        };
       }
-      return {
-        ...state,
-        errorLoadingInstanceMessage: action.errorMessage,
-        instanceLoadingStatus: InstanceLoadedStatus.ERROR,
-      };
+      return state;
+    case 'instance-loaded-error':
+      if (state.instanceLoadingStatus === InstanceLoadedStatus.LOADING) {
+        return {
+          ...state,
+          errorLoadingInstanceMessage: action.errorMessage,
+          instanceLoadingStatus: InstanceLoadedStatus.ERROR,
+        };
+      }
+      return state;
     case 'update-namespace':
       return {
         ...state,
@@ -154,33 +156,48 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       dataLake: { isDataLake: boolean };
       statusError: string;
       databasesStatusError: string;
+      refreshingStatusError: string;
       on(evt: string, fn: (...args: any[]) => void): void;
     };
   }) {
-    instance.on('change:databasesStatus', (_model: unknown, status: string) => {
+    function onStatusChange(status: string, errorMessage: string): void {
       if (status === 'ready') {
         dispatch({
           type: 'instance-loaded',
           isDataLake: instance.dataLake.isDataLake,
         });
       }
-
       if (status === 'error') {
         dispatch({
           type: 'instance-loaded-error',
-          errorMessage: instance.databasesStatusError,
+          errorMessage,
         });
       }
-    });
+    }
 
-    instance.on('change:status', (_model: unknown, status: string) => {
-      if (status === 'error') {
-        dispatch({
-          type: 'instance-loaded-error',
-          errorMessage: instance.statusError,
-        });
-      }
-    })
+    if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
+      instance.on(
+        'change:refreshingStatus',
+        (_model: unknown, status: string) => {
+          onStatusChange(status, instance.refreshingStatusError);
+        }
+      );
+    } else {
+      instance.on(
+        'change:status',
+        (_model: unknown, status: string) => {
+          if (status === 'error') {
+            onStatusChange(status, instance.statusError);
+          }
+        }
+      );
+      instance.on(
+        'change:databasesStatus',
+        (_model: unknown, status: string) => {
+          onStatusChange(status, instance.databasesStatusError);
+        }
+      );
+    }
   }
 
   function onSelectDatabase(ns: string) {
