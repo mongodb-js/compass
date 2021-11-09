@@ -54,5 +54,27 @@ describe('ConnectionAttempt Module', function () {
         'should have been thrown'
       );
     });
+
+    it('after successfully connecting it disconnects when close is called', async function () {
+      let calledToDisconnect = false;
+      const dataService = {
+        disconnect: () => {
+          calledToDisconnect = true;
+          return Promise.resolve();
+        },
+      };
+      const connectionAttempt = createConnectionAttempt(() => {
+        return new Promise((resolve) =>
+          setTimeout(() => resolve(dataService), 25)
+        );
+      });
+      await connectionAttempt.connect({
+        connectionString: 'mongodb://localhost:27017',
+      });
+
+      connectionAttempt.cancelConnectionAttempt();
+
+      expect(calledToDisconnect).to.equal(true);
+    });
   });
 });

@@ -40,11 +40,9 @@ const cancelButtonStyles = css({
  */
 function Connecting({
   connectingStatusText,
-  connectionAttempt,
   onCancelConnectionClicked,
 }: {
   connectingStatusText: string;
-  connectionAttempt: ConnectionAttempt | null;
   onCancelConnectionClicked: () => void;
 }): React.ReactElement {
   const [showModal, setShowModal] = useState(false);
@@ -53,21 +51,11 @@ function Connecting({
   );
 
   useEffect(() => {
-    if (
-      connectionAttempt &&
-      showModalDebounceTimeout.current === null &&
-      !showModal
-    ) {
+    if (showModalDebounceTimeout.current === null && !showModal) {
       showModalDebounceTimeout.current = setTimeout(() => {
-        if (connectionAttempt && !connectionAttempt.isClosed()) {
-          setShowModal(true);
-        }
+        setShowModal(true);
         showModalDebounceTimeout.current = null;
       }, showModalDelayMS);
-    }
-
-    if (!connectionAttempt && showModal) {
-      setShowModal(false);
     }
 
     return () => {
@@ -76,15 +64,12 @@ function Connecting({
         showModalDebounceTimeout.current = null;
       }
     };
-  }, [connectionAttempt, showModal]);
+  }, [showModal]);
 
   return (
     <React.Fragment>
-      {!!connectionAttempt && <ConnectingBackground />}
-      <Modal
-        open={showModal && !!connectionAttempt}
-        setOpen={() => onCancelConnectionClicked()}
-      >
+      {<ConnectingBackground />}
+      <Modal open={showModal} setOpen={() => onCancelConnectionClicked()}>
         <div
           data-test-id="connecting-modal-content"
           className={modalContentStyles}

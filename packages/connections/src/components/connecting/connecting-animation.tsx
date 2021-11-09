@@ -68,6 +68,9 @@ function ConnectingAnimation(): React.ReactElement {
   const currentRotation = useRef<number>(0);
   const rotationVelocity = useRef<number>(getNewRotationVelocity());
 
+  const connectingArrow1Ref = useRef<SVGPolygonElement>(null);
+  const connectingArrow2Ref = useRef<SVGPolygonElement>(null);
+
   function updateAnimation() {
     if (Date.now() - lastFrame.current > 20) {
       // When the user returns from an unfocused view we disregard
@@ -77,10 +80,10 @@ function ConnectingAnimation(): React.ReactElement {
 
     const deltaTime = Date.now() - lastFrame.current;
 
-    const arrow1 = document.getElementById('connectingArrow1');
+    const arrow1 = connectingArrow1Ref.current;
     const rotation = currentRotation.current * (180 / Math.PI);
     arrow1?.setAttribute('transform', `rotate(${rotation}, 24.39, 39.2)`);
-    const arrow2 = document.getElementById('connectingArrow2');
+    const arrow2 = connectingArrow2Ref.current;
     arrow2?.setAttribute('transform', `rotate(${rotation}, 24.39, 39.2)`);
 
     currentRotation.current += rotationVelocity.current * deltaTime;
@@ -136,12 +139,12 @@ function ConnectingAnimation(): React.ReactElement {
           />
 
           <polygon
-            id="connectingArrow1"
+            ref={connectingArrow1Ref}
             className={redArrowStyles}
             points="24.39 22.62 21.35 39.2 27.43 39.2 24.39 22.62"
           />
           <polygon
-            id="connectingArrow2"
+            ref={connectingArrow2Ref}
             className={arrowStyles}
             points="24.39 55.77 27.43 39.2 21.35 39.2 24.39 55.77"
           />

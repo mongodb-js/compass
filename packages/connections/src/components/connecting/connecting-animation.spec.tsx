@@ -10,23 +10,8 @@ describe('ConnectingAnimation Component', function () {
     let unmountComponent;
     let cancelAnimationFrameSpy;
     let requestAnimationFrameSpy;
-    let timeoutCode;
 
     beforeEach(function () {
-      if (!window.requestAnimationFrame) {
-        window.requestAnimationFrame = (requestedPaintFunc) => {
-          timeoutCode = setTimeout(requestedPaintFunc, 5);
-          return 3;
-        };
-        window.cancelAnimationFrame = (codeToCancel) => {
-          expect(codeToCancel).to.equal(3);
-          if (timeoutCode) {
-            clearTimeout(timeoutCode);
-          }
-          timeoutCode = null;
-        };
-      }
-
       requestAnimationFrameSpy = sinon.spy(window.requestAnimationFrame);
       cancelAnimationFrameSpy = sinon.spy(window.cancelAnimationFrame);
 

@@ -4,8 +4,6 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import Connecting from './connecting';
-import { ConnectionAttempt } from '../../modules/connection-attempt';
-import { DataService } from 'mongodb-data-service';
 
 const delay = (amt) => new Promise((resolve) => setTimeout(resolve, amt));
 
@@ -30,33 +28,11 @@ describe('Connecting Component', function () {
     sinon.restore();
   });
 
-  describe('when there is no connection attempt in progress', function () {
-    beforeEach(function () {
-      render(
-        <Connecting
-          connectingStatusText=""
-          connectionAttempt={null}
-          onCancelConnectionClicked={onCancelConnectionClickedSpy}
-        />
-      );
-    });
-
-    it('does not show any connecting views', function () {
-      expect(screen.queryByTestId('connecting-background-svg')).to.not.exist;
-      expect(screen.queryByText('Cancel')).to.not.exist;
-    });
-  });
-
   describe('when there is a connection attempt in progress', function () {
     beforeEach(function () {
       render(
         <Connecting
           connectingStatusText="Connecting..."
-          connectionAttempt={
-            new ConnectionAttempt(() => {
-              return Promise.resolve(new DataService({ connectionString: '' }));
-            })
-          }
           onCancelConnectionClicked={onCancelConnectionClickedSpy}
         />
       );

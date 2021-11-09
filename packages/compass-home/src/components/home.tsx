@@ -1,9 +1,10 @@
 import { css } from '@emotion/css';
 import React, { useCallback, useEffect, useReducer } from 'react';
 import {
-  DataService,
-  getConnectionTitle,
   ConnectionInfo,
+  DataService,
+  convertConnectionInfoToModel,
+  getConnectionTitle,
 } from 'mongodb-data-service';
 import toNS from 'mongodb-ns';
 import Connections from '@mongodb-js/compass-connections';
@@ -142,6 +143,27 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     });
   }
 
+  // TODO: Remove this comment once we only have one connections package:
+  // This is currently only used by the new connections package.
+  // We've moved to not calling the `data-service-connected` event inside
+  // of connections and instead call it here.
+  async function onConnected(
+    connectionInfo: ConnectionInfo,
+    dataService: DataService
+  ) {
+    const legacyConnectionModel = await convertConnectionInfoToModel(
+      connectionInfo
+    );
+
+    appRegistry.emit(
+      'data-service-connected',
+      null, // No error connecting.
+      dataService,
+      connectionInfo,
+      legacyConnectionModel // TODO: Remove this once we remove the dependency in compass-sidebar.
+    );
+  }
+
   function onInstanceRefreshed(instanceInformation: {
     errorMessage?: string;
     instance?: {
@@ -267,7 +289,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     return (
       <div className={homeViewStyles} data-test-id="home-view">
         <div className={homePageStyles}>
-          <Connections appRegistry={appRegistry} />
+          <Connections onConnected={onConnected} />
         </div>
       </div>
     );

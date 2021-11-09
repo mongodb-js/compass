@@ -73,7 +73,6 @@ export function connectionsReducer(state: State, action: Action): State {
         connectionErrorMessage: null,
       };
     case 'cancel-connection-attempt':
-      state.connectionAttempt?.cancelConnectionAttempt();
       return {
         ...state,
         connectionAttempt: null,

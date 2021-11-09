@@ -11,11 +11,9 @@ import {
   ConnectionInfo,
   ConnectionStorage,
   DataService,
-  convertConnectionInfoToModel,
   getConnectionTitle,
 } from 'mongodb-data-service';
 import debugModule from 'debug';
-import AppRegistry from 'hadron-app-registry';
 
 import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
@@ -65,9 +63,12 @@ const formContainerStyles = css({
 });
 
 function Connections({
-  appRegistry,
+  onConnected,
 }: {
-  appRegistry: AppRegistry;
+  onConnected: (
+    connectionInfo: ConnectionInfo,
+    dataService: DataService
+  ) => Promise<void>;
 }): React.ReactElement {
   const [
     {
@@ -177,24 +178,13 @@ function Connections({
     }
   }
 
-  async function notifyCompassOfConnectionSuccess() {
-    const legacyConnectionModel = await convertConnectionInfoToModel(
-      connectedConnectionInfo.current
-    );
-
-    appRegistry.emit(
-      'data-service-connected',
-      null, // No error connecting.
-      connectedDataService.current,
-      connectedConnectionInfo.current,
-      legacyConnectionModel // TODO: Remove this once we remove the dependency in compass-sidebar.
-    );
-  }
-
   useEffect(() => {
     if (isConnected) {
       // After connecting and the UI is updated we notify the rest of Compass.
-      void notifyCompassOfConnectionSuccess();
+      void onConnected(
+        connectedConnectionInfo.current,
+        connectedDataService.current
+      );
     }
   }, [isConnected]);
 
@@ -231,15 +221,18 @@ function Connections({
           <FormHelp />
         </div>
       </div>
-      <Connecting
-        connectionAttempt={connectionAttempt}
-        connectingStatusText={connectingStatusText}
-        onCancelConnectionClicked={() =>
-          dispatch({
-            type: 'cancel-connection-attempt',
-          })
-        }
-      />
+      {!!connectionAttempt && !connectionAttempt.isClosed() && (
+        <Connecting
+          connectingStatusText={connectingStatusText}
+          onCancelConnectionClicked={() => {
+            connectionAttempt?.cancelConnectionAttempt();
+
+            dispatch({
+              type: 'cancel-connection-attempt',
+            });
+          }}
+        />
+      )}
     </div>
   );
 }

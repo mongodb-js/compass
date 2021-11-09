@@ -9,7 +9,6 @@ import path from 'path';
 import os from 'os';
 import { v4 as uuid } from 'uuid';
 import { convertConnectionInfoToModel } from 'mongodb-data-service';
-import AppRegistry from 'hadron-app-registry';
 import sinon from 'sinon';
 
 import Connections from './connections';
@@ -37,14 +36,10 @@ function writeFakeConnection(
 
 describe('Connections Component', function () {
   let tmpDir: string;
-  let testAppRegistry: AppRegistry;
-  let appRegistryEmitSpy;
+  let onConnectedSpy;
 
   beforeEach(function () {
-    testAppRegistry = new AppRegistry();
-    appRegistryEmitSpy = sinon.spy();
-
-    sinon.replace(testAppRegistry, 'emit', appRegistryEmitSpy);
+    onConnectedSpy = sinon.spy();
 
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connections-tests'));
     TestBackend.enable(tmpDir);
@@ -59,7 +54,7 @@ describe('Connections Component', function () {
 
   describe('when rendered', function () {
     beforeEach(function () {
-      render(<Connections appRegistry={testAppRegistry} />);
+      render(<Connections onConnected={onConnectedSpy} />);
     });
 
     it('renders the connect button from the connect-form', function () {
@@ -101,7 +96,7 @@ describe('Connections Component', function () {
         port: 27018,
       });
 
-      render(<Connections appRegistry={testAppRegistry} />);
+      render(<Connections onConnected={onConnectedSpy} />);
 
       await waitFor(() => expect(screen.getByRole('listitem')).to.be.visible);
     });
@@ -138,7 +133,7 @@ describe('Connections Component', function () {
 
       describe('when connect is clicked', function () {
         beforeEach(async function () {
-          expect(appRegistryEmitSpy.called).to.equal(false);
+          expect(onConnectedSpy.called).to.equal(false);
 
           const connectButton = screen.getByText('Connect');
           fireEvent.click(connectButton);
@@ -150,31 +145,13 @@ describe('Connections Component', function () {
         });
 
         afterEach(async function () {
-          await appRegistryEmitSpy.firstCall.args[2]
+          await onConnectedSpy.firstCall.args[1]
             .disconnect()
             .catch(console.log);
         });
 
-        it('should connect and emit connected', function () {
-          expect(appRegistryEmitSpy.called).to.equal(true);
-          const appRegistryEmitCall = appRegistryEmitSpy.firstCall;
-          expect(appRegistryEmitCall.args[0]).to.equal(
-            'data-service-connected'
-          );
-        });
-
-        it('should emit null for connection error', function () {
-          expect(appRegistryEmitSpy.firstCall.args[1]).to.equal(null);
-        });
-
-        it('should emit the data service', function () {
-          expect(appRegistryEmitSpy.firstCall.args[2].isWritable).to.not.equal(
-            undefined
-          );
-        });
-
         it('should emit the connection configuration used to connect', function () {
-          expect(appRegistryEmitSpy.firstCall.args[3]).to.deep.equal({
+          expect(onConnectedSpy.firstCall.args[0]).to.deep.equal({
             id: savedConnectionId,
             connectionOptions: {
               connectionString:
@@ -183,9 +160,9 @@ describe('Connections Component', function () {
           });
         });
 
-        it('should emit the legacy connection model used to connect', function () {
-          expect(appRegistryEmitSpy.firstCall.args[4]._id).to.equal(
-            savedConnectionId
+        it('should emit the data service', function () {
+          expect(onConnectedSpy.firstCall.args[1].isWritable).to.not.equal(
+            undefined
           );
         });
       });
@@ -216,7 +193,7 @@ describe('Connections Component', function () {
         })
       );
 
-      render(<Connections appRegistry={testAppRegistry} />);
+      render(<Connections onConnected={onConnectedSpy} />);
 
       await waitFor(
         () =>
@@ -261,7 +238,7 @@ describe('Connections Component', function () {
       });
 
       it('should not emit connected', function () {
-        expect(appRegistryEmitSpy.called).to.equal(false);
+        expect(onConnectedSpy.called).to.equal(false);
       });
 
       it('should have the disabled connect test id', function () {
@@ -292,37 +269,25 @@ describe('Connections Component', function () {
         });
 
         afterEach(async function () {
-          await appRegistryEmitSpy.firstCall?.args[2]
+          await onConnectedSpy.firstCall?.args[1]
             .disconnect()
             .catch(console.log);
         });
 
-        it('should connect and emit connected', function () {
-          expect(appRegistryEmitSpy.called).to.equal(true);
-          const appRegistryEmitCall = appRegistryEmitSpy.firstCall;
-          expect(appRegistryEmitCall.args[0]).to.equal(
-            'data-service-connected'
-          );
-        });
-
-        it('should emit null for connection error', function () {
-          expect(appRegistryEmitSpy.firstCall.args[1]).to.equal(null);
-        });
-
-        it('should emit the data service', function () {
-          expect(appRegistryEmitSpy.firstCall.args[2].isWritable).to.not.equal(
-            undefined
-          );
-        });
-
         it('should emit the connection configuration used to connect', function () {
-          expect(appRegistryEmitSpy.firstCall.args[3]).to.deep.equal({
+          expect(onConnectedSpy.firstCall.args[0]).to.deep.equal({
             id: savedConnectableId,
             connectionOptions: {
               connectionString:
                 'mongodb://localhost:27018/?readPreference=primary&ssl=false',
             },
           });
+        });
+
+        it('should emit the data service', function () {
+          expect(onConnectedSpy.firstCall.args[1].isWritable).to.not.equal(
+            undefined
+          );
         });
       });
     });
