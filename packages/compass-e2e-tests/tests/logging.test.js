@@ -47,7 +47,7 @@ describe('Logging and Telemetry integration', function () {
         );
       });
 
-      it('contains an identify call', function () {
+      it('tracks an event for identify call', function () {
         const identify = telemetry
           .events()
           .find((entry) => entry.type === 'identify');
@@ -55,7 +55,7 @@ describe('Logging and Telemetry integration', function () {
         expect(identify.traits.arch).to.equal(process.arch);
       });
 
-      it('contains a call for the welcome tour being closed', function () {
+      it('tracks an event for the welcome tour being closed', function () {
         const tourClosed = telemetry
           .events()
           .find((entry) => entry.event === 'Tour Closed');
@@ -66,21 +66,21 @@ describe('Logging and Telemetry integration', function () {
         expect(tourClosed.properties.compass_channel).to.be.a('string');
       });
 
-      it('contains call for shell use events', function () {
+      it('tracks an event for shell use', function () {
         const shellUse = telemetry
           .events()
           .find((entry) => entry.event === 'Shell Use');
         expect(shellUse.properties.compass_version).to.be.a('string');
       });
 
-      it('contains call for shell connection events', function () {
+      it('tracks an event for shell connection', function () {
         const shellNewConnection = telemetry
           .events()
           .find((entry) => entry.event === 'Shell New Connection');
         expect(shellNewConnection.properties.is_localhost).to.equal(true);
       });
 
-      it('contains call for an attempt to establish a new connection', function () {
+      it('tracks an event for an attempt to establish a new connection', function () {
         const connectionAttempt = telemetry
           .events()
           .find((entry) => entry.event === 'Connection Attempt');
@@ -88,7 +88,7 @@ describe('Logging and Telemetry integration', function () {
         expect(connectionAttempt.properties.is_recent).to.equal(false);
       });
 
-      it('contains call a connection is established', function () {
+      it('tracks an event when a connection is established', function () {
         const connectionAttempt = telemetry
           .events()
           .find((entry) => entry.event === 'New Connection');
@@ -112,7 +112,7 @@ describe('Logging and Telemetry integration', function () {
         expect(connectionAttempt.properties.auth_type).to.be.a('string');
       });
 
-      it('contains calls for screens that were accessed', function () {
+      it('tracks an event for screens that were accessed', function () {
         expect(telemetry.screens()).to.include('databases');
       });
     });
@@ -327,12 +327,10 @@ describe('Logging and Telemetry integration', function () {
       ];
 
       let criticalPathActualLogs;
+      const testedIndexes = new Set();
 
       // eslint-disable-next-line mocha/no-hooks-for-single-case
       before(function () {
-        const criticalPathIds = new Set(
-          criticalPathExpectedLogs.map((entry) => entry.id)
-        );
         criticalPathActualLogs = compassLog.filter((entry) => {
           // Remove most mongosh entries as they are quite noisy
           if (
@@ -344,29 +342,30 @@ describe('Logging and Telemetry integration', function () {
             return false;
           }
 
-          return criticalPathIds.has(entry.id);
+          return true;
         });
       });
 
       // eslint-disable-next-line mocha/no-setup-in-describe
-      criticalPathExpectedLogs.forEach((expected, i) => {
+      criticalPathExpectedLogs.forEach((expected) => {
         it(`logs "${expected.msg}"`, function () {
-          if (!criticalPathActualLogs[i]) {
+          const actualLogIndex = criticalPathActualLogs.findIndex(({id}, index) => id === expected.id && !testedIndexes.has(index));
+          if (actualLogIndex < 0) {
             throw new Error(
-              `No criticalPathActualLog for index ${i} expected ${JSON.stringify(
+              `No actual log found for expected ${JSON.stringify(
                 expected
-              )} was empty`
+              )}`
             );
           }
 
+          testedIndexes.add(actualLogIndex);
           const { attr: expectedAttr, ...expectedWithoutAttr } = expected;
-          const { attr: actualAttr, ...actualWihoutAttr } =
-            criticalPathActualLogs[i];
+          const { attr: actualAttr, ...actualWithoutAttr } = criticalPathActualLogs[actualLogIndex];;
 
           // Timestamps vary between each execution
-          delete actualWihoutAttr.t;
+          delete actualWithoutAttr.t;
 
-          expect(expectedWithoutAttr).to.deep.equal(actualWihoutAttr);
+          expect(expectedWithoutAttr).to.deep.equal(actualWithoutAttr);
 
           // we already know this would fail the expectation
           if (
