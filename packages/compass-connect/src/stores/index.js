@@ -987,7 +987,7 @@ const Store = Reflux.createStore({
       genuineMongoDB,
       host,
       build,
-    } = await promisify(dataService.instance.bind(dataService))();
+    } = await dataService.instance();
     const {
       hostname,
       authMechanism,
@@ -1009,7 +1009,7 @@ const Store = Reflux.createStore({
       server_version: host.kernel_version,
       server_arch: host.arch,
       server_os_family: host.os_family,
-      auth_type: authMechanism,
+      auth_type: authMechanism ?? '',
     };
     track('New Connection', trackEvent);
   },
