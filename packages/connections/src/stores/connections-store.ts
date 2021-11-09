@@ -1,6 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ConnectionInfo } from 'mongodb-data-service';
+import {
+  ConnectionInfo,
+  ConnectionStorage,
+  DataService,
+  getConnectionTitle,
+} from 'mongodb-data-service';
 import { ConnectionAttempt } from '../modules/connection-attempt';
+import { useEffect, useReducer, useRef } from 'react';
+import debugModule from 'debug';
+import { createConnectionAttempt } from '../modules/connection-attempt';
+
+const debug = debugModule('mongodb-compass:connections:connections-store');
 
 export function createNewConnectionInfo(): ConnectionInfo {
   return {
@@ -110,4 +120,144 @@ export function connectionsReducer(state: State, action: Action): State {
     default:
       return state;
   }
+}
+
+export function useConnections(
+  onConnected: (
+    connectionInfo: ConnectionInfo,
+    dataService: DataService
+  ) => Promise<void>
+): [
+  State,
+  {
+    // state: State;
+    cancelAnyCurrentConnectionAttempt: () => void;
+    loadConnections(): Promise<void>;
+    onCancelConnectionAttempt(): void;
+    onConnect(connectionInfo: ConnectionInfo): Promise<void>;
+    updateActiveConnection(newConnectionId?: string | undefined): void;
+  }
+] {
+  const [state, dispatch] = useReducer(
+    connectionsReducer,
+    defaultConnectionsState()
+  );
+  const { isConnected, connectionAttempt, connections } = state;
+
+  const connectedConnectionInfo = useRef<ConnectionInfo>();
+  const connectedDataService = useRef<DataService>();
+
+  useEffect(() => {
+    if (
+      isConnected &&
+      connectedConnectionInfo.current &&
+      connectedDataService.current
+    ) {
+      // After connecting and the UI is updated we notify the rest of Compass.
+      void onConnected(
+        connectedConnectionInfo.current,
+        connectedDataService.current
+      );
+    }
+  }, [isConnected, onConnected]);
+
+  return [
+    state,
+    {
+      // state,
+      async loadConnections() {
+        try {
+          const connectionStorage = new ConnectionStorage();
+          const loadedConnections = await connectionStorage.loadAll();
+
+          dispatch({
+            type: 'set-connections',
+            connections: loadedConnections,
+          });
+        } catch (error) {
+          debug('error loading connections', error);
+        }
+      },
+      cancelAnyCurrentConnectionAttempt() {
+        if (!isConnected) {
+          connectionAttempt?.cancelConnectionAttempt();
+        }
+      },
+      onCancelConnectionAttempt() {
+        connectionAttempt?.cancelConnectionAttempt();
+
+        dispatch({
+          type: 'cancel-connection-attempt',
+        });
+      },
+      async onConnect(connectionInfo: ConnectionInfo) {
+        if (connectionAttempt || isConnected) {
+          // Ensure we aren't currently connecting.
+          return;
+        }
+
+        const newConnectionAttempt = createConnectionAttempt();
+
+        dispatch({
+          type: 'attempt-connect',
+          connectingStatusText: `Connecting to ${getConnectionTitle(
+            connectionInfo
+          )}`,
+          connectionAttempt: newConnectionAttempt,
+        });
+
+        debug('connecting with connectionInfo', connectionInfo);
+
+        try {
+          const newConnectionDataService = await newConnectionAttempt.connect(
+            connectionInfo.connectionOptions
+          );
+
+          if (!newConnectionDataService || newConnectionAttempt.isClosed()) {
+            // The connection attempt was cancelled.
+            return;
+          }
+
+          // Successful connection
+          connectedConnectionInfo.current = connectionInfo;
+          connectedDataService.current = newConnectionDataService;
+
+          dispatch({
+            type: 'connection-attempt-succeeded',
+          });
+          debug(
+            'connection attempt succeeded with connection info',
+            connectionInfo
+          );
+        } catch (error) {
+          debug('connect error', error);
+
+          dispatch({
+            type: 'connection-attempt-errored',
+            connectionErrorMessage: error.message,
+          });
+        }
+      },
+      updateActiveConnection(newConnectionId?: string | undefined) {
+        if (newConnectionId) {
+          const connection = connections.find(
+            (connection) => connection.id === newConnectionId
+          );
+          if (connection) {
+            dispatch({
+              type: 'set-active-connection',
+              connectionId: newConnectionId,
+              connectionInfo: connection,
+            });
+            return;
+          }
+        }
+
+        dispatch({
+          type: 'new-connection',
+          connectionInfo: createNewConnectionInfo(),
+        });
+      },
+    },
+  ];
 }
