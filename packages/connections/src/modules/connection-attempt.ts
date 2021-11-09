@@ -5,7 +5,7 @@ const { /* log, mongoLogId, */ debug } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
 );
 
-function isConnectionAttemptTerminatedError(err) {
+function isConnectionAttemptTerminatedError(err: any) {
   return err?.name === 'MongoError' && err?.message === 'Topology closed';
 }
 

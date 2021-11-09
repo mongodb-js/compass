@@ -179,14 +179,18 @@ function Connections({
   }
 
   useEffect(() => {
-    if (isConnected) {
+    if (
+      isConnected &&
+      connectedConnectionInfo.current &&
+      connectedDataService.current
+    ) {
       // After connecting and the UI is updated we notify the rest of Compass.
       void onConnected(
         connectedConnectionInfo.current,
         connectedDataService.current
       );
     }
-  }, [isConnected]);
+  }, [isConnected, onConnected]);
 
   useEffect(() => {
     // Load connections after first render.

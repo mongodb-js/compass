@@ -29,7 +29,7 @@ const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 type State = {
   error: string;
-  toastVariant: ToastVariant.Success | ToastVariant.Warning;
+  toastVariant: ToastVariant;
   toastOpen: boolean;
 };
 
@@ -41,7 +41,7 @@ const defaultToastState: State = {
 
 type Action =
   | { type: 'show-success-toast' }
-  | { type: 'show-warning-toast'; error }
+  | { type: 'show-warning-toast'; error: string }
   | { type: 'toast-timeout-started' }
   | { type: 'close-toast' };
 
@@ -100,10 +100,22 @@ function ConnectionMenu({
         type: 'show-success-toast',
       });
     } catch (err) {
-      dispatch({
-        type: 'show-warning-toast',
-        error: err,
-      });
+      if (err instanceof Error) {
+        dispatch({
+          type: 'show-warning-toast',
+          error: err.message,
+        });
+      } else if (typeof err === 'string') {
+        dispatch({
+          type: 'show-warning-toast',
+          error: err,
+        });
+      } else {
+        dispatch({
+          type: 'show-warning-toast',
+          error: 'An error occured when copying to keybaord. Please try again.',
+        });
+      }
     }
 
     startToastHideTimeout();

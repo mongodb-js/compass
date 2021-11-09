@@ -3,8 +3,7 @@ import { H2, Link, Modal, spacing } from '@mongodb-js/compass-components';
 import React, { useEffect, useRef, useState } from 'react';
 
 import ConnectingAnimation from './connecting-animation';
-import Illustration from '../../assets/svg/connecting-illustration.svg';
-import { ConnectionAttempt } from '../../modules/connection-attempt';
+import ConnectingIllustration from './connecting-illustration';
 import ConnectingBackground from './connecting-background';
 
 // We delay showing the modal for this amount of time to avoid flashing.
@@ -13,10 +12,6 @@ const showModalDelayMS = 250;
 const modalContentStyles = css({
   textAlign: 'center',
   padding: spacing[3],
-});
-
-const illustrationStyles = css({
-  maxHeight: '40vh',
 });
 
 const connectingStatusStyles = css({
@@ -68,18 +63,14 @@ function Connecting({
 
   return (
     <React.Fragment>
-      {<ConnectingBackground />}
+      <ConnectingBackground />
       <Modal open={showModal} setOpen={() => onCancelConnectionClicked()}>
         <div
           data-test-id="connecting-modal-content"
           className={modalContentStyles}
           id="connectingStatusText"
         >
-          <img
-            className={illustrationStyles}
-            src={Illustration}
-            alt="Compass connecting illustration"
-          />
+          <ConnectingIllustration />
           <H2 className={connectingStatusStyles}>{connectingStatusText}</H2>
           <ConnectingAnimation />
           <Link

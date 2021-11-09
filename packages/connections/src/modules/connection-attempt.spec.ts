@@ -5,7 +5,7 @@ import { createConnectionAttempt } from './connection-attempt';
 describe('ConnectionAttempt Module', function () {
   describe('connect', function () {
     it('returns the connected data service', async function () {
-      const dataService = {};
+      const dataService = {} as any;
       const connectionAttempt = createConnectionAttempt(() => {
         return new Promise((resolve) =>
           setTimeout(() => resolve(dataService), 25)
@@ -18,7 +18,7 @@ describe('ConnectionAttempt Module', function () {
     });
 
     it('returns undefined if is cancelled', async function () {
-      const dataService = {};
+      const dataService = {} as any;
       const connectionAttempt = createConnectionAttempt(() => {
         return new Promise((resolve) =>
           setTimeout(() => resolve(dataService), 100)
@@ -62,7 +62,7 @@ describe('ConnectionAttempt Module', function () {
           calledToDisconnect = true;
           return Promise.resolve();
         },
-      };
+      } as any;
       const connectionAttempt = createConnectionAttempt(() => {
         return new Promise((resolve) =>
           setTimeout(() => resolve(dataService), 25)
