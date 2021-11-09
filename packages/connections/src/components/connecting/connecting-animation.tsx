@@ -71,41 +71,44 @@ function ConnectingAnimation(): React.ReactElement {
   const connectingArrow1Ref = useRef<SVGPolygonElement>(null);
   const connectingArrow2Ref = useRef<SVGPolygonElement>(null);
 
-  function updateAnimation() {
-    if (Date.now() - lastFrame.current > 20) {
-      // When the user returns from an unfocused view we disregard
-      // that last frame time for a frame.
-      lastFrame.current = Date.now();
-    }
-
-    const deltaTime = Date.now() - lastFrame.current;
-
-    const arrow1 = connectingArrow1Ref.current;
-    const rotation = currentRotation.current * (180 / Math.PI);
-    arrow1?.setAttribute('transform', `rotate(${rotation}, 24.39, 39.2)`);
-    const arrow2 = connectingArrow2Ref.current;
-    arrow2?.setAttribute('transform', `rotate(${rotation}, 24.39, 39.2)`);
-
-    currentRotation.current += rotationVelocity.current * deltaTime;
-    rotationVelocity.current +=
-      rotationAcceleration * (currentRotation.current > 0 ? -1 : 1) * deltaTime;
-    rotationVelocity.current *= friction;
-
-    if (
-      Math.abs(rotationVelocity.current) < Math.PI / 1100 &&
-      Math.abs(currentRotation.current) < Math.PI / 1100
-    ) {
-      // When the Compass hands are settled we apply a force so
-      // it starts to rotate again.
-      rotationVelocity.current = getNewRotationVelocity();
-    }
-
-    lastFrame.current = Date.now();
-
-    requestAnimationRef.current = window.requestAnimationFrame(updateAnimation);
-  }
-
   useEffect(() => {
+    function updateAnimation() {
+      if (Date.now() - lastFrame.current > 20) {
+        // When the user returns from an unfocused view we disregard
+        // that last frame time for a frame.
+        lastFrame.current = Date.now();
+      }
+
+      const deltaTime = Date.now() - lastFrame.current;
+
+      const arrow1 = connectingArrow1Ref.current;
+      const rotation = currentRotation.current * (180 / Math.PI);
+      arrow1?.setAttribute('transform', `rotate(${rotation}, 24.39, 39.2)`);
+      const arrow2 = connectingArrow2Ref.current;
+      arrow2?.setAttribute('transform', `rotate(${rotation}, 24.39, 39.2)`);
+
+      currentRotation.current += rotationVelocity.current * deltaTime;
+      rotationVelocity.current +=
+        rotationAcceleration *
+        (currentRotation.current > 0 ? -1 : 1) *
+        deltaTime;
+      rotationVelocity.current *= friction;
+
+      if (
+        Math.abs(rotationVelocity.current) < Math.PI / 1100 &&
+        Math.abs(currentRotation.current) < Math.PI / 1100
+      ) {
+        // When the Compass hands are settled we apply a force so
+        // it starts to rotate again.
+        rotationVelocity.current = getNewRotationVelocity();
+      }
+
+      lastFrame.current = Date.now();
+
+      requestAnimationRef.current =
+        window.requestAnimationFrame(updateAnimation);
+    }
+
     requestAnimationRef.current = window.requestAnimationFrame(updateAnimation);
     return () => {
       if (requestAnimationRef.current !== undefined) {

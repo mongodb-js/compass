@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
 import {
   MongoDBLogo,
   breakpoints,
@@ -66,31 +66,8 @@ function Connections({
       connections,
       isConnected,
     },
-    {
-      // state,
-      // cancelAnyCurrentConnectionAttempt,
-      loadConnections,
-      onCancelConnectionAttempt,
-      onConnect,
-      updateActiveConnection,
-    },
+    { onCancelConnectionAttempt, onConnect, updateActiveConnection },
   ] = useConnections(onConnected);
-
-  const cancelAnyCurrentConnectionAttempt = useCallback(() => {
-    if (!isConnected) {
-      connectionAttempt?.cancelConnectionAttempt();
-    }
-  }, [connectionAttempt, isConnected]);
-
-  useEffect(() => {
-    // Load connections after first render.
-    void loadConnections();
-
-    return () => {
-      // On unmount if we're currently connecting, cancel the attempt.
-      cancelAnyCurrentConnectionAttempt();
-    };
-  }, []);
 
   return (
     <div
