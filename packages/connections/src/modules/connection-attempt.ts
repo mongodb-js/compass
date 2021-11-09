@@ -1,7 +1,7 @@
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { connect, ConnectionOptions, DataService } from 'mongodb-data-service';
 
-const { /* log, mongoLogId, */ debug } = createLoggerAndTelemetry(
+const { log, mongoLogId, debug } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
 );
 
@@ -26,23 +26,21 @@ export class ConnectionAttempt {
   }
 
   connect(connectionOptions: ConnectionOptions): Promise<DataService | void> {
-    // TODO: Re-enable when we remove compass-connect (avoid duplicate log ids).
-    // log.info(
-    //   mongo  LogId(1001000004),
-    //   'Connection UI',
-    //   'Initiating connection attempt'
-    // );
+    log.info(
+      mongoLogId(1001000004), // !dupedLogId
+      'Connection UI',
+      'Initiating connection attempt'
+    );
 
     return Promise.race([this._cancelled, this._connect(connectionOptions)]);
   }
 
   cancelConnectionAttempt(): void {
-    // TODO: Re-enable when we remove compass-connect (avoid duplicate log ids).
-    // log.info(
-    //   mongo  LogId(1001000005),
-    //   'Connection UI',
-    //   'Canceling connection attempt'
-    // );
+    log.info(
+      mongoLogId(1001000005), // !dupedLogId
+      'Connection UI',
+      'Canceling connection attempt'
+    );
 
     this._cancelConnectionAttempt?.();
     void this._close();

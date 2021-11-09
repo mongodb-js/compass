@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import { css, keyframes } from '@emotion/css';
 import React from 'react';
 
 const connectingBackgroundSvgStyles = css({
@@ -10,9 +10,18 @@ const connectingBackgroundSvgStyles = css({
   right: 0,
 });
 
+const opacityFadeInKeyframes = keyframes({
+  '0%': {
+    opacity: 0,
+  },
+  '100%': {
+    opacity: 1,
+  },
+});
+
 const connectingBackgroundGradientStyles = css({
   opacity: 0.9,
-  animation: 'opacityFadeIn 500ms ease-out',
+  animation: `${opacityFadeInKeyframes} 500ms ease-out`,
 });
 
 function ConnectingBackground(): React.ReactElement {
