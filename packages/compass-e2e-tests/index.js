@@ -196,6 +196,8 @@ process.on('unhandledRejection', (err) => {
   });
 });
 
+/*
 main().finally(() => {
   return cleanup();
 });
+*/
