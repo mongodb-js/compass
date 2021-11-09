@@ -34,7 +34,7 @@ async function setup() {
   }
 }
 
-async function cleanup() {
+function cleanup() {
   keychain.reset();
   debug('Stopping MongoDB server and cleaning up server data');
   try {
@@ -52,10 +52,6 @@ async function cleanup() {
     fs.rmdirSync('.mongodb', { recursive: true });
   } catch (e) {
     debug('Failed to clean up server data', e);
-  }
-
-  if (metricsClient) {
-    await metricsClient.close();
   }
 }
 
@@ -118,36 +114,26 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
-  const run = async (resolve, reject) => {
-    const metricsConnection = process.env.E2E_TESTS_METRICS_STRING;
-    if (metricsConnection) {
-      debug('Connecting to E2E_TESTS_METRICS_STRING');
-      metricsClient = new MongoClient(metricsConnection);
-      await metricsClient.connect();
-    } else {
-      debug('Not logging metrics to a database.');
-    }
+  const metricsConnection = process.env.E2E_TESTS_METRICS_STRING;
+  if (metricsConnection) {
+    debug('Connecting to E2E_TESTS_METRICS_STRING');
+    metricsClient = new MongoClient(metricsConnection);
+    await metricsClient.connect();
+  } else {
+    debug('Not logging metrics to a database.');
+  }
 
+  // mocha.run has a callback and returns a result, so just promisify it manually
+  const { resultLogger, failures } = await new Promise((resolve, reject) => {
     let resultLogger;
 
-    const runner = mocha.run(async (failures) => {
-      let result;
-      try {
-        result = await resultLogger.done(failures);
-      } catch (err) {
-        return reject(err);
-      }
-
-      // write a report.json to be uploaded to evergreen
-      debug('Writing report.json');
-      const reportPath = path.join(LOG_PATH, 'report.json');
-      const jsonReport = JSON.stringify(result, null, 2);
-      await fs.promises.writeFile(reportPath, jsonReport);
-
+    const runner = mocha.run((failures) => {
       process.exitCode = failures ? 1 : 0;
-      resolve(failures);
+      resolve({ resultLogger, failures });
     });
 
+    // Same reason as elsewhere: this somehow breaks and then debug logging
+    // becomes a noop. Unless we explicitly set log.
     debug.log = console.log.bind(console);
 
     resultLogger = new ResultLogger(metricsClient, runner);
@@ -159,45 +145,51 @@ async function main() {
       // reject() doesn't stop mocha.run()...
       reject(err);
     });
-  };
-
-  // mocha.run has a callback and returns a result, so just promisify it manually
-  return new Promise((resolve, reject) => {
-    run(resolve, reject);
   });
+
+  const result = await resultLogger.done(failures);
+
+  // write a report.json to be uploaded to evergreen
+  debug('Writing report.json');
+  const reportPath = path.join(LOG_PATH, 'report.json');
+  const jsonReport = JSON.stringify(result, null, 2);
+  await fs.promises.writeFile(reportPath, jsonReport);
 }
 
 process.once('SIGINT', () => {
   debug(`Process was interrupted. Cleaning-up and exiting.`);
-  cleanup().then(() => {
-    process.kill(process.pid, 'SIGINT');
-  });
+  cleanup();
+  process.kill(process.pid, 'SIGINT');
 });
 
 process.once('SIGTERM', () => {
   debug(`Process was terminated. Cleaning-up and exiting.`);
-  cleanup().then(() => {
-    process.kill(process.pid, 'SIGTERM');
-  });
+  cleanup();
+  process.kill(process.pid, 'SIGTERM');
 });
 
 process.once('uncaughtException', (err) => {
   debug('Uncaught exception. Cleaning-up and exiting.');
-  cleanup().then(() => {
-    throw err;
-  });
+  cleanup();
+  throw err;
 });
 
 process.on('unhandledRejection', (err) => {
   debug('Unhandled exception. Cleaning-up and exiting.');
-  cleanup().then(() => {
-    console.error(err.stack || err.message || err);
-    process.exitCode = 1;
-  });
+  cleanup();
+  console.error(err.stack || err.message || err);
+  process.exitCode = 1;
 });
 
-/*
-main().finally(() => {
-  return cleanup();
-});
-*/
+async function run() {
+  try {
+    await main();
+  } finally {
+    if (metricsClient) {
+      await metricsClient.close();
+    }
+    cleanup();
+  }
+}
+
+run();
