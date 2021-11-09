@@ -349,18 +349,19 @@ describe('Logging and Telemetry integration', function () {
       // eslint-disable-next-line mocha/no-setup-in-describe
       criticalPathExpectedLogs.forEach((expected) => {
         it(`logs "${expected.msg}"`, function () {
-          const actualLogIndex = criticalPathActualLogs.findIndex(({id}, index) => id === expected.id && !testedIndexes.has(index));
+          const actualLogIndex = criticalPathActualLogs.findIndex(
+            ({ id }, index) => id === expected.id && !testedIndexes.has(index)
+          );
           if (actualLogIndex < 0) {
             throw new Error(
-              `No actual log found for expected ${JSON.stringify(
-                expected
-              )}`
+              `No actual log found for expected ${JSON.stringify(expected)}`
             );
           }
 
           testedIndexes.add(actualLogIndex);
           const { attr: expectedAttr, ...expectedWithoutAttr } = expected;
-          const { attr: actualAttr, ...actualWithoutAttr } = criticalPathActualLogs[actualLogIndex];;
+          const { attr: actualAttr, ...actualWithoutAttr } =
+            criticalPathActualLogs[actualLogIndex];
 
           // Timestamps vary between each execution
           delete actualWithoutAttr.t;
