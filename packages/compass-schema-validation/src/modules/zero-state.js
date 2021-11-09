@@ -79,7 +79,7 @@ export const changeZeroState = (isZeroState) => {
     const namespace = state.namespace;
 
     if (isZeroState === false) {
-      track('Schema Validation Edited');
+      track('Schema Validation Added');
       sendMetrics(dispatch, dataService, namespace, 'schema-validation-rules-added');
     }
 
