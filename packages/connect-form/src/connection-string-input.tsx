@@ -5,15 +5,16 @@ import {
   IconButton,
   Label,
   TextArea,
+  Toggle,
   spacing,
 } from '@mongodb-js/compass-components';
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-const labelStyles = css({
+const uriLabelStyles = css({
   padding: 0,
   margin: 0,
-  marginTop: spacing[3],
+  flexGrow: 1
 });
 
 const infoButtonStyles = css({
@@ -44,6 +45,16 @@ const connectionStringStyles = css({
   },
 });
 
+// const editToggleContainerStyles = css({
+//   // flexShrink: 1
+// });
+
+const textAreaLabelContainerStyles = css({
+  marginTop: spacing[3],
+  display: 'flex',
+  flexDirection: 'row'
+})
+
 const connectionStringInputId = 'connectionString';
 
 type State = {
@@ -54,7 +65,8 @@ type State = {
 type Action =
   | { type: 'enable-editing-connection-string' }
   | { type: 'show-edit-connection-string-confirmation' }
-  | { type: 'hide-edit-connection-string-confirmation' };
+  | { type: 'hide-edit-connection-string-confirmation' }
+  | { type: 'hide-connection-string' };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -68,6 +80,12 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         showConfirmEditConnectionStringPrompt: true,
+      };
+    case 'hide-connection-string':
+      return {
+        ...state,
+        showConfirmEditConnectionStringPrompt: false,
+        enableEditingConnectionString: false,
       };
     case 'hide-edit-connection-string-confirmation':
       return {
@@ -129,18 +147,41 @@ function ConnectStringInput({
 
   return (
     <Fragment>
-      <Label className={labelStyles} htmlFor={connectionStringInputId}>
-        Connection String
-        <IconButton
-          className={infoButtonStyles}
-          aria-label="Connection String Documentation"
-          data-testid="connectionStringDocsButton"
-          href="https://docs.mongodb.com/manual/reference/connection-string/"
-          target="_blank"
-        >
-          <Icon glyph="InfoWithCircle" size="small" />
-        </IconButton>
-      </Label>
+      <div className={textAreaLabelContainerStyles}>
+        <Label className={uriLabelStyles} htmlFor={connectionStringInputId}>
+          Connection String
+          <IconButton
+            className={infoButtonStyles}
+            aria-label="Connection String Documentation"
+            data-testid="connectionStringDocsButton"
+            href="https://docs.mongodb.com/manual/reference/connection-string/"
+            target="_blank"
+          >
+            <Icon glyph="InfoWithCircle" size="small" />
+          </IconButton>
+        </Label>
+        <label id="label" htmlFor="toggle">
+          Edit Connection String
+        </label>
+        <Toggle
+          id="toggle"
+          aria-labelledby="label"
+          size="xsmall"
+          checked={enableEditingConnectionString}
+          data-testid="toggle-edit-connection-string-button"
+          onChange={(checked) => {
+            if (checked) {
+              dispatch({
+                type: 'hide-connection-string',
+              });
+              return;
+            }
+            dispatch({
+              type: 'show-edit-connection-string-confirmation',
+            });
+          }}
+        />
+      </div>
       <div className={textAreaContainerStyle}>
         <TextArea
           onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -161,7 +202,7 @@ function ConnectStringInput({
           <IconButton
             className={editConnectionStringStyles}
             aria-label="Edit Connection String"
-            data-testid="enableEditConnectionStringButton"
+            data-testid="toggle-edit-connection-string-button"
             onClick={() =>
               dispatch({
                 type: 'show-edit-connection-string-confirmation',

@@ -129,7 +129,7 @@ describe('ConnectionStringInput Component', function () {
 
     describe('clicking confirm to edit', function () {
       beforeEach(function () {
-        const button = screen.getByTestId('enableEditConnectionStringButton');
+        const button = screen.getByTestId('toggle-edit-connection-string-button');
         fireEvent(
           button,
           new MouseEvent('click', {
@@ -160,11 +160,34 @@ describe('ConnectionStringInput Component', function () {
           'mongodb+srv://turtles:pineapples@localhost/'
         );
       });
+
+      describe('clicking on edit connection string toggle again', function () {
+        beforeEach(function () {
+          const button = screen.getByRole('switch');
+          fireEvent(
+            button,
+            new MouseEvent('click', {
+              bubbles: true,
+              cancelable: true,
+            })
+          );
+        });
+  
+        it('should add disabled on the textbox', function () {
+          const textArea = screen.getByRole('textbox');
+          expect(textArea).to.match('[disabled]');
+        });
+  
+        it('should show the censored connection string', function () {
+          const textArea = screen.getByRole('textbox');
+          expect(textArea).to.have.text('mongodb+srv://turtles:*****@localhost/');
+        });
+      });
     });
 
     describe('clicking cancel on confirmation to edit', function () {
       beforeEach(function () {
-        const button = screen.getByTestId('enableEditConnectionStringButton');
+        const button = screen.getByTestId('toggle-edit-connection-string-button');
         fireEvent(
           button,
           new MouseEvent('click', {
