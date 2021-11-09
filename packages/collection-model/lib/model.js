@@ -12,6 +12,48 @@ function getNamespaceInfo(ns) {
   return NamespaceCache.get(ns);
 }
 
+function mergeInit(...init) {
+  return {
+    initialize(...args) {
+      init.forEach(({ initialize }) => {
+        initialize.call(this, ...args);
+      });
+    },
+  };
+}
+
+const Inflight = new Map();
+
+function debounceInflight(fn) {
+  return function (...args) {
+    const callId = this.isCollection
+      ? `${this.parent.cid}$$coll$$${fn.name}`
+      : `${this.cid}$$${fn.name}`;
+    if (Inflight.has(callId)) {
+      return Inflight.get(callId);
+    }
+    const promise = fn.call(this, ...args);
+    promise.finally(() => {
+      Inflight.delete(callId);
+    });
+    Inflight.set(callId, promise);
+    return promise;
+  };
+}
+
+function debounceActions(actions) {
+  return {
+    initialize() {
+      actions.forEach((key) => {
+        if (key in this && typeof this[key] === 'function') {
+          const origFn = this[key];
+          this[key] = debounceInflight(origFn);
+        }
+      });
+    },
+  };
+}
+
 function getParent(model) {
   return model.parent ?? model.collection ?? null;
 }
@@ -53,7 +95,7 @@ function pickCollectionInfo({
   return { type, readonly, view_on, collation, pipeline, validation };
 }
 
-const CollectionModel = AmpersandModel.extend({
+const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   modelType: 'Collection',
   idAttribute: '_id',
   props: {
@@ -158,13 +200,13 @@ const CollectionModel = AmpersandModel.extend({
       this.set({ status: newStatus });
       const [collStats, collectionInfo] = await Promise.all([
         collectionStatsAsync(this.database, this.name),
-        fetchInfo ? dataService.collectionInfo(this.database, this.name) : {},
+        fetchInfo ? dataService.collectionInfo(this.database, this.name) : null,
       ]);
       this.set({
         status: 'ready',
         statusError: null,
         ...collStats,
-        ...pickCollectionInfo(collectionInfo),
+        ...(collectionInfo && pickCollectionInfo(collectionInfo)),
       });
     } catch (err) {
       this.set({ status: 'error', statusError: err.message });
@@ -178,7 +220,10 @@ const CollectionModel = AmpersandModel.extend({
 });
 
 const CollectionCollection = AmpersandCollection.extend(
-  propagateCollectionEvents('collections'),
+  mergeInit(
+    debounceActions(['fetch']),
+    propagateCollectionEvents('collections')
+  ),
   {
     modelType: 'CollectionCollection',
     mainIndex: '_id',

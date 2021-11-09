@@ -5,6 +5,48 @@ const {
   Collection: MongoDbCollectionCollection,
 } = require('mongodb-collection-model');
 
+function mergeInit(...init) {
+  return {
+    initialize(...args) {
+      init.forEach(({ initialize }) => {
+        initialize.call(this, ...args);
+      });
+    },
+  };
+}
+
+const Inflight = new Map();
+
+function debounceInflight(fn) {
+  return function (...args) {
+    const callId = this.isCollection
+      ? `${this.parent.cid}$$coll$$${fn.name}`
+      : `${this.cid}$$${fn.name}`;
+    if (Inflight.has(callId)) {
+      return Inflight.get(callId);
+    }
+    const promise = fn.call(this, ...args);
+    promise.finally(() => {
+      Inflight.delete(callId);
+    });
+    Inflight.set(callId, promise);
+    return promise;
+  };
+}
+
+function debounceActions(actions) {
+  return {
+    initialize() {
+      actions.forEach((key) => {
+        if (key in this && typeof this[key] === 'function') {
+          const origFn = this[key];
+          this[key] = debounceInflight(origFn);
+        }
+      });
+    },
+  };
+}
+
 function getParent(model) {
   return model.parent ?? model.collection ?? null;
 }
@@ -35,71 +77,74 @@ function propagateCollectionEvents(namespace) {
   };
 }
 
-const DatabaseModel = AmpersandModel.extend({
-  modelType: 'Database',
-  idAttribute: '_id',
-  props: {
-    _id: 'string',
-    name: 'string',
-    status: { type: 'string', default: 'initial' },
-    statusError: { type: 'string', default: null },
-    collectionsStatus: { type: 'string', default: 'initial' },
-    collectionsStatusError: { type: 'string', default: null },
+const DatabaseModel = AmpersandModel.extend(
+  debounceActions(['fetch', 'fetchCollections']),
+  {
+    modelType: 'Database',
+    idAttribute: '_id',
+    props: {
+      _id: 'string',
+      name: 'string',
+      status: { type: 'string', default: 'initial' },
+      statusError: { type: 'string', default: null },
+      collectionsStatus: { type: 'string', default: 'initial' },
+      collectionsStatusError: { type: 'string', default: null },
 
-    collection_count: 'number',
-    document_count: 'number',
-    storage_size: 'number',
-    index_count: 'number',
-    index_size: 'number',
-  },
-  collections: {
-    collections: MongoDbCollectionCollection,
-  },
-  /**
-   * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
-   * @returns {Promise<void>}
-   */
-  async fetch({ dataService }) {
-    try {
-      const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
-      this.set({ status: newStatus });
-      const stats = await dataService.databaseStats(this.getId());
-      this.set({ status: 'ready', statusError: null, ...stats });
-    } catch (err) {
-      this.set({ status: 'error', statusError: err.message });
-      throw err;
-    }
-  },
+      collection_count: 'number',
+      document_count: 'number',
+      storage_size: 'number',
+      index_count: 'number',
+      index_size: 'number',
+    },
+    collections: {
+      collections: MongoDbCollectionCollection,
+    },
+    /**
+     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @returns {Promise<void>}
+     */
+    async fetch({ dataService }) {
+      try {
+        const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
+        this.set({ status: newStatus });
+        const stats = await dataService.databaseStats(this.getId());
+        this.set({ status: 'ready', statusError: null, ...stats });
+      } catch (err) {
+        this.set({ status: 'error', statusError: err.message });
+        throw err;
+      }
+    },
 
-  /**
-   * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
-   * @returns {Promise<void>}
-   */
-  async fetchCollections({ dataService, fetchInfo = false }) {
-    try {
-      const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
-      this.set({ collectionsStatus: newStatus });
-      await this.collections.fetch({ dataService, fetchInfo });
-      this.set({ collectionsStatus: 'ready', collectionsStatusError: null });
-    } catch (err) {
-      this.set({
-        collectionsStatus: 'error',
-        collectionsStatusError: err.message,
-      });
-      throw err;
-    }
-  },
+    /**
+     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @returns {Promise<void>}
+     */
+    async fetchCollections({ dataService, fetchInfo = false }) {
+      try {
+        const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
+        this.set({ collectionsStatus: newStatus });
+        await this.collections.fetch({ dataService, fetchInfo });
+        this.set({ collectionsStatus: 'ready', collectionsStatusError: null });
+      } catch (err) {
+        this.set({
+          collectionsStatus: 'error',
+          collectionsStatusError: err.message,
+        });
+        throw err;
+      }
+    },
 
-  toJSON(opts = { derived: true }) {
-    return {
-      ...this.serialize(opts),
-      collections: this.collections.map(coll => coll.toJSON(opts))
-    };
-  },
-});
+    toJSON(opts = { derived: true }) {
+      return {
+        ...this.serialize(opts),
+        collections: this.collections.map((coll) => coll.toJSON(opts)),
+      };
+    },
+  }
+);
 
 const DatabaseCollection = AmpersandCollection.extend(
-  propagateCollectionEvents('databases'),
+  mergeInit(debounceActions(['fetch']), propagateCollectionEvents('databases')),
   {
     modelType: 'DatabaseCollection',
     mainIndex: '_id',
