@@ -183,6 +183,7 @@ class ResultLogger {
 
     const result = {
       test_file,
+      type: hookOrTest.type,
       start: Date.now() / 1000,
       status: 'start', // evergreen only knows fail, pass, silentfail and skip
     };
@@ -236,28 +237,42 @@ class ResultLogger {
   }
 
   report() {
-    const results = this.results.map((r) => {
-      const result = { ...r };
-      // change things that are still stuck as "start" to something evergreen
-      // understands
-      if (result.status === 'start') {
-        result.status = 'silentfail';
-      }
+    const results = this.results
+      .filter((r) => {
+        if (r.status !== 'pass') {
+          // keep all errors
+          return true;
+        }
+        // strip out passed hooks because it is a bit noisy
+        if (r.type === 'hook') {
+          return false;
+        }
+        return true;
+      })
+      .map((r) => {
+        const result = { ...r };
+        // change things that are still stuck as "start" to something evergreen
+        // understands
+        if (result.status === 'start') {
+          result.status = 'silentfail';
+        }
 
-      // copy over some evergreen-specific fields if they exist
-      if (process.env.EVERGREEN_TASK_ID) {
-        result.task_id = process.env.EVERGREEN_TASK_ID;
-      }
-      if (process.env.EVERGREEN_EXECUTION) {
-        result.execution = parseInt(process.env.EVERGREEN_EXECUTION, 10);
-      }
+        // copy over some evergreen-specific fields if they exist
+        if (process.env.EVERGREEN_TASK_ID) {
+          result.task_id = process.env.EVERGREEN_TASK_ID;
+        }
+        if (process.env.EVERGREEN_EXECUTION) {
+          result.execution = parseInt(process.env.EVERGREEN_EXECUTION, 10);
+        }
 
-      // only include fields that evergreen knows about
-      // https://github.com/evergreen-ci/evergreen/wiki/Project-Commands#attach-results
-      delete result.error;
+        delete result.type;
 
-      return result;
-    });
+        // only include fields that evergreen knows about
+        // https://github.com/evergreen-ci/evergreen/wiki/Project-Commands#attach-results
+        delete result.error;
+
+        return result;
+      });
 
     return { results };
   }
