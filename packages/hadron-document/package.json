@@ -34,7 +34,7 @@
     "bootstrap": "npm run compile"
   },
   "dependencies": {
-    "debug": "^4.1.1",
+    "debug": "4.3.0",
     "eventemitter3": "^4.0.0",
     "hadron-type-checker": "^6.4.0",
     "lodash.foreach": "^4.5.0",

@@ -132,10 +132,6 @@ async function main() {
       resolve({ resultLogger, failures });
     });
 
-    // Same reason as elsewhere: this somehow breaks and then debug logging
-    // becomes a noop. Unless we explicitly set log.
-    debug.log = console.log.bind(console);
-
     resultLogger = new ResultLogger(metricsClient, runner);
 
     // Synchronously create the ResultLogger so it can start listening to events

@@ -77,8 +77,6 @@ function githubWorkflowRunUrl() {
 
 class ResultLogger {
   constructor(client, runner) {
-    debug.log = console.log.bind(console);
-
     if (client) {
       debug(`Logging E2E test metrics to ${DB_NAME}.${COLLECTION_NAME}`);
       // client can be undefined if we don't want to write to the db
