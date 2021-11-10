@@ -318,7 +318,9 @@ describe('Logging and Telemetry integration', function () {
 
       // eslint-disable-next-line mocha/no-setup-in-describe
       criticalPathExpectedLogs.forEach((expected, i) => {
-        it(`logs "${expected.msg}"`, function () {
+        // Adding a number because some of the expected messages are duplicates,
+        // resulting in duplicate test names.
+        it(`logs "${expected.msg}" (${i})`, function () {
           if (!criticalPathActualLogs[i]) {
             throw new Error(
               `No criticalPathActualLog for index ${i} expected ${JSON.stringify(
