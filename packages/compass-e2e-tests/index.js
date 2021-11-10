@@ -4,7 +4,6 @@ const { promisify } = require('util');
 const glob = require('glob');
 const { sync: spawnSync } = require('cross-spawn');
 const Mocha = require('mocha');
-const { MongoClient } = require('mongodb');
 const debug = require('debug')('compass-e2e-tests');
 const {
   rebuildNativeModules,
@@ -117,6 +116,8 @@ async function main() {
   const metricsConnection = process.env.E2E_TESTS_METRICS_STRING;
   if (metricsConnection) {
     debug('Connecting to E2E_TESTS_METRICS_STRING');
+    // only require it down here because it gets rebuilt up top
+    const { MongoClient } = require('mongodb');
     metricsClient = new MongoClient(metricsConnection);
     await metricsClient.connect();
   } else {
@@ -133,6 +134,7 @@ async function main() {
       resolve({ resultLogger, failures });
     });
 
+    debug('Initialising ResultLogger');
     resultLogger = new ResultLogger(metricsClient, runner);
 
     // Synchronously create the ResultLogger so it can start listening to events
