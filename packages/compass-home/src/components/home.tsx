@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer } from 'react';
 import {
   DataService,
   getConnectionTitle,
@@ -235,7 +235,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     });
   }
 
-  function onDataServiceDisconnected() {
+  const onDataServiceDisconnected = useCallback(() => {
     const StatusAction = appRegistry.getAction(
       AppRegistryActions.STATUS_ACTIONS
     ) as StatusActionType | undefined;
@@ -244,7 +244,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     });
     updateTitle(appName);
     StatusAction?.done();
-  }
+  }, [appRegistry, appName]);
 
   useEffect(() => {
     if (isConnected) {
@@ -283,7 +283,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       );
       appRegistry.removeListener('all-collection-tabs-closed', onAllTabsClosed);
     };
-  }, [appRegistry]);
+  }, [appRegistry, onDataServiceDisconnected]);
 
   if (isConnected) {
     return (
