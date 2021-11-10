@@ -123,6 +123,7 @@ async function main() {
     debug('Not logging metrics to a database.');
   }
 
+  debug('Running E2E tests');
   // mocha.run has a callback and returns a result, so just promisify it manually
   const { resultLogger, failures } = await new Promise((resolve, reject) => {
     let resultLogger;
@@ -143,10 +144,9 @@ async function main() {
     });
   });
 
-  const result = await resultLogger.done(failures);
-
   // write a report.json to be uploaded to evergreen
   debug('Writing report.json');
+  const result = await resultLogger.done(failures);
   const reportPath = path.join(LOG_PATH, 'report.json');
   const jsonReport = JSON.stringify(result, null, 2);
   await fs.promises.writeFile(reportPath, jsonReport);
