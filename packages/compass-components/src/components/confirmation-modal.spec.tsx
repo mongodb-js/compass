@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 
 import ConfirmationModal from './confirmation-modal';
@@ -13,6 +13,10 @@ function renderModal() {
 }
 
 describe('ConfirmationModal Component', function () {
+  afterEach(function () {
+    cleanup();
+  });
+
   it('should show the modal heading', function () {
     renderModal();
     expect(screen.getByRole('heading')).to.have.text('Pineapples');

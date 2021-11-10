@@ -36,11 +36,18 @@ async function startTelemetryServer() {
     return requests.flatMap((req) => req.body.batch);
   }
 
+  function screens() {
+    return events()
+      .filter((entry) => entry.type === 'screen')
+      .map((entry) => entry.name);
+  }
+
   return {
     requests,
     stop,
     events,
     key,
+    screens,
   };
 }
 

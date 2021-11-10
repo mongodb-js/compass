@@ -14,7 +14,7 @@ describe('SidebarInstanceStats [Component]', () => {
       toggleSpy = sinon.spy();
       emitSpy = sinon.spy();
       component = mount(<SidebarInstanceStats
-        instance={{databases: null, collections: null}}
+        instance={null}
         isExpanded
         toggleIsExpanded={toggleSpy}
         globalAppRegistryEmit={emitSpy}
@@ -40,12 +40,21 @@ describe('SidebarInstanceStats [Component]', () => {
     beforeEach(() => {
       toggleSpy = sinon.spy();
       emitSpy = sinon.spy();
-      component = mount(<SidebarInstanceStats
-        instance={{databases: [1, 2, 3], collections: [6, 7]}}
-        isExpanded
-        toggleIsExpanded={toggleSpy}
-        globalAppRegistryEmit={emitSpy}
-      />);
+      component = mount(
+        <SidebarInstanceStats
+          instance={{
+            status: 'ready',
+            databases: [
+              { collections: [1, 2] },
+              { collections: [3, 4] },
+              { collections: [5] },
+            ],
+          }}
+          isExpanded
+          toggleIsExpanded={toggleSpy}
+          globalAppRegistryEmit={emitSpy}
+        />
+      );
     });
 
     afterEach(() => {
@@ -53,7 +62,7 @@ describe('SidebarInstanceStats [Component]', () => {
     });
 
     it('counts collections correctly', () => {
-      expect(component.find('#sidebar-instance-stats-collections')).to.have.text('2');
+      expect(component.find('#sidebar-instance-stats-collections')).to.have.text('5');
     });
 
     it('counts dbs correctly', () => {
@@ -65,12 +74,17 @@ describe('SidebarInstanceStats [Component]', () => {
     beforeEach(() => {
       toggleSpy = sinon.spy();
       emitSpy = sinon.spy();
-      component = mount(<SidebarInstanceStats
-        instance={{databases: [1, 2, 3], collections: [6, 7]}}
-        isExpanded
-        toggleIsExpanded={toggleSpy}
-        globalAppRegistryEmit={emitSpy}
-      />);
+      component = mount(
+        <SidebarInstanceStats
+          instance={{
+            status: 'ready',
+            databases: [],
+          }}
+          isExpanded
+          toggleIsExpanded={toggleSpy}
+          globalAppRegistryEmit={emitSpy}
+        />
+      );
     });
 
     afterEach(() => {

@@ -33,7 +33,6 @@ const EXPANDED_WHITESPACE = 12;
 const sidebarWidthCollapsed = 36;
 const sidebarMinWidthOpened = 160;
 const defaultSidebarWidthOpened = 250;
-const sidebarArrowControlIncrement = 10;
 
 function getMaxSidebarWidth() {
   return Math.max(sidebarMinWidthOpened, window.innerWidth - 100);
@@ -266,7 +265,6 @@ class Sidebar extends PureComponent {
         <ResizeHandle
           onChange={(newWidth) => this.updateWidth(newWidth)}
           direction={ResizeDirection.RIGHT}
-          step={sidebarArrowControlIncrement}
           value={width}
           minValue={sidebarWidthCollapsed}
           maxValue={getMaxSidebarWidth()}

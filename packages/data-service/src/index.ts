@@ -1,6 +1,6 @@
 import connect from './connect';
-import { getConnectionTitle } from './connection-title';
 import { ConnectionInfo } from './connection-info';
+import { getConnectionTitle } from './connection-title';
 import DataService from './data-service';
 import {
   convertConnectionModelToInfo,

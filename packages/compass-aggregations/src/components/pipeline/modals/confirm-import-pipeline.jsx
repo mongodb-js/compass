@@ -48,6 +48,7 @@ class ConfirmImportPipeline extends PureComponent {
         onConfirm={this.onConfirm}
         onCancel={this.props.closeImport}
         buttonText="Confirm"
+        trackingId="confirm_import_pipeline_modal"
       >
         <div className={styles['confirm-import-pipeline-note']}>
           {NOTE}

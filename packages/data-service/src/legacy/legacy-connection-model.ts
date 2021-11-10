@@ -6,18 +6,32 @@ import type {
 } from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
 import util from 'util';
-
 import { ConnectionInfo } from '../connection-info';
 import { ConnectionOptions, ConnectionSshOptions } from '../connection-options';
+import {
+  ConnectionSecrets,
+  extractSecrets,
+  mergeSecrets,
+} from '../connection-secrets';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ConnectionModel = require('mongodb-connection-model');
+
+type SslMethod =
+  | 'NONE'
+  | 'SYSTEMCA'
+  | 'IFAVAILABLE'
+  | 'UNVALIDATED'
+  | 'SERVER'
+  | 'ALL';
 
 export interface LegacyConnectionModelProperties {
   _id: string;
   hostname: string;
   port: number;
   ns?: string;
+  connectionInfo?: ConnectionInfo;
+  secrets?: ConnectionSecrets;
 
   authStrategy:
     | 'NONE'
@@ -85,13 +99,8 @@ export interface LegacyConnectionModelProperties {
   x509Username?: string;
 
   ssl?: any;
-  sslMethod:
-    | 'NONE'
-    | 'SYSTEMCA'
-    | 'IFAVAILABLE'
-    | 'UNVALIDATED'
-    | 'SERVER'
-    | 'ALL';
+  sslMethod: SslMethod;
+
   sslCA?: string[];
   sslCert?: any;
   sslKey?: any;
@@ -109,6 +118,7 @@ export interface LegacyConnectionModelProperties {
   lastUsed?: Date;
   isFavorite: boolean;
   name: string;
+  title?: string;
   color?: string;
 }
 
@@ -147,6 +157,22 @@ export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
 export function convertConnectionModelToInfo(
   model: LegacyConnectionModel
 ): ConnectionInfo {
+  // Already migrated
+  if (model.connectionInfo) {
+    const connectionInfo = mergeSecrets(
+      model.connectionInfo,
+      model.secrets ?? {}
+    );
+
+    if (connectionInfo.lastUsed) {
+      // could be parsed from json and be a string
+      connectionInfo.lastUsed = new Date(connectionInfo.lastUsed);
+    }
+
+    return connectionInfo;
+  }
+
+  // Not migrated yet, has to be converted
   const info: ConnectionInfo = {
     id: model._id,
     connectionOptions: {
@@ -187,6 +213,10 @@ export function convertConnectionModelToInfo(
       name: model.name,
       color: model.color,
     };
+  }
+
+  if (model.lastUsed) {
+    info.lastUsed = model.lastUsed;
   }
 
   return info;
@@ -300,7 +330,7 @@ export async function convertConnectionInfoToModel(
 ): Promise<LegacyConnectionModel> {
   const connection: LegacyConnectionModel = await util.promisify(
     ConnectionModel.from
-  )(connectionInfo.connectionOptions.connectionString);
+  )(removeAWSParams(connectionInfo.connectionOptions.connectionString));
 
   const additionalOptions: Partial<LegacyConnectionModelProperties> = {
     _id: connectionInfo.id,
@@ -333,9 +363,14 @@ export async function convertConnectionInfoToModel(
     additionalOptions.color = connectionInfo.favorite.color;
   }
 
+  if (connectionInfo.lastUsed) {
+    additionalOptions.lastUsed = connectionInfo.lastUsed;
+  }
+
   return new ConnectionModel({
     ...connection.toJSON(),
     ...additionalOptions,
+    ...extractSecrets(connectionInfo),
   });
 }
 
@@ -344,49 +379,80 @@ function convertSslOptionsToLegacyProperties(
   properties: Partial<LegacyConnectionModelProperties>
 ): void {
   const url = new ConnectionString(options.connectionString);
-  const tlsAllowInvalidCertificates = url.searchParams.get(
-    'tlsAllowInvalidCertificates'
-  );
-  const tlsAllowInvalidHostnames = url.searchParams.get(
-    'tlsAllowInvalidHostnames'
-  );
   const tlsCAFile = url.searchParams.get('tlsCAFile');
   const tlsCertificateKeyFile = url.searchParams.get('tlsCertificateKeyFile');
   const tlsCertificateKeyFilePassword = url.searchParams.get(
     'tlsCertificateKeyFilePassword'
   );
 
-  if (tlsAllowInvalidCertificates === 'false' && tlsCAFile) {
-    properties.sslMethod = 'SERVER';
-    properties.sslCert = undefined;
-    properties.sslKey = undefined;
-
-    if (options.tlsCertificateFile || tlsCertificateKeyFile) {
-      properties.sslMethod = 'ALL';
-      properties.sslCert = options.tlsCertificateFile ?? tlsCertificateKeyFile;
-      properties.sslKey = tlsCertificateKeyFile ?? undefined;
-      properties.sslPass = tlsCertificateKeyFilePassword ?? undefined;
-    }
-  } else {
-    properties.sslCA = undefined;
-    properties.sslCert = undefined;
-    properties.sslKey = undefined;
-    properties.sslPass = undefined;
-    if (
-      tlsAllowInvalidCertificates === 'true' &&
-      tlsAllowInvalidHostnames === 'true'
-    ) {
-      properties.sslMethod = 'UNVALIDATED';
-    } else if (
-      tlsAllowInvalidCertificates === 'false' &&
-      tlsAllowInvalidHostnames === 'false'
-    ) {
-      properties.sslMethod = 'SYSTEMCA';
-    } else if (
-      tlsAllowInvalidCertificates === 'false' &&
-      tlsAllowInvalidHostnames === 'true'
-    ) {
-      properties.sslMethod = 'IFAVAILABLE';
-    }
+  if (tlsCAFile) {
+    properties.sslCA = [tlsCAFile];
   }
+
+  if (tlsCertificateKeyFile) {
+    properties.sslKey = tlsCertificateKeyFile;
+  }
+
+  if (tlsCertificateKeyFilePassword) {
+    properties.sslPass = tlsCertificateKeyFilePassword;
+  }
+
+  if (options.tlsCertificateFile) {
+    properties.sslCert = options.tlsCertificateFile;
+  }
+
+  properties.sslMethod = optionsToSslMethod(options);
+}
+
+function optionsToSslMethod(options: ConnectionOptions): SslMethod {
+  const url = new ConnectionString(options.connectionString);
+  const tls = url.searchParams.get('tls') || url.searchParams.get('ssl');
+
+  const tlsAllowInvalidCertificates = url.searchParams.get(
+    'tlsAllowInvalidCertificates'
+  );
+  const tlsAllowInvalidHostnames = url.searchParams.get(
+    'tlsAllowInvalidHostnames'
+  );
+
+  const tlsInsecure = url.searchParams.get('tlsInsecure');
+  const tlsCAFile = url.searchParams.get('tlsCAFile');
+  const tlsCertificateKeyFile = url.searchParams.get('tlsCertificateKeyFile');
+
+  if (tls === 'false') {
+    return 'NONE';
+  }
+
+  if (tlsCertificateKeyFile || options.tlsCertificateFile) {
+    return 'ALL';
+  }
+
+  if (tlsCAFile) {
+    return 'SERVER';
+  }
+
+  if (
+    tlsInsecure === 'true' ||
+    (tlsAllowInvalidCertificates === 'true' &&
+      tlsAllowInvalidHostnames === 'true')
+  ) {
+    return 'UNVALIDATED';
+  }
+
+  return 'SYSTEMCA';
+}
+
+// NOTE: MONGODB-AWS was not supported by the old connection model
+// users will now be able to use that, we need to remove it so saving
+// connection won't fail and MONGODB-AWS connections will appear
+// as unauthenticated.
+function removeAWSParams(connectionString: string): string {
+  const url = new ConnectionString(connectionString);
+
+  if (url.searchParams.get('authMechanism') === 'MONGODB-AWS') {
+    url.searchParams.delete('authMechanism');
+    url.searchParams.delete('authMechanismProperties');
+  }
+
+  return url.href;
 }

@@ -4,11 +4,20 @@ import reducer, {
   CHANGE_INSTANCE
 } from './instance';
 
+const instance = {
+  _id: '123',
+  toJSON() {
+    return {_id: this._id};
+  }
+};
+
 describe('sidebar instance', () => {
   describe('#reducer', () => {
     context('when an action is provided', () => {
       it('returns the new state', () => {
-        expect(reducer(undefined, changeInstance('new instance'))).to.equal('new instance');
+        expect(reducer(undefined, changeInstance(instance))).to.deep.equal({
+          _id: '123',
+        });
       });
     });
 

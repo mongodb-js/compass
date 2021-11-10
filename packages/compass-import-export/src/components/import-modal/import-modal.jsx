@@ -207,6 +207,7 @@ class ImportModal extends PureComponent {
     }
     return (
       <TextButton
+        dataTestId="done-button"
         className="btn btn-primary btn-sm"
         text="DONE"
         clickHandler={this.handleClose}
@@ -218,6 +219,7 @@ class ImportModal extends PureComponent {
     if (!this.wasImportSuccessful()) {
       return (
         <TextButton
+          dataTestId="cancel-button"
           className="btn btn-default btn-sm"
           text={
             FINISHED_STATUSES.includes(this.props.status) ? 'Close' : 'Cancel'
@@ -234,6 +236,7 @@ class ImportModal extends PureComponent {
     }
     return (
       <TextButton
+        dataTestId="import-button"
         className="btn btn-primary btn-sm"
         text={this.props.status === STARTED ? 'Importing...' : 'Import'}
         disabled={!this.props.fileName || this.props.status === STARTED}
@@ -284,7 +287,7 @@ class ImportModal extends PureComponent {
     const isGuesstimated = docsTotal === -1;
 
     return (
-      <Modal show={this.props.open} onHide={this.handleClose} backdrop="static">
+      <Modal show={this.props.open} onHide={this.handleClose} backdrop="static" data-test-id="import-modal">
         <Modal.Header closeButton>
           Import To Collection {this.props.ns}
         </Modal.Header>

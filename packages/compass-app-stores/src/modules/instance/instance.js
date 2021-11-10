@@ -6,13 +6,7 @@ export const CHANGE_INSTANCE = 'app/instance/CHANGE_INSTANCE';
 /**
  * The initial state of the instance.
  */
-export const INITIAL_STATE = {
-  databases: null,
-  collections: null,
-  build: {},
-  hostname: 'Retrieving host information',
-  port: ''
-};
+export const INITIAL_STATE = null;
 
 /**
  * Reducer function for handle state changes to instance.

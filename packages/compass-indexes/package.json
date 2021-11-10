@@ -133,6 +133,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@mongodb-js/compass-logging": "^0.3.0",
     "@mongodb-js/mongodb-redux-common": "^1.4.0",
     "lodash.contains": "^2.4.3",
     "lodash.isundefined": "^3.0.1",

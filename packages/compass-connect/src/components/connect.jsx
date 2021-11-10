@@ -3,8 +3,6 @@ import { remote } from 'electron';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from '@mongodb-js/compass-components';
-import ConnectForm from '@mongodb-js/connect-form';
-import { convertConnectionModelToInfo } from 'mongodb-data-service';
 
 import Actions from '../actions';
 import Sidebar from './sidebar';
@@ -19,6 +17,9 @@ import {
   CONNECTION_STRING_VIEW
 } from '../constants/connection-views';
 import styles from './connect.module.less';
+
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
 class Connect extends React.Component {
   static displayName = 'Connect';
@@ -38,6 +39,7 @@ class Connect extends React.Component {
 
   componentDidMount() {
     document.title = `${remote.app.getName()} - Connect`;
+    track('Screen', { name: 'connect' });
   }
 
   /**
@@ -147,11 +149,6 @@ class Connect extends React.Component {
         >
           <Sidebar {...this.props} />
           <div className={styles['form-container']}>
-            {showNewConnectForm && <ConnectForm
-              key={this.props.connectionModel._id}
-              initialConnectionInfo={convertConnectionModelToInfo(this.props.connectionModel)}
-              onConnectClicked={() => Actions.onConnectClicked()}
-            />}
             {!showNewConnectForm && (
               <div
                 className={styles['connect-container']}

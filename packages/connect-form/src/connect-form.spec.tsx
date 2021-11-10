@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 
 import ConnectForm from './connect-form';
@@ -15,14 +15,15 @@ function renderForm() {
           connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
         },
       }}
-      openLink={() => {
-        /* do nothing */
-      }}
     />
   );
 }
 
 describe('ConnectForm Component', function () {
+  afterEach(function () {
+    cleanup();
+  });
+
   it('should show the heading', function () {
     renderForm();
     expect(screen.getByRole('heading')).to.have.text('New Connection');

@@ -1,18 +1,7 @@
 ignores: [
-  "@babel/cli",
-  "@babel/register",
-  "@mongodb-js/compass-auto-updates",
-  "@mongodb-js/compass-metrics",
-  "@mongodb-js/compass-plugin-info",
-  "@mongodb-js/compass-shell",
-  "core-js",
-  "font-awesome",
-  "karma-electron",
-  "karma-sourcemap-loader",
-  "karma-webpack",
-  "mongodb-reflux-store",
+  "@mongodb-js/prettier-config-compass",
+  "@mongodb-js/tsconfig-compass",
+  "eventemitter3",
   "resolve",
-  "webpack-bundle-analyzer",
-  "webpack-cli",
-  "mongodb-compass"
+  "ts-node"
 ]

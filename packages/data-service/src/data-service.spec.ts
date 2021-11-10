@@ -574,12 +574,16 @@ describe('DataService', function () {
         `${testDatabaseName}`,
         {},
         function (err, collections) {
-          assert.equal(null, err);
-          // For <3.2 system.indexes is returned with listCollections
-          expect(collections.length).to.equal(1);
-          expect(collections[0]).to.include.keys(['name', 'options']);
-          expect(collections[0].name).to.equal(testCollectionName);
-          expect(collections[0].options).to.deep.equal({});
+          if (err) {
+            done(err);
+            return;
+          }
+          expect(collections).to.have.lengthOf(1);
+          expect(collections).to.have.nested.property(
+            '[0].name',
+            testCollectionName
+          );
+          expect(collections).to.have.nested.property('[0].type', 'collection');
           done();
         }
       );
@@ -684,7 +688,10 @@ describe('DataService', function () {
   describe('#listDatabases', function () {
     it('returns the databases', function (done) {
       dataService.listDatabases(function (err, databases) {
-        assert.equal(null, err);
+        if (err) {
+          done(err);
+          return;
+        }
         const databaseNames = databases.map((db: any) => db.name);
         if (dataService.isMongos()) {
           expect(databaseNames).to.not.contain('local');
@@ -692,8 +699,6 @@ describe('DataService', function () {
           expect(databaseNames).to.contain('local');
         }
         expect(databaseNames).to.contain(`${testDatabaseName}`);
-
-        expect(databases[0]).to.include.keys(['name', 'sizeOnDisk', 'empty']);
         done();
       });
     });
@@ -715,31 +720,18 @@ describe('DataService', function () {
         `${testDatabaseName}.foo`,
         options,
         function (error) {
-          assert.equal(null, error);
-          dataService.listCollections(
-            `${testDatabaseName}`,
-            {},
-            function (err, items) {
-              assert.equal(null, err);
-              // For <3.2 system.indexes is returned with listCollections
-              expect(items.length).to.equal(2);
-              expect(items[0]).to.include.keys(['name', 'options']);
-              expect(items[1]).to.include.keys(['name', 'options']);
-              expect(items[0].options).to.deep.equal({});
-              expect(items[1].options).to.deep.equal({});
-              if (items[0].name === 'foo') {
-                expect(items[1].name).to.equal(testCollectionName);
-              } else if (items[0].name === testCollectionName) {
-                expect(items[1].name).to.equal('foo');
-              } else {
-                assert(
-                  false,
-                  'Collection returned from listCollections has incorrect name'
-                );
-              }
+          if (error) {
+            done(error);
+            return;
+          }
+          dataService
+            .collectionInfo(testDatabaseName, 'foo')
+            .then((collInfo) => {
+              expect(collInfo).to.have.property('name', 'foo');
+              expect(collInfo).to.have.property('type', 'collection');
               done();
-            }
-          );
+            })
+            .catch(done);
         }
       );
     });
@@ -794,20 +786,15 @@ describe('DataService', function () {
   });
 
   describe('#instance', function () {
-    it('returns the instance', function (done) {
-      dataService.instance(function (err, instance) {
-        expect(err).to.be.eq(null);
-        expect(instance._id).to.not.equal(undefined);
-        expect(instance.databases[0]._id).to.not.equal(undefined);
-        expect(instance.genuineMongoDB).to.deep.equal({
-          isGenuine: true,
-          dbType: 'mongodb',
-        });
-        expect(instance.dataLake).to.deep.equal({
-          isDataLake: false,
-          version: null,
-        });
-        done();
+    it('returns the instance', async function () {
+      const instance = await dataService.instance();
+      expect(instance.genuineMongoDB).to.deep.equal({
+        isGenuine: true,
+        dbType: 'mongodb',
+      });
+      expect(instance.dataLake).to.deep.equal({
+        isDataLake: false,
+        version: null,
       });
     });
   });

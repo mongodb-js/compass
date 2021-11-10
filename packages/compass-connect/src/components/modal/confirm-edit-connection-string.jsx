@@ -49,6 +49,7 @@ class ConfirmEditConnectionString extends PureComponent {
         onConfirm={this.onConfirm}
         onCancel={this.onClose}
         buttonText="Confirm"
+        trackingId="confirm_edit_conection_string_modal"
       >
         <div id="edit-uri-note">{NOTE}</div>
       </ConfirmationModal>

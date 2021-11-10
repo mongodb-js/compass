@@ -40,13 +40,14 @@
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
+    "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "test-cov": "nyc -x \"**/*.spec.*\" npm run test",
     "test-watch": "npm run test -- --watch",
-    "test-ci": "npm run test-cov",
+    "test-ci": "npm run test-electron && npm run test-cov",
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@emotion/react": "^11.4.1",
+    "@emotion/css": "^11.5.0",
     "@mongodb-js/compass-components": "^0.6.0",
     "react": "*",
     "react-dom": "*"
@@ -57,7 +58,7 @@
     "react-dom": "^16.14.0"
   },
   "devDependencies": {
-    "@emotion/react": "^11.4.1",
+    "@emotion/css": "^11.5.0",
     "@mongodb-js/compass-components": "^0.6.0",
     "@mongodb-js/eslint-config-compass": "^0.3.0",
     "@mongodb-js/mocha-config-compass": "^0.4.0",
@@ -79,6 +80,6 @@
     "nyc": "^15.1.0",
     "prettier": "2.3.2",
     "sinon": "^9.2.3",
-    "typescript": "^4.3.5"
+    "xvfb-maybe": "^0.2.1"
   }
 }

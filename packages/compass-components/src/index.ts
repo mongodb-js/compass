@@ -1,5 +1,6 @@
 import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
+import FileInput from './components/file-input';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 export {
   default as Badge,
@@ -24,15 +25,33 @@ export {
   MongoDBLogoMark,
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
+export { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 export { uiColors } from '@leafygreen-ui/palette';
+export * as compassUIColors from './components/compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
 export { Tabs, Tab } from '@leafygreen-ui/tabs';
 export { default as TextArea } from '@leafygreen-ui/text-area';
 export { default as TextInput } from '@leafygreen-ui/text-input';
+export {
+  default as Toast,
+  Variant as ToastVariant,
+} from '@leafygreen-ui/toast';
 export { default as Toggle } from '@leafygreen-ui/toggle';
-export { spacing } from '@leafygreen-ui/tokens';
+export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { default as Tooltip } from '@leafygreen-ui/tooltip';
-export { H3, Link, Description, Label } from '@leafygreen-ui/typography';
-
-export { CancelLoader, ConfirmationModal, ResizeHandle, ResizeDirection };
+export {
+  H2,
+  H3,
+  Link,
+  Subtitle,
+  Label,
+  Description,
+} from '@leafygreen-ui/typography';
+export {
+  CancelLoader,
+  ConfirmationModal,
+  FileInput,
+  ResizeHandle,
+  ResizeDirection,
+};

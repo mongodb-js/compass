@@ -4,6 +4,7 @@ import util from 'util';
 import { ConnectionInfo } from '../connection-info';
 
 import {
+  convertConnectionInfoToModel,
   convertConnectionModelToInfo,
   LegacyConnectionModelProperties,
 } from './legacy-connection-model';
@@ -20,215 +21,258 @@ async function createAndConvertModel(
   return convertConnectionModelToInfo(model);
 }
 
-describe('convertConnectionModelToInfo', function () {
-  it('converts _id', async function () {
-    const { id } = await createAndConvertModel(
-      'mongodb://localhost:27017/admin',
-      { _id: '1234-1234-1234-1234' }
-    );
+describe('LegacyConnectionModel', function () {
+  describe('convertConnectionModelToInfo', function () {
+    it('converts _id', async function () {
+      const { id } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin',
+        { _id: '1234-1234-1234-1234' }
+      );
 
-    expect(id).to.deep.equal('1234-1234-1234-1234');
-  });
+      expect(id).to.deep.equal('1234-1234-1234-1234');
+    });
 
-  it('converts favorite', async function () {
-    const { favorite } = await createAndConvertModel(
-      'mongodb://localhost:27017/admin',
-      {
-        _id: '1234-1234-1234-1234',
-        isFavorite: true,
+    it('converts favorite', async function () {
+      const { favorite } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin',
+        {
+          _id: '1234-1234-1234-1234',
+          isFavorite: true,
+          name: 'Connection 1',
+          color: '#00000',
+        }
+      );
+
+      expect(favorite).to.deep.equal({
         name: 'Connection 1',
         color: '#00000',
-      }
-    );
-
-    expect(favorite).to.deep.equal({
-      name: 'Connection 1',
-      color: '#00000',
+      });
     });
-  });
 
-  it('converts anon local string', async function () {
-    const { connectionOptions } = await createAndConvertModel(
-      'mongodb://localhost:27017/admin',
-      { _id: '1234-1234-1234-1234' }
-    );
+    it('converts lastUsed', async function () {
+      const lastUsed = new Date();
 
-    expect(connectionOptions).to.deep.equal({
-      connectionString:
-        'mongodb://localhost:27017/admin?readPreference=primary&directConnection=true&ssl=false',
+      const { lastUsed: convertedLastUsed } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin',
+        {
+          _id: '1234-1234-1234-1234',
+          lastUsed,
+        }
+      );
+
+      expect(convertedLastUsed).to.deep.equal(lastUsed);
     });
-  });
 
-  it('converts username and password', async function () {
-    const { connectionOptions } = await createAndConvertModel(
-      'mongodb://user:password@localhost/admin',
-      { _id: '1234-1234-1234-1234' }
-    );
+    it('converts anon local string', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin',
+        { _id: '1234-1234-1234-1234' }
+      );
 
-    expect(connectionOptions).to.deep.equal({
-      connectionString:
-        'mongodb://user:password@localhost:27017/admin?authSource=admin&readPreference=primary&directConnection=true&ssl=false',
+      expect(connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb://localhost:27017/admin?readPreference=primary&directConnection=true&ssl=false',
+      });
     });
-  });
 
-  it('converts SSL true', async function () {
-    const { connectionOptions } = await createAndConvertModel(
-      'mongodb://user:password@localhost/admin?ssl=true',
-      { _id: '1234-1234-1234-1234' }
-    );
+    it('converts username and password', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://user:password@localhost/admin',
+        { _id: '1234-1234-1234-1234' }
+      );
 
-    expect(connectionOptions).to.deep.equal({
-      connectionString:
-        'mongodb://user:password@localhost:27017/admin?authSource=admin&readPreference=primary&directConnection=true&ssl=true',
+      expect(connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb://user:password@localhost:27017/admin?authSource=admin&readPreference=primary&directConnection=true&ssl=false',
+      });
     });
-  });
 
-  it('converts sslMethod ALL', async function () {
-    const { connectionOptions } = await createAndConvertModel(
-      'mongodb://user:password@localhost/admin?ssl=true',
-      {
-        _id: '1234-1234-1234-1234',
-        sslMethod: 'ALL',
-        ssl: true,
-        sslCA: ['pathToCaFile'],
-        sslCert: 'pathToCertKey',
-        sslKey: 'pathToCertKey',
-      }
-    );
+    it('converts SSL true', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://user:password@localhost/admin?ssl=true',
+        { _id: '1234-1234-1234-1234' }
+      );
 
-    expect(connectionOptions).to.deep.equal({
-      connectionString:
-        'mongodb://user:password@localhost:27017/admin?' +
-        'authSource=admin&readPreference=primary&directConnection=true' +
-        '&ssl=true' +
-        '&tlsCAFile=pathToCaFile' +
-        '&tlsCertificateKeyFile=pathToCertKey',
+      expect(connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb://user:password@localhost:27017/admin?authSource=admin&readPreference=primary&directConnection=true&ssl=true',
+      });
     });
-  });
 
-  it('stores sslCert as tlsCertificateFile if different from sslKey', async function () {
-    const { connectionOptions } = await createAndConvertModel(
-      'mongodb://user:password@localhost/admin?ssl=true',
-      {
-        _id: '1234-1234-1234-1234',
-        sslMethod: 'ALL',
-        ssl: true,
-        sslCA: ['pathToCaFile'],
-        sslCert: 'pathToCertKey1',
-        sslKey: 'pathToCertKey2',
-      }
-    );
+    it('converts sslMethod ALL', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://user:password@localhost/admin?ssl=true',
+        {
+          _id: '1234-1234-1234-1234',
+          sslMethod: 'ALL',
+          ssl: true,
+          sslCA: ['pathToCaFile'],
+          sslCert: 'pathToCertKey',
+          sslKey: 'pathToCertKey',
+        }
+      );
 
-    expect(connectionOptions).to.deep.equal({
-      connectionString:
-        'mongodb://user:password@localhost:27017/admin?' +
-        'authSource=admin&readPreference=primary&directConnection=true' +
-        '&ssl=true' +
-        '&tlsCAFile=pathToCaFile' +
-        '&tlsCertificateKeyFile=pathToCertKey2',
-      tlsCertificateFile: 'pathToCertKey1',
+      expect(connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb://user:password@localhost:27017/admin?' +
+          'authSource=admin&readPreference=primary&directConnection=true' +
+          '&ssl=true' +
+          '&tlsCAFile=pathToCaFile' +
+          '&tlsCertificateKeyFile=pathToCertKey',
+      });
     });
-  });
 
-  it('converts X509', async function () {
-    const { connectionOptions } = await createAndConvertModel(
-      'mongodb://localhost:27017?&socketTimeoutMS=2000',
-      {
-        _id: '1234-1234-1234-1234',
-        sslMethod: 'ALL',
-        ssl: true,
-        sslCA: ['pathToCaFile'],
-        sslCert: 'pathToCertKey1',
-        sslKey: 'pathToCertKey2',
-        authStrategy: 'X509',
-      }
-    );
+    it('stores sslCert as tlsCertificateFile if different from sslKey', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://user:password@localhost/admin?ssl=true',
+        {
+          _id: '1234-1234-1234-1234',
+          sslMethod: 'ALL',
+          ssl: true,
+          sslCA: ['pathToCaFile'],
+          sslCert: 'pathToCertKey1',
+          sslKey: 'pathToCertKey2',
+        }
+      );
 
-    expect(connectionOptions).to.deep.equal({
-      connectionString:
-        'mongodb://localhost:27017/?authMechanism=MONGODB-X509' +
-        '&socketTimeoutMS=2000' +
-        '&readPreference=primary' +
-        '&directConnection=true' +
-        '&ssl=true' +
-        '&authSource=%24external' +
-        '&tlsAllowInvalidCertificates=true' +
-        '&tlsAllowInvalidHostnames=true' +
-        '&tlsCAFile=pathToCaFile' +
-        '&tlsCertificateKeyFile=pathToCertKey2',
-      tlsCertificateFile: 'pathToCertKey1',
+      expect(connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb://user:password@localhost:27017/admin?' +
+          'authSource=admin&readPreference=primary&directConnection=true' +
+          '&ssl=true' +
+          '&tlsCAFile=pathToCaFile' +
+          '&tlsCertificateKeyFile=pathToCertKey2',
+        tlsCertificateFile: 'pathToCertKey1',
+      });
     });
-  });
 
-  it('converts extra options', async function () {
-    const { connectionOptions } = await createAndConvertModel(
-      'mongodb://localhost:27017?&socketTimeoutMS=2000'
-    );
+    it('converts X509', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017?&socketTimeoutMS=2000',
+        {
+          _id: '1234-1234-1234-1234',
+          sslMethod: 'ALL',
+          ssl: true,
+          sslCA: ['pathToCaFile'],
+          sslCert: 'pathToCertKey1',
+          sslKey: 'pathToCertKey2',
+          authStrategy: 'X509',
+        }
+      );
 
-    expect(connectionOptions).to.deep.equal({
-      connectionString:
-        'mongodb://localhost:27017/' +
-        '?socketTimeoutMS=2000&readPreference=primary&directConnection=true&ssl=false',
+      expect(connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb://localhost:27017/?authMechanism=MONGODB-X509' +
+          '&socketTimeoutMS=2000' +
+          '&readPreference=primary' +
+          '&directConnection=true' +
+          '&ssl=true' +
+          '&authSource=%24external' +
+          '&tlsAllowInvalidCertificates=true' +
+          '&tlsAllowInvalidHostnames=true' +
+          '&tlsCAFile=pathToCaFile' +
+          '&tlsCertificateKeyFile=pathToCertKey2',
+        tlsCertificateFile: 'pathToCertKey1',
+      });
     });
-  });
 
-  it('keeps SRV url intact', async function () {
-    const { connectionOptions } = await createAndConvertModel(
-      'mongodb+srv://compass-data-sets.e06dc.mongodb.net'
-    );
+    it('converts extra options', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017?&socketTimeoutMS=2000'
+      );
 
-    expect(connectionOptions).to.deep.equal({
-      connectionString:
-        'mongodb+srv://compass-data-sets.e06dc.mongodb.net/' +
-        '?replicaSet=compass-data-sets-shard-0&readPreference=primary&authSource=admin&ssl=true',
+      expect(connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb://localhost:27017/' +
+          '?socketTimeoutMS=2000&readPreference=primary&directConnection=true&ssl=false',
+      });
     });
-  });
 
-  it('converts ssh tunnel options (USER_PASSWORD)', async function () {
-    const { connectionOptions } = await createAndConvertModel(
-      'mongodb://localhost:27017',
-      {
-        sshTunnel: 'USER_PASSWORD',
-        sshTunnelHostname: 'jumphost',
-        sshTunnelPort: 22,
-        sshTunnelUsername: 'root',
-      }
-    );
+    it('keeps SRV url intact', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb+srv://compass-data-sets.e06dc.mongodb.net'
+      );
 
-    expect(connectionOptions).to.deep.equal({
-      connectionString:
-        'mongodb://localhost:27017/' +
-        '?readPreference=primary&directConnection=true&ssl=false',
-      sshTunnel: {
-        host: 'jumphost',
-        port: 22,
-        username: 'root',
-      },
+      expect(connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb+srv://compass-data-sets.e06dc.mongodb.net/' +
+          '?replicaSet=compass-data-sets-shard-0&readPreference=primary&authSource=admin&ssl=true',
+      });
     });
-  });
 
-  it('converts ssh tunnel options (IDENTITY_FILE)', async function () {
-    const { connectionOptions } = await createAndConvertModel(
-      'mongodb://localhost:27017',
-      {
-        sshTunnel: 'IDENTITY_FILE',
-        sshTunnelHostname: 'jumphost',
-        sshTunnelPort: 22,
-        sshTunnelUsername: 'root',
-        sshTunnelIdentityFile: 'myfile',
-      }
-    );
+    it('converts ssh tunnel options (USER_PASSWORD)', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017',
+        {
+          sshTunnel: 'USER_PASSWORD',
+          sshTunnelHostname: 'jumphost',
+          sshTunnelPort: 22,
+          sshTunnelUsername: 'root',
+        }
+      );
 
-    expect(connectionOptions).to.deep.equal({
-      connectionString:
-        'mongodb://localhost:27017/' +
-        '?readPreference=primary&directConnection=true&ssl=false',
-      sshTunnel: {
-        host: 'jumphost',
-        port: 22,
-        identityKeyFile: 'myfile',
-        username: 'root',
-      },
+      expect(connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb://localhost:27017/' +
+          '?readPreference=primary&directConnection=true&ssl=false',
+        sshTunnel: {
+          host: 'jumphost',
+          port: 22,
+          username: 'root',
+        },
+      });
+    });
+
+    it('converts ssh tunnel options (IDENTITY_FILE)', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017',
+        {
+          sshTunnel: 'IDENTITY_FILE',
+          sshTunnelHostname: 'jumphost',
+          sshTunnelPort: 22,
+          sshTunnelUsername: 'root',
+          sshTunnelIdentityFile: 'myfile',
+        }
+      );
+
+      expect(connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb://localhost:27017/' +
+          '?readPreference=primary&directConnection=true&ssl=false',
+        sshTunnel: {
+          host: 'jumphost',
+          port: 22,
+          identityKeyFile: 'myfile',
+          username: 'root',
+        },
+      });
+    });
+
+    it('converts ssh tunnel options (IDENTITY_FILE) + passphrase', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017',
+        {
+          sshTunnel: 'IDENTITY_FILE',
+          sshTunnelHostname: 'jumphost',
+          sshTunnelPort: 22,
+          sshTunnelUsername: 'root',
+          sshTunnelIdentityFile: 'myfile',
+          sshTunnelPassphrase: 'passphrase',
+        }
+      );
+
+      expect(connectionOptions).to.deep.equal({
+        connectionString:
+          'mongodb://localhost:27017/' +
+          '?readPreference=primary&directConnection=true&ssl=false',
+        sshTunnel: {
+          host: 'jumphost',
+          port: 22,
+          identityKeyFile: 'myfile',
+          identityKeyPassphrase: 'passphrase',
+          username: 'root',
+        },
+      });
     });
   });
 
@@ -281,6 +325,442 @@ describe('convertConnectionModelToInfo', function () {
         identityKeyPassphrase: 'passphrase',
         username: 'root',
       },
+    });
+  });
+
+  describe('convertConnectionInfoToModel', function () {
+    it('stores connectionInfo and secrets', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://user:password@localhost:27017',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.connectionInfo).to.deep.equal({
+        connectionOptions: {
+          connectionString: 'mongodb://user@localhost:27017/',
+        },
+      });
+
+      expect(connectionModel.secrets).to.deep.equal({
+        password: 'password',
+      });
+    });
+
+    it('converts favorite and history properties', async function () {
+      const id = '1234-1234-1234-1234';
+      const lastUsed = new Date();
+      const connectionInfo: ConnectionInfo = {
+        id,
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+        lastUsed,
+        favorite: {
+          name: 'Local',
+          color: 'blue',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel._id).to.equal(id);
+      expect(connectionModel.isFavorite).to.equal(true);
+      expect(connectionModel.color).to.equal('blue');
+      expect(connectionModel.name).to.equal('Local');
+      expect(connectionModel.lastUsed).to.deep.equal(lastUsed);
+    });
+
+    it('converts authSource', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017/test123?authSource=db1',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.ns).to.equal('test123');
+      expect(connectionModel.authSource).to.equal('db1');
+    });
+
+    it('converts replicaSet', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017/?replicaSet=rs1',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.replicaSet).to.equal('rs1');
+    });
+
+    it('converts readPreference', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://example.com/?readPreference=secondary',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.readPreference).to.equal('secondary');
+    });
+
+    it('converts readPreferenceTags', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://example.com/?readPreferenceTags=tag1:a,tag2:b',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.readPreferenceTags).to.deep.equal([
+        { tag1: 'a', tag2: 'b' },
+      ]);
+    });
+
+    it('converts no auth', async function () {
+      const connectionInfo: ConnectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('NONE');
+      expect(connectionModel.hostname).to.equal('localhost');
+      expect(connectionModel.port).to.equal(27017);
+      expect(connectionModel.mongodbUsername).to.be.undefined;
+      expect(connectionModel.mongodbPassword).to.be.undefined;
+    });
+
+    it('converts username and password', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString: 'mongodb://user:password@localhost:27017',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('MONGODB');
+      expect(connectionModel.hostname).to.equal('localhost');
+      expect(connectionModel.port).to.equal(27017);
+      expect(connectionModel.mongodbUsername).to.equal('user');
+      expect(connectionModel.mongodbPassword).to.equal('password');
+    });
+
+    it('converts kerberos', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-1.example.com:29017/?authMechanism=GSSAPI',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('KERBEROS');
+      expect(connectionModel.hostname).to.equal(
+        'mongodb-kerberos-1.example.com'
+      );
+      expect(connectionModel.port).to.equal(29017);
+      expect(connectionModel.mongodbUsername).to.be.undefined;
+      expect(connectionModel.mongodbPassword).to.be.undefined;
+      expect(connectionModel.kerberosPrincipal).to.equal(
+        'mongodb.user@EXAMPLE.COM'
+      );
+      expect(connectionModel.kerberosServiceName).to.be.undefined;
+      expect(connectionModel.kerberosCanonicalizeHostname).to.equal(false);
+    });
+
+    it('converts kerberos (alternate service name)', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-2.example.com:29018/?authMechanism=GSSAPI&authMechanismProperties=SERVICE_NAME%3Aalternate',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('KERBEROS');
+      expect(connectionModel.hostname).to.equal(
+        'mongodb-kerberos-2.example.com'
+      );
+      expect(connectionModel.port).to.equal(29018);
+      expect(connectionModel.mongodbUsername).to.be.undefined;
+      expect(connectionModel.mongodbPassword).to.be.undefined;
+      expect(connectionModel.kerberosPrincipal).to.equal(
+        'mongodb.user@EXAMPLE.COM'
+      );
+      expect(connectionModel.kerberosServiceName).to.equal('alternate');
+      expect(connectionModel.kerberosCanonicalizeHostname).to.equal(false);
+    });
+
+    it('converts kerberos (canonicalize hostname)', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-2.example.com:29018/?authMechanism=GSSAPI&authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('KERBEROS');
+      expect(connectionModel.hostname).to.equal(
+        'mongodb-kerberos-2.example.com'
+      );
+      expect(connectionModel.port).to.equal(29018);
+      expect(connectionModel.mongodbUsername).to.be.undefined;
+      expect(connectionModel.mongodbPassword).to.be.undefined;
+      expect(connectionModel.kerberosPrincipal).to.equal(
+        'mongodb.user@EXAMPLE.COM'
+      );
+      expect(connectionModel.kerberosServiceName).to.be.undefined;
+      expect(connectionModel.kerberosCanonicalizeHostname).to.equal(true);
+    });
+
+    it('converts LDAP', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://writer%40EXAMPLE.COM:Password1!@localhost:30017/?authMechanism=PLAIN',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('LDAP');
+      expect(connectionModel.ldapUsername).to.equal('writer@EXAMPLE.COM');
+      expect(connectionModel.ldapPassword).to.equal('Password1!');
+    });
+
+    it('converts SCRAM-SHA-1', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://user:password@localhost:27017/?authMechanism=SCRAM-SHA-1',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('MONGODB');
+      expect(connectionModel.authMechanism).to.equal('SCRAM-SHA-1');
+      expect(connectionModel.mongodbUsername).to.equal('user');
+      expect(connectionModel.mongodbPassword).to.equal('password');
+    });
+
+    it('converts SCRAM-SHA-256', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://user:password@localhost:27017/?authMechanism=SCRAM-SHA-256',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('SCRAM-SHA-256');
+      expect(connectionModel.authMechanism).to.equal('SCRAM-SHA-256');
+      expect(connectionModel.mongodbUsername).to.equal('user');
+      expect(connectionModel.mongodbPassword).to.equal('password');
+    });
+
+    it('converts X509', async function () {
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://user@localhost:27017/?authMechanism=MONGODB-X509&tls=true&tlsCertificateKeyFile=file.pem&authSource=$external',
+        },
+      };
+
+      const connectionModel = await convertConnectionInfoToModel(
+        connectionInfo
+      );
+
+      expect(connectionModel.authStrategy).to.equal('X509');
+      expect(connectionModel.sslMethod).to.equal('ALL');
+      expect(connectionModel.ssl).to.equal(true);
+      expect(connectionModel.sslKey).to.equal('file.pem');
+    });
+
+    it('converts tls=false', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://user@localhost:27017/?tls=false',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('NONE');
+    });
+
+    it('converts ssl=false', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://user@localhost:27017/?ssl=false',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('NONE');
+    });
+
+    it('converts tls=true', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://user@localhost:27017/?tls=true',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('SYSTEMCA');
+    });
+
+    it('converts ssl=true', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://user@localhost:27017/?ssl=true',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('SYSTEMCA');
+    });
+
+    it('converts tlsCAFile', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString:
+            'mongodb://user@localhost:27017/?ssl=true&tlsCAFile=file.pem',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('SERVER');
+      expect(connectionModel.sslCA).to.deep.equal(['file.pem']);
+    });
+
+    it('converts tlsCertificateKeyFile and tlsCertificateFile', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString:
+            'mongodb://user@localhost:27017/?ssl=true&tlsCAFile=tlsCAFilePath&tlsCertificateKeyFile=sslKeyPath',
+          tlsCertificateFile: 'sslCertPath',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('ALL');
+      expect(connectionModel.sslCA).to.deep.equal(['tlsCAFilePath']);
+      expect(connectionModel.sslKey).to.equal('sslKeyPath');
+      expect(connectionModel.sslCert).to.equal('sslCertPath');
+    });
+
+    it('converts tlsAllowInvalidCertificates and tlsAllowInvalidHostnames', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString:
+            'mongodb://user@localhost:27017/?ssl=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true',
+        },
+      });
+
+      expect(connectionModel.sslMethod).to.equal('UNVALIDATED');
+    });
+
+    it('converts ssh (USER_PASSWORD)', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+          sshTunnel: {
+            host: 'jumphost',
+            port: 22,
+            username: 'root',
+            password: 'password',
+          },
+        },
+      });
+
+      expect(connectionModel.sshTunnel).to.equal('USER_PASSWORD');
+      expect(connectionModel.sshTunnelHostname).to.equal('jumphost');
+      expect(connectionModel.sshTunnelPort).to.equal(22);
+      expect(connectionModel.sshTunnelUsername).to.equal('root');
+      expect(connectionModel.sshTunnelPassword).to.equal('password');
+    });
+
+    it('converts ssh (IDENTITY_FILE)', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+          sshTunnel: {
+            host: 'jumphost',
+            port: 22,
+            identityKeyFile: 'myfile',
+            username: 'root',
+            identityKeyPassphrase: 'passphrase',
+          },
+        },
+      });
+
+      expect(connectionModel.sshTunnel).to.equal('IDENTITY_FILE');
+      expect(connectionModel.sshTunnelHostname).to.equal('jumphost');
+      expect(connectionModel.sshTunnelPort).to.equal(22);
+      expect(connectionModel.sshTunnelUsername).to.equal('root');
+      expect(connectionModel.sshTunnelIdentityFile).to.equal('myfile');
+      expect(connectionModel.sshTunnelPassphrase).to.equal('passphrase');
+    });
+
+    it('strips out MONGODB-AWS but keeps it in connectionInfo and secrets', async function () {
+      const connectionModel = await convertConnectionInfoToModel({
+        connectionOptions: {
+          connectionString:
+            'mongodb://username@localhost:27017/?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN%3AsessionToken',
+        },
+      });
+
+      expect(connectionModel.authStrategy).to.equal('NONE');
+      expect(
+        connectionModel.connectionInfo.connectionOptions.connectionString
+      ).to.equal(
+        'mongodb://username@localhost:27017/?authMechanism=MONGODB-AWS'
+      );
+
+      expect(connectionModel.secrets.awsSessionToken).to.equal('sessionToken');
+      expect(connectionModel.driverUrlWithSsh).to.equal(
+        'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true'
+      );
     });
   });
 });

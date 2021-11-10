@@ -3,6 +3,12 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { TabNavBar } from 'hadron-react-components';
 import CollectionHeader from '../collection-header';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-COLLECTION-UI');
+
+function trackingIdForTabName(name) {
+  return name.toLowerCase().replace(/ /g, '_');
+}
 
 import styles from './collection.module.less';
 
@@ -32,6 +38,12 @@ class Collection extends Component {
     changeActiveSubTab: PropTypes.func.isRequired
   };
 
+  componentDidMount() {
+    if (this.props.tabs.length) {
+      track('Screen', { name: trackingIdForTabName(this.props.tabs[0]) });
+    }
+  }
+
   onSubTabClicked = (idx, name) => {
     if (this.props.activeSubTab === idx) {
       return;
@@ -41,6 +53,7 @@ class Collection extends Component {
     }
     this.props.localAppRegistry.emit('subtab-changed', name);
     this.props.globalAppRegistry.emit('compass:screen:viewed', { screen: name });
+    track('Screen', { name: trackingIdForTabName(name) });
     this.props.changeActiveSubTab(idx, this.props.id);
   }
 

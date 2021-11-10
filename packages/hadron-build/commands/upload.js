@@ -8,7 +8,7 @@
 const fs = require('fs');
 
 const { Octokit } = require('@octokit/rest');
-const { GithubRepo } = require('./../lib/github-repo');
+const { GithubRepo } = require('@mongodb-js/devtools-github-repo');
 
 const cli = require('mongodb-js-cli')('hadron-build:upload');
 const abortIfError = cli.abortIfError.bind(cli);
