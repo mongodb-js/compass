@@ -109,10 +109,12 @@ class ResultLogger {
     this.context.author =
       process.env.EVERGREEN_AUTHOR || process.env.GITHUB_ACTOR || 'unknown';
 
-    this.context.branch =
-      process.env.EVERGREEN_BRANCH_NAME ||
-      process.env.GITHUB_HEAD_REF ||
-      'unknown';
+    // For an evergreen patch the branch name is set to main which is not what we want
+    this.context.branch = process.env.EVERGREEN_IS_PATCH
+      ? 'evergreen-patch'
+      : process.env.EVERGREEN_BRANCH_NAME ||
+        process.env.GITHUB_HEAD_REF ||
+        'unknown';
 
     // EVERGREEN_REVISION is the ${revision} expansion, but the ${github_commit} one might be better?
     // GITHUB_SHA also doesn't look 100% right.
