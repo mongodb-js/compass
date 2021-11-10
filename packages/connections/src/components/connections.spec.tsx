@@ -52,11 +52,11 @@ describe('Connections Component', function () {
   });
 
   afterEach(function () {
-    cleanup();
     sinon.restore();
 
     TestBackend.disable();
     fs.rmdirSync(tmpDir, { recursive: true });
+    cleanup();
   });
 
   describe('when rendered', function () {
@@ -193,9 +193,9 @@ describe('Connections Component', function () {
           id: savedUnconnectableId,
           connectionOptions: {
             // Hopefully nothing is running on this port.
-            // Times out in 500ms.
+            // Times out in 2000ms.
             connectionString:
-              'mongodb://localhost:27099/?connectTimeoutMS=500&serverSelectionTimeoutMS=500',
+              'mongodb://localhost:28099/?connectTimeoutMS=2000&serverSelectionTimeoutMS=2000',
           },
         })
       );
@@ -219,24 +219,34 @@ describe('Connections Component', function () {
       // Wait for the connection to load in the form.
       await waitFor(() =>
         expect(screen.getByRole('textbox').textContent).to.equal(
-          'mongodb://localhost:27099/?connectTimeoutMS=500&serverSelectionTimeoutMS=500'
+          'mongodb://localhost:28099/?connectTimeoutMS=2000&serverSelectionTimeoutMS=2000'
         )
       );
 
       const connectButton = screen.getByText('Connect');
       fireEvent.click(connectButton);
+
+      // Wait for the connecting... modal to be shown.
+      await waitFor(
+        () =>
+          expect(screen.queryByTestId('cancel-connection-attempt-button')).to.be
+            .visible
+      );
     });
 
     describe('when the connection attempt is cancelled', function () {
       beforeEach(async function () {
-        // Wait for the connecting... modal to be shown.
-        await waitFor(() => expect(screen.getByText('Cancel')).to.be.visible);
-
-        const cancelButton = screen.getByText('Cancel');
+        const cancelButton = screen.getByTestId(
+          'cancel-connection-attempt-button'
+        );
         fireEvent.click(cancelButton);
 
         // Wait for the connecting... modal to hide.
-        await waitFor(() => expect(screen.queryByText('Cancel')).to.not.exist);
+        await waitFor(
+          () =>
+            expect(screen.queryByTestId('cancel-connection-attempt-button')).to
+              .not.exist
+        );
       });
 
       it('should enable the connect button', function () {
