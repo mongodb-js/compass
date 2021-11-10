@@ -122,6 +122,25 @@ export function connectionsReducer(state: State, action: Action): State {
   }
 }
 
+async function loadConnections(
+  dispatch: React.Dispatch<{
+    type: 'set-connections';
+    connections: ConnectionInfo[];
+  }>
+) {
+  try {
+    const connectionStorage = new ConnectionStorage();
+    const loadedConnections = await connectionStorage.loadAll();
+
+    dispatch({
+      type: 'set-connections',
+      connections: loadedConnections,
+    });
+  } catch (error) {
+    debug('error loading connections', error);
+  }
+}
+
 export function useConnections(
   onConnected: (
     connectionInfo: ConnectionInfo,
@@ -130,9 +149,10 @@ export function useConnections(
 ): [
   State,
   {
-    onCancelConnectionAttempt(): void;
-    onConnect(connectionInfo: ConnectionInfo): Promise<void>;
-    updateActiveConnection(newConnectionId?: string | undefined): void;
+    cancelConnectionAttempt(): void;
+    connect(connectionInfo: ConnectionInfo): Promise<void>;
+    createNewConnection(): void;
+    setActiveConnectionById(newConnectionId?: string | undefined): void;
   }
 ] {
   const [state, dispatch] = useReducer(
@@ -160,22 +180,8 @@ export function useConnections(
   }, [isConnected, onConnected]);
 
   useEffect(() => {
-    async function loadConnections() {
-      try {
-        const connectionStorage = new ConnectionStorage();
-        const loadedConnections = await connectionStorage.loadAll();
-
-        dispatch({
-          type: 'set-connections',
-          connections: loadedConnections,
-        });
-      } catch (error) {
-        debug('error loading connections', error);
-      }
-    }
-
     // Load connections after first render.
-    void loadConnections();
+    void loadConnections(dispatch);
 
     return () => {
       // When unmounting, clean up any current connection attempts that have
@@ -192,14 +198,14 @@ export function useConnections(
   return [
     state,
     {
-      onCancelConnectionAttempt() {
+      cancelConnectionAttempt() {
         connectionAttempt?.cancelConnectionAttempt();
 
         dispatch({
           type: 'cancel-connection-attempt',
         });
       },
-      async onConnect(connectionInfo: ConnectionInfo) {
+      async connect(connectionInfo: ConnectionInfo) {
         if (connectionAttempt || isConnected) {
           // Ensure we aren't currently connecting.
           return;
@@ -229,7 +235,7 @@ export function useConnections(
             return;
           }
 
-          // Successful connection
+          // Successfully connected.
           connectedConnectionInfo.current = connectionInfo;
           connectedDataService.current = newConnectionDataService;
 
@@ -250,25 +256,23 @@ export function useConnections(
           });
         }
       },
-      updateActiveConnection(newConnectionId?: string | undefined) {
-        if (newConnectionId) {
-          const connection = connections.find(
-            (connection) => connection.id === newConnectionId
-          );
-          if (connection) {
-            dispatch({
-              type: 'set-active-connection',
-              connectionId: newConnectionId,
-              connectionInfo: connection,
-            });
-            return;
-          }
-        }
-
+      createNewConnection() {
         dispatch({
           type: 'new-connection',
           connectionInfo: createNewConnectionInfo(),
         });
+      },
+      setActiveConnectionById(newConnectionId: string) {
+        const connection = connections.find(
+          (connection) => connection.id === newConnectionId
+        );
+        if (connection) {
+          dispatch({
+            type: 'set-active-connection',
+            connectionId: newConnectionId,
+            connectionInfo: connection,
+          });
+        }
       },
     },
   ];

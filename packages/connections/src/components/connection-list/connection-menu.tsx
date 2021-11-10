@@ -113,7 +113,8 @@ function ConnectionMenu({
       } else {
         dispatch({
           type: 'show-warning-toast',
-          error: 'An error occured when copying to keybaord. Please try again.',
+          error:
+            'An error occurred when copying to clipboard. Please try again.',
         });
       }
     }

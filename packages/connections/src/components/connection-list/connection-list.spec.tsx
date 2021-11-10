@@ -52,8 +52,10 @@ const mockConnections = [
 
 describe('ConnectionList Component', function () {
   let setActiveConnectionIdSpy;
+  let createNewConnectionSpy;
   beforeEach(function () {
     setActiveConnectionIdSpy = sinon.spy();
+    createNewConnectionSpy = sinon.spy();
   });
   describe('when rendered', function () {
     beforeEach(function () {
@@ -61,6 +63,7 @@ describe('ConnectionList Component', function () {
         <ConnectionList
           activeConnectionId={mockConnections[2].id}
           connections={mockConnections}
+          createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
         />
       );
@@ -93,6 +96,7 @@ describe('ConnectionList Component', function () {
         <ConnectionList
           activeConnectionId={mockConnections[2].id}
           connections={mockConnections}
+          createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
         />
       );
@@ -109,9 +113,9 @@ describe('ConnectionList Component', function () {
       );
     });
 
-    it('calls changed active connection id to undefined', function () {
-      expect(setActiveConnectionIdSpy.called).to.equal(true);
-      expect(setActiveConnectionIdSpy.firstCall.args[0]).to.equal(undefined);
+    it('calls create new connection', function () {
+      expect(createNewConnectionSpy.called).to.equal(true);
+      expect(setActiveConnectionIdSpy.called).to.equal(false);
     });
   });
 
@@ -121,6 +125,7 @@ describe('ConnectionList Component', function () {
         <ConnectionList
           activeConnectionId={mockConnections[2].id}
           connections={mockConnections}
+          createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
         />
       );
@@ -153,6 +158,7 @@ describe('ConnectionList Component', function () {
         <ConnectionList
           activeConnectionId={mockConnections[2].id}
           connections={mockConnections}
+          createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
         />
       );

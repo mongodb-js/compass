@@ -66,7 +66,12 @@ function Connections({
       connections,
       isConnected,
     },
-    { onCancelConnectionAttempt, onConnect, updateActiveConnection },
+    {
+      cancelConnectionAttempt,
+      connect,
+      createNewConnection,
+      setActiveConnectionById,
+    },
   ] = useConnections(onConnected);
 
   return (
@@ -79,13 +84,14 @@ function Connections({
       <ResizableSidebar
         activeConnectionId={activeConnectionId}
         connections={connections}
-        setActiveConnectionId={updateActiveConnection}
+        createNewConnection={createNewConnection}
+        setActiveConnectionId={setActiveConnectionById}
       />
       <div className={connectItemContainerStyles}>
         <MongoDBLogo className={logoStyles} color={'green-dark-2'} />
         <div className={formContainerStyles}>
           <ConnectForm
-            onConnectClicked={(connectionInfo) => onConnect(connectionInfo)}
+            onConnectClicked={(connectionInfo) => connect(connectionInfo)}
             initialConnectionInfo={activeConnectionInfo}
             key={activeConnectionId}
           />
@@ -95,7 +101,7 @@ function Connections({
       {!!connectionAttempt && !connectionAttempt.isClosed() && (
         <Connecting
           connectingStatusText={connectingStatusText}
-          onCancelConnectionClicked={onCancelConnectionAttempt}
+          onCancelConnectionClicked={cancelConnectionAttempt}
         />
       )}
     </div>
