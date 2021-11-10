@@ -6,10 +6,14 @@ import SSLTab from './ssl-tab';
 import SSHTunnelTab from './ssh-tunnel-tab';
 import AdvancedTab from './advanced-tab';
 
+interface TabObject {
+  name: string,
+  component: React.FunctionComponent
+}
 
 function AdvancedOptionsTabs(): React.ReactElement {
   
-  function buildTab(tabObject: any, idx: number): React.ReactElement {
+  function buildTab(tabObject: TabObject, idx: number): React.ReactElement {
     const TabComponent = tabObject.component;
     return (
       <Tab
@@ -24,7 +28,7 @@ function AdvancedOptionsTabs(): React.ReactElement {
   
   const [activeTab, setActiveTab] = useState(0)
   
-  const tabs = [
+  const tabs: TabObject[] = [
     { name: 'General', component: GeneralTab},
     { name: 'SSL', component: SSLTab },
     { name: 'SSH Tunnel', component: SSHTunnelTab },
