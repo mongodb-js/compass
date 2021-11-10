@@ -64,10 +64,13 @@ export const INITIAL_STATE = {
 
 /**
  * Check validator as a simple query.
+ * @typedef {Object} Validator
+ * @property {string} syntaxError - The validation error
+ * @property {Object} validator - Parsed validation object
  *
  * @param {String} validator - Validator.
  *
- * @returns {Boolean} Is validator correct.
+ * @returns {Validator}
  */
 export const checkValidator = (validator) => {
   const validation = { syntaxError: null, validator };

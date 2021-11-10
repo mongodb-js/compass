@@ -7,6 +7,8 @@ import { debounce } from 'lodash';
 import { ValidationAutoCompleter } from 'mongodb-ace-autocompleter';
 import { TextButton } from 'hadron-react-buttons';
 import { InfoSprinkle } from 'hadron-react-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { checkValidator } from '../../modules/validation';
 import ValidationSelector from '../validation-selector';
 
 import styles from './validation-editor.module.less';
@@ -16,6 +18,7 @@ import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';
 
 const tools = ace.acequire('ace/ext/language_tools');
+const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
 
 /**
  * Options for the ACE editor.
@@ -93,7 +96,10 @@ class ValidationEditor extends Component {
       textCompleter,
       props.fields
     );
-    this.debounceFetchSampleDocuments = debounce(this.props.fetchSampleDocuments, 750);
+    this.debounceValidatorChanged = debounce((validator, errors) => {
+      this.props.fetchSampleDocuments(validator, errors);
+      this.trackValidator(validator);
+    }, 750);
   }
 
   /**
@@ -138,7 +144,7 @@ class ValidationEditor extends Component {
    */
   onValidatorChange(validator) {
     this.props.validatorChanged(validator);
-    this.updateSampleDocuments();
+    this.validatorChanged();
   }
 
   /**
@@ -151,13 +157,21 @@ class ValidationEditor extends Component {
   }
 
   /**
-   * Update sample documents.
+   * Validator changed.
    */
-  updateSampleDocuments() {
-    this.debounceFetchSampleDocuments(
+  validatorChanged() {
+    this.debounceValidatorChanged(
       this.props.validation.validator,
       this.hasErrors()
     );
+  }
+
+  trackValidator(validator) {
+    const checkedValidator = checkValidator(validator);
+    const trackEvent = {
+      json_schema: Boolean(checkedValidator.validator.$jsonSchema),
+    };
+    track('Schema Validation Edited', trackEvent);
   }
 
   /**
