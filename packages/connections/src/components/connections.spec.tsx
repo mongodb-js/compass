@@ -2,7 +2,13 @@
 const { TestBackend } = require('storage-mixin');
 
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+} from '@testing-library/react';
 import { expect } from 'chai';
 import fs from 'fs';
 import path from 'path';
@@ -46,6 +52,7 @@ describe('Connections Component', function () {
   });
 
   afterEach(function () {
+    cleanup();
     sinon.restore();
 
     TestBackend.disable();
