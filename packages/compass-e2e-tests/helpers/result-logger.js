@@ -165,7 +165,7 @@ class ResultLogger {
   async init() {
     debug('init');
 
-    this.start = Date.now();
+    this.start = Date.now() / 1000;
     if (this.collection) {
       const { insertedId } = await this.collection.insertOne({
         ...this.context,
@@ -183,7 +183,7 @@ class ResultLogger {
 
     const result = {
       test_file,
-      start: Date.now(),
+      start: Date.now() / 1000,
       status: 'start', // evergreen only knows fail, pass, silentfail and skip
     };
 
@@ -198,7 +198,7 @@ class ResultLogger {
     assert.ok(result);
 
     result.status = 'pass';
-    result.end = Date.now();
+    result.end = Date.now() / 1000;
     result.elapsed = result.end - result.start;
   }
 
@@ -210,7 +210,7 @@ class ResultLogger {
     assert.ok(result);
 
     result.status = 'fail';
-    result.end = Date.now();
+    result.end = Date.now() / 1000;
     result.elapsed = result.end - result.start;
     result.error = error.stack;
   }
@@ -218,7 +218,7 @@ class ResultLogger {
   async done(failures) {
     debug('done');
 
-    this.end = Date.now();
+    this.end = Date.now() / 1000;
     this.elapsed = this.end - this.start;
 
     if (this.collection) {
@@ -249,7 +249,7 @@ class ResultLogger {
         result.task_id = process.env.EVERGREEN_TASK_ID;
       }
       if (process.env.EVERGREEN_EXECUTION) {
-        result.execution = process.env.EVERGREEN_EXECUTION;
+        result.execution = parseInt(process.env.EVERGREEN_EXECUTION, 10);
       }
 
       // only include fields that evergreen knows about

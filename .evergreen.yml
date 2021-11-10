@@ -27,6 +27,7 @@ post:
     params:
       local_files_include_filter:
         - src/packages/compass-e2e-tests/.log/**/*.log
+        - src/packages/compass-e2e-tests/.log/**/*.json
   - <<: *save-diagnostic-file
     params:
       local_files_include_filter:
