@@ -183,14 +183,11 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
         }
       );
     } else {
-      instance.on(
-        'change:status',
-        (_model: unknown, status: string) => {
-          if (status === 'error') {
-            onStatusChange(status, instance.statusError);
-          }
+      instance.on('change:status', (_model: unknown, status: string) => {
+        if (status === 'error') {
+          onStatusChange(status, instance.statusError);
         }
-      );
+      });
       instance.on(
         'change:databasesStatus',
         (_model: unknown, status: string) => {
