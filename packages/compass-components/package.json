@@ -56,7 +56,8 @@
     "@leafygreen-ui/tokens": "^0.5.3",
     "@leafygreen-ui/tooltip": "^6.2.2",
     "@leafygreen-ui/typography": "^8.0.2",
-    "@mongodb-js/compass-logging": "^0.3.0"
+    "@mongodb-js/compass-logging": "^0.3.0",
+    "@react-aria/utils": "^3.9.0"
   },
   "peerDependencies": {
     "@emotion/css": "^11.5.0",

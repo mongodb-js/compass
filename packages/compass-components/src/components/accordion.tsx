@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css } from '@emotion/css';
 import Icon from '@leafygreen-ui/icon';
-import { uiColors } from '@leafygreen-ui/palette'
+import { uiColors } from '@leafygreen-ui/palette';
+import { useId } from '@react-aria/utils';
 
 const labelStyles = css({
   padding: 0,
@@ -36,6 +37,7 @@ interface AccordionProps {
 }
 function Accordion(props: React.PropsWithChildren<AccordionProps>) : React.ReactElement {
   const [open, setOpen] = useState(false)
+  const contentId = useId();
   return (
     <div data-testid={props.dataTestId}>
       <div
@@ -47,7 +49,7 @@ function Accordion(props: React.PropsWithChildren<AccordionProps>) : React.React
             className={buttonStyles}
             type="button"
             aria-expanded={ open ? 'true' : 'false' }
-            aria-controls="accordion-children"
+            aria-controls={contentId}
           >
             <Icon glyph={ open ? 'ChevronDown' : 'ChevronRight'} />
             {props.text}  
@@ -56,7 +58,7 @@ function Accordion(props: React.PropsWithChildren<AccordionProps>) : React.React
       </div>
       
       {open && (
-        <div id="accordion-children">
+        <div id={contentId}>
           { props.children }      
         </div>
       )}
