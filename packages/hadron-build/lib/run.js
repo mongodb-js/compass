@@ -1,8 +1,8 @@
-var fs = require('fs');
-var { format, promisify } = require('util');
-var spawn = require('child_process').spawn;
-var which = require('which');
-var debug = require('debug')('hadron-build:run');
+const fs = require('fs');
+const { format, promisify } = require('util');
+const spawn = require('child_process').spawn;
+const which = require('which');
+const debug = require('debug')('hadron-build:run');
 
 /**
  * Gets the absolute path for a `cmd`.
@@ -16,14 +16,14 @@ function getBinPath(cmd, fn) {
       return fn(err);
     }
 
-    fs.exists(bin, function(exists) {
-      if (!exists) {
-        return fn(new Error(format(
-          'Expected file for `%s` does not exist at `%s`',
-          cmd, bin)));
-      }
-      fn(null, bin);
-    });
+    // existsSync is at least not deprecated
+    const exists = fs.existsSync(bin);
+    if (!exists) {
+      return fn(new Error(format(
+        'Expected file for `%s` does not exist at `%s`',
+        cmd, bin)));
+    }
+    fn(null, bin);
   });
 }
 
@@ -34,7 +34,7 @@ function getBinPath(cmd, fn) {
  * nice debugging output when things go wrong!
  *
  * @example
- *  var args = ['--verify', process.env.APP_PATH];
+ *  const args = ['--verify', process.env.APP_PATH];
  *  run('codesign', args, function(err){
  *    if(err){
  *      console.error('codesign verification failed!');
@@ -67,17 +67,17 @@ function run(cmd, args, opts, fn) {
 
     debug('running', { cmd, args });
 
-    var output = [];
-    var proc = spawn(bin, args, opts);
+    const output = [];
+    const proc = spawn(bin, args, opts);
     proc.stdout.on('data', function(buf) {
       buf.toString('utf-8').split('\n').map(function(line) {
-        debug('  %s> %s', cmd, line);
+        debug(`  ${cmd}> ${line}`);
       });
       output.push(buf);
     });
     proc.stderr.on('data', function(buf) {
       buf.toString('utf-8').split('\n').map(function(line) {
-        debug('  %s> %s', cmd, line);
+        debug(`  ${cmd}> ${line}`);
       });
       output.push(buf);
     });
