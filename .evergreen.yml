@@ -414,7 +414,7 @@ tasks:
 
       - func: test
         vars:
-          debug: 'hadron*,mongo*'
+          debug: 'hadron*,mongo*,compass-e2e-tests*'
 
       - func: package
         vars:
