@@ -7,6 +7,8 @@ const StateMixin = require('reflux-state-mixin');
 const { promisify } = require('util');
 const { getConnectionTitle, convertConnectionModelToInfo } = require('mongodb-data-service');
 const debug = require('debug')('compass-connect:store');
+const { isAtlas, isLocalhost, isDigitalOcean } = require('mongodb-build-info');
+const { getCloudInfo } = require('mongodb-cloud-info');
 
 const Actions = require('../actions');
 const {
@@ -19,7 +21,7 @@ const ConnectionCollection = Connection.ConnectionCollection;
 const userAgent = navigator.userAgent.toLowerCase();
 
 const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
+const { log, track, mongoLogId } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
 /**
  * A default driverUrl.
@@ -310,6 +312,14 @@ const Store = Reflux.createStore({
     if (this.state.currentConnectionAttempt) {
       return;
     }
+
+    const { connectionModel } = this.state;
+    const trackEvent = {
+      is_favorite: connectionModel.isFavorite,
+      is_recent: Boolean(connectionModel.lastUsed && !connectionModel.isFavorite),
+      is_new: !connectionModel.lastUsed,
+    };
+    track('Connection Attempt', trackEvent);
 
     this.setState({
       currentConnectionAttempt: createConnectionAttempt(),
@@ -682,6 +692,7 @@ const Store = Reflux.createStore({
 
   /**
    * Resets the connection after clicking on the new connection section.
+   *
    */
   onResetConnectionClicked() {
     this.state.viewType = CONNECTION_STRING_VIEW;
@@ -960,6 +971,40 @@ const Store = Reflux.createStore({
     }
   },
 
+  async _trackConnectionInfo() {
+    const { dataService } = this;
+    const {
+      dataLake,
+      genuineMongoDB,
+      host,
+      build,
+    } = await dataService.instance();
+    const {
+      hostname,
+      authMechanism,
+    } = this.state.connectionModel;
+    const { isAws, isAzure, isGcp } = await getCloudInfo(hostname);
+    const isPublicCloud = isAws || isAzure || isGcp;
+    const publicCloudName = isAws ? 'AWS' : isAzure ? 'Azure' : isGcp ? 'GCP' : '';
+
+    const trackEvent = {
+      is_localhost: isLocalhost(hostname),
+      is_atlas: isAtlas(hostname),
+      is_dataLake: dataLake.isDataLake,
+      is_enterprise: build.isEnterprise,
+      is_public_cloud: isPublicCloud,
+      is_do: isDigitalOcean(hostname),
+      public_cloud_name: publicCloudName,
+      is_genuine: genuineMongoDB.isGenuine,
+      non_genuine_server_name: genuineMongoDB.dbType,
+      server_version: host.kernel_version,
+      server_arch: host.arch,
+      server_os_family: host.os_family,
+      auth_type: authMechanism ?? '',
+    };
+    track('New Connection', trackEvent);
+  },
+
   _onConnectSuccess(dataService, connectionInfo) {
     const connectionModel = this.state.connectionModel;
     const currentSaved = this.state.connections[connectionModel._id];
@@ -996,6 +1041,8 @@ const Store = Reflux.createStore({
     // bar, which is hidden after the instance information is loaded
     // in another plugin.
     this.StatusActions.showIndeterminateProgressBar();
+
+    void this._trackConnectionInfo();
   },
 
   /**
