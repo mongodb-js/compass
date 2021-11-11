@@ -1,11 +1,14 @@
 import EJSON from 'mongodb-extended-json';
 import queryParser from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { fetchSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { isEqual, pick, isObject } from 'lodash';
+
+const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
 
 /**
  * The module action prefix.
@@ -61,10 +64,13 @@ export const INITIAL_STATE = {
 
 /**
  * Check validator as a simple query.
+ * @typedef {Object} Validator
+ * @property {string} syntaxError - The validation error
+ * @property {Object} validator - Parsed validation object
  *
  * @param {String} validator - Validator.
  *
- * @returns {Boolean} Is validator correct.
+ * @returns {Validator}
  */
 export const checkValidator = (validator) => {
   const validation = { syntaxError: null, validator };
@@ -458,6 +464,11 @@ export const saveValidation = (validation) => {
     };
 
     if (dataService) {
+      const trackEvent = {
+        validation_action: validation.validationAction,
+        validation_level: validation.validationLevel,
+      };
+      track('Schema Validation Updated', trackEvent);
       sendMetrics(
         dispatch,
         dataService,

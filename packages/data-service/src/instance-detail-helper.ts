@@ -12,7 +12,7 @@ import {
   CmdLineOpts,
   CollectionInfo,
   CollectionInfoNameOnly,
-  ConnectionStatusWithPriveleges,
+  ConnectionStatusWithPrivileges,
   DatabaseInfo,
   DbStats,
   HostInfo,
@@ -160,33 +160,37 @@ function buildDataLakeInfo(buildInfo: Partial<BuildInfo>): DataLakeDetails {
 type DatabaseCollectionPrivileges = Record<string, Record<string, string[]>>;
 
 export function extractPrivilegesByDatabaseAndCollection(
-  connectionStatus: ConnectionStatusWithPriveleges | null,
+  authenticatedUserPrivileges:
+    | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+    | null = null,
   requiredActions: string[] | null = null
 ): DatabaseCollectionPrivileges {
-  const privileges =
-    connectionStatus?.authInfo?.authenticatedUserPrivileges ?? [];
+  const privileges = authenticatedUserPrivileges ?? [];
 
-  return Object.fromEntries(
-    privileges
-      .filter(({ resource: { db, collection }, actions }) => {
-        return (
-          db &&
-          collection &&
-          (requiredActions
-            ? requiredActions.every((action) => actions.includes(action))
-            : true)
-        );
-      })
-      .map(({ resource: { db, collection }, actions }) => {
-        return [db, { [collection]: actions }];
-      })
-  );
+  const filteredPrivileges =
+    requiredActions && requiredActions.length > 0
+      ? privileges.filter(({ actions }) => {
+          return requiredActions.every((action) => actions.includes(action));
+        })
+      : privileges;
+
+  const result: DatabaseCollectionPrivileges = {};
+
+  for (const {
+    resource: { db, collection },
+    actions,
+  } of filteredPrivileges) {
+    if (result[db]) {
+      Object.assign(result[db], { [collection]: actions });
+    } else {
+      result[db] = { [collection]: actions };
+    }
+  }
+
+  return result;
 }
 
-type DatabasesAndCollectionsNames = {
-  databases: string[];
-  collections: string[];
-};
+type DatabasesAndCollectionsNames = Record<string, Record<string, string[]>>;
 
 export async function getDatabasesAndCollectionsFromPrivileges(
   client: MongoClient,
@@ -198,25 +202,10 @@ export async function getDatabasesAndCollectionsFromPrivileges(
     showPrivileges: true,
   }).catch(ignoreNotAuthorized(null));
 
-  const result: DatabasesAndCollectionsNames = {
-    databases: [],
-    collections: [],
-  };
-
-  if (connectionStatus) {
-    const privileges = extractPrivilegesByDatabaseAndCollection(
-      connectionStatus,
-      requiredActions
-    );
-
-    result.databases = Object.keys(privileges);
-
-    result.collections = Object.values(privileges)
-      .map((collections) => Object.keys(collections))
-      .flat();
-  }
-
-  return result;
+  return extractPrivilegesByDatabaseAndCollection(
+    connectionStatus?.authInfo.authenticatedUserPrivileges,
+    requiredActions
+  );
 }
 
 function isNotAuthorized(err: AnyError) {

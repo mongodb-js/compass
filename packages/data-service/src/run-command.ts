@@ -8,7 +8,7 @@ export type ConnectionStatus = {
   };
 };
 
-export type ConnectionStatusWithPriveleges = ConnectionStatus & {
+export type ConnectionStatusWithPrivileges = ConnectionStatus & {
   authInfo: {
     authenticatedUserPrivileges: {
       resource: { db: string; collection: string };
@@ -100,7 +100,7 @@ interface RunDiagnosticsCommand {
     db: Db,
     spec: { connectionStatus: 1; showPrivileges: true },
     options?: RunCommandOptions
-  ): Promise<ConnectionStatusWithPriveleges>;
+  ): Promise<ConnectionStatusWithPrivileges>;
   (
     db: Db,
     spec: { getCmdLineOpts: 1 },
