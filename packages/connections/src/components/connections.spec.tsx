@@ -105,7 +105,7 @@ describe('Connections Component', function () {
 
       render(<Connections onConnected={onConnectedSpy} />);
 
-      await waitFor(() => expect(screen.getByRole('listitem')).to.be.visible);
+      await waitFor(() => expect(screen.queryByRole('listitem')).to.be.visible);
     });
 
     it('should render the saved connections', function () {
@@ -132,7 +132,7 @@ describe('Connections Component', function () {
 
         // Wait for the connection to load in the form.
         await waitFor(() =>
-          expect(screen.getByRole('textbox').textContent).to.equal(
+          expect(screen.queryByRole('textbox').textContent).to.equal(
             'mongodb://localhost:27018/?readPreference=primary&ssl=false'
           )
         );
@@ -147,7 +147,8 @@ describe('Connections Component', function () {
 
           await waitFor(
             () =>
-              expect(screen.getByTestId('connections-connected')).to.be.visible
+              expect(screen.queryByTestId('connections-connected')).to.be
+                .visible
           );
         });
 
@@ -205,7 +206,7 @@ describe('Connections Component', function () {
       await waitFor(
         () =>
           expect(
-            screen.getByTestId(
+            screen.queryByTestId(
               `saved-connection-button-${savedUnconnectableId}`
             )
           ).to.be.visible
@@ -218,7 +219,7 @@ describe('Connections Component', function () {
 
       // Wait for the connection to load in the form.
       await waitFor(() =>
-        expect(screen.getByRole('textbox').textContent).to.equal(
+        expect(screen.queryByRole('textbox').textContent).to.equal(
           'mongodb://localhost:28099/?connectTimeoutMS=2000&serverSelectionTimeoutMS=2000'
         )
       );
@@ -271,7 +272,7 @@ describe('Connections Component', function () {
 
           // Wait for the connection to load in the form.
           await waitFor(() =>
-            expect(screen.getByRole('textbox').textContent).to.equal(
+            expect(screen.queryByRole('textbox').textContent).to.equal(
               'mongodb://localhost:27018/?readPreference=primary&ssl=false'
             )
           );
@@ -281,7 +282,8 @@ describe('Connections Component', function () {
 
           await waitFor(
             () =>
-              expect(screen.getByTestId('connections-connected')).to.be.visible
+              expect(screen.queryByTestId('connections-connected')).to.be
+                .visible
           );
         });
 
