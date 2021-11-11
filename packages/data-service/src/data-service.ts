@@ -334,9 +334,9 @@ class DataService extends EventEmitter {
             databases[databaseName] || {}
           )
             .filter(
-              // Privileges can have collection name '' that indicates privileges
-              // on all collections in the database, we don't want those
-              // registered as "real" collection names
+              // Privileges can have collection name '' that indicates
+              // privileges on all collections in the database, we don't want
+              // those registered as "real" collection names
               Boolean
             )
             .map((name) => ({ name }));
@@ -404,7 +404,15 @@ class DataService extends EventEmitter {
           'find',
         ]).then((databases) => {
           return {
-            databases: Object.keys(databases).map((name) => ({ name })),
+            databases: Object.keys(databases)
+              .filter(
+                // For the roles created in admin database, the database name
+                // can be '' meaning that it applies to all databases. We can't
+                // meaningfully handle this in the UI so we are filtering these
+                // out
+                Boolean
+              )
+              .map((name) => ({ name })),
           };
         }),
       ]);

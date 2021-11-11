@@ -1392,6 +1392,29 @@ describe('DataService', function () {
         expect(dbs).to.deep.eq(['foo']);
       });
 
+      it('filters out databases with no name from privileges', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            connectionStatus: {
+              authInfo: {
+                authenticatedUserPrivileges: [
+                  {
+                    resource: { db: 'bar', collection: 'bar' },
+                    actions: ['find'],
+                  },
+                  {
+                    resource: { db: '', collection: 'buz' },
+                    actions: ['find'],
+                  },
+                ],
+              },
+            },
+          },
+        });
+        const dbs = (await dataService.listDatabases()).map((db) => db.name);
+        expect(dbs).to.deep.eq(['bar']);
+      });
+
       it('merges databases from listDatabases and privileges', async function () {
         const dataService = createDataServiceWithMockedClient({
           commands: {
@@ -1473,6 +1496,31 @@ describe('DataService', function () {
           (db) => db.name
         );
         expect(dbs).to.deep.eq(['bar']);
+      });
+
+      it('filters out collections with no name from privileges', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            connectionStatus: {
+              authInfo: {
+                authenticatedUserPrivileges: [
+                  {
+                    resource: { db: 'foo', collection: '' },
+                    actions: ['find'],
+                  },
+                  {
+                    resource: { db: 'foo', collection: 'buz' },
+                    actions: ['find'],
+                  },
+                ],
+              },
+            },
+          },
+        });
+        const dbs = (await dataService.listCollections('foo')).map(
+          (db) => db.name
+        );
+        expect(dbs).to.deep.eq(['buz']);
       });
 
       it('merges collections from listCollections and privileges', async function () {
