@@ -309,17 +309,17 @@ const Store = Reflux.createStore({
    * validate instead the existing connection object.
    */
   async onConnectClicked() {
+    if (this.state.currentConnectionAttempt) {
+      return;
+    }
+
     const { connectionModel } = this.state;
     const trackEvent = {
       is_favorite: connectionModel.isFavorite,
       is_recent: Boolean(connectionModel.lastUsed && !connectionModel.isFavorite),
       is_new: !connectionModel.lastUsed,
     };
-    track('Connection Clicked', trackEvent);
-
-    if (this.state.currentConnectionAttempt) {
-      return;
-    }
+    track('Connection Attempt', trackEvent);
 
     this.setState({
       currentConnectionAttempt: createConnectionAttempt(),
