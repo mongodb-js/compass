@@ -167,12 +167,15 @@ export function extractPrivilegesByDatabaseAndCollection(
 ): DatabaseCollectionPrivileges {
   const privileges = authenticatedUserPrivileges ?? [];
 
-  const filteredPrivileges =
+  const filteredPrivileges = (
     requiredActions && requiredActions.length > 0
       ? privileges.filter(({ actions }) => {
           return requiredActions.every((action) => actions.includes(action));
         })
-      : privileges;
+      : privileges
+  ).filter(({ resource }) => {
+    return resource.db && resource.collection;
+  });
 
   const result: DatabaseCollectionPrivileges = {};
 
@@ -214,14 +217,6 @@ function isNotAuthorized(err: AnyError) {
   }
   const msg = err.message || JSON.stringify(err);
   return new RegExp('not (authorized|allowed)').test(msg);
-}
-
-function isMongosLocalException(err: AnyError) {
-  if (!err) {
-    return false;
-  }
-  const msg = err.message || JSON.stringify(err);
-  return new RegExp('database through mongos').test(msg);
 }
 
 function ignoreNotAuthorized<T>(fallback: T): (err: AnyError) => Promise<T> {
