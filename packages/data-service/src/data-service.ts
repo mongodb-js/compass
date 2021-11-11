@@ -69,7 +69,7 @@ import {
 } from './types';
 
 import getPort from 'get-port';
-import { DatabaseInfoNameOnly, DatabaseInfo, runCommand } from './run-command';
+import { runCommand } from './run-command';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -79,6 +79,13 @@ const parseNamespace = require('mongodb-ns');
 const { log, mongoLogId, debug } = createLoggerAndTelemetry(
   'COMPASS-DATA-SERVICE'
 );
+
+function uniqueBy<T extends Record<string, unknown>>(
+  values: T[],
+  key: keyof T
+) {
+  return Array.from(new Map(values.map((val) => [val[key], val])).values());
+}
 
 let id = 0;
 
@@ -235,10 +242,7 @@ class DataService extends EventEmitter {
     collName: string
   ): Promise<CollectionInfo | null> {
     try {
-      const [collInfo] = await promisify(this.listCollections.bind(this))(
-        dbName,
-        { name: collName }
-      );
+      const [collInfo] = await this.listCollections(dbName, { name: collName });
       return collInfo ?? null;
     } catch (err) {
       throw this._translateMessage(err);
@@ -287,164 +291,138 @@ class DataService extends EventEmitter {
 
   /**
    * List all collections for a database.
-   *
-   * @param databaseName - The database name.
-   * @param filter - The filter.
-   * @param callback - The callback.
    */
-  listCollections(
+  async listCollections(
     databaseName: string,
-    filter: Document,
-    options: { nameOnly: true },
-    callback: Callback<ReturnType<typeof adaptCollectionInfo>[]>
-  ): void;
-
-  listCollections(
-    databaseName: string,
-    filter: Document,
-    callback: Callback<ReturnType<typeof adaptCollectionInfo>[]>
-  ): void;
-
-  listCollections(
-    databaseName: string,
-    filter: Document,
-    options:
-      | { nameOnly?: boolean }
-      | Callback<ReturnType<typeof adaptCollectionInfo>[]>,
-    callback?: Callback<ReturnType<typeof adaptCollectionInfo>[]>
-  ): void {
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
+    filter: Document = {},
+    { nameOnly }: { nameOnly?: true } = {}
+  ): Promise<ReturnType<typeof adaptCollectionInfo>[]> {
     const db = this._initializedClient.db(databaseName);
     const logop = this._startLogOp(
       mongoLogId(1_001_000_032),
       'Running listCollections',
-      { db: databaseName, nameOnly: options?.nameOnly ?? false }
+      { db: databaseName, nameOnly: nameOnly ?? false }
     );
-
-    db.listCollections(filter, options as ListCollectionsOptions).toArray(
-      (error, data) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateMessage(error));
-        }
-        callback?.(
-          null,
-          (data ?? []).map((coll) =>
-            adaptCollectionInfo({ db: databaseName, ...coll })
+    try {
+      const [listedCollections, collectionsFromPrivileges] = await Promise.all([
+        db
+          .listCollections(filter, { nameOnly })
+          .toArray()
+          .catch((err) => {
+            // Currently Compass should not fail if listCollections failed for
+            // any possible reason to preserve current behavior. We probably
+            // want this to check at least that what we got back is a server
+            // error and not a weird runtime issue on our side that can be
+            // swallowed in this case, ideally we know exactly what server
+            // errors we want to handle here and only avoid throwing in these
+            // cases
+            //
+            // TODO: https://jira.mongodb.org/browse/COMPASS-5275
+            log.warn(
+              mongoLogId(1_001_000_099),
+              this._logCtx(),
+              'Failed to run listCollections',
+              { message: err.message }
+            );
+            return [] as { name: string }[];
+          }),
+        getDatabasesAndCollectionsFromPrivileges(this._initializedClient, [
+          'find',
+        ]).then((databases) => {
+          return Object.keys(
+            // Privileges might not have a database we are looking for
+            databases[databaseName] || {}
           )
-        );
-      }
-    );
-  }
+            .filter(
+              // Privileges can have collection name '' that indicates privileges
+              // on all collections in the database, we don't want those
+              // registered as "real" collection names
+              Boolean
+            )
+            .map((name) => ({ name }));
+        }),
+      ]);
 
-  /**
-   * Special list collections method that handles pulling collection names from
-   * user privileges when user is not allowed to listCollections on a database.
-   * Compared to the listCollections, this method will never throw
-   *
-   * TODO: Only needed while we are waiting for authorizedCollections: true
-   * support to land in the nodejs driver https://jira.mongodb.org/browse/NODE-3728
-   */
-  listCollectionsNamesOnly(
-    dbName: string,
-    callback: Callback<ReturnType<typeof adaptCollectionInfo>[]>
-  ): void {
-    const listCollectionsAsync = promisify(this.listCollections.bind(this)) as (
-      // Promisify doesn't extract correct types from the method because of the
-      // overloads so we have to convince it that the arguments we provide are
-      // fine
-      dbName: string,
-      filter: Document,
-      options: { nameOnly: true; authorizedCollections?: true }
-    ) => Promise<ReturnType<typeof adaptCollectionInfo>[]>;
+      const collections = uniqueBy(
+        // NB: Order is important, we want listed collections to take precedence
+        // if they were fetched successfully
+        [...collectionsFromPrivileges, ...listedCollections],
+        'name'
+      ).map((coll) => adaptCollectionInfo({ db: databaseName, ...coll }));
 
-    void Promise.all([
-      getDatabasesAndCollectionsFromPrivileges(this._initializedClient, [
-        'find',
-      ]).catch(() => ({ collections: [] })),
-      listCollectionsAsync(
-        dbName,
-        {},
-        {
-          nameOnly: true,
-          // TODO: This does nothing right now, see note above
-          authorizedCollections: true,
-        }
-      ).catch(() => []),
-    ]).then(([{ collections }, collectionsInfo]) => {
-      if (collectionsInfo.length > 0) {
-        callback(null, collectionsInfo);
-        return;
-      }
-      if (collections.length > 0) {
-        callback(
-          null,
-          collections.map((name) => adaptCollectionInfo({ name, db: dbName }))
-        );
-        return;
-      }
-      callback(null, []);
-    });
+      logop(null, { collectionsCount: collections.length });
+
+      return collections;
+    } catch (err) {
+      logop(err);
+      throw err;
+    }
   }
 
   /**
    * List all databases on the currently connected instance.
-   *
-   * @param callback - The callback.
    */
-  listDatabases(
-    callback: Callback<ReturnType<typeof adaptDatabaseInfo>[]>
-  ): void;
-
-  listDatabases(
-    options: { nameOnly: true },
-    callback: Callback<ReturnType<typeof adaptDatabaseInfo>[]>
-  ): void;
-
-  listDatabases(
-    optionsOrCallback:
-      | { nameOnly: true }
-      | Callback<ReturnType<typeof adaptDatabaseInfo>[]>,
-    callback?: Callback<ReturnType<typeof adaptDatabaseInfo>[]>
-  ): void {
-    let options: { nameOnly: true } | null = null;
-
-    if (typeof optionsOrCallback === 'function') {
-      callback = optionsOrCallback;
-    } else {
-      options = optionsOrCallback;
-    }
-
+  async listDatabases({
+    nameOnly,
+  }: {
+    nameOnly?: true;
+  } = {}): Promise<ReturnType<typeof adaptDatabaseInfo>[]> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_033),
       'Running listDatabases',
-      { nameOnly: options?.nameOnly ?? false }
+      { nameOnly: nameOnly ?? false }
     );
 
-    this._initializedClient
-      .db('admin')
-      .command(
-        { listDatabases: 1, ...options },
-        { readPreference: this.getReadPreference() },
-        (error, result) => {
-          logop(error);
-          if (error) {
-            // @ts-expect-error Callback without result...
-            return callback(this._translateMessage(error));
-          }
-          callback?.(
-            null,
-            result?.databases.map(
-              (db: DatabaseInfoNameOnly & Partial<DatabaseInfo>) =>
-                adaptDatabaseInfo({ db: db.name, ...db })
-            )
+    const adminDb = this._initializedClient.db('admin');
+
+    try {
+      const [listedDatabases, databasesFromPrivileges] = await Promise.all([
+        runCommand(adminDb, { listDatabases: 1, nameOnly } as {
+          listDatabases: 1;
+        }).catch((err) => {
+          // Currently Compass should not fail if listDatabase failed for any
+          // possible reason to preserve current behavior. We probably want this
+          // to check at least that what we got back is a server error and not a
+          // weird runtime issue on our side that can be swallowed in this case,
+          // ideally we know exactly what server errors we want to handle here
+          // and only avoid throwing in these cases
+          //
+          // TODO: https://jira.mongodb.org/browse/COMPASS-5275
+          log.warn(
+            mongoLogId(1_001_000_098),
+            this._logCtx(),
+            'Failed to run listDatabases',
+            { message: err.message }
           );
-        }
-      );
+          return { databases: [] };
+        }),
+        // If we somehow failed to get user privileges to get a fallback for the
+        // databases/collections, we do want to hard fail, there is no good
+        // reason this command will ever fail, unless server is in a bad shape
+        // or we messed something up
+        getDatabasesAndCollectionsFromPrivileges(this._initializedClient, [
+          'find',
+        ]).then((databases) => {
+          return {
+            databases: Object.keys(databases).map((name) => ({ name })),
+          };
+        }),
+      ]);
+
+      const databases = uniqueBy(
+        // NB: Order is important, we want listed collections to take precedence
+        // if they were fetched successfully
+        [...databasesFromPrivileges.databases, ...listedDatabases.databases],
+        'name'
+      ).map((db) => adaptDatabaseInfo({ db: db.name, ...db }));
+
+      logop(null, { databasesCount: databases.length });
+
+      return databases;
+    } catch (err) {
+      logop(err);
+      throw err;
+    }
   }
 
   async connect(): Promise<void> {
@@ -1757,17 +1735,14 @@ class DataService extends EventEmitter {
     // actively being used because it means that the server has to
     // acquire fewer locks on the collections:
     // https://jira.mongodb.org/browse/SERVER-34244
-    this.listCollections(
-      databaseName,
-      {},
-      { nameOnly: true },
-      (error, collections) => {
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateMessage(error));
-        }
+    this.listCollections(databaseName, {}, { nameOnly: true }).then(
+      (collections) => {
         const names = collections?.map((c) => c.name);
         callback(null, names);
+      },
+      (error) => {
+        // @ts-expect-error Callback without result...
+        callback(this._translateMessage(error));
       }
     );
   }
