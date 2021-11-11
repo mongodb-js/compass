@@ -1,13 +1,12 @@
 /* eslint react/no-multi-comp:0 */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StatusRow, Tooltip, ZeroState } from 'hadron-react-components';
+import { StatusRow, ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
 import { CancelLoader } from '@mongodb-js/compass-components';
 import Field from '../field';
 import AnalysisCompleteMessage from '../analysis-complete-message';
 import ZeroGraphic from '../zero-graphic';
-import CONSTANTS from '../../constants/schema';
 import get from 'lodash.get';
 import classnames from 'classnames';
 
@@ -224,9 +223,6 @@ class Schema extends Component {
           {this.renderBanner()}
         </div>
         {this.renderContent()}
-        <Tooltip
-          id={CONSTANTS.SCHEMA_PROBABILITY_PERCENT}
-          className="opaque-tooltip" />
       </div>
     );
   }
