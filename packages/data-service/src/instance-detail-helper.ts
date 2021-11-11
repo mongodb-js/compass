@@ -174,7 +174,7 @@ export function extractPrivilegesByDatabaseAndCollection(
         })
       : privileges
   ).filter(({ resource }) => {
-    return resource.db && resource.collection;
+    return resource.db;
   });
 
   const result: DatabaseCollectionPrivileges = {};
