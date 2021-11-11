@@ -105,6 +105,10 @@ class ResultLogger {
       : 'unknown';
 
     this.context.platform = process.platform;
+    // this way we should be able to distinguish between ubuntu and rhel on
+    // evergreen and linux on github actions
+    this.context.os =
+      process.env.EVERGREEN_BUILD_VARIANT || process.env.RUNNER_OS || 'unknown';
 
     this.context.author =
       process.env.EVERGREEN_AUTHOR || process.env.GITHUB_ACTOR || 'unknown';
