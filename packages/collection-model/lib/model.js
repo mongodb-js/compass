@@ -9,7 +9,7 @@ const CollectionModel = AmpersandModel.extend({
   props: {
     _id: 'string',
 
-    // Normalized values from listCollections command
+    // Normalized values from collectionInfo command
     name: { type: 'string', required: true },
     database: { type: 'string', required: true },
     type: { type: 'string', required: true },
@@ -20,6 +20,7 @@ const CollectionModel = AmpersandModel.extend({
     specialish: { type: 'boolean', required: true },
     normal: { type: 'boolean', required: true },
     readonly: 'boolean',
+    view_on: 'string',
     collation: 'object',
     pipeline: 'array',
     validation: 'object',
@@ -68,36 +69,48 @@ const CollectionCollection = AmpersandCollection.extend({
   model: CollectionModel,
   /**
    * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
-   * @returns
+   * @returns {Promise<void>}
    */
-  fetch({ dataService }) {
-    return new Promise((resolve, reject) => {
-      const databaseName = this.parent && this.parent.getId();
+  async fetch({ dataService, fetchInfo = true }) {
+    const listCollectionsAsync = promisify(
+      dataService.listCollections.bind(dataService)
+    );
+    const listCollectionsNameOnlyAsync = promisify(
+      dataService.listCollectionsNamesOnly.bind(dataService)
+    );
 
-      if (!databaseName) {
-        throw new Error(
-          "Trying to fetch MongoDBCollectionCollection that doesn't have the parent model"
-        );
+    const databaseName = this.parent && this.parent.getId();
+
+    if (!databaseName) {
+      throw new Error(
+        "Trying to fetch MongoDBCollectionCollection that doesn't have the parent model"
+      );
+    }
+
+    let collections = [];
+
+    // When trying to fetch additional information about collections during
+    // collection list fetch we want to fallback to the nameOnly method that
+    // requires less privileges in case user is missing some required ones
+    if (fetchInfo) {
+      try {
+        collections = await listCollectionsAsync(databaseName, {});
+      } catch (e) {
+        collections = await listCollectionsNameOnlyAsync(databaseName);
       }
+    } else {
+      collections = await listCollectionsNameOnlyAsync(databaseName);
+    }
 
-      dataService.listCollectionsNamesOnly(databaseName, (err, collections) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(
-          this.set(
-            collections.filter((coll) => {
-              // TODO: This is not the best place to do this kind of
-              // filtering, but for now this preserves the current behavior
-              // and changing it right away will expand the scope of the
-              // refactor significantly. We can address this in COMPASS-5211
-              return toNs(`${databaseName}.${coll.name}`).system === false;
-            })
-          )
-        );
-      });
-    });
+    this.set(
+      collections.filter((coll) => {
+        // TODO: This is not the best place to do this kind of
+        // filtering, but for now this preserves the current behavior
+        // and changing it right away will expand the scope of the
+        // refactor significantly. We can address this in COMPASS-5211
+        return toNs(coll._id).system === false;
+      })
+    );
   },
 });
 
