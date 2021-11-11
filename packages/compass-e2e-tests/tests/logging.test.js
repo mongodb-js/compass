@@ -83,9 +83,10 @@ describe('Logging and Telemetry integration', function () {
       it('tracks an event for an attempt to establish a new connection', function () {
         const connectionAttempt = telemetry
           .events()
-          .find((entry) => entry.event === 'Connection Attempt');
+          .find((entry) => entry.event === 'Connection Clicked');
         expect(connectionAttempt.properties.is_favorite).to.equal(false);
         expect(connectionAttempt.properties.is_recent).to.equal(false);
+        expect(connectionAttempt.properties.is_new).to.equal(true);
       });
 
       it('tracks an event when a connection is established', function () {

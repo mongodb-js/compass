@@ -15,10 +15,6 @@ const {
   CONNECTION_FORM_VIEW,
   CONNECTION_STRING_VIEW
 } = require('../constants/connection-views');
-const {
-  CONNECTION_ENTRY_NEW,
-  CONNECTION_ENTRY_RECENT,
-} = require('../constants/connection-entry');
 const { createConnectionAttempt } = require('../modules/connection-attempt');
 
 const ConnectionCollection = Connection.ConnectionCollection;
@@ -153,9 +149,7 @@ const Store = Reflux.createStore({
       isURIEditable: true,
       isEditURIConfirm: false,
       isSavedConnection: false,
-      savedMessage: 'Saved to favorites',
-      // Entry to the connection form view (new, recent, favorite)
-      connectionEntry: CONNECTION_ENTRY_NEW,
+      savedMessage: 'Saved to favorites'
     };
   },
 
@@ -318,9 +312,10 @@ const Store = Reflux.createStore({
     const { connectionModel } = this.state;
     const trackEvent = {
       is_favorite: connectionModel.isFavorite,
-      is_recent: this.state.connectionEntry === CONNECTION_ENTRY_RECENT,
+      is_recent: Boolean(connectionModel.lastUsed && !connectionModel.isFavorite),
+      is_new: !connectionModel.lastUsed,
     };
-    track('Connection Attempt', trackEvent);
+    track('Connection Clicked', trackEvent);
 
     if (this.state.currentConnectionAttempt) {
       return;
@@ -555,9 +550,8 @@ const Store = Reflux.createStore({
    * Selects a saved connection.
    *
    * @param {Connection} connection - The connection to select.
-   * @param {String} connectionEntry - The connection form entry.
    */
-  onConnectionSelected(connection, connectionEntry) {
+  onConnectionSelected(connection) {
     this.state.connectionModel.set({ name: 'Local', color: undefined });
     this.state.connectionModel.set(connection);
     this.trigger(this.state);
@@ -571,8 +565,7 @@ const Store = Reflux.createStore({
       isHostChanged: true,
       isPortChanged: true,
       customUrl: this.state.connectionModel.safeUrl,
-      hasUnsavedChanges: false,
-      connectionEntry,
+      hasUnsavedChanges: false
     });
   },
 
@@ -700,10 +693,8 @@ const Store = Reflux.createStore({
   /**
    * Resets the connection after clicking on the new connection section.
    *
-   * @param {String} connectionEntry The connection form entry
    */
-  onResetConnectionClicked(connectionEntry) {
-    this.state.connectionEntry = connectionEntry;
+  onResetConnectionClicked() {
     this.state.viewType = CONNECTION_STRING_VIEW;
     this.state.savedMessage = 'Saved to favorites';
     this.state.connectionModel = new Connection();
