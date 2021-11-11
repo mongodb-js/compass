@@ -983,7 +983,12 @@ const Store = Reflux.createStore({
       hostname,
       authMechanism,
     } = this.state.connectionModel;
-    const { isAws, isAzure, isGcp } = await getCloudInfo(hostname);
+    const { isAws, isAzure, isGcp } = await getCloudInfo(hostname)
+      .catch((err) => {
+        debug('getCloudInfo failed', err);
+        return {};
+      });
+
     const isPublicCloud = isAws || isAzure || isGcp;
     const publicCloudName = isAws ? 'AWS' : isAzure ? 'Azure' : isGcp ? 'GCP' : '';
 
@@ -1042,7 +1047,9 @@ const Store = Reflux.createStore({
     // in another plugin.
     this.StatusActions.showIndeterminateProgressBar();
 
-    void this._trackConnectionInfo();
+    void this._trackConnectionInfo().catch((err) => {
+      debug('_trackConnectionInfo failed', err);
+    });
   },
 
   /**
