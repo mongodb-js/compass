@@ -61,6 +61,7 @@
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.9.0",
     "@mongodb-js/compass-crud": "^12.15.0",
+    "@mongodb-js/compass-logging": "^0.3.0",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
     "brace": "^0.11.1",
