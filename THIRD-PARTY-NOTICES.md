@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Wed Nov 10 2021.
+This document was automatically generated on Thu Nov 11 2021.
 
 ## List of dependencies
 
@@ -1498,7 +1498,7 @@ Authors:
 
 <a id="0246a09057539905cb79d6da85f9ec38a0e098bb0f85e64989fa7adffdee8a37"></a>
 ### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.0.0-beta.0)
-<!-- initially found at packages/compass/node_modules/kerberos -->
+<!-- initially found at node_modules/kerberos -->
 > Kerberos library for Node.js
 
 License tags: Apache-2.0
@@ -2490,7 +2490,7 @@ Authors:
 
 <a id="41cf4a77f0b640214c5bcc5fa57dc986f9dc30676e63e34e74f23b134fe518e0"></a>
 ### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 4.2.0)
-<!-- initially found at packages/compass/node_modules/kerberos/node_modules/node-addon-api -->
+<!-- initially found at node_modules/kerberos/node_modules/node-addon-api -->
 > Node.js API (Node-API)
 
 License tags: MIT
