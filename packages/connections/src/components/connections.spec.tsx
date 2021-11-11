@@ -123,7 +123,7 @@ describe('Connections Component', function () {
       expect(screen.getByText('localhost:27018')).to.be.visible;
     });
 
-    describe('when the saved connection is clicked on', function () {
+    describe('when the saved connection is clicked on and connected to', function () {
       beforeEach(async function () {
         const savedConnectionButton = screen.getByTestId(
           `saved-connection-button-${savedConnectionId}`
@@ -136,43 +136,34 @@ describe('Connections Component', function () {
             'mongodb://localhost:27018/?readPreference=primary&ssl=false'
           )
         );
+
+        const connectButton = screen.getByText('Connect');
+        fireEvent.click(connectButton);
+
+        await waitFor(
+          () =>
+            expect(screen.queryByTestId('connections-connected')).to.be.visible
+        );
       });
 
-      describe('when connect is clicked', function () {
-        beforeEach(async function () {
-          expect(onConnectedSpy.called).to.equal(false);
+      afterEach(async function () {
+        await onConnectedSpy.firstCall?.args[1].disconnect().catch(console.log);
+      });
 
-          const connectButton = screen.getByText('Connect');
-          fireEvent.click(connectButton);
-
-          await waitFor(
-            () =>
-              expect(screen.queryByTestId('connections-connected')).to.be
-                .visible
-          );
+      it('should emit the connection configuration used to connect', function () {
+        expect(onConnectedSpy.firstCall.args[0]).to.deep.equal({
+          id: savedConnectionId,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27018/?readPreference=primary&ssl=false',
+          },
         });
+      });
 
-        afterEach(async function () {
-          await onConnectedSpy.firstCall.args[1]
-            .disconnect()
-            .catch(console.log);
-        });
-
-        it('should emit the connection configuration used to connect', function () {
-          expect(onConnectedSpy.firstCall.args[0]).to.deep.equal({
-            id: savedConnectionId,
-            connectionOptions: {
-              connectionString:
-                'mongodb://localhost:27018/?readPreference=primary&ssl=false',
-            },
-          });
-        });
-
-        it('should emit the data service', function () {
-          expect(onConnectedSpy.firstCall.args[1].isWritable).to.not.equal(
-            undefined
-          );
-        });
+      it('should emit the data service', function () {
+        expect(onConnectedSpy.firstCall.args[1].isWritable).to.not.equal(
+          undefined
+        );
       });
     });
   });
