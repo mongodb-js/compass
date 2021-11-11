@@ -96,8 +96,8 @@ class ValidationEditor extends Component {
       textCompleter,
       props.fields
     );
-    this.debounceValidatorChanged = debounce((validator, errors) => {
-      this.props.fetchSampleDocuments(validator, errors);
+    this.debounceValidatorChanged = debounce((validator, hasErrors) => {
+      this.props.fetchSampleDocuments(validator, hasErrors);
       this.trackValidator(validator);
     }, 750);
   }
