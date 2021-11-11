@@ -326,6 +326,18 @@ function viewSubMenu() {
           BrowserWindow.getFocusedWindow()?.webContents.toggleDevTools();
         },
       },
+      {
+        label: 'Darkmode Enable (Preview)',
+        click: function() {
+          ipcMain.broadcast('app:darkreader-enable');
+        }
+      },
+      {
+        label: 'Darkmode Disable (Preview)',
+        click: function() {
+          ipcMain.broadcast('app:darkreader-disable');
+        }
+      },
     ],
   };
 }
