@@ -1,6 +1,5 @@
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
-const { promisify } = require('util');
 const {
   Collection: MongoDbCollectionCollection,
 } = require('mongodb-collection-model');
@@ -157,10 +156,7 @@ const DatabaseCollection = AmpersandCollection.extend(
      * @returns {Promise<void>}
      */
     async fetch({ dataService }) {
-      const listDatabasesAsync = promisify(
-        dataService.listDatabases.bind(dataService, { nameOnly: true })
-      );
-      const dbs = await listDatabasesAsync();
+      const dbs = await dataService.listDatabases({ nameOnly: true });
       this.set(dbs.map(({ _id, name }) => ({ _id, name })));
     },
 

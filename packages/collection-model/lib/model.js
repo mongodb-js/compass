@@ -235,14 +235,7 @@ const CollectionCollection = AmpersandCollection.extend(
      * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
-    async fetch({ dataService, fetchInfo = false }) {
-      const listCollectionsAsync = promisify(
-        dataService.listCollections.bind(dataService)
-      );
-      const listCollectionsNameOnlyAsync = promisify(
-        dataService.listCollectionsNamesOnly.bind(dataService)
-      );
-
+    async fetch({ dataService, fetchInfo = true }) {
       const databaseName = this.parent && this.parent.getId();
 
       if (!databaseName) {
@@ -251,20 +244,11 @@ const CollectionCollection = AmpersandCollection.extend(
         );
       }
 
-      let collections = [];
-
-      // When trying to fetch additional information about collections during
-      // collection list fetch we want to fallback to the nameOnly method that
-      // requires less privileges in case user is missing some required ones
-      if (fetchInfo) {
-        try {
-          collections = await listCollectionsAsync(databaseName, {});
-        } catch (e) {
-          collections = await listCollectionsNameOnlyAsync(databaseName);
-        }
-      } else {
-        collections = await listCollectionsNameOnlyAsync(databaseName);
-      }
+      const collections = await dataService.listCollections(
+        databaseName,
+        {},
+        { nameOnly: !fetchInfo }
+      );
 
       this.set(
         collections
