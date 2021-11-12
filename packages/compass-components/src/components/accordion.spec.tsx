@@ -18,10 +18,6 @@ function renderAccordion() {
 }
 
 describe('Accordion Component', function () {
-  
-  beforeEach(function () {
-  
-  });
 
   afterEach(function () {
     cleanup();

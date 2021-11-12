@@ -37,19 +37,21 @@ interface AccordionProps {
 }
 function Accordion(props: React.PropsWithChildren<AccordionProps>) : React.ReactElement {
   const [open, setOpen] = useState(false)
-  const contentId = useId();
+  const regionId = useId('region-');
+  const labelId = useId('label-');
   return (
     <div data-testid={props.dataTestId}>
       <div
         className={containerStyles}
-        onClick={(e) => setOpen(!open)}
       >
-        <p className={labelStyles} >
+        <p className={labelStyles} id={labelId}>
           <button
             className={buttonStyles}
             type="button"
             aria-expanded={ open ? 'true' : 'false' }
-            aria-controls={contentId}
+            aria-controls={regionId}
+            onClick={() => setOpen(!open)}
+
           >
             <Icon glyph={ open ? 'ChevronDown' : 'ChevronRight'} />
             {props.text}  
@@ -58,7 +60,7 @@ function Accordion(props: React.PropsWithChildren<AccordionProps>) : React.React
       </div>
       
       {open && (
-        <div id={contentId}>
+        <div role="region" aria-labelledby={labelId} id={regionId}>
           { props.children }      
         </div>
       )}

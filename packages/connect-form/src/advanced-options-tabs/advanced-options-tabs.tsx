@@ -11,20 +11,20 @@ interface TabObject {
   component: React.FunctionComponent
 }
 
+function renderTab(tabObject: TabObject, idx: number): React.ReactElement {
+  const TabComponent = tabObject.component;
+  return (
+    <Tab
+      key={idx}
+      name={tabObject.name}
+      aria-label={tabObject.name}
+    >
+      <TabComponent />
+    </Tab>
+  )
+}
 function AdvancedOptionsTabs(): React.ReactElement {
   
-  function buildTab(tabObject: TabObject, idx: number): React.ReactElement {
-    const TabComponent = tabObject.component;
-    return (
-      <Tab
-        key={idx}
-        name={tabObject.name}
-        aria-label={tabObject.name}
-      >
-        <TabComponent />
-      </Tab>
-    )
-  }
   
   const [activeTab, setActiveTab] = useState(0)
   
@@ -36,7 +36,7 @@ function AdvancedOptionsTabs(): React.ReactElement {
   ]
   return (
     <Tabs setSelected={setActiveTab} selected={activeTab} aria-label="Advanced Options Tabs">
-      { tabs.map(buildTab)}
+      { tabs.map(renderTab)}
     </Tabs>
     
   )
