@@ -11,6 +11,10 @@ const debug = createDebug('compass-collection-stats:store');
  */
 const INVALID = 'N/A';
 
+function isNumber(val) {
+  return typeof val === 'number' && !isNaN(val);
+}
+
 const store = Reflux.createStore({
   /**
    * adds a state to the store, similar to React.Component's state
@@ -24,7 +28,7 @@ const store = Reflux.createStore({
   updateCollectionDetails(collection) {
     const newState = {
       namespace: collection.ns,
-      isReadonly: collection.readonly,
+      isReadonly: Boolean(collection.readonly),
       isTimeSeries: collection.type === 'timeseries',
       ...this._formatCollectionStats(collection),
     };
@@ -48,22 +52,26 @@ const store = Reflux.createStore({
       indexCount: INVALID,
       totalIndexSize: INVALID,
       avgIndexSize: INVALID,
-      rawDocumentCount: 0,
-      rawTotalDocumentSize: 0,
-      rawAvgDocumentSize: 0,
-      rawIndexCount: 0,
-      rawTotalIndexSize: 0,
-      rawAvgIndexSize: 0,
     };
   },
 
   _formatCollectionStats(collectionModel) {
-    const { document_count, document_size, index_count, index_size } =
+    const { document_count, document_size, index_count, index_size, status } =
       collectionModel;
 
+    if (['initial', 'fetching', 'error'].includes(status)) {
+      return {
+        documentCount: INVALID,
+        totalDocumentSize: INVALID,
+        avgDocumentSize: INVALID,
+        indexCount: INVALID,
+        totalIndexSize: INVALID,
+        avgIndexSize: INVALID,
+      };
+    }
+
     return {
-      documentCount:
-        document_count !== undefined ? this._format(document_count) : INVALID,
+      documentCount: this._format(document_count),
       totalDocumentSize: this._format(document_size, 'b'),
       avgDocumentSize: this._format(
         this._avg(document_size, document_count),
@@ -72,12 +80,6 @@ const store = Reflux.createStore({
       indexCount: this._format(index_count),
       totalIndexSize: this._format(index_size, 'b'),
       avgIndexSize: this._format(this._avg(index_size, index_count), 'b'),
-      rawDocumentCount: document_count,
-      rawTotalDocumentSize: document_size,
-      rawAvgDocumentSize: this._avg(document_size, document_count),
-      rawIndexCount: index_count,
-      rawTotalIndexSize: index_size,
-      rawAvgIndexSize: this._avg(index_size, index_count),
     };
   },
 
@@ -89,6 +91,9 @@ const store = Reflux.createStore({
   },
 
   _format(value, format = 'a') {
+    if (!isNumber(value)) {
+      return INVALID;
+    }
     const precision = value <= 1000 ? '0' : '0.0';
     return numeral(value).format(precision + format);
   },
@@ -121,8 +126,18 @@ function onInstanceDestroyed() {
  * Collection Stats store.
  */
 const configureStore = ({ namespace, globalAppRegistry } = {}) => {
+  if (!namespace) {
+    throw new Error('Trying to render collection stats without namespace');
+  }
+
   const { instance } =
     globalAppRegistry.getStore('App.InstanceStore')?.getState() ?? {};
+
+  if (!instance) {
+    throw new Error(
+      'Trying to configure collection stats plugin store without instance model'
+    );
+  }
 
   // We only want to attach listeners to the instance once if we haven't done it
   // before, we use stored instances as a flag to determine if we did it already
@@ -140,7 +155,13 @@ const configureStore = ({ namespace, globalAppRegistry } = {}) => {
 
   const { database, ns } = toNS(namespace);
 
-  const coll = instance.databases.get(database)?.collections.get(ns) ?? {};
+  const coll = instance.databases?.get(database)?.collections.get(ns) ?? null;
+
+  if (!coll) {
+    throw new Error(
+      `Couldn\'t find collection model for namespace ${namespace}`
+    );
+  }
 
   store.updateCollectionDetails(coll);
 

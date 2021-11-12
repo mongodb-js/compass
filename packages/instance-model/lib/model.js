@@ -179,15 +179,6 @@ const InstanceModel = AmpersandModel.extend(
           this.refreshingStatus === 'initial' ? 'fetching' : 'refreshing',
       });
 
-      console.log({
-        refreshingStatus: this.refreshingStatus,
-        fetchDatabases,
-        fetchDbStats,
-        fetchCollections,
-        fetchCollInfo,
-        fetchCollStats,
-      });
-
       try {
         // First fetch instance info and databases list, these are the essentials
         // that we need to make Compass somewhat usable

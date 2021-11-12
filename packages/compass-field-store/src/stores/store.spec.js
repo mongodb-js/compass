@@ -93,9 +93,7 @@ describe('FieldStore', function() {
         expect(state.aceFields).to.deep.equal(expected);
         done();
       });
-      appRegistry.emit(
-        'document-inserted', null, doc
-      );
+      appRegistry.emit('document-inserted', { docs: [doc] });
     });
 
     it('on documents-paginated', (done) => {
