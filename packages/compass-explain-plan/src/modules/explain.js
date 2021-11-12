@@ -1,10 +1,13 @@
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
-import { isString, find, groupBy, isEqual } from 'lodash';
+import { find, groupBy, isEqual } from 'lodash';
 import { treeStagesChanged } from './tree-stages';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import EXPLAIN_STATES from '../constants/explain-states';
 import EXPLAIN_VIEWS from '../constants/explain-views';
+
+const { track } = createLoggerAndTelemetry('COMPASS-EXPLAIN-UI');
 
 /**
  * The module action prefix.
@@ -324,6 +327,12 @@ export const fetchExplainPlan = (query) => {
 
         dispatch(explainPlanFetched(explain));
         dispatch(treeStagesChanged(explain));
+
+        const trackEvent = {
+          with_filter: Object.entries(filter).length > 0,
+          index_used: explain.usedIndexes.length > 0,
+        };
+        track('Explain Plan Executed', trackEvent);
 
         // Send metrics
         dispatch(globalAppRegistryEmit(

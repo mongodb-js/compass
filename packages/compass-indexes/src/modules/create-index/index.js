@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 const EJSON = require('mongodb-extended-json');
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import dataService from '../data-service';
 import appRegistry, {
@@ -63,6 +64,8 @@ import schemaFields from '../create-index/schema-fields';
 import { RESET_FORM } from '../reset-form';
 import { RESET, reset } from '../reset';
 import { parseErrorMsg } from '../indexes';
+
+const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
 /**
  * The main reducer.
@@ -191,9 +194,17 @@ export const createIndex = () => {
 
     state.dataService.createIndex(ns, spec, options, (createErr) => {
       if (!createErr) {
+        const trackEvent = {
+          background: state.isBackground,
+          unique: state.isUnique,
+          ttl: state.isTtl,
+          wildcard: state.isWildcard,
+          custom_collation: state.isCustomCollation,
+          geo: state.fields.filter(({type}) => type === '2dsphere').length > 0,
+        };
+        track('Index Created', trackEvent);
         dispatch(reset());
         dispatch(localAppRegistryEmit('refresh-data'));
-        console.log('state', state);
         dispatch(
           globalAppRegistryEmit(
             'compass:indexes:created',
