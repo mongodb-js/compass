@@ -254,7 +254,7 @@ var preferencesProps = {
   }
 };
 
-const Preferences = Model.extend(storageMixin, {
+var Preferences = Model.extend(storageMixin, {
   props: preferencesProps,
   extraProperties: 'ignore',
   idAttribute: 'id',
