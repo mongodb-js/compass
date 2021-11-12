@@ -11,7 +11,20 @@ export type ConnectionStatus = {
 export type ConnectionStatusWithPrivileges = ConnectionStatus & {
   authInfo: {
     authenticatedUserPrivileges: {
-      resource: { db: string; collection: string };
+      resource:
+        | { db?: never; collection?: never; cluster: true; anyResource?: never }
+        | {
+            db: string;
+            collection: string;
+            cluster?: never;
+            anyResource?: never;
+          }
+        | {
+            db?: never;
+            collection?: never;
+            cluster?: never;
+            anyResource: true;
+          };
       actions: string[];
     }[];
   };
