@@ -52,20 +52,21 @@ describe('Connections Component', function () {
   });
 
   afterEach(function () {
-    sinon.restore();
-
     TestBackend.disable();
     try {
       fs.rmdirSync(tmpDir, { recursive: true });
     } catch (e) {
       /* */
     }
-    cleanup();
   });
 
   describe('when rendered', function () {
     beforeEach(function () {
       render(<Connections onConnected={onConnectedSpy} />);
+    });
+
+    afterEach(function () {
+      cleanup();
     });
 
     it('renders the connect button from the connect-form', function () {
@@ -110,6 +111,10 @@ describe('Connections Component', function () {
       render(<Connections onConnected={onConnectedSpy} />);
 
       await waitFor(() => expect(screen.queryByRole('listitem')).to.be.visible);
+    });
+
+    afterEach(function () {
+      cleanup();
     });
 
     it('should render the saved connections', function () {
@@ -227,6 +232,10 @@ describe('Connections Component', function () {
           expect(screen.queryByTestId('cancel-connection-attempt-button')).to
             .exist
       );
+    });
+
+    afterEach(function () {
+      cleanup();
     });
 
     describe('when the connection attempt is cancelled', function () {
