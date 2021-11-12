@@ -284,6 +284,10 @@ describe('Connections Component', function () {
             .catch(console.log);
         });
 
+        it('should call onConnected once', function () {
+          expect(onConnectedSpy.callCount).to.equal(1);
+        });
+
         it('should emit the connection configuration used to connect', function () {
           expect(onConnectedSpy.firstCall.args[0]).to.deep.equal({
             id: savedConnectableId,
