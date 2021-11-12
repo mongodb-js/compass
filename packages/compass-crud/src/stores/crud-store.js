@@ -9,7 +9,8 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import {
   findDocuments,
   countDocuments,
-  fetchShardingKeys
+  fetchShardingKeys,
+  OPERATION_CANCELLED_MESSAGE
 } from '../utils';
 
 import {
@@ -1037,9 +1038,20 @@ const configureStore = (options = {}) => {
       countOptions.session = session;
       findOptions.session = session;
 
+      // Don't wait for the count to finish. Set the result asynchronously.
+      countDocuments(this.dataService, ns, query.filter, countOptions)
+        .then((count) => this.setState({ count }))
+        .catch((err) => {
+          // countDocuments already swallows all db errors and returns null. The
+          // only known error it can throw is OPERATION_CANCELLED_MESSAGE. If
+          // something new does appear we probably shouldn't swallow it.
+          if (err.message !== OPERATION_CANCELLED_MESSAGE) {
+            throw err;
+          }
+        });
+
       const promises = [
         fetchShardingKeys(this.dataService, ns, fetchShardingKeysOptions),
-        countDocuments(this.dataService, ns, query.filter, countOptions),
         findDocuments(this.dataService, ns, query.filter, findOptions)
       ];
 
@@ -1049,13 +1061,14 @@ const configureStore = (options = {}) => {
         abortController,
         session,
         outdated: false,
-        error: null
+        error: null,
+        count: null // we don't know the new count yet
       });
 
       const stateChanges = {};
 
       try {
-        const [shardKeys, count, docs] = await Promise.all(promises);
+        const [shardKeys, docs] = await Promise.all(promises);
 
         Object.assign(stateChanges, {
           status: this.isInitialQuery(query) ?
@@ -1064,7 +1077,6 @@ const configureStore = (options = {}) => {
           isEditable: this.hasProjection(query) ? false : this.isListEditable(),
           error: null,
           docs: docs.map(doc => new HadronDocument(doc)),
-          count,
           page: 0,
           start: docs.length > 0 ? 1 : 0,
           end: docs.length,
