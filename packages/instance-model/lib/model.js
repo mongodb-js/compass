@@ -13,8 +13,7 @@ function debounceInflight(fn) {
     if (Inflight.has(callId)) {
       return Inflight.get(callId);
     }
-    const promise = fn.call(this, ...args);
-    promise.finally(() => {
+    const promise = fn.call(this, ...args).finally(() => {
       Inflight.delete(callId);
     });
     Inflight.set(callId, promise);
