@@ -17,7 +17,7 @@ const buttonStyles = css({
   borderStyle: 'solid',
   borderColor: 'transparent',
   borderRadius: '6px',
-  borderWidth: '1px',
+  borderWidth: '3px',
   background: 'none',
   '&:focus-visible': {
     borderColor: uiColors.green.base
