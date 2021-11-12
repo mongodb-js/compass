@@ -1,19 +1,19 @@
-const Model = require('ampersand-model');
-const storageMixin = require('storage-mixin');
-const get = require('lodash.get');
-const format = require('util').format;
-const electron = require('electron');
-const electronApp = electron.remote ? electron.remote.app : undefined;
+var Model = require('ampersand-model');
+var storageMixin = require('storage-mixin');
+var get = require('lodash.get');
+var format = require('util').format;
+var electron = require('electron');
+var electronApp = electron.remote ? electron.remote.app : undefined;
 
-const debug = require('debug')('mongodb-compass:models:preferences');
+var debug = require('debug')('mongodb-compass:models:preferences');
 
-const THEMES = {
+var THEMES = {
   DARK: 'DARK',
   LIGHT: 'LIGHT',
   OS_THEME: 'OS_THEME'
 };
 
-const preferencesProps = {
+var preferencesProps = {
   /**
    * String identifier for this set of preferences. Default is `General`.
    * @type {String}
@@ -301,7 +301,7 @@ const Preferences = Model.extend(storageMixin, {
         process.env.HADRON_ISOLATED !== 'true' &&
         get(this, feature);
     }
-    const res = get(this, feature, null);
+    var res = get(this, feature, null);
     // don't allow asking for unknown features to prevent bugs
     if (res === null) {
       throw new Error(format('Feature %s unknown.', feature));
