@@ -253,6 +253,65 @@ describe('instance-detail-helper', function () {
       expect(dbs).to.have.nested.property('foo.bar').deep.eq([]);
     });
 
+    context('with known resources', function () {
+      it('ignores cluster privileges', function () {
+        const dbs = extractPrivilegesByDatabaseAndCollection([
+          { resource: { db: 'foo', collection: 'bar' }, actions: [] },
+          { resource: { db: 'buz', collection: 'bla' }, actions: [] },
+          { resource: { cluster: true }, actions: [] },
+        ]);
+
+        expect(dbs).to.deep.eq({
+          foo: {
+            bar: [],
+          },
+          buz: {
+            bla: [],
+          },
+        });
+      });
+
+      it('ignores anyResource privileges', function () {
+        const dbs = extractPrivilegesByDatabaseAndCollection([
+          { resource: { db: 'foo', collection: 'bar' }, actions: [] },
+          { resource: { db: 'buz', collection: 'bla' }, actions: [] },
+          { resource: { anyResource: true }, actions: [] },
+        ]);
+
+        expect(dbs).to.deep.eq({
+          foo: {
+            bar: [],
+          },
+          buz: {
+            bla: [],
+          },
+        });
+      });
+    });
+
+    context('with unknown resources', function () {
+      it("ignores everything that doesn't have database and collection in resource", function () {
+        const dbs = extractPrivilegesByDatabaseAndCollection([
+          { resource: { db: 'foo', collection: 'bar' }, actions: [] },
+          { resource: { db: 'buz', collection: 'bla' }, actions: [] },
+          { resource: { this: true }, actions: [] },
+          { resource: { is: true }, actions: [] },
+          { resource: { not: true }, actions: [] },
+          { resource: { valid: true }, actions: [] },
+          { resource: { resource: true }, actions: [] },
+        ] as any);
+
+        expect(dbs).to.deep.eq({
+          foo: {
+            bar: [],
+          },
+          buz: {
+            bla: [],
+          },
+        });
+      });
+    });
+
     it('keeps records for all collections in a database', function () {
       const dbs = extractPrivilegesByDatabaseAndCollection([
         { resource: { db: 'foo', collection: 'bar' }, actions: [] },
