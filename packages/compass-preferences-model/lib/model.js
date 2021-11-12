@@ -1,13 +1,19 @@
-var Model = require('ampersand-model');
-var storageMixin = require('storage-mixin');
-var get = require('lodash.get');
-var format = require('util').format;
-var electron = require('electron');
-var electronApp = electron.remote ? electron.remote.app : undefined;
+const Model = require('ampersand-model');
+const storageMixin = require('storage-mixin');
+const get = require('lodash.get');
+const format = require('util').format;
+const electron = require('electron');
+const electronApp = electron.remote ? electron.remote.app : undefined;
 
-var debug = require('debug')('mongodb-compass:models:preferences');
+const debug = require('debug')('mongodb-compass:models:preferences');
 
-var preferencesProps = {
+const THEMES = {
+  DARK: 'DARK',
+  LIGHT: 'LIGHT',
+  OS_THEME: 'OS_THEME'
+};
+
+const preferencesProps = {
   /**
    * String identifier for this set of preferences. Default is `General`.
    * @type {String}
@@ -44,6 +50,15 @@ var preferencesProps = {
     type: 'boolean',
     required: true,
     default: false
+  },
+  /**
+   * Stores the theme preference for the user.
+   * @type {String}
+   */
+  theme: {
+    type: 'string',
+    required: true,
+    default: THEMES.LIGHT
   },
   /**
    * Stores a unique anonymous user ID (uuid) for the current user
@@ -239,7 +254,7 @@ var preferencesProps = {
   }
 };
 
-var Preferences = Model.extend(storageMixin, {
+const Preferences = Model.extend(storageMixin, {
   props: preferencesProps,
   extraProperties: 'ignore',
   idAttribute: 'id',
@@ -286,7 +301,7 @@ var Preferences = Model.extend(storageMixin, {
         process.env.HADRON_ISOLATED !== 'true' &&
         get(this, feature);
     }
-    var res = get(this, feature, null);
+    const res = get(this, feature, null);
     // don't allow asking for unknown features to prevent bugs
     if (res === null) {
       throw new Error(format('Feature %s unknown.', feature));
@@ -296,3 +311,4 @@ var Preferences = Model.extend(storageMixin, {
 });
 
 module.exports = Preferences;
+module.exports.THEMES = THEMES;

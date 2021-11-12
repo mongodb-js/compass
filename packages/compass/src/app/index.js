@@ -34,7 +34,8 @@ var webvitals = require('web-vitals');
 
 var semver = require('semver');
 
-var Preferences = require('compass-preferences-model');
+const Preferences = require('compass-preferences-model');
+const { THEMES } = Preferences;
 var User = require('compass-user-model');
 
 require('./menu-renderer');
@@ -67,12 +68,33 @@ window.addEventListener('error', (event) => {
 });
 
 const darkreaderOptions = { brightness: 100, contrast: 90, sepia: 10 };
-ipc.on('app:darkreader-enable', () => {
+function enableDarkTheme() {
   darkreader.enable(darkreaderOptions);
-});
-ipc.on('app:darkreader-disable', () => {
+}
+
+function disableDarkTheme() {
   darkreader.disable();
-});
+}
+
+function loadTheme(theme) {
+  // Update main Compass when we've loaded the theme for setting app menus.
+  ipc.call('window:theme-loaded', theme);
+
+  if (theme === THEMES.OS_THEME
+    && electron.remote.nativeTheme.shouldUseDarkColors
+  ) {
+    enableDarkTheme();
+    return;
+  }
+
+  // Update our view based on the provided theme.
+  if (theme === THEMES.DARK) {
+    enableDarkTheme();
+    return;
+  }
+
+  disableDarkTheme();
+}
 
 /**
  * The top-level application singleton that brings everything together!
@@ -373,6 +395,24 @@ app.extend({
         if (err) {
           throw err;
         }
+
+        // Get theme from the preferences and set accordingly.
+        loadTheme(app.preferences.theme);
+    
+        ipc.on('app:darkreader-enable', () => {
+          enableDarkTheme();
+        });
+        ipc.on('app:darkreader-disable', () => {
+          disableDarkTheme();
+        });
+    
+        ipc.on('app:save-theme', (_, theme) => {
+          // Save the new theme on the user's preferences.
+          app.preferences.save({
+            theme
+          });
+        });
+
         Action.pluginActivationCompleted.listen(() => {
           ipc.call('compass:loading:change-status', {
             status: 'activating plugins'
