@@ -167,26 +167,35 @@ export function extractPrivilegesByDatabaseAndCollection(
 ): DatabaseCollectionPrivileges {
   const privileges = authenticatedUserPrivileges ?? [];
 
-  const filteredPrivileges = (
+  const filteredPrivileges =
     requiredActions && requiredActions.length > 0
       ? privileges.filter(({ actions }) => {
           return requiredActions.every((action) => actions.includes(action));
         })
-      : privileges
-  ).filter(({ resource }) => {
-    return resource.db;
-  });
+      : privileges;
 
   const result: DatabaseCollectionPrivileges = {};
 
-  for (const {
-    resource: { db, collection },
-    actions,
-  } of filteredPrivileges) {
-    if (result[db]) {
-      Object.assign(result[db], { [collection]: actions });
-    } else {
-      result[db] = { [collection]: actions };
+  for (const { resource, actions } of filteredPrivileges) {
+    // Documented resources include roles for dbs/colls, cluster, or in rare cases
+    // anyResource, additionally there seem to be undocumented ones like
+    // system_buckets and who knows what else. To make sure we are only cover
+    // cases that we can meaningfully handle here, roles for the
+    // databases/collections, we are skipping all roles where these are
+    // undefined
+    //
+    // See: https://docs.mongodb.com/manual/reference/resource-document/#std-label-resource-document
+    if (
+      typeof resource.db !== 'undefined' &&
+      typeof resource.collection !== 'undefined'
+    ) {
+      const { db, collection } = resource;
+
+      if (result[db]) {
+        Object.assign(result[db], { [collection]: actions });
+      } else {
+        result[db] = { [collection]: actions };
+      }
     }
   }
 
