@@ -75,7 +75,9 @@ function ConnectForm({
             variant={ButtonVariant.Primary}
             onClick={() =>
               onConnectClicked({
+                ...initialConnectionInfo,
                 connectionOptions: {
+                  ...initialConnectionInfo.connectionOptions,
                   connectionString,
                 },
               })

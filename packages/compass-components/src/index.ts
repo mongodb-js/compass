@@ -26,6 +26,7 @@ export {
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
 export { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
+export { default as Modal } from '@leafygreen-ui/modal';
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassUIColors from './components/compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
