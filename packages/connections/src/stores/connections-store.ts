@@ -155,19 +155,19 @@ function trackConnectionAttemptEvent({ favorite, lastUsed }: ConnectionInfo): vo
   track('Connection Attempt', trackEvent);
 }
 
-async function trackNewConnectionEvent({ instance, getMongoClientConnectionOptions }: DataService, connectionString: string): Promise<void> {
+async function trackNewConnectionEvent(dataService: DataService, connectionString: string): Promise<void> {
   const {
     dataLake,
     genuineMongoDB,
     host,
     build,
-  } = await instance();
+  } = await dataService.instance();
   const { hosts: [hostName] } = new ConnectionString(connectionString);
   const { isAws, isAzure, isGcp } = await getCloudInfo(hostName).catch((err: Error) => {
     debug('getCloudInfo failed', err);
     return {};
   });
-  const connectionOptions = getMongoClientConnectionOptions();
+  const connectionOptions = dataService.getMongoClientConnectionOptions();
   const isPublicCloud = isAws || isAzure || isGcp;
   const publicCloudName = isAws ? 'AWS' : isAzure ? 'Azure' : isGcp ? 'GCP' : '';
 
