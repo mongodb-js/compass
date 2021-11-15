@@ -5,10 +5,15 @@ import {
   DataService,
   getConnectionTitle,
 } from 'mongodb-data-service';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { isAtlas, isLocalhost, isDigitalOcean } from 'mongodb-build-info';
+import { getCloudInfo } from 'mongodb-cloud-info';
+import ConnectionString from 'mongodb-connection-string-url';
 import { ConnectionAttempt } from '../modules/connection-attempt';
 import { useEffect, useReducer, useRef } from 'react';
 import debugModule from 'debug';
 import { createConnectionAttempt } from '../modules/connection-attempt';
+const { track } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
@@ -141,6 +146,49 @@ async function loadConnections(
   }
 }
 
+function trackConnectionAttemptEvent({ favorite, lastUsed }: ConnectionInfo): void {
+  const trackEvent = {
+    is_favorite: Boolean(favorite),
+    is_recent: Boolean(lastUsed && !favorite),
+    is_new: !lastUsed,
+  };
+  track('Connection Attempt', trackEvent);
+}
+
+async function trackNewConnectionEvent({ instance, getMongoClientConnectionOptions }: DataService, connectionString: string): Promise<void> {
+  const {
+    dataLake,
+    genuineMongoDB,
+    host,
+    build,
+  } = await instance();
+  const { hosts: [hostName] } = new ConnectionString(connectionString);
+  const { isAws, isAzure, isGcp } = await getCloudInfo(hostName).catch((err: Error) => {
+    debug('getCloudInfo failed', err);
+    return {};
+  });
+  const connectionOptions = getMongoClientConnectionOptions();
+  const isPublicCloud = isAws || isAzure || isGcp;
+  const publicCloudName = isAws ? 'AWS' : isAzure ? 'Azure' : isGcp ? 'GCP' : '';
+
+  const trackEvent = {
+    is_localhost: isLocalhost(hostName),
+    is_atlas: isAtlas(hostName),
+    is_dataLake: dataLake.isDataLake,
+    is_enterprise: build.isEnterprise,
+    is_public_cloud: isPublicCloud,
+    is_do: isDigitalOcean(hostName),
+    public_cloud_name: publicCloudName,
+    is_genuine: genuineMongoDB.isGenuine,
+    non_genuine_server_name: genuineMongoDB.dbType,
+    server_version: host.kernel_version,
+    server_arch: host.arch,
+    server_os_family: host.os_family,
+    auth_type: connectionOptions?.options.authMechanism ?? '',
+  };
+  track('New Connection', trackEvent);
+}
+
 export function useConnections(
   onConnected: (
     connectionInfo: ConnectionInfo,
@@ -222,6 +270,7 @@ export function useConnections(
           connectionAttempt: newConnectionAttempt,
         });
 
+        trackConnectionAttemptEvent(connectionInfo);
         debug('connecting with connectionInfo', connectionInfo);
 
         try {
@@ -242,6 +291,7 @@ export function useConnections(
           dispatch({
             type: 'connection-attempt-succeeded',
           });
+          void trackNewConnectionEvent(newConnectionDataService, connectionInfo.connectionOptions.connectionString);
           debug(
             'connection attempt succeeded with connection info',
             connectionInfo
