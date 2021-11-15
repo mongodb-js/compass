@@ -107,9 +107,9 @@ describe('Smoke tests', function () {
     });
 
     it('contains a list of collections', async function () {
-        expect(
-          await client.existsEventually(Selectors.CollectionsTableLinkNumbers)
-        ).to.eq(true);
+      expect(
+        await client.existsEventually(Selectors.CollectionsTableLinkNumbers)
+      ).to.eq(true);
     });
 
     // capped and not capped
