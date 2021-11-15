@@ -1,9 +1,10 @@
 import { css } from '@emotion/css';
 import React, { useCallback, useEffect, useReducer } from 'react';
 import {
-  DataService,
-  getConnectionTitle,
   ConnectionInfo,
+  DataService,
+  convertConnectionInfoToModel,
+  getConnectionTitle,
 } from 'mongodb-data-service';
 import toNS from 'mongodb-ns';
 import Connections from '@mongodb-js/compass-connections';
@@ -65,7 +66,7 @@ type Action =
       connectionTitle: string;
     }
   | { type: 'disconnected' }
-  | { type: 'instance-loaded'; isDatalake: boolean }
+  | { type: 'instance-loaded'; isDataLake: boolean }
   | { type: 'instance-loaded-error'; errorMessage: string }
   | { type: 'update-namespace'; namespace: Namespace };
 
@@ -89,17 +90,24 @@ function reducer(state: State, action: Action): State {
         instanceLoadingStatus: InstanceLoadedStatus.LOADING,
       };
     case 'instance-loaded':
-      return {
-        ...state,
-        isDataLake: action.isDatalake,
-        instanceLoadingStatus: InstanceLoadedStatus.LOADED,
-      };
+      // We only want to progress to the LOADED state on the initial load
+      if (state.instanceLoadingStatus === InstanceLoadedStatus.LOADING) {
+        return {
+          ...state,
+          isDataLake: action.isDataLake,
+          instanceLoadingStatus: InstanceLoadedStatus.LOADED,
+        };
+      }
+      return state;
     case 'instance-loaded-error':
-      return {
-        ...state,
-        errorLoadingInstanceMessage: action.errorMessage,
-        instanceLoadingStatus: InstanceLoadedStatus.ERROR,
-      };
+      if (state.instanceLoadingStatus === InstanceLoadedStatus.LOADING) {
+        return {
+          ...state,
+          errorLoadingInstanceMessage: action.errorMessage,
+          instanceLoadingStatus: InstanceLoadedStatus.ERROR,
+        };
+      }
+      return state;
     case 'update-namespace':
       return {
         ...state,
@@ -142,27 +150,73 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     });
   }
 
-  function onInstanceRefreshed(instanceInformation: {
-    errorMessage?: string;
-    instance?: {
-      dataLake?: {
-        isDataLake?: boolean;
-      };
+  // TODO: Remove this comment once we only have one connections package:
+  // This is currently only used by the new connections package.
+  // We've moved to not calling the `data-service-connected` event inside
+  // of connections and instead call it here.
+  async function onConnected(
+    connectionInfo: ConnectionInfo,
+    dataService: DataService
+  ) {
+    const legacyConnectionModel = await convertConnectionInfoToModel(
+      connectionInfo
+    );
+
+    appRegistry.emit(
+      'data-service-connected',
+      null, // No error connecting.
+      dataService,
+      connectionInfo,
+      legacyConnectionModel // TODO: Remove this once we remove the dependency in compass-sidebar.
+    );
+  }
+
+  function onInstanceCreated({
+    instance,
+  }: {
+    instance: {
+      dataLake: { isDataLake: boolean };
+      statusError: string;
+      databasesStatusError: string;
+      refreshingStatusError: string;
+      on(evt: string, fn: (...args: any[]) => void): void;
     };
   }) {
-    if (instanceInformation.errorMessage) {
-      dispatch({
-        type: 'instance-loaded-error',
-        errorMessage: instanceInformation.errorMessage,
-      });
-
-      return;
+    function onStatusChange(status: string, errorMessage: string): void {
+      if (status === 'ready') {
+        dispatch({
+          type: 'instance-loaded',
+          isDataLake: instance.dataLake.isDataLake,
+        });
+      }
+      if (status === 'error') {
+        dispatch({
+          type: 'instance-loaded-error',
+          errorMessage,
+        });
+      }
     }
 
-    dispatch({
-      type: 'instance-loaded',
-      isDatalake: !!instanceInformation.instance?.dataLake?.isDataLake,
-    });
+    if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
+      instance.on(
+        'change:refreshingStatus',
+        (_model: unknown, status: string) => {
+          onStatusChange(status, instance.refreshingStatusError);
+        }
+      );
+    } else {
+      instance.on('change:status', (_model: unknown, status: string) => {
+        if (status === 'error') {
+          onStatusChange(status, instance.statusError);
+        }
+      });
+      instance.on(
+        'change:databasesStatus',
+        (_model: unknown, status: string) => {
+          onStatusChange(status, instance.databasesStatusError);
+        }
+      );
+    }
   }
 
   function onSelectDatabase(ns: string) {
@@ -219,7 +273,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
   useEffect(() => {
     // Setup listeners.
-    appRegistry.on('instance-refreshed', onInstanceRefreshed);
+    appRegistry.on('instance-created', onInstanceCreated);
     appRegistry.on('data-service-connected', onDataServiceConnected);
     appRegistry.on('data-service-disconnected', onDataServiceDisconnected);
     appRegistry.on('select-database', onSelectDatabase);
@@ -230,7 +284,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
     return () => {
       // Clean up the listeners.
-      appRegistry.removeListener('instance-refreshed', onInstanceRefreshed);
+      appRegistry.removeListener('instance-created', onInstanceCreated);
       appRegistry.removeListener(
         'data-service-connected',
         onDataServiceConnected
@@ -267,7 +321,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     return (
       <div className={homeViewStyles} data-test-id="home-view">
         <div className={homePageStyles}>
-          <Connections />
+          <Connections onConnected={onConnected} />
         </div>
       </div>
     );

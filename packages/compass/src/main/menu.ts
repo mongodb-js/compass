@@ -21,13 +21,13 @@ const debug = createDebug('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
 
-function separator() {
+function separator(): MenuItemConstructorOptions {
   return {
     type: 'separator' as const,
   };
 }
 
-function quitItem(label: string) {
+function quitItem(label: string): MenuItemConstructorOptions {
   return {
     label: label,
     accelerator: 'CmdOrCtrl+Q',
@@ -37,7 +37,7 @@ function quitItem(label: string) {
   };
 }
 
-function compassOverviewItem() {
+function compassOverviewItem(): MenuItemConstructorOptions {
   return {
     label: `${app.getName()} &Overview`,
     click() {
@@ -46,7 +46,7 @@ function compassOverviewItem() {
   };
 }
 
-function networkOptInDialogItem() {
+function networkOptInDialogItem(): MenuItemConstructorOptions {
   return {
     label: '&Privacy Settings',
     click() {
@@ -55,28 +55,28 @@ function networkOptInDialogItem() {
   };
 }
 
-function darwinCompassSubMenu() {
+function darwinCompassSubMenu(): MenuItemConstructorOptions {
   return {
     label: app.getName(),
     submenu: [
       {
         label: `About ${app.getName()}`,
-        selector: 'orderFrontStandardAboutPanel:',
+        role: 'about',
       },
       separator(),
       {
         label: 'Hide',
         accelerator: 'Command+H',
-        selector: 'hide:',
+        role: 'hide',
       },
       {
         label: 'Hide Others',
         accelerator: 'Command+Shift+H',
-        selector: 'hideOtherApplications:',
+        role: 'hideOthers',
       },
       {
         label: 'Show All',
-        selector: 'unhideAllApplications:',
+        role: 'unhide',
       },
       separator(),
       quitItem('Quit'),
@@ -84,7 +84,7 @@ function darwinCompassSubMenu() {
   };
 }
 
-function connectItem(app: typeof CompassApplication) {
+function connectItem(app: typeof CompassApplication): MenuItemConstructorOptions {
   return {
     label: 'New &Connection',
     accelerator: 'CmdOrCtrl+N',
@@ -94,7 +94,7 @@ function connectItem(app: typeof CompassApplication) {
   };
 }
 
-function disconnectItem() {
+function disconnectItem(): MenuItemConstructorOptions {
   return {
     label: '&Disconnect',
     click() {
@@ -103,7 +103,7 @@ function disconnectItem() {
   };
 }
 
-function connectSubMenu(nonDarwin: boolean, app: typeof CompassApplication) {
+function connectSubMenu(nonDarwin: boolean, app: typeof CompassApplication): MenuItemConstructorOptions {
   const subMenu: MenuTemplate = [connectItem(app), disconnectItem()];
 
   if (nonDarwin) {
@@ -117,7 +117,7 @@ function connectSubMenu(nonDarwin: boolean, app: typeof CompassApplication) {
   };
 }
 
-function editSubMenu() {
+function editSubMenu(): MenuItemConstructorOptions {
   return {
     label: 'Edit',
     submenu: [
@@ -164,7 +164,7 @@ function editSubMenu() {
   };
 }
 
-function nonDarwinAboutItem() {
+function nonDarwinAboutItem(): MenuItemConstructorOptions {
   return {
     label: `&About ${app.getName()}`,
     click() {
@@ -180,7 +180,7 @@ function nonDarwinAboutItem() {
   };
 }
 
-function helpWindowItem() {
+function helpWindowItem(): MenuItemConstructorOptions {
   return {
     label: `&Online ${app.getName()} Help`,
     accelerator: 'F1',
@@ -190,7 +190,7 @@ function helpWindowItem() {
   };
 }
 
-function securityItem() {
+function securityItem(): MenuItemConstructorOptions {
   return {
     label: '&Plugins',
     click() {
@@ -199,7 +199,7 @@ function securityItem() {
   };
 }
 
-function license() {
+function license(): MenuItemConstructorOptions {
   return {
     label: '&License',
     async click() {
@@ -214,7 +214,7 @@ function license() {
   };
 }
 
-function logFile(app: typeof CompassApplication) {
+function logFile(app: typeof CompassApplication): MenuItemConstructorOptions {
   return {
     label: '&Open Log File',
     click() {
@@ -223,7 +223,7 @@ function logFile(app: typeof CompassApplication) {
   };
 }
 
-function helpSubMenu(app: typeof CompassApplication) {
+function helpSubMenu(app: typeof CompassApplication): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push(helpWindowItem());
 
@@ -248,7 +248,7 @@ function helpSubMenu(app: typeof CompassApplication) {
   };
 }
 
-function collectionSubMenu() {
+function collectionSubMenu(): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push({
     label: '&Share Schema as JSON',
@@ -278,7 +278,7 @@ function collectionSubMenu() {
   };
 }
 
-function viewSubMenu() {
+function viewSubMenu(): MenuItemConstructorOptions {
   return {
     label: '&View',
     submenu: [
@@ -330,7 +330,7 @@ function viewSubMenu() {
   };
 }
 
-function windowSubMenu() {
+function windowSubMenu(): MenuItemConstructorOptions {
   return {
     label: 'Window',
     submenu: [
@@ -347,7 +347,7 @@ function windowSubMenu() {
       separator(),
       {
         label: 'Bring All to Front',
-        selector: 'arrangeInFront:',
+        role: 'front',
       },
     ],
   };
@@ -357,7 +357,7 @@ function windowSubMenu() {
 function darwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
-) {
+): MenuTemplate {
   const menu: MenuTemplate = [darwinCompassSubMenu()];
 
   menu.push(connectSubMenu(false, app));
@@ -377,7 +377,7 @@ function darwinMenu(
 function nonDarwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
-) {
+): MenuTemplate {
   const menu = [connectSubMenu(true, app), viewSubMenu()];
 
   if (menuState.showCollection) {
@@ -434,7 +434,7 @@ class CompassMenu {
     debug(`WINDOW ${bw.id} load()`);
 
     if (bw.id !== this.currentWindowMenuLoaded) {
-      if (this.windowState.has(bw.id)) {
+      if (!this.windowState.has(bw.id)) {
         this.addWindow(bw);
 
         debug(`create menu state for new WINDOW ${bw.id}`);

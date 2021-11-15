@@ -231,7 +231,6 @@
     "mongodb-connection-model": "^21.8.0",
     "mongodb-data-service": "^21.12.0",
     "mongodb-instance-model": "^11.14.0",
-    "mongodb-js-metrics": "^7.4.0",
     "mongodb-log-writer": "^1.1.2",
     "mongodb-url": "^3.0.3",
     "nock": "^13.0.11",

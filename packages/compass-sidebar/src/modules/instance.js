@@ -18,7 +18,7 @@ export const INITIAL_STATE = null;
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === CHANGE_INSTANCE) {
-    return action.instance.toJSON();
+    return action.instance;
   }
   return state;
 }

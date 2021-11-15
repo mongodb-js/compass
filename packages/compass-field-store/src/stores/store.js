@@ -203,8 +203,8 @@ const configureStore = (options = {}) => {
     });
 
     // process new document a user inserts
-    appRegistry.on('document-inserted', (view, doc) => {
-      store.processSingleDocument(doc);
+    appRegistry.on('document-inserted', ({ docs }) => {
+      store.processSingleDocument(docs[0] || {});
     });
 
     appRegistry.on('documents-paginated', (view, docs) => {

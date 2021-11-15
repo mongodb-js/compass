@@ -12,10 +12,31 @@ export function createInstance(databases = [
   return {
     _id: '123',
     databases: dbModels,
+    genuineMongoDB: {
+      isGenuine: true,
+      on() {},
+      off() {},
+      toJSON() {
+        return { isGenuine: this.isGenuine };
+      }
+    },
+    dataLake: {
+      isDataLake: false,
+      on() {},
+      off() {},
+      toJSON() {
+        return { isDataLake: this.isDataLake };
+      }
+    },
     on() {},
     off() {},
     toJSON() {
-      return { _id: this._id, databases: this.databases.toJSON() };
+      return {
+        _id: this._id,
+        databases: this.databases.toJSON(),
+        genuineMongoDB: this.genuineMongoDB.toJSON(),
+        dataLake: this.dataLake.toJSON(),
+      };
     },
   };
 }

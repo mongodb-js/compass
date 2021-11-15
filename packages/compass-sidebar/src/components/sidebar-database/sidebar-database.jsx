@@ -52,7 +52,10 @@ class SidebarDatabase extends PureComponent {
   }
 
   getArrowIconClasses() {
-    const expanded = this.props.expanded ? 'fa fa-rotate-90' : '';
+    const expanded = this.props.expanded
+      ? styles['compass-sidebar-icon-expanded']
+      : '';
+
     return classnames(
       'mms-icon-right-arrow',
       styles['compass-sidebar-icon'],

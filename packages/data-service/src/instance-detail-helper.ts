@@ -74,6 +74,7 @@ type CollectionDetails = {
 type DatabaseDetails = {
   _id: string;
   name: string;
+  collection_count: number;
   document_count: number;
   storage_size: number;
   index_count: number;
@@ -272,6 +273,7 @@ export function adaptDatabaseInfo(
   return {
     _id: databaseStats.db,
     name: databaseStats.db,
+    collection_count: databaseStats.collections ?? 0,
     document_count: databaseStats.objects ?? 0,
     storage_size: databaseStats.storageSize ?? 0,
     index_count: databaseStats.indexes ?? 0,

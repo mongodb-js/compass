@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { useReducer } from 'react';
+import React from 'react';
 import {
   MongoDBLogo,
   breakpoints,
@@ -7,11 +7,12 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import ConnectForm from '@mongodb-js/connect-form';
-import { ConnectionInfo } from 'mongodb-data-service';
-import { v4 as uuidv4 } from 'uuid';
+import { ConnectionInfo, DataService } from 'mongodb-data-service';
 
 import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
+import Connecting from './connecting/connecting';
+import { useConnections } from '../stores/connections-store';
 
 const connectStyles = css({
   position: 'absolute',
@@ -48,165 +49,61 @@ const formContainerStyles = css({
   },
 });
 
-function getDefaultConnectionInfo() {
-  return {
-    connectionOptions: {
-      connectionString: 'mongodb://localhost:27017',
-    },
-  };
-}
-
-const mockRecents: ConnectionInfo[] = [];
-for (let i = 0; i < 15; i++) {
-  mockRecents.push({
-    id: `mock-connection-${i}`,
-    connectionOptions: {
-      connectionString: `mongodb://localhost:2${
-        5000 + Math.floor(Math.random() * 5000)
-      }`,
-    },
-    lastUsed: new Date(Date.now() - (Date.now() / 2) * Math.random()),
-  });
-}
-
-const mockConnections = [
-  {
-    id: 'mock-connection-dev',
-    connectionOptions: {
-      connectionString: '',
-    },
-    favorite: {
-      name: 'Development cluster',
-      color: '#deb342',
-    },
-    lastUsed: new Date(),
-  },
-  {
-    id: 'mock-connection-atlas',
-    connectionOptions: {
-      connectionString:
-        'mongodb+srv://testUserForTesting:notMyRealPassword@test.mongodb.net/test?authSource=admin&replicaSet=art-dev-shard-0&readPreference=primary&ssl=true',
-    },
-    favorite: {
-      name: 'Atlas test',
-      color: '#d4366e',
-    },
-    lastUsed: new Date(),
-  },
-  {
-    id: 'mock-connection-empty-connection',
-    connectionOptions: {
-      connectionString: '',
-    },
-    favorite: {
-      name: 'super long favorite name - super long favorite name - super long favorite name - super long favorite name',
-      color: '#5fc86e',
-    },
-    lastUsed: new Date(),
-  },
-  {
-    id: 'mock-connection-invalid string',
-    connectionOptions: {
-      connectionString: 'invalid connection string',
-    },
-    lastUsed: new Date(),
-  },
-  ...mockRecents,
-];
-const connections = mockConnections;
-
-type State = {
-  activeConnectionId?: string;
-  activeConnectionInfo: ConnectionInfo;
-};
-
-type Action =
-  | {
-      type: 'new-connection';
-      newConnectionId: string;
-    }
-  | {
-      type: 'set-active-connection';
-      connectionId: string;
-      connectionInfo: ConnectionInfo;
-    };
-
-function reducer(state: State, action: Action): State {
-  switch (action.type) {
-    case 'set-active-connection':
-      return {
-        ...state,
-        activeConnectionId: action.connectionId,
-        activeConnectionInfo: action.connectionInfo,
-      };
-    case 'new-connection':
-      return {
-        ...state,
-        activeConnectionId: action.newConnectionId,
-        activeConnectionInfo: {
-          ...getDefaultConnectionInfo(),
-          id: action.newConnectionId,
-        },
-      };
-    default:
-      return state;
-  }
-}
-
-function Connections(): React.ReactElement {
-  const [{ activeConnectionId, activeConnectionInfo }, dispatch] = useReducer(
-    reducer,
+function Connections({
+  onConnected,
+}: {
+  onConnected: (
+    connectionInfo: ConnectionInfo,
+    dataService: DataService
+  ) => Promise<void>;
+}): React.ReactElement {
+  const [
     {
-      activeConnectionId: undefined,
-      activeConnectionInfo: {
-        ...getDefaultConnectionInfo(),
-      },
-    }
-  );
-
-  const updateActiveConnection = (newConnectionId?: string | undefined) => {
-    if (newConnectionId) {
-      const connection = connections.find(
-        (connection) => connection.id === newConnectionId
-      );
-      if (connection) {
-        dispatch({
-          type: 'set-active-connection',
-          connectionId: newConnectionId,
-          connectionInfo: connection,
-        });
-        return;
-      }
-    }
-
-    dispatch({
-      type: 'new-connection',
-      newConnectionId: uuidv4(),
-    });
-  };
+      activeConnectionId,
+      activeConnectionInfo,
+      connectingStatusText,
+      connectionAttempt,
+      connections,
+      isConnected,
+    },
+    {
+      cancelConnectionAttempt,
+      connect,
+      createNewConnection,
+      setActiveConnectionById,
+    },
+  ] = useConnections(onConnected);
 
   return (
-    <div className={connectStyles}>
+    <div
+      data-testid={
+        isConnected ? 'connections-connected' : 'connections-disconnected'
+      }
+      className={connectStyles}
+    >
       <ResizableSidebar
         activeConnectionId={activeConnectionId}
         connections={connections}
-        setActiveConnectionId={updateActiveConnection}
+        createNewConnection={createNewConnection}
+        setActiveConnectionId={setActiveConnectionById}
       />
       <div className={connectItemContainerStyles}>
-        <MongoDBLogo className={logoStyles} color={'black'} />
+        <MongoDBLogo className={logoStyles} color={'green-dark-2'} />
         <div className={formContainerStyles}>
           <ConnectForm
-            onConnectClicked={(connectionInfo) =>
-              alert(
-                `connect to ${connectionInfo.connectionOptions.connectionString}`
-              )
-            }
+            onConnectClicked={(connectionInfo) => connect(connectionInfo)}
             initialConnectionInfo={activeConnectionInfo}
             key={activeConnectionId}
           />
           <FormHelp />
         </div>
       </div>
+      {!!connectionAttempt && !connectionAttempt.isClosed() && (
+        <Connecting
+          connectingStatusText={connectingStatusText}
+          onCancelConnectionClicked={cancelConnectionAttempt}
+        />
+      )}
     </div>
   );
 }

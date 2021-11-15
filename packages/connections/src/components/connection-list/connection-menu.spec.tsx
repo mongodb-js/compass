@@ -130,7 +130,7 @@ describe('ConnectionMenu Component', function () {
             'Copy Connection String'
           );
 
-          mockCopyToClipboard = sinon.fake.rejects('Test error');
+          mockCopyToClipboard = sinon.fake.rejects(new Error('Test error'));
 
           try {
             sinon.replace(global, 'navigator', {
@@ -168,7 +168,7 @@ describe('ConnectionMenu Component', function () {
         it('opens a toast with an error message', async function () {
           await waitFor(() => expect(screen.getByText('Error')).to.be.visible);
           await waitFor(
-            () => expect(screen.getByText('Error: Test error')).to.be.visible
+            () => expect(screen.getByText('Test error')).to.be.visible
           );
         });
       });

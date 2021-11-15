@@ -114,7 +114,7 @@ const RULES = [
     resource: 'Document',
     action: 'deleted',
     condition: () => true,
-    metadata: (version, view) => ({
+    metadata: (version, { view }) => ({
       view,
       compass_version: version
     })
@@ -135,7 +135,7 @@ const RULES = [
     resource: 'Document',
     action: 'inserted',
     condition: () => true,
-    metadata: (version, view, mode, multiple) => ({
+    metadata: (version, { view, mode, multiple }) => ({
       mode,
       multiple,
       view,
@@ -334,7 +334,7 @@ const RULES = [
     resource: 'Import',
     action: 'completed',
     condition: () => true,
-    metadata: (version, size, fileType) => ({
+    metadata: (version, { size, fileType }) => ({
       size,
       'file type': fileType,
       compass_version: version

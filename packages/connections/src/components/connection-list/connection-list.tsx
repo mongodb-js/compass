@@ -65,10 +65,12 @@ const connectionListStyles = css({
 function ConnectionList({
   activeConnectionId,
   connections,
+  createNewConnection,
   setActiveConnectionId,
 }: {
   activeConnectionId?: string;
   connections: ConnectionInfo[];
+  createNewConnection: () => void;
   setActiveConnectionId: (connectionId?: string) => void;
 }): React.ReactElement {
   return (
@@ -77,7 +79,7 @@ function ConnectionList({
         <Button
           className={newConnectionButtonStyles}
           darkMode
-          onClick={() => setActiveConnectionId()}
+          onClick={createNewConnection}
           leftGlyph={<Icon glyph="Plus" />}
         >
           New Connection
