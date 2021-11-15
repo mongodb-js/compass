@@ -33,6 +33,8 @@ store.onActivated = (appRegistry) => {
    * @param {Object} state - The instance store state.
    */
   appRegistry.on('instance-created', ({ instance }) => {
+    onCollectionsChange(null, instance.databases);
+
     instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
       store.dispatch(toggleIsDataLake(isDataLake));
     });
@@ -42,6 +44,10 @@ store.onActivated = (appRegistry) => {
     });
 
     instance.on('change:collections.status', (model) => {
+      // This is not a typo. Here `collection` is a reference to the ampersand
+      // collection that holds references to all collection models on the
+      // database. Above `collections` is a reference the collections property
+      // on the database model
       onCollectionsChange(model.collection, instance.databases);
     });
 

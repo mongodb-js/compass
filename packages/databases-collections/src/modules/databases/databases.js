@@ -47,7 +47,7 @@ const sort = (databases, column, order) => {
 export const load = (databases) => {
   return databases.map((db) => {
     return zipObject(COLUMNS, [
-      db._id, db.storage_size, db.collection_count ?? 0, db.index_count
+      db._id, db.storage_size, db.collectionsLength ?? 0, db.index_count
     ]);
   });
 };

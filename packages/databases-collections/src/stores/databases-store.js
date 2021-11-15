@@ -26,6 +26,8 @@ store.onActivated = (appRegistry) => {
    * @param {Object} state - The instance store state.
    */
   appRegistry.on('instance-created', ({ instance }) => {
+    onDatabasesChange(instance.databases);
+
     instance.genuineMongoDB.on('change:isGenuine', (model, newVal) => {
       store.dispatch(toggleIsGenuineMongoDB(newVal));
     });
@@ -39,6 +41,10 @@ store.onActivated = (appRegistry) => {
     });
 
     instance.on('change:databases.status', () => {
+      onDatabasesChange(instance.databases);
+    });
+
+    instance.on('change:databases.collectionsLength', () => {
       onDatabasesChange(instance.databases);
     });
   });
