@@ -41,8 +41,9 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('instance-created', ({ instance }) => {
     onInstanceChange(instance);
+    onDatabasesChange(instance.databases);
 
-    instance.on('change:refreshingStatus', () => {
+    instance.on('change:isRefreshing', () => {
       onInstanceChange(instance);
     });
 
@@ -50,13 +51,13 @@ store.onActivated = (appRegistry) => {
       onInstanceChange(instance);
     });
 
-    instance.on('change:databases', () => {
-      onInstanceChange(instance);
-    });
-
     instance.on('change:databasesStatus', () => {
       onInstanceChange(instance);
       onDatabasesChange(instance.databases);
+    });
+
+    instance.on('change:databases.collectionsLength', () => {
+      onInstanceChange(instance);
     });
 
     instance.on('change:databases.collectionsStatus', () => {

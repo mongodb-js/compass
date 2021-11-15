@@ -133,13 +133,15 @@ class Sidebar extends PureComponent {
 
   _calculateRowHeight({index}) {
     const { filterRegex, databases, expandedDbList } = this.props.databases;
-    const defaultExpanded = Boolean(filterRegex);
+    const isFiltered = Boolean(filterRegex);
+    const defaultExpanded = isFiltered;
     const db = databases[index];
-    const collectionsLength = ['initial', 'fetching'].includes(
-      db.collectionsStatus
-    )
-      ? db.collection_count ?? 0
-      : db.collections.length;
+    // If we are in the filtered state, collections here are the filtered
+    // collections, which might not match our synthetic `collectionsLength`
+    // value that is derived from db stats and full collection length
+    const collectionsLength = isFiltered
+      ? db.collections.length
+      : db.collectionsLength;
 
     let height = HEADER_ROW_HEIGHT;
 

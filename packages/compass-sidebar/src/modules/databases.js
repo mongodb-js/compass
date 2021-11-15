@@ -43,8 +43,8 @@ export default function reducer(state = INITIAL_STATE, action) {
 
   if (action.type === CHANGE_FILTER_REGEX) {
     const filterModeStatusChange =
-      (state.filterRegex && !action.filterRegex) ||
-      (!state.filterRegex && action.filterRegex);
+      Boolean(state.filterRegex && !action.filterRegex) ||
+      Boolean(!state.filterRegex && action.filterRegex);
 
     let expandedDbList = state.expandedDbList;
 

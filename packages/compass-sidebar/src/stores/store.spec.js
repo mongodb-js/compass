@@ -46,23 +46,25 @@ describe('SidebarStore [Store]', () => {
       });
     });
 
-    context('when instance state changes', () => {
+    context('when instance created', () => {
       beforeEach(() => {
         expect(store.getState().instance).to.deep.equal(null); // initial state
         expect(store.getState().databases).to.deep.equal({
           databases: [],
-          expandedDblist: {},
+          expandedDbList: {},
+          filterRegex: null,
           activeNamespace: ''
         }); // initial state
-        appRegistry.emit('instance-refreshed', { instance });
+        appRegistry.emit('instance-created', { instance });
       });
 
       it('updates the instance and databases state', () => {
-        expect(store.getState().instance).to.deep.equal(instance.toJSON());
-        expect(store.getState().databases).to.deep.equal({
+        expect(store.getState()).to.have.property('instance').deep.equal(instance.toJSON());
+        expect(store.getState()).to.have.property('databases').deep.equal({
           databases: instance.databases.toJSON(),
-          expandedDblist: {'admin': false, 'citibike': false},
-          activeNamespace: ''
+          activeNamespace: '',
+          expandedDbList: {},
+          filterRegex: null,
         });
       });
     });

@@ -94,6 +94,20 @@ const DatabaseModel = AmpersandModel.extend(
       index_count: 'number',
       index_size: 'number',
     },
+    derived: {
+      // Either returns a collection count from database stats or from real
+      // collections length. We want to fallback to collection_count from stats
+      // if possible if we haven't fetched collections yet, but use the real
+      // number if real collections info is available
+      collectionsLength: {
+        deps: ['collection_count', 'collectionsStatus'],
+        fn() {
+          return ['ready', 'refreshing'].includes(this.collectionsStatus)
+            ? this.collections.length
+            : this.collection_count ?? 0;
+        },
+      },
+    },
     collections: {
       collections: MongoDbCollectionCollection,
     },

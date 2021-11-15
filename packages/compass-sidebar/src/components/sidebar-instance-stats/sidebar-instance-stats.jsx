@@ -32,16 +32,15 @@ class SidebarInstanceStats extends PureComponent {
     let numDbs = instance?.databases.length ?? 0;
     let numCollections =
       instance?.databases
-        .map((db) => db.collection_count ?? 0)
+        .map((db) => db.collectionsLength)
         .reduce((acc, n) => acc + n, 0) ?? 0;
 
     let refreshClassName = 'fa fa-repeat';
 
     const isRefreshing = instance?.isRefreshing ?? false;
 
-    const isInitialOrInitialFetching = ['initial', 'fetching'].includes(
-      instance?.refreshingStatus
-    );
+    const isInitialOrInitialFetching =
+      !instance || ['initial', 'fetching'].includes(instance.refreshingStatus);
 
     if (isRefreshing) {
       refreshClassName = 'fa fa-refresh fa-spin';
