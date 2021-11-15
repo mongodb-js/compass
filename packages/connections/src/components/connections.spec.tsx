@@ -41,26 +41,29 @@ function writeFakeConnection(
 }
 
 describe('Connections Component', function () {
-  let tmpDir: string;
   let onConnectedSpy;
 
   beforeEach(function () {
     onConnectedSpy = sinon.spy();
-
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connections-tests'));
-    TestBackend.enable(tmpDir);
-  });
-
-  afterEach(function () {
-    TestBackend.disable();
-    try {
-      fs.rmdirSync(tmpDir, { recursive: true });
-    } catch (e) {
-      /* */
-    }
   });
 
   describe('when rendered', function () {
+    let tmpDir: string;
+
+    before(function () {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connections-tests'));
+      TestBackend.enable(tmpDir);
+    });
+
+    after(function () {
+      TestBackend.disable();
+      try {
+        fs.rmdirSync(tmpDir, { recursive: true });
+      } catch (e) {
+        /* */
+      }
+    });
+
     beforeEach(function () {
       render(<Connections onConnected={onConnectedSpy} />);
     });
@@ -100,17 +103,32 @@ describe('Connections Component', function () {
 
   describe('when rendered with saved connections in storage', function () {
     let savedConnectionId: string;
+    let tmpDir: string;
 
     beforeEach(async function () {
+      render(<Connections onConnected={onConnectedSpy} />);
+
+      await waitFor(() => expect(screen.queryByRole('listitem')).to.be.visible);
+    });
+
+    before(function () {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connections-tests'));
+      TestBackend.enable(tmpDir);
+
       savedConnectionId = uuid();
       writeFakeConnection(tmpDir, {
         _id: savedConnectionId,
         port: 27018,
       });
+    });
 
-      render(<Connections onConnected={onConnectedSpy} />);
-
-      await waitFor(() => expect(screen.queryByRole('listitem')).to.be.visible);
+    after(function () {
+      TestBackend.disable();
+      try {
+        fs.rmdirSync(tmpDir, { recursive: true });
+      } catch (e) {
+        /* */
+      }
     });
 
     afterEach(function () {
@@ -179,27 +197,41 @@ describe('Connections Component', function () {
   describe('connecting to a connection that is not succeeding', function () {
     let savedConnectableId: string;
     let savedUnconnectableId: string;
+    let tmpDir: string;
 
-    beforeEach(async function () {
+    before(async function () {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connections-tests'));
+      TestBackend.enable(tmpDir);
+
       savedConnectableId = uuid();
       savedUnconnectableId = uuid();
       writeFakeConnection(tmpDir, {
         _id: savedConnectableId,
         port: 27018,
       });
-      writeFakeConnection(
-        tmpDir,
-        await convertConnectionInfoToModel({
-          id: savedUnconnectableId,
-          connectionOptions: {
-            // Hopefully nothing is running on this port.
-            // Times out in 5000ms.
-            connectionString:
-              'mongodb://localhost:28099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000',
-          },
-        })
-      );
 
+      const connectionModel = await convertConnectionInfoToModel({
+        id: savedUnconnectableId,
+        connectionOptions: {
+          // Hopefully nothing is running on this port.
+          // Times out in 5000ms.
+          connectionString:
+            'mongodb://localhost:28099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000',
+        },
+      });
+      writeFakeConnection(tmpDir, connectionModel);
+    });
+
+    after(function () {
+      TestBackend.disable();
+      try {
+        fs.rmdirSync(tmpDir, { recursive: true });
+      } catch (e) {
+        /* */
+      }
+    });
+
+    beforeEach(async function () {
       render(<Connections onConnected={onConnectedSpy} />);
 
       await waitFor(
