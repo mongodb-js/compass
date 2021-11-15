@@ -71,7 +71,6 @@ function ConnectForm({
             setConnectionString={setConnectionString}
           />
           <AdvancedConnectionOptions />
-
         </div>
         <div className={formActionStyles}>
           <Button
