@@ -37,6 +37,7 @@ describe('InstanceStore [Store]', () => {
     let hold;
     let hideSpy;
     let configureSpy;
+    let showIndeterminateProgressBarSpy;
     let emitSpy;
 
     beforeEach(() => {
@@ -45,9 +46,11 @@ describe('InstanceStore [Store]', () => {
       emitSpy = sinon.spy(global.hadronApp.appRegistry, 'emit');
       hideSpy = sinon.spy();
       configureSpy = sinon.spy();
+      showIndeterminateProgressBarSpy = sinon.spy();
       global.hadronApp.appRegistry.getAction = () => ({
         hide: hideSpy,
-        configure: configureSpy
+        configure: configureSpy,
+        showIndeterminateProgressBar: showIndeterminateProgressBarSpy
       });
       store.onActivated(global.hadronApp.appRegistry);
     });
@@ -84,10 +87,10 @@ describe('InstanceStore [Store]', () => {
       });
 
       it('emits instance-refreshed event', () => {
-        expect(emitSpy.callCount).to.equal(2);
         const events = emitSpy.args.map(([evtName]) => evtName);
         expect(events).to.eql([
           'data-service-connected',
+          'instance-created',
           'instance-refreshed'
         ]);
       });
@@ -117,7 +120,6 @@ describe('InstanceStore [Store]', () => {
       });
 
       it('emits instance-refreshed event', () => {
-        expect(emitSpy.callCount).to.equal(2);
         const events = emitSpy.args.map(([evtName]) => evtName);
         expect(events).to.eql([
           'data-service-connected',
@@ -154,10 +156,10 @@ describe('InstanceStore [Store]', () => {
       });
 
       it('emits instance-changed event', () => {
-        expect(emitSpy.callCount).to.equal(4);
         const events = emitSpy.args.map(([evtName]) => evtName);
         expect(events).to.eql([
           'data-service-connected',
+          'instance-created',
           'instance-refreshed',
           'refresh-data',
           'instance-refreshed',
@@ -193,10 +195,10 @@ describe('InstanceStore [Store]', () => {
       });
 
       it('emits instance-changed event', () => {
-        expect(emitSpy.callCount).to.equal(4);
         const events = emitSpy.args.map(([evtName]) => evtName);
         expect(events).to.eql([
           'data-service-connected',
+          'instance-created',
           'instance-refreshed',
           'agg-pipeline-out-executed',
           'instance-refreshed',

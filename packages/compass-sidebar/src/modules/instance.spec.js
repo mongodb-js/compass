@@ -6,9 +6,6 @@ import reducer, {
 
 const instance = {
   _id: '123',
-  toJSON() {
-    return {_id: this._id};
-  }
 };
 
 describe('sidebar instance', () => {

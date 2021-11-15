@@ -100,6 +100,7 @@
     "mongodb-collection-model": "^4.14.0",
     "mongodb-connection-model": "^21.8.0",
     "mongodb-data-service": "^21.12.0",
+    "mongodb-instance-model": "^11.14.0",
     "mongodb-ns": "^2.2.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
@@ -135,7 +136,6 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.3.0",
-    "async": "^3.2.0",
     "lodash": "^4.17.15",
     "lodash.find": "^4.6.0",
     "lodash.isempty": "^4.4.0",

@@ -4,12 +4,11 @@
  * @return {Object}
  */
 const makeModel = (db) => {
-  const colls = db.collections.map((c) => ({
+  const colls = (db.collections ?? []).map((c) => ({
     _id: `${db._id}.${c}`,
     name: c,
     database: db._id,
     capped: false,
-    power_of_two: false,
     readonly: false,
   }));
 

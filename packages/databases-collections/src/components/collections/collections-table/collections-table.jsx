@@ -80,7 +80,7 @@ class CollectionsTable extends PureComponent {
    * @param {String} order - The order.
    */
   onHeaderClicked = (column, order) => {
-    this.props.sortCollections(this.props.collections, column, order);
+    this.props.sortCollections(column, order);
   }
 
   /**

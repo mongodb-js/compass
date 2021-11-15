@@ -240,7 +240,7 @@ class DataService extends EventEmitter {
   async collectionInfo(
     dbName: string,
     collName: string
-  ): Promise<CollectionInfo | null> {
+  ): Promise<ReturnType<typeof adaptCollectionInfo> | null> {
     try {
       const [collInfo] = await this.listCollections(dbName, { name: collName });
       return collInfo ?? null;

@@ -1877,57 +1877,6 @@ describe('Store', () => {
       expect(appRegistryEmitStub.calledOnce).to.equal(true);
     });
 
-    it('shows the progress bar when it successfully connects', async() => {
-      Store.state.currentConnectionAttempt = createConnectionAttempt();
-      const spyShow = sinon.spy(
-        Store.StatusActions,
-        'showIndeterminateProgressBar'
-      );
-
-      await Store._connect(connection);
-
-      expect(spyShow.calledOnce).to.equal(true);
-    });
-
-    it('does not show the progress bar when it errors when connecting', async() => {
-      Store.state.currentConnectionAttempt = createConnectionAttempt();
-      const spyShow = sinon.spy(
-        Store.StatusActions,
-        'showIndeterminateProgressBar'
-      );
-
-      let finishedConnecting = false;
-      const startConnecting = async() => {
-        await Store._connect({
-          port: 29799 // Hopefully not in use.
-        });
-
-        finishedConnecting = true;
-      };
-
-      startConnecting();
-
-      await ensureResult(
-        3,
-        () => Store.state.currentConnectionAttempt,
-        () => Store.state.currentConnectionAttempt !== null,
-        'Never started connecting to failing connection.'
-      );
-
-      Store.state.currentConnectionAttempt.cancelConnectionAttempt();
-
-      await ensureResult(
-        3,
-        () => finishedConnecting,
-        () => finishedConnecting,
-        'Never finished connecting to failing connection.'
-      );
-
-      expect(Store.state.isConnected).to.equal(false);
-      expect(Store.dataService).to.equal(null);
-      expect(spyShow.calledOnce).to.equal(false);
-    });
-
     it('does not connect when currentConnectionAttempt is null', async() => {
       Store.state.currentConnectionAttempt = null;
       await Store._connect(connection);

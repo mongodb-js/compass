@@ -3,15 +3,18 @@ import Store from './';
 describe('ServerVersionStore [Store]', () => {
   beforeEach(() => {
     Store.setState(Store.getInitialState());
+    Store.onActivated({ on() {}, emit() {} });
   });
 
-  describe('#onInstanceFetched', () => {
-    const s = {
-      instance: {
-        build: {
-          isEnterprise: true,
-          version: '3.4.4'
-        }
+  describe('#onInstanceStatusChange', () => {
+    const instance = {
+      build: {
+        isEnterprise: true,
+        version: '3.4.4'
+      },
+      dataLake: {
+        isDataLake: false,
+        version: null
       }
     };
 
@@ -23,21 +26,19 @@ describe('ServerVersionStore [Store]', () => {
         expect(state.isDataLake).to.equal(false);
         done();
       });
-      Store.onInstanceFetched(s);
+      Store.onInstanceStatusChange(instance, 'ready');
     });
   });
 
-  describe('#onInstanceFetched with DataLake', () => {
-    const s = {
-      instance: {
-        build: {
-          isEnterprise: true,
-          version: '3.4.4'
-        },
-        dataLake: {
-          isDataLake: true,
-          version: '1.0.0'
-        }
+  describe('#onInstanceStatusChange with DataLake', () => {
+    const instance = {
+      build: {
+        isEnterprise: true,
+        version: '3.4.4'
+      },
+      dataLake: {
+        isDataLake: true,
+        version: '1.0.0'
       }
     };
 
@@ -50,7 +51,7 @@ describe('ServerVersionStore [Store]', () => {
         expect(state.dataLakeVersion).to.equal('1.0.0');
         done();
       });
-      Store.onInstanceFetched(s);
+      Store.onInstanceStatusChange(instance, 'ready');
     });
   });
 });
