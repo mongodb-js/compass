@@ -133,7 +133,7 @@ const DatabaseModel = AmpersandModel.extend(
      */
     async fetchCollections({ dataService, fetchInfo = false }) {
       try {
-        const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
+        const newStatus = this.collectionsStatus === 'initial' ? 'fetching' : 'refreshing';
         this.set({ collectionsStatus: newStatus });
         await this.collections.fetch({ dataService, fetchInfo });
         this.set({ collectionsStatus: 'ready', collectionsStatusError: null });
