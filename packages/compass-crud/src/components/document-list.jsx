@@ -120,7 +120,7 @@ class DocumentList extends React.Component {
       );
     }
 
-    if (this.props.status === DOCUMENTS_STATUS_FETCHING) {
+    if (this.props.status === DOCUMENTS_STATUS_FETCHING && !this.props.debouncing) {
       return this.renderFetching();
     }
 
@@ -184,7 +184,7 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The query bar.
    */
   renderZeroState() {
-    if (this.props.docs.length > 0 || this.props.status === DOCUMENTS_STATUS_FETCHING) {
+    if (this.props.docs.length > 0 || (this.props.status === DOCUMENTS_STATUS_FETCHING && !this.props.debouncing)) {
       return null;
     }
 
@@ -283,6 +283,7 @@ DocumentList.propTypes = {
   tz: PropTypes.string,
   updateComment: PropTypes.func.isRequired,
   status: PropTypes.string,
+  debouncing: PropTypes.bool,
   outdated: PropTypes.bool,
   resultId: PropTypes.number
 };

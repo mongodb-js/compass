@@ -202,6 +202,7 @@ const configureStore = (options = {}) => {
         isReadonly: false,
         isTimeSeries: false,
         status: DOCUMENTS_STATUS_INITIAL,
+        debouncing: false,
         outdated: false,
         shardKeys: null,
         resultId: resultId()
@@ -614,6 +615,8 @@ const configureStore = (options = {}) => {
         error: null
       });
 
+      const cancelDebounce = this.debounceLoading();
+
       let error;
       let documents;
       try {
@@ -639,6 +642,8 @@ const configureStore = (options = {}) => {
       abortController.signal.removeEventListener('abort', this.onAbort);
       this.localAppRegistry.emit('documents-paginated', view, documents);
       this.globalAppRegistry.emit('documents-paginated', view, documents);
+
+      cancelDebounce();
     },
 
     /**
@@ -1065,6 +1070,9 @@ const configureStore = (options = {}) => {
         count: null // we don't know the new count yet
       });
 
+      // don't start showing the loading indicator and cancel button immediately
+      const cancelDebounce = this.debounceLoading();
+
       const stateChanges = {};
 
       try {
@@ -1093,6 +1101,9 @@ const configureStore = (options = {}) => {
           status: DOCUMENTS_STATUS_ERROR,
         });
       }
+
+      // cancel the debouncing status if we load before the timer fires
+      cancelDebounce();
 
       Object.assign(stateChanges, {
         abortController: null,
@@ -1128,6 +1139,26 @@ const configureStore = (options = {}) => {
       this.setState({ abortController: null });
 
       abortController.abort();
+    },
+
+    debounceLoading() {
+      this.setState({ debouncing: true });
+
+      const debouncePromise = new Promise((resolve) => {
+        setTimeout(resolve, 200); // 200ms should feel about instant
+      });
+
+      let cancelDebounce;
+      const loadPromise = new Promise((resolve) => {
+        cancelDebounce = resolve;
+      });
+
+      Promise.race([debouncePromise, loadPromise])
+        .then(() => {
+          this.setState({ debouncing: false });
+        });
+
+      return cancelDebounce;
     },
 
     hasProjection(query) {
