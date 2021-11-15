@@ -113,9 +113,9 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
-  const metricsConnection = process.env.E2E_TESTS_METRICS_STRING;
+  const metricsConnection = process.env.E2E_TESTS_METRICS_URI;
   if (metricsConnection) {
-    debug('Connecting to E2E_TESTS_METRICS_STRING');
+    debug('Connecting to E2E_TESTS_METRICS_URI');
     // only require it down here because it gets rebuilt up top
     const { MongoClient } = require('mongodb');
     metricsClient = new MongoClient(metricsConnection);

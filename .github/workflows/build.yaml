@@ -72,7 +72,7 @@ jobs:
 
       - name: Test Packaged Application
         env:
-          E2E_TESTS_METRICS_STRING: ${{ secrets.E2E_TESTS_METRICS_STRING }}
+          E2E_TESTS_METRICS_URI: ${{ secrets.E2E_TESTS_METRICS_URI }}
           E2E_TESTS_ATLAS_HOST: ${{ secrets.E2E_TESTS_ATLAS_HOST }}
           E2E_TESTS_DATA_LAKE_HOST: ${{ secrets.E2E_TESTS_DATA_LAKE_HOST }}
           E2E_TESTS_ANALYTICS_NODE_HOST: ${{ secrets.E2E_TESTS_ANALYTICS_NODE_HOST }}
