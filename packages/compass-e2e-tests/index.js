@@ -9,13 +9,12 @@ const {
   rebuildNativeModules,
   compileCompassAssets,
   buildCompass,
+  LOG_PATH,
 } = require('./helpers/compass');
 const { createUnlockedKeychain } = require('./helpers/keychain');
 const ResultLogger = require('./helpers/result-logger');
 
 const keychain = createUnlockedKeychain();
-
-const LOG_PATH = path.resolve(__dirname, '.log');
 
 let metricsClient;
 
