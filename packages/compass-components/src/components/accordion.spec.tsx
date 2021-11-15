@@ -7,18 +7,13 @@ import Accordion from './accordion';
 
 function renderAccordion() {
   return render(
-    <Accordion
-      dataTestId="my-test-id"
-      text='Accordion Test'
-    >
+    <Accordion dataTestId="my-test-id" text="Accordion Test">
       <h1>Hello World</h1>
     </Accordion>
-
   );
 }
 
 describe('Accordion Component', function () {
-
   afterEach(function () {
     cleanup();
   });
