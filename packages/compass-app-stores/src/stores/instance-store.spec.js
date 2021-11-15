@@ -24,13 +24,11 @@ describe('InstanceStore [Store]', () => {
       instance() {
         return Promise.resolve(instanceInfo);
       },
-      listDatabases(_opts, cb) {
-        cb(null, []);
-        return;
+      listDatabases() {
+        return Promise.resolve([]);
       },
-      listCollections(_dbName, cb) {
-        cb(null, []);
-        return;
+      listCollections() {
+        return Promise.resolve([]);
       }
     };
   }

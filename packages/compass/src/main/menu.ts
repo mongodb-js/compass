@@ -22,7 +22,6 @@ type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
 const debug = createDebug('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
-
 class ThemeState {
   theme: THEMES = THEMES.OS_THEME;
 }
@@ -426,8 +425,8 @@ function darwinMenu(
   themeState: ThemeState,
   saveThemeAndRefreshMenu: (theme: ThemeState) => void,
   app: typeof CompassApplication
-) {
-  const menu: MenuTemplate = [darwinCompassSubMenu()];
+): MenuItemConstructorOptions[] {
+  const menu = [darwinCompassSubMenu()];
 
   menu.push(connectSubMenu(false, app));
   menu.push(editSubMenu());
@@ -448,7 +447,7 @@ function nonDarwinMenu(
   themeState: ThemeState,
   saveThemeAndRefreshMenu: (theme: ThemeState) => void,
   app: typeof CompassApplication
-) {
+): MenuItemConstructorOptions[] {
   const menu = [connectSubMenu(true, app), viewSubMenu(themeState, saveThemeAndRefreshMenu)];
 
   if (menuState.showCollection) {
@@ -522,7 +521,7 @@ class CompassMenu {
     debug(`WINDOW ${bw.id} load()`);
 
     if (bw.id !== this.currentWindowMenuLoaded) {
-      if (this.windowState.has(bw.id)) {
+      if (!this.windowState.has(bw.id)) {
         this.addWindow(bw);
 
         debug(`create menu state for new WINDOW ${bw.id}`);
@@ -582,13 +581,11 @@ class CompassMenu {
     debug(`WINDOW ${id} setTemplate()`);
     this.currentWindowMenuLoaded = id;
     const template = this.getTemplate(id);
-    const menu = Menu.buildFromTemplate(
-      template as MenuItemConstructorOptions[]
-    );
+    const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
   }
 
-  static getTemplate(id: BrowserWindow['id']): MenuTemplate[] {
+  static getTemplate(id: BrowserWindow['id']): MenuItemConstructorOptions[] {
     let menuState = this.windowState.get(id);
 
     if (!menuState) {
@@ -617,9 +614,7 @@ class CompassMenu {
     debug(`WINDOW ${currentWindowMenuId} refreshing menu`);
 
     const template = this.getTemplate(currentWindowMenuId);
-    const menu = Menu.buildFromTemplate(
-      template as MenuItemConstructorOptions[]
-    );
+    const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
   }
 

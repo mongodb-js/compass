@@ -30,10 +30,12 @@ function getMaxSidebarWidth() {
 function ResizableSidebar({
   activeConnectionId,
   connections,
+  createNewConnection,
   setActiveConnectionId,
 }: {
   activeConnectionId?: string;
   connections: ConnectionInfo[];
+  createNewConnection: () => void;
   setActiveConnectionId: (newConnectionId?: string) => void;
 }): React.ReactElement {
   const [width, setWidth] = useState(initialSidebarWidth);
@@ -48,6 +50,7 @@ function ResizableSidebar({
       <ConnectionList
         activeConnectionId={activeConnectionId}
         connections={connections}
+        createNewConnection={createNewConnection}
         setActiveConnectionId={setActiveConnectionId}
       />
       <ResizeHandle

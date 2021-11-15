@@ -36,19 +36,12 @@ const DatabaseCollection = AmpersandCollection.extend({
   model: DatabaseModel,
   /**
    * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
-   * @returns
+   * @returns {Promise<void>}
    */
-  fetch({ dataService }) {
-    return new Promise((resolve, reject) => {
-      dataService.listDatabases({ nameOnly: true }, (err, databases) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(this.set(databases));
-      });
-    });
-  }
+  async fetch({ dataService }) {
+    const dbs = await dataService.listDatabases({ nameOnly: true });
+    this.set(dbs.map(({ _id, name }) => ({ _id, name })));
+  },
 });
 
 module.exports = DatabaseModel;
