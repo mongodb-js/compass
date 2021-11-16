@@ -10,6 +10,7 @@ import { expect } from 'chai';
 import { ConnectionInfo } from 'mongodb-data-service';
 import { v4 as uuid } from 'uuid';
 import sinon from 'sinon';
+import getPort from 'get-port';
 
 import Connections from './connections';
 import { ConnectionStore } from '../stores/connections-store';
@@ -160,6 +161,11 @@ describe('Connections Component', function () {
   describe('connecting to a connection that is not succeeding', function () {
     let savedConnectableId: string;
     let savedUnconnectableId: string;
+    let inactiveTestPort: number;
+
+    before(async function () {
+      inactiveTestPort = await getPort();
+    });
 
     beforeEach(async function () {
       savedConnectableId = uuid();
@@ -178,10 +184,8 @@ describe('Connections Component', function () {
             {
               id: savedUnconnectableId,
               connectionOptions: {
-                // Hopefully nothing is running on this port.
                 // Times out in 5000ms.
-                connectionString:
-                  'mongodb://localhost:28099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000',
+                connectionString: `mongodb://localhost:${inactiveTestPort}/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000`,
               },
             },
           ])}
@@ -205,7 +209,7 @@ describe('Connections Component', function () {
       // Wait for the connection to load in the form.
       await waitFor(() =>
         expect(screen.queryByRole('textbox').textContent).to.equal(
-          'mongodb://localhost:28099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000'
+          `mongodb://localhost:${inactiveTestPort}/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000`
         )
       );
 
