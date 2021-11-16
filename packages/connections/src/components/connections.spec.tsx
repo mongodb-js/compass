@@ -1,6 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { TestBackend } = require('storage-mixin');
-
 import React from 'react';
 import {
   cleanup,
@@ -10,34 +7,21 @@ import {
   fireEvent,
 } from '@testing-library/react';
 import { expect } from 'chai';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
+import { ConnectionInfo } from 'mongodb-data-service';
 import { v4 as uuid } from 'uuid';
-import { convertConnectionInfoToModel } from 'mongodb-data-service';
 import sinon from 'sinon';
 
 import Connections from './connections';
+import { ConnectionStore } from '../stores/connections-store';
 
-function getConnectionFilePath(tmpDir: string, id: string): string {
-  const connectionsDir = path.join(tmpDir, 'Connections');
-  const filePath = path.join(connectionsDir, `${id}.json`);
-  return filePath;
-}
-
-// TODO: In typescript 4.5 we can just use Awaited and remove this.
-type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
-
-function writeFakeConnection(
-  tmpDir: string,
-  legacyConnection: Partial<
-    Awaited<ReturnType<typeof convertConnectionInfoToModel>>
-  > & { _id: string }
-) {
-  const filePath = getConnectionFilePath(tmpDir, legacyConnection._id);
-  const connectionsDir = path.dirname(filePath);
-  fs.mkdirSync(connectionsDir, { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(legacyConnection));
+function getMockConnectionStorage(
+  mockConnections: ConnectionInfo[]
+): ConnectionStore {
+  return {
+    loadAll: () => {
+      return Promise.resolve(mockConnections);
+    },
+  };
 }
 
 describe('Connections Component', function () {
@@ -47,29 +31,18 @@ describe('Connections Component', function () {
     onConnectedSpy = sinon.spy();
   });
 
+  afterEach(function () {
+    cleanup();
+  });
+
   describe('when rendered', function () {
-    let tmpDir: string;
-
-    before(function () {
-      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connections-tests'));
-      TestBackend.enable(tmpDir);
-    });
-
-    after(function () {
-      TestBackend.disable();
-      try {
-        fs.rmdirSync(tmpDir, { recursive: true });
-      } catch (e) {
-        /* */
-      }
-    });
-
     beforeEach(function () {
-      render(<Connections onConnected={onConnectedSpy} />);
-    });
-
-    afterEach(function () {
-      cleanup();
+      render(
+        <Connections
+          onConnected={onConnectedSpy}
+          connectionStorage={getMockConnectionStorage([])}
+        />
+      );
     });
 
     it('renders the connect button from the connect-form', function () {
@@ -103,36 +76,26 @@ describe('Connections Component', function () {
 
   describe('when rendered with saved connections in storage', function () {
     let savedConnectionId: string;
-    let tmpDir: string;
 
     beforeEach(async function () {
-      render(<Connections onConnected={onConnectedSpy} />);
+      savedConnectionId = uuid();
+
+      render(
+        <Connections
+          onConnected={onConnectedSpy}
+          connectionStorage={getMockConnectionStorage([
+            {
+              id: savedConnectionId,
+              connectionOptions: {
+                connectionString:
+                  'mongodb://localhost:27018/?readPreference=primary&ssl=false',
+              },
+            },
+          ])}
+        />
+      );
 
       await waitFor(() => expect(screen.queryByRole('listitem')).to.be.visible);
-    });
-
-    before(function () {
-      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connections-tests'));
-      TestBackend.enable(tmpDir);
-
-      savedConnectionId = uuid();
-      writeFakeConnection(tmpDir, {
-        _id: savedConnectionId,
-        port: 27018,
-      });
-    });
-
-    after(function () {
-      TestBackend.disable();
-      try {
-        fs.rmdirSync(tmpDir, { recursive: true });
-      } catch (e) {
-        /* */
-      }
-    });
-
-    afterEach(function () {
-      cleanup();
     });
 
     it('should render the saved connections', function () {
@@ -197,42 +160,33 @@ describe('Connections Component', function () {
   describe('connecting to a connection that is not succeeding', function () {
     let savedConnectableId: string;
     let savedUnconnectableId: string;
-    let tmpDir: string;
-
-    before(async function () {
-      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connections-tests'));
-      TestBackend.enable(tmpDir);
-
-      savedConnectableId = uuid();
-      savedUnconnectableId = uuid();
-      writeFakeConnection(tmpDir, {
-        _id: savedConnectableId,
-        port: 27018,
-      });
-
-      const connectionModel = await convertConnectionInfoToModel({
-        id: savedUnconnectableId,
-        connectionOptions: {
-          // Hopefully nothing is running on this port.
-          // Times out in 5000ms.
-          connectionString:
-            'mongodb://localhost:28099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000',
-        },
-      });
-      writeFakeConnection(tmpDir, connectionModel);
-    });
-
-    after(function () {
-      TestBackend.disable();
-      try {
-        fs.rmdirSync(tmpDir, { recursive: true });
-      } catch (e) {
-        /* */
-      }
-    });
 
     beforeEach(async function () {
-      render(<Connections onConnected={onConnectedSpy} />);
+      savedConnectableId = uuid();
+      savedUnconnectableId = uuid();
+      render(
+        <Connections
+          onConnected={onConnectedSpy}
+          connectionStorage={getMockConnectionStorage([
+            {
+              id: savedConnectableId,
+              connectionOptions: {
+                connectionString:
+                  'mongodb://localhost:27018/?readPreference=primary&ssl=false',
+              },
+            },
+            {
+              id: savedUnconnectableId,
+              connectionOptions: {
+                // Hopefully nothing is running on this port.
+                // Times out in 5000ms.
+                connectionString:
+                  'mongodb://localhost:28099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000',
+              },
+            },
+          ])}
+        />
+      );
 
       await waitFor(
         () =>
@@ -264,10 +218,6 @@ describe('Connections Component', function () {
           expect(screen.queryByTestId('cancel-connection-attempt-button')).to
             .exist
       );
-    });
-
-    afterEach(function () {
-      cleanup();
     });
 
     describe('when the connection attempt is cancelled', function () {
