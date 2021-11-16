@@ -20,11 +20,7 @@ const CONNECTION = new Connection({
   mongodb_database_name: 'admin'
 });
 
-function delay(timeout) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, timeout);
-  });
-}
+const delay = util.promisify(setTimeout);
 
 function waitForStates(store, cbs, timeout = 2000) {
   let numMatches = 0;
