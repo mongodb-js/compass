@@ -202,7 +202,7 @@ const configureStore = (options = {}) => {
         isReadonly: false,
         isTimeSeries: false,
         status: DOCUMENTS_STATUS_INITIAL,
-        debouncing: false,
+        debouncingLoad: false,
         outdated: false,
         shardKeys: null,
         resultId: resultId()
@@ -615,7 +615,7 @@ const configureStore = (options = {}) => {
         error: null
       });
 
-      const cancelDebounce = this.debounceLoading();
+      const cancelDebounceLoad = this.debounceLoading();
 
       let error;
       let documents;
@@ -643,7 +643,7 @@ const configureStore = (options = {}) => {
       this.localAppRegistry.emit('documents-paginated', view, documents);
       this.globalAppRegistry.emit('documents-paginated', view, documents);
 
-      cancelDebounce();
+      cancelDebounceLoad();
     },
 
     /**
@@ -1071,7 +1071,7 @@ const configureStore = (options = {}) => {
       });
 
       // don't start showing the loading indicator and cancel button immediately
-      const cancelDebounce = this.debounceLoading();
+      const cancelDebounceLoad = this.debounceLoading();
 
       const stateChanges = {};
 
@@ -1103,7 +1103,7 @@ const configureStore = (options = {}) => {
       }
 
       // cancel the debouncing status if we load before the timer fires
-      cancelDebounce();
+      cancelDebounceLoad();
 
       Object.assign(stateChanges, {
         abortController: null,
@@ -1142,23 +1142,23 @@ const configureStore = (options = {}) => {
     },
 
     debounceLoading() {
-      this.setState({ debouncing: true });
+      this.setState({ debouncingLoad: true });
 
       const debouncePromise = new Promise((resolve) => {
         setTimeout(resolve, 200); // 200ms should feel about instant
       });
 
-      let cancelDebounce;
+      let cancelDebounceLoad;
       const loadPromise = new Promise((resolve) => {
-        cancelDebounce = resolve;
+        cancelDebounceLoad = resolve;
       });
 
       Promise.race([debouncePromise, loadPromise])
         .then(() => {
-          this.setState({ debouncing: false });
+          this.setState({ debouncingLoad: false });
         });
 
-      return cancelDebounce;
+      return cancelDebounceLoad;
     },
 
     hasProjection(query) {
