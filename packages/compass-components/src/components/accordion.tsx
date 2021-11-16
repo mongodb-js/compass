@@ -22,7 +22,6 @@ const buttonStyles = css({
   '&:focus-visible': {
     boxShadow: `0 0 0 3px ${uiColors.focus}`,
   },
-
 });
 const containerStyles = css({
   marginTop: spacing[3],
@@ -51,8 +50,8 @@ function Accordion(
             type="button"
             aria-expanded={open ? 'true' : 'false'}
             aria-controls={regionId}
-            onClick={() =>{
-              setOpen(currentOpen => !currentOpen)
+            onClick={() => {
+              setOpen((currentOpen) => !currentOpen);
             }}
           >
             <Icon glyph={open ? 'ChevronDown' : 'ChevronRight'} />
