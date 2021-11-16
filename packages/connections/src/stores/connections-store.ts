@@ -162,12 +162,12 @@ async function trackNewConnectionEvent(dataService: DataService, connectionStrin
     host,
     build,
   } = await dataService.instance();
-  const { hosts: [hostName] } = new ConnectionString(connectionString);
+  const connectionStringData = new ConnectionString(connectionString);
+  const hostName = connectionStringData.hosts[0];
   const { isAws, isAzure, isGcp } = await getCloudInfo(hostName).catch((err: Error) => {
     debug('getCloudInfo failed', err);
     return {};
   });
-  const connectionOptions = dataService.getMongoClientConnectionOptions();
   const isPublicCloud = isAws || isAzure || isGcp;
   const publicCloudName = isAws ? 'AWS' : isAzure ? 'Azure' : isGcp ? 'GCP' : '';
 
@@ -184,7 +184,7 @@ async function trackNewConnectionEvent(dataService: DataService, connectionStrin
     server_version: host.kernel_version,
     server_arch: host.arch,
     server_os_family: host.os_family,
-    auth_type: connectionOptions?.options.authMechanism ?? '',
+    auth_type: connectionStringData.searchParams.get('authMechanism') ?? '',
   };
   track('New Connection', trackEvent);
 }
@@ -291,7 +291,8 @@ export function useConnections(
           dispatch({
             type: 'connection-attempt-succeeded',
           });
-          void trackNewConnectionEvent(newConnectionDataService, connectionInfo.connectionOptions.connectionString);
+          trackNewConnectionEvent(newConnectionDataService, connectionInfo.connectionOptions.connectionString)
+            .catch((error) => debug('trackNewConnectionEvent failed', error));
           debug(
             'connection attempt succeeded with connection info',
             connectionInfo
