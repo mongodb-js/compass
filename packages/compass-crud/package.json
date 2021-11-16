@@ -133,7 +133,7 @@
     "ag-grid-react": "20.2.0",
     "brace": "^0.11.1",
     "bson": "*",
-    "debug": "^4.1.1",
+    "debug": "4.3.0",
     "fast-json-parse": "^1.0.3",
     "hadron-document": "^7.5.0",
     "hadron-type-checker": "^6.4.0",

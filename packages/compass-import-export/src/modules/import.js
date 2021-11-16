@@ -320,37 +320,20 @@ export const startImport = () => {
 
         dispatch(onFinished(dest.docsWritten, dest.docsProcessed));
 
-        /**
-         * TODO: lucas: Deduping emits. @see https://github.com/mongodb-js/compass-import-export/pulls/23
-         **/
-        dispatch(
-          appRegistryEmit(
-            'import-finished',
-            size,
-            fileType,
-            dest.docsWritten,
-            fileIsMultilineJSON,
-            delimiter,
-            ignoreBlanks,
-            stopOnErrors,
-            exclude.length > 0,
-            transform.length > 0
-          )
-        );
-        dispatch(
-          globalAppRegistryEmit(
-            'import-finished',
-            size,
-            fileType,
-            dest.docsWritten,
-            fileIsMultilineJSON,
-            delimiter,
-            ignoreBlanks,
-            stopOnErrors,
-            exclude.length > 0,
-            transform.length > 0
-          )
-        );
+        const payload = {
+          ns,
+          size,
+          fileType,
+          docsWritten: dest.docsWritten,
+          fileIsMultilineJSON,
+          delimiter,
+          ignoreBlanks,
+          stopOnErrors,
+          hasExcluded: exclude.length > 0,
+          hasTransformed: transform.length > 0
+        };
+        dispatch(appRegistryEmit('import-finished', payload));
+        dispatch(globalAppRegistryEmit('import-finished', payload));
         console.groupEnd();
         console.groupEnd();
       }

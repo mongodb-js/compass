@@ -3,29 +3,114 @@ const AmpersandCollection = require('ampersand-collection');
 const { promisify } = require('util');
 const toNs = require('mongodb-ns');
 
-const CollectionModel = AmpersandModel.extend({
+const NamespaceCache = new Map();
+
+function getNamespaceInfo(ns) {
+  if (!NamespaceCache.has(ns)) {
+    NamespaceCache.set(ns, toNs(ns));
+  }
+  return NamespaceCache.get(ns);
+}
+
+function mergeInit(...init) {
+  return {
+    initialize(...args) {
+      init.forEach(({ initialize }) => {
+        initialize.call(this, ...args);
+      });
+    },
+  };
+}
+
+const Inflight = new Map();
+
+function debounceInflight(fn) {
+  return function (...args) {
+    const callId = this.isCollection
+      ? `${this.parent.cid}$$coll$$${fn.name}`
+      : `${this.cid}$$${fn.name}`;
+    if (Inflight.has(callId)) {
+      return Inflight.get(callId);
+    }
+    const promise = fn.call(this, ...args).finally(() => {
+      Inflight.delete(callId);
+    });
+    Inflight.set(callId, promise);
+    return promise;
+  };
+}
+
+function debounceActions(actions) {
+  return {
+    initialize() {
+      actions.forEach((key) => {
+        if (key in this && typeof this[key] === 'function') {
+          const origFn = this[key];
+          this[key] = debounceInflight(origFn);
+        }
+      });
+    },
+  };
+}
+
+function getParent(model) {
+  return model.parent ?? model.collection ?? null;
+}
+
+function propagate(evtName, ...args) {
+  let parent = getParent(this);
+  while (parent) {
+    parent.emit(evtName, ...args);
+    parent = getParent(parent);
+  }
+}
+
+function propagateCollectionEvents(namespace) {
+  return {
+    initialize() {
+      if (this.isCollection) {
+        this.on('add', propagate.bind(this, `add:${namespace}`));
+        this.on('remove', propagate.bind(this, `remove:${namespace}`));
+        this.on('change', propagate.bind(this, `change:${namespace}`));
+        for (const key of Object.keys(this.model.prototype._definition)) {
+          this.on(
+            `change:${key}`,
+            propagate.bind(this, `change:${namespace}.${key}`)
+          );
+        }
+      }
+    },
+  };
+}
+
+function pickCollectionInfo({
+  type,
+  readonly,
+  view_on,
+  collation,
+  pipeline,
+  validation,
+}) {
+  return { type, readonly, view_on, collation, pipeline, validation };
+}
+
+const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   modelType: 'Collection',
   idAttribute: '_id',
   props: {
-    _id: 'string',
-
-    // Normalized values from listCollections command
-    name: { type: 'string', required: true },
-    database: { type: 'string', required: true },
+    _id: { type: 'string', required: true },
     type: { type: 'string', required: true },
-    system: { type: 'boolean', required: true },
-    oplog: { type: 'boolean', required: true },
-    command: { type: 'boolean', required: true },
-    special: { type: 'boolean', required: true },
-    specialish: { type: 'boolean', required: true },
-    normal: { type: 'boolean', required: true },
+    status: { type: 'string', default: 'initial' },
+    statusError: { type: 'string', default: null },
+
+    // Normalized values from collectionInfo command
     readonly: 'boolean',
+    view_on: 'string',
     collation: 'object',
     pipeline: 'array',
     validation: 'object',
 
     // Normalized values from collStats command
-    ns: 'string',
     is_capped: 'boolean',
     max: 'number',
     is_power_of_two: 'boolean',
@@ -44,34 +129,112 @@ const CollectionModel = AmpersandModel.extend({
     index_details: 'object',
     wired_tiger: 'object',
   },
+  derived: {
+    ns: {
+      deps: ['_id'],
+      fn() {
+        return getNamespaceInfo(this._id).ns;
+      },
+    },
+    name: {
+      deps: ['_id'],
+      fn() {
+        return getNamespaceInfo(this._id).collection;
+      },
+    },
+    database: {
+      deps: ['_id'],
+      fn() {
+        return getNamespaceInfo(this._id).database;
+      },
+    },
+    system: {
+      deps: ['_id'],
+      fn() {
+        return getNamespaceInfo(this._id).system;
+      },
+    },
+    oplog: {
+      deps: ['_id'],
+      fn() {
+        return getNamespaceInfo(this._id).oplog;
+      },
+    },
+    command: {
+      deps: ['_id'],
+      fn() {
+        return getNamespaceInfo(this._id).command;
+      },
+    },
+    special: {
+      deps: ['_id'],
+      fn() {
+        return getNamespaceInfo(this._id).special;
+      },
+    },
+    specialish: {
+      deps: ['_id'],
+      fn() {
+        return getNamespaceInfo(this._id).specialish;
+      },
+    },
+    normal: {
+      deps: ['_id'],
+      fn() {
+        return getNamespaceInfo(this._id).normal;
+      },
+    },
+  },
+
   /**
    * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
    * @returns
    */
-  async fetch({ dataService }) {
+  async fetch({ dataService, fetchInfo = true }) {
     const collectionStatsAsync = promisify(
       dataService.collectionStats.bind(dataService)
     );
-    const [collStats, collectionInfo] = await Promise.all([
-      collectionStatsAsync(this.getId()),
-      dataService.collectionInfo(this.database, this.name),
-    ]);
-    return this.set({ ...collStats, ...collectionInfo });
+    try {
+      const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
+      this.set({ status: newStatus });
+      const [collStats, collectionInfo] = await Promise.all([
+        collectionStatsAsync(this.database, this.name),
+        fetchInfo ? dataService.collectionInfo(this.database, this.name) : null,
+      ]);
+      this.set({
+        status: 'ready',
+        statusError: null,
+        ...collStats,
+        ...(collectionInfo && pickCollectionInfo(collectionInfo)),
+      });
+    } catch (err) {
+      this.set({ status: 'error', statusError: err.message });
+      throw err;
+    }
+  },
+
+  toJSON(opts = { derived: true }) {
+    return this.serialize(opts);
   },
 });
 
-const CollectionCollection = AmpersandCollection.extend({
-  modelType: 'CollectionCollection',
-  mainIndex: '_id',
-  indexes: ['name'],
-  comparator: '_id',
-  model: CollectionModel,
-  /**
-   * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
-   * @returns
-   */
-  fetch({ dataService }) {
-    return new Promise((resolve, reject) => {
+const CollectionCollection = AmpersandCollection.extend(
+  mergeInit(
+    debounceActions(['fetch']),
+    propagateCollectionEvents('collections')
+  ),
+  {
+    modelType: 'CollectionCollection',
+    mainIndex: '_id',
+    indexes: ['name'],
+    comparator: '_id',
+    model: CollectionModel,
+
+    /**
+     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @returns {Promise<void>}
+     */
+    async fetch({ dataService, fetchInfo = true }) {
       const databaseName = this.parent && this.parent.getId();
 
       if (!databaseName) {
@@ -80,26 +243,35 @@ const CollectionCollection = AmpersandCollection.extend({
         );
       }
 
-      dataService.listCollectionsNamesOnly(databaseName, (err, collections) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(
-          this.set(
-            collections.filter((coll) => {
-              // TODO: This is not the best place to do this kind of
-              // filtering, but for now this preserves the current behavior
-              // and changing it right away will expand the scope of the
-              // refactor significantly. We can address this in COMPASS-5211
-              return toNs(`${databaseName}.${coll.name}`).system === false;
-            })
-          )
-        );
-      });
-    });
-  },
-});
+      const collections = await dataService.listCollections(
+        databaseName,
+        {},
+        { nameOnly: !fetchInfo }
+      );
+
+      this.set(
+        collections
+          .filter((coll) => {
+            // TODO: This is not the best place to do this kind of
+            // filtering, but for now this preserves the current behavior
+            // and changing it right away will expand the scope of the
+            // refactor significantly. We can address this in COMPASS-5211
+            return getNamespaceInfo(coll._id).system === false;
+          })
+          .map(({ _id, ...rest }) => {
+            return {
+              _id,
+              ...(fetchInfo && pickCollectionInfo(rest)),
+            };
+          })
+      );
+    },
+
+    toJSON(opts = { derived: true }) {
+      return this.map((item) => item.toJSON(opts));
+    },
+  }
+);
 
 module.exports = CollectionModel;
 module.exports.Collection = CollectionCollection;

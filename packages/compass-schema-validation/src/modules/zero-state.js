@@ -1,4 +1,6 @@
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
 
 /**
  * Zero state changed action.
@@ -77,6 +79,7 @@ export const changeZeroState = (isZeroState) => {
     const namespace = state.namespace;
 
     if (isZeroState === false) {
+      track('Schema Validation Added');
       sendMetrics(dispatch, dataService, namespace, 'schema-validation-rules-added');
     }
 

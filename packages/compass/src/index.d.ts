@@ -37,6 +37,15 @@ declare module 'process' {
 
         // Feature flags.
         USE_NEW_CONNECT_FORM?: 'true' | 'false';
+
+        /**
+         * Disables global overlay on the instance refresh and activates gradual
+         * data loading for the instance: collections and their stats are only
+         * loaded when database namespace is selected
+         * 
+         * Behind a feature flag while UI is being refined
+         */
+        COMPASS_NO_GLOBAL_OVERLAY?: 'true';
       }
     }
   }

@@ -7,19 +7,19 @@ import { UPDATE_SORT } from '../sort';
 
 const SPOTIFY = {
   _id: 'spotify',
-  collections: [ 1, 2, 3, 4],
+  collectionsLength: 4,
   index_count: 10,
   storage_size: 15
 };
 const SOUNDCLOUD = {
   _id: 'soundcloud',
-  collections: [ 1 ],
+  collectionsLength: 1,
   index_count: 15,
   storage_size: 20
 };
 const DEEZER = {
   _id: 'deezer',
-  collections: [ 1, 2 ],
+  collectionsLength: 2,
   index_count: 1,
   storage_size: 100
 };
