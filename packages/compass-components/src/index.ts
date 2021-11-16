@@ -1,6 +1,7 @@
 import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
+import SpinLoader from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 export {
   default as Badge,
@@ -52,6 +53,7 @@ export {
   CancelLoader,
   ConfirmationModal,
   FileInput,
+  SpinLoader,
   ResizeHandle,
   ResizeDirection,
 };

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { ViewSwitcher, Tooltip } from 'hadron-react-components';
 import { AnimatedIconTextButton, IconButton } from 'hadron-react-buttons';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { SpinLoader } from '@mongodb-js/compass-components';
+
 const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
 const BASE_CLASS = 'document-list';
@@ -52,11 +54,23 @@ class Toolbar extends React.Component {
   }
 
   _loadedMessage() {
-    const suffix = this.props.loadingCount ? '' : `of ${this.props.count ?? 'N/A'}`;
+    const suffix = this.props.loadingCount
+      ? ''
+      : `of ${this.props.count ?? 'N/A'}`;
     return (
       <span>
         Displaying documents <b>{this.props.start} - {this.props.end}</b> {suffix}
       </span>
+    );
+  }
+
+  _loadingSpinner() {
+    if (!this.props.loadingCount) {
+      return;
+    }
+
+    return (
+      <SpinLoader size="12px" />
     );
   }
 
@@ -150,6 +164,7 @@ class Toolbar extends React.Component {
           <div className={CONTAINER_CLASS}>
             <div className={MESSAGE_CLASS}>
               {this._loadedMessage()}
+              {this._loadingSpinner()}
             </div>
             {this.renderPageButtons()}
             <div className={REFRESH_CLASS}>
