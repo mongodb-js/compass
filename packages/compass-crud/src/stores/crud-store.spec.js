@@ -20,29 +20,78 @@ const CONNECTION = new Connection({
   mongodb_database_name: 'admin'
 });
 
-function listenToStore(store, cb, expectedCalls = 1) {
-  return new Promise((resolve, reject) => {
-    let numCalls = 0;
-    const unsubscribe = store.listen((state) => {
-      ++numCalls;
+const delay = util.promisify(setTimeout);
+
+function waitForStates(store, cbs, timeout = 2000) {
+  let numMatches = 0;
+  const states = [];
+  const errors = [];
+  let unsubscribe;
+
+  const waiter = new Promise((resolve, reject) => {
+    unsubscribe = store.listen((state) => {
+      states.push(state);
       try {
         // eslint-disable-next-line callback-return
-        cb(state, numCalls);
-        if (numCalls === expectedCalls) {
-          unsubscribe();
-          resolve();
+        cbs[numMatches](state, numMatches);
+        ++numMatches;
+        if (numMatches === cbs.length) {
+          // Succeed once all the state transitions have been reached.
+          resolve(true);
         }
       } catch (err) {
-        unsubscribe();
-        reject(err);
+        if (err instanceof chai.AssertionError) {
+          // If an assertion failed, assume this was an intermediate state
+          // transition that we're not interested in. But do keep the error in
+          // case we reach the timeout.
+          errors.push(err);
+        } else {
+          // For all other errors, assume programmer error.
+          reject(err);
+        }
       }
     });
   });
+
+  return Promise.race([waiter, delay(timeout)])
+    .then((success) => {
+      // If waiter resolved first then success will be true. delay doesn't
+      // resolve to anything.
+      if (success) {
+        return success;
+      }
+
+      let message = 'Timeout reached before all state transitions';
+      if (errors.length) {
+        const lastError = errors[errors.length - 1];
+        message += '\n\nLast Error:\n';
+        message += `\n${lastError.stack}`;
+      }
+      const error = new Error(message);
+
+      // keep these things to aid debugging
+      error.states = states;
+      error.errors = errors;
+      error.numMatches = numMatches;
+
+      throw error;
+    })
+    .finally(() => {
+      unsubscribe();
+    });
+}
+
+function waitForState(store, cb, timeout) {
+  return waitForStates(store, [cb], timeout);
 }
 
 describe('store', function() {
   this.timeout(5000);
+
   let dataService;
+  let createCollection;
+  let dropCollection;
+
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
 
@@ -50,32 +99,37 @@ describe('store', function() {
     const info = convertConnectionModelToInfo(CONNECTION);
     dataService = await connect(info.connectionOptions);
 
+    createCollection = util.promisify(dataService.createCollection.bind(dataService));
+    dropCollection = util.promisify(dataService.dropCollection.bind(dataService));
+
     // Add some validation so that we can test what happens when insert/update
     // fails below.
-    return new Promise((resolve, reject) => {
-      dataService.createCollection('compass-crud.test', {
-        validator: {
-          $jsonSchema: {
-            bsonType: 'object',
-            properties: {
-              status: {
-                enum: ['Unknown', 'Incomplete'],
-                description: 'can only be one of the enum values'
-              }
+
+    try {
+      await dropCollection('compass-crud.test');
+    } catch (err) {
+      // noop
+    }
+
+    await createCollection('compass-crud.test', {
+      validator: {
+        $jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            status: {
+              enum: ['Unknown', 'Incomplete'],
+              description: 'can only be one of the enum values'
             }
           }
         }
-      }, (err) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve();
-      });
+      }
     });
   });
 
   after(async() => {
-    await dataService.disconnect();
+    if (dataService) {
+      await dataService.disconnect();
+    }
   });
 
   beforeEach(() => {
@@ -106,6 +160,8 @@ describe('store', function() {
       expect(store.state).to.deep.equal({
         abortController: null,
         session: null,
+        debouncingLoad: false,
+        loadingCount: false,
         collection: '',
         count: 0,
         docs: [],
@@ -180,7 +236,7 @@ describe('store', function() {
       });
 
       it('resets the state for the new editable collection', async() => {
-        const listener = listenToStore(store, (state) => {
+        const listener = waitForState(store, (state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
           expect(state.table.doc).to.equal(null);
@@ -217,7 +273,7 @@ describe('store', function() {
       });
 
       it('resets the state for the new readonly collection', async() => {
-        const listener = listenToStore(store, (state) => {
+        const listener = waitForState(store, (state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
           expect(state.table.doc).to.equal(null);
@@ -258,7 +314,7 @@ describe('store', function() {
       });
 
       it('resets the state for the new readonly collection', async() => {
-        const listener = listenToStore(store, (state) => {
+        const listener = waitForState(store, (state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
           expect(state.table.doc).to.equal(null);
@@ -302,7 +358,7 @@ describe('store', function() {
     };
 
     it('resets the state', async() => {
-      const listener = listenToStore(store, (state) => {
+      const listener = waitForState(store, (state) => {
         expect(state.error).to.equal(null);
         expect(state.docs).to.deep.equal([]);
         expect(state.count).to.equal(0);
@@ -343,7 +399,7 @@ describe('store', function() {
       });
 
       it('deletes the document from the collection', async() => {
-        const listener = listenToStore(store, (state) => {
+        const listener = waitForState(store, (state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.end).to.equal(0);
@@ -366,7 +422,7 @@ describe('store', function() {
       });
 
       it('deletes the document from the collection', async() => {
-        const listener = listenToStore(store, (state) => {
+        const listener = waitForState(store, (state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.end).to.equal(0);
@@ -638,7 +694,7 @@ describe('store', function() {
       });
 
       it('replaces the document in the list', async() => {
-        const listener = listenToStore(store, (state) => {
+        const listener = waitForState(store, (state) => {
           expect(state.docs[0]).to.not.equal(hadronDoc);
         });
 
@@ -747,7 +803,7 @@ describe('store', function() {
       });
 
       it('replaces the document in the list', async() => {
-        const listener = listenToStore(store, (state) => {
+        const listener = waitForState(store, (state) => {
           expect(state.updateSuccess).to.equal(true);
           expect(state.docs[0]).to.not.equal(hadronDoc);
         });
@@ -769,7 +825,7 @@ describe('store', function() {
       });
 
       it('sets the error for the document', async() => {
-        const listener = listenToStore(store, (state) => {
+        const listener = waitForState(store, (state) => {
           expect(state.updateError).to.equal('error happened');
         });
 
@@ -839,7 +895,7 @@ describe('store', function() {
         const doc = new HadronDocument({ name: 'testing' });
 
         it('inserts the document', async() => {
-          const listener = listenToStore(store, (state) => {
+          const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(1);
             expect(state.count).to.equal(1);
             expect(state.end).to.equal(1);
@@ -866,7 +922,7 @@ describe('store', function() {
         });
 
         it('inserts the document but does not add to the list', async() => {
-          const listener = listenToStore(store, (state) => {
+          const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(1);
             expect(state.insert.doc).to.equal(null);
@@ -900,7 +956,7 @@ describe('store', function() {
         });
 
         it('does not insert the document', async() => {
-          const listener = listenToStore(store, (state) => {
+          const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(0);
             expect(state.insert.doc).to.deep.equal(doc);
@@ -930,7 +986,7 @@ describe('store', function() {
         });
 
         it('does not insert the document', async() => {
-          const listener = listenToStore(store, (state) => {
+          const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(0);
             expect(state.insert.doc).to.equal(doc);
@@ -979,8 +1035,8 @@ describe('store', function() {
         it('inserts the document', async() => {
           const resultId = store.state.resultId;
 
-          const listener = listenToStore(store, (state, index) => {
-            if (index === 1) {
+          const listener = waitForStates(store, [
+            (state) => {
               // after it inserted it will reset the insert state and start
               // refreshing the documents
               expect(state.insert.doc).to.equal(null);
@@ -994,8 +1050,8 @@ describe('store', function() {
               expect(state.session).to.not.be.null;
               expect(state.outdated).to.be.false;
               expect(state.error).to.be.null;
-            }
-            if (index === 2) {
+            },
+            (state) => {
               // after it refreshed the documents it will update the store again
               expect(state.error).to.equal(null);
               expect(state.docs.length).to.equal(2);
@@ -1023,7 +1079,7 @@ describe('store', function() {
               expect(state.session).to.be.null;
               expect(state.resultId).to.not.equal(resultId);
             }
-          }, 2);
+          ]);
 
           store.state.insert.jsonDoc = docs;
           store.insertMany();
@@ -1041,7 +1097,7 @@ describe('store', function() {
 
 
         it('inserts both documents but does not add to the list', async() => {
-          const listener = listenToStore(store, (state) => {
+          const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(0);
             expect(state.end).to.equal(0);
@@ -1067,16 +1123,14 @@ describe('store', function() {
         });
 
         it('inserts both documents but only adds the matching one to the list', async() => {
-          const listener = listenToStore(store, (state, index) => {
-            if (index === 2) {
-              expect(state.error).to.be.null;
-              expect(state.docs).to.have.lengthOf(1);
-              expect(state.count).to.equal(1);
-              expect(state.page).to.equal(0);
-              expect(state.start).to.equal(1);
-              expect(state.end).to.equal(1);
-            }
-          }, 2);
+          const listener = waitForState(store, (state) => {
+            expect(state.error).to.be.null;
+            expect(state.docs).to.have.lengthOf(1);
+            expect(state.count).to.equal(1);
+            expect(state.page).to.equal(0);
+            expect(state.start).to.equal(1);
+            expect(state.end).to.equal(1);
+          });
 
           store.state.insert.jsonDoc = docs;
           store.insertMany();
@@ -1098,7 +1152,7 @@ describe('store', function() {
       });
 
       it('does not insert the document', async() => {
-        const listener = listenToStore(store, (state) => {
+        const listener = waitForState(store, (state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.insert.doc).to.deep.equal({});
@@ -1137,7 +1191,7 @@ describe('store', function() {
 
     context('when clone is true', () => {
       it('removes _id from the document', async() => {
-        const listener = listenToStore(store, (state) => {
+        const listener = waitForState(store, (state) => {
           expect(state.insert.doc.elements.at(0).key).to.equal('name');
         });
 
@@ -1149,7 +1203,7 @@ describe('store', function() {
 
     context('when clone is false', () => {
       it('does not remove _id from the document', async() => {
-        const listener = listenToStore(store, (state) => {
+        const listener = waitForState(store, (state) => {
           expect(state.insert.doc.elements.at(0).key).to.equal('_id');
         });
 
@@ -1183,7 +1237,7 @@ describe('store', function() {
     const editParams = { colId: 1, rowIndex: 0 };
 
     it('sets the drill down state', async() => {
-      const listener = listenToStore(store, (state) => {
+      const listener = waitForState(store, (state) => {
         expect(state.table.doc).to.deep.equal(doc);
         expect(state.table.path).to.deep.equal([ 'field3' ]);
         expect(state.table.types).to.deep.equal([ 'String' ]);
@@ -1218,7 +1272,7 @@ describe('store', function() {
     const types = ['Object', 'Array'];
 
     it('sets the path and types state', async() => {
-      const listener = listenToStore(store, (state) => {
+      const listener = waitForState(store, (state) => {
         expect(state.table.path).to.deep.equal(path);
         expect(state.table.types).to.deep.equal(types);
       });
@@ -1248,7 +1302,7 @@ describe('store', function() {
     });
 
     it('sets the view', async() => {
-      const listener = listenToStore(store, (state) => {
+      const listener = waitForState(store, (state) => {
         expect(state.view).to.equal('Table');
       });
 
@@ -1285,15 +1339,21 @@ describe('store', function() {
 
       context('when there is no error', () => {
         it('resets the documents to the first page', async() => {
-          const listener = listenToStore(store, (state, index) => {
-            if (index === 2) {
+          const listener = waitForStates(store, [
+            (state) => {
+              expect(state.debouncingLoad).to.equal(true);
+              expect(state.count).to.equal(null);
+            },
+
+            (state) => {
               expect(state.error).to.equal(null);
               expect(state.docs).to.have.length(1);
+              expect(state.debouncingLoad).to.equal(false);
               expect(state.count).to.equal(1);
               expect(state.start).to.equal(1);
               expect(state.shardKeys).to.deep.equal({});
             }
-          }, 2);
+          ]);
 
           store.refreshDocuments();
 
@@ -1306,15 +1366,17 @@ describe('store', function() {
           store.state.query.filter = { '$iamnotanoperator': 1 };
         });
 
+        afterEach(() => {
+          store.state.query.filter = {};
+        });
+
         it('resets the documents to the first page', async() => {
-          const listener = listenToStore(store, (state, index) => {
-            if (index === 2) {
-              expect(state.error).to.not.equal(null);
-              expect(state.docs).to.have.length(0);
-              expect(state.count).to.equal(0);
-              expect(state.start).to.equal(0);
-            }
-          }, 2);
+          const listener = waitForState(store, (state) => {
+            expect(state.error).to.not.equal(null);
+            expect(state.docs).to.have.length(0);
+            expect(state.count).to.equal(null);
+            expect(state.start).to.equal(0);
+          });
 
           store.refreshDocuments();
 
@@ -1348,12 +1410,10 @@ describe('store', function() {
       });
 
       it('looks up the shard keys', async() => {
-        const listener = listenToStore(store, (state, index) => {
-          if (index === 2) {
-            expect(state.error).to.equal(null);
-            expect(state.shardKeys).to.deep.equal({ a: 1 });
-          }
-        }, 2);
+        const listener = waitForState(store, (state) => {
+          expect(state.error).to.equal(null);
+          expect(state.shardKeys).to.deep.equal({ a: 1 });
+        });
 
         store.refreshDocuments();
 
@@ -1389,11 +1449,9 @@ describe('store', function() {
       });
 
       it('sets the state as not editable', async() => {
-        const listener = listenToStore(store, (state, index) => {
-          if (index === 2) {
-            expect(state.isEditable).to.equal(false);
-          }
-        }, 2);
+        const listener = waitForState(store, (state) => {
+          expect(state.isEditable).to.equal(false);
+        });
 
         store.refreshDocuments();
 
@@ -1428,11 +1486,9 @@ describe('store', function() {
       });
 
       it('resets the state as editable', async() => {
-        const listener = listenToStore(store, (state, index) => {
-          if (index === 2) {
-            expect(state.isEditable).to.equal(true);
-          }
-        }, 2);
+        const listener = waitForState(store, (state) => {
+          expect(state.isEditable).to.equal(true);
+        });
 
         store.refreshDocuments();
 
@@ -1449,8 +1505,6 @@ describe('store', function() {
       let actions;
 
       beforeEach(async() => {
-        const createCollection = util.promisify(dataService.createCollection.bind(dataService));
-
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1466,16 +1520,20 @@ describe('store', function() {
 
         store.setState({isTimeSeries: true});
 
+        try {
+          await dropCollection('compass-crud.timeseries');
+        } catch (err) {
+          // noop
+        }
+
         await createCollection('compass-crud.timeseries', { timeseries: { timeField: 'timestamp '} });
       });
 
       it('does not specify the _id_ index as hint', async function() {
         const spy = sinon.spy(dataService, 'aggregate');
-        const listener = listenToStore(store, (state, index) => {
-          if (index === 2) {
-            expect(state.count).to.equal(0);
-          }
-        }, 2);
+        const listener = waitForState(store, (state) => {
+          expect(state.count).to.equal(0);
+        });
 
         store.refreshDocuments();
 
@@ -1510,35 +1568,38 @@ describe('store', function() {
       it('aborts the queries and kills the session', async() => {
         const spy = sinon.spy(dataService, 'aggregate');
 
-        const listener = listenToStore(store, (state, index) => {
-          if (index === 1) {
+        const listener = waitForStates(store, [
+          (state) => {
             // cancel the operation as soon as the query starts
             expect(state.status).to.equal('fetching');
+            expect(state.count).to.be.null;
+            expect(state.loadingCount).to.be.true; // initially count is still loading
             expect(state.error).to.be.null;
             expect(state.abortController).to.not.be.null;
             expect(state.session).to.not.be.null;
 
             store.cancelOperation();
-          }
+          },
 
-          if (index === 2) {
+          (state) => {
             // cancelOperation cleans up abortController
             expect(state.abortController).to.be.null;
-          }
+          },
 
-          if (index === 3) {
+          (state) => {
             // onAbort cleans up state.session
             expect(state.session).to.be.null;
-          }
+          },
 
-          if (index === 4) {
+          (state) => {
             // the operation should fail
             expect(state.status).to.equal('error');
             expect(state.error.message).to.equal('The operation was cancelled.');
             expect(state.abortController).to.be.null;
             expect(state.session).to.be.null;
+            expect(state.loadingCount).to.be.false; // eventually count loads
           }
-        }, 4);
+        ]);
 
         store.refreshDocuments();
 
@@ -1698,17 +1759,15 @@ describe('store', function() {
     });
 
     it('returns documents in view order', async() => {
-      const listener = listenToStore(store, (state, index) => {
-        if (index === 2) {
-          expect(state.docs).to.have.lengthOf(4);
-          expect(state.docs.map(doc => doc.generateObject())).to.deep.equal([
-            { _id: '003', cat: 'amy' },
-            { _id: '002', cat: 'chashu' },
-            { _id: '001', cat: 'nori' },
-            { _id: '004', cat: 'pia' }
-          ]);
-        }
-      }, 2);
+      const listener = waitForState(store, (state) => {
+        expect(state.docs).to.have.lengthOf(4);
+        expect(state.docs.map(doc => doc.generateObject())).to.deep.equal([
+          { _id: '003', cat: 'amy' },
+          { _id: '002', cat: 'chashu' },
+          { _id: '001', cat: 'nori' },
+          { _id: '004', cat: 'pia' }
+        ]);
+      });
 
       store.refreshDocuments();
 

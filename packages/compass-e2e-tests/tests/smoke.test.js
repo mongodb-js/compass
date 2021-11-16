@@ -562,7 +562,7 @@ describe('Smoke tests', function () {
 
       // wait for the modal to appear and select the file
       const importModal = await client.$(Selectors.ImportModal);
-      await importModal.waitForDisplayed();
+      await importModal.waitForDisplayed({ timeout: 10_000 });
       await client.selectFile(Selectors.ImportFileInput, jsonPath);
 
       // make sure it auto-selected JSON and then confirm

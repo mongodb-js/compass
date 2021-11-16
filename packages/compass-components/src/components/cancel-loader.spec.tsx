@@ -17,7 +17,7 @@ function renderLoader(spy) {
   );
 }
 
-describe('ConfirmationModal Component', function () {
+describe('CancelLoader Component', function () {
   let spy;
 
   beforeEach(function () {
