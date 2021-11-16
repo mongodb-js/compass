@@ -52,9 +52,10 @@ class Toolbar extends React.Component {
   }
 
   _loadedMessage() {
+    const suffix = this.props.loadingCount ? '' : `of ${this.props.count ?? 'N/A'}`;
     return (
       <span>
-        Displaying documents <b>{this.props.start} - {this.props.end}</b> of {this.props.count || 'N/A'}
+        Displaying documents <b>{this.props.start} - {this.props.end}</b> {suffix}
       </span>
     );
   }
@@ -174,6 +175,7 @@ Toolbar.propTypes = {
   activeDocumentView: PropTypes.string.isRequired,
   count: PropTypes.number,
   end: PropTypes.number.isRequired,
+  loadingCount: PropTypes.number.isRequired,
   getPage: PropTypes.func.isRequired,
   insertHandler: PropTypes.func,
   openExportFileDialog: PropTypes.func,

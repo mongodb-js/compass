@@ -161,6 +161,7 @@ describe('store', function() {
         abortController: null,
         session: null,
         debouncingLoad: false,
+        loadingCount: false,
         collection: '',
         count: 0,
         docs: [],
@@ -1365,6 +1366,10 @@ describe('store', function() {
           store.state.query.filter = { '$iamnotanoperator': 1 };
         });
 
+        afterEach(() => {
+          store.state.query.filter = {};
+        });
+
         it('resets the documents to the first page', async() => {
           const listener = waitForState(store, (state) => {
             expect(state.error).to.not.equal(null);
@@ -1568,6 +1573,7 @@ describe('store', function() {
             // cancel the operation as soon as the query starts
             expect(state.status).to.equal('fetching');
             expect(state.count).to.be.null;
+            expect(state.loadingCount).to.be.true; // initially count is still loading
             expect(state.error).to.be.null;
             expect(state.abortController).to.not.be.null;
             expect(state.session).to.not.be.null;
@@ -1591,6 +1597,7 @@ describe('store', function() {
             expect(state.error.message).to.equal('The operation was cancelled.');
             expect(state.abortController).to.be.null;
             expect(state.session).to.be.null;
+            expect(state.loadingCount).to.be.false; // eventually count loads
           }
         ]);
 

@@ -203,6 +203,7 @@ const configureStore = (options = {}) => {
         isTimeSeries: false,
         status: DOCUMENTS_STATUS_INITIAL,
         debouncingLoad: false,
+        loadingCount: false,
         outdated: false,
         shardKeys: null,
         resultId: resultId()
@@ -1045,7 +1046,7 @@ const configureStore = (options = {}) => {
 
       // Don't wait for the count to finish. Set the result asynchronously.
       countDocuments(this.dataService, ns, query.filter, countOptions)
-        .then((count) => this.setState({ count }))
+        .then((count) => this.setState({ count, loadingCount: false }))
         .catch((err) => {
           // countDocuments already swallows all db errors and returns null. The
           // only known error it can throw is OPERATION_CANCELLED_MESSAGE. If
@@ -1053,6 +1054,7 @@ const configureStore = (options = {}) => {
           if (err.message !== OPERATION_CANCELLED_MESSAGE) {
             throw err;
           }
+          this.setState({ loadingCount: false });
         });
 
       const promises = [
@@ -1067,7 +1069,8 @@ const configureStore = (options = {}) => {
         session,
         outdated: false,
         error: null,
-        count: null // we don't know the new count yet
+        count: null, // we don't know the new count yet
+        loadingCount: true
       });
 
       // don't start showing the loading indicator and cancel button immediately

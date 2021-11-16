@@ -283,7 +283,8 @@ DocumentList.propTypes = {
   tz: PropTypes.string,
   updateComment: PropTypes.func.isRequired,
   status: PropTypes.string,
-  debouncingLoad: PropTypes.bool,
+  debouncingLoad: PropTypes.bool.isRequired,
+  loadingCount: PropTypes.bool.isRequired,
   outdated: PropTypes.bool,
   resultId: PropTypes.number
 };
