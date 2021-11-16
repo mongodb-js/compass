@@ -400,7 +400,7 @@ const configureStore = (options = {}) => {
             this.state.docs.splice(index, 1);
             this.setState({
               count: this.state.count - 1,
-              end: this.state.end - 1
+              end: Math.max(this.state.end - 1, 0)
             });
           }
         });
