@@ -22,7 +22,7 @@
   },
   "types": "index.d.ts",
   "dependencies": {
-    "debug": "^4.1.1",
+    "debug": "4.3.0",
     "got": "^10.4.0",
     "lodash": "^4.17.15"
   },
