@@ -248,14 +248,14 @@ export function useConnections(
           dispatch({
             type: 'connection-attempt-succeeded',
           });
-          void trackNewConnectionEvent(connectionInfo, newConnectionDataService);
+          trackNewConnectionEvent(connectionInfo, newConnectionDataService);
           debug(
             'connection attempt succeeded with connection info',
             connectionInfo
           );
         } catch (error) {
           connectingConnectionAttempt.current = undefined;
-          void trackConnectionFailedEvent(connectionInfo, error);
+          trackConnectionFailedEvent(connectionInfo, error);
           debug('connect error', error);
 
           dispatch({

@@ -51,40 +51,46 @@ export function trackConnectionAttemptEvent({favorite, lastUsed}: ConnectionInfo
   }
 };
 
-export async function trackNewConnectionEvent(connectionInfo: ConnectionInfo, dataService: DataService): Promise<void> {
+export function trackNewConnectionEvent(connectionInfo: ConnectionInfo, dataService: DataService): void {
   try {
-    const {
-      dataLake,
-      genuineMongoDB,
-      host,
-      build,
-    } = await dataService.instance();
-    const connectionData = await getConnectionData(connectionInfo);
-    const trackEvent = {
-      ...connectionData,
-      is_dataLake: dataLake.isDataLake,
-      is_enterprise: build.isEnterprise,
-      is_genuine: genuineMongoDB.isGenuine,
-      non_genuine_server_name: genuineMongoDB.dbType,
-      server_version: host.kernel_version,
-      server_arch: host.arch,
-      server_os_family: host.os_family,
-    };
-    track('New Connection', trackEvent);
+    const callback = async () => {
+      const {
+        dataLake,
+        genuineMongoDB,
+        host,
+        build,
+      } = await dataService.instance();
+      const connectionData = await getConnectionData(connectionInfo);
+      const trackEvent = {
+        ...connectionData,
+        is_dataLake: dataLake.isDataLake,
+        is_enterprise: build.isEnterprise,
+        is_genuine: genuineMongoDB.isGenuine,
+        non_genuine_server_name: genuineMongoDB.dbType,
+        server_version: host.kernel_version,
+        server_arch: host.arch,
+        server_os_family: host.os_family,
+      };
+      return trackEvent;
+    }
+    track('New Connection', callback);
   } catch(error) {
     debug('trackNewConnectionEvent failed', error);
   }
 };
 
-export async function trackConnectionFailedEvent(connectionInfo: ConnectionInfo, connectionError: unknown): Promise<void> {
+export function trackConnectionFailedEvent(connectionInfo: ConnectionInfo, connectionError: unknown): void {
   try {
-    const connectionData = await getConnectionData(connectionInfo);
-    const trackEvent = {
-      ...connectionData,
-      error_code: connectionError.code,
-      error_name: connectionError.codeName ?? connectionError.name,
-    };
-    track('Connection Failed', trackEvent);
+    const callback = async () => {
+      const connectionData = await getConnectionData(connectionInfo);
+      const trackEvent = {
+        ...connectionData,
+        error_code: connectionError.code,
+        error_name: connectionError.codeName ?? connectionError.name,
+      };
+      return trackEvent;
+    }
+    track('Connection Failed', callback);
   } catch(error) {
     debug('trackConnectionFailedEvent failed', error);
   }

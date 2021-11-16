@@ -4,6 +4,18 @@ import createDebug from 'debug';
 import type { Writable } from 'stream';
 import type { HadronIpcRenderer } from 'hadron-ipc';
 
+type TrackProps = Record<string, any> | (() => Record<string, any>);
+
+const SEGMENT_API_KEY =
+  process.env.HADRON_METRICS_SEGMENT_API_KEY_OVERRIDE ||
+  process.env.HADRON_METRICS_SEGMENT_API_KEY;
+const SEGMENT_HOST =
+  process.env.HADRON_METRICS_SEGMENT_HOST_OVERRIDE ||
+  process.env.HADRON_METRICS_SEGMENT_HOST;
+const IS_CI = process.env.IS_CI || process.env.CI || process.env.EVERGREEN_BUILD_VARIANT;
+const telemetryCapableEnvironment = !!(SEGMENT_API_KEY && (!IS_CI || SEGMENT_HOST));
+
+
 function emit(
   ipc: HadronIpcRenderer | null,
   event: string,
@@ -21,7 +33,7 @@ export function createLoggerAndTelemetry(component: string): {
   log: ReturnType<MongoLogWriter['bindComponent']>;
   mongoLogId: typeof mongoLogId;
   debug: ReturnType<typeof createDebug>;
-  track: (event: string, properties?: Record<string, any>) => void;
+  track: (event: string, properties?: TrackProps) => Promise<void>;
 } {
   // This application may not be running in an Node.js/Electron context.
   const ipc: HadronIpcRenderer | null = isElectronRenderer
@@ -43,8 +55,18 @@ export function createLoggerAndTelemetry(component: string): {
   } as Writable;
   const writer = new MongoLogWriter('', null, target);
 
-  const track = (event: string, properties: Record<string, any> = {}): void => {
-    emit(ipc, 'compass:track', { event, properties });
+  const track = async (event: string, properties: TrackProps = {}): Promise<void> => {
+    if (!telemetryCapableEnvironment) {
+      return;
+    }
+    const data = {
+      event,
+      properties
+    };
+    if (typeof properties === 'function') {
+      data.properties = await properties();
+    }
+    emit(ipc, 'compass:track', data);
   };
 
   const debug = createDebug(`mongodb-compass:${component.toLowerCase()}`);
