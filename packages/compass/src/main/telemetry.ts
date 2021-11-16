@@ -17,8 +17,8 @@ const SEGMENT_API_KEY =
 const SEGMENT_HOST =
   process.env.HADRON_METRICS_SEGMENT_HOST_OVERRIDE ||
   process.env.HADRON_METRICS_SEGMENT_HOST;
-const IS_CI = process.env.IS_CI;
-const telemetryCapableEnvironment = SEGMENT_API_KEY && (!IS_CI || SEGMENT_HOST);
+const IS_CI = process.env.IS_CI || process.env.CI || process.env.EVERGREEN_BUILD_VARIANT;
+const telemetryCapableEnvironment = !!(SEGMENT_API_KEY && (!IS_CI || SEGMENT_HOST));
 
 class CompassTelemetry {
   private static analytics: Analytics | null = null;

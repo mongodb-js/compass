@@ -1,173 +1,123 @@
-import AppRegistry from 'hadron-app-registry';
+import { expect } from 'chai';
+import InstanceModel from 'mongodb-instance-model';
 import configureStore from './';
-import sinon from 'sinon';
 
+const instance = new InstanceModel({
+  databases: [
+    {
+      _id: 'foo',
+      collections: [{ _id: 'foo.bar', type: 'collection' }],
+    },
+    {
+      _id: 'baz',
+      collections: [{ _id: 'baz.meow', type: 'collection' }],
+    },
+    {
+      _id: 'bar',
+      collections: [
+        {
+          _id: 'bar.woof',
+          type: 'collection',
+          status: 'ready',
+          document_count: 100,
+          document_size: 100000,
+          index_count: 5,
+          index_size: 50000,
+        },
+      ],
+    },
+  ],
+});
 
-describe('CollectionStatsstore [store]', () => {
-  describe('#configureStore', () => {
-    context('when providing no options', () => {
-      let store;
+const globalAppRegistry = {
+  getStore() {
+    return {
+      getState() {
+        return { instance };
+      },
+    };
+  },
+  on() {},
+};
 
-      beforeEach(() => {
-        store = configureStore();
-      });
+describe('CollectionStats [store]', function() {
+  describe('#configureStore', function() {
+    it('configures and returns singleton store instance even for different namespaces', function() {
+      const a = configureStore({ globalAppRegistry, namespace: 'foo.bar' });
+      const b = configureStore({ globalAppRegistry, namespace: 'baz.meow' });
 
-      it('defaults isReadonly to false', () => {
-        expect(store.state.isReadonly).to.be.false;
-      });
+      expect(a).to.eq(b);
+    });
 
-      it('defaults isTimeSeries to false', () => {
-        expect(store.state.isTimeSeries).to.be.false;
-      });
-
-      it('defaults document count to invalid', () => {
-        expect(store.state.documentCount).to.be.equal('N/A');
-      });
-
-      it('defaults document count to invalid', () => {
-        expect(store.state.totalDocumentSize).to.be.equal('N/A');
-      });
-
-      it('defaults document count to invalid', () => {
-        expect(store.state.avgDocumentSize).to.be.equal('N/A');
-      });
-
-      it('defaults document count to invalid', () => {
-        expect(store.state.indexCount).to.be.equal('N/A');
-      });
-
-      it('defaults document count to invalid', () => {
-        expect(store.state.totalIndexSize).to.be.equal('N/A');
-      });
-
-      it('defaults document count to invalid', () => {
-        expect(store.state.avgIndexSize).to.be.equal('N/A');
-      });
-
-      it('defaults raw document count to invalid', () => {
-        expect(store.state.rawDocumentCount).to.be.equal(0);
-      });
-
-      it('defaults raw document count to invalid', () => {
-        expect(store.state.rawTotalDocumentSize).to.be.equal(0);
-      });
-
-      it('defaults raw document count to invalid', () => {
-        expect(store.state.rawAvgDocumentSize).to.be.equal(0);
-      });
-
-      it('defaults raw document count to invalid', () => {
-        expect(store.state.rawIndexCount).to.be.equal(0);
-      });
-
-      it('defaults raw document count to invalid', () => {
-        expect(store.state.rawTotalIndexSize).to.be.equal(0);
-      });
-
-      it('defaults raw document count to invalid', () => {
-        expect(store.state.rawAvgIndexSize).to.be.equal(0);
+    it('sets default values for the collection stats when stats are missing', function() {
+      const store = configureStore({ globalAppRegistry, namespace: 'foo.bar' });
+      expect(store.state).to.deep.eq({
+        namespace: 'foo.bar',
+        isReadonly: false,
+        isTimeSeries: false,
+        documentCount: 'N/A',
+        totalDocumentSize: 'N/A',
+        avgDocumentSize: 'N/A',
+        indexCount: 'N/A',
+        totalIndexSize: 'N/A',
+        avgIndexSize: 'N/A',
       });
     });
 
-    context('when providing options', () => {
-      context('when providing a local app registry', () => {
-        let store;
-        const appRegistry = new AppRegistry();
+    it('sets formatted values for the collection where stats are fetched', function() {
+      const store = configureStore({
+        globalAppRegistry,
+        namespace: 'bar.woof',
+      });
+      expect(store.state).to.deep.eq({
+        namespace: 'bar.woof',
+        isReadonly: false,
+        isTimeSeries: false,
+        documentCount: '100',
+        totalDocumentSize: '100.0KB',
+        avgDocumentSize: '1KB',
+        indexCount: '5',
+        totalIndexSize: '50.0KB',
+        avgIndexSize: '10.0KB',
+      });
+    });
 
-        beforeEach(() => {
-          store = configureStore({ localAppRegistry: appRegistry });
-        });
-
-        it('sets the local app registry on the store', () => {
-          expect(store.appRegistry).to.equal(appRegistry);
-        });
+    it('updates state when collection updates', function() {
+      const store = configureStore({
+        globalAppRegistry,
+        namespace: 'baz.meow',
       });
 
-      context('when providing a data provider', () => {
-        let store;
-        let collectionStub;
-        let dataService;
-        beforeEach(() => {
-          collectionStub = sinon.stub();
-
-          dataService = {
-            collection: collectionStub,
-            isConnected: () => true
-          };
-
-          store = configureStore({
-            dataProvider: {
-              error: null,
-              dataProvider: dataService,
-            },
-            namespace: 'db.coll'
-          });
-        });
-
-        it('sets the data provider on the store', () => {
-          expect(store.dataService).to.equal(dataService);
-        });
-
-        it('fetches details', () => {
-          collectionStub.callsFake((ns, options, cb) => {
-            cb(null, {
-              document_count: 123
-            });
-          });
-
-          store.loadCollectionStats();
-
-          expect(store.state.documentCount).to.equal('123');
-        });
-
-        it('resets the state in case of error (collection stats)', () => {
-          collectionStub.callsFake((ns, options, cb) => {
-            cb(new Error('failed'));
-          });
-
-          store.state.documentCount = '123';
-
-          store.loadCollectionStats();
-
-          expect(store.state.documentCount).to.equal('N/A');
-          expect(store.dataService).to.equal(dataService);
-        });
+      expect(store.state).to.deep.eq({
+        namespace: 'baz.meow',
+        isReadonly: false,
+        isTimeSeries: false,
+        documentCount: 'N/A',
+        totalDocumentSize: 'N/A',
+        avgDocumentSize: 'N/A',
+        indexCount: 'N/A',
+        totalIndexSize: 'N/A',
+        avgIndexSize: 'N/A',
       });
 
-      context('when providing is readonly', () => {
-        let store;
-
-        beforeEach(() => {
-          store = configureStore({ isReadonly: true });
-        });
-
-        it('sets the is readonly value on the store', () => {
-          expect(store.state.isReadonly).to.equal(true);
-        });
+      instance.databases.get('baz').collections.get('meow', 'name').set({
+        status: 'ready',
+        document_count: 5,
+        document_size: 10,
+        index_count: 10,
+        index_size: 20,
       });
 
-      context('when providing is time-series', () => {
-        let store;
-
-        beforeEach(() => {
-          store = configureStore({ isTimeSeries: true });
-        });
-
-        it('sets the is time-series value on the store', () => {
-          expect(store.state.isTimeSeries).to.equal(true);
-        });
-      });
-
-      context('wnen providing a namespace', () => {
-        let store;
-
-        beforeEach(() => {
-          store = configureStore({ namespace: 'db.coll' });
-        });
-
-        it('sets the namespace on the store', () => {
-          expect(store.ns).to.equal('db.coll');
-        });
+      expect(store.state).to.deep.eq({
+        namespace: 'baz.meow',
+        isReadonly: false,
+        isTimeSeries: false,
+        documentCount: '5',
+        totalDocumentSize: '10B',
+        avgDocumentSize: '2B',
+        indexCount: '10',
+        totalIndexSize: '20B',
+        avgIndexSize: '2B',
       });
     });
   });

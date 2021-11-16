@@ -27,7 +27,9 @@ const ServerVersionStore = Reflux.createStore({
    */
   onActivated(appRegistry) {
     this.appRegistry = appRegistry;
-    appRegistry.on('instance-refreshed', this.onInstanceFetched.bind(this));
+    appRegistry.on('instance-created', ({ instance }) => {
+      instance.on('change:status', this.onInstanceStatusChange.bind(this));
+    });
     appRegistry.on('data-service-disconnected', () => {
       return this.setState(this.getInitialState());
     });
@@ -36,18 +38,22 @@ const ServerVersionStore = Reflux.createStore({
   /**
    * Handle an instance fetch.
    *
-   * @param {Object} state - The instance store state.
+   * @param {Object} instance instance
+   * @param {string} newStatus Instance new fetch status
    */
-  onInstanceFetched(state) {
-    if (this.appRegistry) {
-      this.appRegistry.emit('server-version-changed', state.instance.build.version);
+  onInstanceStatusChange(instance, newStatus) {
+    if (newStatus === 'ready') {
+      const prevVersion = this.state.versionNumber;
+      if (prevVersion !== instance.build.version) {
+        this.appRegistry.emit('server-version-changed', instance.build.version);
+      }
+      this.setState({
+        versionDistro: instance.build.isEnterprise ? ENTERPRISE : COMMUNITY,
+        versionNumber: instance.build.version,
+        isDataLake: instance.dataLake.isDataLake,
+        dataLakeVersion: instance.dataLake.version || null
+      });
     }
-    this.setState({
-      versionDistro: state.instance.build.isEnterprise ? ENTERPRISE : COMMUNITY,
-      versionNumber: state.instance.build.version,
-      isDataLake: state.instance.dataLake ? state.instance.dataLake.isDataLake : false,
-      dataLakeVersion: state.instance.dataLake ? state.instance.dataLake.version : null
-    });
   },
 
   /**

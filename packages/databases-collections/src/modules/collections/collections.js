@@ -1,4 +1,3 @@
-import { parallel } from 'async';
 import zipObject from 'lodash.zipobject';
 import sortByOrder from 'lodash.sortbyorder';
 import { isEmpty } from 'lodash';
@@ -62,7 +61,7 @@ export const INITIAL_STATE = [];
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === UPDATE_SORT) {
-    return sort(action.collections, action.column, action.order);
+    return sort(state, action.column, action.order);
   } else if (action.type === LOAD_COLLECTIONS) {
     return load(action.collections);
   }
@@ -166,55 +165,13 @@ export const loadCollections = (collections) => ({
 /**
  * Action creator for sort collections events.
  *
- * @param {Array} collections - The unsorted collection list.
  * @param {String} column - The column.
  * @param {String} order - The order.
  *
  * @returns {Object} The sort collections action.
  */
-export const sortCollections = (collections, column, order) => ({
+export const sortCollections = (column, order) => ({
   type: UPDATE_SORT,
-  collections: collections,
   column: column,
   order: order
 });
-
-/**
- * Get the stats for each collection in parallel.
- *
- * @param {Array} collections - The collections.
- *
- * @returns {Function} The thunk function.
- */
-export const loadCollectionStats = (collections) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const dataService = state.dataService.dataService;
-
-    if (dataService) {
-      parallel(
-        collections.map((collection) => {
-          return (done) => {
-            dataService.collectionStats(
-              state.databaseName,
-              collection.name,
-              (err, res) => {
-                collection.set(res);
-                done(err, collection);
-              }
-            );
-          };
-        }),
-        (err, results) => {
-          if (err) {
-            dispatch(loadCollections(collections));
-          } else {
-            dispatch(loadCollections(results));
-          }
-        }
-      );
-    } else {
-      dispatch(loadCollections(collections));
-    }
-  };
-};

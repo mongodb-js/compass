@@ -5,7 +5,7 @@ describe('sort order module', () => {
   describe('#reducer', () => {
     context('when an action is provided', () => {
       it('returns the new order', () => {
-        expect(reducer(undefined, sortCollections(null, '', 'desc'))).to.equal('desc');
+        expect(reducer(undefined, sortCollections('', 'desc'))).to.equal('desc');
       });
     });
 

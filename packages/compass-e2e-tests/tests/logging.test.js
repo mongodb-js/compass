@@ -348,8 +348,10 @@ describe('Logging and Telemetry integration', function () {
       });
 
       // eslint-disable-next-line mocha/no-setup-in-describe
-      criticalPathExpectedLogs.forEach((expected) => {
-        it(`logs "${expected.msg}"`, function () {
+      criticalPathExpectedLogs.forEach((expected, i) => {
+        // Adding a number because some of the expected messages are duplicates,
+        // resulting in duplicate test names.
+        it(`logs "${expected.msg}" (${i})`, function () {
           const actualLogIndex = criticalPathActualLogs.findIndex(
             ({ id }, index) => id === expected.id && !testedIndexes.has(index)
           );

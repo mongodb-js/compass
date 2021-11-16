@@ -26,6 +26,7 @@ const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 describe('Smoke tests', function () {
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
+  /** @type {import('../helpers/compass').ExtendedApplication['client']} */
   let client;
   let telemetry;
 
@@ -106,13 +107,9 @@ describe('Smoke tests', function () {
     });
 
     it('contains a list of collections', async function () {
-      const collectionsTableElement = await client.$(
-        Selectors.CollectionsTableLinkNumbers
-      );
-
-      expect(await collectionsTableElement.isExisting()).to.be.true;
-
-      // TODO: Collections are listed with their stats and the button to delete them
+      expect(
+        await client.existsEventually(Selectors.CollectionsTableLinkNumbers)
+      ).to.eq(true);
     });
 
     // capped and not capped

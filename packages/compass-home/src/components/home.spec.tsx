@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
+import InstanceModel from 'mongodb-instance-model';
 
 import AppRegistryContext from '../contexts/app-registry-context';
 import Home from '.';
@@ -20,6 +21,10 @@ const getComponent = (name: string) => {
   }
   return TestComponent;
 };
+
+const createDataService = () => ({});
+
+const createInstance = (initialState = {}) => new InstanceModel(initialState);
 
 describe('Home [Component]', function () {
   let testAppRegistry: AppRegistry;
@@ -45,6 +50,10 @@ describe('Home [Component]', function () {
     testAppRegistry.onActivated();
   });
 
+  afterEach(function () {
+    cleanup();
+  });
+
   describe('is not connected', function () {
     beforeEach(function () {
       render(
@@ -64,28 +73,31 @@ describe('Home [Component]', function () {
   });
 
   describe('is connected', function () {
-    beforeEach(async function () {
+    async function renderHome(
+      dataService = createDataService(),
+      instance = createInstance(),
+      connectionOptions = { connectionString: 'mongodb+srv://mongodb.net/' }
+    ) {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
           <Home appName="home-testing" />
         </AppRegistryContext.Provider>
       );
-      testAppRegistry.emit(
-        'data-service-connected',
-        null,
-        {
-          'fake ds': true,
-        },
-        {
-          connectionOptions: { connectionString: 'mongodb+srv://mongodb.net/' },
-        }
-      );
+      testAppRegistry.emit('data-service-connected', null, dataService, {
+        connectionOptions,
+      });
+      testAppRegistry.emit('instance-created', { instance });
       await waitFor(
         () =>
           expect(screen.queryByTestId('test-Application.Connect')).to.not.exist
       );
-    });
+    }
+
     describe('UI status is loading', function () {
+      beforeEach(async function () {
+        await renderHome(createDataService(), createInstance());
+      });
+
       it('renders content correctly', function () {
         expect(screen.queryByTestId('test-Instance.Workspace')).to.not.exist;
         expect(screen.queryByTestId('test-Database.Workspace')).to.not.exist;
@@ -127,14 +139,19 @@ describe('Home [Component]', function () {
     });
 
     describe('UI status is error', function () {
-      beforeEach(function () {
-        testAppRegistry.emit('instance-refreshed', {
-          errorMessage: 'Test error message',
+      beforeEach(async function () {
+        const instance = createInstance();
+        await renderHome(createDataService(), instance);
+        instance.set({
+          status: 'error',
+          statusError: 'Test error message',
+          refreshingStatus: 'error',
+          refreshingStatusError: 'Test error message',
         });
+        await waitFor(() => screen.getByRole('alert'));
       });
 
       it('renders content correctly', function () {
-        expect(screen.getByRole('alert')).to.be.visible;
         expect(screen.getByRole('alert').textContent).to.be.equal(
           'An error occurred while loading navigation: Test error message'
         );
@@ -142,22 +159,30 @@ describe('Home [Component]', function () {
         expect(screen.queryByTestId('test-Database.Workspace')).to.not.exist;
         expect(screen.queryByTestId('test-Collection.Workspace')).to.not.exist;
       });
+
       it('renders the sidebar', function () {
         expect(screen.getByTestId('test-Sidebar.Component')).to.be.visible;
       });
+
       it('renders the find', function () {
         expect(screen.getByTestId('test-Find')).to.be.visible;
       });
+
       it('renders the global modal role', function () {
         expect(screen.getByTestId('test-Global.Modal')).to.be.visible;
       });
+
       it('renders the shell plugin', function () {
         expect(screen.getByTestId('test-Global.Shell')).to.be.visible;
       });
     });
+
     describe('UI status is complete', function () {
-      beforeEach(function () {
-        testAppRegistry.emit('instance-refreshed', {});
+      beforeEach(async function () {
+        const instance = createInstance();
+        await renderHome(createDataService(), instance);
+        instance.set({ status: 'ready', refreshingStatus: 'ready' });
+        await waitFor(() => screen.getByTestId('test-Instance.Workspace'));
       });
 
       describe('namespace is unset', function () {
@@ -285,30 +310,20 @@ describe('Home [Component]', function () {
     });
 
     it('adds all the listeners', function () {
-      expect(testAppRegistry.listeners('instance-refreshed')).to.not.deep.equal(
-        []
-      );
-      expect(
-        testAppRegistry.listeners('data-service-connected')
-      ).to.not.deep.equal([]);
-      expect(
-        testAppRegistry.listeners('data-service-disconnected')
-      ).to.not.deep.equal([]);
-      expect(testAppRegistry.listeners('select-database')).to.not.deep.equal(
-        []
-      );
-      expect(testAppRegistry.listeners('select-namespace')).to.not.deep.equal(
-        []
-      );
-      expect(testAppRegistry.listeners('select-instance')).to.not.deep.equal(
-        []
-      );
-      expect(
-        testAppRegistry.listeners('open-namespace-in-new-tab')
-      ).to.not.deep.equal([]);
-      expect(
-        testAppRegistry.listeners('all-collection-tabs-closed')
-      ).to.not.deep.equal([]);
+      const events = [
+        'instance-created',
+        'data-service-connected',
+        'data-service-disconnected',
+        'select-database',
+        'select-namespace',
+        'select-instance',
+        'open-namespace-in-new-tab',
+        'all-collection-tabs-closed',
+      ];
+
+      events.forEach((name) => {
+        expect(testAppRegistry.listeners(name)).to.have.lengthOf(1);
+      });
     });
   });
 
@@ -323,22 +338,20 @@ describe('Home [Component]', function () {
     });
 
     it('clears up all the listeners', function () {
-      expect(testAppRegistry.listeners('instance-refreshed')).to.deep.equal([]);
-      expect(testAppRegistry.listeners('data-service-connected')).to.deep.equal(
-        []
-      );
-      expect(
-        testAppRegistry.listeners('data-service-disconnected')
-      ).to.deep.equal([]);
-      expect(testAppRegistry.listeners('select-database')).to.deep.equal([]);
-      expect(testAppRegistry.listeners('select-namespace')).to.deep.equal([]);
-      expect(testAppRegistry.listeners('select-instance')).to.deep.equal([]);
-      expect(
-        testAppRegistry.listeners('open-namespace-in-new-tab')
-      ).to.deep.equal([]);
-      expect(
-        testAppRegistry.listeners('all-collection-tabs-closed')
-      ).to.deep.equal([]);
+      const events = [
+        'instance-created',
+        'data-service-connected',
+        'data-service-disconnected',
+        'select-database',
+        'select-namespace',
+        'select-instance',
+        'open-namespace-in-new-tab',
+        'all-collection-tabs-closed',
+      ];
+
+      events.forEach((name) => {
+        expect(testAppRegistry.listeners(name)).to.have.lengthOf(0);
+      });
     });
   });
 });

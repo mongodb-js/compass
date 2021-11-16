@@ -26,7 +26,7 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "debug": "^4.1.1",
+    "debug": "4.3.0",
     "lodash.every": "^4.6.0",
     "lodash.foreach": "^4.5.0"
   },

@@ -1,10 +1,11 @@
 import { createStore, applyMiddleware } from 'redux';
+import throttle from 'lodash/throttle';
 import reducer from '../modules';
 import thunk from 'redux-thunk';
 import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import { changeInstance } from '../modules/instance';
-import { filterDatabases } from '../modules/databases';
+import { changeActiveNamespace, changeDatabases } from '../modules/databases';
 import { reset } from '../modules/reset';
 import { toggleIsWritable } from '../modules/is-writable';
 import { changeDescription } from '../modules/description';
@@ -16,32 +17,69 @@ import { changeConnection } from '../modules/connection-model';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
-store.onInstanceStatusChange = (instance) => {
-  store.dispatch(changeInstance(instance));
-};
-
 store.onActivated = (appRegistry) => {
+  const onInstanceChange = throttle((newInstance) => {
+    store.dispatch(changeInstance(newInstance.toJSON()));
+  }, 100);
+
+  const onDatabasesChange = throttle((databases) => {
+    store.dispatch(changeDatabases(databases.toJSON()));
+  }, 100);
+
   store.dispatch(globalAppRegistryActivated(appRegistry));
+
   store.dispatch(loadDetailsPlugins(appRegistry));
 
   appRegistry.on('data-service-connected', (_, dataService, connectionInfo, legacyConnectionModel) => {
     store.dispatch(changeConnection(legacyConnectionModel));
   });
 
-  appRegistry.on('instance-refreshed', ({ instance }) => {
-    // First time we are seeing this model, subscribe to status changes
-    if (store.getState().instance === null && instance) {
-      instance.on('change:status', store.onInstanceStatusChange);
+  appRegistry.on('instance-destroyed', () => {
+    onInstanceChange.cancel();
+    onDatabasesChange.cancel();
+  });
+
+  appRegistry.on('instance-created', ({ instance }) => {
+    onInstanceChange(instance);
+    onDatabasesChange(instance.databases);
+
+    instance.on('change:isRefreshing', () => {
+      onInstanceChange(instance);
+    });
+
+    instance.on('change:status', () => {
+      onInstanceChange(instance);
+    });
+
+    instance.on('change:databasesStatus', () => {
+      onInstanceChange(instance);
+      onDatabasesChange(instance.databases);
+    });
+
+    instance.on('change:databases.collectionsLength', () => {
+      onInstanceChange(instance);
+    });
+
+    instance.on('change:databases.collectionsStatus', () => {
+      onDatabasesChange(instance.databases);
+    });
+
+    function onIsGenuineChange(isGenuine) {
+      store.dispatch(toggleIsGenuineMongoDB(!!isGenuine));
+      store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
     }
 
-    store.dispatch(changeInstance(instance));
-    store.dispatch(filterDatabases(null, instance.databases.toJSON(), null));
-    if (instance.dataLake && instance.dataLake.isDataLake) {
-      store.dispatch(toggleIsDataLake(true));
+    instance.genuineMongoDB.on('change:isGenuine', (model, isGenuine) => {
+      onIsGenuineChange(isGenuine);
+    });
+
+    function onIsDataLakeChange(isDataLake) {
+      store.dispatch(toggleIsDataLake(isDataLake));
     }
-    const isGenuine = instance?.genuineMongoDB?.isGenuine ?? true;
-    store.dispatch(toggleIsGenuineMongoDB(!!isGenuine));
-    store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
+
+    instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
+      onIsDataLakeChange(isDataLake);
+    });
   });
 
   appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
@@ -50,20 +88,19 @@ store.onActivated = (appRegistry) => {
   });
 
   appRegistry.on('select-namespace', (metadata) => {
-    store.dispatch(filterDatabases(null, null, metadata.namespace || ''));
+    store.dispatch(changeActiveNamespace(metadata.namespace || ''));
   });
 
   appRegistry.on('open-namespace-in-new-tab', (metadata) => {
-    store.dispatch(filterDatabases(null, null, metadata.namespace || ''));
+    store.dispatch(changeActiveNamespace(metadata.namespace || ''));
   });
 
   appRegistry.on('select-database', (ns) => {
-    store.dispatch(filterDatabases(null, null, ns || ''));
+    store.dispatch(changeActiveNamespace(ns || ''));
   });
 
   appRegistry.on('data-service-disconnected', () => {
     store.dispatch(reset());
-    // @todo: Set the connection name.
   });
 };
 

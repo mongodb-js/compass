@@ -1,6 +1,7 @@
 import AppRegistry from 'hadron-app-registry';
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
+import InstanceModel from 'mongodb-instance-model';
 import store from './databases-store';
 import { reset } from '../modules/reset';
 
@@ -39,7 +40,9 @@ describe('Databases [Store]', () => {
       ];
 
       beforeEach(() => {
-        appRegistry.emit('instance-refreshed', { instance: { databases: dbs }});
+        appRegistry.emit('instance-created', {
+          instance: new InstanceModel({ _id: '123', databases: dbs }),
+        });
       });
 
       it('dispatches the load database action', () => {
