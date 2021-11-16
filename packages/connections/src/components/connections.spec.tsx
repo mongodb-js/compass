@@ -131,6 +131,12 @@ describe('Connections Component', function () {
         const connectButton = screen.getByText('Connect');
         fireEvent.click(connectButton);
 
+        // Wait for the connecting... modal to hide.
+        await waitFor(
+          () =>
+            expect(screen.queryByTestId('cancel-connection-attempt-button')).to
+              .not.exist
+        );
         await waitFor(
           () => expect(screen.queryByTestId('connections-connected')).to.exist
         );
@@ -219,8 +225,8 @@ describe('Connections Component', function () {
       // Wait for the connecting... modal to be shown.
       await waitFor(
         () =>
-          expect(screen.queryByTestId('cancel-connection-attempt-button')).to
-            .exist
+          expect(screen.queryByTestId('cancel-connection-attempt-button')).to.be
+            .visible
       );
     });
 
@@ -269,6 +275,12 @@ describe('Connections Component', function () {
           const connectButton = screen.getByText('Connect');
           fireEvent.click(connectButton);
 
+          // Wait for the connecting... modal to hide.
+          await waitFor(
+            () =>
+              expect(screen.queryByTestId('cancel-connection-attempt-button'))
+                .to.not.exist
+          );
           await waitFor(
             () => expect(screen.queryByTestId('connections-connected')).to.exist
           );
