@@ -3,7 +3,7 @@ import { Icon } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { SpinLoader } from '@mongodb-js/compass-components';
+import { ShellLoader } from '@mongosh/browser-repl';
 
 import styles from './shell-header.module.less';
 
@@ -41,7 +41,10 @@ export class ShellHeader extends Component {
             &gt;_MONGOSH
             {!isExpanded && isOperationInProgress && (
               <>
-                <SpinLoader size="12px" />
+                <ShellLoader
+                  className={styles['compass-shell-header-loader-icon']}
+                  size="12px"
+                />
                 <span
                   className={styles['compass-shell-header-operation-in-progress']}
                 >Command in progress...</span>
