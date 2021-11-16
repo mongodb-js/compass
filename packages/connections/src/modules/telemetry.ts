@@ -79,7 +79,7 @@ export function trackNewConnectionEvent(connectionInfo: ConnectionInfo, dataServ
   }
 };
 
-export function trackConnectionFailedEvent(connectionInfo: ConnectionInfo, connectionError: unknown): void {
+export function trackConnectionFailedEvent(connectionInfo: ConnectionInfo, connectionError: any): void {
   try {
     const callback = async () => {
       const connectionData = await getConnectionData(connectionInfo);
