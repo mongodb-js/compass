@@ -6,7 +6,7 @@ describe('sort column module', () => {
     context('when an action is provided', () => {
       it('returns the new column', () => {
         expect(
-          reducer(undefined, sortCollections(null, 'Collections', ''))
+          reducer(undefined, sortCollections('Collections', ''))
         ).to.equal('Collections');
       });
     });

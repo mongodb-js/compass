@@ -14,8 +14,6 @@ class SidebarCollection extends PureComponent {
   static propTypes = {
     _id: PropTypes.string.isRequired,
     database: PropTypes.string.isRequired,
-    capped: PropTypes.bool.isRequired,
-    power_of_two: PropTypes.bool.isRequired,
     readonly: PropTypes.bool.isRequired,
     activeNamespace: PropTypes.string.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,

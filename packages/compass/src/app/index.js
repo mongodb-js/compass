@@ -179,14 +179,6 @@ var Application = View.extend({
       root: '/'
     });
   },
-  onFatalError: function(id, err) {
-    console.error('Fatal Error!: ', id, err);
-    const metrics = require('mongodb-js-metrics')();
-    metrics.error(err);
-    ipc.call('compass:error:fatal', { message: err.message, stack: err.stack });
-    const StatusAction = app.appRegistry.getAction('Status.Actions');
-    StatusAction.setMessage(err);
-  },
   /**
    * When you want to go to a different page in the app or just save
    * state via the URL.

@@ -267,18 +267,18 @@ const configureStore = (options = {}) => {
     /**
      * Handle the instance changing.
      *
-     * @param {Object} state - The instance store state.
+     * @param {Object} instance - MongoDB instance model.
      */
-    onInstanceRefreshed(state) {
-      if (!state) {
-        return;
-      }
-      const res = { version: state.instance.build.version };
-      if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
-        res.isDataLake = true;
-        res.isEditable = false;
-      }
-      this.setState(res);
+    onInstanceCreated(instance) {
+      instance.build.on('change:version', (model, version) => {
+        this.setState({ version });
+      });
+
+      instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
+        if (isDataLake) {
+          this.setState({ isDataLake, isEditable: false });
+        }
+      });
     },
 
     /**
@@ -392,8 +392,9 @@ const configureStore = (options = {}) => {
             doc.emit('remove-success');
             this.state.updateSuccess = true;
 
-            this.localAppRegistry.emit('document-deleted', this.state.view);
-            this.globalAppRegistry.emit('document-deleted', this.state.view);
+            const payload = { view: this.state.view, ns: this.state.ns };
+            this.localAppRegistry.emit('document-deleted', payload);
+            this.globalAppRegistry.emit('document-deleted', payload);
             const index = this.findDocumentIndex(doc);
             this.state.docs.splice(index, 1);
             this.setState({
@@ -811,9 +812,15 @@ const configureStore = (options = {}) => {
           });
         }
         // track mode for analytics events
-        const mode = this.state.insert.jsonView ? 'json' : 'default';
-        this.localAppRegistry.emit('document-inserted', this.state.view, mode, true);
-        this.globalAppRegistry.emit('document-inserted', this.state.view, mode, true);
+        const payload = {
+          ns: this.state.ns,
+          view: this.state.view,
+          mode: this.state.insert.jsonView ? 'json' : 'default',
+          multiple: true,
+          docs,
+        };
+        this.localAppRegistry.emit('document-inserted', payload);
+        this.globalAppRegistry.emit('document-inserted', payload);
 
         this.state.insert = this.getInitialInsertState();
         // Since we are inserting a bunch of documents and we need to rerun all
@@ -867,9 +874,15 @@ const configureStore = (options = {}) => {
             });
           }
           // track mode for analytics events
-          const mode = this.state.insert.jsonView ? 'json' : 'default';
-          this.localAppRegistry.emit('document-inserted', this.state.view, mode, false, doc);
-          this.globalAppRegistry.emit('document-inserted', this.state.view, mode, false, doc);
+          const payload = {
+            ns: this.state.ns,
+            view: this.state.view,
+            mode: this.state.insert.jsonView ? 'json' : 'default',
+            multiple: false,
+            docs: [doc],
+          };
+          this.localAppRegistry.emit('document-inserted', payload);
+          this.globalAppRegistry.emit('document-inserted', payload);
 
           // count is greater than 0, if 1 then the new doc matches the filter
           if (count > 0) {
@@ -1151,8 +1164,8 @@ const configureStore = (options = {}) => {
   if (options.globalAppRegistry) {
     const globalAppRegistry = options.globalAppRegistry;
 
-    globalAppRegistry.on('instance-refreshed', () => {
-      store.onInstanceRefreshed();
+    globalAppRegistry.on('instance-created', ({ instance }) => {
+      store.onInstanceCreated(instance);
     });
     globalAppRegistry.on('refresh-data', () => {
       store.refreshDocuments();

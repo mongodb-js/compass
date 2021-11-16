@@ -32,7 +32,7 @@
     "chai": "*",
     "chai-as-promised": "*",
     "cross-spawn": "^7.0.3",
-    "debug": "^4.3.1",
+    "debug": "4.3.0",
     "electron": "^13.5.1",
     "depcheck": "*",
     "electron-rebuild": "^2.3.5",

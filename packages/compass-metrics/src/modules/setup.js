@@ -133,9 +133,6 @@ const setupMetrics = (appRegistry, productName, version) => {
     window.addEventListener('error', function(err) {
       debug('error encountered, notify trackers', err);
       metrics.error(err);
-      // hide progress bar when an unknown error occurs.
-      const StatusAction = appRegistry.getAction('Status.Actions');
-      StatusAction.hide();
     });
 
     // listen to preference changes

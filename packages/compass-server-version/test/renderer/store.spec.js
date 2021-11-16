@@ -3,15 +3,18 @@ import Store from '../../src/stores';
 describe('ServerVersionStore [Store]', () => {
   beforeEach(() => {
     Store.setState(Store.getInitialState());
+    Store.onActivated({ on() {}, emit() {} });
   });
 
-  describe('#onInstanceFetched', () => {
-    const s = {
-      instance: {
-        build: {
-          isEnterprise: true,
-          version: '3.4.4'
-        }
+  describe('#onInstanceStatusChange', () => {
+    const instance = {
+      build: {
+        isEnterprise: true,
+        version: '3.4.4'
+      },
+      dataLake: {
+        isDataLake: false,
+        version: null
       }
     };
 
@@ -22,7 +25,7 @@ describe('ServerVersionStore [Store]', () => {
         expect(state.versionDistro).to.equal('Enterprise');
         done();
       });
-      Store.onInstanceFetched(s);
+      Store.onInstanceStatusChange(instance, 'ready');
     });
   });
 });

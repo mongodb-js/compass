@@ -9,10 +9,14 @@ const {
   rebuildNativeModules,
   compileCompassAssets,
   buildCompass,
+  LOG_PATH,
 } = require('./helpers/compass');
 const { createUnlockedKeychain } = require('./helpers/keychain');
+const ResultLogger = require('./helpers/result-logger');
 
 const keychain = createUnlockedKeychain();
+
+let metricsClient;
 
 async function setup() {
   await keychain.activate();
@@ -20,7 +24,6 @@ async function setup() {
   spawnSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
   spawnSync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
 
-  const LOG_PATH = path.resolve(__dirname, '.log');
   try {
     debug('Clearing out past logs');
     fs.rmdirSync(LOG_PATH, { recursive: true });
@@ -109,10 +112,45 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
-  mocha.run((failures) => {
-    cleanup();
-    process.exitCode = failures ? 1 : 0;
+  const metricsConnection = process.env.E2E_TESTS_METRICS_URI;
+  if (metricsConnection) {
+    debug('Connecting to E2E_TESTS_METRICS_URI');
+    // only require it down here because it gets rebuilt up top
+    const { MongoClient } = require('mongodb');
+    metricsClient = new MongoClient(metricsConnection);
+    await metricsClient.connect();
+  } else {
+    debug('Not logging metrics to a database.');
+  }
+
+  debug('Running E2E tests');
+  // mocha.run has a callback and returns a result, so just promisify it manually
+  const { resultLogger, failures } = await new Promise((resolve, reject) => {
+    let resultLogger;
+
+    const runner = mocha.run((failures) => {
+      process.exitCode = failures ? 1 : 0;
+      resolve({ resultLogger, failures });
+    });
+
+    debug('Initialising ResultLogger');
+    resultLogger = new ResultLogger(metricsClient, runner);
+
+    // Synchronously create the ResultLogger so it can start listening to events
+    // on runner immediately after calling mocha.run() before any of the events
+    // fire.
+    resultLogger.init().catch((err) => {
+      // reject() doesn't stop mocha.run()...
+      reject(err);
+    });
   });
+
+  // write a report.json to be uploaded to evergreen
+  debug('Writing report.json');
+  const result = await resultLogger.done(failures);
+  const reportPath = path.join(LOG_PATH, 'report.json');
+  const jsonReport = JSON.stringify(result, null, 2);
+  await fs.promises.writeFile(reportPath, jsonReport);
 }
 
 process.once('SIGINT', () => {
@@ -140,4 +178,15 @@ process.on('unhandledRejection', (err) => {
   process.exitCode = 1;
 });
 
-main();
+async function run() {
+  try {
+    await main();
+  } finally {
+    if (metricsClient) {
+      await metricsClient.close();
+    }
+    cleanup();
+  }
+}
+
+run();

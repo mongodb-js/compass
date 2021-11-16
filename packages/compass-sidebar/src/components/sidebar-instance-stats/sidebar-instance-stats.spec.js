@@ -45,9 +45,9 @@ describe('SidebarInstanceStats [Component]', () => {
           instance={{
             status: 'ready',
             databases: [
-              { collections: [1, 2] },
-              { collections: [3, 4] },
-              { collections: [5] },
+              { collectionsLength: 2 },
+              { collectionsLength: 2 },
+              { collectionsLength: 1 },
             ],
           }}
           isExpanded
