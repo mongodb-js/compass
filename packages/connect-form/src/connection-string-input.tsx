@@ -171,7 +171,6 @@ function ConnectStringInput({
           size="xsmall"
           checked={enableEditingConnectionString}
           onClick={() => {
-            console.log('on click');
             if (enableEditingConnectionString) {
               dispatch({
                 type: 'hide-connection-string',
