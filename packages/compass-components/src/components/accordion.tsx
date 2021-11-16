@@ -14,14 +14,15 @@ const labelStyles = css({
 const buttonStyles = css({
   display: 'flex',
   alignItems: 'center',
-  borderStyle: 'solid',
-  borderColor: 'transparent',
-  borderRadius: '6px',
-  borderWidth: '3px',
+  border: 'none',
   background: 'none',
+  borderRadius: '6px',
+  boxShadow: 'none',
+  transition: 'box-shadow 150ms ease-in-out',
   '&:focus-visible': {
-    borderColor: uiColors.green.base,
+    boxShadow: `0 0 0 3px ${uiColors.focus}`,
   },
+
 });
 const containerStyles = css({
   marginTop: spacing[3],
@@ -50,7 +51,9 @@ function Accordion(
             type="button"
             aria-expanded={open ? 'true' : 'false'}
             aria-controls={regionId}
-            onClick={() => setOpen(!open)}
+            onClick={() =>{
+              setOpen(currentOpen => !currentOpen)
+            }}
           >
             <Icon glyph={open ? 'ChevronDown' : 'ChevronRight'} />
             {props.text}

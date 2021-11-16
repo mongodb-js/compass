@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tabs, Tab } from '@leafygreen-ui/tabs';
+import { Tabs, Tab } from '@mongodb-js/compass-components';
 
 import GeneralTab from './general-tab';
 import SSLTab from './ssl-tab';
