@@ -14,7 +14,7 @@ const shellLoaderSpin = keyframes`
 
 const spinLoaderStyle = css`
   border: 2px solid transparent;
-  border-top: 2px solid ${uiColors.green.light2};
+  border-top: 2px solid ${uiColors.gray.dark3};
   border-radius: 50%;
   padding: 0;
   margin: 0;

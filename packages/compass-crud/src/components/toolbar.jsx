@@ -56,10 +56,11 @@ class Toolbar extends React.Component {
   _loadedMessage() {
     const suffix = this.props.loadingCount
       ? ''
-      : `of ${this.props.count ?? 'N/A'}`;
+      : `${this.props.count ?? 'N/A'}`;
+
     return (
       <span>
-        Displaying documents <b>{this.props.start} - {this.props.end}</b> {suffix}
+        Displaying documents <b>{this.props.start} - {this.props.end}</b> of {suffix}
       </span>
     );
   }
@@ -144,6 +145,10 @@ class Toolbar extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
+    const messageTooltip = this.props.loadingCount
+      ? 'Fetching document count...'
+      : '';
+
     return (
       <div>
         <div className={ACTION_BAR_CLASS}>
@@ -162,7 +167,7 @@ class Toolbar extends React.Component {
             </div>
           </div>
           <div className={CONTAINER_CLASS}>
-            <div className={MESSAGE_CLASS}>
+            <div className={MESSAGE_CLASS} title={messageTooltip}>
               {this._loadedMessage()}
               {this._loadingSpinner()}
             </div>
