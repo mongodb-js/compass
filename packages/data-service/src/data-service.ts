@@ -1420,9 +1420,11 @@ class DataService extends EventEmitter {
    * Kill a session and terminate all in progress operations.
    * @param clientSession - a ClientSession (can be created with startSession())
    */
-  killSession(session: ClientSession): Promise<Document> {
+  killSession(sessions: ClientSession | ClientSession[]): Promise<Document> {
     return this._initializedClient.db('admin').command({
-      killSessions: [session.id],
+      killSessions: Array.isArray(sessions)
+        ? sessions.map((s) => s.id)
+        : [sessions.id],
     });
   }
 

@@ -9,7 +9,8 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import {
   findDocuments,
   countDocuments,
-  fetchShardingKeys
+  fetchShardingKeys,
+  OPERATION_CANCELLED_MESSAGE
 } from '../utils';
 
 import {
@@ -182,7 +183,7 @@ const configureStore = (options = {}) => {
         ns: '',
         collection: '',
         abortController: null,
-        session: null,
+        sessions: null,
         error: null,
         docs: [],
         start: 0,
@@ -201,6 +202,8 @@ const configureStore = (options = {}) => {
         isReadonly: false,
         isTimeSeries: false,
         status: DOCUMENTS_STATUS_INITIAL,
+        debouncingLoad: false,
+        loadingCount: false,
         outdated: false,
         shardKeys: null,
         resultId: resultId()
@@ -399,7 +402,7 @@ const configureStore = (options = {}) => {
             this.state.docs.splice(index, 1);
             this.setState({
               count: this.state.count - 1,
-              end: this.state.end - 1
+              end: Math.max(this.state.end - 1, 0)
             });
           }
         });
@@ -610,9 +613,11 @@ const configureStore = (options = {}) => {
       this.setState({
         status: DOCUMENTS_STATUS_FETCHING,
         abortController,
-        session,
+        sessions: [session],
         error: null
       });
+
+      const cancelDebounceLoad = this.debounceLoading();
 
       let error;
       let documents;
@@ -634,11 +639,13 @@ const configureStore = (options = {}) => {
         table: this.getInitialTableState(),
         resultId: resultId(),
         abortController: null,
-        session: null
+        sessions: null
       });
       abortController.signal.removeEventListener('abort', this.onAbort);
       this.localAppRegistry.emit('documents-paginated', view, documents);
       this.globalAppRegistry.emit('documents-paginated', view, documents);
+
+      cancelDebounceLoad();
     },
 
     /**
@@ -995,14 +1002,16 @@ const configureStore = (options = {}) => {
       }
 
       const fetchShardingKeysOptions = {
-        maxTimeMS: query.maxTimeMS
+        maxTimeMS: query.maxTimeMS,
+        session: this.dataService.startSession()
       };
 
       const countOptions = {
         skip: query.skip,
         maxTimeMS: query.maxTimeMS > COUNT_MAX_TIME_MS_CAP ?
           COUNT_MAX_TIME_MS_CAP :
-          query.maxTimeMS
+          query.maxTimeMS,
+        session: this.dataService.startSession()
       };
 
       if (this.isCountHintSafe()) {
@@ -1016,7 +1025,8 @@ const configureStore = (options = {}) => {
         limit: NUM_PAGE_DOCS,
         collation: query.collation,
         maxTimeMS: query.maxTimeMS,
-        promoteValues: false
+        promoteValues: false,
+        session: this.dataService.startSession()
       };
 
       // only set limit if it's > 0, read-only views cannot handle 0 limit.
@@ -1032,7 +1042,6 @@ const configureStore = (options = {}) => {
         countOptions
       });
 
-      const session = this.dataService.startSession();
       const abortController = new AbortController();
       const signal = abortController.signal;
 
@@ -1044,15 +1053,21 @@ const configureStore = (options = {}) => {
       countOptions.signal = signal;
       findOptions.signal = signal;
 
-      // pass the session so that the queries are all associated with the same
-      // session and then we can kill the whole session once
-      fetchShardingKeysOptions.session = session;
-      countOptions.session = session;
-      findOptions.session = session;
+      // Don't wait for the count to finish. Set the result asynchronously.
+      countDocuments(this.dataService, ns, query.filter, countOptions)
+        .then((count) => this.setState({ count, loadingCount: false }))
+        .catch((err) => {
+          // countDocuments already swallows all db errors and returns null. The
+          // only known error it can throw is OPERATION_CANCELLED_MESSAGE. If
+          // something new does appear we probably shouldn't swallow it.
+          if (err.message !== OPERATION_CANCELLED_MESSAGE) {
+            throw err;
+          }
+          this.setState({ loadingCount: false });
+        });
 
       const promises = [
         fetchShardingKeys(this.dataService, ns, fetchShardingKeysOptions),
-        countDocuments(this.dataService, ns, query.filter, countOptions),
         findDocuments(this.dataService, ns, query.filter, findOptions)
       ];
 
@@ -1060,15 +1075,34 @@ const configureStore = (options = {}) => {
       this.setState({
         status: DOCUMENTS_STATUS_FETCHING,
         abortController,
-        session,
+        /**
+         * We have separate sessions created for the commands we are running as
+         * running commands with the same session concurrently is not really
+         * supported by the server. Even though it works in some environments,
+         * it breaks in others, so having separate sessions is a more spec
+         * compliant way of doing this
+         *
+         * @see https://docs.mongodb.com/manual/core/read-isolation-consistency-recency/#client-sessions-and-causal-consistency-guarantees
+         * @see https://github.com/mongodb/specifications/blob/master/source/sessions/driver-sessions.rst#why-do-we-say-drivers-must-not-attempt-to-detect-unsafe-multi-threaded-or-multi-process-use-of-clientsession
+         */
+        sessions: [
+          fetchShardingKeysOptions.session,
+          countOptions.session,
+          findOptions.session,
+        ],
         outdated: false,
-        error: null
+        error: null,
+        count: null, // we don't know the new count yet
+        loadingCount: true
       });
+
+      // don't start showing the loading indicator and cancel button immediately
+      const cancelDebounceLoad = this.debounceLoading();
 
       const stateChanges = {};
 
       try {
-        const [shardKeys, count, docs] = await Promise.all(promises);
+        const [shardKeys, docs] = await Promise.all(promises);
 
         Object.assign(stateChanges, {
           status: this.isInitialQuery(query) ?
@@ -1077,7 +1111,6 @@ const configureStore = (options = {}) => {
           isEditable: this.hasProjection(query) ? false : this.isListEditable(),
           error: null,
           docs: docs.map(doc => new HadronDocument(doc)),
-          count,
           page: 0,
           start: docs.length > 0 ? 1 : 0,
           end: docs.length,
@@ -1095,9 +1128,12 @@ const configureStore = (options = {}) => {
         });
       }
 
+      // cancel the debouncing status if we load before the timer fires
+      cancelDebounceLoad();
+
       Object.assign(stateChanges, {
         abortController: null,
-        session: null,
+        sessions: null,
         resultId: resultId(),
       });
 
@@ -1108,14 +1144,13 @@ const configureStore = (options = {}) => {
     },
 
     async onAbort() {
-      const session = this.state.session;
-      if (!session) {
+      const { sessions } = this.state;
+      if (!sessions) {
         return;
       }
-      this.setState({ session: null });
-
+      this.setState({ sessions: null });
       try {
-        await this.dataService.killSession(session);
+        await this.dataService.killSession(sessions);
       } catch (err) {
         log.warn(mongoLogId(1001000096), 'Documents', 'Attempting to kill the session failed');
       }
@@ -1129,6 +1164,26 @@ const configureStore = (options = {}) => {
       this.setState({ abortController: null });
 
       abortController.abort();
+    },
+
+    debounceLoading() {
+      this.setState({ debouncingLoad: true });
+
+      const debouncePromise = new Promise((resolve) => {
+        setTimeout(resolve, 200); // 200ms should feel about instant
+      });
+
+      let cancelDebounceLoad;
+      const loadPromise = new Promise((resolve) => {
+        cancelDebounceLoad = resolve;
+      });
+
+      Promise.race([debouncePromise, loadPromise])
+        .then(() => {
+          this.setState({ debouncingLoad: false });
+        });
+
+      return cancelDebounceLoad;
     },
 
     hasProjection(query) {
