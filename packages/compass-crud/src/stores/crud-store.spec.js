@@ -159,7 +159,7 @@ describe('store', function() {
 
       expect(store.state).to.deep.equal({
         abortController: null,
-        session: null,
+        sessions: null,
         debouncingLoad: false,
         loadingCount: false,
         collection: '',
@@ -1047,7 +1047,7 @@ describe('store', function() {
 
               expect(state.status).to.equal('fetching');
               expect(state.abortController).to.not.be.null;
-              expect(state.session).to.not.be.null;
+              expect(state.sessions).to.not.be.null;
               expect(state.outdated).to.be.false;
               expect(state.error).to.be.null;
             },
@@ -1076,7 +1076,7 @@ describe('store', function() {
               expect(state.shardKeys).to.deep.equal({});
 
               expect(state.abortController).to.be.null;
-              expect(state.session).to.be.null;
+              expect(state.sessions).to.be.null;
               expect(state.resultId).to.not.equal(resultId);
             }
           ]);
@@ -1565,7 +1565,7 @@ describe('store', function() {
         });
       });
 
-      it('aborts the queries and kills the session', async() => {
+      it('aborts the queries and kills the sessions', async() => {
         const spy = sinon.spy(dataService, 'aggregate');
 
         const listener = waitForStates(store, [
@@ -1576,7 +1576,7 @@ describe('store', function() {
             expect(state.loadingCount).to.be.true; // initially count is still loading
             expect(state.error).to.be.null;
             expect(state.abortController).to.not.be.null;
-            expect(state.session).to.not.be.null;
+            expect(state.sessions).to.not.be.null;
 
             store.cancelOperation();
           },
@@ -1588,7 +1588,7 @@ describe('store', function() {
 
           (state) => {
             // onAbort cleans up state.session
-            expect(state.session).to.be.null;
+            expect(state.sessions).to.be.null;
           },
 
           (state) => {
@@ -1596,7 +1596,7 @@ describe('store', function() {
             expect(state.status).to.equal('error');
             expect(state.error.message).to.equal('The operation was cancelled.');
             expect(state.abortController).to.be.null;
-            expect(state.session).to.be.null;
+            expect(state.sessions).to.be.null;
             expect(state.loadingCount).to.be.false; // eventually count loads
           }
         ]);
@@ -1691,11 +1691,11 @@ describe('store', function() {
       }));
 
       expect(store.state.abortController).to.be.null;
-      expect(store.state.session).to.be.null;
+      expect(store.state.sessions).to.be.null;
 
       const promise = store.getPage(1);
       expect(store.state.abortController).to.not.be.null;
-      expect(store.state.session).to.not.be.null;
+      expect(store.state.sessions).to.not.be.null;
 
       await promise;
       expect(store.state.error.message).to.equal('This is a fake error.');
@@ -1705,15 +1705,15 @@ describe('store', function() {
 
     it('allows the operation to be cancelled', async() => {
       expect(store.state.abortController).to.be.null;
-      expect(store.state.session).to.be.null;
+      expect(store.state.sessions).to.be.null;
 
       const promise = store.getPage(1);
       expect(store.state.abortController).to.not.be.null;
-      expect(store.state.session).to.not.be.null;
+      expect(store.state.sessions).to.not.be.null;
 
       store.cancelOperation();
       expect(store.state.abortController).to.be.null;
-      expect(store.state.session).to.be.null;
+      expect(store.state.sessions).to.be.null;
       expect(store.state.error).to.be.null;
 
       await promise;
