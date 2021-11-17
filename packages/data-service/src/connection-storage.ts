@@ -1,7 +1,7 @@
-import { ConnectionInfo } from './connection-info';
-
-type ConnectionInfoWithRequiredId = ConnectionInfo &
-  Required<Pick<ConnectionInfo, 'id'>>;
+import {
+  ConnectionInfo,
+  ConnectionInfoWithRequiredId,
+} from './connection-info';
 
 import { validate as uuidValidate } from 'uuid';
 import {

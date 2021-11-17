@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import {
   ConnectionInfo,
+  ConnectionInfoWithRequiredId,
   DataService,
   getConnectionTitle,
 } from 'mongodb-data-service';
@@ -11,7 +12,7 @@ import { createConnectionAttempt } from '../modules/connection-attempt';
 
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
-export function createNewConnectionInfo(): ConnectionInfo {
+export function createNewConnectionInfo(): ConnectionInfoWithRequiredId {
   return {
     id: uuidv4(),
     connectionOptions: {
@@ -22,6 +23,7 @@ export function createNewConnectionInfo(): ConnectionInfo {
 
 export interface ConnectionStore {
   loadAll: () => Promise<ConnectionInfo[]>;
+  save: (connectionInfo: ConnectionInfoWithRequiredId) => Promise<void>;
 }
 
 type State = {
@@ -166,7 +168,7 @@ export function useConnections(
   const { isConnected, connectionAttempt, connections } = state;
 
   const connectingConnectionAttempt = useRef<ConnectionAttempt>();
-  const connectedConnectionInfo = useRef<ConnectionInfo>();
+  const connectedConnectionInfo = useRef<ConnectionInfoWithRequiredId>();
   const connectedDataService = useRef<DataService>();
 
   useEffect(() => {
@@ -175,6 +177,10 @@ export function useConnections(
       connectedConnectionInfo.current &&
       connectedDataService.current
     ) {
+      // Update lastUsed date as now and save the connection.
+      connectedConnectionInfo.current.lastUsed = new Date();
+      void connectionStorage.save(connectedConnectionInfo.current);
+
       // After connecting and the UI is updated we notify the rest of Compass.
       void onConnected(
         connectedConnectionInfo.current,
@@ -209,7 +215,7 @@ export function useConnections(
           type: 'cancel-connection-attempt',
         });
       },
-      async connect(connectionInfo: ConnectionInfo) {
+      async connect(connectionInfo: ConnectionInfoWithRequiredId) {
         if (connectionAttempt || isConnected) {
           // Ensure we aren't currently connecting.
           return;

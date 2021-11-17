@@ -33,3 +33,6 @@ interface ConnectionFavoriteOptions {
    */
   color?: string;
 }
+
+export type ConnectionInfoWithRequiredId = ConnectionInfo &
+  Required<Pick<ConnectionInfo, 'id'>>;
