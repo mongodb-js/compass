@@ -138,7 +138,9 @@ describe('Connections Component', function () {
               .not.exist
         );
         await waitFor(
-          () => expect(screen.queryByTestId('connections-connected')).to.exist
+          () =>
+            expect(screen.queryByTestId('connections-disconnected')).to.not
+              .exist
         );
       });
 
@@ -282,7 +284,9 @@ describe('Connections Component', function () {
                 .to.not.exist
           );
           await waitFor(
-            () => expect(screen.queryByTestId('connections-connected')).to.exist
+            () =>
+              expect(screen.queryByTestId('connections-disconnected')).to.not
+                .exist
           );
         });
 
