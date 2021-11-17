@@ -3,6 +3,7 @@ import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
 import SpinLoader from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
+import Accordion from './components/accordion';
 export {
   default as Badge,
   Variant as BadgeVariant,
@@ -51,6 +52,7 @@ export {
   Description,
 } from '@leafygreen-ui/typography';
 export {
+  Accordion,
   CancelLoader,
   ConfirmationModal,
   FileInput,
