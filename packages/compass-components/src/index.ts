@@ -56,3 +56,4 @@ export {
   ResizeHandle,
   ResizeDirection,
 };
+export { DatabasesNavigationTree } from './components/databases-navigation-tree';
