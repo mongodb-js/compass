@@ -67,7 +67,7 @@ jobs:
         run: |
           git clone https://github.com/mongodb-js/devtools-docker-test-envs.git
           cd devtools-docker-test-envs
-          git checkout v1.2.0
+          git checkout v1.2.1
           docker-compose -f docker/enterprise/docker-compose.yaml up -d
           docker-compose -f docker/ldap/docker-compose.yaml up -d
           docker-compose -f docker/scram/docker-compose.yaml up -d
