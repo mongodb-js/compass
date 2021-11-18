@@ -39,8 +39,7 @@
   }
 
   &-properties,
-  &-filter,
-  &-content {
+  &-filter {
     flex-grow: 0;
     flex-shrink: 1;
     flex-basis: auto;
@@ -84,7 +83,9 @@
   }
 
   &-content {
+    display: flex;
     flex: 1;
+    flex-direction: column;
     overflow: hidden;
   }
 
@@ -104,12 +105,9 @@
   /* Styles for the big create database button at the bottom */
 
   &-button-create-database-container {
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: auto;
+    flex: none;
+    margin-top: auto;
     padding: 10px;
-    z-index: 2;
-    position: relative;
   }
 
   &-button-create-database {
