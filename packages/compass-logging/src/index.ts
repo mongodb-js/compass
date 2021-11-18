@@ -6,8 +6,6 @@ import type { HadronIpcRenderer } from 'hadron-ipc';
 
 type TrackProps = Record<string, any> | (() => Record<string, any>);
 
-const isTrackingEnabled = (global as any).hadronApp.isFeatureEnabled('trackUsageStatistics'); 
-
 function emit(
   ipc: HadronIpcRenderer | null,
   event: string,
@@ -48,6 +46,7 @@ export function createLoggerAndTelemetry(component: string): {
   const writer = new MongoLogWriter('', null, target);
 
   const track = async (event: string, properties: TrackProps = {}): Promise<void> => {
+    const isTrackingEnabled = (global as any).hadronApp.isFeatureEnabled('trackUsageStatistics'); 
     if (!isTrackingEnabled) {
       return;
     }
