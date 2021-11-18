@@ -33,7 +33,7 @@ async function getConnectionData ({connectionOptions: {connectionString, sshTunn
     is_do: isDigitalOcean(hostName),
     public_cloud_name: publicCloudName,
     auth_type: constantCase(authType),
-    is_ssh_tunnel: !!sshTunnel,
+    tunnel: sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,
   };
 };
