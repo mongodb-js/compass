@@ -99,6 +99,7 @@ function connectionOptionsToMongoClientParams(
 
   const options: MongoClientOptions = {
     monitorCommands: true,
+    tlsCertificateFile: connectionOptions.tlsCertificateFile,
   };
 
   // adds directConnection=true unless is explicitly a replica set
