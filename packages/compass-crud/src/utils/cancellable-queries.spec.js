@@ -116,7 +116,7 @@ describe('cancellable-queries', function() {
       await expect(promise).to.be.rejectedWith(Error, OPERATION_CANCELLED_MESSAGE);
 
       // kill the session
-      await dataService.killSession(session);
+      await dataService.killSessions(session);
 
       // give it enough time to be killed
       await delay(100);
@@ -180,7 +180,7 @@ describe('cancellable-queries', function() {
       // kill the session
       // (unfortunately I can't think of a way to slow the query down enough so
       //  we can make sure the operation appeared and then disappeared)
-      await dataService.killSession(session);
+      await dataService.killSessions(session);
     });
   });
 
@@ -204,7 +204,7 @@ describe('cancellable-queries', function() {
 
       // kill the session
       // (same problem with testing that this actually worked as for count queries above)
-      await dataService.killSession(session);
+      await dataService.killSessions(session);
     });
 
     // TODO: if (configDocs && configDocs.length) { implies that configDocs could be empty?

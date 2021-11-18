@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import {
   ConnectionInfo,
-  ConnectionStorage,
   DataService,
   getConnectionTitle,
 } from 'mongodb-data-service';
@@ -19,6 +18,10 @@ export function createNewConnectionInfo(): ConnectionInfo {
       connectionString: 'mongodb://localhost:27017',
     },
   };
+}
+
+export interface ConnectionStore {
+  loadAll: () => Promise<ConnectionInfo[]>;
 }
 
 type State = {
@@ -126,10 +129,10 @@ async function loadConnections(
   dispatch: React.Dispatch<{
     type: 'set-connections';
     connections: ConnectionInfo[];
-  }>
+  }>,
+  connectionStorage: ConnectionStore
 ) {
   try {
-    const connectionStorage = new ConnectionStorage();
     const loadedConnections = await connectionStorage.loadAll();
 
     dispatch({
@@ -145,7 +148,8 @@ export function useConnections(
   onConnected: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
-  ) => Promise<void>
+  ) => Promise<void>,
+  connectionStorage: ConnectionStore
 ): [
   State,
   {
@@ -155,7 +159,7 @@ export function useConnections(
     setActiveConnectionById(newConnectionId?: string | undefined): void;
   }
 ] {
-  const [state, dispatch] = useReducer(
+  const [state, dispatch]: [State, React.Dispatch<Action>] = useReducer(
     connectionsReducer,
     defaultConnectionsState()
   );
@@ -181,7 +185,7 @@ export function useConnections(
 
   useEffect(() => {
     // Load connections after first render.
-    void loadConnections(dispatch);
+    void loadConnections(dispatch, connectionStorage);
 
     return () => {
       // When unmounting, clean up any current connection attempts that have

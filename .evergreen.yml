@@ -27,10 +27,14 @@ post:
     params:
       local_files_include_filter:
         - src/packages/compass-e2e-tests/.log/**/*.log
+        - src/packages/compass-e2e-tests/.log/**/*.json
   - <<: *save-diagnostic-file
     params:
       local_files_include_filter:
         - ~/.mongodb/runner/*.log
+  - command: attach.results
+    params:
+      file_location: src/packages/compass-e2e-tests/.log/report.json
 
 functions:
   'prepare':
@@ -187,6 +191,7 @@ functions:
 
           bash .evergreen/pretest.sh
 
+          export E2E_TESTS_METRICS_URI="${e2e_tests_metrics_string}"
           export E2E_TESTS_ATLAS_HOST="${e2e_tests_atlas_host}"
           export E2E_TESTS_DATA_LAKE_HOST="${e2e_tests_data_lake_host}"
           export E2E_TESTS_SERVERLESS_HOST="${e2e_tests_serverless_host}"
@@ -411,7 +416,7 @@ tasks:
 
       - func: test
         vars:
-          debug: 'hadron*,mongo*'
+          debug: 'hadron*,mongo*,compass-e2e-tests*'
 
       - func: package
         vars:

@@ -28,7 +28,7 @@
     "bluebird": "^3.7.2",
     "chalk": "^4.1.0",
     "cli-table": "^0.3.1",
-    "debug": "^4.1.1",
+    "debug": "4.3.0",
     "del": "^2.0.2",
     "electron": "^13.5.1",
     "electron-license": "^2.4.0",

@@ -60,7 +60,8 @@
     "@leafygreen-ui/typography": "^8.0.2",
     "@mongodb-js/compass-logging": "^0.3.0",
     "@react-aria/interactions": "^3.6.0",
-    "@react-aria/visually-hidden": "^3.2.3"
+    "@react-aria/visually-hidden": "^3.2.3",
+    "@react-aria/utils": "^3.9.0"
   },
   "peerDependencies": {
     "@emotion/css": "^11.5.0",
