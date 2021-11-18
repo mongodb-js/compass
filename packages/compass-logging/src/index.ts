@@ -45,14 +45,19 @@ export function createLoggerAndTelemetry(component: string): {
   } as Writable;
   const writer = new MongoLogWriter('', null, target);
 
-  const track = async (event: string, properties: TrackProps = {}): Promise<void> => {
-    const isTrackingEnabled = (global as any).hadronApp.isFeatureEnabled('trackUsageStatistics'); 
+  const track = async (
+    event: string,
+    properties: TrackProps = {}
+  ): Promise<void> => {
+    const isTrackingEnabled = (global as any).hadronApp.isFeatureEnabled(
+      'trackUsageStatistics'
+    );
     if (!isTrackingEnabled) {
       return;
     }
     const data = {
       event,
-      properties
+      properties,
     };
     if (typeof properties === 'function') {
       data.properties = await properties();
