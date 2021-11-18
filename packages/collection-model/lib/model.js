@@ -84,14 +84,13 @@ function propagateCollectionEvents(namespace) {
 }
 
 function pickCollectionInfo({
-  type,
   readonly,
   view_on,
   collation,
   pipeline,
   validation,
 }) {
-  return { type, readonly, view_on, collation, pipeline, validation };
+  return { readonly, view_on, collation, pipeline, validation };
 }
 
 const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
@@ -258,9 +257,10 @@ const CollectionCollection = AmpersandCollection.extend(
             // refactor significantly. We can address this in COMPASS-5211
             return getNamespaceInfo(coll._id).system === false;
           })
-          .map(({ _id, ...rest }) => {
+          .map(({ _id, type, ...rest }) => {
             return {
               _id,
+              type,
               ...(fetchInfo && pickCollectionInfo(rest)),
             };
           })
