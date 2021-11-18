@@ -45,7 +45,7 @@ export function trackConnectionAttemptEvent({favorite, lastUsed}: ConnectionInfo
       is_recent: Boolean(lastUsed && !favorite),
       is_new: !lastUsed,
     };
-    track('Connection Attempt', trackEvent);
+    void track('Connection Attempt', trackEvent);
   } catch(error) {
     debug('trackConnectionAttemptEvent failed', error);
   }
@@ -73,7 +73,7 @@ export function trackNewConnectionEvent(connectionInfo: ConnectionInfo, dataServ
       };
       return trackEvent;
     }
-    track('New Connection', callback);
+    void track('New Connection', callback);
   } catch(error) {
     debug('trackNewConnectionEvent failed', error);
   }
@@ -90,7 +90,7 @@ export function trackConnectionFailedEvent(connectionInfo: ConnectionInfo, conne
       };
       return trackEvent;
     }
-    track('Connection Failed', callback);
+    void track('Connection Failed', callback);
   } catch(error) {
     debug('trackConnectionFailedEvent failed', error);
   }
