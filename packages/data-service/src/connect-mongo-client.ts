@@ -99,6 +99,10 @@ function connectionOptionsToMongoClientParams(
 
   const options: MongoClientOptions = {
     monitorCommands: true,
+
+    // NOTE: this property should not be confused with the 'tlsCertificateFile' url parameter
+    // that had to be specified for the Node.js driver instead of 'tlsCertificateKeyFile'
+    // before version 4.2.0 (https://jira.mongodb.org/browse/NODE-3591).
     tlsCertificateFile: connectionOptions.tlsCertificateFile,
   };
 
