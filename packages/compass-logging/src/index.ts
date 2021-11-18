@@ -6,15 +6,7 @@ import type { HadronIpcRenderer } from 'hadron-ipc';
 
 type TrackProps = Record<string, any> | (() => Record<string, any>);
 
-const SEGMENT_API_KEY =
-  process.env.HADRON_METRICS_SEGMENT_API_KEY_OVERRIDE ||
-  process.env.HADRON_METRICS_SEGMENT_API_KEY;
-const SEGMENT_HOST =
-  process.env.HADRON_METRICS_SEGMENT_HOST_OVERRIDE ||
-  process.env.HADRON_METRICS_SEGMENT_HOST;
-const IS_CI = process.env.IS_CI || process.env.CI || process.env.EVERGREEN_BUILD_VARIANT;
-const telemetryCapableEnvironment = !!(SEGMENT_API_KEY && (!IS_CI || SEGMENT_HOST));
-
+const isTrackingEnabled = (global as any).hadronApp.isFeatureEnabled('trackUsageStatistics'); 
 
 function emit(
   ipc: HadronIpcRenderer | null,
@@ -56,7 +48,7 @@ export function createLoggerAndTelemetry(component: string): {
   const writer = new MongoLogWriter('', null, target);
 
   const track = async (event: string, properties: TrackProps = {}): Promise<void> => {
-    if (!telemetryCapableEnvironment) {
+    if (!isTrackingEnabled) {
       return;
     }
     const data = {
