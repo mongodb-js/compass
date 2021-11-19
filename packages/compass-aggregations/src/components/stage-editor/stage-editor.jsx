@@ -1,17 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
-import ace from 'brace';
+import 'ace-builds';
+import 'ace-builds/webpack-resolver';
 import debounce from 'lodash.debounce';
 import { StageAutoCompleter } from 'mongodb-ace-autocompleter';
 
 import styles from './stage-editor.module.less';
 
-import 'brace/ext/language_tools';
+import tools from 'ace-builds/src-noconflict/ext-language_tools';
 import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';
-
-const tools = ace.acequire('ace/ext/language_tools');
 
 const INDEX_STATS = '$indexStats';
 

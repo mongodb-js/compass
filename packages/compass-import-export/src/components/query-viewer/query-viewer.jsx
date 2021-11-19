@@ -6,7 +6,7 @@ import getShellJS from '../../utils/get-shell-js';
 
 import styles from './query-viewer.module.less';
 
-import 'brace/mode/javascript';
+import 'ace-builds/src-noconflict/mode-javascript';
 import 'mongodb-ace-theme';
 
 /**

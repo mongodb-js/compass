@@ -8,11 +8,11 @@ import { TextButton } from 'hadron-react-buttons';
 import DocumentActions from './document-actions';
 import RemoveDocumentFooter from './remove-document-footer';
 
-import 'brace/ext/language_tools';
+import 'ace-builds/src-noconflict/ext-language_tools';
 import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';
 
-import 'brace/mode/json';
+import 'ace-builds/src-noconflict/mode-json';
 
 /**
  * The base class.

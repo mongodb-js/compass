@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { ConfirmationModal } from '@mongodb-js/compass-components';
 import AceEditor from 'react-ace';
 
-import 'brace/ext/language_tools';
+import 'ace-builds/src-noconflict/ext-language_tools';
 import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';
 

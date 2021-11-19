@@ -5,10 +5,10 @@ import AceEditor from 'react-ace';
 import jsBeautify from 'js-beautify';
 
 
-import 'brace/mode/javascript';
-import 'brace/mode/csharp';
-import 'brace/mode/python';
-import 'brace/mode/java';
+import 'ace-builds/src-noconflict/mode-javascript';
+import 'ace-builds/src-noconflict/mode-csharp';
+import 'ace-builds/src-noconflict/mode-python';
+import 'ace-builds/src-noconflict/mode-java';
 
 import 'mongodb-ace-theme';
 
