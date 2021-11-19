@@ -89,6 +89,10 @@ describe('instance-detail-helper', function () {
             null
           );
         });
+
+        it('should not be identified as atlas', function () {
+          expect(instanceDetails).to.have.property('isAtlas', false);
+        });
       });
     });
 

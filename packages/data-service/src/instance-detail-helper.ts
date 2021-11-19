@@ -8,6 +8,7 @@ import toNS from 'mongodb-ns';
 import createLogger from '@mongodb-js/compass-logging';
 
 import {
+  AtlasVersionInfo,
   BuildInfo,
   CmdLineOpts,
   CollectionInfo,
@@ -88,6 +89,7 @@ export type InstanceDetails = {
   genuineMongoDB: GenuineMongoDBDetails;
   dataLake: DataLakeDetails;
   featureCompatibilityVersion: string | null;
+  isAtlas: boolean;
 };
 
 export async function getInstance(
@@ -100,6 +102,7 @@ export async function getInstance(
     hostInfoResult,
     buildInfoResult,
     getParameterResult,
+    atlasVersionResult,
   ] = await Promise.all([
     runCommand(adminDb, { getCmdLineOpts: 1 }).catch((err) => {
       /**
@@ -122,6 +125,10 @@ export async function getInstance(
       getParameter: 1,
       featureCompatibilityVersion: 1,
     }).catch(() => null),
+
+    runCommand(adminDb, { atlasVersion: 1 }).catch((err) => {
+      return { errmsg: err.message };
+    }),
   ]);
 
   return {
@@ -134,7 +141,20 @@ export async function getInstance(
     dataLake: buildDataLakeInfo(buildInfoResult),
     featureCompatibilityVersion:
       getParameterResult?.featureCompatibilityVersion.version ?? null,
+    isAtlas: checkIsAtlas(client, atlasVersionResult),
   };
+}
+
+function checkIsAtlas(
+  client: MongoClient,
+  atlasVersionInfo: AtlasVersionInfo
+): boolean {
+  const firstHost = client.options.hosts[0]?.host || '';
+
+  if (undefined === atlasVersionInfo.version) {
+    return /mongodb(-dev)?.net$/i.test(firstHost);
+  }
+  return true;
 }
 
 function buildGenuineMongoDBInfo(

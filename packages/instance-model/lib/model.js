@@ -105,14 +105,9 @@ const InstanceModel = AmpersandModel.extend(
       databasesStatusError: { type: 'string', default: null },
       refreshingStatus: { type: 'string', default: 'initial' },
       refreshingStatusError: { type: 'string', default: null },
+      isAtla: { tyep: 'boolean', default: false }
     },
     derived: {
-      isAtlas: {
-        deps: ['hostname'],
-        fn() {
-          return /mongodb.net$/i.test(this.hostname);
-        },
-      },
       isRefreshing: {
         deps: ['refreshingStatus'],
         fn() {
