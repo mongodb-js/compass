@@ -29,8 +29,8 @@ async function getConnectionData({
   const authType = authMechanism
     ? authMechanism
     : connectionStringData.username
-    ? 'SCRAM-SHA-1'
-    : 'DEFAULT';
+    ? 'DEFAULT'
+    : 'NONE';
 
   return {
     is_localhost: isLocalhost(hostName),
