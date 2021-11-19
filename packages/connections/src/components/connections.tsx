@@ -98,7 +98,7 @@ function Connections({
         <div className={formContainerStyles}>
           <ConnectForm
             onConnectClicked={(connectionInfo) => connect(connectionInfo)}
-            initialConnectionInfo={activeConnectionInfo}
+            initialConnectionOptions={activeConnectionInfo.connectionOptions}
             key={activeConnectionId}
           />
           <FormHelp />

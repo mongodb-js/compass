@@ -32,6 +32,7 @@ export { default as Modal } from '@leafygreen-ui/modal';
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassUIColors from './components/compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
+export { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 export { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
 export { Tabs, Tab } from '@leafygreen-ui/tabs';
 export { default as TextArea } from '@leafygreen-ui/text-area';

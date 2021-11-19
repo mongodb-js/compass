@@ -21,15 +21,12 @@ const buttonStyles = css({
   transition: 'box-shadow 150ms ease-in-out',
   '&:focus-visible': {
     boxShadow: `0 0 0 3px ${uiColors.focus}`,
-  },
+  }
 });
 const containerStyles = css({
   marginTop: spacing[3],
   display: 'flex',
-  alignItems: 'center',
-  '&:hover': {
-    cursor: 'pointer',
-  },
+  alignItems: 'center'
 });
 interface AccordionProps {
   dataTestId?: string;
@@ -55,7 +52,7 @@ function Accordion(
             }}
           >
             <Icon glyph={open ? 'ChevronDown' : 'ChevronRight'} />
-            {props.text}
+            &nbsp;{props.text}
           </button>
         </p>
       </div>
