@@ -183,7 +183,7 @@ const configureStore = (options = {}) => {
         ns: '',
         collection: '',
         abortController: null,
-        session: null,
+        sessions: null,
         error: null,
         docs: [],
         start: 0,
@@ -613,7 +613,7 @@ const configureStore = (options = {}) => {
       this.setState({
         status: DOCUMENTS_STATUS_FETCHING,
         abortController,
-        session,
+        sessions: [session],
         error: null
       });
 
@@ -639,7 +639,7 @@ const configureStore = (options = {}) => {
         table: this.getInitialTableState(),
         resultId: resultId(),
         abortController: null,
-        session: null
+        sessions: null
       });
       abortController.signal.removeEventListener('abort', this.onAbort);
       this.localAppRegistry.emit('documents-paginated', view, documents);
@@ -1002,14 +1002,16 @@ const configureStore = (options = {}) => {
       }
 
       const fetchShardingKeysOptions = {
-        maxTimeMS: query.maxTimeMS
+        maxTimeMS: query.maxTimeMS,
+        session: this.dataService.startSession()
       };
 
       const countOptions = {
         skip: query.skip,
         maxTimeMS: query.maxTimeMS > COUNT_MAX_TIME_MS_CAP ?
           COUNT_MAX_TIME_MS_CAP :
-          query.maxTimeMS
+          query.maxTimeMS,
+        session: this.dataService.startSession()
       };
 
       if (this.isCountHintSafe()) {
@@ -1023,7 +1025,8 @@ const configureStore = (options = {}) => {
         limit: NUM_PAGE_DOCS,
         collation: query.collation,
         maxTimeMS: query.maxTimeMS,
-        promoteValues: false
+        promoteValues: false,
+        session: this.dataService.startSession()
       };
 
       // only set limit if it's > 0, read-only views cannot handle 0 limit.
@@ -1039,7 +1042,6 @@ const configureStore = (options = {}) => {
         countOptions
       });
 
-      const session = this.dataService.startSession();
       const abortController = new AbortController();
       const signal = abortController.signal;
 
@@ -1050,12 +1052,6 @@ const configureStore = (options = {}) => {
       fetchShardingKeysOptions.signal = signal;
       countOptions.signal = signal;
       findOptions.signal = signal;
-
-      // pass the session so that the queries are all associated with the same
-      // session and then we can kill the whole session once
-      fetchShardingKeysOptions.session = session;
-      countOptions.session = session;
-      findOptions.session = session;
 
       // Don't wait for the count to finish. Set the result asynchronously.
       countDocuments(this.dataService, ns, query.filter, countOptions)
@@ -1079,7 +1075,21 @@ const configureStore = (options = {}) => {
       this.setState({
         status: DOCUMENTS_STATUS_FETCHING,
         abortController,
-        session,
+        /**
+         * We have separate sessions created for the commands we are running as
+         * running commands with the same session concurrently is not really
+         * supported by the server. Even though it works in some environments,
+         * it breaks in others, so having separate sessions is a more spec
+         * compliant way of doing this
+         *
+         * @see https://docs.mongodb.com/manual/core/read-isolation-consistency-recency/#client-sessions-and-causal-consistency-guarantees
+         * @see https://github.com/mongodb/specifications/blob/master/source/sessions/driver-sessions.rst#why-do-we-say-drivers-must-not-attempt-to-detect-unsafe-multi-threaded-or-multi-process-use-of-clientsession
+         */
+        sessions: [
+          fetchShardingKeysOptions.session,
+          countOptions.session,
+          findOptions.session,
+        ],
         outdated: false,
         error: null,
         count: null, // we don't know the new count yet
@@ -1123,7 +1133,7 @@ const configureStore = (options = {}) => {
 
       Object.assign(stateChanges, {
         abortController: null,
-        session: null,
+        sessions: null,
         resultId: resultId(),
       });
 
@@ -1134,14 +1144,13 @@ const configureStore = (options = {}) => {
     },
 
     async onAbort() {
-      const session = this.state.session;
-      if (!session) {
+      const { sessions } = this.state;
+      if (!sessions) {
         return;
       }
-      this.setState({ session: null });
-
+      this.setState({ sessions: null });
       try {
-        await this.dataService.killSession(session);
+        await this.dataService.killSessions(sessions);
       } catch (err) {
         log.warn(mongoLogId(1001000096), 'Documents', 'Attempting to kill the session failed');
       }

@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "21.12.0",
+  "version": "21.13.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -57,7 +57,7 @@
     "mongodb-connection-model": "*"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.3.0",
+    "@mongodb-js/compass-logging": "^0.4.0",
     "@mongodb-js/ssh-tunnel": "^1.2.1",
     "async": "^3.2.0",
     "debug": "4.3.0",
@@ -65,17 +65,17 @@
     "lodash": "^4.17.20",
     "mongodb-build-info": "^1.1.1",
     "mongodb-connection-string-url": "^2.1.0",
-    "mongodb-index-model": "^3.5.0",
+    "mongodb-index-model": "^3.6.0",
     "mongodb-ns": "^2.2.0",
     "resolve-mongodb-srv": "^1.1.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@mongodb-js/devtools-docker-test-envs": "^1.2.0",
-    "@mongodb-js/eslint-config-compass": "^0.3.0",
-    "@mongodb-js/mocha-config-compass": "^0.4.0",
-    "@mongodb-js/prettier-config-compass": "^0.2.0",
-    "@mongodb-js/tsconfig-compass": "^0.2.0",
+    "@mongodb-js/devtools-docker-test-envs": "^1.2.1",
+    "@mongodb-js/eslint-config-compass": "^0.4.0",
+    "@mongodb-js/mocha-config-compass": "^0.5.0",
+    "@mongodb-js/prettier-config-compass": "^0.3.0",
+    "@mongodb-js/tsconfig-compass": "^0.3.0",
     "@types/async": "^3.2.7",
     "@types/debug": "^4.1.7",
     "@types/lodash": "^4.14.172",
@@ -88,13 +88,13 @@
     "kerberos": "^2.0.0-beta.0",
     "mocha": "^8.4.0",
     "mongodb": "^4.1.0",
-    "mongodb-connection-model": "^21.8.0",
+    "mongodb-connection-model": "^21.9.0",
     "mongodb-runner": "^4.8.3",
     "nyc": "^15.0.0",
     "prettier": "2.3.2",
     "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
-    "storage-mixin": "^4.7.0",
+    "storage-mixin": "^4.8.0",
     "typescript": "^4.3.5"
   }
 }

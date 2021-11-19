@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -128,15 +128,8 @@ describe('ConnectionStringInput Component', function () {
     });
 
     describe('clicking confirm to edit', function () {
-      beforeEach(function () {
-        const button = screen.getByTestId('enableEditConnectionStringButton');
-        fireEvent(
-          button,
-          new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-          })
-        );
+      beforeEach(async function () {
+        screen.getByRole('switch').click();
 
         // Click confirm on the modal that opens.
         const confirmButton = screen.getByText('Confirm').closest('button');
@@ -147,6 +140,9 @@ describe('ConnectionStringInput Component', function () {
             cancelable: true,
           })
         );
+
+        // Wait for the modal to close.
+        await waitFor(() => expect(screen.queryByText('Confirm')).to.not.exist);
       });
 
       it('should remove the disabled after clicking confirm to edit', function () {
@@ -160,18 +156,31 @@ describe('ConnectionStringInput Component', function () {
           'mongodb+srv://turtles:pineapples@localhost/'
         );
       });
+
+      describe('clicking on edit connection string toggle again', function () {
+        beforeEach(function () {
+          // Wait for the modal to close.
+          const toggle = screen.getByRole('switch');
+          toggle.click();
+        });
+
+        it('should add disabled on the textbox', function () {
+          const textArea = screen.getByRole('textbox');
+          expect(textArea).to.match('[disabled]');
+        });
+
+        it('should show the censored connection string', function () {
+          const textArea = screen.getByRole('textbox');
+          expect(textArea).to.have.text(
+            'mongodb+srv://turtles:*****@localhost/'
+          );
+        });
+      });
     });
 
     describe('clicking cancel on confirmation to edit', function () {
       beforeEach(function () {
-        const button = screen.getByTestId('enableEditConnectionStringButton');
-        fireEvent(
-          button,
-          new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-          })
-        );
+        screen.getByRole('switch').click();
 
         // Click cancel on the modal that opens.
         const cancelButton = screen.getByText('Cancel').closest('button');

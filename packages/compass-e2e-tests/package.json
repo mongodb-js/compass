@@ -26,8 +26,8 @@
     "mongodb-compass": "^0.0.0-dev.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^0.3.0",
-    "@mongodb-js/prettier-config-compass": "^0.2.0",
+    "@mongodb-js/eslint-config-compass": "^0.4.0",
+    "@mongodb-js/prettier-config-compass": "^0.3.0",
     "chalk": "^4.1.2",
     "chai": "*",
     "chai-as-promised": "*",
@@ -38,7 +38,7 @@
     "electron-rebuild": "^2.3.5",
     "eslint": "*",
     "glob": "^7.1.6",
-    "hadron-build": "^24.8.0",
+    "hadron-build": "^24.9.0",
     "mocha": "*",
     "mongodb": "^4.1.0",
     "mongodb-runner": "^4.8.3",

@@ -7,12 +7,16 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import ConnectForm from '@mongodb-js/connect-form';
-import { ConnectionInfo, DataService } from 'mongodb-data-service';
+import {
+  ConnectionInfo,
+  ConnectionStorage,
+  DataService,
+} from 'mongodb-data-service';
 
 import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
-import { useConnections } from '../stores/connections-store';
+import { ConnectionStore, useConnections } from '../stores/connections-store';
 
 const connectStyles = css({
   position: 'absolute',
@@ -51,11 +55,13 @@ const formContainerStyles = css({
 
 function Connections({
   onConnected,
+  connectionStorage = new ConnectionStorage(),
 }: {
   onConnected: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => Promise<void>;
+  connectionStorage?: ConnectionStore;
 }): React.ReactElement {
   const [
     {
@@ -72,7 +78,7 @@ function Connections({
       createNewConnection,
       setActiveConnectionById,
     },
-  ] = useConnections(onConnected);
+  ] = useConnections(onConnected, connectionStorage);
 
   return (
     <div
