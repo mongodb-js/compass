@@ -1,8 +1,5 @@
 import { constantCase } from 'constant-case';
-import {
-  ConnectionInfo,
-  DataService
-} from 'mongodb-data-service';
+import { ConnectionInfo, DataService } from 'mongodb-data-service';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isAtlas, isLocalhost, isDigitalOcean } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
@@ -10,21 +7,31 @@ import ConnectionString from 'mongodb-connection-string-url';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
-async function getConnectionData ({connectionOptions: {connectionString, sshTunnel}}: ConnectionInfo): Promise<Record<string, unknown>> {
+async function getConnectionData({
+  connectionOptions: { connectionString, sshTunnel },
+}: ConnectionInfo): Promise<Record<string, unknown>> {
   const connectionStringData = new ConnectionString(connectionString);
   const hostName = connectionStringData.hosts[0];
-  const { isAws, isAzure, isGcp } = await getCloudInfo(hostName).catch((err: Error) => {
-    debug('getCloudInfo failed', err);
-    return {};
-  });
+  const { isAws, isAzure, isGcp } = await getCloudInfo(hostName).catch(
+    (err: Error) => {
+      debug('getCloudInfo failed', err);
+      return {};
+    }
+  );
   const isPublicCloud = isAws || isAzure || isGcp;
-  const publicCloudName = isAws ? 'AWS' : isAzure ? 'Azure' : isGcp ? 'GCP' : '';
+  const publicCloudName = isAws
+    ? 'AWS'
+    : isAzure
+    ? 'Azure'
+    : isGcp
+    ? 'GCP'
+    : '';
   const authMechanism = connectionStringData.searchParams.get('authMechanism');
   const authType = authMechanism
     ? authMechanism
     : connectionStringData.username
-      ? 'SCRAM-SHA-1'
-      : 'DEFAULT';
+    ? 'SCRAM-SHA-1'
+    : 'DEFAULT';
 
   return {
     is_localhost: isLocalhost(hostName),
@@ -36,9 +43,12 @@ async function getConnectionData ({connectionOptions: {connectionString, sshTunn
     tunnel: sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,
   };
-};
+}
 
-export function trackConnectionAttemptEvent({favorite, lastUsed}: ConnectionInfo): void {
+export function trackConnectionAttemptEvent({
+  favorite,
+  lastUsed,
+}: ConnectionInfo): void {
   try {
     const trackEvent = {
       is_favorite: Boolean(favorite),
@@ -46,20 +56,19 @@ export function trackConnectionAttemptEvent({favorite, lastUsed}: ConnectionInfo
       is_new: !lastUsed,
     };
     void track('Connection Attempt', trackEvent);
-  } catch(error) {
+  } catch (error) {
     debug('trackConnectionAttemptEvent failed', error);
   }
-};
+}
 
-export function trackNewConnectionEvent(connectionInfo: ConnectionInfo, dataService: DataService): void {
+export function trackNewConnectionEvent(
+  connectionInfo: ConnectionInfo,
+  dataService: DataService
+): void {
   try {
     const callback = async () => {
-      const {
-        dataLake,
-        genuineMongoDB,
-        host,
-        build,
-      } = await dataService.instance();
+      const { dataLake, genuineMongoDB, host, build } =
+        await dataService.instance();
       const connectionData = await getConnectionData(connectionInfo);
       const trackEvent = {
         ...connectionData,
@@ -72,14 +81,17 @@ export function trackNewConnectionEvent(connectionInfo: ConnectionInfo, dataServ
         server_os_family: host.os_family,
       };
       return trackEvent;
-    }
+    };
     void track('New Connection', callback);
-  } catch(error) {
+  } catch (error) {
     debug('trackNewConnectionEvent failed', error);
   }
-};
+}
 
-export function trackConnectionFailedEvent(connectionInfo: ConnectionInfo, connectionError: any): void {
+export function trackConnectionFailedEvent(
+  connectionInfo: ConnectionInfo,
+  connectionError: any
+): void {
   try {
     const callback = async () => {
       const connectionData = await getConnectionData(connectionInfo);
@@ -89,9 +101,9 @@ export function trackConnectionFailedEvent(connectionInfo: ConnectionInfo, conne
         error_name: connectionError.codeName ?? connectionError.name,
       };
       return trackEvent;
-    }
+    };
     void track('Connection Failed', callback);
-  } catch(error) {
+  } catch (error) {
     debug('trackConnectionFailedEvent failed', error);
   }
-};
+}

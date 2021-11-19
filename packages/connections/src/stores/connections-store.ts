@@ -12,7 +12,7 @@ import { createConnectionAttempt } from '../modules/connection-attempt';
 import {
   trackConnectionAttemptEvent,
   trackNewConnectionEvent,
-  trackConnectionFailedEvent
+  trackConnectionFailedEvent,
 } from '../modules/telemetry';
 
 const debug = debugModule('mongodb-compass:connections:connections-store');
