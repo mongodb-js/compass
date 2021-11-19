@@ -101,6 +101,13 @@ function connectionOptionsToMongoClientParams(
     monitorCommands: true,
   };
 
+  if (connectionOptions.tlsCertificateFile) {
+    // NOTE: this property should not be confused with the 'tlsCertificateFile' url parameter
+    // that had to be specified for the Node.js driver instead of 'tlsCertificateKeyFile'
+    // before version 4.2.0 (https://jira.mongodb.org/browse/NODE-3591).
+    options.tlsCertificateFile = connectionOptions.tlsCertificateFile;
+  }
+
   // adds directConnection=true unless is explicitly a replica set
   const isLoadBalanced = url.searchParams.get('loadBalanced') === 'true';
   const isReplicaSet =
