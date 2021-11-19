@@ -183,6 +183,34 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         return getNamespaceInfo(this._id).normal;
       },
     },
+
+    isTimeSeries: {
+      deps: ['type'],
+      fn() {
+        return this.type === 'timeseries';
+      },
+    },
+
+    isView: {
+      deps: ['type'],
+      fn() {
+        return this.type === 'view';
+      },
+    },
+
+    sourceId: {
+      deps: ['view_on'],
+      fn() {
+        return this.view_on ? `${this.database}.${this.view_on}` : null;
+      },
+    },
+
+    source: {
+      deps: ['sourceId'],
+      fn() {
+        return this.collection.get(this.sourceId) ?? null;
+      },
+    },
   },
 
   /**
@@ -213,7 +241,11 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   },
 
   toJSON(opts = { derived: true }) {
-    return this.serialize(opts);
+    const serialized = this.serialize(opts);
+    if (serialized.source) {
+      serialized.source = serialized.source.toJSON();
+    }
+    return serialized;
   },
 });
 

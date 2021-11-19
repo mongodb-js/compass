@@ -60,7 +60,7 @@ store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
   const { instance, dataService } = store.getState();
   const db = instance.databases.get(dbName);
 
-  if (db && db.collectionsStatus === 'initial') {
+  if (db.collectionsStatus === 'initial' || db.collectionsStatus === 'fetching') {
     await db.fetchCollections({ dataService, fetchInfo: !nameOnly });
   }
 
@@ -82,13 +82,40 @@ store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
 store.fetchCollectionDetails = async(ns) => {
   const { instance, dataService } = store.getState();
   const { database } = toNS(ns);
-  const db = instance.databases.get(database);
-  const coll = db.collections.get(ns);
-  if (coll.status === 'initial') {
-    await coll.fetch({ dataService }).catch(() => {
-      /* we don't care if this fails */
+  const coll = instance.databases.get(database).collections.get(ns);
+  if (coll.status === 'initial' || coll.status === 'fetching') {
+    await coll.fetch({ dataService }).catch((err) => {
+      // Ignoring this error means that we might open a tab without enough
+      // collection metadata to correctly display it and even though maybe it's
+      // not how we might want to handle this, this just preserves current
+      // Compass behavior
+      debug('failed to fetch collection details', err);
     });
   }
+  return coll;
+};
+
+/**
+ * Fetches collection info and returns a special format of collection metadata
+ * that events like open-in-new-tab, select-namespace, edit-view require
+ */
+store.fetchCollectionMetadata = async(ns) => {
+  const coll = await store.fetchCollectionDetails(ns);
+  const collectionMetadata = {
+    namespace: coll.ns,
+    isReadonly: coll.readonly,
+    isTimeSeries: coll.isTimeSeries,
+  };
+  if (coll.sourceId) {
+    const source = await store.fetchCollectionDetails(coll.sourceId);
+    Object.assign(collectionMetadata, {
+      sourceName: source.ns,
+      sourceReadonly: source.readonly,
+      sourceViewon: source.sourceId,
+      sourcePipeline: coll.pipeline,
+    });
+  }
+  return collectionMetadata;
 };
 
 store.refreshNamespaceStats = async(ns) => {
@@ -144,7 +171,8 @@ store.onActivated = (appRegistry) => {
 
     // Preserving the "greedy" fetch of db and collection stats if global
     // overlay will be shown
-    const fetchCollectionsInfo = process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true';
+    const fetchCollectionsInfo =
+      process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true';
 
     store.refreshInstance(appRegistry, {
       fetchDatabases: true,
@@ -180,6 +208,54 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('import-finished', ({ ns }) => {
     store.refreshNamespaceStats(ns);
+  });
+
+  appRegistry.on('sidebar-select-collection', async({ ns }) => {
+    const metadata = await store.fetchCollectionMetadata(ns);
+    appRegistry.emit('select-namespace', metadata);
+  });
+
+  appRegistry.on('sidebar-open-collection-in-new-tab', async({ ns }) => {
+    const metadata = await store.fetchCollectionMetadata(ns);
+    appRegistry.emit('open-namespace-in-new-tab', metadata);
+  });
+
+  appRegistry.on('sidebar-modify-view', async({ ns }) => {
+    const coll = await store.fetchCollectionDetails(ns);
+    if (coll.sourceId && coll.pipeline) {
+      // `modify-view` is currently implemented in a way where we are basically
+      // just opening a new tab but for a source collection instead of a view
+      // and with source pipeline of this new tab set to the view pipeline
+      // instead of the actual source pipeline of the view source. This
+      // definitely feels like putting too much logic on the same property, but
+      // refactoring this away would require us to change way too many things in
+      // the collection / aggregation plugins, so we're just keeping it as it is
+      const metadata = await store.fetchCollectionMetadata(coll.sourceId);
+      metadata.sourcePipeline = coll.pipeline;
+      metadata.editViewName = coll.ns;
+      appRegistry.emit('open-namespace-in-new-tab', metadata);
+    } else {
+      debug(
+        'Tried to modify the view on a collection with required metadata missing',
+        coll.toJSON()
+      );
+    }
+  });
+
+  appRegistry.on('sidebar-duplicate-view', async({ ns }) => {
+    const coll = await store.fetchCollectionDetails(ns);
+    if (coll.sourceId && coll.pipeline) {
+      appRegistry.emit('open-create-view', {
+        source: coll.sourceId,
+        pipeline: coll.pipeline,
+        duplicate: true,
+      });
+    } else {
+      debug(
+        'Tried to duplicate the view for a collection with required metadata missing',
+        coll.toJSON()
+      );
+    }
   });
 };
 

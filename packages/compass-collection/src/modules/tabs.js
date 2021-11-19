@@ -59,6 +59,15 @@ export const DATABASE_DROPPED = `${PREFIX}/tabs/DATABASE_DROPPED`;
  */
 export const INITIAL_STATE = [];
 
+const showCollectionSubmenu = ({ isReadOnly }) => {
+  const { ipcRenderer } = require('hadron-ipc');
+  if (ipcRenderer) {
+    ipcRenderer.call('window:show-collection-submenu', {
+      isReadOnly,
+    });
+  }
+};
+
 /**
  * Clear all the tabs.
  */
@@ -514,6 +523,7 @@ export const selectOrCreateTab = ({
         sourceViewOn,
         sourcePipeline
       }));
+      showCollectionSubmenu({ isReadOnly: isReadonly });
     } else {
       // If the namespace is equal to the active tab's namespace, then
       // there is no need to do anything.
@@ -532,6 +542,7 @@ export const selectOrCreateTab = ({
             sourcePipeline
           })
         );
+        showCollectionSubmenu({ isReadOnly: isReadonly });
       }
     }
   };

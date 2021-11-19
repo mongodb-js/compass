@@ -51,11 +51,6 @@ export const showCollection = (name) => {
       ));
 
       dispatch(appRegistryEmit('collection-selected', { view: 'table' }));
-
-      if (!state.isDataLake) {
-        const ipc = require('hadron-ipc');
-        ipc.call('window:show-collection-submenu');
-      }
     }
   };
 };

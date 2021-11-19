@@ -207,7 +207,7 @@ function license(): MenuItemConstructorOptions {
       const licenseTemp = path.join(app.getPath('temp'), 'License');
       fs.writeFile(licenseTemp, LICENSE, (err) => {
         if (!err) {
-          shell.openPath(licenseTemp);
+          void shell.openPath(licenseTemp);
         }
       });
     },
@@ -248,7 +248,7 @@ function helpSubMenu(app: typeof CompassApplication): MenuItemConstructorOptions
   };
 }
 
-function collectionSubMenu(): MenuItemConstructorOptions {
+function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push({
     label: '&Share Schema as JSON',
@@ -258,7 +258,7 @@ function collectionSubMenu(): MenuItemConstructorOptions {
     },
   });
   subMenu.push(separator());
-  if (process.env.HADRON_READONLY !== 'true') {
+  if (process.env.HADRON_READONLY !== 'true' && !isReadOnly) {
     subMenu.push({
       label: '&Import Data',
       click() {
@@ -357,7 +357,7 @@ function windowSubMenu(): MenuItemConstructorOptions {
 function darwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
-): MenuTemplate {
+): MenuTemplate[] {
   const menu: MenuTemplate = [darwinCompassSubMenu()];
 
   menu.push(connectSubMenu(false, app));
@@ -365,7 +365,7 @@ function darwinMenu(
   menu.push(viewSubMenu());
 
   if (menuState.showCollection) {
-    menu.push(collectionSubMenu());
+    menu.push(collectionSubMenu(menuState.isReadOnly));
   }
 
   menu.push(windowSubMenu());
@@ -377,11 +377,11 @@ function darwinMenu(
 function nonDarwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
-): MenuTemplate {
+): MenuTemplate[] {
   const menu = [connectSubMenu(true, app), viewSubMenu()];
 
   if (menuState.showCollection) {
-    menu.push(collectionSubMenu());
+    menu.push(collectionSubMenu(menuState.isReadOnly));
   }
 
   menu.push(helpSubMenu(app));
@@ -391,6 +391,7 @@ function nonDarwinMenu(
 
 class WindowMenuState {
   showCollection = false;
+  isReadOnly = false;
 }
 
 class CompassMenu {
@@ -514,20 +515,19 @@ class CompassMenu {
     return nonDarwinMenu(menuState, this.app);
   }
 
-  private static showCollection() {
-    this.updateMenu('showCollection', true);
+  private static showCollection(_bw: BrowserWindow, { isReadOnly }: { isReadOnly: boolean }) {
+    this.updateMenu({ showCollection: true, isReadOnly });
   }
 
   private static hideCollection() {
-    this.updateMenu('showCollection', false);
+    this.updateMenu({ showCollection: false });
   }
 
   private static updateMenu(
-    prop: keyof WindowMenuState,
-    val: WindowMenuState[typeof prop],
+    newValues: Partial<WindowMenuState>,
     bw: BrowserWindow | undefined = this.lastFocusedWindow
   ) {
-    debug(`updateMenu() set ${prop} to ${String(val)}`);
+    debug(`updateMenu() set menu state to ${JSON.stringify(newValues)}`);
 
     if (!bw) {
       debug(`Can't update menu state: no window to update`);
@@ -537,7 +537,7 @@ class CompassMenu {
     const menuState = this.windowState.get(bw.id);
 
     if (menuState) {
-      menuState[prop] = val;
+      Object.assign(menuState, newValues);
       this.windowState.set(bw.id, menuState);
       this.setTemplate(bw.id);
     }

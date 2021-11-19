@@ -34,11 +34,7 @@ const onNamespaceAction = (namespace, action) => {
         emit('select-database', ns.database);
         return;
       case 'select-collection':
-        emit('select-namespace', {
-          // TODO: Currently a lot of things rely on this event providing
-          // collection info and not only the namespace, maybe we can avoid that
-          namespace: ns.ns,
-        });
+        emit('sidebar-select-collection', ns);
         return;
       case 'drop-database':
         emit('open-drop-database', ns.database);
@@ -50,19 +46,13 @@ const onNamespaceAction = (namespace, action) => {
         emit('open-create-collection', ns.database);
         return;
       case 'open-in-new-tab':
+        emit('sidebar-open-collection-in-new-tab', ns);
+        return;
       case 'modify-view':
-        emit('open-namespace-in-new-tab', {
-          // TODO: These two need some digging to figure out what exactly is
-          // getting passed around in the event
-        });
+        emit('sidebar-modify-view', ns);
         return;
       case 'duplicate-view':
-        emit('open-create-view', {
-          // TODO: we might not have this data yet, where to handle this?
-          // source: `${coll.database}.${coll.view_on}`,
-          // pipeline: coll.pipeline,
-          // duplicate: true,
-        });
+        emit('sidebar-duplicate-view', ns);
         break;
       default:
         // no-op
