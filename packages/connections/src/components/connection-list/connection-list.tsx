@@ -82,8 +82,8 @@ function ConnectionList({
         !!connectionInfo.favorite
     )
     .sort((a: ConnectionInfoFavorite, b: ConnectionInfoFavorite) => {
-      return `${b.favorite.name}`.toLowerCase() <
-        `${a.favorite.name}`.toLowerCase()
+      return b.favorite.name.toLocaleLowerCase() <
+        a.favorite.name.toLocaleLowerCase()
         ? 1
         : -1;
     });
