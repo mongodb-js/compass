@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
-import React, { MouseEvent, useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { VisuallyHidden } from '@react-aria/visually-hidden';
 import { useId } from '@react-aria/utils';
 import { Icon, IconButton, uiColors, spacing, Menu, MenuItem } from '..';
@@ -11,6 +11,10 @@ import {
   FocusState,
 } from '../hooks/use-focus-hover';
 import { ContentWithFallback } from './content-with-fallback';
+
+// TODO: Currently we show placeholder for every collection item in the list, but
+// do we want to / need to?
+const MAX_COLLECTION_PLACEHOLDER_ITEMS = Infinity;
 
 const DATABASE_ROW_HEIGHT = spacing[5];
 const COLLECTION_ROW_HEIGHT = spacing[4] + spacing[1];
@@ -268,6 +272,10 @@ const fadeIn = css({
   animation: `${fadeInAnimation} .16s ease-out`,
 });
 
+const collectionList = css({
+  contentVisibility: 'auto',
+});
+
 const CollectionsList: React.FunctionComponent<{
   collections: Collection[];
   onNamespaceAction(namespace: string, action: Actions): void;
@@ -275,7 +283,16 @@ const CollectionsList: React.FunctionComponent<{
   isReadOnly: boolean;
 }> = ({ collections, onNamespaceAction, activeNamespace, isReadOnly }) => {
   return (
-    <ul role="group" className={ulReset}>
+    <ul
+      role="group"
+      className={cx(collectionList, ulReset)}
+      style={{
+        // This exists, but react types are not aware
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        containIntrinsicSize: COLLECTION_ROW_HEIGHT * collections.length,
+      }}
+    >
       {collections.map((coll, index) => (
         <CollectionItem
           key={coll._id}
@@ -516,7 +533,9 @@ const DatabaseItem: React.FunctionComponent<
   }, [collectionsStatus]);
 
   const length = useMemo(() => {
-    return areCollectionsReady ? collections.length : collectionsLength;
+    return areCollectionsReady
+      ? collections.length
+      : Math.min(collectionsLength, MAX_COLLECTION_PLACEHOLDER_ITEMS);
   }, [areCollectionsReady, collectionsLength, collections.length]);
 
   const collectionsListHeight = useMemo(() => {
@@ -542,12 +561,13 @@ const DatabaseItem: React.FunctionComponent<
       role="treeitem"
       data-id={id}
       data-testid={`database-${id}`}
-      className={cx(
-        databaseItemContainer,
-        css({
-          containIntrinsicSize: DATABASE_ROW_HEIGHT + collectionsListHeight,
-        })
-      )}
+      className={databaseItemContainer}
+      style={{
+        // This exists, but react types are not aware
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        containIntrinsicSize: DATABASE_ROW_HEIGHT + collectionsListHeight,
+      }}
       {...treeItemProps}
       {...focusProps}
     >
