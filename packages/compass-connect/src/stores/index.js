@@ -999,7 +999,7 @@ const Store = Reflux.createStore({
       connectionModel // TODO: remove
     );
 
-    void trackNewConnectionEvent(connectionInfo, this.dataService);
+    trackNewConnectionEvent(connectionInfo, this.dataService);
   },
 
   /**

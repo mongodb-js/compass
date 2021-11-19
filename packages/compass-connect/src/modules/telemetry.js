@@ -1,4 +1,3 @@
-import { constantCase } from 'constant-case';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isAtlas, isLocalhost, isDigitalOcean } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
@@ -29,7 +28,7 @@ async function getConnectionData(connectionInfo) {
     is_public_cloud: !!isPublicCloud,
     is_do: isDigitalOcean(hostName),
     public_cloud_name: publicCloudName,
-    auth_type: constantCase(authType),
+    auth_type: authType.toUpperCase(),
     tunnel: sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,
   };
@@ -49,7 +48,7 @@ export function trackConnectionAttemptEvent(connectionInfo) {
   }
 }
 
-export async function trackNewConnectionEvent(connectionInfo, dataService) {
+export function trackNewConnectionEvent(connectionInfo, dataService) {
   try {
     const callback = async() => {
       const {
@@ -77,7 +76,7 @@ export async function trackNewConnectionEvent(connectionInfo, dataService) {
   }
 }
 
-export async function trackConnectionFailedEvent(connectionInfo, connectionError) {
+export function trackConnectionFailedEvent(connectionInfo, connectionError) {
   try {
     const callback = async() => {
       const connectionData = await getConnectionData(connectionInfo);
