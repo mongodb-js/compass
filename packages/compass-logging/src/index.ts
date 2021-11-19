@@ -48,9 +48,9 @@ export function createLoggerAndTelemetry(component: string): {
   const track = (...args: [string, TrackProps?]) => {
     void Promise.resolve()
       .then(() => trackAsync(...args))
-      .catch(err => debug(err))
-  }
-  
+      .catch((error) => debug('track failed', error));
+  };
+
   const trackAsync = async (
     event: string,
     properties: TrackProps = {}
