@@ -48,7 +48,7 @@
   },
   "peerDependencies": {
     "@emotion/css": "^11.5.0",
-    "@mongodb-js/compass-components": "^0.6.0",
+    "@mongodb-js/compass-components": "^0.7.0",
     "react": "*",
     "react-dom": "*"
   },

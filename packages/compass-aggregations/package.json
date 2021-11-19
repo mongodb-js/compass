@@ -32,7 +32,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.6.0",
+    "@mongodb-js/compass-components": "^0.7.0",
     "@mongodb-js/compass-crud": "*",
     "@mongodb-js/compass-export-to-language": "*",
     "@mongodb-js/compass-field-store": "*",

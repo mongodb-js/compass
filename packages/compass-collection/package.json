@@ -34,7 +34,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.6.0",
+    "@mongodb-js/compass-components": "^0.7.0",
     "bson": "*",
     "hadron-ipc": "*",
     "hadron-react-bson": "*",

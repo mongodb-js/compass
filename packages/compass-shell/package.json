@@ -55,7 +55,7 @@
     "hadron-react-buttons": "^5.5.0"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.6.0",
+    "@mongodb-js/compass-components": "^0.7.0",
     "hadron-ipc": "*",
     "hadron-react-components": "*",
     "prop-types": "^15.7.2",

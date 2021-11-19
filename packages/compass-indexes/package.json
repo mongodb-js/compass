@@ -30,7 +30,7 @@
   "license": "SSPL",
   "peerDependencies": {
     "@hot-loader/react-dom": "^16.9.0",
-    "@mongodb-js/compass-components": "*",
+    "@mongodb-js/compass-components": "^0.7.0",
     "@mongodb-js/compass-deployment-awareness": "*",
     "debug": "4.3.0",
     "hadron-react-buttons": "*",
