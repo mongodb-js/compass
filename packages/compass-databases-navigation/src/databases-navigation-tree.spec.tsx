@@ -100,7 +100,7 @@ describe('DatabasesNavigationTree', function () {
 
       userEvent.hover(screen.getByText('foo'));
 
-      const database = screen.getByTestId('database-foo');
+      const database = screen.getByTestId('sidebar-database-foo');
 
       expect(within(database).getByTitle('Create collection')).to.exist;
       expect(within(database).getByTitle('Drop database')).to.exist;
@@ -116,7 +116,7 @@ describe('DatabasesNavigationTree', function () {
         ></DatabasesNavigationTree>
       );
 
-      const database = screen.getByTestId('database-bar');
+      const database = screen.getByTestId('sidebar-database-bar');
 
       expect(within(database).getByTitle('Create collection')).to.exist;
       expect(within(database).getByTitle('Drop database')).to.exist;
@@ -133,7 +133,7 @@ describe('DatabasesNavigationTree', function () {
         ></DatabasesNavigationTree>
       );
 
-      const collection = screen.getByTestId('collection-bar.meow');
+      const collection = screen.getByTestId('sidebar-collection-bar.meow');
       const showActionsButton = within(collection).getByTitle(
         'Show collection actions'
       );
@@ -157,7 +157,7 @@ describe('DatabasesNavigationTree', function () {
         ></DatabasesNavigationTree>
       );
 
-      const collection = screen.getByTestId('collection-bar.bwok');
+      const collection = screen.getByTestId('sidebar-collection-bar.bwok');
       const showActionsButton = within(collection).getByTitle(
         'Show collection actions'
       );
@@ -185,7 +185,7 @@ describe('DatabasesNavigationTree', function () {
         ></DatabasesNavigationTree>
       );
 
-      const database = screen.getByTestId('database-bar');
+      const database = screen.getByTestId('sidebar-database-bar');
 
       expect(() => within(database).getByTitle('Create collection')).to.throw;
       expect(() => within(database).getByTitle('Drop database')).to.throw;
@@ -203,7 +203,7 @@ describe('DatabasesNavigationTree', function () {
         ></DatabasesNavigationTree>
       );
 
-      const collection = screen.getByTestId('collection-bar.bwok');
+      const collection = screen.getByTestId('sidebar-collection-bar.bwok');
 
       expect(within(collection).getByTitle('Open in New Tab')).to.exist;
     });
@@ -288,7 +288,7 @@ describe('DatabasesNavigationTree', function () {
           ></DatabasesNavigationTree>
         );
 
-        const collection = screen.getByTestId('collection-bar.meow');
+        const collection = screen.getByTestId('sidebar-collection-bar.meow');
 
         userEvent.click(
           within(collection).getByTitle('Show collection actions')
@@ -310,7 +310,7 @@ describe('DatabasesNavigationTree', function () {
           ></DatabasesNavigationTree>
         );
 
-        const collection = screen.getByTestId('collection-bar.meow');
+        const collection = screen.getByTestId('sidebar-collection-bar.meow');
 
         userEvent.click(
           within(collection).getByTitle('Show collection actions')
@@ -335,7 +335,7 @@ describe('DatabasesNavigationTree', function () {
           ></DatabasesNavigationTree>
         );
 
-        const view = screen.getByTestId('collection-bar.bwok');
+        const view = screen.getByTestId('sidebar-collection-bar.bwok');
 
         userEvent.click(within(view).getByTitle('Show collection actions'));
         userEvent.click(screen.getByText('Duplicate View'));
@@ -356,7 +356,7 @@ describe('DatabasesNavigationTree', function () {
           ></DatabasesNavigationTree>
         );
 
-        const view = screen.getByTestId('collection-bar.bwok');
+        const view = screen.getByTestId('sidebar-collection-bar.bwok');
 
         userEvent.click(within(view).getByTitle('Show collection actions'));
         userEvent.click(screen.getByText('Modify View'));

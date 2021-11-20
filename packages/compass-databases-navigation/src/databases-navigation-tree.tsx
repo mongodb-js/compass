@@ -188,7 +188,7 @@ const CollectionItem: React.FunctionComponent<
     <li role="none" className={collectionListItem}>
       <div
         data-id={id}
-        data-testid={`collection-${id}`}
+        data-testid={`sidebar-collection-${id}`}
         className={cx(
           collectionItem,
           focusRing,
@@ -205,7 +205,10 @@ const CollectionItem: React.FunctionComponent<
         </span>
         <span className={collectionItemName}>{name}</span>
         {isActionsVisible && (
-          <div className={actionsContainer} data-testid="collection-actions">
+          <div
+            className={actionsContainer}
+            data-testid="sidebar-collection-actions"
+          >
             {actions.length > 1 ? (
               <Menu
                 open={isMenuOpen}
@@ -221,7 +224,7 @@ const CollectionItem: React.FunctionComponent<
                     glyph="Ellipsis"
                     label="Show collection actions"
                     title="Show collection actions"
-                    data-testid="show-collection-actions"
+                    data-testid="show-sidebar-collection-actions"
                     onClick={(evt) => {
                       evt.stopPropagation();
                       onClick();
@@ -566,7 +569,7 @@ const DatabaseItem: React.FunctionComponent<
     <li
       role="treeitem"
       data-id={id}
-      data-testid={`database-${id}`}
+      data-testid={`sidebar-database-${id}`}
       className={databaseItemContainer}
       style={{
         // This exists, but react types are not aware
@@ -607,7 +610,10 @@ const DatabaseItem: React.FunctionComponent<
         </button>
         <span className={databaseItemName}>{name}</span>
         {isActionsVisible && (
-          <div className={actionsContainer} data-testid="database-actions">
+          <div
+            className={actionsContainer}
+            data-testid="sidebar-database-actions"
+          >
             <IconButtonSmall
               glyph="Plus"
               label="Create collection"
@@ -616,7 +622,7 @@ const DatabaseItem: React.FunctionComponent<
                 onNamespaceActionClick(evt, 'create-collection');
               }}
               isActive={isActive}
-              data-testid="database-create-collection"
+              data-testid="sidebar-database-create-collection"
             ></IconButtonSmall>
             <IconButtonSmall
               glyph="Trash"
@@ -626,7 +632,7 @@ const DatabaseItem: React.FunctionComponent<
                 onNamespaceActionClick(evt, 'drop-database');
               }}
               isActive={isActive}
-              data-testid="database-drop-database"
+              data-testid="sidebar-database-drop-database"
             ></IconButtonSmall>
           </div>
         )}
