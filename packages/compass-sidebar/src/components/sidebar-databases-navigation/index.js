@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { DatabasesNavigationTree } from '@mongodb-js/compass-components';
+import DatabasesNavigationTree from '@mongodb-js/compass-databases-navigation';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import toNS from 'mongodb-ns';
 import { toggleDatabaseExpanded } from '../../modules/databases';
