@@ -4,7 +4,7 @@ export interface ConnectionInfo {
   /**
    * Unique ID of the connection.
    */
-  readonly id?: string;
+  readonly id: string;
 
   /**
    * Date and time when the connection was last used, i.e. connected with.
@@ -33,6 +33,3 @@ interface ConnectionFavoriteOptions {
    */
   color?: string;
 }
-
-export type ConnectionInfoWithRequiredId = ConnectionInfo &
-  Required<Pick<ConnectionInfo, 'id'>>;

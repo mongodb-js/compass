@@ -1,18 +1,19 @@
 import { v4 as uuidv4 } from 'uuid';
 import {
   ConnectionInfo,
-  ConnectionInfoWithRequiredId,
+  ConnectionOptions,
   DataService,
   getConnectionTitle,
 } from 'mongodb-data-service';
-import { ConnectionAttempt } from '../modules/connection-attempt';
 import { useEffect, useReducer, useRef } from 'react';
 import debugModule from 'debug';
+
 import { createConnectionAttempt } from '../modules/connection-attempt';
+import { ConnectionAttempt } from '../modules/connection-attempt';
 
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
-export function createNewConnectionInfo(): ConnectionInfoWithRequiredId {
+export function createNewConnectionInfo(): ConnectionInfo {
   return {
     id: uuidv4(),
     connectionOptions: {
@@ -23,7 +24,7 @@ export function createNewConnectionInfo(): ConnectionInfoWithRequiredId {
 
 export interface ConnectionStore {
   loadAll: () => Promise<ConnectionInfo[]>;
-  save: (connectionInfo: ConnectionInfoWithRequiredId) => Promise<void>;
+  save: (connectionInfo: ConnectionInfo) => Promise<void>;
 }
 
 type State = {
@@ -34,6 +35,7 @@ type State = {
   connectionErrorMessage: string | null;
   connections: ConnectionInfo[];
   isConnected: boolean;
+  saveConnectionError: string | null;
 };
 
 export function defaultConnectionsState(): State {
@@ -45,6 +47,7 @@ export function defaultConnectionsState(): State {
     connectionAttempt: null,
     connectionErrorMessage: null,
     isConnected: false,
+    saveConnectionError: null,
   };
 }
 
@@ -74,6 +77,13 @@ type Action =
       connectionInfo: ConnectionInfo;
     }
   | {
+      type: 'save-connection-error';
+      errorMessage: string;
+    }
+  | {
+      type: 'hide-save-connection-error';
+    }
+  | {
       type: 'set-connections';
       connections: ConnectionInfo[];
     };
@@ -86,6 +96,7 @@ export function connectionsReducer(state: State, action: Action): State {
         connectionAttempt: action.connectionAttempt,
         connectingStatusText: action.connectingStatusText,
         connectionErrorMessage: null,
+        saveConnectionError: null,
       };
     case 'cancel-connection-attempt':
       return {
@@ -116,6 +127,16 @@ export function connectionsReducer(state: State, action: Action): State {
         ...state,
         activeConnectionId: action.connectionInfo.id,
         activeConnectionInfo: action.connectionInfo,
+      };
+    case 'save-connection-error':
+      return {
+        ...state,
+        saveConnectionError: action.errorMessage,
+      };
+    case 'hide-save-connection-error':
+      return {
+        ...state,
+        saveConnectionError: null,
       };
     case 'set-connections':
       return {
@@ -151,13 +172,15 @@ export function useConnections(
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => Promise<void>,
-  connectionStorage: ConnectionStore
+  connectionStorage: ConnectionStore,
+  connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>
 ): [
   State,
   {
     cancelConnectionAttempt(): void;
     connect(connectionInfo: ConnectionInfo): Promise<void>;
     createNewConnection(): void;
+    hideSaveConnectionError(): void;
     setActiveConnectionById(newConnectionId?: string | undefined): void;
   }
 ] {
@@ -168,8 +191,19 @@ export function useConnections(
   const { isConnected, connectionAttempt, connections } = state;
 
   const connectingConnectionAttempt = useRef<ConnectionAttempt>();
-  const connectedConnectionInfo = useRef<ConnectionInfoWithRequiredId>();
+  const connectedConnectionInfo = useRef<ConnectionInfo>();
   const connectedDataService = useRef<DataService>();
+
+  async function saveConnectionInfo(connectionInfo: ConnectionInfo) {
+    try {
+      await connectionStorage.save(connectionInfo);
+    } catch (err) {
+      dispatch({
+        type: 'save-connection-error',
+        errorMessage: (err as Error).message,
+      });
+    }
+  }
 
   useEffect(() => {
     if (
@@ -179,7 +213,7 @@ export function useConnections(
     ) {
       // Update lastUsed date as now and save the connection.
       connectedConnectionInfo.current.lastUsed = new Date();
-      void connectionStorage.save(connectedConnectionInfo.current);
+      void saveConnectionInfo(connectedConnectionInfo.current);
 
       // After connecting and the UI is updated we notify the rest of Compass.
       void onConnected(
@@ -215,13 +249,13 @@ export function useConnections(
           type: 'cancel-connection-attempt',
         });
       },
-      async connect(connectionInfo: ConnectionInfoWithRequiredId) {
+      async connect(connectionInfo: ConnectionInfo) {
         if (connectionAttempt || isConnected) {
           // Ensure we aren't currently connecting.
           return;
         }
 
-        const newConnectionAttempt = createConnectionAttempt();
+        const newConnectionAttempt = createConnectionAttempt(connectFn);
         connectingConnectionAttempt.current = newConnectionAttempt;
 
         dispatch({
@@ -262,7 +296,7 @@ export function useConnections(
 
           dispatch({
             type: 'connection-attempt-errored',
-            connectionErrorMessage: error.message,
+            connectionErrorMessage: (error as Error).message,
           });
         }
       },
@@ -270,6 +304,11 @@ export function useConnections(
         dispatch({
           type: 'new-connection',
           connectionInfo: createNewConnectionInfo(),
+        });
+      },
+      hideSaveConnectionError() {
+        dispatch({
+          type: 'hide-save-connection-error',
         });
       },
       setActiveConnectionById(newConnectionId: string) {
