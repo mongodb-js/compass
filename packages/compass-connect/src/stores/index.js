@@ -1001,7 +1001,7 @@ const Store = Reflux.createStore({
       public_cloud_name: publicCloudName,
       is_genuine: genuineMongoDB.isGenuine,
       non_genuine_server_name: genuineMongoDB.dbType,
-      server_version: host.kernel_version,
+      server_version: build.version,
       server_arch: host.arch,
       server_os_family: host.os_family,
       auth_type: authMechanism ?? '',

@@ -181,13 +181,21 @@ function Connection({
                   })
                 : null
             )}
+            data-testid={`${
+              connectionInfo.favorite ? 'favorite' : 'recent'
+            }-connection-title`}
             title={connectionTitle}
           >
             {connectionTitle}
           </Subtitle>
         </div>
         {connectionInfo.lastUsed && (
-          <Description className={connectionDescriptionStyles}>
+          <Description
+            className={connectionDescriptionStyles}
+            data-testid={`${
+              connectionInfo.favorite ? 'favorite' : 'recent'
+            }-connection-description`}
+          >
             {connectionInfo.lastUsed.toLocaleString('default', dateConfig)}
           </Description>
         )}
