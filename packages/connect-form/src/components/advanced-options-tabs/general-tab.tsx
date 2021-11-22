@@ -8,8 +8,9 @@ import {
   TextInput,
   spacing,
 } from '@mongodb-js/compass-components';
+import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import { useConnectionStringContext } from '../../contexts/connection-string-context';
+// import { useConnectionStringContext } from '../../contexts/connection-string-context';
 import SchemaInput from './general/schema-input';
 
 const hostInputContainer = css({
@@ -24,13 +25,27 @@ const hostInput = css({
   flexGrow: 1,
 });
 
-function GeneralTab(): React.ReactElement {
-  const [connectionStringUrl, { setConnectionString }] =
-    useConnectionStringContext();
+function GeneralTab({
+  connectionStringUrl,
+  setConnectionStringUrl,
+}: {
+  connectionStringUrl: ConnectionStringUrl;
+  setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+}): React.ReactElement {
+  // const [connectionStringUrl, { setConnectionString }] =
+  //   useConnectionStringContext();
+
+  if (!connectionStringUrl) {
+    // TODO: Make this required to have a value?
+    return <div>No connectionStringUrl</div>;
+  }
 
   return (
     <div>
-      <SchemaInput />
+      <SchemaInput
+        connectionStringUrl={connectionStringUrl}
+        setConnectionStringUrl={setConnectionStringUrl}
+      />
       <Label htmlFor="connection-host-input" id="connection-host-input-label">
         {connectionStringUrl.isSRV ? 'Hostname' : 'Host'}
       </Label>
@@ -46,13 +61,20 @@ function GeneralTab(): React.ReactElement {
             // aria-label="Connection Hostname(s)"
             value={host}
             onChange={(event) => {
+              // const updatedHosts = [
+              //   ...updatedConnectionString.hosts
+              // ];
+              // updatedHosts[index] = event.target.value;
+              // setConnectionItem('hosts', )
+
               const updatedConnectionString = connectionStringUrl.clone();
               // TODO: Validation on the hostname.
               // Keep in state and allow invalid.
 
               updatedConnectionString.hosts[index] = event.target.value;
 
-              setConnectionString(updatedConnectionString.toString());
+              // // TODO: Use different api setConnectionItem
+              setConnectionStringUrl(updatedConnectionString);
             }}
           />
 
@@ -66,7 +88,7 @@ function GeneralTab(): React.ReactElement {
                 // TODO: Default new host name?
                 updatedConnectionString.hosts.push('');
 
-                setConnectionString(updatedConnectionString.toString());
+                setConnectionStringUrl(updatedConnectionString);
               }}
             >
               <Icon glyph="Plus" />
@@ -80,7 +102,7 @@ function GeneralTab(): React.ReactElement {
 
                 updatedConnectionString.hosts.splice(index, 1);
 
-                setConnectionString(updatedConnectionString.toString());
+                setConnectionStringUrl(updatedConnectionString);
               }}
             >
               <Icon glyph="Minus" />
@@ -89,29 +111,31 @@ function GeneralTab(): React.ReactElement {
         </div>
       ))}
 
-      <Checkbox
-        onChange={(event) => {
-          // TODO: Ensure it's a valid connection string first? try catch?
-          const updatedConnectionString = connectionStringUrl.clone();
-          if (event.target.checked) {
-            updatedConnectionString.searchParams.set(
-              'directConnection',
-              'true'
-            );
-          } else if (
-            updatedConnectionString.searchParams.get('directConnection')
-          ) {
-            updatedConnectionString.searchParams.delete('directConnection');
-          }
+      {!connectionStringUrl.isSRV && (
+        <Checkbox
+          onChange={(event) => {
+            // TODO: Ensure it's a valid connection string first? try catch?
+            const updatedConnectionString = connectionStringUrl.clone();
+            if (event.target.checked) {
+              updatedConnectionString.searchParams.set(
+                'directConnection',
+                'true'
+              );
+            } else if (
+              updatedConnectionString.searchParams.get('directConnection')
+            ) {
+              updatedConnectionString.searchParams.delete('directConnection');
+            }
 
-          setConnectionString(updatedConnectionString.toString());
-        }}
-        label="Direct Connection"
-        checked={
-          connectionStringUrl.searchParams.get('directConnection') === 'true'
-        }
-        bold={false}
-      />
+            setConnectionStringUrl(updatedConnectionString);
+          }}
+          label="Direct Connection"
+          checked={
+            connectionStringUrl.searchParams.get('directConnection') === 'true'
+          }
+          bold={false}
+        />
+      )}
     </div>
   );
 }

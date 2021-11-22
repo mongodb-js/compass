@@ -97,9 +97,14 @@ function Connections({
         <MongoDBLogo className={logoStyles} color={'green-dark-2'} />
         <div className={formContainerStyles}>
           <ConnectForm
-            onConnectClicked={(connectionInfo) => connect(connectionInfo)}
+            onConnectClicked={(connectionOptions) =>
+              connect({
+                ...activeConnectionInfo,
+                connectionOptions,
+              })
+            }
             initialConnectionOptions={activeConnectionInfo.connectionOptions}
-            key={activeConnectionId}
+            // key={activeConnectionId}
           />
           <FormHelp />
         </div>

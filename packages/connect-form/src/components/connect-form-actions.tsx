@@ -7,8 +7,6 @@ import {
   uiColors,
 } from '@mongodb-js/compass-components';
 
-import { useConnectionStringContext } from '../contexts/connection-string-context';
-
 const formActionStyles = css({
   padding: spacing[4],
   borderTop: `1px solid ${uiColors.gray.light2}`,
@@ -18,15 +16,13 @@ const formActionStyles = css({
 function ConnectFormActions({
   onConnectClicked,
 }: {
-  onConnectClicked: (connectionString: string) => void;
+  onConnectClicked: () => void;
 }): React.ReactElement {
-  const [connectionStringUrl] = useConnectionStringContext();
-
   return (
     <div className={formActionStyles}>
       <Button
         variant={ButtonVariant.Primary}
-        onClick={() => onConnectClicked(connectionStringUrl.toString())}
+        onClick={() => onConnectClicked()}
       >
         Connect
       </Button>

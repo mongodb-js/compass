@@ -1,5 +1,11 @@
 import { css } from '@emotion/css';
-import React, { ChangeEvent, Fragment, useRef, useReducer } from 'react';
+import React, {
+  ChangeEvent,
+  Fragment,
+  useRef,
+  useReducer,
+  useEffect,
+} from 'react';
 import {
   Icon,
   IconButton,
@@ -11,7 +17,7 @@ import {
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import { useConnectionStringContext } from '../contexts/connection-string-context';
+// import { useConnectionStringContext } from '../contexts/connection-string-context';
 
 const uriLabelStyles = css({
   padding: 0,
@@ -57,18 +63,28 @@ const textAreaLabelContainerStyles = css({
 const connectionStringInputId = 'connectionString';
 
 type State = {
+  editingConnectionString: string;
   enableEditingConnectionString: boolean;
   showConfirmEditConnectionStringPrompt: boolean;
 };
 
 type Action =
   | { type: 'enable-editing-connection-string' }
+  | {
+      type: 'set-editingConnectionString-connection-string';
+      editingConnectionString: string;
+    }
   | { type: 'show-edit-connection-string-confirmation' }
   | { type: 'hide-edit-connection-string-confirmation' }
   | { type: 'hide-connection-string' };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
+    case 'set-editingConnectionString-connection-string':
+      return {
+        ...state,
+        editingConnectionString: action.editingConnectionString,
+      };
     case 'enable-editing-connection-string':
       return {
         ...state,
@@ -122,25 +138,49 @@ export function hidePasswordInConnectionString(
   }
 }
 
-function ConnectStringInput(): React.ReactElement {
-  const [connectionString, { setConnectionString }] =
-    useConnectionStringContext();
+function ConnectStringInput({
+  connectionString,
+  setConnectionStringError,
+  setConnectionStringUrl,
+}: {
+  connectionString?: string;
+  setConnectionStringError: (errorMessage: string | null) => void;
+  setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+}): React.ReactElement {
+  // const [connectionString, { setConnectionString }] =
+  //   useConnectionStringContext();
+
+  // const [editingConnectionString, setConnectionString] = useState(connectionString || '');
 
   const [
-    { enableEditingConnectionString, showConfirmEditConnectionStringPrompt },
+    {
+      editingConnectionString,
+      enableEditingConnectionString,
+      showConfirmEditConnectionStringPrompt,
+    },
     dispatch,
   ] = useReducer(reducer, {
     // If there is a connection string default it to protected.
     // TODO: Should we just default it to not protected if there is nothing to hide?
     enableEditingConnectionString: !connectionString,
     showConfirmEditConnectionStringPrompt: false,
+    editingConnectionString: connectionString || '',
   });
+
+  useEffect(() => {
+    if (!enableEditingConnectionString) {
+      dispatch({
+        type: 'set-editingConnectionString-connection-string',
+        editingConnectionString: connectionString || '',
+      });
+    }
+  }, [connectionString, enableEditingConnectionString]);
 
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
 
   const displayedConnectionString = enableEditingConnectionString
-    ? connectionString.toString()
-    : hidePasswordInConnectionString(connectionString.toString());
+    ? editingConnectionString
+    : hidePasswordInConnectionString(editingConnectionString);
 
   return (
     <Fragment>
@@ -186,7 +226,20 @@ function ConnectStringInput(): React.ReactElement {
       <div className={textAreaContainerStyle}>
         <TextArea
           onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
-            setConnectionString(event.target.value);
+            dispatch({
+              type: 'set-editingConnectionString-connection-string',
+              editingConnectionString: event.target.value,
+            });
+
+            // Test if valid connection string - if is:
+            try {
+              const connectionStringUrl = new ConnectionStringUrl(
+                event.target.value
+              );
+              setConnectionStringUrl(connectionStringUrl);
+            } catch (error) {
+              setConnectionStringError((error as Error).message);
+            }
           }}
           value={displayedConnectionString}
           className={connectionStringStyles}

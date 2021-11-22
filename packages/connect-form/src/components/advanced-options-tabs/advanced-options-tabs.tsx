@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Tabs, Tab } from '@mongodb-js/compass-components';
+import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import GeneralTab from './general-tab';
 import SSLTab from './ssl-tab';
@@ -8,10 +9,19 @@ import AdvancedTab from './advanced-tab';
 
 interface TabObject {
   name: string;
-  component: React.FunctionComponent;
+  component: React.FunctionComponent<{
+    connectionStringUrl: ConnectionStringUrl;
+    setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+  }>;
 }
 
-function AdvancedOptionsTabs(): React.ReactElement {
+function AdvancedOptionsTabs({
+  connectionStringUrl,
+  setConnectionStringUrl,
+}: {
+  connectionStringUrl: ConnectionStringUrl;
+  setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+}): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs: TabObject[] = [
@@ -31,7 +41,10 @@ function AdvancedOptionsTabs(): React.ReactElement {
 
         return (
           <Tab key={idx} name={tabObject.name} aria-label={tabObject.name}>
-            <TabComponent />
+            <TabComponent
+              connectionStringUrl={connectionStringUrl}
+              setConnectionStringUrl={setConnectionStringUrl}
+            />
           </Tab>
         );
       })}

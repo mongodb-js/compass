@@ -1,12 +1,11 @@
 import { css } from '@emotion/css';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { ConnectionOptions } from 'mongodb-data-service';
 import { Card, Description, H3, spacing } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
-import ConnectionStringContext from '../contexts/connection-string-context';
 import ConnectFormActions from './connect-form-actions';
 
 const formContainerStyles = css({
@@ -36,6 +35,130 @@ const formContentContainerStyles = css({
   padding: spacing[4],
 });
 
+interface State {
+  connectionStringInvalidError: string | null;
+  connectionStringUrl: ConnectionStringUrl;
+}
+
+type Action =
+  | {
+      type: 'set-connection-string-error';
+      errorMessage: string | null;
+    }
+  | {
+      type: 'set-connection-string-url';
+      connectionStringUrl: ConnectionStringUrl;
+    }
+  | {
+      type: 'set-connection-string-state';
+      connectionStringInvalidError: string | null;
+      connectionStringUrl: ConnectionStringUrl;
+    };
+
+function connectFormReducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'set-connection-string-error':
+      return {
+        ...state,
+        connectionStringInvalidError: action.errorMessage,
+      };
+    case 'set-connection-string-url':
+      return {
+        ...state,
+        connectionStringUrl: action.connectionStringUrl,
+      };
+    case 'set-connection-string-state':
+      return {
+        ...state,
+        connectionStringUrl: action.connectionStringUrl,
+        connectionStringInvalidError: action.connectionStringInvalidError,
+      };
+  }
+}
+
+function parseConnectionUrlFromOptions(
+  initialConnectionOptions: ConnectionOptions
+) {
+  let connectionStringInvalidError = null;
+  // TODO: Have a default connection string variable somewhere.
+  let connectionStringUrl = new ConnectionStringUrl(
+    'mongodb://localhost:27017'
+  );
+  try {
+    connectionStringUrl = new ConnectionStringUrl(
+      initialConnectionOptions.connectionString
+    );
+  } catch (error) {
+    connectionStringInvalidError = (error as Error).message;
+  }
+  return {
+    connectionStringInvalidError,
+    connectionStringUrl,
+  };
+}
+
+function useConnectForm(initialConnectionOptions: ConnectionOptions): [
+  State,
+  {
+    setConnectionStringError: (errorMessage: string | null) => void;
+    setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+    setConnectionItem: (name: string, value: string) => void;
+    setConnectionStringQueryItem: (name: string, value: string) => void;
+  }
+] {
+  // TODO: Try to validate connection string - if invalid disable options?
+  const [state, dispatch] = useReducer(
+    connectFormReducer,
+    parseConnectionUrlFromOptions(initialConnectionOptions)
+  );
+
+  useEffect(() => {
+    // When the initial connection options change, like a different
+    // connection is clicked in the compass-sidebar, we
+    // refresh the current connection string being edited.
+    // We do this here to retain the tabs/expanded accordion states.
+    const { connectionStringInvalidError, connectionStringUrl } =
+      parseConnectionUrlFromOptions(initialConnectionOptions);
+
+    dispatch({
+      type: 'set-connection-string-state',
+      connectionStringInvalidError,
+      connectionStringUrl,
+    });
+  }, [initialConnectionOptions]);
+
+  // const {} = useMemo // initialConnectionOptions
+
+  return [
+    state,
+    {
+      setConnectionStringError: (errorMessage: string | null) => {
+        dispatch({
+          type: 'set-connection-string-error',
+          errorMessage,
+        });
+      },
+      setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => {
+        console.log('setConnectionStringUrl', connectionStringUrl);
+        console.log('setConnectionStringUrl', connectionStringUrl.toString());
+        dispatch({
+          type: 'set-connection-string-url',
+          connectionStringUrl,
+        });
+      },
+      setConnectionItem: (name: string, value: string) => {
+        //
+        // TODO: Try to set the item on the current connection string url.
+        // If it works cool.
+        // If not error.
+      },
+      setConnectionStringQueryItem: (name: string, value: string) => {
+        //
+      },
+    },
+  ];
+}
+
 function ConnectForm({
   initialConnectionOptions,
   onConnectClicked,
@@ -43,55 +166,56 @@ function ConnectForm({
   initialConnectionOptions: ConnectionOptions;
   onConnectClicked: (connectionOptions: ConnectionOptions) => void;
 }): React.ReactElement {
+  const [
+    {
+      // connectionStringInvalidError,
+      connectionStringUrl,
+      connectionStringInvalidError,
+    },
+    {
+      setConnectionStringUrl,
+      setConnectionStringError,
+      // setConnectionItem,
+      // setConnectionStringQueryItem
+    },
+  ] = useConnectForm(initialConnectionOptions);
+
   // TODO: The initial connection string can be invalid.
   //
-
-  // const connectionStringUrl =
-  //   useMemo<ConnectionStringUrl>((): ConnectionStringUrl => {
-  //     try {
-  //       return new ConnectionStringUrl(
-  //         initialConnectionOptions.connectionString
-  //       );
-  //       //
-  //     } catch (error) {
-  //       // TODO: Pass default connection string when can't be parsed.
-
-  //       // TODO: This should disable the form?
-  //       return new ConnectionStringUrl('');
-  //     }
-  //   }, [initialConnectionOptions]);
-
-  // initialConnectionOptions.connectionString
-  // const connectionStringUrl = useRef(initialConnectionStringUrl);
 
   // TODO: Which as value? Plain string or typed?
   // Plain for the connection string input to show the error.
 
+  const editingConnectionStringUrl = connectionStringUrl;
+
   return (
-    <ConnectionStringContext.Provider
-      value={initialConnectionOptions.connectionString}
-    >
-      <div className={formContainerStyles}>
-        <Card className={formCardStyles}>
-          <div className={formContentContainerStyles}>
-            <H3>New Connection</H3>
-            <Description className={descriptionStyles}>
-              Connect to a MongoDB deployment
-            </Description>
-            <ConnectionStringInput />
-            <AdvancedConnectionOptions />
-          </div>
-          <ConnectFormActions
-            onConnectClicked={(connectionString: string) =>
-              onConnectClicked({
-                ...initialConnectionOptions,
-                connectionString,
-              })
-            }
+    <div className={formContainerStyles}>
+      <Card className={formCardStyles}>
+        <div className={formContentContainerStyles}>
+          <H3>New Connection</H3>
+          <Description className={descriptionStyles}>
+            Connect to a MongoDB deployment
+          </Description>
+          <ConnectionStringInput
+            connectionString={editingConnectionStringUrl.toString()}
+            setConnectionStringUrl={setConnectionStringUrl}
+            setConnectionStringError={setConnectionStringError}
           />
-        </Card>
-      </div>
-    </ConnectionStringContext.Provider>
+          <AdvancedConnectionOptions
+            connectionStringUrl={editingConnectionStringUrl}
+            setConnectionStringUrl={setConnectionStringUrl}
+          />
+        </div>
+        <ConnectFormActions
+          onConnectClicked={() =>
+            onConnectClicked({
+              ...initialConnectionOptions,
+              connectionString: editingConnectionStringUrl.toString(),
+            })
+          }
+        />
+      </Card>
+    </div>
   );
 }
 

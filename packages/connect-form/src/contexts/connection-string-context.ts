@@ -46,7 +46,7 @@ export const useConnectionStringContext = (): [
 
   return [
     {
-      connectionString,
+      connectionString: 'mongodb://localhost27017', // TODO
       connectionStringUrl,
       connectionStringInvalidError,
     },
