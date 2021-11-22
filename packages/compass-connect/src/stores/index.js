@@ -1025,9 +1025,11 @@ const Store = Reflux.createStore({
       connectionModel.appname = electron.remote.app.getName();
     }
 
-    const connectionInfo = convertConnectionModelToInfo(connectionModel);
+    let connectionInfo;
+
     try {
       debug('connecting with connection model', connectionModel);
+      connectionInfo = convertConnectionModelToInfo(connectionModel);
       const connectedDataService = await this.state.currentConnectionAttempt.connect(connectionInfo.connectionOptions);
 
       if (!connectedDataService || !this.state.currentConnectionAttempt) {
