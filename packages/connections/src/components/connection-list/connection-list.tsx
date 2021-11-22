@@ -62,6 +62,9 @@ const connectionListStyles = css({
   padding: 0,
 });
 
+export type ConnectionInfoFavorite = ConnectionInfo &
+  Required<Pick<ConnectionInfo, 'favorite'>>;
+
 function ConnectionList({
   activeConnectionId,
   connections,
@@ -73,6 +76,28 @@ function ConnectionList({
   createNewConnection: () => void;
   setActiveConnectionId: (connectionId?: string) => void;
 }): React.ReactElement {
+  const favoriteConnections = connections
+    .filter(
+      (connectionInfo): connectionInfo is ConnectionInfoFavorite =>
+        !!connectionInfo.favorite
+    )
+    .sort((a: ConnectionInfoFavorite, b: ConnectionInfoFavorite) => {
+      return b.favorite.name.toLocaleLowerCase() <
+        a.favorite.name.toLocaleLowerCase()
+        ? 1
+        : -1;
+    });
+
+  const recentConnections = connections
+    .filter((connectionInfo) => !connectionInfo.favorite)
+    .sort((a, b) => {
+      // The `lastUsed` value hasn't always existed, so we assign
+      // them a date in 2016 for sorting if it isn't there.
+      const aLastUsed = a.lastUsed ? a.lastUsed.getTime() : 1463658247465;
+      const bLastUsed = b.lastUsed ? b.lastUsed.getTime() : 1463658247465;
+      return bLastUsed - aLastUsed;
+    });
+
   return (
     <Fragment>
       <div className={newConnectionButtonContainerStyles}>
@@ -95,23 +120,21 @@ function ConnectionList({
           <Subtitle className={sectionHeaderTitleStyles}>Favorites</Subtitle>
         </div>
         <ul className={connectionListStyles}>
-          {connections
-            .filter((connectionInfo) => !!connectionInfo.favorite)
-            .map((connectionInfo, index) => (
-              <li
-                data-testid="favorite-connection"
-                key={`${connectionInfo.id || ''}-${index}`}
-              >
-                <Connection
-                  isActive={
-                    !!activeConnectionId &&
-                    activeConnectionId === connectionInfo.id
-                  }
-                  connectionInfo={connectionInfo}
-                  onClick={() => setActiveConnectionId(connectionInfo.id)}
-                />
-              </li>
-            ))}
+          {favoriteConnections.map((connectionInfo, index) => (
+            <li
+              data-testid="favorite-connection"
+              key={`${connectionInfo.id || ''}-${index}`}
+            >
+              <Connection
+                isActive={
+                  !!activeConnectionId &&
+                  activeConnectionId === connectionInfo.id
+                }
+                connectionInfo={connectionInfo}
+                onClick={() => setActiveConnectionId(connectionInfo.id)}
+              />
+            </li>
+          ))}
         </ul>
         <div className={sectionHeaderStyles}>
           {/* There is no leafygreen replacement for this icon */}
@@ -119,23 +142,21 @@ function ConnectionList({
           <Subtitle className={sectionHeaderTitleStyles}>Recents</Subtitle>
         </div>
         <ul className={connectionListStyles}>
-          {connections
-            .filter((connectionInfo) => !connectionInfo.favorite)
-            .map((connectionInfo, index) => (
-              <li
-                data-testid="recent-connection"
-                key={`${connectionInfo.id || ''}-${index}`}
-              >
-                <Connection
-                  isActive={
-                    !!activeConnectionId &&
-                    activeConnectionId === connectionInfo.id
-                  }
-                  connectionInfo={connectionInfo}
-                  onClick={() => setActiveConnectionId(connectionInfo.id)}
-                />
-              </li>
-            ))}
+          {recentConnections.map((connectionInfo, index) => (
+            <li
+              data-testid="recent-connection"
+              key={`${connectionInfo.id || ''}-${index}`}
+            >
+              <Connection
+                isActive={
+                  !!activeConnectionId &&
+                  activeConnectionId === connectionInfo.id
+                }
+                connectionInfo={connectionInfo}
+                onClick={() => setActiveConnectionId(connectionInfo.id)}
+              />
+            </li>
+          ))}
         </ul>
       </div>
     </Fragment>
