@@ -35,7 +35,7 @@ type State = {
   connectionErrorMessage: string | null;
   connections: ConnectionInfo[];
   isConnected: boolean;
-  saveConnectionError: string | null;
+  storeConnectionError: string | null;
 };
 
 export function defaultConnectionsState(): State {
@@ -47,7 +47,7 @@ export function defaultConnectionsState(): State {
     connectionAttempt: null,
     connectionErrorMessage: null,
     isConnected: false,
-    saveConnectionError: null,
+    storeConnectionError: null,
   };
 }
 
@@ -77,11 +77,11 @@ type Action =
       connectionInfo: ConnectionInfo;
     }
   | {
-      type: 'save-connection-error';
+      type: 'store-connection-error';
       errorMessage: string;
     }
   | {
-      type: 'hide-save-connection-error';
+      type: 'hide-store-connection-error';
     }
   | {
       type: 'set-connections';
@@ -96,7 +96,7 @@ export function connectionsReducer(state: State, action: Action): State {
         connectionAttempt: action.connectionAttempt,
         connectingStatusText: action.connectingStatusText,
         connectionErrorMessage: null,
-        saveConnectionError: null,
+        storeConnectionError: null,
       };
     case 'cancel-connection-attempt':
       return {
@@ -128,15 +128,15 @@ export function connectionsReducer(state: State, action: Action): State {
         activeConnectionId: action.connectionInfo.id,
         activeConnectionInfo: action.connectionInfo,
       };
-    case 'save-connection-error':
+    case 'store-connection-error':
       return {
         ...state,
-        saveConnectionError: action.errorMessage,
+        storeConnectionError: action.errorMessage,
       };
-    case 'hide-save-connection-error':
+    case 'hide-store-connection-error':
       return {
         ...state,
-        saveConnectionError: null,
+        storeConnectionError: null,
       };
     case 'set-connections':
       return {
@@ -180,7 +180,7 @@ export function useConnections(
     cancelConnectionAttempt(): void;
     connect(connectionInfo: ConnectionInfo): Promise<void>;
     createNewConnection(): void;
-    hideSaveConnectionError(): void;
+    hideStoreConnectionError(): void;
     setActiveConnectionById(newConnectionId?: string | undefined): void;
   }
 ] {
@@ -197,10 +197,41 @@ export function useConnections(
   async function saveConnectionInfo(connectionInfo: ConnectionInfo) {
     try {
       await connectionStorage.save(connectionInfo);
+
+      debug(`saved connection with id ${connectionInfo.id || ''}`);
     } catch (err) {
+      debug(
+        `error saving connection with id ${connectionInfo.id || ''}: ${
+          (err as Error).message
+        }`
+      );
+
       dispatch({
-        type: 'save-connection-error',
+        type: 'store-connection-error',
         errorMessage: (err as Error).message,
+      });
+    }
+  }
+
+  async function onConnectSuccess(
+    connectionInfo: ConnectionInfo,
+    dataService: DataService
+  ) {
+    // After connecting and the UI is updated we notify the rest of Compass.
+    try {
+      await onConnected(connectionInfo, dataService);
+    } catch (err) {
+      debug(
+        `error occurred connection with id ${connectionInfo.id || ''}: ${
+          (err as Error).message
+        }`
+      );
+
+      dispatch({
+        type: 'store-connection-error',
+        errorMessage: `Error handling connection success: ${
+          (err as Error).message
+        }`,
       });
     }
   }
@@ -215,8 +246,7 @@ export function useConnections(
       connectedConnectionInfo.current.lastUsed = new Date();
       void saveConnectionInfo(connectedConnectionInfo.current);
 
-      // After connecting and the UI is updated we notify the rest of Compass.
-      void onConnected(
+      void onConnectSuccess(
         connectedConnectionInfo.current,
         connectedDataService.current
       );
@@ -306,9 +336,9 @@ export function useConnections(
           connectionInfo: createNewConnectionInfo(),
         });
       },
-      hideSaveConnectionError() {
+      hideStoreConnectionError() {
         dispatch({
-          type: 'hide-save-connection-error',
+          type: 'hide-store-connection-error',
         });
       },
       setActiveConnectionById(newConnectionId: string) {

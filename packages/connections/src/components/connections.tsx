@@ -77,13 +77,13 @@ function Connections({
       connectionAttempt,
       connections,
       isConnected,
-      saveConnectionError,
+      storeConnectionError,
     },
     {
       cancelConnectionAttempt,
       connect,
       createNewConnection,
-      hideSaveConnectionError,
+      hideStoreConnectionError,
       setActiveConnectionById,
     },
   ] = useConnections(onConnected, connectionStorage, connectFn);
@@ -102,13 +102,13 @@ function Connections({
         setActiveConnectionId={setActiveConnectionById}
       />
       <div className={connectItemContainerStyles}>
-        {saveConnectionError && (
+        {storeConnectionError && (
           <Banner
             variant={BannerVariant.Danger}
             dismissible
-            onClose={hideSaveConnectionError}
+            onClose={hideStoreConnectionError}
           >
-            {saveConnectionError}
+            {storeConnectionError}
           </Banner>
         )}
         <MongoDBLogo className={logoStyles} color={'green-dark-2'} />
