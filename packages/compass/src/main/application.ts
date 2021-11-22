@@ -167,6 +167,11 @@ class CompassApplication {
   static emit(event: string, ...args: unknown[]): boolean {
     return this.emitter.emit(event, ...args);
   }
+
+  static removeAllListeners(): typeof CompassApplication {
+    this.emitter.removeAllListeners();
+    return this;
+  }
 }
 
 export { CompassApplication };
