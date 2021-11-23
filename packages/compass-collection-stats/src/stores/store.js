@@ -44,6 +44,7 @@ const store = Reflux.createStore({
   getInitialState() {
     return {
       namespace: '',
+      isEditing: false,
       isReadonly: false,
       isTimeSeries: false,
       documentCount: INVALID,
@@ -125,7 +126,7 @@ function onInstanceDestroyed() {
 /**
  * Collection Stats store.
  */
-const configureStore = ({ namespace, globalAppRegistry } = {}) => {
+const configureStore = ({ namespace, globalAppRegistry, isEditing = false } = {}) => {
   if (!namespace) {
     throw new Error('Trying to render collection stats without namespace');
   }
@@ -151,7 +152,7 @@ const configureStore = ({ namespace, globalAppRegistry } = {}) => {
     instance.on('change:collections.status', onCollectionStatusChange);
   }
 
-  store.setState({ namespace });
+  store.setState({ namespace, isEditing });
 
   const { database, ns } = toNS(namespace);
 

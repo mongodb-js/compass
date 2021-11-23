@@ -53,6 +53,7 @@ describe('CollectionStats [store]', function() {
       const store = configureStore({ globalAppRegistry, namespace: 'foo.bar' });
       expect(store.state).to.deep.eq({
         namespace: 'foo.bar',
+        isEditing: false,
         isReadonly: false,
         isTimeSeries: false,
         documentCount: 'N/A',
@@ -71,6 +72,7 @@ describe('CollectionStats [store]', function() {
       });
       expect(store.state).to.deep.eq({
         namespace: 'bar.woof',
+        isEditing: false,
         isReadonly: false,
         isTimeSeries: false,
         documentCount: '100',
@@ -90,6 +92,7 @@ describe('CollectionStats [store]', function() {
 
       expect(store.state).to.deep.eq({
         namespace: 'baz.meow',
+        isEditing: false,
         isReadonly: false,
         isTimeSeries: false,
         documentCount: 'N/A',
@@ -110,6 +113,7 @@ describe('CollectionStats [store]', function() {
 
       expect(store.state).to.deep.eq({
         namespace: 'baz.meow',
+        isEditing: false,
         isReadonly: false,
         isTimeSeries: false,
         documentCount: '5',
