@@ -5,11 +5,12 @@ import sinon from 'sinon';
 
 import Connecting from './connecting';
 
+const delay = (amt) => new Promise((resolve) => setTimeout(resolve, amt));
+
 describe('Connecting Component', function () {
   let onCancelConnectionClickedSpy;
 
   beforeEach(function () {
-    this.clock = sinon.useFakeTimers();
     onCancelConnectionClickedSpy = sinon.spy();
   });
 
@@ -19,7 +20,6 @@ describe('Connecting Component', function () {
   });
 
   afterEach(function () {
-    this.clock.restore();
     // Modals can have delays and transitions so it's best to cleanup.
     cleanup();
   });
@@ -47,9 +47,8 @@ describe('Connecting Component', function () {
     });
 
     describe('after a slight delay', function () {
-      beforeEach(function () {
-        // Speedup the modal showing annimation.
-        this.clock.tick(300);
+      beforeEach(async function () {
+        await delay(300);
       });
 
       it('shows the connecting modal', function () {

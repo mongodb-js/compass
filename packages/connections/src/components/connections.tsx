@@ -1,8 +1,6 @@
 import { css } from '@emotion/css';
 import React from 'react';
 import {
-  Banner,
-  BannerVariant,
   MongoDBLogo,
   breakpoints,
   compassUIColors,
@@ -11,10 +9,8 @@ import {
 import ConnectForm from '@mongodb-js/connect-form';
 import {
   ConnectionInfo,
-  ConnectionOptions,
   ConnectionStorage,
   DataService,
-  connect,
 } from 'mongodb-data-service';
 
 import ResizableSidebar from './resizeable-sidebar';
@@ -60,14 +56,12 @@ const formContainerStyles = css({
 function Connections({
   onConnected,
   connectionStorage = new ConnectionStorage(),
-  connectFn = connect,
 }: {
   onConnected: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => Promise<void>;
   connectionStorage?: ConnectionStore;
-  connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {
   const [
     {
@@ -77,16 +71,14 @@ function Connections({
       connectionAttempt,
       connections,
       isConnected,
-      storeConnectionError,
     },
     {
       cancelConnectionAttempt,
       connect,
       createNewConnection,
-      hideStoreConnectionError,
       setActiveConnectionById,
     },
-  ] = useConnections(onConnected, connectionStorage, connectFn);
+  ] = useConnections(onConnected, connectionStorage);
 
   return (
     <div
@@ -102,15 +94,6 @@ function Connections({
         setActiveConnectionId={setActiveConnectionById}
       />
       <div className={connectItemContainerStyles}>
-        {storeConnectionError && (
-          <Banner
-            variant={BannerVariant.Danger}
-            dismissible
-            onClose={hideStoreConnectionError}
-          >
-            {storeConnectionError}
-          </Banner>
-        )}
         <MongoDBLogo className={logoStyles} color={'green-dark-2'} />
         <div className={formContainerStyles}>
           <ConnectForm

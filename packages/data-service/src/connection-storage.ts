@@ -1,5 +1,8 @@
 import { ConnectionInfo } from './connection-info';
 
+type ConnectionInfoWithRequiredId = ConnectionInfo &
+  Required<Pick<ConnectionInfo, 'id'>>;
+
 import { validate as uuidValidate } from 'uuid';
 import {
   AmpersandMethodOptions,
@@ -33,7 +36,7 @@ export class ConnectionStorage {
    *
    * @param connectionInfo - The ConnectionInfo object to be saved.
    */
-  async save(connectionInfo: ConnectionInfo): Promise<void> {
+  async save(connectionInfo: ConnectionInfoWithRequiredId): Promise<void> {
     if (!connectionInfo.id) {
       throw new Error('id is required');
     }
@@ -57,7 +60,7 @@ export class ConnectionStorage {
    *
    * @param connectionOptions - The ConnectionInfo object to be deleted.
    */
-  async delete(connectionOptions: ConnectionInfo): Promise<void> {
+  async delete(connectionOptions: ConnectionInfoWithRequiredId): Promise<void> {
     if (!connectionOptions.id) {
       // don't throw attempting to delete a connection
       // that was never saved.
