@@ -10,10 +10,10 @@ import ConnectFormActions from './connect-form-actions';
 
 const formContainerStyles = css({
   margin: 0,
-  padding: spacing[4],
+  padding: 0,
   height: 'fit-content',
   flexGrow: 1,
-  minWidth: 400,
+  minWidth: 650,
   maxWidth: 760,
   position: 'relative',
   display: 'inline-block',
@@ -36,8 +36,27 @@ const formContentContainerStyles = css({
 });
 
 interface State {
+  // connectionForm
   connectionStringInvalidError: string | null;
   connectionStringUrl: ConnectionStringUrl;
+
+  fields: {
+    hosts: {
+      value: string[];
+      warning: null | string;
+      error: null | string;
+    };
+    isSRV: {
+      value: boolean;
+      // warning: null | string,
+      // error: null | string
+    };
+    directConnection: {
+      value: boolean;
+      // warning: null | string,
+      // error: null | string
+    };
+  };
 }
 
 type Action =
@@ -76,9 +95,9 @@ function connectFormReducer(state: State, action: Action): State {
   }
 }
 
-function parseConnectionUrlFromOptions(
+function parseConnectFormStateFromOptions(
   initialConnectionOptions: ConnectionOptions
-) {
+): State {
   let connectionStringInvalidError = null;
   // TODO: Have a default connection string variable somewhere.
   let connectionStringUrl = new ConnectionStringUrl(
@@ -91,9 +110,28 @@ function parseConnectionUrlFromOptions(
   } catch (error) {
     connectionStringInvalidError = (error as Error).message;
   }
+
   return {
     connectionStringInvalidError,
     connectionStringUrl,
+    fields: {
+      hosts: {
+        value: connectionStringUrl.hosts,
+        warning: null,
+        error: null,
+      },
+      isSRV: {
+        value: connectionStringUrl.isSRV,
+        // warning: null,
+        // error: null
+      },
+      directConnection: {
+        value:
+          connectionStringUrl.searchParams.get('directConnection') === 'true',
+        // warning: null,
+        // error: null
+      },
+    },
   };
 }
 
@@ -109,7 +147,7 @@ function useConnectForm(initialConnectionOptions: ConnectionOptions): [
   // TODO: Try to validate connection string - if invalid disable options?
   const [state, dispatch] = useReducer(
     connectFormReducer,
-    parseConnectionUrlFromOptions(initialConnectionOptions)
+    parseConnectFormStateFromOptions(initialConnectionOptions)
   );
 
   useEffect(() => {
@@ -118,7 +156,7 @@ function useConnectForm(initialConnectionOptions: ConnectionOptions): [
     // refresh the current connection string being edited.
     // We do this here to retain the tabs/expanded accordion states.
     const { connectionStringInvalidError, connectionStringUrl } =
-      parseConnectionUrlFromOptions(initialConnectionOptions);
+      parseConnectFormStateFromOptions(initialConnectionOptions);
 
     dispatch({
       type: 'set-connection-string-state',

@@ -2,7 +2,6 @@ import { css } from '@emotion/css';
 import React from 'react';
 import {
   MongoDBLogo,
-  breakpoints,
   compassUIColors,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -41,15 +40,23 @@ const connectItemContainerStyles = css({
   overflow: 'auto',
 });
 
+const showHelpBelowFormBreakpoint = 1200;
 const formContainerStyles = css({
   position: 'relative',
   flexGrow: 1,
   display: 'flex',
-  flexDirection: 'column',
-  padding: 0,
-  paddingBottom: spacing[4],
-  [`@media only screen and (min-width: ${breakpoints.Desktop}px)`]: {
-    flexDirection: 'row',
+  flexDirection: 'row',
+  padding: spacing[4],
+  '> :first-child': {
+    margin: 0,
+    marginRight: spacing[4],
+  },
+  [`@media only screen and (max-width: ${showHelpBelowFormBreakpoint}px)`]: {
+    flexDirection: 'column',
+    '> :first-child': {
+      margin: 0,
+      marginBottom: spacing[4],
+    },
   },
 });
 
@@ -104,7 +111,6 @@ function Connections({
               })
             }
             initialConnectionOptions={activeConnectionInfo.connectionOptions}
-            // key={activeConnectionId}
           />
           <FormHelp />
         </div>
