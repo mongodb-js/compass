@@ -151,7 +151,7 @@ function checkIsAtlas(
 ): boolean {
   const firstHost = client.options.hosts[0]?.host || '';
 
-  if (undefined === atlasVersionInfo.version) {
+  if (atlasVersionInfo.version === undefined) {
     return /mongodb(-dev)?.net$/i.test(firstHost);
   }
   return true;
