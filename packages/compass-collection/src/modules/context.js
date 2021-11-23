@@ -263,7 +263,6 @@ const createContext = ({
     views.push(<UnsafeComponent component={role.component} key={i} store={store} actions={actions} />);
   });
 
-  // Setup the stats in the collection HUD
   const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
   const statsPlugin = statsRole.component;
   const statsStore = setupStore({
@@ -276,7 +275,8 @@ const createContext = ({
     isReadonly,
     isTimeSeries,
     actions: {},
-    allowWrites: !isDataLake
+    allowWrites: !isDataLake,
+    isEditing: Boolean(editViewName)
   });
 
   // Setup the scoped modals
