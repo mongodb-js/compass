@@ -18,6 +18,7 @@ export type TreeItemProps = {
   id: string;
   posInSet: number;
   setSize: number;
+  isTabbable: boolean;
 };
 
 export type NamespaceItemProps = {

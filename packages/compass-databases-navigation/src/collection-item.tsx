@@ -26,17 +26,21 @@ const CollectionIcon: React.FunctionComponent<{
   }, [type]);
   return <SmallIcon glyph={glyph}></SmallIcon>;
 };
+
 const collectionItem = css({
   height: COLLECTION_ROW_HEIGHT,
   paddingLeft: spacing[5] + spacing[1],
   paddingRight: spacing[1],
 });
+
 const collectionItemLabel = css({
   marginLeft: spacing[2],
 });
+
 const collectionActions = css({
   marginLeft: 'auto',
 });
+
 export const CollectionItem: React.FunctionComponent<
   VirtualListItemProps & TreeItemProps & NamespaceItemProps
 > = ({
@@ -47,6 +51,7 @@ export const CollectionItem: React.FunctionComponent<
   setSize,
   isActive,
   isReadOnly,
+  isTabbable,
   style,
   onNamespaceAction,
 }) => {
@@ -120,6 +125,7 @@ export const CollectionItem: React.FunctionComponent<
       posInSet={posInSet}
       isActive={isActive}
       isHovered={isHovered}
+      isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
       className={collectionItem}
       style={style}

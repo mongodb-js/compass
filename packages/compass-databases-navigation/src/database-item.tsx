@@ -83,6 +83,8 @@ export const DatabaseItem: React.FunctionComponent<
   setSize,
   isExpanded,
   isActive,
+  isReadOnly,
+  isTabbable,
   style,
   onNamespaceAction,
   onDatabaseExpand,
@@ -139,6 +141,7 @@ export const DatabaseItem: React.FunctionComponent<
       isExpanded={isExpanded}
       isActive={isActive}
       isHovered={isHovered}
+      isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
       className={databaseItem}
       style={style}
@@ -149,13 +152,15 @@ export const DatabaseItem: React.FunctionComponent<
         isExpanded={isExpanded}
       ></ExpandButton>
       <ItemLabel className={databaseItemLabel}>{name}</ItemLabel>
-      <ActionControls
-        className={databaseActions}
-        onAction={onAction}
-        isActive={isActive}
-        isHovered={isHovered}
-        actions={actions}
-      ></ActionControls>
+      {!isReadOnly && (
+        <ActionControls
+          className={databaseActions}
+          onAction={onAction}
+          isActive={isActive}
+          isHovered={isHovered}
+          actions={actions}
+        ></ActionControls>
+      )}
     </ItemContainer>
   );
 };

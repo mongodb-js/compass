@@ -1,10 +1,16 @@
-import { useFocusVisible, useFocus } from '@react-aria/interactions';
+import {
+  useFocusVisible,
+  useFocus,
+  useFocusWithin,
+} from '@react-aria/interactions';
 import React, { useState } from 'react';
 
 export enum FocusState {
-  NoFocus,
-  FocusVisible,
-  Focus,
+  NoFocus = 'NoFocus',
+  FocusVisible = 'FocusVisible',
+  Focus = 'Focus',
+  FocusWithinVisible = 'FocusWithinVisible',
+  FocusWithin = 'FocusWithin',
 }
 
 export function useFocusState(): [
@@ -12,18 +18,35 @@ export function useFocusState(): [
   FocusState
 ] {
   const [isFocused, setIsFocused] = useState(false);
+  const [isFocusWithin, setIsFocusWithin] = useState(false);
   const { isFocusVisible } = useFocusVisible();
-  const { focusProps } = useFocus({
-    onFocusChange(newVal) {
-      setIsFocused(newVal);
-    },
+  const { focusWithinProps } = useFocusWithin({
+    onFocusWithinChange: setIsFocusWithin,
   });
+  const { focusProps } = useFocus({
+    onFocusChange: setIsFocused,
+  });
+  const mergedProps = {
+    onFocus(evt: React.FocusEvent<HTMLElement>) {
+      focusProps.onFocus?.(evt);
+      focusWithinProps.onFocus?.(evt);
+    },
+    onBlur(evt: React.FocusEvent<HTMLElement>) {
+      focusProps.onBlur?.(evt);
+      focusWithinProps.onBlur?.(evt);
+    },
+  };
+  // console.log({ isFocused, isFocusWithin, isFocusVisible });
   return [
-    focusProps,
+    mergedProps,
     isFocused && isFocusVisible
       ? FocusState.FocusVisible
       : isFocused
       ? FocusState.Focus
+      : isFocusWithin && isFocusVisible
+      ? FocusState.FocusWithinVisible
+      : isFocusWithin
+      ? FocusState.FocusWithin
       : FocusState.NoFocus,
   ];
 }
