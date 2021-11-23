@@ -75,6 +75,7 @@ function Connecting({
           <ConnectingAnimation />
           <Link
             as="button"
+            data-testid="cancel-connection-attempt-button"
             onClick={onCancelConnectionClicked}
             hideExternalIcon
             className={cancelButtonStyles}
