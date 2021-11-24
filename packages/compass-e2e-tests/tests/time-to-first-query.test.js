@@ -3,13 +3,14 @@ const { expect } = require('chai');
 const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');
 
-describe('Time to first query', function () {
+describe.only('Time to first query', function () {
   let compass;
 
   it('can open compass, connect to a database and run a query on a collection', async function () {
     // start compass inside the test so that the time is measured together
     compass = await beforeTests();
 
+    /*
     const { client } = compass;
 
     await client.connectWithConnectionString('mongodb://localhost:27018/test');
@@ -39,6 +40,7 @@ describe('Time to first query', function () {
     );
     const text = await documentElementValue.getText();
     expect(text).to.equal('42');
+    */
   });
 
   // eslint-disable-next-line mocha/no-hooks-for-single-case

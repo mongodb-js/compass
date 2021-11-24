@@ -1,5 +1,5 @@
 // @ts-check
-const { inspect } = require('util');
+//const { inspect } = require('util');
 const { promises: fs } = require('fs');
 const path = require('path');
 const os = require('os');
@@ -8,7 +8,8 @@ const {
   gunzip,
   constants: { Z_SYNC_FLUSH },
 } = require('zlib');
-const { Application } = require('spectron');
+//const { Application } = require('spectron');
+const { _electron: electron } = require('playwright');
 const { rebuild } = require('electron-rebuild');
 const debug = require('debug')('compass-e2e-tests');
 const {
@@ -16,7 +17,7 @@ const {
   compileAssets,
 } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
-const { addCommands } = require('./commands');
+//const { addCommands } = require('./commands');
 
 /**
  * @typedef {Object} ExtendedClient
@@ -35,8 +36,10 @@ const { addCommands } = require('./commands');
  * @property {Buffer} raw
  * @property {any[]} structured
  *
- * @typedef {import('spectron').Application & { compassLog: CompassLog['structured'], client: import('spectron').SpectronClient & ExtendedClient }} ExtendedApplication
+ *
+ * @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured']} ExtendedApplication
  */
+ //* @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured'], client: import('spectron').SpectronClient & ExtendedClient }} ExtendedApplication
 
 const compileAssetsAsync = promisify(compileAssets);
 const packageCompassAsync = promisify(packageCompass);
@@ -96,9 +99,9 @@ function formatLogToErrorWithStack(logEntry) {
 
 /**
  * @param {boolean} testPackagedApp Should compass start from the packaged binary or just from the source (defaults to source)
- * @param {Partial<import('spectron').AppConstructorOptions>} opts
  * @returns {Promise<ExtendedApplication>}
  */
+//* @param {Partial<import('spectron').AppConstructorOptions>} opts
 async function startCompass(
   testPackagedApp = ['1', 'true'].includes(process.env.TEST_PACKAGED_APP),
   opts = {}
@@ -150,7 +153,7 @@ async function startCompass(
       '--no-sandbox',
     ],
     env: {
-      APP_ENV: 'spectron',
+      APP_ENV: 'playwright',
       DEBUG: `${process.env.DEBUG || ''},mongodb-compass:main:logging`,
       MONGODB_COMPASS_TEST_LOG_DIR: path.join(LOG_PATH, 'app'),
     },
@@ -165,26 +168,34 @@ async function startCompass(
     },
   };
 
-  debug('Starting Spectron with the following configuration:');
+  debug('Starting Playwright Electron with the following configuration:');
   debug(JSON.stringify(appOptions, null, 2));
 
   /** @type {ExtendedApplication} */
   // It's missing methods that we will add in a moment
   // @ts-expect-error
-  const app = new Application(appOptions);
+  //const app = new Application(appOptions);
+  const app = await electron.launch(appOptions);
 
-  await app.start();
+  //await app.start();
 
-  app.client.setTimeout({ implicit: 0 });
+  //TODO
+  //app.client.setTimeout({ implicit: 0 });
 
-  addCommands(app);
-  addDebugger(app);
+  // TODO
+  //addCommands(app);
+  //addDebugger(app);
 
-  const _stop = app.stop.bind(app);
+  //const _stop = app.stop.bind(app);
+  const _close = app.close.bind(app);
 
-  app.stop = async () => {
-    const mainLogs = await app.client.getMainProcessLogs();
-    const renderLogs = await app.client.getRenderProcessLogs();
+  //app.stop = async () => {
+  app.close = async () => {
+    // TODO
+    //const mainLogs = await app.client.getMainProcessLogs();
+    const mainLogs = [];
+    //const renderLogs = await app.client.getRenderProcessLogs();
+    const renderLogs = [];
 
     const mainLogPath = path.join(
       LOG_PATH,
@@ -201,7 +212,8 @@ async function startCompass(
     await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
 
     debug('Stopping Compass application');
-    await _stop();
+    //await _stop();
+    await _close();
 
     const compassLog = await getCompassLog(mainLogs);
     const compassLogPath = path.join(
@@ -258,7 +270,7 @@ async function startCompass(
       throw error;
     }
 
-    return app;
+    //return app;
   };
 
   return app;
@@ -371,87 +383,87 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
 /**
  * @param {ExtendedApplication} app
  */
-function addDebugger(app) {
-  const debugClient = debug.extend('webdriver:client');
-  const clientProto = Object.getPrototypeOf(app.client);
-
-  for (const prop of Object.getOwnPropertyNames(clientProto)) {
-    // disable emit logging for now because it is very noisy
-    if (prop.includes('.') || prop === 'emit') {
-      continue;
-    }
-    const descriptor = Object.getOwnPropertyDescriptor(clientProto, prop);
-    if (typeof descriptor.value !== 'function') {
-      continue;
-    }
-    const origFn = descriptor.value;
-    /**
-     * @param  {any[]} args
-     */
-    descriptor.value = function (...args) {
-      debugClient(
-        `${prop}(${args
-          .map((arg) => inspect(arg, { breakLength: Infinity }))
-          .join(', ')})`
-      );
-
-      const stack = new Error(prop).stack;
-
-      let result;
-      try {
-        result = origFn.call(this, ...args);
-      } catch (error) {
-        // In this case the method threw synchronously
-        augmentError(error, stack);
-        throw error;
-      }
-
-      if (result && result.then) {
-        // If the result looks like a promise, resolve it and look for errors
-        return result.catch((error) => {
-          augmentError(error, stack);
-          throw error;
-        });
-      }
-
-      // return the synchronous result
-      return result;
-    };
-    Object.defineProperty(clientProto, prop, descriptor);
-  }
-}
-
-function augmentError(error, stack) {
-  const lines = stack.split('\n');
-  const strippedLines = lines.filter((line, index) => {
-    // try to only contain lines that originated in this workspace
-    if (index === 0) {
-      return true;
-    }
-    if (line.startsWith('    at augmentError')) {
-      return false;
-    }
-    if (line.startsWith('    at Object.descriptor.value [as')) {
-      return false;
-    }
-    if (line.includes('node_modules')) {
-      return false;
-    }
-    if (line.includes('helpers/')) {
-      return true;
-    }
-    if (line.includes('tests/')) {
-      return true;
-    }
-    return false;
-  });
-
-  if (strippedLines.length === 1) {
-    return;
-  }
-
-  error.stack = `${error.stack}\nvia ${strippedLines.join('\n')}`;
-}
+//function addDebugger(app) {
+//  const debugClient = debug.extend('webdriver:client');
+//  const clientProto = Object.getPrototypeOf(app.client);
+//
+//  for (const prop of Object.getOwnPropertyNames(clientProto)) {
+//    // disable emit logging for now because it is very noisy
+//    if (prop.includes('.') || prop === 'emit') {
+//      continue;
+//    }
+//    const descriptor = Object.getOwnPropertyDescriptor(clientProto, prop);
+//    if (typeof descriptor.value !== 'function') {
+//      continue;
+//    }
+//    const origFn = descriptor.value;
+//    /**
+//     * @param  {any[]} args
+//     */
+//    descriptor.value = function (...args) {
+//      debugClient(
+//        `${prop}(${args
+//          .map((arg) => inspect(arg, { breakLength: Infinity }))
+//          .join(', ')})`
+//      );
+//
+//      const stack = new Error(prop).stack;
+//
+//      let result;
+//      try {
+//        result = origFn.call(this, ...args);
+//      } catch (error) {
+//        // In this case the method threw synchronously
+//        augmentError(error, stack);
+//        throw error;
+//      }
+//
+//      if (result && result.then) {
+//        // If the result looks like a promise, resolve it and look for errors
+//        return result.catch((error) => {
+//          augmentError(error, stack);
+//          throw error;
+//        });
+//      }
+//
+//      // return the synchronous result
+//      return result;
+//    };
+//    Object.defineProperty(clientProto, prop, descriptor);
+//  }
+//}
+//
+//function augmentError(error, stack) {
+//  const lines = stack.split('\n');
+//  const strippedLines = lines.filter((line, index) => {
+//    // try to only contain lines that originated in this workspace
+//    if (index === 0) {
+//      return true;
+//    }
+//    if (line.startsWith('    at augmentError')) {
+//      return false;
+//    }
+//    if (line.startsWith('    at Object.descriptor.value [as')) {
+//      return false;
+//    }
+//    if (line.includes('node_modules')) {
+//      return false;
+//    }
+//    if (line.includes('helpers/')) {
+//      return true;
+//    }
+//    if (line.includes('tests/')) {
+//      return true;
+//    }
+//    return false;
+//  });
+//
+//  if (strippedLines.length === 1) {
+//    return;
+//  }
+//
+//  error.stack = `${error.stack}\nvia ${strippedLines.join('\n')}`;
+//}
 
 /**
  * @param {ExtendedApplication} app
@@ -461,6 +473,8 @@ async function capturePage(
   app,
   imgPathName = `screenshot-${formattedDate()}-${++j}.png`
 ) {
+  // TODO
+  /*
   try {
     const buffer = await app.browserWindow.capturePage();
     await fs.mkdir(LOG_PATH, { recursive: true });
@@ -471,6 +485,7 @@ async function capturePage(
   } catch (_) {
     return false;
   }
+  */
 }
 
 /**
@@ -481,6 +496,8 @@ async function savePage(
   app,
   htmlPathName = `page-${formattedDate()}-${++k}.html`
 ) {
+  // TODO
+  /*
   try {
     await app.webContents.savePage(
       path.join(LOG_PATH, htmlPathName),
@@ -490,16 +507,18 @@ async function savePage(
   } catch (err) {
     return false;
   }
+  */
 }
 
 async function beforeTests() {
   const compass = await startCompass();
 
-  const { client } = compass;
+  // TODO: there is no client
+  //const { client } = compass;
 
-  await client.waitForConnectionScreen();
-  await client.closeTourModal();
-  await client.closePrivacySettingsModal();
+  //await client.waitForConnectionScreen();
+  //await client.closeTourModal();
+  //await client.closePrivacySettingsModal();
 
   return compass;
 }
@@ -510,7 +529,7 @@ async function afterTests(compass) {
     await savePage(compass);
 
     try {
-      await compass.stop();
+      await compass.close();
     } catch (err) {
       debug('An error occurred while stopping compass:');
       debug(err);
