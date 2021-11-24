@@ -113,6 +113,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-ace": "^9.5.0",
+    "ace-builds": "^1.4.3",
     "react-dom": "^16.14.0",
     "react-hot-loader": "^4.13.0",
     "react-redux": "^5.0.6",
