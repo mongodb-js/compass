@@ -7,7 +7,7 @@ const StateMixin = require('reflux-state-mixin');
 const { promisify } = require('util');
 const { getConnectionTitle, convertConnectionModelToInfo } = require('mongodb-data-service');
 const debug = require('debug')('compass-connect:store');
-const { isAtlas, isLocalhost, isDigitalOcean } = require('mongodb-build-info');
+const { isLocalhost, isDigitalOcean } = require('mongodb-build-info');
 const { getCloudInfo } = require('mongodb-cloud-info');
 
 const Actions = require('../actions');
@@ -977,6 +977,7 @@ const Store = Reflux.createStore({
       genuineMongoDB,
       host,
       build,
+      isAtlas
     } = await dataService.instance();
     const {
       hostname,
@@ -993,7 +994,7 @@ const Store = Reflux.createStore({
 
     const trackEvent = {
       is_localhost: isLocalhost(hostname),
-      is_atlas: isAtlas(hostname),
+      is_atlas: isAtlas,
       is_dataLake: dataLake.isDataLake,
       is_enterprise: build.isEnterprise,
       is_public_cloud: isPublicCloud,

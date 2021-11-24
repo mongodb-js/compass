@@ -127,7 +127,7 @@ export async function getInstance(
     }).catch(() => null),
 
     runCommand(adminDb, { atlasVersion: 1 }).catch((err) => {
-      return { errmsg: err.message };
+      return { version: '', gitVersion: '' };
     }),
   ]);
 
@@ -151,7 +151,7 @@ function checkIsAtlas(
 ): boolean {
   const firstHost = client.options.hosts[0]?.host || '';
 
-  if (atlasVersionInfo.version === undefined) {
+  if (atlasVersionInfo.version === '') {
     return /mongodb(-dev)?.net$/i.test(firstHost);
   }
   return true;
