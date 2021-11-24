@@ -48,7 +48,7 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.4.0",
     "@mongodb-js/mongodb-redux-common": "^1.5.0",
-    "@mongosh/browser-repl": "^1.1.2",
+    "@mongosh/browser-repl": "^1.1.4",
     "@mongosh/logging": "^1.1.2",
     "@mongosh/node-runtime-worker-thread": "^1.1.2",
     "@mongosh/service-provider-core": "^1.1.2",
