@@ -7,8 +7,6 @@ import {
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-// import { useConnectionStringContext } from '../../../contexts/connection-string-context';
-
 enum MONGODB_SCHEMA {
   MONGODB = 'MONGODB',
   MONGODB_SRV = 'MONGODB_SRV',
@@ -26,9 +24,6 @@ function SchemaInput({
   connectionStringUrl: ConnectionStringUrl;
   setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
 }): React.ReactElement {
-  // const [{ connectionStringUrl }, { setConnectionString }] =
-  //   useConnectionStringContext();
-
   const { isSRV } = connectionStringUrl;
 
   return (
@@ -38,7 +33,6 @@ function SchemaInput({
         id="connection-schema-radio-box-group"
         value={isSRV ? MONGODB_SCHEMA.MONGODB_SRV : MONGODB_SCHEMA.MONGODB}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          // TODO: Assign default or always have connection string.
           // TODO: Maybe have a more distinct place for this conversion?
           if (event.target.value === MONGODB_SCHEMA.MONGODB) {
             if (!isSRV) {

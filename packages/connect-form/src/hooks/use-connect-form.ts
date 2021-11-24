@@ -8,16 +8,16 @@ export interface ConnectFormFields {
     warning: null | string;
     error: null | string;
   };
-  isSRV: {
-    value: boolean;
-    // warning: null | string,
-    // error: null | string
-  };
-  directConnection: {
-    value: boolean;
-    // warning: null | string,
-    // error: null | string
-  };
+  // isSRV: {
+  //   value: boolean;
+  //   // warning: null | string,
+  //   // error: null | string
+  // };
+  // directConnection: {
+  //   value: boolean;
+  //   // warning: null | string,
+  //   // error: null | string
+  // };
 }
 export interface ConnectFormState {
   // connectionForm
@@ -26,6 +26,11 @@ export interface ConnectFormState {
 
   fields: ConnectFormFields;
 }
+
+export type SetConnectionField = (
+  fieldName: 'hosts',
+  value: ConnectFormFields['hosts']
+) => void;
 
 type Action =
   | {
@@ -41,6 +46,12 @@ type Action =
       type: 'set-connection-string-state';
       connectionStringInvalidError: string | null;
       connectionStringUrl: ConnectionStringUrl;
+      fields: ConnectFormFields;
+    }
+  | {
+      type: 'set-connection-string-field';
+      value: ConnectFormFields['hosts'];
+      fieldName: keyof ConnectFormFields;
     };
 
 function connectFormReducer(
@@ -62,8 +73,17 @@ function connectFormReducer(
     case 'set-connection-string-state':
       return {
         ...state,
+        fields: action.fields,
         connectionStringUrl: action.connectionStringUrl,
         connectionStringInvalidError: action.connectionStringInvalidError,
+      };
+    case 'set-connection-string-field':
+      return {
+        ...state,
+        fields: {
+          ...state.fields,
+          [action.fieldName]: action.value,
+        },
       };
   }
 }
@@ -77,17 +97,17 @@ function parseConnectFormFieldStateFromConnectionUrl(
       warning: null,
       error: null,
     },
-    isSRV: {
-      value: connectionStringUrl.isSRV,
-      // warning: null,
-      // error: null
-    },
-    directConnection: {
-      value:
-        connectionStringUrl.searchParams.get('directConnection') === 'true',
-      // warning: null,
-      // error: null
-    },
+    // isSRV: {
+    //   value: connectionStringUrl.isSRV,
+    //   // warning: null,
+    //   // error: null
+    // },
+    // directConnection: {
+    //   value:
+    //     connectionStringUrl.searchParams.get('directConnection') === 'true',
+    //   // warning: null,
+    //   // error: null
+    // },
   };
 }
 
@@ -119,6 +139,7 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
   {
     setConnectionStringError: (errorMessage: string | null) => void;
     setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+    setConnectionField: SetConnectionField;
     setConnectionItem: (name: string, value: string) => void;
     setConnectionStringQueryItem: (name: string, value: string) => void;
   }
@@ -128,20 +149,21 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
     connectFormReducer,
     parseConnectFormStateFromOptions(initialConnectionOptions)
   );
-  console.log('the state', state);
+  // console.log('the state', state);
 
   useEffect(() => {
     // When the initial connection options change, like a different
     // connection is clicked in the compass-sidebar, we
     // refresh the current connection string being edited.
     // We do this here to retain the tabs/expanded accordion states.
-    const { connectionStringInvalidError, connectionStringUrl } =
+    const { connectionStringInvalidError, connectionStringUrl, fields } =
       parseConnectFormStateFromOptions(initialConnectionOptions);
 
     dispatch({
       type: 'set-connection-string-state',
       connectionStringInvalidError,
       connectionStringUrl,
+      fields,
     });
   }, [initialConnectionOptions]);
 
@@ -169,13 +191,22 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
         });
       },
       setConnectionItem: (name: string, value: string) => {
-        //
         // TODO: Try to set the item on the current connection string url.
         // If it works cool.
         // If not error.
       },
       setConnectionStringQueryItem: (name: string, value: string) => {
         //
+      },
+      setConnectionField: (
+        fieldName: keyof ConnectFormFields,
+        value: ConnectFormFields['hosts']
+      ) => {
+        dispatch({
+          type: 'set-connection-string-field',
+          fieldName,
+          value,
+        });
       },
     },
   ];

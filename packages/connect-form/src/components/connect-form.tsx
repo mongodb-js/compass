@@ -45,15 +45,14 @@ function ConnectForm({
   const [
     { fields, connectionStringUrl, connectionStringInvalidError },
     {
+      setConnectionField,
       setConnectionStringUrl,
       setConnectionStringError,
+
       // setConnectionItem,
       // setConnectionStringQueryItem
     },
   ] = useConnectForm(initialConnectionOptions);
-
-  // TODO: The initial connection string can be invalid.
-  //
 
   // TODO: Which as value? Plain string or typed?
   // Plain for the connection string input to show the error.
@@ -76,6 +75,7 @@ function ConnectForm({
           <AdvancedConnectionOptions
             fields={fields}
             connectionStringUrl={editingConnectionStringUrl}
+            setConnectionField={setConnectionField}
             setConnectionStringUrl={setConnectionStringUrl}
           />
         </div>

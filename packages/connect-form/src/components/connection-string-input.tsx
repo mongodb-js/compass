@@ -17,8 +17,6 @@ import {
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-// import { useConnectionStringContext } from '../contexts/connection-string-context';
-
 const uriLabelStyles = css({
   padding: 0,
   margin: 0,
@@ -147,10 +145,6 @@ function ConnectStringInput({
   setConnectionStringError: (errorMessage: string | null) => void;
   setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
 }): React.ReactElement {
-  // const [connectionString, { setConnectionString }] =
-  //   useConnectionStringContext();
-
-  // const [editingConnectionString, setConnectionString] = useState(connectionString || '');
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
 
   const [
@@ -190,7 +184,7 @@ function ConnectStringInput({
     <Fragment>
       <div className={textAreaLabelContainerStyles}>
         <Label className={uriLabelStyles} htmlFor={connectionStringInputId}>
-          Connection String
+          URI
           <IconButton
             className={infoButtonStyles}
             aria-label="Connection String Documentation"

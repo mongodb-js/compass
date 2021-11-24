@@ -1,5 +1,6 @@
+import { css } from '@emotion/css';
 import React, { useState } from 'react';
-import { Tabs, Tab } from '@mongodb-js/compass-components';
+import { Tabs, Tab, spacing } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import GeneralTab from './general-tab';
@@ -7,13 +8,20 @@ import AuthenticationTab from './authentication-tab';
 import SSLTab from './ssl-tab';
 import SSHTunnelTab from './ssh-tunnel-tab';
 import AdvancedTab from './advanced-tab';
-import { ConnectFormFields } from '../../hooks/use-connect-form';
+import {
+  ConnectFormFields,
+  SetConnectionField,
+} from '../../hooks/use-connect-form';
 
+const tabsStyles = css({
+  marginTop: spacing[1],
+});
 interface TabObject {
   name: string;
   component: React.FunctionComponent<{
     fields: ConnectFormFields;
     connectionStringUrl: ConnectionStringUrl;
+    setConnectionField: SetConnectionField;
     setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
   }>;
 }
@@ -21,10 +29,12 @@ interface TabObject {
 function AdvancedOptionsTabs({
   fields,
   connectionStringUrl,
+  setConnectionField,
   setConnectionStringUrl,
 }: {
   fields: ConnectFormFields;
   connectionStringUrl: ConnectionStringUrl;
+  setConnectionField: SetConnectionField;
   setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
 }): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
@@ -39,6 +49,7 @@ function AdvancedOptionsTabs({
 
   return (
     <Tabs
+      className={tabsStyles}
       setSelected={setActiveTab}
       selected={activeTab}
       aria-label="Advanced Options Tabs"
@@ -51,6 +62,7 @@ function AdvancedOptionsTabs({
             <TabComponent
               fields={fields}
               connectionStringUrl={connectionStringUrl}
+              setConnectionField={setConnectionField}
               setConnectionStringUrl={setConnectionStringUrl}
             />
           </Tab>
