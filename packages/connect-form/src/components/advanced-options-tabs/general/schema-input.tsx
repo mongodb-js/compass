@@ -31,8 +31,6 @@ function SchemaInput({
 
   const { isSRV } = connectionStringUrl;
 
-  // const connection
-
   return (
     <>
       <Label htmlFor="connection-schema-radio-box-group">Schema</Label>
@@ -48,8 +46,6 @@ function SchemaInput({
               return;
             }
 
-            // newConnectionString
-
             const newConnectionString = connectionStringUrl.toString();
 
             const newConnectionStringUrl = new ConnectionStringUrl(
@@ -63,14 +59,10 @@ function SchemaInput({
             // Chose regular schema.
             // TODO: Add port if not exists (coming from srv)
 
-            // new ConnectionStringUrl(
-            //   newConnectionString.replace('mongodb+srv://', 'mongodb://')
-            // )
-
             setConnectionStringUrl(newConnectionStringUrl);
           } else {
             let newConnectionStringUrl = connectionStringUrl.clone();
-            // // Only include one host without port.
+            // Only include one host without port.
             newConnectionStringUrl.hosts = [
               newConnectionStringUrl.hosts[0].substring(
                 0,

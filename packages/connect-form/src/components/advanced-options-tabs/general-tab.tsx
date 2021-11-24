@@ -12,6 +12,7 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 // import { useConnectionStringContext } from '../../contexts/connection-string-context';
 import SchemaInput from './general/schema-input';
+import { ConnectFormFields } from '../../hooks/use-connect-form';
 
 const hostInputContainer = css({
   display: 'flex',
@@ -25,15 +26,23 @@ const hostInput = css({
   flexGrow: 1,
 });
 
+const defaultNewHost = 'localhost:27017';
+
 function GeneralTab({
+  fields,
   connectionStringUrl,
   setConnectionStringUrl,
 }: {
   connectionStringUrl: ConnectionStringUrl;
+  fields: ConnectFormFields;
   setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
 }): React.ReactElement {
   // const [connectionStringUrl, { setConnectionString }] =
   //   useConnectionStringContext();
+
+  const { isSRV } = connectionStringUrl;
+
+  const { hosts, directConnection } = fields;
 
   if (!connectionStringUrl) {
     // TODO: Make this required to have a value?
@@ -47,9 +56,9 @@ function GeneralTab({
         setConnectionStringUrl={setConnectionStringUrl}
       />
       <Label htmlFor="connection-host-input" id="connection-host-input-label">
-        {connectionStringUrl.isSRV ? 'Hostname' : 'Host'}
+        {isSRV ? 'Hostname' : 'Host'}
       </Label>
-      {connectionStringUrl.hosts.map((host, index) => (
+      {hosts.value.map((host, index) => (
         <div className={hostInputContainer} key={`host-${index}`}>
           <TextInput
             className={hostInput}
@@ -79,14 +88,14 @@ function GeneralTab({
           />
 
           {/* TODO: Should we still show a + but then give them a message when they try and click w/ srvs? */}
-          {!connectionStringUrl.isSRV && (
+          {!isSRV && (
             <IconButton
               aria-label="Add another host"
               onClick={() => {
                 const updatedConnectionString = connectionStringUrl.clone();
 
                 // TODO: Default new host name?
-                updatedConnectionString.hosts.push('');
+                updatedConnectionString.hosts.push(defaultNewHost);
 
                 setConnectionStringUrl(updatedConnectionString);
               }}
@@ -94,7 +103,7 @@ function GeneralTab({
               <Icon glyph="Plus" />
             </IconButton>
           )}
-          {!connectionStringUrl.isSRV && connectionStringUrl.hosts.length > 1 && (
+          {!isSRV && hosts.value.length > 1 && (
             <IconButton
               aria-label="Remove host"
               onClick={() => {
@@ -111,7 +120,7 @@ function GeneralTab({
         </div>
       ))}
 
-      {!connectionStringUrl.isSRV && (
+      {!isSRV && (
         <Checkbox
           onChange={(event) => {
             // TODO: Ensure it's a valid connection string first? try catch?
@@ -130,9 +139,7 @@ function GeneralTab({
             setConnectionStringUrl(updatedConnectionString);
           }}
           label="Direct Connection"
-          checked={
-            connectionStringUrl.searchParams.get('directConnection') === 'true'
-          }
+          checked={directConnection.value}
           bold={false}
         />
       )}

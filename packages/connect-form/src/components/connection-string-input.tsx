@@ -71,7 +71,7 @@ type State = {
 type Action =
   | { type: 'enable-editing-connection-string' }
   | {
-      type: 'set-editingConnectionString-connection-string';
+      type: 'set-editing-connection-string';
       editingConnectionString: string;
     }
   | { type: 'show-edit-connection-string-confirmation' }
@@ -80,7 +80,7 @@ type Action =
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'set-editingConnectionString-connection-string':
+    case 'set-editing-connection-string':
       return {
         ...state,
         editingConnectionString: action.editingConnectionString,
@@ -151,6 +151,7 @@ function ConnectStringInput({
   //   useConnectionStringContext();
 
   // const [editingConnectionString, setConnectionString] = useState(connectionString || '');
+  const textAreaEl = useRef<HTMLTextAreaElement>(null);
 
   const [
     {
@@ -168,15 +169,18 @@ function ConnectStringInput({
   });
 
   useEffect(() => {
-    if (!enableEditingConnectionString) {
+    // If the user isn't actively editing the connection string and it
+    // changes (form action) we update the string.
+    if (
+      editingConnectionString !== connectionString &&
+      (!textAreaEl.current || textAreaEl.current !== document.activeElement)
+    ) {
       dispatch({
-        type: 'set-editingConnectionString-connection-string',
+        type: 'set-editing-connection-string',
         editingConnectionString: connectionString || '',
       });
     }
-  }, [connectionString, enableEditingConnectionString]);
-
-  const textAreaEl = useRef<HTMLTextAreaElement>(null);
+  }, [connectionString, editingConnectionString]);
 
   const displayedConnectionString = enableEditingConnectionString
     ? editingConnectionString
@@ -227,7 +231,7 @@ function ConnectStringInput({
         <TextArea
           onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
             dispatch({
-              type: 'set-editingConnectionString-connection-string',
+              type: 'set-editing-connection-string',
               editingConnectionString: event.target.value,
             });
 

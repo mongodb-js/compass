@@ -7,19 +7,23 @@ import AuthenticationTab from './authentication-tab';
 import SSLTab from './ssl-tab';
 import SSHTunnelTab from './ssh-tunnel-tab';
 import AdvancedTab from './advanced-tab';
+import { ConnectFormFields } from '../../hooks/use-connect-form';
 
 interface TabObject {
   name: string;
   component: React.FunctionComponent<{
+    fields: ConnectFormFields;
     connectionStringUrl: ConnectionStringUrl;
     setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
   }>;
 }
 
 function AdvancedOptionsTabs({
+  fields,
   connectionStringUrl,
   setConnectionStringUrl,
 }: {
+  fields: ConnectFormFields;
   connectionStringUrl: ConnectionStringUrl;
   setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
 }): React.ReactElement {
@@ -32,6 +36,7 @@ function AdvancedOptionsTabs({
     { name: 'SSH Tunnel', component: SSHTunnelTab },
     { name: 'Advanced', component: AdvancedTab },
   ];
+
   return (
     <Tabs
       setSelected={setActiveTab}
@@ -44,6 +49,7 @@ function AdvancedOptionsTabs({
         return (
           <Tab key={idx} name={tabObject.name} aria-label={tabObject.name}>
             <TabComponent
+              fields={fields}
               connectionStringUrl={connectionStringUrl}
               setConnectionStringUrl={setConnectionStringUrl}
             />
