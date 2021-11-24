@@ -1,7 +1,14 @@
 import { css } from '@emotion/css';
 import React from 'react';
 import { ConnectionOptions } from 'mongodb-data-service';
-import { Card, Description, H3, spacing } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  BannerVariant,
+  Card,
+  Description,
+  H3,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
@@ -44,18 +51,8 @@ function ConnectForm({
 }): React.ReactElement {
   const [
     { fields, connectionStringUrl, connectionStringInvalidError },
-    {
-      setConnectionField,
-      setConnectionStringUrl,
-      setConnectionStringError,
-
-      // setConnectionItem,
-      // setConnectionStringQueryItem
-    },
+    { setConnectionField, setConnectionStringUrl, setConnectionStringError },
   ] = useConnectForm(initialConnectionOptions);
-
-  // TODO: Which as value? Plain string or typed?
-  // Plain for the connection string input to show the error.
 
   const editingConnectionStringUrl = connectionStringUrl;
 
@@ -72,8 +69,14 @@ function ConnectForm({
             setConnectionStringUrl={setConnectionStringUrl}
             setConnectionStringError={setConnectionStringError}
           />
+          {connectionStringInvalidError && (
+            <Banner variant={BannerVariant.Danger}>
+              {connectionStringInvalidError}
+            </Banner>
+          )}
           <AdvancedConnectionOptions
             fields={fields}
+            disabled={!!connectionStringInvalidError}
             connectionStringUrl={editingConnectionStringUrl}
             setConnectionField={setConnectionField}
             setConnectionStringUrl={setConnectionStringUrl}

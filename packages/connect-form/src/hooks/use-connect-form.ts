@@ -68,6 +68,7 @@ function connectFormReducer(
       return {
         ...state,
         connectionStringUrl: action.connectionStringUrl,
+        connectionStringInvalidError: null,
         fields: action.fields,
       };
     case 'set-connection-string-state':
@@ -140,8 +141,6 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
     setConnectionStringError: (errorMessage: string | null) => void;
     setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
     setConnectionField: SetConnectionField;
-    setConnectionItem: (name: string, value: string) => void;
-    setConnectionStringQueryItem: (name: string, value: string) => void;
   }
 ] {
   // TODO: Try to validate connection string - if invalid disable options?
@@ -167,8 +166,6 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
     });
   }, [initialConnectionOptions]);
 
-  // const {} = useMemo // initialConnectionOptions
-
   return [
     state,
     {
@@ -189,14 +186,6 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
           connectionStringUrl,
           fields,
         });
-      },
-      setConnectionItem: (name: string, value: string) => {
-        // TODO: Try to set the item on the current connection string url.
-        // If it works cool.
-        // If not error.
-      },
-      setConnectionStringQueryItem: (name: string, value: string) => {
-        //
       },
       setConnectionField: (
         fieldName: keyof ConnectFormFields,

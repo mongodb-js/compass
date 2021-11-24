@@ -30,6 +30,7 @@ const infoButtonStyles = css({
 
 const textAreaContainerStyle = css({
   position: 'relative',
+  marginBottom: spacing[2],
 });
 
 const connectionStringStyles = css({
@@ -164,7 +165,7 @@ function ConnectStringInput({
 
   useEffect(() => {
     // If the user isn't actively editing the connection string and it
-    // changes (form action) we update the string.
+    // changes (form action) we update the string and disable editing.
     if (
       editingConnectionString !== connectionString &&
       (!textAreaEl.current || textAreaEl.current !== document.activeElement)
@@ -172,6 +173,9 @@ function ConnectStringInput({
       dispatch({
         type: 'set-editing-connection-string',
         editingConnectionString: connectionString || '',
+      });
+      dispatch({
+        type: 'hide-connection-string',
       });
     }
   }, [connectionString, editingConnectionString]);
