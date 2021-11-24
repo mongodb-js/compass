@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import React, { useCallback, useMemo, memo, useRef } from 'react';
 import { VisuallyHidden } from '@react-aria/visually-hidden';
 // TODO: See comment in constants about row size
@@ -101,6 +101,39 @@ type ListItemData = {
   onNamespaceAction(namespace: string, action: Actions): void;
 };
 
+const collectionItemContainer = css({
+  position: 'relative',
+});
+
+const fadeInAnimation = keyframes({
+  from: {
+    opacity: 0,
+  },
+  to: {
+    opacity: 1,
+  },
+});
+
+const fadeIn = css({
+  animation: `${fadeInAnimation} .16s ease-out`,
+});
+
+const placeholderContainer = css({
+  position: 'absolute',
+  pointerEvents: 'none',
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+  opacity: 0,
+  transition: 'opacity .16s ease-out',
+});
+
+const placeholderContainerVisible = css({
+  opacity: 1,
+  transitionTimingFunction: 'ease-in',
+});
+
 const NavigationItem = memo<{
   index: number;
   style: React.CSSProperties;
@@ -133,32 +166,42 @@ const NavigationItem = memo<{
   }
 
   return (
-    // TODO: Animation is missing
-    <ContentWithFallback
-      isContentReady={itemData.type !== 'placeholder'}
-      content={(shouldRender) => {
-        return (
-          // This will always be true at that point, but TS needs some
-          // additional convincing so it can figure out the types
-          itemData.type !== 'placeholder' &&
-          shouldRender && (
-            <CollectionItem
+    <div className={collectionItemContainer}>
+      <ContentWithFallback
+        isContentReady={itemData.type !== 'placeholder'}
+        content={(shouldRender, shouldAnimate) => {
+          return (
+            // This will always be true at that point, but TS needs some
+            // additional convincing so it can figure out the types
+            itemData.type !== 'placeholder' &&
+            shouldRender && (
+              <div style={style} className={cx(shouldAnimate && fadeIn)}>
+                <CollectionItem
+                  isReadOnly={isReadOnly}
+                  isActive={itemData.id === activeNamespace}
+                  isTabbable={itemData.id === currentTabbable}
+                  onNamespaceAction={onNamespaceAction}
+                  {...itemData}
+                ></CollectionItem>
+              </div>
+            )
+          );
+        }}
+        fallback={(shouldRender) => {
+          return (
+            <div
               style={style}
-              isReadOnly={isReadOnly}
-              isActive={itemData.id === activeNamespace}
-              isTabbable={itemData.id === currentTabbable}
-              onNamespaceAction={onNamespaceAction}
-              {...itemData}
-            ></CollectionItem>
-          )
-        );
-      }}
-      fallback={(shouldRender) => {
-        return (
-          shouldRender && <PlaceholderItem style={style}></PlaceholderItem>
-        );
-      }}
-    ></ContentWithFallback>
+              className={css(
+                placeholderContainer,
+                shouldRender && placeholderContainerVisible
+              )}
+            >
+              <PlaceholderItem></PlaceholderItem>
+            </div>
+          );
+        }}
+      ></ContentWithFallback>
+    </div>
   );
 }, areEqual);
 

@@ -23,7 +23,7 @@ function getBoundRandom(min: number, max: number) {
 }
 
 export const PlaceholderItem: React.FunctionComponent<{
-  style: CSSProperties;
+  style?: CSSProperties;
 }> = ({ style }) => {
   const width = useMemo(() => {
     return `${getBoundRandom(30, 80)}%`;

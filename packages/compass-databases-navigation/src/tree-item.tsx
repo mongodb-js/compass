@@ -11,7 +11,7 @@ import { focusRing, focusRingVisible } from './databases-navigation-tree';
 import type { Actions } from './constants';
 
 export type VirtualListItemProps = {
-  style: CSSProperties;
+  style?: CSSProperties;
 };
 
 export type TreeItemProps = {
