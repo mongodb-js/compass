@@ -14,7 +14,7 @@ import SidebarDatabasesNavigation from '../sidebar-databases-navigation';
 
 import { toggleIsDetailsExpanded } from '../../modules/is-details-expanded';
 import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
-import { changeFilterRegex, toggleDatabaseExpanded } from '../../modules/databases';
+import { changeFilterRegex } from '../../modules/databases';
 import { openLink } from '../../modules/link';
 import { toggleIsModalVisible } from '../../modules/is-modal-visible';
 import { saveFavorite } from '../../modules/connection-model';
@@ -39,16 +39,11 @@ function boundSidebarWidth(attemptedWidth) {
 class Sidebar extends PureComponent {
   static displayName = 'Sidebar';
   static propTypes = {
-    databases: PropTypes.object.isRequired,
-    description: PropTypes.string.isRequired,
-    filterRegex: PropTypes.any.isRequired,
     instance: PropTypes.object.isRequired,
     isDetailsExpanded: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
     detailsPlugins: PropTypes.array.isRequired,
-    toggleDatabaseExpanded: PropTypes.func.isRequired,
-    changeDatabases: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
     isDataLake: PropTypes.bool.isRequired,
@@ -235,19 +230,15 @@ class Sidebar extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  databases: state.databases,
-  description: state.description,
-  detailsPlugins: state.detailsPlugins,
-  filterRegex: state.filterRegex,
   instance: state.instance,
-  isDblistExpanded: state.isDblistExpanded,
   isDetailsExpanded: state.isDetailsExpanded,
   isWritable: state.isWritable,
+  detailsPlugins: state.detailsPlugins,
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
   connectionModel: state.connectionModel,
-  isModalVisible: state.isModalVisible
+  isModalVisible: state.isModalVisible,
 });
 
 /**
@@ -259,7 +250,6 @@ const MappedSidebar = connect(
   {
     toggleIsDetailsExpanded,
     toggleIsGenuineMongoDBVisible,
-    toggleDatabaseExpanded,
     changeFilterRegex,
     openLink,
     globalAppRegistryEmit,

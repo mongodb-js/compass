@@ -63,7 +63,7 @@ export default function reducer(state = INITIAL_STATE, action) {
     return {
       ...state,
       filterRegex: action.filterRegex,
-      databases: filterDatabases(action.databases, action.filterRegex),
+      filteredDatabases: filterDatabases(state.databases, action.filterRegex),
       expandedDbList,
     };
   }
@@ -84,7 +84,8 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === CHANGE_DATABASES) {
     return {
       ...state,
-      databases: filterDatabases(action.databases, state.filterRegex),
+      databases: action.databases,
+      filteredDatabases: filterDatabases(action.databases, state.filterRegex),
     };
   }
   return state;
@@ -121,7 +122,7 @@ export const toggleDatabaseExpanded = (id, force) => (dispatch, getState) => {
   if (appRegistry.globalAppRegistry && expanded) {
     // Fetch collections list on expand if we haven't done it yet (this is
     // relevant only for the code path that has global overlay disabled)
-    appRegistry.globalAppRegistry.emit('expand-database', id);
+    appRegistry.globalAppRegistry.emit('sidebar-expand-database', id);
   }
   dispatch({ type: TOGGLE_DATABASE, id, expanded });
 };
@@ -134,10 +135,16 @@ export const toggleDatabaseExpanded = (id, force) => (dispatch, getState) => {
  * @returns {Object} The action.
  */
 export const changeFilterRegex = (filterRegex) => (dispatch, getState) => {
+  const { appRegistry } = getState();
+  if (appRegistry.globalAppRegistry && filterRegex) {
+    // When filtering, emit an event so that we can fetch all collections. This
+    // is required as a workaround for the syncronous nature of the current
+    // filtering feature
+    appRegistry.globalAppRegistry.emit('sidebar-filter-navigation-list');
+  }
   dispatch({
     type: CHANGE_FILTER_REGEX,
     filterRegex: filterRegex,
-    databases: getState().instance.databases,
   });
 };
 
