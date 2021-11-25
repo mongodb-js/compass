@@ -245,22 +245,24 @@ describe('instance-detail-helper', function () {
           'documentdb'
         );
       });
+      it(`should be identified as atlas with hostname correct hostnames`, function () {
+        ['myserver.mongodb.net', 'myserver.mongodb-dev.net'].map(
+          async (hostname) => {
+            const client = createMongoClientMock({
+              hosts: [{ host: hostname, port: 9999 }],
+              commands: {
+                buildInfo: {},
+                getCmdLineOpts: fixtures.DOCUMENTDB_CMD_LINE_OPTS,
+              },
+            });
 
-      ['myserver.mongodb.net', 'myserver.mongodb-dev.net'].map((hostname) => {
-        it(`should be identified as atlas with hostname ${hostname}`, async function () {
-          const client = createMongoClientMock({
-            hosts: [{ host: hostname, port: 9999 }],
-            commands: {
-              buildInfo: {},
-              getCmdLineOpts: fixtures.DOCUMENTDB_CMD_LINE_OPTS,
-            },
-          });
+            const instanceDetails = await getInstance(client);
 
-          const instanceDetails = await getInstance(client);
-
-          expect(instanceDetails).to.have.property('isAtlas', true);
-        });
+            expect(instanceDetails).to.have.property('isAtlas', true);
+          }
+        );
       });
+
       it(`should be identified as atlas when atlasVersion command is present`, async function () {
         const client = createMongoClientMock({
           hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
