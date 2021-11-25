@@ -149,11 +149,10 @@ function checkIsAtlas(
   client: MongoClient,
   atlasVersionInfo: AtlasVersionInfo
 ): boolean {
-  console.log(client.options.hosts);
   const firstHost = client.options.hosts[0]?.host || '';
 
   if (atlasVersionInfo.version === '') {
-    return /mongodb(-dev)?.net$/i.test(firstHost);
+    return /mongodb(-dev)?\.net$/i.test(firstHost);
   }
   return true;
 }
