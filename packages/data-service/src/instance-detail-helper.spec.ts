@@ -245,6 +245,51 @@ describe('instance-detail-helper', function () {
           'documentdb'
         );
       });
+
+      ['myserver.mongodb.net', 'myserver.mongodb-dev.net'].map((hostname) => {
+        it(`should be identified as atlas with hostname ${hostname}`, async function () {
+          const client = createMongoClientMock({
+            hosts: [{ host: hostname, port: 9999 }],
+            commands: {
+              buildInfo: {},
+              getCmdLineOpts: fixtures.DOCUMENTDB_CMD_LINE_OPTS,
+            },
+          });
+
+          const instanceDetails = await getInstance(client);
+
+          expect(instanceDetails).to.have.property('isAtlas', true);
+        });
+      });
+      it(`should be identified as atlas when atlasVersion command is present`, async function () {
+        const client = createMongoClientMock({
+          hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
+          commands: {
+            atlasVersion: { version: '1.1.1', gitVersion: '1.2.3' },
+            buildInfo: {},
+            getCmdLineOpts: fixtures.DOCUMENTDB_CMD_LINE_OPTS,
+          },
+        });
+
+        const instanceDetails = await getInstance(client);
+
+        expect(instanceDetails).to.have.property('isAtlas', true);
+      });
+
+      it(`should not be identified as atlas when atlasVersion command is missing`, async function () {
+        const client = createMongoClientMock({
+          hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
+          commands: {
+            atlasVersion: new Error('command not found'),
+            buildInfo: {},
+            getCmdLineOpts: fixtures.DOCUMENTDB_CMD_LINE_OPTS,
+          },
+        });
+
+        const instanceDetails = await getInstance(client);
+
+        expect(instanceDetails).to.have.property('isAtlas', false);
+      });
     });
   });
 
