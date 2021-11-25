@@ -41,6 +41,9 @@ const store = configureStore({
   globalAppRegistry: appRegistry,
   serverVersion: '4.4.0',
   env: 'adl',
+  isTimeSeries: false,
+  isReadonly: false,
+  sourceName: null,
   fields: [
     { name: 'harry',
       value: 'harry',

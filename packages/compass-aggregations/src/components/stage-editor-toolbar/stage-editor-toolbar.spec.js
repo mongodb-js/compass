@@ -35,6 +35,9 @@ describe('StageEditorToolbar [Component]', () => {
       <StageEditorToolbar
         stage=""
         env="atlas"
+        isReadonly={false}
+        isTimeSeries={false}
+        sourceName={null}
         connectDragSource={(reactNode) => reactNode}
         isEnabled
         isExpanded
@@ -50,6 +53,7 @@ describe('StageEditorToolbar [Component]', () => {
         isCommenting
         stageAddedAfter={stageAddedAfterSpy}
         stageDeleted={stageDeletedSpy}
+        sourceName={null}
       />
     );
   });

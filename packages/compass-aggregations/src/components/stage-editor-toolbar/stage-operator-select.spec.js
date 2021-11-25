@@ -12,6 +12,9 @@ describe('StageOperatorSelect [Component]', () => {
   beforeEach(() => {
     component = mount(
       <StageOperatorSelect
+        env="on-prem"
+        isTimeSeries={false}
+        isReadonly={false}
         index={0}
         isEnabled
         allowWrites

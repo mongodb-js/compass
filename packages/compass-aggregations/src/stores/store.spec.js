@@ -223,6 +223,7 @@ describe('Aggregation Store', () => {
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',
             env: INITIAL_STATE.env,
+            isTimeSeries: false,
             editViewName: null,
             sourceName: null,
             appRegistry: INITIAL_STATE.appRegistry,
