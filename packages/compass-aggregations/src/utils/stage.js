@@ -72,7 +72,7 @@ const isSupportedEnv = ({ oEnv, env }) => {
  * @property {String} oName - The stage name.
  * @property {Boolean} allowWrites - The allowWrites flag.
  *
- * @returns {boolean} If the stage is supported.
+ * @returns {boolean} If the stage is writable and allowed.
  */
 const isNotWritable = ({ oName, allowWrites }) => [OUT, MERGE].includes(oName) && !allowWrites;
 
@@ -80,7 +80,7 @@ const isNotWritable = ({ oName, allowWrites }) => [OUT, MERGE].includes(oName) &
  * Is the stage supported by the server?
  *
  * @param {Object} options - The stage min supported version and the server version to compare.
- * @property {Number} oVersion - The min supported version of the server that the stage supports.
+ * @property {Number} oVersion - The min version of the server that the stage supports.
  * @property {Number} version - The current server version.
  *
  * @returns {boolean} If the stage is supported by the server.
@@ -89,7 +89,7 @@ const isSupportedVersion = ({ oVersion, version }) => semver.gte(version, oVersi
 
 
 /**
- * Is search on a view or time-series collection?
+ * Is search on a view, time-series, or regular collection?
  *
  * @param {Object} options - The options to exclude the full-text search stages on views.
  * @property {String} oName - The stage name.
