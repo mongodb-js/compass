@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import jsBeautify from 'js-beautify';
 import PropTypes from 'prop-types';
-import Ace from 'react-ace';
 
+import 'ace-builds';
+import Ace from 'react-ace';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';

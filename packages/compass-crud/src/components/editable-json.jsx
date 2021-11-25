@@ -1,5 +1,4 @@
 import React from 'react';
-import Ace from 'react-ace';
 import PropTypes from 'prop-types';
 import EJSON from 'mongodb-extended-json';
 import jsBeautify from 'js-beautify';
@@ -8,6 +7,8 @@ import { TextButton } from 'hadron-react-buttons';
 import DocumentActions from './document-actions';
 import RemoveDocumentFooter from './remove-document-footer';
 
+import 'ace-builds';
+import Ace from 'react-ace';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';

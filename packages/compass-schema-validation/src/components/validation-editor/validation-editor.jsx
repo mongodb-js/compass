@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import AceEditor from 'react-ace';
 import 'ace-builds';
-import 'ace-builds/webpack-resolver';
+import AceEditor from 'react-ace';
 import { debounce } from 'lodash';
 import { ValidationAutoCompleter } from 'mongodb-ace-autocompleter';
 import { TextButton } from 'hadron-react-buttons';

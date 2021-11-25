@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import AceEditor from 'react-ace';
 import 'ace-builds';
-import 'ace-builds/webpack-resolver';
+import AceEditor from 'react-ace';
 import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
 
 import styles from './option-editor.module.less';
