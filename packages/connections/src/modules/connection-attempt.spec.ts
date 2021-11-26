@@ -35,24 +35,21 @@ describe('ConnectionAttempt Module', function () {
     });
 
     it('throws if connecting throws', async function () {
-      let rejectOnConnect;
       const connectionAttempt = createConnectionAttempt(() => {
         return new Promise((_, reject) => {
-          rejectOnConnect = reject;
+          reject(new Error('should have been thrown'));
         });
       });
 
-      const connectPromise = connectionAttempt
-        .connect({
+      try {
+        await connectionAttempt.connect({
           connectionString: 'mongodb://localhost:27017',
-        })
-        .catch((err) => err);
+        });
 
-      rejectOnConnect(new Error('should have been thrown'));
-
-      expect((await connectPromise).message).to.equal(
-        'should have been thrown'
-      );
+        expect(false, 'It should have errored');
+      } catch (err) {
+        expect(err.message).to.equal('should have been thrown');
+      }
     });
 
     it('after successfully connecting it disconnects when close is called', async function () {
