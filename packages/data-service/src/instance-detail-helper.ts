@@ -84,7 +84,9 @@ type DatabaseDetails = {
 
 export type InstanceDetails = {
   auth: {
-    user: ConnectionStatusWithPrivileges['authInfo']['authenticatedUsers'][number] | null;
+    user:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUsers'][number]
+      | null;
     roles: ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles'];
     privileges: ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges'];
   };
@@ -169,7 +171,9 @@ function buildDataLakeInfo(buildInfo: Partial<BuildInfo>): DataLakeDetails {
   };
 }
 
-function adaptAuthInfo(connectionStatus: ConnectionStatusWithPrivileges | null) {
+function adaptAuthInfo(
+  connectionStatus: ConnectionStatusWithPrivileges | null
+) {
   if (connectionStatus === null) {
     return { user: null, roles: [], privileges: [] };
   }
