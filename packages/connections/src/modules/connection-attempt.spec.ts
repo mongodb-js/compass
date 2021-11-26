@@ -35,11 +35,13 @@ describe('ConnectionAttempt Module', function () {
     });
 
     it('throws if connecting throws', async function () {
-      const connectionAttempt = createConnectionAttempt(() => {
-        return new Promise((_, reject) => {
-          reject(new Error('should have been thrown'));
-        });
-      });
+      const connectionAttempt = createConnectionAttempt(
+        async (): Promise<any> => {
+          await new Promise((resolve) => setTimeout(() => resolve(null), 5));
+
+          throw new Error('should have been thrown');
+        }
+      );
 
       try {
         await connectionAttempt.connect({
