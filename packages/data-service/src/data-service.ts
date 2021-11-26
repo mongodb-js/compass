@@ -55,7 +55,7 @@ import { ConnectionOptions } from './connection-options';
 import {
   adaptCollectionInfo,
   adaptDatabaseInfo,
-  getDatabasesAndCollectionsFromPrivileges,
+  getPrivilegesByDatabaseAndCollection,
   getInstance,
   InstanceDetails,
 } from './instance-detail-helper';
@@ -69,7 +69,7 @@ import {
 } from './types';
 
 import getPort from 'get-port';
-import { runCommand } from './run-command';
+import { ConnectionStatusWithPrivileges, runCommand } from './run-command';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -289,13 +289,40 @@ class DataService extends EventEmitter {
     return this._isMongos;
   }
 
+  async connectionStatus(): Promise<ConnectionStatusWithPrivileges> {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_100),
+      'Running connectionStatus'
+    );
+    try {
+      const adminDb = this._initializedClient.db('admin');
+      const result = await runCommand(adminDb, {
+        connectionStatus: 1,
+        showPrivileges: true,
+      });
+      logop(null);
+      return result;
+    } catch (e) {
+      logop(e);
+      throw e;
+    }
+  }
+
   /**
    * List all collections for a database.
    */
   async listCollections(
     databaseName: string,
     filter: Document = {},
-    { nameOnly }: { nameOnly?: true } = {}
+    {
+      nameOnly,
+      privileges = null,
+    }: {
+      nameOnly?: true;
+      privileges?:
+        | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+        | null;
+    } = {}
   ): Promise<ReturnType<typeof adaptCollectionInfo>[]> {
     const db = this._initializedClient.db(databaseName);
     const logop = this._startLogOp(
@@ -326,9 +353,15 @@ class DataService extends EventEmitter {
             );
             return [] as { name: string }[];
           }),
-        getDatabasesAndCollectionsFromPrivileges(this._initializedClient, [
-          'find',
-        ]).then((databases) => {
+        (privileges
+          ? Promise.resolve(privileges)
+          : this.connectionStatus().then(
+              (status) => status.authInfo.authenticatedUserPrivileges
+            )
+        ).then((privileges) => {
+          const databases = getPrivilegesByDatabaseAndCollection(privileges, [
+            'find',
+          ]);
           return Object.keys(
             // Privileges might not have a database we are looking for
             databases[databaseName] || {}
@@ -364,8 +397,12 @@ class DataService extends EventEmitter {
    */
   async listDatabases({
     nameOnly,
+    privileges = null,
   }: {
     nameOnly?: true;
+    privileges?:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+      | null;
   } = {}): Promise<ReturnType<typeof adaptDatabaseInfo>[]> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_033),
@@ -396,13 +433,19 @@ class DataService extends EventEmitter {
           );
           return { databases: [] };
         }),
-        // If we somehow failed to get user privileges to get a fallback for the
-        // databases/collections, we do want to hard fail, there is no good
-        // reason this command will ever fail, unless server is in a bad shape
-        // or we messed something up
-        getDatabasesAndCollectionsFromPrivileges(this._initializedClient, [
-          'find',
-        ]).then((databases) => {
+        (privileges
+          ? Promise.resolve(privileges)
+          : // If we somehow failed to get user privileges to get a fallback for the
+            // databases/collections, we do want to hard fail, there is no good
+            // reason this command will ever fail, unless server is in a bad shape
+            // or we messed something up
+            this.connectionStatus().then(
+              (status) => status.authInfo.authenticatedUserPrivileges
+            )
+        ).then((privileges) => {
+          const databases = getPrivilegesByDatabaseAndCollection(privileges, [
+            'find',
+          ]);
           return {
             databases: Object.keys(databases)
               .filter(

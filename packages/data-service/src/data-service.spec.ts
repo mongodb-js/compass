@@ -1363,6 +1363,7 @@ describe('DataService', function () {
             listDatabases: {
               databases: [{ name: 'foo' }, { name: 'bar' }],
             },
+            connectionStatus: { authInfo: { authenticatedUserPrivileges: [] } },
           },
         });
         const dbs = (await dataService.listDatabases()).map((db) => db.name);
@@ -1463,6 +1464,9 @@ describe('DataService', function () {
     describe('#listCollections', function () {
       it('returns collections for a database', async function () {
         const dataService = createDataServiceWithMockedClient({
+          commands: {
+            connectionStatus: { authInfo: { authenticatedUserPrivileges: [] } },
+          },
           collections: {
             buz: ['foo', 'bar'],
           },
