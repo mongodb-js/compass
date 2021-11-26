@@ -71,7 +71,9 @@ async function main() {
 
     try {
       resolvedPath = await fs.realpath(require.resolve(pkgName));
-    } catch (e) {}
+    } catch (e) {
+      //
+    }
 
     if (!resolvedPath) {
       continue;
@@ -113,7 +115,9 @@ async function main() {
 
           await runInDir(`npm run ${maybeRebuildScript}`, packagePath);
           total++;
-        } catch (e) {}
+        } catch (e) {
+          //
+        }
       }
 
       if (hasPrebuildInstall) {
@@ -126,7 +130,9 @@ async function main() {
 
           await runInDir(`node ${bin}`, packagePath);
           total++;
-        } catch (e) {}
+        } catch (e) {
+          //
+        }
       }
 
       const bin = nodeGypBin || (await getBinPath('node-gyp', packagePath));

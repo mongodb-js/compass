@@ -80,6 +80,7 @@ async function runCommandForPackages(command, packages) {
 async function runUntilDone(command, packages) {
   packages = [...packages];
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const { passed, failed } = await runCommandForPackages(command, packages);
 

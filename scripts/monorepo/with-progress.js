@@ -1,7 +1,7 @@
 const ora = require('ora');
 
 async function withProgress(text, fn, ...args) {
-  spinner = ora(text).start();
+  const spinner = ora(text).start();
   try {
     const result = await fn.call(spinner, ...args);
     spinner.succeed();

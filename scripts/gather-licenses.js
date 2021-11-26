@@ -1,7 +1,6 @@
 const { promises : fs } = require('fs');
 const path = require('path');
 const { createRequire } = require('module');
-const pkgUp = require('pkg-up');
 const findUp = require('find-up');
 const crypto = require('crypto');
 const util = require('util');

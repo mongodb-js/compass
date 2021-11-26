@@ -444,7 +444,7 @@ process.on('unhandledRejection', (err) => {
 });
 
 function parseOptions() {
-  args = require('minimist')(process.argv.slice(2));
+  const args = require('minimist')(process.argv.slice(2));
 
   if (typeof args.type === 'string') {
     args.type = args.type.split(',');

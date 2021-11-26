@@ -13,7 +13,9 @@ http.createServer((req, res) => {
     .on('end', () => {
       try {
         body = JSON.parse(body);
-      } catch {}
+      } catch {
+        //
+      }
       console.dir({ headers: req.headers, body }, { depth: Infinity });
       res.writeHead(200);
       res.end('Ok\n');

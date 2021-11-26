@@ -32,7 +32,7 @@ async function filterPackagesByExpression(expression) {
   return (
     await forEachPackage(({ packageJson }) => {
       try {
-        return Boolean(runInContext(expression, createContext(packageJson)))
+        return runInContext(expression, createContext(packageJson))
           ? packageJson.name
           : false;
       } catch (e) {
