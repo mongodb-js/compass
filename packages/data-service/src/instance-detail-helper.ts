@@ -83,6 +83,11 @@ type DatabaseDetails = {
 };
 
 export type InstanceDetails = {
+  auth: {
+    user: ConnectionStatusWithPrivileges['authInfo']['authenticatedUsers'][number] | null;
+    roles: ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles'];
+    privileges: ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges'];
+  };
   build: BuildInfoDetails;
   host: HostInfoDetails;
   genuineMongoDB: GenuineMongoDBDetails;
@@ -96,11 +101,16 @@ export async function getInstance(
   const adminDb = client.db('admin');
 
   const [
+    connectionStatus,
     getCmdLineOptsResult,
     hostInfoResult,
     buildInfoResult,
     getParameterResult,
   ] = await Promise.all([
+    runCommand(adminDb, { connectionStatus: 1, showPrivileges: true }).catch(
+      ignoreNotAuthorized(null)
+    ),
+
     runCommand(adminDb, { getCmdLineOpts: 1 }).catch((err) => {
       /**
        * This is something that mongodb-build-info uses to detect some
@@ -125,6 +135,7 @@ export async function getInstance(
   ]);
 
   return {
+    auth: adaptAuthInfo(connectionStatus),
     build: adaptBuildInfo(buildInfoResult),
     host: adaptHostInfo(hostInfoResult),
     genuineMongoDB: buildGenuineMongoDBInfo(
@@ -158,9 +169,27 @@ function buildDataLakeInfo(buildInfo: Partial<BuildInfo>): DataLakeDetails {
   };
 }
 
+function adaptAuthInfo(connectionStatus: ConnectionStatusWithPrivileges | null) {
+  if (connectionStatus === null) {
+    return { user: null, roles: [], privileges: [] };
+  }
+
+  const {
+    authenticatedUsers,
+    authenticatedUserRoles,
+    authenticatedUserPrivileges,
+  } = connectionStatus.authInfo;
+
+  return {
+    user: authenticatedUsers[0] ?? null,
+    roles: authenticatedUserRoles,
+    privileges: authenticatedUserPrivileges,
+  };
+}
+
 type DatabaseCollectionPrivileges = Record<string, Record<string, string[]>>;
 
-export function extractPrivilegesByDatabaseAndCollection(
+export function getPrivilegesByDatabaseAndCollection(
   authenticatedUserPrivileges:
     | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
     | null = null,
@@ -201,24 +230,6 @@ export function extractPrivilegesByDatabaseAndCollection(
   }
 
   return result;
-}
-
-type DatabasesAndCollectionsNames = Record<string, Record<string, string[]>>;
-
-export async function getDatabasesAndCollectionsFromPrivileges(
-  client: MongoClient,
-  requiredActions: string[] | null = null
-): Promise<DatabasesAndCollectionsNames> {
-  const adminDb = client.db('admin');
-  const connectionStatus = await runCommand(adminDb, {
-    connectionStatus: 1,
-    showPrivileges: true,
-  }).catch(ignoreNotAuthorized(null));
-
-  return extractPrivilegesByDatabaseAndCollection(
-    connectionStatus?.authInfo.authenticatedUserPrivileges,
-    requiredActions
-  );
 }
 
 function isNotAuthorized(err: AnyError) {
