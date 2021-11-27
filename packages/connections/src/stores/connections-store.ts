@@ -1,13 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 import {
   ConnectionInfo,
+  ConnectionOptions,
   DataService,
   getConnectionTitle,
 } from 'mongodb-data-service';
-import { ConnectionAttempt } from '../modules/connection-attempt';
 import { useEffect, useReducer, useRef } from 'react';
 import debugModule from 'debug';
+
 import { createConnectionAttempt } from '../modules/connection-attempt';
+import { ConnectionAttempt } from '../modules/connection-attempt';
 
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
@@ -22,6 +24,7 @@ export function createNewConnectionInfo(): ConnectionInfo {
 
 export interface ConnectionStore {
   loadAll: () => Promise<ConnectionInfo[]>;
+  save: (connectionInfo: ConnectionInfo) => Promise<void>;
 }
 
 type State = {
@@ -32,6 +35,7 @@ type State = {
   connectionErrorMessage: string | null;
   connections: ConnectionInfo[];
   isConnected: boolean;
+  storeConnectionError: string | null;
 };
 
 export function defaultConnectionsState(): State {
@@ -43,6 +47,7 @@ export function defaultConnectionsState(): State {
     connectionAttempt: null,
     connectionErrorMessage: null,
     isConnected: false,
+    storeConnectionError: null,
   };
 }
 
@@ -72,6 +77,13 @@ type Action =
       connectionInfo: ConnectionInfo;
     }
   | {
+      type: 'store-connection-error';
+      errorMessage: string;
+    }
+  | {
+      type: 'hide-store-connection-error';
+    }
+  | {
       type: 'set-connections';
       connections: ConnectionInfo[];
     };
@@ -84,6 +96,7 @@ export function connectionsReducer(state: State, action: Action): State {
         connectionAttempt: action.connectionAttempt,
         connectingStatusText: action.connectingStatusText,
         connectionErrorMessage: null,
+        storeConnectionError: null,
       };
     case 'cancel-connection-attempt':
       return {
@@ -114,6 +127,16 @@ export function connectionsReducer(state: State, action: Action): State {
         ...state,
         activeConnectionId: action.connectionInfo.id,
         activeConnectionInfo: action.connectionInfo,
+      };
+    case 'store-connection-error':
+      return {
+        ...state,
+        storeConnectionError: action.errorMessage,
+      };
+    case 'hide-store-connection-error':
+      return {
+        ...state,
+        storeConnectionError: null,
       };
     case 'set-connections':
       return {
@@ -149,13 +172,15 @@ export function useConnections(
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => Promise<void>,
-  connectionStorage: ConnectionStore
+  connectionStorage: ConnectionStore,
+  connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>
 ): [
   State,
   {
     cancelConnectionAttempt(): void;
     connect(connectionInfo: ConnectionInfo): Promise<void>;
     createNewConnection(): void;
+    hideStoreConnectionError(): void;
     setActiveConnectionById(newConnectionId?: string | undefined): void;
   }
 ] {
@@ -169,14 +194,59 @@ export function useConnections(
   const connectedConnectionInfo = useRef<ConnectionInfo>();
   const connectedDataService = useRef<DataService>();
 
+  async function saveConnectionInfo(connectionInfo: ConnectionInfo) {
+    try {
+      await connectionStorage.save(connectionInfo);
+
+      debug(`saved connection with id ${connectionInfo.id || ''}`);
+    } catch (err) {
+      debug(
+        `error saving connection with id ${connectionInfo.id || ''}: ${
+          (err as Error).message
+        }`
+      );
+
+      dispatch({
+        type: 'store-connection-error',
+        errorMessage: (err as Error).message,
+      });
+    }
+  }
+
+  async function onConnectSuccess(
+    connectionInfo: ConnectionInfo,
+    dataService: DataService
+  ) {
+    // After connecting and the UI is updated we notify the rest of Compass.
+    try {
+      await onConnected(connectionInfo, dataService);
+    } catch (err) {
+      debug(
+        `error occurred connection with id ${connectionInfo.id || ''}: ${
+          (err as Error).message
+        }`
+      );
+
+      dispatch({
+        type: 'store-connection-error',
+        errorMessage: `Error handling connection success: ${
+          (err as Error).message
+        }`,
+      });
+    }
+  }
+
   useEffect(() => {
     if (
       isConnected &&
       connectedConnectionInfo.current &&
       connectedDataService.current
     ) {
-      // After connecting and the UI is updated we notify the rest of Compass.
-      void onConnected(
+      // Update lastUsed date as now and save the connection.
+      connectedConnectionInfo.current.lastUsed = new Date();
+      void saveConnectionInfo(connectedConnectionInfo.current);
+
+      void onConnectSuccess(
         connectedConnectionInfo.current,
         connectedDataService.current
       );
@@ -215,7 +285,7 @@ export function useConnections(
           return;
         }
 
-        const newConnectionAttempt = createConnectionAttempt();
+        const newConnectionAttempt = createConnectionAttempt(connectFn);
         connectingConnectionAttempt.current = newConnectionAttempt;
 
         dispatch({
@@ -256,7 +326,7 @@ export function useConnections(
 
           dispatch({
             type: 'connection-attempt-errored',
-            connectionErrorMessage: error.message,
+            connectionErrorMessage: (error as Error).message,
           });
         }
       },
@@ -264,6 +334,11 @@ export function useConnections(
         dispatch({
           type: 'new-connection',
           connectionInfo: createNewConnectionInfo(),
+        });
+      },
+      hideStoreConnectionError() {
+        dispatch({
+          type: 'hide-store-connection-error',
         });
       },
       setActiveConnectionById(newConnectionId: string) {
