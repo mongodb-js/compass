@@ -156,7 +156,7 @@ describe('connection tracking', function () {
   it('tracks a new connection event - public cloud', async function () {
     const connectionInfo = {
       connectionOptions: {
-        connectionString: 'mongodb://cluster0.e06dc.azure.mongodb.net',
+        connectionString: 'mongodb://13.248.118.1',
       },
     } as ConnectionInfo;
 
@@ -170,7 +170,7 @@ describe('connection tracking', function () {
       is_public_cloud: true,
       is_do_url: false,
       is_atlas_url: false,
-      public_cloud_name: 'AZURE',
+      public_cloud_name: 'AWS',
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
