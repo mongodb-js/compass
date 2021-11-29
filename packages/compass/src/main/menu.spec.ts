@@ -128,6 +128,24 @@ describe('CompassMenu', function () {
             type: 'separator',
           },
           {
+            checked: true,
+            label: 'Use OS Theme (Preview)',
+            type: 'checkbox',
+          },
+          {
+            checked: false,
+            label: 'Dark Theme (Preview)',
+            type: 'checkbox',
+          },
+          {
+            checked: false,
+            label: 'Light Theme',
+            type: 'checkbox',
+          },
+          {
+            type: 'separator',
+          },
+          {
             accelerator: 'Alt+CmdOrCtrl+I',
             label: '&Toggle DevTools',
           },
