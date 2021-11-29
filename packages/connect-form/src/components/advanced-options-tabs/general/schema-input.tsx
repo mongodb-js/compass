@@ -7,12 +7,12 @@ import {
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
+import { defaultHostname } from '../../../constants/default-connection';
+
 enum MONGODB_SCHEMA {
   MONGODB = 'MONGODB',
   MONGODB_SRV = 'MONGODB_SRV',
 }
-
-const defaultSRVHost = 'localhost';
 
 const regularSchemaDescription =
   'Standard Connection String Format. The standard format of the MongoDB connection URI is used to connect to a MongoDB deployment: standalone, replica set, or a sharded cluster.';
@@ -57,7 +57,7 @@ function updateConnectionStringToSRV(
             ? undefined
             : newConnectionStringUrl.hosts[0].indexOf(':')
         )
-      : defaultSRVHost;
+      : defaultHostname;
   newConnectionStringUrl.hosts = [newHost];
 
   const newConnectionString = newConnectionStringUrl.toString();

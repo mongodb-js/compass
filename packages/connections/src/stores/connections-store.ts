@@ -215,8 +215,6 @@ export function useConnections(
           return;
         }
 
-        console.log('connect with info', connectionInfo);
-
         const newConnectionAttempt = createConnectionAttempt();
         connectingConnectionAttempt.current = newConnectionAttempt;
 

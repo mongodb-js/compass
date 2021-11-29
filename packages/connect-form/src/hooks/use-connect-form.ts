@@ -2,6 +2,7 @@ import { useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 
+import { defaultConnectionString } from '../constants/default-connection';
 export interface ConnectFormFields {
   hosts: {
     value: string[];
@@ -9,11 +10,6 @@ export interface ConnectFormFields {
     error: null | string;
   };
   // isSRV: {
-  //   value: boolean;
-  //   // warning: null | string,
-  //   // error: null | string
-  // };
-  // directConnection: {
   //   value: boolean;
   //   // warning: null | string,
   //   // error: null | string
@@ -102,12 +98,6 @@ export function parseConnectFormFieldStateFromConnectionUrl(
     //   // warning: null,
     //   // error: null
     // },
-    // directConnection: {
-    //   value:
-    //     connectionStringUrl.searchParams.get('directConnection') === 'true',
-    //   // warning: null,
-    //   // error: null
-    // },
   };
 }
 
@@ -115,10 +105,7 @@ function parseConnectFormStateFromOptions(
   initialConnectionOptions: ConnectionOptions
 ): ConnectFormState {
   let connectionStringInvalidError = null;
-  // TODO: Have a default connection string variable somewhere.
-  let connectionStringUrl = new ConnectionStringUrl(
-    'mongodb://localhost:27017'
-  );
+  let connectionStringUrl = new ConnectionStringUrl(defaultConnectionString);
   try {
     connectionStringUrl = new ConnectionStringUrl(
       initialConnectionOptions.connectionString
@@ -142,12 +129,10 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
     setConnectionField: SetConnectionField;
   }
 ] {
-  // TODO: Try to validate connection string - if invalid disable options?
   const [state, dispatch] = useReducer(
     connectFormReducer,
     parseConnectFormStateFromOptions(initialConnectionOptions)
   );
-  // console.log('the state', state);
 
   useEffect(() => {
     // When the initial connection options change, like a different
@@ -175,8 +160,6 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
         });
       },
       setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => {
-        console.log('setConnectionStringUrl', connectionStringUrl);
-        console.log('setConnectionStringUrl', connectionStringUrl.toString());
         const fields =
           parseConnectFormFieldStateFromConnectionUrl(connectionStringUrl);
 

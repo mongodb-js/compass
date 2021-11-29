@@ -13,6 +13,10 @@ import {
   ConnectFormFields,
   SetConnectionField,
 } from '../../../hooks/use-connect-form';
+import {
+  defaultHostname,
+  defaultPort,
+} from '../../../constants/default-connection';
 
 const hostInputContainerStyles = css({
   display: 'flex',
@@ -29,9 +33,6 @@ const hostInputStyles = css({
 const hostActionButtonStyles = css({
   marginLeft: spacing[1],
 });
-
-const defaultHostname = 'localhost';
-const defaultPort = 27017;
 
 const invalidHostCharacterRegex = /[@]/;
 const invalidSrvHostnameCharacterRegex = /[:@,]/;
