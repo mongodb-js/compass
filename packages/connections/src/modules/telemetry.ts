@@ -1,17 +1,39 @@
 import { ConnectionInfo, DataService } from 'mongodb-data-service';
-import { createLoggerAndTelemetry, TrackFunction } from '@mongodb-js/compass-logging';
+import {
+  createLoggerAndTelemetry,
+  TrackFunction,
+} from '@mongodb-js/compass-logging';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 
-const { track: telemetryTrack, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
+const { track: telemetryTrack, debug } =
+  createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
-async function getConnectionData({
-  connectionOptions: { connectionString, sshTunnel },
-}: ConnectionInfo): Promise<Record<string, unknown>> {
-  const connectionStringData = new ConnectionString(connectionString);
-  const hostName = connectionStringData.hosts[0];
-  const { isAws, isAzure, isGcp } = await getCloudInfo(hostName).catch(
+async function getHostInformation(host: string) {
+  const defaultValues = {
+    is_localhost: false,
+    is_public_cloud: false,
+    is_do_url: false,
+    is_atlas_url: false,
+    public_cloud_name: '',
+  };
+
+  if (isLocalhost(host)) {
+    return {
+      ...defaultValues,
+      is_localhost: true,
+    };
+  }
+
+  if (isDigitalOcean(host)) {
+    return {
+      ...defaultValues,
+      is_do_url: true,
+    };
+  }
+
+  const { isAws, isAzure, isGcp } = await getCloudInfo(host).catch(
     (err: Error) => {
       debug('getCloudInfo failed', err);
       return {};
@@ -25,6 +47,22 @@ async function getConnectionData({
     : isGcp
     ? 'GCP'
     : '';
+
+  return {
+    is_localhost: false,
+    is_public_cloud: !!isPublicCloud,
+    is_do_url: false,
+    is_atlas_url: isAtlas(host),
+    public_cloud_name: publicCloudName,
+  };
+}
+
+async function getConnectionData({
+  connectionOptions: { connectionString, sshTunnel },
+}: ConnectionInfo): Promise<Record<string, unknown>> {
+  const connectionStringData = new ConnectionString(connectionString);
+  const hostName = connectionStringData.hosts[0];
+
   const authMechanism = connectionStringData.searchParams.get('authMechanism');
   const authType = authMechanism
     ? authMechanism
@@ -33,21 +71,17 @@ async function getConnectionData({
     : 'NONE';
 
   return {
-    is_localhost: isLocalhost(hostName),
-    is_public_cloud: !!isPublicCloud,
-    is_do_url: isDigitalOcean(hostName),
-    is_atlas_url: isAtlas(hostName),
-    public_cloud_name: publicCloudName,
+    ...(await getHostInformation(hostName)),
     auth_type: authType.toUpperCase(),
     tunnel: sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,
   };
 }
 
-export function trackConnectionAttemptEvent({
-  favorite,
-  lastUsed,
-}: ConnectionInfo, track: TrackFunction = telemetryTrack): void {
+export function trackConnectionAttemptEvent(
+  { favorite, lastUsed }: ConnectionInfo,
+  track: TrackFunction = telemetryTrack
+): void {
   try {
     const trackEvent = {
       is_favorite: Boolean(favorite),
@@ -62,7 +96,8 @@ export function trackConnectionAttemptEvent({
 
 export function trackNewConnectionEvent(
   connectionInfo: ConnectionInfo,
-  dataService: DataService
+  dataService: Pick<DataService, 'instance'>,
+  track: TrackFunction = telemetryTrack
 ): void {
   try {
     const callback = async () => {
@@ -87,7 +122,7 @@ export function trackNewConnectionEvent(
       };
       return trackEvent;
     };
-    telemetryTrack('New Connection', callback);
+    track('New Connection', callback);
   } catch (error) {
     debug('trackNewConnectionEvent failed', error);
   }
@@ -95,7 +130,8 @@ export function trackNewConnectionEvent(
 
 export function trackConnectionFailedEvent(
   connectionInfo: ConnectionInfo,
-  connectionError: any
+  connectionError: any,
+  track: TrackFunction = telemetryTrack
 ): void {
   try {
     const callback = async () => {
@@ -107,7 +143,7 @@ export function trackConnectionFailedEvent(
       };
       return trackEvent;
     };
-    telemetryTrack('Connection Failed', callback);
+    track('Connection Failed', callback);
   } catch (error) {
     debug('trackConnectionFailedEvent failed', error);
   }
