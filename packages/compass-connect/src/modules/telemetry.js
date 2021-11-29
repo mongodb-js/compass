@@ -1,5 +1,5 @@
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { isLocalhost, isDigitalOcean } from 'mongodb-build-info';
+import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 
@@ -25,7 +25,8 @@ async function getConnectionData(connectionInfo) {
   return {
     is_localhost: isLocalhost(hostName),
     is_public_cloud: !!isPublicCloud,
-    is_do: isDigitalOcean(hostName),
+    is_do_url: isDigitalOcean(hostName),
+    is_atlas_url: isAtlas(hostName),
     public_cloud_name: publicCloudName,
     auth_type: authType.toUpperCase(),
     tunnel: sshTunnel ? 'ssh' : 'none',
@@ -55,12 +56,12 @@ export function trackNewConnectionEvent(connectionInfo, dataService) {
         genuineMongoDB,
         host,
         build,
-        isAtlas,
+        isAtlas: isAtlasInstance,
       } = await dataService.instance();
       const connectionData = await getConnectionData(connectionInfo);
       const trackEvent = {
         ...connectionData,
-        is_atlas: isAtlas,
+        is_atlas: isAtlasInstance,
         is_dataLake: dataLake.isDataLake,
         is_enterprise: build.isEnterprise,
         is_genuine: genuineMongoDB.isGenuine,

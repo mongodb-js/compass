@@ -5,6 +5,7 @@ import type { Writable } from 'stream';
 import type { HadronIpcRenderer } from 'hadron-ipc';
 
 type TrackProps = Record<string, any> | (() => Record<string, any>);
+export type TrackFunction = (event: string, properties?: TrackProps) => void;
 
 function emit(
   ipc: HadronIpcRenderer | null,
@@ -23,7 +24,7 @@ export function createLoggerAndTelemetry(component: string): {
   log: ReturnType<MongoLogWriter['bindComponent']>;
   mongoLogId: typeof mongoLogId;
   debug: ReturnType<typeof createDebug>;
-  track: (event: string, properties?: TrackProps) => void;
+  track: TrackFunction;
 } {
   // This application may not be running in an Node.js/Electron context.
   const ipc: HadronIpcRenderer | null = isElectronRenderer
