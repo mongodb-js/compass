@@ -51,6 +51,9 @@ function createPipelineWorkspace({
   allowWrites = false,
   pipeline = [],
   env = 'atlas',
+  isTimeSeries = false,
+  isReadonly = false,
+  sourceName = null,
   toggleInputDocumentsCollapsed = () => {},
   refreshInputDocuments = () => {},
   stageAdded = () => {},
@@ -81,6 +84,9 @@ function createPipelineWorkspace({
     allowWrites={allowWrites}
     pipeline={pipeline}
     env={env}
+    isTimeSeries={isTimeSeries}
+    isReadonly={isReadonly}
+    sourceName={sourceName}
     toggleInputDocumentsCollapsed={toggleInputDocumentsCollapsed}
     refreshInputDocuments={refreshInputDocuments}
     stageAdded={stageAdded}
@@ -111,12 +117,25 @@ function createPipelineWorkspace({
 
 describe('PipelineWorkspace [Component]', () => {
   it('renders', () => {
-    mount(createPipelineWorkspace());
+    mount(createPipelineWorkspace({
+      inputDocuments: {
+        documents: [],
+        isLoading: false,
+        isExpanded: true,
+        count: 0
+      }
+    }));
   });
 
   it('renders the stages contained in the pipeline', () => {
     const wrapper = mount(createPipelineWorkspace({
-      pipeline: PIPELINE_1
+      pipeline: PIPELINE_1,
+      inputDocuments: {
+        documents: [],
+        isLoading: false,
+        isExpanded: true,
+        count: 0
+      }
     }));
     expect(wrapper.find(Stage)).to.have.lengthOf(2);
   });

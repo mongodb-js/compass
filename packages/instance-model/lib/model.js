@@ -52,6 +52,14 @@ function removeListenersRec(model) {
   }
 }
 
+const AuthInfo = AmpersandModel.extend({
+  props: {
+    user: { type: 'object', default: null },
+    roles: { type: 'array', default: null },
+    privileges: { type: 'array', default: null },
+  },
+});
+
 const HostInfo = AmpersandModel.extend({
   props: {
     arch: 'string',
@@ -105,14 +113,9 @@ const InstanceModel = AmpersandModel.extend(
       databasesStatusError: { type: 'string', default: null },
       refreshingStatus: { type: 'string', default: 'initial' },
       refreshingStatusError: { type: 'string', default: null },
+      isAtlas: { type: 'boolean', default: false }
     },
     derived: {
-      isAtlas: {
-        deps: ['hostname'],
-        fn() {
-          return /mongodb.net$/i.test(this.hostname);
-        },
-      },
       isRefreshing: {
         deps: ['refreshingStatus'],
         fn() {
@@ -125,6 +128,7 @@ const InstanceModel = AmpersandModel.extend(
       build: BuildInfo,
       genuineMongoDB: GenuineMongoDB,
       dataLake: DataLake,
+      auth: AuthInfo,
     },
     collections: {
       databases: MongoDbDatabaseCollection,
@@ -180,13 +184,14 @@ const InstanceModel = AmpersandModel.extend(
       });
 
       try {
-        // First fetch instance info and databases list, these are the essentials
-        // that we need to make Compass somewhat usable
-        await Promise.all([
-          this.fetch({ dataService }),
-          shouldRefresh(this.databasesStatus, fetchDatabases) &&
-            this.fetchDatabases({ dataService }),
-        ]);
+        // First fetch instance info ...
+        await this.fetch({ dataService });
+
+        // ... and databases list. These are the essentials that we need to make
+        // Compass somewhat usable
+        if (shouldRefresh(this.databasesStatus, fetchDatabases)) {
+          await this.fetchDatabases({ dataService })
+        }
 
         // Then collection list for every database, namespace is the main thing
         // needed to be able to interact with any collection related tab

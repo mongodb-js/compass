@@ -40,6 +40,9 @@ class Stage extends Component {
   static propTypes = {
     allowWrites: PropTypes.bool.isRequired,
     env: PropTypes.string.isRequired,
+    isTimeSeries: PropTypes.bool.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
+    sourceName: PropTypes.string,
     connectDragSource: PropTypes.func.isRequired,
     stage: PropTypes.string.isRequired,
     stageOperator: PropTypes.string,
@@ -136,6 +139,9 @@ class Stage extends Component {
           allowWrites={this.props.allowWrites}
           connectDragSource={this.props.connectDragSource}
           env={this.props.env}
+          isTimeSeries={this.props.isTimeSeries}
+          isReadonly={this.props.isReadonly}
+          sourceName={this.props.sourceName}
           isExpanded={this.props.isExpanded}
           isEnabled={this.props.isEnabled}
           stageOperator={this.props.stageOperator}

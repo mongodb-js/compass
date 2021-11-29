@@ -2,7 +2,6 @@ import schemaStats from 'mongodb-schema/lib/stats';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 
-const ATLAS = /mongodb.net[:/]/i;
 const LOCALHOST = /(^localhost)|(^127\.0\.0\.1)/gi;
 
 async function getCloudInfoFromDataService(dataService) {
@@ -83,7 +82,7 @@ const RULES = [
         'server name': state.instance.genuineMongoDB === undefined ? 'mongodb' : state.instance.genuineMongoDB.dbType,
         'is data lake': state.instance.dataLake === undefined ? false : state.instance.dataLake.isDataLake,
         'data lake version': state.instance.dataLake === undefined ? null : state.instance.dataLake.version,
-        is_atlas: !!state.instance._id.match(ATLAS),
+        is_atlas: state.instance.isAtlas,
         is_localhost: !!state.instance._id.match(LOCALHOST),
         compass_version: version,
         ...cloudInfo

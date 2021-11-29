@@ -17,6 +17,9 @@ class StageOperatorSelect extends PureComponent {
   static propTypes = {
     allowWrites: PropTypes.bool.isRequired,
     env: PropTypes.string.isRequired,
+    isTimeSeries: PropTypes.bool.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
+    sourceName: PropTypes.string,
     stageOperator: PropTypes.string,
     index: PropTypes.number.isRequired,
     isEnabled: PropTypes.bool.isRequired,
@@ -47,11 +50,14 @@ class StageOperatorSelect extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const operators = filterStageOperators(
-      this.props.serverVersion,
-      this.props.allowWrites,
-      this.props.env
-    );
+    const operators = filterStageOperators({
+      serverVersion: this.props.serverVersion,
+      allowWrites: this.props.allowWrites,
+      env: this.props.env,
+      isTimeSeries: this.props.isTimeSeries,
+      isReadonly: this.props.isReadonly,
+      sourceName: this.props.sourceName
+    });
     return (
       <div className={styles['stage-operator-select']}>
         <Select

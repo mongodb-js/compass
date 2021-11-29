@@ -141,8 +141,8 @@ describe('LegacyConnectionModel', function () {
           'authSource=admin&readPreference=primary&directConnection=true' +
           '&ssl=true' +
           '&tlsCAFile=pathToCaFile' +
+          '&tlsCertificateFile=pathToCertKey1' +
           '&tlsCertificateKeyFile=pathToCertKey2',
-        tlsCertificateFile: 'pathToCertKey1',
       });
     });
 
@@ -171,8 +171,8 @@ describe('LegacyConnectionModel', function () {
           '&tlsAllowInvalidCertificates=true' +
           '&tlsAllowInvalidHostnames=true' +
           '&tlsCAFile=pathToCaFile' +
+          '&tlsCertificateFile=pathToCertKey1' +
           '&tlsCertificateKeyFile=pathToCertKey2',
-        tlsCertificateFile: 'pathToCertKey1',
       });
     });
 
@@ -678,8 +678,7 @@ describe('LegacyConnectionModel', function () {
       const connectionModel = await convertConnectionInfoToModel({
         connectionOptions: {
           connectionString:
-            'mongodb://user@localhost:27017/?ssl=true&tlsCAFile=tlsCAFilePath&tlsCertificateKeyFile=sslKeyPath',
-          tlsCertificateFile: 'sslCertPath',
+            'mongodb://user@localhost:27017/?ssl=true&tlsCAFile=tlsCAFilePath&tlsCertificateKeyFile=sslKeyPath&tlsCertificateFile=sslCertPath',
         },
       });
 

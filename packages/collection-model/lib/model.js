@@ -83,6 +83,15 @@ function propagateCollectionEvents(namespace) {
   };
 }
 
+function getParentByType(model, type) {
+  const parent = getParent(model);
+  return parent
+    ? parent.modelType === type
+      ? parent
+      : getParentByType(parent, type)
+    : null;
+}
+
 function pickCollectionInfo({
   readonly,
   view_on,
@@ -266,18 +275,26 @@ const CollectionCollection = AmpersandCollection.extend(
      * @returns {Promise<void>}
      */
     async fetch({ dataService, fetchInfo = true }) {
-      const databaseName = this.parent && this.parent.getId();
+      const databaseName = getParentByType(this, 'Database')?.getId();
 
       if (!databaseName) {
         throw new Error(
-          "Trying to fetch MongoDBCollectionCollection that doesn't have the parent model"
+          `Trying to fetch ${this.modelType} that doesn't have the Database parent model`
+        );
+      }
+
+      const instanceModel = getParentByType(this, 'Instance');
+
+      if (!instanceModel) {
+        throw new Error(
+          `Trying to fetch ${this.modelType} that doesn't have the Instance parent model`
         );
       }
 
       const collections = await dataService.listCollections(
         databaseName,
         {},
-        { nameOnly: !fetchInfo }
+        { nameOnly: !fetchInfo, privileges: instanceModel.auth.privileges }
       );
 
       this.set(

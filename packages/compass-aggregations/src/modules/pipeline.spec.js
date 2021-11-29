@@ -404,7 +404,7 @@ describe('pipeline module', () => {
         isEnabled: true, executor: { $sort: { name: 1 }},
         enabled: true, stageOperator: '$sort', stage: '{name: 1}'
       };
-      const state = {inputDocuments: { count: 10000 }, pipeline: [ stage0, stage1, stage2 ]};
+      const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0, stage1, stage2 ] };
 
       it('returns the pipeline with the current and all previous stages', () => {
         expect(generatePipeline(state, 2)).to.deep.equal([
