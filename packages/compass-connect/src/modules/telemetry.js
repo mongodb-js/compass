@@ -3,18 +3,55 @@ import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 
-const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
+const { track: telemetryTrack, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
+
+async function getHostInformation(host) {
+  const defaultValues = {
+    is_localhost: false,
+    is_public_cloud: false,
+    is_do_url: false,
+    is_atlas_url: false,
+    public_cloud_name: '',
+  };
+
+  if (isLocalhost(host)) {
+    return {
+      ...defaultValues,
+      is_localhost: true,
+    };
+  }
+
+  if (isDigitalOcean(host)) {
+    return {
+      ...defaultValues,
+      is_do_url: true,
+    };
+  }
+
+  const { isAws, isAzure, isGcp } = await getCloudInfo(host).catch(
+    (err) => {
+      debug('getCloudInfo failed', err);
+      return {};
+    }
+  );
+  const isPublicCloud = isAws || isAzure || isGcp;
+  const publicCloudName = isAws ? 'AWS' : isAzure ? 'Azure' : isGcp ? 'GCP' : '';
+
+
+  return {
+    is_localhost: false,
+    is_public_cloud: !!isPublicCloud,
+    is_do_url: false,
+    is_atlas_url: isAtlas(host),
+    public_cloud_name: publicCloudName,
+  };
+}
 
 async function getConnectionData(connectionInfo) {
   const {connectionOptions: {connectionString, sshTunnel}} = connectionInfo;
   const connectionStringData = new ConnectionString(connectionString);
   const hostName = connectionStringData.hosts[0];
-  const { isAws, isAzure, isGcp } = await getCloudInfo(hostName).catch((err) => {
-    debug('getCloudInfo failed', err);
-    return {};
-  });
-  const isPublicCloud = isAws || isAzure || isGcp;
-  const publicCloudName = isAws ? 'AWS' : isAzure ? 'Azure' : isGcp ? 'GCP' : '';
+
   const authMechanism = connectionStringData.searchParams.get('authMechanism');
   const authType = authMechanism
     ? authMechanism
@@ -23,18 +60,17 @@ async function getConnectionData(connectionInfo) {
       : 'NONE';
 
   return {
-    is_localhost: isLocalhost(hostName),
-    is_public_cloud: !!isPublicCloud,
-    is_do_url: isDigitalOcean(hostName),
-    is_atlas_url: isAtlas(hostName),
-    public_cloud_name: publicCloudName,
+    ...(await getHostInformation(hostName)),
     auth_type: authType.toUpperCase(),
     tunnel: sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,
   };
 }
 
-export function trackConnectionAttemptEvent(connectionInfo) {
+export function trackConnectionAttemptEvent(
+  connectionInfo,
+  track = telemetryTrack
+) {
   try {
     const { favorite, lastUsed } = connectionInfo;
     const trackEvent = {
@@ -48,7 +84,11 @@ export function trackConnectionAttemptEvent(connectionInfo) {
   }
 }
 
-export function trackNewConnectionEvent(connectionInfo, dataService) {
+export function trackNewConnectionEvent(
+  connectionInfo,
+  dataService,
+  track = telemetryTrack
+) {
   try {
     const callback = async() => {
       const {
@@ -78,7 +118,11 @@ export function trackNewConnectionEvent(connectionInfo, dataService) {
   }
 }
 
-export function trackConnectionFailedEvent(connectionInfo, connectionError) {
+export function trackConnectionFailedEvent(
+  connectionInfo,
+  connectionError,
+  track = telemetryTrack
+) {
   try {
     const callback = async() => {
       const connectionData = await getConnectionData(connectionInfo);
