@@ -78,17 +78,17 @@ function getNextHostname(hosts: ConnectFormFields['hosts']): string {
 
 function HostInput({
   connectionStringUrl,
-  isSRV,
   hosts,
   setConnectionField,
   setConnectionStringUrl,
 }: {
   connectionStringUrl: ConnectionStringUrl;
-  isSRV: boolean;
   hosts: ConnectFormFields['hosts'];
   setConnectionField: SetConnectionField;
   setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
 }): React.ReactElement {
+  const { isSRV } = connectionStringUrl;
+
   function onHostChange(
     event: React.ChangeEvent<HTMLInputElement>,
     index: number

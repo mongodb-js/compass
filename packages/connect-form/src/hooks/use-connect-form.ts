@@ -20,7 +20,6 @@ export interface ConnectFormFields {
   // };
 }
 export interface ConnectFormState {
-  // connectionForm
   connectionStringInvalidError: string | null;
   connectionStringUrl: ConnectionStringUrl;
 
@@ -89,7 +88,7 @@ function connectFormReducer(
   }
 }
 
-function parseConnectFormFieldStateFromConnectionUrl(
+export function parseConnectFormFieldStateFromConnectionUrl(
   connectionStringUrl: ConnectionStringUrl
 ): ConnectFormFields {
   return {

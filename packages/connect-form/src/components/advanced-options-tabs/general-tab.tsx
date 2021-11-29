@@ -35,7 +35,6 @@ function GeneralTab({
       <FormFieldContainer>
         <HostInput
           hosts={hosts}
-          isSRV={isSRV}
           connectionStringUrl={connectionStringUrl}
           setConnectionField={setConnectionField}
           setConnectionStringUrl={setConnectionStringUrl}

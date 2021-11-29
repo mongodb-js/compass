@@ -61,7 +61,7 @@ const textAreaLabelContainerStyles = css({
 
 const connectionStringInputId = 'connectionString';
 
-function connectionStringHasScheme(connectionString: string) {
+function connectionStringHasValidScheme(connectionString: string) {
   return (
     connectionString.startsWith('mongodb://') ||
     connectionString.startsWith('mongodb+srv://')
@@ -247,16 +247,6 @@ function ConnectStringInput({
               editingConnectionString: newConnectionString,
             });
 
-            // TODO: When connection string is empty allow connect with default?
-
-            // Check if starts with url scheme. setConnectionStringError
-            if (!connectionStringHasScheme(newConnectionString)) {
-              setConnectionStringError(
-                'Invalid schema, expected connection string to start with `mongodb://` or `mongodb+srv://s`'
-              );
-              return;
-            }
-
             // Test if valid connection string - if is:
             try {
               const connectionStringUrl = new ConnectionStringUrl(
@@ -264,6 +254,14 @@ function ConnectStringInput({
               );
               setConnectionStringUrl(connectionStringUrl);
             } catch (error) {
+              // Check if starts with url scheme. setConnectionStringError
+              if (!connectionStringHasValidScheme(newConnectionString)) {
+                setConnectionStringError(
+                  'Invalid schema, expected connection string to start with `mongodb://` or `mongodb+srv://`'
+                );
+                return;
+              }
+
               setConnectionStringError((error as Error).message);
             }
           }}
