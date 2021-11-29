@@ -14,7 +14,7 @@ import {
   SetConnectionField,
 } from '../../../hooks/use-connect-form';
 
-const hostInputContainer = css({
+const hostInputContainerStyles = css({
   display: 'flex',
   flexDirection: 'row',
   width: '100%',
@@ -22,8 +22,12 @@ const hostInputContainer = css({
   marginBottom: spacing[2],
 });
 
-const hostInput = css({
+const hostInputStyles = css({
   flexGrow: 1,
+});
+
+const hostActionButtonStyles = css({
+  marginLeft: spacing[1],
 });
 
 const defaultHostname = 'localhost';
@@ -59,18 +63,21 @@ function getPortFromHostOrDefault(host: string): number {
   return defaultPort;
 }
 
-function getNextHostname(hosts: ConnectFormFields['hosts']): string {
+function getNextHostname(
+  hosts: ConnectFormFields['hosts'],
+  addAfterIndex: number
+): string {
   if (hosts.value.length < 1) {
     // Use the default host if we have no reference.
     return `${defaultHostname}:${defaultPort}`;
   }
 
-  const lastHost = hosts.value[hosts.value.length - 1];
-  const hostname = lastHost.includes(':')
-    ? lastHost.slice(0, lastHost.indexOf(':'))
-    : lastHost;
+  const hostToAddAfter = hosts.value[addAfterIndex];
+  const hostname = hostToAddAfter.includes(':')
+    ? hostToAddAfter.slice(0, hostToAddAfter.indexOf(':'))
+    : hostToAddAfter;
 
-  const port = getPortFromHostOrDefault(lastHost) + 1;
+  const port = getPortFromHostOrDefault(hostToAddAfter) + 1;
 
   // Return the last hosts' hostname and port + 1.
   return `${hostname}:${port}`;
@@ -98,7 +105,7 @@ function HostInput({
 
       const updatedConnectionString = connectionStringUrl.clone();
 
-      updatedConnectionString.hosts[index] = event.target.value;
+      updatedConnectionString.hosts[index] = event.target.value || '';
 
       // Build a new connection string url to ensure the
       // validity of the update.
@@ -124,9 +131,10 @@ function HostInput({
     }
   }
 
-  function onAddHost() {
+  function onAddHost(addAfterIndex: number) {
     const updatedConnectionString = connectionStringUrl.clone();
-    updatedConnectionString.hosts.push(getNextHostname(hosts));
+    const newHostName = getNextHostname(hosts, addAfterIndex);
+    updatedConnectionString.hosts.splice(addAfterIndex + 1, 0, newHostName);
     if (updatedConnectionString.searchParams.get('directConnection')) {
       updatedConnectionString.searchParams.delete('directConnection');
     }
@@ -139,6 +147,15 @@ function HostInput({
 
     updatedConnectionString.hosts.splice(index, 1);
 
+    if (
+      updatedConnectionString.hosts.length === 1 &&
+      !updatedConnectionString.hosts[0]
+    ) {
+      // If the user removes a host, leaving a single empty host, it will
+      // create an invalid connection string. Here we default the value.
+      updatedConnectionString.hosts[0] = `${defaultHostname}:${defaultPort}`;
+    }
+
     setConnectionStringUrl(updatedConnectionString);
   }
 
@@ -148,9 +165,9 @@ function HostInput({
         {isSRV ? 'Hostname' : 'Host'}
       </Label>
       {hosts.value.map((host, index) => (
-        <div className={hostInputContainer} key={`host-${index}`}>
+        <div className={hostInputContainerStyles} key={`host-${index}`}>
           <TextInput
-            className={hostInput}
+            className={hostInputStyles}
             type="text"
             id="connection-host-input"
             aria-labelledby="connection-host-input-label"
@@ -164,20 +181,19 @@ function HostInput({
             value={`${host}`}
             onChange={(e) => onHostChange(e, index)}
           />
-
           {!isSRV && (
             <IconButton
-              aria-label="Add another host"
-              onClick={onAddHost}
-              data-testid="add-host-button"
+              className={hostActionButtonStyles}
+              aria-label="Add new host"
+              onClick={() => onAddHost(index)}
             >
               <Icon glyph="Plus" />
             </IconButton>
           )}
           {!isSRV && hosts.value.length > 1 && (
             <IconButton
+              className={hostActionButtonStyles}
               aria-label="Remove host"
-              data-testid="remove-host-button"
               onClick={() => onRemoveHost(index)}
             >
               <Icon glyph="Minus" />

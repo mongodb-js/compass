@@ -79,7 +79,6 @@ describe('HostInput', function () {
 
       it('should call to update the connection string url', function () {
         expect(setConnectionFieldSpy.callCount).to.equal(1);
-
         expect(setConnectionFieldSpy.firstCall.args[0]).to.equal('hosts');
         expect(setConnectionFieldSpy.firstCall.args[1]).to.deep.equal({
           value: ['outerspace@'],
@@ -117,32 +116,54 @@ describe('HostInput', function () {
     });
   });
 
-  // describe('adding a hso', function () {
-
-  // });
-
   describe('connection string standard schema (mongodb://)', function () {
-    // describe('with a single host', function () {
-    //   it('')
-    //   const connectionStringUrl = new ConnectionStringUrl(
-    //     'mongodb+srv://0ranges:p!neapp1es@outerspace/?ssl=true'
-    //   );
-    //   const { hosts } =
-    //     parseConnectFormFieldStateFromConnectionUrl(connectionStringUrl);
-    //   render(
-    //     <HostInput
-    //       connectionStringUrl={connectionStringUrl}
-    //       hosts={hosts}
-    //       setConnectionField={setConnectionFieldSpy}
-    //       setConnectionStringUrl={setConnectionStringUrlSpy}
-    //     />
-    //   );
-    // });
+    describe('with a single host', function () {
+      beforeEach(function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://0ranges:p!neapp1es@outerspace:27019/?ssl=true'
+        );
+        const { hosts } =
+          parseConnectFormFieldStateFromConnectionUrl(connectionStringUrl);
+        render(
+          <HostInput
+            connectionStringUrl={connectionStringUrl}
+            hosts={hosts}
+            setConnectionField={setConnectionFieldSpy}
+            setConnectionStringUrl={setConnectionStringUrlSpy}
+          />
+        );
+      });
+
+      it('does not render the remove host', function () {
+        expect(screen.queryByLabelText('Remove host')).to.not.exist;
+      });
+
+      describe('when the host is changed', function () {
+        beforeEach(function () {
+          const hostInput = screen.getByRole('textbox');
+          userEvent.click(hostInput);
+          userEvent.keyboard('7');
+        });
+
+        it('should call to update the connection string url with the updated host', function () {
+          expect(setConnectionStringUrlSpy.callCount).to.equal(1);
+          expect(
+            setConnectionStringUrlSpy.firstCall.args[0].toString()
+          ).to.equal(
+            'mongodb://0ranges:p!neapp1es@outerspace:270197/?ssl=true'
+          );
+        });
+
+        it('should not call to update the host fields', function () {
+          expect(setConnectionFieldSpy.callCount).to.equal(0);
+        });
+      });
+    });
 
     describe('with multiple hosts', function () {
       beforeEach(function () {
         const connectionStringUrl = new ConnectionStringUrl(
-          'mongodb://0ranges:p!neapp1es@outerspace:27017,outerspace:27099,outerspace:27098,localhost:27098/?ssl=true'
+          'mongodb://0ranges:p!neapp1es@outerspace:27017,outerspace:27098,outerspace:27099,localhost:27098/?ssl=true'
         );
         const { hosts } =
           parseConnectFormFieldStateFromConnectionUrl(connectionStringUrl);
@@ -166,12 +187,12 @@ describe('HostInput', function () {
           fireEvent.click(removeHostButton);
         });
 
-        it('should call to update the connection string url', function () {
+        it('should call to update the connection string url without the host', function () {
           expect(setConnectionStringUrlSpy.callCount).to.equal(1);
           expect(
             setConnectionStringUrlSpy.firstCall.args[0].toString()
           ).to.equal(
-            'mongodb://0ranges:p!neapp1es@outerspace:27017,outerspace:27099,localhost:27098/?ssl=true'
+            'mongodb://0ranges:p!neapp1es@outerspace:27017,outerspace:27098,localhost:27098/?ssl=true'
           );
         });
 
@@ -179,26 +200,166 @@ describe('HostInput', function () {
           expect(setConnectionFieldSpy.callCount).to.equal(0);
         });
       });
+
+      describe('when the add host button is clicked', function () {
+        beforeEach(function () {
+          const addHostButton = screen.getAllByLabelText('Add new host')[2];
+          fireEvent.click(addHostButton);
+        });
+
+        it('should call to update the connection string url with a new host at the location', function () {
+          expect(setConnectionStringUrlSpy.callCount).to.equal(1);
+          expect(
+            setConnectionStringUrlSpy.firstCall.args[0].toString()
+          ).to.equal(
+            'mongodb://0ranges:p!neapp1es@outerspace:27017,outerspace:27098,outerspace:27099,outerspace:27100,localhost:27098/?ssl=true'
+          );
+        });
+
+        it('should not call to update the host fields', function () {
+          expect(setConnectionFieldSpy.callCount).to.equal(0);
+        });
+      });
+
+      describe('when a host is changed', function () {
+        beforeEach(function () {
+          const hostInput = screen.getAllByRole('textbox')[2];
+          userEvent.click(hostInput);
+          userEvent.keyboard('8');
+        });
+
+        it('should call to update the connection string url with the updated host', function () {
+          expect(setConnectionStringUrlSpy.callCount).to.equal(1);
+          expect(
+            setConnectionStringUrlSpy.firstCall.args[0].toString()
+          ).to.equal(
+            'mongodb://0ranges:p!neapp1es@outerspace:27017,outerspace:27098,outerspace:270998,localhost:27098/?ssl=true'
+          );
+        });
+
+        it('should not call to update the host fields', function () {
+          expect(setConnectionFieldSpy.callCount).to.equal(0);
+        });
+      });
+
+      describe('when a host is changed to an invalid value', function () {
+        beforeEach(function () {
+          const hostInput = screen.getAllByRole('textbox')[1];
+          userEvent.click(hostInput);
+          userEvent.keyboard('@');
+        });
+
+        it('should not call to update the connection string url', function () {
+          expect(setConnectionStringUrlSpy.callCount).to.equal(0);
+        });
+
+        it('should update the host fields with the invalid value and an error', function () {
+          expect(setConnectionFieldSpy.callCount).to.equal(1);
+          expect(setConnectionFieldSpy.firstCall.args[0]).to.equal('hosts');
+          expect(setConnectionFieldSpy.firstCall.args[1]).to.deep.equal({
+            value: [
+              'outerspace:27017',
+              'outerspace:27098@',
+              'outerspace:27099',
+              'localhost:27098',
+            ],
+            error: "Invalid character in host: '@'",
+            warning: null,
+          });
+        });
+      });
+    });
+
+    describe('when a host is removed to only have one host with an empty value', function () {
+      beforeEach(function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://0ranges:p!neapp1es@,outerspace:27098/?ssl=true'
+        );
+        const { hosts } =
+          parseConnectFormFieldStateFromConnectionUrl(connectionStringUrl);
+        render(
+          <HostInput
+            connectionStringUrl={connectionStringUrl}
+            hosts={hosts}
+            setConnectionField={setConnectionFieldSpy}
+            setConnectionStringUrl={setConnectionStringUrlSpy}
+          />
+        );
+
+        const removeHostButton = screen.getAllByLabelText('Remove host')[1];
+        fireEvent.click(removeHostButton);
+      });
+
+      it('should call to update the connection string url with a default host', function () {
+        expect(setConnectionStringUrlSpy.callCount).to.equal(1);
+        expect(setConnectionStringUrlSpy.firstCall.args[0].toString()).to.equal(
+          'mongodb://0ranges:p!neapp1es@localhost:27017/?ssl=true'
+        );
+      });
+
+      it('should not call to update the host fields', function () {
+        expect(setConnectionFieldSpy.callCount).to.equal(0);
+      });
+    });
+
+    describe('when editing a host to an empty value', function () {
+      beforeEach(function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://0ranges:p!neapp1es@a/?ssl=true'
+        );
+        const { hosts } =
+          parseConnectFormFieldStateFromConnectionUrl(connectionStringUrl);
+        render(
+          <HostInput
+            connectionStringUrl={connectionStringUrl}
+            hosts={hosts}
+            setConnectionField={setConnectionFieldSpy}
+            setConnectionStringUrl={setConnectionStringUrlSpy}
+          />
+        );
+
+        const removeHostButton = screen.getByRole('textbox');
+        userEvent.click(removeHostButton);
+        userEvent.keyboard('{backspace}');
+      });
+
+      it('should not call to update the connection string url', function () {
+        expect(setConnectionStringUrlSpy.callCount).to.equal(0);
+      });
+
+      it('should update the host fields with the invalid value and an error', function () {
+        expect(setConnectionFieldSpy.callCount).to.equal(1);
+        expect(setConnectionFieldSpy.firstCall.args[0]).to.equal('hosts');
+        expect(setConnectionFieldSpy.firstCall.args[1]).to.deep.equal({
+          value: [''],
+          error: 'Invalid URL: mongodb://__this_is_a_placeholder__@/?ssl=true',
+          warning: null,
+        });
+      });
     });
   });
 
-  // To test:
+  describe('when the host fields and connection string differ', function () {
+    beforeEach(function () {
+      const connectionStringUrl = new ConnectionStringUrl(
+        'mongodb://0ranges:p!neapp1es@a/?ssl=true'
+      );
+      render(
+        <HostInput
+          connectionStringUrl={connectionStringUrl}
+          hosts={{
+            value: ['1', '2'],
+            error: null,
+            warning: null,
+          }}
+          setConnectionField={setConnectionFieldSpy}
+          setConnectionStringUrl={setConnectionStringUrlSpy}
+        />
+      );
+    });
 
-  // __Is not srv__
-  // Render states:
-  // - Host has error
-  // - One host
-  // - Many hosts
-  // Change tests:
-  // - Added host to not srv
-  // - Remove host from not srv
-  // - Changed host (somewhere in middle of many)
-  // - Changed single host
-  // - Change to something that gives error
-  // - ',' written
-  // - Empty host
-
-  // Underlying connection changes (hosts or connection string)
-  // - Update schema
-  // - Update value of host(s)
+    it('should render the host in the fields', function () {
+      expect(screen.getAllByRole('textbox').length).to.equal(2);
+    });
+  });
 });
