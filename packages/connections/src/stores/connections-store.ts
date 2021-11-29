@@ -8,7 +8,10 @@ import {
 import { useEffect, useReducer, useRef } from 'react';
 import debugModule from 'debug';
 
-import { createConnectionAttempt, ConnectionAttempt } from '../modules/connection-attempt';
+import {
+  createConnectionAttempt,
+  ConnectionAttempt,
+} from '../modules/connection-attempt';
 import {
   trackConnectionAttemptEvent,
   trackNewConnectionEvent,

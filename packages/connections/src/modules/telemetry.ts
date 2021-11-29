@@ -1,6 +1,6 @@
 import { ConnectionInfo, DataService } from 'mongodb-data-service';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { isAtlas, isLocalhost, isDigitalOcean } from 'mongodb-build-info';
+import { isLocalhost, isDigitalOcean } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 
@@ -34,7 +34,6 @@ async function getConnectionData({
 
   return {
     is_localhost: isLocalhost(hostName),
-    is_atlas: isAtlas(hostName),
     is_public_cloud: !!isPublicCloud,
     is_do: isDigitalOcean(hostName),
     public_cloud_name: publicCloudName,
@@ -54,7 +53,7 @@ export function trackConnectionAttemptEvent({
       is_recent: Boolean(lastUsed && !favorite),
       is_new: !lastUsed,
     };
-    void track('Connection Attempt', trackEvent);
+    track('Connection Attempt', trackEvent);
   } catch (error) {
     debug('trackConnectionAttemptEvent failed', error);
   }
@@ -66,11 +65,12 @@ export function trackNewConnectionEvent(
 ): void {
   try {
     const callback = async () => {
-      const { dataLake, genuineMongoDB, host, build } =
+      const { dataLake, genuineMongoDB, host, build, isAtlas } =
         await dataService.instance();
       const connectionData = await getConnectionData(connectionInfo);
       const trackEvent = {
         ...connectionData,
+        isAtlas,
         is_dataLake: dataLake.isDataLake,
         is_enterprise: build.isEnterprise,
         is_genuine: genuineMongoDB.isGenuine,
@@ -81,7 +81,7 @@ export function trackNewConnectionEvent(
       };
       return trackEvent;
     };
-    void track('New Connection', callback);
+    track('New Connection', callback);
   } catch (error) {
     debug('trackNewConnectionEvent failed', error);
   }
@@ -101,7 +101,7 @@ export function trackConnectionFailedEvent(
       };
       return trackEvent;
     };
-    void track('Connection Failed', callback);
+    track('Connection Failed', callback);
   } catch (error) {
     debug('trackConnectionFailedEvent failed', error);
   }
