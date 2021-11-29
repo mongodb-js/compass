@@ -362,19 +362,25 @@ const DatabasesNavigationTree: React.FunctionComponent<{
         className={navigationTree}
         {...rootProps}
       >
-        <AutoSizer>
-          {({ width, height }) => (
+        <AutoSizer
+          disableWidth={Boolean(process.env.TEST_AUTOSIZER_DEFAULT_WIDTH)}
+          disableHeight={Boolean(process.env.TEST_AUTOSIZER_DEFAULT_HEIGHT)}
+        >
+          {({
+            width = Number(process.env.TEST_AUTOSIZER_DEFAULT_WIDTH ?? 0),
+            height = Number(process.env.TEST_AUTOSIZER_DEFAULT_HEIGHT ?? 0),
+          }) => (
             <List
               ref={listRef}
               width={width}
               height={height}
               itemData={itemData}
               itemCount={items.length}
-              // estimatedItemSize={DATABASE_ROW_HEIGHT}
-              // itemSize={getItemSize}
               itemSize={DATABASE_ROW_HEIGHT}
               itemKey={getItemKey}
-              overscanCount={5}
+              overscanCount={Number(
+                process.env.TEST_REACT_WINDOW_OVERSCAN ?? 5
+              )}
             >
               {NavigationItem}
             </List>

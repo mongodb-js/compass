@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React from 'react';
-import { render, screen, cleanup, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  within,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
@@ -26,6 +32,10 @@ const databases = [
     ],
   },
 ];
+
+process.env.TEST_AUTOSIZER_DEFAULT_WIDTH = '1024';
+process.env.TEST_AUTOSIZER_DEFAULT_HEIGHT = '768';
+process.env.TEST_REACT_WINDOW_OVERSCAN = 'Infinity';
 
 describe('DatabasesNavigationTree', function () {
   afterEach(cleanup);
@@ -68,10 +78,10 @@ describe('DatabasesNavigationTree', function () {
       ></DatabasesNavigationTree>
     );
 
-    expect(screen.getByTestId('placeholder')).to.exist;
+    expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(5);
   });
 
-  it('should make current active namespace tabbable', function () {
+  it('should make current active namespace tabbable', async function () {
     render(
       <DatabasesNavigationTree
         databases={databases}
@@ -83,9 +93,15 @@ describe('DatabasesNavigationTree', function () {
 
     userEvent.tab();
 
-    expect(document.querySelector('[data-id="bar"]')).to.eq(
-      document.activeElement
-    );
+    await waitFor(() => {
+      // Virtual list will be the one to grab the focus first, but will
+      // immediately forward it to the element, waitFor is to accomodate for
+      // that
+      expect(document.querySelector('[data-id="bar"]')).to.eq(
+        document.activeElement
+      );
+      return true;
+    });
   });
 
   describe('when isReadOnly is false or undefined', function () {
@@ -134,11 +150,9 @@ describe('DatabasesNavigationTree', function () {
       );
 
       const collection = screen.getByTestId('sidebar-collection-bar.meow');
-      const showActionsButton = within(collection).getByTitle(
-        'Show collection actions'
-      );
+      const showActionsButton = within(collection).getByTitle('Show actions');
 
-      expect(within(collection).getByTitle('Show collection actions')).to.exist;
+      expect(within(collection).getByTitle('Show actions')).to.exist;
 
       userEvent.click(showActionsButton);
 
@@ -158,11 +172,9 @@ describe('DatabasesNavigationTree', function () {
       );
 
       const collection = screen.getByTestId('sidebar-collection-bar.bwok');
-      const showActionsButton = within(collection).getByTitle(
-        'Show collection actions'
-      );
+      const showActionsButton = within(collection).getByTitle('Show actions');
 
-      expect(within(collection).getByTitle('Show collection actions')).to.exist;
+      expect(within(collection).getByTitle('Show actions')).to.exist;
 
       userEvent.click(showActionsButton);
 
@@ -290,9 +302,7 @@ describe('DatabasesNavigationTree', function () {
 
         const collection = screen.getByTestId('sidebar-collection-bar.meow');
 
-        userEvent.click(
-          within(collection).getByTitle('Show collection actions')
-        );
+        userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Open in New Tab'));
 
         expect(spy).to.be.calledOnceWithExactly('bar.meow', 'open-in-new-tab');
@@ -312,9 +322,7 @@ describe('DatabasesNavigationTree', function () {
 
         const collection = screen.getByTestId('sidebar-collection-bar.meow');
 
-        userEvent.click(
-          within(collection).getByTitle('Show collection actions')
-        );
+        userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Drop Collection'));
 
         expect(spy).to.be.calledOnceWithExactly('bar.meow', 'drop-collection');
@@ -337,7 +345,7 @@ describe('DatabasesNavigationTree', function () {
 
         const view = screen.getByTestId('sidebar-collection-bar.bwok');
 
-        userEvent.click(within(view).getByTitle('Show collection actions'));
+        userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Duplicate View'));
 
         expect(spy).to.be.calledOnceWithExactly('bar.bwok', 'duplicate-view');
@@ -358,7 +366,7 @@ describe('DatabasesNavigationTree', function () {
 
         const view = screen.getByTestId('sidebar-collection-bar.bwok');
 
-        userEvent.click(within(view).getByTitle('Show collection actions'));
+        userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Modify View'));
 
         expect(spy).to.be.calledOnceWithExactly('bar.bwok', 'modify-view');

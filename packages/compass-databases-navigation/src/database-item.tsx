@@ -121,12 +121,12 @@ export const DatabaseItem: React.FunctionComponent<
       {
         action: 'create-collection',
         icon: 'Plus',
-        label: 'Create Collection',
+        label: 'Create collection',
       },
       {
         action: 'drop-database',
         icon: 'Trash',
-        label: 'Drop Database',
+        label: 'Drop database',
       },
     ];
   }, []);

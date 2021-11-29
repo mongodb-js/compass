@@ -30,7 +30,12 @@ export const PlaceholderItem: React.FunctionComponent<{
   }, []);
 
   return (
-    <div role="presentation" className={placeholderItem} style={style}>
+    <div
+      role="presentation"
+      data-testid="placeholder"
+      className={placeholderItem}
+      style={style}
+    >
       <span className={placeholderItemContent} style={{ width }} />
     </div>
   );
