@@ -166,13 +166,18 @@ function HostInput({
           />
 
           {!isSRV && (
-            <IconButton aria-label="Add another host" onClick={onAddHost}>
+            <IconButton
+              aria-label="Add another host"
+              onClick={onAddHost}
+              data-testid="add-host-button"
+            >
               <Icon glyph="Plus" />
             </IconButton>
           )}
           {!isSRV && hosts.value.length > 1 && (
             <IconButton
               aria-label="Remove host"
+              data-testid="remove-host-button"
               onClick={() => onRemoveHost(index)}
             >
               <Icon glyph="Minus" />
