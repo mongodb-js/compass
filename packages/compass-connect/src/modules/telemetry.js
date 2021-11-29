@@ -60,7 +60,7 @@ export function trackNewConnectionEvent(connectionInfo, dataService) {
       const connectionData = await getConnectionData(connectionInfo);
       const trackEvent = {
         ...connectionData,
-        isAtlas,
+        is_atlas: isAtlas,
         is_dataLake: dataLake.isDataLake,
         is_enterprise: build.isEnterprise,
         is_genuine: genuineMongoDB.isGenuine,
