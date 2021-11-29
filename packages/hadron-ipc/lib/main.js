@@ -24,6 +24,12 @@ exports.respondTo = (methodName, handler) => {
 
   ipcMain.on(methodName, (event, ...args) => {
     const browserWindow = BrowserWindow.fromWebContents(event.sender);
+    // In rare cases when browserWindow is closed/destroyed before we even had a
+    // chance to get the reference to it from web contents, browserWindow might
+    // be null here
+    if (!browserWindow) {
+      return;
+    }
     const resolve = (result) => {
       debug(`responding with result for ${methodName}`, result);
       if (browserWindow.isDestroyed()) {
