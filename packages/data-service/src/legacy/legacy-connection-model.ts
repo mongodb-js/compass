@@ -257,7 +257,7 @@ function modelSslPropertiesToConnectionOptions(
   // See https://jira.mongodb.org/browse/NODE-3591 and
   // https://jira.mongodb.org/browse/COMPASS-5058
   if (sslCert && sslCert !== sslKey) {
-    connectionOptions.tlsCertificateFile = sslCert;
+    url.searchParams.set('tlsCertificateFile', sslCert);
   }
 
   if (sslKey) {
@@ -385,6 +385,8 @@ function convertSslOptionsToLegacyProperties(
     'tlsCertificateKeyFilePassword'
   );
 
+  const tlsCertificateFile = url.searchParams.get('tlsCertificateFile');
+
   if (tlsCAFile) {
     properties.sslCA = [tlsCAFile];
   }
@@ -397,8 +399,8 @@ function convertSslOptionsToLegacyProperties(
     properties.sslPass = tlsCertificateKeyFilePassword;
   }
 
-  if (options.tlsCertificateFile) {
-    properties.sslCert = options.tlsCertificateFile;
+  if (tlsCertificateFile) {
+    properties.sslCert = tlsCertificateFile;
   }
 
   properties.sslMethod = optionsToSslMethod(options);
@@ -423,7 +425,7 @@ function optionsToSslMethod(options: ConnectionOptions): SslMethod {
     return 'NONE';
   }
 
-  if (tlsCertificateKeyFile || options.tlsCertificateFile) {
+  if (tlsCertificateKeyFile) {
     return 'ALL';
   }
 

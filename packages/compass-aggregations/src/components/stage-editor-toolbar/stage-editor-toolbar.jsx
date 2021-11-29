@@ -19,6 +19,9 @@ class StageEditorToolbar extends PureComponent {
     allowWrites: PropTypes.bool.isRequired,
     connectDragSource: PropTypes.func.isRequired,
     env: PropTypes.string.isRequired,
+    isTimeSeries: PropTypes.bool.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
+    sourceName: PropTypes.string,
     error: PropTypes.string,
     isExpanded: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
@@ -58,6 +61,9 @@ class StageEditorToolbar extends PureComponent {
         <StageOperatorSelect
           allowWrites={this.props.allowWrites}
           env={this.props.env}
+          isTimeSeries={this.props.isTimeSeries}
+          isReadonly={this.props.isReadonly}
+          sourceName={this.props.sourceName}
           stageOperator={this.props.stageOperator}
           index={this.props.index}
           isEnabled={this.props.isEnabled}

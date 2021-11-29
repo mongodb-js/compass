@@ -75,6 +75,15 @@ function propagateCollectionEvents(namespace) {
   };
 }
 
+function getParentByType(model, type) {
+  const parent = getParent(model);
+  return parent
+    ? parent.modelType === type
+      ? parent
+      : getParentByType(parent, type)
+    : null;
+}
+
 const DatabaseModel = AmpersandModel.extend(
   debounceActions(['fetch', 'fetchCollections']),
   {
@@ -169,7 +178,17 @@ const DatabaseCollection = AmpersandCollection.extend(
      * @returns {Promise<void>}
      */
     async fetch({ dataService }) {
-      const dbs = await dataService.listDatabases({ nameOnly: true });
+      const instanceModel = getParentByType(this, 'Instance');
+      if (!instanceModel) {
+        throw new Error(
+          `Trying to fetch ${this.modelType} that doesn't have the Instance parent model`
+        );
+      }
+
+      const dbs = await dataService.listDatabases({
+        nameOnly: true,
+        privileges: instanceModel.auth.privileges,
+      });
       this.set(dbs.map(({ _id, name }) => ({ _id, name })));
     },
 

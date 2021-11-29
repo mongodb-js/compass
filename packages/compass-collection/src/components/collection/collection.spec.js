@@ -20,6 +20,7 @@ describe('Collection [Component]', () => {
       <Collection
         isReadonly={false}
         isTimeSeries={false}
+        sourceName={null}
         tabs={[]}
         views={[]}
         queryHistoryIndexes={[]}
