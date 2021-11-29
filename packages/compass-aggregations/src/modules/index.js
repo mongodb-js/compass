@@ -17,6 +17,9 @@ import namespace, {
 import env, {
   INITIAL_STATE as ENV_INITIAL_STATE
 } from './env';
+import isTimeSeries, {
+  INITIAL_STATE as IS_TIME_SERIES_INITIAL_STATE
+} from './is-time-series';
 import serverVersion, {
   INITIAL_STATE as SV_INITIAL_STATE
 } from './server-version';
@@ -122,6 +125,7 @@ export const INITIAL_STATE = {
   inputDocuments: INPUT_INITIAL_STATE,
   namespace: NS_INITIAL_STATE,
   env: ENV_INITIAL_STATE,
+  isTimeSeries: IS_TIME_SERIES_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
   pipeline: PIPELINE_INITIAL_STATE,
   savedPipeline: SP_INITIAL_STATE,
@@ -200,6 +204,7 @@ const appReducer = combineReducers({
   inputDocuments,
   namespace,
   env,
+  isTimeSeries,
   serverVersion,
   savedPipeline,
   restorePipeline,
@@ -240,6 +245,8 @@ const doNamespaceChanged = (state, action) => {
   const newState = {
     ...INITIAL_STATE,
     env: state.env,
+    isTimeSeries: state.isTimeSeries,
+    isReadonly: state.isReadonly,
     sourceName: state.sourceName,
     isAtlasDeployed: state.isAtlasDeployed,
     outResultsFn: state.outResultsFn,
@@ -288,6 +295,9 @@ const doRestorePipeline = (state, action) => {
     appRegistry: state.appRegistry,
     namespace: savedState.namespace,
     env: savedState.env,
+    isTimeSeries: savedState.isTimeSeries,
+    isReadonly: savedState.isReadonly,
+    sourceName: savedState.sourceName,
     pipeline: savedState.pipeline,
     name: savedState.name,
     collation: savedState.collation,
@@ -353,6 +363,9 @@ const createNewPipeline = (state) => ({
   appRegistry: state.appRegistry,
   namespace: state.namespace,
   env: state.env,
+  isTimeSeries: state.isTimeSeries,
+  isReadonly: state.isReadonly,
+  sourceName: state.sourceName,
   fields: state.fields,
   serverVersion: state.serverVersion,
   dataService: state.dataService,
@@ -685,6 +698,8 @@ export const getPipelineFromIndexedDB = (pipelineId) => {
 
 /**
  * Make view pipeline.
+ *
+ * @param {String} unfilteredPipeline - The unfilteredPipeline.
  *
  * @returns {Array} The mapped/filtered view pipeline.
  */

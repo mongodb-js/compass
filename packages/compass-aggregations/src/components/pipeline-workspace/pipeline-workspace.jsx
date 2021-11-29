@@ -19,6 +19,9 @@ class PipelineWorkspace extends PureComponent {
     allowWrites: PropTypes.bool.isRequired,
     editViewName: PropTypes.string,
     env: PropTypes.string.isRequired,
+    isTimeSeries: PropTypes.bool.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
+    sourceName: PropTypes.string,
     pipeline: PropTypes.array.isRequired,
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     refreshInputDocuments: PropTypes.func.isRequired,
@@ -47,22 +50,45 @@ class PipelineWorkspace extends PureComponent {
     newPipelineFromPaste: PropTypes.func.isRequired
   };
 
+  /**
+   * The stage moved handler.
+   *
+   * @param {Number} fromIndex - The original index.
+   * @param {Number} toIndex - The index to move to.
+   */
   onStageMoved = (fromIndex, toIndex) => {
     this.props.stageMoved(fromIndex, toIndex);
     this.props.runStage(0);
   }
 
+  /**
+   * Render the modify source banner if neccessary.
+   *
+   * @returns {Component} The component.
+   */
   renderModifyingViewSourceBanner() {
     if (this.props.editViewName) {
       return (<ModifySourceBanner editViewName={this.props.editViewName} />);
     }
   }
 
+  /**
+   * Render a stage.
+   *
+   * @param {Object} stage - The current stage info.
+   * @param {Number} i - The current index.
+   * @param {Function} connectDragSource - The function to render a stage editor toolbar.
+   *
+   * @returns {Component} The component.
+   */
   renderStage = (stage, i, connectDragSource) => {
     return (<Stage
       allowWrites={this.props.allowWrites}
       connectDragSource={connectDragSource}
       env={this.props.env}
+      isTimeSeries={this.props.isTimeSeries}
+      isReadonly={this.props.isReadonly}
+      sourceName={this.props.sourceName}
       stage={stage.stage}
       stageOperator={stage.stageOperator}
       snippet={stage.snippet}
@@ -102,6 +128,11 @@ class PipelineWorkspace extends PureComponent {
     />);
   }
 
+  /**
+   * Render a stage list.
+   *
+   * @returns {Component} The component.
+   */
   renderStageList = () => {
     return (<SortableStageList
       items={this.props.pipeline}

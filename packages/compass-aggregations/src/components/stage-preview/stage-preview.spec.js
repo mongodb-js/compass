@@ -12,6 +12,7 @@ describe('StagePreview [Component]', () => {
     beforeEach(() => {
       component = mount(
         <StagePreview
+          openLink={sinon.spy()}
           documents={[{ name: 'test' }]}
           isValid
           isEnabled
@@ -43,6 +44,7 @@ describe('StagePreview [Component]', () => {
     beforeEach(() => {
       component = mount(
         <StagePreview
+          openLink={sinon.spy()}
           documents={[]}
           isValid
           isEnabled
@@ -74,6 +76,7 @@ describe('StagePreview [Component]', () => {
       beforeEach(() => {
         component = mount(
           <StagePreview
+            openLink={sinon.spy()}
             documents={[{ name: 'test' }]}
             isValid
             isEnabled
@@ -116,6 +119,7 @@ describe('StagePreview [Component]', () => {
       beforeEach(() => {
         component = mount(
           <StagePreview
+            openLink={sinon.spy()}
             stage="'testing'"
             documents={[{ name: 'test' }]}
             isValid
@@ -166,6 +170,7 @@ describe('StagePreview [Component]', () => {
       beforeEach(() => {
         component = mount(
           <StagePreview
+            openLink={sinon.spy()}
             documents={[]}
             isValid
             isEnabled
@@ -196,6 +201,7 @@ describe('StagePreview [Component]', () => {
       beforeEach(() => {
         component = mount(
           <StagePreview
+            openLink={sinon.spy()}
             documents={[]}
             isValid
             isEnabled
