@@ -61,6 +61,13 @@ const textAreaLabelContainerStyles = css({
 
 const connectionStringInputId = 'connectionString';
 
+function connectionStringHasScheme(connectionString: string) {
+  return (
+    connectionString.startsWith('mongodb://') ||
+    connectionString.startsWith('mongodb+srv://')
+  );
+}
+
 type State = {
   editingConnectionString: string;
   enableEditingConnectionString: boolean;
@@ -157,8 +164,9 @@ function ConnectStringInput({
     dispatch,
   ] = useReducer(reducer, {
     // If there is a connection string default it to protected.
-    // TODO: Should we just default it to not protected if there is nothing to hide?
-    enableEditingConnectionString: !connectionString,
+    // TODO: Should we default to not protected if there is nothing to hide?
+    enableEditingConnectionString:
+      !connectionString || connectionString === 'mongodb://localhost:27017/',
     showConfirmEditConnectionStringPrompt: false,
     editingConnectionString: connectionString || '',
   });
@@ -178,7 +186,11 @@ function ConnectStringInput({
         type: 'hide-connection-string',
       });
     }
-  }, [connectionString, editingConnectionString]);
+  }, [
+    connectionString,
+    enableEditingConnectionString,
+    editingConnectionString,
+  ]);
 
   const displayedConnectionString = enableEditingConnectionString
     ? editingConnectionString
@@ -228,15 +240,27 @@ function ConnectStringInput({
       <div className={textAreaContainerStyle}>
         <TextArea
           onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
+            const newConnectionString = event.target.value;
+
             dispatch({
               type: 'set-editing-connection-string',
-              editingConnectionString: event.target.value,
+              editingConnectionString: newConnectionString,
             });
+
+            // TODO: When connection string is empty allow connect with default?
+
+            // Check if starts with url scheme. setConnectionStringError
+            if (!connectionStringHasScheme(newConnectionString)) {
+              setConnectionStringError(
+                'Invalid schema, expected connection string to start with `mongodb://` or `mongodb+srv://s`'
+              );
+              return;
+            }
 
             // Test if valid connection string - if is:
             try {
               const connectionStringUrl = new ConnectionStringUrl(
-                event.target.value
+                newConnectionString
               );
               setConnectionStringUrl(connectionStringUrl);
             } catch (error) {
