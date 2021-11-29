@@ -98,6 +98,17 @@ store.fetchCollectionDetails = async(ns) => {
   return coll;
 };
 
+store.fetchAllCollections = async() => {
+  const { instance, dataService } = store.getState();
+  await Promise.all(
+    instance.databases.map((db) => {
+      if (db.collectionsStatus === 'initial') {
+        return db.fetchCollections({ dataService });
+      }
+    })
+  );
+};
+
 /**
  * Fetches collection info and returns a special format of collection metadata
  * that events like open-in-new-tab, select-namespace, edit-view require
@@ -189,8 +200,12 @@ store.onActivated = (appRegistry) => {
     store.fetchDatabaseDetails(dbName);
   });
 
-  appRegistry.on('expand-database', (dbName) => {
+  appRegistry.on('sidebar-expand-database', (dbName) => {
     store.fetchDatabaseDetails(dbName, { nameOnly: true });
+  });
+
+  appRegistry.on('sidebar-filter-navigation-list', () => {
+    store.fetchAllCollections();
   });
 
   appRegistry.on('select-namespace', ({ namespace }) => {

@@ -6,11 +6,14 @@ import { toggleDatabaseExpanded } from '../../modules/databases';
 
 function mapStateToProps(state) {
   const {
-    databases: { filterRegex, databases, expandedDbList, activeNamespace },
+    databases: { filterRegex, filteredDatabases, expandedDbList, activeNamespace },
   } = state;
   const defaultExpanded = Boolean(filterRegex);
   const expanded = Object.fromEntries(
-    databases.map(({ name }) => [name, expandedDbList[name] ?? defaultExpanded])
+    filteredDatabases.map(({ name }) => [
+      name,
+      expandedDbList[name] ?? defaultExpanded,
+    ])
   );
   const isReadOnly =
     process.env.HADRON_READONLY === 'true' ||
@@ -20,7 +23,7 @@ function mapStateToProps(state) {
   return {
     isReadOnly,
     activeNamespace,
-    databases,
+    databases: filteredDatabases,
     expanded,
   };
 }
