@@ -114,7 +114,8 @@ class Pipeline extends PureComponent {
     newPipelineFromPaste: PropTypes.func.isRequired,
     openCreateView: PropTypes.func.isRequired,
     isNewPipelineConfirm: PropTypes.bool.isRequired,
-    setIsNewPipelineConfirm: PropTypes.func.isRequired
+    setIsNewPipelineConfirm: PropTypes.func.isRequired,
+    inputDocuments: PropTypes.object.isRequired
   };
 
   static defaultProps = {

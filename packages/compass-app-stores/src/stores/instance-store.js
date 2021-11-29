@@ -60,7 +60,7 @@ store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
   const { instance, dataService } = store.getState();
   const db = instance.databases.get(dbName);
 
-  if (db && db.collectionsStatus === 'initial') {
+  if (db.collectionsStatus === 'initial') {
     await db.fetchCollections({ dataService, fetchInfo: !nameOnly });
   }
 
@@ -160,6 +160,14 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('expand-database', (dbName) => {
     store.fetchDatabaseDetails(dbName, { nameOnly: true });
+  });
+
+  appRegistry.on('select-namespace', ({ namespace }) => {
+    store.fetchCollectionDetails(namespace);
+  });
+
+  appRegistry.on('open-namespace-in-new-tab', ({ namespace }) => {
+    store.fetchCollectionDetails(namespace);
   });
 
   appRegistry.on('refresh-data', () => {

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { ViewSwitcher, Tooltip } from 'hadron-react-components';
 import { AnimatedIconTextButton, IconButton } from 'hadron-react-buttons';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { SpinLoader } from '@mongodb-js/compass-components';
+
 const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
 const BASE_CLASS = 'document-list';
@@ -52,10 +54,24 @@ class Toolbar extends React.Component {
   }
 
   _loadedMessage() {
+    const suffix = this.props.loadingCount
+      ? ''
+      : `${this.props.count ?? 'N/A'}`;
+
     return (
       <span>
-        Displaying documents <b>{this.props.start} - {this.props.end}</b> of {this.props.count || 'N/A'}
+        Displaying documents <b>{this.props.start} - {this.props.end}</b> of {suffix}
       </span>
+    );
+  }
+
+  _loadingSpinner() {
+    if (!this.props.loadingCount) {
+      return;
+    }
+
+    return (
+      <SpinLoader size="12px" />
     );
   }
 
@@ -129,6 +145,10 @@ class Toolbar extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
+    const messageTooltip = this.props.loadingCount
+      ? 'Fetching document count...'
+      : '';
+
     return (
       <div>
         <div className={ACTION_BAR_CLASS}>
@@ -147,8 +167,9 @@ class Toolbar extends React.Component {
             </div>
           </div>
           <div className={CONTAINER_CLASS}>
-            <div className={MESSAGE_CLASS}>
+            <div className={MESSAGE_CLASS} title={messageTooltip}>
               {this._loadedMessage()}
+              {this._loadingSpinner()}
             </div>
             {this.renderPageButtons()}
             <div className={REFRESH_CLASS}>
@@ -174,6 +195,7 @@ Toolbar.propTypes = {
   activeDocumentView: PropTypes.string.isRequired,
   count: PropTypes.number,
   end: PropTypes.number.isRequired,
+  loadingCount: PropTypes.number.isRequired,
   getPage: PropTypes.func.isRequired,
   insertHandler: PropTypes.func,
   openExportFileDialog: PropTypes.func,

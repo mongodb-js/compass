@@ -83,6 +83,31 @@ exports.handler = function(argv) {
     return;
   }
 
+  if (process.env.CI && !process.env.EVERGREEN_PROJECT) {
+    cli.warn('Trying to publish a release from non-Evergreen CI environment');
+    return;
+  }
+
+  if (process.env.EVERGREEN_PROJECT) {
+    const projectChannel = process.env.EVERGREEN_PROJECT.split('-').pop();
+    if (!['stable', 'testing'].includes(projectChannel)) {
+      cli.warn(
+        `Trying to publish a release from unsupported Evergreen project. Expected stable or testing, got ${projectChannel}`
+      );
+      return;
+    }
+    const channelToProjectMap = {
+      testing: 'beta'
+    };
+    const mappedChannel = channelToProjectMap[projectChannel] || projectChannel;
+    if (target.channel !== mappedChannel) {
+      cli.warn(
+        `Trying to publish a release from mismatched channel. Expected ${target.channel}, got ${mappedChannel}`
+      );
+      return;
+    }
+  }
+
   target.assets = target.assets.filter(function(asset) {
     // eslint-disable-next-line no-sync
     var exists = fs.existsSync(asset.path);

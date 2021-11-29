@@ -8,6 +8,7 @@ import toNS from 'mongodb-ns';
 import createLogger from '@mongodb-js/compass-logging';
 
 import {
+  AtlasVersionInfo,
   BuildInfo,
   CmdLineOpts,
   CollectionInfo,
@@ -83,11 +84,19 @@ type DatabaseDetails = {
 };
 
 export type InstanceDetails = {
+  auth: {
+    user:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUsers'][number]
+      | null;
+    roles: ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles'];
+    privileges: ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges'];
+  };
   build: BuildInfoDetails;
   host: HostInfoDetails;
   genuineMongoDB: GenuineMongoDBDetails;
   dataLake: DataLakeDetails;
   featureCompatibilityVersion: string | null;
+  isAtlas: boolean;
 };
 
 export async function getInstance(
@@ -96,11 +105,17 @@ export async function getInstance(
   const adminDb = client.db('admin');
 
   const [
+    connectionStatus,
     getCmdLineOptsResult,
     hostInfoResult,
     buildInfoResult,
     getParameterResult,
+    atlasVersionResult,
   ] = await Promise.all([
+    runCommand(adminDb, { connectionStatus: 1, showPrivileges: true }).catch(
+      ignoreNotAuthorized(null)
+    ),
+
     runCommand(adminDb, { getCmdLineOpts: 1 }).catch((err) => {
       /**
        * This is something that mongodb-build-info uses to detect some
@@ -122,9 +137,14 @@ export async function getInstance(
       getParameter: 1,
       featureCompatibilityVersion: 1,
     }).catch(() => null),
+
+    runCommand(adminDb, { atlasVersion: 1 }).catch((err) => {
+      return { version: '', gitVersion: '' };
+    }),
   ]);
 
   return {
+    auth: adaptAuthInfo(connectionStatus),
     build: adaptBuildInfo(buildInfoResult),
     host: adaptHostInfo(hostInfoResult),
     genuineMongoDB: buildGenuineMongoDBInfo(
@@ -134,7 +154,20 @@ export async function getInstance(
     dataLake: buildDataLakeInfo(buildInfoResult),
     featureCompatibilityVersion:
       getParameterResult?.featureCompatibilityVersion.version ?? null,
+    isAtlas: checkIsAtlas(client, atlasVersionResult),
   };
+}
+
+function checkIsAtlas(
+  client: MongoClient,
+  atlasVersionInfo: AtlasVersionInfo
+): boolean {
+  const firstHost = client.options.hosts[0]?.host || '';
+
+  if (atlasVersionInfo.version === '') {
+    return /mongodb(-dev)?\.net$/i.test(firstHost);
+  }
+  return true;
 }
 
 function buildGenuineMongoDBInfo(
@@ -158,9 +191,29 @@ function buildDataLakeInfo(buildInfo: Partial<BuildInfo>): DataLakeDetails {
   };
 }
 
+function adaptAuthInfo(
+  connectionStatus: ConnectionStatusWithPrivileges | null
+) {
+  if (connectionStatus === null) {
+    return { user: null, roles: [], privileges: [] };
+  }
+
+  const {
+    authenticatedUsers,
+    authenticatedUserRoles,
+    authenticatedUserPrivileges,
+  } = connectionStatus.authInfo;
+
+  return {
+    user: authenticatedUsers[0] ?? null,
+    roles: authenticatedUserRoles,
+    privileges: authenticatedUserPrivileges,
+  };
+}
+
 type DatabaseCollectionPrivileges = Record<string, Record<string, string[]>>;
 
-export function extractPrivilegesByDatabaseAndCollection(
+export function getPrivilegesByDatabaseAndCollection(
   authenticatedUserPrivileges:
     | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
     | null = null,
@@ -201,24 +254,6 @@ export function extractPrivilegesByDatabaseAndCollection(
   }
 
   return result;
-}
-
-type DatabasesAndCollectionsNames = Record<string, Record<string, string[]>>;
-
-export async function getDatabasesAndCollectionsFromPrivileges(
-  client: MongoClient,
-  requiredActions: string[] | null = null
-): Promise<DatabasesAndCollectionsNames> {
-  const adminDb = client.db('admin');
-  const connectionStatus = await runCommand(adminDb, {
-    connectionStatus: 1,
-    showPrivileges: true,
-  }).catch(ignoreNotAuthorized(null));
-
-  return extractPrivilegesByDatabaseAndCollection(
-    connectionStatus?.authInfo.authenticatedUserPrivileges,
-    requiredActions
-  );
 }
 
 function isNotAuthorized(err: AnyError) {

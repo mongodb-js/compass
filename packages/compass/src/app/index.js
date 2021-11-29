@@ -390,14 +390,12 @@ app.extend({
 
         // Get theme from the preferences and set accordingly.
         loadTheme(app.preferences.theme);
-    
         ipc.on('app:darkreader-enable', () => {
           enableDarkTheme();
         });
         ipc.on('app:darkreader-disable', () => {
           disableDarkTheme();
         });
-    
         ipc.on('app:save-theme', (_, theme) => {
           // Save the new theme on the user's preferences.
           app.preferences.save({

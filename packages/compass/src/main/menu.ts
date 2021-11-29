@@ -109,7 +109,9 @@ function darwinCompassSubMenu(): MenuItemConstructorOptions {
   };
 }
 
-function connectItem(app: typeof CompassApplication): MenuItemConstructorOptions {
+function connectItem(
+  app: typeof CompassApplication
+): MenuItemConstructorOptions {
   return {
     label: 'New &Connection',
     accelerator: 'CmdOrCtrl+N',
@@ -235,7 +237,7 @@ function license(): MenuItemConstructorOptions {
       const licenseTemp = path.join(app.getPath('temp'), 'License');
       fs.writeFile(licenseTemp, LICENSE, (err) => {
         if (!err) {
-          shell.openPath(licenseTemp);
+          void shell.openPath(licenseTemp);
         }
       });
     },
@@ -251,7 +253,9 @@ function logFile(app: typeof CompassApplication): MenuItemConstructorOptions {
   };
 }
 
-function helpSubMenu(app: typeof CompassApplication): MenuItemConstructorOptions {
+function helpSubMenu(
+  app: typeof CompassApplication
+): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push(helpWindowItem());
 
@@ -371,7 +375,6 @@ function viewSubMenu(
         type: 'checkbox',
         checked: themeState.theme === THEMES.DARK
       },
-
       {
         label: 'Light Theme',
         click: function() {
@@ -381,8 +384,7 @@ function viewSubMenu(
           saveThemeAndRefreshMenu(themeState);
         },
         type: 'checkbox',
-        checked: themeState.theme === THEMES.LIGHT,
-        // enabled: !themeState.useOSTheme
+        checked: themeState.theme === THEMES.LIGHT
       },
       separator(),
       {
@@ -426,7 +428,7 @@ function darwinMenu(
   saveThemeAndRefreshMenu: (theme: ThemeState) => void,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu = [darwinCompassSubMenu()];
+  const menu: MenuTemplate = [darwinCompassSubMenu()];
 
   menu.push(connectSubMenu(false, app));
   menu.push(editSubMenu());
@@ -472,9 +474,9 @@ class CompassMenu {
 
   private static app: typeof CompassApplication;
 
-  private static lastFocusedWindow?: BrowserWindow;
+  private static lastFocusedWindow: BrowserWindow | null = null;
 
-  private static currentWindowMenuLoaded?: BrowserWindow['id'];
+  private static currentWindowMenuLoaded: BrowserWindow['id'] | null = null;
 
   private static initCalled = false;
 
@@ -552,29 +554,37 @@ class CompassMenu {
   }
 
   private static addWindow(bw: BrowserWindow) {
-    debug(`lastFocusedWindow set to WINDOW ${bw.id}`);
+    const id = bw.id;
     this.lastFocusedWindow = bw;
 
-    const onFocus = () => {
-      debug(`WINDOW ${bw.id} focused`);
-      debug(`lastFocusedWindow set to WINDOW ${bw.id}`);
-      this.lastFocusedWindow = bw;
-      this.load(bw);
+    debug(`lastFocusedWindow set to WINDOW ${id}`);
+
+    const onFocus = ({ sender }: { sender: BrowserWindow }) => {
+      debug(`WINDOW ${sender.id} focused`);
+      debug(`lastFocusedWindow set to WINDOW ${sender.id}`);
+      this.lastFocusedWindow = sender;
+      this.load(sender);
     };
 
     bw.on('focus', onFocus);
 
-    const onClose = () => {
-      debug(`WINDOW ${bw.id} closing`);
-      this.windowState.delete(bw.id);
-      bw.removeListener('focus', onFocus);
+    // Emitted no matter if the app was closed normally or "destroyed",
+    // recommended event to clean up references to browser window. Do not access
+    // properties and methods on bw instance here directly as the window is
+    // already destroyed at that point and trying to access any property will
+    // throw
+    const onClosed = () => {
+      debug(`WINDOW ${id} closed`);
+      this.windowState.delete(id);
+      if (this.lastFocusedWindow === bw) {
+        this.lastFocusedWindow = null;
+      }
+      if (this.currentWindowMenuLoaded === id) {
+        this.currentWindowMenuLoaded = null;
+      }
     };
 
-    bw.once('close', onClose);
-
-    bw.once('closed', () => {
-      debug(`WINDOW ${bw.id} closed`);
-    });
+    bw.once('closed', onClosed);
   }
 
   private static setTemplate(id: BrowserWindow['id']) {
@@ -629,7 +639,7 @@ class CompassMenu {
   private static updateMenu(
     prop: keyof WindowMenuState,
     val: WindowMenuState[typeof prop],
-    bw: BrowserWindow | undefined = this.lastFocusedWindow
+    bw: BrowserWindow | null = this.lastFocusedWindow
   ) {
     debug(`updateMenu() set ${prop} to ${String(val)}`);
 

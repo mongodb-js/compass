@@ -1313,16 +1313,16 @@ describe('DataService', function () {
           const session = dataService.startSession();
           expect(session.constructor.name).to.equal('ClientSession');
 
-          // used by killSession, must be a bson UUID in order to work
+          // used by killSessions, must be a bson UUID in order to work
           expect(session.id!.id._bsontype).to.equal('Binary');
           expect(session.id!.id.sub_type).to.equal(4);
         });
       });
 
-      describe('#killSession', function () {
+      describe('#killSessions', function () {
         it('does not throw if kill a non existing session', async function () {
           const session = dataService.startSession();
-          await dataService.killSession(session);
+          await dataService.killSessions(session);
         });
 
         it('kills a command with a session', async function () {
@@ -1337,7 +1337,7 @@ describe('DataService', function () {
           );
 
           const session = dataService.startSession();
-          await dataService.killSession(session);
+          await dataService.killSessions(session);
 
           expect(commandSpy.args[0][0]).to.deep.equal({
             killSessions: [session.id],
@@ -1363,6 +1363,7 @@ describe('DataService', function () {
             listDatabases: {
               databases: [{ name: 'foo' }, { name: 'bar' }],
             },
+            connectionStatus: { authInfo: { authenticatedUserPrivileges: [] } },
           },
         });
         const dbs = (await dataService.listDatabases()).map((db) => db.name);
@@ -1463,6 +1464,9 @@ describe('DataService', function () {
     describe('#listCollections', function () {
       it('returns collections for a database', async function () {
         const dataService = createDataServiceWithMockedClient({
+          commands: {
+            connectionStatus: { authInfo: { authenticatedUserPrivileges: [] } },
+          },
           collections: {
             buz: ['foo', 'bar'],
           },

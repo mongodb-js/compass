@@ -120,7 +120,7 @@ class DocumentList extends React.Component {
       );
     }
 
-    if (this.props.status === DOCUMENTS_STATUS_FETCHING) {
+    if (this.props.status === DOCUMENTS_STATUS_FETCHING && !this.props.debouncingLoad) {
       return this.renderFetching();
     }
 
@@ -283,6 +283,8 @@ DocumentList.propTypes = {
   tz: PropTypes.string,
   updateComment: PropTypes.func.isRequired,
   status: PropTypes.string,
+  debouncingLoad: PropTypes.bool.isRequired,
+  loadingCount: PropTypes.bool.isRequired,
   outdated: PropTypes.bool,
   resultId: PropTypes.number
 };

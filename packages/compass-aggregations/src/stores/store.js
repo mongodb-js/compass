@@ -12,6 +12,9 @@ import { setIsAtlasDeployed } from '../modules/is-atlas-deployed';
 import { allowWrites } from '../modules/allow-writes';
 import { outResultsFnChanged } from '../modules/out-results-fn';
 import { envChanged } from '../modules/env';
+import { isTimeSeriesChanged } from '../modules/is-time-series';
+import { isReadonlyChanged } from '../modules/is-readonly';
+import { sourceNameChanged } from '../modules/source-name';
 import { modifyView } from '../modules';
 import {
   localAppRegistryActivated,
@@ -128,6 +131,8 @@ export const setGlobalAppRegistry = (store, appRegistry) => {
  * @param {Store} store - The store.
  * @param {String} name - The name.
  * @param {Array} pipeline - The pipeline.
+ * @param {Boolean} isReadonly - The isReadonly flag.
+ * @param {String} sourceName - The namespace on which created the view.
  */
 export const setViewSource = (store, name, pipeline, isReadonly, sourceName) => {
   store.dispatch(modifyView(name, pipeline, isReadonly, sourceName));
@@ -141,6 +146,36 @@ export const setViewSource = (store, name, pipeline, isReadonly, sourceName) => 
  */
 export const setEnv = (store, env) => {
   store.dispatch(envChanged(env));
+};
+
+/**
+ * Set the isTimeSeries flag in the store.
+ *
+ * @param {Store} store - The store.
+ * @param {Boolean} isTimeSeries - If the collection is a time-series collection.
+ */
+export const setIsTimeSeries = (store, isTimeSeries) => {
+  store.dispatch(isTimeSeriesChanged(isTimeSeries));
+};
+
+/**
+ * Set the isReadonly flag in the store.
+ *
+ * @param {Store} store - The store.
+ * @param {Boolean} isReadonly - If the collection is a read-only collection.
+ */
+export const setIsReadonly = (store, isReadonly) => {
+  store.dispatch(isReadonlyChanged(isReadonly));
+};
+
+/**
+ * Set the sourceName flag in the store.
+ *
+ * @param {Store} store - The store.
+ * @param {String} sourceName - The view created on the sourceName collection.
+ */
+export const setSourceNames = (store, sourceName) => {
+  store.dispatch(sourceNameChanged(sourceName));
 };
 
 /**
@@ -253,6 +288,18 @@ const configureStore = (options = {}) => {
     if (deploymentAwarenessStore) {
       setEnv(store, deploymentAwarenessStore.state.env);
     }
+  }
+
+  if (options.isTimeSeries) {
+    setIsTimeSeries(store, options.isTimeSeries);
+  }
+
+  if (options.isReadonly) {
+    setIsReadonly(store, options.isReadonly);
+  }
+
+  if (options.sourceName) {
+    setSourceNames(store, options.sourceName);
   }
 
   return store;

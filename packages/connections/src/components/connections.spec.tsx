@@ -1,6 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { TestBackend } = require('storage-mixin');
-
 import React from 'react';
 import {
   cleanup,
@@ -8,65 +5,79 @@ import {
   screen,
   waitFor,
   fireEvent,
+  within,
 } from '@testing-library/react';
 import { expect } from 'chai';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
+import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import { v4 as uuid } from 'uuid';
-import { convertConnectionInfoToModel } from 'mongodb-data-service';
 import sinon from 'sinon';
 
 import Connections from './connections';
+import { ConnectionStore } from '../stores/connections-store';
 
-function getConnectionFilePath(tmpDir: string, id: string): string {
-  const connectionsDir = path.join(tmpDir, 'Connections');
-  const filePath = path.join(connectionsDir, `${id}.json`);
-  return filePath;
+function getMockConnectionStorage(
+  mockConnections: ConnectionInfo[]
+): ConnectionStore {
+  return {
+    loadAll: () => {
+      return Promise.resolve(mockConnections);
+    },
+    save: () => Promise.resolve(),
+  };
 }
 
-// TODO: In typescript 4.5 we can just use Awaited and remove this.
-type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
+async function loadSavedConnectionAndConnect(savedConnectionId: string) {
+  const savedConnectionButton = screen.getByTestId(
+    `saved-connection-button-${savedConnectionId}`
+  );
+  fireEvent.click(savedConnectionButton);
 
-function writeFakeConnection(
-  tmpDir: string,
-  legacyConnection: Partial<
-    Awaited<ReturnType<typeof convertConnectionInfoToModel>>
-  > & { _id: string }
-) {
-  const filePath = getConnectionFilePath(tmpDir, legacyConnection._id);
-  const connectionsDir = path.dirname(filePath);
-  fs.mkdirSync(connectionsDir, { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(legacyConnection));
+  // Wait for the connection to load in the form.
+  await waitFor(() =>
+    expect(screen.queryByRole('textbox').textContent).to.equal(
+      'mongodb://localhost:27018/?readPreference=primary&ssl=false'
+    )
+  );
+
+  const connectButton = screen.getByText('Connect');
+  fireEvent.click(connectButton);
+
+  // Wait for the connecting... modal to hide.
+  await waitFor(() => expect(screen.queryByText('Cancel')).to.not.exist);
 }
 
 describe('Connections Component', function () {
-  let tmpDir: string;
-  let onConnectedSpy;
+  let onConnectedSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     onConnectedSpy = sinon.spy();
-
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connections-tests'));
-    TestBackend.enable(tmpDir);
+    this.clock = sinon.useFakeTimers({
+      now: 1483228800000,
+    });
   });
 
   afterEach(function () {
-    TestBackend.disable();
-    try {
-      fs.rmdirSync(tmpDir, { recursive: true });
-    } catch (e) {
-      /* */
-    }
+    this.clock.restore();
+    sinon.restore();
+    cleanup();
   });
 
   describe('when rendered', function () {
+    let loadConnectionsSpy: sinon.SinonSpy;
     beforeEach(function () {
-      render(<Connections onConnected={onConnectedSpy} />);
+      const mockStorage = getMockConnectionStorage([]);
+      loadConnectionsSpy = sinon.spy(mockStorage, 'loadAll');
+
+      render(
+        <Connections
+          onConnected={onConnectedSpy}
+          connectionStorage={mockStorage}
+        />
+      );
     });
 
-    afterEach(function () {
-      cleanup();
+    it('calls once to load the connections', function () {
+      expect(loadConnectionsSpy.callCount).to.equal(1);
     });
 
     it('renders the connect button from the connect-form', function () {
@@ -86,6 +97,10 @@ describe('Connections Component', function () {
       expect(listItems.length).to.equal(2);
     });
 
+    it('should not show any banners', function () {
+      expect(screen.queryByRole('alert')).to.not.exist;
+    });
+
     it('should load an empty connections list with no connections', function () {
       const listItems = screen.queryAllByRole('listitem');
       expect(listItems.length).to.equal(0);
@@ -99,22 +114,38 @@ describe('Connections Component', function () {
   });
 
   describe('when rendered with saved connections in storage', function () {
+    let mockConnectFn: sinon.SinonSpy;
+    let mockStorage: ConnectionStore;
     let savedConnectionId: string;
+    let saveConnectionSpy: sinon.SinonSpy;
 
     beforeEach(async function () {
-      savedConnectionId = uuid();
-      writeFakeConnection(tmpDir, {
-        _id: savedConnectionId,
-        port: 27018,
+      mockConnectFn = sinon.fake.resolves({
+        mockDataService: 'yes',
       });
+      savedConnectionId = uuid();
+      saveConnectionSpy = sinon.spy();
 
-      render(<Connections onConnected={onConnectedSpy} />);
+      mockStorage = getMockConnectionStorage([
+        {
+          id: savedConnectionId,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27018/?readPreference=primary&ssl=false',
+          },
+        },
+      ]);
+      sinon.replace(mockStorage, 'save', saveConnectionSpy);
+
+      render(
+        <Connections
+          onConnected={onConnectedSpy}
+          connectFn={mockConnectFn}
+          connectionStorage={mockStorage}
+        />
+      );
 
       await waitFor(() => expect(screen.queryByRole('listitem')).to.be.visible);
-    });
-
-    afterEach(function () {
-      cleanup();
     });
 
     it('should render the saved connections', function () {
@@ -132,75 +163,140 @@ describe('Connections Component', function () {
       expect(screen.getByText('localhost:27018')).to.be.visible;
     });
 
-    describe('when the saved connection is clicked on and connected to', function () {
+    describe('when saving the connection fails', function () {
       beforeEach(async function () {
-        const savedConnectionButton = screen.getByTestId(
-          `saved-connection-button-${savedConnectionId}`
-        );
-        fireEvent.click(savedConnectionButton);
+        mockStorage.save = () => {
+          throw new Error('Error: pineapples');
+        };
 
-        // Wait for the connection to load in the form.
-        await waitFor(() =>
-          expect(screen.queryByRole('textbox').textContent).to.equal(
-            'mongodb://localhost:27018/?readPreference=primary&ssl=false'
-          )
-        );
+        await loadSavedConnectionAndConnect(savedConnectionId);
+      });
 
-        const connectButton = screen.getByText('Connect');
-        fireEvent.click(connectButton);
-
-        await waitFor(
-          () => expect(screen.queryByTestId('connections-connected')).to.exist
+      it('displays the error that occurred when saving', function () {
+        expect(screen.getByRole('alert').textContent).to.equal(
+          'Error: pineapples'
         );
       });
 
-      afterEach(async function () {
-        await onConnectedSpy.firstCall?.args[1].disconnect().catch(console.log);
+      describe('clicking the close button on the banner', function () {
+        beforeEach(function () {
+          const closeBannerButton = within(
+            screen.getByRole('alert')
+          ).getByLabelText('X Icon');
+          fireEvent.click(closeBannerButton);
+        });
+
+        it('should hide the save error banner', function () {
+          expect(screen.queryByRole('alert')).to.not.exist;
+        });
+      });
+    });
+
+    describe('when a saved connection is clicked on and connected to', function () {
+      beforeEach(async function () {
+        await loadSavedConnectionAndConnect(savedConnectionId);
+      });
+
+      it('should call the connect function with the connection options to connect', function () {
+        expect(mockConnectFn.callCount).to.equal(1);
+        expect(mockConnectFn.firstCall.args[0]).to.deep.equal({
+          connectionString:
+            'mongodb://localhost:27018/?readPreference=primary&ssl=false',
+        });
+      });
+
+      it('should call to save the connection with the connection config', function () {
+        expect(saveConnectionSpy.callCount).to.equal(1);
+        expect(saveConnectionSpy.firstCall.args[0].id).to.equal(
+          savedConnectionId
+        );
+        expect(
+          saveConnectionSpy.firstCall.args[0].connectionOptions
+        ).to.deep.equal({
+          connectionString:
+            'mongodb://localhost:27018/?readPreference=primary&ssl=false',
+        });
+      });
+
+      it('should call to save the connection with a new lastUsed time', function () {
+        expect(saveConnectionSpy.callCount).to.equal(1);
+        expect(saveConnectionSpy.firstCall.args[0].lastUsed.getTime()).to.equal(
+          1483228800000
+        );
       });
 
       it('should emit the connection configuration used to connect', function () {
-        expect(onConnectedSpy.firstCall.args[0]).to.deep.equal({
-          id: savedConnectionId,
-          connectionOptions: {
-            connectionString:
-              'mongodb://localhost:27018/?readPreference=primary&ssl=false',
-          },
+        expect(onConnectedSpy.firstCall.args[0].id).to.equal(savedConnectionId);
+        expect(
+          onConnectedSpy.firstCall.args[0].connectionOptions
+        ).to.deep.equal({
+          connectionString:
+            'mongodb://localhost:27018/?readPreference=primary&ssl=false',
         });
       });
 
       it('should emit the data service', function () {
-        expect(onConnectedSpy.firstCall.args[1].isWritable).to.not.equal(
-          undefined
+        expect(onConnectedSpy.firstCall.args[1].mockDataService).to.equal(
+          'yes'
         );
       });
     });
   });
 
   describe('connecting to a connection that is not succeeding', function () {
+    let mockConnectFn: sinon.SinonSpy;
+    let saveConnectionSpy: sinon.SinonSpy;
     let savedConnectableId: string;
     let savedUnconnectableId: string;
 
     beforeEach(async function () {
+      saveConnectionSpy = sinon.spy();
       savedConnectableId = uuid();
       savedUnconnectableId = uuid();
-      writeFakeConnection(tmpDir, {
-        _id: savedConnectableId,
-        port: 27018,
-      });
-      writeFakeConnection(
-        tmpDir,
-        await convertConnectionInfoToModel({
-          id: savedUnconnectableId,
-          connectionOptions: {
-            // Hopefully nothing is running on this port.
-            // Times out in 5000ms.
-            connectionString:
-              'mongodb://localhost:28099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000',
-          },
-        })
+
+      mockConnectFn = sinon.fake(
+        async (connectionOptions: ConnectionOptions) => {
+          if (
+            connectionOptions.connectionString ===
+            'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000'
+          ) {
+            return new Promise((resolve) => {
+              // On first call we want this attempt to be cancelled before
+              // this promise resolves.
+              setTimeout(resolve, 20);
+            });
+          }
+          return Promise.resolve({
+            mockDataService: 'yes',
+          });
+        }
       );
 
-      render(<Connections onConnected={onConnectedSpy} />);
+      const mockStorage = getMockConnectionStorage([
+        {
+          id: savedConnectableId,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27018/?readPreference=primary&ssl=false',
+          },
+        },
+        {
+          id: savedUnconnectableId,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000',
+          },
+        },
+      ]);
+      sinon.replace(mockStorage, 'save', saveConnectionSpy);
+
+      render(
+        <Connections
+          onConnected={onConnectedSpy}
+          connectFn={mockConnectFn}
+          connectionStorage={mockStorage}
+        />
+      );
 
       await waitFor(
         () =>
@@ -219,43 +315,36 @@ describe('Connections Component', function () {
       // Wait for the connection to load in the form.
       await waitFor(() =>
         expect(screen.queryByRole('textbox').textContent).to.equal(
-          'mongodb://localhost:28099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000'
+          'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000'
         )
       );
 
       const connectButton = screen.getByText('Connect');
       fireEvent.click(connectButton);
 
-      // Wait for the connecting... modal to be shown.
-      await waitFor(
-        () =>
-          expect(screen.queryByTestId('cancel-connection-attempt-button')).to
-            .exist
-      );
-    });
+      // Speedup the modal showing animation.
+      this.clock.tick(300);
 
-    afterEach(function () {
-      cleanup();
+      // Wait for the connecting... modal to be shown.
+      await waitFor(() => expect(screen.queryByText('Cancel')).to.be.visible);
     });
 
     describe('when the connection attempt is cancelled', function () {
       beforeEach(async function () {
-        const cancelButton = screen.getByTestId(
-          'cancel-connection-attempt-button'
-        );
+        const cancelButton = screen.getByText('Cancel').closest('Button');
         fireEvent.click(cancelButton);
 
         // Wait for the connecting... modal to hide.
-        await waitFor(
-          () =>
-            expect(screen.queryByTestId('cancel-connection-attempt-button')).to
-              .not.exist
-        );
+        await waitFor(() => expect(screen.queryByText('Cancel')).to.not.exist);
       });
 
       it('should enable the connect button', function () {
         const connectButton = screen.getByText('Connect');
         expect(connectButton).to.not.match('disabled');
+      });
+
+      it('should not call to save the connection', function () {
+        expect(saveConnectionSpy.callCount).to.equal(0);
       });
 
       it('should not emit connected', function () {
@@ -266,51 +355,50 @@ describe('Connections Component', function () {
         expect(screen.getByTestId('connections-disconnected')).to.be.visible;
       });
 
+      it('should call the connect function with the connection options to connect', function () {
+        expect(mockConnectFn.callCount).to.equal(1);
+        expect(mockConnectFn.firstCall.args[0]).to.deep.equal({
+          connectionString:
+            'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000',
+        });
+      });
+
       describe('connecting to a successful connection after cancelling a connect', function () {
         beforeEach(async function () {
-          const savedConnectionButton = screen.getByTestId(
-            `saved-connection-button-${savedConnectableId}`
-          );
-          fireEvent.click(savedConnectionButton);
-
-          // Wait for the connection to load in the form.
-          await waitFor(() =>
-            expect(screen.queryByRole('textbox').textContent).to.equal(
-              'mongodb://localhost:27018/?readPreference=primary&ssl=false'
-            )
-          );
-
-          const connectButton = screen.getByText('Connect');
-          fireEvent.click(connectButton);
-
-          await waitFor(
-            () => expect(screen.queryByTestId('connections-connected')).to.exist
-          );
-        });
-
-        afterEach(async function () {
-          await onConnectedSpy.firstCall?.args[1]
-            .disconnect()
-            .catch(console.log);
+          await loadSavedConnectionAndConnect(savedConnectableId);
         });
 
         it('should call onConnected once', function () {
           expect(onConnectedSpy.callCount).to.equal(1);
         });
 
+        it('should call to save the connection once', function () {
+          expect(saveConnectionSpy.callCount).to.equal(1);
+        });
+
         it('should emit the connection configuration used to connect', function () {
-          expect(onConnectedSpy.firstCall.args[0]).to.deep.equal({
-            id: savedConnectableId,
-            connectionOptions: {
-              connectionString:
-                'mongodb://localhost:27018/?readPreference=primary&ssl=false',
-            },
+          expect(onConnectedSpy.firstCall.args[0].id).to.equal(
+            savedConnectableId
+          );
+          expect(
+            onConnectedSpy.firstCall.args[0].connectionOptions
+          ).to.deep.equal({
+            connectionString:
+              'mongodb://localhost:27018/?readPreference=primary&ssl=false',
+          });
+        });
+
+        it('should call the connect function with the connection options to connect', function () {
+          expect(mockConnectFn.callCount).to.equal(2);
+          expect(mockConnectFn.secondCall.args[0]).to.deep.equal({
+            connectionString:
+              'mongodb://localhost:27018/?readPreference=primary&ssl=false',
           });
         });
 
         it('should emit the data service', function () {
-          expect(onConnectedSpy.firstCall.args[1].isWritable).to.not.equal(
-            undefined
+          expect(onConnectedSpy.firstCall.args[1].mockDataService).to.equal(
+            'yes'
           );
         });
       });
