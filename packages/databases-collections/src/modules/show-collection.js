@@ -23,6 +23,8 @@ const getSource = (collection, collections) => {
  * Show the collection.
  *
  * @param {String} name - The collection name.
+ *
+ * @returns {Function} The show collection function.
  */
 export const showCollection = (name) => {
   return (dispatch, getState) => {

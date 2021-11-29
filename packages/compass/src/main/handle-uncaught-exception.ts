@@ -3,7 +3,7 @@ import cleanStack from 'clean-stack';
 import ensureError from 'ensure-error';
 import COMPASS_ICON from './icon';
 
-function handleUncaughtException(err: Error): void {
+async function handleUncaughtException(err: Error): Promise<void> {
   // eslint-disable-next-line no-console
   console.error('handling uncaughtException', err);
   err = ensureError(err);
@@ -41,9 +41,8 @@ function handleUncaughtException(err: Error): void {
   };
 
   // Dialog can't be used until app emits a `ready` event
-  app.on('ready', () => {
-    void showErrorMessageBox();
-  });
+  await app.whenReady();
+  await showErrorMessageBox();
 }
 
 export { handleUncaughtException };

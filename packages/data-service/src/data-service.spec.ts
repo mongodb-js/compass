@@ -1313,16 +1313,16 @@ describe('DataService', function () {
           const session = dataService.startSession();
           expect(session.constructor.name).to.equal('ClientSession');
 
-          // used by killSession, must be a bson UUID in order to work
+          // used by killSessions, must be a bson UUID in order to work
           expect(session.id!.id._bsontype).to.equal('Binary');
           expect(session.id!.id.sub_type).to.equal(4);
         });
       });
 
-      describe('#killSession', function () {
+      describe('#killSessions', function () {
         it('does not throw if kill a non existing session', async function () {
           const session = dataService.startSession();
-          await dataService.killSession(session);
+          await dataService.killSessions(session);
         });
 
         it('kills a command with a session', async function () {
@@ -1337,7 +1337,7 @@ describe('DataService', function () {
           );
 
           const session = dataService.startSession();
-          await dataService.killSession(session);
+          await dataService.killSessions(session);
 
           expect(commandSpy.args[0][0]).to.deep.equal({
             killSessions: [session.id],
@@ -1363,6 +1363,7 @@ describe('DataService', function () {
             listDatabases: {
               databases: [{ name: 'foo' }, { name: 'bar' }],
             },
+            connectionStatus: { authInfo: { authenticatedUserPrivileges: [] } },
           },
         });
         const dbs = (await dataService.listDatabases()).map((db) => db.name);
@@ -1463,14 +1464,17 @@ describe('DataService', function () {
     describe('#listCollections', function () {
       it('returns collections for a database', async function () {
         const dataService = createDataServiceWithMockedClient({
+          commands: {
+            connectionStatus: { authInfo: { authenticatedUserPrivileges: [] } },
+          },
           collections: {
             buz: ['foo', 'bar'],
           },
         });
-        const dbs = (await dataService.listCollections('buz')).map(
-          (db) => db.name
+        const colls = (await dataService.listCollections('buz')).map(
+          (coll) => coll.name
         );
-        expect(dbs).to.deep.eq(['foo', 'bar']);
+        expect(colls).to.deep.eq(['foo', 'bar']);
       });
 
       it('returns collections with `find` privilege from privileges', async function () {
@@ -1492,10 +1496,10 @@ describe('DataService', function () {
             },
           },
         });
-        const dbs = (await dataService.listCollections('foo')).map(
-          (db) => db.name
+        const colls = (await dataService.listCollections('foo')).map(
+          (coll) => coll.name
         );
-        expect(dbs).to.deep.eq(['bar']);
+        expect(colls).to.deep.eq(['bar']);
       });
 
       it('filters out collections with no name from privileges', async function () {
@@ -1517,10 +1521,10 @@ describe('DataService', function () {
             },
           },
         });
-        const dbs = (await dataService.listCollections('foo')).map(
-          (db) => db.name
+        const colls = (await dataService.listCollections('foo')).map(
+          (coll) => coll.name
         );
-        expect(dbs).to.deep.eq(['buz']);
+        expect(colls).to.deep.eq(['buz']);
       });
 
       it('merges collections from listCollections and privileges', async function () {
@@ -1545,13 +1549,13 @@ describe('DataService', function () {
             foo: ['buz', 'bla', 'meow'],
           },
         });
-        const dbs = (await dataService.listCollections('foo')).map(
-          (db) => db.name
+        const colls = (await dataService.listCollections('foo')).map(
+          (coll) => coll.name
         );
-        expect(dbs).to.deep.eq(['bar', 'buz', 'bla', 'meow']);
+        expect(colls).to.deep.eq(['bar', 'buz', 'bla', 'meow']);
       });
 
-      it('returns result from privileges even if listDatabases threw any error', async function () {
+      it('returns result from privileges even if listCollections threw any error', async function () {
         const dataService = createDataServiceWithMockedClient({
           commands: {
             connectionStatus: {
@@ -1569,8 +1573,10 @@ describe('DataService', function () {
             foo: new Error('nope'),
           },
         });
-        const dbs = (await dataService.listDatabases()).map((db) => db.name);
-        expect(dbs).to.deep.eq(['foo']);
+        const colls = (await dataService.listCollections('foo')).map(
+          (coll) => coll.name
+        );
+        expect(colls).to.deep.eq(['bar']);
       });
     });
   });

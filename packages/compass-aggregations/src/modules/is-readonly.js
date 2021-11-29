@@ -1,7 +1,7 @@
 /**
  * Is reaonly action.
  */
-export const SET_IS_READONLY = 'aggregations/is-readonly/SET_IS_READONLY';
+export const IS_READONLY_CHANGED = 'aggregations/is-readonly/IS_READONLY_CHANGED';
 
 /**
  * The initial state.
@@ -17,7 +17,7 @@ export const INITIAL_STATE = false;
  * @returns {Boolean} The state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === SET_IS_READONLY) {
+  if (action.type === IS_READONLY_CHANGED) {
     return action.isReadonly;
   }
   return state;
@@ -30,7 +30,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The action.
  */
-export const setIsReadonly = (isReadonly) => ({
-  type: SET_IS_READONLY,
+export const isReadonlyChanged = (isReadonly) => ({
+  type: IS_READONLY_CHANGED,
   isReadonly: isReadonly
 });

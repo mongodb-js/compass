@@ -44,6 +44,7 @@ const KEY_OPEN_BRKT = 219;
 const DEFAULT_NEW_TAB = {
   namespace: '',
   isReadonly: false,
+  isTimeSeries: false,
   sourceName: ''
 };
 
@@ -137,10 +138,23 @@ class Workspace extends PureComponent {
     }
   }
 
+  /**
+   * Return the active tab.
+   *
+   * @returns {Object} The active tab.
+   */
   activeTab() {
     return this.props.tabs.find(tab => tab.isActive);
   }
 
+  /**
+   * Render a tab.
+   *
+   * @param {Object} tab - The tab.
+   * @param {Number} i - The cyrrent index of the tab.
+   *
+   * @returns {Component} The tab component.
+   */
   renderTab = (tab, i) => {
     return (
       <CollectionTab
